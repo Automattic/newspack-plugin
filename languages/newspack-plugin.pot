@@ -2,14 +2,14 @@
 # This file is distributed under the GPL2.
 msgid ""
 msgstr ""
-"Project-Id-Version: Newspack 6.14.0\n"
+"Project-Id-Version: Newspack 6.14.2\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/project\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2025-07-30T09:59:17+00:00\n"
+"POT-Creation-Date: 2025-08-04T12:43:44+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: newspack-plugin\n"
@@ -320,7 +320,6 @@ msgid "Site Kit is is a one-stop solution for WordPress users to use everything 
 msgstr ""
 
 #: includes/class-plugin-manager.php:62
-#: dist/commons.js:13
 #: dist/newspack-wizards.3d38b7c2696efc78d038.js:5
 msgid "Google"
 msgstr ""
@@ -1575,7 +1574,6 @@ msgstr ""
 #: includes/wizards/newspack/class-newspack-settings.php:161
 #: dist/audience-wizards.465ef24dd7707013533a.js:7
 #: dist/billboard.js:12
-#: dist/commons.js:1
 #: dist/memberships-gate-editor.js:37
 #: dist/newsletters.js:4
 #: dist/newspack-wizards.3d38b7c2696efc78d038.js:5
@@ -2469,7 +2467,6 @@ msgid "Customer %1$s made multiple orders of %2$s on %3$s. Orders: %4$s."
 msgstr ""
 
 #: includes/plugins/woocommerce/class-woocommerce-duplicate-orders.php:212
-#: dist/commons.js:13
 #: dist/componentsDemo.js:1
 #: dist/handoff-banner.js:1
 #: src/components/src/handoff/index.js:58
@@ -2591,7 +2588,6 @@ msgstr ""
 #: dist/audience-wizards.465ef24dd7707013533a.js:16
 #: dist/billboard.js:1
 #: dist/billboard.js:12
-#: dist/commons.js:13
 #: dist/newspack-wizards.3d38b7c2696efc78d038.js:5
 #: dist/newspack-wizards.3d38b7c2696efc78d038.js:26
 #: dist/newspack-wizards.3d38b7c2696efc78d038.js:30
@@ -3974,7 +3970,6 @@ msgstr ""
 
 #: includes/templates/collections/archive-newspack-collection.php:62
 #: includes/templates/collections/archive-newspack-collection.php:77
-#: dist/commons.js:4
 #: src/blocks/correction-box/edit.jsx:68
 msgid "All"
 msgstr ""
@@ -4872,7 +4867,6 @@ msgid "Delete permanently"
 msgstr ""
 
 #: dist/audience-wizards.465ef24dd7707013533a.js:1
-#: dist/commons.js:13
 #: src/components/src/web-preview/index.js:169
 #: src/wizards/audience/components/prompt-popovers/primary.js:61
 msgid "Preview"
@@ -4901,7 +4895,6 @@ msgid "Deactivate"
 msgstr ""
 
 #: dist/audience-wizards.465ef24dd7707013533a.js:1
-#: dist/commons.js:13
 #: src/components/src/plugin-installer/index.js:169
 #: src/components/src/plugin-installer/index.js:214
 #: src/wizards/audience/components/prompt-popovers/primary.js:76
@@ -5282,7 +5275,6 @@ msgid " copy"
 msgstr ""
 
 #: dist/audience-wizards.465ef24dd7707013533a.js:10
-#: dist/commons.js:4
 #: src/components/src/autocomplete-with-suggestions/index.js:99
 #: src/components/src/autocomplete-with-suggestions/index.js:133
 #: src/wizards/audience/components/prompt-action-card/index.js:58
@@ -5926,7 +5918,6 @@ msgid "Checked by default"
 msgstr ""
 
 #: dist/audience-wizards.465ef24dd7707013533a.js:32
-#: dist/commons.js:13
 #: dist/newspack-wizards.3d38b7c2696efc78d038.js:14
 #: src/components/src/image-upload/index.js:98
 #: src/components/src/sortable-newsletter-list-control/index.js:59
@@ -6228,7 +6219,6 @@ msgstr ""
 #: dist/audience-wizards.465ef24dd7707013533a.js:38
 #: dist/audience-wizards.465ef24dd7707013533a.js:41
 #: dist/billboard.js:1
-#: dist/commons.js:13
 #: dist/componentsDemo.js:1
 #: dist/newspack-wizards.3d38b7c2696efc78d038.js:11
 #: dist/newspack-wizards.3d38b7c2696efc78d038.js:14
@@ -6280,7 +6270,6 @@ msgstr ""
 
 #: dist/audience-wizards.465ef24dd7707013533a.js:38
 #: dist/audience-wizards.465ef24dd7707013533a.js:41
-#: dist/commons.js:13
 #: dist/newspack-wizards.3d38b7c2696efc78d038.js:5
 #: dist/newspack-wizards.3d38b7c2696efc78d038.js:8
 #: dist/newspack-wizards.3d38b7c2696efc78d038.js:11
@@ -6322,7 +6311,6 @@ msgstr ""
 
 #: dist/audience-wizards.465ef24dd7707013533a.js:38
 #: dist/audience-wizards.465ef24dd7707013533a.js:41
-#: dist/commons.js:16
 #: dist/newspack-wizards.3d38b7c2696efc78d038.js:8
 #: dist/newspack-wizards.3d38b7c2696efc78d038.js:30
 #: src/wizards/audience/components/payment-methods/payment-gateway.js:42
@@ -6333,7 +6321,6 @@ msgstr ""
 
 #: dist/audience-wizards.465ef24dd7707013533a.js:38
 #: dist/audience-wizards.465ef24dd7707013533a.js:41
-#: dist/commons.js:16
 #: dist/newspack-wizards.3d38b7c2696efc78d038.js:8
 #: dist/newspack-wizards.3d38b7c2696efc78d038.js:30
 #: src/wizards/audience/components/payment-methods/payment-gateway.js:89
@@ -7264,328 +7251,6 @@ msgstr ""
 msgid "Add CTA"
 msgstr ""
 
-#: dist/commons.js:1
-#: src/blocks/avatar/edit.jsx:27
-msgid "Image size"
-msgstr ""
-
-#: dist/commons.js:1
-#: src/blocks/avatar/edit.jsx:40
-msgid "Link to author archive"
-msgstr ""
-
-#. translators: %s: Author name.
-#: dist/commons.js:4
-#: src/blocks/avatar/hooks.js:51
-#, js-format
-msgid "%s Avatar"
-msgstr ""
-
-#: dist/commons.js:4
-#: src/blocks/avatar/hooks.js:52
-msgid "Default Avatar"
-msgstr ""
-
-#: dist/commons.js:4
-#: src/blocks/avatar/edit.jsx:96
-msgid "Loading avatar…"
-msgstr ""
-
-#: dist/commons.js:4
-#: src/blocks/correction-box/edit.jsx:38
-msgid "This is the Corrections block, it will display all the corrections and clarifications."
-msgstr ""
-
-#: dist/commons.js:4
-#: src/blocks/correction-box/edit.jsx:39
-msgid "If there are no corrections or clarifications, this block will not be displayed."
-msgstr ""
-
-#: dist/commons.js:4
-#: src/blocks/correction-box/edit.jsx:59
-msgid "Correction Box Settings"
-msgstr ""
-
-#: dist/commons.js:4
-#: src/blocks/correction-box/edit.jsx:62
-msgid "Corrections by Priority"
-msgstr ""
-
-#: dist/commons.js:4
-#: src/blocks/correction-box/edit.jsx:63
-msgid "Filter corrections by their priority."
-msgstr ""
-
-#: dist/commons.js:4
-#: dist/other-scripts/corrections-modal.js:1
-#: src/blocks/correction-box/edit.jsx:66
-#: src/other-scripts/corrections-modal/index.js:36
-msgid "High"
-msgstr ""
-
-#: dist/commons.js:4
-#: dist/other-scripts/corrections-modal.js:1
-#: src/blocks/correction-box/edit.jsx:67
-#: src/other-scripts/corrections-modal/index.js:37
-msgid "Low"
-msgstr ""
-
-#: dist/commons.js:4
-#: src/blocks/correction-box/edit.jsx:88
-msgid "Refresh"
-msgstr ""
-
-#: dist/commons.js:4
-#: src/components/src/autocomplete-with-suggestions/index.js:20
-msgid "Begin typing search term, click autocomplete result to select."
-msgstr ""
-
-#: dist/commons.js:4
-#: src/components/src/autocomplete-with-suggestions/index.js:22
-msgid "Search"
-msgstr ""
-
-#: dist/commons.js:4
-#: src/components/src/autocomplete-with-suggestions/index.js:28
-msgid "item"
-msgstr ""
-
-#: dist/commons.js:4
-#: src/components/src/autocomplete-with-suggestions/index.js:29
-msgid "items"
-msgstr ""
-
-#. Translators: %1: the length of selections. %2: the selection leabel.
-#: dist/commons.js:7
-#: src/components/src/autocomplete-with-suggestions/index.js:178
-#, js-format
-msgid "%1$s %2$s selected"
-msgstr ""
-
-#. Translators: %s: The label for the selection.
-#: dist/commons.js:10
-#: src/components/src/autocomplete-with-suggestions/index.js:184
-#, js-format
-msgid "Selected %s"
-msgstr ""
-
-#: dist/commons.js:10
-#: src/components/src/autocomplete-with-suggestions/index.js:192
-msgctxt "separator character"
-msgid " – "
-msgstr ""
-
-#: dist/commons.js:10
-#: src/components/src/autocomplete-with-suggestions/index.js:195
-msgid "Clear all"
-msgstr ""
-
-#. Translators: %s: The name of the type.
-#: dist/commons.js:13
-#: src/components/src/autocomplete-with-suggestions/index.js:221
-#, js-format
-msgid "%s type"
-msgstr ""
-
-#. Translators: %s: the name of a post type.
-#: dist/commons.js:13
-#: src/components/src/autocomplete-with-suggestions/index.js:279
-#, js-format
-msgid "Or, select a recent %s:"
-msgstr ""
-
-#: dist/commons.js:13
-#: src/components/src/autocomplete-with-suggestions/index.js:289
-msgid "Load more"
-msgstr ""
-
-#: dist/commons.js:13
-#: src/components/src/footer/index.js:34
-msgid "About"
-msgstr ""
-
-#: dist/commons.js:13
-#: src/components/src/footer/index.js:39
-msgid "Documentation"
-msgstr ""
-
-#: dist/commons.js:13
-#: dist/componentsDemo.js:1
-#: src/components/src/footer/index.js:46
-#: src/wizards/componentsDemo/index.js:94
-msgid "Components Demo"
-msgstr ""
-
-#: dist/commons.js:13
-#: src/components/src/footer/index.js:52
-msgid "Setup Wizard"
-msgstr ""
-
-#: dist/commons.js:13
-#: src/components/src/footer/index.js:58
-msgid "Reset Newspack"
-msgstr ""
-
-#: dist/commons.js:13
-#: src/components/src/footer/index.js:64
-msgid "Remove Starter Content"
-msgstr ""
-
-#: dist/commons.js:13
-#: src/components/src/footer/index.js:70
-msgid "Contact Support"
-msgstr ""
-
-#: dist/commons.js:13
-#: src/components/src/handoff/index.js:55
-#: src/components/src/handoff/index.js:56
-#: src/components/src/handoff/index.js:57
-msgid "Manage"
-msgstr ""
-
-#: dist/commons.js:13
-#: src/components/src/handoff/index.js:115
-msgid " not installed"
-msgstr ""
-
-#: dist/commons.js:13
-#: src/components/src/handoff/index.js:126
-msgid "Retrieving Plugin Info"
-msgstr ""
-
-#: dist/commons.js:13
-#: src/components/src/image-upload/index.js:91
-msgid "Image preview"
-msgstr ""
-
-#: dist/commons.js:13
-#: src/components/src/image-upload/index.js:94
-msgid "Replace"
-msgstr ""
-
-#: dist/commons.js:13
-#: src/components/src/image-upload/index.js:104
-msgid "Upload"
-msgstr ""
-
-#: dist/commons.js:13
-#: dist/componentsDemo.js:1
-#: src/components/src/plugin-installer/index.js:169
-#: src/wizards/componentsDemo/index.js:266
-#: src/wizards/componentsDemo/index.js:293
-#: src/wizards/componentsDemo/index.js:353
-#: src/wizards/componentsDemo/index.js:389
-#: src/wizards/componentsDemo/index.js:399
-#: src/wizards/componentsDemo/index.js:409
-#: src/wizards/componentsDemo/index.js:419
-msgid "Install"
-msgstr ""
-
-#: dist/commons.js:13
-#: src/components/src/plugin-installer/index.js:181
-msgid "Retrieving plugin information…"
-msgstr ""
-
-#: dist/commons.js:13
-#: src/components/src/plugin-installer/index.js:221
-msgid "Installed"
-msgstr ""
-
-#: dist/commons.js:13
-#: src/components/src/plugin-installer/index.js:199
-msgid "Contact Newspack support to install"
-msgstr ""
-
-#: dist/commons.js:13
-#: src/components/src/plugin-installer/index.js:200
-msgid "Plugin must be installed manually"
-msgstr ""
-
-#: dist/commons.js:13
-#: src/components/src/plugin-settings/index.js:201
-msgid "General Settings"
-msgstr ""
-
-#: dist/commons.js:13
-#: src/components/src/plugin-toggle/index.js:68
-msgid "There was an error managing this plugin."
-msgstr ""
-
-#: dist/commons.js:13
-#: dist/componentsDemo.js:1
-#: dist/newspack-wizards.3d38b7c2696efc78d038.js:1
-#: src/components/src/plugin-toggle/index.js:149
-#: src/wizards/componentsDemo/index.js:287
-msgid "Installing…"
-msgstr ""
-
-#: dist/commons.js:13
-#: src/components/src/plugin-toggle/index.js:156
-msgid "Deactivating…"
-msgstr ""
-
-#: dist/commons.js:13
-#: src/components/src/select-control/GroupedSelectControl.js:47
-msgid "-- Select --"
-msgstr ""
-
-#: dist/commons.js:13
-#: src/components/src/settings/MinMaxSetting.js:16
-msgid "Min"
-msgstr ""
-
-#: dist/commons.js:13
-#: src/components/src/settings/MinMaxSetting.js:29
-msgid "Max"
-msgstr ""
-
-#: dist/commons.js:13
-#: src/components/src/style-card/index.js:36
-msgid "Thumbnail"
-msgstr ""
-
-#: dist/commons.js:13
-#: src/components/src/style-card/index.js:40
-msgid "Selected"
-msgstr ""
-
-#: dist/commons.js:13
-#: dist/newspack-wizards.3d38b7c2696efc78d038.js:30
-#: src/components/src/style-card/index.js:45
-#: src/components/src/style-card/index.js:48
-msgid "Select"
-msgstr ""
-
-#: dist/commons.js:13
-#: src/components/src/style-card/index.js:51
-msgid "View Demo"
-msgstr ""
-
-#: dist/commons.js:13
-msgid "(required)"
-msgstr ""
-
-#: dist/commons.js:13
-#: src/components/src/web-preview/index.js:84
-msgid "Preview Desktop Size"
-msgstr ""
-
-#: dist/commons.js:13
-#: src/components/src/web-preview/index.js:90
-msgid "Preview Tablet Size"
-msgstr ""
-
-#: dist/commons.js:13
-#: src/components/src/web-preview/index.js:96
-msgid "Preview Phone Size"
-msgstr ""
-
-#: dist/commons.js:13
-#: src/components/src/web-preview/index.js:107
-msgid "Close Preview"
-msgstr ""
-
-#: dist/commons.js:13
 #: dist/componentsDemo.js:1
 #: src/components/src/with-wizard-screen/index.js:69
 #: src/components/src/with-wizard/index.js:104
@@ -7596,103 +7261,10 @@ msgstr ""
 msgid "Return to Dashboard"
 msgstr ""
 
-#: dist/commons.js:13
-#: src/components/src/with-wizard/index.js:228
-#: src/components/src/wizard/index.js:72
-msgid "Required plugins"
-msgstr ""
-
-#: dist/commons.js:13
-#: src/components/src/with-wizard/index.js:229
-#: src/components/src/wizard/index.js:72
-msgid "Required plugin"
-msgstr ""
-
-#: dist/commons.js:13
-#: src/components/src/with-wizard/index.js:260
-msgid "OK"
-msgstr ""
-
-#: dist/commons.js:13
-#: src/wizards/advertising/components/onboarding/index.js:63
-msgid "Authenticate with Google in order to connect your Google Ad Manager account:"
-msgstr ""
-
-#: dist/commons.js:13
-#: src/wizards/advertising/components/onboarding/index.js:71
-msgid "We're all set here!"
-msgstr ""
-
-#: dist/commons.js:13
-#: src/wizards/advertising/components/onboarding/index.js:75
-msgid "Enter your Google Ad Manager network code and service account credentials for a full integration:"
-msgstr ""
-
-#: dist/commons.js:13
-#: src/wizards/advertising/components/onboarding/index.js:84
-msgid "Network code"
-msgstr ""
-
-#: dist/commons.js:13
-#: src/wizards/advertising/components/onboarding/index.js:91
-msgid "Upload credentials"
-msgstr ""
-
-#: dist/commons.js:13
-#: src/wizards/advertising/components/onboarding/index.js:93
-msgid "Upload your Service Account credentials file to connect your GAM account."
-msgstr ""
-
-#: dist/commons.js:13
-#: src/wizards/advertising/components/onboarding/index.js:100
-msgid "How to get a service account user for API access"
-msgstr ""
-
-#: dist/commons.js:13
-#: src/wizards/advertising/components/utils/index.js:21
-msgid "Invalid JSON file"
-msgstr ""
-
-#: dist/commons.js:13
-#: src/wizards/advertising/components/utils/index.js:26
-msgid "Unable to read file"
-msgstr ""
-
-#: dist/commons.js:13
-#: dist/newspack-wizards.3d38b7c2696efc78d038.js:1
-msgid "Invalid Mailchimp API Key."
-msgstr ""
-
-#: dist/commons.js:13
-#: dist/newspack-wizards.3d38b7c2696efc78d038.js:1
-msgid "Missing Google refresh token. Please re-authenticate site."
-msgstr ""
-
-#: dist/commons.js:13
-#: dist/newspack-wizards.3d38b7c2696efc78d038.js:1
-msgid "Popup blocked by browser. Disable any popup blocking settings and try again."
-msgstr ""
-
-#: dist/commons.js:13
-#: dist/newspack-wizards.3d38b7c2696efc78d038.js:1
-msgid "URL is invalid. Please try again or contact support if the issue persists."
-msgstr ""
-
-#. Translators: connected user's email address.
-#. translators: %s: username
-#: dist/commons.js:16
-#: dist/newspack-wizards.3d38b7c2696efc78d038.js:8
-#: dist/newspack-wizards.3d38b7c2696efc78d038.js:30
-#, js-format
-msgid "Connected as %s"
-msgstr ""
-
-#: dist/commons.js:16
 #: dist/componentsDemo.js:1
-#: dist/newspack-wizards.3d38b7c2696efc78d038.js:8
-#: dist/newspack-wizards.3d38b7c2696efc78d038.js:30
-#: src/wizards/componentsDemo/index.js:379
-msgid "Disconnect"
+#: src/components/src/footer/index.js:46
+#: src/wizards/componentsDemo/index.js:94
+msgid "Components Demo"
 msgstr ""
 
 #: dist/componentsDemo.js:1
@@ -7868,6 +7440,18 @@ msgid "Has an action button."
 msgstr ""
 
 #: dist/componentsDemo.js:1
+#: src/components/src/plugin-installer/index.js:169
+#: src/wizards/componentsDemo/index.js:266
+#: src/wizards/componentsDemo/index.js:293
+#: src/wizards/componentsDemo/index.js:353
+#: src/wizards/componentsDemo/index.js:389
+#: src/wizards/componentsDemo/index.js:399
+#: src/wizards/componentsDemo/index.js:409
+#: src/wizards/componentsDemo/index.js:419
+msgid "Install"
+msgstr ""
+
+#: dist/componentsDemo.js:1
 #: src/wizards/componentsDemo/index.js:272
 msgid "Example Two"
 msgstr ""
@@ -7885,6 +7469,13 @@ msgstr ""
 #: dist/componentsDemo.js:1
 #: src/wizards/componentsDemo/index.js:286
 msgid "Waiting/in-progress state, no action button."
+msgstr ""
+
+#: dist/componentsDemo.js:1
+#: dist/newspack-wizards.3d38b7c2696efc78d038.js:1
+#: src/components/src/plugin-toggle/index.js:149
+#: src/wizards/componentsDemo/index.js:287
+msgid "Installing…"
 msgstr ""
 
 #: dist/componentsDemo.js:1
@@ -8002,6 +7593,13 @@ msgstr ""
 #: dist/componentsDemo.js:1
 #: src/wizards/componentsDemo/index.js:378
 msgid "Action card with a checked checkbox."
+msgstr ""
+
+#: dist/componentsDemo.js:1
+#: dist/newspack-wizards.3d38b7c2696efc78d038.js:8
+#: dist/newspack-wizards.3d38b7c2696efc78d038.js:30
+#: src/wizards/componentsDemo/index.js:379
+msgid "Disconnect"
 msgstr ""
 
 #: dist/componentsDemo.js:1
@@ -8780,6 +8378,22 @@ msgid "Newsletters / Tracking"
 msgstr ""
 
 #: dist/newspack-wizards.3d38b7c2696efc78d038.js:1
+msgid "Invalid Mailchimp API Key."
+msgstr ""
+
+#: dist/newspack-wizards.3d38b7c2696efc78d038.js:1
+msgid "Missing Google refresh token. Please re-authenticate site."
+msgstr ""
+
+#: dist/newspack-wizards.3d38b7c2696efc78d038.js:1
+msgid "Popup blocked by browser. Disable any popup blocking settings and try again."
+msgstr ""
+
+#: dist/newspack-wizards.3d38b7c2696efc78d038.js:1
+msgid "URL is invalid. Please try again or contact support if the issue persists."
+msgstr ""
+
+#: dist/newspack-wizards.3d38b7c2696efc78d038.js:1
 msgid "Quick actions"
 msgstr ""
 
@@ -8924,6 +8538,14 @@ msgstr ""
 
 #: dist/newspack-wizards.3d38b7c2696efc78d038.js:5
 msgid "Are you sure you want to delete this brand?"
+msgstr ""
+
+#. Translators: connected user's email address.
+#. translators: %s: username
+#: dist/newspack-wizards.3d38b7c2696efc78d038.js:8
+#: dist/newspack-wizards.3d38b7c2696efc78d038.js:30
+#, js-format
+msgid "Connected as %s"
 msgstr ""
 
 #: dist/newspack-wizards.3d38b7c2696efc78d038.js:8
@@ -9583,6 +9205,12 @@ msgid "Placeholder Image"
 msgstr ""
 
 #: dist/newspack-wizards.3d38b7c2696efc78d038.js:30
+#: src/components/src/style-card/index.js:45
+#: src/components/src/style-card/index.js:48
+msgid "Select"
+msgstr ""
+
+#: dist/newspack-wizards.3d38b7c2696efc78d038.js:30
 msgid "A placeholder image to be displayed in place of images without credits. If none is chosen, the image will be displayed normally whether or not it has a credit."
 msgstr ""
 
@@ -10029,6 +9657,18 @@ msgid "Enable InDesign Export"
 msgstr ""
 
 #: dist/other-scripts/corrections-modal.js:1
+#: src/blocks/correction-box/edit.jsx:66
+#: src/other-scripts/corrections-modal/index.js:36
+msgid "High"
+msgstr ""
+
+#: dist/other-scripts/corrections-modal.js:1
+#: src/blocks/correction-box/edit.jsx:67
+#: src/other-scripts/corrections-modal/index.js:37
+msgid "Low"
+msgstr ""
+
+#: dist/other-scripts/corrections-modal.js:1
 #: src/other-scripts/corrections-modal/index.js:181
 msgid "Changes have been saved successfully."
 msgstr ""
@@ -10213,6 +9853,273 @@ msgstr ""
 
 #: dist/wizards.js:1
 msgid "loading"
+msgstr ""
+
+#: src/blocks/avatar/edit.jsx:27
+msgid "Image size"
+msgstr ""
+
+#: src/blocks/avatar/edit.jsx:40
+msgid "Link to author archive"
+msgstr ""
+
+#: src/blocks/avatar/edit.jsx:96
+msgid "Loading avatar…"
+msgstr ""
+
+#. translators: %s: Author name.
+#: src/blocks/avatar/hooks.js:51
+#, js-format
+msgid "%s Avatar"
+msgstr ""
+
+#: src/blocks/avatar/hooks.js:52
+msgid "Default Avatar"
+msgstr ""
+
+#: src/blocks/correction-box/edit.jsx:38
+msgid "This is the Corrections block, it will display all the corrections and clarifications."
+msgstr ""
+
+#: src/blocks/correction-box/edit.jsx:39
+msgid "If there are no corrections or clarifications, this block will not be displayed."
+msgstr ""
+
+#: src/blocks/correction-box/edit.jsx:59
+msgid "Correction Box Settings"
+msgstr ""
+
+#: src/blocks/correction-box/edit.jsx:62
+msgid "Corrections by Priority"
+msgstr ""
+
+#: src/blocks/correction-box/edit.jsx:63
+msgid "Filter corrections by their priority."
+msgstr ""
+
+#: src/blocks/correction-box/edit.jsx:88
+msgid "Refresh"
+msgstr ""
+
+#: src/components/src/autocomplete-with-suggestions/index.js:20
+msgid "Begin typing search term, click autocomplete result to select."
+msgstr ""
+
+#: src/components/src/autocomplete-with-suggestions/index.js:22
+msgid "Search"
+msgstr ""
+
+#: src/components/src/autocomplete-with-suggestions/index.js:28
+msgid "item"
+msgstr ""
+
+#: src/components/src/autocomplete-with-suggestions/index.js:29
+msgid "items"
+msgstr ""
+
+#. Translators: %1: the length of selections. %2: the selection leabel.
+#: src/components/src/autocomplete-with-suggestions/index.js:178
+#, js-format
+msgid "%1$s %2$s selected"
+msgstr ""
+
+#. Translators: %s: The label for the selection.
+#: src/components/src/autocomplete-with-suggestions/index.js:184
+#, js-format
+msgid "Selected %s"
+msgstr ""
+
+#: src/components/src/autocomplete-with-suggestions/index.js:192
+msgctxt "separator character"
+msgid " – "
+msgstr ""
+
+#: src/components/src/autocomplete-with-suggestions/index.js:195
+msgid "Clear all"
+msgstr ""
+
+#. Translators: %s: The name of the type.
+#: src/components/src/autocomplete-with-suggestions/index.js:221
+#, js-format
+msgid "%s type"
+msgstr ""
+
+#. Translators: %s: the name of a post type.
+#: src/components/src/autocomplete-with-suggestions/index.js:279
+#, js-format
+msgid "Or, select a recent %s:"
+msgstr ""
+
+#: src/components/src/autocomplete-with-suggestions/index.js:289
+msgid "Load more"
+msgstr ""
+
+#: src/components/src/footer/index.js:34
+msgid "About"
+msgstr ""
+
+#: src/components/src/footer/index.js:39
+msgid "Documentation"
+msgstr ""
+
+#: src/components/src/footer/index.js:52
+msgid "Setup Wizard"
+msgstr ""
+
+#: src/components/src/footer/index.js:58
+msgid "Reset Newspack"
+msgstr ""
+
+#: src/components/src/footer/index.js:64
+msgid "Remove Starter Content"
+msgstr ""
+
+#: src/components/src/footer/index.js:70
+msgid "Contact Support"
+msgstr ""
+
+#: src/components/src/handoff/index.js:55
+#: src/components/src/handoff/index.js:56
+#: src/components/src/handoff/index.js:57
+msgid "Manage"
+msgstr ""
+
+#: src/components/src/handoff/index.js:115
+msgid " not installed"
+msgstr ""
+
+#: src/components/src/handoff/index.js:126
+msgid "Retrieving Plugin Info"
+msgstr ""
+
+#: src/components/src/image-upload/index.js:91
+msgid "Image preview"
+msgstr ""
+
+#: src/components/src/image-upload/index.js:94
+msgid "Replace"
+msgstr ""
+
+#: src/components/src/image-upload/index.js:104
+msgid "Upload"
+msgstr ""
+
+#: src/components/src/plugin-installer/index.js:181
+msgid "Retrieving plugin information…"
+msgstr ""
+
+#: src/components/src/plugin-installer/index.js:199
+msgid "Contact Newspack support to install"
+msgstr ""
+
+#: src/components/src/plugin-installer/index.js:200
+msgid "Plugin must be installed manually"
+msgstr ""
+
+#: src/components/src/plugin-installer/index.js:221
+msgid "Installed"
+msgstr ""
+
+#: src/components/src/plugin-settings/index.js:201
+msgid "General Settings"
+msgstr ""
+
+#: src/components/src/plugin-toggle/index.js:68
+msgid "There was an error managing this plugin."
+msgstr ""
+
+#: src/components/src/plugin-toggle/index.js:156
+msgid "Deactivating…"
+msgstr ""
+
+#: src/components/src/select-control/GroupedSelectControl.js:47
+msgid "-- Select --"
+msgstr ""
+
+#: src/components/src/settings/MinMaxSetting.js:16
+msgid "Min"
+msgstr ""
+
+#: src/components/src/settings/MinMaxSetting.js:29
+msgid "Max"
+msgstr ""
+
+#: src/components/src/style-card/index.js:36
+msgid "Thumbnail"
+msgstr ""
+
+#: src/components/src/style-card/index.js:40
+msgid "Selected"
+msgstr ""
+
+#: src/components/src/style-card/index.js:51
+msgid "View Demo"
+msgstr ""
+
+#: src/components/src/web-preview/index.js:84
+msgid "Preview Desktop Size"
+msgstr ""
+
+#: src/components/src/web-preview/index.js:90
+msgid "Preview Tablet Size"
+msgstr ""
+
+#: src/components/src/web-preview/index.js:96
+msgid "Preview Phone Size"
+msgstr ""
+
+#: src/components/src/web-preview/index.js:107
+msgid "Close Preview"
+msgstr ""
+
+#: src/components/src/with-wizard/index.js:228
+#: src/components/src/wizard/index.js:72
+msgid "Required plugins"
+msgstr ""
+
+#: src/components/src/with-wizard/index.js:229
+#: src/components/src/wizard/index.js:72
+msgid "Required plugin"
+msgstr ""
+
+#: src/components/src/with-wizard/index.js:260
+msgid "OK"
+msgstr ""
+
+#: src/wizards/advertising/components/onboarding/index.js:63
+msgid "Authenticate with Google in order to connect your Google Ad Manager account:"
+msgstr ""
+
+#: src/wizards/advertising/components/onboarding/index.js:71
+msgid "We're all set here!"
+msgstr ""
+
+#: src/wizards/advertising/components/onboarding/index.js:75
+msgid "Enter your Google Ad Manager network code and service account credentials for a full integration:"
+msgstr ""
+
+#: src/wizards/advertising/components/onboarding/index.js:84
+msgid "Network code"
+msgstr ""
+
+#: src/wizards/advertising/components/onboarding/index.js:91
+msgid "Upload credentials"
+msgstr ""
+
+#: src/wizards/advertising/components/onboarding/index.js:93
+msgid "Upload your Service Account credentials file to connect your GAM account."
+msgstr ""
+
+#: src/wizards/advertising/components/onboarding/index.js:100
+msgid "How to get a service account user for API access"
+msgstr ""
+
+#: src/wizards/advertising/components/utils/index.js:21
+msgid "Invalid JSON file"
+msgstr ""
+
+#: src/wizards/advertising/components/utils/index.js:26
+msgid "Unable to read file"
 msgstr ""
 
 #: src/wizards/audience/components/active-campaign.js:33
