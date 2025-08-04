@@ -30,6 +30,7 @@ const DEFAULT_COLLECTIONS_SETTINGS: CollectionsSettingsData = {
 	highlight_latest: false,
 	// Collection Single section.
 	articles_block_attrs: {},
+	show_cover_story_img: false,
 	// Collection Posts section.
 	post_indicator_style: 'default',
 	card_message: __( "Keep reading. There's plenty more to discover.", 'newspack-plugin' ),
@@ -189,13 +190,22 @@ function Collections() {
 					>
 						<Grid columns={ 2 } gutter={ 32 }>
 							<ToggleControl
-								label={ __( 'Show category', 'newspack-plugin' ) }
+								label={ __( 'Show Category', 'newspack-plugin' ) }
 								help={ __(
 									'Display the category information for posts when rendering them on collection pages.',
 									'newspack-plugin'
 								) }
 								checked={ settings.articles_block_attrs?.showCategory || false }
 								onChange={ ( value: boolean ) => updateNestedSetting( 'articles_block_attrs', 'showCategory', value ) }
+							/>
+							<ToggleControl
+								label={ __( 'Show Cover Story Images', 'newspack-plugin' ) }
+								help={ __(
+									'Display featured images for cover stories on collection pages. Individual collections can override this setting.',
+									'newspack-plugin'
+								) }
+								checked={ settings.show_cover_story_img }
+								onChange={ ( value: boolean ) => updateSetting( 'show_cover_story_img', value ) }
 							/>
 						</Grid>
 					</WizardSection>

@@ -62,7 +62,7 @@ get_header();
 					$section_name = $is_cover
 						? ( count( $post_ids ) > 1 ? __( 'Cover Stories', 'newspack-plugin' ) : __( 'Cover Story', 'newspack-plugin' ) )
 						: Query_Helper::get_section_name( $section_slug );
-					$show_image   = ! $is_cover;
+					$show_image   = $is_cover ? Template_Helper::should_show_cover_story_image( $collection_id ) : true;
 					$columns      = $is_cover ? 1 : 2;
 					$type_scale   = $is_cover ? 5 : 3;
 					?>

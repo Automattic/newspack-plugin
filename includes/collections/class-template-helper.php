@@ -465,4 +465,27 @@ class Template_Helper {
 
 		return $title_parts;
 	}
+
+	/**
+	 * Determine whether to show featured image for cover stories.
+	 * Can be overridden by collection-specific setting.
+	 *
+	 * @param int $collection_id The collection post ID.
+	 * @return bool Whether to show the featured image for cover stories.
+	 */
+	public static function should_show_cover_story_image( $collection_id ) {
+		$show_image = match ( Collection_Meta::get( $collection_id, 'cover_story_img_visibility' ) ) {
+			'show' => true,
+			'hide' => false,
+			default => (bool) Settings::get_setting( 'show_cover_story_img', false ), // Fallback to global setting.
+		};
+
+		/**
+		 * Filters whether to show the featured image for cover stories.
+		 *
+		 * @param bool $show_image    Whether to show the featured image for cover stories.
+		 * @param int  $collection_id The collection post ID.
+		 */
+		return apply_filters( 'newspack_should_show_cover_story_image', $show_image, $collection_id );
+	}
 }
