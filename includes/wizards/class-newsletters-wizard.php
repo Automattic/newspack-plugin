@@ -9,7 +9,6 @@ namespace Newspack;
 
 use Newspack\Wizards\Traits\Admin_Header;
 use Newspack_Newsletters;
-use Newspack_Newsletters_Ads;
 use Newspack_Newsletters_Settings;
 use Newspack_Newsletters\Tracking\Admin as Newspack_Newsletters_Tracking_Admin;
 
@@ -296,7 +295,7 @@ class Newsletters_Wizard extends Wizard {
 		// Remove catetory and tags. For remove_submenu_page() to match (===) on submenu slug: "&" in urls need be replaced with "&amp;".
 		remove_submenu_page( 'edit.php?post_type=' . Newspack_Newsletters::NEWSPACK_NEWSLETTERS_CPT, 'edit-tags.php?taxonomy=category&amp;post_type=' . Newspack_Newsletters::NEWSPACK_NEWSLETTERS_CPT );
 		remove_submenu_page( 'edit.php?post_type=' . Newspack_Newsletters::NEWSPACK_NEWSLETTERS_CPT, 'edit-tags.php?taxonomy=post_tag&amp;post_type=' . Newspack_Newsletters::NEWSPACK_NEWSLETTERS_CPT );
-		remove_submenu_page( 'edit.php?post_type=' . Newspack_Newsletters::NEWSPACK_NEWSLETTERS_CPT, 'edit-tags.php?taxonomy=' . Newspack_Newsletters_Ads::ADVERTISER_TAX . '&amp;post_type=' . Newspack_Newsletters::NEWSPACK_NEWSLETTERS_CPT );
+		remove_submenu_page( 'edit.php?post_type=' . Newspack_Newsletters::NEWSPACK_NEWSLETTERS_CPT, 'edit-tags.php?taxonomy=' . Newspack_Newsletters\Ads::ADVERTISER_TAX . '&amp;post_type=' . Newspack_Newsletters::NEWSPACK_NEWSLETTERS_CPT );
 
 		add_submenu_page(
 			'edit.php?post_type=' . Newspack_Newsletters::NEWSPACK_NEWSLETTERS_CPT,
@@ -472,7 +471,7 @@ class Newsletters_Wizard extends Wizard {
 
 		global $wp_taxonomies;
 
-		if ( Newspack_Newsletters_Ads::ADVERTISER_TAX !== $taxonomy ) {
+		if ( Newspack_Newsletters\Ads::ADVERTISER_TAX !== $taxonomy ) {
 			return;
 		}
 
