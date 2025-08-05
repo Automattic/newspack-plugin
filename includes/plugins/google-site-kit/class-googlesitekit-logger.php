@@ -93,9 +93,16 @@ class GoogleSiteKit_Logger {
 		}
 
 		try {
-			$settings = get_option( 'googlesitekit_analytics-4_settings', [] );
-			$will_output_snippet = ! empty( $settings['useSnippet'] ) && ! empty( $settings['measurementID'] );
-			if ( ! $will_output_snippet ) {
+			// Check Analytics 4 settings.
+			$analytics_settings      = get_option( 'googlesitekit_analytics-4_settings', [] );
+			$analytics_will_output   = ! empty( $analytics_settings['useSnippet'] ) && ! empty( $analytics_settings['measurementID'] );
+
+			// Check Tag Manager settings (which can also output Google Analytics).
+			$tagmanager_settings     = get_option( 'googlesitekit_tagmanager_settings', [] );
+			$tagmanager_will_output  = ! empty( $tagmanager_settings['useSnippet'] ) && ! empty( $tagmanager_settings['containerID'] );
+
+			// If neither Analytics 4 nor Tag Manager will output snippets, consider it disconnected.
+			if ( ! $analytics_will_output && ! $tagmanager_will_output ) {
 				return [
 					'status' => 'disconnected',
 					'reason' => 'will_not_output_snippet',
