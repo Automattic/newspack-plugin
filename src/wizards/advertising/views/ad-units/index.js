@@ -69,6 +69,20 @@ const AdUnits = ( { adUnits, parentAdUnits, onDelete, wizardApiFetch, updateWith
 		return ! adUnit.is_default && ! isDisconnectedGAM( adUnit );
 	};
 
+	const missingParentAdUnit = serviceData.parent_ad_unit_id && ! parentAdUnits?.find( adUnit => adUnit.id === serviceData.parent_ad_unit_id );
+
+	const parentAdUnitOptions = [
+		{ label: __( 'None (all ad units will be used)', 'newspack-plugin' ), value: '' },
+		...( parentAdUnits || [] ).map( adUnit => ( {
+			label: adUnit.name,
+			value: adUnit.id,
+		} ) ),
+	];
+
+	if ( missingParentAdUnit ) {
+		parentAdUnitOptions.push( { label: '', value: serviceData.parent_ad_unit_id } );
+	}
+
 	return (
 		<>
 			<Card noBorder>
@@ -92,17 +106,20 @@ const AdUnits = ( { adUnits, parentAdUnits, onDelete, wizardApiFetch, updateWith
 						<SelectControl
 							label={ __( 'Set parent ad unit for the site inventory', 'newspack-plugin' ) }
 							value={ serviceData.parent_ad_unit_id }
-							options={ [
-								{ label: __( 'None (all ad units will be used)', 'newspack-plugin' ), value: '' },
-								...parentAdUnits.map( adUnit => ( {
-									label: adUnit.name,
-									value: adUnit.id,
-								} ) ),
-							] }
+							options={ parentAdUnitOptions }
 							onChange={ updateParentAdUnit }
 						/>
 					) }
 				</>
+			) }
+			{ missingParentAdUnit && (
+				<Notice
+					noticeText={ __(
+						'The current parent ad unit is inactive or archived. Please select a different parent ad unit.',
+						'newspack-plugin'
+					) }
+					isError
+				/>
 			) }
 			{ false === serviceData.status?.is_network_code_matched && (
 				<Notice
