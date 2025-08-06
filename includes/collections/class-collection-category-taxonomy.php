@@ -230,7 +230,7 @@ class Collection_Category_Taxonomy {
 					return $custom_taxonomies;
 				}
 				if ( $tax['slug'] === Collection_Section_Taxonomy::get_taxonomy() ) {
-					$point_of_insertion = $index;
+					$point_of_insertion = $index + 1;
 				}
 			}
 		}
