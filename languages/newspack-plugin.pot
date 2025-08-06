@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2025-08-06T14:38:05+00:00\n"
+"POT-Creation-Date: 2025-08-06T20:30:21+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: newspack-plugin\n"
@@ -1592,7 +1592,7 @@ msgstr ""
 #: includes/wizards/advertising/class-advertising-sponsors.php:94
 #: includes/wizards/class-listings-wizard.php:119
 #: includes/wizards/class-network-wizard.php:325
-#: includes/wizards/class-newsletters-wizard.php:304
+#: includes/wizards/class-newsletters-wizard.php:303
 #: includes/wizards/newspack/class-newspack-dashboard.php:101
 #: includes/wizards/newspack/class-newspack-dashboard.php:166
 #: includes/wizards/newspack/class-newspack-dashboard.php:202
@@ -4305,7 +4305,7 @@ msgid "Here is a receipt for your recent transaction:"
 msgstr ""
 
 #: includes/wizards/advertising/class-advertising-display-ads.php:97
-#: includes/wizards/class-newsletters-wizard.php:96
+#: includes/wizards/class-newsletters-wizard.php:95
 #: includes/wizards/newspack/class-newspack-dashboard.php:95
 #: includes/wizards/newspack/class-newspack-dashboard.php:110
 msgid "Advertising"
@@ -4522,46 +4522,46 @@ msgstr ""
 msgid "Network"
 msgstr ""
 
-#: includes/wizards/class-newsletters-wizard.php:72
+#: includes/wizards/class-newsletters-wizard.php:71
 #: dist/newsletters.js:4
 #: src/wizards/newsletters/index.js:46
 msgid "Newsletters / Settings"
 msgstr ""
 
-#: includes/wizards/class-newsletters-wizard.php:74
+#: includes/wizards/class-newsletters-wizard.php:73
 msgid "Newsletters / All Newsletters"
 msgstr ""
 
-#: includes/wizards/class-newsletters-wizard.php:75
-#: includes/wizards/class-newsletters-wizard.php:77
+#: includes/wizards/class-newsletters-wizard.php:74
+#: includes/wizards/class-newsletters-wizard.php:76
 msgid "Newsletters / Advertising"
 msgstr ""
 
-#: includes/wizards/class-newsletters-wizard.php:79
+#: includes/wizards/class-newsletters-wizard.php:78
 msgid "Newsletters / Lists"
 msgstr ""
 
-#: includes/wizards/class-newsletters-wizard.php:90
+#: includes/wizards/class-newsletters-wizard.php:89
 msgid "Newsletters Advertising"
 msgstr ""
 
-#: includes/wizards/class-newsletters-wizard.php:195
+#: includes/wizards/class-newsletters-wizard.php:194
 msgid "Whether click tracking is enabled."
 msgstr ""
 
-#: includes/wizards/class-newsletters-wizard.php:200
+#: includes/wizards/class-newsletters-wizard.php:199
 msgid "Whether the tracking pixel is enabled."
 msgstr ""
 
-#: includes/wizards/class-newsletters-wizard.php:303
+#: includes/wizards/class-newsletters-wizard.php:302
 msgid "Newsletters Settings"
 msgstr ""
 
-#: includes/wizards/class-newsletters-wizard.php:413
+#: includes/wizards/class-newsletters-wizard.php:412
 msgid "Ads"
 msgstr ""
 
-#: includes/wizards/class-newsletters-wizard.php:421
+#: includes/wizards/class-newsletters-wizard.php:420
 msgid "Advertisers"
 msgstr ""
 
