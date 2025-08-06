@@ -306,6 +306,22 @@ class Test_Template_Helper extends \WP_UnitTestCase {
 	}
 
 	/**
+	 * Test should_show_cover_story_image respects settings and meta.
+	 *
+	 * @covers \Newspack\Collections\Template_Helper::should_show_cover_story_image
+	 */
+	public function test_should_show_cover_story_image() {
+		$collection_id = $this->create_test_collection();
+
+		// Test default behavior (inherit from global setting).
+		$this->assertFalse( Template_Helper::should_show_cover_story_image( $collection_id ) );
+
+		// Test collection-specific override to show.
+		Collection_Meta::set( $collection_id, 'cover_story_img_visibility', 'show' );
+		$this->assertTrue( Template_Helper::should_show_cover_story_image( $collection_id ) );
+	}
+
+	/**
 	 * Test update_document_title modifies title for collections archive pages.
 	 *
 	 * @covers \Newspack\Collections\Template_Helper::update_document_title

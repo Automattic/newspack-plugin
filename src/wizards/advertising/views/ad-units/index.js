@@ -85,6 +85,20 @@ const AdUnits = ( { adUnits, parentAdUnits, onDelete, wizardApiFetch, updateWith
 		return `${ path.map( parent => parent.code ).join( '/' ) }/${ code }`;
 	};
 
+	const missingParentAdUnit = parentAdUnitId && ! parentAdUnits?.find( adUnit => adUnit.id === parentAdUnitId );
+
+	const parentAdUnitOptions = [
+		{ label: __( 'None (all ad units will be used)', 'newspack-plugin' ), value: '' },
+		...( parentAdUnits || [] ).map( adUnit => ( {
+			label: adUnit.name,
+			value: adUnit.id,
+		} ) ),
+	];
+
+	if ( missingParentAdUnit ) {
+		parentAdUnitOptions.push( { label: '', value: parentAdUnitId } );
+	}
+
 	return (
 		<>
 			<Card noBorder>
@@ -113,13 +127,7 @@ const AdUnits = ( { adUnits, parentAdUnits, onDelete, wizardApiFetch, updateWith
 						<SelectControl
 							label={ __( 'Set parent ad unit for the site inventory', 'newspack-plugin' ) }
 							value={ parentAdUnitId }
-							options={ [
-								{ label: __( 'None (all ad units will be used)', 'newspack-plugin' ), value: '' },
-								...parentAdUnits.map( adUnit => ( {
-									label: adUnit.name,
-									value: adUnit.id,
-								} ) ),
-							] }
+							options={ parentAdUnitOptions }
 							onChange={ setParentAdUnitId }
 						/>
 					) }
@@ -132,6 +140,15 @@ const AdUnits = ( { adUnits, parentAdUnits, onDelete, wizardApiFetch, updateWith
 					</Card>
 					<hr />
 				</>
+			) }
+			{ missingParentAdUnit && (
+				<Notice
+					noticeText={ __(
+						'The current parent ad unit is inactive or archived. Please select a different parent ad unit.',
+						'newspack-plugin'
+					) }
+					isError
+				/>
 			) }
 			{ false === serviceData.status?.is_network_code_matched && (
 				<Notice

@@ -49,6 +49,9 @@ trait Trait_Meta_Handler_Test {
 
 			// Assert that each property of the meta definition matches the registered meta.
 			foreach ( $meta as $property => $value ) {
+				if ( in_array( $property, $class_name::$fe_only_props, true ) ) {
+					continue;
+				}
 				$this->assertEquals(
 					$value,
 					$registered_meta[ $meta_key ][ $property ],

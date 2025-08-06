@@ -1,3 +1,31 @@
+## [6.14.4](https://github.com/Automattic/newspack-plugin/compare/v6.14.3...v6.14.4) (2025-08-06)
+
+
+### Bug Fixes
+
+* **sitekit-logger:** also check GA from Tag Manager ([#4129](https://github.com/Automattic/newspack-plugin/issues/4129)) ([a36725b](https://github.com/Automattic/newspack-plugin/commit/a36725b543b2176b9702b3f997819640d993f8e8))
+
+## [6.14.3](https://github.com/Automattic/newspack-plugin/compare/v6.14.2...v6.14.3) (2025-08-04)
+
+
+### Bug Fixes
+
+* **sitekit-logger:** improve sitekit issues detection ([#4119](https://github.com/Automattic/newspack-plugin/issues/4119)) ([27f6032](https://github.com/Automattic/newspack-plugin/commit/27f6032050d00ca94203b7756f0b92904c5e5667))
+
+## [6.14.2](https://github.com/Automattic/newspack-plugin/compare/v6.14.1...v6.14.2) (2025-07-30)
+
+
+### Bug Fixes
+
+* revert image tag encoding changes ([#4116](https://github.com/Automattic/newspack-plugin/issues/4116)) ([cbb4efa](https://github.com/Automattic/newspack-plugin/commit/cbb4efaa3d5b84acca22f45d6cf10074fc94d2f5))
+
+## [6.14.1](https://github.com/Automattic/newspack-plugin/compare/v6.14.0...v6.14.1) (2025-07-30)
+
+
+### Bug Fixes
+
+* **rss:** enhance allowed attributes ([#4115](https://github.com/Automattic/newspack-plugin/issues/4115)) ([feead1b](https://github.com/Automattic/newspack-plugin/commit/feead1b5bc88d845d2c5d08a2ced614cc937f6b8))
+
 # [6.14.0](https://github.com/Automattic/newspack-plugin/compare/v6.13.1...v6.14.0) (2025-07-28)
 
 

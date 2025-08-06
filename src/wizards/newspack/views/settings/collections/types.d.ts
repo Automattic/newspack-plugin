@@ -17,6 +17,7 @@ type CollectionsSettingsData = {
 	articles_block_attrs: {
 		showCategory?: boolean;
 	};
+	show_cover_story_img: boolean;
 	// Collection Posts section.
 	post_indicator_style: 'default' | 'card';
 	card_message: string;
