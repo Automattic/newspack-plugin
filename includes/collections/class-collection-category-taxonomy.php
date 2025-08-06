@@ -223,7 +223,7 @@ class Collection_Category_Taxonomy {
 		];
 
 		$point_of_insertion = null;
-		// Loop through the taxonomies; confirm Collections doesn't already exist, and grab the index of Collection Sections if it's there.
+		// Loop through the taxonomies; confirm Collection Categories doesn't already exist, and grab the index of Collection Sections if it's there.
 		foreach ( $custom_taxonomies as $index => $tax ) {
 			if ( isset( $tax['slug'] ) ) {
 				if ( $tax['slug'] === $collections_category_taxonomy['slug'] ) {
