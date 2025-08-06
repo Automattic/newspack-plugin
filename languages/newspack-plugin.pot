@@ -2,14 +2,14 @@
 # This file is distributed under the GPL2.
 msgid ""
 msgstr ""
-"Project-Id-Version: Newspack 6.14.2\n"
+"Project-Id-Version: Newspack 6.14.3\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/project\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2025-08-04T12:53:37+00:00\n"
+"POT-Creation-Date: 2025-08-06T00:35:05+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: newspack-plugin\n"
@@ -891,70 +891,74 @@ msgstr ""
 msgid "Override the global order link for this category."
 msgstr ""
 
-#: includes/collections/class-collection-category-taxonomy.php:86
+#: includes/collections/class-collection-category-taxonomy.php:87
 msgctxt "collection category taxonomy general name"
 msgid "Collection Categories"
 msgstr ""
 
-#: includes/collections/class-collection-category-taxonomy.php:87
+#: includes/collections/class-collection-category-taxonomy.php:88
 msgctxt "collection category taxonomy singular name"
 msgid "Collection Category"
 msgstr ""
 
-#: includes/collections/class-collection-category-taxonomy.php:88
+#: includes/collections/class-collection-category-taxonomy.php:89
 msgid "Search Collection Categories"
 msgstr ""
 
-#: includes/collections/class-collection-category-taxonomy.php:89
+#: includes/collections/class-collection-category-taxonomy.php:90
 msgid "Popular Collection Categories"
 msgstr ""
 
-#: includes/collections/class-collection-category-taxonomy.php:90
+#: includes/collections/class-collection-category-taxonomy.php:91
 msgid "All Collection Categories"
 msgstr ""
 
-#: includes/collections/class-collection-category-taxonomy.php:91
+#: includes/collections/class-collection-category-taxonomy.php:92
 msgid "Parent Collection Category"
 msgstr ""
 
-#: includes/collections/class-collection-category-taxonomy.php:92
+#: includes/collections/class-collection-category-taxonomy.php:93
 msgid "Parent Collection Category:"
 msgstr ""
 
-#: includes/collections/class-collection-category-taxonomy.php:93
+#: includes/collections/class-collection-category-taxonomy.php:94
 msgid "Edit Collection Category"
 msgstr ""
 
-#: includes/collections/class-collection-category-taxonomy.php:94
+#: includes/collections/class-collection-category-taxonomy.php:95
 msgid "View Collection Category"
 msgstr ""
 
-#: includes/collections/class-collection-category-taxonomy.php:95
+#: includes/collections/class-collection-category-taxonomy.php:96
 msgid "Update Collection Category"
 msgstr ""
 
-#: includes/collections/class-collection-category-taxonomy.php:96
+#: includes/collections/class-collection-category-taxonomy.php:97
 msgid "Add New Collection Category"
 msgstr ""
 
-#: includes/collections/class-collection-category-taxonomy.php:97
+#: includes/collections/class-collection-category-taxonomy.php:98
 msgid "New Collection Category Name"
 msgstr ""
 
-#: includes/collections/class-collection-category-taxonomy.php:98
+#: includes/collections/class-collection-category-taxonomy.php:99
 #: includes/lite-site/class-lite-site.php:121
 #: dist/billboard.js:12
 #: src/wizards/advertising/components/suppression/index.js:126
 msgid "Categories"
 msgstr ""
 
-#: includes/collections/class-collection-category-taxonomy.php:103
+#: includes/collections/class-collection-category-taxonomy.php:104
 msgid "Taxonomy for categorizing collections."
 msgstr ""
 
-#: includes/collections/class-collection-category-taxonomy.php:131
+#: includes/collections/class-collection-category-taxonomy.php:132
 msgctxt "label for collection category column name"
 msgid "Categories"
+msgstr ""
+
+#: includes/collections/class-collection-category-taxonomy.php:222
+msgid "Collection Categories"
 msgstr ""
 
 #: includes/collections/class-collection-meta.php:28
