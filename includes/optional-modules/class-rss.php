@@ -162,7 +162,7 @@ class RSS {
 			'search_items'       => __( 'Search RSS Feeds', 'newspack-plugin' ),
 			'parent_item_colon'  => __( 'Parent RSS Feeds:', 'newspack-plugin' ),
 			'not_found'          => __( 'No RSS feeds found.', 'newspack-plugin' ),
-			'not_found_in_trash' => __( 'No RSS seeds found in Trash.', 'newspack-plugin' ),
+			'not_found_in_trash' => __( 'No RSS feeds found in Trash.', 'newspack-plugin' ),
 			'item_published'     => __( 'RSS Feed published', 'newspack-plugin' ),
 			'item_updated'       => __( 'RSS Feed updated', 'newspack-plugin' ),
 		);
