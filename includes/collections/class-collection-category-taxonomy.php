@@ -70,6 +70,7 @@ class Collection_Category_Taxonomy {
 		add_action( 'init', [ __CLASS__, 'register_meta' ] );
 		add_action( 'newspack_collections_before_flush_rewrites', [ __CLASS__, 'update_registration' ] );
 		add_action( 'manage_' . Post_Type::get_post_type() . '_posts_columns', [ __CLASS__, 'set_taxonomy_column_name' ] );
+		add_filter( 'newspack_blocks_home_page_block_custom_taxonomies', [ __CLASS__, 'add_collections_category_taxonomy_to_blocks' ] );
 
 		// Term meta field handling.
 		add_action( self::get_taxonomy() . '_add_form_fields', [ __CLASS__, 'add_term_meta_fields' ] );
@@ -207,5 +208,40 @@ class Collection_Category_Taxonomy {
 			}
 		}
 		// phpcs:enable WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+	}
+
+	/**
+	 * Add the Collection Categories taxonomy to the custom taxonomies array.
+	 *
+	 * @param array $custom_taxonomies Array of custom taxonomies.
+	 * @return array Modified array of custom taxonomies.
+	 */
+	public static function add_collections_category_taxonomy_to_blocks( $custom_taxonomies ) {
+		$collections_category_taxonomy = [
+			'slug'  => self::get_taxonomy(),
+			'label' => __( 'Collection Categories', 'newspack-plugin' ),
+		];
+
+		$point_of_insertion = null;
+		// Loop through the taxonomies; confirm Collections doesn't already exist, and grab the index of Collection Sections if it's there.
+		foreach ( $custom_taxonomies as $index => $tax ) {
+			if ( isset( $tax['slug'] ) ) {
+				if ( $tax['slug'] === $collections_category_taxonomy['slug'] ) {
+					return $custom_taxonomies;
+				}
+				if ( $tax['slug'] === Collection_Section_Taxonomy::get_taxonomy() ) {
+					$point_of_insertion = $index;
+				}
+			}
+		}
+
+		// If Collection Sections exists in the taxonomy filters, insert Collections before it. If not, use the default insertion point.
+		if ( null !== $point_of_insertion ) {
+			array_splice( $custom_taxonomies, $point_of_insertion, 0, [ $collections_category_taxonomy ] );
+		} else {
+			$custom_taxonomies[] = $collections_category_taxonomy;
+		}
+
+		return $custom_taxonomies;
 	}
 }
