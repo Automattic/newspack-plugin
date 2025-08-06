@@ -22,7 +22,7 @@ const CREATE_AD_ID_PARAM = 'create';
 /**
  * Advertising management screen.
  */
-const AdUnits = ( { adUnits, onDelete, wizardApiFetch, updateWithAPI, service, serviceData, fetchAdvertisingData } ) => {
+const AdUnits = ( { adUnits, parentAdUnits, onDelete, wizardApiFetch, updateWithAPI, service, serviceData, fetchAdvertisingData } ) => {
 	const gamErrorMessage = serviceData?.status?.error
 		? `${ __( 'Google Ad Manager Error', 'newspack-plugin' ) }: ${ serviceData.status.error }`
 		: false;
@@ -35,6 +35,14 @@ const AdUnits = ( { adUnits, onDelete, wizardApiFetch, updateWithAPI, service, s
 			quiet: true,
 		} );
 		fetchAdvertisingData( true );
+	};
+
+	const updateParentAdUnit = async value => {
+		await updateWithAPI( {
+			path: '/newspack/v1/wizard/billboard/parent_ad_unit/',
+			method: 'POST',
+			data: { parent_ad_unit_id: value },
+		} );
 	};
 
 	const updateGAMNetworkCode = async value => {
@@ -61,6 +69,20 @@ const AdUnits = ( { adUnits, onDelete, wizardApiFetch, updateWithAPI, service, s
 		return ! adUnit.is_default && ! isDisconnectedGAM( adUnit );
 	};
 
+	const missingParentAdUnit = serviceData.parent_ad_unit_id && ! parentAdUnits?.find( adUnit => adUnit.id === serviceData.parent_ad_unit_id );
+
+	const parentAdUnitOptions = [
+		{ label: __( 'None (all ad units will be used)', 'newspack-plugin' ), value: '' },
+		...( parentAdUnits || [] ).map( adUnit => ( {
+			label: adUnit.name,
+			value: adUnit.id,
+		} ) ),
+	];
+
+	if ( missingParentAdUnit ) {
+		parentAdUnitOptions.push( { label: '', value: serviceData.parent_ad_unit_id } );
+	}
+
 	return (
 		<>
 			<Card noBorder>
@@ -70,14 +92,33 @@ const AdUnits = ( { adUnits, onDelete, wizardApiFetch, updateWithAPI, service, s
 			</Card>
 
 			{ ! isLegacy && networkCode && (
-				<SelectControl
-					label={ __( 'Connected GAM network code', 'newspack-plugin' ) }
-					value={ networkCode }
-					options={ serviceData.available_networks.map( network => ( {
-						label: `${ network.name } (${ network.code })`,
-						value: network.code,
-					} ) ) }
-					onChange={ updateGAMNetworkCode }
+				<>
+					<SelectControl
+						label={ __( 'Connected GAM network code', 'newspack-plugin' ) }
+						value={ networkCode }
+						options={ serviceData.available_networks.map( network => ( {
+							label: `${ network.name } (${ network.code })`,
+							value: network.code,
+						} ) ) }
+						onChange={ updateGAMNetworkCode }
+					/>
+					{ parentAdUnits.length > 0 && (
+						<SelectControl
+							label={ __( 'Set parent ad unit for the site inventory', 'newspack-plugin' ) }
+							value={ serviceData.parent_ad_unit_id }
+							options={ parentAdUnitOptions }
+							onChange={ updateParentAdUnit }
+						/>
+					) }
+				</>
+			) }
+			{ missingParentAdUnit && (
+				<Notice
+					noticeText={ __(
+						'The current parent ad unit is inactive or archived. Please select a different parent ad unit.',
+						'newspack-plugin'
+					) }
+					isError
 				/>
 			) }
 			{ false === serviceData.status?.is_network_code_matched && (

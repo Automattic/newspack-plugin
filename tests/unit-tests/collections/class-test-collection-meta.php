@@ -31,6 +31,7 @@ class Test_Collection_Meta extends WP_UnitTestCase {
 		'subscribe_link',
 		'order_link',
 		'ctas',
+		'cover_story_img_visibility',
 	];
 
 	/**

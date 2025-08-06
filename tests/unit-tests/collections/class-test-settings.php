@@ -201,6 +201,11 @@ class Test_Settings extends WP_UnitTestCase {
 		Settings::update_setting( 'articles_block_attrs', [] );
 		$this->assertTrue( $articles_callback( [ 'showCategory' => true ] )['showCategory'] );
 		$this->assertFalse( $articles_callback( [ 'showCategory' => 'false' ] )['showCategory'] );
+
+		// Test show cover story image sanitization.
+		$show_cover_story_img_callback = $rest_args['show_cover_story_img']['sanitize_callback'];
+		$this->assertTrue( $show_cover_story_img_callback( 'true' ) );
+		$this->assertFalse( $show_cover_story_img_callback( 'false' ) );
 	}
 
 	/**

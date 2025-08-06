@@ -298,6 +298,22 @@ class Advertising_Display_Ads extends Wizard {
 			)
 		);
 
+		// Update parent ad unit.
+		\register_rest_route(
+			NEWSPACK_API_NAMESPACE,
+			'/wizard/billboard/parent_ad_unit',
+			array(
+				'methods'             => \WP_REST_Server::EDITABLE,
+				'callback'            => array( $this, 'api_update_parent_ad_unit' ),
+				'permission_callback' => array( $this, 'api_permissions_check' ),
+				'args'                => array(
+					'parent_ad_unit_id' => array(
+						'sanitize_callback' => 'absint',
+					),
+				),
+			)
+		);
+
 		// Create the Media Kit page.
 		\register_rest_route(
 			NEWSPACK_API_NAMESPACE,
@@ -332,6 +348,17 @@ class Advertising_Display_Ads extends Wizard {
 		$option_name = $request['is_gam'] ? GAM_Model::OPTION_NAME_GAM_NETWORK_CODE : GAM_Model::OPTION_NAME_LEGACY_NETWORK_CODE;
 		update_option( $option_name, $request['network_code'] );
 		return \rest_ensure_response( array() );
+	}
+
+	/**
+	 * Update parent ad unit.
+	 *
+	 * @param WP_REST_Request $request Full details about the request.
+	 * @return WP_REST_Response containing ad units info.
+	 */
+	public function api_update_parent_ad_unit( $request ) {
+		update_option( GAM_Model::OPTION_NAME_PARENT_AD_UNIT, $request['parent_ad_unit_id'] );
+		return \rest_ensure_response( $this->retrieve_data() );
 	}
 
 	/**
@@ -498,6 +525,7 @@ class Advertising_Display_Ads extends Wizard {
 		$error    = false;
 		try {
 			$ad_units = $configuration_manager->get_ad_units();
+			$parent_ad_units = $configuration_manager->get_parent_ad_units();
 		} catch ( \Exception $error ) {
 			$message = $error->getMessage();
 			$error   = new WP_Error( 'newspack_ad_units', $message ? $message : __( 'Ad Units failed to fetch.', 'newspack-plugin' ) );
@@ -508,9 +536,10 @@ class Advertising_Display_Ads extends Wizard {
 		}
 
 		return array(
-			'services' => $services,
-			'ad_units' => \is_wp_error( $ad_units ) ? array() : $ad_units,
-			'error'    => $error,
+			'services'        => $services,
+			'ad_units'        => \is_wp_error( $ad_units ) ? array() : $ad_units,
+			'parent_ad_units' => \is_wp_error( $parent_ad_units ) ? array() : $parent_ad_units,
+			'error'           => $error,
 		);
 	}
 
@@ -533,6 +562,8 @@ class Advertising_Display_Ads extends Wizard {
 
 		// Verify GAM connection and run initial setup.
 		$gam_connection_status = $configuration_manager->get_gam_connection_status();
+		$parent_ad_unit_id     = get_option( GAM_Model::OPTION_NAME_PARENT_AD_UNIT );
+		$services['google_ad_manager']['parent_ad_unit_id'] = $parent_ad_unit_id;
 		if ( \is_wp_error( $gam_connection_status ) ) {
 			$error_type = $gam_connection_status->get_error_code();
 			if ( 'newspack_ads_gam_api_fatal_error' === $error_type ) {

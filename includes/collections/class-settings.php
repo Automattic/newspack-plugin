@@ -96,6 +96,11 @@ class Settings {
 				'default'           => [],
 				'sanitize_callback' => [ self::class, 'sanitize_articles_block_attrs' ],
 			],
+			'show_cover_story_img'  => [
+				'required'          => false,
+				'default'           => false,
+				'sanitize_callback' => 'rest_sanitize_boolean',
+			],
 			// Collection Posts section.
 			'post_indicator_style'  => [
 				'required'          => false,

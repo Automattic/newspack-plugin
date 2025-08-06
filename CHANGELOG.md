@@ -1,3 +1,10 @@
+## [6.14.4](https://github.com/Automattic/newspack-plugin/compare/v6.14.3...v6.14.4) (2025-08-06)
+
+
+### Bug Fixes
+
+* **sitekit-logger:** also check GA from Tag Manager ([#4129](https://github.com/Automattic/newspack-plugin/issues/4129)) ([a36725b](https://github.com/Automattic/newspack-plugin/commit/a36725b543b2176b9702b3f997819640d993f8e8))
+
 ## [6.14.3](https://github.com/Automattic/newspack-plugin/compare/v6.14.2...v6.14.3) (2025-08-04)
 
 

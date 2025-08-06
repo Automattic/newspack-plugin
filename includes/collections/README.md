@@ -68,6 +68,8 @@ The following nested options are available as properties of the `newspack_collec
 | `posts_per_page` | Integer | Global posts per page | 12, 18, 24 |
 | `category_filter_label` | String | Custom label for the category filter dropdown | Text (e.g., "Publication:") |
 | `highlight_latest` | Boolean | Highlight the latest collection | Boolean |
+| `articles_block_attrs` | Array | Override articles block attributes | Object with properties like `showCategory`. See possible [attributes](https://github.com/Automattic/newspack-blocks/blob/trunk/src/blocks/homepage-articles/block.json) |
+| `show_cover_story_img` | Boolean | Show featured images for cover stories by default | Boolean |
 | `post_indicator_style` | String | Global post indicator style | "default" or "card" |
 | `card_message` | String | Global card message | Text |
 
@@ -91,6 +93,7 @@ The following table details all available meta fields for collections:
 | `newspack_collection_subscribe_link` | String | Override global/category subscription link for this specific collection | Valid URL |
 | `newspack_collection_order_link` | String | Override global/category order link for this specific collection | Valid URL |
 | `newspack_collection_ctas` | Array | An array of CTAs (Call-to-Action buttons) | Array of objects with `label`, `type`, `id` and `url` properties |
+| `newspack_collection_cover_story_img_visibility` | String | Override global setting for cover story image visibility | "inherit", "show", or "hide" |
 
 Sample `newspack_collection_ctas` post meta structure:
 ```php
