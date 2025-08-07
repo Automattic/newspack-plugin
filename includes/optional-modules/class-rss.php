@@ -1130,7 +1130,7 @@ class RSS {
 		$post = get_post();
 
 		if ( $settings['use_image_tags'] ) {
-			$thumbnail_url = get_the_post_thumbnail_url( $post, 'full' );
+			$thumbnail_url = get_the_post_thumbnail_url( $post, RSS_Add_Image::RSS_IMAGE_SIZE );
 			if ( $thumbnail_url ) :
 				?>
 				<image><?php echo esc_url( $thumbnail_url ); ?></image>
@@ -1159,7 +1159,7 @@ class RSS {
 		if ( $settings['use_media_tags'] ) {
 			$thumbnail_id = get_post_thumbnail_id();
 			if ( $thumbnail_id ) {
-				$thumbnail_data = wp_get_attachment_image_src( $thumbnail_id, 'full' );
+				$thumbnail_data = wp_get_attachment_image_src( $thumbnail_id, RSS_Add_Image::RSS_IMAGE_SIZE );
 				if ( $thumbnail_data ) {
 					$caption = get_the_post_thumbnail_caption();
 					?>

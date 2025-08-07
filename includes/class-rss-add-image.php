@@ -26,6 +26,8 @@ class RSS_Add_Image {
 	 */
 	const OPTION_RSS_IMAGE_HEIGHT = 'newspack_rss_image_size_height';
 
+	const RSS_IMAGE_SIZE = 'rss-image-size';
+
 	/**
 	 * Hook actions and filters.
 	 */
@@ -40,7 +42,7 @@ class RSS_Add_Image {
 	 * Add RSS image size.
 	 */
 	public static function rss_image_size() {
-		add_image_size( 'rss-image-size', self::get_rss_image_width(), self::get_rss_image_height() );
+		add_image_size( self::RSS_IMAGE_SIZE, self::get_rss_image_width(), self::get_rss_image_height() );
 	}
 
 	/**
@@ -170,7 +172,7 @@ class RSS_Add_Image {
 	public static function thumbnails_in_rss( $content ) {
 		global $post;
 		if ( has_post_thumbnail( $post->ID ) ) {
-			$content = '<figure>' . get_the_post_thumbnail( $post->ID, 'rss-image-size' ) . '</figure>' . $content;
+			$content = '<figure>' . get_the_post_thumbnail( $post->ID, self::RSS_IMAGE_SIZE ) . '</figure>' . $content;
 		}
 		return $content;
 	}
