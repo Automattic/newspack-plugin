@@ -26,6 +26,11 @@ class RSS_Add_Image {
 	 */
 	const OPTION_RSS_IMAGE_HEIGHT = 'newspack_rss_image_size_height';
 
+	/**
+	 * The featured image size used in the RSS feed.
+	 *
+	 * @var string
+	 */
 	const RSS_IMAGE_SIZE = 'rss-image-size';
 
 	/**
