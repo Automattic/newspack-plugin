@@ -46,8 +46,8 @@ class Subscriptions_Confirmation {
 	 * Make sure the subscription confirmation or Terms & Conditions checkboxes are checked before checkout can be completed.
 	 */
 	public static function validate_subscription_confirmation_checkboxes() {
-		// Skip validation if we don't have a subscription in the cart, or if we're on the first screen of the modal checkout.
-		if ( ! self::has_subscription_in_cart() || ( isset( $_POST['is_validation_only'] ) && '1' === $_POST['is_validation_only'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
+		// Skip validation if we don't have a subscription in the cart.
+		if ( ! self::has_subscription_in_cart() ) {
 			return;
 		}
 
