@@ -2,14 +2,14 @@
 # This file is distributed under the GPL2.
 msgid ""
 msgstr ""
-"Project-Id-Version: Newspack 6.14.4\n"
+"Project-Id-Version: Newspack 6.15.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/project\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2025-08-11T15:27:34+00:00\n"
+"POT-Creation-Date: 2025-08-11T17:47:53+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: newspack-plugin\n"
@@ -3530,32 +3530,32 @@ msgstr ""
 msgid "Cannot register while logged in."
 msgstr ""
 
-#: includes/reader-activation/class-reader-activation.php:2547
+#: includes/reader-activation/class-reader-activation.php:2549
 msgid "Please wait before requesting another verification email."
 msgstr ""
 
-#: includes/reader-activation/class-reader-activation.php:2716
+#: includes/reader-activation/class-reader-activation.php:2723
 msgid "Your personal data will be used to process your order and create an account if one doesn't exist. This information will also support your experience throughout this website, and be used for other purposes described in our privacy policy."
 msgstr ""
 
 #. Translators: %s is the name of the site.
-#: includes/reader-activation/class-reader-activation.php:2733
+#: includes/reader-activation/class-reader-activation.php:2740
 #, php-format
 msgid "Thank you for supporting %s. Your transaction was completed successfully."
 msgstr ""
 
 #. Translators: %s is the name of the site.
-#: includes/reader-activation/class-reader-activation.php:2752
+#: includes/reader-activation/class-reader-activation.php:2759
 #, php-format
 msgid "Thank you for supporting %s. Your account has been created, and your transaction was completed successfully."
 msgstr ""
 
-#: includes/reader-activation/class-reader-activation.php:2778
+#: includes/reader-activation/class-reader-activation.php:2785
 #: dist/audience-wizards.465ef24dd7707013533a.js:41
 msgid "I understand this is a recurring subscription and that I can cancel anytime through the My Account Page."
 msgstr ""
 
-#: includes/reader-activation/class-reader-activation.php:2802
+#: includes/reader-activation/class-reader-activation.php:2809
 #: dist/audience-wizards.465ef24dd7707013533a.js:41
 msgid "I have read and accept the {{Terms & Conditions}}."
 msgstr ""
