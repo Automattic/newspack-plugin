@@ -8,6 +8,8 @@
 import { __ } from '@wordpress/i18n';
 import { ToggleControl } from '@wordpress/components';
 
+const settingsTabs = window.newspackSettings;
+const isMultibrandedEnabled = 'additional-brands' in settingsTabs;
 /**
  * Internal dependencies
  */
@@ -44,33 +46,35 @@ export default function Footer( { themeMods, onUpdate }: { themeMods: ThemeMods;
 					/>
 				) }
 			</Grid>
-			<Grid columns={ 1 } gutter={ 16 }>
-				<ImageUpload
-					className="newspack-design__footer__logo"
-					label={ __( 'Alternative Logo', 'newspack' ) }
-					help={ __( 'Optional alternative logo to be displayed in the footer.', 'newspack' ) }
-					style={ {
-						backgroundColor:
-							themeMods.footer_color === 'custom' && themeMods.footer_color_hex ? themeMods.footer_color_hex : 'transparent',
-					} }
-					image={ themeMods.newspack_footer_logo }
-					onChange={ ( newspack_footer_logo: string ) => updateThemeMods( { newspack_footer_logo } ) }
-				/>
-				{ themeMods.newspack_footer_logo && (
-					<SelectControl
-						className="icon-only"
-						label={ __( 'Alternative logo - Size', 'newspack' ) }
-						value={ themeMods.footer_logo_size }
-						onChange={ ( footer_logo_size: string ) => updateThemeMods( { footer_logo_size } ) }
-						buttonOptions={ [
-							{ value: 'small', label: 'S' },
-							{ value: 'medium', label: 'M' },
-							{ value: 'large', label: 'L' },
-							{ value: 'xlarge', label: 'XL' },
-						] }
+			{ ! isMultibrandedEnabled && (
+				<Grid columns={ 1 } gutter={ 16 }>
+					<ImageUpload
+						className="newspack-design__footer__logo"
+						label={ __( 'Alternative Logo', 'newspack' ) }
+						help={ __( 'Optional alternative logo to be displayed in the footer.', 'newspack' ) }
+						style={ {
+							backgroundColor:
+								themeMods.footer_color === 'custom' && themeMods.footer_color_hex ? themeMods.footer_color_hex : 'transparent',
+						} }
+						image={ themeMods.newspack_footer_logo }
+						onChange={ ( newspack_footer_logo: string ) => updateThemeMods( { newspack_footer_logo } ) }
 					/>
-				) }
-			</Grid>
+					{ themeMods.newspack_footer_logo && (
+						<SelectControl
+							className="icon-only"
+							label={ __( 'Alternative logo - Size', 'newspack' ) }
+							value={ themeMods.footer_logo_size }
+							onChange={ ( footer_logo_size: string ) => updateThemeMods( { footer_logo_size } ) }
+							buttonOptions={ [
+								{ value: 'small', label: 'S' },
+								{ value: 'medium', label: 'M' },
+								{ value: 'large', label: 'L' },
+								{ value: 'xlarge', label: 'XL' },
+							] }
+						/>
+					) }
+				</Grid>
+			) }
 		</Grid>
 	);
 }
