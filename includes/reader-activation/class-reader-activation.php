@@ -2534,7 +2534,9 @@ final class Reader_Activation {
 	/**
 	 * Send a magic link with special messaging to verify the user.
 	 *
-	 * @param WP_User $user WP_User object to be verified.
+	 * @param \WP_User $user WP_User object to be verified.
+	 *
+	 * @return bool|\WP_Error
 	 */
 	public static function send_verification_email( $user ) {
 		// Send reminder to non-reader accounts to use standard WP login.
@@ -2550,13 +2552,18 @@ final class Reader_Activation {
 		$redirect_to = function_exists( '\wc_get_account_endpoint_url' ) ? \wc_get_account_endpoint_url( 'dashboard' ) : '';
 		\update_user_meta( $user->ID, self::LAST_EMAIL_DATE, time() );
 
+		$link = Magic_Link::generate_url( $user, $redirect_to );
+		if ( is_wp_error( $link ) ) {
+			return $link;
+		}
+
 		return Emails::send_email(
 			Reader_Activation_Emails::EMAIL_TYPES['VERIFICATION'],
 			$user->user_email,
 			[
 				[
 					'template' => '*VERIFICATION_URL*',
-					'value'    => Magic_Link::generate_url( $user, $redirect_to ),
+					'value'    => $link,
 				],
 			]
 		);

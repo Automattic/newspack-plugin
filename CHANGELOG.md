@@ -1,3 +1,34 @@
+## [6.15.1](https://github.com/Automattic/newspack-plugin/compare/v6.15.0...v6.15.1) (2025-08-11)
+
+
+### Bug Fixes
+
+* **emails:** handle magic link error ([#4137](https://github.com/Automattic/newspack-plugin/issues/4137)) ([f3157ad](https://github.com/Automattic/newspack-plugin/commit/f3157add8382fd29ea750a68f81e31782b5b84a2))
+
+# [6.15.0](https://github.com/Automattic/newspack-plugin/compare/v6.14.4...v6.15.0) (2025-08-11)
+
+
+### Bug Fixes
+
+* adjust feed media URL encoding to avoid html entities ([#4110](https://github.com/Automattic/newspack-plugin/issues/4110)) ([6353859](https://github.com/Automattic/newspack-plugin/commit/6353859816850c3a30519f58e54567d42fabed69))
+* Fix CLI module activation logic ([#4101](https://github.com/Automattic/newspack-plugin/issues/4101)) ([264b723](https://github.com/Automattic/newspack-plugin/commit/264b723f3bb4a95931da07f8a6db899c6390e62a))
+
+
+### Features
+
+* **bylines:** add get_custom_byline_html method ([#4109](https://github.com/Automattic/newspack-plugin/issues/4109)) ([eede9e4](https://github.com/Automattic/newspack-plugin/commit/eede9e4e7db284b6a2341e1d4607634c187dcca9))
+* collections feedback ([#4097](https://github.com/Automattic/newspack-plugin/issues/4097)) ([461d438](https://github.com/Automattic/newspack-plugin/commit/461d438ab1b3f1e0b7101148b3032fc3ed216b6b))
+* **collections:** add global setting for showing categories ([#4108](https://github.com/Automattic/newspack-plugin/issues/4108)) ([e16b3fa](https://github.com/Automattic/newspack-plugin/commit/e16b3fa09a459cb6ee1f84d992415b81b3806b02))
+* **collections:** improve rewrite rules flushing logic ([#4104](https://github.com/Automattic/newspack-plugin/issues/4104)) ([c56cf31](https://github.com/Automattic/newspack-plugin/commit/c56cf3171a81c2f5558cd5b625703b4393fb1954))
+* **collections:** use custom label in document title for archives ([#4105](https://github.com/Automattic/newspack-plugin/issues/4105)) ([af91243](https://github.com/Automattic/newspack-plugin/commit/af91243d4d227a3789068e359b154f773b947832))
+* **newspack-ui:** update buttons accent color and border-radius ([#4102](https://github.com/Automattic/newspack-plugin/issues/4102)) ([5870917](https://github.com/Automattic/newspack-plugin/commit/587091771d64851c3c1b8cd6188517f864eea605))
+* package action scheduler into the plugin ([b0b579e](https://github.com/Automattic/newspack-plugin/commit/b0b579ec250075b1c0ebc78f515548fb1fd42692))
+* package action scheduler into the plugin ([#4113](https://github.com/Automattic/newspack-plugin/issues/4113)) ([66dabdf](https://github.com/Automattic/newspack-plugin/commit/66dabdf8c3210ee0d2920ec770be9203a11b96e7))
+* put InDesign behind feature flag ([#4111](https://github.com/Automattic/newspack-plugin/issues/4111)) ([d909dba](https://github.com/Automattic/newspack-plugin/commit/d909dba7bdb737da53fcf4b6dec4146ed19a98aa))
+* **rss:** category and tag inclusion: AND or OR condition ([#4107](https://github.com/Automattic/newspack-plugin/issues/4107)) ([832bd67](https://github.com/Automattic/newspack-plugin/commit/832bd67b777ac790caeed13c98c8a834e78f2c63))
+* **rss:** Filtering via custom taxonomies ([#4106](https://github.com/Automattic/newspack-plugin/issues/4106)) ([ccf2c3c](https://github.com/Automattic/newspack-plugin/commit/ccf2c3cfa3f3999c137e114a4f14906f77f9972e))
+* update translations, add i18n on CI ([#4114](https://github.com/Automattic/newspack-plugin/issues/4114)) ([2a50b0c](https://github.com/Automattic/newspack-plugin/commit/2a50b0c4c326fec7609e845201b7095bacd26f71))
+
 ## [6.14.4](https://github.com/Automattic/newspack-plugin/compare/v6.14.3...v6.14.4) (2025-08-06)
 
 
