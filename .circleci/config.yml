@@ -11,6 +11,10 @@ workflows:
       - newspack/i18n:
           requires:
             - newspack/build
+          filters:
+            branches:
+              only:
+                - trunk
       - newspack/lint-js-scss:
           requires:
             - newspack/build
