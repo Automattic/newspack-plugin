@@ -191,7 +191,7 @@ class Patches {
 			]
 		);
 
-		if ( empty( $terms ) ) {
+		if ( empty( $terms ) || is_wp_error( $terms ) ) {
 			return;
 		}
 
