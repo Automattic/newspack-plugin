@@ -195,7 +195,7 @@ class Patches {
 			return;
 		}
 
-		$current_term = isset( $_GET[ $taxonomy ] ) ? sanitize_text_field( wp_unslash( $_GET[ $taxonomy ] ) ) : '';
+		$current_term = isset( $_GET[ $taxonomy ] ) ? sanitize_text_field( wp_unslash( $_GET[ $taxonomy ] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
 		?>
 		<label class="screen-reader-text" for="filter-by-pattern-category"><?php esc_html_e( 'Filter by Pattern Category', 'newspack-plugin' ); ?></label>
@@ -219,12 +219,12 @@ class Patches {
 		global $pagenow, $typenow;
 
 		// Only apply on the patterns list page.
-		if ( ! is_admin() || 'edit.php' !== $pagenow || 'wp_block' !== $typenow ) {
+		if ( ! is_admin() || 'edit.php' !== $pagenow || 'wp_block' !== $typenow || ! $query->is_main_query() ) {
 			return;
 		}
 
 		$taxonomy = 'wp_pattern_category';
-		$term_slug = isset( $_GET[ $taxonomy ] ) ? sanitize_text_field( wp_unslash( $_GET[ $taxonomy ] ) ) : '';
+		$term_slug = isset( $_GET[ $taxonomy ] ) ? sanitize_text_field( wp_unslash( $_GET[ $taxonomy ] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
 		if ( ! empty( $term_slug ) ) {
 			$query->set(
