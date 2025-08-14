@@ -298,17 +298,23 @@ class Advertising_Display_Ads extends Wizard {
 			)
 		);
 
-		// Update parent ad unit.
+		// Update GAM configuration.
 		\register_rest_route(
 			NEWSPACK_API_NAMESPACE,
-			'/wizard/billboard/parent_ad_unit',
+			'/wizard/billboard/gam',
 			array(
 				'methods'             => \WP_REST_Server::EDITABLE,
-				'callback'            => array( $this, 'api_update_parent_ad_unit' ),
+				'callback'            => array( $this, 'api_update_gam_configuration' ),
 				'permission_callback' => array( $this, 'api_permissions_check' ),
 				'args'                => array(
-					'parent_ad_unit_id' => array(
-						'sanitize_callback' => 'absint',
+					'network_code'        => array(
+						'sanitize_callback' => 'sanitize_text_field',
+					),
+					'parent_network_code' => array(
+						'sanitize_callback' => 'sanitize_text_field',
+					),
+					'parent_ad_unit_id'   => array(
+						'sanitize_callback' => 'sanitize_text_field',
 					),
 				),
 			)
@@ -351,13 +357,16 @@ class Advertising_Display_Ads extends Wizard {
 	}
 
 	/**
-	 * Update parent ad unit.
+	 * Update GAM configuration.
 	 *
 	 * @param WP_REST_Request $request Full details about the request.
 	 * @return WP_REST_Response containing ad units info.
 	 */
-	public function api_update_parent_ad_unit( $request ) {
-		update_option( GAM_Model::OPTION_NAME_PARENT_AD_UNIT, $request['parent_ad_unit_id'] );
+	public function api_update_gam_configuration( $request ) {
+		$params = $request->get_params();
+		update_option( GAM_Model::OPTION_NAME_GAM_NETWORK_CODE, $params['network_code'] );
+		update_option( GAM_Model::OPTION_NAME_PARENT_NETWORK_CODE, $params['parent_network_code'] );
+		update_option( GAM_Model::OPTION_NAME_PARENT_AD_UNIT, $params['parent_ad_unit_id'] );
 		return \rest_ensure_response( $this->retrieve_data() );
 	}
 
@@ -562,8 +571,13 @@ class Advertising_Display_Ads extends Wizard {
 
 		// Verify GAM connection and run initial setup.
 		$gam_connection_status = $configuration_manager->get_gam_connection_status();
-		$parent_ad_unit_id     = get_option( GAM_Model::OPTION_NAME_PARENT_AD_UNIT );
+
+		$parent_network_code = get_option( GAM_Model::OPTION_NAME_PARENT_NETWORK_CODE, '' );
+		$services['google_ad_manager']['parent_network_code'] = $parent_network_code;
+
+		$parent_ad_unit_id = get_option( GAM_Model::OPTION_NAME_PARENT_AD_UNIT, '' );
 		$services['google_ad_manager']['parent_ad_unit_id'] = $parent_ad_unit_id;
+
 		if ( \is_wp_error( $gam_connection_status ) ) {
 			$error_type = $gam_connection_status->get_error_code();
 			if ( 'newspack_ads_gam_api_fatal_error' === $error_type ) {

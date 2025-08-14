@@ -31,11 +31,21 @@ class GoogleSiteKit_Logger {
 	 */
 	public static function init() {
 		if (
-			method_exists( 'Newspack_Manager', 'is_connected_to_production_manager' )
-			&& ! \Newspack_Manager::is_connected_to_production_manager()
+			! method_exists( 'Newspack_Manager', 'is_connected_to_production_manager' ) || (
+				method_exists( 'Newspack_Manager', 'is_connected_to_production_manager' )
+				&& ! \Newspack_Manager::is_connected_to_production_manager()
+			)
 		) {
 			return false;
 		}
+
+		/**
+		 * Skip Site Kit checks for sites that don't need it.
+		 */
+		if ( defined( 'NEWSPACK_DISABLE_SITEKIT_CHECK' ) && NEWSPACK_DISABLE_SITEKIT_CHECK ) {
+			return false;
+		}
+
 		if ( GoogleSiteKit::is_active() ) {
 			add_action( 'admin_init', [ __CLASS__, 'cron_init' ] );
 			add_action( self::CRON_HOOK, [ __CLASS__, 'handle_cron_event' ] );

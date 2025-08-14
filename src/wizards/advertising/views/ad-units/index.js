@@ -37,26 +37,32 @@ const AdUnits = ( { adUnits, parentAdUnits, onDelete, wizardApiFetch, updateWith
 		fetchAdvertisingData( true );
 	};
 
-	const updateParentAdUnit = async value => {
+	const updateGAMConfiguration = async () => {
 		await updateWithAPI( {
-			path: '/newspack/v1/wizard/billboard/parent_ad_unit/',
+			path: '/newspack/v1/wizard/billboard/gam/',
 			method: 'POST',
-			data: { parent_ad_unit_id: value },
+			data: { network_code: networkCode, parent_network_code: parentNetworkCode, parent_ad_unit_id: parentAdUnitId },
 		} );
 	};
 
-	const updateGAMNetworkCode = async value => {
-		updateNetworkCode( value, true );
-	};
-
 	const [ networkCode, setNetworkCode ] = useState( serviceData.status.network_code );
+	const [ parentNetworkCode, setParentNetworkCode ] = useState( serviceData.parent_network_code );
 	const updateLegacyNetworkCode = async () => {
 		updateNetworkCode( networkCode, false );
 	};
+	const [ parentAdUnitId, setParentAdUnitId ] = useState( serviceData.parent_ad_unit_id );
 
 	useEffect( () => {
 		setNetworkCode( serviceData.status.network_code );
 	}, [ serviceData.status.network_code ] );
+
+	useEffect( () => {
+		setParentNetworkCode( serviceData.parent_network_code );
+	}, [ serviceData.parent_network_code ] );
+
+	useEffect( () => {
+		setParentAdUnitId( serviceData.parent_ad_unit_id );
+	}, [ serviceData.parent_ad_unit_id ] );
 
 	const { connection_mode } = serviceData.status;
 	const isLegacy = 'legacy' === connection_mode;
@@ -69,7 +75,17 @@ const AdUnits = ( { adUnits, parentAdUnits, onDelete, wizardApiFetch, updateWith
 		return ! adUnit.is_default && ! isDisconnectedGAM( adUnit );
 	};
 
-	const missingParentAdUnit = serviceData.parent_ad_unit_id && ! parentAdUnits?.find( adUnit => adUnit.id === serviceData.parent_ad_unit_id );
+	const getCodeValue = adUnit => {
+		const { code, path } = adUnit;
+		if ( isLegacy ) {
+			return code;
+		} else if ( ! path.length ) {
+			return code;
+		}
+		return `${ path.map( parent => parent.code ).join( '/' ) }/${ code }`;
+	};
+
+	const missingParentAdUnit = parentAdUnitId && ! parentAdUnits?.find( adUnit => adUnit.id === parentAdUnitId );
 
 	const parentAdUnitOptions = [
 		{ label: __( 'None (all ad units will be used)', 'newspack-plugin' ), value: '' },
@@ -80,7 +96,7 @@ const AdUnits = ( { adUnits, parentAdUnits, onDelete, wizardApiFetch, updateWith
 	];
 
 	if ( missingParentAdUnit ) {
-		parentAdUnitOptions.push( { label: '', value: serviceData.parent_ad_unit_id } );
+		parentAdUnitOptions.push( { label: '', value: parentAdUnitId } );
 	}
 
 	return (
@@ -100,16 +116,29 @@ const AdUnits = ( { adUnits, parentAdUnits, onDelete, wizardApiFetch, updateWith
 							label: `${ network.name } (${ network.code })`,
 							value: network.code,
 						} ) ) }
-						onChange={ updateGAMNetworkCode }
+						onChange={ setNetworkCode }
+					/>
+					<TextControl
+						label={ __( 'Parent network code (optional)', 'newspack-plugin' ) }
+						value={ parentNetworkCode }
+						onChange={ setParentNetworkCode }
 					/>
 					{ parentAdUnits.length > 0 && (
 						<SelectControl
 							label={ __( 'Set parent ad unit for the site inventory', 'newspack-plugin' ) }
-							value={ serviceData.parent_ad_unit_id }
+							value={ parentAdUnitId }
 							options={ parentAdUnitOptions }
-							onChange={ updateParentAdUnit }
+							onChange={ setParentAdUnitId }
 						/>
 					) }
+					<Card headerActions noBorder>
+						<div className="flex justify-end w-100">
+							<Button variant="primary" onClick={ updateGAMConfiguration }>
+								{ __( 'Save', 'newspack-plugin' ) }
+							</Button>
+						</div>
+					</Card>
+					<hr />
 				</>
 			) }
 			{ missingParentAdUnit && (
@@ -197,7 +226,7 @@ const AdUnits = ( { adUnits, parentAdUnits, onDelete, wizardApiFetch, updateWith
 									<span>
 										{ adUnit.code ? (
 											<>
-												<i>{ __( 'Code:', 'newspack-plugin' ) }</i> <code>{ adUnit.code }</code>
+												<i>{ __( 'Code:', 'newspack-plugin' ) }</i> <code>{ getCodeValue( adUnit ) }</code>
 											</>
 										) : null }
 										{ adUnit.sizes?.length || adUnit.fluid ? (
