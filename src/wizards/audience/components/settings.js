@@ -21,7 +21,9 @@ export default function Settings( { title, value, onChange } ) {
 			path: '/newspack-newsletters/v1/lists',
 		} )
 			.then( res => {
-				const filteredLists = isMailchimp ? res.filter( list => list.type_label === 'Mailchimp Audience' ) : res;
+				const filteredLists = isMailchimp
+					? res.filter( list => ! [ 'group-', 'tag-', 'newspack-' ].some( subtype => list.id.includes( subtype ) ) )
+					: res;
 				setLists( filteredLists );
 			} )
 			.catch( setError )
