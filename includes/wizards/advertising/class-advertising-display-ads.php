@@ -314,7 +314,7 @@ class Advertising_Display_Ads extends Wizard {
 						'sanitize_callback' => 'sanitize_text_field',
 					),
 					'parent_ad_unit_id'   => array(
-						'sanitize_callback' => 'absint',
+						'sanitize_callback' => 'sanitize_text_field',
 					),
 				),
 			)
@@ -572,10 +572,10 @@ class Advertising_Display_Ads extends Wizard {
 		// Verify GAM connection and run initial setup.
 		$gam_connection_status = $configuration_manager->get_gam_connection_status();
 
-		$parent_network_code = get_option( GAM_Model::OPTION_NAME_PARENT_NETWORK_CODE );
+		$parent_network_code = get_option( GAM_Model::OPTION_NAME_PARENT_NETWORK_CODE, '' );
 		$services['google_ad_manager']['parent_network_code'] = $parent_network_code;
 
-		$parent_ad_unit_id = get_option( GAM_Model::OPTION_NAME_PARENT_AD_UNIT );
+		$parent_ad_unit_id = get_option( GAM_Model::OPTION_NAME_PARENT_AD_UNIT, '' );
 		$services['google_ad_manager']['parent_ad_unit_id'] = $parent_ad_unit_id;
 
 		if ( \is_wp_error( $gam_connection_status ) ) {
