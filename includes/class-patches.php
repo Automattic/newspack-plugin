@@ -198,7 +198,8 @@ class Patches {
 		$current_term = isset( $_GET[ $taxonomy ] ) ? sanitize_text_field( wp_unslash( $_GET[ $taxonomy ] ) ) : '';
 
 		?>
-		<select name="<?php echo esc_attr( $taxonomy ); ?>">
+		<label class="screen-reader-text" for="filter-by-pattern-category"><?php esc_html_e( 'Filter by Pattern Category', 'newspack-plugin' ); ?></label>
+		<select name="<?php echo esc_attr( $taxonomy ); ?>" id="filter-by-pattern-category">
 			<option value=""><?php esc_html_e( 'All Pattern Categories', 'newspack-plugin' ); ?></option>
 			<?php foreach ( $terms as $term ) : ?>
 				<option value="<?php echo esc_attr( $term->slug ); ?>" <?php selected( $current_term, $term->slug ); ?>>
