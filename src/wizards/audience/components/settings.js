@@ -21,8 +21,9 @@ export default function Settings( { title, value, onChange } ) {
 			path: '/newspack-newsletters/v1/lists',
 		} )
 			.then( res => {
+				// For Mailchimp, filter out groups and tags, and only include remote lists.
 				const filteredLists = isMailchimp
-					? res.filter( list => ! [ 'group-', 'tag-', 'newspack-' ].some( subtype => list.id.includes( subtype ) ) )
+					? res.filter( list => 'remote' === list.type && ! [ 'group-', 'tag-' ].some( subtype => list.id.includes( subtype ) ) )
 					: res;
 				setLists( filteredLists );
 			} )
