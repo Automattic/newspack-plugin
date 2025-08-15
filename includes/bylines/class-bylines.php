@@ -334,7 +334,7 @@ class Bylines {
 	 * @param WP_Post $post The post object.
 	 */
 	public static function newspack_network_distributed_post_meta( $meta, $post ) {
-		$byline_is_active = \get_post_meta( \get_the_ID(), self::META_KEY_ACTIVE, true );
+		$byline_is_active = \get_post_meta( $post->ID, self::META_KEY_ACTIVE, true );
 		if ( ! $byline_is_active ) {
 			return $meta;
 		}
