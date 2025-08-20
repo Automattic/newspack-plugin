@@ -41,6 +41,7 @@ class Bylines {
 		// Newspack Network compatibility.
 		add_filter( 'newspack_network_distributed_post_meta', [ __CLASS__, 'newspack_network_distributed_post_meta' ], 10, 2 );
 		add_action( 'newspack_network_incoming_post_inserted', [ __CLASS__, 'newspack_network_incoming_post_inserted' ], 10, 3 );
+		add_filter( 'the_author', [ __CLASS__, 'replace_feed_author' ], 99, 1 );
 	}
 
 	/**
@@ -389,6 +390,21 @@ class Bylines {
 		}
 
 		update_post_meta( $post_id, self::META_KEY_BYLINE, $byline );
+	}
+
+	/**
+	 * Replace feed author with byline.
+	 *
+	 * @param string $display_name The author display name.
+	 */
+	public static function replace_feed_author( $display_name ) {
+		if ( is_feed() ) {
+			$byline = self::get_post_byline_html( false, false );
+			if ( $byline ) {
+				$display_name = html_entity_decode( wp_strip_all_tags( $byline ) );
+			}
+		}
+		return $display_name;
 	}
 }
 Bylines::init();
