@@ -22,6 +22,7 @@ import FeaturedImagePostsAll from './featured-image-posts-all';
 import FeaturedImagePostsNew from './featured-image-posts-new';
 import MediaCredits from './media-credits';
 import AccessibilityStatement from './accessibility-statement';
+import PwaDisplayMode from './pwa-display-mode';
 
 export default function AdvancedSettings() {
 	const [ data, setData ] = hooks.useObjectState< AdvancedSettings >( {
@@ -29,6 +30,7 @@ export default function AdvancedSettings() {
 	} );
 	const [ etc, setEtc ] = hooks.useObjectState< Etc >( {
 		post_count: '0',
+		has_pwa_plugin: false,
 	} );
 
 	const [ recirculationData, setRecirculationData ] = hooks.useObjectState< Recirculation >( {
@@ -142,6 +144,11 @@ export default function AdvancedSettings() {
 			<WizardSection>
 				<AccessibilityStatement isFetching={ isFetching } />
 			</WizardSection>
+			{ etc.has_pwa_plugin ? (
+				<WizardSection title={ __( 'Progressive Web App', 'newspack-plugin' ) }>
+					<PwaDisplayMode data={ data } update={ setData } isFetching={ isFetching } />
+				</WizardSection>
+			) : null }
 			{ errorMessage && <Notice /> }
 			<div className="newspack-buttons-card">
 				<Button variant="primary" onClick={ save }>

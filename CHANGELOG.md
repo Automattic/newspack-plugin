@@ -1,3 +1,26 @@
+# [6.16.0](https://github.com/Automattic/newspack-plugin/compare/v6.15.3...v6.16.0) (2025-08-25)
+
+
+### Bug Fixes
+
+* lint issues and improve query condition for pattern filtering ([#4146](https://github.com/Automattic/newspack-plugin/issues/4146)) ([490896a](https://github.com/Automattic/newspack-plugin/commit/490896a6180adeff304d63c1d5027cd023fd4c3d))
+* **newsletters:** update plugin API ([#4131](https://github.com/Automattic/newspack-plugin/issues/4131)) ([4383efa](https://github.com/Automattic/newspack-plugin/commit/4383efaa9f0e3a87c1dc4f839310755fcfa140b2))
+* pattern categories count and add filter ([#4134](https://github.com/Automattic/newspack-plugin/issues/4134)) ([738edea](https://github.com/Automattic/newspack-plugin/commit/738edeac7b1a8c7561587096028f89d8e5c945fd))
+* pattern categories count and add filter ([#4139](https://github.com/Automattic/newspack-plugin/issues/4139)) ([ca1815b](https://github.com/Automattic/newspack-plugin/commit/ca1815b4d36b540a6108d979d8c384daa024634f))
+* **rss:** use consistent featured image size ([#4133](https://github.com/Automattic/newspack-plugin/issues/4133)) ([595184c](https://github.com/Automattic/newspack-plugin/commit/595184cc42101d0d08a10d91f89742c091a11568))
+* sanitize newspack_reader_data_item fields on save ([#4138](https://github.com/Automattic/newspack-plugin/issues/4138)) ([a648e6d](https://github.com/Automattic/newspack-plugin/commit/a648e6df4d6560612f0cce9c6d18df31d52775fc))
+* typo in RSS Enhancements ([#4132](https://github.com/Automattic/newspack-plugin/issues/4132)) ([2af30a5](https://github.com/Automattic/newspack-plugin/commit/2af30a5c3998b74c2d6dc29bc69f16c56f4b7036))
+* **woocommerce:** hide duplicated tab headings ([#4142](https://github.com/Automattic/newspack-plugin/issues/4142)) ([a1869ae](https://github.com/Automattic/newspack-plugin/commit/a1869ae5f4d6b242dbea979c26463e7be61c16d0))
+
+
+### Features
+
+* add flag to disable sitekit check ([#4140](https://github.com/Automattic/newspack-plugin/issues/4140)) ([b68bd98](https://github.com/Automattic/newspack-plugin/commit/b68bd98b8f2945b83ea4cb0bf3792362e391c525))
+* **ads:** parent ad unit inventory ([#4084](https://github.com/Automattic/newspack-plugin/issues/4084)) ([844e120](https://github.com/Automattic/newspack-plugin/commit/844e1200d9906ff4eb0056fbb0ae34fd8a9ad841))
+* **ads:** support GAM MCM (parent network code) ([#4117](https://github.com/Automattic/newspack-plugin/issues/4117)) ([f4a8262](https://github.com/Automattic/newspack-plugin/commit/f4a826226ceb914c41825b3d08544bff3f5802b6))
+* **collections:** add cover story image visibility settings ([#4128](https://github.com/Automattic/newspack-plugin/issues/4128)) ([765303f](https://github.com/Automattic/newspack-plugin/commit/765303fec7b81847bbf941e2d31fb94c5a7b870d))
+* **network:** release content distribution ([#4144](https://github.com/Automattic/newspack-plugin/issues/4144)) ([472a0c9](https://github.com/Automattic/newspack-plugin/commit/472a0c9d4195f80ec140d6c28735136a6a9af5a2))
+
 ## [6.15.3](https://github.com/Automattic/newspack-plugin/compare/v6.15.2...v6.15.3) (2025-08-15)
 
 

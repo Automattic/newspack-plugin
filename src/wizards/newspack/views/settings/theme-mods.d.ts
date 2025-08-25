@@ -13,6 +13,7 @@ type NewspackThemes = `newspack-${ ThemeNames }`;
  */
 interface Etc {
 	post_count: string;
+	has_pwa_plugin?: boolean;
 }
 
 /**
@@ -122,6 +123,9 @@ interface AdvancedSettings {
 		status: string;
 		pageUrl: string;
 	};
+
+	// PWA Display Mode.
+	pwa_display_mode: string;
 }
 
 interface MiscSettings {
