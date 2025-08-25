@@ -5,26 +5,26 @@ import { Grid, Notice } from '../../../../../components/src';
 
 interface PwaDisplayModeProps extends ThemeModComponentProps< AdvancedSettings > {}
 
-export default function PwaDisplayMode( { data, isFetching, update }: PwaDisplayModeProps ) {
-	const displayModeOptions = [
-		{
-			label: __( 'Fullscreen', 'newspack-plugin' ),
-			value: 'fullscreen',
-		},
-		{
-			label: __( 'Standalone', 'newspack-plugin' ),
-			value: 'standalone',
-		},
-		{
-			label: __( 'Minimal UI', 'newspack-plugin' ),
-			value: 'minimal-ui',
-		},
-		{
-			label: __( 'Browser', 'newspack-plugin' ),
-			value: 'browser',
-		},
-	];
+const DISPLAY_MODE_OPTIONS = [
+	{
+		label: __( 'Fullscreen', 'newspack-plugin' ),
+		value: 'fullscreen',
+	},
+	{
+		label: __( 'Standalone', 'newspack-plugin' ),
+		value: 'standalone',
+	},
+	{
+		label: __( 'Minimal UI', 'newspack-plugin' ),
+		value: 'minimal-ui',
+	},
+	{
+		label: __( 'Browser', 'newspack-plugin' ),
+		value: 'browser',
+	},
+];
 
+export default function PwaDisplayMode( { data, isFetching, update }: PwaDisplayModeProps ) {
 	return (
 		<Grid gutter={ 32 }>
 			<Grid columns={ 1 } gutter={ 16 }>
@@ -35,7 +35,7 @@ export default function PwaDisplayMode( { data, isFetching, update }: PwaDisplay
 						'newspack-plugin'
 					) }
 					value={ data.pwa_display_mode || 'minimal-ui' }
-					options={ displayModeOptions }
+					options={ DISPLAY_MODE_OPTIONS }
 					onChange={ ( pwa_display_mode: string ) => update( { pwa_display_mode } ) }
 					disabled={ isFetching }
 				/>
