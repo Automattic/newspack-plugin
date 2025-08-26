@@ -154,26 +154,12 @@ class InDesign_Converter {
 	 * @return string Processed content.
 	 */
 	private function process_post_content( $content, $options = [] ) {
-		$content = $this->remove_images_and_captions( $content );
 		$content = $this->process_headings( $content );
+		$content = $this->process_quotes( $content );
 		$content = $this->convert_html_to_indesign( $content );
 		$content = preg_replace( '/<!--.*?-->/s', '', $content );
 		$content = $this->convert_text_for_indesign( $content );
 		$content = $this->clean_whitespace( $content );
-
-		return $content;
-	}
-
-	/**
-	 * Remove images (figures) and captions from content.
-	 *
-	 * @param string $content Post content.
-	 * @return string Content without images and captions.
-	 */
-	private function remove_images_and_captions( $content ) {
-		$content = preg_replace( '/<figure[^>]*>.*?<\/figure>/is', '', $content );
-		$content = preg_replace( '/<figcaption[^>]*>.*?<\/figcaption>/is', '', $content );
-		$content = preg_replace( '/<img[^>]*>/i', '', $content );
 
 		return $content;
 	}
@@ -213,6 +199,33 @@ class InDesign_Converter {
 	}
 
 	/**
+	 * Process blockquotes and pullquotes.
+	 *
+	 * @param string $content Post content.
+	 * @return string Content with processed blockquotes and pullquotes.
+	 */
+	private function process_quotes( $content ) {
+		$pattern      = '/<blockquote[^>]*>(.*?)<\/blockquote>/is';
+		$cite_pattern = '/<cite[^>]*>(.*?)<\/cite>/is';
+
+		preg_match_all( $pattern, $content, $matches );
+		$blockquotes = $matches[1];
+
+		foreach ( $blockquotes as $blockquote ) {
+			$quote = $this->styles['pullquote'] . wp_strip_all_tags( preg_replace( $cite_pattern, '', $blockquote ) );
+
+			preg_match( $cite_pattern, $blockquote, $matches );
+			$cite = $matches[1];
+			if ( ! empty( $cite ) ) {
+				$quote .= "\r\n" . $this->styles['pullquote_name'] . wp_strip_all_tags( $cite );
+			}
+
+			$content = preg_replace( $pattern, $quote, $content, 1 );
+		}
+		return $content;
+	}
+
+	/**
 	 * Convert HTML elements to InDesign tagged text equivalents.
 	 *
 	 * @param string $content Post content.
@@ -220,34 +233,36 @@ class InDesign_Converter {
 	 */
 	private function convert_html_to_indesign( $content ) {
 		$conversions = [
-			// Blockquotes and pullquotes.
-			'/<blockquote[^>]*class="[^"]*wp-block-quote[^"]*"[^>]*>/' => $this->styles['pullquote'],
-			'/<blockquote[^>]*>/'                => $this->styles['pullquote'],
-			'/<cite[^>]*>/'                      => $this->styles['pullquote_name'],
-
 			// Paragraphs.
-			'/<(?!pstyle:)(p[^>]*)>/'            => $this->styles['paragraph'],
+			'/<(?!pstyle:)(p[^>]*)>/' => $this->styles['paragraph'],
+
+			// Lists. TODO: Handle numbered and nested lists.
+			'/<li[^>]*>/'             => '<bnListType:Bullet>',
+
+			// Line breaks.
+			'/<br[^>]*>/'             => '<0x000A>',
 
 			// Typography.
-			'/<strong[^>]*>/'                    => '<cTypeface:Bold>',
-			'/<\/strong>/'                       => '<cTypeface:>',
-			'/<b[^>]*>/'                         => '<cTypeface:Bold>',
-			'/<\/b>/'                            => '<cTypeface:>',
-			'/<em[^>]*>/'                        => '<cTypeface:Italic>',
-			'/<\/em>/'                           => '<cTypeface:>',
-			'/<i[^>]*>/'                         => '<cTypeface:Italic>',
-			'/<\/i>/'                            => '<cTypeface:>',
+			'/<strong[^>]*>/'         => '<cTypeface:Bold>',
+			'/<\/strong>/'            => '<cTypeface:>',
+			'/<em[^>]*>/'             => '<cTypeface:Italic>',
+			'/<\/em>/'                => '<cTypeface:>',
+			'/<i[^>]*>/'              => '<cTypeface:Italic>',
+			'/<\/i>/'                 => '<cTypeface:>',
 
-			// Remove links but keep content.
-			'/<a[^>]*>/'                         => '',
-			'/<\/a>/'                            => '',
+			// Remove unsupported tags while preserving content.
+			'/<(?:div|ol|ul|a|img|figure|figcaption)[^>]*>/' => '',
 
-			// Remove closing tags for block elements and add line breaks.
-			'/<\/(?:p|blockquote|cite|h[1-6])>/' => "\r\n",
+			// Remove closing tags and add line breaks.
+			'/<\/[^>]*>/'             => "\r\n",
 		];
 
 		foreach ( $conversions as $pattern => $replacement ) {
-			$content = preg_replace( $pattern, $replacement, $content );
+			$content = preg_replace(
+				$pattern,
+				$replacement,
+				$content
+			);
 		}
 
 		return $content;
@@ -274,7 +289,7 @@ class InDesign_Converter {
 			'’'  => "'",
 
 			// Ellipsis.
-			'…'  => '...',
+			'…'  => '<0x2026>',
 
 			// Special characters.
 			'•'  => '<CharStyle:bullet>n<CharStyle:>',
