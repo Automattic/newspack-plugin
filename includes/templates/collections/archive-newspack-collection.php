@@ -23,7 +23,7 @@ do_action( 'newspack_collections_archive_start' );
 
 <section id="primary" class="content-area">
 	<header class="page-header">
-		<h1 class="page-title"><?php echo esc_html( Settings::get_collection_label() ); ?></h1>
+		<h1 class="page-title"><span class="page-description"><?php echo esc_html( Settings::get_collection_label() ); ?></span></h1>
 	</header><!-- .page-header -->
 
 	<main id="main" class="site-main">
