@@ -83,6 +83,41 @@ class Newspack_Test_InDesign_Exporter extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Test converting superscript and subscript.
+	 */
+	public function test_convert_superscript_and_subscript() {
+		$post_id = $this->factory->post->create(
+			[
+				'post_title'   => 'Test Post',
+				'post_content' => '<p>This is a test post with <sup>superscript</sup> and <sub>subscript</sub>.</p>',
+			]
+		);
+
+		$converter = new InDesign_Converter();
+		$content = $converter->convert_post( $post_id );
+		$this->assertStringContainsString( '<pstyle:text>This is a test post with <cPosition:Superscript>superscript<cPosition:> and <cPosition:Subscript>subscript<cPosition:>.', $content );
+	}
+
+	/**
+	 * Test cleaning img markup.
+	 */
+	public function test_clean_img_markup() {
+		$post_id = $this->factory->post->create(
+			[
+				'post_title'   => 'Test Post',
+				'post_content' => '<figure class="wp-block-image size-large"><img src="http://localhost/image.jpg" alt="" class="wp-image-1234"/><figcaption class="wp-element-caption">My Caption</figcaption></figure>',
+			]
+		);
+
+		$converter = new InDesign_Converter();
+		$content = $converter->convert_post( $post_id );
+		$this->assertStringNotContainsString( '<figure', $content );
+		$this->assertStringNotContainsString( '<figcaption', $content );
+		$this->assertStringNotContainsString( '<img', $content );
+		$this->assertStringNotContainsString( 'My Caption', $content );
+	}
+
+	/**
 	 * Test converting HTML entities.
 	 */
 	public function test_convert_html_entities() {

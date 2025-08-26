@@ -249,6 +249,10 @@ class InDesign_Converter {
 			'/<\/em>/'                             => '<cTypeface:>',
 			'/<(?!img)i[^>]*>/'                    => '<cTypeface:Italic>',
 			'/<\/i>/'                              => '<cTypeface:>',
+			'/<sup[^>]*>/'                         => '<cPosition:Superscript>',
+			'/<\/sup>/'                            => '<cPosition:>',
+			'/<sub[^>]*>/'                         => '<cPosition:Subscript>',
+			'/<\/sub>/'                            => '<cPosition:>',
 
 			// Remove unsupported tags while preserving content.
 			'/<(?:div|ol|ul|a|img|figure)[^>]*>/'  => '',
