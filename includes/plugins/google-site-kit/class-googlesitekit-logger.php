@@ -27,9 +27,18 @@ class GoogleSiteKit_Logger {
 	const LOG_CODE_DISCONNECTED = 'newspack_googlesitekit_disconnected';
 
 	/**
-	 * Initialize hooks and filters.
+	 * Initialize hooks.
+	 *
+	 * @return void
 	 */
 	public static function init() {
+		add_action( 'init', [ __CLASS__, 'init_hooks' ] );
+	}
+
+	/**
+	 * Initialize hooks and filters.
+	 */
+	public static function init_hooks() {
 		if (
 			! method_exists( 'Newspack_Manager', 'is_connected_to_production_manager' ) || (
 				method_exists( 'Newspack_Manager', 'is_connected_to_production_manager' )
