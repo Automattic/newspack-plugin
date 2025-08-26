@@ -230,28 +230,31 @@ class InDesign_Converter {
 	 */
 	private function convert_html_to_indesign( $content ) {
 		$conversions = [
+			// Remove figcaption entirely. TODO: Move them to the bottom of the export file.
+			'/<figcaption[^>]*>.*?<\/figcaption>/' => '',
+
 			// Paragraphs.
-			'/<(?!pstyle:)(p[^>]*)>/' => $this->styles['paragraph'],
+			'/<(?!pstyle:)(p[^>]*)>/'              => $this->styles['paragraph'],
 
 			// Lists. TODO: Handle numbered and nested lists.
-			'/<li[^>]*>/'             => '<bnListType:Bullet>',
+			'/<li[^>]*>/'                          => '<bnListType:Bullet>',
 
 			// Line breaks.
-			'/<br[^>]*>/'             => '<0x000A>',
+			'/<br[^>]*>/'                          => '<0x000A>',
 
 			// Typography.
-			'/<strong[^>]*>/'         => '<cTypeface:Bold>',
-			'/<\/strong>/'            => '<cTypeface:>',
-			'/<em[^>]*>/'             => '<cTypeface:Italic>',
-			'/<\/em>/'                => '<cTypeface:>',
-			'/<i[^>]*>/'              => '<cTypeface:Italic>',
-			'/<\/i>/'                 => '<cTypeface:>',
+			'/<strong[^>]*>/'                      => '<cTypeface:Bold>',
+			'/<\/strong>/'                         => '<cTypeface:>',
+			'/<em[^>]*>/'                          => '<cTypeface:Italic>',
+			'/<\/em>/'                             => '<cTypeface:>',
+			'/<(?!img)i[^>]*>/'                    => '<cTypeface:Italic>',
+			'/<\/i>/'                              => '<cTypeface:>',
 
 			// Remove unsupported tags while preserving content.
-			'/<(?:div|ol|ul|a|img|figure|figcaption)[^>]*>/' => '',
+			'/<(?:div|ol|ul|a|img|figure)[^>]*>/'  => '',
 
 			// Remove closing tags and add line breaks.
-			'/<\/[^>]*>/'             => "\r\n",
+			'/<\/[^>]*>/'                          => "\r\n",
 		];
 
 		foreach ( $conversions as $pattern => $replacement ) {
