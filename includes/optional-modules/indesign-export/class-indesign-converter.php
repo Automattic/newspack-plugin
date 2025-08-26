@@ -27,7 +27,6 @@ class InDesign_Converter {
 		'byline'            => '<pstyle:byline>By ',
 		'pullquote'         => '<pstyle:pullquote>',
 		'pullquote_name'    => '<pstyle:pullquotename>',
-		'end_of_story'      => '<cstyle:endbullet>n<cstyle:>',
 	];
 
 	/**
@@ -86,10 +85,6 @@ class InDesign_Converter {
 
 		$post_content = $this->process_post_content( $post->post_content, $options );
 		$content_parts[] = $post_content;
-
-		if ( ! empty( $this->styles['end_of_story'] ) ) {
-			$content_parts[] = $this->styles['end_of_story'];
-		}
 
 		return implode( "\r\n", array_filter( $content_parts ) );
 	}
@@ -215,9 +210,11 @@ class InDesign_Converter {
 			$quote = $this->styles['pullquote'] . wp_strip_all_tags( preg_replace( $cite_pattern, '', $blockquote ) );
 
 			preg_match( $cite_pattern, $blockquote, $matches );
-			$cite = $matches[1];
-			if ( ! empty( $cite ) ) {
-				$quote .= "\r\n" . $this->styles['pullquote_name'] . wp_strip_all_tags( $cite );
+			if ( ! empty( $matches ) ) {
+				$cite = $matches[1];
+				if ( ! empty( $cite ) ) {
+					$quote .= "\r\n" . $this->styles['pullquote_name'] . wp_strip_all_tags( $cite );
+				}
 			}
 
 			$content = preg_replace( $pattern, $quote, $content, 1 );
@@ -288,29 +285,8 @@ class InDesign_Converter {
 			'‘'  => "'",
 			'’'  => "'",
 
-			// Ellipsis.
-			'…'  => '<0x2026>',
-
 			// Special characters.
 			'•'  => '<CharStyle:bullet>n<CharStyle:>',
-
-			// accented characters.
-			'ā'  => '<0x0101>',
-			'à'  => '<0x00E0>',
-			'é'  => '<0x00E9>',
-			'è'  => '<0x00E8>',
-			'ê'  => '<0x00EA>',
-			'É'  => '<0x00C9>',
-			'È'  => '<0x00C8>',
-			'í'  => '<0x00ED>',
-			'ñ'  => '<0x00F1>',
-			'Ñ'  => '<0x00D1>',
-			'ö'  => '<0x00F6>',
-			'ô'  => '<0x00F4>',
-			'ő'  => '<0x0151>',
-			'û'  => '<0x00FB>',
-			'Û'  => '<0x00DB>',
-			'ú'  => '<0x00FA>',
 		];
 
 		$text = str_replace( array_keys( $conversions ), array_values( $conversions ), $text );
@@ -324,6 +300,17 @@ class InDesign_Converter {
 
 		// Remove non-breaking space UTF-8 character.
 		$text = str_replace( "\xC2\xA0", ' ', $text );
+
+		// Convert remaining special characters to hexadecimal unicode code points.
+		$char_length = mb_strlen( $text, 'UTF-8' );
+		for ( $i = 0; $i < $char_length; $i++ ) {
+			$char       = mb_substr( $text, $i, 1, 'UTF-8' );
+			$code_point = mb_ord( $char, 'UTF-8' );
+			if ( $code_point > 127 ) {
+				$text        = str_replace( $char, sprintf( '<0x%04X>', $code_point ), $text );
+				$char_length = mb_strlen( $text, 'UTF-8' );
+			}
+		}
 
 		return $text;
 	}
