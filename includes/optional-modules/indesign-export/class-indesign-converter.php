@@ -257,10 +257,10 @@ class InDesign_Converter {
 			// Remove unsupported tags while preserving content.
 			'/<(?:div|ol|ul|a|img|figure)[^>]*>/'  => '',
 
-			// Replace paragraphs end tags with line breaks.
-			'/<\/p>/'                              => "\r\n",
+			// Replace paragraphs and lists end tags with line breaks.
+			'/<\/(?:p|li|ul|ol)[^>]*>/'            => "\r\n",
 
-			// Remove all closing tags.
+			// Remove all remaining closing tags.
 			'/<\/[^>]*>/'                          => '',
 		];
 
