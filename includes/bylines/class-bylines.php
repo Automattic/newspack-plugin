@@ -361,6 +361,7 @@ class Bylines {
 
 	/**
 	 * After an incoming post is inserted, update the IDs with the IDs in the target site, based on the mapping that was sent.
+	 * If an author ID is not found in the mapping, remove the entire author shortcode and keep only the author name.
 	 *
 	 * @param int   $post_id   The post ID.
 	 * @param bool  $is_linked Whether the post is linked.
@@ -372,22 +373,42 @@ class Bylines {
 		}
 
 		$byline = get_post_meta( $post_id, self::META_KEY_BYLINE, true );
-
-		$mapping = get_post_meta( $post_id, '_newspack_byline_network_authors', true );
-
-		$mapping = json_decode( $mapping, true );
-
-		if ( empty( $mapping ) ) {
+		if ( empty( $byline ) ) {
 			return;
 		}
 
-		foreach ( $mapping as $author_id => $author_email ) {
-			$local_user = get_user_by( 'email', $author_email );
-			if ( ! $local_user ) {
-				continue;
-			}
-			$byline = str_replace( 'id=' . $author_id, 'id=' . $local_user->ID, $byline );
+		$mapping = get_post_meta( $post_id, '_newspack_byline_network_authors', true );
+		$mapping = json_decode( $mapping, true );
+
+		// If mapping is empty, set it to empty array so we still process shortcodes.
+		if ( empty( $mapping ) ) {
+			$mapping = [];
 		}
+
+		// Process all author shortcodes in one pass.
+		$byline = preg_replace_callback(
+			'/\[Author id=(\d+)\](.*?)\[\/Author\]/',
+			function( $matches ) use ( $mapping ) {
+				$author_id = $matches[1];
+				$author_name = $matches[2];
+
+				// If the author ID is not in the mapping, return just the author name.
+				if ( ! array_key_exists( $author_id, $mapping ) ) {
+					return $author_name;
+				}
+
+				// If the author ID is in the mapping but no local user found, return just the author name.
+				$author_email = $mapping[ $author_id ];
+				$local_user = get_user_by( 'email', $author_email );
+				if ( ! $local_user ) {
+					return $author_name;
+				}
+
+				// Return the original shortcode with updated ID.
+				return sprintf( '[Author id=%d]%s[/Author]', $local_user->ID, $author_name );
+			},
+			$byline
+		);
 
 		update_post_meta( $post_id, self::META_KEY_BYLINE, $byline );
 	}

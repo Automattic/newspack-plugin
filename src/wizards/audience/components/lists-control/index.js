@@ -34,7 +34,7 @@ export default function ListsControl( { label, help, placeholder, value, onChang
 				const values = Array.isArray( lists ) ? lists : Object.values( lists );
 				return ids
 					.map( id => {
-						const item = values.find( it => ( isNaN( it.id ) ? it.id : parseInt( it.id ) === id ) );
+						const item = values.find( it => ( isNaN( it.id ) ? it.id : parseInt( it.id ) ) === id );
 						if ( item ) {
 							return getSuggestions( item );
 						}
