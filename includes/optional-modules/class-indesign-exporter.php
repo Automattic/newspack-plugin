@@ -37,6 +37,8 @@ class InDesign_Exporter {
 
 		require_once NEWSPACK_ABSPATH . 'includes/optional-modules/indesign-export/class-indesign-converter.php';
 
+		add_action( 'enqueue_block_editor_assets', [ __CLASS__, 'enqueue_block_editor_assets' ] );
+
 		$supported_post_types = self::get_supported_post_types();
 		foreach ( $supported_post_types as $post_type ) {
 			add_filter( "bulk_actions-edit-{$post_type}", [ __CLASS__, 'add_bulk_action' ] );
@@ -78,6 +80,25 @@ class InDesign_Exporter {
 		 * @param array $supported_post_types Array of post type names that support InDesign export.
 		 */
 		return apply_filters( 'newspack_indesign_export_supported_post_types', $supported_post_types );
+	}
+
+	/**
+	 * Enqueue block editor assets.
+	 */
+	public static function enqueue_block_editor_assets() {
+		$screen = get_current_screen();
+		if ( ! in_array( $screen->post_type, self::get_supported_post_types(), true ) ) {
+			return;
+		}
+
+		$asset = require NEWSPACK_ABSPATH . 'dist/indesign-export.asset.php';
+		wp_enqueue_script(
+			'newspack-indesign-export',
+			\Newspack\Newspack::plugin_url() . '/dist/indesign-export.js',
+			$asset['dependencies'],
+			$asset['version'],
+			true
+		);
 	}
 
 	/**
