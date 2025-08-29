@@ -10,9 +10,19 @@
 			border-radius: var(--newspack-ui-border-radius-m);
 			display: flex;
 			flex-wrap: wrap;
-			gap: calc(var(--newspack-ui-spacer-base) / 2);
+			gap: var(--newspack-ui-spacer-base);
 			justify-content: center;
-			padding: calc(var(--newspack-ui-spacer-base) / 2);
+			padding: var(--newspack-ui-spacer-base);
+
+			&:has([class*="--x-small"]) {
+				gap: calc(var(--newspack-ui-spacer-base) * 0.75);
+				padding: calc(var(--newspack-ui-spacer-base) * 0.75);
+			}
+
+			&:has([class*="--small"]) {
+				gap: calc(var(--newspack-ui-spacer-base) / 2);
+				padding: calc(var(--newspack-ui-spacer-base) / 2);
+			}
 
 			.newspack-ui__button {
 				background: transparent;
@@ -20,6 +30,21 @@
 				border-radius: var(--newspack-ui-border-radius-s);
 				color: var(--newspack-ui-color-neutral-60);
 				cursor: pointer;
+				padding:
+					calc(var(--newspack-ui-spacer-2) - 1px)
+					calc(var(--newspack-ui-spacer-5) - 1px);
+
+				&[class*="--x-small"] {
+					padding:
+						calc(var(--newspack-ui-spacer-base) * 0.75 - 1px)
+						calc(var(--newspack-ui-spacer-2) - 1px);
+				}
+
+				&[class*="--small"] {
+					padding:
+						calc(var(--newspack-ui-spacer-base) - 1px)
+						calc(var(--newspack-ui-spacer-3) - 1px);
+				}
 
 				&:hover {
 					background: transparent;
@@ -31,7 +56,7 @@
 
 				&:focus-visible {
 					outline: 2px solid var(--newspack-ui-color-button-bg);
-					outline-offset: 2px;
+					outline-offset: 1px;
 				}
 
 				&:not(:last-child) {
