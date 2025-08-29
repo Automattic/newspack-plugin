@@ -148,4 +148,20 @@ class Newspack_Test_InDesign_Exporter extends WP_UnitTestCase {
 		$content = $converter->convert_post( $post_id );
 		$this->assertStringContainsString( '<0x00E0><0x00E1><0x00E2><0x00E3><0x00E4><0x00E5><0x00E6><0x00E7><0x00E8><0x00E9><0x00EA><0x00EB><0x00EC><0x00ED><0x00EE><0x00EF><0x00F1><0x00F2><0x00F3><0x00F4><0x00F5><0x00F6><0x00F8><0x00F9><0x00FA><0x00FB><0x00FC><0x00FD><0x00FF><0x0100><0x0101><0x0102><0x0103><0x2026><0x20AC>', $content );
 	}
+
+	/**
+	 * Test blocks with custom tags.
+	 */
+	public function test_convert_blocks_with_custom_tags() {
+		$post_id = $this->factory->post->create(
+			[
+				'post_title'   => 'Test Post',
+				'post_content' => '<!-- wp:paragraph {"indesignTag":"customparagraph"} --><p>This is a test post with custom tag.</p><!-- /wp:paragraph -->',
+			]
+		);
+
+		$converter = new InDesign_Converter();
+		$content = $converter->convert_post( $post_id );
+		$this->assertStringContainsString( '<customparagraph>This is a test post with custom tag.', $content );
+	}
 }
