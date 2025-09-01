@@ -10,6 +10,8 @@ import overlays from './overlays.js';
 import initAnalytics from './analytics.js';
 import setupArticleViewsAggregates from './article-view.js';
 
+import './subscription-tiers-modal.js';
+
 /**
  * Reader Activation Library.
  */
