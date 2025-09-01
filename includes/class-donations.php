@@ -241,7 +241,7 @@ class Donations {
 	/**
 	 * Get the child products of the main donation product.
 	 */
-	private static function get_donation_product_child_products_ids() {
+	public static function get_donation_product_child_products_ids() {
 		$child_products_ids = [
 			'once'  => false,
 			'month' => false,

@@ -98,8 +98,8 @@ type AudienceDonationsWizardData = {
 	};
 	order_notes_field: AudienceFieldConfig;
 	product_validation: {
-		has_errors: boolean;
-		has_warnings: boolean;
-		products: {};
+		[ key: string ]: {
+			issues: any[];
+		};
 	};
 };

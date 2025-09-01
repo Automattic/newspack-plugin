@@ -254,18 +254,17 @@ const Donation = () => {
 		} );
 
 	// Check for product validation errors.
-	const hasProductValidationErrors = wizardData.product_validation?.has_errors;
-	const hasProductValidationWarnings = wizardData.product_validation?.has_warnings;
-	const productValidation = wizardData.product_validation;
+	const validationResults = Object.values( wizardData.product_validation || {} );
+	const hasInvalidProducts = validationResults.every( product => product.issues.length !== 0 );
 
 	return (
 		<WizardsTab title={ __( 'Configuration', 'newspack-plugin' ) }>
-			{ /* Display product validation warnings */ }
-			{ productValidation && ( hasProductValidationWarnings || hasProductValidationErrors ) && (
+			{ /* Display product validation issues */ }
+			{ hasInvalidProducts ? (
 				<Notice isWarning noticeText={ __( 'Some donation products are invalid:', 'newspack-plugin' ) } style={ { marginBottom: '16px' } }>
 					<ul style={ { marginTop: '8px', marginBottom: '0' } }>
-						{ Object.values( productValidation.products ).map( ( product: any ) => {
-							if ( product.warnings && product.warnings.length > 0 ) {
+						{ validationResults.map( ( product: any ) => {
+							if ( product.issues && product.issues.length > 0 ) {
 								return (
 									<li key={ product.product_id } style={ { marginBottom: '8px' } }>
 										<strong>
@@ -278,7 +277,7 @@ const Donation = () => {
 											{ product.frequency && ` (${ product.frequency })` }:
 										</strong>
 										<ul style={ { marginTop: '4px', marginLeft: '20px' } }>
-											{ product.warnings.map( ( warning: string, index: number ) => (
+											{ product.issues.map( ( warning: string, index: number ) => (
 												<li key={ index }>{ warning }</li>
 											) ) }
 										</ul>
@@ -289,7 +288,7 @@ const Donation = () => {
 						} ) }
 					</ul>
 				</Notice>
-			) }
+			) : null }
 
 			{ wizardData.donation_page && (
 				<>

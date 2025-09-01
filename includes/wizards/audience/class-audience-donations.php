@@ -367,27 +367,14 @@ class Audience_Donations extends Wizard {
 	 * @return array Validation results for donation products.
 	 */
 	protected function validate_donation_products() {
-		$validation_results = [
-			'has_errors'   => false,
-			'has_warnings' => false,
-			'products'     => [],
-		];
+		$validation_results = [];
 
 		// Check if WooCommerce is active.
-		if ( ! function_exists( 'wc_get_product' ) || ! class_exists( '\Newspack\WooCommerce_Product_Validator' ) ) {
+		if ( ! class_exists( '\Newspack\WooCommerce_Product_Validator' ) ) {
 			return $validation_results;
 		}
 
-		// Get the actual donation product IDs using the internal method.
-		try {
-			$reflection = new \ReflectionClass( 'Newspack\Donations' );
-			$method = $reflection->getMethod( 'get_donation_product_child_products_ids' );
-			$method->setAccessible( true );
-			$donation_product_ids = $method->invoke( null );
-		} catch ( Exception $e ) {
-			return $validation_results;
-		}
-		
+		$donation_product_ids = Donations::get_donation_product_child_products_ids( null );
 		// Check if we have donation products configured.
 		if ( empty( array_filter( $donation_product_ids ) ) ) {
 			return $validation_results;
@@ -400,32 +387,20 @@ class Audience_Donations extends Wizard {
 			}
 
 			$validation = WooCommerce_Product_Validator::validate_product_purchasability( $product_id );
-			
+
 			if ( is_wp_error( $validation ) ) {
-				$validation_results['products'][ $frequency ] = [
+				$validation_results[ $frequency ] = [
 					'product_id' => $product_id,
 					'frequency'  => $frequency,
-					'is_valid'   => false,
 					'issues'     => [ $validation->get_error_message() ],
-					'warnings'   => [],
 				];
-				$validation_results['has_errors'] = true;
 			} else {
-				$validation_results['products'][ $frequency ] = [
+				$validation_results[ $frequency ] = [
 					'product_id'   => $product_id,
 					'product_name' => $validation['product_name'],
 					'frequency'    => $frequency,
-					'is_valid'     => $validation['is_valid'],
 					'issues'       => $validation['issues'],
-					'warnings'     => $validation['warnings'],
 				];
-
-				if ( ! $validation['is_valid'] ) {
-					$validation_results['has_errors'] = true;
-				}
-				if ( ! empty( $validation['warnings'] ) ) {
-					$validation_results['has_warnings'] = true;
-				}
 			}
 		}
 
