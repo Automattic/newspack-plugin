@@ -258,6 +258,7 @@ class Audience_Donations extends Wizard {
 			],
 			'donation_data'       => Donations::get_donation_settings(),
 			'donation_page'       => Donations::get_donation_page_info(),
+			'product_validation'  => $this->validate_donation_products(),
 		];
 		if ( 'wc' === $platform ) {
 			$plugin_status    = true;
@@ -358,5 +359,76 @@ class Audience_Donations extends Wizard {
 		}
 
 		return true;
+	}
+
+	/**
+	 * Validate donation products for purchasability and restrictions.
+	 *
+	 * @return array Validation results for donation products.
+	 */
+	protected function validate_donation_products() {
+		$validation_results = [
+			'has_errors'   => false,
+			'has_warnings' => false,
+			'products'     => [],
+		];
+
+		// Check if WooCommerce is active.
+		if ( ! function_exists( 'wc_get_product' ) || ! class_exists( '\Newspack\WooCommerce_Product_Validator' ) ) {
+			return $validation_results;
+		}
+
+		// Get the actual donation product IDs using the internal method.
+		try {
+			$reflection = new \ReflectionClass( 'Newspack\Donations' );
+			$method = $reflection->getMethod( 'get_donation_product_child_products_ids' );
+			$method->setAccessible( true );
+			$donation_product_ids = $method->invoke( null );
+		} catch ( Exception $e ) {
+			return $validation_results;
+		}
+		
+		// Check if we have donation products configured.
+		if ( empty( array_filter( $donation_product_ids ) ) ) {
+			return $validation_results;
+		}
+
+		// Validate each donation product.
+		foreach ( $donation_product_ids as $frequency => $product_id ) {
+			if ( empty( $product_id ) ) {
+				continue;
+			}
+
+			$validation = WooCommerce_Product_Validator::validate_product_purchasability( $product_id );
+			
+			if ( is_wp_error( $validation ) ) {
+				$validation_results['products'][ $frequency ] = [
+					'product_id' => $product_id,
+					'frequency'  => $frequency,
+					'is_valid'   => false,
+					'issues'     => [ $validation->get_error_message() ],
+					'warnings'   => [],
+				];
+				$validation_results['has_errors'] = true;
+			} else {
+				$validation_results['products'][ $frequency ] = [
+					'product_id'   => $product_id,
+					'product_name' => $validation['product_name'],
+					'frequency'    => $frequency,
+					'is_valid'     => $validation['is_valid'],
+					'issues'       => $validation['issues'],
+					'warnings'     => $validation['warnings'],
+				];
+
+				if ( ! $validation['is_valid'] ) {
+					$validation_results['has_errors'] = true;
+				}
+				if ( ! empty( $validation['warnings'] ) ) {
+					$validation_results['has_warnings'] = true;
+				}
+			}
+		}
+
+		return $validation_results;
 	}
 }

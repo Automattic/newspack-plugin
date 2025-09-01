@@ -97,4 +97,9 @@ type AudienceDonationsWizardData = {
 		[ key: string ]: AudienceFieldConfig;
 	};
 	order_notes_field: AudienceFieldConfig;
+	product_validation: {
+		has_errors: boolean;
+		has_warnings: boolean;
+		products: {};
+	};
 };

@@ -253,8 +253,44 @@ const Donation = () => {
 			auxData: { saveDonationProduct: true },
 		} );
 
+	// Check for product validation errors.
+	const hasProductValidationErrors = wizardData.product_validation?.has_errors;
+	const hasProductValidationWarnings = wizardData.product_validation?.has_warnings;
+	const productValidation = wizardData.product_validation;
+
 	return (
 		<WizardsTab title={ __( 'Configuration', 'newspack-plugin' ) }>
+			{ /* Display product validation warnings */ }
+			{ productValidation && ( hasProductValidationWarnings || hasProductValidationErrors ) && (
+				<Notice isWarning noticeText={ __( 'Some donation products are invalid:', 'newspack-plugin' ) } style={ { marginBottom: '16px' } }>
+					<ul style={ { marginTop: '8px', marginBottom: '0' } }>
+						{ Object.values( productValidation.products ).map( ( product: any ) => {
+							if ( product.warnings && product.warnings.length > 0 ) {
+								return (
+									<li key={ product.product_id } style={ { marginBottom: '8px' } }>
+										<strong>
+											{ product.product_name ||
+												sprintf(
+													// translators: %d: Product ID.
+													__( 'Product ID %d', 'newspack-plugin' ),
+													product.product_id
+												) }
+											{ product.frequency && ` (${ product.frequency })` }:
+										</strong>
+										<ul style={ { marginTop: '4px', marginLeft: '20px' } }>
+											{ product.warnings.map( ( warning: string, index: number ) => (
+												<li key={ index }>{ warning }</li>
+											) ) }
+										</ul>
+									</li>
+								);
+							}
+							return null;
+						} ) }
+					</ul>
+				</Notice>
+			) }
+
 			{ wizardData.donation_page && (
 				<>
 					<Card noBorder headerActions>

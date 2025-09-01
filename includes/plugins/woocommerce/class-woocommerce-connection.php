@@ -36,6 +36,7 @@ class WooCommerce_Connection {
 		include_once __DIR__ . '/class-woocommerce-cover-fees.php';
 		include_once __DIR__ . '/class-woocommerce-order-utm.php';
 		include_once __DIR__ . '/class-woocommerce-products.php';
+		include_once __DIR__ . '/class-woocommerce-product-validator.php';
 		include_once __DIR__ . '/class-woocommerce-duplicate-orders.php';
 		include_once __DIR__ . '/class-woocommerce-update-payment-notice.php';
 		include_once __DIR__ . '/class-woocommerce-custom-currency-symbol.php';
