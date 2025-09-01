@@ -164,6 +164,9 @@ class WooCommerce_Subscriptions {
 				}
 			}
 		}
+		if ( ! $current_frequency ) {
+			$current_frequency = $frequencies[0];
+		}
 		?>
 		<div id="newspack__subscription-tiers" class="newspack-ui newspack-ui__modal-container" data-state="closed">
 			<div class="newspack-ui__modal-container__overlay"></div>
