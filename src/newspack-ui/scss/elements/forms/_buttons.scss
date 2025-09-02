@@ -197,6 +197,21 @@
 				background: var(--newspack-ui-color-error-5) !important;
 				color: var(--newspack-ui-color-neutral-0) !important;
 			}
+
+			&[class*="--ghost"] {
+				background: transparent;
+				color: var(--newspack-ui-color-error-50);
+
+				&:hover {
+					background: var(--newspack-ui-color-neutral-5);
+					color: var(--newspack-ui-color-error-50);
+				}
+
+				&:disabled {
+					background: transparent !important;
+					color: var(--newspack-ui-color-error-5) !important;
+				}
+			}
 		}
 
 		// Wide
