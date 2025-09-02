@@ -1,0 +1,93 @@
+@use "../../../collections/frontend/breakpoints" as bp;
+
+.wp-block-newspack-collections {
+	// Layout: List.
+	&.layout-list {
+		.wp-block-newspack-collections__item {
+			display: flex;
+			margin-bottom: 2em;
+			align-items: flex-start;
+
+			&:last-child {
+				margin-bottom: 0;
+			}
+		}
+
+		&.image-left {
+			.wp-block-newspack-collections__image {
+				margin-right: 1.5em;
+				flex-shrink: 0;
+			}
+		}
+
+		&.image-right {
+			.wp-block-newspack-collections__item {
+				flex-direction: row-reverse;
+			}
+
+			.wp-block-newspack-collections__image {
+				margin-left: 1.5em;
+				flex-shrink: 0;
+			}
+		}
+
+		// Image sizes for left and right alignments.
+		&.image-left,
+		&.image-right {
+			@media #{bp.$media-sm-up} {
+				&.image-size-small .wp-block-newspack-collections__image {
+					width: 150px;
+				}
+				&.image-size-medium .wp-block-newspack-collections__image {
+					width: 30%;
+				}
+				&.image-size-large .wp-block-newspack-collections__image {
+					width: 50%;
+				}
+			}
+		}
+
+		&.image-top {
+			.wp-block-newspack-collections__item {
+				flex-direction: column;
+			}
+
+			.wp-block-newspack-collections__image {
+				margin-bottom: 1em;
+			}
+
+			// Image sizes for top alignment (sm+ only).
+			@media #{bp.$media-sm-up} {
+				&.image-size-small .wp-block-newspack-collections__image {
+					width: 30%;
+				}
+				&.image-size-medium .wp-block-newspack-collections__image {
+					width: 50%;
+				}
+				&.image-size-large .wp-block-newspack-collections__image {
+					width: 70%;
+				}
+			}
+		}
+
+		// On extra-small screens, ignore image size presets; stack and use full width.
+		@media #{bp.$media-xs-only} {
+			// Ensure stacking wins over the more specific .image-right rule.
+			&.image-right .wp-block-newspack-collections__item,
+			.wp-block-newspack-collections__item {
+				flex-direction: column;
+			}
+
+			&.image-left,
+			&.image-right,
+			&.image-top {
+				.wp-block-newspack-collections__image {
+					width: 100%;
+					max-width: 100%;
+					margin: 0 0 1em 0;
+				}
+			}
+		}
+	}
+}
+

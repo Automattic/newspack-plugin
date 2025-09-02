@@ -1,0 +1,20 @@
+.wp-block-newspack-collections {
+	// CTAs.
+	.wp-block-newspack-collections__ctas {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 8px;
+	}
+
+	// See all collections link.
+	.wp-block-newspack-collections__see-all {
+		text-align: center;
+		grid-column: 1 / -1;
+
+		a:hover {
+			color: var(--newspack-theme-color-against-secondary);
+			background-color: var(--newspack-theme-color-bg-button-hover);
+		}
+	}
+}
+
