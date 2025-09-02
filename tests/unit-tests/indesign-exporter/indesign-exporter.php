@@ -105,7 +105,7 @@ class Newspack_Test_InDesign_Exporter extends WP_UnitTestCase {
 		$post_id = $this->factory->post->create(
 			[
 				'post_title'   => 'Test Post',
-				'post_content' => '<figure class="wp-block-image size-large"><img src="http://localhost/image.jpg" alt="" class="wp-image-1234"/><figcaption class="wp-element-caption">My Caption</figcaption></figure>',
+				'post_content' => '<figure class="wp-block-image size-large"><img src="http://localhost/image.jpg" alt="" class="wp-image-1234"/><figcaption class="wp-element-caption">My Caption <span class="image-credit"><span class="credit-label-wrapper">Credit:</span> <a href="http://localhost/credit">My Credit</a></span></figcaption></figure>',
 			]
 		);
 
@@ -114,6 +114,9 @@ class Newspack_Test_InDesign_Exporter extends WP_UnitTestCase {
 		$this->assertStringNotContainsString( '<figure', $content );
 		$this->assertStringNotContainsString( '<figcaption', $content );
 		$this->assertStringNotContainsString( '<img', $content );
+
+		$this->assertStringContainsString( '<pstyle:PhotoCaption>My Caption', $content );
+		$this->assertStringContainsString( '<pstyle:PhotoCredit>My Credit', $content );
 	}
 
 	/**
