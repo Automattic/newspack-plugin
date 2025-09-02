@@ -83,8 +83,8 @@ class InDesign_Converter {
 			}
 		}
 
-		$post_content = $this->process_post_content( $post->post_content, $options );
-		$content_parts[] = $post_content;
+		$content_parts[] = $this->process_post_content( $post->post_content, $options );
+		$content_parts[] = $this->process_photo_metadata( $post->post_content );
 
 		return implode( "\r\n", array_filter( $content_parts ) );
 	}
@@ -390,6 +390,49 @@ class InDesign_Converter {
 		$content = trim( $content );
 
 		return $content;
+	}
+
+	/**
+	 * Process photo metadata to generate photo credit and caption tags.
+	 *
+	 * @param string $content Post content.
+	 *
+	 * @return string Photo credit and caption tags.
+	 */
+	private function process_photo_metadata( $content ) {
+		// Apply content filters so we get the full credit string.
+		$content = apply_filters( 'the_content', $content );
+
+		preg_match_all( '/<figcaption[^>]*>(.*?)<\/figcaption>/si', $content, $matches );
+		$figcaptions = $matches[1];
+
+		if ( empty( $figcaptions ) ) {
+			return '';
+		}
+
+		$tags = [];
+		foreach ( $figcaptions as $figcaption ) {
+			if ( preg_match( '/<span[^>]*class="image-credit"[^>]*>(.*)<\/span>(?!.*<\/span>)/si', $figcaption, $credit_match ) ) {
+				$credit_content = preg_replace( '/<span[^>]*class="credit-label-wrapper"[^>]*>.*?<\/span>/si', '', $credit_match[1] );
+
+				$item['PhotoCredit']  = wp_strip_all_tags( $credit_content );
+				$item['PhotoCaption'] = wp_strip_all_tags( str_replace( $credit_match[0], '', $figcaption ) );
+			} else {
+				$item['PhotoCaption'] = wp_strip_all_tags( $figcaption );
+			}
+			$tags[] = $item;
+		}
+
+		$tag_content = "\r\n";
+
+		foreach ( $tags as $tag ) {
+			foreach ( $tag as $key => $value ) {
+				$tag_content .= '<pstyle:' . $key . '>' . $value . "\r\n";
+			}
+			$tag_content .= "\r\n";
+		}
+
+		return $tag_content;
 	}
 
 	/**
