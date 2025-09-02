@@ -52,6 +52,10 @@ class Nextdoor {
 
 		// Add custom capability.
 		add_action( 'admin_init', [ $this, 'add_nextdoor_capability' ] );
+
+		// Include required files.
+		require_once NEWSPACK_ABSPATH . 'includes/optional-modules/nextdoor/class-nextdoor-auth.php';
+		require_once NEWSPACK_ABSPATH . 'includes/optional-modules/nextdoor/class-nextdoor-settings.php';
 	}
 
 	/**
@@ -69,6 +73,39 @@ class Nextdoor {
 				$role->add_cap( 'np_nextdoor_publish_posts' );
 			}
 		}
+	}
+
+	/**
+	 * Get Nextdoor settings.
+	 *
+	 * @return array
+	 */
+	public static function get_settings() {
+		return get_option( 'newspack_nextdoor_settings', [] );
+	}
+
+	/**
+	 * Update Nextdoor settings.
+	 *
+	 * @param array $settings Settings array.
+	 * @return bool
+	 */
+	public static function update_settings( $settings ) {
+		return update_option( 'newspack_nextdoor_settings', $settings );
+	}
+
+	/**
+	 * Check if user can publish to Nextdoor.
+	 *
+	 * @param int $user_id User ID.
+	 * @return bool
+	 */
+	public static function can_user_publish( $user_id = null ) {
+		if ( ! $user_id ) {
+			$user_id = get_current_user_id();
+		}
+
+		return user_can( $user_id, 'np_nextdoor_publish_posts' ); //phpcs:ignore WordPress.WP.Capabilities.Unknown
 	}
 }
 
