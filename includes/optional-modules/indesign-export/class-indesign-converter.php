@@ -84,7 +84,7 @@ class InDesign_Converter {
 		}
 
 		$content_parts[] = $this->process_post_content( $post->post_content, $options );
-		$content_parts[] = $this->process_photo_metadata( $post->post_content );
+		$content_parts[] = $this->process_featured_image_metadata( $post );
 
 		return implode( "\r\n", array_filter( $content_parts ) );
 	}
@@ -393,13 +393,42 @@ class InDesign_Converter {
 	}
 
 	/**
-	 * Process photo metadata to generate photo credit and caption tags.
+	 * Process the post featured image metadata to generate photo credit and caption tags.
+	 *
+	 * @param \WP_Post $post Post object.
+	 *
+	 * @return string Photo credit and caption tags.
+	 */
+	private function process_featured_image_metadata( $post ) {
+		$image_id = get_post_thumbnail_id( $post->ID );
+		if ( ! $image_id ) {
+			return '';
+		}
+		$caption = wp_get_attachment_caption( $image_id );
+		$credit  = get_post_meta( $image_id, '_media_credit', true ) ?? '';
+
+		if ( ! $caption && ! $credit ) {
+			return '';
+		}
+
+		$tag_content = "\r\n";
+		if ( $caption ) {
+			$tag_content .= '<pstyle:PhotoCaption>' . $caption . "\r\n";
+		}
+		if ( $credit ) {
+			$tag_content .= '<pstyle:PhotoCredit>' . $credit . "\r\n";
+		}
+		return $tag_content;
+	}
+
+	/**
+	 * Process post images metadata to generate photo credit and caption tags.
 	 *
 	 * @param string $content Post content.
 	 *
 	 * @return string Photo credit and caption tags.
 	 */
-	private function process_photo_metadata( $content ) {
+	private function process_post_images_metadata( $content ) {
 		// Apply content filters so we get the full credit string.
 		$content = apply_filters( 'the_content', $content );
 

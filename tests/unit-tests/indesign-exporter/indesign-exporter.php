@@ -114,9 +114,6 @@ class Newspack_Test_InDesign_Exporter extends WP_UnitTestCase {
 		$this->assertStringNotContainsString( '<figure', $content );
 		$this->assertStringNotContainsString( '<figcaption', $content );
 		$this->assertStringNotContainsString( '<img', $content );
-
-		$this->assertStringContainsString( '<pstyle:PhotoCaption>My Caption', $content );
-		$this->assertStringContainsString( '<pstyle:PhotoCredit>My Credit', $content );
 	}
 
 	/**
