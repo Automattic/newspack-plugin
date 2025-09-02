@@ -54,6 +54,7 @@ class Nextdoor {
 		add_action( 'admin_init', [ $this, 'add_nextdoor_capability' ] );
 
 		// Include required files.
+		require_once NEWSPACK_ABSPATH . 'includes/optional-modules/nextdoor/class-nextdoor-api.php';
 		require_once NEWSPACK_ABSPATH . 'includes/optional-modules/nextdoor/class-nextdoor-auth.php';
 		require_once NEWSPACK_ABSPATH . 'includes/optional-modules/nextdoor/class-nextdoor-settings.php';
 	}
@@ -105,7 +106,17 @@ class Nextdoor {
 			$user_id = get_current_user_id();
 		}
 
-		return user_can( $user_id, 'np_nextdoor_publish_posts' ); //phpcs:ignore WordPress.WP.Capabilities.Unknown
+		return user_can( $user_id, 'np_nextdoor_publish_posts' ); // phpcs:ignore WordPress.WP.Capabilities.Unknown
+	}
+
+	/**
+	 * Check if Nextdoor is connected.
+	 *
+	 * @return bool
+	 */
+	public static function is_connected() {
+		$settings = self::get_settings();
+		return ! empty( $settings['access_token'] ) && ! empty( $settings['page_id'] );
 	}
 }
 
