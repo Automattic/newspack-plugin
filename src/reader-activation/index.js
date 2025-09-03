@@ -9,8 +9,7 @@ import { getCookie, setCookie, generateID, debugLog } from './utils.js';
 import overlays from './overlays.js';
 import initAnalytics from './analytics.js';
 import setupArticleViewsAggregates from './article-view.js';
-
-import './subscription-tiers-modal.js';
+import initSubscriptionTiersModal from './subscription-tiers-modal.js';
 
 /**
  * Reader Activation Library.
@@ -472,6 +471,7 @@ function init() {
 	}
 	emit( EVENTS.reader, reader );
 	initAnalytics( readerActivation );
+	initSubscriptionTiersModal( readerActivation );
 	fixClientID();
 	setupArticleViewsAggregates( readerActivation );
 	attachAuthCookiesListener();
