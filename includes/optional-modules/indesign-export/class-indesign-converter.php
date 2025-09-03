@@ -84,7 +84,7 @@ class InDesign_Converter {
 		}
 
 		$content_parts[] = $this->process_post_content( $post->post_content, $options );
-		$content_parts[] = $this->process_featured_image_metadata( $post );
+		$content_parts[] = $this->process_post_images( $post );
 
 		return implode( "\r\n", array_filter( $content_parts ) );
 	}
@@ -393,72 +393,82 @@ class InDesign_Converter {
 	}
 
 	/**
-	 * Process the post featured image metadata to generate photo credit and caption tags.
+	 * Recursively get all the image blocks.
 	 *
-	 * @param \WP_Post $post Post object.
+	 * @param array $blocks Blocks to process.
 	 *
-	 * @return string Photo credit and caption tags.
+	 * @return array Image blocks.
 	 */
-	private function process_featured_image_metadata( $post ) {
-		$image_id = get_post_thumbnail_id( $post->ID );
-		if ( ! $image_id ) {
-			return '';
+	private function get_image_blocks( $blocks ) {
+		$block_names  = [ 'core/image', 'jetpack/slideshow', 'jetpack/tiled-gallery' ];
+		$image_blocks = [];
+		foreach ( $blocks as $block ) {
+			if ( in_array( $block['blockName'], $block_names, true ) ) {
+				$image_blocks[] = $block;
+			}
 		}
-		$caption = wp_get_attachment_caption( $image_id );
-		$credit  = get_post_meta( $image_id, '_media_credit', true ) ?? '';
-
-		if ( ! $caption && ! $credit ) {
-			return '';
+		if ( ! empty( $block['innerBlocks'] ) ) {
+			$image_blocks = array_merge( $image_blocks, $this->get_image_blocks( $block['innerBlocks'] ) );
 		}
-
-		$tag_content = "\r\n";
-		if ( $caption ) {
-			$tag_content .= '<pstyle:PhotoCaption>' . $caption . "\r\n";
-		}
-		if ( $credit ) {
-			$tag_content .= '<pstyle:PhotoCredit>' . $credit . "\r\n";
-		}
-		return $tag_content;
+		return $image_blocks;
 	}
 
 	/**
 	 * Process post images metadata to generate photo credit and caption tags.
 	 *
-	 * @param string $content Post content.
+	 * @param \WP_Post $post Post object.
 	 *
 	 * @return string Photo credit and caption tags.
 	 */
-	private function process_post_images_metadata( $content ) {
-		// Apply content filters so we get the full credit string.
-		$content = apply_filters( 'the_content', $content );
-
-		preg_match_all( '/<figcaption[^>]*>(.*?)<\/figcaption>/si', $content, $matches );
-		$figcaptions = $matches[1];
-
-		if ( empty( $figcaptions ) ) {
-			return '';
+	private function process_post_images( $post ) {
+		$images = [];
+		$featured_image_id = get_post_thumbnail_id( $post->ID );
+		if ( $featured_image_id ) {
+			$images[ $featured_image_id ] = true;
 		}
 
-		$tags = [];
-		foreach ( $figcaptions as $figcaption ) {
-			if ( preg_match( '/<span[^>]*class="image-credit"[^>]*>(.*)<\/span>(?!.*<\/span>)/si', $figcaption, $credit_match ) ) {
-				$credit_content = preg_replace( '/<span[^>]*class="credit-label-wrapper"[^>]*>.*?<\/span>/si', '', $credit_match[1] );
+		// Avoid processing images from Newspack Network Content Distribution.
+		if ( ! get_post_meta( $post->ID, 'newspack_network_post_id', true ) ) {
+			$blocks       = parse_blocks( $post->post_content );
+			$image_blocks = $this->get_image_blocks( $blocks );
 
-				$item['PhotoCredit']  = wp_strip_all_tags( $credit_content );
-				$item['PhotoCaption'] = wp_strip_all_tags( str_replace( $credit_match[0], '', $figcaption ) );
-			} else {
-				$item['PhotoCaption'] = wp_strip_all_tags( $figcaption );
+			foreach ( $image_blocks as $block ) {
+				if ( ! empty( $block['attrs']['id'] ) ) {
+					$images[ $block['attrs']['id'] ] = true;
+				}
+				if ( ! empty( $block['attrs']['ids'] ) && is_array( $block['attrs']['ids'] ) ) {
+					foreach ( $block['attrs']['ids'] as $id ) {
+						$images[ $id ] = true;
+					}
+				}
 			}
-			$tags[] = $item;
+		}
+
+		if ( empty( array_keys( $images ) ) ) {
+			return '';
 		}
 
 		$tag_content = "\r\n";
 
-		foreach ( $tags as $tag ) {
-			foreach ( $tag as $key => $value ) {
-				$tag_content .= '<pstyle:' . $key . '>' . $value . "\r\n";
+		foreach ( $images as $image_id => $insert_tag ) {
+			if ( ! $insert_tag ) {
+				continue;
 			}
+
+			$caption = wp_get_attachment_caption( $image_id );
+			$credit  = get_post_meta( $image_id, '_media_credit', true ) ?? '';
+
+			if ( ! $caption && ! $credit ) {
+				continue;
+			}
+
 			$tag_content .= "\r\n";
+			if ( $caption ) {
+				$tag_content .= '<pstyle:PhotoCaption>' . $caption . "\r\n";
+			}
+			if ( $credit ) {
+				$tag_content .= '<pstyle:PhotoCredit>' . $credit . "\r\n";
+			}
 		}
 
 		return $tag_content;
