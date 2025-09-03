@@ -422,9 +422,12 @@ class InDesign_Converter {
 	 */
 	private function process_post_images( $post ) {
 		$images = [];
+
 		$featured_image_id = get_post_thumbnail_id( $post->ID );
 		if ( $featured_image_id ) {
-			$images[ $featured_image_id ] = true;
+			if ( ! isset( $images[ $featured_image_id ] ) ) {
+				$images[ $featured_image_id ] = true;
+			}
 		}
 
 		// Avoid processing images from Newspack Network Content Distribution.
@@ -433,12 +436,15 @@ class InDesign_Converter {
 			$image_blocks = $this->get_image_blocks( $blocks );
 
 			foreach ( $image_blocks as $block ) {
-				if ( ! empty( $block['attrs']['id'] ) ) {
-					$images[ $block['attrs']['id'] ] = true;
+				$id = $block['attrs']['id'] ?? null;
+				if ( ! empty( $id ) && ! isset( $images[ $id ] ) ) {
+					$images[ $id ] = true;
 				}
 				if ( ! empty( $block['attrs']['ids'] ) && is_array( $block['attrs']['ids'] ) ) {
 					foreach ( $block['attrs']['ids'] as $id ) {
-						$images[ $id ] = true;
+						if ( ! isset( $images[ $id ] ) ) {
+							$images[ $id ] = true;
+						}
 					}
 				}
 			}
