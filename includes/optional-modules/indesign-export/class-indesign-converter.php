@@ -450,7 +450,7 @@ class InDesign_Converter {
 			}
 		}
 
-		if ( empty( array_keys( $images ) ) ) {
+		if ( empty( array_filter( $images ) ) ) {
 			return '';
 		}
 
