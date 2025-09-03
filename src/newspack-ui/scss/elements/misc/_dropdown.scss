@@ -3,7 +3,11 @@
 .newspack-ui {
 	.newspack-ui {
 		&__dropdown {
+			display: inline-flex;
 			position: relative;
+			&__toggle {
+				margin: 0;
+			}
 			&__content {
 				background: var(--newspack-ui-color-body-bg);
 				border: 1px solid var(--newspack-ui-color-border);
