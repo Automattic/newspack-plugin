@@ -1,3 +1,24 @@
+## [6.16.5](https://github.com/Automattic/newspack-plugin/compare/v6.16.4...v6.16.5) (2025-09-02)
+
+
+### Bug Fixes
+
+* **collections:** update all category/year url params ([#4168](https://github.com/Automattic/newspack-plugin/issues/4168)) ([e829dfb](https://github.com/Automattic/newspack-plugin/commit/e829dfb68033c026a2c72be65a41f558a909e9f2)), closes [#4153](https://github.com/Automattic/newspack-plugin/issues/4153)
+
+## [6.16.4](https://github.com/Automattic/newspack-plugin/compare/v6.16.3...v6.16.4) (2025-09-02)
+
+
+### Bug Fixes
+
+* **collections:** make filter params unique ([#4153](https://github.com/Automattic/newspack-plugin/issues/4153)) ([87bb14c](https://github.com/Automattic/newspack-plugin/commit/87bb14c22ab97ac3fccfc3a5b823be1cc057f266))
+
+## [6.16.3](https://github.com/Automattic/newspack-plugin/compare/v6.16.2...v6.16.3) (2025-09-01)
+
+
+### Bug Fixes
+
+* **indesign:** exporter formatting fixes ([#4158](https://github.com/Automattic/newspack-plugin/issues/4158)) ([a680c21](https://github.com/Automattic/newspack-plugin/commit/a680c21964ccec5facab4ebedcdb718d711cd94d))
+
 ## [6.16.2](https://github.com/Automattic/newspack-plugin/compare/v6.16.1...v6.16.2) (2025-08-29)
 
 

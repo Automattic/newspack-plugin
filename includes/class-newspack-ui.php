@@ -402,6 +402,7 @@ class Newspack_UI {
 							<li><a class="newspack-ui__button newspack-ui__button--ghost" href="#">Dropdown item 1</a></li>
 							<li><a class="newspack-ui__button newspack-ui__button--ghost" href="#">Dropdown item 2</a></li>
 							<li><a class="newspack-ui__button newspack-ui__button--ghost" href="#">Dropdown item 3</a></li>
+							<li><a class="newspack-ui__button newspack-ui__button--ghost newspack-ui__button--destructive" href="#">Cancel</a></li>
 						</ul>
 					</div>
 				</div>
@@ -665,7 +666,9 @@ class Newspack_UI {
 			<button class="newspack-ui__button newspack-ui__button--outline" disabled>Outline Button Disabled</button><br>
 			<button class="newspack-ui__button newspack-ui__button--destructive">Destructive Button</button><br>
 			<button class="newspack-ui__button newspack-ui__button--destructive" disabled>Destructive Button Disabled</button><br>
-			<button class="newspack-ui__button newspack-ui__button--secondary">
+			<button class="newspack-ui__button newspack-ui__button--destructive newspack-ui__button--ghost">Destructive Ghost Button</button><br>
+			<button class="newspack-ui__button newspack-ui__button--destructive newspack-ui__button--ghost" disabled>Destructive Ghost Button Disabled</button><br>
+			<button class="newspack-ui__button newspack-ui__button--secondary newspack-ui__button--google-oauth">
 				<?php \Newspack\Newspack_UI_Icons::print_svg( 'google' ); ?>
 				<span>
 					Sign in with Google
@@ -740,15 +743,6 @@ class Newspack_UI {
 					<button class="newspack-ui__button newspack-ui__button--small">Tab Three</button>
 					<button class="newspack-ui__button newspack-ui__button--small">Tab Four</button>
 					<button class="newspack-ui__button newspack-ui__button--small">Tab Five</button>
-				</div>
-			</div>
-
-			<div class="newspack-ui__segmented-control">
-				<div class="newspack-ui__segmented-control__tabs">
-					<button class="newspack-ui__button newspack-ui__button--medium selected">Tab One</button>
-					<button class="newspack-ui__button newspack-ui__button--medium">Tab Two</button>
-					<button class="newspack-ui__button newspack-ui__button--medium">Tab Three</button>
-					<button class="newspack-ui__button newspack-ui__button--medium">Tab Four</button>
 				</div>
 			</div>
 
@@ -875,7 +869,7 @@ class Newspack_UI {
 
 					<section class="newspack-ui__modal__content">
 
-						<button class="newspack-ui__button newspack-ui__button--secondary newspack-ui__button--wide">
+						<button class="newspack-ui__button newspack-ui__button--secondary newspack-ui__button--google-oauth newspack-ui__button--wide">
 							<?php \Newspack\Newspack_UI_Icons::print_svg( 'google' ); ?>
 							Sign in with Google
 						</button>
@@ -1120,7 +1114,7 @@ class Newspack_UI {
 
 						<section class="newspack-ui__modal__content">
 
-							<button class="newspack-ui__button newspack-ui__button--secondary newspack-ui__button--wide">
+							<button class="newspack-ui__button newspack-ui__button--secondary newspack-ui__button--google-oauth newspack-ui__button--wide">
 								<?php \Newspack\Newspack_UI_Icons::print_svg( 'google', 20 ); ?>
 								Sign in with Google
 							</button>

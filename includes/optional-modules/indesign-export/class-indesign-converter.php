@@ -27,7 +27,6 @@ class InDesign_Converter {
 		'byline'            => '<pstyle:byline>By ',
 		'pullquote'         => '<pstyle:pullquote>',
 		'pullquote_name'    => '<pstyle:pullquotename>',
-		'end_of_story'      => '<cstyle:endbullet>n<cstyle:>',
 	];
 
 	/**
@@ -68,28 +67,24 @@ class InDesign_Converter {
 		$content_parts = [];
 
 		$content_parts[] = '<ASCII-WIN>';
-		$content_parts[] = $this->styles['headline'] . $this->convert_text_for_indesign( $post->post_title );
+		$content_parts[] = $this->styles['headline'] . $this->get_transformed_text( $post->post_title );
 
 		if ( $options['include_subtitle'] ) {
 			$subtitle = $this->get_post_subtitle( $post );
 			if ( $subtitle ) {
-				$content_parts[] = $this->styles['subhead'] . $this->convert_text_for_indesign( $subtitle );
+				$content_parts[] = $this->styles['subhead'] . $this->get_transformed_text( $subtitle );
 			}
 		}
 
 		if ( $options['include_byline'] ) {
 			$byline = $this->get_byline( $post );
 			if ( ! empty( $byline ) ) {
-				$content_parts[] = $this->styles['byline'] . $this->convert_text_for_indesign( $byline );
+				$content_parts[] = $this->styles['byline'] . $this->get_transformed_text( $byline );
 			}
 		}
 
 		$post_content = $this->process_post_content( $post->post_content, $options );
 		$content_parts[] = $post_content;
-
-		if ( ! empty( $this->styles['end_of_story'] ) ) {
-			$content_parts[] = $this->styles['end_of_story'];
-		}
 
 		return implode( "\r\n", array_filter( $content_parts ) );
 	}
@@ -154,37 +149,73 @@ class InDesign_Converter {
 	 * @return string Processed content.
 	 */
 	private function process_post_content( $content, $options = [] ) {
-		$content = $this->remove_images_and_captions( $content );
-		$content = $this->process_headings( $content );
+		if ( has_blocks( $content ) ) {
+			$content = $this->process_blocks( $content );
+		}
+		$content = $this->process_html_headings( $content );
+		$content = $this->process_quotes( $content );
 		$content = $this->convert_html_to_indesign( $content );
 		$content = preg_replace( '/<!--.*?-->/s', '', $content );
-		$content = $this->convert_text_for_indesign( $content );
+		$content = $this->get_transformed_text( $content );
 		$content = $this->clean_whitespace( $content );
 
 		return $content;
 	}
 
 	/**
-	 * Remove images (figures) and captions from content.
+	 * Process blocks in the content.
 	 *
 	 * @param string $content Post content.
-	 * @return string Content without images and captions.
+	 *
+	 * @return string Content with processed blocks.
 	 */
-	private function remove_images_and_captions( $content ) {
-		$content = preg_replace( '/<figure[^>]*>.*?<\/figure>/is', '', $content );
-		$content = preg_replace( '/<figcaption[^>]*>.*?<\/figcaption>/is', '', $content );
-		$content = preg_replace( '/<img[^>]*>/i', '', $content );
-
+	private function process_blocks( $content ) {
+		$blocks = parse_blocks( $content );
+		$content = '';
+		foreach ( $blocks as $block ) {
+			$tag = $this->get_block_tag( $block );
+			if ( ! empty( $tag ) ) {
+				$content .= $tag . $this->get_transformed_text( preg_replace( '/^<[^>]+>(.*)<\/[^>]+>$/s', '$1', trim( $block['innerHTML'] ) ) );
+			} else {
+				$content .= serialize_block( $block );
+			}
+		}
 		return $content;
+	}
+
+	/**
+	 * Get the tag for a block.
+	 *
+	 * @param array $block Block data.
+	 *
+	 * @return string Block tag.
+	 */
+	private function get_block_tag( $block ) {
+		if ( ! empty( $block['attrs']['indesignTag'] ) ) {
+			return sprintf( '<%1$s>', $block['attrs']['indesignTag'] );
+		}
+
+		if ( 'core/paragraph' === $block['blockName'] ) {
+			return $this->styles['paragraph'];
+		}
+
+		if ( 'core/heading' === $block['blockName'] ) {
+			if ( 4 === $block['attrs']['level'] ) {
+				return $this->styles['subhead'];
+			}
+			return $this->styles['paragraph'];
+		}
+		return '';
 	}
 
 	/**
 	 * Process headings in the content.
 	 *
 	 * @param string $content Post content.
+	 *
 	 * @return string Content with processed subheads.
 	 */
-	private function process_headings( $content ) {
+	private function process_html_headings( $content ) {
 		$content = preg_replace_callback(
 			'/<h([2-6])[^>]*>(.*?)<\/h[2-6]>/is',
 			function ( $matches ) {
@@ -193,7 +224,7 @@ class InDesign_Converter {
 					 * Process subheadings (h4 elements) in the content.
 					 */
 					case '4':
-						return $this->styles['subhead'] . $this->convert_text_for_indesign( $matches[2] );
+						return $this->styles['subhead'] . $this->get_transformed_text( $matches[2] );
 					/**
 					 * TODO: Handle other heading levels as per requirements.
 					 * For now, treating them as regular paragraphs.
@@ -203,7 +234,7 @@ class InDesign_Converter {
 					case '5':
 					case '6':
 					default:
-						return $this->styles['paragraph'] . $this->convert_text_for_indesign( $matches[2] );
+						return $this->styles['paragraph'] . $this->get_transformed_text( $matches[2] );
 				}
 			},
 			$content
@@ -213,41 +244,84 @@ class InDesign_Converter {
 	}
 
 	/**
+	 * Process blockquotes and pullquotes.
+	 *
+	 * @param string $content Post content.
+	 *
+	 * @return string Content with processed blockquotes and pullquotes.
+	 */
+	private function process_quotes( $content ) {
+		$pattern      = '/<blockquote[^>]*>(.*?)<\/blockquote>/is';
+		$cite_pattern = '/<cite[^>]*>(.*?)<\/cite>/is';
+
+		preg_match_all( $pattern, $content, $matches );
+		$blockquotes = $matches[1];
+
+		foreach ( $blockquotes as $blockquote ) {
+			$quote = $this->styles['pullquote'] . wp_strip_all_tags( preg_replace( $cite_pattern, '', $blockquote ) );
+
+			preg_match( $cite_pattern, $blockquote, $matches );
+			if ( ! empty( $matches ) ) {
+				$cite = $matches[1];
+				if ( ! empty( $cite ) ) {
+					$quote .= "\r\n" . $this->styles['pullquote_name'] . wp_strip_all_tags( $cite );
+				}
+			}
+
+			$content = preg_replace( $pattern, $quote, $content, 1 );
+		}
+		return $content;
+	}
+
+	/**
 	 * Convert HTML elements to InDesign tagged text equivalents.
 	 *
 	 * @param string $content Post content.
+	 *
 	 * @return string Content with InDesign tags.
 	 */
 	private function convert_html_to_indesign( $content ) {
 		$conversions = [
-			// Blockquotes and pullquotes.
-			'/<blockquote[^>]*class="[^"]*wp-block-quote[^"]*"[^>]*>/' => $this->styles['pullquote'],
-			'/<blockquote[^>]*>/'                => $this->styles['pullquote'],
-			'/<cite[^>]*>/'                      => $this->styles['pullquote_name'],
+			// Remove figcaption entirely. TODO: Move them to the bottom of the export file.
+			'/<figcaption[^>]*>.*?<\/figcaption>/' => '',
 
 			// Paragraphs.
-			'/<(?!pstyle:)(p[^>]*)>/'            => $this->styles['paragraph'],
+			'/<(?!pstyle:)(p[^>]*)>/'              => $this->styles['paragraph'],
+
+			// Lists. TODO: Handle numbered and nested lists.
+			'/<li[^>]*>/'                          => '<bnListType:Bullet>',
+
+			// Line breaks.
+			'/<br[^>]*>/'                          => '<0x000A>',
 
 			// Typography.
-			'/<strong[^>]*>/'                    => '<cTypeface:Bold>',
-			'/<\/strong>/'                       => '<cTypeface:>',
-			'/<b[^>]*>/'                         => '<cTypeface:Bold>',
-			'/<\/b>/'                            => '<cTypeface:>',
-			'/<em[^>]*>/'                        => '<cTypeface:Italic>',
-			'/<\/em>/'                           => '<cTypeface:>',
-			'/<i[^>]*>/'                         => '<cTypeface:Italic>',
-			'/<\/i>/'                            => '<cTypeface:>',
+			'/<strong[^>]*>/'                      => '<cTypeface:Bold>',
+			'/<\/strong>/'                         => '<cTypeface:>',
+			'/<em[^>]*>/'                          => '<cTypeface:Italic>',
+			'/<\/em>/'                             => '<cTypeface:>',
+			'/<(?!img)i[^>]*>/'                    => '<cTypeface:Italic>',
+			'/<\/i>/'                              => '<cTypeface:>',
+			'/<sup[^>]*>/'                         => '<cPosition:Superscript>',
+			'/<\/sup>/'                            => '<cPosition:>',
+			'/<sub[^>]*>/'                         => '<cPosition:Subscript>',
+			'/<\/sub>/'                            => '<cPosition:>',
 
-			// Remove links but keep content.
-			'/<a[^>]*>/'                         => '',
-			'/<\/a>/'                            => '',
+			// Remove unsupported tags while preserving content.
+			'/<(?:div|ol|ul|a|img|figure)[^>]*>/'  => '',
 
-			// Remove closing tags for block elements and add line breaks.
-			'/<\/(?:p|blockquote|cite|h[1-6])>/' => "\r\n",
+			// Replace paragraphs and lists end tags with line breaks.
+			'/<\/(?:p|li|ul|ol)[^>]*>/'            => "\r\n",
+
+			// Remove all remaining closing tags.
+			'/<\/[^>]*>/'                          => '',
 		];
 
 		foreach ( $conversions as $pattern => $replacement ) {
-			$content = preg_replace( $pattern, $replacement, $content );
+			$content = preg_replace(
+				$pattern,
+				$replacement,
+				$content
+			);
 		}
 
 		return $content;
@@ -257,9 +331,10 @@ class InDesign_Converter {
 	 * Convert text for InDesign, handling special characters and typography.
 	 *
 	 * @param string $text Text to convert.
+	 *
 	 * @return string Converted text.
 	 */
-	private function convert_text_for_indesign( $text ) {
+	private function get_transformed_text( $text ) {
 		// Character conversions for InDesign Tagged Text.
 		$conversions = [
 			// Dashes.
@@ -273,29 +348,8 @@ class InDesign_Converter {
 			'‘'  => "'",
 			'’'  => "'",
 
-			// Ellipsis.
-			'…'  => '...',
-
 			// Special characters.
 			'•'  => '<CharStyle:bullet>n<CharStyle:>',
-
-			// accented characters.
-			'ā'  => '<0x0101>',
-			'à'  => '<0x00E0>',
-			'é'  => '<0x00E9>',
-			'è'  => '<0x00E8>',
-			'ê'  => '<0x00EA>',
-			'É'  => '<0x00C9>',
-			'È'  => '<0x00C8>',
-			'í'  => '<0x00ED>',
-			'ñ'  => '<0x00F1>',
-			'Ñ'  => '<0x00D1>',
-			'ö'  => '<0x00F6>',
-			'ô'  => '<0x00F4>',
-			'ő'  => '<0x0151>',
-			'û'  => '<0x00FB>',
-			'Û'  => '<0x00DB>',
-			'ú'  => '<0x00FA>',
 		];
 
 		$text = str_replace( array_keys( $conversions ), array_values( $conversions ), $text );
@@ -310,6 +364,17 @@ class InDesign_Converter {
 		// Remove non-breaking space UTF-8 character.
 		$text = str_replace( "\xC2\xA0", ' ', $text );
 
+		// Convert remaining special characters to hexadecimal unicode code points.
+		$char_length = mb_strlen( $text, 'UTF-8' );
+		for ( $i = 0; $i < $char_length; $i++ ) {
+			$char       = mb_substr( $text, $i, 1, 'UTF-8' );
+			$code_point = mb_ord( $char, 'UTF-8' );
+			if ( $code_point > 127 ) {
+				$text        = str_replace( $char, sprintf( '<0x%04X>', $code_point ), $text );
+				$char_length = mb_strlen( $text, 'UTF-8' );
+			}
+		}
+
 		return $text;
 	}
 
@@ -317,6 +382,7 @@ class InDesign_Converter {
 	 * Clean up whitespace and line breaks.
 	 *
 	 * @param string $content Content to clean.
+	 *
 	 * @return string Cleaned content.
 	 */
 	private function clean_whitespace( $content ) {

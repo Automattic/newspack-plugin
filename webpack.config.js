@@ -53,6 +53,7 @@ const entry = {
 	admin: path.join( __dirname, 'src', 'admin', 'index.js' ),
 	'memberships-gate': path.join( __dirname, 'src', 'memberships-gate', 'gate.js' ),
 	'memberships-gate-metering': path.join( __dirname, 'src', 'memberships-gate', 'metering.js' ),
+	'indesign-export': path.join( __dirname, 'src', 'indesign-export', 'index.js' ),
 
 	// Newspack wizard assets.
 	...wizardsScriptFiles,
