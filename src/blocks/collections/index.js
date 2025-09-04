@@ -35,7 +35,10 @@ export const settings = {
 		__( 'latest', 'newspack-plugin' ),
 		__( 'newspack', 'newspack-plugin' ),
 	],
-	description: __( 'Display Collections with customizable layout and filtering options.', 'newspack-plugin' ),
+	description: __(
+		'An advanced block that allows displaying collections based on different parameters and visual configurations.',
+		'newspack-plugin'
+	),
 	edit: Edit,
 	save: () => null, // Server-side rendered block.
 };
