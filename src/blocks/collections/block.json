@@ -4,9 +4,8 @@
 	"name": "newspack/collections",
 	"version": "1.0.0",
 	"title": "Collections",
-	"icon": "archive",
 	"category": "newspack",
-	"description": "Display Collections with customizable layout and filtering options.",
+	"description": "An advanced block that allows displaying collections based on different parameters and visual configurations.",
 	"keywords": [ "collections", "issues", "publications", "magazines", "groups" ],
 	"supports": {
 		"html": false,
