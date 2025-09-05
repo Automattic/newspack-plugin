@@ -68,33 +68,37 @@ class WooCommerce_Subscriptions {
 	/**
 	 * Get tiered subscription products by frequency given a grouped product.
 	 *
-	 * If no grouped product is provided, it will use all non-donation
-	 * subscription products.
+	 * If no product is provided, it will use all
+	 * non-donation subscription products.
 	 *
-	 * @param \WC_Product_Grouped|null $grouped_product Optional grouped product.
-	 * @param bool|null                $sort_by_price   Whether to sort by price.
+	 * @param \WC_Product|null $product       Optional product.
+	 * @param bool|null        $sort_by_price Whether to sort by price.
 	 *
 	 * @return array<string, \WC_Product[]> Product tiers by frequency.
 	 */
-	public static function get_tiers_by_frequency( $grouped_product = null, $sort_by_price = null ) {
+	public static function get_tiers_by_frequency( $product = null, $sort_by_price = null ) {
 		if ( ! function_exists( 'wc_get_products' ) || ! function_exists( 'wcs_user_has_subscription' ) ) {
 			return [];
 		}
 
-		if ( empty( $grouped_product ) ) {
+		if ( empty( $product ) ) {
 			$products = wc_get_products(
 				[
 					'type'  => [ 'subscription', 'variable-subscription' ],
 					'limit' => -1,
 				]
 			);
-			if ( empty( $products ) ) {
-				return [];
-			}
 			$sort_by_price = $sort_by_price ?? true;
-		} else {
-			$products = $grouped_product->get_children();
+		} elseif ( $product->is_type( 'grouped' ) ) {
+			$products = $product->get_children();
 			$sort_by_price = $sort_by_price ?? false;
+		} elseif ( $product->is_type( 'variable_subscription' ) || $product->is_type( 'subscription' ) ) {
+			$products = [ $product ];
+			$sort_by_price = $sort_by_price ?? true;
+		}
+
+		if ( empty( $products ) ) {
+			return [];
 		}
 
 		$selected_products = [];
@@ -169,7 +173,7 @@ class WooCommerce_Subscriptions {
 	 * Render a product card.
 	 *
 	 * @param \WC_Product $product Product.
-	 * @param bool        $current Whether the product is the current product.
+	 * @param bool        $current Whether the product should have the "current" badge.
 	 */
 	private static function render_product_card( $product, $current = false ) {
 		if ( function_exists( 'wcs_price_string' ) ) {
