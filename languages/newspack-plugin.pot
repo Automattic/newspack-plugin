@@ -2,14 +2,14 @@
 # This file is distributed under the GPL2.
 msgid ""
 msgstr ""
-"Project-Id-Version: Newspack 6.16.4\n"
+"Project-Id-Version: Newspack 6.16.5\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/project\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2025-09-02T15:28:00+00:00\n"
+"POT-Creation-Date: 2025-09-04T08:59:35+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: newspack-plugin\n"
@@ -255,14 +255,14 @@ msgstr ""
 
 #: includes/class-newspack-ui.php:116
 #: includes/class-newspack-ui.php:212
-#: includes/class-newspack-ui.php:842
-#: includes/class-newspack-ui.php:865
-#: includes/class-newspack-ui.php:904
-#: includes/class-newspack-ui.php:939
-#: includes/class-newspack-ui.php:971
-#: includes/class-newspack-ui.php:1019
-#: includes/class-newspack-ui.php:1056
-#: includes/class-newspack-ui.php:1110
+#: includes/class-newspack-ui.php:894
+#: includes/class-newspack-ui.php:917
+#: includes/class-newspack-ui.php:956
+#: includes/class-newspack-ui.php:991
+#: includes/class-newspack-ui.php:1023
+#: includes/class-newspack-ui.php:1071
+#: includes/class-newspack-ui.php:1108
+#: includes/class-newspack-ui.php:1162
 #: includes/reader-activation/class-reader-activation.php:1599
 #: includes/reader-activation/class-reader-activation.php:1714
 #: dist/audience-wizards.c76845edf1a317c1a2e2.js:16
@@ -270,15 +270,15 @@ msgstr ""
 msgid "Close"
 msgstr ""
 
-#: includes/class-newspack-ui.php:793
-#: includes/class-newspack-ui.php:797
-#: includes/class-newspack-ui.php:801
-#: includes/class-newspack-ui.php:805
-#: includes/class-newspack-ui.php:809
-#: includes/class-newspack-ui.php:813
-#: includes/class-newspack-ui.php:817
-#: includes/class-newspack-ui.php:824
-#: includes/class-newspack-ui.php:829
+#: includes/class-newspack-ui.php:845
+#: includes/class-newspack-ui.php:849
+#: includes/class-newspack-ui.php:853
+#: includes/class-newspack-ui.php:857
+#: includes/class-newspack-ui.php:861
+#: includes/class-newspack-ui.php:865
+#: includes/class-newspack-ui.php:869
+#: includes/class-newspack-ui.php:876
+#: includes/class-newspack-ui.php:881
 msgid "Open Menu"
 msgstr ""
 
