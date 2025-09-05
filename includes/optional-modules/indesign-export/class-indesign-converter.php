@@ -406,9 +406,9 @@ class InDesign_Converter {
 			if ( in_array( $block['blockName'], $block_names, true ) ) {
 				$image_blocks[] = $block;
 			}
-		}
-		if ( ! empty( $block['innerBlocks'] ) ) {
-			$image_blocks = array_merge( $image_blocks, $this->get_image_blocks( $block['innerBlocks'] ) );
+			if ( ! empty( $block['innerBlocks'] ) ) {
+				$image_blocks = array_merge( $image_blocks, $this->get_image_blocks( $block['innerBlocks'] ) );
+			}
 		}
 		return $image_blocks;
 	}
