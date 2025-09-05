@@ -68,13 +68,15 @@ class WooCommerce_Subscriptions {
 	/**
 	 * Get tiered subscription products by frequency given a grouped product.
 	 *
-	 * If no grouped product is provided, it will use all non-donation subscription products.
+	 * If no grouped product is provided, it will use all non-donation
+	 * subscription products.
 	 *
 	 * @param \WC_Product_Grouped|null $grouped_product Optional grouped product.
+	 * @param bool|null                $sort_by_price   Whether to sort by price.
 	 *
-	 * @return array
+	 * @return array<string, \WC_Product[]> Product tiers by frequency.
 	 */
-	public static function get_tiers_by_frequency( $grouped_product = null ) {
+	public static function get_tiers_by_frequency( $grouped_product = null, $sort_by_price = null ) {
 		if ( ! function_exists( 'wc_get_products' ) || ! function_exists( 'wcs_user_has_subscription' ) ) {
 			return [];
 		}
@@ -89,8 +91,10 @@ class WooCommerce_Subscriptions {
 			if ( empty( $products ) ) {
 				return [];
 			}
+			$sort_by_price = $sort_by_price ?? true;
 		} else {
 			$products = $grouped_product->get_children();
+			$sort_by_price = $sort_by_price ?? false;
 		}
 
 		$selected_products = [];
@@ -104,11 +108,12 @@ class WooCommerce_Subscriptions {
 				continue;
 			}
 
-			// Always exclude donation products.
+			// Exclude donation products.
 			if ( Donations::is_donation_product( $product->get_id() ) ) {
 				continue;
 			}
-			// Use the variations if it's a variable product.
+
+			// Extract the variations if it's a variable product.
 			if ( $product->is_type( 'variable' ) ) {
 				$variations = $product->get_available_variations();
 				foreach ( $variations as $variation ) {
@@ -125,24 +130,19 @@ class WooCommerce_Subscriptions {
 			if ( ! $frequency ) {
 				continue;
 			}
-			$products_by_frequency[ $frequency ][] = [
-				'id'         => $product->get_id(),
-				'name'       => $product->get_name(),
-				'price'      => $product->get_price(),
-				'price_html' => $product->get_price_html(),
-				'owned'      => wcs_user_has_subscription( get_current_user_id(), $product->get_id(), 'active' ),
-			];
+			$products_by_frequency[ $frequency ][] = $product;
 		}
 
-		// Sort by price.
-		foreach ( $products_by_frequency as $frequency => $products ) {
-			usort(
-				$products,
-				function( $a, $b ) {
-					return intval( $a['price'] ) <=> intval( $b['price'] );
-				}
-			);
-			$products_by_frequency[ $frequency ] = $products;
+		if ( $sort_by_price ) {
+			foreach ( $products_by_frequency as $frequency => $products ) {
+				usort(
+					$products,
+					function( $a, $b ) {
+						return intval( $a->get_price() ) <=> intval( $b->get_price() );
+					}
+				);
+				$products_by_frequency[ $frequency ] = $products;
+			}
 		}
 
 		return $products_by_frequency;
@@ -166,24 +166,67 @@ class WooCommerce_Subscriptions {
 	}
 
 	/**
+	 * Render a product card.
+	 *
+	 * @param \WC_Product $product Product.
+	 * @param bool        $current Whether the product is the current product.
+	 */
+	private static function render_product_card( $product, $current = false ) {
+		if ( function_exists( 'wcs_price_string' ) ) {
+			$price = wcs_price_string(
+				[
+					'recurring_amount'      => $product->get_price(),
+					'subscription_period'   => $product->get_meta( '_subscription_period' ),
+					'subscription_interval' => $product->get_meta( '_subscription_period_interval' ),
+				]
+			);
+		} else {
+			$price = $product->get_price_html();
+		}
+
+		?>
+		<label class="newspack-ui__input-card">
+			<?php if ( $current ) : ?>
+				<span class="newspack-ui__badge newspack-ui__badge--primary"><?php _e( 'Current', 'newspack-plugin' ); ?></span>
+			<?php endif; ?>
+			<input type="radio" name="product_id" value="<?php echo esc_attr( $product->get_id() ); ?>" <?php echo esc_attr( $current ? 'checked' : '' ); ?>>
+			<strong><?php echo esc_html( $product->get_name() ); ?></strong>
+			<span class="newspack-ui__helper-text"><?php echo $price; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
+		</label>
+		<?php
+	}
+
+	/**
 	 * Render subscription tiers modal given a grouped product.
 	 *
 	 * If no grouped product is provided, all non-donation subscription products are rendered.
 	 *
 	 * @param \WC_Product_Grouped|null $grouped_product Optional grouped product.
-	 * @param string|null              $label           Optional title.
+	 * @param string|null              $title           Optional title.
+	 * @param string|null              $button_label    Optional button label.
 	 */
-	public static function render_subscription_tiers_modal( $grouped_product = null, $label = null ) {
+	public static function render_subscription_tiers_modal( $grouped_product = null, $title = null, $button_label = null ) {
 		$tiers = self::get_tiers_by_frequency( $grouped_product );
 		if ( empty( $tiers ) ) {
 			return;
 		}
+
+		// Determine whether there's only 1 item per frequency so we can render a
+		// single tier modal.
+		$is_single_tier = array_reduce(
+			$tiers,
+			function( $carry, $frequency ) {
+				return $carry && count( $frequency ) === 1;
+			},
+			true
+		);
+
 		$frequencies       = array_keys( $tiers );
 		$current_frequency = null;
 		$current_product   = null;
 		foreach ( $frequencies as $frequency ) {
 			foreach ( $tiers[ $frequency ] as $product ) {
-				if ( $product['owned'] ) {
+				if ( wcs_user_has_subscription( get_current_user_id(), $product->get_id(), 'active' ) ) {
 					$current_frequency = $frequency;
 					$current_product   = $product;
 					break 2;
@@ -193,13 +236,15 @@ class WooCommerce_Subscriptions {
 		if ( ! $current_frequency ) {
 			$current_frequency = $frequencies[0];
 		}
-		$label = $label ?? __( 'Change Subscription', 'newspack-plugin' );
+
+		$title        = $title ?? __( 'Complete your transaction', 'newspack-plugin' );
+		$button_label = $button_label ?? __( 'Purchase', 'newspack-plugin' );
 		?>
 		<div class="newspack-ui newspack-ui__modal-container newspack__subscription-tiers" data-state="closed">
 			<div class="newspack-ui__modal-container__overlay"></div>
 			<div class="newspack-ui__modal newspack-ui__modal--small">
 				<header class="newspack-ui__modal__header">
-					<h2><?php echo esc_html( $label ); ?></h2>
+					<h2><?php echo esc_html( $title ); ?></h2>
 					<button class="newspack-ui__button newspack-ui__button--icon newspack-ui__button--ghost newspack-ui__modal__close">
 						<span class="screen-reader-text"><?php esc_html_e( 'Close', 'newspack-plugin' ); ?></span>
 						<?php \Newspack\Newspack_UI_Icons::print_svg( 'close' ); ?>
@@ -207,34 +252,41 @@ class WooCommerce_Subscriptions {
 				</header>
 
 				<form class="newspack-ui__modal__content newspack__subscription-tiers__form" target="newspack_modal_checkout_iframe">
-					<div class="newspack-ui__segmented-control">
-						<div class="newspack-ui__segmented-control__tabs">
-							<?php foreach ( $frequencies as $frequency ) : ?>
-								<button type="button" class="newspack-ui__button newspack-ui__button--small <?php echo esc_attr( $frequency === $current_frequency ? 'selected' : '' ); ?>"><?php echo esc_html( self::get_frequency_label( $frequency ) ); ?></button>
-							<?php endforeach; ?>
-						</div>
-						<div class="newspack-ui__segmented-control__content">
-							<?php foreach ( $tiers as $frequency => $products ) : ?>
-								<div class="newspack-ui__segmented-control__panel">
-									<?php foreach ( $products as $product ) : ?>
-										<label class="newspack-ui__input-card">
-											<?php if ( $product === $current_product ) : ?>
-												<span class="newspack-ui__badge newspack-ui__badge--primary"><?php _e( 'Current', 'newspack-plugin' ); ?></span>
-											<?php endif; ?>
-											<input type="radio" name="product_id" value="<?php echo esc_attr( $product['id'] ); ?>" <?php echo esc_attr( $product === $current_product ? 'checked' : '' ); ?>>
-											<strong><?php echo esc_html( $product['name'] ); ?></strong>
-											<span class="newspack-ui__helper-text"><?php echo $product['price_html']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
-										</label>
+					<?php if ( ! $is_single_tier ) : ?>
+						<div class="newspack-ui__segmented-control">
+							<?php if ( count( $frequencies ) > 1 ) : ?>
+								<div class="newspack-ui__segmented-control__tabs">
+									<?php foreach ( $frequencies as $frequency ) : ?>
+										<button type="button" class="newspack-ui__button newspack-ui__button--small <?php echo esc_attr( $frequency === $current_frequency ? 'selected' : '' ); ?>"><?php echo esc_html( self::get_frequency_label( $frequency ) ); ?></button>
 									<?php endforeach; ?>
 								</div>
-							<?php endforeach; ?>
+							<?php endif; ?>
+							<div class="newspack-ui__segmented-control__content">
+								<?php foreach ( $tiers as $frequency => $products ) : ?>
+									<div class="newspack-ui__segmented-control__panel">
+										<?php
+										foreach ( $products as $product ) {
+											self::render_product_card( $product, $product === $current_product );
+										}
+										?>
+									</div>
+								<?php endforeach; ?>
+							</div>
 						</div>
-					</div>
-
+					<?php endif; ?>
+					<?php
+					if ( $is_single_tier ) {
+						foreach ( $tiers as $products ) {
+							foreach ( $products as $product ) {
+								self::render_product_card( $product, $product === $current_product );
+							}
+						}
+					}
+					?>
 					<input type="hidden" name="newspack_checkout" value="1">
 					<input type="hidden" name="modal_checkout" value="1">
 
-					<button type="submit" class="newspack-ui__button newspack-ui__button--primary newspack-ui__button--wide"><?php echo esc_html( $label ); ?></button>
+					<button type="submit" class="newspack-ui__button newspack-ui__button--primary newspack-ui__button--wide"><?php echo esc_html( $button_label ); ?></button>
 					<button type="button" class="newspack-ui__button newspack-ui__button--ghost newspack-ui__button--wide newspack-ui__modal__cancel"><?php _e( 'Cancel', 'newspack-plugin' ); ?></button>
 				</form>
 			</div>
