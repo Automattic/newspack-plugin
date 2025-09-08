@@ -152,7 +152,7 @@ class Template_Helper {
 		$query->set( 'posts_per_page', $posts_per_page );
 
 		// Handle category filtering.
-		$category = isset( $_GET['np_collections_category'] ) ? sanitize_text_field( $_GET['np_collections_category'] ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$category = isset( $_GET[ Settings::CATEGORY_QUERY_PARAM ] ) ? sanitize_text_field( $_GET[ Settings::CATEGORY_QUERY_PARAM ] ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		if ( ! empty( $category ) ) {
 			$tax_query = [ // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query
 				[
@@ -165,7 +165,7 @@ class Template_Helper {
 		}
 
 		// Handle year filtering.
-		$year = isset( $_GET['np_collections_year'] ) ? sanitize_text_field( $_GET['np_collections_year'] ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$year = isset( $_GET[ Settings::YEAR_QUERY_PARAM ] ) ? sanitize_text_field( $_GET[ Settings::YEAR_QUERY_PARAM ] ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		if ( ! empty( $year ) ) {
 			$query->set(
 				'date_query',

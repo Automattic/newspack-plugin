@@ -12,6 +12,7 @@ use Newspack\Collections\Collection_Category_Taxonomy;
 use Newspack\Collections\Query_Helper;
 use Newspack\Collections\Collection_Meta;
 use Newspack\Collections\Template_Helper;
+use Newspack\Collections\Settings;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -266,7 +267,7 @@ final class Collections_Block {
 				<?php foreach ( $categories as $category ) : ?>
 					<?php $collections_archive_url = get_post_type_archive_link( Post_Type::get_post_type() ); ?>
 					<?php if ( $collections_archive_url ) : ?>
-						<?php $category_filter_url = add_query_arg( 'category', $category->slug, $collections_archive_url ); ?>
+						<?php $category_filter_url = add_query_arg( Settings::CATEGORY_QUERY_PARAM, $category->slug, $collections_archive_url ); ?>
 						<a href="<?php echo esc_url( $category_filter_url ); ?>" class="wp-block-newspack-collections__category">
 							<?php echo esc_html( $category->name ); ?>
 						</a>
