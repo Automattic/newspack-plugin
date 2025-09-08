@@ -14,6 +14,7 @@ use Newspack\Collections\Collection_Category_Taxonomy;
 use Newspack\Collections\Template_Helper;
 use Newspack\Collections\Enqueuer;
 use Newspack\Collections\Settings;
+use Newspack\Collections\Query_Helper;
 
 /**
  * Tests for the Template_Helper class.
@@ -223,6 +224,173 @@ class Test_Template_Helper extends \WP_UnitTestCase {
 		];
 		$html      = Template_Helper::render_cta( $empty_cta );
 		$this->assertEmpty( $html, 'Empty CTA should not be rendered.' );
+	}
+
+	/**
+	 * Test CTA new tab functionality for different URL types.
+	 *
+	 * @covers \Newspack\Collections\Template_Helper::render_cta
+	 * @covers \Newspack\Collections\Template_Helper::should_cta_open_in_new_tab
+	 * @covers \Newspack\Collections\Template_Helper::determine_should_cta_open_in_new_tab
+	 */
+	public function test_cta_new_tab() {
+		$collection_id = $this->create_test_collection();
+		$attachment_id = $this->factory()->attachment->create();
+
+		// Set up CTAs on the collection.
+		$ctas = [
+			[
+				'label' => 'Download PDF',
+				'type'  => 'attachment',
+				'id'    => $attachment_id,
+			],
+			[
+				'label' => 'External Link',
+				'type'  => 'link',
+				'url'   => 'https://external-site.com/page',
+			],
+			[
+				'label' => 'PDF File',
+				'type'  => 'link',
+				'url'   => home_url( '/uploads/document.pdf' ),
+			],
+			[
+				'label' => 'Internal Page',
+				'type'  => 'link',
+				'url'   => home_url( '/internal-page' ),
+			],
+			[
+				'label' => 'Relative Page',
+				'type'  => 'link',
+				'url'   => '/relative-page',
+			],
+		];
+
+		Collection_Meta::set( $collection_id, 'ctas', $ctas );
+
+		// Get processed CTAs.
+		$processed_ctas = Query_Helper::get_ctas( $collection_id );
+
+		$this->assertCount( 5, $processed_ctas, 'All CTAs should be processed.' );
+
+		// Test attachment CTA.
+		$attachment_cta = $processed_ctas[0];
+		$html           = Template_Helper::render_cta( $attachment_cta );
+		$this->assertEquals( 'attachment', $attachment_cta['type'], 'Type should be attachment.' );
+		$this->assertStringContainsString( 'target="_blank"', $html, 'Attachment should open in new tab.' );
+		$this->assertStringContainsString( 'rel="noopener noreferrer"', $html, 'Attachment should have security attributes.' );
+
+		// Test external URL.
+		$external_cta = $processed_ctas[1];
+		$html         = Template_Helper::render_cta( $external_cta );
+		$this->assertEquals( 'link', $external_cta['type'], 'Type should be link.' );
+		$this->assertStringContainsString( 'target="_blank"', $html, 'External link should open in new tab.' );
+
+		// Test PDF file.
+		$pdf_cta = $processed_ctas[2];
+		$html    = Template_Helper::render_cta( $pdf_cta );
+		$this->assertStringContainsString( 'target="_blank"', $html, 'PDF should open in new tab.' );
+
+		// Test internal link.
+		$internal_cta = $processed_ctas[3];
+		$html         = Template_Helper::render_cta( $internal_cta );
+		$this->assertStringNotContainsString( 'target="_blank"', $html, 'Internal link should not open in new tab.' );
+
+		// Test relative URL.
+		$relative_cta = $processed_ctas[4];
+		$html         = Template_Helper::render_cta( $relative_cta );
+		$this->assertStringNotContainsString( 'target="_blank"', $html, 'Relative link should not open in new tab.' );
+	}
+
+	/**
+	 * Test CTA new tab filters work correctly.
+	 *
+	 * @covers \Newspack\Collections\Template_Helper::should_cta_open_in_new_tab
+	 */
+	public function test_cta_new_tab_filters() {
+		$collection_id = $this->create_test_collection();
+
+		// Test custom file extensions filter.
+		add_filter(
+			'newspack_collections_new_tab_file_extensions',
+			function ( $extensions ) {
+				$extensions[] = 'docx';
+				return $extensions;
+			}
+		);
+
+		Collection_Meta::set(
+			$collection_id,
+			'ctas',
+			[
+				[
+					'label' => 'View Document',
+					'type'  => 'link',
+					'url'   => home_url( '/path/to/document.docx' ),
+				],
+			]
+		);
+
+		$processed_ctas = Query_Helper::get_ctas( $collection_id );
+		$docx_cta       = $processed_ctas[0];
+		$html           = Template_Helper::render_cta( $docx_cta );
+		$this->assertStringContainsString( 'target="_blank"', $html, 'Custom extension should open in new tab.' );
+
+		// Test internal hosts filter.
+		add_filter(
+			'newspack_collections_new_tab_internal_hosts',
+			function ( $hosts ) {
+				$hosts[] = 'partner-site.com';
+				return $hosts;
+			}
+		);
+
+		Collection_Meta::set(
+			$collection_id,
+			'ctas',
+			[
+				[
+					'label' => 'Partner Site',
+					'type'  => 'link',
+					'url'   => 'https://partner-site.com/page',
+				],
+			]
+		);
+
+		$processed_ctas = Query_Helper::get_ctas( $collection_id );
+		$partner_cta    = $processed_ctas[0];
+		$html           = Template_Helper::render_cta( $partner_cta );
+		$this->assertStringNotContainsString( 'target="_blank"', $html, 'Site should not open in new tab.' );
+
+		// Test override filter.
+		add_filter(
+			'newspack_collections_should_cta_open_in_new_tab',
+			function ( $result, $cta ) {
+				if ( isset( $cta['label'] ) && 'Force New Tab' === $cta['label'] ) {
+					return true;
+				}
+				return $result;
+			},
+			10,
+			2
+		);
+
+		Collection_Meta::set(
+			$collection_id,
+			'ctas',
+			[
+				[
+					'label' => 'Force New Tab',
+					'type'  => 'link',
+					'url'   => home_url( '/internal-page' ),
+				],
+			]
+		);
+
+		$processed_ctas = Query_Helper::get_ctas( $collection_id );
+		$force_cta      = $processed_ctas[0];
+		$html           = Template_Helper::render_cta( $force_cta );
+		$this->assertStringContainsString( 'target="_blank"', $html, 'Filter override should force new tab.' );
 	}
 
 	/**

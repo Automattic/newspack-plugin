@@ -309,6 +309,7 @@ class Template_Helper {
 	 *     @type string $url   The URL of the CTA.
 	 *     @type string $label The label of the CTA.
 	 *     @type string $class The class of the CTA.
+	 *     @type string $type  The type of the CTA (attachment or link).
 	 * }
 	 * @return string The rendered CTA button.
 	 */
@@ -322,6 +323,7 @@ class Template_Helper {
 		 *     @type string $url   The URL of the CTA.
 		 *     @type string $label The label of the CTA.
 		 *     @type string $class The class of the CTA.
+		 *     @type string $type  The type of the CTA (attachment or link).
 		 * }
 		 */
 		$cta = apply_filters( 'newspack_collections_render_cta', $cta );
@@ -330,13 +332,17 @@ class Template_Helper {
 			return '';
 		}
 
+		// Determine if the link should open in a new tab.
+		$target_attributes = self::should_cta_open_in_new_tab( $cta ) ? ' target="_blank" rel="noopener noreferrer"' : '';
+
 		$html = sprintf(
 			'<div class="collection-cta %1$s">
-				<a class="wp-block-button__link has-dark-gray-color has-light-gray-background-color has-text-color has-background has-link-color wp-element-button" href="%2$s">%3$s</a>
+				<a class="wp-block-button__link has-dark-gray-color has-light-gray-background-color has-text-color has-background has-link-color wp-element-button" href="%2$s"%4$s>%3$s</a>
 			</div>',
 			esc_attr( $cta['class'] ?? '' ),
 			esc_url( $cta['url'] ?? '' ),
-			esc_html( $cta['label'] ?? '' )
+			esc_html( $cta['label'] ?? '' ),
+			$target_attributes
 		);
 
 		/**
@@ -487,5 +493,76 @@ class Template_Helper {
 		 * @param int  $collection_id The collection post ID.
 		 */
 		return apply_filters( 'newspack_should_show_cover_story_image', $show_image, $collection_id );
+	}
+
+	/**
+	 * Determine if a CTA should open in a new tab.
+	 *
+	 * @param array $cta The CTA data.
+	 * @return bool True if the CTA should open in a new tab.
+	 */
+	public static function should_cta_open_in_new_tab( $cta ) {
+		$result = self::determine_should_cta_open_in_new_tab( $cta );
+
+		/**
+		 * Filters whether a CTA should open in a new tab.
+		 *
+		 * @param bool  $result True if the CTA should open in a new tab.
+		 * @param array $cta    The CTA data.
+		 */
+		return apply_filters( 'newspack_collections_should_cta_open_in_new_tab', $result, $cta );
+	}
+
+	/**
+	 * Internal helper that determines if a CTA should open in a new tab.
+	 *
+	 * @param array $cta The CTA data.
+	 * @return bool
+	 */
+	private static function determine_should_cta_open_in_new_tab( $cta ): bool {
+		$url = trim( (string) ( $cta['url'] ?? '' ) );
+		if ( '' === $url ) {
+			return false;
+		}
+
+		$type = (string) ( $cta['type'] ?? '' );
+		if ( 'attachment' === $type ) {
+			return true; // Open attachments in a new tab.
+		}
+
+		$parsed = wp_parse_url( $url );
+		if ( ! is_array( $parsed ) ) {
+			return false; // Unparseable URL. Treat as internal.
+		}
+
+		// Relative (including root-relative), query-only, and hash-only URLs have no host and no scheme and are treated as internal.
+		if ( empty( $parsed['host'] ) && empty( $parsed['scheme'] ) ) {
+			return false;
+		}
+
+		// Non-http(s) schemes should not force a new tab.
+		$scheme = strtolower( (string) ( $parsed['scheme'] ?? '' ) );
+		if ( $scheme && ! in_array( $scheme, [ 'http', 'https' ], true ) ) {
+			return false;
+		}
+
+		// Compare hosts.
+		$link_host      = strtolower( (string) ( isset( $parsed['host'] ) ? $parsed['host'] : '' ) );
+		$current_host   = strtolower( (string) wp_parse_url( home_url(), PHP_URL_HOST ) );
+		$internal_hosts = apply_filters( 'newspack_collections_new_tab_internal_hosts', array_filter( [ $current_host ] ) );
+
+		if ( $link_host && ! in_array( $link_host, $internal_hosts, true ) ) {
+			return true; // Open external links in a new tab.
+		}
+
+		// Check for file extensions that should open in a new tab.
+		$path       = (string) ( $parsed['path'] ?? '' );
+		$extensions = apply_filters( 'newspack_collections_new_tab_file_extensions', [ 'pdf' ] );
+		$extension  = strtolower( (string) pathinfo( $path, PATHINFO_EXTENSION ) );
+		if ( $extension && in_array( $extension, $extensions, true ) ) {
+			return true;
+		}
+
+		return false;
 	}
 }
