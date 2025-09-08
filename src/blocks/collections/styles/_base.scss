@@ -9,9 +9,6 @@
 		grid-column: 1 / -1;
 	}
 
-	// Make header span full width in grid layout.
-	// Moved to _layout-grid.scss to keep grid concerns together.
-
 	// Collection item base.
 	.wp-block-newspack-collections__item {
 		position: relative;

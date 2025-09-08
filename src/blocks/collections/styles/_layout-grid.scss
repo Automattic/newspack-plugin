@@ -7,9 +7,6 @@
 		gap: 32px;
 		margin-top: 32px;
 
-		.collections-block__header {
-			grid-column: 1 / -1;
-		}
 
 		// Mobile first: 2 columns.
 		grid-template-columns: repeat(2, minmax(0, 1fr));

@@ -10,8 +10,8 @@ import CollectionItem from './components/CollectionItem';
 import usePreventNav from './hooks/usePreventNav';
 import InspectorPanel from './components/InspectorPanel';
 
-const Edit = ( { attributes, setAttributes, isSelected } ) => {
-	const { layout, columns, imageAlignment, imageSize, showFeaturedImage, sectionHeader, showSeeAllLink, seeAllLinkText } = attributes;
+const Edit = ( { attributes, setAttributes } ) => {
+	const { layout, columns, imageAlignment, imageSize, showFeaturedImage, showSeeAllLink, seeAllLinkText } = attributes;
 
 	const preventNav = usePreventNav();
 
@@ -109,18 +109,6 @@ const Edit = ( { attributes, setAttributes, isSelected } ) => {
 					className: wrapperClassName,
 				} ) }
 			>
-				{ /* Inline editable section header */ }
-				{ ( ! RichText.isEmpty( sectionHeader ) || isSelected ) && (
-					<RichText
-						tagName="h2"
-						value={ sectionHeader }
-						onChange={ value => setAttributes( { sectionHeader: value } ) }
-						placeholder={ __( 'Collections block header…', 'newspack-plugin' ) }
-						className="collections-block__header"
-						allowedFormats={ [] }
-					/>
-				) }
-
 				{ /* Loading state */ }
 				{ isLoading && (
 					<Placeholder icon={ <Spinner /> } label={ __( 'Loading collections…', 'newspack-plugin' ) } className="collections-loading" />

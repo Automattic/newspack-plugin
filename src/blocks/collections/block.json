@@ -16,10 +16,6 @@
 		}
 	},
 	"attributes": {
-		"sectionHeader": {
-			"type": "string",
-			"default": ""
-		},
 		"queryType": {
 			"type": "string",
 			"default": "recent"
@@ -119,7 +115,6 @@
 	},
 	"example": {
 		"attributes": {
-			"sectionHeader": "Featured Collections",
 			"queryType": "recent",
 			"numberOfItems": 4,
 			"layout": "grid",

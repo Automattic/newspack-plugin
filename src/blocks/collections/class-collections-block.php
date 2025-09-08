@@ -47,7 +47,6 @@ final class Collections_Block {
 		'numberOfCTAs'        => 1,
 		'specificCTAs'        => '',
 		'showSeeAllLink'      => true,
-		'sectionHeader'       => '',
 		'seeAllLinkText'      => '',
 	];
 
@@ -117,10 +116,6 @@ final class Collections_Block {
 		ob_start();
 		?>
 		<div <?php echo $wrapper_attributes; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
-			<?php if ( ! empty( $attributes['sectionHeader'] ) ) : ?>
-				<h2 class="collections-block__header"><?php echo esc_html( $attributes['sectionHeader'] ); ?></h2>
-			<?php endif; ?>
-
 			<?php self::render_collections( $collections, $attributes ); ?>
 
 			<?php if ( $attributes['showSeeAllLink'] ) : ?>
