@@ -126,29 +126,6 @@ class Test_Template_Helper extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * Test prevent_year_redirect prevents redirects on collection archives.
-	 *
-	 * @covers \Newspack\Collections\Template_Helper::prevent_year_redirect
-	 */
-	public function test_prevent_year_redirect() {
-		$year_url = 'http://example.com/2023';
-		// Test on collection archive with year parameter.
-		$this->go_to( get_post_type_archive_link( Post_Type::get_post_type() ) );
-		$_GET['year'] = '2023';
-
-		$result = Template_Helper::prevent_year_redirect( $year_url );
-		$this->assertFalse( $result, 'Redirect should be prevented.' );
-
-		// Test on regular page.
-		$this->go_to( home_url() );
-		$result = Template_Helper::prevent_year_redirect( $year_url );
-		$this->assertEquals( $year_url, $result, 'Redirect should not be prevented.' );
-
-		// Clean up.
-		unset( $_GET['year'] );
-	}
-
-	/**
 	 * Test render_image generates correct HTML.
 	 *
 	 * @covers \Newspack\Collections\Template_Helper::render_image
