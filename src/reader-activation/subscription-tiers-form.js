@@ -20,6 +20,11 @@ export default function init() {
 			}
 
 			form.addEventListener( 'submit', ev => {
+				// Bail if this is a variation modal from the Checkout Button block,
+				// as it has its own form submission logic.
+				if ( modal?.classList.contains( 'newspack-blocks__modal-variation' ) ) {
+					return;
+				}
 				if ( ! window.newspackOpenModalCheckout ) {
 					return;
 				}
@@ -30,7 +35,7 @@ export default function init() {
 				window.newspackOpenModalCheckout( {
 					url: form.action + '?' + params.toString(),
 					title: form.dataset.title,
-					actionType: 'change_subscription', // TODO handle custom action type
+					actionType: form.dataset.actionType || undefined,
 					onClose: () => {
 						modal?.setAttribute( 'data-state', 'open' );
 					},

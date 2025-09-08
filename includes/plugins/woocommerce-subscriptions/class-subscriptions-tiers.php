@@ -14,7 +14,8 @@ defined( 'ABSPATH' ) || exit;
  */
 class Subscriptions_Tiers {
 	/**
-	 * Get tiered subscription products by frequency given a grouped product.
+	 * Get tiered products by frequency given a grouped or
+	 * variable subscription product.
 	 *
 	 * If no product is provided, it will use all
 	 * non-donation subscription products.
@@ -224,9 +225,11 @@ class Subscriptions_Tiers {
 	}
 
 	/**
-	 * Render subscription tiers modal given a grouped product.
+	 * Render subscription tiers modal given a grouped or variable
+	 * subscription product.
 	 *
-	 * If no grouped product is provided, all non-donation subscription products are rendered.
+	 * If no grouped or variable subscription product is provided,
+	 * all non-donation subscription products are rendered.
 	 *
 	 * @param \WC_Product|null $product      Optional product.
 	 * @param string|null      $title        Optional title.
