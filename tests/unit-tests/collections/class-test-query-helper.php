@@ -573,4 +573,256 @@ class Test_Query_Helper extends \WP_UnitTestCase {
 		$recent_ids = wp_list_pluck( $recent, 'ID' );
 		$this->assertNotContains( $collection_1, $recent_ids, 'The excluded collection should not be in the recent posts.' );
 	}
+
+	/**
+	 * Test get_collections_by_attributes with default attributes (recent).
+	 *
+	 * @covers \Newspack\Collections\Query_Helper::get_collections_by_attributes
+	 */
+	public function test_get_collections_by_attributes_recent() {
+		// Create test collections.
+		$collection_1 = $this->create_test_collection( [ 'post_title' => 'Collection 1' ] );
+		$collection_2 = $this->create_test_collection( [ 'post_title' => 'Collection 2' ] );
+
+		$attributes = [
+			'queryType'     => 'recent',
+			'numberOfItems' => 2,
+			'offset'        => 0,
+		];
+
+		$collections = Query_Helper::get_collections_by_attributes( $attributes );
+
+		$this->assertIsArray( $collections, 'Collections should be an array.' );
+		$this->assertCount( 2, $collections, 'Should return 2 collections.' );
+		$this->assertInstanceOf( \WP_Post::class, $collections[0], 'First item should be WP_Post.' );
+		$this->assertEquals( Post_Type::get_post_type(), $collections[0]->post_type, 'Should be collection post type.' );
+	}
+
+	/**
+	 * Test get_collections_by_attributes with specific collections.
+	 *
+	 * @covers \Newspack\Collections\Query_Helper::get_collections_by_attributes
+	 */
+	public function test_get_collections_by_attributes_specific() {
+		// Create test collections.
+		$collection_1 = $this->create_test_collection( [ 'post_title' => 'Collection 1' ] );
+		$collection_2 = $this->create_test_collection( [ 'post_title' => 'Collection 2' ] );
+		$collection_3 = $this->create_test_collection( [ 'post_title' => 'Collection 3' ] );
+
+		$attributes = [
+			'queryType'           => 'specific',
+			'numberOfItems'       => 3,
+			'selectedCollections' => [ $collection_2, $collection_1 ], // Test ordering.
+			'offset'              => 0,
+		];
+
+		$collections = Query_Helper::get_collections_by_attributes( $attributes );
+
+		$this->assertIsArray( $collections, 'Collections should be an array.' );
+		$this->assertCount( 2, $collections, 'Should return 2 collections.' );
+		
+		// Should maintain the order from selectedCollections.
+		$this->assertEquals( $collection_2, $collections[0]->ID, 'First should be collection 2.' );
+		$this->assertEquals( $collection_1, $collections[1]->ID, 'Second should be collection 1.' );
+	}
+
+	/**
+	 * Test get_collections_by_attributes with offset.
+	 *
+	 * @covers \Newspack\Collections\Query_Helper::get_collections_by_attributes
+	 */
+	public function test_get_collections_by_attributes_with_offset() {
+		// Create test collections with specific dates to ensure order.
+		$collection_1 = $this->create_test_collection(
+			[
+				'post_title' => 'Collection 1',
+				'post_date'  => '2024-01-03 12:00:00',
+			] 
+		);
+		$collection_2 = $this->create_test_collection(
+			[
+				'post_title' => 'Collection 2',
+				'post_date'  => '2024-01-02 12:00:00',
+			] 
+		);
+		$collection_3 = $this->create_test_collection(
+			[
+				'post_title' => 'Collection 3',
+				'post_date'  => '2024-01-01 12:00:00',
+			] 
+		);
+
+		$attributes = [
+			'queryType'     => 'recent',
+			'numberOfItems' => 1,
+			'offset'        => 1, // Skip first collection.
+		];
+
+		$collections = Query_Helper::get_collections_by_attributes( $attributes );
+
+		$this->assertIsArray( $collections, 'Collections should be an array.' );
+		$this->assertCount( 1, $collections, 'Should return 1 collection.' );
+		$this->assertEquals( $collection_2, $collections[0]->ID, 'Should return second collection due to offset.' );
+	}
+
+	/**
+	 * Test get_collections_by_attributes with category filtering (include).
+	 *
+	 * @covers \Newspack\Collections\Query_Helper::get_collections_by_attributes
+	 */
+	public function test_get_collections_by_attributes_include_categories() {
+		$this->set_current_user_role( 'administrator' );
+		
+		// Create categories.
+		$sports_category = wp_insert_term( 'Sports', Collection_Category_Taxonomy::get_taxonomy() );
+		$news_category   = wp_insert_term( 'News', Collection_Category_Taxonomy::get_taxonomy() );
+		$this->assertNotWPError( $sports_category );
+		$this->assertNotWPError( $news_category );
+
+		// Create collections.
+		$sports_collection  = $this->create_test_collection( [ 'post_title' => 'Sports Collection' ] );
+		$news_collection    = $this->create_test_collection( [ 'post_title' => 'News Collection' ] );
+		$general_collection = $this->create_test_collection( [ 'post_title' => 'General Collection' ] );
+
+		// Assign categories.
+		wp_set_object_terms( $sports_collection, $sports_category['term_id'], Collection_Category_Taxonomy::get_taxonomy() );
+		wp_set_object_terms( $news_collection, $news_category['term_id'], Collection_Category_Taxonomy::get_taxonomy() );
+
+		$attributes = [
+			'queryType'         => 'recent',
+			'numberOfItems'     => 10,
+			'includeCategories' => [ $sports_category['term_id'] ],
+			'offset'            => 0,
+		];
+
+		$collections = Query_Helper::get_collections_by_attributes( $attributes );
+
+		$this->assertIsArray( $collections, 'Collections should be an array.' );
+		$this->assertCount( 1, $collections, 'Should return 1 sports collection.' );
+		$this->assertEquals( $sports_collection, $collections[0]->ID, 'Should return sports collection.' );
+	}
+
+	/**
+	 * Test get_collections_by_attributes with category filtering (exclude).
+	 *
+	 * @covers \Newspack\Collections\Query_Helper::get_collections_by_attributes
+	 */
+	public function test_get_collections_by_attributes_exclude_categories() {
+		$this->set_current_user_role( 'administrator' );
+		
+		// Create category.
+		$sports_category = wp_insert_term( 'Sports', Collection_Category_Taxonomy::get_taxonomy() );
+		$this->assertNotWPError( $sports_category );
+
+		// Create collections.
+		$sports_collection  = $this->create_test_collection( [ 'post_title' => 'Sports Collection' ] );
+		$general_collection = $this->create_test_collection( [ 'post_title' => 'General Collection' ] );
+
+		// Assign category to sports collection.
+		wp_set_object_terms( $sports_collection, $sports_category['term_id'], Collection_Category_Taxonomy::get_taxonomy() );
+
+		$attributes = [
+			'queryType'         => 'recent',
+			'numberOfItems'     => 10,
+			'excludeCategories' => [ $sports_category['term_id'] ],
+			'offset'            => 0,
+		];
+
+		$collections = Query_Helper::get_collections_by_attributes( $attributes );
+
+		$this->assertIsArray( $collections, 'Collections should be an array.' );
+		$this->assertCount( 1, $collections, 'Should return 1 general collection.' );
+		$this->assertEquals( $general_collection, $collections[0]->ID, 'Should return general collection.' );
+	}
+
+	/**
+	 * Test get_collections_by_attributes with both include and exclude categories.
+	 *
+	 * @covers \Newspack\Collections\Query_Helper::get_collections_by_attributes
+	 */
+	public function test_get_collections_by_attributes_include_and_exclude_categories() {
+		$this->set_current_user_role( 'administrator' );
+		
+		// Create categories.
+		$sports_category   = wp_insert_term( 'Sports', Collection_Category_Taxonomy::get_taxonomy() );
+		$news_category     = wp_insert_term( 'News', Collection_Category_Taxonomy::get_taxonomy() );
+		$featured_category = wp_insert_term( 'Featured', Collection_Category_Taxonomy::get_taxonomy() );
+		$this->assertNotWPError( $sports_category );
+		$this->assertNotWPError( $news_category );
+		$this->assertNotWPError( $featured_category );
+
+		// Create collections.
+		$sports_collection          = $this->create_test_collection( [ 'post_title' => 'Sports Collection' ] );
+		$news_collection            = $this->create_test_collection( [ 'post_title' => 'News Collection' ] );
+		$featured_sports_collection = $this->create_test_collection( [ 'post_title' => 'Featured Sports Collection' ] );
+
+		// Assign categories.
+		wp_set_object_terms( $sports_collection, $sports_category['term_id'], Collection_Category_Taxonomy::get_taxonomy() );
+		wp_set_object_terms( $news_collection, $news_category['term_id'], Collection_Category_Taxonomy::get_taxonomy() );
+		wp_set_object_terms( $featured_sports_collection, [ $sports_category['term_id'], $featured_category['term_id'] ], Collection_Category_Taxonomy::get_taxonomy() );
+
+		$attributes = [
+			'queryType'         => 'recent',
+			'numberOfItems'     => 10,
+			'includeCategories' => [ $sports_category['term_id'] ], // Include sports.
+			'excludeCategories' => [ $featured_category['term_id'] ], // Exclude featured.
+			'offset'            => 0,
+		];
+
+		$collections = Query_Helper::get_collections_by_attributes( $attributes );
+
+		$this->assertIsArray( $collections, 'Collections should be an array.' );
+		$this->assertCount( 1, $collections, 'Should return 1 sports (non-featured) collection.' );
+		$this->assertEquals( $sports_collection, $collections[0]->ID, 'Should return sports collection only.' );
+	}
+
+	/**
+	 * Test get_collections_by_attributes filters.
+	 *
+	 * @covers \Newspack\Collections\Query_Helper::get_collections_by_attributes
+	 */
+	public function test_get_collections_by_attributes_filters() {
+		$this->create_test_collection( [ 'post_title' => 'Collection 1' ] );
+
+		$attributes = [
+			'queryType'     => 'recent',
+			'numberOfItems' => 1,
+			'offset'        => 0,
+		];
+
+		// Test query args filter.
+		$query_args_filter_called = false;
+		add_filter(
+			'newspack_collections_query_args',
+			function ( $query_args ) use ( $attributes, &$query_args_filter_called ) {
+				$query_args_filter_called = true;
+				$this->assertEquals( $attributes['numberOfItems'], $query_args['posts_per_page'], 'Filter should receive correct args.' );
+				return $query_args;
+			},
+			10,
+			2
+		);
+
+		// Test posts filter.
+		$posts_filter_called = false;
+		add_filter(
+			'newspack_collections_query_posts',
+			function ( $posts, $query_args ) use ( $attributes, &$posts_filter_called ) {
+				$posts_filter_called = true;
+				$this->assertEquals( $attributes['numberOfItems'], $query_args['posts_per_page'], 'Posts filter should receive correct args.' );
+				return $posts;
+			},
+			10,
+			3
+		);
+
+		$collections = Query_Helper::get_collections_by_attributes( $attributes );
+
+		$this->assertTrue( $query_args_filter_called, 'Query args filter should be called.' );
+		$this->assertTrue( $posts_filter_called, 'Posts filter should be called.' );
+
+		// Clean up.
+		remove_all_filters( 'newspack_collections_query_args' );
+		remove_all_filters( 'newspack_collections_query_posts' );
+	}
 }
