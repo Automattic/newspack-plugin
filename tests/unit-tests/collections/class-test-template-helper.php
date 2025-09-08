@@ -103,7 +103,7 @@ class Test_Template_Helper extends \WP_UnitTestCase {
 		global $wp_query;
 
 		// Test category filtering.
-		$_GET['category'] = 'test-category';
+		$_GET['np_collections_category'] = 'test-category';
 		Template_Helper::archive_filters( $wp_query );
 		$tax_query = $wp_query->get( 'tax_query' );
 		$this->assertIsArray( $tax_query, 'Tax query should be an array.' );
@@ -111,7 +111,7 @@ class Test_Template_Helper extends \WP_UnitTestCase {
 		$this->assertEquals( 'test-category', $tax_query[0]['terms'], 'Terms should match.' );
 
 		// Test year filtering.
-		$_GET['year'] = '2023';
+		$_GET['np_collections_year'] = '2023';
 		Template_Helper::archive_filters( $wp_query );
 		$date_query = $wp_query->get( 'date_query' );
 		$this->assertIsArray( $date_query, 'Date query should be an array.' );
@@ -122,7 +122,7 @@ class Test_Template_Helper extends \WP_UnitTestCase {
 		$this->assertGreaterThan( 0, $posts_per_page, 'Posts per page should be greater than 0.' );
 
 		// Clean up.
-		unset( $_GET['category'], $_GET['year'] );
+		unset( $_GET['np_collections_category'], $_GET['np_collections_year'] );
 	}
 
 	/**

@@ -1,3 +1,10 @@
+## [6.16.5](https://github.com/Automattic/newspack-plugin/compare/v6.16.4...v6.16.5) (2025-09-02)
+
+
+### Bug Fixes
+
+* **collections:** update all category/year url params ([#4168](https://github.com/Automattic/newspack-plugin/issues/4168)) ([e829dfb](https://github.com/Automattic/newspack-plugin/commit/e829dfb68033c026a2c72be65a41f558a909e9f2)), closes [#4153](https://github.com/Automattic/newspack-plugin/issues/4153)
+
 ## [6.16.4](https://github.com/Automattic/newspack-plugin/compare/v6.16.3...v6.16.4) (2025-09-02)
 
 
