@@ -21,6 +21,13 @@ defined( 'ABSPATH' ) || exit;
 final class Collections_Block {
 
 	/**
+	 * The block name.
+	 *
+	 * @var string
+	 */
+	public const BLOCK_NAME = 'newspack/collections';
+
+	/**
 	 * Default block attributes.
 	 */
 	public const DEFAULT_ATTRIBUTES = [

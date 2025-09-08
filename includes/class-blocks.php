@@ -98,7 +98,7 @@ final class Blocks {
 		if (
 			is_singular() &&
 			Collections::is_module_active() &&
-			has_block( 'newspack/collections', get_the_ID() )
+			has_block( \Newspack\Blocks\Collections\Collections_Block::BLOCK_NAME, get_the_ID() )
 		) {
 			return true;
 		}
