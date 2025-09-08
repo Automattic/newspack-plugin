@@ -142,7 +142,7 @@ final class Collections_Block {
 	 * @param array $attributes Block attributes.
 	 * @return string CSS classes.
 	 */
-	private static function get_block_classes( $attributes ) {
+	public static function get_block_classes( $attributes ) {
 		$classes = [ 'wp-block-newspack-collections' ];
 
 		$classes[] = 'layout-' . sanitize_html_class( $attributes['layout'] );
@@ -166,7 +166,7 @@ final class Collections_Block {
 	 * @param array $collections Array of WP_Post objects.
 	 * @param array $attributes  Block attributes.
 	 */
-	private static function render_collections( $collections, $attributes ) {
+	protected static function render_collections( $collections, $attributes ) {
 		foreach ( $collections as $collection ) {
 			self::render_collection( $collection, $attributes );
 		}
@@ -178,7 +178,7 @@ final class Collections_Block {
 	 * @param \WP_Post $collection Collection post object.
 	 * @param array    $attributes Block attributes.
 	 */
-	private static function render_collection( $collection, $attributes ) {
+	protected static function render_collection( $collection, $attributes ) {
 		$collection_url = get_permalink( $collection );
 		$image_size     = self::get_image_size_from_attributes( $attributes );
 		?>
@@ -232,7 +232,7 @@ final class Collections_Block {
 	 * @param array $attributes Block attributes.
 	 * @return string Image size name.
 	 */
-	private static function get_image_size_from_attributes( $attributes ) {
+	public static function get_image_size_from_attributes( $attributes ) {
 		$size = isset( $attributes['imageSize'] ) ? $attributes['imageSize'] : 'small';
 		switch ( $size ) {
 			case 'large':
@@ -250,7 +250,7 @@ final class Collections_Block {
 	 *
 	 * @param \WP_Post $collection Collection post object.
 	 */
-	private static function render_collection_categories( $collection ) {
+	public static function render_collection_categories( $collection ) {
 		$categories = get_the_terms( $collection, Collection_Category_Taxonomy::get_taxonomy() );
 
 		if ( ! empty( $categories ) && ! is_wp_error( $categories ) ) {
@@ -276,7 +276,7 @@ final class Collections_Block {
 	 * @param \WP_Post $collection Collection post object.
 	 * @param array    $attributes Block attributes.
 	 */
-	private static function render_collection_meta( $collection, $attributes ) {
+	public static function render_collection_meta( $collection, $attributes ) {
 		$meta_parts = [];
 
 		// Period.
@@ -329,7 +329,7 @@ final class Collections_Block {
 	 * @param \WP_Post $collection Collection post object.
 	 * @param array    $attributes Block attributes.
 	 */
-	private static function render_collection_ctas( $collection, $attributes ) {
+	public static function render_collection_ctas( $collection, $attributes ) {
 		// Get all CTAs.
 		$all_ctas = Query_Helper::get_ctas( $collection->ID );
 
