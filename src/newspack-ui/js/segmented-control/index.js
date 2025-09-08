@@ -33,6 +33,13 @@ domReady( function () {
 				if ( tab_contents.length !== 0 ) {
 					tab_contents.forEach( content => content.classList.remove( 'selected' ) );
 					tab_contents[ i ].classList.add( 'selected' );
+
+					const radioInputs = tab_contents[ i ].querySelectorAll( 'input[type="radio"]' );
+					const checkedRadio = !! [ ...radioInputs ].find( radio => radio.checked );
+
+					if ( radioInputs.length && ! checkedRadio ) {
+						radioInputs[ 0 ].click();
+					}
 				}
 			} );
 		} );
