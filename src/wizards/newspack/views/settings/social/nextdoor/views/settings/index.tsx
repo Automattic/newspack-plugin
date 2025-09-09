@@ -110,7 +110,7 @@ export const SettingsView = ( { settings, status, error, updateSettings, setErro
 						) }
 					</p>
 
-					<Grid columns={ 1 } gutter={ 16 }>
+					<Grid columns={ 4 } gutter={ 16 }>
 						{ availableRoles.map( ( { label, value } ) => (
 							<CheckboxControl
 								key={ value }
