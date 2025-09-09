@@ -63,6 +63,7 @@ declare global {
 						label: string;
 						value: string;
 					}[];
+					redirect_uri: string;
 				};
 			};
 			connections: WizardTab;

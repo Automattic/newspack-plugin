@@ -7,6 +7,8 @@
 
 namespace Newspack\Nextdoor;
 
+use Newspack\Nextdoor;
+
 defined( 'ABSPATH' ) || exit;
 
 /**
@@ -194,7 +196,7 @@ class Auth {
 			wp_die( esc_html__( 'Nextdoor client credentials not configured.', 'newspack-plugin' ) );
 		}
 
-		$redirect_uri = admin_url( 'admin.php?page=newspack-settings&nextdoor_oauth_callback=1#social' );
+		$redirect_uri = Nextdoor::get_redirect_uri();
 
 		$token_response = self::get_access_token(
 			$settings['client_id'],

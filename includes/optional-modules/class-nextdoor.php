@@ -134,6 +134,15 @@ class Nextdoor {
 	}
 
 	/**
+	 * Get the OAuth redirect URI for Nextdoor.
+	 *
+	 * @return string
+	 */
+	public static function get_redirect_uri() {
+		return admin_url( 'admin.php?page=newspack-settings&nextdoor_oauth_callback=1#/social' );
+	}
+
+	/**
 	 * Get available WordPress roles for Nextdoor publishing.
 	 *
 	 * @return array Array of role data with label and value.

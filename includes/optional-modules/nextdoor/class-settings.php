@@ -201,7 +201,7 @@ class Settings {
 		$auth = Auth::instance();
 
 		// First, create/get account.
-		$redirect_uri     = admin_url( 'admin.php?page=newspack-settings&nextdoor_oauth_callback=1#/social' );
+		$redirect_uri     = \Newspack\Nextdoor::get_redirect_uri();
 		$account_response = $api->create_account( $email, $country, $redirect_uri );
 
 		if ( is_wp_error( $account_response ) ) {

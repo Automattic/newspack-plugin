@@ -34,6 +34,7 @@ export const OnboardingView = ( {
 	const [ currentStep, setCurrentStep ] = useState( 1 );
 
 	const countryOptions = window.newspackSettings?.social?.nextdoor?.country_options || [];
+	const redirectUri = window.newspackSettings?.social?.nextdoor?.redirect_uri || '';
 
 	useEffect( () => {
 		// Check URL params for OAuth success
@@ -137,6 +138,18 @@ export const OnboardingView = ( {
 			{ currentStep === 1 && (
 				<Card>
 					<p>{ __( 'To get started, you need to register your site with Nextdoor and obtain API credentials.', 'newspack-plugin' ) }</p>
+					<div style={ { backgroundColor: '#f0f6fc', padding: '16px', borderRadius: '4px', marginTop: '16px', marginBottom: '16px' } }>
+						<strong>{ __( 'Redirect URI:', 'newspack-plugin' ) }</strong>
+						<br />
+						<div style={ { display: 'flex', alignItems: 'center', gap: '8px', marginTop: '8px', marginBottom: '8px' } }>
+							<code style={ { backgroundColor: '#fff', padding: '4px 8px', borderRadius: '3px', fontSize: '13px', flex: 1 } }>
+								{ redirectUri }
+							</code>
+						</div>
+						<small style={ { color: '#666' } }>
+							{ __( 'Use this URL as the Redirect URI when signing up for Nextdoor credentials.', 'newspack-plugin' ) }
+						</small>
+					</div>
 					<p>
 						<ExternalLink href="https://developer.nextdoor.com/">
 							{ __( 'Get your API credentials from Nextdoor Developer Portal', 'newspack-plugin' ) }
