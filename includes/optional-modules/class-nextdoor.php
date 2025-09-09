@@ -151,6 +151,35 @@ class Nextdoor {
 
 		return $roles;
 	}
+
+	/**
+	 * Get available countries for Nextdoor publishing with their COUNTRY_ISO_3166-1_ALPHA-2 format values.
+	 *
+	 * @return array Array of country data with label and value.
+	 */
+	public static function get_available_countries() {
+		$countries = [
+			[
+				'label' => __( 'United States', 'newspack-plugin' ),
+				'value' => 'US',
+			],
+			[
+				'label' => __( 'Canada', 'newspack-plugin' ),
+				'value' => 'CA',
+			],
+			[
+				'label' => __( 'Australia', 'newspack-plugin' ),
+				'value' => 'AU',
+			],
+		];
+
+		/**
+		 * Filter available countries for Nextdoor integration.
+		 *
+		 * @param array $countries Array of country data with label and value.
+		 */
+		return apply_filters( 'newspack_nextdoor_available_countries', $countries );
+	}
 }
 
 Nextdoor::init();

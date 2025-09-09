@@ -15,18 +15,6 @@ import { ExternalLink } from '@wordpress/components';
 import { ActionCard, Button, Card, Grid, Notice, SelectControl, TextControl } from '../../../../../../../../components/src';
 import { OnboardingViewProps } from '../../types';
 
-const COUNTRY_OPTIONS = [
-	{ label: __( 'United States', 'newspack-plugin' ), value: 'US' },
-	{ label: __( 'Canada', 'newspack-plugin' ), value: 'CA' },
-	{ label: __( 'United Kingdom', 'newspack-plugin' ), value: 'GB' },
-	{ label: __( 'Australia', 'newspack-plugin' ), value: 'AU' },
-	{ label: __( 'Netherlands', 'newspack-plugin' ), value: 'NL' },
-	{ label: __( 'France', 'newspack-plugin' ), value: 'FR' },
-	{ label: __( 'Germany', 'newspack-plugin' ), value: 'DE' },
-	{ label: __( 'Denmark', 'newspack-plugin' ), value: 'DK' },
-	{ label: __( 'Sweden', 'newspack-plugin' ), value: 'SE' },
-];
-
 export const OnboardingView = ( {
 	settings,
 	status,
@@ -44,6 +32,8 @@ export const OnboardingView = ( {
 	const [ publicationUrl, setPublicationUrl ] = useState( settings.publication_url || '' );
 	const [ isSaving, setIsSaving ] = useState( false );
 	const [ currentStep, setCurrentStep ] = useState( 1 );
+
+	const countryOptions = window.newspackSettings?.social?.nextdoor?.country_options || [];
 
 	useEffect( () => {
 		// Check URL params for OAuth success
@@ -195,7 +185,7 @@ export const OnboardingView = ( {
 							label={ __( 'Country', 'newspack-plugin' ) }
 							value={ country }
 							onChange={ setCountry }
-							options={ COUNTRY_OPTIONS }
+							options={ countryOptions }
 						/>
 					</Grid>
 

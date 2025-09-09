@@ -59,6 +59,10 @@ declare global {
 						label: string;
 						value: string;
 					}[];
+					country_options: {
+						label: string;
+						value: string;
+					}[];
 				};
 			};
 			connections: WizardTab;
