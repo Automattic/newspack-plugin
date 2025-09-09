@@ -135,7 +135,7 @@ export const OnboardingView = ( {
 
 			{ /* Step 1: API Credentials */ }
 			{ currentStep === 1 && (
-				<Card headerText={ __( 'Step 1: API Credentials', 'newspack-plugin' ) }>
+				<Card>
 					<p>{ __( 'To get started, you need to register your site with Nextdoor and obtain API credentials.', 'newspack-plugin' ) }</p>
 					<p>
 						<ExternalLink href="https://developer.nextdoor.com/">
@@ -169,7 +169,7 @@ export const OnboardingView = ( {
 
 			{ /* Step 2: Account Authentication */ }
 			{ currentStep === 2 && (
-				<Card headerText={ __( 'Step 2: Connect Your Account', 'newspack-plugin' ) }>
+				<Card>
 					<p>{ __( 'Connect your Nextdoor account to authorize publishing articles.', 'newspack-plugin' ) }</p>
 
 					<Grid columns={ 1 } gutter={ 16 }>
@@ -202,7 +202,7 @@ export const OnboardingView = ( {
 
 			{ /* Step 3: Claim Page */ }
 			{ currentStep === 3 && (
-				<Card headerText={ __( 'Step 3: Claim Your News Page', 'newspack-plugin' ) }>
+				<Card>
 					<p>{ __( 'Claim your news page on Nextdoor to start publishing articles.', 'newspack-plugin' ) }</p>
 
 					<Grid columns={ 1 } gutter={ 16 }>
@@ -244,7 +244,7 @@ export const OnboardingView = ( {
 
 			{ /* Connection Status */ }
 			{ currentStep > 1 && (
-				<Card headerText={ __( 'Connection Status', 'newspack-plugin' ) }>
+				<Card>
 					<Grid columns={ 2 } gutter={ 16 }>
 						<div>
 							<strong>{ __( 'API Credentials:', 'newspack-plugin' ) }</strong>

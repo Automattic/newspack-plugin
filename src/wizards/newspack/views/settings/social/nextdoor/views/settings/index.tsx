@@ -7,12 +7,13 @@
  */
 import { __ } from '@wordpress/i18n';
 import { useState, useEffect } from '@wordpress/element';
+// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
+import { CheckboxControl, CardHeader, __experimentalHeading as Heading, CardBody } from '@wordpress/components';
 
 /**
  * Internal dependencies
  */
 import { Button, Card, Grid, Notice } from '../../../../../../../../components/src';
-import { CheckboxControl } from '@wordpress/components';
 import { SettingsViewProps } from '../../types';
 
 export const SettingsView = ( { settings, status, error, updateSettings, setError }: SettingsViewProps ) => {
@@ -70,58 +71,68 @@ export const SettingsView = ( { settings, status, error, updateSettings, setErro
 	return (
 		<>
 			{ error && <Notice noticeText={ error } isError onClose={ () => setError( null ) } /> }
-
-			<Card headerText={ __( 'Publishing Permissions', 'newspack-plugin' ) }>
-				<p>
-					{ __(
-						'Select which user roles are allowed to publish articles to Nextdoor. Users with the selected roles will see a "Publish on Nextdoor" button in the post editor.',
-						'newspack-plugin'
-					) }
-				</p>
-
-				<Grid columns={ 1 } gutter={ 16 }>
-					{ availableRoles.map( ( { label, value } ) => (
-						<CheckboxControl
-							key={ value }
-							label={ label }
-							checked={ allowedRoles.includes( value ) || 'administrator' === value }
-							onChange={ ( checked: boolean ) => handleRoleToggle( value, checked ) }
-							disabled={ 'administrator' === value }
-							help={
-								'administrator' === value ? __( 'Administrators always have publishing permissions.', 'newspack-plugin' ) : undefined
-							}
-						/>
-					) ) }
-				</Grid>
-
-				<div className="newspack-buttons-card">
-					<Button variant="primary" onClick={ handleSaveSettings } disabled={ ! hasChanges || isSaving } isBusy={ isSaving }>
-						{ __( 'Save Settings', 'newspack-plugin' ) }
-					</Button>
-				</div>
+			<Card>
+				<CardHeader>
+					<Heading level={ 4 }>{ __( 'Connection Information', 'newspack-plugin' ) }</Heading>
+				</CardHeader>
+				<CardBody>
+					<Grid columns={ 2 } gutter={ 16 }>
+						<div>
+							<strong>{ __( 'Status:', 'newspack-plugin' ) }</strong>
+							<br />
+							{ status.is_connected ? (
+								<span style={ { color: '#00a32a' } }>{ __( 'Connected', 'newspack-plugin' ) }</span>
+							) : (
+								<span style={ { color: '#d63638' } }>{ __( 'Not Connected', 'newspack-plugin' ) }</span>
+							) }
+						</div>
+						<div>
+							<strong>{ __( 'Token:', 'newspack-plugin' ) }</strong>
+							<br />
+							{ status.token_valid ? (
+								<span style={ { color: '#00a32a' } }>{ __( 'Valid', 'newspack-plugin' ) }</span>
+							) : (
+								<span style={ { color: '#d63638' } }>{ __( 'Invalid or expired', 'newspack-plugin' ) }</span>
+							) }
+						</div>
+					</Grid>
+				</CardBody>
 			</Card>
+			<Card>
+				<CardHeader>
+					<Heading level={ 4 }>{ __( 'Settings', 'newspack-plugin' ) }</Heading>
+				</CardHeader>
+				<CardBody>
+					<p>
+						{ __(
+							'Select which user roles are allowed to publish articles to Nextdoor. Users with the selected roles will see a "Publish on Nextdoor" button in the post editor.',
+							'newspack-plugin'
+						) }
+					</p>
 
-			<Card headerText={ __( 'Connection Information', 'newspack-plugin' ) }>
-				<Grid columns={ 2 } gutter={ 16 }>
-					<div>
-						<strong>{ __( 'Connection Status:', 'newspack-plugin' ) }</strong>
-						<br />
-						{ status.is_connected ? (
-							<span style={ { color: '#00a32a' } }>{ __( 'Connected', 'newspack-plugin' ) }</span>
-						) : (
-							<span style={ { color: '#d63638' } }>{ __( 'Not Connected', 'newspack-plugin' ) }</span>
-						) }
+					<Grid columns={ 1 } gutter={ 16 }>
+						{ availableRoles.map( ( { label, value } ) => (
+							<CheckboxControl
+								key={ value }
+								label={ label }
+								checked={ allowedRoles.includes( value ) || 'administrator' === value }
+								onChange={ ( checked: boolean ) => handleRoleToggle( value, checked ) }
+								disabled={ 'administrator' === value }
+								help={
+									'administrator' === value
+										? __( 'Administrators always have publishing permissions.', 'newspack-plugin' )
+										: undefined
+								}
+							/>
+						) ) }
+					</Grid>
+
+					<div className="newspack-buttons-card">
+						<Button variant="primary" onClick={ handleSaveSettings } disabled={ ! hasChanges || isSaving } isBusy={ isSaving }>
+							{ __( 'Save Settings', 'newspack-plugin' ) }
+						</Button>
 					</div>
-					<div>
-						<strong>{ __( 'Token Status:', 'newspack-plugin' ) }</strong>
-						<br />
-						{ status.token_valid ? (
-							<span style={ { color: '#00a32a' } }>{ __( 'Valid', 'newspack-plugin' ) }</span>
-						) : (
-							<span style={ { color: '#d63638' } }>{ __( 'Invalid or expired', 'newspack-plugin' ) }</span>
-						) }
-					</div>
-				</Grid>
+				</CardBody>
 			</Card>
 		</>
 	);
