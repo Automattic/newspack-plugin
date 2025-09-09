@@ -56,10 +56,7 @@ class Nextdoor {
 	 * Add custom Nextdoor capability to appropriate roles.
 	 */
 	public static function add_nextdoor_capability() {
-		$roles_with_cap = [ 'administrator', 'editor' ];
-
-		// Filter for roles that should have Nextdoor capabilities.
-		$roles_with_cap = apply_filters( 'newspack_nextdoor_publish_cap_roles', $roles_with_cap );
+		$roles_with_cap = self::get_nextdoor_capability_roles();
 
 		foreach ( $roles_with_cap as $role_name ) {
 			$role = get_role( $role_name );
@@ -67,6 +64,30 @@ class Nextdoor {
 				$role->add_cap( 'np_nextdoor_publish_posts' );
 			}
 		}
+	}
+
+	/**
+	 * Get roles that have Nextdoor publishing capability.
+	 *
+	 * @return array
+	 */
+	public static function get_nextdoor_capability_roles() {
+		$settings       = self::get_settings();
+		$roles_with_cap = isset( $settings['allowed_roles'] ) ? $settings['allowed_roles'] : [ 'administrator' ];
+
+		/**
+		 * Filter for roles that should have Nextdoor capabilities.
+		 *
+		 * @param array $roles_with_cap Array of role names.
+		 */
+		$roles_with_cap = apply_filters( 'newspack_nextdoor_publish_cap_roles', $roles_with_cap );
+
+		// Ensure administrator always has capability.
+		if ( ! in_array( 'administrator', $roles_with_cap, true ) ) {
+			$roles_with_cap[] = 'administrator';
+		}
+
+		return $roles_with_cap;
 	}
 
 	/**
@@ -110,6 +131,25 @@ class Nextdoor {
 	public static function is_connected() {
 		$settings = self::get_settings();
 		return ! empty( $settings['access_token'] ) && ! empty( $settings['page_id'] );
+	}
+
+	/**
+	 * Get available WordPress roles for Nextdoor publishing.
+	 *
+	 * @return array Array of role data with label and value.
+	 */
+	public static function get_available_roles() {
+		$wp_roles = wp_roles();
+		$roles = [];
+
+		foreach ( $wp_roles->roles as $role_name => $role_info ) {
+			$roles[] = [
+				'label' => translate_user_role( $role_info['name'], 'newspack-plugin' ),
+				'value' => $role_name,
+			];
+		}
+
+		return $roles;
 	}
 }
 

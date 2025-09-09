@@ -172,7 +172,6 @@ class Settings {
 
 		if ( isset( $params['allowed_roles'] ) ) {
 			$settings['allowed_roles'] = $params['allowed_roles'];
-			$this->update_user_capabilities( $params['allowed_roles'] );
 		}
 
 		$updated = \Newspack\Nextdoor::update_settings( $settings );

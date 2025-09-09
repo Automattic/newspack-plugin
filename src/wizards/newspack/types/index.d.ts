@@ -53,7 +53,14 @@ declare global {
 			};
 		};
 		newspackSettings: {
-			social: WizardTab;
+			social: WizardTab & {
+				nextdoor: {
+					available_roles: {
+						label: string;
+						value: string;
+					}[];
+				};
+			};
 			connections: WizardTab;
 			syndication: WizardTab;
 			'theme-and-brand': WizardTab;

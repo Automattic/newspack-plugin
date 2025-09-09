@@ -15,22 +15,17 @@ import { Button, Card, Grid, Notice } from '../../../../../../../../components/s
 import { CheckboxControl } from '@wordpress/components';
 import { SettingsViewProps } from '../../types';
 
-// WordPress user roles that can be granted Nextdoor publishing capability
-const AVAILABLE_ROLES = [
-	{ label: __( 'Administrator', 'newspack-plugin' ), value: 'administrator' },
-	{ label: __( 'Editor', 'newspack-plugin' ), value: 'editor' },
-	{ label: __( 'Author', 'newspack-plugin' ), value: 'author' },
-	{ label: __( 'Contributor', 'newspack-plugin' ), value: 'contributor' },
-];
-
 export const SettingsView = ( { settings, status, error, updateSettings, setError }: SettingsViewProps ) => {
-	const [ allowedRoles, setAllowedRoles ] = useState< string[] >( settings.allowed_roles || [ 'administrator', 'editor' ] );
+	const [ allowedRoles, setAllowedRoles ] = useState< string[] >( settings.allowed_roles || [] );
 	const [ isSaving, setIsSaving ] = useState( false );
 	const [ hasChanges, setHasChanges ] = useState( false );
 
+	// Get available roles from localized data
+	const availableRoles = window.newspackSettings?.social?.nextdoor?.available_roles || [];
+
 	useEffect( () => {
 		// Check if current roles differ from saved settings
-		const currentRoles = settings.allowed_roles || [ 'administrator', 'editor' ];
+		const currentRoles = settings.allowed_roles || [];
 		const rolesChanged = allowedRoles.length !== currentRoles.length || allowedRoles.some( role => ! currentRoles.includes( role ) );
 
 		setHasChanges( rolesChanged );
@@ -85,14 +80,15 @@ export const SettingsView = ( { settings, status, error, updateSettings, setErro
 				</p>
 
 				<Grid columns={ 1 } gutter={ 16 }>
-					{ AVAILABLE_ROLES.map( ( { label, value } ) => (
+					{ availableRoles.map( ( { label, value } ) => (
 						<CheckboxControl
 							key={ value }
 							label={ label }
-							checked={ allowedRoles.includes( value ) }
+							checked={ allowedRoles.includes( value ) || 'administrator' === value }
 							onChange={ ( checked: boolean ) => handleRoleToggle( value, checked ) }
+							disabled={ 'administrator' === value }
 							help={
-								value === 'administrator' ? __( 'Administrators always have publishing permissions.', 'newspack-plugin' ) : undefined
+								'administrator' === value ? __( 'Administrators always have publishing permissions.', 'newspack-plugin' ) : undefined
 							}
 						/>
 					) ) }
