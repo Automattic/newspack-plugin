@@ -58,8 +58,8 @@ class API {
 			'method'  => $method,
 			'timeout' => 30, // phpcs:ignore WordPressVIPMinimum.Performance.RemoteRequestTimeout.timeout_timeout
 			'headers' => [
-				'Content-Type' => 'application/json',
-				'User-Agent'   => 'Newspack/' . NEWSPACK_VERSION,
+				'accept'       => 'application/json',
+				'content-type' => 'application/json',
 			],
 		];
 
@@ -107,18 +107,30 @@ class API {
 	 */
 	public function create_account( $email_address, $country, $redirect_uri = '' ) {
 		$body = [
-			'email_address' => $email_address,
 			'country'       => $country,
+			'email_address' => $email_address,
 		];
 
 		if ( ! empty( $redirect_uri ) ) {
 			$body['redirect_uri'] = $redirect_uri;
 		}
 
+		$settings = \Newspack\Nextdoor::get_settings();
+		if ( empty( $settings['client_secret'] ) ) {
+			return new \WP_Error(
+				'newspack_nextdoor_client_secret_missing',
+				__( 'Client secret not configured.', 'newspack-plugin' ),
+				[ 'status' => 400 ]
+			);
+		}
+
 		return $this->make_request(
 			'/partner/v1/entity_page/account',
 			[
-				'body' => wp_json_encode( $body ),
+				'body'    => wp_json_encode( $body ),
+				'headers' => [
+					'Authorization' => 'Basic ' . base64_encode( $settings['client_id'] . ':' . $settings['client_secret'] ),
+				],
 			],
 			'PUT'
 		);

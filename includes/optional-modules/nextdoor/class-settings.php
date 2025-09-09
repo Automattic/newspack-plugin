@@ -103,6 +103,29 @@ class Settings {
 				],
 			]
 		);
+
+		// Page claim endpoint.
+		register_rest_route(
+			NEWSPACK_API_NAMESPACE,
+			'/nextdoor/claim-page',
+			[
+				'methods'             => \WP_REST_Server::EDITABLE,
+				'callback'            => [ $this, 'api_claim_page' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+				'args'                => [
+					'publication_url' => [
+						'required'          => true,
+						'type'              => 'string',
+						'sanitize_callback' => 'esc_url_raw',
+					],
+					'test'            => [
+						'required'          => false,
+						'type'              => 'boolean',
+						'sanitize_callback' => 'rest_sanitize_boolean',
+					],
+				],
+			]
+		);
 	}
 
 	/**
@@ -179,7 +202,7 @@ class Settings {
 		$auth = Auth::instance();
 
 		// First, create/get account.
-		$redirect_uri     = admin_url( 'admin.php?page=newspack-nextdoor-wizard&nextdoor_oauth_callback=1' );
+		$redirect_uri     = admin_url( 'admin.php?page=newspack-settings&nextdoor_oauth_callback=1#/social' );
 		$account_response = $api->create_account( $email, $country, $redirect_uri );
 
 		if ( is_wp_error( $account_response ) ) {
@@ -207,4 +230,32 @@ class Settings {
 			]
 		);
 	}
+
+	/**
+	 * Callback for claiming a page via API.
+	 *
+	 * @param WP_REST_Request $request Request object.
+	 * @return WP_REST_Response
+	 */
+	public function api_claim_page( $request ) {
+		$publication_url = $request->get_param( 'publication_url' );
+		$test            = $request->get_param( 'test' );
+
+		$api    = API::instance();
+		$result = $api->claim_page( $publication_url, $test );
+
+		if ( isset( $result['page_id'] ) ) {
+			$settings            = \Newspack\Nextdoor::get_settings();
+			$settings['page_id'] = $result['page_id'];
+
+			\Newspack\Nextdoor::update_settings( $settings );
+		}
+
+		if ( is_wp_error( $result ) ) {
+			return $result;
+		}
+
+		return rest_ensure_response( [ 'success' => true ] );
+	}
 }
+Settings::instance();

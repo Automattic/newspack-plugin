@@ -24,7 +24,7 @@ class Auth {
 	/**
 	 * OAuth base URL.
 	 */
-	const OAUTH_BASE_URL = 'https://nextdoor.com';
+	const OAUTH_BASE_URL = 'https://auth.nextdoor.com';
 
 	/**
 	 * Main Auth Instance.
@@ -42,7 +42,7 @@ class Auth {
 	 * Constructor.
 	 */
 	public function __construct() {
-		add_action( 'init', [ $this, 'handle_oauth_callback' ] );
+		add_action( 'init', [ self::class, 'handle_oauth_callback' ] );
 	}
 
 	/**
@@ -57,14 +57,14 @@ class Auth {
 		$params = [
 			'client_id'    => $client_id,
 			'redirect_uri' => $redirect_uri,
-			'scope'        => 'content_api openid',
+			'scope'        => 'content_api openid publish_api',
 		];
 
 		if ( ! empty( $state ) ) {
 			$params['state'] = $state;
 		}
 
-		return self::OAUTH_BASE_URL . '/v3/authorize?' . http_build_query( $params );
+		return API::API_BASE_URL . '/v3/authorize?' . http_build_query( $params );
 	}
 
 	/**
@@ -76,13 +76,12 @@ class Auth {
 	 * @param string $redirect_uri Redirect URI.
 	 * @return array|WP_Error
 	 */
-	public function get_access_token( $client_id, $client_secret, $code, $redirect_uri ) {
+	public static function get_access_token( $client_id, $client_secret, $code, $redirect_uri ) {
 		$body = [
-			'grant_type'    => 'authorization_code',
-			'client_id'     => $client_id,
-			'client_secret' => $client_secret,
-			'code'          => $code,
-			'redirect_uri'  => $redirect_uri,
+			'grant_type'   => 'authorization_code',
+			'code'         => $code,
+			'client_id'    => $client_id,
+			'redirect_uri' => $redirect_uri,
 		];
 
 		$response = wp_remote_post(
@@ -91,7 +90,9 @@ class Auth {
 				'body'    => $body,
 				'timeout' => 30, // phpcs:ignore WordPressVIPMinimum.Performance.RemoteRequestTimeout.timeout_timeout
 				'headers' => [
-					'Content-Type' => 'application/x-www-form-urlencoded',
+					'accept'        => 'application/json',
+					'content-type'  => 'application/x-www-form-urlencoded',
+					'Authorization' => 'Basic ' . base64_encode( $client_id . ':' . $client_secret ),
 				],
 			]
 		);
@@ -174,11 +175,11 @@ class Auth {
 	/**
 	 * Handle OAuth callback.
 	 */
-	public function handle_oauth_callback() {
+	public static function handle_oauth_callback() {
 		if ( ! isset( $_GET['nextdoor_oauth_callback'] ) || ! isset( $_GET['code'] ) || ! isset( $_GET['state'] ) ) {
 			return;
 		}
-	
+
 		$state = isset( $_GET['state'] ) ? sanitize_text_field( wp_unslash( $_GET['state'] ) ) : '';
 		$code  = isset( $_GET['code'] ) ? sanitize_text_field( wp_unslash( $_GET['code'] ) ) : '';
 
@@ -193,9 +194,9 @@ class Auth {
 			wp_die( esc_html__( 'Nextdoor client credentials not configured.', 'newspack-plugin' ) );
 		}
 
-		$redirect_uri = admin_url( 'admin.php?page=newspack-nextdoor-wizard&nextdoor_oauth_callback=1' );
+		$redirect_uri = admin_url( 'admin.php?page=newspack-settings&nextdoor_oauth_callback=1#social' );
 
-		$token_response = $this->get_access_token(
+		$token_response = self::get_access_token(
 			$settings['client_id'],
 			$settings['client_secret'],
 			$code,
@@ -220,7 +221,7 @@ class Auth {
 		\Newspack\Nextdoor::update_settings( $settings );
 
 		// Redirect to success page.
-		wp_safe_redirect( admin_url( 'admin.php?page=newspack-nextdoor-wizard&oauth_success=1' ) );
+		wp_safe_redirect( admin_url( 'admin.php?page=newspack-settings&oauth_success=1#social' ) );
 		exit;
 	}
 
@@ -265,3 +266,4 @@ class Auth {
 		return ! is_wp_error( $refresh_response );
 	}
 }
+Auth::instance();

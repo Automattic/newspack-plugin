@@ -35,23 +35,16 @@ class Nextdoor {
 	}
 
 	/**
-	 * Constructor.
-	 */
-	public function __construct() {
-		add_action( 'init', [ $this, 'init' ] );
-	}
-
-	/**
 	 * Initialize the class.
 	 */
-	public function init() {
+	public static function init() {
 		// Only initialize if the module is active.
 		if ( ! Optional_Modules::is_optional_module_active( 'nextdoor' ) ) {
 			return;
 		}
 
 		// Add custom capability.
-		add_action( 'admin_init', [ $this, 'add_nextdoor_capability' ] );
+		add_action( 'admin_init', [ __CLASS__, 'add_nextdoor_capability' ] );
 
 		// Include required files.
 		require_once NEWSPACK_ABSPATH . 'includes/optional-modules/nextdoor/class-api.php';
@@ -62,7 +55,7 @@ class Nextdoor {
 	/**
 	 * Add custom Nextdoor capability to appropriate roles.
 	 */
-	public function add_nextdoor_capability() {
+	public static function add_nextdoor_capability() {
 		$roles_with_cap = [ 'administrator', 'editor' ];
 
 		// Filter for roles that should have Nextdoor capabilities.
@@ -120,4 +113,4 @@ class Nextdoor {
 	}
 }
 
-Nextdoor::instance();
+Nextdoor::init();

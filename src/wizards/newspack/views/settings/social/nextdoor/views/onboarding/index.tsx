@@ -224,12 +224,6 @@ export const OnboardingView = ( {
 							placeholder={ __( 'https://yoursite.com', 'newspack-plugin' ) }
 							help={ __( 'The main URL of your news publication.', 'newspack-plugin' ) }
 						/>
-						<SelectControl
-							label={ __( 'Country', 'newspack-plugin' ) }
-							value={ country }
-							onChange={ setCountry }
-							options={ COUNTRY_OPTIONS }
-						/>
 					</Grid>
 
 					<div className="newspack-buttons-card">
