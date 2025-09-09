@@ -104,11 +104,12 @@ class Subscriptions_Tiers {
 	/**
 	 * Render a subscription product card.
 	 *
-	 * @param \WC_Product $product  Product.
-	 * @param bool        $current  Whether the product should have the "current" badge.
-	 * @param bool        $selected Whether the product should be checked.
+	 * @param \WC_Product $product                 Product.
+	 * @param bool        $use_parent_product_name Whether the product should use the parent product name.
+	 * @param bool        $current                 Whether the product should have the "current" badge.
+	 * @param bool        $selected                Whether the product should be checked.
 	 */
-	private static function render_product_card( $product, $current = false, $selected = false ) {
+	private static function render_product_card( $product, $use_parent_product_name = false, $current = false, $selected = false ) {
 		if ( function_exists( 'wcs_price_string' ) ) {
 			$price = wcs_price_string(
 				[
@@ -120,6 +121,16 @@ class Subscriptions_Tiers {
 		} else {
 			$price = $product->get_price_html();
 		}
+		$product_name = $product->get_name();
+		if ( $use_parent_product_name ) {
+			$parent_id = $product->get_parent_id();
+			if ( $parent_id ) {
+				$parent_product = wc_get_product( $parent_id );
+				if ( $parent_product ) {
+					$product_name = $parent_product->get_name();
+				}
+			}
+		}
 
 		?>
 		<label class="newspack-ui__input-card">
@@ -127,7 +138,7 @@ class Subscriptions_Tiers {
 				<span class="newspack-ui__badge newspack-ui__badge--primary"><?php _e( 'Current', 'newspack-plugin' ); ?></span>
 			<?php endif; ?>
 			<input type="radio" name="product_id" value="<?php echo esc_attr( $product->get_id() ); ?>" <?php echo esc_attr( $selected ? 'checked' : '' ); ?>>
-			<strong><?php echo esc_html( $product->get_name() ); ?></strong>
+			<strong><?php echo esc_html( $product_name ); ?></strong>
 			<span class="newspack-ui__helper-text"><?php echo $price; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
 		</label>
 		<?php
@@ -198,7 +209,7 @@ class Subscriptions_Tiers {
 							<div class="newspack-ui__segmented-control__panel">
 								<?php
 								foreach ( $products as $product ) {
-									self::render_product_card( $product, $product === $current_product, $product === $selected_product );
+									self::render_product_card( $product, true, $product === $current_product, $product === $selected_product );
 								}
 								?>
 							</div>
@@ -210,7 +221,7 @@ class Subscriptions_Tiers {
 			if ( $is_single_tier ) {
 				foreach ( $tiers as $products ) {
 					foreach ( $products as $product ) {
-						self::render_product_card( $product, $product === $current_product, $product === $selected_product );
+						self::render_product_card( $product, false, $product === $current_product, $product === $selected_product );
 					}
 				}
 			}
