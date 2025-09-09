@@ -7,6 +7,8 @@
 
 namespace Newspack\Nextdoor;
 
+use Newspack\Nextdoor;
+
 defined( 'ABSPATH' ) || exit;
 
 /**
@@ -143,7 +145,7 @@ class Settings {
 	 * @return WP_REST_Response
 	 */
 	public function api_get_settings() {
-		$settings = \Newspack\Nextdoor::get_settings();
+		$settings = Nextdoor::get_settings();
 
 		// Don't expose sensitive data.
 		unset( $settings['access_token'] );
@@ -159,7 +161,7 @@ class Settings {
 	 * @return WP_REST_Response
 	 */
 	public function api_update_settings( $request ) {
-		$settings = \Newspack\Nextdoor::get_settings();
+		$settings = Nextdoor::get_settings();
 		$params   = $request->get_params();
 
 		if ( isset( $params['client_id'] ) ) {
@@ -174,7 +176,7 @@ class Settings {
 			$settings['allowed_roles'] = $params['allowed_roles'];
 		}
 
-		$updated = \Newspack\Nextdoor::update_settings( $settings );
+		$updated = Nextdoor::update_settings( $settings );
 
 		if ( ! $updated ) {
 			return new \WP_Error(
@@ -201,14 +203,14 @@ class Settings {
 		$auth = Auth::instance();
 
 		// First, create/get account.
-		$redirect_uri     = \Newspack\Nextdoor::get_redirect_uri();
+		$redirect_uri     = Nextdoor::get_redirect_uri();
 		$account_response = $api->create_account( $email, $country, $redirect_uri );
 
 		if ( is_wp_error( $account_response ) ) {
 			return $account_response;
 		}
 
-		$settings = \Newspack\Nextdoor::get_settings();
+		$settings = Nextdoor::get_settings();
 
 		if ( empty( $settings['client_id'] ) ) {
 			return new \WP_Error(
@@ -249,10 +251,10 @@ class Settings {
 		$result = $api->claim_page( $publication_url, $test );
 
 		if ( isset( $result['page_id'] ) ) {
-			$settings            = \Newspack\Nextdoor::get_settings();
+			$settings            = Nextdoor::get_settings();
 			$settings['page_id'] = $result['page_id'];
 
-			\Newspack\Nextdoor::update_settings( $settings );
+			Nextdoor::update_settings( $settings );
 		}
 
 		if ( is_wp_error( $result ) ) {
@@ -282,9 +284,9 @@ class Settings {
 
 			if ( $claimed_url === $input_url ) {
 				// Save page ID.
-				$settings            = \Newspack\Nextdoor::get_settings();
+				$settings            = Nextdoor::get_settings();
 				$settings['page_id'] = $profile['entity_page']['id'];
-				\Newspack\Nextdoor::update_settings( $settings );
+				Nextdoor::update_settings( $settings );
 				return true;
 			}
 		}

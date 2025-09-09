@@ -164,12 +164,12 @@ class Auth {
 		$token_data = json_decode( $body, true );
 
 		// Update stored settings with new token.
-		$settings = \Newspack\Nextdoor::get_settings();
+		$settings = Nextdoor::get_settings();
 		$settings['access_token'] = $token_data['access_token'];
 		$settings['refresh_token'] = $token_data['refresh_token'];
 		$settings['token_expires_at'] = time() + $token_data['expires_in'];
 
-		\Newspack\Nextdoor::update_settings( $settings );
+		Nextdoor::update_settings( $settings );
 
 		return $token_data;
 	}
@@ -190,7 +190,7 @@ class Auth {
 			wp_die( esc_html__( 'Invalid OAuth state parameter.', 'newspack-plugin' ) );
 		}
 
-		$settings = \Newspack\Nextdoor::get_settings();
+		$settings = Nextdoor::get_settings();
 
 		if ( empty( $settings['client_id'] ) || empty( $settings['client_secret'] ) ) {
 			wp_die( esc_html__( 'Nextdoor client credentials not configured.', 'newspack-plugin' ) );
@@ -220,7 +220,7 @@ class Auth {
 		$settings['refresh_token'] = $token_response['refresh_token'];
 		$settings['token_expires_at'] = time() + $token_response['expires_in'];
 
-		\Newspack\Nextdoor::update_settings( $settings );
+		Nextdoor::update_settings( $settings );
 
 		// Redirect to success page.
 		wp_safe_redirect( admin_url( 'admin.php?page=newspack-settings&oauth_success=1#social' ) );
@@ -233,7 +233,7 @@ class Auth {
 	 * @return bool
 	 */
 	public function needs_token_refresh() {
-		$settings = \Newspack\Nextdoor::get_settings();
+		$settings = Nextdoor::get_settings();
 
 		if ( empty( $settings['token_expires_at'] ) ) {
 			return false;
@@ -253,7 +253,7 @@ class Auth {
 			return true;
 		}
 
-		$settings = \Newspack\Nextdoor::get_settings();
+		$settings = Nextdoor::get_settings();
 
 		if ( empty( $settings['refresh_token'] ) ) {
 			return false;

@@ -7,6 +7,8 @@
 
 namespace Newspack\Nextdoor;
 
+use Newspack\Nextdoor;
+
 defined( 'ABSPATH' ) || exit;
 
 /**
@@ -66,7 +68,7 @@ class API {
 		$args = wp_parse_args( $args, $default_args );
 
 		// Add authorization header if we have an access token.
-		$settings = \Newspack\Nextdoor::get_settings();
+		$settings = Nextdoor::get_settings();
 		if ( ! empty( $settings['access_token'] ) ) {
 			$args['headers']['Authorization'] = 'Bearer ' . $settings['access_token'];
 		}
@@ -115,7 +117,7 @@ class API {
 			$body['redirect_uri'] = $redirect_uri;
 		}
 
-		$settings = \Newspack\Nextdoor::get_settings();
+		$settings = Nextdoor::get_settings();
 		if ( empty( $settings['client_secret'] ) ) {
 			return new \WP_Error(
 				'newspack_nextdoor_client_secret_missing',
