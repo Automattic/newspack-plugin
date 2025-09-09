@@ -165,8 +165,8 @@ class API {
 	 *
 	 * @return array|WP_Error
 	 */
-	public function get_profiles() {
-		return $this->make_request( '/me/profiles' );
+	public function get_profile() {
+		return $this->make_request( '/external/api/partner/v1/me' );
 	}
 
 	/**
@@ -223,7 +223,7 @@ class API {
 	 * @return bool
 	 */
 	public function test_connection() {
-		$response = $this->get_profiles();
+		$response = $this->get_profile();
 		return ! is_wp_error( $response );
 	}
 }

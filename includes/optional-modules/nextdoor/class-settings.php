@@ -241,6 +241,11 @@ class Settings {
 		$publication_url = $request->get_param( 'publication_url' );
 		$test            = $request->get_param( 'test' );
 
+		// Check if page is already claimed.
+		if ( $this->check_page_claim( $publication_url ) ) {
+			return rest_ensure_response( [ 'success' => true ] );
+		}
+
 		$api    = API::instance();
 		$result = $api->claim_page( $publication_url, $test );
 
@@ -256,6 +261,36 @@ class Settings {
 		}
 
 		return rest_ensure_response( [ 'success' => true ] );
+	}
+
+	/**
+	 * Checks if the current publication URL page has been claimed.
+	 *
+	 * @param string $publication_url The publication URL to check.
+	 * @return bool True if the page is claimed, false otherwise.
+	 */
+	private function check_page_claim( $publication_url ) {
+		$api      = API::instance();
+		$profile  = $api->get_profile();
+
+		if ( is_wp_error( $profile ) || empty( $profile ) ) {
+			return false;
+		}
+
+		if ( isset( $profile['entity_page'] ) && isset( $profile['entity_page']['publication_url'] ) ) {
+			$claimed_url = rtrim( $profile['entity_page']['publication_url'], '/' );
+			$input_url   = rtrim( $publication_url, '/' );
+
+			if ( $claimed_url === $input_url ) {
+				// Save page ID.
+				$settings            = \Newspack\Nextdoor::get_settings();
+				$settings['page_id'] = $profile['entity_page']['id'];
+				\Newspack\Nextdoor::update_settings( $settings );
+				return true;
+			}
+		}
+
+		return false;
 	}
 }
 Settings::instance();
