@@ -160,7 +160,12 @@ export const OnboardingView = ( {
 					</Grid>
 
 					<div className="newspack-buttons-card">
-						<Button isPrimary onClick={ handleSaveCredentials } disabled={ ! clientId || ! clientSecret || isSaving } isBusy={ isSaving }>
+						<Button
+							variant="primary"
+							onClick={ handleSaveCredentials }
+							disabled={ ! clientId || ! clientSecret || isSaving }
+							isBusy={ isSaving }
+						>
 							{ __( 'Save & Continue', 'newspack-plugin' ) }
 						</Button>
 					</div>
@@ -190,10 +195,10 @@ export const OnboardingView = ( {
 					</Grid>
 
 					<div className="newspack-buttons-card">
-						<Button isPrimary onClick={ handleStartOAuth } disabled={ ! email || isSaving } isBusy={ isSaving }>
+						<Button variant="primary" onClick={ handleStartOAuth } disabled={ ! email || isSaving } isBusy={ isSaving }>
 							{ __( 'Connect Account', 'newspack-plugin' ) }
 						</Button>
-						<Button isSecondary onClick={ () => setCurrentStep( 1 ) }>
+						<Button variant="secondary" onClick={ () => setCurrentStep( 1 ) }>
 							{ __( 'Back', 'newspack-plugin' ) }
 						</Button>
 					</div>
@@ -217,10 +222,10 @@ export const OnboardingView = ( {
 					</Grid>
 
 					<div className="newspack-buttons-card">
-						<Button isPrimary onClick={ handleClaimPage } disabled={ ! publicationUrl || isSaving } isBusy={ isSaving }>
+						<Button variant="primary" onClick={ handleClaimPage } disabled={ ! publicationUrl || isSaving } isBusy={ isSaving }>
 							{ __( 'Claim Page', 'newspack-plugin' ) }
 						</Button>
-						<Button isSecondary onClick={ () => setCurrentStep( 2 ) }>
+						<Button variant="secondary" onClick={ () => setCurrentStep( 2 ) }>
 							{ __( 'Back', 'newspack-plugin' ) }
 						</Button>
 					</div>
