@@ -2255,7 +2255,7 @@ final class Reader_Activation {
 				]
 			);
 
-			// Temporarily remove our canonize_user_data callback from the woocommercer hook.
+			// Unhook from WooCommerce as it's already been canonized above.
 			remove_filter( 'woocommerce_new_customer_data', [ __CLASS__, 'canonize_user_data' ], 10, 1 );
 			if ( function_exists( '\wc_create_new_customer' ) ) {
 				/**
