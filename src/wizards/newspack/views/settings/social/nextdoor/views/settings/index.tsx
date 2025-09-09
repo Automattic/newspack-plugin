@@ -108,19 +108,13 @@ export const SettingsView = ( { settings, status, error, updateSettings, setErro
 			<Card headerText={ __( 'Connection Information', 'newspack-plugin' ) }>
 				<Grid columns={ 2 } gutter={ 16 }>
 					<div>
-						<strong>{ __( 'Publication URL:', 'newspack-plugin' ) }</strong>
+						<strong>{ __( 'Connection Status:', 'newspack-plugin' ) }</strong>
 						<br />
-						{ settings.publication_url || __( 'Not set', 'newspack-plugin' ) }
-					</div>
-					<div>
-						<strong>{ __( 'Page ID:', 'newspack-plugin' ) }</strong>
-						<br />
-						{ settings.page_id || __( 'Not set', 'newspack-plugin' ) }
-					</div>
-					<div>
-						<strong>{ __( 'Client ID:', 'newspack-plugin' ) }</strong>
-						<br />
-						{ settings.client_id ? '••••••••' : __( 'Not set', 'newspack-plugin' ) }
+						{ status.is_connected ? (
+							<span style={ { color: '#00a32a' } }>{ __( 'Connected', 'newspack-plugin' ) }</span>
+						) : (
+							<span style={ { color: '#d63638' } }>{ __( 'Not Connected', 'newspack-plugin' ) }</span>
+						) }
 					</div>
 					<div>
 						<strong>{ __( 'Token Status:', 'newspack-plugin' ) }</strong>

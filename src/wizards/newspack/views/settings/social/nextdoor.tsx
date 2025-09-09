@@ -61,7 +61,6 @@ function Nextdoor() {
 		if ( apiData.connection_status ) {
 			setStatus( apiData.connection_status );
 			setSettings( {
-				publication_url: apiData.connection_status.publication_url,
 				allowed_roles: apiData.connection_status.allowed_roles,
 			} );
 		}

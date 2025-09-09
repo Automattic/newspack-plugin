@@ -19,6 +19,7 @@ use WP_Error;
 use Newspack\Optional_Modules;
 use Newspack\Nextdoor as Nextdoor_Module;
 use Newspack\Wizards\Wizard_Section;
+use Newspack\Nextdoor\Auth;
 
 /**
  * Nextdoor Section Object.
@@ -81,6 +82,7 @@ class Nextdoor_Section extends Wizard_Section {
 		if ( $is_enabled ) {
 			$is_connected = Nextdoor_Module::is_connected();
 			$settings     = Nextdoor_Module::get_settings();
+			$auth         = Auth::instance();
 
 			$connection_status = [
 				'is_connected'    => $is_connected,
@@ -89,6 +91,7 @@ class Nextdoor_Section extends Wizard_Section {
 				'has_page'        => ! empty( $settings['page_id'] ),
 				'publication_url' => $settings['publication_url'] ?? '',
 				'allowed_roles'   => $settings['allowed_roles'] ?? [],
+				'token_valid'     => $auth->validate_token(),
 			];
 		}
 
