@@ -194,13 +194,32 @@ class API {
 	 * @return array|WP_Error
 	 */
 	public function delete_article( $guid ) {
-		return $this->make_request(
-			'/external/api/partner/v1/article/',
-			[
-				'body' => wp_json_encode( [ 'guid' => $guid ] ),
-			],
-			'DELETE'
-		);
+		$settings = Nextdoor::get_settings();
+		$url      = '/external/api/partner/v1/article/';
+
+		if ( ! empty( $settings['publication_url'] ) ) {
+			$url = add_query_arg(
+				[
+					'publication_url' => $settings['publication_url'],
+					'guid'            => $guid,
+				],
+				$url
+			);
+		} else {
+			$url = add_query_arg( [ 'guid' => $guid ], $url );
+		}
+
+		return $this->make_request( $url, [], 'DELETE' );
+	}
+
+	/**
+	 * Update article (alias for create_article as Nextdoor uses PUT for both create and update).
+	 *
+	 * @param array $article_data Article data.
+	 * @return array|WP_Error
+	 */
+	public function update_article( $article_data ) {
+		return $this->create_article( $article_data );
 	}
 
 	/**

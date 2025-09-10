@@ -1,0 +1,39 @@
+/**
+ * Nextdoor Post Styles
+ */
+
+.nextdoor-sidebar {
+	&__loading {
+		padding: 1rem;
+		text-align: center;
+	}
+
+	&__status-text {
+		margin: 0 0 1rem 0;
+		font-size: 13px;
+		color: #757575;
+
+		&--default {
+			color: inherit;
+		}
+	}
+
+	&__notice {
+		margin: 0 0 1rem 0;
+	}
+
+	&__description {
+		margin: 0 0 1rem 0;
+	}
+
+	&__actions {
+		display: flex;
+		gap: 8px;
+
+		.components-button {
+			flex: 1;
+			justify-content: center;
+			min-height: 32px;
+		}
+	}
+}

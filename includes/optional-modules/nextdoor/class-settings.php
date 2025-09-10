@@ -128,6 +128,89 @@ class Settings {
 				],
 			]
 		);
+
+		// Post sharing status endpoint.
+		register_rest_route(
+			NEWSPACK_API_NAMESPACE,
+			'/nextdoor/post-status/(?P<id>\d+)',
+			[
+				'methods'             => \WP_REST_Server::READABLE,
+				'callback'            => [ $this, 'api_get_post_sharing_status' ],
+				'permission_callback' => [ $this, 'api_post_permissions_check' ],
+				'args'                => [
+					'id' => [
+						'required'          => true,
+						'type'              => 'integer',
+						'sanitize_callback' => 'absint',
+					],
+				],
+			]
+		);
+
+		// Publish post endpoint.
+		register_rest_route(
+			NEWSPACK_API_NAMESPACE,
+			'/nextdoor/publish-post/(?P<id>\d+)',
+			[
+				'methods'             => \WP_REST_Server::CREATABLE,
+				'callback'            => [ $this, 'api_publish_post' ],
+				'permission_callback' => [ $this, 'api_post_permissions_check' ],
+				'args'                => [
+					'id' => [
+						'required'          => true,
+						'type'              => 'integer',
+						'sanitize_callback' => 'absint',
+					],
+				],
+			]
+		);
+
+		// Update post endpoint.
+		register_rest_route(
+			NEWSPACK_API_NAMESPACE,
+			'/nextdoor/update-post/(?P<id>\d+)',
+			[
+				'methods'             => \WP_REST_Server::EDITABLE,
+				'callback'            => [ $this, 'api_update_post' ],
+				'permission_callback' => [ $this, 'api_post_permissions_check' ],
+				'args'                => [
+					'id' => [
+						'required'          => true,
+						'type'              => 'integer',
+						'sanitize_callback' => 'absint',
+					],
+				],
+			]
+		);
+
+		// Delete post endpoint.
+		register_rest_route(
+			NEWSPACK_API_NAMESPACE,
+			'/nextdoor/delete-post/(?P<id>\d+)',
+			[
+				'methods'             => \WP_REST_Server::DELETABLE,
+				'callback'            => [ $this, 'api_delete_post' ],
+				'permission_callback' => [ $this, 'api_post_permissions_check' ],
+				'args'                => [
+					'id' => [
+						'required'          => true,
+						'type'              => 'integer',
+						'sanitize_callback' => 'absint',
+					],
+				],
+			]
+		);
+
+		// Disconnect endpoint.
+		register_rest_route(
+			NEWSPACK_API_NAMESPACE,
+			'/nextdoor/disconnect',
+			[
+				'methods'             => \WP_REST_Server::DELETABLE,
+				'callback'            => [ $this, 'api_disconnect' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+			]
+		);
 	}
 
 	/**
@@ -137,6 +220,15 @@ class Settings {
 	 */
 	public function api_permissions_check() {
 		return current_user_can( 'manage_options' );
+	}
+
+	/**
+	 * Check if user has permission to publish posts to Nextdoor.
+	 *
+	 * @return bool
+	 */
+	public function api_post_permissions_check() {
+		return Nextdoor::can_user_publish();
 	}
 
 	/**
@@ -293,5 +385,365 @@ class Settings {
 
 		return false;
 	}
+
+	/**
+	 * Get post sharing status via API.
+	 *
+	 * @param WP_REST_Request $request Request object.
+	 * @return WP_REST_Response
+	 */
+	public function api_get_post_sharing_status( $request ) {
+		$post_id = $request->get_param( 'id' );
+		$status  = self::get_post_sharing_status( $post_id );
+
+		// Add connection status for UI context.
+		$status['can_publish'] = Nextdoor::is_connected() && Nextdoor::can_user_publish();
+
+		return rest_ensure_response( $status );
+	}
+
+	/**
+	 * Publish post to Nextdoor via API.
+	 *
+	 * @param WP_REST_Request $request Request object.
+	 * @return WP_REST_Response
+	 */
+	public function api_publish_post( $request ) {
+		$post_id = $request->get_param( 'id' );
+		$result  = self::publish_post( $post_id );
+
+		if ( is_wp_error( $result ) ) {
+			return $result;
+		}
+
+		return rest_ensure_response(
+			[
+				'success' => true,
+				'message' => __( 'Post successfully published to Nextdoor.', 'newspack-plugin' ),
+				'article' => $result,
+			]
+		);
+	}
+
+	/**
+	 * Update post on Nextdoor via API.
+	 *
+	 * @param WP_REST_Request $request Request object.
+	 * @return WP_REST_Response
+	 */
+	public function api_update_post( $request ) {
+		$post_id = $request->get_param( 'id' );
+		$result  = self::update_post( $post_id );
+
+		if ( is_wp_error( $result ) ) {
+			return $result;
+		}
+
+		return rest_ensure_response(
+			[
+				'success' => true,
+				'message' => __( 'Post successfully updated on Nextdoor.', 'newspack-plugin' ),
+				'article' => $result,
+			]
+		);
+	}
+
+	/**
+	 * Delete post from Nextdoor via API.
+	 *
+	 * @param WP_REST_Request $request Request object.
+	 * @return WP_REST_Response
+	 */
+	public function api_delete_post( $request ) {
+		$post_id = $request->get_param( 'id' );
+		$result  = self::delete_post( $post_id );
+
+		if ( is_wp_error( $result ) ) {
+			return $result;
+		}
+
+		return rest_ensure_response(
+			[
+				'success' => true,
+				'message' => __( 'Post successfully removed from Nextdoor.', 'newspack-plugin' ),
+			]
+		);
+	}
+
+	/**
+	 * Disconnect Nextdoor account via API.
+	 *
+	 * @return WP_REST_Response
+	 */
+	public function api_disconnect() {
+		$result = self::disconnect_account();
+
+		if ( is_wp_error( $result ) ) {
+			return $result;
+		}
+
+		return rest_ensure_response(
+			[
+				'success' => true,
+				'message' => __( 'Nextdoor account disconnected successfully.', 'newspack-plugin' ),
+			]
+		);
+	}
+
+	/**
+	 * Publish post to Nextdoor.
+	 *
+	 * @param int $post_id Post ID.
+	 * @return array|WP_Error
+	 */
+	public static function publish_post( $post_id ) {
+		if ( ! Nextdoor::is_connected() ) {
+			return new \WP_Error(
+				'nextdoor_not_connected',
+				__( 'Nextdoor is not connected.', 'newspack-plugin' )
+			);
+		}
+
+		$post = get_post( $post_id );
+		if ( ! $post || $post->post_status !== 'publish' ) {
+			return new \WP_Error(
+				'invalid_post',
+				__( 'Post not found or not published.', 'newspack-plugin' )
+			);
+		}
+
+		// Check if post is already shared.
+		$nextdoor_guid = get_post_meta( $post_id, '_nextdoor_guid', true );
+		if ( $nextdoor_guid ) {
+			return new \WP_Error(
+				'already_shared',
+				__( 'Post has already been shared to Nextdoor.', 'newspack-plugin' )
+			);
+		}
+
+		$settings = Nextdoor::get_settings();
+		$api      = API::instance();
+
+		// Prepare article data.
+		$article_data = self::prepare_article_data( $post_id, $settings );
+
+		$response = $api->create_article( $article_data );
+
+		if ( is_wp_error( $response ) ) {
+			return $response;
+		}
+
+		// Store the GUID and sharing timestamp for future reference.
+		update_post_meta( $post_id, '_nextdoor_guid', $article_data['guid'] );
+		update_post_meta( $post_id, '_nextdoor_shared_at', current_time( 'mysql' ) );
+
+		return $response;
+	}
+
+	/**
+	 * Update post on Nextdoor.
+	 *
+	 * @param int $post_id Post ID.
+	 * @return array|WP_Error
+	 */
+	public static function update_post( $post_id ) {
+		if ( ! Nextdoor::is_connected() ) {
+			return new \WP_Error(
+				'nextdoor_not_connected',
+				__( 'Nextdoor is not connected.', 'newspack-plugin' )
+			);
+		}
+
+		$post = get_post( $post_id );
+		if ( ! $post || $post->post_status !== 'publish' ) {
+			return new \WP_Error(
+				'invalid_post',
+				__( 'Post not found or not published.', 'newspack-plugin' )
+			);
+		}
+
+		// Check if post has been shared to Nextdoor.
+		$guid = get_post_meta( $post_id, '_nextdoor_guid', true );
+		if ( ! $guid ) {
+			return new \WP_Error(
+				'post_not_shared',
+				__( 'Post has not been shared to Nextdoor yet.', 'newspack-plugin' )
+			);
+		}
+
+		$settings = Nextdoor::get_settings();
+		$api      = API::instance();
+
+		// Prepare article data.
+		$article_data = self::prepare_article_data( $post_id, $settings );
+
+		// Update the modified timestamp.
+		$article_data['modified_at'] = get_the_modified_date( 'c', $post_id );
+
+		$response = $api->update_article( $article_data );
+
+		if ( is_wp_error( $response ) ) {
+			return $response;
+		}
+
+		// Update the modified timestamp in post meta.
+		update_post_meta( $post_id, '_nextdoor_updated_at', current_time( 'mysql' ) );
+
+		return $response;
+	}
+
+	/**
+	 * Delete post from Nextdoor.
+	 *
+	 * @param int $post_id Post ID.
+	 * @return array|WP_Error
+	 */
+	public static function delete_post( $post_id ) {
+		if ( ! Nextdoor::is_connected() ) {
+			return new \WP_Error(
+				'nextdoor_not_connected',
+				__( 'Nextdoor is not connected.', 'newspack-plugin' )
+			);
+		}
+
+		// Check if post has been shared to Nextdoor.
+		$guid = get_post_meta( $post_id, '_nextdoor_guid', true );
+		if ( ! $guid ) {
+			return new \WP_Error(
+				'post_not_shared',
+				__( 'Post has not been shared to Nextdoor.', 'newspack-plugin' )
+			);
+		}
+
+		$api      = API::instance();
+		$response = $api->delete_article( $guid );
+
+		if ( is_wp_error( $response ) ) {
+			return $response;
+		}
+
+		// Remove Nextdoor-related metadata.
+		delete_post_meta( $post_id, '_nextdoor_guid' );
+		delete_post_meta( $post_id, '_nextdoor_shared_at' );
+		delete_post_meta( $post_id, '_nextdoor_updated_at' );
+
+		return $response;
+	}
+
+	/**
+	 * Disconnect Nextdoor account.
+	 *
+	 * @return array|WP_Error
+	 */
+	public static function disconnect_account() {
+		// Clear all Nextdoor settings.
+		$result = delete_option( 'newspack_nextdoor_settings' );
+
+		if ( ! $result ) {
+			return new \WP_Error(
+				'disconnect_failed',
+				__( 'Failed to disconnect Nextdoor account.', 'newspack-plugin' )
+			);
+		}
+
+		return [ 'success' => true ];
+	}
+
+	/**
+	 * Prepare article data for Nextdoor API.
+	 *
+	 * @param int   $post_id Post ID.
+	 * @param array $settings Nextdoor settings.
+	 * @return array
+	 */
+	private static function prepare_article_data( $post_id, $settings ) {
+		$post = get_post( $post_id );
+
+		// Generate GUID for the article.
+		$guid = get_post_meta( $post_id, '_nextdoor_guid', true );
+		if ( ! $guid ) {
+			$guid = 'newspack_' . $post_id . '_' . time();
+		}
+
+		$article_data = [
+			'publication_url' => $settings['publication_url'],
+			'guid'            => $guid,
+			'content_url'     => get_permalink( $post_id ),
+			'title'           => get_the_title( $post_id ),
+			'description'     => get_the_excerpt( $post_id ),
+			'authors'         => [ get_the_author_meta( 'display_name', $post->post_author ) ],
+			'published_at'    => get_the_date( 'c', $post_id ),
+			'modified_at'     => get_the_modified_date( 'c', $post_id ),
+			'content'         => wp_strip_all_tags( get_the_content( null, false, $post_id ) ),
+		];
+
+		// Add featured image if available.
+		$featured_image_id = get_post_thumbnail_id( $post_id );
+		if ( $featured_image_id ) {
+			$image_url = wp_get_attachment_image_url( $featured_image_id, 'large' );
+			if ( $image_url ) {
+				$article_data['media'] = [
+					'type' => 'image',
+					'url'  => $image_url,
+				];
+			}
+		}
+
+		// Add categories as tags.
+		$categories = get_the_category( $post_id );
+		if ( $categories ) {
+			$article_data['tags'] = array_map(
+				function( $cat ) {
+					return $cat->name;
+				},
+				$categories
+			);
+		}
+
+		/**
+		 * Filter article data before sending to Nextdoor.
+		 *
+		 * @param array $article_data Article data.
+		 * @param int   $post_id      Post ID.
+		 */
+		return apply_filters( 'newspack_nextdoor_article_data', $article_data, $post_id );
+	}
+
+	/**
+	 * Check if post is shared to Nextdoor.
+	 *
+	 * @param int $post_id Post ID.
+	 * @return bool
+	 */
+	public static function is_post_shared( $post_id ) {
+		return ! empty( get_post_meta( $post_id, '_nextdoor_guid', true ) );
+	}
+
+	/**
+	 * Get post Nextdoor sharing status.
+	 *
+	 * @param int $post_id Post ID.
+	 * @return array
+	 */
+	public static function get_post_sharing_status( $post_id ) {
+		$guid       = get_post_meta( $post_id, '_nextdoor_guid', true );
+		$shared_at  = get_post_meta( $post_id, '_nextdoor_shared_at', true );
+		$updated_at = get_post_meta( $post_id, '_nextdoor_updated_at', true );
+
+		$post = get_post( $post_id );
+		$is_published = $post && $post->post_status === 'publish';
+
+		return [
+			'is_shared'     => ! empty( $guid ),
+			'guid'          => $guid,
+			'shared_at'     => $shared_at,
+			'updated_at'    => $updated_at,
+			'is_published'  => $is_published,
+			'last_modified' => $post ? get_the_modified_date( 'c', $post_id ) : null,
+			'needs_update'  => ! empty( $guid ) && ! empty( $shared_at ) && ! empty( $updated_at ) && 
+								$post && strtotime( get_the_modified_date( 'Y-m-d H:i:s', $post_id ) ) > strtotime( $updated_at ),
+		];
+	}
 }
+
 Settings::instance();

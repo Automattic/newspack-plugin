@@ -7,6 +7,8 @@
 
 namespace Newspack;
 
+use Newspack\Nextdoor\API;
+
 defined( 'ABSPATH' ) || exit;
 
 /**
@@ -46,10 +48,41 @@ class Nextdoor {
 		// Add custom capability.
 		add_action( 'admin_init', [ __CLASS__, 'add_nextdoor_capability' ] );
 
+		// Enqueue post editor scripts.
+		add_action( 'enqueue_block_editor_assets', [ __CLASS__, 'enqueue_post_editor_assets' ] );
+
 		// Include required files.
 		require_once NEWSPACK_ABSPATH . 'includes/optional-modules/nextdoor/class-api.php';
 		require_once NEWSPACK_ABSPATH . 'includes/optional-modules/nextdoor/class-auth.php';
 		require_once NEWSPACK_ABSPATH . 'includes/optional-modules/nextdoor/class-settings.php';
+	}
+
+	/**
+	 * Enqueue post editor assets.
+	 */
+	public static function enqueue_post_editor_assets() {
+		// Only load on post editor for users who can publish to Nextdoor.
+		$screen     = get_current_screen();
+		$post_types = apply_filters( 'newspack_nextdoor_publish_cap_post_types', [ 'post' ] );
+		if ( ! $screen || ! in_array( $screen->post_type, $post_types, true ) || ! self::can_user_publish() ) {
+			return;
+		}
+
+		$handle = 'newspack-nextdoor-post-editor-plugin';
+		wp_enqueue_script(
+			$handle,
+			\Newspack\Newspack::plugin_url() . '/dist/other-scripts/nextdoor.js',
+			[ 'wp-edit-post', 'wp-data', 'wp-components', 'wp-element' ],
+			NEWSPACK_PLUGIN_VERSION,
+			true
+		);
+
+		wp_enqueue_style(
+			$handle,
+			\Newspack\Newspack::plugin_url() . '/dist/other-scripts/nextdoor.css',
+			[],
+			NEWSPACK_PLUGIN_VERSION
+		);
 	}
 
 	/**
