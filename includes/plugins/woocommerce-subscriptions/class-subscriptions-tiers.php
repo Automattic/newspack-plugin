@@ -14,6 +14,62 @@ defined( 'ABSPATH' ) || exit;
  */
 class Subscriptions_Tiers {
 	/**
+	 * Switch subscription links rendered in the page.
+	 *
+	 * @var array
+	 */
+	private static $switch_subscription_links = [];
+
+	/**
+	 * Initialize hooks.
+	 */
+	public static function init_hooks() {
+		add_filter( 'woocommerce_subscriptions_switch_link_text', [ __CLASS__, 'register_switch_subscription_links' ], 10, 4 );
+		add_action( 'wp_footer', [ __CLASS__, 'print_switch_subscription_modal' ] );
+	}
+
+	/**
+	 * Register switch subscription links.
+	 *
+	 * @param string           $text         The text of the switch subscription link.
+	 * @param int              $item_id      The ID of the item.
+	 * @param array            $item         The order line item data.
+	 * @param \WC_Subscription $subscription The subscription.
+	 *
+	 * @return string The text of the switch subscription link.
+	 */
+	public static function register_switch_subscription_links( $text, $item_id, $item, $subscription ) {
+		self::$switch_subscription_links[ $item_id ] = [
+			'item_id'      => $item_id,
+			'item'         => $item,
+			'subscription' => $subscription,
+		];
+		return $text;
+	}
+
+	/**
+	 * Modal switch subscription template.
+	 */
+	public static function print_switch_subscription_modal() {
+		if ( empty( self::$switch_subscription_links ) ) {
+			return;
+		}
+		foreach ( self::$switch_subscription_links as $data ) {
+			$product = wc_get_product( $data['item']['product_id'] );
+			if ( ! $product ) {
+				continue;
+			}
+			$parent_products = \WC_Subscriptions_Product::get_visible_grouped_parent_product_ids( $product );
+			if ( empty( $parent_products ) ) {
+				continue;
+			}
+			$product = wc_get_product( reset( $parent_products ) );
+			self::render_modal( $product, __( 'Switch Subscription', 'newspack-plugin' ), __( 'Switch Subscription', 'newspack-plugin' ), $data );
+		}
+	}
+
+
+	/**
 	 * Get tiered products by frequency given a grouped or
 	 * variable subscription product.
 	 *
@@ -147,11 +203,12 @@ class Subscriptions_Tiers {
 	/**
 	 * Render subscription tiers form.
 	 *
-	 * @param \WC_Product $product      Optiona product.
-	 * @param string|null $title        Optional title.
-	 * @param string|null $button_label Optional button label.
+	 * @param \WC_Product $product             Optional product.
+	 * @param string|null $title               Optional title.
+	 * @param string|null $button_label        Optional button label.
+	 * @param array|null  $switch_subscription Switch subscription data or null.
 	 */
-	public static function render_form( $product = null, $title = null, $button_label = null ) {
+	public static function render_form( $product = null, $title = null, $button_label = null, $switch_subscription = null ) {
 		$tiers = self::get_tiers_by_frequency( $product );
 		if ( empty( $tiers ) ) {
 			return;
@@ -228,6 +285,10 @@ class Subscriptions_Tiers {
 			?>
 			<input type="hidden" name="newspack_checkout" value="1">
 			<input type="hidden" name="modal_checkout" value="1">
+			<?php if ( ! empty( $switch_subscription ) ) : ?>
+				<input type="hidden" name="switch-subscription" value="<?php echo esc_attr( $switch_subscription['subscription']->get_id() ); ?>">
+				<input type="hidden" name="item" value="<?php echo absint( $switch_subscription['item_id'] ); ?>">
+			<?php endif; ?>
 
 			<button type="submit" class="newspack-ui__button newspack-ui__button--primary newspack-ui__button--wide"><?php echo esc_html( $button_label ); ?></button>
 			<button type="button" class="newspack-ui__button newspack-ui__button--ghost newspack-ui__button--wide newspack-ui__modal__cancel"><?php _e( 'Cancel', 'newspack-plugin' ); ?></button>
@@ -242,13 +303,14 @@ class Subscriptions_Tiers {
 	 * If no grouped or variable subscription product is provided,
 	 * all non-donation subscription products are rendered.
 	 *
-	 * @param \WC_Product|null $product      Optional product.
-	 * @param string|null      $title        Optional title.
-	 * @param string|null      $button_label Optional button label.
+	 * @param \WC_Product|null $product             Optional product.
+	 * @param string|null      $title               Optional title.
+	 * @param string|null      $button_label        Optional button label.
+	 * @param array|null       $switch_subscription Switch subscription data or null.
 	 */
-	public static function render_modal( $product = null, $title = null, $button_label = null ) {
+	public static function render_modal( $product = null, $title = null, $button_label = null, $switch_subscription = null ) {
 		?>
-		<div class="newspack-ui newspack-ui__modal-container newspack__subscription-tiers" data-state="closed" data-product-id="<?php echo esc_attr( $product ? $product->get_id() : '' ); ?>">
+		<div class="newspack-ui newspack-ui__modal-container newspack__subscription-tiers" data-state="closed" data-product-id="<?php echo esc_attr( $product ? $product->get_id() : '' ); ?>" data-subscription-id="<?php echo esc_attr( $switch_subscription ? $switch_subscription['subscription']->get_id() : '' ); ?>">
 			<div class="newspack-ui__modal-container__overlay"></div>
 			<div class="newspack-ui__modal newspack-ui__modal--small">
 				<header class="newspack-ui__modal__header">
@@ -259,10 +321,11 @@ class Subscriptions_Tiers {
 					</button>
 				</header>
 				<div class="newspack-ui__modal__content newspack__subscription-tiers__form" target="newspack_modal_checkout_iframe">
-					<?php self::render_form( $product, $title, $button_label ); ?>
+					<?php self::render_form( $product, $title, $button_label, $switch_subscription ); ?>
 				</div>
 			</div>
 		</div>
 		<?php
 	}
 }
+Subscriptions_Tiers::init_hooks();

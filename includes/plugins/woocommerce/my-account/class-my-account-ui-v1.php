@@ -97,6 +97,7 @@ class My_Account_UI_V1 {
 				'resubscribe_title'           => __( 'Renew subscription', 'newspack-plugin' ),
 				'renewal_early_title'         => __( 'Renew subscription early', 'newspack-plugin' ),
 				'change_payment_method_title' => __( 'Change payment method', 'newspack-plugin' ),
+				'switch_subscription_title'   => __( 'Switch subscription', 'newspack-plugin' ),
 			],
 		];
 
