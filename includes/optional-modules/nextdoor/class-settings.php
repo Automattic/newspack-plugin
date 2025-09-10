@@ -334,6 +334,10 @@ class Settings {
 		$publication_url = $request->get_param( 'publication_url' );
 		$test            = $request->get_param( 'test' );
 
+		$settings                    = Nextdoor::get_settings();
+		$settings['publication_url'] = $publication_url;
+		Nextdoor::update_settings( $settings );
+
 		// Check if page is already claimed.
 		if ( $this->check_page_claim( $publication_url ) ) {
 			return rest_ensure_response( [ 'success' => true ] );
@@ -343,7 +347,6 @@ class Settings {
 		$result = $api->claim_page( $publication_url, $test );
 
 		if ( isset( $result['page_id'] ) ) {
-			$settings            = Nextdoor::get_settings();
 			$settings['page_id'] = $result['page_id'];
 
 			Nextdoor::update_settings( $settings );
