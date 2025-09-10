@@ -298,5 +298,34 @@ class Metering {
 		self::$article_view = $activity;
 		return $activity;
 	}
+
+	/**
+	 * Get number of remaining metered views for the user.
+	 *
+	 * @param int|null $user_id User ID. Default is current user.
+	 *
+	 * @return int Number of remaining metered views.
+	 */
+	public static function get_remaining_metered_views( $user_id = null ) {
+		if ( ! $user_id ) {
+			$user_id = get_current_user_id();
+		}
+		// For anonymous users, return the anonymous count.
+		if ( ! $user_id ) {
+			$gate_post_id = Memberships::get_gate_post_id();
+			return (int) \get_post_meta( $gate_post_id, 'metering_anonymous_count', true );
+		}
+
+		// For logged-in users, calculate the remaining views based on their metering data.
+		$gate_post_id       = Memberships::get_gate_post_id();
+		$count              = (int) \get_post_meta( $gate_post_id, 'metering_registered_count', true );
+		$user_meta_key      = self::METERING_META_KEY . '_' . $gate_post_id;
+		$user_metering_data = \get_user_meta( $user_id, $user_meta_key, true );
+		if ( ! is_array( $user_metering_data ) || ! isset( $user_metering_data['content'] ) ) {
+			return $count;
+		}
+		$used_views = count( $user_metering_data['content'] );
+		return max( 0, $count - $used_views );
+	}
 }
 Metering::init();

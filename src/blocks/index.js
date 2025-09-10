@@ -13,13 +13,14 @@ import * as correctionBox from './correction-box';
 import * as correctionItem from './correction-item';
 import * as avatar from './avatar';
 import * as collections from './collections';
+import * as contentGateCountdown from './content-gate-countdown';
 
 /**
  * Block Scripts
  */
 import './core-image';
 
-export const blocks = [ readerRegistration, correctionBox, correctionItem, avatar, collections ];
+export const blocks = [ readerRegistration, correctionBox, correctionItem, avatar, collections, contentGateCountdown ];
 
 const readerActivationBlocks = [ 'newspack/reader-registration' ];
 const correctionBlocks = [ 'newspack/correction-box', 'newspack/correction-item' ];

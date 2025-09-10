@@ -1,0 +1,19 @@
+.newspack-content-gate-countdown {
+	width: 100%;
+	padding: 1rem;
+
+	&__content {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		flex: 1;
+
+		p {
+			color: #333;
+			margin: 0 0 0.5rem 0;
+			font-size: 1rem;
+			line-height: 1.4;
+		}
+	}
+}

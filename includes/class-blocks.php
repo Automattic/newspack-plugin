@@ -7,6 +7,8 @@
 
 namespace Newspack;
 
+use Newspack\Memberships;
+
 defined( 'ABSPATH' ) || exit;
 
 use Newspack\Optional_Modules\Collections;
@@ -20,6 +22,7 @@ final class Blocks {
 	 */
 	public static function init() {
 		require_once NEWSPACK_ABSPATH . 'src/blocks/reader-registration/index.php';
+		require_once NEWSPACK_ABSPATH . 'src/blocks/content-gate-countdown/class-content-gate-countdown-block.php';
 
 		if ( wp_is_block_theme() && class_exists( 'Newspack\Corrections' ) ) {
 			require_once NEWSPACK_ABSPATH . 'src/blocks/correction-box/class-correction-box-block.php';
