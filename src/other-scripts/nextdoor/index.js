@@ -16,6 +16,11 @@ import { dateI18n, getSettings } from '@wordpress/date';
 import apiFetch from '@wordpress/api-fetch';
 
 /**
+ * Internal dependencies
+ */
+import './style.scss';
+
+/**
  * Component for Nextdoor publishing controls in the post editor sidebar.
  */
 const NextdoorPostSidebar = ( { postId, postStatus } ) => {
