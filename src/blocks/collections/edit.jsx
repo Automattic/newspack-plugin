@@ -1,7 +1,7 @@
 import { __ } from '@wordpress/i18n';
 import { useBlockProps, BlockControls, RichText } from '@wordpress/block-editor';
 import { ToolbarGroup, ToolbarButton, Placeholder, Spinner } from '@wordpress/components';
-import { list, grid, pullLeft, pullRight, postFeaturedImage } from '@wordpress/icons';
+import { caution, list, grid, pullLeft, pullRight, postFeaturedImage } from '@wordpress/icons';
 import { useMemo } from '@wordpress/element';
 import classnames from 'classnames';
 
@@ -111,12 +111,16 @@ const Edit = ( { attributes, setAttributes } ) => {
 			>
 				{ /* Loading state */ }
 				{ isLoading && (
-					<Placeholder icon={ <Spinner /> } label={ __( 'Loading collections…', 'newspack-plugin' ) } className="collections-loading" />
+					<Placeholder
+						icon={ <Spinner style={ { height: '24px', padding: '4px', width: '24px' } } /> }
+						label={ __( 'Loading collections…', 'newspack-plugin' ) }
+						className="collections-loading"
+					/>
 				) }
 
 				{ /* No results */ }
 				{ ! isLoading && ! hasCollections && (
-					<Placeholder icon="warning" label={ __( 'No collections found', 'newspack-plugin' ) } className="no-collections" />
+					<Placeholder icon={ caution } label={ __( 'No collections found', 'newspack-plugin' ) } className="no-collections" />
 				) }
 
 				{ /* Collections display */ }
