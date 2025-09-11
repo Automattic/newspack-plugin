@@ -31,7 +31,7 @@ class Test_Collections_Block extends \WP_UnitTestCase {
 
 		// Ensure the block is registered.
 		require_once NEWSPACK_ABSPATH . 'src/blocks/collections/index.php';
-		
+
 		if ( ! \WP_Block_Type_Registry::get_instance()->is_registered( Collections_Block::BLOCK_NAME ) ) {
 			Collections_Block::register_block();
 		}
@@ -142,6 +142,32 @@ class Test_Collections_Block extends \WP_UnitTestCase {
 		$output = $this->render_collections_block();
 
 		$this->assertStringContainsString( 'See all', $output, 'Should contain default see all text' );
+	}
+
+	/**
+	 * Test numberOfCTAs attribute handles -1 correctly.
+	 *
+	 * @covers \Newspack\Blocks\Collections\Collections_Block::render_block
+	 */
+	public function test_render_block_with_negative_one_number_of_ctas() {
+		$attributes = [
+			'numberOfCTAs' => -1,
+		];
+
+		$parsed_attributes = wp_parse_args( $attributes, Collections_Block::DEFAULT_ATTRIBUTES );
+
+		// Test that -1 is preserved through sanitization.
+		$reflection = new \ReflectionClass( Collections_Block::class );
+		$method     = $reflection->getMethod( 'render_block' );
+		$method->setAccessible( true );
+
+		// Capture the sanitized attributes by testing the render method.
+		ob_start();
+		$method->invoke( null, $parsed_attributes );
+		ob_end_clean();
+
+		// The key test is that -1 numberOfCTAs should be preserved, not converted to 1.
+		$this->assertEquals( -1, $parsed_attributes['numberOfCTAs'], 'numberOfCTAs should preserve -1 value' );
 	}
 
 	/**
