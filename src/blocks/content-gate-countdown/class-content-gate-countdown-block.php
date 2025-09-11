@@ -67,9 +67,9 @@ class Content_Gate_Countdown_Block {
 			Metering::get_metering_period()
 		);
 		$text    = isset( $attributes['text'] ) ? $attributes['text'] : __( 'Get unlimited access.', 'newspack-plugin' );
-		$buttons = '';
+		$actions = '';
 		foreach ( $block->inner_blocks as $inner_block ) {
-			$buttons .= $inner_block->render();
+			$actions .= $inner_block->render();
 		}
 		$block_wrapper_attributes = get_block_wrapper_attributes(
 			[
@@ -79,12 +79,11 @@ class Content_Gate_Countdown_Block {
 		$block_content = "<div $block_wrapper_attributes>
 			<div class='newspack-content-gate-countdown__content'>
 				<div class='newspack-content-gate-countdown__notice'>
-					<span class='newspack-content-gate-countdown__views'>$remaining_views / $total_views</span>
+					<span class='newspack-content-gate-countdown__countdown'>$remaining_views / $total_views</span>
 					<p>$notice</p>
 				</div>
 				<div class='newspack-content-gate-countdown__actions'>
-					<p>$text</p>
-					$buttons
+					$actions
 				</div>
 			</div>
 		</div>";

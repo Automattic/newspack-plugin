@@ -1,19 +1,39 @@
 .newspack-content-gate-countdown {
 	width: 100%;
-	padding: 1rem;
 
 	&__content {
+		width: 100%;
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		justify-content: flex-start;
+		padding: 1rem;
+	}
+
+	&__notice {
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		justify-content: flex-start;
+		flex: 1;
+	}
+
+	&__countdown {
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		justify-content: flex-start;
+		margin-left: 1rem;
+		font-size: 1.5rem;
+		width: 100px;
+	}
+
+	&__actions {
+		width: 100%;
 		display: flex;
 		flex-direction: column;
 		align-items: center;
 		justify-content: center;
-		flex: 1;
-
-		p {
-			color: #333;
-			margin: 0 0 0.5rem 0;
-			font-size: 1rem;
-			line-height: 1.4;
-		}
+		flex: 3;
 	}
 }
