@@ -26,6 +26,11 @@ class Subscriptions_Tiers {
 	public static function init_hooks() {
 		add_filter( 'woocommerce_subscriptions_switch_link_text', [ __CLASS__, 'register_switch_subscription_links' ], 10, 4 );
 		add_action( 'wp_footer', [ __CLASS__, 'print_switch_subscription_modal' ] );
+
+		// Order button text.
+		add_filter( 'wcs_place_subscription_order_text', [ __CLASS__, 'order_button_text' ], 9 );
+		add_filter( 'woocommerce_order_button_text', [ __CLASS__, 'order_button_text' ], 9 );
+		add_filter( 'option_woocommerce_subscriptions_order_button_text', [ __CLASS__, 'order_button_text' ], 9 );
 	}
 
 	/**
@@ -189,7 +194,7 @@ class Subscriptions_Tiers {
 		}
 
 		?>
-		<label class="newspack-ui__input-card">
+		<label class="newspack-ui__input-card <?php echo $current ? esc_attr( 'current' ) : ''; ?>">
 			<?php if ( $current ) : ?>
 				<span class="newspack-ui__badge newspack-ui__badge--primary"><?php _e( 'Current', 'newspack-plugin' ); ?></span>
 			<?php endif; ?>
@@ -320,12 +325,26 @@ class Subscriptions_Tiers {
 						<?php \Newspack\Newspack_UI_Icons::print_svg( 'close' ); ?>
 					</button>
 				</header>
-				<div class="newspack-ui__modal__content newspack__subscription-tiers__form" target="newspack_modal_checkout_iframe">
+				<div class="newspack-ui__modal__content">
 					<?php self::render_form( $product, $title, $button_label, $switch_subscription ); ?>
 				</div>
 			</div>
 		</div>
 		<?php
+	}
+
+	/**
+	 * Order button text.
+	 *
+	 * @param string $text The text of the order button.
+	 *
+	 * @return string The text of the order button.
+	 */
+	public static function order_button_text( $text ) {
+		if ( method_exists( 'WC_Subscriptions_Switcher', 'cart_contains_switches' ) && \WC_Subscriptions_Switcher::cart_contains_switches( 'any' ) ) {
+			return __( 'Switch Subscription', 'newspack-plugin' );
+		}
+		return $text;
 	}
 }
 Subscriptions_Tiers::init_hooks();
