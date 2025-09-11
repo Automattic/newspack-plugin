@@ -95,15 +95,10 @@ final class Blocks {
 	 * @return bool Whether to load block assets.
 	 */
 	private static function should_load_block_assets() {
-		if (
-			is_singular() &&
-			Collections::is_module_active() &&
-			has_block( \Newspack\Blocks\Collections\Collections_Block::BLOCK_NAME, get_the_ID() )
-		) {
-			return true;
-		}
-
-		return false;
+		return Collections::is_module_active() && (
+			( is_singular() && has_block( \Newspack\Blocks\Collections\Collections_Block::BLOCK_NAME, get_the_ID() ) ) ||
+			is_post_type_archive( \Newspack\Collections\Post_Type::get_post_type() )
+		);
 	}
 }
 Blocks::init();

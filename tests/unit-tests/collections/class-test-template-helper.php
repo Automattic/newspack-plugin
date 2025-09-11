@@ -332,4 +332,41 @@ class Test_Template_Helper extends \WP_UnitTestCase {
 		$unmodified_title_parts = Template_Helper::update_document_title( $original_title_parts );
 		$this->assertEquals( $original_title_parts['title'], $unmodified_title_parts['title'], 'Title should not be modified.' );
 	}
+
+	/**
+	 * Test normalize_post_list handles various input types correctly.
+	 *
+	 * @covers \Newspack\Collections\Template_Helper::normalize_post_list
+	 */
+	public function test_normalize_post_list() {
+		$post_id_1 = $this->create_test_collection();
+		$post_id_2 = $this->create_test_collection();
+		$post_1    = get_post( $post_id_1 );
+		$post_2    = get_post( $post_id_2 );
+
+		// Test empty array.
+		$result = Template_Helper::normalize_post_list( [] );
+		$this->assertEquals( 'ids', $result['type'] );
+		$this->assertEmpty( $result['items'] );
+
+		// Test all WP_Post objects.
+		$result = Template_Helper::normalize_post_list( [ $post_1, $post_2 ] );
+		$this->assertEquals( 'objects', $result['type'] );
+		$this->assertSame( [ $post_1, $post_2 ], $result['items'] );
+
+		// Test all IDs.
+		$result = Template_Helper::normalize_post_list( [ $post_id_1, $post_id_2 ] );
+		$this->assertEquals( 'ids', $result['type'] );
+		$this->assertEquals( [ $post_id_1, $post_id_2 ], $result['items'] );
+
+		// Test mixed content (forces ID mode).
+		$result = Template_Helper::normalize_post_list( [ $post_1, $post_id_2, (string) $post_id_1 ] );
+		$this->assertEquals( 'ids', $result['type'] );
+		$this->assertEquals( [ $post_id_1, $post_id_2 ], $result['items'] ); // Deduplicated.
+
+		// Test invalid items (null, non-numeric strings are skipped; 0 is filtered out; -1 becomes 1).
+		$result = Template_Helper::normalize_post_list( [ $post_id_1, null, 'invalid', 0, -1 ] );
+		$this->assertEquals( 'ids', $result['type'] );
+		$this->assertEquals( [ $post_id_1, 1 ], $result['items'] ); // 0 filtered out, -1 becomes 1.
+	}
 }

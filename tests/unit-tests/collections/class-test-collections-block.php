@@ -183,24 +183,38 @@ class Test_Collections_Block extends \WP_UnitTestCase {
 	 */
 	public function test_get_image_size_from_attributes() {
 		// Test small size.
-		$attributes = [ 'imageSize' => 'small' ];
+		$attributes = [
+			'layout'    => 'list',
+			'imageSize' => 'small',
+		];
 		$size       = Collections_Block::get_image_size_from_attributes( $attributes );
 		$this->assertEquals( 'medium', $size, 'Small should map to medium' );
 
 		// Test medium size.
-		$attributes = [ 'imageSize' => 'medium' ];
+		$attributes = [
+			'layout'    => 'list',
+			'imageSize' => 'medium',
+		];
 		$size       = Collections_Block::get_image_size_from_attributes( $attributes );
 		$this->assertEquals( 'medium_large', $size, 'Medium should map to medium_large' );
 
 		// Test large size.
-		$attributes = [ 'imageSize' => 'large' ];
+		$attributes = [
+			'layout'    => 'list',
+			'imageSize' => 'large',
+		];
 		$size       = Collections_Block::get_image_size_from_attributes( $attributes );
 		$this->assertEquals( 'full', $size, 'Large should map to full' );
 
 		// Test default.
-		$attributes = [];
+		$attributes = [ 'layout' => 'list' ];
 		$size       = Collections_Block::get_image_size_from_attributes( $attributes );
 		$this->assertEquals( 'medium', $size, 'Default should be medium' );
+
+		// Test grid layout.
+		$attributes = [ 'layout' => 'grid' ];
+		$size       = Collections_Block::get_image_size_from_attributes( $attributes );
+		$this->assertEquals( 'post-thumbnail', $size, 'Grid layout should map to post-thumbnail' );
 	}
 
 	/**
