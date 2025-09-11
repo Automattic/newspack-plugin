@@ -67,6 +67,7 @@ final class Blocks {
 				'recaptcha_url'           => admin_url( 'admin.php?page=newspack-settings' ),
 				'corrections_enabled'     => wp_is_block_theme() && class_exists( 'Newspack\Corrections' ),
 				'collections_enabled'     => Collections::is_module_active(),
+				'has_content_gate'        => Memberships::is_active() && Memberships::has_gate(),
 			]
 		);
 		\wp_enqueue_style(
