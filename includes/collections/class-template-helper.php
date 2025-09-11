@@ -508,6 +508,48 @@ class Template_Helper {
 	}
 
 	/**
+	 * Render collections intro using the Collections block.
+	 *
+	 * @param WP_Post $collection The collection post object.
+	 * @param array   $args       Optional arguments for the intro section.
+	 * @return string The rendered collections intro HTML.
+	 */
+	public static function render_collections_intro( $collection, $args = [] ) {
+		if ( ! $collection instanceof \WP_Post ) {
+			return '';
+		}
+
+		$attrs = wp_parse_args(
+			$args,
+			[
+				'selectedCollections' => [ $collection ],
+				'layout'              => 'list',
+				'imageSize'           => 'small',
+				'showExcerpt'         => true,
+				'showCategory'        => false,
+				'numberOfCTAs'        => -1,
+				'showSeeAllLink'      => false,
+			]
+		);
+
+		/**
+		 * Filters the attributes before rendering the collections intro block.
+		 *
+		 * @param array   $attrs     The attributes for the collections block.
+		 * @param WP_Post $collection The collection being rendered.
+		 * @param array   $args      The original arguments passed to the function.
+		 */
+		$attrs = apply_filters( 'newspack_collections_render_intro_attrs', $attrs, $collection, $args );
+
+		return render_block(
+			[
+				'blockName' => 'newspack/collections',
+				'attrs'     => $attrs,
+			]
+		);
+	}
+
+	/**
 	 * Normalize an array that may contain WP_Post objects, IDs, or mixed.
 	 *
 	 * Rules:

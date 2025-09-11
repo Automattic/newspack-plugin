@@ -97,7 +97,8 @@ final class Blocks {
 	private static function should_load_block_assets() {
 		return Collections::is_module_active() && (
 			( is_singular() && has_block( \Newspack\Blocks\Collections\Collections_Block::BLOCK_NAME, get_the_ID() ) ) ||
-			is_post_type_archive( \Newspack\Collections\Post_Type::get_post_type() )
+			is_post_type_archive( \Newspack\Collections\Post_Type::get_post_type() ) ||
+			is_singular( \Newspack\Collections\Post_Type::get_post_type() )
 		);
 	}
 }

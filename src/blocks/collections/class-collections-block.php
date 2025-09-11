@@ -96,7 +96,7 @@ final class Collections_Block {
 		$attributes['numberOfItems'] = max( 1, absint( $attributes['numberOfItems'] ) );
 		$attributes['offset']        = max( 0, absint( $attributes['offset'] ) );
 		$attributes['columns']       = max( 1, absint( $attributes['columns'] ) );
-		$attributes['numberOfCTAs']  = max( 1, absint( $attributes['numberOfCTAs'] ) );
+		$attributes['numberOfCTAs']  = ( -1 === (int) $attributes['numberOfCTAs'] ) ? -1 : max( 1, absint( $attributes['numberOfCTAs'] ) );
 
 		// Normalize selectedCollections to determine if we have post objects or IDs.
 		$normalized_posts = Template_Helper::normalize_post_list( (array) $attributes['selectedCollections'] );
@@ -216,11 +216,11 @@ final class Collections_Block {
 				<?php endif; ?>
 
 				<?php if ( $attributes['showTitle'] ) : ?>
-					<h3 class="wp-block-newspack-collections__title has-normal-font-size">
+					<h2 class="wp-block-newspack-collections__title">
 						<a href="<?php echo esc_url( $collection_url ); ?>">
 							<?php echo esc_html( get_the_title( $collection ) ); ?>
 						</a>
-					</h3>
+					</h2>
 				<?php endif; ?>
 
 				<?php
@@ -384,9 +384,11 @@ final class Collections_Block {
 			);
 		}
 
-		// Limit to numberOfCTAs.
-		$max_ctas      = $attributes['numberOfCTAs'] ?? 1;
-		$filtered_ctas = array_slice( $filtered_ctas, 0, $max_ctas );
+		// Limit to numberOfCTAs (-1 means show all).
+		$max_ctas = $attributes['numberOfCTAs'] ?? 1;
+		if ( -1 !== $max_ctas ) {
+			$filtered_ctas = array_slice( $filtered_ctas, 0, $max_ctas );
+		}
 
 		/**
 		 * Filter the CTAs rendered by the collections block for a given collection.
