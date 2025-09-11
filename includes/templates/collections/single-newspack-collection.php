@@ -29,7 +29,7 @@ get_header();
 			 */
 			do_action( 'newspack_collections_single_start', $post );
 
-			get_template_part( Template_Helper::TEMPLATE_PARTS_DIR . 'newspack-collection-intro' );
+			echo wp_kses_post( Template_Helper::render_collections_intro( get_the_ID(), [ 'noPermalinks' => true ] ) );
 
 			/**
 			 * Fires after the collection intro section.

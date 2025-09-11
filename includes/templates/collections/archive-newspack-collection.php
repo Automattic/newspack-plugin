@@ -30,19 +30,17 @@ do_action( 'newspack_collections_archive_start' );
 
 		<?php
 		if ( have_posts() ) :
+			global $wp_query;
+
 			$selected_year    = isset( $_GET[ Settings::YEAR_QUERY_PARAM ] ) ? sanitize_text_field( $_GET[ Settings::YEAR_QUERY_PARAM ] ) : '';
 			$highlight_latest = empty( $selected_year ) && ! is_paged() && Settings::get_setting( 'highlight_latest' );
 
 			// Render the intro section only if no year filter is applied, it's the first page of results and "Highlight Most Recent Collection" setting is enabled.
 			if ( $highlight_latest ) :
-				get_template_part(
-					Template_Helper::TEMPLATE_PARTS_DIR . 'newspack-collection-intro',
-					null,
-					[
-						'is_latest' => true,
-						'permalink' => true,
-					]
-				);
+				$latest_collection = $wp_query->posts[0] ?? null;
+				if ( $latest_collection ) {
+					echo wp_kses_post( Template_Helper::render_collections_intro( $latest_collection, [ 'headingText' => __( 'Latest', 'newspack-plugin' ) ] ) );
+				}
 
 				echo wp_kses_post( Template_Helper::render_separator( 'is-latest-collection' ) );
 			endif;
@@ -98,7 +96,6 @@ do_action( 'newspack_collections_archive_start' );
 
 			<!-- Collections grid -->
 			<?php
-			global $wp_query;
 			$collections = $wp_query->posts;
 
 			// Determine if first collection should be excluded (already shown in intro).

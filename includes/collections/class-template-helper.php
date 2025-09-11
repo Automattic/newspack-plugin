@@ -510,11 +510,12 @@ class Template_Helper {
 	/**
 	 * Render collections intro using the Collections block.
 	 *
-	 * @param WP_Post $collection The collection post object.
-	 * @param array   $args       Optional arguments for the intro section.
+	 * @param int|WP_Post $post Post ID or post object.
+	 * @param array       $args Optional arguments for the intro section.
 	 * @return string The rendered collections intro HTML.
 	 */
-	public static function render_collections_intro( $collection, $args = [] ) {
+	public static function render_collections_intro( $post, $args = [] ) {
+		$collection = $post instanceof \WP_Post ? $post : get_post( $post );
 		if ( ! $collection instanceof \WP_Post ) {
 			return '';
 		}
@@ -529,24 +530,42 @@ class Template_Helper {
 				'showCategory'        => false,
 				'numberOfCTAs'        => -1,
 				'showSeeAllLink'      => false,
+				'headingText'         => '',
+				'noPermalinks'        => false,
 			]
 		);
 
 		/**
 		 * Filters the attributes before rendering the collections intro block.
 		 *
-		 * @param array   $attrs     The attributes for the collections block.
+		 * @param array   $attrs      The attributes for the collections block.
 		 * @param WP_Post $collection The collection being rendered.
-		 * @param array   $args      The original arguments passed to the function.
+		 * @param array   $args       The original arguments passed to the function.
 		 */
 		$attrs = apply_filters( 'newspack_collections_render_intro_attrs', $attrs, $collection, $args );
 
-		return render_block(
+		/**
+		 * Fires before the collection intro section.
+		 *
+		 * @param WP_Post $collection The collection post.
+		 */
+		do_action( 'newspack_collections_intro_before', $collection );
+
+		$output = render_block(
 			[
 				'blockName' => 'newspack/collections',
 				'attrs'     => $attrs,
 			]
 		);
+
+		/**
+		 * Fires after the collection intro section.
+		 *
+		 * @param WP_Post $collection The collection post.
+		 */
+		do_action( 'newspack_collections_intro_after', $collection );
+
+		return $output;
 	}
 
 	/**

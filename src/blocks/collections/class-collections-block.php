@@ -56,6 +56,8 @@ final class Collections_Block {
 		'specificCTAs'        => '',
 		'showSeeAllLink'      => true,
 		'seeAllLinkText'      => '',
+		'headingText'         => '',
+		'noPermalinks'        => false,
 	];
 
 	/**
@@ -203,7 +205,10 @@ final class Collections_Block {
 			<?php if ( $attributes['showFeaturedImage'] ) : ?>
 				<div class="wp-block-newspack-collections__image">
 					<?php if ( has_post_thumbnail( $collection ) ) : ?>
-						<?php echo wp_kses_post( Template_Helper::render_image( $collection->ID, $collection_url, $image_size ) ); ?>
+						<?php
+						$image_permalink = $attributes['noPermalinks'] ? false : $collection_url;
+						echo wp_kses_post( Template_Helper::render_image( $collection->ID, $image_permalink, $image_size ) );
+						?>
 					<?php else : ?>
 						<div class="wp-block-newspack-collections__placeholder" aria-hidden="true"></div>
 					<?php endif; ?>
@@ -211,15 +216,25 @@ final class Collections_Block {
 			<?php endif; ?>
 
 			<div class="wp-block-newspack-collections__content">
+				<?php if ( ! empty( $attributes['headingText'] ) ) : ?>
+					<h6 class="wp-block-newspack-collections__heading has-primary-color has-text-color has-link-color has-normal-font-size">
+						<?php echo esc_html( $attributes['headingText'] ); ?>
+					</h6>
+				<?php endif; ?>
+
 				<?php if ( $attributes['showCategory'] ) : ?>
 					<?php self::render_collection_categories( $collection ); ?>
 				<?php endif; ?>
 
 				<?php if ( $attributes['showTitle'] ) : ?>
 					<h2 class="wp-block-newspack-collections__title">
-						<a href="<?php echo esc_url( $collection_url ); ?>">
+						<?php if ( ! $attributes['noPermalinks'] ) : ?>
+							<a href="<?php echo esc_url( $collection_url ); ?>">
+								<?php echo esc_html( get_the_title( $collection ) ); ?>
+							</a>
+						<?php else : ?>
 							<?php echo esc_html( get_the_title( $collection ) ); ?>
-						</a>
+						<?php endif; ?>
 					</h2>
 				<?php endif; ?>
 
