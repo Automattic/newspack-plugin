@@ -300,6 +300,21 @@ class Metering {
 	}
 
 	/**
+	 * Get the metering period for a post.
+	 *
+	 * @param int|null $post_id Post ID. Default is current post.
+	 *
+	 * @return string Metered period (day, week, month).
+	 */
+	public static function get_metering_period( $post_id = null ) {
+		if ( ! $post_id ) {
+			$post_id = get_the_ID();
+		}
+		$gate_post_id = Memberships::get_gate_post_id( $post_id );
+		return \get_post_meta( $gate_post_id, 'metering_period', true );
+	}
+
+	/**
 	 * Get number of remaining metered views for the user.
 	 *
 	 * @param int|null $user_id User ID. Default is current user.
@@ -326,6 +341,24 @@ class Metering {
 		}
 		$used_views = count( $user_metering_data['content'] );
 		return max( 0, $count - $used_views );
+	}
+
+	/**
+	 * Get total number of metered views for post.
+	 *
+	 * @param int|null $post_id Post ID. Default is current post.
+	 *
+	 * @return int|boolean Total number of metered views if metering is enabled, otherwise false.
+	 */
+	public static function get_total_metered_views( $post_id = null ) {
+		if ( ! $post_id ) {
+			$post_id = get_the_ID();
+		}
+		$gate_post_id = Memberships::get_gate_post_id( $post_id );
+		if ( ! $gate_post_id ) {
+			return false;
+		}
+		return (int) \get_post_meta( $gate_post_id, 'metering_registered_count', true );
 	}
 }
 Metering::init();

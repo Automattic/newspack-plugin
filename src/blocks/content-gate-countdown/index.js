@@ -1,6 +1,7 @@
 /**
  * WordPress dependencies
  */
+import { InnerBlocks } from '@wordpress/block-editor';
 import { __ } from '@wordpress/i18n';
 
 /**
@@ -27,5 +28,5 @@ export const settings = {
 	keywords: [ __( 'countdown', 'newspack-plugin' ), __( 'content gate', 'newspack-plugin' ) ],
 	description: __( 'A countdown for content gate metering functionality.', 'newspack-plugin' ),
 	edit: Edit,
-	save: () => null, // Server-side rendering
+	save: props => <InnerBlocks.Content { ...props } />,
 };

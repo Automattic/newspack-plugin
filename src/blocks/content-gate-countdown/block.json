@@ -1,31 +1,36 @@
 {
-	"name": "newspack/content-gate-countdown",
-	"category": "newspack",
-	"attributes": {},
-	"supports": {
-		"html": false,
-		"color": {
-			"link": true,
-			"__experimentalDefaultControls": {
-				"background": true,
-				"text": true
-			}
-		},
-		"typography": {
-			"fontSize": true,
-			"lineHeight": true,
-			"textAlign": true,
-			"__experimentalFontFamily": true,
-			"__experimentalTextDecoration": true,
-			"__experimentalFontStyle": true,
-			"__experimentalFontWeight": true,
-			"__experimentalLetterSpacing": true,
-			"__experimentalTextTransform": true,
-			"__experimentalWritingMode": true,
-			"__experimentalDefaultControls": {
-				"fontSize": true
-			}
-		}
-	},
-	"textdomain": "newspack-plugin"
+  "name": "newspack/content-gate-countdown",
+  "category": "newspack",
+  "attributes": {
+    "text": {
+      "type": "string"
+    }
+  },
+  "supports": {
+    "html": false,
+    "color": {
+      "link": true,
+      "__experimentalDefaultControls": {
+        "background": true,
+        "text": true
+      }
+    },
+    "typography": {
+      "fontSize": true,
+      "lineHeight": true,
+      "textAlign": true,
+      "__experimentalFontFamily": true,
+      "__experimentalTextDecoration": true,
+      "__experimentalFontStyle": true,
+      "__experimentalFontWeight": true,
+      "__experimentalLetterSpacing": true,
+      "__experimentalTextTransform": true,
+      "__experimentalWritingMode": true,
+      "__experimentalDefaultControls": {
+        "fontSize": true
+      }
+    }
+  },
+  "textdomain": "newspack-plugin",
+  "usesContext": [ "postId" ]
 }

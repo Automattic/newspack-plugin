@@ -14,7 +14,6 @@ use Newspack\Memberships\Metering;
  * Content Gate Countdown Block class.
  */
 class Content_Gate_Countdown_Block {
-
 	/**
 	 * Initialize the block.
 	 */
@@ -53,33 +52,40 @@ class Content_Gate_Countdown_Block {
 		if ( ! Metering::is_metering() ) {
 			return '';
 		}
-
-		$remaining_views = Metering::get_remaining_metered_views( get_current_user_id() );
-		$text            = isset( $attributes['text'] ) ? $attributes['text'] : '';
-		if ( empty( $text ) ) {
-			$text = $remaining_views > 0 ?
-			sprintf(
-				/* translators: %d - number of remaining views. */
-				_n(
-					'You have %s free article left.',
-					'You have %s free articles left.',
-					$remaining_views,
-					'newspack-plugin'
-				),
-				$remaining_views
-			) :
-			__( 'You have no free articles left.', 'newspack-plugin' );
+		$post_id     = $block->context['postId'] ?? get_the_ID();
+		$total_views = Metering::get_total_metered_views( $post_id );
+		if ( false === $total_views ) {
+			return '';
 		}
-
+		$remaining_views = Metering::get_remaining_metered_views( get_current_user_id() );
+		$notice          = sprintf(
+			/* translators: %s - metered content period (week, month, etc. */
+			__(
+				'free articles this %s',
+				'newspack-plugin'
+			),
+			Metering::get_metering_period()
+		);
+		$text    = isset( $attributes['text'] ) ? $attributes['text'] : __( 'Get unlimited access.', 'newspack-plugin' );
+		$buttons = '';
+		foreach ( $block->inner_blocks as $inner_block ) {
+			$buttons .= $inner_block->render();
+		}
 		$block_wrapper_attributes = get_block_wrapper_attributes(
 			[
 				'class' => 'newspack-content-gate-countdown',
 			]
 		);
-
 		$block_content = "<div $block_wrapper_attributes>
 			<div class='newspack-content-gate-countdown__content'>
-				<p>$text</p>
+				<div class='newspack-content-gate-countdown__notice'>
+					<span class='newspack-content-gate-countdown__views'>$remaining_views / $total_views</span>
+					<p>$notice</p>
+				</div>
+				<div class='newspack-content-gate-countdown__actions'>
+					<p>$text</p>
+					$buttons
+				</div>
 			</div>
 		</div>";
 
