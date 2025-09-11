@@ -258,7 +258,7 @@ class Subscriptions_Tiers {
 						<?php \Newspack\Newspack_UI_Icons::print_svg( 'close' ); ?>
 					</button>
 				</header>
-				<div class="newspack-ui__modal__content newspack__subscription-tiers__form" target="newspack_modal_checkout_iframe">
+				<div class="newspack-ui__modal__content">
 					<?php self::render_form( $product, $title, $button_label ); ?>
 				</div>
 			</div>
