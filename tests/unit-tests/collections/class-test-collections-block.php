@@ -145,29 +145,44 @@ class Test_Collections_Block extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * Test numberOfCTAs attribute handles -1 correctly.
+	 * Test numberOfCTAs attribute handles -1 correctly for showing all CTAs.
 	 *
 	 * @covers \Newspack\Blocks\Collections\Collections_Block::render_block
+	 * @covers \Newspack\Blocks\Collections\Collections_Block::render_collection_ctas
+	 * @covers \Newspack\Collections\Template_Helper::render_cta
 	 */
-	public function test_render_block_with_negative_one_number_of_ctas() {
+	public function test_render_block_with_all_ctas() {
+		$collection_id = $this->create_test_collection();
+
+		// Create multiple CTAs using a loop.
+		$ctas_data  = [];
+		$total_ctas = 5;
+		for ( $i = 1; $i <= $total_ctas; $i++ ) {
+			$ctas_data[] = [
+				'type'  => 'link',
+				'label' => "CTA $i",
+				'url'   => "https://example.com/$i",
+			];
+		}
+		Collection_Meta::set( $collection_id, 'ctas', $ctas_data );
+
 		$attributes = [
-			'numberOfCTAs' => -1,
+			'selectedCollections' => [ $collection_id ],
+			'numberOfCTAs'        => -1,
+			'showCTAs'            => true,
+			'showSeeAllLink'      => false,
 		];
 
-		$parsed_attributes = wp_parse_args( $attributes, Collections_Block::DEFAULT_ATTRIBUTES );
+		$output = $this->render_collections_block( $attributes );
 
-		// Test that -1 is preserved through sanitization.
-		$reflection = new \ReflectionClass( Collections_Block::class );
-		$method     = $reflection->getMethod( 'render_block' );
-		$method->setAccessible( true );
+		// When numberOfCTAs is -1, all CTAs should be displayed.
+		for ( $i = 1; $i <= $total_ctas; $i++ ) {
+			$this->assertStringContainsString( "CTA $i", $output );
+		}
 
-		// Capture the sanitized attributes by testing the render method.
-		ob_start();
-		$method->invoke( null, $parsed_attributes );
-		ob_end_clean();
-
-		// The key test is that -1 numberOfCTAs should be preserved, not converted to 1.
-		$this->assertEquals( -1, $parsed_attributes['numberOfCTAs'], 'numberOfCTAs should preserve -1 value' );
+		// Count CTA elements to verify total count.
+		$cta_count = substr_count( $output, 'collection-cta' );
+		$this->assertEquals( $total_ctas, $cta_count, "Should render all $total_ctas CTAs when numberOfCTAs is -1" );
 	}
 
 	/**
