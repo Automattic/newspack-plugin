@@ -93,15 +93,24 @@ final class Collections_Block {
 		$attributes = wp_parse_args( $attributes, self::DEFAULT_ATTRIBUTES );
 
 		// Sanitize and normalize attributes that are used in queries/output.
-		$attributes['numberOfItems']       = max( 1, absint( $attributes['numberOfItems'] ) );
-		$attributes['offset']              = max( 0, absint( $attributes['offset'] ) );
-		$attributes['columns']             = max( 1, absint( $attributes['columns'] ) );
-		$attributes['numberOfCTAs']        = max( 1, absint( $attributes['numberOfCTAs'] ) );
-		$attributes['selectedCollections'] = array_map( 'absint', (array) $attributes['selectedCollections'] );
-		$attributes['includeCategories']   = array_map( 'absint', (array) $attributes['includeCategories'] );
-		$attributes['excludeCategories']   = array_map( 'absint', (array) $attributes['excludeCategories'] );
+		$attributes['numberOfItems'] = max( 1, absint( $attributes['numberOfItems'] ) );
+		$attributes['offset']        = max( 0, absint( $attributes['offset'] ) );
+		$attributes['columns']       = max( 1, absint( $attributes['columns'] ) );
+		$attributes['numberOfCTAs']  = max( 1, absint( $attributes['numberOfCTAs'] ) );
 
-		$collections = Query_Helper::get_collections_by_attributes( $attributes );
+		// Normalize selectedCollections to determine if we have post objects or IDs.
+		$normalized_posts = Template_Helper::normalize_post_list( (array) $attributes['selectedCollections'] );
+
+		if ( 'objects' === $normalized_posts['type'] ) {
+			// Use provided WP_Post objects directly.
+			$collections = $normalized_posts['items'];
+		} else {
+			// Use normalized IDs and query collections.
+			$attributes['selectedCollections'] = $normalized_posts['items'];
+			$attributes['includeCategories']   = array_map( 'absint', (array) $attributes['includeCategories'] );
+			$attributes['excludeCategories']   = array_map( 'absint', (array) $attributes['excludeCategories'] );
+			$collections                       = Query_Helper::get_collections_by_attributes( $attributes );
+		}
 
 		if ( empty( $collections ) ) {
 			return '<div class="wp-block-newspack-collections"><p>' . esc_html__( 'No collections found.', 'newspack-plugin' ) . '</p></div>';
@@ -241,6 +250,10 @@ final class Collections_Block {
 	 * @return string Image size name.
 	 */
 	public static function get_image_size_from_attributes( $attributes ) {
+		if ( ! isset( $attributes['layout'] ) || 'grid' === $attributes['layout'] ) {
+			return 'post-thumbnail';
+		}
+
 		$size = isset( $attributes['imageSize'] ) ? $attributes['imageSize'] : 'small';
 		switch ( $size ) {
 			case 'large':

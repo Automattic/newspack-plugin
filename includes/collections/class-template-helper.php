@@ -549,4 +549,91 @@ class Template_Helper {
 
 		return false;
 	}
+
+	/**
+	 * Render collections grid using the Collections block.
+	 *
+	 * @param array $collections Array of WP_Post collection objects.
+	 * @return string The rendered collections grid HTML.
+	 */
+	public static function render_collections_grid( $collections ) {
+		if ( empty( $collections ) ) {
+			return '';
+		}
+
+		$attrs = [
+			'selectedCollections' => $collections,
+			'columns'             => 6,
+			'showCategory'        => false,
+			'showSeeAllLink'      => false,
+		];
+
+		/**
+		 * Filters the attributes before rendering the collections grid block.
+		 *
+		 * @param array $attrs       The attributes for the collections block.
+		 * @param array $collections The collection posts being rendered.
+		 */
+		$attrs = apply_filters( 'newspack_collections_render_grid_attrs', $attrs, $collections );
+
+		return render_block(
+			[
+				'blockName' => 'newspack/collections',
+				'attrs'     => $attrs,
+			]
+		);
+	}
+
+	/**
+	 * Normalize an array that may contain WP_Post objects, IDs, or mixed.
+	 *
+	 * Rules:
+	 * - If every element is a WP_Post: return them unchanged with type 'objects'.
+	 * - Otherwise: return IDs only (objects converted to IDs, numeric strings cast,
+	 *   discard invalid values) with type 'ids'.
+	 *
+	 * @param array $items Input array of WP_Post objects, IDs, or mixed.
+	 * @return array {
+	 *     Array of items.
+	 *
+	 *     @type string $type  The type of the items.
+	 *     @type array  $items The items.
+	 * }
+	 */
+	public static function normalize_post_list( $items ) {
+		if ( empty( $items ) ) {
+			return [
+				'type'  => 'ids',
+				'items' => [],
+			];
+		}
+
+		$type = 'objects';
+		$ids  = [];
+
+		foreach ( $items as $item ) {
+			if ( $item instanceof \WP_Post ) {
+				$ids[] = absint( $item->ID );
+			} elseif ( is_int( $item ) || ( is_string( $item ) && is_numeric( $item ) ) ) {
+				$type  = 'ids';
+				$ids[] = absint( $item );
+			} else {
+				$type = 'ids'; // Unknown type, skip and force IDs mode.
+			}
+		}
+
+		// Return input if it was all WP_Post objects.
+		if ( 'objects' === $type ) {
+			return [
+				'type'  => 'objects',
+				'items' => $items,
+			];
+		}
+
+		// Return cleaned ID list.
+		return [
+			'type'  => 'ids',
+			'items' => array_values( array_unique( array_filter( $ids ) ) ),
+		];
+	}
 }
