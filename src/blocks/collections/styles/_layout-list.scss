@@ -159,5 +159,13 @@
 		.wp-block-newspack-collections__excerpt {
 			margin: 22px 0;
 		}
+
+		.wp-block-newspack-collections__ctas {
+			a {
+				@media #{bp.$media-md-up} {
+					width: auto;
+				}
+			}
+		}
 	}
 }

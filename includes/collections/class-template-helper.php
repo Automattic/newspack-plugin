@@ -315,9 +315,7 @@ class Template_Helper {
 		}
 
 		$html = sprintf(
-			'<div class="collection-cta %1$s">
-				<a class="wp-block-button__link has-dark-gray-color has-light-gray-background-color has-text-color has-background has-link-color wp-element-button" href="%2$s">%3$s</a>
-			</div>',
+			'<a class="wp-block-button__link %1$s has-dark-gray-color has-light-gray-background-color has-text-color has-background has-link-color wp-element-button" href="%2$s">%3$s</a>',
 			esc_attr( $cta['class'] ?? '' ),
 			esc_url( $cta['url'] ?? '' ),
 			esc_html( $cta['label'] ?? '' )

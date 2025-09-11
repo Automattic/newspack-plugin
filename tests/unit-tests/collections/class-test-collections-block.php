@@ -181,7 +181,7 @@ class Test_Collections_Block extends \WP_UnitTestCase {
 		}
 
 		// Count CTA elements to verify total count.
-		$cta_count = substr_count( $output, 'collection-cta' );
+		$cta_count = substr_count( $output, 'wp-block-button__link' );
 		$this->assertEquals( $total_ctas, $cta_count, "Should render all $total_ctas CTAs when numberOfCTAs is -1" );
 	}
 
