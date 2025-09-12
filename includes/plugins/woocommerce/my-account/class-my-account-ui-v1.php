@@ -104,27 +104,27 @@ class My_Account_UI_V1 {
 		// Only in My Account.
 		if ( ! function_exists( 'is_account_page' ) || ! \is_account_page() ) {
 			\wp_enqueue_script(
-				'account-frontend',
+				'newspack-account-frontend',
 				\Newspack\Newspack::plugin_url() . '/dist/account-frontend.js',
 				[],
 				NEWSPACK_PLUGIN_VERSION,
 				true
 			);
 			\wp_localize_script(
-				'account-frontend',
+				'newspack-account-frontend',
 				'newspackMyAccountV1',
 				$script_data
 			);
 		} else {
 			\wp_enqueue_script(
-				'my-account-v1',
+				'newspack-my-account-v1',
 				\Newspack\Newspack::plugin_url() . '/dist/my-account-v1.js',
-				[ 'my-account' ],
+				[ 'newspack-my-account' ],
 				NEWSPACK_PLUGIN_VERSION,
 				true
 			);
 			\wp_localize_script(
-				'my-account-v1',
+				'newspack-my-account-v1',
 				'newspackMyAccountV1',
 				$script_data
 			);
@@ -132,7 +132,7 @@ class My_Account_UI_V1 {
 			// Dequeue styles from the Newspack theme first, for a fresh start.
 			\wp_dequeue_style( 'newspack-woocommerce-style' );
 			\wp_enqueue_style(
-				'my-account-v1',
+				'newspack-my-account-v1',
 				\Newspack\Newspack::plugin_url() . '/dist/my-account-v1.css',
 				[],
 				NEWSPACK_PLUGIN_VERSION
