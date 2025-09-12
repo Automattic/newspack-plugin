@@ -89,14 +89,8 @@ final class Collections_Block {
 	 * @return string The block HTML.
 	 */
 	public static function render_block( array $attributes ) {
-
-		$attributes = wp_parse_args( $attributes, self::DEFAULT_ATTRIBUTES );
-
-		// Sanitize and normalize attributes that are used in queries/output.
-		$attributes['numberOfItems'] = max( 1, absint( $attributes['numberOfItems'] ) );
-		$attributes['offset']        = max( 0, absint( $attributes['offset'] ) );
-		$attributes['columns']       = max( 1, absint( $attributes['columns'] ) );
-		$attributes['numberOfCTAs']  = ( -1 === (int) $attributes['numberOfCTAs'] ) ? -1 : max( 1, absint( $attributes['numberOfCTAs'] ) );
+		// Sanitize and normalize attributes.
+		$attributes = self::sanitize_attributes( wp_parse_args( $attributes, self::DEFAULT_ATTRIBUTES ) );
 
 		// Normalize selectedCollections to determine if we have post objects or IDs.
 		$normalized_posts = Template_Helper::normalize_post_list( (array) $attributes['selectedCollections'] );
@@ -137,6 +131,31 @@ final class Collections_Block {
 		</div>
 		<?php
 		return ob_get_clean();
+	}
+
+	/**
+	 * Sanitize and normalize attributes that are used in queries/output.
+	 *
+	 * @param array $attributes The block attributes.
+	 * @return array Sanitized attributes.
+	 */
+	public static function sanitize_attributes( array $attributes ) {
+		foreach ( [ 'numberOfItems', 'offset', 'columns', 'numberOfCTAs' ] as $attr ) {
+			if ( ! isset( $attributes[ $attr ] ) ) {
+				continue;
+			}
+
+			if ( 'numberOfCTAs' === $attr && -1 === (int) $attributes[ $attr ] ) {
+				$attributes[ $attr ] = -1;
+			} else {
+				$value               = absint( $attributes[ $attr ] );
+				$attributes[ $attr ] = $value > 0
+					? $value
+					: self::DEFAULT_ATTRIBUTES[ $attr ];
+			}
+		}
+
+		return $attributes;
 	}
 
 	/**

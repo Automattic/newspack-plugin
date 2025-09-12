@@ -508,23 +508,44 @@ class Test_Collections_Block extends \WP_UnitTestCase {
 	/**
 	 * Test attribute sanitization.
 	 *
-	 * @covers \Newspack\Blocks\Collections\Collections_Block::render_block
+	 * @covers \Newspack\Blocks\Collections\Collections_Block::sanitize_attributes
 	 */
 	public function test_attribute_sanitization() {
 		$post_title    = 'Test Collection';
 		$collection_id = $this->create_test_collection( [ 'post_title' => $post_title ] );
 
 		// Test with negative and invalid values.
-		$attributes = [
-			'numberOfItems'       => -5,
+		$invalid_attributes = [
+			'numberOfItems'       => 'one',
 			'columns'             => 0,
 			'numberOfCTAs'        => -1,
+			'offset'              => -0.5,
 			'selectedCollections' => [ 'invalid', '123', $collection_id ],
 		];
 
-		$output = $this->render_collections_block( $attributes );
+		$sanitized = Collections_Block::sanitize_attributes( $invalid_attributes );
 
-		// Should still render successfully due to sanitization.
+		$this->assertEquals( Collections_Block::DEFAULT_ATTRIBUTES['numberOfItems'], $sanitized['numberOfItems'], 'Invalid numberOfItems should use default' );
+		$this->assertEquals( Collections_Block::DEFAULT_ATTRIBUTES['columns'], $sanitized['columns'], 'Invalid columns should use default' );
+		$this->assertEquals( Collections_Block::DEFAULT_ATTRIBUTES['offset'], $sanitized['offset'], 'Invalid offset should use default' );
+		$this->assertEquals( -1, $sanitized['numberOfCTAs'], 'Special value -1 for numberOfCTAs should be preserved' );
+
+		// Test with valid values that should be preserved (even if less than defaults).
+		$valid_attributes = [
+			'numberOfItems' => 2,
+			'columns'       => 1,
+			'numberOfCTAs'  => 3,
+		];
+
+		$sanitized_valid = Collections_Block::sanitize_attributes( $valid_attributes );
+
+		$this->assertEquals( 2, $sanitized_valid['numberOfItems'], 'Valid numberOfItems should be preserved' );
+		$this->assertEquals( 1, $sanitized_valid['columns'], 'Valid columns should be preserved' );
+		$this->assertEquals( 3, $sanitized_valid['numberOfCTAs'], 'Valid numberOfCTAs should be preserved' );
+
+		// Test rendering still works with invalid attributes.
+		$output = $this->render_collections_block( $invalid_attributes );
+
 		$this->assertStringContainsString( 'wp-block-newspack-collections', $output, 'Should contain block wrapper despite invalid attributes' );
 		$this->assertStringContainsString( $post_title, $output, 'Should contain collection title' );
 	}
