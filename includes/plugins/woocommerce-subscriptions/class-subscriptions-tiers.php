@@ -69,7 +69,7 @@ class Subscriptions_Tiers {
 				continue;
 			}
 			$product = wc_get_product( reset( $parent_products ) );
-			self::render_modal( $product, __( 'Switch Subscription', 'newspack-plugin' ), __( 'Switch Subscription', 'newspack-plugin' ), $data );
+			self::render_modal( $product, __( 'Change Subscription', 'newspack-plugin' ), __( 'Change Subscription', 'newspack-plugin' ), $data );
 		}
 	}
 
@@ -393,7 +393,7 @@ class Subscriptions_Tiers {
 	 */
 	public static function order_button_text( $text ) {
 		if ( method_exists( 'WC_Subscriptions_Switcher', 'cart_contains_switches' ) && \WC_Subscriptions_Switcher::cart_contains_switches( 'any' ) ) {
-			return __( 'Switch Subscription', 'newspack-plugin' );
+			return __( 'Change Subscription', 'newspack-plugin' );
 		}
 		return $text;
 	}
