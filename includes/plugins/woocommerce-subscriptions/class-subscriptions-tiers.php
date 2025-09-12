@@ -24,7 +24,7 @@ class Subscriptions_Tiers {
 	 * Initialize hooks.
 	 */
 	public static function init_hooks() {
-		add_filter( 'woocommerce_subscriptions_switch_link_text', [ __CLASS__, 'register_switch_subscription_links' ], 10, 4 );
+		add_filter( 'woocommerce_subscriptions_switch_link_text', [ __CLASS__, 'cache_switch_subscription_link_data' ], 10, 4 );
 		add_action( 'wp_footer', [ __CLASS__, 'print_switch_subscription_modal' ] );
 
 		// Order button text.
@@ -34,7 +34,7 @@ class Subscriptions_Tiers {
 	}
 
 	/**
-	 * Register switch subscription links.
+	 * Store switch subscription links in memory so we can render the modal later.
 	 *
 	 * @param string           $text         The text of the switch subscription link.
 	 * @param int              $item_id      The ID of the item.
@@ -43,7 +43,7 @@ class Subscriptions_Tiers {
 	 *
 	 * @return string The text of the switch subscription link.
 	 */
-	public static function register_switch_subscription_links( $text, $item_id, $item, $subscription ) {
+	public static function cache_switch_subscription_link_data( $text, $item_id, $item, $subscription ) {
 		self::$switch_subscription_links[ $item_id ] = [
 			'item_id'      => $item_id,
 			'item'         => $item,
@@ -163,6 +163,28 @@ class Subscriptions_Tiers {
 	}
 
 	/**
+	 * Get product title.
+	 *
+	 * @param \WC_Product $product                   Product.
+	 * @param bool        $show_variation_attributes Whether the product title should include the variation attributes.
+	 *
+	 * @return string Product title.
+	 */
+	private static function get_product_title( $product, $show_variation_attributes = false ) {
+		$product_name = $product->get_title();
+		if ( $product->is_type( 'variation' ) ) {
+			if ( $show_variation_attributes ) {
+				$product_name = sprintf(
+					'%s (%s)',
+					$product_name,
+					implode( ', ', $product->get_variation_attributes() )
+				);
+			}
+		}
+		return $product_name;
+	}
+
+	/**
 	 * Render a subscription product card.
 	 *
 	 * @param \WC_Product $product                   Product.
@@ -182,16 +204,6 @@ class Subscriptions_Tiers {
 		} else {
 			$price = $product->get_price_html();
 		}
-		$product_name = $product->get_title();
-		if ( $product->is_type( 'variation' ) ) {
-			if ( $show_variation_attributes ) {
-				$product_name = sprintf(
-					'%s (%s)',
-					$product_name,
-					implode( ', ', $product->get_variation_attributes() )
-				);
-			}
-		}
 
 		?>
 		<label class="newspack-ui__input-card <?php echo $current ? esc_attr( 'current' ) : ''; ?>">
@@ -199,9 +211,32 @@ class Subscriptions_Tiers {
 				<span class="newspack-ui__badge newspack-ui__badge--primary"><?php _e( 'Current', 'newspack-plugin' ); ?></span>
 			<?php endif; ?>
 			<input type="radio" name="product_id" value="<?php echo esc_attr( $product->get_id() ); ?>" <?php echo esc_attr( $selected ? 'checked' : '' ); ?>>
-			<strong><?php echo esc_html( $product_name ); ?></strong>
+			<strong><?php echo esc_html( self::get_product_title( $product, $show_variation_attributes ) ); ?></strong>
 			<span class="newspack-ui__helper-text"><?php echo $price; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
 		</label>
+		<?php
+	}
+
+	/**
+	 * Render existing subscription info.
+	 *
+	 * @param \WC_Product      $product      Product.
+	 * @param \WC_Subscription $subscription Subscription.
+	 */
+	public static function render_existing_subscription_info( $product, $subscription ) {
+		?>
+		<div class="newspack-ui__notice newspack-ui__notice--warning">
+			<span class="newspack-ui__notice__content">
+				<?php
+				printf(
+					/* translators: %s: subscription product name */
+					esc_html__( 'You already own the "%s" subscription.', 'newspack-plugin' ),
+					esc_html( self::get_product_title( $product, true ) )
+				);
+				?>
+			</span>
+		</div>
+		<a class="newspack-ui__button newspack-ui__button--primary newspack-ui__button--wide" href="<?php echo esc_url( $subscription->get_view_order_url() ); ?>"><?php esc_html_e( 'View Subscription', 'newspack-plugin' ); ?></a>
 		<?php
 	}
 
@@ -232,12 +267,19 @@ class Subscriptions_Tiers {
 		$frequencies       = array_keys( $tiers );
 		$current_frequency = null;
 		$current_product   = null;
-		foreach ( $frequencies as $frequency ) {
-			foreach ( $tiers[ $frequency ] as $product ) {
-				if ( wcs_user_has_subscription( get_current_user_id(), $product->get_id(), 'active' ) ) {
-					$current_frequency = $frequency;
-					$current_product   = $product;
-					break 2;
+		$user_subscription = null;
+		if ( is_user_logged_in() ) {
+			$user_subscriptions = wcs_get_users_subscriptions( get_current_user_id() );
+			foreach ( $frequencies as $frequency ) {
+				foreach ( $tiers[ $frequency ] as $product ) {
+					foreach ( $user_subscriptions as $subscription ) {
+						if ( $subscription->has_product( $product->get_id() ) && $subscription->has_status( 'active' ) ) {
+							$current_frequency = $frequency;
+							$current_product   = $product;
+							$user_subscription = $subscription;
+							break 2;
+						}
+					}
 				}
 			}
 		}
@@ -256,6 +298,13 @@ class Subscriptions_Tiers {
 		$button_label = $button_label ?? __( 'Purchase', 'newspack-plugin' );
 
 		$action_type = ! empty( $switch_subscription ) ? 'switch_subscription' : '';
+
+		// If the user has an active subscription and this is not a switch, render
+		// the existing subscription info instead of the tiers form.
+		if ( $user_subscription && empty( $switch_subscription ) ) {
+			self::render_existing_subscription_info( $current_product, $user_subscription );
+			return;
+		}
 
 		?>
 		<form class="newspack__subscription-tiers__form" target="newspack_modal_checkout_iframe" data-title="<?php echo esc_attr( $title ); ?>" data-action-type="<?php echo esc_attr( $action_type ); ?>">
