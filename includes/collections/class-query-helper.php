@@ -168,15 +168,16 @@ class Query_Helper {
 					function ( $cta ) {
 						$label = $cta['label'] ?? '';
 						$url   = '';
+						$type  = $cta['type'] ?? '';
 						$class = $cta['class'] ?? '';
 
-						if ( 'attachment' === ( $cta['type'] ?? '' ) && ! empty( $cta['id'] ) ) {
+						if ( 'attachment' === $type && ! empty( $cta['id'] ) ) {
 							$url = wp_get_attachment_url( $cta['id'] );
 						} elseif ( ! empty( $cta['url'] ) ) {
 							$url = $cta['url'];
 						}
 
-						return ( $label && $url ) ? compact( 'url', 'label', 'class' ) : null;
+						return ( $label && $url ) ? compact( 'url', 'label', 'class', 'type' ) : null;
 					},
 					$ctas
 				)

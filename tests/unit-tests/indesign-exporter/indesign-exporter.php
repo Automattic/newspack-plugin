@@ -105,7 +105,7 @@ class Newspack_Test_InDesign_Exporter extends WP_UnitTestCase {
 		$post_id = $this->factory->post->create(
 			[
 				'post_title'   => 'Test Post',
-				'post_content' => '<figure class="wp-block-image size-large"><img src="http://localhost/image.jpg" alt="" class="wp-image-1234"/><figcaption class="wp-element-caption">My Caption</figcaption></figure>',
+				'post_content' => '<figure class="wp-block-image size-large"><img src="http://localhost/image.jpg" alt="" class="wp-image-1234"/><figcaption class="wp-element-caption">My Caption <span class="image-credit"><span class="credit-label-wrapper">Credit:</span> <a href="http://localhost/credit">My Credit</a></span></figcaption></figure>',
 			]
 		);
 
@@ -114,7 +114,44 @@ class Newspack_Test_InDesign_Exporter extends WP_UnitTestCase {
 		$this->assertStringNotContainsString( '<figure', $content );
 		$this->assertStringNotContainsString( '<figcaption', $content );
 		$this->assertStringNotContainsString( '<img', $content );
-		$this->assertStringNotContainsString( 'My Caption', $content );
+	}
+
+	/**
+	 * Test image processing.
+	 */
+	public function test_image_processing() {
+		$thumbnail_id = $this->factory->attachment->create();
+		wp_update_post(
+			[
+				'ID'           => $thumbnail_id,
+				'post_excerpt' => 'Featured Image Caption',
+			]
+		);
+		update_post_meta( $thumbnail_id, '_media_credit', 'Featured Image Credit' );
+
+		$image_id = $this->factory->attachment->create();
+		wp_update_post(
+			[
+				'ID'           => $image_id,
+				'post_excerpt' => 'Image Caption',
+			]
+		);
+		update_post_meta( $image_id, '_media_credit', 'Image Credit' );
+
+		$post_id = $this->factory->post->create(
+			[
+				'post_title'   => 'Test Post',
+				'post_content' => '<!-- wp:image {"id":' . $image_id . '} --><!-- /wp:image -->',
+			]
+		);
+		update_post_meta( $post_id, '_thumbnail_id', $thumbnail_id );
+
+		$converter = new InDesign_Converter();
+		$content = $converter->convert_post( $post_id );
+		$this->assertStringContainsString( '<pstyle:PhotoCaption>Featured Image Caption', $content );
+		$this->assertStringContainsString( '<pstyle:PhotoCredit>Featured Image Credit', $content );
+		$this->assertStringContainsString( '<pstyle:PhotoCaption>Image Caption', $content );
+		$this->assertStringContainsString( '<pstyle:PhotoCredit>Image Credit', $content );
 	}
 
 	/**

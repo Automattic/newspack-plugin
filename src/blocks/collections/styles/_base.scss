@@ -7,6 +7,14 @@
 		align-items: center;
 		justify-content: center;
 		grid-column: 1 / -1;
+
+		svg {
+			margin: 0;
+		}
+
+		.components-placeholder__label {
+			gap: 4px;
+		}
 	}
 
 	// Collection item base.
