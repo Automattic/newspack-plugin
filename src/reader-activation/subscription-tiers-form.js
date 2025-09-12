@@ -56,16 +56,18 @@ export default function init() {
 					return;
 				}
 				ev.preventDefault();
+				let completed = false;
 				const formData = new FormData( form );
 				const params = new URLSearchParams( formData );
 				modal?.setAttribute( 'data-state', 'closed' );
-				const actionType = form.dataset.actionType || undefined;
 				window.newspackOpenModalCheckout( {
 					url: form.action + '?' + params.toString(),
 					title: form.dataset.title,
-					actionType,
 					onCheckoutComplete: () => {
-						if ( actionType === 'switch_subscription' ) {
+						completed = true;
+					},
+					onClose: () => {
+						if ( completed ) {
 							window.location.reload();
 						}
 					},

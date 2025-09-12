@@ -307,7 +307,7 @@ class Subscriptions_Tiers {
 		}
 
 		?>
-		<form class="newspack__subscription-tiers__form" target="newspack_modal_checkout_iframe" data-title="<?php echo esc_attr( $title ); ?>" data-action-type="<?php echo esc_attr( $action_type ); ?>">
+		<form class="newspack__subscription-tiers__form" target="newspack_modal_checkout_iframe" data-title="<?php echo esc_attr( $title ); ?>">
 			<?php if ( ! $is_single_tier ) : ?>
 				<div class="newspack-ui__segmented-control">
 					<?php if ( count( $frequencies ) > 1 ) : ?>
