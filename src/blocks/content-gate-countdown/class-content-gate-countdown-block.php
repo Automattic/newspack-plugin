@@ -7,6 +7,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
+use Newspack;
 use Newspack\Memberships;
 use Newspack\Memberships\Metering;
 
@@ -19,17 +20,33 @@ class Content_Gate_Countdown_Block {
 	 */
 	public static function init() {
 		add_action( 'init', [ __CLASS__, 'register_block' ] );
+		add_action( 'wp_enqueue_scripts', [ __CLASS__, 'enqueue_scripts' ] );
+	}
+
+	/**
+	 * Enqueue block scripts and styles.
+	 *
+	 * @return void
+	 */
+	public static function enqueue_scripts() {
+		if ( ! Memberships::is_active() || ! Memberships::has_gate() ) {
+			return;
+		}
+		wp_enqueue_style(
+			'newspack-content-gate-countdown-block',
+			\Newspack\Newspack::plugin_url() . '/dist/content-gate-countdown-block.css',
+			[],
+			NEWSPACK_PLUGIN_VERSION
+		);
 	}
 
 	/**
 	 * Register the block.
 	 */
 	public static function register_block() {
-		// Only register if Memberships is active.
-		if ( ! Memberships::is_active() ) {
+		if ( ! Memberships::is_active() || ! Memberships::has_gate() ) {
 			return;
 		}
-
 		register_block_type_from_metadata(
 			__DIR__ . '/block.json',
 			[
@@ -37,7 +54,6 @@ class Content_Gate_Countdown_Block {
 			]
 		);
 	}
-
 
 	/**
 	 * Block render callback.
@@ -66,7 +82,12 @@ class Content_Gate_Countdown_Block {
 			),
 			Metering::get_metering_period()
 		);
-		$text    = isset( $attributes['text'] ) ? $attributes['text'] : __( 'Get unlimited access.', 'newspack-plugin' );
+		$countdown = sprintf(
+			/* translators: 1: remaining metered views, 2: total metered views. */
+			__( '%1$d/%2$d', 'newspack-plugin' ),
+			$remaining_views,
+			$total_views
+		);
 		$actions = '';
 		foreach ( $block->inner_blocks as $inner_block ) {
 			$actions .= $inner_block->render();
@@ -79,7 +100,7 @@ class Content_Gate_Countdown_Block {
 		$block_content = "<div $block_wrapper_attributes>
 			<div class='newspack-content-gate-countdown__content'>
 				<div class='newspack-content-gate-countdown__notice'>
-					<span class='newspack-content-gate-countdown__countdown'>$remaining_views / $total_views</span>
+					<span class='newspack-content-gate-countdown__countdown'>$countdown</span>
 					<p>$notice</p>
 				</div>
 				<div class='newspack-content-gate-countdown__actions'>
