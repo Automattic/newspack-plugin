@@ -255,8 +255,10 @@ class Subscriptions_Tiers {
 		$title        = $title ?? __( 'Complete your transaction', 'newspack-plugin' );
 		$button_label = $button_label ?? __( 'Purchase', 'newspack-plugin' );
 
+		$action_type = ! empty( $switch_subscription ) ? 'switch_subscription' : '';
+
 		?>
-		<form class="newspack__subscription-tiers__form" target="newspack_modal_checkout_iframe" data-title="<?php echo esc_attr( $title ); ?>">
+		<form class="newspack__subscription-tiers__form" target="newspack_modal_checkout_iframe" data-title="<?php echo esc_attr( $title ); ?>" data-action-type="<?php echo esc_attr( $action_type ); ?>">
 			<?php if ( ! $is_single_tier ) : ?>
 				<div class="newspack-ui__segmented-control">
 					<?php if ( count( $frequencies ) > 1 ) : ?>

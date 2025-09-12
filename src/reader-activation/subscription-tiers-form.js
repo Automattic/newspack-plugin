@@ -59,10 +59,16 @@ export default function init() {
 				const formData = new FormData( form );
 				const params = new URLSearchParams( formData );
 				modal?.setAttribute( 'data-state', 'closed' );
+				const actionType = form.dataset.actionType || undefined;
 				window.newspackOpenModalCheckout( {
 					url: form.action + '?' + params.toString(),
 					title: form.dataset.title,
-					actionType: form.dataset.actionType || undefined,
+					actionType,
+					onCheckoutComplete: () => {
+						if ( actionType === 'switch_subscription' ) {
+							window.location.reload();
+						}
+					},
 				} );
 			} );
 		} );
