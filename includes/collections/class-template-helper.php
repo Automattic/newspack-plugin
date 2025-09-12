@@ -563,7 +563,6 @@ class Template_Helper {
 			'selectedCollections' => $collections,
 			'columns'             => 6,
 			'showCategory'        => false,
-			'showSeeAllLink'      => false,
 		];
 
 		/**
@@ -604,7 +603,6 @@ class Template_Helper {
 				'showExcerpt'         => true,
 				'showCategory'        => false,
 				'numberOfCTAs'        => -1,
-				'showSeeAllLink'      => false,
 				'headingText'         => '',
 				'noPermalinks'        => false,
 			]

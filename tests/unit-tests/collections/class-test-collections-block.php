@@ -116,35 +116,6 @@ class Test_Collections_Block extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * Test render_block with see all link.
-	 *
-	 * @covers \Newspack\Blocks\Collections\Collections_Block::render_block
-	 */
-	public function test_render_block_with_custom_see_all_link() {
-		$this->create_test_collection();
-
-		$attributes = [
-			'seeAllLinkText' => 'View All Collections',
-		];
-		$output     = $this->render_collections_block( $attributes );
-
-		$this->assertStringContainsString( 'wp-block-newspack-collections__see-all', $output, 'Should contain see all wrapper' );
-		$this->assertStringContainsString( 'View All Collections', $output, 'Should contain custom see all text' );
-	}
-
-	/**
-	 * Test render_block with default see all text.
-	 *
-	 * @covers \Newspack\Blocks\Collections\Collections_Block::render_block
-	 */
-	public function test_render_block_with_default_see_all_link() {
-		$this->create_test_collection();
-		$output = $this->render_collections_block();
-
-		$this->assertStringContainsString( 'See all', $output, 'Should contain default see all text' );
-	}
-
-	/**
 	 * Test numberOfCTAs attribute handles -1 correctly for showing all CTAs.
 	 *
 	 * @covers \Newspack\Blocks\Collections\Collections_Block::render_block
@@ -170,7 +141,6 @@ class Test_Collections_Block extends \WP_UnitTestCase {
 			'selectedCollections' => [ $collection_id ],
 			'numberOfCTAs'        => -1,
 			'showCTAs'            => true,
-			'showSeeAllLink'      => false,
 		];
 
 		$output = $this->render_collections_block( $attributes );

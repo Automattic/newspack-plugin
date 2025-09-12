@@ -54,8 +54,6 @@ final class Collections_Block {
 		'showCTAs'            => true,
 		'numberOfCTAs'        => 1,
 		'specificCTAs'        => '',
-		'showSeeAllLink'      => true,
-		'seeAllLinkText'      => '',
 		'headingText'         => '',
 		'noPermalinks'        => false,
 	];
@@ -136,20 +134,6 @@ final class Collections_Block {
 		?>
 		<div <?php echo $wrapper_attributes; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
 			<?php self::render_collections( $collections, $attributes ); ?>
-
-			<?php if ( $attributes['showSeeAllLink'] ) : ?>
-				<div class="wp-block-newspack-collections__see-all">
-					<a class="wp-block-button__link" href="<?php echo esc_url( get_post_type_archive_link( Post_Type::get_post_type() ) ); ?>">
-						<?php
-						if ( ! empty( $attributes['seeAllLinkText'] ) ) {
-							echo esc_html( $attributes['seeAllLinkText'] );
-						} else {
-							esc_html_e( 'See all', 'newspack-plugin' );
-						}
-						?>
-					</a>
-				</div>
-			<?php endif; ?>
 		</div>
 		<?php
 		return ob_get_clean();

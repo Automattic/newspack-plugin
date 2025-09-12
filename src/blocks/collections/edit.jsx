@@ -1,5 +1,5 @@
 import { __ } from '@wordpress/i18n';
-import { useBlockProps, BlockControls, RichText } from '@wordpress/block-editor';
+import { useBlockProps, BlockControls } from '@wordpress/block-editor';
 import { ToolbarGroup, ToolbarButton, Placeholder, Spinner } from '@wordpress/components';
 import { caution, list, grid, pullLeft, pullRight, postFeaturedImage } from '@wordpress/icons';
 import { useMemo } from '@wordpress/element';
@@ -7,13 +7,10 @@ import classnames from 'classnames';
 
 import { useCollections } from './hooks/useCollections';
 import CollectionItem from './components/CollectionItem';
-import usePreventNav from './hooks/usePreventNav';
 import InspectorPanel from './components/InspectorPanel';
 
 const Edit = ( { attributes, setAttributes } ) => {
-	const { layout, columns, imageAlignment, imageSize, showFeaturedImage, showSeeAllLink, seeAllLinkText } = attributes;
-
-	const preventNav = usePreventNav();
+	const { layout, columns, imageAlignment, imageSize, showFeaturedImage } = attributes;
 
 	// Fetch collections data.
 	const { collections, isLoading, hasCollections } = useCollections( attributes );
@@ -130,22 +127,6 @@ const Edit = ( { attributes, setAttributes } ) => {
 							<CollectionItem key={ collection.id } collection={ collection } attributes={ attributes } />
 						) ) }
 					</>
-				) }
-
-				{ /* See all link */ }
-				{ showSeeAllLink && hasCollections && (
-					<div className="wp-block-newspack-collections__see-all">
-						<RichText
-							tagName="a"
-							className="wp-block-button__link"
-							value={ seeAllLinkText || __( 'See all', 'newspack-plugin' ) }
-							onChange={ value => setAttributes( { seeAllLinkText: value } ) }
-							href="#"
-							onClick={ preventNav }
-							allowedFormats={ [] }
-							placeholder={ __( 'See all', 'newspack-plugin' ) }
-						/>
-					</div>
 				) }
 			</div>
 		</>

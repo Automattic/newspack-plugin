@@ -103,14 +103,6 @@
 		"specificCTAs": {
 			"type": "string",
 			"default": ""
-		},
-		"showSeeAllLink": {
-			"type": "boolean",
-			"default": true
-		},
-		"seeAllLinkText": {
-			"type": "string",
-			"default": ""
 		}
 	},
 	"example": {
@@ -125,9 +117,7 @@
 			"showVolume": true,
 			"showNumber": true,
 			"showCTAs": true,
-			"numberOfCTAs": 1,
-			"showSeeAllLink": true,
-			"seeAllLinkText": "See all collections"
+			"numberOfCTAs": 1
 		}
 	},
 	"textdomain": "newspack-plugin",

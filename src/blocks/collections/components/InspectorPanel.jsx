@@ -44,8 +44,6 @@ const InspectorPanel = ( { attributes, setAttributes } ) => {
 		showCTAs,
 		numberOfCTAs,
 		specificCTAs,
-		showSeeAllLink,
-		seeAllLinkText,
 	} = attributes;
 
 	// Category suggestions.
@@ -132,25 +130,6 @@ const InspectorPanel = ( { attributes, setAttributes } ) => {
 							__next40pxDefaultSize
 						/>
 					</>
-				) }
-
-				<ToggleControl
-					label={ __( 'Show "See all" link', 'newspack-plugin' ) }
-					checked={ showSeeAllLink }
-					onChange={ value => setAttributes( { showSeeAllLink: value } ) }
-				/>
-
-				{ showSeeAllLink && (
-					<BaseControl id="see-all-text-control" aria-label={ __( '"See all" link text', 'newspack-plugin' ) }>
-						<input
-							type="text"
-							value={ seeAllLinkText ? seeAllLinkText : __( 'See all', 'newspack-plugin' ) }
-							onChange={ e => setAttributes( { seeAllLinkText: e.target.value } ) }
-							placeholder={ __( 'See all', 'newspack-plugin' ) }
-							className="components-text-control__input"
-							style={ { height: '40px' } }
-						/>
-					</BaseControl>
 				) }
 			</PanelBody>
 

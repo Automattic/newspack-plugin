@@ -9,16 +9,4 @@
 			width: 100%;
 		}
 	}
-
-	// See all collections link.
-	.wp-block-newspack-collections__see-all {
-		text-align: center;
-		grid-column: 1 / -1;
-
-		a:hover {
-			color: var(--newspack-theme-color-against-secondary);
-			background-color: var(--newspack-theme-color-bg-button-hover);
-		}
-	}
 }
-
