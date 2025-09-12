@@ -262,4 +262,60 @@ class Test_Collection_Meta extends WP_UnitTestCase {
 		$this->assertIsArray( $result, 'Result should be an array.' );
 		$this->assertEmpty( $result, 'Should return empty array when no CTAs.' );
 	}
+
+	/**
+	 * Test that get_collection_ctas_for_rest escapes malicious values.
+	 *
+	 * @covers \Newspack\Collections\Collection_Meta::get_collection_ctas_for_rest
+	 */
+	public function test_get_collection_ctas_for_rest_escaping() {
+		$ctas_data = [
+			[
+				'type'  => 'link',
+				'label' => '<script>alert("xss")</script>Malicious Label',
+				'url'   => 'javascript:alert("malicious")',
+			],
+			[
+				'type'  => 'link',
+				'label' => 'Safe & Good Label',
+				'url'   => 'https://example.com/page?param=value&other=test',
+			],
+			[
+				'type'  => 'link"',
+				'label' => 'Test',
+				'url'   => 'https://example.com',
+				'class' => 'btn" onclick="alert(\'xss\')" class="fake',
+			],
+		];
+
+		// Test all fields are properly escaped.
+		$expected = [
+			[
+				'type'  => 'link',
+				'label' => '&lt;script&gt;alert(&quot;xss&quot;)&lt;/script&gt;Malicious Label',
+				'url'   => '',
+				'class' => '',
+			],
+			[
+				'type'  => 'link',
+				'label' => 'Safe &amp; Good Label',
+				'url'   => 'https://example.com/page?param=value&#038;other=test',
+				'class' => '',
+			],
+			[
+				'type'  => 'link&quot;',
+				'label' => 'Test',
+				'url'   => 'https://example.com',
+				'class' => 'btn&quot; onclick=&quot;alert(&#039;xss&#039;)&quot; class=&quot;fake',
+			],
+		];
+
+		$collection_id = $this->create_test_collection();
+		Collection_Meta::set( $collection_id, 'ctas', $ctas_data );
+		$result = Collection_Meta::get_collection_ctas_for_rest( [ 'id' => $collection_id ] );
+
+		$this->assertIsArray( $result, 'Result should be an array.' );
+		$this->assertCount( 3, $result, 'Should return 3 CTAs.' );
+		$this->assertEquals( $expected, $result, 'All CTA fields should be properly escaped.' );
+	}
 }

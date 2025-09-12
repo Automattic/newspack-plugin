@@ -245,6 +245,16 @@ class Collection_Meta {
 	 * @see Query_Helper::get_ctas()
 	 */
 	public static function get_collection_ctas_for_rest( $post ) {
-		return Query_Helper::get_ctas( $post['id'] );
+		return array_map(
+			function ( $cta ) {
+				return [
+					'label' => esc_html( $cta['label'] ?? '' ),
+					'url'   => esc_url( $cta['url'] ?? '' ),
+					'type'  => esc_attr( $cta['type'] ?? '' ),
+					'class' => esc_attr( $cta['class'] ?? '' ),
+				];
+			},
+			Query_Helper::get_ctas( $post['id'] )
+		);
 	}
 }
