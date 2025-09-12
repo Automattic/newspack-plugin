@@ -31,7 +31,7 @@ class Test_Collections_Block extends \WP_UnitTestCase {
 
 		// Ensure the block is registered.
 		require_once NEWSPACK_ABSPATH . 'src/blocks/collections/index.php';
-		
+
 		if ( ! \WP_Block_Type_Registry::get_instance()->is_registered( Collections_Block::BLOCK_NAME ) ) {
 			Collections_Block::register_block();
 		}
@@ -329,34 +329,34 @@ class Test_Collections_Block extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * Test render_collection_ctas with filtered CTAs.
+	 * Test render_collection_ctas with subscription and order CTAs toggles.
 	 *
 	 * @covers \Newspack\Blocks\Collections\Collections_Block::render_collection_ctas
 	 */
-	public function test_render_collection_ctas_filtered() {
+	public function test_subscription_and_order_cta_toggles() {
 		$collection_id = $this->create_test_collection();
 		$collection    = get_post( $collection_id );
 
-		// Mock CTAs data.
+		// Add hierarchical CTAs.
+		Collection_Meta::set( $collection_id, 'subscribe_link', 'https://example.com/subscribe' );
+		Collection_Meta::set( $collection_id, 'order_link', 'https://example.com/order' );
+
+		// Additional CTA data.
 		$ctas_data = [
-			[
-				'type'  => 'link',
-				'label' => 'Click Here',
-				'url'   => 'https://example.com/click-here',
-			],
 			[
 				'type'  => 'link',
 				'label' => 'Download',
 				'url'   => 'https://example.com/download',
 			],
 		];
-
 		Collection_Meta::set( $collection_id, 'ctas', $ctas_data );
 
-		// Test filtering out subscription URLs.
+		// Test with both subscription and order URLs enabled.
 		$attributes = [
-			'showCTAs'     => true,
-			'numberOfCTAs' => 3,
+			'showCTAs'            => true,
+			'numberOfCTAs'        => 4,
+			'showSubscriptionUrl' => true,
+			'showOrderUrl'        => true,
 		];
 
 		ob_start();
@@ -364,7 +364,30 @@ class Test_Collections_Block extends \WP_UnitTestCase {
 		$output = ob_get_clean();
 
 		$this->assertStringContainsString( 'wp-block-newspack-collections__ctas', $output, 'Should contain CTAs wrapper' );
-		$this->assertStringContainsString( 'Click Here', $output, 'Should contain Click Here CTA' );
+		$this->assertStringContainsString( 'Subscribe', $output, 'Should contain Subscribe CTA' );
+		$this->assertStringContainsString( 'Order', $output, 'Should contain Order CTA' );
+		$this->assertStringContainsString( 'Download', $output, 'Should contain Download CTA' );
+
+		// Test with subscription URL disabled but order URL enabled.
+		$attributes['showSubscriptionUrl'] = false;
+
+		ob_start();
+		Collections_Block::render_collection_ctas( $collection, $attributes );
+		$output = ob_get_clean();
+
+		$this->assertStringNotContainsString( 'Subscribe', $output, 'Should not contain Subscribe CTA' );
+		$this->assertStringContainsString( 'Order', $output, 'Should contain Order CTA' );
+		$this->assertStringContainsString( 'Download', $output, 'Should contain Download CTA' );
+
+		// Test with both subscription and order URLs disabled.
+		$attributes['showOrderUrl'] = false;
+
+		ob_start();
+		Collections_Block::render_collection_ctas( $collection, $attributes );
+		$output = ob_get_clean();
+
+		$this->assertStringNotContainsString( 'Subscribe', $output, 'Should not contain Subscribe CTA' );
+		$this->assertStringNotContainsString( 'Order', $output, 'Should not contain Order CTA' );
 		$this->assertStringContainsString( 'Download', $output, 'Should contain Download CTA' );
 	}
 
