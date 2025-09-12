@@ -320,7 +320,7 @@ class Template_Helper {
 		$target_attributes = self::should_cta_open_in_new_tab( $cta ) ? ' target="_blank" rel="noopener noreferrer"' : '';
 
 		$html = sprintf(
-			'<a class="wp-block-button__link %1$s has-dark-gray-color has-light-gray-background-color has-text-color has-background has-link-color wp-element-button" href="%2$s">%3$s</a>',
+			'<a class="wp-block-button__link %1$s has-dark-gray-color has-light-gray-background-color has-text-color has-background has-link-color wp-element-button" href="%2$s"%4$s>%3$s</a>',
 			esc_attr( $cta['class'] ?? '' ),
 			esc_url( $cta['url'] ?? '' ),
 			esc_html( $cta['label'] ?? '' ),
