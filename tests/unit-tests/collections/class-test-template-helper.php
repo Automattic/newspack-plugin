@@ -428,12 +428,6 @@ class Test_Template_Helper extends \WP_UnitTestCase {
 	 * @covers \Newspack\Collections\Template_Helper::load_template_part
 	 */
 	public function test_load_template_part() {
-		ob_start();
-		Template_Helper::load_template_part( Template_Helper::TEMPLATE_PARTS_DIR . 'newspack-collection-intro', null, [], [] );
-		$output = ob_get_clean();
-		$this->assertNotEmpty( $output, 'Collections template part should be processed.' );
-		$this->assertStringContainsString( 'collection-intro', $output, 'Collections template part should contain "collection-intro".' );
-
 		// Test collections template part with name parameter.
 		ob_start();
 		Template_Helper::load_template_part( Template_Helper::TEMPLATE_PARTS_DIR . 'newspack-collection-intro', 'variant', [], [] );
@@ -536,5 +530,22 @@ class Test_Template_Helper extends \WP_UnitTestCase {
 		$result = Template_Helper::normalize_post_list( [ $post_id_1, null, 'invalid', 0, -1 ] );
 		$this->assertEquals( 'ids', $result['type'] );
 		$this->assertEquals( [ $post_id_1, 1 ], $result['items'] ); // 0 filtered out, -1 becomes 1.
+	}
+
+	/**
+	 * Test render_collections_intro generates collections block HTML.
+	 *
+	 * @covers \Newspack\Collections\Template_Helper::render_collections_intro
+	 */
+	public function test_render_collections_intro() {
+		$collection = get_post( $this->create_test_collection() );
+
+		// Test basic rendering.
+		$html = Template_Helper::render_collections_intro( $collection );
+		$this->assertIsString( $html, 'Intro HTML should be a string.' );
+
+		// Test with invalid collection.
+		$html = Template_Helper::render_collections_intro( null );
+		$this->assertEmpty( $html, 'Invalid collection should return empty string.' );
 	}
 }

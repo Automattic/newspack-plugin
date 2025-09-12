@@ -56,6 +56,8 @@ final class Collections_Block {
 		'specificCTAs'        => '',
 		'showSeeAllLink'      => true,
 		'seeAllLinkText'      => '',
+		'headingText'         => '',
+		'noPermalinks'        => false,
 	];
 
 	/**
@@ -96,7 +98,7 @@ final class Collections_Block {
 		$attributes['numberOfItems'] = max( 1, absint( $attributes['numberOfItems'] ) );
 		$attributes['offset']        = max( 0, absint( $attributes['offset'] ) );
 		$attributes['columns']       = max( 1, absint( $attributes['columns'] ) );
-		$attributes['numberOfCTAs']  = max( 1, absint( $attributes['numberOfCTAs'] ) );
+		$attributes['numberOfCTAs']  = ( -1 === (int) $attributes['numberOfCTAs'] ) ? -1 : max( 1, absint( $attributes['numberOfCTAs'] ) );
 
 		// Normalize selectedCollections to determine if we have post objects or IDs.
 		$normalized_posts = Template_Helper::normalize_post_list( (array) $attributes['selectedCollections'] );
@@ -203,7 +205,10 @@ final class Collections_Block {
 			<?php if ( $attributes['showFeaturedImage'] ) : ?>
 				<div class="wp-block-newspack-collections__image">
 					<?php if ( has_post_thumbnail( $collection ) ) : ?>
-						<?php echo wp_kses_post( Template_Helper::render_image( $collection->ID, $collection_url, $image_size ) ); ?>
+						<?php
+						$image_permalink = $attributes['noPermalinks'] ? false : $collection_url;
+						echo wp_kses_post( Template_Helper::render_image( $collection->ID, $image_permalink, $image_size ) );
+						?>
 					<?php else : ?>
 						<div class="wp-block-newspack-collections__placeholder" aria-hidden="true"></div>
 					<?php endif; ?>
@@ -211,16 +216,26 @@ final class Collections_Block {
 			<?php endif; ?>
 
 			<div class="wp-block-newspack-collections__content">
+				<?php if ( ! empty( $attributes['headingText'] ) ) : ?>
+					<h6 class="wp-block-newspack-collections__heading has-primary-color has-text-color has-link-color has-normal-font-size">
+						<?php echo esc_html( $attributes['headingText'] ); ?>
+					</h6>
+				<?php endif; ?>
+
 				<?php if ( $attributes['showCategory'] ) : ?>
 					<?php self::render_collection_categories( $collection ); ?>
 				<?php endif; ?>
 
 				<?php if ( $attributes['showTitle'] ) : ?>
-					<h3 class="wp-block-newspack-collections__title has-normal-font-size">
-						<a href="<?php echo esc_url( $collection_url ); ?>">
+					<h2 class="wp-block-newspack-collections__title">
+						<?php if ( ! $attributes['noPermalinks'] ) : ?>
+							<a href="<?php echo esc_url( $collection_url ); ?>">
+								<?php echo esc_html( get_the_title( $collection ) ); ?>
+							</a>
+						<?php else : ?>
 							<?php echo esc_html( get_the_title( $collection ) ); ?>
-						</a>
-					</h3>
+						<?php endif; ?>
+					</h2>
 				<?php endif; ?>
 
 				<?php
@@ -384,9 +399,11 @@ final class Collections_Block {
 			);
 		}
 
-		// Limit to numberOfCTAs.
-		$max_ctas      = $attributes['numberOfCTAs'] ?? 1;
-		$filtered_ctas = array_slice( $filtered_ctas, 0, $max_ctas );
+		// Limit to numberOfCTAs (-1 means show all).
+		$max_ctas = $attributes['numberOfCTAs'] ?? 1;
+		if ( -1 !== $max_ctas ) {
+			$filtered_ctas = array_slice( $filtered_ctas, 0, $max_ctas );
+		}
 
 		/**
 		 * Filter the CTAs rendered by the collections block for a given collection.

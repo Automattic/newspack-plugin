@@ -145,6 +145,47 @@ class Test_Collections_Block extends \WP_UnitTestCase {
 	}
 
 	/**
+	 * Test numberOfCTAs attribute handles -1 correctly for showing all CTAs.
+	 *
+	 * @covers \Newspack\Blocks\Collections\Collections_Block::render_block
+	 * @covers \Newspack\Blocks\Collections\Collections_Block::render_collection_ctas
+	 * @covers \Newspack\Collections\Template_Helper::render_cta
+	 */
+	public function test_render_block_with_all_ctas() {
+		$collection_id = $this->create_test_collection();
+
+		// Create multiple CTAs using a loop.
+		$ctas_data  = [];
+		$total_ctas = 5;
+		for ( $i = 1; $i <= $total_ctas; $i++ ) {
+			$ctas_data[] = [
+				'type'  => 'link',
+				'label' => "CTA $i",
+				'url'   => "https://example.com/$i",
+			];
+		}
+		Collection_Meta::set( $collection_id, 'ctas', $ctas_data );
+
+		$attributes = [
+			'selectedCollections' => [ $collection_id ],
+			'numberOfCTAs'        => -1,
+			'showCTAs'            => true,
+			'showSeeAllLink'      => false,
+		];
+
+		$output = $this->render_collections_block( $attributes );
+
+		// When numberOfCTAs is -1, all CTAs should be displayed.
+		for ( $i = 1; $i <= $total_ctas; $i++ ) {
+			$this->assertStringContainsString( "CTA $i", $output );
+		}
+
+		// Count CTA elements to verify total count.
+		$cta_count = substr_count( $output, 'wp-block-button__link' );
+		$this->assertEquals( $total_ctas, $cta_count, "Should render all $total_ctas CTAs when numberOfCTAs is -1" );
+	}
+
+	/**
 	 * Test get_block_classes method.
 	 *
 	 * @covers \Newspack\Blocks\Collections\Collections_Block::get_block_classes

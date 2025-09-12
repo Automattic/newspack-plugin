@@ -1,4 +1,10 @@
 .wp-block-newspack-collections {
+	// Collection heading.
+	.wp-block-newspack-collections__heading {
+		margin: 0;
+		text-transform: uppercase;
+	}
+
 	// Title.
 	.wp-block-newspack-collections__title {
 		margin: 0 0 24px;
@@ -12,7 +18,6 @@
 	.wp-block-newspack-collections__excerpt {
 		margin-bottom: 1em;
 		color: var(--wp--preset--font-size--small);
-		line-height: 1.4;
 	}
 
 	// Meta information (Period, Volume, Number).

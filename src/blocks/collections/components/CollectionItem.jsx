@@ -158,15 +158,14 @@ const CollectionItem = ( { collection, attributes } ) => {
 				{ showCTAs && filteredCtas.length > 0 && (
 					<div className="wp-block-newspack-collections__ctas">
 						{ filteredCtas.map( ( cta, index ) => (
-							<div key={ `${ cta.label }-${ index }` } className="collection-cta">
-								<a
-									href="#"
-									onClick={ preventNav }
-									className="wp-block-button__link has-dark-gray-color has-light-gray-background-color has-text-color has-background has-link-color wp-element-button"
-								>
-									{ cta.label }
-								</a>
-							</div>
+							<a
+								key={ `${ cta.label }-${ index }` }
+								href="#"
+								onClick={ preventNav }
+								className="wp-block-button__link has-dark-gray-color has-light-gray-background-color has-text-color has-background has-link-color wp-element-button"
+							>
+								{ cta.label }
+							</a>
 						) ) }
 					</div>
 				) }

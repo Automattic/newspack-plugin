@@ -3,91 +3,169 @@
 .wp-block-newspack-collections {
 	// Layout: List.
 	&.layout-list {
+		margin-bottom: 32px;
+
 		.wp-block-newspack-collections__item {
-			display: flex;
+			display: grid;
+			grid-template-columns: 1fr;
+			gap: 16px;
 			margin-bottom: 2em;
 			align-items: flex-start;
 
 			&:last-child {
 				margin-bottom: 0;
 			}
-		}
 
-		&.image-left {
-			.wp-block-newspack-collections__image {
-				margin-right: 1.5em;
-				flex-shrink: 0;
+			@media #{bp.$media-sm-up} {
+				grid-template-columns: repeat(3, minmax(0, 1fr));
+			}
+
+			@media #{bp.$media-lg-up} {
+				grid-template-columns: repeat(6, minmax(0, 1fr));
+				gap: 32px;
 			}
 		}
 
-		&.image-right {
-			.wp-block-newspack-collections__item {
-				flex-direction: row-reverse;
-			}
-
-			.wp-block-newspack-collections__image {
-				margin-left: 1.5em;
-				flex-shrink: 0;
-			}
-		}
-
-		// Image sizes for left and right alignments.
 		&.image-left,
 		&.image-right {
-			@media #{bp.$media-sm-up} {
-				&.image-size-small .wp-block-newspack-collections__image {
-					width: 150px;
+			// Small size (default).
+			&.image-size-small {
+				.wp-block-newspack-collections__image {
+					grid-column: span 1;
 				}
-				&.image-size-medium .wp-block-newspack-collections__image {
-					width: 30%;
+
+				.wp-block-newspack-collections__content {
+					@media #{bp.$media-sm-up} {
+						grid-column: span 2;
+					}
+
+					@media #{bp.$media-lg-up} {
+						grid-column: span 5;
+					}
 				}
-				&.image-size-large .wp-block-newspack-collections__image {
-					width: 50%;
+			}
+
+			// Medium size - slightly larger image.
+			&.image-size-medium {
+				.wp-block-newspack-collections__image {
+					grid-column: span 1;
+
+					@media #{bp.$media-lg-up} {
+						grid-column: span 2;
+					}
+				}
+
+				.wp-block-newspack-collections__content {
+					@media #{bp.$media-sm-up} {
+						grid-column: span 2;
+					}
+
+					@media #{bp.$media-lg-up} {
+						grid-column: span 4;
+					}
+				}
+			}
+
+			// Large size - larger image.
+			&.image-size-large {
+				.wp-block-newspack-collections__image {
+					grid-column: span 1;
+
+					@media #{bp.$media-sm-up} {
+						grid-column: span 2;
+					}
+
+					@media #{bp.$media-lg-up} {
+						grid-column: span 3;
+					}
+				}
+
+				.wp-block-newspack-collections__content {
+					@media #{bp.$media-sm-up} {
+						grid-column: span 1;
+					}
+
+					@media #{bp.$media-lg-up} {
+						grid-column: span 3;
+					}
 				}
 			}
 		}
 
+		// For the right alignment, reorder the grid items.
+		&.image-right {
+			.wp-block-newspack-collections__item {
+				.wp-block-newspack-collections__image {
+					order: 2;
+				}
+				.wp-block-newspack-collections__content {
+					order: 1;
+				}
+			}
+		}
+
+		// For the top alignment, stack the grid items vertically.
 		&.image-top {
 			.wp-block-newspack-collections__item {
-				flex-direction: column;
+				grid-template-columns: 1fr;
+			}
+
+			.wp-block-newspack-collections__image,
+			.wp-block-newspack-collections__content {
+				grid-column: span 1;
 			}
 
 			.wp-block-newspack-collections__image {
-				margin-bottom: 1em;
+				max-width: 100%;
 			}
 
-			// Image sizes for top alignment (sm+ only).
+			// Apply size constraints only on larger screens.
 			@media #{bp.$media-sm-up} {
 				&.image-size-small .wp-block-newspack-collections__image {
-					width: 30%;
+					max-width: 30%;
 				}
 				&.image-size-medium .wp-block-newspack-collections__image {
-					width: 50%;
+					max-width: 50%;
 				}
 				&.image-size-large .wp-block-newspack-collections__image {
-					width: 70%;
+					max-width: 70%;
 				}
 			}
 		}
 
-		// On extra-small screens, ignore image size presets; stack and use full width.
-		@media #{bp.$media-xs-only} {
-			// Ensure stacking wins over the more specific .image-right rule.
-			&.image-right .wp-block-newspack-collections__item,
-			.wp-block-newspack-collections__item {
-				flex-direction: column;
-			}
 
-			&.image-left,
-			&.image-right,
-			&.image-top {
-				.wp-block-newspack-collections__image {
-					width: 100%;
-					max-width: 100%;
-					margin: 0 0 1em 0;
+		.wp-block-newspack-collections__title {
+			font-size: var(--newspack-theme-font-size-lg);
+			margin: 0;
+
+			@media #{bp.$media-md-up} {
+				font-size: var(--newspack-theme-font-size-xl);
+			}
+		}
+
+		.wp-block-newspack-collections__content {
+			display: flex;
+			flex-direction: column;
+			gap: 0.5em;
+		}
+
+		.wp-block-newspack-collections__meta {
+			margin: 0;
+			p {
+				margin: 0;
+			}
+		}
+
+		.wp-block-newspack-collections__excerpt {
+			margin: 22px 0;
+		}
+
+		.wp-block-newspack-collections__ctas {
+			a {
+				@media #{bp.$media-md-up} {
+					width: auto;
 				}
 			}
 		}
 	}
 }
-

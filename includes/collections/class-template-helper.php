@@ -320,9 +320,7 @@ class Template_Helper {
 		$target_attributes = self::should_cta_open_in_new_tab( $cta ) ? ' target="_blank" rel="noopener noreferrer"' : '';
 
 		$html = sprintf(
-			'<div class="collection-cta %1$s">
-				<a class="wp-block-button__link has-dark-gray-color has-light-gray-background-color has-text-color has-background has-link-color wp-element-button" href="%2$s"%4$s>%3$s</a>
-			</div>',
+			'<a class="wp-block-button__link %1$s has-dark-gray-color has-light-gray-background-color has-text-color has-background has-link-color wp-element-button" href="%2$s">%3$s</a>',
 			esc_attr( $cta['class'] ?? '' ),
 			esc_url( $cta['url'] ?? '' ),
 			esc_html( $cta['label'] ?? '' ),
@@ -582,6 +580,67 @@ class Template_Helper {
 				'attrs'     => $attrs,
 			]
 		);
+	}
+
+	/**
+	 * Render collections intro using the Collections block.
+	 *
+	 * @param int|WP_Post $post Post ID or post object.
+	 * @param array       $args Optional arguments for the intro section.
+	 * @return string The rendered collections intro HTML.
+	 */
+	public static function render_collections_intro( $post, $args = [] ) {
+		$collection = $post instanceof \WP_Post ? $post : get_post( $post );
+		if ( ! $collection instanceof \WP_Post ) {
+			return '';
+		}
+
+		$attrs = wp_parse_args(
+			$args,
+			[
+				'selectedCollections' => [ $collection ],
+				'layout'              => 'list',
+				'imageSize'           => 'small',
+				'showExcerpt'         => true,
+				'showCategory'        => false,
+				'numberOfCTAs'        => -1,
+				'showSeeAllLink'      => false,
+				'headingText'         => '',
+				'noPermalinks'        => false,
+			]
+		);
+
+		/**
+		 * Filters the attributes before rendering the collections intro block.
+		 *
+		 * @param array   $attrs      The attributes for the collections block.
+		 * @param WP_Post $collection The collection being rendered.
+		 * @param array   $args       The original arguments passed to the function.
+		 */
+		$attrs = apply_filters( 'newspack_collections_render_intro_attrs', $attrs, $collection, $args );
+
+		/**
+		 * Fires before the collection intro section.
+		 *
+		 * @param WP_Post $collection The collection post.
+		 */
+		do_action( 'newspack_collections_intro_before', $collection );
+
+		$output = render_block(
+			[
+				'blockName' => 'newspack/collections',
+				'attrs'     => $attrs,
+			]
+		);
+
+		/**
+		 * Fires after the collection intro section.
+		 *
+		 * @param WP_Post $collection The collection post.
+		 */
+		do_action( 'newspack_collections_intro_after', $collection );
+
+		return $output;
 	}
 
 	/**
