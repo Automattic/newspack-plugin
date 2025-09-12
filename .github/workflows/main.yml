@@ -47,6 +47,19 @@ jobs:
               console.log('Label "[Status] Needs Review" not found or already removed');
             }
 
+            // Remove the needs changes or feedback label if it exists
+            try {
+              await github.rest.issues.removeLabel({
+                owner,
+                repo,
+                issue_number: number,
+                name: '[Status] Needs Changes or Feedback'
+              });
+            } catch (error) {
+              // Label might not exist, which is fine
+              console.log('Label "[Status] Needs Changes or Feedback" not found or already removed');
+            }
+
   labelWhenChangesRequested:
     name: Label when changes requested
     runs-on: ubuntu-latest
