@@ -203,6 +203,39 @@ The frontend components are integrated into WordPress through:
 4. **REST API Integration**
    - All created components in this module are REST API-enabled.
 
+### Collections Block
+
+The Collections block (`newspack/collections`) provides a flexible way to display collections on your site.
+
+#### Block Attributes
+
+| Attribute | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `queryType` | String | "recent" | Query mode: "recent" for latest collections or "specific" for selected collections |
+| `numberOfItems` | Number | 4 | Number of collections to display (in recent mode) |
+| `offset` | Number | 0 | Number of collections to skip (in recent mode) |
+| `selectedCollections` | Array | [] | Specific collections to render. Could be a list of WP_Post objects or IDs |
+| `includeCategories` | Array | [] | Collection category IDs to include |
+| `excludeCategories` | Array | [] | Collection category IDs to exclude |
+| `layout` | String | "grid" | Display layout: "grid" or "list" |
+| `columns` | Number | 4 | Number of columns (grid layout) |
+| `imageAlignment` | String | "left" | Image position: "top", "left", or "right" (list layout) |
+| `imageSize` | String | "small" | Image size: "small", "medium", or "large" (list layout) |
+| `showFeaturedImage` | Boolean | true | Display featured images |
+| `showTitle` | Boolean | true | Display collection titles |
+| `showCategory` | Boolean | true | Display collection categories |
+| `showExcerpt` | Boolean | false | Display collection excerpts |
+| `showPeriod` | Boolean | true | Display collection period |
+| `showVolume` | Boolean | true | Display collection volume |
+| `showNumber` | Boolean | true | Display collection number |
+| `showCTAs` | Boolean | true | Display CTAs |
+| `numberOfCTAs` | Number | 1 | Maximum CTAs to display (-1 for all) |
+| `showSubscriptionUrl` | Boolean | true | Show subscription CTAs |
+| `showOrderUrl` | Boolean | true | Show order CTAs |
+| `specificCTAs` | String | "" | Comma-separated list of specific CTAsto show. A match is done by label |
+| `headingText` | String | "" | Heading text that will be displayed at the top of every collection (backend only) |
+| `noPermalinks` | Boolean | false | Whether to render permalinks (backend only) |
+
 ## Module structure
 
 - [`includes/collections/`](includes/collections/) - Core collection functionality (PHP).
@@ -211,4 +244,5 @@ The frontend components are integrated into WordPress through:
 - [`includes/wizards/newspack/class-collections-section.php`](includes/wizards/newspack/class-collections-section.php) - Newspack settings Collections tab.
 - [`src/collections/admin/`](src/collections/admin/) - Admin interface (JavaScript/styles).
 - [`src/wizards/newspack/views/settings/collections/`](src/wizards/newspack/views/settings/collections/) - Settings UI components.
+- [`src/blocks/collections/`](../../src/blocks/collections/) - Collections block.
 - [`tests/unit-tests/collections/`](tests/unit-tests/collections/) - Unit tests
