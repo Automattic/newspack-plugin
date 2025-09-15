@@ -230,13 +230,15 @@ class Subscriptions_Tiers {
 				<?php
 				printf(
 					/* translators: %s: subscription product name */
-					esc_html__( 'You already have an active %s subscription.', 'newspack-plugin' ),
+					esc_html__( 'You already have %s active.', 'newspack-plugin' ),
 					wp_kses_post( '<strong>' . self::get_product_title( $product, true ) . '</strong>' )
 				);
 				?>
 			</span>
 		</div>
-		<a class="newspack-ui__button newspack-ui__button--primary newspack-ui__button--wide" href="<?php echo esc_url( $subscription->get_view_order_url() ); ?>"><?php esc_html_e( 'View Subscription', 'newspack-plugin' ); ?></a>
+		<a class="newspack-ui__button newspack-ui__button--primary newspack-ui__button--wide" href="<?php echo esc_url( $subscription->get_view_order_url() ); ?>" aria-label="<?php esc_attr_e( 'View Subscription', 'newspack-plugin' ); ?>">
+			<?php esc_html_e( 'View', 'newspack-plugin' ); ?>
+		</a>
 		<?php
 	}
 
