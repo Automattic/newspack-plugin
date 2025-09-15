@@ -38,6 +38,13 @@ class Content_Gate_Countdown_Block {
 			[],
 			NEWSPACK_PLUGIN_VERSION
 		);
+		wp_enqueue_script(
+			'newspack-content-gate-countdown-block',
+			\Newspack\Newspack::plugin_url() . '/dist/content-gate-countdown-block.js',
+			[],
+			NEWSPACK_PLUGIN_VERSION,
+			true
+		);
 	}
 
 	/**
