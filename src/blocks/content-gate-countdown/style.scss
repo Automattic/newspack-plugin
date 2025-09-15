@@ -53,6 +53,14 @@ $breakpoint-md: 782px;
 		width: 100%;
 		padding-right: 0;
 
+		& > *:first-child {
+			margin-top: 0;
+		}
+
+		& > *:last-child {
+			margin-bottom: 0;
+		}
+
 		@media screen and ( min-width: $breakpoint-md ) {
 			width: calc(100% - 200px);
 			padding-right: 200px;

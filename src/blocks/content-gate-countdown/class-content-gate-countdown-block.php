@@ -41,7 +41,7 @@ class Content_Gate_Countdown_Block {
 		wp_enqueue_script(
 			'newspack-content-gate-countdown-block',
 			\Newspack\Newspack::plugin_url() . '/dist/content-gate-countdown-block.js',
-			[],
+			[ 'wp-i18n' ],
 			NEWSPACK_PLUGIN_VERSION,
 			true
 		);
