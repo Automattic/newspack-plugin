@@ -617,13 +617,6 @@ class Template_Helper {
 		 */
 		$attrs = apply_filters( 'newspack_collections_render_intro_attrs', $attrs, $collection, $args );
 
-		/**
-		 * Fires before the collection intro section.
-		 *
-		 * @param WP_Post $collection The collection post.
-		 */
-		do_action( 'newspack_collections_intro_before', $collection );
-
 		$output = render_block(
 			[
 				'blockName' => 'newspack/collections',
@@ -632,13 +625,13 @@ class Template_Helper {
 		);
 
 		/**
-		 * Fires after the collection intro section.
+		 * Filters the collections intro HTML.
 		 *
-		 * @param WP_Post $collection The collection post.
+		 * @param string  $output     The collections intro HTML.
+		 * @param WP_Post $collection The collection being rendered.
+		 * @param array   $args       The original arguments passed to the function.
 		 */
-		do_action( 'newspack_collections_intro_after', $collection );
-
-		return $output;
+		return apply_filters( 'newspack_collections_render_intro_html', $output, $collection, $args );
 	}
 
 	/**
