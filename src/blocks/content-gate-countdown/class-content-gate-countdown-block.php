@@ -76,25 +76,28 @@ class Content_Gate_Countdown_Block {
 			return '';
 		}
 		$post_id     = $block->context['postId'] ?? get_the_ID();
-		$total_views = Metering::get_total_metered_views( $post_id );
+		$total_views = Metering::get_total_metered_views( \is_user_logged_in() );
 		if ( false === $total_views ) {
 			return '';
 		}
 		$remaining_views = Metering::get_remaining_metered_views( get_current_user_id() );
-		$notice          = sprintf(
-			/* translators: %s - metered content period (week, month, etc. */
-			__(
-				'free articles this %s',
-				'newspack-plugin'
-			),
-			Metering::get_metering_period()
-		);
 		$countdown = sprintf(
 			/* translators: 1: remaining metered views, 2: total metered views. */
 			__( '%1$d/%2$d', 'newspack-plugin' ),
-			$remaining_views,
+			max( 0, $total_views - $remaining_views ),
 			$total_views
 		);
+		$text = isset( $attributes['text'] ) ? $attributes['text'] : '';
+		if ( empty( $text ) ) {
+			$text = sprintf(
+				/* translators: %s - metered content period (week, month, etc. */
+				__(
+					'free articles this %s',
+					'newspack-plugin'
+				),
+				Metering::get_metering_period( $post_id )
+			);
+		}
 		$actions = '';
 		foreach ( $block->inner_blocks as $inner_block ) {
 			$actions .= $inner_block->render();
@@ -106,9 +109,9 @@ class Content_Gate_Countdown_Block {
 		);
 		$block_content = "<div $block_wrapper_attributes>
 			<div class='newspack-content-gate-countdown__content'>
-				<div class='newspack-content-gate-countdown__notice'>
+				<div class='newspack-content-gate-countdown__text'>
 					<span class='newspack-content-gate-countdown__countdown'>$countdown</span>
-					<p>$notice</p>
+					<p>$text</p>
 				</div>
 				<div class='newspack-content-gate-countdown__actions'>
 					$actions

@@ -9,7 +9,7 @@ $breakpoint-md: 782px;
 		flex-direction: column;
 		align-items: center;
 		justify-content: center;
-		gap: 10px;
+		gap: 1em;
 		padding: 1rem;
 		font-family: var(--newspack-ui-font-family), system-ui, sans-serif !important;
 		box-shadow:
@@ -22,7 +22,7 @@ $breakpoint-md: 782px;
 		}
 	}
 
-	&__notice {
+	&__text {
 		display: flex;
 		flex-direction: row;
 		align-items: center;
@@ -33,6 +33,7 @@ $breakpoint-md: 782px;
 		p {
 			font-size: 0.8em;
 			text-transform: uppercase;
+			opacity: 0.5;
 		}
 
 		@media screen and ( min-width: $breakpoint-md ) {
@@ -45,8 +46,7 @@ $breakpoint-md: 782px;
 		display: flex;
 		font-size: 1.5em;
 		font-weight: 700;
-		white-space: nowrap;
-		width: 50px;
+		max-width: 100px;
 	}
 
 	&__actions {
@@ -63,7 +63,7 @@ $breakpoint-md: 782px;
 
 		@media screen and ( min-width: $breakpoint-md ) {
 			width: calc(100% - 200px);
-			padding-right: 200px;
+			padding-right: calc(1em + 200px);
 		}
 	}
 }

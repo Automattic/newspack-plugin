@@ -344,19 +344,19 @@ class Metering {
 	}
 
 	/**
-	 * Get total number of metered views for post.
+	 * Get total number of metered views for current post.
 	 *
-	 * @param int|null $post_id Post ID. Default is current post.
+	 * @param boolean $is_logged_in Whether to check for logged-in or anonymous users. Default is false (anonymous).
 	 *
 	 * @return int|boolean Total number of metered views if metering is enabled, otherwise false.
 	 */
-	public static function get_total_metered_views( $post_id = null ) {
-		if ( ! $post_id ) {
-			$post_id = get_the_ID();
-		}
-		$gate_post_id = Memberships::get_gate_post_id( $post_id );
+	public static function get_total_metered_views( $is_logged_in = false ) {
+		$gate_post_id = Memberships::get_gate_post_id( get_the_ID() );
 		if ( ! $gate_post_id ) {
 			return false;
+		}
+		if ( ! $is_logged_in ) {
+			return (int) \get_post_meta( $gate_post_id, 'metering_anonymous_count', true );
 		}
 		return (int) \get_post_meta( $gate_post_id, 'metering_registered_count', true );
 	}

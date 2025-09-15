@@ -1,7 +1,12 @@
 {
   "name": "newspack/content-gate-countdown",
   "category": "newspack",
-  "attributes": {},
+  "attributes": {
+    "text": {
+      "type": "string",
+      "default": ""
+    }
+  },
   "supports": {
     "html": false,
     "color": {
