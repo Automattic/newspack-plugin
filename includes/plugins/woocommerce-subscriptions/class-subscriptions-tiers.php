@@ -147,7 +147,7 @@ class Subscriptions_Tiers {
 	/**
 	 * Render subscription tiers form.
 	 *
-	 * @param \WC_Product $product      Optiona product.
+	 * @param \WC_Product $product      Optional product.
 	 * @param string|null $title        Optional title.
 	 * @param string|null $button_label Optional button label.
 	 */
