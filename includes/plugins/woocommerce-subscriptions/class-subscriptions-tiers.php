@@ -230,8 +230,8 @@ class Subscriptions_Tiers {
 				<?php
 				printf(
 					/* translators: %s: subscription product name */
-					esc_html__( 'You already own the "%s" subscription.', 'newspack-plugin' ),
-					esc_html( self::get_product_title( $product, true ) )
+					esc_html__( 'You already have an active %s subscription.', 'newspack-plugin' ),
+					wp_kses_post( '<strong>' . self::get_product_title( $product, true ) . '</strong>' )
 				);
 				?>
 			</span>
