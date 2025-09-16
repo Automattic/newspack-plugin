@@ -82,7 +82,7 @@ class Content_Gate_Countdown_Block {
 			max( 0, $total_views - $remaining_views ),
 			$total_views
 		);
-		$text = isset( $attributes['text'] ) ? $attributes['text'] : '';
+		$text = isset( $attributes['text'] ) ? esc_html( $attributes['text'] ) : '';
 		if ( empty( $text ) ) {
 			$text = sprintf(
 				/* translators: %s - metered content period (week, month, etc. */

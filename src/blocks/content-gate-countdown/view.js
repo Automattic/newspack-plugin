@@ -22,7 +22,7 @@ domReady( () => {
 		if ( authenticated ) {
 			return;
 		}
-		const storeKey = 'metering-' + gate_id || 0;
+		const storeKey = 'metering-' + ( gate_id || 0 );
 		const { content } = ras?.store?.get( storeKey ) || { content: [] };
 		const countdownEl = document.querySelector( '.newspack-content-gate-countdown__countdown' );
 		if ( ! countdownEl ) {

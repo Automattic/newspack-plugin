@@ -691,7 +691,7 @@ class Memberships {
 			/**
 			 * Filter the list of blocks to exclude from the excerpt.
 			 *
-			 * @param array $excluded_blocks Array of block names to exclude. i.e. [ 'core/image', 'newspack/content-gate-countdown' ].
+			 * @param array $excluded_blocks Array of blocks to exclude. i.e. [ 'core/image', 'newspack/content-gate-countdown' ].
 			 *
 			 * @return array
 			 */
