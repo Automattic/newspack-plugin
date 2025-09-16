@@ -24,6 +24,7 @@ class Subscriptions_Tiers {
 	 * Initialize hooks.
 	 */
 	public static function init_hooks() {
+		add_filter( 'woocommerce_subscriptions_switch_link_text', [ __CLASS__, 'switch_link_text' ] );
 		add_filter( 'woocommerce_subscriptions_switch_link_text', [ __CLASS__, 'cache_switch_subscription_link_data' ], 10, 4 );
 		add_action( 'wp_footer', [ __CLASS__, 'print_switch_subscription_modal' ] );
 
@@ -31,6 +32,15 @@ class Subscriptions_Tiers {
 		add_filter( 'wcs_place_subscription_order_text', [ __CLASS__, 'order_button_text' ], 9 );
 		add_filter( 'woocommerce_order_button_text', [ __CLASS__, 'order_button_text' ], 20 );
 		add_filter( 'option_woocommerce_subscriptions_order_button_text', [ __CLASS__, 'order_button_text' ], 9 );
+	}
+
+	/**
+	 * Switch link text.
+	 *
+	 * @return string The text of the switch subscription link.
+	 */
+	public static function switch_link_text() {
+		return __( 'Change Subscription', 'newspack-plugin' );
 	}
 
 	/**
