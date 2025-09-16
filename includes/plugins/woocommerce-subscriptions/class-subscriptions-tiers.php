@@ -204,8 +204,8 @@ class Subscriptions_Tiers {
 				continue;
 			}
 
-			// Extract the variations if it's a variable product.
-			if ( $product->is_type( 'variable' ) ) {
+			// Extract the variations if it's a variable subscription product.
+			if ( $product->is_type( 'variable-subscription' ) ) {
 				$variations = $product->get_available_variations();
 				foreach ( $variations as $variation ) {
 					$selected_products[] = new \WC_Product_Variation( $variation['variation_id'] );
