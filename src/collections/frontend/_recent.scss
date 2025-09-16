@@ -2,13 +2,15 @@
 
 /* Recent collections styles */
 .collections-recent {
+	$header-offset: -16px; // Negative margin to compensate for Collections block's intrinsic flex gap spacing.
+
 	&__header {
 		display: flex;
 		justify-content: space-between;
 		align-items: flex-end;
 		width: 100%;
 		flex-wrap: wrap;
-		margin-bottom: -16px;
+		margin-bottom: $header-offset;
 
 		h2,
 		p {
