@@ -35,7 +35,7 @@ domReady( function () {
 					tab_contents[ i ].classList.add( 'selected' );
 
 					const radioInputs = tab_contents[ i ].querySelectorAll( 'input[type="radio"]' );
-					const checkedRadio = !! [ ...radioInputs ].find( radio => radio.checked );
+					const checkedRadio = [ ...radioInputs ].find( radio => radio.checked );
 
 					if ( radioInputs.length && ! checkedRadio ) {
 						radioInputs[ 0 ].click();
