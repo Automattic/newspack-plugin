@@ -29,7 +29,7 @@ class Subscriptions_Tiers {
 
 		// Order button text.
 		add_filter( 'wcs_place_subscription_order_text', [ __CLASS__, 'order_button_text' ], 9 );
-		add_filter( 'woocommerce_order_button_text', [ __CLASS__, 'order_button_text' ], 9 );
+		add_filter( 'woocommerce_order_button_text', [ __CLASS__, 'order_button_text' ], 20 );
 		add_filter( 'option_woocommerce_subscriptions_order_button_text', [ __CLASS__, 'order_button_text' ], 9 );
 	}
 
