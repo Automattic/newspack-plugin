@@ -1,4 +1,6 @@
 {
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
   "name": "newspack/content-gate-countdown",
   "category": "newspack",
   "attributes": {
@@ -32,6 +34,5 @@
       }
     }
   },
-  "textdomain": "newspack-plugin",
-  "usesContext": [ "postId" ]
+  "textdomain": "newspack-plugin"
 }

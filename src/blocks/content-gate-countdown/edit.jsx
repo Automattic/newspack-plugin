@@ -3,7 +3,7 @@
 /**
  * WordPress dependencies
  */
-import { useBlockProps, InnerBlocks, InspectorControls } from '@wordpress/block-editor';
+import { useBlockProps, useInnerBlocksProps, InspectorControls } from '@wordpress/block-editor';
 import { PanelBody, Placeholder, TextareaControl } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 import { caution } from '@wordpress/icons';
@@ -15,7 +15,30 @@ import { useState } from '@wordpress/element';
  * @return {JSX.Element} The Content Gate Countdown block.
  */
 export default function Edit( { attributes, setAttributes } ) {
-	const blockProps = useBlockProps();
+	const blockProps = useBlockProps( { className: 'newspack-content-gate-countdown__wrapper' } );
+	const { children, ...innerBlockProps } = useInnerBlocksProps(
+		{ className: 'newspack-content-gate-countdown__actions' },
+		{
+			allowedBlocks: [ 'core/paragraph', 'core/heading', 'core/buttons', 'newspack-blocks/checkout-button' ],
+			template: [
+				[
+					'core/paragraph',
+					{
+						align: 'center',
+						content: __( 'Get unlimited access.', 'newspack-plugin' ),
+						style: { typography: { fontWeight: '700' } },
+					},
+				],
+				[
+					'newspack-blocks/checkout-button',
+					{
+						text: __( 'Subscribe now', 'newspack-plugin' ),
+						align: 'center',
+					},
+				],
+			],
+		}
+	);
 	const {
 		metering_period: meteringPeriod,
 		loggedin_metered_views: loggedinViews,
@@ -65,7 +88,7 @@ export default function Edit( { attributes, setAttributes } ) {
 				</PanelBody>
 			</InspectorControls>
 
-			<div className="newspack-content-gate-countdown" { ...blockProps }>
+			<div { ...blockProps }>
 				<div className="newspack-content-gate-countdown__content">
 					<div className="newspack-content-gate-countdown__text">
 						<span className="newspack-content-gate-countdown__countdown">
@@ -77,28 +100,7 @@ export default function Edit( { attributes, setAttributes } ) {
 						</span>
 						<p>{ text }</p>
 					</div>
-					<div className="newspack-content-gate-countdown__actions">
-						<InnerBlocks
-							allowedBlocks={ [ 'newspack-blocks/checkout-button', 'core/buttons', 'core/paragraph', 'core/heading' ] }
-							template={ [
-								[
-									'core/paragraph',
-									{
-										content: __( 'Get unlimited access.', 'newspack-plugin' ),
-										align: 'center',
-										style: { typography: { fontWeight: '700' } },
-									},
-								],
-								[
-									'newspack-blocks/checkout-button',
-									{
-										text: __( 'Subscribe now', 'newspack-plugin' ),
-										align: 'center',
-									},
-								],
-							] }
-						/>
-					</div>
+					<div { ...innerBlockProps }>{ children }</div>
 				</div>
 			</div>
 		</>

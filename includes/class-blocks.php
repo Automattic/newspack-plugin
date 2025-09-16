@@ -64,9 +64,9 @@ final class Blocks {
 			'recaptcha_url'           => admin_url( 'admin.php?page=newspack-settings' ),
 			'corrections_enabled'     => wp_is_block_theme() && class_exists( 'Newspack\Corrections' ),
 			'collections_enabled'     => Collections::is_module_active(),
-			'has_content_gate'        => Memberships::has_gate(),
+			'has_memberships'         => Memberships::is_active(),
 		];
-		if ( Memberships::is_active() ) {
+		if ( $script_data['has_memberships'] ) {
 			$script_data['content_gate_data'] = [
 				'anonymous_metered_views' => Metering::get_total_metered_views( false ),
 				'loggedin_metered_views'  => Metering::get_total_metered_views( true ),

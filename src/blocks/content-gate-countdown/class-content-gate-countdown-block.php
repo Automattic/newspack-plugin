@@ -29,7 +29,7 @@ class Content_Gate_Countdown_Block {
 	 * @return void
 	 */
 	public static function enqueue_scripts() {
-		if ( ! Memberships::is_active() || ! Memberships::has_gate() ) {
+		if ( ! Memberships::is_active() || ! is_singular() ) {
 			return;
 		}
 		wp_enqueue_style(
@@ -51,9 +51,6 @@ class Content_Gate_Countdown_Block {
 	 * Register the block.
 	 */
 	public static function register_block() {
-		if ( ! Memberships::is_active() || ! Memberships::has_gate() ) {
-			return;
-		}
 		register_block_type_from_metadata(
 			__DIR__ . '/block.json',
 			[
@@ -67,21 +64,19 @@ class Content_Gate_Countdown_Block {
 	 *
 	 * @param array  $attributes The block attributes.
 	 * @param string $content    The block content.
-	 * @param object $block      The block.
 	 *
 	 * @return string The block HTML.
 	 */
-	public static function render_block( array $attributes, string $content, $block ) {
+	public static function render_block( array $attributes, string $content ) {
 		if ( ! Metering::is_metering() ) {
 			return '';
 		}
-		$post_id     = $block->context['postId'] ?? get_the_ID();
 		$total_views = Metering::get_total_metered_views( \is_user_logged_in() );
 		if ( false === $total_views ) {
 			return '';
 		}
 		$remaining_views = Metering::get_remaining_metered_views( get_current_user_id() );
-		$countdown = sprintf(
+		$countdown       = sprintf(
 			/* translators: 1: remaining metered views, 2: total metered views. */
 			__( '%1$d/%2$d', 'newspack-plugin' ),
 			max( 0, $total_views - $remaining_views ),
@@ -95,16 +90,12 @@ class Content_Gate_Countdown_Block {
 					'free articles this %s',
 					'newspack-plugin'
 				),
-				Metering::get_metering_period( $post_id )
+				Metering::get_metering_period()
 			);
-		}
-		$actions = '';
-		foreach ( $block->inner_blocks as $inner_block ) {
-			$actions .= $inner_block->render();
 		}
 		$block_wrapper_attributes = get_block_wrapper_attributes(
 			[
-				'class' => 'newspack-content-gate-countdown',
+				'class' => 'newspack-content-gate-countdown__wrapper',
 			]
 		);
 		$block_content = "<div $block_wrapper_attributes>
@@ -113,9 +104,7 @@ class Content_Gate_Countdown_Block {
 					<span class='newspack-content-gate-countdown__countdown'>$countdown</span>
 					<p>$text</p>
 				</div>
-				<div class='newspack-content-gate-countdown__actions'>
-					$actions
-				</div>
+				$content
 			</div>
 		</div>";
 

@@ -51,8 +51,8 @@ const registerBlock = block => {
 	if ( collectionsBlocks.includes( name ) && ! newspack_blocks.collections_enabled ) {
 		return;
 	}
-	/** Do not register content gate blocks if there is no gate. */
-	if ( contentGateBlocks.includes( name ) && ! newspack_blocks.has_content_gate ) {
+	/** Do not register content gate blocks if Memberships is not active. */
+	if ( contentGateBlocks.includes( name ) && ! newspack_blocks.has_memberships ) {
 		return;
 	}
 
