@@ -20,7 +20,9 @@
 		"dealerdirect/phpcodesniffer-composer-installer": "*",
 		"phpcompatibility/phpcompatibility-wp": "*",
 		"yoast/phpunit-polyfills": "^3.0",
-		"phpunit/phpunit": "^9.5"
+		"phpunit/phpunit": "^9.5",
+		"php-stubs/wordpress-stubs": "^6.8",
+		"php-stubs/wordpress-tests-stubs": "^6.8"
 	},
 	"autoload": {
 		"classmap": [

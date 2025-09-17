@@ -12,16 +12,18 @@ import * as readerRegistration from './reader-registration';
 import * as correctionBox from './correction-box';
 import * as correctionItem from './correction-item';
 import * as avatar from './avatar';
+import * as collections from './collections';
 
 /**
  * Block Scripts
  */
 import './core-image';
 
-export const blocks = [ readerRegistration, correctionBox, correctionItem, avatar ];
+export const blocks = [ readerRegistration, correctionBox, correctionItem, avatar, collections ];
 
 const readerActivationBlocks = [ 'newspack/reader-registration' ];
 const correctionBlocks = [ 'newspack/correction-box', 'newspack/correction-item' ];
+const collectionsBlocks = [ 'newspack/collections' ];
 
 /**
  * Function to register an individual block.
@@ -42,6 +44,11 @@ const registerBlock = block => {
 
 	/** Do not register correction blocks if it's disabled. */
 	if ( correctionBlocks.includes( name ) && ! newspack_blocks.corrections_enabled ) {
+		return;
+	}
+
+	/** Do not register collections blocks if Collections module is disabled. */
+	if ( collectionsBlocks.includes( name ) && ! newspack_blocks.collections_enabled ) {
 		return;
 	}
 

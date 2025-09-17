@@ -14,6 +14,7 @@ use Newspack\Collections\Collection_Category_Taxonomy;
 use Newspack\Collections\Template_Helper;
 use Newspack\Collections\Enqueuer;
 use Newspack\Collections\Settings;
+use Newspack\Collections\Query_Helper;
 
 /**
  * Tests for the Template_Helper class.
@@ -103,7 +104,7 @@ class Test_Template_Helper extends \WP_UnitTestCase {
 		global $wp_query;
 
 		// Test category filtering.
-		$_GET['np_collections_category'] = 'test-category';
+		$_GET[ Settings::CATEGORY_QUERY_PARAM ] = 'test-category';
 		Template_Helper::archive_filters( $wp_query );
 		$tax_query = $wp_query->get( 'tax_query' );
 		$this->assertIsArray( $tax_query, 'Tax query should be an array.' );
@@ -111,7 +112,7 @@ class Test_Template_Helper extends \WP_UnitTestCase {
 		$this->assertEquals( 'test-category', $tax_query[0]['terms'], 'Terms should match.' );
 
 		// Test year filtering.
-		$_GET['np_collections_year'] = '2023';
+		$_GET[ Settings::YEAR_QUERY_PARAM ] = '2023';
 		Template_Helper::archive_filters( $wp_query );
 		$date_query = $wp_query->get( 'date_query' );
 		$this->assertIsArray( $date_query, 'Date query should be an array.' );
@@ -122,30 +123,7 @@ class Test_Template_Helper extends \WP_UnitTestCase {
 		$this->assertGreaterThan( 0, $posts_per_page, 'Posts per page should be greater than 0.' );
 
 		// Clean up.
-		unset( $_GET['np_collections_category'], $_GET['np_collections_year'] );
-	}
-
-	/**
-	 * Test prevent_year_redirect prevents redirects on collection archives.
-	 *
-	 * @covers \Newspack\Collections\Template_Helper::prevent_year_redirect
-	 */
-	public function test_prevent_year_redirect() {
-		$year_url = 'http://example.com/2023';
-		// Test on collection archive with year parameter.
-		$this->go_to( get_post_type_archive_link( Post_Type::get_post_type() ) );
-		$_GET['year'] = '2023';
-
-		$result = Template_Helper::prevent_year_redirect( $year_url );
-		$this->assertFalse( $result, 'Redirect should be prevented.' );
-
-		// Test on regular page.
-		$this->go_to( home_url() );
-		$result = Template_Helper::prevent_year_redirect( $year_url );
-		$this->assertEquals( $year_url, $result, 'Redirect should not be prevented.' );
-
-		// Clean up.
-		unset( $_GET['year'] );
+		unset( $_GET[ Settings::CATEGORY_QUERY_PARAM ], $_GET[ Settings::YEAR_QUERY_PARAM ] );
 	}
 
 	/**
@@ -226,6 +204,173 @@ class Test_Template_Helper extends \WP_UnitTestCase {
 	}
 
 	/**
+	 * Test CTA new tab functionality for different URL types.
+	 *
+	 * @covers \Newspack\Collections\Template_Helper::render_cta
+	 * @covers \Newspack\Collections\Template_Helper::should_cta_open_in_new_tab
+	 * @covers \Newspack\Collections\Template_Helper::determine_should_cta_open_in_new_tab
+	 */
+	public function test_cta_new_tab() {
+		$collection_id = $this->create_test_collection();
+		$attachment_id = $this->factory()->attachment->create();
+
+		// Set up CTAs on the collection.
+		$ctas = [
+			[
+				'label' => 'Download PDF',
+				'type'  => 'attachment',
+				'id'    => $attachment_id,
+			],
+			[
+				'label' => 'External Link',
+				'type'  => 'link',
+				'url'   => 'https://external-site.com/page',
+			],
+			[
+				'label' => 'PDF File',
+				'type'  => 'link',
+				'url'   => home_url( '/uploads/document.pdf' ),
+			],
+			[
+				'label' => 'Internal Page',
+				'type'  => 'link',
+				'url'   => home_url( '/internal-page' ),
+			],
+			[
+				'label' => 'Relative Page',
+				'type'  => 'link',
+				'url'   => '/relative-page',
+			],
+		];
+
+		Collection_Meta::set( $collection_id, 'ctas', $ctas );
+
+		// Get processed CTAs.
+		$processed_ctas = Query_Helper::get_ctas( $collection_id );
+
+		$this->assertCount( 5, $processed_ctas, 'All CTAs should be processed.' );
+
+		// Test attachment CTA.
+		$attachment_cta = $processed_ctas[0];
+		$html           = Template_Helper::render_cta( $attachment_cta );
+		$this->assertEquals( 'attachment', $attachment_cta['type'], 'Type should be attachment.' );
+		$this->assertStringContainsString( 'target="_blank"', $html, 'Attachment should open in new tab.' );
+		$this->assertStringContainsString( 'rel="noopener noreferrer"', $html, 'Attachment should have security attributes.' );
+
+		// Test external URL.
+		$external_cta = $processed_ctas[1];
+		$html         = Template_Helper::render_cta( $external_cta );
+		$this->assertEquals( 'link', $external_cta['type'], 'Type should be link.' );
+		$this->assertStringContainsString( 'target="_blank"', $html, 'External link should open in new tab.' );
+
+		// Test PDF file.
+		$pdf_cta = $processed_ctas[2];
+		$html    = Template_Helper::render_cta( $pdf_cta );
+		$this->assertStringContainsString( 'target="_blank"', $html, 'PDF should open in new tab.' );
+
+		// Test internal link.
+		$internal_cta = $processed_ctas[3];
+		$html         = Template_Helper::render_cta( $internal_cta );
+		$this->assertStringNotContainsString( 'target="_blank"', $html, 'Internal link should not open in new tab.' );
+
+		// Test relative URL.
+		$relative_cta = $processed_ctas[4];
+		$html         = Template_Helper::render_cta( $relative_cta );
+		$this->assertStringNotContainsString( 'target="_blank"', $html, 'Relative link should not open in new tab.' );
+	}
+
+	/**
+	 * Test CTA new tab filters work correctly.
+	 *
+	 * @covers \Newspack\Collections\Template_Helper::should_cta_open_in_new_tab
+	 */
+	public function test_cta_new_tab_filters() {
+		$collection_id = $this->create_test_collection();
+
+		// Test custom file extensions filter.
+		add_filter(
+			'newspack_collections_new_tab_file_extensions',
+			function ( $extensions ) {
+				$extensions[] = 'docx';
+				return $extensions;
+			}
+		);
+
+		Collection_Meta::set(
+			$collection_id,
+			'ctas',
+			[
+				[
+					'label' => 'View Document',
+					'type'  => 'link',
+					'url'   => home_url( '/path/to/document.docx' ),
+				],
+			]
+		);
+
+		$processed_ctas = Query_Helper::get_ctas( $collection_id );
+		$docx_cta       = $processed_ctas[0];
+		$html           = Template_Helper::render_cta( $docx_cta );
+		$this->assertStringContainsString( 'target="_blank"', $html, 'Custom extension should open in new tab.' );
+
+		// Test internal hosts filter.
+		add_filter(
+			'newspack_collections_new_tab_internal_hosts',
+			function ( $hosts ) {
+				$hosts[] = 'partner-site.com';
+				return $hosts;
+			}
+		);
+
+		Collection_Meta::set(
+			$collection_id,
+			'ctas',
+			[
+				[
+					'label' => 'Partner Site',
+					'type'  => 'link',
+					'url'   => 'https://partner-site.com/page',
+				],
+			]
+		);
+
+		$processed_ctas = Query_Helper::get_ctas( $collection_id );
+		$partner_cta    = $processed_ctas[0];
+		$html           = Template_Helper::render_cta( $partner_cta );
+		$this->assertStringNotContainsString( 'target="_blank"', $html, 'Site should not open in new tab.' );
+
+		// Test override filter.
+		add_filter(
+			'newspack_collections_should_cta_open_in_new_tab',
+			function ( $result, $cta ) {
+				if ( isset( $cta['label'] ) && 'Force New Tab' === $cta['label'] ) {
+					return true;
+				}
+				return $result;
+			},
+			10,
+			2
+		);
+
+		Collection_Meta::set(
+			$collection_id,
+			'ctas',
+			[
+				[
+					'label' => 'Force New Tab',
+					'type'  => 'link',
+					'url'   => home_url( '/internal-page' ),
+				],
+			]
+		);
+
+		$processed_ctas = Query_Helper::get_ctas( $collection_id );
+		$force_cta      = $processed_ctas[0];
+		$html           = Template_Helper::render_cta( $force_cta );
+		$this->assertStringContainsString( 'target="_blank"', $html, 'Filter override should force new tab.' );
+	}
+
+	/**
 	 * Test render_articles generates content loop block.
 	 *
 	 * @covers \Newspack\Collections\Template_Helper::render_articles
@@ -283,12 +428,6 @@ class Test_Template_Helper extends \WP_UnitTestCase {
 	 * @covers \Newspack\Collections\Template_Helper::load_template_part
 	 */
 	public function test_load_template_part() {
-		ob_start();
-		Template_Helper::load_template_part( Template_Helper::TEMPLATE_PARTS_DIR . 'newspack-collection-intro', null, [], [] );
-		$output = ob_get_clean();
-		$this->assertNotEmpty( $output, 'Collections template part should be processed.' );
-		$this->assertStringContainsString( 'collection-intro', $output, 'Collections template part should contain "collection-intro".' );
-
 		// Test collections template part with name parameter.
 		ob_start();
 		Template_Helper::load_template_part( Template_Helper::TEMPLATE_PARTS_DIR . 'newspack-collection-intro', 'variant', [], [] );
@@ -354,5 +493,59 @@ class Test_Template_Helper extends \WP_UnitTestCase {
 
 		$unmodified_title_parts = Template_Helper::update_document_title( $original_title_parts );
 		$this->assertEquals( $original_title_parts['title'], $unmodified_title_parts['title'], 'Title should not be modified.' );
+	}
+
+	/**
+	 * Test normalize_post_list handles various input types correctly.
+	 *
+	 * @covers \Newspack\Collections\Template_Helper::normalize_post_list
+	 */
+	public function test_normalize_post_list() {
+		$post_id_1 = $this->create_test_collection();
+		$post_id_2 = $this->create_test_collection();
+		$post_1    = get_post( $post_id_1 );
+		$post_2    = get_post( $post_id_2 );
+
+		// Test empty array.
+		$result = Template_Helper::normalize_post_list( [] );
+		$this->assertEquals( 'ids', $result['type'] );
+		$this->assertEmpty( $result['items'] );
+
+		// Test all WP_Post objects.
+		$result = Template_Helper::normalize_post_list( [ $post_1, $post_2 ] );
+		$this->assertEquals( 'objects', $result['type'] );
+		$this->assertSame( [ $post_1, $post_2 ], $result['items'] );
+
+		// Test all IDs.
+		$result = Template_Helper::normalize_post_list( [ $post_id_1, $post_id_2 ] );
+		$this->assertEquals( 'ids', $result['type'] );
+		$this->assertEquals( [ $post_id_1, $post_id_2 ], $result['items'] );
+
+		// Test mixed content (forces ID mode).
+		$result = Template_Helper::normalize_post_list( [ $post_1, $post_id_2, (string) $post_id_1 ] );
+		$this->assertEquals( 'ids', $result['type'] );
+		$this->assertEquals( [ $post_id_1, $post_id_2 ], $result['items'] ); // Deduplicated.
+
+		// Test invalid items (null, non-numeric strings are skipped; 0 is filtered out; -1 becomes 1).
+		$result = Template_Helper::normalize_post_list( [ $post_id_1, null, 'invalid', 0, -1 ] );
+		$this->assertEquals( 'ids', $result['type'] );
+		$this->assertEquals( [ $post_id_1, 1 ], $result['items'] ); // 0 filtered out, -1 becomes 1.
+	}
+
+	/**
+	 * Test render_collections_intro generates collections block HTML.
+	 *
+	 * @covers \Newspack\Collections\Template_Helper::render_collections_intro
+	 */
+	public function test_render_collections_intro() {
+		$collection = get_post( $this->create_test_collection() );
+
+		// Test basic rendering.
+		$html = Template_Helper::render_collections_intro( $collection );
+		$this->assertIsString( $html, 'Intro HTML should be a string.' );
+
+		// Test with invalid collection.
+		$html = Template_Helper::render_collections_intro( null );
+		$this->assertEmpty( $html, 'Invalid collection should return empty string.' );
 	}
 }

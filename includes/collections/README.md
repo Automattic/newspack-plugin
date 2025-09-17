@@ -92,7 +92,7 @@ The following table details all available meta fields for collections:
 | `newspack_collection_period` | String | Collection period | Text (e.g., "Spring 2025") |
 | `newspack_collection_subscribe_link` | String | Override global/category subscription link for this specific collection | Valid URL |
 | `newspack_collection_order_link` | String | Override global/category order link for this specific collection | Valid URL |
-| `newspack_collection_ctas` | Array | An array of CTAs (Call-to-Action buttons) | Array of objects with `label`, `type`, `id` and `url` properties |
+| `newspack_collection_ctas` | Array | An array of CTAs (Call-to-Action buttons) | Array of objects with `type` (`attachment` or `link`), `label` and `url` properties |
 | `newspack_collection_cover_story_img_visibility` | String | Override global setting for cover story image visibility | "inherit", "show", or "hide" |
 
 Sample `newspack_collection_ctas` post meta structure:

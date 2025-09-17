@@ -74,12 +74,29 @@ class WooCommerce_Subscriptions {
 	 */
 	public static function get_frequency_label( $frequency ) {
 		$frequencies = [
-			'day'   => __( 'Daily', 'newspack-plugin' ),
-			'week'  => __( 'Weekly', 'newspack-plugin' ),
-			'month' => __( 'Monthly', 'newspack-plugin' ),
-			'year'  => __( 'Yearly', 'newspack-plugin' ),
+			'day'     => __( 'Daily', 'newspack-plugin' ),
+			'week'    => __( 'Weekly', 'newspack-plugin' ),
+			'week_2'  => __( 'Bi-Weekly', 'newspack-plugin' ),
+			'month'   => __( 'Monthly', 'newspack-plugin' ),
+			'month_3' => __( 'Quarterly', 'newspack-plugin' ),
+			'month_6' => __( 'Semi-Annually', 'newspack-plugin' ),
+			'year'    => __( 'Yearly', 'newspack-plugin' ),
 		];
-		return $frequencies[ $frequency ] ?? $frequency;
+		// If frequency is not in the array, try to find the frequency without the interval.
+		if ( ! isset( $frequencies[ $frequency ] ) ) {
+			$frequency = explode( '_', $frequency )[0];
+			$label = $frequencies[ $frequency ] ?? ucfirst( $frequency );
+		} else {
+			$label = $frequencies[ $frequency ];
+		}
+
+		/**
+		 * Filters the frequency label.
+		 *
+		 * @param string $label     Frequency label.
+		 * @param string $frequency Frequency.
+		 */
+		return apply_filters( 'newspack_subscriptions_frequency_label', $label, $frequency );
 	}
 }
 WooCommerce_Subscriptions::init();
