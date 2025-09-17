@@ -9,7 +9,7 @@ import { __ } from '@wordpress/i18n';
 import { useState, useEffect } from '@wordpress/element';
 import { compose } from '@wordpress/compose';
 import { withSelect } from '@wordpress/data';
-import { Button, Spinner, Notice, Card, CardBody, CardHeader, Flex, FlexBlock, FlexItem, SVG } from '@wordpress/components';
+import { Button, Spinner, Notice, Panel, PanelBody, PanelHeader, Flex, FlexItem, SVG } from '@wordpress/components';
 import { PluginSidebar } from '@wordpress/editor';
 import { registerPlugin } from '@wordpress/plugins';
 import { dateI18n, getSettings } from '@wordpress/date';
@@ -212,15 +212,9 @@ const NextdoorPostSidebar = ( { postId, postStatus } ) => {
 				) }
 
 				{ nextdoorStatus?.is_shared ? (
-					<Card>
-						<CardHeader>
-							<Flex>
-								<FlexBlock>
-									<strong>{ __( 'Shared to Nextdoor', 'newspack-plugin' ) }</strong>
-								</FlexBlock>
-							</Flex>
-						</CardHeader>
-						<CardBody>
+					<Panel>
+						<PanelHeader>{ __( 'Shared to Nextdoor', 'newspack-plugin' ) }</PanelHeader>
+						<PanelBody>
 							<p className="nextdoor-sidebar__status-text">
 								{ __( 'This post is available in your Nextdoor community.', 'newspack-plugin' ) }
 							</p>
@@ -264,19 +258,19 @@ const NextdoorPostSidebar = ( { postId, postStatus } ) => {
 									{ isDeleting ? __( 'Removing…', 'newspack-plugin' ) : __( 'Remove', 'newspack-plugin' ) }
 								</Button>
 							</div>
-						</CardBody>
-					</Card>
+						</PanelBody>
+					</Panel>
 				) : (
-					<Card>
-						<CardBody>
+					<Panel>
+						<PanelBody>
 							<p className="nextdoor-sidebar__description">
 								{ __( 'Share this post to your Nextdoor community to engage local readers.', 'newspack-plugin' ) }
 							</p>
 							<Button variant="primary" onClick={ handlePublish } isBusy={ isPublishing } disabled={ isPublishing }>
 								{ isPublishing ? __( 'Publishing…', 'newspack-plugin' ) : __( 'Publish on Nextdoor', 'newspack-plugin' ) }
 							</Button>
-						</CardBody>
-					</Card>
+						</PanelBody>
+					</Panel>
 				) }
 			</>
 		);
