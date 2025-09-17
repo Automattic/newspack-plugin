@@ -575,6 +575,7 @@ class Newspack_Image_Credits {
 					'type'           => 'string',
 					'single'         => true,
 					'show_in_rest'   => true,
+					'auth_callback'  => '__return_true',
 				]
 			);
 		}

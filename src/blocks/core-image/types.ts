@@ -7,6 +7,7 @@ export interface AttributesMeta {
 	_media_credit: string;
 	_media_credit_url: string;
 	_navis_media_credit_org: string;
+	_navis_media_can_distribute: string;
 }
 
 /**
@@ -18,6 +19,7 @@ export interface Attributes {
 	alt: string;
 	caption: string;
 	meta: AttributesMeta;
+	showCredit: boolean;
 }
 
 /**
@@ -41,6 +43,8 @@ export interface BaseProps< T = UnknownObject, O = Attributes > {
  * Typical props used across components
  */
 export type AttributeProps = {
+	clientId: string;
 	attributes: Attributes;
 	setAttributes: SetAttributes< Partial< Attributes > >;
+	isSelected: boolean;
 };
