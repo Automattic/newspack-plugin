@@ -14,6 +14,24 @@ defined( 'ABSPATH' ) || exit;
  */
 class Subscriptions_Tiers {
 	/**
+	 * Get the frequency of a product.
+	 *
+	 * @param \WC_Product $product Product object.
+	 * @return string Frequency.
+	 */
+	public static function get_frequency( $product ) {
+		$period = $product->get_meta( '_subscription_period', true );
+		if ( empty( $period ) ) {
+			$period = 'once';
+		}
+		$interval = $product->get_meta( '_subscription_period_interval', true );
+		if ( empty( $interval ) ) {
+			$interval = 1;
+		}
+		return $period . '_' . $interval;
+	}
+
+	/**
 	 * Get tiered products by frequency given a grouped or
 	 * variable subscription product.
 	 *
@@ -79,7 +97,7 @@ class Subscriptions_Tiers {
 
 		$products_by_frequency = [];
 		foreach ( $selected_products as $product ) {
-			$frequency = $product->get_meta( '_subscription_period' );
+			$frequency = self::get_frequency( $product );
 			if ( ! $frequency ) {
 				continue;
 			}
@@ -167,7 +185,7 @@ class Subscriptions_Tiers {
 			true
 		);
 
-		$frequencies       = array_keys( $tiers );
+		$frequencies = array_keys( $tiers );
 		$current_frequency = null;
 		$current_product   = null;
 		foreach ( $frequencies as $frequency ) {
