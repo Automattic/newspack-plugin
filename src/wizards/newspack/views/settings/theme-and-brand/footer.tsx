@@ -9,7 +9,7 @@ import { __ } from '@wordpress/i18n';
 import { ToggleControl } from '@wordpress/components';
 
 const settingsTabs = window.newspackSettings;
-const isMultibrandedEnabled = 'additional-brands' in settingsTabs;
+const isMultibrandedEnabled = settingsTabs && 'additional-brands' in settingsTabs;
 /**
  * Internal dependencies
  */

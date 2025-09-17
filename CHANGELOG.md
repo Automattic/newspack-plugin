@@ -1,3 +1,32 @@
+## [6.18.1](https://github.com/Automattic/newspack-plugin/compare/v6.18.0...v6.18.1) (2025-09-16)
+
+
+### Bug Fixes
+
+* **bylines:** display inline name for missing users ([#4190](https://github.com/Automattic/newspack-plugin/issues/4190)) ([0b2b5e3](https://github.com/Automattic/newspack-plugin/commit/0b2b5e39a21e3797d2749ef142f633734b32c35c))
+
+# [6.18.0](https://github.com/Automattic/newspack-plugin/compare/v6.17.1...v6.18.0) (2025-09-08)
+
+
+### Bug Fixes
+
+* correctly filter sync mailchimp audience ([#4147](https://github.com/Automattic/newspack-plugin/issues/4147)) ([6eb019e](https://github.com/Automattic/newspack-plugin/commit/6eb019e7af5e176de4161d3ad4647a4badd8d34e))
+* correctly identify lists by id ([#4160](https://github.com/Automattic/newspack-plugin/issues/4160)) ([ffbb8ed](https://github.com/Automattic/newspack-plugin/commit/ffbb8ed733f2d4cf04c2a597b95c2960fe184fd2))
+
+
+### Features
+
+* add feed support to custom bylines ([#4152](https://github.com/Automattic/newspack-plugin/issues/4152)) ([ea7b6fb](https://github.com/Automattic/newspack-plugin/commit/ea7b6fba6d4487ddfd220b6fb838c6f87bbb312b))
+* add guardrails to distributed bylines ([#4151](https://github.com/Automattic/newspack-plugin/issues/4151)) ([59e7fdf](https://github.com/Automattic/newspack-plugin/commit/59e7fdf7288f8399cadd033c837384028c502a6e))
+* **pwa:** display mode setting ([#4154](https://github.com/Automattic/newspack-plugin/issues/4154)) ([bfba20f](https://github.com/Automattic/newspack-plugin/commit/bfba20f7c64afb76cfef1607c5d600031e9da0e0))
+
+## [6.17.1](https://github.com/Automattic/newspack-plugin/compare/v6.17.0...v6.17.1) (2025-09-08)
+
+
+### Bug Fixes
+
+* make sure settingsTabs exists before checking for setup wizard ([#4170](https://github.com/Automattic/newspack-plugin/issues/4170)) ([7a5db33](https://github.com/Automattic/newspack-plugin/commit/7a5db339634f3c5ba4ab1a434c533093765f7671))
+
 # [6.17.0](https://github.com/Automattic/newspack-plugin/compare/v6.16.5...v6.17.0) (2025-09-08)
 
 
