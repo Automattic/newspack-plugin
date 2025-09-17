@@ -241,7 +241,6 @@ class Settings {
 
 		// Don't expose sensitive data.
 		unset( $settings['access_token'] );
-		unset( $settings['refresh_token'] );
 
 		return rest_ensure_response( $settings );
 	}
@@ -312,14 +311,9 @@ class Settings {
 			);
 		}
 
-		// Generate OAuth URL.
-		$state    = wp_create_nonce( 'nextdoor_oauth_state' );
-		$auth_url = $auth->get_authorization_url( $settings['client_id'], $redirect_uri, $state );
-
 		return rest_ensure_response(
 			[
-				'auth_url'  => $auth_url,
-				'login_url' => isset( $account_response['login_url'] ) ? $account_response['login_url'] : null,
+				'login_url' => isset( $account_response['login_url'] ) ? $account_response['login_url'] : '',
 			]
 		);
 	}
@@ -346,7 +340,7 @@ class Settings {
 		$api    = API::instance();
 		$result = $api->claim_page( $publication_url, $test );
 
-		if ( isset( $result['page_id'] ) ) {
+		if ( is_array( $result ) && isset( $result['page_id'] ) ) {
 			$settings['page_id'] = $result['page_id'];
 
 			Nextdoor::update_settings( $settings );
@@ -367,22 +361,32 @@ class Settings {
 	 */
 	private function check_page_claim( $publication_url ) {
 		$api      = API::instance();
-		$profile  = $api->get_profile();
+		$profiles = $api->get_profiles();
 
-		if ( is_wp_error( $profile ) || empty( $profile ) ) {
+		if ( is_wp_error( $profiles ) || empty( $profiles ) ) {
 			return false;
 		}
 
-		if ( isset( $profile['entity_page'] ) && isset( $profile['entity_page']['publication_url'] ) ) {
-			$claimed_url = rtrim( $profile['entity_page']['publication_url'], '/' );
-			$input_url   = rtrim( $publication_url, '/' );
+		if ( ! isset( $profiles['profile_list'] ) || ! is_array( $profiles['profile_list'] ) ) {
+			return false;
+		}
 
-			if ( $claimed_url === $input_url ) {
-				// Save page ID.
-				$settings            = Nextdoor::get_settings();
-				$settings['page_id'] = $profile['entity_page']['id'];
-				Nextdoor::update_settings( $settings );
-				return true;
+		$input_url = rtrim( $publication_url, '/' );
+
+		foreach ( $profiles['profile_list'] as $profile ) {
+			if ( isset( $profile['is_entity_profile'] ) && $profile['is_entity_profile'] === true &&
+				isset( $profile['entity_page'] ) && isset( $profile['entity_page']['publication_url'] ) ) {
+
+				$claimed_url = rtrim( $profile['entity_page']['publication_url'], '/' );
+
+				if ( $claimed_url === $input_url ) {
+					$settings            = Nextdoor::get_settings();
+					$settings['page_id'] = $profile['entity_page']['id'];
+					$settings['profile_id'] = $profile['id'];
+					$settings['entity_page_name'] = $profile['entity_page']['name'];
+					Nextdoor::update_settings( $settings );
+					return true;
+				}
 			}
 		}
 
@@ -526,6 +530,16 @@ class Settings {
 
 		$settings = Nextdoor::get_settings();
 		$api      = API::instance();
+		$auth     = Auth::instance();
+
+		// Check if the access token is valid.
+		$token_valid = $auth->validate_token();
+		if ( ! $token_valid ) {
+			return new \WP_Error(
+				'nextdoor_token_invalid',
+				__( 'Nextdoor access token is invalid or expired. Please reconnect your account.', 'newspack-plugin' )
+			);
+		}
 
 		// Prepare article data.
 		$article_data = self::prepare_article_data( $post_id, $settings );
@@ -677,7 +691,7 @@ class Settings {
 			'authors'         => [ get_the_author_meta( 'display_name', $post->post_author ) ],
 			'published_at'    => get_the_date( 'c', $post_id ),
 			'modified_at'     => get_the_modified_date( 'c', $post_id ),
-			'content'         => wp_strip_all_tags( get_the_content( null, false, $post_id ) ),
+			'content'         => wp_strip_all_tags( get_the_content( null, false, $post_id ), true ),
 		];
 
 		// Add featured image if available.

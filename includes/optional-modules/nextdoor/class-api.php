@@ -69,7 +69,7 @@ class API {
 
 		// Add authorization header if we have an access token.
 		$settings = Nextdoor::get_settings();
-		if ( ! empty( $settings['access_token'] ) ) {
+		if ( ! empty( $settings['access_token'] ) && empty( $args['headers']['Authorization'] ) ) {
 			$args['headers']['Authorization'] = 'Bearer ' . $settings['access_token'];
 		}
 
@@ -83,15 +83,14 @@ class API {
 		$code = wp_remote_retrieve_response_code( $response );
 
 		if ( $code >= 400 ) {
-			$error_data = json_decode( $body, true );
-			$error_message = isset( $error_data['error_description'] ) ? $error_data['error_description'] : 'Unknown API error';
+			$error_message = isset( $body ) ? $body : 'Unknown API error';
 
 			return new \WP_Error(
 				'nextdoor_api_error',
 				$error_message,
 				[
 					'status'   => $code,
-					'response' => $error_data,
+					'response' => $error_message,
 				]
 			);
 		}
@@ -163,12 +162,48 @@ class API {
 	}
 
 	/**
-	 * Get user profiles.
+	 * Get user profiles with entity pages.
 	 *
 	 * @return array|WP_Error
 	 */
-	public function get_profile() {
-		return $this->make_request( '/external/api/partner/v1/me' );
+	public function get_profiles() {
+		return $this->make_request( '/external/api/partner/v1/me/profiles' );
+	}
+
+	/**
+	 * Get entity pages from user profiles.
+	 *
+	 * @return array|WP_Error Array of entity pages or WP_Error on failure.
+	 */
+	public function get_entity_pages() {
+		$profiles = $this->get_profiles();
+
+		if ( is_wp_error( $profiles ) ) {
+			return $profiles;
+		}
+
+		if ( ! isset( $profiles['profile_list'] ) || ! is_array( $profiles['profile_list'] ) ) {
+			return [];
+		}
+
+		$entity_pages = [];
+
+		foreach ( $profiles['profile_list'] as $profile ) {
+			if ( isset( $profile['is_entity_profile'] ) && $profile['is_entity_profile'] === true &&
+				isset( $profile['entity_page'] ) ) {
+				$entity_pages[] = [
+					'profile_id'      => $profile['id'],
+					'page_id'         => $profile['entity_page']['id'],
+					'name'            => $profile['entity_page']['name'],
+					'publication_url' => $profile['entity_page']['publication_url'],
+					'url'             => $profile['entity_page']['url'],
+					'description'     => $profile['entity_page']['description'] ?? '',
+					'follower_count'  => $profile['entity_page']['follower_count'] ?? 0,
+				];
+			}
+		}
+
+		return $entity_pages;
 	}
 
 	/**
@@ -197,19 +232,16 @@ class API {
 		$settings = Nextdoor::get_settings();
 		$url      = '/external/api/partner/v1/article/';
 
-		if ( ! empty( $settings['publication_url'] ) ) {
-			$url = add_query_arg(
+		$args = [
+			'body' => wp_json_encode(
 				[
 					'publication_url' => $settings['publication_url'],
 					'guid'            => $guid,
-				],
-				$url
-			);
-		} else {
-			$url = add_query_arg( [ 'guid' => $guid ], $url );
-		}
+				]
+			),
+		];
 
-		return $this->make_request( $url, [], 'DELETE' );
+		return $this->make_request( $url, $args, 'DELETE' );
 	}
 
 	/**
@@ -244,7 +276,7 @@ class API {
 	 * @return bool
 	 */
 	public function test_connection() {
-		$response = $this->get_profile();
+		$response = $this->get_profiles();
 		return ! is_wp_error( $response );
 	}
 }

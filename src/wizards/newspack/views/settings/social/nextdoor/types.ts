@@ -33,7 +33,6 @@ export interface NextdoorData {
 }
 
 export interface OAuthResponse {
-	auth_url?: string;
 	login_url?: string;
 }
 

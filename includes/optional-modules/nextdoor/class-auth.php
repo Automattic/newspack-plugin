@@ -59,14 +59,14 @@ class Auth {
 		$params = [
 			'client_id'    => $client_id,
 			'redirect_uri' => $redirect_uri,
-			'scope'        => 'content_api openid publish_api',
+			'scope'        => 'content_api openid publish_api entity_page:claim profile profile:read article:write post:read post:write',
 		];
 
 		if ( ! empty( $state ) ) {
 			$params['state'] = $state;
 		}
 
-		return API::API_BASE_URL . '/v3/authorize?' . http_build_query( $params );
+		return API::API_BASE_URL . '/v3/authorize/?' . http_build_query( $params );
 	}
 
 	/**
@@ -123,15 +123,14 @@ class Auth {
 	 *
 	 * @param string $client_id Client ID.
 	 * @param string $client_secret Client secret.
-	 * @param string $refresh_token Refresh token.
+	 * @param string $access_token Access token.
 	 * @return array|WP_Error
 	 */
-	public function refresh_access_token( $client_id, $client_secret, $refresh_token ) {
+	public function refresh_access_token( $client_id, $client_secret, $access_token ) {
 		$body = [
 			'grant_type'    => 'refresh_token',
-			'client_id'     => $client_id,
-			'client_secret' => $client_secret,
-			'refresh_token' => $refresh_token,
+			'refresh_token' => $access_token,
+			'scope'         => 'content_api openid publish_api entity_page:claim profile profile:read article:write post:read post:write',
 		];
 
 		$response = wp_remote_post(
@@ -140,7 +139,9 @@ class Auth {
 				'body'    => $body,
 				'timeout' => 30, // phpcs:ignore WordPressVIPMinimum.Performance.RemoteRequestTimeout.timeout_timeout
 				'headers' => [
-					'Content-Type' => 'application/x-www-form-urlencoded',
+					'accept'        => 'application/json',
+					'content-type'  => 'application/x-www-form-urlencoded',
+					'Authorization' => 'Basic ' . base64_encode( $client_id . ':' . $client_secret ),
 				],
 			]
 		);
@@ -164,9 +165,8 @@ class Auth {
 		$token_data = json_decode( $body, true );
 
 		// Update stored settings with new token.
-		$settings = Nextdoor::get_settings();
-		$settings['access_token'] = $token_data['access_token'];
-		$settings['refresh_token'] = $token_data['refresh_token'];
+		$settings                     = Nextdoor::get_settings();
+		$settings['access_token']     = $token_data['access_token'];
 		$settings['token_expires_at'] = time() + $token_data['expires_in'];
 
 		Nextdoor::update_settings( $settings );
@@ -178,17 +178,11 @@ class Auth {
 	 * Handle OAuth callback.
 	 */
 	public static function handle_oauth_callback() {
-		if ( ! isset( $_GET['nextdoor_oauth_callback'] ) || ! isset( $_GET['code'] ) || ! isset( $_GET['state'] ) ) {
+		if ( ! isset( $_GET['nextdoor_oauth_callback'] ) || ! isset( $_GET['code'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			return;
 		}
 
-		$state = isset( $_GET['state'] ) ? sanitize_text_field( wp_unslash( $_GET['state'] ) ) : '';
-		$code  = isset( $_GET['code'] ) ? sanitize_text_field( wp_unslash( $_GET['code'] ) ) : '';
-
-		// Verify nonce for security.
-		if ( ! wp_verify_nonce( $state, 'nextdoor_oauth_state' ) ) {
-			wp_die( esc_html__( 'Invalid OAuth state parameter.', 'newspack-plugin' ) );
-		}
+		$code = isset( $_GET['code'] ) ? sanitize_text_field( wp_unslash( $_GET['code'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
 		$settings = Nextdoor::get_settings();
 
@@ -216,8 +210,7 @@ class Auth {
 		}
 
 		// Store tokens.
-		$settings['access_token'] = $token_response['access_token'];
-		$settings['refresh_token'] = $token_response['refresh_token'];
+		$settings['access_token']     = $token_response['access_token'];
 		$settings['token_expires_at'] = time() + $token_response['expires_in'];
 
 		Nextdoor::update_settings( $settings );
@@ -249,20 +242,22 @@ class Auth {
 	 * @return bool
 	 */
 	public function validate_token() {
-		if ( ! $this->needs_token_refresh() ) {
-			return true;
-		}
-
 		$settings = Nextdoor::get_settings();
 
-		if ( empty( $settings['refresh_token'] ) ) {
+		if ( empty( $settings['access_token'] ) ) {
 			return false;
 		}
 
+		// Check if token needs refresh.
+		if ( ! $this->needs_token_refresh() ) {
+			return true; // Token is still valid.
+		}
+
+		// Attempt to refresh the token.
 		$refresh_response = $this->refresh_access_token(
 			$settings['client_id'],
 			$settings['client_secret'],
-			$settings['refresh_token']
+			$settings['access_token']
 		);
 
 		return ! is_wp_error( $refresh_response );

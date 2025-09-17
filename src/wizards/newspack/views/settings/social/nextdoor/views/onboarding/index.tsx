@@ -90,8 +90,8 @@ export const OnboardingView = ( {
 			setError( null );
 			const response = await startOAuthFlow( email, country );
 
-			// Redirect to OAuth URL
-			window.location.href = response.auth_url ?? window.location.href;
+			// Redirect to login URL
+			window.location.href = response.login_url ?? window.location.href;
 		} catch ( oauthError ) {
 			// Error is handled by startOAuthFlow
 		} finally {
@@ -108,8 +108,12 @@ export const OnboardingView = ( {
 		try {
 			setIsSaving( true );
 			setError( null );
-			await claimPage( publicationUrl );
-			setCurrentStep( 4 );
+			const result = await claimPage( publicationUrl );
+			if ( result.success ) {
+				window.location.reload();
+			} else {
+				setError( __( 'Failed to claim page.', 'newspack-plugin' ) );
+			}
 		} catch ( claimError ) {
 			// Error is handled by claimPage
 		} finally {
