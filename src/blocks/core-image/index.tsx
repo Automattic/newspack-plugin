@@ -9,6 +9,7 @@ import { addFilter } from '@wordpress/hooks';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useEffect, useRef } from '@wordpress/element';
 import { createHigherOrderComponent } from '@wordpress/compose';
+import { store as core } from '@wordpress/core-data';
 
 import * as ImageBlockTypes from './types';
 
@@ -43,13 +44,13 @@ addFilter( 'blocks.registerBlockType', 'newspack-plugin/register-hook/core-image
 const AttributesLoader = ( { clientId, setAttributes, attributes, isSelected }: ImageBlockTypes.AttributeProps ) => {
 	const blockId = `block-${ clientId }`;
 	const imageId = attributes.id;
-	const { editEntityRecord } = useDispatch( 'core' );
+	const { editEntityRecord } = useDispatch( core );
 	const updateCreditMeta = ( key: string, value: string ) => editEntityRecord( 'postType', 'attachment', imageId, { meta: { [ key ]: value } } );
 	const { meta = {} as ImageBlockTypes.AttributesMeta, editedMeta = {} as ImageBlockTypes.AttributesMeta } = useSelect(
 		select => {
-			const { getEditedEntityRecord, getEntityRecord } = select( 'core' );
-			const attachment = getEntityRecord( 'postType', 'attachment', imageId );
-			const editedAttachment = getEditedEntityRecord( 'postType', 'attachment', imageId );
+			const { getEditedEntityRecord, getEntityRecord } = select( core );
+			const attachment = getEntityRecord( 'postType', 'attachment', imageId ) as { meta?: ImageBlockTypes.AttributesMeta } | null;
+			const editedAttachment = getEditedEntityRecord( 'postType', 'attachment', imageId ) as { meta?: ImageBlockTypes.AttributesMeta } | null;
 			return {
 				meta: attachment?.meta,
 				editedMeta: editedAttachment?.meta,
