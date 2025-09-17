@@ -583,7 +583,12 @@ class Subscriptions_Tiers {
 			return;
 		}
 
-		$title             = sanitize_text_field( $_GET['upgrade_subscription'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$title = sanitize_text_field( $_GET['upgrade_subscription'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		// If the query param value is "1", let the modal decide the title.
+		if ( $title === '1' ) {
+			$title = null;
+		}
+
 		$user_subscription = self::get_user_subscription( $product );
 
 		self::render_modal( $product, $title, $title, $user_subscription, 'open' );
