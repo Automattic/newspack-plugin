@@ -270,6 +270,39 @@ class Subscriptions_Tiers {
 	}
 
 	/**
+	 * Render frequency form control.
+	 *
+	 * Up until 3 frequencies, we render buttons.
+	 * After that, we render a select control.
+	 *
+	 * @param array  $frequencies       Frequencies.
+	 * @param string $current_frequency Current frequency.
+	 */
+	public static function render_frequency_control( $frequencies, $current_frequency ) {
+		if ( count( $frequencies ) <= 3 ) :
+			?>
+			<div class="newspack-ui__segmented-control__tabs">
+				<?php foreach ( $frequencies as $frequency ) : ?>
+					<button type="button" class="newspack-ui__button newspack-ui__button--small <?php echo esc_attr( $frequency === $current_frequency ? 'selected' : '' ); ?>">
+						<?php echo esc_html( WooCommerce_Subscriptions::get_frequency_label( $frequency ) ); ?>
+					</button>
+				<?php endforeach; ?>
+			</div>
+		<?php else : ?>
+			<div class="newspack-ui__segmented-control__tabs">
+				<select class="newspack-ui__button newspack-ui__button--small">
+					<?php foreach ( $frequencies as $i => $frequency ) : ?>
+						<option value="<?php echo esc_attr( $i ); ?>" <?php selected( $frequencies[ $i ], $current_frequency ); ?>>
+							<?php echo esc_html( WooCommerce_Subscriptions::get_frequency_label( $frequency ) ); ?>
+						</option>
+					<?php endforeach; ?>
+				</select>
+			</div>
+			<?php
+		endif;
+	}
+
+	/**
 	 * Render subscription tiers form.
 	 *
 	 * @param \WC_Product $product             Optional product.
@@ -326,8 +359,6 @@ class Subscriptions_Tiers {
 		$title        = $title ?? __( 'Complete your transaction', 'newspack-plugin' );
 		$button_label = $button_label ?? __( 'Purchase', 'newspack-plugin' );
 
-		$action_type = ! empty( $switch_subscription ) ? 'switch_subscription' : '';
-
 		// If the user has an active subscription and this is not a switch, render
 		// the existing subscription info instead of the tiers form.
 		if ( $user_subscription && empty( $switch_subscription ) ) {
@@ -339,13 +370,11 @@ class Subscriptions_Tiers {
 		<form class="newspack__subscription-tiers__form" target="newspack_modal_checkout_iframe" data-title="<?php echo esc_attr( $title ); ?>">
 			<?php if ( ! $is_single_tier ) : ?>
 				<div class="newspack-ui__segmented-control">
-					<?php if ( count( $frequencies ) > 1 ) : ?>
-						<div class="newspack-ui__segmented-control__tabs">
-							<?php foreach ( $frequencies as $frequency ) : ?>
-								<button type="button" class="newspack-ui__button newspack-ui__button--small <?php echo esc_attr( $frequency === $current_frequency ? 'selected' : '' ); ?>"><?php echo esc_html( WooCommerce_Subscriptions::get_frequency_label( $frequency ) ); ?></button>
-							<?php endforeach; ?>
-						</div>
-					<?php endif; ?>
+					<?php
+					if ( count( $frequencies ) > 1 ) {
+						self::render_frequency_control( $frequencies, $current_frequency );
+					}
+					?>
 					<div class="newspack-ui__segmented-control__content">
 						<?php foreach ( $tiers as $frequency => $products ) : ?>
 							<div class="newspack-ui__segmented-control__panel">

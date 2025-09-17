@@ -21,26 +21,43 @@ domReady( function () {
 
 		const tab_headers = [ ...header.children ];
 
+		const select_content = index => {
+			if ( tab_contents.length === 0 ) {
+				return;
+			}
+			tab_contents.forEach( content => content.classList.remove( 'selected' ) );
+			tab_contents[ index ].classList.add( 'selected' );
+
+			const radioInputs = tab_contents[ index ].querySelectorAll( 'input[type="radio"]' );
+			const checkedRadio = [ ...radioInputs ].find( radio => radio.checked );
+
+			if ( radioInputs.length && ! checkedRadio ) {
+				radioInputs[ 0 ].click();
+			}
+		};
+
 		tab_headers.forEach( ( tab, i ) => {
-			if ( tab_contents.length !== 0 && tab.classList.contains( 'selected' ) ) {
-				tab_contents[ i ].classList.add( 'selected' );
+			if ( tab_contents.length === 0 ) {
+				return;
+			}
+
+			if ( tab.tagName === 'SELECT' ) {
+				tab.classList.add( 'selected' );
+				select_content( parseInt( tab.value ) );
+				tab.addEventListener( 'change', function ( ev ) {
+					select_content( parseInt( ev.target.value ) );
+				} );
+				return;
+			}
+
+			if ( tab.classList.contains( 'selected' ) ) {
+				select_content( i );
 			}
 
 			tab.addEventListener( 'click', function () {
 				tab_headers.forEach( t => t.classList.remove( 'selected' ) );
 				this.classList.add( 'selected' );
-
-				if ( tab_contents.length !== 0 ) {
-					tab_contents.forEach( content => content.classList.remove( 'selected' ) );
-					tab_contents[ i ].classList.add( 'selected' );
-
-					const radioInputs = tab_contents[ i ].querySelectorAll( 'input[type="radio"]' );
-					const checkedRadio = [ ...radioInputs ].find( radio => radio.checked );
-
-					if ( radioInputs.length && ! checkedRadio ) {
-						radioInputs[ 0 ].click();
-					}
-				}
+				select_content( i );
 			} );
 		} );
 	}
