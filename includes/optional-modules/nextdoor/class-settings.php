@@ -679,7 +679,8 @@ class Settings {
 		// Generate GUID for the article.
 		$guid = get_post_meta( $post_id, '_nextdoor_guid', true );
 		if ( ! $guid ) {
-			$guid = 'newspack_' . $post_id . '_' . time();
+			$site_name_slug = str_replace( ' ', '_', get_bloginfo( 'name' ) );
+			$guid           = $site_name_slug . '_' . $post_id . '_' . time();
 		}
 
 		$article_data = [
