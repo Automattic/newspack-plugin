@@ -45,6 +45,10 @@ const NextdoorPostSidebar = ( { postId, postStatus } ) => {
 			} );
 
 			setNextdoorStatus( response );
+
+			if ( response.ingestion_errors && response.ingestion_errors.length > 0 ) {
+				setError( response.ingestion_errors.join( ' ' ) );
+			}
 		} catch ( fetchError ) {
 			setError( fetchError.message || __( 'Failed to load Nextdoor status.', 'newspack-plugin' ) );
 		} finally {
@@ -252,6 +256,12 @@ const NextdoorPostSidebar = ( { postId, postStatus } ) => {
 							{ nextdoorStatus.updated_at && (
 								<p className="nextdoor-sidebar__status-text nextdoor-sidebar__status-text--default">
 									<strong>{ __( 'Updated:', 'newspack-plugin' ) }</strong> { formatDate( nextdoorStatus.updated_at ) }
+								</p>
+							) }
+
+							{ nextdoorStatus.ingestion_status && (
+								<p className="nextdoor-sidebar__status-text nextdoor-sidebar__status-text--default">
+									<strong>{ __( 'Status:', 'newspack-plugin' ) }</strong> { nextdoorStatus.ingestion_status }
 								</p>
 							) }
 

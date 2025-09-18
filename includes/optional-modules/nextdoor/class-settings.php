@@ -744,26 +744,48 @@ class Settings {
 	 * @return array
 	 */
 	public static function get_post_sharing_status( $post_id ) {
-		$guid       = get_post_meta( $post_id, '_nextdoor_guid', true );
-		$shared_at  = get_post_meta( $post_id, '_nextdoor_shared_at', true );
-		$updated_at = get_post_meta( $post_id, '_nextdoor_updated_at', true );
-		$deleted_at = get_post_meta( $post_id, '_nextdoor_deleted_at', true );
+		$guid                 = get_post_meta( $post_id, '_nextdoor_guid', true );
+		$shared_at            = get_post_meta( $post_id, '_nextdoor_shared_at', true );
+		$updated_at           = get_post_meta( $post_id, '_nextdoor_updated_at', true );
+		$deleted_at           = get_post_meta( $post_id, '_nextdoor_deleted_at', true );
+		$post                 = get_post( $post_id );
+		$is_published         = $post && $post->post_status === 'publish';
+		$ingestion_status     = null;
+		$ingestion_error_msgs = [];
 
-		$post = get_post( $post_id );
-		$is_published = $post && $post->post_status === 'publish';
+		if ( ! empty( $guid ) ) {
+			$api                = API::instance();
+			$ingestion_response = $api->get_ingestion_report( [ $guid ] );
+			
+			if ( ! is_wp_error( $ingestion_response ) &&
+				isset( $ingestion_response['results'] ) &&
+				is_array( $ingestion_response['results'] )
+			) {
+				
+				foreach ( $ingestion_response['results'] as $result ) {
+					if ( isset( $result['guid'] ) && $result['guid'] === $guid ) {
+						$ingestion_status     = isset( $result['status'] ) ? $result['status'] : null;
+						$ingestion_error_msgs = isset( $result['error_msgs'] ) ? $result['error_msgs'] : [];
+						break;
+					}
+				}
+			}
+		}
 
 		return [
-			'is_shared'     => ! empty( $guid ),
-			'is_deleted'    => ! empty( $deleted_at ),
-			'can_republish' => empty( $deleted_at ),
-			'guid'          => $guid,
-			'shared_at'     => $shared_at,
-			'updated_at'    => $updated_at,
-			'deleted_at'    => $deleted_at,
-			'is_published'  => $is_published,
-			'last_modified' => $post ? get_the_modified_date( 'c', $post_id ) : null,
-			'needs_update'  => ! empty( $guid ) && ! empty( $shared_at ) && ! empty( $updated_at ) && 
-								$post && strtotime( get_the_modified_date( 'Y-m-d H:i:s', $post_id ) ) > strtotime( $updated_at ),
+			'is_shared'        => ! empty( $guid ),
+			'is_deleted'       => ! empty( $deleted_at ),
+			'can_republish'    => empty( $deleted_at ),
+			'guid'             => $guid,
+			'shared_at'        => $shared_at,
+			'updated_at'       => $updated_at,
+			'deleted_at'       => $deleted_at,
+			'is_published'     => $is_published,
+			'last_modified'    => $post ? get_the_modified_date( 'c', $post_id ) : null,
+			'needs_update'     => ! empty( $guid ) && ! empty( $shared_at ) && ! empty( $updated_at ) &&
+									$post && strtotime( get_the_modified_date( 'Y-m-d H:i:s', $post_id ) ) > strtotime( $updated_at ),
+			'ingestion_status' => $ingestion_status,
+			'ingestion_errors' => $ingestion_error_msgs,
 		];
 	}
 }
