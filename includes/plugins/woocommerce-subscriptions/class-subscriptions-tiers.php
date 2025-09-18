@@ -47,12 +47,24 @@ class Subscriptions_Tiers {
 	}
 
 	/**
+	 * Get the URL query parameter that triggers the subscription upgrade modal.
+	 */
+	public static function get_upgrade_subscription_query_param() {
+		/**
+		 * Filters the URL query parameter that triggers the subscription upgrade modal.
+		 *
+		 * @param string $query_param The URL query parameter.
+		 */
+		return apply_filters( 'newspack_subscriptions_upgrade_subscription_query_param', 'upgrade-subscription' );
+	}
+
+	/**
 	 * Store switch subscription links in memory so we can render the modal later.
 	 *
-	 * @param string           $text         The text of the switch subscription link.
-	 * @param int              $item_id      The ID of the item.
-	 * @param array            $item         The order line item data.
-	 * @param \WC_Subscription $subscription The subscription.
+	 * @param string                 $text         The text of the switch subscription link.
+	 * @param int                    $item_id      The ID of the item.
+	 * @param \WC_Order_Item_Product $item         The order line item data.
+	 * @param \WC_Subscription       $subscription The subscription.
 	 *
 	 * @return string The text of the switch subscription link.
 	 */
@@ -72,8 +84,8 @@ class Subscriptions_Tiers {
 		if ( empty( self::$switch_subscription_links ) ) {
 			return;
 		}
-		foreach ( self::$switch_subscription_links as $data ) {
-			$product = wc_get_product( $data['item']['product_id'] );
+		foreach ( self::$switch_subscription_links as $switch_data ) {
+			$product = wc_get_product( $switch_data['item']['product_id'] );
 			if ( ! $product ) {
 				continue;
 			}
@@ -82,7 +94,7 @@ class Subscriptions_Tiers {
 				continue;
 			}
 			$product = wc_get_product( reset( $parent_products ) );
-			self::render_modal( $product, __( 'Change Subscription', 'newspack-plugin' ), __( 'Change Subscription', 'newspack-plugin' ), $data );
+			self::render_modal( $product, null, null, $switch_data );
 		}
 	}
 
@@ -419,12 +431,12 @@ class Subscriptions_Tiers {
 	/**
 	 * Render subscription tiers form.
 	 *
-	 * @param \WC_Product $product             Optional product.
-	 * @param string|null $title               Optional title.
-	 * @param string|null $button_label        Optional button label.
-	 * @param array|null  $switch_subscription Switch subscription data or null.
+	 * @param \WC_Product $product      Optional product.
+	 * @param string|null $title        Optional title.
+	 * @param string|null $button_label Optional button label.
+	 * @param array|null  $switch_data  Switch subscription data or null.
 	 */
-	public static function render_form( $product = null, $title = null, $button_label = null, $switch_subscription = null ) {
+	public static function render_form( $product = null, $title = null, $button_label = null, $switch_data = null ) {
 		$tiers = self::get_tiers_by_frequency( $product );
 		if ( empty( $tiers ) ) {
 			return;
@@ -470,12 +482,15 @@ class Subscriptions_Tiers {
 			$selected_product = $tiers[ $current_frequency ][0];
 		}
 
-		$title        = $title ?? __( 'Complete your transaction', 'newspack-plugin' );
-		$button_label = $button_label ?? __( 'Purchase', 'newspack-plugin' );
+		$default_title        = $switch_data ? __( 'Change Subscription', 'newspack-plugin' ) : __( 'Complete your transaction', 'newspack-plugin' );
+		$default_button_label = $switch_data ? __( 'Change Subscription', 'newspack-plugin' ) : __( 'Purchase', 'newspack-plugin' );
+
+		$title        = $title ?? $default_title;
+		$button_label = $button_label ?? $default_button_label;
 
 		// If the user has an active subscription and this is not a switch, render
 		// the existing subscription info instead of the tiers form.
-		if ( $user_subscription && empty( $switch_subscription ) ) {
+		if ( $user_subscription && empty( $switch_data ) ) {
 			self::render_existing_subscription_info( $current_product, $user_subscription );
 			return;
 		}
@@ -513,9 +528,9 @@ class Subscriptions_Tiers {
 			?>
 			<input type="hidden" name="newspack_checkout" value="1">
 			<input type="hidden" name="modal_checkout" value="1">
-			<?php if ( ! empty( $switch_subscription ) ) : ?>
-				<input type="hidden" name="switch-subscription" value="<?php echo esc_attr( $switch_subscription['subscription']->get_id() ); ?>">
-				<input type="hidden" name="item" value="<?php echo absint( $switch_subscription['item_id'] ); ?>">
+			<?php if ( ! empty( $switch_data ) ) : ?>
+				<input type="hidden" name="switch-subscription" value="<?php echo esc_attr( $switch_data['subscription']->get_id() ); ?>">
+				<input type="hidden" name="item" value="<?php echo absint( $switch_data['item_id'] ); ?>">
 			<?php endif; ?>
 
 			<button type="submit" class="newspack-ui__button newspack-ui__button--primary newspack-ui__button--wide"><?php echo esc_html( $button_label ); ?></button>
@@ -531,26 +546,27 @@ class Subscriptions_Tiers {
 	 * If no grouped or variable subscription product is provided,
 	 * all non-donation subscription products are rendered.
 	 *
-	 * @param \WC_Product|null $product             Optional product.
-	 * @param string|null      $title               Optional title.
-	 * @param string|null      $button_label        Optional button label.
-	 * @param array|null       $switch_subscription Switch subscription data or null.
-	 * @param string           $initial_state       Optional initial state.
+	 * @param \WC_Product|null $product       Optional product.
+	 * @param string|null      $title         Optional title.
+	 * @param string|null      $button_label  Optional button label.
+	 * @param array|null       $switch_data   Switch subscription data or null.
+	 * @param string           $initial_state Optional initial state.
 	 */
-	public static function render_modal( $product = null, $title = null, $button_label = null, $switch_subscription = null, $initial_state = 'closed' ) {
+	public static function render_modal( $product = null, $title = null, $button_label = null, $switch_data = null, $initial_state = 'closed' ) {
+		$default_title = $switch_data ? __( 'Change Subscription', 'newspack-plugin' ) : __( 'Complete your transaction', 'newspack-plugin' );
 		?>
-		<div class="newspack-ui newspack-ui__modal-container newspack__subscription-tiers" data-state="<?php echo esc_attr( $initial_state ); ?>" data-product-id="<?php echo esc_attr( $product ? $product->get_id() : '' ); ?>" data-subscription-id="<?php echo esc_attr( $switch_subscription ? $switch_subscription['subscription']->get_id() : '' ); ?>">
+		<div class="newspack-ui newspack-ui__modal-container newspack__subscription-tiers" data-state="<?php echo esc_attr( $initial_state ); ?>" data-product-id="<?php echo esc_attr( $product ? $product->get_id() : '' ); ?>" data-subscription-id="<?php echo esc_attr( $switch_data ? $switch_data['subscription']->get_id() : '' ); ?>">
 			<div class="newspack-ui__modal-container__overlay"></div>
 			<div class="newspack-ui__modal newspack-ui__modal--small">
 				<header class="newspack-ui__modal__header">
-					<h2><?php echo esc_html( $title ?? __( 'Complete your transaction', 'newspack-plugin' ) ); ?></h2>
+					<h2><?php echo esc_html( $title ?? $default_title ); ?></h2>
 					<button class="newspack-ui__button newspack-ui__button--icon newspack-ui__button--ghost newspack-ui__modal__close">
 						<span class="screen-reader-text"><?php esc_html_e( 'Close', 'newspack-plugin' ); ?></span>
 						<?php \Newspack\Newspack_UI_Icons::print_svg( 'close' ); ?>
 					</button>
 				</header>
 				<div class="newspack-ui__modal__content">
-					<?php self::render_form( $product, $title, $button_label, $switch_subscription ); ?>
+					<?php self::render_form( $product, $title, $button_label, $switch_data ); ?>
 				</div>
 			</div>
 		</div>
@@ -575,23 +591,48 @@ class Subscriptions_Tiers {
 	 * Render primary product modal.
 	 */
 	public static function print_primary_product_modal() {
+		$query_param = self::get_upgrade_subscription_query_param();
+		if ( empty( $_GET[ $query_param ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			return;
+		}
+
 		$product = self::get_primary_subscription_tier_product();
 		if ( ! $product ) {
 			return;
 		}
-		if ( empty( $_GET['upgrade_subscription'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			return;
+
+		$user_subscription = self::get_user_subscription( $product );
+		$switch_data       = null;
+
+		if ( $user_subscription ) {
+			$product_id = $product->get_id();
+			$item       = null;
+			foreach ( $user_subscription->get_items() as $line_item ) {
+				if (
+					$line_item['product_id'] === $product_id
+					|| $line_item['variation_id'] === $product_id
+					|| ( method_exists( $product, 'get_children' ) && in_array( $line_item['product_id'], $product->get_children() ) ) // In case it's a grouped product.
+				) {
+					$item = $line_item;
+					break;
+				}
+			}
+			if ( $item ) {
+				$switch_data = [
+					'item_id'      => $item['id'],
+					'item'         => $item,
+					'subscription' => $user_subscription,
+				];
+			}
 		}
 
-		$title = sanitize_text_field( $_GET['upgrade_subscription'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$title = sanitize_text_field( $_GET[ $query_param ] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		// If the query param value is "1", let the modal decide the title.
 		if ( $title === '1' ) {
 			$title = null;
 		}
 
-		$user_subscription = self::get_user_subscription( $product );
-
-		self::render_modal( $product, $title, $title, $user_subscription, 'open' );
+		self::render_modal( $product, $title, $title, $switch_data, 'open' );
 	}
 }
 Subscriptions_Tiers::init_hooks();
