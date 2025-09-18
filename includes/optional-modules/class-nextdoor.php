@@ -54,7 +54,7 @@ class Nextdoor {
 		// Include required files.
 		require_once NEWSPACK_ABSPATH . 'includes/optional-modules/nextdoor/class-api.php';
 		require_once NEWSPACK_ABSPATH . 'includes/optional-modules/nextdoor/class-auth.php';
-		require_once NEWSPACK_ABSPATH . 'includes/optional-modules/nextdoor/class-settings.php';
+		require_once NEWSPACK_ABSPATH . 'includes/optional-modules/nextdoor/class-controller.php';
 	}
 
 	/**

@@ -1,6 +1,6 @@
 <?php
 /**
- * Nextdoor settings management.
+ * Nextdoor management.
  *
  * @package Newspack
  */
@@ -12,21 +12,21 @@ use Newspack\Nextdoor;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Nextdoor settings management class.
+ * Nextdoor management class.
  */
-class Settings {
+class Controller {
 
 	/**
 	 * The single instance of the class.
 	 *
-	 * @var Settings
+	 * @var Controller
 	 */
 	protected static $instance = null;
 
 	/**
-	 * Main Settings Instance.
+	 * Main Controller Instance.
 	 *
-	 * @return Settings - Main instance.
+	 * @return Controller - Main instance.
 	 */
 	public static function instance() {
 		if ( is_null( self::$instance ) ) {
@@ -46,7 +46,7 @@ class Settings {
 	 * Register REST API endpoints.
 	 */
 	public function register_api_endpoints() {
-		// Settings endpoint.
+		// Controller endpoint.
 		register_rest_route(
 			NEWSPACK_API_NAMESPACE,
 			'/nextdoor/settings',
@@ -787,4 +787,4 @@ class Settings {
 	}
 }
 
-Settings::instance();
+Controller::instance();
