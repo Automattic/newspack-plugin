@@ -51,6 +51,7 @@ function Collections() {
 	>( {
 		path: '/newspack/v1/wizard/newspack-settings/collections',
 		apiNamespace: 'newspack-settings/collections',
+		refreshOn: [ 'POST' ],
 		data: {
 			...DEFAULT_COLLECTIONS_SETTINGS,
 			module_enabled_collections: false,
