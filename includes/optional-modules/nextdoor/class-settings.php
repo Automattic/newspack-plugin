@@ -638,8 +638,8 @@ class Settings {
 		if ( is_wp_error( $response ) ) {
 			return $response;
 		}
-
-		// Remove Nextdoor-related metadata.
+		// Mark the post as deleted in post meta.
+		update_post_meta( $post_id, '_nextdoor_deleted_at', current_time( 'mysql' ) );
 		delete_post_meta( $post_id, '_nextdoor_guid' );
 		delete_post_meta( $post_id, '_nextdoor_shared_at' );
 		delete_post_meta( $post_id, '_nextdoor_updated_at' );
@@ -747,15 +747,19 @@ class Settings {
 		$guid       = get_post_meta( $post_id, '_nextdoor_guid', true );
 		$shared_at  = get_post_meta( $post_id, '_nextdoor_shared_at', true );
 		$updated_at = get_post_meta( $post_id, '_nextdoor_updated_at', true );
+		$deleted_at = get_post_meta( $post_id, '_nextdoor_deleted_at', true );
 
 		$post = get_post( $post_id );
 		$is_published = $post && $post->post_status === 'publish';
 
 		return [
 			'is_shared'     => ! empty( $guid ),
+			'is_deleted'    => ! empty( $deleted_at ),
+			'can_republish' => empty( $deleted_at ),
 			'guid'          => $guid,
 			'shared_at'     => $shared_at,
 			'updated_at'    => $updated_at,
+			'deleted_at'    => $deleted_at,
 			'is_published'  => $is_published,
 			'last_modified' => $post ? get_the_modified_date( 'c', $post_id ) : null,
 			'needs_update'  => ! empty( $guid ) && ! empty( $shared_at ) && ! empty( $updated_at ) && 
