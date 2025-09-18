@@ -201,27 +201,11 @@ const NextdoorPostSidebar = ( { postId, postStatus } ) => {
 			);
 		}
 
-		// Check for deleted posts first
 		if ( nextdoorStatus?.is_deleted ) {
 			return (
-				<>
-					<Panel>
-						<PanelHeader>{ __( 'Removed from Nextdoor', 'newspack-plugin' ) }</PanelHeader>
-						<PanelBody>
-							<Notice status="warning" isDismissible={ false }>
-								{ __(
-									`This post was previously removed from Nextdoor and cannot be republished due to platform limitations.`,
-									'newspack-plugin'
-								) }
-							</Notice>
-							{ nextdoorStatus.deleted_at && (
-								<p className="nextdoor-sidebar__status-text nextdoor-sidebar__status-text--default">
-									<strong>{ __( 'Removed:', 'newspack-plugin' ) }</strong> { formatDate( nextdoorStatus.deleted_at ) }
-								</p>
-							) }
-						</PanelBody>
-					</Panel>
-				</>
+				<Notice status="warning" isDismissible={ false }>
+					{ __( `This post was previously removed from Nextdoor and cannot be republished.`, 'newspack-plugin' ) }
+				</Notice>
 			);
 		}
 

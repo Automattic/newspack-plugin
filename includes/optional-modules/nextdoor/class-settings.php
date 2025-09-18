@@ -779,7 +779,6 @@ class Settings {
 			'guid'             => $guid,
 			'shared_at'        => $shared_at,
 			'updated_at'       => $updated_at,
-			'deleted_at'       => $deleted_at,
 			'is_published'     => $is_published,
 			'last_modified'    => $post ? get_the_modified_date( 'c', $post_id ) : null,
 			'ingestion_status' => $ingestion_status,
