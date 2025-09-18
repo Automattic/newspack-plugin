@@ -25,14 +25,11 @@ export const SettingsView = ( { settings, status, error, updateSettings, disconn
 	const availableRoles = window.newspackSettings?.social?.nextdoor?.available_roles || [];
 
 	useEffect( () => {
-		// Check if current roles differ from saved settings
-		const currentRoles = settings.allowed_roles || [];
-		const rolesChanged = allowedRoles.length !== currentRoles.length || allowedRoles.some( role => ! currentRoles.includes( role ) );
-
-		setHasChanges( rolesChanged );
-	}, [ allowedRoles, settings.allowed_roles ] );
+		setAllowedRoles( settings.allowed_roles || [] );
+	}, [ settings ] );
 
 	const handleRoleToggle = ( role: string, checked: boolean ) => {
+		setHasChanges( true );
 		if ( checked ) {
 			setAllowedRoles( [ ...allowedRoles, role ] );
 		} else {
