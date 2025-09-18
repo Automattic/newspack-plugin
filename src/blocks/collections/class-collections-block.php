@@ -207,14 +207,10 @@ final class Collections_Block {
 		<article class="wp-block-newspack-collections__item">
 			<?php if ( $attributes['showFeaturedImage'] ) : ?>
 				<div class="wp-block-newspack-collections__image">
-					<?php if ( has_post_thumbnail( $collection ) ) : ?>
-						<?php
-						$image_permalink = $attributes['noPermalinks'] ? false : $collection_url;
-						echo wp_kses_post( Template_Helper::render_image( $collection->ID, $image_permalink, $image_size ) );
-						?>
-					<?php else : ?>
-						<div class="wp-block-newspack-collections__placeholder" aria-hidden="true"></div>
-					<?php endif; ?>
+					<?php
+					$image_permalink = $attributes['noPermalinks'] ? false : $collection_url;
+					echo wp_kses_post( Template_Helper::render_image( $collection->ID, $image_permalink, $image_size ) );
+					?>
 				</div>
 			<?php endif; ?>
 
