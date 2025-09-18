@@ -55,6 +55,7 @@ declare global {
 				id: string;
 				title: string;
 			} >;
+			upgrade_subscription_url: string;
 		};
 	}
 }

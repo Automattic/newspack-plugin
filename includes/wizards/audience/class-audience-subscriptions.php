@@ -115,9 +115,9 @@ class Audience_Subscriptions extends Wizard {
 			'newspack-wizards',
 			'newspackAudienceSubscriptions',
 			[
-				'memberships_url'   => admin_url( 'edit.php?post_type=wc_membership_plan' ),
-				'primary_product'   => $primary_product ? $primary_product->get_id() : '',
-				'eligible_products' => array_map(
+				'memberships_url'          => admin_url( 'edit.php?post_type=wc_membership_plan' ),
+				'primary_product'          => $primary_product ? $primary_product->get_id() : '',
+				'eligible_products'        => array_map(
 					function( $product ) {
 						return [
 							'id'    => $product->get_id(),
@@ -126,6 +126,7 @@ class Audience_Subscriptions extends Wizard {
 					},
 					Subscriptions_Tiers::get_tier_eligible_products()
 				),
+				'upgrade_subscription_url' => Subscriptions_Tiers::get_upgrade_subscription_url(),
 			]
 		);
 	}

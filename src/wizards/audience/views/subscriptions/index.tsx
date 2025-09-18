@@ -1,14 +1,14 @@
 /**
  * WordPress dependencies.
  */
-import { __ } from '@wordpress/i18n';
+import { sprintf, __ } from '@wordpress/i18n';
 import apiFetch from '@wordpress/api-fetch';
 import { forwardRef, useState, useEffect } from '@wordpress/element';
 
 /**
  * Internal dependencies.
  */
-import { Button, Card, SelectControl, Wizard, withWizard } from '../../../../components/src';
+import { Button, Card, SelectControl, Wizard, withWizard, Notice } from '../../../../components/src';
 import WizardsTab from '../../../wizards-tab';
 import WizardSection from '../../../wizards-section';
 
@@ -63,6 +63,15 @@ function AudienceSubscriptions( props: Record< string, any >, ref: React.Forward
 										onChange={ handlePrimaryProductChange }
 										disabled={ inFlight }
 									/>
+									{ primaryProduct && (
+										<Notice isDismissible={ false }>
+											{ sprintf(
+												/* translators: %s: upgrade subscription URL */
+												__( 'Share the following URL to trigger the subscription upgrade: %s', 'newspack-plugin' ),
+												window.newspackAudienceSubscriptions.upgrade_subscription_url
+											) }
+										</Notice>
+									) }
 								</Card>
 								<Card>
 									<h2>{ __( 'Manage Subscriptions settings in Woo Memberships', 'newspack-plugin' ) }</h2>

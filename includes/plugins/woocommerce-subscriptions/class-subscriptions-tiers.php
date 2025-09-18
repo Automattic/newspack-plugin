@@ -47,7 +47,26 @@ class Subscriptions_Tiers {
 	}
 
 	/**
+	 * Get the URL for the subscription upgrade modal.
+	 *
+	 * @param string|null $title The title of the subscription upgrade modal.
+	 *
+	 * @return string The URL for the subscription upgrade modal.
+	 */
+	public static function get_upgrade_subscription_url( $title = null ) {
+		/**
+		 * Filters the URL for the subscription upgrade modal.
+		 *
+		 * @param string      $url   The URL for the subscription upgrade modal.
+		 * @param string|null $title The title of the subscription upgrade modal.
+		 */
+		return apply_filters( 'newspack_subscriptions_upgrade_subscription_url', add_query_arg( self::get_upgrade_subscription_query_param(), $title ?? 1, home_url() ), $title );
+	}
+
+	/**
 	 * Get the URL query parameter that triggers the subscription upgrade modal.
+	 *
+	 * @return string The URL query parameter.
 	 */
 	public static function get_upgrade_subscription_query_param() {
 		/**
