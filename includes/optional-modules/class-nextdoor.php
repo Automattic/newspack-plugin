@@ -172,7 +172,7 @@ class Nextdoor {
 	 * @return string
 	 */
 	public static function get_redirect_uri() {
-		return admin_url( 'admin.php?page=newspack-settings&nextdoor_oauth_callback=1#/social' );
+		return admin_url( 'admin.php?page=newspack-settings&nextdoor_oauth_callback=1' );
 	}
 
 	/**
