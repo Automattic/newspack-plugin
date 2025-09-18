@@ -78,8 +78,7 @@ export const SettingsView = ( { settings, status, error, updateSettings, disconn
 				<CardBody>
 					<Grid columns={ 2 } gutter={ 16 }>
 						<div>
-							<strong>{ __( 'Status:', 'newspack-plugin' ) }</strong>
-							<br />
+							<strong>{ __( 'Status:', 'newspack-plugin' ) } </strong>
 							{ status.is_connected ? (
 								<span className="nextdoor-settings__status-value--success">{ __( 'Connected', 'newspack-plugin' ) }</span>
 							) : (
@@ -87,8 +86,7 @@ export const SettingsView = ( { settings, status, error, updateSettings, disconn
 							) }
 						</div>
 						<div>
-							<strong>{ __( 'Token:', 'newspack-plugin' ) }</strong>
-							<br />
+							<strong>{ __( 'Token:', 'newspack-plugin' ) } </strong>
 							{ status.token_valid ? (
 								<span className="nextdoor-settings__status-value--success">{ __( 'Valid', 'newspack-plugin' ) }</span>
 							) : (

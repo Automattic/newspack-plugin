@@ -29,44 +29,10 @@ class Auth {
 	const OAUTH_BASE_URL = 'https://auth.nextdoor.com';
 
 	/**
-	 * Main Auth Instance.
-	 *
-	 * @return Auth - Main instance.
+	 * Initialise.
 	 */
-	public static function instance() {
-		if ( is_null( self::$instance ) ) {
-			self::$instance = new self();
-		}
-		return self::$instance;
-	}
-
-	/**
-	 * Constructor.
-	 */
-	public function __construct() {
+	public static function init() {
 		add_action( 'init', [ self::class, 'handle_oauth_callback' ] );
-	}
-
-	/**
-	 * Get OAuth authorization URL.
-	 *
-	 * @param string $client_id Client ID.
-	 * @param string $redirect_uri Redirect URI.
-	 * @param string $state State parameter.
-	 * @return string
-	 */
-	public function get_authorization_url( $client_id, $redirect_uri, $state = '' ) {
-		$params = [
-			'client_id'    => $client_id,
-			'redirect_uri' => $redirect_uri,
-			'scope'        => 'content_api openid publish_api entity_page:claim profile profile:read article:write post:read post:write',
-		];
-
-		if ( ! empty( $state ) ) {
-			$params['state'] = $state;
-		}
-
-		return API::API_BASE_URL . '/v3/authorize/?' . http_build_query( $params );
 	}
 
 	/**
@@ -126,11 +92,11 @@ class Auth {
 	 * @param string $access_token Access token.
 	 * @return array|WP_Error
 	 */
-	public function refresh_access_token( $client_id, $client_secret, $access_token ) {
+	public static function refresh_access_token( $client_id, $client_secret, $access_token ) {
 		$body = [
 			'grant_type'    => 'refresh_token',
 			'refresh_token' => $access_token,
-			'scope'         => 'content_api openid publish_api entity_page:claim profile profile:read article:write post:read post:write',
+			'scope'         => implode( ' ', self::get_access_scopes() ),
 		];
 
 		$response = wp_remote_post(
@@ -175,6 +141,35 @@ class Auth {
 	}
 
 	/**
+	 * Get OAuth access scopes.
+	 *
+	 * @return array
+	 */
+	public static function get_access_scopes() {
+		$scopes = [
+			'content_api',
+			'openid',
+			'publish_api',
+			'entity_page:claim',
+			'profile',
+			'profile:read',
+			'article:write',
+			'post:read',
+			'post:write',
+		];
+
+		/**
+		 * Filter Nextdoor OAuth access scopes.
+		 * Recommended: Use this filter only if you are familiar with Nextdoor's OAuth requirements.
+		 * Removing or altering existing scopes may cause the integration to break.
+		 * See: https://developer.nextdoor.com/reference/sharing-get-authorization-code#authorization-code
+		 *
+		 * @param array $scopes Array of access scopes.
+		 */
+		return apply_filters( 'newspack_nextdoor_oauth_scopes', $scopes );
+	}
+
+	/**
 	 * Handle OAuth callback.
 	 */
 	public static function handle_oauth_callback() {
@@ -209,13 +204,11 @@ class Auth {
 			);
 		}
 
-		// Store tokens.
 		$settings['access_token']     = $token_response['access_token'];
 		$settings['token_expires_at'] = time() + $token_response['expires_in'];
 
 		Nextdoor::update_settings( $settings );
 
-		// Redirect to success page.
 		wp_safe_redirect( admin_url( 'admin.php?page=newspack-settings&oauth_success=1#social' ) );
 		exit;
 	}
@@ -225,14 +218,13 @@ class Auth {
 	 *
 	 * @return bool
 	 */
-	public function needs_token_refresh() {
+	public static function needs_token_refresh() {
 		$settings = Nextdoor::get_settings();
 
 		if ( empty( $settings['token_expires_at'] ) ) {
 			return false;
 		}
 
-		// Refresh if token expires in next 5 minutes.
 		return ( $settings['token_expires_at'] - 300 ) < time();
 	}
 
@@ -241,7 +233,7 @@ class Auth {
 	 *
 	 * @return bool
 	 */
-	public function validate_token() {
+	public static function validate_token() {
 		$settings = Nextdoor::get_settings();
 
 		if ( empty( $settings['access_token'] ) ) {
@@ -249,12 +241,12 @@ class Auth {
 		}
 
 		// Check if token needs refresh.
-		if ( ! $this->needs_token_refresh() ) {
+		if ( ! self::needs_token_refresh() ) {
 			return true; // Token is still valid.
 		}
 
-		// Attempt to refresh the token.
-		$refresh_response = $this->refresh_access_token(
+		// Refresh the token.
+		$refresh_response = self::refresh_access_token(
 			$settings['client_id'],
 			$settings['client_secret'],
 			$settings['access_token']
@@ -263,4 +255,5 @@ class Auth {
 		return ! is_wp_error( $refresh_response );
 	}
 }
-Auth::instance();
+
+Auth::init();

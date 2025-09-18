@@ -29,11 +29,6 @@ class API {
 	const API_BASE_URL = 'https://nextdoor.com';
 
 	/**
-	 * API version.
-	 */
-	const API_VERSION = 'v1';
-
-	/**
 	 * Main API Instance.
 	 *
 	 * @return API - Main instance.
@@ -147,8 +142,8 @@ class API {
 	public function claim_page( $publication_url, $test = false ) {
 		$body = [
 			'publication_url'         => $publication_url,
-			'publication_name'        => get_bloginfo( 'name' ),
-			'publication_description' => get_bloginfo( 'description' ),
+			'publication_name'        => bloginfo( 'name' ),
+			'publication_description' => bloginfo( 'description' ),
 			'test'                    => $test,
 		];
 
@@ -168,42 +163,6 @@ class API {
 	 */
 	public function get_profiles() {
 		return $this->make_request( '/external/api/partner/v1/me/profiles' );
-	}
-
-	/**
-	 * Get entity pages from user profiles.
-	 *
-	 * @return array|WP_Error Array of entity pages or WP_Error on failure.
-	 */
-	public function get_entity_pages() {
-		$profiles = $this->get_profiles();
-
-		if ( is_wp_error( $profiles ) ) {
-			return $profiles;
-		}
-
-		if ( ! isset( $profiles['profile_list'] ) || ! is_array( $profiles['profile_list'] ) ) {
-			return [];
-		}
-
-		$entity_pages = [];
-
-		foreach ( $profiles['profile_list'] as $profile ) {
-			if ( isset( $profile['is_entity_profile'] ) && $profile['is_entity_profile'] === true &&
-				isset( $profile['entity_page'] ) ) {
-				$entity_pages[] = [
-					'profile_id'      => $profile['id'],
-					'page_id'         => $profile['entity_page']['id'],
-					'name'            => $profile['entity_page']['name'],
-					'publication_url' => $profile['entity_page']['publication_url'],
-					'url'             => $profile['entity_page']['url'],
-					'description'     => $profile['entity_page']['description'] ?? '',
-					'follower_count'  => $profile['entity_page']['follower_count'] ?? 0,
-				];
-			}
-		}
-
-		return $entity_pages;
 	}
 
 	/**
@@ -268,15 +227,5 @@ class API {
 			],
 			'POST'
 		);
-	}
-
-	/**
-	 * Test API connection.
-	 *
-	 * @return bool
-	 */
-	public function test_connection() {
-		$response = $this->get_profiles();
-		return ! is_wp_error( $response );
 	}
 }

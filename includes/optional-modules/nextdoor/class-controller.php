@@ -17,43 +17,24 @@ defined( 'ABSPATH' ) || exit;
 class Controller {
 
 	/**
-	 * The single instance of the class.
-	 *
-	 * @var Controller
+	 * Initialise.
 	 */
-	protected static $instance = null;
-
-	/**
-	 * Main Controller Instance.
-	 *
-	 * @return Controller - Main instance.
-	 */
-	public static function instance() {
-		if ( is_null( self::$instance ) ) {
-			self::$instance = new self();
-		}
-		return self::$instance;
-	}
-
-	/**
-	 * Constructor.
-	 */
-	public function __construct() {
-		add_action( 'rest_api_init', [ $this, 'register_api_endpoints' ] );
+	public static function init() {
+		add_action( 'rest_api_init', [ __CLASS__, 'register_api_endpoints' ] );
 	}
 
 	/**
 	 * Register REST API endpoints.
 	 */
-	public function register_api_endpoints() {
+	public static function register_api_endpoints() {
 		// OAuth endpoints.
 		register_rest_route(
 			NEWSPACK_API_NAMESPACE,
 			'/nextdoor/oauth/start',
 			[
 				'methods'             => \WP_REST_Server::CREATABLE,
-				'callback'            => [ $this, 'api_start_oauth' ],
-				'permission_callback' => [ $this, 'api_permissions_check' ],
+				'callback'            => [ __CLASS__, 'api_start_oauth' ],
+				'permission_callback' => [ __CLASS__, 'api_permissions_check' ],
 				'args'                => [
 					'email'   => [
 						'required'          => true,
@@ -75,8 +56,8 @@ class Controller {
 			'/nextdoor/claim-page',
 			[
 				'methods'             => \WP_REST_Server::EDITABLE,
-				'callback'            => [ $this, 'api_claim_page' ],
-				'permission_callback' => [ $this, 'api_permissions_check' ],
+				'callback'            => [ __CLASS__, 'api_claim_page' ],
+				'permission_callback' => [ __CLASS__, 'api_permissions_check' ],
 				'args'                => [
 					'publication_url' => [
 						'required'          => true,
@@ -98,8 +79,8 @@ class Controller {
 			'/nextdoor/post-status/(?P<id>\d+)',
 			[
 				'methods'             => \WP_REST_Server::READABLE,
-				'callback'            => [ $this, 'api_get_post_sharing_status' ],
-				'permission_callback' => [ $this, 'api_post_permissions_check' ],
+				'callback'            => [ __CLASS__, 'api_get_post_sharing_status' ],
+				'permission_callback' => [ __CLASS__, 'api_post_permissions_check' ],
 				'args'                => [
 					'id' => [
 						'required'          => true,
@@ -116,8 +97,8 @@ class Controller {
 			'/nextdoor/publish-post/(?P<id>\d+)',
 			[
 				'methods'             => \WP_REST_Server::CREATABLE,
-				'callback'            => [ $this, 'api_publish_post' ],
-				'permission_callback' => [ $this, 'api_post_permissions_check' ],
+				'callback'            => [ __CLASS__, 'api_publish_post' ],
+				'permission_callback' => [ __CLASS__, 'api_post_permissions_check' ],
 				'args'                => [
 					'id' => [
 						'required'          => true,
@@ -134,8 +115,8 @@ class Controller {
 			'/nextdoor/update-post/(?P<id>\d+)',
 			[
 				'methods'             => \WP_REST_Server::EDITABLE,
-				'callback'            => [ $this, 'api_update_post' ],
-				'permission_callback' => [ $this, 'api_post_permissions_check' ],
+				'callback'            => [ __CLASS__, 'api_update_post' ],
+				'permission_callback' => [ __CLASS__, 'api_post_permissions_check' ],
 				'args'                => [
 					'id' => [
 						'required'          => true,
@@ -152,8 +133,8 @@ class Controller {
 			'/nextdoor/delete-post/(?P<id>\d+)',
 			[
 				'methods'             => \WP_REST_Server::DELETABLE,
-				'callback'            => [ $this, 'api_delete_post' ],
-				'permission_callback' => [ $this, 'api_post_permissions_check' ],
+				'callback'            => [ __CLASS__, 'api_delete_post' ],
+				'permission_callback' => [ __CLASS__, 'api_post_permissions_check' ],
 				'args'                => [
 					'id' => [
 						'required'          => true,
@@ -170,8 +151,8 @@ class Controller {
 			'/nextdoor/disconnect',
 			[
 				'methods'             => \WP_REST_Server::DELETABLE,
-				'callback'            => [ $this, 'api_disconnect' ],
-				'permission_callback' => [ $this, 'api_permissions_check' ],
+				'callback'            => [ __CLASS__, 'api_disconnect' ],
+				'permission_callback' => [ __CLASS__, 'api_permissions_check' ],
 			]
 		);
 	}
@@ -181,7 +162,7 @@ class Controller {
 	 *
 	 * @return bool
 	 */
-	public function api_permissions_check() {
+	public static function api_permissions_check() {
 		return current_user_can( 'manage_options' );
 	}
 
@@ -190,7 +171,7 @@ class Controller {
 	 *
 	 * @return bool
 	 */
-	public function api_post_permissions_check() {
+	public static function api_post_permissions_check() {
 		return Nextdoor::can_user_publish();
 	}
 
@@ -200,28 +181,16 @@ class Controller {
 	 * @param WP_REST_Request $request Request object.
 	 * @return WP_REST_Response
 	 */
-	public function api_start_oauth( $request ) {
+	public static function api_start_oauth( $request ) {
 		$email   = $request->get_param( 'email' );
 		$country = $request->get_param( 'country' );
 
-		$api = API::instance();
-
-		// First, create/get account.
 		$redirect_uri     = Nextdoor::get_redirect_uri();
+		$api              = API::instance();
 		$account_response = $api->create_account( $email, $country, $redirect_uri );
 
 		if ( is_wp_error( $account_response ) ) {
 			return $account_response;
-		}
-
-		$settings = Nextdoor::get_settings();
-
-		if ( empty( $settings['client_id'] ) ) {
-			return new \WP_Error(
-				'newspack_nextdoor_client_id_missing',
-				__( 'Client ID not configured.', 'newspack-plugin' ),
-				[ 'status' => 400 ]
-			);
 		}
 
 		return rest_ensure_response(
@@ -237,7 +206,7 @@ class Controller {
 	 * @param WP_REST_Request $request Request object.
 	 * @return WP_REST_Response
 	 */
-	public function api_claim_page( $request ) {
+	public static function api_claim_page( $request ) {
 		$publication_url = $request->get_param( 'publication_url' );
 		$test            = $request->get_param( 'test' );
 
@@ -246,7 +215,7 @@ class Controller {
 		Nextdoor::update_settings( $settings );
 
 		// Check if page is already claimed.
-		if ( $this->check_page_claim( $publication_url ) ) {
+		if ( self::check_page_claim( $publication_url ) ) {
 			return rest_ensure_response( [ 'success' => true ] );
 		}
 
@@ -272,7 +241,7 @@ class Controller {
 	 * @param string $publication_url The publication URL to check.
 	 * @return bool True if the page is claimed, false otherwise.
 	 */
-	private function check_page_claim( $publication_url ) {
+	private static function check_page_claim( $publication_url ) {
 		$api      = API::instance();
 		$profiles = $api->get_profiles();
 
@@ -293,10 +262,8 @@ class Controller {
 				$claimed_url = rtrim( $profile['entity_page']['publication_url'], '/' );
 
 				if ( $claimed_url === $input_url ) {
-					$settings                     = Nextdoor::get_settings();
-					$settings['page_id']          = $profile['entity_page']['id'];
-					$settings['profile_id']       = $profile['id'];
-					$settings['entity_page_name'] = $profile['entity_page']['name'];
+					$settings            = Nextdoor::get_settings();
+					$settings['page_id'] = $profile['entity_page']['id'];
 					Nextdoor::update_settings( $settings );
 					return true;
 				}
@@ -307,99 +274,18 @@ class Controller {
 	}
 
 	/**
-	 * Get post sharing status via API.
-	 *
-	 * @param WP_REST_Request $request Request object.
-	 * @return WP_REST_Response
-	 */
-	public function api_get_post_sharing_status( $request ) {
-		$post_id = $request->get_param( 'id' );
-		$status  = self::get_post_sharing_status( $post_id );
-
-		// Add connection status for UI context.
-		$status['can_publish'] = Nextdoor::is_connected() && Nextdoor::can_user_publish();
-
-		return rest_ensure_response( $status );
-	}
-
-	/**
-	 * Publish post to Nextdoor via API.
-	 *
-	 * @param WP_REST_Request $request Request object.
-	 * @return WP_REST_Response
-	 */
-	public function api_publish_post( $request ) {
-		$post_id = $request->get_param( 'id' );
-		$result  = self::publish_post( $post_id );
-
-		if ( is_wp_error( $result ) ) {
-			return $result;
-		}
-
-		return rest_ensure_response(
-			[
-				'success' => true,
-				'message' => __( 'Post successfully published to Nextdoor.', 'newspack-plugin' ),
-				'article' => $result,
-			]
-		);
-	}
-
-	/**
-	 * Update post on Nextdoor via API.
-	 *
-	 * @param WP_REST_Request $request Request object.
-	 * @return WP_REST_Response
-	 */
-	public function api_update_post( $request ) {
-		$post_id = $request->get_param( 'id' );
-		$result  = self::update_post( $post_id );
-
-		if ( is_wp_error( $result ) ) {
-			return $result;
-		}
-
-		return rest_ensure_response(
-			[
-				'success' => true,
-				'message' => __( 'Post successfully updated on Nextdoor.', 'newspack-plugin' ),
-				'article' => $result,
-			]
-		);
-	}
-
-	/**
-	 * Delete post from Nextdoor via API.
-	 *
-	 * @param WP_REST_Request $request Request object.
-	 * @return WP_REST_Response
-	 */
-	public function api_delete_post( $request ) {
-		$post_id = $request->get_param( 'id' );
-		$result  = self::delete_post( $post_id );
-
-		if ( is_wp_error( $result ) ) {
-			return $result;
-		}
-
-		return rest_ensure_response(
-			[
-				'success' => true,
-				'message' => __( 'Post successfully removed from Nextdoor.', 'newspack-plugin' ),
-			]
-		);
-	}
-
-	/**
 	 * Disconnect Nextdoor account via API.
 	 *
 	 * @return WP_REST_Response
 	 */
-	public function api_disconnect() {
-		$result = self::disconnect_account();
+	public static function api_disconnect() {
+		$result = Nextdoor::delete_settings();
 
-		if ( is_wp_error( $result ) ) {
-			return $result;
+		if ( ! $result ) {
+			return new \WP_Error(
+				'disconnect_failed',
+				__( 'Failed to disconnect Nextdoor account.', 'newspack-plugin' )
+			);
 		}
 
 		return rest_ensure_response(
@@ -413,10 +299,11 @@ class Controller {
 	/**
 	 * Publish post to Nextdoor.
 	 *
-	 * @param int $post_id Post ID.
-	 * @return array|WP_Error
+	 * @param WP_REST_Request $request Request object.
+	 * @return WP_REST_Response
 	 */
-	public static function publish_post( $post_id ) {
+	public static function api_publish_post( $request ) {
+		$post_id = $request->get_param( 'id' );
 		if ( ! Nextdoor::is_connected() ) {
 			return new \WP_Error(
 				'nextdoor_not_connected',
@@ -443,10 +330,9 @@ class Controller {
 
 		$settings = Nextdoor::get_settings();
 		$api      = API::instance();
-		$auth     = Auth::instance();
 
 		// Check if the access token is valid.
-		$token_valid = $auth->validate_token();
+		$token_valid = Auth::validate_token();
 		if ( ! $token_valid ) {
 			return new \WP_Error(
 				'nextdoor_token_invalid',
@@ -454,7 +340,6 @@ class Controller {
 			);
 		}
 
-		// Prepare article data.
 		$article_data = self::prepare_article_data( $post_id, $settings );
 
 		$response = $api->create_article( $article_data );
@@ -463,20 +348,26 @@ class Controller {
 			return $response;
 		}
 
-		// Store the GUID and sharing timestamp for future reference.
 		update_post_meta( $post_id, '_nextdoor_guid', $article_data['guid'] );
 		update_post_meta( $post_id, '_nextdoor_shared_at', current_time( 'mysql' ) );
 
-		return $response;
+		return rest_ensure_response(
+			[
+				'success' => true,
+				'message' => __( 'Post successfully published to Nextdoor.', 'newspack-plugin' ),
+				'article' => $response,
+			]
+		);
 	}
 
 	/**
-	 * Update post on Nextdoor.
+	 * Update post on Nextdoor via API.
 	 *
-	 * @param int $post_id Post ID.
-	 * @return array|WP_Error
+	 * @param WP_REST_Request $request Request object.
+	 * @return WP_REST_Response
 	 */
-	public static function update_post( $post_id ) {
+	public static function api_update_post( $request ) {
+		$post_id = $request->get_param( 'id' );
 		if ( ! Nextdoor::is_connected() ) {
 			return new \WP_Error(
 				'nextdoor_not_connected',
@@ -504,10 +395,8 @@ class Controller {
 		$settings = Nextdoor::get_settings();
 		$api      = API::instance();
 
-		// Prepare article data.
 		$article_data = self::prepare_article_data( $post_id, $settings );
 
-		// Update the modified timestamp.
 		$article_data['modified_at'] = get_the_modified_date( 'c', $post_id );
 
 		$response = $api->update_article( $article_data );
@@ -516,19 +405,25 @@ class Controller {
 			return $response;
 		}
 
-		// Update the modified timestamp in post meta.
 		update_post_meta( $post_id, '_nextdoor_updated_at', current_time( 'mysql' ) );
 
-		return $response;
+		return rest_ensure_response(
+			[
+				'success' => true,
+				'message' => __( 'Post successfully updated on Nextdoor.', 'newspack-plugin' ),
+				'article' => $response,
+			]
+		);
 	}
 
 	/**
-	 * Delete post from Nextdoor.
+	 * Delete post from Nextdoor via API.
 	 *
-	 * @param int $post_id Post ID.
-	 * @return array|WP_Error
+	 * @param WP_REST_Request $request Request object.
+	 * @return WP_REST_Response
 	 */
-	public static function delete_post( $post_id ) {
+	public static function api_delete_post( $request ) {
+		$post_id = $request->get_param( 'id' );
 		if ( ! Nextdoor::is_connected() ) {
 			return new \WP_Error(
 				'nextdoor_not_connected',
@@ -551,32 +446,72 @@ class Controller {
 		if ( is_wp_error( $response ) ) {
 			return $response;
 		}
+
 		// Mark the post as deleted in post meta.
 		update_post_meta( $post_id, '_nextdoor_deleted_at', current_time( 'mysql' ) );
 		delete_post_meta( $post_id, '_nextdoor_guid' );
 		delete_post_meta( $post_id, '_nextdoor_shared_at' );
 		delete_post_meta( $post_id, '_nextdoor_updated_at' );
 
-		return $response;
+		return rest_ensure_response(
+			[
+				'success' => true,
+				'message' => __( 'Post successfully removed from Nextdoor.', 'newspack-plugin' ),
+			]
+		);
 	}
 
 	/**
-	 * Disconnect Nextdoor account.
+	 * Get post Nextdoor sharing status.
 	 *
-	 * @return array|WP_Error
+	 * @param WP_REST_Request $request Request object.
+	 * @return WP_REST_Response
 	 */
-	public static function disconnect_account() {
-		// Clear all Nextdoor settings.
-		$result = delete_option( 'newspack_nextdoor_settings' );
+	public static function api_get_post_sharing_status( $request ) {
+		$post_id              = $request->get_param( 'id' );
+		$guid                 = get_post_meta( $post_id, '_nextdoor_guid', true );
+		$shared_at            = get_post_meta( $post_id, '_nextdoor_shared_at', true );
+		$updated_at           = get_post_meta( $post_id, '_nextdoor_updated_at', true );
+		$deleted_at           = get_post_meta( $post_id, '_nextdoor_deleted_at', true );
+		$can_publish          = Nextdoor::can_user_publish();
+		$post                 = get_post( $post_id );
+		$is_published         = $post && $post->post_status === 'publish';
+		$ingestion_status     = null;
+		$ingestion_error_msgs = [];
 
-		if ( ! $result ) {
-			return new \WP_Error(
-				'disconnect_failed',
-				__( 'Failed to disconnect Nextdoor account.', 'newspack-plugin' )
-			);
+		if ( ! empty( $guid ) ) {
+			$api                = API::instance();
+			$ingestion_response = $api->get_ingestion_report( [ $guid ] );
+			
+			if ( ! is_wp_error( $ingestion_response ) &&
+				isset( $ingestion_response['results'] ) &&
+				is_array( $ingestion_response['results'] )
+			) {
+				
+				foreach ( $ingestion_response['results'] as $result ) {
+					if ( isset( $result['guid'] ) && $result['guid'] === $guid ) {
+						$ingestion_status     = isset( $result['status'] ) ? $result['status'] : null;
+						$ingestion_error_msgs = isset( $result['error_msgs'] ) ? $result['error_msgs'] : [];
+						break;
+					}
+				}
+			}
 		}
 
-		return [ 'success' => true ];
+		$response = [
+			'is_shared'        => ! empty( $guid ),
+			'is_deleted'       => ! empty( $deleted_at ),
+			'guid'             => $guid,
+			'can_publish'      => $can_publish,
+			'shared_at'        => $shared_at,
+			'updated_at'       => $updated_at,
+			'is_published'     => $is_published,
+			'last_modified'    => $post ? get_the_modified_date( 'c', $post_id ) : null,
+			'ingestion_status' => $ingestion_status,
+			'ingestion_errors' => $ingestion_error_msgs,
+		];
+
+		return rest_ensure_response( $response );
 	}
 
 	/**
@@ -592,7 +527,7 @@ class Controller {
 		// Generate GUID for the article.
 		$guid = get_post_meta( $post_id, '_nextdoor_guid', true );
 		if ( ! $guid ) {
-			$site_name_slug = str_replace( ' ', '_', get_bloginfo( 'name' ) );
+			$site_name_slug = sanitize_title( get_bloginfo( 'name' ) );
 			$guid           = $site_name_slug . '_' . $post_id . '_' . time();
 		}
 
@@ -639,65 +574,6 @@ class Controller {
 		 */
 		return apply_filters( 'newspack_nextdoor_article_data', $article_data, $post_id );
 	}
-
-	/**
-	 * Check if post is shared to Nextdoor.
-	 *
-	 * @param int $post_id Post ID.
-	 * @return bool
-	 */
-	public static function is_post_shared( $post_id ) {
-		return ! empty( get_post_meta( $post_id, '_nextdoor_guid', true ) );
-	}
-
-	/**
-	 * Get post Nextdoor sharing status.
-	 *
-	 * @param int $post_id Post ID.
-	 * @return array
-	 */
-	public static function get_post_sharing_status( $post_id ) {
-		$guid                 = get_post_meta( $post_id, '_nextdoor_guid', true );
-		$shared_at            = get_post_meta( $post_id, '_nextdoor_shared_at', true );
-		$updated_at           = get_post_meta( $post_id, '_nextdoor_updated_at', true );
-		$deleted_at           = get_post_meta( $post_id, '_nextdoor_deleted_at', true );
-		$post                 = get_post( $post_id );
-		$is_published         = $post && $post->post_status === 'publish';
-		$ingestion_status     = null;
-		$ingestion_error_msgs = [];
-
-		if ( ! empty( $guid ) ) {
-			$api                = API::instance();
-			$ingestion_response = $api->get_ingestion_report( [ $guid ] );
-			
-			if ( ! is_wp_error( $ingestion_response ) &&
-				isset( $ingestion_response['results'] ) &&
-				is_array( $ingestion_response['results'] )
-			) {
-				
-				foreach ( $ingestion_response['results'] as $result ) {
-					if ( isset( $result['guid'] ) && $result['guid'] === $guid ) {
-						$ingestion_status     = isset( $result['status'] ) ? $result['status'] : null;
-						$ingestion_error_msgs = isset( $result['error_msgs'] ) ? $result['error_msgs'] : [];
-						break;
-					}
-				}
-			}
-		}
-
-		return [
-			'is_shared'        => ! empty( $guid ),
-			'is_deleted'       => ! empty( $deleted_at ),
-			'can_republish'    => empty( $deleted_at ),
-			'guid'             => $guid,
-			'shared_at'        => $shared_at,
-			'updated_at'       => $updated_at,
-			'is_published'     => $is_published,
-			'last_modified'    => $post ? get_the_modified_date( 'c', $post_id ) : null,
-			'ingestion_status' => $ingestion_status,
-			'ingestion_errors' => $ingestion_error_msgs,
-		];
-	}
 }
 
-Controller::instance();
+Controller::init();

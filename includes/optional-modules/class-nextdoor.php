@@ -17,27 +17,21 @@ defined( 'ABSPATH' ) || exit;
 class Nextdoor {
 
 	/**
-	 * The single instance of the class.
+	 * Settings slug.
 	 *
-	 * @var Nextdoor
+	 * @var string
 	 */
-	protected static $instance = null;
+	const SETTINGS_SLUG = 'newspack_nextdoor_settings';
 
 	/**
-	 * Main Nextdoor Instance.
-	 * Ensures only one instance of Nextdoor is loaded or can be loaded.
+	 * Capability slug for publishing to Nextdoor.
 	 *
-	 * @return Nextdoor - Main instance.
+	 * @var string
 	 */
-	public static function instance() {
-		if ( is_null( self::$instance ) ) {
-			self::$instance = new self();
-		}
-		return self::$instance;
-	}
+	const CAPABILITY_SLUG = 'np_nextdoor_publish_posts';
 
 	/**
-	 * Initialize the class.
+	 * Initialize the module.
 	 */
 	public static function init() {
 		// Only initialize if the module is active.
@@ -93,8 +87,8 @@ class Nextdoor {
 
 		foreach ( $roles_with_cap as $role_name ) {
 			$role = get_role( $role_name );
-			if ( $role && ! $role->has_cap( 'np_nextdoor_publish_posts' ) ) {
-				$role->add_cap( 'np_nextdoor_publish_posts' );
+			if ( $role && ! $role->has_cap( self::CAPABILITY_SLUG ) ) {
+				$role->add_cap( self::CAPABILITY_SLUG );
 			}
 		}
 	}
@@ -129,7 +123,7 @@ class Nextdoor {
 	 * @return array
 	 */
 	public static function get_settings() {
-		return get_option( 'newspack_nextdoor_settings', [] );
+		return get_option( self::SETTINGS_SLUG, [] );
 	}
 
 	/**
@@ -139,7 +133,16 @@ class Nextdoor {
 	 * @return bool
 	 */
 	public static function update_settings( $settings ) {
-		return update_option( 'newspack_nextdoor_settings', $settings );
+		return update_option( self::SETTINGS_SLUG, $settings );
+	}
+
+	/**
+	 * Delete Nextdoor settings.
+	 *
+	 * @return bool
+	 */
+	public static function delete_settings() {
+		return delete_option( self::SETTINGS_SLUG );
 	}
 
 	/**
@@ -153,7 +156,7 @@ class Nextdoor {
 			$user_id = get_current_user_id();
 		}
 
-		return user_can( $user_id, 'np_nextdoor_publish_posts' ); // phpcs:ignore WordPress.WP.Capabilities.Unknown
+		return user_can( $user_id, self::CAPABILITY_SLUG );
 	}
 
 	/**
