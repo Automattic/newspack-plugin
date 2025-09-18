@@ -15,6 +15,7 @@ import { CheckboxControl, CardHeader, __experimentalHeading as Heading, CardBody
  */
 import { Button, Card, Grid, Notice } from '../../../../../../../../components/src';
 import { SettingsViewProps } from '../../types';
+import './style.scss';
 
 export const SettingsView = ( { settings, status, error, updateSettings, disconnect, setError }: SettingsViewProps ) => {
 	const [ allowedRoles, setAllowedRoles ] = useState< string[] >( settings.allowed_roles || [] );
@@ -80,18 +81,18 @@ export const SettingsView = ( { settings, status, error, updateSettings, disconn
 							<strong>{ __( 'Status:', 'newspack-plugin' ) }</strong>
 							<br />
 							{ status.is_connected ? (
-								<span style={ { color: '#00a32a' } }>{ __( 'Connected', 'newspack-plugin' ) }</span>
+								<span className="nextdoor-settings__status-value--success">{ __( 'Connected', 'newspack-plugin' ) }</span>
 							) : (
-								<span style={ { color: '#d63638' } }>{ __( 'Not Connected', 'newspack-plugin' ) }</span>
+								<span className="nextdoor-settings__status-value--error">{ __( 'Not Connected', 'newspack-plugin' ) }</span>
 							) }
 						</div>
 						<div>
 							<strong>{ __( 'Token:', 'newspack-plugin' ) }</strong>
 							<br />
 							{ status.token_valid ? (
-								<span style={ { color: '#00a32a' } }>{ __( 'Valid', 'newspack-plugin' ) }</span>
+								<span className="nextdoor-settings__status-value--success">{ __( 'Valid', 'newspack-plugin' ) }</span>
 							) : (
-								<span style={ { color: '#d63638' } }>{ __( 'Invalid or expired', 'newspack-plugin' ) }</span>
+								<span className="nextdoor-settings__status-value--error">{ __( 'Invalid or expired', 'newspack-plugin' ) }</span>
 							) }
 						</div>
 					</Grid>

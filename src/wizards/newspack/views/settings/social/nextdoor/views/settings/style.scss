@@ -1,0 +1,15 @@
+/**
+ * Nextdoor Settings Component Styles
+ */
+
+.nextdoor-settings {
+	&__status-value {
+		&--success {
+			color: #00a32a;
+		}
+
+		&--error {
+			color: #d63638;
+		}
+	}
+}
