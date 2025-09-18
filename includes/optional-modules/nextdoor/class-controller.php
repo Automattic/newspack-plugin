@@ -210,20 +210,13 @@ class Controller {
 		$publication_url = $request->get_param( 'publication_url' );
 		$test            = $request->get_param( 'test' );
 
-		$settings                    = Nextdoor::get_settings();
-		$settings['publication_url'] = $publication_url;
-		Nextdoor::update_settings( $settings );
-
-		// Check if page is already claimed.
-		if ( self::check_page_claim( $publication_url ) ) {
-			return rest_ensure_response( [ 'success' => true ] );
-		}
-
 		$api    = API::instance();
 		$result = $api->claim_page( $publication_url, $test );
-
+		
 		if ( is_array( $result ) && isset( $result['page_id'] ) ) {
-			$settings['page_id'] = $result['page_id'];
+			$settings                    = Nextdoor::get_settings();
+			$settings['page_id']         = $result['page_id'];
+			$settings['publication_url'] = $publication_url;
 
 			Nextdoor::update_settings( $settings );
 		}
@@ -233,44 +226,6 @@ class Controller {
 		}
 
 		return rest_ensure_response( [ 'success' => true ] );
-	}
-
-	/**
-	 * Checks if the current publication URL page has been claimed.
-	 *
-	 * @param string $publication_url The publication URL to check.
-	 * @return bool True if the page is claimed, false otherwise.
-	 */
-	private static function check_page_claim( $publication_url ) {
-		$api      = API::instance();
-		$profiles = $api->get_profiles();
-
-		if ( is_wp_error( $profiles ) || empty( $profiles ) ) {
-			return false;
-		}
-
-		if ( ! isset( $profiles['profile_list'] ) || ! is_array( $profiles['profile_list'] ) ) {
-			return false;
-		}
-
-		$input_url = rtrim( $publication_url, '/' );
-
-		foreach ( $profiles['profile_list'] as $profile ) {
-			if ( isset( $profile['is_entity_profile'] ) && $profile['is_entity_profile'] === true &&
-				isset( $profile['entity_page'] ) && isset( $profile['entity_page']['publication_url'] ) ) {
-
-				$claimed_url = rtrim( $profile['entity_page']['publication_url'], '/' );
-
-				if ( $claimed_url === $input_url ) {
-					$settings            = Nextdoor::get_settings();
-					$settings['page_id'] = $profile['entity_page']['id'];
-					Nextdoor::update_settings( $settings );
-					return true;
-				}
-			}
-		}
-
-		return false;
 	}
 
 	/**

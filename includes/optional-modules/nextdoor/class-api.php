@@ -142,8 +142,8 @@ class API {
 	public function claim_page( $publication_url, $test = false ) {
 		$body = [
 			'publication_url'         => $publication_url,
-			'publication_name'        => bloginfo( 'name' ),
-			'publication_description' => bloginfo( 'description' ),
+			'publication_name'        => get_bloginfo( 'name', 'display' ),
+			'publication_description' => get_bloginfo( 'description', 'display' ),
 			'test'                    => $test,
 		];
 
