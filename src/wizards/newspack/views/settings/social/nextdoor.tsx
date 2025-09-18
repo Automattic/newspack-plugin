@@ -23,7 +23,12 @@ import { OnboardingView } from './nextdoor/views/onboarding';
 import { SettingsView } from './nextdoor/views/settings';
 
 function Nextdoor() {
-	const [ settings, setSettings ] = useState< NextdoorSettings >( {} );
+	const [ settings, setSettings ] = useState< NextdoorSettings >( {
+		client_id: '',
+		client_secret: '',
+		publication_url: '',
+		allowed_roles: [],
+	} );
 	const [ status, setStatus ] = useState< NextdoorStatus >( {
 		is_connected: false,
 		has_credentials: false,
@@ -32,7 +37,6 @@ function Nextdoor() {
 		token_valid: false,
 	} );
 	const [ error, setError ] = useState< string | null >( null );
-	const [ showDetailedView, setShowDetailedView ] = useState( false );
 
 	const { description, apiData, isFetching, actionText, apiFetchToggle, errorMessage } = useWizardApiFetchToggle< NextdoorData >( {
 		path: '/newspack/v1/wizard/newspack-settings/social/nextdoor',
@@ -46,6 +50,10 @@ function Nextdoor() {
 				has_tokens: false,
 				has_page: false,
 				token_valid: false,
+			},
+			settings: {
+				client_id: '',
+				client_secret: '',
 				publication_url: '',
 				allowed_roles: [],
 			},
@@ -56,28 +64,29 @@ function Nextdoor() {
 		),
 	} );
 
-	// Update local state when API data changes
 	useEffect( () => {
 		if ( apiData.connection_status ) {
 			setStatus( apiData.connection_status );
-			setSettings( {
-				allowed_roles: apiData.connection_status.allowed_roles,
-			} );
+			setSettings( { ...settings, allowed_roles: apiData.settings.allowed_roles } );
 		}
 	}, [ apiData ] );
 
-	// API functions for the detailed views
 	const updateSettings = async ( newSettings: Partial< NextdoorSettings > ): Promise< NextdoorSettings > => {
 		try {
 			setError( null );
-			await apiFetch( {
-				path: '/newspack/v1/nextdoor/settings',
+			const response = await apiFetch< NextdoorData >( {
+				path: '/newspack/v1/wizard/newspack-settings/social/nextdoor',
 				method: 'POST',
 				data: newSettings,
 			} );
-			const updatedSettings = { ...settings, ...newSettings };
-			setSettings( updatedSettings );
-			return updatedSettings;
+
+			if ( response.settings ) {
+				const updatedSettings = { ...settings, ...response.settings };
+				setSettings( updatedSettings );
+				return updatedSettings;
+			}
+
+			return settings;
 		} catch ( fetchError ) {
 			const errorMsg = fetchError instanceof Error ? fetchError.message : __( 'Failed to update settings.', 'newspack-plugin' );
 			setError( errorMsg );
@@ -124,23 +133,12 @@ function Nextdoor() {
 				path: '/newspack/v1/nextdoor/disconnect',
 				method: 'DELETE',
 			} );
-			setStatus( {
-				is_connected: false,
-				has_credentials: false,
-				has_tokens: false,
-				has_page: false,
-				token_valid: false,
-			} );
-			setSettings( {} );
+			handleToggle( true );
 		} catch ( fetchError ) {
 			const errorMsg = fetchError instanceof Error ? fetchError.message : __( 'Failed to disconnect.', 'newspack-plugin' );
 			setError( errorMsg );
 			throw new Error( errorMsg );
 		}
-	};
-
-	const handleBackToSimpleView = () => {
-		setShowDetailedView( false );
 	};
 
 	const getDescription = () => {
@@ -160,23 +158,7 @@ function Nextdoor() {
 
 	const handleToggle = ( value: boolean ) => {
 		apiFetchToggle( { ...apiData, module_enabled_nextdoor: value }, true );
-		if ( value && ! apiData.is_connected ) {
-			// Show detailed view when enabling for setup
-			setShowDetailedView( true );
-		} else if ( ! value ) {
-			// Hide detailed view when disabling
-			setShowDetailedView( false );
-		}
 	};
-
-	// Auto-show detailed view when module is enabled and needs setup or user wants to configure
-	useEffect( () => {
-		if ( apiData.module_enabled_nextdoor ) {
-			setShowDetailedView( true );
-		} else {
-			setShowDetailedView( false );
-		}
-	}, [ apiData.module_enabled_nextdoor ] );
 
 	return (
 		<>
@@ -189,7 +171,7 @@ function Nextdoor() {
 				toggleChecked={ apiData.module_enabled_nextdoor }
 				toggleOnChange={ handleToggle }
 			>
-				{ apiData.module_enabled_nextdoor && showDetailedView && (
+				{ apiData.module_enabled_nextdoor && (
 					<>
 						{ apiData.is_connected ? (
 							<SettingsView
@@ -198,7 +180,7 @@ function Nextdoor() {
 								error={ error }
 								updateSettings={ updateSettings }
 								setError={ setError }
-								onBack={ handleBackToSimpleView }
+								disconnect={ disconnect }
 							/>
 						) : (
 							<OnboardingView
@@ -210,7 +192,6 @@ function Nextdoor() {
 								claimPage={ claimPage }
 								disconnect={ disconnect }
 								setError={ setError }
-								onBack={ handleBackToSimpleView }
 							/>
 						) }
 					</>

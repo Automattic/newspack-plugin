@@ -16,7 +16,7 @@ import { CheckboxControl, CardHeader, __experimentalHeading as Heading, CardBody
 import { Button, Card, Grid, Notice } from '../../../../../../../../components/src';
 import { SettingsViewProps } from '../../types';
 
-export const SettingsView = ( { settings, status, error, updateSettings, setError }: SettingsViewProps ) => {
+export const SettingsView = ( { settings, status, error, updateSettings, disconnect, setError }: SettingsViewProps ) => {
 	const [ allowedRoles, setAllowedRoles ] = useState< string[] >( settings.allowed_roles || [] );
 	const [ isSaving, setIsSaving ] = useState( false );
 	const [ hasChanges, setHasChanges ] = useState( false );
@@ -50,11 +50,13 @@ export const SettingsView = ( { settings, status, error, updateSettings, setErro
 			} );
 
 			setHasChanges( false );
-		} catch ( saveError ) {
-			// Error is handled by updateSettings
 		} finally {
 			setIsSaving( false );
 		}
+	};
+
+	const handleDisconnect = async () => {
+		await disconnect();
 	};
 
 	if ( ! status.is_connected ) {
@@ -96,6 +98,13 @@ export const SettingsView = ( { settings, status, error, updateSettings, setErro
 							) }
 						</div>
 					</Grid>
+					{ status.is_connected && (
+						<div className="newspack-buttons-card">
+							<Button variant="secondary" isDestructive onClick={ handleDisconnect }>
+								{ __( 'Disconnect', 'newspack-plugin' ) }
+							</Button>
+						</div>
+					) }
 				</CardBody>
 			</Card>
 			<Card>
@@ -129,7 +138,7 @@ export const SettingsView = ( { settings, status, error, updateSettings, setErro
 
 					<div className="newspack-buttons-card">
 						<Button variant="primary" onClick={ handleSaveSettings } disabled={ ! hasChanges || isSaving } isBusy={ isSaving }>
-							{ __( 'Save Settings', 'newspack-plugin' ) }
+							{ __( 'Save', 'newspack-plugin' ) }
 						</Button>
 					</div>
 				</CardBody>

@@ -14,6 +14,7 @@ import { ExternalLink } from '@wordpress/components';
  */
 import { ActionCard, Button, Card, Grid, Notice, SelectControl, TextControl } from '../../../../../../../../components/src';
 import { OnboardingViewProps } from '../../types';
+import './style.scss';
 
 export const OnboardingView = ( {
 	settings,
@@ -72,8 +73,6 @@ export const OnboardingView = ( {
 				client_secret: clientSecret,
 			} );
 			setCurrentStep( 2 );
-		} catch ( saveError ) {
-			// Error is handled by updateSettings
 		} finally {
 			setIsSaving( false );
 		}
@@ -92,8 +91,6 @@ export const OnboardingView = ( {
 
 			// Redirect to login URL
 			window.location.href = response.login_url ?? window.location.href;
-		} catch ( oauthError ) {
-			// Error is handled by startOAuthFlow
 		} finally {
 			setIsSaving( false );
 		}
@@ -114,8 +111,6 @@ export const OnboardingView = ( {
 			} else {
 				setError( __( 'Failed to claim page.', 'newspack-plugin' ) );
 			}
-		} catch ( claimError ) {
-			// Error is handled by claimPage
 		} finally {
 			setIsSaving( false );
 		}
@@ -127,8 +122,6 @@ export const OnboardingView = ( {
 			setError( null );
 			await disconnect();
 			setCurrentStep( 1 );
-		} catch ( disconnectError ) {
-			// Error is handled by disconnect
 		} finally {
 			setIsSaving( false );
 		}
@@ -142,20 +135,18 @@ export const OnboardingView = ( {
 			{ currentStep === 1 && (
 				<Card>
 					<p>{ __( 'To get started, you need to register your site with Nextdoor and obtain API credentials.', 'newspack-plugin' ) }</p>
-					<div style={ { backgroundColor: '#f0f6fc', padding: '16px', borderRadius: '4px', marginTop: '16px', marginBottom: '16px' } }>
+					<div className="nextdoor-onboarding__redirect-uri-box">
 						<strong>{ __( 'Redirect URI:', 'newspack-plugin' ) }</strong>
 						<br />
-						<div style={ { display: 'flex', alignItems: 'center', gap: '8px', marginTop: '8px', marginBottom: '8px' } }>
-							<code style={ { backgroundColor: '#fff', padding: '4px 8px', borderRadius: '3px', fontSize: '13px', flex: 1 } }>
-								{ redirectUri }
-							</code>
+						<div className="nextdoor-onboarding__redirect-uri-container">
+							<code className="nextdoor-onboarding__redirect-uri-code">{ redirectUri }</code>
 						</div>
-						<small style={ { color: '#666' } }>
+						<small className="nextdoor-onboarding__redirect-uri-help">
 							{ __( 'Use this URL as the Redirect URI when signing up for Nextdoor credentials.', 'newspack-plugin' ) }
 						</small>
 					</div>
 					<p>
-						<ExternalLink href="https://developer.nextdoor.com/">
+						<ExternalLink href="https://developer.nextdoor.com/reference/applying-for-access">
 							{ __( 'Get your API credentials from Nextdoor Developer Portal', 'newspack-plugin' ) }
 						</ExternalLink>
 					</p>
@@ -269,39 +260,51 @@ export const OnboardingView = ( {
 				<Card>
 					<Grid columns={ 2 } gutter={ 16 }>
 						<div>
-							<strong>{ __( 'API Credentials:', 'newspack-plugin' ) }</strong>
-							<br />
+							<div className="nextdoor-onboarding__status-label">{ __( 'API Credentials:', 'newspack-plugin' ) }</div>
 							{ status.has_credentials ? (
-								<span style={ { color: '#00a32a' } }>{ __( 'Configured', 'newspack-plugin' ) }</span>
+								<span className="nextdoor-onboarding__status-value nextdoor-onboarding__status-value--success">
+									{ __( 'Configured', 'newspack-plugin' ) }
+								</span>
 							) : (
-								<span style={ { color: '#d63638' } }>{ __( 'Not configured', 'newspack-plugin' ) }</span>
+								<span className="nextdoor-onboarding__status-value nextdoor-onboarding__status-value--error">
+									{ __( 'Not configured', 'newspack-plugin' ) }
+								</span>
 							) }
 						</div>
 						<div>
-							<strong>{ __( 'Account Connected:', 'newspack-plugin' ) }</strong>
-							<br />
+							<div className="nextdoor-onboarding__status-label">{ __( 'Account Connected:', 'newspack-plugin' ) }</div>
 							{ status.has_tokens ? (
-								<span style={ { color: '#00a32a' } }>{ __( 'Yes', 'newspack-plugin' ) }</span>
+								<span className="nextdoor-onboarding__status-value nextdoor-onboarding__status-value--success">
+									{ __( 'Yes', 'newspack-plugin' ) }
+								</span>
 							) : (
-								<span style={ { color: '#d63638' } }>{ __( 'No', 'newspack-plugin' ) }</span>
+								<span className="nextdoor-onboarding__status-value nextdoor-onboarding__status-value--error">
+									{ __( 'No', 'newspack-plugin' ) }
+								</span>
 							) }
 						</div>
 						<div>
-							<strong>{ __( 'Page Claimed:', 'newspack-plugin' ) }</strong>
-							<br />
+							<div className="nextdoor-onboarding__status-label">{ __( 'Page Claimed:', 'newspack-plugin' ) }</div>
 							{ status.has_page ? (
-								<span style={ { color: '#00a32a' } }>{ __( 'Yes', 'newspack-plugin' ) }</span>
+								<span className="nextdoor-onboarding__status-value nextdoor-onboarding__status-value--success">
+									{ __( 'Yes', 'newspack-plugin' ) }
+								</span>
 							) : (
-								<span style={ { color: '#d63638' } }>{ __( 'No', 'newspack-plugin' ) }</span>
+								<span className="nextdoor-onboarding__status-value nextdoor-onboarding__status-value--error">
+									{ __( 'No', 'newspack-plugin' ) }
+								</span>
 							) }
 						</div>
 						<div>
-							<strong>{ __( 'Overall Status:', 'newspack-plugin' ) }</strong>
-							<br />
+							<div className="nextdoor-onboarding__status-label">{ __( 'Overall Status:', 'newspack-plugin' ) }</div>
 							{ status.is_connected ? (
-								<span style={ { color: '#00a32a' } }>{ __( 'Connected', 'newspack-plugin' ) }</span>
+								<span className="nextdoor-onboarding__status-value nextdoor-onboarding__status-value--success">
+									{ __( 'Connected', 'newspack-plugin' ) }
+								</span>
 							) : (
-								<span style={ { color: '#d63638' } }>{ __( 'Not connected', 'newspack-plugin' ) }</span>
+								<span className="nextdoor-onboarding__status-value nextdoor-onboarding__status-value--error">
+									{ __( 'Not connected', 'newspack-plugin' ) }
+								</span>
 							) }
 						</div>
 					</Grid>

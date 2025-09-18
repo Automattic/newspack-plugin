@@ -46,43 +46,6 @@ class Controller {
 	 * Register REST API endpoints.
 	 */
 	public function register_api_endpoints() {
-		// Controller endpoint.
-		register_rest_route(
-			NEWSPACK_API_NAMESPACE,
-			'/nextdoor/settings',
-			[
-				'methods'             => \WP_REST_Server::READABLE,
-				'callback'            => [ $this, 'api_get_settings' ],
-				'permission_callback' => [ $this, 'api_permissions_check' ],
-			]
-		);
-
-		register_rest_route(
-			NEWSPACK_API_NAMESPACE,
-			'/nextdoor/settings',
-			[
-				'methods'             => \WP_REST_Server::EDITABLE,
-				'callback'            => [ $this, 'api_update_settings' ],
-				'permission_callback' => [ $this, 'api_permissions_check' ],
-				'args'                => [
-					'client_id'     => [
-						'required'          => false,
-						'type'              => 'string',
-						'sanitize_callback' => 'sanitize_text_field',
-					],
-					'client_secret' => [
-						'required'          => false,
-						'type'              => 'string',
-						'sanitize_callback' => 'sanitize_text_field',
-					],
-					'allowed_roles' => [
-						'required' => false,
-						'type'     => 'array',
-					],
-				],
-			]
-		);
-
 		// OAuth endpoints.
 		register_rest_route(
 			NEWSPACK_API_NAMESPACE,
@@ -232,55 +195,6 @@ class Controller {
 	}
 
 	/**
-	 * Get Nextdoor settings via API.
-	 *
-	 * @return WP_REST_Response
-	 */
-	public function api_get_settings() {
-		$settings = Nextdoor::get_settings();
-
-		// Don't expose sensitive data.
-		unset( $settings['access_token'] );
-
-		return rest_ensure_response( $settings );
-	}
-
-	/**
-	 * Update Nextdoor settings via API.
-	 *
-	 * @param WP_REST_Request $request Request object.
-	 * @return WP_REST_Response
-	 */
-	public function api_update_settings( $request ) {
-		$settings = Nextdoor::get_settings();
-		$params   = $request->get_params();
-
-		if ( isset( $params['client_id'] ) ) {
-			$settings['client_id'] = $params['client_id'];
-		}
-
-		if ( isset( $params['client_secret'] ) ) {
-			$settings['client_secret'] = $params['client_secret'];
-		}
-
-		if ( isset( $params['allowed_roles'] ) ) {
-			$settings['allowed_roles'] = $params['allowed_roles'];
-		}
-
-		$updated = Nextdoor::update_settings( $settings );
-
-		if ( ! $updated ) {
-			return new \WP_Error(
-				'newspack_nextdoor_settings_update_failed',
-				__( 'Failed to update Nextdoor settings.', 'newspack-plugin' ),
-				[ 'status' => 500 ]
-			);
-		}
-
-		return $this->api_get_settings();
-	}
-
-	/**
 	 * Start OAuth flow via API.
 	 *
 	 * @param WP_REST_Request $request Request object.
@@ -290,8 +204,7 @@ class Controller {
 		$email   = $request->get_param( 'email' );
 		$country = $request->get_param( 'country' );
 
-		$api  = API::instance();
-		$auth = Auth::instance();
+		$api = API::instance();
 
 		// First, create/get account.
 		$redirect_uri     = Nextdoor::get_redirect_uri();
@@ -380,9 +293,9 @@ class Controller {
 				$claimed_url = rtrim( $profile['entity_page']['publication_url'], '/' );
 
 				if ( $claimed_url === $input_url ) {
-					$settings            = Nextdoor::get_settings();
-					$settings['page_id'] = $profile['entity_page']['id'];
-					$settings['profile_id'] = $profile['id'];
+					$settings                     = Nextdoor::get_settings();
+					$settings['page_id']          = $profile['entity_page']['id'];
+					$settings['profile_id']       = $profile['id'];
 					$settings['entity_page_name'] = $profile['entity_page']['name'];
 					Nextdoor::update_settings( $settings );
 					return true;

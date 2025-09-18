@@ -1,0 +1,50 @@
+/**
+ * Nextdoor Onboarding Styles
+ */
+
+.nextdoor-onboarding {
+	&__redirect-uri-box {
+		background-color: #f0f6fc;
+		padding: 16px;
+		border-radius: 4px;
+		margin-top: 16px;
+		margin-bottom: 16px;
+	}
+
+	&__redirect-uri-container {
+		display: flex;
+		align-items: center;
+		gap: 8px;
+		margin-top: 8px;
+		margin-bottom: 8px;
+	}
+
+	&__redirect-uri-code {
+		background-color: #fff;
+		padding: 4px 8px;
+		border-radius: 3px;
+		font-size: 13px;
+		flex: 1;
+		font-family: monospace;
+	}
+
+	&__redirect-uri-help {
+		color: #666;
+		font-size: 12px;
+	}
+
+	&__status-label {
+		font-weight: 600;
+		margin-bottom: 4px;
+	}
+
+	&__status-value {
+		&--success {
+			color: #00a32a;
+		}
+
+		&--error {
+			color: #d63638;
+		}
+	}
+}
