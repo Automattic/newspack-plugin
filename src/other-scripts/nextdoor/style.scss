@@ -8,9 +8,16 @@
 		text-align: center;
 	}
 
+	&__status-header {
+		margin: 0;
+		font-weight: 600;
+		font-size: 16px;
+		text-transform: capitalize;
+	}
+
 	&__status-text {
 		margin: 0 0 1rem 0;
-		font-size: 13px;
+		font-size: 14px;
 		color: #757575;
 
 		&--default {

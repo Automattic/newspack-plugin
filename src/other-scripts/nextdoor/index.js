@@ -45,10 +45,6 @@ const NextdoorPostSidebar = ( { postId, postStatus } ) => {
 			} );
 
 			setNextdoorStatus( response );
-
-			if ( response.ingestion_errors && response.ingestion_errors.length > 0 ) {
-				setError( response.ingestion_errors.join( ' ' ) );
-			}
 		} catch ( fetchError ) {
 			setError( fetchError.message || __( 'Failed to load Nextdoor status.', 'newspack-plugin' ) );
 		} finally {
@@ -225,10 +221,20 @@ const NextdoorPostSidebar = ( { postId, postStatus } ) => {
 
 				{ nextdoorStatus?.is_shared ? (
 					<Panel>
-						<PanelHeader>{ __( 'Shared to Nextdoor', 'newspack-plugin' ) }</PanelHeader>
+						<PanelHeader>
+							<p className="nextdoor-sidebar__status-header">
+								{ __( 'Status:', 'newspack-plugin' ) } { nextdoorStatus.ingestion_status }
+							</p>
+						</PanelHeader>
 						<PanelBody>
 							<p className="nextdoor-sidebar__status-text">
-								{ __( 'This post is available in your Nextdoor community.', 'newspack-plugin' ) }
+								{ 'valid' === nextdoorStatus.ingestion_status &&
+									__( 'This post is available in your Nextdoor community.', 'newspack-plugin' ) }
+								{ 'invalid' === nextdoorStatus.ingestion_status &&
+									nextdoorStatus.ingestion_errors?.length > 0 &&
+									nextdoorStatus.ingestion_errors.join( ' ' ) }
+								{ 'unprocessed' === nextdoorStatus.ingestion_status &&
+									__( 'This post is being processed by Nextdoor.', 'newspack-plugin' ) }
 							</p>
 
 							{ nextdoorStatus.shared_at && (
@@ -240,12 +246,6 @@ const NextdoorPostSidebar = ( { postId, postStatus } ) => {
 							{ nextdoorStatus.updated_at && (
 								<p className="nextdoor-sidebar__status-text nextdoor-sidebar__status-text--default">
 									<strong>{ __( 'Updated:', 'newspack-plugin' ) }</strong> { formatDate( nextdoorStatus.updated_at ) }
-								</p>
-							) }
-
-							{ nextdoorStatus.ingestion_status && (
-								<p className="nextdoor-sidebar__status-text nextdoor-sidebar__status-text--default">
-									<strong>{ __( 'Status:', 'newspack-plugin' ) }</strong> { nextdoorStatus.ingestion_status }
 								</p>
 							) }
 
