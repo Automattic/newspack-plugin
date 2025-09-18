@@ -782,8 +782,6 @@ class Settings {
 			'deleted_at'       => $deleted_at,
 			'is_published'     => $is_published,
 			'last_modified'    => $post ? get_the_modified_date( 'c', $post_id ) : null,
-			'needs_update'     => ! empty( $guid ) && ! empty( $shared_at ) && ! empty( $updated_at ) &&
-									$post && strtotime( get_the_modified_date( 'Y-m-d H:i:s', $post_id ) ) > strtotime( $updated_at ),
 			'ingestion_status' => $ingestion_status,
 			'ingestion_errors' => $ingestion_error_msgs,
 		];

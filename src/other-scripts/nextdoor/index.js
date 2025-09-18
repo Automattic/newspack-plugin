@@ -265,12 +265,6 @@ const NextdoorPostSidebar = ( { postId, postStatus } ) => {
 								</p>
 							) }
 
-							{ nextdoorStatus.needs_update && (
-								<Notice status="info" isDismissible={ false } className="nextdoor-sidebar__notice">
-									{ __( 'This post has been modified since it was last updated on Nextdoor.', 'newspack-plugin' ) }
-								</Notice>
-							) }
-
 							<div className="nextdoor-sidebar__actions">
 								<Button
 									variant="primary"
