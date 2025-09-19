@@ -818,8 +818,8 @@ class Audience_Wizard extends Wizard {
 	 */
 	private static function get_memberships_settings() {
 		return [
-			'edit_gate_url'            => Memberships::get_edit_gate_url(),
-			'gate_status'              => get_post_status( Memberships::get_gate_post_id() ),
+			'edit_gate_url'            => Content_Gate::get_edit_gate_url(),
+			'gate_status'              => get_post_status( Content_Gate::get_gate_post_id() ),
 			'plans'                    => Memberships::get_plans(),
 			'require_all_plans'        => Memberships::get_require_all_plans_setting(),
 			'show_on_subscription_tab' => Memberships::get_show_on_subscription_tab_setting(),
@@ -836,7 +836,7 @@ class Audience_Wizard extends Wizard {
 		global $pagenow, $typenow;
 
 		$cpts = [
-			Memberships::GATE_CPT,
+			Content_Gate::GATE_CPT,
 			Emails::POST_TYPE,
 		];
 
@@ -857,7 +857,7 @@ class Audience_Wizard extends Wizard {
 		global $pagenow, $typenow;
 
 		$cpts = [
-			Memberships::GATE_CPT,
+			Content_Gate::GATE_CPT,
 			Emails::POST_TYPE,
 		];
 

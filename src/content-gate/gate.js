@@ -1,4 +1,4 @@
-/* globals newspack_memberships_gate */
+/* globals newspack_content_gate */
 /**
  * Internal dependencies
  */
@@ -32,7 +32,7 @@ function domReady( callback ) {
 // Gate info to send with each event.
 // This is mutable so that its properties can be carried from event to event in gate interaction flows.
 const gateInfo = {
-	...newspack_memberships_gate.metadata,
+	...newspack_content_gate.metadata,
 	referrer: window.location.pathname,
 };
 
@@ -118,7 +118,7 @@ function addFormInputs( gate ) {
 			const input = document.createElement( 'input' );
 			input.type = 'hidden';
 			input.name = 'memberships_content_gate';
-			input.value = newspack_memberships_gate.metadata?.gate_post_id || '1';
+			input.value = newspack_content_gate.metadata?.gate_post_id || '1';
 			form.appendChild( input );
 			form.addEventListener( 'submit', evt => handleFormSubmission( evt, gate ) );
 		}

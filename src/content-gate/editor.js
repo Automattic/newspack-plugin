@@ -1,4 +1,4 @@
-/* globals newspack_memberships_gate */
+/* globals newspack_content_gate */
 /**
  * WordPress dependencies
  */
@@ -54,34 +54,34 @@ function GateEdit() {
 	}, [ meta.style, meta.overlay_size ] );
 	const { createNotice } = useDispatch( 'core/notices' );
 	useEffect( () => {
-		if ( Object.keys( newspack_memberships_gate.gate_plans ).length ) {
+		if ( Object.keys( newspack_content_gate.gate_plans ).length ) {
 			createNotice(
 				'info',
 				sprintf(
 					// translators: %s is the list of plans.
 					__( "You're currently editing a gate for content restricted by: %s", 'newspack-plugin' ),
-					Object.values( newspack_memberships_gate.gate_plans ).join( ', ' )
+					Object.values( newspack_content_gate.gate_plans ).join( ', ' )
 				)
 			);
 		}
 	}, [] );
 	const getPlansToEdit = () => {
-		const currentGatePlans = Object.keys( newspack_memberships_gate.gate_plans ) || [];
-		const plans = newspack_memberships_gate.plans.filter( plan => {
+		const currentGatePlans = Object.keys( newspack_content_gate.gate_plans ) || [];
+		const plans = newspack_content_gate.plans.filter( plan => {
 			return ! currentGatePlans.includes( plan.id.toString() );
 		} );
 		return plans;
 	};
 	return (
 		<Fragment>
-			{ newspack_memberships_gate.has_campaigns && (
+			{ newspack_content_gate.has_campaigns && (
 				<PluginPostStatusInfo>
 					<p>{ __( "Newspack Campaign prompts won't be displayed when rendering gated content.", 'newspack-plugin' ) }</p>
 				</PluginPostStatusInfo>
 			) }
-			{ newspack_memberships_gate.plans.length > 1 && (
+			{ newspack_content_gate.plans.length > 1 && (
 				<PluginDocumentSettingPanel name="memberships-gate-plans" title={ __( 'WooCommerce Memberships', 'newspack-plugin' ) }>
-					{ ! Object.keys( newspack_memberships_gate.gate_plans ).length ? (
+					{ ! Object.keys( newspack_content_gate.gate_plans ).length ? (
 						<Fragment>
 							<p>
 								{ __(
@@ -96,7 +96,7 @@ function GateEdit() {
 								{ sprintf(
 									// translators: %s is the list of plans.
 									__( 'This gate will be rendered for the following membership plans: %s', 'newspack-plugin' ),
-									Object.values( newspack_memberships_gate.gate_plans ).join( ', ' )
+									Object.values( newspack_content_gate.gate_plans ).join( ', ' )
 								) }
 							</p>
 							<hr />
@@ -105,7 +105,7 @@ function GateEdit() {
 									__html: sprintf(
 										// translators: %s is the link to the primary gate.
 										__( 'Edit the <a href="%s">primary gate</a>, or:', 'newspack-plugin' ),
-										newspack_memberships_gate.edit_gate_url
+										newspack_content_gate.edit_gate_url
 									),
 								} }
 							/>
@@ -125,7 +125,7 @@ function GateEdit() {
 										-{ ' ' }
 									</Fragment>
 								) }
-								<a href={ newspack_memberships_gate.edit_gate_url + '&plan_id=' + plan.id }>
+								<a href={ newspack_content_gate.edit_plan_gate_url + '&plan_id=' + plan.id }>
 									{ plan.gate_id ? __( 'edit gate', 'newspack-plugin' ) : __( 'create gate', 'newspack-plugin' ) }
 								</a>
 								)
@@ -248,7 +248,7 @@ function GateEdit() {
 	);
 }
 
-registerPlugin( 'newspack-memberships-gate', {
+registerPlugin( 'newspack-content-gate', {
 	render: GateEdit,
 	icon: null,
 } );
