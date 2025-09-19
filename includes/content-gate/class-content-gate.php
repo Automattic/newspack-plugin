@@ -53,6 +53,7 @@ class Content_Gate {
 		add_filter( 'newspack_gate_content', 'wp_replace_insecure_home_url' );
 		add_filter( 'newspack_gate_content', 'do_shortcode', 11 ); // AFTER wpautop().
 
+		include __DIR__ . '/class-content-restriction-control.php';
 		include __DIR__ . '/class-block-patterns.php';
 		include __DIR__ . '/class-metering.php';
 	}
