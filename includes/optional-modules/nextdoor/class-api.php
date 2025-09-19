@@ -68,7 +68,7 @@ class API {
 			$args['headers']['Authorization'] = 'Bearer ' . $settings['access_token'];
 		}
 
-		$response = wp_remote_request( $url, $args );
+		$response = wp_safe_remote_request( $url, $args );
 
 		if ( is_wp_error( $response ) ) {
 			return $response;

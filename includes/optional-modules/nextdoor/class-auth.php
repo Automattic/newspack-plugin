@@ -52,7 +52,7 @@ class Auth {
 			'redirect_uri' => $redirect_uri,
 		];
 
-		$response = wp_remote_post(
+		$response = wp_safe_remote_post(
 			self::OAUTH_BASE_URL . '/v2/token',
 			[
 				'body'    => $body,
@@ -99,7 +99,7 @@ class Auth {
 			'scope'         => implode( ' ', self::get_access_scopes() ),
 		];
 
-		$response = wp_remote_post(
+		$response = wp_safe_remote_post(
 			self::OAUTH_BASE_URL . '/v2/token',
 			[
 				'body'    => $body,
