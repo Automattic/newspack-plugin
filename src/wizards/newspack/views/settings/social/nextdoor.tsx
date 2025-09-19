@@ -19,8 +19,8 @@ import WizardsActionCard from '../../../../wizards-action-card';
  * Components
  */
 import { NextdoorData, NextdoorSettings, NextdoorStatus, OAuthResponse, ClaimPageResponse } from './nextdoor/types';
-import { OnboardingView } from './nextdoor/views/onboarding';
-import { SettingsView } from './nextdoor/views/settings';
+import { Onboarding } from './nextdoor/onboarding';
+import { Settings } from './nextdoor/settings';
 
 function Nextdoor() {
 	const [ settings, setSettings ] = useState< NextdoorSettings >( {
@@ -174,7 +174,7 @@ function Nextdoor() {
 				{ apiData.module_enabled_nextdoor && (
 					<>
 						{ apiData.is_connected ? (
-							<SettingsView
+							<Settings
 								settings={ settings }
 								status={ status }
 								error={ error }
@@ -183,7 +183,7 @@ function Nextdoor() {
 								disconnect={ disconnect }
 							/>
 						) : (
-							<OnboardingView
+							<Onboarding
 								settings={ settings }
 								status={ status }
 								error={ error }

@@ -12,20 +12,18 @@ import { ExternalLink } from '@wordpress/components';
 /**
  * Internal dependencies
  */
-import { ActionCard, Button, Card, Grid, Notice, SelectControl, TextControl } from '../../../../../../../../components/src';
-import { OnboardingViewProps } from '../../types';
+import { ActionCard, Button, Card, Grid, Notice, SelectControl, TextControl } from '../../../../../../../components/src';
+import { OnboardingProps } from '../types';
+
+/**
+ * Styles
+ */
 import './style.scss';
 
-export const OnboardingView = ( {
-	settings,
-	status,
-	error,
-	updateSettings,
-	startOAuthFlow,
-	claimPage,
-	disconnect,
-	setError,
-}: OnboardingViewProps ) => {
+/**
+ * Onboarding component.
+ */
+export const Onboarding = ( { settings, status, error, updateSettings, startOAuthFlow, claimPage, disconnect, setError }: OnboardingProps ) => {
 	const [ clientId, setClientId ] = useState( settings.client_id || '' );
 	const [ clientSecret, setClientSecret ] = useState( settings.client_secret || '' );
 	const [ email, setEmail ] = useState( '' );
@@ -34,6 +32,7 @@ export const OnboardingView = ( {
 	const [ isSaving, setIsSaving ] = useState( false );
 	const [ currentStep, setCurrentStep ] = useState( 1 );
 
+	// Get country options and redirect URI from localized data
 	const countryOptions = window.newspackSettings?.social?.nextdoor?.country_options || [];
 	const redirectUri = window.newspackSettings?.social?.nextdoor?.redirect_uri || '';
 
@@ -322,4 +321,4 @@ export const OnboardingView = ( {
 	);
 };
 
-export default OnboardingView;
+export default Onboarding;

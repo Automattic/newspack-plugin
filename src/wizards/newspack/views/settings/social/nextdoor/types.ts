@@ -33,7 +33,7 @@ export interface ClaimPageResponse {
 	success?: boolean;
 }
 
-export interface OnboardingViewProps {
+export interface OnboardingProps {
 	settings: NextdoorSettings;
 	status: NextdoorStatus;
 	error: string | null;
@@ -44,7 +44,7 @@ export interface OnboardingViewProps {
 	disconnect: () => Promise< void >;
 }
 
-export interface SettingsViewProps {
+export interface SettingsProps {
 	settings: NextdoorSettings;
 	status: NextdoorStatus;
 	error: string | null;

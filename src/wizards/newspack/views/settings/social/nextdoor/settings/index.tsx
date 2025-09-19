@@ -13,11 +13,18 @@ import { CheckboxControl, CardHeader, __experimentalHeading as Heading, CardBody
 /**
  * Internal dependencies
  */
-import { Button, Card, Grid, Notice } from '../../../../../../../../components/src';
-import { SettingsViewProps } from '../../types';
+import { Button, Card, Grid, Notice } from '../../../../../../../components/src';
+import { SettingsProps } from '../types';
+
+/**
+ * Styles
+ */
 import './style.scss';
 
-export const SettingsView = ( { settings, status, error, updateSettings, disconnect, setError }: SettingsViewProps ) => {
+/**
+ * Settings component.
+ */
+export const Settings = ( { settings, status, error, updateSettings, disconnect, setError }: SettingsProps ) => {
 	const [ allowedRoles, setAllowedRoles ] = useState< string[] >( settings.allowed_roles || [] );
 	const [ isSaving, setIsSaving ] = useState( false );
 	const [ hasChanges, setHasChanges ] = useState( false );
@@ -142,3 +149,5 @@ export const SettingsView = ( { settings, status, error, updateSettings, disconn
 		</>
 	);
 };
+
+export default Settings;
