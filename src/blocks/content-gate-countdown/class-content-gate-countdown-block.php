@@ -5,9 +5,10 @@
  * @package Newspack
  */
 
+namespace Newspack;
+
 defined( 'ABSPATH' ) || exit;
 
-use Newspack;
 use Newspack\Memberships;
 use Newspack\Memberships\Metering;
 
@@ -68,7 +69,7 @@ class Content_Gate_Countdown_Block {
 	 * @return string The block HTML.
 	 */
 	public static function render_block( array $attributes, string $content ) {
-		if ( ! Metering::is_metering() ) {
+		if ( ! Metering::is_metering() || ! Memberships::is_post_restricted() ) {
 			return '';
 		}
 		$total_views = Metering::get_total_metered_views( \is_user_logged_in() );
@@ -79,7 +80,7 @@ class Content_Gate_Countdown_Block {
 		$countdown       = sprintf(
 			/* translators: 1: remaining metered views, 2: total metered views. */
 			__( '%1$d/%2$d', 'newspack-plugin' ),
-			max( 0, $total_views - $remaining_views ),
+			$remaining_views,
 			$total_views
 		);
 		$text = isset( $attributes['text'] ) ? esc_html( $attributes['text'] ) : '';

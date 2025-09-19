@@ -34,6 +34,8 @@ export default function Edit( { attributes, setAttributes } ) {
 					{
 						text: __( 'Subscribe now', 'newspack-plugin' ),
 						align: 'center',
+						backgroundColor: 'primary',
+						textColor: 'secondary',
 					},
 				],
 			],
@@ -63,14 +65,16 @@ export default function Edit( { attributes, setAttributes } ) {
 
 	if ( ! totalViews ) {
 		return (
-			<Placeholder
-				icon={ caution }
-				label={ __(
-					'The content gate countdown block will only display in restricted content when metering is enabled.',
-					'newspack-plugin'
-				) }
-				className="no-metering"
-			/>
+			<div { ...blockProps }>
+				<Placeholder
+					icon={ caution }
+					label={ __(
+						'The content gate countdown block will only display in restricted content when metering is enabled.',
+						'newspack-plugin'
+					) }
+					className="no-metering"
+				/>
+			</div>
 		);
 	}
 
@@ -94,7 +98,7 @@ export default function Edit( { attributes, setAttributes } ) {
 						<span className="newspack-content-gate-countdown__countdown">
 							{ sprintf(
 								/* translators: 1: remaining metered views, 2: total metered views. */ __( '%1$d/%2$d', 'newspack-plugin' ),
-								Math.max( 0, parseInt( totalViews ) - parseInt( remainingViews ) ),
+								parseInt( remainingViews ),
 								parseInt( totalViews )
 							) }
 						</span>
