@@ -1,4 +1,3 @@
-/* globals newspackAudience */
 /**
  * Configuration
  */
@@ -100,11 +99,10 @@ function AudienceWizard( { confirmAction, pluginRequirements, wizardApiFetch }, 
 			label: config.enabled ? __( 'Configuration', 'newspack-plugin' ) : __( 'Setup', 'newspack-plugin' ),
 			path: '/',
 		},
-		config.enabled &&
-			newspackAudience.has_memberships && {
-				label: __( 'Content Gating', 'newspack-plugin' ),
-				path: '/content-gating',
-			},
+		config.enabled && {
+			label: __( 'Content Gating', 'newspack-plugin' ),
+			path: '/content-gating',
+		},
 		{
 			label: __( 'Checkout & Payment', 'newspack-plugin' ),
 			path: '/payment',

@@ -346,29 +346,15 @@ class Memberships {
 		if ( ! class_exists( 'WC_Memberships' ) ) {
 			return;
 		}
-		if ( ! \is_singular() || ! Content_Gate::is_post_restricted() ) {
+		if ( ! \is_singular() || ! Content_Gate::is_post_restricted() || ! Metering::is_metering() ) {
 			return;
 		}
 
 		// Remove the default restriction handler from 'SkyVerge\WooCommerce\Memberships\Restrictions\Posts::restrict_post'.
-		if ( Metering::is_metering() ) {
-			$restriction_instance = \wc_memberships()->get_restrictions_instance()->get_posts_restrictions_instance();
-			\remove_action( 'wp', spl_object_hash( $restriction_instance ) . 'handle_restriction_modes', 9 );
-			\remove_action( 'wp', spl_object_hash( $restriction_instance ) . 'handle_restriction_modes' ); // For compatibility with Woo Memberships < 1.27.2.
-			\add_filter( 'wc_memberships_restrictable_comment_types', '__return_empty_array' );
-		}
-
-		// Add inline gate to the footer so it can be handled by the frontend.
-		if ( Metering::is_frontend_metering() ) {
-			\add_action(
-				'wp_footer',
-				function() {
-					Content_Gate::mark_gate_as_rendered();
-					echo '<div style="display:none">' . Content_Gate::get_inline_gate_content() . '</div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-				},
-				1
-			);
-		}
+		$restriction_instance = \wc_memberships()->get_restrictions_instance()->get_posts_restrictions_instance();
+		\remove_action( 'wp', spl_object_hash( $restriction_instance ) . 'handle_restriction_modes', 9 );
+		\remove_action( 'wp', spl_object_hash( $restriction_instance ) . 'handle_restriction_modes' ); // For compatibility with Woo Memberships < 1.27.2.
+		\add_filter( 'wc_memberships_restrictable_comment_types', '__return_empty_array' );
 	}
 
 	/**
@@ -394,7 +380,7 @@ class Memberships {
 			return '';
 		}
 		Content_Gate::mark_gate_as_rendered();
-		return Content_Gate::get_inline_gate_content();
+		return Content_Gate::get_inline_gate_html();
 	}
 
 	/**

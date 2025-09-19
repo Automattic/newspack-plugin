@@ -1,6 +1,6 @@
 @use "vars" as gate;
 
-.newspack-memberships {
+.newspack-content-gate {
 	&__gate {
 		position: relative;
 	}
@@ -85,8 +85,8 @@
 // Hide the gate while the sign in or checkout modals are open.
 body {
 	&:has(.newspack-ui__modal-container[data-state="open"]),
-	&.newspack-memberships__gate-passed {
-		.newspack-memberships__overlay-gate {
+	&.newspack-content-gate__gate-passed {
+		.newspack-content-gate__overlay-gate {
 			display: none !important;
 		}
 	}

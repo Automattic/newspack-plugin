@@ -68,7 +68,7 @@ function initReloadHandler() {
 					debugLog( 'log', '[Gate] Valid action detected:', lastActivity.action );
 					reload = true;
 					// Add a CSS class to the body so we can keep the overlay content gate hidden while the page refreshes.
-					document.body.classList.add( 'newspack-memberships__gate-passed' );
+					document.body.classList.add( 'newspack-content-gate__gate-passed' );
 				} else {
 					reload = false;
 					handleDismissed();
@@ -271,13 +271,13 @@ function initOverlay( gate ) {
 }
 
 domReady( function () {
-	const gate = document.querySelector( '.newspack-memberships__gate' );
+	const gate = document.querySelector( '.newspack-content-gate__gate' );
 	if ( ! gate ) {
 		return;
 	}
 
 	initReloadHandler();
-	if ( gate.classList.contains( 'newspack-memberships__overlay-gate' ) ) {
+	if ( gate.classList.contains( 'newspack-content-gate__overlay-gate' ) ) {
 		initOverlay( gate );
 	} else {
 		// Seen event for inline gate.

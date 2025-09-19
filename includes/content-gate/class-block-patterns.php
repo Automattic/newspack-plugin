@@ -34,7 +34,7 @@ class Block_Patterns {
 		}
 		wp_enqueue_style(
 			'newspack-content_gate-block-patterns',
-			\Newspack\Newspack::plugin_url() . '/dist/content-gate-gate-block-patterns.css',
+			\Newspack\Newspack::plugin_url() . '/dist/content-gate-block-patterns.css',
 			[],
 			NEWSPACK_PLUGIN_VERSION
 		);

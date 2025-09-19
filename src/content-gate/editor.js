@@ -80,7 +80,7 @@ function GateEdit() {
 				</PluginPostStatusInfo>
 			) }
 			{ newspack_content_gate.plans.length > 1 && (
-				<PluginDocumentSettingPanel name="memberships-gate-plans" title={ __( 'WooCommerce Memberships', 'newspack-plugin' ) }>
+				<PluginDocumentSettingPanel name="content-gate-plans" title={ __( 'WooCommerce Memberships', 'newspack-plugin' ) }>
 					{ ! Object.keys( newspack_content_gate.gate_plans ).length ? (
 						<Fragment>
 							<p>
@@ -134,8 +134,8 @@ function GateEdit() {
 					</ul>
 				</PluginDocumentSettingPanel>
 			) }
-			<PluginDocumentSettingPanel name="memberships-gate-styles-panel" title={ __( 'Styles', 'newspack-plugin' ) }>
-				<div className="newspack-memberships-gate-style-selector">
+			<PluginDocumentSettingPanel name="content-gate-styles-panel" title={ __( 'Styles', 'newspack-plugin' ) }>
+				<div className="newspack-content-gate-style-selector">
 					{ styles.map( style => (
 						<Button
 							key={ style.value }
@@ -179,7 +179,7 @@ function GateEdit() {
 					</Fragment>
 				) }
 			</PluginDocumentSettingPanel>
-			<PluginDocumentSettingPanel name="memberships-gate-settings-panel" title={ __( 'Settings', 'newspack-plugin' ) }>
+			<PluginDocumentSettingPanel name="content-gate-settings-panel" title={ __( 'Settings', 'newspack-plugin' ) }>
 				<TextControl
 					type="number"
 					min="0"
@@ -196,7 +196,7 @@ function GateEdit() {
 					help={ __( 'Override the default paragraph count on pages where a “More” block has been placed.', 'newspack-plugin' ) }
 				/>
 			</PluginDocumentSettingPanel>
-			<PluginDocumentSettingPanel name="memberships-gate-metering-panel" title={ __( 'Metering', 'newspack-plugin' ) }>
+			<PluginDocumentSettingPanel name="content-gate-metering-panel" title={ __( 'Metering', 'newspack-plugin' ) }>
 				<CheckboxControl
 					label={ __( 'Enable metering', 'newspack-plugin' ) }
 					checked={ meta.metering }

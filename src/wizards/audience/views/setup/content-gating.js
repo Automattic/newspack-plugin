@@ -88,16 +88,18 @@ export default withWizardScreen( () => {
 					disabled={ inFlight }
 				/>
 			) }
-			<ActionCard
-				title={ __( 'Display memberships on the subscriptions tab', 'newspack-plugin' ) }
-				description={ __(
-					"Display memberships that don't have active subscriptions on the My Account Subscriptions tab, so readers can see information like expiration dates.",
-					'newspack-plugin'
-				) }
-				toggleOnChange={ value => updateConfig( { show_on_subscription_tab: value } ) }
-				toggleChecked={ config.show_on_subscription_tab }
-				disabled={ inFlight }
-			/>
+			{ config.has_memberships && (
+				<ActionCard
+					title={ __( 'Display memberships on the subscriptions tab', 'newspack-plugin' ) }
+					description={ __(
+						"Display memberships that don't have active subscriptions on the My Account Subscriptions tab, so readers can see information like expiration dates.",
+						'newspack-plugin'
+					) }
+					toggleOnChange={ value => updateConfig( { show_on_subscription_tab: value } ) }
+					toggleChecked={ config.show_on_subscription_tab }
+					disabled={ inFlight }
+				/>
+			) }
 		</WizardsTab>
 	);
 } );

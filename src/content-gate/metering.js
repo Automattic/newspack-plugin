@@ -65,7 +65,7 @@ function lockContent() {
 		commentsEl.remove();
 	}
 	// Append inline gate, if any.
-	const inlineGate = document.querySelector( '.newspack-memberships__inline-gate' );
+	const inlineGate = document.querySelector( '.newspack-content-gate__inline-gate' );
 	if ( inlineGate ) {
 		content.appendChild( inlineGate );
 	}
@@ -80,7 +80,7 @@ function meter( ras ) {
 		ras.dispatchActivity( 'metering_restricted', { post_id: settings.post_id, metering: data } );
 		locked = true;
 	} else {
-		const gates = document.querySelectorAll( '.newspack-memberships__gate' );
+		const gates = document.querySelectorAll( '.newspack-content-gate__gate' );
 		gates.forEach( gate => {
 			gate.parentNode.removeChild( gate );
 		} );

@@ -39,6 +39,8 @@ class Content_Gate {
 		add_filter( 'newspack_popups_assess_has_disabled_popups', [ __CLASS__, 'disable_popups' ] );
 		add_filter( 'newspack_reader_activity_article_view', [ __CLASS__, 'suppress_article_view_activity' ], 100 );
 
+		add_action( 'the_post', [ __CLASS__, 'restrict_post' ] );
+
 		/** Add gate content filters to mimic 'the_content'. See 'wp-includes/default-filters.php' for reference. */
 		add_filter( 'newspack_gate_content', 'capital_P_dangit', 11 );
 		add_filter( 'newspack_gate_content', [ __CLASS__, 'do_blocks' ], 9 ); // Custom implementation of do_blocks().
@@ -53,6 +55,48 @@ class Content_Gate {
 
 		include __DIR__ . '/class-block-patterns.php';
 		include __DIR__ . '/class-metering.php';
+	}
+
+	/**
+	 * Restrict the post.
+	 *
+	 * @param \WP_Post $post Post object.
+	 */
+	public static function restrict_post( $post ) {
+		// Don't apply our restriction strategy if Woo Memberships is active.
+		if ( Memberships::is_active() ) {
+			return;
+		}
+		// Never restrict posts in the admin.
+		if ( is_admin() ) {
+			return;
+		}
+		if ( ! self::has_gate() ) {
+			return;
+		}
+		if ( ! self::is_post_restricted( $post->ID ) ) {
+			return;
+		}
+		if (
+			/**
+			 * Filters whether to restrict the post.
+			 *
+			 * @param bool $restrict Whether to restrict the post.
+			 * @param int $post_id Post ID.
+			 */
+			! apply_filters( 'newspack_content_gate_restrict_post', true, $post->ID )
+		) {
+			return;
+		}
+
+		$content = self::get_restricted_post_excerpt( $post );
+
+		$content .= self::get_inline_gate_content();
+
+		$post->post_content   = $content;
+		$post->post_excerpt   = $content;
+		$post->comment_status = 'closed';
+		$post->comment_count  = 0;
 	}
 
 	/**
@@ -314,11 +358,13 @@ class Content_Gate {
 	 * @return bool
 	 */
 	public static function is_post_restricted( $post_id = null ) {
+		$post_id = $post_id ? $post_id : get_the_ID();
+
 		/**
 		 * Filters whether the post is restricted for the current user.
 		 *
 		 * @param bool $is_post_restricted Whether the post is restricted for the current user.
-		 * @param int $post_id Post ID.
+		 * @param int  $post_id            Post ID.
 		 */
 		return apply_filters( 'newspack_is_post_restricted', false, $post_id );
 	}
@@ -406,9 +452,7 @@ class Content_Gate {
 	}
 
 	/**
-	 * Get the inline gate content for rendering.
-	 *
-	 * @return string
+	 * Get the inline gate content.
 	 */
 	public static function get_inline_gate_content() {
 		$gate_post_id = self::get_gate_post_id();
@@ -416,7 +460,33 @@ class Content_Gate {
 		if ( 'inline' !== $style ) {
 			return '';
 		}
-		$gate = \apply_filters( 'newspack_gate_content', \get_the_content( null, null, \get_post( $gate_post_id ) ), $gate_post_id );
+		$gate = \get_the_content( null, false, \get_post( $gate_post_id ) );
+
+		// Add clearfix to the gate.
+		$gate = '<div style=\'content:"";clear:both;display:table;\'></div>' . $gate;
+
+		// Apply inline fade.
+		if ( \get_post_meta( $gate_post_id, 'inline_fade', true ) ) {
+			$gate = '<div style="pointer-events: none; height: 10em; margin-top: -10em; width: 100%; position: absolute; background: linear-gradient(180deg, rgba(255,255,255,0) 14%, rgba(255,255,255,1) 76%);"></div>' . $gate;
+		}
+
+		// Wrap gate in a div for styling.
+		$gate = '<div class="newspack-content-gate__gate newspack-content-gate__inline-gate">' . $gate . '</div>';
+		return $gate;
+	}
+
+	/**
+	 * Get the inline gate HTML for rendering.
+	 *
+	 * @return string
+	 */
+	public static function get_inline_gate_html() {
+		$gate_post_id = self::get_gate_post_id();
+		$style        = \get_post_meta( $gate_post_id, 'style', true );
+		if ( 'inline' !== $style ) {
+			return '';
+		}
+		$gate = \apply_filters( 'newspack_gate_content', \get_the_content( null, false, \get_post( $gate_post_id ) ), $gate_post_id );
 
 		// Add clearfix to the gate.
 		$gate = '<div style=\'content:"";clear:both;display:table;\'></div>' . $gate;

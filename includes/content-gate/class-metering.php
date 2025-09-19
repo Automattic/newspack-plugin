@@ -32,9 +32,36 @@ class Metering {
 	 * Initialize hooks.
 	 */
 	public static function init() {
+		add_filter( 'newspack_content_gate_restrict_post', [ __CLASS__, 'restrict_post' ] );
 		add_action( 'init', [ __CLASS__, 'register_meta' ] );
 		add_action( 'wp_footer', [ __CLASS__, 'enqueue_scripts' ] );
+		add_action( 'wp_footer', [ __CLASS__, 'render_frontend_metering_gate' ] );
 		add_filter( 'newspack_reader_activity_article_view', [ __CLASS__, 'get_article_view' ], 20 );
+	}
+
+	/**
+	 * Whether to restrict the post.
+	 *
+	 * @param bool $restrict Whether to restrict the post.
+	 *
+	 * @return bool
+	 */
+	public static function restrict_post( $restrict ) {
+		if ( self::is_metering() ) {
+			return false;
+		}
+		return $restrict;
+	}
+
+	/**
+	 * Render the frontend metering gate.
+	 */
+	public static function render_frontend_metering_gate() {
+		if ( ! \is_singular() || ! Content_Gate::is_post_restricted() || ! self::is_frontend_metering() ) {
+			return;
+		}
+		Content_Gate::mark_gate_as_rendered();
+		echo '<div style="display:none">' . Content_Gate::get_inline_gate_content() . '</div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	}
 
 	/**
