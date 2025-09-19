@@ -2,9 +2,11 @@
  * Nextdoor Onboarding Component Styles
  */
 
+@use "~@wordpress/base-styles/colors" as wp-colors;
+
 .nextdoor-onboarding {
 	&__redirect-uri-box {
-		background-color: #f0f6fc;
+		background-color: wp-colors.$gray-100;
 		padding: 16px;
 		border-radius: 4px;
 		margin-top: 16px;
@@ -20,7 +22,8 @@
 	}
 
 	&__redirect-uri-code {
-		background-color: #fff;
+		background-color: wp-colors.$gray-200;
+		border: 1px solid wp-colors.$gray-300;
 		padding: 4px 8px;
 		border-radius: 3px;
 		font-size: 13px;
@@ -29,7 +32,7 @@
 	}
 
 	&__redirect-uri-help {
-		color: #666;
+		color: wp-colors.$gray-700;
 		font-size: 12px;
 	}
 
@@ -40,11 +43,11 @@
 
 	&__status-value {
 		&--success {
-			color: #00a32a;
+			color: wp-colors.$alert-green;
 		}
 
 		&--error {
-			color: #d63638;
+			color: wp-colors.$alert-red;
 		}
 	}
 }

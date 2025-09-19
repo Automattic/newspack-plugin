@@ -209,7 +209,10 @@ const NextdoorPostSidebar = ( { postId, postStatus } ) => {
 									nextdoorStatus.ingestion_errors?.length > 0 &&
 									nextdoorStatus.ingestion_errors.join( ' ' ) }
 								{ INGESTION_STATUSES.UNPROCESSED === nextdoorStatus.ingestion_status &&
-									__( 'This post is being processed by Nextdoor.', 'newspack-plugin' ) }
+									__(
+										'This post is being processed by Nextdoor. It may take a while (~1 Hour) as Nextdoor runs ML models on it for its distribution and moderation before it starts appearing on the page profile.',
+										'newspack-plugin'
+									) }
 							</p>
 
 							{ nextdoorStatus.shared_at && (

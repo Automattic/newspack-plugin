@@ -2,14 +2,16 @@
  * Nextdoor Settings Component Styles
  */
 
+@use "~@wordpress/base-styles/colors" as wp-colors;
+
 .nextdoor-settings {
 	&__status-value {
 		&--success {
-			color: #00a32a;
+			color: wp-colors.$alert-green;
 		}
 
 		&--error {
-			color: #d63638;
+			color: wp-colors.$alert-red;
 		}
 	}
 }
