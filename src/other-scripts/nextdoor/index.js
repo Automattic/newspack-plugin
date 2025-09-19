@@ -7,8 +7,7 @@
  */
 import { __ } from '@wordpress/i18n';
 import { useState, useEffect } from '@wordpress/element';
-import { compose } from '@wordpress/compose';
-import { withSelect } from '@wordpress/data';
+import { useSelect } from '@wordpress/data';
 import { Button, Spinner, Notice, Panel, PanelBody, PanelHeader, Flex, FlexItem, SVG } from '@wordpress/components';
 import { PluginSidebar } from '@wordpress/editor';
 import { registerPlugin } from '@wordpress/plugins';
@@ -16,18 +15,26 @@ import { dateI18n, getSettings } from '@wordpress/date';
 import apiFetch from '@wordpress/api-fetch';
 
 /**
- * Internal dependencies
+ * Styles.
  */
 import './style.scss';
+
+/**
+ * Possible ingestion statuses from Nextdoor.
+ * There could be more, any comprehensive list is not available in the API docs.
+ */
+const INGESTION_STATUSES = {
+	VALID: 'valid',
+	INVALID: 'invalid',
+	UNPROCESSED: 'unprocessed',
+};
 
 /**
  * Component for Nextdoor publishing controls in the post editor sidebar.
  */
 const NextdoorPostSidebar = ( { postId, postStatus } ) => {
 	const [ isLoading, setIsLoading ] = useState( true );
-	const [ isPublishing, setIsPublishing ] = useState( false );
-	const [ isUpdating, setIsUpdating ] = useState( false );
-	const [ isDeleting, setIsDeleting ] = useState( false );
+	const [ action, setAction ] = useState( null );
 	const [ nextdoorStatus, setNextdoorStatus ] = useState( null );
 	const [ error, setError ] = useState( null );
 	const [ success, setSuccess ] = useState( null );
@@ -52,6 +59,58 @@ const NextdoorPostSidebar = ( { postId, postStatus } ) => {
 		}
 	};
 
+	const callApi = async ( path, method, messages ) => {
+		try {
+			setAction( method );
+			setError( null );
+			setSuccess( null );
+
+			const response = await apiFetch( { path, method } );
+
+			if ( response.success ) {
+				setSuccess( response.message || messages.success );
+				await fetchStatus();
+			} else {
+				setError( response.message || messages.error );
+			}
+		} catch ( err ) {
+			setError( err.message || __( 'Failed to communicate with Nextdoor.', 'newspack-plugin' ) );
+		} finally {
+			setAction( null );
+			clearMessages();
+		}
+	};
+
+	/**
+	 * Handle publishing post to Nextdoor
+	 */
+	const handlePublish = () => {
+		callApi( `/newspack/v1/nextdoor/publish-post/${ postId }`, 'POST', {
+			success: __( 'Published to Nextdoor.', 'newspack-plugin' ),
+			error: __( 'Failed to publish.', 'newspack-plugin' ),
+		} );
+	};
+
+	/**
+	 * Handle updating post on Nextdoor
+	 */
+	const handleUpdate = () => {
+		callApi( `/newspack/v1/nextdoor/update-post/${ postId }`, 'PUT', {
+			success: __( 'Update sent to Nextdoor.', 'newspack-plugin' ),
+			error: __( 'Failed to update.', 'newspack-plugin' ),
+		} );
+	};
+
+	/**
+	 * Handle deleting post from Nextdoor
+	 */
+	const handleDelete = () => {
+		callApi( `/newspack/v1/nextdoor/delete-post/${ postId }`, 'DELETE', {
+			success: __( 'Post removed from Nextdoor.', 'newspack-plugin' ),
+			error: __( 'Failed to remove post.', 'newspack-plugin' ),
+		} );
+	};
+
 	/**
 	 * Clear messages after a delay
 	 */
@@ -60,90 +119,6 @@ const NextdoorPostSidebar = ( { postId, postStatus } ) => {
 			setError( null );
 			setSuccess( null );
 		}, 5000 );
-	};
-
-	/**
-	 * Handle publishing post to Nextdoor
-	 */
-	const handlePublish = async () => {
-		try {
-			setIsPublishing( true );
-			setError( null );
-			setSuccess( null );
-
-			const response = await apiFetch( {
-				path: `/newspack/v1/nextdoor/publish-post/${ postId }`,
-				method: 'POST',
-			} );
-
-			if ( response.success ) {
-				setSuccess( response.message );
-				await fetchStatus(); // Refresh status
-			} else {
-				setError( response.message || __( 'Failed to publish to Nextdoor.', 'newspack-plugin' ) );
-			}
-		} catch ( publishError ) {
-			setError( publishError.message || __( 'Failed to publish to Nextdoor.', 'newspack-plugin' ) );
-		} finally {
-			setIsPublishing( false );
-			clearMessages();
-		}
-	};
-
-	/**
-	 * Handle updating post on Nextdoor
-	 */
-	const handleUpdate = async () => {
-		try {
-			setIsUpdating( true );
-			setError( null );
-			setSuccess( null );
-
-			const response = await apiFetch( {
-				path: `/newspack/v1/nextdoor/update-post/${ postId }`,
-				method: 'PUT',
-			} );
-
-			if ( response.success ) {
-				setSuccess( response.message );
-				await fetchStatus(); // Refresh status
-			} else {
-				setError( response.message || __( 'Failed to update on Nextdoor.', 'newspack-plugin' ) );
-			}
-		} catch ( updateError ) {
-			setError( updateError.message || __( 'Failed to update on Nextdoor.', 'newspack-plugin' ) );
-		} finally {
-			setIsUpdating( false );
-			clearMessages();
-		}
-	};
-
-	/**
-	 * Handle deleting post from Nextdoor
-	 */
-	const handleDelete = async () => {
-		try {
-			setIsDeleting( true );
-			setError( null );
-			setSuccess( null );
-
-			const response = await apiFetch( {
-				path: `/newspack/v1/nextdoor/delete-post/${ postId }`,
-				method: 'DELETE',
-			} );
-
-			if ( response.success ) {
-				setSuccess( response.message );
-				await fetchStatus(); // Refresh status
-			} else {
-				setError( response.message || __( 'Failed to remove from Nextdoor.', 'newspack-plugin' ) );
-			}
-		} catch ( deleteError ) {
-			setError( deleteError.message || __( 'Failed to remove from Nextdoor.', 'newspack-plugin' ) );
-		} finally {
-			setIsDeleting( false );
-			clearMessages();
-		}
 	};
 
 	/**
@@ -189,7 +164,7 @@ const NextdoorPostSidebar = ( { postId, postStatus } ) => {
 			);
 		}
 
-		if ( postStatus !== 'publish' ) {
+		if ( 'publish' !== postStatus ) {
 			return (
 				<Notice status="info" isDismissible={ false }>
 					{ __( 'Post must be published before sharing to Nextdoor.', 'newspack-plugin' ) }
@@ -228,12 +203,12 @@ const NextdoorPostSidebar = ( { postId, postStatus } ) => {
 						</PanelHeader>
 						<PanelBody>
 							<p className="nextdoor-sidebar__status-text">
-								{ 'valid' === nextdoorStatus.ingestion_status &&
+								{ INGESTION_STATUSES.VALID === nextdoorStatus.ingestion_status &&
 									__( 'This post is available in your Nextdoor community.', 'newspack-plugin' ) }
-								{ 'invalid' === nextdoorStatus.ingestion_status &&
+								{ INGESTION_STATUSES.INVALID === nextdoorStatus.ingestion_status &&
 									nextdoorStatus.ingestion_errors?.length > 0 &&
 									nextdoorStatus.ingestion_errors.join( ' ' ) }
-								{ 'unprocessed' === nextdoorStatus.ingestion_status &&
+								{ INGESTION_STATUSES.UNPROCESSED === nextdoorStatus.ingestion_status &&
 									__( 'This post is being processed by Nextdoor.', 'newspack-plugin' ) }
 							</p>
 
@@ -253,21 +228,21 @@ const NextdoorPostSidebar = ( { postId, postStatus } ) => {
 								<Button
 									variant="primary"
 									onClick={ handleUpdate }
-									isBusy={ isUpdating }
-									disabled={ isUpdating || isDeleting }
+									isBusy={ 'update' === action }
+									disabled={ 'update' === action || 'delete' === action }
 									size="small"
 								>
-									{ isUpdating ? __( 'Updating…', 'newspack-plugin' ) : __( 'Update', 'newspack-plugin' ) }
+									{ 'update' === action ? __( 'Updating…', 'newspack-plugin' ) : __( 'Update', 'newspack-plugin' ) }
 								</Button>
 								<Button
 									variant="secondary"
 									isDestructive
 									onClick={ handleDelete }
-									isBusy={ isDeleting }
-									disabled={ isUpdating || isDeleting }
+									isBusy={ 'delete' === action }
+									disabled={ 'update' === action || 'delete' === action }
 									size="small"
 								>
-									{ isDeleting ? __( 'Removing…', 'newspack-plugin' ) : __( 'Remove', 'newspack-plugin' ) }
+									{ 'delete' === action ? __( 'Removing…', 'newspack-plugin' ) : __( 'Remove', 'newspack-plugin' ) }
 								</Button>
 							</div>
 						</PanelBody>
@@ -278,8 +253,8 @@ const NextdoorPostSidebar = ( { postId, postStatus } ) => {
 							<p className="nextdoor-sidebar__description">
 								{ __( 'Share this post to your Nextdoor community to engage local readers.', 'newspack-plugin' ) }
 							</p>
-							<Button variant="primary" onClick={ handlePublish } isBusy={ isPublishing } disabled={ isPublishing }>
-								{ isPublishing ? __( 'Publishing…', 'newspack-plugin' ) : __( 'Publish on Nextdoor', 'newspack-plugin' ) }
+							<Button variant="primary" onClick={ handlePublish } isBusy={ 'publish' === action } disabled={ 'publish' === action }>
+								{ 'publish' === action ? __( 'Publishing…', 'newspack-plugin' ) : __( 'Publish on Nextdoor', 'newspack-plugin' ) }
 							</Button>
 						</PanelBody>
 					</Panel>
@@ -295,23 +270,27 @@ const NextdoorPostSidebar = ( { postId, postStatus } ) => {
 	);
 };
 
+// Nextdoor Icon.
 const nextdoorIcon = (
 	<SVG xmlns="http://www.w3.org/2000/svg" enable-background="new 0 0 24 24" viewBox="0 0 24 24" id="nextdoor">
 		<polygon points="19.879 21.5 19.879 11.703 22.039 13.014 24 9.821 12.001 2.5 7.88 5.017 7.88 2.5 4.122 2.5 4.122 7.305 0 9.821 1.962 13.014 4.123 11.703 4.123 21.5" />
 	</SVG>
 );
 
-const NextdoorPostSidebarPlugin = compose( [
-	withSelect( select => {
+// Plugin wrapper.
+const NextdoorPostSidebarPlugin = () => {
+	const { postId, postStatus } = useSelect( select => {
 		const { getCurrentPostId, getCurrentPostAttribute } = select( 'core/editor' );
 		return {
 			postId: getCurrentPostId(),
 			postStatus: getCurrentPostAttribute( 'status' ),
 		};
-	} ),
-] )( NextdoorPostSidebar );
+	}, [] );
 
-// Register the plugin
+	return <NextdoorPostSidebar postId={ postId } postStatus={ postStatus } />;
+};
+
+// Register the plugin.
 registerPlugin( 'newspack-nextdoor-post-plugin', {
 	render: NextdoorPostSidebarPlugin,
 	icon: nextdoorIcon,
