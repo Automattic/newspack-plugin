@@ -1209,9 +1209,6 @@ class Memberships {
 		// Get the original post data before the update.
 		$original_post = get_post( $post_id );
 
-		error_log( print_r( $original_post, true ) );
-		error_log( print_r( $post, true ) );
-
 		// Restore original status if it was changed.
 		if ( $original_post && $original_post->post_status !== $post->post_status ) {
 			wp_update_post(
