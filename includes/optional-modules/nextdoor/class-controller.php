@@ -212,7 +212,7 @@ class Controller {
 
 		$api    = API::instance();
 		$result = $api->claim_page( $publication_url, $test );
-		
+
 		if ( is_array( $result ) && isset( $result['page_id'] ) ) {
 			$settings                    = Nextdoor::get_settings();
 			$settings['page_id']         = $result['page_id'];
@@ -437,12 +437,11 @@ class Controller {
 		if ( ! empty( $guid ) ) {
 			$api                = API::instance();
 			$ingestion_response = $api->get_ingestion_report( [ $guid ] );
-			
+
 			if ( ! is_wp_error( $ingestion_response ) &&
 				isset( $ingestion_response['results'] ) &&
 				is_array( $ingestion_response['results'] )
 			) {
-				
 				foreach ( $ingestion_response['results'] as $result ) {
 					if ( isset( $result['guid'] ) && $result['guid'] === $guid ) {
 						$ingestion_status     = isset( $result['status'] ) ? $result['status'] : null;
