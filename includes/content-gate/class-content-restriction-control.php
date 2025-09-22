@@ -7,6 +7,8 @@
 
 namespace Newspack;
 
+use Newspack\Access_Rules;
+
 /**
  * Main class.
  */
@@ -38,6 +40,8 @@ class Content_Restriction_Control {
 		if ( $is_post_restricted ) {
 			return $is_post_restricted;
 		}
+
+		$gate_post_id = Content_Gate::get_the_gate( $post_id );
 
 		/**
 		 * WARNING: This is a test and restricts every post for non-logged in users.

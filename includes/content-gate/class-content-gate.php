@@ -19,6 +19,13 @@ class Content_Gate {
 	const GATE_CPT = 'np_memberships_gate';
 
 	/**
+	 * The rendered gate post ID.
+	 *
+	 * @var int|false
+	 */
+	private static $gate_post_id = false;
+
+	/**
 	 * Whether the gate has been rendered in this execution.
 	 *
 	 * @var boolean
@@ -31,7 +38,7 @@ class Content_Gate {
 	public static function init() {
 		add_action( 'init', [ __CLASS__, 'register_post_type' ] );
 		add_action( 'init', [ __CLASS__, 'register_meta' ] );
-		add_action( 'admin_init', [ __CLASS__, 'redirect_cpt' ] );
+		// add_action( 'admin_init', [ __CLASS__, 'redirect_cpt' ] );
 		add_action( 'admin_init', [ __CLASS__, 'handle_edit_gate' ] );
 		add_action( 'wp_enqueue_scripts', [ __CLASS__, 'enqueue_scripts' ] );
 		add_action( 'enqueue_block_editor_assets', [ __CLASS__, 'enqueue_block_editor_assets' ] );
@@ -53,6 +60,7 @@ class Content_Gate {
 		add_filter( 'newspack_gate_content', 'wp_replace_insecure_home_url' );
 		add_filter( 'newspack_gate_content', 'do_shortcode', 11 ); // AFTER wpautop().
 
+		include __DIR__ . '/class-access-rules.php';
 		include __DIR__ . '/class-content-restriction-control.php';
 		include __DIR__ . '/class-block-patterns.php';
 		include __DIR__ . '/class-metering.php';
@@ -146,9 +154,10 @@ class Content_Gate {
 				],
 				'public'       => false,
 				'show_ui'      => true,
-				'show_in_menu' => false,
+				'show_in_menu' => true,
 				'show_in_rest' => true,
-				'supports'     => [ 'editor', 'custom-fields', 'revisions' ],
+				'supports'     => [ 'editor', 'custom-fields', 'revisions', 'title' ],
+				'taxonomies'   => [ 'category', 'post_tag' ],
 			]
 		);
 	}
@@ -182,20 +191,98 @@ class Content_Gate {
 				'type'    => 'string',
 				'default' => 'medium',
 			],
+			'access_rules'       => [
+				'type'         => 'array',
+				'default'      => [],
+				'single'       => true,
+				'show_in_rest' => [
+					'schema' => [
+						'items' => [
+							'type'       => 'object',
+							'properties' => [
+								'slug'  => [
+									'type' => 'string',
+								],
+								'value' => [
+									'type' => 'mixed',
+								],
+							],
+						],
+					],
+				],
+			],
+			'post_types'         => [
+				'type'         => 'array',
+				'default'      => [],
+				'single'       => true,
+				'show_in_rest' => [
+					'schema' => [
+						'items' => [
+							'type' => 'string',
+						],
+					],
+				],
+			],
+			'gate_priority'      => [
+				'type'    => 'integer',
+				'default' => 0,
+			],
 		];
+
 		foreach ( $meta as $key => $config ) {
 			\register_meta(
 				'post',
 				$key,
 				[
 					'object_subtype' => self::GATE_CPT,
-					'show_in_rest'   => true,
+					'show_in_rest'   => $config['show_in_rest'] ?? true,
 					'type'           => $config['type'],
 					'default'        => $config['default'],
 					'single'         => true,
 				]
 			);
 		}
+	}
+
+	/**
+	 * Get the post types that can be restricted.
+	 */
+	public static function get_available_post_types() {
+		$available_post_types = array_values(
+			array_map(
+				function( $post_type ) {
+					return [
+						'name'  => $post_type->name,
+						'label' => $post_type->label,
+					];
+				},
+				get_post_types(
+					[
+						'public'       => true,
+						'show_in_rest' => true,
+						'_builtin'     => false,
+					],
+					'objects'
+				)
+			)
+		);
+
+		return apply_filters(
+			'newspack_content_gate_supported_post_types',
+			array_merge(
+				[
+					[
+						'name'  => 'post',
+						'label' => 'Posts',
+					],
+					[
+						'name'  => 'page',
+						'label' => 'Pages',
+					],
+				],
+				$available_post_types
+			)
+		);
 	}
 
 	/**
@@ -266,6 +353,8 @@ class Content_Gate {
 				'plans'              => Memberships::get_plans(),
 				'gate_plans'         => Memberships::get_gate_plans( get_the_ID() ),
 				'edit_plan_gate_url' => Memberships::get_edit_plan_gate_url(),
+				'post_types'         => self::get_available_post_types(),
+				'access_rules'       => Access_Rules::get_access_rules(),
 			]
 		);
 
@@ -307,6 +396,58 @@ class Content_Gate {
 		 * @param int $post_id Post ID.
 		 */
 		return apply_filters( 'newspack_content_gate_post_id', $gate_post_id, $post_id );
+	}
+
+	/**
+	 * Get the gate post ID.
+	 *
+	 * @param int $post_id Post ID to find gate for.
+	 *
+	 * @return \WP_Post|false Post object or false if not set.
+	 */
+	public static function get_the_gate( $post_id = null ) {
+		if ( self::$gate_post_id ) {
+			return self::$gate_post_id;
+		}
+		if ( null === $post_id ) {
+			$post_id = \get_the_ID();
+		}
+		$post_type  = \get_post_type( $post_id );
+		$categories = \wp_get_post_categories( $post_id );
+		$tags       = \wp_get_post_tags( 2742, [ 'fields' => 'ids' ] );
+
+		$gate_post_id    = false;
+		$potential_gates = \get_posts(
+			[
+				'post_type'      => self::GATE_CPT,
+				'post_status'    => 'publish',
+				'posts_per_page' => 100,
+				'orderby'        => 'meta_value_num',
+				'order'          => 'ASC',
+				'meta_key'       => 'gate_priority',
+			]
+		);
+
+		foreach ( $potential_gates as $gate ) {
+			$gate_post_types = \get_post_meta( $gate_post_id, 'post_types', true );
+			$gate_categories = \wp_get_post_categories( $gate_post_id );
+			$gate_tags       = \wp_get_post_tags( $gate_post_id, [ 'fields' => 'ids' ] );
+			if ( ! empty( $gate_post_types ) && ! in_array( $post_type, $gate_post_types, true ) ) {
+				continue;
+			}
+			if ( ! empty( $gate_categories ) && empty( array_intersect( $gate_categories, $categories ) ) ) {
+				continue;
+			}
+			if ( ! empty( $gate_tags ) && empty( array_intersect( $gate_tags, $tags ) ) ) {
+				continue;
+			}
+
+			// Return the first gate that matches all criteria.
+			$gate_post_id = $gate->ID;
+			break;
+		}
+
+		return $gate_post_id;
 	}
 
 	/**
@@ -456,7 +597,7 @@ class Content_Gate {
 	 * Get the inline gate content.
 	 */
 	public static function get_inline_gate_content() {
-		$gate_post_id = self::get_gate_post_id();
+		$gate_post_id = self::get_the_gate();
 		$style        = \get_post_meta( $gate_post_id, 'style', true );
 		if ( 'inline' !== $style ) {
 			return '';
