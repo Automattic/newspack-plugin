@@ -79,7 +79,11 @@ class Subscriptions_Tiers {
 				continue;
 			}
 			$product = wc_get_product( reset( $parent_products ) );
-			self::render_modal( $product, __( 'Change Subscription', 'newspack-plugin' ), __( 'Change Subscription', 'newspack-plugin' ), $data );
+			$label = __( 'Change Subscription', 'newspack-plugin' );
+			if ( Donations::is_donation_product( $product->get_id() ) ) {
+				$label = __( 'Edit Donation', 'newspack-plugin' );
+			}
+			self::render_modal( $product, $label, $label, $data );
 		}
 	}
 
@@ -149,11 +153,6 @@ class Subscriptions_Tiers {
 				continue;
 			}
 
-			// Exclude donation products.
-			if ( Donations::is_donation_product( $product->get_id() ) ) {
-				continue;
-			}
-
 			// Extract the variations if it's a variable subscription product.
 			if ( $product->is_type( 'variable-subscription' ) ) {
 				$variations = $product->get_available_variations();
@@ -212,6 +211,39 @@ class Subscriptions_Tiers {
 	}
 
 	/**
+	 * Whether there's only 1 item per frequency.
+	 *
+	 * @param array $tiers Tiers.
+	 * @return bool
+	 */
+	private static function is_single_tier( $tiers ) {
+		foreach ( $tiers as $frequency ) {
+			if ( count( $frequency ) !== 1 ) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	/**
+	 * Whether the given tiers are all "name your price" products.
+	 *
+	 * @param array $tiers Tiers.
+	 *
+	 * @return bool
+	 */
+	private static function is_nyp( $tiers ) {
+		foreach ( $tiers as $frequency ) {
+			foreach ( $frequency as $product ) {
+				if ( $product->get_meta( '_nyp' ) !== 'yes' ) {
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+
+	/**
 	 * Render a subscription product card.
 	 *
 	 * @param \WC_Product $product                   Product.
@@ -241,6 +273,31 @@ class Subscriptions_Tiers {
 			<strong><?php echo esc_html( self::get_product_title( $product, $show_variation_attributes ) ); ?></strong>
 			<span class="newspack-ui__helper-text"><?php echo $price; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
 		</label>
+		<?php
+	}
+
+	/**
+	 * Render a "name your price" product card.
+	 *
+	 * @param \WC_Product $product Product.
+	 */
+	public static function render_nyp_product_card( $product ) {
+		?>
+		<input type="hidden" name="product_id" value="<?php echo esc_attr( $product->get_id() ); ?>">
+		<p>
+			<label>
+				<?php
+				echo esc_html(
+					sprintf(
+						// translators: %s: subscription period.
+						__( 'Amount / %s', 'newspack-plugin' ),
+						$product->get_meta( '_subscription_period' )
+					)
+				);
+				?>
+			</label>
+			<input type="number" name="price" value="<?php echo esc_attr( $product->get_price() ); ?>">
+		</p>
 		<?php
 	}
 
@@ -316,15 +373,8 @@ class Subscriptions_Tiers {
 			return;
 		}
 
-		// Determine whether there's only 1 item per frequency so we can render a
-		// single tier modal.
-		$is_single_tier = array_reduce(
-			$tiers,
-			function( $carry, $frequency ) {
-				return $carry && count( $frequency ) === 1;
-			},
-			true
-		);
+		$is_single_tier = self::is_single_tier( $tiers );
+		$is_nyp         = self::is_nyp( $tiers );
 
 		$frequencies       = array_keys( $tiers );
 		$current_frequency = null;
@@ -366,9 +416,11 @@ class Subscriptions_Tiers {
 			return;
 		}
 
+		$should_render_tabs = ! $is_single_tier || $is_nyp;
+
 		?>
 		<form class="newspack__subscription-tiers__form" target="newspack_modal_checkout_iframe" data-title="<?php echo esc_attr( $title ); ?>">
-			<?php if ( ! $is_single_tier ) : ?>
+			<?php if ( $should_render_tabs ) : ?>
 				<div class="newspack-ui__segmented-control">
 					<?php
 					if ( count( $frequencies ) > 1 ) {
@@ -379,8 +431,12 @@ class Subscriptions_Tiers {
 						<?php foreach ( $tiers as $frequency => $products ) : ?>
 							<div class="newspack-ui__segmented-control__panel">
 								<?php
-								foreach ( $products as $product ) {
-									self::render_product_card( $product, false, $product === $current_product, $product === $selected_product );
+								if ( $is_single_tier && $is_nyp ) {
+									self::render_nyp_product_card( $products[0] );
+								} else {
+									foreach ( $products as $product ) {
+										self::render_product_card( $product, false, $product === $current_product, $product === $selected_product );
+									}
 								}
 								?>
 							</div>
@@ -389,7 +445,7 @@ class Subscriptions_Tiers {
 				</div>
 			<?php endif; ?>
 			<?php
-			if ( $is_single_tier ) {
+			if ( ! $should_render_tabs ) {
 				foreach ( $tiers as $products ) {
 					foreach ( $products as $product ) {
 						self::render_product_card( $product, true, $product === $current_product, $product === $selected_product );
@@ -451,6 +507,9 @@ class Subscriptions_Tiers {
 	 */
 	public static function order_button_text( $text ) {
 		if ( method_exists( 'WC_Subscriptions_Switcher', 'cart_contains_switches' ) && \WC_Subscriptions_Switcher::cart_contains_switches( 'any' ) ) {
+			if ( Donations::is_donation_cart() ) {
+				return __( 'Edit Donation', 'newspack-plugin' );
+			}
 			return __( 'Change Subscription', 'newspack-plugin' );
 		}
 		return $text;
