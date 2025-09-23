@@ -27,6 +27,7 @@ const INGESTION_STATUSES = {
 	VALID: 'valid',
 	INVALID: 'invalid',
 	UNPROCESSED: 'unprocessed',
+	DELETED: 'deleted',
 };
 
 /**
@@ -159,7 +160,7 @@ const NextdoorPostSidebar = ( { postId, postStatus } ) => {
 		if ( ! nextdoorStatus?.can_publish ) {
 			return (
 				<Notice status="warning" isDismissible={ false }>
-					{ __( 'Nextdoor is not connected or you do not have permission to publish to Nextdoor.', 'newspack-plugin' ) }
+					{ __( 'You do not have permission to publish to Nextdoor. Please contact the site administrator.', 'newspack-plugin' ) }
 				</Notice>
 			);
 		}
@@ -168,14 +169,6 @@ const NextdoorPostSidebar = ( { postId, postStatus } ) => {
 			return (
 				<Notice status="info" isDismissible={ false }>
 					{ __( 'Post must be published before sharing to Nextdoor.', 'newspack-plugin' ) }
-				</Notice>
-			);
-		}
-
-		if ( nextdoorStatus?.is_deleted ) {
-			return (
-				<Notice status="warning" isDismissible={ false }>
-					{ __( `This post was previously removed from Nextdoor and cannot be republished.`, 'newspack-plugin' ) }
 				</Notice>
 			);
 		}
@@ -213,6 +206,8 @@ const NextdoorPostSidebar = ( { postId, postStatus } ) => {
 										'This post is being processed by Nextdoor. It may take a while (~1 Hour) as Nextdoor runs ML models on it for its distribution and moderation before it starts appearing on the page profile.',
 										'newspack-plugin'
 									) }
+								{ INGESTION_STATUSES.DELETED === nextdoorStatus.ingestion_status &&
+									__( 'This post was removed from Nextdoor.', 'newspack-plugin' ) }
 							</p>
 
 							{ nextdoorStatus.shared_at && (
@@ -227,27 +222,29 @@ const NextdoorPostSidebar = ( { postId, postStatus } ) => {
 								</p>
 							) }
 
-							<div className="nextdoor-sidebar__actions">
-								<Button
-									variant="primary"
-									onClick={ handleUpdate }
-									isBusy={ 'update' === action }
-									disabled={ 'update' === action || 'delete' === action }
-									size="small"
-								>
-									{ 'update' === action ? __( 'Updating…', 'newspack-plugin' ) : __( 'Update', 'newspack-plugin' ) }
-								</Button>
-								<Button
-									variant="secondary"
-									isDestructive
-									onClick={ handleDelete }
-									isBusy={ 'delete' === action }
-									disabled={ 'update' === action || 'delete' === action }
-									size="small"
-								>
-									{ 'delete' === action ? __( 'Removing…', 'newspack-plugin' ) : __( 'Remove', 'newspack-plugin' ) }
-								</Button>
-							</div>
+							{ INGESTION_STATUSES.DELETED !== nextdoorStatus.ingestion_status && (
+								<div className="nextdoor-sidebar__actions">
+									<Button
+										variant="primary"
+										onClick={ handleUpdate }
+										isBusy={ 'update' === action }
+										disabled={ 'update' === action || 'delete' === action }
+										size="small"
+									>
+										{ 'update' === action ? __( 'Updating…', 'newspack-plugin' ) : __( 'Update', 'newspack-plugin' ) }
+									</Button>
+									<Button
+										variant="secondary"
+										isDestructive
+										onClick={ handleDelete }
+										isBusy={ 'delete' === action }
+										disabled={ 'update' === action || 'delete' === action }
+										size="small"
+									>
+										{ 'delete' === action ? __( 'Removing…', 'newspack-plugin' ) : __( 'Remove', 'newspack-plugin' ) }
+									</Button>
+								</div>
+							) }
 						</PanelBody>
 					</Panel>
 				) : (

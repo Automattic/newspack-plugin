@@ -404,7 +404,6 @@ class Controller {
 
 		// Mark the post as deleted in post meta.
 		update_post_meta( $post_id, '_nextdoor_deleted_at', current_time( 'mysql' ) );
-		delete_post_meta( $post_id, '_nextdoor_guid' );
 		delete_post_meta( $post_id, '_nextdoor_shared_at' );
 		delete_post_meta( $post_id, '_nextdoor_updated_at' );
 
@@ -425,13 +424,8 @@ class Controller {
 	public static function api_get_post_sharing_status( $request ) {
 		$post_id              = $request->get_param( 'id' );
 		$guid                 = get_post_meta( $post_id, '_nextdoor_guid', true );
-		$shared_at            = get_post_meta( $post_id, '_nextdoor_shared_at', true );
-		$updated_at           = get_post_meta( $post_id, '_nextdoor_updated_at', true );
-		$deleted_at           = get_post_meta( $post_id, '_nextdoor_deleted_at', true );
-		$can_publish          = Nextdoor::can_user_publish();
-		$post                 = get_post( $post_id );
-		$is_published         = $post && $post->post_status === 'publish';
 		$ingestion_status     = null;
+		$ingestion_response   = [];
 		$ingestion_error_msgs = [];
 
 		if ( ! empty( $guid ) ) {
@@ -450,7 +444,22 @@ class Controller {
 					}
 				}
 			}
+
+			// If the post was deleted on Nextdoor, update local meta & response accordingly.
+			if ( 'deleted' === $ingestion_status ) {
+				update_post_meta( $post_id, '_nextdoor_deleted_at', current_time( 'mysql' ) );
+				delete_post_meta( $post_id, '_nextdoor_shared_at' );
+				delete_post_meta( $post_id, '_nextdoor_updated_at' );
+			}
 		}
+
+		// Prepare response.
+		$shared_at    = get_post_meta( $post_id, '_nextdoor_shared_at', true );
+		$updated_at   = get_post_meta( $post_id, '_nextdoor_updated_at', true );
+		$deleted_at   = get_post_meta( $post_id, '_nextdoor_deleted_at', true );
+		$can_publish  = Nextdoor::can_user_publish();
+		$post         = get_post( $post_id );
+		$is_published = $post && $post->post_status === 'publish';
 
 		$response = [
 			'is_shared'        => ! empty( $guid ),
