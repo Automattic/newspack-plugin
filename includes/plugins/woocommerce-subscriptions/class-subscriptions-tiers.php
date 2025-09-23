@@ -279,13 +279,35 @@ class Subscriptions_Tiers {
 	/**
 	 * Render a "name your price" product card.
 	 *
-	 * @param \WC_Product $product Product.
+	 * @param \WC_Product $product             Product.
+	 * @param bool        $current             Whether this is the currently owned product.
+	 * @param array|null  $switch_subscription Switch subscription data or null.
 	 */
-	public static function render_nyp_product_card( $product ) {
+	public static function render_nyp_product_card( $product, $current = false, $switch_subscription = null ) {
+		$value     = $product->get_price();
+		$frequency = $product->get_meta( '_subscription_period' );
+		$interval  = $product->get_meta( '_subscription_period_interval' );
+		$divisor   = [
+			'day'   => 1,
+			'week'  => 7,
+			'month' => 30,
+			'year'  => 365,
+		];
+		if ( $switch_subscription ) {
+			$base_product   = wc_get_product( $switch_subscription['item']['product_id'] );
+			$base_frequency = $base_product->get_meta( '_subscription_period' );
+			$base_interval  = $base_product->get_meta( '_subscription_period_interval' );
+			$base_amount    = $switch_subscription['item']['line_total'] / $base_interval / $divisor[ $base_frequency ];
+			if ( $current ) {
+				$value = $base_amount * $divisor[ $frequency ];
+			} else {
+				$value = max( ceil( $base_amount * $divisor[ $frequency ] * $interval ), $value );
+			}
+		}
 		?>
 		<input type="hidden" name="product_id" value="<?php echo esc_attr( $product->get_id() ); ?>">
 		<p>
-			<label>
+			<label for="nyp_amount">
 				<?php
 				echo esc_html(
 					sprintf(
@@ -296,7 +318,7 @@ class Subscriptions_Tiers {
 				);
 				?>
 			</label>
-			<input type="number" name="price" value="<?php echo esc_attr( $product->get_price() ); ?>">
+			<input type="number" name="price" id="nyp_amount" value="<?php echo esc_attr( $value ); ?>" data-original-value="<?php echo esc_attr( $value ); ?>" <?php echo esc_attr( $current ? 'data-current' : '' ); ?>>
 		</p>
 		<?php
 	}
@@ -432,7 +454,7 @@ class Subscriptions_Tiers {
 							<div class="newspack-ui__segmented-control__panel">
 								<?php
 								if ( $is_single_tier && $is_nyp ) {
-									self::render_nyp_product_card( $products[0] );
+									self::render_nyp_product_card( $products[0], $products[0] === $current_product, $switch_subscription );
 								} else {
 									foreach ( $products as $product ) {
 										self::render_product_card( $product, false, $product === $current_product, $product === $selected_product );
