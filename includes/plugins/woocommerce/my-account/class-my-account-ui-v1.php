@@ -41,6 +41,7 @@ class My_Account_UI_V1 {
 		\add_action( 'template_redirect', [ __CLASS__, 'redirect_payment_information_endpoint' ] );
 		\add_action( 'newspack_woocommerce_after_account_payment_methods', [ __CLASS__, 'add_payment_method_modal' ] );
 		\add_action( 'newspack_woocommerce_after_account_addresses', [ __CLASS__, 'add_address_modals' ] );
+		\add_filter( 'woocommerce_address_to_edit', [ __CLASS__, 'reorder_address_fields' ], PHP_INT_MAX, 2 );
 	}
 
 	/**
@@ -594,6 +595,31 @@ class My_Account_UI_V1 {
 				]
 			);
 		}
+	}
+
+	/**
+	 * Reorder address fields.
+	 *
+	 * @param array  $address The address.
+	 * @param string $load_address The address type (billing or shipping).
+	 * @return array The address.
+	 */
+	public static function reorder_address_fields( $address, $load_address ) {
+		// Move state before postcode.
+		if ( isset( $address[ $load_address . '_state' ] ) ) {
+			$address[ $load_address . '_state' ]['priority'] = 80;
+		}
+
+		if ( isset( $address[ $load_address . '_postcode' ] ) ) {
+			$address[ $load_address . '_postcode' ]['priority'] = 90;
+		}
+
+		// Move email before phone by setting its priority to phone's priority minus 1.
+		if ( isset( $address[ $load_address . '_phone' ] ) && isset( $address[ $load_address . '_email' ] ) ) {
+			$address[ $load_address . '_email' ]['priority'] = $address[ $load_address . '_phone' ]['priority'] - 1;
+		}
+
+		return $address;
 	}
 }
 My_Account_UI_V1::init();
