@@ -12,8 +12,8 @@ import { registerPlugin } from '@wordpress/plugins';
 /**
  * Internal dependencies
  */
+import AccessRules from './access-rules';
 import PositionControl from '../components/src/position-control';
-import ProductControl from './product-control';
 
 import './editor.scss';
 
@@ -75,7 +75,6 @@ function GateEdit() {
 		return plans;
 	};
 	const availablePostTypes = newspack_content_gate.post_types || [];
-	const access_rules = newspack_content_gate.access_rules || {};
 	return (
 		<Fragment>
 			{ newspack_content_gate.has_campaigns && (
@@ -186,10 +185,10 @@ function GateEdit() {
 			<PluginDocumentSettingPanel name="content-gate-settings-panel" title={ __( 'Settings', 'newspack-plugin' ) }>
 				<TextControl
 					type="number"
-					min="0"
-					value={ meta.priority }
+					min="1"
+					value={ meta.gate_priority }
 					label={ __( 'Priority', 'newspack-plugin' ) }
-					onChange={ value => editPost( { meta: { visible_paragraphs: value } } ) }
+					onChange={ value => editPost( { meta: { gate_priority: value } } ) }
 					help={ __( 'The order in which the gate and its access rules will be evaluated.', 'newspack-plugin' ) }
 				/>
 				<TextControl
@@ -208,6 +207,7 @@ function GateEdit() {
 					help={ __( 'Override the default paragraph count on pages where a “More” block has been placed.', 'newspack-plugin' ) }
 				/>
 			</PluginDocumentSettingPanel>
+			<AccessRules rules={ meta.access_rules } editPost={ editPost } />
 			<PluginDocumentSettingPanel name="content-gate-metering-panel" title={ __( 'Metering', 'newspack-plugin' ) }>
 				<CheckboxControl
 					label={ __( 'Enable metering', 'newspack-plugin' ) }

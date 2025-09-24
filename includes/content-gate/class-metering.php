@@ -204,6 +204,7 @@ class Metering {
 
 		$gate_post_id = Content_Gate::get_gate_post_id();
 		$metering     = \get_post_meta( $gate_post_id, 'metering', true );
+		$priority     = \get_post_meta( $gate_post_id, 'gate_priority', true );
 
 		// Bail if metering is not enabled.
 		if ( ! $metering ) {
@@ -215,7 +216,8 @@ class Metering {
 			return self::$logged_in_metering_cache[ $post_id ];
 		}
 
-		$user_meta_key = self::METERING_META_KEY . '_' . $gate_post_id;
+		// Aggregate metering by gate priority, if available.
+		$user_meta_key = self::METERING_META_KEY . '_' . ( $priority ? $priority : $gate_post_id );
 
 		$updated_user_data  = false;
 		$user_metering_data = \get_user_meta( get_current_user_id(), $user_meta_key, true );

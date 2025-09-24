@@ -38,7 +38,7 @@ class Content_Gate {
 	public static function init() {
 		add_action( 'init', [ __CLASS__, 'register_post_type' ] );
 		add_action( 'init', [ __CLASS__, 'register_meta' ] );
-		// add_action( 'admin_init', [ __CLASS__, 'redirect_cpt' ] );
+		// Commenting out to temporarily enable CPT UI for testing: `add_action( 'admin_init', [ __CLASS__, 'redirect_cpt' ] );` !
 		add_action( 'admin_init', [ __CLASS__, 'handle_edit_gate' ] );
 		add_action( 'wp_enqueue_scripts', [ __CLASS__, 'enqueue_scripts' ] );
 		add_action( 'enqueue_block_editor_assets', [ __CLASS__, 'enqueue_block_editor_assets' ] );
@@ -46,7 +46,7 @@ class Content_Gate {
 		add_filter( 'newspack_popups_assess_has_disabled_popups', [ __CLASS__, 'disable_popups' ] );
 		add_filter( 'newspack_reader_activity_article_view', [ __CLASS__, 'suppress_article_view_activity' ], 100 );
 
-		add_action( 'the_post', [ __CLASS__, 'restrict_post' ] );
+		add_action( 'the_post', [ __CLASS__, 'restrict_post' ], 10, 2 );
 
 		/** Add gate content filters to mimic 'the_content'. See 'wp-includes/default-filters.php' for reference. */
 		add_filter( 'newspack_gate_content', 'capital_P_dangit', 11 );
@@ -69,9 +69,17 @@ class Content_Gate {
 	/**
 	 * Restrict the post.
 	 *
-	 * @param \WP_Post $post Post object.
+	 * @param \WP_Post  $post Post object.
+	 * @param \WP_Query $query Query object.
 	 */
-	public static function restrict_post( $post ) {
+	public static function restrict_post( $post, $query ) {
+		if ( ! $query->is_main_query() ) {
+			return;
+		}
+		if ( self::has_rendered() ) {
+			return;
+		}
+
 		// Don't apply our restriction strategy if Woo Memberships is active.
 		if ( Memberships::is_active() ) {
 			return;
@@ -98,14 +106,14 @@ class Content_Gate {
 			return;
 		}
 
-		$content = self::get_restricted_post_excerpt( $post );
-
+		$content  = self::get_restricted_post_excerpt( $post );
 		$content .= self::get_inline_gate_content();
 
 		$post->post_content   = $content;
 		$post->post_excerpt   = $content;
 		$post->comment_status = 'closed';
 		$post->comment_count  = 0;
+		self::mark_gate_as_rendered();
 	}
 
 	/**
@@ -213,7 +221,7 @@ class Content_Gate {
 			],
 			'post_types'         => [
 				'type'         => 'array',
-				'default'      => [],
+				'default'      => [ 'post' ],
 				'single'       => true,
 				'show_in_rest' => [
 					'schema' => [
@@ -354,7 +362,7 @@ class Content_Gate {
 				'gate_plans'         => Memberships::get_gate_plans( get_the_ID() ),
 				'edit_plan_gate_url' => Memberships::get_edit_plan_gate_url(),
 				'post_types'         => self::get_available_post_types(),
-				'access_rules'       => Access_Rules::get_access_rules(),
+				'access_rules'       => Access_Rules::get_access_rules_config(),
 			]
 		);
 
@@ -383,8 +391,7 @@ class Content_Gate {
 	 * @return int|false Post ID or false if not set.
 	 */
 	public static function get_gate_post_id( $post_id = null ) {
-		$gate_post_id = (int) \get_option( 'newspack_memberships_gate_post_id' );
-
+		$gate_post_id = intval( self::$gate_post_id ?? \get_option( 'newspack_memberships_gate_post_id' ) );
 		if ( ! $gate_post_id ) {
 			$gate_post_id = false;
 		}
@@ -399,16 +406,13 @@ class Content_Gate {
 	}
 
 	/**
-	 * Get the gate post ID.
+	 * Get content gates that might apply to the given post.
 	 *
-	 * @param int $post_id Post ID to find gate for.
+	 * @param int $post_id Post ID to find gates for.
 	 *
-	 * @return \WP_Post|false Post object or false if not set.
+	 * @return int[]|false Post IDs or false if not set.
 	 */
-	public static function get_the_gate( $post_id = null ) {
-		if ( self::$gate_post_id ) {
-			return self::$gate_post_id;
-		}
+	public static function get_potential_gates( $post_id = null ) {
 		if ( null === $post_id ) {
 			$post_id = \get_the_ID();
 		}
@@ -416,7 +420,7 @@ class Content_Gate {
 		$categories = \wp_get_post_categories( $post_id );
 		$tags       = \wp_get_post_tags( 2742, [ 'fields' => 'ids' ] );
 
-		$gate_post_id    = false;
+		$gate_post_ids   = [];
 		$potential_gates = \get_posts(
 			[
 				'post_type'      => self::GATE_CPT,
@@ -425,14 +429,17 @@ class Content_Gate {
 				'orderby'        => 'meta_value_num',
 				'order'          => 'ASC',
 				'meta_key'       => 'gate_priority',
+				'meta_compare'   => '>',
+				'meta_value'     => 0, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
 			]
 		);
 
 		foreach ( $potential_gates as $gate ) {
-			$gate_post_types = \get_post_meta( $gate_post_id, 'post_types', true );
-			$gate_categories = \wp_get_post_categories( $gate_post_id );
-			$gate_tags       = \wp_get_post_tags( $gate_post_id, [ 'fields' => 'ids' ] );
-			if ( ! empty( $gate_post_types ) && ! in_array( $post_type, $gate_post_types, true ) ) {
+			$gate_post_types = \get_post_meta( $gate->ID, 'post_types', true );
+			$gate_categories = \wp_get_post_categories( $gate->ID );
+			$gate_tags       = \wp_get_post_tags( $gate->ID, [ 'fields' => 'ids' ] );
+
+			if ( empty( $gate_post_types ) || ! in_array( $post_type, $gate_post_types, true ) ) {
 				continue;
 			}
 			if ( ! empty( $gate_categories ) && empty( array_intersect( $gate_categories, $categories ) ) ) {
@@ -442,12 +449,10 @@ class Content_Gate {
 				continue;
 			}
 
-			// Return the first gate that matches all criteria.
-			$gate_post_id = $gate->ID;
-			break;
+			$gate_post_ids[] = $gate->ID;
 		}
 
-		return $gate_post_id;
+		return $gate_post_ids;
 	}
 
 	/**
@@ -497,18 +502,23 @@ class Content_Gate {
 	 *
 	 * @param int $post_id Post ID.
 	 *
-	 * @return bool
+	 * @return int|bool Gate ID restricting the post, false if not restricted, or true if restricted by a Woo Memberships plan.
 	 */
 	public static function is_post_restricted( $post_id = null ) {
 		$post_id = $post_id ? $post_id : get_the_ID();
 
 		/**
 		 * Filters whether the post is restricted for the current user.
+		 * If the post is restricted by a content gate, return the gate post ID.
 		 *
-		 * @param bool $is_post_restricted Whether the post is restricted for the current user.
+		 * @param int|bool $restricted_by  If restricted, the gate post ID. False if not restricted.
 		 * @param int  $post_id            Post ID.
 		 */
-		return apply_filters( 'newspack_is_post_restricted', false, $post_id );
+		$restricted_by = apply_filters( 'newspack_is_post_restricted', false, $post_id );
+		if ( $restricted_by && is_int( $restricted_by ) ) {
+			self::$gate_post_id = $restricted_by;
+		}
+		return $restricted_by;
 	}
 
 	/**
@@ -597,7 +607,7 @@ class Content_Gate {
 	 * Get the inline gate content.
 	 */
 	public static function get_inline_gate_content() {
-		$gate_post_id = self::get_the_gate();
+		$gate_post_id = self::get_gate_post_id();
 		$style        = \get_post_meta( $gate_post_id, 'style', true );
 		if ( 'inline' !== $style ) {
 			return '';
