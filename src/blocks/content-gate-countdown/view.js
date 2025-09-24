@@ -30,7 +30,7 @@ domReady( () => {
 		}
 		// Replace countdown for anonymous users.
 		const countdown = sprintf(
-			/* translators: 1: remaining metered views, 2: total metered views. */ __( '%1$d/%2$d', 'newspack-plugin' ),
+			/* translators: 1: current number of metered views, 2: total metered views. */ __( '%1$d/%2$d', 'newspack-plugin' ),
 			content.length,
 			count
 		);

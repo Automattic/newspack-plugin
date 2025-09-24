@@ -45,7 +45,7 @@ export default function Edit( { attributes, setAttributes } ) {
 		metering_period: meteringPeriod,
 		loggedin_metered_views: loggedinViews,
 		anonymous_metered_views: anonymousViews,
-		remaining_metered_views: remainingViews,
+		metered_views: views,
 	} = newspack_blocks.content_gate_data || {};
 	const [ text, setText ] = useState(
 		attributes.text
@@ -97,8 +97,8 @@ export default function Edit( { attributes, setAttributes } ) {
 					<div className="newspack-content-gate-countdown__text">
 						<span className="newspack-content-gate-countdown__countdown">
 							{ sprintf(
-								/* translators: 1: remaining metered views, 2: total metered views. */ __( '%1$d/%2$d', 'newspack-plugin' ),
-								parseInt( remainingViews ),
+								/* translators: 1: current number of metered views, 2: total metered views. */ __( '%1$d/%2$d', 'newspack-plugin' ),
+								parseInt( views ),
 								parseInt( totalViews )
 							) }
 						</span>

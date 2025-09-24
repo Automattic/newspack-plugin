@@ -76,11 +76,11 @@ class Content_Gate_Countdown_Block {
 		if ( false === $total_views ) {
 			return '';
 		}
-		$remaining_views = Metering::get_remaining_metered_views( get_current_user_id() );
-		$countdown       = sprintf(
-			/* translators: 1: remaining metered views, 2: total metered views. */
+		$views     = Metering::get_metered_views( get_current_user_id() );
+		$countdown = sprintf(
+			/* translators: 1: current number of metered views, 2: total metered views. */
 			__( '%1$d/%2$d', 'newspack-plugin' ),
-			$remaining_views,
+			$views,
 			$total_views
 		);
 		$text = isset( $attributes['text'] ) ? esc_html( $attributes['text'] ) : '';
