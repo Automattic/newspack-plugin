@@ -26,4 +26,9 @@
 			}
 		}
 	}
+
+	// Fix dropdown z-index issues.
+	.select2-container--open {
+		z-index: 100000;
+	}
 }
