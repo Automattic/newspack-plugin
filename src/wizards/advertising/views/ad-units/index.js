@@ -13,15 +13,7 @@ import { arrowLeft } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
-import {
-	ActionCard,
-	Button,
-	Card,
-	Notice,
-	SelectControl,
-	TextControl,
-	withWizardScreen,
-} from '../../../../components/src';
+import { ActionCard, Button, Card, Notice, SelectControl, TextControl, withWizardScreen } from '../../../../components/src';
 import ServiceAccountConnection from './service-account-connection';
 import OptionsPopover from './options-popover';
 
@@ -30,15 +22,7 @@ const CREATE_AD_ID_PARAM = 'create';
 /**
  * Advertising management screen.
  */
-const AdUnits = ( {
-	adUnits,
-	onDelete,
-	wizardApiFetch,
-	updateWithAPI,
-	service,
-	serviceData,
-	fetchAdvertisingData,
-} ) => {
+const AdUnits = ( { adUnits, parentAdUnits, onDelete, wizardApiFetch, updateWithAPI, service, serviceData, fetchAdvertisingData } ) => {
 	const gamErrorMessage = serviceData?.status?.error
 		? `${ __( 'Google Ad Manager Error', 'newspack-plugin' ) }: ${ serviceData.status.error }`
 		: false;
@@ -53,18 +37,32 @@ const AdUnits = ( {
 		fetchAdvertisingData( true );
 	};
 
-	const updateGAMNetworkCode = async value => {
-		updateNetworkCode( value, true );
+	const updateGAMConfiguration = async () => {
+		await updateWithAPI( {
+			path: '/newspack/v1/wizard/billboard/gam/',
+			method: 'POST',
+			data: { network_code: networkCode, parent_network_code: parentNetworkCode, parent_ad_unit_id: parentAdUnitId },
+		} );
 	};
 
 	const [ networkCode, setNetworkCode ] = useState( serviceData.status.network_code );
+	const [ parentNetworkCode, setParentNetworkCode ] = useState( serviceData.parent_network_code );
 	const updateLegacyNetworkCode = async () => {
 		updateNetworkCode( networkCode, false );
 	};
+	const [ parentAdUnitId, setParentAdUnitId ] = useState( serviceData.parent_ad_unit_id );
 
 	useEffect( () => {
 		setNetworkCode( serviceData.status.network_code );
 	}, [ serviceData.status.network_code ] );
+
+	useEffect( () => {
+		setParentNetworkCode( serviceData.parent_network_code );
+	}, [ serviceData.parent_network_code ] );
+
+	useEffect( () => {
+		setParentAdUnitId( serviceData.parent_ad_unit_id );
+	}, [ serviceData.parent_ad_unit_id ] );
 
 	const { connection_mode } = serviceData.status;
 	const isLegacy = 'legacy' === connection_mode;
@@ -77,6 +75,30 @@ const AdUnits = ( {
 		return ! adUnit.is_default && ! isDisconnectedGAM( adUnit );
 	};
 
+	const getCodeValue = adUnit => {
+		const { code, path } = adUnit;
+		if ( isLegacy ) {
+			return code;
+		} else if ( ! path.length ) {
+			return code;
+		}
+		return `${ path.map( parent => parent.code ).join( '/' ) }/${ code }`;
+	};
+
+	const missingParentAdUnit = parentAdUnitId && ! parentAdUnits?.find( adUnit => adUnit.id === parentAdUnitId );
+
+	const parentAdUnitOptions = [
+		{ label: __( 'None (all ad units will be used)', 'newspack-plugin' ), value: '' },
+		...( parentAdUnits || [] ).map( adUnit => ( {
+			label: adUnit.name,
+			value: adUnit.id,
+		} ) ),
+	];
+
+	if ( missingParentAdUnit ) {
+		parentAdUnitOptions.push( { label: '', value: parentAdUnitId } );
+	}
+
 	return (
 		<>
 			<Card noBorder>
@@ -86,14 +108,46 @@ const AdUnits = ( {
 			</Card>
 
 			{ ! isLegacy && networkCode && (
-				<SelectControl
-					label={ __( 'Connected GAM network code', 'newspack-plugin' ) }
-					value={ networkCode }
-					options={ serviceData.available_networks.map( network => ( {
-						label: `${ network.name } (${ network.code })`,
-						value: network.code,
-					} ) ) }
-					onChange={ updateGAMNetworkCode }
+				<>
+					<SelectControl
+						label={ __( 'Connected GAM network code', 'newspack-plugin' ) }
+						value={ networkCode }
+						options={ serviceData.available_networks.map( network => ( {
+							label: `${ network.name } (${ network.code })`,
+							value: network.code,
+						} ) ) }
+						onChange={ setNetworkCode }
+					/>
+					<TextControl
+						label={ __( 'Parent network code (optional)', 'newspack-plugin' ) }
+						value={ parentNetworkCode }
+						onChange={ setParentNetworkCode }
+					/>
+					{ parentAdUnits.length > 0 && (
+						<SelectControl
+							label={ __( 'Set parent ad unit for the site inventory', 'newspack-plugin' ) }
+							value={ parentAdUnitId }
+							options={ parentAdUnitOptions }
+							onChange={ setParentAdUnitId }
+						/>
+					) }
+					<Card headerActions noBorder>
+						<div className="flex justify-end w-100">
+							<Button variant="primary" onClick={ updateGAMConfiguration }>
+								{ __( 'Save', 'newspack-plugin' ) }
+							</Button>
+						</div>
+					</Card>
+					<hr />
+				</>
+			) }
+			{ missingParentAdUnit && (
+				<Notice
+					noticeText={ __(
+						'The current parent ad unit is inactive or archived. Please select a different parent ad unit.',
+						'newspack-plugin'
+					) }
+					isError
 				/>
 			) }
 			{ false === serviceData.status?.is_network_code_matched && (
@@ -123,10 +177,7 @@ const AdUnits = ( {
 			) }
 			{ isLegacy && serviceData.enabled && (
 				<>
-					<Notice
-						noticeText={ __( 'Currently operating in legacy mode.', 'newspack-plugin' ) }
-						isWarning
-					/>
+					<Notice noticeText={ __( 'Currently operating in legacy mode.', 'newspack-plugin' ) } isWarning />
 					<div className="flex items-end">
 						<TextControl
 							label={ __( 'Network Code', 'newspack-plugin' ) }
@@ -143,10 +194,7 @@ const AdUnits = ( {
 				</>
 			) }
 			<p>
-				{ __(
-					'Set up multiple ad units to use on your homepage, articles and other places throughout your site.',
-					'newspack-plugin'
-				) }
+				{ __( 'Set up multiple ad units to use on your homepage, articles and other places throughout your site.', 'newspack-plugin' ) }
 				<br />
 				{ __(
 					'You can place ads through our Newspack Ad Block in the Editor, Newspack Ad widget, and using the global placements.',
@@ -178,7 +226,7 @@ const AdUnits = ( {
 									<span>
 										{ adUnit.code ? (
 											<>
-												<i>{ __( 'Code:', 'newspack-plugin' ) }</i> <code>{ adUnit.code }</code>
+												<i>{ __( 'Code:', 'newspack-plugin' ) }</i> <code>{ getCodeValue( adUnit ) }</code>
 											</>
 										) : null }
 										{ adUnit.sizes?.length || adUnit.fluid ? (
@@ -212,12 +260,7 @@ const AdUnits = ( {
 									</span>
 								) }
 								actionText={
-									canEdit( adUnit ) && (
-										<OptionsPopover
-											deleteLink={ () => onDelete( adUnit.id ) }
-											editLink={ editLink }
-										/>
-									)
+									canEdit( adUnit ) && <OptionsPopover deleteLink={ () => onDelete( adUnit.id ) } editLink={ editLink } />
 								}
 							/>
 						);

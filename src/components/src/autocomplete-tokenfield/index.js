@@ -207,7 +207,7 @@ class AutocompleteTokenField extends Component {
 	 * Render.
 	 */
 	render() {
-		const { help, label = '', placeholder = '', maxLength } = this.props;
+		const { help, label = '', placeholder = '', maxLength, style, __next40pxDefaultSize } = this.props;
 		const { suggestions, loading } = this.state;
 
 		const classNames = [ 'newspack-autocomplete-tokenfield__input-container' ];
@@ -217,7 +217,7 @@ class AutocompleteTokenField extends Component {
 		}
 
 		return (
-			<div className="newspack-autocomplete-tokenfield">
+			<div className="newspack-autocomplete-tokenfield" style={ style }>
 				<div className={ classNames.join( ' ' ) }>
 					<FormTokenField
 						value={ this.getTokens() }
@@ -227,6 +227,7 @@ class AutocompleteTokenField extends Component {
 						label={ label }
 						maxLength={ maxLength }
 						placeholder={ placeholder }
+						__next40pxDefaultSize={ __next40pxDefaultSize }
 					/>
 					{ loading && <Spinner /> }
 				</div>

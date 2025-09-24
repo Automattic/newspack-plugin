@@ -27,17 +27,7 @@ const PromptActionCard = props => {
 	const [ isDuplicatePromptModalVisible, setIsDuplicatePromptModalVisible ] = useState( false );
 	const [ duplicateTitle, setDuplicateTitle ] = useState( null );
 
-	const {
-		className,
-		description,
-		duplicated,
-		duplicatePopup,
-		inFlight,
-		resetDuplicated,
-		prompt = {},
-		segments,
-		warning,
-	} = props;
+	const { className, description, duplicated, duplicatePopup, inFlight, resetDuplicated, prompt = {}, segments, warning } = props;
 	const { campaign_groups: campaignGroups, id, edit_link: editLink, title } = prompt;
 
 	useEffect( () => {
@@ -133,13 +123,7 @@ const PromptActionCard = props => {
 								) }
 							/>
 							{ ! campaignGroups && (
-								<Notice
-									isWarning
-									noticeText={ __(
-										'This prompt is currently not assigned to any campaign.',
-										'newspack-plugin'
-									) }
-								/>
+								<Notice isWarning noticeText={ __( 'This prompt is currently not assigned to any campaign.', 'newspack-plugin' ) } />
 							) }
 							<Card buttonsCard noBorder className="justify-end">
 								<Button
@@ -160,13 +144,7 @@ const PromptActionCard = props => {
 					) : (
 						<>
 							{ ! campaignGroups && (
-								<Notice
-									isWarning
-									noticeText={ __(
-										'This prompt will not be assigned to any campaign.',
-										'newspack-plugin'
-									) }
-								/>
+								<Notice isWarning noticeText={ __( 'This prompt will not be assigned to any campaign.', 'newspack-plugin' ) } />
 							) }
 							<TextControl
 								disabled={ inFlight || null === duplicateTitle }

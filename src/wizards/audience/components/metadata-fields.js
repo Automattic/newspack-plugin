@@ -35,9 +35,7 @@ const MetadataFields = ( { availableFields, getSharedProps, selectedFields, upda
 							const newFields = [ ...selectedFields ];
 							updateConfig(
 								'metadata_fields',
-								value
-									? [ ...newFields, field ]
-									: newFields.filter( selectedField => selectedField !== field )
+								value ? [ ...newFields, field ] : newFields.filter( selectedField => selectedField !== field )
 							);
 						} }
 					/>

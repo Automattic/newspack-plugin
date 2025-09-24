@@ -93,12 +93,9 @@ describe( 'A new segment creation', () => {
 		expect( screen.getByText( 'Save' ) ).toBeDisabled();
 
 		// Save button is disabled until at least one option has been updated.
-		fireEvent.change(
-			screen
-				.getByTestId( 'newspack-criteria-articles_read' )
-				.querySelector( 'input[data-testid="min"]' ),
-			{ target: { value: '42' } }
-		);
+		fireEvent.change( screen.getByTestId( 'newspack-criteria-articles_read' ).querySelector( 'input[data-testid="min"]' ), {
+			target: { value: '42' },
+		} );
 		expect( screen.getByText( 'Save' ) ).not.toBeDisabled();
 
 		fireEvent.change( screen.getByTestId( 'newspack-criteria-newsletter' ), {

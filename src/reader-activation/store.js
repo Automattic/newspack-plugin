@@ -307,9 +307,7 @@ export default function Store() {
 			// Remove items older than max age if `timestamp` is set.
 			if ( config.collections.maxAge ) {
 				const now = Date.now();
-				collection = collection.filter(
-					item => ! item.timestamp || now - item.timestamp < config.collections.maxAge
-				);
+				collection = collection.filter( item => ! item.timestamp || now - item.timestamp < config.collections.maxAge );
 			}
 
 			collection.push( value );

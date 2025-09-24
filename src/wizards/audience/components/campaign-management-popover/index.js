@@ -27,11 +27,7 @@ const CampaignManagementPopover = ( {
 	onRename,
 	onUnarchive,
 } ) => (
-	<Popover
-		position="bottom right"
-		onFocusOutside={ () => dismiss() }
-		onKeyDown={ event => ESCAPE === event.keyCode && dismiss() }
-	>
+	<Popover position="bottom right" onFocusOutside={ () => dismiss() } onKeyDown={ event => ESCAPE === event.keyCode && dismiss() }>
 		<MenuItem onClick={ () => dismiss() } className="screen-reader-text">
 			{ __( 'Close Popover', 'newspack-plugin' ) }
 		</MenuItem>

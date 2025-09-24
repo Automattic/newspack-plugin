@@ -8,6 +8,9 @@
 @use "../../variables/breakpoints";
 
 .woocommerce-account.newspack-my-account.newspack-ui {
+	.woocommerce-notices-wrapper:not(:empty) {
+		margin-bottom: var(--newspack-ui-spacer-6);
+	}
 	.newspack-wc-message,
 	.woocommerce-message,
 	.woocommerce-info,
@@ -15,6 +18,7 @@
 		@extend .newspack-ui__notice;
 		display: block;
 		list-style: none;
+		margin: var(--newspack-ui-spacer-3) 0;
 
 		> p:first-child {
 			margin-top: 0;
@@ -27,9 +31,11 @@
 		}
 	}
 	.newspack-wc-message,
-	.woocommerce-message,
-	.woocommerce-info {
+	.woocommerce-message {
 		@extend .newspack-ui__notice--success;
+	}
+	.woocommerce-info {
+		@extend .newspack-ui__notice--warning;
 	}
 	.newspack-wc-message--error,
 	.woocommerce-error {
@@ -154,8 +160,8 @@
 	.woocommerce-page form .form-row label {
 		display: inline;
 	}
-	label:has(input[type="checkbox"]),
-	label:has(input[type="radio"]) {
+	label:has(input[type="checkbox"]):not(.newspack-ui__input-card),
+	label:has(input[type="radio"]):not(.newspack-ui__input-card) {
 		display: inline !important;
 		input {
 			margin-bottom: calc(var(--newspack-ui-spacer-base / 2));

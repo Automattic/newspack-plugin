@@ -1,14 +1,6 @@
 /* globals jQuery, grecaptcha, newspack_recaptcha_data */
 
-import {
-	addErrorMessage,
-	addHiddenV3Field,
-	destroyV3Field,
-	domReady,
-	getIntersectionObserver,
-	refreshV2Widget,
-	removeErrorMessages
-} from './utils';
+import { addErrorMessage, addHiddenV3Field, destroyV3Field, domReady, getIntersectionObserver, refreshV2Widget, removeErrorMessages } from './utils';
 import './style.scss';
 
 window.newspack_grecaptcha = window.newspack_grecaptcha || {
@@ -83,7 +75,9 @@ function renderV2Widget( form, onSuccess = null, onError = null ) {
 	// Attach widget to form events.
 	const attachListeners = () => {
 		form.removeAttribute( 'data-submit-button-click' );
-		getIntersectionObserver( () => renderV2Widget( form, onSuccess, onError ) ).observe( form, { attributes: true } );
+		getIntersectionObserver( () => renderV2Widget( form, onSuccess, onError ) ).observe( form, {
+			attributes: true,
+		} );
 
 		const handleSubmit = e => {
 			if ( ! form.hasAttribute( 'data-recaptcha-validated' ) && ! form.hasAttribute( 'data-skip-recaptcha' ) ) {
@@ -101,13 +95,17 @@ function renderV2Widget( form, onSuccess = null, onError = null ) {
 
 		const placeOrderClone = form.querySelector( '#place_order_clone' );
 		if ( placeOrderClone ) {
-			placeOrderClone.addEventListener( 'click', e => {
-				e.preventDefault();
-				e.stopImmediatePropagation();
-				handleSubmit( e )
-			}, true );
+			placeOrderClone.addEventListener(
+				'click',
+				e => {
+					e.preventDefault();
+					e.stopImmediatePropagation();
+					handleSubmit( e );
+				},
+				true
+			);
 		}
-	}
+	};
 	// Refresh reCAPTCHA widgets on Woo checkout update and error.
 	if ( jQuery ) {
 		jQuery( document ).on( 'updated_checkout', () => renderV2Widget( form, onSuccess, onError ) );
@@ -146,9 +144,7 @@ function render( forms = [], onSuccess = null, onError = null ) {
 
 	const formsToHandle = forms.length
 		? forms
-		: [ ...document.querySelectorAll(
-			'form[data-newspack-recaptcha],form#add_payment_method,form.checkout',
-		) ];
+		: [ ...document.querySelectorAll( 'form[data-newspack-recaptcha],form#add_payment_method,form.checkout' ) ];
 
 	formsToHandle.forEach( form => {
 		const renderForm = () => {

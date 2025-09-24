@@ -83,20 +83,17 @@ export function registerElementActivity( element, action, cb, event ) {
 	}
 
 	element.forEach( el => {
-		el.addEventListener(
-			event || ( el.tagName === 'FORM' ? 'submit' : 'click' ),
-			ev => {
-				// Wait for the event to be processed.
-				setTimeout( () => {
-					// If the event was not prevented, dispatch the activity.
-					// Form submissions will not consider the default prevented because they
-					// are commonly ajaxified.
-					if ( el.tagName === 'FORM' || ! ev.defaultPrevented ) {
-						window.newspackRAS.push( [ action, cb( el ) ] );
-					}
-				} );
-			}
-		);
+		el.addEventListener( event || ( el.tagName === 'FORM' ? 'submit' : 'click' ), ev => {
+			// Wait for the event to be processed.
+			setTimeout( () => {
+				// If the event was not prevented, dispatch the activity.
+				// Form submissions will not consider the default prevented because they
+				// are commonly ajaxified.
+				if ( el.tagName === 'FORM' || ! ev.defaultPrevented ) {
+					window.newspackRAS.push( [ action, cb( el ) ] );
+				}
+			} );
+		} );
 	} );
 }
 
@@ -108,17 +105,9 @@ export function registerElementActivity( element, action, cb, event ) {
  */
 export function registerCheckoutActivity( action, cb ) {
 	// Woo Block checkout is react, so we need to wait for the form to be rendered.
-	wp?.hooks?.addAction(
-		'experimental__woocommerce_blocks-checkout-render-checkout-form',
-		'newspack/my-account/activity',
-		() => {
-			registerElementActivity(
-				'.wc-block-components-checkout-place-order-button',
-				action,
-				cb
-			);
-		}
-	);
+	wp?.hooks?.addAction( 'experimental__woocommerce_blocks-checkout-render-checkout-form', 'newspack/my-account/activity', () => {
+		registerElementActivity( '.wc-block-components-checkout-place-order-button', action, cb );
+	} );
 	// Shortcode checkout.
 	registerElementActivity( 'form[name="checkout"]', action, cb );
 }

@@ -30,7 +30,7 @@ class Test_Collection_Taxonomy extends WP_UnitTestCase {
 	/**
 	 * Test that the taxonomy is registered.
 	 *
-	 * @covers \Newspack\Collections\Taxonomy::register_taxonomy
+	 * @covers \Newspack\Collections\Collection_Taxonomy::register_taxonomy
 	 */
 	public function test_taxonomy_registration() {
 		$taxonomy = get_taxonomy( Collection_Taxonomy::get_taxonomy() );
@@ -44,9 +44,9 @@ class Test_Collection_Taxonomy extends WP_UnitTestCase {
 	/**
 	 * Test that hooks are registered and unregistered correctly.
 	 *
-	 * @covers \Newspack\Collections\Taxonomy::register_hooks
-	 * @covers \Newspack\Collections\Taxonomy::unregister_hooks
-	 * @covers \Newspack\Collections\Traits\Hook_Management_Trait::manage_hooks
+	 * @covers \Newspack\Collections\Collection_Taxonomy::register_hooks
+	 * @covers \Newspack\Collections\Collection_Taxonomy::unregister_hooks
+	 * @covers \Newspack\Collections\Collection_Taxonomy::manage_hooks
 	 */
 	public function test_hooks_management() {
 		$reflection = new \ReflectionMethod( Collection_Taxonomy::class, 'get_hooks' );
@@ -76,7 +76,7 @@ class Test_Collection_Taxonomy extends WP_UnitTestCase {
 	/**
 	 * Test that a collection term can be created.
 	 *
-	 * @covers \Newspack\Collections\Taxonomy::register_taxonomy
+	 * @covers \Newspack\Collections\Collection_Taxonomy::register_taxonomy
 	 */
 	public function test_create_collection_term() {
 		$args = [
@@ -93,7 +93,7 @@ class Test_Collection_Taxonomy extends WP_UnitTestCase {
 	/**
 	 * Test that a collection term can be found by name.
 	 *
-	 * @covers \Newspack\Collections\Taxonomy::find_term_by_name
+	 * @covers \Newspack\Collections\Collection_Taxonomy::find_term_by_name
 	 */
 	public function test_find_term_by_name() {
 		$term = $this->create_test_collection_term(
@@ -146,9 +146,9 @@ class Test_Collection_Taxonomy extends WP_UnitTestCase {
 	/**
 	 * Test term inactive status management.
 	 *
-	 * @covers \Newspack\Collections\Taxonomy::is_term_inactive
-	 * @covers \Newspack\Collections\Taxonomy::deactivate_term
-	 * @covers \Newspack\Collections\Taxonomy::reactivate_term
+	 * @covers \Newspack\Collections\Collection_Taxonomy::is_term_inactive
+	 * @covers \Newspack\Collections\Collection_Taxonomy::deactivate_term
+	 * @covers \Newspack\Collections\Collection_Taxonomy::reactivate_term
 	 */
 	public function test_term_inactive_status() {
 		Collection_Taxonomy::register_hooks();

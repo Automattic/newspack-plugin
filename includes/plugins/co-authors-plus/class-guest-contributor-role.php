@@ -92,6 +92,9 @@ class Guest_Contributor_Role {
 			\wp_schedule_event( time(), 'hourly', $re_check_guest_authors );
 		}
 		add_action( $re_check_guest_authors, [ __CLASS__, 'clear_site_has_cap_guest_authors_check' ] );
+
+		// Make Guest Contributors available for the Author List and Profile blocks.
+		\add_filter( 'newspack_blocks_authors_roles', [ __CLASS__, 'add_guest_contributor_to_authors_blocks' ] );
 	}
 
 	/**
@@ -494,7 +497,7 @@ class Guest_Contributor_Role {
 						</label>
 						<p class="description">
 						<?php
-							esc_html_e( 'If this option is checked, the "Non Editing Contributor" role will be added to the user and they will be able to be assigned as a co-author of a post even if they are not allowed to edit posts. For users with edit access, this option has no effect.', 'newspack-plugin' );
+							esc_html_e( 'If this option is checked, the "Guest Contributor" role will be added to the user (on top of their current role) and they will be able to be assigned as a co-author of a post even if they are not allowed to edit posts. For users with edit access, this option has no effect.', 'newspack-plugin' );
 						?>
 						</p>
 					</td>
@@ -565,6 +568,20 @@ class Guest_Contributor_Role {
 			$args['capability__in'] = [ 'edit_posts', self::ASSIGNABLE_TO_POSTS_CAPABILITY_NAME ];
 		}
 		return $args;
+	}
+
+	/**
+	 * Add Guest Contributor to the Author List block.
+	 *
+	 * @param array $roles The list of roles.
+	 * @return array Modified list of roles.
+	 */
+	public static function add_guest_contributor_to_authors_blocks( $roles ) {
+		$roles[] = [
+			'slug'  => self::CONTRIBUTOR_NO_EDIT_ROLE_NAME,
+			'label' => __( 'Guest Contributor', 'newspack-plugin' ),
+		];
+		return $roles;
 	}
 }
 Guest_Contributor_Role::initialize();

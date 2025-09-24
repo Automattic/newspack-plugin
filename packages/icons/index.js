@@ -5,11 +5,12 @@ export { default as aspectPortrait } from './src/aspect-portrait';
 export { default as aspectSquare } from './src/aspect-square';
 export { default as ballotBox } from './src/ballot-box';
 export { default as broadcast } from './src/broadcast';
+export { default as collections } from './src/collections';
 export { default as contentCarousel } from './src/content-carousel';
 export { default as contentLoop } from './src/content-loop';
 export { default as corrections } from './src/corrections';
 export { default as curatedList } from './src/curated-list';
-export { default as dynamicCountdown } from './src/dynamic-countdown'
+export { default as dynamicCountdown } from './src/dynamic-countdown';
 export { default as emailAd } from './src/email-ad';
 export { default as emailCheck } from './src/email-check';
 export { default as emailError } from './src/email-error';

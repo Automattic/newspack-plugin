@@ -53,8 +53,7 @@ class Handoff extends Component {
 		const defaults = {
 			modalBody: null,
 			modalTitle: pluginInfo.Name && `${ __( 'Manage', 'newspack-plugin' ) } ${ pluginInfo.Name }`,
-			primaryButton:
-				pluginInfo.Name && `${ __( 'Manage', 'newspack-plugin' ) } ${ pluginInfo.Name }`,
+			primaryButton: pluginInfo.Name && `${ __( 'Manage', 'newspack-plugin' ) } ${ pluginInfo.Name }`,
 			primaryModalButton: __( 'Manage', 'newspack-plugin' ),
 			dismissModalButton: __( 'Dismiss', 'newspack-plugin' ),
 		};
@@ -96,8 +95,7 @@ class Handoff extends Component {
 			...otherProps
 		} = this.props;
 		const { pluginInfo, showModal } = this.state;
-		const { modalBody, modalTitle, primaryButton, primaryModalButton, dismissModalButton } =
-			this.textForPlugin( pluginInfo );
+		const { modalBody, modalTitle, primaryButton, primaryModalButton, dismissModalButton } = this.textForPlugin( pluginInfo );
 		const { Configured, Name, Slug, Status } = pluginInfo;
 		const classes = classnames( Configured && 'is-configured', className );
 		return (
@@ -107,9 +105,7 @@ class Handoff extends Component {
 						className={ classes }
 						isSecondary={ ! otherProps.isPrimary && ! otherProps.isTertiary && ! otherProps.isLink }
 						{ ...otherProps }
-						onClick={ () =>
-							useModal ? this.setState( { showModal: true } ) : this.goToPlugin( Slug )
-						}
+						onClick={ () => ( useModal ? this.setState( { showModal: true } ) : this.goToPlugin( Slug ) ) }
 					>
 						{ children ? children : primaryButton }
 					</Button>
@@ -132,10 +128,7 @@ class Handoff extends Component {
 					</Button>
 				) }
 				{ showModal && (
-					<Modal
-						title={ modalTitle }
-						onRequestClose={ () => this.setState( { showModal: false } ) }
-					>
+					<Modal title={ modalTitle } onRequestClose={ () => this.setState( { showModal: false } ) }>
 						<p>{ modalBody }</p>
 						<Card buttonsCard noBorder className="justify-end">
 							<Button variant="secondary" onClick={ () => this.setState( { showModal: false } ) }>

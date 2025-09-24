@@ -23,9 +23,7 @@ describe( 'ProgressBar', () => {
 
 	it( 'should render with both label and fraction', () => {
 		const label = 'test label';
-		const { getByText } = render(
-			<ProgressBar completed="1" total="2" label={ label } displayFraction />
-		);
+		const { getByText } = render( <ProgressBar completed="1" total="2" label={ label } displayFraction /> );
 		expect( getByText( label ) ).toBeInTheDocument();
 		expect( getByText( '1/2' ) ).toBeInTheDocument();
 	} );
@@ -47,26 +45,19 @@ describe( 'ProgressBar', () => {
 		].forEach( ( { props, expectedWidth } ) => {
 			it( `with expected  progress of ${ expectedWidth }`, () => {
 				const { getByTestId } = render( <ProgressBar { ...props } key={ expectedWidth } /> );
-				expect( getByTestId( 'progress-bar-indicator' ) ).toHaveAttribute(
-					'style',
-					`width: ${ expectedWidth }%;`
-				);
+				expect( getByTestId( 'progress-bar-indicator' ) ).toHaveAttribute( 'style', `width: ${ expectedWidth }%;` );
 			} );
 		} );
 	} );
 
 	it( 'should handle non-numeric values in ProgressBar element', () => {
-		const { getByText, getByTestId } = render(
-			<ProgressBar completed="cats" total="dogs" displayFraction />
-		);
+		const { getByText, getByTestId } = render( <ProgressBar completed="cats" total="dogs" displayFraction /> );
 		expect( getByText( '0/0' ) ).toBeInTheDocument();
 		expect( getByTestId( 'progress-bar-indicator' ) ).toHaveAttribute( 'style', 'width: 100%;' );
 	} );
 
 	it( 'should handle non-logical values in ProgressBar element', () => {
-		const { getByText, getByTestId } = render(
-			<ProgressBar completed="3" total="-1" displayFraction />
-		);
+		const { getByText, getByTestId } = render( <ProgressBar completed="3" total="-1" displayFraction /> );
 		expect( getByText( '0/0' ) ).toBeInTheDocument();
 		expect( getByTestId( 'progress-bar-indicator' ) ).toHaveAttribute( 'style', 'width: 100%;' );
 	} );

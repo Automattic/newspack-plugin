@@ -24,13 +24,9 @@ import './style.scss';
 
 	function newspack_change_nicename_process_response( response ) {
 		if ( response.success ) {
-			$( '#newspack_change_nicename_message_success' )
-				.html( response.message )
-				.show();
+			$( '#newspack_change_nicename_message_success' ).html( response.message ).show();
 		} else {
-			$( '#newspack_change_nicename_message_error' )
-				.html( response.message )
-				.show();
+			$( '#newspack_change_nicename_message_error' ).html( response.message ).show();
 		}
 	}
 

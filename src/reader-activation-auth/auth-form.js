@@ -75,26 +75,21 @@ window.newspackRAS.push( function ( readerActivation ) {
 					messageContentElement.style.display = 'block';
 
 					// If the message includes a registration toggle, hide the message when clicked.
-					messageContentElement
-						.querySelectorAll( 'a[data-set-action="register"], a[data-set-action="signin"]' )
-						.forEach( registerLink => {
-							registerLink.parentNode.setAttribute( 'data-action', 'signin' );
+					messageContentElement.querySelectorAll( 'a[data-set-action="register"], a[data-set-action="signin"]' ).forEach( registerLink => {
+						registerLink.parentNode.setAttribute( 'data-action', 'signin' );
 
-							registerLink.addEventListener(
-								'click',
-								function () {
-									messageContentElement.innerHTML = '';
-								},
-								false
-							);
-						} );
+						registerLink.addEventListener(
+							'click',
+							function () {
+								messageContentElement.innerHTML = '';
+							},
+							false
+						);
+					} );
 				} else {
 					messageContentElement.style.display = 'none';
 					messageContentElement.innerHTML = '';
-					messageContentElement.classList.remove(
-						'newspack-ui__inline-error',
-						'newspack-ui__helper-text'
-					);
+					messageContentElement.classList.remove( 'newspack-ui__inline-error', 'newspack-ui__helper-text' );
 				}
 			};
 
@@ -114,7 +109,7 @@ window.newspackRAS.push( function ( readerActivation ) {
 				if ( 'v2_invisible' === newspack_grecaptcha?.version ) {
 					if ( 'register' === action ) {
 						form.removeAttribute( 'data-skip-recaptcha' );
-						newspack_grecaptcha.render( [ form ], ( error ) => form.setMessageContent( error, true ) );
+						newspack_grecaptcha.render( [ form ], error => form.setMessageContent( error, true ) );
 					} else {
 						form.setAttribute( 'data-skip-recaptcha', '1' );
 					}
@@ -201,7 +196,7 @@ window.newspackRAS.push( function ( readerActivation ) {
 						resendCodeButton.textContent = resendCodeButton.originalButtonText;
 						clearInterval( resendCodeButton.otpTimerInterval );
 					}
-					resendCodeButton.disabled = !!remaining;
+					resendCodeButton.disabled = !! remaining;
 				};
 				const remaining = readerActivation.getOTPTimeRemaining();
 				if ( remaining ) {
@@ -240,9 +235,7 @@ window.newspackRAS.push( function ( readerActivation ) {
 									} );
 								}
 								form.setMessageContent(
-									formAction === 'pwd'
-										? newspack_reader_activation_labels.code_sent
-										: newspack_reader_activation_labels.code_resent
+									formAction === 'pwd' ? newspack_reader_activation_labels.code_sent : newspack_reader_activation_labels.code_resent
 								);
 								container.setFormAction( 'otp' );
 								if ( ! readerActivation.getOTPTimeRemaining() ) {
@@ -286,9 +279,7 @@ window.newspackRAS.push( function ( readerActivation ) {
 
 					if ( status !== 200 ) {
 						form.setMessageContent( message, true );
-						messageContentElement
-							.querySelectorAll( '[data-set-action]' )
-							.forEach( setActionListener );
+						messageContentElement.querySelectorAll( '[data-set-action]' ).forEach( setActionListener );
 					}
 				}
 				if ( status === 200 ) {
@@ -307,18 +298,20 @@ window.newspackRAS.push( function ( readerActivation ) {
 							activity.sso = true;
 						}
 						if ( data?.existing_user ) {
-							readerActivation.dispatchActivity( 'reader_logged_in', { ...activity, login_method: data?.metadata?.login_method || 'auth-form' } );
+							readerActivation.dispatchActivity( 'reader_logged_in', {
+								...activity,
+								login_method: data?.metadata?.login_method || 'auth-form',
+							} );
 						} else {
-							readerActivation.dispatchActivity( 'reader_registered', { ...activity, registration_method: data?.metadata?.registration_method || 'auth-form' } );
+							readerActivation.dispatchActivity( 'reader_registered', {
+								...activity,
+								registration_method: data?.metadata?.registration_method || 'auth-form',
+							} );
 						}
 					}
 
 					let callback;
-					if (
-						! container.config?.skipNewslettersSignup &&
-						data?.registered &&
-						container.authCallback
-					) {
+					if ( ! container.config?.skipNewslettersSignup && data?.registered && container.authCallback ) {
 						callback = ( authMessage, authData ) =>
 							openNewslettersSignupModal( {
 								onSuccess: container.authCallback( authMessage, authData ),
@@ -341,8 +334,7 @@ window.newspackRAS.push( function ( readerActivation ) {
 						}
 						container.setFormAction( 'success' );
 						container.querySelector( '.success-title' ).innerHTML = labels.success_title || '';
-						container.querySelector( '.success-description' ).innerHTML =
-							labels.success_description || '';
+						container.querySelector( '.success-description' ).innerHTML = labels.success_description || '';
 						const callbackButton = container.querySelector( '.auth-callback' );
 						if ( callbackButton && callback ) {
 							callbackButton.addEventListener( 'click', ev => {
@@ -427,8 +419,7 @@ window.newspackRAS.push( function ( readerActivation ) {
 					} )
 						.then( res => {
 							container.setAttribute( 'data-form-status', res.status );
-							res
-								.json()
+							res.json()
 								.then( ( { message, data } ) => {
 									const status = res.status;
 									if ( status === 200 ) {

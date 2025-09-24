@@ -1,13 +1,20 @@
 version: 2.1
 
 orbs:
-  newspack: newspack/newspack@1.4.4
+  newspack: newspack/newspack@1.5.8
 
 workflows:
   version: 2
   all:
     jobs:
       - newspack/build
+      - newspack/i18n:
+          requires:
+            - newspack/build
+          filters:
+            branches:
+              only:
+                - trunk
       - newspack/lint-js-scss:
           requires:
             - newspack/build

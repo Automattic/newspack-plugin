@@ -6,9 +6,7 @@ import * as a11y from '../reader-activation-auth/accessibility.js';
  * @return {HTMLElement} The modal container.
  */
 export function getModalContainer() {
-	return document.querySelector(
-		'.newspack-newsletters-signup-modal .newspack-newsletters-signup'
-	);
+	return document.querySelector( '.newspack-newsletters-signup-modal .newspack-newsletters-signup' );
 }
 
 /**
@@ -25,27 +23,24 @@ export function refreshNewslettersSignupModal( email ) {
 
 	const modal = container.closest( '.newspack-newsletters-signup-modal' );
 	if ( modal ) {
-		fetch( `/wp-json/newspack/v1/reader-newsletter-signup-lists/${ email }` )
-			.then( res => {
-				res
-						.json()
-						.then( ( { html } ) => {
-							if ( html ) {
-								const parser = new DOMParser();
-								const doc = parser.parseFromString( html, 'text/html' );
-								const existingForm = container.querySelector( 'form' );
-								if ( existingForm ) {
-									existingForm.remove();
-								}
-								const newForm = doc.querySelector( '.newspack-newsletters-signup form' );
-								if ( newForm ) {
-									container.appendChild( newForm );
-								}
-								// Dispatch refresh event on the container.
-								container.dispatchEvent( new Event( 'newspack:refresh' ) );
-							}
-						} );
+		fetch( `/wp-json/newspack/v1/reader-newsletter-signup-lists/${ email }` ).then( res => {
+			res.json().then( ( { html } ) => {
+				if ( html ) {
+					const parser = new DOMParser();
+					const doc = parser.parseFromString( html, 'text/html' );
+					const existingForm = container.querySelector( 'form' );
+					if ( existingForm ) {
+						existingForm.remove();
+					}
+					const newForm = doc.querySelector( '.newspack-newsletters-signup form' );
+					if ( newForm ) {
+						container.appendChild( newForm );
+					}
+					// Dispatch refresh event on the container.
+					container.dispatchEvent( new Event( 'newspack:refresh' ) );
+				}
 			} );
+		} );
 	}
 }
 

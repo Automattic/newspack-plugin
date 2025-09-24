@@ -2,7 +2,7 @@
  * WordPress dependencies
  */
 import { Icon, chevronUp, chevronDown, trash } from '@wordpress/icons';
-import { CheckboxControl,Notice } from '@wordpress/components';
+import { CheckboxControl, Notice } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 
 /**
@@ -12,11 +12,7 @@ import ActionCard from '../action-card';
 import Button from '../button';
 import './style.scss';
 
-export default function SortableNewsletterListControl( {
-	lists,
-	selected = [],
-	onChange = () => {},
-} ) {
+export default function SortableNewsletterListControl( { lists, selected = [], onChange = () => {} } ) {
 	if ( ! Array.isArray( lists ) && lists.errors ) {
 		return (
 			<Notice status="error" isDismissible={ false }>
@@ -55,12 +51,11 @@ export default function SortableNewsletterListControl( {
 								</>
 							) }
 							isSmall
-							hasWhiteHeader							actionText={
+							hasWhiteHeader
+							actionText={
 								<>
 									<Button
-										onClick={ () =>
-											onChange( selected.filter( ( { id } ) => id !== selectedList.id ) )
-										}
+										onClick={ () => onChange( selected.filter( ( { id } ) => id !== selectedList.id ) ) }
 										label={ __( 'Remove', 'newspack-plugin' ) }
 										icon={ trash }
 										isDestructive
@@ -81,11 +76,7 @@ export default function SortableNewsletterListControl( {
 											newSelected.splice( index - 1, 0, selectedList );
 											onChange( newSelected );
 										} }
-										className={
-											selected.findIndex( ( { id } ) => id === selectedList.id ) === 0
-												? 'disabled'
-												: ''
-										}
+										className={ selected.findIndex( ( { id } ) => id === selectedList.id ) === 0 ? 'disabled' : '' }
 									>
 										<Icon icon={ chevronUp } />
 									</button>
@@ -98,10 +89,7 @@ export default function SortableNewsletterListControl( {
 											onChange( newSelected );
 										} }
 										className={
-											selected.findIndex( ( { id } ) => id === selectedList.id ) ===
-											selected.length - 1
-												? 'disabled'
-												: ''
+											selected.findIndex( ( { id } ) => id === selectedList.id ) === selected.length - 1 ? 'disabled' : ''
 										}
 									>
 										<Icon icon={ chevronDown } />
@@ -121,11 +109,7 @@ export default function SortableNewsletterListControl( {
 					) }{ ' ' }
 					{ getAvailableLists().map( list => {
 						return (
-							<Button
-								key={ list.id }
-								variant="secondary"
-								onClick={ () => onChange( [ ...selected, { id: list.id, checked: true } ] ) }
-							>
+							<Button key={ list.id } variant="secondary" onClick={ () => onChange( [ ...selected, { id: list.id, checked: true } ] ) }>
 								{ list.name }
 							</Button>
 						);

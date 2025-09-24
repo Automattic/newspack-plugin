@@ -7,15 +7,13 @@
 
 namespace Newspack\Collections;
 
-use Newspack\Collections\Traits\Hook_Management_Trait;
-
 defined( 'ABSPATH' ) || exit;
 
 /**
  * Handles the Collections taxonomy and related operations.
  */
 class Collection_Taxonomy {
-	use Hook_Management_Trait;
+	use Traits\Hook_Manager;
 
 	/**
 	 * Taxonomy for Collections.
@@ -66,6 +64,7 @@ class Collection_Taxonomy {
 	 */
 	public static function init() {
 		add_action( 'init', [ __CLASS__, 'register_taxonomy' ] );
+		add_filter( 'newspack_blocks_home_page_block_custom_taxonomies', [ __CLASS__, 'add_collections_taxonomy_to_blocks' ] );
 		self::register_hooks();
 	}
 
@@ -74,17 +73,17 @@ class Collection_Taxonomy {
 	 */
 	public static function register_taxonomy() {
 		$labels = [
-			'name'              => _x( 'Collections', 'taxonomy general name', 'newspack-plugin' ),
-			'singular_name'     => _x( 'Collection', 'taxonomy singular name', 'newspack-plugin' ),
-			'search_items'      => __( 'Search Collections', 'newspack-plugin' ),
-			'all_items'         => __( 'All Collections', 'newspack-plugin' ),
-			'parent_item'       => __( 'Parent Collection', 'newspack-plugin' ),
-			'parent_item_colon' => __( 'Parent Collection:', 'newspack-plugin' ),
-			'edit_item'         => __( 'Edit Collection', 'newspack-plugin' ),
-			'update_item'       => __( 'Update Collection', 'newspack-plugin' ),
-			'add_new_item'      => __( 'Add New Collection', 'newspack-plugin' ),
-			'new_item_name'     => __( 'New Collection Name', 'newspack-plugin' ),
-			'menu_name'         => __( 'Collections', 'newspack-plugin' ),
+			'name'          => _x( 'Collections', 'collection taxonomy general name', 'newspack-plugin' ),
+			'singular_name' => _x( 'Collection', 'collection taxonomy singular name', 'newspack-plugin' ),
+			'search_items'  => __( 'Search Collections', 'newspack-plugin' ),
+			'popular_items' => __( 'Popular Collections', 'newspack-plugin' ),
+			'all_items'     => __( 'All Collections', 'newspack-plugin' ),
+			'view_item'     => __( 'View Collection', 'newspack-plugin' ),
+			'edit_item'     => __( 'Edit Collection', 'newspack-plugin' ),
+			'update_item'   => __( 'Update Collection', 'newspack-plugin' ),
+			'add_new_item'  => __( 'Add New Collection', 'newspack-plugin' ),
+			'new_item_name' => __( 'New Collection Name', 'newspack-plugin' ),
+			'menu_name'     => _x( 'Collections', 'label for collection menu name', 'newspack-plugin' ),
 		];
 
 		$args = [
@@ -215,5 +214,40 @@ class Collection_Taxonomy {
 		}
 
 		return get_terms( $args );
+	}
+
+	/**
+	 * Add the Collections taxonomy to the custom taxonomies array.
+	 *
+	 * @param array $custom_taxonomies Array of custom taxonomies.
+	 * @return array Modified array of custom taxonomies.
+	 */
+	public static function add_collections_taxonomy_to_blocks( $custom_taxonomies ) {
+		$collections_taxonomy = [
+			'slug'  => self::TAXONOMY,
+			'label' => __( 'Collections', 'newspack-plugin' ),
+		];
+
+		$point_of_insertion = null;
+		// Loop through the taxonomies; confirm Collections doesn't already exist, and grab the index of Collection Sections if it's there.
+		foreach ( $custom_taxonomies as $index => $tax ) {
+			if ( isset( $tax['slug'] ) ) {
+				if ( $tax['slug'] === $collections_taxonomy['slug'] ) {
+					return $custom_taxonomies;
+				}
+				if ( $tax['slug'] === Collection_Section_Taxonomy::get_taxonomy() ) {
+					$point_of_insertion = $index;
+				}
+			}
+		}
+
+		// If Collection Sections exists in the taxonomy filters, insert Collections before it. If not, use the default insertion point.
+		if ( null !== $point_of_insertion ) {
+			array_splice( $custom_taxonomies, $point_of_insertion, 0, [ $collections_taxonomy ] );
+		} else {
+			$custom_taxonomies[] = $collections_taxonomy;
+		}
+
+		return $custom_taxonomies;
 	}
 }

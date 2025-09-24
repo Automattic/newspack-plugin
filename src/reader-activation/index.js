@@ -5,10 +5,11 @@ window.newspack_ras_config = window.newspack_ras_config || {};
 import Store from './store.js';
 import { getPendingCheckout, setPendingCheckout } from './checkout.js';
 import { EVENTS, on, off, emit } from './events.js';
-import { getCookie, setCookie, generateID } from './utils.js';
+import { getCookie, setCookie, generateID, debugLog } from './utils.js';
 import overlays from './overlays.js';
 import initAnalytics from './analytics.js';
 import setupArticleViewsAggregates from './article-view.js';
+import initSubscriptionTiersForm from './subscription-tiers-form.js';
 
 /**
  * Reader Activation Library.
@@ -252,8 +253,7 @@ export function getOTPTimeRemaining() {
 	if ( ! timer ) {
 		return 0;
 	}
-	const timeRemaining =
-		newspack_ras_config.otp_rate_interval - ( Math.floor( Date.now() / 1000 ) - timer );
+	const timeRemaining = newspack_ras_config.otp_rate_interval - ( Math.floor( Date.now() / 1000 ) - timer );
 	if ( ! timeRemaining ) {
 		clearOTPTimer();
 	}
@@ -408,9 +408,7 @@ function attachNewsletterFormListener() {
 
 	// For third-party forms, set reader data on form submit. For first-party forms, listen for the custom event upon successful signup response.
 	document.querySelectorAll( thirdPartyForms.join( ',' ) ).forEach( el => attachHandler( el ) );
-	document
-		.querySelectorAll( newspackForms.join( ',' ) )
-		.forEach( el => attachHandler( el, 'newspack-newsletters-subscribe-success' ) );
+	document.querySelectorAll( newspackForms.join( ',' ) ).forEach( el => attachHandler( el, 'newspack-newsletters-subscribe-success' ) );
 }
 
 const readerActivation = {
@@ -436,7 +434,8 @@ const readerActivation = {
 	getAuthStrategy,
 	setPendingCheckout,
 	getPendingCheckout,
-	...( newspack_ras_config.is_ras_enabled && { openAuthModal } )
+	debugLog,
+	...( newspack_ras_config.is_ras_enabled && { openAuthModal } ),
 };
 
 /**
@@ -467,14 +466,12 @@ function init() {
 	const authenticated = !! data?.authenticated_email;
 	const currentReader = getReader();
 	const reader = { email: initialEmail || currentReader?.email, authenticated };
-	if (
-		currentReader?.email !== reader?.email ||
-		currentReader?.authenticated !== reader?.authenticated
-	) {
+	if ( currentReader?.email !== reader?.email || currentReader?.authenticated !== reader?.authenticated ) {
 		store.set( 'reader', reader, false );
 	}
 	emit( EVENTS.reader, reader );
 	initAnalytics( readerActivation );
+	initSubscriptionTiersForm( readerActivation );
 	fixClientID();
 	setupArticleViewsAggregates( readerActivation );
 	attachAuthCookiesListener();

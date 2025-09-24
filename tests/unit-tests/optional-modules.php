@@ -30,6 +30,7 @@ class Newspack_Test_Settings extends WP_UnitTestCase {
 				'module_enabled_media-partners'        => false,
 				'module_enabled_woo-member-commenting' => false,
 				'module_enabled_collections'           => false,
+				'module_enabled_indesign-export'       => false,
 			],
 			'Default settings are as expected.'
 		);
@@ -49,6 +50,7 @@ class Newspack_Test_Settings extends WP_UnitTestCase {
 				'module_enabled_media-partners'        => false,
 				'module_enabled_woo-member-commenting' => false,
 				'module_enabled_collections'           => false,
+				'module_enabled_indesign-export'       => false,
 			],
 			'Settings is updated.'
 		);
@@ -62,6 +64,7 @@ class Newspack_Test_Settings extends WP_UnitTestCase {
 				'module_enabled_media-partners'        => false,
 				'module_enabled_woo-member-commenting' => false,
 				'module_enabled_collections'           => true,
+				'module_enabled_indesign-export'       => false,
 			],
 			'Settings is updated.'
 		);
@@ -75,6 +78,7 @@ class Newspack_Test_Settings extends WP_UnitTestCase {
 				'module_enabled_media-partners'        => false,
 				'module_enabled_woo-member-commenting' => false,
 				'module_enabled_collections'           => true,
+				'module_enabled_indesign-export'       => false,
 			],
 			'A non-existent setting is not saved.'
 		);

@@ -1,15 +1,105 @@
-on: pull_request_review
-name: Label approved pull requests
+on:
+  pull_request_review:
+    types: [submitted]
+name: Label pull requests on review
 jobs:
   labelWhenApproved:
     name: Label when approved
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
     steps:
-      - name: Label when approved
-        uses: abinoda/label-when-approved-action@master
-        env:
-          APPROVALS: '1'
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          ADD_LABEL: '[Status] Approved'
-          # Needs to be URL-encoded, see https://github.com/abinoda/label-when-approved-action/pull/3#discussion_r321882620
-          REMOVE_LABEL: '%5BStatus%5D%20Needs%20Review'
+      - name: Check if review is approved
+        id: check_approval
+        run: |
+          if [ "${{ github.event.review.state }}" = "approved" ]; then
+            echo "approved=true" >> $GITHUB_OUTPUT
+          else
+            echo "approved=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Add approved label
+        if: steps.check_approval.outputs.approved == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { owner, repo, number } = context.issue;
+
+            // Add the approved label
+            await github.rest.issues.addLabels({
+              owner,
+              repo,
+              issue_number: number,
+              labels: ['[Status] Approved']
+            });
+
+            // Remove the needs review label if it exists
+            try {
+              await github.rest.issues.removeLabel({
+                owner,
+                repo,
+                issue_number: number,
+                name: '[Status] Needs Review'
+              });
+            } catch (error) {
+              // Label might not exist, which is fine
+              console.log('Label "[Status] Needs Review" not found or already removed');
+            }
+
+            // Remove the needs changes or feedback label if it exists
+            try {
+              await github.rest.issues.removeLabel({
+                owner,
+                repo,
+                issue_number: number,
+                name: '[Status] Needs Changes or Feedback'
+              });
+            } catch (error) {
+              // Label might not exist, which is fine
+              console.log('Label "[Status] Needs Changes or Feedback" not found or already removed');
+            }
+
+  labelWhenChangesRequested:
+    name: Label when changes requested
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - name: Check if review requests changes
+        id: check_changes_requested
+        run: |
+          if [ "${{ github.event.review.state }}" = "changes_requested" ]; then
+            echo "changes_requested=true" >> $GITHUB_OUTPUT
+          else
+            echo "changes_requested=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Add changes requested label
+        if: steps.check_changes_requested.outputs.changes_requested == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { owner, repo, number } = context.issue;
+
+            // Add the changes requested label
+            await github.rest.issues.addLabels({
+              owner,
+              repo,
+              issue_number: number,
+              labels: ['[Status] Needs Changes or Feedback']
+            });
+
+            // Remove the approved label if it exists
+            try {
+              await github.rest.issues.removeLabel({
+                owner,
+                repo,
+                issue_number: number,
+                name: '[Status] Approved'
+              });
+            } catch (error) {
+              // Label might not exist, which is fine
+              console.log('Label "[Status] Approved" not found or already removed');
+            }

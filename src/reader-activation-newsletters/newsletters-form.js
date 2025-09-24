@@ -28,7 +28,7 @@ window.newspackRAS.push( function ( readerActivation ) {
 			if ( seeAllButton && newsletterContainer ) {
 				// Remove the "hidden" class from all newsletter items.
 				seeAllButton.addEventListener( 'click', () => {
-					newsletterContainer.querySelectorAll( '.hidden' ).forEach( ( item ) => {
+					newsletterContainer.querySelectorAll( '.hidden' ).forEach( item => {
 						item.classList.remove( 'hidden' );
 					} );
 
@@ -51,9 +51,9 @@ window.newspackRAS.push( function ( readerActivation ) {
 						}
 					} );
 
-					const maxHeight = totalHeight + ( listDefaultSize * gap ) + extraSpace;
+					const maxHeight = totalHeight + listDefaultSize * gap + extraSpace;
 
-					newsletterContainer.style.maxHeight = `${maxHeight}px`;
+					newsletterContainer.style.maxHeight = `${ maxHeight }px`;
 				}
 			}
 
@@ -82,20 +82,26 @@ window.newspackRAS.push( function ( readerActivation ) {
 				fetch( newspack_reader_activation_newsletters.newspack_ajax_url, {
 					method: 'POST',
 					body: data,
-				} ).then( () => {
-					const lists = data.getAll( 'lists[]' );
-					if ( lists.length ) {
-						const signupMethod = form.getAttribute( 'data-signup-method' ) || 'post-checkout';
-						readerActivation.dispatchActivity( 'newsletter_signup', { email: emailInput.value, lists, newsletters_subscription_method: signupMethod } );
-					}
-				} ).finally( () => {
-					if ( container?.newslettersSignupCallback ) {
-						container.newslettersSignupCallback();
-					}
-					form.classList.remove( 'processing' );
-					form.querySelector( 'button' ).removeAttribute( 'disabled' );
-				} );
-			}
+				} )
+					.then( () => {
+						const lists = data.getAll( 'lists[]' );
+						if ( lists.length ) {
+							const signupMethod = form.getAttribute( 'data-signup-method' ) || 'post-checkout';
+							readerActivation.dispatchActivity( 'newsletter_signup', {
+								email: emailInput.value,
+								lists,
+								newsletters_subscription_method: signupMethod,
+							} );
+						}
+					} )
+					.finally( () => {
+						if ( container?.newslettersSignupCallback ) {
+							container.newslettersSignupCallback();
+						}
+						form.classList.remove( 'processing' );
+						form.querySelector( 'button' ).removeAttribute( 'disabled' );
+					} );
+			};
 
 			/**
 			 * Handle newsletters signup form submission.

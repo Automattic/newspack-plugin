@@ -26,7 +26,7 @@ class My_Account_UI_V1 {
 	 * @codeCoverageIgnore
 	 */
 	public static function init() {
-		\add_filter( 'page_template', [ __CLASS__, 'page_template' ] );
+		\add_filter( 'page_template', [ __CLASS__, 'page_template' ], 11 );
 		\add_filter( 'body_class', [ __CLASS__, 'add_body_class' ] );
 		\add_action( 'wp_enqueue_scripts', [ __CLASS__, 'enqueue_assets' ], 11 );
 		\add_filter( 'wc_get_template', [ __CLASS__, 'wc_get_template' ], 10, 5 );
@@ -90,38 +90,56 @@ class My_Account_UI_V1 {
 	 * Enqueue assets.
 	 */
 	public static function enqueue_assets() {
-		// Only in My Account.
-		if ( ! function_exists( 'is_account_page' ) || ! \is_account_page() ) {
+		if ( ! function_exists( 'wc_get_account_endpoint_url' ) ) {
 			return;
 		}
+		$script_data = [
+			'myAccountUrl' => wc_get_account_endpoint_url( 'dashboard' ),
+			'labels'       => [
+				'resubscribe_title'           => __( 'Renew subscription', 'newspack-plugin' ),
+				'renewal_early_title'         => __( 'Renew subscription early', 'newspack-plugin' ),
+				'change_payment_method_title' => __( 'Change payment method', 'newspack-plugin' ),
+				'switch_subscription_title'   => __( 'Change Subscription', 'newspack-plugin' ),
+			],
+		];
 
-		\wp_enqueue_script(
-			'my-account-v1',
-			\Newspack\Newspack::plugin_url() . '/dist/my-account-v1.js',
-			[ 'my-account' ],
-			NEWSPACK_PLUGIN_VERSION,
-			true
-		);
-		\wp_localize_script(
-			'my-account-v1',
-			'newspackMyAccountV1',
-			[
-				'myAccountUrl' => wc_get_account_endpoint_url( 'dashboard' ),
-				'labels'       => [
-					'resubscribe_title'   => __( 'Renew subscription', 'newspack-plugin' ),
-					'renewal_early_title' => __( 'Renew subscription early', 'newspack-plugin' ),
-				],
-			]
-		);
+		// Only in My Account.
+		if ( ! function_exists( 'is_account_page' ) || ! \is_account_page() ) {
+			\wp_enqueue_script(
+				'newspack-account-frontend',
+				\Newspack\Newspack::plugin_url() . '/dist/account-frontend.js',
+				[],
+				NEWSPACK_PLUGIN_VERSION,
+				true
+			);
+			\wp_localize_script(
+				'newspack-account-frontend',
+				'newspackMyAccountV1',
+				$script_data
+			);
+		} else {
+			\wp_enqueue_script(
+				'newspack-my-account-v1',
+				\Newspack\Newspack::plugin_url() . '/dist/my-account-v1.js',
+				[ 'newspack-my-account' ],
+				NEWSPACK_PLUGIN_VERSION,
+				true
+			);
+			\wp_localize_script(
+				'newspack-my-account-v1',
+				'newspackMyAccountV1',
+				$script_data
+			);
 
-		// Dequeue styles from the Newspack theme first, for a fresh start.
-		\wp_dequeue_style( 'newspack-woocommerce-style' );
-		\wp_enqueue_style(
-			'my-account-v1',
-			\Newspack\Newspack::plugin_url() . '/dist/my-account-v1.css',
-			[],
-			NEWSPACK_PLUGIN_VERSION
-		);
+			// Dequeue styles from the Newspack theme first, for a fresh start.
+			\wp_dequeue_style( 'newspack-woocommerce-style' );
+			\wp_enqueue_style(
+				'newspack-my-account-v1',
+				\Newspack\Newspack::plugin_url() . '/dist/my-account-v1.css',
+				[],
+				NEWSPACK_PLUGIN_VERSION
+			);
+		}
 	}
 
 	/**

@@ -53,8 +53,7 @@ const getControlType = setting => {
 
 const SettingsSection = props => {
 	const [ saveDisabled, setSaveDisabled ] = useState( true );
-	const { error, sectionKey, active, title, description, fields, disabled, onChange, onUpdate } =
-		props;
+	const { error, sectionKey, active, title, description, fields, disabled, onChange, onUpdate } = props;
 	const getControlProps = setting => ( {
 		disabled,
 		name: `${ setting.section }_${ setting.key }`,
@@ -75,11 +74,7 @@ const SettingsSection = props => {
 		},
 	} );
 	const createFilter = ( name, defaultComponent = null ) => {
-		return applyFilters(
-			`newspack.settingSection.${ sectionKey }.${ name }`,
-			defaultComponent,
-			props
-		);
+		return applyFilters( `newspack.settingSection.${ sectionKey }.${ name }`, defaultComponent, props );
 	};
 	let columns = 2;
 	if ( fields.length % 3 === 0 ) {

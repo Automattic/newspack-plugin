@@ -67,8 +67,7 @@ class PluginInstaller extends Component {
 					}
 					result[ slug ] = {
 						...response[ slug ],
-						installationStatus:
-							response[ slug ].Status === 'active' ? PLUGIN_STATE_ACTIVE : PLUGIN_STATE_NONE,
+						installationStatus: response[ slug ].Status === 'active' ? PLUGIN_STATE_ACTIVE : PLUGIN_STATE_NONE,
 					};
 					return result;
 				}, {} );
@@ -84,8 +83,7 @@ class PluginInstaller extends Component {
 			.filter( slug => 'active' !== pluginInfo[ slug ].Status )
 			.map( slug => () => this.installPlugin( slug ) );
 		promises.reduce(
-			( promise, action ) =>
-				promise.then( result => action().then( Array.prototype.concat.bind( result ) ) ),
+			( promise, action ) => promise.then( result => action().then( Array.prototype.concat.bind( result ) ) ),
 			Promise.resolve( [] )
 		);
 	};
@@ -166,12 +164,9 @@ class PluginInstaller extends Component {
 		} );
 
 		// Make sure plugin status falls in either one of these, to handle button text.
-		const pluginInstalled = currentStatus =>
-			currentStatus === 'active' || currentStatus === 'inactive';
+		const pluginInstalled = currentStatus => currentStatus === 'active' || currentStatus === 'inactive';
 
-		const buttonText = currentPluginStatuses.every( pluginInstalled )
-			? __( 'Activate', 'newspack-plugin' )
-			: __( 'Install', 'newspack-plugin' );
+		const buttonText = currentPluginStatuses.every( pluginInstalled ) ? __( 'Activate', 'newspack-plugin' ) : __( 'Install', 'newspack-plugin' );
 
 		const needsInstall = slugs.some( slug => {
 			const plugin = pluginInfo[ slug ];
@@ -190,8 +185,7 @@ class PluginInstaller extends Component {
 					slugs.length > 0 &&
 					slugs.map( slug => {
 						const plugin = pluginInfo[ slug ];
-						const { Name, Description, Download, Status, installationStatus, notification } =
-							plugin;
+						const { Name, Description, Download, Status, installationStatus, notification } = plugin;
 						const isWaiting = installationStatus === PLUGIN_STATE_INSTALLING;
 						const isButton = ! isWaiting && Status !== 'active';
 						const installable = Download || pluginInstalled( Status );
@@ -232,10 +226,7 @@ class PluginInstaller extends Component {
 							);
 						}
 
-						const classes = classnames(
-							'newspack-action-card__plugin-installer',
-							this.classForInstallationStatus( installationStatus )
-						);
+						const classes = classnames( 'newspack-action-card__plugin-installer', this.classForInstallationStatus( installationStatus ) );
 						const onClick = isButton ? () => this.installPlugin( slug ) : null;
 						return (
 							<ActionCard
