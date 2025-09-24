@@ -890,7 +890,7 @@ final class Magic_Link {
 		}
 
 		/**
-		 * Filters the metadata to be saved for a reader registered via the auth modal.
+		 * Filters the metadata to be saved for a reader logged in via OTP.
 		 *
 		 * @param array  $metadata Metadata.
 		 * @param string $email    Email address of the reader.
