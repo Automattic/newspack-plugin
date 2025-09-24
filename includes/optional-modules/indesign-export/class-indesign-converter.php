@@ -23,6 +23,7 @@ class InDesign_Converter {
 		'headline'          => '<pstyle:24head>',
 		'initial_paragraph' => '<pstyle:dropcap>',
 		'paragraph'         => '<pstyle:text>',
+		'horizontal_rule'   => '<pstyle:hr>',
 		'subhead'           => '<pstyle:12sub>',
 		'byline'            => '<pstyle:byline>By ',
 		'pullquote'         => '<pstyle:pullquote>',
@@ -200,10 +201,7 @@ class InDesign_Converter {
 		}
 
 		if ( 'core/heading' === $block['blockName'] ) {
-			if ( 4 === $block['attrs']['level'] ) {
-				return $this->styles['subhead'];
-			}
-			return $this->styles['paragraph'];
+			return sprintf( '<pstyle:h%d>', $block['attrs']['level'] ?? 2 ); // Default to h2 if level is not set.
 		}
 		return '';
 	}
@@ -217,25 +215,9 @@ class InDesign_Converter {
 	 */
 	private function process_html_headings( $content ) {
 		$content = preg_replace_callback(
-			'/<h([2-6])[^>]*>(.*?)<\/h[2-6]>/is',
+			'/<h([1-6])[^>]*>(.*?)<\/h[2-6]>/is',
 			function ( $matches ) {
-				switch ( $matches[1] ) {
-					/**
-					 * Process subheadings (h4 elements) in the content.
-					 */
-					case '4':
-						return $this->styles['subhead'] . $this->get_transformed_text( $matches[2] );
-					/**
-					 * TODO: Handle other heading levels as per requirements.
-					 * For now, treating them as regular paragraphs.
-					 */
-					case '2':
-					case '3':
-					case '5':
-					case '6':
-					default:
-						return $this->styles['paragraph'] . $this->get_transformed_text( $matches[2] );
-				}
+				return sprintf( '<pstyle:h%d>%s', $matches[1], $this->get_transformed_text( $matches[2] ) );
 			},
 			$content
 		);
@@ -282,7 +264,7 @@ class InDesign_Converter {
 	 */
 	private function convert_html_to_indesign( $content ) {
 		$conversions = [
-			// Remove figcaption entirely. TODO: Move them to the bottom of the export file.
+			// Remove figcaption entirely.
 			'/<figcaption[^>]*>.*?<\/figcaption>/' => '',
 
 			// Paragraphs.
@@ -293,6 +275,9 @@ class InDesign_Converter {
 
 			// Line breaks.
 			'/<br[^>]*>/'                          => '<0x000A>',
+
+			// Horizontal rules.
+			'/<hr[^>]*>/'                          => $this->styles['horizontal_rule'],
 
 			// Typography.
 			'/<strong[^>]*>/'                      => '<cTypeface:Bold>',
@@ -421,7 +406,8 @@ class InDesign_Converter {
 	 * @return string Photo credit and caption tags.
 	 */
 	private function process_post_images( $post ) {
-		$images = [];
+		$images          = [];
+		$inline_captions = [];
 
 		$featured_image_id = get_post_thumbnail_id( $post->ID );
 		if ( $featured_image_id ) {
@@ -447,6 +433,13 @@ class InDesign_Converter {
 						}
 					}
 				}
+				// Preg match figcaption content.
+				if ( ! empty( $block['innerHTML'] ) ) {
+					preg_match( '/<figcaption[^>]*>(.*?)<\/figcaption>/', $block['innerHTML'], $matches );
+					if ( ! empty( $matches ) ) {
+						$inline_captions[ $id ] = $matches[1];
+					}
+				}
 			}
 		}
 
@@ -461,7 +454,7 @@ class InDesign_Converter {
 				continue;
 			}
 
-			$caption = wp_get_attachment_caption( $image_id );
+			$caption = $inline_captions[ $image_id ] ?? wp_get_attachment_caption( $image_id );
 			$credit  = get_post_meta( $image_id, '_media_credit', true ) ?? '';
 
 			if ( ! $caption && ! $credit ) {
