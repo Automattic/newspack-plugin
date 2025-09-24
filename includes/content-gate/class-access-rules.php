@@ -138,7 +138,9 @@ class Access_Rules {
 		if ( empty( $domains ) ) {
 			return true;
 		}
+		$domains = str_replace( PHP_EOL, ',', $domains );
 		$domains = explode( ',', $domains );
+		$domains = array_map( 'trim', $domains );
 		$user    = \get_userdata( $user_id );
 		if ( ! $user ) {
 			return false;
