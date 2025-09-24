@@ -91,6 +91,7 @@ class Subscriptions_Tiers {
 	 * Get the frequency of a product.
 	 *
 	 * @param \WC_Product $product Product object.
+	 *
 	 * @return string Frequency.
 	 */
 	public static function get_frequency( $product ) {
@@ -318,7 +319,7 @@ class Subscriptions_Tiers {
 				);
 				?>
 			</label>
-			<input type="number" name="price" id="nyp_amount" value="<?php echo esc_attr( $value ); ?>" data-original-value="<?php echo esc_attr( $value ); ?>" <?php echo esc_attr( $current ? 'data-current' : '' ); ?>>
+			<input type="number" name="price" id="nyp_amount" value="<?php echo esc_attr( $value ); ?>" data-original-value="<?php echo esc_attr( $value ); ?>" class="<?php echo esc_attr( $current ? 'current' : '' ); ?>">
 		</p>
 		<?php
 	}
@@ -396,7 +397,7 @@ class Subscriptions_Tiers {
 		}
 
 		$is_single_tier = self::is_single_tier( $tiers );
-		$is_nyp         = self::is_nyp( $tiers );
+		$is_nyp         = $is_single_tier && self::is_nyp( $tiers ); // Only treat as NYP form if there's only 1 tier.
 
 		$frequencies       = array_keys( $tiers );
 		$current_frequency = null;
@@ -441,7 +442,7 @@ class Subscriptions_Tiers {
 		$should_render_tabs = ! $is_single_tier || $is_nyp;
 
 		?>
-		<form class="newspack__subscription-tiers__form" target="newspack_modal_checkout_iframe" data-title="<?php echo esc_attr( $title ); ?>">
+		<form class="newspack__subscription-tiers__form <?php echo esc_attr( $is_nyp ? 'nyp' : '' ); ?>" target="newspack_modal_checkout_iframe" data-title="<?php echo esc_attr( $title ); ?>">
 			<?php if ( $should_render_tabs ) : ?>
 				<div class="newspack-ui__segmented-control">
 					<?php
@@ -453,7 +454,7 @@ class Subscriptions_Tiers {
 						<?php foreach ( $tiers as $frequency => $products ) : ?>
 							<div class="newspack-ui__segmented-control__panel">
 								<?php
-								if ( $is_single_tier && $is_nyp ) {
+								if ( $is_nyp ) {
 									self::render_nyp_product_card( $products[0], $products[0] === $current_product, $switch_subscription );
 								} else {
 									foreach ( $products as $product ) {

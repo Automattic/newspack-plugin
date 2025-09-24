@@ -63,6 +63,7 @@ domReady( function () {
 			if ( radioInputs.length && ! checkedRadio ) {
 				radioInputs[ 0 ].click();
 			}
+			element.dispatchEvent( new CustomEvent( 'content-selected', { detail: selectedContent } ) );
 		};
 
 		tab_headers.forEach( ( tab, i ) => {

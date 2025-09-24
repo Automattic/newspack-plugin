@@ -10,27 +10,45 @@ export default function init() {
 		[ ...forms ].forEach( form => {
 			const modal = form.closest( '.newspack-ui__modal-container' );
 			const cancelButton = form.querySelector( '.newspack-ui__modal__cancel' );
+			const isNYP = form.classList.contains( 'nyp' );
 
 			let isFormValid = false;
 
+			const attachListeners = () => {
+				const inputs = form.querySelectorAll( 'input[type="radio"], input[type="number"], select' );
+				inputs.forEach( input => {
+					input.addEventListener( 'input', validateForm );
+					input.addEventListener( 'change', validateForm );
+				} );
+			};
+
 			const validateForm = () => {
-				const selected = form.querySelector( '.current input[type="radio"]:checked' );
-				if ( selected ) {
-					form.querySelector( 'button[type="submit"]' ).disabled = true;
-					isFormValid = false;
+				if ( isNYP ) {
+					const amountInput = form.querySelector( '#nyp_amount.current' );
+					if ( amountInput && amountInput.value === amountInput.dataset.originalValue ) {
+						form.querySelector( 'button[type="submit"]' ).disabled = true;
+						isFormValid = false;
+					} else {
+						form.querySelector( 'button[type="submit"]' ).disabled = false;
+						isFormValid = true;
+					}
 				} else {
-					form.querySelector( 'button[type="submit"]' ).disabled = false;
-					isFormValid = true;
+					const selected = form.querySelector( '.current input[type="radio"]:checked' );
+					if ( selected ) {
+						form.querySelector( 'button[type="submit"]' ).disabled = true;
+						isFormValid = false;
+					} else {
+						form.querySelector( 'button[type="submit"]' ).disabled = false;
+						isFormValid = true;
+					}
 				}
 			};
 
-			// Watch radio input selection changes and disable the submit button if selecting the "current" option.
-			const radioInputs = form.querySelectorAll( 'input[type="radio"]' );
-			radioInputs.forEach( radio => {
-				radio.addEventListener( 'input', validateForm );
-			} );
-
+			attachListeners();
 			validateForm();
+
+			const control = form.querySelector( '.newspack-ui__segmented-control' );
+			control.addEventListener( 'content-selected', attachListeners );
 
 			if ( modal ) {
 				cancelButton.addEventListener( 'click', () => {
