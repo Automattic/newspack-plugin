@@ -14,12 +14,13 @@ export default function init() {
 
 			let isFormValid = false;
 
-			const attachListeners = () => {
+			const handleContentSelected = () => {
 				const inputs = form.querySelectorAll( 'input[type="radio"], input[type="number"], select' );
 				inputs.forEach( input => {
 					input.addEventListener( 'input', validateForm );
 					input.addEventListener( 'change', validateForm );
 				} );
+				validateForm();
 			};
 
 			const validateForm = () => {
@@ -44,11 +45,10 @@ export default function init() {
 				}
 			};
 
-			attachListeners();
-			validateForm();
-
 			const control = form.querySelector( '.newspack-ui__segmented-control' );
-			control.addEventListener( 'content-selected', attachListeners );
+			control.addEventListener( 'content-selected', handleContentSelected );
+
+			validateForm();
 
 			if ( modal ) {
 				cancelButton.addEventListener( 'click', () => {
