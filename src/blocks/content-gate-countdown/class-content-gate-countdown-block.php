@@ -33,12 +33,6 @@ class Content_Gate_Countdown_Block {
 		if ( ! Memberships::is_active() || ! is_singular() ) {
 			return;
 		}
-		wp_enqueue_style(
-			'newspack-content-gate-countdown-block',
-			\Newspack\Newspack::plugin_url() . '/dist/content-gate-countdown-block.css',
-			[],
-			NEWSPACK_PLUGIN_VERSION
-		);
 		wp_enqueue_script(
 			'newspack-content-gate-countdown-block',
 			\Newspack\Newspack::plugin_url() . '/dist/content-gate-countdown-block.js',
