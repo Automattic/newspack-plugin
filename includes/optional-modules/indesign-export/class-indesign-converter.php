@@ -216,7 +216,7 @@ class InDesign_Converter {
 	 */
 	private function process_html_headings( $content ) {
 		$content = preg_replace_callback(
-			'/<h([1-6])[^>]*>(.*?)<\/h[2-6]>/is',
+			'/<h([1-6])[^>]*>(.*?)<\/h[1-6]>/is',
 			function ( $matches ) {
 				return sprintf( '<pstyle:h%d>%s', $matches[1], $this->get_transformed_text( $matches[2] ) );
 			},
