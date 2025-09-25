@@ -28,6 +28,7 @@ class InDesign_Converter {
 		'byline'            => '<pstyle:byline>By ',
 		'pullquote'         => '<pstyle:pullquote>',
 		'pullquote_name'    => '<pstyle:pullquotename>',
+		'blockquote'        => '<pstyle:blockquote>',
 	];
 
 	/**
@@ -236,21 +237,25 @@ class InDesign_Converter {
 		$pattern      = '/<blockquote[^>]*>(.*?)<\/blockquote>/is';
 		$cite_pattern = '/<cite[^>]*>(.*?)<\/cite>/is';
 
-		preg_match_all( $pattern, $content, $matches );
-		$blockquotes = $matches[1];
+		preg_match_all( $pattern, $content, $quote_matches );
+		$quotes = $quote_matches[1];
 
-		foreach ( $blockquotes as $blockquote ) {
-			$quote = $this->styles['pullquote'] . wp_strip_all_tags( preg_replace( $cite_pattern, '', $blockquote ) );
+		foreach ( $quotes as $i => $quote ) {
+			$tag = $this->styles['pullquote'];
+			if ( strpos( $quote_matches[0][ $i ], 'wp-block-quote' ) !== false ) {
+				$tag = $this->styles['blockquote'];
+			}
+			$quote_content = $tag . wp_strip_all_tags( preg_replace( $cite_pattern, '', $quote ) );
 
-			preg_match( $cite_pattern, $blockquote, $matches );
-			if ( ! empty( $matches ) ) {
-				$cite = $matches[1];
+			preg_match( $cite_pattern, $quote, $cite_matches );
+			if ( ! empty( $cite_matches ) ) {
+				$cite = $cite_matches[1];
 				if ( ! empty( $cite ) ) {
-					$quote .= "\r\n" . $this->styles['pullquote_name'] . wp_strip_all_tags( $cite );
+					$quote_content .= "\r\n" . $this->styles['pullquote_name'] . wp_strip_all_tags( $cite );
 				}
 			}
 
-			$content = preg_replace( $pattern, $quote, $content, 1 );
+			$content = preg_replace( $pattern, $quote_content, $content, 1 );
 		}
 		return $content;
 	}
