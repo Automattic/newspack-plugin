@@ -232,12 +232,14 @@ class Subscriptions_Tiers {
 			$price = $product->get_price_html();
 		}
 
+		$product_type = $product->is_type( 'variation' ) ? 'variation_id' : 'product_id';
+
 		?>
 		<label class="newspack-ui__input-card <?php echo $current ? esc_attr( 'current' ) : ''; ?>">
 			<?php if ( $current ) : ?>
 				<span class="newspack-ui__badge newspack-ui__badge--primary"><?php _e( 'Current', 'newspack-plugin' ); ?></span>
 			<?php endif; ?>
-			<input type="radio" name="product_id" value="<?php echo esc_attr( $product->get_id() ); ?>" <?php echo esc_attr( $selected ? 'checked' : '' ); ?>>
+			<input type="radio" name="<?php echo esc_attr( $product_type ); ?>" value="<?php echo esc_attr( $product->get_id() ); ?>" <?php echo esc_attr( $selected ? 'checked' : '' ); ?>>
 			<strong><?php echo esc_html( self::get_product_title( $product, $show_variation_attributes ) ); ?></strong>
 			<span class="newspack-ui__helper-text"><?php echo $price; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
 		</label>
@@ -311,7 +313,8 @@ class Subscriptions_Tiers {
 	 * @param array|null  $switch_subscription Switch subscription data or null.
 	 */
 	public static function render_form( $product = null, $title = null, $button_label = null, $switch_subscription = null ) {
-		$tiers = self::get_tiers_by_frequency( $product );
+		$checkout_data = method_exists( 'Newspack_Blocks\Modal_Checkout\Checkout_Data', 'get_checkout_data' ) ? \Newspack_Blocks\Modal_Checkout\Checkout_data::get_checkout_data( $product ) : null;
+		$tiers         = self::get_tiers_by_frequency( $product );
 		if ( empty( $tiers ) ) {
 			return;
 		}
@@ -365,9 +368,8 @@ class Subscriptions_Tiers {
 			self::render_existing_subscription_info( $current_product, $user_subscription );
 			return;
 		}
-
 		?>
-		<form class="newspack__subscription-tiers__form" target="newspack_modal_checkout_iframe" data-title="<?php echo esc_attr( $title ); ?>">
+		<form class="newspack__subscription-tiers__form" target="newspack_modal_checkout_iframe" data-title="<?php echo esc_attr( $title ); ?>" data-checkout='<?php echo $checkout_data ? wp_json_encode( $checkout_data ) : ''; ?>'>
 			<?php if ( ! $is_single_tier ) : ?>
 				<div class="newspack-ui__segmented-control">
 					<?php

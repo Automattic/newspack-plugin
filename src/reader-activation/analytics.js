@@ -6,7 +6,7 @@
  *
  * @return {Object} Event payload.
  */
-const getEventPayload = ( payload = {}, data = {} ) => {
+export const getEventPayload = ( payload = {}, data = {} ) => {
 	const eventPayload = { ...payload };
 	if ( data?.newspack_popup_id ) {
 		eventPayload.newspack_popup_id = data.newspack_popup_id;
@@ -27,8 +27,19 @@ const getEventPayload = ( payload = {}, data = {} ) => {
  * @param {string} eventName Name of the event. Defaults to `np_reader_activation_interaction` but can be overriden if necessary.
  */
 
-const sendEvent = ( payload, eventName = 'np_reader_activation_interaction' ) => {
+export const sendEvent = ( payload, eventName = 'np_reader_activation_interaction' ) => {
 	if ( 'function' === typeof window.gtag && payload ) {
+		// Normalize boolean values to 'yes' or 'no'.
+		for ( const key of Object.keys( payload ) ) {
+			if ( typeof payload[ key ] === 'boolean' ) {
+				payload[ key ] = payload[ key ] ? 'yes' : 'no';
+			} else if ( payload[ key ] === 'true' ) {
+				payload[ key ] = 'yes';
+			} else if ( payload[ key ] === 'false' ) {
+				payload[ key ] = 'no';
+			}
+			payload[ key ] = payload[ key ].toString();
+		}
 		window.gtag( 'event', eventName, payload );
 	}
 };
