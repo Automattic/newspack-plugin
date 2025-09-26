@@ -327,7 +327,9 @@ class Test_Collections_Block extends \WP_UnitTestCase {
 		Collections_Block::render_collection_meta( $collection, $attributes );
 		$output = ob_get_clean();
 
-		$this->assertStringContainsString( $period . ' / Vol. ' . $volume, $output, 'Should use slash separator for list layout' );
+		$this->assertStringContainsString( $period, $output, 'Should contain period' );
+		$this->assertStringContainsString( 'Vol. ' . $volume, $output, 'Should contain volume' );
+		$this->assertStringContainsString( '>/</', $output, 'Should use slash separator for list layout' );
 	}
 
 	/**
