@@ -21,34 +21,18 @@ $types         = \wc_get_account_payment_methods_types();
 	<?php if ( $has_methods ) : ?>
 
 		<div class="newspack-my-account__payment-methods newspack-ui__row newspack-ui__row--no-padding">
-			<?php foreach ( $saved_methods as $type => $methods ) : // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited ?>
-				<?php foreach ( $methods as $method ) : ?>
-					<div class="newspack-ui__box newspack-ui__box--border newspack-ui__box--has-dropdown payment-method<?php echo ! empty( $method['is_default'] ) ? ' default-payment-method' : ''; ?>">
-						<?php
-						$parsed_date = null;
-						if ( ! empty( $method['expires'] ) ) :
-							$parsed_date = date_parse_from_format( 'n/y', $method['expires'] );
-							if (
-								empty( $parsed_date['errors'] ) &&
-								! empty( $parsed_date['year'] ) &&
-								! empty( $parsed_date['month'] ) &&
-								(
-									(int) $parsed_date['year'] < (int) gmdate( 'Y' ) ||
-									( (int) $parsed_date['year'] === (int) gmdate( 'Y' ) && (int) $parsed_date['month'] < (int) gmdate( 'm' ) )
-								)
-							) :
-								?>
-								<span class="newspack-ui__badge newspack-ui__badge--secondary"><?php \esc_html_e( 'Expired', 'newspack-plugin' ); ?></span>
-								<?php
-							endif;
-						endif;
-						if ( ! empty( $method['is_default'] ) ) :
-							?>
-							<span class="newspack-ui__badge newspack-ui__badge--secondary"><?php \esc_html_e( 'Default', 'newspack-plugin' ); ?></span>
-							<?php
-						endif;
-						foreach ( \wc_get_account_payment_methods_columns() as $column_id => $column_name ) :
-							?>
+		<?php $payment_method_columns = \wc_get_account_payment_methods_columns(); ?>
+		<?php foreach ( $saved_methods as $type => $methods ) : // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited ?>
+			<?php foreach ( $methods as $method ) : ?>
+				<div class="newspack-ui__box newspack-ui__box--border payment-method<?php echo ! empty( $method['is_default'] ) ? ' default-payment-method' : ''; ?>">
+					<div class="payment-method__content">
+					<?php
+					$parsed_date = null;
+					if ( ! empty( $method['expires'] ) ) :
+						$parsed_date = date_parse_from_format( 'n/y', $method['expires'] );
+					endif;
+					foreach ( $payment_method_columns as $column_id => $column_name ) :
+						?>
 							<?php
 							if ( \has_action( 'newspack_woocommerce_account_payment_methods_column_' . $column_id ) ) {
 								\do_action( 'newspack_woocommerce_account_payment_methods_column_' . $column_id, $method );
@@ -82,34 +66,70 @@ $types         = \wc_get_account_payment_methods_types();
 								</p>
 								<?php
 							} elseif ( 'actions' === $column_id ) {
-								ksort( $method['actions'] );
+								// Close the content div and start the actions div.
 								?>
-								<div class="newspack-ui__dropdown">
-									<button class="newspack-ui__dropdown__toggle newspack-ui__button newspack-ui__button--icon newspack-ui__button--ghost">
-										<?php \Newspack\Newspack_UI_Icons::print_svg( 'more' ); ?>
-										<span class="screen-reader-text">More</span>
-									</button>
-									<div class="newspack-ui__dropdown__content">
-										<ul>
+								</div>
+								<div class="newspack-ui__box__actions">
+									<?php
+									// Check if we have badges to display.
+									$has_expired_badge = (
+										! empty( $method['expires'] ) &&
+										! empty( $parsed_date ) &&
+										empty( $parsed_date['errors'] ) &&
+										! empty( $parsed_date['year'] ) &&
+										! empty( $parsed_date['month'] ) &&
+										(
+											(int) gmdate( 'Y' ) > (int) $parsed_date['year'] ||
+											( (int) gmdate( 'Y' ) === (int) $parsed_date['year'] && (int) gmdate( 'm' ) > (int) $parsed_date['month'] )
+										)
+									);
+									$has_default_badge = ! empty( $method['is_default'] );
+
+									// Only show badges container if we have badges.
+									if ( $has_expired_badge || $has_default_badge ) :
+										?>
+										<div class="newspack-ui__box__badges">
+											<?php if ( $has_expired_badge ) : ?>
+												<span class="newspack-ui__badge newspack-ui__badge--secondary"><?php \esc_html_e( 'Expired', 'newspack-plugin' ); ?></span>
+											<?php endif; ?>
+											<?php if ( $has_default_badge ) : ?>
+												<span class="newspack-ui__badge newspack-ui__badge--secondary"><?php \esc_html_e( 'Default', 'newspack-plugin' ); ?></span>
+											<?php endif; ?>
+										</div>
 										<?php
-										foreach ( $method['actions'] as $key => $action ) : // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-											if ( 'delete' === $key || 'wcs_deletion_error' === $key ) {
-												$action['name'] = __( 'Delete payment method', 'newspack-plugin' ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-											}
-											?>
-											<li>
-												<a href="<?php echo \esc_url( $action['url'] ); ?>" class="newspack-ui__button newspack-ui__button--ghost <?php echo \sanitize_html_class( $key ); ?> <?php echo 'wcs_deletion_error' === $key ? 'disabled' : ''; ?>">
-													<?php echo \esc_html( $action['name'] ); ?>
-												</a>
-											</li>
-										<?php endforeach; ?>
-										</ul>
+									endif;
+									ksort( $method['actions'] );
+									?>
+									<div class="newspack-ui__dropdown">
+										<button class="newspack-ui__dropdown__toggle newspack-ui__button newspack-ui__button--icon newspack-ui__button--ghost">
+											<?php \Newspack\Newspack_UI_Icons::print_svg( 'more' ); ?>
+											<span class="screen-reader-text">More</span>
+										</button>
+										<div class="newspack-ui__dropdown__content">
+											<ul>
+											<?php
+											foreach ( $method['actions'] as $key => $action ) : // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+												if ( 'delete' === $key || 'wcs_deletion_error' === $key ) {
+													$action['name'] = __( 'Delete payment method', 'newspack-plugin' ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+												}
+												?>
+												<li>
+													<a href="<?php echo \esc_url( $action['url'] ); ?>" class="newspack-ui__button newspack-ui__button--ghost <?php echo \sanitize_html_class( $key ); ?> <?php echo 'wcs_deletion_error' === $key ? 'disabled' : ''; ?>">
+														<?php echo \esc_html( $action['name'] ); ?>
+													</a>
+												</li>
+											<?php endforeach; ?>
+											</ul>
+										</div>
 									</div>
 								</div>
 								<?php
 							}
 							?>
 						<?php endforeach; ?>
+					<?php if ( ! array_key_exists( 'actions', $payment_method_columns ) ) : ?>
+						</div>
+					<?php endif; ?>
 					</div>
 				<?php endforeach; ?>
 			<?php endforeach; ?>
@@ -148,38 +168,44 @@ $types         = \wc_get_account_payment_methods_types();
 			if ( $address ) :
 				$addresses[ $address_type ] = $address;
 				?>
-				<div class="newspack-ui__box newspack-ui__box--border newspack-ui__box--has-dropdown woocommerce-Address">
-					<span class="newspack-ui__badge newspack-ui__badge--secondary"><?php echo \esc_html( $address_label ); ?></span>
-					<address class="newspack-ui__font--s">
-						<?php echo \wp_kses_post( $address ); ?>
-					</address>
-					<?php
-					/**
-					 * Used to output content after core address fields.
-					 *
-					 * @param string $name Address type.
-					 * @since 8.7.0
-					 */
-					do_action( 'newspack_woocommerce_my_account_after_my_address', $address_type );
-					?>
-					<div class="newspack-ui__dropdown">
-						<button class="newspack-ui__dropdown__toggle newspack-ui__button newspack-ui__button--icon newspack-ui__button--ghost">
-							<?php \Newspack\Newspack_UI_Icons::print_svg( 'more' ); ?>
-							<span class="screen-reader-text">More</span>
-						</button>
-						<div class="newspack-ui__dropdown__content">
-							<ul>
-								<li>
-									<a href="<?php echo esc_url( \wc_get_endpoint_url( 'edit-address', $address_type ) ); ?>" class="newspack-my-account__edit-address newspack-ui__button newspack-ui__button--ghost edit" data-address-type="<?php echo esc_attr( $address_type ); ?>">
-										<?php \esc_html_e( 'Edit', 'newspack-plugin' ); ?>
-									</a>
-								</li>
-								<li>
-									<a href="<?php echo esc_url( \wc_get_endpoint_url( 'edit-address', $address_type ) ); ?>" class="newspack-my-account__delete-address newspack-ui__button newspack-ui__button--ghost delete" data-address-type="<?php echo esc_attr( $address_type ); ?>">
-										<?php \esc_html_e( 'Delete address', 'newspack-plugin' ); ?>
-									</a>
-								</li>
-							</ul>
+				<div class="newspack-ui__box newspack-ui__box--border woocommerce-Address">
+					<div class="address__content">
+						<address class="newspack-ui__font--s">
+							<?php echo \wp_kses_post( $address ); ?>
+						</address>
+						<?php
+						/**
+						 * Used to output content after core address fields.
+						 *
+						 * @param string $name Address type.
+						 * @since 8.7.0
+						 */
+						do_action( 'newspack_woocommerce_my_account_after_my_address', $address_type );
+						?>
+					</div>
+					<div class="newspack-ui__box__actions">
+						<div class="newspack-ui__box__badges">
+							<span class="newspack-ui__badge newspack-ui__badge--secondary"><?php echo \esc_html( $address_label ); ?></span>
+						</div>
+						<div class="newspack-ui__dropdown">
+							<button class="newspack-ui__dropdown__toggle newspack-ui__button newspack-ui__button--icon newspack-ui__button--ghost">
+								<?php \Newspack\Newspack_UI_Icons::print_svg( 'more' ); ?>
+								<span class="screen-reader-text">More</span>
+							</button>
+							<div class="newspack-ui__dropdown__content">
+								<ul>
+									<li>
+										<a href="<?php echo esc_url( \wc_get_endpoint_url( 'edit-address', $address_type ) ); ?>" class="newspack-my-account__edit-address newspack-ui__button newspack-ui__button--ghost edit" data-address-type="<?php echo esc_attr( $address_type ); ?>">
+											<?php \esc_html_e( 'Edit', 'newspack-plugin' ); ?>
+										</a>
+									</li>
+									<li>
+										<a href="<?php echo esc_url( \wc_get_endpoint_url( 'edit-address', $address_type ) ); ?>" class="newspack-my-account__delete-address newspack-ui__button newspack-ui__button--ghost delete" data-address-type="<?php echo esc_attr( $address_type ); ?>">
+											<?php \esc_html_e( 'Delete address', 'newspack-plugin' ); ?>
+										</a>
+									</li>
+								</ul>
+							</div>
 						</div>
 					</div>
 				</div>
