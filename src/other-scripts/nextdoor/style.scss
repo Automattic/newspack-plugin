@@ -2,6 +2,8 @@
  * Nextdoor Post Styles
  */
 
+@use "~@wordpress/base-styles/colors" as wp-colors;
+
 .nextdoor-sidebar {
 	&__loading {
 		padding: 1rem;
@@ -18,7 +20,7 @@
 	&__status-text {
 		margin: 0 0 1rem 0;
 		font-size: 13px;
-		color: #757575;
+		color: wp-colors.$gray-600;
 
 		&--default {
 			color: inherit;
@@ -37,6 +39,18 @@
 			flex: 1;
 			justify-content: center;
 			min-height: 32px;
+		}
+	}
+
+	&__error-list {
+		margin: 0 0 1rem 1.5rem;
+		padding: 0;
+		list-style-type: disc;
+
+		li {
+			font-size: 13px;
+			color: wp-colors.$alert-red;
+			margin-bottom: 0.25rem;
 		}
 	}
 }
