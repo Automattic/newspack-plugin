@@ -313,8 +313,7 @@ class Subscriptions_Tiers {
 	 * @param array|null  $switch_subscription Switch subscription data or null.
 	 */
 	public static function render_form( $product = null, $title = null, $button_label = null, $switch_subscription = null ) {
-		$checkout_data = method_exists( 'Newspack_Blocks\Modal_Checkout\Checkout_Data', 'get_checkout_data' ) ? \Newspack_Blocks\Modal_Checkout\Checkout_data::get_checkout_data( $product ) : null;
-		$tiers         = self::get_tiers_by_frequency( $product );
+		$tiers = self::get_tiers_by_frequency( $product );
 		if ( empty( $tiers ) ) {
 			return;
 		}
@@ -369,7 +368,7 @@ class Subscriptions_Tiers {
 			return;
 		}
 		?>
-		<form class="newspack__subscription-tiers__form" target="newspack_modal_checkout_iframe" data-title="<?php echo esc_attr( $title ); ?>" data-checkout='<?php echo $checkout_data ? wp_json_encode( $checkout_data ) : ''; ?>'>
+		<form class="newspack__subscription-tiers__form" target="newspack_modal_checkout_iframe" data-title="<?php echo esc_attr( $title ); ?>">
 			<?php if ( ! $is_single_tier ) : ?>
 				<div class="newspack-ui__segmented-control">
 					<?php
