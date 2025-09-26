@@ -17,7 +17,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-$page_title = ( 'billing' === $load_address ) ? esc_html__( 'Billing address', 'woocommerce' ) : esc_html__( 'Shipping address', 'woocommerce' );
+$page_title   = ( 'billing' === $load_address ) ? esc_html__( 'Billing address', 'woocommerce' ) : esc_html__( 'Shipping address', 'woocommerce' );
 $button_title = ( 'billing' === $load_address ) ? esc_html__( 'Save billing address', 'woocommerce' ) : esc_html__( 'Save shipping address', 'woocommerce' );
 
 do_action( 'woocommerce_before_edit_account_address_form' ); ?>
@@ -26,7 +26,14 @@ do_action( 'woocommerce_before_edit_account_address_form' ); ?>
 	<?php wc_get_template( 'myaccount/my-address.php' ); ?>
 <?php else : ?>
 
-	<form method="post" novalidate>
+	<?php
+	$edit_address_url = add_query_arg(
+		'edit-address',
+		$load_address,
+		wc_get_endpoint_url( 'edit-address', $load_address )
+	);
+	?>
+	<form method="post" novalidate action="<?php echo esc_url( $edit_address_url ); ?>">
 
 		<div class="woocommerce-address-fields">
 			<?php do_action( "woocommerce_before_edit_address_form_{$load_address}" ); ?>
@@ -43,7 +50,7 @@ do_action( 'woocommerce_before_edit_account_address_form' ); ?>
 
 			<p>
 				<button type="submit" class="button newspack-ui__button--wide<?php echo esc_attr( wc_wp_theme_get_element_class_name( 'button' ) ? ' ' . wc_wp_theme_get_element_class_name( 'button' ) : '' ); ?>" name="save_address" value="<?php esc_attr_e( 'Save address', 'woocommerce' ); ?>"><?php echo esc_html( $button_title ); ?></button>
-				<?php wp_nonce_field( 'woocommerce-edit_address', 'woocommerce-edit-address-nonce' ); ?>
+				<input type="hidden" id="woocommerce-edit-address-nonce-<?php echo esc_attr( $load_address ); ?>" name="woocommerce-edit-address-nonce" value="<?php echo esc_attr( wp_create_nonce( 'woocommerce-edit_address' ) ); ?>">
 				<input type="hidden" name="action" value="edit_address" />
 			</p>
 		</div>
