@@ -3,14 +3,8 @@
   "apiVersion": 3,
   "name": "newspack/content-gate-countdown",
   "category": "newspack",
-  "attributes": {
-    "text": {
-      "type": "string",
-      "default": ""
-    }
-  },
+  "attributes": {},
   "supports": {
-		"align": [ "wide", "full" ],
     "html": false,
     "color": {
       "link": true,

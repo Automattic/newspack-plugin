@@ -62,6 +62,7 @@ class Block_Patterns {
 			'pay-wall-two-tiers-alt'     => __( 'Paywall with Two Tiers (Alt)', 'newspack' ),
 			'pay-wall-three-tiers'       => __( 'Paywall with Three Tiers', 'newspack' ),
 			'pay-wall-three-tiers-alt'   => __( 'Paywall with Three Tiers (Alt)', 'newspack' ),
+			'countdown-subscribe'        => __( 'Countdown with Subscribe', 'newspack' ),
 		];
 	}
 
