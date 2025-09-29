@@ -522,7 +522,7 @@ class Newspack_UI {
 					<label for="text-input-demo">Currency input</label>
 					<div class="newspack-ui__currency-input">
 						<span class="newspack-ui__currency-input__currency">$</span>
-						<input type="number" placeholder="Regular text">
+						<input type="number">
 					</div>
 				</p>
 
