@@ -33,4 +33,3 @@ export { default as searchEmpty } from './src/search-empty';
 export { default as tabItem } from './src/tab-item';
 export { default as tabs } from './src/tabs';
 export { default as theme } from './src/theme';
-export { default as countdown } from './src/content-gate-countdown';
