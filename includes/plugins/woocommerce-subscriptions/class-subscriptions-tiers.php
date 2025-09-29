@@ -40,7 +40,7 @@ class Subscriptions_Tiers {
 	 * @return string The text of the switch subscription link.
 	 */
 	public static function switch_link_text() {
-		return __( 'Change Subscription', 'newspack-plugin' );
+		return __( 'Change subscription', 'newspack-plugin' );
 	}
 
 	/**
@@ -79,11 +79,12 @@ class Subscriptions_Tiers {
 				continue;
 			}
 			$product = wc_get_product( reset( $parent_products ) );
-			$label = __( 'Change Subscription', 'newspack-plugin' );
+			$label = __( 'Change subscription', 'newspack-plugin' );
 			if ( Donations::is_donation_product( $product->get_id() ) ) {
-				$label = __( 'Edit Donation', 'newspack-plugin' );
+				$title = __( 'Edit donation', 'newspack-plugin' );
+				$label = __( 'Confirm donation', 'newspack-plugin' );
 			}
-			self::render_modal( $product, $label, $label, $data );
+			self::render_modal( $product, $title ?? $label, $label, $data );
 		}
 	}
 
@@ -285,6 +286,8 @@ class Subscriptions_Tiers {
 	 * @param array|null  $switch_subscription Switch subscription data or null.
 	 */
 	public static function render_nyp_product_card( $product, $current = false, $switch_subscription = null ) {
+		$symbol    = get_woocommerce_currency_symbol();
+		$currency  = get_woocommerce_currency();
 		$value     = $product->get_price();
 		$frequency = $product->get_meta( '_subscription_period' );
 		$interval  = $product->get_meta( '_subscription_period_interval' );
@@ -308,18 +311,11 @@ class Subscriptions_Tiers {
 		?>
 		<input type="hidden" name="product_id" value="<?php echo esc_attr( $product->get_id() ); ?>">
 		<p>
-			<label for="nyp_amount">
-				<?php
-				echo esc_html(
-					sprintf(
-						// translators: %s: subscription period.
-						__( 'Amount / %s', 'newspack-plugin' ),
-						$product->get_meta( '_subscription_period' )
-					)
-				);
-				?>
-			</label>
-			<input type="number" name="price" id="nyp_amount" value="<?php echo esc_attr( $value ); ?>" data-original-value="<?php echo esc_attr( $value ); ?>" class="<?php echo esc_attr( $current ? 'current' : '' ); ?>">
+			<label for="nyp_amount"><?php _e( 'Amount', 'newspack-plugin' ); ?></label>
+			<div class="newspack-ui__currency-input">
+				<span class="newspack-ui__currency-input__currency"><?php echo esc_html( $symbol ); ?></span>
+				<input type="number" name="price" id="nyp_amount" value="<?php echo esc_attr( $value ); ?>" data-original-value="<?php echo esc_attr( $value ); ?>" data-currency="<?php echo esc_attr( $currency ); ?>" data-frequency="<?php echo esc_attr( $frequency ); ?>" class="<?php echo esc_attr( $current ? 'current' : '' ); ?>">
+			</div>
 		</p>
 		<?php
 	}
@@ -357,8 +353,15 @@ class Subscriptions_Tiers {
 	 *
 	 * @param array  $frequencies       Frequencies.
 	 * @param string $current_frequency Current frequency.
+	 * @param bool   $is_form_control     Whether to treat it as a form input.
 	 */
-	public static function render_frequency_control( $frequencies, $current_frequency ) {
+	public static function render_frequency_control( $frequencies, $current_frequency, $is_form_control = false ) {
+		if ( $is_form_control ) :
+			?>
+			<div class="newspack-ui__segmented-control__form-control">
+				<label><?php _e( 'Frequency', 'newspack-plugin' ); ?></label>
+				<?php
+		endif;
 		if ( count( $frequencies ) <= 3 ) :
 			?>
 			<div class="newspack-ui__segmented-control__tabs">
@@ -380,6 +383,9 @@ class Subscriptions_Tiers {
 			</div>
 			<?php
 		endif;
+		if ( $is_form_control ) {
+			echo '</div>'; // Close the form control div.
+		}
 	}
 
 	/**
@@ -440,14 +446,13 @@ class Subscriptions_Tiers {
 		}
 
 		$should_render_tabs = ! $is_single_tier || $is_nyp;
-
 		?>
 		<form class="newspack__subscription-tiers__form <?php echo esc_attr( $is_nyp ? 'nyp' : '' ); ?>" target="newspack_modal_checkout_iframe" data-title="<?php echo esc_attr( $title ); ?>">
 			<?php if ( $should_render_tabs ) : ?>
 				<div class="newspack-ui__segmented-control">
 					<?php
 					if ( count( $frequencies ) > 1 ) {
-						self::render_frequency_control( $frequencies, $current_frequency );
+						self::render_frequency_control( $frequencies, $current_frequency, $is_nyp );
 					}
 					?>
 					<div class="newspack-ui__segmented-control__content">
@@ -531,9 +536,9 @@ class Subscriptions_Tiers {
 	public static function order_button_text( $text ) {
 		if ( method_exists( 'WC_Subscriptions_Switcher', 'cart_contains_switches' ) && \WC_Subscriptions_Switcher::cart_contains_switches( 'any' ) ) {
 			if ( Donations::is_donation_cart() ) {
-				return __( 'Edit Donation', 'newspack-plugin' );
+				return __( 'Confirm donation', 'newspack-plugin' );
 			}
-			return __( 'Change Subscription', 'newspack-plugin' );
+			return __( 'Change subscription', 'newspack-plugin' );
 		}
 		return $text;
 	}

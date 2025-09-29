@@ -9,24 +9,42 @@ export default function init() {
 
 		[ ...forms ].forEach( form => {
 			const modal = form.closest( '.newspack-ui__modal-container' );
+			const submitButton = form.querySelector( 'button[type="submit"]' );
 			const cancelButton = form.querySelector( '.newspack-ui__modal__cancel' );
 			const isNYP = form.classList.contains( 'nyp' );
+			const originalSubmitButtonText = submitButton.textContent;
 
 			let isFormValid = false;
 
 			const handleContentSelected = () => {
 				const inputs = form.querySelectorAll( 'input[type="radio"], input[type="number"], select' );
 				inputs.forEach( input => {
-					input.addEventListener( 'input', validateForm );
-					input.addEventListener( 'change', validateForm );
+					input.addEventListener( 'input', handleChange );
+					input.addEventListener( 'change', handleChange );
 				} );
-				validateForm();
+				handleChange();
 			};
 
-			const validateForm = () => {
+			const handleChange = () => {
+				// Update submit label.
+				if ( isNYP ) {
+					const amountInput = form.querySelector( '#nyp_amount' );
+					if ( amountInput?.value ) {
+						const amountText = parseFloat( amountInput.value ).toLocaleString( document.documentElement.lang, {
+							style: 'currency',
+							currency: amountInput.dataset.currency,
+							currencyDisplay: 'narrowSymbol',
+						} );
+						submitButton.textContent = originalSubmitButtonText + ': ' + amountText + ' / ' + amountInput.dataset.frequency;
+					} else {
+						submitButton.textContent = originalSubmitButtonText;
+					}
+				}
+
+				// Validate inputs.
 				if ( isNYP ) {
 					const amountInput = form.querySelector( '#nyp_amount.current' );
-					if ( amountInput && amountInput.value === amountInput.dataset.originalValue ) {
+					if ( amountInput && ( ! amountInput.value || amountInput.value === amountInput.dataset.originalValue ) ) {
 						form.querySelector( 'button[type="submit"]' ).disabled = true;
 						isFormValid = false;
 					} else {
@@ -48,7 +66,7 @@ export default function init() {
 			const control = form.querySelector( '.newspack-ui__segmented-control' );
 			control.addEventListener( 'content-selected', handleContentSelected );
 
-			validateForm();
+			handleChange();
 
 			if ( modal ) {
 				cancelButton.addEventListener( 'click', () => {

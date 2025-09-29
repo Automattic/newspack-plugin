@@ -41,4 +41,28 @@
 			border-color: var(--newspack-ui-color-input-border-disabled);
 		}
 	}
+
+	.newspack-ui__currency-input {
+		display: flex;
+		align-items: center;
+		border-radius: var(--newspack-ui-border-radius-m);
+		border: 1px solid var(--newspack-ui-color-input-border);
+		&:focus-within {
+			outline: 2px solid var(--newspack-ui-color-input-border-focus);
+			outline-offset: -1px;
+		}
+		.newspack-ui__currency-input__currency {
+			font-size: var(--newspack-ui-font-size-s);
+			background: var(--newspack-ui-color-neutral-10);
+			border-radius: var(--newspack-ui-border-radius-m) 0 0 var(--newspack-ui-border-radius-m);
+			padding: var(--newspack-ui-spacer-2) var(--newspack-ui-spacer-3);
+			font-weight: 600;
+			border-right: 1px solid var(--newspack-ui-color-input-border);
+		}
+		input {
+			border-radius: 0 var(--newspack-ui-border-radius-m) var(--newspack-ui-border-radius-m) 0;
+			border: 0 !important;
+			outline: none !important;
+		}
+	}
 }
