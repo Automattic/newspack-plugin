@@ -47,6 +47,15 @@ function AudienceSubscriptions( props: Record< string, any >, ref: React.Forward
 							<WizardSection>
 								<Card>
 									<h2>{ __( 'Primary Subscription Tier Product', 'newspack-plugin' ) }</h2>
+									{ primaryProduct && (
+										<Notice isDismissible={ false }>
+											{ sprintf(
+												/* translators: %s: upgrade subscription URL */
+												__( 'Share the following URL to trigger the subscription upgrade: %s', 'newspack-plugin' ),
+												window.newspackAudienceSubscriptions.upgrade_subscription_url
+											) }
+										</Notice>
+									) }
 									<p>{ __( 'Select a product that will be used as the primary subscription tier product.', 'newspack-plugin' ) }</p>
 									<SelectControl
 										options={ [
@@ -63,15 +72,6 @@ function AudienceSubscriptions( props: Record< string, any >, ref: React.Forward
 										onChange={ handlePrimaryProductChange }
 										disabled={ inFlight }
 									/>
-									{ primaryProduct && (
-										<Notice isDismissible={ false }>
-											{ sprintf(
-												/* translators: %s: upgrade subscription URL */
-												__( 'Share the following URL to trigger the subscription upgrade: %s', 'newspack-plugin' ),
-												window.newspackAudienceSubscriptions.upgrade_subscription_url
-											) }
-										</Notice>
-									) }
 								</Card>
 								<Card>
 									<h2>{ __( 'Manage Subscriptions settings in Woo Memberships', 'newspack-plugin' ) }</h2>
