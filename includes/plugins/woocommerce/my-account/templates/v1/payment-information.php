@@ -23,7 +23,11 @@ $types         = \wc_get_account_payment_methods_types();
 		<div class="newspack-my-account__payment-methods newspack-ui__row newspack-ui__row--no-padding">
 		<?php $payment_method_columns = \wc_get_account_payment_methods_columns(); ?>
 		<?php foreach ( $saved_methods as $type => $methods ) : // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited ?>
-			<?php foreach ( $methods as $method ) : ?>
+			<?php
+			foreach ( $methods as $method ) :
+				$delete_url          = $method['actions']['delete']['url'] ?? '';
+				$delete_modal_suffix = $delete_url ? md5( $delete_url ) : '';
+				?>
 				<div class="newspack-ui__box newspack-ui__box--border payment-method<?php echo ! empty( $method['is_default'] ) ? ' default-payment-method' : ''; ?>">
 					<div class="payment-method__content">
 					<?php
@@ -112,11 +116,25 @@ $types         = \wc_get_account_payment_methods_types();
 												if ( 'delete' === $key || 'wcs_deletion_error' === $key ) {
 													$action['name'] = __( 'Delete payment method', 'newspack-plugin' ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 												}
+
+												$action_classes = trim( 'newspack-ui__button newspack-ui__button--ghost ' . \sanitize_html_class( $key ) . ( 'wcs_deletion_error' === $key ? ' disabled' : '' ) );
+												$attribute_html = '';
+
+												if ( 'delete' === $key && ! empty( $delete_modal_suffix ) ) {
+													$action_classes .= ' newspack-my-account__delete-payment-method';
+													$attribute_html  = sprintf( ' data-payment-method="%s"', esc_attr( $delete_modal_suffix ) );
+												}
 												?>
 												<li>
-													<a href="<?php echo \esc_url( $action['url'] ); ?>" class="newspack-ui__button newspack-ui__button--ghost <?php echo \sanitize_html_class( $key ); ?> <?php echo 'wcs_deletion_error' === $key ? 'disabled' : ''; ?>">
-														<?php echo \esc_html( $action['name'] ); ?>
-													</a>
+													<?php
+													printf(
+														'<a href="%1$s" class="%2$s"%3$s>%4$s</a>',
+														esc_url( $action['url'] ),
+														esc_attr( $action_classes ),
+														wp_kses_data( $attribute_html ),
+														esc_html( $action['name'] )
+													);
+													?>
 												</li>
 											<?php endforeach; ?>
 											</ul>

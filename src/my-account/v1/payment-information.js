@@ -53,6 +53,9 @@ domReady( function () {
 	// Add payment method modal.
 	setupModalHandlers( '.newspack-my-account__add-payment-method', 'newspack-my-account__add-payment-method' );
 
+	// Delete payment method modals.
+	setupModalHandlers( '.newspack-my-account__delete-payment-method', 'newspack-my-account__delete-payment-method', 'data-payment-method' );
+
 	// Edit address modals.
 	setupModalHandlers( '.newspack-my-account__edit-address', 'newspack-my-account__edit-address', 'data-address-type' );
 

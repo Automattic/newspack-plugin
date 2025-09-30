@@ -40,6 +40,7 @@ class My_Account_UI_V1 {
 		\add_filter( 'default_option_woocommerce_myaccount_add_payment_method_endpoint', [ __CLASS__, 'add_payment_method_endpoint' ] );
 		\add_action( 'template_redirect', [ __CLASS__, 'redirect_payment_information_endpoint' ] );
 		\add_action( 'newspack_woocommerce_after_account_payment_methods', [ __CLASS__, 'add_payment_method_modal' ] );
+		\add_action( 'newspack_woocommerce_after_account_payment_methods', [ __CLASS__, 'delete_payment_method_modals' ] );
 		\add_action( 'newspack_woocommerce_after_account_addresses', [ __CLASS__, 'add_address_modals' ] );
 		\add_action( 'newspack_woocommerce_after_account_addresses', [ __CLASS__, 'delete_address_modals' ] );
 		\add_action( 'woocommerce_after_save_address_validation', [ __CLASS__, 'handle_delete_address_submission' ], 10, 4 );
@@ -520,6 +521,95 @@ class My_Account_UI_V1 {
 			if ( \trailingslashit( \wc_get_account_endpoint_url( 'edit-address' ) ) === $current_url ) {
 				\wp_safe_redirect( \wc_get_account_endpoint_url( 'payment-methods' ) );
 				exit;
+			}
+		}
+	}
+
+	/**
+	 * Render confirmation modals for deleting saved payment methods.
+	 *
+	 * @param bool $has_methods Whether there are saved payment methods to render.
+	 */
+	public static function delete_payment_method_modals( $has_methods ) {
+		if ( ! $has_methods ) {
+			return;
+		}
+
+		$saved_methods = \wc_get_customer_saved_methods_list( \get_current_user_id() );
+
+		if ( empty( $saved_methods ) || ! is_array( $saved_methods ) ) {
+			return;
+		}
+
+		foreach ( $saved_methods as $methods ) {
+			foreach ( $methods as $method ) {
+				$delete_url = $method['actions']['delete']['url'] ?? '';
+
+				if ( empty( $delete_url ) ) {
+					continue;
+				}
+
+				$modal_suffix = \sanitize_html_class( md5( $delete_url ) );
+				$brand        = ! empty( $method['method']['brand'] ) ? \wc_get_credit_card_type_label( $method['method']['brand'] ) : '';
+				$last4        = $method['method']['last4'] ?? '';
+				$expires      = $method['expires'] ?? '';
+
+				ob_start();
+				?>
+				<p><?php \esc_html_e( 'Are you sure you want to delete this payment method from your account?', 'newspack-plugin' ); ?></p>
+				<div class="payment-method-preview newspack-ui__font--s newspack-ui__font--bold">
+					<?php
+					$lines = [];
+
+					if ( $brand ) {
+						$lines[] = $brand;
+					}
+
+					if ( $last4 ) {
+						$lines[] = sprintf(
+							/* translators: last 4 digits. */
+							__( 'Ending in %s', 'newspack-plugin' ),
+							$last4
+						);
+					}
+
+					if ( $expires ) {
+						$lines[] = sprintf(
+							/* translators: expiration date. */
+							__( 'Exp. %s', 'newspack-plugin' ),
+							$expires
+						);
+					}
+
+					if ( ! empty( $lines ) ) {
+						echo implode( '<br>', array_map( 'esc_html', $lines ) );
+					}
+					?>
+				</div>
+				<?php
+				$content = ob_get_clean();
+
+				Newspack_UI::generate_modal(
+					[
+						'id'          => 'delete-payment-method-' . $modal_suffix,
+						'title'       => __( 'Delete payment method', 'newspack-plugin' ),
+						'content'     => $content,
+						'size'        => 'small',
+						'form'        => 'GET',
+						'form_action' => $delete_url,
+						'actions'     => [
+							'delete' => [
+								'label' => __( 'Delete payment method', 'newspack-plugin' ),
+								'type'  => 'destructive',
+							],
+							'cancel' => [
+								'label'  => __( 'Cancel', 'newspack-plugin' ),
+								'type'   => 'ghost',
+								'action' => 'close',
+							],
+						],
+					]
+				);
 			}
 		}
 	}
