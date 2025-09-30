@@ -36,10 +36,10 @@ function setupModalHandlers( selector, modalId, dataAttribute = null ) {
 
 			// Handle dynamic modal IDs when data attributes are provided.
 			const type = dataAttribute ? button.getAttribute( dataAttribute ) : '';
-			modalId = modalId + ( type ? `-${ type }` : '' );
+			const targetModalId = modalId + ( type ? `-${ type }` : '' );
 
 			// Open modal and handle common behavior.
-			const modal = document.getElementById( modalId );
+			const modal = document.getElementById( targetModalId );
 			if ( modal ) {
 				modal.setAttribute( 'data-state', 'open' );
 				button.closest( 'div' ).classList.remove( 'newspack-ui--loading' );
