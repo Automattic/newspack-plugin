@@ -222,6 +222,7 @@ class Nextdoor {
 		 * Filter available countries for Nextdoor integration.
 		 *
 		 * @param array $countries Array of country data with label and value.
+		 * @see https://developer.nextdoor.com/reference/displaying-availability
 		 */
 		return apply_filters( 'newspack_nextdoor_available_countries', $countries );
 	}
