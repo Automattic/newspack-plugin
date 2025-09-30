@@ -3,8 +3,8 @@
 /**
  * WordPress dependencies
  */
-import { useBlockProps, useInnerBlocksProps, InspectorControls } from '@wordpress/block-editor';
-import { PanelBody, Placeholder, ToggleControl } from '@wordpress/components';
+import { useBlockProps, useInnerBlocksProps } from '@wordpress/block-editor';
+import { Placeholder } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 import { caution } from '@wordpress/icons';
 
@@ -13,13 +13,19 @@ import { caution } from '@wordpress/icons';
  *
  * @return {JSX.Element} The Content Gate Countdown Box block.
  */
-export default function Edit( { attributes, setAttributes } ) {
+export default function Edit() {
 	const {
 		loggedin_metered_views: loggedinViews,
 		anonymous_metered_views: anonymousViews,
 		metering_period: period,
 	} = newspack_blocks.content_gate_data || {};
-	const blockProps = useBlockProps( { className: 'newspack-content-gate-countdown-box__wrapper' } );
+	const blockProps = useBlockProps( {
+		className: 'newspack-content-gate-countdown-box__wrapper has-border-color has-base-3-border-color',
+		style: {
+			borderWidth: '1px',
+			borderRadius: '6px',
+		},
+	} );
 	const { children, ...innerBlockProps } = useInnerBlocksProps(
 		{ className: 'newspack-content-gate-countdown-box__content' },
 		{
@@ -71,7 +77,7 @@ export default function Edit( { attributes, setAttributes } ) {
 																textTransform: 'uppercase',
 															},
 														},
-														textColor: 'secondary-variation',
+														textColor: 'secondary',
 													},
 												],
 											],
@@ -131,31 +137,8 @@ export default function Edit( { attributes, setAttributes } ) {
 	}
 
 	return (
-		<>
-			<InspectorControls>
-				<PanelBody title={ __( 'Countdown Box Settings', 'newspack-plugin' ) } initialOpen={ true }>
-					<ToggleControl
-						label={ __( 'Always show countdown box', 'newspack-plugin' ) }
-						checked={ attributes.alwaysShow }
-						onChange={ () => setAttributes( { alwaysShow: ! attributes.alwaysShow } ) }
-						help={
-							attributes.alwaysShow
-								? __(
-										'The countdown box will always be visible, even when readers have reached their metered view limit and the content gate is shown.',
-										'newspack-plugin'
-								  )
-								: __(
-										'The countdown box will only be visible when readers are within their metered view limit and the content gate is not shown.',
-										'newspack-plugin'
-								  )
-						}
-					/>
-				</PanelBody>
-			</InspectorControls>
-
-			<div { ...blockProps }>
-				<div { ...innerBlockProps }>{ children }</div>
-			</div>
-		</>
+		<div { ...blockProps }>
+			<div { ...innerBlockProps }>{ children }</div>
+		</div>
 	);
 }

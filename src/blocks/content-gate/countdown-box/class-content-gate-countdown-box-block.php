@@ -44,14 +44,14 @@ class Content_Gate_Countdown_Box_Block {
 	 * @return string The block HTML.
 	 */
 	public static function render_block( array $attributes, string $content ) {
-		$always_show = isset( $attributes['alwaysShow'] ) ? (bool) $attributes['alwaysShow'] : false;
-		if ( ! Memberships::is_post_restricted() || ( ! Metering::is_metering() && ! $always_show ) ) {
+		if ( ! Memberships::is_post_restricted() || ! Metering::is_metering() ) {
 			return '';
 		}
 
 		$block_wrapper_attributes = get_block_wrapper_attributes(
 			[
-				'class' => 'newspack-content-gate-countdown-box__wrapper',
+				'class' => 'newspack-content-gate-countdown-box__wrapper has-border-color has-base-3-border-color',
+				'style' => 'border-width:1px;border-radius:6px;',
 			]
 		);
 
