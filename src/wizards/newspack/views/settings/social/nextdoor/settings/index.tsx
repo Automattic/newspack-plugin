@@ -115,12 +115,7 @@ export const Settings = ( { settings, status, error, updateSettings, disconnect,
 					<Heading level={ 4 }>{ __( 'Settings', 'newspack-plugin' ) }</Heading>
 				</CardHeader>
 				<CardBody>
-					<p>
-						{ __(
-							'Select which user roles are allowed to publish articles to Nextdoor. Users with the selected roles will see a "Publish on Nextdoor" button in the post editor.',
-							'newspack-plugin'
-						) }
-					</p>
+					<p>{ __( 'Select which user roles are allowed to publish articles to Nextdoor.', 'newspack-plugin' ) }</p>
 
 					<Grid columns={ 4 } gutter={ 16 }>
 						{ availableRoles.map( ( { label, value } ) => (
