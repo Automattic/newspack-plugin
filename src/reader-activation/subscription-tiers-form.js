@@ -64,7 +64,9 @@ export default function init() {
 			};
 
 			const control = form.querySelector( '.newspack-ui__segmented-control' );
-			control.addEventListener( 'content-selected', handleContentSelected );
+			if ( control ) {
+				control.addEventListener( 'content-selected', handleContentSelected );
+			}
 
 			handleChange();
 
