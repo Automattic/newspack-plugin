@@ -13,17 +13,19 @@ import * as correctionBox from './correction-box';
 import * as correctionItem from './correction-item';
 import * as avatar from './avatar';
 import * as collections from './collections';
+import * as contentGateCountdown from './content-gate-countdown';
 
 /**
  * Block Scripts
  */
 import './core-image';
 
-export const blocks = [ readerRegistration, correctionBox, correctionItem, avatar, collections ];
+export const blocks = [ readerRegistration, correctionBox, correctionItem, avatar, collections, contentGateCountdown ];
 
 const readerActivationBlocks = [ 'newspack/reader-registration' ];
 const correctionBlocks = [ 'newspack/correction-box', 'newspack/correction-item' ];
 const collectionsBlocks = [ 'newspack/collections' ];
+const contentGateBlocks = [ 'newspack/content-gate-countdown' ];
 
 /**
  * Function to register an individual block.
@@ -41,14 +43,16 @@ const registerBlock = block => {
 	if ( readerActivationBlocks.includes( name ) && ! newspack_blocks.has_reader_activation ) {
 		return;
 	}
-
 	/** Do not register correction blocks if it's disabled. */
 	if ( correctionBlocks.includes( name ) && ! newspack_blocks.corrections_enabled ) {
 		return;
 	}
-
 	/** Do not register collections blocks if Collections module is disabled. */
 	if ( collectionsBlocks.includes( name ) && ! newspack_blocks.collections_enabled ) {
+		return;
+	}
+	/** Do not register content gate blocks if Memberships is not active. */
+	if ( contentGateBlocks.includes( name ) && ! newspack_blocks.has_memberships ) {
 		return;
 	}
 

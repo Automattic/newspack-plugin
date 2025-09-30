@@ -617,13 +617,6 @@ class Template_Helper {
 		 */
 		$attrs = apply_filters( 'newspack_collections_render_intro_attrs', $attrs, $collection, $args );
 
-		/**
-		 * Fires before the collection intro section.
-		 *
-		 * @param WP_Post $collection The collection post.
-		 */
-		do_action( 'newspack_collections_intro_before', $collection );
-
 		$output = render_block(
 			[
 				'blockName' => 'newspack/collections',
@@ -632,13 +625,81 @@ class Template_Helper {
 		);
 
 		/**
-		 * Fires after the collection intro section.
+		 * Filters the collections intro HTML.
 		 *
-		 * @param WP_Post $collection The collection post.
+		 * @param string  $output     The collections intro HTML.
+		 * @param WP_Post $collection The collection being rendered.
+		 * @param array   $args       The original arguments passed to the function.
 		 */
-		do_action( 'newspack_collections_intro_after', $collection );
+		return apply_filters( 'newspack_collections_render_intro_html', $output, $collection, $args );
+	}
 
-		return $output;
+	/**
+	 * Render recent collections using the Collections block.
+	 *
+	 * @param array $exclude Array of collection IDs to exclude from results.
+	 * @param array $args    Optional. Additional arguments to customize the block.
+	 * @param int   $limit   Number of collections to return. Default is 6.
+	 * @return string The rendered recent collections HTML.
+	 */
+	public static function render_recent_collections( $exclude = [], $args = [], $limit = 6 ) {
+		$collections = Query_Helper::get_recent( $exclude, $limit );
+
+		if ( empty( $collections ) ) {
+			return '';
+		}
+
+		$attrs = wp_parse_args(
+			$args,
+			[
+				'selectedCollections' => $collections,
+				'numberOfItems'       => count( $collections ),
+				'columns'             => $args['columns'] ?? 6,
+				'showCategory'        => false,
+				'showCTAs'            => false,
+			]
+		);
+
+		/**
+		 * Filters the attributes before rendering the recent collections block.
+		 *
+		 * @param array $attrs       The attributes for the collections block.
+		 * @param array $collections The recent collection posts being rendered.
+		 * @param array $exclude     The collection IDs that were excluded.
+		 * @param array $args        The original arguments passed to the function.
+		 * @param int   $limit       The number of collections to return.
+		 */
+		$attrs = apply_filters( 'newspack_collections_render_recent_attrs', $attrs, $collections, $exclude, $args, $limit );
+
+		// Render using the Collections block.
+		$block_html = render_block(
+			[
+				'blockName' => 'newspack/collections',
+				'attrs'     => $attrs,
+			]
+		);
+
+		$output = sprintf(
+			'<div class="collections-recent">
+				<div class="collections-recent__header">
+					<h2>%1$s</h2>
+					<p class="has-medium-gray-color has-text-color has-link-color has-small-font-size">%2$s</p>
+				</div>
+				%3$s
+			</div>',
+			esc_html__( 'Recent', 'newspack-plugin' ),
+			self::render_see_all_link(),
+			$block_html
+		);
+
+		/**
+		 * Filters the recent collections HTML.
+		 *
+		 * @param string $output      The recent collections HTML.
+		 * @param array  $collections The recent collection posts.
+		 * @param array  $exclude     The collection IDs that were excluded.
+		 */
+		return apply_filters( 'newspack_collections_render_recent_html', $output, $collections, $exclude );
 	}
 
 	/**

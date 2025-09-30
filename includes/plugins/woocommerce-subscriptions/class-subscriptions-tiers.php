@@ -341,12 +341,14 @@ class Subscriptions_Tiers {
 			$price = $product->get_price_html();
 		}
 
+		$product_type = $product->is_type( 'variation' ) ? 'variation_id' : 'product_id';
+
 		?>
 		<label class="newspack-ui__input-card <?php echo $current ? esc_attr( 'current' ) : ''; ?>">
 			<?php if ( $current ) : ?>
 				<span class="newspack-ui__badge newspack-ui__badge--primary"><?php _e( 'Current', 'newspack-plugin' ); ?></span>
 			<?php endif; ?>
-			<input type="radio" name="product_id" value="<?php echo esc_attr( $product->get_id() ); ?>" <?php echo esc_attr( $selected ? 'checked' : '' ); ?>>
+			<input type="radio" name="<?php echo esc_attr( $product_type ); ?>" value="<?php echo esc_attr( $product->get_id() ); ?>" <?php echo esc_attr( $selected ? 'checked' : '' ); ?>>
 			<strong><?php echo esc_html( self::get_product_title( $product, $show_variation_attributes ) ); ?></strong>
 			<span class="newspack-ui__helper-text"><?php echo $price; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
 		</label>
@@ -513,7 +515,6 @@ class Subscriptions_Tiers {
 			self::render_existing_subscription_info( $current_product, $user_subscription );
 			return;
 		}
-
 		?>
 		<form class="newspack__subscription-tiers__form" target="newspack_modal_checkout_iframe" data-title="<?php echo esc_attr( $title ); ?>">
 			<?php if ( ! $is_single_tier ) : ?>
