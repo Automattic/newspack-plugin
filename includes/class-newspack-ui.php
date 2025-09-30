@@ -571,6 +571,15 @@ class Newspack_UI {
 						This is a checkbox input.
 					</label>
 				</p>
+
+				<p>
+					<label for="select-control-demo">Select Controls</label>
+					<select id="select-control-demo">
+						<option value="1">Option 1</option>
+						<option value="2">Option 2</option>
+						<option value="3">Option 3</option>
+					</select>
+				</p>
 			</form>
 
 
