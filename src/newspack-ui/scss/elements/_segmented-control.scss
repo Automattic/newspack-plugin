@@ -2,25 +2,23 @@
 	&__segmented-control {
 		align-items: center;
 		display: flex;
-		gap: var(--newspack-ui-spacer-4);
 		flex-direction: column;
+		gap: var(--newspack-ui-spacer-2);
 
 		&__form-control {
-			width: 100%;
-			display: flex;
-			flex-direction: column;
+			display: grid;
 			gap: var(--newspack-ui-spacer-base);
+
 			label {
 				margin: 0;
 			}
+
 			.newspack-ui__segmented-control__tabs {
-				padding: 0;
-				width: 100%;
-				justify-content: flex-start;
 				flex-wrap: nowrap;
-				.newspack-ui__button {
-					flex: 1 1 100%;
-				}
+			}
+
+			.newspack-ui__button {
+				flex: 1 1 100%;
 			}
 		}
 

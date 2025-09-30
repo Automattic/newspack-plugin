@@ -806,6 +806,14 @@ class Newspack_UI {
 				</div>
 			</div>
 
+			<div class="newspack-ui__segmented-control__form-control newspack-ui__spacing-top--32">
+				<label>Segmented Control (Form) <abbr class="newspack-ui__required" title="required">*</abbr></label>
+				<div class="newspack-ui__segmented-control__tabs">
+					<button class="newspack-ui__button newspack-ui__button--small selected">True</button>
+					<button class="newspack-ui__button newspack-ui__button--small">False</button>
+				</div>
+			</div>
+
 			<hr>
 
 			<div class="newspack-ui__segmented-control">
