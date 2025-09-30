@@ -9,9 +9,9 @@ import { __, sprintf } from '@wordpress/i18n';
 import { caution } from '@wordpress/icons';
 
 /**
- * Edit function for the Content Gate Countdown block.
+ * Edit function for the Content Gate Countdown Box block.
  *
- * @return {JSX.Element} The Content Gate Countdown block.
+ * @return {JSX.Element} The Content Gate Countdown Box block.
  */
 export default function Edit( { attributes, setAttributes } ) {
 	const {
@@ -21,38 +21,93 @@ export default function Edit( { attributes, setAttributes } ) {
 	} = newspack_blocks.content_gate_data || {};
 	const blockProps = useBlockProps( { className: 'newspack-content-gate-countdown-box__wrapper' } );
 	const { children, ...innerBlockProps } = useInnerBlocksProps(
-		{ className: 'newspack-content-gate-countdown__actions' },
+		{ className: 'newspack-content-gate-countdown-box__content' },
 		{
-			allowedBlocks: [ 'core/paragraph', 'core/heading', 'core/buttons', 'newspack-blocks/checkout-button' ],
 			template: [
-				[ 'newspack/content-gate-countdown' ],
 				[
-					'core/paragraph',
+					'core/group',
 					{
-						content: sprintf(
-							// translators: 1: metering period (week, month).
-							__( 'Free articles this %s', 'newspack-plugin' ),
-							period || __( 'week', 'newspack-plugin' )
-						),
-						style: { typography: { fontWeight: '700' } },
+						layout: { type: 'constrained' },
 					},
-				],
-				[
-					'core/paragraph',
-					{
-						align: 'center',
-						content: __( 'Get unlimited access.', 'newspack-plugin' ),
-						style: { typography: { fontWeight: '700' } },
-					},
-				],
-				[
-					'newspack-blocks/checkout-button',
-					{
-						text: __( 'Subscribe now', 'newspack-plugin' ),
-						align: 'center',
-						backgroundColor: 'primary',
-						textColor: 'secondary',
-					},
+					[
+						[
+							'core/columns',
+							{ verticalAlignment: 'center' },
+							[
+								[
+									'core/column',
+									{
+										verticalAlignment: 'center',
+										width: '20%',
+									},
+									[
+										[
+											'core/group',
+											{
+												layout: {
+													type: 'flex',
+													flexWrap: 'nowrap',
+												},
+											},
+											[
+												[
+													'newspack/content-gate-countdown',
+													{
+														textColor: 'primary',
+													},
+												],
+												[
+													'core/paragraph',
+													{
+														content: sprintf(
+															/* translators: %s is the metered period, e.g. "month" or "week". */
+															__( 'free articles this %s', 'newspack-plugin' ),
+															period
+														),
+														align: 'left',
+														fontSize: 'small',
+														style: {
+															typography: {
+																textTransform: 'uppercase',
+															},
+														},
+														textColor: 'secondary-variation',
+													},
+												],
+											],
+										],
+									],
+								],
+								[
+									'core/column',
+									{
+										verticalAlignment: 'center',
+										width: '60%',
+									},
+									[
+										[
+											'core/heading',
+											{
+												content: __( 'Get unlimited access', 'newspack-plugin' ),
+												level: 4,
+												textAlign: 'center',
+											},
+										],
+										[
+											'newspack-blocks/checkout-button',
+											{
+												text: __( 'Subscribe now', 'newspack-plugin' ),
+												align: 'center',
+												backgroundColor: 'primary',
+												textColor: 'secondary',
+											},
+										],
+									],
+								],
+								[ 'core/column', { width: '20%' } ],
+							],
+						],
+					],
 				],
 			],
 		}
@@ -66,7 +121,10 @@ export default function Edit( { attributes, setAttributes } ) {
 					label={ __( 'Content Gate Countdown Box', 'newspack-plugin' ) }
 					className="newspack-content-gate-countdown-box__placeholder"
 				>
-					{ __( 'The content gate countdown block will only display in restricted content when metering is enabled.', 'newspack-plugin' ) }
+					{ __(
+						'The content gate countdown box block will only display in restricted content when metering is enabled.',
+						'newspack-plugin'
+					) }
 				</Placeholder>
 			</div>
 		);
@@ -83,11 +141,11 @@ export default function Edit( { attributes, setAttributes } ) {
 						help={
 							attributes.alwaysShow
 								? __(
-										'The countdown box will always be visible, even if the user has reached their metered view limit.',
+										'The countdown box will always be visible, even when readers have reached their metered view limit and the content gate is shown.',
 										'newspack-plugin'
 								  )
 								: __(
-										'The countdown box will only be visible while the user has not yet reached their metered view limit.',
+										'The countdown box will only be visible when readers are within their metered view limit and the content gate is not shown.',
 										'newspack-plugin'
 								  )
 						}
@@ -96,9 +154,7 @@ export default function Edit( { attributes, setAttributes } ) {
 			</InspectorControls>
 
 			<div { ...blockProps }>
-				<div className="newspack-content-gate-countdown-box__content">
-					<div { ...innerBlockProps }>{ children }</div>
-				</div>
+				<div { ...innerBlockProps }>{ children }</div>
 			</div>
 		</>
 	);

@@ -24,7 +24,7 @@ domReady( () => {
 		}
 		const storeKey = 'metering-' + ( gate_id || 0 );
 		const { content } = ras?.store?.get( storeKey ) || { content: [] };
-		const countdownEl = document.querySelector( '.newspack-content-gate-countdown__countdown' );
+		const countdownEl = document.querySelector( '.newspack-content-gate-countdown' );
 		if ( ! countdownEl ) {
 			return;
 		}

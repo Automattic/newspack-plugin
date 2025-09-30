@@ -1,9 +1,10 @@
 .newspack-content-gate-countdown {
+	font-family: var(--newspack-ui-font-family), system-ui, sans-serif !important;
 	font-size: 1.5em;
 	font-weight: 700;
 	max-width: 100px;
 	white-space: nowrap;
 	display: inline-block;
-	margin: 0;
+	margin: 0 !important;
 	padding: 5px;
 }

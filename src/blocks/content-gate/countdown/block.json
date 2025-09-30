@@ -29,5 +29,6 @@
       }
     }
   },
+	"parent": [ "newspack/content-gate-countdown-box" ],
   "textdomain": "newspack-plugin"
 }
