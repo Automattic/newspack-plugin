@@ -554,6 +554,17 @@ class My_Account_UI_V1 {
 				$last4        = $method['method']['last4'] ?? '';
 				$expires      = $method['expires'] ?? '';
 
+				// Parse the URL to extract query parameters.
+				$parsed_url   = \wp_parse_url( $delete_url );
+				$query_params = [];
+
+				if ( ! empty( $parsed_url['query'] ) ) {
+					\parse_str( $parsed_url['query'], $query_params );
+				}
+
+				// Reconstruct the base URL without query parameters.
+				$form_action_base = \remove_query_arg( array_keys( $query_params ), $delete_url );
+
 				ob_start();
 				?>
 				<p><?php \esc_html_e( 'Are you sure you want to delete this payment method from your account?', 'newspack-plugin' ); ?></p>
@@ -587,6 +598,15 @@ class My_Account_UI_V1 {
 					?>
 				</div>
 				<?php
+				// Add query parameters as hidden form fields.
+				foreach ( $query_params as $param_name => $param_value ) {
+					printf(
+						'<input type="hidden" name="%1$s" value="%2$s">',
+						\esc_attr( $param_name ),
+						\esc_attr( $param_value )
+					);
+				}
+
 				$content = ob_get_clean();
 
 				Newspack_UI::generate_modal(
@@ -596,7 +616,7 @@ class My_Account_UI_V1 {
 						'content'     => $content,
 						'size'        => 'small',
 						'form'        => 'GET',
-						'form_action' => $delete_url,
+						'form_action' => $form_action_base,
 						'actions'     => [
 							'delete' => [
 								'label' => __( 'Delete payment method', 'newspack-plugin' ),
