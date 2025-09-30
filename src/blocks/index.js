@@ -13,19 +13,20 @@ import * as correctionBox from './correction-box';
 import * as correctionItem from './correction-item';
 import * as avatar from './avatar';
 import * as collections from './collections';
-import * as contentGateCountdown from './content-gate-countdown';
+import * as contentGateCountdown from './content-gate/countdown';
+import * as contentGateCountdownBox from './content-gate/countdown-box';
 
 /**
  * Block Scripts
  */
 import './core-image';
 
-export const blocks = [ readerRegistration, correctionBox, correctionItem, avatar, collections, contentGateCountdown ];
+export const blocks = [ readerRegistration, correctionBox, correctionItem, avatar, collections, contentGateCountdown, contentGateCountdownBox ];
 
 const readerActivationBlocks = [ 'newspack/reader-registration' ];
 const correctionBlocks = [ 'newspack/correction-box', 'newspack/correction-item' ];
 const collectionsBlocks = [ 'newspack/collections' ];
-const contentGateBlocks = [ 'newspack/content-gate-countdown' ];
+const contentGateBlocks = [ 'newspack/content-gate-countdown', 'newspack/content-gate-countdown-box' ];
 
 /**
  * Function to register an individual block.

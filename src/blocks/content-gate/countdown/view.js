@@ -9,7 +9,7 @@ import { __, sprintf } from '@wordpress/i18n';
  * Internal dependencies
  */
 import './style.scss';
-import { domReady } from '../../utils';
+import { domReady } from '../../../utils';
 
 domReady( () => {
 	if ( typeof newspack_metering_settings === 'undefined' ) {

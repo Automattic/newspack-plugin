@@ -9,11 +9,11 @@ import { __ } from '@wordpress/i18n';
  */
 import metadata from './block.json';
 import Edit from './edit';
-import { countdown as icon } from '../../../packages/icons';
-import colors from '../../../packages/colors/colors.module.scss';
+import { countdown as icon } from '../../../../packages/icons';
+import colors from '../../../../packages/colors/colors.module.scss';
 import './style.scss';
 
-export const title = __( 'Content Gate Countdown', 'newspack-plugin' );
+export const title = __( 'Content Gate Countdown Box', 'newspack-plugin' );
 
 const { name } = metadata;
 
@@ -25,13 +25,13 @@ export const settings = {
 		src: icon,
 		foreground: colors[ 'primary-400' ],
 	},
-	keywords: [ __( 'countdown', 'newspack-plugin' ), __( 'content gate', 'newspack-plugin' ) ],
-	description: __( 'A countdown for content gate metering functionality.', 'newspack-plugin' ),
+	keywords: [ __( 'countdown box', 'newspack-plugin' ), __( 'content gate', 'newspack-plugin' ) ],
+	description: __( 'Display a countdown and messaging for content gate metered readers.', 'newspack-plugin' ),
 	edit: Edit,
 	save: () => (
 		<div
 			{ ...useInnerBlocksProps.save( {
-				className: 'newspack-content-gate-countdown__actions',
+				className: 'newspack-content-gate-countdown__content',
 			} ) }
 		/>
 	),
