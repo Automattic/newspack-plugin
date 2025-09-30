@@ -30,22 +30,23 @@ class Test_Collections extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test that the feature is disabled by default.
+	 * Test that the feature is enabled by default.
 	 *
 	 * @covers \Newspack\Optional_Modules\Collections::is_feature_enabled
 	 */
-	public function test_is_module_enabled_default_false() {
-		$this->assertFalse( Collections::is_feature_enabled(), 'Module should be disabled by default.' );
+	public function test_is_module_enabled_default_true() {
+		$this->assertTrue( Collections::is_feature_enabled(), 'Module should be enabled by default.' );
 	}
 
 	/**
-	 * Test that the feature is enabled when the filter returns true.
+	 * Test that the feature can be disabled with a filter.
 	 *
 	 * @covers \Newspack\Optional_Modules\Collections::is_feature_enabled
 	 */
-	public function test_is_feature_enabled_filter_true() {
-		add_filter( 'newspack_collections_enabled', '__return_true' );
-		$this->assertTrue( Collections::is_feature_enabled(), 'Feature should be enabled by filter.' );
+	public function test_is_feature_enabled_filter_false() {
+		add_filter( 'newspack_collections_enabled', '__return_false' );
+		$this->assertFalse( Collections::is_feature_enabled(), 'Feature should be disabled by filter.' );
+		remove_all_filters( 'newspack_collections_enabled' );
 	}
 
 	/**

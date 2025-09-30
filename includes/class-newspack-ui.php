@@ -195,9 +195,10 @@ class Newspack_UI {
 		$args = wp_parse_args(
 			$args,
 			[
-				'id'    => 'modal-' . wp_rand( 1, 1000 ),
-				'size'  => 'small',
-				'state' => 'closed',
+				'id'          => 'modal-' . wp_rand( 1, 1000 ),
+				'size'        => 'small',
+				'state'       => 'closed',
+				'form_action' => '',
 			]
 		);
 		?>
@@ -215,7 +216,7 @@ class Newspack_UI {
 				</header>
 
 				<?php if ( ! empty( $args['form'] ) ) : ?>
-				<form class="newspack-ui__modal__content <?php echo esc_attr( $args['form_class'] ?? '' ); ?>" method="<?php echo esc_attr( $args['form'] ); ?>" <?php echo esc_attr( $args['form_id'] ? 'id=' . esc_attr( $args['form_id'] ) : '' ); ?>>
+				<form class="newspack-ui__modal__content <?php echo esc_attr( $args['form_class'] ?? '' ); ?>" method="<?php echo esc_attr( $args['form'] ); ?>"<?php echo $args['form_id'] ? ' id="' . esc_attr( $args['form_id'] ) . '"' : ''; ?><?php echo $args['form_action'] ? ' action="' . esc_url( $args['form_action'] ) . '"' : ''; ?>>
 				<?php else : ?>
 				<section class="newspack-ui__modal__content">
 				<?php endif; ?>

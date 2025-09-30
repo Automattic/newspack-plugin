@@ -1,0 +1,71 @@
+$breakpoint-md: 782px;
+
+.newspack-content-gate-countdown__wrapper {
+	width: 100%;
+
+	.newspack-content-gate-countdown {
+		&__content {
+			width: 100%;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+			gap: 1em;
+			padding: 1rem;
+			font-family: var(--newspack-ui-font-family), system-ui, sans-serif !important;
+			box-shadow:
+				0 5px 10px var(--newspack-ui-color-neutral-10, rgba(0, 0, 0, 0.1)),
+				0 2px 5px var(--newspack-ui-color-neutral-20, rgba(0, 0, 0, 0.06));
+
+			@media screen and ( min-width: $breakpoint-md ) {
+				flex-direction: row;
+				justify-content: flex-start;
+			}
+		}
+
+		&__text {
+			display: flex;
+			flex-direction: row;
+			align-items: center;
+			justify-content: center;
+			gap: 10px;
+			width: 100%;
+
+			p {
+				font-size: 0.8em;
+				text-transform: uppercase;
+				opacity: 0.5;
+			}
+
+			@media screen and ( min-width: $breakpoint-md ) {
+				width: 200px;
+				justify-content: flex-start;
+			}
+		}
+
+		&__countdown {
+			display: flex;
+			font-size: 1.5em;
+			font-weight: 700;
+			max-width: 100px;
+		}
+
+		&__actions {
+			width: 100%;
+			padding-right: 0;
+
+			& > *:first-child {
+				margin-top: 0;
+			}
+
+			& > *:last-child {
+				margin-bottom: 0;
+			}
+
+			@media screen and ( min-width: $breakpoint-md ) {
+				width: calc(100% - 200px);
+				padding-right: calc(1em + 200px);
+			}
+		}
+	}
+}

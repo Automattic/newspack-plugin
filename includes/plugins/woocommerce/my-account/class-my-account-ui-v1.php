@@ -38,7 +38,12 @@ class My_Account_UI_V1 {
 		\add_action( 'woocommerce_subscription_details_table', [ __CLASS__, 'cancel_subscription_modal' ] );
 		\add_filter( 'option_woocommerce_myaccount_add_payment_method_endpoint', [ __CLASS__, 'add_payment_method_endpoint' ] );
 		\add_filter( 'default_option_woocommerce_myaccount_add_payment_method_endpoint', [ __CLASS__, 'add_payment_method_endpoint' ] );
+		\add_action( 'template_redirect', [ __CLASS__, 'redirect_payment_information_endpoint' ] );
 		\add_action( 'newspack_woocommerce_after_account_payment_methods', [ __CLASS__, 'add_payment_method_modal' ] );
+		\add_action( 'newspack_woocommerce_after_account_addresses', [ __CLASS__, 'add_address_modals' ] );
+		\add_action( 'newspack_woocommerce_after_account_addresses', [ __CLASS__, 'delete_address_modals' ] );
+		\add_action( 'woocommerce_after_save_address_validation', [ __CLASS__, 'handle_delete_address_submission' ], 10, 4 );
+		\add_filter( 'woocommerce_address_to_edit', [ __CLASS__, 'reorder_address_fields' ], PHP_INT_MAX, 2 );
 	}
 
 	/**
@@ -154,6 +159,8 @@ class My_Account_UI_V1 {
 				return __DIR__ . '/templates/v1/account-settings.php';
 			case 'myaccount/payment-methods.php':
 				return __DIR__ . '/templates/v1/payment-information.php';
+			case 'myaccount/form-edit-address.php':
+				return __DIR__ . '/templates/v1/form-edit-address.php';
 			default:
 				return $template;
 		}
@@ -185,6 +192,9 @@ class My_Account_UI_V1 {
 		if ( isset( $items['payment-methods'] ) ) {
 			$items['payment-methods'] = __( 'Payment information', 'newspack-plugin' );
 		}
+
+		// Remove "Addresses" (replaced by custom "Payment Information" page).
+		unset( $items['edit-address'] );
 
 		return $items;
 	}
@@ -501,6 +511,20 @@ class My_Account_UI_V1 {
 	}
 
 	/**
+	 * Redirect "Addresses" to the "Payment Information" page.
+	 */
+	public static function redirect_payment_information_endpoint() {
+		if ( function_exists( 'is_account_page' ) && \is_account_page() ) {
+			global $wp;
+			$current_url = \trailingslashit( \home_url( $wp->request ) );
+			if ( \trailingslashit( \wc_get_account_endpoint_url( 'edit-address' ) ) === $current_url ) {
+				\wp_safe_redirect( \wc_get_account_endpoint_url( 'payment-methods' ) );
+				exit;
+			}
+		}
+	}
+
+	/**
 	 * Render the "Add Payment Method" modal.
 	 */
 	public static function add_payment_method_modal() {
@@ -528,6 +552,200 @@ class My_Account_UI_V1 {
 				],
 			]
 		);
+	}
+
+	/**
+	 * Render the "Add Address" modal.
+	 */
+	public static function add_address_modals() {
+		if ( ! \is_user_logged_in() || ! Reader_Activation::is_user_reader( \wp_get_current_user() ) ) {
+			return;
+		}
+		$address_types = [ 'billing' => __( 'Billing', 'newspack-plugin' ) ];
+		if ( ! \wc_ship_to_billing_address_only() && \wc_shipping_enabled() ) {
+			$address_types['shipping'] = __( 'Shipping', 'newspack-plugin' );
+		}
+		$address_types = \apply_filters( 'woocommerce_my_account_get_addresses', $address_types );
+		foreach ( $address_types as $address_type => $address_name ) {
+			$address = \wc_get_account_formatted_address( $address_type );
+			ob_start();
+			\woocommerce_account_edit_address( $address_type );
+				$content          = ob_get_clean();
+				$edit_address_url = \add_query_arg(
+					'edit-address',
+					$address_type,
+					\wc_get_endpoint_url( 'edit-address', $address_type )
+				);
+				Newspack_UI::generate_modal(
+					[
+						'id'          => 'edit-address-' . $address_type,
+						'title'       => ! empty( $address ) ? sprintf(
+							// Translators: %s is the address type.
+							__( 'Edit %s address', 'newspack-plugin' ),
+							$address_type
+						) : sprintf(
+							// Translators: %s is the address type.
+							__( 'Add %s address', 'newspack-plugin' ),
+							$address_type
+						),
+						'content'     => $content,
+						'size'        => 'medium',
+						'form'        => 'POST',
+						'form_id'     => 'edit_address_' . $address_type,
+						'form_action' => $edit_address_url,
+						'actions'     => [
+							'cancel' => [
+								'label'  => __( 'Cancel', 'newspack-plugin' ),
+								'type'   => 'ghost',
+								'action' => 'close',
+							],
+						],
+					]
+				);
+		}
+	}
+
+	/**
+	 * Render the "Delete Address" confirmation modals.
+	 */
+	public static function delete_address_modals() {
+		if ( ! \is_user_logged_in() || ! Reader_Activation::is_user_reader( \wp_get_current_user() ) ) {
+			return;
+		}
+
+		$address_types = [ 'billing' => __( 'Billing', 'newspack-plugin' ) ];
+		if ( ! \wc_ship_to_billing_address_only() && \wc_shipping_enabled() ) {
+			$address_types['shipping'] = __( 'Shipping', 'newspack-plugin' );
+		}
+		$address_types = \apply_filters( 'woocommerce_my_account_get_addresses', $address_types );
+
+		foreach ( $address_types as $address_type => $address_name ) {
+			$address = \wc_get_account_formatted_address( $address_type );
+
+			// Only create delete modal if address exists.
+			if ( ! empty( $address ) ) {
+				ob_start();
+				?>
+				<p>
+					<?php esc_html_e( 'Are you sure you want to delete this address from your account?', 'newspack-plugin' ); ?>
+				</p>
+				<div class="address-preview newspack-ui__font--bold">
+					<?php echo wp_kses_post( $address ); ?>
+				</div>
+
+				<?php
+				// Create hidden form fields to clear the address.
+					$fields = [
+						$address_type . '_first_name' => '',
+						$address_type . '_last_name'  => '',
+						$address_type . '_company'    => '',
+						$address_type . '_address_1'  => '',
+						$address_type . '_address_2'  => '',
+						$address_type . '_city'       => '',
+						$address_type . '_postcode'   => '',
+						$address_type . '_country'    => '',
+						$address_type . '_state'      => '',
+						'save_address'                => 'Save address',
+						'action'                      => 'edit_address',
+						'newspack_delete_address'     => $address_type,
+					];
+
+					// Add email and phone for billing addresses.
+					if ( 'billing' === $address_type ) {
+						$fields['billing_email'] = '';
+						$fields['billing_phone'] = '';
+					}
+
+					foreach ( $fields as $field_name => $field_value ) {
+						echo '<input type="hidden" name="' . esc_attr( $field_name ) . '" value="' . esc_attr( $field_value ) . '">';
+					}
+					$request_uri = filter_input( INPUT_SERVER, 'REQUEST_URI', FILTER_SANITIZE_FULL_SPECIAL_CHARS ) ?? '';
+					?>
+					<input type="hidden" id="woocommerce-delete-address-nonce-<?php echo esc_attr( $address_type ); ?>" name="woocommerce-edit-address-nonce" value="<?php echo esc_attr( \wp_create_nonce( 'woocommerce-edit_address' ) ); ?>">
+					<input type="hidden" name="_wp_http_referer" value="<?php echo esc_attr( \wp_unslash( $request_uri ) ); ?>">
+					<?php
+					$content            = ob_get_clean();
+					$delete_address_url = \add_query_arg(
+						'edit-address',
+						$address_type,
+						\wc_get_endpoint_url( 'edit-address', $address_type )
+					);
+
+					Newspack_UI::generate_modal(
+						[
+							'id'          => 'delete-address-' . $address_type,
+							'title'       => sprintf(
+								// Translators: %s is the address type.
+								__( 'Delete %s address', 'newspack-plugin' ),
+								$address_type
+							),
+							'content'     => $content,
+							'size'        => 'small',
+							'form'        => 'POST',
+							'form_action' => $delete_address_url,
+							'actions'     => [
+								'delete' => [
+									'label' => __( 'Delete address', 'newspack-plugin' ),
+									'type'  => 'destructive',
+								],
+								'cancel' => [
+									'label'  => __( 'Cancel', 'newspack-plugin' ),
+									'type'   => 'ghost',
+									'action' => 'close',
+								],
+							],
+						]
+					);
+			}
+		}
+	}
+
+	/**
+	 * Handle delete address submission.
+	 *
+	 * @param int    $user_id      User ID being saved.
+	 * @param string $address_type Type of address; 'billing' or 'shipping'.
+	 */
+	public static function handle_delete_address_submission( $user_id, $address_type ) {
+		$delete_request = filter_input( INPUT_POST, 'newspack_delete_address', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
+
+		if ( empty( $delete_request ) || $delete_request !== $address_type ) {
+			return;
+		}
+
+		$notices = \wc_get_notices();
+
+		if ( empty( $notices ) || empty( $notices['error'] ) ) {
+			return;
+		}
+
+		unset( $notices['error'] );
+		\wc_set_notices( $notices );
+	}
+
+	/**
+	 * Reorder address fields.
+	 *
+	 * @param array  $address The address.
+	 * @param string $load_address The address type (billing or shipping).
+	 * @return array The address.
+	 */
+	public static function reorder_address_fields( $address, $load_address ) {
+		// Move state before postcode.
+		if ( isset( $address[ $load_address . '_state' ] ) ) {
+			$address[ $load_address . '_state' ]['priority'] = 80;
+		}
+
+		if ( isset( $address[ $load_address . '_postcode' ] ) ) {
+			$address[ $load_address . '_postcode' ]['priority'] = 90;
+		}
+
+		// Move email before phone by setting its priority to phone's priority minus 1.
+		if ( isset( $address[ $load_address . '_phone' ] ) && isset( $address[ $load_address . '_email' ] ) ) {
+			$address[ $load_address . '_email' ]['priority'] = $address[ $load_address . '_phone' ]['priority'] - 1;
+		}
+
+		return $address;
 	}
 }
 My_Account_UI_V1::init();
