@@ -43,6 +43,10 @@ function setupModalHandlers( selector, modalId, dataAttribute = null ) {
 			if ( modal ) {
 				modal.setAttribute( 'data-state', 'open' );
 				button.closest( 'div' ).classList.remove( 'newspack-ui--loading' );
+				const dropdown = button.closest( '.newspack-ui__dropdown' );
+				if ( dropdown ) {
+					dropdown.classList.remove( 'active' );
+				}
 				jQuery( document.body ).trigger( 'refresh' );
 			}
 		} );
