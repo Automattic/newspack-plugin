@@ -11,9 +11,8 @@ import metadata from './block.json';
 import Edit from './edit';
 import { countdown as icon } from '../../../../packages/icons';
 import colors from '../../../../packages/colors/colors.module.scss';
-import './style.scss';
 
-export const title = __( 'Content Gate Countdown Box', 'newspack-plugin' );
+export const title = __( 'Content Gate Countdown', 'newspack-plugin' );
 
 const { name } = metadata;
 
@@ -25,8 +24,17 @@ export const settings = {
 		src: icon,
 		foreground: colors[ 'primary-400' ],
 	},
-	keywords: [ __( 'countdown box', 'newspack-plugin' ), __( 'content gate', 'newspack-plugin' ) ],
-	description: __( 'Display a countdown and messaging for content gate metered readers.', 'newspack-plugin' ),
+	keywords: [
+		__( 'countdown', 'newspack-plugin' ),
+		__( 'content gate', 'newspack-plugin' ),
+		__( 'metered', 'newspack-plugin' ),
+		__( 'paywall', 'newspack-plugin' ),
+		__( 'tracking', 'newspack-plugin' ),
+	],
+	description: __(
+		'Displays how many free articles remain before the paywall, helping users track access with a real-time countdown.',
+		'newspack-plugin'
+	),
 	edit: Edit,
 	save: () => (
 		<div

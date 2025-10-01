@@ -20,11 +20,7 @@ export default function Edit() {
 		metering_period: period,
 	} = newspack_blocks.content_gate_data || {};
 	const blockProps = useBlockProps( {
-		className: 'newspack-content-gate-countdown-box__wrapper has-border-color has-base-3-border-color',
-		style: {
-			borderWidth: '1px',
-			borderRadius: '6px',
-		},
+		className: 'newspack-content-gate-countdown-box__wrapper',
 	} );
 	const { children, ...innerBlockProps } = useInnerBlocksProps(
 		{ className: 'newspack-content-gate-countdown-box__content' },
@@ -33,85 +29,109 @@ export default function Edit() {
 				[
 					'core/group',
 					{
-						layout: { type: 'constrained' },
+						layout: {
+							type: 'flex',
+							orientation: 'horizontal',
+							flexWrap: 'nowrap',
+							justifyContent: 'space-between',
+						},
 					},
 					[
 						[
-							'core/columns',
-							{ verticalAlignment: 'center' },
+							'core/group',
+							{
+								layout: {
+									type: 'flex',
+									orientation: 'vertical',
+									flexWrap: 'nowrap',
+								},
+								style: {
+									spacing: {
+										blockGap: 'var:preset|spacing|20',
+									},
+								},
+							},
 							[
 								[
-									'core/column',
+									'core/group',
 									{
-										verticalAlignment: 'center',
-										width: '20%',
+										layout: {
+											type: 'flex',
+											orientation: 'horizontal',
+											flexWrap: 'nowrap',
+										},
+										style: {
+											spacing: {
+												blockGap: '0.25em',
+											},
+										},
 									},
 									[
 										[
-											'core/group',
+											'newspack/content-gate-countdown',
 											{
-												layout: {
-													type: 'flex',
-													flexWrap: 'nowrap',
+												fontSize: 'small',
+												lock: {
+													move: false,
+													remove: true,
+												},
+												style: {
+													typography: {
+														fontStyle: 'normal',
+														fontWeight: '700',
+													},
 												},
 											},
-											[
-												[
-													'newspack/content-gate-countdown',
-													{
-														textColor: 'primary',
+										],
+										[
+											'core/paragraph',
+											{
+												content: sprintf(
+													/* translators: %s is the metered period, e.g. "month" or "week". */
+													__( 'free articles this %s', 'newspack-plugin' ),
+													period
+												),
+												fontSize: 'small',
+												style: {
+													typography: {
+														fontStyle: 'normal',
+														fontWeight: '700',
+														textTransform: 'uppercase',
 													},
-												],
-												[
-													'core/paragraph',
-													{
-														content: sprintf(
-															/* translators: %s is the metered period, e.g. "month" or "week". */
-															__( 'free articles this %s', 'newspack-plugin' ),
-															period
-														),
-														align: 'left',
-														fontSize: 'small',
-														style: {
-															typography: {
-																textTransform: 'uppercase',
-															},
-														},
-														textColor: 'secondary',
-													},
-												],
-											],
+												},
+											},
 										],
 									],
 								],
 								[
-									'core/column',
+									'core/paragraph',
 									{
-										verticalAlignment: 'center',
-										width: '60%',
+										content: sprintf(
+											/* translators: %1$s is subscribe message, %2$s is sign in link */
+											__( '%1$s %2$s', 'newspack-plugin' ),
+											__( 'Subscribe now and get unlimited access.', 'newspack-plugin' ),
+											'<a href="#signup_modal">' + __( 'Sign in to an existing account.', 'newspack-plugin' ) + '</a>'
+										),
+										fontSize: 'small',
+										style: {
+											elements: {
+												link: {
+													color: {
+														text: 'var:preset|color|medium-gray',
+													},
+												},
+											},
+										},
+										textColor: 'medium-gray',
 									},
-									[
-										[
-											'core/heading',
-											{
-												content: __( 'Get unlimited access', 'newspack-plugin' ),
-												level: 4,
-												textAlign: 'center',
-											},
-										],
-										[
-											'newspack-blocks/checkout-button',
-											{
-												text: __( 'Subscribe now', 'newspack-plugin' ),
-												align: 'center',
-												backgroundColor: 'primary',
-												textColor: 'secondary',
-											},
-										],
-									],
 								],
-								[ 'core/column', { width: '20%' } ],
 							],
+						],
+						[
+							'newspack-blocks/checkout-button',
+							{
+								text: __( 'Subscribe\u00A0now', 'newspack-plugin' ),
+							},
 						],
 					],
 				],
@@ -124,13 +144,10 @@ export default function Edit() {
 			<div { ...blockProps }>
 				<Placeholder
 					icon={ caution }
-					label={ __( 'Content Gate Countdown Box', 'newspack-plugin' ) }
+					label={ __( 'Content Gate Countdown', 'newspack-plugin' ) }
 					className="newspack-content-gate-countdown-box__placeholder"
 				>
-					{ __(
-						'The content gate countdown box block will only display in restricted content when metering is enabled.',
-						'newspack-plugin'
-					) }
+					{ __( 'The content gate countdown block will only display in restricted content when metering is enabled.', 'newspack-plugin' ) }
 				</Placeholder>
 			</div>
 		);

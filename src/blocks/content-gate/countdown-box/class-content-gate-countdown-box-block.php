@@ -50,8 +50,7 @@ class Content_Gate_Countdown_Box_Block {
 
 		$block_wrapper_attributes = get_block_wrapper_attributes(
 			[
-				'class' => 'newspack-content-gate-countdown-box__wrapper has-border-color has-base-3-border-color',
-				'style' => 'border-width:1px;border-radius:6px;',
+				'class' => 'newspack-content-gate-countdown-box__wrapper',
 			]
 		);
 
