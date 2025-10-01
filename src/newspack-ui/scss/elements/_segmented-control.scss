@@ -8,6 +8,7 @@
 		&__form-control {
 			display: grid;
 			gap: var(--newspack-ui-spacer-base);
+			width: 100%;
 
 			label {
 				margin: 0;
