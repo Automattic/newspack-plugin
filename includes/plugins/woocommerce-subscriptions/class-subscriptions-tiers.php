@@ -374,15 +374,13 @@ class Subscriptions_Tiers {
 				<?php endforeach; ?>
 			</div>
 		<?php else : ?>
-			<div class="newspack-ui__segmented-control__tabs">
-				<select class="newspack-ui__button newspack-ui__button--small">
-					<?php foreach ( $frequencies as $i => $frequency ) : ?>
-						<option value="<?php echo esc_attr( $i ); ?>" <?php selected( $frequencies[ $i ], $current_frequency ); ?>>
-							<?php echo esc_html( WooCommerce_Subscriptions::get_frequency_label( $frequency ) ); ?>
-						</option>
-					<?php endforeach; ?>
-				</select>
-			</div>
+			<select>
+				<?php foreach ( $frequencies as $i => $frequency ) : ?>
+					<option value="<?php echo esc_attr( $i ); ?>" <?php selected( $frequencies[ $i ], $current_frequency ); ?>>
+						<?php echo esc_html( WooCommerce_Subscriptions::get_frequency_label( $frequency ) ); ?>
+					</option>
+				<?php endforeach; ?>
+			</select>
 			<?php
 		endif;
 		if ( $is_form_control ) {
