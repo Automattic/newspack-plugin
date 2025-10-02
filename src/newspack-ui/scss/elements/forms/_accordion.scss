@@ -36,6 +36,12 @@
 						opacity: 1;
 					}
 				}
+				&:only-child {
+					padding: var(--newspack-ui-spacer-3);
+					& > input[type="radio"] {
+						display: none;
+					}
+				}
 			}
 		}
 	}

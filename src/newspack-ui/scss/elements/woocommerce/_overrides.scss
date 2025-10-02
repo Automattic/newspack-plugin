@@ -20,6 +20,12 @@
 			display: block;
 		}
 	}
+
+	.form-row.woocommerce-SavedPaymentMethods-saveNew {
+		label {
+			font-weight: normal;
+		}
+	}
 }
 
 /** See #3292. */
