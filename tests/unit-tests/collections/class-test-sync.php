@@ -33,7 +33,7 @@ class Test_Sync extends \WP_UnitTestCase {
 	 *
 	 * @covers \Newspack\Collections\Sync::handle_post_save
 	 * @covers \Newspack\Collections\Sync::create_linked_term
-	 * @covers \Newspack\Collections\Taxonomy::find_term_by_name
+	 * @covers \Newspack\Collections\Collection_Taxonomy::find_term_by_name
 	 */
 	public function test_create_collection_term_from_post() {
 		$post_id = $this->create_test_collection();

@@ -41,6 +41,7 @@ class Bylines {
 		// Newspack Network compatibility.
 		add_filter( 'newspack_network_distributed_post_meta', [ __CLASS__, 'newspack_network_distributed_post_meta' ], 10, 2 );
 		add_action( 'newspack_network_incoming_post_inserted', [ __CLASS__, 'newspack_network_incoming_post_inserted' ], 10, 3 );
+		add_filter( 'the_author', [ __CLASS__, 'replace_feed_author' ], 99, 1 );
 	}
 
 	/**
@@ -131,16 +132,21 @@ class Bylines {
 	 *
 	 * @param bool $include_avatars Whether to include avatars in the markup.
 	 * @param bool $byline_wrapper Whether to wrap the byline in a span element.
+	 * @param int  $post_id Optional post ID. Defaults to current post.
 	 *
 	 * @return false|string The post custom byline HTML markup or false if not available.
 	 */
-	public static function get_post_byline_html( $include_avatars = true, $byline_wrapper = true ) {
-		$byline_is_active = \get_post_meta( \get_the_ID(), self::META_KEY_ACTIVE, true );
+	public static function get_post_byline_html( $include_avatars = true, $byline_wrapper = true, $post_id = null ) {
+		if ( ! $post_id ) {
+			$post_id = \get_the_ID();
+		}
+
+		$byline_is_active = \get_post_meta( $post_id, self::META_KEY_ACTIVE, true );
 		if ( ! $byline_is_active ) {
 			return false;
 		}
 
-		$byline = \get_post_meta( \get_the_ID(), self::META_KEY_BYLINE, true );
+		$byline = \get_post_meta( $post_id, self::META_KEY_BYLINE, true );
 		if ( ! $byline ) {
 			return false;
 		}
@@ -153,6 +159,25 @@ class Bylines {
 			$byline_html = self::get_authors_avatars( $byline ) . $byline_html;
 		}
 		return $byline_html;
+	}
+
+	/**
+	 * Get the custom byline HTML for a specific post.
+	 *
+	 * @param int $post_id The post ID.
+	 *
+	 * @return string|null The custom byline HTML or null if not active.
+	 */
+	public static function get_custom_byline_html( $post_id = null ) {
+		if ( ! self::is_enabled() ) {
+			return null;
+		}
+
+		// Get byline HTML without avatars or wrapper.
+		$byline_html = self::get_post_byline_html( false, false, $post_id );
+
+		// Convert false to null for consistency.
+		return $byline_html === false ? null : $byline_html;
 	}
 
 	/**
@@ -181,6 +206,11 @@ class Bylines {
 			function( $matches ) {
 				$author_id = $matches[1];
 
+				$author = get_user_by( 'id', $author_id );
+				if ( ! $author ) {
+					return $matches[2];
+				}
+
 				return sprintf(
 					/* translators: 1: Author avatar. 2: author link. */
 					'<span class="author vcard"><a class="url fn n" href="%1$s">%2$s</a></span>',
@@ -204,7 +234,12 @@ class Bylines {
 		$avatars = '';
 
 		foreach ( $author_ids as $author_id ) {
-			$avatars .= '<span class="author-avatar">' . get_avatar( $author_id ) . '</span>';
+			$author = get_user_by( 'id', $author_id );
+			if ( ! $author ) {
+				continue;
+			}
+
+			$avatars .= '<span class="author-avatar">' . get_avatar( $author->ID ) . '</span>';
 		}
 
 		return $avatars;
@@ -310,7 +345,7 @@ class Bylines {
 	 * @param WP_Post $post The post object.
 	 */
 	public static function newspack_network_distributed_post_meta( $meta, $post ) {
-		$byline_is_active = \get_post_meta( \get_the_ID(), self::META_KEY_ACTIVE, true );
+		$byline_is_active = \get_post_meta( $post->ID, self::META_KEY_ACTIVE, true );
 		if ( ! $byline_is_active ) {
 			return $meta;
 		}
@@ -336,6 +371,7 @@ class Bylines {
 
 	/**
 	 * After an incoming post is inserted, update the IDs with the IDs in the target site, based on the mapping that was sent.
+	 * If an author ID is not found in the mapping, remove the entire author shortcode and keep only the author name.
 	 *
 	 * @param int   $post_id   The post ID.
 	 * @param bool  $is_linked Whether the post is linked.
@@ -347,24 +383,59 @@ class Bylines {
 		}
 
 		$byline = get_post_meta( $post_id, self::META_KEY_BYLINE, true );
-
-		$mapping = get_post_meta( $post_id, '_newspack_byline_network_authors', true );
-
-		$mapping = json_decode( $mapping, true );
-
-		if ( empty( $mapping ) ) {
+		if ( empty( $byline ) ) {
 			return;
 		}
 
-		foreach ( $mapping as $author_id => $author_email ) {
-			$local_user = get_user_by( 'email', $author_email );
-			if ( ! $local_user ) {
-				continue;
-			}
-			$byline = str_replace( 'id=' . $author_id, 'id=' . $local_user->ID, $byline );
+		$mapping = get_post_meta( $post_id, '_newspack_byline_network_authors', true );
+		$mapping = json_decode( $mapping, true );
+
+		// If mapping is empty, set it to empty array so we still process shortcodes.
+		if ( empty( $mapping ) ) {
+			$mapping = [];
 		}
 
+		// Process all author shortcodes in one pass.
+		$byline = preg_replace_callback(
+			'/\[Author id=(\d+)\](.*?)\[\/Author\]/',
+			function( $matches ) use ( $mapping ) {
+				$author_id = $matches[1];
+				$author_name = $matches[2];
+
+				// If the author ID is not in the mapping, return just the author name.
+				if ( ! array_key_exists( $author_id, $mapping ) ) {
+					return $author_name;
+				}
+
+				// If the author ID is in the mapping but no local user found, return just the author name.
+				$author_email = $mapping[ $author_id ];
+				$local_user = get_user_by( 'email', $author_email );
+				if ( ! $local_user ) {
+					return $author_name;
+				}
+
+				// Return the original shortcode with updated ID.
+				return sprintf( '[Author id=%d]%s[/Author]', $local_user->ID, $author_name );
+			},
+			$byline
+		);
+
 		update_post_meta( $post_id, self::META_KEY_BYLINE, $byline );
+	}
+
+	/**
+	 * Replace feed author with byline.
+	 *
+	 * @param string $display_name The author display name.
+	 */
+	public static function replace_feed_author( $display_name ) {
+		if ( is_feed() ) {
+			$byline = self::get_post_byline_html( false, false );
+			if ( $byline ) {
+				$display_name = html_entity_decode( wp_strip_all_tags( $byline ) );
+			}
+		}
+		return $display_name;
 	}
 }
 Bylines::init();

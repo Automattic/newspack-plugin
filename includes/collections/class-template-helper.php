@@ -29,8 +29,8 @@ class Template_Helper {
 		add_action( 'get_template_part', [ __CLASS__, 'load_template_part' ], 10, 4 );
 		add_action( 'wp_enqueue_scripts', [ __CLASS__, 'enqueue_assets' ], 5 );
 		add_action( 'pre_get_posts', [ __CLASS__, 'archive_filters' ] );
-		add_filter( 'redirect_canonical', [ __CLASS__, 'prevent_year_redirect' ] );
 		add_filter( 'jetpack_relatedposts_filter_enabled_for_request', [ __CLASS__, 'disable_jetpack_related_posts' ] );
+		add_filter( 'document_title_parts', [ __CLASS__, 'update_document_title' ] );
 	}
 
 	/**
@@ -152,7 +152,7 @@ class Template_Helper {
 		$query->set( 'posts_per_page', $posts_per_page );
 
 		// Handle category filtering.
-		$category = isset( $_GET['category'] ) ? sanitize_text_field( $_GET['category'] ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$category = isset( $_GET[ Settings::CATEGORY_QUERY_PARAM ] ) ? sanitize_text_field( $_GET[ Settings::CATEGORY_QUERY_PARAM ] ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		if ( ! empty( $category ) ) {
 			$tax_query = [ // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query
 				[
@@ -165,7 +165,7 @@ class Template_Helper {
 		}
 
 		// Handle year filtering.
-		$year = isset( $_GET['year'] ) ? sanitize_text_field( $_GET['year'] ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$year = isset( $_GET[ Settings::YEAR_QUERY_PARAM ] ) ? sanitize_text_field( $_GET[ Settings::YEAR_QUERY_PARAM ] ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		if ( ! empty( $year ) ) {
 			$query->set(
 				'date_query',
@@ -176,21 +176,6 @@ class Template_Helper {
 				]
 			);
 		}
-	}
-
-	/**
-	 * Prevent year archive redirects on collection archive pages.
-	 *
-	 * @param string $redirect_url The redirect URL.
-	 * @return string|false The redirect URL or false to prevent redirect.
-	 */
-	public static function prevent_year_redirect( $redirect_url ) {
-		// Check if we're on a collection archive page with year parameter.
-		if ( is_post_type_archive( Post_Type::get_post_type() ) && isset( $_GET['year'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			return false;
-		}
-
-		return $redirect_url;
 	}
 
 	/**
@@ -264,11 +249,13 @@ class Template_Helper {
 		$vol_number = [];
 
 		if ( $volume ) {
-			$vol_number[] = sprintf( 'Vol. %s', esc_html( $volume ) );
+			/* translators: %s is the volume number of a collection */
+			$vol_number[] = sprintf( _x( 'Vol. %s', 'collection volume number', 'newspack-plugin' ), esc_html( $volume ) );
 		}
 
 		if ( $number ) {
-			$vol_number[] = sprintf( 'No. %s', esc_html( $number ) );
+			/* translators: %s is the issue number of a collection */
+			$vol_number[] = sprintf( _x( 'No. %s', 'collection issue number', 'newspack-plugin' ), esc_html( $number ) );
 		}
 
 		if ( $vol_number ) {
@@ -306,6 +293,7 @@ class Template_Helper {
 	 *     @type string $url   The URL of the CTA.
 	 *     @type string $label The label of the CTA.
 	 *     @type string $class The class of the CTA.
+	 *     @type string $type  The type of the CTA (attachment or link).
 	 * }
 	 * @return string The rendered CTA button.
 	 */
@@ -319,6 +307,7 @@ class Template_Helper {
 		 *     @type string $url   The URL of the CTA.
 		 *     @type string $label The label of the CTA.
 		 *     @type string $class The class of the CTA.
+		 *     @type string $type  The type of the CTA (attachment or link).
 		 * }
 		 */
 		$cta = apply_filters( 'newspack_collections_render_cta', $cta );
@@ -327,13 +316,15 @@ class Template_Helper {
 			return '';
 		}
 
+		// Determine if the link should open in a new tab.
+		$target_attributes = self::should_cta_open_in_new_tab( $cta ) ? ' target="_blank" rel="noopener noreferrer"' : '';
+
 		$html = sprintf(
-			'<div class="collection-cta %1$s">
-				<a class="wp-block-button__link has-dark-gray-color has-light-gray-background-color has-text-color has-background has-link-color wp-element-button" href="%2$s">%3$s</a>
-			</div>',
+			'<a class="wp-block-button__link %1$s has-dark-gray-color has-light-gray-background-color has-text-color has-background has-link-color wp-element-button" href="%2$s"%4$s>%3$s</a>',
 			esc_attr( $cta['class'] ?? '' ),
 			esc_url( $cta['url'] ?? '' ),
-			esc_html( $cta['label'] ?? '' )
+			esc_html( $cta['label'] ?? '' ),
+			$target_attributes
 		);
 
 		/**
@@ -349,6 +340,8 @@ class Template_Helper {
 	 * Render articles block.
 	 * Reuses the Content Loop block.
 	 *
+	 * @uses newspack-blocks/homepage-articles Content Loop block from newspack-blocks plugin.
+	 *
 	 * @param array  $post_ids       Array of post IDs.
 	 * @param string $section_header The header of the section.
 	 * @param bool   $show_image     Whether to show the image.
@@ -359,6 +352,17 @@ class Template_Helper {
 	public static function render_articles( $post_ids, $section_header = '', $show_image = true, $columns = 2, $type_scale = 3 ) {
 		if ( empty( $post_ids ) ) {
 			return '';
+		}
+
+		$block_name = 'newspack-blocks/homepage-articles';
+
+		// Check if the required block is registered.
+		if ( ! \WP_Block_Type_Registry::get_instance()->is_registered( $block_name ) ) {
+			// Surface dependency for logged-in editors.
+			return ( current_user_can( 'edit_posts' ) )
+				/* translators: %s is the block name */
+				? sprintf( esc_html__( 'The %s block is required but not available. Please install and activate the Newspack Blocks plugin.', 'newspack-plugin' ), '<code>' . esc_html( $block_name ) . '</code>' )
+				: '';
 		}
 
 		$attrs = [
@@ -376,6 +380,12 @@ class Template_Helper {
 			'specificMode'  => true,
 		];
 
+		// Override with global settings if set.
+		$global_attrs = Settings::get_setting( 'articles_block_attrs', [] );
+		if ( is_array( $global_attrs ) && ! empty( $global_attrs ) ) {
+			$attrs = array_merge( $attrs, $global_attrs );
+		}
+
 		/**
 		 * Filters the attributes before rendering the content loop block for posts in a section.
 		 *
@@ -385,7 +395,7 @@ class Template_Helper {
 
 		return render_block(
 			[
-				'blockName' => 'newspack-blocks/homepage-articles',
+				'blockName' => $block_name,
 				'attrs'     => $attrs,
 			]
 		);
@@ -397,9 +407,20 @@ class Template_Helper {
 	 * @return string The rendered see all link.
 	 */
 	public static function render_see_all_link() {
-		$link  = get_post_type_archive_link( Post_Type::get_post_type() );
-		$label = __( 'See all', 'newspack-plugin' );
-		$html  = sprintf( '<a href="%s">%s</a>', esc_url( $link ), esc_html( $label ) );
+		$link       = get_post_type_archive_link( Post_Type::get_post_type() );
+		$label      = _x( 'See all', 'see all collections link', 'newspack-plugin' );
+		$aria_label = sprintf(
+			/* translators: %s is the collection name (e.g., "Collections", "Issues") */
+			_x( 'See all %s', 'see all collections link aria-label', 'newspack-plugin' ),
+			strtolower( Settings::get_collection_label() )
+		);
+
+		$html = sprintf(
+			'<a href="%s" aria-label="%s">%s</a>',
+			esc_url( $link ),
+			esc_attr( $aria_label ),
+			esc_html( $label )
+		);
 
 		/**
 		 * Filters the see all link HTML.
@@ -417,5 +438,320 @@ class Template_Helper {
 	 */
 	public static function render_separator( $class_name = '' ) {
 		return '<hr class="has-light-gray-background-color has-background is-style-wide ' . esc_attr( $class_name ) . '"/>';
+	}
+
+	/**
+	 * Filter document title for collections pages to use custom label.
+	 *
+	 * @param array $title_parts The document title parts.
+	 * @return array Modified title parts.
+	 */
+	public static function update_document_title( $title_parts ) {
+		if ( is_post_type_archive( Post_Type::get_post_type() ) ) {
+			$title_parts['title'] = Settings::get_collection_label();
+		}
+
+		return $title_parts;
+	}
+
+	/**
+	 * Determine whether to show featured image for cover stories.
+	 * Can be overridden by collection-specific setting.
+	 *
+	 * @param int $collection_id The collection post ID.
+	 * @return bool Whether to show the featured image for cover stories.
+	 */
+	public static function should_show_cover_story_image( $collection_id ) {
+		$show_image = match ( Collection_Meta::get( $collection_id, 'cover_story_img_visibility' ) ) {
+			'show' => true,
+			'hide' => false,
+			default => (bool) Settings::get_setting( 'show_cover_story_img', false ), // Fallback to global setting.
+		};
+
+		/**
+		 * Filters whether to show the featured image for cover stories.
+		 *
+		 * @param bool $show_image    Whether to show the featured image for cover stories.
+		 * @param int  $collection_id The collection post ID.
+		 */
+		return apply_filters( 'newspack_should_show_cover_story_image', $show_image, $collection_id );
+	}
+
+	/**
+	 * Determine if a CTA should open in a new tab.
+	 *
+	 * @param array $cta The CTA data.
+	 * @return bool True if the CTA should open in a new tab.
+	 */
+	public static function should_cta_open_in_new_tab( $cta ) {
+		$result = self::determine_should_cta_open_in_new_tab( $cta );
+
+		/**
+		 * Filters whether a CTA should open in a new tab.
+		 *
+		 * @param bool  $result True if the CTA should open in a new tab.
+		 * @param array $cta    The CTA data.
+		 */
+		return apply_filters( 'newspack_collections_should_cta_open_in_new_tab', $result, $cta );
+	}
+
+	/**
+	 * Internal helper that determines if a CTA should open in a new tab.
+	 *
+	 * @param array $cta The CTA data.
+	 * @return bool
+	 */
+	private static function determine_should_cta_open_in_new_tab( $cta ): bool {
+		$url = trim( (string) ( $cta['url'] ?? '' ) );
+		if ( '' === $url ) {
+			return false;
+		}
+
+		$type = (string) ( $cta['type'] ?? '' );
+		if ( 'attachment' === $type ) {
+			return true; // Open attachments in a new tab.
+		}
+
+		$parsed = wp_parse_url( $url );
+		if ( ! is_array( $parsed ) ) {
+			return false; // Unparseable URL. Treat as internal.
+		}
+
+		// Relative (including root-relative), query-only, and hash-only URLs have no host and no scheme and are treated as internal.
+		if ( empty( $parsed['host'] ) && empty( $parsed['scheme'] ) ) {
+			return false;
+		}
+
+		// Non-http(s) schemes should not force a new tab.
+		$scheme = strtolower( (string) ( $parsed['scheme'] ?? '' ) );
+		if ( $scheme && ! in_array( $scheme, [ 'http', 'https' ], true ) ) {
+			return false;
+		}
+
+		// Compare hosts.
+		$link_host      = strtolower( (string) ( isset( $parsed['host'] ) ? $parsed['host'] : '' ) );
+		$current_host   = strtolower( (string) wp_parse_url( home_url(), PHP_URL_HOST ) );
+		$internal_hosts = apply_filters( 'newspack_collections_new_tab_internal_hosts', array_filter( [ $current_host ] ) );
+
+		if ( $link_host && ! in_array( $link_host, $internal_hosts, true ) ) {
+			return true; // Open external links in a new tab.
+		}
+
+		// Check for file extensions that should open in a new tab.
+		$path       = (string) ( $parsed['path'] ?? '' );
+		$extensions = apply_filters( 'newspack_collections_new_tab_file_extensions', [ 'pdf' ] );
+		$extension  = strtolower( (string) pathinfo( $path, PATHINFO_EXTENSION ) );
+		if ( $extension && in_array( $extension, $extensions, true ) ) {
+			return true;
+		}
+
+		return false;
+	}
+
+	/**
+	 * Render collections grid using the Collections block.
+	 *
+	 * @param array $collections Array of WP_Post collection objects.
+	 * @return string The rendered collections grid HTML.
+	 */
+	public static function render_collections_grid( $collections ) {
+		if ( empty( $collections ) ) {
+			return '';
+		}
+
+		$attrs = [
+			'selectedCollections' => $collections,
+			'columns'             => 6,
+			'showCategory'        => false,
+		];
+
+		/**
+		 * Filters the attributes before rendering the collections grid block.
+		 *
+		 * @param array $attrs       The attributes for the collections block.
+		 * @param array $collections The collection posts being rendered.
+		 */
+		$attrs = apply_filters( 'newspack_collections_render_grid_attrs', $attrs, $collections );
+
+		return render_block(
+			[
+				'blockName' => 'newspack/collections',
+				'attrs'     => $attrs,
+			]
+		);
+	}
+
+	/**
+	 * Render collections intro using the Collections block.
+	 *
+	 * @param int|WP_Post $post Post ID or post object.
+	 * @param array       $args Optional arguments for the intro section.
+	 * @return string The rendered collections intro HTML.
+	 */
+	public static function render_collections_intro( $post, $args = [] ) {
+		$collection = $post instanceof \WP_Post ? $post : get_post( $post );
+		if ( ! $collection instanceof \WP_Post ) {
+			return '';
+		}
+
+		$attrs = wp_parse_args(
+			$args,
+			[
+				'selectedCollections' => [ $collection ],
+				'layout'              => 'list',
+				'imageSize'           => 'small',
+				'showExcerpt'         => true,
+				'showCategory'        => false,
+				'numberOfCTAs'        => -1,
+				'headingText'         => '',
+				'noPermalinks'        => false,
+			]
+		);
+
+		/**
+		 * Filters the attributes before rendering the collections intro block.
+		 *
+		 * @param array   $attrs      The attributes for the collections block.
+		 * @param WP_Post $collection The collection being rendered.
+		 * @param array   $args       The original arguments passed to the function.
+		 */
+		$attrs = apply_filters( 'newspack_collections_render_intro_attrs', $attrs, $collection, $args );
+
+		$output = render_block(
+			[
+				'blockName' => 'newspack/collections',
+				'attrs'     => $attrs,
+			]
+		);
+
+		/**
+		 * Filters the collections intro HTML.
+		 *
+		 * @param string  $output     The collections intro HTML.
+		 * @param WP_Post $collection The collection being rendered.
+		 * @param array   $args       The original arguments passed to the function.
+		 */
+		return apply_filters( 'newspack_collections_render_intro_html', $output, $collection, $args );
+	}
+
+	/**
+	 * Render recent collections using the Collections block.
+	 *
+	 * @param array $exclude Array of collection IDs to exclude from results.
+	 * @param array $args    Optional. Additional arguments to customize the block.
+	 * @param int   $limit   Number of collections to return. Default is 6.
+	 * @return string The rendered recent collections HTML.
+	 */
+	public static function render_recent_collections( $exclude = [], $args = [], $limit = 6 ) {
+		$collections = Query_Helper::get_recent( $exclude, $limit );
+
+		if ( empty( $collections ) ) {
+			return '';
+		}
+
+		$attrs = wp_parse_args(
+			$args,
+			[
+				'selectedCollections' => $collections,
+				'numberOfItems'       => count( $collections ),
+				'columns'             => $args['columns'] ?? 6,
+				'showCategory'        => false,
+				'showCTAs'            => false,
+			]
+		);
+
+		/**
+		 * Filters the attributes before rendering the recent collections block.
+		 *
+		 * @param array $attrs       The attributes for the collections block.
+		 * @param array $collections The recent collection posts being rendered.
+		 * @param array $exclude     The collection IDs that were excluded.
+		 * @param array $args        The original arguments passed to the function.
+		 * @param int   $limit       The number of collections to return.
+		 */
+		$attrs = apply_filters( 'newspack_collections_render_recent_attrs', $attrs, $collections, $exclude, $args, $limit );
+
+		// Render using the Collections block.
+		$block_html = render_block(
+			[
+				'blockName' => 'newspack/collections',
+				'attrs'     => $attrs,
+			]
+		);
+
+		$output = sprintf(
+			'<div class="collections-recent">
+				<div class="collections-recent__header">
+					<h2>%1$s</h2>
+					<p class="has-medium-gray-color has-text-color has-link-color has-small-font-size">%2$s</p>
+				</div>
+				%3$s
+			</div>',
+			esc_html__( 'Recent', 'newspack-plugin' ),
+			self::render_see_all_link(),
+			$block_html
+		);
+
+		/**
+		 * Filters the recent collections HTML.
+		 *
+		 * @param string $output      The recent collections HTML.
+		 * @param array  $collections The recent collection posts.
+		 * @param array  $exclude     The collection IDs that were excluded.
+		 */
+		return apply_filters( 'newspack_collections_render_recent_html', $output, $collections, $exclude );
+	}
+
+	/**
+	 * Normalize an array that may contain WP_Post objects, IDs, or mixed.
+	 *
+	 * Rules:
+	 * - If every element is a WP_Post: return them unchanged with type 'objects'.
+	 * - Otherwise: return IDs only (objects converted to IDs, numeric strings cast,
+	 *   discard invalid values) with type 'ids'.
+	 *
+	 * @param array $items Input array of WP_Post objects, IDs, or mixed.
+	 * @return array {
+	 *     Array of items.
+	 *
+	 *     @type string $type  The type of the items.
+	 *     @type array  $items The items.
+	 * }
+	 */
+	public static function normalize_post_list( $items ) {
+		if ( empty( $items ) ) {
+			return [
+				'type'  => 'ids',
+				'items' => [],
+			];
+		}
+
+		$type = 'objects';
+		$ids  = [];
+
+		foreach ( $items as $item ) {
+			if ( $item instanceof \WP_Post ) {
+				$ids[] = absint( $item->ID );
+			} elseif ( is_int( $item ) || ( is_string( $item ) && is_numeric( $item ) ) ) {
+				$type  = 'ids';
+				$ids[] = absint( $item );
+			} else {
+				$type = 'ids'; // Unknown type, skip and force IDs mode.
+			}
+		}
+
+		// Return input if it was all WP_Post objects.
+		if ( 'objects' === $type ) {
+			return [
+				'type'  => 'objects',
+				'items' => $items,
+			];
+		}
+
+		// Return cleaned ID list.
+		return [
+			'type'  => 'ids',
+			'items' => array_values( array_unique( array_filter( $ids ) ) ),
+		];
 	}
 }

@@ -3,6 +3,8 @@
  * Internal dependencies
  */
 import './gate.scss';
+import { getEventPayload, sendEvent } from '../reader-activation/analytics';
+import { debugLog } from '../reader-activation/utils';
 
 const EVENT_NAME = 'np_gate_interaction';
 
@@ -39,22 +41,32 @@ const gateInfo = {
  * Reload the page when a newly registered reader is detected.
  */
 function initReloadHandler() {
+	debugLog( 'log', '[Gate] initReloadHandler called' );
 	window.newspackRAS = window.newspackRAS || [];
 	window.newspackRAS.push( function ( ras ) {
+		debugLog( 'log', '[Gate] RAS initialized' );
 		let reload = false;
 
 		const refreshPage = function ( ev ) {
+			debugLog( 'log', '[Gate] refreshPage called with event:', ev );
+			debugLog( 'log', '[Gate] Event detail:', ev?.detail );
+			debugLog( 'log', '[Gate] Event detail action:', ev?.detail?.action );
+			debugLog( 'log', '[Gate] Pending checkout:', window?.newspackReaderActivation?.getPendingCheckout() );
+
 			// When a new reader is registered, which may or may not happen inside an overlay.
 			if ( ev?.detail?.action && 'reader_registered' === ev.detail.action && ! window?.newspackReaderActivation?.getPendingCheckout() ) {
+				debugLog( 'log', '[Gate] reader_registered action detected' );
 				reload = true;
 			}
 
 			// When closing an overlay, check if the last activity was a checkout, registration, or login.
 			if ( ev?.detail?.overlays && ev.detail.removed ) {
 				const activities = window?.newspackReaderActivation?.getActivities();
+				debugLog( 'log', '[Gate] Overlay removed, activities:', activities );
 				const lastActivity = activities?.[ activities.length - 1 ] || {};
 				const validActions = [ 'checkout_completed', 'reader_registered', 'reader_logged_in', 'newsletter_signup' ];
 				if ( activities.length && validActions.includes( lastActivity.action ) ) {
+					debugLog( 'log', '[Gate] Valid action detected:', lastActivity.action );
 					reload = true;
 					// Add a CSS class to the body so we can keep the overlay content gate hidden while the page refreshes.
 					document.body.classList.add( 'newspack-memberships__gate-passed' );
@@ -64,11 +76,22 @@ function initReloadHandler() {
 				}
 			}
 
+			// Check for reader_logged_in action specifically for non-overlay contexts
+			if ( ev?.detail?.action && 'reader_logged_in' === ev.detail.action ) {
+				debugLog( 'log', '[Gate] reader_logged_in action detected' );
+				reload = true;
+			}
+
 			// If there are no overlays and a new reader, login, or checkout is detected,
 			// reload the window, but allow other JS – which might have
 			// triggered another overlay – to be executed (setTimeout hack).
 			setTimeout( () => {
-				if ( ! ras.overlays.get().length && reload ) {
+				const overlays = ras.overlays.get();
+				const activities = window?.newspackReaderActivation?.getActivities();
+				debugLog( 'log', '[Gate] Checking reload conditions - overlays:', overlays, 'reload:', reload );
+				debugLog( 'log', '[Gate] Current activities:', activities );
+				if ( ! overlays.length && reload ) {
+					debugLog( 'log', '[Gate] Reloading page!' );
 					window.location.reload();
 				}
 			}, 5 );
@@ -122,7 +145,7 @@ function isVisible( el ) {
  *
  * @return {Array} The full event payload
  */
-function getEventPayload( payload, gate ) {
+function getGateEventPayload( payload, gate ) {
 	if ( gate ) {
 		gateInfo.gate_has_donation_block = isVisible( gate.querySelector( '.wp-block-newspack-blocks-donate' ) ) ? 'yes' : 'no';
 		gateInfo.gate_has_registration_block = isVisible( gate.querySelector( '.newspack-registration' ) ) ? 'yes' : 'no';
@@ -131,10 +154,7 @@ function getEventPayload( payload, gate ) {
 		gateInfo.gate_has_signin_link = isVisible( gate.querySelector( 'a[href="#signin_modal"]' ) ) ? 'yes' : 'no';
 	}
 
-	return {
-		...gateInfo,
-		...payload,
-	};
+	return getEventPayload( { ...payload, ...gateInfo } );
 }
 
 /**
@@ -152,7 +172,7 @@ function handleSeen( gate ) {
 	const payload = {
 		action: 'seen',
 	};
-	window.gtag( 'event', EVENT_NAME, getEventPayload( payload, gate ) );
+	sendEvent( getGateEventPayload( payload, gate ), EVENT_NAME );
 }
 
 /**
@@ -162,10 +182,7 @@ function handleDismissed() {
 	if ( 'function' !== typeof window.gtag ) {
 		return;
 	}
-	const payload = getEventPayload( {
-		action: 'dismissed',
-	} );
-	window.gtag( 'event', EVENT_NAME, payload );
+	sendEvent( getGateEventPayload( { action: 'dismissed' } ), EVENT_NAME );
 }
 
 /**
@@ -217,7 +234,7 @@ function handleFormSubmission( evt, gate ) {
 		}
 	}
 
-	window.gtag( 'event', EVENT_NAME, getEventPayload( payload, gate ) );
+	sendEvent( getGateEventPayload( payload, gate ), EVENT_NAME );
 }
 
 /**

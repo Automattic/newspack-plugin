@@ -65,6 +65,13 @@ The following nested options are available as properties of the `newspack_collec
 | `custom_slug` | String | Custom URL slug for collections. | Text (e.g., "issue") |
 | `subscribe_link` | String | Global subscription URL displayed on collection pages | Valid URL |
 | `order_link` | String | Global order URL for purchasing physical copies | Valid URL |
+| `posts_per_page` | Integer | Global posts per page | 12, 18, 24 |
+| `category_filter_label` | String | Custom label for the category filter dropdown | Text (e.g., "Publication:") |
+| `highlight_latest` | Boolean | Highlight the latest collection | Boolean |
+| `articles_block_attrs` | Array | Override articles block attributes | Object with properties like `showCategory`. See possible [attributes](https://github.com/Automattic/newspack-blocks/blob/trunk/src/blocks/homepage-articles/block.json) |
+| `show_cover_story_img` | Boolean | Show featured images for cover stories by default | Boolean |
+| `post_indicator_style` | String | Global post indicator style | "default" or "card" |
+| `card_message` | String | Global card message | Text |
 
 The `subscribe_link` and `order_link` settings provide defaults that can be overridden at the collection category level (via term meta) or collection level (via post meta).
 
@@ -85,7 +92,8 @@ The following table details all available meta fields for collections:
 | `newspack_collection_period` | String | Collection period | Text (e.g., "Spring 2025") |
 | `newspack_collection_subscribe_link` | String | Override global/category subscription link for this specific collection | Valid URL |
 | `newspack_collection_order_link` | String | Override global/category order link for this specific collection | Valid URL |
-| `newspack_collection_ctas` | Array | An array of CTAs (Call-to-Action buttons) | Array of objects with `label`, `type`, `id` and `url` properties |
+| `newspack_collection_ctas` | Array | An array of CTAs (Call-to-Action buttons) | Array of objects with `type` (`attachment` or `link`), `label` and `url` properties |
+| `newspack_collection_cover_story_img_visibility` | String | Override global setting for cover story image visibility | "inherit", "show", or "hide" |
 
 Sample `newspack_collection_ctas` post meta structure:
 ```php
@@ -181,12 +189,12 @@ The module provides a set of components for displaying collections-related eleme
 The frontend components are integrated into WordPress through:
 
 1. **Script Loading**
-   - Enqueued via `Enqueuer::enqueue_admin_scripts()` if the Collections module is enabled.
-   - Bundle: `dist/collections-admin.js`
+   - Enqueued via `Enqueuer::init()` if the Collections module is enabled.
+   - Bundles: `dist/collections-admin.js` and `dist/collections-frontend.js`
 
 2. **Style Loading**
-   - Enqueued via `Enqueuer::enqueue_admin_styles()` if the Collections module is enabled.
-   - Bundle: `dist/collections-admin.css`
+   - Enqueued via `Enqueuer::init()` if the Collections module is enabled.
+   - Bundles: `dist/collections-admin.css` and `dist/collections-frontend.css`
 
 3. **Data Localization**
    - Collection data is localized via `Enqueuer::localize_data()`.
@@ -195,10 +203,46 @@ The frontend components are integrated into WordPress through:
 4. **REST API Integration**
    - All created components in this module are REST API-enabled.
 
+### Collections Block
+
+The Collections block (`newspack/collections`) provides a flexible way to display collections on your site.
+
+#### Block Attributes
+
+| Attribute | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `queryType` | String | "recent" | Query mode: "recent" for latest collections or "specific" for selected collections |
+| `numberOfItems` | Number | 4 | Number of collections to display (in recent mode) |
+| `offset` | Number | 0 | Number of collections to skip (in recent mode) |
+| `selectedCollections` | Array | [] | Specific collections to render. Could be a list of WP_Post objects or IDs |
+| `includeCategories` | Array | [] | Collection category IDs to include |
+| `excludeCategories` | Array | [] | Collection category IDs to exclude |
+| `layout` | String | "grid" | Display layout: "grid" or "list" |
+| `columns` | Number | 4 | Number of columns (grid layout) |
+| `imageAlignment` | String | "left" | Image position: "top", "left", or "right" (list layout) |
+| `imageSize` | String | "small" | Image size: "small", "medium", or "large" (list layout) |
+| `showFeaturedImage` | Boolean | true | Display featured images |
+| `showTitle` | Boolean | true | Display collection titles |
+| `showCategory` | Boolean | true | Display collection categories |
+| `showExcerpt` | Boolean | false | Display collection excerpts |
+| `showPeriod` | Boolean | true | Display collection period |
+| `showVolume` | Boolean | true | Display collection volume |
+| `showNumber` | Boolean | true | Display collection number |
+| `showCTAs` | Boolean | true | Display CTAs |
+| `numberOfCTAs` | Number | 1 | Maximum CTAs to display (-1 for all) |
+| `showSubscriptionUrl` | Boolean | true | Show subscription CTAs |
+| `showOrderUrl` | Boolean | true | Show order CTAs |
+| `specificCTAs` | String | "" | Comma-separated list of specific CTAsto show. A match is done by label |
+| `headingText` | String | "" | Heading text that will be displayed at the top of every collection (backend only) |
+| `noPermalinks` | Boolean | false | Whether to render permalinks (backend only) |
+
 ## Module structure
 
 - [`includes/collections/`](includes/collections/) - Core collection functionality (PHP).
 - [`includes/optional-modules/class-collections-optional-module.php`](includes/optional-modules/class-collections-optional-module.php) - Optional module setup.
+- [`includes/templates/collections/`](includes/templates/collections/) - Templates.
 - [`includes/wizards/newspack/class-collections-section.php`](includes/wizards/newspack/class-collections-section.php) - Newspack settings Collections tab.
 - [`src/collections/admin/`](src/collections/admin/) - Admin interface (JavaScript/styles).
+- [`src/wizards/newspack/views/settings/collections/`](src/wizards/newspack/views/settings/collections/) - Settings UI components.
+- [`src/blocks/collections/`](../../src/blocks/collections/) - Collections block.
 - [`tests/unit-tests/collections/`](tests/unit-tests/collections/) - Unit tests

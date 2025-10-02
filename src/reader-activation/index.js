@@ -5,10 +5,11 @@ window.newspack_ras_config = window.newspack_ras_config || {};
 import Store from './store.js';
 import { getPendingCheckout, setPendingCheckout } from './checkout.js';
 import { EVENTS, on, off, emit } from './events.js';
-import { getCookie, setCookie, generateID } from './utils.js';
+import { getCookie, setCookie, generateID, debugLog } from './utils.js';
 import overlays from './overlays.js';
 import initAnalytics from './analytics.js';
 import setupArticleViewsAggregates from './article-view.js';
+import initSubscriptionTiersForm from './subscription-tiers-form.js';
 
 /**
  * Reader Activation Library.
@@ -433,6 +434,7 @@ const readerActivation = {
 	getAuthStrategy,
 	setPendingCheckout,
 	getPendingCheckout,
+	debugLog,
 	...( newspack_ras_config.is_ras_enabled && { openAuthModal } ),
 };
 
@@ -469,6 +471,7 @@ function init() {
 	}
 	emit( EVENTS.reader, reader );
 	initAnalytics( readerActivation );
+	initSubscriptionTiersForm( readerActivation );
 	fixClientID();
 	setupArticleViewsAggregates( readerActivation );
 	attachAuthCookiesListener();

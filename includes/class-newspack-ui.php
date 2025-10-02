@@ -195,9 +195,10 @@ class Newspack_UI {
 		$args = wp_parse_args(
 			$args,
 			[
-				'id'    => 'modal-' . wp_rand( 1, 1000 ),
-				'size'  => 'small',
-				'state' => 'closed',
+				'id'          => 'modal-' . wp_rand( 1, 1000 ),
+				'size'        => 'small',
+				'state'       => 'closed',
+				'form_action' => '',
 			]
 		);
 		?>
@@ -215,7 +216,7 @@ class Newspack_UI {
 				</header>
 
 				<?php if ( ! empty( $args['form'] ) ) : ?>
-				<form class="newspack-ui__modal__content <?php echo esc_attr( $args['form_class'] ?? '' ); ?>" method="<?php echo esc_attr( $args['form'] ); ?>" <?php echo esc_attr( $args['form_id'] ? 'id=' . esc_attr( $args['form_id'] ) : '' ); ?>>
+				<form class="newspack-ui__modal__content <?php echo esc_attr( $args['form_class'] ?? '' ); ?>" method="<?php echo esc_attr( $args['form'] ); ?>"<?php echo $args['form_id'] ? ' id="' . esc_attr( $args['form_id'] ) . '"' : ''; ?><?php echo $args['form_action'] ? ' action="' . esc_url( $args['form_action'] ) . '"' : ''; ?>>
 				<?php else : ?>
 				<section class="newspack-ui__modal__content">
 				<?php endif; ?>
@@ -390,8 +391,8 @@ class Newspack_UI {
 				<p>Plus a little bit of text below it.</p>
 			</div>
 
-			<div class="newspack-ui__box newspack-ui__box--border newspack-ui__box--has-dropdown">
-				<p>Box with "more"-style dropdown menu</p>
+			<div class="newspack-ui__box newspack-ui__box--border">
+				<p>Box<br />with "more"-style dropdown menu</p>
 				<div class="newspack-ui__dropdown">
 					<button class="newspack-ui__dropdown__toggle newspack-ui__button newspack-ui__button--icon newspack-ui__button--ghost">
 						<?php \Newspack\Newspack_UI_Icons::print_svg( 'more' ); ?>
@@ -402,7 +403,29 @@ class Newspack_UI {
 							<li><a class="newspack-ui__button newspack-ui__button--ghost" href="#">Dropdown item 1</a></li>
 							<li><a class="newspack-ui__button newspack-ui__button--ghost" href="#">Dropdown item 2</a></li>
 							<li><a class="newspack-ui__button newspack-ui__button--ghost" href="#">Dropdown item 3</a></li>
+							<li><a class="newspack-ui__button newspack-ui__button--ghost newspack-ui__button--destructive" href="#">Cancel</a></li>
 						</ul>
+					</div>
+				</div>
+			</div>
+
+			<div class="newspack-ui__box newspack-ui__box--border newspack-ui__box--small">
+				<p>Box<br />with "more"-style dropdown menu<br />and badge,<br />plus <code>newspack-ui__box--small</code> class.</p>
+				<div class="newspack-ui__box__actions">
+					<span class="newspack-ui__badge newspack-ui__badge--primary">Badge</span>
+					<div class="newspack-ui__dropdown">
+						<button class="newspack-ui__dropdown__toggle newspack-ui__button newspack-ui__button--icon newspack-ui__button--ghost">
+							<?php \Newspack\Newspack_UI_Icons::print_svg( 'more' ); ?>
+							<span class="screen-reader-text">More</span>
+						</button>
+						<div class="newspack-ui__dropdown__content">
+							<ul>
+								<li><a class="newspack-ui__button newspack-ui__button--ghost" href="#">Dropdown item 1</a></li>
+								<li><a class="newspack-ui__button newspack-ui__button--ghost" href="#">Dropdown item 2</a></li>
+								<li><a class="newspack-ui__button newspack-ui__button--ghost" href="#">Dropdown item 3</a></li>
+								<li><a class="newspack-ui__button newspack-ui__button--ghost newspack-ui__button--destructive" href="#">Cancel</a></li>
+							</ul>
+						</div>
 					</div>
 				</div>
 			</div>
@@ -652,11 +675,11 @@ class Newspack_UI {
 			<hr>
 
 			<h2 id="buttons">Buttons</h2>
-			<p><code>newspack-ui__button--primary</code>, <code>--branded</code>, <code>--secondary</code>, <code>--ghost</code>, and <code>--destructive</code> classes for colours/borders, and <code>newspack-ui__button--wide</code> for being 100% wide</p>
+			<p><code>newspack-ui__button--primary</code>, <code>--accent</code>, <code>--secondary</code>, <code>--ghost</code>, and <code>--destructive</code> classes for colours/borders, and <code>newspack-ui__button--wide</code> for being 100% wide</p>
 			<button class="newspack-ui__button newspack-ui__button--primary">Primary Button</button><br>
 			<button class="newspack-ui__button newspack-ui__button--primary" disabled>Primary Button Disabled</button><br>
-			<button class="newspack-ui__button newspack-ui__button--branded">Branded Button</button><br>
-			<button class="newspack-ui__button newspack-ui__button--branded" disabled>Branded Button Disabled</button><br>
+			<button class="newspack-ui__button newspack-ui__button--accent">Accent Button</button><br>
+			<button class="newspack-ui__button newspack-ui__button--accent" disabled>Accent Button Disabled</button><br>
 			<button class="newspack-ui__button newspack-ui__button--secondary">Secondary Button</button><br>
 			<button class="newspack-ui__button newspack-ui__button--secondary" disabled>Secondary Button Disabled</button><br>
 			<button class="newspack-ui__button newspack-ui__button--ghost">Ghost Button</button><br>
@@ -665,7 +688,9 @@ class Newspack_UI {
 			<button class="newspack-ui__button newspack-ui__button--outline" disabled>Outline Button Disabled</button><br>
 			<button class="newspack-ui__button newspack-ui__button--destructive">Destructive Button</button><br>
 			<button class="newspack-ui__button newspack-ui__button--destructive" disabled>Destructive Button Disabled</button><br>
-			<button class="newspack-ui__button newspack-ui__button--secondary">
+			<button class="newspack-ui__button newspack-ui__button--destructive newspack-ui__button--ghost">Destructive Ghost Button</button><br>
+			<button class="newspack-ui__button newspack-ui__button--destructive newspack-ui__button--ghost" disabled>Destructive Ghost Button Disabled</button><br>
+			<button class="newspack-ui__button newspack-ui__button--secondary newspack-ui__button--google-oauth">
 				<?php \Newspack\Newspack_UI_Icons::print_svg( 'google' ); ?>
 				<span>
 					Sign in with Google
@@ -674,7 +699,7 @@ class Newspack_UI {
 
 			<h3>Wide buttons</h3>
 			<button class="newspack-ui__button newspack-ui__button--primary newspack-ui__button--wide">Primary Button</button>
-			<button class="newspack-ui__button newspack-ui__button--branded newspack-ui__button--wide">Branded Button</button>
+			<button class="newspack-ui__button newspack-ui__button--accent newspack-ui__button--wide">Accent Button</button>
 			<button class="newspack-ui__button newspack-ui__button--secondary newspack-ui__button--wide">Secondary Button</button>
 			<button class="newspack-ui__button newspack-ui__button--ghost newspack-ui__button--wide">Ghost Button</button>
 			<button class="newspack-ui__button newspack-ui__button--secondary newspack-ui__button--wide">
@@ -683,6 +708,37 @@ class Newspack_UI {
 					Sign up with Google
 				</span>
 			</button>
+
+			<h3>Dropdown buttons</h3>
+			<div class="newspack-ui__dropdown">
+				<button class="newspack-ui__button newspack-ui__button--secondary newspack-ui__dropdown__toggle">
+					<span>More</span>
+					<?php \Newspack\Newspack_UI_Icons::print_svg( 'more' ); ?>
+				</button>
+				<div class="newspack-ui__dropdown__content">
+					<ul>
+						<li><a class="newspack-ui__button newspack-ui__button--ghost" href="#">Dropdown item 1</a></li>
+						<li><a class="newspack-ui__button newspack-ui__button--ghost" href="#">Dropdown item 2</a></li>
+						<li><a class="newspack-ui__button newspack-ui__button--ghost" href="#">Dropdown item 3</a></li>
+						<li><a class="newspack-ui__button newspack-ui__button--ghost newspack-ui__button--destructive" href="#">Cancel</a></li>
+					</ul>
+				</div>
+			</div>
+			<div class="newspack-ui__spacing-top--16"></div>
+			<div class="newspack-ui__dropdown">
+				<button class="newspack-ui__button newspack-ui__button--outline newspack-ui__button--small newspack-ui__dropdown__toggle">
+					<span>Actions</span>
+					<?php \Newspack\Newspack_UI_Icons::print_svg( 'arrowRight' ); ?>
+				</button>
+				<div class="newspack-ui__dropdown__content">
+					<ul>
+						<li><a class="newspack-ui__button newspack-ui__button--ghost" href="#">Dropdown item 1</a></li>
+						<li><a class="newspack-ui__button newspack-ui__button--ghost" href="#">Dropdown item 2</a></li>
+						<li><a class="newspack-ui__button newspack-ui__button--ghost" href="#">Dropdown item 3</a></li>
+						<li><a class="newspack-ui__button newspack-ui__button--ghost newspack-ui__button--destructive" href="#">Cancel</a></li>
+					</ul>
+				</div>
+			</div>
 
 			<hr>
 
@@ -743,15 +799,6 @@ class Newspack_UI {
 				</div>
 			</div>
 
-			<div class="newspack-ui__segmented-control">
-				<div class="newspack-ui__segmented-control__tabs">
-					<button class="newspack-ui__button newspack-ui__button--medium selected">Tab One</button>
-					<button class="newspack-ui__button newspack-ui__button--medium">Tab Two</button>
-					<button class="newspack-ui__button newspack-ui__button--medium">Tab Three</button>
-					<button class="newspack-ui__button newspack-ui__button--medium">Tab Four</button>
-				</div>
-			</div>
-
 			<hr>
 
 			<div class="newspack-ui__segmented-control">
@@ -802,7 +849,7 @@ class Newspack_UI {
 				<?php \Newspack\Newspack_UI_Icons::print_svg( 'menu' ); ?>
 				<span class="screen-reader-text"><?php esc_html_e( 'Open Menu', 'newspack-plugin' ); ?></span>
 			</button>
-			<button class="newspack-ui__button newspack-ui__button--branded newspack-ui__button--icon">
+			<button class="newspack-ui__button newspack-ui__button--accent newspack-ui__button--icon">
 				<?php \Newspack\Newspack_UI_Icons::print_svg( 'menu' ); ?>
 				<span class="screen-reader-text"><?php esc_html_e( 'Open Menu', 'newspack-plugin' ); ?></span>
 			</button>
@@ -875,7 +922,7 @@ class Newspack_UI {
 
 					<section class="newspack-ui__modal__content">
 
-						<button class="newspack-ui__button newspack-ui__button--secondary newspack-ui__button--wide">
+						<button class="newspack-ui__button newspack-ui__button--secondary newspack-ui__button--google-oauth newspack-ui__button--wide">
 							<?php \Newspack\Newspack_UI_Icons::print_svg( 'google' ); ?>
 							Sign in with Google
 						</button>
@@ -1120,7 +1167,7 @@ class Newspack_UI {
 
 						<section class="newspack-ui__modal__content">
 
-							<button class="newspack-ui__button newspack-ui__button--secondary newspack-ui__button--wide">
+							<button class="newspack-ui__button newspack-ui__button--secondary newspack-ui__button--google-oauth newspack-ui__button--wide">
 								<?php \Newspack\Newspack_UI_Icons::print_svg( 'google', 20 ); ?>
 								Sign in with Google
 							</button>

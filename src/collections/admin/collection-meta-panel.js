@@ -5,7 +5,7 @@
 import { __ } from '@wordpress/i18n';
 import { registerPlugin } from '@wordpress/plugins';
 import { PluginDocumentSettingPanel } from '@wordpress/edit-post';
-import { TextControl } from '@wordpress/components';
+import { TextControl, SelectControl } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { useState, useCallback } from '@wordpress/element';
 import { store as editorStore } from '@wordpress/editor';
@@ -86,6 +86,19 @@ const CollectionMetaPanel = ( { postType, metaDefinitions, panelTitle } ) => {
 									help={ def.help }
 									meta={ meta }
 									updateMeta={ updateMeta }
+								/>
+							);
+						}
+
+						if ( def.field_type === 'select' && def.options ) {
+							return (
+								<SelectControl
+									key={ def.key }
+									label={ def.label }
+									help={ def.help }
+									value={ meta[ def.key ] || def.default || '' }
+									options={ def.options }
+									onChange={ value => updateMeta( def.key, value ) }
 								/>
 							);
 						}

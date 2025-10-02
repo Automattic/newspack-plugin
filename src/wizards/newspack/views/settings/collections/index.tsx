@@ -3,8 +3,10 @@
  */
 
 import { __ } from '@wordpress/i18n';
-import { useState, useEffect } from '@wordpress/element';
-import { ToggleControl } from '@wordpress/components';
+import { useState, useEffect, useMemo } from '@wordpress/element';
+import { ToggleControl, Tooltip, Icon } from '@wordpress/components';
+import { external } from '@wordpress/icons';
+import { cleanForSlug } from '@wordpress/url';
 import WizardSection from '../../../../wizards-section';
 import WizardsActionCard from '../../../../wizards-action-card';
 import useWizardApiFetchToggle from '../../../../hooks/use-wizard-api-fetch-toggle';
@@ -16,16 +18,24 @@ const COLLECTIONS_PER_PAGE_OPTIONS = [ 12, 18, 24 ];
 
 // Default values for collections settings.
 const DEFAULT_COLLECTIONS_SETTINGS: CollectionsSettingsData = {
+	// Custom Naming section.
 	custom_naming_enabled: false,
 	custom_name: '',
 	custom_singular_name: '',
 	custom_slug: '',
+	// Global CTAs section.
 	subscribe_link: '',
 	order_link: '',
+	// Collections Archive section.
+	posts_per_page: 12,
+	category_filter_label: '',
+	highlight_latest: false,
+	// Collection Single section.
+	articles_block_attrs: {},
+	show_cover_story_img: false,
+	// Collection Posts section.
 	post_indicator_style: 'default',
 	card_message: __( "Keep reading. There's plenty more to discover.", 'newspack-plugin' ),
-	posts_per_page: 12,
-	highlight_latest: false,
 };
 
 // Helper function to extract collection settings from API data with defaults.
@@ -43,6 +53,7 @@ function Collections() {
 	>( {
 		path: '/newspack/v1/wizard/newspack-settings/collections',
 		apiNamespace: 'newspack-settings/collections',
+		refreshOn: [ 'POST' ],
 		data: {
 			...DEFAULT_COLLECTIONS_SETTINGS,
 			module_enabled_collections: false,
@@ -75,9 +86,51 @@ function Collections() {
 		setSettings( prev => ( { ...prev, [ key ]: value } ) );
 	};
 
+	const updateNestedSetting = < T extends keyof CollectionsSettingsData >(
+		parentKey: T,
+		childKey: keyof CollectionsSettingsData[ T ],
+		value: CollectionsSettingsData[ T ][ keyof CollectionsSettingsData[ T ] ]
+	) => {
+		setSettings( prev => {
+			const parentValue = prev[ parentKey ] || {};
+			return {
+				...prev,
+				[ parentKey ]: { ...( parentValue as object ), [ childKey ]: value },
+			};
+		} );
+	};
+
+	const DEFAULT_SLUG = 'collections';
+	const collectionsArchiveUrl = useMemo( () => {
+		const slug = cleanForSlug( settings.custom_naming_enabled && settings.custom_slug ? settings.custom_slug : DEFAULT_SLUG ) || DEFAULT_SLUG;
+		const base = new URL( window.newspack_urls?.site || window.location.origin );
+		base.pathname = base.pathname + ( ! base.pathname.endsWith( '/' ) ? '/' : '' );
+		return new URL( slug, base ).toString();
+	}, [ settings.custom_naming_enabled, settings.custom_slug ] );
+
 	return (
 		<div className="newspack-wizard__sections">
-			<h1>{ __( 'Collections Settings', 'newspack-plugin' ) }</h1>
+			<h1 style={ { display: 'flex', alignItems: 'center' } }>
+				{ __( 'Collections Settings', 'newspack-plugin' ) }
+				{ apiData.module_enabled_collections && (
+					<Tooltip text={ __( 'View Collections', 'newspack-plugin' ) }>
+						<a
+							href={ collectionsArchiveUrl }
+							target="_blank"
+							rel="noopener noreferrer"
+							style={ {
+								display: 'inline-flex',
+								marginLeft: '8px',
+								color: '#757575',
+								textDecoration: 'none',
+							} }
+							aria-label={ __( 'View Collections', 'newspack-plugin' ) }
+						>
+							<Icon icon={ external } size={ 20 } />
+						</a>
+					</Tooltip>
+				) }
+			</h1>
 
 			<WizardsActionCard
 				isMedium
@@ -140,6 +193,16 @@ function Collections() {
 									value: option,
 								} ) ) }
 							/>
+							<TextControl
+								label={ __( 'Category Filter Label', 'newspack-plugin' ) }
+								help={ __(
+									'Custom label for the category filter dropdown (e.g., "Collection:", "Type:", "Series:"). Leave empty to use the default "Publication:".',
+									'newspack-plugin'
+								) }
+								value={ settings.category_filter_label }
+								onChange={ ( value: string ) => updateSetting( 'category_filter_label', value ) }
+								placeholder={ __( 'Publication:', 'newspack-plugin' ) }
+							/>
 							<ToggleControl
 								label={ __( 'Highlight Most Recent Collection', 'newspack-plugin' ) }
 								help={ __(
@@ -148,6 +211,32 @@ function Collections() {
 								) }
 								checked={ settings.highlight_latest }
 								onChange={ ( value: boolean ) => updateSetting( 'highlight_latest', value ) }
+							/>
+						</Grid>
+					</WizardSection>
+
+					<WizardSection
+						title={ __( 'Collection Single', 'newspack-plugin' ) }
+						description={ __( 'Customize individual collection pages.', 'newspack-plugin' ) }
+					>
+						<Grid columns={ 2 } gutter={ 32 }>
+							<ToggleControl
+								label={ __( 'Show Category', 'newspack-plugin' ) }
+								help={ __(
+									'Display the category information for posts when rendering them on collection pages.',
+									'newspack-plugin'
+								) }
+								checked={ settings.articles_block_attrs?.showCategory || false }
+								onChange={ ( value: boolean ) => updateNestedSetting( 'articles_block_attrs', 'showCategory', value ) }
+							/>
+							<ToggleControl
+								label={ __( 'Show Cover Story Images', 'newspack-plugin' ) }
+								help={ __(
+									'Display featured images for cover stories on collection pages. Individual collections can override this setting.',
+									'newspack-plugin'
+								) }
+								checked={ settings.show_cover_story_img }
+								onChange={ ( value: boolean ) => updateSetting( 'show_cover_story_img', value ) }
 							/>
 						</Grid>
 					</WizardSection>
@@ -164,7 +253,7 @@ function Collections() {
 									'newspack-plugin'
 								) }
 								value={ settings.post_indicator_style }
-								onChange={ ( value: string ) => updateSetting( 'post_indicator_style', value ) }
+								onChange={ ( value: 'default' | 'card' ) => updateSetting( 'post_indicator_style', value ) }
 								buttonOptions={ [
 									{ label: __( 'Default', 'newspack-plugin' ), value: 'default' },
 									{ label: __( 'Card', 'newspack-plugin' ), value: 'card' },

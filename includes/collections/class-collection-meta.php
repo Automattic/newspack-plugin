@@ -23,21 +23,21 @@ class Collection_Meta {
 	 */
 	public static function get_meta_definitions() {
 		return [
-			'volume'         => [
+			'volume'                     => [
 				'type'              => 'string',
 				'label'             => __( 'Volume', 'newspack-plugin' ),
 				'single'            => true,
 				'sanitize_callback' => 'sanitize_text_field',
 				'show_in_rest'      => true,
 			],
-			'number'         => [
+			'number'                     => [
 				'type'              => 'string',
 				'label'             => __( 'Number', 'newspack-plugin' ),
 				'single'            => true,
 				'sanitize_callback' => 'sanitize_text_field',
 				'show_in_rest'      => true,
 			],
-			'period'         => [
+			'period'                     => [
 				'type'              => 'string',
 				'label'             => __( 'Period', 'newspack-plugin' ),
 				'description'       => __( 'Period as a string (e.g., "Spring 2025", "January 2025")', 'newspack-plugin' ),
@@ -45,7 +45,7 @@ class Collection_Meta {
 				'sanitize_callback' => 'sanitize_text_field',
 				'show_in_rest'      => true,
 			],
-			'subscribe_link' => [
+			'subscribe_link'             => [
 				'type'              => 'string',
 				'label'             => __( 'Subscription URL', 'newspack-plugin' ),
 				'single'            => true,
@@ -56,7 +56,7 @@ class Collection_Meta {
 					],
 				],
 			],
-			'order_link'     => [
+			'order_link'                 => [
 				'type'              => 'string',
 				'label'             => __( 'Order URL', 'newspack-plugin' ),
 				'single'            => true,
@@ -67,7 +67,7 @@ class Collection_Meta {
 					],
 				],
 			],
-			'ctas'           => [
+			'ctas'                       => [
 				'type'              => 'array',
 				'label'             => __( 'Call-to-Action', 'newspack-plugin' ),
 				'description'       => __( 'Add multiple CTAs linking to attachments or external URLs.', 'newspack-plugin' ),
@@ -98,6 +98,37 @@ class Collection_Meta {
 					],
 				],
 			],
+			'cover_story_img_visibility' => [
+				'type'              => 'string',
+				'field_type'        => 'select',
+				'label'             => __( 'Cover Story Image Visibility', 'newspack-plugin' ),
+				'description'       => __( 'Choose whether to display featured images for cover stories in this collection.', 'newspack-plugin' ),
+				'single'            => true,
+				'sanitize_callback' => function ( $value ) {
+					return in_array( $value, [ 'inherit', 'show', 'hide' ], true ) ? $value : 'inherit';
+				},
+				'show_in_rest'      => [
+					'schema' => [
+						'type' => 'string',
+						'enum' => [ 'inherit', 'show', 'hide' ],
+					],
+				],
+				'default'           => 'inherit',
+				'options'           => [
+					[
+						'label' => __( 'Use global setting', 'newspack-plugin' ),
+						'value' => 'inherit',
+					],
+					[
+						'label' => __( 'Show', 'newspack-plugin' ),
+						'value' => 'show',
+					],
+					[
+						'label' => __( 'Hide', 'newspack-plugin' ),
+						'value' => 'hide',
+					],
+				],
+			],
 		];
 	}
 
@@ -107,6 +138,7 @@ class Collection_Meta {
 	 */
 	public static function init() {
 		add_action( 'init', [ __CLASS__, 'register_meta' ] );
+		add_action( 'rest_api_init', [ __CLASS__, 'register_rest_fields' ] );
 	}
 
 	/**
@@ -176,5 +208,53 @@ class Collection_Meta {
 		}
 
 		return $sanitized_cta;
+	}
+
+	/**
+	 * Register custom REST API fields for collections.
+	 */
+	public static function register_rest_fields() {
+		register_rest_field(
+			Post_Type::get_post_type(),
+			'ctas',
+			[
+				'get_callback' => [ __CLASS__, 'get_collection_ctas_for_rest' ],
+				'schema'       => [
+					'description' => __( 'Collection CTAs', 'newspack-plugin' ),
+					'type'        => 'array',
+					'items'       => [
+						'type'       => 'object',
+						'properties' => [
+							'url'   => [ 'type' => 'string' ],
+							'label' => [ 'type' => 'string' ],
+							'class' => [ 'type' => 'string' ],
+						],
+					],
+					'context'     => [ 'view', 'edit' ],
+				],
+			]
+		);
+	}
+
+	/**
+	 * Get collection CTAs for REST API response.
+	 *
+	 * @param array $post Post data.
+	 * @return array Array of processed CTAs.
+	 *
+	 * @see Query_Helper::get_ctas()
+	 */
+	public static function get_collection_ctas_for_rest( $post ) {
+		return array_map(
+			function ( $cta ) {
+				return [
+					'label' => esc_html( $cta['label'] ?? '' ),
+					'url'   => esc_url( $cta['url'] ?? '' ),
+					'type'  => esc_attr( $cta['type'] ?? '' ),
+					'class' => esc_attr( $cta['class'] ?? '' ),
+				];
+			},
+			Query_Helper::get_ctas( $post['id'] )
+		);
 	}
 }

@@ -182,9 +182,29 @@ class Google_Login {
 		/** Close window if it's a popup. */
 		?>
 		<script type="text/javascript" data-amp-plus-allowed>
+			// Debug logging function that uses the centralized logging from newspackReaderActivation.
+			const debugLog = function( level ) {
+				if ( window.opener && window.opener.newspackReaderActivation && window.opener.newspackReaderActivation.debugLog ) {
+					window.opener.newspackReaderActivation.debugLog.apply( null, [level].concat( Array.prototype.slice.call( arguments, 1 ) ) );
+				}
+			};
+
+			debugLog('log', '[Google OAuth Callback] Script running, window.opener:', window.opener);
 			if ( window.opener ) {
-				window.opener.dispatchEvent( new Event('google-oauth-success') );
+				// Use postMessage for cross-origin communication (handles COOP restrictions).
+				try {
+					debugLog('log', '[Google OAuth Callback] Sending postMessage to origin:', window.location.origin);
+					window.opener.postMessage( 'google-oauth-success', window.location.origin );
+					debugLog('log', '[Google OAuth Callback] postMessage sent successfully');
+				} catch ( e ) {
+					debugLog('error', '[Google OAuth Callback] postMessage failed:', e);
+					// Fallback: postMessage might fail in some edge cases.
+				}
+
+				debugLog('log', '[Google OAuth Callback] Closing window');
 				window.close();
+			} else {
+				debugLog('log', '[Google OAuth Callback] No window.opener found');
 			}
 		</script>
 		<?php
@@ -247,7 +267,6 @@ class Google_Login {
 				// Fail silently.
 			}
 		}
-		$metadata['registration_method'] = 'google';
 		if ( ! isset( $metadata['current_page_url'] ) ) {
 			$referrer = $request->get_header( 'referer' );
 			if ( \wp_http_validate_url( $referrer ) ) {
@@ -279,6 +298,8 @@ class Google_Login {
 			];
 
 			if ( $existing_user ) {
+				$metadata['login_method'] = 'google';
+
 				// Update user meta with connected account info.
 				\update_user_meta( $existing_user->ID, Reader_Activation::CONNECTED_ACCOUNT, 'google' );
 
@@ -286,6 +307,7 @@ class Google_Login {
 				$result  = Reader_Activation::set_current_reader( $existing_user->ID );
 				$message = __( 'Thank you for signing in!', 'newspack-plugin' );
 			} else {
+				$metadata['registration_method'] = 'google';
 				$result = Reader_Activation::register_reader( $email, '', true, $metadata );
 				// At this point the user will be logged in.
 			}
@@ -293,6 +315,7 @@ class Google_Login {
 				return $result;
 			}
 
+			$data['metadata'] = $metadata;
 			return \rest_ensure_response(
 				[
 					'data'    => $data,

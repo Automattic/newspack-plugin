@@ -49,3 +49,18 @@ export function generateID( length = 9 ) {
 	}
 	return randomString;
 }
+
+/**
+ * Debug logging function that only logs when localStorage flag is set.
+ *
+ * @param {string} level Log level ('log' or 'error').
+ * @param {...any} args  Arguments to pass to console.
+ */
+// eslint-disable-next-line no-console
+export function debugLog( level = 'log', ...args ) {
+	if ( localStorage.getItem( 'newspack-reader-activation-debug' ) === 'true' ) {
+		const method = level === 'error' ? 'error' : 'log';
+		// eslint-disable-next-line no-console
+		console[ method ]( ...args );
+	}
+}

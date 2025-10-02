@@ -22,6 +22,13 @@ trait Meta_Handler {
 	public static $prefix = 'newspack_collection_';
 
 	/**
+	 * Frontend-only properties that should not be passed register_meta().
+	 *
+	 * @var array
+	 */
+	public static $fe_only_props = [ 'field_type', 'options' ];
+
+	/**
 	 * Object type.
 	 *
 	 * @var string
@@ -78,6 +85,9 @@ trait Meta_Handler {
 		}
 
 		foreach ( static::get_meta_definitions() as $key => $meta ) {
+			// Remove frontend-only properties before registering with WordPress.
+			$meta = array_diff_key( $meta, array_flip( static::$fe_only_props ) );
+
 			register_meta(
 				$object_type,
 				static::$prefix . $key,
@@ -105,11 +115,13 @@ trait Meta_Handler {
 			array_map(
 				fn( $key ) => array_filter(
 					[
-						'key'     => static::$prefix . $key,
-						'type'    => static::get_frontend_type( $metas[ $key ] ),
-						'label'   => $metas[ $key ]['label'] ?? null,
-						'help'    => $metas[ $key ]['description'] ?? null,
-						'default' => $metas[ $key ]['default'] ?? null,
+						'key'        => static::$prefix . $key,
+						'type'       => static::get_frontend_type( $metas[ $key ] ),
+						'label'      => $metas[ $key ]['label'] ?? null,
+						'help'       => $metas[ $key ]['description'] ?? null,
+						'default'    => $metas[ $key ]['default'] ?? null,
+						'field_type' => $metas[ $key ]['field_type'] ?? null,
+						'options'    => $metas[ $key ]['options'] ?? null,
 					],
 					fn( $value ) => null !== $value
 				),

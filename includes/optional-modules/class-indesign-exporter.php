@@ -27,11 +27,17 @@ class InDesign_Exporter {
 	 * Initialize the module.
 	 */
 	public static function init() {
-		if ( ! self::is_feature_enabled() || ! Optional_Modules::is_optional_module_active( self::MODULE_NAME ) ) {
+		if ( ! self::is_feature_enabled() ) {
+			return;
+		}
+
+		if ( ! Optional_Modules::is_optional_module_active( self::MODULE_NAME ) ) {
 			return;
 		}
 
 		require_once NEWSPACK_ABSPATH . 'includes/optional-modules/indesign-export/class-indesign-converter.php';
+
+		add_action( 'enqueue_block_editor_assets', [ __CLASS__, 'enqueue_block_editor_assets' ] );
 
 		$supported_post_types = self::get_supported_post_types();
 		foreach ( $supported_post_types as $post_type ) {
@@ -45,19 +51,17 @@ class InDesign_Exporter {
 	}
 
 	/**
-	 * Whether the InDesign Export module is enabled.
+	 * Whether the InDesign module is enabled.
 	 *
-	 * @return bool True if InDesign Export is enabled.
+	 * @return bool True if InDesign Exporter is enabled.
 	 */
 	public static function is_feature_enabled() {
-		$is_enabled = defined( 'NEWSPACK_INDESIGN_EXPORT_ENABLED' ) ? constant( 'NEWSPACK_INDESIGN_EXPORT_ENABLED' ) : false;
-
 		/**
 		 * Filters whether the InDesign Export feature is enabled.
 		 *
 		 * @param bool $is_enabled Whether the InDesign Export module is enabled.
 		 */
-		return apply_filters( 'newspack_indesign_export_enabled', $is_enabled );
+		return apply_filters( 'newspack_indesign_export_enabled', true );
 	}
 
 	/**
@@ -74,6 +78,25 @@ class InDesign_Exporter {
 		 * @param array $supported_post_types Array of post type names that support InDesign export.
 		 */
 		return apply_filters( 'newspack_indesign_export_supported_post_types', $supported_post_types );
+	}
+
+	/**
+	 * Enqueue block editor assets.
+	 */
+	public static function enqueue_block_editor_assets() {
+		$screen = get_current_screen();
+		if ( ! in_array( $screen->post_type, self::get_supported_post_types(), true ) ) {
+			return;
+		}
+
+		$asset = require NEWSPACK_ABSPATH . 'dist/indesign-export.asset.php';
+		wp_enqueue_script(
+			'newspack-indesign-export',
+			\Newspack\Newspack::plugin_url() . '/dist/indesign-export.js',
+			$asset['dependencies'],
+			$asset['version'],
+			true
+		);
 	}
 
 	/**

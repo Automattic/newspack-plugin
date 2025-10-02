@@ -165,7 +165,17 @@ class Content_Inserter {
 						<div class="wp-block-group">
 							<?php echo wp_kses_post( $image_html ); ?>
 							<p>
-								<strong>Browse <?php echo esc_html( $collection_title ); ?></strong>
+								<strong>
+									<?php
+									echo esc_html(
+										sprintf(
+											/* translators: %s is replaced with the collection title */
+											_x( 'Browse %s', 'browse collection', 'newspack-plugin' ),
+											$collection_title
+										)
+									);
+									?>
+								</strong>
 								<br>
 								<?php echo esc_html( $card_message ); ?>
 							</p>

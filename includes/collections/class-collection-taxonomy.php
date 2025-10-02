@@ -64,6 +64,7 @@ class Collection_Taxonomy {
 	 */
 	public static function init() {
 		add_action( 'init', [ __CLASS__, 'register_taxonomy' ] );
+		add_filter( 'newspack_blocks_home_page_block_custom_taxonomies', [ __CLASS__, 'add_collections_taxonomy_to_blocks' ] );
 		self::register_hooks();
 	}
 
@@ -213,5 +214,40 @@ class Collection_Taxonomy {
 		}
 
 		return get_terms( $args );
+	}
+
+	/**
+	 * Add the Collections taxonomy to the custom taxonomies array.
+	 *
+	 * @param array $custom_taxonomies Array of custom taxonomies.
+	 * @return array Modified array of custom taxonomies.
+	 */
+	public static function add_collections_taxonomy_to_blocks( $custom_taxonomies ) {
+		$collections_taxonomy = [
+			'slug'  => self::TAXONOMY,
+			'label' => __( 'Collections', 'newspack-plugin' ),
+		];
+
+		$point_of_insertion = null;
+		// Loop through the taxonomies; confirm Collections doesn't already exist, and grab the index of Collection Sections if it's there.
+		foreach ( $custom_taxonomies as $index => $tax ) {
+			if ( isset( $tax['slug'] ) ) {
+				if ( $tax['slug'] === $collections_taxonomy['slug'] ) {
+					return $custom_taxonomies;
+				}
+				if ( $tax['slug'] === Collection_Section_Taxonomy::get_taxonomy() ) {
+					$point_of_insertion = $index;
+				}
+			}
+		}
+
+		// If Collection Sections exists in the taxonomy filters, insert Collections before it. If not, use the default insertion point.
+		if ( null !== $point_of_insertion ) {
+			array_splice( $custom_taxonomies, $point_of_insertion, 0, [ $collections_taxonomy ] );
+		} else {
+			$custom_taxonomies[] = $collections_taxonomy;
+		}
+
+		return $custom_taxonomies;
 	}
 }
