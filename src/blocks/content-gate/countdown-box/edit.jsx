@@ -110,7 +110,7 @@ export default function Edit() {
 											/* translators: %1$s is subscribe message, %2$s is sign in link */
 											__( '%1$s %2$s', 'newspack-plugin' ),
 											__( 'Subscribe now and get unlimited access.', 'newspack-plugin' ),
-											'<a href="#signup_modal">' + __( 'Sign in to an existing account.', 'newspack-plugin' ) + '</a>'
+											'<a href="#signin_modal">' + __( 'Sign in to an existing account.', 'newspack-plugin' ) + '</a>'
 										),
 										fontSize: 'small',
 										style: {
