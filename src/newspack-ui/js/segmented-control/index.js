@@ -2,24 +2,26 @@ import { domReady } from '../utils'; // Global utils.
 
 domReady( function () {
 	function segmented_control( element ) {
-		const header = element.querySelector( '.newspack-ui__segmented-control__tabs' );
 		const tab_body = element.querySelector( '.newspack-ui__segmented-control__content' );
-
 		let tab_contents = [];
 		if ( tab_body ) {
 			tab_contents = [ ...tab_body.children ];
 		}
 
 		/**
-		 * If no header is present, add the selected class to the
+		 * Look for header tabs or immediate select control.
+		 *
+		 * If neither are found, add the selected class to the
 		 * first tab content and bail.
 		 */
-		if ( ! header && tab_contents.length ) {
+		const header = element.querySelector( '.newspack-ui__segmented-control__tabs' );
+		const select = element.querySelector( '.newspack-ui__segmented-control > select' );
+		if ( ! header && ! select && tab_contents.length ) {
 			tab_contents[ 0 ].classList.add( 'selected' );
 			return;
 		}
 
-		const tab_headers = [ ...header.children ];
+		const tab_headers = header ? [ ...header.children ] : [ select ];
 
 		const select_content = index => {
 			if ( tab_contents.length === 0 ) {
