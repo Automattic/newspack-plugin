@@ -631,7 +631,7 @@ class Subscriptions_Tiers {
 				if (
 					$line_item['product_id'] === $product_id
 					|| $line_item['variation_id'] === $product_id
-					|| ( method_exists( $product, 'get_children' ) && in_array( $line_item['product_id'], $product->get_children() ) ) // In case it's a grouped product.
+					|| ( method_exists( $product, 'get_children' ) && in_array( $line_item['product_id'], $product->get_children(), true ) ) // In case it's a grouped product.
 				) {
 					$item = $line_item;
 					break;
