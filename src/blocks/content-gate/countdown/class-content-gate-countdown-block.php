@@ -79,12 +79,12 @@ class Content_Gate_Countdown_Block {
 		);
 		$block_wrapper_attributes = get_block_wrapper_attributes(
 			[
-				'class' => 'newspack-content-gate-countdown_wrapper',
+				'class' => 'newspack-content-gate-countdown__wrapper',
 			]
 		);
 		return (
 			"<div $block_wrapper_attributes>
-				<span class='newspack-content-gate-countdown' $block_attributes>$countdown</span>
+				<span class='newspack-content-gate-countdown'>$countdown</span>
 			</div>"
 		);
 	}
