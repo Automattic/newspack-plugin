@@ -4,7 +4,7 @@
 
 import { __ } from '@wordpress/i18n';
 import { useState, useEffect, useMemo } from '@wordpress/element';
-import { ToggleControl } from '@wordpress/components';
+import { ExternalLink, ToggleControl } from '@wordpress/components';
 import { cleanForSlug } from '@wordpress/url';
 import WizardSection from '../../../../wizards-section';
 import WizardsActionCard from '../../../../wizards-action-card';
@@ -162,9 +162,7 @@ function Collections() {
 						description={
 							<>
 								{ __( 'Customize the Collections archive page.', 'newspack-plugin' ) }{ ' ' }
-								<a href={ collectionsArchiveUrl } target="_blank" rel="noopener noreferrer" style={ { textDecoration: 'none' } }>
-									<span style={ { textDecoration: 'underline' } }>{ __( 'Open archive page', 'newspack-plugin' ) }</span> ↗
-								</a>
+								<ExternalLink href={ collectionsArchiveUrl }>{ __( 'Open archive page', 'newspack-plugin' ) }</ExternalLink>
 							</>
 						}
 					>
