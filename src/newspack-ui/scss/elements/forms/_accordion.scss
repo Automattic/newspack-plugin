@@ -11,16 +11,15 @@
 				@extend .newspack-ui__box--border;
 				padding: var(--newspack-ui-spacer-3) var(--newspack-ui-spacer-3) var(--newspack-ui-spacer-3) calc(var(--newspack-ui-spacer-3) + var(--newspack-ui-spacer-7));
 				position: relative;
-				& > input[type="radio"] {
+				> input[type="radio"] {
 					position: absolute;
 					left: var(--newspack-ui-spacer-3);
 					top: var(--newspack-ui-spacer-3);
 				}
 				> label {
-					display: inline;
-					img {
-						float: right;
-					}
+					display: flex;
+					gap: var(--newspack-ui-spacer-base);
+					justify-content: space-between;
 				}
 				> div {
 					transition: max-height 0.4s ease-in-out, opacity 0.4s ease-in-out;
@@ -37,9 +36,14 @@
 					}
 				}
 				&:only-child {
-					padding: var(--newspack-ui-spacer-3);
-					& > input[type="radio"] {
+					background: none;
+					border: none;
+					padding: 0;
+					> input[type="radio"] {
 						display: none;
+						+ label {
+							display: none;
+						}
 					}
 				}
 			}
