@@ -58,10 +58,13 @@ export default function init() {
 				ev.preventDefault();
 				let completed = false;
 				const formData = new FormData( form );
-				const params = new URLSearchParams( formData );
 				modal?.setAttribute( 'data-state', 'closed' );
+				const url = new URL( form.action );
+				for ( const param of formData.entries() ) {
+					url.searchParams.append( param[ 0 ], param[ 1 ] );
+				}
 				window.newspackOpenModalCheckout( {
-					url: form.action + '?' + params.toString(),
+					url: url.toString(),
 					title: form.dataset.title,
 					onCheckoutComplete: () => {
 						completed = true;
