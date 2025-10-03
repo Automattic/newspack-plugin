@@ -77,6 +77,11 @@ class Audience_Subscriptions extends Wizard {
 			return new \WP_Error( 'woocommerce_not_active', __( 'WooCommerce is not active.', 'newspack-plugin' ) );
 		}
 		$primary_product = $request->get_param( 'primary_product' );
+		if ( empty( $primary_product ) ) {
+			Subscriptions_Tiers::set_primary_subscription_tier_product( null );
+			return rest_ensure_response( [ 'success' => true ] );
+		}
+
 		$product = wc_get_product( $primary_product );
 		if ( ! $product ) {
 			return new \WP_Error( 'invalid_product', __( 'Invalid product.', 'newspack-plugin' ) );

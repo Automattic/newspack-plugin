@@ -138,10 +138,10 @@ class Subscriptions_Tiers {
 	/**
 	 * Set the primary subscription tier product.
 	 *
-	 * @param \WC_Product $product Product.
+	 * @param \WC_Product|null $product Product.
 	 */
 	public static function set_primary_subscription_tier_product( $product ) {
-		update_option( 'newspack_subscriptions_primary_subscription_tier_product', $product->get_id() );
+		update_option( 'newspack_subscriptions_primary_subscription_tier_product', $product ? $product->get_id() : '' );
 	}
 
 	/**

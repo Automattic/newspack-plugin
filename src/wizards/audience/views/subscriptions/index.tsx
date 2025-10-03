@@ -1,10 +1,11 @@
+/* eslint @wordpress/no-unsafe-wp-apis: 0 */
 /**
  * WordPress dependencies.
  */
 import { sprintf, __ } from '@wordpress/i18n';
 import apiFetch from '@wordpress/api-fetch';
 import { forwardRef, useState, useEffect } from '@wordpress/element';
-import { ExternalLink } from '@wordpress/components';
+import { __experimentalHStack as HStack, ExternalLink } from '@wordpress/components';
 
 /**
  * Internal dependencies.
@@ -82,15 +83,24 @@ function AudienceSubscriptions( props: Record< string, any >, ref: React.Forward
 										disabled={ inFlight }
 									/>
 									{ primaryProduct ? (
-										<ExternalLink href={ `/wp-admin/post.php?post=${ primaryProduct }&action=edit` }>
-											{ sprintf(
-												/* translators: %s: product title */
-												__( 'Edit %s', 'newspack-plugin' ),
-												window.newspackAudienceSubscriptions.eligible_products.find(
-													product => parseInt( product.id ) === parseInt( primaryProduct )
-												)?.title || __( 'the product', 'newspack-plugin' )
-											) }
-										</ExternalLink>
+										<HStack>
+											<p>
+												<Button variant="link" onClick={ () => handlePrimaryProductChange( '' ) }>
+													{ __( 'Reset primary product', 'newspack-plugin' ) }
+												</Button>{ ' ' }
+											</p>
+											<p>
+												<ExternalLink href={ `/wp-admin/post.php?post=${ primaryProduct }&action=edit` }>
+													{ sprintf(
+														/* translators: %s: product title */
+														__( 'Edit %s', 'newspack-plugin' ),
+														window.newspackAudienceSubscriptions.eligible_products.find(
+															product => parseInt( product.id ) === parseInt( primaryProduct )
+														)?.title || __( 'the product', 'newspack-plugin' )
+													) }
+												</ExternalLink>
+											</p>
+										</HStack>
 									) : null }
 								</Card>
 								<Card>
