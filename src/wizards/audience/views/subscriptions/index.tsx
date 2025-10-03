@@ -49,11 +49,14 @@ function AudienceSubscriptions( props: Record< string, any >, ref: React.Forward
 									<h2>{ __( 'Primary Subscription Tier Product', 'newspack-plugin' ) }</h2>
 									{ primaryProduct && (
 										<Notice isDismissible={ false }>
-											{ sprintf(
-												/* translators: %s: upgrade subscription URL */
-												__( 'Share the following URL to trigger the subscription upgrade: %s', 'newspack-plugin' ),
-												window.newspackAudienceSubscriptions.upgrade_subscription_url
-											) }
+											{ __( 'Share the following URL to trigger the subscription upgrade:', 'newspack-plugin' ) }{ ' ' }
+											<a
+												href={ window.newspackAudienceSubscriptions.upgrade_subscription_url }
+												target="_blank"
+												rel="noreferrer noopener"
+											>
+												{ window.newspackAudienceSubscriptions.upgrade_subscription_url }
+											</a>
 										</Notice>
 									) }
 									<p>
