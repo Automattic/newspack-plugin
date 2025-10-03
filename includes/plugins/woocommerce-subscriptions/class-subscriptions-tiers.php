@@ -35,6 +35,7 @@ class Subscriptions_Tiers {
 
 		// Primary product rendering.
 		add_action( 'wp_footer', [ __CLASS__, 'print_primary_product_modal' ] );
+		add_filter( 'newspack_popups_assess_has_disabled_popups', [ __CLASS__, 'disable_popups' ] );
 	}
 
 	/**
@@ -653,6 +654,21 @@ class Subscriptions_Tiers {
 		}
 
 		self::render_modal( $product, $title, $title, $switch_data, 'open' );
+	}
+
+	/**
+	 * Disable popups when opening the primary product modal.
+	 *
+	 * @param bool $disabled Whether popups have been disabled.
+	 *
+	 * @return bool Whether popups have been disabled.
+	 */
+	public static function disable_popups( $disabled ) {
+		$query_param = self::get_upgrade_subscription_query_param();
+		if ( ! empty( $_GET[ $query_param ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			return true;
+		}
+		return $disabled;
 	}
 }
 Subscriptions_Tiers::init_hooks();
