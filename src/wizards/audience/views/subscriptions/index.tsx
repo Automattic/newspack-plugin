@@ -4,6 +4,7 @@
 import { sprintf, __ } from '@wordpress/i18n';
 import apiFetch from '@wordpress/api-fetch';
 import { forwardRef, useState, useEffect } from '@wordpress/element';
+import { ExternalLink } from '@wordpress/components';
 
 /**
  * Internal dependencies.
@@ -80,6 +81,17 @@ function AudienceSubscriptions( props: Record< string, any >, ref: React.Forward
 										onChange={ handlePrimaryProductChange }
 										disabled={ inFlight }
 									/>
+									{ primaryProduct ? (
+										<ExternalLink href={ `/wp-admin/post.php?post=${ primaryProduct }&action=edit` }>
+											{ sprintf(
+												/* translators: %s: product title */
+												__( 'Edit %s', 'newspack-plugin' ),
+												window.newspackAudienceSubscriptions.eligible_products.find(
+													product => parseInt( product.id ) === parseInt( primaryProduct )
+												)?.title || __( 'the product', 'newspack-plugin' )
+											) }
+										</ExternalLink>
+									) : null }
 								</Card>
 								<Card>
 									<h2>{ __( 'Manage Subscriptions settings in Woo Memberships', 'newspack-plugin' ) }</h2>
