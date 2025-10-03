@@ -622,6 +622,10 @@ class Subscriptions_Tiers {
 			return;
 		}
 
+		if ( class_exists( '\Newspack_Blocks\Modal_Checkout' ) ) {
+			\Newspack_Blocks\Modal_Checkout::enqueue_modal();
+		}
+
 		$user_subscription = self::get_user_subscription( $product );
 		$switch_data       = null;
 
