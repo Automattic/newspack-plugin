@@ -56,7 +56,12 @@ function AudienceSubscriptions( props: Record< string, any >, ref: React.Forward
 											) }
 										</Notice>
 									) }
-									<p>{ __( 'Select a product that will be used as the primary subscription tier product.', 'newspack-plugin' ) }</p>
+									<p>
+										{ __(
+											'Select a grouped or variable subscription product to allow readers to change their active subscriptions amongst all of its linked products and variations.',
+											'newspack-plugin'
+										) }
+									</p>
 									<SelectControl
 										options={ [
 											{
