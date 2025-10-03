@@ -639,7 +639,7 @@ class Subscriptions_Tiers {
 			}
 			if ( $item ) {
 				$switch_data = [
-					'item_id'      => $item['id'],
+					'item_id'      => $item->get_id(),
 					'item'         => $item,
 					'subscription' => $user_subscription,
 				];
