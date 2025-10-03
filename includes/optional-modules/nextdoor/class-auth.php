@@ -15,14 +15,6 @@ defined( 'ABSPATH' ) || exit;
  * Nextdoor OAuth authentication class.
  */
 class Auth {
-
-	/**
-	 * The single instance of the class.
-	 *
-	 * @var Auth
-	 */
-	protected static $instance = null;
-
 	/**
 	 * OAuth base URL.
 	 */
