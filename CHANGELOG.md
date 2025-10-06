@@ -1,3 +1,28 @@
+# [6.20.0](https://github.com/Automattic/newspack-plugin/compare/v6.19.0...v6.20.0) (2025-10-06)
+
+
+### Bug Fixes
+
+* ga4 events for gate interactions and tiered modal ([#4209](https://github.com/Automattic/newspack-plugin/issues/4209)) ([2d35768](https://github.com/Automattic/newspack-plugin/commit/2d3576801dfa473a89f26e760c7b9e6c01a60dc1))
+* Improve help text for Guest Contributor checkbox ([#4187](https://github.com/Automattic/newspack-plugin/issues/4187)) ([5790f3d](https://github.com/Automattic/newspack-plugin/commit/5790f3da197d56b5fea8e085b926bfc6d627525c))
+* newspack-plugin delay ([#4184](https://github.com/Automattic/newspack-plugin/issues/4184)) ([22e8dc2](https://github.com/Automattic/newspack-plugin/commit/22e8dc275c683ff35b934dcfd1df1ad102d49196))
+* remove content gate countdown block ([0204e58](https://github.com/Automattic/newspack-plugin/commit/0204e589beff18928ce703d07461405893e889f3))
+* update download URL for db.php ([#4193](https://github.com/Automattic/newspack-plugin/issues/4193)) ([4d363db](https://github.com/Automattic/newspack-plugin/commit/4d363dbfa6617c9780b2c163696cf8f746fef9b6))
+
+
+### Features
+
+* **collections:** add archive link in settings page ([#4203](https://github.com/Automattic/newspack-plugin/issues/4203)) ([42694ec](https://github.com/Automattic/newspack-plugin/commit/42694eccc6df540262cfd25c02b5a6e8439eb892))
+* **collections:** add Collections block ([#4166](https://github.com/Automattic/newspack-plugin/issues/4166)) ([1185157](https://github.com/Automattic/newspack-plugin/commit/1185157263da3d44ebf74e7f4f386413c1843b23))
+* **collections:** add css classes to meta elements ([#4208](https://github.com/Automattic/newspack-plugin/issues/4208)) ([7fbf7e9](https://github.com/Automattic/newspack-plugin/commit/7fbf7e91c2279ddec041ac3385c1d6aefd8b18f7))
+* **collections:** add logic for opening links in new tabs ([#4174](https://github.com/Automattic/newspack-plugin/issues/4174)) ([07a5545](https://github.com/Automattic/newspack-plugin/commit/07a5545185c0bae1958ee496e31b255991b822ff))
+* **collections:** collections block feedback ([#4185](https://github.com/Automattic/newspack-plugin/issues/4185)) ([0d0210c](https://github.com/Automattic/newspack-plugin/commit/0d0210ca2e62a6f2719827d28dda452c423f3e0c))
+* **collections:** remove feature flag ([#4195](https://github.com/Automattic/newspack-plugin/issues/4195)) ([b1619ef](https://github.com/Automattic/newspack-plugin/commit/b1619efd520fe5b0b93c0c14bb0b5c978736b8a5))
+* **collections:** replace archive grid with collections block ([#4178](https://github.com/Automattic/newspack-plugin/issues/4178)) ([d0cbadd](https://github.com/Automattic/newspack-plugin/commit/d0cbaddad4484e11d3b7fe827d3ce4998e6d5473))
+* **content-gate:** add countdown block ([#4176](https://github.com/Automattic/newspack-plugin/issues/4176)) ([f8fe757](https://github.com/Automattic/newspack-plugin/commit/f8fe757543b34ec5ef12636ccf23abd35b7dbf42))
+* **my-account:** subscription switch modal ([#4177](https://github.com/Automattic/newspack-plugin/issues/4177)) ([28c26e7](https://github.com/Automattic/newspack-plugin/commit/28c26e77516c075629bd4cb81d0ea2fc17633323))
+* subscription tier modal ([#4164](https://github.com/Automattic/newspack-plugin/issues/4164)) ([4d6ebe2](https://github.com/Automattic/newspack-plugin/commit/4d6ebe2d551d9967d4c92251d6642a32ac652374))
+
 # [6.19.0](https://github.com/Automattic/newspack-plugin/compare/v6.18.3...v6.19.0) (2025-09-22)
 
 
