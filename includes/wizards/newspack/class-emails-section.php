@@ -1,6 +1,6 @@
 <?php
 /**
- * Newspack's SEO Section.
+ * Newspack Emails Section.
  *
  * @package Newspack
  */
@@ -45,7 +45,7 @@ class Emails_Section extends Wizard_Section {
 				'callback'            => [ __CLASS__, 'api_update_email_settings' ],
 				'permission_callback' => [ $this, 'api_permissions_check' ],
 				'args'                => [
-					'enable_woocommerce_emails' => [
+					'enable_woocommerce_email_editor' => [
 						'type'              => 'boolean',
 						'required'          => true,
 						'sanitize_callback' => 'rest_sanitize_boolean',
@@ -64,8 +64,8 @@ class Emails_Section extends Wizard_Section {
 	public static function api_get_email_settings(): array {
 		$settings = [];
 		if ( class_exists( 'WooCommerce' ) ) {
-			$settings['admin_url']                 = admin_url( 'admin.php?page=wc-settings&tab=email' );
-			$settings['enable_woocommerce_emails'] = WooCommerce_Emails::is_enabled();
+			$settings['admin_url']                       = admin_url( 'admin.php?page=wc-settings&tab=email' );
+			$settings['enable_woocommerce_email_editor'] = 'yes' === WooCommerce_Emails::is_enabled();
 		}
 		return $settings;
 	}
@@ -78,9 +78,9 @@ class Emails_Section extends Wizard_Section {
 	 * @return WP_REST_Response Response.
 	 */
 	public static function api_update_email_settings( $request ) {
-		if ( $request->has_param( 'enable_woocommerce_emails' ) ) {
-			$is_enabled = filter_var( $request->get_param( 'enable_woocommerce_emails' ), FILTER_VALIDATE_BOOLEAN );
-			WooCommerce_Emails::set_enabled( $is_enabled );
+		if ( $request->has_param( 'enable_woocommerce_email_editor' ) ) {
+			$enable = filter_var( $request->get_param( 'enable_woocommerce_email_editor' ), FILTER_VALIDATE_BOOLEAN );
+			WooCommerce_Emails::set_enabled( $enable );
 		}
 		return rest_ensure_response( self::api_get_email_settings() );
 	}

@@ -20,7 +20,7 @@ import { SectionHeader } from '../../../../../components/src';
 const DATA_STORE_KEY = 'newspack-settings/emails';
 
 const Settings = () => {
-	const { enable_woocommerce_emails: isEnabled, admin_url: url } = useWizardData( DATA_STORE_KEY );
+	const { enable_woocommerce_email_editor: isEnabled, admin_url: url } = useWizardData( DATA_STORE_KEY );
 	const { saveWizardSettings } = useDispatch( WIZARD_STORE_NAMESPACE );
 
 	if ( typeof isEnabled !== 'boolean' || ! url ) {
@@ -31,7 +31,7 @@ const Settings = () => {
 		saveWizardSettings( {
 			slug: DATA_STORE_KEY,
 			updatePayload: {
-				path: [ 'enable_woocommerce_emails' ],
+				path: [ 'enable_woocommerce_email_editor' ],
 				value: ! isEnabled,
 			},
 		} );
@@ -45,7 +45,7 @@ const Settings = () => {
 			<SectionHeader heading={ 3 } title={ __( 'Transactional emails', 'newspack-plugin' ) } />
 			<WizardsActionCard
 				isSmall
-				key={ 'enable_woocommerce_emails' }
+				key={ 'enable_woocommerce_email_editor' }
 				href={ url }
 				title={ title }
 				titleLink={ url }
