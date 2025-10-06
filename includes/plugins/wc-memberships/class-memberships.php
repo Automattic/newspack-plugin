@@ -691,11 +691,11 @@ class Memberships {
 			/**
 			 * Filter the list of blocks to exclude from the excerpt.
 			 *
-			 * @param array $excluded_blocks Array of blocks to exclude. i.e. [ 'core/image', 'newspack/content-gate-countdown' ].
+			 * @param array $excluded_blocks Array of blocks to exclude. i.e. [ 'core/image', 'newspack/content-gate-countdown-box' ].
 			 *
 			 * @return array
 			 */
-			$excluded_blocks = apply_filters( 'newspack_memberships_excerpt_excluded_blocks', [ 'newspack/content-gate-countdown' ] );
+			$excluded_blocks = apply_filters( 'newspack_memberships_excerpt_excluded_blocks', [ 'newspack/content-gate-countdown-box' ] );
 			// Remove unwanted blocks from the content.
 			foreach ( $excluded_blocks as $block ) {
 				[ $category, $name ] = explode( '/', $block );

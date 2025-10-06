@@ -8,8 +8,7 @@ import { __, sprintf } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import './style.scss';
-import { domReady } from '../../utils';
+import { domReady } from '../../../utils';
 
 domReady( () => {
 	if ( typeof newspack_metering_settings === 'undefined' ) {
@@ -24,7 +23,7 @@ domReady( () => {
 		}
 		const storeKey = 'metering-' + ( gate_id || 0 );
 		const { content } = ras?.store?.get( storeKey ) || { content: [] };
-		const countdownEl = document.querySelector( '.newspack-content-gate-countdown__countdown' );
+		const countdownEl = document.querySelector( '.newspack-content-gate-countdown' );
 		if ( ! countdownEl ) {
 			return;
 		}
