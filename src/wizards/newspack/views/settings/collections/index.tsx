@@ -4,8 +4,7 @@
 
 import { __ } from '@wordpress/i18n';
 import { useState, useEffect, useMemo } from '@wordpress/element';
-import { ToggleControl, Tooltip, Icon } from '@wordpress/components';
-import { external } from '@wordpress/icons';
+import { ExternalLink, ToggleControl } from '@wordpress/components';
 import { cleanForSlug } from '@wordpress/url';
 import WizardSection from '../../../../wizards-section';
 import WizardsActionCard from '../../../../wizards-action-card';
@@ -110,27 +109,7 @@ function Collections() {
 
 	return (
 		<div className="newspack-wizard__sections">
-			<h1 style={ { display: 'flex', alignItems: 'center' } }>
-				{ __( 'Collections Settings', 'newspack-plugin' ) }
-				{ apiData.module_enabled_collections && (
-					<Tooltip text={ __( 'View Collections', 'newspack-plugin' ) }>
-						<a
-							href={ collectionsArchiveUrl }
-							target="_blank"
-							rel="noopener noreferrer"
-							style={ {
-								display: 'inline-flex',
-								marginLeft: '8px',
-								color: '#757575',
-								textDecoration: 'none',
-							} }
-							aria-label={ __( 'View Collections', 'newspack-plugin' ) }
-						>
-							<Icon icon={ external } size={ 20 } />
-						</a>
-					</Tooltip>
-				) }
-			</h1>
+			<h1>{ __( 'Collections Settings', 'newspack-plugin' ) }</h1>
 
 			<WizardsActionCard
 				isMedium
@@ -180,7 +159,12 @@ function Collections() {
 
 					<WizardSection
 						title={ __( 'Collections Archive', 'newspack-plugin' ) }
-						description={ __( 'Customize the Collections archive page.', 'newspack-plugin' ) }
+						description={
+							<>
+								{ __( 'Customize the Collections archive page.', 'newspack-plugin' ) }{ ' ' }
+								<ExternalLink href={ collectionsArchiveUrl }>{ __( 'Open archive page', 'newspack-plugin' ) }</ExternalLink>
+							</>
+						}
 					>
 						<Grid columns={ 2 } gutter={ 32 }>
 							<SelectControl
