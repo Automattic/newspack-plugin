@@ -11,6 +11,7 @@ defined( 'ABSPATH' ) || exit;
 
 use Newspack\Donations;
 use Newspack\Reader_Activation\Sync;
+use Newspack\Data_Events\Connectors\ESP_Connector;
 
 /**
  * Main class.
@@ -21,9 +22,43 @@ class Teams_For_Memberships {
 	 * Initialize hooks and filters.
 	 */
 	public static function init() {
+		add_action( 'init', [ __CLASS__, 'register_handlers' ] );
 		add_filter( 'newspack_ras_metadata_keys', [ __CLASS__, 'add_teams_metadata_keys' ] );
 		add_filter( 'newspack_esp_sync_contact', [ __CLASS__, 'handle_esp_sync_contact' ] );
 		add_filter( 'newspack_my_account_disabled_pages', [ __CLASS__, 'enable_members_area_for_team_members' ] );
+	}
+
+	/**
+	 * Register handlers.
+	 */
+	public static function register_handlers() {
+		if ( ! ESP_Connector::can_esp_sync() || ! self::is_enabled() ) {
+			return;
+		}
+		Data_Events::register_handler( [ __CLASS__, 'reader_logged_in' ], 'reader_logged_in' );
+	}
+
+	/**
+	 * Sync reader data on login.
+	 *
+	 * @param int   $timestamp Timestamp of the event.
+	 * @param array $data      Data associated with the event.
+	 * @param int   $client_id ID of the client that triggered the event.
+	 */
+	public static function reader_logged_in( $timestamp, $data, $client_id ) {
+		if ( empty( $data['email'] ) || empty( $data['user_id'] ) || ! function_exists( 'wc_memberships_for_teams_get_teams' ) ) {
+			return;
+		}
+
+		$customer = new \WC_Customer( $data['user_id'] );
+
+		// If user has orders or is not a Woo team member, don't need to sync them.
+		if ( 0 < $customer->get_order_count() || empty( \wc_memberships_for_teams_get_teams( $data['user_id'], [ 'role' => 'member' ] ) ) ) {
+			return;
+		}
+		$contact = Sync\WooCommerce::get_contact_from_customer( $customer );
+
+		ESP_Connector::sync( $contact, 'RAS Reader login' );
 	}
 
 	/**
@@ -99,6 +134,10 @@ class Teams_For_Memberships {
 		$team_slugs = implode( ',', $team_slugs );
 		if ( $team_slugs ) {
 			$contact['metadata']['woo_team'] = $team_slugs;
+		}
+
+		if ( empty( Sync\Metadata::get_key_value( 'membership_status', $contact['metadata'] ) ) ) {
+			$contact['metadata']['membership_status'] = 'team member';
 		}
 
 		return $contact;
