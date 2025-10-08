@@ -36,7 +36,7 @@ class Content_Gifting {
 	const KEY_EXPIRATION = 3600 * 24; // 24 hours
 
 	/**
-	 * The limit for the number of simultaneous content keys per user.
+	 * The number of allowed simultaneous content keys per user.
 	 *
 	 * @var int
 	 */
@@ -75,7 +75,7 @@ class Content_Gifting {
 			wp_die( esc_html( $key->get_error_message() ) );
 		}
 
-		// TODO: Handle success case.
+		// TODO: Handle success case by rendering a modal with instructions on how to use the key.
 		wp_die( esc_html( $key ) );
 	}
 
@@ -95,10 +95,14 @@ class Content_Gifting {
 	}
 
 	/**
-	 * Handle the content key query arg.
+	 * Handle the content key query arg to unrestrict content.
 	 */
 	public static function unrestrict_content() {
 		if ( ! isset( $_GET[ self::QUERY_ARG ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			return;
+		}
+
+		if ( ! is_singular() ) {
 			return;
 		}
 
@@ -116,6 +120,7 @@ class Content_Gifting {
 		\remove_action( 'wp', spl_object_hash( $restriction_instance ) . 'handle_restriction_modes', 9 );
 		\remove_action( 'wp', spl_object_hash( $restriction_instance ) . 'handle_restriction_modes' ); // For compatibility with Woo Memberships < 1.27.2.
 		\add_filter( 'wc_memberships_restrictable_comment_types', '__return_empty_array' );
+		\add_filter( 'newspack_can_render_overlay_gate', '__return_false' );
 	}
 
 	/**
@@ -138,7 +143,7 @@ class Content_Gifting {
 			$errors->add( 'post_restricted', __( 'User does not have access to this post.', 'newspack-plugin' ) );
 		}
 
-		if ( Metering::is_frontend_metering() || Metering::is_logged_in_metering_allowed( $post_id ) ) {
+		if ( Metering::has_metering( $post_id ) ) {
 			$errors->add( 'metering', __( 'Metered content cannot be gifted.', 'newspack-plugin' ) );
 		}
 
@@ -185,7 +190,7 @@ class Content_Gifting {
 			return false;
 		}
 
-		if ( $data['keys'][ $post_id ]['key'] !== $key ) {
+		if ( $data['keys'][ $post_id ]['key'] !== $parsed_key[1] ) {
 			return false;
 		}
 
@@ -216,6 +221,11 @@ class Content_Gifting {
 			if ( $data['timestamp'] + self::KEY_EXPIRATION < time() ) {
 				unset( $user_keys['keys'][ $key ] );
 			}
+		}
+
+		// Return existing key if found.
+		if ( isset( $user_keys['keys'][ $post_id ] ) ) {
+			return $user_id . '|' . $user_keys['keys'][ $post_id ]['key'];
 		}
 
 		// Check if the user has reached the limit for simultaneous content keys.

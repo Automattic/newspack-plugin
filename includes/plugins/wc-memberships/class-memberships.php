@@ -731,6 +731,14 @@ class Memberships {
 		if ( ! self::has_gate() ) {
 			return;
 		}
+		if (
+			/**
+			 * Filters whether the overlay gate can be rendered.
+			 */
+			! apply_filters( 'newspack_can_render_overlay_gate', true )
+		) {
+			return;
+		}
 		// Only render overlay gate for a restricted singular content.
 		if ( ! is_singular() || ! self::is_post_restricted() ) {
 			return;
