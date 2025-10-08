@@ -71,7 +71,7 @@ final class Blocks {
 			$script_data['content_gate_data'] = [
 				'anonymous_metered_views' => Metering::get_total_metered_views( false ),
 				'loggedin_metered_views'  => Metering::get_total_metered_views( true ),
-				'metered_views'           => Metering::get_metered_views(),
+				'metered_views'           => Metering::get_current_user_metered_views(),
 				'metering_period'         => Metering::get_metering_period(),
 			];
 		}

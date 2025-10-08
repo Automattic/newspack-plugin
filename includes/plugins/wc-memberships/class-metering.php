@@ -315,30 +315,22 @@ class Metering {
 	}
 
 	/**
-	 * Get number of metered views for the user.
-	 *
-	 * @param int|null $user_id User ID. Default is current user.
+	 * Get number of metered views for the current user.
 	 *
 	 * @return int Number of metered views.
 	 */
-	public static function get_metered_views( $user_id = null ) {
-		if ( ! $user_id ) {
-			$user_id = get_current_user_id();
-		}
-		// For anonymous users, return the anonymous count.
-		if ( ! $user_id ) {
-			$gate_post_id = Memberships::get_gate_post_id();
-			return (int) \get_post_meta( $gate_post_id, 'metering_anonymous_count', true );
+	public static function get_current_user_metered_views() {
+		if ( ! is_user_logged_in() ) {
+			return 0;
 		}
 
-		// For logged-in users, calculate the remaining views based on their metering data.
-		$gate_post_id       = Memberships::get_gate_post_id();
-		$user_meta_key      = self::METERING_META_KEY . '_' . $gate_post_id;
-		$user_metering_data = \get_user_meta( $user_id, $user_meta_key, true );
-		if ( ! is_array( $user_metering_data ) || ! isset( $user_metering_data['content'] ) ) {
-			return $count;
+		$gate_post_id  = Memberships::get_gate_post_id();
+		$meta_key      = self::METERING_META_KEY . '_' . $gate_post_id;
+		$metering_data = \get_user_meta( get_current_user_id(), $meta_key, true );
+		if ( ! is_array( $metering_data ) || ! isset( $metering_data['content'] ) ) {
+			return 0;
 		}
-		return count( $user_metering_data['content'] );
+		return count( $metering_data['content'] );
 	}
 
 	/**
