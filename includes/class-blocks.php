@@ -22,7 +22,8 @@ final class Blocks {
 	 */
 	public static function init() {
 		require_once NEWSPACK_ABSPATH . 'src/blocks/reader-registration/index.php';
-		require_once NEWSPACK_ABSPATH . 'src/blocks/content-gate-countdown/class-content-gate-countdown-block.php';
+		require_once NEWSPACK_ABSPATH . 'src/blocks/content-gate/countdown/class-content-gate-countdown-block.php';
+		require_once NEWSPACK_ABSPATH . 'src/blocks/content-gate/countdown-box/class-content-gate-countdown-box-block.php';
 
 		if ( wp_is_block_theme() && class_exists( 'Newspack\Corrections' ) ) {
 			require_once NEWSPACK_ABSPATH . 'src/blocks/correction-box/class-correction-box-block.php';

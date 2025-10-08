@@ -77,33 +77,16 @@ class Content_Gate_Countdown_Block {
 			$views,
 			$total_views
 		);
-		$text = isset( $attributes['text'] ) ? esc_html( $attributes['text'] ) : '';
-		if ( empty( $text ) ) {
-			$text = sprintf(
-				/* translators: %s - metered content period (week, month, etc. */
-				__(
-					'free articles this %s',
-					'newspack-plugin'
-				),
-				Metering::get_metering_period()
-			);
-		}
 		$block_wrapper_attributes = get_block_wrapper_attributes(
 			[
 				'class' => 'newspack-content-gate-countdown__wrapper',
 			]
 		);
-		$block_content = "<div $block_wrapper_attributes>
-			<div class='newspack-content-gate-countdown__content'>
-				<div class='newspack-content-gate-countdown__text'>
-					<span class='newspack-content-gate-countdown__countdown'>$countdown</span>
-					<p>$text</p>
-				</div>
-				$content
-			</div>
-		</div>";
-
-		return $block_content;
+		return (
+			"<div $block_wrapper_attributes>
+				<span class='newspack-content-gate-countdown'>$countdown</span>
+			</div>"
+		);
 	}
 }
 

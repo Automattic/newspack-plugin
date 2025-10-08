@@ -30,21 +30,36 @@ class Newspack_Test_InDesign_Exporter extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Test converting pullquotes.
+	 */
+	public function test_convert_pullquote() {
+		$post_id = $this->factory->post->create(
+			[
+				'post_title'   => 'Test Post',
+				'post_content' => '<blockquote><p>A pullquote content</p><cite>John Doe</cite></blockquote>',
+			]
+		);
+
+		$converter = new InDesign_Converter();
+		$content = $converter->convert_post( $post_id );
+		$this->assertStringContainsString( '<pstyle:pullquote>A pullquote content', $content );
+		$this->assertStringContainsString( '<pstyle:pullquotename>John Doe', $content );
+	}
+
+	/**
 	 * Test converting blockquotes.
 	 */
 	public function test_convert_blockquote() {
 		$post_id = $this->factory->post->create(
 			[
 				'post_title'   => 'Test Post',
-				'post_content' => '<blockquote>This is a test blockquote.</blockquote> <blockquote><p>This is a test post with paragraph.</p><cite>John Doe</cite></blockquote>',
+				'post_content' => '<blockquote class="wp-block-quote">This is a blockquote.</blockquote>',
 			]
 		);
 
 		$converter = new InDesign_Converter();
 		$content = $converter->convert_post( $post_id );
-		$this->assertStringContainsString( '<pstyle:pullquote>This is a test blockquote.', $content );
-		$this->assertStringContainsString( '<pstyle:pullquote>This is a test post with paragraph.', $content );
-		$this->assertStringContainsString( '<pstyle:pullquotename>John Doe', $content );
+		$this->assertStringContainsString( '<pstyle:blockquote>This is a blockquote.', $content );
 	}
 
 	/**
@@ -155,6 +170,30 @@ class Newspack_Test_InDesign_Exporter extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Test image with custom caption.
+	 */
+	public function test_image_with_custom_caption() {
+		$image_id = $this->factory->attachment->create();
+		wp_update_post(
+			[
+				'ID'           => $image_id,
+				'post_excerpt' => 'Image Caption',
+			]
+		);
+
+		$post_id = $this->factory->post->create(
+			[
+				'post_title'   => 'Test Post',
+				'post_content' => '<!-- wp:image {"id":' . $image_id . '} --><figure class="wp-block-image"><img src="http://localhost/wp-content/uploads/2025/01/image.jpg" /><figcaption class="wp-element-caption">Custom Caption</figcaption></figure><!-- /wp:image -->',
+			]
+		);
+
+		$converter = new InDesign_Converter();
+		$content = $converter->convert_post( $post_id );
+		$this->assertStringContainsString( '<pstyle:PhotoCaption>Custom Caption', $content );
+	}
+
+	/**
 	 * Test converting HTML entities.
 	 */
 	public function test_convert_html_entities() {
@@ -200,5 +239,42 @@ class Newspack_Test_InDesign_Exporter extends WP_UnitTestCase {
 		$converter = new InDesign_Converter();
 		$content = $converter->convert_post( $post_id );
 		$this->assertStringContainsString( '<customparagraph>This is a test post with custom tag.', $content );
+	}
+
+	/**
+	 * Test headings.
+	 */
+	public function test_convert_headings() {
+		$post_id = $this->factory->post->create(
+			[
+				'post_title'   => 'Test Post',
+				'post_content' => '<h1>Heading 1</h1><h2>Heading 2</h2><h3>Heading 3</h3><h4>Heading 4</h4><h5>Heading 5</h5><h6>Heading 6</h6>',
+			]
+		);
+
+		$converter = new InDesign_Converter();
+		$content = $converter->convert_post( $post_id );
+		$this->assertStringContainsString( '<pstyle:h1>Heading 1', $content );
+		$this->assertStringContainsString( '<pstyle:h2>Heading 2', $content );
+		$this->assertStringContainsString( '<pstyle:h3>Heading 3', $content );
+		$this->assertStringContainsString( '<pstyle:h4>Heading 4', $content );
+		$this->assertStringContainsString( '<pstyle:h5>Heading 5', $content );
+		$this->assertStringContainsString( '<pstyle:h6>Heading 6', $content );
+	}
+
+	/**
+	 * Test horizontal rule.
+	 */
+	public function test_convert_horizontal_rule() {
+		$post_id = $this->factory->post->create(
+			[
+				'post_title'   => 'Test Post',
+				'post_content' => '<hr>',
+			]
+		);
+
+		$converter = new InDesign_Converter();
+		$content = $converter->convert_post( $post_id );
+		$this->assertStringContainsString( '<pstyle:hr>', $content );
 	}
 }
