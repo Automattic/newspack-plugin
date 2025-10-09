@@ -56,6 +56,14 @@ class Content_Gifting {
 		add_action( 'template_redirect', [ __CLASS__, 'process_key_request' ] );
 		add_action( 'wp', [ __CLASS__, 'unrestrict_content' ], 5 );
 		add_action( 'newspack_theme_entry_meta', [ __CLASS__, 'add_gift_button' ] );
+		add_action( 'wp_enqueue_scripts', [ __CLASS__, 'enqueue_assets' ] );
+	}
+
+	/**
+	 * Enqueue assets.
+	 */
+	public static function enqueue_assets() {
+		wp_enqueue_style( 'newspack-memberships-content-gifting', Newspack::plugin_url() . '/dist/content-gifting.css', [], NEWSPACK_PLUGIN_VERSION );
 	}
 
 	/**
@@ -75,8 +83,39 @@ class Content_Gifting {
 			wp_die( esc_html( $key->get_error_message() ) );
 		}
 
-		// TODO: Handle success case by rendering a modal with instructions on how to use the key.
-		wp_die( esc_html( $key ) );
+		$url = add_query_arg( self::QUERY_ARG, $key, get_the_permalink() );
+
+		// Render instructions modal in the footer.
+		add_action(
+			'wp_footer',
+			function() use ( $url ) {
+				?>
+				<div class="newspack-ui">
+					<div class="newspack-ui__modal-container" data-state="open">
+						<div class="newspack-ui__modal-container__overlay"></div>
+						<div class="newspack-ui__modal newspack-ui__modal--small">
+							<header class="newspack-ui__modal__header">
+								<h2 class="newspack-ui__font--l"><?php esc_html_e( 'Gift this article', 'newspack-plugin' ); ?></h2>
+								<button class="newspack-ui__button newspack-ui__button--icon newspack-ui__button--ghost newspack-ui__modal__close">
+									<span class="screen-reader-text"><?php esc_html_e( 'Close', 'newspack-plugin' ); ?></span>
+									<?php Newspack_UI_Icons::print_svg( 'close' ); ?>
+								</button>
+							</header>
+							<div class="newspack-ui__modal__content">
+								<p>
+									<?php esc_html_e( 'Share the link below to gift this article to a friend. The access is valid for 24 hours.', 'newspack-plugin' ); ?>
+								</p>
+								<p>
+									<label for="content-gifting-url"><?php esc_html_e( 'Link', 'newspack-plugin' ); ?></label>
+									<input type="text" id="content-gifting-url" value="<?php echo esc_attr( $url ); ?>" readonly>
+								</p>
+							</div>
+						</div>
+					</div>
+				</div>
+				<?php
+			}
+		);
 	}
 
 	/**
@@ -88,9 +127,10 @@ class Content_Gifting {
 		}
 		$url = add_query_arg( self::GENERATE_ACTION, wp_create_nonce( self::GENERATE_ACTION ), get_the_permalink() );
 		?>
-		<button class="newspack-content-gifting__gift-button" onclick="window.location.href='<?php echo esc_url( $url ); ?>'">
-			<?php esc_html_e( 'Gift this content', 'newspack-plugin' ); ?>
-		</button>
+		<a href="<?php echo esc_url( $url ); ?>" class="newspack-content-gifting__gift-button">
+			<?php Newspack_UI_Icons::print_svg( 'gift' ); ?>
+			<?php esc_html_e( 'Gift this article', 'newspack-plugin' ); ?>
+		</a>
 		<?php
 	}
 

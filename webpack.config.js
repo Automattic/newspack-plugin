@@ -62,6 +62,7 @@ const entry = {
 	blocks: path.join( __dirname, 'src', 'blocks', 'index.js' ),
 	'memberships-gate-editor': path.join( __dirname, 'src', 'memberships-gate', 'editor.js' ),
 	'memberships-gate-block-patterns': path.join( __dirname, 'src', 'memberships-gate', 'block-patterns.js' ),
+	'content-gifting': path.join( __dirname, 'src', 'memberships-gate', 'content-gifting.js' ),
 	wizards: path.join( __dirname, 'src', 'wizards', 'index.tsx' ),
 	'newspack-ui': path.join( __dirname, 'src', 'newspack-ui', 'index.js' ),
 	bylines: path.join( __dirname, 'src', 'bylines', 'index.js' ),
