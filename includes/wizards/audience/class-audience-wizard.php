@@ -565,6 +565,9 @@ class Audience_Wizard extends Wizard {
 		if ( isset( $args['show_on_subscription_tab'] ) ) {
 			Memberships::set_show_on_subscription_tab_setting( (bool) $args['show_on_subscription_tab'] );
 		}
+		if ( isset( $args['content_gifting'] ) ) {
+			Content_Gifting::set_enabled( (bool) $args['content_gifting'] );
+		}
 		return rest_ensure_response( self::get_memberships_settings() );
 	}
 
@@ -823,6 +826,7 @@ class Audience_Wizard extends Wizard {
 			'plans'                    => Memberships::get_plans(),
 			'require_all_plans'        => Memberships::get_require_all_plans_setting(),
 			'show_on_subscription_tab' => Memberships::get_show_on_subscription_tab_setting(),
+			'content_gifting'          => Content_Gifting::is_enabled(),
 		];
 	}
 

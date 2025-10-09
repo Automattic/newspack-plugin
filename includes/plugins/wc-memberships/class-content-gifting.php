@@ -43,11 +43,11 @@ class Content_Gifting {
 	const USER_KEY_LIMIT = 5;
 
 	/**
-	 * The user meta for the content keys.
+	 * The meta for content gifting, both enabled option and user keys.
 	 *
 	 * @var string
 	 */
-	const USER_META = 'newspack_content_gifting';
+	const META = 'newspack_content_gifting';
 
 	/**
 	 * Initialize hooks.
@@ -57,6 +57,33 @@ class Content_Gifting {
 		add_action( 'wp', [ __CLASS__, 'unrestrict_content' ], 5 );
 		add_action( 'newspack_theme_entry_meta', [ __CLASS__, 'add_gift_button' ] );
 		add_action( 'wp_enqueue_scripts', [ __CLASS__, 'enqueue_assets' ] );
+	}
+
+	/**
+	 * Whether content gifting is enabled.
+	 *
+	 * @return bool
+	 */
+	public static function is_enabled() {
+		$enabled = (bool) get_option( self::META, false );
+
+		/**
+		 * Filters whether content gifting is enabled.
+		 *
+		 * @param bool $enabled Whether content gifting is enabled.
+		 */
+		return apply_filters( 'newspack_content_gifting_enabled', $enabled );
+	}
+
+	/**
+	 * Set the enabled status.
+	 *
+	 * @param bool $enabled Whether the content gifting is enabled.
+	 *
+	 * @return void
+	 */
+	public static function set_enabled( $enabled = true ) {
+		update_option( self::META, (int) $enabled );
 	}
 
 	/**
@@ -79,16 +106,15 @@ class Content_Gifting {
 		}
 
 		$key = self::generate_key( get_the_ID() );
-		if ( is_wp_error( $key ) ) {
-			wp_die( esc_html( $key->get_error_message() ) );
+		$url = '';
+		if ( ! is_wp_error( $key ) ) {
+			$url = add_query_arg( self::QUERY_ARG, $key, get_the_permalink() );
 		}
-
-		$url = add_query_arg( self::QUERY_ARG, $key, get_the_permalink() );
 
 		// Render instructions modal in the footer.
 		add_action(
 			'wp_footer',
-			function() use ( $url ) {
+			function() use ( $key, $url ) {
 				?>
 				<div class="newspack-ui">
 					<div class="newspack-ui__modal-container" data-state="open">
@@ -102,13 +128,19 @@ class Content_Gifting {
 								</button>
 							</header>
 							<div class="newspack-ui__modal__content">
-								<p>
-									<?php esc_html_e( 'Share the link below to gift this article to a friend. The access is valid for 24 hours.', 'newspack-plugin' ); ?>
-								</p>
-								<p>
-									<label for="content-gifting-url"><?php esc_html_e( 'Link', 'newspack-plugin' ); ?></label>
-									<input type="text" id="content-gifting-url" value="<?php echo esc_attr( $url ); ?>" readonly>
-								</p>
+								<?php if ( is_wp_error( $key ) ) : ?>
+									<div class="newspack-ui__notice newspack-ui__notice--error">
+										<?php echo esc_html( $key->get_error_message() ); ?>
+									</div>
+								<?php else : ?>
+									<p>
+										<?php esc_html_e( 'Share the link below to gift this article to a friend. The access is valid for 24 hours.', 'newspack-plugin' ); ?>
+									</p>
+									<p>
+										<label for="content-gifting-url"><?php esc_html_e( 'Link', 'newspack-plugin' ); ?></label>
+										<input type="text" id="content-gifting-url" value="<?php echo esc_attr( $url ); ?>" readonly>
+									</p>
+								<?php endif; ?>
 							</div>
 						</div>
 					</div>
@@ -175,6 +207,10 @@ class Content_Gifting {
 		$post_id = $post_id ?? get_the_ID();
 		$errors  = new WP_Error();
 
+		if ( ! self::is_enabled() ) {
+			$errors->add( 'not_enabled', __( 'Content gifting is not enabled.', 'newspack-plugin' ) );
+		}
+
 		if ( ! is_user_logged_in() ) {
 			$errors->add( 'not_logged_in', __( 'You must be logged in to gift content.', 'newspack-plugin' ) );
 		}
@@ -210,12 +246,22 @@ class Content_Gifting {
 	 * @return array|false The data for the content key or false if invalid.
 	 */
 	public static function get_key_data( $post_id, $key ) {
+		if ( ! self::is_enabled() ) {
+			return false;
+		}
+
 		$parsed_key = explode( '|', $key );
 		if ( count( $parsed_key ) !== 2 ) {
 			return false;
 		}
 
-		$data = get_user_meta( (int) $parsed_key[0], self::USER_META, true );
+		$user_id = (int) $parsed_key[0];
+
+		if ( ! $user_id ) {
+			return false;
+		}
+
+		$data = get_user_meta( $user_id, self::META, true );
 		if ( ! $data || ! isset( $data['keys'] ) ) {
 			return false;
 		}
@@ -245,13 +291,17 @@ class Content_Gifting {
 	 * @return string|WP_Error The key or error.
 	 */
 	public static function generate_key( $post_id ) {
+		if ( ! self::is_enabled() ) {
+			return new WP_Error( 'not_enabled', __( 'Content gifting is not enabled.', 'newspack-plugin' ) );
+		}
+
 		if ( ! self::can_gift_post( $post_id ) ) {
 			return new WP_Error( 'not_allowed', __( 'You are not allowed to generate a content key.', 'newspack-plugin' ) );
 		}
 
 		$user_id = get_current_user_id();
 
-		$user_keys = get_user_meta( $user_id, self::USER_META, true );
+		$user_keys = get_user_meta( $user_id, self::META, true );
 		if ( ! $user_keys ) {
 			$user_keys = [ 'keys' => [] ];
 		}
@@ -280,7 +330,7 @@ class Content_Gifting {
 			'key'       => $key,
 			'timestamp' => time(),
 		];
-		update_user_meta( $user_id, self::USER_META, $user_keys );
+		update_user_meta( $user_id, self::META, $user_keys );
 
 		return $user_id . '|' . $key;
 	}

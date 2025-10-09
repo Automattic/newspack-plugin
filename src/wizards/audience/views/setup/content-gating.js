@@ -76,6 +76,16 @@ export default withWizardScreen( () => {
 				description={ getContentGateDescription() }
 				actionText={ __( 'Configure', 'newspack-plugin' ) }
 			/>
+			<ActionCard
+				title={ __( 'Content Gifting', 'newspack-plugin' ) }
+				description={ __(
+					'Allow members to gift content to other readers. Each member can have up to 5 simultaneous gifted links, which are valid for 24 hours.',
+					'newspack-plugin'
+				) }
+				toggleOnChange={ value => updateConfig( { content_gifting: value } ) }
+				toggleChecked={ config.content_gifting }
+				disabled={ inFlight }
+			/>
 			{ config?.plans && 1 < config.plans.length && (
 				<ActionCard
 					title={ __( 'Require membership in all plans', 'newspack-plugin' ) }
