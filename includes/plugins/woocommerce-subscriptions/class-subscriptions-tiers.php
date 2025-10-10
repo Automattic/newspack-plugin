@@ -36,6 +36,14 @@ class Subscriptions_Tiers {
 		// Primary product rendering.
 		add_action( 'wp_footer', [ __CLASS__, 'print_primary_product_modal' ] );
 		add_filter( 'newspack_popups_assess_has_disabled_popups', [ __CLASS__, 'disable_popups' ] );
+
+		// Unhook Upgrade/Downgrade switch direction text.
+		add_action(
+			'init',
+			function() {
+				remove_filter( 'woocommerce_cart_item_subtotal', [ 'WC_Subscriptions_Switcher', 'add_cart_item_switch_direction' ], 10 );
+			}
+		);
 	}
 
 	/**
