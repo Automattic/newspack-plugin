@@ -35,11 +35,11 @@ class CollectionArchiveFilters {
 		const categoryField = document.getElementById( 'category' );
 
 		if ( yearField?.value ) {
-			params.set( 'year', yearField.value );
+			params.set( 'np_collections_year', yearField.value );
 		}
 
 		if ( categoryField?.value ) {
-			params.set( 'category', categoryField.value );
+			params.set( 'np_collections_category', categoryField.value );
 		}
 
 		url.search = params.toString();

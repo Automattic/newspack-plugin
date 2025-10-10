@@ -19,11 +19,16 @@ domReady( function () {
 
 				// If content would overflow the right edge of viewport.
 				if ( rect.right + rect.width > viewportWidth ) {
-					const contentWidth = rect.width;
-					content.style.left = `calc(100% - ${ contentWidth }px - var(--newspack-ui-spacer-base))`;
+					content.style.left = `auto`;
+					content.style.right = `0`;
 				} else {
 					// Reset position if no overflow
-					content.style.left = 'calc(100% - var(--newspack-ui-spacer-6))';
+					content.style.removeProperty( 'left' );
+					content.style.removeProperty( 'right' );
+					// Remove the entire style attribute if it's empty
+					if ( content.style.length === 0 ) {
+						content.removeAttribute( 'style' );
+					}
 				}
 			} );
 		}

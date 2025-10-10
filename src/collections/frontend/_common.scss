@@ -1,11 +1,6 @@
 @use "breakpoints";
 
 /* Common collection elements */
-.collection-buttons {
-	display: flex;
-	flex-wrap: wrap;
-	gap: 8px;
-}
 
 .collection-image {
 	a {
@@ -26,32 +21,10 @@
 	aspect-ratio: 3 / 4;
 }
 
-.collection-item {
-	display: flex;
-	flex-direction: column;
 
-	.collection-content {
-		h3 {
-			margin: 24px 0 0;
-
-			a {
-				color: var(--newspack-theme-color-text-main);
-			}
-		}
-	}
-}
-
-.collection-cta {
-	width: 100%;
-
-	&.cta--subscribe_link {
-		a {
-			background-color: var(--newspack-primary-color);
-			color: var(--newspack-primary-contrast-color);
-		}
-	}
-
-	@media #{breakpoints.$media-sm-up} {
-		width: auto;
+.wp-block-newspack-collections__ctas {
+	a.cta--subscribe_link {
+		background-color: var(--newspack-primary-color);
+		color: var(--newspack-primary-contrast-color);
 	}
 }

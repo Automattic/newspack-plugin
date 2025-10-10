@@ -120,57 +120,57 @@ final class Reader_Activation {
 	 * Enqueue front-end scripts.
 	 */
 	public static function enqueue_scripts() {
+		$authenticated_email = self::get_logged_in_reader_email_address();
+		$script_dependencies = [];
+		$script_data         = [
+			'auth_intention_cookie' => self::AUTH_INTENTION_COOKIE,
+			'cid_cookie'            => NEWSPACK_CLIENT_ID_COOKIE_NAME,
+			'is_logged_in'          => \is_user_logged_in(),
+			'authenticated_email'   => $authenticated_email,
+			'otp_auth_action'       => Magic_Link::OTP_AUTH_ACTION,
+			'otp_rate_interval'     => Magic_Link::RATE_INTERVAL,
+			'auth_action_result'    => Magic_Link::AUTH_ACTION_RESULT,
+			'account_url'           => function_exists( 'wc_get_account_endpoint_url' ) ? \wc_get_account_endpoint_url( 'dashboard' ) : '',
+			'is_ras_enabled'        => self::is_enabled(),
+		];
+
+		if ( Recaptcha::can_use_captcha() ) {
+			$recaptcha_version                = Recaptcha::get_setting( 'version' );
+			$script_dependencies[]            = Recaptcha::SCRIPT_HANDLE;
+			if ( 'v3' === $recaptcha_version ) {
+				$script_data['captcha_site_key'] = Recaptcha::get_site_key();
+			}
+		}
+
+		Newspack::load_common_assets();
+
+		/**
+		* Reader Activation Frontend Library.
+		*/
+		\wp_enqueue_script(
+			self::SCRIPT_HANDLE,
+			Newspack::plugin_url() . '/dist/reader-activation.js',
+			$script_dependencies,
+			NEWSPACK_PLUGIN_VERSION,
+			[
+				'strategy'  => 'async',
+				'in_footer' => true,
+			]
+		);
+		\wp_localize_script(
+			self::SCRIPT_HANDLE,
+			'newspack_ras_config',
+			$script_data
+		);
+		\wp_script_add_data( self::SCRIPT_HANDLE, 'async', true );
+		\wp_script_add_data( self::SCRIPT_HANDLE, 'amp-plus', true );
+
 		/**
 		 * Filters whether to enqueue the reader auth scripts.
 		 *
 		 * @param bool $allow_reg_block_render Whether to allow the registration block to render.
 		 */
 		if ( apply_filters( 'newspack_reader_activation_should_render_auth', true ) ) {
-			$authenticated_email = self::get_logged_in_reader_email_address();
-			$script_dependencies = [];
-			$script_data         = [
-				'auth_intention_cookie' => self::AUTH_INTENTION_COOKIE,
-				'cid_cookie'            => NEWSPACK_CLIENT_ID_COOKIE_NAME,
-				'is_logged_in'          => \is_user_logged_in(),
-				'authenticated_email'   => $authenticated_email,
-				'otp_auth_action'       => Magic_Link::OTP_AUTH_ACTION,
-				'otp_rate_interval'     => Magic_Link::RATE_INTERVAL,
-				'auth_action_result'    => Magic_Link::AUTH_ACTION_RESULT,
-				'account_url'           => function_exists( 'wc_get_account_endpoint_url' ) ? \wc_get_account_endpoint_url( 'dashboard' ) : '',
-				'is_ras_enabled'        => self::is_enabled(),
-			];
-
-			if ( Recaptcha::can_use_captcha() ) {
-				$recaptcha_version                = Recaptcha::get_setting( 'version' );
-				$script_dependencies[]            = Recaptcha::SCRIPT_HANDLE;
-				if ( 'v3' === $recaptcha_version ) {
-					$script_data['captcha_site_key'] = Recaptcha::get_site_key();
-				}
-			}
-
-			Newspack::load_common_assets();
-
-			/**
-			* Reader Activation Frontend Library.
-			*/
-			\wp_enqueue_script(
-				self::SCRIPT_HANDLE,
-				Newspack::plugin_url() . '/dist/reader-activation.js',
-				$script_dependencies,
-				NEWSPACK_PLUGIN_VERSION,
-				[
-					'strategy'  => 'async',
-					'in_footer' => true,
-				]
-			);
-			\wp_localize_script(
-				self::SCRIPT_HANDLE,
-				'newspack_ras_config',
-				$script_data
-			);
-			\wp_script_add_data( self::SCRIPT_HANDLE, 'async', true );
-			\wp_script_add_data( self::SCRIPT_HANDLE, 'amp-plus', true );
-
 			/**
 			* Reader Authentication
 			*/
@@ -1678,7 +1678,7 @@ final class Reader_Activation {
 					<?php if ( count( $newsletters_lists ) > $default_list_size ) : ?>
 						<button type="button" class="newspack-ui__button newspack-ui__button--wide newspack-ui__button--secondary see-all-button">
 							<span><?php esc_html_e( 'See all', 'newspack-plugin' ); ?></span>
-							<?php \Newspack\Newspack_UI_Icons::print_svg( 'arrow-right' ); ?>
+							<?php \Newspack\Newspack_UI_Icons::print_svg( 'arrowRight' ); ?>
 						</button>
 					<?php endif; ?>
 					<button type="submit" class="newspack-ui__button newspack-ui__button--wide newspack-ui__button--primary"><?php echo \esc_html( self::get_reader_activation_labels( 'newsletters_continue' ) ); ?></button>
@@ -2255,6 +2255,8 @@ final class Reader_Activation {
 				]
 			);
 
+			// Unhook from WooCommerce as it's already been canonized above.
+			remove_filter( 'woocommerce_new_customer_data', [ __CLASS__, 'canonize_user_data' ], 10, 1 );
 			if ( function_exists( '\wc_create_new_customer' ) ) {
 				/**
 				 * Create WooCommerce Customer if possible.
@@ -2265,6 +2267,7 @@ final class Reader_Activation {
 				$user_id = \wp_insert_user( $user_data );
 				\wp_new_user_notification( $user_id, null, 'user' );
 			}
+			add_filter( 'woocommerce_new_customer_data', [ __CLASS__, 'canonize_user_data' ], 10, 1 );
 
 			if ( \is_wp_error( $user_id ) ) {
 				Logger::error( 'User registration failed: ' . $user_id->get_error_message() );

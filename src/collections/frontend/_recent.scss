@@ -1,0 +1,46 @@
+@use "breakpoints" as bp;
+
+/* Recent collections styles */
+.collections-recent {
+	$header-offset: -16px; // Negative margin to compensate for Collections block's intrinsic flex gap spacing.
+	width: 100%;
+
+	&__header {
+		display: flex;
+		justify-content: space-between;
+		align-items: flex-end;
+		width: 100%;
+		flex-wrap: wrap;
+		margin-bottom: $header-offset;
+
+		h2,
+		p {
+			margin: 0;
+		}
+
+		a {
+			text-decoration: underline;
+		}
+	}
+
+	.wp-block-newspack-collections {
+		// 4 items on small screens.
+		.wp-block-newspack-collections__item:nth-child(n+5) {
+			display: none;
+		}
+
+		// 3 items on medium screens.
+		@media #{bp.$media-sm-up} {
+			.wp-block-newspack-collections__item:nth-child(n+4) {
+				display: none;
+			}
+		}
+
+		// 6 items on large screens.
+		@media #{bp.$media-lg-up} {
+			.wp-block-newspack-collections__item:nth-child(n+4) {
+				display: block;
+			}
+		}
+	}
+}

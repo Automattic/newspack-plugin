@@ -686,6 +686,29 @@ class Memberships {
 			$content = explode( '<!--more-->', $content )[0];
 		} else {
 			$count = (int) get_post_meta( $gate_post_id, 'visible_paragraphs', true );
+			// Remove all spaces.
+			$content = preg_replace( '/\s+/', ' ', $content );
+			/**
+			 * Filter the list of blocks to exclude from the excerpt.
+			 *
+			 * @param array $excluded_blocks Array of blocks to exclude. i.e. [ 'core/image', 'newspack/content-gate-countdown-box' ].
+			 *
+			 * @return array
+			 */
+			$excluded_blocks = apply_filters( 'newspack_memberships_excerpt_excluded_blocks', [ 'newspack/content-gate-countdown-box' ] );
+			// Remove unwanted blocks from the content.
+			foreach ( $excluded_blocks as $block ) {
+				[ $category, $name ] = explode( '/', $block );
+				if ( ! $category || ! $name ) {
+					continue;
+				}
+				if ( 'core' === $category ) {
+					$regex = $name;
+				} else {
+					$regex = "$category\/$name";
+				}
+				$content = preg_replace( "/<!-- wp:$regex {?.*?}? -->.*?<!-- \/wp:$regex -->/s", '', $content );
+			}
 			// Split into paragraphs.
 			$content = explode( '</p>', $content );
 			// Extract the first $x paragraphs only.
@@ -1133,18 +1156,18 @@ class Memberships {
 			jQuery(document).ready(function($) {
 				function disableFields() {
 					// Disable Status field (Select2-based)
-					$(".plan-details #post_status").prop("disabled", true).css("opacity", "0.6");
+					$(".plan-details #post_status").prop("readonly", true).css("opacity", "0.6");
 					$("#post_status").next(".select2-container").css("opacity", "0.6").css("pointer-events", "none");
 
 					// Disable Member since fields
-					$("#_start_date").prop("disabled", true).css("opacity", "0.6");
+					$("#_start_date").prop("readonly", true).css("opacity", "0.6");
 					$("#_start_date").next(".ui-datepicker-trigger").css("display", "none");
 
 					// Disable Expires fields
-					$("#_end_date").prop("disabled", true).css("opacity", "0.6");
+					$("#_end_date").prop("readonly", true).css("opacity", "0.6");
 					$("#_end_date").next(".ui-datepicker-trigger").css("display", "none");
 
-					// Add visual indication that fields are disabled
+					// Add visual indication that fields are readonly
 					$("#post_status, #_start_date, #_end_date").each(function() {
 						var container = $(this).closest("p, .form-field");
 						if (!container.find(".subscription-linked-notice").length) {
