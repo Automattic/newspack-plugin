@@ -16,7 +16,7 @@ export default function init() {
 
 			let isFormValid = false;
 
-			const handleContentSelected = () => {
+			const attachInputListeners = () => {
 				const inputs = form.querySelectorAll( 'input[type="radio"], input[type="number"], select' );
 				inputs.forEach( input => {
 					input.addEventListener( 'input', handleChange );
@@ -65,8 +65,9 @@ export default function init() {
 
 			const control = form.querySelector( '.newspack-ui__segmented-control' );
 			if ( control ) {
-				control.addEventListener( 'content-selected', handleContentSelected );
+				control.addEventListener( 'content-selected', attachInputListeners );
 			}
+			attachInputListeners();
 
 			handleChange();
 

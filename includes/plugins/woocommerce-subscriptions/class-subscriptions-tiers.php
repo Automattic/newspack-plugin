@@ -119,7 +119,7 @@ class Subscriptions_Tiers {
 				$title = __( 'Edit donation', 'newspack-plugin' );
 				$label = __( 'Confirm donation', 'newspack-plugin' );
 			}
-			self::render_modal( $product, $title ?? $label, $label, $data );
+			self::render_modal( $product, $title ?? $label, $label, $switch_data );
 		}
 	}
 
@@ -609,7 +609,7 @@ class Subscriptions_Tiers {
 							<div class="newspack-ui__segmented-control__panel">
 								<?php
 								if ( $is_nyp ) {
-									self::render_nyp_product_card( $products[0], $products[0] === $current_product, $switch_subscription );
+									self::render_nyp_product_card( $products[0], $products[0] === $current_product, $switch_data );
 								} else {
 									foreach ( $products as $product ) {
 										self::render_product_card( $product, false, $product === $current_product, $product === $selected_product );
