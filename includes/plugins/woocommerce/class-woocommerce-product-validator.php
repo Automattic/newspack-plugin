@@ -107,7 +107,7 @@ class WooCommerce_Product_Validator {
 			}
 
 			if ( $is_viewing_restricted ) {
-				$issues[] = __( 'Product viewing is restricted by membership rules.', 'newspack-plugin' );
+				$issues[] = __( 'Product is restricted by membership rules.', 'newspack-plugin' );
 			}
 		}
 

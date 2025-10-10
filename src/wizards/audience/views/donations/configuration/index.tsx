@@ -3,7 +3,7 @@
  */
 import { __, sprintf } from '@wordpress/i18n';
 import { useDispatch } from '@wordpress/data';
-import { ToggleControl } from '@wordpress/components';
+import { ToggleControl, ExternalLink } from '@wordpress/components';
 
 /**
  * Internal dependencies.
@@ -255,15 +255,19 @@ const Donation = () => {
 
 	// Check for product validation errors.
 	const validationResults = Object.values( wizardData.product_validation || {} );
-	const hasInvalidProducts = validationResults.every( product => product.issues.length !== 0 );
+	const hasInvalidProducts = validationResults.some( product => product.issues.length > 0 );
 
 	return (
 		<WizardsTab title={ __( 'Configuration', 'newspack-plugin' ) }>
 			{ /* Display product validation issues */ }
 			{ hasInvalidProducts ? (
-				<Notice isWarning noticeText={ __( 'Some donation products are invalid:', 'newspack-plugin' ) } style={ { marginBottom: '16px' } }>
+				<Notice
+					isWarning
+					noticeText={ __( 'Some donation products are invalid. Please correct the following issues:', 'newspack-plugin' ) }
+					style={ { marginBottom: '16px' } }
+				>
 					<ul style={ { marginTop: '8px', marginBottom: '0' } }>
-						{ validationResults.map( ( product: any ) => {
+						{ validationResults.map( ( product: ProductValidation ) => {
 							if ( product.issues && product.issues.length > 0 ) {
 								return (
 									<li key={ product.product_id } style={ { marginBottom: '8px' } }>
@@ -275,7 +279,10 @@ const Donation = () => {
 													product.product_id
 												) }
 											{ product.frequency && ` (${ product.frequency })` }:
-										</strong>
+										</strong>{ ' ' }
+										<ExternalLink href={ `/wp-admin/post.php?post=${ product.product_id }&action=edit` }>
+											{ __( 'edit', 'newspack-plugin' ) }
+										</ExternalLink>
 										<ul style={ { marginTop: '4px', marginLeft: '20px' } }>
 											{ product.issues.map( ( warning: string, index: number ) => (
 												<li key={ index }>{ warning }</li>

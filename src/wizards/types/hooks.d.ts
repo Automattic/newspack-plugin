@@ -70,6 +70,13 @@ type AudienceFieldConfig = {
 	type: string;
 	validate: string[];
 };
+
+type ProductValidation = {
+	product_id: number;
+	product_name?: string;
+	frequency: string;
+	issues: string[];
+};
 type AudienceDonationsWizardData = {
 	donation_data:
 		| { errors: { [ key: string ]: string[] } }
@@ -98,8 +105,6 @@ type AudienceDonationsWizardData = {
 	};
 	order_notes_field: AudienceFieldConfig;
 	product_validation: {
-		[ key: string ]: {
-			issues: any[];
-		};
+		[ key: string ]: ProductValidation;
 	};
 };
