@@ -1,0 +1,22 @@
+.newspack-integrations {
+	&__metadata-list {
+		display: flex;
+		flex-direction: column;
+		gap: 8px;
+		margin-top: 16px;
+	}
+
+	&__metadata-item {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		padding: 8px 12px;
+		background-color: #f0f0f0;
+		border-radius: 4px;
+
+		span {
+			font-family: monospace;
+			font-size: 14px;
+		}
+	}
+}
