@@ -57,6 +57,8 @@ class Example_Integration extends Integration {
 	/**
 	 * Fetch contact data from the integration source.
 	 *
+	 * This should be a simple key value pair of data.
+	 *
 	 * @param mixed $source The source to retrieve contact data from.
 	 *
 	 * @return array|\WP_Error Array of contact data or WP_Error on failure.
@@ -64,9 +66,7 @@ class Example_Integration extends Integration {
 	public function fetch_contact_data( $source ) {
 		// This is a dummy implementation.
 		return [
-			'email'    => 'user@example.com',
-			'name'     => 'John Doe',
-			'metadata' => [],
+			'has_prize' => true,
 		];
 	}
 
@@ -81,16 +81,5 @@ class Example_Integration extends Integration {
 	public function push_contact_data( $contact, $context = '' ) {
 		// This is a dummy implementation.
 		return true;
-	}
-
-	/**
-	 * Get metadata keys for this integration.
-	 *
-	 * This returns the stored metadata keys from the database.
-	 *
-	 * @return array Array of metadata keys.
-	 */
-	public function get_metadata_keys() {
-		return parent::get_metadata_keys();
 	}
 }

@@ -8,8 +8,10 @@
 namespace Newspack\Reader_Activation;
 
 use Newspack\Reader_Activation;
+use Newspack\Reader_Data;
 use Newspack\Data_Events;
 use Newspack\Logger;
+use Newspack\Reader_Activation\Sync\Integrations;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -37,6 +39,8 @@ class ESP_Sync extends Sync {
 	public static function init_hooks() {
 		add_action( 'newspack_scheduled_esp_sync', [ __CLASS__, 'scheduled_sync' ], 10, 2 );
 		add_action( 'shutdown', [ __CLASS__, 'run_queued_syncs' ] );
+
+		add_action( 'init', [ __CLASS__, 'pull_current_user_data' ] );
 	}
 
 	/**
@@ -125,10 +129,6 @@ class ESP_Sync extends Sync {
 			return;
 		}
 
-		$master_list_id = Reader_Activation::get_esp_master_list_id();
-
-		// ... foreach integration...
-
 		/**
 		 * Filters the contact data before normalizing and syncing to the ESP.
 		 *
@@ -137,9 +137,30 @@ class ESP_Sync extends Sync {
 		 */
 		$contact = \apply_filters( 'newspack_esp_sync_contact', $contact, $context );
 		$contact = Sync\Metadata::normalize_contact_data( $contact );
-		$result  = \Newspack_Newsletters_Contacts::upsert( $contact, $master_list_id, $context, $existing_contact );
 
-		return \is_wp_error( $result ) ? $result : true;
+		$integrations = Integrations::get_active_integrations();
+
+		foreach ( $integrations as $integration ) {
+			$result = $integration->push_contact_data( $contact, $context );
+			if ( \is_wp_error( $result ) ) {
+				static::log(
+					sprintf(
+						// Translators: %1$s is the email address of the contact to be synced, %2$s is the integration name.
+						__( 'Failed to sync contact %1$s to %2$s.', 'newspack-plugin' ),
+						$contact['email'],
+						$integration->get_name()
+					),
+					[
+						'user_email' => $contact['email'],
+						'error'      => $result->get_error_message(),
+						'context'    => $context,
+					],
+					'error'
+				);
+			}
+		}
+
+		return true;
 	}
 
 	/**
@@ -297,6 +318,52 @@ class ESP_Sync extends Sync {
 		}
 
 		self::$queued_syncs = [];
+	}
+
+	/**
+	 * Pull current logged-in user's data from active integrations and store it in Reader Data.
+	 *
+	 * TODO: Pull only every X minutes...
+	 *
+	 * @return void
+	 */
+	public static function pull_current_user_data() {
+		if ( ! is_user_logged_in() ) {
+			return;
+		}
+
+		$user_id = get_current_user_id();
+		self::pull_reader_data( $user_id );
+	}
+
+	/**
+	 * Pull reader data from active integrations and store it in Reader Data.
+	 *
+	 * @param int $user_id The user ID.
+	 *
+	 * @return true|\WP_Error True on success, WP_Error on failure.
+	 */
+	public static function pull_reader_data( $user_id ) {
+		$integrations = Integrations::get_active_integrations();
+
+		$user = get_userdata( $user_id );
+		if ( ! $user ) {
+			return new \WP_Error( 'user_not_found', __( 'User not found.', 'newspack-plugin' ) );
+		}
+
+		$contact_data = [];
+		foreach ( $integrations as $integration ) {
+			$contact = $integration->get_contact_data( $user->user_email );
+			if ( ! is_wp_error( $contact ) ) {
+				$contact_data = array_merge( $contact_data, $contact );
+			}
+		}
+
+		foreach ( $contact_data as $key => $value ) {
+			Reader_Data::update_item( $user_id, $key, $value );
+		}
+
+		return true;
 	}
 }
 ESP_Sync::init_hooks();
