@@ -351,16 +351,46 @@ abstract class Integration {
 	}
 
 	/**
+	 * Get contact data from the integration source.
+	 *
+	 * This method calls the fetch_contact_data() method implemented by child classes
+	 * and filters the returned data to only include registered metadata keys.
+	 *
+	 * @param mixed $email The contact email to retrieve data for.
+	 *
+	 * @return array|\WP_Error Array of contact data or WP_Error on failure.
+	 */
+	public function get_contact_data( $email ) {
+		$data = $this->fetch_contact_data( $email );
+
+		// Filter out keys that are not registered metadata keys.
+		$registered_keys = $this->get_metadata_keys();
+
+		$registered_keys = array_map( 'strtolower', $registered_keys );
+
+		if ( is_array( $data ) && ! empty( $registered_keys ) ) {
+			foreach ( $data as $key => $value ) {
+				if ( ! in_array( strtolower( $key ), $registered_keys, true ) ) {
+					unset( $data[ $key ] );
+				}
+			}
+		}
+		return $data;
+	}
+
+	/**
 	 * Fetch contact data from the integration source.
+	 *
+	 * This should be a simple key value pair of data.
 	 *
 	 * This method should be implemented by child classes to retrieve
 	 * contact data from their specific integration source.
 	 *
-	 * @param mixed $source The source to retrieve contact data from (e.g., user ID, order object).
+	 * @param mixed $email The contact email to retrieve data for.
 	 *
 	 * @return array|\WP_Error Array of contact data or WP_Error on failure.
 	 */
-	abstract public function fetch_contact_data( $source );
+	abstract public function fetch_contact_data( $email );
 
 	/**
 	 * Push contact data to the integration destination.
