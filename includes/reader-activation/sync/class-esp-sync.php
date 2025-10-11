@@ -360,7 +360,7 @@ class ESP_Sync extends Sync {
 		}
 
 		foreach ( $contact_data as $key => $value ) {
-			Reader_Data::update_item( $user_id, $key, $value );
+			Reader_Data::update_item( $user_id, strtolower( $key ), wp_json_encode( $value ) );
 		}
 
 		return true;
