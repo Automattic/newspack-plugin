@@ -92,6 +92,7 @@ final class Reader_Activation {
 		\add_action( 'wp_footer', [ __CLASS__, 'render_newsletters_signup_modal' ] );
 		\add_action( 'wp_ajax_newspack_reader_activation_newsletters_signup', [ __CLASS__, 'newsletters_signup' ] );
 		\add_action( 'woocommerce_customer_reset_password', [ __CLASS__, 'login_after_password_reset' ] );
+		\add_action( 'wp_ajax_nopriv_newspack_reader_activation_should_register', [ __CLASS__, 'ajax_should_register' ] );
 
 		if ( self::is_enabled() ) {
 			\add_action( 'rest_api_init', [ __CLASS__, 'register_routes' ] );
@@ -128,6 +129,24 @@ final class Reader_Activation {
 	}
 
 	/**
+	 * AJAX handler to check if an email is already registered.
+	 */
+	public static function ajax_should_register() {
+
+		// This is just a POC.
+		$email = \sanitize_email( $_POST['email'] ?? '' ); // phpcs:ignore
+		$registered = self::register_reader( $email, '', true, [] );
+
+		$response = [
+			'success' => is_int( $registered ),
+			'user_id'  => is_int( $registered ) ? $registered : null,
+		];
+
+		wp_send_json( $response );
+		exit;
+	}
+
+	/**
 	 * Enqueue front-end scripts.
 	 */
 	public static function enqueue_scripts() {
@@ -143,6 +162,7 @@ final class Reader_Activation {
 			'auth_action_result'    => Magic_Link::AUTH_ACTION_RESULT,
 			'account_url'           => function_exists( 'wc_get_account_endpoint_url' ) ? \wc_get_account_endpoint_url( 'dashboard' ) : '',
 			'is_ras_enabled'        => self::is_enabled(),
+			'ajax_url'              => admin_url( 'admin-ajax.php' ),
 		];
 
 		if ( Recaptcha::can_use_captcha() ) {

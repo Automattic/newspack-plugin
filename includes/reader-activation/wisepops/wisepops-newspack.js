@@ -6,4 +6,12 @@ wisepops_newspack.keys.forEach(element => {
 
 if ( window.wisepops && typeof window.wisepops !== 'undefined' ) {
 	window.wisepops( 'properties', newspack_wisepops_data );
+
+	window.wisepops('listen', 'after-form-submit', function(event) {
+		const emailValue = event.target.elements['email'].value;
+		newspackReaderActivation.dispatchActivity( 'should_register', {
+			email: emailValue,
+			registrationMethod: 'Wisepops',
+		} );
+	});
 }

@@ -8,6 +8,7 @@ import { EVENTS, on, off, emit } from './events.js';
 import { getCookie, setCookie, generateID, debugLog } from './utils.js';
 import overlays from './overlays.js';
 import initAnalytics from './analytics.js';
+import initShouldRegister from './should-register.js';
 import setupArticleViewsAggregates from './article-view.js';
 import initSubscriptionTiersForm from './subscription-tiers-form.js';
 import { openAuthModal as _openAuthModal } from '../reader-activation-auth/auth-modal.js';
@@ -487,6 +488,7 @@ function init() {
 	}
 	emit( EVENTS.reader, reader );
 	initAnalytics( readerActivation );
+	initShouldRegister( readerActivation );
 	initSubscriptionTiersForm( readerActivation );
 	fixClientID();
 	setupArticleViewsAggregates( readerActivation );
