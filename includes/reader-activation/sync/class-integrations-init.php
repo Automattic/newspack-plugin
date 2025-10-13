@@ -30,6 +30,8 @@ class Integrations_Init {
 		Integrations::init_rest_api();
 
 		add_action( 'init', [ __CLASS__, 'init_callback' ], 5 );
+
+		add_filter( 'newspack_content_gate_access_rules', [ __CLASS__, 'register_access_control_rules' ] );
 	}
 
 	/**
@@ -72,5 +74,31 @@ class Integrations_Init {
 				\Newspack_Popups_Criteria::register_criteria( $label );
 			}
 		}
+	}
+
+	/**
+	 * Register access control rules for all active integrations.
+	 *
+	 * @param array $rules Existing access control rules.
+	 * @return array Modified access control rules.
+	 */
+	public static function register_access_control_rules( $rules ) {
+		$integrations = Integrations::get_active_integrations();
+
+		foreach ( $integrations as $integration ) {
+			$metadata = $integration->get_metadata_keys();
+			foreach ( $metadata as $key ) {
+				$rules[ $key ] = [
+					'name'        => $key,
+					'description' => 'User must have this metadata set with this value',
+					'type'        => 'string',
+					'placeholder' => 'value',
+					'default'     => '',
+					'callback'    => [ __CLASS__, 'check_access_control' ],
+				];
+			}
+		}
+
+		return $rules;
 	}
 }
