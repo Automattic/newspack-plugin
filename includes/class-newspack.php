@@ -94,6 +94,8 @@ final class Newspack {
 		include_once NEWSPACK_ABSPATH . 'includes/reader-activation/sync/class-esp-sync-admin.php';
 		include_once NEWSPACK_ABSPATH . 'includes/reader-activation/sync/class-integrations-init.php';
 		\Newspack\Reader_Activation\Sync\Integrations_Init::init();
+
+		include_once NEWSPACK_ABSPATH . 'includes/reader-activation/wisepops/class-wisepops.php';
 		include_once NEWSPACK_ABSPATH . 'includes/data-events/class-utils.php';
 		include_once NEWSPACK_ABSPATH . 'includes/data-events/class-data-events.php';
 		include_once NEWSPACK_ABSPATH . 'includes/data-events/class-webhooks.php';
