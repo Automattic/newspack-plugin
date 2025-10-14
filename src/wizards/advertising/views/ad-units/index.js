@@ -79,7 +79,7 @@ const AdUnits = ( { adUnits, parentAdUnits, onDelete, wizardApiFetch, updateWith
 		const { code, path } = adUnit;
 		if ( isLegacy ) {
 			return code;
-		} else if ( ! path.length ) {
+		} else if ( ! path?.length ) {
 			return code;
 		}
 		return `${ path.map( parent => parent.code ).join( '/' ) }/${ code }`;
