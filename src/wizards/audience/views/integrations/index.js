@@ -23,7 +23,7 @@ import {
 	SelectControl,
 	TextControl,
 	Waiting,
-	withWizard,
+	withWizardScreen,
 } from '../../../../components/src';
 
 import './style.scss';
@@ -360,7 +360,7 @@ const IntegrationsSettings = () => {
 
 	return (
 		<>
-			<h1>{ __( 'Reader Activation Integrations', 'newspack-plugin' ) }</h1>
+			<h1>{ __( 'Integrations', 'newspack-plugin' ) }</h1>
 			<p>
 				{ __( 'Configure integrations for syncing reader contact data.', 'newspack-plugin' ) }
 			</p>
@@ -377,4 +377,4 @@ const IntegrationsSettings = () => {
 	);
 };
 
-export default withWizard( IntegrationsSettings );
+export default withWizardScreen( () => <IntegrationsSettings /> );
