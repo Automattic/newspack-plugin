@@ -30,6 +30,7 @@ Thumbs.db
 
 # Built files
 /dist
+/packages/components/colors
 /packages/components/dist
 /packages/components/shared
 /packages/components/node_modules
