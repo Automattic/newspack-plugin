@@ -15,8 +15,8 @@ import { useEffect, useState, forwardRef } from '@wordpress/element';
 import Setup from './setup';
 import Campaign from './campaign';
 import Complete from './complete';
-import { withWizard } from '../../../../components/src';
-import Router from '../../../../components/src/proxied-imports/router';
+import { withWizard } from '../../../../../packages/components/src';
+import Router from '../../../../../packages/components/src/proxied-imports/router';
 import ContentGating from './content-gating';
 import Payment from './payment';
 

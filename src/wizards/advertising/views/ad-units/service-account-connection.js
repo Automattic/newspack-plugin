@@ -7,7 +7,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { ButtonCard, Grid, Notice, SectionHeader } from '../../../../components/src';
+import { ButtonCard, Grid, Notice, SectionHeader } from '../../../../../packages/components/src';
 import { handleJSONFile } from '../../components/utils';
 
 const ServiceAccountConnection = ( { updateWithAPI, isConnected } ) => {

@@ -6,7 +6,7 @@ import { ExternalLink } from '@wordpress/components';
 import apiFetch from '@wordpress/api-fetch';
 import { useEffect, useState } from '@wordpress/element';
 
-import { ActionCard, Notice, withWizardScreen } from '../../../../components/src';
+import { ActionCard, Notice, withWizardScreen } from '../../../../../packages/components/src';
 import WizardsTab from '../../../wizards-tab';
 
 export default withWizardScreen( () => {

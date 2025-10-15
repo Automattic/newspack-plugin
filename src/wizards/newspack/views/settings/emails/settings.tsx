@@ -13,9 +13,9 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies.
  */
 import WizardsActionCard from '../../../../wizards-action-card';
-import { useWizardData } from '../../../../../components/src/wizard/store/utils';
-import { WIZARD_STORE_NAMESPACE } from '../../../../../components/src/wizard/store';
-import { SectionHeader } from '../../../../../components/src';
+import { useWizardData } from '../../../../../../packages/components/src/wizard/store/utils';
+import { WIZARD_STORE_NAMESPACE } from '../../../../../../packages/components/src/wizard/store';
+import { SectionHeader } from '../../../../../../packages/components/src';
 
 const DATA_STORE_KEY = 'newspack-settings/emails';
 

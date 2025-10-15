@@ -13,7 +13,7 @@ import { arrowLeft } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
-import { ActionCard, Button, Card, Notice, SelectControl, TextControl, withWizardScreen } from '../../../../components/src';
+import { ActionCard, Button, Card, Notice, SelectControl, TextControl, withWizardScreen } from '../../../../../packages/components/src';
 import ServiceAccountConnection from './service-account-connection';
 import OptionsPopover from './options-popover';
 

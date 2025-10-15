@@ -8,10 +8,10 @@ import { useDispatch } from '@wordpress/data';
 /**
  * Internal dependencies
  */
-import { ActionCard, Button, Grid, TextControl } from '../../../../components/src';
+import { ActionCard, Button, Grid, TextControl } from '../../../../../packages/components/src';
 import { AUDIENCE_DONATIONS_WIZARD_SLUG } from '../../constants';
-import { useWizardData } from '../../../../components/src/wizard/store/utils';
-import { WIZARD_STORE_NAMESPACE } from '../../../../components/src/wizard/store';
+import { useWizardData } from '../../../../../packages/components/src/wizard/store/utils';
+import { WIZARD_STORE_NAMESPACE } from '../../../../../packages/components/src/wizard/store';
 
 export const CoverFeesSettings = () => {
 	const { additional_settings: settings = {} } = useWizardData( AUDIENCE_DONATIONS_WIZARD_SLUG );

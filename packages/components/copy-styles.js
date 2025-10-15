@@ -35,9 +35,16 @@ rcopy( inputDir, outputDirCommon, copyOptions )
 	.catch( err => {
 		console.error( err );
 	} );
-rcopy( path.join( dir, '..', 'shared' ), path.join( dir, 'shared' ) )
+rcopy( path.join( dir, '../../src', 'shared' ), path.join( dir, 'shared' ) )
 	.then( () => {
 		console.log( 'Copied shared lib' );
+	} )
+	.catch( err => {
+		console.error( err );
+	} );
+rcopy( path.join( dir, '../colors' ), path.join( dir, 'colors' ), copyOptions )
+	.then( () => {
+		console.log( 'Copied colors module' );
 	} )
 	.catch( err => {
 		console.error( err );

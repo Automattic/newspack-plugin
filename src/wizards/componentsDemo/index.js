@@ -38,7 +38,7 @@ import {
 	SelectControl,
 	Waiting,
 	WebPreview,
-} from '../../components/src';
+} from '../../../packages/components/src';
 
 class ComponentsDemo extends Component {
 	/**

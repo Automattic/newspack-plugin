@@ -20,7 +20,7 @@ import { ToggleControl } from '@wordpress/components';
 /**
  * Internal dependencies
  */
-import { ActionCard, Button, Card, Modal, Notice, withWizardScreen } from '../../../../components/src';
+import { ActionCard, Button, Card, Modal, Notice, withWizardScreen } from '../../../../../packages/components/src';
 import PlacementControl from '../../components/placement-control';
 
 /**

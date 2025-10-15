@@ -10,7 +10,7 @@ import { addQueryArgs } from '@wordpress/url';
 /**
  * Internal dependencies
  */
-import { ActionCard, Grid, Notice, Button, CategoryAutocomplete, SectionHeader, Waiting } from '../../../../components/src';
+import { ActionCard, Grid, Notice, Button, CategoryAutocomplete, SectionHeader, Waiting } from '../../../../../packages/components/src';
 
 const Suppression = () => {
 	const [ error, setError ] = useState( false );

@@ -13,8 +13,8 @@ import { forwardRef } from '@wordpress/element';
 /**
  * Internal dependencies.
  */
-import { Wizard, Notice, withWizard } from '../../../../components/src';
-import { useWizardData } from '../../../../components/src/wizard/store/utils';
+import { Wizard, Notice, withWizard } from '../../../../../packages/components/src';
+import { useWizardData } from '../../../../../packages/components/src/wizard/store/utils';
 import Configuration from './configuration';
 import { AUDIENCE_DONATIONS_WIZARD_SLUG, OTHER } from '../../constants';
 

@@ -7,11 +7,11 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { Card, PluginInstaller, SelectControl } from '../../../../components/src';
+import { Card, PluginInstaller, SelectControl } from '../../../../../packages/components/src';
 import { NEWSPACK, NRH, OTHER } from '../../constants';
 import WizardsSection from '../../../wizards-section';
-import { useWizardData } from '../../../../components/src/wizard/store/utils';
-import { WIZARD_STORE_NAMESPACE } from '../../../../components/src/wizard/store';
+import { useWizardData } from '../../../../../packages/components/src/wizard/store/utils';
+import { WIZARD_STORE_NAMESPACE } from '../../../../../packages/components/src/wizard/store';
 
 /**
  * Platform Selection  Screen Component

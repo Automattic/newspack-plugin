@@ -10,7 +10,7 @@ import { __experimentalHStack as HStack, ExternalLink } from '@wordpress/compone
 /**
  * Internal dependencies.
  */
-import { Button, Card, SelectControl, Wizard, withWizard, Notice } from '../../../../components/src';
+import { Button, Card, SelectControl, Wizard, withWizard, Notice } from '../../../../../packages/components/src';
 import WizardsTab from '../../../wizards-tab';
 import WizardSection from '../../../wizards-section';
 

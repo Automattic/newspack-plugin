@@ -10,7 +10,7 @@ import { useEffect, useState, useRef, Fragment } from '@wordpress/element';
 /**
  * Internal dependencies.
  */
-import { Card, ButtonCard, Notice, TextControl } from '../../../../components/src';
+import { Card, ButtonCard, Notice, TextControl } from '../../../../../packages/components/src';
 import GoogleOAuth from '../../../newspack/views/settings/connections/google-oauth';
 import { handleJSONFile } from '../utils';
 

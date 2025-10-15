@@ -9,9 +9,9 @@ import { ToggleControl, ExternalLink } from '@wordpress/components';
  * Internal dependencies.
  */
 import MoneyInput from '../../../components/money-input';
-import { Button, Card, Grid, Notice, SectionHeader, SelectControl, TextControl } from '../../../../../components/src';
-import { useWizardData } from '../../../../../components/src/wizard/store/utils';
-import { WIZARD_STORE_NAMESPACE } from '../../../../../components/src/wizard/store';
+import { Button, Card, Grid, Notice, SectionHeader, SelectControl, TextControl } from '../../../../../../packages/components/src';
+import { useWizardData } from '../../../../../../packages/components/src/wizard/store/utils';
+import { WIZARD_STORE_NAMESPACE } from '../../../../../../packages/components/src/wizard/store';
 import WizardsTab from '../../../../wizards-tab';
 import { AUDIENCE_DONATIONS_WIZARD_SLUG } from '../../../constants';
 import { CoverFeesSettings } from '../../../components/cover-fees-settings';
