@@ -46,6 +46,16 @@ export const Onboarding = ( { settings, status, error, updateSettings, startOAut
 	}, [] );
 
 	useEffect( () => {
+		// Check for OAuth error in URL params
+		const urlParams = new URLSearchParams( window.location.search );
+		const oauthError = urlParams.get( 'nextdoor_oauth_error' );
+
+		if ( oauthError ) {
+			setError( decodeURIComponent( oauthError ) );
+		}
+	}, [] );
+
+	useEffect( () => {
 		// Determine current step based on status
 		if ( status.is_connected ) {
 			setCurrentStep( 4 );

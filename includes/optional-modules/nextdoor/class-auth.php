@@ -174,7 +174,16 @@ class Auth {
 		$settings = Nextdoor::get_settings();
 
 		if ( empty( $settings['client_id'] ) || empty( $settings['client_secret'] ) ) {
-			wp_die( esc_html__( 'Nextdoor client credentials not configured.', 'newspack-plugin' ) );
+			wp_safe_redirect( 
+				add_query_arg(
+					[
+						'page'                 => 'newspack-settings',
+						'nextdoor_oauth_error' => rawurlencode( __( 'Nextdoor client credentials not configured.', 'newspack-plugin' ) ),
+					],
+					admin_url( 'admin.php' )
+				) . '#social'
+			);
+			exit;
 		}
 
 		$redirect_uri = Nextdoor::get_redirect_uri();
@@ -187,13 +196,16 @@ class Auth {
 		);
 
 		if ( is_wp_error( $token_response ) ) {
-			wp_die( 
-				sprintf(
-					/* translators: %s: error message */
-					esc_html__( 'OAuth error: %s', 'newspack-plugin' ),
-					esc_html( $token_response->get_error_message() )
-				)
+			wp_safe_redirect( 
+				add_query_arg(
+					[
+						'page'                 => 'newspack-settings',
+						'nextdoor_oauth_error' => rawurlencode( $token_response->get_error_message() ),
+					],
+					admin_url( 'admin.php' )
+				) . '#social'
 			);
+			exit;
 		}
 
 		$settings['access_token']     = $token_response['access_token'];
