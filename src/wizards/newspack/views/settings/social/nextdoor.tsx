@@ -88,7 +88,10 @@ function Nextdoor() {
 
 			return settings;
 		} catch ( fetchError ) {
-			const errorMsg = fetchError instanceof Error ? fetchError.message : __( 'Failed to update settings.', 'newspack-plugin' );
+			const errorMsg: string =
+				fetchError instanceof Object && 'message' in fetchError
+					? ( fetchError as { message: string } ).message
+					: __( 'Failed to update settings.', 'newspack-plugin' );
 			setError( errorMsg );
 			throw new Error( errorMsg );
 		}
@@ -104,7 +107,10 @@ function Nextdoor() {
 			} );
 			return response as OAuthResponse;
 		} catch ( fetchError ) {
-			const errorMsg = fetchError instanceof Error ? fetchError.message : __( 'Failed to start OAuth flow.', 'newspack-plugin' );
+			const errorMsg: string =
+				fetchError instanceof Object && 'message' in fetchError
+					? ( fetchError as { message: string } ).message
+					: __( 'Failed to start OAuth flow.', 'newspack-plugin' );
 			setError( errorMsg );
 			throw new Error( errorMsg );
 		}
@@ -120,7 +126,10 @@ function Nextdoor() {
 			} );
 			return response as ClaimPageResponse;
 		} catch ( fetchError ) {
-			const errorMsg = fetchError instanceof Error ? fetchError.message : __( 'Failed to claim page.', 'newspack-plugin' );
+			const errorMsg: string =
+				fetchError instanceof Object && 'message' in fetchError
+					? ( fetchError as { message: string } ).message
+					: __( 'Failed to claim page.', 'newspack-plugin' );
 			setError( errorMsg );
 			throw new Error( errorMsg );
 		}
@@ -135,7 +144,10 @@ function Nextdoor() {
 			} );
 			handleToggle( true );
 		} catch ( fetchError ) {
-			const errorMsg = fetchError instanceof Error ? fetchError.message : __( 'Failed to disconnect.', 'newspack-plugin' );
+			const errorMsg: string =
+				fetchError instanceof Object && 'message' in fetchError
+					? ( fetchError as { message: string } ).message
+					: __( 'Failed to disconnect.', 'newspack-plugin' );
 			setError( errorMsg );
 			throw new Error( errorMsg );
 		}
