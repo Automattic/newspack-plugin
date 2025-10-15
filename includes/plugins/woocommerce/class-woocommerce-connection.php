@@ -63,7 +63,7 @@ class WooCommerce_Connection {
 		\add_action( 'woocommerce_payment_complete', [ __CLASS__, 'order_paid' ], 101 );
 		\add_action( 'woocommerce_after_checkout_validation', [ __CLASS__, 'rate_limit_checkout' ], 10, 2 );
 		\add_filter( 'woocommerce_add_payment_method_form_is_valid', [ __CLASS__, 'rate_limit_payment_methods' ] );
-		\add_action( 'wc_stripe_save_to_subs_checked', '__return_true' );
+		\add_filter( 'wc_stripe_save_to_subs_checked', '__return_true' );
 
 		\add_filter( 'page_template', [ __CLASS__, 'page_template' ] );
 		\add_filter( 'get_post_metadata', [ __CLASS__, 'get_post_metadata' ], 10, 3 );
