@@ -1,3 +1,10 @@
+## [6.21.1](https://github.com/Automattic/newspack-plugin/compare/v6.21.0...v6.21.1) (2025-10-15)
+
+
+### Bug Fixes
+
+* order meta method shouldn use ID ([#4236](https://github.com/Automattic/newspack-plugin/issues/4236)) ([354618d](https://github.com/Automattic/newspack-plugin/commit/354618d890fa7c791f6007a018f528504a6b38bf))
+
 # [6.21.0](https://github.com/Automattic/newspack-plugin/compare/v6.20.2...v6.21.0) (2025-10-15)
 
 
