@@ -32,7 +32,7 @@ export default function Edit() {
 						layout: {
 							type: 'flex',
 							orientation: 'horizontal',
-							flexWrap: 'nowrap',
+							flexWrap: 'wrap',
 							justifyContent: 'space-between',
 						},
 					},
