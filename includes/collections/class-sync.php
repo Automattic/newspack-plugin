@@ -231,6 +231,13 @@ class Sync {
 			if ( empty( $existing_term ) ) {
 				self::create_linked_term( $post );
 			} else {
+				// Check if existing term is already linked to a Collection.
+				$existing_term_id = $existing_term[0];
+				$linked_post_id = self::get_collection_linked_to_term( $existing_term_id );
+				if ( $linked_post_id ) {
+					self::create_linked_term( $post );
+					return;
+				}
 				self::link_collection_and_term( $post_id, $existing_term[0] );
 			}
 		}
