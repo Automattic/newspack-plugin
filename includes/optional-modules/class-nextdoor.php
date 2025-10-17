@@ -100,7 +100,7 @@ class Nextdoor {
 	 */
 	public static function get_nextdoor_capability_roles() {
 		$settings       = self::get_settings();
-		$roles_with_cap = isset( $settings['allowed_roles'] ) ? $settings['allowed_roles'] : [ 'administrator' ];
+		$roles_with_cap = isset( $settings['allowed_roles'] ) ? (array) $settings['allowed_roles'] : [ 'administrator' ];
 
 		/**
 		 * Filter for roles that should have Nextdoor capabilities.
