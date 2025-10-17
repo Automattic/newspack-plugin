@@ -49,7 +49,7 @@ class API {
 	 * @return array|WP_Error
 	 */
 	private function make_request( $endpoint, $args = [], $method = 'GET' ) {
-		$url = self::API_BASE_URL . $endpoint;
+		$url = trailingslashit( self::API_BASE_URL ) . $endpoint;
 
 		$default_args = [
 			'method'  => $method,
