@@ -123,7 +123,47 @@ class Nextdoor {
 	 * @return array
 	 */
 	public static function get_settings() {
-		return get_option( self::SETTINGS_SLUG, [] );
+		$default_settings = [
+			// OAuth credentials.
+			'client_id'        => '',
+			'client_secret'    => '',
+
+			// OAuth token.
+			'refresh_token'    => '',
+			'access_token'     => '',
+			'token_expires_at' => 0,
+
+			// Nextdoor page info.
+			'page_id'          => '',
+			'publication_url'  => '',
+
+			// User configs.
+			'allowed_roles'    => [ 'administrator' ],
+		];
+
+		/**
+		 * Filter the default Nextdoor settings.
+		 *
+		 * @param array $default_settings The default settings for Nextdoor integration.
+		 * @return array Modified default settings.
+		 */
+		$default_settings = apply_filters( 'newspack_nextdoor_default_settings', $default_settings );
+
+		$saved_settings = get_option( self::SETTINGS_SLUG, [] );
+
+		if ( ! is_array( $saved_settings ) ) {
+			return $default_settings;
+		}
+
+		/**
+		 * Filter the saved Nextdoor settings.
+		 *
+		 * @param array $saved_settings The saved settings for Nextdoor integration.
+		 * @return array Modified saved settings.
+		 */
+		$saved_settings = apply_filters( 'newspack_nextdoor_settings', $saved_settings );
+
+		return shortcode_atts( $default_settings, $saved_settings );
 	}
 
 	/**
