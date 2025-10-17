@@ -1,5 +1,29 @@
 import { domReady } from '../utils';
 
+function handleCheckoutOverlayClose( { detail: { overlays } } ) {
+	setTimeout( () => {
+		if ( ! overlays.length ) {
+			window.location.reload();
+			window.newspackReaderActivation.off( 'overlay', handleCheckoutOverlayClose );
+		}
+	}, 50 );
+}
+
+function handleCheckoutClose( completed ) {
+	if ( ! completed ) {
+		return;
+	}
+	window.newspackRAS.push( ras => {
+		setTimeout( () => {
+			if ( ras.overlays.get().length ) {
+				ras.on( 'overlay', handleCheckoutOverlayClose );
+				return;
+			}
+			window.location.reload();
+		}, 50 );
+	} );
+}
+
 export default function init() {
 	domReady( () => {
 		const forms = document.querySelectorAll( '.newspack__subscription-tiers__form' );
@@ -108,11 +132,7 @@ export default function init() {
 					onCheckoutComplete: () => {
 						completed = true;
 					},
-					onClose: () => {
-						if ( completed ) {
-							window.location.reload();
-						}
-					},
+					onClose: () => handleCheckoutClose( completed ),
 				} );
 			} );
 		} );
