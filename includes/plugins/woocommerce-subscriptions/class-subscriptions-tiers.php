@@ -24,7 +24,7 @@ class Subscriptions_Tiers {
 	 * Initialize hooks.
 	 */
 	public static function init_hooks() {
-		add_filter( 'woocommerce_subscriptions_switch_link_text', [ __CLASS__, 'switch_link_text' ] );
+		add_filter( 'woocommerce_subscriptions_switch_link_text', [ __CLASS__, 'switch_link_text' ], 11, 3 );
 		add_filter( 'woocommerce_subscriptions_switch_link_text', [ __CLASS__, 'cache_switch_subscription_link_data' ], 10, 4 );
 		add_action( 'wp_footer', [ __CLASS__, 'print_switch_subscription_modal' ] );
 
@@ -49,9 +49,16 @@ class Subscriptions_Tiers {
 	/**
 	 * Switch link text.
 	 *
+	 * @param string                 $text    The text of the switch subscription link.
+	 * @param int                    $item_id The ID of the item.
+	 * @param \WC_Order_Item_Product $item    The order line item data.
+	 *
 	 * @return string The text of the switch subscription link.
 	 */
-	public static function switch_link_text() {
+	public static function switch_link_text( $text, $item_id, $item ) {
+		if ( Donations::is_donation_product( $item->get_product_id() ) ) {
+			return __( 'Edit donation', 'newspack-plugin' );
+		}
 		return __( 'Change subscription', 'newspack-plugin' );
 	}
 
