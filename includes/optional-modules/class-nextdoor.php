@@ -83,12 +83,24 @@ class Nextdoor {
 	 * Add custom Nextdoor capability to appropriate roles.
 	 */
 	public static function add_nextdoor_capability() {
-		$roles_with_cap = self::get_nextdoor_capability_roles();
+		$allowed_roles = self::get_nextdoor_capability_roles();
+		$all_roles     = wp_roles()->roles;
 
-		foreach ( $roles_with_cap as $role_name ) {
+		foreach ( $all_roles as $role_name => $role_info ) {
 			$role = get_role( $role_name );
-			if ( $role && ! $role->has_cap( self::CAPABILITY_SLUG ) ) {
+
+			if ( ! $role ) {
+				continue;
+			}
+
+			$is_allowed = in_array( $role_name, $allowed_roles, true );
+
+			// Add capability to allowed roles.
+			if ( $is_allowed && ! $role->has_cap( self::CAPABILITY_SLUG ) ) {
 				$role->add_cap( self::CAPABILITY_SLUG );
+			} elseif ( ! $is_allowed && $role->has_cap( self::CAPABILITY_SLUG ) ) {
+				// Remove capability from disallowed roles.
+				$role->remove_cap( self::CAPABILITY_SLUG );
 			}
 		}
 	}
