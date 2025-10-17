@@ -13,7 +13,7 @@ import { arrowLeft } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
-import { ActionCard, Button, Card, Notice, SelectControl, TextControl, withWizardScreen } from '../../../../components/src';
+import { ActionCard, Button, Card, Notice, SelectControl, TextControl, withWizardScreen } from '../../../../../packages/components/src';
 import ServiceAccountConnection from './service-account-connection';
 import OptionsPopover from './options-popover';
 
@@ -79,7 +79,7 @@ const AdUnits = ( { adUnits, parentAdUnits, onDelete, wizardApiFetch, updateWith
 		const { code, path } = adUnit;
 		if ( isLegacy ) {
 			return code;
-		} else if ( ! path.length ) {
+		} else if ( ! path?.length ) {
 			return code;
 		}
 		return `${ path.map( parent => parent.code ).join( '/' ) }/${ code }`;

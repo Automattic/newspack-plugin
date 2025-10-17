@@ -6,7 +6,7 @@
  * Internal dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { PluginSettings, withWizardScreen } from '../../../../components/src';
+import { PluginSettings, withWizardScreen } from '../../../../../packages/components/src';
 import Suppression from '../../components/suppression';
 import AdRefreshControlSettings from '../../components/ad-refresh-control';
 import MediaKitToggle from '../../components/media-kit';

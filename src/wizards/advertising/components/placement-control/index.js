@@ -11,7 +11,7 @@ import { __, sprintf } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { Grid, Notice, SelectControl, TextControl } from '../../../../components/src';
+import { Grid, Notice, SelectControl, TextControl } from '../../../../../packages/components/src';
 
 /**
  * Get select options from object of ad units.

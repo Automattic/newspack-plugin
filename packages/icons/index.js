@@ -1,5 +1,7 @@
 export { default as accessibility } from './src/accessibility';
 export { default as ad } from './src/ad';
+export { default as ai } from './src/ai';
+export { default as aiText } from './src/ai-text';
 export { default as archiveLoop } from './src/archive-loop';
 export { default as aspectLandscape } from './src/aspect-landscape';
 export { default as aspectPortrait } from './src/aspect-portrait';

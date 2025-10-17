@@ -18,7 +18,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies.
  */
-import { SelectControl, TextControl } from '../../../../components/src';
+import { SelectControl, TextControl } from '../../../../../packages/components/src';
 
 const IAB_SIZES = window.newspack_ads_wizard.iab_sizes;
 

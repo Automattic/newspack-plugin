@@ -7,7 +7,7 @@ import { CheckboxControl } from '@wordpress/components';
 /**
  * Internal dependencies
  */
-import { Grid, SectionHeader, TextControl } from '../../../components/src';
+import { Grid, SectionHeader, TextControl } from '../../../../packages/components/src';
 
 const MetadataFields = ( { availableFields, getSharedProps, selectedFields, updateConfig } ) => {
 	return (

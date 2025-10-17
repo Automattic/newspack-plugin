@@ -15,7 +15,7 @@ import { registerPlugin } from '@wordpress/plugins';
 /**
  * Internal dependencies
  */
-import { hooks } from '../../components/src';
+import { hooks } from '../../../packages/components/src';
 import './style.scss';
 
 const ReaderRevenueEmailSidebar = compose( [

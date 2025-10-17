@@ -173,7 +173,7 @@ export function openAuthModal( config = {} ) {
 	document.body.style.overflow = 'hidden';
 	modal.setAttribute( 'data-state', 'open' );
 	if ( window.newspackReaderActivation?.overlays ) {
-		modal.overlayId = window.newspackReaderActivation.overlays.add();
+		modal.overlayId = window.newspackReaderActivation.overlays.add( 'auth-modal' );
 		a11y.trapFocus( modal );
 	}
 

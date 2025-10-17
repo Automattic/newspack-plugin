@@ -6,7 +6,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies.
  */
-import { Button, Card, withWizardScreen } from '../../../../../components/src';
+import { Button, Card, withWizardScreen } from '../../../../../../packages/components/src';
 import './style.scss';
 
 /**

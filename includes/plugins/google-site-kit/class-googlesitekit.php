@@ -198,10 +198,13 @@ class GoogleSiteKit {
 			'logged_in' => is_user_logged_in() ? 'yes' : 'no',
 		];
 
+		$categories = [];
+
 		// Single post params.
 		if ( is_singular() ) {
 			// Post ID.
 			$params['post_id'] = get_the_ID();
+			$categories        = get_the_category();
 
 			// Get current post author name.
 			$author_name = '';
@@ -235,7 +238,7 @@ class GoogleSiteKit {
 			function( $category ) {
 				return $category->name;
 			},
-			is_category() ? [ get_queried_object() ] : get_the_category()
+			is_category() ? [ get_queried_object() ] : $categories
 		);
 		if ( ! empty( $category_names ) ) {
 			$params['categories'] = implode( ', ', $category_names );

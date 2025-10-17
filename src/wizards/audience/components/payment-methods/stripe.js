@@ -8,8 +8,8 @@ import { useDispatch, useSelect } from '@wordpress/data';
 /**
  * Internal dependencies
  */
-import { ActionCard, Button } from '../../../../components/src';
-import { WIZARD_STORE_NAMESPACE } from '../../../../components/src/wizard/store';
+import { ActionCard, Button } from '../../../../../packages/components/src';
+import { WIZARD_STORE_NAMESPACE } from '../../../../../packages/components/src/wizard/store';
 
 export const Stripe = ( { stripe } ) => {
 	const isLoading = useSelect( select => select( WIZARD_STORE_NAMESPACE ).isLoading() );

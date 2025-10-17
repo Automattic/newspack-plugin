@@ -70,7 +70,7 @@ class Content_Gate_Countdown_Block {
 		if ( false === $total_views ) {
 			return '';
 		}
-		$views     = Metering::get_metered_views( get_current_user_id() );
+		$views     = Metering::get_current_user_metered_views();
 		$countdown = sprintf(
 			/* translators: 1: current number of metered views, 2: total metered views. */
 			__( '%1$d/%2$d', 'newspack-plugin' ),

@@ -1,7 +1,7 @@
 /**
  * Internal dependencies.
  */
-import { withWizardScreen } from '../../../../../components/src';
+import { withWizardScreen } from '../../../../../../packages/components/src';
 import SegmentsList from './segments-list';
 import SingleSegment from './single-segment';
 import './style.scss';

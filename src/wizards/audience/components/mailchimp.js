@@ -8,7 +8,7 @@ import { useEffect, useState } from '@wordpress/element';
 /**
  * Internal dependencies
  */
-import { Notice, SectionHeader, SelectControl } from '../../../components/src';
+import { Notice, SectionHeader, SelectControl } from '../../../../packages/components/src';
 
 export default function Mailchimp( { value, onChange } ) {
 	const [ inFlight, setInFlight ] = useState( false );

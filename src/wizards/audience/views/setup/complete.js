@@ -12,7 +12,7 @@ import { useEffect, useRef, useState } from '@wordpress/element';
  * Internal dependencies
  */
 import WizardsTab from '../../../wizards-tab';
-import { Button, withWizardScreen, Card, Notice, ProgressBar, StepsList } from '../../../../components/src';
+import { Button, withWizardScreen, Card, Notice, ProgressBar, StepsList } from '../../../../../packages/components/src';
 
 const listItems = [
 	{

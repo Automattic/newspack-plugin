@@ -239,6 +239,7 @@ class Newspack_UI {
 										'aria-required' => true,
 										'value'         => true,
 										'disabled'      => true,
+										'checked'       => true,
 									],
 									'select'   => [
 										'name'             => true,
