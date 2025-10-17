@@ -418,21 +418,20 @@ class Subscriptions_Tiers {
 		$value     = $product->get_price();
 		$frequency = $product->get_meta( '_subscription_period' );
 		$interval  = $product->get_meta( '_subscription_period_interval' );
-		$divisor   = [
-			'day'   => 1,
-			'week'  => 7,
-			'month' => 30,
-			'year'  => 365,
-		];
+
 		if ( $switch_subscription ) {
 			$base_product   = wc_get_product( $switch_subscription['item']['product_id'] );
 			$base_frequency = $base_product->get_meta( '_subscription_period' );
 			$base_interval  = $base_product->get_meta( '_subscription_period_interval' );
-			$base_amount    = $switch_subscription['item']['line_total'] / $base_interval / $divisor[ $base_frequency ];
+			$base_amount    = $switch_subscription['item']['line_total'] / $base_interval;
+
+			// Get the direct conversion multiplier from base frequency to target frequency.
+			$multiplier = self::get_frequency_conversion_multiplier( $base_frequency, $frequency );
+
 			if ( $current ) {
-				$value = $base_amount * $divisor[ $frequency ];
+				$value = $base_amount * $multiplier;
 			} else {
-				$value = max( ceil( $base_amount * $divisor[ $frequency ] * $interval ), $value );
+				$value = max( ceil( $base_amount * $multiplier * $interval ), $value );
 			}
 		}
 		?>
@@ -774,6 +773,46 @@ class Subscriptions_Tiers {
 			return true;
 		}
 		return $disabled;
+	}
+
+	/**
+	 * Get the multiplier to convert from one subscription frequency to another.
+	 *
+	 * @param string $from_frequency The base frequency.
+	 * @param string $to_frequency   The target frequency.
+	 *
+	 * @return float The multiplier to convert from base to target frequency.
+	 */
+	private static function get_frequency_conversion_multiplier( $from_frequency, $to_frequency ) {
+		if ( $from_frequency === $to_frequency ) {
+			return 1;
+		}
+		$conversions = [
+			'day'   => [
+				'week'  => 7,
+				'month' => 30,
+				'year'  => 365,
+			],
+			'week'  => [
+				'day'   => 1 / 7,
+				'month' => 52 / 12, // ~4.33 weeks per month.
+				'year'  => 52,
+			],
+			'month' => [
+				'day'  => 1 / 30,
+				'week' => 12 / 52, // ~0.23 months per week.
+				'year' => 12,
+			],
+			'year'  => [
+				'day'   => 1 / 365,
+				'week'  => 1 / 52,
+				'month' => 1 / 12,
+			],
+		];
+		if ( isset( $conversions[ $from_frequency ][ $to_frequency ] ) ) {
+			return $conversions[ $from_frequency ][ $to_frequency ];
+		}
+		return 1;
 	}
 }
 Subscriptions_Tiers::init_hooks();
