@@ -26,6 +26,13 @@ class Content_Gate {
 	private static $gate_rendered = false;
 
 	/**
+	 * Whether the gate is being rendered.
+	 *
+	 * @var boolean
+	 */
+	private static $is_gated = false;
+
+	/**
 	 * Initialize hooks and filters.
 	 */
 	public static function init() {
@@ -89,6 +96,8 @@ class Content_Gate {
 			return;
 		}
 
+		self::$is_gated = true;
+
 		$content = self::get_restricted_post_excerpt( $post );
 
 		$content .= self::get_inline_gate_content();
@@ -97,6 +106,15 @@ class Content_Gate {
 		$post->post_excerpt   = $content;
 		$post->comment_status = 'closed';
 		$post->comment_count  = 0;
+	}
+
+	/**
+	 * Get whether the gate is being rendered.
+	 *
+	 * @return bool
+	 */
+	public static function is_gated() {
+		return self::$is_gated;
 	}
 
 	/**
@@ -555,6 +573,8 @@ class Content_Gate {
 		if ( 'overlay' !== $style ) {
 			return;
 		}
+		self::$is_gated = true;
+
 		global $post;
 		$_post = $post;
 		$post  = \get_post( $gate_post_id ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited

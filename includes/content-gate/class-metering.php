@@ -131,7 +131,7 @@ class Metering {
 				'gate_id'            => $gate_post_id,
 				'post_id'            => get_the_ID(),
 				'article_view'       => self::$article_view,
-				'excerpt'            => Content_Gate::get_restricted_post_excerpt( get_post() ),
+				'excerpt'            => apply_filters( 'newspack_gate_content', Content_Gate::get_restricted_post_excerpt( get_post() ) ),
 			]
 		);
 	}
@@ -311,7 +311,7 @@ class Metering {
 			return 0;
 		}
 
-		$gate_post_id  = Memberships::get_gate_post_id();
+		$gate_post_id  = Content_Gate::get_gate_post_id();
 		$meta_key      = self::METERING_META_KEY . '_' . $gate_post_id;
 		$metering_data = \get_user_meta( get_current_user_id(), $meta_key, true );
 		if ( ! is_array( $metering_data ) || ! isset( $metering_data['content'] ) ) {
@@ -328,7 +328,7 @@ class Metering {
 	 * @return int|boolean Total number of metered views if metering is enabled, otherwise false.
 	 */
 	public static function get_total_metered_views( $is_logged_in = false ) {
-		$gate_post_id = Memberships::get_gate_post_id( get_the_ID() );
+		$gate_post_id = Content_Gate::get_gate_post_id( get_the_ID() );
 		if ( ! $gate_post_id ) {
 			return false;
 		}
