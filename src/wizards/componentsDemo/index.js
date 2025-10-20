@@ -20,6 +20,7 @@ import { ExternalLink } from '@wordpress/components';
 import {
 	ActionCard,
 	AutocompleteWithSuggestions,
+	AutocompleteWithLatestPosts,
 	BoxContrast,
 	Button,
 	ButtonCard,
@@ -51,6 +52,8 @@ class ComponentsDemo extends Component {
 		this.state = {
 			selectedPostForAutocompleteWithSuggestions: [],
 			selectedPostsForAutocompleteWithSuggestionsMultiSelect: [],
+			selectedPostForAutocompleteWithLatestPosts: [],
+			selectedPostsForAutocompleteWithLatestPostsMultiSelect: [],
 			image: null,
 			selectValue1: '2nd',
 			selectValue2: '',
@@ -68,6 +71,8 @@ class ComponentsDemo extends Component {
 		const {
 			selectedPostForAutocompleteWithSuggestions,
 			selectedPostsForAutocompleteWithSuggestionsMultiSelect,
+			selectedPostForAutocompleteWithLatestPosts,
+			selectedPostsForAutocompleteWithLatestPostsMultiSelect,
 			selectValue1,
 			selectValue2,
 			selectValue3,
@@ -129,6 +134,30 @@ class ComponentsDemo extends Component {
 							postTypeLabel={ 'widget' }
 							postTypeLabelPlural={ 'widgets' }
 							selectedItems={ selectedPostsForAutocompleteWithSuggestionsMultiSelect }
+						/>
+					</Card>
+					<Card>
+						<h2>{ __( 'Autocomplete with Latest Posts (single-select)', 'newspack-plugin' ) }</h2>
+						<AutocompleteWithLatestPosts
+							hideHelp
+							label={ __( 'Posts', 'newspack-plugin' ) }
+							onChange={ items => this.setState( { selectedPostForAutocompleteWithLatestPosts: items } ) }
+							selectedItems={ selectedPostForAutocompleteWithLatestPosts }
+						/>
+
+						<hr />
+
+						<h2>{ __( 'Autocomplete with Latest Posts (multi-select)', 'newspack-plugin' ) }</h2>
+						<AutocompleteWithLatestPosts
+							hideHelp
+							multiSelect
+							label={ __( 'Posts', 'newspack-plugin' ) }
+							onChange={ items =>
+								this.setState( {
+									selectedPostsForAutocompleteWithLatestPostsMultiSelect: items,
+								} )
+							}
+							selectedItems={ selectedPostsForAutocompleteWithLatestPostsMultiSelect }
 						/>
 					</Card>
 					<Card>
