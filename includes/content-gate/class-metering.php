@@ -61,7 +61,7 @@ class Metering {
 			return;
 		}
 		Content_Gate::mark_gate_as_rendered();
-		echo '<div style="display:none">' . Content_Gate::get_inline_gate_content() . '</div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		echo '<div style="display:none">' . Content_Gate::get_inline_gate_html() . '</div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	}
 
 	/**

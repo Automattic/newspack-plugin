@@ -499,24 +499,7 @@ class Content_Gate {
 	 * @return string
 	 */
 	public static function get_inline_gate_html() {
-		$gate_post_id = self::get_gate_post_id();
-		$style        = \get_post_meta( $gate_post_id, 'style', true );
-		if ( 'inline' !== $style ) {
-			return '';
-		}
-		$gate = \apply_filters( 'newspack_gate_content', \get_the_content( null, false, \get_post( $gate_post_id ) ), $gate_post_id );
-
-		// Add clearfix to the gate.
-		$gate = '<div style=\'content:"";clear:both;display:table;\'></div>' . $gate;
-
-		// Apply inline fade.
-		if ( \get_post_meta( $gate_post_id, 'inline_fade', true ) ) {
-			$gate = '<div style="pointer-events: none; height: 10em; margin-top: -10em; width: 100%; position: absolute; background: linear-gradient(180deg, rgba(255,255,255,0) 14%, rgba(255,255,255,1) 76%);"></div>' . $gate;
-		}
-
-		// Wrap gate in a div for styling.
-		$gate = '<div class="newspack-content-gate__gate newspack-content-gate__inline-gate">' . $gate . '</div>';
-		return $gate;
+		return apply_filters( 'newspack_gate_content', self::get_inline_gate_content() );
 	}
 
 	/**
