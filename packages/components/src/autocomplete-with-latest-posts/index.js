@@ -25,7 +25,6 @@ const AutocompleteWithLatestPosts = ( {
 	multiSelect = false, // If true, component can select multiple values at once.
 	onChange = false, // Function to call when selections change.
 	selectedItems = [], // Array of saved items.
-	selectedPost = 0, // Legacy prop when single-select was the only option.
 	suggestionsToFetch = 20, // Number of suggestions to fetch per query.
 } ) => {
 	const [ isLoading, setIsLoading ] = useState( true );
@@ -197,8 +196,7 @@ const AutocompleteWithLatestPosts = ( {
 	 * Get tokens for FormTokenField.
 	 */
 	const getTokens = () => {
-		const currentSelections = selectedPost ? [ ...selectedItems, selectedPost ] : selectedItems;
-		return getLabelsForValues( currentSelections );
+		return getLabelsForValues( selectedItems );
 	};
 
 	/**
@@ -208,8 +206,7 @@ const AutocompleteWithLatestPosts = ( {
 	 */
 	const renderSuggestion = suggestion => {
 		if ( multiSelect ) {
-			const currentSelections = selectedPost ? [ ...selectedItems, selectedPost ] : [ ...selectedItems ];
-			const isSelected = !! currentSelections.find(
+			const isSelected = !! selectedItems.find(
 				_selection => parseInt( _selection.value ) === parseInt( suggestion.value ) && _selection.label === suggestion.label
 			);
 			return (
