@@ -252,14 +252,16 @@ const AutocompleteWithLatestPosts = ( {
 
 		return (
 			<>
-				<p className="newspack-autocomplete-with-suggestions__label">{ __( 'Latest Posts', 'newspack-plugin' ) }</p>
-				<div className={ className }>
-					{ suggestions.map( renderSuggestion ) }
-					{ suggestions.length < ( maxItemsToSuggest || maxSuggestions ) && (
-						<Button disabled={ isLoadingMore } isSecondary onClick={ () => setIsLoadingMore( true ) }>
-							{ isLoadingMore ? __( 'Loading…', 'newspack-plugin' ) : __( 'Load more', 'newspack-plugin' ) }
-						</Button>
-					) }
+				<div className="newspack-autocomplete-with-latest-posts__search-suggestions-container">
+					<p className="newspack-autocomplete-with-suggestions__label">{ __( 'Latest Posts', 'newspack-plugin' ) }</p>
+					<div className={ className }>
+						{ suggestions.map( renderSuggestion ) }
+						{ suggestions.length < ( maxItemsToSuggest || maxSuggestions ) && (
+							<Button disabled={ isLoadingMore } isSecondary onClick={ () => setIsLoadingMore( true ) }>
+								{ isLoadingMore ? __( 'Loading…', 'newspack-plugin' ) : __( 'Load more', 'newspack-plugin' ) }
+							</Button>
+						) }
+					</div>
 				</div>
 			</>
 		);

@@ -5,6 +5,8 @@
 @use "~@wordpress/base-styles/colors" as wp-colors;
 
 .newspack-autocomplete-with-latest-posts {
+	display: grid;
+	gap: 16px;
 	width: 100%;
 
 	.components-select-control__input {
@@ -147,7 +149,7 @@
 		line-height: 1.4;
 		text-transform: uppercase;
 		display: block;
-		margin: 24px 0 8px;
+		margin: 0 0 8px;
 		padding: 0;
 	}
 }
