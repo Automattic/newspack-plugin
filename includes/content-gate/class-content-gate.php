@@ -538,8 +538,9 @@ class Content_Gate {
 		$use_more_tag = get_post_meta( $gate_post_id, 'use_more_tag', true );
 		// Use <!--more--> as threshold if it exists.
 		if ( $use_more_tag && strpos( $content, '<!--more-->' ) ) {
-			$content = explode( '<!--more-->', $content )[0];
+			$content = apply_filters( 'newspack_gate_content', explode( '<!--more-->', $content )[0] );
 		} else {
+			$content = apply_filters( 'newspack_gate_content', $content );
 			$count = (int) get_post_meta( $gate_post_id, 'visible_paragraphs', true );
 			// Split into paragraphs.
 			$content = explode( '</p>', $content );
