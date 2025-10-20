@@ -22,34 +22,12 @@
 		color: wp-colors.$gray-900 !important;
 	}
 
-	&__suggestions-spinner {
-		background: wp-colors.$gray-100;
-		border: 1px solid wp-colors.$gray-700;
-		border-radius: 2px;
-		cursor: progress;
-		margin: 16px 0;
-		padding: 32px;
-
-		.components-spinner {
-			display: block;
-			margin: 0 auto;
-			position: relative;
-			right: auto;
-			top: 0;
-		}
-	}
-
 	.newspack-autocomplete-tokenfield__help {
 		font-size: inherit;
 		margin-bottom: 8px !important;
 	}
 
 	.components-form-token-field {
-		// Also bad CSS:
-		&__input {
-			//min-height: 26px !important;
-		}
-
 		&__input-container {
 			border-color: wp-colors.$gray-700;
 		}

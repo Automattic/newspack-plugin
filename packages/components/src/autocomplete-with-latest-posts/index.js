@@ -278,6 +278,8 @@ const AutocompleteWithLatestPosts = ( {
 					onInputChange={ debouncedUpdateSuggestions }
 					label={ label }
 					help={ ! hideHelp && help }
+					__next40pxDefaultSize={ true }
+					__nextHasNoMarginBottom={ true }
 				/>
 				{ ( isLoading || isSearching ) && <Spinner /> }
 			</div>
