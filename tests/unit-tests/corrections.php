@@ -35,7 +35,7 @@ class Test_Corrections extends WP_UnitTestCase {
 	/**
 	 * Test that the corrections feature is disabled.
 	 *
-	 * @covers Corrections::register_rest_routes
+	 * @covers \Newspack\Corrections::register_rest_routes
 	 */
 	public function test_register_rest_routes() {
 		do_action( 'rest_api_init' );
@@ -68,7 +68,7 @@ class Test_Corrections extends WP_UnitTestCase {
 	/**
 	 * Test that an invalid post ID returns a WP_Error.
 	 *
-	 * @covers Corrections::rest_save_corrections
+	 * @covers \Newspack\Corrections::rest_save_corrections
 	 */
 	public function test_invalid_post_id_returns_error() {
 		$request = new WP_REST_Request( WP_REST_Server::CREATABLE, '/' . NEWSPACK_API_NAMESPACE . '/corrections/9999999' );
@@ -83,7 +83,7 @@ class Test_Corrections extends WP_UnitTestCase {
 	/**
 	 * Test that a new correction is created.
 	 *
-	 * @covers Corrections::rest_save_corrections
+	 * @covers \Newspack\Corrections::rest_save_corrections
 	 */
 	public function test_new_correction_is_created() {
 		$corrections = array(
@@ -116,7 +116,7 @@ class Test_Corrections extends WP_UnitTestCase {
 	/**
 	 * Test that an existing correction is updated.
 	 *
-	 * @covers Corrections::rest_save_corrections
+	 * @covers \Newspack\Corrections::rest_save_corrections
 	 */
 	public function test_existing_correction_is_updated() {
 		$initial_data = array(
@@ -157,7 +157,7 @@ class Test_Corrections extends WP_UnitTestCase {
 	/**
 	 * Test that multiple corrections are saved.
 	 *
-	 * @covers Corrections::rest_save_corrections
+	 * @covers \Newspack\Corrections::rest_save_corrections
 	 */
 	public function test_multiple_corrections_are_saved() {
 		$corrections = array(
@@ -197,7 +197,7 @@ class Test_Corrections extends WP_UnitTestCase {
 	/**
 	 * Test that a correction is deleted.
 	 *
-	 * @covers Corrections::rest_save_corrections
+	 * @covers \Newspack\Corrections::rest_save_corrections
 	 */
 	public function test_correction_is_deleted() {
 		$correction_1 = array(
@@ -259,7 +259,7 @@ class Test_Corrections extends WP_UnitTestCase {
 	/**
 	 * Test that a correction created and added to a post and is returned.
 	 *
-	 * @covers Corrections::add_correction
+	 * @covers \Newspack\Corrections::add_correction
 	 */
 	public function test_add_correction() {
 		$correction = array(
@@ -294,7 +294,7 @@ class Test_Corrections extends WP_UnitTestCase {
 	/**
 	 * Test that a correction created and added to a post and is returned.
 	 *
-	 * @covers Corrections::get_corrections
+	 * @covers \Newspack\Corrections::get_corrections
 	 */
 	public function test_get_corrections() {
 		$time = time() - 60 * 60;
@@ -352,7 +352,7 @@ class Test_Corrections extends WP_UnitTestCase {
 	/**
 	 * Test that a correction created and added to a post and is returned.
 	 *
-	 * @covers Corrections::get_corrections
+	 * @covers \Newspack\Corrections::get_corrections
 	 */
 	public function test_get_corrections_with_no_corrections() {
 		$corrections = Corrections::get_corrections( self::$post_id );
@@ -362,7 +362,7 @@ class Test_Corrections extends WP_UnitTestCase {
 	/**
 	 * Test that a created correction is updated.
 	 *
-	 * @covers Corrections::update_correction
+	 * @covers \Newspack\Corrections::update_correction
 	 */
 	public function test_update_correction() {
 		$correction = array(
@@ -399,7 +399,7 @@ class Test_Corrections extends WP_UnitTestCase {
 	/**
 	 * Test that created corrections are deleted.
 	 *
-	 * @covers Corrections::delete_corrections
+	 * @covers \Newspack\Corrections::delete_corrections
 	 */
 	public function test_delete_corrections() {
 		$correction_1 = array(
@@ -436,7 +436,7 @@ class Test_Corrections extends WP_UnitTestCase {
 	/**
 	 * Test that correction type is returned as "Correction".
 	 *
-	 * @covers Corrections::get_correction_type
+	 * @covers \Newspack\Corrections::get_correction_type
 	 */
 	public function test_get_correction_type_is_correction() {
 		$correction = array(
@@ -457,7 +457,7 @@ class Test_Corrections extends WP_UnitTestCase {
 	/**
 	 * Test that correction type is returned as "Clarification".
 	 *
-	 * @covers Corrections::get_correction_type
+	 * @covers \Newspack\Corrections::get_correction_type
 	 */
 	public function test_get_correction_type_is_clarification() {
 		$clarification = array(
@@ -478,7 +478,7 @@ class Test_Corrections extends WP_UnitTestCase {
 	/**
 	 * Test that the corrections are output on the post.
 	 *
-	 * @covers Corrections::output_corrections_on_post
+	 * @covers \Newspack\Corrections::output_corrections_on_post
 	 */
 	public function test_output_corrections_on_post_appends_markup() {
 		$correction_1 = array(
@@ -534,7 +534,7 @@ class Test_Corrections extends WP_UnitTestCase {
 	/**
 	 * Test scripts and styles are enqueued correctly.
 	 *
-	 * @covers Corrections::wp_enqueue_scripts
+	 * @covers \Newspack\Corrections::wp_enqueue_scripts
 	 */
 	public function test_enqueue_scripts_and_styles() {
 		Corrections::wp_enqueue_scripts();
@@ -547,7 +547,7 @@ class Test_Corrections extends WP_UnitTestCase {
 	/**
 	 * Test corrections post type registration.
 	 *
-	 * @covers Corrections::register_post_type
+	 * @covers \Newspack\Corrections::register_post_type
 	 */
 	public function test_register_post_type() {
 		$post_type_exists = post_type_exists( Corrections::POST_TYPE );
@@ -565,7 +565,7 @@ class Test_Corrections extends WP_UnitTestCase {
 	/**
 	 * Test correction type labels.
 	 *
-	 * @covers Corrections::get_correction_type_label
+	 * @covers \Newspack\Corrections::get_correction_type_label
 	 */
 	public function test_correction_type_labels() {
 		$correction    = [
@@ -600,7 +600,7 @@ class Test_Corrections extends WP_UnitTestCase {
 	/**
 	 * Test that corrections status is updated when post status changes.
 	 *
-	 * @covers Corrections::update_corrections_status
+	 * @covers \Newspack\Corrections::update_corrections_status
 	 */
 	public function test_update_corrections_status() {
 		$correction = array(
@@ -642,7 +642,7 @@ class Test_Corrections extends WP_UnitTestCase {
 	/**
 	 * Test that corrections are set to private when the post is scheduled.
 	 *
-	 * @covers Corrections::update_corrections_status
+	 * @covers \Newspack\Corrections::update_corrections_status
 	 */
 	public function test_corrections_set_to_private_when_post_scheduled() {
 		$correction = array(
@@ -676,8 +676,8 @@ class Test_Corrections extends WP_UnitTestCase {
 	/**
 	 * Test that corrections can be filtered by supported post types.
 	 *
-	 * @covers Corrections::get_supported_post_types
-	 * @covers Corrections::is_supported_post_type
+	 * @covers \Newspack\Corrections::get_supported_post_types
+	 * @covers \Newspack\Corrections::is_supported_post_type
 	 */
 	public function test_get_supported_post_types() {
 		$supported_types = Corrections::get_supported_post_types();

@@ -434,8 +434,9 @@ class Newspack_Test_RSS extends WP_UnitTestCase {
 		// Verify the query returns the correct posts (only post1 and post2).
 		$query->get_posts();
 		$this->assertEquals( 2, $query->found_posts, 'Should find exactly two posts' );
-		$this->assertEquals( $post1, $query->posts[0]->ID, 'Should return only the post in cat1' );
-		$this->assertEquals( $post2, $query->posts[1]->ID, 'Should return only the post in cat2' );
+		$post_ids = wp_list_pluck( $query->posts, 'ID' );
+		$this->assertContains( $post1, $post_ids, 'Should return post1' );
+		$this->assertContains( $post2, $post_ids, 'Should return post2' );
 	}
 
 	/**

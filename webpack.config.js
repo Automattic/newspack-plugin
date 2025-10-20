@@ -45,6 +45,8 @@ const entry = {
 	'reader-registration-block': path.join( __dirname, 'src', 'blocks', 'reader-registration', 'view.js' ),
 	'correction-box-block': path.join( __dirname, 'src', 'blocks', 'correction-box', 'index.js' ),
 	'correction-item-block': path.join( __dirname, 'src', 'blocks', 'correction-item', 'index.js' ),
+	'content-gate-countdown-block': path.join( __dirname, 'src', 'blocks', 'content-gate', 'countdown', 'view.js' ),
+	'content-gate-countdown-box-block': path.join( __dirname, 'src', 'blocks', 'content-gate', 'countdown-box', 'index.js' ),
 	'avatar-block': path.join( __dirname, 'src', 'blocks', 'avatar', 'index.js' ),
 	'my-account': path.join( __dirname, 'src', 'my-account', 'index.js' ),
 	'my-account-v0': path.join( __dirname, 'src', 'my-account', 'v0', 'index.js' ),

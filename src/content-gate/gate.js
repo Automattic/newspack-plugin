@@ -3,6 +3,7 @@
  * Internal dependencies
  */
 import './gate.scss';
+import { getEventPayload, sendEvent } from '../reader-activation/analytics';
 import { debugLog } from '../reader-activation/utils';
 
 const EVENT_NAME = 'np_gate_interaction';
@@ -144,7 +145,7 @@ function isVisible( el ) {
  *
  * @return {Array} The full event payload
  */
-function getEventPayload( payload, gate ) {
+function getGateEventPayload( payload, gate ) {
 	if ( gate ) {
 		gateInfo.gate_has_donation_block = isVisible( gate.querySelector( '.wp-block-newspack-blocks-donate' ) ) ? 'yes' : 'no';
 		gateInfo.gate_has_registration_block = isVisible( gate.querySelector( '.newspack-registration' ) ) ? 'yes' : 'no';
@@ -153,10 +154,7 @@ function getEventPayload( payload, gate ) {
 		gateInfo.gate_has_signin_link = isVisible( gate.querySelector( 'a[href="#signin_modal"]' ) ) ? 'yes' : 'no';
 	}
 
-	return {
-		...gateInfo,
-		...payload,
-	};
+	return getEventPayload( { ...payload, ...gateInfo } );
 }
 
 /**
@@ -174,7 +172,7 @@ function handleSeen( gate ) {
 	const payload = {
 		action: 'seen',
 	};
-	window.gtag( 'event', EVENT_NAME, getEventPayload( payload, gate ) );
+	sendEvent( getGateEventPayload( payload, gate ), EVENT_NAME );
 }
 
 /**
@@ -184,10 +182,7 @@ function handleDismissed() {
 	if ( 'function' !== typeof window.gtag ) {
 		return;
 	}
-	const payload = getEventPayload( {
-		action: 'dismissed',
-	} );
-	window.gtag( 'event', EVENT_NAME, payload );
+	sendEvent( getGateEventPayload( { action: 'dismissed' } ), EVENT_NAME );
 }
 
 /**
@@ -239,7 +234,7 @@ function handleFormSubmission( evt, gate ) {
 		}
 	}
 
-	window.gtag( 'event', EVENT_NAME, getEventPayload( payload, gate ) );
+	sendEvent( getGateEventPayload( payload, gate ), EVENT_NAME );
 }
 
 /**

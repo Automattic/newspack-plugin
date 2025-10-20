@@ -11,9 +11,9 @@ import { useEffect, useState } from '@wordpress/element';
  * Internal dependencies
  */
 import WizardsTab from '../../../wizards-tab';
-import { Button, Notice, Waiting, withWizardScreen } from '../../../../components/src';
+import { Button, Notice, Waiting, withWizardScreen } from '../../../../../packages/components/src';
 import Prompt from '../../components/prompt';
-import Router from '../../../../components/src/proxied-imports/router';
+import Router from '../../../../../packages/components/src/proxied-imports/router';
 import './style.scss';
 
 const { useHistory } = Router;

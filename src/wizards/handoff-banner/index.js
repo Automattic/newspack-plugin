@@ -13,7 +13,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies.
  */
-import { Button } from '../../components/src';
+import { Button } from '../../../packages/components/src';
 import './style.scss';
 
 const HandoffBanner = ( {

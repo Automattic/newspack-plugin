@@ -12,7 +12,7 @@ import { blockTable, header, layout, postList } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
-import { Button, ButtonCard, Card, Grid, Modal } from '../../../../components/src';
+import { Button, ButtonCard, Card, Grid, Modal } from '../../../../../packages/components/src';
 import SegmentationPreview from '../segmentation-preview';
 import PromptActionCard from '../prompt-action-card';
 import { promptDescription, segmentDescription, getCardClassName, warningForPopup } from '../../views/campaigns/utils';

@@ -1,15 +1,17 @@
 {
 	"name": "newspack-icons",
-	"version": "1.0.0",
+	"version": "1.0.2",
 	"description": "A collection of custom SVG icons for Newspack projects",
 	"main": "index.js",
 	"module": "index.js",
+	"types": "./build-types/index.d.ts",
 	"sideEffects": false,
 	"keywords": [
 		"wordpress",
 		"newspack",
 		"icons",
-		"svg"
+		"svg",
+		"typescript"
 	],
 	"author": "Newspack",
 	"license": "GPL-2.0-or-later",
@@ -22,13 +24,27 @@
 		"url": "https://github.com/Automattic/newspack-plugin/issues"
 	},
 	"homepage": "https://github.com/Automattic/newspack-plugin/tree/trunk/packages/icons",
+	"publishConfig": {
+		"access": "public"
+	},
 	"dependencies": {
 		"@wordpress/primitives": "^3.0.0"
 	},
 	"peerDependencies": {
 		"react": "^16.8.0 || ^17.0.0 || ^18.0.0"
 	},
-	"publishConfig": {
-		"access": "public"
-	}
+	"devDependencies": {
+		"@types/react": "^18.0.0"
+	},
+	"scripts": {
+		"build-types": "node build-types.js",
+		"prepublishOnly": "npm run build-types",
+		"clean": "rm -rf build-types"
+	},
+	"files": [
+		"build-types/",
+		"src/",
+		"index.js",
+		"README.md"
+	]
 }

@@ -8,8 +8,8 @@ import { ExternalLink } from '@wordpress/components';
  * Internal dependencies
  */
 import { Stripe } from './stripe';
-import { Notice } from '../../../../components/src';
-import { useWizardData } from '../../../../components/src/wizard/store/utils';
+import { Notice } from '../../../../../packages/components/src';
+import { useWizardData } from '../../../../../packages/components/src/wizard/store/utils';
 import WizardsSection from '../../../wizards-section';
 import { PaymentGateway } from './payment-gateway';
 import './style.scss';

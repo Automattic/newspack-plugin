@@ -47,15 +47,25 @@ function getUserData( store ) {
 	return data;
 }
 
-function lockContent() {
+function lockContent( ras ) {
 	const content = document.querySelector( '.entry-content' );
 	if ( ! content ) {
 		return;
 	}
+	document.body.classList.add( 'newspack-content-locked' );
+
 	// Remove campaign prompts.
 	const prompts = document.querySelectorAll( '.newspack-popup' );
+	const overlays = ras?.overlays?.get() || [];
 	prompts.forEach( prompt => {
 		prompt.parentNode.removeChild( prompt );
+		if ( overlays.length ) {
+			overlays.forEach( overlay => {
+				if ( 0 === overlay.indexOf( 'prompt_' ) ) {
+					ras.overlays.remove( overlay );
+				}
+			} );
+		}
 	} );
 	// Replace content.
 	content.innerHTML = settings.excerpt;
@@ -76,7 +86,7 @@ function meter( ras ) {
 	let locked = false;
 	// Lock content if reached limit, remove gate content if not.
 	if ( settings.count <= data.content.length && ! data.content.includes( settings.post_id ) ) {
-		lockContent();
+		lockContent( ras );
 		ras.dispatchActivity( 'metering_restricted', { post_id: settings.post_id, metering: data } );
 		locked = true;
 	} else {

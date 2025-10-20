@@ -13,8 +13,8 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies.
  */
-import { withWizard, utils } from '../../components/src';
-import Router from '../../components/src/proxied-imports/router';
+import { withWizard, utils } from '../../../packages/components/src';
+import Router from '../../../packages/components/src/proxied-imports/router';
 import { AdUnit, AdUnits, Providers, Settings, Placements } from './views';
 import { getSizes } from './components/ad-unit-size-control';
 import './style.scss';

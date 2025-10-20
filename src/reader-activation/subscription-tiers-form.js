@@ -1,5 +1,29 @@
 import { domReady } from '../utils';
 
+function handleCheckoutOverlayClose( { detail: { overlays } } ) {
+	setTimeout( () => {
+		if ( ! overlays.length ) {
+			window.location.reload();
+			window.newspackReaderActivation.off( 'overlay', handleCheckoutOverlayClose );
+		}
+	}, 50 );
+}
+
+function handleCheckoutClose( completed ) {
+	if ( ! completed ) {
+		return;
+	}
+	window.newspackRAS.push( ras => {
+		setTimeout( () => {
+			if ( ras.overlays.get().length ) {
+				ras.on( 'overlay', handleCheckoutOverlayClose );
+				return;
+			}
+			window.location.reload();
+		}, 50 );
+	} );
+}
+
 export default function init() {
 	domReady( () => {
 		const forms = document.querySelectorAll( '.newspack__subscription-tiers__form' );
@@ -9,28 +33,67 @@ export default function init() {
 
 		[ ...forms ].forEach( form => {
 			const modal = form.closest( '.newspack-ui__modal-container' );
+			const submitButton = form.querySelector( 'button[type="submit"]' );
 			const cancelButton = form.querySelector( '.newspack-ui__modal__cancel' );
+			const isNYP = form.classList.contains( 'nyp' );
+			const originalSubmitButtonText = submitButton.textContent;
 
 			let isFormValid = false;
 
-			const validateForm = () => {
-				const selected = form.querySelector( '.current input[type="radio"]:checked' );
-				if ( selected ) {
-					form.querySelector( 'button[type="submit"]' ).disabled = true;
-					isFormValid = false;
+			const attachInputListeners = () => {
+				const inputs = form.querySelectorAll( 'input[type="radio"], input[type="number"], select' );
+				inputs.forEach( input => {
+					input.addEventListener( 'input', handleChange );
+					input.addEventListener( 'change', handleChange );
+				} );
+				handleChange();
+			};
+
+			const handleChange = () => {
+				// Update submit label.
+				if ( isNYP ) {
+					const amountInput = form.querySelector( '#nyp_amount' );
+					if ( amountInput?.value ) {
+						const amountText = parseFloat( amountInput.value ).toLocaleString( document.documentElement.lang, {
+							style: 'currency',
+							currency: amountInput.dataset.currency,
+							currencyDisplay: 'narrowSymbol',
+						} );
+						submitButton.textContent = originalSubmitButtonText + ': ' + amountText + ' / ' + amountInput.dataset.frequency;
+					} else {
+						submitButton.textContent = originalSubmitButtonText;
+					}
+				}
+
+				// Validate inputs.
+				if ( isNYP ) {
+					const amountInput = form.querySelector( '#nyp_amount.current' );
+					if ( amountInput && ( ! amountInput.value || amountInput.value === amountInput.dataset.originalValue ) ) {
+						form.querySelector( 'button[type="submit"]' ).disabled = true;
+						isFormValid = false;
+					} else {
+						form.querySelector( 'button[type="submit"]' ).disabled = false;
+						isFormValid = true;
+					}
 				} else {
-					form.querySelector( 'button[type="submit"]' ).disabled = false;
-					isFormValid = true;
+					const selected = form.querySelector( '.current input[type="radio"]:checked' );
+					if ( selected ) {
+						form.querySelector( 'button[type="submit"]' ).disabled = true;
+						isFormValid = false;
+					} else {
+						form.querySelector( 'button[type="submit"]' ).disabled = false;
+						isFormValid = true;
+					}
 				}
 			};
 
-			// Watch radio input selection changes and disable the submit button if selecting the "current" option.
-			const radioInputs = form.querySelectorAll( 'input[type="radio"]' );
-			radioInputs.forEach( radio => {
-				radio.addEventListener( 'input', validateForm );
-			} );
+			const control = form.querySelector( '.newspack-ui__segmented-control' );
+			if ( control ) {
+				control.addEventListener( 'content-selected', attachInputListeners );
+			}
+			attachInputListeners();
 
-			validateForm();
+			handleChange();
 
 			if ( modal ) {
 				cancelButton.addEventListener( 'click', () => {
@@ -58,19 +121,18 @@ export default function init() {
 				ev.preventDefault();
 				let completed = false;
 				const formData = new FormData( form );
-				const params = new URLSearchParams( formData );
 				modal?.setAttribute( 'data-state', 'closed' );
+				const url = new URL( form.action );
+				for ( const param of formData.entries() ) {
+					url.searchParams.append( param[ 0 ], param[ 1 ] );
+				}
 				window.newspackOpenModalCheckout( {
-					url: form.action + '?' + params.toString(),
+					url: url.toString(),
 					title: form.dataset.title,
 					onCheckoutComplete: () => {
 						completed = true;
 					},
-					onClose: () => {
-						if ( completed ) {
-							window.location.reload();
-						}
-					},
+					onClose: () => handleCheckoutClose( completed ),
 				} );
 			} );
 		} );

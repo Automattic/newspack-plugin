@@ -13,8 +13,8 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies.
  */
-import { withWizard } from '../../components/src';
-import Router from '../../components/src/proxied-imports/router';
+import { withWizard } from '../../../packages/components/src';
+import Router from '../../../packages/components/src/proxied-imports/router';
 import { Settings, Tracking } from './views';
 
 const { HashRouter, Redirect, Route, Switch } = Router;
