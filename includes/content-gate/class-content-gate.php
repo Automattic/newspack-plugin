@@ -527,6 +527,8 @@ class Content_Gate {
 	 * @return string
 	 */
 	public static function get_restricted_post_excerpt( $post ) {
+		self::$is_gated = true;
+
 		$gate_post_id = self::get_gate_post_id();
 
 		$content = $post->post_content;
