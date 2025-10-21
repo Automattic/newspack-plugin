@@ -3,9 +3,10 @@ declare module '@wordpress/block-editor';
 type AccessRule = {
 	name: string;
 	description: string;
+	options?: { value: string; label: string }[];
 	conflicts?: string[];
-	value?: string | string[];
 	is_boolean: boolean;
+	default: string | string[] | boolean;
 };
 
 type Metering = {
@@ -19,11 +20,16 @@ type AccessRules = {
 	[ key: string ]: AccessRule;
 };
 
+type GateRule = {
+	slug: string;
+	value: string | string[] | boolean;
+};
+
 type Gate = {
 	id: number;
 	title: string;
 	description: string;
 	metering: Metering;
-	access_rules: AccessRule[];
+	access_rules: GateRule[];
 	content_rules: [];
 };

@@ -20,6 +20,35 @@ import './style.scss';
 
 const availableRules = window.newspackAudienceContentGates.available_rules || {};
 
+const RuleControl = ( {
+	slug,
+	value,
+	onChange,
+}: {
+	slug: string;
+	value: string | string[] | boolean;
+	onChange: ( value: string | string[] | boolean ) => void;
+} ) => {
+	const rule = availableRules[ slug ];
+	if ( ! rule ) {
+		return null;
+	}
+	if ( rule.is_boolean ) {
+		return <CheckboxControl label={ rule.name } checked={ !! value } onChange={ onChange } />;
+	}
+	if ( rule.options && rule.options.length > 0 ) {
+		return (
+			<SelectControl
+				label={ rule.name }
+				value={ value }
+				onChange={ onChange }
+				options={ rule.options.map( option => ( { value: option.value, label: option.label } ) ) }
+			/>
+		);
+	}
+	return <TextControl label={ rule.name } value={ value } onChange={ onChange } />;
+};
+
 const ContentGates = () => {
 	const [ gates, setGates ] = useState< Gate[] >( [] );
 	const [ showModal, setShowModal ] = useState( false );
@@ -64,6 +93,50 @@ const ContentGates = () => {
 
 	const updateGate = ( id: number, data: Partial< Gate > ) => {
 		setGates( prevGates => prevGates.map( g => ( g.id === id ? { ...g, ...data } : g ) ) );
+	};
+
+	const handleAddAccessRule = ( id: number, slug: string ) => () => {
+		const gate = gates.find( g => g.id === id );
+		if ( ! gate ) {
+			return;
+		}
+		const rule = availableRules[ slug ];
+		if ( ! rule ) {
+			return;
+		}
+		// Bail if the rule already exists.
+		if ( gate.access_rules.find( r => r.slug === slug ) ) {
+			return;
+		}
+		updateGate( id, {
+			access_rules: [ ...gate.access_rules, { slug, value: rule.default } ],
+		} );
+	};
+
+	const handleUpdateAccessRule = ( id: number, slug: string ) => ( value: string | string[] | boolean ) => {
+		const gate = gates.find( g => g.id === id );
+		if ( ! gate ) {
+			return;
+		}
+		updateGate( id, {
+			access_rules: gate.access_rules.map( r => ( r.slug === slug ? { ...r, value } : r ) ),
+		} );
+	};
+
+	const isRuleDisabled = ( id: number, slug: string ) => {
+		const gate = gates.find( g => g.id === id );
+		if ( ! gate ) {
+			return false;
+		}
+		if ( gate.access_rules.find( r => r.slug === slug ) ) {
+			return true;
+		}
+		const conflicts = availableRules[ slug ].conflicts;
+		// Check whether any conflicting rule is enabled.
+		if ( conflicts?.some( conflict => gate.access_rules.find( r => r.slug === conflict ) ) ) {
+			return true;
+		}
+		return false;
 	};
 
 	return (
@@ -143,19 +216,21 @@ const ContentGates = () => {
 								label={ __( 'Add Rule', 'newspack-plugin' ) }
 								controls={ Object.keys( availableRules ).map( ( slug: string ) => ( {
 									title: availableRules[ slug ].name,
-									onClick: null, // TODO: Add selected access rule.
-									isDisabled: false, // TODO: Add conflict check.
+									onClick: handleAddAccessRule( gate.id, slug ),
+									isDisabled: isRuleDisabled( gate.id, slug ), // TODO: Add conflict check.
 								} ) ) }
 							/>
 						}
 					>
 						{ gate.access_rules.length > 0 && (
 							<Grid columns={ 3 } gutter={ 32 }>
-								{ gate.access_rules.map( ( rule: AccessRule ) => (
-									<div key={ rule.name }>
-										<h4>{ rule.name }</h4>
-										<p>{ rule.description }</p>
-									</div>
+								{ gate.access_rules.map( ( rule: GateRule ) => (
+									<RuleControl
+										key={ rule.slug }
+										slug={ rule.slug }
+										value={ rule.value }
+										onChange={ handleUpdateAccessRule( gate.id, rule.slug ) }
+									/>
 								) ) }
 							</Grid>
 						) }
@@ -188,16 +263,7 @@ const ContentGates = () => {
 							/>
 						}
 					>
-						{ gate.access_rules.length > 0 && (
-							<Grid columns={ 3 } gutter={ 32 }>
-								{ gate.access_rules.map( rule => (
-									<div key={ rule.name }>
-										<h4>{ rule.name }</h4>
-										<p>{ rule.description }</p>
-									</div>
-								) ) }
-							</Grid>
-						) }
+						{ gate.access_rules.length > 0 && <Grid columns={ 3 } gutter={ 32 } /> }
 					</ActionCard>
 					<Card noBorder>
 						<SectionHeader heading={ 3 } title={ __( 'Metering', 'newspack-plugin' ) } noMargin />
