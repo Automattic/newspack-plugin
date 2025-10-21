@@ -13,7 +13,7 @@ import apiFetch from '@wordpress/api-fetch';
 /**
  * Internal dependencies
  */
-import { PluginToggle, ActionCard, Modal, Card, Button, withWizardScreen } from '../../../../components/src';
+import { PluginToggle, ActionCard, Modal, Card, Button, withWizardScreen } from '../../../../../packages/components/src';
 import GAMOnboarding from '../../components/onboarding';
 
 /**

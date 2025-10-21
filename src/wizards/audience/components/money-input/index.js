@@ -10,7 +10,7 @@ import { Component } from '@wordpress/element';
 /**
  * Internal dependencies
  */
-import { TextControl } from '../../../../components/src';
+import { TextControl } from '../../../../../packages/components/src';
 import './style.scss';
 
 /**

@@ -12,7 +12,7 @@ import { registerPlugin } from '@wordpress/plugins';
 /**
  * Internal dependencies
  */
-import PositionControl from '../components/src/position-control';
+import PositionControl from '../../packages/components/src/position-control';
 import './editor.scss';
 
 const styles = [

@@ -8,6 +8,7 @@
 @use "navigation";
 @use "content";
 @use "forms";
+@use "addresses";
 
 .newspack-my-account {
 	&--logged-in {
@@ -32,4 +33,27 @@
 			float: none;
 		}
 	}
+
+	// Payment methods and addresses specific styling.
+	.payment-method {
+		.payment-method__content {
+			h3,
+			p {
+				margin: 0;
+			}
+		}
+	}
+
+	.payment-method,
+	.woocommerce-Address {
+		// When there are no badges, push dropdown to bottom.
+		.newspack-ui__box__actions:not(:has(.newspack-ui__box__badges)) {
+			justify-content: flex-end;
+		}
+	}
+}
+
+/* stylelint-disable-next-line */
+#wc-stripe-update-subs-payment-method-card_field {
+	display: none;
 }

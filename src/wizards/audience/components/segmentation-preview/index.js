@@ -12,7 +12,7 @@ import { addQueryArgs } from '@wordpress/url';
 /**
  * Internal dependencies.
  */
-import { WebPreview } from '../../../../components/src';
+import { WebPreview } from '../../../../../packages/components/src';
 
 const SegmentationPreview = props => {
 	const [ decoratedUrl, setDecoratedUrl ] = useState( null );

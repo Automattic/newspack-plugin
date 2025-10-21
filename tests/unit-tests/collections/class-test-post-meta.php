@@ -45,7 +45,9 @@ class Test_Post_Meta extends WP_UnitTestCase {
 	/**
 	 * Test that the meta is sanitized as a number.
 	 *
-	 * @covers \Newspack\Collections\Post_Meta::sanitize_meta
+	 * @covers \Newspack\Collections\Post_Meta::set
+	 * @covers \Newspack\Collections\Post_Meta::get
+	 * @covers \Newspack\Collections\Post_Meta::get_meta_definitions
 	 */
 	public function test_post_meta_sanitization() {
 		$post_id = $this->factory()->post->create();

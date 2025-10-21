@@ -143,6 +143,7 @@ final class Newspack {
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/newspack/class-newspack-dashboard.php';
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/newspack/class-newspack-settings.php';
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/newspack/class-custom-events-section.php';
+		include_once NEWSPACK_ABSPATH . 'includes/wizards/newspack/class-emails-section.php';
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/newspack/class-syndication-section.php';
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/newspack/class-seo-section.php';
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/newspack/class-pixels-section.php';
@@ -162,6 +163,7 @@ final class Newspack {
 		// Audience Wizard.
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/audience/class-audience-wizard.php';
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/audience/class-audience-campaigns.php';
+		include_once NEWSPACK_ABSPATH . 'includes/wizards/audience/class-audience-content-gates.php';
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/audience/class-audience-donations.php';
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/audience/class-audience-subscriptions.php';
 

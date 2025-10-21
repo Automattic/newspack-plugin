@@ -12,7 +12,7 @@ import { useEffect } from '@wordpress/element';
 /**
  * Internal dependencies
  */
-import { withWizardScreen, ActionCard, Button, Card, Grid, SectionHeader } from '../../../../components/src';
+import { withWizardScreen, ActionCard, Button, Card, Grid, SectionHeader } from '../../../../../packages/components/src';
 
 const Completed = () => {
 	useEffect( () => {

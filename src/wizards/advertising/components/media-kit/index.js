@@ -14,7 +14,7 @@ import { Notice } from '@wordpress/components';
 /**
  * Internal dependencies
  */
-import { ActionCard } from '../../../../components/src';
+import { ActionCard } from '../../../../../packages/components/src';
 import { useState } from 'react';
 
 const MediaKitToggle = () => {
