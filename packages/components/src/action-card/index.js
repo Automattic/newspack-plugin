@@ -64,10 +64,10 @@ const ActionCard = ( {
 	dragIndex,
 	dragWrapperRef,
 	onDragCallback,
-	totalDraggableCards,
 } ) => {
 	const [ expanded, setExpanded ] = useState( false );
 	const [ dragging, setDragging ] = useState( false );
+	const [ targetIndex, setTargetIndex ] = useState( null );
 
 	useEffect( () => {
 		if ( collapse && expanded ) {
@@ -98,12 +98,14 @@ const ActionCard = ( {
 	const hasInternalLink = href && href.indexOf( 'http' ) !== 0;
 	const isDisplayingSecondaryAction = secondaryActionText && onSecondaryActionClick;
 	const badges = ! Array.isArray( badge ) && badge ? [ badge ] : badge;
-	const isDraggable = draggable && dragWrapperRef && dragIndex !== undefined && onDragCallback && totalDraggableCards && id;
-	const Component = ( { handleDraggableStart, handleDraggableEnd } ) => (
+	const isDraggable = draggable && dragWrapperRef && typeof dragIndex === 'number' && onDragCallback && id;
+	const Component = ( { onDraggableStart, onDraggableEnd } ) => (
 		<Card className={ classes } onClick={ simple && onClick } id={ id ?? null } noBorder={ noBorder }>
 			{ isDraggable && (
-				<div className="drag-handle" draggable onDragStart={ handleDraggableStart } onDragEnd={ handleDraggableEnd }>
-					<Icon icon={ dragHandle } height={ 18 } width={ 18 } />
+				<div className="newspack-action-card__draggable-controls">
+					<div className="drag-handle" draggable onDragStart={ onDraggableStart } onDragEnd={ onDraggableEnd }>
+						<Icon icon={ dragHandle } height={ 18 } width={ 18 } />
+					</div>
 				</div>
 			) }
 			<div className="newspack-action-card__region newspack-action-card__region-top">
@@ -222,16 +224,27 @@ const ActionCard = ( {
 	);
 
 	if ( isDraggable ) {
-		const onDragStart = () => {
+		const handleDragStart = () => {
 			if ( dragging ) {
 				return;
 			}
+			setTargetIndex( dragIndex );
 			setDragging( true );
 		};
-		const onDragEnd = () => {
+		const handleDragEnd = () => {
+			if ( ! dragging ) {
+				return;
+			}
+			if ( targetIndex !== null && targetIndex !== dragIndex ) {
+				onDragCallback( targetIndex );
+			}
+			setTargetIndex( null );
 			setDragging( false );
 		};
-		const onDragOver = e => {
+		const handleDragOver = e => {
+			if ( ! dragging ) {
+				return;
+			}
 			const wrapperRect = dragWrapperRef.current.getBoundingClientRect();
 			const isDraggingToTop = e.pageY <= wrapperRect.top + window.scrollY;
 			const isDraggingToBottom = e.pageY >= wrapperRect.bottom + window.scrollY;
@@ -241,31 +254,36 @@ const ActionCard = ( {
 					dragWrapperRef.current.querySelectorAll( '.newspack-action-card__draggable-wrapper' )
 				);
 
-				let targetIndex = draggableCards.indexOf( e.target.parentElement );
+				setTargetIndex( draggableCards.indexOf( e.target.parentElement ) );
 
 				// If dragging the element over itself or over an invalid target, cancel the drop.
 				if ( 0 > targetIndex || targetIndex === dragIndex + 1 ) {
-					targetIndex = dragIndex;
+					setTargetIndex( dragIndex );
 				}
 
 				// Handle dropping before the first item.
 				if ( isDraggingToTop ) {
-					targetIndex = 0;
+					setTargetIndex( 0 );
 				}
 
 				// Handle dropping after the last item.
 				if ( isDraggingToBottom ) {
-					targetIndex = totalDraggableCards;
+					setTargetIndex( draggableCards.length );
 				}
-				onDragCallback( targetIndex );
 			}
 		};
 
 		return (
-			<div className={ 'newspack-action-card__draggable-wrapper' + ( dragging ? ' is-dragging' : '' ) } id={ id }>
-				<Draggable elementId={ id } transferData={ {} } onDragStart={ onDragStart } onDragEnd={ onDragEnd } onDragOver={ onDragOver }>
+			<div className={ 'newspack-action-card__draggable-wrapper' + ( dragging ? ' is-dragging' : '' ) } id={ `draggable-card-${ id }` }>
+				<Draggable
+					elementId={ `draggable-card-${ id }` }
+					transferData={ {} }
+					onDragStart={ handleDragStart }
+					onDragEnd={ handleDragEnd }
+					onDragOver={ handleDragOver }
+				>
 					{ ( { onDraggableStart, onDraggableEnd } ) => (
-						<Component handleDraggableStart={ onDraggableStart } handleDraggableEnd={ onDraggableEnd } />
+						<Component onDraggableStart={ onDraggableStart } onDraggableEnd={ onDraggableEnd } />
 					) }
 				</Draggable>
 			</div>

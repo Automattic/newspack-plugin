@@ -502,6 +502,54 @@
 		width: 100%;
 	}
 
+
+	.newspack-action-card__draggable-controls {
+		align-items: center;
+		display: flex;
+		height: 100%;
+		width: fit-content;
+		justify-content: center;
+		margin: 8px;
+
+		.drag-handle {
+			align-items: center;
+			cursor: grab;
+			display: flex;
+			height: 100%;
+			justify-content: flex-end;
+			margin-left: -8px;
+			width: 32px;
+
+			.is-dragging & {
+				cursor: grabbing;
+			}
+
+			svg {
+				padding: 3px;
+			}
+		}
+
+		.movers {
+			display: flex;
+			flex-direction: column;
+			margin: -4px 0;
+
+			.components-button {
+				color: wp-colors.$gray-900;
+				display: block;
+				height: 24px;
+				line-height: 24px;
+				min-width: 24px;
+				padding: 0;
+				width: 24px;
+			}
+		}
+	}
+
+	.newspack-card {
+		margin: 0;
+	}
+
 	.newspack-action-card {
 		background: white;
 		flex-direction: row;
@@ -514,6 +562,11 @@
 			padding: 8px 16px 8px 0 !important;
 			flex: 1;
 			order: 2;
+		}
+
+		&.is-draggable {
+			display: flex;
+			align-items: center;
 		}
 	}
 }
