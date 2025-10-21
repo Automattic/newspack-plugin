@@ -287,13 +287,13 @@ const ActionCard = ( {
 										icon={ chevronUp }
 										onClick={ () => onDragCallback( dragIndex - 1 ) }
 										disabled={ isFirstTarget }
-										label={ __( 'Move action card one position up', 'newspack-plugin' ) }
+										label={ __( 'Move one position up', 'newspack-plugin' ) }
 									/>
 									<Button
 										icon={ chevronDown }
 										onClick={ () => onDragCallback( dragIndex + 1 ) }
 										disabled={ isLastTarget }
-										label={ __( 'Move action card one position down', 'newspack-plugin' ) }
+										label={ __( 'Move one position down', 'newspack-plugin' ) }
 									/>
 								</div>
 							</div>
