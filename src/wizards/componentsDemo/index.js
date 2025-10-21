@@ -10,7 +10,7 @@ import '../../shared/js/public-path';
  * WordPress dependencies.
  */
 import { Component, Fragment, render, createInterpolateElement, createRef } from '@wordpress/element';
-import { __, sprintf } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 import { Icon, audio, category, plus, reusableBlock, typography } from '@wordpress/icons';
 import { ExternalLink } from '@wordpress/components';
 
@@ -58,6 +58,13 @@ class ComponentsDemo extends Component {
 			selectValues: [],
 			modalShown: false,
 			color1: '#003da5',
+			draggableList: [
+				{ id: 1, title: 'Draggable Item 1' },
+				{ id: 2, title: 'Draggable Item 2' },
+				{ id: 3, title: 'Draggable Item 3' },
+				{ id: 4, title: 'Draggable Item 4' },
+				{ id: 5, title: 'Draggable Item 5' },
+			],
 		};
 		this.dragWrapperRef = createRef();
 	}
@@ -446,21 +453,26 @@ class ComponentsDemo extends Component {
 					</ActionCard>
 					<Card>
 						<h2>{ __( 'Draggable Action Cards', 'newspack-plugin' ) }</h2>
-						{ [ 0, 1, 2 ].map( index => (
-							<ActionCard
-								key={ index }
-								id={ `draggable-card-${ index }` }
-								draggable
-								dragIndex={ index }
-								dragWrapperRef={ this.dragWrapperRef }
-								totalDraggableCards={ 3 }
-								title={ sprintf(
-									/* Translators: %d is the index of the draggable card. */ __( `Draggable Card %d`, 'newspack-plugin' ),
-									index + 1
-								) }
-								description={ __( ' An example of an action card that is draggable.', 'newspack-plugin' ) }
-							/>
-						) ) }
+						<div ref={ this.dragWrapperRef }>
+							{ this.state.draggableList.map( ( { id, title }, index ) => (
+								<ActionCard
+									key={ id }
+									id={ `draggable-card-${ id }` }
+									draggable
+									dragIndex={ index }
+									dragWrapperRef={ this.dragWrapperRef }
+									onDragCallback={ newIndex => {
+										const newList = [ ...this.state.draggableList ];
+										const [ movedItem ] = newList.splice( index, 1 );
+										newList.splice( newIndex, 0, movedItem );
+										this.setState( { draggableList: newList } );
+									} }
+									totalDraggableCards={ this.state.draggableList.length }
+									title={ title }
+									description={ __( ' An example of an action card that is draggable.', 'newspack-plugin' ) }
+								/>
+							) ) }
+						</div>
 					</Card>
 					<Card>
 						<h2>{ __( 'Image Uploader', 'newspack-plugin' ) }</h2>
