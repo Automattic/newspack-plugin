@@ -5,8 +5,9 @@
 /**
  * WordPress dependencies
  */
-import { useEffect, useState } from '@wordpress/element';
 import { Draggable, ExternalLink, ToggleControl } from '@wordpress/components';
+import { useEffect, useState } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 import { Icon, check, chevronDown, chevronUp, dragHandle } from '@wordpress/icons';
 
 /**
@@ -68,6 +69,13 @@ const ActionCard = ( {
 	const [ expanded, setExpanded ] = useState( false );
 	const [ dragging, setDragging ] = useState( false );
 	const [ targetIndex, setTargetIndex ] = useState( null );
+	const [ dragRef, setDragRef ] = useState( null );
+
+	useEffect( () => {
+		if ( dragWrapperRef && ! dragRef ) {
+			setDragRef( dragWrapperRef );
+		}
+	}, [ dragWrapperRef?.current ] );
 
 	useEffect( () => {
 		if ( collapse && expanded ) {
@@ -98,7 +106,6 @@ const ActionCard = ( {
 	const hasInternalLink = href && href.indexOf( 'http' ) !== 0;
 	const isDisplayingSecondaryAction = secondaryActionText && onSecondaryActionClick;
 	const badges = ! Array.isArray( badge ) && badge ? [ badge ] : badge;
-	const isDraggable = draggable && dragWrapperRef && typeof dragIndex === 'number' && onDragCallback && id;
 
 	const Component = () => (
 		<>
@@ -217,7 +224,11 @@ const ActionCard = ( {
 		</>
 	);
 
-	if ( isDraggable ) {
+	if ( draggable && dragRef?.current && typeof dragIndex === 'number' && onDragCallback && id ) {
+		const wrapperRect = dragRef.current.getBoundingClientRect();
+		const draggableCards = Array.prototype.slice.call( dragRef.current.querySelectorAll( '.newspack-action-card__draggable-wrapper' ) );
+		const isFirstTarget = dragIndex === 0;
+		const isLastTarget = dragIndex === draggableCards.length - 1;
 		const handleDragStart = () => {
 			if ( dragging ) {
 				return;
@@ -233,15 +244,10 @@ const ActionCard = ( {
 			setDragging( false );
 		};
 		const handleDragOver = e => {
-			const wrapperRect = dragWrapperRef.current.getBoundingClientRect();
 			const isDraggingToTop = e.pageY <= wrapperRect.top + window.scrollY;
 			const isDraggingToBottom = e.pageY >= wrapperRect.bottom + window.scrollY;
 
 			if ( isDraggingToTop || isDraggingToBottom || e.target.classList.contains( 'newspack-action-card' ) ) {
-				const draggableCards = Array.prototype.slice.call(
-					dragWrapperRef.current.querySelectorAll( '.newspack-action-card__draggable-wrapper' )
-				);
-
 				setTargetIndex( draggableCards.indexOf( e.target.parentElement ) );
 
 				// If dragging the element over itself or over an invalid target, cancel the drop.
@@ -275,6 +281,20 @@ const ActionCard = ( {
 							<div className="newspack-action-card__draggable-controls">
 								<div className="drag-handle" draggable onDragStart={ onDraggableStart } onDragEnd={ onDraggableEnd }>
 									<Icon icon={ dragHandle } height={ 18 } width={ 18 } />
+								</div>
+								<div className="movers">
+									<Button
+										icon={ chevronUp }
+										onClick={ () => onDragCallback( dragIndex - 1 ) }
+										disabled={ isFirstTarget }
+										label={ __( 'Move action card one position up', 'newspack-plugin' ) }
+									/>
+									<Button
+										icon={ chevronDown }
+										onClick={ () => onDragCallback( dragIndex + 1 ) }
+										disabled={ isLastTarget }
+										label={ __( 'Move action card one position down', 'newspack-plugin' ) }
+									/>
 								</div>
 							</div>
 							<Component />
