@@ -475,6 +475,7 @@
 			border: 1px solid wp-colors.$gray-200;
 		}
 		&.newspack-card__no-border {
+			border: none;
 			.newspack-action-card__region-top,
 			.newspack-action-card__region-children {
 				padding: 0;
