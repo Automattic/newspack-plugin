@@ -5,8 +5,9 @@
 /**
  * WordPress dependencies.
  */
-import { __ } from '@wordpress/i18n';
 import { useState } from '@wordpress/element';
+import { Draggable } from '@wordpress/components';
+import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
@@ -44,7 +45,7 @@ const ContentGates = () => {
 						'newspack-plugin'
 					) }
 					value={ limitAnonymous }
-					onChange={ value => setLimitAnonymous( value ) }
+					onChange={ ( value: number ) => setLimitAnonymous( value ) }
 				/>
 				<TextControl
 					type={ 'number' }
@@ -54,7 +55,7 @@ const ContentGates = () => {
 						'newspack-plugin'
 					) }
 					value={ limitRegistered }
-					onChange={ value => setLimitRegistered( value ) }
+					onChange={ ( value: number ) => setLimitRegistered( value ) }
 				/>
 				<SelectControl
 					type={ 'select' }
@@ -64,7 +65,7 @@ const ContentGates = () => {
 						'newspack-plugin'
 					) }
 					value={ period }
-					onChange={ value => setPeriod( value ) }
+					onChange={ ( value: string ) => setPeriod( value ) }
 					options={ [
 						{
 							value: 'week',
