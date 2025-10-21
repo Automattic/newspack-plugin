@@ -188,6 +188,7 @@ const ContentGates = () => {
 						<>
 							<ActionCard
 								title={ __( 'Access Rules', 'newspack-plugin' ) }
+								description={ __( 'Configure how readers can bypass this content gate.', 'newspack-plugin' ) }
 								hasWhiteHeader={ true }
 								noBorder={ true }
 								noMargin={ true }
@@ -212,11 +213,45 @@ const ContentGates = () => {
 									/>
 								}
 							>
-								{ gate.accessRules.length === 0 && (
-									<p>
-										<em>{ __( 'No access rules configured.', 'newspack-plugin' ) }</em>
-									</p>
+								{ gate.accessRules.length > 0 && (
+									<Grid columns={ 3 } gutter={ 32 }>
+										{ gate.accessRules.map( rule => (
+											<div key={ rule.name }>
+												<h4>{ rule.name }</h4>
+												<p>{ rule.description }</p>
+											</div>
+										) ) }
+									</Grid>
 								) }
+							</ActionCard>
+							<ActionCard
+								title={ __( 'Content Rules', 'newspack-plugin' ) }
+								description={ __( 'Configure which content is restricted by this content gate.', 'newspack-plugin' ) }
+								hasWhiteHeader={ true }
+								noBorder={ true }
+								noMargin={ true }
+								actionContent={
+									<DropdownMenu
+										icon="plus"
+										toggleProps={ {
+											iconSize: 16,
+										} }
+										text={ __( 'Add Rule', 'newspack-plugin' ) }
+										label={ __( 'Add Rule', 'newspack-plugin' ) }
+										controls={ [
+											{
+												title: __( 'Post types', 'newspack-plugin' ),
+											},
+											{
+												title: __( 'Categories', 'newspack-plugin' ),
+											},
+											{
+												title: __( 'Tags', 'newspack-plugin' ),
+											},
+										] }
+									/>
+								}
+							>
 								{ gate.accessRules.length > 0 && (
 									<Grid columns={ 3 } gutter={ 32 }>
 										{ gate.accessRules.map( rule => (
