@@ -47,25 +47,7 @@ const ContentGates = () => {
 	const [ showModal, setShowModal ] = useState( false );
 	const [ newGateName, setNewGateName ] = useState( '' );
 
-	const updateGate = (
-		gateId: number,
-		{
-			isActive,
-			isMetered,
-			limitAnonymous,
-			limitRegistered,
-			period,
-			title,
-		}: {
-			id?: number;
-			isActive?: boolean;
-			isMetered?: boolean;
-			limitAnonymous?: number;
-			limitRegistered?: number;
-			period?: string;
-			title?: string;
-		}
-	) => {
+	const updateGate = ( gateId: number, { isActive, isMetered, limitAnonymous, limitRegistered, period, title }: Gate ) => {
 		setGates(
 			gates.map( gate =>
 				gate.id === gateId
