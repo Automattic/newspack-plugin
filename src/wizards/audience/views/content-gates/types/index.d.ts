@@ -5,11 +5,19 @@ type AccessRule = {
 	description?: string;
 	conflicts?: string[];
 	value?: string | string[];
+	is_boolean: boolean;
+};
+
+type Metering = {
+	enabled: boolean;
+	anonymous_count: number;
+	registered_count: number;
+	period: string;
 };
 
 type AccessRules = {
 	[key: string]: AccessRule;
-}
+};
 
 type ContentRule = {
 	label: string;
@@ -27,28 +35,17 @@ type Gate = {
 	id: number;
 	title: string;
 	description: string;
-	isActive: boolean;
-	isMetered: boolean;
-	limitAnonymous: number;
-	limitRegistered: number;
-	period: string;
-	accessRules: {
-		[key: string]: {
-			value: string[],
-		};
-	};
-	contentRules: {
-		[key: string]: {
-			value: string[],
-		};
-	};
+	metering: Metering;
+	access_rules: AccessRule[];
+	content_rules: [];
 };
 
 declare global {
 	interface Window {
 		newspackAudienceContentGates: {
 			api: string;
-			content_rules: ContentRules;
+			available_rules: AccessRule[];
+			content_rules: ContentRule[];
 		};
 	}
 }

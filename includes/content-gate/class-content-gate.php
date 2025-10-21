@@ -672,5 +672,48 @@ class Content_Gate {
 		}
 		return $activity;
 	}
+
+	/**
+	 * Get gate.
+	 *
+	 * @param int $id Gate ID.
+	 *
+	 * @return array|\WP_Error The gate or error if not found.
+	 */
+	public static function get_gate( $id ) {
+		$post = get_post( $id );
+		if ( ! $post ) {
+			return new \WP_Error( 'newspack_content_gate_not_found', __( 'Gate not found.', 'newspack' ) );
+		}
+
+		return [
+			'id'            => $post->ID,
+			'title'         => $post->post_title,
+			'description'   => $post->post_excerpt,
+			'metering'      => [
+				'enabled'          => \get_post_meta( $post->ID, 'metering', true ),
+				'anonymous_count'  => \get_post_meta( $post->ID, 'metering_anonymous_count', true ),
+				'registered_count' => \get_post_meta( $post->ID, 'metering_registered_count', true ),
+				'period'           => \get_post_meta( $post->ID, 'metering_period', true ),
+			],
+			'access_rules'  => Access_Rules::get_post_access_rules( $post->ID ),
+			'content_rules' => [],
+		];
+	}
+
+	/**
+	 * Get all gates.
+	 */
+	public static function get_gates() {
+		$posts = get_posts(
+			[
+				'post_type'      => self::GATE_CPT,
+				'post_status'    => [ 'publish', 'draft', 'trash', 'pending', 'future' ],
+				'posts_per_page' => -1,
+				// TODO: Add gate priority sorting.
+			]
+		);
+		return array_map( [ __CLASS__, 'get_gate' ], wp_list_pluck( $posts, 'ID' ) );
+	}
 }
 Content_Gate::init();
