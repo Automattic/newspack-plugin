@@ -9,8 +9,8 @@ import '../../shared/js/public-path';
 /**
  * WordPress dependencies.
  */
-import { Component, Fragment, render, createInterpolateElement } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { Component, Fragment, render, createInterpolateElement, createRef } from '@wordpress/element';
+import { __, sprintf } from '@wordpress/i18n';
 import { Icon, audio, category, plus, reusableBlock, typography } from '@wordpress/icons';
 import { ExternalLink } from '@wordpress/components';
 
@@ -59,6 +59,7 @@ class ComponentsDemo extends Component {
 			modalShown: false,
 			color1: '#003da5',
 		};
+		this.dragWrapperRef = createRef();
 	}
 
 	/**
@@ -443,6 +444,24 @@ class ComponentsDemo extends Component {
 					>
 						<p>{ __( 'Some inner content to display when the card is expanded.', 'newspack-plugin' ) }</p>
 					</ActionCard>
+					<Card>
+						<h2>{ __( 'Draggable Action Cards', 'newspack-plugin' ) }</h2>
+						{ [ 0, 1, 2 ].map( index => (
+							<ActionCard
+								key={ index }
+								id={ `draggable-card-${ index }` }
+								draggable
+								dragIndex={ index }
+								dragWrapperRef={ this.dragWrapperRef }
+								totalDraggableCards={ 3 }
+								title={ sprintf(
+									/* Translators: %d is the index of the draggable card. */ __( `Draggable Card %d`, 'newspack-plugin' ),
+									index + 1
+								) }
+								description={ __( ' An example of an action card that is draggable.', 'newspack-plugin' ) }
+							/>
+						) ) }
+					</Card>
 					<Card>
 						<h2>{ __( 'Image Uploader', 'newspack-plugin' ) }</h2>
 						<ImageUpload
