@@ -5,7 +5,7 @@
  * @package Newspack
  */
 
-namespace Newspack\Memberships;
+namespace Newspack\Content_Gate;
 
 /**
  * WooCommerce Memberships Block Patterns class.
@@ -24,18 +24,17 @@ class Block_Patterns {
 	 * Enqueue styles.
 	 */
 	public static function enqueue_styles() {
-		$should_enqueue_styles = class_exists( 'WC_Memberships' );
 		/**
 		 * Filters whether to enqueue the reader auth scripts.
 		 *
 		 * @param bool $should_enqueue_styles Whether to enqueue the reader auth scripts.
 		 */
-		if ( ! apply_filters( 'newspack_enqueue_memberships_block_patterns', $should_enqueue_styles ) ) {
+		if ( ! apply_filters( 'newspack_enqueue_content_gate_block_patterns', true ) ) {
 			return false;
 		}
 		wp_enqueue_style(
-			'newspack-memberships-block-patterns',
-			\Newspack\Newspack::plugin_url() . '/dist/memberships-gate-block-patterns.css',
+			'newspack-content_gate-block-patterns',
+			\Newspack\Newspack::plugin_url() . '/dist/content-gate-block-patterns.css',
 			[],
 			NEWSPACK_PLUGIN_VERSION
 		);
@@ -69,11 +68,7 @@ class Block_Patterns {
 	 * Register block patterns.
 	 */
 	public static function register_block_patterns() {
-		// Bail if Woo Memberships is not active.
-		if ( ! class_exists( 'WC_Memberships' ) ) {
-			return false;
-		}
-		\register_block_pattern_category( 'newspack-memberships', [ 'label' => __( 'Newspack Memberships', 'newspack' ) ] );
+		\register_block_pattern_category( 'newspack-content-gate', [ 'label' => __( 'Newspack Content Gate', 'newspack' ) ] );
 		$patterns = self::get_block_patterns();
 		foreach ( $patterns as $slug => $title ) {
 			$path = __DIR__ . '/block-patterns/' . $slug . '.php';
@@ -87,9 +82,9 @@ class Block_Patterns {
 				continue;
 			}
 			\register_block_pattern(
-				'newspack-memberships/' . $slug,
+				'newspack-content-gate/' . $slug,
 				[
-					'categories'  => [ 'newspack-memberships' ],
+					'categories'  => [ 'newspack-content-gate' ],
 					'title'       => $title,
 					'description' => _x( 'Invite your reader to become a member before continuing reading the article', 'Block pattern description', 'newspack' ),
 					'content'     => $content,
