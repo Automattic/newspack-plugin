@@ -33,6 +33,13 @@ class Content_Gate {
 	private static $gate_rendered = false;
 
 	/**
+	 * Whether the gate is being rendered.
+	 *
+	 * @var boolean
+	 */
+	private static $is_gated = false;
+
+	/**
 	 * Initialize hooks and filters.
 	 */
 	public static function init() {
@@ -106,7 +113,10 @@ class Content_Gate {
 			return;
 		}
 
-		$content  = self::get_restricted_post_excerpt( $post );
+		self::$is_gated = true;
+
+		$content = self::get_restricted_post_excerpt( $post );
+
 		$content .= self::get_inline_gate_content();
 
 		$post->post_content   = $content;
@@ -114,6 +124,15 @@ class Content_Gate {
 		$post->comment_status = 'closed';
 		$post->comment_count  = 0;
 		self::mark_gate_as_rendered();
+	}
+
+	/**
+	 * Get whether the gate is being rendered.
+	 *
+	 * @return bool
+	 */
+	public static function is_gated() {
+		return self::$is_gated;
 	}
 
 	/**
@@ -633,24 +652,7 @@ class Content_Gate {
 	 * @return string
 	 */
 	public static function get_inline_gate_html() {
-		$gate_post_id = self::get_gate_post_id();
-		$style        = \get_post_meta( $gate_post_id, 'style', true );
-		if ( 'inline' !== $style ) {
-			return '';
-		}
-		$gate = \apply_filters( 'newspack_gate_content', \get_the_content( null, false, \get_post( $gate_post_id ) ), $gate_post_id );
-
-		// Add clearfix to the gate.
-		$gate = '<div style=\'content:"";clear:both;display:table;\'></div>' . $gate;
-
-		// Apply inline fade.
-		if ( \get_post_meta( $gate_post_id, 'inline_fade', true ) ) {
-			$gate = '<div style="pointer-events: none; height: 10em; margin-top: -10em; width: 100%; position: absolute; background: linear-gradient(180deg, rgba(255,255,255,0) 14%, rgba(255,255,255,1) 76%);"></div>' . $gate;
-		}
-
-		// Wrap gate in a div for styling.
-		$gate = '<div class="newspack-content-gate__gate newspack-content-gate__inline-gate">' . $gate . '</div>';
-		return $gate;
+		return apply_filters( 'newspack_gate_content', self::get_inline_gate_content() );
 	}
 
 	/**
@@ -661,6 +663,8 @@ class Content_Gate {
 	 * @return string
 	 */
 	public static function get_restricted_post_excerpt( $post ) {
+		self::$is_gated = true;
+
 		$gate_post_id = self::get_gate_post_id();
 
 		$content = $post->post_content;
@@ -670,8 +674,9 @@ class Content_Gate {
 		$use_more_tag = get_post_meta( $gate_post_id, 'use_more_tag', true );
 		// Use <!--more--> as threshold if it exists.
 		if ( $use_more_tag && strpos( $content, '<!--more-->' ) ) {
-			$content = explode( '<!--more-->', $content )[0];
+			$content = apply_filters( 'newspack_gate_content', explode( '<!--more-->', $content )[0] );
 		} else {
+			$content = apply_filters( 'newspack_gate_content', $content );
 			$count = (int) get_post_meta( $gate_post_id, 'visible_paragraphs', true );
 			// Split into paragraphs.
 			$content = explode( '</p>', $content );
@@ -707,6 +712,8 @@ class Content_Gate {
 		if ( 'overlay' !== $style ) {
 			return;
 		}
+		self::$is_gated = true;
+
 		global $post;
 		$_post = $post;
 		$post  = \get_post( $gate_post_id ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited

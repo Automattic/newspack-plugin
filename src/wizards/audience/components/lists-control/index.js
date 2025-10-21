@@ -6,7 +6,7 @@ import apiFetch from '@wordpress/api-fetch';
 /**
  * Internal dependencies
  */
-import AutocompleteTokenField from '../../../../components/src/autocomplete-tokenfield';
+import AutocompleteTokenField from '../../../../../packages/components/src/autocomplete-tokenfield';
 
 export default function ListsControl( { label, help, placeholder, value, onChange, path, deletedItemLabel } ) {
 	const getSuggestions = item => ( {

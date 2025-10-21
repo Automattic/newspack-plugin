@@ -10,7 +10,7 @@ import { ESCAPE } from '@wordpress/keycodes';
 /**
  * Internal dependencies
  */
-import { Button, Popover } from '../../../../components/src';
+import { Button, Popover } from '../../../../../packages/components/src';
 
 const OptionsPopover = props => {
 	const [ isVisible, setIsVisible ] = useState( false );

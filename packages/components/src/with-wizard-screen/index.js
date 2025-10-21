@@ -8,7 +8,7 @@ import { category } from '@wordpress/icons';
  * Internal dependencies
  */
 import { Button, Handoff, NewspackIcon, Notice, HandoffMessage, TabbedNavigation } from '../';
-import { buttonProps } from '../../../shared/js/';
+import { buttonProps } from '../button-props';
 import './style.scss';
 
 /**

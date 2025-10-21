@@ -50,6 +50,12 @@
 		}
 	}
 
+	label.checkbox {
+		font-size: var(--newspack-ui-font-size-s) !important;
+		font-weight: normal !important;
+		line-height: var(--newspack-ui-line-height-s) !important;
+	}
+
 	input[type="checkbox"] {
 		border-radius: var(--newspack-ui-border-radius-2xs);
 

@@ -12,6 +12,7 @@ import { __ } from '@wordpress/i18n';
  */
 import WizardsTab from '../../../../wizards-tab';
 import { default as EmailsSection } from './emails';
+import { default as SettingsSection } from './settings';
 import WizardSection from '../../../../wizards-section';
 
 function Emails() {
@@ -19,6 +20,9 @@ function Emails() {
 		<WizardsTab title={ __( 'Emails', 'newspack-plugin' ) }>
 			<WizardSection>
 				<EmailsSection />
+			</WizardSection>
+			<WizardSection>
+				<SettingsSection />
 			</WizardSection>
 		</WizardsTab>
 	);

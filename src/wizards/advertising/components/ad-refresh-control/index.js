@@ -12,7 +12,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { PluginSettings } from '../../../../components/src';
+import { PluginSettings } from '../../../../../packages/components/src';
 
 const fields = [
 	{

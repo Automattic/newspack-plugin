@@ -30,8 +30,8 @@ import {
 	SectionHeader,
 	TextControl,
 	withWizardScreen,
-} from '../../../../components/src';
-import Router from '../../../../components/src/proxied-imports/router';
+} from '../../../../../packages/components/src';
+import Router from '../../../../../packages/components/src/proxied-imports/router';
 import '../../style.scss';
 
 const { useHistory } = Router;

@@ -15,7 +15,7 @@ import { moreVertical, settings } from '@wordpress/icons';
 /**
  * Internal dependencies.
  */
-import { ActionCard, Button, Card, Modal, Notice, TextControl } from '../../../../components/src';
+import { ActionCard, Button, Card, Modal, Notice, TextControl } from '../../../../../packages/components/src';
 import PrimaryPromptPopover from '../prompt-popovers/primary';
 import PromptSettingsModal from '../settings-modal';
 import { placementForPopup } from '../../views/campaigns/utils';

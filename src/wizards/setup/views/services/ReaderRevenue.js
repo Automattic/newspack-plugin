@@ -14,7 +14,7 @@ import { __ } from '@wordpress/i18n';
  */
 import Platform from '../../../audience/components/platform';
 import { DonationAmounts } from '../../../audience/views/donations/configuration';
-import { useWizardData } from '../../../../components/src/wizard/store/utils';
+import { useWizardData } from '../../../../../packages/components/src/wizard/store/utils';
 import { AUDIENCE_DONATIONS_WIZARD_SLUG } from '../../../audience/constants';
 
 const ReaderRevenue = ( { className } ) => {
