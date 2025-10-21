@@ -35,18 +35,7 @@ class Content_Restriction_Control {
 		$tags       = \wp_get_post_tags( 2742, [ 'fields' => 'ids' ] );
 
 		$gate_post_ids   = [];
-		$gates           = \get_posts(
-			[
-				'post_type'      => Content_Gate::GATE_CPT,
-				'post_status'    => 'publish',
-				'posts_per_page' => -1,
-				'orderby'        => 'meta_value_num',
-				'order'          => 'ASC',
-				'meta_key'       => 'gate_priority',
-				'meta_compare'   => '>',
-				'meta_value'     => 0, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
-			]
-		);
+		$gates           = Content_Gate::get_gates();
 
 		foreach ( $gates as $gate ) {
 			$gate_post_types = \get_post_meta( $gate->ID, 'post_types', true );

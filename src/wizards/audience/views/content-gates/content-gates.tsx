@@ -5,9 +5,10 @@
 /**
  * WordPress dependencies.
  */
+import apiFetch from '@wordpress/api-fetch';
 import { RichText } from '@wordpress/block-editor';
 import { CheckboxControl, DropdownMenu } from '@wordpress/components';
-import { useState } from '@wordpress/element';
+import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
 /**
@@ -17,70 +18,52 @@ import { ActionCard, Button, Card, Grid, Modal, SectionHeader, SelectControl, Te
 import WizardsActionCard from '../../../wizards-action-card';
 import './style.scss';
 
-const availableRules: AccessRules = {
-	registration: {
-		name: __( 'Registered Reader', 'newspack-plugin' ),
-		description: __( 'The user must be logged into a reader account to access the content.', 'newspack-plugin' ),
-	},
-	subscription: {
-		name: __( 'Has Active Subscription', 'newspack-plugin' ),
-		description: __( 'The user must have an active subscription with one of the selected products.', 'newspack-plugin' ),
-	},
-};
+const availableRules = window.newspackAudienceContentGates.available_rules || {};
 
 const ContentGates = () => {
-	const testGates: Gate[] = [
-		{
-			id: 1,
-			title: 'Reg wall',
-			description: 'Access rules: is registered reader',
-			isActive: true,
-			isMetered: true,
-			limitAnonymous: 0,
-			limitRegistered: 0,
-			period: 'week',
-			accessRules: [],
-		},
-	];
-
-	const [ gates, setGates ] = useState( testGates );
+	const [ gates, setGates ] = useState< Gate[] >( [] );
 	const [ showModal, setShowModal ] = useState( false );
 	const [ newGateName, setNewGateName ] = useState( '' );
 
-	const updateGate = (
-		gateId: number,
-		{
-			isActive,
-			isMetered,
-			limitAnonymous,
-			limitRegistered,
-			period,
-			title,
-		}: {
-			id?: number;
-			isActive?: boolean;
-			isMetered?: boolean;
-			limitAnonymous?: number;
-			limitRegistered?: number;
-			period?: string;
-			title?: string;
+	useEffect( () => {
+		apiFetch< Gate[] >( {
+			path: '/newspack/v1/content-gate',
+		} )
+			.then( data => {
+				setGates( data );
+			} )
+			.catch( error => console.error( error ) ); // eslint-disable-line no-console
+	}, [] );
+
+	const handleCreateGate = () => () => {
+		apiFetch< Gate >( {
+			path: '/newspack/v1/content-gate',
+			method: 'POST',
+			data: {
+				title: newGateName,
+			},
+		} )
+			.then( data => {
+				setGates( [ data, ...gates ] );
+			} )
+			.catch( error => console.error( error ) ); // eslint-disable-line no-console
+	};
+
+	const handleDeleteGate = ( id: number ) => () => {
+		// eslint-disable-next-line no-alert
+		if ( ! confirm( __( 'Are you sure you want to delete this content gate?', 'newspack-plugin' ) ) ) {
+			return;
 		}
-	) => {
-		setGates(
-			gates.map( gate =>
-				gate.id === gateId
-					? {
-							...gate,
-							isActive: isActive ?? gate.isActive,
-							isMetered: isMetered ?? gate.isMetered,
-							limitAnonymous: limitAnonymous ?? gate.limitAnonymous,
-							limitRegistered: limitRegistered ?? gate.limitRegistered,
-							period: period ?? gate.period,
-							title: title ?? gate.title,
-					  }
-					: gate
-			)
-		);
+		apiFetch( {
+			path: `/newspack/v1/content-gate/${ id }`,
+			method: 'DELETE',
+		} )
+			.then( () => setGates( gates.filter( g => g.id !== id ) ) )
+			.catch( error => console.error( error ) ); // eslint-disable-line no-console
+	};
+
+	const updateGate = ( id: number, data: Partial< Gate > ) => {
+		setGates( prevGates => prevGates.map( g => ( g.id === id ? { ...g, ...data } : g ) ) );
 	};
 
 	return (
@@ -98,27 +81,7 @@ const ContentGates = () => {
 							onChange={ ( value: string ) => setNewGateName( value ) }
 						/>
 						<Card buttonsCard noBorder className="justify-end">
-							<Button
-								variant="primary"
-								onClick={ () => {
-									setGates( [
-										...gates,
-										{
-											id: gates.length + 1,
-											title: newGateName || __( 'Content Gate', 'newspack-plugin' ),
-											description: __( 'Access rules: none configured', 'newspack-plugin' ),
-											isActive: true,
-											isMetered: false,
-											limitAnonymous: 0,
-											limitRegistered: 0,
-											period: 'week',
-											accessRules: [],
-										},
-									] );
-									setNewGateName( '' );
-									setShowModal( false );
-								} }
-							>
+							<Button variant="primary" onClick={ handleCreateGate }>
 								{ __( 'Add Content Gate', 'newspack-plugin' ) }
 							</Button>
 							<Button isDestructive variant="secondary" onClick={ () => setShowModal( false ) }>
@@ -151,152 +114,149 @@ const ContentGates = () => {
 					}
 					description={ gate.description }
 					isMedium
-					hasGreyHeader={ gate.isActive }
+					hasGreyHeader={ true }
 					actionContent={
 						<>
-							{ gate.isActive && (
-								<Button variant="primary" onClick={ () => {} }>
-									{ __( 'Edit Appearance', 'newspack' ) }
-								</Button>
-							) }
-							<Button isDestructive variant="secondary" onClick={ () => setGates( gates.filter( g => g.id !== gate.id ) ) }>
+							<Button variant="primary" onClick={ () => {} }>
+								{ __( 'Edit Appearance', 'newspack' ) }
+							</Button>
+							<Button isDestructive variant="secondary" onClick={ handleDeleteGate( gate.id ) }>
 								{ __( 'Delete', 'newspack-plugin' ) }
 							</Button>
 						</>
 					}
-					toggleChecked={ gate.isActive }
-					toggleOnChange={ () => updateGate( gate.id, { isActive: ! gate.isActive } ) }
+					toggleChecked={ true }
 				>
-					{ gate.isActive && (
-						<>
-							<ActionCard
-								title={ __( 'Access Rules', 'newspack-plugin' ) }
-								description={ __( 'Configure how readers can bypass this content gate.', 'newspack-plugin' ) }
-								hasWhiteHeader={ true }
-								noBorder={ true }
-								noMargin={ true }
-								actionContent={
-									<DropdownMenu
-										icon="plus"
-										toggleProps={ {
-											iconSize: 16,
-										} }
-										text={ __( 'Add Rule', 'newspack-plugin' ) }
-										label={ __( 'Add Rule', 'newspack-plugin' ) }
-										controls={ Object.keys( availableRules ).map( ( slug: string ) => ( {
-											title: availableRules[ slug ].name,
-											onClick: null, // TODO: Add selected access rule.
-											isDisabled: false, // TODO: Add conflict check.
-										} ) ) }
-									/>
-								}
-							>
-								{ gate.accessRules.length > 0 && (
-									<Grid columns={ 3 } gutter={ 32 }>
-										{ gate.accessRules.map( ( rule: AccessRule ) => (
-											<div key={ rule.name }>
-												<h4>{ rule.name }</h4>
-												<p>{ rule.description }</p>
-											</div>
-										) ) }
-									</Grid>
-								) }
-							</ActionCard>
-							<ActionCard
-								title={ __( 'Content Rules', 'newspack-plugin' ) }
-								description={ __( 'Configure which content is restricted by this content gate.', 'newspack-plugin' ) }
-								hasWhiteHeader={ true }
-								noBorder={ true }
-								noMargin={ true }
-								actionContent={
-									<DropdownMenu
-										icon="plus"
-										toggleProps={ {
-											iconSize: 16,
-										} }
-										text={ __( 'Add Rule', 'newspack-plugin' ) }
-										label={ __( 'Add Rule', 'newspack-plugin' ) }
-										controls={ [
-											{
-												title: __( 'Post types', 'newspack-plugin' ),
-											},
-											{
-												title: __( 'Categories', 'newspack-plugin' ),
-											},
-											{
-												title: __( 'Tags', 'newspack-plugin' ),
-											},
-										] }
-									/>
-								}
-							>
-								{ gate.accessRules.length > 0 && (
-									<Grid columns={ 3 } gutter={ 32 }>
-										{ gate.accessRules.map( rule => (
-											<div key={ rule.name }>
-												<h4>{ rule.name }</h4>
-												<p>{ rule.description }</p>
-											</div>
-										) ) }
-									</Grid>
-								) }
-							</ActionCard>
-							<Card noBorder>
-								<SectionHeader heading={ 3 } title={ __( 'Metering', 'newspack-plugin' ) } noMargin />
-								<Card noBorder>
-									<CheckboxControl
-										label={ __( 'Meter content views for this gate', 'newspack-plugin' ) }
-										checked={ gate.isMetered }
-										onChange={ () => updateGate( gate.id, { isMetered: ! gate.isMetered } ) }
-									/>
-								</Card>
-								{ gate.isMetered && (
-									<Grid columns={ 3 } gutter={ 32 }>
-										<TextControl
-											type={ 'number' }
-											label={ __( 'Article limit for anonymous viewers', 'newspack-plugin' ) }
-											help={ __(
-												'Number of times an anonymous reader can view gated content. If set to 0, anonymous readers will always render the gate.',
-												'newspack-plugin'
-											) }
-											value={ gate.limitAnonymous }
-											onChange={ ( value: number ) => updateGate( gate.id, { limitAnonymous: value } ) }
-										/>
-										<TextControl
-											type={ 'number' }
-											label={ __( 'Article limit for registered viewers', 'newspack-plugin' ) }
-											help={ __(
-												'Number of times a registered reader can view gated content. If set to 0, registered readers will always render the gate.',
-												'newspack-plugin'
-											) }
-											value={ gate.limitRegistered }
-											onChange={ ( value: number ) => updateGate( gate.id, { limitRegistered: value } ) }
-										/>
-										<SelectControl
-											type={ 'select' }
-											label={ __( 'Time period', 'newspack-plugin' ) }
-											help={ __(
-												'The time period during which the metering views will be counted. For example, if the metering period is set to "Weekly", the metering views will be reset every week.',
-												'newspack-plugin'
-											) }
-											value={ gate.period }
-											onChange={ ( value: string ) => updateGate( gate.id, { period: value } ) }
-											options={ [
-												{
-													value: 'week',
-													label: __( 'Weekly', 'newspack-plugin' ),
-												},
-												{
-													value: 'month',
-													label: __( 'Monthly', 'newspack-plugin' ),
-												},
-											] }
-										/>
-									</Grid>
-								) }
-							</Card>
-						</>
-					) }
+					<ActionCard
+						title={ __( 'Access Rules', 'newspack-plugin' ) }
+						description={ __( 'Configure how readers can bypass this content gate.', 'newspack-plugin' ) }
+						hasWhiteHeader={ true }
+						noBorder={ true }
+						noMargin={ true }
+						actionContent={
+							<DropdownMenu
+								icon="plus"
+								toggleProps={ {
+									iconSize: 16,
+								} }
+								text={ __( 'Add Rule', 'newspack-plugin' ) }
+								label={ __( 'Add Rule', 'newspack-plugin' ) }
+								controls={ Object.keys( availableRules ).map( ( slug: string ) => ( {
+									title: availableRules[ slug ].name,
+									onClick: null, // TODO: Add selected access rule.
+									isDisabled: false, // TODO: Add conflict check.
+								} ) ) }
+							/>
+						}
+					>
+						{ gate.access_rules.length > 0 && (
+							<Grid columns={ 3 } gutter={ 32 }>
+								{ gate.access_rules.map( ( rule: AccessRule ) => (
+									<div key={ rule.name }>
+										<h4>{ rule.name }</h4>
+										<p>{ rule.description }</p>
+									</div>
+								) ) }
+							</Grid>
+						) }
+					</ActionCard>
+					<ActionCard
+						title={ __( 'Content Rules', 'newspack-plugin' ) }
+						description={ __( 'Configure which content is restricted by this content gate.', 'newspack-plugin' ) }
+						hasWhiteHeader={ true }
+						noBorder={ true }
+						noMargin={ true }
+						actionContent={
+							<DropdownMenu
+								icon="plus"
+								toggleProps={ {
+									iconSize: 16,
+								} }
+								text={ __( 'Add Rule', 'newspack-plugin' ) }
+								label={ __( 'Add Rule', 'newspack-plugin' ) }
+								controls={ [
+									{
+										title: __( 'Post types', 'newspack-plugin' ),
+									},
+									{
+										title: __( 'Categories', 'newspack-plugin' ),
+									},
+									{
+										title: __( 'Tags', 'newspack-plugin' ),
+									},
+								] }
+							/>
+						}
+					>
+						{ gate.access_rules.length > 0 && (
+							<Grid columns={ 3 } gutter={ 32 }>
+								{ gate.access_rules.map( rule => (
+									<div key={ rule.name }>
+										<h4>{ rule.name }</h4>
+										<p>{ rule.description }</p>
+									</div>
+								) ) }
+							</Grid>
+						) }
+					</ActionCard>
+					<Card noBorder>
+						<SectionHeader heading={ 3 } title={ __( 'Metering', 'newspack-plugin' ) } noMargin />
+						<Card noBorder>
+							<CheckboxControl
+								label={ __( 'Meter content views for this gate', 'newspack-plugin' ) }
+								checked={ gate.metering.enabled }
+								onChange={ () => updateGate( gate.id, { metering: { ...gate.metering, enabled: ! gate.metering.enabled } } ) }
+							/>
+						</Card>
+						{ gate.metering.enabled && (
+							<Grid columns={ 3 } gutter={ 32 }>
+								<TextControl
+									type={ 'number' }
+									label={ __( 'Article limit for anonymous viewers', 'newspack-plugin' ) }
+									help={ __(
+										'Number of times an anonymous reader can view gated content. If set to 0, anonymous readers will always render the gate.',
+										'newspack-plugin'
+									) }
+									value={ gate.metering.anonymous_count }
+									onChange={ ( value: number ) =>
+										updateGate( gate.id, { metering: { ...gate.metering, anonymous_count: value } } )
+									}
+								/>
+								<TextControl
+									type={ 'number' }
+									label={ __( 'Article limit for registered viewers', 'newspack-plugin' ) }
+									help={ __(
+										'Number of times a registered reader can view gated content. If set to 0, registered readers will always render the gate.',
+										'newspack-plugin'
+									) }
+									value={ gate.metering.registered_count }
+									onChange={ ( value: number ) =>
+										updateGate( gate.id, { metering: { ...gate.metering, registered_count: value } } )
+									}
+								/>
+								<SelectControl
+									type={ 'select' }
+									label={ __( 'Time period', 'newspack-plugin' ) }
+									help={ __(
+										'The time period during which the metering views will be counted. For example, if the metering period is set to "Weekly", the metering views will be reset every week.',
+										'newspack-plugin'
+									) }
+									value={ gate.metering.period }
+									onChange={ ( value: string ) => updateGate( gate.id, { metering: { ...gate.metering, period: value } } ) }
+									options={ [
+										{
+											value: 'week',
+											label: __( 'Weekly', 'newspack-plugin' ),
+										},
+										{
+											value: 'month',
+											label: __( 'Monthly', 'newspack-plugin' ),
+										},
+									] }
+								/>
+							</Grid>
+						) }
+					</Card>
 				</WizardsActionCard>
 			) ) }
 		</>

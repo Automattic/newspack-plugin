@@ -61,7 +61,8 @@ class Audience_Content_Gates extends Wizard {
 			'newspack-wizards',
 			'newspackAudienceContentGates',
 			[
-				'api' => '/' . NEWSPACK_API_NAMESPACE . '/wizard/' . $this->slug,
+				'api'             => '/' . NEWSPACK_API_NAMESPACE . '/wizard/' . $this->slug,
+				'available_rules' => Access_Rules::get_access_rules(),
 			]
 		);
 	}
@@ -91,6 +92,42 @@ class Audience_Content_Gates extends Wizard {
 		if ( ! $this->is_feature_enabled() ) {
 			return;
 		}
+
+		register_rest_route(
+			NEWSPACK_API_NAMESPACE,
+			'/content-gate',
+			[
+				'methods'  => 'GET',
+				'callback' => [ $this, 'get_gates' ],
+			]
+		);
+
+		register_rest_route(
+			NEWSPACK_API_NAMESPACE,
+			'/content-gate',
+			[
+				'methods'  => 'POST',
+				'callback' => [ $this, 'create_gate' ],
+			]
+		);
+
+		register_rest_route(
+			NEWSPACK_API_NAMESPACE,
+			'/content-gate/(?P<id>\d+)',
+			[
+				'methods'  => 'DELETE',
+				'callback' => [ $this, 'delete_gate' ],
+			]
+		);
+
+		register_rest_route(
+			NEWSPACK_API_NAMESPACE,
+			'/content-gate/(?P<id>\d+)',
+			[
+				'methods'  => 'PUT',
+				'callback' => [ $this, 'update_gate' ],
+			]
+		);
 	}
 
 	/**
@@ -100,5 +137,45 @@ class Audience_Content_Gates extends Wizard {
 	 */
 	public function is_feature_enabled() {
 		return defined( 'NEWSPACK_CONTENT_GATES' ) && NEWSPACK_CONTENT_GATES;
+	}
+
+	/**
+	 * Get the gates.
+	 *
+	 * @return \WP_REST_Response
+	 */
+	public function get_gates() {
+		return rest_ensure_response( Content_Gate::get_gates() );
+	}
+
+	/**
+	 * Create a gate.
+	 *
+	 * @param \WP_REST_Request $request The request object.
+	 *
+	 * @return \WP_REST_Response
+	 */
+	public function create_gate( $request ) {
+		return rest_ensure_response( Content_Gate::create_gate( $request->get_param( 'title' ) ) );
+	}
+
+	/**
+	 * Delete a gate.
+	 *
+	 * @param \WP_REST_Request $request The request object.
+	 *
+	 * @return \WP_REST_Response|\WP_Error
+	 */
+	public function delete_gate( $request ) {
+		$id = $request->get_param( 'id' );
+		$gate = get_post( $id );
+		if ( ! $gate ) {
+			return new \WP_Error( 'invalid_gate_id', __( 'Invalid gate ID.', 'newspack-plugin' ), [ 'status' => 400 ] );
+		}
+		if ( Content_Gate::GATE_CPT !== $gate->post_type ) {
+			return new \WP_Error( 'invalid_gate_type', __( 'Invalid gate type.', 'newspack-plugin' ), [ 'status' => 400 ] );
+		}
+		wp_delete_post( $id, true );
+		return rest_ensure_response( true );
 	}
 }
