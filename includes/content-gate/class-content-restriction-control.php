@@ -22,6 +22,83 @@ class Content_Restriction_Control {
 	}
 
 	/**
+	 * Get the post types that can be restricted.
+	 */
+	public static function get_available_post_types() {
+		$available_post_types = array_values(
+			array_map(
+				function( $post_type ) {
+					return [
+						'name'  => $post_type->name,
+						'label' => $post_type->label,
+					];
+				},
+				get_post_types(
+					[
+						'public'       => true,
+						'show_in_rest' => true,
+						'_builtin'     => false,
+					],
+					'objects'
+				)
+			)
+		);
+
+		return apply_filters(
+			'newspack_content_gate_supported_post_types',
+			array_merge(
+				[
+					[
+						'name'  => 'post',
+						'label' => 'Posts',
+					],
+					[
+						'name'  => 'page',
+						'label' => 'Pages',
+					],
+				],
+				$available_post_types
+			)
+		);
+	}
+
+	/**
+	 * Get the taxonomies that can be restricted.
+	 * By default, this includes all public taxonomies that apply to available post types.
+	 *
+	 * @return array Array of taxonomies.
+	 */
+	public static function get_available_taxonomies() {
+		$available_post_types = array_column( self::get_available_post_types(), 'name' );
+		$available_taxonomies = array_values(
+			array_reduce(
+				get_taxonomies(
+					[
+						'public'       => true,
+						'show_in_rest' => true,
+					],
+					'objects'
+				),
+				function( $acc, $taxonomy ) use ( $available_post_types ) {
+					if ( ! empty( array_intersect( $taxonomy->object_type, $available_post_types ) ) ) {
+						$acc[] = [
+							'name'  => $taxonomy->name,
+							'label' => $taxonomy->label,
+						];
+					}
+					return $acc;
+				},
+				[]
+			)
+		);
+
+		return apply_filters(
+			'newspack_content_gate_supported_taxonomies',
+			$available_taxonomies
+		);
+	}
+
+	/**
 	 * Get post gates.
 	 *
 	 * @param int $post_id Optional post ID.

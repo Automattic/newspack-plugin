@@ -1,3 +1,5 @@
+/* global newspackAudienceContentGates */
+
 /**
  * Content Gate component.
  */
@@ -16,8 +18,9 @@ import { __ } from '@wordpress/i18n';
 import { ActionCard, Button, Card, Grid, Modal, SectionHeader, SelectControl, TextControl } from '../../../../../packages/components/src';
 import WizardsActionCard from '../../../wizards-action-card';
 import './style.scss';
+import ContentRuleControl from './content-rule-control';
 
-const availableRules: AccessRules = {
+const availableAccessRules: AccessRules = {
 	registration: {
 		name: __( 'Registered Reader', 'newspack-plugin' ),
 		description: __( 'The user must be logged into a reader account to access the content.', 'newspack-plugin' ),
@@ -27,6 +30,8 @@ const availableRules: AccessRules = {
 		description: __( 'The user must have an active subscription with one of the selected products.', 'newspack-plugin' ),
 	},
 };
+
+const availableContentRules = ( newspackAudienceContentGates?.content_rules as ContentRules ) || {};
 
 const ContentGates = () => {
 	const testGates: Gate[] = [
@@ -39,7 +44,8 @@ const ContentGates = () => {
 			limitAnonymous: 0,
 			limitRegistered: 0,
 			period: 'week',
-			accessRules: [],
+			accessRules: {},
+			contentRules: {},
 		},
 	];
 
@@ -56,6 +62,8 @@ const ContentGates = () => {
 			limitRegistered,
 			period,
 			title,
+			accessRules,
+			contentRules,
 		}: {
 			id?: number;
 			isActive?: boolean;
@@ -64,6 +72,16 @@ const ContentGates = () => {
 			limitRegistered?: number;
 			period?: string;
 			title?: string;
+			accessRules?: {
+				[ key: string ]: {
+					value: string[];
+				};
+			};
+			contentRules?: {
+				[ key: string ]: {
+					value: string[];
+				};
+			};
 		}
 	) => {
 		setGates(
@@ -77,6 +95,8 @@ const ContentGates = () => {
 							limitRegistered: limitRegistered ?? gate.limitRegistered,
 							period: period ?? gate.period,
 							title: title ?? gate.title,
+							accessRules: accessRules ?? gate.accessRules,
+							contentRules: contentRules ?? gate.contentRules,
 					  }
 					: gate
 			)
@@ -112,7 +132,8 @@ const ContentGates = () => {
 											limitAnonymous: 0,
 											limitRegistered: 0,
 											period: 'week',
-											accessRules: [],
+											accessRules: {},
+											contentRules: {},
 										},
 									] );
 									setNewGateName( '' );
@@ -183,20 +204,20 @@ const ContentGates = () => {
 										} }
 										text={ __( 'Add Rule', 'newspack-plugin' ) }
 										label={ __( 'Add Rule', 'newspack-plugin' ) }
-										controls={ Object.keys( availableRules ).map( ( slug: string ) => ( {
-											title: availableRules[ slug ].name,
+										controls={ Object.keys( availableAccessRules ).map( ( slug: string ) => ( {
+											title: availableAccessRules[ slug ].name,
 											onClick: null, // TODO: Add selected access rule.
 											isDisabled: false, // TODO: Add conflict check.
 										} ) ) }
 									/>
 								}
 							>
-								{ gate.accessRules.length > 0 && (
+								{ Object.keys( gate.accessRules ).length > 0 && (
 									<Grid columns={ 3 } gutter={ 32 }>
-										{ gate.accessRules.map( ( rule: AccessRule ) => (
-											<div key={ rule.name }>
-												<h4>{ rule.name }</h4>
-												<p>{ rule.description }</p>
+										{ Object.keys( gate.accessRules ).map( ( slug: string ) => (
+											<div key={ slug }>
+												<h4>{ availableAccessRules[ slug ].name }</h4>
+												<p>{ availableAccessRules[ slug ].description }</p>
 											</div>
 										) ) }
 									</Grid>
@@ -216,27 +237,32 @@ const ContentGates = () => {
 										} }
 										text={ __( 'Add Rule', 'newspack-plugin' ) }
 										label={ __( 'Add Rule', 'newspack-plugin' ) }
-										controls={ [
-											{
-												title: __( 'Post types', 'newspack-plugin' ),
+										controls={ Object.keys( availableContentRules ).map( ( slug: string ) => ( {
+											title: availableContentRules[ slug ].label,
+											onClick: () => {
+												updateGate( gate.id, {
+													contentRules: {
+														...gate.contentRules,
+														[ slug ]: {
+															value: [],
+														},
+													},
+												} );
 											},
-											{
-												title: __( 'Categories', 'newspack-plugin' ),
-											},
-											{
-												title: __( 'Tags', 'newspack-plugin' ),
-											},
-										] }
+											isDisabled: gate.contentRules.hasOwnProperty( slug ),
+										} ) ) }
 									/>
 								}
 							>
-								{ gate.accessRules.length > 0 && (
+								{ Object.keys( gate.contentRules ).length > 0 && (
 									<Grid columns={ 3 } gutter={ 32 }>
-										{ gate.accessRules.map( rule => (
-											<div key={ rule.name }>
-												<h4>{ rule.name }</h4>
-												<p>{ rule.description }</p>
-											</div>
+										{ Object.keys( gate.contentRules ).map( ( slug: string ) => (
+											<ContentRuleControl
+												key={ slug }
+												slug={ slug }
+												label={ availableContentRules[ slug ].label }
+												options={ availableContentRules[ slug ].options || [] }
+											/>
 										) ) }
 									</Grid>
 								) }

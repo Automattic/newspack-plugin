@@ -2,7 +2,7 @@ declare module '@wordpress/block-editor';
 
 type AccessRule = {
 	name: string;
-	description: string;
+	description?: string;
 	conflicts?: string[];
 	value?: string | string[];
 };
@@ -10,6 +10,18 @@ type AccessRule = {
 type AccessRules = {
 	[key: string]: AccessRule;
 }
+
+type ContentRule = {
+	label: string;
+	options?: {
+		value: string;
+		label: string;
+	}[];
+};
+
+type ContentRules = {
+	[key: string]: ContentRule;
+};
 
 type Gate = {
 	id: number;
@@ -20,5 +32,23 @@ type Gate = {
 	limitAnonymous: number;
 	limitRegistered: number;
 	period: string;
-	accessRules: AccessRule[];
+	accessRules: {
+		[key: string]: {
+			value: string[],
+		};
+	};
+	contentRules: {
+		[key: string]: {
+			value: string[],
+		};
+	};
 };
+
+declare global {
+	interface Window {
+		newspackAudienceContentGates: {
+			api: string;
+			content_rules: ContentRules;
+		};
+	}
+}

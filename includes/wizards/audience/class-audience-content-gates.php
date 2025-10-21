@@ -56,12 +56,25 @@ class Audience_Content_Gates extends Wizard {
 		parent::enqueue_scripts_and_styles();
 
 		wp_enqueue_script( 'newspack-wizards' );
+		$content_rules = [
+			'post_types' => [
+				'label'   => __( 'Post Types', 'newspack-plugin' ),
+				'options' => Content_Restriction_Control::get_available_post_types(),
+			],
+		];
+		$available_taxonomies = Content_Restriction_Control::get_available_taxonomies();
+		foreach ( $available_taxonomies as $taxonomy ) {
+			$content_rules[ $taxonomy['name'] ] = [
+				'label' => $taxonomy['label'],
+			];
+		}
 
 		\wp_localize_script(
 			'newspack-wizards',
 			'newspackAudienceContentGates',
 			[
-				'api' => '/' . NEWSPACK_API_NAMESPACE . '/wizard/' . $this->slug,
+				'api'           => '/' . NEWSPACK_API_NAMESPACE . '/wizard/' . $this->slug,
+				'content_rules' => $content_rules,
 			]
 		);
 	}
