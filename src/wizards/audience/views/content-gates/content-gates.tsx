@@ -183,8 +183,8 @@ const ContentGates = () => {
 										} }
 										text={ __( 'Add Rule', 'newspack-plugin' ) }
 										label={ __( 'Add Rule', 'newspack-plugin' ) }
-										controls={ Object.keys( availableRules ).map( rule => ( {
-											title: availableRules[ rule ].name,
+										controls={ Object.keys( availableRules ).map( ( slug: string ) => ( {
+											title: availableRules[ slug ].name,
 											onClick: null, // TODO: Add selected access rule.
 											isDisabled: false, // TODO: Add conflict check.
 										} ) ) }
@@ -193,7 +193,7 @@ const ContentGates = () => {
 							>
 								{ gate.accessRules.length > 0 && (
 									<Grid columns={ 3 } gutter={ 32 }>
-										{ gate.accessRules.map( rule => (
+										{ gate.accessRules.map( ( rule: AccessRule ) => (
 											<div key={ rule.name }>
 												<h4>{ rule.name }</h4>
 												<p>{ rule.description }</p>
