@@ -99,15 +99,9 @@ const ActionCard = ( {
 	const isDisplayingSecondaryAction = secondaryActionText && onSecondaryActionClick;
 	const badges = ! Array.isArray( badge ) && badge ? [ badge ] : badge;
 	const isDraggable = draggable && dragWrapperRef && typeof dragIndex === 'number' && onDragCallback && id;
-	const Component = ( { onDraggableStart, onDraggableEnd } ) => (
-		<Card className={ classes } onClick={ simple && onClick } id={ id ?? null } noBorder={ noBorder }>
-			{ isDraggable && (
-				<div className="newspack-action-card__draggable-controls">
-					<div className="drag-handle" draggable onDragStart={ onDraggableStart } onDragEnd={ onDraggableEnd }>
-						<Icon icon={ dragHandle } height={ 18 } width={ 18 } />
-					</div>
-				</div>
-			) }
+
+	const Component = () => (
+		<>
 			<div className="newspack-action-card__region newspack-action-card__region-top">
 				{ toggleOnChange && <ToggleControl checked={ toggleChecked } onChange={ toggleOnChange } disabled={ disabled } /> }
 				{ image && ! toggleOnChange && (
@@ -220,7 +214,7 @@ const ActionCard = ( {
 			{ children && ( ( expandable && expanded ) || ! expandable ) && (
 				<div className="newspack-action-card__region-children">{ children }</div>
 			) }
-		</Card>
+		</>
 	);
 
 	if ( isDraggable ) {
@@ -232,9 +226,6 @@ const ActionCard = ( {
 			setDragging( true );
 		};
 		const handleDragEnd = () => {
-			if ( ! dragging ) {
-				return;
-			}
 			if ( targetIndex !== null && targetIndex !== dragIndex ) {
 				onDragCallback( targetIndex );
 			}
@@ -242,9 +233,6 @@ const ActionCard = ( {
 			setDragging( false );
 		};
 		const handleDragOver = e => {
-			if ( ! dragging ) {
-				return;
-			}
 			const wrapperRect = dragWrapperRef.current.getBoundingClientRect();
 			const isDraggingToTop = e.pageY <= wrapperRect.top + window.scrollY;
 			const isDraggingToBottom = e.pageY >= wrapperRect.bottom + window.scrollY;
@@ -283,14 +271,25 @@ const ActionCard = ( {
 					onDragOver={ handleDragOver }
 				>
 					{ ( { onDraggableStart, onDraggableEnd } ) => (
-						<Component onDraggableStart={ onDraggableStart } onDraggableEnd={ onDraggableEnd } />
+						<Card className={ classes } onClick={ simple && onClick } id={ id ?? null } noBorder={ noBorder }>
+							<div className="newspack-action-card__draggable-controls">
+								<div className="drag-handle" draggable onDragStart={ onDraggableStart } onDragEnd={ onDraggableEnd }>
+									<Icon icon={ dragHandle } height={ 18 } width={ 18 } />
+								</div>
+							</div>
+							<Component />
+						</Card>
 					) }
 				</Draggable>
 			</div>
 		);
 	}
 
-	return <Component />;
+	return (
+		<Card className={ classes } onClick={ simple && onClick } id={ id ?? null } noBorder={ noBorder }>
+			<Component />
+		</Card>
+	);
 };
 
 export default ActionCard;

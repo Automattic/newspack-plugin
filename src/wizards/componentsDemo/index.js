@@ -109,28 +109,6 @@ class ComponentsDemo extends Component {
 				</div>
 				<div className="newspack-wizard newspack-wizard__content">
 					<Card>
-						<h2>{ __( 'Draggable Action Cards', 'newspack-plugin' ) }</h2>
-						<div ref={ this.dragWrapperRef }>
-							{ this.state.draggableList.map( ( { id, title }, index ) => (
-								<ActionCard
-									key={ id }
-									id={ `draggable-card-${ id }` }
-									draggable
-									dragIndex={ index }
-									dragWrapperRef={ this.dragWrapperRef }
-									onDragCallback={ newIndex => {
-										const newList = [ ...this.state.draggableList ];
-										const [ movedItem ] = newList.splice( index, 1 );
-										newList.splice( newIndex, 0, movedItem );
-										this.setState( { draggableList: newList } );
-									} }
-									title={ title }
-									description={ __( 'An example of an action card that is draggable.', 'newspack-plugin' ) }
-								/>
-							) ) }
-						</div>
-					</Card>
-					<Card>
 						<h2>{ __( 'Autocomplete with Suggestions (single-select)', 'newspack-plugin' ) }</h2>
 						<AutocompleteWithSuggestions
 							label={ __( 'Search for a post', 'newspack-plugin' ) }
@@ -740,6 +718,28 @@ class ComponentsDemo extends Component {
 								console.log( 'Plugin Settings Section Changed', { key, val } );
 							} }
 						/>
+					</Card>
+					<Card>
+						<h2>{ __( 'Draggable Action Cards', 'newspack-plugin' ) }</h2>
+						<div ref={ this.dragWrapperRef }>
+							{ this.state.draggableList.map( ( { id, title }, index ) => (
+								<ActionCard
+									key={ id }
+									id={ id }
+									draggable
+									dragIndex={ index }
+									dragWrapperRef={ this.dragWrapperRef }
+									onDragCallback={ newIndex => {
+										const newList = [ ...this.state.draggableList ];
+										const [ movedItem ] = newList.splice( index, 1 );
+										newList.splice( newIndex, 0, movedItem );
+										this.setState( { draggableList: newList } );
+									} }
+									title={ title }
+									description={ __( 'An example of an action card that is draggable.', 'newspack-plugin' ) }
+								/>
+							) ) }
+						</div>
 					</Card>
 					<Card>
 						<h2>{ __( 'Box Contrast', 'newspack-plugin' ) }</h2>
