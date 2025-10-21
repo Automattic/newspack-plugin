@@ -9,10 +9,10 @@ declare module '*.png' {
 /**
  * Wizard API fetch function
  */
-type WizardApiFetch<T = {}> = (
+type WizardApiFetch< T = {} > = (
 	options: ApiFetchOptions,
-	callbacks?: ApiFetchCallbacks<any>
-) => Promise<T>;
+	callbacks?: ApiFetchCallbacks< any >
+) => Promise< T >;
 
 /**
  * WP REST API Error.
@@ -22,7 +22,7 @@ type WpRestApiError = {
 	message: string;
 	data: {
 		status: number;
-		params: Record<string, string>;
+		params: Record< string, string >;
 	};
 };
 
