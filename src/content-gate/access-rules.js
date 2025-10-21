@@ -4,13 +4,19 @@
  */
 import { __ } from '@wordpress/i18n';
 import { Fragment } from '@wordpress/element';
-import { BaseControl, Button, Card, CardBody, CardDivider, CardFooter, DropdownMenu, PanelRow, TextareaControl } from '@wordpress/components';
+import {
+	BaseControl,
+	Button,
+	Card,
+	CardBody,
+	CardDivider,
+	CardFooter,
+	DropdownMenu,
+	PanelRow,
+	TextControl,
+	SelectControl,
+} from '@wordpress/components';
 import { PluginDocumentSettingPanel } from '@wordpress/edit-post';
-
-/**
- * Internal dependencies
- */
-import ProductControl from './product-control';
 
 function AccessRules( { editPost, rules } ) {
 	const availableRules = newspack_content_gate?.access_rules || {};
@@ -26,14 +32,14 @@ function AccessRules( { editPost, rules } ) {
 					<Fragment key={ rule.slug }>
 						{ index > 0 && <CardDivider margin={ '8px' } /> }
 						<CardBody>
-							{ availableRules[ rule.slug ].type === 'boolean' && (
+							{ availableRules[ rule.slug ].is_boolean && (
 								<BaseControl
 									id={ rule.slug }
 									label={ availableRules[ rule.slug ].name }
 									help={ availableRules[ rule.slug ].description }
 								/>
 							) }
-							{ availableRules[ rule.slug ].type === 'string' && (
+							{ availableRules[ rule.slug ].options?.length <= 0 && (
 								<>
 									<PanelRow>
 										<BaseControl
@@ -43,7 +49,7 @@ function AccessRules( { editPost, rules } ) {
 										/>
 									</PanelRow>
 									<PanelRow>
-										<TextareaControl
+										<TextControl
 											value={ rules.find( item => item.slug === rule.slug )?.value || availableRules[ rule.slug ].default }
 											onChange={ value =>
 												editPost( {
@@ -59,21 +65,14 @@ function AccessRules( { editPost, rules } ) {
 									</PanelRow>
 								</>
 							) }
-							{ rule.slug === 'subscription' && (
-								<ProductControl
-									rule={ availableRules[ rule.slug ] }
-									value={ rules.find( item => item.slug === rule.slug )?.value || availableRules[ rule.slug ].default }
-									onChange={ value =>
-										editPost( {
-											meta: {
-												access_rules: [
-													...rules.filter( item => item.slug !== rule.slug ),
-													{ slug: rule.slug, value: value.map( item => item.value ) },
-												],
-											},
-										} )
-									}
-								/>
+							{ availableRules[ rule.slug ].options?.length > 0 && (
+								<PanelRow>
+									<SelectControl
+										value={ rules.find( item => item.slug === rule.slug )?.value || availableRules[ rule.slug ].default }
+										onChange={ value => editPost( { meta: { access_rules: [ ...rules, { slug: rule.slug, value } ] } } ) }
+										options={ availableRules[ rule.slug ].options }
+									/>
+								</PanelRow>
 							) }
 							<PanelRow>
 								<Button

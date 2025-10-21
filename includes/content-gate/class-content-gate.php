@@ -381,7 +381,7 @@ class Content_Gate {
 				'gate_plans'         => Memberships::get_gate_plans( get_the_ID() ),
 				'edit_plan_gate_url' => Memberships::get_edit_plan_gate_url(),
 				'post_types'         => self::get_available_post_types(),
-				'access_rules'       => Access_Rules::get_access_rules_config(),
+				'access_rules'       => Access_Rules::get_access_rules(),
 			]
 		);
 
@@ -422,56 +422,6 @@ class Content_Gate {
 		 * @param int $post_id Post ID.
 		 */
 		return apply_filters( 'newspack_content_gate_post_id', $gate_post_id, $post_id );
-	}
-
-	/**
-	 * Get content gates that might apply to the given post.
-	 *
-	 * @param int $post_id Post ID to find gates for.
-	 *
-	 * @return int[]|false Post IDs or false if not set.
-	 */
-	public static function get_potential_gates( $post_id = null ) {
-		if ( null === $post_id ) {
-			$post_id = \get_the_ID();
-		}
-		$post_type  = \get_post_type( $post_id );
-		$categories = \wp_get_post_categories( $post_id );
-		$tags       = \wp_get_post_tags( 2742, [ 'fields' => 'ids' ] );
-
-		$gate_post_ids   = [];
-		$potential_gates = \get_posts(
-			[
-				'post_type'      => self::GATE_CPT,
-				'post_status'    => 'publish',
-				'posts_per_page' => 100,
-				'orderby'        => 'meta_value_num',
-				'order'          => 'ASC',
-				'meta_key'       => 'gate_priority',
-				'meta_compare'   => '>',
-				'meta_value'     => 0, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
-			]
-		);
-
-		foreach ( $potential_gates as $gate ) {
-			$gate_post_types = \get_post_meta( $gate->ID, 'post_types', true );
-			$gate_categories = \wp_get_post_categories( $gate->ID );
-			$gate_tags       = \wp_get_post_tags( $gate->ID, [ 'fields' => 'ids' ] );
-
-			if ( empty( $gate_post_types ) || ! in_array( $post_type, $gate_post_types, true ) ) {
-				continue;
-			}
-			if ( ! empty( $gate_categories ) && empty( array_intersect( $gate_categories, $categories ) ) ) {
-				continue;
-			}
-			if ( ! empty( $gate_tags ) && empty( array_intersect( $gate_tags, $tags ) ) ) {
-				continue;
-			}
-
-			$gate_post_ids[] = $gate->ID;
-		}
-
-		return $gate_post_ids;
 	}
 
 	/**

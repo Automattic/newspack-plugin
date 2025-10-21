@@ -22,17 +22,61 @@ class Content_Restriction_Control {
 	}
 
 	/**
+	 * Get post gates.
+	 *
+	 * @param int $post_id Optional post ID.
+	 *
+	 * @return int[] Array of gate post IDs.
+	 */
+	public static function get_post_gates( $post_id = null ) {
+		$post_id    = $post_id ?? \get_the_ID();
+		$post_type  = \get_post_type( $post_id );
+		$categories = \wp_get_post_categories( $post_id );
+		$tags       = \wp_get_post_tags( 2742, [ 'fields' => 'ids' ] );
+
+		$gate_post_ids   = [];
+		$gates           = \get_posts(
+			[
+				'post_type'      => Content_Gate::GATE_CPT,
+				'post_status'    => 'publish',
+				'posts_per_page' => -1,
+				'orderby'        => 'meta_value_num',
+				'order'          => 'ASC',
+				'meta_key'       => 'gate_priority',
+				'meta_compare'   => '>',
+				'meta_value'     => 0, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
+			]
+		);
+
+		foreach ( $gates as $gate ) {
+			$gate_post_types = \get_post_meta( $gate->ID, 'post_types', true );
+			$gate_categories = \wp_get_post_categories( $gate->ID );
+			$gate_tags       = \wp_get_post_tags( $gate->ID, [ 'fields' => 'ids' ] );
+
+			if ( empty( $gate_post_types ) || ! in_array( $post_type, $gate_post_types, true ) ) {
+				continue;
+			}
+			if ( ! empty( $gate_categories ) && empty( array_intersect( $gate_categories, $categories ) ) ) {
+				continue;
+			}
+			if ( ! empty( $gate_tags ) && empty( array_intersect( $gate_tags, $tags ) ) ) {
+				continue;
+			}
+			$gate_post_ids[] = $gate->ID;
+		}
+
+		return $gate_post_ids;
+	}
+
+	/**
 	 * Whether the post is restricted for the current user.
 	 *
-	 * @param int|bool $is_post_restricted If restricted, the gate post ID. False if not restricted.
-	 * @param int      $post_id            Post ID.
-	 * @param int|null $user_id            User ID. If not given, checks the current user.
+	 * @param bool $is_post_restricted Whether the post is restricted for the current user.
+	 * @param int  $post_id            Post ID.
 	 *
 	 * @return bool
 	 */
-	public static function is_post_restricted( $is_post_restricted, $post_id = null, $user_id = null ) {
-		$user_id = $user_id ?? \get_current_user_id();
-
+	public static function is_post_restricted( $is_post_restricted, $post_id = null ) {
 		// Don't apply our restriction strategy if Woo Memberships is active.
 		if ( Memberships::is_active() ) {
 			return $is_post_restricted;
@@ -43,29 +87,23 @@ class Content_Restriction_Control {
 			return $is_post_restricted;
 		}
 
-		$potential_gate_ids = Content_Gate::get_potential_gates( $post_id );
-		if ( empty( $potential_gate_ids ) ) {
+		$gate_ids = self::get_post_gates( $post_id );
+		if ( empty( $gate_ids ) ) {
 			return false;
 		}
 
-		foreach ( $potential_gate_ids as $gate_id ) {
-			$can_bypass   = false;
-			$access_rules = Access_Rules::get_access_rules_for_post( $gate_id );
+		foreach ( $gate_ids as $gate_id ) {
+			$access_rules = Access_Rules::get_post_access_rules( $gate_id );
 			if ( empty( $access_rules ) ) {
 				continue;
 			}
-			foreach ( $access_rules as $access_rule ) {
-				if ( Access_Rules::evaluate_access_rule( $access_rule['slug'], $access_rule['value'] ?? null, $user_id ) ) {
-					$can_bypass = true;
-					break;
+			foreach ( $access_rules as $rule ) {
+				if ( ! Access_Rules::evaluate_rule( $rule['slug'], $rule['value'] ?? null ) ) {
+					return false;
 				}
 			}
-			if ( ! $can_bypass ) {
-				return $gate_id;
-			}
 		}
-
-		return false;
+		return true;
 	}
 }
 Content_Restriction_Control::init();
