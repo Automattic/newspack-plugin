@@ -6,7 +6,6 @@
  * WordPress dependencies.
  */
 import { useState } from '@wordpress/element';
-import { Draggable } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 
 /**
