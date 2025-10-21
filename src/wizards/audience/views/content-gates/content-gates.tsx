@@ -17,31 +17,14 @@ import { ActionCard, Button, Card, Grid, Modal, SectionHeader, SelectControl, Te
 import WizardsActionCard from '../../../wizards-action-card';
 import './style.scss';
 
-type AccessRule = {
-	name: string;
-	description: string;
-	value?: any;
-};
-
-type Gate = {
-	id: number;
-	title: string;
-	description: string;
-	isActive: boolean;
-	isMetered: boolean;
-	limitAnonymous: number;
-	limitRegistered: number;
-	period: string;
-	accessRules: AccessRule[];
-};
-
-const availableRules = {
+const availableRules: AccessRules = {
 	registration: {
 		name: __( 'Registered Reader', 'newspack-plugin' ),
-		description: __( 'Only registered readers can access the content.', 'newspack-plugin' ),
+		description: __( 'The user must be logged into a reader account to access the content.', 'newspack-plugin' ),
 	},
 	subscription: {
 		name: __( 'Has Active Subscription', 'newspack-plugin' ),
+		description: __( 'The user must have an active subscription with one of the selected products.', 'newspack-plugin' ),
 	},
 };
 
@@ -163,7 +146,7 @@ const ContentGates = () => {
 							tagName="h4"
 							disableLineBreaks
 							withoutInteractiveFormatting
-							onClick={ e => e.stopPropagation() }
+							onClick={ ( e: React.ChangeEvent< HTMLInputElement > ) => e.stopPropagation() }
 						/>
 					}
 					description={ gate.description }
@@ -202,13 +185,8 @@ const ContentGates = () => {
 										label={ __( 'Add Rule', 'newspack-plugin' ) }
 										controls={ Object.keys( availableRules ).map( rule => ( {
 											title: availableRules[ rule ].name,
-											onClick: () => editPost( { meta: { access_rules: [ ...gate.accessRules, { slug: rule } ] } } ),
-											isDisabled:
-												gate.accessRules.find( item => item.slug === rule ) ||
-												( availableRules[ rule ].conflicts?.length > 0 &&
-													availableRules[ rule ].conflicts.some( conflict =>
-														gate.accessRules.find( item => item.slug === conflict )
-													) ),
+											onClick: null, // TODO: Add selected access rule.
+											isDisabled: false, // TODO: Add conflict check.
 										} ) ) }
 									/>
 								}
