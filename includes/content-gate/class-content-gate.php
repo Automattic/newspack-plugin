@@ -837,12 +837,16 @@ class Content_Gate {
 				'post_type'      => self::GATE_CPT,
 				'post_status'    => [ 'publish', 'draft', 'trash', 'pending', 'future' ],
 				'posts_per_page' => -1,
-				'order'          => 'ASC',
-				'orderby'        => 'meta_value_num',
-				'meta_key'       => 'gate_priority',
 			]
 		);
-		return array_map( [ __CLASS__, 'get_gate' ], wp_list_pluck( $posts, 'ID' ) );
+		$gates = array_map( [ __CLASS__, 'get_gate' ], wp_list_pluck( $posts, 'ID' ) );
+		usort(
+			$gates,
+			function( $a, $b ) {
+				return $a['priority'] <=> $b['priority'];
+			}
+		);
+		return $gates;
 	}
 }
 Content_Gate::init();
