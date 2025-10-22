@@ -4,9 +4,9 @@
  */
 import { useRef, useState, Fragment, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Draggable, MenuItem } from '@wordpress/components';
+import { MenuItem } from '@wordpress/components';
 import { ESCAPE } from '@wordpress/keycodes';
-import { Icon, chevronDown, chevronUp, dragHandle, moreVertical } from '@wordpress/icons';
+import { moreVertical } from '@wordpress/icons';
 
 /**
  * Internal dependencies.
@@ -22,28 +22,11 @@ const AddNewSegmentLink = () => (
 	</NavLink>
 );
 
-const SegmentActionCard = ( {
-	inFlight,
-	segment,
-	segments,
-	deleteSegment,
-	dropTargetIndex,
-	setDropTargetIndex,
-	index,
-	sortSegments,
-	totalSegments,
-	wrapperRef,
-	toggleSegmentStatus,
-} ) => {
+const SegmentActionCard = ( { inFlight, segment, segments, deleteSegment, index, sortSegments, wrapperRef, toggleSegmentStatus } ) => {
 	const [ popoverVisibility, setPopoverVisibility ] = useState( false );
-	const [ isDragging, setIsDragging ] = useState( false );
 
 	const onFocusOutside = () => setPopoverVisibility( false );
 	const history = useHistory();
-	const isFirstTarget = 0 === index;
-	const isLastTarget = index + 1 === totalSegments;
-	const isDropTarget = index === dropTargetIndex;
-	const targetIsLast = isLastTarget && dropTargetIndex >= totalSegments;
 	const resortSegments = targetIndex => {
 		if ( inFlight ) {
 			return;
@@ -51,12 +34,9 @@ const SegmentActionCard = ( {
 
 		const sortedSegments = [ ...segments ];
 
-		// We need to account for the fact that the dragged segment is actually still in the list.
-		const target = targetIndex > index ? targetIndex - 1 : targetIndex;
-
 		// Remove the segment and drop it back into the array at the target index.
 		sortedSegments.splice( index, 1 );
-		sortedSegments.splice( target, 0, segment );
+		sortedSegments.splice( targetIndex, 0, segment );
 
 		// Reindex priorities to avoid gaps and dupes.
 		sortedSegments.forEach( ( _segment, _index ) => ( _segment.priority = _index ) );
@@ -66,166 +46,53 @@ const SegmentActionCard = ( {
 			sortSegments( sortedSegments );
 		}
 	};
-	const onDragStart = () => {
-		if ( isDragging || inFlight ) {
-			return;
-		}
-
-		setIsDragging( true );
-	};
-	const onDragEnd = () => {
-		if ( inFlight ) {
-			return;
-		}
-
-		if ( null !== dropTargetIndex ) {
-			resortSegments( dropTargetIndex );
-		}
-
-		setDropTargetIndex( null );
-		setIsDragging( false );
-	};
-	const onDragOver = e => {
-		if ( inFlight ) {
-			return;
-		}
-
-		const wrapperRect = wrapperRef.current.getBoundingClientRect();
-		const isDraggingToTop = e.pageY <= wrapperRect.top + window.scrollY;
-		const isDraggingToBottom = e.pageY >= wrapperRect.bottom + window.scrollY;
-
-		if ( isDraggingToTop || isDraggingToBottom || e.target.classList.contains( 'newspack-action-card' ) ) {
-			const segmentCards = Array.prototype.slice.call( wrapperRef.current.querySelectorAll( '.newspack-campaigns__draggable' ) );
-
-			let targetIndex = segmentCards.indexOf( e.target.parentElement );
-
-			// If dragging the element over itself or over an invalid target, cancel the drop.
-			if ( 0 > targetIndex || targetIndex === index + 1 ) {
-				targetIndex = index;
-			}
-
-			// Handle dropping before the first item.
-			if ( isDraggingToTop ) {
-				targetIndex = 0;
-			}
-
-			// Handle dropping after the last item.
-			if ( isDraggingToBottom ) {
-				targetIndex = totalSegments;
-			}
-
-			setDropTargetIndex( targetIndex );
-		}
-	};
-	const moveUp = () => {
-		if ( inFlight ) {
-			return;
-		}
-
-		let target = index - 1;
-
-		if ( 0 > target ) {
-			target = 0;
-		}
-
-		resortSegments( target );
-	};
-	const moveDown = () => {
-		if ( inFlight ) {
-			return;
-		}
-
-		let target = index + 2;
-
-		if ( totalSegments < target ) {
-			target = totalSegments;
-		}
-
-		resortSegments( target );
-	};
 
 	return (
-		<div
-			className={
-				'newspack-campaigns__draggable' +
-				( isDragging ? ' is-dragging' : '' ) +
-				( isDropTarget ? ' is-drop-target' : '' ) +
-				( targetIsLast ? ' drop-target-after' : '' )
-			}
+		<ActionCard
+			isSmall
 			id={ `segment-${ segment.id }` }
-		>
-			<Draggable
-				elementId={ `segment-${ segment.id }` }
-				transferData={ {} }
-				onDragStart={ onDragStart }
-				onDragEnd={ onDragEnd }
-				onDragOver={ onDragOver }
-			>
-				{ ( { onDraggableStart, onDraggableEnd } ) => (
-					<ActionCard
-						isSmall
-						title={ segment.name }
-						titleLink={ `#/segments/${ segment.id }` }
-						description={ segmentDescription( segment ) }
-						toggleChecked={ ! segment.configuration.is_disabled }
-						toggleOnChange={ () => toggleSegmentStatus( segment ) }
-						badge={ segment.is_criteria_duplicated ? __( 'Duplicate', 'newspack-plugin' ) : undefined }
-						actionText={
-							<>
-								<Button
-									onClick={ () => setPopoverVisibility( ! popoverVisibility ) }
-									label={ __( 'More options', 'newspack-plugin' ) }
-									icon={ moreVertical }
-									className={ popoverVisibility && 'popover-active' }
-								/>
-								{ popoverVisibility && (
-									<Popover
-										position="bottom left"
-										onKeyDown={ event => ESCAPE === event.keyCode && onFocusOutside }
-										onFocusOutside={ onFocusOutside }
-									>
-										<MenuItem onClick={ () => onFocusOutside() } className="screen-reader-text">
-											{ __( 'Close Popover', 'newspack-plugin' ) }
-										</MenuItem>
-										<MenuItem onClick={ () => history.push( `/segments/${ segment.id }` ) } className="newspack-button">
-											{ __( 'Edit', 'newspack-plugin' ) }
-										</MenuItem>
-										<MenuItem onClick={ () => deleteSegment( segment ) } className="newspack-button">
-											{ __( 'Delete', 'newspack-plugin' ) }
-										</MenuItem>
-									</Popover>
-								) }
-							</>
-						}
-					>
-						<div className="newspack-campaigns__segment-priority-controls">
-							<div className="drag-handle" draggable onDragStart={ onDraggableStart } onDragEnd={ onDraggableEnd }>
-								<Icon icon={ dragHandle } height={ 18 } width={ 18 } />
-							</div>
-							<div className="movers">
-								<Button
-									icon={ chevronUp }
-									onClick={ moveUp }
-									disabled={ isFirstTarget }
-									label={ __( 'Move segment position up', 'newspack-plugin' ) }
-								/>
-								<Button
-									icon={ chevronDown }
-									onClick={ moveDown }
-									disabled={ isLastTarget }
-									label={ __( 'Move segment position down', 'newspack-plugin' ) }
-								/>
-							</div>
-						</div>
-					</ActionCard>
-				) }
-			</Draggable>
-		</div>
+			title={ segment.name }
+			titleLink={ `#/segments/${ segment.id }` }
+			description={ segmentDescription( segment ) }
+			toggleChecked={ ! segment.configuration.is_disabled }
+			toggleOnChange={ () => toggleSegmentStatus( segment ) }
+			badge={ segment.is_criteria_duplicated ? __( 'Duplicate', 'newspack-plugin' ) : undefined }
+			draggable
+			dragIndex={ index }
+			dragWrapperRef={ wrapperRef }
+			onDragCallback={ resortSegments }
+			actionText={
+				<>
+					<Button
+						onClick={ () => setPopoverVisibility( ! popoverVisibility ) }
+						label={ __( 'More options', 'newspack-plugin' ) }
+						icon={ moreVertical }
+						className={ popoverVisibility && 'popover-active' }
+					/>
+					{ popoverVisibility && (
+						<Popover
+							position="bottom left"
+							onKeyDown={ event => ESCAPE === event.keyCode && onFocusOutside }
+							onFocusOutside={ onFocusOutside }
+						>
+							<MenuItem onClick={ () => onFocusOutside() } className="screen-reader-text">
+								{ __( 'Close Popover', 'newspack-plugin' ) }
+							</MenuItem>
+							<MenuItem onClick={ () => history.push( `/segments/${ segment.id }` ) } className="newspack-button">
+								{ __( 'Edit', 'newspack-plugin' ) }
+							</MenuItem>
+							<MenuItem onClick={ () => deleteSegment( segment ) } className="newspack-button">
+								{ __( 'Delete', 'newspack-plugin' ) }
+							</MenuItem>
+						</Popover>
+					) }
+				</>
+			}
+		/>
 	);
 };
 
 const SegmentsList = ( { wizardApiFetch, segments, setSegments, isLoading } ) => {
-	const [ dropTargetIndex, setDropTargetIndex ] = useState( null );
 	const [ sortedSegments, setSortedSegments ] = useState( null );
 	const [ inFlight, setInFlight ] = useState( false );
 	const [ error, setError ] = useState( null );
@@ -320,8 +187,6 @@ const SegmentsList = ( { wizardApiFetch, segments, setSegments, isLoading } ) =>
 						sortSegments={ sortSegments }
 						index={ index }
 						wrapperRef={ ref }
-						dropTargetIndex={ dropTargetIndex }
-						setDropTargetIndex={ setDropTargetIndex }
 						totalSegments={ segments.length }
 						toggleSegmentStatus={ toggleSegmentStatus }
 					/>
