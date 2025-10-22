@@ -13,6 +13,7 @@ import { __ } from '@wordpress/i18n';
 import { ActionCard, Grid, Card, SectionHeader } from '../../../../../packages/components/src';
 import RulesChoices from './rules-choices';
 import AccessRuleControl from './access-rule-control';
+import ContentRuleControl from './content-rule-control';
 
 const availableAccessRules = window.newspackAudienceContentGates.available_access_rules || {};
 const availableContentRules = window.newspackAudienceContentGates.available_content_rules || {};
@@ -156,10 +157,13 @@ export default function ContentGateSettings( { value }: ContentGateSettingsProps
 			>
 				{ gate.content_rules.length > 0 && (
 					<Grid columns={ 3 } gutter={ 32 }>
-						{ gate.content_rules.map( rule => (
-							<div key={ rule.slug }>
-								<h4>{ rule.slug }</h4>
-							</div>
+						{ gate.content_rules.map( ( rule: GateRule ) => (
+							<ContentRuleControl
+								key={ rule.slug }
+								slug={ rule.slug }
+								value={ rule.value }
+								onChange={ handleUpdateRule( rule.slug, 'content' ) }
+							/>
 						) ) }
 					</Grid>
 				) }
