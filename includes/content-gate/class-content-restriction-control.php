@@ -94,31 +94,33 @@ class Content_Restriction_Control {
 	 * @return int[] Array of gate post IDs.
 	 */
 	public static function get_post_gates( $post_id = null ) {
-		$post_id    = $post_id ?? \get_the_ID();
-		$post_type  = \get_post_type( $post_id );
-		$categories = \wp_get_post_categories( $post_id );
-		$tags       = \wp_get_post_tags( 2742, [ 'fields' => 'ids' ] );
-
-		$gate_post_ids   = [];
-		$gates           = Content_Gate::get_gates();
-
+		$post_id = $post_id ?? \get_the_ID();
+		$gates   = Content_Gate::get_gates();
+		$post_type = \get_post_type( $post_id );
 		foreach ( $gates as $gate ) {
-			$gate_post_types = \get_post_meta( $gate->ID, 'post_types', true );
-			$gate_categories = \wp_get_post_categories( $gate->ID );
-			$gate_tags       = \wp_get_post_tags( $gate->ID, [ 'fields' => 'ids' ] );
-
-			if ( empty( $gate_post_types ) || ! in_array( $post_type, $gate_post_types, true ) ) {
-				continue;
+			$content_rules = $gate['content_rules'];
+			foreach ( $content_rules as $content_rule ) {
+				if ( $content_rule['slug'] === 'post_type' ) {
+					$post_type = get_post_type( $post_id );
+					if ( ! in_array( $post_type, $content_rule['value'], true ) ) {
+						continue 2;
+					}
+				} else {
+					$taxonomy = get_taxonomy( $content_rule['slug'] );
+					if ( ! $taxonomy ) {
+						continue 2;
+					}
+					$terms = get_the_terms( $post_id, $content_rule['slug'] );
+					if ( ! $terms || is_wp_error( $terms ) ) {
+						continue 2;
+					}
+					if ( ! in_array( $terms[0]->term_id, $content_rule['value'], true ) ) {
+						continue 2;
+					}
+				}
 			}
-			if ( ! empty( $gate_categories ) && empty( array_intersect( $gate_categories, $categories ) ) ) {
-				continue;
-			}
-			if ( ! empty( $gate_tags ) && empty( array_intersect( $gate_tags, $tags ) ) ) {
-				continue;
-			}
-			$gate_post_ids[] = $gate->ID;
+			$gate_post_ids[] = $gate['id'];
 		}
-
 		return $gate_post_ids;
 	}
 
