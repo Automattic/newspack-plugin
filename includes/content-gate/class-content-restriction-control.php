@@ -95,10 +95,22 @@ class Content_Restriction_Control {
 	 */
 	public static function get_post_gates( $post_id = null ) {
 		$post_id = $post_id ?? \get_the_ID();
-		$gates   = Content_Gate::get_gates();
-		$post_type = \get_post_type( $post_id );
+		if ( ! $post_id ) {
+			return [];
+		}
+
+		$gates = Content_Gate::get_gates();
+		if ( empty( $gates ) ) {
+			return [];
+		}
+
+		$gate_post_ids = [];
 		foreach ( $gates as $gate ) {
 			$content_rules = $gate['content_rules'];
+			if ( empty( $content_rules ) ) {
+				continue;
+			}
+
 			foreach ( $content_rules as $content_rule ) {
 				if ( $content_rule['slug'] === 'post_type' ) {
 					$post_type = get_post_type( $post_id );
@@ -110,11 +122,11 @@ class Content_Restriction_Control {
 					if ( ! $taxonomy ) {
 						continue 2;
 					}
-					$terms = get_the_terms( $post_id, $content_rule['slug'] );
+					$terms = wp_get_post_terms( $post_id, $content_rule['slug'], [ 'fields' => 'ids' ] );
 					if ( ! $terms || is_wp_error( $terms ) ) {
 						continue 2;
 					}
-					if ( ! in_array( $terms[0]->term_id, $content_rule['value'], true ) ) {
+					if ( empty( array_intersect( $terms, $content_rule['value'] ) ) ) {
 						continue 2;
 					}
 				}
