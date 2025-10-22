@@ -8,10 +8,6 @@
  * WordPress dependencies.
  */
 import { __ } from '@wordpress/i18n';
-import apiFetch from '@wordpress/api-fetch';
-import { useEffect, useState } from '@wordpress/element';
-import { decodeEntities } from '@wordpress/html-entities';
-import { addQueryArgs } from '@wordpress/url';
 
 /**
  * Internal dependencies
@@ -34,6 +30,7 @@ export default function ContentRuleControl( { slug, value, onChange }: GateRuleC
 					selectedItems={ rule.options.filter( o => value.includes( o.value ) ) }
 					onChange={ ( items: string[] ) => onChange( items.map( o => o.value ) ) }
 					fetchSuggestions={ async ( search: string ) => {
+						return rule.options;
 						if ( ! search ) {
 							return rule.options;
 						}
