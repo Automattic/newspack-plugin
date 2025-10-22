@@ -14,6 +14,7 @@ import { Icon, check, chevronDown, chevronUp, dragHandle } from '@wordpress/icon
  * Internal dependencies
  */
 import { Button, Card, Grid, Handoff, Notice, Waiting } from '../';
+import { ActionCardProps } from './action-card.d.ts';
 import './style.scss';
 
 /**
@@ -21,6 +22,11 @@ import './style.scss';
  */
 import classnames from 'classnames';
 
+/**
+ * ActionCard component
+ * @param {ActionCardProps} props Component props.
+ * @return {JSX.Element} ActionCard component.
+ */
 const ActionCard = ( {
 	badge,
 	badgeLevel = 'info',
@@ -60,7 +66,7 @@ const ActionCard = ( {
 	isPending,
 	expandable = false,
 	isButtonEnabled = false,
-	// Draggable props. All are required to enable drag-and-drop.
+	// Draggable props. All are required to enable drag sorting.
 	draggable = false,
 	dragIndex,
 	dragWrapperRef,

@@ -29,6 +29,10 @@ type ActionCardProps = Partial< {
 	secondaryActionText: string;
 	onSecondaryActionClick: () => void;
 	secondaryDestructive: boolean;
+	draggable: boolean;
+	dragIndex: number;
+	onDragCallback: ( index: number ) => void;
+	dragWrapperRef: React.RefObject< HTMLDivElement >;
 } >;
 
 /**
