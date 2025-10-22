@@ -160,6 +160,18 @@ class Access_Rules {
 	}
 
 	/**
+	 * Update access rules for bypassing a content gate.
+	 *
+	 * @param int   $post_id Post ID.
+	 * @param array $rules   Array of post access rules.
+	 *
+	 * @return void
+	 */
+	public static function update_post_access_rules( $post_id, $rules ) {
+		\update_post_meta( $post_id, self::META_KEY, $rules );
+	}
+
+	/**
 	 * Evaluate whether the given or current user can bypass the given access rule.
 	 *
 	 * @param string   $rule_slug Access rule slug.

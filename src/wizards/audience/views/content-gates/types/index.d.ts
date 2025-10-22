@@ -9,6 +9,12 @@ type AccessRule = {
 	default: string | string[] | boolean;
 };
 
+type ContentRule = {
+	slug: string;
+	value: string[];
+	default: string[];
+};
+
 type Metering = {
 	enabled: boolean;
 	anonymous_count: number;

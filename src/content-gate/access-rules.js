@@ -19,8 +19,8 @@ import {
 import { PluginDocumentSettingPanel } from '@wordpress/edit-post';
 
 function AccessRules( { editPost, rules } ) {
-	const availableRules = newspack_content_gate?.access_rules || {};
-	if ( Object.keys( availableRules ).length === 0 ) {
+	const availableAccessRules = newspack_content_gate?.access_rules || {};
+	if ( Object.keys( availableAccessRules ).length === 0 ) {
 		return null;
 	}
 
@@ -32,25 +32,27 @@ function AccessRules( { editPost, rules } ) {
 					<Fragment key={ rule.slug }>
 						{ index > 0 && <CardDivider margin={ '8px' } /> }
 						<CardBody>
-							{ availableRules[ rule.slug ].is_boolean && (
+							{ availableAccessRules[ rule.slug ].is_boolean && (
 								<BaseControl
 									id={ rule.slug }
-									label={ availableRules[ rule.slug ].name }
-									help={ availableRules[ rule.slug ].description }
+									label={ availableAccessRules[ rule.slug ].name }
+									help={ availableAccessRules[ rule.slug ].description }
 								/>
 							) }
-							{ availableRules[ rule.slug ].options?.length <= 0 && (
+							{ availableAccessRules[ rule.slug ].options?.length <= 0 && (
 								<>
 									<PanelRow>
 										<BaseControl
 											id={ rule.slug }
-											label={ availableRules[ rule.slug ].name }
-											help={ availableRules[ rule.slug ].description }
+											label={ availableAccessRules[ rule.slug ].name }
+											help={ availableAccessRules[ rule.slug ].description }
 										/>
 									</PanelRow>
 									<PanelRow>
 										<TextControl
-											value={ rules.find( item => item.slug === rule.slug )?.value || availableRules[ rule.slug ].default }
+											value={
+												rules.find( item => item.slug === rule.slug )?.value || availableAccessRules[ rule.slug ].default
+											}
 											onChange={ value =>
 												editPost( {
 													meta: {
@@ -65,12 +67,12 @@ function AccessRules( { editPost, rules } ) {
 									</PanelRow>
 								</>
 							) }
-							{ availableRules[ rule.slug ].options?.length > 0 && (
+							{ availableAccessRules[ rule.slug ].options?.length > 0 && (
 								<PanelRow>
 									<SelectControl
-										value={ rules.find( item => item.slug === rule.slug )?.value || availableRules[ rule.slug ].default }
+										value={ rules.find( item => item.slug === rule.slug )?.value || availableAccessRules[ rule.slug ].default }
 										onChange={ value => editPost( { meta: { access_rules: [ ...rules, { slug: rule.slug, value } ] } } ) }
-										options={ availableRules[ rule.slug ].options }
+										options={ availableAccessRules[ rule.slug ].options }
 									/>
 								</PanelRow>
 							) }
@@ -96,13 +98,13 @@ function AccessRules( { editPost, rules } ) {
 						icon="plus"
 						text={ __( 'Add Access Rule', 'newspack-plugin' ) }
 						label={ __( 'Add Access Rule', 'newspack-plugin' ) }
-						controls={ Object.keys( availableRules ).map( rule => ( {
-							title: availableRules[ rule ].name,
+						controls={ Object.keys( availableAccessRules ).map( rule => ( {
+							title: availableAccessRules[ rule ].name,
 							onClick: () => editPost( { meta: { access_rules: [ ...rules, { slug: rule } ] } } ),
 							isDisabled:
 								rules.find( item => item.slug === rule ) ||
-								( availableRules[ rule ].conflicts?.length > 0 &&
-									availableRules[ rule ].conflicts.some( conflict => rules.find( item => item.slug === conflict ) ) ),
+								( availableAccessRules[ rule ].conflicts?.length > 0 &&
+									availableAccessRules[ rule ].conflicts.some( conflict => rules.find( item => item.slug === conflict ) ) ),
 						} ) ) }
 					/>
 				</CardFooter>

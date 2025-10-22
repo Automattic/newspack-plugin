@@ -102,6 +102,37 @@ class Metering {
 	}
 
 	/**
+	 * Get metering settings for a gate.
+	 *
+	 * @param int $gate_id Gate ID.
+	 *
+	 * @return array Metering settings.
+	 */
+	public static function get_metering_settings( $gate_id ) {
+		return [
+			'enabled'          => (bool) \get_post_meta( $gate_id, 'metering', true ),
+			'anonymous_count'  => \get_post_meta( $gate_id, 'metering_anonymous_count', true ),
+			'registered_count' => \get_post_meta( $gate_id, 'metering_registered_count', true ),
+			'period'           => \get_post_meta( $gate_id, 'metering_period', true ),
+		];
+	}
+
+	/**
+	 * Update metering settings for a gate.
+	 *
+	 * @param int   $gate_id  Gate ID.
+	 * @param array $settings Metering settings.
+	 *
+	 * @return void
+	 */
+	public static function update_metering_settings( $gate_id, $settings ) {
+		\update_post_meta( $gate_id, 'metering', $settings['enabled'] );
+		\update_post_meta( $gate_id, 'metering_anonymous_count', $settings['anonymous_count'] );
+		\update_post_meta( $gate_id, 'metering_registered_count', $settings['registered_count'] );
+		\update_post_meta( $gate_id, 'metering_period', $settings['period'] );
+	}
+
+	/**
 	 * Enqueue frontend scripts and styles for gated content.
 	 */
 	public static function enqueue_scripts() {
