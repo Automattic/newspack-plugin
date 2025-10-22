@@ -34,12 +34,9 @@ const SegmentActionCard = ( { inFlight, segment, segments, deleteSegment, index,
 
 		const sortedSegments = [ ...segments ];
 
-		// We need to account for the fact that the dragged segment is actually still in the list.
-		const target = targetIndex > index ? targetIndex - 1 : targetIndex;
-
 		// Remove the segment and drop it back into the array at the target index.
 		sortedSegments.splice( index, 1 );
-		sortedSegments.splice( target, 0, segment );
+		sortedSegments.splice( targetIndex, 0, segment );
 
 		// Reindex priorities to avoid gaps and dupes.
 		sortedSegments.forEach( ( _segment, _index ) => ( _segment.priority = _index ) );
