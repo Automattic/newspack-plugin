@@ -412,6 +412,8 @@ class Content_Gate {
 			$gate_post_id = false;
 		}
 
+		$post_id = $post_id ?? get_the_ID();
+
 		/**
 		 * Filters the gate post ID.
 		 *
