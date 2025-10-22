@@ -1,8 +1,9 @@
 /**
  * WordPress dependencies.
  */
+import apiFetch from '@wordpress/api-fetch';
 import { Fragment, useState, useEffect, useMemo } from '@wordpress/element';
-import { DropdownMenu, SelectControl, CheckboxControl, TextControl } from '@wordpress/components';
+import { DropdownMenu, SelectControl, CheckboxControl, TextControl, Button } from '@wordpress/components';
 import { shield } from '@wordpress/icons';
 import { __ } from '@wordpress/i18n';
 
@@ -47,7 +48,7 @@ export default function ContentGateSettings( { value }: ContentGateSettingsProps
 	const handleUpdateAccessRule = ( slug: string ) => ( v: string | string[] | boolean ) => {
 		setGate( {
 			...gate,
-			access_rules: gate.access_rules.map( r => ( r.slug === slug ? { ...r, v } : r ) ),
+			access_rules: gate.access_rules.map( r => ( r.slug === slug ? { ...r, value: v } : r ) ),
 		} );
 	};
 
@@ -79,6 +80,18 @@ export default function ContentGateSettings( { value }: ContentGateSettingsProps
 		} );
 	}, [ gate.access_rules ] );
 
+	const handleSave = () => {
+		apiFetch< Gate >( {
+			path: `/newspack/v1/content-gate/${ gate.id }`,
+			method: 'POST',
+			data: { gate },
+		} )
+			.then( data => {
+				setGate( data );
+			} )
+			.catch( error => console.error( error ) ); // eslint-disable-line no-console
+	};
+
 	return (
 		<Fragment>
 			<ActionCard
@@ -100,7 +113,7 @@ export default function ContentGateSettings( { value }: ContentGateSettingsProps
 				}
 			>
 				{ gate.access_rules.length > 0 && (
-					<Grid columns={ 3 } gutter={ 32 }>
+					<Grid columns={ Math.min( 3, gate.access_rules.length ) } gutter={ 32 }>
 						{ gate.access_rules.map( ( rule: GateRule ) => (
 							<AccessRuleControl
 								key={ rule.slug }
@@ -195,6 +208,11 @@ export default function ContentGateSettings( { value }: ContentGateSettingsProps
 					</Grid>
 				) }
 			</Card>
+			<div className="newspack-buttons-card">
+				<Button variant="primary" onClick={ handleSave }>
+					{ __( 'Save Settings', 'newspack-plugin' ) }
+				</Button>
+			</div>
 		</Fragment>
 	);
 }

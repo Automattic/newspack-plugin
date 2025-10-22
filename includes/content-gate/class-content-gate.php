@@ -732,15 +732,44 @@ class Content_Gate {
 			'id'            => $post->ID,
 			'title'         => $post->post_title,
 			'description'   => $post->post_excerpt,
-			'metering'      => [
-				'enabled'          => \get_post_meta( $post->ID, 'metering', true ),
-				'anonymous_count'  => \get_post_meta( $post->ID, 'metering_anonymous_count', true ),
-				'registered_count' => \get_post_meta( $post->ID, 'metering_registered_count', true ),
-				'period'           => \get_post_meta( $post->ID, 'metering_period', true ),
-			],
+			'metering'      => Metering::get_metering_settings( $post->ID ),
 			'access_rules'  => Access_Rules::get_post_access_rules( $post->ID ),
 			'content_rules' => [],
 		];
+	}
+
+	/**
+	 * Update gate settings
+	 *
+	 * @param int   $id   Gate ID.
+	 * @param array $gate Gate settings.
+	 *
+	 * @return array|\WP_Error
+	 */
+	public static function update_gate_settings( $id, $gate ) {
+		$post = get_post( $id );
+		if ( ! $post ) {
+			return new \WP_Error( 'newspack_content_gate_not_found', __( 'Gate not found.', 'newspack' ) );
+		}
+
+		// Update title and description.
+		wp_update_post(
+			[
+				'ID'           => $id,
+				'post_title'   => $gate['title'],
+				'post_excerpt' => $gate['description'],
+			]
+		);
+
+		// Update metering settings.
+		Metering::update_metering_settings( $id, $gate['metering'] );
+
+		// Update access rules.
+		Access_Rules::update_post_access_rules( $id, $gate['access_rules'] );
+
+		// TODO: Update content rules.
+
+		return self::get_gate( $id );
 	}
 
 	/**
