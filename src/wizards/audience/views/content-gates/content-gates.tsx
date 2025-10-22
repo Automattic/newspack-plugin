@@ -81,7 +81,7 @@ const ContentGates = () => {
 			.finally( () => setIsInFlight( false ) );
 	};
 
-	const handleUpdateGates = ( updates: Gate[] ) => {
+	const handleUpdateGatePriorities = ( updates: Gate[] ) => {
 		if ( isInFlight ) {
 			return;
 		}
@@ -89,7 +89,7 @@ const ContentGates = () => {
 		setGates( updates );
 		setIsInFlight( true );
 		apiFetch< Gate >( {
-			path: '/newspack/v1/content-gates',
+			path: '/newspack/v1/content-gate/priority',
 			method: 'POST',
 			data: {
 				gates: updates,
@@ -149,7 +149,7 @@ const ContentGates = () => {
 
 						// Only trigger the API request if the order has changed.
 						if ( JSON.stringify( sortedGates ) !== JSON.stringify( gates ) ) {
-							handleUpdateGates( sortedGates );
+							handleUpdateGatePriorities( sortedGates );
 						}
 					};
 					return (

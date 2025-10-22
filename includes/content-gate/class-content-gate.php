@@ -744,6 +744,54 @@ class Content_Gate {
 	}
 
 	/**
+	 * Update single gate setting
+	 *
+	 * @param int    $id    Gate ID.
+	 * @param string $key   Gate setting key.
+	 * @param mixed  $value Gate setting value.
+	 *
+	 * @return array|\WP_Error
+	 */
+	public static function update_gate_setting( $id, $key, $value ) {
+		$post = get_post( $id );
+		if ( ! $post ) {
+			return new \WP_Error( 'newspack_content_gate_not_found', __( 'Gate not found.', 'newspack' ) );
+		}
+
+		$update = [];
+
+		if ( 'title' === $key ) {
+			$update['post_title'] = $value;
+		} elseif ( 'description' === $key ) {
+			$update['post_excerpt'] = $value;
+		} elseif ( 'gate_priority' === $key ) {
+			$update['meta_input'] = [
+				'gate_priority' => (int) $value,
+			];
+		} elseif ( 'metering' === $key ) {
+			Metering::update_metering_settings( $id, $value );
+			return self::get_gate( $id );
+		} elseif ( 'access_rules' === $key ) {
+			Access_Rules::update_post_access_rules( $id, $value );
+			return self::get_gate( $id );
+		} else {
+			return new \WP_Error( 'newspack_content_gate_invalid_key', __( 'Invalid gate setting key.', 'newspack' ) );
+		}
+
+		// Update title and description.
+		wp_update_post(
+			array_merge(
+				[
+					'ID' => $id,
+				],
+				$update
+			)
+		);
+
+		return self::get_gate( $id );
+	}
+
+	/**
 	 * Update gate settings
 	 *
 	 * @param int   $id   Gate ID.

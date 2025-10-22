@@ -144,10 +144,10 @@ class Audience_Content_Gates extends Wizard {
 
 		register_rest_route(
 			NEWSPACK_API_NAMESPACE,
-			'/content-gates',
+			'/content-gate/priority',
 			[
 				'methods'             => 'POST',
-				'callback'            => [ $this, 'update_gates' ],
+				'callback'            => [ $this, 'update_gate_priorities' ],
 				'permission_callback' => [ $this, 'api_permissions_check' ],
 				'sanitize_callback'   => [ $this, 'sanitize_gates' ],
 				'args'                => [
@@ -360,11 +360,11 @@ class Audience_Content_Gates extends Wizard {
 	 *
 	 * @return \WP_REST_Response|\WP_Error
 	 */
-	public function update_gates( $request ) {
+	public function update_gate_priorities( $request ) {
 		$gates = $request->get_param( 'gates' );
 		$updated_gates = [];
 		foreach ( $gates as $gate ) {
-			$updated_gate = Content_Gate::update_gate_settings( $gate['id'], $gate );
+			$updated_gate = Content_Gate::update_gate_setting( $gate['id'], 'gate_priority', $gate['priority'] );
 			if ( is_wp_error( $updated_gate ) ) {
 				return $updated_gate;
 			}
