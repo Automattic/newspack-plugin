@@ -4,9 +4,26 @@
 
 @use "~@wordpress/base-styles/colors" as wp-colors;
 
-.newspack-content-gates {
-	&__title {
-		margin: 0;
-		min-width: 200px !important;
+.audience_page_newspack-audience-content-gates {
+	.newspack-content-gates {
+		&__title {
+			margin: 0;
+			min-width: 200px !important;
+		}
+	}
+
+	.components-form-token-field {
+		position: relative;
+		&__suggestions-list {
+			background-color: #fff;
+			border-radius: 0 0 2px 2px;
+			border: 1px solid var(--wp-admin-theme-color);
+			border-top: none;
+			left: 0;
+			outline: 0.5px solid var(--wp-admin-theme-color);
+			position: absolute;
+			width: 100%;
+			z-index: 1;
+		}
 	}
 }

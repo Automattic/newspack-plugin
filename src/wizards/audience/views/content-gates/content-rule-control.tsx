@@ -13,7 +13,7 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import ContentRuleControlTaxonomy from './content-rule-control-taxonomy';
-import { AutocompleteWithSuggestions } from '../../../../../packages/components/src';
+import { FormTokenField } from '../../../../../packages/components/src';
 
 export default function ContentRuleControl( { slug, value, onChange }: GateRuleControlProps ) {
 	const rule = window.newspackAudienceContentGates.available_content_rules[ slug ];
@@ -24,18 +24,12 @@ export default function ContentRuleControl( { slug, value, onChange }: GateRuleC
 	if ( rule.options && rule.options.length > 0 ) {
 		return (
 			<>
-				<AutocompleteWithSuggestions
+				<FormTokenField
 					label={ rule.name }
-					multiSelect={ true }
-					selectedItems={ rule.options.filter( o => value.includes( o.value ) ) }
-					onChange={ ( items: string[] ) => onChange( items.map( o => o.value ) ) }
-					fetchSuggestions={ async ( search: string ) => {
-						return rule.options;
-						if ( ! search ) {
-							return rule.options;
-						}
-						return rule.options.filter( o => o.label.toLowerCase().includes( search.toLowerCase() ) );
-					} }
+					value={ rule.options.filter( o => value.includes( o.value ) ).map( o => o.label ) }
+					onChange={ ( items: string[] ) => onChange( rule.options.filter( o => items.includes( o.label ) ).map( o => o.value ) ) }
+					suggestions={ rule.options.map( o => o.label ) }
+					__experimentalExpandOnFocus={ true }
 				/>
 			</>
 		);
