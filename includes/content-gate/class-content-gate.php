@@ -565,8 +565,8 @@ class Content_Gate {
 				'post_type'    => self::GATE_CPT,
 				'post_status'  => 'draft',
 				'post_content' => '<!-- wp:paragraph --><p>' . __( 'This post is only available to members.', 'newspack' ) . '</p><!-- /wp:paragraph -->',
-				'meta_input'  => [
-					'gate_priority'      => count( $all_gates ),
+				'meta_input'   => [
+					'gate_priority' => count( $all_gates ),
 				],
 			]
 		);
@@ -763,7 +763,7 @@ class Content_Gate {
 				'ID'           => $id,
 				'post_title'   => $gate['title'],
 				'post_excerpt' => $gate['description'],
-				'meta_input'  => [
+				'meta_input'   => [
 					'gate_priority' => $gate['priority'],
 				],
 			]
@@ -794,8 +794,6 @@ class Content_Gate {
 				'meta_key'       => 'gate_priority',
 			]
 		);
-
-		error_log( print_r( $posts, true ) );
 		return array_map( [ __CLASS__, 'get_gate' ], wp_list_pluck( $posts, 'ID' ) );
 	}
 }

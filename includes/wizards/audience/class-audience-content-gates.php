@@ -152,7 +152,7 @@ class Audience_Content_Gates extends Wizard {
 				'sanitize_callback'   => [ $this, 'sanitize_gates' ],
 				'args'                => [
 					'gates' => [
-						'type'       => 'array',
+						'type' => 'array',
 					],
 				],
 			]
