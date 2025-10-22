@@ -231,11 +231,13 @@ const ActionCard = ( {
 	);
 
 	if ( draggable && dragRef?.current && typeof dragIndex === 'number' && onDragCallback && id ) {
-		const wrapperRect = dragRef.current.getBoundingClientRect();
-		const draggableCards = Array.prototype.slice.call( dragRef.current.querySelectorAll( '.newspack-action-card__draggable-wrapper' ) );
+		let wrapperRect = dragRef.current.getBoundingClientRect();
+		let draggableCards = Array.prototype.slice.call( dragRef.current.querySelectorAll( '.newspack-action-card__draggable-wrapper' ) );
 		const isFirstTarget = dragIndex === 0;
 		const isLastTarget = dragIndex === draggableCards.length - 1;
 		const handleDragStart = () => {
+			draggableCards = Array.prototype.slice.call( dragRef.current.querySelectorAll( '.newspack-action-card__draggable-wrapper' ) );
+			wrapperRect = dragRef.current.getBoundingClientRect();
 			if ( dragging ) {
 				return;
 			}
@@ -252,9 +254,10 @@ const ActionCard = ( {
 		const handleDragOver = e => {
 			const isDraggingToTop = e.pageY <= wrapperRect.top + window.scrollY;
 			const isDraggingToBottom = e.pageY >= wrapperRect.bottom + window.scrollY;
+			const target = e.target.closest( '.newspack-action-card__draggable-wrapper' );
 
-			if ( isDraggingToTop || isDraggingToBottom || e.target.classList.contains( 'newspack-action-card' ) ) {
-				setTargetIndex( draggableCards.indexOf( e.target.parentElement ) );
+			if ( isDraggingToTop || isDraggingToBottom || target ) {
+				setTargetIndex( draggableCards.indexOf( target ) );
 
 				// If dragging the element over itself or over an invalid target, cancel the drop.
 				if ( 0 > targetIndex || targetIndex === dragIndex + 1 ) {
