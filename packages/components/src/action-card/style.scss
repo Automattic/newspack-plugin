@@ -402,20 +402,20 @@
 		padding: 2px 4px;
 
 		&.newspack-action-card__badge-level-warning {
-			background: color.adjust(wp-colors.$alert-yellow, $lightness: 30%);
-			color: #745d2e;
+			background-color: color-mix(in srgb, #fff 90%, wp-colors.$alert-yellow);
+			color: color-mix(in srgb, #000 50%, wp-colors.$alert-yellow);
 		}
 		&.newspack-action-card__badge-level-error {
-			background: color.adjust(wp-colors.$alert-red, $lightness: 51%);
-			color: #5d1612;
+			background-color: color-mix(in srgb, #fff 90%, wp-colors.$alert-red);
+			color: color-mix(in srgb, #000 50%, wp-colors.$alert-red);
 		}
 		&.newspack-action-card__badge-level-success {
-			background: color.adjust(wp-colors.$alert-green, $lightness: 42%);
-			color: #345b37;
+			background-color: color-mix(in srgb, #fff 90%, wp-colors.$alert-green);
+			color: color-mix(in srgb, #000 50%, wp-colors.$alert-green);
 		}
 		&.newspack-action-card__badge-level-brand {
-			background: color-mix(in srgb, var(--wp-admin-theme-color) 90%, var(--base-color));
-			color: var(--wp-admin-theme-color-darker-20);
+			background-color: color-mix(in srgb, #fff 90%, var(--wp-admin-theme-color));
+			color: color-mix(in srgb, #000 50%, var(--wp-admin-theme-color));
 		}
 
 		+ .newspack-action-card__badge {
