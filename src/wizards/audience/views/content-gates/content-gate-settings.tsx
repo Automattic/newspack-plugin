@@ -18,9 +18,10 @@ const availableRules = window.newspackAudienceContentGates.available_rules || {}
 
 type ContentGateSettingsProps = {
 	value: Gate;
+	onDelete: ( id: number ) => void;
 };
 
-export default function ContentGateSettings( { value }: ContentGateSettingsProps ) {
+export default function ContentGateSettings( { value, onDelete }: ContentGateSettingsProps ) {
 	const [ gate, setGate ] = useState< Gate >( value );
 
 	useEffect( () => {
@@ -91,6 +92,8 @@ export default function ContentGateSettings( { value }: ContentGateSettingsProps
 			} )
 			.catch( error => console.error( error ) ); // eslint-disable-line no-console
 	};
+
+	const handleDelete = () => onDelete( gate.id );
 
 	return (
 		<Fragment>
@@ -211,6 +214,9 @@ export default function ContentGateSettings( { value }: ContentGateSettingsProps
 			<div className="newspack-buttons-card">
 				<Button variant="primary" onClick={ handleSave }>
 					{ __( 'Save Settings', 'newspack-plugin' ) }
+				</Button>
+				<Button isDestructive variant="secondary" onClick={ handleDelete }>
+					{ __( 'Delete', 'newspack-plugin' ) }
 				</Button>
 			</div>
 		</Fragment>
