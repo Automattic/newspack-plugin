@@ -37,13 +37,3 @@ type Gate = {
 	access_rules: GateRule[];
 	content_rules: GateRule[];
 };
-
-declare global {
-	interface Window {
-		newspackAudienceContentGates: {
-			api: string;
-			available_rules: AccessRules;
-			content_rules: ContentRules;
-		};
-	}
-}

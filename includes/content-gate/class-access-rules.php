@@ -62,7 +62,7 @@ class Access_Rules {
 		$rule = wp_parse_args(
 			$config,
 			[
-				'label'       => ucwords( str_replace( '_', ' ', $config['id'] ) ),
+				'name'        => ucwords( str_replace( '_', ' ', $config['id'] ) ),
 				'description' => '',
 				'default'     => ! empty( $config['options'] ) ? [] : '',
 				'options'     => [],

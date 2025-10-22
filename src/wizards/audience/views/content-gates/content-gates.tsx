@@ -19,7 +19,6 @@ import { __ } from '@wordpress/i18n';
 import { ActionCard, Button, Card, Grid, Modal, SectionHeader, SelectControl, TextControl } from '../../../../../packages/components/src';
 import WizardsActionCard from '../../../wizards-action-card';
 import './style.scss';
-import ContentRuleControl from './content-rule-control';
 
 const availableRules = window.newspackAudienceContentGates.available_rules || [];
 const availableContentRules = window.newspackAudienceContentGates.content_rules || [];

@@ -29,7 +29,7 @@ class Content_Restriction_Control {
 			array_map(
 				function( $post_type ) {
 					return [
-						'name'  => $post_type->name,
+						'value' => $post_type->name,
 						'label' => $post_type->label,
 					];
 				},
@@ -49,11 +49,11 @@ class Content_Restriction_Control {
 			array_merge(
 				[
 					[
-						'slug'  => 'post',
+						'value' => 'post',
 						'label' => 'Posts',
 					],
 					[
-						'slug'  => 'page',
+						'value' => 'page',
 						'label' => 'Pages',
 					],
 				],

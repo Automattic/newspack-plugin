@@ -60,6 +60,7 @@ declare global {
 		newspackAudienceContentGates: {
 			api: string;
 			available_rules: AccessRules;
+			content_rules: ContentRules;
 		};
 	}
 }
