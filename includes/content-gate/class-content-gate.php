@@ -692,8 +692,56 @@ class Content_Gate {
 			'description'   => $post->post_excerpt,
 			'metering'      => Metering::get_metering_settings( $post->ID ),
 			'access_rules'  => Access_Rules::get_post_access_rules( $post->ID ),
-			'content_rules' => [],
+			'content_rules' => self::get_post_content_rules( $post->ID ),
 		];
+	}
+
+	/**
+	 * Get the content rules.
+	 *
+	 * @return array The content rules.
+	 */
+	public static function get_content_rules() {
+		$content_rules = [
+			'post_types' => [
+				'name'    => __( 'Post Types', 'newspack-plugin' ),
+				'options' => Content_Restriction_Control::get_available_post_types(),
+				'default' => [ 'post' ],
+			],
+		];
+		$available_taxonomies = Content_Restriction_Control::get_available_taxonomies();
+		foreach ( $available_taxonomies as $taxonomy ) {
+			$content_rules[ $taxonomy['slug'] ] = [
+				'name'    => $taxonomy['label'],
+				'default' => [],
+			];
+		}
+
+		return $content_rules;
+	}
+
+	/**
+	 * Get the content rules for a post.
+	 *
+	 * @param int $post_id Post ID.
+	 *
+	 * @return array The content rules.
+	 */
+	public static function get_post_content_rules( $post_id ) {
+		$rules = \get_post_meta( $post_id, 'content_rules', true );
+		return $rules ? $rules : [];
+	}
+
+	/**
+	 * Update content rules for bypassing a content gate.
+	 *
+	 * @param int   $post_id Post ID.
+	 * @param array $rules   Array of post content rules.
+	 *
+	 * @return void
+	 */
+	public static function update_post_content_rules( $post_id, $rules ) {
+		\update_post_meta( $post_id, 'content_rules', $rules );
 	}
 
 	/**
@@ -725,7 +773,8 @@ class Content_Gate {
 		// Update access rules.
 		Access_Rules::update_post_access_rules( $id, $gate['access_rules'] );
 
-		// TODO: Update content rules.
+		// Update content rules.
+		self::update_post_content_rules( $id, $gate['content_rules'] );
 
 		return self::get_gate( $id );
 	}

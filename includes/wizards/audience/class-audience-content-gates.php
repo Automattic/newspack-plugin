@@ -56,20 +56,6 @@ class Audience_Content_Gates extends Wizard {
 		parent::enqueue_scripts_and_styles();
 
 		wp_enqueue_script( 'newspack-wizards' );
-		$content_rules = [
-			'post_types' => [
-				'name'    => __( 'Post Types', 'newspack-plugin' ),
-				'options' => Content_Restriction_Control::get_available_post_types(),
-				'default' => [ 'post' ],
-			],
-		];
-		$available_taxonomies = Content_Restriction_Control::get_available_taxonomies();
-		foreach ( $available_taxonomies as $taxonomy ) {
-			$content_rules[ $taxonomy['slug'] ] = [
-				'name'    => $taxonomy['label'],
-				'default' => [],
-			];
-		}
 
 		\wp_localize_script(
 			'newspack-wizards',
@@ -77,7 +63,7 @@ class Audience_Content_Gates extends Wizard {
 			[
 				'api'                     => '/' . NEWSPACK_API_NAMESPACE . '/wizard/' . $this->slug,
 				'available_access_rules'  => Access_Rules::get_access_rules(),
-				'available_content_rules' => $content_rules,
+				'available_content_rules' => Content_Gate::get_content_rules(),
 			]
 		);
 	}
@@ -196,12 +182,7 @@ class Audience_Content_Gates extends Wizard {
 									'type'       => 'object',
 									'properties' => [
 										'slug'  => [ 'type' => 'string' ],
-										'value' => [
-											'type'  => 'array',
-											'items' => [
-												'type' => 'string',
-											],
-										],
+										'value' => [ 'type' => 'mixed' ],
 									],
 								],
 							],
@@ -220,14 +201,13 @@ class Audience_Content_Gates extends Wizard {
 	 * @return array The sanitized gate.
 	 */
 	public function sanitize_gate( $gate ) {
-		$sanitized = [
+		return [
 			'title'         => sanitize_text_field( $gate['title'] ),
 			'description'   => sanitize_text_field( $gate['description'] ),
 			'metering'      => $this->sanitize_metering( $gate['metering'] ),
-			'access_rules'  => $this->sanitize_access_rules( $gate['access_rules'] ),
-			'content_rules' => $gate['content_rules'], // TODO: Sanitize content rules.
+			'access_rules'  => $this->sanitize_rules( $gate['access_rules'] ),
+			'content_rules' => $this->sanitize_rules( $gate['content_rules'], 'content' ),
 		];
-		return $sanitized;
 	}
 
 	/**
@@ -249,16 +229,17 @@ class Audience_Content_Gates extends Wizard {
 	/**
 	 * Sanitize access rules.
 	 *
-	 * @param array $access_rules The access rules.
+	 * @param array  $rules The access rules.
+	 * @param string $type The type of rules to sanitize.
 	 *
 	 * @return array The sanitized access rules.
 	 */
-	public function sanitize_access_rules( $access_rules ) {
-		return array_map( [ $this, 'sanitize_access_rule' ], $access_rules );
+	public function sanitize_rules( $rules, $type = 'access' ) {
+		return array_map( [ $this, $type === 'access' ? 'sanitize_access_rule' : 'sanitize_content_rule' ], $rules );
 	}
 
 	/**
-	 * Sanitize rule.
+	 * Sanitize access rule.
 	 *
 	 * @param array $access_rule The access rule.
 	 *
@@ -278,9 +259,31 @@ class Audience_Content_Gates extends Wizard {
 			if ( ! is_array( $access_rule['value'] ) ) {
 				return new \WP_Error( 'invalid_access_rule_value', __( 'Invalid access rule value.', 'newspack-plugin' ), [ 'status' => 400 ] );
 			}
-			return array_filter( array_map( 'sanitize_text_field', $access_rule['value'] ) );
+			return array_values( array_filter( array_map( 'sanitize_text_field', $access_rule['value'] ) ) );
 		}
 		return sanitize_text_field( $access_rule['value'] );
+	}
+
+	/**
+	 * Sanitize content rule.
+	 *
+	 * @param array $content_rule The content rule.
+	 *
+	 * @return mixed|\WP_Error The sanitized content rule or error if invalid.
+	 */
+	public function sanitize_content_rule( $content_rule ) {
+		$rules = Content_Gate::get_content_rules();
+		if ( ! isset( $rules[ $content_rule['slug'] ] ) ) {
+			return new \WP_Error( 'invalid_content_rule_slug', __( 'Invalid content rule slug.', 'newspack-plugin' ), [ 'status' => 400 ] );
+		}
+
+		if ( ! empty( $content_rule['options'] ) ) {
+			if ( empty( array_intersect( $content_rule['value'], $rules[ $content_rule['slug'] ]['options'] ) ) ) {
+				return new \WP_Error( 'invalid_content_rule_value', __( 'Invalid content rule value.', 'newspack-plugin' ), [ 'status' => 400 ] );
+			}
+			return array_values( array_filter( array_map( 'sanitize_text_field', $content_rule['value'] ) ) );
+		}
+		return array_values( array_filter( array_map( 'sanitize_text_field', $content_rule['value'] ) ) );
 	}
 
 	/**
