@@ -403,15 +403,19 @@
 
 		&.newspack-action-card__badge-level-warning {
 			background: color.adjust(wp-colors.$alert-yellow, $lightness: 30%);
-			color: wp-colors.$alert-yellow;
+			color: #745d2e;
 		}
 		&.newspack-action-card__badge-level-error {
 			background: color.adjust(wp-colors.$alert-red, $lightness: 51%);
-			color: wp-colors.$alert-red;
+			color: #5d1612;
 		}
 		&.newspack-action-card__badge-level-success {
 			background: color.adjust(wp-colors.$alert-green, $lightness: 42%);
-			color: wp-colors.$alert-green;
+			color: #345b37;
+		}
+		&.newspack-action-card__badge-level-brand {
+			background: color-mix(in srgb, var(--wp-admin-theme-color) 90%, var(--base-color));
+			color: var(--wp-admin-theme-color-darker-20);
 		}
 
 		+ .newspack-action-card__badge {

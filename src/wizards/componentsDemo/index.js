@@ -424,6 +424,16 @@ class ComponentsDemo extends Component {
 						} }
 					/>
 					<ActionCard
+						badge={ __( 'Brand awareness', 'newspack-plugin' ) }
+						badgeLevel="brand"
+						title={ __( 'Example Eighteen', 'newspack-plugin' ) }
+						description={ __( 'An example of an action card with a brand-colored badge.', 'newspack-plugin' ) }
+						actionText={ __( 'Install', 'newspack-plugin' ) }
+						onClick={ () => {
+							console.log( 'Install clicked' );
+						} }
+					/>
+					<ActionCard
 						title={ __( 'Handoff', 'newspack-plugin' ) }
 						description={ __( 'An example of an action card with Handoff.', 'newspack-plugin' ) }
 						actionText={ __( 'Configure', 'newspack-plugin' ) }
