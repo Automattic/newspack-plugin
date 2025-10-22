@@ -5,14 +5,13 @@
 import { sprintf, __ } from '@wordpress/i18n';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { Fragment, useEffect } from '@wordpress/element';
-import { BaseControl, Button, TextControl, CheckboxControl, SelectControl, PanelRow } from '@wordpress/components';
+import { Button, TextControl, CheckboxControl, SelectControl } from '@wordpress/components';
 import { PluginDocumentSettingPanel, PluginPostStatusInfo } from '@wordpress/edit-post';
 import { registerPlugin } from '@wordpress/plugins';
 
 /**
  * Internal dependencies
  */
-import AccessRules from './access-rules';
 import PositionControl from '../../packages/components/src/position-control';
 import './editor.scss';
 
@@ -73,7 +72,6 @@ function GateEdit() {
 		} );
 		return plans;
 	};
-	const availablePostTypes = newspack_content_gate.post_types || [];
 	return (
 		<Fragment>
 			{ newspack_content_gate.has_campaigns && (
@@ -184,14 +182,6 @@ function GateEdit() {
 			<PluginDocumentSettingPanel name="content-gate-settings-panel" title={ __( 'Settings', 'newspack-plugin' ) }>
 				<TextControl
 					type="number"
-					min="1"
-					value={ meta.gate_priority }
-					label={ __( 'Priority', 'newspack-plugin' ) }
-					onChange={ value => editPost( { meta: { gate_priority: value } } ) }
-					help={ __( 'The order in which the gate and its access rules will be evaluated.', 'newspack-plugin' ) }
-				/>
-				<TextControl
-					type="number"
 					min="0"
 					value={ meta.visible_paragraphs }
 					label={ __( 'Default paragraph count', 'newspack-plugin' ) }
@@ -206,7 +196,6 @@ function GateEdit() {
 					help={ __( 'Override the default paragraph count on pages where a “More” block has been placed.', 'newspack-plugin' ) }
 				/>
 			</PluginDocumentSettingPanel>
-			<AccessRules rules={ meta.access_rules } editPost={ editPost } />
 			<PluginDocumentSettingPanel name="content-gate-metering-panel" title={ __( 'Metering', 'newspack-plugin' ) }>
 				<CheckboxControl
 					label={ __( 'Enable metering', 'newspack-plugin' ) }
@@ -255,26 +244,6 @@ function GateEdit() {
 					</Fragment>
 				) }
 			</PluginDocumentSettingPanel>
-			{ availablePostTypes.length > 0 && (
-				<PluginDocumentSettingPanel name="content-gate-post-types-panel" title={ __( 'Post Types', 'newspack-plugin' ) }>
-					<BaseControl id="content-gate-post-types" help={ __( 'Restrict all posts of the selected post types.', 'newspack-plugin' ) } />
-					{ availablePostTypes.map( ( { name, label } ) => (
-						<PanelRow key={ name }>
-							<CheckboxControl
-								label={ label }
-								checked={ meta.post_types.indexOf( name ) > -1 }
-								onChange={ isIncluded => {
-									editPost( {
-										meta: {
-											post_types: isIncluded ? [ ...meta.post_types, name ] : meta.post_types.filter( type => type !== name ),
-										},
-									} );
-								} }
-							/>
-						</PanelRow>
-					) ) }
-				</PluginDocumentSettingPanel>
-			) }
 		</Fragment>
 	);
 }
