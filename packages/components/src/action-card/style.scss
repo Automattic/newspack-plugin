@@ -497,71 +497,74 @@
 		opacity: 0.5;
 	}
 
-	.newspack-action-card__draggable-controls {
-		align-items: center;
-		display: flex;
-		height: 100%;
-		min-height: 100%;
-		width: fit-content;
-		justify-content: center;
-		margin-left: 8px;
-		margin-right: 8px;
-		padding: 8px 12px 8px 0;
-		border-right: 1px solid wp-colors.$gray-300;
-
-		.drag-handle {
-			align-items: center;
-			cursor: grab;
-			display: flex;
-			height: 100%;
-			justify-content: flex-end;
-			margin-left: -8px;
-			width: 32px;
-
-			.is-dragging & {
-				cursor: grabbing;
-			}
-
-			svg {
-				padding: 3px;
-			}
-		}
-
-		.movers {
-			display: flex;
-			flex-direction: column;
-
-			.components-button {
-				color: wp-colors.$gray-900;
-				display: block;
-				height: 24px;
-				line-height: 24px;
-				min-width: 24px;
-				padding: 0;
-				width: 24px;
-				+ .components-button {
-					margin-top: -4px;
-				}
-			}
-		}
-	}
-
 	.newspack-card {
 		margin: 0;
 	}
 
 	.newspack-action-card {
-		background: white;
+		display: flex;
 		flex-direction: row;
+		flex-wrap: wrap;
 
-		.newspack-action-card__region-children {
-			padding: 0 0 0 16px;
+		.newspack-action-card__draggable-controls {
+			flex: 0 0 50px;
+			align-items: center;
+			display: flex;
+			height: 100%;
+			min-height: 100%;
+			width: fit-content;
+			justify-content: center;
+			margin-left: 8px;
+			margin-right: 8px;
+			padding: 8px 12px 8px 0;
+			border-right: 1px solid wp-colors.$gray-300;
+
+			.drag-handle {
+				align-items: center;
+				cursor: grab;
+				display: flex;
+				height: 100%;
+				justify-content: flex-end;
+				margin-left: -8px;
+				width: 32px;
+
+				.is-dragging & {
+					cursor: grabbing;
+				}
+
+				svg {
+					padding: 3px;
+				}
+			}
+
+			.movers {
+				display: flex;
+				flex-direction: column;
+
+				.components-button {
+					color: wp-colors.$gray-900;
+					display: block;
+					height: 24px;
+					line-height: 24px;
+					min-width: 24px;
+					padding: 0;
+					width: 24px;
+					+ .components-button {
+						margin-top: -4px;
+					}
+				}
+			}
 		}
 
 		.newspack-action-card__region-top {
+			flex: 1 1 auto;
 			padding: 8px 16px 8px 0 !important;
 			flex: 1;
-			order: 2;
+		}
+
+		.newspack-action-card__region-children {
+			flex: 0 0 100%;
+			padding: 0 0 0 16px;
 		}
 
 		&.is-draggable {

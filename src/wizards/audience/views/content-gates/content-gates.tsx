@@ -173,7 +173,6 @@ const ContentGates = () => {
 							}
 							description={ gate.description }
 							isMedium
-							hasGreyHeader={ true }
 							actionContent={
 								<>
 									<Button variant="primary" onClick={ () => {} }>
