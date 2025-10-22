@@ -10,7 +10,8 @@ type AccessRule = {
 };
 
 type ContentRule = {
-	slug: string;
+	name: string;
+	description?: string;
 	value: string[];
 	default: string[];
 };

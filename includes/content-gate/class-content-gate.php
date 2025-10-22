@@ -272,6 +272,47 @@ class Content_Gate {
 	}
 
 	/**
+	 * Get the post types that can be restricted.
+	 */
+	public static function get_available_post_types() {
+		$available_post_types = array_values(
+			array_map(
+				function( $post_type ) {
+					return [
+						'name'  => $post_type->name,
+						'label' => $post_type->label,
+					];
+				},
+				get_post_types(
+					[
+						'public'       => true,
+						'show_in_rest' => true,
+						'_builtin'     => false,
+					],
+					'objects'
+				)
+			)
+		);
+
+		return apply_filters(
+			'newspack_content_gate_supported_post_types',
+			array_merge(
+				[
+					[
+						'name'  => 'post',
+						'label' => 'Posts',
+					],
+					[
+						'name'  => 'page',
+						'label' => 'Pages',
+					],
+				],
+				$available_post_types
+			)
+		);
+	}
+
+	/**
 	 * Redirect the custom gate CPT to the Content Gating wizard
 	 */
 	public static function redirect_cpt() {
@@ -340,6 +381,7 @@ class Content_Gate {
 				'gate_plans'         => Memberships::get_gate_plans( get_the_ID() ),
 				'edit_plan_gate_url' => Memberships::get_edit_plan_gate_url(),
 				'post_types'         => Content_Restriction_Control::get_available_post_types(),
+				'access_rules'       => Access_Rules::get_access_rules(),
 			]
 		);
 
