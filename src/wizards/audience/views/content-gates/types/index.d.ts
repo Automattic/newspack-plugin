@@ -2,10 +2,11 @@ declare module '@wordpress/block-editor';
 
 type AccessRule = {
 	name: string;
-	description?: string;
+	description: string;
+	options?: { value: string; label: string }[];
 	conflicts?: string[];
-	value?: string | string[];
 	is_boolean: boolean;
+	default: string | string[] | boolean;
 };
 
 type Metering = {
@@ -19,16 +20,13 @@ type AccessRules = {
 	[key: string]: AccessRule;
 };
 
-type ContentRule = {
-	label: string;
-	options?: {
-		value: string;
-		label: string;
-	}[];
-};
-
 type ContentRules = {
 	[key: string]: ContentRule;
+};
+
+type GateRule = {
+	slug: string;
+	value: string | string[] | boolean;
 };
 
 type Gate = {
@@ -36,14 +34,8 @@ type Gate = {
 	title: string;
 	description: string;
 	metering: Metering;
-	access_rules: {
-		slug: string;
-		value?: string | string[];
-	}[];
-	content_rules: {
-		slug: string;
-		value?: string | string[];
-	}[];
+	access_rules: GateRule[];
+	content_rules: GateRule[];
 };
 
 declare global {
