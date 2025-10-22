@@ -276,10 +276,14 @@ class Audience_Content_Gates extends Wizard {
 	 *
 	 * @param \WP_REST_Request $request The request object.
 	 *
-	 * @return \WP_REST_Response
+	 * @return \WP_REST_Response|\WP_Error
 	 */
 	public function create_gate( $request ) {
-		return rest_ensure_response( Content_Gate::create_gate( $request->get_param( 'title' ) ) );
+		$gate = Content_Gate::create_gate( $request->get_param( 'title' ) );
+		if ( is_wp_error( $gate ) ) {
+			return $gate;
+		}
+		return rest_ensure_response( Content_Gate::get_gate( $gate ) );
 	}
 
 	/**

@@ -33,7 +33,7 @@ const ContentGates = () => {
 			.catch( error => console.error( error ) ); // eslint-disable-line no-console
 	}, [] );
 
-	const handleCreateGate = () => () => {
+	const handleCreateGate = () => {
 		apiFetch< Gate >( {
 			path: '/newspack/v1/content-gate',
 			method: 'POST',
@@ -43,6 +43,8 @@ const ContentGates = () => {
 		} )
 			.then( data => {
 				setGates( [ data, ...gates ] );
+				setShowModal( false );
+				setNewGateName( '' );
 			} )
 			.catch( error => console.error( error ) ); // eslint-disable-line no-console
 	};
