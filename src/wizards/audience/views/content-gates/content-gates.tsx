@@ -7,7 +7,7 @@
  */
 import apiFetch from '@wordpress/api-fetch';
 import { RichText } from '@wordpress/block-editor';
-import { useEffect, useState } from '@wordpress/element';
+import { useEffect, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
 /**
@@ -22,18 +22,31 @@ const ContentGates = () => {
 	const [ gates, setGates ] = useState< Gate[] >( [] );
 	const [ showModal, setShowModal ] = useState( false );
 	const [ newGateName, setNewGateName ] = useState( '' );
+	const [ isInFlight, setIsInFlight ] = useState( false );
+
+	const ref = useRef( null );
 
 	useEffect( () => {
+		if ( isInFlight ) {
+			return;
+		}
+		setIsInFlight( true );
 		apiFetch< Gate[] >( {
 			path: '/newspack/v1/content-gate',
 		} )
 			.then( data => {
+				data.sort( ( a, b ) => a.priority - b.priority );
 				setGates( data );
 			} )
-			.catch( error => console.error( error ) ); // eslint-disable-line no-console
+			.catch( error => console.error( error ) ) // eslint-disable-line no-console
+			.finally( () => setIsInFlight( false ) );
 	}, [] );
 
 	const handleCreateGate = () => {
+		if ( isInFlight ) {
+			return;
+		}
+		setIsInFlight( true );
 		apiFetch< Gate >( {
 			path: '/newspack/v1/content-gate',
 			method: 'POST',
@@ -46,10 +59,15 @@ const ContentGates = () => {
 				setShowModal( false );
 				setNewGateName( '' );
 			} )
-			.catch( error => console.error( error ) ); // eslint-disable-line no-console
+			.catch( error => console.error( error ) ) // eslint-disable-line no-console
+			.finally( () => setIsInFlight( false ) );
 	};
 
 	const handleDeleteGate = ( id: number ) => () => {
+		if ( isInFlight ) {
+			return;
+		}
+		setIsInFlight( true );
 		// eslint-disable-next-line no-alert
 		if ( ! confirm( __( 'Are you sure you want to delete this content gate?', 'newspack-plugin' ) ) ) {
 			return;
@@ -59,7 +77,29 @@ const ContentGates = () => {
 			method: 'DELETE',
 		} )
 			.then( () => setGates( gates.filter( g => g.id !== id ) ) )
-			.catch( error => console.error( error ) ); // eslint-disable-line no-console
+			.catch( error => console.error( error ) ) // eslint-disable-line no-console
+			.finally( () => setIsInFlight( false ) );
+	};
+
+	const handleUpdateGates = ( updates: Gate[] ) => {
+		if ( isInFlight ) {
+			return;
+		}
+		const oldGates = [ ...gates ];
+		setGates( updates );
+		setIsInFlight( true );
+		apiFetch< Gate >( {
+			path: '/newspack/v1/content-gates',
+			method: 'POST',
+			data: {
+				gates: updates,
+			},
+		} )
+			.catch( error => {
+				console.error( error ); // eslint-disable-line no-console
+				setGates( oldGates );
+			} )
+			.finally( () => setIsInFlight( false ) );
 	};
 
 	const updateGate = ( id: number, data: Partial< Gate > ) => {
@@ -96,40 +136,65 @@ const ContentGates = () => {
 					<p>{ __( 'No content gates configured. Add a content gate to configure access rules.', 'newspack-plugin' ) }</p>
 				</Card>
 			) }
-			{ gates.map( gate => (
-				<WizardsActionCard
-					key={ gate.id }
-					title={
-						<RichText
-							className="newspack-content-gates__title"
-							value={ gate.title }
-							allowedFormats={ [] }
-							placeholder={ __( 'Content gate name', 'newspack-plugin' ) }
-							onChange={ ( value: string ) => updateGate( gate.id, { title: value } ) }
-							tagName="h4"
-							disableLineBreaks
-							withoutInteractiveFormatting
-							onClick={ ( e: React.ChangeEvent< HTMLInputElement > ) => e.stopPropagation() }
-						/>
-					}
-					description={ gate.description }
-					isMedium
-					hasGreyHeader={ true }
-					actionContent={
-						<>
-							<Button variant="primary" onClick={ () => {} }>
-								{ __( 'Edit Appearance', 'newspack' ) }
-							</Button>
-							<Button isDestructive variant="secondary" onClick={ handleDeleteGate( gate.id ) }>
-								{ __( 'Delete', 'newspack-plugin' ) }
-							</Button>
-						</>
-					}
-					toggleChecked={ true }
-				>
-					<ContentGateSettings value={ gate } />
-				</WizardsActionCard>
-			) ) }
+			<div ref={ ref }>
+				{ gates.map( ( gate, index ) => {
+					const reorderGates = ( targetIndex: number ) => {
+						const sortedGates = [ ...gates ];
+
+						sortedGates.splice( index, 1 );
+						sortedGates.splice( targetIndex, 0, gate );
+
+						// Reindex priorities to avoid gaps and dupes.
+						sortedGates.forEach( ( g, i ) => ( g.priority = i ) );
+
+						// Only trigger the API request if the order has changed.
+						if ( JSON.stringify( sortedGates ) !== JSON.stringify( gates ) ) {
+							handleUpdateGates( sortedGates );
+						}
+					};
+					return (
+						<WizardsActionCard
+							draggable
+							expandable
+							id={ gate.id }
+							key={ gate.id }
+							title={
+								<RichText
+									className="newspack-content-gates__title"
+									value={ gate.title }
+									allowedFormats={ [] }
+									placeholder={ __( 'Content gate name', 'newspack-plugin' ) }
+									onChange={ ( value: string ) => updateGate( gate.id, { title: value } ) }
+									tagName="h4"
+									disableLineBreaks
+									withoutInteractiveFormatting
+									onClick={ ( e: React.ChangeEvent< HTMLInputElement > ) => e.stopPropagation() }
+								/>
+							}
+							description={ gate.description }
+							isMedium
+							hasGreyHeader={ true }
+							actionContent={
+								<>
+									<Button variant="primary" onClick={ () => {} }>
+										{ __( 'Edit Appearance', 'newspack' ) }
+									</Button>
+									<Button isDestructive variant="secondary" onClick={ handleDeleteGate( gate.id ) }>
+										{ __( 'Delete', 'newspack-plugin' ) }
+									</Button>
+								</>
+							}
+							toggleChecked={ true }
+							dragIndex={ index }
+							dragWrapperRef={ ref }
+							onDragCallback={ reorderGates }
+							disabled={ isInFlight }
+						>
+							<ContentGateSettings value={ gate } />
+						</WizardsActionCard>
+					);
+				} ) }
+			</div>
 		</>
 	);
 };

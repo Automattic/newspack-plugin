@@ -1,4 +1,5 @@
 export interface ActionCardProps {
+	id?: string | number;
 	title?: string | React.ReactNode;
 	titleLink?: string;
 	href?: string;
@@ -35,5 +36,5 @@ export interface ActionCardProps {
 	draggable?: boolean;
 	dragIndex?: number;
 	onDragCallback?: ( index: number ) => void;
-	dragWrapperRef?: React.RefObject< HTMLDivElement >;
+	dragWrapperRef?: React.MutableRefObject< HTMLDivElement | null >;
 }

@@ -32,4 +32,5 @@ type Gate = {
 	metering: Metering;
 	access_rules: GateRule[];
 	content_rules: [];
+	priority: number;
 };

@@ -558,12 +558,16 @@ class Content_Gate {
 	 * @param string $title Optional gate title. Defaults to 'Content Gate'.
 	 */
 	public static function create_gate( $title = '' ) {
-		$id = \wp_insert_post(
+		$all_gates = self::get_gates();
+		$id        = \wp_insert_post(
 			[
 				'post_title'   => $title,
 				'post_type'    => self::GATE_CPT,
 				'post_status'  => 'draft',
 				'post_content' => '<!-- wp:paragraph --><p>' . __( 'This post is only available to members.', 'newspack' ) . '</p><!-- /wp:paragraph -->',
+				'meta_input'  => [
+					'gate_priority'      => count( $all_gates ),
+				],
 			]
 		);
 		if ( is_wp_error( $id ) ) {
@@ -733,6 +737,7 @@ class Content_Gate {
 			'title'         => $post->post_title,
 			'description'   => $post->post_excerpt,
 			'metering'      => Metering::get_metering_settings( $post->ID ),
+			'priority'      => (int) get_post_meta( $post->ID, 'gate_priority', true ),
 			'access_rules'  => Access_Rules::get_post_access_rules( $post->ID ),
 			'content_rules' => [],
 		];
@@ -758,6 +763,9 @@ class Content_Gate {
 				'ID'           => $id,
 				'post_title'   => $gate['title'],
 				'post_excerpt' => $gate['description'],
+				'meta_input'  => [
+					'gate_priority' => $gate['priority'],
+				],
 			]
 		);
 
@@ -781,9 +789,13 @@ class Content_Gate {
 				'post_type'      => self::GATE_CPT,
 				'post_status'    => [ 'publish', 'draft', 'trash', 'pending', 'future' ],
 				'posts_per_page' => -1,
-				// TODO: Add gate priority sorting.
+				'order'          => 'ASC',
+				'orderby'        => 'meta_value_num',
+				'meta_key'       => 'gate_priority',
 			]
 		);
+
+		error_log( print_r( $posts, true ) );
 		return array_map( [ __CLASS__, 'get_gate' ], wp_list_pluck( $posts, 'ID' ) );
 	}
 }
