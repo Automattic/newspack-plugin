@@ -49,11 +49,11 @@ class Content_Restriction_Control {
 			array_merge(
 				[
 					[
-						'name'  => 'post',
+						'slug'  => 'post',
 						'label' => 'Posts',
 					],
 					[
-						'name'  => 'page',
+						'slug'  => 'page',
 						'label' => 'Pages',
 					],
 				],
@@ -69,28 +69,16 @@ class Content_Restriction_Control {
 	 * @return array Array of taxonomies.
 	 */
 	public static function get_available_taxonomies() {
-		$available_post_types = array_column( self::get_available_post_types(), 'name' );
-		$available_taxonomies = array_values(
-			array_reduce(
-				get_taxonomies(
-					[
-						'public'       => true,
-						'show_in_rest' => true,
-					],
-					'objects'
-				),
-				function( $acc, $taxonomy ) use ( $available_post_types ) {
-					if ( ! empty( array_intersect( $taxonomy->object_type, $available_post_types ) ) ) {
-						$acc[] = [
-							'name'  => $taxonomy->name,
-							'label' => $taxonomy->label,
-						];
-					}
-					return $acc;
-				},
-				[]
-			)
-		);
+		$available_taxonomies = [
+			[
+				'slug'  => 'category',
+				'label' => 'Categories',
+			],
+			[
+				'slug'  => 'post_tag',
+				'label' => 'Tags',
+			],
+		];
 
 		return apply_filters(
 			'newspack_content_gate_supported_taxonomies',

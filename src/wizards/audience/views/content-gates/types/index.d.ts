@@ -36,16 +36,22 @@ type Gate = {
 	title: string;
 	description: string;
 	metering: Metering;
-	access_rules: AccessRule[];
-	content_rules: [];
+	access_rules: {
+		slug: string;
+		value?: string | string[];
+	}[];
+	content_rules: {
+		slug: string;
+		value?: string | string[];
+	}[];
 };
 
 declare global {
 	interface Window {
 		newspackAudienceContentGates: {
 			api: string;
-			available_rules: AccessRule[];
-			content_rules: ContentRule[];
+			available_rules: AccessRules;
+			content_rules: ContentRules;
 		};
 	}
 }

@@ -64,7 +64,7 @@ class Audience_Content_Gates extends Wizard {
 		];
 		$available_taxonomies = Content_Restriction_Control::get_available_taxonomies();
 		foreach ( $available_taxonomies as $taxonomy ) {
-			$content_rules[ $taxonomy['name'] ] = [
+			$content_rules[ $taxonomy['slug'] ] = [
 				'label' => $taxonomy['label'],
 			];
 		}
