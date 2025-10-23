@@ -21,6 +21,11 @@
 				margin-bottom: 0 !important;
 			}
 		}
+		&__content-rule-control {
+			> * + * {
+				margin-top: 16px;
+			}
+		}
 	}
 
 	.components-form-token-field {

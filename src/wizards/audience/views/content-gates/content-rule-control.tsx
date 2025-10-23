@@ -25,7 +25,7 @@ export default function ContentRuleControl( { slug, value, onChange }: GateConte
 
 	if ( rule.options?.length > 0 ) {
 		return (
-			<>
+			<div className="newspack-content-gates__content-rule-control">
 				<FormTokenField
 					label={ rule.name }
 					value={ rule.options.filter( o => value.includes( o.value ) ).map( o => o.label ) }
@@ -39,7 +39,7 @@ export default function ContentRuleControl( { slug, value, onChange }: GateConte
 					checked={ false }
 					onChange={ () => {} }
 				/>
-			</>
+			</div>
 		);
 	}
 
