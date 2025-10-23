@@ -13,6 +13,14 @@
 			margin: 0;
 			min-width: 200px !important;
 		}
+		&__gate {
+			> .newspack-action-card__region-children > * + * {
+				margin-top: 32px !important;
+			}
+			> .newspack-action-card__region-children > *:last-child {
+				margin-bottom: 0 !important;
+			}
+		}
 	}
 
 	.components-form-token-field {

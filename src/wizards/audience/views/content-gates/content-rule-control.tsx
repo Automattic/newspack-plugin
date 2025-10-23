@@ -1,3 +1,15 @@
+/* global newspackAudienceContentGates */
+
+/**
+ * Content Gate component.
+ */
+
+/**
+ * WordPress dependencies.
+ */
+import { __ } from '@wordpress/i18n';
+import { CheckboxControl } from '@wordpress/components';
+
 /**
  * Internal dependencies
  */
@@ -20,6 +32,12 @@ export default function ContentRuleControl( { slug, value, onChange }: GateConte
 					onChange={ ( items: string[] ) => onChange( rule.options?.filter( o => items.includes( o.label ) ).map( o => o.value ) ?? [] ) }
 					suggestions={ rule.options.map( o => o.label ) }
 					__experimentalExpandOnFocus={ true }
+				/>
+				<CheckboxControl
+					label={ __( 'Exclusion rule', 'newspack-plugin' ) }
+					help={ __( 'Apply this rule to everything EXCEPT the items matching the above.', 'newspack-plugin' ) }
+					checked={ false }
+					onChange={ () => {} }
 				/>
 			</>
 		);

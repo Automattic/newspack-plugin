@@ -96,6 +96,7 @@ const ContentGates = () => {
 			) }
 			{ gates.map( gate => (
 				<WizardsActionCard
+					className="newspack-content-gates__gate"
 					key={ gate.id }
 					title={ gate.title }
 					description={ gate.description }
