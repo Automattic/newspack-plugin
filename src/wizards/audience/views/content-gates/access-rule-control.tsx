@@ -5,7 +5,7 @@ import { CheckboxControl, SelectControl, TextControl } from '@wordpress/componen
 
 const noop = () => {};
 
-export default function AccessRuleControl( { slug, value, onChange }: GateRuleControlProps ) {
+export default function AccessRuleControl( { slug, value, onChange }: GateAccessRuleControlProps ) {
 	const rule = window.newspackAudienceContentGates.available_access_rules[ slug ];
 	if ( ! rule ) {
 		return null;

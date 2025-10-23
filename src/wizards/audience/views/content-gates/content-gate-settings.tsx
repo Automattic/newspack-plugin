@@ -2,7 +2,7 @@
  * WordPress dependencies.
  */
 import apiFetch from '@wordpress/api-fetch';
-import { Fragment, useState, useEffect, useMemo } from '@wordpress/element';
+import { Fragment, useState, useEffect, useMemo, useCallback } from '@wordpress/element';
 import { DropdownMenu, SelectControl, CheckboxControl, TextControl, Button } from '@wordpress/components';
 import { shield } from '@wordpress/icons';
 import { __ } from '@wordpress/i18n';
@@ -29,50 +29,50 @@ export default function ContentGateSettings( { value }: ContentGateSettingsProps
 		setGate( value );
 	}, [ value ] );
 
-	const handleToggleRule = ( slug: string, type: 'access' | 'content' = 'access' ) => {
+	const handleToggleRule = useCallback( ( slug: string, type: 'access' | 'content' = 'access' ) => {
 		const rule = type === 'access' ? availableAccessRules[ slug ] : availableContentRules[ slug ];
 		if ( ! rule ) {
 			return;
 		}
 		const key = type === 'access' ? 'access_rules' : 'content_rules';
-		if ( hasRule( slug, type ) ) {
-			setGate( {
-				...gate,
-				[ key ]: [ ...gate[ key ].filter( r => r.slug !== slug ) ],
-			} );
-		} else {
-			setGate( {
-				...gate,
-				[ key ]: [ ...gate[ key ], { slug, value: rule.default } ],
-			} );
-		}
-	};
+		setGate( prevGate => {
+			const hasExistingRule = !! prevGate[ key ].find( r => r.slug === slug );
+			if ( hasExistingRule ) {
+				return {
+					...prevGate,
+					[ key ]: [ ...prevGate[ key ].filter( r => r.slug !== slug ) ],
+				};
+			}
+			return {
+				...prevGate,
+				[ key ]: [ ...prevGate[ key ], { slug, value: rule.default } ],
+			};
+		} );
+	}, [] );
 
-	const handleUpdateRule =
+	const handleUpdateRule = useCallback(
 		( slug: string, type: 'access' | 'content' = 'access' ) =>
-		( v: string | string[] | boolean ) => {
-			const key = type === 'access' ? 'access_rules' : 'content_rules';
-			setGate( {
-				...gate,
-				[ key ]: gate[ key ].map( r => ( r.slug === slug ? { ...r, value: v } : r ) ),
-			} );
-		};
+			( v: string | string[] | boolean ) => {
+				const key = type === 'access' ? 'access_rules' : 'content_rules';
+				setGate( prevGate => ( {
+					...prevGate,
+					[ key ]: prevGate[ key ].map( r => ( r.slug === slug ? { ...r, value: v } : r ) ),
+				} ) );
+			},
+		[]
+	);
 
-	const isRuleDisabled = ( slug: string ): boolean => {
-		const conflicts = availableAccessRules[ slug ].conflicts;
-		// Check whether any conflicting rule is enabled.
-		if ( conflicts?.some( conflict => gate.access_rules.find( r => r.slug === conflict ) ) ) {
-			return true;
-		}
-		return false;
-	};
-
-	const hasRule = ( slug: string, type: 'access' | 'content' = 'access' ): boolean => {
-		if ( ! gate ) {
+	const isRuleDisabled = useCallback(
+		( slug: string ): boolean => {
+			const conflicts = availableAccessRules[ slug ].conflicts;
+			// Check whether any conflicting rule is enabled.
+			if ( conflicts?.some( conflict => gate.access_rules.find( r => r.slug === conflict ) ) ) {
+				return true;
+			}
 			return false;
-		}
-		return !! gate[ type === 'access' ? 'access_rules' : 'content_rules' ].find( r => r.slug === slug );
-	};
+		},
+		[ gate.access_rules ]
+	);
 
 	const accessRulesChoices = useMemo( () => {
 		return Object.keys( availableAccessRules ).map( slug => {
@@ -84,7 +84,7 @@ export default function ContentGateSettings( { value }: ContentGateSettingsProps
 				info: rule.description,
 			};
 		} );
-	}, [ gate.access_rules ] );
+	}, [ gate.access_rules, isRuleDisabled ] );
 
 	const contentRulesChoices = useMemo( () => {
 		return Object.keys( availableContentRules ).map( slug => {
@@ -95,9 +95,9 @@ export default function ContentGateSettings( { value }: ContentGateSettingsProps
 				info: rule.description || '',
 			};
 		} );
-	}, [ gate.content_rules ] );
+	}, [] );
 
-	const handleSave = () => {
+	const handleSave = useCallback( () => {
 		apiFetch< Gate >( {
 			path: `/newspack/v1/content-gate/${ gate.id }`,
 			method: 'POST',
@@ -107,7 +107,7 @@ export default function ContentGateSettings( { value }: ContentGateSettingsProps
 				setGate( data );
 			} )
 			.catch( error => console.error( error ) ); // eslint-disable-line no-console
-	};
+	}, [ gate.id, gate ] );
 
 	return (
 		<Fragment>
@@ -131,7 +131,7 @@ export default function ContentGateSettings( { value }: ContentGateSettingsProps
 			>
 				{ gate.access_rules.length > 0 && (
 					<Grid columns={ Math.min( 3, gate.access_rules.length ) } gutter={ 32 }>
-						{ gate.access_rules.map( ( rule: GateRule ) => (
+						{ gate.access_rules.map( ( rule: GateAccessRule ) => (
 							<AccessRuleControl key={ rule.slug } slug={ rule.slug } value={ rule.value } onChange={ handleUpdateRule( rule.slug ) } />
 						) ) }
 					</Grid>
@@ -157,7 +157,7 @@ export default function ContentGateSettings( { value }: ContentGateSettingsProps
 			>
 				{ gate.content_rules.length > 0 && (
 					<Grid columns={ 3 } gutter={ 32 }>
-						{ gate.content_rules.map( ( rule: GateRule ) => (
+						{ gate.content_rules.map( ( rule: GateContentRule ) => (
 							<ContentRuleControl
 								key={ rule.slug }
 								slug={ rule.slug }

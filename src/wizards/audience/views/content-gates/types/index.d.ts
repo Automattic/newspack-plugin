@@ -25,11 +25,11 @@ type Metering = {
 };
 
 type AccessRules = {
-	[key: string]: AccessRule;
+	[ key: string ]: AccessRule;
 };
 
 type ContentRules = {
-	[key: string]: ContentRule;
+	[ key: string ]: ContentRule;
 };
 
 type GateAccessRule = {
@@ -37,15 +37,25 @@ type GateAccessRule = {
 	value: string | string[] | boolean;
 };
 
+type GateAccessRuleValue = string | string[] | boolean;
+
+type GateContentRuleValue = string[];
+
+type GateAccessRuleControlProps = {
+	slug: string;
+	value: GateAccessRuleValue;
+	onChange: ( value: GateAccessRuleValue ) => void;
+};
+
 type GateContentRule = {
 	slug: string;
 	value: string[];
 };
 
-type GateRuleControlProps = {
+type GateContentRuleControlProps = {
 	slug: string;
-	value: string | string[] | boolean;
-	onChange: (value: string | string[] | boolean) => void;
+	value: GateContentRuleValue;
+	onChange: ( value: GateContentRuleValue ) => void;
 };
 
 type Gate = {

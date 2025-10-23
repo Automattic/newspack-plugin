@@ -6,85 +6,120 @@
  * WordPress dependencies.
  */
 import { __ } from '@wordpress/i18n';
+import { FormTokenField } from '@wordpress/components';
 import apiFetch from '@wordpress/api-fetch';
-import { useEffect, useState } from '@wordpress/element';
+import { useEffect, useState, useCallback, useMemo, memo } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { addQueryArgs } from '@wordpress/url';
 
-/**
- * Internal dependencies
- */
-import { AutocompleteWithSuggestions } from '../../../../../packages/components/src';
+const debounce = ( func: ( search?: string ) => void, wait: number ) => {
+	let timeout: NodeJS.Timeout;
+	return ( search?: string ) => {
+		clearTimeout( timeout );
+		timeout = setTimeout( () => func( search ), wait );
+	};
+};
 
-export default function ContentRuleControlTaxonomy( { slug, value, onChange }: GateRuleControlProps ) {
-	const [ savedItems, setSavedItems ] = useState< { value: number; label: string }[] >( [] );
-	const [ suggestions, setSuggestions ] = useState< { value: number; label: string }[] >( [] );
+function ContentRuleControlTaxonomy( { slug, value, onChange }: GateContentRuleControlProps ) {
+	const [ savedItems, setSavedItems ] = useState< { value: string; label: string }[] >( [] );
+	const [ suggestions, setSuggestions ] = useState< { value: string; label: string }[] >( [] );
 
-	let endpoint = '';
-	switch ( slug ) {
-		case 'post_tag':
-			endpoint = 'tags';
-			break;
-		case 'category':
-			endpoint = 'categories';
-			break;
-		default:
-			endpoint = slug;
-	}
+	const endpoint = useMemo( () => {
+		let _endpoint = '';
+		switch ( slug ) {
+			case 'post_tag':
+				_endpoint = 'tags';
+				break;
+			case 'category':
+				_endpoint = 'categories';
+				break;
+			default:
+				_endpoint = slug;
+		}
+		return _endpoint;
+	}, [ slug ] );
 
+	const fetchSuggestions = useCallback(
+		( search: string = '' ) => {
+			apiFetch< { id: number; name: string }[] >( {
+				path: addQueryArgs( 'wp/v2/' + endpoint, {
+					search,
+					per_page: 10,
+					_fields: 'id,name',
+				} ),
+			} ).then( terms => {
+				if ( ! terms || terms.length === 0 ) {
+					setSuggestions( [] );
+					return;
+				}
+				setSuggestions(
+					terms.map( term => ( { value: term.id.toString(), label: decodeEntities( term.name ) || __( '(no name)', 'newspack-plugin' ) } ) )
+				);
+			} );
+		},
+		[ endpoint ]
+	);
+
+	// Fetch current items.
 	useEffect( () => {
-		if ( ! Array.isArray( value ) || value.length === 0 ) {
-			setSavedItems( [] );
+		if ( ! value || value.length === 0 ) {
 			return;
 		}
-		const _savedItems = suggestions.filter( s => value.includes( s.value ) );
-		if ( _savedItems.length > 0 ) {
-			setSavedItems( _savedItems );
-			return;
-		}
-		apiFetch( {
+		apiFetch< { id: number; name: string }[] >( {
 			path: addQueryArgs( 'wp/v2/' + endpoint, {
-				per_page: 10,
 				include: value.join( ',' ),
-				_fields: 'id,name',
 			} ),
-		} ).then( ( terms: { id: number; name: string }[] ) => {
-			const formattedTerms = terms.map( ( _term: { id: number; name: string } ) => ( {
-				value: _term.id,
-				label: decodeEntities( _term.name ) || __( '(no name)', 'newspack-plugin' ),
-			} ) );
-			setSavedItems( formattedTerms );
+		} ).then( terms => {
+			setSavedItems(
+				terms.map( term => ( { value: term.id.toString(), label: decodeEntities( term.name ) || __( '(no name)', 'newspack-plugin' ) } ) )
+			);
 		} );
-	}, [ value ] );
+	}, [] );
+
+	// Set initial suggestions.
+	useEffect( () => {
+		fetchSuggestions();
+	}, [ fetchSuggestions ] );
+
+	const debouncedFetchSuggestions = useCallback( debounce( fetchSuggestions, 100 ), [] );
+
+	const handleInputChange = ( search: string ) => {
+		debouncedFetchSuggestions( search );
+	};
+
+	const tokens = useMemo( () => {
+		const items = [ ...savedItems, ...suggestions ];
+		const result = items.filter( i => value.includes( i.value ) ).map( i => `${ i.value }: ${ i.label }` );
+		return [ ...new Set( result ) ];
+	}, [ value, savedItems, suggestions ] );
 
 	const rule = window.newspackAudienceContentGates.available_content_rules[ slug ];
 	if ( ! rule || ! Array.isArray( value ) ) {
 		return null;
 	}
 
-	return (
-		<AutocompleteWithSuggestions
-			label={ rule.name }
-			multiSelect={ true }
-			selectedItems={ savedItems }
-			postTypeLabel={ __( 'term', 'newspack-plugin' ) }
-			postTypeLabelPlural={ __( 'terms', 'newspack-plugin' ) }
-			fetchSuggestions={ async ( search: string ) => {
-				const terms = await apiFetch( {
-					path: addQueryArgs( 'wp/v2/' + endpoint, {
-						search,
-						per_page: 10,
-						_fields: 'id,name',
-					} ),
-				} );
+	const handleChange = ( newTokens: string[] ) => {
+		const items = [ ...savedItems, ...suggestions ];
 
-				const _suggestions = terms.map( ( _term: { id: number; name: string } ) => ( {
-					value: _term.id,
-					label: decodeEntities( _term.name ) || __( '(no name)', 'newspack-plugin' ),
-				} ) );
-				return _suggestions;
-			} }
-			onChange={ ( items: { value: number; label: string }[] ) => onChange( items.map( o => o.value ) ) }
+		// Find items.
+		const foundItems = newTokens.map( t => {
+			const [ val ] = t.split( ':' );
+			return items.find( i => i.value === val );
+		} );
+		onChange( foundItems.filter( i => i ).map( i => i.value ) );
+	};
+
+	return (
+		<FormTokenField
+			__experimentalExpandOnFocus
+			// __experimentalRenderItem={ ( { item } ) => ( item as TokenItem ).label }
+			label={ rule.name }
+			suggestions={ suggestions.map( s => `${ s.value }: ${ s.label }` ) }
+			onInputChange={ handleInputChange }
+			value={ tokens }
+			onChange={ handleChange }
 		/>
 	);
 }
+
+export default memo( ContentRuleControlTaxonomy );
