@@ -63,7 +63,7 @@ const ContentGates = () => {
 			.finally( () => setIsInFlight( false ) );
 	};
 
-	const handleDeleteGate = ( id: number ) => () => {
+	const handleDeleteGate = ( id: number ) => {
 		// eslint-disable-next-line no-alert
 		if ( ! confirm( __( 'Are you sure you want to delete this content gate?', 'newspack-plugin' ) ) ) {
 			return;
