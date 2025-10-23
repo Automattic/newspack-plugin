@@ -3,7 +3,7 @@
  */
 import apiFetch from '@wordpress/api-fetch';
 import { Fragment, useState, useEffect, useMemo, useCallback } from '@wordpress/element';
-import { DropdownMenu, SelectControl, CheckboxControl, TextControl, Button } from '@wordpress/components';
+import { DropdownMenu, SelectControl, CheckboxControl, TextControl, Button, ExternalLink } from '@wordpress/components';
 import { shield } from '@wordpress/icons';
 import { __ } from '@wordpress/i18n';
 
@@ -231,6 +231,9 @@ export default function ContentGateSettings( { value, onDelete }: ContentGateSet
 				<Button isDestructive variant="secondary" onClick={ handleDelete }>
 					{ __( 'Delete', 'newspack-plugin' ) }
 				</Button>
+				<ExternalLink href={ `/wp-admin/post.php?post=${ gate.id }&action=edit` }>
+					{ __( 'Edit Appearance', 'newspack-plugin' ) }
+				</ExternalLink>
 			</div>
 		</Fragment>
 	);
