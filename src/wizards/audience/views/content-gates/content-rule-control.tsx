@@ -1,5 +1,3 @@
-/* global newspackAudienceContentGates */
-
 /**
  * Content Gate component.
  */
@@ -23,7 +21,7 @@ export default function ContentRuleControl( { slug, value, onChange }: GateConte
 		return null;
 	}
 
-	if ( rule.options?.length > 0 ) {
+	if ( rule.options && rule.options.length > 0 ) {
 		return (
 			<div className="newspack-content-gates__content-rule-control">
 				<FormTokenField
