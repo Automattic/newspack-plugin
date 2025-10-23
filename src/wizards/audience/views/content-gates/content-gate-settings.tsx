@@ -156,8 +156,8 @@ export default function ContentGateSettings( { value }: ContentGateSettingsProps
 				}
 			>
 				{ gate.content_rules.length > 0 && (
-					<Grid columns={ 3 } gutter={ 32 }>
-						{ gate.content_rules.map( ( rule: GateContentRule ) => (
+					<Grid columns={ Math.min( 3, gate.content_rules.length ) } gutter={ 32 }>
+						{ gate.content_rules.map( ( rule: GateRule ) => (
 							<ContentRuleControl
 								key={ rule.slug }
 								slug={ rule.slug }
