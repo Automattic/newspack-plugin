@@ -552,12 +552,16 @@ class Content_Gate {
 	 * @param string $title Optional gate title. Defaults to 'Content Gate'.
 	 */
 	public static function create_gate( $title = '' ) {
-		$id = \wp_insert_post(
+		$all_gates = self::get_gates();
+		$id        = \wp_insert_post(
 			[
 				'post_title'   => $title,
 				'post_type'    => self::GATE_CPT,
 				'post_status'  => 'draft',
 				'post_content' => '<!-- wp:paragraph --><p>' . __( 'This post is only available to members.', 'newspack' ) . '</p><!-- /wp:paragraph -->',
+				'meta_input'   => [
+					'gate_priority' => count( $all_gates ),
+				],
 			]
 		);
 		if ( is_wp_error( $id ) ) {
@@ -727,6 +731,7 @@ class Content_Gate {
 			'title'         => $post->post_title,
 			'status'        => $post->post_status,
 			'metering'      => Metering::get_metering_settings( $post->ID ),
+			'priority'      => (int) get_post_meta( $post->ID, 'gate_priority', true ),
 			'access_rules'  => Access_Rules::get_post_access_rules( $post->ID ),
 			'content_rules' => self::get_post_content_rules( $post->ID ),
 		];
@@ -781,6 +786,54 @@ class Content_Gate {
 	}
 
 	/**
+	 * Update single gate setting
+	 *
+	 * @param int    $id    Gate ID.
+	 * @param string $key   Gate setting key.
+	 * @param mixed  $value Gate setting value.
+	 *
+	 * @return array|\WP_Error
+	 */
+	public static function update_gate_setting( $id, $key, $value ) {
+		$post = get_post( $id );
+		if ( ! $post ) {
+			return new \WP_Error( 'newspack_content_gate_not_found', __( 'Gate not found.', 'newspack' ) );
+		}
+
+		$update = [];
+
+		if ( 'title' === $key ) {
+			$update['post_title'] = $value;
+		} elseif ( 'description' === $key ) {
+			$update['post_excerpt'] = $value;
+		} elseif ( 'gate_priority' === $key ) {
+			$update['meta_input'] = [
+				'gate_priority' => (int) $value,
+			];
+		} elseif ( 'metering' === $key ) {
+			Metering::update_metering_settings( $id, $value );
+			return self::get_gate( $id );
+		} elseif ( 'access_rules' === $key ) {
+			Access_Rules::update_post_access_rules( $id, $value );
+			return self::get_gate( $id );
+		} else {
+			return new \WP_Error( 'newspack_content_gate_invalid_key', __( 'Invalid gate setting key.', 'newspack' ) );
+		}
+
+		// Update title and description.
+		wp_update_post(
+			array_merge(
+				[
+					'ID' => $id,
+				],
+				$update
+			)
+		);
+
+		return self::get_gate( $id );
+	}
+
+	/**
 	 * Update gate settings
 	 *
 	 * @param int   $id   Gate ID.
@@ -800,6 +853,9 @@ class Content_Gate {
 				'ID'           => $id,
 				'post_title'   => $gate['title'],
 				'post_excerpt' => $gate['description'],
+				'meta_input'   => [
+					'gate_priority' => $gate['priority'],
+				],
 			]
 		);
 
@@ -824,10 +880,16 @@ class Content_Gate {
 				'post_type'      => self::GATE_CPT,
 				'post_status'    => [ 'publish', 'draft', 'trash', 'pending', 'future' ],
 				'posts_per_page' => -1,
-				// TODO: Add gate priority sorting.
 			]
 		);
-		return array_map( [ __CLASS__, 'get_gate' ], wp_list_pluck( $posts, 'ID' ) );
+		$gates = array_map( [ __CLASS__, 'get_gate' ], wp_list_pluck( $posts, 'ID' ) );
+		usort(
+			$gates,
+			function( $a, $b ) {
+				return $a['priority'] <=> $b['priority'];
+			}
+		);
+		return $gates;
 	}
 }
 Content_Gate::init();

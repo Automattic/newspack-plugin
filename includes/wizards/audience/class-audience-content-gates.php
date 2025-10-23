@@ -145,6 +145,22 @@ class Audience_Content_Gates extends Wizard {
 
 		register_rest_route(
 			NEWSPACK_API_NAMESPACE,
+			'/content-gate/priority',
+			[
+				'methods'             => 'POST',
+				'callback'            => [ $this, 'update_gate_priorities' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+				'sanitize_callback'   => [ $this, 'sanitize_gates' ],
+				'args'                => [
+					'gates' => [
+						'type' => 'array',
+					],
+				],
+			]
+		);
+
+		register_rest_route(
+			NEWSPACK_API_NAMESPACE,
 			'/content-gate/(?P<id>\d+)',
 			[
 				'methods'             => 'POST',
@@ -207,7 +223,23 @@ class Audience_Content_Gates extends Wizard {
 			'metering'      => $this->sanitize_metering( $gate['metering'] ),
 			'access_rules'  => $this->sanitize_rules( $gate['access_rules'] ),
 			'content_rules' => $this->sanitize_rules( $gate['content_rules'], 'content' ),
+			'priority'      => intval( $gate['priority'] ),
 		];
+	}
+
+	/**
+	 * Sanitize multiple gates.
+	 *
+	 * @param array $gates An array of gates.
+	 *
+	 * @return array The sanitized array of gates.
+	 */
+	public function sanitize_gates( $gates ) {
+		$sanitized_gates = [];
+		foreach ( $gates as &$gate ) {
+			$sanitized_gates[] = $this->sanitize_gate( $gate );
+		}
+		return $sanitized_gates;
 	}
 
 	/**
@@ -343,5 +375,25 @@ class Audience_Content_Gates extends Wizard {
 			return $gate;
 		}
 		return rest_ensure_response( $gate );
+	}
+
+	/**
+	 * Update multiple gates.
+	 *
+	 * @param \WP_REST_Request $request The request object.
+	 *
+	 * @return \WP_REST_Response|\WP_Error
+	 */
+	public function update_gate_priorities( $request ) {
+		$gates = $request->get_param( 'gates' );
+		$updated_gates = [];
+		foreach ( $gates as $gate ) {
+			$updated_gate = Content_Gate::update_gate_setting( $gate['id'], 'gate_priority', $gate['priority'] );
+			if ( is_wp_error( $updated_gate ) ) {
+				return $updated_gate;
+			}
+			$updated_gates[] = $updated_gate;
+		}
+		return rest_ensure_response( $updated_gates );
 	}
 }

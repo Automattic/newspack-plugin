@@ -12,6 +12,7 @@ type AccessRule = {
 type ContentRule = {
 	name: string;
 	description?: string;
+	options?: { value: string; label: string }[];
 	value: string[];
 	default: string[];
 };
@@ -24,16 +25,37 @@ type Metering = {
 };
 
 type AccessRules = {
-	[key: string]: AccessRule;
+	[ key: string ]: AccessRule;
 };
 
 type ContentRules = {
-	[key: string]: ContentRule;
+	[ key: string ]: ContentRule;
 };
 
-type GateRule = {
+type GateAccessRule = {
 	slug: string;
 	value: string | string[] | boolean;
+};
+
+type GateAccessRuleValue = string | string[] | boolean;
+
+type GateContentRuleValue = string[];
+
+type GateAccessRuleControlProps = {
+	slug: string;
+	value: GateAccessRuleValue;
+	onChange: ( value: GateAccessRuleValue ) => void;
+};
+
+type GateContentRule = {
+	slug: string;
+	value: string[];
+};
+
+type GateContentRuleControlProps = {
+	slug: string;
+	value: GateContentRuleValue;
+	onChange: ( value: GateContentRuleValue ) => void;
 };
 
 type Gate = {
@@ -41,6 +63,7 @@ type Gate = {
 	title: string;
 	description: string;
 	metering: Metering;
-	access_rules: GateRule[];
-	content_rules: GateRule[];
+	access_rules: GateAccessRule[];
+	content_rules: GateContentRule[];
+	priority: number;
 };
