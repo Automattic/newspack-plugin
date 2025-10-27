@@ -19,7 +19,7 @@ class WooCommerce_Subscriptions_Gifting {
 	public static function init() {
 		\add_filter( 'wcsg_new_recipient_account_details_fields', [ __CLASS__, 'new_recipient_fields' ] );
 		\add_filter( 'wcsg_require_shipping_address_for_virtual_products', '__return_false' );
-		\add_filter( 'default_option_woocommerce_subscriptions_gifting_gifting_checkbox_text', [ __CLASS__, 'default_gifting_checkbox_text' ] );
+		\add_filter( 'wcsg_enable_gifting_checkbox_label', [ __CLASS__, 'default_gifting_checkbox_text' ] );
 		\add_filter( 'newpack_reader_activation_reader_is_without_password', [ __CLASS__, 'is_reader_without_password' ], 10, 2 );
 	}
 
