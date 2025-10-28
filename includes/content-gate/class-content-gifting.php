@@ -7,7 +7,6 @@
 
 namespace Newspack;
 
-use Newspack\Memberships\Metering;
 use WP_Error;
 
 /**
@@ -55,6 +54,7 @@ class Content_Gifting {
 	public static function init() {
 		add_action( 'template_redirect', [ __CLASS__, 'process_key_request' ] );
 		add_action( 'wp', [ __CLASS__, 'unrestrict_content' ], 5 );
+		add_filter( 'newspack_content_gate_restrict_post', [ __CLASS__, 'restrict_post' ] );
 		add_action( 'newspack_theme_entry_meta', [ __CLASS__, 'add_gift_button' ] );
 		add_action( 'wp_enqueue_scripts', [ __CLASS__, 'enqueue_assets' ] );
 	}
@@ -196,6 +196,25 @@ class Content_Gifting {
 	}
 
 	/**
+	 * Whether to restrict the post.
+	 *
+	 * @param bool $restrict Whether to restrict the post.
+	 * @param int  $post_id  Post ID.
+	 *
+	 * @return bool
+	 */
+	public static function restrict_post( $restrict, $post_id ) {
+		if ( ! isset( $_GET[ self::QUERY_ARG ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			return $restrict;
+		}
+		$key_data = self::get_key_data( $post_id, sanitize_text_field( $_GET[ self::QUERY_ARG ] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( $key_data ) {
+			return false;
+		}
+		return $restrict;
+	}
+
+	/**
 	 * Whether the current user can gift a given post.
 	 *
 	 * @param int|null $post_id       Optional post ID. Default is the current post.
@@ -215,7 +234,7 @@ class Content_Gifting {
 			$errors->add( 'not_logged_in', __( 'You must be logged in to gift content.', 'newspack-plugin' ) );
 		}
 
-		if ( Memberships::is_post_restricted( $post_id ) ) {
+		if ( Content_Gate::is_post_restricted( $post_id ) ) {
 			$errors->add( 'post_restricted', __( 'User does not have access to this post.', 'newspack-plugin' ) );
 		}
 
