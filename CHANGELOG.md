@@ -1,3 +1,45 @@
+## [6.21.4](https://github.com/Automattic/newspack-plugin/compare/v6.21.3...v6.21.4) (2025-10-27)
+
+
+### Bug Fixes
+
+* add corrections on earlier the_content filter ([#4258](https://github.com/Automattic/newspack-plugin/issues/4258)) ([95c584a](https://github.com/Automattic/newspack-plugin/commit/95c584a81b8a811a57de1616b5aec716895a88e4))
+
+## [6.21.3](https://github.com/Automattic/newspack-plugin/compare/v6.21.2...v6.21.3) (2025-10-27)
+
+
+### Bug Fixes
+
+* hide dummy email ([#4255](https://github.com/Automattic/newspack-plugin/issues/4255)) ([d302e20](https://github.com/Automattic/newspack-plugin/commit/d302e20aff7748ce8fa54be900cc92624fbddbdb))
+
+## [6.21.2](https://github.com/Automattic/newspack-plugin/compare/v6.21.1...v6.21.2) (2025-10-16)
+
+
+### Bug Fixes
+
+* don’t add overlays to ras store if locked via front-end emtering ([#4230](https://github.com/Automattic/newspack-plugin/issues/4230)) ([de89d33](https://github.com/Automattic/newspack-plugin/commit/de89d337be471eb786290f885edaa342178aabe9))
+
+## [6.21.1](https://github.com/Automattic/newspack-plugin/compare/v6.21.0...v6.21.1) (2025-10-15)
+
+
+### Bug Fixes
+
+* order meta method shouldn use ID ([#4236](https://github.com/Automattic/newspack-plugin/issues/4236)) ([354618d](https://github.com/Automattic/newspack-plugin/commit/354618d890fa7c791f6007a018f528504a6b38bf))
+
+# [6.21.0](https://github.com/Automattic/newspack-plugin/compare/v6.20.2...v6.21.0) (2025-10-15)
+
+
+### Features
+
+* **InDesign:** inline image caption, horizontal rule, headings and blockquotes ([#4201](https://github.com/Automattic/newspack-plugin/issues/4201)) ([#4228](https://github.com/Automattic/newspack-plugin/issues/4228)) ([ff7af5c](https://github.com/Automattic/newspack-plugin/commit/ff7af5c83e91f093113abf192fb82ede8a4b2528))
+
+## [6.20.2](https://github.com/Automattic/newspack-plugin/compare/v6.20.1...v6.20.2) (2025-10-14)
+
+
+### Bug Fixes
+
+* **gam:** account for undefined path in wizard ([#4233](https://github.com/Automattic/newspack-plugin/issues/4233)) ([d9c515e](https://github.com/Automattic/newspack-plugin/commit/d9c515ea8b542400828a3845cc8736f944b716bc))
+
 ## [6.20.1](https://github.com/Automattic/newspack-plugin/compare/v6.20.0...v6.20.1) (2025-10-08)
 
 

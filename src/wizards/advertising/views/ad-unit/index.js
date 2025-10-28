@@ -12,7 +12,7 @@ import { trash } from '@wordpress/icons';
 /**
  * Internal dependencies.
  */
-import { Button, Card, Grid, Notice, TextControl, withWizardScreen } from '../../../../components/src';
+import { Button, Card, Grid, Notice, TextControl, withWizardScreen } from '../../../../../packages/components/src';
 import AdUnitSizeControl, { getSizes } from '../../components/ad-unit-size-control';
 
 /**

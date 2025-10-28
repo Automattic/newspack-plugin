@@ -10,8 +10,8 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies.
  */
 import { Welcome, Settings, Services, Design, Completed } from './views/';
-import { withWizard, withWizardScreen, Notice } from '../../components/src';
-import Router from '../../components/src/proxied-imports/router';
+import { withWizard, withWizardScreen, Notice } from '../../../packages/components/src';
+import Router from '../../../packages/components/src/proxied-imports/router';
 import './style.scss';
 
 const { HashRouter, Route } = Router;

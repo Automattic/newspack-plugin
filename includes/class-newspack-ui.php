@@ -239,6 +239,7 @@ class Newspack_UI {
 										'aria-required' => true,
 										'value'         => true,
 										'disabled'      => true,
+										'checked'       => true,
 									],
 									'select'   => [
 										'name'             => true,
@@ -520,6 +521,14 @@ class Newspack_UI {
 				</p>
 
 				<p>
+					<label for="text-input-demo">Currency input</label>
+					<div class="newspack-ui__currency-input">
+						<span class="newspack-ui__currency-input__currency">$</span>
+						<input type="number">
+					</div>
+				</p>
+
+				<p>
 					<label for="text-input-demo" class="newspack-ui__field-error">Text input <span class="newspack-ui__label-optional">(additional text)</span></label>
 					<input type="text" placeholder="Regular text" class="newspack-ui__field-error">
 					<span class="newspack-ui__helper-text">Some helper text.</span>
@@ -562,6 +571,15 @@ class Newspack_UI {
 						<input type="checkbox">
 						This is a checkbox input.
 					</label>
+				</p>
+
+				<p>
+					<label for="select-control-demo">Select Controls</label>
+					<select id="select-control-demo">
+						<option value="1">Option 1</option>
+						<option value="2">Option 2</option>
+						<option value="3">Option 3</option>
+					</select>
 				</p>
 			</form>
 
@@ -796,6 +814,14 @@ class Newspack_UI {
 					<button class="newspack-ui__button newspack-ui__button--small">Tab Three</button>
 					<button class="newspack-ui__button newspack-ui__button--small">Tab Four</button>
 					<button class="newspack-ui__button newspack-ui__button--small">Tab Five</button>
+				</div>
+			</div>
+
+			<div class="newspack-ui__segmented-control__form-control newspack-ui__spacing-top--32">
+				<label>Segmented Control (Form) <abbr class="newspack-ui__required" title="required">*</abbr></label>
+				<div class="newspack-ui__segmented-control__tabs">
+					<button class="newspack-ui__button newspack-ui__button--small selected">True</button>
+					<button class="newspack-ui__button newspack-ui__button--small">False</button>
 				</div>
 			</div>
 

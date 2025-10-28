@@ -12,7 +12,7 @@ import { ESCAPE } from '@wordpress/keycodes';
 /**
  * Internal dependencies
  */
-import { Popover } from '../../../../components/src';
+import { Popover } from '../../../../../packages/components/src';
 
 const CampaignManagementPopover = ( {
 	dismiss,

@@ -9,9 +9,10 @@ import '../../shared/js/public-path';
 /**
  * WordPress dependencies.
  */
-import { Component, Fragment, render } from '@wordpress/element';
+import { Component, Fragment, render, createInterpolateElement, createRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { audio, category, plus, reusableBlock, typography } from '@wordpress/icons';
+import { Icon, audio, category, plus, reusableBlock, typography } from '@wordpress/icons';
+import { ExternalLink } from '@wordpress/components';
 
 /**
  * Internal dependencies.
@@ -38,7 +39,8 @@ import {
 	SelectControl,
 	Waiting,
 	WebPreview,
-} from '../../components/src';
+} from '../../../packages/components/src';
+import * as newspackIcons from '../../../packages/icons';
 
 class ComponentsDemo extends Component {
 	/**
@@ -56,7 +58,15 @@ class ComponentsDemo extends Component {
 			selectValues: [],
 			modalShown: false,
 			color1: '#003da5',
+			draggableList: [
+				{ id: 1, title: 'Draggable Item 1' },
+				{ id: 2, title: 'Draggable Item 2' },
+				{ id: 3, title: 'Draggable Item 3' },
+				{ id: 4, title: 'Draggable Item 4' },
+				{ id: 5, title: 'Draggable Item 5' },
+			],
 		};
+		this.dragWrapperRef = createRef();
 	}
 
 	/**
@@ -422,6 +432,16 @@ class ComponentsDemo extends Component {
 						} }
 					/>
 					<ActionCard
+						badge={ __( 'Brand awareness', 'newspack-plugin' ) }
+						badgeLevel="brand"
+						title={ __( 'Example Eighteen', 'newspack-plugin' ) }
+						description={ __( 'An example of an action card with a brand-colored badge.', 'newspack-plugin' ) }
+						actionText={ __( 'Install', 'newspack-plugin' ) }
+						onClick={ () => {
+							console.log( 'Install clicked' );
+						} }
+					/>
+					<ActionCard
 						title={ __( 'Handoff', 'newspack-plugin' ) }
 						description={ __( 'An example of an action card with Handoff.', 'newspack-plugin' ) }
 						actionText={ __( 'Configure', 'newspack-plugin' ) }
@@ -710,6 +730,28 @@ class ComponentsDemo extends Component {
 						/>
 					</Card>
 					<Card>
+						<h2>{ __( 'Draggable Action Cards', 'newspack-plugin' ) }</h2>
+						<div ref={ this.dragWrapperRef }>
+							{ this.state.draggableList.map( ( { id, title }, index ) => (
+								<ActionCard
+									key={ id }
+									id={ id }
+									draggable
+									dragIndex={ index }
+									dragWrapperRef={ this.dragWrapperRef }
+									onDragCallback={ newIndex => {
+										const newList = [ ...this.state.draggableList ];
+										const [ movedItem ] = newList.splice( index, 1 );
+										newList.splice( newIndex, 0, movedItem );
+										this.setState( { draggableList: newList } );
+									} }
+									title={ title }
+									description={ __( 'An example of an action card that is draggable.', 'newspack-plugin' ) }
+								/>
+							) ) }
+						</div>
+					</Card>
+					<Card>
 						<h2>{ __( 'Box Contrast', 'newspack-plugin' ) }</h2>
 						<p>
 							Component for adding color black/white depending on contrast ratio for <code>hexColor</code> prop value.
@@ -729,6 +771,30 @@ class ComponentsDemo extends Component {
 						<BoxContrast hexColor="#51f1ff" isInverted>
 							#51f1ff / Inverted
 						</BoxContrast>
+					</Card>
+					<Card>
+						<h2>{ __( 'Newspack Icons', 'newspack-plugin' ) }</h2>
+						<p>
+							{ createInterpolateElement(
+								__(
+									"This is a collection of custom SVG icons for Newspack projects.<br/>They are available in <code>newspack-plugin</code> in the <code>newspack-icons</code> package.<br/>There's also an <link>npm package</link> that you can install to use them in your projects.",
+									'newspack-plugin'
+								),
+								{
+									br: <br />,
+									code: <code />,
+									link: <ExternalLink href="https://npmjs.com/package/newspack-icons" />,
+								}
+							) }
+						</p>
+						<Grid columns={ 4 } gutter={ 16 } className="items-start">
+							{ Object.entries( newspackIcons ).map( ( [ name, icon ] ) => (
+								<div key={ name } className="flex flex-column items-center tc">
+									<Icon icon={ icon } />
+									<code style={ { marginTop: 8 } }>{ name }</code>
+								</div>
+							) ) }
+						</Grid>
 					</Card>
 				</div>
 				<Footer />

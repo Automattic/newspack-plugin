@@ -15,9 +15,9 @@ import { addQueryArgs } from '@wordpress/url';
 /**
  * Internal dependencies.
  */
-import { PluginSettings, Notice } from '../../../../components/src';
-import { useWizardData } from '../../../../components/src/wizard/store/utils';
-import { WIZARD_STORE_NAMESPACE } from '../../../../components/src/wizard/store';
+import { PluginSettings, Notice } from '../../../../../packages/components/src';
+import { useWizardData } from '../../../../../packages/components/src/wizard/store/utils';
+import { WIZARD_STORE_NAMESPACE } from '../../../../../packages/components/src/wizard/store';
 
 const Salesforce = () => {
 	const { salesforce_redirect_url: redirectUrl } = window?.newspackAudience || {};

@@ -16,8 +16,8 @@ import apiFetch from '@wordpress/api-fetch';
 /**
  * Internal dependencies
  */
-import { withWizardScreen, ActionCard, hooks } from '../../../../components/src';
-import { useWizardData } from '../../../../components/src/wizard/store/utils';
+import { withWizardScreen, ActionCard, hooks } from '../../../../../packages/components/src';
+import { useWizardData } from '../../../../../packages/components/src/wizard/store/utils';
 import ReaderRevenue from './ReaderRevenue';
 import { Settings as NewslettersSettings } from '../../../newsletters/views/settings';
 import GAMOnboarding from '../../../advertising/components/onboarding';

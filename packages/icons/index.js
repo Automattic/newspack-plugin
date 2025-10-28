@@ -1,5 +1,7 @@
 export { default as accessibility } from './src/accessibility';
 export { default as ad } from './src/ad';
+export { default as ai } from './src/ai';
+export { default as aiText } from './src/ai-text';
 export { default as archiveLoop } from './src/archive-loop';
 export { default as aspectLandscape } from './src/aspect-landscape';
 export { default as aspectPortrait } from './src/aspect-portrait';
@@ -18,6 +20,7 @@ export { default as emailCheck } from './src/email-check';
 export { default as emailError } from './src/email-error';
 export { default as emailSend } from './src/email-send';
 export { default as gift } from './src/gift';
+export { default as hand } from './src/hand';
 export { default as iframe } from './src/iframe';
 export { default as logout } from './src/logout';
 export { default as mergeTags } from './src/merge-tags';

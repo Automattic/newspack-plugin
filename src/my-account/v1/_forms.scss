@@ -49,4 +49,12 @@
 			color: var(--newspack-ui-color-success-50);
 		}
 	}
+
+	/* Hide the "Save as new payment method" checkbox on the Add Payment Method form. */
+	/* stylelint-disable selector-id-pattern */
+	#newspack-my-account__add-payment-method {
+		.woocommerce-SavedPaymentMethods-saveNew {
+			display: none;
+		}
+	}
 }
