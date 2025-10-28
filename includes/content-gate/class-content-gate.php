@@ -71,6 +71,7 @@ class Content_Gate {
 		include __DIR__ . '/class-content-restriction-control.php';
 		include __DIR__ . '/class-block-patterns.php';
 		include __DIR__ . '/class-metering.php';
+		include __DIR__ . '/class-content-gifting.php';
 	}
 
 	/**
@@ -651,6 +652,16 @@ class Content_Gate {
 	 */
 	public static function render_overlay_gate() {
 		if ( ! self::has_gate() ) {
+			return;
+		}
+		if (
+			/**
+			 * Filters whether the overlay gate can be rendered.
+			 *
+			 * @param bool $can_render Whether the overlay gate can be rendered.
+			 */
+			! apply_filters( 'newspack_can_render_overlay_gate', true )
+		) {
 			return;
 		}
 		// Only render overlay gate for a restricted singular content.
