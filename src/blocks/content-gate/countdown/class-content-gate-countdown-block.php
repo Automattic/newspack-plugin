@@ -30,7 +30,7 @@ class Content_Gate_Countdown_Block {
 	 * @return void
 	 */
 	public static function enqueue_scripts() {
-		if ( ! Memberships::is_active() || ! is_singular() ) {
+		if ( ! self::is_active() || ! Memberships::is_active() || ! is_singular() ) {
 			return;
 		}
 		wp_enqueue_script(
@@ -87,6 +87,15 @@ class Content_Gate_Countdown_Block {
 				<span class='newspack-content-gate-countdown'>$countdown</span>
 			</div>"
 		);
+	}
+
+	/**
+	 * Whether the block is active.
+	 *
+	 * @return bool
+	 */
+	public static function is_active() {
+		return defined( 'NEWSPACK_CONTENT_GATE_COUNTDOWN_BLOCK' ) && NEWSPACK_CONTENT_GATE_COUNTDOWN_BLOCK;
 	}
 }
 
