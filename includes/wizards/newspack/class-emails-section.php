@@ -28,6 +28,9 @@ class Emails_Section extends Wizard_Section {
 	 * Register the endpoints needed for the wizard screens.
 	 */
 	public function register_rest_routes() {
+		if ( ! WooCommerce_Emails::is_active() ) {
+			return;
+		}
 		register_rest_route(
 			NEWSPACK_API_NAMESPACE,
 			'wizard/' . $this->wizard_slug . '/emails',
