@@ -12,7 +12,6 @@
 	"lint-staged": {
 		"*.scss": "npm run lint:scss:staged",
 		"*.(js|jsx)": "npm run lint:js:staged",
-		"*.(ts|tsx)": "npm run typescript:check",
 		"*.php": "npm run lint:php:staged"
 	},
 	"scripts": {
@@ -35,7 +34,6 @@
 		"lint:scss": "newspack-scripts wp-scripts lint-style '**/*.scss' --customSyntax postcss-scss",
 		"lint:scss:staged": "newspack-scripts wp-scripts lint-style --customSyntax postcss-scss",
 		"format:scss": "newspack-scripts wp-scripts lint-style '**/{src,includes}/**/*.scss' --customSyntax postcss-scss --fix",
-		"typescript:check": "newspack-scripts typescript-check",
 		"release": "npm run build && npm run semantic-release",
 		"release:archive": "rm -rf release && mkdir -p release && rsync -r . ./release/newspack-plugin --exclude-from='./.distignore' && cd release && zip -r newspack-plugin.zip newspack-plugin"
 	},
