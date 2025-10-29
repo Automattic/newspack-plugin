@@ -7,6 +7,7 @@
  */
 import { __ } from '@wordpress/i18n';
 import { FormTokenField } from '@wordpress/components';
+import type { TokenItem } from '@wordpress/components/build-types/form-token-field/types.d.ts';
 import apiFetch from '@wordpress/api-fetch';
 import { useEffect, useState, useCallback, useMemo, memo } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
@@ -96,15 +97,18 @@ function ContentRuleControlTaxonomy( { slug, value, onChange }: GateContentRuleC
 	}, [ value, savedItems, suggestions ] );
 
 	const handleChange = useCallback(
-		( newTokens: string[] ) => {
+		( newTokens: ( string | TokenItem )[] ) => {
 			const items = [ ...savedItems, ...suggestions ];
 
 			// Find items.
 			const foundItems = newTokens.map( t => {
-				const [ val ] = t.split( ':' );
-				return items.find( i => i.value === val );
+				if ( typeof t === 'string' ) {
+					const [ val ] = t.split( ':' );
+					return items.find( i => i.value === val );
+				}
+				return items.find( i => i.value === t.value );
 			} );
-			onChange( foundItems.filter( i => i )?.map( i => i.value ) );
+			onChange( foundItems.filter( i => i !== undefined )?.map( i => i.value ) );
 		},
 		[ savedItems, suggestions, onChange ]
 	);
