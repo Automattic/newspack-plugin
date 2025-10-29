@@ -23,6 +23,11 @@ import { Onboarding } from './nextdoor/onboarding';
 import { Settings } from './nextdoor/settings';
 
 function Nextdoor() {
+	const feature_flag_enabled = window.newspackSettings?.social?.nextdoor?.feature_flag_enabled || false;
+	if ( ! feature_flag_enabled ) {
+		return null;
+	}
+
 	const [ settings, setSettings ] = useState< NextdoorSettings >( {
 		client_id: '',
 		client_secret: '',

@@ -64,6 +64,7 @@ declare global {
 						value: string;
 					}[];
 					redirect_uri: string;
+					feature_flag_enabled: boolean;
 				};
 			};
 			connections: WizardTab;
