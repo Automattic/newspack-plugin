@@ -187,17 +187,6 @@ class Post_Type {
 					'panelTitle'      => __( 'Collection Details', 'newspack-plugin' ),
 				]
 			);
-
-			// Also add title validation data early so it's available when scripts are enqueued/localized.
-			$maybe_post_id = isset( $_GET['post'] ) ? absint( $_GET['post'] ) : 0; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			Enqueuer::add_data(
-				'titleValidation',
-				[
-					'ajaxUrl' => admin_url( 'admin-ajax.php' ),
-					'nonce'   => wp_create_nonce( 'newspack_validate_collection_title' ),
-					'postId'  => $maybe_post_id,
-				]
-			);
 		}
 	}
 
