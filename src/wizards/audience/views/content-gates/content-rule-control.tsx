@@ -14,6 +14,8 @@ import { CheckboxControl } from '@wordpress/components';
 import ContentRuleControlTaxonomy from './content-rule-control-taxonomy';
 import { FormTokenField } from '../../../../../packages/components/src';
 
+const noop = () => {};
+
 export default function ContentRuleControl( { slug, value, onChange }: GateContentRuleControlProps ) {
 	const rule = window.newspackAudienceContentGates.available_content_rules[ slug ];
 
@@ -35,7 +37,7 @@ export default function ContentRuleControl( { slug, value, onChange }: GateConte
 					label={ __( 'Exclusion rule', 'newspack-plugin' ) }
 					help={ __( 'Apply this rule to everything EXCEPT the items matching the above.', 'newspack-plugin' ) }
 					checked={ false }
-					onChange={ () => {} }
+					onChange={ noop }
 				/>
 			</div>
 		);
