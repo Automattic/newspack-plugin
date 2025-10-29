@@ -21,6 +21,8 @@ const debounce = ( func: ( search?: string ) => void, wait: number ) => {
 };
 
 function ContentRuleControlTaxonomy( { slug, value, onChange }: GateContentRuleControlProps ) {
+	const rule = useMemo( () => window.newspackAudienceContentGates.available_content_rules[ slug ], [ slug ] );
+
 	const [ savedItems, setSavedItems ] = useState< { value: string; label: string }[] >( [] );
 	const [ suggestions, setSuggestions ] = useState< { value: string; label: string }[] >( [] );
 
@@ -93,26 +95,27 @@ function ContentRuleControlTaxonomy( { slug, value, onChange }: GateContentRuleC
 		return [ ...new Set( result ) ];
 	}, [ value, savedItems, suggestions ] );
 
-	const rule = window.newspackAudienceContentGates.available_content_rules[ slug ];
+	const handleChange = useCallback(
+		( newTokens: string[] ) => {
+			const items = [ ...savedItems, ...suggestions ];
+
+			// Find items.
+			const foundItems = newTokens.map( t => {
+				const [ val ] = t.split( ':' );
+				return items.find( i => i.value === val );
+			} );
+			onChange( foundItems.filter( i => i )?.map( i => i.value ) );
+		},
+		[ savedItems, suggestions, onChange ]
+	);
+
 	if ( ! rule || ! Array.isArray( value ) ) {
 		return null;
 	}
 
-	const handleChange = ( newTokens: string[] ) => {
-		const items = [ ...savedItems, ...suggestions ];
-
-		// Find items.
-		const foundItems = newTokens.map( t => {
-			const [ val ] = t.split( ':' );
-			return items.find( i => i.value === val );
-		} );
-		onChange( foundItems.filter( i => i ).map( i => i.value ) );
-	};
-
 	return (
 		<FormTokenField
 			__experimentalExpandOnFocus
-			// __experimentalRenderItem={ ( { item } ) => ( item as TokenItem ).label }
 			label={ rule.name }
 			suggestions={ suggestions.map( s => `${ s.value }: ${ s.label }` ) }
 			onInputChange={ handleInputChange }
