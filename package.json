@@ -20,7 +20,7 @@
 		"semantic-release": "newspack-scripts release --files=newspack.php",
 		"clean": "rm -rf dist",
 		"build": "npm run clean && newspack-scripts wp-scripts build",
-		"start": "npm ci --legacy-peer-deps && npm run watch",
+		"start": "npm ci && npm run watch",
 		"watch": "npm run clean && newspack-scripts wp-scripts start",
 		"test": "newspack-scripts test",
 		"tsc": "tsc --watch",
