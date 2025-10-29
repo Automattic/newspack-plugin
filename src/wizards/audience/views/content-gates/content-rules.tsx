@@ -15,15 +15,12 @@ import ContentRuleControl from './content-rule-control';
 
 const availableContentRules = window.newspackAudienceContentGates.available_content_rules || {};
 
-export default function ContentRules( {
-	rules,
-	onChange,
-	onToggleRule,
-}: {
+interface ContentRulesProps {
 	rules: GateContentRule[];
 	onChange: ( rules: GateContentRule[] ) => void;
-	onToggleRule: ( slug: string ) => void;
-} ) {
+}
+
+export default function ContentRules( { rules, onChange }: ContentRulesProps ) {
 	const choices = useMemo( () => {
 		return Object.keys( availableContentRules ).map( slug => {
 			const rule = availableContentRules[ slug ];
@@ -34,6 +31,18 @@ export default function ContentRules( {
 			};
 		} );
 	}, [] );
+
+	const handleToggle = useCallback(
+		( slug: string ) => {
+			const hasRule = rules.find( r => r.slug === slug );
+			if ( hasRule ) {
+				onChange( rules.filter( r => r.slug !== slug ) );
+			} else {
+				onChange( [ ...rules, { slug, value: availableContentRules[ slug ].default } ] );
+			}
+		},
+		[ rules, onChange ]
+	);
 
 	const handleChange = useCallback(
 		( slug: string ) => ( v: GateContentRuleValue ) => {
@@ -51,7 +60,7 @@ export default function ContentRules( {
 			noMargin={ true }
 			actionContent={
 				<DropdownMenu icon={ shield } text={ __( 'Manage Rules', 'newspack-plugin' ) } label={ __( 'Manage Rules', 'newspack-plugin' ) }>
-					{ () => <RulesChoices choices={ choices } onSelect={ onToggleRule } value={ rules.map( r => r.slug ) } /> }
+					{ () => <RulesChoices choices={ choices } onSelect={ handleToggle } value={ rules.map( r => r.slug ) } /> }
 				</DropdownMenu>
 			}
 		>

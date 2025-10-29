@@ -15,15 +15,12 @@ import AccessRuleControl from './access-rule-control';
 
 const availableAccessRules = window.newspackAudienceContentGates.available_access_rules || {};
 
-export default function AccessRules( {
-	rules,
-	onChange,
-	onToggleRule,
-}: {
+interface AccessRulesProps {
 	rules: GateAccessRule[];
 	onChange: ( rules: GateAccessRule[] ) => void;
-	onToggleRule: ( slug: string ) => void;
-} ) {
+}
+
+export default function AccessRules( { rules, onChange }: AccessRulesProps ) {
 	const isRuleDisabled = useCallback(
 		( slug: string ): boolean => {
 			const conflicts = availableAccessRules[ slug ].conflicts;
@@ -48,6 +45,18 @@ export default function AccessRules( {
 		} );
 	}, [ rules, isRuleDisabled ] );
 
+	const handleToggle = useCallback(
+		( slug: string ) => {
+			const hasRule = rules.find( r => r.slug === slug );
+			if ( hasRule ) {
+				onChange( rules.filter( r => r.slug !== slug ) );
+			} else {
+				onChange( [ ...rules, { slug, value: availableAccessRules[ slug ].default } ] );
+			}
+		},
+		[ rules, onChange ]
+	);
+
 	const handleChange = useCallback(
 		( slug: string ) => ( v: GateAccessRuleValue ) => {
 			onChange( rules.map( r => ( r.slug === slug ? { ...r, value: v } : r ) ) );
@@ -64,7 +73,7 @@ export default function AccessRules( {
 			noMargin={ true }
 			actionContent={
 				<DropdownMenu icon={ shield } text={ __( 'Manage Rules', 'newspack-plugin' ) } label={ __( 'Manage Rules', 'newspack-plugin' ) }>
-					{ () => <RulesChoices choices={ choices } onSelect={ onToggleRule } value={ rules.map( r => r.slug ) } /> }
+					{ () => <RulesChoices choices={ choices } onSelect={ handleToggle } value={ rules.map( r => r.slug ) } /> }
 				</DropdownMenu>
 			}
 		>

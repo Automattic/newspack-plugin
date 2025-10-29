@@ -13,9 +13,6 @@ import { Grid, Card, SectionHeader } from '../../../../../packages/components/sr
 import AccessRules from './access-rules';
 import ContentRules from './content-rules';
 
-const availableAccessRules = window.newspackAudienceContentGates.available_access_rules || {};
-const availableContentRules = window.newspackAudienceContentGates.available_content_rules || {};
-
 type ContentGateSettingsProps = {
 	gate: Gate;
 	onDelete: ( id: number ) => void;
@@ -25,14 +22,6 @@ export default function ContentGateSettings( { gate, onDelete }: ContentGateSett
 	const [ accessRules, setAccessRules ] = useState< GateAccessRule[] >( gate.access_rules );
 	const [ contentRules, setContentRules ] = useState< GateContentRule[] >( gate.content_rules );
 	const [ metering, setMetering ] = useState< Metering >( gate.metering );
-
-	const handleToggleRule = useCallback( ( slug: string, type: 'access' | 'content' = 'access' ) => {
-		if ( type === 'access' ) {
-			setAccessRules( prevRules => [ ...prevRules, { slug, value: availableAccessRules[ slug ].default } ] );
-		} else {
-			setContentRules( prevRules => [ ...prevRules, { slug, value: availableContentRules[ slug ].default } ] );
-		}
-	}, [] );
 
 	const handleSave = useCallback( () => {
 		const _gate = {
@@ -52,8 +41,8 @@ export default function ContentGateSettings( { gate, onDelete }: ContentGateSett
 
 	return (
 		<Fragment>
-			<AccessRules rules={ accessRules } onChange={ setAccessRules } onToggleRule={ slug => handleToggleRule( slug, 'access' ) } />
-			<ContentRules rules={ contentRules } onChange={ setContentRules } onToggleRule={ slug => handleToggleRule( slug, 'content' ) } />
+			<AccessRules rules={ accessRules } onChange={ setAccessRules } />
+			<ContentRules rules={ contentRules } onChange={ setContentRules } />
 			<Card noBorder>
 				<SectionHeader heading={ 3 } title={ __( 'Metering', 'newspack-plugin' ) } noMargin />
 				<Card noBorder>
