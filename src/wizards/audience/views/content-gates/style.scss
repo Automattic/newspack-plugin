@@ -1,0 +1,12 @@
+/**
+ * Content gates group
+ */
+
+@use "~@wordpress/base-styles/colors" as wp-colors;
+
+.newspack-content-gates {
+	&__title {
+		margin: 0;
+		min-width: 200px !important;
+	}
+}

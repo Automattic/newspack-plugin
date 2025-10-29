@@ -1,3 +1,17 @@
+## [6.21.4](https://github.com/Automattic/newspack-plugin/compare/v6.21.3...v6.21.4) (2025-10-27)
+
+
+### Bug Fixes
+
+* add corrections on earlier the_content filter ([#4258](https://github.com/Automattic/newspack-plugin/issues/4258)) ([95c584a](https://github.com/Automattic/newspack-plugin/commit/95c584a81b8a811a57de1616b5aec716895a88e4))
+
+## [6.21.3](https://github.com/Automattic/newspack-plugin/compare/v6.21.2...v6.21.3) (2025-10-27)
+
+
+### Bug Fixes
+
+* hide dummy email ([#4255](https://github.com/Automattic/newspack-plugin/issues/4255)) ([d302e20](https://github.com/Automattic/newspack-plugin/commit/d302e20aff7748ce8fa54be900cc92624fbddbdb))
+
 ## [6.21.2](https://github.com/Automattic/newspack-plugin/compare/v6.21.1...v6.21.2) (2025-10-16)
 
 

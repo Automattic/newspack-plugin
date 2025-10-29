@@ -9,9 +9,6 @@ namespace Newspack;
 
 defined( 'ABSPATH' ) || exit;
 
-use Newspack\Memberships;
-use Newspack\Memberships\Metering;
-
 /**
  * Content Gate Countdown Box Block class.
  */
@@ -44,7 +41,11 @@ class Content_Gate_Countdown_Box_Block {
 	 * @return string The block HTML.
 	 */
 	public static function render_block( array $attributes, string $content ) {
-		if ( ! Memberships::is_post_restricted() || ! Metering::is_metering() ) {
+		if ( ! Content_Gate::is_post_restricted() || ! Metering::is_metering() ) {
+			return '';
+		}
+
+		if ( Content_Gate::is_gated() ) {
 			return '';
 		}
 

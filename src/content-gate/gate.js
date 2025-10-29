@@ -1,4 +1,4 @@
-/* globals newspack_memberships_gate */
+/* globals newspack_content_gate */
 /**
  * Internal dependencies
  */
@@ -33,7 +33,7 @@ function domReady( callback ) {
 // Gate info to send with each event.
 // This is mutable so that its properties can be carried from event to event in gate interaction flows.
 const gateInfo = {
-	...newspack_memberships_gate.metadata,
+	...newspack_content_gate.metadata,
 	referrer: window.location.pathname,
 };
 
@@ -69,7 +69,7 @@ function initReloadHandler() {
 					debugLog( 'log', '[Gate] Valid action detected:', lastActivity.action );
 					reload = true;
 					// Add a CSS class to the body so we can keep the overlay content gate hidden while the page refreshes.
-					document.body.classList.add( 'newspack-memberships__gate-passed' );
+					document.body.classList.add( 'newspack-content-gate__gate-passed' );
 				} else {
 					reload = false;
 					handleDismissed();
@@ -119,7 +119,7 @@ function addFormInputs( gate ) {
 			const input = document.createElement( 'input' );
 			input.type = 'hidden';
 			input.name = 'memberships_content_gate';
-			input.value = newspack_memberships_gate.metadata?.gate_post_id || '1';
+			input.value = newspack_content_gate.metadata?.gate_post_id || '1';
 			form.appendChild( input );
 			form.addEventListener( 'submit', evt => handleFormSubmission( evt, gate ) );
 		}
@@ -266,13 +266,13 @@ function initOverlay( gate ) {
 }
 
 domReady( function () {
-	const gate = document.querySelector( '.newspack-memberships__gate' );
+	const gate = document.querySelector( '.newspack-content-gate__gate' );
 	if ( ! gate ) {
 		return;
 	}
 
 	initReloadHandler();
-	if ( gate.classList.contains( 'newspack-memberships__overlay-gate' ) ) {
+	if ( gate.classList.contains( 'newspack-content-gate__overlay-gate' ) ) {
 		initOverlay( gate );
 	} else {
 		// Seen event for inline gate.

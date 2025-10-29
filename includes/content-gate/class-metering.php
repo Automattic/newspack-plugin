@@ -1,21 +1,18 @@
 <?php
 /**
- * WooCommerce Memberships Metering.
+ * WooCommerce Content Gate Metering.
  *
  * @package Newspack
  */
 
-namespace Newspack\Memberships;
-
-use Newspack\Newspack;
-use Newspack\Memberships;
+namespace Newspack;
 
 /**
- * WooCommerce Memberships Metering class.
+ * WooCommerce Content Gate Metering class.
  */
 class Metering {
 
-	const METERING_META_KEY = 'np_memberships_metering';
+	const METERING_META_KEY = 'np_content_metering';
 
 	/**
 	 * Article view activity to be handled by frontend metering.
@@ -35,20 +32,42 @@ class Metering {
 	 * Initialize hooks.
 	 */
 	public static function init() {
+		add_filter( 'newspack_content_gate_restrict_post', [ __CLASS__, 'restrict_post' ] );
 		add_action( 'init', [ __CLASS__, 'register_meta' ] );
-		add_action( 'wp', [ __CLASS__, 'handle_restriction' ], 5 ); // Before Woo Memberships' restriction handler, which was lowered to 9 in 1.27.2.
 		add_action( 'wp_footer', [ __CLASS__, 'enqueue_scripts' ] );
+		add_action( 'wp_footer', [ __CLASS__, 'render_frontend_metering_gate' ] );
 		add_filter( 'newspack_reader_activity_article_view', [ __CLASS__, 'get_article_view' ], 20 );
+	}
+
+	/**
+	 * Whether to restrict the post.
+	 *
+	 * @param bool $restrict Whether to restrict the post.
+	 *
+	 * @return bool
+	 */
+	public static function restrict_post( $restrict ) {
+		if ( self::is_metering() ) {
+			return false;
+		}
+		return $restrict;
+	}
+
+	/**
+	 * Render the frontend metering gate.
+	 */
+	public static function render_frontend_metering_gate() {
+		if ( ! \is_singular() || ! Content_Gate::is_post_restricted() || ! self::is_frontend_metering() ) {
+			return;
+		}
+		Content_Gate::mark_gate_as_rendered();
+		echo '<div style="display:none">' . Content_Gate::get_inline_gate_html() . '</div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	}
 
 	/**
 	 * Register gate meta.
 	 */
 	public static function register_meta() {
-		// Bail if Woo Memberships is not active.
-		if ( ! class_exists( 'WC_Memberships' ) ) {
-			return false;
-		}
 		$meta = [
 			'metering'                  => [
 				'type'    => 'boolean',
@@ -72,7 +91,7 @@ class Metering {
 				'post',
 				$key,
 				[
-					'object_subtype' => Memberships::GATE_CPT,
+					'object_subtype' => Content_Gate::GATE_CPT,
 					'show_in_rest'   => true,
 					'type'           => $config['type'],
 					'default'        => $config['default'],
@@ -83,22 +102,53 @@ class Metering {
 	}
 
 	/**
+	 * Get metering settings for a gate.
+	 *
+	 * @param int $gate_id Gate ID.
+	 *
+	 * @return array Metering settings.
+	 */
+	public static function get_metering_settings( $gate_id ) {
+		return [
+			'enabled'          => (bool) \get_post_meta( $gate_id, 'metering', true ),
+			'anonymous_count'  => \get_post_meta( $gate_id, 'metering_anonymous_count', true ),
+			'registered_count' => \get_post_meta( $gate_id, 'metering_registered_count', true ),
+			'period'           => \get_post_meta( $gate_id, 'metering_period', true ),
+		];
+	}
+
+	/**
+	 * Update metering settings for a gate.
+	 *
+	 * @param int   $gate_id  Gate ID.
+	 * @param array $settings Metering settings.
+	 *
+	 * @return void
+	 */
+	public static function update_metering_settings( $gate_id, $settings ) {
+		\update_post_meta( $gate_id, 'metering', $settings['enabled'] );
+		\update_post_meta( $gate_id, 'metering_anonymous_count', $settings['anonymous_count'] );
+		\update_post_meta( $gate_id, 'metering_registered_count', $settings['registered_count'] );
+		\update_post_meta( $gate_id, 'metering_period', $settings['period'] );
+	}
+
+	/**
 	 * Enqueue frontend scripts and styles for gated content.
 	 */
 	public static function enqueue_scripts() {
-		if ( ! Memberships::has_gate() ) {
+		if ( ! Content_Gate::has_gate() ) {
 			return;
 		}
-		if ( ! \is_singular() || ! Memberships::is_post_restricted() || ! self::is_frontend_metering() ) {
+		if ( ! \is_singular() || ! Content_Gate::is_post_restricted() || ! self::is_frontend_metering() ) {
 			return;
 		}
-		$gate_post_id = Memberships::get_gate_post_id();
-		$handle       = 'newspack-memberships-gate-metering';
+		$gate_post_id = Content_Gate::get_gate_post_id();
+		$handle       = 'newspack-content-gate-metering';
 		\wp_enqueue_script(
 			$handle,
-			Newspack::plugin_url() . '/dist/memberships-gate-metering.js',
+			Newspack::plugin_url() . '/dist/content-gate-metering.js',
 			[],
-			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/dist/memberships-gate-metering.js' ),
+			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/dist/content-gate-metering.js' ),
 			true
 		);
 		\wp_localize_script(
@@ -112,41 +162,9 @@ class Metering {
 				'gate_id'            => $gate_post_id,
 				'post_id'            => get_the_ID(),
 				'article_view'       => self::$article_view,
-				'excerpt'            => Memberships::get_restricted_post_excerpt( get_post() ),
+				'excerpt'            => apply_filters( 'newspack_gate_content', Content_Gate::get_restricted_post_excerpt( get_post() ) ),
 			]
 		);
-	}
-
-	/**
-	 * Custom handling of content restriction when using metering.
-	 */
-	public static function handle_restriction() {
-		if ( ! class_exists( 'WC_Memberships' ) ) {
-			return;
-		}
-		if ( ! \is_singular() || ! Memberships::is_post_restricted() ) {
-			return;
-		}
-
-		// Remove the default restriction handler from 'SkyVerge\WooCommerce\Memberships\Restrictions\Posts::restrict_post'.
-		if ( self::is_metering() ) {
-			$restriction_instance = \wc_memberships()->get_restrictions_instance()->get_posts_restrictions_instance();
-			\remove_action( 'wp', spl_object_hash( $restriction_instance ) . 'handle_restriction_modes', 9 );
-			\remove_action( 'wp', spl_object_hash( $restriction_instance ) . 'handle_restriction_modes' ); // For compatibility with Woo Memberships < 1.27.2.
-			\add_filter( 'wc_memberships_restrictable_comment_types', '__return_empty_array' );
-		}
-
-		// Add inline gate to the footer so it can be handled by the frontend.
-		if ( self::is_frontend_metering() ) {
-			\add_action(
-				'wp_footer',
-				function() {
-					Memberships::mark_gate_as_rendered();
-					echo '<div style="display:none">' . Memberships::get_inline_gate_content() . '</div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-				},
-				1
-			);
-		}
 	}
 
 	/**
@@ -155,7 +173,7 @@ class Metering {
 	 * @return int Timestamp of the expiration time.
 	 */
 	private static function get_expiration_time() {
-		$period = \get_post_meta( Memberships::get_gate_post_id(), 'metering_period', true );
+		$period = \get_post_meta( Content_Gate::get_gate_post_id(), 'metering_period', true );
 		switch ( $period ) {
 			case 'day':
 				return strtotime( 'tomorrow' );
@@ -180,11 +198,11 @@ class Metering {
 		}
 
 		// Bail if not in a singular restricted post with available gate.
-		if ( ! \is_singular() || ! Memberships::has_gate() || ! Memberships::is_post_restricted() ) {
+		if ( ! \is_singular() || ! Content_Gate::has_gate() || ! Content_Gate::is_post_restricted() ) {
 			return false;
 		}
 
-		$gate_post_id    = Memberships::get_gate_post_id();
+		$gate_post_id    = Content_Gate::get_gate_post_id();
 		$metering        = \get_post_meta( $gate_post_id, 'metering', true );
 		$anonymous_count = \get_post_meta( $gate_post_id, 'metering_anonymous_count', true );
 
@@ -195,7 +213,7 @@ class Metering {
 		 *
 		 * @param bool $is_frontend_metering Whether to use the frontend metering strategy.
 		 */
-		return apply_filters( 'newspack_memberships_is_frontend_metering', $is_frontend_metering );
+		return apply_filters( 'newspack_content_gate_is_frontend_metering', $is_frontend_metering );
 	}
 
 	/**
@@ -215,8 +233,9 @@ class Metering {
 			return false;
 		}
 
-		$gate_post_id = Memberships::get_gate_post_id();
+		$gate_post_id = Content_Gate::get_gate_post_id();
 		$metering     = \get_post_meta( $gate_post_id, 'metering', true );
+		$priority     = \get_post_meta( $gate_post_id, 'gate_priority', true );
 
 		// Bail if metering is not enabled.
 		if ( ! $metering ) {
@@ -228,7 +247,8 @@ class Metering {
 			return self::$logged_in_metering_cache[ $post_id ];
 		}
 
-		$user_meta_key = self::METERING_META_KEY . '_' . $gate_post_id;
+		// Aggregate metering by gate priority, if available.
+		$user_meta_key = self::METERING_META_KEY . '_' . ( $priority ? $priority : $gate_post_id );
 
 		$updated_user_data  = false;
 		$user_metering_data = \get_user_meta( get_current_user_id(), $user_meta_key, true );
@@ -271,7 +291,7 @@ class Metering {
 		 * @param bool $is_logged_in_metering_allowed Whether to allow content rendering through metering for logged in user
 		 * @param int  $post_id                       Post ID.
 		 */
-		self::$logged_in_metering_cache[ $post_id ] = apply_filters( 'newspack_memberships_is_logged_in_metering_allowed', $allowed, $post_id );
+		self::$logged_in_metering_cache[ $post_id ] = apply_filters( 'newspack_content_gate_is_logged_in_metering_allowed', $allowed, $post_id );
 
 		return self::$logged_in_metering_cache[ $post_id ];
 	}
@@ -324,7 +344,7 @@ class Metering {
 			return 0;
 		}
 
-		$gate_post_id  = Memberships::get_gate_post_id();
+		$gate_post_id  = Content_Gate::get_gate_post_id();
 		$meta_key      = self::METERING_META_KEY . '_' . $gate_post_id;
 		$metering_data = \get_user_meta( get_current_user_id(), $meta_key, true );
 		if ( ! is_array( $metering_data ) || ! isset( $metering_data['content'] ) ) {
@@ -341,7 +361,7 @@ class Metering {
 	 * @return int|boolean Total number of metered views if metering is enabled, otherwise false.
 	 */
 	public static function get_total_metered_views( $is_logged_in = false ) {
-		$gate_post_id = Memberships::get_gate_post_id( get_the_ID() );
+		$gate_post_id = Content_Gate::get_gate_post_id( get_the_ID() );
 		if ( ! $gate_post_id ) {
 			return false;
 		}
