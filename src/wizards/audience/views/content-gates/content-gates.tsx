@@ -157,7 +157,7 @@ const ContentGates = () => {
 							onDragCallback={ reorderGates }
 							disabled={ isInFlight }
 						>
-							<ContentGateSettings value={ gate } onDelete={ handleDeleteGate } />
+							<ContentGateSettings gate={ gate } onDelete={ handleDeleteGate } />
 						</WizardsActionCard>
 					);
 				} ) }
