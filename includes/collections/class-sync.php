@@ -208,6 +208,12 @@ class Sync {
 			return;
 		}
 
+		// Check for title validation error and don't create shadow taxonomy if title is a duplicate.
+		$validation_error = get_post_meta( $post_id, '_newspack_title_validation_error', true );
+		if ( ! empty( $validation_error ) ) {
+			return;
+		}
+
 		$linked_term_id = self::get_term_linked_to_collection( $post_id );
 
 		if ( $linked_term_id ) {
