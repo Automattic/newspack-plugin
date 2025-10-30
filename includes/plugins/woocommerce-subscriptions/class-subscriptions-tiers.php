@@ -34,7 +34,7 @@ class Subscriptions_Tiers {
 		add_filter( 'option_woocommerce_subscriptions_order_button_text', [ __CLASS__, 'order_button_text' ], 9 );
 
 		// Primary product rendering.
-		add_action( 'wp_footer', [ __CLASS__, 'print_primary_product_modal' ] );
+		add_action( 'wp_footer', [ __CLASS__, 'print_product_modal' ] );
 		add_filter( 'newspack_popups_assess_has_disabled_popups', [ __CLASS__, 'disable_popups' ] );
 
 		// Unhook Upgrade/Downgrade switch direction text.
@@ -91,6 +91,20 @@ class Subscriptions_Tiers {
 		 * @param string $query_param The URL query parameter.
 		 */
 		return apply_filters( 'newspack_subscriptions_upgrade_subscription_query_param', 'upgrade-subscription' );
+	}
+
+	/**
+	 * Get the URL for triggering the tiers modal for a given product.
+	 *
+	 * @return string The URL for triggering the tiers modal.
+	 */
+	public static function get_tiers_modal_query_param() {
+		/**
+		 * Filters the URL query parameter that triggers the tiers modal.
+		 *
+		 * @param string $query_param The URL query parameter.
+		 */
+		return apply_filters( 'newspack_subscriptions_purchase_product_query_param', 'tiers-modal' );
 	}
 
 	/**
@@ -608,7 +622,7 @@ class Subscriptions_Tiers {
 
 		$should_render_tabs = ! $is_single_tier || $is_nyp;
 		?>
-		<form class="newspack__subscription-tiers__form <?php echo esc_attr( $is_nyp ? 'nyp' : '' ); ?>" target="newspack_modal_checkout_iframe" data-title="<?php echo esc_attr( $title ); ?>">
+		<form class="newspack__subscription-tiers__form <?php echo esc_attr( $is_nyp ? 'nyp' : '' ); ?>" target="newspack_modal_checkout_iframe" data-title="<?php echo esc_attr( $title ); ?>" data-product-id="<?php echo esc_attr( $product ? $product->get_id() : '' ); ?>">
 			<?php if ( $should_render_tabs ) : ?>
 				<div class="newspack-ui__segmented-control">
 					<?php
@@ -651,6 +665,13 @@ class Subscriptions_Tiers {
 
 			<button type="submit" class="newspack-ui__button newspack-ui__button--primary newspack-ui__button--wide"><?php echo esc_html( $button_label ); ?></button>
 			<button type="button" class="newspack-ui__button newspack-ui__button--ghost newspack-ui__button--wide newspack-ui__modal__cancel"><?php _e( 'Cancel', 'newspack-plugin' ); ?></button>
+
+			<?php if ( ! is_user_logged_in() ) : ?>
+				<p>
+					<?php _e( 'Already have an account?', 'newspack-plugin' ); ?>
+					<a href="<?php echo esc_url( wc_get_account_endpoint_url( 'edit-account' ) ); ?>" class="signin-link"><?php _e( 'Sign in', 'newspack-plugin' ); ?></a>
+				</p>
+			<?php endif; ?>
 		</form>
 		<?php
 	}
@@ -709,13 +730,22 @@ class Subscriptions_Tiers {
 	/**
 	 * Render primary product modal.
 	 */
-	public static function print_primary_product_modal() {
-		$query_param = self::get_upgrade_subscription_query_param();
-		if ( empty( $_GET[ $query_param ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+	public static function print_product_modal() {
+		$upgrade_query_param = self::get_upgrade_subscription_query_param();
+		$tiers_query_param   = self::get_tiers_modal_query_param();
+		if ( empty( $_GET[ $upgrade_query_param ] ) && ! isset( $_GET[ $tiers_query_param ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			return;
 		}
 
-		$product = self::get_primary_subscription_tier_product();
+		if ( ! empty( $_GET[ $tiers_query_param ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			$product = wc_get_product( absint( $_GET[ $tiers_query_param ] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			if ( ! $product ) {
+				return;
+			}
+		} else {
+			$product = self::get_primary_subscription_tier_product();
+		}
+
 		if ( ! $product ) {
 			return;
 		}
@@ -748,14 +778,7 @@ class Subscriptions_Tiers {
 				];
 			}
 		}
-
-		$title = sanitize_text_field( $_GET[ $query_param ] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		// If the query param value is "1", let the modal decide the title.
-		if ( $title === '1' ) {
-			$title = null;
-		}
-
-		self::render_modal( $product, $title, $title, $switch_data, 'open' );
+		self::render_modal( $product, null, null, $switch_data, 'open' );
 	}
 
 	/**

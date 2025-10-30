@@ -24,6 +24,8 @@ function handleCheckoutClose( completed ) {
 	} );
 }
 
+window.newspackRAS = window.newspackRAS || [];
+
 export default function init() {
 	domReady( () => {
 		const forms = document.querySelectorAll( '.newspack__subscription-tiers__form' );
@@ -135,12 +137,47 @@ export default function init() {
 					onClose: () => handleCheckoutClose( completed ),
 				} );
 			} );
+
+			const signinLink = form.querySelector( '.signin-link' );
+			if ( signinLink ) {
+				signinLink.addEventListener( 'click', ev => {
+					ev.preventDefault();
+					if ( modal ) {
+						modal.setAttribute( 'data-state', 'closed' );
+					}
+					window.newspackRAS.push( ras => {
+						ras.openAuthModal( {
+							labels: {
+								signin: {
+									title: null,
+								},
+								register: {
+									title: null,
+								},
+							},
+							skipNewslettersSignup: true,
+							onSuccess: () => {
+								// Append the 'tiers-modal' query param to the URL.
+								const params = new URLSearchParams( window.location.search );
+								params.set( 'tiers-modal', form.dataset.productId || '' );
+								window.location.href = window.location.pathname + '?' + params.toString();
+							},
+							onDismiss: () => {
+								if ( modal ) {
+									modal.setAttribute( 'data-state', 'open' );
+								}
+							},
+						} );
+					} );
+				} );
+			}
 		} );
 
 		// Remove the `upgrade-subscription` query param from the URL.
 		const params = new URLSearchParams( window.location.search );
-		if ( params.get( 'upgrade-subscription' ) ) {
+		if ( params.get( 'upgrade-subscription' ) || params.get( 'tiers-modal' ) ) {
 			params.delete( 'upgrade-subscription' );
+			params.delete( 'tiers-modal' );
 			const newQueryString = params.toString() ? '?' + params.toString() : '';
 			window.history.replaceState( {}, '', window.location.pathname + newQueryString );
 		}
