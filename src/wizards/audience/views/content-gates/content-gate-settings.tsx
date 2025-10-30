@@ -1,7 +1,6 @@
 /**
  * WordPress dependencies.
  */
-import apiFetch from '@wordpress/api-fetch';
 import { Fragment, useState, useCallback } from '@wordpress/element';
 import { SelectControl, CheckboxControl, TextControl, Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
@@ -12,6 +11,8 @@ import { __ } from '@wordpress/i18n';
 import { Grid, Card, SectionHeader } from '../../../../../packages/components/src';
 import AccessRules from './access-rules';
 import ContentRules from './content-rules';
+import { AUDIENCE_CONTENT_GATES_WIZARD_SLUG } from './consts';
+import { useWizardApiFetch } from '../../../hooks/use-wizard-api-fetch';
 
 type ContentGateSettingsProps = {
 	gate: Gate;
@@ -19,6 +20,7 @@ type ContentGateSettingsProps = {
 };
 
 export default function ContentGateSettings( { gate, onDelete }: ContentGateSettingsProps ) {
+	const { wizardApiFetch } = useWizardApiFetch( AUDIENCE_CONTENT_GATES_WIZARD_SLUG );
 	const [ accessRules, setAccessRules ] = useState< GateAccessRule[] >( gate.access_rules );
 	const [ contentRules, setContentRules ] = useState< GateContentRule[] >( gate.content_rules );
 	const [ metering, setMetering ] = useState< Metering >( gate.metering );
@@ -30,11 +32,18 @@ export default function ContentGateSettings( { gate, onDelete }: ContentGateSett
 			content_rules: contentRules,
 			metering,
 		};
-		apiFetch< Gate >( {
-			path: `/newspack/v1/content-gate/${ gate.id }`,
-			method: 'POST',
-			data: { gate: _gate },
-		} ).catch( error => console.error( error ) ); // eslint-disable-line no-console
+		wizardApiFetch< Gate >(
+			{
+				path: `/newspack/v1/wizard/${ AUDIENCE_CONTENT_GATES_WIZARD_SLUG }/${ gate.id }`,
+				method: 'POST',
+				data: { gate: _gate },
+			},
+			{
+				onError( error ) {
+					console.error( error ); // eslint-disable-line no-console
+				},
+			}
+		);
 	}, [ gate.id, accessRules, contentRules, metering ] );
 
 	const handleDelete = useCallback( () => onDelete( gate.id ), [ gate.id, onDelete ] );

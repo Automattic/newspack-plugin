@@ -14,11 +14,16 @@
 			min-width: 200px !important;
 		}
 		&__gate {
-			> .newspack-action-card__region-children > * + * {
-				margin-top: 32px !important;
-			}
-			> .newspack-action-card__region-children > *:last-child {
-				margin-bottom: 0 !important;
+			> .newspack-action-card__region-children {
+				> *:first-child {
+					margin-top: 0 !important;
+				}
+				> *:last-child {
+					margin-bottom: 0 !important;
+				}
+				> * + * {
+					margin-top: 32px !important;
+				}
 			}
 		}
 		&__content-rule-control {
