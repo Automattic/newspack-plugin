@@ -12,7 +12,7 @@ import { ExternalLink } from '@wordpress/components';
 /**
  * Internal dependencies
  */
-import { ActionCard, Button, Card, Grid, Notice, SelectControl, TextControl } from '../../../../../../../components/src';
+import { ActionCard, Button, Card, Grid, Notice, SelectControl, TextControl } from '../../../../../../../../packages/components/src';
 import { OnboardingProps } from '../types';
 
 /**
