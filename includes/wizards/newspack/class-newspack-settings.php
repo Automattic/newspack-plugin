@@ -95,10 +95,9 @@ class Newspack_Settings extends Wizard {
 			'social'            => [
 				'label'    => __( 'Social', 'newspack-plugin' ),
 				'nextdoor' => [
-					'available_roles'      => Nextdoor::get_available_roles(),
-					'country_options'      => Nextdoor::get_available_countries(),
-					'redirect_uri'         => Nextdoor::get_redirect_uri(),
-					'feature_flag_enabled' => defined( 'NEWSPACK_ENABLE_NEXTDOOR_INTEGRATION' ) && NEWSPACK_ENABLE_NEXTDOOR_INTEGRATION,
+					'available_roles' => Nextdoor::get_available_roles(),
+					'country_options' => Nextdoor::get_available_countries(),
+					'redirect_uri'    => Nextdoor::get_redirect_uri(),
 				],
 			],
 			'syndication'       => [

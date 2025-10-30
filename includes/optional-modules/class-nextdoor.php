@@ -34,11 +34,6 @@ class Nextdoor {
 	 * Initialize the module.
 	 */
 	public static function init() {
-		// Feature flag it for now.
-		if ( ! defined( 'NEWSPACK_ENABLE_NEXTDOOR_INTEGRATION' ) || ! NEWSPACK_ENABLE_NEXTDOOR_INTEGRATION ) {
-			return;
-		}
-
 		// Only initialize if the module is active.
 		if ( ! Optional_Modules::is_optional_module_active( 'nextdoor' ) ) {
 			return;
