@@ -13,7 +13,7 @@ import { CheckboxControl, CardHeader, __experimentalHeading as Heading, CardBody
 /**
  * Internal dependencies
  */
-import { Button, Card, Grid, Notice } from '../../../../../../../components/src';
+import { Button, Card, Grid, Notice } from '../../../../../../../../packages/components/src';
 import { SettingsProps } from '../types';
 
 /**
