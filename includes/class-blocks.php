@@ -10,6 +10,7 @@ namespace Newspack;
 defined( 'ABSPATH' ) || exit;
 
 use Newspack\Optional_Modules\Collections;
+use Newspack\Content_Gate_Countdown_Block;
 
 /**
  * Newspack Blocks Class.
@@ -52,18 +53,19 @@ final class Blocks {
 			true
 		);
 		$script_data = [
-			'has_newsletters'         => class_exists( 'Newspack_Newsletters_Subscription' ),
-			'has_reader_activation'   => Reader_Activation::is_enabled(),
-			'newsletters_url'         => Wizards::get_wizard( 'newsletters' )->newsletters_settings_url(),
-			'has_google_oauth'        => Google_OAuth::is_oauth_configured(),
-			'google_logo_svg'         => \Newspack\Newspack_UI_Icons::get_svg( 'google' ),
-			'reader_activation_terms' => Reader_Activation::get_setting( 'terms_text' ),
-			'reader_activation_url'   => Reader_Activation::get_setting( 'terms_url' ),
-			'has_recaptcha'           => Recaptcha::can_use_captcha(),
-			'recaptcha_url'           => admin_url( 'admin.php?page=newspack-settings' ),
-			'corrections_enabled'     => wp_is_block_theme() && class_exists( 'Newspack\Corrections' ),
-			'collections_enabled'     => Collections::is_module_active(),
-			'has_memberships'         => Memberships::is_active(),
+			'has_newsletters'                  => class_exists( 'Newspack_Newsletters_Subscription' ),
+			'has_reader_activation'            => Reader_Activation::is_enabled(),
+			'newsletters_url'                  => Wizards::get_wizard( 'newsletters' )->newsletters_settings_url(),
+			'has_google_oauth'                 => Google_OAuth::is_oauth_configured(),
+			'google_logo_svg'                  => \Newspack\Newspack_UI_Icons::get_svg( 'google' ),
+			'reader_activation_terms'          => Reader_Activation::get_setting( 'terms_text' ),
+			'reader_activation_url'            => Reader_Activation::get_setting( 'terms_url' ),
+			'has_recaptcha'                    => Recaptcha::can_use_captcha(),
+			'recaptcha_url'                    => admin_url( 'admin.php?page=newspack-settings' ),
+			'corrections_enabled'              => wp_is_block_theme() && class_exists( 'Newspack\Corrections' ),
+			'collections_enabled'              => Collections::is_module_active(),
+			'has_memberships'                  => Memberships::is_active(),
+			'is_content_gate_countdown_active' => Content_Gate_Countdown_Block::is_active(),
 		];
 		if ( $script_data['has_memberships'] ) {
 			$script_data['content_gate_data'] = [
