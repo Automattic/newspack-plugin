@@ -393,8 +393,10 @@ function attachAuthCookiesListener() {
  * Set the reader as newsletter subscriber once a newsletter form is submitted.
  */
 function attachNewsletterFormListener() {
-	const newspackForms = [ '.newspack-newsletters-subscribe', '.newspack-subscribe-form' ];
-	const thirdPartyForms = [ '.mc4wp-form' ];
+	const newspackForms = [ '.newspack-newsletters-subscribe' ];
+
+	// newspack-subscribe-form is a generic class that can be added to any 3rd party form. Once it's submitted, we consider the reader a newsletter subscriber.
+	const thirdPartyForms = [ '.mc4wp-form', '.newspack-subscribe-form' ];
 
 	const attachHandler = ( el, eventToListenTo = 'submit' ) => {
 		const form = 'FORM' === el.tagName ? el : el.querySelector( 'form' );
