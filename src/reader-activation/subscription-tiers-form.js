@@ -158,14 +158,6 @@ export default function init() {
 					}
 					window.newspackRAS.push( ras => {
 						ras.openAuthModal( {
-							labels: {
-								signin: {
-									title: window.newspack_reader_activation_labels.signin.title,
-								},
-								register: {
-									title: window.newspack_reader_activation_labels.register.title,
-								},
-							},
 							skipNewslettersSignup: true,
 							onSuccess: () => {
 								// Append the 'tiers-modal' query param to the URL.

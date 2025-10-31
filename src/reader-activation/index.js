@@ -155,10 +155,10 @@ export function openAuthModal( config = {} ) {
 			skipNewslettersSignup: false,
 			labels: {
 				signin: {
-					title: null,
+					title: window.newspack_reader_activation_labels.signin.title,
 				},
 				register: {
-					title: null,
+					title: window.newspack_reader_activation_labels.register.title,
 				},
 			},
 			content: null,
