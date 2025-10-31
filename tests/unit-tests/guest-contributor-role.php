@@ -95,4 +95,228 @@ class Newspack_Test_Guest_Contributor_Role extends WP_UnitTestCase {
 			'Function should run successfully even if post apparently has no author. This can happen with co-authors-plus Guest Authors.'
 		);
 	}
+
+	/**
+	 * Test should_display_coauthor_email returns false for guest contributors with dummy emails.
+	 */
+	public function test_should_display_coauthor_email_with_dummy_email() {
+		$email_domain = Guest_Contributor_Role::get_dummy_email_domain();
+		$user_id = \wp_insert_user(
+			[
+				'user_login' => 'guest-coauthor-1',
+				'user_pass'  => '123',
+				'user_email' => 'guest-coauthor-1@' . $email_domain,
+				'role'       => Guest_Contributor_Role::CONTRIBUTOR_NO_EDIT_ROLE_NAME,
+			]
+		);
+
+		self::assertEquals(
+			false,
+			Guest_Contributor_Role::should_display_coauthor_email( true, $user_id ),
+			'Email should be hidden for a Guest Contributor with a dummy email.'
+		);
+	}
+
+	/**
+	 * Test should_display_coauthor_email returns true for guest contributors with real emails.
+	 */
+	public function test_should_display_coauthor_email_with_real_email() {
+		$user_id = \wp_insert_user(
+			[
+				'user_login' => 'guest-coauthor-2',
+				'user_pass'  => '123',
+				'user_email' => 'guest-coauthor-2@real-domain.com',
+				'role'       => Guest_Contributor_Role::CONTRIBUTOR_NO_EDIT_ROLE_NAME,
+			]
+		);
+
+		self::assertEquals(
+			true,
+			Guest_Contributor_Role::should_display_coauthor_email( true, $user_id ),
+			'Email should be displayed for a Guest Contributor with a real email.'
+		);
+	}
+
+	/**
+	 * Test should_display_coauthor_email returns false when value is already false.
+	 */
+	public function test_should_display_coauthor_email_respects_false_value() {
+		$email_domain = Guest_Contributor_Role::get_dummy_email_domain();
+		$user_id = \wp_insert_user(
+			[
+				'user_login' => 'guest-coauthor-3',
+				'user_pass'  => '123',
+				'user_email' => 'guest-coauthor-3@real-domain.com',
+				'role'       => Guest_Contributor_Role::CONTRIBUTOR_NO_EDIT_ROLE_NAME,
+			]
+		);
+
+		self::assertEquals(
+			false,
+			Guest_Contributor_Role::should_display_coauthor_email( false, $user_id ),
+			'Email should remain hidden when value is already false, even with real email.'
+		);
+	}
+
+	/**
+	 * Test should_display_coauthor_email returns true for regular users.
+	 */
+	public function test_should_display_coauthor_email_for_regular_user() {
+		$user_id = \wp_insert_user(
+			[
+				'user_login' => 'regular-author',
+				'user_pass'  => '123',
+				'user_email' => 'regular-author@domain.com',
+				'role'       => 'author',
+			]
+		);
+
+		self::assertEquals(
+			true,
+			Guest_Contributor_Role::should_display_coauthor_email( true, $user_id ),
+			'Email should be displayed for regular users without the guest contributor role.'
+		);
+	}
+
+	/**
+	 * Test should_display_coauthor_email with user having multiple roles including guest contributor.
+	 */
+	public function test_should_display_coauthor_email_with_multiple_roles() {
+		$email_domain = Guest_Contributor_Role::get_dummy_email_domain();
+		$user_id = \wp_insert_user(
+			[
+				'user_login' => 'multi-role-user',
+				'user_pass'  => '123',
+				'user_email' => 'multi-role@' . $email_domain,
+				'role'       => 'author',
+			]
+		);
+
+		$user = get_userdata( $user_id );
+		$user->add_role( Guest_Contributor_Role::CONTRIBUTOR_NO_EDIT_ROLE_NAME );
+
+		self::assertEquals(
+			false,
+			Guest_Contributor_Role::should_display_coauthor_email( true, $user_id ),
+			'Email should be hidden for users with guest contributor role and dummy email, even if they have other roles.'
+		);
+	}
+
+	/**
+	 * Test should_display_author_email respects false value.
+	 */
+	public function test_should_display_author_email_respects_false_value() {
+		$email_domain = Guest_Contributor_Role::get_dummy_email_domain();
+		$user_id = \wp_insert_user(
+			[
+				'user_login' => 'guest-author-false',
+				'user_pass'  => '123',
+				'user_email' => 'guest-author-false@' . $email_domain,
+				'role'       => Guest_Contributor_Role::CONTRIBUTOR_NO_EDIT_ROLE_NAME,
+			]
+		);
+		$post_id = \wp_insert_post(
+			[
+				'post_title'  => 'Test Post',
+				'post_status' => 'publish',
+				'post_author' => $user_id,
+			]
+		);
+		global $wp_query;
+		$wp_query = new WP_Query(
+			[
+				'p' => $post_id,
+			]
+		);
+		$post = get_post( $post_id );
+		setup_postdata( $post );
+
+		self::assertEquals(
+			false,
+			Guest_Contributor_Role::should_display_author_email( false ),
+			'should_display_author_email should return false when value is already false.'
+		);
+	}
+
+	/**
+	 * Test should_display_author_email with user having multiple roles including guest contributor.
+	 */
+	public function test_should_display_author_email_with_multiple_roles() {
+		$email_domain = Guest_Contributor_Role::get_dummy_email_domain();
+		$user_id = \wp_insert_user(
+			[
+				'user_login' => 'multi-role-author',
+				'user_pass'  => '123',
+				'user_email' => 'multi-role-author@' . $email_domain,
+				'role'       => 'author',
+			]
+		);
+
+		$user = get_userdata( $user_id );
+		$user->add_role( Guest_Contributor_Role::CONTRIBUTOR_NO_EDIT_ROLE_NAME );
+
+		$post_id = \wp_insert_post(
+			[
+				'post_title'  => 'Multi Role Post',
+				'post_status' => 'publish',
+				'post_author' => $user_id,
+			]
+		);
+		global $wp_query;
+		$wp_query = new WP_Query(
+			[
+				'p' => $post_id,
+			]
+		);
+		$post = get_post( $post_id );
+		setup_postdata( $post );
+
+		self::assertEquals(
+			false,
+			Guest_Contributor_Role::should_display_author_email( true ),
+			'Email should be hidden for users with guest contributor role and dummy email, even if they have other roles.'
+		);
+	}
+
+	/**
+	 * Test should_display_author_email returns true when not on author or singular page.
+	 */
+	public function test_should_display_author_email_not_on_author_or_singular() {
+		$email_domain = Guest_Contributor_Role::get_dummy_email_domain();
+		$user_id = \wp_insert_user(
+			[
+				'user_login' => 'guest-home-page',
+				'user_pass'  => '123',
+				'user_email' => 'guest-home@' . $email_domain,
+				'role'       => Guest_Contributor_Role::CONTRIBUTOR_NO_EDIT_ROLE_NAME,
+			]
+		);
+
+		global $wp_query;
+		$wp_query = new WP_Query();
+		$wp_query->is_home = true;
+
+		self::assertEquals(
+			true,
+			Guest_Contributor_Role::should_display_author_email( true ),
+			'Email should not be filtered when not on author or singular pages.'
+		);
+	}
+
+	/**
+	 * Test is_dummy_email_address identifies dummy emails correctly.
+	 */
+	public function test_is_dummy_email_address() {
+		$email_domain = Guest_Contributor_Role::get_dummy_email_domain();
+
+		self::assertTrue(
+			Guest_Contributor_Role::is_dummy_email_address( 'test@' . $email_domain ),
+			'Should identify dummy email with default domain.'
+		);
+
+		self::assertFalse(
+			Guest_Contributor_Role::is_dummy_email_address( 'test@real-domain.com' ),
+			'Should not identify real email as dummy.'
+		);
+	}
 }

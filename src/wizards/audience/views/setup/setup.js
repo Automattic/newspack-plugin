@@ -21,13 +21,13 @@ import {
 	TextControl,
 	Waiting,
 	withWizardScreen,
-} from '../../../../components/src';
+} from '../../../../../packages/components/src';
 import WizardsTab from '../../../wizards-tab';
 import Prerequisite from '../../components/prerequisite';
 import Settings from '../../components/settings';
 import MetadataFields from '../../components/metadata-fields';
-import { HANDOFF_KEY } from '../../../../components/src/consts';
-import SortableNewsletterListControl from '../../../../components/src/sortable-newsletter-list-control';
+import { HANDOFF_KEY } from '../../../../../packages/components/src/consts';
+import SortableNewsletterListControl from '../../../../../packages/components/src/sortable-newsletter-list-control';
 import Salesforce from '../../components/salesforce';
 
 export default withWizardScreen(

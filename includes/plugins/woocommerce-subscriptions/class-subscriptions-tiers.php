@@ -24,7 +24,7 @@ class Subscriptions_Tiers {
 	 * Initialize hooks.
 	 */
 	public static function init_hooks() {
-		add_filter( 'woocommerce_subscriptions_switch_link_text', [ __CLASS__, 'switch_link_text' ] );
+		add_filter( 'woocommerce_subscriptions_switch_link_text', [ __CLASS__, 'switch_link_text' ], 11, 3 );
 		add_filter( 'woocommerce_subscriptions_switch_link_text', [ __CLASS__, 'cache_switch_subscription_link_data' ], 10, 4 );
 		add_action( 'wp_footer', [ __CLASS__, 'print_switch_subscription_modal' ] );
 
@@ -36,15 +36,30 @@ class Subscriptions_Tiers {
 		// Primary product rendering.
 		add_action( 'wp_footer', [ __CLASS__, 'print_primary_product_modal' ] );
 		add_filter( 'newspack_popups_assess_has_disabled_popups', [ __CLASS__, 'disable_popups' ] );
+
+		// Unhook Upgrade/Downgrade switch direction text.
+		add_action(
+			'init',
+			function() {
+				remove_filter( 'woocommerce_cart_item_subtotal', [ 'WC_Subscriptions_Switcher', 'add_cart_item_switch_direction' ], 10 );
+			}
+		);
 	}
 
 	/**
 	 * Switch link text.
 	 *
+	 * @param string                 $text    The text of the switch subscription link.
+	 * @param int                    $item_id The ID of the item.
+	 * @param \WC_Order_Item_Product $item    The order line item data.
+	 *
 	 * @return string The text of the switch subscription link.
 	 */
-	public static function switch_link_text() {
-		return __( 'Change Subscription', 'newspack-plugin' );
+	public static function switch_link_text( $text, $item_id, $item ) {
+		if ( Donations::is_donation_product( $item->get_product_id() ) ) {
+			return __( 'Edit donation', 'newspack-plugin' );
+		}
+		return __( 'Change subscription', 'newspack-plugin' );
 	}
 
 	/**
@@ -114,7 +129,12 @@ class Subscriptions_Tiers {
 				continue;
 			}
 			$product = wc_get_product( reset( $parent_products ) );
-			self::render_modal( $product, null, null, $switch_data );
+			$label = __( 'Change subscription', 'newspack-plugin' );
+			if ( Donations::is_donation_product( $product->get_id() ) ) {
+				$title = __( 'Edit donation', 'newspack-plugin' );
+				$label = __( 'Confirm donation', 'newspack-plugin' );
+			}
+			self::render_modal( $product, $title ?? $label, $label, $switch_data );
 		}
 	}
 
@@ -197,6 +217,7 @@ class Subscriptions_Tiers {
 	 * Get the frequency of a product.
 	 *
 	 * @param \WC_Product $product Product object.
+	 *
 	 * @return string Frequency.
 	 */
 	public static function get_frequency( $product ) {
@@ -259,11 +280,6 @@ class Subscriptions_Tiers {
 				continue;
 			}
 
-			// Exclude donation products.
-			if ( Donations::is_donation_product( $product->get_id() ) ) {
-				continue;
-			}
-
 			// Extract the variations if it's a variable subscription product.
 			if ( $product->is_type( 'variable-subscription' ) ) {
 				$variations = $product->get_available_variations();
@@ -322,6 +338,39 @@ class Subscriptions_Tiers {
 	}
 
 	/**
+	 * Whether there's only 1 item per frequency.
+	 *
+	 * @param array $tiers Tiers.
+	 * @return bool
+	 */
+	private static function is_single_tier( $tiers ) {
+		foreach ( $tiers as $frequency ) {
+			if ( count( $frequency ) !== 1 ) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	/**
+	 * Whether the given tiers are all "name your price" products.
+	 *
+	 * @param array $tiers Tiers.
+	 *
+	 * @return bool
+	 */
+	private static function is_nyp( $tiers ) {
+		foreach ( $tiers as $frequency ) {
+			foreach ( $frequency as $product ) {
+				if ( $product->get_meta( '_nyp' ) !== 'yes' ) {
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+
+	/**
 	 * Render a subscription product card.
 	 *
 	 * @param \WC_Product $product                   Product.
@@ -342,17 +391,56 @@ class Subscriptions_Tiers {
 			$price = $product->get_price_html();
 		}
 
-		$product_type = $product->is_type( 'variation' ) ? 'variation_id' : 'product_id';
-
 		?>
 		<label class="newspack-ui__input-card <?php echo $current ? esc_attr( 'current' ) : ''; ?>">
 			<?php if ( $current ) : ?>
 				<span class="newspack-ui__badge newspack-ui__badge--primary"><?php _e( 'Current', 'newspack-plugin' ); ?></span>
 			<?php endif; ?>
-			<input type="radio" name="<?php echo esc_attr( $product_type ); ?>" value="<?php echo esc_attr( $product->get_id() ); ?>" <?php echo esc_attr( $selected ? 'checked' : '' ); ?>>
+			<input type="radio" name="product_id" value="<?php echo esc_attr( $product->get_id() ); ?>" <?php echo esc_attr( $selected ? 'checked' : '' ); ?>>
 			<strong><?php echo esc_html( self::get_product_title( $product, $show_variation_attributes ) ); ?></strong>
 			<span class="newspack-ui__helper-text"><?php echo $price; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
 		</label>
+		<?php
+	}
+
+	/**
+	 * Render a "name your price" product card.
+	 *
+	 * @param \WC_Product $product             Product.
+	 * @param bool        $current             Whether this is the currently owned product.
+	 * @param array|null  $switch_subscription Switch subscription data or null.
+	 */
+	public static function render_nyp_product_card( $product, $current = false, $switch_subscription = null ) {
+		$symbol    = get_woocommerce_currency_symbol();
+		$currency  = get_woocommerce_currency();
+		$value     = $product->get_price();
+		$frequency = $product->get_meta( '_subscription_period' );
+		$interval  = $product->get_meta( '_subscription_period_interval' );
+
+		if ( $switch_subscription ) {
+			$base_product   = wc_get_product( $switch_subscription['item']['product_id'] );
+			$base_frequency = $base_product->get_meta( '_subscription_period' );
+			$base_interval  = $base_product->get_meta( '_subscription_period_interval' );
+			$base_amount    = $switch_subscription['item']['line_total'] / $base_interval;
+
+			// Get the direct conversion multiplier from base frequency to target frequency.
+			$multiplier = self::get_frequency_conversion_multiplier( $base_frequency, $frequency );
+
+			if ( $current ) {
+				$value = $base_amount * $multiplier;
+			} else {
+				$value = max( ceil( $base_amount * $multiplier * $interval ), $value );
+			}
+		}
+		?>
+		<input type="hidden" name="product_id" value="<?php echo esc_attr( $product->get_id() ); ?>">
+		<p>
+			<label for="nyp_amount"><?php _e( 'Amount', 'newspack-plugin' ); ?></label>
+			<div class="newspack-ui__currency-input">
+				<span class="newspack-ui__currency-input__currency"><?php echo esc_html( $symbol ); ?></span>
+				<input type="number" name="price" id="nyp_amount" value="<?php echo esc_attr( $value ); ?>" data-original-value="<?php echo esc_attr( $value ); ?>" data-currency="<?php echo esc_attr( $currency ); ?>" data-frequency="<?php echo esc_attr( $frequency ); ?>" class="<?php echo esc_attr( $current ? 'current' : '' ); ?>">
+			</div>
+		</p>
 		<?php
 	}
 
@@ -425,8 +513,15 @@ class Subscriptions_Tiers {
 	 *
 	 * @param array  $frequencies       Frequencies.
 	 * @param string $current_frequency Current frequency.
+	 * @param bool   $is_form_control     Whether to treat it as a form input.
 	 */
-	public static function render_frequency_control( $frequencies, $current_frequency ) {
+	public static function render_frequency_control( $frequencies, $current_frequency, $is_form_control = false ) {
+		if ( $is_form_control ) :
+			?>
+			<div class="newspack-ui__segmented-control__form-control">
+				<label><?php _e( 'Frequency', 'newspack-plugin' ); ?></label>
+				<?php
+		endif;
 		if ( count( $frequencies ) <= 3 ) :
 			?>
 			<div class="newspack-ui__segmented-control__tabs">
@@ -437,17 +532,18 @@ class Subscriptions_Tiers {
 				<?php endforeach; ?>
 			</div>
 		<?php else : ?>
-			<div class="newspack-ui__segmented-control__tabs">
-				<select class="newspack-ui__button newspack-ui__button--small">
-					<?php foreach ( $frequencies as $i => $frequency ) : ?>
-						<option value="<?php echo esc_attr( $i ); ?>" <?php selected( $frequencies[ $i ], $current_frequency ); ?>>
-							<?php echo esc_html( WooCommerce_Subscriptions::get_frequency_label( $frequency ) ); ?>
-						</option>
-					<?php endforeach; ?>
-				</select>
-			</div>
+			<select>
+				<?php foreach ( $frequencies as $i => $frequency ) : ?>
+					<option value="<?php echo esc_attr( $i ); ?>" <?php selected( $frequencies[ $i ], $current_frequency ); ?>>
+						<?php echo esc_html( WooCommerce_Subscriptions::get_frequency_label( $frequency ) ); ?>
+					</option>
+				<?php endforeach; ?>
+			</select>
 			<?php
 		endif;
+		if ( $is_form_control ) {
+			echo '</div>'; // Close the form control div.
+		}
 	}
 
 	/**
@@ -464,15 +560,8 @@ class Subscriptions_Tiers {
 			return;
 		}
 
-		// Determine whether there's only 1 item per frequency so we can render a
-		// single tier modal.
-		$is_single_tier = array_reduce(
-			$tiers,
-			function( $carry, $frequency ) {
-				return $carry && count( $frequency ) === 1;
-			},
-			true
-		);
+		$is_single_tier = self::is_single_tier( $tiers );
+		$is_nyp         = $is_single_tier && self::is_nyp( $tiers ); // Only treat as NYP form if there's only 1 tier.
 
 		$frequencies       = array_keys( $tiers );
 		$current_frequency = null;
@@ -516,21 +605,27 @@ class Subscriptions_Tiers {
 			self::render_existing_subscription_info( $current_product, $user_subscription );
 			return;
 		}
+
+		$should_render_tabs = ! $is_single_tier || $is_nyp;
 		?>
-		<form class="newspack__subscription-tiers__form" target="newspack_modal_checkout_iframe" data-title="<?php echo esc_attr( $title ); ?>">
-			<?php if ( ! $is_single_tier ) : ?>
+		<form class="newspack__subscription-tiers__form <?php echo esc_attr( $is_nyp ? 'nyp' : '' ); ?>" target="newspack_modal_checkout_iframe" data-title="<?php echo esc_attr( $title ); ?>">
+			<?php if ( $should_render_tabs ) : ?>
 				<div class="newspack-ui__segmented-control">
 					<?php
 					if ( count( $frequencies ) > 1 ) {
-						self::render_frequency_control( $frequencies, $current_frequency );
+						self::render_frequency_control( $frequencies, $current_frequency, $is_nyp );
 					}
 					?>
 					<div class="newspack-ui__segmented-control__content">
 						<?php foreach ( $tiers as $frequency => $products ) : ?>
 							<div class="newspack-ui__segmented-control__panel">
 								<?php
-								foreach ( $products as $product ) {
-									self::render_product_card( $product, false, $product === $current_product, $product === $selected_product );
+								if ( $is_nyp ) {
+									self::render_nyp_product_card( $products[0], $products[0] === $current_product, $switch_data );
+								} else {
+									foreach ( $products as $product ) {
+										self::render_product_card( $product, false, $product === $current_product, $product === $selected_product );
+									}
 								}
 								?>
 							</div>
@@ -539,7 +634,7 @@ class Subscriptions_Tiers {
 				</div>
 			<?php endif; ?>
 			<?php
-			if ( $is_single_tier ) {
+			if ( ! $should_render_tabs ) {
 				foreach ( $tiers as $products ) {
 					foreach ( $products as $product ) {
 						self::render_product_card( $product, true, $product === $current_product, $product === $selected_product );
@@ -603,7 +698,10 @@ class Subscriptions_Tiers {
 	 */
 	public static function order_button_text( $text ) {
 		if ( method_exists( 'WC_Subscriptions_Switcher', 'cart_contains_switches' ) && \WC_Subscriptions_Switcher::cart_contains_switches( 'any' ) ) {
-			return __( 'Change Subscription', 'newspack-plugin' );
+			if ( Donations::is_donation_cart() ) {
+				return __( 'Confirm donation', 'newspack-plugin' );
+			}
+			return __( 'Change subscription', 'newspack-plugin' );
 		}
 		return $text;
 	}
@@ -673,6 +771,46 @@ class Subscriptions_Tiers {
 			return true;
 		}
 		return $disabled;
+	}
+
+	/**
+	 * Get the multiplier to convert from one subscription frequency to another.
+	 *
+	 * @param string $from_frequency The base frequency.
+	 * @param string $to_frequency   The target frequency.
+	 *
+	 * @return float The multiplier to convert from base to target frequency.
+	 */
+	private static function get_frequency_conversion_multiplier( $from_frequency, $to_frequency ) {
+		if ( $from_frequency === $to_frequency ) {
+			return 1;
+		}
+		$conversions = [
+			'day'   => [
+				'week'  => 7,
+				'month' => 30,
+				'year'  => 365,
+			],
+			'week'  => [
+				'day'   => 1 / 7,
+				'month' => 52 / 12, // ~4.33 weeks per month.
+				'year'  => 52,
+			],
+			'month' => [
+				'day'  => 1 / 30,
+				'week' => 12 / 52, // ~0.23 months per week.
+				'year' => 12,
+			],
+			'year'  => [
+				'day'   => 1 / 365,
+				'week'  => 1 / 52,
+				'month' => 1 / 12,
+			],
+		];
+		if ( isset( $conversions[ $from_frequency ][ $to_frequency ] ) ) {
+			return $conversions[ $from_frequency ][ $to_frequency ];
+		}
+		return 1;
 	}
 }
 Subscriptions_Tiers::init_hooks();

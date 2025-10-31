@@ -9,9 +9,6 @@ namespace Newspack;
 
 defined( 'ABSPATH' ) || exit;
 
-use Newspack\Memberships;
-use Newspack\Memberships\Metering;
-
 /**
  * Content Gate Countdown Block class.
  */
@@ -30,13 +27,13 @@ class Content_Gate_Countdown_Block {
 	 * @return void
 	 */
 	public static function enqueue_scripts() {
-		if ( ! Memberships::is_active() || ! is_singular() ) {
+		if ( ! self::is_active() || ! Memberships::is_active() || ! is_singular() ) {
 			return;
 		}
 		wp_enqueue_script(
 			'newspack-content-gate-countdown-block',
 			\Newspack\Newspack::plugin_url() . '/dist/content-gate-countdown-block.js',
-			[ 'wp-i18n', 'newspack-memberships-gate-metering' ],
+			[ 'wp-i18n', 'newspack-content-gate-metering' ],
 			NEWSPACK_PLUGIN_VERSION,
 			true
 		);
@@ -63,14 +60,17 @@ class Content_Gate_Countdown_Block {
 	 * @return string The block HTML.
 	 */
 	public static function render_block( array $attributes, string $content ) {
-		if ( ! Metering::is_metering() || ! Memberships::is_post_restricted() ) {
+		if ( ! Metering::is_metering() || ! Content_Gate::is_post_restricted() ) {
+			return '';
+		}
+		if ( Content_Gate::is_gated() ) {
 			return '';
 		}
 		$total_views = Metering::get_total_metered_views( \is_user_logged_in() );
 		if ( false === $total_views ) {
 			return '';
 		}
-		$views     = Metering::get_metered_views( get_current_user_id() );
+		$views     = Metering::get_current_user_metered_views();
 		$countdown = sprintf(
 			/* translators: 1: current number of metered views, 2: total metered views. */
 			__( '%1$d/%2$d', 'newspack-plugin' ),
@@ -87,6 +87,15 @@ class Content_Gate_Countdown_Block {
 				<span class='newspack-content-gate-countdown'>$countdown</span>
 			</div>"
 		);
+	}
+
+	/**
+	 * Whether the block is active.
+	 *
+	 * @return bool
+	 */
+	public static function is_active() {
+		return defined( 'NEWSPACK_CONTENT_GATE_COUNTDOWN_BLOCK' ) && NEWSPACK_CONTENT_GATE_COUNTDOWN_BLOCK;
 	}
 }
 

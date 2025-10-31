@@ -4,7 +4,7 @@ window.newspackRAS = window.newspackRAS || [];
 
 domReady( () => {
 	const switchSubscription = document.querySelectorAll( '.wcs-switch-link' );
-	switchSubscription.forEach( button => {
+	[ ...switchSubscription ].forEach( button => {
 		button.addEventListener( 'click', ev => {
 			const url = new URL( button.getAttribute( 'href' ) );
 			const subscriptionId = url.searchParams.get( 'switch-subscription' );

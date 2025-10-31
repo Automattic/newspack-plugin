@@ -617,6 +617,7 @@ class My_Account_UI_V1 {
 						'size'        => 'small',
 						'form'        => 'GET',
 						'form_action' => $form_action_base,
+						'form_id'     => 'delete_payment_method_' . $modal_suffix,
 						'actions'     => [
 							'delete' => [
 								'label' => __( 'Delete payment method', 'newspack-plugin' ),
@@ -793,6 +794,7 @@ class My_Account_UI_V1 {
 							'size'        => 'small',
 							'form'        => 'POST',
 							'form_action' => $delete_address_url,
+							'form_id'     => 'delete_address_' . $address_type,
 							'actions'     => [
 								'delete' => [
 									'label' => __( 'Delete address', 'newspack-plugin' ),

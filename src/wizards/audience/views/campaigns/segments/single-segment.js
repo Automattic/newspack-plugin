@@ -12,7 +12,7 @@ import { applyFilters, addFilter } from '@wordpress/hooks';
 /**
  * Internal dependencies.
  */
-import { Button, CategoryAutocomplete, Router, SelectControl, Settings, TextControl, hooks, Grid } from '../../../../../components/src';
+import { Button, CategoryAutocomplete, Router, SelectControl, Settings, TextControl, hooks, Grid } from '../../../../../../packages/components/src';
 import ListsControl from '../../../components/lists-control';
 
 const { useHistory } = Router;
