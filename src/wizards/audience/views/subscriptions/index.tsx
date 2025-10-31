@@ -48,7 +48,7 @@ function AudienceSubscriptions( props: Record< string, any >, ref: React.Forward
 						<WizardsTab title={ __( 'Configuration', 'newspack-plugin' ) }>
 							<WizardSection>
 								<Card>
-									<h2>{ __( 'Primary Subscription Tier Product', 'newspack-plugin' ) }</h2>
+									<h2>{ __( 'Subscription Upgrade Link', 'newspack-plugin' ) }</h2>
 									{ primaryProduct && (
 										<Notice isDismissible={ false }>
 											{ __( 'Share the following URL to trigger the subscription upgrade:', 'newspack-plugin' ) }{ ' ' }
@@ -61,13 +61,12 @@ function AudienceSubscriptions( props: Record< string, any >, ref: React.Forward
 											</a>
 										</Notice>
 									) }
-									<p>
-										{ __(
+									<SelectControl
+										label={ __( 'Primary Subscription Product', 'newspack-plugin' ) }
+										help={ __(
 											'Select a grouped or variable subscription product to allow readers to change their active subscriptions amongst all of its linked products and variations.',
 											'newspack-plugin'
 										) }
-									</p>
-									<SelectControl
 										options={ [
 											{
 												value: '',

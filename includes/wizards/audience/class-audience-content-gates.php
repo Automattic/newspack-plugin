@@ -105,7 +105,7 @@ class Audience_Content_Gates extends Wizard {
 
 		register_rest_route(
 			NEWSPACK_API_NAMESPACE,
-			'/content-gate',
+			'/wizard/' . $this->slug,
 			[
 				'methods'             => 'GET',
 				'callback'            => [ $this, 'get_gates' ],
@@ -115,7 +115,7 @@ class Audience_Content_Gates extends Wizard {
 
 		register_rest_route(
 			NEWSPACK_API_NAMESPACE,
-			'/content-gate',
+			'/wizard/' . $this->slug,
 			[
 				'methods'             => 'POST',
 				'callback'            => [ $this, 'create_gate' ],
@@ -135,7 +135,7 @@ class Audience_Content_Gates extends Wizard {
 
 		register_rest_route(
 			NEWSPACK_API_NAMESPACE,
-			'/content-gate/(?P<id>\d+)',
+			'/wizard/' . $this->slug . '/(?P<id>\d+)',
 			[
 				'methods'             => 'DELETE',
 				'callback'            => [ $this, 'delete_gate' ],
@@ -145,7 +145,7 @@ class Audience_Content_Gates extends Wizard {
 
 		register_rest_route(
 			NEWSPACK_API_NAMESPACE,
-			'/content-gate/priority',
+			'/wizard/' . $this->slug . '/priority',
 			[
 				'methods'             => 'POST',
 				'callback'            => [ $this, 'update_gate_priorities' ],
@@ -161,7 +161,7 @@ class Audience_Content_Gates extends Wizard {
 
 		register_rest_route(
 			NEWSPACK_API_NAMESPACE,
-			'/content-gate/(?P<id>\d+)',
+			'/wizard/' . $this->slug . '/(?P<id>\d+)',
 			[
 				'methods'             => 'POST',
 				'callback'            => [ $this, 'update_gate' ],

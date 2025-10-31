@@ -53,7 +53,20 @@ declare global {
 			};
 		};
 		newspackSettings: {
-			social: WizardTab;
+			social: WizardTab & {
+				nextdoor: {
+					available_roles: {
+						label: string;
+						value: string;
+					}[];
+					country_options: {
+						label: string;
+						value: string;
+					}[];
+					redirect_uri: string;
+					feature_flag_enabled: boolean;
+				};
+			};
 			connections: WizardTab;
 			syndication: WizardTab;
 			'theme-and-brand': WizardTab;
@@ -78,6 +91,7 @@ declare global {
 						};
 						dependencies: Record< string, boolean >;
 						postType: string;
+						isEmailEnhancementsActive: boolean;
 					};
 				};
 			};

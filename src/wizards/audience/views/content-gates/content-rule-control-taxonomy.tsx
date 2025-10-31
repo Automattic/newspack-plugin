@@ -9,7 +9,7 @@ import { __ } from '@wordpress/i18n';
 import { FormTokenField } from '@wordpress/components';
 import type { TokenItem } from '@wordpress/components/build-types/form-token-field/types.d.ts';
 import apiFetch from '@wordpress/api-fetch';
-import { useEffect, useState, useCallback, useMemo, memo } from '@wordpress/element';
+import { useEffect, useState, useCallback, useMemo } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { addQueryArgs } from '@wordpress/url';
 
@@ -21,7 +21,7 @@ const debounce = ( func: ( search?: string ) => void, wait: number ) => {
 	};
 };
 
-function ContentRuleControlTaxonomy( { slug, value, onChange }: GateContentRuleControlProps ) {
+export default function ContentRuleControlTaxonomy( { slug, value, onChange }: GateContentRuleControlProps ) {
 	const rule = useMemo( () => window.newspackAudienceContentGates.available_content_rules[ slug ], [ slug ] );
 
 	const [ savedItems, setSavedItems ] = useState< { value: string; label: string }[] >( [] );
@@ -128,5 +128,3 @@ function ContentRuleControlTaxonomy( { slug, value, onChange }: GateContentRuleC
 		/>
 	);
 }
-
-export default memo( ContentRuleControlTaxonomy );
