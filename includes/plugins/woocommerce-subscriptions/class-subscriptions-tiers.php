@@ -665,7 +665,7 @@ class Subscriptions_Tiers {
 
 			<button type="submit" class="newspack-ui__button newspack-ui__button--primary newspack-ui__button--wide"><?php echo esc_html( $button_label ); ?></button>
 			<?php if ( ! is_user_logged_in() ) : ?>
-				<button type="button" class="newspack-ui__button newspack-ui__button--ghost newspack-ui__button--wide signin-link">
+				<button type="button" class="newspack-ui__button newspack-ui__button--secondary newspack-ui__button--wide signin-link">
 					<?php _e( 'Sign in to an existing account', 'newspack-plugin' ); ?>
 				</button>
 			<?php endif; ?>
