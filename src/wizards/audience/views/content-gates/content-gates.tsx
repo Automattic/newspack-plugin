@@ -121,6 +121,10 @@ const ContentGates = () => {
 			.finally( () => setIsInFlight( false ) );
 	};
 
+	const handleSaveGate = ( gate: Gate ) => {
+		setGates( gates.map( g => ( g.id === gate.id ? gate : g ) ) );
+	};
+
 	return (
 		<>
 			<Card noBorder headerActions>
@@ -184,7 +188,7 @@ const ContentGates = () => {
 							onDragCallback={ reorderGates }
 							disabled={ isInFlight }
 						>
-							<ContentGateSettings gate={ gate } onDelete={ handleDeleteGate } />
+							<ContentGateSettings gate={ gate } onDelete={ handleDeleteGate } onSave={ handleSaveGate } />
 						</WizardsActionCard>
 					);
 				} ) }

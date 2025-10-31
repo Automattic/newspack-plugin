@@ -17,9 +17,10 @@ import { useWizardApiFetch } from '../../../hooks/use-wizard-api-fetch';
 type ContentGateSettingsProps = {
 	gate: Gate;
 	onDelete: ( id: number ) => void;
+	onSave: ( gate: Gate ) => void;
 };
 
-export default function ContentGateSettings( { gate, onDelete }: ContentGateSettingsProps ) {
+export default function ContentGateSettings( { gate, onDelete, onSave }: ContentGateSettingsProps ) {
 	const { wizardApiFetch } = useWizardApiFetch( AUDIENCE_CONTENT_GATES_WIZARD_SLUG );
 	const [ accessRules, setAccessRules ] = useState< GateAccessRule[] >( gate.access_rules );
 	const [ contentRules, setContentRules ] = useState< GateContentRule[] >( gate.content_rules );
@@ -39,6 +40,9 @@ export default function ContentGateSettings( { gate, onDelete }: ContentGateSett
 				data: { gate: _gate },
 			},
 			{
+				onSuccess( data ) {
+					onSave( data );
+				},
 				onError( error ) {
 					console.error( error ); // eslint-disable-line no-console
 				},
