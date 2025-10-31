@@ -160,10 +160,10 @@ export default function init() {
 						ras.openAuthModal( {
 							labels: {
 								signin: {
-									title: null,
+									title: window.newspack_reader_activation_labels.signin.title,
 								},
 								register: {
-									title: null,
+									title: window.newspack_reader_activation_labels.register.title,
 								},
 							},
 							skipNewslettersSignup: true,
