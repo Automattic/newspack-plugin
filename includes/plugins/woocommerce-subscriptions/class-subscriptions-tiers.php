@@ -26,15 +26,15 @@ class Subscriptions_Tiers {
 	public static function init_hooks() {
 		add_filter( 'woocommerce_subscriptions_switch_link_text', [ __CLASS__, 'switch_link_text' ], 11, 3 );
 		add_filter( 'woocommerce_subscriptions_switch_link_text', [ __CLASS__, 'cache_switch_subscription_link_data' ], 10, 4 );
-		add_action( 'wp_footer', [ __CLASS__, 'print_switch_subscription_modal' ] );
+		add_action( 'wp_footer', [ __CLASS__, 'print_switch_subscription_link_modal' ] );
 
 		// Order button text.
 		add_filter( 'wcs_place_subscription_order_text', [ __CLASS__, 'order_button_text' ], 9 );
 		add_filter( 'woocommerce_order_button_text', [ __CLASS__, 'order_button_text' ], 20 );
 		add_filter( 'option_woocommerce_subscriptions_order_button_text', [ __CLASS__, 'order_button_text' ], 9 );
 
-		// Primary product rendering.
-		add_action( 'wp_footer', [ __CLASS__, 'print_product_modal' ] );
+		// Link-triggered modal rendering.
+		add_action( 'wp_footer', [ __CLASS__, 'print_modal' ] );
 		add_filter( 'newspack_popups_assess_has_disabled_popups', [ __CLASS__, 'disable_popups' ] );
 
 		// Unhook Upgrade/Downgrade switch direction text.
@@ -127,9 +127,9 @@ class Subscriptions_Tiers {
 	}
 
 	/**
-	 * Modal switch subscription template.
+	 * Print modals for switch subscription links rendered in the page.
 	 */
-	public static function print_switch_subscription_modal() {
+	public static function print_switch_subscription_link_modal() {
 		if ( empty( self::$switch_subscription_links ) ) {
 			return;
 		}
@@ -664,14 +664,12 @@ class Subscriptions_Tiers {
 			<?php endif; ?>
 
 			<button type="submit" class="newspack-ui__button newspack-ui__button--primary newspack-ui__button--wide"><?php echo esc_html( $button_label ); ?></button>
-			<button type="button" class="newspack-ui__button newspack-ui__button--ghost newspack-ui__button--wide newspack-ui__modal__cancel"><?php _e( 'Cancel', 'newspack-plugin' ); ?></button>
-
 			<?php if ( ! is_user_logged_in() ) : ?>
-				<p>
-					<?php _e( 'Already have an account?', 'newspack-plugin' ); ?>
-					<a href="<?php echo esc_url( wc_get_account_endpoint_url( 'edit-account' ) ); ?>" class="signin-link"><?php _e( 'Sign in', 'newspack-plugin' ); ?></a>
-				</p>
+				<button type="button" class="newspack-ui__button newspack-ui__button--ghost newspack-ui__button--wide signin-link">
+					<?php _e( 'Sign in to an existing account', 'newspack-plugin' ); ?>
+				</button>
 			<?php endif; ?>
+			<button type="button" class="newspack-ui__button newspack-ui__button--ghost newspack-ui__button--wide newspack-ui__modal__cancel"><?php _e( 'Cancel', 'newspack-plugin' ); ?></button>
 		</form>
 		<?php
 	}
@@ -728,35 +726,69 @@ class Subscriptions_Tiers {
 	}
 
 	/**
-	 * Render primary product modal.
+	 * Whether the modal should be printed.
 	 */
-	public static function print_product_modal() {
+	protected static function should_print_modal() {
+		// Upgrade subscription link.
 		$upgrade_query_param = self::get_upgrade_subscription_query_param();
-		$tiers_query_param   = self::get_tiers_modal_query_param();
-		if ( empty( $_GET[ $upgrade_query_param ] ) && ! isset( $_GET[ $tiers_query_param ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			return;
+		if ( ! empty( $_GET[ $upgrade_query_param ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			return true;
 		}
 
+		// Tiers modal link.
+		$tiers_query_param = self::get_tiers_modal_query_param();
 		if ( ! empty( $_GET[ $tiers_query_param ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			$product = wc_get_product( absint( $_GET[ $tiers_query_param ] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			if ( ! $product ) {
-				return;
-			}
-		} else {
-			$product = self::get_primary_subscription_tier_product();
+			return true;
 		}
 
-		if ( ! $product ) {
-			return;
+		return false;
+	}
+
+	/**
+	 * Should attempt to switch the subscription.
+	 *
+	 * @return bool Whether to attempt to switch the subscription.
+	 */
+	protected static function should_attempt_to_switch_subscription() {
+		$upgrade_query_param = self::get_upgrade_subscription_query_param();
+		if ( ! empty( $_GET[ $upgrade_query_param ] ) || ! empty( $_GET['switch'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			return true;
+		}
+		return false;
+	}
+
+	/**
+	 * Get the product from the query param.
+	 *
+	 * @return \WC_Product|null Product or null if no product is found.
+	 */
+	protected static function get_product_from_query_param() {
+		$upgrade_query_param = self::get_upgrade_subscription_query_param();
+		if ( ! empty( $_GET[ $upgrade_query_param ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			return self::get_primary_subscription_tier_product();
 		}
 
-		if ( class_exists( '\Newspack_Blocks\Modal_Checkout' ) ) {
-			\Newspack_Blocks\Modal_Checkout::enqueue_modal();
+		$tiers_query_param = self::get_tiers_modal_query_param();
+		if ( ! empty( $_GET[ $tiers_query_param ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			return wc_get_product( absint( $_GET[ $tiers_query_param ] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		}
+		return null;
+	}
+
+	/**
+	 * Get the switch data from the given product for the current user.
+	 *
+	 * @param \WC_Product $product Product.
+	 *
+	 * @return array|null Switch data or null if no switch data is found.
+	 */
+	public static function get_product_switch_data( $product ) {
+		$switch_data = null;
+		if ( ! is_user_logged_in() ) {
+			return $switch_data;
 		}
 
 		$user_subscription = self::get_user_subscription( $product );
-		$switch_data       = null;
-
 		if ( $user_subscription ) {
 			$product_id = $product->get_id();
 			$item       = null;
@@ -778,6 +810,32 @@ class Subscriptions_Tiers {
 				];
 			}
 		}
+		return $switch_data;
+	}
+
+	/**
+	 * Render link-triggered modal.
+	 */
+	public static function print_modal() {
+		if ( ! self::should_print_modal() ) {
+			return;
+		}
+
+		$product = self::get_product_from_query_param();
+		if ( ! $product ) {
+			return;
+		}
+
+		if ( ! class_exists( '\Newspack_Blocks\Modal_Checkout' ) ) {
+			return;
+		}
+		\Newspack_Blocks\Modal_Checkout::enqueue_modal();
+
+		$switch_data = null;
+		if ( self::should_attempt_to_switch_subscription() ) {
+			$switch_data = self::get_product_switch_data( $product );
+		}
+
 		self::render_modal( $product, null, null, $switch_data, 'open' );
 	}
 

@@ -28,6 +28,17 @@ window.newspackRAS = window.newspackRAS || [];
 
 export default function init() {
 	domReady( () => {
+		// Remove modal query params from the URL.
+		const params = new URLSearchParams( window.location.search );
+		const isSwitchingSubscription = params.get( 'upgrade-subscription' ) || params.get( 'switch' );
+		if ( params.get( 'upgrade-subscription' ) || params.get( 'tiers-modal' ) || params.get( 'switch' ) ) {
+			params.delete( 'upgrade-subscription' );
+			params.delete( 'tiers-modal' );
+			params.delete( 'switch' );
+			const newQueryString = params.toString() ? '?' + params.toString() : '';
+			window.history.replaceState( {}, '', window.location.pathname + newQueryString );
+		}
+
 		const forms = document.querySelectorAll( '.newspack__subscription-tiers__form' );
 		if ( ! forms.length ) {
 			return;
@@ -158,9 +169,12 @@ export default function init() {
 							skipNewslettersSignup: true,
 							onSuccess: () => {
 								// Append the 'tiers-modal' query param to the URL.
-								const params = new URLSearchParams( window.location.search );
-								params.set( 'tiers-modal', form.dataset.productId || '' );
-								window.location.href = window.location.pathname + '?' + params.toString();
+								const urlParams = new URLSearchParams( window.location.search );
+								urlParams.set( 'tiers-modal', form.dataset.productId || '' );
+								if ( isSwitchingSubscription ) {
+									urlParams.set( 'switch', '1' );
+								}
+								window.location.href = window.location.pathname + '?' + urlParams.toString();
 							},
 							onDismiss: () => {
 								if ( modal ) {
@@ -172,14 +186,5 @@ export default function init() {
 				} );
 			}
 		} );
-
-		// Remove the `upgrade-subscription` query param from the URL.
-		const params = new URLSearchParams( window.location.search );
-		if ( params.get( 'upgrade-subscription' ) || params.get( 'tiers-modal' ) ) {
-			params.delete( 'upgrade-subscription' );
-			params.delete( 'tiers-modal' );
-			const newQueryString = params.toString() ? '?' + params.toString() : '';
-			window.history.replaceState( {}, '', window.location.pathname + newQueryString );
-		}
 	} );
 }
