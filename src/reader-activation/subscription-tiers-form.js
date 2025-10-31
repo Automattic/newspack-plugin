@@ -136,5 +136,13 @@ export default function init() {
 				} );
 			} );
 		} );
+
+		// Remove the `upgrade-subscription` query param from the URL.
+		const params = new URLSearchParams( window.location.search );
+		if ( params.get( 'upgrade-subscription' ) ) {
+			params.delete( 'upgrade-subscription' );
+			const newQueryString = params.toString() ? '?' + params.toString() : '';
+			window.history.replaceState( {}, '', window.location.pathname + newQueryString );
+		}
 	} );
 }
