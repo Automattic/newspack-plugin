@@ -185,9 +185,6 @@ class Teams_For_Memberships {
 		}
 
 		$filtered_enabled_fields = Sync\Metadata::filter_enabled_fields( [ 'woo_team' ] );
-		if ( count( $filtered_enabled_fields ) === 0 ) {
-			return $contact;
-		}
 
 		if ( empty( $contact['email'] ) ) {
 			return $contact;
@@ -208,6 +205,14 @@ class Teams_For_Memberships {
 			return $contact;
 		}
 
+		if ( empty( Sync\Metadata::get_key_value( 'membership_status', $contact['metadata'] ) ) ) {
+			$contact['metadata']['membership_status'] = 'team member';
+		}
+
+		if ( count( $filtered_enabled_fields ) === 0 ) {
+			return $contact;
+		}
+
 		$team_slugs = [];
 		foreach ( $existing_membership_teams as $team ) {
 			$team_slugs[] = $team->get_slug();
@@ -215,10 +220,6 @@ class Teams_For_Memberships {
 		$team_slugs = implode( ',', $team_slugs );
 		if ( $team_slugs ) {
 			$contact['metadata']['woo_team'] = $team_slugs;
-		}
-
-		if ( empty( Sync\Metadata::get_key_value( 'membership_status', $contact['metadata'] ) ) ) {
-			$contact['metadata']['membership_status'] = 'team member';
 		}
 
 		return $contact;
