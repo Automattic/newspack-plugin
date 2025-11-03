@@ -6,33 +6,12 @@
 		"url": "https://github.com/Automattic/newspack-plugin/issues"
 	},
 	"homepage": "https://newspack.com",
-	"devDependencies": {
-		"@rushstack/eslint-patch": "^1.11.0",
-		"@testing-library/react": "^16.3.0",
-		"@types/qs": "^6.9.17",
-		"@types/react": "^17.0.75",
-		"@types/wordpress__api-fetch": "^3.23.1",
-		"@wordpress/browserslist-config": "^6.25.0",
-		"eslint": "^8.57.0",
-		"lint-staged": "^16.1.2",
-		"newspack-scripts": "^5.6.0",
-		"postcss-scss": "^4.0.9"
-	},
-	"browserslist": [
-		"extends @wordpress/browserslist-config"
-	],
-	"lint-staged": {
-		"*.scss": "npm run lint:scss:staged",
-		"*.(js|jsx)": "npm run lint:js:staged",
-		"*.(ts|tsx)": "npm run typescript:check",
-		"*.php": "npm run lint:php:staged"
-	},
 	"scripts": {
 		"cm": "newspack-scripts commit",
 		"semantic-release": "newspack-scripts release --files=newspack.php",
 		"clean": "rm -rf dist",
 		"build": "npm run clean && newspack-scripts wp-scripts build",
-		"start": "npm ci --legacy-peer-deps && npm run watch",
+		"start": "npm ci && npm run watch",
 		"watch": "npm run clean && newspack-scripts wp-scripts start",
 		"test": "newspack-scripts test",
 		"tsc": "tsc --watch",
@@ -47,12 +26,18 @@
 		"lint:scss": "newspack-scripts wp-scripts lint-style '**/*.scss' --customSyntax postcss-scss",
 		"lint:scss:staged": "newspack-scripts wp-scripts lint-style --customSyntax postcss-scss",
 		"format:scss": "newspack-scripts wp-scripts lint-style '**/{src,includes}/**/*.scss' --customSyntax postcss-scss --fix",
-		"typescript:check": "newspack-scripts typescript-check",
 		"release": "npm run build && npm run semantic-release",
 		"release:archive": "rm -rf release && mkdir -p release && rsync -r . ./release/newspack-plugin --exclude-from='./.distignore' && cd release && zip -r newspack-plugin.zip newspack-plugin"
 	},
+	"browserslist": [
+		"extends @wordpress/browserslist-config"
+	],
+	"lint-staged": {
+		"*.{js,jsx,ts,tsx}": "npm run lint:js:staged",
+		"*.scss": "npm run lint:scss:staged",
+		"*.php": "npm run lint:php:staged"
+	},
 	"dependencies": {
-		"@wordpress/icons": "^10.25.0",
 		"classnames": "^2.5.1",
 		"colord": "^2.9.3",
 		"deep-map-keys": "^2.0.1",
@@ -63,5 +48,8 @@
 		"react-router-dom": "^5.3.4",
 		"recursive-copy": "^2.0.14",
 		"tachyons": "^4.12.0"
+	},
+	"devDependencies": {
+		"newspack-scripts": "^5.8.0"
 	}
 }
