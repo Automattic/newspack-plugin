@@ -401,6 +401,32 @@ function attachNewsletterFormListener() {
 		if ( ! form ) {
 			return;
 		}
+
+		// Some forms may have JS form submit handlers which may prevent other form submit handlers from being called.
+		// We attach event handlers on submit button clicks and 'Enter' key presses to ensure our handler is called.
+		form.setAttribute( 'data-submitted', 'false' );
+		const submitter = ( evt, button ) => {
+			evt.preventDefault();
+			form.setAttribute( 'data-submitted', 'true' );
+			store.set( 'is_newsletter_subscriber', true );
+			form.requestSubmit( button );
+		};
+
+		const submitButtons = [ ...form.querySelectorAll( 'input[type="submit"], button[type="submit"]' ) ];
+		if ( submitButtons.length ) {
+			submitButtons.forEach( button => {
+				button.addEventListener( 'click', e => {
+					if ( 'false' === form.getAttribute( 'data-submitted' ) ) {
+						submitter( e, button );
+					}
+				} );
+			} );
+			form.addEventListener( 'keyup', e => {
+				if ( e.key === 'Enter' && 'false' === form.getAttribute( 'data-submitted' ) ) {
+					submitter( e, submitButtons[ 0 ] );
+				}
+			} );
+		}
 		form.addEventListener( eventToListenTo, () => {
 			store.set( 'is_newsletter_subscriber', true );
 		} );
