@@ -51,8 +51,7 @@ class Post_Type {
 			[ 'before_delete_post', [ Sync::class, 'handle_post_deleted' ] ],
 			[ 'wp_trash_post', [ Sync::class, 'handle_post_trashed' ] ],
 			[ 'untrashed_post', [ Sync::class, 'handle_post_untrashed' ] ],
-			[ 'wp_insert_post_data', [ __CLASS__, 'validate_collection_title' ], 10, 3 ],
-			[ 'wp_ajax_newspack_validate_collection_title', [ __CLASS__, 'ajax_validate_collection_title' ] ],
+			[ 'pre_post_update', [ __CLASS__, 'validate_collection_title' ], 10, 2 ],
 		];
 	}
 
@@ -84,7 +83,6 @@ class Post_Type {
 		add_action( 'manage_' . self::get_post_type() . '_posts_columns', [ __CLASS__, 'add_order_column' ] );
 		add_action( 'manage_' . self::get_post_type() . '_posts_custom_column', [ __CLASS__, 'display_order_column' ], 10, 2 );
 		add_filter( 'manage_edit-' . self::get_post_type() . '_sortable_columns', [ __CLASS__, 'make_order_column_sortable' ] );
-		add_action( 'enqueue_block_editor_assets', [ __CLASS__, 'enqueue_title_validation_assets' ] );
 		self::register_hooks();
 		Collection_Meta::init();
 	}
@@ -201,7 +199,8 @@ class Post_Type {
 		$args = [
 			'post_type'      => self::get_post_type(),
 			'post_status'    => [ 'publish', 'private', 'future', 'pending', 'draft' ],
-			'posts_per_page' => -1,
+			's'              => $title,
+			'posts_per_page' => 100,
 			'fields'         => 'ids',
 		];
 
@@ -223,24 +222,12 @@ class Post_Type {
 	}
 
 	/**
-	 * Set validation error meta on post save.
-	 *
-	 * @param int    $post_id The post ID.
-	 * @param string $title   The duplicate title.
-	 */
-	private static function set_validation_error_meta( $post_id, $title ) {
-		update_post_meta( $post_id, '_newspack_title_validation_error', $title );
-	}
-
-	/**
 	 * Validate collection title to ensure it's unique.
 	 *
-	 * @param array $data    An array of slashed post data.
-	 * @param array $postarr An array of sanitized, but otherwise unmodified post data.
-	 * @param array $unsanitized_postarr An array of unsanitized post data.
-	 * @return array Modified post data.
+	 * @param int   $post_id The post ID.
+	 * @param array $data Array of unslashed post data.
 	 */
-	public static function validate_collection_title( $data, $postarr, $unsanitized_postarr ) {
+	public static function validate_collection_title( $post_id, $data ) {
 		// Only validate for collection post type.
 		if ( self::get_post_type() !== $data['post_type'] ) {
 			return $data;
@@ -256,75 +243,12 @@ class Post_Type {
 			return $data;
 		}
 
-		$exclude_id = ! empty( $postarr['ID'] ) ? $postarr['ID'] : 0;
+		$exclude_id = ! empty( $post_id ) ? $post_id : 0;
 		$title_exists = self::title_exists( $title, $exclude_id );
 
 		if ( $title_exists ) {
-			// Prevent publishing and track the validation error.
 			$data['post_status'] = 'draft';
-			add_action(
-				'save_post_' . self::get_post_type(),
-				function( $post_id ) use ( $title ) {
-					self::set_validation_error_meta( $post_id, $title );
-				},
-				5
-			);
-		} elseif ( ! empty( $postarr['ID'] ) ) {
-			// Clear validation error if title is now unique.
-			delete_post_meta( $postarr['ID'], '_newspack_title_validation_error' );
+			wp_die( __( 'This collection was not published because a collection with the same title already exists. Please choose a different title and try again.', 'newspack-plugin' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		}
-
-		return $data;
-	}
-
-	/**
-	 * Output title validation data for the Collections editor.
-	 */
-	public static function enqueue_title_validation_assets() {
-		global $post_type;
-
-		// Only enqueue for collection post type.
-		if ( self::get_post_type() !== $post_type ) {
-			return;
-		}
-
-		// Get the current post ID.
-		$post_id = get_the_ID();
-		if ( ! $post_id ) {
-			return;
-		}
-
-		// Add title validation data.
-		Enqueuer::add_data(
-			'titleValidation',
-			[
-				'ajaxUrl' => admin_url( 'admin-ajax.php' ),
-				'nonce'   => wp_create_nonce( 'newspack_validate_collection_title' ),
-				'postId'  => $post_id,
-			]
-		);
-	}
-
-	/**
-	 * AJAX handler for validating collection title in Gutenberg editor.
-	 */
-	public static function ajax_validate_collection_title() {
-		// Verify nonce and user capabilities.
-		$nonce = sanitize_text_field( $_POST['nonce'] ?? '' );
-		if ( ! wp_verify_nonce( $nonce, 'newspack_validate_collection_title' ) || ! current_user_can( 'edit_posts' ) ) {
-			wp_send_json_error( [ 'message' => __( 'Access denied.', 'newspack-plugin' ) ] );
-		}
-
-		$title = sanitize_text_field( $_POST['title'] ?? '' );
-		$post_id = intval( $_POST['post_id'] ?? 0 );
-
-		if ( empty( $title ) ) {
-			wp_send_json_success( [ 'exists' => false ] );
-		}
-
-		// Check for existing posts with the same title.
-		$title_exists = self::title_exists( $title, $post_id );
-
-		wp_send_json_success( [ 'exists' => $title_exists ] );
 	}
 }
