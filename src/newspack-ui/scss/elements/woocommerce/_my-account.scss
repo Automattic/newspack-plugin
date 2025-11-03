@@ -186,4 +186,7 @@
 	address {
 		font-style: normal;
 	}
+	#registration-link_field .regenerate-link { // stylelint-disable-line selector-id-pattern
+		margin-left: var(--newspack-ui-spacer-3);
+	}
 }

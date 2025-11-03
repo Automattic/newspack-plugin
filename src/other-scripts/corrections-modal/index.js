@@ -304,7 +304,7 @@ const CorrectionsModal = () => {
 											createNotice(
 												'success',
 												sprintf(
-													// Translators: Type of correction.
+													// translators: %s: type of correction.
 													__( '%s deleted successfully.', 'newspack-plugin' ),
 													correction.type.replace( /^./, char => char.toUpperCase() )
 												),
@@ -358,7 +358,7 @@ const CorrectionsModal = () => {
 										createNotice(
 											'success',
 											sprintf(
-												// Translators: Type of correction.
+												// translators: %s: type of correction.
 												__( '%s added successfully.', 'newspack-plugin' ),
 												newCorrectionType.replace( /^./, char => char.toUpperCase() )
 											),

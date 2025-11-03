@@ -172,11 +172,6 @@ function Nextdoor() {
 		apiFetchToggle( { ...apiData, module_enabled_nextdoor: value }, true );
 	};
 
-	const feature_flag_enabled = window.newspackSettings?.social?.nextdoor?.feature_flag_enabled || false;
-	if ( ! feature_flag_enabled ) {
-		return null;
-	}
-
 	return (
 		<>
 			<WizardsActionCard
