@@ -113,7 +113,7 @@ const ActionCard = ( {
 	const isDisplayingSecondaryAction = secondaryActionText && onSecondaryActionClick;
 	const badges = ! Array.isArray( badge ) && badge ? [ badge ] : badge;
 
-	const Component = () => (
+	const cardContent = (
 		<>
 			<div className="newspack-action-card__region newspack-action-card__region-top">
 				{ toggleOnChange && <ToggleControl checked={ toggleChecked } onChange={ toggleOnChange } disabled={ disabled } /> }
@@ -306,7 +306,7 @@ const ActionCard = ( {
 									/>
 								</div>
 							</div>
-							<Component />
+							{ cardContent }
 						</Card>
 					) }
 				</Draggable>
@@ -316,7 +316,7 @@ const ActionCard = ( {
 
 	return (
 		<Card className={ classes } onClick={ simple && onClick } id={ id ?? null } noBorder={ noBorder }>
-			<Component />
+			{ cardContent }
 		</Card>
 	);
 };

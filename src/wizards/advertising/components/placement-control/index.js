@@ -100,7 +100,7 @@ const PlacementControl = ( {
 				! value.ad_unit || ! unit || supported
 					? null
 					: sprintf(
-							// Translators: Ad bidder name.
+							// translators: %s: ad bidder name.
 							__( '%s does not support the selected ad unit sizes.', 'newspack-plugin' ),
 							bidder.name,
 							''
@@ -140,7 +140,7 @@ const PlacementControl = ( {
 			{ placementProvider?.id === 'gam' &&
 				Object.keys( bidders ).map( bidderKey => {
 					const bidder = bidders[ bidderKey ];
-					// Translators: Bidder name.
+					// translators: %s: bidder name.
 					const bidderLabel = sprintf( __( '%s Placement ID', 'newspack-plugin' ), bidder.name );
 					return (
 						<TextControl

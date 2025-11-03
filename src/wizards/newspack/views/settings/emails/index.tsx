@@ -15,15 +15,19 @@ import { default as EmailsSection } from './emails';
 import { default as SettingsSection } from './settings';
 import WizardSection from '../../../../wizards-section';
 
+const { emails } = window.newspackSettings;
+
 function Emails() {
 	return (
 		<WizardsTab title={ __( 'Emails', 'newspack-plugin' ) }>
 			<WizardSection>
 				<EmailsSection />
 			</WizardSection>
-			<WizardSection>
-				<SettingsSection />
-			</WizardSection>
+			{ emails?.sections?.emails?.isEmailEnhancementsActive && (
+				<WizardSection>
+					<SettingsSection />
+				</WizardSection>
+			) }
 		</WizardsTab>
 	);
 }
