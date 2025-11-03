@@ -158,6 +158,7 @@ export default function init() {
 					}
 					window.newspackRAS.push( ras => {
 						ras.openAuthModal( {
+							skipSuccess: true,
 							skipNewslettersSignup: true,
 							onSuccess: () => {
 								// Append the 'tiers-modal' query param to the URL.

@@ -848,7 +848,8 @@ class Subscriptions_Tiers {
 	 */
 	public static function disable_popups( $disabled ) {
 		$query_param = self::get_upgrade_subscription_query_param();
-		if ( ! empty( $_GET[ $query_param ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$tiers_query_param = self::get_tiers_modal_query_param();
+		if ( ! empty( $_GET[ $query_param ] ) || ! empty( $_GET[ $tiers_query_param ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			return true;
 		}
 		return $disabled;
