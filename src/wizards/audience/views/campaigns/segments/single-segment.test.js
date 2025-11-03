@@ -67,7 +67,7 @@ describe( 'A new segment creation', () => {
 	};
 
 	beforeEach( () => {
-		window.newspackAudienceConfiguration = { criteria };
+		window.newspackAudienceCampaigns = { criteria };
 		render(
 			<MemoryRouter>
 				<SingleSegment { ...mockProps } />
