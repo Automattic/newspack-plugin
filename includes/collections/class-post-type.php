@@ -247,7 +247,6 @@ class Post_Type {
 		$title_exists = self::title_exists( $title, $exclude_id );
 
 		if ( $title_exists ) {
-			$data['post_status'] = 'draft';
 			wp_die( __( 'This collection was not published because a collection with the same title already exists. Please choose a different title and try again.', 'newspack-plugin' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		}
 	}
