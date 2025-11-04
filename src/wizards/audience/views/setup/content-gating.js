@@ -2,15 +2,13 @@
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { ExternalLink } from '@wordpress/components';
-import apiFetch from '@wordpress/api-fetch';
+import { ExternalLink, RangeControl, SelectControl, Button } from '@wordpress/components';
 import { useEffect, useState } from '@wordpress/element';
 
-import { ActionCard, Notice, withWizardScreen } from '../../../../../packages/components/src';
+import { ActionCard, Grid, Notice, withWizardScreen } from '../../../../../packages/components/src';
 import WizardsTab from '../../../wizards-tab';
 
-export default withWizardScreen( () => {
-	const [ inFlight, setInFlight ] = useState( false );
+export default withWizardScreen( ( { wizardApiFetch } ) => {
 	const [ error, setError ] = useState( false );
 	const [ config, setConfig ] = useState( {} );
 
@@ -20,30 +18,27 @@ export default withWizardScreen( () => {
 
 	const fetchConfig = () => {
 		setError( false );
-		setInFlight( true );
-		apiFetch( {
+		wizardApiFetch( {
 			path: '/newspack/v1/wizard/newspack-audience/content-gating',
 		} )
 			.then( data => {
 				setConfig( data );
 			} )
-			.catch( setError )
-			.finally( () => setInFlight( false ) );
+			.catch( setError );
 	};
 
 	const updateConfig = newConfig => {
 		setError( false );
-		setInFlight( true );
-		apiFetch( {
+		wizardApiFetch( {
 			path: '/newspack/v1/wizard/newspack-audience/content-gating',
 			method: 'POST',
+			quiet: true,
 			data: newConfig,
 		} )
 			.then( data => {
 				setConfig( data );
 			} )
-			.catch( setError )
-			.finally( () => setInFlight( false ) );
+			.catch( setError );
 	};
 
 	const getContentGateDescription = () => {
@@ -79,13 +74,47 @@ export default withWizardScreen( () => {
 			<ActionCard
 				title={ __( 'Content Gifting', 'newspack-plugin' ) }
 				description={ __(
-					'Allow members to gift content to other readers. Each member can have up to 5 simultaneous gifted links, which are valid for 24 hours.',
+					'Allow members to gift content to other readers. Gifted articles are valid for 24 hours and can be gifted up to the configured limit.',
 					'newspack-plugin'
 				) }
-				toggleOnChange={ value => updateConfig( { content_gifting: value } ) }
-				toggleChecked={ config.content_gifting }
-				disabled={ inFlight }
-			/>
+				toggleOnChange={ value => updateConfig( { content_gifting: { enabled: value } } ) }
+				toggleChecked={ config.content_gifting?.enabled }
+				hasGreyHeader={ config.content_gifting?.enabled }
+			>
+				{ config.content_gifting?.enabled && (
+					<>
+						<Grid columns={ 2 }>
+							<RangeControl
+								label={ __( 'Gifting limit', 'newspack-plugin' ) }
+								help={ __(
+									'Maximum number of articles that can be gifted per user for the configured interval.',
+									'newspack-plugin'
+								) }
+								min={ 1 }
+								max={ 20 }
+								value={ config.content_gifting.limit }
+								onChange={ value => setConfig( { ...config, content_gifting: { ...config.content_gifting, limit: value } } ) }
+							/>
+							<SelectControl
+								label={ __( 'Gifting limit interval', 'newspack-plugin' ) }
+								help={ __( 'Interval at which the gifting limit is reset.', 'newspack-plugin' ) }
+								value={ config.content_gifting.interval }
+								onChange={ value => setConfig( { ...config, content_gifting: { ...config.content_gifting, interval: value } } ) }
+								options={ [
+									{ value: 'day', label: __( 'Day', 'newspack-plugin' ) },
+									{ value: 'week', label: __( 'Week', 'newspack-plugin' ) },
+									{ value: 'month', label: __( 'Month', 'newspack-plugin' ) },
+								] }
+							/>
+						</Grid>
+						<div className="newspack-buttons-card" style={ { margin: '32px 0 0 0' } }>
+							<Button isPrimary onClick={ () => updateConfig( { content_gifting: config.content_gifting } ) }>
+								{ __( 'Save Settings', 'newspack-plugin' ) }
+							</Button>
+						</div>
+					</>
+				) }
+			</ActionCard>
 			{ config?.plans && 1 < config.plans.length && (
 				<ActionCard
 					title={ __( 'Require membership in all plans', 'newspack-plugin' ) }
@@ -95,7 +124,6 @@ export default withWizardScreen( () => {
 					) }
 					toggleOnChange={ value => updateConfig( { require_all_plans: value } ) }
 					toggleChecked={ config.require_all_plans }
-					disabled={ inFlight }
 				/>
 			) }
 			{ config.has_memberships && (
@@ -107,7 +135,6 @@ export default withWizardScreen( () => {
 					) }
 					toggleOnChange={ value => updateConfig( { show_on_subscription_tab: value } ) }
 					toggleChecked={ config.show_on_subscription_tab }
-					disabled={ inFlight }
 				/>
 			) }
 		</WizardsTab>

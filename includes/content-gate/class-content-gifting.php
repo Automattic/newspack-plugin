@@ -106,6 +106,19 @@ class Content_Gifting {
 	}
 
 	/**
+	 * Get settings.
+	 *
+	 * @return array
+	 */
+	public static function get_settings() {
+		return [
+			'enabled'  => self::is_enabled(),
+			'limit'    => self::get_gifting_limit(),
+			'interval' => self::get_gifting_reset_interval(),
+		];
+	}
+
+	/**
 	 * Get gifting limit.
 	 *
 	 * @return int The gifting limit.
@@ -115,12 +128,38 @@ class Content_Gifting {
 	}
 
 	/**
+	 * Set gifting limit.
+	 *
+	 * @param int $limit The gifting limit.
+	 *
+	 * @return void
+	 */
+	public static function set_gifting_limit( $limit ) {
+		update_option( 'newspack_content_gifting_limit', $limit );
+	}
+
+	/**
 	 * Get gifting reset interval
 	 *
 	 * @return string The gifting reset interval.
 	 */
 	public static function get_gifting_reset_interval() {
 		return (string) get_option( 'newspack_content_gifting_reset_interval', 'month' );
+	}
+
+	/**
+	 * Set gifting reset interval.
+	 *
+	 * @param string $interval The gifting reset interval.
+	 *
+	 * @return void|\WP_Error The gifting reset interval or an error.
+	 */
+	public static function set_gifting_reset_interval( $interval ) {
+		$options = self::get_gifting_reset_interval_options();
+		if ( ! isset( $options[ $interval ] ) ) {
+			return new \WP_Error( 'invalid_interval', __( 'Must be one of the following: day, week, month.', 'newspack-plugin' ) );
+		}
+		update_option( 'newspack_content_gifting_reset_interval', $interval );
 	}
 
 	/**

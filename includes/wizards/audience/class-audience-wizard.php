@@ -555,7 +555,7 @@ class Audience_Wizard extends Wizard {
 	 *
 	 * @param WP_REST_Request $request Request object.
 	 *
-	 * @return WP_REST_Response
+	 * @return WP_REST_Response|WP_Error
 	 */
 	public function api_update_content_gating_settings( $request ) {
 		$args = $request->get_params();
@@ -566,7 +566,15 @@ class Audience_Wizard extends Wizard {
 			Memberships::set_show_on_subscription_tab_setting( (bool) $args['show_on_subscription_tab'] );
 		}
 		if ( isset( $args['content_gifting'] ) ) {
-			Content_Gifting::set_enabled( (bool) $args['content_gifting'] );
+			if ( isset( $args['content_gifting']['enabled'] ) ) {
+				Content_Gifting::set_enabled( (bool) $args['content_gifting']['enabled'] );
+			}
+			if ( isset( $args['content_gifting']['limit'] ) ) {
+				Content_Gifting::set_gifting_limit( (int) $args['content_gifting']['limit'] );
+			}
+			if ( isset( $args['content_gifting']['interval'] ) ) {
+				Content_Gifting::set_gifting_reset_interval( sanitize_text_field( $args['content_gifting']['interval'] ) );
+			}
 		}
 		return rest_ensure_response( self::get_memberships_settings() );
 	}
@@ -826,7 +834,7 @@ class Audience_Wizard extends Wizard {
 			'plans'                    => Memberships::get_plans(),
 			'require_all_plans'        => Memberships::get_require_all_plans_setting(),
 			'show_on_subscription_tab' => Memberships::get_show_on_subscription_tab_setting(),
-			'content_gifting'          => Content_Gifting::is_enabled(),
+			'content_gifting'          => Content_Gifting::get_settings(),
 		];
 	}
 
