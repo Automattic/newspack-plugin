@@ -111,7 +111,7 @@ class Content_Gifting {
 	 * @return int The gifting limit.
 	 */
 	public static function get_gifting_limit() {
-		return (int) get_option( 'newspack_content_gifting_limit', 2 );
+		return (int) get_option( 'newspack_content_gifting_limit', 10 );
 	}
 
 	/**
