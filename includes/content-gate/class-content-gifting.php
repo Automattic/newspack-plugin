@@ -35,13 +35,6 @@ class Content_Gifting {
 	const KEY_EXPIRATION = 3600 * 24; // 24 hours
 
 	/**
-	 * The number of allowed simultaneous content keys per user.
-	 *
-	 * @var int
-	 */
-	const USER_KEY_LIMIT = 5;
-
-	/**
 	 * The meta for content gifting, both enabled option and user keys.
 	 *
 	 * @var string
@@ -52,11 +45,95 @@ class Content_Gifting {
 	 * Initialize hooks.
 	 */
 	public static function init() {
-		add_action( 'template_redirect', [ __CLASS__, 'process_key_request' ] );
+		add_action( 'init', [ __CLASS__, 'hook_gift_button' ] );
 		add_action( 'wp', [ __CLASS__, 'unrestrict_content' ], 5 );
 		add_filter( 'newspack_content_gate_restrict_post', [ __CLASS__, 'restrict_post' ] );
-		add_action( 'newspack_theme_entry_meta', [ __CLASS__, 'add_gift_button' ] );
 		add_action( 'wp_enqueue_scripts', [ __CLASS__, 'enqueue_assets' ] );
+		add_action( 'admin_enqueue_scripts', [ __CLASS__, 'enqueue_assets' ] );
+		add_action( 'wp_ajax_' . self::GENERATE_ACTION, [ __CLASS__, 'ajax_generate_content_key' ] );
+		add_action( 'wp_footer', [ __CLASS__, 'print_gift_modal' ] );
+	}
+
+	/**
+	 * Hook the gift button.
+	 */
+	public static function hook_gift_button() {
+		if ( class_exists( 'Jetpack' ) && \Jetpack::is_module_active( 'sharedaddy' ) ) {
+			add_filter( 'sharing_services', [ __CLASS__, 'filter_jetpack_sharing_services' ] );
+		} else {
+			add_action( 'newspack_theme_entry_meta', [ __CLASS__, 'add_gift_button' ] );
+		}
+	}
+
+	/**
+	 * Filters the Jetpack sharing services to add the gift button.
+	 *
+	 * @param array $services The Jetpack sharing services.
+	 *
+	 * @return array The filtered Jetpack sharing services.
+	 */
+	public static function filter_jetpack_sharing_services( $services ) {
+		$services['newspack-gift-article'] = 'Newspack_Jetpack_Gift_Article';
+		return $services;
+	}
+
+	/**
+	 * Add the gift button to the entry meta.
+	 */
+	public static function add_gift_button() {
+		if ( ! self::can_gift_post() ) {
+			return;
+		}
+		$url = self::get_gift_url();
+		?>
+		<a href="<?php echo esc_url( $url ); ?>" class="newspack-content-gifting__gift-button">
+			<?php Newspack_UI_Icons::print_svg( 'gift' ); ?>
+			<?php esc_html_e( 'Gift this article', 'newspack-plugin' ); ?>
+		</a>
+		<?php
+	}
+
+	/**
+	 * Get the gift URL.
+	 *
+	 * @param int|null $post_id The post ID. Default is the current post.
+	 *
+	 * @return string The gift URL.
+	 */
+	public static function get_gift_url( $post_id = null ) {
+		$post_id = $post_id ?? get_the_ID();
+		return add_query_arg( self::GENERATE_ACTION, wp_create_nonce( self::GENERATE_ACTION ), get_permalink( $post_id ) );
+	}
+
+	/**
+	 * Get gifting limit.
+	 *
+	 * @return int The gifting limit.
+	 */
+	public static function get_gifting_limit() {
+		return (int) get_option( 'newspack_content_gifting_limit', 2 );
+	}
+
+	/**
+	 * Get gifting reset interval
+	 *
+	 * @return string The gifting reset interval.
+	 */
+	public static function get_gifting_reset_interval() {
+		return (string) get_option( 'newspack_content_gifting_reset_interval', 'month' );
+	}
+
+	/**
+	 * Get gifting reset interval options.
+	 *
+	 * @return array The gifting reset interval options.
+	 */
+	public static function get_gifting_reset_interval_options() {
+		return [
+			'day'   => __( 'Day', 'newspack-plugin' ),
+			'week'  => __( 'Week', 'newspack-plugin' ),
+			'month' => __( 'Month', 'newspack-plugin' ),
+		];
 	}
 
 	/**
@@ -90,79 +167,131 @@ class Content_Gifting {
 	 * Enqueue assets.
 	 */
 	public static function enqueue_assets() {
-		wp_enqueue_style( 'newspack-memberships-content-gifting', Newspack::plugin_url() . '/dist/content-gifting.css', [], NEWSPACK_PLUGIN_VERSION );
+		// Enqueue assets only if the user can gift the post, being accessed with a content key, in the admin or customizer.
+		if ( ! self::can_gift_post() && ! isset( $_GET[ self::QUERY_ARG ] ) && ! is_admin() && ! is_customize_preview() ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			return;
+		}
+		wp_enqueue_style( 'newspack-content-gifting', Newspack::plugin_url() . '/dist/content-gifting.css', [], NEWSPACK_PLUGIN_VERSION );
+
+		if ( is_singular() ) {
+			$asset = require_once dirname( NEWSPACK_PLUGIN_FILE ) . '/dist/content-gifting.asset.php';
+			wp_enqueue_script( 'newspack-content-gifting', Newspack::plugin_url() . '/dist/content-gifting.js', $asset['dependencies'], NEWSPACK_PLUGIN_VERSION, true );
+			wp_localize_script(
+				'newspack-content-gifting',
+				'newspack_content_gifting',
+				[
+					'ajax_url'     => add_query_arg(
+						[
+							'action' => self::GENERATE_ACTION,
+							'nonce'  => wp_create_nonce( self::GENERATE_ACTION ),
+						],
+						admin_url( 'admin-ajax.php' )
+					),
+					'post_id'      => get_the_ID(),
+					'copied_label' => __( 'Copied!', 'newspack-plugin' ),
+				]
+			);
+		}
 	}
 
 	/**
-	 * Process the content key request.
+	 * Generate a content key.
+	 *
+	 * @return void
 	 */
-	public static function process_key_request() {
-		if ( ! is_user_logged_in() ) {
-			return;
+	public static function ajax_generate_content_key() {
+		check_ajax_referer( self::GENERATE_ACTION, 'nonce' );
+		$post_id = isset( $_POST['post_id'] ) ? intval( $_POST['post_id'] ) : 0;
+		if ( ! $post_id ) {
+			wp_send_json_error( __( 'Invalid post ID.', 'newspack-plugin' ) );
 		}
+		$key = self::generate_key( $post_id );
 
-		if ( ! isset( $_GET[ self::GENERATE_ACTION ] ) || ! wp_verify_nonce( sanitize_text_field( $_GET[ self::GENERATE_ACTION ] ), self::GENERATE_ACTION ) ) {
-			return;
+		$response = [];
+		if ( is_wp_error( $key ) ) {
+			$response['error'] = $key->get_error_message();
+		} else {
+			$response['body'] = self::get_gift_modal_info();
+			$response['key']  = $key;
+			$response['url']  = add_query_arg( self::QUERY_ARG, $key, get_the_permalink( $post_id ) );
 		}
+		wp_send_json( $response );
+	}
 
-		$key = self::generate_key( get_the_ID() );
-		$url = '';
-		if ( ! is_wp_error( $key ) ) {
-			$url = add_query_arg( self::QUERY_ARG, $key, get_the_permalink() );
-		}
-
-		// Render instructions modal in the footer.
-		add_action(
-			'wp_footer',
-			function() use ( $key, $url ) {
+	/**
+	 * Get the gift modal info.
+	 */
+	public static function get_gift_modal_info() {
+		$user_data          = get_user_meta( get_current_user_id(), self::META, true );
+		$current_expiration = self::get_current_expiration_timestamp();
+		$limit              = isset( $user_data['limits'][ $current_expiration ] ) ? self::get_gifting_limit() - $user_data['limits'][ $current_expiration ] : self::get_gifting_limit();
+		$interval           = self::get_gifting_reset_interval();
+		$interval_options   = self::get_gifting_reset_interval_options();
+		ob_start();
+		?>
+		<p>
+			<?php esc_html_e( 'Give someone 24-hour access to this article.', 'newspack-plugin' ); ?>
+			<strong>
+				<?php
+				if ( $limit > 0 ) {
+					echo esc_html(
+						sprintf(
+							// translators: %1$d is the number of gift articles left, %2$s is the interval.
+							_n( 'You have %1$d gift article left this %2$s.', 'You have %1$d gift articles left this %2$s.', $limit, 'newspack-plugin' ),
+							$limit,
+							strtolower( $interval_options[ $interval ] )
+						)
+					);
+				} else {
+					echo esc_html(
+						sprintf(
+							// translators: %1$d is the number of gift articles limit, %2$s is the interval.
+							__( 'You have reached the limit of %1$d gifted articles for this %2$s.', 'newspack-plugin' ),
+							self::get_gifting_limit(),
+							strtolower( $interval_options[ $interval ] )
+						)
+					);
+				}
 				?>
-				<div class="newspack-ui">
-					<div class="newspack-ui__modal-container" data-state="open">
-						<div class="newspack-ui__modal-container__overlay"></div>
-						<div class="newspack-ui__modal newspack-ui__modal--small">
-							<header class="newspack-ui__modal__header">
-								<h2 class="newspack-ui__font--l"><?php esc_html_e( 'Gift this article', 'newspack-plugin' ); ?></h2>
-								<button class="newspack-ui__button newspack-ui__button--icon newspack-ui__button--ghost newspack-ui__modal__close">
-									<span class="screen-reader-text"><?php esc_html_e( 'Close', 'newspack-plugin' ); ?></span>
-									<?php Newspack_UI_Icons::print_svg( 'close' ); ?>
+			</strong>
+		</p>
+		<?php
+		return ob_get_clean();
+	}
+
+	/**
+	 * Print the gift modal.
+	 */
+	public static function print_gift_modal() {
+		?>
+		<div class="newspack-ui">
+			<div id="newspack-content-gifting-modal" class="newspack-ui__modal-container" data-state="closed">
+				<div class="newspack-ui__modal-container__overlay"></div>
+				<div class="newspack-ui__modal newspack-ui__modal--small">
+					<header class="newspack-ui__modal__header">
+						<h2 class="newspack-ui__font--l"><?php esc_html_e( 'Gift this article', 'newspack-plugin' ); ?></h2>
+						<button class="newspack-ui__button newspack-ui__button--icon newspack-ui__button--ghost newspack-ui__modal__close">
+							<span class="screen-reader-text"><?php esc_html_e( 'Close', 'newspack-plugin' ); ?></span>
+							<?php Newspack_UI_Icons::print_svg( 'close' ); ?>
+						</button>
+					</header>
+					<div class="newspack-ui__modal__content">
+						<div class="newspack-ui__notice newspack-ui__notice--error" data-error-message></div>
+						<div class="newspack-content-gifting__info"></div>
+						<div class="newspack-content-gifting__link-container">
+							<p>
+								<label for="content-gifting-url"><?php esc_html_e( 'Link', 'newspack-plugin' ); ?></label>
+								<input type="text" id="content-gifting-url" readonly />
+								<button class="newspack-ui__button newspack-ui__button--primary newspack-ui__button--wide newspack-content-gifting__copy-button" data-copy-button>
+									<?php _e( 'Copy link', 'newspack-plugin' ); ?>
 								</button>
-							</header>
-							<div class="newspack-ui__modal__content">
-								<?php if ( is_wp_error( $key ) ) : ?>
-									<div class="newspack-ui__notice newspack-ui__notice--error">
-										<?php echo esc_html( $key->get_error_message() ); ?>
-									</div>
-								<?php else : ?>
-									<p>
-										<?php esc_html_e( 'Share the link below to gift this article to a friend. The access is valid for 24 hours.', 'newspack-plugin' ); ?>
-									</p>
-									<p>
-										<label for="content-gifting-url"><?php esc_html_e( 'Link', 'newspack-plugin' ); ?></label>
-										<input type="text" id="content-gifting-url" value="<?php echo esc_attr( $url ); ?>" readonly>
-									</p>
-								<?php endif; ?>
-							</div>
+							</p>
 						</div>
+						<div class="newspack-ui__spinner"><span></span></div>
 					</div>
 				</div>
-				<?php
-			}
-		);
-	}
-
-	/**
-	 * Add the gift button to the entry meta.
-	 */
-	public static function add_gift_button() {
-		if ( ! self::can_gift_post() ) {
-			return;
-		}
-		$url = add_query_arg( self::GENERATE_ACTION, wp_create_nonce( self::GENERATE_ACTION ), get_the_permalink() );
-		?>
-		<a href="<?php echo esc_url( $url ); ?>" class="newspack-content-gifting__gift-button">
-			<?php Newspack_UI_Icons::print_svg( 'gift' ); ?>
-			<?php esc_html_e( 'Gift this article', 'newspack-plugin' ); ?>
-		</a>
+			</div>
+		</div>
 		<?php
 	}
 
@@ -303,6 +432,25 @@ class Content_Gifting {
 	}
 
 	/**
+	 * Get the timestamp of the current expiration period for the gifting reset interval.
+	 *
+	 * @return int
+	 */
+	public static function get_current_expiration_timestamp() {
+		$interval = self::get_gifting_reset_interval();
+		switch ( $interval ) {
+			case 'day':
+				return strtotime( 'tomorrow' );
+			case 'week':
+				return strtotime( 'next monday' );
+			case 'month':
+				return mktime( 0, 0, 0, gmdate( 'n' ) + 1, 1 );
+			default:
+				return 0;
+		}
+	}
+
+	/**
 	 * Generate a key for a restricted post.
 	 *
 	 * @param int $post_id The post ID.
@@ -320,36 +468,72 @@ class Content_Gifting {
 
 		$user_id = get_current_user_id();
 
-		$user_keys = get_user_meta( $user_id, self::META, true );
-		if ( ! $user_keys ) {
-			$user_keys = [ 'keys' => [] ];
+		$user_data = get_user_meta( $user_id, self::META, true );
+		if ( ! $user_data ) {
+			$user_data = [
+				'keys'   => [],
+				'limits' => [],
+			];
+		}
+
+		if ( ! isset( $user_data['keys'] ) ) {
+			$user_data['keys'] = [];
+		}
+		if ( ! isset( $user_data['limits'] ) ) {
+			$user_data['limits'] = [];
 		}
 
 		// Cleanup expired keys.
-		foreach ( $user_keys['keys'] as $key => $data ) {
+		foreach ( $user_data['keys'] as $key => $data ) {
 			if ( $data['timestamp'] + self::KEY_EXPIRATION < time() ) {
-				unset( $user_keys['keys'][ $key ] );
+				unset( $user_data['keys'][ $key ] );
 			}
 		}
 
 		// Return existing key if found.
-		if ( isset( $user_keys['keys'][ $post_id ] ) ) {
-			return $user_id . '|' . $user_keys['keys'][ $post_id ]['key'];
+		if ( isset( $user_data['keys'][ $post_id ] ) ) {
+			return $user_id . '|' . $user_data['keys'][ $post_id ]['key'];
 		}
 
-		// Check if the user has reached the limit for simultaneous content keys.
-		if ( count( $user_keys['keys'] ) >= self::USER_KEY_LIMIT ) {
-			return new WP_Error( 'user_key_limit_reached', __( 'You have reached the limit for simultaneous content keys.', 'newspack-plugin' ) );
+		$interval           = self::get_gifting_reset_interval();
+		$interval_options   = self::get_gifting_reset_interval_options();
+		$current_expiration = self::get_current_expiration_timestamp();
+
+		// Check if the user has reached their limit.
+		if ( isset( $user_data['limits'][ $current_expiration ] ) && $user_data['limits'][ $current_expiration ] >= self::get_gifting_limit() ) {
+			return new WP_Error(
+				'limit_reached',
+				sprintf(
+					// translators: %1$d is the number of gift articles limit, %2$s is the interval.
+					__( 'You have reached the limit of %1$d gifted articles for this %2$s.', 'newspack-plugin' ),
+					self::get_gifting_limit(),
+					$interval_options[ $interval ]
+				)
+			);
 		}
 
 		// Add the new key.
 		$key = wp_generate_password( 32, false );
 
-		$user_keys['keys'][ $post_id ] = [
+		$user_data['keys'][ $post_id ] = [
 			'key'       => $key,
 			'timestamp' => time(),
 		];
-		update_user_meta( $user_id, self::META, $user_keys );
+
+		// Update the user gifting limit.
+		if ( ! isset( $user_data['limits'][ $current_expiration ] ) ) {
+			$user_data['limits'][ $current_expiration ] = 0;
+		}
+		$user_data['limits'][ $current_expiration ]++;
+
+		// Cleanup limits older than 60 days.
+		foreach ( $user_data['limits'] as $timestamp => $limit ) {
+			if ( $timestamp + 60 * DAY_IN_SECONDS < time() ) {
+				unset( $user_data['limits'][ $timestamp ] );
+			}
+		}
+
+		update_user_meta( $user_id, self::META, $user_data );
 
 		return $user_id . '|' . $key;
 	}
