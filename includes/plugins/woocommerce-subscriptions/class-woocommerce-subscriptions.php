@@ -18,6 +18,7 @@ class WooCommerce_Subscriptions {
 	 */
 	public static function init() {
 		add_action( 'plugins_loaded', [ __CLASS__, 'woocommerce_subscriptions_integration_init' ] );
+		add_filter( 'woocommerce_subscriptions_product_limited_for_user', [ __CLASS__, 'maybe_limit_subscription_product_for_user' ], 10, 3 );
 	}
 
 	/**
@@ -97,6 +98,26 @@ class WooCommerce_Subscriptions {
 		 * @param string $frequency Frequency.
 		 */
 		return apply_filters( 'newspack_subscriptions_frequency_label', $label, $frequency );
+	}
+
+	/**
+	 * Maybe limit the subscription product for user.
+	 *
+	 * @param bool           $is_limited_for_user Whether the subscription product is limited for user.
+	 * @param int|WC_Product $product A WC_Product object or the ID of a product.
+	 * @param int            $user_id The user ID.
+	 */
+	public static function maybe_limit_subscription_product_for_user( $is_limited_for_user, $product, $user_id ) {
+		if ( ! $is_limited_for_user ) {
+			$product_id            = $product->get_id();
+			$is_free_trial_product = class_exists( 'WC_Subscriptions_Product' ) && \WC_Subscriptions_Product::get_trial_length( $product_id ) > 0;
+			$product_limitation    = \wcs_get_product_limitation( $product );
+			if ( $is_free_trial_product && 'active' === $product_limitation ) {
+				$is_limited_for_user = \wcs_user_has_subscription( $user_id, $product->get_id(), [ 'cancelled', 'on-hold', 'pending', 'pending-cancel' ] );
+			}
+		}
+
+		return $is_limited_for_user;
 	}
 }
 WooCommerce_Subscriptions::init();
