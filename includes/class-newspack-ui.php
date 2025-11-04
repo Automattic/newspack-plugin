@@ -114,7 +114,7 @@ class Newspack_UI {
 						>
 							<?php if ( ! $notice['autohide'] ) : ?>
 								<button class="newspack-ui__snackbar__close" aria-label="<?php esc_attr_e( 'Close', 'newspack-plugin' ); ?>" title="<?php esc_attr_e( 'Close', 'newspack-plugin' ); ?>">
-									<?php Newspack_UI_Icons::print_svg( 'closeSmall' ); ?>
+									<?php \Newspack\Newspack_UI_Icons::print_svg( 'closeSmall' ); ?>
 								</button>
 							<?php endif; ?>
 							<div class="newspack-ui__snackbar__content">
@@ -211,7 +211,7 @@ class Newspack_UI {
 					<?php endif; ?>
 					<button class="newspack-ui__button newspack-ui__button--icon newspack-ui__button--ghost newspack-ui__modal__close">
 						<span class="screen-reader-text"><?php esc_html_e( 'Close', 'newspack-plugin' ); ?></span>
-						<?php Newspack_UI_Icons::print_svg( 'close' ); ?>
+						<?php \Newspack\Newspack_UI_Icons::print_svg( 'close' ); ?>
 					</button>
 				</header>
 
@@ -225,7 +225,7 @@ class Newspack_UI {
 							$args['content'],
 							array_merge(
 								\wp_kses_allowed_html( 'post' ),
-								Newspack_UI_Icons::sanitize_svgs(),
+								\Newspack\Newspack_UI_Icons::sanitize_svgs(),
 								[
 									'input'    => [
 										'type'          => true,
