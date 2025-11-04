@@ -1185,8 +1185,7 @@ class Newspack_Test_RSS extends WP_UnitTestCase {
 		add_filter( 'newspack_rss_image_size', $image_size_filter, 10, 3 );
 		add_filter( 'wp_get_attachment_image_src', $image_src_tracker, 10, 3 );
 		add_filter( 'newspack_rss_media_content_url', $media_url_filter, 10, 4 );
-
-		add_action( 'newspack_rss_after_media_content', [ $media_action, 'action' ], 10, 5 );
+		add_action( 'newspack_rss_media_content', [ $media_action, 'action' ], 10, 5 );
 		add_action( 'newspack_rss_after_extra_tags', [ $after_action, 'action' ], 10, 2 );
 
 		$output = $this->render_extra_tags_for_post(
@@ -1199,7 +1198,7 @@ class Newspack_Test_RSS extends WP_UnitTestCase {
 		remove_filter( 'newspack_rss_image_size', $image_size_filter, 10 );
 		remove_filter( 'wp_get_attachment_image_src', $image_src_tracker, 10 );
 		remove_filter( 'newspack_rss_media_content_url', $media_url_filter, 10 );
-		remove_action( 'newspack_rss_after_media_content', [ $media_action, 'action' ], 10 );
+		remove_action( 'newspack_rss_media_content', [ $media_action, 'action' ], 10 );
 		remove_action( 'newspack_rss_after_extra_tags', [ $after_action, 'action' ], 10 );
 
 		$this->assertTrue( $image_size_filtered, 'Expected image size filter to be applied for media tags.' );
