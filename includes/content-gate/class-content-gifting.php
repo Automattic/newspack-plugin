@@ -391,7 +391,7 @@ class Content_Gifting {
 	 * @param int    $post_id The post ID.
 	 * @param string $key     The content key.
 	 *
-	 * @return array|false The data for the content key or false if invalid.
+	 * @return array|false The data for the content key or false if invalid or expired.
 	 */
 	public static function get_key_data( $post_id, $key ) {
 		if ( ! self::is_enabled() ) {
@@ -414,9 +414,9 @@ class Content_Gifting {
 			return false;
 		}
 
-		foreach ( $data['keys'] as $post_id => $item ) {
+		foreach ( $data['keys'] as $id => $item ) {
 			if ( $item['timestamp'] + self::KEY_EXPIRATION < time() ) {
-				unset( $item['keys'][ $post_id ] );
+				unset( $item['keys'][ $id ] );
 			}
 		}
 
