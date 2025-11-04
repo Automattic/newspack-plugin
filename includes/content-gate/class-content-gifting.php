@@ -544,9 +544,9 @@ class Content_Gifting {
 				'limit_reached',
 				sprintf(
 					// translators: %1$d is the number of gift articles limit, %2$s is the interval.
-					__( 'You have reached the limit of %1$d gifted articles for this %2$s.', 'newspack-plugin' ),
+					_n( 'You have reached the limit of %1$d gifted article for this %2$s.', 'You have reached the limit of %1$d gifted articles for this %2$s.', self::get_gifting_limit(), 'newspack-plugin' ),
 					self::get_gifting_limit(),
-					$interval_options[ $interval ]
+					strtolower( $interval_options[ $interval ] )
 				)
 			);
 		}
