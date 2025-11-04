@@ -1205,29 +1205,23 @@ class RSS {
 					?>
 					<media:content type="<?php echo esc_attr( get_post_mime_type( $thumbnail_id ) ); ?>" url="<?php echo esc_url( $media_url ); ?>">
 						<?php if ( ! empty( $caption ) ) : ?>
-						<media:description><?php echo esc_html( $caption ); ?></media:description>
+						<media:description><![CDATA[<?php echo esc_html( $caption ); ?>]]></media:description>
 						<?php endif; ?>
 						<media:thumbnail url="<?php echo esc_url( $media_url ); ?>" width="<?php echo esc_attr( $thumbnail_data[1] ); ?>" height="<?php echo esc_attr( $thumbnail_data[2] ); ?>" />
+						<?php
+						/**
+						 * Fires inside the media:content element.
+						 *
+						 * @param int         $thumbnail_id   The attachment post ID.
+						 * @param array|false $thumbnail_data Array with [url, width, height] or false.
+						 * @param string      $caption        The image caption from get_the_post_thumbnail_caption().
+						 * @param array       $settings       The feed settings array.
+						 * @param WP_Post     $post           The current post object.
+						 */
+						do_action( 'newspack_rss_media_content', $thumbnail_id, $thumbnail_data, $caption, $settings, $post );
+						?>
 					</media:content>
 					<?php
-					/**
-					 * Fires after the media:content element to allow adding extra media elements.
-					 *
-					 * Use this to add custom media elements like <media:credit>, <media:copyright>, etc.
-					 *
-					 * Example:
-					 *     $credit = get_post_meta( $thumbnail_id, '_media_credit', true );
-					 *     if ( $credit ) {
-					 *         echo '<media:credit><![CDATA[' . esc_html( $credit ) . ']]></media:credit>';
-					 *     }
-					 *
-					 * @param int          $thumbnail_id   The attachment post ID.
-					 * @param array|false  $thumbnail_data Array with [url, width, height] or false.
-					 * @param string       $caption        The image caption from get_the_post_thumbnail_caption().
-					 * @param array        $settings       The feed settings array.
-					 * @param WP_Post      $post           The current post object.
-					 */
-					do_action( 'newspack_rss_after_media_content', $thumbnail_id, $thumbnail_data, $caption, $settings, $post );
 				}
 			}
 		}
