@@ -320,7 +320,7 @@ class My_Account_UI_V1 {
 		?>
 		<div class="newspack-ui__box newspack-ui__box--text-center">
 			<span class="newspack-ui__icon newspack-ui__icon--neutral">
-				<?php \Newspack\Newspack_UI_Icons::print_svg( 'email' ); ?>
+				<?php Newspack_UI_Icons::print_svg( 'email' ); ?>
 			</span>
 			<p>
 				<strong><?php esc_html_e( 'Your account deletion has been requested.', 'newspack-plugin' ); ?></strong>
