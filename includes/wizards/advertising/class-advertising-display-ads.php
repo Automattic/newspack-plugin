@@ -677,7 +677,7 @@ class Advertising_Display_Ads extends Wizard {
 	public function add_page() {
 		$icon = sprintf(
 			'data:image/svg+xml;base64,%s',
-			base64_encode( \Newspack\Newspack_UI_Icons::get_svg( 'ad' ) )
+			base64_encode( Newspack_UI_Icons::get_svg( 'ad' ) )
 		);
 		add_menu_page(
 			$this->get_name(),
