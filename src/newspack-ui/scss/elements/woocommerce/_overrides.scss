@@ -20,6 +20,12 @@
 			display: block;
 		}
 	}
+
+	.form-row.woocommerce-SavedPaymentMethods-saveNew {
+		label {
+			font-weight: normal;
+		}
+	}
 }
 
 /** See #3292. */
@@ -41,5 +47,8 @@
 		p {
 			font-size: var(--newspack-ui-font-size-s);
 		}
+	}
+	.woocommerce-account-join-team .woocommerce-privacy-policy-text {
+		clear: both;
 	}
 }

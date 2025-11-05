@@ -30,7 +30,7 @@ import {
 	Waiting,
 	hooks,
 	withWizardScreen,
-} from '../../../../components/src';
+} from '../../../../../packages/components/src';
 
 import './style.scss';
 

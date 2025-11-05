@@ -8,7 +8,7 @@ import apiFetch from '@wordpress/api-fetch';
 /**
  * Internal dependencies
  */
-import { ActionCard, withWizardScreen } from '../../../../components/src';
+import { ActionCard, withWizardScreen } from '../../../../../packages/components/src';
 
 const apiPath = '/newspack/v1/wizard/newspack-newsletters/settings/tracking';
 

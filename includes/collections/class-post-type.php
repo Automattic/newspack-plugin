@@ -51,6 +51,7 @@ class Post_Type {
 			[ 'before_delete_post', [ Sync::class, 'handle_post_deleted' ] ],
 			[ 'wp_trash_post', [ Sync::class, 'handle_post_trashed' ] ],
 			[ 'untrashed_post', [ Sync::class, 'handle_post_untrashed' ] ],
+			[ 'pre_post_update', [ __CLASS__, 'validate_collection_title' ], 10, 2 ],
 		];
 	}
 
@@ -184,6 +185,69 @@ class Post_Type {
 					'panelTitle'      => __( 'Collection Details', 'newspack-plugin' ),
 				]
 			);
+		}
+	}
+
+	/**
+	 * Check if a collection title already exists.
+	 *
+	 * @param string $title     The title to check.
+	 * @param int    $exclude_id Post ID to exclude from the check.
+	 * @return bool True if a collection with this title exists, false otherwise.
+	 */
+	public static function title_exists( $title, $exclude_id = 0 ) {
+		$args = [
+			'post_type'      => self::get_post_type(),
+			'post_status'    => [ 'publish', 'private', 'future', 'pending', 'draft' ],
+			's'              => $title,
+			'posts_per_page' => 100,
+			'fields'         => 'ids',
+		];
+
+		if ( ! empty( $exclude_id ) ) {
+			$args['post__not_in'] = [ $exclude_id ]; // phpcs:ignore WordPressVIPMinimum.Performance.WPQueryParams.PostNotIn_post__not_in
+		}
+
+		$posts = get_posts( $args );
+
+		// Check for exact title match.
+		foreach ( $posts as $post_id ) {
+			$post = get_post( $post_id );
+			if ( $post && trim( $post->post_title ) === trim( $title ) ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Validate collection title to ensure it's unique.
+	 *
+	 * @param int   $post_id The post ID.
+	 * @param array $data Array of unslashed post data.
+	 */
+	public static function validate_collection_title( $post_id, $data ) {
+		// Only validate for collection post type.
+		if ( self::get_post_type() !== $data['post_type'] ) {
+			return $data;
+		}
+
+		// Skip validation for auto-drafts and revisions.
+		if ( 'auto-draft' === $data['post_status'] || ! empty( $data['post_parent'] ) ) {
+			return $data;
+		}
+
+		$title = trim( $data['post_title'] );
+		if ( empty( $title ) ) {
+			return $data;
+		}
+
+		$exclude_id = ! empty( $post_id ) ? $post_id : 0;
+		$title_exists = self::title_exists( $title, $exclude_id );
+
+		if ( $title_exists ) {
+			wp_die( __( 'This collection could not be saved because a collection with the same title already exists. Please choose a different title and try again.', 'newspack-plugin' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		}
 	}
 }

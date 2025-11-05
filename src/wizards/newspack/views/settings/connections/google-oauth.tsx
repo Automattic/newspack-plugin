@@ -11,7 +11,7 @@ import { useEffect, useState } from '@wordpress/element';
 /**
  * Internal dependencies.
  */
-import { Button } from '../../../../../components/src';
+import { Button } from '../../../../../../packages/components/src';
 import WizardsActionCard from '../../../../wizards-action-card';
 import { useWizardApiFetch } from '../../../../hooks/use-wizard-api-fetch';
 import { WizardError, WIZARD_ERROR_MESSAGES } from '../../../../errors';
@@ -130,7 +130,7 @@ function GoogleOAuth( {
 		}
 		if ( isConnected ) {
 			return sprintf(
-				// Translators: connected user's email address.
+				// translators: %s: connected user's email address.
 				__( 'Connected as %s', 'newspack-plugin' ),
 				userBasicInfo?.email
 			);

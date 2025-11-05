@@ -30,7 +30,9 @@
 			transform: none;
 		}
 	}
-	a.newspack-my-account__home-link {
+	a.newspack-my-account__home-link,
+	.woocommerce-MyAccount-navigation-link--back-to-memberships a,
+	.woocommerce-MyAccount-navigation-link--back-to-teams a {
 		background-image: url("data:image/svg+xml,%3Csvg width='8' height='12' viewBox='0 0 8 12' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M7 0.500024L2 6.00002L7 11.5' stroke='%236C6C6C' stroke-width='1.5'/%3E%3C/svg%3E%0A");
 		background-position: 0 50%;
 		background-repeat: no-repeat;

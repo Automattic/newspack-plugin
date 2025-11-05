@@ -8,7 +8,7 @@ import apiFetch from '@wordpress/api-fetch';
 /**
  * Internal dependencies
  */
-import { Grid, ImageUpload, SectionHeader, SelectControl, TextControl, withWizardScreen, hooks } from '../../../../components/src';
+import { Grid, ImageUpload, SectionHeader, SelectControl, TextControl, withWizardScreen, hooks } from '../../../../../packages/components/src';
 
 const pageTitleTemplate = document.title.replace( newspack_aux_data.site_title, '__SITE_TITLE__' );
 

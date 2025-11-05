@@ -20,8 +20,8 @@ import { stringify } from 'qs';
 /**
  * Internal dependencies.
  */
-import { WebPreview, withWizard } from '../../../../components/src';
-import Router from '../../../../components/src/proxied-imports/router';
+import { WebPreview, withWizard } from '../../../../../packages/components/src';
+import Router from '../../../../../packages/components/src/proxied-imports/router';
 import { Campaigns, Settings, Segments } from './views';
 import { CampaignsContext } from '../../contexts';
 

@@ -7,7 +7,7 @@ import { useState } from '@wordpress/element';
 /**
  * Internal dependencies.
  */
-import { Button, Card, CategoryAutocomplete, Grid, Modal, SelectControl, Settings, hooks } from '../../../../components/src';
+import { Button, Card, CategoryAutocomplete, Grid, Modal, SelectControl, Settings, hooks } from '../../../../../packages/components/src';
 import { frequenciesForPopup, isOverlay, placementsForPopups, overlaySizesForPopups } from '../../views/campaigns/utils';
 
 const { SettingsCard } = Settings;
@@ -129,7 +129,7 @@ const PromptSettingsModal = ( { prompt, disabled, onClose, updatePopup } ) => {
 					<div>
 						<Button isLink onClick={ () => setShowAdvanced( ! showAdvanced ) }>
 							{ sprintf(
-								// Translators: whether to show or hide advanced settings fields.
+								// translators: %s: whether to show or hide advanced settings fields.
 								__( '%s Advanced Settings', 'newspack-plugin' ),
 								showAdvanced ? __( 'Hide', 'newspack-plugin' ) : __( 'Show', 'newspack-plugin' )
 							) }
