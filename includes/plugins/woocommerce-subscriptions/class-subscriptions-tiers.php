@@ -119,22 +119,31 @@ class Subscriptions_Tiers {
 		if ( empty( self::$switch_subscription_links ) ) {
 			return;
 		}
+		if ( ! function_exists( 'wcs_is_product_switchable_type' ) ) {
+			return;
+		}
 		foreach ( self::$switch_subscription_links as $switch_data ) {
+			if ( ! wcs_is_product_switchable_type( $switch_data['item']['product_id'] ) ) {
+				continue;
+			}
 			$product = wc_get_product( $switch_data['item']['product_id'] );
-			if ( ! $product ) {
-				continue;
-			}
 			$parent_products = \WC_Subscriptions_Product::get_visible_grouped_parent_product_ids( $product );
-			if ( empty( $parent_products ) ) {
+			if ( ! empty( $parent_products ) ) {
+				$parent_product = wc_get_product( reset( $parent_products ) );
+			} elseif ( 'variable-subscription' === $product->get_type() ) {
+				$parent_product = $product;
+			} elseif ( $product->get_parent_id() ) {
+				$parent_product = wc_get_product( $product->get_parent_id() );
+			}
+			if ( ! $parent_product ) {
 				continue;
 			}
-			$product = wc_get_product( reset( $parent_products ) );
 			$label = __( 'Change subscription', 'newspack-plugin' );
-			if ( Donations::is_donation_product( $product->get_id() ) ) {
+			if ( Donations::is_donation_product( $parent_product->get_id() ) ) {
 				$title = __( 'Edit donation', 'newspack-plugin' );
 				$label = __( 'Confirm donation', 'newspack-plugin' );
 			}
-			self::render_modal( $product, $title ?? $label, $label, $switch_data );
+			self::render_modal( $parent_product, $title ?? $label, $label, $switch_data );
 		}
 	}
 
