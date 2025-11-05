@@ -114,7 +114,7 @@ class Newspack_UI {
 						>
 							<?php if ( ! $notice['autohide'] ) : ?>
 								<button class="newspack-ui__snackbar__close" aria-label="<?php esc_attr_e( 'Close', 'newspack-plugin' ); ?>" title="<?php esc_attr_e( 'Close', 'newspack-plugin' ); ?>">
-									<?php \Newspack\Newspack_UI_Icons::print_svg( 'closeSmall' ); ?>
+									<?php Newspack_UI_Icons::print_svg( 'closeSmall' ); ?>
 								</button>
 							<?php endif; ?>
 							<div class="newspack-ui__snackbar__content">
