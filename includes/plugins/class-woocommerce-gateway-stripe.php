@@ -169,17 +169,12 @@ class WooCommerce_Gateway_Stripe {
 		}
 
 		// Disable Link by Stripe for new installs.
-		if (
-			is_array( $settings['upe_checkout_experience_accepted_payments'] ) &&
-			! empty( $settings['upe_checkout_experience_accepted_payments'] ) &&
-			in_array( 'link', $settings['upe_checkout_experience_accepted_payments'], true )
-		) {
-			$settings['upe_checkout_experience_accepted_payments'] = array_diff(
-				$settings['upe_checkout_experience_accepted_payments'],
-				[ 'link' ]
-			);
+		$option_names = [ 'upe_checkout_experience_accepted_payments', 'stripe_upe_payment_method_order' ];
+		foreach ( $option_names as $option_name ) {
+			if ( is_array( $settings[ $option_name ] ) && ! empty( $settings[ $option_name ] ) && in_array( 'link', $settings[ $option_name ], true ) ) {
+				$settings[ $option_name ] = array_diff( $settings[ $option_name ], [ 'link' ] );
+			}
 		}
-
 		return $settings;
 	}
 }
