@@ -36,10 +36,9 @@ class Accessibility_Statement_Page {
 			// Check if page exists and is either published or draft.
 			if ( $page && 'page' === $page->post_type && in_array( get_post_status( $page->ID ), [ 'publish', 'draft' ] ) ) {
 				$page_data = [
-					'editUrl'      => get_edit_post_link( $page->ID, 'raw' ),
-					'status'       => get_post_status( $page->ID ),
-					'pageUrl'      => get_permalink( $page->ID ),
-					'hasSavedPage' => true,
+					'editUrl' => get_edit_post_link( $page->ID, 'raw' ),
+					'status'  => get_post_status( $page->ID ),
+					'pageUrl' => get_permalink( $page->ID ),
 				];
 				return $page_data;
 			}
@@ -71,10 +70,9 @@ class Accessibility_Statement_Page {
 		set_theme_mod( 'accessibility_statement_page_id', $page_id );
 
 		$page_data = [
-			'editUrl'      => get_edit_post_link( $page_id, 'raw' ),
-			'status'       => 'draft',
-			'pageUrl'      => get_permalink( $page_id ),
-			'hasSavedPage' => true,
+			'editUrl' => get_edit_post_link( $page_id, 'raw' ),
+			'status'  => 'draft',
+			'pageUrl' => get_permalink( $page_id ),
 		];
 		return $page_data;
 	}
@@ -105,11 +103,10 @@ class Accessibility_Statement_Page {
 		}
 
 		$page_data = [
-			'editUrl'      => get_edit_post_link( $page->ID, 'raw' ),
-			'pageUrl'      => get_permalink( $page->ID ),
-			'status'       => get_post_status( $page->ID ),
-			'title'        => get_the_title( $page->ID ),
-			'hasSavedPage' => true,
+			'editUrl' => get_edit_post_link( $page->ID, 'raw' ),
+			'pageUrl' => get_permalink( $page->ID ),
+			'status'  => get_post_status( $page->ID ),
+			'title'   => get_the_title( $page->ID ),
 		];
 		return $page_data;
 	}

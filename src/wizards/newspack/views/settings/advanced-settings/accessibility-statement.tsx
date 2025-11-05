@@ -19,7 +19,6 @@ type PageData = {
 	editUrl: string;
 	status: string;
 	pageUrl: string;
-	hasSavedPage?: boolean;
 };
 
 export default function AccessibilityStatement( { isFetching }: AccessibilityStatementProps ) {
