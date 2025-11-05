@@ -460,7 +460,7 @@ class Newsletters_Wizard extends Wizard {
 		// Change menu icon.
 		$icon = sprintf(
 			'data:image/svg+xml;base64,%s',
-			base64_encode( \Newspack\Newspack_UI_Icons::get_svg( 'email' ) )
+			base64_encode( Newspack_UI_Icons::get_svg( 'email' ) )
 		);
 
 		$wp_post_types[ $post_type ]->menu_icon = $icon;
