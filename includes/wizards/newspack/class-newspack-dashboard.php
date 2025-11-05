@@ -339,7 +339,7 @@ class Newspack_Dashboard extends Wizard {
 	public function add_page() {
 		$icon = sprintf(
 			'data:image/svg+xml;base64,%s',
-			base64_encode( \Newspack\Newspack_UI_Icons::get_svg( 'newspack' ) )
+			base64_encode( Newspack_UI_Icons::get_svg( 'newspack' ) )
 		);
 
 		add_menu_page(
