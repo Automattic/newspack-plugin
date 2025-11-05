@@ -8,6 +8,7 @@
 namespace Newspack\Blocks\ReaderRegistration;
 
 use Newspack;
+use Newspack\Newspack_UI_Icons;
 use Newspack\Reader_Activation;
 use Newspack\Recaptcha;
 
@@ -184,7 +185,7 @@ function render_block( $attrs, $content ) {
 		<?php if ( $registered ) : ?>
 			<div class="newspack-ui__box newspack-ui__box--success newspack-ui__box--text-center">
 				<span class="newspack-ui__icon newspack-ui__icon--success">
-					<?php \Newspack\Newspack_UI_Icons::print_svg( 'check' ); ?>
+					<?php Newspack_UI_Icons::print_svg( 'check' ); ?>
 				</span>
 				<?php echo $success_registration_markup; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 			</div>
@@ -294,13 +295,13 @@ function render_block( $attrs, $content ) {
 			</form>
 			<div class="newspack-registration__registration-success newspack-registration--hidden newspack-ui__box newspack-ui__box--success newspack-ui__box--text-center">
 				<span class="newspack-ui__icon newspack-ui__icon--success">
-					<?php \Newspack\Newspack_UI_Icons::print_svg( 'check' ); ?>
+					<?php Newspack_UI_Icons::print_svg( 'check' ); ?>
 				</span>
 				<?php echo $success_registration_markup; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 			</div>
 			<div class="newspack-registration__login-success newspack-registration--hidden newspack-ui__box newspack-ui__box--success newspack-ui__box--text-center">
 				<span class="newspack-ui__icon newspack-ui__icon--success">
-					<?php \Newspack\Newspack_UI_Icons::print_svg( 'emailSend' ); ?>
+					<?php Newspack_UI_Icons::print_svg( 'emailSend' ); ?>
 				</span>
 				<?php echo \wp_kses_post( $success_login_markup ); ?>
 			</div>
