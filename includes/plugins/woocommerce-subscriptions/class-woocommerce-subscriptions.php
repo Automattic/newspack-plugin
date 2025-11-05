@@ -19,6 +19,7 @@ class WooCommerce_Subscriptions {
 	public static function init() {
 		add_action( 'plugins_loaded', [ __CLASS__, 'woocommerce_subscriptions_integration_init' ] );
 		add_filter( 'woocommerce_subscriptions_product_limited_for_user', [ __CLASS__, 'maybe_limit_subscription_product_for_user' ], 10, 3 );
+		add_filter( 'woocommerce_subscriptions_product_trial_length', [ __CLASS__, 'limit_free_trials_to_one_per_user' ], 10, 2 );
 	}
 
 	/**
@@ -101,23 +102,40 @@ class WooCommerce_Subscriptions {
 	}
 
 	/**
-	 * Maybe limit the subscription product for user.
+	 * Maybe limit the subscription product for user. If the product is limited to one active
+	 * subscription per user, treat on-hold, pending, and pending-cancel statuses as active.
 	 *
 	 * @param bool           $is_limited_for_user Whether the subscription product is limited for user.
 	 * @param int|WC_Product $product A WC_Product object or the ID of a product.
 	 * @param int            $user_id The user ID.
 	 */
 	public static function maybe_limit_subscription_product_for_user( $is_limited_for_user, $product, $user_id ) {
-		if ( ! $is_limited_for_user ) {
-			$product_id            = $product->get_id();
-			$is_free_trial_product = class_exists( 'WC_Subscriptions_Product' ) && \WC_Subscriptions_Product::get_trial_length( $product_id ) > 0;
-			$product_limitation    = \wcs_get_product_limitation( $product );
-			if ( $is_free_trial_product && 'active' === $product_limitation ) {
-				$is_limited_for_user = \wcs_user_has_subscription( $user_id, $product->get_id(), [ 'cancelled', 'on-hold', 'pending', 'pending-cancel' ] );
+		if ( ! $is_limited_for_user && 'active' === \wcs_get_product_limitation( $product ) ) {
+			$is_limited_for_user = \wcs_user_has_subscription( $user_id, $product->get_id(), [ 'active', 'on-hold', 'pending', 'pending-cancel' ] );
+		}
+		return $is_limited_for_user;
+	}
+
+	/**
+	 * Limit free trial purchases to one per user. If the user already has a subscription of any status,
+	 * return 0 to force no free trial period during checkout for this product.
+	 *
+	 * @param int        $trial_length The trial length.
+	 * @param WC_Product $product The product.
+	 * @return int The trial length.
+	 */
+	public static function limit_free_trials_to_one_per_user( $trial_length, $product ) {
+		$user_id = get_current_user_id();
+		if ( $trial_length && $user_id && $product && $product->is_type( [ 'subscription', 'subscription_variation', 'variable-subscription' ] ) ) {
+			$user_subscriptions = array_values( \wcs_get_users_subscriptions( $user_id ) );
+			foreach ( $user_subscriptions as $subscription ) {
+				if ( $subscription->has_product( $product->get_id() ) ) {
+					return 0;
+				}
 			}
 		}
 
-		return $is_limited_for_user;
+		return $trial_length;
 	}
 }
 WooCommerce_Subscriptions::init();
