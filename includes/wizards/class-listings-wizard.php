@@ -103,7 +103,7 @@ class Listings_Wizard extends Wizard {
 	public function add_page() {
 		$icon = sprintf(
 			'data:image/svg+xml;base64,%s',
-			base64_encode( \Newspack\Newspack_UI_Icons::get_svg( 'curatedList' ) )
+			base64_encode( Newspack_UI_Icons::get_svg( 'curatedList' ) )
 		);
 
 		// Top-level menu item.
