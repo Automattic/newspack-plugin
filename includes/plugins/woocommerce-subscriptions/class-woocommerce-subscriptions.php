@@ -110,8 +110,15 @@ class WooCommerce_Subscriptions {
 	 * @param int            $user_id The user ID.
 	 */
 	public static function maybe_limit_subscription_product_for_user( $is_limited_for_user, $product, $user_id ) {
-		if ( ! $is_limited_for_user && 'active' === \wcs_get_product_limitation( $product ) ) {
+		$product_limitation = \wcs_get_product_limitation( $product );
+		if ( ! $is_limited_for_user && 'active' === $product_limitation ) {
 			$is_limited_for_user = \wcs_user_has_subscription( $user_id, $product->get_id(), [ 'active', 'on-hold', 'pending', 'pending-cancel' ] );
+		}
+
+		// Use custom error messaging if available.
+		if ( $is_limited_for_user && method_exists( 'Newspack_Blocks\Modal_Checkout', 'get_subscription_limited_message' ) && method_exists( 'Newspack_Blocks\Modal_Checkout', 'get_subscription_limited_message_any' ) ) {
+			$callback = 'active' === $product_limitation ? 'get_subscription_limited_message' : 'get_subscription_limited_message_any';
+			add_filter( 'woocommerce_cart_item_removed_message', [ 'Newspack_Blocks\Modal_Checkout', $callback ] );
 		}
 		return $is_limited_for_user;
 	}
