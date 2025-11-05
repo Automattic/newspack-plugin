@@ -279,7 +279,7 @@ class Network_Wizard extends Wizard {
 		// Adjust the network menu attributes.
 		$icon = sprintf(
 			'data:image/svg+xml;base64,%s',
-			base64_encode( \Newspack\Newspack_UI_Icons::get_svg( 'globe' ) )
+			base64_encode( Newspack_UI_Icons::get_svg( 'globe' ) )
 		);
 
 		// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
