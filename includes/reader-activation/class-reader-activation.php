@@ -1712,7 +1712,7 @@ final class Reader_Activation {
 					<h2><?php echo \esc_html( self::get_reader_activation_labels( 'newsletters_title' ) ); ?></h2>
 					<button class="newspack-ui__button newspack-ui__button--icon newspack-ui__button--ghost newspack-ui__modal__close">
 						<span class="screen-reader-text"><?php esc_html_e( 'Close', 'newspack-plugin' ); ?></span>
-						<?php \Newspack\Newspack_UI_Icons::print_svg( 'close' ); ?>
+						<?php Newspack_UI_Icons::print_svg( 'close' ); ?>
 					</button>
 				</div>
 				<div class="newspack-ui__modal__content">
