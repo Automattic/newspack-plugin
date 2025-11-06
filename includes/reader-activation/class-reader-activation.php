@@ -1484,7 +1484,8 @@ final class Reader_Activation {
 		$referer           = \wp_parse_url( \wp_get_referer() );
 		$labels            = self::get_reader_activation_labels( 'signin' );
 		// If there is a redirect parameter, use it as the auth callback URL.
-		$auth_callback_url = filter_input( INPUT_GET, 'redirect', FILTER_SANITIZE_URL ) ?? '#';
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$auth_callback_url = isset( $_GET['redirect'] ) ? \esc_url_raw( \wp_unslash( $_GET['redirect'] ) ) : '#';
 		if ( '#' === $auth_callback_url ) {
 			if ( Renewal::is_subscriptions_page() ) {
 				// If we are on the subscriptions page, set the auth callback URL to the subscriptions page.
@@ -1526,13 +1527,6 @@ final class Reader_Activation {
 				<input type="hidden" name="<?php echo \esc_attr( self::AUTH_FORM_ACTION ); ?>" value="1" />
 				<?php if ( ! empty( $referer['path'] ) ) : ?>
 					<input type="hidden" name="referer" value="<?php echo \esc_url( $referer['path'] ); ?>" />
-				<?php endif; ?>
-				<?php
-				// Add hidden redirect_url field if OAuth redirect is present.
-				$oauth_redirect = isset( $_GET['redirect'] ) ? \esc_url_raw( \wp_unslash( $_GET['redirect'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-				if ( ! empty( $oauth_redirect ) && self::is_oauth_redirect( $oauth_redirect ) ) :
-					?>
-					<input type="hidden" name="redirect_url" value="<?php echo \esc_attr( $oauth_redirect ); ?>" />
 				<?php endif; ?>
 				<input type="hidden" name="action" />
 				<p data-action="otp">
@@ -1832,26 +1826,6 @@ final class Reader_Activation {
 		if ( empty( $message ) ) {
 			$labels  = self::get_reader_activation_labels( 'signin' );
 			$message = $is_error ? $data->get_error_message() : $labels['success_message'];
-		}
-
-		// Add redirect_to for OAuth flows that need post-authentication redirect.
-		if ( ! $is_error && ! empty( $_POST['redirect_url'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
-			// $_POST is slashed, so unslash before sanitizing.
-			$redirect_url = \esc_url_raw( \wp_unslash( $_POST['redirect_url'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
-
-			// Validate it's a local redirect for security.
-			$redirect_host = \wp_parse_url( $redirect_url, PHP_URL_HOST );
-			$site_host     = \wp_parse_url( site_url(), PHP_URL_HOST );
-
-			if ( $redirect_host && $redirect_host === $site_host ) {
-				/**
-				 * Filters the redirect URL in the authentication response.
-				 *
-				 * @param string $redirect_url The redirect URL to include in the response.
-				 * @param array  $data         The response data array.
-				 */
-				$data['redirect_to'] = apply_filters( 'newspack_ras_auth_redirect_url', $redirect_url, $data );
-			}
 		}
 
 		\wp_send_json( compact( 'message', 'data' ), \is_wp_error( $data ) ? 400 : 200 );

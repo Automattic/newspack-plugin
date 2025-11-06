@@ -310,20 +310,6 @@ window.newspackRAS.push( function ( readerActivation ) {
 						}
 					}
 
-					// Redirect handling. Works for OAuth and other redirect flows.
-					if ( data?.redirect_to ) {
-						try {
-							const redirectUrl = new URL( data.redirect_to, window.location.origin );
-							if ( redirectUrl.origin === window.location.origin ) {
-								// Use redirectUrl.href instead of data.redirect_to to ensure proper normalization and prevent potential security issues.
-								window.location.href = redirectUrl.href;
-								return;
-							}
-						} catch ( e ) {
-							// Invalid URL format - silently ignore and continue with normal flow.
-						}
-					}
-
 					let callback;
 					if ( ! container.config?.skipNewslettersSignup && data?.registered && container.authCallback ) {
 						callback = ( authMessage, authData ) =>
@@ -373,10 +359,16 @@ window.newspackRAS.push( function ( readerActivation ) {
 							}
 						}
 
-						if ( data?.redirect_to ) {
-							const continueButton = container.querySelector( '.auth-callback' );
-							if ( continueButton ) {
-								continueButton.setAttribute( 'href', data.redirect_to );
+						// Auto-redirect by reading the Continue button's href.
+						const continueButton = container.querySelector( '.auth-callback' );
+						if ( continueButton?.href && continueButton.href !== window.location.href && continueButton.href !== '#' ) {
+							try {
+								const redirectUrl = new URL( continueButton.href );
+								if ( redirectUrl.origin === window.location.origin ) {
+									window.location.href = redirectUrl.href;
+								}
+							} catch ( e ) {
+								// Invalid URL - continue with normal flow.
 							}
 						}
 					}
