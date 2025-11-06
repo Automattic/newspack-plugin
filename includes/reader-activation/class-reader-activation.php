@@ -382,6 +382,7 @@ final class Reader_Activation {
 			'woocommerce_enable_terms_confirmation'        => false,
 			'woocommerce_terms_confirmation_text'          => self::get_terms_confirmation_text(),
 			'woocommerce_terms_confirmation_url'           => self::get_terms_confirmation_url(),
+			'oauth_redirect_to_ras'                        => false,
 		];
 
 		/**
@@ -2767,8 +2768,8 @@ final class Reader_Activation {
 	 * @return string Modified login URL for OAuth flows, original URL otherwise.
 	 */
 	public static function redirect_oauth_to_ras_login( $login_url, $redirect, $force_reauth ) {
-		// Only intercept OAuth authorization requests.
-		if ( ! self::is_oauth_redirect( $redirect ) || ! function_exists( 'wc_get_page_permalink' ) ) {
+		// Only intercept OAuth authorization requests if the setting is enabled.
+		if ( ! self::get_setting( 'oauth_redirect_to_ras' ) || ! self::is_oauth_redirect( $redirect ) || ! function_exists( 'wc_get_page_permalink' ) ) {
 			return $login_url;
 		}
 
