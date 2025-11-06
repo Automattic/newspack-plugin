@@ -1,3 +1,24 @@
+## [6.22.3](https://github.com/Automattic/newspack-plugin/compare/v6.22.2...v6.22.3) (2025-11-05)
+
+
+### Bug Fixes
+
+* **ga4:** always send reader-related custom params ([#4282](https://github.com/Automattic/newspack-plugin/issues/4282)) ([efb08eb](https://github.com/Automattic/newspack-plugin/commit/efb08eb391f5b2a3f2655f8f4117d5073492c0ea))
+
+## [6.22.2](https://github.com/Automattic/newspack-plugin/compare/v6.22.1...v6.22.2) (2025-11-05)
+
+
+### Bug Fixes
+
+* **my-account:** support variable subscription when switching ([#4284](https://github.com/Automattic/newspack-plugin/issues/4284)) ([991cbc5](https://github.com/Automattic/newspack-plugin/commit/991cbc5698a5371957112b9793ff2239eb7233ad))
+
+## [6.22.1](https://github.com/Automattic/newspack-plugin/compare/v6.22.0...v6.22.1) (2025-11-05)
+
+
+### Bug Fixes
+
+* **my-account:** filter the My Account version ([025c3bb](https://github.com/Automattic/newspack-plugin/commit/025c3bb2594e26cfd5a64aa59ae046ac24bc1149))
+
 # [6.22.0](https://github.com/Automattic/newspack-plugin/compare/v6.21.4...v6.22.0) (2025-10-30)
 
 

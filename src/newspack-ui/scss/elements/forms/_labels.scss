@@ -42,6 +42,10 @@
 				+ .newspack-ui__input-card {
 					margin-top: calc(var(--newspack-ui-spacer-2) * -1);
 				}
+
+				.newspack-ui__helper-text {
+					margin-top: 0;
+				}
 			}
 
 			// 'Selected' badge

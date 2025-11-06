@@ -106,7 +106,7 @@ $types         = \wc_get_account_payment_methods_types();
 									?>
 									<div class="newspack-ui__dropdown">
 										<button class="newspack-ui__dropdown__toggle newspack-ui__button newspack-ui__button--icon newspack-ui__button--ghost">
-											<?php \Newspack\Newspack_UI_Icons::print_svg( 'more' ); ?>
+											<?php Newspack_UI_Icons::print_svg( 'more' ); ?>
 											<span class="screen-reader-text">More</span>
 										</button>
 										<div class="newspack-ui__dropdown__content">
@@ -207,7 +207,7 @@ $types         = \wc_get_account_payment_methods_types();
 						</div>
 						<div class="newspack-ui__dropdown">
 							<button class="newspack-ui__dropdown__toggle newspack-ui__button newspack-ui__button--icon newspack-ui__button--ghost">
-								<?php \Newspack\Newspack_UI_Icons::print_svg( 'more' ); ?>
+								<?php Newspack_UI_Icons::print_svg( 'more' ); ?>
 								<span class="screen-reader-text">More</span>
 							</button>
 							<div class="newspack-ui__dropdown__content">

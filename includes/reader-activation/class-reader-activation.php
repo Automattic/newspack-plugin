@@ -1413,7 +1413,7 @@ final class Reader_Activation {
 
 		$link  = '<a class="' . \esc_attr( $class() ) . '" data-labels="' . \esc_attr( htmlspecialchars( \wp_json_encode( $labels ), ENT_QUOTES, 'UTF-8' ) ) . '" href="' . \esc_url_raw( $href ) . '" data-newspack-reader-account-link>';
 		$link .= '<span class="' . \esc_attr( $class( 'icon' ) ) . '">';
-		$link .= \Newspack\Newspack_UI_Icons::get_svg( 'account' );
+		$link .= Newspack_UI_Icons::get_svg( 'account' );
 		$link .= '</span>';
 		$link .= '<span class="' . \esc_attr( $class( 'label' ) ) . '">' . \esc_html( $labels[ $label ] ) . '</span>';
 		$link .= '</a>';
@@ -1505,7 +1505,7 @@ final class Reader_Activation {
 			<?php } ?>
 			<div class="newspack-ui__box newspack-ui__box--success newspack-ui__box--text-center" data-action="success">
 				<span class="newspack-ui__icon newspack-ui__icon--success">
-					<?php \Newspack\Newspack_UI_Icons::print_svg( 'check' ); ?>
+					<?php Newspack_UI_Icons::print_svg( 'check' ); ?>
 				</span>
 				<p>
 					<strong class="success-title"></strong>
@@ -1597,7 +1597,7 @@ final class Reader_Activation {
 					<h2 id="newspack-reader-auth-modal-label"><?php echo \esc_html( $label ); ?></h2>
 					<button class="newspack-ui__button newspack-ui__button--icon newspack-ui__button--ghost newspack-ui__modal__close">
 						<span class="screen-reader-text"><?php esc_html_e( 'Close', 'newspack-plugin' ); ?></span>
-						<?php \Newspack\Newspack_UI_Icons::print_svg( 'close' ); ?>
+						<?php Newspack_UI_Icons::print_svg( 'close' ); ?>
 					</button>
 				</div>
 				<div class="newspack-ui__modal__content">
@@ -1678,7 +1678,7 @@ final class Reader_Activation {
 					<?php if ( count( $newsletters_lists ) > $default_list_size ) : ?>
 						<button type="button" class="newspack-ui__button newspack-ui__button--wide newspack-ui__button--secondary see-all-button">
 							<span><?php esc_html_e( 'See all', 'newspack-plugin' ); ?></span>
-							<?php \Newspack\Newspack_UI_Icons::print_svg( 'arrowRight' ); ?>
+							<?php Newspack_UI_Icons::print_svg( 'arrowRight' ); ?>
 						</button>
 					<?php endif; ?>
 					<button type="submit" class="newspack-ui__button newspack-ui__button--wide newspack-ui__button--primary"><?php echo \esc_html( self::get_reader_activation_labels( 'newsletters_continue' ) ); ?></button>
@@ -1712,9 +1712,7 @@ final class Reader_Activation {
 					<h2><?php echo \esc_html( self::get_reader_activation_labels( 'newsletters_title' ) ); ?></h2>
 					<button class="newspack-ui__button newspack-ui__button--icon newspack-ui__button--ghost newspack-ui__modal__close">
 						<span class="screen-reader-text"><?php esc_html_e( 'Close', 'newspack-plugin' ); ?></span>
-						<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" role="img" aria-hidden="true" focusable="false">
-							<path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/>
-						</svg>
+						<?php Newspack_UI_Icons::print_svg( 'close' ); ?>
 					</button>
 				</div>
 				<div class="newspack-ui__modal__content">
@@ -1931,7 +1929,7 @@ final class Reader_Activation {
 		?>
 		<div class="newspack-ui">
 			<button type="button" class="newspack-ui__button newspack-ui__button--wide newspack-ui__button--secondary newspack-ui__button--google-oauth">
-				<?php \Newspack\Newspack_UI_Icons::print_svg( 'google' ); ?>
+				<?php Newspack_UI_Icons::print_svg( 'google' ); ?>
 				<?php echo \esc_html__( 'Sign in with Google', 'newspack-plugin' ); ?>
 			</button>
 			<div class="newspack-ui__word-divider">
