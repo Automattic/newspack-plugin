@@ -359,9 +359,20 @@ window.newspackRAS.push( function ( readerActivation ) {
 							}
 						}
 
-						// Auto-redirect by reading the Continue button's href.
 						const continueButton = container.querySelector( '.auth-callback' );
-						if ( continueButton?.href && continueButton.href !== window.location.href && continueButton.href !== '#' ) {
+
+						if ( data?.redirect_to && continueButton ) {
+							continueButton.setAttribute( 'href', data.redirect_to );
+						}
+
+						// Auto-redirect if we have a redirect query parameter.
+						const urlParams = new URLSearchParams( window.location.search );
+						if (
+							urlParams.has( 'redirect' ) &&
+							continueButton?.href &&
+							continueButton.href !== window.location.href &&
+							continueButton.href !== '#'
+						) {
 							try {
 								const redirectUrl = new URL( continueButton.href );
 								if ( redirectUrl.origin === window.location.origin ) {
