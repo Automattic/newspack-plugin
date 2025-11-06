@@ -1843,7 +1843,13 @@ final class Reader_Activation {
 			$site_host     = \wp_parse_url( site_url(), PHP_URL_HOST );
 
 			if ( $redirect_host && $redirect_host === $site_host ) {
-				$data['redirect_to'] = $redirect_url;
+				/**
+				 * Filters the redirect URL in the authentication response.
+				 *
+				 * @param string $redirect_url The redirect URL to include in the response.
+				 * @param array  $data         The response data array.
+				 */
+				$data['redirect_to'] = apply_filters( 'newspack_ras_auth_redirect_url', $redirect_url, $data );
 			}
 		}
 
@@ -2731,9 +2737,17 @@ final class Reader_Activation {
 	private static function is_oauth_redirect( $url ) {
 		$url_path = \wp_parse_url( $url, PHP_URL_PATH ) ?? '';
 
+		/**
+		 * Filters the list of OAuth routes that should redirect to RAS login.
+		 *
+		 * @param array  $routes Array of OAuth route paths.
+		 * @param string $url_path The URL path being checked.
+		 */
+		$routes = apply_filters( 'newspack_ras_oauth_redirect_routes', self::OAUTH_REDIRECT_ROUTES, $url_path );
+
 		return ! empty(
 			array_filter(
-				self::OAUTH_REDIRECT_ROUTES,
+				$routes,
 				fn( $route ) => str_contains( $url_path, $route )
 			)
 		);
@@ -2767,7 +2781,15 @@ final class Reader_Activation {
 			$url = add_query_arg( 'reauth', '1', $url );
 		}
 
-		return $url;
+		/**
+		 * Filters the OAuth redirect URL before returning.
+		 *
+		 * @param string $url          The RAS login URL with OAuth redirect parameters.
+		 * @param string $login_url    The original login URL.
+		 * @param string $redirect     The OAuth redirect URL.
+		 * @param bool   $force_reauth Whether to force reauthentication.
+		 */
+		return apply_filters( 'newspack_ras_oauth_redirect_url', $url, $login_url, $redirect, $force_reauth );
 	}
 
 	/**
