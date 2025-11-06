@@ -60,6 +60,11 @@ final class Reader_Activation {
 	const SSO_REGISTRATION_METHODS = [ 'google' ];
 
 	/**
+	 * OAuth routes to intercept for RAS login redirection.
+	 */
+	const OAUTH_REDIRECT_ROUTES = [ '/oauth/authorize' ];
+
+	/**
 	 * Newsletters signup form.
 	 */
 	const NEWSLETTERS_SIGNUP_FORM_ACTION = 'reader-activation-newsletters-signup';
@@ -113,6 +118,7 @@ final class Reader_Activation {
 			\add_action( 'lostpassword_post', [ __CLASS__, 'set_password_reset_mail_content_type' ] );
 			\add_filter( 'lostpassword_errors', [ __CLASS__, 'rate_limit_lost_password' ], 10, 2 );
 			\add_filter( 'newspack_esp_sync_contact', [ __CLASS__, 'set_mailchimp_sync_contact_status' ], 10, 2 );
+			\add_filter( 'login_url', [ __CLASS__, 'redirect_oauth_to_ras_login' ], 10, 3 );
 		}
 	}
 
@@ -1520,6 +1526,13 @@ final class Reader_Activation {
 				<?php if ( ! empty( $referer['path'] ) ) : ?>
 					<input type="hidden" name="referer" value="<?php echo \esc_url( $referer['path'] ); ?>" />
 				<?php endif; ?>
+				<?php
+				// Add hidden redirect_url field if OAuth redirect is present.
+				$oauth_redirect = isset( $_GET['redirect'] ) ? \esc_url_raw( \wp_unslash( $_GET['redirect'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+				if ( ! empty( $oauth_redirect ) && self::is_oauth_redirect( $oauth_redirect ) ) :
+					?>
+					<input type="hidden" name="redirect_url" value="<?php echo \esc_attr( $oauth_redirect ); ?>" />
+				<?php endif; ?>
 				<input type="hidden" name="action" />
 				<p data-action="otp">
 					<label><?php echo esc_html( $labels['otp_title'] ); ?></label>
@@ -1819,6 +1832,21 @@ final class Reader_Activation {
 			$labels  = self::get_reader_activation_labels( 'signin' );
 			$message = $is_error ? $data->get_error_message() : $labels['success_message'];
 		}
+
+		// Add redirect_to for OAuth flows that need post-authentication redirect.
+		if ( ! $is_error && ! empty( $_POST['redirect_url'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
+			// $_POST is slashed, so unslash before sanitizing.
+			$redirect_url = \esc_url_raw( \wp_unslash( $_POST['redirect_url'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
+
+			// Validate it's a local redirect for security.
+			$redirect_host = \wp_parse_url( $redirect_url, PHP_URL_HOST );
+			$site_host     = \wp_parse_url( site_url(), PHP_URL_HOST );
+
+			if ( $redirect_host && $redirect_host === $site_host ) {
+				$data['redirect_to'] = $redirect_url;
+			}
+		}
+
 		\wp_send_json( compact( 'message', 'data' ), \is_wp_error( $data ) ? 400 : 200 );
 	}
 
@@ -2692,6 +2720,54 @@ final class Reader_Activation {
 			return;
 		}
 		self::set_current_reader( $user );
+	}
+
+	/**
+	 * Check if a URL matches an OAuth redirect route.
+	 *
+	 * @param string $url The URL to check.
+	 * @return bool True if the URL path contains an OAuth route.
+	 */
+	private static function is_oauth_redirect( $url ) {
+		$url_path = \wp_parse_url( $url, PHP_URL_PATH ) ?? '';
+
+		return ! empty(
+			array_filter(
+				self::OAUTH_REDIRECT_ROUTES,
+				fn( $route ) => str_contains( $url_path, $route )
+			)
+		);
+	}
+
+	/**
+	 * Redirect OAuth authorization requests to RAS login instead of wp-login.php.
+	 *
+	 * This enables OAuth clients to use the RAS login screen which provides
+	 * Google SSO and a better user experience while maintaining PKCE OAuth 2.0 compatibility.
+	 *
+	 * This is a generic OAuth + RAS integration, not specific to any particular OAuth client.
+	 *
+	 * @param string $login_url    The login URL.
+	 * @param string $redirect     The path to redirect to on login.
+	 * @param bool   $force_reauth Whether to force reauthentication.
+	 * @return string Modified login URL for OAuth flows, original URL otherwise.
+	 */
+	public static function redirect_oauth_to_ras_login( $login_url, $redirect, $force_reauth ) {
+		// Only intercept OAuth authorization requests.
+		if ( ! self::is_oauth_redirect( $redirect ) || ! function_exists( 'wc_get_page_permalink' ) ) {
+			return $login_url;
+		}
+
+		// Redirect to RAS My Account page with OAuth redirect preserved.
+		$my_account_url = \wc_get_page_permalink( 'myaccount' );
+		$url            = add_query_arg( 'redirect', rawurlencode( $redirect ), $my_account_url );
+
+		// Preserve force_reauth if needed (for prompt=login flow).
+		if ( $force_reauth ) {
+			$url = add_query_arg( 'reauth', '1', $url );
+		}
+
+		return $url;
 	}
 
 	/**

@@ -310,6 +310,20 @@ window.newspackRAS.push( function ( readerActivation ) {
 						}
 					}
 
+					// Redirect handling. Works for OAuth and other redirect flows.
+					if ( data?.redirect_to ) {
+						try {
+							const redirectUrl = new URL( data.redirect_to, window.location.origin );
+							if ( redirectUrl.origin === window.location.origin ) {
+								// Use redirectUrl.href instead of data.redirect_to to ensure proper normalization and prevent potential security issues.
+								window.location.href = redirectUrl.href;
+								return;
+							}
+						} catch ( e ) {
+							// Invalid URL format - silently ignore and continue with normal flow.
+						}
+					}
+
 					let callback;
 					if ( ! container.config?.skipNewslettersSignup && data?.registered && container.authCallback ) {
 						callback = ( authMessage, authData ) =>
