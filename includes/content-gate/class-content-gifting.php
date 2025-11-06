@@ -81,6 +81,9 @@ class Content_Gifting {
 	 * Add the gift button to the entry meta.
 	 */
 	public static function add_gift_button() {
+		if ( ! is_singular() ) {
+			return;
+		}
 		if ( ! self::can_gift_post() ) {
 			return;
 		}
