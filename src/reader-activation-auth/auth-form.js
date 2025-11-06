@@ -376,6 +376,8 @@ window.newspackRAS.push( function ( readerActivation ) {
 							try {
 								const redirectUrl = new URL( continueButton.href );
 								if ( redirectUrl.origin === window.location.origin ) {
+									continueButton.style.opacity = 0.5;
+									continueButton.style.pointerEvents = 'none';
 									window.location.href = redirectUrl.href;
 								}
 							} catch ( e ) {
