@@ -28,16 +28,41 @@ window.newspackRAS = window.newspackRAS || [];
 
 export default function init() {
 	domReady( () => {
-		// Remove modal query params from the URL.
 		const params = new URLSearchParams( window.location.search );
 		const isSwitchingSubscription = params.get( 'upgrade-subscription' ) || params.get( 'switch' );
+
+		// Remove modal query params from the URL.
 		if ( params.get( 'upgrade-subscription' ) || params.get( 'tiers-modal' ) || params.get( 'switch' ) ) {
-			params.delete( 'upgrade-subscription' );
-			params.delete( 'tiers-modal' );
-			params.delete( 'switch' );
-			const newQueryString = params.toString() ? '?' + params.toString() : '';
+			const newParams = new URLSearchParams( params );
+			newParams.delete( 'upgrade-subscription' );
+			newParams.delete( 'tiers-modal' );
+			newParams.delete( 'switch' );
+			const newQueryString = newParams.toString() ? '?' + newParams.toString() : '';
 			window.history.replaceState( {}, '', window.location.pathname + newQueryString );
 		}
+
+		// Handle authentication flow for switching subscriptions.
+		window.newspackRAS.push( ras => {
+			const reader = ras.getReader();
+			if ( isSwitchingSubscription && ! reader?.authenticated ) {
+				ras.openAuthModal( {
+					labels: {
+						signin: {
+							title: window.newspack_reader_activation_labels.sign_in_to_upgrade,
+						},
+						register: {
+							title: window.newspack_reader_activation_labels.register_to_upgrade,
+						},
+					},
+					skipSuccess: true,
+					skipNewslettersSignup: true,
+					closeOnSuccess: false,
+					onSuccess: () => {
+						window.location.href = window.location.pathname + '?' + params.toString();
+					},
+				} );
+			}
+		} );
 
 		const forms = document.querySelectorAll( '.newspack__subscription-tiers__form' );
 		if ( ! forms.length ) {

@@ -835,6 +835,12 @@ class Subscriptions_Tiers {
 			return;
 		}
 
+		// If coming from a subscription switch link, the reader must be logged in.
+		// The authentication flow will be handled in the frontend.
+		if ( self::should_attempt_to_switch_subscription() && ! is_user_logged_in() ) {
+			return;
+		}
+
 		if ( ! class_exists( '\Newspack_Blocks\Modal_Checkout' ) ) {
 			return;
 		}
