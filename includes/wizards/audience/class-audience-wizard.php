@@ -573,6 +573,12 @@ class Audience_Wizard extends Wizard {
 			if ( isset( $args['content_gifting']['interval'] ) ) {
 				Content_Gifting::set_gifting_reset_interval( sanitize_text_field( $args['content_gifting']['interval'] ) );
 			}
+			if ( isset( $args['content_gifting']['cta_label'] ) ) {
+				Content_Gifting_CTA::set_cta_label( sanitize_text_field( $args['content_gifting']['cta_label'] ) );
+			}
+			if ( isset( $args['content_gifting']['cta_url'] ) ) {
+				Content_Gifting_CTA::set_cta_url( sanitize_text_field( $args['content_gifting']['cta_url'] ) );
+			}
 		}
 		return rest_ensure_response( self::get_memberships_settings() );
 	}

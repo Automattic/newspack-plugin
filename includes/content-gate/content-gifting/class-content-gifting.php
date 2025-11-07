@@ -52,6 +52,8 @@ class Content_Gifting {
 		add_action( 'admin_enqueue_scripts', [ __CLASS__, 'enqueue_assets' ] );
 		add_action( 'wp_ajax_' . self::GENERATE_ACTION, [ __CLASS__, 'ajax_generate_content_key' ] );
 		add_action( 'wp_footer', [ __CLASS__, 'print_gift_modal' ] );
+
+		require_once __DIR__ . '/class-content-gifting-cta.php';
 	}
 
 	/**
@@ -97,6 +99,36 @@ class Content_Gifting {
 	}
 
 	/**
+	 * Whether the current post has been gifted.
+	 *
+	 * @param int|null    $post_id The post ID. Default is the current post.
+	 * @param string|null $key     The content key. Default is the key from the query arg.
+	 *
+	 * @return bool
+	 */
+	public static function is_gifted_post( $post_id = null, $key = null ) {
+		if ( ! $key && ! isset( $_GET[ self::QUERY_ARG ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			return false;
+		}
+
+		$key = $key ?? sanitize_text_field( $_GET[ self::QUERY_ARG ] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( ! $key ) {
+			return false;
+		}
+
+		if ( ! $post_id && ! is_singular() ) {
+			return false;
+		}
+
+		$key_data = self::get_key_data( $post_id ?? get_the_ID(), $key );
+		if ( ! $key_data ) {
+			return false;
+		}
+
+		return true;
+	}
+
+	/**
 	 * Get the gift URL.
 	 *
 	 * @param int|null $post_id The post ID. Default is the current post.
@@ -115,9 +147,11 @@ class Content_Gifting {
 	 */
 	public static function get_settings() {
 		return [
-			'enabled'  => self::is_enabled(),
-			'limit'    => self::get_gifting_limit(),
-			'interval' => self::get_gifting_reset_interval(),
+			'enabled'   => self::is_enabled(),
+			'limit'     => self::get_gifting_limit(),
+			'interval'  => self::get_gifting_reset_interval(),
+			'cta_label' => Content_Gifting_CTA::get_cta_label(),
+			'cta_url'   => Content_Gifting_CTA::get_cta_url(),
 		];
 	}
 
@@ -210,7 +244,7 @@ class Content_Gifting {
 	 */
 	public static function enqueue_assets() {
 		// Enqueue assets only if the user can gift the post, being accessed with a content key, in the admin or customizer.
-		if ( ! self::can_gift_post() && ! isset( $_GET[ self::QUERY_ARG ] ) && ! is_admin() && ! is_customize_preview() ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( ! self::can_gift_post() && ! self::is_gifted_post() && ! isset( $_GET[ self::QUERY_ARG ] ) && ! is_admin() && ! is_customize_preview() ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			return;
 		}
 		wp_enqueue_style( 'newspack-content-gifting', Newspack::plugin_url() . '/dist/content-gifting.css', [], NEWSPACK_PLUGIN_VERSION );
@@ -341,17 +375,10 @@ class Content_Gifting {
 	 * Handle the content key query arg to unrestrict content.
 	 */
 	public static function unrestrict_content() {
-		if ( ! isset( $_GET[ self::QUERY_ARG ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			return;
-		}
-
 		if ( ! is_singular() ) {
 			return;
 		}
-
-		$key_data = self::get_key_data( get_the_ID(), sanitize_text_field( $_GET[ self::QUERY_ARG ] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-
-		if ( ! $key_data ) {
+		if ( ! self::is_gifted_post( get_the_ID() ) ) {
 			return;
 		}
 
@@ -375,11 +402,7 @@ class Content_Gifting {
 	 * @return bool
 	 */
 	public static function restrict_post( $restrict, $post_id ) {
-		if ( ! isset( $_GET[ self::QUERY_ARG ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			return $restrict;
-		}
-		$key_data = self::get_key_data( $post_id, sanitize_text_field( $_GET[ self::QUERY_ARG ] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		if ( $key_data ) {
+		if ( self::is_gifted_post( $post_id ) ) {
 			return false;
 		}
 		return $restrict;

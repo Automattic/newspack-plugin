@@ -2,7 +2,7 @@
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { ExternalLink, RangeControl, SelectControl, Button } from '@wordpress/components';
+import { ExternalLink, RangeControl, SelectControl, TextControl, Button } from '@wordpress/components';
 import { useEffect, useState } from '@wordpress/element';
 
 import { ActionCard, Grid, Notice, withWizardScreen } from '../../../../../packages/components/src';
@@ -105,6 +105,21 @@ export default withWizardScreen( ( { wizardApiFetch } ) => {
 									{ value: 'week', label: __( 'Week', 'newspack-plugin' ) },
 									{ value: 'month', label: __( 'Month', 'newspack-plugin' ) },
 								] }
+							/>
+							<TextControl
+								label={ __( 'Gifted article CTA Text', 'newspack-plugin' ) }
+								help={ __( 'Text to be displayed next to the subscribe button.', 'newspack-plugin' ) }
+								value={ config.content_gifting.cta_label }
+								onChange={ value => setConfig( { ...config, content_gifting: { ...config.content_gifting, cta_label: value } } ) }
+							/>
+							<TextControl
+								label={ __( 'Gifted article CTA URL', 'newspack-plugin' ) }
+								help={ __(
+									'URL for the subscribe button. If not provided, the primary subscription tier product will be used with modal checkout.',
+									'newspack-plugin'
+								) }
+								value={ config.content_gifting.cta_url }
+								onChange={ value => setConfig( { ...config, content_gifting: { ...config.content_gifting, cta_url: value } } ) }
 							/>
 						</Grid>
 						<div className="newspack-buttons-card" style={ { margin: '32px 0 0 0' } }>
