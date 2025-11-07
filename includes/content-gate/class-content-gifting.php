@@ -155,12 +155,12 @@ class Content_Gifting {
 	 *
 	 * @param string $interval The gifting reset interval.
 	 *
-	 * @return void|\WP_Error The gifting reset interval or an error.
+	 * @return void|WP_Error The gifting reset interval or an error.
 	 */
 	public static function set_gifting_reset_interval( $interval ) {
 		$options = self::get_gifting_reset_interval_options();
 		if ( ! isset( $options[ $interval ] ) ) {
-			return new \WP_Error( 'invalid_interval', __( 'Must be one of the following: day, week, month.', 'newspack-plugin' ) );
+			return new WP_Error( 'invalid_interval', __( 'Must be one of the following: day, week, month.', 'newspack-plugin' ) );
 		}
 		update_option( 'newspack_content_gifting_reset_interval', $interval );
 	}
