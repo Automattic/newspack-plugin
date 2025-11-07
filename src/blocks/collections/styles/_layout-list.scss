@@ -3,8 +3,6 @@
 .wp-block-newspack-collections {
 	// Layout: List.
 	&.layout-list {
-		margin-bottom: 32px;
-
 		.wp-block-newspack-collections__item {
 			display: grid;
 			grid-template-columns: 1fr;
