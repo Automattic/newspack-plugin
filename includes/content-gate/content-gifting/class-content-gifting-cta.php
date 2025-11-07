@@ -122,6 +122,10 @@ class Content_Gifting_CTA {
 		if ( ! Content_Gifting::is_gifted_post() ) {
 			return;
 		}
+		// Don't render CTA if user already has access to the post.
+		if ( ! Content_Gate::is_post_restricted() ) {
+			return;
+		}
 		?>
 		<div class="newspack-ui">
 			<div class="banner newspack-content-gifting__cta">
