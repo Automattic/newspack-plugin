@@ -32,6 +32,7 @@ li.service.share-newspack-gift-article span::before,
 			align-items: center;
 			gap: var(--newspack-ui-spacer-2);
 			padding: var(--newspack-ui-spacer-2) var(--newspack-ui-spacer-3);
+			box-sizing: content-box;
 		}
 	}
 	&__gift-button {
