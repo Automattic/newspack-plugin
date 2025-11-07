@@ -133,6 +133,17 @@ class WooCommerce_Subscriptions {
 	 */
 	public static function limit_free_trials_to_one_per_user( $trial_length, $product ) {
 		$user_id = get_current_user_id();
+
+		// If not logged in, try to get the user ID from the billing email.
+		if ( ! $user_id ) {
+			$billing_email = filter_input( INPUT_POST, 'billing_email', FILTER_SANITIZE_EMAIL );
+			if ( $billing_email ) {
+				$customer = \get_user_by( 'email', $billing_email );
+				if ( $customer ) {
+					$user_id = $customer->ID;
+				}
+			}
+		}
 		if ( $trial_length && $user_id && $product && $product->is_type( [ 'subscription', 'subscription_variation', 'variable-subscription' ] ) ) {
 			$user_subscriptions = array_values( \wcs_get_users_subscriptions( $user_id ) );
 			foreach ( $user_subscriptions as $subscription ) {
