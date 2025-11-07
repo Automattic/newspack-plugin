@@ -474,6 +474,27 @@ class Content_Gate {
 	}
 
 	/**
+	 * Whether the post has restrictions
+	 *
+	 * @param int $post_id Post ID.
+	 *
+	 * @return bool
+	 */
+	public static function post_has_restrictions( $post_id = null ) {
+		$post_id = $post_id ? $post_id : get_the_ID();
+
+		// TODO: Content Gate content rules check.
+
+		/**
+		 * Filters whether the post has restrictions.
+		 *
+		 * @param bool $has_restrictions Whether the post has restrictions.
+		 * @param int  $post_id          Post ID.
+		 */
+		return apply_filters( 'newspack_post_has_restrictions', false, $post_id );
+	}
+
+	/**
 	 * Whether the post is restricted for the current user.
 	 *
 	 * @param int $post_id Post ID.

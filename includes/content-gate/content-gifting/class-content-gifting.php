@@ -428,6 +428,10 @@ class Content_Gifting {
 			$errors->add( 'not_logged_in', __( 'You must be logged in to gift content.', 'newspack-plugin' ) );
 		}
 
+		if ( ! Content_Gate::post_has_restrictions( $post_id ) ) {
+			$errors->add( 'not_restricted', __( 'This post does not have any restrictions.', 'newspack-plugin' ) );
+		}
+
 		if ( Content_Gate::is_post_restricted( $post_id ) ) {
 			$errors->add( 'post_restricted', __( 'User does not have access to this post.', 'newspack-plugin' ) );
 		}
