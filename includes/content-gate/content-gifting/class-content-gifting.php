@@ -483,13 +483,11 @@ class Content_Gifting {
 			return false;
 		}
 
-		foreach ( $data['keys'] as $id => $item ) {
-			if ( $item['timestamp'] + self::KEY_EXPIRATION < time() ) {
-				unset( $item['keys'][ $id ] );
-			}
+		if ( ! isset( $data['keys'][ $post_id ] ) ) {
+			return false;
 		}
 
-		if ( ! isset( $data['keys'][ $post_id ] ) ) {
+		if ( $data['keys'][ $post_id ]['timestamp'] + self::KEY_EXPIRATION < time() ) {
 			return false;
 		}
 
