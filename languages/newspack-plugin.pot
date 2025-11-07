@@ -8681,7 +8681,7 @@ msgstr ""
 #: dist/componentsDemo.js:1
 #: src/wizards/componentsDemo/index.js:159
 #: src/wizards/componentsDemo/index.js:164
-msgid "Preview Newspack Blog"
+msgid "Preview Newspack Site"
 msgstr ""
 
 #: dist/componentsDemo.js:1
