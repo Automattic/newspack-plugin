@@ -286,50 +286,78 @@ class Content_Gifting {
 		$response = [];
 		if ( is_wp_error( $key ) ) {
 			$response['error'] = $key->get_error_message();
-		} else {
-			$response['body'] = self::get_gift_modal_info();
-			$response['key']  = $key;
-			$response['url']  = add_query_arg( self::QUERY_ARG, $key, get_the_permalink( $post_id ) );
 		}
+		$response['body'] = self::get_gift_modal_info( $key );
+		$response['key']  = ! is_wp_error( $key ) ? $key : null;
+		$response['url']  = ! is_wp_error( $key ) ? add_query_arg( self::QUERY_ARG, $key, get_the_permalink( $post_id ) ) : get_the_permalink( $post_id );
 		wp_send_json( $response );
 	}
 
 	/**
 	 * Get the gift modal info.
+	 *
+	 * @param string|WP_Error $key The content key.
+	 *
+	 * @return string The gift modal info.
 	 */
-	public static function get_gift_modal_info() {
+	public static function get_gift_modal_info( $key ) {
 		$user_data          = get_user_meta( get_current_user_id(), self::META, true );
 		$current_expiration = self::get_current_expiration_timestamp();
 		$limit              = isset( $user_data['limits'][ $current_expiration ] ) ? self::get_gifting_limit() - $user_data['limits'][ $current_expiration ] : self::get_gifting_limit();
 		$interval           = self::get_gifting_reset_interval();
-		$interval_options   = self::get_gifting_reset_interval_options();
+
+		$interval_label_map = [
+			'day'   => [ __( 'today', 'newspack-plugin' ), __( 'tomorrow', 'newspack-plugin' ) ],
+			'week'  => [ __( 'this week', 'newspack-plugin' ), __( 'next week', 'newspack-plugin' ) ],
+			'month' => [ __( 'this month', 'newspack-plugin' ), __( 'next month', 'newspack-plugin' ) ],
+			'year'  => [ __( 'this year', 'newspack-plugin' ), __( 'next year', 'newspack-plugin' ) ],
+		];
+		$interval_labels = $interval_label_map[ $interval ];
+
 		ob_start();
 		?>
 		<p>
-			<?php esc_html_e( 'Give someone 24-hour access to this article.', 'newspack-plugin' ); ?>
+			<?php
+			if ( ! is_wp_error( $key ) ) {
+				esc_html_e( 'Give someone 24-hour access to this article.', 'newspack-plugin' );
+			}
+			?>
 			<strong>
 				<?php
 				if ( $limit > 0 ) {
 					echo esc_html(
 						sprintf(
-							// translators: %1$d is the number of gift articles left, %2$s is the interval.
-							_n( 'You have %1$d gift article left this %2$s.', 'You have %1$d gift articles left this %2$s.', $limit, 'newspack-plugin' ),
+							// translators: %1$d is the number of gift articles left, %2$s is the interval label.
+							_n( 'You have %1$d gift article left %2$s.', 'You have %1$d gift articles left %2$s.', $limit, 'newspack-plugin' ),
 							$limit,
-							strtolower( $interval_options[ $interval ] )
+							$interval_labels[0]
 						)
 					);
 				} else {
 					echo esc_html(
 						sprintf(
-							// translators: %1$d is the number of gift articles limit, %2$s is the interval.
-							__( 'You have reached the limit of %1$d gifted articles for this %2$s.', 'newspack-plugin' ),
+							// translators: %1$d is the number of gift articles limit, %2$s is the interval label.
+							__( 'You\'ve reached your limit of %1$d gifted articles %2$s.', 'newspack-plugin' ),
 							self::get_gifting_limit(),
-							strtolower( $interval_options[ $interval ] )
+							$interval_labels[0]
 						)
 					);
 				}
 				?>
 			</strong>
+		</p>
+		<p>
+			<?php
+			if ( is_wp_error( $key ) && $limit <= 0 ) {
+				echo esc_html(
+					sprintf(
+						// translators: %s is the interval label.
+						__( 'New ones will be available %s.', 'newspack-plugin' ),
+						$interval_labels[1]
+					)
+				);
+			}
+			?>
 		</p>
 		<?php
 		return ob_get_clean();

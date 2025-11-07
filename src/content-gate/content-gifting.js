@@ -16,7 +16,6 @@ domReady( () => {
 	const copyButton = modal.querySelector( '[data-copy-button]' );
 
 	spinner.style.display = 'none';
-	errorMessage.style.display = 'none';
 	linkContainer.style.display = 'none';
 	info.style.display = 'none';
 
@@ -52,17 +51,17 @@ domReady( () => {
 			} )
 				.then( response => response.json() )
 				.then( data => {
-					if ( data.error ) {
-						errorMessage.innerHTML = data.error;
-						errorMessage.style.display = 'block';
-						info.style.display = 'none';
-						linkContainer.style.display = 'none';
+					info.innerHTML = data.body;
+					urlInput.value = data.url;
+					errorMessage.style.display = 'none';
+					info.style.display = 'block';
+					linkContainer.style.display = 'block';
+					if ( ! data.key ) {
+						urlInput.disabled = true;
+						copyButton.disabled = true;
 					} else {
-						info.innerHTML = data.body;
-						urlInput.value = data.url;
-						errorMessage.style.display = 'none';
-						info.style.display = 'block';
-						linkContainer.style.display = 'block';
+						urlInput.disabled = false;
+						copyButton.disabled = false;
 					}
 				} )
 				.catch( err => {
