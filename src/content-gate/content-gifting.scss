@@ -1,4 +1,5 @@
 @use "../../packages/colors/colors.module" as colors;
+@use "../newspack-ui/scss/mixins" as mixins;
 
 .sd-social-icon .sd-content ul li[class*="share-"].share-newspack-gift-article .option a.no-text span::after {
 	content: "Gift this article";
@@ -52,21 +53,30 @@ body .sd-social-icon .sd-content ul li[class*="share-"].share-newspack-gift-arti
 .newspack-content-gifting {
 	&__cta {
 		background: var(--newspack-ui-color-neutral-90);
-		color: var(--newspack-ui-color-neutral-0);
-		position: fixed;
 		bottom: 0;
+		color: var(--newspack-ui-color-neutral-0);
 		left: 0;
+		padding: var(--newspack-ui-spacer-2) var(--newspack-ui-spacer-3);
+		position: fixed;
 		right: 0;
 		z-index: 99999;
+		@include mixins.newspack-ui-elevation( 3 );
 
 		&__content {
+			align-items: center;
 			color: inherit;
 			display: flex;
-			justify-content: space-between;
-			align-items: center;
 			gap: var(--newspack-ui-spacer-2);
-			padding: var(--newspack-ui-spacer-2) var(--newspack-ui-spacer-3);
-			box-sizing: content-box;
+			justify-content: space-between;
+			min-height: var(--newspack-ui-spacer-9);
+
+			.newspack-ui__button {
+				width: 100%;
+
+				@include mixins.media( mobile ) {
+					width: auto;
+				}
+			}
 		}
 	}
 
