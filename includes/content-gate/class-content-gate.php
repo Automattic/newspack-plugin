@@ -410,7 +410,7 @@ class Content_Gate {
 	 * @return int|false Post ID or false if not set.
 	 */
 	public static function get_gate_post_id( $post_id = null ) {
-		$gate_post_id = intval( self::$gate_post_id ?? \get_option( 'newspack_memberships_gate_post_id' ) );
+		$gate_post_id = intval( self::$gate_post_id ? self::$gate_post_id : \get_option( 'newspack_memberships_gate_post_id' ) );
 		if ( ! $gate_post_id ) {
 			$gate_post_id = false;
 		}
