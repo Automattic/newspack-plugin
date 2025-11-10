@@ -73,13 +73,11 @@ export default withWizardScreen( ( { wizardApiFetch } ) => {
 			/>
 			<ActionCard
 				title={ __( 'Content Gifting', 'newspack-plugin' ) }
-				description={ __(
-					'Allow members to gift content to other readers. Gifted articles are valid for 24 hours and can be gifted up to the configured limit.',
-					'newspack-plugin'
-				) }
+				description={ __( 'Allow members to gift articles for 24 hours, up to the configured limit.', 'newspack-plugin' ) }
 				toggleOnChange={ value => updateConfig( { content_gifting: { enabled: value } } ) }
 				toggleChecked={ config.content_gifting?.enabled }
 				hasGreyHeader={ config.content_gifting?.enabled }
+				togglePosition="trailing"
 			>
 				{ config.content_gifting?.enabled && (
 					<>
@@ -139,6 +137,7 @@ export default withWizardScreen( ( { wizardApiFetch } ) => {
 					) }
 					toggleOnChange={ value => updateConfig( { require_all_plans: value } ) }
 					toggleChecked={ config.require_all_plans }
+					togglePosition="trailing"
 				/>
 			) }
 			{ config.has_memberships && (
@@ -150,6 +149,7 @@ export default withWizardScreen( ( { wizardApiFetch } ) => {
 					) }
 					toggleOnChange={ value => updateConfig( { show_on_subscription_tab: value } ) }
 					toggleChecked={ config.show_on_subscription_tab }
+					togglePosition="trailing"
 				/>
 			) }
 		</WizardsTab>
