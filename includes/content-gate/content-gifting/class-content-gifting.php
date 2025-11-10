@@ -91,10 +91,12 @@ class Content_Gifting {
 		}
 		$url = self::get_gift_url();
 		?>
-		<a href="<?php echo esc_url( $url ); ?>" class="newspack-content-gifting__gift-button">
-			<?php Newspack_UI_Icons::print_svg( 'gift' ); ?>
-			<?php esc_html_e( 'Gift this article', 'newspack-plugin' ); ?>
-		</a>
+		<div class="newspack-ui newspack-content-gifting__gift-button">
+			<a href="<?php echo esc_url( $url ); ?>" class="newspack-ui__button newspack-ui__button--x-small newspack-ui__button--outline">
+				<?php Newspack_UI_Icons::print_svg( 'gift' ); ?>
+				<?php esc_html_e( 'Gift this article', 'newspack-plugin' ); ?>
+			</a>
+		</div>
 		<?php
 	}
 
@@ -264,7 +266,7 @@ class Content_Gifting {
 						admin_url( 'admin-ajax.php' )
 					),
 					'post_id'      => get_the_ID(),
-					'copied_label' => __( 'Copied!', 'newspack-plugin' ),
+					'copied_label' => __( 'Link copied', 'newspack-plugin' ),
 				]
 			);
 		}
@@ -373,7 +375,7 @@ class Content_Gifting {
 				<div class="newspack-ui__modal-container__overlay"></div>
 				<div class="newspack-ui__modal newspack-ui__modal--small">
 					<header class="newspack-ui__modal__header">
-						<h2 class="newspack-ui__font--l"><?php esc_html_e( 'Gift this article', 'newspack-plugin' ); ?></h2>
+						<h2><?php esc_html_e( 'Gift this article', 'newspack-plugin' ); ?></h2>
 						<button class="newspack-ui__button newspack-ui__button--icon newspack-ui__button--ghost newspack-ui__modal__close">
 							<span class="screen-reader-text"><?php esc_html_e( 'Close', 'newspack-plugin' ); ?></span>
 							<?php Newspack_UI_Icons::print_svg( 'close' ); ?>

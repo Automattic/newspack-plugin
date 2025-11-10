@@ -29,7 +29,7 @@ domReady( () => {
 		setTimeout( () => {
 			copyButton.textContent = originalText;
 			copyButton.removeAttribute( 'disabled' );
-		}, 2000 );
+		}, 5000 );
 	};
 
 	copyButton.addEventListener( 'click', copy );
