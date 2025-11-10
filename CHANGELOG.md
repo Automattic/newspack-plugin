@@ -1,3 +1,10 @@
+# [6.23.0](https://github.com/Automattic/newspack-plugin/compare/v6.22.3...v6.23.0) (2025-11-10)
+
+
+### Features
+
+* **subscription-tiers:** introduce "Sign In" link ([#4271](https://github.com/Automattic/newspack-plugin/issues/4271)) ([cc2df73](https://github.com/Automattic/newspack-plugin/commit/cc2df73e7aafa1e5fe39c299ce0849c572b0c4ed))
+
 ## [6.22.3](https://github.com/Automattic/newspack-plugin/compare/v6.22.2...v6.22.3) (2025-11-05)
 
 

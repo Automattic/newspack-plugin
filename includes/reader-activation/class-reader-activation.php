@@ -308,6 +308,9 @@ final class Reader_Activation {
 				'newsletters_success'      => __( 'Signup successful!', 'newspack-plugin' ),
 				'newsletters_title'        => __( 'Sign up for newsletters', 'newspack-plugin' ),
 				'auth_form_action'         => self::AUTH_FORM_ACTION,
+				// Subscription tiers labels.
+				'sign_in_to_upgrade'       => __( 'Sign in to upgrade', 'newspack-plugin' ),
+				'register_to_upgrade'      => __( 'Register to upgrade', 'newspack-plugin' ),
 			];
 
 			/**

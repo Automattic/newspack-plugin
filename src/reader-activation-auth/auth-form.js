@@ -270,9 +270,6 @@ window.newspackRAS.push( function ( readerActivation ) {
 				if ( container.config?.closeOnSuccess ) {
 					form.style.opacity = 1;
 				}
-				submitButtons.forEach( button => {
-					button.disabled = false;
-				} );
 				if ( message ) {
 					const messageNode = document.createElement( 'p' );
 					messageNode.innerHTML = message;
@@ -280,6 +277,9 @@ window.newspackRAS.push( function ( readerActivation ) {
 					if ( status !== 200 ) {
 						form.setMessageContent( message, true );
 						messageContentElement.querySelectorAll( '[data-set-action]' ).forEach( setActionListener );
+						submitButtons.forEach( button => {
+							button.disabled = false;
+						} );
 					}
 				}
 				if ( status === 200 ) {
@@ -434,6 +434,9 @@ window.newspackRAS.push( function ( readerActivation ) {
 										if ( data.action === 'otp' || data.action === 'pwd' ) {
 											form.style.opacity = 1;
 										}
+										submitButtons.forEach( button => {
+											button.disabled = false;
+										} );
 									} else {
 										form.endLoginFlow( message, status, data );
 									}
@@ -450,9 +453,6 @@ window.newspackRAS.push( function ( readerActivation ) {
 									} else if ( status !== 200 && ! container.config?.closeOnSuccess ) {
 										form.style.opacity = 1;
 									}
-									submitButtons.forEach( button => {
-										button.disabled = false;
-									} );
 								} );
 						} )
 						.catch( () => {
@@ -461,5 +461,9 @@ window.newspackRAS.push( function ( readerActivation ) {
 				}
 			} );
 		} );
+
+		// Dispatch an event to notify that the auth form is ready.
+		document._newspackReaderAuthFormReady = true;
+		document.dispatchEvent( new CustomEvent( 'newspack-reader-auth-form-ready', { detail: { containers } } ) );
 	} );
 } );

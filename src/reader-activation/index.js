@@ -10,6 +10,7 @@ import overlays from './overlays.js';
 import initAnalytics from './analytics.js';
 import setupArticleViewsAggregates from './article-view.js';
 import initSubscriptionTiersForm from './subscription-tiers-form.js';
+import { openAuthModal as _openAuthModal } from '../reader-activation-auth/auth-modal.js';
 
 /**
  * Reader Activation Library.
@@ -144,27 +145,24 @@ const authStrategies = [ 'pwd', 'link' ];
  * @param {Object} config Config.
  */
 export function openAuthModal( config = {} ) {
-	// Set default config.
 	config = {
-		...{
-			onSuccess: null,
-			onDismiss: null,
-			onError: null,
-			initialState: null,
-			skipSuccess: false,
-			skipNewslettersSignup: false,
-			labels: {
-				signin: {
-					title: null,
-				},
-				register: {
-					title: null,
-				},
+		onSuccess: null,
+		onDismiss: null,
+		onError: null,
+		initialState: null,
+		skipSuccess: false,
+		skipNewslettersSignup: false,
+		labels: {
+			signin: {
+				title: window.newspack_reader_activation_labels.signin.title,
 			},
-			content: null,
-			trigger: null,
-			closeOnSuccess: true,
+			register: {
+				title: window.newspack_reader_activation_labels.register.title,
+			},
 		},
+		content: null,
+		trigger: null,
+		closeOnSuccess: true,
 		...config,
 	};
 
@@ -174,14 +172,7 @@ export function openAuthModal( config = {} ) {
 		}
 		return;
 	}
-	if ( readerActivation._openAuthModal ) {
-		readerActivation._openAuthModal( config );
-	} else {
-		console.warn( 'Authentication modal not available' ); // eslint-disable-line no-console
-		if ( config.onError && typeof config.onError === 'function' ) {
-			config.onError();
-		}
-	}
+	_openAuthModal( config );
 }
 
 /**
