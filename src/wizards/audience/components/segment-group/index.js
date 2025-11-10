@@ -5,7 +5,7 @@
 /**
  * WordPress dependencies.
  */
-import { __ } from '@wordpress/i18n';
+import { sprintf, __ } from '@wordpress/i18n';
 import { useState, Fragment } from '@wordpress/element';
 import { blockTable, header, layout, postList } from '@wordpress/icons';
 
@@ -58,13 +58,15 @@ const SegmentGroup = props => {
 						{ id ? (
 							<Button
 								href={ `#/segments/${ id }` }
-								label={ __( 'Edit Segment ', 'newspack-plugin' ) }
+								label={ __( 'Edit Segment', 'newspack-plugin' ) }
 								isLink
 								showTooltip
 								tooltipPosition="bottom center"
 							>
-								{ __( 'Segment: ', 'newspack-plugin' ) }
-								{ label }
+								{
+									/* translators: %s: segment label */
+									sprintf( __( 'Segment: %s', 'newspack-plugin' ), label )
+								}
 							</Button>
 						) : (
 							label
@@ -84,6 +86,10 @@ const SegmentGroup = props => {
 								{ __( 'Preview Segment', 'newspack-plugin' ) }
 							</Button>
 						) }
+						title={
+							/* translators: %s: segment label */
+							sprintf( __( 'Segment: %s', 'newspack-plugin' ), label )
+						}
 					/>
 					{ 'unassigned' !== campaignId && (
 						<Fragment>
