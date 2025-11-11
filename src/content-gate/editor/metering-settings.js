@@ -2,9 +2,17 @@
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { TextControl, CheckboxControl, SelectControl } from '@wordpress/components';
+import { CheckboxControl, SelectControl, TextControl } from '@wordpress/components';
+import { useSelect, useDispatch } from '@wordpress/data';
 
-function MeteringSettings( { meta, editPost } ) {
+function MeteringSettings() {
+	const { meta } = useSelect( select => {
+		const { getEditedPostAttribute } = select( 'core/editor' );
+		return {
+			meta: getEditedPostAttribute( 'meta' ),
+		};
+	} );
+	const { editPost } = useDispatch( 'core/editor' );
 	return (
 		<>
 			<CheckboxControl

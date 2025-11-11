@@ -68,6 +68,7 @@ class Metering {
 	 * Register gate meta.
 	 */
 	public static function register_meta() {
+		$theme_colors = newspack_get_theme_colors();
 		$meta = [
 			'metering'                                => [
 				'type'    => 'boolean',
@@ -90,7 +91,12 @@ class Metering {
 				'default' => false,
 			],
 			'metering_countdown_background_color'     => [
-				'type' => 'string',
+				'type'    => 'string',
+				'default' => '#111111',
+			],
+			'metering_countdown_text_color'           => [
+				'type'    => 'string',
+				'default' => newspack_get_color_contrast( '#111111' ),
 			],
 			'metering_countdown_text'                 => [
 				'type'    => 'string',
@@ -104,17 +110,21 @@ class Metering {
 				'type'    => 'string',
 				'default' => __( 'Subscribe now', 'newspack' ),
 			],
-			'metering_countdown_cta_text_color'       => [
-				'type' => 'string',
-			],
 			'metering_countdown_cta_background_color' => [
-				'type' => 'string',
+				'type'    => 'string',
+				'default' => $theme_colors['primary_color'],
+			],
+			'metering_countdown_cta_text_color'       => [
+				'type'    => 'string',
+				'default' => $theme_colors['primary_text_color'],
 			],
 			'metering_countdown_cta_url'              => [
-				'type' => 'string',
+				'type'    => 'string',
+				'default' => '',
 			],
 			'metering_countdown_cta_product_id'       => [
-				'type' => 'integer',
+				'type'    => 'integer',
+				'default' => 0,
 			],
 		];
 		foreach ( $meta as $key => $config ) {
@@ -148,13 +158,14 @@ class Metering {
 			'countdown'        => [
 				'enabled'              => (bool) \get_post_meta( $gate_id, 'metering_countdown', true ),
 				'background_color'     => \get_post_meta( $gate_id, 'metering_countdown_background_color', true ),
+				'text_color'           => \get_post_meta( $gate_id, 'metering_countdown_text_color', true ),
 				'text'                 => \get_post_meta( $gate_id, 'metering_countdown_text', true ),
 				'cta_type'             => \get_post_meta( $gate_id, 'metering_countdown_cta_type', true ),
 				'cta_text'             => \get_post_meta( $gate_id, 'metering_countdown_cta_text', true ),
 				'cta_text_color'       => \get_post_meta( $gate_id, 'metering_countdown_cta_text_color', true ),
 				'cta_background_color' => \get_post_meta( $gate_id, 'metering_countdown_cta_background_color', true ),
 				'cta_url'              => \get_post_meta( $gate_id, 'metering_countdown_cta_url', true ),
-				'product_id'           => \get_post_meta( $gate_id, 'metering_countdown_cta_product_id', true ),
+				'cta_product_id'       => \get_post_meta( $gate_id, 'metering_countdown_cta_product_id', true ),
 			],
 		];
 	}
