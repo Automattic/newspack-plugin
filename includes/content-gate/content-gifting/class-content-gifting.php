@@ -65,7 +65,7 @@ class Content_Gifting {
 		if ( class_exists( 'Jetpack' ) && \Jetpack::is_module_active( 'sharedaddy' ) ) {
 			add_filter( 'sharing_services', [ __CLASS__, 'filter_jetpack_sharing_services' ] );
 		} else {
-			add_action( 'newspack_theme_entry_meta', [ __CLASS__, 'add_gift_button' ] );
+			add_action( 'newspack_theme_entry_meta', [ __CLASS__, 'print_gift_button' ] );
 		}
 	}
 
@@ -135,9 +135,9 @@ class Content_Gifting {
 	}
 
 	/**
-	 * Add the gift button to the entry meta.
+	 * Print the gift button to the entry meta.
 	 */
-	public static function add_gift_button() {
+	public static function print_gift_button() {
 		if ( ! is_singular() ) {
 			return;
 		}
