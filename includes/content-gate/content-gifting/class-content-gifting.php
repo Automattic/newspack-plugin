@@ -409,8 +409,6 @@ class Content_Gifting {
 				}
 				?>
 			</strong>
-		</p>
-		<p>
 			<?php
 			if ( is_wp_error( $key ) && $limit <= 0 ) {
 				echo esc_html(
