@@ -1,3 +1,36 @@
+## [6.24.1](https://github.com/Automattic/newspack-plugin/compare/v6.24.0...v6.24.1) (2025-11-10)
+
+
+### Bug Fixes
+
+* **memberships-gate:** incorrect ternery operator fails to get stored gate ID ([#4299](https://github.com/Automattic/newspack-plugin/issues/4299)) ([3873aa1](https://github.com/Automattic/newspack-plugin/commit/3873aa1b91518d90b35db88efbe7965602b9cd17))
+
+# [6.24.0](https://github.com/Automattic/newspack-plugin/compare/v6.23.0...v6.24.0) (2025-11-10)
+
+
+### Bug Fixes
+
+* **action-card:** don't create new component for its children ([#4267](https://github.com/Automattic/newspack-plugin/issues/4267)) ([5cc6c55](https://github.com/Automattic/newspack-plugin/commit/5cc6c55b1de2a655ff37a9fda14e840f0b8d81c3))
+* draggable collapsable action card styles ([#4254](https://github.com/Automattic/newspack-plugin/issues/4254)) ([e19bc49](https://github.com/Automattic/newspack-plugin/commit/e19bc499ec02cd753a04edcda56039df92c958b0))
+* handle TS in components ([#4259](https://github.com/Automattic/newspack-plugin/issues/4259)) ([c7a613f](https://github.com/Automattic/newspack-plugin/commit/c7a613f157a738efdc6a68d1ab1780d9973bbb5b))
+* **memberships-for-teams:** sync contact data for team members ([#4226](https://github.com/Automattic/newspack-plugin/issues/4226)) ([2fb974c](https://github.com/Automattic/newspack-plugin/commit/2fb974c26141a01d30ff88947d30dc05c00d4b7c))
+* **nextdoor:** wizard component dependencies ([#4272](https://github.com/Automattic/newspack-plugin/issues/4272)) ([97f3753](https://github.com/Automattic/newspack-plugin/commit/97f375358f69fd0649a7b884e595ff1538c7566f))
+* prevent an infinite loop/error transforming galleries to image blocks when they have credits ([1e402be](https://github.com/Automattic/newspack-plugin/commit/1e402be9d46958656b7d5254ecd65d8a0cb3cc6a))
+* update content gate wizard ui ([#4252](https://github.com/Automattic/newspack-plugin/issues/4252)) ([8f4d40c](https://github.com/Automattic/newspack-plugin/commit/8f4d40c07a90a00729d33237d12f9fc375457f96))
+
+
+### Features
+
+* add content gate settings array ([#4249](https://github.com/Automattic/newspack-plugin/issues/4249)) ([b03243f](https://github.com/Automattic/newspack-plugin/commit/b03243f4281d03b9af807f0b9b73976898276d59))
+* add content gate settings skeleton ([#4246](https://github.com/Automattic/newspack-plugin/issues/4246)) ([82f0946](https://github.com/Automattic/newspack-plugin/commit/82f094653856336ae6dee13d550a361dbda1b70b))
+* add drag to action card component ([#4248](https://github.com/Automattic/newspack-plugin/issues/4248)) ([fe6b912](https://github.com/Automattic/newspack-plugin/commit/fe6b912df19fc75da4e572385f5d903cd86d0d7e))
+* **content-gate:** decouple content gate from WC Memberships ([#4196](https://github.com/Automattic/newspack-plugin/issues/4196)) ([495fb18](https://github.com/Automattic/newspack-plugin/commit/495fb184c95df13c8c85db02b2d2d4f148343480))
+* **content-gating:** access rules management ([#4202](https://github.com/Automattic/newspack-plugin/issues/4202)) ([b6bc817](https://github.com/Automattic/newspack-plugin/commit/b6bc81796660cc91cf8bc9b4837c1a7b8b152048))
+* **newspack-icons:** add activity, output, target; replace countdown ([#4274](https://github.com/Automattic/newspack-plugin/issues/4274)) ([cdb7791](https://github.com/Automattic/newspack-plugin/commit/cdb779138e0b094f357e186050e0c098ef6d9efe))
+* **newspack-icons:** add new `hand` icon ([#4247](https://github.com/Automattic/newspack-plugin/issues/4247)) ([ea8601a](https://github.com/Automattic/newspack-plugin/commit/ea8601ac4fa907fbba2b3e77df6bc6b8d4650445))
+* Nextdoor Integration ([#4165](https://github.com/Automattic/newspack-plugin/issues/4165)) ([bd79457](https://github.com/Automattic/newspack-plugin/commit/bd79457100fff36632a81ee5398cf02be9d61435))
+* remove nextdoor feature flag ([#4270](https://github.com/Automattic/newspack-plugin/issues/4270)) ([928a8c0](https://github.com/Automattic/newspack-plugin/commit/928a8c06a82294d1ed268554b6150d55c1215cb3))
+
 # [6.23.0](https://github.com/Automattic/newspack-plugin/compare/v6.22.3...v6.23.0) (2025-11-10)
 
 
