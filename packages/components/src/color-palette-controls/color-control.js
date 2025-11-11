@@ -36,7 +36,8 @@ function ColorControl( { label, onChange, value } ) {
 						}
 					} }
 					onKeyDown={ event => isVisible && ESCAPE === event.keyCode && toggleVisible() }
-					position="bottom right"
+					offset={ 36 }
+					placement="left-end"
 				>
 					<ColorPaletteControl label={ label } value={ value } onChange={ onChange } />
 				</Popover>
