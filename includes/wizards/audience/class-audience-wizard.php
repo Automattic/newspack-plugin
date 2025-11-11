@@ -978,7 +978,7 @@ class Audience_Wizard extends Wizard {
 				'allow_covering_fees'                => boolval( get_option( 'newspack_donations_allow_covering_fees', true ) ),
 				'allow_covering_fees_default'        => boolval( get_option( 'newspack_donations_allow_covering_fees_default', false ) ),
 				'allow_covering_fees_label'          => get_option( 'newspack_donations_allow_covering_fees_label', '' ),
-				'allow_covering_fees_donations_only' => boolval( get_option( 'newspack_donations_allow_covering_fees_donations_only', false ) ),
+				'allow_covering_fees_donations_only' => boolval( get_option( 'newspack_donations_allow_covering_fees_donations_only', true ) ),
 				'fee_multiplier'                     => get_option( 'newspack_blocks_donate_fee_multiplier', '2.9' ),
 				'fee_static'                         => get_option( 'newspack_blocks_donate_fee_static', '0.3' ),
 			]
