@@ -579,6 +579,9 @@ class Audience_Wizard extends Wizard {
 			if ( isset( $args['content_gifting']['cta_url'] ) ) {
 				Content_Gifting_CTA::set_cta_url( sanitize_text_field( $args['content_gifting']['cta_url'] ) );
 			}
+			if ( isset( $args['content_gifting']['style'] ) ) {
+				Content_Gifting_CTA::set_style( sanitize_text_field( $args['content_gifting']['style'] ) );
+			}
 		}
 		return rest_ensure_response( self::get_memberships_settings() );
 	}

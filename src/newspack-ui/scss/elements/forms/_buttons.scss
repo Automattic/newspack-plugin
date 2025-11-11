@@ -103,6 +103,21 @@
 			}
 		}
 
+		&--primary-light {
+			background: var(--newspack-ui-color-neutral-0);
+			color: var(--newspack-ui-color-neutral-90);
+
+			&:hover {
+				background: var(--newspack-ui-color-neutral-5);
+				color: var(--newspack-ui-color-neutral-90);
+			}
+
+			&:disabled {
+				background: var(---newspack-ui-color-neutral-0) !important;
+				color: var(--newspack-ui-color-neutral-30) !important;
+			}
+		}
+
 		&--accent,
 		&--branded {
 			background: var(--newspack-ui-color-primary);

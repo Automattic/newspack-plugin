@@ -52,9 +52,7 @@ body .sd-social-icon .sd-content ul li[class*="share-"].share-newspack-gift-arti
 
 .newspack-content-gifting {
 	&__cta {
-		background: var(--newspack-ui-color-neutral-90);
 		bottom: 0;
-		color: var(--newspack-ui-color-neutral-0);
 		left: 0;
 		padding: var(--newspack-ui-spacer-2) var(--newspack-ui-spacer-3);
 		position: fixed;
@@ -77,6 +75,16 @@ body .sd-social-icon .sd-content ul li[class*="share-"].share-newspack-gift-arti
 					width: auto;
 				}
 			}
+		}
+
+		&.is-style-light {
+			background: var(--newspack-ui-color-neutral-0);
+			color: var(--newspack-ui-color-neutral-90);
+		}
+
+		&.is-style-dark {
+			background: var(--newspack-ui-color-neutral-90);
+			color: var(--newspack-ui-color-neutral-0);
 		}
 	}
 

@@ -90,7 +90,7 @@ class Content_Gifting_CTA {
 		$cta_url = self::get_cta_url();
 		if ( $cta_url ) {
 			?>
-			<a href="<?php echo esc_url( $cta_url ); ?>" class="newspack-ui__button newspack-ui__button--x-small"><?php echo esc_html( $button_label ); ?></a>
+			<a href="<?php echo esc_url( $cta_url ); ?>" class="newspack-ui__button newspack-ui__button--x-small <?php echo esc_attr( self::get_style() === 'light' ? 'newspack-ui__button--accent' : 'newspack-ui__button--primary-light' ); ?>"><?php echo esc_html( $button_label ); ?></a>
 			<?php
 			return;
 		}
@@ -116,6 +116,28 @@ class Content_Gifting_CTA {
 	}
 
 	/**
+	 * Get CTA style.
+	 *
+	 * @return string The style, 'light' or 'dark'.
+	 */
+	public static function get_style() {
+		$style = (string) get_option( 'newspack_content_gifting_cta_style', 'light' );
+		return in_array( $style, [ 'light', 'dark' ], true ) ? $style : 'light';
+	}
+
+	/**
+	 * Set CTA style.
+	 *
+	 * @param string $style The style value.
+	 *
+	 * @return void
+	 */
+	public static function set_style( $style ) {
+		$style = in_array( $style, [ 'light', 'dark' ], true ) ? $style : 'light';
+		update_option( 'newspack_content_gifting_cta_style', $style );
+	}
+
+	/**
 	 * Hook the cta.
 	 */
 	public static function print_cta() {
@@ -126,9 +148,10 @@ class Content_Gifting_CTA {
 		if ( ! Content_Gate::is_post_restricted() ) {
 			return;
 		}
+		$style_class = sprintf( 'is-style-%s', self::get_style() );
 		?>
 		<div class="newspack-ui">
-			<div class="banner newspack-content-gifting__cta">
+			<div class="banner newspack-content-gifting__cta <?php echo esc_attr( $style_class ); ?>">
 				<div class="wrapper newspack-content-gifting__cta__content">
 					<span class="newspack-ui__font--s"><?php echo esc_html( self::get_cta_label() ); ?></span>
 					<?php self::print_subscribe_button(); ?>

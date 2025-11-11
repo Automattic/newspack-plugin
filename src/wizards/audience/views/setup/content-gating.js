@@ -2,7 +2,17 @@
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { ExternalLink, RangeControl, SelectControl, TextControl, Button } from '@wordpress/components';
+import {
+	ExternalLink,
+	RangeControl,
+	SelectControl,
+	TextControl,
+	Button,
+	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
+	__experimentalToggleGroupControl as ToggleGroupControl,
+	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
+	__experimentalToggleGroupControlOption as ToggleGroupControlOption,
+} from '@wordpress/components';
 import { useEffect, useState } from '@wordpress/element';
 
 import { ActionCard, Grid, Notice, withWizardScreen } from '../../../../../packages/components/src';
@@ -119,6 +129,16 @@ export default withWizardScreen( ( { wizardApiFetch } ) => {
 								value={ config.content_gifting.cta_url }
 								onChange={ value => setConfig( { ...config, content_gifting: { ...config.content_gifting, cta_url: value } } ) }
 							/>
+							<ToggleGroupControl
+								label={ __( 'Style', 'newspack-plugin' ) }
+								value={ config.content_gifting.style || 'light' }
+								onChange={ value => setConfig( { ...config, content_gifting: { ...config.content_gifting, style: value } } ) }
+								isBlock
+								__next40pxDefaultSize
+							>
+								<ToggleGroupControlOption label={ __( 'Light', 'newspack-plugin' ) } value="light" />
+								<ToggleGroupControlOption label={ __( 'Dark', 'newspack-plugin' ) } value="dark" />
+							</ToggleGroupControl>
 						</Grid>
 						<div className="newspack-buttons-card" style={ { margin: '32px 0 0 0' } }>
 							<Button isPrimary onClick={ () => updateConfig( { content_gifting: config.content_gifting } ) }>
