@@ -52,6 +52,8 @@ class Content_Gifting {
 		add_action( 'admin_enqueue_scripts', [ __CLASS__, 'enqueue_assets' ] );
 		add_action( 'wp_ajax_' . self::GENERATE_ACTION, [ __CLASS__, 'ajax_generate_content_key' ] );
 		add_action( 'wp_footer', [ __CLASS__, 'print_gift_modal' ] );
+		add_action( 'newspack_content_gifting_enabled_status_changed', [ __CLASS__, 'update_jetpack_sharing_services' ] );
+		add_filter( 'sharing_default_services', [ __CLASS__, 'filter_sharing_default_services' ] );
 
 		require_once __DIR__ . '/class-content-gifting-cta.php';
 	}
@@ -65,6 +67,59 @@ class Content_Gifting {
 		} else {
 			add_action( 'newspack_theme_entry_meta', [ __CLASS__, 'add_gift_button' ] );
 		}
+	}
+
+
+	/**
+	 * Update Jetpack's sharing services to include the gift button upon enabling
+	 * content gifting.
+	 *
+	 * @param bool $enabled Whether the content gifting is enabled.
+	 *
+	 * @return void
+	 */
+	public static function update_jetpack_sharing_services( $enabled ) {
+		if ( ! $enabled ) {
+			return;
+		}
+		if ( class_exists( 'Jetpack' ) && \Jetpack::is_module_active( 'sharedaddy' ) ) {
+			$services = get_option( 'sharing-services' );
+			// If not set, rely on the `sharing_default_services` filter and don't change anything.
+			if ( ! is_array( $services ) ) {
+				return;
+			}
+			if ( ! isset( $services['visible'] ) ) {
+				return;
+			}
+			if ( in_array( 'newspack-gift-article', $services['visible'], true ) ) {
+				return;
+			}
+			// Add at the top of the array.
+			$services['visible'] = array_merge( [ 'newspack-gift-article' ], $services['visible'] );
+			update_option( 'sharing-services', $services );
+
+		}
+	}
+
+	/**
+	 * Filter the sharing default services to include the gift button.
+	 *
+	 * @param array $services The sharing default services.
+	 *
+	 * @return array The filtered sharing default services.
+	 */
+	public static function filter_sharing_default_services( $services ) {
+		if ( ! self::is_enabled() ) {
+			return $services;
+		}
+		if ( ! isset( $services['visible'] ) ) {
+			return $services;
+		}
+		if ( in_array( 'newspack-gift-article', $services['visible'], true ) ) {
+			return $services;
+		}
+		$services['visible'] = array_merge( [ 'newspack-gift-article' ], $services['visible'] );
+		return $services;
 	}
 
 	/**
@@ -240,6 +295,12 @@ class Content_Gifting {
 	 */
 	public static function set_enabled( $enabled = true ) {
 		update_option( self::META, (int) $enabled );
+		/**
+		 * Fires when the content gifting enabled status is changed.
+		 *
+		 * @param bool $enabled Whether the content gifting is enabled.
+		 */
+		do_action( 'newspack_content_gifting_enabled_status_changed', $enabled );
 	}
 
 	/**
