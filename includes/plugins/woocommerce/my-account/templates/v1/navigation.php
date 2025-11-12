@@ -14,20 +14,31 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 do_action( 'woocommerce_before_account_navigation' );
 $site_icon_url = apply_filters( 'newspack_my_account_site_logo_url', get_site_icon_url( 96 ) );
+
+// Get the current page name from account menu items.
+$current_page_name = __( 'My account', 'newspack-plugin' );
+$account_menu_items = wc_get_account_menu_items();
+foreach ( $account_menu_items as $endpoint => $label ) {
+	if ( wc_is_current_account_menu_item( $endpoint ) ) {
+		$current_page_name = $label;
+		break;
+	}
+}
 ?>
 
 <div class="newspack-my-account__navigation-topbar">
-	<a href="<?php echo esc_url( home_url( '/' ) ); ?>" class="newspack-my-account__home-link"><?php _e( 'Back to Homepage', 'newspack-plugin' ); ?></a>
-	<button class="newspack-my-account__icon-button newspack-my-account__icon-button--open-navigation">
-		<span class="screen-reader-text"><?php _e( 'Open navigation', 'newspack-plugin' ); ?></span>
-	</button>
+	<h1 class="newspack-ui__font--s newspack-ui__spacing-top--0 newspack-ui__spacing-bottom--0"><?php echo esc_html( $current_page_name ); ?></h1>
+
+	<div class="newspack-my-account__navigation-topbar__button">
+		<button class="newspack-ui__button newspack-ui__button--x-small newspack-ui__button--ghost newspack-ui__button--icon" aria-expanded="false" aria-label="<?php esc_attr_e( 'Open navigation', 'newspack-plugin' ); ?>" data-label-close="<?php esc_attr_e( 'Close navigation', 'newspack-plugin' ); ?>" data-label-open="<?php esc_attr_e( 'Open navigation', 'newspack-plugin' ); ?>">
+			<?php Newspack_UI_Icons::print_svg( 'menu' ); ?>
+			<?php Newspack_UI_Icons::print_svg( 'close' ); ?>
+		</button>
+	</div>
 </div>
 
 <nav class="woocommerce-MyAccount-navigation newspack-ui" aria-label="<?php esc_attr_e( 'Account pages', 'newspack-plugin' ); ?>">
-	<header>
-		<button class="newspack-my-account__icon-button newspack-my-account__icon-button--close-navigation">
-			<span class="screen-reader-text"><?php _e( 'Close navigation', 'newspack-plugin' ); ?></span>
-		</button>
+	<div class="newspack-my-account__navigation-header">
 		<?php if ( ! empty( $site_icon_url ) ) : ?>
 		<a class="newspack-my-account__site-logo" href="<?php echo esc_url( home_url( '/' ) ); ?>" title="<?php esc_attr_e( 'Back to Homepage', 'newspack-plugin' ); ?>">
 			<img src="<?php echo esc_url( $site_icon_url ); ?>" />
@@ -48,9 +59,9 @@ $site_icon_url = apply_filters( 'newspack_my_account_site_logo_url', get_site_ic
 				</li>
 			<?php endforeach; ?>
 		</ul>
-	</header>
+	</div>
 
-	<footer class="newspack-my-account__navigation-footer">
+	<div class="newspack-my-account__navigation-footer">
 		<ul>
 			<?php foreach ( apply_filters( 'newspack_my_account_navigation_footer_items', [] ) as $item ) : ?>
 				<li class="newspack-my-account__navigation-footer-item">
@@ -64,7 +75,7 @@ $site_icon_url = apply_filters( 'newspack_my_account_site_logo_url', get_site_ic
 				</a>
 			</li>
 		</ul>
-	</footer>
+	</div>
 </nav>
 
 <?php do_action( 'woocommerce_after_account_navigation' ); ?>

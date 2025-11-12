@@ -1,6 +1,9 @@
 .newspack-ui {
 	.newspack-ui {
 		// Bottom margin spacing
+		&__spacing-bottom--0 {
+			margin-bottom: 0;
+		}
 		&__spacing-bottom--8 {
 			margin-bottom: var(--newspack-ui-spacer-base);
 		}
@@ -33,6 +36,9 @@
 		}
 
 		// Left margin spacing
+		&__spacing-left--0 {
+			margin-left: 0;
+		}
 		&__spacing-left--8 {
 			margin-left: var(--newspack-ui-spacer-base);
 		}
@@ -65,6 +71,9 @@
 		}
 
 		// Right margin spacing
+		&__spacing-right--0 {
+			margin-right: 0;
+		}
 		&__spacing-right--8 {
 			margin-right: var(--newspack-ui-spacer-base);
 		}
@@ -97,6 +106,9 @@
 		}
 
 		// Top margin spacing
+		&__spacing-top--0 {
+			margin-top: 0;
+		}
 		&__spacing-top--8 {
 			margin-top: var(--newspack-ui-spacer-base);
 		}
