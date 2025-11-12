@@ -27,6 +27,11 @@ class Contribution_Meter {
 	const CACHE_DURATION = 600;
 
 	/**
+	 * Cache duration option name.
+	 */
+	const CACHE_DURATION_OPTION = 'newspack_contribution_meter_cache_duration';
+
+	/**
 	 * Cache key prefix for contribution meter data.
 	 */
 	const CACHE_KEY_PREFIX = 'newspack_contribution_meter_';
@@ -121,14 +126,8 @@ class Contribution_Meter {
 			'amountRaised' => $amount_raised,
 		];
 
-		/**
-		 * Filters the expiration time for contribution meter data.
-		 *
-		 * @param int $expiration Expiration time in seconds.
-		 */
-		$expiration = apply_filters( 'newspack_contribution_meter_cache_duration', self::CACHE_DURATION );
-
-		set_transient( $cache_key, $data, $expiration );
+		// Get cache duration from option, falling back to constant.
+		set_transient( $cache_key, $data, get_option( self::CACHE_DURATION_OPTION, self::CACHE_DURATION ) );
 
 		return $data;
 	}
