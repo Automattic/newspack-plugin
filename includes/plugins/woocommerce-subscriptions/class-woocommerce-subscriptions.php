@@ -78,9 +78,14 @@ class WooCommerce_Subscriptions {
 			'week'    => __( 'Weekly', 'newspack-plugin' ),
 			'week_2'  => __( 'Bi-Weekly', 'newspack-plugin' ),
 			'month'   => __( 'Monthly', 'newspack-plugin' ),
+			'month_2' => __( 'Bimonthly', 'newspack-plugin' ),
 			'month_3' => __( 'Quarterly', 'newspack-plugin' ),
+			'month_4' => __( 'Four-monthly', 'newspack-plugin' ),
 			'month_6' => __( 'Semi-Annually', 'newspack-plugin' ),
 			'year'    => __( 'Yearly', 'newspack-plugin' ),
+			'year_2'  => __( 'Biennially', 'newspack-plugin' ),
+			'year_3'  => __( 'Triennially', 'newspack-plugin' ),
+			'year_4'  => __( 'Quadrennially', 'newspack-plugin' ),
 		];
 		// If frequency is not in the array, try to find the frequency without the interval.
 		if ( ! isset( $frequencies[ $frequency ] ) ) {
