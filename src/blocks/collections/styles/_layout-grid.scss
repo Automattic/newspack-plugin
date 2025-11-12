@@ -66,3 +66,10 @@
 		}
 	}
 }
+
+/* Archive specific styles */
+.post-type-archive-newspack_collection {
+	.wp-block-newspack-collections.layout-grid {
+		margin-top: 32px;
+	}
+}
