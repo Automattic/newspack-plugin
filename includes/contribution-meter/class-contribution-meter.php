@@ -184,4 +184,24 @@ class Contribution_Meter {
 
 		return $total;
 	}
+
+	/**
+	 * Format currency value.
+	 *
+	 * @param float $amount Amount to format.
+	 * @param array $args Optional formatting arguments.
+	 * @return string Formatted currency.
+	 */
+	public static function format_currency( $amount, $args = [] ) {
+		$defaults = [ 'decimals' => 0 ];
+		$args     = wp_parse_args( $args, $defaults );
+
+		if ( function_exists( 'wc_price' ) ) {
+			return wp_strip_all_tags( wc_price( $amount, $args ) );
+		}
+
+		// Fallback formatting.
+		$symbol = function_exists( 'get_woocommerce_currency_symbol' ) ? get_woocommerce_currency_symbol() : '$';
+		return $symbol . number_format( $amount, $args['decimals'], '.', ',' );
+	}
 }
