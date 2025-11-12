@@ -146,43 +146,92 @@ class Contribution_Meter {
 
 		// Get all donation product IDs.
 		$donation_products    = Donations::get_donation_product_child_products_ids();
-		$donation_product_ids = array_filter( array_values( $donation_products ) );
+		$donation_product_ids = array_filter( array_map( 'intval', array_values( $donation_products ) ) );
 
 		if ( empty( $donation_product_ids ) ) {
 			return new \WP_Error( 'no_donation_products', __( 'No donation products found.', 'newspack-plugin' ) );
 		}
 
-		// Query orders from the start date.
-		$orders = \wc_get_orders(
-			[
-				'limit'        => -1,
-				'status'       => [ 'completed', 'processing' ],
-				'date_created' => '>=' . strtotime( $start_date ),
-				'return'       => 'ids',
-			]
-		);
+		return self::get_donation_revenue_via_order_query( $start_date, $donation_product_ids );
+	}
 
-		$total = 0;
+	/**
+	 * Calculate donation revenue by iterating paginated WooCommerce orders.
+	 *
+	 * @param string $start_date  Start date in YYYY-MM-DD format.
+	 * @param array  $product_ids Donation product IDs to include.
+	 * @return float|WP_Error Total revenue or WP_Error on failure.
+	 */
+	private static function get_donation_revenue_via_order_query( $start_date, $product_ids ) {
+		$statuses = apply_filters( 'newspack_contribution_meter_order_statuses', [ 'completed', 'processing' ] );
 
-		// Sum donation revenue from matching orders.
-		foreach ( $orders as $order_id ) {
-			$order = \wc_get_order( $order_id );
+		$after = self::get_local_wc_datetime( $start_date );
 
-			if ( ! $order ) {
-				continue;
+		$query_args = [
+			'limit'        => 200,
+			'paginate'     => true,
+			'orderby'      => 'date',
+			'order'        => 'DESC',
+			'return'       => 'ids',
+			'status'       => $statuses,
+			'type'         => 'shop_order',
+			'date_created' => '>= ' . $after->date_i18n( 'Y-m-d H:i:s' ),
+		];
+
+		$total_revenue = 0.0;
+		$page          = 1;
+		$max_pages     = 1;
+
+		do {
+			$query_args['page'] = $page;
+			$results            = wc_get_orders( $query_args );
+
+			if ( is_wp_error( $results ) ) {
+				return $results;
 			}
 
-			foreach ( $order->get_items() as $item ) {
-				$product_id = $item->get_product_id();
+			if ( is_object( $results ) ) {
+				$orders    = isset( $results->orders ) ? $results->orders : [];
+				$max_pages = max( 1, isset( $results->max_num_pages ) ? (int) $results->max_num_pages : 1 );
+			} else {
+				$orders    = (array) $results;
+				$max_pages = 1;
+			}
 
-				// Only count items from donation products.
-				if ( in_array( $product_id, $donation_product_ids, true ) ) {
-					$total += (float) $item->get_total();
+			if ( empty( $orders ) ) {
+				break;
+			}
+
+			foreach ( $orders as $order_id ) {
+				$order = wc_get_order( $order_id );
+				if ( ! $order ) {
+					continue;
+				}
+
+				foreach ( $order->get_items() as $item ) {
+					$product_id = $item->get_product_id();
+					if ( $product_id && in_array( (int) $product_id, $product_ids, true ) ) {
+						$total_revenue += (float) $item->get_total();
+					}
 				}
 			}
-		}
 
-		return $total;
+			$page++;
+		} while ( $page <= $max_pages );
+
+		return $total_revenue;
+	}
+
+	/**
+	 * Convert a YYYY-MM-DD string into a WC_DateTime in the site's timezone.
+	 *
+	 * @param string $date Date string.
+	 * @return \WC_DateTime
+	 */
+	private static function get_local_wc_datetime( $date ) {
+		$timezone  = new \DateTimeZone( wc_timezone_string() );
+		$formatted = false !== strpos( $date, ' ' ) ? $date : $date . ' 00:00:00';
+		return new \WC_DateTime( $formatted, $timezone );
 	}
 
 	/**
