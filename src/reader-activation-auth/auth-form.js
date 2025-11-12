@@ -288,8 +288,8 @@ window.newspackRAS.push( function ( readerActivation ) {
 						readerActivation.setAuthenticated( !! data.authenticated );
 						const activity = { email: data.email };
 						const body = new FormData( form );
-						if ( data.metadata?.gate_post_id || body.has( 'memberships_content_gate' ) ) {
-							activity.gate_post_id = data.metadata.gate_post_id || body.get( 'memberships_content_gate' );
+						if ( data.metadata?.gate_post_id || body.has( 'gate_post_id' ) ) {
+							activity.gate_post_id = data.metadata.gate_post_id || body.get( 'gate_post_id' );
 						}
 						if ( data.metadata?.newspack_popup_id || body.has( 'newspack_popup_id' ) ) {
 							activity.newspack_popup_id = data.metadata.newspack_popup_id || body.get( 'newspack_popup_id' );

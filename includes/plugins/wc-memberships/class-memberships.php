@@ -7,6 +7,7 @@
 
 namespace Newspack;
 
+use Newspack\Content_Gate;
 use Newspack\WooCommerce_Connection;
 
 defined( 'ABSPATH' ) || exit;
