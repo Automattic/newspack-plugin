@@ -79,13 +79,33 @@ class Content_Gifting_CTA {
 	}
 
 	/**
+	 * Get button label.
+	 *
+	 * @return string The button label.
+	 */
+	public static function get_button_label() {
+		return (string) get_option( 'newspack_content_gifting_button_label', __( 'Subscribe now', 'newspack-plugin' ) );
+	}
+
+	/**
+	 * Set button label.
+	 *
+	 * @param string $label The button label.
+	 *
+	 * @return void
+	 */
+	public static function set_button_label( $label ) {
+		update_option( 'newspack_content_gifting_button_label', $label );
+	}
+
+	/**
 	 * Print the subscribe button.
 	 */
 	public static function print_subscribe_button() {
 		if ( ! class_exists( 'Newspack_Blocks' ) || ! class_exists( 'Newspack_Blocks\Modal_Checkout' ) || ! class_exists( 'Newspack_Blocks\Modal_Checkout\Checkout_Data' ) || ! function_exists( 'wc_get_product' ) ) {
 			return;
 		}
-		$button_label = __( 'Subscribe now', 'newspack-plugin' );
+		$button_label = self::get_button_label();
 		$button_class = 'dark' === self::get_style() ? 'newspack-ui__button--primary-light' : 'newspack-ui__button--accent';
 
 		$cta_url = self::get_cta_url();

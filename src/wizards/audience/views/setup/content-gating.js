@@ -8,6 +8,9 @@ import {
 	SelectControl,
 	TextControl,
 	Button,
+	BaseControl,
+	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
+	__experimentalHeading as Heading,
 	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
 	__experimentalToggleGroupControl as ToggleGroupControl,
 	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
@@ -91,7 +94,10 @@ export default withWizardScreen( ( { wizardApiFetch } ) => {
 			>
 				{ config.content_gifting?.enabled && (
 					<>
-						<Grid columns={ 2 }>
+						<Grid columns={ 2 } rowGap={ 16 }>
+							<Heading level={ 4 } style={ { gridColumn: '1 / -1' } }>
+								{ __( 'General Settings', 'newspack-plugin' ) }
+							</Heading>
 							<RangeControl
 								label={ __( 'Gifting limit', 'newspack-plugin' ) }
 								help={ __(
@@ -102,6 +108,7 @@ export default withWizardScreen( ( { wizardApiFetch } ) => {
 								max={ 20 }
 								value={ config.content_gifting.limit }
 								onChange={ value => setConfig( { ...config, content_gifting: { ...config.content_gifting, limit: value } } ) }
+								__next40pxDefaultSize
 							/>
 							<SelectControl
 								label={ __( 'Gifting limit interval', 'newspack-plugin' ) }
@@ -113,21 +120,36 @@ export default withWizardScreen( ( { wizardApiFetch } ) => {
 									{ value: 'week', label: __( 'Week', 'newspack-plugin' ) },
 									{ value: 'month', label: __( 'Month', 'newspack-plugin' ) },
 								] }
+								__next40pxDefaultSize
 							/>
+						</Grid>
+						<Grid columns={ 2 } rowGap={ 16 }>
+							<Heading level={ 4 } style={ { gridColumn: '1 / -1' } }>
+								{ __( 'Recipient Banner', 'newspack-plugin' ) }
+							</Heading>
 							<TextControl
-								label={ __( 'Gifted article CTA Text', 'newspack-plugin' ) }
-								help={ __( 'Text to be displayed next to the subscribe button.', 'newspack-plugin' ) }
+								label={ __( 'Message', 'newspack-plugin' ) }
+								help={ __( 'Text displayed in the banner shown to recipients of gifted articles.', 'newspack-plugin' ) }
 								value={ config.content_gifting.cta_label }
 								onChange={ value => setConfig( { ...config, content_gifting: { ...config.content_gifting, cta_label: value } } ) }
+								__next40pxDefaultSize
 							/>
 							<TextControl
-								label={ __( 'Gifted article CTA URL', 'newspack-plugin' ) }
+								label={ __( 'Subscribe button label', 'newspack-plugin' ) }
+								help={ __( 'Text displayed on the subscribe button in the banner.', 'newspack-plugin' ) }
+								value={ config.content_gifting.button_label }
+								onChange={ value => setConfig( { ...config, content_gifting: { ...config.content_gifting, button_label: value } } ) }
+								__next40pxDefaultSize
+							/>
+							<TextControl
+								label={ __( 'Subscribe button URL', 'newspack-plugin' ) }
 								help={ __(
-									'URL for the subscribe button. If not provided, the primary subscription tier product will be used with modal checkout.',
+									'URL for the subscribe button in the banner. If not provided, the primary subscription tier product will be used with modal checkout.',
 									'newspack-plugin'
 								) }
 								value={ config.content_gifting.cta_url }
 								onChange={ value => setConfig( { ...config, content_gifting: { ...config.content_gifting, cta_url: value } } ) }
+								__next40pxDefaultSize
 							/>
 							<ToggleGroupControl
 								label={ __( 'Style', 'newspack-plugin' ) }
@@ -139,6 +161,38 @@ export default withWizardScreen( ( { wizardApiFetch } ) => {
 								<ToggleGroupControlOption label={ __( 'Light', 'newspack-plugin' ) } value="light" />
 								<ToggleGroupControlOption label={ __( 'Dark', 'newspack-plugin' ) } value="dark" />
 							</ToggleGroupControl>
+							<div style={ { gridColumn: '1 / -1' } }>
+								<BaseControl id="newspack-content-gifting-cta-preview" label={ __( 'Preview', 'newspack-plugin' ) }>
+									<div className="newspack-content-gifting__cta-preview">
+										<div className="newspack-ui">
+											<div
+												className={ `banner newspack-content-gifting__cta is-style-${
+													config.content_gifting.style || 'light'
+												}` }
+											>
+												<div className="wrapper newspack-content-gifting__cta__content">
+													<span className="newspack-ui__font--s">
+														{ config.content_gifting.cta_label ||
+															__(
+																'This article has been gifted to you by someone who values great journalism.',
+																'newspack-plugin'
+															) }
+													</span>
+													<button
+														className={ `newspack-ui__button newspack-ui__button--x-small ${
+															( config.content_gifting.style || 'light' ) === 'dark'
+																? 'newspack-ui__button--primary-light'
+																: 'newspack-ui__button--accent'
+														}` }
+													>
+														{ config.content_gifting.button_label || __( 'Subscribe now', 'newspack-plugin' ) }
+													</button>
+												</div>
+											</div>
+										</div>
+									</div>
+								</BaseControl>
+							</div>
 						</Grid>
 						<div className="newspack-buttons-card" style={ { margin: '32px 0 0 0' } }>
 							<Button isPrimary onClick={ () => updateConfig( { content_gifting: config.content_gifting } ) }>

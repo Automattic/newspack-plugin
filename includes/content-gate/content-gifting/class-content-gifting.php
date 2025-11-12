@@ -204,12 +204,13 @@ class Content_Gifting {
 	 */
 	public static function get_settings() {
 		return [
-			'enabled'   => self::is_enabled(),
-			'limit'     => self::get_gifting_limit(),
-			'interval'  => self::get_gifting_reset_interval(),
-			'cta_label' => Content_Gifting_CTA::get_cta_label(),
-			'cta_url'   => Content_Gifting_CTA::get_cta_url(),
-			'style'     => Content_Gifting_CTA::get_style(),
+			'enabled'      => self::is_enabled(),
+			'limit'        => self::get_gifting_limit(),
+			'interval'     => self::get_gifting_reset_interval(),
+			'cta_label'    => Content_Gifting_CTA::get_cta_label(),
+			'button_label' => Content_Gifting_CTA::get_button_label(),
+			'cta_url'      => Content_Gifting_CTA::get_cta_url(),
+			'style'        => Content_Gifting_CTA::get_style(),
 		];
 	}
 
