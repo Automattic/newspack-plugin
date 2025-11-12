@@ -29,8 +29,11 @@
 			display: none;
 			transform: none;
 		}
+		.admin-bar & {
+			padding-top: var(--wp-admin--admin-bar--height);
+		}
 	}
-	a.newspack-my-account__home-link,
+	a.newspack-my-account__home-link:not(.newspack-ui__button),
 	.woocommerce-MyAccount-navigation-link--back-to-memberships a,
 	.woocommerce-MyAccount-navigation-link--back-to-teams a {
 		background-image: url("data:image/svg+xml,%3Csvg width='8' height='12' viewBox='0 0 8 12' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M7 0.500024L2 6.00002L7 11.5' stroke='%236C6C6C' stroke-width='1.5'/%3E%3C/svg%3E%0A");
@@ -78,7 +81,7 @@
 		overflow-y: auto;
 		padding: var(--newspack-ui-spacer-5);
 		position: fixed;
-		transition: transform 0.25s ease-in-out;
+		transition: transform 125ms ease-in-out;
 		top: 0;
 		z-index: 2;
 		@media ( min-width: 768px ) {
@@ -86,17 +89,26 @@
 			font-size: var(--newspack-ui-font-size-xs);
 			left: 0;
 			line-height: var(--newspack-ui-line-height-xs);
-			padding-bottom: var(--newspack-ui-spacer-9);
-			padding-top: var(--newspack-ui-spacer-9);
+			padding-bottom: var(--newspack-ui-spacer-6);
+			padding-top: 0;
 			transform: none;
 			transition: none;
-			width: 300px;
+			width: 301px;
+		}
+		@at-root .admin-bar#{&} {
+			padding-top: var(--wp-admin--admin-bar--height);
 		}
 		.newspack-my-account__site-logo {
+			border: 1px solid var(--newspack-ui-color-border);
+			border-radius: var(--newspack-ui-border-radius-xs);
+			background-color: var(--newspack-ui-color-neutral-0);
 			display: none;
-			height: 48px;
-			margin-bottom: var(--newspack-ui-spacer-6);
-			margin-left: var(--newspack-ui-spacer-3);
+			height: var(--newspack-ui-spacer-9);
+			margin: var(--newspack-ui-spacer-6) var(--newspack-ui-spacer-3);
+			padding: calc(var(--newspack-ui-spacer-base) * 0.5);
+			place-items: center;
+			transition: border-color 125ms ease-in-out;
+			width: var(--newspack-ui-spacer-9);
 			img {
 				height: auto;
 				max-height: 100%;
@@ -104,17 +116,23 @@
 				width: auto;
 			}
 			@media ( min-width: 768px ) {
-				display: block;
+				display: grid;
+			}
+			&:hover {
+				border-color: var(--newspack-ui-color-border-hover);
 			}
 		}
 		.newspack-my-account__home-link {
-			display: none;
 			margin-bottom: var(--newspack-ui-spacer-2);
-			margin-left: var(--newspack-ui-spacer-3);
 			margin-top: 0;
-			@media ( min-width: 768px ) {
-				display: block;
+
+			svg {
+				margin-left: -8px;
 			}
+		}
+		.newspack-ui__button {
+			justify-content: flex-start;
+			width: 100%;
 		}
 		ul {
 			list-style: none;
@@ -124,24 +142,6 @@
 		li {
 			font-size: inherit;
 			line-height: inherit;
-			a {
-				align-items: center;
-				border-radius: var(--newspack-ui-border-radius-m);
-				display: flex;
-				font-weight: 600;
-				margin-left: 0;
-				margin-right: 0;
-				padding: var(--newspack-ui-spacer-2) var(--newspack-ui-spacer-3);
-				text-decoration: none;
-				&:hover {
-					background: var(--newspack-ui-color-neutral-5);
-					color: var(--newspack-ui-color-neutral-90);
-				}
-			}
-			&.is-active a {
-				background-color: var(--newspack--my-account--color--accent);
-				color: var(--newspack--my-account--color--contrast);
-			}
 		}
 		.newspack-my-account__navigation-footer {
 			margin-top: var(--newspack-ui-spacer-5);
@@ -167,14 +167,11 @@
 				&.woocommerce-MyAccount-navigation-link--customer-logout {
 					border-top: 1px solid var(--newspack-ui-color-border);
 					margin-top: var(--newspack-ui-spacer-3);
-					a {
-						background-image: url("data:image/svg+xml,%3Csvg width='24' height='24' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M19.03 8.47L22.56 12L19.03 15.53L17.97 14.47L19.69 12.75H8.5V11.25H19.69L17.97 9.53L19.03 8.47ZM13.5 17C13.5 17.1326 13.4473 17.2598 13.3536 17.3536C13.2598 17.4473 13.1326 17.5 13 17.5H6C5.86739 17.5 5.74021 17.4473 5.64645 17.3536C5.55268 17.2598 5.5 17.1326 5.5 17V7C5.5 6.86739 5.55268 6.74021 5.64645 6.64645C5.74021 6.55268 5.86739 6.5 6 6.5H13C13.1326 6.5 13.2598 6.55268 13.3536 6.64645C13.4473 6.74021 13.5 6.86739 13.5 7V8.5H15V7C15 6.46957 14.7893 5.96086 14.4142 5.58579C14.0391 5.21071 13.5304 5 13 5H6C5.46957 5 4.96086 5.21071 4.58579 5.58579C4.21071 5.96086 4 6.46957 4 7V17C4 17.5304 4.21071 18.0391 4.58579 18.4142C4.96086 18.7893 5.46957 19 6 19H13C13.5304 19 14.0391 18.7893 14.4142 18.4142C14.7893 18.0391 15 17.5304 15 17V15.5H13.5V17Z' fill='currentColor'/%3E%3C/svg%3E%0A");
-						background-position: calc(100% - var(--newspack-ui-spacer-3)) center;
-						background-repeat: no-repeat;
+
+					.newspack-ui__button {
+						justify-content: space-between;
 						margin-top: var(--newspack-ui-spacer-5);
-						&:hover {
-							color: var(--newspack-ui-color-neutral-60, #6c6c6c);
-						}
+						width: calc(100% + var(--newspack-ui-spacer-3) * 2);
 					}
 				}
 			}
