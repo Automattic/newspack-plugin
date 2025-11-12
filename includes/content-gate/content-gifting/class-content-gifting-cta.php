@@ -86,11 +86,12 @@ class Content_Gifting_CTA {
 			return;
 		}
 		$button_label = __( 'Subscribe now', 'newspack-plugin' );
+		$button_class = 'dark' === self::get_style() ? 'newspack-ui__button--primary-light' : 'newspack-ui__button--accent';
 
 		$cta_url = self::get_cta_url();
 		if ( $cta_url ) {
 			?>
-			<a href="<?php echo esc_url( $cta_url ); ?>" class="newspack-ui__button newspack-ui__button--x-small <?php echo esc_attr( self::get_style() === 'light' ? 'newspack-ui__button--accent' : 'newspack-ui__button--primary-light' ); ?>"><?php echo esc_html( $button_label ); ?></a>
+			<a href="<?php echo esc_url( $cta_url ); ?>" class="newspack-ui__button newspack-ui__button--x-small <?php echo esc_attr( $button_class ); ?>"><?php echo esc_html( $button_label ); ?></a>
 			<?php
 			return;
 		}
@@ -109,7 +110,7 @@ class Content_Gifting_CTA {
 				<input type="hidden" name="newspack_checkout" value="1" />
 				<input type="hidden" name="modal_checkout" value="1" />
 				<input type="hidden" name="product_id" value="<?php echo esc_attr( $product->get_id() ); ?>" />
-				<button type="submit" class="newspack-ui__button newspack-ui__button--x-small"><?php echo esc_html( $button_label ); ?></button>
+				<button type="submit" class="newspack-ui__button newspack-ui__button--x-small <?php echo esc_attr( $button_class ); ?>"><?php echo esc_html( $button_label ); ?></button>
 			</form>
 		</div>
 		<?php
