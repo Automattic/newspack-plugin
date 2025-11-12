@@ -39,18 +39,18 @@ const InspectorPanel = ( { attributes, setAttributes } ) => {
 					<ToggleGroupControlOption label={ __( 'Linear', 'newspack-plugin' ) } value="linear" />
 					<ToggleGroupControlOption label={ __( 'Circular', 'newspack-plugin' ) } value="circular" />
 				</ToggleGroupControl>
-
-				<PanelColorSettings
-					title={ __( 'Color', 'newspack-plugin' ) }
-					colorSettings={ [
-						{
-							value: progressBarColor,
-							onChange: value => setAttributes( { progressBarColor: value } ),
-							label: __( 'Progress bar', 'newspack-plugin' ),
-						},
-					] }
-				/>
 			</PanelBody>
+
+			<PanelColorSettings
+				title={ __( 'Color', 'newspack-plugin' ) }
+				colorSettings={ [
+					{
+						value: progressBarColor,
+						onChange: value => setAttributes( { progressBarColor: value } ),
+						label: __( 'Progress bar', 'newspack-plugin' ),
+					},
+				] }
+			/>
 
 			<PanelBody title={ __( 'Contribution data', 'newspack-plugin' ) }>
 				<BaseControl
