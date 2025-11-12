@@ -142,7 +142,7 @@ export default function AdvancedSettings() {
 				<MediaCredits data={ data } update={ setData } />
 			</WizardSection>
 			<WizardSection
-				title={ __( 'Post content fallback image', 'newspack-plugin' ) }
+				title={ __( 'Image fallback', 'newspack-plugin' ) }
 				description={ __( 'Select a fallback image to display when an image inside post content cannot be found.', 'newspack-plugin' ) }
 			>
 				<Grid>
