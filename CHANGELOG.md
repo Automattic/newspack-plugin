@@ -1,3 +1,11 @@
+## [6.24.2](https://github.com/Automattic/newspack-plugin/compare/v6.24.1...v6.24.2) (2025-11-13)
+
+
+### Bug Fixes
+
+* content gate metadata methods and params ([d6344b2](https://github.com/Automattic/newspack-plugin/commit/d6344b29d1f83009c1ca9f680141906920c85351))
+* content gate metadata methods and params [#4306](https://github.com/Automattic/newspack-plugin/issues/4306) from Automattic/hotfix/gate-post-metadata-nppm-2389 ([96615a1](https://github.com/Automattic/newspack-plugin/commit/96615a1368b569387cabc927f1c735c210351655))
+
 ## [6.24.1](https://github.com/Automattic/newspack-plugin/compare/v6.24.0...v6.24.1) (2025-11-10)
 
 
