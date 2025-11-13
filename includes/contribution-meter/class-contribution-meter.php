@@ -176,8 +176,6 @@ class Contribution_Meter {
 	 */
 	private static function get_donation_revenue_via_order_query( $start_date, $end_date, $product_ids ) {
 		$statuses = apply_filters( 'newspack_contribution_meter_order_statuses', [ 'completed', 'processing' ] );
-		$after    = self::get_local_wc_datetime( $start_date );
-		$before   = self::get_local_wc_datetime( $end_date );
 
 		$query_args = [
 			'limit'        => 200,
@@ -187,7 +185,7 @@ class Contribution_Meter {
 			'return'       => 'ids',
 			'status'       => $statuses,
 			'type'         => 'shop_order',
-			'date_created' => '>= ' . $after->date_i18n( 'Y-m-d H:i:s' ) . '...<= ' . $before->date_i18n( 'Y-m-d H:i:s' ),
+			'date_created' => $start_date . '...' . $end_date,
 		];
 
 		$total_revenue = 0.0;
@@ -232,18 +230,6 @@ class Contribution_Meter {
 		} while ( $page <= $max_pages );
 
 		return $total_revenue;
-	}
-
-	/**
-	 * Convert a YYYY-MM-DD string into a WC_DateTime in the site's timezone.
-	 *
-	 * @param string $date Date string.
-	 * @return \WC_DateTime
-	 */
-	private static function get_local_wc_datetime( $date ) {
-		$timezone  = new \DateTimeZone( wc_timezone_string() );
-		$formatted = false !== strpos( $date, ' ' ) ? $date : $date . ' 00:00:00';
-		return new \WC_DateTime( $formatted, $timezone );
 	}
 
 	/**
