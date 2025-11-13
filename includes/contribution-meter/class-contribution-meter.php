@@ -81,7 +81,7 @@ class Contribution_Meter {
 	 * Validate date format and value.
 	 *
 	 * @param string $date Date string to validate.
-	 * @return bool|WP_Error True if valid, WP_Error if invalid.
+	 * @return bool|\WP_Error True if valid, WP_Error if invalid.
 	 */
 	public static function validate_date( $date ) {
 		// Validate basic date format.
@@ -116,8 +116,8 @@ class Contribution_Meter {
 	/**
 	 * REST API callback to get contribution data.
 	 *
-	 * @param WP_REST_Request $request Request object.
-	 * @return WP_REST_Response|WP_Error Response object or error.
+	 * @param \WP_REST_Request $request Request object.
+	 * @return \WP_REST_Response|\WP_Error Response object or error.
 	 */
 	public static function api_get_contribution_data( $request ) {
 		$start_date = $request->get_param( 'startDate' );
@@ -134,7 +134,7 @@ class Contribution_Meter {
 	 * Get contribution data with caching.
 	 *
 	 * @param string $start_date Valid start date in YYYY-MM-DD format.
-	 * @return array|WP_Error Array of contribution data or WP_Error on failure.
+	 * @return array|\WP_Error Array of contribution data or WP_Error on failure.
 	 */
 	public static function get_contribution_data( $start_date ) {
 		// Generate cache key based on start date.
@@ -165,7 +165,7 @@ class Contribution_Meter {
 	 * Get total donation revenue from a specific start date.
 	 *
 	 * @param string $start_date Start date in YYYY-MM-DD format.
-	 * @return float|WP_Error Total revenue or WP_Error on failure.
+	 * @return float|\WP_Error Total revenue or WP_Error on failure.
 	 */
 	public static function get_donation_revenue( $start_date ) {
 		if ( ! function_exists( 'wc_get_orders' ) || ! function_exists( 'wc_get_order' ) ) {
@@ -188,7 +188,7 @@ class Contribution_Meter {
 	 *
 	 * @param string $start_date  Start date in YYYY-MM-DD format.
 	 * @param array  $product_ids Donation product IDs to include.
-	 * @return float|WP_Error Total revenue or WP_Error on failure.
+	 * @return float|\WP_Error Total revenue or WP_Error on failure.
 	 */
 	private static function get_donation_revenue_via_order_query( $start_date, $product_ids ) {
 		$statuses = apply_filters( 'newspack_contribution_meter_order_statuses', [ 'completed', 'processing' ] );
