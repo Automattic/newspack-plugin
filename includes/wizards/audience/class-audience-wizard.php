@@ -370,6 +370,55 @@ class Audience_Wizard extends Wizard {
 			]
 		);
 
+		// Cover fees settings.
+		register_rest_route(
+			NEWSPACK_API_NAMESPACE,
+			'/wizard/' . $this->slug . '/cover-fees',
+			[
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => [ $this, 'api_get_cover_fees_settings' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+			]
+		);
+		register_rest_route(
+			NEWSPACK_API_NAMESPACE,
+			'/wizard/' . $this->slug . '/cover-fees',
+			[
+				'methods'             => WP_REST_Server::EDITABLE,
+				'callback'            => [ $this, 'api_update_cover_fees_settings' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+				'args'                => [
+					'fee_multiplier'                     => [
+						'sanitize_callback' => 'Newspack\newspack_clean',
+						'validate_callback' => function ( $value ) {
+							if ( (float) $value > 10 ) {
+								return new WP_Error(
+									'newspack_invalid_param',
+									__( 'Fee multiplier must be smaller than 10.', 'newspack' )
+								);
+							}
+							return true;
+						},
+					],
+					'fee_static'                         => [
+						'sanitize_callback' => 'Newspack\newspack_clean',
+					],
+					'allow_covering_fees'                => [
+						'sanitize_callback' => 'Newspack\newspack_string_to_bool',
+					],
+					'allow_covering_fees_default'        => [
+						'sanitize_callback' => 'Newspack\newspack_string_to_bool',
+					],
+					'allow_covering_fees_label'          => [
+						'sanitize_callback' => 'Newspack\newspack_clean',
+					],
+					'allow_covering_fees_donations_only' => [
+						'sanitize_callback' => 'Newspack\newspack_string_to_bool',
+					],
+				],
+			]
+		);
+
 		// Save Stripe info.
 		register_rest_route(
 			NEWSPACK_API_NAMESPACE,
@@ -916,5 +965,52 @@ class Audience_Wizard extends Wizard {
 		}
 
 		return $this->api_get_subscription_settings();
+	}
+
+	/**
+	 * Get cover fees settings.
+	 *
+	 * @return WP_REST_Response Response with the settings.
+	 */
+	public function api_get_cover_fees_settings() {
+		return rest_ensure_response(
+			[
+				'allow_covering_fees'                => boolval( get_option( 'newspack_donations_allow_covering_fees', true ) ),
+				'allow_covering_fees_default'        => boolval( get_option( 'newspack_donations_allow_covering_fees_default', false ) ),
+				'allow_covering_fees_label'          => get_option( 'newspack_donations_allow_covering_fees_label', '' ),
+				'allow_covering_fees_donations_only' => boolval( get_option( 'newspack_donations_allow_covering_fees_donations_only', true ) ),
+				'fee_multiplier'                     => get_option( 'newspack_blocks_donate_fee_multiplier', '2.9' ),
+				'fee_static'                         => get_option( 'newspack_blocks_donate_fee_static', '0.3' ),
+			]
+		);
+	}
+
+	/**
+	 * Update cover fees settings.
+	 *
+	 * @param WP_REST_Request $request Request object.
+	 * @return WP_REST_Response Response with the updated settings.
+	 */
+	public function api_update_cover_fees_settings( $request ) {
+		$params = $request->get_params();
+		if ( isset( $params['allow_covering_fees'] ) ) {
+			update_option( 'newspack_donations_allow_covering_fees', intval( $params['allow_covering_fees'] ) );
+		}
+		if ( isset( $params['allow_covering_fees_default'] ) ) {
+			update_option( 'newspack_donations_allow_covering_fees_default', intval( $params['allow_covering_fees_default'] ) );
+		}
+		if ( isset( $params['allow_covering_fees_label'] ) ) {
+			update_option( 'newspack_donations_allow_covering_fees_label', sanitize_text_field( $params['allow_covering_fees_label'] ) );
+		}
+		if ( isset( $params['allow_covering_fees_donations_only'] ) ) {
+			update_option( 'newspack_donations_allow_covering_fees_donations_only', intval( $params['allow_covering_fees_donations_only'] ) );
+		}
+		if ( isset( $params['fee_multiplier'] ) ) {
+			update_option( 'newspack_blocks_donate_fee_multiplier', $params['fee_multiplier'] );
+		}
+		if ( isset( $params['fee_static'] ) ) {
+			update_option( 'newspack_blocks_donate_fee_static', $params['fee_static'] );
+		}
+		return $this->api_get_cover_fees_settings();
 	}
 }

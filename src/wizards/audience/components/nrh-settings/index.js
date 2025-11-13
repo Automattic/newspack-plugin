@@ -69,7 +69,6 @@ const NRHSettings = () => {
 			</div>
 			{ settings.hasOwnProperty( 'donor_landing_page' ) && (
 				<div>
-					<hr />
 					<h3>{ __( 'Donor Landing Page', 'newspack-plugin' ) }</h3>
 					<p className="components-base-control__help">
 						{ __(
@@ -101,6 +100,7 @@ const NRHSettings = () => {
 					{ __( 'Save Settings' ) }
 				</Button>
 			</div>
+			<hr />
 		</WizardsSection>
 	);
 };

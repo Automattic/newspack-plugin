@@ -138,6 +138,7 @@
 		}
 
 		&--ghost,
+		&--ghost-light,
 		&--outline {
 			background: transparent;
 			color: var(---newspack-ui-color-neutral-90);
@@ -150,6 +151,14 @@
 			&:disabled {
 				background: transparent !important;
 				color: var(--newspack-ui-color-neutral-30) !important;
+			}
+		}
+
+		&--ghost-light {
+			color: var(--newspack-ui-color-neutral-60);
+
+			&:hover {
+				color: var(--newspack-ui-color-neutral-60);
 			}
 		}
 
