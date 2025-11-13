@@ -197,7 +197,7 @@ class Metering {
 		if ( ! $post_id ) {
 			$post_id = get_the_ID();
 		}
-		$gate_post_id = Memberships::get_gate_post_id( $post_id );
+		$gate_post_id = Content_Gate::get_gate_post_id( $post_id );
 		$metering     = \get_post_meta( $gate_post_id, 'metering', true );
 		if ( ! $metering ) {
 			return false;
@@ -354,7 +354,7 @@ class Metering {
 		if ( ! $post_id ) {
 			$post_id = get_the_ID();
 		}
-		$gate_post_id = Memberships::get_gate_post_id( $post_id );
+		$gate_post_id = Content_Gate::get_gate_post_id( $post_id );
 		return \get_post_meta( $gate_post_id, 'metering_period', true );
 	}
 
