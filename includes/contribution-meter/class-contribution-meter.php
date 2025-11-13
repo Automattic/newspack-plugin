@@ -37,6 +37,16 @@ class Contribution_Meter {
 	const CACHE_KEY_PREFIX = 'newspack_contribution_meter_';
 
 	/**
+	 * Maximum allowed date range for querying historical data.
+	 */
+	const MAX_DATE_RANGE = '-2 months';
+
+	/**
+	 * Maximum date range option name.
+	 */
+	const MAX_DATE_RANGE_OPTION = 'newspack_contribution_meter_max_date_range';
+
+	/**
 	 * Initialize hooks and REST API endpoints.
 	 */
 	public static function init() {
@@ -74,13 +84,32 @@ class Contribution_Meter {
 	 * @return bool|WP_Error True if valid, WP_Error if invalid.
 	 */
 	public static function validate_date( $date ) {
+		// Validate basic date format.
 		if ( ! preg_match( '/^\d{4}-\d{2}-\d{2}$/', $date ) ) {
 			return new \WP_Error( 'invalid_date', __( 'Invalid date format. Expected YYYY-MM-DD.', 'newspack-plugin' ) );
 		}
+
+		// Check if it's a valid date.
 		$date_obj = \DateTime::createFromFormat( 'Y-m-d', $date );
 		if ( ! $date_obj || $date_obj->format( 'Y-m-d' ) !== $date ) {
 			return new \WP_Error( 'invalid_date', __( 'Invalid date. Please provide a valid date.', 'newspack-plugin' ) );
 		}
+
+		// Validate date range limit.
+		$max_range = get_option( self::MAX_DATE_RANGE_OPTION, self::MAX_DATE_RANGE );
+		$min_date  = new \DateTime( $max_range, new \DateTimeZone( 'UTC' ) );
+		$min_date->setTime( 0, 0, 0 ); // Normalize to midnight for date-only comparison.
+		if ( $date_obj < $min_date ) {
+			return new \WP_Error(
+				'date_too_old',
+				sprintf(
+					/* translators: %s: minimum allowed date */
+					__( 'Start date cannot be earlier than %s.', 'newspack-plugin' ),
+					$min_date->format( 'Y-m-d' )
+				)
+			);
+		}
+
 		return true;
 	}
 
