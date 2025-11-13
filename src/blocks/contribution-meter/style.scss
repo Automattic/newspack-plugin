@@ -3,7 +3,6 @@
  */
 
 .wp-block-newspack-contribution-meter {
-	color: inherit;
 	display: block;
 	font-weight: 600;
 	margin: 1em 0;
@@ -14,7 +13,6 @@
 
 	// Linear meter styles.
 	.contribution-meter__linear {
-		color: inherit;
 		width: 100%;
 	}
 
@@ -98,7 +96,6 @@
 	// Circular meter styles.
 	.contribution-meter__circular {
 		align-items: center;
-		color: inherit;
 		display: flex;
 		flex-direction: column;
 		gap: var(--newspack-ui-spacer-base);
@@ -163,12 +160,16 @@
 	.contribution-meter-loading,
 	.contribution-meter-error {
 		align-items: center;
-		display: flex;
 		justify-content: center;
-		min-height: 100px;
+		min-height: 159px;
 
 		.components-placeholder__fieldset {
-			display: none;
+			align-items: center;
+			justify-content: center;
+		}
+
+		.components-spinner {
+			margin: 0;
 		}
 	}
 

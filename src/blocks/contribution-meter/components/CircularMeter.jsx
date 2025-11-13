@@ -67,7 +67,7 @@ const CircularMeter = ( { amountRaised, goal, percentage, showGoal, showAmountRa
 	}
 
 	return (
-		<div className="contribution-meter__circular newspack-ui newspack-ui__font--s">
+		<div className="contribution-meter__circular">
 			<div className="contribution-meter__circle-container">
 				<svg
 					className="contribution-meter__circle"

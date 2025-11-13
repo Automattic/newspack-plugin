@@ -42,7 +42,7 @@ const LinearMeter = ( { amountRaised, goal, percentage, showGoal, showAmountRais
 	}
 
 	return (
-		<div className="contribution-meter__linear newspack-ui newspack-ui__font--s">
+		<div className="contribution-meter__linear">
 			{ hasAnyTextDisplay && (
 				<div className={ `contribution-meter__text ${ textAlignClass }` }>
 					{ /* Percentage comes first when: Goal + Percentage (no raised) */ }

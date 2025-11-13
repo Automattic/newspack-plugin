@@ -5,6 +5,7 @@ import { __ } from '@wordpress/i18n';
 import { useBlockProps } from '@wordpress/block-editor';
 import { Placeholder, Spinner } from '@wordpress/components';
 import { useEffect, useState, useMemo } from '@wordpress/element';
+import { error as warning } from '@wordpress/icons';
 import apiFetch from '@wordpress/api-fetch';
 
 /**
@@ -23,7 +24,13 @@ import { getDefaultStartDate } from './utils/helpers';
  * @return {string} Combined class names.
  */
 const buildClassNames = ( style, thickness ) => {
-	return [ 'wp-block-newspack-contribution-meter', `contribution-meter--${ style }`, `contribution-meter--thickness-${ thickness }` ].join( ' ' );
+	return [
+		'wp-block-newspack-contribution-meter',
+		`contribution-meter--${ style }`,
+		`contribution-meter--thickness-${ thickness }`,
+		'newspack-ui',
+		'newspack-ui__font--s',
+	].join( ' ' );
 };
 
 /**
@@ -107,17 +114,16 @@ const Edit = ( { attributes, setAttributes } ) => {
 
 			<div { ...blockProps }>
 				{ isLoading && (
-					<Placeholder
-						icon={ <Spinner /> }
-						label={ __( 'Loading contribution data…', 'newspack-plugin' ) }
-						className="contribution-meter-loading"
-					/>
+					<Placeholder className="contribution-meter-loading">
+						<Spinner />
+						{ __( 'Loading contribution data…', 'newspack-plugin' ) }
+					</Placeholder>
 				) }
 
 				{ ! isLoading && error && (
 					<Placeholder
-						icon="warning"
-						label={ __( 'Contribution Meter', 'newspack-plugin' ) }
+						icon={ warning }
+						label={ __( 'Error', 'newspack-plugin' ) }
 						instructions={ error }
 						className="contribution-meter-error"
 					/>
