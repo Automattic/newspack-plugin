@@ -40,6 +40,17 @@ final class Contribution_Meter_Block {
 		'showPercentage'   => true,
 	];
 
+	/**
+	 * Default oldest allowed start date range (relative to today).
+	 * E.g., '-2 months' means start date cannot be earlier than 2 months ago.
+	 */
+	const DEFAULT_START_DATE_RANGE = '-2 months';
+
+	/**
+	 * Start date range option name.
+	 */
+	const START_DATE_RANGE_OPTION = 'newspack_contribution_meter_start_date_range';
+
 
 	/**
 	 * Initializes the block.
@@ -82,8 +93,8 @@ final class Contribution_Meter_Block {
 		);
 
 		// Calculate minimum allowed date.
-		$max_range = get_option( Contribution_Meter::MAX_DATE_RANGE_OPTION, Contribution_Meter::MAX_DATE_RANGE );
-		$min_date  = new \DateTime( $max_range, new \DateTimeZone( 'UTC' ) );
+		$start_date_range = get_option( self::START_DATE_RANGE_OPTION, self::DEFAULT_START_DATE_RANGE );
+		$min_date         = new \DateTime( $start_date_range, new \DateTimeZone( 'UTC' ) );
 
 		// Get WooCommerce currency settings and date restrictions.
 		$editor_data = [

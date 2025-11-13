@@ -22,29 +22,20 @@ class Contribution_Meter {
 	const REST_ROUTE = '/contribution-meter';
 
 	/**
-	 * Cache duration in seconds for donation revenue calculations.
+	 * Default data collection end date range (relative to today).
+	 * E.g., '-1 day' means collect up to yesterday, excluding today.
 	 */
-	const CACHE_DURATION = 600;
+	const DEFAULT_END_DATE_RANGE = '-1 day';
 
 	/**
-	 * Cache duration option name.
+	 * End date range option name.
 	 */
-	const CACHE_DURATION_OPTION = 'newspack_contribution_meter_cache_duration';
+	const END_DATE_RANGE_OPTION = 'newspack_contribution_meter_end_date_range';
 
 	/**
 	 * Cache key prefix for contribution meter data.
 	 */
 	const CACHE_KEY_PREFIX = 'newspack_contribution_meter_';
-
-	/**
-	 * Maximum allowed date range for querying historical data.
-	 */
-	const MAX_DATE_RANGE = '-2 months';
-
-	/**
-	 * Maximum date range option name.
-	 */
-	const MAX_DATE_RANGE_OPTION = 'newspack_contribution_meter_max_date_range';
 
 	/**
 	 * Initialize hooks and REST API endpoints.
@@ -95,21 +86,6 @@ class Contribution_Meter {
 			return new \WP_Error( 'invalid_date', __( 'Invalid date. Please provide a valid date.', 'newspack-plugin' ) );
 		}
 
-		// Validate date range limit.
-		$max_range = get_option( self::MAX_DATE_RANGE_OPTION, self::MAX_DATE_RANGE );
-		$min_date  = new \DateTime( $max_range, new \DateTimeZone( 'UTC' ) );
-		$min_date->setTime( 0, 0, 0 ); // Normalize to midnight for date-only comparison.
-		if ( $date_obj < $min_date ) {
-			return new \WP_Error(
-				'date_too_old',
-				sprintf(
-					/* translators: %s: minimum allowed date */
-					__( 'Start date cannot be earlier than %s.', 'newspack-plugin' ),
-					$min_date->format( 'Y-m-d' )
-				)
-			);
-		}
-
 		return true;
 	}
 
@@ -137,15 +113,21 @@ class Contribution_Meter {
 	 * @return array|\WP_Error Array of contribution data or WP_Error on failure.
 	 */
 	public static function get_contribution_data( $start_date ) {
-		// Generate cache key based on start date.
-		$cache_key = self::CACHE_KEY_PREFIX . md5( $start_date );
+		// Get the end range (e.g., '-1 day' means collect up to yesterday).
+		$end_date_range = get_option( self::END_DATE_RANGE_OPTION, self::DEFAULT_END_DATE_RANGE );
+
+		// Calculate the end date based on the configured range.
+		$end_date = ( new \DateTime( $end_date_range, wp_timezone() ) )->format( 'Y-m-d' );
+
+		// Generate cache key including end date for automatic invalidation when range changes.
+		$cache_key = self::CACHE_KEY_PREFIX . md5( $start_date . '_' . $end_date );
 		$cached    = get_transient( $cache_key );
 
 		if ( false !== $cached ) {
 			return $cached;
 		}
 
-		$amount_raised = self::get_donation_revenue( $start_date );
+		$amount_raised = self::get_donation_revenue( $start_date, $end_date );
 
 		if ( is_wp_error( $amount_raised ) ) {
 			return $amount_raised;
@@ -155,19 +137,20 @@ class Contribution_Meter {
 			'amountRaised' => $amount_raised,
 		];
 
-		// Get cache duration from option, falling back to constant.
-		set_transient( $cache_key, $data, get_option( self::CACHE_DURATION_OPTION, self::CACHE_DURATION ) );
+		// Cache for 24 hours since we're querying historical (immutable) data.
+		set_transient( $cache_key, $data, DAY_IN_SECONDS );
 
 		return $data;
 	}
 
 	/**
-	 * Get total donation revenue from a specific start date.
+	 * Get total donation revenue from a specific date range.
 	 *
-	 * @param string $start_date Start date in YYYY-MM-DD format.
+	 * @param string $start_date Start date in YYYY-MM-DD format (inclusive).
+	 * @param string $end_date   End date in YYYY-MM-DD format (inclusive, entire day).
 	 * @return float|\WP_Error Total revenue or WP_Error on failure.
 	 */
-	public static function get_donation_revenue( $start_date ) {
+	public static function get_donation_revenue( $start_date, $end_date ) {
 		if ( ! function_exists( 'wc_get_orders' ) || ! function_exists( 'wc_get_order' ) ) {
 			return new \WP_Error( 'woocommerce_inactive', __( 'WooCommerce is not active.', 'newspack-plugin' ) );
 		}
@@ -180,20 +163,21 @@ class Contribution_Meter {
 			return new \WP_Error( 'no_donation_products', __( 'No donation products found.', 'newspack-plugin' ) );
 		}
 
-		return self::get_donation_revenue_via_order_query( $start_date, $donation_product_ids );
+		return self::get_donation_revenue_via_order_query( $start_date, $end_date, $donation_product_ids );
 	}
 
 	/**
 	 * Calculate donation revenue by iterating paginated WooCommerce orders.
 	 *
-	 * @param string $start_date  Start date in YYYY-MM-DD format.
+	 * @param string $start_date  Start date in YYYY-MM-DD format (inclusive).
+	 * @param string $end_date    End date in YYYY-MM-DD format (inclusive, all day).
 	 * @param array  $product_ids Donation product IDs to include.
 	 * @return float|\WP_Error Total revenue or WP_Error on failure.
 	 */
-	private static function get_donation_revenue_via_order_query( $start_date, $product_ids ) {
+	private static function get_donation_revenue_via_order_query( $start_date, $end_date, $product_ids ) {
 		$statuses = apply_filters( 'newspack_contribution_meter_order_statuses', [ 'completed', 'processing' ] );
-
-		$after = self::get_local_wc_datetime( $start_date );
+		$after    = self::get_local_wc_datetime( $start_date );
+		$before   = self::get_local_wc_datetime( $end_date );
 
 		$query_args = [
 			'limit'        => 200,
@@ -203,7 +187,7 @@ class Contribution_Meter {
 			'return'       => 'ids',
 			'status'       => $statuses,
 			'type'         => 'shop_order',
-			'date_created' => '>= ' . $after->date_i18n( 'Y-m-d H:i:s' ),
+			'date_created' => '>= ' . $after->date_i18n( 'Y-m-d H:i:s' ) . '...<= ' . $before->date_i18n( 'Y-m-d H:i:s' ),
 		];
 
 		$total_revenue = 0.0;
