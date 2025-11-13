@@ -1,3 +1,10 @@
+## [6.24.3](https://github.com/Automattic/newspack-plugin/compare/v6.24.2...v6.24.3) (2025-11-13)
+
+
+### Bug Fixes
+
+* **nrh:** validation error in Donate block when no woocommerce ([#4297](https://github.com/Automattic/newspack-plugin/issues/4297)) ([224fcea](https://github.com/Automattic/newspack-plugin/commit/224fcea40cee7b2453cc82e9121ce629d5745186))
+
 ## [6.24.2](https://github.com/Automattic/newspack-plugin/compare/v6.24.1...v6.24.2) (2025-11-13)
 
 
