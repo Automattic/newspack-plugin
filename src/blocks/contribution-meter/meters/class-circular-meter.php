@@ -94,7 +94,7 @@ class Circular_Meter implements Meter {
 				</svg>
 
 				<?php if ( $attributes['showPercentage'] ) : ?>
-					<div class="contribution-meter__circle-percentage">
+					<div class="contribution-meter__circle-percentage newspack-ui__font--2xs">
 						<?php echo esc_html( $percentage ); ?>%
 					</div>
 				<?php endif; ?>
@@ -102,12 +102,12 @@ class Circular_Meter implements Meter {
 
 			<div class="contribution-meter__data">
 				<?php if ( $attributes['showAmountRaised'] ) : ?>
-					<span class="contribution-meter__amount-raised">
+					<span class="contribution-meter__amount-raised newspack-ui__font--m">
 						<?php echo esc_html( Contribution_Meter::format_currency( $amount_raised ) ); ?> <?php esc_html_e( 'raised', 'newspack-plugin' ); ?>
 					</span>
 				<?php endif; ?>
 				<?php if ( $attributes['showGoal'] ) : ?>
-					<span class="contribution-meter__goal<?php echo ! $attributes['showAmountRaised'] ? ' contribution-meter__goal--primary' : ''; ?>">
+					<span class="contribution-meter__goal<?php echo ! $attributes['showAmountRaised'] ? ' contribution-meter__goal--primary newspack-ui__font--m' : ''; ?>">
 						<?php echo esc_html( Contribution_Meter::format_currency( $goal ) ); ?> <?php esc_html_e( 'goal', 'newspack-plugin' ); ?>
 					</span>
 				<?php endif; ?>

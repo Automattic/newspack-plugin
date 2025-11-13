@@ -130,7 +130,7 @@ final class Contribution_Meter_Block {
 
 		$wrapper_attributes = get_block_wrapper_attributes(
 			[
-				'class' => esc_attr( $classes ),
+				'class' => esc_attr( 'newspack-ui newspack-ui__font--s ' . $classes ),
 			]
 		);
 

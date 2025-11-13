@@ -66,6 +66,7 @@ const InspectorPanel = ( { attributes, setAttributes } ) => {
 						min="0"
 						step="1"
 						className="components-text-control__input"
+						style={ { minHeight: '40px' } }
 					/>
 				</BaseControl>
 

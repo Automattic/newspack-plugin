@@ -67,7 +67,7 @@ const CircularMeter = ( { amountRaised, goal, percentage, showGoal, showAmountRa
 	}
 
 	return (
-		<div className="contribution-meter__circular">
+		<div className="contribution-meter__circular newspack-ui newspack-ui__font--s">
 			<div className="contribution-meter__circle-container">
 				<svg
 					className="contribution-meter__circle"
@@ -111,17 +111,23 @@ const CircularMeter = ( { amountRaised, goal, percentage, showGoal, showAmountRa
 					/>
 				</svg>
 
-				{ showPercentage && <div className="contribution-meter__circle-percentage">{ percentage }%</div> }
+				{ showPercentage && <div className="contribution-meter__circle-percentage newspack-ui__font--2xs">{ percentage }%</div> }
 			</div>
 
 			<div className="contribution-meter__data">
 				{ showAmountRaised && (
-					<span className="contribution-meter__amount-raised">
+					<span className="contribution-meter__amount-raised newspack-ui__font--m">
 						{ formatCurrency( amountRaised ) } { __( 'raised', 'newspack-plugin' ) }
 					</span>
 				) }
 				{ showGoal && (
-					<span className={ showAmountRaised ? 'contribution-meter__goal' : 'contribution-meter__goal contribution-meter__goal--primary' }>
+					<span
+						className={
+							showAmountRaised
+								? 'contribution-meter__goal'
+								: 'contribution-meter__goal contribution-meter__goal--primary newspack-ui__font--m'
+						}
+					>
 						{ formatCurrency( goal ) } { __( 'goal', 'newspack-plugin' ) }
 					</span>
 				) }

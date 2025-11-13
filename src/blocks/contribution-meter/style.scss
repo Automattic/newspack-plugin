@@ -3,23 +3,29 @@
  */
 
 .wp-block-newspack-contribution-meter {
+	color: inherit;
 	display: block;
+	font-weight: 600;
 	margin: 1em 0;
+
+	&.newspack-ui {
+		color: inherit;
+	}
 
 	// Linear meter styles.
 	.contribution-meter__linear {
+		color: inherit;
 		width: 100%;
 	}
 
 	.contribution-meter__text {
-		display: flex;
 		align-items: center;
-		justify-content: space-between;
-		margin-bottom: 0.75em;
-		font-size: 16px;
-		font-weight: 600;
-		line-height: 24px;
+		display: flex;
 		flex-wrap: wrap;
+		gap: var(--newspack-ui-spacer-3);
+		justify-content: space-between;
+		margin-bottom: var(--newspack-ui-spacer-base);
+		row-gap: calc(var(--newspack-ui-spacer-base) / 2);
 
 		> span {
 			display: inline-block;
@@ -39,23 +45,23 @@
 	}
 
 	.contribution-meter__bar-track {
-		position: relative;
-		width: 100%;
 		background-color: color-mix(in srgb, currentcolor 17%, transparent);
 		overflow: hidden;
+		position: relative;
+		width: 100%;
 	}
 
 	.contribution-meter__bar-progress {
-		position: relative;
-		height: 100%;
 		background-color: currentcolor;
-		transition: width 0.3s ease-in-out;
+		height: 100%;
+		position: relative;
+		transition: width 125ms ease-in-out;
 	}
 
 	// Thickness variations for linear (with matching border-radius).
 	&.contribution-meter--thickness-xs .contribution-meter__bar-track {
-		height: 4px;
 		border-radius: 2px;
+		height: 4px;
 	}
 
 	&.contribution-meter--thickness-xs .contribution-meter__bar-progress {
@@ -63,8 +69,8 @@
 	}
 
 	&.contribution-meter--thickness-s .contribution-meter__bar-track {
-		height: 8px;
 		border-radius: 4px;
+		height: 8px;
 	}
 
 	&.contribution-meter--thickness-s .contribution-meter__bar-progress {
@@ -72,8 +78,8 @@
 	}
 
 	&.contribution-meter--thickness-m .contribution-meter__bar-track {
-		height: 16px;
 		border-radius: 8px;
+		height: 16px;
 	}
 
 	&.contribution-meter--thickness-m .contribution-meter__bar-progress {
@@ -81,8 +87,8 @@
 	}
 
 	&.contribution-meter--thickness-l .contribution-meter__bar-track {
-		height: 32px;
 		border-radius: 16px;
+		height: 32px;
 	}
 
 	&.contribution-meter--thickness-l .contribution-meter__bar-progress {
@@ -91,23 +97,34 @@
 
 	// Circular meter styles.
 	.contribution-meter__circular {
-		display: flex;
-		flex-direction: row;
 		align-items: center;
-		gap: 16px;
+		color: inherit;
+		display: flex;
+		flex-direction: column;
+		gap: var(--newspack-ui-spacer-base);
+
+		@media (min-width: 600px) {
+			flex-direction: row;
+			gap: var(--newspack-ui-spacer-3);
+		}
 	}
 
 	.contribution-meter__circle-container {
-		position: relative;
 		flex-shrink: 0;
-		width: 72px;
-		height: 72px;
+		height: 104px;
+		position: relative;
+		width: 104px;
+
+		@media (min-width: 600px) {
+			height: 72px;
+			width: 72px;
+		}
 	}
 
 	.contribution-meter__circle {
 		display: block;
-		width: 72px;
-		height: 72px;
+		height: inherit;
+		width: inherit;
 	}
 
 	.contribution-meter__circle-track {
@@ -116,19 +133,16 @@
 
 	.contribution-meter__circle-progress {
 		stroke: currentcolor;
-		transition: stroke-dashoffset 0.3s ease-in-out;
+		transition: stroke-dashoffset 125ms ease-in-out;
 	}
 
 	.contribution-meter__circle-percentage {
-		position: absolute;
-		top: 50%;
 		left: 50%;
-		transform: translate(-50%, -50%);
-		font-size: 12px;
-		font-weight: 600;
-		line-height: 1;
 		margin: 0;
 		pointer-events: none;
+		position: absolute;
+		top: 50%;
+		transform: translate(-50%, -50%);
 	}
 
 	.contribution-meter__data {
@@ -136,60 +150,11 @@
 		flex-direction: column;
 		gap: 0;
 
-		.contribution-meter__amount-raised {
-			font-weight: 600;
-			font-size: 20px;
-			line-height: 1.6;
-		}
-
 		.contribution-meter__goal {
-			font-size: 16px;
-			font-weight: 600;
-			line-height: 1.5;
 			opacity: 0.65;
 
 			&--primary {
-				font-size: 20px;
-				line-height: 1.6;
 				opacity: 1;
-			}
-		}
-	}
-
-	// Responsive adjustments.
-	@media (max-width: 600px) {
-		.contribution-meter__text {
-			font-size: 0.85em;
-			gap: 0.4em;
-		}
-
-		.contribution-meter__percentage {
-			flex-basis: 100%;
-			margin-left: 0;
-			margin-top: 0.25em;
-			text-align: right;
-		}
-
-		.contribution-meter__circular {
-			flex-direction: column;
-		}
-
-		.contribution-meter__circle {
-			width: 100px;
-			height: 100px;
-		}
-
-		.contribution-meter__circle-percentage {
-			font-size: 1.2em;
-		}
-
-		.contribution-meter__data {
-			.contribution-meter__amount-raised {
-				font-size: 0.9em;
-			}
-
-			.contribution-meter__goal {
-				font-size: 0.85em;
 			}
 		}
 	}
@@ -197,10 +162,10 @@
 	// Editor-specific styles.
 	.contribution-meter-loading,
 	.contribution-meter-error {
-		min-height: 100px;
-		display: flex;
 		align-items: center;
+		display: flex;
 		justify-content: center;
+		min-height: 100px;
 
 		.components-placeholder__fieldset {
 			display: none;
@@ -209,12 +174,12 @@
 
 	// Alignment support.
 	&.alignwide {
-		width: 100%;
 		max-width: var(--wp--style--global--wide-size, 1280px);
+		width: 100%;
 	}
 
 	&.alignfull {
-		width: 100%;
 		max-width: none;
+		width: 100%;
 	}
 }
