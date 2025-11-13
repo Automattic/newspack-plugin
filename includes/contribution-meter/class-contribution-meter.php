@@ -37,6 +37,16 @@ class Contribution_Meter {
 	const CACHE_KEY_PREFIX = 'newspack_contribution_meter_';
 
 	/**
+	 * Maximum allowed date range for querying historical data.
+	 */
+	const MAX_DATE_RANGE = '-2 months';
+
+	/**
+	 * Maximum date range option name.
+	 */
+	const MAX_DATE_RANGE_OPTION = 'newspack_contribution_meter_max_date_range';
+
+	/**
 	 * Initialize hooks and REST API endpoints.
 	 */
 	public static function init() {
@@ -71,24 +81,43 @@ class Contribution_Meter {
 	 * Validate date format and value.
 	 *
 	 * @param string $date Date string to validate.
-	 * @return bool|WP_Error True if valid, WP_Error if invalid.
+	 * @return bool|\WP_Error True if valid, WP_Error if invalid.
 	 */
 	public static function validate_date( $date ) {
+		// Validate basic date format.
 		if ( ! preg_match( '/^\d{4}-\d{2}-\d{2}$/', $date ) ) {
 			return new \WP_Error( 'invalid_date', __( 'Invalid date format. Expected YYYY-MM-DD.', 'newspack-plugin' ) );
 		}
+
+		// Check if it's a valid date.
 		$date_obj = \DateTime::createFromFormat( 'Y-m-d', $date );
 		if ( ! $date_obj || $date_obj->format( 'Y-m-d' ) !== $date ) {
 			return new \WP_Error( 'invalid_date', __( 'Invalid date. Please provide a valid date.', 'newspack-plugin' ) );
 		}
+
+		// Validate date range limit.
+		$max_range = get_option( self::MAX_DATE_RANGE_OPTION, self::MAX_DATE_RANGE );
+		$min_date  = new \DateTime( $max_range, new \DateTimeZone( 'UTC' ) );
+		$min_date->setTime( 0, 0, 0 ); // Normalize to midnight for date-only comparison.
+		if ( $date_obj < $min_date ) {
+			return new \WP_Error(
+				'date_too_old',
+				sprintf(
+					/* translators: %s: minimum allowed date */
+					__( 'Start date cannot be earlier than %s.', 'newspack-plugin' ),
+					$min_date->format( 'Y-m-d' )
+				)
+			);
+		}
+
 		return true;
 	}
 
 	/**
 	 * REST API callback to get contribution data.
 	 *
-	 * @param WP_REST_Request $request Request object.
-	 * @return WP_REST_Response|WP_Error Response object or error.
+	 * @param \WP_REST_Request $request Request object.
+	 * @return \WP_REST_Response|\WP_Error Response object or error.
 	 */
 	public static function api_get_contribution_data( $request ) {
 		$start_date = $request->get_param( 'startDate' );
@@ -105,7 +134,7 @@ class Contribution_Meter {
 	 * Get contribution data with caching.
 	 *
 	 * @param string $start_date Valid start date in YYYY-MM-DD format.
-	 * @return array|WP_Error Array of contribution data or WP_Error on failure.
+	 * @return array|\WP_Error Array of contribution data or WP_Error on failure.
 	 */
 	public static function get_contribution_data( $start_date ) {
 		// Generate cache key based on start date.
@@ -136,7 +165,7 @@ class Contribution_Meter {
 	 * Get total donation revenue from a specific start date.
 	 *
 	 * @param string $start_date Start date in YYYY-MM-DD format.
-	 * @return float|WP_Error Total revenue or WP_Error on failure.
+	 * @return float|\WP_Error Total revenue or WP_Error on failure.
 	 */
 	public static function get_donation_revenue( $start_date ) {
 		if ( ! function_exists( 'wc_get_orders' ) || ! function_exists( 'wc_get_order' ) ) {
@@ -159,7 +188,7 @@ class Contribution_Meter {
 	 *
 	 * @param string $start_date  Start date in YYYY-MM-DD format.
 	 * @param array  $product_ids Donation product IDs to include.
-	 * @return float|WP_Error Total revenue or WP_Error on failure.
+	 * @return float|\WP_Error Total revenue or WP_Error on failure.
 	 */
 	private static function get_donation_revenue_via_order_query( $start_date, $product_ids ) {
 		$statuses = apply_filters( 'newspack_contribution_meter_order_statuses', [ 'completed', 'processing' ] );

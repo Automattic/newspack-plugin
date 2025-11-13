@@ -77,6 +77,14 @@ const InspectorPanel = ( { attributes, setAttributes } ) => {
 				>
 					<DatePicker
 						currentDate={ currentStartDate }
+						isInvalidDate={ date => {
+							const minDateStr = window.newspack_contribution_meter_data?.minStartDate;
+							if ( ! minDateStr ) {
+								return false;
+							}
+							const minDate = new Date( minDateStr );
+							return date < minDate;
+						} }
 						onChange={ newDate => {
 							setAttributes( { startDate: newDate ? dateI18n( 'Y-m-d', newDate ) : '' } );
 						} }

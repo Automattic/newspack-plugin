@@ -81,19 +81,24 @@ final class Contribution_Meter_Block {
 			true
 		);
 
-		// Get WooCommerce currency settings.
-		$currency_data = [
+		// Calculate minimum allowed date.
+		$max_range = get_option( Contribution_Meter::MAX_DATE_RANGE_OPTION, Contribution_Meter::MAX_DATE_RANGE );
+		$min_date  = new \DateTime( $max_range, new \DateTimeZone( 'UTC' ) );
+
+		// Get WooCommerce currency settings and date restrictions.
+		$editor_data = [
 			'currencySymbol'    => function_exists( 'get_woocommerce_currency_symbol' ) ? get_woocommerce_currency_symbol() : '$',
 			'currencyPosition'  => function_exists( 'get_option' ) ? get_option( 'woocommerce_currency_pos', 'left' ) : 'left',
 			'thousandSeparator' => function_exists( 'wc_get_price_thousand_separator' ) ? wc_get_price_thousand_separator() : ',',
 			'decimalSeparator'  => function_exists( 'wc_get_price_decimal_separator' ) ? wc_get_price_decimal_separator() : '.',
 			'decimals'          => function_exists( 'wc_get_price_decimals' ) ? wc_get_price_decimals() : 2,
+			'minStartDate'      => $min_date->format( 'Y-m-d' ),
 		];
 
 		wp_localize_script(
 			'newspack-contribution-meter-editor-script',
 			'newspack_contribution_meter_data',
-			$currency_data
+			$editor_data
 		);
 	}
 
