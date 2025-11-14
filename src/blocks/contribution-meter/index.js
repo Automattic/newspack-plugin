@@ -52,4 +52,9 @@ registerBlockStyle( name, {
 registerBlockStyle( name, {
 	name: 'circular',
 	label: __( 'Circular', 'newspack-plugin' ),
+	example: {
+		attributes: {
+			className: 'is-style-circular',
+		},
+	},
 } );

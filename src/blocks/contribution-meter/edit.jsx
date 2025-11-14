@@ -24,13 +24,7 @@ import { getDefaultStartDate } from './utils/helpers';
  * @return {string} Combined class names.
  */
 const buildClassNames = ( style, thickness ) => {
-	return [
-		'wp-block-newspack-contribution-meter',
-		`contribution-meter--${ style }`,
-		`contribution-meter--thickness-${ thickness }`,
-		'newspack-ui',
-		'newspack-ui__font--s',
-	].join( ' ' );
+	return [ `contribution-meter--${ style }`, `contribution-meter--thickness-${ thickness }`, 'newspack-ui', 'newspack-ui__font--s' ].join( ' ' );
 };
 
 /**
@@ -41,14 +35,26 @@ const buildClassNames = ( style, thickness ) => {
  * @param {Function} props.setAttributes Function to update attributes.
  * @return {Element} Edit component.
  */
+const PREVIEW_AMOUNT_RAISED = 1500;
+
 const Edit = ( { attributes, setAttributes } ) => {
-	const { className, goalAmount, startDate, progressBarColor, thickness, showGoal, showAmountRaised, showPercentage } = attributes;
+	const {
+		className,
+		goalAmount,
+		startDate,
+		progressBarColor,
+		thickness,
+		showGoal,
+		showAmountRaised,
+		showPercentage,
+		previewMode = false,
+	} = attributes;
 
 	// Extract meter style from className attribute (is-style-circular or default to linear).
 	const meterStyle = className && className.includes( 'is-style-circular' ) ? 'circular' : 'linear';
 
-	const [ contributionData, setContributionData ] = useState( null );
-	const [ isLoading, setIsLoading ] = useState( true );
+	const [ contributionData, setContributionData ] = useState( previewMode ? { amountRaised: PREVIEW_AMOUNT_RAISED } : null );
+	const [ isLoading, setIsLoading ] = useState( previewMode ? false : true );
 	const [ error, setError ] = useState( null );
 
 	// Set default start date if not set.
@@ -60,6 +66,10 @@ const Edit = ( { attributes, setAttributes } ) => {
 
 	// Fetch contribution data when startDate changes.
 	useEffect( () => {
+		if ( previewMode ) {
+			return;
+		}
+
 		if ( ! startDate ) {
 			setIsLoading( false );
 			return;
@@ -83,7 +93,7 @@ const Edit = ( { attributes, setAttributes } ) => {
 				setError( err.message || __( 'Failed to load contribution data.', 'newspack-plugin' ) );
 				setIsLoading( false );
 			} );
-	}, [ startDate ] );
+	}, [ startDate, previewMode ] );
 
 	// Get values and calculate percentage.
 	const amountRaised = contributionData?.amountRaised || 0;

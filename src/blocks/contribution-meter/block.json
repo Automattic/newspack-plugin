@@ -41,6 +41,16 @@
 			"type": "string",
 			"default": "s",
 			"enum": ["xs", "s", "m", "l"]
+		},
+		"previewMode": {
+			"type": "boolean",
+			"default": false
+		}
+	},
+	"example": {
+		"attributes": {
+			"previewMode": true,
+			"goalAmount": 2500
 		}
 	},
 	"style": "file:../../../dist/contribution-meter-block.css"
