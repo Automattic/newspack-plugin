@@ -478,24 +478,34 @@ class Subscriptions_Tiers {
 	 *
 	 * @param \WC_Product      $product            Product.
 	 * @param \WC_Subscription $subscription       Subscription.
-	 * @param string           $button_type        Button type.
+	 * @param bool             $render_button      Whether to render the button.
 	 */
-	public static function render_existing_subscription_info( $product, $subscription, $button_type = 'primary' ) {
+	public static function render_existing_subscription_info( $product, $subscription, $render_button = true ) {
+		$url = $subscription->get_view_order_url();
+		$label = __( 'View Subscription', 'newspack-plugin' );
 		?>
 		<div class="newspack-ui__notice newspack-ui__notice--warning">
 			<span class="newspack-ui__notice__content">
 				<?php
 				printf(
 					/* translators: %s: subscription product name */
-					esc_html__( "You currently have an active subscription: %s. If you'd like to change your current subscription, you can do so in your subscription page.", 'newspack-plugin' ),
+					esc_html__( 'You currently have an active subscription: %s. If you’d like to make changes, you can manage it from your subscription page.', 'newspack-plugin' ),
 					wp_kses_post( '<strong>' . self::get_product_title( $product, true ) . '</strong>' )
 				);
 				?>
+				<?php if ( ! $render_button ) : ?>
+					<br/>
+					<a href="<?php echo esc_url( $url ); ?>" aria-label="<?php echo esc_attr( $label ); ?>">
+						<?php echo esc_html( $label ); ?> →
+					</a>
+				<?php endif; ?>
 			</span>
 		</div>
-		<a class="newspack-ui__button newspack-ui__button--<?php echo esc_attr( $button_type ); ?> newspack-ui__button--wide" href="<?php echo esc_url( $subscription->get_view_order_url() ); ?>" aria-label="<?php esc_attr_e( 'View Subscription', 'newspack-plugin' ); ?>">
-			<?php esc_html_e( 'View Subscription', 'newspack-plugin' ); ?>
-		</a>
+		<?php if ( $render_button ) : ?>
+			<a class="newspack-ui__button newspack-ui__button--primary newspack-ui__button--wide" href="<?php echo esc_url( $url ); ?>" aria-label="<?php echo esc_attr( $label ); ?>">
+				<?php echo esc_html( $label ); ?>
+			</a>
+		<?php endif; ?>
 		<?php
 	}
 
@@ -600,7 +610,7 @@ class Subscriptions_Tiers {
 			$is_giftable = class_exists( 'WCSG_Product' ) && method_exists( 'WCSG_Product', 'is_giftable' ) ? \WCSG_Product::is_giftable( $current_product->get_id() ) : false;
 			$render_form = ! $is_limited || $is_giftable;
 
-			self::render_existing_subscription_info( $current_product, $user_subscription, $render_form ? 'secondary' : 'primary' );
+			self::render_existing_subscription_info( $current_product, $user_subscription, ! $render_form );
 			if ( ! $render_form ) {
 				return;
 			}
