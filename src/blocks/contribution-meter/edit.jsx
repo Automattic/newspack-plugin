@@ -42,6 +42,7 @@ const Edit = ( { attributes, setAttributes } ) => {
 		className,
 		goalAmount,
 		startDate,
+		endDate,
 		progressBarColor,
 		thickness,
 		showGoal,
@@ -83,6 +84,7 @@ const Edit = ( { attributes, setAttributes } ) => {
 			method: 'POST',
 			data: {
 				startDate,
+				...( endDate && { endDate } ),
 			},
 		} )
 			.then( data => {
@@ -93,7 +95,7 @@ const Edit = ( { attributes, setAttributes } ) => {
 				setError( err.message || __( 'Failed to load contribution data.', 'newspack-plugin' ) );
 				setIsLoading( false );
 			} );
-	}, [ startDate, previewMode ] );
+	}, [ startDate, endDate, previewMode ] );
 
 	// Get values and calculate percentage.
 	const amountRaised = contributionData?.amountRaised || 0;

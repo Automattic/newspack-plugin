@@ -32,6 +32,7 @@ final class Contribution_Meter_Block {
 	public const DEFAULT_ATTRIBUTES = [
 		'goalAmount'       => 1000,
 		'startDate'        => '',
+		'endDate'          => '',
 		'progressBarColor' => '',
 		'thickness'        => 's',
 		'showGoal'         => true,
@@ -39,16 +40,6 @@ final class Contribution_Meter_Block {
 		'showPercentage'   => true,
 	];
 
-	/**
-	 * Default oldest allowed start date range (relative to today).
-	 * E.g., '-2 months' means start date cannot be earlier than 2 months ago.
-	 */
-	const DEFAULT_START_DATE_RANGE = '-2 months';
-
-	/**
-	 * Start date range option name.
-	 */
-	const START_DATE_RANGE_OPTION = 'newspack_contribution_meter_start_date_range';
 
 
 	/**
@@ -91,9 +82,13 @@ final class Contribution_Meter_Block {
 			true
 		);
 
-		// Calculate minimum allowed date.
-		$start_date_range = get_option( self::START_DATE_RANGE_OPTION, self::DEFAULT_START_DATE_RANGE );
+		// Calculate minimum allowed start date.
+		$start_date_range = get_option( Contribution_Meter::START_DATE_RANGE_OPTION, Contribution_Meter::DEFAULT_START_DATE_RANGE );
 		$min_date         = new \DateTime( $start_date_range, new \DateTimeZone( 'UTC' ) );
+
+		// Calculate maximum allowed end date.
+		$max_end_date_range = get_option( Contribution_Meter::MAX_END_DATE_RANGE_OPTION, Contribution_Meter::DEFAULT_MAX_END_DATE_RANGE );
+		$max_end_date       = new \DateTime( $max_end_date_range, new \DateTimeZone( 'UTC' ) );
 
 		// Get WooCommerce currency settings and date restrictions.
 		$editor_data = [
@@ -103,6 +98,7 @@ final class Contribution_Meter_Block {
 			'decimalSeparator'  => function_exists( 'wc_get_price_decimal_separator' ) ? wc_get_price_decimal_separator() : '.',
 			'decimals'          => function_exists( 'wc_get_price_decimals' ) ? wc_get_price_decimals() : 2,
 			'minStartDate'      => $min_date->format( 'Y-m-d' ),
+			'maxEndDate'        => $max_end_date->format( 'Y-m-d' ),
 		];
 
 		wp_localize_script(
@@ -126,8 +122,8 @@ final class Contribution_Meter_Block {
 		// Extract meter style from the block's class name.
 		$attributes['meterStyle'] = isset( $attributes['className'] ) && str_contains( $attributes['className'], 'is-style-circular' ) ? 'circular' : 'linear';
 
-		// Get contribution data.
-		$contribution_data = Contribution_Meter::get_contribution_data( $attributes['startDate'] );
+		// Get contribution data with optional end date.
+		$contribution_data = Contribution_Meter::get_contribution_data( $attributes['startDate'], $attributes['endDate'] );
 
 		if ( is_wp_error( $contribution_data ) ) {
 			return sprintf(
@@ -198,6 +194,11 @@ final class Contribution_Meter_Block {
 		// Validate start date.
 		if ( is_wp_error( Contribution_Meter::validate_date( $attributes['startDate'] ?? '' ) ) ) {
 			$attributes['startDate'] = gmdate( 'Y-m-d' ); // Default to today if invalid.
+		}
+
+		// Validate end date if provided.
+		if ( ! empty( $attributes['endDate'] ) && is_wp_error( Contribution_Meter::validate_date( $attributes['endDate'] ) ) ) {
+			$attributes['endDate'] = '';
 		}
 
 		// Sanitize color.

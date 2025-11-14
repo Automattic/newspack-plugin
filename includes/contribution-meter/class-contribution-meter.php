@@ -22,6 +22,17 @@ class Contribution_Meter {
 	const REST_ROUTE = '/contribution-meter';
 
 	/**
+	 * Default oldest allowed start date range (relative to today).
+	 * E.g., '-2 months' means start date cannot be earlier than 2 months ago.
+	 */
+	const DEFAULT_START_DATE_RANGE = '-2 months';
+
+	/**
+	 * Start date range option name.
+	 */
+	const START_DATE_RANGE_OPTION = 'newspack_contribution_meter_start_date_range';
+
+	/**
 	 * Default data collection end date range (relative to today).
 	 * E.g., '-1 day' means collect up to yesterday, excluding today.
 	 */
@@ -31,6 +42,16 @@ class Contribution_Meter {
 	 * End date range option name.
 	 */
 	const END_DATE_RANGE_OPTION = 'newspack_contribution_meter_end_date_range';
+
+	/**
+	 * Default maximum allowed end date range (relative to today).
+	 */
+	const DEFAULT_MAX_END_DATE_RANGE = '+6 months';
+
+	/**
+	 * Maximum end date range option name.
+	 */
+	const MAX_END_DATE_RANGE_OPTION = 'newspack_contribution_meter_max_end_date_range';
 
 	/**
 	 * Cache key prefix for contribution meter data.
@@ -63,6 +84,11 @@ class Contribution_Meter {
 						'type'              => 'string',
 						'validate_callback' => [ __CLASS__, 'validate_date' ],
 					],
+					'endDate'   => [
+						'required'          => false,
+						'type'              => 'string',
+						'validate_callback' => [ __CLASS__, 'validate_date' ],
+					],
 				],
 			]
 		);
@@ -75,6 +101,11 @@ class Contribution_Meter {
 	 * @return bool|\WP_Error True if valid, WP_Error if invalid.
 	 */
 	public static function validate_date( $date ) {
+		// Allow empty string for optional dates.
+		if ( empty( $date ) ) {
+			return true;
+		}
+
 		// Validate basic date format.
 		if ( ! preg_match( '/^\d{4}-\d{2}-\d{2}$/', $date ) ) {
 			return new \WP_Error( 'invalid_date', __( 'Invalid date format. Expected YYYY-MM-DD.', 'newspack-plugin' ) );
@@ -90,6 +121,40 @@ class Contribution_Meter {
 	}
 
 	/**
+	 * Validate that end date is after start date and doesn't exceed configured maximum.
+	 *
+	 * @param string $start_date Start date in YYYY-MM-DD format.
+	 * @param string $end_date   End date in YYYY-MM-DD format.
+	 * @return bool|\WP_Error True if valid, WP_Error if invalid.
+	 */
+	public static function validate_date_range( $start_date, $end_date ) {
+		$start = new \DateTime( $start_date, wp_timezone() );
+		$end   = new \DateTime( $end_date, wp_timezone() );
+
+		// End date must be after start date.
+		if ( $end < $start ) {
+			return new \WP_Error(
+				'invalid_date_range',
+				__( 'End date must be after start date.', 'newspack-plugin' )
+			);
+		}
+
+		// Get configured maximum end date range.
+		$max_end_date_range = get_option( self::MAX_END_DATE_RANGE_OPTION, self::DEFAULT_MAX_END_DATE_RANGE );
+		$max_end_date       = new \DateTime( $max_end_date_range, wp_timezone() );
+
+		// End date cannot exceed configured maximum.
+		if ( $end > $max_end_date ) {
+			return new \WP_Error(
+				'date_range_too_large',
+				__( 'End date exceeds the configured maximum date range.', 'newspack-plugin' )
+			);
+		}
+
+		return true;
+	}
+
+	/**
 	 * REST API callback to get contribution data.
 	 *
 	 * @param \WP_REST_Request $request Request object.
@@ -97,7 +162,17 @@ class Contribution_Meter {
 	 */
 	public static function api_get_contribution_data( $request ) {
 		$start_date = $request->get_param( 'startDate' );
-		$data       = self::get_contribution_data( $start_date );
+		$end_date   = $request->get_param( 'endDate' );
+
+		// Validate date range if end date is provided.
+		if ( ! empty( $end_date ) ) {
+			$validation = self::validate_date_range( $start_date, $end_date );
+			if ( is_wp_error( $validation ) ) {
+				return $validation;
+			}
+		}
+
+		$data = self::get_contribution_data( $start_date, $end_date );
 
 		if ( is_wp_error( $data ) ) {
 			return $data;
@@ -109,15 +184,30 @@ class Contribution_Meter {
 	/**
 	 * Get contribution data with caching.
 	 *
-	 * @param string $start_date Valid start date in YYYY-MM-DD format.
+	 * @param string      $start_date Valid start date in YYYY-MM-DD format.
+	 * @param string|null $end_date   Optional end date in YYYY-MM-DD format.
 	 * @return array|\WP_Error Array of contribution data or WP_Error on failure.
 	 */
-	public static function get_contribution_data( $start_date ) {
-		// Get the end range (e.g., '-1 day' means collect up to yesterday).
+	public static function get_contribution_data( $start_date, $end_date = null ) {
+		// Get the system default end date (e.g., '-1 day' means yesterday).
 		$end_date_range = get_option( self::END_DATE_RANGE_OPTION, self::DEFAULT_END_DATE_RANGE );
+		$yesterday      = new \DateTime( $end_date_range, wp_timezone() );
 
-		// Calculate the end date based on the configured range.
-		$end_date = ( new \DateTime( $end_date_range, wp_timezone() ) )->format( 'Y-m-d' );
+		// Determine the final end date.
+		if ( ! empty( $end_date ) ) {
+			// User provided an end date - use the minimum of (yesterday, user's end date).
+			$user_end_date_obj = new \DateTime( $end_date, wp_timezone() );
+			$end_date          = ( $user_end_date_obj < $yesterday ) ? $end_date : $yesterday->format( 'Y-m-d' );
+		} else {
+			// No user end date - apply the default max range.
+			$max_end_date_range = get_option( self::MAX_END_DATE_RANGE_OPTION, self::DEFAULT_MAX_END_DATE_RANGE );
+
+			// Calculate maximum allowed end date from today + max range (e.g., today + 6 months).
+			$max_allowed_end_date = new \DateTime( $max_end_date_range, wp_timezone() );
+
+			// Use the minimum of (yesterday, maximum allowed end date).
+			$end_date = ( $max_allowed_end_date < $yesterday ) ? $max_allowed_end_date->format( 'Y-m-d' ) : $yesterday->format( 'Y-m-d' );
+		}
 
 		// Generate cache key including end date for automatic invalidation when range changes.
 		$cache_key = self::CACHE_KEY_PREFIX . md5( $start_date . '_' . $end_date );

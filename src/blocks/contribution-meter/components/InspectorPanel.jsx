@@ -24,11 +24,14 @@ import { dateI18n } from '@wordpress/date';
  * @return {Element} InspectorPanel component.
  */
 const InspectorPanel = ( { attributes, setAttributes } ) => {
-	const { goalAmount, startDate, progressBarColor, thickness, showGoal, showAmountRaised, showPercentage } = attributes;
+	const { goalAmount, startDate, endDate, progressBarColor, thickness, showGoal, showAmountRaised, showPercentage } = attributes;
 
 	// Convert YYYY-MM-DD string to Date object at local midnight to avoid timezone issues.
 	// Only set currentStartDate if startDate exists, otherwise let DatePicker default to today.
 	const currentStartDate = startDate ? new Date( startDate + 'T00:00:00' ) : undefined;
+	const currentEndDate = endDate ? new Date( endDate + 'T00:00:00' ) : undefined;
+	const maxEndDateStr = window.newspack_contribution_meter_data?.maxEndDate;
+	const maxEndDate = maxEndDateStr ? new Date( maxEndDateStr + 'T00:00:00' ) : undefined;
 
 	const currencySymbol = window.newspack_contribution_meter_data?.currencySymbol || '$';
 
@@ -83,6 +86,53 @@ const InspectorPanel = ( { attributes, setAttributes } ) => {
 						} }
 					/>
 				</BaseControl>
+
+				<ToggleControl
+					label={ __( 'Set end date', 'newspack-plugin' ) }
+					checked={ !! endDate }
+					onChange={ value => {
+						if ( value ) {
+							// Set to today when toggled on
+							const today = new Date();
+							setAttributes( { endDate: dateI18n( 'Y-m-d', today ) } );
+						} else {
+							// Clear end date when toggled off
+							setAttributes( { endDate: '' } );
+						}
+					} }
+					help={ __(
+						'Enable this if the contribution meter should stop counting contributions after a specific date.',
+						'newspack-plugin'
+					) }
+				/>
+
+				{ endDate && (
+					<BaseControl
+						id="contribution-meter-end-date"
+						label={ __( 'End date', 'newspack-plugin' ) }
+						help={ __( 'Contributions up to and including this date are counted in the total amount raised.', 'newspack-plugin' ) }
+					>
+						<DatePicker
+							currentDate={ currentEndDate }
+							isInvalidDate={ date => {
+								// End date requires a start date and must be after start date.
+								if ( ! currentStartDate || date < currentStartDate ) {
+									return true;
+								}
+
+								// End date cannot exceed the configured maximum.
+								if ( maxEndDate && date > maxEndDate ) {
+									return true;
+								}
+
+								return false;
+							} }
+							onChange={ newDate => {
+								setAttributes( { endDate: newDate ? dateI18n( 'Y-m-d', newDate ) : '' } );
+							} }
+						/>
+					</BaseControl>
+				) }
 			</PanelBody>
 
 			<PanelBody title={ __( 'Progress bar', 'newspack-plugin' ) } initialOpen={ false }>

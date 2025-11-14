@@ -21,6 +21,10 @@
 			"type": "string",
 			"default": ""
 		},
+		"endDate": {
+			"type": "string",
+			"default": ""
+		},
 		"progressBarColor": {
 			"type": "string",
 			"default": ""
