@@ -40,6 +40,23 @@ class Newspack_Jetpack_Gift_Article extends Sharing_Source {
 		return __( 'Gift this article', 'newspack-plugin' );
 	}
 
+	/**
+	 * Get unique sharing ID. Similar to get_id().
+	 *
+	 * @return mixed
+	 */
+	public function get_class() {
+		/**
+		 * Trick Jetpack into thinking this is a print preview so it doesn't get
+		 * removed from the preview when button style is "Official buttons".
+		 *
+		 * See more at https://github.com/Automattic/jetpack/blob/817c26ec371251dead8428dd43573f955feb9528/projects/plugins/jetpack/modules/sharedaddy/admin-sharing.js#L163-L188
+		 */
+		if ( is_admin() ) {
+			return $this->id . ' preview-print';
+		}
+		return $this->id;
+	}
 
 	/**
 	 * Get the markup of the sharing button.
