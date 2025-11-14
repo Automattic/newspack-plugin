@@ -478,63 +478,25 @@ class Subscriptions_Tiers {
 	 *
 	 * @param \WC_Product      $product            Product.
 	 * @param \WC_Subscription $subscription       Subscription.
-	 * @param bool             $render_view_button Whether to render the view button.
+	 * @param string           $button_type        Button type.
 	 */
-	public static function render_existing_subscription_info( $product, $subscription, $render_view_button = false ) {
+	public static function render_existing_subscription_info( $product, $subscription, $button_type = 'primary' ) {
 		?>
 		<div class="newspack-ui__notice newspack-ui__notice--warning">
 			<span class="newspack-ui__notice__content">
 				<?php
 				printf(
 					/* translators: %s: subscription product name */
-					esc_html__( 'You already have %s active.', 'newspack-plugin' ),
+					esc_html__( "You currently have an active subscription: %s. If you'd like to change your current subscription, you can do so in your subscription page.", 'newspack-plugin' ),
 					wp_kses_post( '<strong>' . self::get_product_title( $product, true ) . '</strong>' )
 				);
 				?>
 			</span>
 		</div>
-		<?php if ( $render_view_button ) : ?>
-			<a class="newspack-ui__button newspack-ui__button--primary newspack-ui__button--wide" href="<?php echo esc_url( $subscription->get_view_order_url() ); ?>" aria-label="<?php esc_attr_e( 'View Subscription', 'newspack-plugin' ); ?>">
-				<?php esc_html_e( 'View', 'newspack-plugin' ); ?>
-			</a>
-		<?php endif; ?>
+		<a class="newspack-ui__button newspack-ui__button--<?php echo esc_attr( $button_type ); ?> newspack-ui__button--wide" href="<?php echo esc_url( $subscription->get_view_order_url() ); ?>" aria-label="<?php esc_attr_e( 'View Subscription', 'newspack-plugin' ); ?>">
+			<?php esc_html_e( 'View Subscription', 'newspack-plugin' ); ?>
+		</a>
 		<?php
-	}
-
-	/**
-	 * Get the user's subscription within a grouped or variable subscription product.
-	 *
-	 * @param \WC_Product $product Product.
-	 * @param int|null    $user_id User ID. Defaults to the current user.
-	 *
-	 * @return \WC_Subscription|null Subscription or null if the user does not have a subscription.
-	 */
-	public static function get_user_subscription( $product, $user_id = null ) {
-		if ( ! function_exists( 'wcs_get_users_subscriptions' ) || ! function_exists( 'wc_get_product' ) ) {
-			return null;
-		}
-
-		$user_id = $user_id ?? get_current_user_id();
-		if ( ! $user_id ) {
-			return null;
-		}
-
-		$products           = $product->get_children();
-		$user_subscriptions = wcs_get_users_subscriptions( $user_id );
-
-		foreach ( $products as $product ) {
-			$product = wc_get_product( $product );
-			if ( ! $product ) {
-				continue;
-			}
-			foreach ( $user_subscriptions as $subscription ) {
-				if ( $subscription->has_product( $product->get_id() ) && $subscription->has_status( 'active' ) ) {
-					return $subscription;
-				}
-			}
-		}
-
-		return null;
 	}
 
 	/**
@@ -615,11 +577,11 @@ class Subscriptions_Tiers {
 			}
 		}
 
-		if ( ! $current_frequency ) {
+		if ( ! $switch_data ) {
 			$current_frequency = $frequencies[0];
 		}
 
-		if ( $current_product ) {
+		if ( $switch_data && $current_product ) {
 			$selected_product = $current_product;
 		} else {
 			$selected_product = $tiers[ $current_frequency ][0];
@@ -634,13 +596,15 @@ class Subscriptions_Tiers {
 		// If the user has an active subscription and this is not a switch, render
 		// the existing subscription info.
 		if ( $user_subscription && empty( $switch_data ) ) {
+			$is_limited  = function_exists( 'wcs_is_product_limited_for_user' ) ? wcs_is_product_limited_for_user( $current_product->get_id(), get_current_user_id() ) : false;
 			$is_giftable = class_exists( 'WCSG_Product' ) && method_exists( 'WCSG_Product', 'is_giftable' ) ? \WCSG_Product::is_giftable( $product->get_id() ) : false;
-			$render_form = $product->is_purchasable() || $is_giftable;
+			$render_form = ! $is_limited || $is_giftable;
 
-			self::render_existing_subscription_info( $current_product, $user_subscription, ! $render_form );
+			self::render_existing_subscription_info( $current_product, $user_subscription, $render_form ? 'secondary' : 'primary' );
 			if ( ! $render_form ) {
 				return;
 			}
+			echo '<hr />';
 		}
 
 		$should_render_tabs = ! $is_single_tier || $is_nyp;
@@ -661,7 +625,7 @@ class Subscriptions_Tiers {
 									self::render_nyp_product_card( $products[0], $products[0] === $current_product, $switch_data );
 								} else {
 									foreach ( $products as $product ) {
-										self::render_product_card( $product, false, $switch_data && $product === $current_product, $switch_data && $product === $selected_product );
+										self::render_product_card( $product, false, $switch_data && $product === $current_product, $product === $selected_product );
 									}
 								}
 								?>
@@ -674,7 +638,7 @@ class Subscriptions_Tiers {
 			if ( ! $should_render_tabs ) {
 				foreach ( $tiers as $products ) {
 					foreach ( $products as $product ) {
-						self::render_product_card( $product, true, $product === $current_product, $product === $selected_product );
+						self::render_product_card( $product, true, $switch_data && $product === $current_product, $product === $selected_product );
 					}
 				}
 			}
@@ -811,7 +775,7 @@ class Subscriptions_Tiers {
 			return $switch_data;
 		}
 
-		$user_subscription = self::get_user_subscription( $product );
+		$user_subscription = WooCommerce_Subscriptions::get_user_subscription( $product );
 		if ( $user_subscription ) {
 			$product_id = $product->get_id();
 			$item       = null;
