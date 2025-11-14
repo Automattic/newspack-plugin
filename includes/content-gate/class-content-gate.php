@@ -71,6 +71,7 @@ class Content_Gate {
 		include __DIR__ . '/class-content-restriction-control.php';
 		include __DIR__ . '/class-block-patterns.php';
 		include __DIR__ . '/class-metering.php';
+		include __DIR__ . '/class-metering-countdown.php';
 	}
 
 	/**

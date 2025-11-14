@@ -14,7 +14,6 @@ import { registerPlugin } from '@wordpress/plugins';
  * Internal dependencies
  */
 import MeteringSettings from './metering-settings';
-import CountdownSettings from './countdown-settings';
 import PositionControl from '../../../packages/components/src/position-control';
 import './editor.scss';
 
@@ -201,9 +200,6 @@ function GateEdit() {
 			</PluginDocumentSettingPanel>
 			<PluginDocumentSettingPanel name="content-gate-metering-panel" title={ __( 'Metering', 'newspack-plugin' ) }>
 				<MeteringSettings />
-			</PluginDocumentSettingPanel>
-			<PluginDocumentSettingPanel name="content-gate-countdown-panel" title={ __( 'Countdown Banner', 'newspack-plugin' ) }>
-				<CountdownSettings />
 			</PluginDocumentSettingPanel>
 		</Fragment>
 	);

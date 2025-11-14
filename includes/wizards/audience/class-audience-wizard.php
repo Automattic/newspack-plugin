@@ -612,6 +612,9 @@ class Audience_Wizard extends Wizard {
 		if ( isset( $args['show_on_subscription_tab'] ) ) {
 			Memberships::set_show_on_subscription_tab_setting( (bool) $args['show_on_subscription_tab'] );
 		}
+		if ( isset( $args['countdown_banner'] ) ) {
+			Metering_Countdown::update_settings( $args['countdown_banner'] );
+		}
 		return rest_ensure_response( self::get_memberships_settings() );
 	}
 
@@ -870,6 +873,7 @@ class Audience_Wizard extends Wizard {
 			'plans'                    => Memberships::get_plans(),
 			'require_all_plans'        => Memberships::get_require_all_plans_setting(),
 			'show_on_subscription_tab' => Memberships::get_show_on_subscription_tab_setting(),
+			'countdown_banner'         => Metering_Countdown::get_settings(),
 		];
 	}
 

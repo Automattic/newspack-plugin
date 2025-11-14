@@ -59,12 +59,6 @@ function MeteringSettings() {
 							'newspack-plugin'
 						) }
 					/>
-					<CheckboxControl
-						label={ __( 'Enable countdown banner', 'newspack-plugin' ) }
-						checked={ meta.metering_countdown }
-						onChange={ value => editPost( { meta: { metering_countdown: value } } ) }
-						help={ __( 'Implement metering to configure access to restricted content before showing the gate.', 'newspack-plugin' ) }
-					/>
 				</>
 			) }
 		</>
