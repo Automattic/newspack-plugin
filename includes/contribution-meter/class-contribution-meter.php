@@ -199,13 +199,14 @@ class Contribution_Meter {
 			$user_end_date_obj = new \DateTime( $end_date, wp_timezone() );
 			$end_date          = ( $user_end_date_obj < $yesterday ) ? $end_date : $yesterday->format( 'Y-m-d' );
 		} else {
-			// No user end date - apply the default max range.
+			// No user end date - apply the default max range from start date.
 			$max_end_date_range = get_option( self::MAX_END_DATE_RANGE_OPTION, self::DEFAULT_MAX_END_DATE_RANGE );
 
-			// Calculate maximum allowed end date from today + max range (e.g., today + 6 months).
-			$max_allowed_end_date = new \DateTime( $max_end_date_range, wp_timezone() );
+			// Calculate maximum allowed end date from start date + max range (e.g., start date + 6 months).
+			$max_allowed_end_date = new \DateTime( $start_date, wp_timezone() );
+			$max_allowed_end_date->modify( $max_end_date_range );
 
-			// Use the minimum of (yesterday, maximum allowed end date).
+			// Use the minimum between yesterday and the maximum allowed end date.
 			$end_date = ( $max_allowed_end_date < $yesterday ) ? $max_allowed_end_date->format( 'Y-m-d' ) : $yesterday->format( 'Y-m-d' );
 		}
 
