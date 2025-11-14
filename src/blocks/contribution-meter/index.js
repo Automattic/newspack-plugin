@@ -2,7 +2,7 @@
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { registerBlockType } from '@wordpress/blocks';
+import { registerBlockType, registerBlockStyle } from '@wordpress/blocks';
 
 /**
  * Internal dependencies
@@ -42,3 +42,14 @@ export const settings = {
 };
 
 registerBlockType( { name, ...metadata }, settings );
+
+registerBlockStyle( name, {
+	name: 'linear',
+	label: __( 'Linear', 'newspack-plugin' ),
+	isDefault: true,
+} );
+
+registerBlockStyle( name, {
+	name: 'circular',
+	label: __( 'Circular', 'newspack-plugin' ),
+} );

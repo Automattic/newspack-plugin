@@ -30,7 +30,6 @@ final class Contribution_Meter_Block {
 	 * Default block attributes.
 	 */
 	public const DEFAULT_ATTRIBUTES = [
-		'meterStyle'       => 'linear',
 		'goalAmount'       => 1000,
 		'startDate'        => '',
 		'progressBarColor' => '',
@@ -123,6 +122,9 @@ final class Contribution_Meter_Block {
 	public static function render_block( array $attributes ) {
 		// Sanitize and normalize attributes.
 		$attributes = self::sanitize_attributes( wp_parse_args( $attributes, self::DEFAULT_ATTRIBUTES ) );
+
+		// Extract meter style from the block's class name.
+		$attributes['meterStyle'] = isset( $attributes['className'] ) && str_contains( $attributes['className'], 'is-style-circular' ) ? 'circular' : 'linear';
 
 		// Get contribution data.
 		$contribution_data = Contribution_Meter::get_contribution_data( $attributes['startDate'] );

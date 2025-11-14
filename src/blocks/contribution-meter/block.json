@@ -9,14 +9,10 @@
 	"textdomain": "newspack-plugin",
 	"supports": {
 		"html": false,
-		"align": ["wide", "full"]
+		"align": ["wide", "full"],
+		"className": true
 	},
 	"attributes": {
-		"meterStyle": {
-			"type": "string",
-			"default": "linear",
-			"enum": ["linear", "circular"]
-		},
 		"goalAmount": {
 			"type": "number",
 			"default": 1000

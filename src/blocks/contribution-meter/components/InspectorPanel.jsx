@@ -24,7 +24,7 @@ import { dateI18n } from '@wordpress/date';
  * @return {Element} InspectorPanel component.
  */
 const InspectorPanel = ( { attributes, setAttributes } ) => {
-	const { meterStyle, goalAmount, startDate, progressBarColor, thickness, showGoal, showAmountRaised, showPercentage } = attributes;
+	const { goalAmount, startDate, progressBarColor, thickness, showGoal, showAmountRaised, showPercentage } = attributes;
 
 	// Convert YYYY-MM-DD string to Date object at local midnight to avoid timezone issues.
 	// Only set currentStartDate if startDate exists, otherwise let DatePicker default to today.
@@ -34,13 +34,6 @@ const InspectorPanel = ( { attributes, setAttributes } ) => {
 
 	return (
 		<InspectorControls>
-			<PanelBody title={ __( 'Styles', 'newspack-plugin' ) }>
-				<ToggleGroupControl value={ meterStyle } onChange={ value => setAttributes( { meterStyle: value } ) } isBlock __next40pxDefaultSize>
-					<ToggleGroupControlOption label={ __( 'Linear', 'newspack-plugin' ) } value="linear" />
-					<ToggleGroupControlOption label={ __( 'Circular', 'newspack-plugin' ) } value="circular" />
-				</ToggleGroupControl>
-			</PanelBody>
-
 			<PanelColorSettings
 				title={ __( 'Color', 'newspack-plugin' ) }
 				colorSettings={ [

@@ -42,7 +42,11 @@ const buildClassNames = ( style, thickness ) => {
  * @return {Element} Edit component.
  */
 const Edit = ( { attributes, setAttributes } ) => {
-	const { meterStyle, goalAmount, startDate, progressBarColor, thickness, showGoal, showAmountRaised, showPercentage } = attributes;
+	const { className, goalAmount, startDate, progressBarColor, thickness, showGoal, showAmountRaised, showPercentage } = attributes;
+
+	// Extract meter style from className attribute (is-style-circular or default to linear).
+	const meterStyle = className && className.includes( 'is-style-circular' ) ? 'circular' : 'linear';
+
 	const [ contributionData, setContributionData ] = useState( null );
 	const [ isLoading, setIsLoading ] = useState( true );
 	const [ error, setError ] = useState( null );
@@ -92,9 +96,9 @@ const Edit = ( { attributes, setAttributes } ) => {
 	}, [ amountRaised, goalAmount ] );
 
 	// Build CSS class names.
-	const className = useMemo( () => buildClassNames( meterStyle, thickness ), [ meterStyle, thickness ] );
+	const blockClassName = useMemo( () => buildClassNames( meterStyle, thickness ), [ meterStyle, thickness ] );
 
-	const blockProps = useBlockProps( { className } );
+	const blockProps = useBlockProps( { className: blockClassName } );
 
 	// Shared meter props.
 	const meterProps = {
