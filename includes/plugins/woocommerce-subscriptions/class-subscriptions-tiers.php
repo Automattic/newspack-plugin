@@ -597,7 +597,7 @@ class Subscriptions_Tiers {
 		// the existing subscription info.
 		if ( $user_subscription && empty( $switch_data ) ) {
 			$is_limited  = function_exists( 'wcs_is_product_limited_for_user' ) ? wcs_is_product_limited_for_user( $current_product->get_id(), get_current_user_id() ) : false;
-			$is_giftable = class_exists( 'WCSG_Product' ) && method_exists( 'WCSG_Product', 'is_giftable' ) ? \WCSG_Product::is_giftable( $product->get_id() ) : false;
+			$is_giftable = class_exists( 'WCSG_Product' ) && method_exists( 'WCSG_Product', 'is_giftable' ) ? \WCSG_Product::is_giftable( $current_product->get_id() ) : false;
 			$render_form = ! $is_limited || $is_giftable;
 
 			self::render_existing_subscription_info( $current_product, $user_subscription, $render_form ? 'secondary' : 'primary' );
