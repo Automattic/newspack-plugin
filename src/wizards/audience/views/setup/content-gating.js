@@ -143,10 +143,17 @@ export default withWizardScreen( ( { wizardApiFetch } ) => {
 							/>
 							<TextControl
 								label={ __( 'Subscribe button URL', 'newspack-plugin' ) }
-								help={ __(
-									'URL for the subscribe button in the banner. If not provided, the primary subscription tier product will be used with modal checkout.',
-									'newspack-plugin'
-								) }
+								help={
+									<>
+										{ __(
+											'URL for the subscribe button in the banner. If not provided, the primary subscription tier product will be used with modal checkout.',
+											'newspack-plugin'
+										) }{ ' ' }
+										<ExternalLink href="/wp-admin/admin.php?page=newspack-audience-subscriptions">
+											{ __( 'Configure the primary subscription product', 'newspack-plugin' ) }
+										</ExternalLink>
+									</>
+								}
 								value={ config.content_gifting.cta_url }
 								onChange={ value => setConfig( { ...config, content_gifting: { ...config.content_gifting, cta_url: value } } ) }
 								__next40pxDefaultSize
