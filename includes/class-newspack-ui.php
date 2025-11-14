@@ -166,6 +166,8 @@ class Newspack_UI {
 		$custom_css .= '--newspack-theme-color-secondary-against-white: ' . esc_attr( newspack_color_with_contrast( $colors['secondary'] ) ) . ';';
 		$custom_css .= '--newspack-theme-color-primary-variation-against-white: ' . esc_attr( newspack_color_with_contrast( newspack_adjust_brightness( $colors['primary'], -30 ) ) ) . ';';
 		$custom_css .= '--newspack-theme-color-secondary-variation-against-white: ' . esc_attr( newspack_color_with_contrast( newspack_adjust_brightness( $colors['secondary'], -40 ) ) ) . ';';
+		$custom_css .= '--newspack-theme-color-against-primary: ' . esc_attr( $colors['primary_contrast'] ) . ';';
+		$custom_css .= '--newspack-theme-color-against-secondary: ' . esc_attr( $colors['secondary_contrast'] ) . ';';
 		$custom_css .= '}';
 		wp_add_inline_style( 'newspack-ui', $custom_css );
 	}
