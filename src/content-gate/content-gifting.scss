@@ -51,6 +51,10 @@ body .sd-social-icon .sd-content ul li[class*="share-"].share-newspack-gift-arti
 	margin-top: 1px;
 }
 
+body.newspack-is-gifted-post {
+	padding-bottom: var(--newspack-content-gifting-cta-offset, 72px);
+}
+
 .newspack-content-gifting {
 	&__cta {
 		bottom: 0;

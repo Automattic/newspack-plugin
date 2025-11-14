@@ -16,6 +16,7 @@ class Content_Gifting_CTA {
 	 */
 	public static function init() {
 		add_action( 'wp_footer', [ __CLASS__, 'print_cta' ] );
+		add_filter( 'body_class', [ __CLASS__, 'filter_body_class' ] );
 		add_filter( 'newspack_ads_placement_data', [ __CLASS__, 'filter_ads_placement_data' ], 10, 2 );
 	}
 
@@ -180,6 +181,20 @@ class Content_Gifting_CTA {
 			</div>
 		</div>
 		<?php
+	}
+
+	/**
+	 * Filter the body class.
+	 *
+	 * @param array $classes The body classes.
+	 *
+	 * @return array The filtered body classes.
+	 */
+	public static function filter_body_class( $classes ) {
+		if ( Content_Gifting::is_gifted_post() ) {
+			$classes[] = 'newspack-is-gifted-post';
+		}
+		return $classes;
 	}
 }
 Content_Gifting_CTA::init();

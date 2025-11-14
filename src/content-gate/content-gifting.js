@@ -4,6 +4,28 @@ import domReady from '@wordpress/dom-ready';
 import './content-gifting.scss';
 
 domReady( () => {
+	const setBodyOffset = () => {
+		const cta = document.querySelector( '.newspack-content-gifting__cta' );
+		if ( ! cta || ! document.body.classList.contains( 'newspack-is-gifted-post' ) ) {
+			return;
+		}
+
+		const updateOffset = () => {
+			document.body.style.setProperty( '--newspack-content-gifting-cta-offset', `${ cta.offsetHeight }px` );
+		};
+
+		updateOffset();
+
+		if ( 'ResizeObserver' in window ) {
+			const resizeObserver = new ResizeObserver( updateOffset );
+			resizeObserver.observe( cta );
+		} else {
+			window.addEventListener( 'resize', updateOffset );
+		}
+	};
+
+	setBodyOffset();
+
 	const modal = document.getElementById( 'newspack-content-gifting-modal' );
 	if ( ! modal ) {
 		return;
