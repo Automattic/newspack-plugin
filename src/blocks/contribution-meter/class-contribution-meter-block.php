@@ -187,33 +187,26 @@ final class Contribution_Meter_Block {
 	 * @return array Sanitized attributes.
 	 */
 	private static function sanitize_attributes( array $attributes ) {
-		// Sanitize meterStyle.
-		if ( ! in_array( $attributes['meterStyle'], [ 'linear', 'circular' ], true ) ) {
-			$attributes['meterStyle'] = 'linear';
-		}
-
 		// Sanitize thickness.
-		if ( ! in_array( $attributes['thickness'], [ 'xs', 's', 'm', 'l' ], true ) ) {
+		if ( ! in_array( $attributes['thickness'] ?? '', [ 'xs', 's', 'm', 'l' ], true ) ) {
 			$attributes['thickness'] = 's';
 		}
 
 		// Sanitize goal amount.
-		$attributes['goalAmount'] = absint( $attributes['goalAmount'] );
+		$attributes['goalAmount'] = absint( $attributes['goalAmount'] ?? 0 );
 
 		// Validate start date.
-		if ( is_wp_error( Contribution_Meter::validate_date( $attributes['startDate'] ) ) ) {
+		if ( is_wp_error( Contribution_Meter::validate_date( $attributes['startDate'] ?? '' ) ) ) {
 			$attributes['startDate'] = gmdate( 'Y-m-d' ); // Default to today if invalid.
 		}
 
 		// Sanitize color.
-		if ( ! empty( $attributes['progressBarColor'] ) ) {
-			$attributes['progressBarColor'] = sanitize_hex_color( $attributes['progressBarColor'] );
-		}
+		$attributes['progressBarColor'] = ! empty( $attributes['progressBarColor'] ) ? sanitize_hex_color( $attributes['progressBarColor'] ) : '';
 
 		// Sanitize booleans.
-		$attributes['showGoal']         = (bool) $attributes['showGoal'];
-		$attributes['showAmountRaised'] = (bool) $attributes['showAmountRaised'];
-		$attributes['showPercentage']   = (bool) $attributes['showPercentage'];
+		$attributes['showGoal']         = (bool) ( $attributes['showGoal'] ?? false );
+		$attributes['showAmountRaised'] = (bool) ( $attributes['showAmountRaised'] ?? false );
+		$attributes['showPercentage']   = (bool) ( $attributes['showPercentage'] ?? false );
 
 		return $attributes;
 	}
