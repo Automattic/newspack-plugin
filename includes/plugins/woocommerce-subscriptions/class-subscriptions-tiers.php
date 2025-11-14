@@ -476,10 +476,11 @@ class Subscriptions_Tiers {
 	/**
 	 * Render existing subscription info.
 	 *
-	 * @param \WC_Product      $product      Product.
-	 * @param \WC_Subscription $subscription Subscription.
+	 * @param \WC_Product      $product            Product.
+	 * @param \WC_Subscription $subscription       Subscription.
+	 * @param bool             $render_view_button Whether to render the view button.
 	 */
-	public static function render_existing_subscription_info( $product, $subscription ) {
+	public static function render_existing_subscription_info( $product, $subscription, $render_view_button = false ) {
 		?>
 		<div class="newspack-ui__notice newspack-ui__notice--warning">
 			<span class="newspack-ui__notice__content">
@@ -492,9 +493,11 @@ class Subscriptions_Tiers {
 				?>
 			</span>
 		</div>
-		<a class="newspack-ui__button newspack-ui__button--primary newspack-ui__button--wide" href="<?php echo esc_url( $subscription->get_view_order_url() ); ?>" aria-label="<?php esc_attr_e( 'View Subscription', 'newspack-plugin' ); ?>">
-			<?php esc_html_e( 'View', 'newspack-plugin' ); ?>
-		</a>
+		<?php if ( $render_view_button ) : ?>
+			<a class="newspack-ui__button newspack-ui__button--primary newspack-ui__button--wide" href="<?php echo esc_url( $subscription->get_view_order_url() ); ?>" aria-label="<?php esc_attr_e( 'View Subscription', 'newspack-plugin' ); ?>">
+				<?php esc_html_e( 'View', 'newspack-plugin' ); ?>
+			</a>
+		<?php endif; ?>
 		<?php
 	}
 
@@ -629,10 +632,15 @@ class Subscriptions_Tiers {
 		$button_label = $button_label ?? $default_button_label;
 
 		// If the user has an active subscription and this is not a switch, render
-		// the existing subscription info instead of the tiers form.
+		// the existing subscription info.
 		if ( $user_subscription && empty( $switch_data ) ) {
-			self::render_existing_subscription_info( $current_product, $user_subscription );
-			return;
+			$is_giftable = class_exists( 'WCSG_Product' ) && method_exists( 'WCSG_Product', 'is_giftable' ) ? \WCSG_Product::is_giftable( $product->get_id() ) : false;
+			$render_form = $product->is_purchasable() || $is_giftable;
+
+			self::render_existing_subscription_info( $current_product, $user_subscription, ! $render_form );
+			if ( ! $render_form ) {
+				return;
+			}
 		}
 
 		$should_render_tabs = ! $is_single_tier || $is_nyp;
@@ -653,7 +661,7 @@ class Subscriptions_Tiers {
 									self::render_nyp_product_card( $products[0], $products[0] === $current_product, $switch_data );
 								} else {
 									foreach ( $products as $product ) {
-										self::render_product_card( $product, false, $product === $current_product, $product === $selected_product );
+										self::render_product_card( $product, false, $switch_data && $product === $current_product, $switch_data && $product === $selected_product );
 									}
 								}
 								?>
