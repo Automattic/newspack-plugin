@@ -31,8 +31,14 @@
 		&__spacing-bottom--48 {
 			margin-bottom: var(--newspack-ui-spacer-9);
 		}
-		&__spacing-bottom--64 {
+		&__spacing-bottom--56 {
 			margin-bottom: var(--newspack-ui-spacer-10);
+		}
+		&__spacing-bottom--64 {
+			margin-bottom: var(--newspack-ui-spacer-11);
+		}
+		&__spacing-bottom--72 {
+			margin-bottom: var(--newspack-ui-spacer-12);
 		}
 
 		// Left margin spacing
@@ -66,8 +72,14 @@
 		&__spacing-left--48 {
 			margin-left: var(--newspack-ui-spacer-9);
 		}
-		&__spacing-left--64 {
+		&__spacing-left--56 {
 			margin-left: var(--newspack-ui-spacer-10);
+		}
+		&__spacing-left--64 {
+			margin-left: var(--newspack-ui-spacer-11);
+		}
+		&__spacing-left--72 {
+			margin-left: var(--newspack-ui-spacer-12);
 		}
 
 		// Right margin spacing
@@ -101,8 +113,14 @@
 		&__spacing-right--48 {
 			margin-right: var(--newspack-ui-spacer-9);
 		}
-		&__spacing-right--64 {
+		&__spacing-right--56 {
 			margin-right: var(--newspack-ui-spacer-10);
+		}
+		&__spacing-right--64 {
+			margin-right: var(--newspack-ui-spacer-11);
+		}
+		&__spacing-right--72 {
+			margin-right: var(--newspack-ui-spacer-12);
 		}
 
 		// Top margin spacing
@@ -136,8 +154,14 @@
 		&__spacing-top--48 {
 			margin-top: var(--newspack-ui-spacer-9);
 		}
-		&__spacing-top--64 {
+		&__spacing-top--56 {
 			margin-top: var(--newspack-ui-spacer-10);
+		}
+		&__spacing-top--64 {
+			margin-top: var(--newspack-ui-spacer-11);
+		}
+		&__spacing-top--72 {
+			margin-top: var(--newspack-ui-spacer-12);
 		}
 	}
 }

@@ -27,11 +27,14 @@ class Newspack_UI {
 	 */
 	public static function init() {
 		\add_action( 'wp_enqueue_scripts', [ __CLASS__, 'enqueue_assets' ] );
+		\add_action( 'admin_enqueue_scripts', [ __CLASS__, 'enqueue_assets' ] );
 		\add_action( 'enqueue_block_editor_assets', [ __CLASS__, 'enqueue_assets' ] );
 		\add_filter( 'the_content', [ __CLASS__, 'load_demo' ] );
+		\add_action( 'admin_enqueue_scripts', [ __CLASS__, 'theme_colors_css' ] );
 		// Only run if the site is using a block theme.
 		if ( wp_theme_has_theme_json() ) {
 			\add_action( 'wp_enqueue_scripts', [ __CLASS__, 'colors_css_wrap' ] );
+			\add_action( 'admin_enqueue_scripts', [ __CLASS__, 'colors_css_wrap' ] );
 		}
 		add_action( 'wp_footer', [ __CLASS__, 'print_notices' ], 100 );
 
@@ -144,6 +147,29 @@ class Newspack_UI {
 		 */
 		do_action( 'newspack_ui_notice_dismissed', $notice_id );
 		wp_send_json_success( 'Notice dismissed' );
+	}
+
+	/**
+	 * Adds inline styles CSS for the theme colors.
+	 */
+	public static function theme_colors_css() {
+		if ( ! function_exists( 'newspack_get_colors' ) || ! function_exists( 'newspack_color_with_contrast' ) ) {
+			return;
+		}
+		$colors = newspack_get_colors();
+		$custom_css = ':root {';
+		$custom_css .= '--newspack-theme-color-primary: ' . esc_attr( $colors['primary'] ) . ';';
+		$custom_css .= '--newspack-theme-color-primary-variation: ' . esc_attr( newspack_adjust_brightness( $colors['primary'], -30 ) ) . ';';
+		$custom_css .= '--newspack-theme-color-secondary: ' . esc_attr( $colors['secondary'] ) . ' !important;';
+		$custom_css .= '--newspack-theme-color-secondary-variation: ' . esc_attr( newspack_adjust_brightness( $colors['secondary'], -40 ) ) . ';';
+		$custom_css .= '--newspack-theme-color-primary-against-white: ' . esc_attr( newspack_color_with_contrast( $colors['primary'] ) ) . ';';
+		$custom_css .= '--newspack-theme-color-secondary-against-white: ' . esc_attr( newspack_color_with_contrast( $colors['secondary'] ) ) . ';';
+		$custom_css .= '--newspack-theme-color-primary-variation-against-white: ' . esc_attr( newspack_color_with_contrast( newspack_adjust_brightness( $colors['primary'], -30 ) ) ) . ';';
+		$custom_css .= '--newspack-theme-color-secondary-variation-against-white: ' . esc_attr( newspack_color_with_contrast( newspack_adjust_brightness( $colors['secondary'], -40 ) ) ) . ';';
+		$custom_css .= '--newspack-theme-color-against-primary: ' . esc_attr( $colors['primary_contrast'] ) . ';';
+		$custom_css .= '--newspack-theme-color-against-secondary: ' . esc_attr( $colors['secondary_contrast'] ) . ';';
+		$custom_css .= '}';
+		wp_add_inline_style( 'newspack-ui', $custom_css );
 	}
 
 	/**
