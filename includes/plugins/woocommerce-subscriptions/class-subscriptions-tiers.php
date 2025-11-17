@@ -614,7 +614,6 @@ class Subscriptions_Tiers {
 			if ( ! $render_form ) {
 				return;
 			}
-			echo '<hr />';
 		}
 
 		$should_render_tabs = ! $is_single_tier || $is_nyp;
