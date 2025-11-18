@@ -38,9 +38,9 @@ class Block_Patterns {
 	 */
 	public static function get_block_patterns() {
 		return [
-			'contribution-1' => __( 'Two-column with gradient background', 'newspack-plugin' ),
-			'contribution-2' => __( 'Cover overlay with circular meter', 'newspack-plugin' ),
-			'contribution-3' => __( 'Simple vertical layout', 'newspack-plugin' ),
+			'contribution-1' => __( 'Two-column with cover image', 'newspack-plugin' ),
+			'contribution-2' => __( 'Cover image with circular meter overlay', 'newspack-plugin' ),
+			'contribution-3' => __( 'Vertical layout with image', 'newspack-plugin' ),
 			'contribution-4' => __( 'Grid with circular meter highlight', 'newspack-plugin' ),
 			'contribution-5' => __( 'Grid with image and thin meter', 'newspack-plugin' ),
 		];

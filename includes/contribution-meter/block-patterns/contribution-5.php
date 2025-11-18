@@ -7,7 +7,7 @@
 
 $image_url = \Newspack\Newspack::plugin_url() . '/includes/images/contribution-meter/contribution-5.jpg';
 ?>
-<!-- wp:columns {"metadata":{"name":"Contribution Pattern 5"},"align":"wide","className":"newspack-pattern contribution__style-5 newspack-grid"} -->
+<!-- wp:columns {"metadata":{"name":"<?php echo esc_html__( 'Contribution', 'newspack-plugin' ); ?>"},"align":"wide","className":"newspack-pattern contribution__style-5 newspack-grid"} -->
 <div class="wp-block-columns alignwide newspack-pattern contribution__style-5 newspack-grid">
 	<!-- wp:column {"width":"33.33%"} -->
 	<div class="wp-block-column" style="flex-basis:33.33%">
@@ -31,7 +31,7 @@ $image_url = \Newspack\Newspack::plugin_url() . '/includes/images/contribution-m
 		</figure>
 		<!-- /wp:image -->
 
-		<!-- wp:newspack/contribution-meter {"progressBarColor":"#003DA5","thickness":"xs"} /-->
+		<!-- wp:newspack/contribution-meter {"thickness":"xs"} /-->
 
 		<!-- wp:paragraph -->
 		<p><?php esc_html_e( "Edit and add to this content to tell your publication's story and explain the benefits of becoming a member. This is a good place to mention any special member privileges, let people know that donations are tax-deductible, or provide any legal information.", 'newspack-plugin' ); ?></p>

@@ -7,7 +7,7 @@
 
 $image_url = \Newspack\Newspack::plugin_url() . '/includes/images/contribution-meter/contribution-4.jpg';
 ?>
-<!-- wp:columns {"verticalAlignment":null,"metadata":{"name":"Contribution Pattern 4"},"align":"wide","className":"newspack-pattern contribution__style-4 newspack-grid"} -->
+<!-- wp:columns {"verticalAlignment":null,"metadata":{"name":"<?php echo esc_html__( 'Contribution', 'newspack-plugin' ); ?>"},"align":"wide","className":"newspack-pattern contribution__style-4 newspack-grid"} -->
 <div class="wp-block-columns alignwide newspack-pattern contribution__style-4 newspack-grid">
 	<!-- wp:column {"width":"66.66%","layout":{"type":"default"}} -->
 	<div class="wp-block-column" style="flex-basis:66.66%">
