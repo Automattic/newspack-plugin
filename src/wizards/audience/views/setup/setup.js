@@ -159,6 +159,17 @@ export default withWizardScreen(
 							) }
 						</ActionCard>
 
+						<ActionCard
+							title={ __( 'Use My Account login screen for OAuth clients', 'newspack-plugin' ) }
+							description={ __(
+								'Allow OAuth clients to redirect to the My Account login screen instead of the default WordPress login screen. Might require additional configuration.',
+								'newspack-plugin'
+							) }
+							isMedium
+							toggleChecked={ config.oauth_redirect_to_ras }
+							toggleOnChange={ value => updateConfig( 'oauth_redirect_to_ras', value ) }
+						/>
+
 						<hr />
 
 						<SectionHeader
@@ -276,6 +287,7 @@ export default withWizardScreen(
 										use_custom_lists: config.use_custom_lists,
 										newsletter_lists: config.newsletter_lists,
 										newsletter_list_initial_size: config.newsletter_list_initial_size,
+										oauth_redirect_to_ras: config.oauth_redirect_to_ras,
 										sync_esp: config.sync_esp,
 										sync_esp_delete: config.sync_esp_delete,
 										metadata_fields: config.metadata_fields,

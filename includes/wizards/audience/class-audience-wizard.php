@@ -602,7 +602,7 @@ class Audience_Wizard extends Wizard {
 	 *
 	 * @param WP_REST_Request $request Request object.
 	 *
-	 * @return WP_REST_Response
+	 * @return WP_REST_Response|WP_Error
 	 */
 	public function api_update_content_gating_settings( $request ) {
 		$args = $request->get_params();
@@ -614,6 +614,29 @@ class Audience_Wizard extends Wizard {
 		}
 		if ( isset( $args['countdown_banner'] ) ) {
 			Metering_Countdown::update_settings( $args['countdown_banner'] );
+		}
+		if ( isset( $args['content_gifting'] ) ) {
+			if ( isset( $args['content_gifting']['enabled'] ) ) {
+				Content_Gifting::set_enabled( (bool) $args['content_gifting']['enabled'] );
+			}
+			if ( isset( $args['content_gifting']['limit'] ) ) {
+				Content_Gifting::set_gifting_limit( (int) $args['content_gifting']['limit'] );
+			}
+			if ( isset( $args['content_gifting']['interval'] ) ) {
+				Content_Gifting::set_gifting_reset_interval( sanitize_text_field( $args['content_gifting']['interval'] ) );
+			}
+			if ( isset( $args['content_gifting']['cta_label'] ) ) {
+				Content_Gifting_CTA::set_cta_label( sanitize_text_field( $args['content_gifting']['cta_label'] ) );
+			}
+			if ( isset( $args['content_gifting']['button_label'] ) ) {
+				Content_Gifting_CTA::set_button_label( sanitize_text_field( $args['content_gifting']['button_label'] ) );
+			}
+			if ( isset( $args['content_gifting']['cta_url'] ) ) {
+				Content_Gifting_CTA::set_cta_url( sanitize_text_field( $args['content_gifting']['cta_url'] ) );
+			}
+			if ( isset( $args['content_gifting']['style'] ) ) {
+				Content_Gifting_CTA::set_style( sanitize_text_field( $args['content_gifting']['style'] ) );
+			}
 		}
 		return rest_ensure_response( self::get_memberships_settings() );
 	}
@@ -874,6 +897,7 @@ class Audience_Wizard extends Wizard {
 			'require_all_plans'        => Memberships::get_require_all_plans_setting(),
 			'show_on_subscription_tab' => Memberships::get_show_on_subscription_tab_setting(),
 			'countdown_banner'         => Metering_Countdown::get_settings(),
+			'content_gifting'          => Content_Gifting::get_settings(),
 		];
 	}
 

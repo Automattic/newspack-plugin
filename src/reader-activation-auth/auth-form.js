@@ -359,10 +359,29 @@ window.newspackRAS.push( function ( readerActivation ) {
 							}
 						}
 
-						if ( data?.redirect_to ) {
-							const continueButton = container.querySelector( '.auth-callback' );
-							if ( continueButton ) {
-								continueButton.setAttribute( 'href', data.redirect_to );
+						const continueButton = container.querySelector( '.auth-callback' );
+
+						if ( data?.redirect_to && continueButton ) {
+							continueButton.setAttribute( 'href', data.redirect_to );
+						}
+
+						// Auto-redirect if we have a redirect query parameter.
+						const urlParams = new URLSearchParams( window.location.search );
+						if (
+							urlParams.has( 'redirect' ) &&
+							continueButton?.href &&
+							continueButton.href !== window.location.href &&
+							continueButton.href !== '#'
+						) {
+							try {
+								const redirectUrl = new URL( continueButton.href );
+								if ( redirectUrl.origin === window.location.origin ) {
+									continueButton.style.opacity = 0.5;
+									continueButton.style.pointerEvents = 'none';
+									window.location.href = redirectUrl.href;
+								}
+							} catch ( e ) {
+								// Invalid URL - continue with normal flow.
 							}
 						}
 					}
