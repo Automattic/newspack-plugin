@@ -34,7 +34,7 @@ class Contribution_Meter {
 
 	/**
 	 * Default data collection end date range (relative to today).
-	 * E.g., '-1 day' means collect up to yesterday, excluding today.
+	 * E.g., 'today' means collect up to end of today, including today.
 	 */
 	const DEFAULT_END_DATE_RANGE = 'today';
 
