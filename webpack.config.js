@@ -63,7 +63,7 @@ const entry = {
 	blocks: path.join( __dirname, 'src', 'blocks', 'index.js' ),
 	'content-gate-editor': path.join( __dirname, 'src', 'content-gate', 'editor', 'editor.js' ),
 	'content-gate-block-patterns': path.join( __dirname, 'src', 'content-gate', 'editor', 'block-patterns.js' ),
-	'content-gifting': path.join( __dirname, 'src', 'content-gate', 'content-gifting.js' ),
+	'content-banner': path.join( __dirname, 'src', 'content-gate', 'content-banner.js' ),
 	wizards: path.join( __dirname, 'src', 'wizards', 'index.tsx' ),
 	'newspack-ui': path.join( __dirname, 'src', 'newspack-ui', 'index.js' ),
 	bylines: path.join( __dirname, 'src', 'bylines', 'index.js' ),

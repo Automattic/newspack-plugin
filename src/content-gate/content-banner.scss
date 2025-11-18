@@ -52,19 +52,26 @@ body .sd-social-icon .sd-content ul li[class*="share-"].share-newspack-gift-arti
 	margin-top: 1px;
 }
 
-body.newspack-is-gifted-post {
-	padding-bottom: var(--newspack-content-gifting-cta-offset, 72px);
+body.newspack-is-gifted-post .site,
+body.newspack-has-countdown-banner .site {
+	padding-bottom: var(--newspack-content-banner-cta-offset, 72px);
 }
 
-.newspack-content-gifting {
+.newspack-content-gifting,
+.newspack-countdown-banner {
 	&__cta {
 		bottom: 0;
 		left: 0;
 		padding: var(--newspack-ui-spacer-2) var(--newspack-ui-spacer-3);
 		position: fixed;
 		right: 0;
+		transition: opacity 0.3s ease-in-out;
 		z-index: 99999;
 		@include mixins.newspack-ui-elevation( 3 );
+
+		&--hidden {
+			opacity: 0;
+		}
 
 		&__content {
 			align-items: center;
@@ -73,6 +80,15 @@ body.newspack-is-gifted-post {
 			gap: var(--newspack-ui-spacer-2);
 			justify-content: space-between;
 			min-height: var(--newspack-ui-spacer-9);
+
+			&__wrapper {
+				> span {
+					display: block;
+				}
+				a {
+					text-decoration: underline;
+				}
+			}
 
 			.newspack-ui__button {
 				width: 100%;

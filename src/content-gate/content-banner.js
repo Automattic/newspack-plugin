@@ -1,17 +1,24 @@
 /* globals newspack_content_gifting */
 import domReady from '@wordpress/dom-ready';
 
-import './content-gifting.scss';
+import './content-banner.scss';
+
+const settings = window.newspack_metering_settings || {};
+const storeKey = 'metering-' + settings.gate_id || 0;
 
 domReady( () => {
+	const cta = document.querySelector( '.newspack-content-gifting__cta,.newspack-countdown-banner__cta' );
 	const setBodyOffset = () => {
-		const cta = document.querySelector( '.newspack-content-gifting__cta' );
-		if ( ! cta || ! document.body.classList.contains( 'newspack-is-gifted-post' ) ) {
+		if (
+			! cta ||
+			( ! document.body.classList.contains( 'newspack-is-gifted-post' ) &&
+				! document.body.classList.contains( 'newspack-has-countdown-banner' ) )
+		) {
 			return;
 		}
 
 		const updateOffset = () => {
-			document.body.style.setProperty( '--newspack-content-gifting-cta-offset', `${ cta.offsetHeight }px` );
+			document.body.style.setProperty( '--newspack-content-banner-cta-offset', `${ cta.offsetHeight }px` );
 		};
 
 		updateOffset();
@@ -26,6 +33,22 @@ domReady( () => {
 
 	setBodyOffset();
 
+	// Countdown banner.
+	window.newspackRAS.push( ras => {
+		const views = document.querySelector( '.newspack-countdown-banner__views' );
+		if ( ! views || '0' !== views.textContent ) {
+			return;
+		}
+		const data = ras?.store?.get( storeKey ) || {
+			content: [],
+		};
+		if ( data.content.length > 0 ) {
+			views.textContent = data.content.length;
+			cta.classList.remove( 'newspack-countdown-banner__cta--hidden' );
+		}
+	} );
+
+	// Content gifting modal.
 	const modal = document.getElementById( 'newspack-content-gifting-modal' );
 	if ( ! modal ) {
 		return;

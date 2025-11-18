@@ -15,6 +15,16 @@ class Metering_Countdown {
 	const OPTION_PREFIX = 'np_countdown_banner_';
 
 	/**
+	 * Initialize hooks.
+	 */
+	public static function init() {
+		add_action( 'wp_enqueue_scripts', [ __CLASS__, 'enqueue_assets' ] );
+		add_action( 'wp_footer', [ __CLASS__, 'print_cta' ] );
+		add_filter( 'body_class', [ __CLASS__, 'filter_body_class' ] );
+		add_filter( 'newspack_ads_placement_data', [ __CLASS__, 'filter_ads_placement_data' ], 10, 2 );
+	}
+
+	/**
 	 * Get all settings with default values for the countdown banner.
 	 *
 	 * @return array Default countdown settings.
@@ -73,4 +83,151 @@ class Metering_Countdown {
 		}
 		return $current_settings;
 	}
+
+	/**
+	 * Whether the countdown banner should be displayed.
+	 *
+	 * @return bool
+	 */
+	public static function is_enabled() {
+		return self::get_settings( 'enabled' ) && Metering::is_metering() && is_singular();
+	}
+
+	/**
+	 * Enqueue assets.
+	 */
+	public static function enqueue_assets() {
+		// Enqueue assets only if enabled and the post is metered.
+		if ( ! self::is_enabled() ) {
+			return;
+		}
+		$asset = require_once dirname( NEWSPACK_PLUGIN_FILE ) . '/dist/content-banner.asset.php';
+
+		// Ensure the content gate metering script is enqueued first.
+		$asset['dependencies'][] = 'newspack-content-gate-metering';
+		wp_enqueue_script( 'newspack-content-banner', Newspack::plugin_url() . '/dist/content-banner.js', $asset['dependencies'], NEWSPACK_PLUGIN_VERSION, true );
+		wp_enqueue_style( 'newspack-content-banner', Newspack::plugin_url() . '/dist/content-banner.css', [], NEWSPACK_PLUGIN_VERSION );
+	}
+
+	/**
+	 * Print the subscribe button.
+	 */
+	public static function print_subscribe_button() {
+		if ( ! class_exists( 'Newspack_Blocks' ) || ! class_exists( 'Newspack_Blocks\Modal_Checkout' ) || ! class_exists( 'Newspack_Blocks\Modal_Checkout\Checkout_Data' ) || ! function_exists( 'wc_get_product' ) ) {
+			return;
+		}
+		$settings     = self::get_settings();
+		$button_label = $settings['button_label'];
+		$button_class = 'dark' === $settings['style'] ? 'newspack-ui__button--primary-light' : 'newspack-ui__button--accent';
+
+		$cta_url = $settings['cta_url'];
+		if ( $cta_url ) {
+			?>
+			<a href="<?php echo esc_url( $cta_url ); ?>" class="newspack-ui__button newspack-ui__button--x-small <?php echo esc_attr( $button_class ); ?>"><?php echo esc_html( $button_label ); ?></a>
+			<?php
+			return;
+		}
+
+		// If CTA url is not provided, try a modal checkout using the primary subscription tier product.
+		$product = Subscriptions_Tiers::get_primary_subscription_tier_product();
+		if ( ! $product ) {
+			return;
+		}
+		\Newspack_Blocks\Modal_Checkout::enqueue_modal( $product->get_id() );
+		\Newspack_Blocks::enqueue_view_assets( 'checkout-button' );
+		$checkout_data = \Newspack_Blocks\Modal_Checkout\Checkout_Data::get_checkout_data( $product );
+		?>
+		<div class="wp-block-newspack-blocks-checkout-button">
+			<form data-checkout="<?php echo esc_attr( wp_json_encode( $checkout_data ) ); ?>" target="newspack_modal_checkout_iframe">
+				<input type="hidden" name="newspack_checkout" value="1" />
+				<input type="hidden" name="modal_checkout" value="1" />
+				<input type="hidden" name="product_id" value="<?php echo esc_attr( $product->get_id() ); ?>" />
+				<button type="submit" class="newspack-ui__button newspack-ui__button--x-small <?php echo esc_attr( $button_class ); ?>"><?php echo esc_html( $button_label ); ?></button>
+			</form>
+		</div>
+		<?php
+	}
+
+	/**
+	 * Print the countdown banner.
+	 */
+	public static function print_cta() {
+		if ( ! self::is_enabled() ) {
+			return;
+		}
+		$settings    = self::get_settings();
+		$style_class = sprintf( 'is-style-%s', $settings['style'] );
+		$classes     = [ $style_class ];
+		$total_views = Metering::get_total_metered_views( \is_user_logged_in() );
+		if ( false === $total_views ) {
+			return '';
+		}
+		$views = Metering::get_current_user_metered_views();
+		if ( $views === 0 || Metering::is_frontend_metering() ) {
+			$classes[] = 'newspack-countdown-banner__cta--hidden';
+		}
+		?>
+		<div class="newspack-ui">
+			<div class="banner newspack-countdown-banner__cta <?php echo esc_attr( implode( ' ', $classes ) ); ?>">
+				<div class="wrapper newspack-countdown-banner__cta__content">
+					<div class="newspack-countdown-banner__cta__content__wrapper">
+						<span class="newspack-countdown-banner__cta__content__countdown newspack-ui__font--s">
+							<strong>
+							<?php
+								echo wp_kses_post(
+									sprintf(
+										/* translators: 1: current number of metered views, 2: total metered views, 3: the metering period. */
+										__( '<span class="newspack-countdown-banner__views">%1$d</span>/<span class="newspack-countdown-banner__total_views">%2$d</span> free articles this %3$s', 'newspack-plugin' ),
+										$views,
+										$total_views,
+										Metering::get_metering_period()
+									)
+								);
+							?>
+							</strong>
+						</span>
+						<span class="newspack-countdown-banner__cta__content__message newspack-ui__font--s">
+							<?php echo esc_html( $settings['cta_label'] ); ?>
+							<a href="#signin_modal"><?php echo esc_html( __( 'Sign in to an existing account', 'newspack-plugin' ) ); ?></a>
+						</span>
+					</div>
+					<?php self::print_subscribe_button(); ?>
+				</div>
+			</div>
+		</div>
+		<?php
+	}
+
+	/**
+	 * Filter the body class.
+	 *
+	 * @param array $classes The body classes.
+	 *
+	 * @return array The filtered body classes.
+	 */
+	public static function filter_body_class( $classes ) {
+		if ( self::is_enabled() ) {
+			$classes[] = 'newspack-has-countdown-banner';
+		}
+		return $classes;
+	}
+
+	/**
+	 * Disable the sticky footer ad placement when rendering the countdown banner.
+	 *
+	 * @param array  $data          The ads placement data.
+	 * @param string $placement_key The placement key.
+	 *
+	 * @return array The filtered ads placement data.
+	 */
+	public static function filter_ads_placement_data( $data, $placement_key ) {
+		if ( ! self::is_enabled() ) {
+			return $data;
+		}
+		if ( $placement_key === 'sticky' ) {
+			$data['enabled'] = false;
+		}
+		return $data;
+	}
 }
+Metering_Countdown::init();

@@ -316,13 +316,13 @@ class Content_Gifting {
 		if ( ! self::can_gift_post() && ! self::is_gifted_post() && ! isset( $_GET[ self::QUERY_ARG ] ) && ! is_admin() && ! is_customize_preview() ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			return;
 		}
-		wp_enqueue_style( 'newspack-content-gifting', Newspack::plugin_url() . '/dist/content-gifting.css', [], NEWSPACK_PLUGIN_VERSION );
+		wp_enqueue_style( 'newspack-content-banner', Newspack::plugin_url() . '/dist/content-banner.css', [], NEWSPACK_PLUGIN_VERSION );
 
 		if ( is_singular() ) {
-			$asset = require_once dirname( NEWSPACK_PLUGIN_FILE ) . '/dist/content-gifting.asset.php';
-			wp_enqueue_script( 'newspack-content-gifting', Newspack::plugin_url() . '/dist/content-gifting.js', $asset['dependencies'], NEWSPACK_PLUGIN_VERSION, true );
+			$asset = require_once dirname( NEWSPACK_PLUGIN_FILE ) . '/dist/content-banner.asset.php';
+			wp_enqueue_script( 'newspack-content-banner', Newspack::plugin_url() . '/dist/content-banner.js', $asset['dependencies'], NEWSPACK_PLUGIN_VERSION, true );
 			wp_localize_script(
-				'newspack-content-gifting',
+				'newspack-content-banner',
 				'newspack_content_gifting',
 				[
 					'ajax_url'     => add_query_arg(
