@@ -28,13 +28,6 @@ class Content_Gifting {
 	const GENERATE_ACTION = 'newspack_generate_content_key';
 
 	/**
-	 * The expiration time for the content key.
-	 *
-	 * @var int
-	 */
-	const KEY_EXPIRATION = 3600 * 24; // 24 hours
-
-	/**
 	 * The meta for content gifting, both enabled option and user keys.
 	 *
 	 * @var string
@@ -208,13 +201,15 @@ class Content_Gifting {
 	 */
 	public static function get_settings() {
 		return [
-			'enabled'      => self::is_enabled(),
-			'limit'        => self::get_gifting_limit(),
-			'interval'     => self::get_gifting_reset_interval(),
-			'cta_label'    => Content_Gifting_CTA::get_cta_label(),
-			'button_label' => Content_Gifting_CTA::get_button_label(),
-			'cta_url'      => Content_Gifting_CTA::get_cta_url(),
-			'style'        => Content_Gifting_CTA::get_style(),
+			'enabled'              => self::is_enabled(),
+			'limit'                => self::get_gifting_limit(),
+			'interval'             => self::get_gifting_reset_interval(),
+			'expiration_time'      => self::get_expiration_time(),
+			'expiration_time_unit' => self::get_expiration_time_unit(),
+			'cta_label'            => Content_Gifting_CTA::get_cta_label(),
+			'button_label'         => Content_Gifting_CTA::get_button_label(),
+			'cta_url'              => Content_Gifting_CTA::get_cta_url(),
+			'style'                => Content_Gifting_CTA::get_style(),
 		];
 	}
 
@@ -272,6 +267,114 @@ class Content_Gifting {
 			'day'   => __( 'Day', 'newspack-plugin' ),
 			'week'  => __( 'Week', 'newspack-plugin' ),
 			'month' => __( 'Month', 'newspack-plugin' ),
+		];
+	}
+
+	/**
+	 * Get expiration time.
+	 *
+	 * @return int The expiration time.
+	 */
+	public static function get_expiration_time() {
+		return (int) get_option( 'newspack_content_gifting_expiration_time', 5 );
+	}
+
+	/**
+	 * Set expiration time.
+	 *
+	 * @param int $expiration_time The expiration time.
+	 *
+	 * @return void
+	 */
+	public static function set_expiration_time( $expiration_time ) {
+		update_option( 'newspack_content_gifting_expiration_time', $expiration_time );
+	}
+
+	/**
+	 * Get expiration time unit.
+	 *
+	 * @return string The expiration time unit.
+	 */
+	public static function get_expiration_time_unit() {
+		return (string) get_option( 'newspack_content_gifting_expiration_time_unit', 'days' );
+	}
+
+	/**
+	 * Set expiration time unit.
+	 *
+	 * @param string $expiration_time_unit The expiration time unit.
+	 *
+	 * @return void|WP_Error The expiration time unit or an error.
+	 */
+	public static function set_expiration_time_unit( $expiration_time_unit ) {
+		$options = self::get_expiration_time_unit_options();
+		if ( ! isset( $options[ $expiration_time_unit ] ) ) {
+			return new WP_Error( 'invalid_time_unit', __( 'Must be one of the following: hours, days.', 'newspack-plugin' ) );
+		}
+		update_option( 'newspack_content_gifting_expiration_time_unit', $expiration_time_unit );
+	}
+
+	/**
+	 * Get expiration time in seconds.
+	 *
+	 * @return int The expiration time in seconds.
+	 */
+	public static function get_expiration_time_in_seconds() {
+		$expiration_time      = self::get_expiration_time();
+		$expiration_time_unit = self::get_expiration_time_unit();
+		switch ( $expiration_time_unit ) {
+			case 'hours':
+				return $expiration_time * HOUR_IN_SECONDS;
+			case 'days':
+				return $expiration_time * DAY_IN_SECONDS;
+			default:
+				return 0;
+		}
+	}
+
+	/**
+	 * Get expiration time label.
+	 *
+	 * @return string The expiration time label.
+	 */
+	public static function get_expiration_time_label() {
+		$time = self::get_expiration_time();
+		$unit = self::get_expiration_time_unit();
+
+		$unit_labels = [
+			'hours' => [
+				'singular' => __( 'hour', 'newspack-plugin' ),
+				'plural'   => __( 'hours', 'newspack-plugin' ),
+			],
+			'days'  => [
+				'singular' => __( 'day', 'newspack-plugin' ),
+				'plural'   => __( 'days', 'newspack-plugin' ),
+			],
+		];
+
+		if ( ! isset( $unit_labels[ $unit ] ) ) {
+			return '';
+		}
+
+		$labels = $unit_labels[ $unit ];
+		return sprintf(
+			// translators: %1$d is the expiration time, %2$s is the singular expiration time unit label, %3$s is the plural expiration time unit label.
+			_n( '%1$d %2$s', '%1$d %3$s', $time, 'newspack-plugin' ), // phpcs:ignore WordPress.WP.I18n.MismatchedPlaceholders
+			$time,
+			$labels['singular'],
+			$labels['plural']
+		);
+	}
+
+	/**
+	 * Get expiration time unit options.
+	 *
+	 * @return array The expiration time unit options.
+	 */
+	public static function get_expiration_time_unit_options() {
+		return [
+			'hours' => __( 'Hours', 'newspack-plugin' ),
+			'days'  => __( 'Days', 'newspack-plugin' ),
 		];
 	}
 
@@ -388,7 +491,13 @@ class Content_Gifting {
 		<p>
 			<?php
 			if ( ! is_wp_error( $key ) ) {
-				esc_html_e( 'Give someone 24-hour access to this article.', 'newspack-plugin' );
+				echo esc_html(
+					sprintf(
+						// translators: %s is the expiration time label.
+						__( 'Give someone access to this article for %s.', 'newspack-plugin' ),
+						self::get_expiration_time_label()
+					)
+				);
 			}
 			?>
 			<strong>
@@ -582,7 +691,7 @@ class Content_Gifting {
 			return false;
 		}
 
-		if ( $data['keys'][ $post_id ]['timestamp'] + self::KEY_EXPIRATION < time() ) {
+		if ( $data['keys'][ $post_id ]['timestamp'] + self::get_expiration_time_in_seconds() < time() ) {
 			return false;
 		}
 
@@ -647,7 +756,7 @@ class Content_Gifting {
 
 		// Cleanup expired keys.
 		foreach ( $user_data['keys'] as $key => $data ) {
-			if ( $data['timestamp'] + self::KEY_EXPIRATION < time() ) {
+			if ( $data['timestamp'] + self::get_expiration_time_in_seconds() < time() ) {
 				unset( $user_data['keys'][ $key ] );
 			}
 		}

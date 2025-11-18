@@ -132,9 +132,26 @@ class Test_Content_Gifting extends \WP_UnitTestCase {
 		$key = Content_Gifting::generate_key( $this->post_id );
 
 		// Manually change the timestamp to be right after the expiration time.
-		$expiration = Content_Gifting::KEY_EXPIRATION + 1;
+		$expiration = Content_Gifting::get_expiration_time_in_seconds() + 1;
 		$data = get_user_meta( $this->user_id, Content_Gifting::META, true );
 		$data['keys'][ $this->post_id ]['timestamp'] = time() - $expiration;
+		update_user_meta( $this->user_id, Content_Gifting::META, $data );
+
+		$data = Content_Gifting::get_key_data( $this->post_id, $key );
+		$this->assertEmpty( $data );
+	}
+
+	/**
+	 * Test get_key_data() with custom expiration time.
+	 */
+	public function test_get_key_data_custom_expiration_time() {
+		Content_Gifting::set_expiration_time( 1 );
+		Content_Gifting::set_expiration_time_unit( 'hours' );
+
+		$key = Content_Gifting::generate_key( $this->post_id );
+
+		$data = get_user_meta( $this->user_id, Content_Gifting::META, true );
+		$data['keys'][ $this->post_id ]['timestamp'] = time() - ( 60 * 60 * 2 ); // 2 hours ago.
 		update_user_meta( $this->user_id, Content_Gifting::META, $data );
 
 		$data = Content_Gifting::get_key_data( $this->post_id, $key );

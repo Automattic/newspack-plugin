@@ -619,6 +619,12 @@ class Audience_Wizard extends Wizard {
 			if ( isset( $args['content_gifting']['limit'] ) ) {
 				Content_Gifting::set_gifting_limit( (int) $args['content_gifting']['limit'] );
 			}
+			if ( isset( $args['content_gifting']['expiration_time'] ) ) {
+				Content_Gifting::set_expiration_time( (int) $args['content_gifting']['expiration_time'] );
+			}
+			if ( isset( $args['content_gifting']['expiration_time_unit'] ) ) {
+				Content_Gifting::set_expiration_time_unit( sanitize_text_field( $args['content_gifting']['expiration_time_unit'] ) );
+			}
 			if ( isset( $args['content_gifting']['interval'] ) ) {
 				Content_Gifting::set_gifting_reset_interval( sanitize_text_field( $args['content_gifting']['interval'] ) );
 			}
