@@ -327,10 +327,10 @@ class Contribution_Meter {
 	/**
 	 * Invalidate cached meter data when a donation order reaches a counted status.
 	 *
-	 * @param int        $order_id    Order ID.
-	 * @param string     $old_status  Previous status slug.
-	 * @param string     $new_status  New status slug.
-	 * @param \\WC_Order $order       Order object.
+	 * @param int       $order_id    Order ID.
+	 * @param string    $old_status  Previous status slug.
+	 * @param string    $new_status  New status slug.
+	 * @param \WC_Order $order       Order object.
 	 * @return void
 	 */
 	public static function maybe_update_cache_timestamp( $order_id, $old_status, $new_status, $order ) {
