@@ -54,9 +54,9 @@ class Contribution_Meter {
 	const MAX_END_DATE_RANGE_OPTION = 'newspack_contribution_meter_max_end_date_range';
 
 	/**
-	 * Cache key prefix for contribution meter data.
+	 * Cache group for contribution meter data.
 	 */
-	const CACHE_KEY_PREFIX = 'newspack_contribution_meter_';
+	const CACHE_GROUP = 'newspack_contribution_meter';
 
 	/**
 	 * Option used to invalidate cached meter data.
@@ -212,8 +212,8 @@ class Contribution_Meter {
 		$end_date = $end_obj->format( 'Y-m-d' );
 
 		// Generate cache key including end date for automatic invalidation when range changes.
-		$cache_key = self::CACHE_KEY_PREFIX . $start_date . '_' . $end_date . '_' . get_option( self::CACHE_TIMESTAMP_OPTION, 0 );
-		$cached    = wp_cache_get( $cache_key, self::CACHE_KEY_PREFIX );
+		$cache_key = $start_date . '_' . $end_date . '_' . get_option( self::CACHE_TIMESTAMP_OPTION, 0 );
+		$cached    = wp_cache_get( $cache_key, self::CACHE_GROUP );
 
 		if ( false !== $cached ) {
 			return $cached;
@@ -230,7 +230,7 @@ class Contribution_Meter {
 		];
 
 		// Cache until invalidated via timestamp option.
-		wp_cache_set( $cache_key, $data, self::CACHE_KEY_PREFIX );
+		wp_cache_set( $cache_key, $data, self::CACHE_GROUP );
 
 		return $data;
 	}
