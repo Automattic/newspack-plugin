@@ -257,6 +257,11 @@ class Metering {
 			return false;
 		}
 
+		// Not in checkout modals.
+		if ( method_exists( 'Newspack_Blocks\Modal_Checkout', 'is_modal_checkout' ) && \Newspack_Blocks\Modal_Checkout::is_modal_checkout() ) {
+			return false;
+		}
+
 		$gate_post_id = Content_Gate::get_gate_post_id();
 		$metering     = \get_post_meta( $gate_post_id, 'metering', true );
 		$priority     = \get_post_meta( $gate_post_id, 'gate_priority', true );

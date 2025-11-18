@@ -34,7 +34,7 @@ domReady( () => {
 	setBodyOffset();
 
 	// Countdown banner.
-	window.newspackRAS.push( ras => {
+	window.newspackRAS?.push( ras => {
 		const views = document.querySelector( '.newspack-countdown-banner__views' );
 		if ( ! views || '0' !== views.textContent ) {
 			return;
