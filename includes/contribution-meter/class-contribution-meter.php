@@ -211,12 +211,22 @@ class Contribution_Meter {
 
 		$end_date = $end_obj->format( 'Y-m-d' );
 
-		// Generate cache key including end date for automatic invalidation when range changes.
+		// Generate cache key including timestamp for automatic invalidation when donations change.
 		$cache_key = $start_date . '_' . $end_date . '_' . get_option( self::CACHE_TIMESTAMP_OPTION, 0 );
 		$cached    = wp_cache_get( $cache_key, self::CACHE_GROUP );
 
 		if ( false !== $cached ) {
 			return $cached;
+		}
+
+		// Fallback to transient for environments without persistent object cache.
+		$has_persistent_cache = wp_using_ext_object_cache();
+		if ( ! $has_persistent_cache ) {
+			$cached = get_transient( self::CACHE_GROUP . '_' . $cache_key );
+
+			if ( false !== $cached ) {
+				return $cached;
+			}
 		}
 
 		$amount_raised = self::get_donation_revenue( $start_date, $end_date );
@@ -229,8 +239,11 @@ class Contribution_Meter {
 			'amountRaised' => $amount_raised,
 		];
 
-		// Cache until invalidated via timestamp option.
 		wp_cache_set( $cache_key, $data, self::CACHE_GROUP );
+
+		if ( ! $has_persistent_cache ) {
+			set_transient( self::CACHE_GROUP . '_' . $cache_key, $data, DAY_IN_SECONDS );
+		}
 
 		return $data;
 	}
