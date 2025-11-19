@@ -90,6 +90,10 @@ body.newspack-has-countdown-banner .site {
 				}
 			}
 
+			&__message {
+				color: var(--newspack-content-banner-message-color, inherit);
+			}
+
 			.newspack-ui__button {
 				width: 100%;
 
@@ -97,9 +101,14 @@ body.newspack-has-countdown-banner .site {
 					width: auto;
 				}
 			}
+
+			strong {
+				font-weight: 600;
+			}
 		}
 
 		&.is-style-light {
+			--newspack-content-banner-message-color: var(--newspack-ui-color-neutral-60);
 			background: var(--newspack-ui-color-neutral-0);
 			color: var(--newspack-ui-color-neutral-90);
 		}
@@ -112,6 +121,7 @@ body.newspack-has-countdown-banner .site {
 		.newspack-wizard & {
 			box-shadow: none;
 			position: relative;
+			z-index: 0;
 
 			&-preview {
 				border: 1px solid var(--wp-components-color-gray-600, #{wp-colors.$gray-600});

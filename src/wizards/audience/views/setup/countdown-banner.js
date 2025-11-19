@@ -83,10 +83,10 @@ export default function CountdownBanner( { config, setConfig, updateConfig } ) {
 													<span className="newspack-countdown-banner__cta__content__countdown newspack-ui__font--s">
 														<strong>{ __( '1/10 free articles this month', 'newspack-plugin' ) }</strong>
 													</span>
-													<span className="newspack-countdown-banner__cta__content__message newspack-ui__font--s">
+													<span className="newspack-countdown-banner__cta__content__message newspack-ui__font--xs">
 														{ config.countdown_banner.cta_label ||
 															__( 'Subscribe now and get unlimited access.', 'newspack-plugin' ) }{ ' ' }
-														<a href="#signin_modal">{ __( 'Sign in to an existing account', 'newspack-plugin' ) }</a>
+														<a href="#signin_modal">{ __( 'Sign in to an existing account', 'newspack-plugin' ) }</a>.
 													</span>
 												</div>
 												<button
