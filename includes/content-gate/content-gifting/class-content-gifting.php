@@ -230,7 +230,7 @@ class Content_Gifting {
 	 * @return void
 	 */
 	public static function set_gifting_limit( $limit ) {
-		update_option( 'newspack_content_gifting_limit', $limit );
+		update_option( 'newspack_content_gifting_limit', $limit, false );
 	}
 
 	/**
@@ -254,7 +254,7 @@ class Content_Gifting {
 		if ( ! isset( $options[ $interval ] ) ) {
 			return new WP_Error( 'invalid_interval', __( 'Must be one of the following: day, week, month.', 'newspack-plugin' ) );
 		}
-		update_option( 'newspack_content_gifting_reset_interval', $interval );
+		update_option( 'newspack_content_gifting_reset_interval', $interval, false );
 	}
 
 	/**
@@ -287,7 +287,7 @@ class Content_Gifting {
 	 * @return void
 	 */
 	public static function set_expiration_time( $expiration_time ) {
-		update_option( 'newspack_content_gifting_expiration_time', $expiration_time );
+		update_option( 'newspack_content_gifting_expiration_time', $expiration_time, false );
 	}
 
 	/**
@@ -311,7 +311,7 @@ class Content_Gifting {
 		if ( ! isset( $options[ $expiration_time_unit ] ) ) {
 			return new WP_Error( 'invalid_time_unit', __( 'Must be one of the following: hours, days.', 'newspack-plugin' ) );
 		}
-		update_option( 'newspack_content_gifting_expiration_time_unit', $expiration_time_unit );
+		update_option( 'newspack_content_gifting_expiration_time_unit', $expiration_time_unit, false );
 	}
 
 	/**
