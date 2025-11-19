@@ -65,7 +65,7 @@ export default withWizardScreen( ( { wizardApiFetch } ) => {
 		return message;
 	};
 
-	const errors = Object.values( newspackAudience.content_gifting.can_use_gifting.errors );
+	const errors = Object.values( newspackAudience?.content_gifting?.can_use_gifting?.errors || {} );
 
 	return (
 		<WizardsTab
