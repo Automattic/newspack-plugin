@@ -428,15 +428,16 @@ class Content_Gifting {
 				'newspack-content-gifting',
 				'newspack_content_gifting',
 				[
-					'ajax_url'     => add_query_arg(
+					'ajax_url'        => add_query_arg(
 						[
 							'action' => self::GENERATE_ACTION,
 							'nonce'  => wp_create_nonce( self::GENERATE_ACTION ),
 						],
 						admin_url( 'admin-ajax.php' )
 					),
-					'post_id'      => get_the_ID(),
-					'copied_label' => __( 'Link copied', 'newspack-plugin' ),
+					'post_id'         => get_the_ID(),
+					'copied_label'    => __( 'Link copied', 'newspack-plugin' ),
+					'expiration_time' => self::get_expiration_time_in_seconds(),
 				]
 			);
 		}

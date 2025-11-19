@@ -86,7 +86,7 @@ export default withWizardScreen( ( { wizardApiFetch } ) => {
 			/>
 			<ActionCard
 				title={ __( 'Content Gifting', 'newspack-plugin' ) }
-				description={ __( 'Allow members to gift articles for 24 hours, up to the configured limit.', 'newspack-plugin' ) }
+				description={ __( 'Allow members to gift articles up to the configured limit.', 'newspack-plugin' ) }
 				toggleOnChange={ value => updateConfig( { content_gifting: { enabled: value } } ) }
 				toggleChecked={ config.content_gifting?.enabled }
 				hasGreyHeader={ config.content_gifting?.enabled }
