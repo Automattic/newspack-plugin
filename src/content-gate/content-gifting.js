@@ -80,9 +80,11 @@ domReady( () => {
 					linkContainer.style.display = 'block';
 					if ( ! data.key ) {
 						urlInput.disabled = true;
+						urlInput.style.pointerEvents = 'none';
 						copyButton.disabled = true;
 					} else {
 						urlInput.disabled = false;
+						delete urlInput.style.pointerEvents;
 						copyButton.disabled = false;
 					}
 				} )
