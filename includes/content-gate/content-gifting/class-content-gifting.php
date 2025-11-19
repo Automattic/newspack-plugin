@@ -161,10 +161,10 @@ class Content_Gifting {
 			return false;
 		}
 
-		if ( isset( $_COOKIE['wp_newspack_content_key'] ) ) {
-			$key = sanitize_text_field( $_COOKIE['wp_newspack_content_key'] ); // phpcs:ignore WordPressVIPMinimum.Variables.RestrictedVariables.cache_constraints___COOKIE
-		} elseif ( isset( $_GET[ self::QUERY_ARG ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( isset( $_GET[ self::QUERY_ARG ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			$key = sanitize_text_field( $_GET[ self::QUERY_ARG ] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		} elseif ( isset( $_COOKIE['wp_newspack_content_key'] ) ) {
+			$key = sanitize_text_field( $_COOKIE['wp_newspack_content_key'] ); // phpcs:ignore WordPressVIPMinimum.Variables.RestrictedVariables.cache_constraints___COOKIE
 		}
 		if ( ! $key ) {
 			return false;
