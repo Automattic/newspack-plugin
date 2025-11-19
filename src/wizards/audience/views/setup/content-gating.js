@@ -1,3 +1,4 @@
+/* global newspackAudience */
 /**
  * WordPress dependencies
  */
@@ -64,6 +65,8 @@ export default withWizardScreen( ( { wizardApiFetch } ) => {
 		return message;
 	};
 
+	const errors = Object.values( newspackAudience.content_gifting.can_use_gifting.errors );
+
 	return (
 		<WizardsTab
 			title={ __( 'Content Gating', 'newspack-plugin' ) }
@@ -94,6 +97,16 @@ export default withWizardScreen( ( { wizardApiFetch } ) => {
 			>
 				{ config.content_gifting?.enabled && (
 					<>
+						{ errors.length > 0 && <Notice noticeText={ errors.join( ', ' ) } isError /> }
+						{ ! errors.length && newspackAudience.content_gifting.metering_notice && (
+							<Notice
+								noticeText={ __(
+									'You have a content gate with metering enabled. Mind that metered articles are not eligible for gifting.',
+									'newspack-plugin'
+								) }
+								isWarning
+							/>
+						) }
 						<Grid columns={ 2 } rowGap={ 32 }>
 							<Heading level={ 4 } style={ { gridColumn: '1 / -1' } }>
 								{ __( 'General Settings', 'newspack-plugin' ) }
