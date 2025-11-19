@@ -68,26 +68,49 @@ class WooCommerce_Subscriptions {
 	/**
 	 * Get the label for a frequency.
 	 *
-	 * @param string $frequency Frequency.
+	 * @param string   $frequency Frequency.
+	 * @param int|null $interval  Optional interval. If not provided, the interval
+	 *                            can be extracted from the frequency string.
+	 *                            E.g. 'month_2' -> 2.
 	 *
 	 * @return string
 	 */
-	public static function get_frequency_label( $frequency ) {
-		$frequencies = [
-			'day'     => __( 'Daily', 'newspack-plugin' ),
-			'week'    => __( 'Weekly', 'newspack-plugin' ),
-			'week_2'  => __( 'Bi-Weekly', 'newspack-plugin' ),
-			'month'   => __( 'Monthly', 'newspack-plugin' ),
-			'month_3' => __( 'Quarterly', 'newspack-plugin' ),
-			'month_6' => __( 'Semi-Annually', 'newspack-plugin' ),
-			'year'    => __( 'Yearly', 'newspack-plugin' ),
+	public static function get_frequency_label( $frequency, $interval = null ) {
+		$parts    = explode( '_', $frequency );
+		$period   = $parts[0] ?? '';
+		$interval = $interval ?? ( isset( $parts[1] ) ? (int) $parts[1] : 1 );
+		$interval = $interval > 0 ? $interval : 1;
+
+		$single_labels = [
+			'day'   => __( 'Daily', 'newspack-plugin' ),
+			'week'  => __( 'Weekly', 'newspack-plugin' ),
+			'month' => __( 'Monthly', 'newspack-plugin' ),
+			'year'  => __( 'Yearly', 'newspack-plugin' ),
 		];
-		// If frequency is not in the array, try to find the frequency without the interval.
-		if ( ! isset( $frequencies[ $frequency ] ) ) {
-			$frequency = explode( '_', $frequency )[0];
-			$label = $frequencies[ $frequency ] ?? ucfirst( $frequency );
+
+		// phpcs:disable WordPress.WP.I18n.MissingTranslatorsComment
+		$multiple_templates = [
+			'day'   => __( '%s Days', 'newspack-plugin' ),
+			'week'  => __( '%s Weeks', 'newspack-plugin' ),
+			'month' => __( '%s Months', 'newspack-plugin' ),
+			'year'  => __( '%s Years', 'newspack-plugin' ),
+		];
+		// phpcs:enable
+
+		if ( 1 === $interval ) {
+			$label = $single_labels[ $period ] ?? ucfirst( $period );
+		} elseif ( isset( $multiple_templates[ $period ] ) ) {
+				$label = sprintf(
+					$multiple_templates[ $period ],
+					number_format_i18n( $interval )
+				);
 		} else {
-			$label = $frequencies[ $frequency ];
+			$label = sprintf(
+				// translators: 1: Subscription interval. 2: Subscription period.
+				__( '%1$s %2$ss', 'newspack-plugin' ),
+				number_format_i18n( $interval ),
+				ucfirst( $period )
+			);
 		}
 
 		/**

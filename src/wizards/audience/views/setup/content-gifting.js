@@ -22,7 +22,7 @@ export default function ContentGifting( { config, setConfig, updateConfig } ) {
 	return (
 		<ActionCard
 			title={ __( 'Content Gifting', 'newspack-plugin' ) }
-			description={ __( 'Allow members to gift articles for 24 hours, up to the configured limit.', 'newspack-plugin' ) }
+			description={ __( 'Allow members to gift articles up to the configured limit.', 'newspack-plugin' ) }
 			toggleOnChange={ value => updateConfig( { content_gifting: { enabled: value } } ) }
 			toggleChecked={ config.content_gifting?.enabled }
 			hasGreyHeader={ config.content_gifting?.enabled }
@@ -30,7 +30,7 @@ export default function ContentGifting( { config, setConfig, updateConfig } ) {
 		>
 			{ config.content_gifting?.enabled && (
 				<>
-					<Grid columns={ 2 } rowGap={ 16 }>
+					<Grid columns={ 2 } rowGap={ 32 }>
 						<Heading level={ 4 } style={ { gridColumn: '1 / -1' } }>
 							{ __( 'General Settings', 'newspack-plugin' ) }
 						</Heading>
@@ -55,8 +55,30 @@ export default function ContentGifting( { config, setConfig, updateConfig } ) {
 							] }
 							__next40pxDefaultSize
 						/>
+						<RangeControl
+							label={ __( 'Article link expiration time', 'newspack-plugin' ) }
+							help={ __( 'Time after which the article link expires.', 'newspack-plugin' ) }
+							min={ 1 }
+							max={ 60 }
+							value={ config.content_gifting.expiration_time || 5 }
+							onChange={ value => setConfig( { ...config, content_gifting: { ...config.content_gifting, expiration_time: value } } ) }
+							__next40pxDefaultSize
+						/>
+						<SelectControl
+							label={ __( 'Article link expiration time unit', 'newspack-plugin' ) }
+							help={ __( 'Unit of time for the article link expiration time.', 'newspack-plugin' ) }
+							value={ config.content_gifting.expiration_time_unit || 'days' }
+							onChange={ value =>
+								setConfig( { ...config, content_gifting: { ...config.content_gifting, expiration_time_unit: value } } )
+							}
+							options={ [
+								{ value: 'hours', label: __( 'Hours', 'newspack-plugin' ) },
+								{ value: 'days', label: __( 'Days', 'newspack-plugin' ) },
+							] }
+							__next40pxDefaultSize
+						/>
 					</Grid>
-					<Grid columns={ 2 } rowGap={ 16 }>
+					<Grid columns={ 2 } rowGap={ 32 }>
 						<Heading level={ 4 } style={ { gridColumn: '1 / -1' } }>
 							{ __( 'Recipient Banner', 'newspack-plugin' ) }
 						</Heading>
