@@ -175,9 +175,25 @@ class Metering_Countdown {
 							<strong>
 							<?php
 								echo wp_kses_post(
-									sprintf(
-										/* translators: 1: current number of metered views, 2: total metered views, 3: the metering period. */
-										__( '<span class="newspack-countdown-banner__views">%1$d</span>/<span class="newspack-countdown-banner__total_views">%2$d</span> free articles this %3$s', 'newspack-plugin' ),
+									/**
+									 * Filter the countdown message that shows how many metered articles the user has viewed.
+									 * Sanitized via wp_kses_post, so basic HTML is allowed.
+									 *
+									 * @param string $message The countdown message HTML string.
+									 * @param int $views The current number of metered views.
+									 * @param int $total_views The total number of allowed views per period.
+									 * @param string $metering_period The metering period.
+									 * @return string The filtered countdown message HTML string.
+									 */
+									apply_filters(
+										'newspack_countdown_banner_countdown_message',
+										sprintf(
+											/* translators: 1: current number of metered views, 2: total metered views, 3: the metering period. */
+											__( '<span class="newspack-countdown-banner__views">%1$d</span>/<span class="newspack-countdown-banner__total_views">%2$d</span> free articles this %3$s', 'newspack-plugin' ),
+											$views,
+											$total_views,
+											Metering::get_metering_period()
+										),
 										$views,
 										$total_views,
 										Metering::get_metering_period()
