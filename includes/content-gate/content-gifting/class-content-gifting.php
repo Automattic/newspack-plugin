@@ -397,19 +397,23 @@ class Content_Gifting {
 		}
 
 		// Check whether all gates have metering enabled.
-		$all_gates_have_metering = false;
-		$gates = Content_Gate::get_gates();
+		$gates = array_filter(
+			Content_Gate::get_gates(),
+			function( $gate ) {
+				return $gate['status'] === 'publish';
+			}
+		);
 		if ( ! empty( $gates ) ) {
 			$all_gates_have_metering = true;
 			foreach ( $gates as $gate ) {
-				if ( $gate['status'] === 'publish' && isset( $gate['metering'] ) && ! $gate['metering']['enabled'] ) {
+				if ( ! isset( $gate['metering']['enabled'] ) || ! $gate['metering']['enabled'] ) {
 					$all_gates_have_metering = false;
 					break;
 				}
 			}
-		}
-		if ( $all_gates_have_metering ) {
-			$errors->add( 'all_gates_have_metering', __( 'Content gifting is not available because all gates have metering enabled.', 'newspack-plugin' ) );
+			if ( $all_gates_have_metering ) {
+				$errors->add( 'all_gates_have_metering', __( 'Content gifting is not available because all gates have metering enabled.', 'newspack-plugin' ) );
+			}
 		}
 
 		if ( $return_errors ) {
