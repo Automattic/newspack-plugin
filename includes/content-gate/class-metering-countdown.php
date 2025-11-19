@@ -204,7 +204,7 @@ class Metering_Countdown {
 						</span>
 						<span class="newspack-countdown-banner__cta__content__message newspack-ui__font--xs">
 							<?php echo esc_html( $settings['cta_label'] ); ?>
-							<a href="#signin_modal"><?php echo esc_html( __( 'Sign in to an existing account', 'newspack-plugin' ) ); ?></a>
+							<a href="#signin_modal"><?php echo esc_html( __( 'Sign in to an existing account', 'newspack-plugin' ) ); ?></a>.
 						</span>
 					</div>
 					<?php self::print_subscribe_button(); ?>

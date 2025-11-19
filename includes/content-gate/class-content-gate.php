@@ -398,7 +398,7 @@ class Content_Gate {
 				'gate_plans'         => Memberships::get_gate_plans( get_the_ID() ),
 				'edit_plan_gate_url' => Memberships::get_edit_plan_gate_url(),
 				'post_types'         => self::get_available_post_types(),
-				'available_products' => Access_Rules::get_subscription_products_options(),
+				'access_rules'       => Access_Rules::get_access_rules(),
 			]
 		);
 
