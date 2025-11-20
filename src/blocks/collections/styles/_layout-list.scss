@@ -175,6 +175,10 @@
 	}
 
 	.wp-block-newspack-collections.layout-list {
-		margin-bottom: 64px;
+		margin-bottom: 32px;
+
+		@media #{bp.$media-lg-up} {
+			margin-bottom: 64px;
+		}
 	}
 }
