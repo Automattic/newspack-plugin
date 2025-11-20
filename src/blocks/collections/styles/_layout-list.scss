@@ -170,7 +170,11 @@
 
 /* Single Collection styles */
 .single-newspack_collection {
+	&.has-sidebar .site-main {
+		display: block;
+	}
+
 	.wp-block-newspack-collections.layout-list {
-		margin-bottom: 32px;
+		margin-bottom: 64px;
 	}
 }
