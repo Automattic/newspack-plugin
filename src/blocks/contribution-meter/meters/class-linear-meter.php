@@ -36,15 +36,21 @@ class Linear_Meter implements Meter {
 
 		// Determine text alignment class based on what's displayed.
 		$text_align_class = '';
-		if ( $attributes['showPercentage'] && ! $attributes['showGoal'] && ! $attributes['showAmountRaised'] ) {
-			$text_align_class = ' contribution-meter__text--center';
-		} elseif ( ! $attributes['showAmountRaised'] && $attributes['showGoal'] && ! $attributes['showPercentage'] ) {
+		if (
+			( $attributes['showPercentage'] && ! $attributes['showGoal'] && ! $attributes['showAmountRaised'] ) ||
+			( ! $attributes['showAmountRaised'] && $attributes['showGoal'] && ! $attributes['showPercentage'] )
+		) {
 			$text_align_class = ' contribution-meter__text--right';
 		}
+		$text_style = '';
+		if ( $attributes['showPercentage'] && ! $attributes['showGoal'] && ! $attributes['showAmountRaised'] ) {
+			$text_style = $progress_style;
+		}
+
 		?>
 		<div class="contribution-meter__linear">
 			<?php if ( $has_any_text ) : ?>
-				<div class="contribution-meter__text<?php echo esc_attr( $text_align_class ); ?>">
+				<div class="contribution-meter__text<?php echo esc_attr( $text_align_class ); ?>"<?php $text_style && printf( ' style="%s"', esc_attr( $text_style ) ); ?>>
 					<?php // Percentage comes first when: Goal + Percentage (no raised). ?>
 					<?php if ( $attributes['showPercentage'] && ! $attributes['showAmountRaised'] && $attributes['showGoal'] ) : ?>
 						<span class="contribution-meter__percentage">
