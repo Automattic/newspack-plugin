@@ -34,9 +34,9 @@ class Contribution_Meter {
 
 	/**
 	 * Default data collection end date range (relative to today).
-	 * E.g., '-1 day' means collect up to yesterday, excluding today.
+	 * E.g., 'today' means collect up to end of today, including today.
 	 */
-	const DEFAULT_END_DATE_RANGE = '-1 day';
+	const DEFAULT_END_DATE_RANGE = 'today';
 
 	/**
 	 * End date range option name.
@@ -54,15 +54,21 @@ class Contribution_Meter {
 	const MAX_END_DATE_RANGE_OPTION = 'newspack_contribution_meter_max_end_date_range';
 
 	/**
-	 * Cache key prefix for contribution meter data.
+	 * Cache group for contribution meter data.
 	 */
-	const CACHE_KEY_PREFIX = 'newspack_contribution_meter_';
+	const CACHE_GROUP = 'newspack_contribution_meter';
+
+	/**
+	 * Option used to invalidate cached meter data.
+	 */
+	const CACHE_TIMESTAMP_OPTION = 'newspack_contribution_meter_last_cache_timestamp';
 
 	/**
 	 * Initialize hooks and REST API endpoints.
 	 */
 	public static function init() {
 		add_action( 'rest_api_init', [ __CLASS__, 'register_rest_routes' ] );
+		add_action( 'woocommerce_order_status_changed', [ __CLASS__, 'maybe_update_cache_timestamp' ], 10, 4 );
 	}
 
 	/**
@@ -189,33 +195,38 @@ class Contribution_Meter {
 	 * @return array|\WP_Error Array of contribution data or WP_Error on failure.
 	 */
 	public static function get_contribution_data( $start_date, $end_date = null ) {
-		// Get the system default end date (e.g., '-1 day' means yesterday).
-		$end_date_range = get_option( self::END_DATE_RANGE_OPTION, self::DEFAULT_END_DATE_RANGE );
-		$yesterday      = new \DateTime( $end_date_range, wp_timezone() );
+		$timezone    = wp_timezone();
+		$start_obj   = new \DateTime( $start_date, $timezone );
+		$end_cap     = new \DateTime( get_option( self::END_DATE_RANGE_OPTION, self::DEFAULT_END_DATE_RANGE ), $timezone );
+		$max_end_obj = ( clone $start_obj )->modify( get_option( self::MAX_END_DATE_RANGE_OPTION, self::DEFAULT_MAX_END_DATE_RANGE ) );
+		$cap_end_obj = $max_end_obj < $end_cap ? $max_end_obj : $end_cap;
 
-		// Determine the final end date.
-		if ( ! empty( $end_date ) ) {
-			// User provided an end date - use the minimum of (yesterday, user's end date).
-			$user_end_date_obj = new \DateTime( $end_date, wp_timezone() );
-			$end_date          = ( $user_end_date_obj < $yesterday ) ? $end_date : $yesterday->format( 'Y-m-d' );
-		} else {
-			// No user end date - apply the default max range from start date.
-			$max_end_date_range = get_option( self::MAX_END_DATE_RANGE_OPTION, self::DEFAULT_MAX_END_DATE_RANGE );
-
-			// Calculate maximum allowed end date from start date + max range (e.g., start date + 6 months).
-			$max_allowed_end_date = new \DateTime( $start_date, wp_timezone() );
-			$max_allowed_end_date->modify( $max_end_date_range );
-
-			// Use the minimum between yesterday and the maximum allowed end date.
-			$end_date = ( $max_allowed_end_date < $yesterday ) ? $max_allowed_end_date->format( 'Y-m-d' ) : $yesterday->format( 'Y-m-d' );
+		$end_obj = ! empty( $end_date ) ? new \DateTime( $end_date, $timezone ) : clone $cap_end_obj;
+		if ( $end_obj > $cap_end_obj ) {
+			$end_obj = clone $cap_end_obj;
+		}
+		if ( $end_obj < $start_obj ) {
+			$end_obj = clone $start_obj;
 		}
 
-		// Generate cache key including end date for automatic invalidation when range changes.
-		$cache_key = self::CACHE_KEY_PREFIX . md5( $start_date . '_' . $end_date );
-		$cached    = get_transient( $cache_key );
+		$end_date = $end_obj->format( 'Y-m-d' );
+
+		// Generate cache key including timestamp for automatic invalidation when donations change.
+		$cache_key = $start_date . '_' . $end_date . '_' . get_option( self::CACHE_TIMESTAMP_OPTION, 0 );
+		$cached    = wp_cache_get( $cache_key, self::CACHE_GROUP );
 
 		if ( false !== $cached ) {
 			return $cached;
+		}
+
+		// Fallback to transient for environments without persistent object cache.
+		$has_persistent_cache = wp_using_ext_object_cache();
+		if ( ! $has_persistent_cache ) {
+			$cached = get_transient( self::CACHE_GROUP . '_' . $cache_key );
+
+			if ( false !== $cached ) {
+				return $cached;
+			}
 		}
 
 		$amount_raised = self::get_donation_revenue( $start_date, $end_date );
@@ -228,8 +239,11 @@ class Contribution_Meter {
 			'amountRaised' => $amount_raised,
 		];
 
-		// Cache for 24 hours since we're querying historical (immutable) data.
-		set_transient( $cache_key, $data, DAY_IN_SECONDS );
+		wp_cache_set( $cache_key, $data, self::CACHE_GROUP );
+
+		if ( ! $has_persistent_cache ) {
+			set_transient( self::CACHE_GROUP . '_' . $cache_key, $data, DAY_IN_SECONDS );
+		}
 
 		return $data;
 	}
@@ -321,6 +335,37 @@ class Contribution_Meter {
 		} while ( $page <= $max_pages );
 
 		return $total_revenue;
+	}
+
+	/**
+	 * Invalidate cached meter data when a donation order reaches a counted status.
+	 *
+	 * @param int       $order_id    Order ID.
+	 * @param string    $old_status  Previous status slug.
+	 * @param string    $new_status  New status slug.
+	 * @param \WC_Order $order       Order object.
+	 * @return void
+	 */
+	public static function maybe_update_cache_timestamp( $order_id, $old_status, $new_status, $order ) {
+		/**
+		 * Filter the statuses that trigger cache timestamp update.
+		 *
+		 * @param array $relevant_statuses Array of statuses.
+		 */
+		$relevant_statuses = apply_filters( 'newspack_contribution_meter_order_statuses', [ 'completed', 'processing' ] );
+		if ( ! in_array( $new_status, $relevant_statuses, true ) ) {
+			return;
+		}
+
+		if ( ! $order && function_exists( 'wc_get_order' ) ) {
+			$order = wc_get_order( $order_id );
+		}
+
+		if ( ! $order || ! Donations::is_donation_order( $order ) ) {
+			return;
+		}
+
+		update_option( self::CACHE_TIMESTAMP_OPTION, time(), false );
 	}
 
 	/**

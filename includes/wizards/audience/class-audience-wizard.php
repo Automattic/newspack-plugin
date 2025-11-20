@@ -107,6 +107,11 @@ class Audience_Wizard extends Wizard {
 
 		$data['is_skipped_campaign_setup'] = Reader_Activation::is_skipped( 'ras_campaign' );
 
+		$data['content_gifting'] = [
+			'can_use_gifting' => Content_Gifting::can_use_gifting( true ),
+			'metering_notice' => Content_Gifting::should_render_metering_notice(),
+		];
+
 		wp_enqueue_script( 'newspack-wizards' );
 
 		wp_localize_script(
@@ -618,6 +623,12 @@ class Audience_Wizard extends Wizard {
 			}
 			if ( isset( $args['content_gifting']['limit'] ) ) {
 				Content_Gifting::set_gifting_limit( (int) $args['content_gifting']['limit'] );
+			}
+			if ( isset( $args['content_gifting']['expiration_time'] ) ) {
+				Content_Gifting::set_expiration_time( (int) $args['content_gifting']['expiration_time'] );
+			}
+			if ( isset( $args['content_gifting']['expiration_time_unit'] ) ) {
+				Content_Gifting::set_expiration_time_unit( sanitize_text_field( $args['content_gifting']['expiration_time_unit'] ) );
 			}
 			if ( isset( $args['content_gifting']['interval'] ) ) {
 				Content_Gifting::set_gifting_reset_interval( sanitize_text_field( $args['content_gifting']['interval'] ) );

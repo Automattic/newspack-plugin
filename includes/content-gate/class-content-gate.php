@@ -772,6 +772,7 @@ class Content_Gate {
 
 		return [
 			'id'            => $post->ID,
+			'status'        => $post->post_status,
 			'title'         => $post->post_title,
 			'description'   => $post->post_excerpt,
 			'metering'      => Metering::get_metering_settings( $post->ID ),
