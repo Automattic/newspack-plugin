@@ -66,6 +66,14 @@
 	.woocommerce-error {
 		@extend .newspack-ui__notice--error;
 	}
+	.woocommerce-NoticeGroup {
+		.newspack-wc-message,
+		.woocommerce-message,
+		.woocommerce-info,
+		.woocommerce-error {
+			border: none !important;
+		}
+	}
 }
 
 /** See #3292. */
