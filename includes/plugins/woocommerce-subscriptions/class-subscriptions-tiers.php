@@ -606,9 +606,18 @@ class Subscriptions_Tiers {
 		// If the user has an active subscription and this is not a switch, render
 		// the existing subscription info.
 		if ( $user_subscription && empty( $switch_data ) ) {
-			$is_limited  = function_exists( 'wcs_is_product_limited_for_user' ) ? wcs_is_product_limited_for_user( $current_product->get_id(), get_current_user_id() ) : false;
-			$is_giftable = class_exists( 'WCSG_Product' ) && method_exists( 'WCSG_Product', 'is_giftable' ) ? \WCSG_Product::is_giftable( $current_product->get_id() ) : false;
-			$render_form = ! $is_limited || $is_giftable;
+			$is_limited = function_exists( 'wcs_is_product_limited_for_user' ) ? wcs_is_product_limited_for_user( $current_product->get_id(), get_current_user_id() ) : false;
+
+			/**
+			 * Woo Subscriptions Gifting doesn't work well with the subscription limiter functionality.
+			 * For now, we're not doing a workaround to allow gifting of a limited subscription product.
+			 *
+			 * phpcs:disable Squiz.Commenting.InlineComment.InvalidEndChar, Squiz.PHP.CommentedOutCode.Found
+			 *
+			 * For future reference: $is_giftable = class_exists( 'WCSG_Product' ) && method_exists( 'WCSG_Product', 'is_giftable' ) ? \WCSG_Product::is_giftable( $current_product->get_id() ) : false;
+			 */
+			$render_form = ! $is_limited; // || $is_giftable;
+			// phpcs:enable
 
 			self::render_existing_subscription_info( $current_product, $user_subscription, ! $render_form );
 			if ( ! $render_form ) {
