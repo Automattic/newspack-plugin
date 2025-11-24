@@ -162,6 +162,8 @@ class My_Account_UI_V1 {
 				return __DIR__ . '/templates/v1/payment-information.php';
 			case 'myaccount/form-edit-address.php':
 				return __DIR__ . '/templates/v1/form-edit-address.php';
+			case 'myaccount/my-subscriptions.php':
+				return __DIR__ . '/templates/v1/my-subscriptions.php';
 			default:
 				return $template;
 		}
