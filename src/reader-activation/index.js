@@ -418,10 +418,7 @@ function attachNewsletterFormListener() {
 
 	// Gravity forms handlers.
 	document.addEventListener( 'gform/post_render', event => {
-		if ( gformIds.includes( event.detail.formId ) ) {
-			if ( ! window.gform ) {
-				return;
-			}
+		if ( window.gform?.utils?.addAsyncFilter && gformIds.includes( event.detail?.formId ) ) {
 			gform.utils.addAsyncFilter( 'gform/submission/pre_submission', async data => {
 				store.set( 'is_newsletter_subscriber', true );
 				return data;
