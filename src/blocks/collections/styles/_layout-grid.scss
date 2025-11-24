@@ -5,8 +5,6 @@
 	&.layout-grid {
 		display: grid;
 		gap: 32px;
-		margin-top: 32px;
-
 
 		// Mobile first: 2 columns.
 		&:not(.columns-1) {
@@ -69,3 +67,9 @@
 	}
 }
 
+/* Archive specific styles */
+.post-type-archive-newspack_collection {
+	.wp-block-newspack-collections.layout-grid {
+		margin-top: 32px;
+	}
+}

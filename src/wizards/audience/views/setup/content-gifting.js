@@ -1,3 +1,5 @@
+/* global newspackAudience */
+
 /**
  * WordPress dependencies
  */
@@ -16,9 +18,11 @@ import {
 	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
 	__experimentalToggleGroupControlOption as ToggleGroupControlOption,
 } from '@wordpress/components';
-import { ActionCard, Grid } from '../../../../../packages/components/src';
+import { ActionCard, Grid, Notice } from '../../../../../packages/components/src';
 
 export default function ContentGifting( { config, setConfig, updateConfig } ) {
+	const giftingErrors = Object.values( newspackAudience?.content_gifting?.can_use_gifting?.errors || {} ).flat();
+
 	return (
 		<ActionCard
 			title={ __( 'Content Gifting', 'newspack-plugin' ) }
@@ -30,6 +34,16 @@ export default function ContentGifting( { config, setConfig, updateConfig } ) {
 		>
 			{ config.content_gifting?.enabled && (
 				<>
+					{ giftingErrors.length > 0 && <Notice noticeText={ giftingErrors.join( ', ' ) } isError /> }
+					{ ! giftingErrors.length && newspackAudience.content_gifting.metering_notice && (
+						<Notice
+							noticeText={ __(
+								'You have a content gate with metering enabled. Mind that metered articles are not eligible for gifting.',
+								'newspack-plugin'
+							) }
+							isWarning
+						/>
+					) }
 					<Grid columns={ 2 } rowGap={ 32 }>
 						<Heading level={ 4 } style={ { gridColumn: '1 / -1' } }>
 							{ __( 'General Settings', 'newspack-plugin' ) }

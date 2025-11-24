@@ -35,16 +35,16 @@ const LinearMeter = ( { amountRaised, goal, percentage, showGoal, showAmountRais
 
 	// Determine text alignment class based on what's displayed.
 	let textAlignClass = '';
-	if ( showPercentage && ! showGoal && ! showAmountRaised ) {
-		textAlignClass = 'contribution-meter__text--center';
-	} else if ( ! showAmountRaised && showGoal && ! showPercentage ) {
+	if ( ( showPercentage && ! showGoal && ! showAmountRaised ) || ( ! showAmountRaised && showGoal && ! showPercentage ) ) {
 		textAlignClass = 'contribution-meter__text--right';
 	}
+
+	const textStyle = showPercentage && ! showGoal && ! showAmountRaised ? { width: progressStyle.width } : undefined;
 
 	return (
 		<div className="contribution-meter__linear">
 			{ hasAnyTextDisplay && (
-				<div className={ `contribution-meter__text ${ textAlignClass }` }>
+				<div className={ `contribution-meter__text ${ textAlignClass }` } style={ textStyle }>
 					{ /* Percentage comes first when: Goal + Percentage (no raised) */ }
 					{ showPercentage && ! showAmountRaised && showGoal && <span className="contribution-meter__percentage">{ percentage }%</span> }
 
