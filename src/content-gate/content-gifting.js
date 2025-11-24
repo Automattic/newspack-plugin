@@ -80,9 +80,11 @@ domReady( () => {
 					linkContainer.style.display = 'block';
 					if ( ! data.key ) {
 						urlInput.disabled = true;
+						urlInput.style.pointerEvents = 'none';
 						copyButton.disabled = true;
 					} else {
 						urlInput.disabled = false;
+						delete urlInput.style.pointerEvents;
 						copyButton.disabled = false;
 					}
 				} )
@@ -102,7 +104,7 @@ domReady( () => {
 	const params = new URLSearchParams( window.location.search );
 	const contentKey = params.get( 'content_key' );
 	if ( contentKey ) {
-		document.cookie = `wp_newspack_content_key=${ contentKey }; path=/; max-age=${ 24 * 60 * 60 }`; // 24 hours
+		document.cookie = `wp_newspack_content_key=${ contentKey }; path=/; max-age=${ newspack_content_gifting.expiration_time }`;
 		params.delete( 'content_key' );
 		window.history.replaceState( {}, '', window.location.pathname + ( params.toString() ? '?' + params.toString() : '' ) );
 	}
