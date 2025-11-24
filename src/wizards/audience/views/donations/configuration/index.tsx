@@ -14,7 +14,6 @@ import { useWizardData } from '../../../../../../packages/components/src/wizard/
 import { WIZARD_STORE_NAMESPACE } from '../../../../../../packages/components/src/wizard/store';
 import WizardsTab from '../../../../wizards-tab';
 import { AUDIENCE_DONATIONS_WIZARD_SLUG } from '../../../constants';
-import { CoverFeesSettings } from '../../../components/cover-fees-settings';
 
 type FrequencySlug = 'once' | 'month' | 'year';
 
@@ -327,7 +326,6 @@ const Donation = () => {
 					{ __( 'Save Settings', 'newspack-plugin' ) }
 				</Button>
 			</div>
-			<CoverFeesSettings />
 		</WizardsTab>
 	);
 };

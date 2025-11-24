@@ -26,6 +26,7 @@
 			background-color 125ms ease-in-out,
 			border-color 125ms ease-in-out,
 			outline 125ms ease-in-out;
+		white-space: nowrap;
 
 		&:last-child {
 			margin-bottom: 0;
@@ -102,6 +103,21 @@
 			}
 		}
 
+		&--primary-light {
+			background: var(--newspack-ui-color-neutral-0);
+			color: var(--newspack-ui-color-neutral-90);
+
+			&:hover {
+				background: var(--newspack-ui-color-neutral-5);
+				color: var(--newspack-ui-color-neutral-90);
+			}
+
+			&:disabled {
+				background: var(---newspack-ui-color-neutral-0) !important;
+				color: var(--newspack-ui-color-neutral-30) !important;
+			}
+		}
+
 		&--accent,
 		&--branded {
 			background: var(--newspack-ui-color-primary);
@@ -138,6 +154,7 @@
 		}
 
 		&--ghost,
+		&--ghost-light,
 		&--outline {
 			background: transparent;
 			color: var(---newspack-ui-color-neutral-90);
@@ -150,6 +167,14 @@
 			&:disabled {
 				background: transparent !important;
 				color: var(--newspack-ui-color-neutral-30) !important;
+			}
+		}
+
+		&--ghost-light {
+			color: var(--newspack-ui-color-neutral-60);
+
+			&:hover {
+				color: var(--newspack-ui-color-neutral-60);
 			}
 		}
 

@@ -156,14 +156,15 @@ class ComponentsDemo extends Component {
 					<Card>
 						<h2>{ __( 'Web Previews', 'newspack-plugin' ) }</h2>
 						<Card buttonsCard noBorder className="items-center">
-							<WebPreview url="//newspack.com/" label={ __( 'Preview Newspack Blog', 'newspack-plugin' ) } variant="primary" />
+							<WebPreview url="//newspack.com/" label={ __( 'Preview Newspack Site', 'newspack-plugin' ) } variant="primary" />
 							<WebPreview
 								url="//newspack.com/"
 								renderButton={ ( { showPreview } ) => (
 									<a href="#" onClick={ showPreview }>
-										{ __( 'Preview Newspack Blog', 'newspack-plugin' ) }
+										{ __( 'Preview Newspack Site', 'newspack-plugin' ) }
 									</a>
 								) }
+								title={ __( 'Preview Newspack Site', 'newspack-plugin' ) }
 							/>
 						</Card>
 					</Card>

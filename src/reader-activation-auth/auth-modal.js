@@ -1,6 +1,7 @@
 /* globals newspack_reader_activation_labels */
 export const SIGN_IN_MODAL_HASHES = [ 'signin_modal', 'register_modal' ];
 import * as a11y from './accessibility.js';
+
 /**
  * Get the authentication modal container.
  *
@@ -8,6 +9,22 @@ import * as a11y from './accessibility.js';
  */
 export function getModalContainer() {
 	return document.querySelector( '.newspack-reader-auth-modal .newspack-reader-auth' );
+}
+
+/**
+ * Add a callback to be called when the auth form is ready.
+ *
+ * @param {Function} callback The callback to call when the auth form is ready.
+ *
+ * @return {void}
+ */
+export function onAuthFormReady( callback ) {
+	// If the auth form is already ready, call the callback immediately.
+	if ( document._newspackReaderAuthFormReady ) {
+		callback();
+		return;
+	}
+	document.addEventListener( 'newspack-reader-auth-form-ready', callback );
 }
 
 /**
@@ -163,12 +180,15 @@ export function openAuthModal( config = {} ) {
 	if ( config.initialState ) {
 		initialFormAction = config.initialState;
 	}
-	container.setFormAction( initialFormAction, true );
 
-	// Default to signin action if otp and timer has expired.
-	if ( initialFormAction === 'otp' && window?.newspackReaderActivation?.getOTPTimeRemaining() <= 0 ) {
-		container.setFormAction( 'signin' );
-	}
+	onAuthFormReady( () => {
+		container.setFormAction( initialFormAction, true );
+		// Default to signin action if otp and timer has expired.
+		if ( initialFormAction === 'otp' && window?.newspackReaderActivation?.getOTPTimeRemaining() <= 0 ) {
+			container.setFormAction( 'signin' );
+		}
+	} );
+
 	document.body.classList.add( 'newspack-signin' );
 	document.body.style.overflow = 'hidden';
 	modal.setAttribute( 'data-state', 'open' );
