@@ -119,7 +119,7 @@ export default function ContentRuleControlTaxonomy( { slug, value, onChange }: G
 				}
 				return items.find( i => i.value === t.value );
 			} );
-			onChange( foundItems.filter( i => i !== undefined )?.map( i => i.value ) );
+			onChange( foundItems.filter( i => i !== undefined ).map( i => i.value ) );
 		},
 		[ savedItems, suggestions, onChange ]
 	);
