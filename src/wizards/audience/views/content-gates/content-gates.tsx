@@ -40,7 +40,7 @@ const ContentGates = () => {
 		if ( wizardData?.error ) {
 			console.error( wizardData.error ); // eslint-disable-line no-console
 		}
-	}, [ wizardData ] );
+	}, [ wizardData, hasCompletedInitialFetch ] );
 
 	useEffect( () => {
 		if ( isFetching ) {
