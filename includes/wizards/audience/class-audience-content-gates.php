@@ -150,10 +150,10 @@ class Audience_Content_Gates extends Wizard {
 				'methods'             => 'POST',
 				'callback'            => [ $this, 'update_gate_priorities' ],
 				'permission_callback' => [ $this, 'api_permissions_check' ],
-				'sanitize_callback'   => [ $this, 'sanitize_gates' ],
 				'args'                => [
 					'gates' => [
-						'type' => 'array',
+						'type'              => 'array',
+						'sanitize_callback' => [ $this, 'sanitize_gates' ],
 					],
 				],
 			]
@@ -169,8 +169,9 @@ class Audience_Content_Gates extends Wizard {
 				'sanitize_callback'   => [ $this, 'sanitize_gate' ],
 				'args'                => [
 					'gate' => [
-						'type'       => 'object',
-						'properties' => [
+						'type'              => 'object',
+						'sanitize_callback' => [ $this, 'sanitize_gate' ],
+						'properties'        => [
 							'title'         => [ 'type' => 'string' ],
 							'description'   => [ 'type' => 'string' ],
 							'metering'      => [
@@ -267,7 +268,11 @@ class Audience_Content_Gates extends Wizard {
 	 * @return array The sanitized access rules.
 	 */
 	public function sanitize_rules( $rules, $type = 'access' ) {
-		return array_map( [ $this, $type === 'access' ? 'sanitize_access_rule' : 'sanitize_content_rule' ], $rules );
+		$sanitized_rules = [];
+		foreach ( $rules as $rule ) {
+			$sanitized_rules[] = $type === 'access' ? $this->sanitize_access_rule( $rule ) : $this->sanitize_content_rule( $rule );
+		}
+		return $sanitized_rules;
 	}
 
 	/**
@@ -310,7 +315,7 @@ class Audience_Content_Gates extends Wizard {
 		}
 
 		if ( ! empty( $content_rule['options'] ) ) {
-			if ( empty( array_intersect( $content_rule['value'], $rules[ $content_rule['slug'] ]['options'] ) ) ) {
+			if ( empty( array_intersect( $content_rule['value'], array_column( $rules[ $content_rule['slug'] ]['options'], 'value' ) ) ) ) {
 				return new \WP_Error( 'invalid_content_rule_value', __( 'Invalid content rule value.', 'newspack-plugin' ), [ 'status' => 400 ] );
 			}
 			return array_values( array_filter( array_map( 'sanitize_text_field', $content_rule['value'] ) ) );
