@@ -50,15 +50,22 @@ export default function ContentRuleControlTaxonomy( { slug, value, onChange }: G
 					per_page: 10,
 					_fields: 'id,name',
 				} ),
-			} ).then( terms => {
-				if ( ! terms || terms.length === 0 ) {
-					setSuggestions( [] );
-					return;
-				}
-				setSuggestions(
-					terms.map( term => ( { value: term.id.toString(), label: decodeEntities( term.name ) || __( '(no name)', 'newspack-plugin' ) } ) )
-				);
-			} );
+			} )
+				.then( terms => {
+					if ( ! terms || terms.length === 0 ) {
+						setSuggestions( [] );
+						return;
+					}
+					setSuggestions(
+						terms.map( term => ( {
+							value: term.id.toString(),
+							label: decodeEntities( term.name ) || __( '(no name)', 'newspack-plugin' ),
+						} ) )
+					);
+				} )
+				.catch( error => {
+					console.warn( 'Error fetching suggestions for taxonomy: ' + endpoint, error ); // eslint-disable-line no-console
+				} );
 		},
 		[ endpoint ]
 	);
