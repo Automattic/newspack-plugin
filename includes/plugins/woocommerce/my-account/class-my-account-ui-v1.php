@@ -46,6 +46,7 @@ class My_Account_UI_V1 {
 		\add_action( 'newspack_woocommerce_after_account_addresses', [ __CLASS__, 'delete_address_modals' ] );
 		\add_action( 'woocommerce_after_save_address_validation', [ __CLASS__, 'handle_delete_address_submission' ], 10, 4 );
 		\add_filter( 'woocommerce_address_to_edit', [ __CLASS__, 'reorder_address_fields' ], PHP_INT_MAX, 2 );
+		\add_action( 'woocommerce_account_content', [ __CLASS__, 'render_content_around_shortcode' ], 0 );
 	}
 
 	/**
@@ -864,6 +865,48 @@ class My_Account_UI_V1 {
 		}
 
 		return $address;
+	}
+
+	/**
+	 * Render the content around the [woocommerce_my_account] shortcode inside the
+	 * woocommerce-MyAccount-content context.
+	 *
+	 * This is necessary because of the highly customized grid layout.
+	 */
+	public static function render_content_around_shortcode() {
+		// Only allow custom content under the dashboard (root) or edit-account (default redirect) pages.
+		global $wp;
+		if ( ! isset( $wp->query_vars['page'] ) && ! empty( $wp->query_vars ) && ! isset( $wp->query_vars['edit-account'] ) ) {
+			return;
+		}
+
+		$content = get_the_content();
+		if ( empty( $content ) ) {
+			return;
+		}
+		$parts = explode( '[woocommerce_my_account]', $content );
+
+		$before = ! empty( $parts[0] ) ? $parts[0] : '';
+		if ( ! empty( $before ) ) {
+			add_action(
+				'woocommerce_account_content',
+				function() use ( $before ) {
+					echo apply_filters( 'the_content', $before ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+				},
+				9 // Right before the shortcode.
+			);
+		}
+
+		$after = ! empty( $parts[1] ) ? $parts[1] : '';
+		if ( ! empty( $after ) ) {
+			add_action(
+				'woocommerce_account_content',
+				function() use ( $after ) {
+					echo apply_filters( 'the_content', $after ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+				},
+				11 // Right after the shortcode.
+			);
+		}
 	}
 }
 My_Account_UI_V1::init();
