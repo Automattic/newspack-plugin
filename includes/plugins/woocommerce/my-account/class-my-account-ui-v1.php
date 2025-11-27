@@ -36,6 +36,7 @@ class My_Account_UI_V1 {
 		\add_action( 'newspack_after_delete_account', [ __CLASS__, 'handle_after_delete_account' ] );
 		\add_action( 'wp_footer', [ __CLASS__, 'add_after_delete_account_notice' ] );
 		\add_action( 'woocommerce_subscription_details_table', [ __CLASS__, 'cancel_subscription_modal' ] );
+		\add_filter( 'query_vars', [ __CLASS__, 'query_vars' ] );
 		\add_filter( 'option_woocommerce_myaccount_add_payment_method_endpoint', [ __CLASS__, 'add_payment_method_endpoint' ] );
 		\add_filter( 'default_option_woocommerce_myaccount_add_payment_method_endpoint', [ __CLASS__, 'add_payment_method_endpoint' ] );
 		\add_action( 'template_redirect', [ __CLASS__, 'redirect_payment_information_endpoint' ] );
@@ -162,6 +163,8 @@ class My_Account_UI_V1 {
 				return __DIR__ . '/templates/v1/payment-information.php';
 			case 'myaccount/form-edit-address.php':
 				return __DIR__ . '/templates/v1/form-edit-address.php';
+			case 'myaccount/my-subscriptions.php':
+				return __DIR__ . '/templates/v1/my-subscriptions.php';
 			default:
 				return $template;
 		}
@@ -642,6 +645,9 @@ class My_Account_UI_V1 {
 		if ( ! \is_user_logged_in() || ! Reader_Activation::is_user_reader( \wp_get_current_user() ) ) {
 			return;
 		}
+		// Set the query var so payment gateways can detect the add-payment-method context.
+		global $wp;
+		$wp->query_vars['add-payment-method'] = true;
 		ob_start();
 		\woocommerce_account_add_payment_method();
 		$content = ob_get_clean();

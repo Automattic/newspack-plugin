@@ -68,6 +68,42 @@ class WooCommerce_Subscriptions {
 	}
 
 	/**
+	 * Get the user's subscription within a grouped or variable subscription product.
+	 *
+	 * @param \WC_Product $product Product.
+	 * @param int|null    $user_id User ID. Defaults to the current user.
+	 *
+	 * @return \WC_Subscription|null Subscription or null if the user does not have a subscription.
+	 */
+	public static function get_user_subscription( $product, $user_id = null ) {
+		if ( ! function_exists( 'wcs_get_users_subscriptions' ) || ! function_exists( 'wc_get_product' ) ) {
+			return null;
+		}
+
+		$user_id = $user_id ?? get_current_user_id();
+		if ( ! $user_id ) {
+			return null;
+		}
+
+		$products           = $product->get_children();
+		$user_subscriptions = wcs_get_users_subscriptions( $user_id );
+
+		foreach ( $products as $product ) {
+			$product = wc_get_product( $product );
+			if ( ! $product ) {
+				continue;
+			}
+			foreach ( $user_subscriptions as $subscription ) {
+				if ( $subscription->has_product( $product->get_id() ) && $subscription->has_status( 'active' ) ) {
+					return $subscription;
+				}
+			}
+		}
+
+		return null;
+	}
+
+	/**
 	 * Get the label for a frequency.
 	 *
 	 * @param string   $frequency Frequency.
