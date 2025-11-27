@@ -97,7 +97,7 @@ class Content_Restriction_Control {
 		$post_id    = $post_id ?? \get_the_ID();
 		$post_type  = \get_post_type( $post_id );
 		$categories = \wp_get_post_categories( $post_id );
-		$tags       = \wp_get_post_tags( 2742, [ 'fields' => 'ids' ] );
+		$tags       = \wp_get_post_tags( $post_id, [ 'fields' => 'ids' ] );
 
 		$gate_post_ids   = [];
 		$gates           = Content_Gate::get_gates();
