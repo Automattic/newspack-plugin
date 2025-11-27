@@ -111,7 +111,7 @@ const ContentGates = () => {
 			path: `/newspack/v1/wizard/${ AUDIENCE_CONTENT_GATES_WIZARD_SLUG }/priority`,
 			method: 'POST',
 			data: {
-				gates: updates,
+				gates: updates.map( g => ( { id: g.id, priority: g.priority } ) ),
 			},
 		} )
 			.catch( ( error: WpFetchError ) => {

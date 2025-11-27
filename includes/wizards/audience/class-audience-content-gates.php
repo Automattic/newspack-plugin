@@ -152,8 +152,20 @@ class Audience_Content_Gates extends Wizard {
 				'permission_callback' => [ $this, 'api_permissions_check' ],
 				'args'                => [
 					'gates' => [
-						'type'              => 'array',
-						'sanitize_callback' => [ $this, 'sanitize_gates' ],
+						'type'  => 'array',
+						'items' => [
+							'type'       => 'object',
+							'properties' => [
+								'id'       => [
+									'type'              => 'integer',
+									'sanitize_callback' => 'absint',
+								],
+								'priority' => [
+									'type'              => 'integer',
+									'sanitize_callback' => 'absint',
+								],
+							],
+						],
 					],
 				],
 			]
@@ -226,21 +238,6 @@ class Audience_Content_Gates extends Wizard {
 			'content_rules' => $this->sanitize_rules( $gate['content_rules'], 'content' ),
 			'priority'      => intval( $gate['priority'] ),
 		];
-	}
-
-	/**
-	 * Sanitize multiple gates.
-	 *
-	 * @param array $gates An array of gates.
-	 *
-	 * @return array The sanitized array of gates.
-	 */
-	public function sanitize_gates( $gates ) {
-		$sanitized_gates = [];
-		foreach ( $gates as &$gate ) {
-			$sanitized_gates[] = $this->sanitize_gate( $gate );
-		}
-		return $sanitized_gates;
 	}
 
 	/**
