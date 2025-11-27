@@ -77,7 +77,7 @@ export default function ContentRuleControlTaxonomy( { slug, value, onChange }: G
 				terms.map( term => ( { value: term.id.toString(), label: decodeEntities( term.name ) || __( '(no name)', 'newspack-plugin' ) } ) )
 			);
 		} );
-	}, [] );
+	}, [ value, endpoint ] );
 
 	// Set initial suggestions.
 	useEffect( () => {
