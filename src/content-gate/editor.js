@@ -258,15 +258,15 @@ function GateEdit() {
 			{ availablePostTypes.length > 0 && (
 				<PluginDocumentSettingPanel name="content-gate-post-types-panel" title={ __( 'Post Types', 'newspack-plugin' ) }>
 					<BaseControl id="content-gate-post-types" help={ __( 'Restrict all posts of the selected post types.', 'newspack-plugin' ) } />
-					{ availablePostTypes.map( ( { name, label } ) => (
-						<PanelRow key={ name }>
+					{ availablePostTypes.map( ( { value, label } ) => (
+						<PanelRow key={ value }>
 							<CheckboxControl
 								label={ label }
-								checked={ meta.post_types.indexOf( name ) > -1 }
+								checked={ meta.post_types.indexOf( value ) > -1 }
 								onChange={ isIncluded => {
 									editPost( {
 										meta: {
-											post_types: isIncluded ? [ ...meta.post_types, name ] : meta.post_types.filter( type => type !== name ),
+											post_types: isIncluded ? [ ...meta.post_types, value ] : meta.post_types.filter( type => type !== value ),
 										},
 									} );
 								} }
