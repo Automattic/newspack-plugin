@@ -84,7 +84,7 @@ export default function ContentRuleControlTaxonomy( { slug, value, onChange }: G
 		fetchSuggestions();
 	}, [ fetchSuggestions ] );
 
-	const debouncedFetchSuggestions = useCallback( debounce( fetchSuggestions, 100 ), [] );
+	const debouncedFetchSuggestions = useMemo( () => debounce( fetchSuggestions, 100 ), [ fetchSuggestions ] );
 
 	const handleInputChange = ( search: string ) => {
 		debouncedFetchSuggestions( search );
