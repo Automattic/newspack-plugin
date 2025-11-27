@@ -14,7 +14,7 @@ import { decodeEntities } from '@wordpress/html-entities';
 import { addQueryArgs } from '@wordpress/url';
 
 const debounce = ( func: ( search?: string ) => void, wait: number ) => {
-	let timeout: NodeJS.Timeout;
+	let timeout: ReturnType< typeof setTimeout >;
 	return ( search?: string ) => {
 		clearTimeout( timeout );
 		timeout = setTimeout( () => func( search ), wait );
