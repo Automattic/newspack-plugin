@@ -79,11 +79,15 @@ export default function ContentRuleControlTaxonomy( { slug, value, onChange }: G
 			path: addQueryArgs( 'wp/v2/' + endpoint, {
 				include: value.join( ',' ),
 			} ),
-		} ).then( terms => {
-			setSavedItems(
-				terms.map( term => ( { value: term.id.toString(), label: decodeEntities( term.name ) || __( '(no name)', 'newspack-plugin' ) } ) )
-			);
-		} );
+		} )
+			.then( terms => {
+				setSavedItems(
+					terms.map( term => ( { value: term.id.toString(), label: decodeEntities( term.name ) || __( '(no name)', 'newspack-plugin' ) } ) )
+				);
+			} )
+			.catch( error => {
+				console.warn( 'Error fetching saved items for taxonomy: ' + endpoint, error ); // eslint-disable-line no-console
+			} );
 	}, [ value, endpoint ] );
 
 	// Set initial suggestions.
