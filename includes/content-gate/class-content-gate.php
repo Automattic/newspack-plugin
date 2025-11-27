@@ -45,7 +45,7 @@ class Content_Gate {
 	public static function init() {
 		add_action( 'init', [ __CLASS__, 'register_post_type' ] );
 		add_action( 'init', [ __CLASS__, 'register_meta' ] );
-		// Commenting out to temporarily enable CPT UI for testing: `add_action( 'admin_init', [ __CLASS__, 'redirect_cpt' ] );` !
+		add_action( 'admin_init', [ __CLASS__, 'redirect_cpt' ] );
 		add_action( 'admin_init', [ __CLASS__, 'handle_edit_gate' ] );
 		add_action( 'wp_enqueue_scripts', [ __CLASS__, 'enqueue_scripts' ] );
 		add_action( 'enqueue_block_editor_assets', [ __CLASS__, 'enqueue_block_editor_assets' ] );
@@ -319,7 +319,13 @@ class Content_Gate {
 	public static function redirect_cpt() {
 		global $pagenow;
 		if ( 'edit.php' === $pagenow && isset( $_GET['post_type'] ) && self::GATE_CPT === $_GET['post_type'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			\wp_safe_redirect( \admin_url( 'admin.php?page=newspack-audience#/content-gating' ) );
+			$redirect = \admin_url( 'admin.php?page=newspack-audience#/content-gating' );
+
+			// Once the feature is fully released, this should be the default redirect.
+			if ( defined( 'NEWSPACK_CONTENT_GATES' ) && NEWSPACK_CONTENT_GATES ) {
+				$redirect = \admin_url( 'admin.php?page=newspack-audience-content-gates' );
+			}
+			\wp_safe_redirect( $redirect );
 			exit;
 		}
 	}
