@@ -103,9 +103,10 @@ class Content_Restriction_Control {
 		$gates           = Content_Gate::get_gates();
 
 		foreach ( $gates as $gate ) {
-			$gate_post_types = \get_post_meta( $gate->ID, 'post_types', true );
-			$gate_categories = \wp_get_post_categories( $gate->ID );
-			$gate_tags       = \wp_get_post_tags( $gate->ID, [ 'fields' => 'ids' ] );
+			// TODO: Change this to read from the gate rules.
+			$gate_post_types = \get_post_meta( $gate['id'], 'post_types', true );
+			$gate_categories = \wp_get_post_categories( $gate['id'] );
+			$gate_tags       = \wp_get_post_tags( $gate['id'], [ 'fields' => 'ids' ] );
 
 			if ( empty( $gate_post_types ) || ! in_array( $post_type, $gate_post_types, true ) ) {
 				continue;
@@ -116,7 +117,7 @@ class Content_Restriction_Control {
 			if ( ! empty( $gate_tags ) && empty( array_intersect( $gate_tags, $tags ) ) ) {
 				continue;
 			}
-			$gate_post_ids[] = $gate->ID;
+			$gate_post_ids[] = $gate['id'];
 		}
 
 		return $gate_post_ids;
