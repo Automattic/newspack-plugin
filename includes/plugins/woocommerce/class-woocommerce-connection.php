@@ -299,7 +299,7 @@ class WooCommerce_Connection {
 					}
 				}
 				if ( $has_required_products ) {
-					if ( ! class_exists( 'WCS_Gifting' ) || ! \WCS_Gifting::is_gifted_subscription( $subscription ) || \WCS_Gifting::get_recipient_user( $subscription ) === $user_id ) {
+					if ( ! class_exists( 'WCS_Gifting' ) || ! \WCS_Gifting::is_gifted_subscription( $subscription ) || (int) \WCS_Gifting::get_recipient_user( $subscription ) === (int) $user_id ) {
 						$acc[] = $subscription_id;
 					}
 				}
