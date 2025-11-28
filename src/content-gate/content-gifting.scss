@@ -81,6 +81,11 @@ body.newspack-is-gifted-post {
 					width: auto;
 				}
 			}
+
+			a {
+				color: var(--newspack-ui-color-primary-60);
+				text-decoration: underline;
+			}
 		}
 
 		&.is-style-light {

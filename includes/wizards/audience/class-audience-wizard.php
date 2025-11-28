@@ -109,7 +109,6 @@ class Audience_Wizard extends Wizard {
 
 		$data['content_gifting'] = [
 			'can_use_gifting' => Content_Gifting::can_use_gifting( true ),
-			'metering_notice' => Content_Gifting::should_render_metering_notice(),
 		];
 
 		wp_enqueue_script( 'newspack-wizards' );

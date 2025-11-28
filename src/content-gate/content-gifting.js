@@ -1,7 +1,10 @@
 /* globals newspack_content_gifting */
 import domReady from '@wordpress/dom-ready';
+import { queuePageReload } from '../reader-activation/utils';
 
 import './content-gifting.scss';
+
+window.newspackRAS = window.newspackRAS || [];
 
 domReady( () => {
 	const setBodyOffset = () => {
@@ -107,5 +110,16 @@ domReady( () => {
 		document.cookie = `wp_newspack_content_key=${ contentKey }; path=/; max-age=${ newspack_content_gifting.expiration_time }`;
 		params.delete( 'content_key' );
 		window.history.replaceState( {}, '', window.location.pathname + ( params.toString() ? '?' + params.toString() : '' ) );
+	}
+
+	// Refresh the gifted post page after authenticating.
+	if ( document.body.classList.contains( 'newspack-is-gifted-post' ) ) {
+		window.newspackRAS.push( ras => {
+			ras.on( 'reader', ( { detail: { authenticated } } ) => {
+				if ( authenticated ) {
+					queuePageReload();
+				}
+			} );
+		} );
 	}
 } );

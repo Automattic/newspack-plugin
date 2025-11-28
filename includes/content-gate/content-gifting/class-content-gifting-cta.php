@@ -175,7 +175,16 @@ class Content_Gifting_CTA {
 		<div class="newspack-ui">
 			<div class="banner newspack-content-gifting__cta <?php echo esc_attr( $style_class ); ?>">
 				<div class="wrapper newspack-content-gifting__cta__content">
-					<span class="newspack-ui__font--s"><?php echo esc_html( self::get_cta_label() ); ?></span>
+					<span class="newspack-ui__font--s">
+						<?php echo esc_html( self::get_cta_label() ); ?>
+						<?php if ( ! is_user_logged_in() ) : ?>
+							<?php if ( Metering::has_metering( get_the_ID() ) ) : ?>
+								<a href="#register_modal"><?php echo esc_html( __( 'Create an account', 'newspack-plugin' ) ); ?></a>
+							<?php else : ?>
+								<a href="#signin_modal"><?php echo esc_html( __( 'Sign in to an existing account', 'newspack-plugin' ) ); ?></a>
+							<?php endif; ?>
+						<?php endif; ?>
+					</span>
 					<?php self::print_subscribe_button(); ?>
 				</div>
 			</div>

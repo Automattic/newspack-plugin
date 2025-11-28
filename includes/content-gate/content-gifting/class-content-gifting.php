@@ -396,26 +396,6 @@ class Content_Gifting {
 			$errors->add( 'not_enabled', __( 'Content gifting is not enabled.', 'newspack-plugin' ) );
 		}
 
-		// Check whether all gates have metering enabled.
-		$gates = array_filter(
-			Content_Gate::get_gates(),
-			function( $gate ) {
-				return $gate['status'] === 'publish';
-			}
-		);
-		if ( ! empty( $gates ) ) {
-			$all_gates_have_metering = true;
-			foreach ( $gates as $gate ) {
-				if ( ! isset( $gate['metering']['enabled'] ) || ! $gate['metering']['enabled'] ) {
-					$all_gates_have_metering = false;
-					break;
-				}
-			}
-			if ( $all_gates_have_metering ) {
-				$errors->add( 'all_gates_have_metering', __( 'Content gifting is not available because all gates have metering enabled.', 'newspack-plugin' ) );
-			}
-		}
-
 		if ( $return_errors ) {
 			return $errors;
 		}
@@ -454,21 +434,6 @@ class Content_Gifting {
 		 * @param bool $enabled Whether the content gifting is enabled.
 		 */
 		do_action( 'newspack_content_gifting_enabled_status_changed', $enabled );
-	}
-
-	/**
-	 * Whether to render the metering notice in the configuration wizard.
-	 *
-	 * @return bool
-	 */
-	public static function should_render_metering_notice() {
-		$gates = Content_Gate::get_gates();
-		foreach ( $gates as $gate ) {
-			if ( $gate['status'] === 'publish' && isset( $gate['metering'] ) && $gate['metering']['enabled'] ) {
-				return true;
-			}
-		}
-		return false;
 	}
 
 	/**
@@ -699,10 +664,6 @@ class Content_Gifting {
 
 		if ( Content_Gate::is_post_restricted( $post_id ) ) {
 			$errors->add( 'post_restricted', __( 'User does not have access to this post.', 'newspack-plugin' ) );
-		}
-
-		if ( Metering::has_metering( $post_id ) ) {
-			$errors->add( 'metering', __( 'Metered content cannot be gifted.', 'newspack-plugin' ) );
 		}
 
 		if ( $return_errors ) {
