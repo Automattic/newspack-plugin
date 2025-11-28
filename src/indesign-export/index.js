@@ -3,7 +3,13 @@ import { __ } from '@wordpress/i18n';
 import { InspectorControls, useBlockEditingMode } from '@wordpress/block-editor';
 import { TextControl } from '@wordpress/components';
 
-const addAttribute = settings => {
+const ALLOWED_BLOCKS = [ 'core/paragraph', 'core/heading' ];
+
+const addAttribute = ( settings, name ) => {
+	if ( ! ALLOWED_BLOCKS.includes( name ) ) {
+		return settings;
+	}
+
 	settings.attributes = {
 		...settings.attributes,
 		indesignTag: {
@@ -22,7 +28,7 @@ const TagNameControl = ( { blockName, indesignTag, setAttributes } ) => {
 	}
 
 	// Only paragraphs and heading can have custom tag names.
-	if ( ! [ 'core/paragraph', 'core/heading' ].includes( blockName ) ) {
+	if ( ! ALLOWED_BLOCKS.includes( blockName ) ) {
 		return null;
 	}
 
