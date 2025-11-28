@@ -211,7 +211,8 @@ export default withWizardScreen( ( { wizardApiFetch } ) => {
 															__(
 																'This article has been gifted to you by someone who values great journalism.',
 																'newspack-plugin'
-															) }
+															) }{ ' ' }
+														<a href="#signin_modal">{ __( 'Sign in to an existing account', 'newspack-plugin' ) }</a>
 													</span>
 													<button
 														className={ `newspack-ui__button newspack-ui__button--x-small ${
