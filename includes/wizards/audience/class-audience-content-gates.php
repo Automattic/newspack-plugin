@@ -285,17 +285,26 @@ class Audience_Content_Gates extends Wizard {
 		if ( ! isset( $rules[ $access_rule['slug'] ] ) ) {
 			return new \WP_Error( 'invalid_access_rule_slug', __( 'Invalid access rule slug.', 'newspack-plugin' ), [ 'status' => 400 ] );
 		}
-		$rule = $rules[ $access_rule['slug'] ];
+
+		$slug  = sanitize_text_field( $access_rule['slug'] );
+		$value = null;
+
+		$rule = $rules[ $slug ];
 		if ( $rule['is_boolean'] ) {
-			return boolval( $access_rule['value'] );
-		}
-		if ( ! empty( $rule['options'] ) ) {
+			$value = true; // Boolean rules are always true.
+		} elseif ( ! empty( $rule['options'] ) ) {
 			if ( ! is_array( $access_rule['value'] ) ) {
 				return new \WP_Error( 'invalid_access_rule_value', __( 'Invalid access rule value.', 'newspack-plugin' ), [ 'status' => 400 ] );
 			}
-			return array_values( array_filter( array_map( 'sanitize_text_field', $access_rule['value'] ) ) );
+			$value = array_values( array_filter( array_map( 'sanitize_text_field', $access_rule['value'] ) ) );
+		} else {
+			$value = sanitize_text_field( $access_rule['value'] );
 		}
-		return sanitize_text_field( $access_rule['value'] );
+
+		return [
+			'slug'  => $slug,
+			'value' => $value,
+		];
 	}
 
 	/**
@@ -311,13 +320,16 @@ class Audience_Content_Gates extends Wizard {
 			return new \WP_Error( 'invalid_content_rule_slug', __( 'Invalid content rule slug.', 'newspack-plugin' ), [ 'status' => 400 ] );
 		}
 
-		if ( ! empty( $content_rule['options'] ) ) {
-			if ( empty( array_intersect( $content_rule['value'], array_column( $rules[ $content_rule['slug'] ]['options'], 'value' ) ) ) ) {
-				return new \WP_Error( 'invalid_content_rule_value', __( 'Invalid content rule value.', 'newspack-plugin' ), [ 'status' => 400 ] );
-			}
-			return array_values( array_filter( array_map( 'sanitize_text_field', $content_rule['value'] ) ) );
+		$slug = sanitize_text_field( $content_rule['slug'] );
+		if ( ! empty( $content_rule['options'] ) && empty( array_intersect( $content_rule['value'], array_column( $rules[ $slug ]['options'], 'value' ) ) ) ) {
+			return new \WP_Error( 'invalid_content_rule_value', __( 'Invalid content rule value.', 'newspack-plugin' ), [ 'status' => 400 ] );
 		}
-		return array_values( array_filter( array_map( 'sanitize_text_field', $content_rule['value'] ) ) );
+		$value = array_values( array_filter( array_map( 'sanitize_text_field', $content_rule['value'] ) ) );
+
+		return [
+			'slug'  => $slug,
+			'value' => $value,
+		];
 	}
 
 	/**
