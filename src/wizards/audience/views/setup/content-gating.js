@@ -66,6 +66,7 @@ export default withWizardScreen( ( { wizardApiFetch } ) => {
 	};
 
 	const giftingErrors = Object.values( newspackAudience?.content_gifting?.can_use_gifting?.errors || {} ).flat();
+	const hasMetering = newspackAudience?.content_gifting?.has_metering;
 
 	return (
 		<WizardsTab
@@ -212,7 +213,11 @@ export default withWizardScreen( ( { wizardApiFetch } ) => {
 																'This article has been gifted to you by someone who values great journalism.',
 																'newspack-plugin'
 															) }{ ' ' }
-														<a href="#signin_modal">{ __( 'Sign in to an existing account', 'newspack-plugin' ) }</a>
+														{ hasMetering ? (
+															<a href="#register_modal">{ __( 'Create an account', 'newspack-plugin' ) }</a>
+														) : (
+															<a href="#signin_modal">{ __( 'Sign in to an existing account', 'newspack-plugin' ) }</a>
+														) }
 													</span>
 													<button
 														className={ `newspack-ui__button newspack-ui__button--x-small ${
