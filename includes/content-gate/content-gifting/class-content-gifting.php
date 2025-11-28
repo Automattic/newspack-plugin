@@ -41,6 +41,7 @@ class Content_Gifting {
 		add_action( 'init', [ __CLASS__, 'hook_gift_button' ] );
 		add_action( 'wp', [ __CLASS__, 'unrestrict_content' ], 5 );
 		add_filter( 'newspack_content_gate_restrict_post', [ __CLASS__, 'restrict_post' ] );
+		add_filter( 'newspack_content_gate_metering_short_circuit', [ __CLASS__, 'short_circuit_metering' ] );
 		add_action( 'wp_enqueue_scripts', [ __CLASS__, 'enqueue_assets' ] );
 		add_action( 'admin_enqueue_scripts', [ __CLASS__, 'enqueue_assets' ] );
 		add_action( 'wp_ajax_' . self::GENERATE_ACTION, [ __CLASS__, 'ajax_generate_content_key' ] );
@@ -155,7 +156,7 @@ class Content_Gifting {
 	 * Whether the current post has been gifted.
 	 *
 	 * @param int|null    $post_id The post ID. Default is the current post.
-	 * @param string|null $key     The content key. Default is the key from the query arg.
+	 * @param string|null $key     The content key. Default is from the request (query arg or cookie).
 	 *
 	 * @return bool
 	 */
@@ -636,6 +637,20 @@ class Content_Gifting {
 			return false;
 		}
 		return $restrict;
+	}
+
+	/**
+	 * Short-circuit the metering check.
+	 *
+	 * @param mixed $short_circuit Short-circuit value. Default is null.
+	 *
+	 * @return mixed Short-circuit value.
+	 */
+	public static function short_circuit_metering( $short_circuit ) {
+		if ( self::is_gifted_post( get_the_ID() ) ) {
+			return true;
+		}
+		return $short_circuit;
 	}
 
 	/**
