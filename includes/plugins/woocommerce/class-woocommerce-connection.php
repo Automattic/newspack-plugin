@@ -16,7 +16,7 @@ class WooCommerce_Connection {
 	/**
 	 * Statuses considered active.
 	 */
-	const ACTIVE_SUBSCRIPTION_STATUSES = [ 'active', 'pending', 'pending-cancel' ];
+	const ACTIVE_SUBSCRIPTION_STATUSES = [ 'active', 'pending-cancel' ];
 	const ACTIVE_ORDER_STATUSES = [ 'processing', 'completed' ];
 
 
