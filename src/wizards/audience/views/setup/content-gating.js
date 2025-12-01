@@ -199,7 +199,7 @@ export default withWizardScreen( ( { wizardApiFetch } ) => {
 							</ToggleGroupControl>
 							<div style={ { gridColumn: '1 / -1' } }>
 								<BaseControl id="newspack-content-gifting-cta-preview" label={ __( 'Preview', 'newspack-plugin' ) }>
-									<div className="newspack-content-gifting__cta-preview">
+									<div className="newspack-content-gifting__cta-preview" inert="true">
 										<div className="newspack-ui">
 											<div
 												className={ `banner newspack-content-gifting__cta is-style-${
@@ -207,18 +207,22 @@ export default withWizardScreen( ( { wizardApiFetch } ) => {
 												}` }
 											>
 												<div className="wrapper newspack-content-gifting__cta__content">
-													<span className="newspack-ui__font--s">
+													<div className="newspack-ui__font--s">
 														{ config.content_gifting.cta_label ||
 															__(
 																'This article has been gifted to you by someone who values great journalism.',
 																'newspack-plugin'
 															) }{ ' ' }
-														{ hasMetering ? (
-															<a href="#register_modal">{ __( 'Create an account', 'newspack-plugin' ) }</a>
-														) : (
-															<a href="#signin_modal">{ __( 'Sign in to an existing account', 'newspack-plugin' ) }</a>
-														) }
-													</span>
+														<div className="newspack-ui__font--xs newspack-content-gifting__cta__content__links">
+															{ hasMetering ? (
+																<a href="#register_modal">{ __( 'Create an account', 'newspack-plugin' ) }</a>
+															) : (
+																<a href="#signin_modal">
+																	{ __( 'Sign in to an existing account', 'newspack-plugin' ) }
+																</a>
+															) }
+														</div>
+													</div>
 													<button
 														className={ `newspack-ui__button newspack-ui__button--x-small ${
 															( config.content_gifting.style || 'light' ) === 'dark'
