@@ -224,6 +224,8 @@ class Audience_Content_Gates extends Wizard {
 	/**
 	 * Sanitize the gate.
 	 *
+	 * TODO: Handle errors from each sanitization method.
+	 *
 	 * @param array $gate The gate.
 	 *
 	 * @return array The sanitized gate.
