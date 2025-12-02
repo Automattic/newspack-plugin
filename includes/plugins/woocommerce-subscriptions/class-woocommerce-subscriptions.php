@@ -24,7 +24,10 @@ class WooCommerce_Subscriptions {
 	}
 
 	/**
-	 * Filter to allow migrated subscription switches.
+	 * Filter to allow migrated subscription withou a last order date to switch.
+	 *
+	 * This filter will also populate the subscription's last order date meta with
+	 * the scheduled start date.
 	 *
 	 * @param bool                   $can_switch   Whether the item can be switched.
 	 * @param \WC_Order_Item_Product $item         An order item on the subscription to switch, or cart item to add.
@@ -37,13 +40,29 @@ class WooCommerce_Subscriptions {
 			$no_last_order_date = 0 === $subscription->get_date( 'last_order_date_created' );
 
 			// Bail if the subscription has a last order date, as we're only handling
-			// migrated subscription switches, which don't have a last order date.
+			// subscriptions without it.
 			if ( ! $no_last_order_date ) {
 				return $can_switch;
 			}
 
-			$product_id = wcs_get_canonical_product_id( $item );
+			// Detect whether it's a migrated subscription.
+			$migrated_meta = [ '_piano_subscription_id', '_stripe_subscription_id' ];
+			$migrated = false;
+			foreach ( $migrated_meta as $meta ) {
+				if ( $subscription->get_meta( $meta ) ) {
+					$migrated = true;
+					break;
+				}
+			}
+			if ( ! $migrated ) {
+				return $can_switch;
+			}
 
+			// Set the last order date meta to the scheduled start date.
+			$subscription->set_last_order_date_created( $subscription->get_date( 'start' ) );
+			$subscription->save();
+
+			$product_id = wcs_get_canonical_product_id( $item );
 			// Run other standard checks to see if the item can be switched.
 			// @see WC_Subscriptions_Switcher::can_user_perform_action().
 			$is_product_switchable = 'line_item' == $item['type'] && wcs_is_product_switchable_type( $product_id );
