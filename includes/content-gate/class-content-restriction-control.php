@@ -122,7 +122,7 @@ class Content_Restriction_Control {
 			}
 
 			foreach ( $content_rules as $content_rule ) {
-				if ( $content_rule['slug'] === 'post_type' ) {
+				if ( $content_rule['slug'] === 'post_types' ) {
 					$post_type = get_post_type( $post_id );
 					if ( ! in_array( $post_type, $content_rule['value'], true ) ) {
 						continue 2;
