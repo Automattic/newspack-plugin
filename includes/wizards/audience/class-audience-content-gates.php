@@ -178,7 +178,6 @@ class Audience_Content_Gates extends Wizard {
 				'methods'             => 'POST',
 				'callback'            => [ $this, 'update_gate' ],
 				'permission_callback' => [ $this, 'api_permissions_check' ],
-				'sanitize_callback'   => [ $this, 'sanitize_gate' ],
 				'args'                => [
 					'gate' => [
 						'type'              => 'object',
