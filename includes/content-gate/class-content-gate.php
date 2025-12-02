@@ -71,6 +71,7 @@ class Content_Gate {
 		include __DIR__ . '/class-content-restriction-control.php';
 		include __DIR__ . '/class-block-patterns.php';
 		include __DIR__ . '/class-metering.php';
+		include __DIR__ . '/content-gifting/class-content-gifting.php';
 	}
 
 	/**
@@ -178,7 +179,7 @@ class Content_Gate {
 				],
 				'public'       => false,
 				'show_ui'      => true,
-				'show_in_menu' => true,
+				'show_in_menu' => false,
 				'show_in_rest' => true,
 				'supports'     => [ 'editor', 'custom-fields', 'revisions', 'title' ],
 				'taxonomies'   => [ 'category', 'post_tag' ],
@@ -269,53 +270,18 @@ class Content_Gate {
 	}
 
 	/**
-	 * Get the post types that can be restricted.
-	 */
-	public static function get_available_post_types() {
-		$available_post_types = array_values(
-			array_map(
-				function( $post_type ) {
-					return [
-						'name'  => $post_type->name,
-						'label' => $post_type->label,
-					];
-				},
-				get_post_types(
-					[
-						'public'       => true,
-						'show_in_rest' => true,
-						'_builtin'     => false,
-					],
-					'objects'
-				)
-			)
-		);
-
-		return apply_filters(
-			'newspack_content_gate_supported_post_types',
-			array_merge(
-				[
-					[
-						'name'  => 'post',
-						'label' => 'Posts',
-					],
-					[
-						'name'  => 'page',
-						'label' => 'Pages',
-					],
-				],
-				$available_post_types
-			)
-		);
-	}
-
-	/**
 	 * Redirect the custom gate CPT to the Content Gating wizard
 	 */
 	public static function redirect_cpt() {
 		global $pagenow;
 		if ( 'edit.php' === $pagenow && isset( $_GET['post_type'] ) && self::GATE_CPT === $_GET['post_type'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			\wp_safe_redirect( \admin_url( 'admin.php?page=newspack-audience#/content-gating' ) );
+			$redirect = \admin_url( 'admin.php?page=newspack-audience#/content-gating' );
+
+			// Once the feature is fully released, this should be the default redirect.
+			if ( defined( 'NEWSPACK_CONTENT_GATES' ) && NEWSPACK_CONTENT_GATES ) {
+				$redirect = \admin_url( 'admin.php?page=newspack-audience-content-gates' );
+			}
+			\wp_safe_redirect( $redirect );
 			exit;
 		}
 	}
@@ -407,7 +373,7 @@ class Content_Gate {
 	 * @return int|false Post ID or false if not set.
 	 */
 	public static function get_gate_post_id( $post_id = null ) {
-		$gate_post_id = intval( self::$gate_post_id ?? \get_option( 'newspack_memberships_gate_post_id' ) );
+		$gate_post_id = intval( self::$gate_post_id ? self::$gate_post_id : \get_option( 'newspack_memberships_gate_post_id' ) );
 		if ( ! $gate_post_id ) {
 			$gate_post_id = false;
 		}
@@ -463,6 +429,27 @@ class Content_Gate {
 	 */
 	public static function has_rendered() {
 		return self::$gate_rendered;
+	}
+
+	/**
+	 * Whether the post has restrictions
+	 *
+	 * @param int $post_id Post ID.
+	 *
+	 * @return bool
+	 */
+	public static function post_has_restrictions( $post_id = null ) {
+		$post_id = $post_id ? $post_id : get_the_ID();
+
+		// TODO: Content Gate content rules check.
+
+		/**
+		 * Filters whether the post has restrictions.
+		 *
+		 * @param bool $has_restrictions Whether the post has restrictions.
+		 * @param int  $post_id          Post ID.
+		 */
+		return apply_filters( 'newspack_post_has_restrictions', false, $post_id );
 	}
 
 	/**
@@ -647,6 +634,16 @@ class Content_Gate {
 		if ( ! self::has_gate() ) {
 			return;
 		}
+		if (
+			/**
+			 * Filters whether the overlay gate can be rendered.
+			 *
+			 * @param bool $can_render Whether the overlay gate can be rendered.
+			 */
+			! apply_filters( 'newspack_can_render_overlay_gate', true )
+		) {
+			return;
+		}
 		// Only render overlay gate for a restricted singular content.
 		if ( ! is_singular() || ! self::is_post_restricted() ) {
 			return;
@@ -728,8 +725,8 @@ class Content_Gate {
 
 		return [
 			'id'            => $post->ID,
-			'title'         => $post->post_title,
 			'status'        => $post->post_status,
+			'title'         => $post->post_title,
 			'metering'      => Metering::get_metering_settings( $post->ID ),
 			'priority'      => (int) get_post_meta( $post->ID, 'gate_priority', true ),
 			'access_rules'  => Access_Rules::get_post_access_rules( $post->ID ),

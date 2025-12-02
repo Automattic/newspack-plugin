@@ -3,8 +3,6 @@
 .wp-block-newspack-collections {
 	// Layout: List.
 	&.layout-list {
-		margin-bottom: 32px;
-
 		.wp-block-newspack-collections__item {
 			display: grid;
 			grid-template-columns: 1fr;
@@ -166,6 +164,21 @@
 					width: auto;
 				}
 			}
+		}
+	}
+}
+
+/* Single Collection styles */
+.single-newspack_collection {
+	&.has-sidebar .site-main {
+		display: block;
+	}
+
+	.wp-block-newspack-collections.layout-list {
+		margin-bottom: 32px;
+
+		@media #{bp.$media-lg-up} {
+			margin-bottom: 64px;
 		}
 	}
 }

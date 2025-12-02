@@ -20,6 +20,7 @@ import { ExternalLink } from '@wordpress/components';
 import {
 	ActionCard,
 	AutocompleteWithSuggestions,
+	AutocompleteWithLatestPosts,
 	BoxContrast,
 	Button,
 	ButtonCard,
@@ -51,6 +52,8 @@ class ComponentsDemo extends Component {
 		this.state = {
 			selectedPostForAutocompleteWithSuggestions: [],
 			selectedPostsForAutocompleteWithSuggestionsMultiSelect: [],
+			selectedPostForAutocompleteWithLatestPosts: [],
+			selectedPostsForAutocompleteWithLatestPostsMultiSelect: [],
 			image: null,
 			selectValue1: '2nd',
 			selectValue2: '',
@@ -76,6 +79,8 @@ class ComponentsDemo extends Component {
 		const {
 			selectedPostForAutocompleteWithSuggestions,
 			selectedPostsForAutocompleteWithSuggestionsMultiSelect,
+			selectedPostForAutocompleteWithLatestPosts,
+			selectedPostsForAutocompleteWithLatestPostsMultiSelect,
 			selectValue1,
 			selectValue2,
 			selectValue3,
@@ -140,6 +145,30 @@ class ComponentsDemo extends Component {
 						/>
 					</Card>
 					<Card>
+						<h2>{ __( 'Autocomplete with Latest Posts (single-select)', 'newspack-plugin' ) }</h2>
+						<AutocompleteWithLatestPosts
+							hideHelp
+							label={ __( 'Posts', 'newspack-plugin' ) }
+							onChange={ items => this.setState( { selectedPostForAutocompleteWithLatestPosts: items } ) }
+							selectedItems={ selectedPostForAutocompleteWithLatestPosts }
+						/>
+
+						<hr />
+
+						<h2>{ __( 'Autocomplete with Latest Posts (multi-select)', 'newspack-plugin' ) }</h2>
+						<AutocompleteWithLatestPosts
+							hideHelp
+							multiSelect
+							label={ __( 'Posts', 'newspack-plugin' ) }
+							onChange={ items =>
+								this.setState( {
+									selectedPostsForAutocompleteWithLatestPostsMultiSelect: items,
+								} )
+							}
+							selectedItems={ selectedPostsForAutocompleteWithLatestPostsMultiSelect }
+						/>
+					</Card>
+					<Card>
 						<h2>{ __( 'Plugin toggles', 'newspack-plugin' ) }</h2>
 						<PluginToggle
 							plugins={ {
@@ -156,14 +185,15 @@ class ComponentsDemo extends Component {
 					<Card>
 						<h2>{ __( 'Web Previews', 'newspack-plugin' ) }</h2>
 						<Card buttonsCard noBorder className="items-center">
-							<WebPreview url="//newspack.com/" label={ __( 'Preview Newspack Blog', 'newspack-plugin' ) } variant="primary" />
+							<WebPreview url="//newspack.com/" label={ __( 'Preview Newspack Site', 'newspack-plugin' ) } variant="primary" />
 							<WebPreview
 								url="//newspack.com/"
 								renderButton={ ( { showPreview } ) => (
 									<a href="#" onClick={ showPreview }>
-										{ __( 'Preview Newspack Blog', 'newspack-plugin' ) }
+										{ __( 'Preview Newspack Site', 'newspack-plugin' ) }
 									</a>
 								) }
+								title={ __( 'Preview Newspack Site', 'newspack-plugin' ) }
 							/>
 						</Card>
 					</Card>

@@ -7,7 +7,9 @@
 
 use Newspack\RSS;
 use Newspack\Optional_Modules;
+use Newspack\RSS_Add_Image;
 
+require_once __DIR__ . '/../mocks/filter-input-mock.php';
 /**
  * Tests the RSS core functionality.
  */
@@ -121,6 +123,37 @@ class Newspack_Test_RSS extends WP_UnitTestCase {
 	 */
 	private function set_test_settings( $settings ) {
 		$this->current_test_settings = $settings;
+	}
+
+	/**
+	 * Render the extra RSS tags for a post with the provided settings overrides.
+	 *
+	 * @param WP_Post $post      Post object.
+	 * @param array   $settings  Settings overrides for the feed.
+	 * @return string Captured markup from RSS::add_extra_tags().
+	 */
+	private function render_extra_tags_for_post( $post, $settings ) {
+		$_GET['partner-feed'] = 'test-rss-feed';
+		$this->set_test_settings(
+			array_merge(
+				[
+					'num_items_in_feed' => 10,
+				],
+				$settings
+			)
+		);
+
+		$GLOBALS['post'] = $post;
+		setup_postdata( $post );
+
+		ob_start();
+		RSS::add_extra_tags();
+		$output = ob_get_clean();
+
+		wp_reset_postdata();
+		unset( $_GET['partner-feed'] );
+
+		return $output;
 	}
 
 	/**
@@ -1000,5 +1033,185 @@ class Newspack_Test_RSS extends WP_UnitTestCase {
 		$query->get_posts();
 		$this->assertEquals( 1, $query->found_posts, 'Should find exactly one post' );
 		$this->assertEquals( $post1, $query->posts[0]->ID, 'Should return the post with all three taxonomy terms' );
+	}
+
+	/**
+	 * Test that RSS::add_extra_tags() applies the newspack_rss_image_size filter for <image> markup.
+	 */
+	public function test_add_extra_tags_applies_image_size_filter() {
+		$post_id       = $this->factory()->post->create();
+		$attachment_id = $this->factory()->attachment->create_object( 'image.jpg', $post_id, [ 'post_mime_type' => 'image/jpeg' ] );
+		set_post_thumbnail( $post_id, $attachment_id );
+
+		$post = get_post( $post_id );
+
+		$filtered  = false;
+		$size_used = null;
+
+		$image_size_filter = function ( $size, $settings, $filter_post ) use ( &$filtered ) {
+			$filtered = true;
+			$this->assertEquals( RSS_Add_Image::RSS_IMAGE_SIZE, $size, 'Expected image size filter to be applied for media tags.' );
+			$this->assertIsArray( $settings, 'Expected settings to be an array.' );
+			$this->assertInstanceOf( 'WP_Post', $filter_post, 'Expected filter post to be a WP_Post object.' );
+			return 'custom-rss-size';
+		};
+
+		$image_src_tracker = function ( $image, $attachment_id_param, $size ) use ( &$size_used, $attachment_id ) {
+			if ( $attachment_id === $attachment_id_param && null === $size_used ) {
+				$size_used = $size;
+			}
+			return $image;
+		};
+
+		add_filter( 'newspack_rss_image_size', $image_size_filter, 10, 3 );
+		add_filter( 'wp_get_attachment_image_src', $image_src_tracker, 10, 3 );
+
+		$output = $this->render_extra_tags_for_post(
+			$post,
+			[
+				'use_image_tags' => true,
+			]
+		);
+
+		remove_filter( 'newspack_rss_image_size', $image_size_filter, 10 );
+		remove_filter( 'wp_get_attachment_image_src', $image_src_tracker, 10 );
+
+		$this->assertTrue( $filtered, 'Expected newspack_rss_image_size filter to run.' );
+		$this->assertSame( 'custom-rss-size', $size_used, 'Expected image size filter value to be used.' );
+		$this->assertStringContainsString( '<image>', $output, 'Expected image tag markup in output.' );
+	}
+
+	/**
+	 * Test that RSS::add_extra_tags() allows replacing <tags> markup via newspack_rss_tags_output.
+	 */
+	public function test_add_extra_tags_supports_custom_tags_output() {
+		$category_id = $this->factory()->term->create(
+			[
+				'taxonomy' => 'category',
+				'name'     => 'TestCat',
+			]
+		);
+		$tag_id      = $this->factory()->term->create(
+			[
+				'taxonomy' => 'post_tag',
+				'name'     => 'TestTag',
+			]
+		);
+
+		$post_id = $this->factory()->post->create(
+			[
+				'post_category' => [ $category_id ],
+			]
+		);
+		wp_set_object_terms( $post_id, [ $tag_id ], 'post_tag' );
+		$post = get_post( $post_id );
+
+		$filtered    = false;
+		$tags_filter = function ( $output, $all_terms, $settings, $filter_post ) use ( &$filtered ) {
+			$filtered = true;
+			$this->assertIsString( $output, 'Expected output to be a string.' );
+			$this->assertIsArray( $all_terms, 'Expected all terms to be an array.' );
+			$this->assertIsArray( $settings, 'Expected settings to be an array.' );
+			$this->assertInstanceOf( 'WP_Post', $filter_post, 'Expected filter post to be a WP_Post object.' );
+
+			$nested = '';
+			foreach ( $all_terms as $term ) {
+				$nested .= '<tag>' . esc_html( $term->name ) . '</tag>';
+			}
+			return $nested;
+		};
+
+		add_filter( 'newspack_rss_tags_output', $tags_filter, 10, 4 );
+
+		$output            = $this->render_extra_tags_for_post(
+			$post,
+			[
+				'use_tags_tags' => true,
+			]
+		);
+		$normalized_output = preg_replace( '/\s+/', '', $output );
+
+		remove_filter( 'newspack_rss_tags_output', $tags_filter, 10 );
+
+		$this->assertTrue( $filtered, 'Expected newspack_rss_tags_output filter to run.' );
+		$this->assertStringContainsString( '<tags><tag>TestCat</tag><tag>TestTag</tag></tags>', $normalized_output, 'Expected tags output to be normalized.' );
+	}
+
+	/**
+	 * Test that RSS::add_extra_tags() applies media filters and fires the related actions.
+	 */
+	public function test_add_extra_tags_applies_media_filters_and_actions() {
+		$post_id       = $this->factory()->post->create();
+		$attachment_id = $this->factory()->attachment->create_object( 'image.jpg', $post_id, [ 'post_mime_type' => 'image/jpeg' ] );
+		set_post_thumbnail( $post_id, $attachment_id );
+		wp_update_post(
+			[
+				'ID'           => $attachment_id,
+				'post_excerpt' => 'Media caption',
+			]
+		);
+
+		$post = get_post( $post_id );
+
+		$image_size_filtered = false;
+		$size_used           = null;
+		$media_url_filtered  = false;
+		$media_url           = 'https://example.com/media-filtered.jpg';
+		$media_action        = new \MockAction();
+		$after_action        = new \MockAction();
+
+		$image_size_filter = function ( $size, $settings, $filter_post ) use ( &$image_size_filtered ) {
+			$image_size_filtered = true;
+			$this->assertIsArray( $settings, 'Expected settings to be an array.' );
+			$this->assertInstanceOf( 'WP_Post', $filter_post, 'Expected filter post to be a WP_Post object.' );
+			return 'media-custom-size';
+		};
+
+		$image_src_tracker = function ( $image, $attachment_id_param, $size ) use ( &$size_used, $attachment_id ) {
+			if ( $attachment_id === $attachment_id_param && null === $size_used ) {
+				$size_used = $size;
+			}
+			return $image;
+		};
+
+		$media_url_filter = function ( $url, $thumbnail_id, $settings, $filter_post ) use ( &$media_url_filtered, $media_url, $attachment_id ) {
+			$media_url_filtered = true;
+			$this->assertEquals( $attachment_id, $thumbnail_id, 'Expected attachment ID to match.' );
+			$this->assertIsArray( $settings, 'Expected settings to be an array.' );
+			$this->assertInstanceOf( 'WP_Post', $filter_post, 'Expected filter post to be a WP_Post object.' );
+			return $media_url;
+		};
+
+		add_filter( 'newspack_rss_image_size', $image_size_filter, 10, 3 );
+		add_filter( 'wp_get_attachment_image_src', $image_src_tracker, 10, 3 );
+		add_filter( 'newspack_rss_media_content_url', $media_url_filter, 10, 4 );
+		add_action( 'newspack_rss_media_content', [ $media_action, 'action' ], 10, 5 );
+		add_action( 'newspack_rss_after_extra_tags', [ $after_action, 'action' ], 10, 2 );
+
+		$output = $this->render_extra_tags_for_post(
+			$post,
+			[
+				'use_media_tags' => true,
+			]
+		);
+
+		remove_filter( 'newspack_rss_image_size', $image_size_filter, 10 );
+		remove_filter( 'wp_get_attachment_image_src', $image_src_tracker, 10 );
+		remove_filter( 'newspack_rss_media_content_url', $media_url_filter, 10 );
+		remove_action( 'newspack_rss_media_content', [ $media_action, 'action' ], 10 );
+		remove_action( 'newspack_rss_after_extra_tags', [ $after_action, 'action' ], 10 );
+
+		$this->assertTrue( $image_size_filtered, 'Expected image size filter to be applied for media tags.' );
+		$this->assertSame( 'media-custom-size', $size_used, 'Expected size used to be the custom size.' );
+		$this->assertTrue( $media_url_filtered, 'Expected media content URL filter to run.' );
+		$this->assertSame( 1, $media_action->get_call_count(), 'Expected after media content action to fire once.' );
+		$media_args = $media_action->get_args()[0];
+		$this->assertEquals( $attachment_id, $media_args[0], 'Expected attachment ID to match.' );
+		$this->assertIsArray( $media_args[1], 'Expected media args to be an array.' );
+		$this->assertIsString( $media_args[2], 'Expected media args to be a string.' );
+		$this->assertIsArray( $media_args[3], 'Expected media args to be an array.' );
+		$this->assertInstanceOf( 'WP_Post', $media_args[4], 'Expected media args to be a WP_Post object.' );
+		$this->assertSame( 1, $after_action->get_call_count(), 'Expected after extra tags action to fire once.' );
+		$this->assertStringContainsString( 'url="' . esc_url( $media_url ) . '"', $output, 'Expected media URL to be in output.' );
 	}
 }
