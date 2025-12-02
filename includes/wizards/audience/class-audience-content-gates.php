@@ -283,15 +283,14 @@ class Audience_Content_Gates extends Wizard {
 	 */
 	public function sanitize_access_rule( $access_rule ) {
 		$rules = Access_Rules::get_access_rules();
+		$slug  = sanitize_text_field( $access_rule['slug'] );
 
-		if ( ! isset( $rules[ $access_rule['slug'] ] ) ) {
+		if ( empty( $slug ) || ! isset( $rules[ $slug ] ) ) {
 			return new \WP_Error( 'invalid_access_rule_slug', __( 'Invalid access rule slug.', 'newspack-plugin' ), [ 'status' => 400 ] );
 		}
 
-		$slug  = sanitize_text_field( $access_rule['slug'] );
 		$value = null;
-
-		$rule = $rules[ $slug ];
+		$rule  = $rules[ $slug ];
 		if ( $rule['is_boolean'] ) {
 			$value = true; // Boolean rules are always true.
 		} elseif ( ! empty( $rule['options'] ) ) {
@@ -318,14 +317,21 @@ class Audience_Content_Gates extends Wizard {
 	 */
 	public function sanitize_content_rule( $content_rule ) {
 		$rules = Content_Gate::get_content_rules();
-		if ( ! isset( $rules[ $content_rule['slug'] ] ) ) {
+		$slug  = sanitize_text_field( $content_rule['slug'] );
+
+		if ( empty( $slug ) || ! isset( $rules[ $slug ] ) ) {
 			return new \WP_Error( 'invalid_content_rule_slug', __( 'Invalid content rule slug.', 'newspack-plugin' ), [ 'status' => 400 ] );
 		}
 
-		$slug = sanitize_text_field( $content_rule['slug'] );
-		if ( ! empty( $content_rule['options'] ) && empty( array_intersect( $content_rule['value'], array_column( $rules[ $slug ]['options'], 'value' ) ) ) ) {
-			return new \WP_Error( 'invalid_content_rule_value', __( 'Invalid content rule value.', 'newspack-plugin' ), [ 'status' => 400 ] );
+		$rule = $rules[ $slug ];
+		if ( ! empty( $rule['options'] ) ) {
+			$allowed = array_column( $rule['options'], 'value' );
+			$invalid = array_diff( $content_rule['value'], $allowed );
+			if ( ! empty( $invalid ) ) {
+				return new \WP_Error( 'invalid_content_rule_value', __( 'Invalid content rule value.', 'newspack-plugin' ), [ 'status' => 400 ] );
+			}
 		}
+
 		$value = array_values( array_filter( array_map( 'sanitize_text_field', $content_rule['value'] ) ) );
 
 		return [
