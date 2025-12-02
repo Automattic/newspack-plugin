@@ -261,12 +261,16 @@ class Audience_Content_Gates extends Wizard {
 	 * @param array  $rules The rules.
 	 * @param string $type The type of rules to sanitize.
 	 *
-	 * @return array The sanitized access rules.
+	 * @return array|\WP_Error The sanitized access rules or error if invalid.
 	 */
 	public function sanitize_rules( $rules, $type = 'access' ) {
 		$sanitized_rules = [];
 		foreach ( $rules as $rule ) {
-			$sanitized_rules[] = $type === 'access' ? $this->sanitize_access_rule( $rule ) : $this->sanitize_content_rule( $rule );
+			$sanitized = $type === 'access' ? $this->sanitize_access_rule( $rule ) : $this->sanitize_content_rule( $rule );
+			if ( is_wp_error( $sanitized ) ) {
+				return $sanitized;
+			}
+			$sanitized_rules[] = $sanitized;
 		}
 		return $sanitized_rules;
 	}
