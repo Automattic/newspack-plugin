@@ -1,27 +1,11 @@
 import { domReady } from '../utils';
-
-function handleCheckoutOverlayClose( { detail: { overlays } } ) {
-	setTimeout( () => {
-		if ( ! overlays.length ) {
-			window.location.reload();
-			window.newspackReaderActivation.off( 'overlay', handleCheckoutOverlayClose );
-		}
-	}, 50 );
-}
+import { queuePageReload } from './utils';
 
 function handleCheckoutClose( completed ) {
 	if ( ! completed ) {
 		return;
 	}
-	window.newspackRAS.push( ras => {
-		setTimeout( () => {
-			if ( ras.overlays.get().length ) {
-				ras.on( 'overlay', handleCheckoutOverlayClose );
-				return;
-			}
-			window.location.reload();
-		}, 50 );
-	} );
+	queuePageReload();
 }
 
 window.newspackRAS = window.newspackRAS || [];

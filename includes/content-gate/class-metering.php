@@ -47,7 +47,7 @@ class Metering {
 	 * @return bool
 	 */
 	public static function restrict_post( $restrict ) {
-		if ( self::is_metering() ) {
+		if ( $restrict && self::is_metering() ) {
 			return false;
 		}
 		return $restrict;
@@ -216,7 +216,15 @@ class Metering {
 	 * @return bool
 	 */
 	public static function is_frontend_metering() {
-		// Frotend metering strategy should only be applied for anonymous readers.
+		/**
+		 * This filter documented in the `is_metering` method.
+		 */
+		$short_circuit = apply_filters( 'newspack_content_gate_metering_short_circuit', null );
+		if ( null !== $short_circuit ) {
+			return false;
+		}
+
+		// Frontend metering strategy should only be applied for anonymous readers.
 		if ( \is_user_logged_in() ) {
 			return false;
 		}
@@ -248,6 +256,14 @@ class Metering {
 	 * @return bool
 	 */
 	public static function is_logged_in_metering_allowed( $post_id = null ) {
+		/**
+		 * This filter documented in the `is_metering` method.
+		 */
+		$short_circuit = apply_filters( 'newspack_content_gate_metering_short_circuit', null );
+		if ( null !== $short_circuit ) {
+			return false;
+		}
+
 		if ( ! $post_id ) {
 			$post_id = get_the_ID();
 		}
@@ -272,7 +288,8 @@ class Metering {
 		}
 
 		// Aggregate metering by gate priority, if available.
-		$user_meta_key = self::METERING_META_KEY . '_' . ( $priority ? $priority : $gate_post_id );
+		$suffix = Content_Gate::is_newspack_feature_enabled() && $priority ? $priority : $gate_post_id;
+		$user_meta_key = self::METERING_META_KEY . '_' . $suffix;
 
 		$updated_user_data  = false;
 		$user_metering_data = \get_user_meta( get_current_user_id(), $user_meta_key, true );
@@ -327,6 +344,24 @@ class Metering {
 	 * @return bool
 	 */
 	public static function is_metering() {
+		/**
+		 * Short-circuit the metering check. Anything other than null
+		 * will prevent the metering logic from running.
+		 *
+		 * The `is_logged_in_metering_allowed` method also updates the user meta
+		 * to track the content that's been allowed to access. This short-circuit
+		 * prevents this from running if we want the entire metering feature to be
+		 * skipped.
+		 *
+		 * @param mixed $short_circuit Short-circuit value. Default is null.
+		 *
+		 * @return mixed Short-circuit value.
+		 */
+		$short_circuit = apply_filters( 'newspack_content_gate_metering_short_circuit', null );
+		if ( null !== $short_circuit ) {
+			return false;
+		}
+
 		return self::is_frontend_metering() || self::is_logged_in_metering_allowed();
 	}
 

@@ -107,9 +107,18 @@ class Audience_Wizard extends Wizard {
 
 		$data['is_skipped_campaign_setup'] = Reader_Activation::is_skipped( 'ras_campaign' );
 
+		$gates        = Content_Gate::get_gates();
+		$has_metering = false;
+		foreach ( $gates as $gate ) {
+			if ( $gate['status'] === 'publish' && isset( $gate['metering'] ) && $gate['metering']['enabled'] ) {
+				$has_metering = true;
+				break;
+			}
+		}
+
 		$data['content_gifting'] = [
 			'can_use_gifting' => Content_Gifting::can_use_gifting( true ),
-			'metering_notice' => Content_Gifting::should_render_metering_notice(),
+			'has_metering'    => $has_metering,
 		];
 
 		wp_enqueue_script( 'newspack-wizards' );

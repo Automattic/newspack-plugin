@@ -75,6 +75,15 @@ class Content_Gate {
 	}
 
 	/**
+	 * Whether the first-party Newspack feature is enabled.
+	 *
+	 * @return bool
+	 */
+	public static function is_newspack_feature_enabled() {
+		return defined( 'NEWSPACK_CONTENT_GATES' ) && NEWSPACK_CONTENT_GATES;
+	}
+
+	/**
 	 * Restrict the post.
 	 *
 	 * @param \WP_Post  $post Post object.
