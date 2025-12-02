@@ -303,6 +303,10 @@ class Subscriptions_Tiers {
 				continue;
 			}
 
+			if ( $product->get_status() === 'private' ) {
+				continue;
+			}
+
 			// Extract the variations if it's a variable subscription product.
 			if ( $product->is_type( 'variable-subscription' ) ) {
 				$variations = $product->get_available_variations();
