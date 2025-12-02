@@ -224,7 +224,7 @@ class Metering {
 			return false;
 		}
 
-		// Frotend metering strategy should only be applied for anonymous readers.
+		// Frontend metering strategy should only be applied for anonymous readers.
 		if ( \is_user_logged_in() ) {
 			return false;
 		}
