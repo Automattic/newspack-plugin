@@ -178,7 +178,7 @@ class Content_Gifting_CTA {
 					<div class="newspack-ui__font--s">
 						<?php echo esc_html( self::get_cta_label() ); ?>
 						<?php if ( ! is_user_logged_in() ) : ?>
-							<div className="newspack-ui__font--xs newspack-content-gifting__cta__content__links">
+							<div class="newspack-ui__font--xs newspack-content-gifting__cta__content__links">
 								<?php if ( Metering::has_metering( get_the_ID() ) ) : ?>
 									<a href="#register_modal"><?php echo esc_html( __( 'Create an account', 'newspack-plugin' ) ); ?></a>
 								<?php else : ?>
