@@ -24,7 +24,7 @@ class WooCommerce_Subscriptions {
 	}
 
 	/**
-	 * Filter to allow migrated subscription withou a last order date to switch.
+	 * Filter to allow migrated subscription without a last order date to switch.
 	 *
 	 * This filter will also populate the subscription's last order date meta with
 	 * the scheduled start date.
