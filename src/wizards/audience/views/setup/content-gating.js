@@ -199,7 +199,7 @@ export default withWizardScreen( ( { wizardApiFetch } ) => {
 							</ToggleGroupControl>
 							<div style={ { gridColumn: '1 / -1' } }>
 								<BaseControl id="newspack-content-gifting-cta-preview" label={ __( 'Preview', 'newspack-plugin' ) }>
-									<div className="newspack-content-gifting__cta-preview" inert="true">
+									<div className="newspack-content-gifting__cta-preview" inert>
 										<div className="newspack-ui">
 											<div
 												className={ `banner newspack-content-gifting__cta is-style-${
