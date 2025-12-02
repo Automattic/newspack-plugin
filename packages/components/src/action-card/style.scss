@@ -260,6 +260,16 @@
 			@media screen and (min-width: 744px) {
 				margin-bottom: 0;
 				margin-right: 24px;
+
+				&.is-toggle-trailing {
+					margin-left: 24px;
+					margin-right: 0;
+					order: 999;
+				}
+			}
+
+			label {
+				display: none;
 			}
 
 			.components-base-control__field {

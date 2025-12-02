@@ -1,5 +1,7 @@
 .newspack-ui {
 	&__spinner {
+		flex-direction: column;
+		gap: var(--newspack-ui-spacer-2);
 		align-items: center;
 		background: var(--newspack-ui-color-neutral-0);
 		border-radius: var(--newspack-ui-border-radius-m);
@@ -7,7 +9,6 @@
 		height: 100%;
 		justify-content: center;
 		left: 50%;
-		opacity: 0.7;
 		position: fixed;
 		top: 50%;
 		transform: translate(-50%, -50%);
@@ -22,6 +23,9 @@
 			border-radius: 50%;
 			height: calc(var(--newspack-ui-spacer-base) * 2.25);
 			width: calc(var(--newspack-ui-spacer-base) * 2.25);
+		}
+		p {
+			font-weight: 600;
 		}
 	}
 }

@@ -1,22 +1,12 @@
 # Custom Bylines
 
-**This feature is under development and is not meant to be used in production sites**
-
 This feature allows authors to add custom bylines to posts.
 
 ## How it works
 
-When you enable this feature, a new settings panel will be added to the post editor sidebar. You can use this panel to add a custom byline. The byline will be displayed before the post content. (See Data section below for the format of bylines)
+When you enable this feature, a new settings panel will be added to the post editor sidebar. You can use this panel to add a custom byline.
 
-Once inserted, the custom byline will be inserted at the top of the content, both in the Editor and in the front-end site (temporary behavior for migration QA purposes)
-
-## Usage
-
-This feature can be enabled by adding the following constant to your `wp-config.php`:
-
-```php
-define( 'NEWSPACK_BYLINES_ENABLED', true );
-```
+Note that the custom bylines does not interfere with the post's authors. Removing a name from the byline does not remove that author from the post. This means that the author's bio might still show up at the bottom of the post and that the post will still show up in that author's archive. This is intentional.
 
 ## Data
 

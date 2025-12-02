@@ -24,8 +24,46 @@ function handleCheckoutClose( completed ) {
 	} );
 }
 
+window.newspackRAS = window.newspackRAS || [];
+
 export default function init() {
 	domReady( () => {
+		const params = new URLSearchParams( window.location.search );
+		const isSwitchingSubscription = params.get( 'upgrade-subscription' ) || params.get( 'switch' );
+
+		// Remove modal query params from the URL.
+		if ( params.get( 'upgrade-subscription' ) || params.get( 'tiers-modal' ) || params.get( 'switch' ) ) {
+			const newParams = new URLSearchParams( params );
+			newParams.delete( 'upgrade-subscription' );
+			newParams.delete( 'tiers-modal' );
+			newParams.delete( 'switch' );
+			const newQueryString = newParams.toString() ? '?' + newParams.toString() : '';
+			window.history.replaceState( {}, '', window.location.pathname + newQueryString );
+		}
+
+		// Handle authentication flow for switching subscriptions.
+		window.newspackRAS.push( ras => {
+			const reader = ras.getReader();
+			if ( isSwitchingSubscription && ! reader?.authenticated ) {
+				ras.openAuthModal( {
+					labels: {
+						signin: {
+							title: window.newspack_reader_activation_labels.sign_in_to_upgrade,
+						},
+						register: {
+							title: window.newspack_reader_activation_labels.register_to_upgrade,
+						},
+					},
+					skipSuccess: true,
+					skipNewslettersSignup: true,
+					closeOnSuccess: false,
+					onSuccess: () => {
+						window.location.href = window.location.pathname + '?' + params.toString();
+					},
+				} );
+			}
+		} );
+
 		const forms = document.querySelectorAll( '.newspack__subscription-tiers__form' );
 		if ( ! forms.length ) {
 			return;
@@ -135,14 +173,36 @@ export default function init() {
 					onClose: () => handleCheckoutClose( completed ),
 				} );
 			} );
-		} );
 
-		// Remove the `upgrade-subscription` query param from the URL.
-		const params = new URLSearchParams( window.location.search );
-		if ( params.get( 'upgrade-subscription' ) ) {
-			params.delete( 'upgrade-subscription' );
-			const newQueryString = params.toString() ? '?' + params.toString() : '';
-			window.history.replaceState( {}, '', window.location.pathname + newQueryString );
-		}
+			const signinLink = form.querySelector( '.signin-link' );
+			if ( signinLink ) {
+				signinLink.addEventListener( 'click', ev => {
+					ev.preventDefault();
+					if ( modal ) {
+						modal.setAttribute( 'data-state', 'closed' );
+					}
+					window.newspackRAS.push( ras => {
+						ras.openAuthModal( {
+							skipSuccess: true,
+							skipNewslettersSignup: true,
+							onSuccess: () => {
+								// Append the 'tiers-modal' query param to the URL.
+								const urlParams = new URLSearchParams( window.location.search );
+								urlParams.set( 'tiers-modal', form.dataset.productId || '' );
+								if ( isSwitchingSubscription ) {
+									urlParams.set( 'switch', '1' );
+								}
+								window.location.href = window.location.pathname + '?' + urlParams.toString();
+							},
+							onDismiss: () => {
+								if ( modal ) {
+									modal.setAttribute( 'data-state', 'open' );
+								}
+							},
+						} );
+					} );
+				} );
+			}
+		} );
 	} );
 }

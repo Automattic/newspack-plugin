@@ -48,7 +48,7 @@ export default function ContentGateSettings( { gate, onDelete, onSave }: Content
 				},
 			}
 		);
-	}, [ gate.id, accessRules, contentRules, metering ] );
+	}, [ gate, accessRules, contentRules, metering, wizardApiFetch, onSave ] );
 
 	const handleDelete = useCallback( () => onDelete( gate.id ), [ gate.id, onDelete ] );
 

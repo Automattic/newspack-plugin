@@ -103,7 +103,7 @@ function initReloadHandler() {
 }
 
 /**
- * Adds 'memberships_content_gate' hidden input to every form inside the gate.
+ * Adds 'gate_post_id' hidden input to every form inside the gate.
  *
  * @param {HTMLElement} gate The gate element.
  */
@@ -115,10 +115,10 @@ function addFormInputs( gate ) {
 		...gate.querySelectorAll( '.wp-block-newspack-blocks-donate form' ), // Donate block.
 	];
 	forms.forEach( form => {
-		if ( ! form.querySelector( 'input[name="memberships_content_gate"]' ) ) {
+		if ( ! form.querySelector( 'input[name="gate_post_id"]' ) ) {
 			const input = document.createElement( 'input' );
 			input.type = 'hidden';
-			input.name = 'memberships_content_gate';
+			input.name = 'gate_post_id';
 			input.value = newspack_content_gate.metadata?.gate_post_id || '1';
 			form.appendChild( input );
 			form.addEventListener( 'submit', evt => handleFormSubmission( evt, gate ) );

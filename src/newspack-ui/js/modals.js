@@ -4,12 +4,69 @@
 
 import { domReady } from '../../utils';
 
+window.newspackRAS = window.newspackRAS || [];
+
+/**
+ * Handle overlays for a modal based on its state.
+ *
+ * @param {HTMLElement} modal The modal element.
+ * @param {string}      state The current state ('open' or 'closed').
+ */
+function handleModalOverlay( modal, state ) {
+	window.newspackRAS.push( ras => {
+		if ( state === 'open' ) {
+			// Remove any existing overlays first (in case of state toggle)
+			if ( modal._overlayId ) {
+				ras.overlays.remove( modal._overlayId );
+			}
+			modal._overlayId = ras.overlays.add();
+		} else if ( state === 'closed' ) {
+			if ( modal._overlayId ) {
+				ras.overlays.remove( modal._overlayId );
+				modal._overlayId = null;
+			}
+		}
+	} );
+}
+
+/**
+ * Set up mutation observer for a modal to watch for state changes.
+ *
+ * @param {HTMLElement} modal The modal element.
+ */
+function setupModalObserver( modal ) {
+	// Handle initial state
+	const initialState = modal.dataset.state;
+	if ( initialState === 'open' ) {
+		handleModalOverlay( modal, 'open' );
+	}
+
+	// Watch for state changes
+	const observer = new MutationObserver( mutations => {
+		mutations.forEach( mutation => {
+			if ( mutation.type === 'attributes' && mutation.attributeName === 'data-state' ) {
+				const newState = modal.dataset.state;
+				handleModalOverlay( modal, newState );
+			}
+		} );
+	} );
+
+	observer.observe( modal, {
+		attributes: true,
+		attributeFilter: [ 'data-state' ],
+	} );
+}
+
 domReady( function () {
 	const modals = [ ...document.querySelectorAll( '.newspack-ui__modal-container' ) ];
 
 	modals.forEach( modal => {
 		const content = modal.querySelector( '.newspack-ui__modal__content' );
 		const closeButtons = [ ...modal.querySelectorAll( '.newspack-ui__modal__close' ) ];
+
+		// Set up mutation observer for automatic overlay management
+		setupModalObserver( modal );
+
 		closeButtons.forEach( closeButton => {
 			closeButton.addEventListener( 'click', e => {
 				e.preventDefault();

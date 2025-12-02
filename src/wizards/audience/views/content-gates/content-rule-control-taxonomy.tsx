@@ -14,7 +14,7 @@ import { decodeEntities } from '@wordpress/html-entities';
 import { addQueryArgs } from '@wordpress/url';
 
 const debounce = ( func: ( search?: string ) => void, wait: number ) => {
-	let timeout: NodeJS.Timeout;
+	let timeout: ReturnType< typeof setTimeout >;
 	return ( search?: string ) => {
 		clearTimeout( timeout );
 		timeout = setTimeout( () => func( search ), wait );
@@ -50,15 +50,22 @@ export default function ContentRuleControlTaxonomy( { slug, value, onChange }: G
 					per_page: 10,
 					_fields: 'id,name',
 				} ),
-			} ).then( terms => {
-				if ( ! terms || terms.length === 0 ) {
-					setSuggestions( [] );
-					return;
-				}
-				setSuggestions(
-					terms.map( term => ( { value: term.id.toString(), label: decodeEntities( term.name ) || __( '(no name)', 'newspack-plugin' ) } ) )
-				);
-			} );
+			} )
+				.then( terms => {
+					if ( ! terms || terms.length === 0 ) {
+						setSuggestions( [] );
+						return;
+					}
+					setSuggestions(
+						terms.map( term => ( {
+							value: term.id.toString(),
+							label: decodeEntities( term.name ) || __( '(no name)', 'newspack-plugin' ),
+						} ) )
+					);
+				} )
+				.catch( error => {
+					console.warn( 'Error fetching suggestions for taxonomy: ' + endpoint, error ); // eslint-disable-line no-console
+				} );
 		},
 		[ endpoint ]
 	);
@@ -72,19 +79,23 @@ export default function ContentRuleControlTaxonomy( { slug, value, onChange }: G
 			path: addQueryArgs( 'wp/v2/' + endpoint, {
 				include: value.join( ',' ),
 			} ),
-		} ).then( terms => {
-			setSavedItems(
-				terms.map( term => ( { value: term.id.toString(), label: decodeEntities( term.name ) || __( '(no name)', 'newspack-plugin' ) } ) )
-			);
-		} );
-	}, [] );
+		} )
+			.then( terms => {
+				setSavedItems(
+					terms.map( term => ( { value: term.id.toString(), label: decodeEntities( term.name ) || __( '(no name)', 'newspack-plugin' ) } ) )
+				);
+			} )
+			.catch( error => {
+				console.warn( 'Error fetching saved items for taxonomy: ' + endpoint, error ); // eslint-disable-line no-console
+			} );
+	}, [ value, endpoint ] );
 
 	// Set initial suggestions.
 	useEffect( () => {
 		fetchSuggestions();
 	}, [ fetchSuggestions ] );
 
-	const debouncedFetchSuggestions = useCallback( debounce( fetchSuggestions, 100 ), [] );
+	const debouncedFetchSuggestions = useMemo( () => debounce( fetchSuggestions, 100 ), [ fetchSuggestions ] );
 
 	const handleInputChange = ( search: string ) => {
 		debouncedFetchSuggestions( search );
@@ -108,7 +119,7 @@ export default function ContentRuleControlTaxonomy( { slug, value, onChange }: G
 				}
 				return items.find( i => i.value === t.value );
 			} );
-			onChange( foundItems.filter( i => i !== undefined )?.map( i => i.value ) );
+			onChange( foundItems.filter( i => i !== undefined ).map( i => i.value ) );
 		},
 		[ savedItems, suggestions, onChange ]
 	);
