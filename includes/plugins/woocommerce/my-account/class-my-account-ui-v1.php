@@ -653,14 +653,15 @@ class My_Account_UI_V1 {
 		$content = ob_get_clean();
 		Newspack_UI::generate_modal(
 			[
-				'id'         => 'add-payment-method',
-				'title'      => __( 'Add Payment Method', 'newspack-plugin' ),
-				'content'    => $content,
-				'size'       => 'medium',
-				'form'       => 'POST',
-				'form_class' => 'newspack-ui__accordion newspack-ui__accordion--open',
-				'form_id'    => 'add_payment_method',
-				'actions'    => [
+				'id'              => 'add-payment-method',
+				'title'           => __( 'Add Payment Method', 'newspack-plugin' ),
+				'content'         => $content,
+				'content_is_safe' => true, // Allow the contents of `woocommerce_account_add_payment_method` to be rendered as is.
+				'size'            => 'medium',
+				'form'            => 'POST',
+				'form_class'      => 'newspack-ui__accordion newspack-ui__accordion--open',
+				'form_id'         => 'add_payment_method',
+				'actions'         => [
 					'cancel' => [
 						'label'  => __( 'Cancel', 'newspack-plugin' ),
 						'type'   => 'ghost',
@@ -685,40 +686,44 @@ class My_Account_UI_V1 {
 		$address_types = \apply_filters( 'woocommerce_my_account_get_addresses', $address_types );
 		foreach ( $address_types as $address_type => $address_name ) {
 			$address = \wc_get_account_formatted_address( $address_type );
+
 			ob_start();
 			\woocommerce_account_edit_address( $address_type );
-				$content          = ob_get_clean();
-				$edit_address_url = \add_query_arg(
-					'edit-address',
-					$address_type,
-					\wc_get_endpoint_url( 'edit-address', $address_type )
-				);
-				Newspack_UI::generate_modal(
-					[
-						'id'          => 'edit-address-' . $address_type,
-						'title'       => ! empty( $address ) ? sprintf(
-							// Translators: %s is the address type.
-							__( 'Edit %s address', 'newspack-plugin' ),
-							$address_type
-						) : sprintf(
-							// Translators: %s is the address type.
-							__( 'Add %s address', 'newspack-plugin' ),
-							$address_type
-						),
-						'content'     => $content,
-						'size'        => 'medium',
-						'form'        => 'POST',
-						'form_id'     => 'edit_address_' . $address_type,
-						'form_action' => $edit_address_url,
-						'actions'     => [
-							'cancel' => [
-								'label'  => __( 'Cancel', 'newspack-plugin' ),
-								'type'   => 'ghost',
-								'action' => 'close',
-							],
+			$content = ob_get_clean();
+
+			$edit_address_url = \add_query_arg(
+				'edit-address',
+				$address_type,
+				\wc_get_endpoint_url( 'edit-address', $address_type )
+			);
+
+			Newspack_UI::generate_modal(
+				[
+					'id'              => 'edit-address-' . $address_type,
+					'title'           => ! empty( $address ) ? sprintf(
+						// Translators: %s is the address type.
+						__( 'Edit %s address', 'newspack-plugin' ),
+						$address_type
+					) : sprintf(
+						// Translators: %s is the address type.
+						__( 'Add %s address', 'newspack-plugin' ),
+						$address_type
+					),
+					'content'         => $content,
+					'content_is_safe' => true, // Allow the contents of `woocommerce_account_edit_address` to be rendered as is.
+					'size'            => 'medium',
+					'form'            => 'POST',
+					'form_id'         => 'edit_address_' . $address_type,
+					'form_action'     => $edit_address_url,
+					'actions'         => [
+						'cancel' => [
+							'label'  => __( 'Cancel', 'newspack-plugin' ),
+							'type'   => 'ghost',
+							'action' => 'close',
 						],
-					]
-				);
+					],
+				]
+			);
 		}
 	}
 
