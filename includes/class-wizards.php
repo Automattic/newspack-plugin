@@ -56,6 +56,7 @@ class Wizards {
 						'seo'           => 'Newspack\Wizards\Newspack\Seo_Section',
 						'collections'   => 'Newspack\Wizards\Newspack\Collections_Section',
 						'print'         => 'Newspack\Wizards\Newspack\Print_Section',
+						'nextdoor'      => 'Newspack\Wizards\Newspack\Nextdoor_Section',
 					],
 				]
 			),

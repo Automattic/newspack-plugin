@@ -20,7 +20,7 @@ module.exports = api => {
 					importSource: process.env.IMPORT_SOURCE,
 				},
 			],
-			[ '@babel/preset-typescript', { allowDeclareFields: true } ],
+			[ '@babel/preset-typescript', { allowDeclareFields: true, allExtensions: true, isTSX: true } ],
 		],
 	};
 };

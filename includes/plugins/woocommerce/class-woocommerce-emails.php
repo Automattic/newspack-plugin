@@ -44,6 +44,9 @@ class WooCommerce_Emails {
 	 * @param string $option Option name.
 	 */
 	public static function override_woocommerce_email_editor_option( $value, $option ) {
+		if ( ! self::is_active() ) {
+			return $value;
+		}
 		return self::is_enabled();
 	}
 
@@ -69,7 +72,7 @@ class WooCommerce_Emails {
 	 * Update any existing woocommerce block emails to the latest content if they haven't been customized.
 	 */
 	public static function update_woocommerce_emails_to_latest() {
-		if ( ! class_exists( '\Automattic\WooCommerce\Internal\EmailEditor\WCTransactionalEmails\WCTransactionalEmails' ) ) {
+		if ( ! self::is_active() || ! class_exists( '\Automattic\WooCommerce\Internal\EmailEditor\WCTransactionalEmails\WCTransactionalEmails' ) ) {
 			return;
 		}
 		if ( 'yes' === self::is_enabled() && 'v1' !== get_option( self::WOOCOMMERCE_EMAILS_UPDATED_OPTION, '' ) ) {
@@ -92,6 +95,15 @@ class WooCommerce_Emails {
 			$email_template_generator->initialize();
 			update_option( self::WOOCOMMERCE_EMAILS_UPDATED_OPTION, 'v1' );
 		}
+	}
+
+	/**
+	 * Whether email enhancements are active.
+	 *
+	 * @return bool
+	 */
+	public static function is_active() {
+		return defined( 'NEWSPACK_EMAIL_ENHANCEMENTS' ) && NEWSPACK_EMAIL_ENHANCEMENTS;
 	}
 }
 WooCommerce_Emails::init();

@@ -9,7 +9,7 @@ import '../../shared/js/public-path';
 /**
  * WordPress dependencies.
  */
-import { Component, Fragment, render, createInterpolateElement } from '@wordpress/element';
+import { Component, Fragment, render, createInterpolateElement, createRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Icon, audio, category, plus, reusableBlock, typography } from '@wordpress/icons';
 import { ExternalLink } from '@wordpress/components';
@@ -20,6 +20,7 @@ import { ExternalLink } from '@wordpress/components';
 import {
 	ActionCard,
 	AutocompleteWithSuggestions,
+	AutocompleteWithLatestPosts,
 	BoxContrast,
 	Button,
 	ButtonCard,
@@ -51,6 +52,8 @@ class ComponentsDemo extends Component {
 		this.state = {
 			selectedPostForAutocompleteWithSuggestions: [],
 			selectedPostsForAutocompleteWithSuggestionsMultiSelect: [],
+			selectedPostForAutocompleteWithLatestPosts: [],
+			selectedPostsForAutocompleteWithLatestPostsMultiSelect: [],
 			image: null,
 			selectValue1: '2nd',
 			selectValue2: '',
@@ -58,7 +61,15 @@ class ComponentsDemo extends Component {
 			selectValues: [],
 			modalShown: false,
 			color1: '#003da5',
+			draggableList: [
+				{ id: 1, title: 'Draggable Item 1' },
+				{ id: 2, title: 'Draggable Item 2' },
+				{ id: 3, title: 'Draggable Item 3' },
+				{ id: 4, title: 'Draggable Item 4' },
+				{ id: 5, title: 'Draggable Item 5' },
+			],
 		};
+		this.dragWrapperRef = createRef();
 	}
 
 	/**
@@ -68,6 +79,8 @@ class ComponentsDemo extends Component {
 		const {
 			selectedPostForAutocompleteWithSuggestions,
 			selectedPostsForAutocompleteWithSuggestionsMultiSelect,
+			selectedPostForAutocompleteWithLatestPosts,
+			selectedPostsForAutocompleteWithLatestPostsMultiSelect,
 			selectValue1,
 			selectValue2,
 			selectValue3,
@@ -132,6 +145,30 @@ class ComponentsDemo extends Component {
 						/>
 					</Card>
 					<Card>
+						<h2>{ __( 'Autocomplete with Latest Posts (single-select)', 'newspack-plugin' ) }</h2>
+						<AutocompleteWithLatestPosts
+							hideHelp
+							label={ __( 'Posts', 'newspack-plugin' ) }
+							onChange={ items => this.setState( { selectedPostForAutocompleteWithLatestPosts: items } ) }
+							selectedItems={ selectedPostForAutocompleteWithLatestPosts }
+						/>
+
+						<hr />
+
+						<h2>{ __( 'Autocomplete with Latest Posts (multi-select)', 'newspack-plugin' ) }</h2>
+						<AutocompleteWithLatestPosts
+							hideHelp
+							multiSelect
+							label={ __( 'Posts', 'newspack-plugin' ) }
+							onChange={ items =>
+								this.setState( {
+									selectedPostsForAutocompleteWithLatestPostsMultiSelect: items,
+								} )
+							}
+							selectedItems={ selectedPostsForAutocompleteWithLatestPostsMultiSelect }
+						/>
+					</Card>
+					<Card>
 						<h2>{ __( 'Plugin toggles', 'newspack-plugin' ) }</h2>
 						<PluginToggle
 							plugins={ {
@@ -148,14 +185,15 @@ class ComponentsDemo extends Component {
 					<Card>
 						<h2>{ __( 'Web Previews', 'newspack-plugin' ) }</h2>
 						<Card buttonsCard noBorder className="items-center">
-							<WebPreview url="//newspack.com/" label={ __( 'Preview Newspack Blog', 'newspack-plugin' ) } variant="primary" />
+							<WebPreview url="//newspack.com/" label={ __( 'Preview Newspack Site', 'newspack-plugin' ) } variant="primary" />
 							<WebPreview
 								url="//newspack.com/"
 								renderButton={ ( { showPreview } ) => (
 									<a href="#" onClick={ showPreview }>
-										{ __( 'Preview Newspack Blog', 'newspack-plugin' ) }
+										{ __( 'Preview Newspack Site', 'newspack-plugin' ) }
 									</a>
 								) }
+								title={ __( 'Preview Newspack Site', 'newspack-plugin' ) }
 							/>
 						</Card>
 					</Card>
@@ -418,6 +456,16 @@ class ComponentsDemo extends Component {
 						badgeLevel="error"
 						title={ __( 'Example Seventeen', 'newspack-plugin' ) }
 						description={ __( 'An example of an action card with an error badge.', 'newspack-plugin' ) }
+						actionText={ __( 'Install', 'newspack-plugin' ) }
+						onClick={ () => {
+							console.log( 'Install clicked' );
+						} }
+					/>
+					<ActionCard
+						badge={ __( 'Brand awareness', 'newspack-plugin' ) }
+						badgeLevel="brand"
+						title={ __( 'Example Eighteen', 'newspack-plugin' ) }
+						description={ __( 'An example of an action card with a brand-colored badge.', 'newspack-plugin' ) }
 						actionText={ __( 'Install', 'newspack-plugin' ) }
 						onClick={ () => {
 							console.log( 'Install clicked' );
@@ -710,6 +758,28 @@ class ComponentsDemo extends Component {
 								console.log( 'Plugin Settings Section Changed', { key, val } );
 							} }
 						/>
+					</Card>
+					<Card>
+						<h2>{ __( 'Draggable Action Cards', 'newspack-plugin' ) }</h2>
+						<div ref={ this.dragWrapperRef }>
+							{ this.state.draggableList.map( ( { id, title }, index ) => (
+								<ActionCard
+									key={ id }
+									id={ id }
+									draggable
+									dragIndex={ index }
+									dragWrapperRef={ this.dragWrapperRef }
+									onDragCallback={ newIndex => {
+										const newList = [ ...this.state.draggableList ];
+										const [ movedItem ] = newList.splice( index, 1 );
+										newList.splice( newIndex, 0, movedItem );
+										this.setState( { draggableList: newList } );
+									} }
+									title={ title }
+									description={ __( 'An example of an action card that is draggable.', 'newspack-plugin' ) }
+								/>
+							) ) }
+						</div>
 					</Card>
 					<Card>
 						<h2>{ __( 'Box Contrast', 'newspack-plugin' ) }</h2>

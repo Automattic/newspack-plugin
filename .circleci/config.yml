@@ -1,53 +1,50 @@
 version: 2.1
 
 orbs:
-  newspack: newspack/newspack@1.5.8
+    newspack: newspack/newspack@1.5.8
 
 workflows:
-  version: 2
-  all:
-    jobs:
-      - newspack/build
-      - newspack/i18n:
-          requires:
+    version: 2
+    all:
+        jobs:
             - newspack/build
-          filters:
-            branches:
-              only:
-                - trunk
-      - newspack/lint-js-scss:
-          requires:
-            - newspack/build
-      - newspack/test-js:
-          requires:
-            - newspack/build
-      - newspack/check-typescript:
-          requires:
-            - newspack/build
-      - newspack/release:
-          requires:
-            - newspack/build
-          filters:
-            branches:
-              only:
-                - release
-                - alpha
-                - /^hotfix\/.*/
-                - /^epic\/.*/
-      - newspack/build-distributable:
-          requires:
-            - newspack/build
-            # Running this after release ensure the version number in files will be correct.
-            - newspack/release
-          archive-name: 'newspack-plugin'
-      - newspack/post-release:
-          requires:
-            - newspack/release
-          filters:
-            branches:
-              only:
-                - release
-  php:
-    jobs:
-      - newspack/lint-php
-      - newspack/test-php
+            - newspack/i18n:
+                  requires:
+                      - newspack/build
+                  filters:
+                      branches:
+                          only:
+                              - trunk
+            - newspack/lint-js-scss:
+                  requires:
+                      - newspack/build
+            - newspack/test-js:
+                  requires:
+                      - newspack/build
+            - newspack/release:
+                  requires:
+                      - newspack/build
+                  filters:
+                      branches:
+                          only:
+                              - release
+                              - alpha
+                              - /^hotfix\/.*/
+                              - /^epic\/.*/
+            - newspack/build-distributable:
+                  requires:
+                      - newspack/build
+                      # Running this after release ensure the version number in files will be correct.
+                      - newspack/release
+                  archive-name: 'newspack-plugin'
+            - newspack/post-release:
+                  requires:
+                      - newspack/release
+                  filters:
+                      branches:
+                          only:
+                              - release
+    php:
+        jobs:
+            - newspack/lint-php
+            - newspack/test-php

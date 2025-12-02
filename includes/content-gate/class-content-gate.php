@@ -19,6 +19,13 @@ class Content_Gate {
 	const GATE_CPT = 'np_memberships_gate';
 
 	/**
+	 * The rendered gate post ID.
+	 *
+	 * @var int|false
+	 */
+	private static $gate_post_id = false;
+
+	/**
 	 * Whether the gate has been rendered in this execution.
 	 *
 	 * @var boolean
@@ -46,7 +53,7 @@ class Content_Gate {
 		add_filter( 'newspack_popups_assess_has_disabled_popups', [ __CLASS__, 'disable_popups' ] );
 		add_filter( 'newspack_reader_activity_article_view', [ __CLASS__, 'suppress_article_view_activity' ], 100 );
 
-		add_action( 'the_post', [ __CLASS__, 'restrict_post' ] );
+		add_action( 'the_post', [ __CLASS__, 'restrict_post' ], 10, 2 );
 
 		/** Add gate content filters to mimic 'the_content'. See 'wp-includes/default-filters.php' for reference. */
 		add_filter( 'newspack_gate_content', 'capital_P_dangit', 11 );
@@ -60,17 +67,27 @@ class Content_Gate {
 		add_filter( 'newspack_gate_content', 'wp_replace_insecure_home_url' );
 		add_filter( 'newspack_gate_content', 'do_shortcode', 11 ); // AFTER wpautop().
 
+		include __DIR__ . '/class-access-rules.php';
 		include __DIR__ . '/class-content-restriction-control.php';
 		include __DIR__ . '/class-block-patterns.php';
 		include __DIR__ . '/class-metering.php';
+		include __DIR__ . '/content-gifting/class-content-gifting.php';
 	}
 
 	/**
 	 * Restrict the post.
 	 *
-	 * @param \WP_Post $post Post object.
+	 * @param \WP_Post  $post Post object.
+	 * @param \WP_Query $query Query object.
 	 */
-	public static function restrict_post( $post ) {
+	public static function restrict_post( $post, $query ) {
+		if ( ! $query->is_main_query() ) {
+			return;
+		}
+		if ( self::has_rendered() ) {
+			return;
+		}
+
 		// Don't apply our restriction strategy if Woo Memberships is active.
 		if ( Memberships::is_active() ) {
 			return;
@@ -107,6 +124,7 @@ class Content_Gate {
 		$post->post_excerpt   = $content;
 		$post->comment_status = 'closed';
 		$post->comment_count  = 0;
+		self::mark_gate_as_rendered();
 	}
 
 	/**
@@ -166,7 +184,8 @@ class Content_Gate {
 				'show_ui'      => true,
 				'show_in_menu' => false,
 				'show_in_rest' => true,
-				'supports'     => [ 'editor', 'custom-fields', 'revisions' ],
+				'supports'     => [ 'editor', 'custom-fields', 'revisions', 'title' ],
+				'taxonomies'   => [ 'category', 'post_tag' ],
 			]
 		);
 	}
@@ -200,14 +219,51 @@ class Content_Gate {
 				'type'    => 'string',
 				'default' => 'medium',
 			],
+			'access_rules'       => [
+				'type'         => 'array',
+				'default'      => [],
+				'single'       => true,
+				'show_in_rest' => [
+					'schema' => [
+						'items' => [
+							'type'       => 'object',
+							'properties' => [
+								'slug'  => [
+									'type' => 'string',
+								],
+								'value' => [
+									'type' => 'mixed',
+								],
+							],
+						],
+					],
+				],
+			],
+			'post_types'         => [
+				'type'         => 'array',
+				'default'      => [ 'post' ],
+				'single'       => true,
+				'show_in_rest' => [
+					'schema' => [
+						'items' => [
+							'type' => 'string',
+						],
+					],
+				],
+			],
+			'gate_priority'      => [
+				'type'    => 'integer',
+				'default' => 0,
+			],
 		];
+
 		foreach ( $meta as $key => $config ) {
 			\register_meta(
 				'post',
 				$key,
 				[
 					'object_subtype' => self::GATE_CPT,
-					'show_in_rest'   => true,
+					'show_in_rest'   => $config['show_in_rest'] ?? true,
 					'type'           => $config['type'],
 					'default'        => $config['default'],
 					'single'         => true,
@@ -222,7 +278,13 @@ class Content_Gate {
 	public static function redirect_cpt() {
 		global $pagenow;
 		if ( 'edit.php' === $pagenow && isset( $_GET['post_type'] ) && self::GATE_CPT === $_GET['post_type'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			\wp_safe_redirect( \admin_url( 'admin.php?page=newspack-audience#/content-gating' ) );
+			$redirect = \admin_url( 'admin.php?page=newspack-audience#/content-gating' );
+
+			// Once the feature is fully released, this should be the default redirect.
+			if ( defined( 'NEWSPACK_CONTENT_GATES' ) && NEWSPACK_CONTENT_GATES ) {
+				$redirect = \admin_url( 'admin.php?page=newspack-audience-content-gates' );
+			}
+			\wp_safe_redirect( $redirect );
 			exit;
 		}
 	}
@@ -284,6 +346,8 @@ class Content_Gate {
 				'plans'              => Memberships::get_plans(),
 				'gate_plans'         => Memberships::get_gate_plans( get_the_ID() ),
 				'edit_plan_gate_url' => Memberships::get_edit_plan_gate_url(),
+				'post_types'         => Content_Restriction_Control::get_available_post_types(),
+				'access_rules'       => Access_Rules::get_access_rules(),
 			]
 		);
 
@@ -312,8 +376,7 @@ class Content_Gate {
 	 * @return int|false Post ID or false if not set.
 	 */
 	public static function get_gate_post_id( $post_id = null ) {
-		$gate_post_id = (int) \get_option( 'newspack_memberships_gate_post_id' );
-
+		$gate_post_id = intval( self::$gate_post_id ? self::$gate_post_id : \get_option( 'newspack_memberships_gate_post_id' ) );
 		if ( ! $gate_post_id ) {
 			$gate_post_id = false;
 		}
@@ -370,22 +433,48 @@ class Content_Gate {
 	}
 
 	/**
-	 * Whether the post is restricted for the current user.
+	 * Whether the post has restrictions
 	 *
 	 * @param int $post_id Post ID.
 	 *
 	 * @return bool
+	 */
+	public static function post_has_restrictions( $post_id = null ) {
+		$post_id = $post_id ? $post_id : get_the_ID();
+
+		// TODO: Content Gate content rules check.
+
+		/**
+		 * Filters whether the post has restrictions.
+		 *
+		 * @param bool $has_restrictions Whether the post has restrictions.
+		 * @param int  $post_id          Post ID.
+		 */
+		return apply_filters( 'newspack_post_has_restrictions', false, $post_id );
+	}
+
+	/**
+	 * Whether the post is restricted for the current user.
+	 *
+	 * @param int $post_id Post ID.
+	 *
+	 * @return int|bool Gate ID restricting the post, false if not restricted, or true if restricted by a Woo Memberships plan.
 	 */
 	public static function is_post_restricted( $post_id = null ) {
 		$post_id = $post_id ? $post_id : get_the_ID();
 
 		/**
 		 * Filters whether the post is restricted for the current user.
+		 * If the post is restricted by a content gate, return the gate post ID.
 		 *
-		 * @param bool $is_post_restricted Whether the post is restricted for the current user.
+		 * @param int|bool $restricted_by  If restricted, the gate post ID. False if not restricted.
 		 * @param int  $post_id            Post ID.
 		 */
-		return apply_filters( 'newspack_is_post_restricted', false, $post_id );
+		$restricted_by = apply_filters( 'newspack_is_post_restricted', false, $post_id );
+		if ( $restricted_by && is_int( $restricted_by ) ) {
+			self::$gate_post_id = $restricted_by;
+		}
+		return $restricted_by;
 	}
 
 	/**
@@ -456,12 +545,16 @@ class Content_Gate {
 	 * @param string $title Optional gate title. Defaults to 'Content Gate'.
 	 */
 	public static function create_gate( $title = '' ) {
-		$id = \wp_insert_post(
+		$all_gates = self::get_gates();
+		$id        = \wp_insert_post(
 			[
 				'post_title'   => $title,
 				'post_type'    => self::GATE_CPT,
 				'post_status'  => 'draft',
 				'post_content' => '<!-- wp:paragraph --><p>' . __( 'This post is only available to members.', 'newspack' ) . '</p><!-- /wp:paragraph -->',
+				'meta_input'   => [
+					'gate_priority' => count( $all_gates ),
+				],
 			]
 		);
 		if ( is_wp_error( $id ) ) {
@@ -547,6 +640,16 @@ class Content_Gate {
 		if ( ! self::has_gate() ) {
 			return;
 		}
+		if (
+			/**
+			 * Filters whether the overlay gate can be rendered.
+			 *
+			 * @param bool $can_render Whether the overlay gate can be rendered.
+			 */
+			! apply_filters( 'newspack_can_render_overlay_gate', true )
+		) {
+			return;
+		}
 		// Only render overlay gate for a restricted singular content.
 		if ( ! is_singular() || ! self::is_post_restricted() ) {
 			return;
@@ -611,6 +714,186 @@ class Content_Gate {
 			return false;
 		}
 		return $activity;
+	}
+
+	/**
+	 * Get gate.
+	 *
+	 * @param int $id Gate ID.
+	 *
+	 * @return array|\WP_Error The gate or error if not found.
+	 */
+	public static function get_gate( $id ) {
+		$post = get_post( $id );
+		if ( ! $post ) {
+			return new \WP_Error( 'newspack_content_gate_not_found', __( 'Gate not found.', 'newspack' ) );
+		}
+
+		return [
+			'id'            => $post->ID,
+			'status'        => $post->post_status,
+			'title'         => $post->post_title,
+			'description'   => $post->post_excerpt,
+			'metering'      => Metering::get_metering_settings( $post->ID ),
+			'priority'      => (int) get_post_meta( $post->ID, 'gate_priority', true ),
+			'access_rules'  => Access_Rules::get_post_access_rules( $post->ID ),
+			'content_rules' => self::get_post_content_rules( $post->ID ),
+		];
+	}
+
+	/**
+	 * Get the content rules.
+	 *
+	 * @return array The content rules.
+	 */
+	public static function get_content_rules() {
+		$content_rules = [
+			'post_types' => [
+				'name'    => __( 'Post Types', 'newspack-plugin' ),
+				'options' => Content_Restriction_Control::get_available_post_types(),
+				'default' => [ 'post' ],
+			],
+		];
+		$available_taxonomies = Content_Restriction_Control::get_available_taxonomies();
+		foreach ( $available_taxonomies as $taxonomy ) {
+			$content_rules[ $taxonomy['slug'] ] = [
+				'name'    => $taxonomy['label'],
+				'default' => [],
+			];
+		}
+
+		return $content_rules;
+	}
+
+	/**
+	 * Get the content rules for a post.
+	 *
+	 * @param int $post_id Post ID.
+	 *
+	 * @return array The content rules.
+	 */
+	public static function get_post_content_rules( $post_id ) {
+		$rules = \get_post_meta( $post_id, 'content_rules', true );
+		return $rules ? $rules : [];
+	}
+
+	/**
+	 * Update content rules for bypassing a content gate.
+	 *
+	 * @param int   $post_id Post ID.
+	 * @param array $rules   Array of post content rules.
+	 *
+	 * @return void
+	 */
+	public static function update_post_content_rules( $post_id, $rules ) {
+		\update_post_meta( $post_id, 'content_rules', $rules );
+	}
+
+	/**
+	 * Update single gate setting
+	 *
+	 * @param int    $id    Gate ID.
+	 * @param string $key   Gate setting key.
+	 * @param mixed  $value Gate setting value.
+	 *
+	 * @return array|\WP_Error
+	 */
+	public static function update_gate_setting( $id, $key, $value ) {
+		$post = get_post( $id );
+		if ( ! $post ) {
+			return new \WP_Error( 'newspack_content_gate_not_found', __( 'Gate not found.', 'newspack' ) );
+		}
+
+		$update = [];
+
+		if ( 'title' === $key ) {
+			$update['post_title'] = $value;
+		} elseif ( 'description' === $key ) {
+			$update['post_excerpt'] = $value;
+		} elseif ( 'gate_priority' === $key ) {
+			$update['meta_input'] = [
+				'gate_priority' => (int) $value,
+			];
+		} elseif ( 'metering' === $key ) {
+			Metering::update_metering_settings( $id, $value );
+			return self::get_gate( $id );
+		} elseif ( 'access_rules' === $key ) {
+			Access_Rules::update_post_access_rules( $id, $value );
+			return self::get_gate( $id );
+		} else {
+			return new \WP_Error( 'newspack_content_gate_invalid_key', __( 'Invalid gate setting key.', 'newspack' ) );
+		}
+
+		// Update title and description.
+		wp_update_post(
+			array_merge(
+				[
+					'ID' => $id,
+				],
+				$update
+			)
+		);
+
+		return self::get_gate( $id );
+	}
+
+	/**
+	 * Update gate settings
+	 *
+	 * @param int   $id   Gate ID.
+	 * @param array $gate Gate settings.
+	 *
+	 * @return array|\WP_Error
+	 */
+	public static function update_gate_settings( $id, $gate ) {
+		$post = get_post( $id );
+		if ( ! $post ) {
+			return new \WP_Error( 'newspack_content_gate_not_found', __( 'Gate not found.', 'newspack' ) );
+		}
+
+		// Update title and description.
+		wp_update_post(
+			[
+				'ID'           => $id,
+				'post_title'   => $gate['title'],
+				'post_excerpt' => $gate['description'],
+				'meta_input'   => [
+					'gate_priority' => $gate['priority'],
+				],
+			]
+		);
+
+		// Update metering settings.
+		Metering::update_metering_settings( $id, $gate['metering'] );
+
+		// Update access rules.
+		Access_Rules::update_post_access_rules( $id, $gate['access_rules'] );
+
+		// Update content rules.
+		self::update_post_content_rules( $id, $gate['content_rules'] );
+
+		return self::get_gate( $id );
+	}
+
+	/**
+	 * Get all gates.
+	 */
+	public static function get_gates() {
+		$posts = get_posts(
+			[
+				'post_type'      => self::GATE_CPT,
+				'post_status'    => [ 'publish', 'draft', 'trash', 'pending', 'future' ],
+				'posts_per_page' => -1,
+			]
+		);
+		$gates = array_map( [ __CLASS__, 'get_gate' ], wp_list_pluck( $posts, 'ID' ) );
+		usort(
+			$gates,
+			function( $a, $b ) {
+				return $a['priority'] <=> $b['priority'];
+			}
+		);
+		return $gates;
 	}
 }
 Content_Gate::init();

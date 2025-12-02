@@ -29,13 +29,14 @@ class My_Account_UI_V1 {
 		\add_filter( 'page_template', [ __CLASS__, 'page_template' ], 11 );
 		\add_filter( 'body_class', [ __CLASS__, 'add_body_class' ] );
 		\add_action( 'wp_enqueue_scripts', [ __CLASS__, 'enqueue_assets' ], 11 );
-		\add_filter( 'wc_get_template', [ __CLASS__, 'wc_get_template' ], 10, 5 );
+		\add_filter( 'wc_get_template', [ __CLASS__, 'wc_get_template' ], 1, 5 );
 		\add_filter( 'woocommerce_account_menu_items', [ __CLASS__, 'my_account_menu_items' ], 1001 );
 		\add_filter( 'newspack_myaccount_required_fields', [ __CLASS__, 'account_settings_required_fields' ] );
 		\add_action( 'newspack_woocommerce_after_edit_account_form', [ __CLASS__, 'delete_account_modal' ] );
 		\add_action( 'newspack_after_delete_account', [ __CLASS__, 'handle_after_delete_account' ] );
 		\add_action( 'wp_footer', [ __CLASS__, 'add_after_delete_account_notice' ] );
 		\add_action( 'woocommerce_subscription_details_table', [ __CLASS__, 'cancel_subscription_modal' ] );
+		\add_filter( 'query_vars', [ __CLASS__, 'query_vars' ] );
 		\add_filter( 'option_woocommerce_myaccount_add_payment_method_endpoint', [ __CLASS__, 'add_payment_method_endpoint' ] );
 		\add_filter( 'default_option_woocommerce_myaccount_add_payment_method_endpoint', [ __CLASS__, 'add_payment_method_endpoint' ] );
 		\add_action( 'template_redirect', [ __CLASS__, 'redirect_payment_information_endpoint' ] );
@@ -162,6 +163,8 @@ class My_Account_UI_V1 {
 				return __DIR__ . '/templates/v1/payment-information.php';
 			case 'myaccount/form-edit-address.php':
 				return __DIR__ . '/templates/v1/form-edit-address.php';
+			case 'myaccount/my-subscriptions.php':
+				return __DIR__ . '/templates/v1/my-subscriptions.php';
 			default:
 				return $template;
 		}
@@ -642,19 +645,23 @@ class My_Account_UI_V1 {
 		if ( ! \is_user_logged_in() || ! Reader_Activation::is_user_reader( \wp_get_current_user() ) ) {
 			return;
 		}
+		// Set the query var so payment gateways can detect the add-payment-method context.
+		global $wp;
+		$wp->query_vars['add-payment-method'] = true;
 		ob_start();
 		\woocommerce_account_add_payment_method();
 		$content = ob_get_clean();
 		Newspack_UI::generate_modal(
 			[
-				'id'         => 'add-payment-method',
-				'title'      => __( 'Add Payment Method', 'newspack-plugin' ),
-				'content'    => $content,
-				'size'       => 'medium',
-				'form'       => 'POST',
-				'form_class' => 'newspack-ui__accordion newspack-ui__accordion--open',
-				'form_id'    => 'add_payment_method',
-				'actions'    => [
+				'id'              => 'add-payment-method',
+				'title'           => __( 'Add Payment Method', 'newspack-plugin' ),
+				'content'         => $content,
+				'content_is_safe' => true, // Allow the contents of `woocommerce_account_add_payment_method` to be rendered as is.
+				'size'            => 'medium',
+				'form'            => 'POST',
+				'form_class'      => 'newspack-ui__accordion newspack-ui__accordion--open',
+				'form_id'         => 'add_payment_method',
+				'actions'         => [
 					'cancel' => [
 						'label'  => __( 'Cancel', 'newspack-plugin' ),
 						'type'   => 'ghost',
@@ -679,40 +686,44 @@ class My_Account_UI_V1 {
 		$address_types = \apply_filters( 'woocommerce_my_account_get_addresses', $address_types );
 		foreach ( $address_types as $address_type => $address_name ) {
 			$address = \wc_get_account_formatted_address( $address_type );
+
 			ob_start();
 			\woocommerce_account_edit_address( $address_type );
-				$content          = ob_get_clean();
-				$edit_address_url = \add_query_arg(
-					'edit-address',
-					$address_type,
-					\wc_get_endpoint_url( 'edit-address', $address_type )
-				);
-				Newspack_UI::generate_modal(
-					[
-						'id'          => 'edit-address-' . $address_type,
-						'title'       => ! empty( $address ) ? sprintf(
-							// Translators: %s is the address type.
-							__( 'Edit %s address', 'newspack-plugin' ),
-							$address_type
-						) : sprintf(
-							// Translators: %s is the address type.
-							__( 'Add %s address', 'newspack-plugin' ),
-							$address_type
-						),
-						'content'     => $content,
-						'size'        => 'medium',
-						'form'        => 'POST',
-						'form_id'     => 'edit_address_' . $address_type,
-						'form_action' => $edit_address_url,
-						'actions'     => [
-							'cancel' => [
-								'label'  => __( 'Cancel', 'newspack-plugin' ),
-								'type'   => 'ghost',
-								'action' => 'close',
-							],
+			$content = ob_get_clean();
+
+			$edit_address_url = \add_query_arg(
+				'edit-address',
+				$address_type,
+				\wc_get_endpoint_url( 'edit-address', $address_type )
+			);
+
+			Newspack_UI::generate_modal(
+				[
+					'id'              => 'edit-address-' . $address_type,
+					'title'           => ! empty( $address ) ? sprintf(
+						// Translators: %s is the address type.
+						__( 'Edit %s address', 'newspack-plugin' ),
+						$address_type
+					) : sprintf(
+						// Translators: %s is the address type.
+						__( 'Add %s address', 'newspack-plugin' ),
+						$address_type
+					),
+					'content'         => $content,
+					'content_is_safe' => true, // Allow the contents of `woocommerce_account_edit_address` to be rendered as is.
+					'size'            => 'medium',
+					'form'            => 'POST',
+					'form_id'         => 'edit_address_' . $address_type,
+					'form_action'     => $edit_address_url,
+					'actions'         => [
+						'cancel' => [
+							'label'  => __( 'Cancel', 'newspack-plugin' ),
+							'type'   => 'ghost',
+							'action' => 'close',
 						],
-					]
-				);
+					],
+				]
+			);
 		}
 	}
 

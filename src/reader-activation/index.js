@@ -1,4 +1,4 @@
-/* globals newspack_ras_config, newspack_reader_data */
+/* globals newspack_ras_config, newspack_reader_data, gform */
 
 window.newspack_ras_config = window.newspack_ras_config || {};
 
@@ -10,6 +10,7 @@ import overlays from './overlays.js';
 import initAnalytics from './analytics.js';
 import setupArticleViewsAggregates from './article-view.js';
 import initSubscriptionTiersForm from './subscription-tiers-form.js';
+import { openAuthModal as _openAuthModal } from '../reader-activation-auth/auth-modal.js';
 
 /**
  * Reader Activation Library.
@@ -144,27 +145,24 @@ const authStrategies = [ 'pwd', 'link' ];
  * @param {Object} config Config.
  */
 export function openAuthModal( config = {} ) {
-	// Set default config.
 	config = {
-		...{
-			onSuccess: null,
-			onDismiss: null,
-			onError: null,
-			initialState: null,
-			skipSuccess: false,
-			skipNewslettersSignup: false,
-			labels: {
-				signin: {
-					title: null,
-				},
-				register: {
-					title: null,
-				},
+		onSuccess: null,
+		onDismiss: null,
+		onError: null,
+		initialState: null,
+		skipSuccess: false,
+		skipNewslettersSignup: false,
+		labels: {
+			signin: {
+				title: window.newspack_reader_activation_labels.signin.title,
 			},
-			content: null,
-			trigger: null,
-			closeOnSuccess: true,
+			register: {
+				title: window.newspack_reader_activation_labels.register.title,
+			},
 		},
+		content: null,
+		trigger: null,
+		closeOnSuccess: true,
 		...config,
 	};
 
@@ -174,14 +172,7 @@ export function openAuthModal( config = {} ) {
 		}
 		return;
 	}
-	if ( readerActivation._openAuthModal ) {
-		readerActivation._openAuthModal( config );
-	} else {
-		console.warn( 'Authentication modal not available' ); // eslint-disable-line no-console
-		if ( config.onError && typeof config.onError === 'function' ) {
-			config.onError();
-		}
-	}
+	_openAuthModal( config );
 }
 
 /**
@@ -393,8 +384,10 @@ function attachAuthCookiesListener() {
  * Set the reader as newsletter subscriber once a newsletter form is submitted.
  */
 function attachNewsletterFormListener() {
-	const newspackForms = [ '.newspack-newsletters-subscribe', '.newspack-subscribe-form' ];
-	const thirdPartyForms = [ '.mc4wp-form' ];
+	const newspackForms = [ '.newspack-newsletters-subscribe' ];
+
+	// newspack-subscribe-form is a generic class that can be added to any 3rd party form. Once it's submitted, we consider the reader a newsletter subscriber.
+	const thirdPartyForms = [ '.mc4wp-form', '.newspack-subscribe-form' ];
 
 	const attachHandler = ( el, eventToListenTo = 'submit' ) => {
 		const form = 'FORM' === el.tagName ? el : el.querySelector( 'form' );
@@ -406,9 +399,32 @@ function attachNewsletterFormListener() {
 		} );
 	};
 
-	// For third-party forms, set reader data on form submit. For first-party forms, listen for the custom event upon successful signup response.
-	document.querySelectorAll( thirdPartyForms.join( ',' ) ).forEach( el => attachHandler( el ) );
+	const gformIds = [];
+
+	// For third-party forms, set reader data on form submit. Also detect Gravity Forms.
+	document.querySelectorAll( thirdPartyForms.join( ',' ) ).forEach( el => {
+		// If the form id stats with gform_ and it has a data-formid prop, it's a gravity form.
+		const isGravityForm = el.id.startsWith( 'gform_' ) && el.hasAttribute( 'data-formid' );
+		if ( isGravityForm ) {
+			gformIds.push( parseInt( el.getAttribute( 'data-formid' ) ) );
+			return;
+		}
+		// If not a gravity form, just attach the handler.
+		attachHandler( el );
+	} );
+
+	// First-party forms success event listener.
 	document.querySelectorAll( newspackForms.join( ',' ) ).forEach( el => attachHandler( el, 'newspack-newsletters-subscribe-success' ) );
+
+	// Gravity forms handlers.
+	document.addEventListener( 'gform/post_render', event => {
+		if ( window.gform?.utils?.addAsyncFilter && gformIds.includes( event.detail?.formId ) ) {
+			gform.utils.addAsyncFilter( 'gform/submission/pre_submission', async data => {
+				store.set( 'is_newsletter_subscriber', true );
+				return data;
+			} );
+		}
+	} );
 }
 
 const readerActivation = {

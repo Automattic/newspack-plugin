@@ -61,7 +61,9 @@ class Audience_Content_Gates extends Wizard {
 			'newspack-wizards',
 			'newspackAudienceContentGates',
 			[
-				'api' => '/' . NEWSPACK_API_NAMESPACE . '/wizard/' . $this->slug,
+				'api'                     => '/' . NEWSPACK_API_NAMESPACE . '/wizard/' . $this->slug,
+				'available_access_rules'  => Access_Rules::get_access_rules(),
+				'available_content_rules' => Content_Gate::get_content_rules(),
 			]
 		);
 	}
@@ -85,20 +87,337 @@ class Audience_Content_Gates extends Wizard {
 	}
 
 	/**
-	 * Register the endpoints needed for the wizard screens.
-	 */
-	public function register_api_endpoints() {
-		if ( ! $this->is_feature_enabled() ) {
-			return;
-		}
-	}
-
-	/**
 	 * Check feature flag status.
 	 *
 	 * @return bool
 	 */
 	public function is_feature_enabled() {
 		return defined( 'NEWSPACK_CONTENT_GATES' ) && NEWSPACK_CONTENT_GATES;
+	}
+
+	/**
+	 * Register the endpoints needed for the wizard screens.
+	 */
+	public function register_api_endpoints() {
+		if ( ! $this->is_feature_enabled() ) {
+			return;
+		}
+
+		register_rest_route(
+			NEWSPACK_API_NAMESPACE,
+			'/wizard/' . $this->slug,
+			[
+				'methods'             => 'GET',
+				'callback'            => [ $this, 'get_gates' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+			]
+		);
+
+		register_rest_route(
+			NEWSPACK_API_NAMESPACE,
+			'/wizard/' . $this->slug,
+			[
+				'methods'             => 'POST',
+				'callback'            => [ $this, 'create_gate' ],
+				'args'                => [
+					'title' => [
+						'type'     => 'string',
+						'required' => true,
+						'messages' => [
+							'required' => __( 'Title is required.', 'newspack-plugin' ),
+						],
+					],
+				],
+				'required'            => [ 'title' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+			]
+		);
+
+		register_rest_route(
+			NEWSPACK_API_NAMESPACE,
+			'/wizard/' . $this->slug . '/(?P<id>\d+)',
+			[
+				'methods'             => 'DELETE',
+				'callback'            => [ $this, 'delete_gate' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+			]
+		);
+
+		register_rest_route(
+			NEWSPACK_API_NAMESPACE,
+			'/wizard/' . $this->slug . '/priority',
+			[
+				'methods'             => 'POST',
+				'callback'            => [ $this, 'update_gate_priorities' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+				'args'                => [
+					'gates' => [
+						'type'  => 'array',
+						'items' => [
+							'type'       => 'object',
+							'properties' => [
+								'id'       => [
+									'type'              => 'integer',
+									'sanitize_callback' => 'absint',
+								],
+								'priority' => [
+									'type'              => 'integer',
+									'sanitize_callback' => 'absint',
+								],
+							],
+						],
+					],
+				],
+			]
+		);
+
+		register_rest_route(
+			NEWSPACK_API_NAMESPACE,
+			'/wizard/' . $this->slug . '/(?P<id>\d+)',
+			[
+				'methods'             => 'POST',
+				'callback'            => [ $this, 'update_gate' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+				'args'                => [
+					'gate' => [
+						'type'              => 'object',
+						'sanitize_callback' => [ $this, 'sanitize_gate' ],
+						'properties'        => [
+							'title'         => [ 'type' => 'string' ],
+							'description'   => [ 'type' => 'string' ],
+							'metering'      => [
+								'type'       => 'object',
+								'properties' => [
+									'enabled'          => [ 'type' => 'boolean' ],
+									'anonymous_count'  => [ 'type' => 'integer' ],
+									'registered_count' => [ 'type' => 'integer' ],
+									'period'           => [ 'type' => 'string' ],
+								],
+							],
+							'access_rules'  => [
+								'type'  => 'array',
+								'items' => [
+									'type'       => 'object',
+									'properties' => [
+										'slug'  => [ 'type' => 'string' ],
+										'value' => [ 'type' => 'mixed' ],
+									],
+								],
+							],
+							'content_rules' => [
+								'type'  => 'array',
+								'items' => [
+									'type'       => 'object',
+									'properties' => [
+										'slug'  => [ 'type' => 'string' ],
+										'value' => [ 'type' => 'mixed' ],
+									],
+								],
+							],
+						],
+					],
+				],
+			]
+		);
+	}
+
+	/**
+	 * Sanitize the gate.
+	 *
+	 * TODO: Handle errors from each sanitization method.
+	 *
+	 * @param array $gate The gate.
+	 *
+	 * @return array The sanitized gate.
+	 */
+	public function sanitize_gate( $gate ) {
+		return [
+			'title'         => sanitize_text_field( $gate['title'] ),
+			'description'   => sanitize_text_field( $gate['description'] ),
+			'metering'      => $this->sanitize_metering( $gate['metering'] ),
+			'access_rules'  => $this->sanitize_rules( $gate['access_rules'] ),
+			'content_rules' => $this->sanitize_rules( $gate['content_rules'], 'content' ),
+			'priority'      => intval( $gate['priority'] ),
+		];
+	}
+
+	/**
+	 * Sanitize the metering.
+	 *
+	 * @param array $metering The metering.
+	 *
+	 * @return array The sanitized metering.
+	 */
+	public function sanitize_metering( $metering ) {
+		return [
+			'enabled'          => boolval( $metering['enabled'] ),
+			'anonymous_count'  => intval( $metering['anonymous_count'] ),
+			'registered_count' => intval( $metering['registered_count'] ),
+			'period'           => sanitize_text_field( $metering['period'] ),
+		];
+	}
+
+	/**
+	 * Sanitize rules.
+	 *
+	 * @param array  $rules The rules.
+	 * @param string $type The type of rules to sanitize.
+	 *
+	 * @return array The sanitized access rules.
+	 */
+	public function sanitize_rules( $rules, $type = 'access' ) {
+		$sanitized_rules = [];
+		foreach ( $rules as $rule ) {
+			$sanitized = $type === 'access' ? $this->sanitize_access_rule( $rule ) : $this->sanitize_content_rule( $rule );
+			if ( ! is_wp_error( $sanitized ) ) {
+				$sanitized_rules[] = $sanitized;
+			}
+		}
+		return $sanitized_rules;
+	}
+
+	/**
+	 * Sanitize access rule.
+	 *
+	 * @param array $access_rule The access rule.
+	 *
+	 * @return mixed|\WP_Error The sanitized access rule or error if invalid.
+	 */
+	public function sanitize_access_rule( $access_rule ) {
+		$rules = Access_Rules::get_access_rules();
+		$slug  = sanitize_text_field( $access_rule['slug'] );
+
+		if ( empty( $slug ) || ! isset( $rules[ $slug ] ) ) {
+			return new \WP_Error( 'invalid_access_rule_slug', __( 'Invalid access rule slug.', 'newspack-plugin' ), [ 'status' => 400 ] );
+		}
+
+		$value = null;
+		$rule  = $rules[ $slug ];
+		if ( $rule['is_boolean'] ) {
+			$value = true; // Boolean rules are always true.
+		} elseif ( ! empty( $rule['options'] ) ) {
+			if ( ! is_array( $access_rule['value'] ) ) {
+				return new \WP_Error( 'invalid_access_rule_value', __( 'Invalid access rule value.', 'newspack-plugin' ), [ 'status' => 400 ] );
+			}
+			$value = array_values( array_filter( array_map( 'sanitize_text_field', $access_rule['value'] ) ) );
+		} else {
+			$value = sanitize_text_field( $access_rule['value'] );
+		}
+
+		return [
+			'slug'  => $slug,
+			'value' => $value,
+		];
+	}
+
+	/**
+	 * Sanitize content rule.
+	 *
+	 * @param array $content_rule The content rule.
+	 *
+	 * @return mixed|\WP_Error The sanitized content rule or error if invalid.
+	 */
+	public function sanitize_content_rule( $content_rule ) {
+		$rules = Content_Gate::get_content_rules();
+		$slug  = sanitize_text_field( $content_rule['slug'] );
+
+		if ( empty( $slug ) || ! isset( $rules[ $slug ] ) ) {
+			return new \WP_Error( 'invalid_content_rule_slug', __( 'Invalid content rule slug.', 'newspack-plugin' ), [ 'status' => 400 ] );
+		}
+
+		$rule = $rules[ $slug ];
+		if ( ! empty( $rule['options'] ) ) {
+			$allowed = array_column( $rule['options'], 'value' );
+			$invalid = array_diff( $content_rule['value'], $allowed );
+			if ( ! empty( $invalid ) ) {
+				return new \WP_Error( 'invalid_content_rule_value', __( 'Invalid content rule value.', 'newspack-plugin' ), [ 'status' => 400 ] );
+			}
+		}
+
+		$value = array_values( array_filter( array_map( 'sanitize_text_field', $content_rule['value'] ) ) );
+
+		return [
+			'slug'  => $slug,
+			'value' => $value,
+		];
+	}
+
+	/**
+	 * Get the gates.
+	 *
+	 * @return \WP_REST_Response
+	 */
+	public function get_gates() {
+		return rest_ensure_response( Content_Gate::get_gates() );
+	}
+
+	/**
+	 * Create a gate.
+	 *
+	 * @param \WP_REST_Request $request The request object.
+	 *
+	 * @return \WP_REST_Response|\WP_Error
+	 */
+	public function create_gate( $request ) {
+		$gate = Content_Gate::create_gate( $request->get_param( 'title' ) );
+		if ( is_wp_error( $gate ) ) {
+			return $gate;
+		}
+		return rest_ensure_response( Content_Gate::get_gate( $gate ) );
+	}
+
+	/**
+	 * Delete a gate.
+	 *
+	 * @param \WP_REST_Request $request The request object.
+	 *
+	 * @return \WP_REST_Response|\WP_Error
+	 */
+	public function delete_gate( $request ) {
+		$id = $request->get_param( 'id' );
+		$gate = get_post( $id );
+		if ( ! $gate ) {
+			return new \WP_Error( 'invalid_gate_id', __( 'Invalid gate ID.', 'newspack-plugin' ), [ 'status' => 400 ] );
+		}
+		if ( Content_Gate::GATE_CPT !== $gate->post_type ) {
+			return new \WP_Error( 'invalid_gate_type', __( 'Invalid gate type.', 'newspack-plugin' ), [ 'status' => 400 ] );
+		}
+		wp_delete_post( $id, true );
+		return rest_ensure_response( true );
+	}
+
+	/**
+	 * Update a gate.
+	 *
+	 * @param \WP_REST_Request $request The request object.
+	 *
+	 * @return \WP_REST_Response|\WP_Error
+	 */
+	public function update_gate( $request ) {
+		$gate = Content_Gate::update_gate_settings( $request->get_param( 'id' ), $request->get_param( 'gate' ) );
+		if ( is_wp_error( $gate ) ) {
+			return $gate;
+		}
+		return rest_ensure_response( $gate );
+	}
+
+	/**
+	 * Update multiple gates.
+	 *
+	 * @param \WP_REST_Request $request The request object.
+	 *
+	 * @return \WP_REST_Response|\WP_Error
+	 */
+	public function update_gate_priorities( $request ) {
+		$gates = $request->get_param( 'gates' );
+		$updated_gates = [];
+		foreach ( $gates as $gate ) {
+			$updated_gate = Content_Gate::update_gate_setting( $gate['id'], 'gate_priority', $gate['priority'] );
+			if ( is_wp_error( $updated_gate ) ) {
+				return $updated_gate;
+			}
+			$updated_gates[] = $updated_gate;
+		}
+		return rest_ensure_response( $updated_gates );
 	}
 }

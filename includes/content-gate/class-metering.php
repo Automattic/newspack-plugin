@@ -102,6 +102,37 @@ class Metering {
 	}
 
 	/**
+	 * Get metering settings for a gate.
+	 *
+	 * @param int $gate_id Gate ID.
+	 *
+	 * @return array Metering settings.
+	 */
+	public static function get_metering_settings( $gate_id ) {
+		return [
+			'enabled'          => (bool) \get_post_meta( $gate_id, 'metering', true ),
+			'anonymous_count'  => \get_post_meta( $gate_id, 'metering_anonymous_count', true ),
+			'registered_count' => \get_post_meta( $gate_id, 'metering_registered_count', true ),
+			'period'           => \get_post_meta( $gate_id, 'metering_period', true ),
+		];
+	}
+
+	/**
+	 * Update metering settings for a gate.
+	 *
+	 * @param int   $gate_id  Gate ID.
+	 * @param array $settings Metering settings.
+	 *
+	 * @return void
+	 */
+	public static function update_metering_settings( $gate_id, $settings ) {
+		\update_post_meta( $gate_id, 'metering', $settings['enabled'] );
+		\update_post_meta( $gate_id, 'metering_anonymous_count', $settings['anonymous_count'] );
+		\update_post_meta( $gate_id, 'metering_registered_count', $settings['registered_count'] );
+		\update_post_meta( $gate_id, 'metering_period', $settings['period'] );
+	}
+
+	/**
 	 * Enqueue frontend scripts and styles for gated content.
 	 */
 	public static function enqueue_scripts() {
@@ -156,6 +187,30 @@ class Metering {
 	}
 
 	/**
+	 * Whether the post has metering enabled.
+	 *
+	 * @param int|null $post_id Post ID. Default is the current post.
+	 *
+	 * @return bool
+	 */
+	public static function has_metering( $post_id = null ) {
+		if ( ! $post_id ) {
+			$post_id = get_the_ID();
+		}
+		$gate_post_id = Content_Gate::get_gate_post_id( $post_id );
+		$metering     = \get_post_meta( $gate_post_id, 'metering', true );
+		if ( ! $metering ) {
+			return false;
+		}
+		$anonymous_count  = \get_post_meta( $gate_post_id, 'metering_anonymous_count', true );
+		$registered_count = \get_post_meta( $gate_post_id, 'metering_registered_count', true );
+		if ( ! $anonymous_count && ! $registered_count ) {
+			return false;
+		}
+		return true;
+	}
+
+	/**
 	 * Whether to use the frontend metering strategy.
 	 *
 	 * @return bool
@@ -204,6 +259,7 @@ class Metering {
 
 		$gate_post_id = Content_Gate::get_gate_post_id();
 		$metering     = \get_post_meta( $gate_post_id, 'metering', true );
+		$priority     = \get_post_meta( $gate_post_id, 'gate_priority', true );
 
 		// Bail if metering is not enabled.
 		if ( ! $metering ) {
@@ -215,7 +271,8 @@ class Metering {
 			return self::$logged_in_metering_cache[ $post_id ];
 		}
 
-		$user_meta_key = self::METERING_META_KEY . '_' . $gate_post_id;
+		// Aggregate metering by gate priority, if available.
+		$user_meta_key = self::METERING_META_KEY . '_' . ( $priority ? $priority : $gate_post_id );
 
 		$updated_user_data  = false;
 		$user_metering_data = \get_user_meta( get_current_user_id(), $user_meta_key, true );
@@ -297,7 +354,7 @@ class Metering {
 		if ( ! $post_id ) {
 			$post_id = get_the_ID();
 		}
-		$gate_post_id = Memberships::get_gate_post_id( $post_id );
+		$gate_post_id = Content_Gate::get_gate_post_id( $post_id );
 		return \get_post_meta( $gate_post_id, 'metering_period', true );
 	}
 
