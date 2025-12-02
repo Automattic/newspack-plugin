@@ -65,7 +65,7 @@ class WooCommerce_Subscriptions {
 			$product_id = wcs_get_canonical_product_id( $item );
 			// Run other standard checks to see if the item can be switched.
 			// @see WC_Subscriptions_Switcher::can_user_perform_action().
-			$is_product_switchable = 'line_item' == $item['type'] && wcs_is_product_switchable_type( $product_id );
+			$is_product_switchable = 'line_item' === $item['type'] && wcs_is_product_switchable_type( $product_id );
 			$is_active             = $subscription->has_status( 'active' );
 			$can_be_updated        = $subscription->payment_method_supports( 'subscription_amount_changes' ) && $subscription->payment_method_supports( 'subscription_date_changes' );
 
