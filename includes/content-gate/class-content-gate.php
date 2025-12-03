@@ -119,6 +119,14 @@ class Content_Gate {
 		if ( function_exists( 'wc_terms_and_conditions_page_id' ) && $post->ID === wc_terms_and_conditions_page_id() ) {
 			return;
 		}
+		// Never in WooCommerce cart page.
+		if ( function_exists( 'is_cart' ) && is_cart() ) {
+			return;
+		}
+		// Never in WooCommerce checkout page.
+		if ( function_exists( 'is_checkout' ) && is_checkout() ) {
+			return;
+		}
 		// If no other restrictions apply.
 		if ( ! self::is_post_restricted( $post->ID ) ) {
 			return;
