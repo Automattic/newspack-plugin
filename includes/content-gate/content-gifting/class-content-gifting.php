@@ -40,7 +40,7 @@ class Content_Gifting {
 	public static function init() {
 		add_action( 'init', [ __CLASS__, 'hook_gift_button' ] );
 		add_action( 'wp', [ __CLASS__, 'unrestrict_content' ], 5 );
-		add_filter( 'newspack_content_gate_restrict_post', [ __CLASS__, 'restrict_post' ] );
+		add_filter( 'newspack_content_gate_restrict_post', [ __CLASS__, 'restrict_post' ], 10, 2 );
 		add_filter( 'newspack_content_gate_metering_short_circuit', [ __CLASS__, 'short_circuit_metering' ] );
 		add_action( 'wp_enqueue_scripts', [ __CLASS__, 'enqueue_assets' ] );
 		add_action( 'admin_enqueue_scripts', [ __CLASS__, 'enqueue_assets' ] );

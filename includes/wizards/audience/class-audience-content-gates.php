@@ -232,8 +232,7 @@ class Audience_Content_Gates extends Wizard {
 	 */
 	public function sanitize_gate( $gate ) {
 		return [
-			'title'         => sanitize_text_field( $gate['title'] ),
-			'description'   => sanitize_text_field( $gate['description'] ),
+			'title'         => isset( $gate['title'] ) ? sanitize_text_field( $gate['title'] ) : __( 'Untitled Content Gate', 'newspack-plugin' ),
 			'metering'      => $this->sanitize_metering( $gate['metering'] ),
 			'access_rules'  => $this->sanitize_rules( $gate['access_rules'] ),
 			'content_rules' => $this->sanitize_rules( $gate['content_rules'], 'content' ),
@@ -249,6 +248,15 @@ class Audience_Content_Gates extends Wizard {
 	 * @return array The sanitized metering.
 	 */
 	public function sanitize_metering( $metering ) {
+		$metering = wp_parse_args(
+			$metering,
+			[
+				'enabled'          => false,
+				'anonymous_count'  => 0,
+				'registered_count' => 0,
+				'period'           => 'month',
+			]
+		);
 		return [
 			'enabled'          => boolval( $metering['enabled'] ),
 			'anonymous_count'  => intval( $metering['anonymous_count'] ),
@@ -267,6 +275,9 @@ class Audience_Content_Gates extends Wizard {
 	 */
 	public function sanitize_rules( $rules, $type = 'access' ) {
 		$sanitized_rules = [];
+		if ( ! is_array( $rules ) ) {
+			return $sanitized_rules;
+		}
 		foreach ( $rules as $rule ) {
 			$sanitized = $type === 'access' ? $this->sanitize_access_rule( $rule ) : $this->sanitize_content_rule( $rule );
 			if ( ! is_wp_error( $sanitized ) ) {
@@ -299,7 +310,16 @@ class Audience_Content_Gates extends Wizard {
 			if ( ! is_array( $access_rule['value'] ) ) {
 				return new \WP_Error( 'invalid_access_rule_value', __( 'Invalid access rule value.', 'newspack-plugin' ), [ 'status' => 400 ] );
 			}
-			$value = array_values( array_filter( array_map( 'sanitize_text_field', $access_rule['value'] ) ) );
+			$value = array_values(
+				array_filter(
+					array_map(
+						function( $value ) {
+							return is_numeric( $value ) ? intval( $value ) : sanitize_text_field( $value );
+						},
+						$access_rule['value']
+					)
+				)
+			);
 		} else {
 			$value = sanitize_text_field( $access_rule['value'] );
 		}

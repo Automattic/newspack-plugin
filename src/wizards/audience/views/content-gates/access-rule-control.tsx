@@ -1,7 +1,12 @@
 /**
  * WordPress dependencies.
  */
-import { CheckboxControl, SelectControl, TextControl } from '@wordpress/components';
+import { CheckboxControl, TextControl } from '@wordpress/components';
+
+/**
+ * Internal dependencies
+ */
+import { FormTokenField } from '../../../../../packages/components/src';
 
 const noop = () => {};
 
@@ -16,12 +21,12 @@ export default function AccessRuleControl( { slug, value, onChange }: GateAccess
 	}
 	if ( rule.options && rule.options.length > 0 ) {
 		return (
-			<SelectControl
+			<FormTokenField
 				label={ rule.name }
-				value={ value as string }
-				onChange={ onChange }
-				options={ rule.options.map( option => ( { value: option.value, label: option.label } ) ) }
-				help={ rule.description }
+				value={ rule.options.filter( o => value.includes( o.value ) ).map( o => o.label ) }
+				onChange={ ( items: string[] ) => onChange( rule.options?.filter( o => items.includes( o.label ) ).map( o => o.value ) ?? [] ) }
+				suggestions={ rule.options.map( o => o.label ) }
+				__experimentalExpandOnFocus={ true }
 			/>
 		);
 	}
