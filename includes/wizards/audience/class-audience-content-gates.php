@@ -233,7 +233,6 @@ class Audience_Content_Gates extends Wizard {
 	public function sanitize_gate( $gate ) {
 		return [
 			'title'         => isset( $gate['title'] ) ? sanitize_text_field( $gate['title'] ) : __( 'Untitled Content Gate', 'newspack-plugin' ),
-			'description'   => isset( $gate['description'] ) ? sanitize_text_field( $gate['description'] ) : '',
 			'metering'      => $this->sanitize_metering( $gate['metering'] ),
 			'access_rules'  => $this->sanitize_rules( $gate['access_rules'] ),
 			'content_rules' => $this->sanitize_rules( $gate['content_rules'], 'content' ),
