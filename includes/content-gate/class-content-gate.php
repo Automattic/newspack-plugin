@@ -107,6 +107,11 @@ class Content_Gate {
 		if ( is_admin() ) {
 			return;
 		}
+		// Never in My Account pages.
+		if ( function_exists( 'is_account_page' ) && is_account_page() ) {
+			return;
+		}
+		// If no restrictions apply.
 		if ( ! self::is_post_restricted( $post->ID ) ) {
 			return;
 		}
