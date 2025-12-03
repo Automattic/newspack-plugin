@@ -47,10 +47,11 @@ final class Blocks {
 		Newspack::load_common_assets();
 
 		// Enqueue universal editor modifications.
+		$editor_asset = require_once dirname( NEWSPACK_PLUGIN_FILE ) . '/dist/editor.asset.php';
 		\wp_enqueue_script(
 			'newspack-editor',
 			Newspack::plugin_url() . '/dist/editor.js',
-			[],
+			$editor_asset['dependencies'],
 			NEWSPACK_PLUGIN_VERSION,
 			true
 		);
