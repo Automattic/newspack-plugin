@@ -107,11 +107,19 @@ class Content_Gate {
 		if ( is_admin() ) {
 			return;
 		}
+		// Never in Privacy Policy page.
+		if ( is_privacy_policy() ) {
+			return;
+		}
 		// Never in My Account pages.
 		if ( function_exists( 'is_account_page' ) && is_account_page() ) {
 			return;
 		}
-		// If no restrictions apply.
+		// Never in Terms and Conditions page.
+		if ( function_exists( 'wc_terms_and_conditions_page_id' ) && $post->ID === wc_terms_and_conditions_page_id() ) {
+			return;
+		}
+		// If no other restrictions apply.
 		if ( ! self::is_post_restricted( $post->ID ) ) {
 			return;
 		}
