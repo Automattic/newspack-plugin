@@ -194,11 +194,12 @@ class Content_Restriction_Control {
 	 * Get the current gate post ID.
 	 *
 	 * @param int $gate_post_id Gate post ID.
-	 * @param int $post_id      Post ID.
+	 * @param int $post_id      Post ID. If not given, uses the current post ID.
 	 *
 	 * @return int|false
 	 */
 	public static function get_gate_post_id( $gate_post_id, $post_id = null ) {
+		$post_id = $post_id ?? \get_the_ID();
 		if ( ! empty( self::$post_gate_id_map[ $post_id ] ) ) {
 			return self::$post_gate_id_map[ $post_id ];
 		}
