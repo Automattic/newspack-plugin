@@ -1,10 +1,13 @@
 /* globals newspack_content_gifting */
 import domReady from '@wordpress/dom-ready';
+import { queuePageReload } from '../reader-activation/utils';
 
 import './content-banner.scss';
 
 const settings = window.newspack_metering_settings || {};
 const storeKey = 'metering-' + settings.gate_id || 0;
+
+window.newspackRAS = window.newspackRAS || [];
 
 domReady( () => {
 	const cta = document.querySelector( '.newspack-content-gifting__cta,.newspack-countdown-banner__cta' );
@@ -130,5 +133,16 @@ domReady( () => {
 		document.cookie = `wp_newspack_content_key=${ contentKey }; path=/; max-age=${ newspack_content_gifting.expiration_time }`;
 		params.delete( 'content_key' );
 		window.history.replaceState( {}, '', window.location.pathname + ( params.toString() ? '?' + params.toString() : '' ) );
+	}
+
+	// Refresh the gifted post page after authenticating.
+	if ( document.body.classList.contains( 'newspack-is-gifted-post' ) ) {
+		window.newspackRAS.push( ras => {
+			ras.on( 'reader', ( { detail: { authenticated } } ) => {
+				if ( authenticated ) {
+					queuePageReload();
+				}
+			} );
+		} );
 	}
 } );

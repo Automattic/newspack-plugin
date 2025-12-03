@@ -5,7 +5,6 @@
  * @package Newspack
  */
 
-use Newspack;
 use Newspack\Newspack_UI_Icons;
 
 if ( ! defined( 'ABSPATH' ) ) {

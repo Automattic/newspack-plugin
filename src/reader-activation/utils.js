@@ -64,3 +64,44 @@ export function debugLog( level = 'log', ...args ) {
 		console[ method ]( ...args );
 	}
 }
+
+/**
+ * Execute a callback after all overlays are closed.
+ *
+ * This function is overlay-aware and will:
+ * 1. Check if there are any overlays currently open
+ * 2. If overlays exist, wait for them to close before executing the callback
+ * 3. If no overlays, execute the callback immediately
+ *
+ * @param {Function} callback The function to execute after overlays close.
+ */
+export function onOverlaysClose( callback ) {
+	window.newspackRAS = window.newspackRAS || [];
+	window.newspackRAS.push( ras => {
+		setTimeout( () => {
+			if ( ras.overlays.get().length ) {
+				// Wait for overlays to close before executing callback.
+				const handleOverlayClose = ( { detail: { overlays } } ) => {
+					setTimeout( () => {
+						if ( ! overlays.length ) {
+							callback();
+							window.newspackReaderActivation.off( 'overlay', handleOverlayClose );
+						}
+					}, 50 );
+				};
+				ras.on( 'overlay', handleOverlayClose );
+				return;
+			}
+			callback();
+		}, 50 );
+	} );
+}
+
+/**
+ * Queue a page reload, waiting for any open overlays to close first.
+ *
+ * This is a convenience wrapper around `onOverlaysClose` that reloads the page.
+ */
+export function queuePageReload() {
+	onOverlaysClose( () => window.location.reload() );
+}
