@@ -127,6 +127,10 @@ class Content_Gate {
 		if ( function_exists( 'is_checkout' ) && is_checkout() ) {
 			return;
 		}
+		// Never on Accessibility Statement page.
+		if ( $post->ID === get_theme_mod( 'accessibility_statement_page_id' ) ) {
+			return;
+		}
 		// If no other restrictions apply.
 		if ( ! self::is_post_restricted( $post->ID ) ) {
 			return;
