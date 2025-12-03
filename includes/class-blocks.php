@@ -46,6 +46,16 @@ final class Blocks {
 	public static function enqueue_block_editor_assets() {
 		Newspack::load_common_assets();
 
+		// Enqueue universal editor modifications.
+		\wp_enqueue_script(
+			'newspack-editor',
+			Newspack::plugin_url() . '/dist/editor.js',
+			[],
+			NEWSPACK_PLUGIN_VERSION,
+			true
+		);
+
+		// Blocks script depends on editor script to ensure filters run first.
 		\wp_enqueue_script(
 			'newspack-blocks',
 			Newspack::plugin_url() . '/dist/blocks.js',

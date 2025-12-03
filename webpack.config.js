@@ -54,6 +54,7 @@ const entry = {
 	'my-account-v1': path.join( __dirname, 'src', 'my-account', 'v1', 'index.js' ),
 	'account-frontend': path.join( __dirname, 'src', 'my-account', 'v1', 'frontend.js' ),
 	admin: path.join( __dirname, 'src', 'admin', 'index.js' ),
+	editor: path.join( __dirname, 'src', 'editor', 'index.js' ),
 	'content-gate': path.join( __dirname, 'src', 'content-gate', 'gate.js' ),
 	'content-gate-metering': path.join( __dirname, 'src', 'content-gate', 'metering.js' ),
 	'indesign-export': path.join( __dirname, 'src', 'indesign-export', 'index.js' ),
