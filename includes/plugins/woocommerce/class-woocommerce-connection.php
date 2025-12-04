@@ -65,7 +65,13 @@ class WooCommerce_Connection {
 		\add_action( 'woocommerce_payment_complete', [ __CLASS__, 'order_paid' ], 101 );
 		\add_action( 'woocommerce_after_checkout_validation', [ __CLASS__, 'rate_limit_checkout' ], 10, 2 );
 		\add_filter( 'woocommerce_add_payment_method_form_is_valid', [ __CLASS__, 'rate_limit_payment_methods' ] );
+
+		// Always save payment methods to existing subscriptions.
 		\add_filter( 'wc_stripe_save_to_subs_checked', '__return_true' );
+
+		// Automatically set newly added payment method as default and update subscriptions.
+		\add_action( 'woocommerce_new_payment_token', [ __CLASS__, 'set_payment_method_as_default' ], 10, 2 );
+		\add_action( 'woocommerce_add_payment_method_form_bottom', [ __CLASS__, 'add_payment_method_form_notice' ], 5 );
 
 		\add_filter( 'page_template', [ __CLASS__, 'page_template' ] );
 		\add_filter( 'get_post_metadata', [ __CLASS__, 'get_post_metadata' ], 10, 3 );
@@ -263,6 +269,56 @@ class WooCommerce_Connection {
 		}
 
 		return $is_valid;
+	}
+
+	/**
+	 * Set newly added payment method as default and update all active subscriptions.
+	 *
+	 * @param int               $token_id Payment token ID.
+	 * @param \WC_Payment_Token $token    Payment token object.
+	 */
+	public static function set_payment_method_as_default( $token_id, $token ) {
+		// Bail if not in the payment methods page.
+		if ( ! function_exists( 'is_payment_methods_page' ) || ! is_payment_methods_page() ) {
+			return;
+		}
+
+		// Set as default payment method for the customer.
+		$token->set_default( true );
+		$token->save();
+		\WC_Payment_Tokens::set_users_default( $token->get_user_id(), $token_id );
+	}
+
+	/**
+	 * Add a notice at the beginning of the add payment method form.
+	 */
+	public static function add_payment_method_form_notice() {
+		$user_id = get_current_user_id();
+		if ( ! $user_id ) {
+			return;
+		}
+
+		// Check if user has active subscriptions.
+		$has_active_subscriptions = false;
+		if ( function_exists( 'wcs_get_users_subscriptions' ) ) {
+			$subscriptions = \wcs_get_users_subscriptions( $user_id );
+			foreach ( $subscriptions as $subscription ) {
+				if ( $subscription->has_status( self::ACTIVE_SUBSCRIPTION_STATUSES ) ) {
+					$has_active_subscriptions = true;
+					break;
+				}
+			}
+		}
+
+		if ( $has_active_subscriptions ) {
+			?>
+			<p class="newspack-payment-method-notice">
+				<?php
+				\esc_html_e( 'This will be automatically saved to your active subscriptions and set as your default payment method.', 'newspack-plugin' );
+				?>
+			</p>
+			<?php
+		}
 	}
 
 	/**
