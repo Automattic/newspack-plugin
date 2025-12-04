@@ -71,7 +71,7 @@ export default function CountdownBanner( { config, setConfig, updateConfig } ) {
 						</ToggleGroupControl>
 						<div style={ { gridColumn: '1 / -1' } }>
 							<BaseControl id="newspack-countdown-banner-cta-preview" label={ __( 'Preview', 'newspack-plugin' ) }>
-								<div className="newspack-countdown-banner__cta-preview">
+								<div className="newspack-countdown-banner__cta-preview" inert>
 									<div className="newspack-ui">
 										<div
 											className={ `banner newspack-countdown-banner__cta is-style-${

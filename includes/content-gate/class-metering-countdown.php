@@ -1,6 +1,6 @@
 <?php
 /**
- * WooCommerce Content Gate Metering.
+ * WooCommerce Content Gate metering countdown banner.
  *
  * @package Newspack
  */
@@ -8,7 +8,7 @@
 namespace Newspack;
 
 /**
- * WooCommerce Content Gate Metering class.
+ * WooCommerce Content Gate metering countdown banner class.
  */
 class Metering_Countdown {
 
@@ -33,8 +33,8 @@ class Metering_Countdown {
 		return [
 			'enabled'      => false,
 			'style'        => 'light',
-			'cta_label'    => __( 'Subscribe now and get unlimited access.', 'newspack' ),
-			'button_label' => __( 'Subscribe now', 'newspack' ),
+			'cta_label'    => __( 'Subscribe now and get unlimited access.', 'newspack-plugin' ),
+			'button_label' => __( 'Subscribe now', 'newspack-plugin' ),
 			'cta_url'      => '',
 		];
 	}
@@ -44,7 +44,7 @@ class Metering_Countdown {
 	 *
 	 * @param string $key Optional key to get a specific setting. If not provided, all settings will be returned.
 	 *
-	 * @return array Countdown settings.
+	 * @return array|mixed Countdown banner settings, or a specific setting if a key is provided.
 	 */
 	public static function get_settings( $key = null ) {
 		$settings = self::get_default_settings();
@@ -58,6 +58,32 @@ class Metering_Countdown {
 	}
 
 	/**
+	 * Sanitize a setting.
+	 *
+	 * @param string $key The setting key.
+	 * @param mixed  $value The setting value.
+	 *
+	 * @return mixed The sanitized setting value or WP_Error if setting key is invalid.
+	 */
+	public static function sanitize_setting( $key, $value ) {
+		$default_settings = self::get_default_settings();
+		if ( ! isset( $default_settings[ $key ] ) ) {
+			// translators: %s is the setting key.
+			return new \WP_Error( 'newspack_countdown_banner_invalid_setting', sprintf( __( 'Invalid setting key: %s.', 'newspack-plugin' ), $key ) );
+		}
+		if ( $key === 'style' && ! in_array( $value, [ 'light', 'dark' ], true ) ) {
+			return $default_settings[ $key ];
+		}
+		if ( $key === 'cta_url' ) {
+			return sanitize_url( $value );
+		}
+		if ( is_bool( $default_settings[ $key ] ) ) {
+			return boolval( $value );
+		}
+		return sanitize_text_field( $value );
+	}
+
+	/**
 	 * Update settings for the countdown banner.
 	 *
 	 * @param array $settings New countdown settings.
@@ -65,21 +91,20 @@ class Metering_Countdown {
 	 * @return array|\WP_Error Updated countdown settings or error if update fails.
 	 */
 	public static function update_settings( $settings ) {
-		$default_settings = self::get_default_settings();
 		$current_settings = self::get_settings();
 		foreach ( $settings as $key => $value ) {
-			if ( isset( $current_settings[ $key ] ) ) {
-				if ( $key === 'style' && ! in_array( $value, [ 'light', 'dark' ], true ) ) {
-					continue;
-				}
-				if ( empty( $value ) ) {
-					delete_option( self::OPTION_PREFIX . $key );
-					$current_settings[ $key ] = $default_settings[ $key ];
-					continue;
-				}
-				update_option( self::OPTION_PREFIX . $key, $value );
-				$current_settings[ $key ] = $value;
+			$sanitized = self::sanitize_setting( $key, $value );
+			if ( is_wp_error( $sanitized ) ) {
+				return $sanitized;
 			}
+			if ( $sanitized === $current_settings[ $key ] ) {
+				continue;
+			}
+			$updated = update_option( self::OPTION_PREFIX . $key, $sanitized );
+			if ( ! $updated ) {
+				return new \WP_Error( 'newspack_countdown_banner_update_failed', __( 'Failed to update countdown banner settings.', 'newspack-plugin' ) );
+			}
+			$current_settings[ $key ] = $sanitized;
 		}
 		return $current_settings;
 	}
@@ -150,6 +175,8 @@ class Metering_Countdown {
 
 	/**
 	 * Print the countdown banner.
+	 *
+	 * @return void
 	 */
 	public static function print_cta() {
 		if ( ! self::is_enabled() ) {
@@ -160,7 +187,7 @@ class Metering_Countdown {
 		$classes     = [ $style_class ];
 		$total_views = Metering::get_total_metered_views( \is_user_logged_in() );
 		if ( false === $total_views ) {
-			return '';
+			return;
 		}
 		$views = Metering::get_current_user_metered_views();
 		if ( $views === 0 || Metering::is_frontend_metering() ) {
