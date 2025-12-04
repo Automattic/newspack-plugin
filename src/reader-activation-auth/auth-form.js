@@ -216,9 +216,13 @@ window.newspackRAS.push( function ( readerActivation ) {
 						body.set( 'npe', emailInput.value );
 						body.set( 'action', 'link' );
 						const pendingCheckout = getPendingCheckout();
-						if ( pendingCheckout ) {
+						const urlParams = new URLSearchParams( window.location.search );
+						const hasRedirectParam = urlParams.has( 'redirect' );
+						if ( pendingCheckout || hasRedirectParam ) {
 							const url = new URL( window.location.href );
-							url.searchParams.set( 'checkout', 1 );
+							if ( pendingCheckout ) {
+								url.searchParams.set( 'checkout', 1 );
+							}
 							body.set( 'redirect_url', url.toString() );
 						}
 						fetch( form.getAttribute( 'action' ) || window.location.pathname, {
@@ -410,9 +414,13 @@ window.newspackRAS.push( function ( readerActivation ) {
 					return form.endLoginFlow( newspack_reader_activation_labels.invalid_email, 400 );
 				}
 				const pendingCheckout = getPendingCheckout();
-				if ( pendingCheckout ) {
+				const urlParams = new URLSearchParams( window.location.search );
+				const hasRedirectParam = urlParams.has( 'redirect' );
+				if ( pendingCheckout || hasRedirectParam ) {
 					const url = new URL( window.location.href );
-					url.searchParams.set( 'checkout', 1 );
+					if ( pendingCheckout ) {
+						url.searchParams.set( 'checkout', 1 );
+					}
 					body.set( 'redirect_url', url.toString() );
 				}
 
