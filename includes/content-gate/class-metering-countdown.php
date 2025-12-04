@@ -193,6 +193,8 @@ class Metering_Countdown {
 		if ( $views === 0 || Metering::is_frontend_metering() ) {
 			$classes[] = 'newspack-countdown-banner__cta--hidden';
 		}
+		$metering_settings = Metering::get_metering_settings( Content_Gate::get_gate_post_id() );
+		$registered_count  = $metering_settings['registered_count'];
 		?>
 		<div class="newspack-ui">
 			<div class="banner newspack-countdown-banner__cta <?php echo esc_attr( implode( ' ', $classes ) ); ?>">
@@ -231,7 +233,11 @@ class Metering_Countdown {
 						</span>
 						<span class="newspack-countdown-banner__cta__content__message newspack-ui__font--xs">
 							<?php echo esc_html( $settings['cta_label'] ); ?>
-							<a href="#signin_modal"><?php echo esc_html( __( 'Sign in to an existing account', 'newspack-plugin' ) ); ?></a>.
+							<?php if ( $registered_count > 0 && ! \is_user_logged_in() ) : ?>
+								<a href="#register_modal"><?php echo esc_html( __( 'Create an account', 'newspack-plugin' ) ); ?></a>.
+							<?php else : ?>
+								<a href="#signin_modal"><?php echo esc_html( __( 'Sign in to an existing account', 'newspack-plugin' ) ); ?></a>.
+							<?php endif; ?>
 						</span>
 					</div>
 					<?php self::print_subscribe_button(); ?>
