@@ -233,10 +233,12 @@ class Metering_Countdown {
 						</span>
 						<span class="newspack-countdown-banner__cta__content__message newspack-ui__font--xs">
 							<?php echo esc_html( $settings['cta_label'] ); ?>
-							<?php if ( $registered_count > 0 && ! \is_user_logged_in() ) : ?>
-								<a href="#register_modal"><?php echo esc_html( __( 'Create an account', 'newspack-plugin' ) ); ?></a>.
-							<?php else : ?>
-								<a href="#signin_modal"><?php echo esc_html( __( 'Sign in to an existing account', 'newspack-plugin' ) ); ?></a>.
+							<?php if ( ! \is_user_logged_in() ) : ?>
+								<?php if ( $registered_count > 0 ) : ?>
+									<a href="#register_modal"><?php echo esc_html( __( 'Create an account', 'newspack-plugin' ) ); ?></a>.
+								<?php else : ?>
+									<a href="#signin_modal"><?php echo esc_html( __( 'Sign in to an existing account', 'newspack-plugin' ) ); ?></a>.
+								<?php endif; ?>
 							<?php endif; ?>
 						</span>
 					</div>
