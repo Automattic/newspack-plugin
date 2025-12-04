@@ -34,6 +34,38 @@ class Audience_Content_Gates extends Wizard {
 	public function __construct() {
 		parent::__construct();
 		add_action( 'rest_api_init', [ $this, 'register_api_endpoints' ] );
+
+		// Determine active menu items.
+		add_filter( 'parent_file', [ $this, 'parent_file' ] );
+		add_filter( 'submenu_file', [ $this, 'submenu_file' ] );
+	}
+
+	/**
+	 * Parent file filter. Used to determine active menu items.
+	 *
+	 * @param string $parent_file Parent file to be overridden.
+	 * @return string
+	 */
+	public function parent_file( $parent_file ) {
+		global $pagenow, $typenow;
+		if ( in_array( $pagenow, [ 'post.php', 'post-new.php' ] ) && $typenow === Content_Gate::GATE_CPT ) {
+			return $this->parent_slug;
+		}
+		return $parent_file;
+	}
+
+	/**
+	 * Submenu file filter. Used to determine active submenu items.
+	 *
+	 * @param string $submenu_file Submenu file to be overridden.
+	 * @return string
+	 */
+	public function submenu_file( $submenu_file ) {
+		global $pagenow, $typenow;
+		if ( in_array( $pagenow, [ 'post.php', 'post-new.php' ] ) && $typenow === Content_Gate::GATE_CPT ) {
+			return $this->slug;
+		}
+		return $submenu_file;
 	}
 
 	/**

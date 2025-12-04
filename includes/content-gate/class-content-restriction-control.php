@@ -25,7 +25,6 @@ class Content_Restriction_Control {
 	 */
 	public static function init() {
 		add_filter( 'newspack_is_post_restricted', [ __CLASS__, 'is_post_restricted' ], 10, 2 );
-		add_filter( 'newspack_content_gate_post_id', [ __CLASS__, 'get_gate_post_id' ], 10, 2 );
 	}
 
 	/**
@@ -193,17 +192,24 @@ class Content_Restriction_Control {
 	/**
 	 * Get the current gate post ID.
 	 *
-	 * @param int $gate_post_id Gate post ID.
-	 * @param int $post_id      Post ID. If not given, uses the current post ID.
+	 * @param int $post_id Post ID. If not given, uses the current post ID.
 	 *
 	 * @return int|false
 	 */
-	public static function get_gate_post_id( $gate_post_id, $post_id = null ) {
-		$post_id = $post_id ?? \get_the_ID();
+	public static function get_gate_post_id( $post_id = null ) {
+		if ( ! Content_Gate::is_newspack_feature_enabled() ) {
+			return false;
+		}
+		if ( is_singular() ) {
+			$post_id = $post_id ? $post_id : get_queried_object_id();
+		}
+		if ( ! $post_id ) {
+			return false;
+		}
 		if ( ! empty( self::$post_gate_id_map[ $post_id ] ) ) {
 			return self::$post_gate_id_map[ $post_id ];
 		}
-		return $gate_post_id;
+		return false;
 	}
 }
 Content_Restriction_Control::init();

@@ -86,18 +86,20 @@ class Metering {
 				'default' => 'week',
 			],
 		];
-		foreach ( $meta as $key => $config ) {
-			\register_meta(
-				'post',
-				$key,
-				[
-					'object_subtype' => Content_Gate::GATE_CPT,
-					'show_in_rest'   => true,
-					'type'           => $config['type'],
-					'default'        => $config['default'],
-					'single'         => true,
-				]
-			);
+		foreach ( Content_Gate::get_gate_post_types() as $cpt ) {
+			foreach ( $meta as $key => $config ) {
+				\register_meta(
+					'post',
+					$key,
+					[
+						'object_subtype' => $cpt,
+						'show_in_rest'   => true,
+						'type'           => $config['type'],
+						'default'        => $config['default'],
+						'single'         => true,
+					]
+				);
+			}
 		}
 	}
 

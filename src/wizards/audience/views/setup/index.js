@@ -99,10 +99,11 @@ function AudienceWizard( { confirmAction, pluginRequirements, wizardApiFetch }, 
 			label: config.enabled ? __( 'Configuration', 'newspack-plugin' ) : __( 'Setup', 'newspack-plugin' ),
 			path: '/',
 		},
-		config.enabled && {
-			label: __( 'Content Gating', 'newspack-plugin' ),
-			path: '/content-gating',
-		},
+		config.enabled &&
+			config.has_memberships && {
+				label: __( 'Content Gating', 'newspack-plugin' ),
+				path: '/content-gating',
+			},
 		{
 			label: __( 'Checkout & Payment', 'newspack-plugin' ),
 			path: '/payment',
