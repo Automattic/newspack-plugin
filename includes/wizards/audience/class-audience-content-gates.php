@@ -217,6 +217,7 @@ class Audience_Content_Gates extends Wizard {
 						'properties'        => [
 							'title'         => [ 'type' => 'string' ],
 							'description'   => [ 'type' => 'string' ],
+							'status'        => [ 'type' => 'string' ],
 							'metering'      => [
 								'type'       => 'object',
 								'properties' => [
@@ -269,6 +270,7 @@ class Audience_Content_Gates extends Wizard {
 			'access_rules'  => $this->sanitize_rules( $gate['access_rules'] ),
 			'content_rules' => $this->sanitize_rules( $gate['content_rules'], 'content' ),
 			'priority'      => intval( $gate['priority'] ),
+			'status'        => sanitize_text_field( $gate['status'] ),
 		];
 	}
 
@@ -395,6 +397,22 @@ class Audience_Content_Gates extends Wizard {
 	}
 
 	/**
+	 * Sanitize the gate post status.
+	 *
+	 * @param string $status Post status.
+	 *
+	 * @return string The sanitized post status.
+	 */
+	public function sanitize_status( $status ) {
+		$sanitized = sanitize_text_field( $status );
+		$valid = in_array( $sanitized, Content_Gate::get_post_statuses(), true );
+		if ( ! $valid ) {
+			return new \WP_Error( 'invalid_gate_post_status', __( 'Invalid gate post status.', 'newspack-plugin' ), [ 'status' => 400 ] );
+		}
+		return $sanitized;
+	}
+
+	/**
 	 * Get the gates.
 	 *
 	 * @return \WP_REST_Response
@@ -434,7 +452,12 @@ class Audience_Content_Gates extends Wizard {
 		if ( Content_Gate::GATE_CPT !== $gate->post_type ) {
 			return new \WP_Error( 'invalid_gate_type', __( 'Invalid gate type.', 'newspack-plugin' ), [ 'status' => 400 ] );
 		}
-		wp_delete_post( $id, true );
+		$force = $gate->post_status === 'trash';
+		if ( $force ) {
+			wp_delete_post( $id, $force );
+		} else {
+			wp_trash_post( $id );
+		}
 		return rest_ensure_response( true );
 	}
 

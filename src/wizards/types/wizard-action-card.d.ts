@@ -1,43 +1,7 @@
 /**
  * Wizard Action Card Props
  */
-type ActionCardProps = Partial<{
-	id: string | number;
-	title: string | React.ReactNode;
-	titleLink: string;
-	href: string;
-	description: string | React.ReactNode;
-	actionText: React.ReactNode | string | null;
-	badge: string;
-	badgeLevel: 'success' | 'info' | 'warning' | 'error';
-	className: string;
-	indent: string;
-	notification: string;
-	notificationLevel: 'error' | 'warning' | 'info';
-	isMedium: boolean;
-	disabled: boolean | string;
-	hasGreyHeader: boolean;
-	toggleChecked: boolean;
-	toggleOnChange: (a: boolean) => void;
-	actionContent: boolean | React.ReactNode | null;
-	error: Error | string | null;
-	handoff: string | null;
-	isErrorStatus: boolean;
-	isChecked: boolean;
-	children: boolean | React.ReactNode;
-	isSmall: boolean;
-	editLink: string;
-	simple: boolean;
-	secondaryActionText: string;
-	onSecondaryActionClick: () => void;
-	secondaryDestructive: boolean;
-	draggable: boolean;
-	dragIndex: number;
-	onDragCallback: (index: number) => void;
-	dragWrapperRef?: React.MutableRefObject<HTMLDivElement | null>;
-	expandable: boolean;
-	isExpanded?: boolean;
-}>;
+type WizardActionCardProps = ActionCardProps;
 
 /**
  * Plugin callbacks for install, activate and init states

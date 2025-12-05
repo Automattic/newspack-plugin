@@ -32,8 +32,21 @@ const getGateStatus = ( status: GateStatus ) => {
 			return __( 'Scheduled', 'newspack-plugin' );
 		case 'private':
 			return __( 'Private', 'newspack-plugin' );
+		case 'trash':
+			return __( 'Trash', 'newspack-plugin' );
 		default:
-			return '';
+			return undefined;
+	}
+};
+
+const getGateStatusBadgeLevel = ( status: GateStatus ) => {
+	switch ( status ) {
+		case 'publish':
+			return 'success';
+		case 'trash':
+			return 'warning';
+		default:
+			return 'info';
 	}
 };
 
@@ -82,7 +95,13 @@ const ContentGates = () => {
 			},
 			{
 				onSuccess( data ) {
-					setGates( [ ...gates, data ] );
+					setGates( [
+						...gates.map( g => {
+							g.isExpanded = false;
+							return g;
+						} ),
+						{ ...data, isExpanded: true },
+					] );
 					setShowModal( false );
 					setNewGateName( '' );
 				},
@@ -97,9 +116,12 @@ const ContentGates = () => {
 	};
 
 	const handleDeleteGate = ( id: number ) => {
-		// eslint-disable-next-line no-alert
-		if ( ! confirm( __( 'Are you sure you want to delete this content gate?', 'newspack-plugin' ) ) ) {
-			return;
+		const currentStatus = gates.find( g => g.id === id )?.status;
+		if ( currentStatus === 'trash' ) {
+			// eslint-disable-next-line no-alert
+			if ( ! confirm( __( 'Are you sure you want to permanently delete this content gate?', 'newspack-plugin' ) ) ) {
+				return;
+			}
 		}
 		wizardApiFetch(
 			{
@@ -108,7 +130,19 @@ const ContentGates = () => {
 			},
 			{
 				onSuccess() {
-					setGates( gates.filter( g => g.id !== id ) );
+					if ( currentStatus === 'trash' ) {
+						setGates( gates.filter( g => g.id !== id ) );
+					} else {
+						setGates(
+							gates.map( g => {
+								if ( g.id === id ) {
+									g.status = 'trash';
+									g.isExpanded = false;
+								}
+								return g;
+							} )
+						);
+					}
 				},
 				onError( error ) {
 					console.error( error ); // eslint-disable-line no-console
@@ -194,7 +228,7 @@ const ContentGates = () => {
 							className="newspack-content-gates__gate"
 							draggable={ gates.length > 1 }
 							expandable
-							isExpanded={ gates.length === 1 }
+							isExpanded={ gate.isExpanded || gates.length === 1 }
 							id={ gate.id }
 							key={ gate.id }
 							title={ gate.title }
@@ -207,7 +241,7 @@ const ContentGates = () => {
 							onDragCallback={ reorderGates }
 							disabled={ isInFlight }
 							badge={ getGateStatus( gate.status ) }
-							badgeLevel={ gate.status === 'publish' ? 'success' : 'info' }
+							badgeLevel={ getGateStatusBadgeLevel( gate.status ) }
 						>
 							<ContentGateSettings gate={ gate } onDelete={ handleDeleteGate } onSave={ handleSaveGate } />
 						</WizardsActionCard>

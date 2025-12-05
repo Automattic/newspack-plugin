@@ -58,7 +58,7 @@ type GateContentRuleControlProps = {
 	onChange: (value: GateContentRuleValue) => void;
 };
 
-type GateStatus = 'publish' | 'draft' | 'pending' | 'future' | 'private';
+type GateStatus = 'publish' | 'draft' | 'pending' | 'future' | 'private' | 'trash';
 
 type Gate = {
 	id: number;
@@ -69,4 +69,6 @@ type Gate = {
 	content_rules: GateContentRule[];
 	priority: number;
 	status: GateStatus;
+	isExpanded?: boolean;
+	collapse?: boolean;
 };

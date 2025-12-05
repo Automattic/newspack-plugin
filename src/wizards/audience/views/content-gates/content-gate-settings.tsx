@@ -1,7 +1,7 @@
 /**
  * WordPress dependencies.
  */
-import { useState, useCallback } from '@wordpress/element';
+import { useEffect, useState, useCallback } from '@wordpress/element';
 import { Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 
@@ -25,6 +25,8 @@ export default function ContentGateSettings( { gate, onDelete, onSave }: Content
 	const [ accessRules, setAccessRules ] = useState< GateAccessRule[] >( gate.access_rules );
 	const [ contentRules, setContentRules ] = useState< GateContentRule[] >( gate.content_rules );
 	const [ metering, setMetering ] = useState< Metering >( gate.metering );
+	const [ status, setStatus ] = useState< GateStatus >( gate.status );
+	const [ isRestoring, setIsRestoring ] = useState( false );
 
 	const handleSave = useCallback( () => {
 		const _gate = {
@@ -32,6 +34,7 @@ export default function ContentGateSettings( { gate, onDelete, onSave }: Content
 			access_rules: accessRules,
 			content_rules: contentRules,
 			metering,
+			status,
 		};
 		wizardApiFetch< Gate >(
 			{
@@ -46,24 +49,47 @@ export default function ContentGateSettings( { gate, onDelete, onSave }: Content
 				onError( error ) {
 					console.error( error ); // eslint-disable-line no-console
 				},
+				onFinally() {
+					setIsRestoring( false );
+				},
 			}
 		);
-	}, [ gate, accessRules, contentRules, metering, wizardApiFetch, onSave ] );
+	}, [ gate, accessRules, contentRules, metering, status, wizardApiFetch, onSave ] );
+
+	useEffect( () => {
+		if ( ! isRestoring ) {
+			return;
+		}
+		if ( status === 'draft' ) {
+			handleSave();
+		}
+	}, [ isRestoring, status, handleSave ] );
 
 	const handleDelete = useCallback( () => onDelete( gate.id ), [ gate.id, onDelete ] );
+	const handleRestore = useCallback( () => {
+		setIsRestoring( true );
+		setStatus( 'draft' );
+	}, [] );
 
 	return (
 		<>
 			<ContentRules rules={ contentRules } onChange={ setContentRules } />
 			<AccessRules rules={ accessRules } onChange={ setAccessRules } />
-			<Metering metering={ metering } setMetering={ setMetering } />
+			<Metering metering={ metering } onChange={ setMetering } />
 			<div className="newspack-buttons-card">
-				<Button variant="primary" onClick={ handleSave }>
-					{ __( 'Save Settings', 'newspack-plugin' ) }
-				</Button>
+				{ 'trash' !== gate.status && (
+					<Button variant="primary" onClick={ handleSave }>
+						{ __( 'Save Settings', 'newspack-plugin' ) }
+					</Button>
+				) }
 				<Button isDestructive variant="secondary" onClick={ handleDelete }>
-					{ __( 'Delete', 'newspack-plugin' ) }
+					{ 'trash' === gate.status ? __( 'Permanently Delete', 'newspack-plugin' ) : __( 'Delete', 'newspack-plugin' ) }
 				</Button>
+				{ 'trash' === gate.status && (
+					<Button variant="secondary" onClick={ handleRestore }>
+						{ __( 'Restore', 'newspack-plugin' ) }
+					</Button>
+				) }
 			</div>
 		</>
 	);

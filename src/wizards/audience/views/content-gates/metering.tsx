@@ -11,10 +11,10 @@ import { ActionCard, Card, Grid } from '../../../../../packages/components/src';
 
 interface MeteringProps {
 	metering: Metering;
-	setMetering: React.Dispatch< React.SetStateAction< Metering > >;
+	onChange: React.Dispatch< React.SetStateAction< Metering > >;
 }
 
-export default function Metering( { metering, setMetering }: MeteringProps ) {
+export default function Metering( { metering, onChange }: MeteringProps ) {
 	return (
 		<ActionCard
 			title={ __( 'Metering', 'newspack-plugin' ) }
@@ -27,7 +27,7 @@ export default function Metering( { metering, setMetering }: MeteringProps ) {
 				<CheckboxControl
 					label={ __( 'Meter content views for this gate', 'newspack-plugin' ) }
 					checked={ metering.enabled }
-					onChange={ () => setMetering( prevMetering => ( { ...prevMetering, enabled: ! prevMetering.enabled } ) ) }
+					onChange={ () => onChange( prevMetering => ( { ...prevMetering, enabled: ! prevMetering.enabled } ) ) }
 				/>
 			</Card>
 			{ metering.enabled && (
@@ -40,7 +40,7 @@ export default function Metering( { metering, setMetering }: MeteringProps ) {
 							'newspack-plugin'
 						) }
 						value={ metering.anonymous_count }
-						onChange={ v => setMetering( prevMetering => ( { ...prevMetering, anonymous_count: parseInt( v ) } ) ) }
+						onChange={ v => onChange( prevMetering => ( { ...prevMetering, anonymous_count: parseInt( v ) } ) ) }
 					/>
 					<TextControl
 						type={ 'number' }
@@ -50,7 +50,7 @@ export default function Metering( { metering, setMetering }: MeteringProps ) {
 							'newspack-plugin'
 						) }
 						value={ metering.registered_count }
-						onChange={ v => setMetering( prevMetering => ( { ...prevMetering, registered_count: parseInt( v ) } ) ) }
+						onChange={ v => onChange( prevMetering => ( { ...prevMetering, registered_count: parseInt( v ) } ) ) }
 					/>
 					<SelectControl
 						label={ __( 'Time period', 'newspack-plugin' ) }
@@ -59,7 +59,7 @@ export default function Metering( { metering, setMetering }: MeteringProps ) {
 							'newspack-plugin'
 						) }
 						value={ metering.period }
-						onChange={ v => setMetering( prevMetering => ( { ...prevMetering, period: v as Metering[ 'period' ] } ) ) }
+						onChange={ v => onChange( prevMetering => ( { ...prevMetering, period: v as Metering[ 'period' ] } ) ) }
 						options={ [
 							{
 								value: 'week',
