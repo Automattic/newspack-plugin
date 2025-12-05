@@ -7,6 +7,7 @@
  */
 import apiFetch from '@wordpress/api-fetch';
 import { useEffect, useRef, useState } from '@wordpress/element';
+import { ENTER } from '@wordpress/keycodes';
 import { __ } from '@wordpress/i18n';
 
 /**
@@ -137,7 +138,6 @@ const ContentGates = () => {
 							gates.map( g => {
 								if ( g.id === id ) {
 									g.status = 'trash';
-									g.isExpanded = false;
 								}
 								return g;
 							} )
@@ -190,6 +190,12 @@ const ContentGates = () => {
 							label={ __( 'Name', 'newspack-plugin' ) }
 							placeholder={ __( 'Enter a name for the content gate', 'newspack-plugin' ) }
 							onChange={ ( value: string ) => setNewGateName( value ) }
+							onKeyUp={ ( event: KeyboardEvent ) => {
+								if ( ENTER === event.keyCode && '' !== newGateName ) {
+									event.preventDefault();
+									handleCreateGate();
+								}
+							} }
 						/>
 						<Card buttonsCard noBorder className="justify-end">
 							<Button variant="primary" onClick={ handleCreateGate } disabled={ isInFlight }>

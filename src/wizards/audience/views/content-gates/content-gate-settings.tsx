@@ -1,7 +1,7 @@
 /**
  * WordPress dependencies.
  */
-import { useEffect, useState, useCallback } from '@wordpress/element';
+import { useEffect, useMemo, useState, useCallback } from '@wordpress/element';
 import { Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 
@@ -26,7 +26,11 @@ export default function ContentGateSettings( { gate, onDelete, onSave }: Content
 	const [ contentRules, setContentRules ] = useState< GateContentRule[] >( gate.content_rules );
 	const [ metering, setMetering ] = useState< Metering >( gate.metering );
 	const [ status, setStatus ] = useState< GateStatus >( gate.status );
-	const [ isRestoring, setIsRestoring ] = useState( false );
+	const [ isEditingStatus, setIsEditingStatus ] = useState( false );
+
+	const isReady = useMemo( () => {
+		return contentRules.length > 0 && accessRules.length > 0;
+	}, [ contentRules, accessRules ] );
 
 	const handleSave = useCallback( () => {
 		const _gate = {
@@ -50,25 +54,33 @@ export default function ContentGateSettings( { gate, onDelete, onSave }: Content
 					console.error( error ); // eslint-disable-line no-console
 				},
 				onFinally() {
-					setIsRestoring( false );
+					setIsEditingStatus( false );
 				},
 			}
 		);
 	}, [ gate, accessRules, contentRules, metering, status, wizardApiFetch, onSave ] );
 
+	// Update status and trigger save.
 	useEffect( () => {
-		if ( ! isRestoring ) {
+		if ( ! isEditingStatus ) {
 			return;
 		}
-		if ( status === 'draft' ) {
-			handleSave();
-		}
-	}, [ isRestoring, status, handleSave ] );
+		handleSave();
+	}, [ isEditingStatus, status, handleSave ] );
 
 	const handleDelete = useCallback( () => onDelete( gate.id ), [ gate.id, onDelete ] );
 	const handleRestore = useCallback( () => {
-		setIsRestoring( true );
+		setIsEditingStatus( true );
 		setStatus( 'draft' );
+	}, [] );
+
+	const handlePublish = useCallback( () => {
+		// eslint-disable-next-line no-alert
+		if ( ! confirm( __( 'Are you sure you want to publish this content gate?', 'newspack-plugin' ) ) ) {
+			return;
+		}
+		setIsEditingStatus( true );
+		setStatus( 'publish' );
 	}, [] );
 
 	return (
@@ -77,14 +89,26 @@ export default function ContentGateSettings( { gate, onDelete, onSave }: Content
 			<AccessRules rules={ accessRules } onChange={ setAccessRules } />
 			<Metering metering={ metering } onChange={ setMetering } />
 			<div className="newspack-buttons-card">
-				{ 'trash' !== gate.status && (
-					<Button variant="primary" onClick={ handleSave }>
-						{ __( 'Save Settings', 'newspack-plugin' ) }
+				{ gate.status === 'draft' && (
+					<Button disabled={ ! isReady } variant="primary" onClick={ handlePublish }>
+						{ __( 'Publish', 'newspack-plugin' ) }
 					</Button>
 				) }
-				<Button isDestructive variant="secondary" onClick={ handleDelete }>
-					{ 'trash' === gate.status ? __( 'Permanently Delete', 'newspack-plugin' ) : __( 'Delete', 'newspack-plugin' ) }
-				</Button>
+				{ gate.status !== 'trash' && (
+					<Button variant={ gate.status === 'publish' ? 'primary' : 'secondary' } onClick={ handleSave }>
+						{ gate.status === 'publish' ? __( 'Update', 'newspack-plugin' ) : __( 'Save Draft', 'newspack-plugin' ) }
+					</Button>
+				) }
+				{ gate.status === 'publish' && (
+					<Button isDestructive variant="secondary" onClick={ handleRestore }>
+						{ __( 'Unpublish', 'newspack-plugin' ) }
+					</Button>
+				) }
+				{ gate.status !== 'publish' && (
+					<Button isDestructive variant="secondary" onClick={ handleDelete }>
+						{ 'trash' === gate.status ? __( 'Permanently Delete', 'newspack-plugin' ) : __( 'Delete', 'newspack-plugin' ) }
+					</Button>
+				) }
 				{ 'trash' === gate.status && (
 					<Button variant="secondary" onClick={ handleRestore }>
 						{ __( 'Restore', 'newspack-plugin' ) }
