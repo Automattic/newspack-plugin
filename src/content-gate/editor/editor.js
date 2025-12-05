@@ -85,7 +85,7 @@ function GateEdit() {
 					<p>{ __( "Newspack Campaign prompts won't be displayed when rendering gated content.", 'newspack-plugin' ) }</p>
 				</PluginPostStatusInfo>
 			) }
-			{ newspack_memberships_gate?.plans?.length > 1 && newspack_memberships_gate?.gate_plans?.length > 0 && (
+			{ newspack_memberships_gate?.plans?.length > 1 && (
 				<PluginDocumentSettingPanel name="content-gate-plans" title={ __( 'WooCommerce Memberships', 'newspack-plugin' ) }>
 					{ ! Object.keys( newspack_memberships_gate?.gate_plans ).length ? (
 						<Fragment>
