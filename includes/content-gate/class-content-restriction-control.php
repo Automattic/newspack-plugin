@@ -105,7 +105,7 @@ class Content_Restriction_Control {
 			return [];
 		}
 
-		$gates = Content_Gate::get_gates();
+		$gates = Content_Gate::get_gates( Content_Gate::GATE_CPT, 'publish' );
 		if ( empty( $gates ) ) {
 			return [];
 		}

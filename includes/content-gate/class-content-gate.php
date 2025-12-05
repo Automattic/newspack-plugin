@@ -857,15 +857,16 @@ class Content_Gate {
 	/**
 	 * Get all gates.
 	 *
-	 * @param string $post_type Post type.
+	 * @param string          $post_type Post type.
+	 * @param string|string[] $post_status Post status or array of statuses to fetch.
 	 *
 	 * @return array Array of content gates.
 	 */
-	public static function get_gates( $post_type = self::GATE_CPT ) {
+	public static function get_gates( $post_type = self::GATE_CPT, $post_status = null ) {
 		$posts = get_posts(
 			[
 				'post_type'      => $post_type,
-				'post_status'    => self::get_post_statuses(),
+				'post_status'    => $post_status ? $post_status : self::get_post_statuses(),
 				'posts_per_page' => -1,
 			]
 		);
