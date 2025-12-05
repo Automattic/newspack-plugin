@@ -66,10 +66,8 @@ class WooCommerce_Connection {
 		\add_action( 'woocommerce_after_checkout_validation', [ __CLASS__, 'rate_limit_checkout' ], 10, 2 );
 		\add_filter( 'woocommerce_add_payment_method_form_is_valid', [ __CLASS__, 'rate_limit_payment_methods' ] );
 
-		// Always save payment methods to existing subscriptions.
+		// Always save Stripe payment method to existing subscriptions and set as default.
 		\add_filter( 'wc_stripe_save_to_subs_checked', '__return_true' );
-
-		// Automatically set newly added payment method as default and update subscriptions.
 		\add_action( 'woocommerce_new_payment_token', [ __CLASS__, 'set_payment_method_as_default' ], 10, 2 );
 		\add_action( 'wc_stripe_payment_fields_stripe', [ __CLASS__, 'add_payment_method_form_notice' ], 5 );
 
