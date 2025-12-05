@@ -66,6 +66,7 @@ const ActionCard = ( {
 	noBorder,
 	isPending,
 	expandable = false,
+	isExpanded = false,
 	isButtonEnabled = false,
 	// Draggable props. All are required to enable drag sorting.
 	draggable = false,
@@ -73,7 +74,7 @@ const ActionCard = ( {
 	dragWrapperRef,
 	onDragCallback,
 } ) => {
-	const [ expanded, setExpanded ] = useState( false );
+	const [ expanded, setExpanded ] = useState( isExpanded );
 	const [ dragging, setDragging ] = useState( false );
 	const [ targetIndex, setTargetIndex ] = useState( null );
 	const [ dragRef, setDragRef ] = useState( null );

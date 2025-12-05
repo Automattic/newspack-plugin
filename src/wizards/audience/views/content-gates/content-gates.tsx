@@ -20,6 +20,23 @@ import ContentGateSettings from './content-gate-settings';
 import { AUDIENCE_CONTENT_GATES_WIZARD_SLUG } from './consts';
 import './style.scss';
 
+const getGateStatus = ( status: GateStatus ) => {
+	switch ( status ) {
+		case 'publish':
+			return __( 'Active', 'newspack-plugin' );
+		case 'draft':
+			return __( 'Draft', 'newspack-plugin' );
+		case 'pending':
+			return __( 'Pending Review', 'newspack-plugin' );
+		case 'future':
+			return __( 'Scheduled', 'newspack-plugin' );
+		case 'private':
+			return __( 'Private', 'newspack-plugin' );
+		default:
+			return '';
+	}
+};
+
 const ContentGates = () => {
 	const wizardData = useWizardData( 'newspack-audience-content-gates' ) as WizardData;
 	const { wizardApiFetch, isFetching } = useWizardApiFetch( AUDIENCE_CONTENT_GATES_WIZARD_SLUG );
@@ -65,7 +82,7 @@ const ContentGates = () => {
 			},
 			{
 				onSuccess( data ) {
-					setGates( [ data, ...gates ] );
+					setGates( [ ...gates, data ] );
 					setShowModal( false );
 					setNewGateName( '' );
 				},
@@ -175,19 +192,22 @@ const ContentGates = () => {
 					return (
 						<WizardsActionCard
 							className="newspack-content-gates__gate"
-							draggable
+							draggable={ gates.length > 1 }
 							expandable
+							isExpanded={ gates.length === 1 }
 							id={ gate.id }
 							key={ gate.id }
 							title={ gate.title }
 							titleLink={ `/wp-admin/post.php?post=${ gate.id }&action=edit` }
 							description={ gate.description }
-							isMedium
+							isMedium={ gates.length > 1 }
 							toggleChecked={ true }
 							dragIndex={ index }
 							dragWrapperRef={ ref }
 							onDragCallback={ reorderGates }
 							disabled={ isInFlight }
+							badge={ getGateStatus( gate.status ) }
+							badgeLevel={ gate.status === 'publish' ? 'success' : 'info' }
 						>
 							<ContentGateSettings gate={ gate } onDelete={ handleDeleteGate } onSave={ handleSaveGate } />
 						</WizardsActionCard>

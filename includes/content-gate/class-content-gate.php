@@ -844,7 +844,7 @@ class Content_Gate {
 		$posts = get_posts(
 			[
 				'post_type'      => $post_type,
-				'post_status'    => [ 'publish', 'draft', 'trash', 'pending', 'future' ],
+				'post_status'    => [ 'publish', 'draft', 'pending', 'future', 'private' ],
 				'posts_per_page' => -1,
 			]
 		);

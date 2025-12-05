@@ -1,7 +1,7 @@
 /**
  * Wizard Action Card Props
  */
-type ActionCardProps = Partial< {
+type ActionCardProps = Partial<{
 	id: string | number;
 	title: string | React.ReactNode;
 	titleLink: string;
@@ -9,6 +9,7 @@ type ActionCardProps = Partial< {
 	description: string | React.ReactNode;
 	actionText: React.ReactNode | string | null;
 	badge: string;
+	badgeLevel: 'success' | 'info' | 'warning' | 'error';
 	className: string;
 	indent: string;
 	notification: string;
@@ -17,7 +18,7 @@ type ActionCardProps = Partial< {
 	disabled: boolean | string;
 	hasGreyHeader: boolean;
 	toggleChecked: boolean;
-	toggleOnChange: ( a: boolean ) => void;
+	toggleOnChange: (a: boolean) => void;
 	actionContent: boolean | React.ReactNode | null;
 	error: Error | string | null;
 	handoff: string | null;
@@ -32,10 +33,11 @@ type ActionCardProps = Partial< {
 	secondaryDestructive: boolean;
 	draggable: boolean;
 	dragIndex: number;
-	onDragCallback: ( index: number ) => void;
-	dragWrapperRef?: React.MutableRefObject< HTMLDivElement | null >;
+	onDragCallback: (index: number) => void;
+	dragWrapperRef?: React.MutableRefObject<HTMLDivElement | null>;
 	expandable: boolean;
-} >;
+	isExpanded?: boolean;
+}>;
 
 /**
  * Plugin callbacks for install, activate and init states
@@ -57,8 +59,8 @@ type PluginResponse = { Status: string; Configured: boolean };
  * Plugin Wizard API fetch callback
  */
 type PluginWizardApiFetchCallback = (
-	callbacks?: ApiFetchCallbacks< PluginResponse >
-) => Promise< PluginResponse >;
+	callbacks?: ApiFetchCallbacks<PluginResponse>
+) => Promise<PluginResponse>;
 
 /**
  * Plugin card action texts
@@ -81,20 +83,20 @@ type PluginCard = {
 	description?: string | React.ReactNode;
 	title: string;
 	subTitle?: string;
-	statusDescription?: Partial< {
+	statusDescription?: Partial<{
 		uninstalled: string;
 		inactive: string;
 		notConfigured: string;
 		connected: string;
-	} >;
+	}>;
 	isEnabled?: boolean;
 	isManageable?: boolean;
 	// Toggle card props
 	toggleChecked?: boolean;
-	toggleOnChange?: ( value?: boolean ) => void;
+	toggleOnChange?: (value?: boolean) => void;
 	isStatusPrepended?: boolean;
 	error?: string | null;
-	onStatusChange?: ( statuses: Record< string, boolean > ) => void;
+	onStatusChange?: (statuses: Record<string, boolean>) => void;
 	reloadOnActivation?: boolean;
 	isConfigurable?: boolean;
 	isTogglable?: boolean;
@@ -105,7 +107,7 @@ type PluginCard = {
 /**
  * Wizard Toggle Header Card Props
  */
-type WizardsToggleHeaderCardProps< T > = {
+type WizardsToggleHeaderCardProps<T> = {
 	title: string;
 	description: string;
 	namespace: string;
@@ -115,18 +117,18 @@ type WizardsToggleHeaderCardProps< T > = {
 		[
 			keyof T,
 			{
-				callback?: 'isIntegerId' | 'isId' | ( ( v: any ) => string );
-				dependsOn?: { [ k in keyof T ]?: string };
+				callback?: 'isIntegerId' | 'isId' | ((v: any) => string);
+				dependsOn?: { [k in keyof T]?: string };
 			},
 		]
 	>;
-	renderProp: ( props: {
+	renderProp: (props: {
 		settingsUpdates: T;
-		setSettingsUpdates: React.Dispatch< React.SetStateAction< T > >;
+		setSettingsUpdates: React.Dispatch<React.SetStateAction<T>>;
 		isFetching: boolean;
-	} ) => React.ReactNode;
+	}) => React.ReactNode;
 	/** Optional prop to override conditions for toggling. Default uses `active` prop to dictate if toggled on/off */
-	onToggle?: ( active: boolean, data: T ) => T;
+	onToggle?: (active: boolean, data: T) => T;
 	/** Optional prop to override conditions for isToggled. Default uses `active` prop to dictate if toggled on/off */
-	onChecked?: ( data: T ) => boolean;
+	onChecked?: (data: T) => boolean;
 };
