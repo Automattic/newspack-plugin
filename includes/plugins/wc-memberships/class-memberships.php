@@ -95,7 +95,6 @@ class Memberships {
 				'show_in_menu' => false,
 				'show_in_rest' => true,
 				'supports'     => [ 'editor', 'custom-fields', 'revisions', 'title' ],
-				'taxonomies'   => [ 'category', 'post_tag' ],
 			]
 		);
 	}
@@ -128,42 +127,6 @@ class Memberships {
 			'overlay_size'       => [
 				'type'    => 'string',
 				'default' => 'medium',
-			],
-			'access_rules'       => [
-				'type'         => 'array',
-				'default'      => [],
-				'single'       => true,
-				'show_in_rest' => [
-					'schema' => [
-						'items' => [
-							'type'       => 'object',
-							'properties' => [
-								'slug'  => [
-									'type' => 'string',
-								],
-								'value' => [
-									'type' => 'mixed',
-								],
-							],
-						],
-					],
-				],
-			],
-			'post_types'         => [
-				'type'         => 'array',
-				'default'      => [ 'post' ],
-				'single'       => true,
-				'show_in_rest' => [
-					'schema' => [
-						'items' => [
-							'type' => 'string',
-						],
-					],
-				],
-			],
-			'gate_priority'      => [
-				'type'    => 'integer',
-				'default' => 0,
 			],
 		];
 
