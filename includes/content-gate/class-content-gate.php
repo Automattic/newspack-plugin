@@ -229,7 +229,6 @@ class Content_Gate {
 				'show_in_menu' => false,
 				'show_in_rest' => true,
 				'supports'     => [ 'editor', 'custom-fields', 'revisions', 'title' ],
-				'taxonomies'   => [ 'category', 'post_tag' ],
 			]
 		);
 	}
