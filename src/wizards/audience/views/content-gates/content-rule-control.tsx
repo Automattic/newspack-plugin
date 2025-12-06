@@ -32,19 +32,13 @@ export default function ContentRuleControl( { slug, value, exclusion, onChange, 
 					__experimentalExpandOnFocus={ true }
 				/>
 			) : (
-				<ContentRuleControlTaxonomy
-					slug={ slug }
-					value={ value }
-					exclusion={ exclusion }
-					onChange={ onChange }
-					onChangeExclusion={ onChangeExclusion }
-				/>
+				<ContentRuleControlTaxonomy slug={ slug } value={ value } onChange={ onChange } />
 			) }
 			<CheckboxControl
 				label={ __( 'Exclusion rule', 'newspack-plugin' ) }
 				help={ __( 'Apply this rule to everything EXCEPT the items matching the above.', 'newspack-plugin' ) }
 				checked={ exclusion ?? false }
-				onChange={ e => onChangeExclusion( e ) }
+				onChange={ e => onChangeExclusion?.( e ) }
 			/>
 		</div>
 	);

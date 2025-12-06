@@ -58,7 +58,7 @@ type GateContentRuleControlProps = {
 	value: GateContentRuleValue;
 	exclusion?: boolean;
 	onChange: (value: GateContentRuleValue) => void;
-	onChangeExclusion: (value: boolean) => void;
+	onChangeExclusion?: (value: boolean) => void;
 };
 
 type GateStatus = 'publish' | 'draft' | 'pending' | 'future' | 'private' | 'trash';
