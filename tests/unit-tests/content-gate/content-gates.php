@@ -220,5 +220,24 @@ class Test_Content_Gates extends \WP_UnitTestCase {
 
 		$gates = Content_Restriction_Control::get_post_gates( $post2 );
 		$this->assertCount( 0, $gates, 'No gates for the post in category 2' );
+
+		// Make the content rule an exclusion rule.
+		Content_Gate::update_post_content_rules(
+			$this->gate_ids[2],
+			[
+				[
+					'slug'      => 'category',
+					'value'     => [ $cat1 ],
+					'exclusion' => true,
+				],
+			]
+		);
+
+		$gates = Content_Restriction_Control::get_post_gates( $post1 );
+		$this->assertCount( 0, $gates, 'No gates for the post in category 1' );
+
+		$gates = Content_Restriction_Control::get_post_gates( $post2 );
+		$this->assertCount( 1, $gates, 'One gate for the post in category 2' );
+		$this->assertEquals( $this->gate_ids[2], $gates[0]['id'], 'Gate with publish status and matching rules configuration is included' );
 	}
 }

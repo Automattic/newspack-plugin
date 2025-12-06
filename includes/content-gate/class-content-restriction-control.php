@@ -121,9 +121,10 @@ class Content_Restriction_Control {
 			}
 
 			foreach ( $content_rules as $content_rule ) {
+				$is_exclusion = isset( $content_rule['exclusion'] ) && $content_rule['exclusion'];
 				if ( $content_rule['slug'] === 'post_types' ) {
 					$post_type = get_post_type( $post_id );
-					if ( ! in_array( $post_type, $content_rule['value'], true ) ) {
+					if ( $is_exclusion ? in_array( $post_type, $content_rule['value'], true ) : ! in_array( $post_type, $content_rule['value'], true ) ) {
 						continue 2;
 					}
 				} else {
@@ -132,10 +133,10 @@ class Content_Restriction_Control {
 						continue 2;
 					}
 					$terms = wp_get_post_terms( $post_id, $content_rule['slug'], [ 'fields' => 'ids' ] );
-					if ( ! $terms || is_wp_error( $terms ) ) {
+					if ( ( ! $is_exclusion && ! $terms ) || is_wp_error( $terms ) ) {
 						continue 2;
 					}
-					if ( empty( array_intersect( $terms, $content_rule['value'] ) ) ) {
+					if ( $is_exclusion ? ! empty( array_intersect( $terms, $content_rule['value'] ) ) : empty( array_intersect( $terms, $content_rule['value'] ) ) ) {
 						continue 2;
 					}
 				}

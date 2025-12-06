@@ -242,8 +242,9 @@ class Audience_Content_Gates extends Wizard {
 								'items' => [
 									'type'       => 'object',
 									'properties' => [
-										'slug'  => [ 'type' => 'string' ],
-										'value' => [ 'type' => 'mixed' ],
+										'slug'      => [ 'type' => 'string' ],
+										'value'     => [ 'type' => 'mixed' ],
+										'exclusion' => [ 'type' => 'boolean' ],
 									],
 								],
 							],
@@ -388,12 +389,18 @@ class Audience_Content_Gates extends Wizard {
 			}
 		}
 
-		$value = array_values( array_filter( array_map( 'sanitize_text_field', $content_rule['value'] ) ) );
+		$value     = array_values( array_filter( array_map( 'sanitize_text_field', $content_rule['value'] ) ) );
+		$exclusion = isset( $content_rule['exclusion'] ) ? boolval( $content_rule['exclusion'] ) : false;
 
-		return [
+		$sanitized_rule = [
 			'slug'  => $slug,
 			'value' => $value,
 		];
+		if ( $exclusion ) {
+			$sanitized_rule['exclusion'] = $exclusion;
+		}
+
+		return $sanitized_rule;
 	}
 
 	/**

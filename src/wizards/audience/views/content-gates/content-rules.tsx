@@ -51,6 +51,13 @@ export default function ContentRules( { rules, onChange }: ContentRulesProps ) {
 		[ onChange, rules ]
 	);
 
+	const handleChangeExclusion = useCallback(
+		( slug: string ) => ( e: boolean ) => {
+			onChange( rules.map( r => ( r.slug === slug ? { ...r, exclusion: e } : r ) ) );
+		},
+		[ onChange, rules ]
+	);
+
 	return (
 		<ActionCard
 			title={ __( 'Content Rules', 'newspack-plugin' ) }
@@ -66,7 +73,14 @@ export default function ContentRules( { rules, onChange }: ContentRulesProps ) {
 		>
 			<Grid columns={ Math.min( 3, rules.length ) } gutter={ 32 }>
 				{ rules.map( ( rule: GateContentRule ) => (
-					<ContentRuleControl key={ rule.slug } slug={ rule.slug } value={ rule.value } onChange={ handleChange( rule.slug ) } />
+					<ContentRuleControl
+						key={ rule.slug }
+						slug={ rule.slug }
+						value={ rule.value }
+						exclusion={ rule.exclusion }
+						onChange={ handleChange( rule.slug ) }
+						onChangeExclusion={ handleChangeExclusion( rule.slug ) }
+					/>
 				) ) }
 			</Grid>
 		</ActionCard>
