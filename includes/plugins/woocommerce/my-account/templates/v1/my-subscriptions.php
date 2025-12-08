@@ -13,6 +13,16 @@
 if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly.
 }
+
+// Filter out subscriptions with 'trash' status.
+if ( ! empty( $subscriptions ) ) {
+	$subscriptions = array_filter(
+		$subscriptions,
+		function( $subscription ) {
+			return 'trash' !== $subscription->get_status();
+		}
+	);
+}
 ?>
 <div class="woocommerce_account_subscriptions">
 
