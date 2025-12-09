@@ -74,6 +74,22 @@
 			border: none !important;
 		}
 	}
+
+	&.woocommerce-account.newspack-my-account {
+		.woocommerce-message {
+			.woocommerce-Button.button {
+				background: transparent;
+				border-radius: 0;
+				color: inherit;
+				float: none;
+				font-size: inherit;
+				font-weight: inherit;
+				min-height: auto;
+				padding: 0;
+				text-decoration: underline;
+			}
+		}
+	}
 }
 
 /** See #3292. */
