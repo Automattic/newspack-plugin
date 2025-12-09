@@ -47,6 +47,7 @@ class My_Account_UI_V1 {
 		\add_action( 'woocommerce_after_save_address_validation', [ __CLASS__, 'handle_delete_address_submission' ], 10, 4 );
 		\add_filter( 'woocommerce_address_to_edit', [ __CLASS__, 'reorder_address_fields' ], PHP_INT_MAX, 2 );
 		\add_action( 'woocommerce_account_content', [ __CLASS__, 'render_content_around_shortcode' ], 0 );
+		\add_filter( 'woocommerce_account_menu_items', [ __CLASS__, 'filter_subscriptions_menu_label' ], 20 );
 	}
 
 	/**
@@ -912,6 +913,59 @@ class My_Account_UI_V1 {
 				11 // Right after the shortcode.
 			);
 		}
+	}
+
+	/**
+	 * Get non-trashed subscriptions for the current user.
+	 */
+	public static function get_non_trashed_users_subscriptions() {
+		// Check if WooCommerce Subscriptions is available.
+		if ( ! function_exists( 'wcs_get_users_subscriptions' ) ) {
+			return [];
+		}
+
+		$all_subscriptions = \wcs_get_users_subscriptions();
+
+		// Filter out trashed subscriptions.
+		return array_filter(
+			$all_subscriptions,
+			function( $subscription ) {
+				return ! $subscription->has_status( 'trash' );
+			}
+		);
+	}
+
+	/**
+	 * Update 'Subcriptions' menu item based on trashed subscriptions.
+	 *
+	 * @param array $menu_items My Account menu items.
+	 * @return array Modified menu items.
+	 */
+	public static function filter_subscriptions_menu_label( $menu_items ) {
+		// Only modify if subscriptions menu item exists.
+		if ( ! isset( $menu_items['subscriptions'] ) ) {
+			return $menu_items;
+		}
+
+		// Get only non-trashed subscriptions.
+		$active_subscriptions = self::get_non_trashed_users_subscriptions();
+		$active_count         = count( $active_subscriptions );
+
+		// If there are no non-trashed subscriptions, remove the menu item.
+		if ( 0 === $active_count ) {
+			unset( $menu_items['subscriptions'] );
+			return $menu_items;
+		}
+
+		// If there is only one non-trashed subscription, use "My Subscription".
+		if ( 1 === $active_count && apply_filters( 'wcs_my_account_redirect_to_single_subscription', true ) ) {
+			$menu_items['subscriptions'] = __( 'My Subscription', 'newspack-plugin' );
+		} else {
+			// If there are more than one non-trashed subscription, use "Subscriptions".
+			$menu_items['subscriptions'] = __( 'Subscriptions', 'newspack-plugin' );
+		}
+
+		return $menu_items;
 	}
 }
 My_Account_UI_V1::init();
