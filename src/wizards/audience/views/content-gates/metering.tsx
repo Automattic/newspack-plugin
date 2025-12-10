@@ -31,7 +31,7 @@ export default function Metering( { metering, onChange }: MeteringProps ) {
 				/>
 			</Card>
 			{ metering.enabled && (
-				<Grid columns={ 3 } gutter={ 32 }>
+				<Grid columns={ 2 } gutter={ 32 } noMargin={ true }>
 					<TextControl
 						type={ 'number' }
 						label={ __( 'Free views for anonymous viewers', 'newspack-plugin' ) }

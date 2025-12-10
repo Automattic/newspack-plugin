@@ -130,12 +130,13 @@ export default function ContentRuleControlTaxonomy( { slug, value, onChange }: G
 
 	return (
 		<FormTokenField
-			__experimentalExpandOnFocus
 			label={ rule.name }
 			suggestions={ suggestions.map( s => `${ s.value }: ${ s.label }` ) }
 			onInputChange={ handleInputChange }
 			value={ tokens }
 			onChange={ handleChange }
+			__experimentalExpandOnFocus
+			__next40pxDefaultSize
 		/>
 	);
 }

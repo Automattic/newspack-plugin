@@ -45,7 +45,7 @@ const getGateStatusBadgeLevel = ( status: GateStatus ) => {
 		case 'publish':
 			return 'success';
 		case 'trash':
-			return 'warning';
+			return 'error';
 		default:
 			return 'info';
 	}
