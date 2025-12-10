@@ -96,10 +96,12 @@ class ESP_Sync extends Sync {
 	 * @param array  $contact          The contact data to sync.
 	 * @param string $context          The context of the sync. Defaults to static::$context.
 	 * @param array  $existing_contact Optional. Existing contact data to merge with. Defaults to null.
+	 * @param array  $lists_to_add     Optional. Lists (in addition to the master list) to add the contact to.
+	 * @param array  $lists_to_remove  Optional. Lists to remove the contact from.
 	 *
 	 * @return true|\WP_Error True if succeeded or WP_Error.
 	 */
-	public static function sync( $contact, $context = '', $existing_contact = null ) {
+	public static function sync( $contact, $context = '', $existing_contact = null, $lists_to_add = [], $lists_to_remove = [] ) {
 		$can_sync = static::can_esp_sync( true );
 		if ( $can_sync->has_errors() ) {
 			return $can_sync;
@@ -112,12 +114,22 @@ class ESP_Sync extends Sync {
 		// If we're running in a data event, queue the sync to run on shutdown.
 		if ( ! isset( self::$queued_syncs[ $contact['email'] ] ) ) {
 			self::$queued_syncs[ $contact['email'] ] = [
-				'contexts' => [],
-				'contact'  => [],
+				'contexts'        => [],
+				'contact'         => [],
+				'lists_to_add'    => [],
+				'lists_to_remove' => [],
 			];
 		}
 		if ( ! empty( self::$queued_syncs[ $contact['email'] ]['contact']['metadata'] ) ) {
 			$contact['metadata'] = array_merge( self::$queued_syncs[ $contact['email'] ]['contact']['metadata'], $contact['metadata'] );
+		}
+		if ( ! empty( $lists_to_add ) ) {
+			self::$queued_syncs[ $contact['email'] ]['lists_to_add'] = array_values( array_unique( array_merge( self::$queued_syncs[ $contact['email'] ]['lists_to_add'], $lists_to_add ) ) );
+			self::$queued_syncs[ $contact['email'] ]['lists_to_remove'] = array_values( array_diff( self::$queued_syncs[ $contact['email'] ]['lists_to_remove'], $lists_to_add ) );
+		}
+		if ( ! empty( $lists_to_remove ) ) {
+			self::$queued_syncs[ $contact['email'] ]['lists_to_remove'] = array_values( array_unique( array_merge( self::$queued_syncs[ $contact['email'] ]['lists_to_remove'], $lists_to_remove ) ) );
+			self::$queued_syncs[ $contact['email'] ]['lists_to_add'] = array_values( array_diff( self::$queued_syncs[ $contact['email'] ]['lists_to_add'], $lists_to_remove ) );
 		}
 		self::$queued_syncs[ $contact['email'] ]['contexts'][] = $context;
 		self::$queued_syncs[ $contact['email'] ]['contact']    = $contact;
@@ -126,6 +138,7 @@ class ESP_Sync extends Sync {
 		}
 
 		$master_list_id = Reader_Activation::get_esp_master_list_id();
+		$lists_to_add   = array_values( array_unique( array_merge( [ $master_list_id ], $lists_to_add ) ) );
 
 		/**
 		 * Filters the contact data before normalizing and syncing to the ESP.
@@ -135,7 +148,15 @@ class ESP_Sync extends Sync {
 		 */
 		$contact = \apply_filters( 'newspack_esp_sync_contact', $contact, $context );
 		$contact = Sync\Metadata::normalize_contact_data( $contact );
-		$result  = \Newspack_Newsletters_Contacts::upsert( $contact, $master_list_id, $context, $existing_contact );
+		$result  = \Newspack_Newsletters_Contacts::upsert( $contact, $lists_to_add, $context, $existing_contact );
+
+		// If we need to remove lists, do so after the contact is upserted.
+		if ( ! is_wp_error( $result ) && ! empty( $lists_to_remove ) ) {
+			$remove_result = \Newspack_Newsletters_Contacts::add_and_remove_lists( $contact['email'], [], $lists_to_remove, $context );
+			if ( is_wp_error( $remove_result ) ) {
+				return $remove_result;
+			}
+		}
 
 		return \is_wp_error( $result ) ? $result : true;
 	}
@@ -291,7 +312,7 @@ class ESP_Sync extends Sync {
 				continue;
 			}
 			$contexts = $queued_sync['contexts'];
-			self::sync( $contact, implode( '; ', $contexts ) );
+			self::sync( $contact, implode( '; ', $contexts ), null, $queued_sync['lists_to_add'], $queued_sync['lists_to_remove'] );
 		}
 
 		self::$queued_syncs = [];
