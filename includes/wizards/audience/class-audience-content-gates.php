@@ -270,7 +270,7 @@ class Audience_Content_Gates extends Wizard {
 			'access_rules'  => $this->sanitize_rules( $gate['access_rules'] ),
 			'content_rules' => $this->sanitize_rules( $gate['content_rules'], 'content' ),
 			'priority'      => intval( $gate['priority'] ),
-			'status'        => sanitize_text_field( $gate['status'] ),
+			'status'        => $this->sanitize_status( $gate['status'] ),
 		];
 	}
 
