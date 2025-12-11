@@ -262,50 +262,6 @@ class Content_Gate {
 				'type'    => 'string',
 				'default' => 'medium',
 			],
-			'access_rules'       => [
-				'type'         => 'array',
-				'default'      => [],
-				'single'       => true,
-				'show_in_rest' => [
-					'schema' => [
-						'items' => [
-							'type'       => 'object',
-							'properties' => [
-								'slug'  => [
-									'type' => 'string',
-								],
-								'value' => [
-									'type' => 'mixed',
-								],
-							],
-						],
-					],
-				],
-			],
-			'content_rules'      => [
-				'type'         => 'array',
-				'default'      => [],
-				'single'       => true,
-				'show_in_rest' => [
-					'schema' => [
-						'items' => [
-							'type'       => 'object',
-							'properties' => [
-								'slug'  => [
-									'type' => 'string',
-								],
-								'value' => [
-									'type' => 'mixed',
-								],
-							],
-						],
-					],
-				],
-			],
-			'gate_priority'      => [
-				'type'    => 'integer',
-				'default' => 0,
-			],
 		];
 
 		foreach ( $meta as $key => $config ) {

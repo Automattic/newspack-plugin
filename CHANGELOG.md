@@ -1,3 +1,27 @@
+# [6.27.0](https://github.com/Automattic/newspack-plugin/compare/v6.26.4...v6.27.0) (2025-12-08)
+
+
+### Bug Fixes
+
+* **content-gifting:** ux tweaks and other fixes ([#4318](https://github.com/Automattic/newspack-plugin/issues/4318)) ([952dd83](https://github.com/Automattic/newspack-plugin/commit/952dd834819ffc6219aa154dda65bad3f850e627))
+* **contrib-meter:** ensure percentage follows bar progress when using linear style ([#4320](https://github.com/Automattic/newspack-plugin/issues/4320)) ([cbe8665](https://github.com/Automattic/newspack-plugin/commit/cbe8665db66058fcf2c711a6ac331cd251351f02))
+* hide Content Gate CPT from WP Admin menu ([#4321](https://github.com/Automattic/newspack-plugin/issues/4321)) ([70bbe7e](https://github.com/Automattic/newspack-plugin/commit/70bbe7e019ee28f9022acc6224e38a6a8ab0f8ab))
+* make some Collections spacing more specific to archive pages ([#4293](https://github.com/Automattic/newspack-plugin/issues/4293)) ([21daeaf](https://github.com/Automattic/newspack-plugin/commit/21daeafc79100d86533358b3b069a0b81ca2bcb1))
+* **media:** move default image UI to Advanced Settings ([#4296](https://github.com/Automattic/newspack-plugin/issues/4296)) ([a22f06d](https://github.com/Automattic/newspack-plugin/commit/a22f06d21ab68209df245d905ce8c7387ae78f7b))
+* **modal-checkout:** prevent session reload after new customer account ([#4310](https://github.com/Automattic/newspack-plugin/issues/4310)) ([89208fc](https://github.com/Automattic/newspack-plugin/commit/89208fcb2453427dde47ad2c31bea7031dd45c6d))
+* **my-account:** add payment method query var ([#4325](https://github.com/Automattic/newspack-plugin/issues/4325)) ([a7f2cb1](https://github.com/Automattic/newspack-plugin/commit/a7f2cb1600a557e3416ca2fda6d7691cd2644d2c))
+* **my-account:** select font size ([#4324](https://github.com/Automattic/newspack-plugin/issues/4324)) ([31a48c0](https://github.com/Automattic/newspack-plugin/commit/31a48c03dcf0a999f6579262c551a372f51be381))
+* repeat button block styles in collections for WP 6.9 ([#4319](https://github.com/Automattic/newspack-plugin/issues/4319)) ([6e3c5f8](https://github.com/Automattic/newspack-plugin/commit/6e3c5f85307e8e6bbf3fbce43ff49c16c024f670))
+* **subscription-modal:** limited subscriptions ([#4309](https://github.com/Automattic/newspack-plugin/issues/4309)) ([715f3c9](https://github.com/Automattic/newspack-plugin/commit/715f3c9898319905f1a148f42934f7b9b2089ce4))
+
+
+### Features
+
+* add autocomplete + token + multiselect component ([#4289](https://github.com/Automattic/newspack-plugin/issues/4289)) ([84a8eda](https://github.com/Automattic/newspack-plugin/commit/84a8edabc5b527faed2183d1af8fcf8e6067f401))
+* **content-gifting:** custom article link expiration ([#4313](https://github.com/Automattic/newspack-plugin/issues/4313)) ([c00f054](https://github.com/Automattic/newspack-plugin/commit/c00f054004fc5fc85cd859e836ce5943a7491f9b))
+* listen to gforms events for newsletters ([#4312](https://github.com/Automattic/newspack-plugin/issues/4312)) ([2f0e0e3](https://github.com/Automattic/newspack-plugin/commit/2f0e0e376a1caf10ac0115fc8ac83cc1b9441965))
+* **my-account:** add "Product" column to the Subscriptions page ([#4323](https://github.com/Automattic/newspack-plugin/issues/4323)) ([ba91e4c](https://github.com/Automattic/newspack-plugin/commit/ba91e4c1055b0eb3e2e246e53e0d3de4c711f485))
+
 ## [6.26.4](https://github.com/Automattic/newspack-plugin/compare/v6.26.3...v6.26.4) (2025-12-04)
 
 
