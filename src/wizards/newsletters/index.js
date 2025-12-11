@@ -31,7 +31,7 @@ class NewslettersWizard extends Component {
 				path: '/',
 			},
 			{
-				label: __( 'Tracking', 'newspack-plugin' ),
+				label: __( 'Ads Tracking', 'newspack-plugin' ),
 				path: '/tracking',
 			},
 		];

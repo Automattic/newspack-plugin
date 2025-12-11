@@ -52,17 +52,17 @@ export default withWizardScreen( () => {
 
 	return (
 		<>
-			<h1>{ __( 'Tracking', 'newspack-plugin' ) }</h1>
+			<h1>{ __( 'Ads Tracking', 'newspack-plugin' ) }</h1>
 			<ActionCard
 				title={ __( 'Click-tracking', 'newspack-plugin' ) }
-				description={ __( 'Track the clicks on the links in your newsletter.', 'newspack-plugin' ) }
+				description={ __( 'Track the clicks on ads in your newsletter.', 'newspack-plugin' ) }
 				disabled={ inFlight }
 				toggleOnChange={ handleChange( 'click' ) }
 				toggleChecked={ tracking.click }
 			/>
 			<ActionCard
-				title={ __( 'Tracking pixel', 'newspack-plugin' ) }
-				description={ __( 'Track the opens of your newsletter.', 'newspack-plugin' ) }
+				title={ __( 'Ads impressions', 'newspack-plugin' ) }
+				description={ __( 'Track the impressions of ads in your newsletter.', 'newspack-plugin' ) }
 				disabled={ inFlight }
 				toggleOnChange={ handleChange( 'pixel' ) }
 				toggleChecked={ tracking.pixel }
