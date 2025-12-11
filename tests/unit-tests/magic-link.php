@@ -315,4 +315,40 @@ class Newspack_Test_Magic_Link extends WP_UnitTestCase {
 		$this->assertTrue( is_wp_error( $validation ) );
 		$this->assertEquals( 'invalid_token', $validation->get_error_code() );
 	}
+
+	/**
+	 * Test that newspack_magic_link_email_config filter can override the email config.
+	 */
+	public function test_email_config_filter() {
+		$filter_called   = false;
+		$received_params = [];
+
+		// Add a filter to capture the parameters and modify the config name.
+		$filter_callback = function ( $email_config_name, $email_type, $user, $redirect_to, $token_data ) use ( &$filter_called, &$received_params ) {
+			$filter_called   = true;
+			$received_params = [
+				'email_config_name' => $email_config_name,
+				'email_type'        => $email_type,
+				'user'              => $user,
+				'redirect_to'       => $redirect_to,
+				'token_data'        => $token_data,
+			];
+			// Return a custom config name.
+			return 'custom-email-config';
+		};
+
+		add_filter( 'newspack_magic_link_email_config', $filter_callback, 10, 5 );
+
+		// Trigger send_email (it will fail to send since we don't have email setup, but filter should still fire).
+		$user = get_user_by( 'id', self::$user_id );
+		Magic_Link::send_email( $user, 'https://example.com/redirect' );
+
+		remove_filter( 'newspack_magic_link_email_config', $filter_callback, 10 );
+
+		$this->assertTrue( $filter_called, 'The newspack_magic_link_email_config filter was called.' );
+		$this->assertEquals( 'OTP_AUTH', $received_params['email_type'], 'Filter received the correct email type.' );
+		$this->assertEquals( $user->ID, $received_params['user']->ID, 'Filter received the correct user.' );
+		$this->assertEquals( 'https://example.com/redirect', $received_params['redirect_to'], 'Filter received the correct redirect_to.' );
+		$this->assertIsArray( $received_params['token_data'], 'Filter received token data as array.' );
+	}
 }

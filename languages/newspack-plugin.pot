@@ -2,14 +2,14 @@
 # This file is distributed under the GPL2.
 msgid ""
 msgstr ""
-"Project-Id-Version: Newspack 6.26.2\n"
+"Project-Id-Version: Newspack 6.27.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/project\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2025-12-04T19:07:12+00:00\n"
+"POT-Creation-Date: 2025-12-08T21:31:29+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: newspack-plugin\n"
@@ -79,117 +79,117 @@ msgstr ""
 msgid "Please wait a minute before requesting another authorization code."
 msgstr ""
 
-#: includes/class-magic-link.php:550
-#: includes/class-magic-link.php:620
-#: includes/class-magic-link.php:703
-#: includes/class-magic-link.php:954
-#: includes/class-magic-link.php:1082
+#: includes/class-magic-link.php:566
+#: includes/class-magic-link.php:636
+#: includes/class-magic-link.php:719
+#: includes/class-magic-link.php:970
+#: includes/class-magic-link.php:1098
 #: includes/cli/class-ras.php:74
 #: includes/plugins/co-authors-plus/class-nicename-change-ui.php:127
 #: includes/reader-activation/sync/class-esp-sync-admin.php:169
 msgid "User not found."
 msgstr ""
 
-#: includes/class-magic-link.php:552
-#: includes/class-magic-link.php:622
+#: includes/class-magic-link.php:568
+#: includes/class-magic-link.php:638
 msgid "Not allowed for this user"
 msgstr ""
 
-#: includes/class-magic-link.php:556
-#: includes/class-magic-link.php:586
+#: includes/class-magic-link.php:572
+#: includes/class-magic-link.php:602
 #: includes/plugins/woocommerce/my-account/class-my-account-ui-v1.php:368
 msgid "Invalid token."
 msgstr ""
 
-#: includes/class-magic-link.php:577
+#: includes/class-magic-link.php:593
 msgid "Invalid client."
 msgstr ""
 
-#: includes/class-magic-link.php:624
-#: includes/class-magic-link.php:708
+#: includes/class-magic-link.php:640
+#: includes/class-magic-link.php:724
 msgid "OTP is not enabled."
 msgstr ""
 
-#: includes/class-magic-link.php:628
-#: includes/class-magic-link.php:667
+#: includes/class-magic-link.php:644
+#: includes/class-magic-link.php:683
 msgid "Invalid hash."
 msgstr ""
 
-#: includes/class-magic-link.php:630
-#: includes/class-magic-link.php:660
+#: includes/class-magic-link.php:646
+#: includes/class-magic-link.php:676
 msgid "Invalid OTP."
 msgstr ""
 
-#: includes/class-magic-link.php:656
+#: includes/class-magic-link.php:672
 msgid "Maximum OTP attempts reached."
 msgstr ""
 
-#: includes/class-magic-link.php:759
+#: includes/class-magic-link.php:775
 msgid "We were not able to authenticate your account. Please try logging in again."
 msgstr ""
 
-#: includes/class-magic-link.php:829
-#: includes/class-magic-link.php:862
+#: includes/class-magic-link.php:845
+#: includes/class-magic-link.php:878
 msgid "Unsupported request method"
 msgstr ""
 
-#: includes/class-magic-link.php:866
+#: includes/class-magic-link.php:882
 msgid "Missing required parameters"
 msgstr ""
 
-#: includes/class-magic-link.php:871
+#: includes/class-magic-link.php:887
 msgid "Invalid user"
 msgstr ""
 
-#: includes/class-magic-link.php:881
+#: includes/class-magic-link.php:897
 msgid "You've reached the maximum attempts for this code, try again."
 msgstr ""
 
-#: includes/class-magic-link.php:884
+#: includes/class-magic-link.php:900
 msgid "Code not recognized, try again."
 msgstr ""
 
-#: includes/class-magic-link.php:889
+#: includes/class-magic-link.php:905
 msgid "Unable to authenticate, try again."
 msgstr ""
 
-#: includes/class-magic-link.php:912
+#: includes/class-magic-link.php:928
 #: includes/reader-activation/class-reader-activation.php:279
 msgid "Login successful!"
 msgstr ""
 
 #. translators: %s is the email address of the user.
-#: includes/class-magic-link.php:964
+#: includes/class-magic-link.php:980
 #, php-format
 msgid "Email sent to %s."
 msgstr ""
 
-#: includes/class-magic-link.php:970
+#: includes/class-magic-link.php:986
 msgid "Send a magic link to a reader."
 msgstr ""
 
-#: includes/class-magic-link.php:1014
+#: includes/class-magic-link.php:1030
 msgid "Send authentication link"
 msgstr ""
 
-#: includes/class-magic-link.php:1035
+#: includes/class-magic-link.php:1051
 msgid "Authentication link sent."
 msgstr ""
 
-#: includes/class-magic-link.php:1038
+#: includes/class-magic-link.php:1054
 msgid "All authentication link tokens were removed."
 msgstr ""
 
-#: includes/class-magic-link.php:1041
+#: includes/class-magic-link.php:1057
 msgid "Authentication links are now disabled."
 msgstr ""
 
-#: includes/class-magic-link.php:1044
+#: includes/class-magic-link.php:1060
 msgid "Authentication links are now enabled."
 msgstr ""
 
-#: includes/class-magic-link.php:1066
-#: includes/class-magic-link.php:1070
+#: includes/class-magic-link.php:1082
+#: includes/class-magic-link.php:1086
 #: includes/plugins/woocommerce/my-account/class-woocommerce-my-account.php:549
 #: includes/plugins/woocommerce/my-account/class-woocommerce-my-account.php:569
 #: includes/reader-activation/class-reader-activation.php:2026
@@ -197,54 +197,54 @@ msgstr ""
 msgid "Invalid request."
 msgstr ""
 
-#: includes/class-magic-link.php:1076
+#: includes/class-magic-link.php:1092
 #: includes/reader-activation/sync/class-esp-sync-admin.php:125
 #: includes/reader-activation/sync/class-esp-sync-admin.php:163
 msgid "You do not have permission to do that."
 msgstr ""
 
-#: includes/class-magic-link.php:1126
+#: includes/class-magic-link.php:1142
 msgid "Passwordless Authentication Management"
 msgstr ""
 
-#: includes/class-magic-link.php:1129
+#: includes/class-magic-link.php:1145
 msgid "Authentication Link Support"
 msgstr ""
 
 #. translators: %1$s: Disabled or enabled. %2$s: User's display name.
-#: includes/class-magic-link.php:1140
+#: includes/class-magic-link.php:1156
 #, php-format
 msgid "Authentication links support is currently %1$s for %2$s."
 msgstr ""
 
-#: includes/class-magic-link.php:1141
+#: includes/class-magic-link.php:1157
 #: dist/blocks.js:4
 #: src/blocks/reader-registration/edit.js:204
 msgid "disabled"
 msgstr ""
 
-#: includes/class-magic-link.php:1141
+#: includes/class-magic-link.php:1157
 #: dist/blocks.js:4
 #: src/blocks/reader-registration/edit.js:204
 msgid "enabled"
 msgstr ""
 
-#: includes/class-magic-link.php:1150
+#: includes/class-magic-link.php:1166
 msgid "Send Authentication Link"
 msgstr ""
 
 #. translators: %1$s: User's display name. %2$d is the expiration period in minutes.
-#: includes/class-magic-link.php:1157
+#: includes/class-magic-link.php:1173
 #, php-format
 msgid "Generate and send a new link to %1$s, which will authenticate them instantly. The link will be valid for %2$d minutes after its creation."
 msgstr ""
 
-#: includes/class-magic-link.php:1166
+#: includes/class-magic-link.php:1182
 msgid "Clear All Tokens"
 msgstr ""
 
 #. translators: %s: User's display name.
-#: includes/class-magic-link.php:1173
+#: includes/class-magic-link.php:1189
 #, php-format
 msgid "Clear all existing authentication link tokens for %s."
 msgstr ""
@@ -1346,7 +1346,7 @@ msgstr ""
 msgid "Reader Data"
 msgstr ""
 
-#: includes/content-gate/class-content-gate.php:755
+#: includes/content-gate/class-content-gate.php:780
 #: dist/billboard.js:12
 #: src/wizards/advertising/components/suppression/index.js:78
 msgid "Post Types"
@@ -2946,15 +2946,15 @@ msgid "Weekly"
 msgstr ""
 
 #: includes/plugins/woocommerce-subscriptions/class-woocommerce-subscriptions.php:125
-#: includes/plugins/woocommerce/class-woocommerce-connection.php:399
-#: includes/plugins/woocommerce/class-woocommerce-connection.php:493
+#: includes/plugins/woocommerce/class-woocommerce-connection.php:459
+#: includes/plugins/woocommerce/class-woocommerce-connection.php:553
 #: dist/audience-wizards.83dd332308811c2c4d51.js:22
 msgid "Monthly"
 msgstr ""
 
 #: includes/plugins/woocommerce-subscriptions/class-woocommerce-subscriptions.php:126
-#: includes/plugins/woocommerce/class-woocommerce-connection.php:400
-#: includes/plugins/woocommerce/class-woocommerce-connection.php:494
+#: includes/plugins/woocommerce/class-woocommerce-connection.php:460
+#: includes/plugins/woocommerce/class-woocommerce-connection.php:554
 msgid "Yearly"
 msgstr ""
 
@@ -2991,62 +2991,66 @@ msgstr ""
 msgid "Transaction fee (%s)"
 msgstr ""
 
-#: includes/plugins/woocommerce/class-woocommerce-connection.php:208
-#: includes/reader-activation/class-reader-activation.php:2528
+#: includes/plugins/woocommerce/class-woocommerce-connection.php:212
+#: includes/reader-activation/class-reader-activation.php:2535
 msgid "Please wait a moment before trying again."
 msgstr ""
 
-#: includes/plugins/woocommerce/class-woocommerce-connection.php:250
+#: includes/plugins/woocommerce/class-woocommerce-connection.php:254
 msgid "Please wait a moment before trying to complete this transaction again."
 msgstr ""
 
-#: includes/plugins/woocommerce/class-woocommerce-connection.php:261
+#: includes/plugins/woocommerce/class-woocommerce-connection.php:265
 #: includes/plugins/woocommerce/my-account/class-woocommerce-my-account.php:328
 msgid "Please wait a moment before trying to add a new payment method."
 msgstr ""
 
-#: includes/plugins/woocommerce/class-woocommerce-connection.php:429
-#: includes/plugins/woocommerce/class-woocommerce-connection.php:525
+#: includes/plugins/woocommerce/class-woocommerce-connection.php:322
+msgid "The card will be automatically saved to your active subscriptions and set as your default payment method."
+msgstr ""
+
+#: includes/plugins/woocommerce/class-woocommerce-connection.php:489
+#: includes/plugins/woocommerce/class-woocommerce-connection.php:585
 msgid "One-time"
 msgstr ""
 
-#: includes/plugins/woocommerce/class-woocommerce-connection.php:445
+#: includes/plugins/woocommerce/class-woocommerce-connection.php:505
 #: dist/newspack-wizards.ead85c22f487a4e5ff32.js:24
 msgid "Card"
 msgstr ""
 
-#: includes/plugins/woocommerce/class-woocommerce-connection.php:449
+#: includes/plugins/woocommerce/class-woocommerce-connection.php:509
 #: includes/reader-activation/class-reader-activation.php:299
 #: src/blocks/reader-registration/index.php:106
 msgid "My Account"
 msgstr ""
 
-#: includes/plugins/woocommerce/class-woocommerce-connection.php:537
+#: includes/plugins/woocommerce/class-woocommerce-connection.php:597
 msgid "Restart Donation"
 msgstr ""
 
-#: includes/plugins/woocommerce/class-woocommerce-connection.php:537
+#: includes/plugins/woocommerce/class-woocommerce-connection.php:597
 msgid "Restart Subscription"
 msgstr ""
 
-#: includes/plugins/woocommerce/class-woocommerce-connection.php:545
+#: includes/plugins/woocommerce/class-woocommerce-connection.php:605
 msgid "Donation Cancelled"
 msgstr ""
 
-#: includes/plugins/woocommerce/class-woocommerce-connection.php:545
+#: includes/plugins/woocommerce/class-woocommerce-connection.php:605
 msgid "Subscription Cancelled"
 msgstr ""
 
-#: includes/plugins/woocommerce/class-woocommerce-connection.php:549
+#: includes/plugins/woocommerce/class-woocommerce-connection.php:609
 msgid "recurring donation"
 msgstr ""
 
-#: includes/plugins/woocommerce/class-woocommerce-connection.php:549
+#: includes/plugins/woocommerce/class-woocommerce-connection.php:609
 msgid "subscription"
 msgstr ""
 
 #. Translators: %s is the user's billing first and last name – or company name.
-#: includes/plugins/woocommerce/class-woocommerce-connection.php:790
+#: includes/plugins/woocommerce/class-woocommerce-connection.php:850
 #, php-format
 msgid "%s's Team"
 msgstr ""
@@ -3143,19 +3147,19 @@ msgid "Allow orders containing this product to automatically complete upon succe
 msgstr ""
 
 #. translators: %1$s: action URL, %2$s: link attributes
-#: includes/plugins/woocommerce/class-woocommerce-update-payment-notice.php:156
+#: includes/plugins/woocommerce/class-woocommerce-update-payment-notice.php:174
 #, php-format
 msgid "Please <a href=\"%1$s\" %2$s>update your payment method</a>."
 msgstr ""
 
 #. translators: %s: donation formatted value
-#: includes/plugins/woocommerce/class-woocommerce-update-payment-notice.php:187
+#: includes/plugins/woocommerce/class-woocommerce-update-payment-notice.php:205
 #, php-format
 msgid "Your recurring donation of %s has stopped."
 msgstr ""
 
 #. translators: %s: subscription product name
-#: includes/plugins/woocommerce/class-woocommerce-update-payment-notice.php:193
+#: includes/plugins/woocommerce/class-woocommerce-update-payment-notice.php:211
 #, php-format
 msgid "Your “%s” subscription is not active."
 msgstr ""
@@ -4286,32 +4290,32 @@ msgstr ""
 msgid "Cannot register while logged in."
 msgstr ""
 
-#: includes/reader-activation/class-reader-activation.php:2562
+#: includes/reader-activation/class-reader-activation.php:2569
 msgid "Please wait before requesting another verification email."
 msgstr ""
 
-#: includes/reader-activation/class-reader-activation.php:2800
+#: includes/reader-activation/class-reader-activation.php:2807
 msgid "Your personal data will be used to process your order and create an account if one doesn't exist. This information will also support your experience throughout this website, and be used for other purposes described in our privacy policy."
 msgstr ""
 
 #. Translators: %s is the name of the site.
-#: includes/reader-activation/class-reader-activation.php:2817
+#: includes/reader-activation/class-reader-activation.php:2824
 #, php-format
 msgid "Thank you for supporting %s. Your transaction was completed successfully."
 msgstr ""
 
 #. Translators: %s is the name of the site.
-#: includes/reader-activation/class-reader-activation.php:2836
+#: includes/reader-activation/class-reader-activation.php:2843
 #, php-format
 msgid "Thank you for supporting %s. Your account has been created, and your transaction was completed successfully."
 msgstr ""
 
-#: includes/reader-activation/class-reader-activation.php:2862
+#: includes/reader-activation/class-reader-activation.php:2869
 #: dist/audience-wizards.83dd332308811c2c4d51.js:45
 msgid "I understand this is a recurring subscription and that I can cancel anytime through the My Account Page."
 msgstr ""
 
-#: includes/reader-activation/class-reader-activation.php:2886
+#: includes/reader-activation/class-reader-activation.php:2893
 #: dist/audience-wizards.83dd332308811c2c4d51.js:45
 msgid "I have read and accept the {{Terms & Conditions}}."
 msgstr ""
