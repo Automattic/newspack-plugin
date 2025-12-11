@@ -5,11 +5,7 @@
  */
 import { __ } from '@wordpress/i18n';
 import {
-	ExternalLink,
 	RangeControl,
-	SelectControl,
-	TextControl,
-	Button,
 	BaseControl,
 	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
 	__experimentalHeading as Heading,
@@ -18,10 +14,11 @@ import {
 	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
 	__experimentalToggleGroupControlOption as ToggleGroupControlOption,
 } from '@wordpress/components';
-import { ActionCard, Grid, Notice } from '../../../../../packages/components/src';
+import { ActionCard, Button, Grid, Notice, SelectControl, TextControl } from '../../../../../packages/components/src';
 
 export default function ContentGifting( { config, setConfig, updateConfig } ) {
 	const giftingErrors = Object.values( newspackAudience?.content_gifting?.can_use_gifting?.errors || {} ).flat();
+	const availableProducts = newspackAudience?.available_products || [];
 	const hasMetering = newspackAudience?.content_gifting?.has_metering;
 
 	return (
@@ -102,23 +99,8 @@ export default function ContentGifting( { config, setConfig, updateConfig } ) {
 							onChange={ value => setConfig( { ...config, content_gifting: { ...config.content_gifting, button_label: value } } ) }
 							__next40pxDefaultSize
 						/>
-						<TextControl
-							label={ __( 'Subscribe button URL', 'newspack-plugin' ) }
-							help={
-								<>
-									{ __(
-										'URL for the subscribe button in the banner. If not provided, the primary subscription tier product will be used with modal checkout.',
-										'newspack-plugin'
-									) }{ ' ' }
-									<ExternalLink href="/wp-admin/admin.php?page=newspack-audience-subscriptions">
-										{ __( 'Configure the primary subscription product', 'newspack-plugin' ) }
-									</ExternalLink>
-								</>
-							}
-							value={ config.content_gifting.cta_url }
-							onChange={ value => setConfig( { ...config, content_gifting: { ...config.content_gifting, cta_url: value } } ) }
-							__next40pxDefaultSize
-						/>
+					</Grid>
+					<Grid columns={ 3 } rowGap={ 32 }>
 						<ToggleGroupControl
 							label={ __( 'Style', 'newspack-plugin' ) }
 							value={ config.content_gifting.style || 'light' }
@@ -129,9 +111,45 @@ export default function ContentGifting( { config, setConfig, updateConfig } ) {
 							<ToggleGroupControlOption label={ __( 'Light', 'newspack-plugin' ) } value="light" />
 							<ToggleGroupControlOption label={ __( 'Dark', 'newspack-plugin' ) } value="dark" />
 						</ToggleGroupControl>
+						<ToggleGroupControl
+							label={ __( 'Action', 'newspack-plugin' ) }
+							help={ __(
+								'Whether the subscribe button should start a product checkout or redirect to a landing page.',
+								'newspack-plugin'
+							) }
+							value={ config.content_gifting.cta_type || 'product' }
+							onChange={ value => setConfig( { ...config, content_gifting: { ...config.content_gifting, cta_type: value } } ) }
+							isBlock
+							__next40pxDefaultSize
+						>
+							<ToggleGroupControlOption label={ __( 'Product', 'newspack-plugin' ) } value="product" />
+							<ToggleGroupControlOption label={ __( 'Landing page', 'newspack-plugin' ) } value="url" />
+						</ToggleGroupControl>
+						{ config.content_gifting.cta_type === 'product' && (
+							<SelectControl
+								label={ __( 'Product', 'newspack-plugin' ) }
+								help={ __( 'Product linked to the subscribe button.', 'newspack-plugin' ) }
+								options={ [ { label: __( 'Select a product', 'newspack-plugin' ), value: 0, disabled: true }, ...availableProducts ] }
+								value={ config.content_gifting.cta_product_id }
+								suggestions={ availableProducts.map( o => o.label ) }
+								onChange={ value =>
+									setConfig( { ...config, content_gifting: { ...config.content_gifting, cta_product_id: value } } )
+								}
+								__next40pxDefaultSize
+							/>
+						) }
+						{ config.content_gifting.cta_type === 'url' && (
+							<TextControl
+								label={ __( 'Subscribe button URL', 'newspack-plugin' ) }
+								help={ __( 'URL for the landing page to redirect to.', 'newspack-plugin' ) }
+								value={ config.content_gifting.cta_url }
+								onChange={ value => setConfig( { ...config, content_gifting: { ...config.content_gifting, cta_url: value } } ) }
+								__next40pxDefaultSize
+							/>
+						) }
 						<div style={ { gridColumn: '1 / -1' } }>
 							<BaseControl id="newspack-content-gifting-cta-preview" label={ __( 'Preview', 'newspack-plugin' ) }>
-								<div className="newspack-content-gifting__cta-preview" inert>
+								<div className="newspack-content-gifting__cta-preview" inert="true">
 									<div className="newspack-ui">
 										<div
 											className={ `banner newspack-content-gifting__cta is-style-${ config.content_gifting.style || 'light' }` }
@@ -151,15 +169,18 @@ export default function ContentGifting( { config, setConfig, updateConfig } ) {
 														) }
 													</div>
 												</div>
-												<button
-													className={ `newspack-ui__button newspack-ui__button--x-small ${
-														( config.content_gifting.style || 'light' ) === 'dark'
-															? 'newspack-ui__button--primary-light'
-															: 'newspack-ui__button--accent'
-													}` }
-												>
-													{ config.content_gifting.button_label || __( 'Subscribe now', 'newspack-plugin' ) }
-												</button>
+												{ ( ( config.content_gifting.cta_type === 'product' && config.content_gifting.cta_product_id ) ||
+													( config.content_gifting.cta_type === 'url' && config.content_gifting.cta_url ) ) && (
+													<button
+														className={ `newspack-ui__button newspack-ui__button--x-small ${
+															( config.content_gifting.style || 'light' ) === 'dark'
+																? 'newspack-ui__button--primary-light'
+																: 'newspack-ui__button--accent'
+														}` }
+													>
+														{ config.content_gifting.button_label || __( 'Subscribe now', 'newspack-plugin' ) }
+													</button>
+												) }
 											</div>
 										</div>
 									</div>

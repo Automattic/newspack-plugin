@@ -213,10 +213,34 @@ class Access_Rules {
 		}
 		$products = \wc_get_products(
 			[
-				'type'  => [ 'subscription', 'variable-subscription' ],
+				'type'  => [ 'grouped', 'variable-subscription', 'subscription' ],
 				'limit' => -1,
 			]
 		);
+
+		// Filter out grouped products that don't have any subscription products.
+		$products = array_values(
+			array_filter(
+				$products,
+				function( $product ) {
+					if ( $product->is_type( 'grouped' ) ) {
+						$children = $product->get_children();
+						foreach ( $children as $child ) {
+							$child = \wc_get_product( $child );
+							if ( ! $child ) {
+								continue;
+							}
+							if ( $child->is_type( 'subscription' ) || $child->is_type( 'variable-subscription' ) ) {
+								return true;
+							}
+						}
+						return false;
+					}
+					return true;
+				}
+			)
+		);
+
 		$options = [];
 		foreach ( $products as $product ) {
 			$options[] = [
