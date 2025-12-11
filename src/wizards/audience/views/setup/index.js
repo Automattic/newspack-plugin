@@ -1,3 +1,5 @@
+/* global newspackAudience */
+
 /**
  * Configuration
  */
@@ -100,7 +102,7 @@ function AudienceWizard( { confirmAction, pluginRequirements, wizardApiFetch }, 
 			path: '/',
 		},
 		config.enabled &&
-			config.has_memberships && {
+			newspackAudience.has_memberships && {
 				label: __( 'Content Gating', 'newspack-plugin' ),
 				path: '/content-gating',
 			},
