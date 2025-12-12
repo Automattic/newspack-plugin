@@ -199,8 +199,10 @@ class Test_Content_Gates extends \WP_UnitTestCase {
 		// Create test posts.
 		$post1 = $this->factory->post->create( [ 'post_category' => [ $cat1 ] ] );
 		$post2 = $this->factory->post->create( [ 'post_category' => [ $cat2 ] ] );
+		$post3 = $this->factory->post->create( [ 'post_category' => [] ] );
 		$this->post_ids[] = $post1;
 		$this->post_ids[] = $post2;
+		$this->post_ids[] = $post3;
 
 		// Update content rules to match posts in category 1.
 		Content_Gate::update_post_content_rules(
@@ -221,6 +223,9 @@ class Test_Content_Gates extends \WP_UnitTestCase {
 		$gates = Content_Restriction_Control::get_post_gates( $post2 );
 		$this->assertCount( 0, $gates, 'No gates for the post in category 2' );
 
+		$gates = Content_Restriction_Control::get_post_gates( $post3 );
+		$this->assertCount( 0, $gates, 'No gate for the post with no categories' );
+
 		// Make the content rule an exclusion rule.
 		Content_Gate::update_post_content_rules(
 			$this->gate_ids[2],
@@ -238,6 +243,10 @@ class Test_Content_Gates extends \WP_UnitTestCase {
 
 		$gates = Content_Restriction_Control::get_post_gates( $post2 );
 		$this->assertCount( 1, $gates, 'One gate for the post in category 2' );
+		$this->assertEquals( $this->gate_ids[2], $gates[0]['id'], 'Gate with publish status and matching rules configuration is included' );
+
+		$gates = Content_Restriction_Control::get_post_gates( $post3 );
+		$this->assertCount( 1, $gates, 'One gate for the post with no categories' );
 		$this->assertEquals( $this->gate_ids[2], $gates[0]['id'], 'Gate with publish status and matching rules configuration is included' );
 	}
 }
