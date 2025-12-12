@@ -79,6 +79,12 @@ function lockContent( ras ) {
 	if ( inlineGate ) {
 		content.appendChild( inlineGate );
 	}
+
+	// Remove countdown banner, if any.
+	const countdownBanner = document.querySelector( '.newspack-countdown-banner__cta' );
+	if ( countdownBanner ) {
+		countdownBanner.remove();
+	}
 }
 
 function meter( ras ) {

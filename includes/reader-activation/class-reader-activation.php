@@ -60,6 +60,11 @@ final class Reader_Activation {
 	const SSO_REGISTRATION_METHODS = [ 'google' ];
 
 	/**
+	 * OAuth routes to intercept for RAS login redirection.
+	 */
+	const OAUTH_REDIRECT_ROUTES = [ '/oauth/authorize' ];
+
+	/**
 	 * Newsletters signup form.
 	 */
 	const NEWSLETTERS_SIGNUP_FORM_ACTION = 'reader-activation-newsletters-signup';
@@ -113,6 +118,7 @@ final class Reader_Activation {
 			\add_action( 'lostpassword_post', [ __CLASS__, 'set_password_reset_mail_content_type' ] );
 			\add_filter( 'lostpassword_errors', [ __CLASS__, 'rate_limit_lost_password' ], 10, 2 );
 			\add_filter( 'newspack_esp_sync_contact', [ __CLASS__, 'set_mailchimp_sync_contact_status' ], 10, 2 );
+			\add_filter( 'login_url', [ __CLASS__, 'redirect_oauth_to_ras_login' ], 10, 3 );
 		}
 	}
 
@@ -308,6 +314,9 @@ final class Reader_Activation {
 				'newsletters_success'      => __( 'Signup successful!', 'newspack-plugin' ),
 				'newsletters_title'        => __( 'Sign up for newsletters', 'newspack-plugin' ),
 				'auth_form_action'         => self::AUTH_FORM_ACTION,
+				// Subscription tiers labels.
+				'sign_in_to_upgrade'       => __( 'Sign in to upgrade', 'newspack-plugin' ),
+				'register_to_upgrade'      => __( 'Register to upgrade', 'newspack-plugin' ),
 			];
 
 			/**
@@ -376,6 +385,7 @@ final class Reader_Activation {
 			'woocommerce_enable_terms_confirmation'        => false,
 			'woocommerce_terms_confirmation_text'          => self::get_terms_confirmation_text(),
 			'woocommerce_terms_confirmation_url'           => self::get_terms_confirmation_url(),
+			'oauth_redirect_to_ras'                        => false,
 		];
 
 		/**
@@ -1477,7 +1487,8 @@ final class Reader_Activation {
 		$referer           = \wp_parse_url( \wp_get_referer() );
 		$labels            = self::get_reader_activation_labels( 'signin' );
 		// If there is a redirect parameter, use it as the auth callback URL.
-		$auth_callback_url = filter_input( INPUT_GET, 'redirect', FILTER_SANITIZE_URL ) ?? '#';
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$auth_callback_url = isset( $_GET['redirect'] ) ? \esc_url_raw( \wp_unslash( $_GET['redirect'] ) ) : '#';
 		if ( '#' === $auth_callback_url ) {
 			if ( Renewal::is_subscriptions_page() ) {
 				// If we are on the subscriptions page, set the auth callback URL to the subscriptions page.
@@ -1819,6 +1830,7 @@ final class Reader_Activation {
 			$labels  = self::get_reader_activation_labels( 'signin' );
 			$message = $is_error ? $data->get_error_message() : $labels['success_message'];
 		}
+
 		\wp_send_json( compact( 'message', 'data' ), \is_wp_error( $data ) ? 400 : 200 );
 	}
 
@@ -2256,6 +2268,13 @@ final class Reader_Activation {
 			// Unhook from WooCommerce as it's already been canonized above.
 			remove_filter( 'woocommerce_new_customer_data', [ __CLASS__, 'canonize_user_data' ], 10, 1 );
 			if ( function_exists( '\wc_create_new_customer' ) ) {
+
+				// Avoid an issue with Teams for Memberships plugin that messes up billing first and last name and display name.
+				// See SkyVerge\WooCommerce\Memberships\Teams\Frontend::save_team_member_name().
+				if ( function_exists( 'wc_memberships_for_teams' ) ) {
+					remove_action( 'woocommerce_created_customer', [ wc_memberships_for_teams()->get_frontend_instance(), 'save_team_member_name' ] );
+				}
+
 				/**
 				 * Create WooCommerce Customer if possible.
 				 * Email notification for WooCommerce is handled by the plugin.
@@ -2692,6 +2711,70 @@ final class Reader_Activation {
 			return;
 		}
 		self::set_current_reader( $user );
+	}
+
+	/**
+	 * Check if a URL matches an OAuth redirect route.
+	 *
+	 * @param string $url The URL to check.
+	 * @return bool True if the URL path contains an OAuth route.
+	 */
+	public static function is_oauth_redirect( $url ) {
+		$url_path = \wp_parse_url( $url, PHP_URL_PATH ) ?? '';
+
+		/**
+		 * Filters the list of OAuth routes that should redirect to RAS login.
+		 *
+		 * @param array  $routes Array of OAuth route paths.
+		 * @param string $url_path The URL path being checked.
+		 */
+		$routes = apply_filters( 'newspack_ras_oauth_redirect_routes', self::OAUTH_REDIRECT_ROUTES, $url_path );
+
+		return ! empty(
+			array_filter(
+				$routes,
+				fn( $route ) => str_contains( $url_path, $route )
+			)
+		);
+	}
+
+	/**
+	 * Redirect OAuth authorization requests to RAS login instead of wp-login.php.
+	 *
+	 * This enables OAuth clients to use the RAS login screen which provides
+	 * Google SSO and a better user experience while maintaining PKCE OAuth 2.0 compatibility.
+	 *
+	 * This is a generic OAuth + RAS integration, not specific to any particular OAuth client.
+	 *
+	 * @param string $login_url    The login URL.
+	 * @param string $redirect     The path to redirect to on login.
+	 * @param bool   $force_reauth Whether to force reauthentication.
+	 * @return string Modified login URL for OAuth flows, original URL otherwise.
+	 */
+	public static function redirect_oauth_to_ras_login( $login_url, $redirect, $force_reauth ) {
+		// Only intercept OAuth authorization requests if the setting is enabled.
+		if ( ! self::get_setting( 'oauth_redirect_to_ras' ) || ! self::is_oauth_redirect( $redirect ) || ! function_exists( 'wc_get_page_permalink' ) ) {
+			return $login_url;
+		}
+
+		// Redirect to RAS My Account page with OAuth redirect preserved.
+		$my_account_url = \wc_get_page_permalink( 'myaccount' );
+		$url            = add_query_arg( 'redirect', rawurlencode( $redirect ), $my_account_url );
+
+		// Preserve force_reauth if needed (for prompt=login flow).
+		if ( $force_reauth ) {
+			$url = add_query_arg( 'reauth', '1', $url );
+		}
+
+		/**
+		 * Filters the OAuth redirect URL before returning.
+		 *
+		 * @param string $url          The RAS login URL with OAuth redirect parameters.
+		 * @param string $login_url    The original login URL.
+		 * @param string $redirect     The OAuth redirect URL.
+		 * @param bool   $force_reauth Whether to force reauthentication.
+		 */
+		return apply_filters( 'newspack_ras_oauth_redirect_url', $url, $login_url, $redirect, $force_reauth );
 	}
 
 	/**

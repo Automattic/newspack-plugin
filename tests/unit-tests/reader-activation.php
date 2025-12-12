@@ -142,4 +142,33 @@ class Newspack_Test_Reader_Activation extends WP_UnitTestCase {
 		$this->assertFalse( Reader_Activation::is_user_reader( $user ) );
 		wp_delete_user( $reader_id ); // Clean up.
 	}
+
+	/**
+	 * Test is_oauth_redirect detection.
+	 */
+	public function test_is_oauth_redirect() {
+		$this->assertTrue( Reader_Activation::is_oauth_redirect( 'https://example.com/oauth/authorize?client_id=123' ) );
+		$this->assertFalse( Reader_Activation::is_oauth_redirect( 'https://example.com/my-account/' ) );
+		$this->assertFalse( Reader_Activation::is_oauth_redirect( 'https://example.com/' ) );
+		$this->assertFalse( Reader_Activation::is_oauth_redirect( '' ) );
+	}
+
+	/**
+	 * Test is_oauth_redirect filter can extend routes.
+	 */
+	public function test_is_oauth_redirect_filter() {
+		// Add a custom OAuth route via filter.
+		add_filter(
+			'newspack_ras_oauth_redirect_routes',
+			function ( $routes ) {
+				$routes[] = '/custom-oauth/';
+				return $routes;
+			}
+		);
+
+		$this->assertTrue(
+			Reader_Activation::is_oauth_redirect( 'https://example.com/custom-oauth/?param=value' ),
+			'Custom OAuth route should be detected after adding via filter.'
+		);
+	}
 }

@@ -4,9 +4,47 @@
 
 @use "~@wordpress/base-styles/colors" as wp-colors;
 
-.newspack-content-gates {
-	&__title {
-		margin: 0;
-		min-width: 200px !important;
+.audience_page_newspack-audience-content-gates {
+	.newspack-card:not(.newspack-settings__no-border) .newspack-action-card__region-children > .newspack-grid {
+		margin-top: 0 !important;
+	}
+	.newspack-content-gates {
+		&__title {
+			margin: 0;
+			min-width: 200px !important;
+		}
+		&__gate {
+			> .newspack-action-card__region-children {
+				> *:first-child {
+					margin-top: 0 !important;
+				}
+				> *:last-child {
+					margin-bottom: 0 !important;
+				}
+				> * + * {
+					margin-top: 32px !important;
+				}
+			}
+		}
+		&__content-rule-control {
+			> * + * {
+				margin-top: 16px;
+			}
+		}
+	}
+
+	.components-form-token-field {
+		position: relative;
+		&__suggestions-list {
+			background-color: #fff;
+			border-radius: 0 0 2px 2px;
+			border: 1px solid var(--wp-admin-theme-color);
+			border-top: none;
+			left: 0;
+			outline: 0.5px solid var(--wp-admin-theme-color);
+			position: absolute;
+			width: 100%;
+			z-index: 1;
+		}
 	}
 }

@@ -47,7 +47,7 @@ class Metering {
 	 * @return bool
 	 */
 	public static function restrict_post( $restrict ) {
-		if ( self::is_metering() ) {
+		if ( $restrict && self::is_metering() ) {
 			return false;
 		}
 		return $restrict;
@@ -86,18 +86,20 @@ class Metering {
 				'default' => 'week',
 			],
 		];
-		foreach ( $meta as $key => $config ) {
-			\register_meta(
-				'post',
-				$key,
-				[
-					'object_subtype' => Content_Gate::GATE_CPT,
-					'show_in_rest'   => true,
-					'type'           => $config['type'],
-					'default'        => $config['default'],
-					'single'         => true,
-				]
-			);
+		foreach ( Content_Gate::get_gate_post_types() as $cpt ) {
+			foreach ( $meta as $key => $config ) {
+				\register_meta(
+					'post',
+					$key,
+					[
+						'object_subtype' => $cpt,
+						'show_in_rest'   => true,
+						'type'           => $config['type'],
+						'default'        => $config['default'],
+						'single'         => true,
+					]
+				);
+			}
 		}
 	}
 
@@ -187,12 +189,44 @@ class Metering {
 	}
 
 	/**
+	 * Whether the post has metering enabled.
+	 *
+	 * @param int|null $post_id Post ID. Default is the current post.
+	 *
+	 * @return bool
+	 */
+	public static function has_metering( $post_id = null ) {
+		if ( ! $post_id ) {
+			$post_id = get_the_ID();
+		}
+		$gate_post_id = Content_Gate::get_gate_post_id( $post_id );
+		$metering     = \get_post_meta( $gate_post_id, 'metering', true );
+		if ( ! $metering ) {
+			return false;
+		}
+		$anonymous_count  = \get_post_meta( $gate_post_id, 'metering_anonymous_count', true );
+		$registered_count = \get_post_meta( $gate_post_id, 'metering_registered_count', true );
+		if ( ! $anonymous_count && ! $registered_count ) {
+			return false;
+		}
+		return true;
+	}
+
+	/**
 	 * Whether to use the frontend metering strategy.
 	 *
 	 * @return bool
 	 */
 	public static function is_frontend_metering() {
-		// Frotend metering strategy should only be applied for anonymous readers.
+		/**
+		 * This filter documented in the `is_metering` method.
+		 */
+		$short_circuit = apply_filters( 'newspack_content_gate_metering_short_circuit', null );
+		if ( null !== $short_circuit ) {
+			return false;
+		}
+
+		// Frontend metering strategy should only be applied for anonymous readers.
 		if ( \is_user_logged_in() ) {
 			return false;
 		}
@@ -224,12 +258,25 @@ class Metering {
 	 * @return bool
 	 */
 	public static function is_logged_in_metering_allowed( $post_id = null ) {
+		/**
+		 * This filter documented in the `is_metering` method.
+		 */
+		$short_circuit = apply_filters( 'newspack_content_gate_metering_short_circuit', null );
+		if ( null !== $short_circuit ) {
+			return false;
+		}
+
 		if ( ! $post_id ) {
 			$post_id = get_the_ID();
 		}
 
 		// Metering back-end strategy is only for logged-in users.
 		if ( ! \is_user_logged_in() ) {
+			return false;
+		}
+
+		// Not in checkout modals.
+		if ( method_exists( 'Newspack_Blocks\Modal_Checkout', 'is_modal_checkout' ) && \Newspack_Blocks\Modal_Checkout::is_modal_checkout() ) {
 			return false;
 		}
 
@@ -248,7 +295,8 @@ class Metering {
 		}
 
 		// Aggregate metering by gate priority, if available.
-		$user_meta_key = self::METERING_META_KEY . '_' . ( $priority ? $priority : $gate_post_id );
+		$suffix = Content_Gate::is_newspack_feature_enabled() && $priority ? $priority : $gate_post_id;
+		$user_meta_key = self::METERING_META_KEY . '_' . $suffix;
 
 		$updated_user_data  = false;
 		$user_metering_data = \get_user_meta( get_current_user_id(), $user_meta_key, true );
@@ -303,6 +351,24 @@ class Metering {
 	 * @return bool
 	 */
 	public static function is_metering() {
+		/**
+		 * Short-circuit the metering check. Anything other than null
+		 * will prevent the metering logic from running.
+		 *
+		 * The `is_logged_in_metering_allowed` method also updates the user meta
+		 * to track the content that's been allowed to access. This short-circuit
+		 * prevents this from running if we want the entire metering feature to be
+		 * skipped.
+		 *
+		 * @param mixed $short_circuit Short-circuit value. Default is null.
+		 *
+		 * @return mixed Short-circuit value.
+		 */
+		$short_circuit = apply_filters( 'newspack_content_gate_metering_short_circuit', null );
+		if ( null !== $short_circuit ) {
+			return false;
+		}
+
 		return self::is_frontend_metering() || self::is_logged_in_metering_allowed();
 	}
 
@@ -330,7 +396,7 @@ class Metering {
 		if ( ! $post_id ) {
 			$post_id = get_the_ID();
 		}
-		$gate_post_id = Memberships::get_gate_post_id( $post_id );
+		$gate_post_id = Content_Gate::get_gate_post_id( $post_id );
 		return \get_post_meta( $gate_post_id, 'metering_period', true );
 	}
 

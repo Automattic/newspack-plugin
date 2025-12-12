@@ -27,11 +27,14 @@ class Newspack_UI {
 	 */
 	public static function init() {
 		\add_action( 'wp_enqueue_scripts', [ __CLASS__, 'enqueue_assets' ] );
+		\add_action( 'admin_enqueue_scripts', [ __CLASS__, 'enqueue_assets' ] );
 		\add_action( 'enqueue_block_editor_assets', [ __CLASS__, 'enqueue_assets' ] );
 		\add_filter( 'the_content', [ __CLASS__, 'load_demo' ] );
+		\add_action( 'admin_enqueue_scripts', [ __CLASS__, 'theme_colors_css' ] );
 		// Only run if the site is using a block theme.
 		if ( wp_theme_has_theme_json() ) {
 			\add_action( 'wp_enqueue_scripts', [ __CLASS__, 'colors_css_wrap' ] );
+			\add_action( 'admin_enqueue_scripts', [ __CLASS__, 'colors_css_wrap' ] );
 		}
 		add_action( 'wp_footer', [ __CLASS__, 'print_notices' ], 100 );
 
@@ -147,6 +150,29 @@ class Newspack_UI {
 	}
 
 	/**
+	 * Adds inline styles CSS for the theme colors.
+	 */
+	public static function theme_colors_css() {
+		if ( ! function_exists( 'newspack_get_colors' ) || ! function_exists( 'newspack_color_with_contrast' ) ) {
+			return;
+		}
+		$colors = newspack_get_colors();
+		$custom_css = ':root {';
+		$custom_css .= '--newspack-theme-color-primary: ' . esc_attr( $colors['primary'] ) . ';';
+		$custom_css .= '--newspack-theme-color-primary-variation: ' . esc_attr( newspack_adjust_brightness( $colors['primary'], -30 ) ) . ';';
+		$custom_css .= '--newspack-theme-color-secondary: ' . esc_attr( $colors['secondary'] ) . ' !important;';
+		$custom_css .= '--newspack-theme-color-secondary-variation: ' . esc_attr( newspack_adjust_brightness( $colors['secondary'], -40 ) ) . ';';
+		$custom_css .= '--newspack-theme-color-primary-against-white: ' . esc_attr( newspack_color_with_contrast( $colors['primary'] ) ) . ';';
+		$custom_css .= '--newspack-theme-color-secondary-against-white: ' . esc_attr( newspack_color_with_contrast( $colors['secondary'] ) ) . ';';
+		$custom_css .= '--newspack-theme-color-primary-variation-against-white: ' . esc_attr( newspack_color_with_contrast( newspack_adjust_brightness( $colors['primary'], -30 ) ) ) . ';';
+		$custom_css .= '--newspack-theme-color-secondary-variation-against-white: ' . esc_attr( newspack_color_with_contrast( newspack_adjust_brightness( $colors['secondary'], -40 ) ) ) . ';';
+		$custom_css .= '--newspack-theme-color-against-primary: ' . esc_attr( $colors['primary_contrast'] ) . ';';
+		$custom_css .= '--newspack-theme-color-against-secondary: ' . esc_attr( $colors['secondary_contrast'] ) . ';';
+		$custom_css .= '}';
+		wp_add_inline_style( 'newspack-ui', $custom_css );
+	}
+
+	/**
 	 * Adds inline styles CSS for the element/button colors from the theme.json.
 	 * See: https://developer.wordpress.org/reference/functions/wp_get_global_styles/
 	 */
@@ -172,6 +198,7 @@ class Newspack_UI {
 	 *     @type string $id The modal ID.
 	 *     @type string $title The modal title.
 	 *     @type string $content The modal content HTML.
+	 *     @type bool   $content_is_safe Whether the content is already safe HTML.
 	 *     @type string $footer The modal footer HTML.
 	 *     @type string $form The form method to use. If given, modal content and action buttons will be wrapped in a form element.
 	 *     @type array $actions {
@@ -221,53 +248,57 @@ class Newspack_UI {
 				<section class="newspack-ui__modal__content">
 				<?php endif; ?>
 						<?php
-						echo wp_kses(
-							$args['content'],
-							array_merge(
-								\wp_kses_allowed_html( 'post' ),
-								Newspack_UI_Icons::sanitize_svgs(),
-								[
-									'input'    => [
-										'type'          => true,
-										'name'          => true,
-										'id'            => true,
-										'class'         => true,
-										'tabindex'      => true,
-										'placeholder'   => true,
-										'required'      => true,
-										'aria-hidden'   => true,
-										'aria-required' => true,
-										'value'         => true,
-										'disabled'      => true,
-										'checked'       => true,
-									],
-									'select'   => [
-										'name'             => true,
-										'id'               => true,
-										'class'            => true,
-										'tabindex'         => true,
-										'required'         => true,
-										'aria-hidden'      => true,
-										'aria-required'    => true,
-										'value'            => true,
-										'disabled'         => true,
-										'multiple'         => true,
-										'autocomplete'     => true,
-										'data-label'       => true,
-										'data-placeholder' => true,
-									],
-									'option'   => [
-										'value'    => true,
-										'selected' => true,
-										'disabled' => true,
-									],
-									'noscript' => [],
-									'iframe'   => [
-										'src' => true,
-									],
-								]
-							)
-						);
+						if ( ! empty( $args['content_is_safe'] ) ) {
+							echo $args['content']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+						} else {
+							echo wp_kses(
+								$args['content'],
+								array_merge(
+									\wp_kses_allowed_html( 'post' ),
+									Newspack_UI_Icons::sanitize_svgs(),
+									[
+										'input'    => [
+											'type'        => true,
+											'name'        => true,
+											'id'          => true,
+											'class'       => true,
+											'tabindex'    => true,
+											'placeholder' => true,
+											'required'    => true,
+											'aria-hidden' => true,
+											'aria-required' => true,
+											'value'       => true,
+											'disabled'    => true,
+											'checked'     => true,
+										],
+										'select'   => [
+											'name'         => true,
+											'id'           => true,
+											'class'        => true,
+											'tabindex'     => true,
+											'required'     => true,
+											'aria-hidden'  => true,
+											'aria-required' => true,
+											'value'        => true,
+											'disabled'     => true,
+											'multiple'     => true,
+											'autocomplete' => true,
+											'data-label'   => true,
+											'data-placeholder' => true,
+										],
+										'option'   => [
+											'value'    => true,
+											'selected' => true,
+											'disabled' => true,
+										],
+										'noscript' => [],
+										'iframe'   => [
+											'src' => true,
+										],
+									]
+								)
+							);
+						}
 						?>
 						<?php
 						if ( ! empty( $args['actions'] ) ) :

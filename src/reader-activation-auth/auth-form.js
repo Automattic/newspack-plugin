@@ -40,6 +40,17 @@ window.newspackRAS.push( function ( readerActivation ) {
 			const messageContentElement = container.querySelector( '.response' );
 
 			/**
+			 * Check if the current URL has a redirect parameter.
+			 * Used to determine if we should pass the full URL to the backend during OAuth flows.
+			 *
+			 * @return {boolean} True if URL has a 'redirect' query parameter.
+			 */
+			const hasRedirectInUrl = () => {
+				const urlParams = new URLSearchParams( window.location.search );
+				return urlParams.has( 'redirect' );
+			};
+
+			/**
 			 * Set action listener on the given item.
 			 */
 			const setActionListener = item => {
@@ -216,9 +227,11 @@ window.newspackRAS.push( function ( readerActivation ) {
 						body.set( 'npe', emailInput.value );
 						body.set( 'action', 'link' );
 						const pendingCheckout = getPendingCheckout();
-						if ( pendingCheckout ) {
+						if ( pendingCheckout || hasRedirectInUrl() ) {
 							const url = new URL( window.location.href );
-							url.searchParams.set( 'checkout', 1 );
+							if ( pendingCheckout ) {
+								url.searchParams.set( 'checkout', 1 );
+							}
 							body.set( 'redirect_url', url.toString() );
 						}
 						fetch( form.getAttribute( 'action' ) || window.location.pathname, {
@@ -270,9 +283,6 @@ window.newspackRAS.push( function ( readerActivation ) {
 				if ( container.config?.closeOnSuccess ) {
 					form.style.opacity = 1;
 				}
-				submitButtons.forEach( button => {
-					button.disabled = false;
-				} );
 				if ( message ) {
 					const messageNode = document.createElement( 'p' );
 					messageNode.innerHTML = message;
@@ -280,6 +290,9 @@ window.newspackRAS.push( function ( readerActivation ) {
 					if ( status !== 200 ) {
 						form.setMessageContent( message, true );
 						messageContentElement.querySelectorAll( '[data-set-action]' ).forEach( setActionListener );
+						submitButtons.forEach( button => {
+							button.disabled = false;
+						} );
 					}
 				}
 				if ( status === 200 ) {
@@ -288,8 +301,8 @@ window.newspackRAS.push( function ( readerActivation ) {
 						readerActivation.setAuthenticated( !! data.authenticated );
 						const activity = { email: data.email };
 						const body = new FormData( form );
-						if ( data.metadata?.gate_post_id || body.has( 'memberships_content_gate' ) ) {
-							activity.gate_post_id = data.metadata.gate_post_id || body.get( 'memberships_content_gate' );
+						if ( data.metadata?.gate_post_id || body.has( 'gate_post_id' ) ) {
+							activity.gate_post_id = data.metadata.gate_post_id || body.get( 'gate_post_id' );
 						}
 						if ( data.metadata?.newspack_popup_id || body.has( 'newspack_popup_id' ) ) {
 							activity.newspack_popup_id = data.metadata.newspack_popup_id || body.get( 'newspack_popup_id' );
@@ -359,10 +372,29 @@ window.newspackRAS.push( function ( readerActivation ) {
 							}
 						}
 
-						if ( data?.redirect_to ) {
-							const continueButton = container.querySelector( '.auth-callback' );
-							if ( continueButton ) {
-								continueButton.setAttribute( 'href', data.redirect_to );
+						const continueButton = container.querySelector( '.auth-callback' );
+
+						if ( data?.redirect_to && continueButton ) {
+							continueButton.setAttribute( 'href', data.redirect_to );
+						}
+
+						// Auto-redirect if we have a redirect query parameter.
+						const urlParams = new URLSearchParams( window.location.search );
+						if (
+							urlParams.has( 'redirect' ) &&
+							continueButton?.href &&
+							continueButton.href !== window.location.href &&
+							continueButton.href !== '#'
+						) {
+							try {
+								const redirectUrl = new URL( continueButton.href );
+								if ( redirectUrl.origin === window.location.origin ) {
+									continueButton.style.opacity = 0.5;
+									continueButton.style.pointerEvents = 'none';
+									window.location.href = redirectUrl.href;
+								}
+							} catch ( e ) {
+								// Invalid URL - continue with normal flow.
 							}
 						}
 					}
@@ -391,9 +423,11 @@ window.newspackRAS.push( function ( readerActivation ) {
 					return form.endLoginFlow( newspack_reader_activation_labels.invalid_email, 400 );
 				}
 				const pendingCheckout = getPendingCheckout();
-				if ( pendingCheckout ) {
+				if ( pendingCheckout || hasRedirectInUrl() ) {
 					const url = new URL( window.location.href );
-					url.searchParams.set( 'checkout', 1 );
+					if ( pendingCheckout ) {
+						url.searchParams.set( 'checkout', 1 );
+					}
 					body.set( 'redirect_url', url.toString() );
 				}
 
@@ -434,6 +468,9 @@ window.newspackRAS.push( function ( readerActivation ) {
 										if ( data.action === 'otp' || data.action === 'pwd' ) {
 											form.style.opacity = 1;
 										}
+										submitButtons.forEach( button => {
+											button.disabled = false;
+										} );
 									} else {
 										form.endLoginFlow( message, status, data );
 									}
@@ -450,9 +487,6 @@ window.newspackRAS.push( function ( readerActivation ) {
 									} else if ( status !== 200 && ! container.config?.closeOnSuccess ) {
 										form.style.opacity = 1;
 									}
-									submitButtons.forEach( button => {
-										button.disabled = false;
-									} );
 								} );
 						} )
 						.catch( () => {
@@ -461,5 +495,9 @@ window.newspackRAS.push( function ( readerActivation ) {
 				}
 			} );
 		} );
+
+		// Dispatch an event to notify that the auth form is ready.
+		document._newspackReaderAuthFormReady = true;
+		document.dispatchEvent( new CustomEvent( 'newspack-reader-auth-form-ready', { detail: { containers } } ) );
 	} );
 } );

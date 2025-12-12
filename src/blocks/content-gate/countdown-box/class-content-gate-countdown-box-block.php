@@ -10,7 +10,7 @@ namespace Newspack;
 defined( 'ABSPATH' ) || exit;
 
 use Newspack\Memberships;
-use Newspack\Memberships\Metering;
+use Newspack\Metering;
 use Newspack\Content_Gate_Countdown_Block;
 
 /**

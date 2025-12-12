@@ -1,5 +1,5 @@
 @use "~@wordpress/base-styles/colors" as wp-colors;
-@use "vars" as gate;
+@use "../vars" as gate;
 
 .edit-post-post-visibility {
 	display: none;

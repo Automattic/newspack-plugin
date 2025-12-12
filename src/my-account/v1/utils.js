@@ -1,29 +1,10 @@
 /* global newspackMyAccountV1 */
 
+import { onOverlaysClose, queuePageReload } from '../../reader-activation/utils';
+
 window.newspackRAS = window.newspackRAS || [];
 
 let modalCheckoutRedirectUrl = null;
-
-/**
- * Handle overlays on checkout close.
- *
- * @param {Object} event                 The event object.
- * @param {Object} event.detail          The event detail object.
- * @param {Array}  event.detail.overlays The overlays array.
- */
-function handleOverlay( { detail: { overlays } } ) {
-	setTimeout( () => {
-		if ( ! overlays.length ) {
-			if ( modalCheckoutRedirectUrl ) {
-				window.location.href = modalCheckoutRedirectUrl;
-				modalCheckoutRedirectUrl = null;
-			} else {
-				window.location.reload();
-			}
-			window.newspackReaderActivation.off( 'overlay', handleOverlay );
-		}
-	}, 50 );
-}
 
 /**
  * Handle the checkout complete event.
@@ -45,20 +26,16 @@ function handleCheckoutComplete( data ) {
  * Handle the modal close event.
  */
 function handleClose() {
-	window.newspackRAS.push( ras => {
-		setTimeout( () => {
-			if ( ras.overlays.get().length ) {
-				ras.on( 'overlay', handleOverlay );
-				return;
-			}
-			if ( modalCheckoutRedirectUrl ) {
-				window.location.href = modalCheckoutRedirectUrl;
-				modalCheckoutRedirectUrl = null;
-			} else {
-				window.location.reload();
-			}
-		}, 50 );
-	} );
+	// If there's a redirect URL, navigate to it; otherwise reload the page.
+	if ( modalCheckoutRedirectUrl ) {
+		const redirectUrl = modalCheckoutRedirectUrl;
+		modalCheckoutRedirectUrl = null;
+		onOverlaysClose( () => {
+			window.location.href = redirectUrl;
+		} );
+	} else {
+		queuePageReload();
+	}
 }
 
 /**

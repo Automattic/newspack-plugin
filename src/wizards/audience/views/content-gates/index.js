@@ -15,10 +15,12 @@ import { forwardRef } from '@wordpress/element';
  */
 import { Wizard, withWizard } from '../../../../../packages/components/src';
 import ContentGates from './content-gates';
+import { AUDIENCE_CONTENT_GATES_WIZARD_SLUG } from './consts';
 
 const AudienceContentGates = ( props, ref ) => {
 	return (
 		<Wizard
+			apiSlug={ AUDIENCE_CONTENT_GATES_WIZARD_SLUG }
 			title={ __( 'Content Gating', 'newspack-plugin' ) }
 			description={ __( 'Configure content gating logic and appearance.', 'newspack-plugin' ) }
 			headerText={ __( 'Audience Management / Content Gates', 'newspack-plugin' ) }

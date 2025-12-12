@@ -8,6 +8,7 @@
 namespace Newspack;
 
 use Newspack\{
+	Memberships,
 	Newsletters,
 	Reader_Activation
 };
@@ -106,6 +107,20 @@ class Audience_Wizard extends Wizard {
 		}
 
 		$data['is_skipped_campaign_setup'] = Reader_Activation::is_skipped( 'ras_campaign' );
+
+		$gates        = Memberships::get_gates();
+		$has_metering = false;
+		foreach ( $gates as $gate ) {
+			if ( $gate['status'] === 'publish' && isset( $gate['metering'] ) && $gate['metering']['enabled'] ) {
+				$has_metering = true;
+				break;
+			}
+		}
+
+		$data['content_gifting'] = [
+			'can_use_gifting' => Content_Gifting::can_use_gifting( true ),
+			'has_metering'    => $has_metering,
+		];
 
 		wp_enqueue_script( 'newspack-wizards' );
 
@@ -370,6 +385,55 @@ class Audience_Wizard extends Wizard {
 			]
 		);
 
+		// Cover fees settings.
+		register_rest_route(
+			NEWSPACK_API_NAMESPACE,
+			'/wizard/' . $this->slug . '/cover-fees',
+			[
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => [ $this, 'api_get_cover_fees_settings' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+			]
+		);
+		register_rest_route(
+			NEWSPACK_API_NAMESPACE,
+			'/wizard/' . $this->slug . '/cover-fees',
+			[
+				'methods'             => WP_REST_Server::EDITABLE,
+				'callback'            => [ $this, 'api_update_cover_fees_settings' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+				'args'                => [
+					'fee_multiplier'                     => [
+						'sanitize_callback' => 'Newspack\newspack_clean',
+						'validate_callback' => function ( $value ) {
+							if ( (float) $value > 10 ) {
+								return new WP_Error(
+									'newspack_invalid_param',
+									__( 'Fee multiplier must be smaller than 10.', 'newspack' )
+								);
+							}
+							return true;
+						},
+					],
+					'fee_static'                         => [
+						'sanitize_callback' => 'Newspack\newspack_clean',
+					],
+					'allow_covering_fees'                => [
+						'sanitize_callback' => 'Newspack\newspack_string_to_bool',
+					],
+					'allow_covering_fees_default'        => [
+						'sanitize_callback' => 'Newspack\newspack_string_to_bool',
+					],
+					'allow_covering_fees_label'          => [
+						'sanitize_callback' => 'Newspack\newspack_clean',
+					],
+					'allow_covering_fees_donations_only' => [
+						'sanitize_callback' => 'Newspack\newspack_string_to_bool',
+					],
+				],
+			]
+		);
+
 		// Save Stripe info.
 		register_rest_route(
 			NEWSPACK_API_NAMESPACE,
@@ -553,7 +617,7 @@ class Audience_Wizard extends Wizard {
 	 *
 	 * @param WP_REST_Request $request Request object.
 	 *
-	 * @return WP_REST_Response
+	 * @return WP_REST_Response|WP_Error
 	 */
 	public function api_update_content_gating_settings( $request ) {
 		$args = $request->get_params();
@@ -562,6 +626,38 @@ class Audience_Wizard extends Wizard {
 		}
 		if ( isset( $args['show_on_subscription_tab'] ) ) {
 			Memberships::set_show_on_subscription_tab_setting( (bool) $args['show_on_subscription_tab'] );
+		}
+		if ( isset( $args['countdown_banner'] ) ) {
+			Metering_Countdown::update_settings( $args['countdown_banner'] );
+		}
+		if ( isset( $args['content_gifting'] ) ) {
+			if ( isset( $args['content_gifting']['enabled'] ) ) {
+				Content_Gifting::set_enabled( (bool) $args['content_gifting']['enabled'] );
+			}
+			if ( isset( $args['content_gifting']['limit'] ) ) {
+				Content_Gifting::set_gifting_limit( (int) $args['content_gifting']['limit'] );
+			}
+			if ( isset( $args['content_gifting']['expiration_time'] ) ) {
+				Content_Gifting::set_expiration_time( (int) $args['content_gifting']['expiration_time'] );
+			}
+			if ( isset( $args['content_gifting']['expiration_time_unit'] ) ) {
+				Content_Gifting::set_expiration_time_unit( sanitize_text_field( $args['content_gifting']['expiration_time_unit'] ) );
+			}
+			if ( isset( $args['content_gifting']['interval'] ) ) {
+				Content_Gifting::set_gifting_reset_interval( sanitize_text_field( $args['content_gifting']['interval'] ) );
+			}
+			if ( isset( $args['content_gifting']['cta_label'] ) ) {
+				Content_Gifting_CTA::set_cta_label( sanitize_text_field( $args['content_gifting']['cta_label'] ) );
+			}
+			if ( isset( $args['content_gifting']['button_label'] ) ) {
+				Content_Gifting_CTA::set_button_label( sanitize_text_field( $args['content_gifting']['button_label'] ) );
+			}
+			if ( isset( $args['content_gifting']['cta_url'] ) ) {
+				Content_Gifting_CTA::set_cta_url( sanitize_text_field( $args['content_gifting']['cta_url'] ) );
+			}
+			if ( isset( $args['content_gifting']['style'] ) ) {
+				Content_Gifting_CTA::set_style( sanitize_text_field( $args['content_gifting']['style'] ) );
+			}
 		}
 		return rest_ensure_response( self::get_memberships_settings() );
 	}
@@ -816,11 +912,13 @@ class Audience_Wizard extends Wizard {
 	 */
 	private static function get_memberships_settings() {
 		return [
-			'edit_gate_url'            => Content_Gate::get_edit_gate_url(),
-			'gate_status'              => get_post_status( Content_Gate::get_gate_post_id() ),
+			'edit_gate_url'            => Memberships::get_edit_gate_url(),
+			'gate_status'              => get_post_status( Memberships::get_gate_post_id() ),
 			'plans'                    => Memberships::get_plans(),
 			'require_all_plans'        => Memberships::get_require_all_plans_setting(),
 			'show_on_subscription_tab' => Memberships::get_show_on_subscription_tab_setting(),
+			'countdown_banner'         => Metering_Countdown::get_settings(),
+			'content_gifting'          => Content_Gifting::get_settings(),
 		];
 	}
 
@@ -834,7 +932,7 @@ class Audience_Wizard extends Wizard {
 		global $pagenow, $typenow;
 
 		$cpts = [
-			Content_Gate::GATE_CPT,
+			Memberships::GATE_CPT,
 			Emails::POST_TYPE,
 		];
 
@@ -855,7 +953,7 @@ class Audience_Wizard extends Wizard {
 		global $pagenow, $typenow;
 
 		$cpts = [
-			Content_Gate::GATE_CPT,
+			Memberships::GATE_CPT,
 			Emails::POST_TYPE,
 		];
 
@@ -916,5 +1014,52 @@ class Audience_Wizard extends Wizard {
 		}
 
 		return $this->api_get_subscription_settings();
+	}
+
+	/**
+	 * Get cover fees settings.
+	 *
+	 * @return WP_REST_Response Response with the settings.
+	 */
+	public function api_get_cover_fees_settings() {
+		return rest_ensure_response(
+			[
+				'allow_covering_fees'                => boolval( get_option( 'newspack_donations_allow_covering_fees', true ) ),
+				'allow_covering_fees_default'        => boolval( get_option( 'newspack_donations_allow_covering_fees_default', false ) ),
+				'allow_covering_fees_label'          => get_option( 'newspack_donations_allow_covering_fees_label', '' ),
+				'allow_covering_fees_donations_only' => boolval( get_option( 'newspack_donations_allow_covering_fees_donations_only', true ) ),
+				'fee_multiplier'                     => get_option( 'newspack_blocks_donate_fee_multiplier', '2.9' ),
+				'fee_static'                         => get_option( 'newspack_blocks_donate_fee_static', '0.3' ),
+			]
+		);
+	}
+
+	/**
+	 * Update cover fees settings.
+	 *
+	 * @param WP_REST_Request $request Request object.
+	 * @return WP_REST_Response Response with the updated settings.
+	 */
+	public function api_update_cover_fees_settings( $request ) {
+		$params = $request->get_params();
+		if ( isset( $params['allow_covering_fees'] ) ) {
+			update_option( 'newspack_donations_allow_covering_fees', intval( $params['allow_covering_fees'] ) );
+		}
+		if ( isset( $params['allow_covering_fees_default'] ) ) {
+			update_option( 'newspack_donations_allow_covering_fees_default', intval( $params['allow_covering_fees_default'] ) );
+		}
+		if ( isset( $params['allow_covering_fees_label'] ) ) {
+			update_option( 'newspack_donations_allow_covering_fees_label', sanitize_text_field( $params['allow_covering_fees_label'] ) );
+		}
+		if ( isset( $params['allow_covering_fees_donations_only'] ) ) {
+			update_option( 'newspack_donations_allow_covering_fees_donations_only', intval( $params['allow_covering_fees_donations_only'] ) );
+		}
+		if ( isset( $params['fee_multiplier'] ) ) {
+			update_option( 'newspack_blocks_donate_fee_multiplier', $params['fee_multiplier'] );
+		}
+		if ( isset( $params['fee_static'] ) ) {
+			update_option( 'newspack_blocks_donate_fee_static', $params['fee_static'] );
+		}
+		return $this->api_get_cover_fees_settings();
 	}
 }

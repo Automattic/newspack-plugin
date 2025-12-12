@@ -1,18 +1,20 @@
 /* globals newspack_content_gate */
+
 /**
  * WordPress dependencies
  */
 import { sprintf, __ } from '@wordpress/i18n';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { Fragment, useEffect } from '@wordpress/element';
-import { Button, TextControl, CheckboxControl, SelectControl } from '@wordpress/components';
+import { Button, CheckboxControl, SelectControl, TextControl } from '@wordpress/components';
 import { PluginDocumentSettingPanel, PluginPostStatusInfo } from '@wordpress/edit-post';
 import { registerPlugin } from '@wordpress/plugins';
 
 /**
  * Internal dependencies
  */
-import PositionControl from '../../packages/components/src/position-control';
+import MeteringSettings from './metering-settings';
+import PositionControl from '../../../packages/components/src/position-control';
 import './editor.scss';
 
 const styles = [
@@ -34,6 +36,7 @@ const overlaySizes = [
 ];
 
 function GateEdit() {
+	const newspack_memberships_gate = window.newspack_memberships_gate || {};
 	const { meta } = useSelect( select => {
 		const { getEditedPostAttribute } = select( 'core/editor' );
 		return {
@@ -54,20 +57,23 @@ function GateEdit() {
 	}, [ meta.style, meta.overlay_size ] );
 	const { createNotice } = useDispatch( 'core/notices' );
 	useEffect( () => {
-		if ( Object.keys( newspack_content_gate.gate_plans ).length ) {
+		if ( newspack_memberships_gate?.gate_plans && Object.keys( newspack_memberships_gate.gate_plans ).length ) {
 			createNotice(
 				'info',
 				sprintf(
 					// translators: %s is the list of plans.
 					__( "You're currently editing a gate for content restricted by: %s", 'newspack-plugin' ),
-					Object.values( newspack_content_gate.gate_plans ).join( ', ' )
+					Object.values( newspack_memberships_gate?.gate_plans ).join( ', ' )
 				)
 			);
 		}
 	}, [] );
 	const getPlansToEdit = () => {
-		const currentGatePlans = Object.keys( newspack_content_gate.gate_plans ) || [];
-		const plans = newspack_content_gate.plans.filter( plan => {
+		if ( ! newspack_memberships_gate ) {
+			return [];
+		}
+		const currentGatePlans = Object.keys( newspack_memberships_gate?.gate_plans ) || [];
+		const plans = newspack_memberships_gate?.plans.filter( plan => {
 			return ! currentGatePlans.includes( plan.id.toString() );
 		} );
 		return plans;
@@ -79,9 +85,9 @@ function GateEdit() {
 					<p>{ __( "Newspack Campaign prompts won't be displayed when rendering gated content.", 'newspack-plugin' ) }</p>
 				</PluginPostStatusInfo>
 			) }
-			{ newspack_content_gate.plans.length > 1 && (
+			{ newspack_memberships_gate?.plans?.length > 1 && (
 				<PluginDocumentSettingPanel name="content-gate-plans" title={ __( 'WooCommerce Memberships', 'newspack-plugin' ) }>
-					{ ! Object.keys( newspack_content_gate.gate_plans ).length ? (
+					{ ! Object.keys( newspack_memberships_gate?.gate_plans ).length ? (
 						<Fragment>
 							<p>
 								{ __(
@@ -96,7 +102,7 @@ function GateEdit() {
 								{ sprintf(
 									// translators: %s is the list of plans.
 									__( 'This gate will be rendered for the following membership plans: %s', 'newspack-plugin' ),
-									Object.values( newspack_content_gate.gate_plans ).join( ', ' )
+									Object.values( newspack_memberships_gate.gate_plans ).join( ', ' )
 								) }
 							</p>
 							<hr />
@@ -105,7 +111,7 @@ function GateEdit() {
 									__html: sprintf(
 										// translators: %s is the link to the primary gate.
 										__( 'Edit the <a href="%s">primary gate</a>, or:', 'newspack-plugin' ),
-										newspack_content_gate.edit_gate_url
+										newspack_memberships_gate.edit_gate_url
 									),
 								} }
 							/>
@@ -125,7 +131,7 @@ function GateEdit() {
 										-{ ' ' }
 									</Fragment>
 								) }
-								<a href={ newspack_content_gate.edit_plan_gate_url + '&plan_id=' + plan.id }>
+								<a href={ newspack_memberships_gate.edit_plan_gate_url + '&plan_id=' + plan.id }>
 									{ plan.gate_id ? __( 'edit gate', 'newspack-plugin' ) : __( 'create gate', 'newspack-plugin' ) }
 								</a>
 								)
@@ -197,52 +203,7 @@ function GateEdit() {
 				/>
 			</PluginDocumentSettingPanel>
 			<PluginDocumentSettingPanel name="content-gate-metering-panel" title={ __( 'Metering', 'newspack-plugin' ) }>
-				<CheckboxControl
-					label={ __( 'Enable metering', 'newspack-plugin' ) }
-					checked={ meta.metering }
-					onChange={ value => editPost( { meta: { metering: value } } ) }
-					help={ __( 'Implement metering to configure access to restricted content before showing the gate.', 'newspack-plugin' ) }
-				/>
-				{ meta.metering && (
-					<Fragment>
-						<TextControl
-							type="number"
-							min="0"
-							value={ meta.metering_anonymous_count }
-							label={ __( 'Available views for anonymous readers', 'newspack-plugin' ) }
-							onChange={ value => editPost( { meta: { metering_anonymous_count: value } } ) }
-							help={ __(
-								'Number of times an anonymous reader can view gated content. If set to 0, anonymous readers will always render the gate.',
-								'newspack-plugin'
-							) }
-						/>
-						<TextControl
-							type="number"
-							min="0"
-							value={ meta.metering_registered_count }
-							label={ __( 'Available views for registered readers', 'newspack-plugin' ) }
-							onChange={ value => editPost( { meta: { metering_registered_count: value } } ) }
-							help={ __(
-								'Number of times a registered reader can view gated content. If set to 0, registered readers without membership plan will always render the gate.',
-								'newspack-plugin'
-							) }
-						/>
-						<SelectControl
-							label={ __( 'Time period', 'newspack-plugin' ) }
-							value={ meta.metering_period }
-							options={ [
-								{ value: 'day', label: __( 'Day', 'newspack-plugin' ) },
-								{ value: 'week', label: __( 'Week', 'newspack-plugin' ) },
-								{ value: 'month', label: __( 'Month', 'newspack-plugin' ) },
-							] }
-							onChange={ value => editPost( { meta: { metering_period: value } } ) }
-							help={ __(
-								'The time period during which the metering views will be counted. For example, if the metering period is set to a week, the metering views will be reset every week.',
-								'newspack-plugin'
-							) }
-						/>
-					</Fragment>
-				) }
+				<MeteringSettings />
 			</PluginDocumentSettingPanel>
 		</Fragment>
 	);

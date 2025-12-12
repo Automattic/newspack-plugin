@@ -3,14 +3,17 @@
  */
 import { __ } from '@wordpress/i18n';
 import { ExternalLink } from '@wordpress/components';
-import apiFetch from '@wordpress/api-fetch';
 import { useEffect, useState } from '@wordpress/element';
 
+/**
+ * Internal dependencies
+ */
+import CountdownBanner from './countdown-banner';
+import ContentGifting from './content-gifting';
 import { ActionCard, Notice, withWizardScreen } from '../../../../../packages/components/src';
 import WizardsTab from '../../../wizards-tab';
 
-export default withWizardScreen( () => {
-	const [ inFlight, setInFlight ] = useState( false );
+export default withWizardScreen( ( { wizardApiFetch } ) => {
 	const [ error, setError ] = useState( false );
 	const [ config, setConfig ] = useState( {} );
 
@@ -20,30 +23,27 @@ export default withWizardScreen( () => {
 
 	const fetchConfig = () => {
 		setError( false );
-		setInFlight( true );
-		apiFetch( {
+		wizardApiFetch( {
 			path: '/newspack/v1/wizard/newspack-audience/content-gating',
 		} )
 			.then( data => {
 				setConfig( data );
 			} )
-			.catch( setError )
-			.finally( () => setInFlight( false ) );
+			.catch( setError );
 	};
 
 	const updateConfig = newConfig => {
 		setError( false );
-		setInFlight( true );
-		apiFetch( {
+		wizardApiFetch( {
 			path: '/newspack/v1/wizard/newspack-audience/content-gating',
 			method: 'POST',
+			quiet: true,
 			data: newConfig,
 		} )
 			.then( data => {
 				setConfig( data );
 			} )
-			.catch( setError )
-			.finally( () => setInFlight( false ) );
+			.catch( setError );
 	};
 
 	const getContentGateDescription = () => {
@@ -76,6 +76,8 @@ export default withWizardScreen( () => {
 				description={ getContentGateDescription() }
 				actionText={ __( 'Configure', 'newspack-plugin' ) }
 			/>
+			<ContentGifting config={ config } setConfig={ setConfig } updateConfig={ updateConfig } />
+			<CountdownBanner config={ config } setConfig={ setConfig } updateConfig={ updateConfig } />
 			{ config?.plans && 1 < config.plans.length && (
 				<ActionCard
 					title={ __( 'Require membership in all plans', 'newspack-plugin' ) }
@@ -85,7 +87,7 @@ export default withWizardScreen( () => {
 					) }
 					toggleOnChange={ value => updateConfig( { require_all_plans: value } ) }
 					toggleChecked={ config.require_all_plans }
-					disabled={ inFlight }
+					togglePosition="trailing"
 				/>
 			) }
 			{ config.has_memberships && (
@@ -97,7 +99,7 @@ export default withWizardScreen( () => {
 					) }
 					toggleOnChange={ value => updateConfig( { show_on_subscription_tab: value } ) }
 					toggleChecked={ config.show_on_subscription_tab }
-					disabled={ inFlight }
+					togglePosition="trailing"
 				/>
 			) }
 		</WizardsTab>

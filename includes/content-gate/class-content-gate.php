@@ -16,14 +16,7 @@ defined( 'ABSPATH' ) || exit;
  */
 class Content_Gate {
 
-	const GATE_CPT = 'np_memberships_gate';
-
-	/**
-	 * The rendered gate post ID.
-	 *
-	 * @var int|false
-	 */
-	private static $gate_post_id = false;
+	const GATE_CPT = 'np_content_gate';
 
 	/**
 	 * Whether the gate has been rendered in this execution.
@@ -46,7 +39,6 @@ class Content_Gate {
 		add_action( 'init', [ __CLASS__, 'register_post_type' ] );
 		add_action( 'init', [ __CLASS__, 'register_meta' ] );
 		add_action( 'admin_init', [ __CLASS__, 'redirect_cpt' ] );
-		add_action( 'admin_init', [ __CLASS__, 'handle_edit_gate' ] );
 		add_action( 'wp_enqueue_scripts', [ __CLASS__, 'enqueue_scripts' ] );
 		add_action( 'enqueue_block_editor_assets', [ __CLASS__, 'enqueue_block_editor_assets' ] );
 		add_action( 'wp_footer', [ __CLASS__, 'render_overlay_gate' ], 1 );
@@ -71,6 +63,17 @@ class Content_Gate {
 		include __DIR__ . '/class-content-restriction-control.php';
 		include __DIR__ . '/class-block-patterns.php';
 		include __DIR__ . '/class-metering.php';
+		include __DIR__ . '/class-metering-countdown.php';
+		include __DIR__ . '/content-gifting/class-content-gifting.php';
+	}
+
+	/**
+	 * Whether the first-party Newspack feature is enabled.
+	 *
+	 * @return bool
+	 */
+	public static function is_newspack_feature_enabled() {
+		return defined( 'NEWSPACK_CONTENT_GATES' ) && NEWSPACK_CONTENT_GATES;
 	}
 
 	/**
@@ -83,10 +86,12 @@ class Content_Gate {
 		if ( ! $query->is_main_query() ) {
 			return;
 		}
-		if ( self::has_rendered() ) {
+		if ( ! is_singular() ) {
 			return;
 		}
-
+		if ( get_queried_object_id() !== $post->ID ) {
+			return;
+		}
 		// Don't apply our restriction strategy if Woo Memberships is active.
 		if ( Memberships::is_active() ) {
 			return;
@@ -95,9 +100,31 @@ class Content_Gate {
 		if ( is_admin() ) {
 			return;
 		}
-		if ( ! self::has_gate() ) {
+		// Never in Privacy Policy page.
+		if ( is_privacy_policy() ) {
 			return;
 		}
+		// Never in My Account pages.
+		if ( function_exists( 'is_account_page' ) && is_account_page() ) {
+			return;
+		}
+		// Never in Terms and Conditions page.
+		if ( function_exists( 'wc_terms_and_conditions_page_id' ) && $post->ID === wc_terms_and_conditions_page_id() ) {
+			return;
+		}
+		// Never in WooCommerce cart page.
+		if ( function_exists( 'is_cart' ) && is_cart() ) {
+			return;
+		}
+		// Never in WooCommerce checkout page.
+		if ( function_exists( 'is_checkout' ) && is_checkout() ) {
+			return;
+		}
+		// Never on Accessibility Statement page.
+		if ( $post->ID === get_theme_mod( 'accessibility_statement_page_id' ) ) {
+			return;
+		}
+		// If no other restrictions apply.
 		if ( ! self::is_post_restricted( $post->ID ) ) {
 			return;
 		}
@@ -117,9 +144,7 @@ class Content_Gate {
 
 		$content = self::get_restricted_post_excerpt( $post );
 
-		$content .= self::get_inline_gate_content();
-
-		$post->post_content   = $content;
+		$post->post_content   = $content . self::get_inline_gate_content();
 		$post->post_excerpt   = $content;
 		$post->comment_status = 'closed';
 		$post->comment_count  = 0;
@@ -164,14 +189,22 @@ class Content_Gate {
 	}
 
 	/**
+	 * Get all gate post types.
+	 *
+	 * @return array Array of gate post types.
+	 */
+	public static function get_gate_post_types() {
+		$cpts = [ self::GATE_CPT ];
+		if ( Memberships::is_active() ) {
+			$cpts[] = Memberships::GATE_CPT;
+		}
+		return $cpts;
+	}
+
+	/**
 	 * Register post type for custom gate.
 	 */
 	public static function register_post_type() {
-		$icon = sprintf(
-			'data:image/svg+xml;base64,%s',
-			base64_encode( Newspack_UI_Icons::get_svg( 'key' ) )
-		);
-
 		\register_post_type(
 			self::GATE_CPT,
 			[
@@ -186,11 +219,9 @@ class Content_Gate {
 				],
 				'public'       => false,
 				'show_ui'      => true,
-				'show_in_menu' => true,
+				'show_in_menu' => false,
 				'show_in_rest' => true,
-				'menu_icon'    => $icon,
 				'supports'     => [ 'editor', 'custom-fields', 'revisions', 'title' ],
-				'taxonomies'   => [ 'category', 'post_tag' ],
 			]
 		);
 	}
@@ -224,42 +255,6 @@ class Content_Gate {
 				'type'    => 'string',
 				'default' => 'medium',
 			],
-			'access_rules'       => [
-				'type'         => 'array',
-				'default'      => [],
-				'single'       => true,
-				'show_in_rest' => [
-					'schema' => [
-						'items' => [
-							'type'       => 'object',
-							'properties' => [
-								'slug'  => [
-									'type' => 'string',
-								],
-								'value' => [
-									'type' => 'mixed',
-								],
-							],
-						],
-					],
-				],
-			],
-			'post_types'         => [
-				'type'         => 'array',
-				'default'      => [ 'post' ],
-				'single'       => true,
-				'show_in_rest' => [
-					'schema' => [
-						'items' => [
-							'type' => 'string',
-						],
-					],
-				],
-			],
-			'gate_priority'      => [
-				'type'    => 'integer',
-				'default' => 0,
-			],
 		];
 
 		foreach ( $meta as $key => $config ) {
@@ -278,53 +273,16 @@ class Content_Gate {
 	}
 
 	/**
-	 * Get the post types that can be restricted.
-	 */
-	public static function get_available_post_types() {
-		$available_post_types = array_values(
-			array_map(
-				function( $post_type ) {
-					return [
-						'name'  => $post_type->name,
-						'label' => $post_type->label,
-					];
-				},
-				get_post_types(
-					[
-						'public'       => true,
-						'show_in_rest' => true,
-						'_builtin'     => false,
-					],
-					'objects'
-				)
-			)
-		);
-
-		return apply_filters(
-			'newspack_content_gate_supported_post_types',
-			array_merge(
-				[
-					[
-						'name'  => 'post',
-						'label' => 'Posts',
-					],
-					[
-						'name'  => 'page',
-						'label' => 'Pages',
-					],
-				],
-				$available_post_types
-			)
-		);
-	}
-
-	/**
 	 * Redirect the custom gate CPT to the Content Gating wizard
 	 */
 	public static function redirect_cpt() {
+		if ( ! self::is_newspack_feature_enabled() ) {
+			return;
+		}
 		global $pagenow;
 		if ( 'edit.php' === $pagenow && isset( $_GET['post_type'] ) && self::GATE_CPT === $_GET['post_type'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			\wp_safe_redirect( \admin_url( 'admin.php?page=newspack-audience#/content-gating' ) );
+			$redirect = \admin_url( 'admin.php?page=newspack-audience#/content-gating' );
+			\wp_safe_redirect( $redirect );
 			exit;
 		}
 	}
@@ -367,7 +325,7 @@ class Content_Gate {
 	 * Enqueue block editor assets.
 	 */
 	public static function enqueue_block_editor_assets() {
-		if ( self::GATE_CPT !== get_post_type() ) {
+		if ( ! in_array( get_post_type(), self::get_gate_post_types(), true ) ) {
 			return;
 		}
 		\wp_enqueue_script(
@@ -381,13 +339,7 @@ class Content_Gate {
 			'newspack-content-gate',
 			'newspack_content_gate',
 			[
-				'has_campaigns'      => class_exists( 'Newspack_Popups' ),
-				'edit_gate_url'      => self::get_edit_gate_url(),
-				'plans'              => Memberships::get_plans(),
-				'gate_plans'         => Memberships::get_gate_plans( get_the_ID() ),
-				'edit_plan_gate_url' => Memberships::get_edit_plan_gate_url(),
-				'post_types'         => self::get_available_post_types(),
-				'access_rules'       => Access_Rules::get_access_rules(),
+				'has_campaigns' => class_exists( 'Newspack_Popups' ),
 			]
 		);
 
@@ -400,15 +352,6 @@ class Content_Gate {
 	}
 
 	/**
-	 * Set the post ID of the custom gate.
-	 *
-	 * @param int $post_id Post ID.
-	 */
-	public static function set_gate_post_id( $post_id ) {
-		\update_option( 'newspack_memberships_gate_post_id', $post_id );
-	}
-
-	/**
 	 * Get the post ID of the custom gate.
 	 *
 	 * @param int $post_id Post ID to find gate for.
@@ -416,16 +359,13 @@ class Content_Gate {
 	 * @return int|false Post ID or false if not set.
 	 */
 	public static function get_gate_post_id( $post_id = null ) {
-		$gate_post_id = intval( self::$gate_post_id ?? \get_option( 'newspack_memberships_gate_post_id' ) );
-		if ( ! $gate_post_id ) {
-			$gate_post_id = false;
-		}
+		$gate_post_id = Memberships::is_active() ? Memberships::get_gate_post_id( $post_id ) : Content_Restriction_Control::get_gate_post_id( $post_id );
 
 		/**
 		 * Filters the gate post ID.
 		 *
 		 * @param int $gate_post_id Gate post ID.
-		 * @param int $post_id Post ID.
+		 * @param int $post_id      Post ID.
 		 */
 		return apply_filters( 'newspack_content_gate_post_id', $gate_post_id, $post_id );
 	}
@@ -473,6 +413,27 @@ class Content_Gate {
 	}
 
 	/**
+	 * Whether the post has restrictions
+	 *
+	 * @param int $post_id Post ID.
+	 *
+	 * @return bool
+	 */
+	public static function post_has_restrictions( $post_id = null ) {
+		$post_id = $post_id ? $post_id : get_the_ID();
+
+		// TODO: Content Gate content rules check.
+
+		/**
+		 * Filters whether the post has restrictions.
+		 *
+		 * @param bool $has_restrictions Whether the post has restrictions.
+		 * @param int  $post_id          Post ID.
+		 */
+		return apply_filters( 'newspack_post_has_restrictions', false, $post_id );
+	}
+
+	/**
 	 * Whether the post is restricted for the current user.
 	 *
 	 * @param int $post_id Post ID.
@@ -484,91 +445,25 @@ class Content_Gate {
 
 		/**
 		 * Filters whether the post is restricted for the current user.
-		 * If the post is restricted by a content gate, return the gate post ID.
 		 *
-		 * @param int|bool $restricted_by  If restricted, the gate post ID. False if not restricted.
-		 * @param int  $post_id            Post ID.
+		 * @param bool $restricted_by Whether the post is restricted.
+		 * @param int  $post_id       Post ID.
 		 */
-		$restricted_by = apply_filters( 'newspack_is_post_restricted', false, $post_id );
-		if ( $restricted_by && is_int( $restricted_by ) ) {
-			self::$gate_post_id = $restricted_by;
-		}
-		return $restricted_by;
-	}
-
-	/**
-	 * Get the URL for editing the custom gate.
-	 *
-	 * @param int|false $gate_id Gate ID.
-	 *
-	 * @return string
-	 */
-	public static function get_edit_gate_url( $gate_id = false ) {
-		$action = 'newspack_edit_content_gate';
-		$url    = \add_query_arg( '_wpnonce', \wp_create_nonce( $action ), \admin_url( 'admin.php?action=' . $action ) );
-		if ( $gate_id ) {
-			$url = \add_query_arg( 'gate_id', $gate_id, $url );
-		}
-		return str_replace( \site_url(), '', $url );
-	}
-
-	/**
-	 * Handle editing the content gate.
-	 */
-	public static function handle_edit_gate() {
-		if ( ! isset( $_GET['action'] ) || 'newspack_edit_content_gate' !== $_GET['action'] ) {
-			return;
-		}
-		if ( ! current_user_can( 'manage_options' ) ) {
-			return;
-		}
-		check_admin_referer( 'newspack_edit_content_gate' );
-
-		$gate_post_id = self::get_gate_post_id();
-		$is_primary   = true;
-
-		if ( isset( $_GET['gate_post_id'] ) ) {
-			$gate_post_id = absint( $_GET['gate_post_id'] );
-			$is_primary   = false;
-			if ( ! $gate_post_id || ! get_post( $gate_post_id ) ) {
-				\wp_die( esc_html( __( 'Invalid gate post ID.', 'newspack' ) ) );
-			}
-		}
-
-		if ( $gate_post_id && get_post( $gate_post_id ) ) {
-			// Untrash post if it's in the trash.
-			if ( 'trash' === get_post_status( $gate_post_id ) ) {
-				\wp_untrash_post( $gate_post_id );
-			}
-			// Gate found, edit it.
-			\wp_safe_redirect( \admin_url( 'post.php?post=' . $gate_post_id . '&action=edit' ) );
-			exit;
-		} else {
-			// Gate not found, create it.
-			$post_title   = __( 'Content Gate', 'newspack' );
-			$gate_post_id = self::create_gate( $post_title );
-			if ( is_wp_error( $gate_post_id ) ) {
-				\wp_die( esc_html( $gate_post_id->get_error_message() ) );
-			}
-			if ( $is_primary ) {
-				self::set_gate_post_id( $gate_post_id );
-			}
-			\wp_safe_redirect( \admin_url( 'post.php?post=' . $gate_post_id . '&action=edit' ) );
-			exit;
-		}
+		return apply_filters( 'newspack_is_post_restricted', false, $post_id );
 	}
 
 	/**
 	 * Create a new gate post.
 	 *
-	 * @param string $title Optional gate title. Defaults to 'Content Gate'.
+	 * @param string $title     Optional gate title. Defaults to 'Content Gate'.
+	 * @param string $post_type Optional post type. Defaults to self::GATE_CPT.
 	 */
-	public static function create_gate( $title = '' ) {
+	public static function create_gate( $title = '', $post_type = self::GATE_CPT ) {
 		$all_gates = self::get_gates();
 		$id        = \wp_insert_post(
 			[
 				'post_title'   => $title,
-				'post_type'    => self::GATE_CPT,
+				'post_type'    => $post_type,
 				'post_status'  => 'draft',
 				'post_content' => '<!-- wp:paragraph --><p>' . __( 'This post is only available to members.', 'newspack' ) . '</p><!-- /wp:paragraph -->',
 				'meta_input'   => [
@@ -637,7 +532,7 @@ class Content_Gate {
 			$content = apply_filters( 'newspack_gate_content', explode( '<!--more-->', $content )[0] );
 		} else {
 			$content = apply_filters( 'newspack_gate_content', $content );
-			$count = (int) get_post_meta( $gate_post_id, 'visible_paragraphs', true );
+			$count   = max( 1, (int) get_post_meta( $gate_post_id, 'visible_paragraphs', true ) );
 			// Split into paragraphs.
 			$content = explode( '</p>', $content );
 			// Extract the first $x paragraphs only.
@@ -657,6 +552,16 @@ class Content_Gate {
 	 */
 	public static function render_overlay_gate() {
 		if ( ! self::has_gate() ) {
+			return;
+		}
+		if (
+			/**
+			 * Filters whether the overlay gate can be rendered.
+			 *
+			 * @param bool $can_render Whether the overlay gate can be rendered.
+			 */
+			! apply_filters( 'newspack_can_render_overlay_gate', true )
+		) {
 			return;
 		}
 		// Only render overlay gate for a restricted singular content.
@@ -740,13 +645,61 @@ class Content_Gate {
 
 		return [
 			'id'            => $post->ID,
+			'status'        => $post->post_status,
 			'title'         => $post->post_title,
-			'description'   => $post->post_excerpt,
 			'metering'      => Metering::get_metering_settings( $post->ID ),
 			'priority'      => (int) get_post_meta( $post->ID, 'gate_priority', true ),
 			'access_rules'  => Access_Rules::get_post_access_rules( $post->ID ),
-			'content_rules' => [],
+			'content_rules' => self::get_post_content_rules( $post->ID ),
 		];
+	}
+
+	/**
+	 * Get the content rules.
+	 *
+	 * @return array The content rules.
+	 */
+	public static function get_content_rules() {
+		$content_rules = [
+			'post_types' => [
+				'name'    => __( 'Post Types', 'newspack-plugin' ),
+				'options' => Content_Restriction_Control::get_available_post_types(),
+				'default' => [ 'post' ],
+			],
+		];
+		$available_taxonomies = Content_Restriction_Control::get_available_taxonomies();
+		foreach ( $available_taxonomies as $taxonomy ) {
+			$content_rules[ $taxonomy['slug'] ] = [
+				'name'    => $taxonomy['label'],
+				'default' => [],
+			];
+		}
+
+		return $content_rules;
+	}
+
+	/**
+	 * Get the content rules for a post.
+	 *
+	 * @param int $post_id Post ID.
+	 *
+	 * @return array The content rules.
+	 */
+	public static function get_post_content_rules( $post_id ) {
+		$rules = \get_post_meta( $post_id, 'content_rules', true );
+		return $rules ? $rules : [];
+	}
+
+	/**
+	 * Update content rules for bypassing a content gate.
+	 *
+	 * @param int   $post_id Post ID.
+	 * @param array $rules   Array of post content rules.
+	 *
+	 * @return void
+	 */
+	public static function update_post_content_rules( $post_id, $rules ) {
+		\update_post_meta( $post_id, 'content_rules', $rules );
 	}
 
 	/**
@@ -829,29 +782,36 @@ class Content_Gate {
 		// Update access rules.
 		Access_Rules::update_post_access_rules( $id, $gate['access_rules'] );
 
-		// TODO: Update content rules.
+		// Update content rules.
+		self::update_post_content_rules( $id, $gate['content_rules'] );
 
 		return self::get_gate( $id );
 	}
 
 	/**
 	 * Get all gates.
+	 *
+	 * @param string $post_type Post type.
+	 *
+	 * @return array Array of content gates.
 	 */
-	public static function get_gates() {
+	public static function get_gates( $post_type = self::GATE_CPT ) {
 		$posts = get_posts(
 			[
-				'post_type'      => self::GATE_CPT,
+				'post_type'      => $post_type,
 				'post_status'    => [ 'publish', 'draft', 'trash', 'pending', 'future' ],
 				'posts_per_page' => -1,
 			]
 		);
 		$gates = array_map( [ __CLASS__, 'get_gate' ], wp_list_pluck( $posts, 'ID' ) );
-		usort(
-			$gates,
-			function( $a, $b ) {
-				return $a['priority'] <=> $b['priority'];
-			}
-		);
+		if ( $post_type === self::GATE_CPT ) {
+			usort(
+				$gates,
+				function( $a, $b ) {
+					return $a['priority'] <=> $b['priority'];
+				}
+			);
+		}
 		return $gates;
 	}
 }
