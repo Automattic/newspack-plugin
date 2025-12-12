@@ -40,6 +40,17 @@ window.newspackRAS.push( function ( readerActivation ) {
 			const messageContentElement = container.querySelector( '.response' );
 
 			/**
+			 * Check if the current URL has a redirect parameter.
+			 * Used to determine if we should pass the full URL to the backend during OAuth flows.
+			 *
+			 * @return {boolean} True if URL has a 'redirect' query parameter.
+			 */
+			const hasRedirectInUrl = () => {
+				const urlParams = new URLSearchParams( window.location.search );
+				return urlParams.has( 'redirect' );
+			};
+
+			/**
 			 * Set action listener on the given item.
 			 */
 			const setActionListener = item => {
@@ -216,9 +227,11 @@ window.newspackRAS.push( function ( readerActivation ) {
 						body.set( 'npe', emailInput.value );
 						body.set( 'action', 'link' );
 						const pendingCheckout = getPendingCheckout();
-						if ( pendingCheckout ) {
+						if ( pendingCheckout || hasRedirectInUrl() ) {
 							const url = new URL( window.location.href );
-							url.searchParams.set( 'checkout', 1 );
+							if ( pendingCheckout ) {
+								url.searchParams.set( 'checkout', 1 );
+							}
 							body.set( 'redirect_url', url.toString() );
 						}
 						fetch( form.getAttribute( 'action' ) || window.location.pathname, {
@@ -410,9 +423,11 @@ window.newspackRAS.push( function ( readerActivation ) {
 					return form.endLoginFlow( newspack_reader_activation_labels.invalid_email, 400 );
 				}
 				const pendingCheckout = getPendingCheckout();
-				if ( pendingCheckout ) {
+				if ( pendingCheckout || hasRedirectInUrl() ) {
 					const url = new URL( window.location.href );
-					url.searchParams.set( 'checkout', 1 );
+					if ( pendingCheckout ) {
+						url.searchParams.set( 'checkout', 1 );
+					}
 					body.set( 'redirect_url', url.toString() );
 				}
 

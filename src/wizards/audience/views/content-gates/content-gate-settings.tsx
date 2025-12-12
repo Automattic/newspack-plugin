@@ -86,7 +86,9 @@ export default function ContentGateSettings( { gate, onDelete, onSave }: Content
 	return (
 		<>
 			<ContentRules rules={ contentRules } onChange={ setContentRules } />
+			<hr />
 			<AccessRules rules={ accessRules } onChange={ setAccessRules } />
+			<hr />
 			<Metering metering={ metering } onChange={ setMetering } />
 			<div className="newspack-buttons-card">
 				{ gate.status === 'draft' && (
@@ -96,7 +98,7 @@ export default function ContentGateSettings( { gate, onDelete, onSave }: Content
 				) }
 				{ gate.status !== 'trash' && (
 					<Button variant={ gate.status === 'publish' ? 'primary' : 'secondary' } onClick={ handleSave }>
-						{ gate.status === 'publish' ? __( 'Update', 'newspack-plugin' ) : __( 'Save Draft', 'newspack-plugin' ) }
+						{ gate.status === 'publish' ? __( 'Update', 'newspack-plugin' ) : __( 'Save draft', 'newspack-plugin' ) }
 					</Button>
 				) }
 				{ gate.status === 'publish' && (
@@ -104,14 +106,14 @@ export default function ContentGateSettings( { gate, onDelete, onSave }: Content
 						{ __( 'Unpublish', 'newspack-plugin' ) }
 					</Button>
 				) }
-				{ gate.status !== 'publish' && (
-					<Button isDestructive variant="secondary" onClick={ handleDelete }>
-						{ 'trash' === gate.status ? __( 'Permanently Delete', 'newspack-plugin' ) : __( 'Delete', 'newspack-plugin' ) }
-					</Button>
-				) }
 				{ 'trash' === gate.status && (
 					<Button variant="secondary" onClick={ handleRestore }>
 						{ __( 'Restore', 'newspack-plugin' ) }
+					</Button>
+				) }
+				{ gate.status !== 'publish' && (
+					<Button variant="tertiary" isDestructive onClick={ handleDelete }>
+						{ 'trash' === gate.status ? __( 'Delete permanently', 'newspack-plugin' ) : __( 'Delete', 'newspack-plugin' ) }
 					</Button>
 				) }
 			</div>

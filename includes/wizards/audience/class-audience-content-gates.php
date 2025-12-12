@@ -271,7 +271,7 @@ class Audience_Content_Gates extends Wizard {
 			'access_rules'  => $this->sanitize_rules( $gate['access_rules'] ),
 			'content_rules' => $this->sanitize_rules( $gate['content_rules'], 'content' ),
 			'priority'      => intval( $gate['priority'] ),
-			'status'        => sanitize_text_field( $gate['status'] ),
+			'status'        => $this->sanitize_status( $gate['status'], $gate['id'] ),
 		];
 	}
 
@@ -407,14 +407,15 @@ class Audience_Content_Gates extends Wizard {
 	 * Sanitize the gate post status.
 	 *
 	 * @param string $status Post status.
+	 * @param int    $gate_id Gate ID.
 	 *
 	 * @return string The sanitized post status.
 	 */
-	public function sanitize_status( $status ) {
+	public function sanitize_status( $status, $gate_id ) {
 		$sanitized = sanitize_text_field( $status );
 		$valid = in_array( $sanitized, Content_Gate::get_post_statuses(), true );
 		if ( ! $valid ) {
-			return new \WP_Error( 'invalid_gate_post_status', __( 'Invalid gate post status.', 'newspack-plugin' ), [ 'status' => 400 ] );
+			$sanitized = $gate_id ? get_post_status( $gate_id ) : 'draft';
 		}
 		return $sanitized;
 	}

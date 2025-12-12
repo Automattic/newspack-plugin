@@ -2719,7 +2719,7 @@ final class Reader_Activation {
 	 * @param string $url The URL to check.
 	 * @return bool True if the URL path contains an OAuth route.
 	 */
-	private static function is_oauth_redirect( $url ) {
+	public static function is_oauth_redirect( $url ) {
 		$url_path = \wp_parse_url( $url, PHP_URL_PATH ) ?? '';
 
 		/**

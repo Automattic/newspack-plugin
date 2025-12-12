@@ -167,7 +167,7 @@ class Memberships {
 	 * @return string
 	 */
 	public static function get_edit_gate_url( $gate_id = false ) {
-		$action = 'newspack_edit_content_gate';
+		$action = 'newspack_edit_memberships_gate';
 		$url    = \add_query_arg( '_wpnonce', \wp_create_nonce( $action ), \admin_url( 'admin.php?action=' . $action ) );
 		if ( $gate_id ) {
 			$url = \add_query_arg( 'gate_id', $gate_id, $url );
@@ -179,13 +179,13 @@ class Memberships {
 	 * Handle editing the content gate.
 	 */
 	public static function handle_edit_gate() {
-		if ( ! isset( $_GET['action'] ) || 'newspack_edit_content_gate' !== $_GET['action'] ) {
+		if ( ! isset( $_GET['action'] ) || 'newspack_edit_memberships_gate' !== $_GET['action'] ) {
 			return;
 		}
 		if ( ! current_user_can( 'manage_options' ) ) {
 			return;
 		}
-		check_admin_referer( 'newspack_edit_content_gate' );
+		check_admin_referer( 'newspack_edit_memberships_gate' );
 
 		$gate_post_id = Content_Gate::get_gate_post_id();
 		$is_primary   = true;

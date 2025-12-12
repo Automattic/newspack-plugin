@@ -179,7 +179,7 @@ class Metering_Countdown {
 	 * @return void
 	 */
 	public static function print_cta() {
-		if ( ! self::is_enabled() ) {
+		if ( ! self::is_enabled() || ! Content_Gate::is_post_restricted() ) {
 			return;
 		}
 		$settings    = self::get_settings();

@@ -73,4 +73,5 @@ type Gate = {
 	priority: number;
 	status: GateStatus;
 	isExpanded?: boolean;
+	collapse?: boolean;
 };
