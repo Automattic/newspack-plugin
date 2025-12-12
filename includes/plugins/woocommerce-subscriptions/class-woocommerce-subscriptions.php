@@ -20,6 +20,7 @@ class WooCommerce_Subscriptions {
 		add_action( 'plugins_loaded', [ __CLASS__, 'woocommerce_subscriptions_integration_init' ] );
 		add_filter( 'woocommerce_subscriptions_product_limited_for_user', [ __CLASS__, 'maybe_limit_subscription_product_for_user' ], 10, 3 );
 		add_filter( 'woocommerce_subscriptions_product_trial_length', [ __CLASS__, 'limit_free_trials_to_one_per_user' ], 10, 2 );
+		add_filter( 'wcs_get_users_subscriptions', [ __CLASS__, 'filter_subscriptions_for_account_page' ], 10, 1 );
 	}
 
 	/**
@@ -207,6 +208,24 @@ class WooCommerce_Subscriptions {
 		}
 
 		return $trial_length;
+	}
+
+	/**
+	 * Remove 'trash' subscriptions from the subscriptions list on the My Account page.
+	 *
+	 * @param array $subscriptions The subscriptions.
+	 * @return array The filtered subscriptions.
+	 */
+	public static function filter_subscriptions_for_account_page( $subscriptions ) {
+		if ( function_exists( 'is_account_page' ) && is_account_page() ) {
+			$subscriptions = array_filter(
+				$subscriptions,
+				function( $subscription ) {
+					return ! $subscription->has_status( 'trash' );
+				}
+			);
+		}
+		return $subscriptions;
 	}
 }
 WooCommerce_Subscriptions::init();
