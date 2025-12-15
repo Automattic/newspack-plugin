@@ -98,6 +98,17 @@ class Audience_Content_Gates extends Wizard {
 				'available_content_rules' => Content_Gate::get_content_rules(),
 			]
 		);
+
+		\wp_localize_script(
+			'newspack-wizards',
+			'newspackAudience',
+			[
+				'content_gifting' => [
+					'can_use_gifting' => Content_Gifting::can_use_gifting( true ),
+					'has_metering'    => Content_Gate::has_metering(),
+				],
+			]
+		);
 	}
 
 	/**
@@ -142,6 +153,29 @@ class Audience_Content_Gates extends Wizard {
 				'methods'             => 'GET',
 				'callback'            => [ $this, 'get_config' ],
 				'permission_callback' => [ $this, 'api_permissions_check' ],
+			]
+		);
+
+		register_rest_route(
+			NEWSPACK_API_NAMESPACE,
+			'/wizard/' . $this->slug . '/config',
+			[
+				'methods'             => 'POST',
+				'callback'            => [ $this, 'update_config' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+				'args'                => [
+					'config' => [
+						'type'       => 'object',
+						'properties' => [
+							'countdown_banner' => [
+								'type' => 'object',
+							],
+							'content_gifting'  => [
+								'type' => 'object',
+							],
+						],
+					],
+				],
 			]
 		);
 
@@ -427,6 +461,51 @@ class Audience_Content_Gates extends Wizard {
 			],
 		];
 		return rest_ensure_response( $config );
+	}
+
+	/**
+	 * Update the config.
+	 *
+	 * @param \WP_REST_Request $request The request object.
+	 *
+	 * @return \WP_REST_Response|\WP_Error
+	 */
+	public function update_config( $request ) {
+		$args = $request->get_params();
+
+		if ( isset( $args['countdown_banner'] ) ) {
+			Metering_Countdown::update_settings( $args['countdown_banner'] );
+		}
+		if ( isset( $args['content_gifting'] ) ) {
+			if ( isset( $args['content_gifting']['enabled'] ) ) {
+				Content_Gifting::set_enabled( (bool) $args['content_gifting']['enabled'] );
+			}
+			if ( isset( $args['content_gifting']['limit'] ) ) {
+				Content_Gifting::set_gifting_limit( (int) $args['content_gifting']['limit'] );
+			}
+			if ( isset( $args['content_gifting']['expiration_time'] ) ) {
+				Content_Gifting::set_expiration_time( (int) $args['content_gifting']['expiration_time'] );
+			}
+			if ( isset( $args['content_gifting']['expiration_time_unit'] ) ) {
+				Content_Gifting::set_expiration_time_unit( sanitize_text_field( $args['content_gifting']['expiration_time_unit'] ) );
+			}
+			if ( isset( $args['content_gifting']['interval'] ) ) {
+				Content_Gifting::set_gifting_reset_interval( sanitize_text_field( $args['content_gifting']['interval'] ) );
+			}
+			if ( isset( $args['content_gifting']['cta_label'] ) ) {
+				Content_Gifting_CTA::set_cta_label( sanitize_text_field( $args['content_gifting']['cta_label'] ) );
+			}
+			if ( isset( $args['content_gifting']['button_label'] ) ) {
+				Content_Gifting_CTA::set_button_label( sanitize_text_field( $args['content_gifting']['button_label'] ) );
+			}
+			if ( isset( $args['content_gifting']['cta_url'] ) ) {
+				Content_Gifting_CTA::set_cta_url( sanitize_text_field( $args['content_gifting']['cta_url'] ) );
+			}
+			if ( isset( $args['content_gifting']['style'] ) ) {
+				Content_Gifting_CTA::set_style( sanitize_text_field( $args['content_gifting']['style'] ) );
+			}
+		}
+		return rest_ensure_response( self::get_config() );
 	}
 
 	/**

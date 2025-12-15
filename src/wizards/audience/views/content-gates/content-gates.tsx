@@ -13,7 +13,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { Button, Card, Modal, SectionHeader, TextControl } from '../../../../../packages/components/src';
+import { Button, Card, Modal, Notice, SectionHeader, TextControl } from '../../../../../packages/components/src';
 import { useWizardData } from '../../../../../packages/components/src/wizard/store/utils';
 import { useWizardApiFetch } from '../../../hooks/use-wizard-api-fetch';
 import WizardsActionCard from '../../../wizards-action-card';
@@ -53,13 +53,21 @@ const getGateStatusBadgeLevel = ( status: GateStatus ) => {
 
 const ContentGates = () => {
 	const wizardData = useWizardData( 'newspack-audience-content-gates' ) as WizardData;
-	const { wizardApiFetch, isFetching } = useWizardApiFetch( AUDIENCE_CONTENT_GATES_WIZARD_SLUG );
-	const [ gates, setGates ] = useState< Gate[] >( Array.isArray( wizardData?.gates ) ? wizardData?.gates : [] );
+	const { wizardApiFetch, isFetching, errorMessage, resetError } = useWizardApiFetch( AUDIENCE_CONTENT_GATES_WIZARD_SLUG );
+	const [ hasCompletedInitialFetch, setHasCompletedInitialFetch ] = useState( false );
+	const [ gates, setGates ] = useState< Gate[] >( Array.isArray( wizardData?.gates ) ? wizardData.gates : [] );
 	const [ showModal, setShowModal ] = useState( false );
 	const [ newGateName, setNewGateName ] = useState( '' );
 	const [ isInFlight, setIsInFlight ] = useState( false );
-
+	const [ error, setError ] = useState< string | null >( null );
 	const ref = useRef( null );
+
+	useEffect( () => {
+		if ( Array.isArray( wizardData?.gates ) && ! hasCompletedInitialFetch ) {
+			setGates( wizardData.gates );
+			setHasCompletedInitialFetch( true );
+		}
+	}, [ wizardData, hasCompletedInitialFetch ] );
 
 	useEffect( () => {
 		if ( isFetching ) {
@@ -70,15 +78,21 @@ const ContentGates = () => {
 	}, [ isFetching ] );
 
 	useEffect( () => {
-		if ( Array.isArray( wizardData?.gates ) ) {
-			setGates( wizardData?.gates );
+		if ( errorMessage ) {
+			setError( errorMessage );
 		}
-	}, [ wizardData ] );
+	}, [ errorMessage ] );
+
+	const resetErrors = () => {
+		setError( null );
+		resetError();
+	};
 
 	const handleCreateGate = () => {
 		if ( isInFlight ) {
 			return;
 		}
+		resetErrors();
 		setIsInFlight( true );
 		wizardApiFetch< Gate >(
 			{
@@ -100,9 +114,6 @@ const ContentGates = () => {
 					setShowModal( false );
 					setNewGateName( '' );
 				},
-				onError( error ) {
-					console.error( error ); // eslint-disable-line no-console
-				},
 				onFinally() {
 					setIsInFlight( false );
 				},
@@ -118,6 +129,7 @@ const ContentGates = () => {
 				return;
 			}
 		}
+		resetErrors();
 		wizardApiFetch(
 			{
 				path: `/newspack/v1/wizard/${ AUDIENCE_CONTENT_GATES_WIZARD_SLUG }/${ id }`,
@@ -138,9 +150,6 @@ const ContentGates = () => {
 						);
 					}
 				},
-				onError( error ) {
-					console.error( error ); // eslint-disable-line no-console
-				},
 			}
 		);
 	};
@@ -152,6 +161,7 @@ const ContentGates = () => {
 		const oldGates = [ ...gates ];
 		setGates( updates );
 		setIsInFlight( true );
+		resetErrors();
 		apiFetch< Gate >( {
 			path: `/newspack/v1/wizard/${ AUDIENCE_CONTENT_GATES_WIZARD_SLUG }/priority`,
 			method: 'POST',
@@ -159,8 +169,8 @@ const ContentGates = () => {
 				gates: updates.map( g => ( { id: g.id, priority: g.priority } ) ),
 			},
 		} )
-			.catch( ( error: WpFetchError ) => {
-				console.error( error ); // eslint-disable-line no-console
+			.catch( ( fetchError: WpFetchError ) => {
+				setError( fetchError.message );
 				setGates( oldGates );
 			} )
 			.finally( () => setIsInFlight( false ) );
@@ -172,6 +182,7 @@ const ContentGates = () => {
 
 	return (
 		<>
+			{ error && <Notice isError noticeText={ error } /> }
 			<Card noBorder headerActions>
 				<SectionHeader heading={ 1 } title={ __( 'Content Gates', 'newspack-plugin' ) } noMargin />
 				<Button variant="secondary" onClick={ () => setShowModal( true ) }>

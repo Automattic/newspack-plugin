@@ -8,30 +8,17 @@ import '../../../../shared/js/public-path';
  * WordPress dependencies.
  */
 import { __ } from '@wordpress/i18n';
-import { forwardRef, useEffect, useState } from '@wordpress/element';
+import { forwardRef } from '@wordpress/element';
 
 /**
  * Internal dependencies.
  */
 import { Wizard, withWizard } from '../../../../../packages/components/src';
-import { useWizardData } from '../../../../../packages/components/src/wizard/store/utils';
 import ContentGates from './content-gates';
+import ContentGateSettings from './settings';
 import { AUDIENCE_CONTENT_GATES_WIZARD_SLUG } from './consts';
 
 const AudienceContentGates = ( props, ref ) => {
-	const wizardData = useWizardData( 'newspack-audience-content-gates' );
-	const [ hasCompletedInitialFetch, setHasCompletedInitialFetch ] = useState( false );
-
-	useEffect( () => {
-		if ( Array.isArray( wizardData ) && ! hasCompletedInitialFetch ) {
-			setHasCompletedInitialFetch( true );
-			return;
-		}
-		if ( wizardData?.error ) {
-			console.error( wizardData.error ); // eslint-disable-line no-console
-		}
-	}, [ wizardData, hasCompletedInitialFetch ] );
-
 	return (
 		<Wizard
 			apiSlug={ AUDIENCE_CONTENT_GATES_WIZARD_SLUG }
@@ -41,9 +28,14 @@ const AudienceContentGates = ( props, ref ) => {
 			ref={ ref }
 			sections={ [
 				{
-					label: __( 'Content Gate', 'newspack-plugin' ),
+					label: __( 'Content Gates', 'newspack-plugin' ),
 					path: '/content-gates',
 					render: ContentGates,
+				},
+				{
+					label: __( 'Settings', 'newspack-plugin' ),
+					path: '/settings',
+					render: ContentGateSettings,
 				},
 			] }
 		/>

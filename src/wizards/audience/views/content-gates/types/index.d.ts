@@ -73,10 +73,12 @@ type Gate = {
 	collapse?: boolean;
 };
 
+type GateSettings = {
+	content_gifting?: ContentGiftingConfig;
+	countdown_banner?: MeteringCountdownConfig;
+};
+
 type GateConfig = {
-	gates: Gate[],
-	config: {
-		countdown_banner: MeteringCountdownConfig;
-		content_gifting: ContentGiftingConfig;
-	}
+	gates: Gate[];
+	config: GateSettings
 };
