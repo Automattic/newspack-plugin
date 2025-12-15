@@ -6,6 +6,7 @@
  * WordPress dependencies.
  */
 import apiFetch from '@wordpress/api-fetch';
+import { useDispatch } from '@wordpress/data';
 import { useEffect, useRef, useState } from '@wordpress/element';
 import { ENTER } from '@wordpress/keycodes';
 import { __ } from '@wordpress/i18n';
@@ -15,6 +16,7 @@ import { __ } from '@wordpress/i18n';
  */
 import { Button, Card, Modal, Notice, SectionHeader, TextControl } from '../../../../../packages/components/src';
 import { useWizardData } from '../../../../../packages/components/src/wizard/store/utils';
+import { WIZARD_STORE_NAMESPACE } from '../../../../../packages/components/src/wizard/store';
 import { useWizardApiFetch } from '../../../hooks/use-wizard-api-fetch';
 import WizardsActionCard from '../../../wizards-action-card';
 import ContentGateSettings from './content-gate-settings';
@@ -53,21 +55,23 @@ const getGateStatusBadgeLevel = ( status: GateStatus ) => {
 
 const ContentGates = () => {
 	const wizardData = useWizardData( 'newspack-audience-content-gates' ) as WizardData;
+	const { updateWizardSettings } = useDispatch( WIZARD_STORE_NAMESPACE );
 	const { wizardApiFetch, isFetching, errorMessage, resetError } = useWizardApiFetch( AUDIENCE_CONTENT_GATES_WIZARD_SLUG );
-	const [ hasCompletedInitialFetch, setHasCompletedInitialFetch ] = useState( false );
-	const [ gates, setGates ] = useState< Gate[] >( Array.isArray( wizardData?.gates ) ? wizardData.gates : [] );
 	const [ showModal, setShowModal ] = useState( false );
 	const [ newGateName, setNewGateName ] = useState( '' );
 	const [ isInFlight, setIsInFlight ] = useState( false );
 	const [ error, setError ] = useState< string | null >( null );
 	const ref = useRef( null );
 
-	useEffect( () => {
-		if ( Array.isArray( wizardData?.gates ) && ! hasCompletedInitialFetch ) {
-			setGates( wizardData.gates );
-			setHasCompletedInitialFetch( true );
-		}
-	}, [ wizardData, hasCompletedInitialFetch ] );
+	const gates = ( wizardData?.gates || [] ) as Gate[];
+
+	const onChange = ( newGates: Gate[] ) => {
+		updateWizardSettings( {
+			slug: AUDIENCE_CONTENT_GATES_WIZARD_SLUG,
+			path: [ 'gates' ],
+			value: newGates,
+		} );
+	};
 
 	useEffect( () => {
 		if ( isFetching ) {
@@ -104,13 +108,14 @@ const ContentGates = () => {
 			},
 			{
 				onSuccess( data ) {
-					setGates( [
+					const newGates = [
 						...gates.map( g => {
 							g.isExpanded = false;
 							return g;
 						} ),
 						{ ...data, isExpanded: true },
-					] );
+					];
+					onChange( newGates );
 					setShowModal( false );
 					setNewGateName( '' );
 				},
@@ -138,16 +143,16 @@ const ContentGates = () => {
 			{
 				onSuccess() {
 					if ( currentStatus === 'trash' ) {
-						setGates( gates.filter( g => g.id !== id ) );
+						const newGates = gates.filter( g => g.id !== id );
+						onChange( newGates );
 					} else {
-						setGates(
-							gates.map( g => {
-								if ( g.id === id ) {
-									g.status = 'trash';
-								}
-								return g;
-							} )
-						);
+						const newGates = gates.map( g => {
+							if ( g.id === id ) {
+								g.status = 'trash';
+							}
+							return g;
+						} );
+						onChange( newGates );
 					}
 				},
 			}
@@ -159,7 +164,7 @@ const ContentGates = () => {
 			return;
 		}
 		const oldGates = [ ...gates ];
-		setGates( updates );
+		onChange( updates );
 		setIsInFlight( true );
 		resetErrors();
 		apiFetch< Gate >( {
@@ -171,13 +176,17 @@ const ContentGates = () => {
 		} )
 			.catch( ( fetchError: WpFetchError ) => {
 				setError( fetchError.message );
-				setGates( oldGates );
+				onChange( oldGates );
 			} )
 			.finally( () => setIsInFlight( false ) );
 	};
 
 	const handleSaveGate = ( gate: Gate ) => {
-		setGates( gates.map( g => ( g.id === gate.id ? gate : g ) ) );
+		if ( isInFlight ) {
+			return;
+		}
+		const newGates = gates.map( g => ( g.id === gate.id ? gate : g ) );
+		onChange( newGates );
 	};
 
 	return (
