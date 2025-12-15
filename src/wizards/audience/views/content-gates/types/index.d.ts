@@ -72,3 +72,11 @@ type Gate = {
 	isExpanded?: boolean;
 	collapse?: boolean;
 };
+
+type GateConfig = {
+	gates: Gate[],
+	config: {
+		countdown_banner: MeteringCountdownConfig;
+		content_gifting: ContentGiftingConfig;
+	}
+};

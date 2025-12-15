@@ -140,7 +140,7 @@ class Audience_Content_Gates extends Wizard {
 			'/wizard/' . $this->slug,
 			[
 				'methods'             => 'GET',
-				'callback'            => [ $this, 'get_gates' ],
+				'callback'            => [ $this, 'get_config' ],
 				'permission_callback' => [ $this, 'api_permissions_check' ],
 			]
 		);
@@ -418,8 +418,15 @@ class Audience_Content_Gates extends Wizard {
 	 *
 	 * @return \WP_REST_Response
 	 */
-	public function get_gates() {
-		return rest_ensure_response( Content_Gate::get_gates() );
+	public function get_config() {
+		$config = [
+			'gates'  => Content_Gate::get_gates(),
+			'config' => [
+				'countdown_banner' => Metering_Countdown::get_settings(),
+				'content_gifting'  => Content_Gifting::get_settings(),
+			],
+		];
+		return rest_ensure_response( $config );
 	}
 
 	/**

@@ -54,24 +54,12 @@ const getGateStatusBadgeLevel = ( status: GateStatus ) => {
 const ContentGates = () => {
 	const wizardData = useWizardData( 'newspack-audience-content-gates' ) as WizardData;
 	const { wizardApiFetch, isFetching } = useWizardApiFetch( AUDIENCE_CONTENT_GATES_WIZARD_SLUG );
-	const [ hasCompletedInitialFetch, setHasCompletedInitialFetch ] = useState( false );
-	const [ gates, setGates ] = useState< Gate[] >( Array.isArray( wizardData ) ? wizardData : [] );
+	const [ gates, setGates ] = useState< Gate[] >( Array.isArray( wizardData?.gates ) ? wizardData?.gates : [] );
 	const [ showModal, setShowModal ] = useState( false );
 	const [ newGateName, setNewGateName ] = useState( '' );
 	const [ isInFlight, setIsInFlight ] = useState( false );
 
 	const ref = useRef( null );
-
-	useEffect( () => {
-		if ( Array.isArray( wizardData ) && ! hasCompletedInitialFetch ) {
-			setGates( wizardData );
-			setHasCompletedInitialFetch( true );
-			return;
-		}
-		if ( wizardData?.error ) {
-			console.error( wizardData.error ); // eslint-disable-line no-console
-		}
-	}, [ wizardData, hasCompletedInitialFetch ] );
 
 	useEffect( () => {
 		if ( isFetching ) {
@@ -80,6 +68,12 @@ const ContentGates = () => {
 			setIsInFlight( false );
 		}
 	}, [ isFetching ] );
+
+	useEffect( () => {
+		if ( Array.isArray( wizardData?.gates ) ) {
+			setGates( wizardData?.gates );
+		}
+	}, [ wizardData ] );
 
 	const handleCreateGate = () => {
 		if ( isInFlight ) {
