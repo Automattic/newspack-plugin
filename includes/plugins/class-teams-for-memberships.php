@@ -27,6 +27,7 @@ class Teams_For_Memberships {
 		add_filter( 'newspack_ras_metadata_keys', [ __CLASS__, 'add_teams_metadata_keys' ] );
 		add_filter( 'newspack_esp_sync_contact', [ __CLASS__, 'handle_esp_sync_contact' ] );
 		add_filter( 'newspack_my_account_disabled_pages', [ __CLASS__, 'enable_members_area_for_team_members' ] );
+		add_action( 'woocommerce_checkout_subscription_created', [ __CLASS__, 'update_team_subscription_on_resubscribe' ], 25, 2 );
 	}
 
 	/**
@@ -243,6 +244,110 @@ class Teams_For_Memberships {
 			$disabled_wc_menu_items = array_values( array_diff( $disabled_wc_menu_items, [ 'members-area' ] ) );
 		}
 		return $disabled_wc_menu_items;
+	}
+
+	/**
+	 * Update expired team subscription on resubscribe.
+	 *
+	 * Copies the `update_team_subscription_on_resubscribe()` funtion from the Memberships for Teams plugin.
+	 *
+	 * @param \WC_Subscription $new_subscription The new subscription.
+	 * @param \WC_Order        $resubscribe_order The resubscribe order.
+	 */
+	public static function update_team_subscription_on_resubscribe( $new_subscription, $resubscribe_order ) {
+
+		// Check required functions exist.
+		if ( ! function_exists( 'wcs_get_subscription' ) || ! function_exists( 'wc_memberships_for_teams_get_team' ) ) {
+			return;
+		}
+
+		$new_order_id        = $resubscribe_order->get_id();
+		$new_subscription_id = $new_subscription->get_id();
+		$old_subscription_id = $new_subscription_id > 0 ? $new_subscription->get_meta( '_subscription_resubscribe' ) : 0;
+		$old_subscription    = $old_subscription_id > 0 ? wcs_get_subscription( $old_subscription_id ) : null;
+
+		// Only handle expired subscriptions (core plugin handles cancelled/pending-cancel).
+		if ( $old_subscription && 'expired' === $old_subscription->get_status() ) {
+
+			$teams_subscriptions = wc_memberships_for_teams()->get_integrations_instance()->get_subscriptions_instance();
+			if ( ! $teams_subscriptions ) {
+				return;
+			}
+			$existing_teams = $teams_subscriptions->get_teams_from_subscription( $old_subscription_id );
+
+			if ( ! empty( $existing_teams ) ) {
+
+				foreach ( $existing_teams as $existing_team ) {
+
+					// Update the team's subscription link and the order link.
+					update_post_meta( $existing_team->get_id(), '_subscription_id', $new_subscription_id );
+					update_post_meta( $existing_team->get_id(), '_order_id', $new_order_id );
+
+					// Update end dates for all team memberships before reactivating.
+					foreach ( $existing_team->get_user_memberships() as $user_membership ) {
+						$user_membership->set_end_date( $new_subscription->get_date( 'end' ) );
+					}
+
+					// Also reactivate any cancelled memberships within the team's seats.
+					self::update_team_user_memberships_subscription( $existing_team, $new_subscription, $resubscribe_order, $existing_team->get_product() );
+				}
+			}
+		}
+	}
+
+	/**
+	 * Update team user memberships subscription, to be used when updating expired subscriptions.
+	 *
+	 * Copies the `update_team_user_memberships_subscription()` funtion from the Memberships for Teams plugin.
+	 *
+	 * @param \WC_Memberships_For_Teams_Team $team The team.
+	 * @param \WC_Subscription               $subscription The subscription.
+	 * @param \WC_Order                      $order The order.
+	 * @param \WC_Product                    $product The product.
+	 */
+	private static function update_team_user_memberships_subscription( $team, $subscription, $order = null, $product = null ) {
+
+		if ( ! $subscription instanceof \WC_Subscription ) {
+
+			if ( $order instanceof \WC_Order && 'refunded' !== $order->get_status() && $team->is_order_refunded() ) {
+				update_post_meta( $team->get_id(), '_order_refunded', 'no' );
+			}
+
+			foreach ( $team->get_user_memberships() as $user_membership ) {
+
+				// Set the membership's subscription ID.
+				$subscription_membership = new \WC_Memberships_Integration_Subscriptions_User_Membership( $user_membership->post );
+
+				$subscription_membership->set_subscription_id( $subscription->get_id() );
+
+				// Bail if not associated with an order.
+				if ( ! $order instanceof \WC_Order ) {
+					continue;
+				}
+
+				$note     = '';
+				$order_id = $order->get_id();
+
+				$subscription_membership->set_order_id( $order_id );
+
+				if ( $product instanceof \WC_Product ) {
+
+					$subscription_membership->set_product_id( $product->get_id() );
+
+					$note = sprintf(
+						/* translators: Placeholders: %1$s - subscription product name, %2$s - order number */
+						__( 'Membership re-activated due to subscription re-purchase (%1$s, Order %2$s).', 'newspack-plugin' ),
+						$product->get_title(),
+						'<a href="' . esc_url( admin_url( 'post.php?post=' . $order_id . '&action=edit' ) ) . '">' . esc_html( $order_id ) . '</a>'
+					);
+				}
+
+				// Reactivate if expired (core plugin handles pending/cancelled for cancelled subscriptions).
+				if ( $subscription_membership->has_status( [ 'expired' ] ) ) {
+					$subscription_membership->update_status( 'active', $note );
+				}
+			}
+		}
 	}
 }
 
