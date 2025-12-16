@@ -190,7 +190,7 @@ const ContentGates = () => {
 	};
 
 	return (
-		<>
+		<div className="newspack-content-gates__gates">
 			{ error && <Notice isError noticeText={ error } /> }
 			<Card noBorder headerActions>
 				<SectionHeader heading={ 1 } title={ __( 'Content Gates', 'newspack-plugin' ) } noMargin />
@@ -268,7 +268,7 @@ const ContentGates = () => {
 					);
 				} ) }
 			</div>
-		</>
+		</div>
 	);
 };
 export default ContentGates;
