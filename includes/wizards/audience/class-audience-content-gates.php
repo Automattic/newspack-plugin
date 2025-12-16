@@ -34,6 +34,38 @@ class Audience_Content_Gates extends Wizard {
 	public function __construct() {
 		parent::__construct();
 		add_action( 'rest_api_init', [ $this, 'register_api_endpoints' ] );
+
+		// Determine active menu items.
+		add_filter( 'parent_file', [ $this, 'parent_file' ] );
+		add_filter( 'submenu_file', [ $this, 'submenu_file' ] );
+	}
+
+	/**
+	 * Parent file filter. Used to determine active menu items.
+	 *
+	 * @param string $parent_file Parent file to be overridden.
+	 * @return string
+	 */
+	public function parent_file( $parent_file ) {
+		global $pagenow, $typenow;
+		if ( in_array( $pagenow, [ 'post.php', 'post-new.php' ] ) && $typenow === Content_Gate::GATE_CPT ) {
+			return $this->parent_slug;
+		}
+		return $parent_file;
+	}
+
+	/**
+	 * Submenu file filter. Used to determine active submenu items.
+	 *
+	 * @param string $submenu_file Submenu file to be overridden.
+	 * @return string
+	 */
+	public function submenu_file( $submenu_file ) {
+		global $pagenow, $typenow;
+		if ( in_array( $pagenow, [ 'post.php', 'post-new.php' ] ) && $typenow === Content_Gate::GATE_CPT ) {
+			return $this->slug;
+		}
+		return $submenu_file;
 	}
 
 	/**
@@ -185,6 +217,7 @@ class Audience_Content_Gates extends Wizard {
 						'properties'        => [
 							'title'         => [ 'type' => 'string' ],
 							'description'   => [ 'type' => 'string' ],
+							'status'        => [ 'type' => 'string' ],
 							'metering'      => [
 								'type'       => 'object',
 								'properties' => [
@@ -237,6 +270,7 @@ class Audience_Content_Gates extends Wizard {
 			'access_rules'  => $this->sanitize_rules( $gate['access_rules'] ),
 			'content_rules' => $this->sanitize_rules( $gate['content_rules'], 'content' ),
 			'priority'      => intval( $gate['priority'] ),
+			'status'        => $this->sanitize_status( $gate['status'], $gate['id'] ),
 		];
 	}
 
@@ -363,6 +397,23 @@ class Audience_Content_Gates extends Wizard {
 	}
 
 	/**
+	 * Sanitize the gate post status.
+	 *
+	 * @param string $status Post status.
+	 * @param int    $gate_id Gate ID.
+	 *
+	 * @return string The sanitized post status.
+	 */
+	public function sanitize_status( $status, $gate_id ) {
+		$sanitized = sanitize_text_field( $status );
+		$valid = in_array( $sanitized, Content_Gate::get_post_statuses(), true );
+		if ( ! $valid ) {
+			$sanitized = $gate_id ? get_post_status( $gate_id ) : 'draft';
+		}
+		return $sanitized;
+	}
+
+	/**
 	 * Get the gates.
 	 *
 	 * @return \WP_REST_Response
@@ -402,7 +453,12 @@ class Audience_Content_Gates extends Wizard {
 		if ( Content_Gate::GATE_CPT !== $gate->post_type ) {
 			return new \WP_Error( 'invalid_gate_type', __( 'Invalid gate type.', 'newspack-plugin' ), [ 'status' => 400 ] );
 		}
-		wp_delete_post( $id, true );
+		$force = $gate->post_status === 'trash';
+		if ( $force ) {
+			wp_delete_post( $id, $force );
+		} else {
+			wp_trash_post( $id );
+		}
 		return rest_ensure_response( true );
 	}
 

@@ -26,9 +26,10 @@ export default function AccessRuleControl( { slug, value, onChange }: GateAccess
 				value={ rule.options.filter( o => value.includes( o.value ) ).map( o => o.label ) }
 				onChange={ ( items: string[] ) => onChange( rule.options?.filter( o => items.includes( o.label ) ).map( o => o.value ) ?? [] ) }
 				suggestions={ rule.options.map( o => o.label ) }
-				__experimentalExpandOnFocus={ true }
+				__experimentalExpandOnFocus
+				__next40pxDefaultSize
 			/>
 		);
 	}
-	return <TextControl label={ rule.name } value={ value as string } onChange={ onChange } help={ rule.description } />;
+	return <TextControl label={ rule.name } value={ value as string } onChange={ onChange } help={ rule.description } __next40pxDefaultSize />;
 }

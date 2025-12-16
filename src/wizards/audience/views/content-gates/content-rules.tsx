@@ -3,7 +3,6 @@
  */
 import { __ } from '@wordpress/i18n';
 import { DropdownMenu } from '@wordpress/components';
-import { shield } from '@wordpress/icons';
 import { useMemo, useCallback } from '@wordpress/element';
 
 /**
@@ -59,12 +58,14 @@ export default function ContentRules( { rules, onChange }: ContentRulesProps ) {
 			noBorder={ true }
 			noMargin={ true }
 			actionContent={
-				<DropdownMenu icon={ shield } text={ __( 'Manage Rules', 'newspack-plugin' ) } label={ __( 'Manage Rules', 'newspack-plugin' ) }>
-					{ () => <RulesChoices choices={ choices } onSelect={ handleToggle } value={ rules.map( r => r.slug ) } /> }
-				</DropdownMenu>
+				<div style={ { background: 'var(--newspack-ui-color-neutral-5)' } }>
+					<DropdownMenu icon={ false } text={ __( 'Manage Rules', 'newspack-plugin' ) } label={ __( 'Manage Rules', 'newspack-plugin' ) }>
+						{ () => <RulesChoices choices={ choices } onSelect={ handleToggle } value={ rules.map( r => r.slug ) } /> }
+					</DropdownMenu>
+				</div>
 			}
 		>
-			<Grid columns={ Math.min( 3, rules.length ) } gutter={ 32 }>
+			<Grid columns={ 2 } gutter={ 32 } noMargin={ true }>
 				{ rules.map( ( rule: GateContentRule ) => (
 					<ContentRuleControl key={ rule.slug } slug={ rule.slug } value={ rule.value } onChange={ handleChange( rule.slug ) } />
 				) ) }

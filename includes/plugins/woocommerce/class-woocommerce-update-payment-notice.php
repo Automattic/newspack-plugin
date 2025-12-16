@@ -80,6 +80,11 @@ class WooCommerce_Update_Payment_Notice {
 			return;
 		}
 
+		// Don't show notices on the checkout page.
+		if ( function_exists( 'is_checkout' ) && is_checkout() ) {
+			return;
+		}
+
 		$notices = self::get_notices();
 		if ( empty( $notices ) ) {
 			return;

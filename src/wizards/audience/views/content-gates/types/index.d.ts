@@ -21,15 +21,15 @@ type Metering = {
 	enabled: boolean;
 	anonymous_count: number;
 	registered_count: number;
-	period: string;
+	period: 'week' | 'month';
 };
 
 type AccessRules = {
-	[ key: string ]: AccessRule;
+	[key: string]: AccessRule;
 };
 
 type ContentRules = {
-	[ key: string ]: ContentRule;
+	[key: string]: ContentRule;
 };
 
 type GateAccessRule = {
@@ -44,7 +44,7 @@ type GateContentRuleValue = string[];
 type GateAccessRuleControlProps = {
 	slug: string;
 	value: GateAccessRuleValue;
-	onChange: ( value: GateAccessRuleValue ) => void;
+	onChange: (value: GateAccessRuleValue) => void;
 };
 
 type GateContentRule = {
@@ -55,8 +55,10 @@ type GateContentRule = {
 type GateContentRuleControlProps = {
 	slug: string;
 	value: GateContentRuleValue;
-	onChange: ( value: GateContentRuleValue ) => void;
+	onChange: (value: GateContentRuleValue) => void;
 };
+
+type GateStatus = 'publish' | 'draft' | 'pending' | 'future' | 'private' | 'trash';
 
 type Gate = {
 	id: number;
@@ -66,4 +68,7 @@ type Gate = {
 	access_rules: GateAccessRule[];
 	content_rules: GateContentRule[];
 	priority: number;
+	status: GateStatus;
+	isExpanded?: boolean;
+	collapse?: boolean;
 };

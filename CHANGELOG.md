@@ -1,3 +1,24 @@
+## [6.27.3](https://github.com/Automattic/newspack-plugin/compare/v6.27.2...v6.27.3) (2025-12-16)
+
+
+### Bug Fixes
+
+* **recaptcha:** log verification responses and errors ([#4361](https://github.com/Automattic/newspack-plugin/issues/4361)) ([1a280fb](https://github.com/Automattic/newspack-plugin/commit/1a280fbfbab27c5ba8eb9d392a71764ce5a40876))
+
+## [6.27.2](https://github.com/Automattic/newspack-plugin/compare/v6.27.1...v6.27.2) (2025-12-16)
+
+
+### Bug Fixes
+
+* **indesign-exporter:** caption and credit character encoding ([#4364](https://github.com/Automattic/newspack-plugin/issues/4364)) ([5868d27](https://github.com/Automattic/newspack-plugin/commit/5868d2789a2726f808674928c853ce9b2461711f))
+
+## [6.27.1](https://github.com/Automattic/newspack-plugin/compare/v6.27.0...v6.27.1) (2025-12-08)
+
+
+### Bug Fixes
+
+* **subscriptions:** migrated subscription switch ([#4335](https://github.com/Automattic/newspack-plugin/issues/4335)) ([4438b9a](https://github.com/Automattic/newspack-plugin/commit/4438b9ab495d532783b102998a4d7b9e1ed20481))
+
 # [6.27.0](https://github.com/Automattic/newspack-plugin/compare/v6.26.4...v6.27.0) (2025-12-08)
 
 
