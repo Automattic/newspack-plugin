@@ -55,18 +55,16 @@ class Content_Gate {
 		add_action( 'the_post', [ __CLASS__, 'restrict_post' ], 10, 2 );
 
 		/** Add gate content filters to mimic 'the_content'. See 'wp-includes/default-filters.php' for reference. */
-		if ( ! self::has_rendered() ) {
-			add_filter( 'newspack_gate_content', 'capital_P_dangit', 11 );
-			add_filter( 'newspack_gate_content', [ __CLASS__, 'do_blocks' ], 9 ); // Custom implementation of do_blocks().
-			add_filter( 'newspack_gate_content', 'wptexturize' );
-			add_filter( 'newspack_gate_content', 'convert_smilies', 20 );
-			add_filter( 'newspack_gate_content', 'wpautop' );
-			add_filter( 'newspack_gate_content', 'shortcode_unautop' );
-			add_filter( 'newspack_gate_content', 'prepend_attachment' );
-			add_filter( 'newspack_gate_content', 'wp_filter_content_tags' );
-			add_filter( 'newspack_gate_content', 'wp_replace_insecure_home_url' );
-			add_filter( 'newspack_gate_content', 'do_shortcode', 11 ); // AFTER wpautop().
-		}
+		add_filter( 'newspack_gate_content', 'capital_P_dangit', 11 );
+		add_filter( 'newspack_gate_content', [ __CLASS__, 'do_blocks' ], 9 ); // Custom implementation of do_blocks().
+		add_filter( 'newspack_gate_content', 'wptexturize' );
+		add_filter( 'newspack_gate_content', 'convert_smilies', 20 );
+		add_filter( 'newspack_gate_content', 'wpautop' );
+		add_filter( 'newspack_gate_content', 'shortcode_unautop' );
+		add_filter( 'newspack_gate_content', 'prepend_attachment' );
+		add_filter( 'newspack_gate_content', 'wp_filter_content_tags' );
+		add_filter( 'newspack_gate_content', 'wp_replace_insecure_home_url' );
+		add_filter( 'newspack_gate_content', 'do_shortcode', 11 ); // AFTER wpautop().
 
 		include __DIR__ . '/class-access-rules.php';
 		include __DIR__ . '/class-content-restriction-control.php';
@@ -194,10 +192,25 @@ class Content_Gate {
 		$priority = has_filter( 'newspack_gate_content', 'wpautop' );
 		if ( false !== $priority && doing_filter( 'newspack_gate_content' ) && has_blocks( $content ) ) {
 			remove_filter( 'newspack_gate_content', 'wpautop', $priority );
-			add_filter( 'newspack_gate_content', '_restore_wpautop_hook', $priority + 1 );
+			add_filter( 'newspack_gate_content', [ __CLASS__, 'restore_wpautop_hook' ], $priority + 1 );
 		}
 
 		return $output;
+	}
+
+	/**
+	 * _restore_wpautop_hook filter, but for the newspack_gate_content filter instead of the_content
+	 *
+	 * @param string $content Content.
+	 * @return string
+	 */
+	public static function restore_wpautop_hook( $content ) {
+		$current_priority = has_filter( 'newspack_gate_content', '_restore_wpautop_hook' );
+
+		add_filter( 'newspack_gate_content', 'wpautop', $current_priority - 1 );
+		remove_filter( 'newspack_gate_content', [ __CLASS__, 'restore_wpautop_hook' ], $current_priority );
+
+		return $content;
 	}
 
 	/**
