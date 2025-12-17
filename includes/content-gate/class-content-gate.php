@@ -517,7 +517,7 @@ class Content_Gate {
 	 * @return string
 	 */
 	public static function get_inline_gate_html() {
-		$gate_content = preg_replace( '/\s+/', ' ', self::get_inline_gate_content() );
+		$gate_content = preg_replace( '/\s+/S', ' ', self::get_inline_gate_content() );
 		return apply_filters( 'newspack_gate_content', $gate_content );
 	}
 
