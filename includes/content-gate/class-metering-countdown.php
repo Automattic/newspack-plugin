@@ -189,7 +189,7 @@ class Metering_Countdown {
 		if ( false === $total_views ) {
 			return;
 		}
-		$views = Metering::get_current_user_metered_views();
+		$views = min( Metering::get_current_user_metered_views(), $total_views );
 		if ( $views === 0 || Metering::is_frontend_metering() ) {
 			$classes[] = 'newspack-countdown-banner__cta--hidden';
 		}

@@ -39,14 +39,18 @@ domReady( () => {
 	// Countdown banner.
 	window.newspackRAS?.push( ras => {
 		const views = document.querySelector( '.newspack-countdown-banner__views' );
-		if ( ! views || '0' !== views.textContent ) {
+		if ( ! views || 0 < parseInt( views.textContent ) ) {
 			return;
 		}
 		const data = ras?.store?.get( storeKey ) || {
 			content: [],
 		};
+		const total = parseInt( document.querySelector( '.newspack-countdown-banner__total_views' )?.textContent || 0 );
+		if ( ! total || 0 >= total ) {
+			return;
+		}
 		if ( data.content.length > 0 ) {
-			views.textContent = data.content.length;
+			views.textContent = Math.min( data.content.length, total );
 			cta.classList.remove( 'newspack-countdown-banner__cta--hidden' );
 		}
 	} );
