@@ -90,6 +90,9 @@ class Content_Gate {
 	 * @param \WP_Query $query Query object.
 	 */
 	public static function restrict_post( $post, $query ) {
+		if ( self::has_rendered() ) {
+			return;
+		}
 		if ( ! $query->is_main_query() ) {
 			return;
 		}
