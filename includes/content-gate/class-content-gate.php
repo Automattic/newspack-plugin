@@ -55,16 +55,18 @@ class Content_Gate {
 		add_action( 'the_post', [ __CLASS__, 'restrict_post' ], 10, 2 );
 
 		/** Add gate content filters to mimic 'the_content'. See 'wp-includes/default-filters.php' for reference. */
-		add_filter( 'newspack_gate_content', 'capital_P_dangit', 11 );
-		add_filter( 'newspack_gate_content', [ __CLASS__, 'do_blocks' ], 9 ); // Custom implementation of do_blocks().
-		add_filter( 'newspack_gate_content', 'wptexturize' );
-		add_filter( 'newspack_gate_content', 'convert_smilies', 20 );
-		add_filter( 'newspack_gate_content', 'wpautop' );
-		add_filter( 'newspack_gate_content', 'shortcode_unautop' );
-		add_filter( 'newspack_gate_content', 'prepend_attachment' );
-		add_filter( 'newspack_gate_content', 'wp_filter_content_tags' );
-		add_filter( 'newspack_gate_content', 'wp_replace_insecure_home_url' );
-		add_filter( 'newspack_gate_content', 'do_shortcode', 11 ); // AFTER wpautop().
+		if ( ! self::has_rendered() ) {
+			add_filter( 'newspack_gate_content', 'capital_P_dangit', 11 );
+			add_filter( 'newspack_gate_content', [ __CLASS__, 'do_blocks' ], 9 ); // Custom implementation of do_blocks().
+			add_filter( 'newspack_gate_content', 'wptexturize' );
+			add_filter( 'newspack_gate_content', 'convert_smilies', 20 );
+			add_filter( 'newspack_gate_content', 'wpautop' );
+			add_filter( 'newspack_gate_content', 'shortcode_unautop' );
+			add_filter( 'newspack_gate_content', 'prepend_attachment' );
+			add_filter( 'newspack_gate_content', 'wp_filter_content_tags' );
+			add_filter( 'newspack_gate_content', 'wp_replace_insecure_home_url' );
+			add_filter( 'newspack_gate_content', 'do_shortcode', 11 ); // AFTER wpautop().
+		}
 
 		include __DIR__ . '/class-access-rules.php';
 		include __DIR__ . '/class-content-restriction-control.php';
@@ -539,9 +541,9 @@ class Content_Gate {
 		$use_more_tag = get_post_meta( $gate_post_id, 'use_more_tag', true );
 		// Use <!--more--> as threshold if it exists.
 		if ( $use_more_tag && strpos( $content, '<!--more-->' ) ) {
-			$content = apply_filters( 'the_content', explode( '<!--more-->', $content )[0] );
+			$content = apply_filters( 'newspack_gate_content', explode( '<!--more-->', $content )[0] );
 		} else {
-			$content = apply_filters( 'the_content', $content );
+			$content = apply_filters( 'newspack_gate_content', $content );
 			$count   = max( 1, (int) get_post_meta( $gate_post_id, 'visible_paragraphs', true ) );
 			// Split into paragraphs.
 			$content = explode( '</p>', $content );
