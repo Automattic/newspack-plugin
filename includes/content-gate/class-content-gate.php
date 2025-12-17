@@ -154,7 +154,7 @@ class Content_Gate {
 
 		$content = self::get_restricted_post_excerpt( $post );
 
-		$post->post_content   = $content . self::get_inline_gate_content();
+		$post->post_content = $content . self::get_inline_gate_html();
 		$post->post_excerpt   = $content;
 		$post->comment_status = 'closed';
 		$post->comment_count  = 0;
@@ -517,7 +517,8 @@ class Content_Gate {
 	 * @return string
 	 */
 	public static function get_inline_gate_html() {
-		return apply_filters( 'newspack_gate_content', self::get_inline_gate_content() );
+		$gate_content = preg_replace( '/\s+/', ' ', self::get_inline_gate_content() );
+		return apply_filters( 'newspack_gate_content', $gate_content );
 	}
 
 	/**
