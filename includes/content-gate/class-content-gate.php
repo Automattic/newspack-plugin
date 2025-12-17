@@ -510,7 +510,7 @@ class Content_Gate {
 		$gate = '<div class="newspack-content-gate__gate newspack-content-gate__inline-gate">' . $gate . '</div>';
 
 		// Strip line breaks and tabs.
-		return preg_replace( '/\s+/S', ' ', $gate );
+		return $gate;
 	}
 
 	/**
@@ -541,9 +541,9 @@ class Content_Gate {
 		$use_more_tag = get_post_meta( $gate_post_id, 'use_more_tag', true );
 		// Use <!--more--> as threshold if it exists.
 		if ( $use_more_tag && strpos( $content, '<!--more-->' ) ) {
-			$content = apply_filters( 'newspack_gate_content', explode( '<!--more-->', $content )[0] );
+			$content = apply_filters( 'the_content', explode( '<!--more-->', $content )[0] );
 		} else {
-			$content = apply_filters( 'newspack_gate_content', $content );
+			$content = apply_filters( 'the_content', $content );
 			$count   = max( 1, (int) get_post_meta( $gate_post_id, 'visible_paragraphs', true ) );
 			// Split into paragraphs.
 			$content = explode( '</p>', $content );
