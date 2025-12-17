@@ -20,6 +20,7 @@ class Co_Authors_Plus {
 	private static $verbose = true; // phpcs:ignore Squiz.Commenting.VariableComment.Missing
 	private static $user_logins = false; // phpcs:ignore Squiz.Commenting.VariableComment.Missing
 	private static $guest_author_ids = false; // phpcs:ignore Squiz.Commenting.VariableComment.Missing
+	private static $sideload_avatar = false; // phpcs:ignore Squiz.Commenting.VariableComment.Missing
 
 	/**
 	 * Migrate Co-Authors Plus guest authors to regular users with the [Guest Contributor role](https://help.newspack.com/publishing-and-appearance/guest-contributors/).
