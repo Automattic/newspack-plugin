@@ -42,20 +42,8 @@ export default function CountdownBanner( { config, setConfig, updateConfig } ) {
 							onChange={ value => setConfig( { ...config, countdown_banner: { ...config.countdown_banner, button_label: value } } ) }
 							__next40pxDefaultSize
 						/>
-					</Grid>
-					<Grid columns={ 3 } rowGap={ 32 }>
 						<ToggleGroupControl
-							label={ __( 'Style', 'newspack-plugin' ) }
-							value={ config.countdown_banner.style || 'light' }
-							onChange={ value => setConfig( { ...config, countdown_banner: { ...config.countdown_banner, style: value } } ) }
-							isBlock
-							__next40pxDefaultSize
-						>
-							<ToggleGroupControlOption label={ __( 'Light', 'newspack-plugin' ) } value="light" />
-							<ToggleGroupControlOption label={ __( 'Dark', 'newspack-plugin' ) } value="dark" />
-						</ToggleGroupControl>
-						<ToggleGroupControl
-							label={ __( 'Action', 'newspack-plugin' ) }
+							label={ __( 'Subscribe button action', 'newspack-plugin' ) }
 							help={ __(
 								'Whether the subscribe button should start a product checkout or redirect to a landing page.',
 								'newspack-plugin'
@@ -70,7 +58,7 @@ export default function CountdownBanner( { config, setConfig, updateConfig } ) {
 						</ToggleGroupControl>
 						{ config.countdown_banner.cta_type === 'product' && (
 							<SelectControl
-								label={ __( 'Product', 'newspack-plugin' ) }
+								label={ __( 'Subscribe button product', 'newspack-plugin' ) }
 								help={ __( 'Product linked to the subscribe button.', 'newspack-plugin' ) }
 								options={ [ { label: __( 'Select a product', 'newspack-plugin' ), value: 0, disabled: true }, ...availableProducts ] }
 								value={ config.countdown_banner.cta_product_id }
@@ -90,6 +78,16 @@ export default function CountdownBanner( { config, setConfig, updateConfig } ) {
 								__next40pxDefaultSize
 							/>
 						) }
+						<ToggleGroupControl
+							label={ __( 'Style', 'newspack-plugin' ) }
+							value={ config.countdown_banner.style || 'light' }
+							onChange={ value => setConfig( { ...config, countdown_banner: { ...config.countdown_banner, style: value } } ) }
+							isBlock
+							__next40pxDefaultSize
+						>
+							<ToggleGroupControlOption label={ __( 'Light', 'newspack-plugin' ) } value="light" />
+							<ToggleGroupControlOption label={ __( 'Dark', 'newspack-plugin' ) } value="dark" />
+						</ToggleGroupControl>
 						<div style={ { gridColumn: '1 / -1' } }>
 							<BaseControl id="newspack-countdown-banner-cta-preview" label={ __( 'Preview', 'newspack-plugin' ) }>
 								<div className="newspack-countdown-banner__cta-preview" inert="true">
