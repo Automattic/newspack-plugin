@@ -508,7 +508,9 @@ class Content_Gate {
 
 		// Wrap gate in a div for styling.
 		$gate = '<div class="newspack-content-gate__gate newspack-content-gate__inline-gate">' . $gate . '</div>';
-		return $gate;
+
+		// Strip line breaks and tabs.
+		return preg_replace( '/\s+/S', ' ', $gate );
 	}
 
 	/**
