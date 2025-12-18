@@ -1,5 +1,5 @@
 /**
- * Content Gate component.
+ * Content Gifting settings page.
  */
 
 /**
@@ -15,11 +15,10 @@ import { useWizardData } from '../../../../../packages/components/src/wizard/sto
 import { WIZARD_STORE_NAMESPACE } from '../../../../../packages/components/src/wizard/store';
 import { useWizardApiFetch } from '../../../hooks/use-wizard-api-fetch';
 import ContentGifting from '../setup/content-gifting';
-import CountdownBanner from '../setup/countdown-banner';
 import { AUDIENCE_CONTENT_GATES_WIZARD_SLUG } from './consts';
 import './style.scss';
 
-const ContentGateSettings = () => {
+const ContentGiftingSettings = () => {
 	const wizardData = useWizardData( AUDIENCE_CONTENT_GATES_WIZARD_SLUG ) as WizardData;
 	const { updateWizardSettings } = useDispatch( WIZARD_STORE_NAMESPACE );
 	const { wizardApiFetch, errorMessage, resetError } = useWizardApiFetch( AUDIENCE_CONTENT_GATES_WIZARD_SLUG );
@@ -53,9 +52,8 @@ const ContentGateSettings = () => {
 		<>
 			{ errorMessage && <Notice isError noticeText={ errorMessage } /> }
 			<ContentGifting config={ wizardData?.config || {} } setConfig={ onChange } updateConfig={ updateConfig } />
-			<CountdownBanner config={ wizardData?.config || {} } setConfig={ onChange } updateConfig={ updateConfig } />
 		</>
 	);
 };
 
-export default ContentGateSettings;
+export default ContentGiftingSettings;

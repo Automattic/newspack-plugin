@@ -1,3 +1,5 @@
+/* global newspackAudience */
+
 /**
  * WordPress dependencies
  */
@@ -13,9 +15,11 @@ import {
 	__experimentalToggleGroupControlOption as ToggleGroupControlOption,
 } from '@wordpress/components';
 
-import { ActionCard, Grid } from '../../../../../packages/components/src';
+import { ActionCard, Grid, Notice } from '../../../../../packages/components/src';
 
 export default function CountdownBanner( { config, setConfig, updateConfig } ) {
+	const hasMetering = newspackAudience?.content_gifting?.has_metering;
+
 	return (
 		<ActionCard
 			title={ __( 'Countdown Banner', 'newspack-plugin' ) }
@@ -27,6 +31,12 @@ export default function CountdownBanner( { config, setConfig, updateConfig } ) {
 		>
 			{ config.countdown_banner?.enabled && (
 				<>
+					{ ! hasMetering && (
+						<Notice
+							isWarning
+							noticeText={ __( 'Metering is not enabled. Countdown banner will not be displayed.', 'newspack-plugin' ) }
+						/>
+					) }
 					<Grid columns={ 2 } rowGap={ 16 }>
 						<TextControl
 							label={ __( 'Message', 'newspack-plugin' ) }
