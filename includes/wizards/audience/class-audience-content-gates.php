@@ -158,22 +158,65 @@ class Audience_Content_Gates extends Wizard {
 
 		register_rest_route(
 			NEWSPACK_API_NAMESPACE,
-			'/wizard/' . $this->slug . '/config',
+			'/wizard/' . $this->slug . '/content-gifting',
 			[
 				'methods'             => 'POST',
-				'callback'            => [ $this, 'update_config' ],
+				'callback'            => [ $this, 'update_content_gifting' ],
 				'permission_callback' => [ $this, 'api_permissions_check' ],
 				'args'                => [
-					'config' => [
-						'type'       => 'object',
-						'properties' => [
-							'countdown_banner' => [
-								'type' => 'object',
-							],
-							'content_gifting'  => [
-								'type' => 'object',
-							],
-						],
+					'button_label'         => [
+						'type' => 'string',
+					],
+					'cta_label'            => [
+						'type' => 'string',
+					],
+					'cta_url'              => [
+						'type' => 'string',
+					],
+					'enabled'              => [
+						'type' => 'boolean',
+					],
+					'expiration_time'      => [
+						'type' => 'integer',
+					],
+					'expiration_time_unit' => [
+						'type' => 'string',
+					],
+					'interval'             => [
+						'type' => 'string',
+					],
+					'limit'                => [
+						'type' => 'integer',
+					],
+					'style'                => [
+						'type' => 'string',
+					],
+				],
+			]
+		);
+
+		register_rest_route(
+			NEWSPACK_API_NAMESPACE,
+			'/wizard/' . $this->slug . '/countdown-banner',
+			[
+				'methods'             => 'POST',
+				'callback'            => [ $this, 'update_countdown_banner' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+				'args'                => [
+					'button_label' => [
+						'type' => 'string',
+					],
+					'cta_label'    => [
+						'type' => 'string',
+					],
+					'cta_url'      => [
+						'type' => 'string',
+					],
+					'enabled'      => [
+						'type' => 'boolean',
+					],
+					'style'        => [
+						'type' => 'string',
 					],
 				],
 			]
@@ -471,48 +514,56 @@ class Audience_Content_Gates extends Wizard {
 	}
 
 	/**
-	 * Update the config.
+	 * Update content gifting settings.
 	 *
 	 * @param \WP_REST_Request $request The request object.
 	 *
 	 * @return \WP_REST_Response|\WP_Error
 	 */
-	public function update_config( $request ) {
+	public function update_content_gifting( $request ) {
 		$args = $request->get_params();
 
-		if ( isset( $args['countdown_banner'] ) ) {
-			Metering_Countdown::update_settings( $args['countdown_banner'] );
+		if ( isset( $args['enabled'] ) ) {
+			Content_Gifting::set_enabled( (bool) $args['enabled'] );
 		}
-		if ( isset( $args['content_gifting'] ) ) {
-			if ( isset( $args['content_gifting']['enabled'] ) ) {
-				Content_Gifting::set_enabled( (bool) $args['content_gifting']['enabled'] );
-			}
-			if ( isset( $args['content_gifting']['limit'] ) ) {
-				Content_Gifting::set_gifting_limit( (int) $args['content_gifting']['limit'] );
-			}
-			if ( isset( $args['content_gifting']['expiration_time'] ) ) {
-				Content_Gifting::set_expiration_time( (int) $args['content_gifting']['expiration_time'] );
-			}
-			if ( isset( $args['content_gifting']['expiration_time_unit'] ) ) {
-				Content_Gifting::set_expiration_time_unit( sanitize_text_field( $args['content_gifting']['expiration_time_unit'] ) );
-			}
-			if ( isset( $args['content_gifting']['interval'] ) ) {
-				Content_Gifting::set_gifting_reset_interval( sanitize_text_field( $args['content_gifting']['interval'] ) );
-			}
-			if ( isset( $args['content_gifting']['cta_label'] ) ) {
-				Content_Gifting_CTA::set_cta_label( sanitize_text_field( $args['content_gifting']['cta_label'] ) );
-			}
-			if ( isset( $args['content_gifting']['button_label'] ) ) {
-				Content_Gifting_CTA::set_button_label( sanitize_text_field( $args['content_gifting']['button_label'] ) );
-			}
-			if ( isset( $args['content_gifting']['cta_url'] ) ) {
-				Content_Gifting_CTA::set_cta_url( sanitize_text_field( $args['content_gifting']['cta_url'] ) );
-			}
-			if ( isset( $args['content_gifting']['style'] ) ) {
-				Content_Gifting_CTA::set_style( sanitize_text_field( $args['content_gifting']['style'] ) );
-			}
+		if ( isset( $args['limit'] ) ) {
+			Content_Gifting::set_gifting_limit( (int) $args['limit'] );
 		}
-		return rest_ensure_response( self::get_config() );
+		if ( isset( $args['expiration_time'] ) ) {
+			Content_Gifting::set_expiration_time( (int) $args['expiration_time'] );
+		}
+		if ( isset( $args['expiration_time_unit'] ) ) {
+			Content_Gifting::set_expiration_time_unit( sanitize_text_field( $args['expiration_time_unit'] ) );
+		}
+		if ( isset( $args['interval'] ) ) {
+			Content_Gifting::set_gifting_reset_interval( sanitize_text_field( $args['interval'] ) );
+		}
+		if ( isset( $args['cta_label'] ) ) {
+			Content_Gifting_CTA::set_cta_label( sanitize_text_field( $args['cta_label'] ) );
+		}
+		if ( isset( $args['button_label'] ) ) {
+			Content_Gifting_CTA::set_button_label( sanitize_text_field( $args['button_label'] ) );
+		}
+		if ( isset( $args['cta_url'] ) ) {
+			Content_Gifting_CTA::set_cta_url( sanitize_text_field( $args['cta_url'] ) );
+		}
+		if ( isset( $args['style'] ) ) {
+			Content_Gifting_CTA::set_style( sanitize_text_field( $args['style'] ) );
+		}
+		return rest_ensure_response( Content_Gifting::get_settings() );
+	}
+
+	/**
+	 * Update countdown banner settings.
+	 *
+	 * @param \WP_REST_Request $request The request object.
+	 *
+	 * @return \WP_REST_Response|\WP_Error
+	 */
+	public function update_countdown_banner( $request ) {
+		$args = $request->get_params();
+		$updated = Metering_Countdown::update_settings( $args );
+		return rest_ensure_response( $updated );
 	}
 
 	/**

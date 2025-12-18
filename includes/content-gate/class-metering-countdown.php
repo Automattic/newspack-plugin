@@ -49,10 +49,10 @@ class Metering_Countdown {
 	public static function get_settings( $key = null ) {
 		$settings = self::get_default_settings();
 		if ( $key && isset( $settings[ $key ] ) ) {
-			return get_option( self::OPTION_PREFIX . $key, $settings[ $key ] );
+			return self::sanitize_setting( $key, get_option( self::OPTION_PREFIX . $key, $settings[ $key ] ) );
 		}
 		foreach ( $settings as $key => $value ) {
-			$settings[ $key ] = get_option( self::OPTION_PREFIX . $key, $value );
+			$settings[ $key ] = self::sanitize_setting( $key, get_option( self::OPTION_PREFIX . $key, $value ) );
 		}
 		return $settings;
 	}
@@ -93,6 +93,9 @@ class Metering_Countdown {
 	public static function update_settings( $settings ) {
 		$current_settings = self::get_settings();
 		foreach ( $settings as $key => $value ) {
+			if ( ! isset( $current_settings[ $key ] ) ) {
+				continue;
+			}
 			$sanitized = self::sanitize_setting( $key, $value );
 			if ( is_wp_error( $sanitized ) ) {
 				return $sanitized;

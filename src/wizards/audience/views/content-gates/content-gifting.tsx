@@ -35,14 +35,14 @@ const ContentGiftingSettings = () => {
 		resetError();
 		wizardApiFetch(
 			{
-				path: '/newspack/v1/wizard/newspack-audience-content-gates/config',
+				path: '/newspack/v1/wizard/newspack-audience-content-gates/content-gifting',
 				method: 'POST',
 				quiet: true,
-				data: newConfig,
+				data: newConfig.content_gifting,
 			},
 			{
 				onSuccess( data ) {
-					onChange( data.config );
+					onChange( { ...wizardData?.config, content_gifting: data } );
 				},
 			}
 		);

@@ -35,14 +35,14 @@ const CountdownBannerSettings = () => {
 		resetError();
 		wizardApiFetch(
 			{
-				path: '/newspack/v1/wizard/newspack-audience-content-gates/config',
+				path: '/newspack/v1/wizard/newspack-audience-content-gates/countdown-banner',
 				method: 'POST',
 				quiet: true,
-				data: newConfig,
+				data: newConfig.countdown_banner,
 			},
 			{
 				onSuccess( data ) {
-					onChange( data.config );
+					onChange( { ...wizardData?.config, countdown_banner: data } );
 				},
 			}
 		);
