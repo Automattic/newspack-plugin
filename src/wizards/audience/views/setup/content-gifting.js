@@ -27,6 +27,7 @@ export default function ContentGifting( { config, setConfig, updateConfig, noBor
 	return (
 		<ActionCard
 			title={ __( 'Content Gifting', 'newspack-plugin' ) }
+			heading={ noBorder ? 1 : 2 }
 			description={ __( 'Allow members to gift articles up to the configured limit.', 'newspack-plugin' ) }
 			toggleOnChange={ value => updateConfig( { content_gifting: { enabled: value } } ) }
 			toggleChecked={ config.content_gifting?.enabled }

@@ -36,6 +36,7 @@ const ActionCard = ( {
 	collapse,
 	disabled,
 	title,
+	heading = 2,
 	description,
 	handoff,
 	editLink,
@@ -121,6 +122,7 @@ const ActionCard = ( {
 	const hasInternalLink = href && href.indexOf( 'http' ) !== 0;
 	const isDisplayingSecondaryAction = secondaryActionText && onSecondaryActionClick;
 	const badges = ! Array.isArray( badge ) && badge ? [ badge ] : badge;
+	const HeadingTag = `h${ heading }`;
 
 	const cardContent = (
 		<>
@@ -151,7 +153,7 @@ const ActionCard = ( {
 				) }
 				<div className="newspack-action-card__region newspack-action-card__region-center">
 					<Grid columns={ 1 } gutter={ 8 } noMargin>
-						<h2>
+						<HeadingTag>
 							<span className="newspack-action-card__title" { ...titleProps }>
 								{ titleLink && <a href={ titleLink }>{ title }</a> }
 								{ ! titleLink && expandable && (
@@ -170,7 +172,7 @@ const ActionCard = ( {
 										{ badgeText }
 									</span>
 								) ) }
-						</h2>
+						</HeadingTag>
 						{ description && (
 							<p>
 								{ typeof description === 'string' && description }
