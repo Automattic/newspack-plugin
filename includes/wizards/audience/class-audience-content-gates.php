@@ -562,8 +562,7 @@ class Audience_Content_Gates extends Wizard {
 	 */
 	public function update_countdown_banner( $request ) {
 		$args = $request->get_params();
-		$updated = Metering_Countdown::update_settings( $args );
-		return rest_ensure_response( $updated );
+		return rest_ensure_response( Metering_Countdown::update_settings( $args ) );
 	}
 
 	/**
