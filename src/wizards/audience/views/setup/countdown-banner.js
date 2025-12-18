@@ -1,5 +1,3 @@
-/* global newspackAudience */
-
 /**
  * WordPress dependencies
  */
@@ -15,28 +13,21 @@ import {
 	__experimentalToggleGroupControlOption as ToggleGroupControlOption,
 } from '@wordpress/components';
 
-import { ActionCard, Grid, Notice } from '../../../../../packages/components/src';
+import { ActionCard, Grid } from '../../../../../packages/components/src';
 
-export default function CountdownBanner( { config, setConfig, updateConfig } ) {
-	const hasMetering = newspackAudience?.content_gifting?.has_metering;
-
+export default function CountdownBanner( { config, setConfig, updateConfig, noBorder = false } ) {
 	return (
 		<ActionCard
 			title={ __( 'Countdown Banner', 'newspack-plugin' ) }
 			description={ __( 'Show a countdown banner before content is restricted by a metered content gate.', 'newspack-plugin' ) }
 			toggleOnChange={ value => updateConfig( { countdown_banner: { enabled: value } } ) }
 			toggleChecked={ config.countdown_banner?.enabled }
-			hasGreyHeader={ config.countdown_banner?.enabled }
+			hasGreyHeader={ ! noBorder && config.countdown_banner?.enabled }
 			togglePosition="trailing"
+			noBorder={ noBorder }
 		>
 			{ config.countdown_banner?.enabled && (
 				<>
-					{ ! hasMetering && (
-						<Notice
-							isWarning
-							noticeText={ __( 'Metering is not enabled. Countdown banner will not be displayed.', 'newspack-plugin' ) }
-						/>
-					) }
 					<Grid columns={ 2 } rowGap={ 16 }>
 						<TextControl
 							label={ __( 'Message', 'newspack-plugin' ) }

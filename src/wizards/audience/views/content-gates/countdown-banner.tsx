@@ -51,7 +51,7 @@ const CountdownBannerSettings = () => {
 	return (
 		<>
 			{ errorMessage && <Notice isError noticeText={ errorMessage } /> }
-			<CountdownBanner config={ wizardData?.config || {} } setConfig={ onChange } updateConfig={ updateConfig } />
+			<CountdownBanner config={ wizardData?.config || {} } setConfig={ onChange } updateConfig={ updateConfig } noBorder />
 		</>
 	);
 };

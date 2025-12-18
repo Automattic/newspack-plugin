@@ -51,7 +51,7 @@ const ContentGiftingSettings = () => {
 	return (
 		<>
 			{ errorMessage && <Notice isError noticeText={ errorMessage } /> }
-			<ContentGifting config={ wizardData?.config || {} } setConfig={ onChange } updateConfig={ updateConfig } />
+			<ContentGifting config={ wizardData?.config || {} } setConfig={ onChange } updateConfig={ updateConfig } noBorder />
 		</>
 	);
 };

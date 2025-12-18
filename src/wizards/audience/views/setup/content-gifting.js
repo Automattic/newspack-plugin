@@ -20,7 +20,7 @@ import {
 } from '@wordpress/components';
 import { ActionCard, Grid, Notice } from '../../../../../packages/components/src';
 
-export default function ContentGifting( { config, setConfig, updateConfig } ) {
+export default function ContentGifting( { config, setConfig, updateConfig, noBorder = false } ) {
 	const giftingErrors = Object.values( newspackAudience?.content_gifting?.can_use_gifting?.errors || {} ).flat();
 	const hasMetering = newspackAudience?.content_gifting?.has_metering;
 
@@ -30,8 +30,9 @@ export default function ContentGifting( { config, setConfig, updateConfig } ) {
 			description={ __( 'Allow members to gift articles up to the configured limit.', 'newspack-plugin' ) }
 			toggleOnChange={ value => updateConfig( { content_gifting: { enabled: value } } ) }
 			toggleChecked={ config.content_gifting?.enabled }
-			hasGreyHeader={ config.content_gifting?.enabled }
+			hasGreyHeader={ ! noBorder && config.content_gifting?.enabled }
 			togglePosition="trailing"
+			noBorder={ noBorder }
 		>
 			{ config.content_gifting?.enabled && (
 				<>
