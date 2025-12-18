@@ -468,10 +468,10 @@ class InDesign_Converter {
 
 			$tag_content .= "\r\n";
 			if ( $caption ) {
-				$tag_content .= '<pstyle:PhotoCaption>' . $caption . "\r\n";
+				$tag_content .= '<pstyle:PhotoCaption>' . $this->get_transformed_text( $caption ) . "\r\n";
 			}
 			if ( $credit ) {
-				$tag_content .= '<pstyle:PhotoCredit>' . $credit . "\r\n";
+				$tag_content .= '<pstyle:PhotoCredit>' . $this->get_transformed_text( $credit ) . "\r\n";
 			}
 		}
 

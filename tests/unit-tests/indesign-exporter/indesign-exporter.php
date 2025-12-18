@@ -277,4 +277,30 @@ class Newspack_Test_InDesign_Exporter extends WP_UnitTestCase {
 		$content = $converter->convert_post( $post_id );
 		$this->assertStringContainsString( '<pstyle:hr>', $content );
 	}
+
+	/**
+	 * Test image caption and credit special characters.
+	 */
+	public function test_image_caption_and_credit_special_characters() {
+		$image_id = $this->factory->attachment->create();
+		wp_update_post(
+			[
+				'ID'           => $image_id,
+				'post_excerpt' => 'Image Caption with á é í ó ú ñ ç ð ð &nbsp;, &amp;, &lt;, &gt; and •.',
+			]
+		);
+		update_post_meta( $image_id, '_media_credit', 'Image Credit with á é í ó ú ñ ç ð ð &nbsp;, &amp;, &lt;, &gt; and •.' );
+
+		$post_id = $this->factory->post->create(
+			[
+				'post_title'   => 'Test Post',
+				'post_content' => '<!-- wp:image {"id":' . $image_id . '} --><figure class="wp-block-image"><img src="http://localhost/wp-content/uploads/2025/01/image.jpg" /><figcaption class="wp-element-caption">Image Caption with á é í ó ú ñ ç ð ð &nbsp;, &amp;, &lt;, &gt; and •.</figcaption></figure><!-- /wp:image -->',
+			]
+		);
+
+		$converter = new InDesign_Converter();
+		$content = $converter->convert_post( $post_id );
+		$this->assertStringContainsString( '<pstyle:PhotoCaption>Image Caption with <0x00E1> <0x00E9> <0x00ED> <0x00F3> <0x00FA> <0x00F1> <0x00E7> <0x00F0> <0x00F0>  , &, <, > and <CharStyle:bullet>n<CharStyle:>.', $content );
+		$this->assertStringContainsString( '<pstyle:PhotoCredit>Image Credit with <0x00E1> <0x00E9> <0x00ED> <0x00F3> <0x00FA> <0x00F1> <0x00E7> <0x00F0> <0x00F0>  , &, <, > and <CharStyle:bullet>n<CharStyle:>.', $content );
+	}
 }

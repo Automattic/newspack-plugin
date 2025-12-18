@@ -50,12 +50,15 @@ type GateAccessRuleControlProps = {
 type GateContentRule = {
 	slug: string;
 	value: string[];
+	exclusion?: boolean;
 };
 
 type GateContentRuleControlProps = {
 	slug: string;
 	value: GateContentRuleValue;
+	exclusion?: boolean;
 	onChange: (value: GateContentRuleValue) => void;
+	onChangeExclusion?: (value: boolean) => void;
 };
 
 type GateStatus = 'publish' | 'draft' | 'pending' | 'future' | 'private' | 'trash';

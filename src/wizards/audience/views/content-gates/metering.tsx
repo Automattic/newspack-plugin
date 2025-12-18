@@ -1,13 +1,13 @@
 /**
  * WordPress dependencies.
  */
-import { SelectControl, CheckboxControl, TextControl } from '@wordpress/components';
+import { CheckboxControl, __experimentalNumberControl as NumberControl } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
 import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
  */
-import { ActionCard, Card, Grid } from '../../../../../packages/components/src';
+import { ActionCard, Card, Grid, Notice, SelectControl } from '../../../../../packages/components/src';
 
 interface MeteringProps {
 	metering: Metering;
@@ -29,27 +29,36 @@ export default function Metering( { metering, onChange }: MeteringProps ) {
 					checked={ metering.enabled }
 					onChange={ () => onChange( prevMetering => ( { ...prevMetering, enabled: ! prevMetering.enabled } ) ) }
 				/>
+				{ metering.enabled && parseInt( metering.anonymous_count ) === 0 && parseInt( metering.registered_count ) === 0 && (
+					<Notice
+						isWarning
+						noticeText={ __(
+							'Metering is enabled but no views are available. Content will be gated for all readers.',
+							'newspack-plugin'
+						) }
+					/>
+				) }
 			</Card>
 			{ metering.enabled && (
 				<Grid columns={ 2 } gutter={ 32 } noMargin={ true }>
-					<TextControl
-						type={ 'number' }
+					<NumberControl
 						label={ __( 'Free views for anonymous viewers', 'newspack-plugin' ) }
 						help={ __(
 							'Number of times an anonymous reader can view gated content. If set to 0, anonymous readers will always render the gate.',
 							'newspack-plugin'
 						) }
-						value={ metering.anonymous_count }
+						min={ 0 }
+						value={ parseInt( metering.anonymous_count ) }
 						onChange={ v => onChange( prevMetering => ( { ...prevMetering, anonymous_count: parseInt( v ) } ) ) }
 					/>
-					<TextControl
-						type={ 'number' }
+					<NumberControl
 						label={ __( 'Free views for registered viewers', 'newspack-plugin' ) }
 						help={ __(
 							'Number of times a registered reader can view gated content. If set to 0, registered readers will always render the gate.',
 							'newspack-plugin'
 						) }
-						value={ metering.registered_count }
+						min={ 0 }
+						value={ parseInt( metering.registered_count ) }
 						onChange={ v => onChange( prevMetering => ( { ...prevMetering, registered_count: parseInt( v ) } ) ) }
 					/>
 					<SelectControl
