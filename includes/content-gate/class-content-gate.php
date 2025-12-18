@@ -16,6 +16,8 @@ defined( 'ABSPATH' ) || exit;
  */
 class Content_Gate {
 
+	use Content_Gate_Layout;
+
 	const GATE_CPT = 'np_content_gate';
 
 	/**
@@ -230,71 +232,14 @@ class Content_Gate {
 	 * Register post type for custom gate.
 	 */
 	public static function register_post_type() {
-		\register_post_type(
-			self::GATE_CPT,
-			[
-				'label'        => __( 'Content Gate', 'newspack' ),
-				'labels'       => [
-					'item_published'         => __( 'Content Gate published.', 'newspack' ),
-					'item_reverted_to_draft' => __( 'Content Gate reverted to draft.', 'newspack' ),
-					'item_updated'           => __( 'Content Gate updated.', 'newspack' ),
-					'new_item'               => __( 'New Content Gate', 'newspack' ),
-					'edit_item'              => __( 'Edit Content Gate', 'newspack' ),
-					'view_item'              => __( 'View Content Gate', 'newspack' ),
-				],
-				'public'       => false,
-				'show_ui'      => true,
-				'show_in_menu' => false,
-				'show_in_rest' => true,
-				'supports'     => [ 'editor', 'custom-fields', 'revisions', 'title' ],
-			]
-		);
+		self::register_gate_post_type( self::GATE_CPT, __( 'Content Gate', 'newspack' ) );
 	}
 
 	/**
 	 * Register gate meta.
 	 */
 	public static function register_meta() {
-		$meta = [
-			'style'              => [
-				'type'    => 'string',
-				'default' => 'inline',
-			],
-			'inline_fade'        => [
-				'type'    => 'boolean',
-				'default' => true,
-			],
-			'use_more_tag'       => [
-				'type'    => 'boolean',
-				'default' => true,
-			],
-			'visible_paragraphs' => [
-				'type'    => 'integer',
-				'default' => 2,
-			],
-			'overlay_position'   => [
-				'type'    => 'string',
-				'default' => 'center',
-			],
-			'overlay_size'       => [
-				'type'    => 'string',
-				'default' => 'medium',
-			],
-		];
-
-		foreach ( $meta as $key => $config ) {
-			\register_meta(
-				'post',
-				$key,
-				[
-					'object_subtype' => self::GATE_CPT,
-					'show_in_rest'   => $config['show_in_rest'] ?? true,
-					'type'           => $config['type'],
-					'default'        => $config['default'],
-					'single'         => true,
-				]
-			);
-		}
+		self::register_layout_meta( self::GATE_CPT );
 	}
 
 	/**
@@ -507,23 +452,7 @@ class Content_Gate {
 	 */
 	public static function get_inline_gate_content() {
 		$gate_post_id = self::get_gate_post_id();
-		$style        = \get_post_meta( $gate_post_id, 'style', true );
-		if ( 'inline' !== $style ) {
-			return '';
-		}
-		$gate = \get_the_content( null, false, \get_post( $gate_post_id ) );
-
-		// Add clearfix to the gate.
-		$gate = '<div style=\'content:"";clear:both;display:table;\'></div>' . $gate;
-
-		// Apply inline fade.
-		if ( \get_post_meta( $gate_post_id, 'inline_fade', true ) ) {
-			$gate = '<div style="pointer-events: none; height: 10em; margin-top: -10em; width: 100%; position: absolute; background: linear-gradient(180deg, rgba(255,255,255,0) 14%, rgba(255,255,255,1) 76%);"></div>' . $gate;
-		}
-
-		// Wrap gate in a div for styling.
-		$gate = '<div class="newspack-content-gate__gate newspack-content-gate__inline-gate">' . $gate . '</div>';
-		return $gate;
+		return self::get_inline_gate_content_for_post( $gate_post_id );
 	}
 
 	/**
@@ -546,30 +475,7 @@ class Content_Gate {
 		self::$is_gated = true;
 
 		$gate_post_id = self::get_gate_post_id();
-
-		$content = $post->post_content;
-
-		$style = \get_post_meta( $gate_post_id, 'style', true );
-
-		$use_more_tag = get_post_meta( $gate_post_id, 'use_more_tag', true );
-		// Use <!--more--> as threshold if it exists.
-		if ( $use_more_tag && strpos( $content, '<!--more-->' ) ) {
-			$content = apply_filters( 'newspack_gate_content', explode( '<!--more-->', $content )[0] );
-		} else {
-			$content = apply_filters( 'newspack_gate_content', $content );
-			$count   = max( 1, (int) get_post_meta( $gate_post_id, 'visible_paragraphs', true ) );
-			// Split into paragraphs.
-			$content = explode( '</p>', $content );
-			// Extract the first $x paragraphs only.
-			$content = array_slice( $content, 0, $count ?? 2 );
-			if ( 'overlay' === $style ) {
-				// Append ellipsis to the last paragraph.
-				$content[ count( $content ) - 1 ] .= ' [&hellip;]';
-			}
-			// Rejoin the paragraphs into a single string again.
-			$content = \force_balance_tags( \wp_kses_post( implode( '</p>', $content ) . '</p>' ) );
-		}
-		return $content;
+		return self::get_restricted_post_excerpt_for_gate( $post, $gate_post_id );
 	}
 
 	/**
@@ -608,17 +514,9 @@ class Content_Gate {
 		$_post = $post;
 		$post  = \get_post( $gate_post_id ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 		setup_postdata( $post );
-		$position = \get_post_meta( $gate_post_id, 'overlay_position', true );
-		$size     = \get_post_meta( $gate_post_id, 'overlay_size', true );
-		?>
-		<div class="newspack-content-gate__gate newspack-content-gate__overlay-gate" style="display:none;" data-position="<?php echo \esc_attr( $position ); ?>" data-size="<?php echo \esc_attr( $size ); ?>">
-			<div class="newspack-content-gate__overlay-gate__container">
-				<div class="newspack-content-gate__overlay-gate__content">
-					<?php echo \apply_filters( 'newspack_gate_content', \get_the_content( null, null, $gate_post_id ) );  // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
-				</div>
-			</div>
-		</div>
-		<?php
+
+		self::render_overlay_gate_html( $gate_post_id );
+
 		self::mark_gate_as_rendered();
 		wp_reset_postdata();
 		$post = $_post; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
