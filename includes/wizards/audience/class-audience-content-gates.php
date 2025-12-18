@@ -105,7 +105,7 @@ class Audience_Content_Gates extends Wizard {
 			[
 				'content_gifting' => [
 					'can_use_gifting' => Content_Gifting::can_use_gifting(),
-					'has_metering'    => Content_Gate::has_metering(),
+					'has_metering'    => Content_Gate::is_metering_enabled(),
 				],
 			]
 		);
