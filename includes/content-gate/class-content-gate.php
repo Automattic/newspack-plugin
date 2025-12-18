@@ -205,7 +205,7 @@ class Content_Gate {
 	 * @return string
 	 */
 	public static function restore_wpautop_hook( $content ) {
-		$current_priority = has_filter( 'newspack_gate_content', '_restore_wpautop_hook' );
+		$current_priority = has_filter( 'newspack_gate_content', [ __CLASS__, 'restore_wpautop_hook' ] );
 
 		add_filter( 'newspack_gate_content', 'wpautop', $current_priority - 1 );
 		remove_filter( 'newspack_gate_content', [ __CLASS__, 'restore_wpautop_hook' ], $current_priority );
