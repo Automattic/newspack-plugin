@@ -1,3 +1,10 @@
+## [6.27.4](https://github.com/Automattic/newspack-plugin/compare/v6.27.3...v6.27.4) (2025-12-17)
+
+
+### Bug Fixes
+
+* less aggressive free trial abuse prevention ([#4365](https://github.com/Automattic/newspack-plugin/issues/4365)) ([c613622](https://github.com/Automattic/newspack-plugin/commit/c6136228d3ec06865d5dbfc303435ca7d2a686f9))
+
 ## [6.27.3](https://github.com/Automattic/newspack-plugin/compare/v6.27.2...v6.27.3) (2025-12-16)
 
 

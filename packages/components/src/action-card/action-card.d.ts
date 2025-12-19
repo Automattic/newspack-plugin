@@ -14,6 +14,7 @@ export interface ActionCardProps {
 	isMedium?: boolean;
 	disabled?: boolean | string;
 	hasGreyHeader?: boolean;
+	heading?: number;
 	toggleChecked?: boolean;
 	toggleOnChange?: (a: boolean) => void;
 	togglePosition?: 'leading' | 'trailing';

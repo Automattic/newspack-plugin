@@ -5,9 +5,6 @@
 @use "~@wordpress/base-styles/colors" as wp-colors;
 
 .audience_page_newspack-audience-content-gates {
-	.newspack-card:not(.newspack-settings__no-border) .newspack-action-card__region-children > .newspack-grid {
-		margin-top: 0 !important;
-	}
 	.newspack-content-gates {
 		&__title {
 			margin: 0;

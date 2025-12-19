@@ -256,7 +256,7 @@ class WooCommerce_Subscriptions {
 		if ( $trial_length && $user_id && $product && $product->is_type( [ 'subscription', 'subscription_variation', 'variable-subscription' ] ) ) {
 			$user_subscriptions = array_values( \wcs_get_users_subscriptions( $user_id ) );
 			foreach ( $user_subscriptions as $subscription ) {
-				if ( $subscription->has_product( $product->get_id() ) ) {
+				if ( $subscription->has_product( $product->get_id() ) && 'trash' !== $subscription->get_status() ) {
 					return 0;
 				}
 			}

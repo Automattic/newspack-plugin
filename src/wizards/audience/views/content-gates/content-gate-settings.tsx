@@ -58,7 +58,7 @@ export default function ContentGateSettings( { gate, onDelete, onSave }: Content
 				},
 			}
 		);
-	}, [ gate, accessRules, contentRules, metering, status, wizardApiFetch, onSave ] );
+	}, [ accessRules, contentRules, metering, status ] );
 
 	// Update status and trigger save.
 	useEffect( () => {
@@ -68,20 +68,20 @@ export default function ContentGateSettings( { gate, onDelete, onSave }: Content
 		handleSave();
 	}, [ isEditingStatus, status, handleSave ] );
 
-	const handleDelete = useCallback( () => onDelete( gate.id ), [ gate.id, onDelete ] );
-	const handleRestore = useCallback( () => {
+	const handleDelete = () => onDelete( gate.id );
+	const handleRestore = () => {
 		setIsEditingStatus( true );
 		setStatus( 'draft' );
-	}, [] );
+	};
 
-	const handlePublish = useCallback( () => {
+	const handlePublish = () => {
 		// eslint-disable-next-line no-alert
 		if ( ! confirm( __( 'Are you sure you want to publish this content gate?', 'newspack-plugin' ) ) ) {
 			return;
 		}
 		setIsEditingStatus( true );
 		setStatus( 'publish' );
-	}, [] );
+	};
 
 	return (
 		<>

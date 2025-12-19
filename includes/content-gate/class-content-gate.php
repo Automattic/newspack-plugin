@@ -90,6 +90,9 @@ class Content_Gate {
 	 * @param \WP_Query $query Query object.
 	 */
 	public static function restrict_post( $post, $query ) {
+		if ( self::has_rendered() ) {
+			return;
+		}
 		if ( ! $query->is_main_query() ) {
 			return;
 		}
@@ -189,10 +192,25 @@ class Content_Gate {
 		$priority = has_filter( 'newspack_gate_content', 'wpautop' );
 		if ( false !== $priority && doing_filter( 'newspack_gate_content' ) && has_blocks( $content ) ) {
 			remove_filter( 'newspack_gate_content', 'wpautop', $priority );
-			add_filter( 'newspack_gate_content', '_restore_wpautop_hook', $priority + 1 );
+			add_filter( 'newspack_gate_content', [ __CLASS__, 'restore_wpautop_hook' ], $priority + 1 );
 		}
 
 		return $output;
+	}
+
+	/**
+	 * _restore_wpautop_hook filter, but for the newspack_gate_content filter instead of the_content
+	 *
+	 * @param string $content Content.
+	 * @return string
+	 */
+	public static function restore_wpautop_hook( $content ) {
+		$current_priority = has_filter( 'newspack_gate_content', [ __CLASS__, 'restore_wpautop_hook' ] );
+
+		add_filter( 'newspack_gate_content', 'wpautop', $current_priority - 1 );
+		remove_filter( 'newspack_gate_content', [ __CLASS__, 'restore_wpautop_hook' ], $current_priority );
+
+		return $content;
 	}
 
 	/**
@@ -421,6 +439,23 @@ class Content_Gate {
 	public static function has_gate() {
 		$post_id = self::get_gate_post_id();
 		return $post_id && 'publish' === get_post_status( $post_id );
+	}
+
+	/**
+	 * Whether any gates of the given type has metering enabled.
+	 *
+	 * @param string $post_type Post type.
+	 *
+	 * @return bool
+	 */
+	public static function is_metering_enabled( $post_type = self::GATE_CPT ) {
+		$gates = self::get_gates( $post_type );
+		foreach ( $gates as $gate ) {
+			if ( $gate['metering']['enabled'] ) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/**

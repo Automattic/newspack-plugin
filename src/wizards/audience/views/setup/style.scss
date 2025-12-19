@@ -1,6 +1,6 @@
 @use "~@wordpress/base-styles/colors" as wp-colors;
 
-.newspack-card:not(.newspack-settings__no-border) .newspack-action-card__region-children > .newspack-grid.newspack-ras-campaign__grid {
+.newspack-content-gates__gate .newspack-card:not(.newspack-settings__no-border) .newspack-action-card__region-children > .newspack-grid.newspack-ras-campaign__grid {
 	margin-top: 0 !important;
 }
 

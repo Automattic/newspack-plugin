@@ -15,6 +15,8 @@ import { forwardRef } from '@wordpress/element';
  */
 import { Wizard, withWizard } from '../../../../../packages/components/src';
 import ContentGates from './content-gates';
+import ContentGiftingSettings from './content-gifting';
+import CountdownBannerSettings from './countdown-banner';
 import { AUDIENCE_CONTENT_GATES_WIZARD_SLUG } from './consts';
 
 const AudienceContentGates = ( props, ref ) => {
@@ -27,9 +29,19 @@ const AudienceContentGates = ( props, ref ) => {
 			ref={ ref }
 			sections={ [
 				{
-					label: __( 'Content Gate', 'newspack-plugin' ),
+					label: __( 'Content Gates', 'newspack-plugin' ),
 					path: '/content-gates',
 					render: ContentGates,
+				},
+				{
+					label: __( 'Content Gifting', 'newspack-plugin' ),
+					path: '/content-gifting',
+					render: ContentGiftingSettings,
+				},
+				{
+					label: __( 'Metered Countdown', 'newspack-plugin' ),
+					path: '/metered-countdown',
+					render: CountdownBannerSettings,
 				},
 			] }
 		/>

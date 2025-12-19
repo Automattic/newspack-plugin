@@ -50,12 +50,15 @@ type GateAccessRuleControlProps = {
 type GateContentRule = {
 	slug: string;
 	value: string[];
+	exclusion?: boolean;
 };
 
 type GateContentRuleControlProps = {
 	slug: string;
 	value: GateContentRuleValue;
+	exclusion?: boolean;
 	onChange: (value: GateContentRuleValue) => void;
+	onChangeExclusion?: (value: boolean) => void;
 };
 
 type GateStatus = 'publish' | 'draft' | 'pending' | 'future' | 'private' | 'trash';
@@ -71,4 +74,32 @@ type Gate = {
 	status: GateStatus;
 	isExpanded?: boolean;
 	collapse?: boolean;
+};
+
+type ContentGiftingConfig = {
+	enabled: boolean;
+	limit: number;
+	interval: string;
+	expiration_time: number;
+	expiration_time_unit: string;
+	cta_label: string;
+	button_label: string;
+};
+
+type MeteringCountdownConfig = {
+	enabled: boolean;
+	style: string;
+	cta_label: string;
+	button_label: string;
+	cta_url: string;
+};
+
+type GateSettings = {
+	content_gifting?: ContentGiftingConfig;
+	countdown_banner?: MeteringCountdownConfig;
+};
+
+type GateConfig = {
+	gates: Gate[];
+	config: GateSettings
 };
