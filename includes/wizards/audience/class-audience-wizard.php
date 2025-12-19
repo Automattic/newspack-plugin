@@ -10,8 +10,7 @@ namespace Newspack;
 use Newspack\{
 	Memberships,
 	Newsletters,
-	Reader_Activation,
-	Access_Rules
+	Reader_Activation
 };
 use Newspack_Newsletters_Subscription;
 use WP_Error, WP_REST_Request, WP_REST_Response, WP_REST_Server;
@@ -89,7 +88,7 @@ class Audience_Wizard extends Wizard {
 			'esp_metadata_fields'     => Reader_Activation\Sync\Metadata::get_default_fields(),
 			'can_use_salesforce'      => ! empty( $salesforce_settings['client_id'] ),
 			'salesforce_redirect_url' => Salesforce::get_redirect_url(),
-			'available_products'      => Access_Rules::get_subscription_products_options(),
+			'available_products'      => Content_Gate::get_purchasable_product_options(),
 		];
 
 		if ( method_exists( 'Newspack\Newsletters\Subscription_Lists', 'get_add_new_url' ) ) {

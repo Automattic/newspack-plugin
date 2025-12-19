@@ -103,12 +103,16 @@ class Audience_Content_Gates extends Wizard {
 			'newspack-wizards',
 			'newspackAudience',
 			[
-				'content_gifting' => [
+				'available_products' => Content_Gate::get_purchasable_product_options(),
+				'content_gifting'    => [
 					'can_use_gifting' => Content_Gifting::can_use_gifting(),
 					'has_metering'    => Content_Gate::is_metering_enabled(),
 				],
 			]
 		);
+
+		// Enqueue content banner CSS for previews.
+		wp_enqueue_style( 'newspack-content-banner', Newspack::plugin_url() . '/dist/content-banner.css', [], NEWSPACK_PLUGIN_VERSION );
 	}
 
 	/**
@@ -170,6 +174,12 @@ class Audience_Content_Gates extends Wizard {
 					'cta_label'            => [
 						'type' => 'string',
 					],
+					'cta_product_id'       => [
+						'type' => 'integer',
+					],
+					'cta_type'             => [
+						'type' => 'string',
+					],
 					'cta_url'              => [
 						'type' => 'string',
 					],
@@ -203,19 +213,25 @@ class Audience_Content_Gates extends Wizard {
 				'callback'            => [ $this, 'update_countdown_banner' ],
 				'permission_callback' => [ $this, 'api_permissions_check' ],
 				'args'                => [
-					'button_label' => [
+					'button_label'   => [
 						'type' => 'string',
 					],
-					'cta_label'    => [
+					'cta_label'      => [
 						'type' => 'string',
 					],
-					'cta_url'      => [
+					'cta_product_id' => [
+						'type' => 'integer',
+					],
+					'cta_type'       => [
 						'type' => 'string',
 					],
-					'enabled'      => [
+					'cta_url'        => [
+						'type' => 'string',
+					],
+					'enabled'        => [
 						'type' => 'boolean',
 					],
-					'style'        => [
+					'style'          => [
 						'type' => 'string',
 					],
 				],
@@ -543,6 +559,12 @@ class Audience_Content_Gates extends Wizard {
 		}
 		if ( isset( $args['button_label'] ) ) {
 			Content_Gifting_CTA::set_button_label( sanitize_text_field( $args['button_label'] ) );
+		}
+		if ( isset( $args['cta_type'] ) ) {
+			Content_Gifting_CTA::set_cta_type( sanitize_text_field( $args['cta_type'] ) );
+		}
+		if ( isset( $args['cta_product_id'] ) ) {
+			Content_Gifting_CTA::set_cta_product_id( (int) $args['cta_product_id'] );
 		}
 		if ( isset( $args['cta_url'] ) ) {
 			Content_Gifting_CTA::set_cta_url( sanitize_text_field( $args['cta_url'] ) );

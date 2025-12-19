@@ -104,6 +104,18 @@ export default function ContentGifting( { config, setConfig, updateConfig, noBor
 							onChange={ value => setConfig( { ...config, content_gifting: { ...config.content_gifting, button_label: value } } ) }
 							__next40pxDefaultSize
 						/>
+					</Grid>
+					<Grid columns={ 3 } rowGap={ 16 }>
+						<ToggleGroupControl
+							label={ __( 'Style', 'newspack-plugin' ) }
+							value={ config.content_gifting.style || 'light' }
+							onChange={ value => setConfig( { ...config, content_gifting: { ...config.content_gifting, style: value } } ) }
+							isBlock
+							__next40pxDefaultSize
+						>
+							<ToggleGroupControlOption label={ __( 'Light', 'newspack-plugin' ) } value="light" />
+							<ToggleGroupControlOption label={ __( 'Dark', 'newspack-plugin' ) } value="dark" />
+						</ToggleGroupControl>
 						<ToggleGroupControl
 							label={ __( 'Subscribe button action', 'newspack-plugin' ) }
 							help={ __(
@@ -140,16 +152,6 @@ export default function ContentGifting( { config, setConfig, updateConfig, noBor
 								__next40pxDefaultSize
 							/>
 						) }
-						<ToggleGroupControl
-							label={ __( 'Style', 'newspack-plugin' ) }
-							value={ config.content_gifting.style || 'light' }
-							onChange={ value => setConfig( { ...config, content_gifting: { ...config.content_gifting, style: value } } ) }
-							isBlock
-							__next40pxDefaultSize
-						>
-							<ToggleGroupControlOption label={ __( 'Light', 'newspack-plugin' ) } value="light" />
-							<ToggleGroupControlOption label={ __( 'Dark', 'newspack-plugin' ) } value="dark" />
-						</ToggleGroupControl>
 						<div style={ { gridColumn: '1 / -1' } }>
 							<BaseControl id="newspack-content-gifting-cta-preview" label={ __( 'Preview', 'newspack-plugin' ) }>
 								<div className="newspack-content-gifting__cta-preview" inert="true">

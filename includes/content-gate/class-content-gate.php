@@ -889,5 +889,26 @@ class Content_Gate {
 		}
 		return $gates;
 	}
+
+	/**
+	 * Get an array of tier-eligible subscription product options, formatted for select controls.
+	 *
+	 * @return array Array of subscription product options.
+	 *              [
+	 *                  'label' => Product Name,
+	 *                  'value' => product_id,
+	 *              ]
+	 */
+	public static function get_purchasable_product_options() {
+		return array_map(
+			function( $product ) {
+				return [
+					'label' => $product->get_name(),
+					'value' => (int) $product->get_id(),
+				];
+			},
+			Subscriptions_Tiers::get_tier_eligible_products()
+		);
+	}
 }
 Content_Gate::init();
