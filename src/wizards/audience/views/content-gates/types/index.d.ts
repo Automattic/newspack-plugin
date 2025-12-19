@@ -75,3 +75,31 @@ type Gate = {
 	isExpanded?: boolean;
 	collapse?: boolean;
 };
+
+type ContentGiftingConfig = {
+	enabled: boolean;
+	limit: number;
+	interval: string;
+	expiration_time: number;
+	expiration_time_unit: string;
+	cta_label: string;
+	button_label: string;
+};
+
+type MeteringCountdownConfig = {
+	enabled: boolean;
+	style: string;
+	cta_label: string;
+	button_label: string;
+	cta_url: string;
+};
+
+type GateSettings = {
+	content_gifting?: ContentGiftingConfig;
+	countdown_banner?: MeteringCountdownConfig;
+};
+
+type GateConfig = {
+	gates: Gate[];
+	config: GateSettings
+};

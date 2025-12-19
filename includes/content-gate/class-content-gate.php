@@ -369,6 +369,23 @@ class Content_Gate {
 	}
 
 	/**
+	 * Whether any gates of the given type has metering enabled.
+	 *
+	 * @param string $post_type Post type.
+	 *
+	 * @return bool
+	 */
+	public static function is_metering_enabled( $post_type = self::GATE_CPT ) {
+		$gates = self::get_gates( $post_type );
+		foreach ( $gates as $gate ) {
+			if ( $gate['metering']['enabled'] ) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
 	 * Public method for marking the gate as rendered.
 	 */
 	public static function mark_gate_as_rendered() {

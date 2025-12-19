@@ -98,6 +98,17 @@ class Audience_Content_Gates extends Wizard {
 				'available_content_rules' => Content_Gate::get_content_rules(),
 			]
 		);
+
+		\wp_localize_script(
+			'newspack-wizards',
+			'newspackAudience',
+			[
+				'content_gifting' => [
+					'can_use_gifting' => Content_Gifting::can_use_gifting(),
+					'has_metering'    => Content_Gate::is_metering_enabled(),
+				],
+			]
+		);
 	}
 
 	/**
@@ -140,8 +151,74 @@ class Audience_Content_Gates extends Wizard {
 			'/wizard/' . $this->slug,
 			[
 				'methods'             => 'GET',
-				'callback'            => [ $this, 'get_gates' ],
+				'callback'            => [ $this, 'get_config' ],
 				'permission_callback' => [ $this, 'api_permissions_check' ],
+			]
+		);
+
+		register_rest_route(
+			NEWSPACK_API_NAMESPACE,
+			'/wizard/' . $this->slug . '/content-gifting',
+			[
+				'methods'             => 'POST',
+				'callback'            => [ $this, 'update_content_gifting' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+				'args'                => [
+					'button_label'         => [
+						'type' => 'string',
+					],
+					'cta_label'            => [
+						'type' => 'string',
+					],
+					'cta_url'              => [
+						'type' => 'string',
+					],
+					'enabled'              => [
+						'type' => 'boolean',
+					],
+					'expiration_time'      => [
+						'type' => 'integer',
+					],
+					'expiration_time_unit' => [
+						'type' => 'string',
+					],
+					'interval'             => [
+						'type' => 'string',
+					],
+					'limit'                => [
+						'type' => 'integer',
+					],
+					'style'                => [
+						'type' => 'string',
+					],
+				],
+			]
+		);
+
+		register_rest_route(
+			NEWSPACK_API_NAMESPACE,
+			'/wizard/' . $this->slug . '/countdown-banner',
+			[
+				'methods'             => 'POST',
+				'callback'            => [ $this, 'update_countdown_banner' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+				'args'                => [
+					'button_label' => [
+						'type' => 'string',
+					],
+					'cta_label'    => [
+						'type' => 'string',
+					],
+					'cta_url'      => [
+						'type' => 'string',
+					],
+					'enabled'      => [
+						'type' => 'boolean',
+					],
+					'style'        => [
+						'type' => 'string',
+					],
+				],
 			]
 		);
 
@@ -425,8 +502,67 @@ class Audience_Content_Gates extends Wizard {
 	 *
 	 * @return \WP_REST_Response
 	 */
-	public function get_gates() {
-		return rest_ensure_response( Content_Gate::get_gates() );
+	public function get_config() {
+		$config = [
+			'gates'  => Content_Gate::get_gates(),
+			'config' => [
+				'countdown_banner' => Metering_Countdown::get_settings(),
+				'content_gifting'  => Content_Gifting::get_settings(),
+			],
+		];
+		return rest_ensure_response( $config );
+	}
+
+	/**
+	 * Update content gifting settings.
+	 *
+	 * @param \WP_REST_Request $request The request object.
+	 *
+	 * @return \WP_REST_Response|\WP_Error
+	 */
+	public function update_content_gifting( $request ) {
+		$args = $request->get_params();
+
+		if ( isset( $args['enabled'] ) ) {
+			Content_Gifting::set_enabled( (bool) $args['enabled'] );
+		}
+		if ( isset( $args['limit'] ) ) {
+			Content_Gifting::set_gifting_limit( (int) $args['limit'] );
+		}
+		if ( isset( $args['expiration_time'] ) ) {
+			Content_Gifting::set_expiration_time( (int) $args['expiration_time'] );
+		}
+		if ( isset( $args['expiration_time_unit'] ) ) {
+			Content_Gifting::set_expiration_time_unit( sanitize_text_field( $args['expiration_time_unit'] ) );
+		}
+		if ( isset( $args['interval'] ) ) {
+			Content_Gifting::set_gifting_reset_interval( sanitize_text_field( $args['interval'] ) );
+		}
+		if ( isset( $args['cta_label'] ) ) {
+			Content_Gifting_CTA::set_cta_label( sanitize_text_field( $args['cta_label'] ) );
+		}
+		if ( isset( $args['button_label'] ) ) {
+			Content_Gifting_CTA::set_button_label( sanitize_text_field( $args['button_label'] ) );
+		}
+		if ( isset( $args['cta_url'] ) ) {
+			Content_Gifting_CTA::set_cta_url( sanitize_text_field( $args['cta_url'] ) );
+		}
+		if ( isset( $args['style'] ) ) {
+			Content_Gifting_CTA::set_style( sanitize_text_field( $args['style'] ) );
+		}
+		return rest_ensure_response( Content_Gifting::get_settings() );
+	}
+
+	/**
+	 * Update countdown banner settings.
+	 *
+	 * @param \WP_REST_Request $request The request object.
+	 *
+	 * @return \WP_REST_Response|\WP_Error
+	 */
+	public function update_countdown_banner( $request ) {
+		$args = $request->get_params();
+		return rest_ensure_response( Metering_Countdown::update_settings( $args ) );
 	}
 
 	/**
