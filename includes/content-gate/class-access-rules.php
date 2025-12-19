@@ -213,11 +213,10 @@ class Access_Rules {
 		}
 		$products = \wc_get_products(
 			[
-				'type'  => [ 'variable-subscription', 'subscription' ],
+				'type'  => [ 'subscription', 'variable-subscription' ],
 				'limit' => -1,
 			]
 		);
-
 		$options = [];
 		foreach ( $products as $product ) {
 			$options[] = [
