@@ -18,7 +18,7 @@ export default function CountdownBanner( { config, setConfig, updateConfig, noBo
 	const availableProducts = newspackAudience?.available_products || [];
 	return (
 		<ActionCard
-			title={ __( 'Countdown Banner', 'newspack-plugin' ) }
+			title={ __( 'Metered Countdown', 'newspack-plugin' ) }
 			heading={ noBorder ? 1 : 2 }
 			description={ __( 'Show a countdown banner before content is restricted by a metered content gate.', 'newspack-plugin' ) }
 			toggleOnChange={ value => updateConfig( { countdown_banner: { enabled: value } } ) }
