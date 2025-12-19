@@ -907,7 +907,7 @@ class Content_Gate {
 					'value' => (int) $product->get_id(),
 				];
 			},
-			Subscriptions_Tiers::get_tier_eligible_products()
+			Subscriptions_Tiers::get_tier_eligible_products( [ 'grouped','subscription', 'variable-subscription' ] )
 		);
 	}
 }
