@@ -126,6 +126,7 @@ final class Newspack {
 		include_once NEWSPACK_ABSPATH . 'includes/bylines/class-bylines.php';
 		include_once NEWSPACK_ABSPATH . 'includes/lite-site/class-lite-site.php';
 		include_once NEWSPACK_ABSPATH . 'includes/content-gate/class-content-gate.php';
+		include_once NEWSPACK_ABSPATH . 'includes/content-gate/class-group-subscriptions.php';
 
 		include_once NEWSPACK_ABSPATH . 'includes/starter_content/class-starter-content-provider.php';
 		include_once NEWSPACK_ABSPATH . 'includes/starter_content/class-starter-content-generated.php';
