@@ -5,7 +5,7 @@
 /**
  * WordPress dependencies
  */
-import { Fragment, useState, useEffect } from '@wordpress/element';
+import { Fragment, useState, useEffect, useMemo } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 
 /**
@@ -87,17 +87,24 @@ const PlacementControl = ( {
 } ) => {
 	const [ biddersErrors, setBiddersErrors ] = useState( {} );
 
-	// Default provider is GAM or first index if GAM is not active.
-	const placementProvider = providers.find( provider => provider?.id === ( value.provider || 'gam' ) ) || providers[ 0 ];
+	// Ensure incoming value is available otherwise reset to empty values.
+	const placementProvider = useMemo(
+		() => ( value.provider ? providers.find( provider => provider?.id === value.provider ) : null ),
+		[ providers, value.provider ]
+	);
+	const placementAdUnit = useMemo(
+		() => ( value.ad_unit ? ( placementProvider?.units || [] ).find( u => u.value === value.ad_unit ) : null ),
+		[ placementProvider, value.ad_unit ]
+	);
 
 	useEffect( () => {
 		const errors = {};
 		Object.keys( bidders ).forEach( bidderKey => {
 			const bidder = bidders[ bidderKey ];
-			const unit = placementProvider?.units.find( u => u.value === value.ad_unit );
-			const supported = value.ad_unit && unit && hasAnySize( bidder.ad_sizes, unit.sizes );
+			const unit = placementAdUnit;
+			const supported = placementAdUnit && unit && hasAnySize( bidder.ad_sizes, unit.sizes );
 			errors[ bidderKey ] =
-				! value.ad_unit || ! unit || supported
+				! placementAdUnit || ! unit || supported
 					? null
 					: sprintf(
 							// translators: %s: ad bidder name.
@@ -107,7 +114,7 @@ const PlacementControl = ( {
 					  );
 		} );
 		setBiddersErrors( errors );
-	}, [ providers, value.ad_unit ] );
+	}, [ placementProvider, placementAdUnit ] );
 
 	if ( ! providers.length ) {
 		return <Notice isWarning noticeText={ __( 'There is no provider available.', 'newspack-plugin' ) } />;
@@ -118,14 +125,14 @@ const PlacementControl = ( {
 			<Grid columns={ 2 } gutter={ 32 }>
 				<SelectControl
 					label={ __( 'Provider', 'newspack-plugin' ) }
-					value={ placementProvider?.id ?? '' }
+					value={ placementProvider ? placementProvider.id : '' }
 					options={ getProvidersForSelect( providers ) }
 					onChange={ provider => onChange( { ...value, provider } ) }
 					disabled={ disabled }
 				/>
 				<SelectControl
 					label={ label }
-					value={ value?.ad_unit ?? '' }
+					value={ placementAdUnit ? placementAdUnit.value : '' }
 					options={ getProviderUnitsForSelect( placementProvider ) }
 					onChange={ data => {
 						onChange( {
