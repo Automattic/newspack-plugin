@@ -268,7 +268,7 @@ When a user interacts with a Newspack Popup's campaign prompt.
 
 | Name               | Type     | Obs                                                                                                                                          |
 | ------------------ | -------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
-| `prompt_id`        | `int`    |                                                                                                                                              |
+| `newspack_popup_id`| `int`    |                                                                                                                                              |
 | `prompt_title`     | `string` |                                                                                                                                              |
 | `prompt_frequency` | `string` |                                                                                                                                              |
 | `prompt_placement` | `string` |                                                                                                                                              |
