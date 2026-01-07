@@ -37,7 +37,6 @@ class Memberships {
 	public static function init() {
 		// Hook into the Content Gate.
 		add_action( 'init', [ __CLASS__, 'register_post_type' ] );
-		add_action( 'init', [ __CLASS__, 'register_meta' ] );
 		add_action( 'admin_init', [ __CLASS__, 'handle_edit_plan_gate' ] );
 		add_action( 'admin_init', [ __CLASS__, 'handle_edit_gate' ] );
 		add_action( 'enqueue_block_editor_assets', [ __CLASS__, 'enqueue_block_editor_assets' ] );
@@ -80,14 +79,7 @@ class Memberships {
 	 * Register post type for custom gate.
 	 */
 	public static function register_post_type() {
-		self::register_gate_post_type( self::GATE_CPT, __( 'Memberships Gate', 'newspack' ) );
-	}
-
-	/**
-	 * Register gate meta.
-	 */
-	public static function register_meta() {
-		self::register_layout_meta( self::GATE_CPT );
+		self::register_layout_post_type( self::GATE_CPT, __( 'Memberships Gate', 'newspack' ) );
 	}
 
 	/**

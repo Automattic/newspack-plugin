@@ -40,7 +40,6 @@ class Access_Rules {
 	 *     @type string   $description The rule description.
 	 *     @type string   $default     The rule default value.
 	 *     @type array    $options     The rule options.
-	 *     @type array    $conflicts   IDs of rules that conflict with this rule.
 	 *     @type callable $callback    The rule callback.
 	 * }
 	 *
@@ -66,7 +65,6 @@ class Access_Rules {
 				'description' => '',
 				'default'     => ! empty( $config['options'] ) ? [] : '',
 				'options'     => [],
-				'conflicts'   => [],
 				'is_boolean'  => false,
 			]
 		);
@@ -87,19 +85,11 @@ class Access_Rules {
 	 */
 	public static function register_default_rules() {
 		$rules = [
-			'registration' => [
-				'name'        => 'Is Registered',
-				'description' => 'The user must be logged into a reader account.',
-				'callback'    => 'is_user_logged_in',
-				'conflicts'   => [ 'subscription' ],
-				'is_boolean'  => true,
-			],
 			'subscription' => [
 				'name'        => 'Has Active Subscription',
 				'description' => 'The user must be logged into a reader account and have an active subscription with one of the selected products.',
 				'options'     => [ __CLASS__, 'get_subscription_products_options' ],
 				'callback'    => [ __CLASS__, 'has_active_subscription' ],
-				'conflicts'   => [ 'registration' ],
 			],
 			'email_domain' => [
 				'name'        => __( 'Has Whitelisted Email Domain', 'newspack-plugin' ),

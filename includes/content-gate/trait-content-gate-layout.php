@@ -11,6 +11,7 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * Trait for content gate layout functionality.
+ *
  * Handles registration of layout-related meta fields and rendering logic that are shared
  * between Content_Gate and Memberships gate implementations.
  */
@@ -21,7 +22,7 @@ trait Content_Gate_Layout {
 	 *
 	 * @return array Associative array of meta field configurations.
 	 */
-	public static function get_layout_meta_config() {
+	protected static function get_layout_meta_config() {
 		return [
 			'style'              => [
 				'type'    => 'string',
@@ -55,7 +56,7 @@ trait Content_Gate_Layout {
 	 *
 	 * @param string $post_type The post type to register meta for.
 	 */
-	public static function register_layout_meta( $post_type ) {
+	protected static function register_layout_meta( $post_type ) {
 		$meta = self::get_layout_meta_config();
 
 		foreach ( $meta as $key => $config ) {
@@ -76,11 +77,11 @@ trait Content_Gate_Layout {
 	/**
 	 * Register a gate custom post type with common configuration.
 	 *
-	 * @param string $post_type The post type slug.
-	 * @param string $label     The singular label for the post type.
+	 * @param string $post_type    The post type slug.
+	 * @param string $label        The singular label for the post type.
 	 * @param string $label_plural Optional plural label. Defaults to singular + 's'.
 	 */
-	public static function register_gate_post_type( $post_type, $label, $label_plural = '' ) {
+	public static function register_layout_post_type( $post_type, $label, $label_plural = '' ) {
 		if ( empty( $label_plural ) ) {
 			$label_plural = $label . 's';
 		}
@@ -110,6 +111,8 @@ trait Content_Gate_Layout {
 				'supports'     => [ 'editor', 'custom-fields', 'revisions', 'title' ],
 			]
 		);
+
+		self::register_layout_meta( $post_type );
 	}
 
 	/**

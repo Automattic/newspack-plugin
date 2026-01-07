@@ -4,7 +4,6 @@ type AccessRule = {
 	name: string;
 	description: string;
 	options?: { value: string; label: string }[];
-	conflicts?: string[];
 	is_boolean: boolean;
 	default: string | string[] | boolean;
 };
