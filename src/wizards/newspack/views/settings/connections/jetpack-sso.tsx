@@ -93,7 +93,7 @@ const JetpackSSO = () => {
 						{ settings.jetpack_sso_force_2fa && (
 							<>
 								<Notice
-									isError
+									isWarning
 									noticeText={ __(
 										'Two-factor authentication is currently enforced for all users via Jetpack configuration.',
 										'newspack-plugin'
@@ -101,7 +101,7 @@ const JetpackSSO = () => {
 								/>
 								<p>
 									{ __(
-										'Customize which capabilties to enforce 2FA by untoggling the “Require accounts to use WordPress.com Two-Step Authentication” option in Jetpack settings.',
+										'Customize which capabilities to enforce 2FA by untoggling the “Require accounts to use WordPress.com Two-Step Authentication” option in Jetpack settings.',
 										'newspack-plugin'
 									) }
 								</p>
