@@ -81,7 +81,9 @@ class My_Account_UI_V1 {
 			return $classes;
 		}
 
-		$classes[] = 'newspack-ui';
+		if ( is_user_logged_in() ) {
+			$classes[] = 'newspack-ui';
+		}
 		$classes[] = 'newspack-my-account';
 		$classes[] = 'newspack-my-account--v1';
 		if ( ! \is_user_logged_in() ) {
