@@ -190,16 +190,18 @@ class Subscriptions_Tiers {
 	/**
 	 * Get all subscription products that are eligible for tier configuration.
 	 *
+	 * @param array $types Product types to filter by.
+	 *
 	 * @return \WC_Product[] Products.
 	 */
-	public static function get_tier_eligible_products() {
+	public static function get_tier_eligible_products( $types = [ 'grouped', 'variable-subscription' ] ) {
 		if ( ! function_exists( 'wc_get_products' ) ) {
 			return [];
 		}
 
 		$products = wc_get_products(
 			[
-				'type'  => [ 'grouped', 'variable-subscription' ],
+				'type'  => $types,
 				'limit' => -1,
 			]
 		);

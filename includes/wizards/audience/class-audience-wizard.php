@@ -88,6 +88,7 @@ class Audience_Wizard extends Wizard {
 			'esp_metadata_fields'     => Reader_Activation\Sync\Metadata::get_default_fields(),
 			'can_use_salesforce'      => ! empty( $salesforce_settings['client_id'] ),
 			'salesforce_redirect_url' => Salesforce::get_redirect_url(),
+			'available_products'      => Content_Gate::get_purchasable_product_options(),
 		];
 
 		if ( method_exists( 'Newspack\Newsletters\Subscription_Lists', 'get_add_new_url' ) ) {
@@ -120,6 +121,9 @@ class Audience_Wizard extends Wizard {
 			'newspackAudience',
 			$data
 		);
+
+		// Enqueue content banner CSS for previews.
+		wp_enqueue_style( 'newspack-content-banner', Newspack::plugin_url() . '/dist/content-banner.css', [], NEWSPACK_PLUGIN_VERSION );
 	}
 
 	/**
@@ -642,6 +646,12 @@ class Audience_Wizard extends Wizard {
 			}
 			if ( isset( $args['content_gifting']['button_label'] ) ) {
 				Content_Gifting_CTA::set_button_label( sanitize_text_field( $args['content_gifting']['button_label'] ) );
+			}
+			if ( isset( $args['content_gifting']['cta_type'] ) ) {
+				Content_Gifting_CTA::set_cta_type( sanitize_text_field( $args['content_gifting']['cta_type'] ) );
+			}
+			if ( isset( $args['content_gifting']['cta_product_id'] ) ) {
+				Content_Gifting_CTA::set_cta_product_id( (int) $args['content_gifting']['cta_product_id'] );
 			}
 			if ( isset( $args['content_gifting']['cta_url'] ) ) {
 				Content_Gifting_CTA::set_cta_url( sanitize_text_field( $args['content_gifting']['cta_url'] ) );

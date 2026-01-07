@@ -237,9 +237,9 @@ const ActionCard = ( {
 					{ 'warning' === notificationLevel && <Notice noticeText={ notification } isWarning rawHTML={ notificationHTML } /> }
 				</div>
 			) }
-			{ children && ( ( expandable && expanded ) || ! expandable ) && (
+			{ children && ( ( expandable && expanded ) || ! expandable ) ? (
 				<div className="newspack-action-card__region-children">{ children }</div>
-			) }
+			) : null }
 		</>
 	);
 

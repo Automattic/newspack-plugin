@@ -9,7 +9,7 @@ import '../../../../shared/js/public-path';
  * WordPress dependencies.
  */
 import { Component } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
 
 /**
@@ -56,6 +56,7 @@ class AudienceCampaigns extends Component {
 			segments: [],
 			settings: [],
 			previewUrl: null,
+			previewTitle: null,
 			duplicated: null,
 			inFlight: false,
 		};
@@ -212,10 +213,12 @@ class AudienceCampaigns extends Component {
 
 	render() {
 		const { pluginRequirements, setError, isLoading, wizardApiFetch, startLoading, doneLoading } = this.props;
-		const { campaigns, inFlight, prompts, segments, settings, previewUrl, duplicated } = this.state;
+		const { campaigns, inFlight, prompts, segments, settings, previewUrl, previewTitle, duplicated } = this.state;
 		return (
 			<WebPreview
 				url={ previewUrl }
+				title={ previewTitle ? /* translators: %s: prompt title */ sprintf( __( 'Prompt: %s', 'newspack-plugin' ), previewTitle ) : null }
+				onClose={ () => this.setState( { previewUrl: null, previewTitle: null } ) }
 				renderButton={ ( { showPreview } ) => {
 					const sharedProps = {
 						headerText,
@@ -238,7 +241,8 @@ class AudienceCampaigns extends Component {
 						deletePopup: this.deletePopup,
 						restorePopup: this.restorePopup,
 						duplicatePopup: this.duplicatePopup,
-						previewPopup: popup => this.setState( { previewUrl: this.previewUrlForPopup( popup ) }, () => showPreview() ),
+						previewPopup: popup =>
+							this.setState( { previewUrl: this.previewUrlForPopup( popup ), previewTitle: popup.title }, () => showPreview() ),
 						publishPopup: this.publishPopup,
 						resetDuplicated: () => this.setState( { duplicated: null } ),
 						unpublishPopup: this.unpublishPopup,

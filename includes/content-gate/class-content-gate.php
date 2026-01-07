@@ -258,9 +258,27 @@ class Content_Gate {
 	}
 
 	/**
+	 * Enqueue content banner assets.
+	 */
+	public static function enqueue_content_banner_assets() {
+		if ( Content_Gifting::should_enqueue_assets() || Metering_Countdown::is_enabled() ) {
+			$asset = require dirname( NEWSPACK_PLUGIN_FILE ) . '/dist/content-banner.asset.php';
+
+			// Ensure the content gate metering script is enqueued first.
+			if ( is_singular() && self::has_gate() && self::is_post_restricted() && Metering::is_frontend_metering() ) {
+				$asset['dependencies'][] = 'newspack-content-gate-metering';
+			}
+			wp_enqueue_script( 'newspack-content-banner', Newspack::plugin_url() . '/dist/content-banner.js', $asset['dependencies'], NEWSPACK_PLUGIN_VERSION, true );
+			wp_enqueue_style( 'newspack-content-banner', Newspack::plugin_url() . '/dist/content-banner.css', [], NEWSPACK_PLUGIN_VERSION );
+		}
+	}
+
+	/**
 	 * Enqueue frontend scripts and styles for gated content.
 	 */
 	public static function enqueue_scripts() {
+		self::enqueue_content_banner_assets();
+
 		if ( ! self::has_gate() ) {
 			return;
 		}
@@ -768,6 +786,27 @@ class Content_Gate {
 			);
 		}
 		return $gates;
+	}
+
+	/**
+	 * Get an array of tier-eligible subscription product options, formatted for select controls.
+	 *
+	 * @return array Array of subscription product options.
+	 *              [
+	 *                  'label' => Product Name,
+	 *                  'value' => product_id,
+	 *              ]
+	 */
+	public static function get_purchasable_product_options() {
+		return array_map(
+			function( $product ) {
+				return [
+					'label' => $product->get_name(),
+					'value' => (int) $product->get_id(),
+				];
+			},
+			Subscriptions_Tiers::get_tier_eligible_products( [ 'grouped','subscription', 'variable-subscription' ] )
+		);
 	}
 }
 Content_Gate::init();

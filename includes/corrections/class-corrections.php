@@ -475,15 +475,14 @@ class Corrections {
 				$correction_date    = \get_the_date( get_option( 'date_format' ), $correction->ID );
 				$correction_time    = \get_the_time( get_option( 'time_format' ), $correction->ID );
 				$correction_heading = sprintf(
-					'%s, %s %s:',
+					'%s, %s%s:',
 					self::get_correction_type( $correction->ID ),
 					$correction_date,
-					$correction_time
+					$correction_time ? ' ' . $correction_time : ''
 				);
 				?>
 				<p class="correction">
 					<a class="correction-title" href="<?php echo esc_url( $corrections_archive_url ); ?>"><?php echo esc_html( $correction_heading ); ?></a>
-
 					<span class="correction-content"><?php echo esc_html( $correction_content ); ?></span>
 				</p>
 			<?php endforeach; ?>

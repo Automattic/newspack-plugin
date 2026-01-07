@@ -52,9 +52,15 @@ body .sd-social-icon .sd-content ul li[class*="share-"].share-newspack-gift-arti
 	margin-top: 1px;
 }
 
-body.newspack-is-gifted-post .site,
-body.newspack-has-countdown-banner .site {
-	padding-bottom: var(--newspack-content-banner-cta-offset, 72px);
+body.newspack-is-gifted-post,
+body.newspack-has-countdown-banner {
+	.site {
+		padding-bottom: var(--newspack-content-banner-cta-offset, 72px);
+	}
+
+	.newspack-lightbox-placement-bottom {
+		bottom: var(--newspack-content-banner-cta-offset, 72px);
+	}
 }
 
 .newspack-content-gifting,

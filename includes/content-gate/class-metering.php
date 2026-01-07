@@ -295,7 +295,7 @@ class Metering {
 		}
 
 		// Aggregate metering by gate priority, if available.
-		$suffix = Content_Gate::is_newspack_feature_enabled() && $priority ? $priority : $gate_post_id;
+		$suffix = Content_Gate::is_newspack_feature_enabled() && ! Memberships::is_active() && $priority ? $priority : $gate_post_id;
 		$user_meta_key = self::METERING_META_KEY . '_' . $suffix;
 
 		$updated_user_data  = false;

@@ -10,7 +10,7 @@ import AutocompleteTokenField from '../../../../../packages/components/src/autoc
 
 export default function ListsControl( { label, help, placeholder, value, onChange, path, deletedItemLabel } ) {
 	const getSuggestions = item => ( {
-		value: isNaN( parseInt( item.id ) ) ? item.id.toString() : parseInt( item.id ),
+		value: /^\d+$/.test( item.id.toString() ) ? parseInt( item.id ) : item.id.toString(),
 		label: item.title || item.name || deletedItemLabel,
 	} );
 
@@ -34,11 +34,14 @@ export default function ListsControl( { label, help, placeholder, value, onChang
 				const values = Array.isArray( lists ) ? lists : Object.values( lists );
 				return ids
 					.map( id => {
-						const item = values.find( it => ( isNaN( it.id ) ? it.id : parseInt( it.id ) ) === id );
+						const item = values.find( it => {
+							const itId = /^\d+$/.test( it.id.toString() ) ? parseInt( it.id ) : it.id.toString();
+							return itId === id;
+						} );
 						if ( item ) {
 							return getSuggestions( item );
 						}
-						return deletedItemLabel ? getSuggestions( { id } ) : false;
+						return deletedItemLabel && id ? getSuggestions( { id } ) : false;
 					} )
 					.filter( Boolean );
 			} }

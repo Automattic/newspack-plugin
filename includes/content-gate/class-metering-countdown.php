@@ -18,7 +18,6 @@ class Metering_Countdown {
 	 * Initialize hooks.
 	 */
 	public static function init() {
-		add_action( 'wp_enqueue_scripts', [ __CLASS__, 'enqueue_assets' ] );
 		add_action( 'wp_footer', [ __CLASS__, 'print_cta' ] );
 		add_filter( 'body_class', [ __CLASS__, 'filter_body_class' ] );
 		add_filter( 'newspack_ads_placement_data', [ __CLASS__, 'filter_ads_placement_data' ], 10, 2 );
@@ -30,12 +29,15 @@ class Metering_Countdown {
 	 * @return array Default countdown settings.
 	 */
 	public static function get_default_settings() {
+		$primary_product = Subscriptions_Tiers::get_primary_subscription_tier_product();
 		return [
-			'enabled'      => false,
-			'style'        => 'light',
-			'cta_label'    => __( 'Subscribe now and get unlimited access.', 'newspack-plugin' ),
-			'button_label' => __( 'Subscribe now', 'newspack-plugin' ),
-			'cta_url'      => '',
+			'enabled'        => false,
+			'style'          => 'light',
+			'cta_label'      => __( 'Subscribe now and get unlimited access.', 'newspack-plugin' ),
+			'button_label'   => __( 'Subscribe now', 'newspack-plugin' ),
+			'cta_type'       => 'product',
+			'cta_product_id' => $primary_product ? $primary_product->get_id() : 0,
+			'cta_url'        => '',
 		];
 	}
 
@@ -74,11 +76,17 @@ class Metering_Countdown {
 		if ( $key === 'style' && ! in_array( $value, [ 'light', 'dark' ], true ) ) {
 			return $default_settings[ $key ];
 		}
+		if ( $key === 'cta_type' && ! in_array( $value, [ 'product', 'url' ], true ) ) {
+			return $default_settings[ $key ];
+		}
+		if ( $key === 'cta_product_id' && ! is_numeric( $value ) ) {
+			return $default_settings[ $key ];
+		}
 		if ( $key === 'cta_url' ) {
 			return sanitize_url( $value );
 		}
-		if ( is_bool( $default_settings[ $key ] ) ) {
-			return boolval( $value );
+		if ( is_bool( $default_settings[ $key ] ) || is_numeric( $default_settings[ $key ] ) ) {
+			return (int) $value;
 		}
 		return sanitize_text_field( $value );
 	}
@@ -118,23 +126,20 @@ class Metering_Countdown {
 	 * @return bool
 	 */
 	public static function is_enabled() {
-		return self::get_settings( 'enabled' ) && Metering::is_metering() && is_singular();
-	}
+		// Only when singular and if enabled in the settings.
+		$enabled = ! is_admin() && is_singular() && self::get_settings( 'enabled' );
 
-	/**
-	 * Enqueue assets.
-	 */
-	public static function enqueue_assets() {
-		// Enqueue assets only if enabled and the post is metered.
-		if ( ! self::is_enabled() ) {
-			return;
+		// In customizer preview.
+		if ( $enabled && is_customize_preview() ) {
+			return true;
 		}
-		$asset = require_once dirname( NEWSPACK_PLUGIN_FILE ) . '/dist/content-banner.asset.php';
 
-		// Ensure the content gate metering script is enqueued first.
-		$asset['dependencies'][] = 'newspack-content-gate-metering';
-		wp_enqueue_script( 'newspack-content-banner', Newspack::plugin_url() . '/dist/content-banner.js', $asset['dependencies'], NEWSPACK_PLUGIN_VERSION, true );
-		wp_enqueue_style( 'newspack-content-banner', Newspack::plugin_url() . '/dist/content-banner.css', [], NEWSPACK_PLUGIN_VERSION );
+		// In the frontend only when the post is metered.
+		if ( ! Metering::is_metering() || ! Content_Gate::is_post_restricted() ) {
+			return false;
+		}
+
+		return $enabled;
 	}
 
 	/**
@@ -148,32 +153,38 @@ class Metering_Countdown {
 		$button_label = $settings['button_label'];
 		$button_class = 'dark' === $settings['style'] ? 'newspack-ui__button--primary-light' : 'newspack-ui__button--accent';
 
-		$cta_url = $settings['cta_url'];
-		if ( $cta_url ) {
-			?>
-			<a href="<?php echo esc_url( $cta_url ); ?>" class="newspack-ui__button newspack-ui__button--x-small <?php echo esc_attr( $button_class ); ?>"><?php echo esc_html( $button_label ); ?></a>
-			<?php
-			return;
+		$cta_type = $settings['cta_type'];
+		if ( $cta_type === 'url' ) {
+			$cta_url = $settings['cta_url'];
+			if ( $cta_url ) {
+				?>
+				<a href="<?php echo esc_url( $cta_url ); ?>" class="newspack-ui__button newspack-ui__button--x-small <?php echo esc_attr( $button_class ); ?>"><?php echo esc_html( $button_label ); ?></a>
+				<?php
+				return;
+			}
 		}
 
-		// If CTA url is not provided, try a modal checkout using the primary subscription tier product.
-		$product = Subscriptions_Tiers::get_primary_subscription_tier_product();
-		if ( ! $product ) {
-			return;
+		// If CTA type is 'product', try a modal checkout using the primary subscription tier product.
+		if ( $cta_type === 'product' ) {
+			$product_id = self::get_settings( 'cta_product_id' );
+			$product    = function_exists( 'wc_get_product' ) ? \wc_get_product( $product_id ) : null;
+			if ( ! $product ) {
+				return;
+			}
+			\Newspack_Blocks\Modal_Checkout::enqueue_modal( $product->get_id() );
+			\Newspack_Blocks::enqueue_view_assets( 'checkout-button' );
+			$checkout_data = \Newspack_Blocks\Modal_Checkout\Checkout_Data::get_checkout_data( $product );
+			?>
+			<div class="wp-block-newspack-blocks-checkout-button">
+				<form data-checkout="<?php echo esc_attr( wp_json_encode( $checkout_data ) ); ?>" target="newspack_modal_checkout_iframe">
+					<input type="hidden" name="newspack_checkout" value="1" />
+					<input type="hidden" name="modal_checkout" value="1" />
+					<input type="hidden" name="product_id" value="<?php echo esc_attr( $product->get_id() ); ?>" />
+					<button type="submit" class="newspack-ui__button newspack-ui__button--x-small <?php echo esc_attr( $button_class ); ?>"><?php echo esc_html( $button_label ); ?></button>
+				</form>
+			</div>
+			<?php
 		}
-		\Newspack_Blocks\Modal_Checkout::enqueue_modal( $product->get_id() );
-		\Newspack_Blocks::enqueue_view_assets( 'checkout-button' );
-		$checkout_data = \Newspack_Blocks\Modal_Checkout\Checkout_Data::get_checkout_data( $product );
-		?>
-		<div class="wp-block-newspack-blocks-checkout-button">
-			<form data-checkout="<?php echo esc_attr( wp_json_encode( $checkout_data ) ); ?>" target="newspack_modal_checkout_iframe">
-				<input type="hidden" name="newspack_checkout" value="1" />
-				<input type="hidden" name="modal_checkout" value="1" />
-				<input type="hidden" name="product_id" value="<?php echo esc_attr( $product->get_id() ); ?>" />
-				<button type="submit" class="newspack-ui__button newspack-ui__button--x-small <?php echo esc_attr( $button_class ); ?>"><?php echo esc_html( $button_label ); ?></button>
-			</form>
-		</div>
-		<?php
 	}
 
 	/**
@@ -182,7 +193,7 @@ class Metering_Countdown {
 	 * @return void
 	 */
 	public static function print_cta() {
-		if ( ! self::is_enabled() || ! Content_Gate::is_post_restricted() ) {
+		if ( ! self::is_enabled() ) {
 			return;
 		}
 		$settings    = self::get_settings();
@@ -192,7 +203,7 @@ class Metering_Countdown {
 		if ( false === $total_views ) {
 			return;
 		}
-		$views = Metering::get_current_user_metered_views();
+		$views = min( Metering::get_current_user_metered_views(), $total_views );
 		if ( $views === 0 || Metering::is_frontend_metering() ) {
 			$classes[] = 'newspack-countdown-banner__cta--hidden';
 		}
