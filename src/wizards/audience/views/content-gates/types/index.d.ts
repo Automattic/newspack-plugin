@@ -65,14 +65,27 @@ type GateStatus = 'publish' | 'draft' | 'pending' | 'future' | 'private' | 'tras
 type Gate = {
 	id: number;
 	title: string;
-	description: string;
-	metering: Metering;
-	access_rules: GateAccessRule[];
-	content_rules: GateContentRule[];
 	priority: number;
 	status: GateStatus;
 	isExpanded?: boolean;
 	collapse?: boolean;
+	content_rules: GateContentRule[];
+	registration: Registration;
+	custom_access: CustomAccess;
+};
+
+type Registration = {
+	active: boolean;
+	metering: Metering;
+	require_verification: boolean;
+	gate_id: number;
+};
+
+type CustomAccess = {
+	active: boolean;
+	metering: Metering;
+	gate_id: number;
+	access_rules: GateAccessRule[];
 };
 
 type ContentGiftingConfig = {
