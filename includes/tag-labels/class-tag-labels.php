@@ -24,7 +24,7 @@ class Tag_Labels {
 	const TAG_LABEL_FLAG_META_KEY = '_label_flag';
 
 
-	// TODO:  Helper functions for themes to get array of labels + flags.
+	// Helper functions for themes to get arrays of labels and flags.
 	/**
 	 * Given a term, check if labels are enabled for it.
 	 *
@@ -36,7 +36,7 @@ class Tag_Labels {
 		if ( ! $term || ! $term->term_id ) {
 			return false;
 		}
-		return (bool) ( true == get_term_meta( $term->term_id, self::TAG_LABEL_META_KEY, true ) );
+		return (bool) ( true === get_term_meta( $term->term_id, self::TAG_LABEL_META_KEY, true ) );
 	}
 
 	/**
@@ -57,7 +57,9 @@ class Tag_Labels {
 		// A little fancy in case someone wants to give a tag a
 		// falsy label flag.  Empty string still gets default value.
 		$term_label_flag = get_term_meta( $term->term_id, self::TAG_LABEL_FLAG_META_KEY, true );
-		$term_label_flag = isset( $term_label_flag ) ? ( ( '' !== $term_label_flag ) ? $term_label_flag : $term->name ) : $term->name;
+		if ( ! isset( $term_label_flag ) || '' === $term_label_flag ) {
+			$term_label_flag = $term->name;
+		}
 
 		$term_label_link = get_term_link( $term->term_id );
 
@@ -86,8 +88,8 @@ class Tag_Labels {
 				function( $term ) {
 					return self::get_tag_label_for_term( $term );
 				},
-				$post_terms 
-			) 
+				$post_terms
+			)
 		);
 	}
 
