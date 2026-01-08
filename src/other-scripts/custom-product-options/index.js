@@ -3,10 +3,13 @@
 	if ( ! $ ) {
 		return;
 	}
+
 	function init() {
 		$( 'input#_newspack_group_subscription_enabled,input.variable_newspack_group_subscription_enabled' ).trigger( 'change' );
+		$( '#woocommerce-product-data' ).on( 'woocommerce_variations_loaded', init );
 		$( '.woocommerce_variation' ).on( 'click', 'h3', init );
 	}
+
 	function showOrHideGroupSubscriptionOptions( e ) {
 		const $items = $( e.currentTarget ).hasClass( 'variable_newspack_group_subscription_enabled' )
 			? $( e.currentTarget ).closest( '.woocommerce_variation' ).find( '.show_if_newspack_group_subscription_enabled' )
@@ -18,12 +21,12 @@
 			$items.hide();
 		}
 	}
-	const $wrapper = $( '#woocommerce-product-data' );
-	$wrapper.on(
+
+	$( '#woocommerce-product-data' ).on(
 		'change',
 		'input#_newspack_group_subscription_enabled,input.variable_newspack_group_subscription_enabled',
 		showOrHideGroupSubscriptionOptions
 	);
-	$wrapper.on( 'woocommerce_variations_loaded', init );
+
 	$( document ).ready( init );
 } )( jQuery );
