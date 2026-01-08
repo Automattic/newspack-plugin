@@ -11,9 +11,9 @@
 	}
 
 	function showOrHideGroupSubscriptionOptions( e ) {
-		const $items = $( e.currentTarget ).hasClass( 'variable_newspack_group_subscription_enabled' )
-			? $( e.currentTarget ).closest( '.woocommerce_variation' ).find( '.show_if_newspack_group_subscription_enabled' )
-			: $( e.currentTarget ).closest( '#woocommerce-product-data' ).find( '.show_if_newspack_group_subscription_enabled' );
+		const $items = $( e.currentTarget )
+			.closest( '.woocommerce_variation,#woocommerce-product-data,#newspack-group-subscription' )
+			.find( '.show_if_newspack_group_subscription_enabled' );
 
 		if ( $( e.currentTarget ).is( ':checked' ) ) {
 			$items.show();
@@ -22,7 +22,7 @@
 		}
 	}
 
-	$( '#woocommerce-product-data' ).on(
+	$( '#woocommerce-product-data, #newspack-group-subscription' ).on(
 		'change',
 		'input#_newspack_group_subscription_enabled,input.variable_newspack_group_subscription_enabled',
 		showOrHideGroupSubscriptionOptions

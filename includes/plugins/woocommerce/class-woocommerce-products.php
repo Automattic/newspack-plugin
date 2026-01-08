@@ -37,6 +37,20 @@ class WooCommerce_Products {
 	 * Enqueue admin scripts.
 	 */
 	public static function admin_enqueue_scripts() {
+		$screen = get_current_screen();
+		$is_product_or_subscription_screen = in_array(
+			$screen->id,
+			[
+				'product',
+				'edit-shop_subscription',
+				'shop_subscription',
+				wcs_get_page_screen_id( 'shop_subscription' ),
+			],
+			true
+		);
+		if ( ! $is_product_or_subscription_screen ) {
+			return;
+		}
 		wp_enqueue_script(
 			'newspack-products-custom-options',
 			Newspack::plugin_url() . '/dist/other-scripts/custom-product-options.js',
