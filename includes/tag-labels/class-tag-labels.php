@@ -36,7 +36,7 @@ class Tag_Labels {
 		if ( ! $term || ! $term->term_id ) {
 			return false;
 		}
-		return (bool) ( true === get_term_meta( $term->term_id, self::TAG_LABEL_META_KEY, true ) );
+		return (bool) ( true == get_term_meta( $term->term_id, self::TAG_LABEL_META_KEY, true ) );  // Meta value is 1 when enabled; use less-strict equivalence here.
 	}
 
 	/**
@@ -185,7 +185,8 @@ class Tag_Labels {
 		check_admin_referer( 'update-tag_' . $term_id );
 
 		if ( ! current_user_can( 'edit_term', $term_id ) ) {
-			return; }
+			return;
+		}
 
 		// Save label data if label is enabled; otherwise kill it.
 		if ( ! empty( $_POST[ self::TAG_LABEL_META_KEY ] ) ) {
