@@ -48,17 +48,15 @@ class Test_Content_Gates extends \WP_UnitTestCase {
 						'value' => [ 'post' ],
 					],
 				],
-				'access_rules'  => [
-					[
-						'slug'  => 'registration',
-						'value' => true,
+				'registration'  => [
+					'active'               => true,
+					'metering'             => [
+						'enabled' => false,
+						'count'   => 0,
+						'period'  => 'month',
 					],
-				],
-				'metering'      => [
-					'enabled'          => false,
-					'anonymous_count'  => 0,
-					'registered_count' => 0,
-					'period'           => 'month',
+					'require_verification' => false,
+					'gate_id'              => 0,
 				],
 			]
 		);
@@ -67,7 +65,6 @@ class Test_Content_Gates extends \WP_UnitTestCase {
 			$this->gate_ids[1],
 			[
 				'title'         => 'Trash Gate',
-				'description'   => 'Trash Gate',
 				'status'        => 'trash',
 				'priority'      => 1,
 				'content_rules' => [
@@ -76,17 +73,16 @@ class Test_Content_Gates extends \WP_UnitTestCase {
 						'value' => [ 'post' ],
 					],
 				],
-				'access_rules'  => [
-					[
-						'slug'  => 'registration',
-						'value' => true,
+				'description'   => 'Trash Gate',
+				'registration'  => [
+					'active'               => true,
+					'metering'             => [
+						'enabled' => false,
+						'count'   => 0,
+						'period'  => 'month',
 					],
-				],
-				'metering'      => [
-					'enabled'          => false,
-					'anonymous_count'  => 0,
-					'registered_count' => 0,
-					'period'           => 'month',
+					'require_verification' => false,
+					'gate_id'              => 0,
 				],
 			]
 		);
@@ -104,17 +100,15 @@ class Test_Content_Gates extends \WP_UnitTestCase {
 						'value' => [ 'post' ],
 					],
 				],
-				'access_rules'  => [
-					[
-						'slug'  => 'registration',
-						'value' => true,
+				'registration'  => [
+					'active'               => true,
+					'metering'             => [
+						'enabled' => false,
+						'count'   => 0,
+						'period'  => 'month',
 					],
-				],
-				'metering'      => [
-					'enabled'          => false,
-					'anonymous_count'  => 0,
-					'registered_count' => 0,
-					'period'           => 'month',
+					'require_verification' => false,
+					'gate_id'              => 0,
 				],
 			]
 		);
@@ -127,12 +121,25 @@ class Test_Content_Gates extends \WP_UnitTestCase {
 				'status'        => 'publish',
 				'priority'      => 3,
 				'content_rules' => [],
-				'access_rules'  => [],
-				'metering'      => [
-					'enabled'          => false,
-					'anonymous_count'  => 0,
-					'registered_count' => 0,
-					'period'           => 'month',
+				'registration'  => [
+					'active'               => false,
+					'metering'             => [
+						'enabled' => false,
+						'count'   => 0,
+						'period'  => 'month',
+					],
+					'require_verification' => false,
+					'gate_id'              => 0,
+				],
+				'custom_access' => [
+					'active'       => false,
+					'metering'     => [
+						'enabled' => false,
+						'count'   => 0,
+						'period'  => 'month',
+					],
+					'gate_id'      => 0,
+					'access_rules' => [],
 				],
 			]
 		);

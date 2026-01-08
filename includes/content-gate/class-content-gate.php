@@ -653,7 +653,7 @@ class Content_Gate {
 			'active'       => isset( $custom_access['active'] ) ? (bool) $custom_access['active'] : false,
 			'metering'     => isset( $custom_access['metering'] ) ? $custom_access['metering'] : Metering::get_metering_settings( $gate_id ),
 			'gate_id'      => isset( $custom_access['gate_id'] ) ? (int) $custom_access['gate_id'] : 0,
-			'access_rules' => Access_Rules::get_post_access_rules( $gate_id ),
+			'access_rules' => isset( $custom_access['access_rules'] ) ? $custom_access['access_rules'] : [],
 		];
 	}
 
