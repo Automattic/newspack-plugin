@@ -11,7 +11,7 @@ import { ActionCard, Card, Grid, Notice, SelectControl } from '../../../../../pa
 
 interface MeteringProps {
 	metering: Metering;
-	onChange: React.Dispatch< React.SetStateAction< Metering > >;
+	onChange: React.Dispatch< React.SetStateAction< Metering > > | ( ( metering: Metering ) => void );
 }
 
 export default function Metering( { metering, onChange }: MeteringProps ) {
@@ -27,7 +27,7 @@ export default function Metering( { metering, onChange }: MeteringProps ) {
 				<CheckboxControl
 					label={ __( 'Meter content views for this gate', 'newspack-plugin' ) }
 					checked={ metering.enabled }
-					onChange={ () => onChange( prevMetering => ( { ...prevMetering, enabled: ! prevMetering.enabled } ) ) }
+					onChange={ () => onChange( { ...metering, enabled: ! metering.enabled } ) }
 				/>
 				{ metering.enabled && parseInt( metering.anonymous_count ) === 0 && parseInt( metering.registered_count ) === 0 && (
 					<Notice
@@ -49,7 +49,7 @@ export default function Metering( { metering, onChange }: MeteringProps ) {
 						) }
 						min={ 0 }
 						value={ parseInt( metering.anonymous_count ) }
-						onChange={ v => onChange( prevMetering => ( { ...prevMetering, anonymous_count: parseInt( v ) } ) ) }
+						onChange={ v => onChange( { ...metering, anonymous_count: parseInt( v ) } ) }
 					/>
 					<NumberControl
 						label={ __( 'Free views for registered viewers', 'newspack-plugin' ) }
@@ -59,7 +59,7 @@ export default function Metering( { metering, onChange }: MeteringProps ) {
 						) }
 						min={ 0 }
 						value={ parseInt( metering.registered_count ) }
-						onChange={ v => onChange( prevMetering => ( { ...prevMetering, registered_count: parseInt( v ) } ) ) }
+						onChange={ v => onChange( { ...metering, registered_count: parseInt( v ) } ) }
 					/>
 					<SelectControl
 						label={ __( 'Time period', 'newspack-plugin' ) }
@@ -68,7 +68,7 @@ export default function Metering( { metering, onChange }: MeteringProps ) {
 							'newspack-plugin'
 						) }
 						value={ metering.period }
-						onChange={ v => onChange( prevMetering => ( { ...prevMetering, period: v as Metering[ 'period' ] } ) ) }
+						onChange={ v => onChange( { ...metering, period: v as Metering[ 'period' ] } ) }
 						options={ [
 							{
 								value: 'week',
