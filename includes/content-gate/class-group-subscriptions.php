@@ -58,10 +58,10 @@ class Group_Subscriptions {
 		}
 		$custom_product_pricing_options['newspack_group_subscription_limit'] = [
 			'id'                => '_newspack_group_subscription_limit',
-			'wrapper_class'     => 'form-row form-row-first',
+			'wrapper_class'     => 'show_if_newspack_group_subscription_enabled',
 			'label'             => __( 'Group subscription member limit', 'newspack-plugin' ),
 			'desc_tip'          => true,
-			'description'       => __( 'Set the maximum number of members for group subscriptions. Leave empty to allow an unlimited number of group members.', 'newspack-plugin' ),
+			'description'       => __( 'Set the maximum number of members for group subscriptions. Set to 0 to allow an unlimited number of group members.', 'newspack-plugin' ),
 			'default'           => 0,
 			'product_types'     => [ 'subscription', 'subscription_variation' ],
 			'type'              => 'number',

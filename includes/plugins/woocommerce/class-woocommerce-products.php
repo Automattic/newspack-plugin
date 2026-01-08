@@ -245,6 +245,10 @@ class WooCommerce_Products {
 			$option_config['value'] = isset( $variation_data[ $option_id ][0] ) ? $variation_data[ $option_id ][0] : null;
 			$option_config['id']    = $option_id . '_' . $loop;
 			$option_config['name']  = $option_id . '[' . $loop . ']';
+
+			// Add form-row class for variations.
+			$option_config['wrapper_class'] = isset( $option_config['wrapper_class'] ) ? $option_config['wrapper_class'] . ' form-row' : 'form-row';
+
 			if ( $option_type === 'select' && isset( $option_config['options'] ) ) {
 				\woocommerce_wp_select( $option_config );
 			}
@@ -316,7 +320,7 @@ class WooCommerce_Products {
 			$value_type = $option_config['type'];
 			$option_value = null;
 			if ( $value_type === 'boolean' ) {
-				$option_value = isset( $_POST[ $meta_key ][ $i ] ) && $_POST[ $meta_key ][ $i ] === 'yes' ? \wc_bool_to_string( true ) : \wc_bool_to_string( false ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
+				$option_value = isset( $_POST[ $meta_key ][ $i ] ) && ( $_POST[ $meta_key ][ $i ] === 'yes' || $_POST[ $meta_key ][ $i ] === 'on' ) ? \wc_bool_to_string( true ) : \wc_bool_to_string( false ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
 			} elseif ( $value_type === 'number' ) {
 				$option_value = isset( $_POST[ $meta_key ][ $i ] ) ? intval( $_POST[ $meta_key ][ $i ] ) : 0; // phpcs:ignore WordPress.Security.NonceVerification.Missing
 			} else {
