@@ -206,22 +206,14 @@ class Group_Subscriptions {
 		</p>
 		<div class="form-row">
 			<?php
-			echo wp_kses_post(
-				\woocommerce_wp_text_input(
-					[
-						'id'                => '_newspack_group_subscription_limit',
-						'name'              => '_newspack_group_subscription_limit',
-						'label'             => __( 'Group subscription member limit', 'newspack-plugin' ),
-						'value'             => $settings['limit'],
-						'type'              => 'number',
-						'wrapper_class'     => 'show_if_newspack_group_subscription_enabled',
-						'custom_attributes' => [
-							'step' => 1,
-							'min'  => 0,
-						],
-					]
-				)
-			);
+			$pricing_options = self::add_custom_product_pricing_options( [] );
+			foreach ( $pricing_options as $option_key => $option_config ) {
+				if ( $option_key === 'newspack_group_subscription_limit' ) {
+					$option_config['value'] = $settings['limit'];
+					echo wp_kses_post( \woocommerce_wp_text_input( $option_config ) );
+					break;
+				}
+			}
 			?>
 		</div>
 		<?php
