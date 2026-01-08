@@ -46,7 +46,7 @@ class Corrections {
 	 */
 	public static function init() {
 		add_action( 'init', [ __CLASS__, 'register_post_type' ] );
-		add_filter( 'the_content', [ __CLASS__, 'output_corrections_on_post' ], 2 );
+		add_filter( 'the_content', [ __CLASS__, 'output_corrections_on_post' ], 1 );
 		add_action( 'wp_enqueue_scripts', [ __CLASS__, 'wp_enqueue_scripts' ] );
 		add_action( 'admin_enqueue_scripts', [ __CLASS__, 'wp_enqueue_scripts' ] );
 		add_action( 'rest_api_init', [ __CLASS__, 'register_rest_routes' ] );
@@ -467,7 +467,7 @@ class Corrections {
 
 		ob_start();
 		?>
-		<!-- wp:group {"className":"correction-module","backgroundColor":"light-gray"} -->
+		<!-- wp:newspack/correction-box {"className":"correction-module","backgroundColor":"light-gray"} -->
 		<div class="wp-block-group newspack-corrections-module corrections-<?php echo esc_attr( $corrections_priority ); ?>-module">
 			<?php foreach ( $corrections as $correction ) : ?>
 				<?php
@@ -488,9 +488,9 @@ class Corrections {
 				</p>
 			<?php endforeach; ?>
 		</div>
-		<!-- /wp:group -->
+		<!-- /wp:newspack/correction-box -->
 		<?php
-		return do_blocks( ob_get_clean() );
+		return ob_get_clean();
 	}
 
 	/**
