@@ -127,17 +127,21 @@ class Tag_Labels {
 	 * @param WP_Term $term The current WP_Term object.
 	 */
 	public static function edit_term( $term ) {
+		$checkbox_id = self::TAG_LABEL_META_KEY;
 		$is_label = self::is_tag_label( $term );
 
 		$label = self::get_tag_label_for_term( $term );
 		$label_flag  = $label ? $label['flag'] : $term->name;
+
+		$input_label_flag = ( $term->name === $label_flag ) ? '' : $label_flag;
 		?>
 		<tr class="form-field newspack-label-enable term-<?php echo esc_attr( self::TAG_LABEL_META_KEY ); ?>-wrap">
 			<th scope="row"><label for="<?php echo esc_attr( $checkbox_id ); ?>"><?php esc_html_e( 'Use as label', 'newspack-plugin' ); ?></label></th>
 			<td>
 				<input
+					aria-describedby="<?php echo esc_attr( self::TAG_LABEL_META_KEY ); ?>-description"
 					type="checkbox"
-					name="<?php echo esc_attr( self::TAG_LABEL_META_KEY ); ?>"
+					name="<?php echo esc_attr( $checkbox_id ); ?>"
 					value="true"
 					<?php
 						checked( $is_label, true );
@@ -152,16 +156,12 @@ class Tag_Labels {
 			<th scope="row"><label for="<?php echo esc_attr( self::TAG_LABEL_FLAG_META_KEY ); ?>"><?php esc_html_e( 'Label flag', 'newspack-plugin' ); ?></label></th>
 			<td>
 				<input
+					aria-describedby="<?php echo esc_attr( self::TAG_LABEL_FLAG_META_KEY ); ?>-description"
 					type="text"
 					name="<?php echo esc_attr( self::TAG_LABEL_FLAG_META_KEY ); ?>"
 					placeholder="<?php echo esc_attr( $term->name ); ?>"
+					value="<?php echo esc_attr( $input_label_flag ); ?>"
 					<?php
-					if ( $term->name === $label_flag ) {
-							echo ' value=""';
-					} else {
-							echo ' value="' . esc_attr( $label_flag ) . '"';
-					}
-
 					if ( ! $is_label ) {
 						echo ' disabled'; }
 					?>
@@ -183,6 +183,9 @@ class Tag_Labels {
 
 		// See wp-admin/edit-tag-form.php for where this is set.
 		check_admin_referer( 'update-tag_' . $term_id );
+
+		if ( ! current_user_can( 'edit_term', $term_id ) ) {
+			return; }
 
 		// Save label data if label is enabled; otherwise kill it.
 		if ( ! empty( $_POST[ self::TAG_LABEL_META_KEY ] ) ) {
