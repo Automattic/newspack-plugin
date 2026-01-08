@@ -29,11 +29,11 @@ export default function Metering( { metering, onChange }: MeteringProps ) {
 					checked={ metering.enabled }
 					onChange={ () => onChange( { ...metering, enabled: ! metering.enabled } ) }
 				/>
-				{ metering.enabled && parseInt( metering.anonymous_count ) === 0 && parseInt( metering.registered_count ) === 0 && (
+				{ metering.enabled && parseInt( metering.count ) === 0 && (
 					<Notice
 						isWarning
 						noticeText={ __(
-							'Metering is enabled but no views are available. Content will be gated for all readers.',
+							'Metering is enabled but the number of views is set to 0. Content will be gated for all readers.',
 							'newspack-plugin'
 						) }
 					/>
@@ -42,29 +42,19 @@ export default function Metering( { metering, onChange }: MeteringProps ) {
 			{ metering.enabled && (
 				<Grid columns={ 2 } gutter={ 32 } noMargin={ true }>
 					<NumberControl
-						label={ __( 'Free views for anonymous viewers', 'newspack-plugin' ) }
+						label={ __( 'Number of views', 'newspack-plugin' ) }
 						help={ __(
-							'Number of times an anonymous reader can view gated content. If set to 0, anonymous readers will always render the gate.',
+							'Number of times a reader can view gated content. If set to 0, readers will always be gated.',
 							'newspack-plugin'
 						) }
 						min={ 0 }
-						value={ parseInt( metering.anonymous_count ) }
-						onChange={ v => onChange( { ...metering, anonymous_count: parseInt( v ) } ) }
-					/>
-					<NumberControl
-						label={ __( 'Free views for registered viewers', 'newspack-plugin' ) }
-						help={ __(
-							'Number of times a registered reader can view gated content. If set to 0, registered readers will always render the gate.',
-							'newspack-plugin'
-						) }
-						min={ 0 }
-						value={ parseInt( metering.registered_count ) }
-						onChange={ v => onChange( { ...metering, registered_count: parseInt( v ) } ) }
+						value={ parseInt( metering.count ) }
+						onChange={ v => onChange( { ...metering, count: parseInt( v ) } ) }
 					/>
 					<SelectControl
-						label={ __( 'Time period', 'newspack-plugin' ) }
+						label={ __( 'Period', 'newspack-plugin' ) }
 						help={ __(
-							'The time period during which the metering views will be counted. For example, if the metering period is set to "Weekly", the metering views will be reset every week.',
+							'The period during which the metering views will be counted. For example, if the metering period is set to "Weekly", the metering views will be reset every week.',
 							'newspack-plugin'
 						) }
 						value={ metering.period }

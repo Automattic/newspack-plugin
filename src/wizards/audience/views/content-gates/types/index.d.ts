@@ -18,8 +18,7 @@ type ContentRule = {
 
 type Metering = {
 	enabled: boolean;
-	anonymous_count: number;
-	registered_count: number;
+	count: number;
 	period: 'week' | 'month';
 };
 

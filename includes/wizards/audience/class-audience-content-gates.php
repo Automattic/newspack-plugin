@@ -340,8 +340,7 @@ class Audience_Content_Gates extends Wizard {
 										'type'       => 'object',
 										'properties' => [
 											'enabled' => [ 'type' => 'boolean' ],
-											'anonymous_count' => [ 'type' => 'integer' ],
-											'registered_count' => [ 'type' => 'integer' ],
+											'count'   => [ 'type' => 'integer' ],
 											'period'  => [ 'type' => 'string' ],
 										],
 									],
@@ -355,8 +354,7 @@ class Audience_Content_Gates extends Wizard {
 										'type'       => 'object',
 										'properties' => [
 											'enabled' => [ 'type' => 'boolean' ],
-											'anonymous_count' => [ 'type' => 'integer' ],
-											'registered_count' => [ 'type' => 'integer' ],
+											'count'   => [ 'type' => 'integer' ],
 											'period'  => [ 'type' => 'string' ],
 										],
 									],
@@ -443,17 +441,15 @@ class Audience_Content_Gates extends Wizard {
 		$metering = wp_parse_args(
 			$metering,
 			[
-				'enabled'          => false,
-				'anonymous_count'  => 0,
-				'registered_count' => 0,
-				'period'           => 'month',
+				'enabled' => false,
+				'count'   => 0,
+				'period'  => 'month',
 			]
 		);
 		return [
-			'enabled'          => boolval( $metering['enabled'] ),
-			'anonymous_count'  => intval( $metering['anonymous_count'] ),
-			'registered_count' => intval( $metering['registered_count'] ),
-			'period'           => sanitize_text_field( $metering['period'] ),
+			'enabled' => boolval( $metering['enabled'] ),
+			'count'   => intval( $metering['count'] ),
+			'period'  => sanitize_text_field( $metering['period'] ),
 		];
 	}
 
