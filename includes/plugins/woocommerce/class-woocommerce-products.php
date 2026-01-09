@@ -37,6 +37,9 @@ class WooCommerce_Products {
 	 * Enqueue admin scripts.
 	 */
 	public static function admin_enqueue_scripts() {
+		if ( ! function_exists( 'wcs_get_page_screen_id' ) ) {
+			return;
+		}
 		$screen = get_current_screen();
 		$is_product_or_subscription_screen = in_array(
 			$screen->id,
