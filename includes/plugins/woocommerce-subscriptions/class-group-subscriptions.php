@@ -52,6 +52,7 @@ class Group_Subscriptions {
 			'default'       => self::DEFAULT_SETTINGS['enabled'],
 			'product_types' => [ 'subscription', 'subscription_variation' ],
 			'type'          => 'boolean',
+			'wrapper_class' => 'show_if_subscription',
 		];
 		return $custom_options;
 	}

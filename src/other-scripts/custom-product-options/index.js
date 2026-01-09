@@ -10,23 +10,41 @@
 		$( '.woocommerce_variation' ).on( 'click', 'h3', init );
 	}
 
-	function showOrHideGroupSubscriptionOptions( e ) {
-		const $items = $( e.currentTarget )
+	function showOrHidePricingOptions( e ) {
+		// Group subscription checkbox.
+		const $fields = $( e.currentTarget )
 			.closest( '.woocommerce_variation,#woocommerce-product-data,#newspack-group-subscription' )
 			.find( '.show_if_newspack_group_subscription_enabled' );
 
 		if ( $( e.currentTarget ).is( ':checked' ) ) {
-			$items.show();
+			$fields.show();
 		} else {
-			$items.hide();
+			$fields.hide();
+		}
+	}
+
+	function showOrHideAllOptions( e ) {
+		const $checkbox = $( '.show_if_subscription' );
+		const $fields = $( '.show_if_newspack_group_subsription_enabled' );
+
+		if ( e.currentTarget.value === 'subscription' || e.currentTarget.value === 'variable-subscription' ) {
+			$checkbox.show();
+			if ( $checkbox.is( ':checked' ) ) {
+				$fields.show();
+			} else {
+				$fields.hide();
+			}
+		} else {
+			$checkbox.hide();
 		}
 	}
 
 	$( '#woocommerce-product-data, #newspack-group-subscription' ).on(
 		'change',
 		'input#_newspack_group_subscription_enabled,input.variable_newspack_group_subscription_enabled',
-		showOrHideGroupSubscriptionOptions
+		showOrHidePricingOptions
 	);
+	$( '#woocommerce-product-data' ).on( 'change', 'select#product-type', showOrHideAllOptions );
 
 	$( document ).ready( init );
 } )( jQuery );

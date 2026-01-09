@@ -167,7 +167,9 @@ class WooCommerce_Products {
 
 		$custom_options = self::get_custom_options();
 		foreach ( $custom_options as $option_key => $option_config ) {
-			if ( isset( $option_config['product_types'] ) && ! in_array( $product->get_type(), $option_config['product_types'], true ) ) {
+			$product_type   = $product->get_type();
+			$is_new_product = $product_type === 'simple' && $product->get_status() === 'auto-draft' && ! $product->get_date_created() && ! $product->get_date_modified();
+			if ( isset( $option_config['product_types'] ) && ! $is_new_product && ! in_array( $product_type, $option_config['product_types'], true ) ) {
 				continue;
 			}
 			if ( ! isset( $options[ $option_key ] ) ) {
@@ -225,7 +227,9 @@ class WooCommerce_Products {
 
 		$custom_options = self::get_custom_product_pricing_options();
 		foreach ( $custom_options as $option_key => $option_config ) {
-			if ( isset( $option_config['product_types'] ) && ! in_array( $product->get_type(), $option_config['product_types'], true ) ) {
+			$product_type   = $product->get_type();
+			$is_new_product = $product_type === 'simple' && $product->get_status() === 'auto-draft' && ! $product->get_date_created() && ! $product->get_date_modified();
+			if ( isset( $option_config['product_types'] ) && ! $is_new_product && ! in_array( $product_type, $option_config['product_types'], true ) ) {
 				continue;
 			}
 			$option_type = $option_config['type'];
