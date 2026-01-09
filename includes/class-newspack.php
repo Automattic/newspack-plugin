@@ -126,7 +126,6 @@ final class Newspack {
 		include_once NEWSPACK_ABSPATH . 'includes/bylines/class-bylines.php';
 		include_once NEWSPACK_ABSPATH . 'includes/lite-site/class-lite-site.php';
 		include_once NEWSPACK_ABSPATH . 'includes/content-gate/class-content-gate.php';
-		include_once NEWSPACK_ABSPATH . 'includes/content-gate/class-group-subscriptions.php';
 
 		include_once NEWSPACK_ABSPATH . 'includes/starter_content/class-starter-content-provider.php';
 		include_once NEWSPACK_ABSPATH . 'includes/starter_content/class-starter-content-generated.php';
@@ -206,6 +205,7 @@ final class Newspack {
 		include_once NEWSPACK_ABSPATH . 'includes/plugins/class-woocommerce.php';
 		include_once NEWSPACK_ABSPATH . 'includes/plugins/woocommerce-subscriptions/class-woocommerce-subscriptions.php';
 		include_once NEWSPACK_ABSPATH . 'includes/plugins/woocommerce-subscriptions/class-woocommerce-subscriptions-gifting.php';
+		include_once NEWSPACK_ABSPATH . 'includes/plugins/woocommerce-subscriptions/class-group-subscriptions.php';
 		include_once NEWSPACK_ABSPATH . 'includes/plugins/class-woocommerce-gateway-stripe.php';
 		include_once NEWSPACK_ABSPATH . 'includes/plugins/class-teams-for-memberships.php';
 		include_once NEWSPACK_ABSPATH . 'includes/plugins/class-newspack-elections.php';
