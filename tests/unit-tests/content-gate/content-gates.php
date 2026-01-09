@@ -39,7 +39,6 @@ class Test_Content_Gates extends \WP_UnitTestCase {
 			$this->gate_ids[0],
 			[
 				'title'         => 'Draft Gate',
-				'description'   => 'Draft Gate',
 				'status'        => 'draft',
 				'priority'      => 0,
 				'content_rules' => [
@@ -73,7 +72,6 @@ class Test_Content_Gates extends \WP_UnitTestCase {
 						'value' => [ 'post' ],
 					],
 				],
-				'description'   => 'Trash Gate',
 				'registration'  => [
 					'active'               => true,
 					'metering'             => [
@@ -91,7 +89,6 @@ class Test_Content_Gates extends \WP_UnitTestCase {
 			$this->gate_ids[2],
 			[
 				'title'         => 'Published Gate',
-				'description'   => 'Published Gate',
 				'status'        => 'publish',
 				'priority'      => 2,
 				'content_rules' => [
@@ -117,7 +114,6 @@ class Test_Content_Gates extends \WP_UnitTestCase {
 			$this->gate_ids[3],
 			[
 				'title'         => 'Published Gate',
-				'description'   => 'Published Gate w/ missing config',
 				'status'        => 'publish',
 				'priority'      => 3,
 				'content_rules' => [],
