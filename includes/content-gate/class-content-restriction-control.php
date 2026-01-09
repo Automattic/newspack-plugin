@@ -208,7 +208,7 @@ class Content_Restriction_Control {
 				} elseif ( ! empty( $gate['registration']['require_verification'] ) ) {
 					// Check if email verification is required.
 					$user = \wp_get_current_user();
-					if ( ! \get_user_meta( $user->ID, 'email_verified', true ) ) {
+					if ( ! \get_user_meta( $user->ID, Reader_Activation::EMAIL_VERIFIED, true ) ) {
 						$is_restricted = true;
 						$gate_id       = $gate['registration']['gate_id'] ?? $gate['id'];
 					}
