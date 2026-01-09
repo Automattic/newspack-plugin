@@ -295,6 +295,7 @@ class Teams_For_Memberships {
 						}
 						$note     = '';
 						$order_id = $resubscribe_order->get_id();
+						$product  = $existing_team->get_product();
 						$subscription_membership->set_order_id( $order_id );
 						if ( $product instanceof \WC_Product ) {
 							$subscription_membership->set_product_id( $product->get_id() );
