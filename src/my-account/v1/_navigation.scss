@@ -106,7 +106,7 @@
 			background-color: var(--newspack-ui-color-neutral-0);
 			display: none;
 			height: var(--newspack-ui-spacer-9);
-			margin: var(--newspack-ui-spacer-6) var(--newspack-ui-spacer-3);
+			margin: var(--newspack-ui-spacer-6) var(--newspack-ui-spacer-3) 0;
 			padding: calc(var(--newspack-ui-spacer-base) * 0.5);
 			place-items: center;
 			transition: border-color 125ms ease-in-out;
@@ -126,7 +126,7 @@
 		}
 		.newspack-my-account__home-link {
 			margin-bottom: var(--newspack-ui-spacer-2);
-			margin-top: 0;
+			margin-top: var(--newspack-ui-spacer-6);
 
 			svg {
 				margin-left: -8px;
