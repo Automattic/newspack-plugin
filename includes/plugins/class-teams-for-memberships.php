@@ -288,13 +288,13 @@ class Teams_For_Memberships {
 						$user_membership->set_end_date( $new_subscription->get_date( 'end' ) );
 						// set the membership's subscription ID.
 						$subscription_membership = new \WC_Memberships_Integration_Subscriptions_User_Membership( $user_membership->post );
-						$subscription_membership->set_subscription_id( $subscription->get_id() );
+						$subscription_membership->set_subscription_id( $new_subscription->get_id() );
 						// bail if not associated with an order.
 						if ( ! $order instanceof \WC_Order ) {
 							continue;
 						}
 						$note     = '';
-						$order_id = $order->get_id();
+						$order_id = $resubscribe_order->get_id();
 						$subscription_membership->set_order_id( $order_id );
 						if ( $product instanceof \WC_Product ) {
 							$subscription_membership->set_product_id( $product->get_id() );
