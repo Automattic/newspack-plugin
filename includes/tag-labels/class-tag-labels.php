@@ -7,8 +7,6 @@
 
 namespace Newspack;
 
-// TODO:  Semaphore to only init once.
-
 defined( 'ABSPATH' ) || exit;
 
 /**
