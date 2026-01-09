@@ -15,6 +15,9 @@ interface MeteringProps {
 }
 
 export default function Metering( { metering, onChange }: MeteringProps ) {
+	const count = typeof metering.count === 'number' ? metering.count : parseInt( String( metering.count ), 10 );
+	const isCountZero = ! isNaN( count ) && count === 0;
+
 	return (
 		<ActionCard
 			title={ __( 'Metering', 'newspack-plugin' ) }
@@ -29,7 +32,7 @@ export default function Metering( { metering, onChange }: MeteringProps ) {
 					checked={ metering.enabled }
 					onChange={ () => onChange( { ...metering, enabled: ! metering.enabled } ) }
 				/>
-				{ metering.enabled && parseInt( metering.count ) === 0 && (
+				{ metering.enabled && isCountZero && (
 					<Notice
 						isWarning
 						noticeText={ __(
@@ -48,8 +51,8 @@ export default function Metering( { metering, onChange }: MeteringProps ) {
 							'newspack-plugin'
 						) }
 						min={ 0 }
-						value={ parseInt( metering.count ) }
-						onChange={ v => onChange( { ...metering, count: parseInt( v ) } ) }
+						value={ count }
+						onChange={ v => onChange( { ...metering, count: v !== undefined ? Number( v ) : 0 } ) }
 					/>
 					<SelectControl
 						label={ __( 'Period', 'newspack-plugin' ) }
