@@ -274,15 +274,11 @@ class Teams_For_Memberships {
 		if ( $old_subscription && in_array( $old_subscription->get_status(), [ 'expired' ] ) ) {
 			$team_subscriptions = new \SkyVerge\WooCommerce\Memberships\Teams\Integrations\Subscriptions();
 			$existing_teams     = $team_subscriptions->get_teams_from_subscription( $old_subscription_id );
-
 			if ( ! empty( $existing_teams ) ) {
-
 				foreach ( $existing_teams as $existing_team ) {
-
 					// update the team's subscription link and the order link.
 					update_post_meta( $existing_team->get_id(), '_subscription_id', $new_subscription_id );
 					update_post_meta( $existing_team->get_id(), '_order_id', $new_order_id );
-
 					// Update end dates for all team memberships before reactivating.
 					foreach ( $existing_team->get_user_memberships() as $user_membership ) {
 						$user_membership->set_end_date( $new_subscription->get_date( 'end' ) );
@@ -290,20 +286,19 @@ class Teams_For_Memberships {
 						$subscription_membership = new \WC_Memberships_Integration_Subscriptions_User_Membership( $user_membership->post );
 						$subscription_membership->set_subscription_id( $new_subscription->get_id() );
 						// bail if not associated with an order.
-						if ( ! $order instanceof \WC_Order ) {
+						if ( ! $resubscribe_order instanceof \WC_Order ) {
 							continue;
 						}
-						$note     = '';
-						$order_id = $resubscribe_order->get_id();
-						$product  = $existing_team->get_product();
-						$subscription_membership->set_order_id( $order_id );
+						$note    = '';
+						$product = $existing_team->get_product();
+						$subscription_membership->set_order_id( $new_order_id );
 						if ( $product instanceof \WC_Product ) {
 							$subscription_membership->set_product_id( $product->get_id() );
 							$note = sprintf(
 								/* translators: Placeholders: %1$s - subscription product name, %2%s - order number */
 								__( 'Membership re-activated due to subscription re-purchase (%1$s, Order %2$s).', 'newspack-plugin' ),
 								$product->get_title(),
-								'<a href="' . esc_url( admin_url( 'post.php?post=' . $order_id . '&action=edit' ) ) . '" >' . esc_html( $order_id ) . '</a>'
+								'<a href="' . esc_url( admin_url( 'post.php?post=' . $new_order_id . '&action=edit' ) ) . '" >' . esc_html( $new_order_id ) . '</a>'
 							);
 						}
 						if ( $subscription_membership->has_status( [ 'pending', 'cancelled' ] ) ) {
