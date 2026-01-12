@@ -411,7 +411,7 @@ class Content_Gate {
 	public static function is_metering_enabled( $post_type = self::GATE_CPT ) {
 		$gates = self::get_gates( $post_type );
 		foreach ( $gates as $gate ) {
-			if ( $gate['metering']['enabled'] ) {
+			if ( isset( $gate['metering'] ) && ! empty( $gate['metering']['enabled'] ) ) {
 				return true;
 			}
 		}
