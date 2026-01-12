@@ -20,7 +20,7 @@ class Content_Gate {
 
 	const GATE_CPT = 'np_content_gate';
 
-	const GATE_LAYOUT_CPT = 'np_content_gate_layout';
+	const GATE_LAYOUT_CPT = 'np_gate_layout';
 
 	/**
 	 * Whether the gate has been rendered in this execution.
@@ -620,7 +620,7 @@ class Content_Gate {
 			'active'               => isset( $registration['active'] ) ? (bool) $registration['active'] : false,
 			'metering'             => isset( $registration['metering'] ) ? $registration['metering'] : Metering::get_metering_settings( $gate_id ),
 			'require_verification' => isset( $registration['require_verification'] ) ? (bool) $registration['require_verification'] : false,
-			'gate_id'              => isset( $registration['gate_id'] ) ? (int) $registration['gate_id'] : 0,
+			'gate_layout_id'       => isset( $registration['gate_layout_id'] ) ? (int) $registration['gate_layout_id'] : 0,
 		];
 	}
 
@@ -650,10 +650,10 @@ class Content_Gate {
 		}
 
 		return [
-			'active'       => isset( $custom_access['active'] ) ? (bool) $custom_access['active'] : false,
-			'metering'     => isset( $custom_access['metering'] ) ? $custom_access['metering'] : Metering::get_metering_settings( $gate_id ),
-			'gate_id'      => isset( $custom_access['gate_id'] ) ? (int) $custom_access['gate_id'] : 0,
-			'access_rules' => isset( $custom_access['access_rules'] ) ? $custom_access['access_rules'] : [],
+			'active'         => isset( $custom_access['active'] ) ? (bool) $custom_access['active'] : false,
+			'metering'       => isset( $custom_access['metering'] ) ? $custom_access['metering'] : Metering::get_metering_settings( $gate_id ),
+			'access_rules'   => isset( $custom_access['access_rules'] ) ? $custom_access['access_rules'] : [],
+			'gate_layout_id' => isset( $custom_access['gate_layout_id'] ) ? (int) $custom_access['gate_layout_id'] : 0,
 		];
 	}
 
