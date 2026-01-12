@@ -182,8 +182,8 @@ class Content_Restriction_Control {
 		}
 
 		foreach ( $post_gates as $gate ) {
-			$gate_id     = null;
-			$is_restricted = false;
+			$gate_layout_id = null;
+			$is_restricted  = false;
 
 			// Check custom_access mode first (higher priority).
 			if ( ! empty( $gate['custom_access']['active'] ) ) {
@@ -191,8 +191,8 @@ class Content_Restriction_Control {
 				if ( ! empty( $access_rules ) ) {
 					foreach ( $access_rules as $rule ) {
 						if ( ! Access_Rules::evaluate_rule( $rule['slug'], $rule['value'] ?? null ) ) {
-							$is_restricted = true;
-							$gate_id       = $gate['custom_access']['gate_id'] ?? $gate['id'];
+							$is_restricted  = true;
+							$gate_layout_id = $gate['custom_access']['gate_layout_id'] ?? $gate['id'];
 							break;
 						}
 					}
@@ -203,20 +203,20 @@ class Content_Restriction_Control {
 			if ( ! $is_restricted && ! empty( $gate['registration']['active'] ) ) {
 				// Check if user is logged in.
 				if ( ! \is_user_logged_in() ) {
-					$is_restricted = true;
-					$gate_id       = $gate['registration']['gate_id'] ?? $gate['id'];
+					$is_restricted  = true;
+					$gate_layout_id = $gate['registration']['gate_layout_id'] ?? $gate['id'];
 				} elseif ( ! empty( $gate['registration']['require_verification'] ) ) {
 					// Check if email verification is required.
 					$user = \wp_get_current_user();
 					if ( ! \get_user_meta( $user->ID, Reader_Activation::EMAIL_VERIFIED, true ) ) {
-						$is_restricted = true;
-						$gate_id       = $gate['registration']['gate_id'] ?? $gate['id'];
+						$is_restricted  = true;
+						$gate_layout_id = $gate['registration']['gate_layout_id'] ?? $gate['id'];
 					}
 				}
 			}
 
-			if ( $is_restricted && $gate_id ) {
-				self::$post_gate_id_map[ $post_id ] = $gate_id;
+			if ( $is_restricted && $gate_layout_id ) {
+				self::$post_gate_id_map[ $post_id ] = $gate_layout_id;
 				return true;
 			}
 		}
