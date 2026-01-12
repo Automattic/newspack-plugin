@@ -26,6 +26,8 @@ if ( ! defined( 'NEWSPACK_PLUGIN_BASEDIR' ) ) {
 	define( 'NEWSPACK_PLUGIN_BASEDIR', dirname( plugin_basename( NEWSPACK_PLUGIN_FILE ) ) );
 }
 
+error_log( 'Testing Copilot autoreviews!' );
+
 require_once __DIR__ . '/vendor/autoload.php';
 
 // Action Scheduler.
