@@ -277,6 +277,9 @@ function resizeFloatingElements() {
 	// so we need to manually set their max-height to match the excerpt height.
 	const floatingElements = excerpt.querySelectorAll( '.alignleft, .alignright' );
 	floatingElements.forEach( el => {
+		if ( el.clientHeight <= excerpt.clientHeight ) {
+			return;
+		}
 		el.style.maxHeight = `${ excerpt.clientHeight }px`;
 		el.style.overflow = 'hidden';
 		// Ensure the element is displayed as a block-level element to respect height/overflow constraints.
