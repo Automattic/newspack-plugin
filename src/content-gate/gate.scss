@@ -81,10 +81,19 @@
 		}
 	}
 	&__restricted-post-excerpt {
+		position: relative;
 		pointer-events: none;
-		background: linear-gradient(180deg, rgba(255,255,255,0) 14%, rgba(255,255,255,1) 76%);
 		width: 100%;
 		overflow: clip;
+	}
+	&__inline-fade {
+		position: absolute;
+		bottom: 0;
+		left: 0;
+		height: 10em;
+		width: 100%;
+		background: linear-gradient(180deg, rgba(255,255,255,0) 14%, rgba(255,255,255,1) 76%);
+		z-index: 1;
 	}
 }
 
