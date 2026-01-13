@@ -17,9 +17,8 @@ class Tag_Labels {
 	/**
 	 * Key names.
 	 */
-	const TAG_LABEL_SLUG = 'label';
-	const TAG_LABEL_META_KEY = '_label_enabled';
-	const TAG_LABEL_FLAG_META_KEY = '_label_flag';
+	const TAG_LABEL_META_KEY = '_np_label_enabled';
+	const TAG_LABEL_FLAG_META_KEY = '_np_label_flag';
 
 
 	// Helper functions for themes to get arrays of labels and flags.
@@ -34,7 +33,7 @@ class Tag_Labels {
 		if ( ! $term || ! $term->term_id ) {
 			return false;
 		}
-		return (bool) ( true == get_term_meta( $term->term_id, self::TAG_LABEL_META_KEY, true ) );  // Meta value is 1 when enabled; use less-strict equivalence here.
+		return ! empty( get_term_meta( $term->term_id, self::TAG_LABEL_META_KEY, true ) );
 	}
 
 	/**
