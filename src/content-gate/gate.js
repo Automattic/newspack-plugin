@@ -283,7 +283,7 @@ function resizeFloatingElements() {
 		el.style.maxHeight = `${ excerpt.clientHeight }px`;
 		el.style.overflow = 'hidden';
 		// Ensure the element is displayed as a block-level element to respect height/overflow constraints.
-		if ( ! [ 'block', 'flex', 'grid' ].includes( el.style.display ) ) {
+		if ( ! [ 'block', 'flex', 'grid' ].includes( window.getComputedStyle( el ).display ) ) {
 			el.style.display = 'block';
 		}
 	} );
@@ -299,6 +299,7 @@ domReady( function () {
 	if ( gate.classList.contains( 'newspack-content-gate__overlay-gate' ) ) {
 		initOverlay( gate );
 	} else {
+		window.addEventListener( 'resize', resizeFloatingElements );
 		resizeFloatingElements();
 		// Seen event for inline gate.
 		const detectSeen = () => {
