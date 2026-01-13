@@ -164,7 +164,7 @@ class Group_Subscriptions {
 		}
 		\add_meta_box(
 			'newspack-group-subscription',
-			__( 'Group Subscription settings', 'newspack-plugin' ),
+			__( 'Group subscription', 'newspack-plugin' ),
 			[ __CLASS__, 'add_group_subscription_options' ],
 			$post_type,
 			'side',
