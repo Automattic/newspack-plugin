@@ -232,14 +232,14 @@ class Test_Collections_Block extends \WP_UnitTestCase {
 			$this->assertEquals( 'post-thumbnail', $size, "Grid layout with {$columns} columns should map to post-thumbnail" );
 		}
 
-		// Test grid layout with columns >= 5 (should return newspack_collection_grid).
+		// Test grid layout with columns >= 5 (should return medium).
 		foreach ( [ 5, 6 ] as $columns ) {
 			$attributes = [
 				'layout'  => 'grid',
 				'columns' => $columns,
 			];
 			$size       = Collections_Block::get_image_size_from_attributes( $attributes );
-			$this->assertEquals( 'newspack_collection_grid', $size, "Grid layout with {$columns} columns should map to newspack_collection_grid" );
+			$this->assertEquals( 'medium', $size, "Grid layout with {$columns} columns should map to medium" );
 		}
 	}
 
