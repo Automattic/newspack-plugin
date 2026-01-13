@@ -32,6 +32,7 @@ class Group_Subscriptions {
 		// Add Group Subscription options to subscription admin pages.
 		add_action( 'add_meta_boxes', [ __CLASS__, 'add_group_subscription_meta_box' ], 20, 2 );
 		add_action( 'woocommerce_process_shop_order_meta', [ __CLASS__, 'save_group_subscription_meta' ], 10, 2 );
+		add_action( 'wp_ajax_newspack_group_subscription_search_users', [ __CLASS__, 'ajax_search_users' ] );
 	}
 
 	/**
@@ -143,10 +144,11 @@ class Group_Subscriptions {
 		if ( ! $subscription ) {
 			return self::DEFAULT_SETTINGS;
 		}
-		$product_id          = self::get_subscription_product_id( $subscription );
-		$settings            = self::get_product_settings( $product_id );
-		$settings['enabled'] = $subscription->get_meta( '_newspack_group_subscription_enabled', true ) ? \wc_string_to_bool( $subscription->get_meta( '_newspack_group_subscription_enabled', true ) ) : $settings['enabled'];
-		$settings['limit']   = (int) $subscription->get_meta( '_newspack_group_subscription_limit', true ) ?: $settings['limit']; // phpcs:ignore Universal.Operators.DisallowShortTernary.Found
+		$product_id           = self::get_subscription_product_id( $subscription );
+		$settings             = self::get_product_settings( $product_id );
+		$settings['enabled']  = $subscription->get_meta( '_newspack_group_subscription_enabled', true ) ? \wc_string_to_bool( $subscription->get_meta( '_newspack_group_subscription_enabled', true ) ) : $settings['enabled'];
+		$settings['limit']    = (int) $subscription->get_meta( '_newspack_group_subscription_limit', true ) ?: $settings['limit']; // phpcs:ignore Universal.Operators.DisallowShortTernary.Found
+		$settings['user_ids'] = $subscription->get_meta( '_newspack_group_subscription_user_ids', true ) ? explode( ',', $subscription->get_meta( '_newspack_group_subscription_user_ids', true ) ) : [];
 		return $settings;
 	}
 
@@ -217,7 +219,106 @@ class Group_Subscriptions {
 			}
 			?>
 		</div>
+		<div class="form-row show_if_newspack_group_subscription_enabled">
+			<label for="_newspack_group_subscription_user_ids">
+				<?php esc_html_e( 'Group members', 'newspack-plugin' ); ?>
+			</label>
+			<select id="_newspack_group_subscription_user_ids" name="_newspack_group_subscription_user_ids[]" multiple="multiple">
+				<?php
+				foreach ( $settings['user_ids'] as $user_id ) :
+					$user = get_user_by( 'id', $user_id );
+					if ( ! $user || ! Reader_Activation::is_user_reader( $user ) ) {
+						continue;
+					}
+					?>
+					<option value="<?php echo esc_attr( $user_id ); ?>" selected="selected">
+						<?php echo esc_html( $user->user_email ); ?>
+					</option>
+					<?php
+				endforeach;
+				?>
+			</select>
+			<script>
+				jQuery( document ).ready( function() {
+					jQuery( '#_newspack_group_subscription_user_ids' ).select2( {
+						ajax: {
+							url: ajaxurl,
+							dataType: 'json',
+							type: 'POST',
+							delay: 1000,
+							data: function( params ) {
+								return {
+									action: 'newspack_group_subscription_search_users',
+									search: params.term,
+									nonce: '<?php echo wp_create_nonce( 'newspack_group_subscription_search_users' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>'
+								};
+							},
+							processResults: function( data ) {
+								return {
+									results: data
+								};
+							},
+							cache: true
+						},
+						minimumInputLength: 2,
+						placeholder: '<?php esc_html_e( 'Search for a reader...', 'newspack-plugin' ); ?>',
+						allowClear: true
+					} );
+				} );
+			</script>
+		</div>
 		<?php
+	}
+
+	/**
+	 * Handle AJAX search for users.
+	 */
+	public static function ajax_search_users() {
+		check_ajax_referer( 'newspack_group_subscription_search_users', 'nonce' );
+		if ( ! current_user_can( 'edit_posts' ) ) {
+			wp_die( 'Insufficient permissions' );
+		}
+		if ( ! isset( $_POST['search'] ) ) {
+			wp_die( 'Invalid request' );
+		}
+		$search = sanitize_text_field( $_POST['search'] );
+		$query1 = get_users(
+			[
+				'fields'         => [ 'ID', 'user_email' ],
+				'search'         => $search,
+				'search_columns' => [ 'ID', 'user_login', 'user_url', 'user_email', 'user_nicename', 'display_name' ],
+				'role__in'       => Reader_Activation::get_reader_roles(),
+			]
+		);
+		$query2 = get_users(
+			[
+				'fields'     => [ 'ID', 'user_email' ],
+				'role__in'   => Reader_Activation::get_reader_roles(),
+				'meta_query' => [ // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
+					'relation' => 'OR',
+					[
+						'key'     => 'first_name',
+						'value'   => $search,
+						'compare' => 'LIKE',
+					],
+					[
+						'key'     => 'last_name',
+						'value'   => $search,
+						'compare' => 'LIKE',
+					],
+				],
+			]
+		);
+		$users = array_map(
+			function( $user ) {
+				return [
+					'id'   => $user->ID,
+					'text' => $user->user_email . ' (#' . $user->ID . ')',
+				];
+			},
+			array_merge( $query1, $query2 )
+		);
+		wp_send_json( $users );
 	}
 
 	/**
@@ -239,8 +340,9 @@ class Group_Subscriptions {
 		// Get subscription object.
 		$subscription      = is_a( $subscription, 'WC_Subscription' ) ? $subscription : \wcs_get_subscription( $subscription_id );
 		$previous_settings = self::get_subscription_settings( $subscription );
-		$is_enabled        = isset( $_POST['_newspack_group_subscription_enabled'] ) ? true : false;
-		$limit             = isset( $_POST['_newspack_group_subscription_limit'] ) ? absint( $_POST['_newspack_group_subscription_limit'] ) : 0;
+		$is_enabled        = filter_input( INPUT_POST, '_newspack_group_subscription_enabled', FILTER_VALIDATE_BOOLEAN );
+		$limit             = filter_input( INPUT_POST, '_newspack_group_subscription_limit', FILTER_SANITIZE_NUMBER_INT );
+		$user_ids          = filter_input( INPUT_POST, '_newspack_group_subscription_user_ids', FILTER_SANITIZE_NUMBER_INT, FILTER_REQUIRE_ARRAY );
 		$should_save       = false;
 
 		if ( $is_enabled !== $previous_settings['enabled'] ) {
@@ -248,7 +350,11 @@ class Group_Subscriptions {
 			$should_save = true;
 		}
 		if ( $limit !== $previous_settings['limit'] ) {
-			$subscription->update_meta_data( '_newspack_group_subscription_limit', absint( $_POST['_newspack_group_subscription_limit'] ) );
+			$subscription->update_meta_data( '_newspack_group_subscription_limit', $limit );
+			$should_save = true;
+		}
+		if ( $user_ids !== $previous_settings['user_ids'] ) {
+			$subscription->update_meta_data( '_newspack_group_subscription_user_ids', implode( ',', $user_ids ) );
 			$should_save = true;
 		}
 		if ( $should_save ) {
