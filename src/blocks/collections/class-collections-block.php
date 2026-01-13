@@ -257,8 +257,6 @@ final class Collections_Block {
 		<?php
 	}
 
-
-
 	/**
 	 * Map editor image size attribute to an image size name used on the frontend.
 	 *
