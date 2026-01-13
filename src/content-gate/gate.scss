@@ -80,6 +80,12 @@
 			}
 		}
 	}
+	&__restricted-post-excerpt {
+		pointer-events: none;
+		background: linear-gradient(180deg, rgba(255,255,255,0) 14%, rgba(255,255,255,1) 76%);
+		width: 100%;
+		overflow: clip;
+	}
 }
 
 // Hide the gate while the sign in or checkout modals are open.

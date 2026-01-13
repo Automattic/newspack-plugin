@@ -265,6 +265,27 @@ function initOverlay( gate ) {
 	handleScroll();
 }
 
+/**
+ * Resize any floating elements within gate excerpt to match excerpt height.
+ */
+function resizeFloatingElements() {
+	const excerpt = document.querySelector( '.newspack-content-gate__restricted-post-excerpt' );
+	if ( ! excerpt ) {
+		return;
+	}
+	// Floating elements live outside of the normal DOM flow,
+	// so we need to manually set their max-height to match the excerpt height.
+	const floatingElements = excerpt.querySelectorAll( '.alignleft, .alignright' );
+	floatingElements.forEach( el => {
+		el.style.maxHeight = `${ excerpt.clientHeight }px`;
+		el.style.overflow = 'hidden';
+		// Ensure the element is displayed as a block-level element to respect height/overflow constraints.
+		if ( ! [ 'block', 'flex', 'grid' ].includes( el.style.display ) ) {
+			el.style.display = 'block';
+		}
+	} );
+}
+
 domReady( function () {
 	const gate = document.querySelector( '.newspack-content-gate__gate' );
 	if ( ! gate ) {
@@ -275,6 +296,7 @@ domReady( function () {
 	if ( gate.classList.contains( 'newspack-content-gate__overlay-gate' ) ) {
 		initOverlay( gate );
 	} else {
+		resizeFloatingElements();
 		// Seen event for inline gate.
 		const detectSeen = () => {
 			const delta = ( gate?.getBoundingClientRect().top || 0 ) - window.innerHeight / 2;
