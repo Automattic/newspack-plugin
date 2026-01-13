@@ -525,32 +525,7 @@ class Content_Gate {
 		self::$is_gated = true;
 
 		$gate_post_id = self::get_gate_post_id();
-
-		$content = $post->post_content;
-
-		$style = \get_post_meta( $gate_post_id, 'style', true );
-
-		$use_more_tag = get_post_meta( $gate_post_id, 'use_more_tag', true );
-		// Use <!--more--> as threshold if it exists.
-		if ( $use_more_tag && strpos( $content, '<!--more-->' ) ) {
-			$content = apply_filters( 'newspack_gate_content', explode( '<!--more-->', $content )[0] );
-		} else {
-			$content = apply_filters( 'newspack_gate_content', $content );
-			$count   = max( 1, (int) get_post_meta( $gate_post_id, 'visible_paragraphs', true ) );
-			// Split into paragraphs.
-			$content = explode( '</p>', $content );
-			// Extract the first $x paragraphs only.
-			$content = array_slice( $content, 0, $count ?? 2 );
-			if ( 'overlay' === $style ) {
-				// Append ellipsis to the last paragraph.
-				$content[ count( $content ) - 1 ] .= ' [&hellip;]';
-			}
-			// Rejoin the paragraphs into a single string again.
-			$content = \force_balance_tags( \wp_kses_post( implode( '</p>', $content ) . '</p>' ) );
-		}
-		// Wrap restricted content in a div for styling.
-		$content = '<div class="newspack-content-gate__restricted-post-excerpt">' . $content . '</div>';
-		return $content;
+		return self::get_restricted_post_excerpt_for_gate( $post, $gate_post_id );
 	}
 
 	/**

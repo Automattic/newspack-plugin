@@ -172,6 +172,8 @@ trait Content_Gate_Layout {
 			// Rejoin the paragraphs into a single string again.
 			$content = \force_balance_tags( \wp_kses_post( implode( '</p>', $content ) . '</p>' ) );
 		}
+		// Wrap restricted content in a div for styling.
+		$content = '<div class="newspack-content-gate__restricted-post-excerpt">' . $content . '</div>';
 		return $content;
 	}
 
