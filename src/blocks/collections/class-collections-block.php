@@ -65,6 +65,16 @@ final class Collections_Block {
 	 */
 	public static function init() {
 		add_action( 'init', [ __CLASS__, 'register_block' ] );
+		add_action( 'after_setup_theme', [ __CLASS__, 'register_image_sizes' ] );
+	}
+
+	/**
+	 * Register custom image sizes for collections block when displayed as a grid.
+	 *
+	 * @return void
+	 */
+	public static function register_image_sizes() {
+		add_image_size( 'newspack_collection_grid', 550, 9999 );
 	}
 
 	/**
@@ -257,6 +267,8 @@ final class Collections_Block {
 		<?php
 	}
 
+
+
 	/**
 	 * Map editor image size attribute to an image size name used on the frontend.
 	 *
@@ -264,6 +276,10 @@ final class Collections_Block {
 	 * @return string Image size name.
 	 */
 	public static function get_image_size_from_attributes( $attributes ) {
+		if ( 'grid' === $attributes['layout'] && 5 <= $attributes['columns'] ) {
+			return 'newspack_collection_grid';
+		}
+
 		if ( ! isset( $attributes['layout'] ) || 'grid' === $attributes['layout'] ) {
 			return 'post-thumbnail';
 		}
