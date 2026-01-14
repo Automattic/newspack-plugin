@@ -381,7 +381,7 @@ class Group_Subscriptions {
 	 */
 	private static function update_members( $subscription, $member_ids ) {
 		$settings   = self::get_subscription_settings( $subscription );
-		$member_ids = array_values( array_unique( array_map( 'intval', (array) $member_ids ) ) );
+		$member_ids = array_values( array_unique( array_map( 'absint', (array) $member_ids ) ) );
 		if ( empty( array_diff( $member_ids, $settings['member_ids'] ) ) && empty( array_diff( $settings['member_ids'], $member_ids ) ) ) {
 			return false;
 		}
