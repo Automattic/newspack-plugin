@@ -17,8 +17,9 @@ class Group_Subscriptions {
 	 * Default group subscription settings.
 	 */
 	const DEFAULT_SETTINGS = [
-		'enabled' => false,
-		'limit'   => 0,
+		'enabled'  => false,
+		'limit'    => 0,
+		'user_ids' => [],
 	];
 
 	/**
@@ -106,7 +107,14 @@ class Group_Subscriptions {
 		}
 		$settings['enabled'] = $product->get_meta( '_newspack_group_subscription_enabled', true ) ? \wc_string_to_bool( $product->get_meta( '_newspack_group_subscription_enabled', true ) ) : self::DEFAULT_SETTINGS['enabled'];
 		$settings['limit']   = (int) $product->get_meta( '_newspack_group_subscription_limit', true ) ?: self::DEFAULT_SETTINGS['limit']; // phpcs:ignore Universal.Operators.DisallowShortTernary.Found
-		return $settings;
+
+		/**
+		 * Filter the group subscription settings for a product.
+		 *
+		 * @param array $settings The group subscription settings.
+		 * @param WC_Product $product The product object.
+		 */
+		return apply_filters( 'newspack_group_subscription_product_settings', $settings, $product );
 	}
 
 	/**
@@ -148,8 +156,14 @@ class Group_Subscriptions {
 		$settings             = self::get_product_settings( $product_id );
 		$settings['enabled']  = $subscription->get_meta( '_newspack_group_subscription_enabled', true ) ? \wc_string_to_bool( $subscription->get_meta( '_newspack_group_subscription_enabled', true ) ) : $settings['enabled'];
 		$settings['limit']    = (int) $subscription->get_meta( '_newspack_group_subscription_limit', true ) ?: $settings['limit']; // phpcs:ignore Universal.Operators.DisallowShortTernary.Found
-		$settings['user_ids'] = $subscription->get_meta( '_newspack_group_subscription_user_ids', true ) ? explode( ',', $subscription->get_meta( '_newspack_group_subscription_user_ids', true ) ) : [];
-		return $settings;
+		$settings['user_ids'] = $subscription->get_meta( '_newspack_group_subscription_user_ids', true ) ? array_map( 'intval', explode( ',', $subscription->get_meta( '_newspack_group_subscription_user_ids', true ) ) ) : [];
+		/**
+		 * Filter the group subscription settings for a subscription.
+		 *
+		 * @param array $settings The group subscription settings.
+		 * @param WC_Subscription $subscription The subscription object.
+		 */
+		return apply_filters( 'newspack_group_subscription_settings', $settings, $subscription );
 	}
 
 	/**
@@ -283,31 +297,51 @@ class Group_Subscriptions {
 		}
 		$search = sanitize_text_field( $_POST['search'] );
 		$query1 = get_users(
-			[
-				'fields'         => [ 'ID', 'user_email' ],
-				'search'         => $search,
-				'search_columns' => [ 'ID', 'user_login', 'user_url', 'user_email', 'user_nicename', 'display_name' ],
-				'role__in'       => Reader_Activation::get_reader_roles(),
-			]
+			/**
+			 * Filter the user query args for searching for group subscription users.
+			 *
+			 * @param array $query_args Query args.
+			 * @param string $query_type Query type: main_query or meta_query.
+			 */
+			apply_filters(
+				'newspack_group_subscription_user_query_args',
+				[
+					'fields'         => [ 'ID', 'user_email' ],
+					'search'         => $search,
+					'search_columns' => [ 'ID', 'user_login', 'user_url', 'user_email', 'user_nicename', 'display_name' ],
+					'role__in'       => Reader_Activation::get_reader_roles(),
+				],
+				'main_query'
+			)
 		);
 		$query2 = get_users(
-			[
-				'fields'     => [ 'ID', 'user_email' ],
-				'role__in'   => Reader_Activation::get_reader_roles(),
-				'meta_query' => [ // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
-					'relation' => 'OR',
-					[
-						'key'     => 'first_name',
-						'value'   => $search,
-						'compare' => 'LIKE',
-					],
-					[
-						'key'     => 'last_name',
-						'value'   => $search,
-						'compare' => 'LIKE',
+			/**
+			 * Filter the user query args for searching for group subscription users.
+			 *
+			 * @param array $query_args Query args.
+			 * @param string $query_type Query type: main_query or meta_query.
+			 */
+			apply_filters(
+				'newspack_group_subscription_user_query_args',
+				[
+					'fields'     => [ 'ID', 'user_email' ],
+					'role__in'   => Reader_Activation::get_reader_roles(),
+					'meta_query' => [ // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
+						'relation' => 'OR',
+						[
+							'key'     => 'first_name',
+							'value'   => $search,
+							'compare' => 'LIKE',
+						],
+						[
+							'key'     => 'last_name',
+							'value'   => $search,
+							'compare' => 'LIKE',
+						],
 					],
 				],
-			]
+				'meta_query'
+			)
 		);
 		$users = array_map(
 			function( $user ) {
@@ -360,6 +394,90 @@ class Group_Subscriptions {
 		if ( $should_save ) {
 			$subscription->save();
 		}
+	}
+
+	/**
+	 * Check if a subscription is a group subscription.
+	 *
+	 * @param WC_Subscription|int $subscription The subscription object or ID.
+	 *
+	 * @return bool Whether the subscription is a group subscription.
+	 */
+	public static function is_group_subscription( $subscription ) {
+		$settings = self::get_subscription_settings( $subscription );
+		return $settings['enabled'];
+	}
+
+	/**
+	 * Get the managers of a group subscription.
+	 *
+	 * @param WC_Subscription|int $subscription The subscription object or ID.
+	 *
+	 * @return int[]|null The group manager user IDs or null if not a group subscription.
+	 */
+	public static function get_managers( $subscription ) {
+		if ( ! self::is_group_subscription( $subscription ) ) {
+			return null;
+		}
+
+		if ( ! is_a( $subscription, 'WC_Subscription' ) ) {
+			$subscription = \wcs_get_subscription( $subscription );
+		}
+
+		/**
+		 * Filter the managers of a group subscription.
+		 * Currently this is only the subscription owner.
+		 *
+		 * @param int[] $user_ids The group manager user IDs.
+		 * @param WC_Subscription $subscription The subscription object.
+		 */
+		return apply_filters( 'newspack_group_subscription_managers', [ $subscription->get_user_id() ], $subscription );
+	}
+
+	/**
+	 * Get the members of a group subscription.
+	 *
+	 * @param WC_Subscription|int $subscription The subscription object or ID.
+	 *
+	 * @return int[]|null The group member user IDs or null if not a group subscription.
+	 */
+	public static function get_members( $subscription ) {
+		if ( ! self::is_group_subscription( $subscription ) ) {
+			return null;
+		}
+		$settings = self::get_subscription_settings( $subscription );
+
+		/**
+		 * Filter the members of a group subscription.
+		 *
+		 * @param int[] $user_ids The group member user IDs.
+		 * @param WC_Subscription $subscription The subscription object.
+		 */
+		return apply_filters( 'newspack_group_subscription_members', $settings['user_ids'], $subscription );
+	}
+
+	/**
+	 * Check if a user has access to a group subscription.
+	 *
+	 * @param int                 $user_id The user ID.
+	 * @param WC_Subscription|int $subscription The subscription object or ID.
+	 *
+	 * @return bool|null Whether the user has access to the group subscription, or null if not a group subscription.
+	 */
+	public static function user_can_access( $user_id, $subscription ) {
+		if ( ! self::is_group_subscription( $subscription ) ) {
+			return null;
+		}
+		$can_access = in_array( $user_id, self::get_managers( $subscription ), true ) || in_array( $user_id, self::get_members( $subscription ), true );
+
+		/**
+		 * Filter whether a user can access a group subscription.
+		 *
+		 * @param bool $can_access Whether the user can access the group subscription.
+		 * @param int $user_id The user ID.
+		 * @param WC_Subscription $subscription The subscription object.
+		 */
+		return apply_filters( 'newspack_group_subscription_user_can_access', $can_access, $user_id, $subscription );
 	}
 }
 Group_Subscriptions::init();
