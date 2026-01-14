@@ -491,7 +491,7 @@ class Group_Subscriptions {
 		 * Filter the members of a group subscription.
 		 *
 		 * @param int[] $member_ids The group member user IDs.
-		 * @param WC_Subscription $subscription The subscription object.
+		 * @param WC_Subscription|int $subscription The subscription object or ID.
 		 */
 		return apply_filters( 'newspack_group_subscription_members', $settings['member_ids'], $subscription );
 	}
@@ -515,7 +515,7 @@ class Group_Subscriptions {
 		 *
 		 * @param bool $can_access Whether the user can access the group subscription.
 		 * @param int $user_id The user ID.
-		 * @param WC_Subscription $subscription The subscription object.
+		 * @param WC_Subscription|int $subscription The subscription object or ID.
 		 */
 		return apply_filters( 'newspack_group_subscription_user_can_access', $can_access, $user_id, $subscription );
 	}
@@ -526,7 +526,7 @@ class Group_Subscriptions {
 	 * @param int      $user_id The user ID.
 	 * @param string[] $status The statuses of the subscriptions to return.
 	 *
-	 * @return WC_Subscription[]|null The group subscriptions the user is a member of.
+	 * @return WC_Subscription[] The group subscriptions the user is a member of.
 	 */
 	public static function get_group_subscriptions_for_user( $user_id, $status = [ 'active', 'pending-cancel' ] ) {
 		$user_id       = (int) $user_id;
