@@ -303,10 +303,10 @@ class Group_Subscriptions {
 	public static function ajax_search_users() {
 		check_ajax_referer( 'newspack_group_subscription_search_users', 'nonce' );
 		if ( ! current_user_can( 'manage_woocommerce' ) ) {
-			wp_die( 'Insufficient permissions' );
+			wp_die( esc_html__( 'Insufficient permissions', 'newspack' ) );
 		}
 		if ( ! isset( $_POST['search'] ) ) {
-			wp_die( 'Invalid request' );
+			wp_die( esc_html__( 'Invalid request', 'newspack' ) );
 		}
 		$search  = filter_input( INPUT_POST, 'search', FILTER_SANITIZE_SPECIAL_CHARS );
 		$exclude = filter_input( INPUT_POST, 'exclude', FILTER_VALIDATE_INT, FILTER_REQUIRE_ARRAY );
