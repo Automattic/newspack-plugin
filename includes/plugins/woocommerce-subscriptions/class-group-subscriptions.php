@@ -277,7 +277,7 @@ class Group_Subscriptions {
 									action: 'newspack_group_subscription_search_users',
 									exclude: $select.val(),
 									search: params.term,
-									nonce: '<?php echo wp_create_nonce( 'newspack_group_subscription_search_users' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>'
+									nonce: '<?php echo esc_attr( wp_create_nonce( 'newspack_group_subscription_search_users' ) ); ?>'
 								};
 							},
 							processResults: function( data ) {
