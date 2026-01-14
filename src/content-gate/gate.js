@@ -266,25 +266,38 @@ function initOverlay( gate ) {
 }
 
 /**
- * Resize any floating elements within gate excerpt to match excerpt height.
+ * Handle any floating elements within gate excerpt.
+ * Floating elements live outside of the normal DOM flow,
+ * so we need to handle various cases when they appear in the excerpt.
  */
-function resizeFloatingElements() {
+function handleFloatingElements() {
 	const excerpt = document.querySelector( '.newspack-content-gate__restricted-post-excerpt' );
 	if ( ! excerpt ) {
+		// No excerpt, nothing to do.
 		return;
 	}
-	// Floating elements live outside of the normal DOM flow,
-	// so we need to manually set their max-height to match the excerpt height.
 	const floatingElements = excerpt.querySelectorAll( '.alignleft, .alignright' );
+	if ( ! floatingElements.length ) {
+		// No floating elements, nothing to do.
+		return;
+	}
+	const { bottom: excerptBottom } = excerpt.getBoundingClientRect();
 	floatingElements.forEach( el => {
-		if ( el.clientHeight <= excerpt.clientHeight ) {
+		const { y: top, bottom } = el.getBoundingClientRect();
+		// If the floating element ends within the visible area of the excerpt, do nothing.
+		if ( bottom <= excerptBottom ) {
 			return;
 		}
-		el.style.maxHeight = `${ excerpt.clientHeight }px`;
-		el.style.overflow = 'hidden';
-		// Ensure the element is displayed as a block-level element to respect height/overflow constraints.
-		if ( ! [ 'block', 'flex', 'grid' ].includes( window.getComputedStyle( el ).display ) ) {
-			el.style.display = 'block';
+		// If the floating element begins outside of the visible area of the excerpt, hide it.
+		if ( top > excerptBottom ) {
+			el.style.display = 'none';
+		} else {
+			el.style.maxHeight = `${ excerptBottom - top }px`;
+			el.style.overflow = 'hidden';
+			// If element display is not block, flex, or grid, set it to block to respect overflow.
+			if ( ! [ 'block', 'flex', 'grid' ].includes( window.getComputedStyle( el ).display ) ) {
+				el.style.display = 'block';
+			}
 		}
 	} );
 }
@@ -299,8 +312,8 @@ domReady( function () {
 	if ( gate.classList.contains( 'newspack-content-gate__overlay-gate' ) ) {
 		initOverlay( gate );
 	} else {
-		window.addEventListener( 'resize', resizeFloatingElements );
-		resizeFloatingElements();
+		window.addEventListener( 'resize', handleFloatingElements );
+		handleFloatingElements();
 		// Seen event for inline gate.
 		const detectSeen = () => {
 			const delta = ( gate?.getBoundingClientRect().top || 0 ) - window.innerHeight / 2;
