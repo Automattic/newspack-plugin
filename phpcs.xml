@@ -25,6 +25,7 @@
 		<properties>
 			<property name="custom_capabilities" type="array">
 				<element value="newspack_view_others_media" />
+				<element value="manage_woocommerce" />
 			</property>
 		</properties>
 	</rule>
