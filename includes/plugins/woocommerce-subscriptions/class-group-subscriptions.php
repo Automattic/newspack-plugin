@@ -415,7 +415,7 @@ class Group_Subscriptions {
 		// Get subscription object.
 		$subscription      = is_a( $subscription, 'WC_Subscription' ) ? $subscription : \wcs_get_subscription( $subscription_id );
 		$previous_settings = self::get_subscription_settings( $subscription );
-		$is_enabled        = filter_input( INPUT_POST, '_newspack_group_subscription_enabled', FILTER_VALIDATE_BOOLEAN );
+		$is_enabled        = isset( $_POST['_newspack_group_subscription_enabled'] );
 		$limit             = absint( filter_input( INPUT_POST, '_newspack_group_subscription_limit', FILTER_SANITIZE_NUMBER_INT ) );
 		$member_ids        = filter_input( INPUT_POST, '_newspack_group_subscription_member_ids', FILTER_SANITIZE_NUMBER_INT, FILTER_REQUIRE_ARRAY );
 		$should_save       = false;
