@@ -17,9 +17,9 @@ class Group_Subscriptions {
 	 * Default group subscription settings.
 	 */
 	const DEFAULT_SETTINGS = [
-		'enabled'  => false,
-		'limit'    => 0,
-		'user_ids' => [],
+		'enabled'    => false,
+		'limit'      => 0,
+		'member_ids' => [],
 	];
 
 	/**
@@ -156,7 +156,18 @@ class Group_Subscriptions {
 		$settings             = self::get_product_settings( $product_id );
 		$settings['enabled']  = $subscription->get_meta( '_newspack_group_subscription_enabled', true ) ? \wc_string_to_bool( $subscription->get_meta( '_newspack_group_subscription_enabled', true ) ) : $settings['enabled'];
 		$settings['limit']    = (int) $subscription->get_meta( '_newspack_group_subscription_limit', true ) ?: $settings['limit']; // phpcs:ignore Universal.Operators.DisallowShortTernary.Found
-		$settings['user_ids'] = $subscription->get_meta( '_newspack_group_subscription_user_ids', true ) ? array_map( 'intval', explode( ',', $subscription->get_meta( '_newspack_group_subscription_user_ids', true ) ) ) : [];
+		$settings['member_ids'] = array_values(
+			array_unique(
+				array_map(
+					function( $member_meta ) {
+						$data = $member_meta->get_data();
+						return (int) $data['value'];
+					},
+					$subscription->get_meta( '_newspack_group_subscription_member_id', false )
+				)
+			)
+		);
+
 		/**
 		 * Filter the group subscription settings for a subscription.
 		 *
@@ -234,12 +245,12 @@ class Group_Subscriptions {
 			?>
 		</div>
 		<div class="form-row show_if_newspack_group_subscription_enabled">
-			<label for="_newspack_group_subscription_user_ids">
+			<label for="_newspack_group_subscription_member_ids">
 				<?php esc_html_e( 'Group members', 'newspack-plugin' ); ?>
 			</label>
-			<select id="_newspack_group_subscription_user_ids" name="_newspack_group_subscription_user_ids[]" multiple="multiple">
+			<select id="_newspack_group_subscription_member_ids" name="_newspack_group_subscription_member_ids[]" multiple="multiple">
 				<?php
-				foreach ( $settings['user_ids'] as $user_id ) :
+				foreach ( $settings['member_ids'] as $user_id ) :
 					$user = get_user_by( 'id', $user_id );
 					if ( ! $user || ! Reader_Activation::is_user_reader( $user ) ) {
 						continue;
@@ -254,7 +265,8 @@ class Group_Subscriptions {
 			</select>
 			<script>
 				jQuery( document ).ready( function() {
-					jQuery( '#_newspack_group_subscription_user_ids' ).select2( {
+					$select = jQuery( '#_newspack_group_subscription_member_ids' );
+					$select.select2( {
 						ajax: {
 							url: ajaxurl,
 							dataType: 'json',
@@ -263,6 +275,7 @@ class Group_Subscriptions {
 							data: function( params ) {
 								return {
 									action: 'newspack_group_subscription_search_users',
+									exclude: $select.val(),
 									search: params.term,
 									nonce: '<?php echo wp_create_nonce( 'newspack_group_subscription_search_users' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>'
 								};
@@ -295,7 +308,8 @@ class Group_Subscriptions {
 		if ( ! isset( $_POST['search'] ) ) {
 			wp_die( 'Invalid request' );
 		}
-		$search = sanitize_text_field( $_POST['search'] );
+		$search  = filter_input( INPUT_POST, 'search', FILTER_SANITIZE_SPECIAL_CHARS );
+		$exclude = filter_input( INPUT_POST, 'exclude', FILTER_VALIDATE_INT, FILTER_REQUIRE_ARRAY );
 		$query1 = get_users(
 			/**
 			 * Filter the user query args for searching for group subscription users.
@@ -307,6 +321,7 @@ class Group_Subscriptions {
 				'newspack_group_subscription_user_query_args',
 				[
 					'fields'         => [ 'ID', 'user_email' ],
+					'exclude'        => $exclude,
 					'search'         => $search,
 					'search_columns' => [ 'ID', 'user_login', 'user_url', 'user_email', 'user_nicename', 'display_name' ],
 					'role__in'       => Reader_Activation::get_reader_roles(),
@@ -325,6 +340,7 @@ class Group_Subscriptions {
 				'newspack_group_subscription_user_query_args',
 				[
 					'fields'     => [ 'ID', 'user_email' ],
+					'exclude'    => $exclude,
 					'role__in'   => Reader_Activation::get_reader_roles(),
 					'meta_query' => [ // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
 						'relation' => 'OR',
@@ -356,6 +372,31 @@ class Group_Subscriptions {
 	}
 
 	/**
+	 * Update the member IDs for a group subscription.
+	 *
+	 * @param WC_Subscription $subscription The subscription object.
+	 * @param int[]           $member_ids The group member user IDs to associate with the subscription.
+	 *
+	 * @return bool Whether the member IDs were updated.
+	 */
+	private static function update_members( $subscription, $member_ids ) {
+		$settings   = self::get_subscription_settings( $subscription );
+		$member_ids = array_values( array_unique( array_map( 'intval', (array) $member_ids ) ) );
+		if ( empty( array_diff( $member_ids, $settings['member_ids'] ) ) && empty( array_diff( $settings['member_ids'], $member_ids ) ) ) {
+			return false;
+		}
+
+		// First, clear existing meta.
+		$subscription->delete_meta_data( '_newspack_group_subscription_member_id' );
+
+		// Then, add new meta.
+		foreach ( $member_ids as $member_id ) {
+			$subscription->add_meta_data( '_newspack_group_subscription_member_id', $member_id );
+		}
+		return true;
+	}
+
+	/**
 	 * Save Group Subscription meta to a subscription.
 	 *
 	 * @param int             $subscription_id Subscription ID.
@@ -376,7 +417,7 @@ class Group_Subscriptions {
 		$previous_settings = self::get_subscription_settings( $subscription );
 		$is_enabled        = filter_input( INPUT_POST, '_newspack_group_subscription_enabled', FILTER_VALIDATE_BOOLEAN );
 		$limit             = filter_input( INPUT_POST, '_newspack_group_subscription_limit', FILTER_SANITIZE_NUMBER_INT );
-		$user_ids          = filter_input( INPUT_POST, '_newspack_group_subscription_user_ids', FILTER_SANITIZE_NUMBER_INT, FILTER_REQUIRE_ARRAY );
+		$member_ids        = filter_input( INPUT_POST, '_newspack_group_subscription_member_ids', FILTER_SANITIZE_NUMBER_INT, FILTER_REQUIRE_ARRAY );
 		$should_save       = false;
 
 		if ( $is_enabled !== $previous_settings['enabled'] ) {
@@ -387,8 +428,7 @@ class Group_Subscriptions {
 			$subscription->update_meta_data( '_newspack_group_subscription_limit', $limit );
 			$should_save = true;
 		}
-		if ( $user_ids !== $previous_settings['user_ids'] ) {
-			$subscription->update_meta_data( '_newspack_group_subscription_user_ids', implode( ',', $user_ids ) );
+		if ( self::update_members( $subscription, $member_ids ) ) {
 			$should_save = true;
 		}
 		if ( $should_save ) {
@@ -428,7 +468,7 @@ class Group_Subscriptions {
 		 * Filter the managers of a group subscription.
 		 * Currently this is only the subscription owner.
 		 *
-		 * @param int[] $user_ids The group manager user IDs.
+		 * @param int[] $member_ids The group manager user IDs.
 		 * @param WC_Subscription $subscription The subscription object.
 		 */
 		return apply_filters( 'newspack_group_subscription_managers', [ $subscription->get_user_id() ], $subscription );
@@ -450,10 +490,10 @@ class Group_Subscriptions {
 		/**
 		 * Filter the members of a group subscription.
 		 *
-		 * @param int[] $user_ids The group member user IDs.
+		 * @param int[] $member_ids The group member user IDs.
 		 * @param WC_Subscription $subscription The subscription object.
 		 */
-		return apply_filters( 'newspack_group_subscription_members', $settings['user_ids'], $subscription );
+		return apply_filters( 'newspack_group_subscription_members', $settings['member_ids'], $subscription );
 	}
 
 	/**
@@ -478,6 +518,39 @@ class Group_Subscriptions {
 		 * @param WC_Subscription $subscription The subscription object.
 		 */
 		return apply_filters( 'newspack_group_subscription_user_can_access', $can_access, $user_id, $subscription );
+	}
+
+	/**
+	 * Get the group subscriptions a user is a member of.
+	 *
+	 * @param int      $user_id The user ID.
+	 * @param string[] $status The statuses of the subscriptions to return.
+	 *
+	 * @return WC_Subscription[]|null The group subscriptions the user is a member of.
+	 */
+	public static function get_group_subscriptions_for_user( $user_id, $status = [ 'active', 'pending-cancel' ] ) {
+		$user_id       = (int) $user_id;
+		$subscriptions = \wcs_get_subscriptions(
+			[
+				'subscription_status' => $status,
+				'meta_query'          => [ // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
+					[
+						'key'     => '_newspack_group_subscription_member_id',
+						'value'   => $user_id,
+						'compare' => '=',
+					],
+				],
+			]
+		);
+
+		/**
+		 * Filter the group subscriptions a user is a member of.
+		 *
+		 * @param WC_Subscription[] $subscriptions The group subscriptions the user is a member of.
+		 * @param int $user_id The user ID.
+		 * @param string[] $status The statuses of the subscriptions to return.
+		 */
+		return apply_filters( 'newspack_group_subscriptions_for_user', $subscriptions, $user_id, $status );
 	}
 }
 Group_Subscriptions::init();
