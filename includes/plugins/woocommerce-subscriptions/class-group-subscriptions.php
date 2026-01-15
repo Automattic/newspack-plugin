@@ -273,9 +273,11 @@ class Group_Subscriptions {
 							type: 'POST',
 							delay: 1000,
 							data: function( params ) {
+								const exclude = $select.val() ? $select.val().map( function( item ) { return parseInt( item, 10 ); } ) : [];
+								exclude.push( <?php echo absint( $subscription->get_user_id() ); ?> );
 								return {
 									action: 'newspack_group_subscription_search_users',
-									exclude: $select.val(),
+									exclude: exclude,
 									search: params.term,
 									nonce: '<?php echo esc_attr( wp_create_nonce( 'newspack_group_subscription_search_users' ) ); ?>'
 								};
