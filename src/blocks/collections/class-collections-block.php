@@ -69,7 +69,7 @@ final class Collections_Block {
 	}
 
 	/**
-	 * Register custom image sizes for collections block when displayed as a grid.
+	 * Register custom image sizes for collections block.
 	 *
 	 * @return void
 	 */
@@ -276,11 +276,11 @@ final class Collections_Block {
 	 * @return string Image size name.
 	 */
 	public static function get_image_size_from_attributes( $attributes ) {
-		if ( 'grid' === $attributes['layout'] && 4 <= $attributes['columns'] ) {
+		if ( isset( $attributes['layout'], $attributes['columns'] ) && 'grid' === $attributes['layout'] && 4 <= $attributes['columns'] ) {
 			return 'newspack_collection_small';
 		}
 
-		if ( 'grid' === $attributes['layout'] && 3 === $attributes['columns'] ) {
+		if ( isset( $attributes['layout'], $attributes['columns'] ) && 'grid' === $attributes['layout'] && 3 === $attributes['columns'] ) {
 			return 'newspack_collection_medium';
 		}
 

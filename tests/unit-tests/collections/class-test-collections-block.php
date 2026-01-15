@@ -229,7 +229,7 @@ class Test_Collections_Block extends \WP_UnitTestCase {
 				'columns' => $columns,
 			];
 			$size       = Collections_Block::get_image_size_from_attributes( $attributes );
-			$this->assertEquals( 'newspack_collection_large', $size, 'Grid layout with {$columns} columns should map to newspack_collection_large' );
+			$this->assertEquals( 'newspack_collection_large', $size, "Grid layout with {$columns} columns should map to newspack_collection_large" );
 		}
 
 		// Test grid layout with columns = 3 (should return newspack_collection_medium).
@@ -247,7 +247,7 @@ class Test_Collections_Block extends \WP_UnitTestCase {
 				'columns' => $columns,
 			];
 			$size       = Collections_Block::get_image_size_from_attributes( $attributes );
-			$this->assertEquals( 'newspack_collection_small', $size, 'Grid layout with {$columns} columns should map to newspack_collection_small' );
+			$this->assertEquals( 'newspack_collection_small', $size, "Grid layout with {$columns} columns should map to newspack_collection_small" );
 		}
 	}
 
