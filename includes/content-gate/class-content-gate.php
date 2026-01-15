@@ -484,7 +484,7 @@ class Content_Gate {
 		if ( $gate_mode ) {
 			$url = add_query_arg( 'gate_mode', $gate_mode, $url );
 		}
-		return str_replace( site_url(), '', $url );
+		return \wp_make_link_relative( $url );
 	}
 
 	/**
