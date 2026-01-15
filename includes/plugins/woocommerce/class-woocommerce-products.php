@@ -41,17 +41,7 @@ class WooCommerce_Products {
 			return;
 		}
 		$screen = get_current_screen();
-		$is_product_or_subscription_screen = in_array(
-			$screen->id,
-			[
-				'product',
-				'edit-shop_subscription',
-				'shop_subscription',
-				wcs_get_page_screen_id( 'shop_subscription' ),
-			],
-			true
-		);
-		if ( ! $is_product_or_subscription_screen ) {
+		if ( $screen->id !== 'product' ) {
 			return;
 		}
 		wp_enqueue_script(

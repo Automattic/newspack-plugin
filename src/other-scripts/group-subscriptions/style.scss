@@ -1,0 +1,58 @@
+/**
+ * Group Subscriptions admin CSS.
+ */
+
+.postbox#newspack-group-subscription {
+	.show_if_newspack_group_subscription_enabled {
+		display: none;
+	}
+	&.enabled {
+		.show_if_newspack_group_subscription_enabled {
+			display: block;
+		}
+	}
+	h3 {
+		font-size: 14px;
+	}
+	label {
+		display: block;
+	}
+	@media screen and ( min-width: 768px ) {
+		.inside {
+			display: flex;
+			gap: 24px;
+		}
+		.newspack-group-subscription--settings {
+			flex: 1;
+			min-width: 250px;
+		}
+		.newspack-group-subscription--members {
+			flex: 2;
+		}
+	}
+	.newspack-group-subscription--members-list {
+		list-style: none;
+		max-height: 300px;
+		overflow-y: auto;
+		padding: 0;
+		margin-bottom: 16px;
+	}
+	.newspack-group-subscription--to-remove {
+		a.newspack-group-subscription--member-user-link {
+			color: #666;
+			text-decoration: line-through;
+		}
+	}
+	a.newspack-group-subscription--remove-member {
+		color: #666;
+		display: inline-block;
+		font-size: 14px;
+		font-weight: 600;
+		padding: 4px;
+		text-decoration: none;
+		&:focus {
+			box-shadow: none;
+			outline: none;
+		}
+	}
+}

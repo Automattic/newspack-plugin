@@ -1,4 +1,9 @@
 /* globals jQuery */
+
+/**
+ * Custom Product Options admin JS.
+ */
+
 ( function ( $ ) {
 	if ( ! $ ) {
 		return;
@@ -13,7 +18,7 @@
 	function showOrHidePricingOptions( e ) {
 		// Group subscription checkbox.
 		const $fields = $( e.currentTarget )
-			.closest( '.woocommerce_variation,#woocommerce-product-data,#newspack-group-subscription' )
+			.closest( '.woocommerce_variation,#woocommerce-product-data' )
 			.find( '.show_if_newspack_group_subscription_enabled' );
 
 		if ( $( e.currentTarget ).is( ':checked' ) ) {
@@ -39,7 +44,7 @@
 		}
 	}
 
-	$( '#woocommerce-product-data, #newspack-group-subscription' ).on(
+	$( '#woocommerce-product-data' ).on(
 		'change',
 		'input#_newspack_group_subscription_enabled,input.variable_newspack_group_subscription_enabled',
 		showOrHidePricingOptions

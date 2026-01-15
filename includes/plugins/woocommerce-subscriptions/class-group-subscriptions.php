@@ -31,9 +31,54 @@ class Group_Subscriptions {
 		add_filter( 'newspack_custom_product_pricing_options', [ __CLASS__, 'add_custom_product_pricing_options' ] );
 
 		// Add Group Subscription options to subscription admin pages.
+		add_action( 'admin_enqueue_scripts', [ __CLASS__, 'admin_enqueue_scripts' ] );
 		add_action( 'add_meta_boxes', [ __CLASS__, 'add_group_subscription_meta_box' ], 20, 2 );
 		add_action( 'woocommerce_process_shop_order_meta', [ __CLASS__, 'save_group_subscription_meta' ], 10, 2 );
 		add_action( 'wp_ajax_newspack_group_subscription_search_users', [ __CLASS__, 'ajax_search_users' ] );
+	}
+
+	/**
+	 * Enqueue admin scripts.
+	 */
+	public static function admin_enqueue_scripts() {
+		if ( ! function_exists( 'wcs_get_page_screen_id' ) ) {
+			return;
+		}
+		$screen = get_current_screen();
+		$is_subscription_screen = in_array(
+			$screen->id,
+			[
+				'edit-shop_subscription',
+				'shop_subscription',
+				wcs_get_page_screen_id( 'shop_subscription' ),
+			],
+			true
+		);
+		if ( ! $is_subscription_screen ) {
+			return;
+		}
+		\wp_enqueue_script(
+			'newspack-group-subscriptions',
+			Newspack::plugin_url() . '/dist/other-scripts/group-subscriptions.js',
+			[],
+			NEWSPACK_PLUGIN_VERSION,
+			true
+		);
+		\wp_enqueue_style(
+			'newspack-group-subscriptions',
+			Newspack::plugin_url() . '/dist/other-scripts/group-subscriptions.css',
+			[],
+			NEWSPACK_PLUGIN_VERSION
+		);
+		\wp_localize_script(
+			'newspack-group-subscriptions',
+			'newspackGroupSubscriptions',
+			[
+				'ajaxUrl'     => \admin_url( 'admin-ajax.php' ),
+				'nonce'       => \wp_create_nonce( 'newspack_group_subscription_search_users' ),
+				'placeholder' => __( 'Search for a reader...', 'newspack-plugin' ),
+			]
+		);
 	}
 
 	/**
@@ -192,7 +237,7 @@ class Group_Subscriptions {
 			__( 'Group subscription', 'newspack-plugin' ),
 			[ __CLASS__, 'add_group_subscription_options' ],
 			$post_type,
-			'side',
+			'normal',
 			'high'
 		);
 	}
@@ -209,46 +254,57 @@ class Group_Subscriptions {
 		$settings = self::get_subscription_settings( $subscription );
 		$product  = \wc_get_product( self::get_subscription_product_id( $subscription ) );
 		?>
-		<p>
-		<?php
-		echo wp_kses_post(
-			sprintf(
-				/* translators: %s: The product edit link or 'the product' if no product is found. */
-				__( 'Changing these settings will override settings inherited from %s.', 'newspack-plugin' ),
-				$product ? '<a href="' . \admin_url( 'post.php?post=' . ( $product->get_parent_id() ?: $product->get_id() ) . '&action=edit' ) . '">' . $product->get_name() . '</a>' : __( 'the product', 'newspack-plugin' ) // phpcs:ignore Universal.Operators.DisallowShortTernary.Found
-			)
-		);
-		?>
-		</p>
-		<p>
-			<label for="_newspack_group_subscription_enabled">
-				<input
-					type="checkbox"
-					id="_newspack_group_subscription_enabled"
-					name="_newspack_group_subscription_enabled"
-					value="yes"
-					<?php checked( $settings['enabled'], true ); ?>
-				/>
-				<?php esc_html_e( 'Group subscription enabled', 'newspack-plugin' ); ?>
-			</label>
-		</p>
-		<div class="form-row">
+		<div class="newspack-group-subscription--settings">
+			<h3><?php esc_html_e( 'Settings', 'newspack-plugin' ); ?></h3>
+			<p>
 			<?php
-			$pricing_options = self::add_custom_product_pricing_options( [] );
-			foreach ( $pricing_options as $option_key => $option_config ) {
-				if ( $option_key === 'newspack_group_subscription_limit' ) {
-					$option_config['value'] = $settings['limit'];
-					echo wp_kses_post( \woocommerce_wp_text_input( $option_config ) );
-					break;
-				}
-			}
+			echo wp_kses_post(
+				sprintf(
+					/* translators: %s: The product edit link or 'the product' if no product is found. */
+					__( 'Changing these settings will override settings inherited from %s.', 'newspack-plugin' ),
+					$product ? '<a href="' . \admin_url( 'post.php?post=' . ( $product->get_parent_id() ?: $product->get_id() ) . '&action=edit' ) . '">' . $product->get_name() . '</a>' : __( 'the product', 'newspack-plugin' ) // phpcs:ignore Universal.Operators.DisallowShortTernary.Found
+				)
+			);
 			?>
+			</p>
+			<p>
+				<label for="_newspack_group_subscription_enabled">
+					<input
+						type="checkbox"
+						id="_newspack_group_subscription_enabled"
+						name="_newspack_group_subscription_enabled"
+						value="yes"
+						<?php checked( $settings['enabled'], true ); ?>
+					/>
+					<?php esc_html_e( 'Group subscription enabled', 'newspack-plugin' ); ?>
+				</label>
+			</p>
+			<div class="form-row">
+				<?php
+				$pricing_options = self::add_custom_product_pricing_options( [] );
+				foreach ( $pricing_options as $option_key => $option_config ) {
+					if ( $option_key === 'newspack_group_subscription_limit' ) {
+						$option_config['value'] = $settings['limit'];
+						echo wp_kses_post( \woocommerce_wp_text_input( $option_config ) );
+						break;
+					}
+				}
+				?>
+			</div>
 		</div>
-		<div class="form-row show_if_newspack_group_subscription_enabled">
-			<label for="_newspack_group_subscription_member_ids">
-				<?php esc_html_e( 'Group members', 'newspack-plugin' ); ?>
-			</label>
-			<select id="_newspack_group_subscription_member_ids" name="_newspack_group_subscription_member_ids[]" multiple="multiple">
+		<div class="newspack-group-subscription--members">
+			<h3 class="form-row show_if_newspack_group_subscription_enabled">
+				<?php
+				echo esc_html(
+					sprintf(
+						// translators: %d: The number of group members.
+						__( 'Group members (%d)', 'newspack-plugin' ),
+						count( $settings['member_ids'] )
+					)
+				);
+				?>
+			</h3>
+			<ul class="newspack-group-subscription--members-list show_if_newspack_group_subscription_enabled">
 				<?php
 				foreach ( $settings['member_ids'] as $user_id ) :
 					$user = get_user_by( 'id', $user_id );
@@ -256,45 +312,28 @@ class Group_Subscriptions {
 						continue;
 					}
 					?>
-					<option value="<?php echo esc_attr( $user_id ); ?>" selected="selected">
-						<?php echo esc_html( $user->user_email ); ?>
-					</option>
+					<li>
+						<a class="newspack-group-subscription--member-user-link" href="<?php echo esc_url( get_edit_user_link( $user_id ) ); ?>"><?php echo esc_html( $user->user_email ); ?></a>
+						<a title="<?php esc_attr_e( 'Remove', 'newspack-plugin' ); ?>" href="#" class="newspack-group-subscription--remove-member" data-user-id="<?php echo esc_attr( $user_id ); ?>">
+							&#215;
+							<span class="screen-reader-text"><?php esc_html_e( 'Remove', 'newspack-plugin' ); ?></span>
+					</a>
+					</li>
 					<?php
 				endforeach;
 				?>
-			</select>
-			<script>
-				jQuery( document ).ready( function() {
-					$select = jQuery( '#_newspack_group_subscription_member_ids' );
-					$select.select2( {
-						ajax: {
-							url: ajaxurl,
-							dataType: 'json',
-							type: 'POST',
-							delay: 1000,
-							data: function( params ) {
-								const exclude = $select.val() ? $select.val().map( function( item ) { return parseInt( item, 10 ); } ) : [];
-								exclude.push( <?php echo absint( $subscription->get_user_id() ); ?> );
-								return {
-									action: 'newspack_group_subscription_search_users',
-									exclude: exclude,
-									search: params.term,
-									nonce: '<?php echo esc_attr( wp_create_nonce( 'newspack_group_subscription_search_users' ) ); ?>'
-								};
-							},
-							processResults: function( data ) {
-								return {
-									results: data
-								};
-							},
-							cache: true
-						},
-						minimumInputLength: 2,
-						placeholder: '<?php esc_html_e( 'Search for a reader...', 'newspack-plugin' ); ?>',
-						allowClear: true
-					} );
-				} );
-			</script>
+			</ul>
+			<div class="form-row show_if_newspack_group_subscription_enabled">
+				<label for="_newspack_group_subscription_member_ids">
+					<?php esc_html_e( 'Add new group members', 'newspack-plugin' ); ?>
+				</label>
+				<select id="_newspack_group_subscription_member_ids" name="_newspack_group_subscription_member_ids[]" multiple="multiple" data-owner-id="<?php echo esc_attr( $subscription->get_user_id() ); ?>">
+					<option value="<?php echo esc_attr( $user_id ); ?>">
+						<?php echo esc_html( 'Select a user...' ); ?>
+					</option>
+				</select>
+			</div>
+			<input type="hidden" id="newspack_group_subscription_member_ids_to_remove" name="newspack_group_subscription_member_ids_to_remove" />
 		</div>
 		<?php
 	}
@@ -377,22 +416,26 @@ class Group_Subscriptions {
 	 * Update the member IDs for a group subscription.
 	 *
 	 * @param WC_Subscription $subscription The subscription object.
-	 * @param int[]           $member_ids The group member user IDs to associate with the subscription.
+	 * @param int[]           $members_to_add Group member user IDs to add the subscription.
+	 * @param int[]           $members_to_remove Group member user IDs to remove from the subscription.
 	 *
 	 * @return bool Whether the member IDs were updated.
 	 */
-	private static function update_members( $subscription, $member_ids ) {
+	private static function update_members( $subscription, $members_to_add, $members_to_remove = [] ) {
+		$updated = false;
 		$settings   = self::get_subscription_settings( $subscription );
-		$member_ids = array_values( array_unique( array_map( 'absint', (array) $member_ids ) ) );
-		if ( empty( array_diff( $member_ids, $settings['member_ids'] ) ) && empty( array_diff( $settings['member_ids'], $member_ids ) ) ) {
-			return false;
+		$members_to_add = array_values( array_unique( array_map( 'absint', (array) $members_to_add ) ) );
+		if ( empty( array_diff( $members_to_add, $settings['member_ids'] ) ) && empty( array_diff( $settings['member_ids'], $members_to_add ) ) ) {
+			return $updated;
 		}
 
-		// First, clear existing meta.
-		$subscription->delete_meta_data( '_newspack_group_subscription_member_id' );
+		// First, remove members.
+		foreach ( $members_to_remove as $member_id ) {
+			$subscription->delete_meta_data_value( '_newspack_group_subscription_member_id', $member_id );
+		}
 
-		// Then, add new meta.
-		foreach ( $member_ids as $member_id ) {
+		// Then, add new members.
+		foreach ( $members_to_add as $member_id ) {
 			$subscription->add_meta_data( '_newspack_group_subscription_member_id', $member_id );
 		}
 		return true;
@@ -419,7 +462,8 @@ class Group_Subscriptions {
 		$previous_settings = self::get_subscription_settings( $subscription );
 		$is_enabled        = isset( $_POST['_newspack_group_subscription_enabled'] );
 		$limit             = absint( filter_input( INPUT_POST, '_newspack_group_subscription_limit', FILTER_SANITIZE_NUMBER_INT ) );
-		$member_ids        = filter_input( INPUT_POST, '_newspack_group_subscription_member_ids', FILTER_SANITIZE_NUMBER_INT, FILTER_REQUIRE_ARRAY );
+		$members_to_add    = filter_input( INPUT_POST, '_newspack_group_subscription_member_ids', FILTER_SANITIZE_NUMBER_INT, FILTER_REQUIRE_ARRAY );
+		$members_to_remove = explode( ',', filter_input( INPUT_POST, 'newspack_group_subscription_member_ids_to_remove', FILTER_SANITIZE_FULL_SPECIAL_CHARS ) );
 		$should_save       = false;
 
 		if ( $is_enabled !== $previous_settings['enabled'] ) {
@@ -430,7 +474,7 @@ class Group_Subscriptions {
 			$subscription->update_meta_data( '_newspack_group_subscription_limit', $limit );
 			$should_save = true;
 		}
-		if ( self::update_members( $subscription, $member_ids ) ) {
+		if ( self::update_members( $subscription, $members_to_add, $members_to_remove ) ) {
 			$should_save = true;
 		}
 		if ( $should_save ) {
