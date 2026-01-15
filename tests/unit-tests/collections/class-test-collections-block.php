@@ -240,7 +240,7 @@ class Test_Collections_Block extends \WP_UnitTestCase {
 		$size       = Collections_Block::get_image_size_from_attributes( $attributes );
 		$this->assertEquals( 'newspack_collection_medium', $size, 'Grid layout with 3 columns should map to newspack_collection_medium' );
 
-		// Test grid layout with columns >= 4 (should return newspack_collection_medium).
+		// Test grid layout with columns >= 4 (should return newspack_collection_small).
 		foreach ( [ 4, 5, 6 ] as $columns ) {
 			$attributes = [
 				'layout'  => 'grid',
