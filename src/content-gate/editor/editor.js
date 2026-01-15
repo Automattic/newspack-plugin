@@ -13,7 +13,6 @@ import { registerPlugin } from '@wordpress/plugins';
 /**
  * Internal dependencies
  */
-import MeteringSettings from './metering-settings';
 import PositionControl from '../../../packages/components/src/position-control';
 import './editor.scss';
 
@@ -36,7 +35,6 @@ const overlaySizes = [
 ];
 
 function GateEdit() {
-	const newspack_memberships_gate = window.newspack_memberships_gate || {};
 	const { meta } = useSelect( select => {
 		const { getEditedPostAttribute } = select( 'core/editor' );
 		return {
@@ -55,90 +53,12 @@ function GateEdit() {
 			wrapper.removeAttribute( 'data-overlay-size' );
 		}
 	}, [ meta.style, meta.overlay_size ] );
-	const { createNotice } = useDispatch( 'core/notices' );
-	useEffect( () => {
-		if ( newspack_memberships_gate?.gate_plans && Object.keys( newspack_memberships_gate.gate_plans ).length ) {
-			createNotice(
-				'info',
-				sprintf(
-					// translators: %s is the list of plans.
-					__( "You're currently editing a gate for content restricted by: %s", 'newspack-plugin' ),
-					Object.values( newspack_memberships_gate?.gate_plans ).join( ', ' )
-				)
-			);
-		}
-	}, [] );
-	const getPlansToEdit = () => {
-		if ( ! newspack_memberships_gate ) {
-			return [];
-		}
-		const currentGatePlans = Object.keys( newspack_memberships_gate?.gate_plans ) || [];
-		const plans = newspack_memberships_gate?.plans.filter( plan => {
-			return ! currentGatePlans.includes( plan.id.toString() );
-		} );
-		return plans;
-	};
 	return (
 		<Fragment>
 			{ newspack_content_gate.has_campaigns && (
 				<PluginPostStatusInfo>
 					<p>{ __( "Newspack Campaign prompts won't be displayed when rendering gated content.", 'newspack-plugin' ) }</p>
 				</PluginPostStatusInfo>
-			) }
-			{ newspack_memberships_gate?.plans?.length > 1 && (
-				<PluginDocumentSettingPanel name="content-gate-plans" title={ __( 'WooCommerce Memberships', 'newspack-plugin' ) }>
-					{ ! Object.keys( newspack_memberships_gate?.gate_plans ).length ? (
-						<Fragment>
-							<p>
-								{ __(
-									'This gate will be rendered for all membership plans. Manage custom gates for when the content is locked behind a specific plan:',
-									'newspack-plugin'
-								) }
-							</p>
-						</Fragment>
-					) : (
-						<Fragment>
-							<p>
-								{ sprintf(
-									// translators: %s is the list of plans.
-									__( 'This gate will be rendered for the following membership plans: %s', 'newspack-plugin' ),
-									Object.values( newspack_memberships_gate.gate_plans ).join( ', ' )
-								) }
-							</p>
-							<hr />
-							<p
-								dangerouslySetInnerHTML={ {
-									__html: sprintf(
-										// translators: %s is the link to the primary gate.
-										__( 'Edit the <a href="%s">primary gate</a>, or:', 'newspack-plugin' ),
-										newspack_memberships_gate.edit_gate_url
-									),
-								} }
-							/>
-						</Fragment>
-					) }
-					<ul>
-						{ getPlansToEdit().map( plan => (
-							<li key={ plan.id }>
-								{ plan.name } (
-								{ plan.gate_id !== false && (
-									<Fragment>
-										<strong>
-											{ plan.gate_status === 'publish'
-												? __( 'published', 'newspack-plugin' )
-												: __( 'draft', 'newspack-plugin' ) }
-										</strong>{ ' ' }
-										-{ ' ' }
-									</Fragment>
-								) }
-								<a href={ newspack_memberships_gate.edit_plan_gate_url + '&plan_id=' + plan.id }>
-									{ plan.gate_id ? __( 'edit gate', 'newspack-plugin' ) : __( 'create gate', 'newspack-plugin' ) }
-								</a>
-								)
-							</li>
-						) ) }
-					</ul>
-				</PluginDocumentSettingPanel>
 			) }
 			<PluginDocumentSettingPanel name="content-gate-styles-panel" title={ __( 'Styles', 'newspack-plugin' ) }>
 				<div className="newspack-content-gate-style-selector">
@@ -201,9 +121,6 @@ function GateEdit() {
 					onChange={ value => editPost( { meta: { use_more_tag: value } } ) }
 					help={ __( 'Override the default paragraph count on pages where a “More” block has been placed.', 'newspack-plugin' ) }
 				/>
-			</PluginDocumentSettingPanel>
-			<PluginDocumentSettingPanel name="content-gate-metering-panel" title={ __( 'Metering', 'newspack-plugin' ) }>
-				<MeteringSettings />
 			</PluginDocumentSettingPanel>
 		</Fragment>
 	);

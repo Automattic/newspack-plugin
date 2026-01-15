@@ -86,8 +86,8 @@ export default function ContentGateSettings( { gate, onDelete, onSave }: Content
 	return (
 		<>
 			<ContentRules rules={ contentRules } onChange={ setContentRules } />
-			<Registration registration={ registration } onChange={ setRegistration } />
-			<CustomAccess customAccess={ customAccess } onChange={ setCustomAccess } />
+			<Registration gateId={ gate.id } registration={ registration } onChange={ setRegistration } />
+			<CustomAccess gateId={ gate.id } customAccess={ customAccess } onChange={ setCustomAccess } />
 			<div className="newspack-buttons-card">
 				{ gate.status === 'draft' && (
 					<Button disabled={ ! isReady } variant="primary" onClick={ handlePublish }>

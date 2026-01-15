@@ -63,6 +63,8 @@ const entry = {
 	...wizardsScriptFiles,
 	blocks: path.join( __dirname, 'src', 'blocks', 'index.js' ),
 	'content-gate-editor': path.join( __dirname, 'src', 'content-gate', 'editor', 'editor.js' ),
+	'content-gate-editor-memberships': path.join( __dirname, 'src', 'content-gate', 'editor', 'memberships.js' ),
+	'content-gate-editor-metering': path.join( __dirname, 'src', 'content-gate', 'editor', 'metering-settings.js' ),
 	'content-gate-block-patterns': path.join( __dirname, 'src', 'content-gate', 'editor', 'block-patterns.js' ),
 	'content-banner': path.join( __dirname, 'src', 'content-gate', 'content-banner.js' ),
 	wizards: path.join( __dirname, 'src', 'wizards', 'index.tsx' ),

@@ -39,7 +39,7 @@ class Memberships {
 		add_action( 'init', [ __CLASS__, 'register_post_type' ] );
 		add_action( 'admin_init', [ __CLASS__, 'handle_edit_plan_gate' ] );
 		add_action( 'admin_init', [ __CLASS__, 'handle_edit_gate' ] );
-		add_action( 'enqueue_block_editor_assets', [ __CLASS__, 'enqueue_block_editor_assets' ] );
+		add_action( 'enqueue_block_editor_assets', [ __CLASS__, 'enqueue_block_editor_assets' ], 9 ); // Render before gate layout editor.
 		add_filter( 'newspack_post_has_restrictions', [ __CLASS__, 'post_has_restrictions' ], 10, 2 );
 		add_filter( 'newspack_is_post_restricted', [ __CLASS__, 'is_post_restricted' ], 10, 2 );
 
@@ -165,8 +165,15 @@ class Memberships {
 		if ( get_post_type() !== self::GATE_CPT ) {
 			return;
 		}
+		wp_enqueue_script(
+			'newspack-content-gate-memberships',
+			Newspack::plugin_url() . '/dist/content-gate-editor-memberships.js',
+			[],
+			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/dist/content-gate-editor-memberships.js' ),
+			true
+		);
 		\wp_localize_script(
-			'newspack-content-gate',
+			'newspack-content-gate-memberships',
 			'newspack_memberships_gate',
 			[
 				'edit_gate_url'      => self::get_edit_gate_url(),

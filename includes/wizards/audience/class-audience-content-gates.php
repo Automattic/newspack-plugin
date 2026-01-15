@@ -96,6 +96,7 @@ class Audience_Content_Gates extends Wizard {
 				'api'                     => '/' . NEWSPACK_API_NAMESPACE . '/wizard/' . $this->slug,
 				'available_access_rules'  => Access_Rules::get_access_rules(),
 				'available_content_rules' => Content_Gate::get_content_rules(),
+				'edit_gate_layout_url'    => Content_Gate::get_edit_gate_layout_url(),
 			]
 		);
 

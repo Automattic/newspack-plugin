@@ -113,6 +113,28 @@ trait Content_Gate_Layout {
 		);
 
 		self::register_layout_meta( $post_type );
+
+		add_action(
+			'enqueue_block_editor_assets',
+			function() use ( $post_type ) {
+				self::enqueue_block_editor_layout_assets( $post_type );
+			}
+		);
+	}
+
+	/**
+	 * Enqueue block editor assets.
+	 *
+	 * @param string $post_type The post type to enqueue assets for.
+	 */
+	protected static function enqueue_block_editor_layout_assets( $post_type ) {
+		if ( $post_type !== get_post_type() ) {
+			return;
+		}
+		$asset = require dirname( NEWSPACK_PLUGIN_FILE ) . '/dist/content-gate-editor.asset.php';
+		wp_enqueue_script( 'newspack-content-gate', Newspack::plugin_url() . '/dist/content-gate-editor.js', $asset['dependencies'], $asset['version'], true );
+		wp_localize_script( 'newspack-content-gate', 'newspack_content_gate', [ 'has_campaigns' => class_exists( 'Newspack_Popups' ) ] );
+		wp_enqueue_style( 'newspack-content-gate', Newspack::plugin_url() . '/dist/content-gate-editor.css', [], $asset['version'] );
 	}
 
 	/**

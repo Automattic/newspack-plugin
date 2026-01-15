@@ -8,22 +8,25 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import { ActionCard, Card } from '../../../../../packages/components/src';
-
+import { getEditGateLayoutUrl } from './utils';
 import Metering from './metering';
 
 interface RegistrationProps {
+	gateId?: number;
 	registration: Registration;
 	onChange: ( registration: Registration ) => void;
 	cardProps?: Partial< React.ComponentPropsWithoutRef< typeof ActionCard > >;
 }
 
-export default function Registration( { registration, onChange, cardProps = {} }: RegistrationProps ) {
+export default function Registration( { gateId, registration, onChange, cardProps = {} }: RegistrationProps ) {
 	return (
 		<ActionCard
 			title={ __( 'Registered Access', 'newspack-plugin' ) }
 			description={ __( 'Readers must log in to view this content.', 'newspack-plugin' ) }
 			toggleChecked={ registration.active }
 			toggleOnChange={ ( active: boolean ) => onChange( { ...registration, active } ) }
+			actionText={ gateId ? __( 'Edit Layout', 'newspack-plugin' ) : undefined }
+			href={ gateId ? getEditGateLayoutUrl( gateId, 'registration' ) : undefined }
 			{ ...cardProps }
 		>
 			{ registration.active && (

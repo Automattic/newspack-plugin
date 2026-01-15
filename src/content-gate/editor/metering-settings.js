@@ -4,6 +4,8 @@
 import { __ } from '@wordpress/i18n';
 import { CheckboxControl, SelectControl, TextControl } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
+import { PluginDocumentSettingPanel } from '@wordpress/edit-post';
+import { registerPlugin } from '@wordpress/plugins';
 
 function MeteringSettings() {
 	const { meta } = useSelect( select => {
@@ -14,7 +16,7 @@ function MeteringSettings() {
 	} );
 	const { editPost } = useDispatch( 'core/editor' );
 	return (
-		<>
+		<PluginDocumentSettingPanel name="content-gate-metering-panel" title={ __( 'Metering', 'newspack-plugin' ) }>
 			<CheckboxControl
 				label={ __( 'Enable metering', 'newspack-plugin' ) }
 				checked={ meta.metering }
@@ -61,8 +63,11 @@ function MeteringSettings() {
 					/>
 				</>
 			) }
-		</>
+		</PluginDocumentSettingPanel>
 	);
 }
 
-export default MeteringSettings;
+registerPlugin( 'newspack-content-gate-metering', {
+	render: MeteringSettings,
+	icon: null,
+} );
