@@ -5,16 +5,10 @@ import { addQueryArgs } from '@wordpress/url';
 export function getEditGateLayoutUrl( gateId: number, gateMode: string ) {
 	const audienceGates = ( window as any ).newspackAudienceContentGates;
 
-	if (
-		! audienceGates ||
-		typeof audienceGates.edit_gate_layout_url !== 'string' ||
-		! audienceGates.edit_gate_layout_url
-	) {
+	if ( ! audienceGates || typeof audienceGates.edit_gate_layout_url !== 'string' || ! audienceGates.edit_gate_layout_url ) {
 		// Fallback to avoid runtime errors if the global config is not available.
 		// eslint-disable-next-line no-console
-		console.error(
-			'newspackAudienceContentGates.edit_gate_layout_url is not defined on window.'
-		);
+		console.error( 'newspackAudienceContentGates.edit_gate_layout_url is not defined on window.' );
 		return '';
 	}
 
