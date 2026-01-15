@@ -190,16 +190,16 @@ function GateEdit() {
 					type="number"
 					min="0"
 					value={ meta.visible_paragraphs }
-					label={ __( 'Default paragraph count', 'newspack-plugin' ) }
+					label={ __( 'Default block count', 'newspack-plugin' ) }
 					onChange={ value => editPost( { meta: { visible_paragraphs: value } } ) }
-					help={ __( 'Number of paragraphs that readers can see above the content gate.', 'newspack-plugin' ) }
+					help={ __( 'Number of blocks that readers can see above the content gate.', 'newspack-plugin' ) }
 				/>
 				<hr />
 				<CheckboxControl
 					label={ __( 'Use “More” tag to manually place content gate', 'newspack-plugin' ) }
 					checked={ meta.use_more_tag }
 					onChange={ value => editPost( { meta: { use_more_tag: value } } ) }
-					help={ __( 'Override the default paragraph count on pages where a “More” block has been placed.', 'newspack-plugin' ) }
+					help={ __( 'Override the default block count on pages where a “More” block has been placed.', 'newspack-plugin' ) }
 				/>
 			</PluginDocumentSettingPanel>
 			<PluginDocumentSettingPanel name="content-gate-metering-panel" title={ __( 'Metering', 'newspack-plugin' ) }>
