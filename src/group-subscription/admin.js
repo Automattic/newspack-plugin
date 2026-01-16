@@ -4,7 +4,7 @@
  * Group Subscriptions admin JS.
  */
 
-import './style.scss';
+import './admin.scss';
 
 ( function ( $ ) {
 	if ( ! $ ) {
