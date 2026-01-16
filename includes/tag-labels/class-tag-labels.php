@@ -133,7 +133,7 @@ class Tag_Labels {
 		$input_label_flag = ( $term->name === $label_flag ) ? '' : $label_flag;
 		?>
 		<tr class="form-field newspack-label-enable term-<?php echo esc_attr( self::TAG_LABEL_META_KEY ); ?>-wrap">
-			<th scope="row"><label for="<?php echo esc_attr( $checkbox_id ); ?>"><?php esc_html_e( 'Use as label', 'newspack-plugin' ); ?></label></th>
+			<th scope="row"><label for="<?php echo esc_attr( $checkbox_id ); ?>"><?php esc_html_e( 'Display as label', 'newspack-plugin' ); ?></label></th>
 			<td>
 				<input
 					aria-describedby="<?php echo esc_attr( self::TAG_LABEL_META_KEY ); ?>-description"
@@ -145,12 +145,12 @@ class Tag_Labels {
 					?>
 				>
 				<p class="description" id="<?php echo esc_attr( self::TAG_LABEL_META_KEY ); ?>-description">
-					<?php echo esc_html__( 'Check to display this tag as a label on posts, similar to how categories are displayed.', 'newspack-plugin' ); ?>
+					<?php echo esc_html__( 'Show this tag as a highlighted label wherever posts are displayed.', 'newspack-plugin' ); ?>
 				</p>
 			</td>
 		</tr>
-		<tr class="form-field newspack-label-setting term-<?php echo esc_attr( self::TAG_LABEL_FLAG_META_KEY ); ?>-wrap">
-			<th scope="row"><label for="<?php echo esc_attr( self::TAG_LABEL_FLAG_META_KEY ); ?>"><?php esc_html_e( 'Label flag', 'newspack-plugin' ); ?></label></th>
+		<tr class="form-field newspack-label-setting term-<?php echo esc_attr( self::TAG_LABEL_FLAG_META_KEY ); ?>-wrap"<?php echo $is_label ? '' : ' style="display: none;"'; ?>>
+			<th scope="row"><label for="<?php echo esc_attr( self::TAG_LABEL_FLAG_META_KEY ); ?>"><?php esc_html_e( 'Label text', 'newspack-plugin' ); ?></label></th>
 			<td>
 				<input
 					aria-describedby="<?php echo esc_attr( self::TAG_LABEL_FLAG_META_KEY ); ?>-description"
@@ -164,7 +164,7 @@ class Tag_Labels {
 					?>
 				>
 				<p class="description" id="<?php echo esc_attr( self::TAG_LABEL_FLAG_META_KEY ); ?>-description">
-					<?php echo esc_html__( 'Enter alternative text to display on this label. By default, the term name will be used.', 'newspack-plugin' ); ?>
+					<?php echo esc_html__( 'Custom text to display instead of the tag name.', 'newspack-plugin' ); ?>
 				</p>
 			</td>
 		</tr>
