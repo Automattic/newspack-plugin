@@ -38,10 +38,6 @@ class Group_Subscription {
 	 * @return int[] The group manager user IDs.
 	 */
 	public static function get_managers( $subscription ) {
-		if ( ! self::is_group_subscription( $subscription ) ) {
-			return [];
-		}
-
 		if ( ! is_a( $subscription, 'WC_Subscription' ) ) {
 			$subscription = \wcs_get_subscription( $subscription );
 		}
@@ -64,9 +60,6 @@ class Group_Subscription {
 	 * @return int[] Array of user IDs for the group subscription members.
 	 */
 	public static function get_members( $subscription ) {
-		if ( ! self::is_group_subscription( $subscription ) ) {
-			return [];
-		}
 		if ( ! is_a( $subscription, 'WC_Subscription' ) ) {
 			$subscription = \wcs_get_subscription( $subscription );
 		}
@@ -116,10 +109,20 @@ class Group_Subscription {
 		if ( ! $subscription ) {
 			return new \WP_Error( 'newspack_group_subscription_update_members', __( 'Subscription not found.', 'newspack-plugin' ) );
 		}
+		$subscription_settings = Group_Subscription_Settings::get_subscription_settings( $subscription );
+
+		// If the subscription is not enabled, enable it.
+		if ( ! $subscription_settings['enabled'] ) {
+			Group_Subscription_Settings::update_subscription_settings( $subscription, [ 'enabled' => true ] );
+		}
 		$members_to_add    = array_values( array_unique( array_map( 'absint', (array) $members_to_add ) ) );
 		$members_to_remove = array_values( array_unique( array_map( 'absint', (array) $members_to_remove ) ) );
 		$members_added     = [];
 		$members_removed   = [];
+		$existing_members  = self::get_members( $subscription );
+		if ( $subscription_settings['limit'] > 0 && count( $existing_members ) + count( $members_to_add ) > $subscription_settings['limit'] ) {
+			return new \WP_Error( 'newspack_group_subscription_update_members', __( 'Member limit reached. Please remove some members or increase the limit.', 'newspack-plugin' ) );
+		}
 
 		// Add new members.
 		foreach ( $members_to_add as $member_id ) {

@@ -22,14 +22,9 @@ class Group_Subscription_Settings {
 	];
 
 	/**
-	 * Subscription meta key for group subscription "enabled" flag.
+	 * Prefix for group subscription meta keys.
 	 */
-	const GROUP_SUBSCRIPTION_ENABLED_META_KEY = '_newspack_group_subscription_enabled';
-
-	/**
-	 * Subscription meta key for group subscription limit.
-	 */
-	const GROUP_SUBSCRIPTION_LIMIT_META_KEY = '_newspack_group_subscription_limit';
+	const GROUP_SUBSCRIPTION_META_PREFIX = '_newspack_group_subscription_';
 
 	/**
 	 * Initialize hooks and filters.
@@ -102,7 +97,7 @@ class Group_Subscription_Settings {
 			return $custom_options;
 		}
 		$custom_options['newspack_group_subscription_enabled'] = [
-			'id'            => self::GROUP_SUBSCRIPTION_ENABLED_META_KEY,
+			'id'            => self::GROUP_SUBSCRIPTION_META_PREFIX . self::GROUP_SUBSCRIPTION_META_PREFIX . 'enabled',
 			'label'         => __( 'Group subscription', 'newspack-plugin' ),
 			'description'   => __( 'Enable group subscriptions for this product.', 'newspack-plugin' ),
 			'default'       => self::DEFAULT_SETTINGS['enabled'],
@@ -125,7 +120,7 @@ class Group_Subscription_Settings {
 			return $custom_product_pricing_options;
 		}
 		$custom_product_pricing_options['newspack_group_subscription_limit'] = [
-			'id'                => self::GROUP_SUBSCRIPTION_LIMIT_META_KEY,
+			'id'                => self::GROUP_SUBSCRIPTION_META_PREFIX . 'limit',
 			'wrapper_class'     => 'show_if_newspack_group_subscription_enabled',
 			'label'             => __( 'Group subscription member limit', 'newspack-plugin' ),
 			'desc_tip'          => true,
@@ -159,8 +154,8 @@ class Group_Subscription_Settings {
 		if ( ! $product ) {
 			return $settings;
 		}
-		$settings['enabled'] = $product->get_meta( self::GROUP_SUBSCRIPTION_ENABLED_META_KEY, true ) ? \wc_string_to_bool( $product->get_meta( self::GROUP_SUBSCRIPTION_ENABLED_META_KEY, true ) ) : self::DEFAULT_SETTINGS['enabled'];
-		$settings['limit']   = (int) $product->get_meta( self::GROUP_SUBSCRIPTION_LIMIT_META_KEY, true ) ?: self::DEFAULT_SETTINGS['limit']; // phpcs:ignore Universal.Operators.DisallowShortTernary.Found
+		$settings['enabled'] = $product->get_meta( self::GROUP_SUBSCRIPTION_META_PREFIX . 'enabled', true ) ? \wc_string_to_bool( $product->get_meta( self::GROUP_SUBSCRIPTION_META_PREFIX . 'enabled', true ) ) : self::DEFAULT_SETTINGS['enabled'];
+		$settings['limit']   = (int) $product->get_meta( self::GROUP_SUBSCRIPTION_META_PREFIX . 'limit', true ) ?: self::DEFAULT_SETTINGS['limit']; // phpcs:ignore Universal.Operators.DisallowShortTernary.Found
 
 		/**
 		 * Filter the group subscription settings for a product.
@@ -208,8 +203,8 @@ class Group_Subscription_Settings {
 		}
 		$product_id          = self::get_subscription_product_id( $subscription );
 		$settings            = self::get_product_settings( $product_id );
-		$settings['enabled'] = $subscription->get_meta( self::GROUP_SUBSCRIPTION_ENABLED_META_KEY, true ) ? \wc_string_to_bool( $subscription->get_meta( self::GROUP_SUBSCRIPTION_ENABLED_META_KEY, true ) ) : $settings['enabled'];
-		$settings['limit']   = (int) $subscription->get_meta( self::GROUP_SUBSCRIPTION_LIMIT_META_KEY, true ) ?: $settings['limit']; // phpcs:ignore Universal.Operators.DisallowShortTernary.Found
+		$settings['enabled'] = $subscription->get_meta( self::GROUP_SUBSCRIPTION_META_PREFIX . 'enabled', true ) ? \wc_string_to_bool( $subscription->get_meta( self::GROUP_SUBSCRIPTION_META_PREFIX . 'enabled', true ) ) : $settings['enabled'];
+		$settings['limit']   = (int) $subscription->get_meta( self::GROUP_SUBSCRIPTION_META_PREFIX . 'limit', true ) ?: $settings['limit']; // phpcs:ignore Universal.Operators.DisallowShortTernary.Found
 
 		/**
 		 * Filter the group subscription settings for a subscription.
@@ -218,6 +213,41 @@ class Group_Subscription_Settings {
 		 * @param WC_Subscription $subscription The subscription object.
 		 */
 		return apply_filters( 'newspack_group_subscription_settings', $settings, $subscription );
+	}
+
+	/**
+	 * Update group subscription settings for a subscription.
+	 *
+	 * @param WC_Subscription|int $subscription The subscription object or ID.
+	 * @param array               $settings The group subscription settings.
+	 */
+	public static function update_subscription_settings( $subscription, $settings ) {
+		if ( ! is_a( $subscription, 'WC_Subscription' ) ) {
+			$subscription = \wcs_get_subscription( $subscription );
+		}
+		if ( ! $subscription ) {
+			return;
+		}
+		$previous_settings = self::get_subscription_settings( $subscription );
+		$should_save       = false;
+		foreach ( $settings as $key => $value ) {
+			if ( ! isset( self::DEFAULT_SETTINGS[ $key ] ) ) {
+				continue;
+			}
+			if ( is_bool( self::DEFAULT_SETTINGS[ $key ] ) ) {
+				$value = \wc_bool_to_string( $value );
+			}
+			if ( is_int( self::DEFAULT_SETTINGS[ $key ] ) ) {
+				$value = absint( $value );
+			}
+			if ( $value !== $previous_settings[ $key ] ) {
+				$subscription->update_meta_data( self::GROUP_SUBSCRIPTION_META_PREFIX . $key, $value );
+				$should_save = true;
+			}
+		}
+		if ( $should_save ) {
+			$subscription->save();
+		}
 	}
 
 	/**
@@ -270,11 +300,11 @@ class Group_Subscription_Settings {
 					</em>
 				</p>
 				<p>
-					<label for="<?php echo \esc_attr( self::GROUP_SUBSCRIPTION_ENABLED_META_KEY ); ?>">
+					<label for="<?php echo \esc_attr( self::GROUP_SUBSCRIPTION_META_PREFIX . 'enabled' ); ?>">
 						<input
 							type="checkbox"
-							id="<?php echo \esc_attr( self::GROUP_SUBSCRIPTION_ENABLED_META_KEY ); ?>"
-							name="<?php echo \esc_attr( self::GROUP_SUBSCRIPTION_ENABLED_META_KEY ); ?>"
+							id="<?php echo \esc_attr( self::GROUP_SUBSCRIPTION_META_PREFIX . 'enabled' ); ?>"
+							name="<?php echo \esc_attr( self::GROUP_SUBSCRIPTION_META_PREFIX . 'enabled' ); ?>"
 							value="yes"
 							<?php checked( $settings['enabled'], true ); ?>
 						/>
@@ -355,26 +385,16 @@ class Group_Subscription_Settings {
 		}
 
 		// Get subscription object.
-		$subscription      = is_a( $subscription, 'WC_Subscription' ) ? $subscription : \wcs_get_subscription( $subscription_id );
-		$previous_settings = self::get_subscription_settings( $subscription );
-		$is_enabled        = isset( $_POST[ self::GROUP_SUBSCRIPTION_ENABLED_META_KEY ] );
-		$limit             = absint( filter_input( INPUT_POST, self::GROUP_SUBSCRIPTION_LIMIT_META_KEY, FILTER_SANITIZE_NUMBER_INT ) );
-		$members_to_add    = filter_input( INPUT_POST, '_newspack_group_subscription_member_ids', FILTER_SANITIZE_NUMBER_INT, FILTER_REQUIRE_ARRAY );
-		$members_to_remove = filter_input( INPUT_POST, 'newspack_group_subscription_member_ids_to_remove', FILTER_SANITIZE_FULL_SPECIAL_CHARS ) ? explode( ',', filter_input( INPUT_POST, 'newspack_group_subscription_member_ids_to_remove', FILTER_SANITIZE_FULL_SPECIAL_CHARS ) ) : [];
-		$should_save       = false;
-
-		if ( $is_enabled !== $previous_settings['enabled'] ) {
-			$subscription->update_meta_data( self::GROUP_SUBSCRIPTION_ENABLED_META_KEY, \wc_bool_to_string( $is_enabled ) );
-			$should_save = true;
-		}
-		if ( $limit !== $previous_settings['limit'] ) {
-			$subscription->update_meta_data( self::GROUP_SUBSCRIPTION_LIMIT_META_KEY, $limit );
-			$should_save = true;
-		}
-		Group_Subscription::update_members( $subscription, $members_to_add, $members_to_remove );
-		if ( $should_save ) {
-			$subscription->save();
-		}
+		$subscription = is_a( $subscription, 'WC_Subscription' ) ? $subscription : \wcs_get_subscription( $subscription_id );
+		$is_enabled   = isset( $_POST[ self::GROUP_SUBSCRIPTION_META_PREFIX . 'enabled' ] );
+		$limit        = absint( filter_input( INPUT_POST, self::GROUP_SUBSCRIPTION_META_PREFIX . 'limit', FILTER_SANITIZE_NUMBER_INT ) );
+		self::update_subscription_settings(
+			$subscription,
+			[
+				'enabled' => $is_enabled,
+				'limit'   => $limit,
+			]
+		);
 	}
 }
 Group_Subscription_Settings::init();
