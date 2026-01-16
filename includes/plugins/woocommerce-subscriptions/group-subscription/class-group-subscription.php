@@ -203,16 +203,13 @@ class Group_Subscription {
 			return [];
 		}
 		$subscription_ids = array_map( 'absint', \get_user_meta( $user_id, self::GROUP_SUBSCRIPTION_USER_META_KEY, false ) );
-		$subscriptions    = $ids_only ? $subscription_ids : [];
-		if ( ! $ids_only ) {
-			foreach ( $subscription_ids as $subscription_id ) {
-				$subscription = \wcs_get_subscription( $subscription_id );
-				if ( $subscription && $subscription->has_status( $subscription_statuses ) ) {
-					$subscriptions[] = $subscription;
-				}
+		$subscriptions    = [];
+		foreach ( $subscription_ids as $subscription_id ) {
+			$subscription = \wcs_get_subscription( $subscription_id );
+			if ( $subscription && $subscription->has_status( $subscription_statuses ) ) {
+				$subscriptions[] = $ids_only ? $subscription_id : $subscription;
 			}
 		}
-
 		/**
 		 * Filter the group subscriptions a user is a member of.
 		 *
