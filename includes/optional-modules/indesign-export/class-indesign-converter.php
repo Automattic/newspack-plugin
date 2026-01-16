@@ -300,7 +300,7 @@ class InDesign_Converter {
 			'/<(?:div|ol|ul|a|img|figure)[^>]*>/'  => '',
 
 			// Replace paragraphs and remaining lists end tags with line breaks.
-			'/<\/(?:p|ul|ol)[^>]*>/'            => "\r\n",
+			'/<\/(?:p|ul|ol)[^>]*>/'               => "\r\n",
 
 			// Remove all remaining closing tags.
 			'/<\/[^>]*>/'                          => '',
