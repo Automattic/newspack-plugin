@@ -512,11 +512,11 @@ class Group_Subscriptions {
 	 *
 	 * @param WC_Subscription|int $subscription The subscription object or ID.
 	 *
-	 * @return int[]|null The group manager user IDs or null if not a group subscription.
+	 * @return int[] The group manager user IDs.
 	 */
 	public static function get_managers( $subscription ) {
 		if ( ! self::is_group_subscription( $subscription ) ) {
-			return null;
+			return [];
 		}
 
 		if ( ! is_a( $subscription, 'WC_Subscription' ) ) {
