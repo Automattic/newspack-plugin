@@ -27,37 +27,6 @@ class Group_Subscription_API {
 	public static function register_routes() {
 		\register_rest_route(
 			self::NAMESPACE,
-			'/settings/(?P<subscription_id>\d+)',
-			[
-				'methods'             => \WP_REST_Server::EDITABLE,
-				'callback'            => [ __CLASS__, 'api_update_settings' ],
-				'permission_callback' => [ __CLASS__, 'permission_callback' ],
-				'args'                => [
-					'subscription_id' => [
-						'type'        => 'integer',
-						'required'    => true,
-						'description' => __( 'Subscription ID.', 'newspack-plugin' ),
-					],
-					'enabled'         => [
-						'type'              => 'boolean',
-						'required'          => false,
-						'description'       => __( 'Whether group subscriptions are enabled for this subscription.', 'newspack-plugin' ),
-						'sanitize_callback' => 'rest_sanitize_boolean',
-					],
-					'limit'           => [
-						'type'              => 'integer',
-						'required'          => false,
-						'description'       => __( 'Maximum number of members allowed. Set to 0 for unlimited.', 'newspack-plugin' ),
-						'sanitize_callback' => 'absint',
-						'validate_callback' => static function( $value ) {
-							return is_numeric( $value ) && (int) $value >= 0;
-						},
-					],
-				],
-			]
-		);
-		\register_rest_route(
-			self::NAMESPACE,
 			'/search-users',
 			[
 				'methods'             => \WP_REST_Server::EDITABLE,
@@ -206,55 +175,6 @@ class Group_Subscription_API {
 		$members_to_remove = $request->get_param( 'members_to_remove' );
 		$results           = Group_Subscription::update_members( $subscription_id, $members_to_add ?? [], $members_to_remove ?? [] );
 		return \rest_ensure_response( $results );
-	}
-
-	/**
-	 * Update group subscription settings for a subscription.
-	 *
-	 * @param \WP_REST_Request $request The request object.
-	 *
-	 * @return \WP_REST_Response|\WP_Error The response or error.
-	 */
-	public static function api_update_settings( $request ) {
-		if ( ! function_exists( 'wcs_get_subscription' ) ) {
-			return \rest_ensure_response( new \WP_Error( 'newspack_group_subscription_api', __( 'WooCommerce Subscriptions is not available.', 'newspack-plugin' ) ) );
-		}
-
-		$subscription_id = $request->get_param( 'subscription_id' );
-		$subscription    = \wcs_get_subscription( $subscription_id );
-		if ( ! $subscription ) {
-			return \rest_ensure_response( new \WP_Error( 'newspack_group_subscription_api_update_settings', __( 'Subscription not found.', 'newspack-plugin' ) ) );
-		}
-
-		// Extra hardening: ensure current user can edit this specific subscription post.
-		if ( ! \current_user_can( 'edit_post', $subscription_id ) ) {
-			return \rest_ensure_response( new \WP_Error( 'newspack_group_subscription_api_update_settings_forbidden', __( 'You do not have permission to edit this subscription.', 'newspack-plugin' ), [ 'status' => 403 ] ) );
-		}
-
-		$should_save = false;
-
-		if ( $request->has_param( 'enabled' ) ) {
-			$enabled = (bool) $request->get_param( 'enabled' );
-			$subscription->update_meta_data( Group_Subscription_Settings::GROUP_SUBSCRIPTION_ENABLED_META_KEY, \wc_bool_to_string( $enabled ) );
-			$should_save = true;
-		}
-
-		if ( $request->has_param( 'limit' ) ) {
-			$limit = absint( $request->get_param( 'limit' ) );
-			$subscription->update_meta_data( Group_Subscription_Settings::GROUP_SUBSCRIPTION_LIMIT_META_KEY, $limit );
-			$should_save = true;
-		}
-
-		if ( $should_save ) {
-			$subscription->save();
-		}
-
-		return \rest_ensure_response(
-			[
-				'subscription_id' => (int) $subscription_id,
-				'settings'        => Group_Subscription_Settings::get_subscription_settings( $subscription ),
-			]
-		);
 	}
 }
 Group_Subscription_API::init();
