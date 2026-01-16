@@ -19,6 +19,7 @@ export { default as ImageUpload } from './image-upload';
 export { default as GlobalNotices } from './global-notices';
 export { default as Grid } from './grid';
 export { default as Modal } from './modal';
+export { default as MotionSection } from './motion-section';
 export { default as NewspackIcon } from './newspack-icon';
 export { default as Notice } from './notice';
 export { default as PluginInstaller } from './plugin-installer';

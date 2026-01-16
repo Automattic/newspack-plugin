@@ -16,7 +16,7 @@ import { Icon } from '@wordpress/icons';
  */
 /* eslint import/namespace: ['error', { allowComputed: true }] */
 import { icons } from '../../components/icons';
-import { Grid, Card } from '../../../../../packages/components/src';
+import { Grid, MotionSection, Card } from '../../../../../packages/components/src';
 
 const {
 	newspackDashboard: { sections: dashSections },
@@ -39,7 +39,7 @@ export default [
 				return (
 					<Fragment key={ sectionKey }>
 						<hr />
-						<div className="newspack-dashboard__section">
+						<MotionSection className="newspack-dashboard__section">
 							<h3>{ dashSections[ sectionKey ].title }</h3>
 							<p>{ dashSections[ sectionKey ].desc }</p>
 							<Grid columns={ 3 } gutter={ 24 } key={ `${ sectionKey }-grid` }>
@@ -59,7 +59,7 @@ export default [
 									);
 								} ) }
 							</Grid>
-						</div>
+						</MotionSection>
 					</Fragment>
 				);
 			} );

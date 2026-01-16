@@ -13,7 +13,7 @@ import { Icon } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
-import { Card, Grid } from '../../../../packages/components/src';
+import { Grid, MotionSection, Card } from '../../../../packages/components/src';
 import { icons } from './icons';
 
 const {
@@ -22,7 +22,7 @@ const {
 
 const QuickActions = () => {
 	return (
-		<div className="newspack-dashboard__section">
+		<MotionSection className="newspack-dashboard__section">
 			<h3>{ __( 'Quick actions', 'newspack-plugin' ) }</h3>
 			<Grid style={ { '--np-dash-card-icon-size': '40px' } } columns={ 3 } gutter={ 24 }>
 				{ quickActions.map( ( action, i ) => {
@@ -38,7 +38,7 @@ const QuickActions = () => {
 					);
 				} ) }
 			</Grid>
-		</div>
+		</MotionSection>
 	);
 };
 
