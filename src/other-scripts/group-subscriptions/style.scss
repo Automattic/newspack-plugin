@@ -14,8 +14,10 @@
 	h3 {
 		font-size: 14px;
 	}
-	label {
+	input[type="number"],
+	.select2-container {
 		display: block;
+		margin-top: 3px;
 	}
 	@media screen and ( min-width: 768px ) {
 		.inside {

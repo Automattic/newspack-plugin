@@ -17,10 +17,15 @@ class Group_Subscriptions {
 	 * Default group subscription settings.
 	 */
 	const DEFAULT_SETTINGS = [
-		'enabled'    => false,
-		'limit'      => 0,
-		'member_ids' => [],
+		'enabled' => false,
+		'limit'   => 0,
+		'members' => [],
 	];
+
+	/**
+	 * Valid membership statuses.
+	 */
+	const MEMBERSHIP_STATUSES = [ 'pending', 'active', 'removed' ];
 
 	/**
 	 * Initialize hooks and filters.
@@ -197,21 +202,10 @@ class Group_Subscriptions {
 		if ( ! $subscription ) {
 			return self::DEFAULT_SETTINGS;
 		}
-		$product_id           = self::get_subscription_product_id( $subscription );
-		$settings             = self::get_product_settings( $product_id );
-		$settings['enabled']  = $subscription->get_meta( '_newspack_group_subscription_enabled', true ) ? \wc_string_to_bool( $subscription->get_meta( '_newspack_group_subscription_enabled', true ) ) : $settings['enabled'];
-		$settings['limit']    = (int) $subscription->get_meta( '_newspack_group_subscription_limit', true ) ?: $settings['limit']; // phpcs:ignore Universal.Operators.DisallowShortTernary.Found
-		$settings['member_ids'] = array_values(
-			array_unique(
-				array_map(
-					function( $member_meta ) {
-						$data = $member_meta->get_data();
-						return (int) $data['value'];
-					},
-					$subscription->get_meta( '_newspack_group_subscription_member_id', false )
-				)
-			)
-		);
+		$product_id          = self::get_subscription_product_id( $subscription );
+		$settings            = self::get_product_settings( $product_id );
+		$settings['enabled'] = $subscription->get_meta( '_newspack_group_subscription_enabled', true ) ? \wc_string_to_bool( $subscription->get_meta( '_newspack_group_subscription_enabled', true ) ) : $settings['enabled'];
+		$settings['limit']   = (int) $subscription->get_meta( '_newspack_group_subscription_limit', true ) ?: $settings['limit']; // phpcs:ignore Universal.Operators.DisallowShortTernary.Found
 
 		/**
 		 * Filter the group subscription settings for a subscription.
@@ -253,6 +247,7 @@ class Group_Subscriptions {
 		}
 		$settings = self::get_subscription_settings( $subscription );
 		$product  = \wc_get_product( self::get_subscription_product_id( $subscription ) );
+		$members  = self::get_members( $subscription );
 		?>
 		<div class="newspack-group-subscription--settings">
 			<h3><?php esc_html_e( 'Settings', 'newspack-plugin' ); ?></h3>
@@ -299,15 +294,15 @@ class Group_Subscriptions {
 					sprintf(
 						// translators: %d: The number of group members.
 						__( 'Group members (%d)', 'newspack-plugin' ),
-						count( $settings['member_ids'] )
+						count( $members )
 					)
 				);
 				?>
 			</h3>
 			<ul class="newspack-group-subscription--members-list show_if_newspack_group_subscription_enabled">
 				<?php
-				foreach ( $settings['member_ids'] as $user_id ) :
-					$user = get_user_by( 'id', $user_id );
+				foreach ( $members as $member ) :
+					$user = get_user_by( 'id', $member['id'] );
 					if ( ! $user || ! Reader_Activation::is_user_reader( $user ) ) {
 						continue;
 					}
@@ -328,7 +323,7 @@ class Group_Subscriptions {
 					<?php esc_html_e( 'Add new group members', 'newspack-plugin' ); ?>
 				</label>
 				<select id="_newspack_group_subscription_member_ids" name="_newspack_group_subscription_member_ids[]" multiple="multiple" data-owner-id="<?php echo esc_attr( $subscription->get_user_id() ); ?>">
-					<option value="<?php echo esc_attr( $user_id ); ?>">
+					<option value="">
 						<?php echo esc_html( 'Select a user...' ); ?>
 					</option>
 				</select>
@@ -418,27 +413,48 @@ class Group_Subscriptions {
 	 * @param WC_Subscription $subscription The subscription object.
 	 * @param int[]           $members_to_add Group member user IDs to add the subscription.
 	 * @param int[]           $members_to_remove Group member user IDs to remove from the subscription.
+	 * @param string          $membership_status The status of the group subscription membership.
 	 *
 	 * @return bool Whether the member IDs were updated.
 	 */
-	private static function update_members( $subscription, $members_to_add, $members_to_remove = [] ) {
+	private static function update_members( $subscription, $members_to_add, $members_to_remove = [], $membership_status = 'pending' ) {
 		$updated = false;
-		$settings   = self::get_subscription_settings( $subscription );
-		$members_to_add = array_values( array_unique( array_map( 'absint', (array) $members_to_add ) ) );
-		if ( empty( array_diff( $members_to_add, $settings['member_ids'] ) ) && empty( array_diff( $settings['member_ids'], $members_to_add ) ) ) {
-			return $updated;
+		$members_to_add    = array_values( array_unique( array_map( 'absint', (array) $members_to_add ) ) );
+		$members_to_remove = array_values( array_unique( array_map( 'absint', (array) $members_to_remove ) ) );
+
+		// Validate status.
+		if ( ! in_array( $membership_status, self::MEMBERSHIP_STATUSES, true ) ) {
+			$membership_status = 'pending';
 		}
 
 		// First, remove members.
 		foreach ( $members_to_remove as $member_id ) {
-			$subscription->delete_meta_data_value( '_newspack_group_subscription_member_id', $member_id );
+			$member = get_user_by( 'id', $member_id );
+			if ( ! $member || ! Reader_Activation::is_user_reader( $member ) || empty( \get_user_meta( $member_id, '_newspack_group_subscription_membership_' . $subscription->get_id(), true ) ) ) {
+				continue;
+			}
+			\update_user_meta( $member_id, '_newspack_group_subscription_membership_' . $subscription->get_id(), false );
+			\update_user_meta( $member_id, '_newspack_group_subscription_membership_status_' . $subscription->get_id(), 'removed' );
+			\update_user_meta( $member_id, '_newspack_group_subscription_membership_date_removed_' . $subscription->get_id(), time() );
+			$updated = true;
 		}
 
 		// Then, add new members.
 		foreach ( $members_to_add as $member_id ) {
-			$subscription->add_meta_data( '_newspack_group_subscription_member_id', $member_id );
+			$member = get_user_by( 'id', $member_id );
+			if ( ! $member || ! Reader_Activation::is_user_reader( $member ) ) {
+				continue;
+			}
+			if ( \get_user_meta( $member_id, '_newspack_group_subscription_membership_' . $subscription->get_id(), true ) && \get_user_meta( $member_id, '_newspack_group_subscription_membership_status_' . $subscription->get_id(), true ) === $membership_status ) {
+				continue;
+			}
+			\update_user_meta( $member_id, '_newspack_group_subscription_membership_' . $subscription->get_id(), true );
+			\update_user_meta( $member_id, '_newspack_group_subscription_membership_status_' . $subscription->get_id(), $membership_status );
+			\update_user_meta( $member_id, '_newspack_group_subscription_membership_date_added_' . $subscription->get_id(), time() );
+			\delete_user_meta( $member_id, '_newspack_group_subscription_membership_date_removed_' . $subscription->get_id() );
+			$updated = true;
 		}
-		return true;
+		return $updated;
 	}
 
 	/**
@@ -463,7 +479,7 @@ class Group_Subscriptions {
 		$is_enabled        = isset( $_POST['_newspack_group_subscription_enabled'] );
 		$limit             = absint( filter_input( INPUT_POST, '_newspack_group_subscription_limit', FILTER_SANITIZE_NUMBER_INT ) );
 		$members_to_add    = filter_input( INPUT_POST, '_newspack_group_subscription_member_ids', FILTER_SANITIZE_NUMBER_INT, FILTER_REQUIRE_ARRAY );
-		$members_to_remove = explode( ',', filter_input( INPUT_POST, 'newspack_group_subscription_member_ids_to_remove', FILTER_SANITIZE_FULL_SPECIAL_CHARS ) );
+		$members_to_remove = filter_input( INPUT_POST, 'newspack_group_subscription_member_ids_to_remove', FILTER_SANITIZE_FULL_SPECIAL_CHARS ) ? explode( ',', filter_input( INPUT_POST, 'newspack_group_subscription_member_ids_to_remove', FILTER_SANITIZE_FULL_SPECIAL_CHARS ) ) : [];
 		$should_save       = false;
 
 		if ( $is_enabled !== $previous_settings['enabled'] ) {
@@ -524,22 +540,63 @@ class Group_Subscriptions {
 	 * Get the members of a group subscription.
 	 *
 	 * @param WC_Subscription|int $subscription The subscription object or ID.
+	 * @param string[]            $membership_statuses The statuses of the group subscription memberships to return.
 	 *
-	 * @return int[]|null The group member user IDs or null if not a group subscription.
+	 * @return int[] The group members.
 	 */
-	public static function get_members( $subscription ) {
+	public static function get_members( $subscription, $membership_statuses = [ 'active', 'pending' ] ) {
 		if ( ! self::is_group_subscription( $subscription ) ) {
-			return null;
+			return [];
 		}
-		$settings = self::get_subscription_settings( $subscription );
+
+		if ( ! is_a( $subscription, 'WC_Subscription' ) ) {
+			$subscription = \wcs_get_subscription( $subscription );
+		}
+		if ( ! in_array( $membership_statuses, self::MEMBERSHIP_STATUSES, true ) ) {
+			$membership_statuses = [ 'active', 'pending' ];
+		}
+		$subscription_id = $subscription->get_id();
+		$members         = array_reduce(
+			\get_users(
+				[
+					'fields'     => [ 'ID' ],
+					'meta_query' => [ // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
+						[
+							'key'     => '_newspack_group_subscription_membership_' . $subscription_id,
+							'compare' => 'EXISTS',
+						],
+					],
+				]
+			),
+			function( $acc, $user ) use ( $subscription_id, $membership_statuses ) {
+				$user_id           = $user->ID;
+				$membership_status = \get_user_meta( $user_id, '_newspack_group_subscription_membership_status_' . $subscription_id, true );
+				$date_added        = \get_user_meta( $user_id, '_newspack_group_subscription_membership_date_added_' . $subscription_id, true );
+				$date_removed      = \get_user_meta( $user_id, '_newspack_group_subscription_membership_date_removed_' . $subscription_id, true );
+				if ( empty( $membership_status ) || empty( $date_added ) || ! in_array( $membership_status, $membership_statuses, true ) ) {
+					return $acc;
+				}
+				$membership = [
+					'id'         => $user_id,
+					'status'     => $membership_status,
+					'date_added' => $date_added,
+				];
+				if ( ! empty( $date_removed ) ) {
+					$membership['date_removed'] = $date_removed;
+				}
+				$acc[] = $membership;
+				return $acc;
+			},
+			[]
+		);
 
 		/**
 		 * Filter the members of a group subscription.
 		 *
-		 * @param int[] $member_ids The group member user IDs.
-		 * @param WC_Subscription|int $subscription The subscription object or ID.
+		 * @param array $members Array of group subscription members.
+		 * @param WC_Subscription $subscription The subscription object.
 		 */
-		return apply_filters( 'newspack_group_subscription_members', $settings['member_ids'], $subscription );
+		return apply_filters( 'newspack_group_subscription_members', $members, $subscription );
 	}
 
 	/**
@@ -570,33 +627,43 @@ class Group_Subscriptions {
 	 * Get the group subscriptions a user is a member of.
 	 *
 	 * @param int      $user_id The user ID.
-	 * @param string[] $status The statuses of the subscriptions to return.
+	 * @param string[] $subscription_statuses The statuses of the subscriptions to return.
+	 * @param string[] $membership_statuses The statuses of the group subscription memberships to return.
 	 *
 	 * @return WC_Subscription[] The group subscriptions the user is a member of.
 	 */
-	public static function get_group_subscriptions_for_user( $user_id, $status = [ 'active', 'pending-cancel' ] ) {
-		$user_id       = (int) $user_id;
-		$subscriptions = \wcs_get_subscriptions(
-			[
-				'subscription_status' => $status,
-				'meta_query'          => [ // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
-					[
-						'key'     => '_newspack_group_subscription_member_id',
-						'value'   => $user_id,
-						'compare' => '=',
-					],
-				],
-			]
-		);
+	public static function get_group_subscriptions_for_user( $user_id, $subscription_statuses = [ 'active', 'pending-cancel' ], $membership_statuses = [ 'active', 'pending' ] ) {
+		if ( ! function_exists( 'wcs_get_subscription' ) ) {
+			return [];
+		}
+		if ( ! Reader_Activation::is_user_reader( \get_user_by( 'id', $user_id ) ) ) {
+			return [];
+		}
+		$user_meta     = \get_user_meta( $user_id );
+		$subscriptions = [];
+		foreach ( $user_meta as $key => $value ) {
+			if ( strpos( $key, '_newspack_group_subscription_membership_' ) === 0 ) {
+				$subscription_id = (int) str_replace( '_newspack_group_subscription_membership_', '', $key );
+				$membership_status = get_user_meta( $user_id, '_newspack_group_subscription_membership_status_' . $subscription_id, true );
+				if ( ! $membership_status || ! in_array( $membership_status, $membership_statuses, true ) ) {
+					continue;
+				}
+				$subscription = \wcs_get_subscription( $subscription_id );
+				if ( $subscription && $subscription->has_status( $subscription_statuses ) ) {
+					$subscriptions[] = $subscription;
+				}
+			}
+		}
 
 		/**
 		 * Filter the group subscriptions a user is a member of.
 		 *
 		 * @param WC_Subscription[] $subscriptions The group subscriptions the user is a member of.
 		 * @param int $user_id The user ID.
-		 * @param string[] $status The statuses of the subscriptions to return.
+		 * @param string[] $subscription_statuses The statuses of the subscriptions to return.
+		 * @param string[] $membership_statuses The statuses of the group subscription memberships to return.
 		 */
-		return apply_filters( 'newspack_group_subscriptions_for_user', $subscriptions, $user_id, $status );
+		return apply_filters( 'newspack_group_subscriptions_for_user', $subscriptions, $user_id, $subscription_statuses, $membership_statuses );
 	}
 }
 Group_Subscriptions::init();
