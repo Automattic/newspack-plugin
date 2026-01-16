@@ -20,16 +20,16 @@
 		margin-top: 3px;
 	}
 	@media screen and ( min-width: 768px ) {
-		.inside {
+		.newspack-group-subscription--container {
 			display: flex;
+			flex-wrap: wrap;
 			gap: 24px;
 		}
-		.newspack-group-subscription--settings {
+		.newspack-group-subscription--settings,
+		.newspack-group-subscription--members,
+		.newspack-group-subscription--add-member {
 			flex: 1;
 			min-width: 250px;
-		}
-		.newspack-group-subscription--members {
-			flex: 2;
 		}
 	}
 	.newspack-group-subscription--members-list {
@@ -38,12 +38,6 @@
 		overflow-y: auto;
 		padding: 0;
 		margin-bottom: 16px;
-	}
-	.newspack-group-subscription--to-remove {
-		a.newspack-group-subscription--member-user-link {
-			color: #666;
-			text-decoration: line-through;
-		}
 	}
 	a.newspack-group-subscription--remove-member {
 		color: #666;
@@ -55,6 +49,23 @@
 		&:focus {
 			box-shadow: none;
 			outline: none;
+		}
+	}
+	.newspack-group-subscription--to-remove {
+		a.newspack-group-subscription--member-user-link {
+			color: #666;
+			pointer-events: none;
+			text-decoration: line-through;
+		}
+		.newspack-group-subscription--remove-member {
+			opacity: 0;
+		}
+	}
+	.error {
+		display: inline-block;
+		padding: 4px;
+		span {
+			margin-right: 2px;
 		}
 	}
 }

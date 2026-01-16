@@ -1,4 +1,4 @@
-/* globals jQuery, newspackGroupSubscriptions, ajaxurl */
+/* globals jQuery, newspackGroupSubscriptions */
 
 /**
  * Group Subscriptions admin JS.
@@ -11,30 +11,23 @@ import './admin.scss';
 		return;
 	}
 
+	// Initialize UI elements.
 	function init() {
 		$( 'input#_newspack_group_subscription_enabled' ).trigger( 'change' );
 		const $select = $( '#_newspack_group_subscription_member_ids' );
-		const ownerId = $select.data( 'owner-id' );
 		$select.select2( {
 			ajax: {
-				url: ajaxurl,
-				dataType: 'json',
+				url: `${ newspackGroupSubscriptions.apiUrl }/search-users`,
+				beforeSend( xhr ) {
+					xhr.setRequestHeader( 'X-WP-Nonce', newspackGroupSubscriptions.apiNonce );
+				},
 				type: 'POST',
 				delay: 1000,
 				data( params ) {
-					const exclude = $select.val()
-						? $select.val().map( function ( item ) {
-								return parseInt( item );
-						  } )
-						: [];
-					if ( ownerId ) {
-						exclude.push( parseInt( ownerId ) );
-					}
+					const subscriptionId = $select.closest( '.newspack-group-subscription--container' ).data( 'subscription-id' );
 					return {
-						action: 'newspack_group_subscription_search_users',
-						exclude,
 						search: params.term,
-						nonce: newspackGroupSubscriptions.nonce,
+						subscription_id: subscriptionId,
 					};
 				},
 				processResults( data ) {
@@ -42,32 +35,23 @@ import './admin.scss';
 						results: data,
 					};
 				},
+				error( xhr, status, error ) {
+					const errorMessage = xhr.responseJSON?.message || error;
+					$select.before( `<mark class="error"><span class="dashicons dashicons-warning"></span>${ errorMessage }</mark>` );
+				},
 				cache: true,
 			},
+			closeOnSelect: true,
 			minimumInputLength: 2,
 			placeholder: newspackGroupSubscriptions.placeholder,
 			allowClear: true,
 		} );
-		$( '.newspack-group-subscription--remove-member' ).click( function ( e ) {
-			e.preventDefault();
-			const $this = $( this );
-			const $li = $this.closest( 'li' );
-			const $input = $( '#newspack_group_subscription_member_ids_to_remove' );
-			const idsToRemove = $input.val() ? $input.val().split( ',' ) : [];
-			const userId = $this.data( 'user-id' );
-			if ( $li.hasClass( 'newspack-group-subscription--to-remove' ) ) {
-				$( e.currentTarget ).html( '&#215;' );
-				$li.removeClass( 'newspack-group-subscription--to-remove' );
-				$input.val( idsToRemove.filter( id => parseInt( id ) !== parseInt( userId ) ).join( ',' ) );
-				return;
-			}
-			$( e.currentTarget ).html( '&#8634;' );
-			$li.addClass( 'newspack-group-subscription--to-remove' );
-			idsToRemove.push( userId );
-			$input.val( idsToRemove.join( ',' ) );
+		$select.on( 'select2:opening', function () {
+			$select.parent().find( '.error' ).remove();
 		} );
 	}
 
+	// Show or hide group subscription options based on the enabled checkbox.
 	function showOrHideOptions( e ) {
 		const $metabox = $( e.currentTarget ).closest( '#newspack-group-subscription' );
 		if ( $( e.currentTarget ).is( ':checked' ) ) {
@@ -77,6 +61,97 @@ import './admin.scss';
 		}
 	}
 
+	// Add member by ID to a group subscription.
+	function addMember( e ) {
+		e.preventDefault();
+		const $select = $( e.currentTarget );
+		$select.attr( 'disabled', true );
+		const subscriptionId = $select.closest( '.newspack-group-subscription--container' ).data( 'subscription-id' );
+		const memberToAdd = $select.val();
+		if ( ! memberToAdd || ! subscriptionId ) {
+			return;
+		}
+		fetch( `${ newspackGroupSubscriptions.apiUrl }/members`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				'X-WP-Nonce': newspackGroupSubscriptions.apiNonce,
+			},
+			body: JSON.stringify( { subscription_id: subscriptionId, members_to_add: [ memberToAdd ] } ),
+		} )
+			.then( response => response.json() )
+			.then( data => {
+				if ( data.code && data.message ) {
+					throw new Error( data.message );
+				}
+				if ( data.members_added?.[ memberToAdd ] ) {
+					const $membersList = $( '.newspack-group-subscription--members-list' );
+					const $membersCount = $select
+						.closest( '.newspack-group-subscription--container' )
+						.find( '.newspack-group-subscription--members-count' );
+					if ( $membersCount.length ) {
+						$membersCount.text( parseInt( $membersCount.text() ) + 1 );
+					}
+					$membersList.append(
+						`<li><a class="newspack-group-subscription--member-user-link" href="${ data.members_added[ memberToAdd ].url }">${ data.members_added[ memberToAdd ].email }</a><a href="#" class="newspack-group-subscription--remove-member" data-user-id="${ memberToAdd }">&#215; <span class="screen-reader-text">Remove</span></a></li>`
+					);
+				}
+			} )
+			.catch( error => {
+				$select.before( `<mark class="error"><span class="dashicons dashicons-warning"></span>${ error.message }</mark>` );
+			} )
+			.finally( () => {
+				$select.val( null ).trigger( 'change' );
+				$select.attr( 'disabled', false );
+			} );
+	}
+
+	// Remove member from a group subscription.
+	function removeMember( e ) {
+		e.preventDefault();
+		const $this = $( e.currentTarget );
+		const userId = $this.data( 'user-id' );
+		const subscriptionId = $this.closest( '.newspack-group-subscription--container' ).data( 'subscription-id' );
+		if ( ! userId || ! subscriptionId ) {
+			return;
+		}
+		const $listItem = $this.closest( 'li' );
+		$listItem.addClass( 'newspack-group-subscription--to-remove' );
+		$listItem.find( '.error' ).remove();
+		fetch( `${ newspackGroupSubscriptions.apiUrl }/members`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				'X-WP-Nonce': newspackGroupSubscriptions.apiNonce,
+			},
+			body: JSON.stringify( { subscription_id: subscriptionId, members_to_remove: [ userId ] } ),
+		} )
+			.then( response => response.json() )
+			.then( data => {
+				if ( data.code && data.message ) {
+					throw new Error( data.message );
+				}
+				if ( data.members_removed?.[ userId ] ) {
+					const $membersCount = $listItem
+						.closest( '.newspack-group-subscription--members' )
+						.find( '.newspack-group-subscription--members-count' );
+
+					if ( $membersCount.length ) {
+						$membersCount.text( parseInt( $membersCount.text() ) - 1 );
+					}
+					$listItem.remove();
+				}
+			} )
+			.catch( error => {
+				$this.after( `<mark class="error"><span class="dashicons dashicons-warning"></span>${ error.message }</mark>` );
+			} )
+			.finally( () => {
+				$this.parent().removeClass( 'newspack-group-subscription--to-remove' );
+			} );
+	}
 	$( '#newspack-group-subscription' ).on( 'change', 'input#_newspack_group_subscription_enabled', showOrHideOptions );
+	$( '#newspack-group-subscription' ).on( 'change', '#_newspack_group_subscription_member_ids', addMember );
+	$( '#newspack-group-subscription' ).on( 'click', '.newspack-group-subscription--remove-member', removeMember );
+
 	$( document ).ready( init );
 } )( jQuery );

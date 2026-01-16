@@ -100,16 +100,26 @@ class Group_Subscription {
 	/**
 	 * Update the member IDs for a group subscription.
 	 *
-	 * @param WC_Subscription $subscription The subscription object.
-	 * @param int[]           $members_to_add Group member user IDs to add the subscription.
-	 * @param int[]           $members_to_remove Group member user IDs to remove from the subscription.
+	 * @param WC_Subscription|int $subscription The subscription object or ID.
+	 * @param int[]               $members_to_add Group member user IDs to add the subscription.
+	 * @param int[]               $members_to_remove Group member user IDs to remove from the subscription.
 	 *
-	 * @return bool Whether the member IDs were updated.
+	 * @return object|WP_Error Added/removed results.
 	 */
 	public static function update_members( $subscription, $members_to_add, $members_to_remove = [] ) {
-		$updated = false;
+		if ( ! function_exists( 'wcs_get_subscription' ) ) {
+			return new \WP_Error( 'newspack_group_subscription_update_members', __( 'WooCommerce Subscriptions is not available.', 'newspack-plugin' ) );
+		}
+		if ( ! is_a( $subscription, 'WC_Subscription' ) ) {
+			$subscription = \wcs_get_subscription( $subscription );
+		}
+		if ( ! $subscription ) {
+			return new \WP_Error( 'newspack_group_subscription_update_members', __( 'Subscription not found.', 'newspack-plugin' ) );
+		}
 		$members_to_add    = array_values( array_unique( array_map( 'absint', (array) $members_to_add ) ) );
 		$members_to_remove = array_values( array_unique( array_map( 'absint', (array) $members_to_remove ) ) );
+		$members_added     = [];
+		$members_removed   = [];
 
 		// Add new members.
 		foreach ( $members_to_add as $member_id ) {
@@ -122,8 +132,12 @@ class Group_Subscription {
 			if ( in_array( $subscription->get_id(), $existing_group_subscription_ids, true ) ) {
 				continue;
 			}
-			\add_user_meta( $member_id, self::GROUP_SUBSCRIPTION_USER_META_KEY, $subscription->get_id() );
-			$updated = true;
+			if ( \add_user_meta( $member_id, self::GROUP_SUBSCRIPTION_USER_META_KEY, $subscription->get_id() ) ) {
+				$members_added[ $member_id ] = [
+					'email' => \get_userdata( $member_id )->user_email,
+					'url'   => \get_edit_user_link( $member_id ),
+				];
+			}
 		}
 
 		// Remove members.
@@ -131,10 +145,17 @@ class Group_Subscription {
 			if ( ! Reader_Activation::is_user_reader( $member_id ) ) {
 				continue;
 			}
-			\delete_user_meta( $member_id, self::GROUP_SUBSCRIPTION_USER_META_KEY, $subscription->get_id() );
-			$updated = true;
+			if ( \delete_user_meta( $member_id, self::GROUP_SUBSCRIPTION_USER_META_KEY, $subscription->get_id() ) ) {
+				$members_removed[ $member_id ] = [
+					'email' => \get_userdata( $member_id )->user_email,
+					'url'   => \get_edit_user_link( $member_id ),
+				];
+			}
 		}
-		return $updated;
+		return [
+			'members_added'   => $members_added,
+			'members_removed' => $members_removed,
+		];
 	}
 
 	/**
