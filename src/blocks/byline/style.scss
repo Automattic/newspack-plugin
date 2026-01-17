@@ -1,0 +1,18 @@
+.wp-block-newspack-byline {
+	.byline {
+		display: inline;
+
+		.author {
+			display: inline;
+
+			a {
+				text-decoration: inherit;
+
+				&:hover,
+				&:focus {
+					text-decoration: underline;
+				}
+			}
+		}
+	}
+}

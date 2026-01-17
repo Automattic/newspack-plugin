@@ -12,6 +12,7 @@ import * as readerRegistration from './reader-registration';
 import * as correctionBox from './correction-box';
 import * as correctionItem from './correction-item';
 import * as avatar from './avatar';
+import * as byline from './byline';
 import * as collections from './collections';
 import * as contentGateCountdown from './content-gate/countdown';
 import * as contentGateCountdownBox from './content-gate/countdown-box';
@@ -21,7 +22,16 @@ import * as contentGateCountdownBox from './content-gate/countdown-box';
  */
 import './core-image';
 
-export const blocks = [ readerRegistration, correctionBox, correctionItem, avatar, collections, contentGateCountdown, contentGateCountdownBox ];
+export const blocks = [
+	readerRegistration,
+	correctionBox,
+	correctionItem,
+	avatar,
+	byline,
+	collections,
+	contentGateCountdown,
+	contentGateCountdownBox,
+];
 
 const readerActivationBlocks = [ 'newspack/reader-registration' ];
 const correctionBlocks = [ 'newspack/correction-box', 'newspack/correction-item' ];
