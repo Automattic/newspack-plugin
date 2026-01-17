@@ -93,12 +93,19 @@ import './admin.scss';
 						$membersCount.text( parseInt( $membersCount.text() ) + 1 );
 					}
 					$membersList.append(
-						`<li><a class="newspack-group-subscription--member-user-link" href="${ data.members_added[ memberToAdd ].url }">${ data.members_added[ memberToAdd ].email }</a><a href="#" class="newspack-group-subscription--remove-member" data-user-id="${ memberToAdd }">&#215; <span class="screen-reader-text">Remove</span></a></li>`
+						`<li><a class="newspack-group-subscription--member-user-link" href="#"></a><a href="#" class="newspack-group-subscription--remove-member">&#215; <span class="screen-reader-text">Remove</span></a></li>`
 					);
+					const $added = $membersList.find( 'li' ).last();
+					$added
+						.find( '.newspack-group-subscription--member-user-link' )
+						.text( data.members_added[ memberToAdd ].email )
+						.attr( 'href', data.members_added[ memberToAdd ].url );
+					$added.find( ' .newspack-group-subscription--remove-member' ).data( 'user-id', memberToAdd );
 				}
 			} )
 			.catch( error => {
-				$select.before( `<mark class="error"><span class="dashicons dashicons-warning"></span>${ error.message }</mark>` );
+				$select.before( `<mark class="error"><span class="dashicons dashicons-warning"></span><span class="message"></span></mark>` );
+				$select.parent().find( '.message' ).text( error.message );
 			} )
 			.finally( () => {
 				$select.val( null ).trigger( 'change' );
@@ -143,7 +150,8 @@ import './admin.scss';
 				}
 			} )
 			.catch( error => {
-				$this.after( `<mark class="error"><span class="dashicons dashicons-warning"></span>${ error.message }</mark>` );
+				$this.after( `<mark class="error"><span class="dashicons dashicons-warning"></span><span class="message"></span></mark>` );
+				$this.parent().find( '.message' ).text( error.message );
 			} )
 			.finally( () => {
 				$this.parent().removeClass( 'newspack-group-subscription--to-remove' );

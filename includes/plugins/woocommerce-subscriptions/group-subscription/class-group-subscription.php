@@ -63,6 +63,9 @@ class Group_Subscription {
 		if ( ! is_a( $subscription, 'WC_Subscription' ) ) {
 			$subscription = \wcs_get_subscription( $subscription );
 		}
+		if ( ! $subscription ) {
+			return [];
+		}
 		$subscription_id = $subscription->get_id();
 		$members         = array_map(
 			function( $user ) {
