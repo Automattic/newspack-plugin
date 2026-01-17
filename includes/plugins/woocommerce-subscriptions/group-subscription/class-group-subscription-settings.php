@@ -387,7 +387,9 @@ class Group_Subscription_Settings {
 		// Get subscription object.
 		$subscription = is_a( $subscription, 'WC_Subscription' ) ? $subscription : \wcs_get_subscription( $subscription_id );
 		$is_enabled   = isset( $_POST[ self::GROUP_SUBSCRIPTION_META_PREFIX . 'enabled' ] );
-		$limit        = absint( filter_input( INPUT_POST, self::GROUP_SUBSCRIPTION_META_PREFIX . 'limit', FILTER_SANITIZE_NUMBER_INT ) );
+		$limit        = isset( $_POST[ self::GROUP_SUBSCRIPTION_META_PREFIX . 'limit' ] )
+			? absint( wp_unslash( $_POST[ self::GROUP_SUBSCRIPTION_META_PREFIX . 'limit' ] ) )
+			: 0;
 		self::update_subscription_settings(
 			$subscription,
 			[
