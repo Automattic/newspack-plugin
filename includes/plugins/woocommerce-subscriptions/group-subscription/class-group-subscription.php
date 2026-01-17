@@ -122,7 +122,21 @@ class Group_Subscription {
 		$members_to_remove = array_values( array_unique( array_map( 'absint', (array) $members_to_remove ) ) );
 		$members_added     = [];
 		$members_removed   = [];
-		$existing_members  = self::get_members( $subscription );
+
+		// Remove members.
+		foreach ( $members_to_remove as $member_id ) {
+			if ( ! Reader_Activation::is_user_reader( $member_id ) ) {
+				continue;
+			}
+			if ( \delete_user_meta( $member_id, self::GROUP_SUBSCRIPTION_USER_META_KEY, $subscription->get_id() ) ) {
+				$members_removed[ $member_id ] = [
+					'email' => \get_userdata( $member_id )->user_email,
+					'url'   => \get_edit_user_link( $member_id ),
+				];
+			}
+		}
+
+		$existing_members = self::get_members( $subscription );
 		if ( $subscription_settings['limit'] > 0 && count( $existing_members ) + count( $members_to_add ) > $subscription_settings['limit'] ) {
 			return new \WP_Error( 'newspack_group_subscription_update_members', __( 'Member limit reached. Please remove some members or increase the limit.', 'newspack-plugin' ) );
 		}
@@ -140,19 +154,6 @@ class Group_Subscription {
 			}
 			if ( \add_user_meta( $member_id, self::GROUP_SUBSCRIPTION_USER_META_KEY, $subscription->get_id() ) ) {
 				$members_added[ $member_id ] = [
-					'email' => \get_userdata( $member_id )->user_email,
-					'url'   => \get_edit_user_link( $member_id ),
-				];
-			}
-		}
-
-		// Remove members.
-		foreach ( $members_to_remove as $member_id ) {
-			if ( ! Reader_Activation::is_user_reader( $member_id ) ) {
-				continue;
-			}
-			if ( \delete_user_meta( $member_id, self::GROUP_SUBSCRIPTION_USER_META_KEY, $subscription->get_id() ) ) {
-				$members_removed[ $member_id ] = [
 					'email' => \get_userdata( $member_id )->user_email,
 					'url'   => \get_edit_user_link( $member_id ),
 				];
