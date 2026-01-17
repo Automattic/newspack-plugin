@@ -15,20 +15,21 @@ import './style.scss';
 /**
  * Hook to get custom byline data.
  *
- * @param {number} postId Post ID.
+ * @param {number} postId   Post ID.
+ * @param {string} postType Post type.
  * @return {Object} Custom byline data.
  */
-function useCustomByline( postId ) {
+function useCustomByline( postId, postType ) {
 	const { bylineActive, bylineContent } = useSelect(
 		select => {
 			const { getEditedEntityRecord } = select( coreStore );
-			const postRecord = getEditedEntityRecord( 'postType', 'post', postId );
+			const postRecord = getEditedEntityRecord( 'postType', postType, postId );
 			return {
 				bylineActive: postRecord?.meta?._newspack_byline_active || false,
 				bylineContent: postRecord?.meta?._newspack_byline || '',
 			};
 		},
-		[ postId ]
+		[ postId, postType ]
 	);
 
 	return { bylineActive, bylineContent };
@@ -243,30 +244,27 @@ function BylineInspectorControls( { attributes, setAttributes, isCustomByline } 
 		<InspectorControls>
 			<PanelBody title={ __( 'Settings', 'newspack-plugin' ) }>
 				{ ! isCustomByline && (
-					<TextControl
-						__nextHasNoMarginBottom
-						label={ __( 'Prefix', 'newspack-plugin' ) }
-						help={ __( 'Text displayed before the author name(s).', 'newspack-plugin' ) }
-						value={ attributes.prefix }
-						onChange={ prefix => setAttributes( { prefix } ) }
-					/>
+					<>
+						<TextControl
+							__nextHasNoMarginBottom
+							label={ __( 'Prefix', 'newspack-plugin' ) }
+							help={ __( 'Text displayed before the author name(s).', 'newspack-plugin' ) }
+							value={ attributes.prefix }
+							onChange={ prefix => setAttributes( { prefix } ) }
+						/>
+						<ToggleControl
+							__nextHasNoMarginBottom
+							label={ __( 'Link to author archive', 'newspack-plugin' ) }
+							checked={ attributes.linkToAuthorArchive }
+							onChange={ () => setAttributes( { linkToAuthorArchive: ! attributes.linkToAuthorArchive } ) }
+						/>
+					</>
 				) }
 				{ isCustomByline && (
 					<p className="components-base-control__help">
-						{ __( 'Prefix is not shown for custom bylines as they include their own prefix text.', 'newspack-plugin' ) }
+						{ __( 'Prefix and link settings are controlled by the custom byline and cannot be changed here.', 'newspack-plugin' ) }
 					</p>
 				) }
-				<ToggleControl
-					__nextHasNoMarginBottom
-					label={ __( 'Link to author archive', 'newspack-plugin' ) }
-					checked={ attributes.linkToAuthorArchive }
-					onChange={ () => setAttributes( { linkToAuthorArchive: ! attributes.linkToAuthorArchive } ) }
-					help={
-						isCustomByline
-							? __( 'This setting does not apply to custom bylines, which have their own link settings.', 'newspack-plugin' )
-							: undefined
-					}
-				/>
 			</PanelBody>
 		</InspectorControls>
 	);
@@ -282,11 +280,11 @@ function BylineInspectorControls( { attributes, setAttributes, isCustomByline } 
  * @return {JSX.Element} Edit component.
  */
 export default function Edit( { attributes, context, setAttributes } ) {
-	const { postId, postType } = context;
+	const { postId, postType = 'post' } = context;
 	const blockProps = useBlockProps( { className: 'wp-block-newspack-byline' } );
 
 	// Get custom byline data.
-	const { bylineActive, bylineContent } = useCustomByline( postId );
+	const { bylineActive, bylineContent } = useCustomByline( postId, postType );
 
 	// Get CoAuthors Plus authors.
 	const { authors: coAuthors, isCapAvailable } = useCoAuthors( postId );
