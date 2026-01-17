@@ -98,8 +98,14 @@ class Newspack_Test_Data_Events extends WP_UnitTestCase {
 
 		$this->assertIsArray( $hook_request );
 		$this->assertIsArray( $hook_queued_dispatches );
-		$this->assertEquals( $action_name, $hook_queued_dispatches[0]['action_name'] );
-		$this->assertEquals( $data, $hook_queued_dispatches[0]['data'] );
+
+		// Find our test action (other events may be queued from other tests).
+		$matching = array_filter(
+			$hook_queued_dispatches,
+			fn( $d ) => $d['action_name'] === $action_name
+		);
+		$this->assertNotEmpty( $matching, 'Test action should be in queued dispatches.' );
+		$this->assertEquals( $data, array_values( $matching )[0]['data'] );
 	}
 
 	/**
