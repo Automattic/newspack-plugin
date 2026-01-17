@@ -49,7 +49,7 @@ class Group_Subscription {
 		 * @param int[] $member_ids The group manager user IDs.
 		 * @param WC_Subscription $subscription The subscription object.
 		 */
-		return apply_filters( 'newspack_group_subscription_managers', [ $subscription->get_user_id() ], $subscription );
+		return apply_filters( 'newspack_group_subscription_managers', [ $subscription ? $subscription->get_user_id() : 0 ], $subscription );
 	}
 
 	/**
