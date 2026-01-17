@@ -6,10 +6,16 @@ import { createElement } from '@wordpress/element';
 /**
  * Decode HTML entities in a string.
  *
+ * Uses a textarea element to safely decode entities without executing scripts.
+ * DOMParser is not used because it normalizes whitespace per HTML parsing rules.
+ *
  * @param {string} text Text with HTML entities.
  * @return {string} Decoded text.
  */
 export function decodeHtmlEntities( text ) {
+	if ( ! text ) {
+		return '';
+	}
 	const textarea = document.createElement( 'textarea' );
 	textarea.innerHTML = text;
 	return textarea.value;
