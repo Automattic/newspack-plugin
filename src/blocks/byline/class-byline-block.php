@@ -108,7 +108,7 @@ final class Byline_Block {
 	 * @return string The block HTML.
 	 */
 	private static function render_coauthors( array $attributes, array $coauthors ) {
-		$prefix             = $attributes['prefix'] ?? 'By ';
+		$prefix             = $attributes['prefix'] ?? __( 'By ', 'newspack-plugin' );
 		$link_to_archive    = $attributes['linkToAuthorArchive'] ?? true;
 		$wrapper_attributes = get_block_wrapper_attributes( [ 'class' => 'wp-block-newspack-byline' ] );
 
@@ -160,7 +160,7 @@ final class Byline_Block {
 	 * @return string The block HTML.
 	 */
 	private static function render_default_author( array $attributes, int $post_id ) {
-		$prefix             = $attributes['prefix'] ?? 'By ';
+		$prefix             = $attributes['prefix'] ?? __( 'By ', 'newspack-plugin' );
 		$link_to_archive    = $attributes['linkToAuthorArchive'] ?? true;
 		$wrapper_attributes = get_block_wrapper_attributes( [ 'class' => 'wp-block-newspack-byline' ] );
 

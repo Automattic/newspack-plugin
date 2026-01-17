@@ -45,34 +45,38 @@ const CAP_STORE = 'cap/authors';
  * Note: CAP's store doesn't use standard WP data resolution, so we check
  * for authors directly rather than using hasFinishedResolution.
  *
+ * @param {number} postId Post ID to get authors for.
  * @return {Object} Authors array and availability state.
  */
-function useCoAuthors() {
-	const { authors, isCapAvailable } = useSelect( select => {
-		// Check if CoAuthors Plus store is available.
-		const capStore = select( CAP_STORE );
-		if ( ! capStore || typeof capStore.getAuthors !== 'function' ) {
-			return { authors: [], isCapAvailable: false };
-		}
+function useCoAuthors( postId ) {
+	const { authors, isCapAvailable } = useSelect(
+		select => {
+			// Check if CoAuthors Plus store is available.
+			const capStore = select( CAP_STORE );
+			if ( ! capStore || typeof capStore.getAuthors !== 'function' ) {
+				return { authors: [], isCapAvailable: false };
+			}
 
-		// Get authors from the CAP store.
-		// This returns the current editing state, updating in real-time.
-		const capAuthors = capStore.getAuthors();
+			// Get authors from the CAP store for the specific post.
+			// The postId is required to get the correct authors for the current post.
+			const capAuthors = postId ? capStore.getAuthors( postId ) : [];
 
-		if ( ! capAuthors || capAuthors.length === 0 ) {
-			return { authors: [], isCapAvailable: true };
-		}
+			if ( ! capAuthors || capAuthors.length === 0 ) {
+				return { authors: [], isCapAvailable: true };
+			}
 
-		// Map CAP author objects to our expected format.
-		// CAP stores: { id, label, display, value, userType }
-		const mappedAuthors = capAuthors.map( author => ( {
-			id: author.id,
-			display_name: author.display || author.value || author.label,
-			user_nicename: author.value,
-		} ) );
+			// Map CAP author objects to our expected format.
+			// CAP stores: { id, label, display, value, userType }
+			const mappedAuthors = capAuthors.map( author => ( {
+				id: author.id,
+				display_name: author.display || author.value || author.label,
+				user_nicename: author.value,
+			} ) );
 
-		return { authors: mappedAuthors, isCapAvailable: true };
-	}, [] );
+			return { authors: mappedAuthors, isCapAvailable: true };
+		},
+		[ postId ]
+	);
 
 	return { authors, isCapAvailable };
 }
@@ -285,7 +289,7 @@ export default function Edit( { attributes, context, setAttributes } ) {
 	const { bylineActive, bylineContent } = useCustomByline( postId );
 
 	// Get CoAuthors Plus authors.
-	const { authors: coAuthors, isCapAvailable } = useCoAuthors();
+	const { authors: coAuthors, isCapAvailable } = useCoAuthors( postId );
 
 	// Get default WordPress author.
 	const { authorDetails: defaultAuthor, isLoading: isLoadingAuthor } = useDefaultAuthor( postId, postType );
