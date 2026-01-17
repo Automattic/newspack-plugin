@@ -182,12 +182,12 @@ final class Byline_Block {
 
 		return sprintf(
 			'%1$s<span class="author vcard"><a class="%2$s" href="%3$s" rel="%4$s">%5$s</a></span>%6$s',
-			$args['before_html'],
+			wp_kses_post( $args['before_html'] ),
 			esc_attr( $args['class'] ),
 			esc_url( $args['href'] ),
 			esc_attr( $args['rel'] ),
 			esc_html( $args['text'] ),
-			$args['after_html']
+			wp_kses_post( $args['after_html'] )
 		);
 	}
 
