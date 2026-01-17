@@ -22,6 +22,10 @@ export function decodeHtmlEntities( text ) {
  * @return {Array} Array of React elements for display.
  */
 export function parseBylineForDisplay( bylineContent ) {
+	if ( ! bylineContent ) {
+		return [];
+	}
+
 	const elements = [];
 	let lastIndex = 0;
 	const regex = /\[Author id=(\d+)\](.*?)\[\/Author\]/g;
