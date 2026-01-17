@@ -108,7 +108,7 @@ final class Byline_Block {
 	 * @return string The block HTML.
 	 */
 	private static function render_coauthors( array $attributes, array $coauthors ) {
-		$prefix             = $attributes['prefix'] ?? __( 'By ', 'newspack-plugin' );
+		$prefix             = self::get_translated_prefix( $attributes['prefix'] ?? '' );
 		$link_to_archive    = $attributes['linkToAuthorArchive'] ?? true;
 		$wrapper_attributes = get_block_wrapper_attributes( [ 'class' => 'wp-block-newspack-byline' ] );
 
@@ -121,14 +121,7 @@ final class Byline_Block {
 			}
 
 			if ( $link_to_archive ) {
-				// Use get_author_posts_url with user_nicename - CAP hooks the author_link filter
-				// via CoAuthors_Guest_Authors::filter_author_link() to construct proper URLs.
-				$author_url     = get_author_posts_url( $coauthor->ID, $coauthor->user_nicename );
-				$author_links[] = sprintf(
-					'<span class="author vcard"><a class="url fn n" href="%1$s">%2$s</a></span>',
-					esc_url( $author_url ),
-					esc_html( $display_name )
-				);
+				$author_links[] = self::get_coauthor_link( $coauthor, $display_name );
 			} else {
 				$author_links[] = sprintf(
 					'<span class="author vcard"><span class="fn n">%1$s</span></span>',
@@ -152,6 +145,53 @@ final class Byline_Block {
 	}
 
 	/**
+	 * Get the author link HTML for a CoAuthors Plus author.
+	 *
+	 * Uses get_author_posts_url() which CAP hooks via the 'author_link' filter
+	 * (CoAuthors_Guest_Authors::filter_author_link) to construct proper URLs for
+	 * both WordPress users and CAP guest authors.
+	 *
+	 * Also applies the 'coauthors_posts_link' filter for compatibility with CAP's
+	 * own coauthors_posts_links_single() function.
+	 *
+	 * @param object $coauthor     The coauthor object.
+	 * @param string $display_name The display name to show.
+	 *
+	 * @return string Author link HTML.
+	 */
+	private static function get_coauthor_link( $coauthor, string $display_name ) {
+		$args = [
+			'before_html' => '',
+			'href'        => get_author_posts_url( $coauthor->ID, $coauthor->user_nicename ),
+			'rel'         => 'author',
+			'class'       => 'url fn n',
+			'text'        => $display_name,
+			'after_html'  => '',
+		];
+
+		/**
+		 * Filter the author link arguments.
+		 *
+		 * This filter is provided by CoAuthors Plus and allows modification of
+		 * author link attributes. We apply it for full CAP compatibility.
+		 *
+		 * @param array  $args     Link arguments: href, rel, class, text, before_html, after_html.
+		 * @param object $coauthor The coauthor object.
+		 */
+		$args = apply_filters( 'coauthors_posts_link', $args, $coauthor );
+
+		return sprintf(
+			'%1$s<span class="author vcard"><a class="%2$s" href="%3$s" rel="%4$s">%5$s</a></span>%6$s',
+			$args['before_html'],
+			esc_attr( $args['class'] ),
+			esc_url( $args['href'] ),
+			esc_attr( $args['rel'] ),
+			esc_html( $args['text'] ),
+			$args['after_html']
+		);
+	}
+
+	/**
 	 * Render default WordPress author.
 	 *
 	 * @param array $attributes The block attributes.
@@ -160,7 +200,7 @@ final class Byline_Block {
 	 * @return string The block HTML.
 	 */
 	private static function render_default_author( array $attributes, int $post_id ) {
-		$prefix             = $attributes['prefix'] ?? __( 'By ', 'newspack-plugin' );
+		$prefix             = self::get_translated_prefix( $attributes['prefix'] ?? '' );
 		$link_to_archive    = $attributes['linkToAuthorArchive'] ?? true;
 		$wrapper_attributes = get_block_wrapper_attributes( [ 'class' => 'wp-block-newspack-byline' ] );
 
@@ -193,6 +233,25 @@ final class Byline_Block {
 			esc_html( $prefix ),
 			$author_html
 		);
+	}
+
+	/**
+	 * Get the translated prefix.
+	 *
+	 * The block.json default "By " is not translatable. This method checks if
+	 * the prefix matches the English default and returns the translated version.
+	 * If the user has set a custom prefix, it's returned as-is.
+	 *
+	 * @param string $prefix The prefix attribute value.
+	 *
+	 * @return string The translated or custom prefix.
+	 */
+	private static function get_translated_prefix( string $prefix ) {
+		// If prefix is empty or matches the English default, use translated version.
+		if ( empty( $prefix ) || 'By ' === $prefix ) {
+			return __( 'By ', 'newspack-plugin' );
+		}
+		return $prefix;
 	}
 
 	/**
