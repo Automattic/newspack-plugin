@@ -123,7 +123,7 @@ class Patches {
 	}
 
 	/**
-	 * Remove the Design from the Appearance menu for the Classic theme:
+	 * Remove the Design link from the Appearance menu for the Classic theme.
 	 */
 	public static function remove_core_appearance_menu_links() {
 		if ( wp_is_block_theme() ) {
