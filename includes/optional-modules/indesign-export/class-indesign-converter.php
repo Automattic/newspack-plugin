@@ -276,7 +276,7 @@ class InDesign_Converter {
 			'/<(?!pstyle:)(p[^>]*)>/'              => $this->styles['paragraph'],
 
 			// Lists. TODO: Handle numbered and nested lists.
-			'/<li[^>]*>(.*)<\/li>/U'               => "<bnListType:Bullet>$1<bnListType:>",
+			'/<li[^>]*>(.*)<\/li>/U'               => '<bnListType:Bullet>$1<bnListType:>',
 
 			// Line breaks.
 			'/<br[^>]*>/'                          => '<0x000A>',
