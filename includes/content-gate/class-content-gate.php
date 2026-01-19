@@ -591,12 +591,19 @@ class Content_Gate {
 		if ( $use_more_tag && strpos( $content, '<!--more-->' ) ) {
 			$content = apply_filters( 'newspack_gate_content', explode( '<!--more-->', $content )[0] );
 		} else {
+			$visible_paragraphs = get_post_meta( $gate_post_id, 'visible_paragraphs', true );
+			// If visible paragraphs is explicitly 0, return no content.
+			// Also align with the registered meta default (2) when the meta is unset.
+			$count = '' === $visible_paragraphs ? 2 : max( 0, (int) $visible_paragraphs );
+			if ( 0 === $count ) {
+				return '';
+			}
+
 			$content = apply_filters( 'newspack_gate_content', $content );
-			$count   = max( 1, (int) get_post_meta( $gate_post_id, 'visible_paragraphs', true ) );
 			// Split into paragraphs.
 			$content = explode( '</p>', $content );
 			// Extract the first $x paragraphs only.
-			$content = array_slice( $content, 0, $count ?? 2 );
+			$content = array_slice( $content, 0, $count );
 			if ( 'overlay' === $style ) {
 				// Append ellipsis to the last paragraph.
 				$content[ count( $content ) - 1 ] .= ' [&hellip;]';
