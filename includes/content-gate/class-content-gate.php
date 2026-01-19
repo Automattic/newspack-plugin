@@ -552,7 +552,8 @@ class Content_Gate {
 		$gate = '<div style=\'content:"";clear:both;display:table;\'></div>' . $gate;
 
 		// Apply inline fade.
-		if ( \get_post_meta( $gate_post_id, 'inline_fade', true ) ) {
+		$visible_paragraphs = self::get_visible_paragraphs( $gate_post_id );
+		if ( $visible_paragraphs > 0 && \get_post_meta( $gate_post_id, 'inline_fade', true ) ) {
 			$gate = '<div style="pointer-events: none; height: 10em; margin-top: -10em; width: 100%; position: absolute; background: linear-gradient(180deg, rgba(255,255,255,0) 14%, rgba(255,255,255,1) 76%);"></div>' . $gate;
 		}
 
@@ -568,6 +569,18 @@ class Content_Gate {
 	 */
 	public static function get_inline_gate_html() {
 		return apply_filters( 'newspack_gate_content', self::get_inline_gate_content() );
+	}
+
+	/**
+	 * Get the number of visible paragraphs for the gate.
+	 *
+	 * @param int $gate_post_id Gate post ID.
+	 *
+	 * @return int
+	 */
+	protected static function get_visible_paragraphs( $gate_post_id ) {
+		$visible_paragraphs = \get_post_meta( $gate_post_id, 'visible_paragraphs', true );
+		return '' === $visible_paragraphs ? 2 : max( 0, (int) $visible_paragraphs );
 	}
 
 	/**
@@ -591,10 +604,7 @@ class Content_Gate {
 		if ( $use_more_tag && strpos( $content, '<!--more-->' ) ) {
 			$content = apply_filters( 'newspack_gate_content', explode( '<!--more-->', $content )[0] );
 		} else {
-			$visible_paragraphs = get_post_meta( $gate_post_id, 'visible_paragraphs', true );
-			// If visible paragraphs is explicitly 0, return no content.
-			// Also align with the registered meta default (2) when the meta is unset.
-			$count = '' === $visible_paragraphs ? 2 : max( 0, (int) $visible_paragraphs );
+			$count = self::get_visible_paragraphs( $gate_post_id );
 			if ( 0 === $count ) {
 				return '';
 			}
