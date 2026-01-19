@@ -9,6 +9,7 @@ import { registerBlockType } from '@wordpress/blocks';
  * Internal dependencies
  */
 import * as readerRegistration from './reader-registration';
+import * as myAccountButton from './my-account-button';
 import * as correctionBox from './correction-box';
 import * as correctionItem from './correction-item';
 import * as avatar from './avatar';
@@ -21,9 +22,18 @@ import * as contentGateCountdownBox from './content-gate/countdown-box';
  */
 import './core-image';
 
-export const blocks = [ readerRegistration, correctionBox, correctionItem, avatar, collections, contentGateCountdown, contentGateCountdownBox ];
+export const blocks = [
+	readerRegistration,
+	myAccountButton,
+	correctionBox,
+	correctionItem,
+	avatar,
+	collections,
+	contentGateCountdown,
+	contentGateCountdownBox,
+];
 
-const readerActivationBlocks = [ 'newspack/reader-registration' ];
+const readerActivationBlocks = [ 'newspack/reader-registration', 'newspack/my-account-button' ];
 const correctionBlocks = [ 'newspack/correction-box', 'newspack/correction-item' ];
 const collectionsBlocks = [ 'newspack/collections' ];
 const contentGateBlocks = [ 'newspack/content-gate-countdown', 'newspack/content-gate-countdown-box' ];
