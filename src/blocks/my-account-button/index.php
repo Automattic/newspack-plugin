@@ -8,6 +8,8 @@
 namespace Newspack\Blocks\My_Account_Button;
 
 use Newspack\Reader_Activation;
+use Newspack\Newspack_UI_Icons;
+use Newspack\Newspack;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -62,6 +64,13 @@ function render_block( $attrs ) {
 		return '';
 	}
 
+	wp_enqueue_style(
+		'newspack-blocks-frontend',
+		Newspack::plugin_url() . '/dist/blocks.css',
+		[],
+		NEWSPACK_PLUGIN_VERSION
+	);
+
 	$default_attrs = [
 		'signedInLabel'  => __( 'My Account', 'newspack-plugin' ),
 		'signedOutLabel' => __( 'Sign in', 'newspack-plugin' ),
@@ -95,6 +104,9 @@ function render_block( $attrs ) {
 	);
 
 	$link  = '<a ' . $wrapper_attributes . ' data-labels="' . \esc_attr( htmlspecialchars( \wp_json_encode( $labels ), ENT_QUOTES, 'UTF-8' ) ) . '" data-newspack-reader-account-link class="wp-block-button__link">';
+	$link .= '<span class="newspack-reader__account-link__icon">';
+	$link .= Newspack_UI_Icons::get_svg( 'account' );
+	$link .= '</span>';
 	$link .= '<span class="newspack-reader__account-link__label">' . \esc_html( $label ) . '</span>';
 	$link .= '</a>';
 

@@ -16,53 +16,6 @@
 .entry-content .newspack-reader,
 .newspack-reader {
 	/**
-	 * Account Link
-	 */
-	&__account-link {
-		color: inherit;
-		position: relative;
-
-		span {
-			display: inline-block;
-		}
-
-		&__mobile {
-			display: flex;
-			justify-content: center;
-			margin-left: 0.5rem;
-
-			@media screen and (min-width: 960px) {
-				display: none;
-			}
-
-			a {
-				display: flex;
-				padding: 0.4em;
-			}
-		}
-
-		&__icon {
-			height: 24px;
-			width: 24px;
-
-			@media screen and (min-width: 960px) {
-				margin-left: -4px;
-				margin-top: -12px;
-				position: absolute;
-				top: 50%;
-			}
-		}
-
-		&__label {
-			margin-left: calc(16px + 0.4rem);
-
-			@media screen and (max-width: 959px) {
-				@include mixins.visuallyHidden;
-			}
-		}
-	}
-
-	/**
 	 * Newsletters subscription lists.
 	 */
 	&__lists {
