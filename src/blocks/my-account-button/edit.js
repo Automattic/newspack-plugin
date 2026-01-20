@@ -74,7 +74,7 @@ function MyAccountButtonEdit( { attributes, setAttributes } ) {
 				</ToolbarGroup>
 			</BlockControls>
 			<a { ...blockProps }>
-				<span className="newspack-reader__account-link__icon" aria-hidden="true">
+				<span className="wp-block-newspack-my-account-button__icon" aria-hidden="true">
 					{ icon }
 				</span>
 				<RichText

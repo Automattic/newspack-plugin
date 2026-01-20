@@ -1,11 +1,18 @@
-.wp-block-newspack-my-account-button__link {
-	align-items: center;
-	display: inline-flex;
-	gap: 0.25em;
-	justify-content: center;
-	text-decoration: none;
+.wp-block-newspack-my-account-button {
+	&__link {
+		align-items: center;
+		display: inline-flex;
+		gap: var(--wp--custom--spacing--10, var( --wp--preset--spacing--20 ));
+		justify-content: center;
+		text-decoration: none;
 
-	.newspack-reader__account-link__icon {
+		&--disabled {
+			opacity: 0.6;
+			pointer-events: none;
+		}
+	}
+
+	&__icon {
 		align-items: center;
 		display: flex;
 		justify-content: center;
@@ -16,9 +23,4 @@
 			width: 1.5em;
 		}
 	}
-}
-
-.newspack-reader__account-link--disabled {
-	opacity: 0.6;
-	pointer-events: none;
 }

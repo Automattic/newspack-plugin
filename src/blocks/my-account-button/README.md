@@ -13,7 +13,7 @@ Provides a reader account/sign-in button for sites using Newspack Reader Activat
 - If Reader Activation is disabled, the block renders nothing.
 - If the user is signed in, the button links to the My Account page (WooCommerce).
 - If the user is signed out, the button uses `data-newspack-reader-account-link` to open the Reader Activation modal.
-- Logged-in non-reader users receive a `newspack-reader__account-link--disabled` class.
+- Logged-in non-reader users receive a `wp-block-newspack-my-account-button__link--disabled` class.
 
 ## Notes
 - Can be used alone or inside of `core/navigation` blocks.
