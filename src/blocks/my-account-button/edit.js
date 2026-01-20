@@ -9,6 +9,7 @@ import classnames from 'classnames';
 import { __ } from '@wordpress/i18n';
 // eslint-disable-next-line @wordpress/no-unsafe-wp-apis
 import { __unstableStripHTML as stripHTML } from '@wordpress/dom';
+import { useState } from '@wordpress/element';
 import {
 	BlockControls,
 	RichText,
@@ -25,7 +26,7 @@ import { ToolbarButton, ToolbarGroup } from '@wordpress/components';
  * Internal dependencies
  */
 function MyAccountButtonEdit( { attributes, setAttributes } ) {
-	const { signedInLabel, signedOutLabel, style, previewState } = attributes;
+	const { signedInLabel, signedOutLabel, style } = attributes;
 	const borderProps = useBorderProps( attributes );
 	const colorProps = useColorProps( attributes );
 	const spacingProps = useSpacingProps( attributes );
@@ -49,6 +50,7 @@ function MyAccountButtonEdit( { attributes, setAttributes } ) {
 		},
 	} );
 
+	const [ previewState, setPreviewState ] = useState( 'signedout' );
 	const isSignedOutPreview = previewState === 'signedout';
 	const activeLabel = isSignedOutPreview ? signedOutLabel : signedInLabel;
 	const placeholderText = isSignedOutPreview ? __( 'Sign in', 'newspack-plugin' ) : __( 'My Account', 'newspack-plugin' );
@@ -62,10 +64,10 @@ function MyAccountButtonEdit( { attributes, setAttributes } ) {
 		<>
 			<BlockControls>
 				<ToolbarGroup>
-					<ToolbarButton isPressed={ ! isSignedOutPreview } onClick={ () => setAttributes( { previewState: 'signedin' } ) }>
+					<ToolbarButton isPressed={ ! isSignedOutPreview } onClick={ () => setPreviewState( 'signedin' ) }>
 						{ __( 'Signed in', 'newspack-plugin' ) }
 					</ToolbarButton>
-					<ToolbarButton isPressed={ isSignedOutPreview } onClick={ () => setAttributes( { previewState: 'signedout' } ) }>
+					<ToolbarButton isPressed={ isSignedOutPreview } onClick={ () => setPreviewState( 'signedout' ) }>
 						{ __( 'Signed out', 'newspack-plugin' ) }
 					</ToolbarButton>
 				</ToolbarGroup>
