@@ -4,6 +4,18 @@
 	gap: 0.25em;
 	justify-content: center;
 	text-decoration: none;
+
+	.newspack-reader__account-link__icon {
+		align-items: center;
+		display: flex;
+		justify-content: center;
+
+		svg {
+			fill: currentcolor;
+			height: 1.5em;
+			width: 1.5em;
+		}
+	}
 }
 
 .newspack-reader__account-link--disabled {

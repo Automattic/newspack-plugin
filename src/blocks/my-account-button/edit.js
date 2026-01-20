@@ -2,6 +2,7 @@
  * External dependencies
  */
 import classnames from 'classnames';
+import { account as icon } from '../../../packages/icons';
 
 /**
  * WordPress dependencies
@@ -73,6 +74,9 @@ function MyAccountButtonEdit( { attributes, setAttributes } ) {
 				</ToolbarGroup>
 			</BlockControls>
 			<a { ...blockProps }>
+				<span className="newspack-reader__account-link__icon" aria-hidden="true">
+					{ icon }
+				</span>
 				<RichText
 					tagName="span"
 					aria-label={ __( 'Button text', 'newspack-plugin' ) }
