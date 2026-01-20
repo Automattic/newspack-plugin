@@ -49,10 +49,14 @@ const registerBlock = block => {
 	}
 
 	const { metadata, settings, name } = block;
+	const blockMetadata = { name, ...metadata };
 
 	/** Do not register reader activation blocks if it's disabled. */
 	if ( readerActivationBlocks.includes( name ) && ! newspack_blocks.has_reader_activation ) {
-		return;
+		blockMetadata.supports = {
+			...( blockMetadata.supports || {} ),
+			inserter: false,
+		};
 	}
 	/** Do not register correction blocks if it's disabled. */
 	if ( correctionBlocks.includes( name ) && ! newspack_blocks.corrections_enabled ) {
@@ -67,7 +71,7 @@ const registerBlock = block => {
 		return;
 	}
 
-	registerBlockType( { name, ...metadata }, settings );
+	registerBlockType( blockMetadata, settings );
 };
 
 for ( const block of blocks ) {

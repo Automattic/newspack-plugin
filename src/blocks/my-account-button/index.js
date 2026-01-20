@@ -3,7 +3,7 @@
  */
 import metadata from './block.json';
 import edit from './edit';
-import { readerRegistration as icon } from '../../../packages/icons';
+import { account as icon } from '../../../packages/icons';
 import colors from '../../../packages/colors/colors.module.scss';
 import './style.scss';
 

@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+/* globals newspack_blocks */
 import classnames from 'classnames';
 import { account as icon } from '../../../packages/icons';
 
@@ -50,6 +51,7 @@ function MyAccountButtonEdit( { attributes, setAttributes } ) {
 			...spacingProps.style,
 		},
 	} );
+	const isReaderActivationEnabled = typeof newspack_blocks === 'undefined' || newspack_blocks.has_reader_activation;
 
 	const [ previewState, setPreviewState ] = useState( 'signedout' );
 	const isSignedOutPreview = previewState === 'signedout';
@@ -61,7 +63,9 @@ function MyAccountButtonEdit( { attributes, setAttributes } ) {
 		setAttributes( isSignedOutPreview ? { signedOutLabel: cleaned } : { signedInLabel: cleaned } );
 	}
 
-	return (
+	return ! isReaderActivationEnabled ? (
+		<div { ...blockProps } style={ { ...blockProps.style, display: 'none' } } />
+	) : (
 		<>
 			<BlockControls>
 				<ToolbarGroup>

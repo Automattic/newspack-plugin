@@ -116,10 +116,9 @@ final class My_Account_Button_Block {
 		$extra_classes = [
 			'wp-block-button__link',
 			'newspack-reader__account-link',
-			'wp-block-newspack-my-account-button__link',
 		];
 		if ( \is_user_logged_in() && ! Reader_Activation::is_user_reader( \wp_get_current_user() ) ) {
-			$extra_classes[] = 'wp-block-newspack-my-account-button__link--disabled';
+			$extra_classes[] = 'wp-block-newspack-my-account-button--disabled';
 		}
 
 		$wrapper_attributes = \get_block_wrapper_attributes(
