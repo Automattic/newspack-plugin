@@ -7,7 +7,6 @@ import classnames from 'classnames';
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { Icon } from '@wordpress/icons';
 // eslint-disable-next-line @wordpress/no-unsafe-wp-apis
 import { __unstableStripHTML as stripHTML } from '@wordpress/dom';
 import {
@@ -25,8 +24,6 @@ import { ToolbarButton, ToolbarGroup } from '@wordpress/components';
 /**
  * Internal dependencies
  */
-import { readerRegistration } from '../../../packages/icons';
-
 function MyAccountButtonEdit( { attributes, setAttributes } ) {
 	const { signedInLabel, signedOutLabel, style, previewState } = attributes;
 	const borderProps = useBorderProps( attributes );
@@ -74,9 +71,6 @@ function MyAccountButtonEdit( { attributes, setAttributes } ) {
 				</ToolbarGroup>
 			</BlockControls>
 			<a { ...blockProps }>
-				<span className="newspack-reader__account-link__icon" aria-hidden="true">
-					<Icon icon={ readerRegistration } />
-				</span>
 				<RichText
 					tagName="span"
 					aria-label={ __( 'Button text', 'newspack-plugin' ) }
