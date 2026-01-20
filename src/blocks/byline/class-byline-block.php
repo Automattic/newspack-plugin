@@ -257,8 +257,6 @@ final class Byline_Block {
 	/**
 	 * Format a list of author links with proper separators.
 	 *
-	 * Uses wp_sprintf_l for localized list formatting.
-	 *
 	 * @param array $author_links Array of author HTML strings.
 	 *
 	 * @return string Formatted author list.
@@ -272,9 +270,8 @@ final class Byline_Block {
 			return $author_links[0];
 		}
 
-		// Use wp_sprintf_l for localized list formatting.
-		// The %l placeholder formats the array as a proper list with commas and "and".
-		return wp_sprintf_l( '%l', $author_links );
+		$last = array_pop( $author_links );
+		return implode( ', ', $author_links ) . _x( ' and ', 'post author separator', 'newspack-plugin' ) . $last;
 	}
 }
 

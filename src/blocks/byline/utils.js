@@ -2,6 +2,7 @@
  * WordPress dependencies
  */
 import { createElement } from '@wordpress/element';
+import { _x } from '@wordpress/i18n';
 
 /**
  * Decode HTML entities in a string.
@@ -73,10 +74,26 @@ export function parseBylineForDisplay( bylineContent ) {
 }
 
 /**
- * Format authors list for display using Intl.ListFormat.
+ * Create an author element for display.
  *
- * Uses the browser's Intl.ListFormat API for localized list formatting,
- * which is the JS equivalent of WordPress's wp_sprintf_l().
+ * @param {Object}  author        Author object.
+ * @param {number}  index         Author index for key generation.
+ * @param {boolean} linkToArchive Whether to show as a link.
+ * @return {Object} React element.
+ */
+function createAuthorElement( author, index, linkToArchive ) {
+	const name = author.display_name || author.name;
+	return createElement(
+		'span',
+		{ key: `author-wrapper-${ author.id || index }`, className: 'author vcard' },
+		linkToArchive
+			? createElement( 'a', { href: '#author-link', onClick: e => e.preventDefault(), className: 'url fn n' }, name )
+			: createElement( 'span', { className: 'fn n' }, name )
+	);
+}
+
+/**
+ * Format authors list for display.
  *
  * @param {Array}   authors       Array of author objects.
  * @param {boolean} linkToArchive Whether to show as links.
@@ -87,46 +104,19 @@ export function formatAuthorsList( authors, linkToArchive ) {
 		return [];
 	}
 
-	// For a single author, return directly without list formatting.
 	if ( authors.length === 1 ) {
-		const author = authors[ 0 ];
-		const name = author.display_name || author.name;
-		return [
-			createElement(
-				'span',
-				{ key: `author-wrapper-${ author.id || 0 }`, className: 'author vcard' },
-				linkToArchive
-					? createElement( 'a', { href: '#author-link', onClick: e => e.preventDefault(), className: 'url fn n' }, name )
-					: createElement( 'span', { className: 'fn n' }, name )
-			),
-		];
+		return [ createAuthorElement( authors[ 0 ], 0, linkToArchive ) ];
 	}
 
-	// Use Intl.ListFormat for localized list formatting (JS equivalent of wp_sprintf_l).
-	// Get the current locale from WordPress or fall back to browser locale.
-	const locale = document.documentElement.lang || navigator.language || 'en';
-	const listFormatter = new Intl.ListFormat( locale, { style: 'long', type: 'conjunction' } );
-
-	// Create placeholder strings to get the formatted parts.
-	const placeholders = authors.map( ( _, i ) => `__AUTHOR_${ i }__` );
-	const formattedParts = listFormatter.formatToParts( placeholders );
-
-	// Build React elements from the formatted parts.
-	return formattedParts.map( ( part, partIndex ) => {
-		if ( part.type === 'literal' ) {
-			return part.value;
+	const result = [];
+	authors.forEach( ( author, index ) => {
+		result.push( createAuthorElement( author, index, linkToArchive ) );
+		if ( index < authors.length - 2 ) {
+			result.push( ', ' );
+		} else if ( index === authors.length - 2 ) {
+			result.push( _x( ' and ', 'post author separator', 'newspack-plugin' ) );
 		}
-		// Extract author index from placeholder.
-		const authorIndex = parseInt( part.value.replace( '__AUTHOR_', '' ).replace( '__', '' ), 10 );
-		const author = authors[ authorIndex ];
-		const name = author.display_name || author.name;
-
-		return createElement(
-			'span',
-			{ key: `author-wrapper-${ author.id || partIndex }`, className: 'author vcard' },
-			linkToArchive
-				? createElement( 'a', { href: '#author-link', onClick: e => e.preventDefault(), className: 'url fn n' }, name )
-				: createElement( 'span', { className: 'fn n' }, name )
-		);
 	} );
+
+	return result;
 }
