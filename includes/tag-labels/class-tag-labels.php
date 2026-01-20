@@ -69,11 +69,16 @@ class Tag_Labels {
 	/**
 	 * Given a post ID, grab array of tag labels (if any) for it.
 	 *
-	 * @param int $post_id Post ID.
+	 * @param int|WP_Post|null $post Post to check.
 	 *
-	 * @return array Elements as ['flag' => FLAG_NAME, 'link' => TERM_LINK].
+	 * @return array|null Elements as ['flag' => FLAG_NAME, 'link' => TERM_LINK].
 	 */
-	public static function get_labels_for_post( $post_id ) {
+	public static function get_labels_for_post( $post ) {
+		if ( ! $post ) {
+			return null;
+		}
+
+		$post_id = ( is_a( 'WP_POST', $post ) ? $post->ID : (int) $post );
 		$post_terms = get_the_terms( $post_id, 'post_tag' );
 
 		if ( ! $post_terms ) {
