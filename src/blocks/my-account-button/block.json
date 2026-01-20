@@ -20,6 +20,10 @@
 		"signedOutLabel": {
 			"type": "string",
 			"default": "Sign in"
+		},
+		"previewState": {
+			"type": "string",
+			"default": "signedout"
 		}
 	},
 	"supports": {

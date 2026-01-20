@@ -7,8 +7,11 @@ import classnames from 'classnames';
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
+import { Icon } from '@wordpress/icons';
+// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
+import { __unstableStripHTML as stripHTML } from '@wordpress/dom';
 import {
-	InspectorControls,
+	BlockControls,
 	RichText,
 	useBlockProps,
 	/* eslint-disable @wordpress/no-unsafe-wp-apis */
@@ -17,10 +20,15 @@ import {
 	__experimentalGetSpacingClassesAndStyles as useSpacingProps,
 	/* eslint-enable @wordpress/no-unsafe-wp-apis */
 } from '@wordpress/block-editor';
-import { PanelBody, TextControl } from '@wordpress/components';
+import { ToolbarButton, ToolbarGroup } from '@wordpress/components';
+
+/**
+ * Internal dependencies
+ */
+import { readerRegistration } from '../../../packages/icons';
 
 function MyAccountButtonEdit( { attributes, setAttributes } ) {
-	const { signedInLabel, signedOutLabel, style } = attributes;
+	const { signedInLabel, signedOutLabel, style, previewState } = attributes;
 	const borderProps = useBorderProps( attributes );
 	const colorProps = useColorProps( attributes );
 	const spacingProps = useSpacingProps( attributes );
@@ -44,36 +52,40 @@ function MyAccountButtonEdit( { attributes, setAttributes } ) {
 		},
 	} );
 
+	const isSignedOutPreview = previewState === 'signedout';
+	const activeLabel = isSignedOutPreview ? signedOutLabel : signedInLabel;
+	const placeholderText = isSignedOutPreview ? __( 'Sign in', 'newspack-plugin' ) : __( 'My Account', 'newspack-plugin' );
+
 	function setButtonText( newText ) {
-		// Remove anchor tags from button text content.
-		setAttributes( { signedInLabel: newText.replace( /<\/?a[^>]*>/g, '' ) } );
+		const cleaned = stripHTML( newText );
+		setAttributes( isSignedOutPreview ? { signedOutLabel: cleaned } : { signedInLabel: cleaned } );
 	}
 
 	return (
 		<>
-			<RichText
-				{ ...blockProps }
-				tagName="a"
-				aria-label={ __( 'Button text', 'newspack-plugin' ) }
-				placeholder={ __( 'My Account', 'newspack-plugin' ) }
-				value={ signedInLabel }
-				onChange={ value => setButtonText( value ) }
-				withoutInteractiveFormatting
-			/>
-			<InspectorControls>
-				<PanelBody title={ __( 'Labels', 'newspack-plugin' ) }>
-					<TextControl
-						label={ __( 'Signed-in label', 'newspack-plugin' ) }
-						value={ signedInLabel }
-						onChange={ value => setAttributes( { signedInLabel: value } ) }
-					/>
-					<TextControl
-						label={ __( 'Signed-out label', 'newspack-plugin' ) }
-						value={ signedOutLabel }
-						onChange={ value => setAttributes( { signedOutLabel: value } ) }
-					/>
-				</PanelBody>
-			</InspectorControls>
+			<BlockControls>
+				<ToolbarGroup>
+					<ToolbarButton isPressed={ ! isSignedOutPreview } onClick={ () => setAttributes( { previewState: 'signedin' } ) }>
+						{ __( 'Signed in', 'newspack-plugin' ) }
+					</ToolbarButton>
+					<ToolbarButton isPressed={ isSignedOutPreview } onClick={ () => setAttributes( { previewState: 'signedout' } ) }>
+						{ __( 'Signed out', 'newspack-plugin' ) }
+					</ToolbarButton>
+				</ToolbarGroup>
+			</BlockControls>
+			<a { ...blockProps }>
+				<span className="newspack-reader__account-link__icon" aria-hidden="true">
+					<Icon icon={ readerRegistration } />
+				</span>
+				<RichText
+					tagName="span"
+					aria-label={ __( 'Button text', 'newspack-plugin' ) }
+					placeholder={ placeholderText }
+					value={ activeLabel || '' }
+					onChange={ value => setButtonText( value ) }
+					withoutInteractiveFormatting
+				/>
+			</a>
 		</>
 	);
 }

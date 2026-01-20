@@ -93,7 +93,8 @@ final class My_Account_Button_Block {
 		];
 		$attrs         = \wp_parse_args( $attrs, $default_attrs );
 
-		$label = \is_user_logged_in() ? $attrs['signedInLabel'] : $attrs['signedOutLabel'];
+		$is_signed_in = \is_user_logged_in();
+		$label        = $is_signed_in ? $attrs['signedInLabel'] : $attrs['signedOutLabel'];
 		if ( '' === trim( (string) $label ) ) {
 			return '';
 		}
@@ -105,16 +106,25 @@ final class My_Account_Button_Block {
 			return '';
 		}
 
-		$href = \is_user_logged_in() ? $account_url : '#';
+		$href = $is_signed_in ? $account_url : '#';
 
 		$labels = [
 			'signedin'  => $attrs['signedInLabel'],
 			'signedout' => $attrs['signedOutLabel'],
 		];
 
+		$extra_classes = [
+			'wp-block-button__link',
+			'newspack-reader__account-link',
+			'wp-block-newspack-my-account-button__link',
+		];
+		if ( \is_user_logged_in() && ! Reader_Activation::is_user_reader( \wp_get_current_user() ) ) {
+			$extra_classes[] = 'newspack-reader__account-link--disabled';
+		}
+
 		$wrapper_attributes = \get_block_wrapper_attributes(
 			[
-				'class' => 'wp-block-button__link newspack-reader__account-link wp-block-newspack-my-account-button__link',
+				'class' => implode( ' ', $extra_classes ),
 				'href'  => \esc_url_raw( $href ),
 			]
 		);
