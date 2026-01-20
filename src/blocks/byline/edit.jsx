@@ -240,10 +240,13 @@ export default function Edit( { attributes, context, setAttributes } ) {
 		);
 	}
 
-	// Fallback - no author found.
+	// Fallback - no author found (e.g., in Site Editor without post context).
 	return (
-		<div { ...blockProps }>
-			<span className="byline">{ __( 'No author', 'newspack-plugin' ) }</span>
-		</div>
+		<>
+			<BylineInspectorControls attributes={ attributes } setAttributes={ setAttributes } isCustomByline={ false } />
+			<div { ...blockProps }>
+				<span className="byline">{ __( 'No author', 'newspack-plugin' ) }</span>
+			</div>
+		</>
 	);
 }
