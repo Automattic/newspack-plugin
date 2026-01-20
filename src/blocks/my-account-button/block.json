@@ -1,6 +1,6 @@
 {
 	"$schema": "https://schemas.wp.org/trunk/block.json",
-	"apiVersion": 2,
+	"apiVersion": 3,
 	"name": "newspack/my-account-button",
 	"title": "My Account Button",
 	"category": "newspack",
@@ -46,6 +46,8 @@
 			"radius": true
 		},
 		"shadow": true
-	}
+	},
+	"editorStyle": "file:../../../dist/blocks.css",
+	"style": "file:../../../dist/blocks.css"
 }
 
