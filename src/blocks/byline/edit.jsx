@@ -83,35 +83,24 @@ export default function Edit( { attributes, context, setAttributes } ) {
 		);
 	}
 
-	// Render default WordPress author.
-	if ( defaultAuthor?.name ) {
-		return (
-			<>
-				<BylineInspectorControls attributes={ attributes } setAttributes={ setAttributes } isCustomByline={ false } />
-				<div { ...blockProps }>
-					<span className="byline">
-						{ attributes.prefix?.trim() && `${ attributes.prefix.trim() } ` }
-						<span className="author vcard">
-							{ attributes.linkToAuthorArchive ? (
-								<a href="#author-link" onClick={ e => e.preventDefault() } className="url fn n">
-									{ defaultAuthor.name }
-								</a>
-							) : (
-								<span className="fn n">{ defaultAuthor.name }</span>
-							) }
-						</span>
-					</span>
-				</div>
-			</>
-		);
-	}
-
-	// Fallback - no author found (e.g., in Site Editor without post context).
+	// Render default WordPress author, or placeholder if no author found.
+	const authorName = defaultAuthor?.name || __( '[Author]', 'newspack-plugin' );
 	return (
 		<>
 			<BylineInspectorControls attributes={ attributes } setAttributes={ setAttributes } isCustomByline={ false } />
 			<div { ...blockProps }>
-				<span className="byline">{ __( 'No author', 'newspack-plugin' ) }</span>
+				<span className="byline">
+					{ attributes.prefix?.trim() && `${ attributes.prefix.trim() } ` }
+					<span className="author vcard">
+						{ attributes.linkToAuthorArchive ? (
+							<a href="#author-link" onClick={ e => e.preventDefault() } className="url fn n">
+								{ authorName }
+							</a>
+						) : (
+							<span className="fn n">{ authorName }</span>
+						) }
+					</span>
+				</span>
 			</div>
 		</>
 	);
