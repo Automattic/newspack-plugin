@@ -2,14 +2,14 @@
 # This file is distributed under the GPL2.
 msgid ""
 msgstr ""
-"Project-Id-Version: Newspack 6.28.1\n"
+"Project-Id-Version: Newspack 6.29.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/project\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-01-14T17:09:00+00:00\n"
+"POT-Creation-Date: 2026-01-20T14:13:27+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: newspack-plugin\n"
@@ -2604,7 +2604,7 @@ msgstr ""
 msgid "If you already have a membership, then <a href=\"%s\">sign in</a>."
 msgstr ""
 
-#: includes/optional-modules/class-woo-member-commenting.php:178
+#: includes/optional-modules/class-woo-member-commenting.php:183
 msgid "Become a member now"
 msgstr ""
 

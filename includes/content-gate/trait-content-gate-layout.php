@@ -150,15 +150,8 @@ trait Content_Gate_Layout {
 			return '';
 		}
 		$gate = \get_the_content( null, false, \get_post( $gate_post_id ) );
-
 		// Add clearfix to the gate.
 		$gate = '<div style=\'content:"";clear:both;display:table;\'></div>' . $gate;
-
-		// Apply inline fade.
-		if ( \get_post_meta( $gate_post_id, 'inline_fade', true ) ) {
-			$gate = '<div style="pointer-events: none; height: 10em; margin-top: -10em; width: 100%; position: absolute; background: linear-gradient(180deg, rgba(255,255,255,0) 14%, rgba(255,255,255,1) 76%);"></div>' . $gate;
-		}
-
 		// Wrap gate in a div for styling.
 		$gate = '<div class="newspack-content-gate__gate newspack-content-gate__inline-gate">' . $gate . '</div>';
 		return $gate;
@@ -194,7 +187,11 @@ trait Content_Gate_Layout {
 			// Rejoin the paragraphs into a single string again.
 			$content = \force_balance_tags( \wp_kses_post( implode( '</p>', $content ) . '</p>' ) );
 		}
-		return $content;
+		if ( \get_post_meta( $gate_post_id, 'inline_fade', true ) ) {
+			$content = '<div class="newspack-content-gate__inline-fade"></div>' . $content;
+		}
+		// Wrap restricted post excerpt in a div for styling and scripts.
+		return '<div class="newspack-content-gate__restricted-post-excerpt">' . $content . '</div>';
 	}
 
 	/**
