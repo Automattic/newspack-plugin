@@ -177,16 +177,22 @@ class Group_Subscription {
 		if ( ! self::is_group_subscription( $subscription ) ) {
 			return null;
 		}
-		$can_access = in_array( $user_id, self::get_managers( $subscription ), true ) || in_array( $user_id, self::get_members( $subscription ), true );
+		if ( ! is_a( $subscription, 'WC_Subscription' ) ) {
+			$subscription = \wcs_get_subscription( $subscription );
+		}
+		if ( ! $subscription ) {
+			return null;
+		}
+		$is_member = in_array( $subscription->get_id(), self::get_group_subscriptions_for_user( $user_id, true ), true ) || in_array( $user_id, self::get_managers( $subscription ), true );
 
 		/**
 		 * Filter whether a user is a member or manager of a group subscription.
 		 *
-		 * @param bool $can_access Whether the user is a member or manager of the group subscription.
+		 * @param bool|null $is_member Whether the user is a member or manager of the group subscription, or null if not a group subscription.
 		 * @param int $user_id The user ID.
 		 * @param WC_Subscription|int $subscription The subscription object or ID.
 		 */
-		return apply_filters( 'newspack_group_subscription_user_is_member', $can_access, $user_id, $subscription );
+		return apply_filters( 'newspack_group_subscription_user_is_member', $is_member, $user_id, $subscription );
 	}
 
 	/**
@@ -214,6 +220,7 @@ class Group_Subscription {
 				$subscriptions[] = $ids_only ? $subscription_id : $subscription;
 			}
 		}
+
 		/**
 		 * Filter the group subscriptions a user is a member of.
 		 *
