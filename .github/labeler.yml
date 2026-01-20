@@ -1,2 +1,2 @@
 needs-changelog:
- - base-branch: ['trunk']
+ - base-branch: ['trunk', 'release']

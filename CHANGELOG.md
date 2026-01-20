@@ -1,3 +1,35 @@
+# [6.29.0](https://github.com/Automattic/newspack-plugin/compare/v6.28.2...v6.29.0) (2026-01-19)
+
+
+### Bug Fixes
+
+* add default reader meta ([#4360](https://github.com/Automattic/newspack-plugin/issues/4360)) ([01564ad](https://github.com/Automattic/newspack-plugin/commit/01564ad51a3d06129ea7acf30b1c728bb8ac8d6d))
+* **ads:** placement control value reset ([#4375](https://github.com/Automattic/newspack-plugin/issues/4375)) ([72d7b68](https://github.com/Automattic/newspack-plugin/commit/72d7b686544e73af3347c6f0ddce581215e64ed0))
+* **autocomplete:** improve value parsing in AutocompleteTokenField and ListsControl components ([#4376](https://github.com/Automattic/newspack-plugin/issues/4376)) ([84e388d](https://github.com/Automattic/newspack-plugin/commit/84e388daba81f013fe9f939d1921a30994670e12))
+* clarify the media credit placeholder image's labelling ([#4352](https://github.com/Automattic/newspack-plugin/issues/4352)) ([4420b65](https://github.com/Automattic/newspack-plugin/commit/4420b65c5df7d0db526eb2b2934085376928b5f5))
+* **content-gating:** stop running `restrict_post` after gate is rendered ([#4368](https://github.com/Automattic/newspack-plugin/issues/4368)) ([8489a6c](https://github.com/Automattic/newspack-plugin/commit/8489a6c859f03603bbf0dba211ffb29d8057630c))
+* fallback password reset URL ([#4382](https://github.com/Automattic/newspack-plugin/issues/4382)) ([06d1503](https://github.com/Automattic/newspack-plugin/commit/06d1503c886acfb9d7dd07e48237471a30b13f05))
+* hide 'trashed' subscriptions from My Account ([#4351](https://github.com/Automattic/newspack-plugin/issues/4351)) ([e759378](https://github.com/Automattic/newspack-plugin/commit/e759378bc0564a91fc6cb661fe052fde5584800a))
+* **my-account:** top position on desktop ([#4355](https://github.com/Automattic/newspack-plugin/issues/4355)) ([1b3255a](https://github.com/Automattic/newspack-plugin/commit/1b3255a4986bc4b6507ae7ee787215038e1f4829))
+* prevent doubled URL in reader registration block magic link ([#4379](https://github.com/Automattic/newspack-plugin/issues/4379)) ([ba4d855](https://github.com/Automattic/newspack-plugin/commit/ba4d855bc23a6116d947ee793f2cd874bb6acd6d))
+* remove newspack-ui CSS class from my account when not logged in ([#4384](https://github.com/Automattic/newspack-plugin/issues/4384)) ([2bb8630](https://github.com/Automattic/newspack-plugin/commit/2bb86303367ed6daaef7632256663fa7fbacdd04))
+* remove space if no time ([#4380](https://github.com/Automattic/newspack-plugin/issues/4380)) ([05c57e9](https://github.com/Automattic/newspack-plugin/commit/05c57e93b6cef9977179fec365981a73c1fba129))
+* select specific product for content gifting and countdown banners ([#4366](https://github.com/Automattic/newspack-plugin/issues/4366)) ([809c230](https://github.com/Automattic/newspack-plugin/commit/809c23043f0c7e57566a1643624714fd97beaeb0))
+* **sso:** change Jetpack configuration notice from error to warning ([#4383](https://github.com/Automattic/newspack-plugin/issues/4383)) ([e5e0643](https://github.com/Automattic/newspack-plugin/commit/e5e06431f72f8f4abf8c79ff2d1c401a8b12cdd4))
+* **subscriptions:** remove actions from gifted subscription ([#4362](https://github.com/Automattic/newspack-plugin/issues/4362)) ([8fbc243](https://github.com/Automattic/newspack-plugin/commit/8fbc24352c588412498c1762de974d1e43814a7e))
+* **update-payment-notice:** don't render on checkout ([#4356](https://github.com/Automattic/newspack-plugin/issues/4356)) ([dd80c06](https://github.com/Automattic/newspack-plugin/commit/dd80c06b440144276f2be3f83b85b269fbcbcb90))
+
+
+### Features
+
+* Add Managed Nextdoor Auth ([#4359](https://github.com/Automattic/newspack-plugin/issues/4359)) ([fee2480](https://github.com/Automattic/newspack-plugin/commit/fee248049bf4235921dbb67b2806b663e643a75d))
+* add media credits to RSS feeds ([#4357](https://github.com/Automattic/newspack-plugin/issues/4357)) ([e638447](https://github.com/Automattic/newspack-plugin/commit/e638447fd5e0346b53eb78719401a2b0fd36ed7d))
+* **content-gating:** add Content Gate settings page ([#4363](https://github.com/Automattic/newspack-plugin/issues/4363)) ([822c363](https://github.com/Automattic/newspack-plugin/commit/822c36337d73c74becae1db13d73e142344cd830))
+* **content-gating:** enable content rule exclusions ([#4346](https://github.com/Automattic/newspack-plugin/issues/4346)) ([1e5718b](https://github.com/Automattic/newspack-plugin/commit/1e5718b5b540c7ed48e42df8160c463f678bfb05))
+* **content-gating:** update content gates UI ([#4345](https://github.com/Automattic/newspack-plugin/issues/4345)) ([4e22075](https://github.com/Automattic/newspack-plugin/commit/4e22075c4d4fd741de327d9b8ff867b080e4052f))
+* rename newsletter tracking ([#4358](https://github.com/Automattic/newspack-plugin/issues/4358)) ([3da6434](https://github.com/Automattic/newspack-plugin/commit/3da643495cb734b41b4e2306ba9a97c87f13176d))
+* **web-preview:** add ESC key support and dynamic titles for segments and prompts ([#4294](https://github.com/Automattic/newspack-plugin/issues/4294)) ([7238d2f](https://github.com/Automattic/newspack-plugin/commit/7238d2f47c0531cb29f8198d6cebfc651aef7b30))
+
 ## [6.28.2](https://github.com/Automattic/newspack-plugin/compare/v6.28.1...v6.28.2) (2026-01-15)
 
 
