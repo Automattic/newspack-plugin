@@ -25,7 +25,7 @@ export function useCoAuthors( postId, postType = 'post' ) {
 		select => {
 			// Check if CoAuthors Plus store is available.
 			const capStore = select( CAP_STORE );
-			const isCapStoreAvailable = capStore && typeof capStore.getAuthors === 'function';
+			const isCapStoreAvailable = Boolean( capStore && typeof capStore.getAuthors === 'function' );
 
 			// Get the currently-edited post ID to detect Query Loop context.
 			const editorStore = select( 'core/editor' );
