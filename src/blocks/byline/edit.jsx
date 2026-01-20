@@ -37,7 +37,7 @@ export default function Edit( { attributes, context, setAttributes } ) {
 	const { bylineActive, bylineContent } = useCustomByline( postId, postType );
 
 	// Get CoAuthors Plus authors.
-	const { authors: coAuthors, isCapAvailable } = useCoAuthors( postId );
+	const { authors: coAuthors, isCapAvailable } = useCoAuthors( postId, postType );
 
 	// Get default WordPress author.
 	const { authorDetails: defaultAuthor, isLoading: isLoadingAuthor } = useDefaultAuthor( postId, postType );
