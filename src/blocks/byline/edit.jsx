@@ -31,7 +31,7 @@ import { BylineInspectorControls } from './inspector.jsx';
  */
 export default function Edit( { attributes, context, setAttributes } ) {
 	const { postId, postType = 'post' } = context;
-	const blockProps = useBlockProps( { className: 'wp-block-newspack-byline' } );
+	const blockProps = useBlockProps();
 
 	// Get custom byline data.
 	const { bylineActive, bylineContent } = useCustomByline( postId, postType );

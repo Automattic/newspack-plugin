@@ -90,7 +90,7 @@ final class Byline_Block {
 	 */
 	private static function render_custom_byline( array $attributes, string $custom_byline ) {
 		// Custom bylines already include their prefix text, so we ignore the prefix attribute.
-		$wrapper_attributes = get_block_wrapper_attributes( [ 'class' => 'wp-block-newspack-byline' ] );
+		$wrapper_attributes = get_block_wrapper_attributes();
 
 		return sprintf(
 			'<div %1$s><span class="byline">%2$s</span></div>',
@@ -110,7 +110,7 @@ final class Byline_Block {
 	private static function render_coauthors( array $attributes, array $coauthors ) {
 		$prefix             = self::get_translated_prefix( $attributes['prefix'] ?? '' );
 		$link_to_archive    = $attributes['linkToAuthorArchive'] ?? true;
-		$wrapper_attributes = get_block_wrapper_attributes( [ 'class' => 'wp-block-newspack-byline' ] );
+		$wrapper_attributes = get_block_wrapper_attributes();
 
 		$author_links = [];
 		foreach ( $coauthors as $coauthor ) {
@@ -202,7 +202,7 @@ final class Byline_Block {
 	private static function render_default_author( array $attributes, int $post_id ) {
 		$prefix             = self::get_translated_prefix( $attributes['prefix'] ?? '' );
 		$link_to_archive    = $attributes['linkToAuthorArchive'] ?? true;
-		$wrapper_attributes = get_block_wrapper_attributes( [ 'class' => 'wp-block-newspack-byline' ] );
+		$wrapper_attributes = get_block_wrapper_attributes();
 
 		$author_id = get_post_field( 'post_author', $post_id );
 		$author    = get_userdata( $author_id );
