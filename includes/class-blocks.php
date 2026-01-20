@@ -75,6 +75,7 @@ final class Blocks {
 			'reader_activation_url'            => Reader_Activation::get_setting( 'terms_url' ),
 			'has_recaptcha'                    => Recaptcha::can_use_captcha(),
 			'recaptcha_url'                    => admin_url( 'admin.php?page=newspack-settings' ),
+			'is_block_theme'                   => wp_is_block_theme(),
 			'corrections_enabled'              => wp_is_block_theme() && class_exists( 'Newspack\Corrections' ),
 			'collections_enabled'              => Collections::is_module_active(),
 			'has_memberships'                  => Memberships::is_active(),

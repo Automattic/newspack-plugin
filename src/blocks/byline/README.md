@@ -31,7 +31,7 @@ The block reads from the CoAuthors Plus data store (`cap/authors`) for real-time
 
 ## Availability
 
-This block is only available for block themes. For classic themes, bylines are handled through the `pre_newspack_posted_by` filter in the Newspack theme.
+This block replaces the Post Author block and is only available in block themes. For Newspack's classic theme, custom bylines are handled through the `pre_newspack_posted_by` filter, and CoAuthors Plus support is added through custom code.
 
 ## Usage with block theme patterns
 
