@@ -22,7 +22,7 @@ import './admin.scss';
 					xhr.setRequestHeader( 'X-WP-Nonce', newspackGroupSubscriptions.apiNonce );
 				},
 				type: 'POST',
-				delay: 1000,
+				delay: 2000,
 				data( params ) {
 					const subscriptionId = $select.closest( '.newspack-group-subscription--container' ).data( 'subscription-id' );
 					return {
@@ -37,6 +37,9 @@ import './admin.scss';
 				},
 				error( xhr, status, error ) {
 					const errorMessage = xhr.responseJSON?.message || error;
+					if ( errorMessage === 'abort' ) {
+						return;
+					}
 					$select.before( `<mark class="error"><span class="dashicons dashicons-warning"></span>${ errorMessage }</mark>` );
 				},
 				cache: true,
@@ -81,7 +84,7 @@ import './admin.scss';
 		} )
 			.then( response => response.json() )
 			.then( data => {
-				if ( data.code && data.message ) {
+				if ( data.code && data.message && data.message !== 'abort' ) {
 					throw new Error( data.message );
 				}
 				if ( data.members_added?.[ memberToAdd ] ) {
@@ -135,7 +138,7 @@ import './admin.scss';
 		} )
 			.then( response => response.json() )
 			.then( data => {
-				if ( data.code && data.message ) {
+				if ( data.code && data.message && data.message !== 'abort' ) {
 					throw new Error( data.message );
 				}
 				if ( data.members_removed?.[ userId ] ) {

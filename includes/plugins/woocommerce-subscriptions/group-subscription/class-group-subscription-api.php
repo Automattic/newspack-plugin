@@ -101,7 +101,7 @@ class Group_Subscription_API {
 		}
 		$exclude   = Group_Subscription::get_members( $subscription );
 		$exclude[] = $subscription->get_user_id();
-		$query1 = get_users(
+		$query1    = get_users(
 			/**
 			 * Filter the user query args for searching for group subscription users.
 			 *
@@ -113,14 +113,15 @@ class Group_Subscription_API {
 				[
 					'fields'         => [ 'ID', 'user_email' ],
 					'exclude'        => $exclude,
-					'search'         => $search,
+					'search'         => "*$search*",
 					'search_columns' => [ 'ID', 'user_login', 'user_url', 'user_email', 'user_nicename', 'display_name' ],
 					'role__in'       => Reader_Activation::get_reader_roles(),
 				],
 				'main_query'
 			)
 		);
-		$query2 = get_users(
+		$exclude = array_values( array_unique( array_merge( $exclude, array_column( $query1, 'ID' ) ) ) );
+		$query2  = get_users(
 			/**
 			 * Filter the user query args for searching for group subscription users.
 			 *
@@ -158,6 +159,14 @@ class Group_Subscription_API {
 				];
 			},
 			array_merge( $query1, $query2 )
+		);
+
+		// Sort by ID.
+		usort(
+			$users,
+			function( $a, $b ) {
+				return $a['id'] <=> $b['id'];
+			}
 		);
 		return \rest_ensure_response( $users );
 	}
