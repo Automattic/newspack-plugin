@@ -20,7 +20,7 @@ The block checks for author information in the following order:
 
 | Attribute | Type | Default | Description |
 |-----------|------|---------|-------------|
-| `prefix` | string | `"By "` | Text displayed before author names. Hidden in inspector when custom byline is active. |
+| `prefix` | string | `"By"` | Text displayed before author names. A space is added automatically after the prefix. Hidden in inspector when custom byline is active. |
 | `linkToAuthorArchive` | boolean | `true` | Whether to link author names to their archive pages. Hidden in inspector when custom byline is active. |
 
 When a custom byline is enabled, both settings are hidden in the block inspector since custom bylines control their own prefix and link behavior.
@@ -38,7 +38,7 @@ This block is only available for block themes. For classic themes, bylines are h
 The block theme post-meta patterns are configured to use this block when available:
 
 ```html
-<!-- wp:newspack/byline {"prefix":"By "} /-->
+<!-- wp:newspack/byline {"prefix":"By"} /-->
 ```
 
 For patterns that include avatars, use the `newspack/avatar` block as a sibling:

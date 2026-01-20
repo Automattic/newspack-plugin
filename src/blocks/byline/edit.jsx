@@ -209,7 +209,7 @@ export default function Edit( { attributes, context, setAttributes } ) {
 				<BylineInspectorControls attributes={ attributes } setAttributes={ setAttributes } isCustomByline={ false } />
 				<div { ...blockProps }>
 					<span className="byline">
-						{ attributes.prefix }
+						{ attributes.prefix && `${ attributes.prefix } ` }
 						{ formatAuthorsList( coAuthors, attributes.linkToAuthorArchive ) }
 					</span>
 				</div>
@@ -224,7 +224,7 @@ export default function Edit( { attributes, context, setAttributes } ) {
 				<BylineInspectorControls attributes={ attributes } setAttributes={ setAttributes } isCustomByline={ false } />
 				<div { ...blockProps }>
 					<span className="byline">
-						{ attributes.prefix }
+						{ attributes.prefix && `${ attributes.prefix } ` }
 						<span className="author vcard">
 							{ attributes.linkToAuthorArchive ? (
 								<a href="#author-link" onClick={ e => e.preventDefault() } className="url fn n">

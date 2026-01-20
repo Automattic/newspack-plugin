@@ -139,7 +139,7 @@ final class Byline_Block {
 		return sprintf(
 			'<div %1$s><span class="byline">%2$s%3$s</span></div>',
 			$wrapper_attributes,
-			esc_html( $prefix ),
+			! empty( $prefix ) ? esc_html( $prefix ) . ' ' : '',
 			$byline_content
 		);
 	}
@@ -230,7 +230,7 @@ final class Byline_Block {
 		return sprintf(
 			'<div %1$s><span class="byline">%2$s%3$s</span></div>',
 			$wrapper_attributes,
-			esc_html( $prefix ),
+			! empty( $prefix ) ? esc_html( $prefix ) . ' ' : '',
 			$author_html
 		);
 	}
@@ -238,7 +238,7 @@ final class Byline_Block {
 	/**
 	 * Get the translated prefix.
 	 *
-	 * The block.json default "By " is not translatable. This method checks if
+	 * The block.json default "By" is not translatable. This method checks if
 	 * the prefix matches the English default and returns the translated version.
 	 * If the user has set a custom prefix, it's returned as-is.
 	 *
@@ -248,8 +248,8 @@ final class Byline_Block {
 	 */
 	private static function get_translated_prefix( string $prefix ) {
 		// If prefix is empty or matches the English default, use translated version.
-		if ( empty( $prefix ) || 'By ' === $prefix ) {
-			return __( 'By ', 'newspack-plugin' );
+		if ( empty( $prefix ) || 'By' === $prefix ) {
+			return __( 'By', 'newspack-plugin' );
 		}
 		return $prefix;
 	}

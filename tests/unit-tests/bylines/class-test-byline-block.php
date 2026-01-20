@@ -126,7 +126,7 @@ class Test_Byline_Block extends \WP_UnitTestCase {
 	 */
 	public function test_render_block_default_author() {
 		$attributes = [
-			'prefix'              => 'By ',
+			'prefix'              => 'By',
 			'linkToAuthorArchive' => true,
 		];
 
@@ -147,7 +147,7 @@ class Test_Byline_Block extends \WP_UnitTestCase {
 	 */
 	public function test_render_block_default_author_no_link() {
 		$attributes = [
-			'prefix'              => 'By ',
+			'prefix'              => 'By',
 			'linkToAuthorArchive' => false,
 		];
 
@@ -316,8 +316,8 @@ class Test_Byline_Block extends \WP_UnitTestCase {
 		// Pass empty attributes to use defaults.
 		$output = $this->render_byline_block( [] );
 
-		// Default prefix is "By ".
-		$this->assertStringContainsString( 'By ', $output, 'Should use default prefix.' );
+		// Default prefix is "By" (space is added during assembly).
+		$this->assertStringContainsString( 'By ', $output, 'Should use default prefix with space.' );
 		// Default linkToAuthorArchive is true.
 		$this->assertStringContainsString( '<a', $output, 'Should link to archive by default.' );
 	}

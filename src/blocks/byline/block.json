@@ -9,7 +9,7 @@
 	"attributes": {
 		"prefix": {
 			"type": "string",
-			"default": "By "
+			"default": "By"
 		},
 		"linkToAuthorArchive": {
 			"type": "boolean",
