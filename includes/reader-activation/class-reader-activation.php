@@ -2935,7 +2935,7 @@ final class Reader_Activation {
 	}
 
 	/**
-	 * Verify unverified reader accounts after completing checkout.
+	 * Verify unverified reader accounts after successful payment completion.
 	 *
 	 * @param int $order_id The order ID.
 	 */
@@ -2952,7 +2952,7 @@ final class Reader_Activation {
 			return;
 		}
 		$is_verified = self::is_reader_verified( $customer );
-		if ( ! $is_verified ) {
+		if ( false === $is_verified ) {
 			self::set_reader_verified( $customer );
 		}
 	}
