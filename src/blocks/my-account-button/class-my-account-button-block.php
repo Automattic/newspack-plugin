@@ -131,7 +131,7 @@ final class My_Account_Button_Block {
 			]
 		);
 
-		$link  = '<a ' . $wrapper_attributes . ' data-labels="' . \esc_attr( htmlspecialchars( \wp_json_encode( $labels ), ENT_QUOTES, 'UTF-8' ) ) . '" data-newspack-reader-account-link>';
+		$link  = '<a ' . $wrapper_attributes . ' data-labels="' . \esc_attr( \wp_json_encode( $labels ) ) . '" data-newspack-reader-account-link>';
 		$link .= '<span class="wp-block-newspack-my-account-button__icon">';
 		$link .= Newspack_UI_Icons::get_svg( 'account' );
 		$link .= '</span>';
