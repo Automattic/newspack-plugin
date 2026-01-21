@@ -12,6 +12,7 @@ import * as readerRegistration from './reader-registration';
 import * as correctionBox from './correction-box';
 import * as correctionItem from './correction-item';
 import * as avatar from './avatar';
+import * as byline from './byline';
 import * as collections from './collections';
 import * as contentGateCountdown from './content-gate/countdown';
 import * as contentGateCountdownBox from './content-gate/countdown-box';
@@ -21,12 +22,22 @@ import * as contentGateCountdownBox from './content-gate/countdown-box';
  */
 import './core-image';
 
-export const blocks = [ readerRegistration, correctionBox, correctionItem, avatar, collections, contentGateCountdown, contentGateCountdownBox ];
+export const blocks = [
+	readerRegistration,
+	correctionBox,
+	correctionItem,
+	avatar,
+	byline,
+	collections,
+	contentGateCountdown,
+	contentGateCountdownBox,
+];
 
 const readerActivationBlocks = [ 'newspack/reader-registration' ];
 const correctionBlocks = [ 'newspack/correction-box', 'newspack/correction-item' ];
 const collectionsBlocks = [ 'newspack/collections' ];
 const contentGateBlocks = [ 'newspack/content-gate-countdown', 'newspack/content-gate-countdown-box' ];
+const blockThemeBlocks = [ 'newspack/avatar', 'newspack/byline' ];
 
 /**
  * Function to register an individual block.
@@ -54,6 +65,10 @@ const registerBlock = block => {
 	}
 	/** Do not register content gate blocks if the feature or Memberships is not active. */
 	if ( contentGateBlocks.includes( name ) && ( ! newspack_blocks.has_memberships || ! newspack_blocks.is_content_gate_countdown_active ) ) {
+		return;
+	}
+	/** Do not register block theme blocks if not using a block theme. */
+	if ( blockThemeBlocks.includes( name ) && ! newspack_blocks.is_block_theme ) {
 		return;
 	}
 
