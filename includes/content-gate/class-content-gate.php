@@ -682,6 +682,10 @@ class Content_Gate {
 	 * @return void
 	 */
 	public static function update_registration_settings( $gate_id, $settings ) {
+		$registration = get_post_meta( $gate_id, 'registration', true );
+		if ( $registration ) {
+			$settings = wp_parse_args( $settings, $registration );
+		}
 		\update_post_meta( $gate_id, 'registration', $settings );
 	}
 
@@ -715,6 +719,10 @@ class Content_Gate {
 	 * @return void
 	 */
 	public static function update_custom_access_settings( $gate_id, $settings ) {
+		$custom_access = get_post_meta( $gate_id, 'custom_access', true );
+		if ( $custom_access ) {
+			$settings = wp_parse_args( $settings, $custom_access );
+		}
 		\update_post_meta( $gate_id, 'custom_access', $settings );
 	}
 

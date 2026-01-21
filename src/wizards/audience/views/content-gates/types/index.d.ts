@@ -77,13 +77,13 @@ type Registration = {
 	active: boolean;
 	metering: Metering;
 	require_verification: boolean;
-	gate_id: number;
+	gate_layout_id: number;
 };
 
 type CustomAccess = {
 	active: boolean;
 	metering: Metering;
-	gate_id: number;
+	gate_layout_id: number;
 	access_rules: GateAccessRule[];
 };
 

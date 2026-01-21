@@ -336,7 +336,10 @@ class Audience_Content_Gates extends Wizard {
 								'properties' => [
 									'active'               => [ 'type' => 'boolean' ],
 									'require_verification' => [ 'type' => 'boolean' ],
-									'gate_layout_id'       => [ 'type' => 'integer' ],
+									'gate_layout_id'       => [
+										'type'     => 'integer',
+										'required' => false,
+									],
 									'metering'             => [
 										'type'       => 'object',
 										'properties' => [
@@ -359,7 +362,10 @@ class Audience_Content_Gates extends Wizard {
 											'period'  => [ 'type' => 'string' ],
 										],
 									],
-									'gate_layout_id' => [ 'type' => 'integer' ],
+									'gate_layout_id' => [
+										'type'     => 'integer',
+										'required' => false,
+									],
 									'access_rules'   => [
 										'type'  => 'array',
 										'items' => [
@@ -407,12 +413,15 @@ class Audience_Content_Gates extends Wizard {
 	 * @return array The sanitized registration.
 	 */
 	public function sanitize_registration( $registration ) {
-		return [
+		$registration = [
 			'active'               => boolval( $registration['active'] ),
-			'gate_layout_id'       => absint( $registration['gate_layout_id'] ),
 			'metering'             => $this->sanitize_metering( $registration['metering'] ),
 			'require_verification' => boolval( $registration['require_verification'] ),
 		];
+		if ( isset( $registration['gate_layout_id'] ) ) {
+			$registration['gate_layout_id'] = absint( $registration['gate_layout_id'] );
+		}
+		return $registration;
 	}
 
 	/**
@@ -423,12 +432,15 @@ class Audience_Content_Gates extends Wizard {
 	 * @return array The sanitized custom access.
 	 */
 	public function sanitize_custom_access( $custom_access ) {
-		return [
-			'active'         => boolval( $custom_access['active'] ),
-			'gate_layout_id' => absint( $custom_access['gate_layout_id'] ),
-			'metering'       => $this->sanitize_metering( $custom_access['metering'] ),
-			'access_rules'   => $this->sanitize_rules( $custom_access['access_rules'], 'access' ),
+		$custom_access = [
+			'active'       => boolval( $custom_access['active'] ),
+			'metering'     => $this->sanitize_metering( $custom_access['metering'] ),
+			'access_rules' => $this->sanitize_rules( $custom_access['access_rules'], 'access' ),
 		];
+		if ( isset( $custom_access['gate_layout_id'] ) ) {
+			$custom_access['gate_layout_id'] = absint( $custom_access['gate_layout_id'] );
+		}
+		return $custom_access;
 	}
 
 	/**
