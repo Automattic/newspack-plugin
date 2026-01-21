@@ -32,6 +32,7 @@ final class Blocks {
 		}
 		if ( wp_is_block_theme() ) {
 			require_once NEWSPACK_ABSPATH . 'src/blocks/avatar/class-avatar-block.php';
+			require_once NEWSPACK_ABSPATH . 'src/blocks/byline/class-byline-block.php';
 		}
 		if ( Collections::is_module_active() ) {
 			require_once NEWSPACK_ABSPATH . 'src/blocks/collections/index.php';
@@ -68,7 +69,6 @@ final class Blocks {
 		$script_data = [
 			'has_newsletters'                  => class_exists( 'Newspack_Newsletters_Subscription' ),
 			'has_reader_activation'            => Reader_Activation::is_enabled(),
-			'is_block_theme'                   => wp_is_block_theme(),
 			'newsletters_url'                  => Wizards::get_wizard( 'newsletters' )->newsletters_settings_url(),
 			'has_google_oauth'                 => Google_OAuth::is_oauth_configured(),
 			'google_logo_svg'                  => \Newspack\Newspack_UI_Icons::get_svg( 'google' ),
@@ -76,6 +76,7 @@ final class Blocks {
 			'reader_activation_url'            => Reader_Activation::get_setting( 'terms_url' ),
 			'has_recaptcha'                    => Recaptcha::can_use_captcha(),
 			'recaptcha_url'                    => admin_url( 'admin.php?page=newspack-settings' ),
+			'is_block_theme'                   => wp_is_block_theme(),
 			'corrections_enabled'              => wp_is_block_theme() && class_exists( 'Newspack\Corrections' ),
 			'collections_enabled'              => Collections::is_module_active(),
 			'has_memberships'                  => Memberships::is_active(),

@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-01-20T17:45:40+00:00\n"
+"POT-Creation-Date: 2026-01-21T00:57:40+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: newspack-plugin\n"
@@ -1999,6 +1999,7 @@ msgstr ""
 #: dist/setup.js:7
 #: dist/wizards.js:1
 #: src/blocks/avatar/edit.jsx:23
+#: src/blocks/byline/inspector.jsx:25
 #: src/blocks/collections/components/InspectorPanel.jsx:63
 #: src/content-gate/editor/editor.js:188
 #: src/other-scripts/emails/index.js:106
@@ -5628,6 +5629,17 @@ msgstr ""
 msgid "Stacked"
 msgstr ""
 
+#: src/blocks/byline/class-byline-block.php:252
+msgid "By"
+msgstr ""
+
+#: src/blocks/byline/class-byline-block.php:274
+#: dist/blocks.js:4
+#: src/blocks/byline/utils.js:117
+msgctxt "post author separator"
+msgid " and "
+msgstr ""
+
 #. translators: 1: current number of metered views, 2: total metered views.
 #: src/blocks/content-gate/countdown/class-content-gate-countdown-block.php:76
 #: dist/blocks.js:4
@@ -7869,7 +7881,9 @@ msgstr ""
 
 #: dist/avatar-block.js:1
 #: dist/blocks.js:1
+#: dist/blocks.js:4
 #: src/blocks/avatar/index.js:28
+#: src/blocks/byline/index.js:28
 msgid "author"
 msgstr ""
 
@@ -7890,6 +7904,7 @@ msgstr ""
 #: dist/blocks.js:4
 #: dist/contribution-meter-block.js:5
 #: src/blocks/avatar/index.js:31
+#: src/blocks/byline/index.js:31
 #: src/blocks/collections/index.js:36
 #: src/blocks/contribution-meter/index.js:37
 msgid "newspack"
@@ -8557,6 +8572,55 @@ msgid "Logged in message…"
 msgstr ""
 
 #: dist/blocks.js:4
+#: src/blocks/byline/inspector.jsx:30
+msgid "Prefix"
+msgstr ""
+
+#: dist/blocks.js:4
+#: src/blocks/byline/inspector.jsx:31
+msgid "Text displayed before the author name(s)."
+msgstr ""
+
+#: dist/blocks.js:4
+#: dist/commons.js:10
+#: src/blocks/avatar/edit.jsx:40
+#: src/blocks/byline/inspector.jsx:37
+msgid "Link to author archive"
+msgstr ""
+
+#: dist/blocks.js:4
+#: src/blocks/byline/inspector.jsx:45
+msgid "Prefix and link settings are controlled by the custom byline and cannot be changed here."
+msgstr ""
+
+#: dist/blocks.js:4
+#: src/blocks/byline/edit.jsx:87
+msgid "[Author]"
+msgstr ""
+
+#: dist/blocks.js:4
+#: dist/bylines.js:1
+#: src/blocks/byline/index.js:15
+#: src/bylines/index.js:385
+msgid "Byline"
+msgstr ""
+
+#: dist/blocks.js:4
+#: src/blocks/byline/index.js:29
+msgid "byline"
+msgstr ""
+
+#: dist/blocks.js:4
+#: src/blocks/byline/index.js:30
+msgid "writer"
+msgstr ""
+
+#: dist/blocks.js:4
+#: src/blocks/byline/index.js:33
+msgid "Display post author(s) with support for custom bylines and CoAuthors Plus."
+msgstr ""
+
+#: dist/blocks.js:4
 #: src/blocks/collections/components/InspectorPanel.jsx:65
 msgid "Mode"
 msgstr ""
@@ -8893,11 +8957,6 @@ msgstr ""
 #: dist/bylines.js:1
 #: src/bylines/index.js:134
 msgid "Add author"
-msgstr ""
-
-#: dist/bylines.js:1
-#: src/bylines/index.js:385
-msgid "Byline"
 msgstr ""
 
 #: dist/bylines.js:1
@@ -9371,11 +9430,6 @@ msgstr ""
 #: dist/commons.js:10
 #: src/blocks/avatar/edit.jsx:27
 msgid "Image size"
-msgstr ""
-
-#: dist/commons.js:10
-#: src/blocks/avatar/edit.jsx:40
-msgid "Link to author archive"
 msgstr ""
 
 #. translators: %s: Author name.
@@ -12581,6 +12635,18 @@ msgstr ""
 
 #: src/wizards/audience/views/campaigns/analytics/index.js:33
 msgid "View the help page"
+msgstr ""
+
+#: dist/blocks/byline/block.json
+#: src/blocks/byline/block.json
+msgctxt "block title"
+msgid "Byline"
+msgstr ""
+
+#: dist/blocks/byline/block.json
+#: src/blocks/byline/block.json
+msgctxt "block description"
+msgid "Display post author(s) with support for custom bylines and CoAuthors Plus."
 msgstr ""
 
 #: dist/blocks/collections/block.json

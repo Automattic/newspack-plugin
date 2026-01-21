@@ -75,8 +75,8 @@ class Newspack_Test_InDesign_Exporter extends WP_UnitTestCase {
 
 		$converter = new InDesign_Converter();
 		$content = $converter->convert_post( $post_id );
-		$this->assertStringContainsString( '<bnListType:Bullet>Item 1.', $content );
-		$this->assertStringContainsString( '<bnListType:Bullet>Item 2.', $content );
+		$this->assertStringContainsString( '<bnListType:Bullet>Item 1.<bnListType:>', $content );
+		$this->assertStringContainsString( '<bnListType:Bullet>Item 2.<bnListType:>', $content );
 	}
 
 	/**
