@@ -97,7 +97,7 @@ class Group_Subscription_Settings {
 			return $custom_options;
 		}
 		$custom_options['newspack_group_subscription_enabled'] = [
-			'id'            => self::GROUP_SUBSCRIPTION_META_PREFIX . self::GROUP_SUBSCRIPTION_META_PREFIX . 'enabled',
+			'id'            => self::GROUP_SUBSCRIPTION_META_PREFIX . 'enabled',
 			'label'         => __( 'Group subscription', 'newspack-plugin' ),
 			'description'   => __( 'Enable group subscriptions for this product.', 'newspack-plugin' ),
 			'default'       => self::DEFAULT_SETTINGS['enabled'],

@@ -34,12 +34,14 @@ class Group_Subscription_API {
 				'permission_callback' => [ __CLASS__, 'permission_callback' ],
 				'args'                => [
 					'search'          => [
-						'type'     => 'string',
-						'required' => true,
+						'type'              => 'string',
+						'required'          => true,
+						'sanitize_callback' => 'sanitize_text_field',
 					],
 					'subscription_id' => [
-						'type'     => 'integer',
-						'required' => true,
+						'type'              => 'integer',
+						'required'          => true,
+						'sanitize_callback' => 'absint',
 					],
 				],
 			]
@@ -53,20 +55,23 @@ class Group_Subscription_API {
 				'permission_callback' => [ __CLASS__, 'permission_callback' ],
 				'args'                => [
 					'subscription_id'   => [
-						'type'     => 'integer',
-						'required' => true,
+						'type'              => 'integer',
+						'required'          => true,
+						'sanitize_callback' => 'absint',
 					],
 					'members_to_add'    => [
 						'type'     => 'array',
 						'items'    => [
-							'type' => 'integer',
+							'type'              => 'integer',
+							'sanitize_callback' => 'absint',
 						],
 						'required' => false,
 					],
 					'members_to_remove' => [
 						'type'     => 'array',
 						'items'    => [
-							'type' => 'integer',
+							'type'              => 'integer',
+							'sanitize_callback' => 'absint',
 						],
 						'required' => false,
 					],
