@@ -68,6 +68,7 @@ final class Blocks {
 		$script_data = [
 			'has_newsletters'                  => class_exists( 'Newspack_Newsletters_Subscription' ),
 			'has_reader_activation'            => Reader_Activation::is_enabled(),
+			'is_block_theme'                   => wp_is_block_theme(),
 			'newsletters_url'                  => Wizards::get_wizard( 'newsletters' )->newsletters_settings_url(),
 			'has_google_oauth'                 => Google_OAuth::is_oauth_configured(),
 			'google_logo_svg'                  => \Newspack\Newspack_UI_Icons::get_svg( 'google' ),

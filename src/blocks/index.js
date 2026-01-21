@@ -37,6 +37,7 @@ const readerActivationBlocks = [ 'newspack/reader-registration', 'newspack/my-ac
 const correctionBlocks = [ 'newspack/correction-box', 'newspack/correction-item' ];
 const collectionsBlocks = [ 'newspack/collections' ];
 const contentGateBlocks = [ 'newspack/content-gate-countdown', 'newspack/content-gate-countdown-box' ];
+const blockThemeOnlyBlocks = [ 'newspack/my-account-button' ];
 
 /**
  * Function to register an individual block.
@@ -53,13 +54,14 @@ const registerBlock = block => {
 
 	/** Do not register reader activation blocks if it's disabled. */
 	if ( readerActivationBlocks.includes( name ) && ! newspack_blocks.has_reader_activation ) {
-		blockMetadata.supports = {
-			...( blockMetadata.supports || {} ),
-			inserter: false,
-		};
+		return;
 	}
 	/** Do not register correction blocks if it's disabled. */
 	if ( correctionBlocks.includes( name ) && ! newspack_blocks.corrections_enabled ) {
+		return;
+	}
+	/** Do not register block-theme-only blocks when using a classic theme. */
+	if ( blockThemeOnlyBlocks.includes( name ) && ! newspack_blocks.is_block_theme ) {
 		return;
 	}
 	/** Do not register collections blocks if Collections module is disabled. */
