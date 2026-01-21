@@ -1,24 +1,19 @@
 .wp-block-newspack-my-account-button {
-	align-items: center;
-	display: inline-flex;
-	gap: var(--wp--custom--spacing--10, var( --wp--preset--spacing--20 ));
-	justify-content: center;
-	text-decoration: none;
-
 	&--disabled {
-		opacity: 0.6;
+		opacity: 0.4;
 		pointer-events: none;
 	}
 
 	&__icon {
-		align-items: center;
-		display: flex;
-		justify-content: center;
+		display: grid;
+		place-items: center;
 
 		svg {
 			fill: currentcolor;
-			height: 1.5em;
-			width: 1.5em;
+			height: max(24px, 1.5em);
+			margin-left: calc( max(4px, 0.25em) * -1);
+			margin-right: calc( max(4px, 0.25em) * -1);
+			width: max(24px, 1.5em);
 		}
 	}
 }
