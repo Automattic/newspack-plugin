@@ -59,16 +59,22 @@ class Test_Content_Gifting extends \WP_UnitTestCase {
 		$can_gift = Content_Gifting::can_gift_post( $this->post_id, true );
 		$this->assertWPError( $can_gift );
 		$this->assertEquals( 'not_enabled', $can_gift->get_error_code() );
+	}
 
-		update_option( Content_Gifting::META, true );
-
-		// Mock the post not having restrictions.
+	/**
+	 * Test can_gift_post() with an unrestricted post.
+	 */
+	public function test_can_gift_post_unrestricted() {
 		remove_filter( 'newspack_post_has_restrictions', '__return_true' );
 		$can_gift = Content_Gifting::can_gift_post( $this->post_id, true );
 		$this->assertWPError( $can_gift );
 		$this->assertEquals( 'not_restricted', $can_gift->get_error_code() );
+	}
 
-		// Mock the post restricted for the current user.
+	/**
+	 * Test can_gift_post() with a restricted post.
+	 */
+	public function test_can_gift_post_restricted() {
 		add_filter( 'newspack_post_has_restrictions', '__return_true' );
 		add_filter( 'newspack_is_post_restricted', '__return_true' );
 		$can_gift = Content_Gifting::can_gift_post( $this->post_id, true );

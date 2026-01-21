@@ -37,6 +37,20 @@ class Content_Gate {
 	private static $is_gated = false;
 
 	/**
+	 * Caches whether a post is restricted to avoid repeated heavy analysis.
+	 *
+	 * @var array
+	 */
+	private static $is_post_restricted_cache = [];
+
+	/**
+	 * Caches whether a post has restrictions to avoid repeated heavy analysis.
+	 *
+	 * @var array
+	 */
+	private static $post_has_restrictions_cache = [];
+
+	/**
 	 * Valid gate post statuses.
 	 *
 	 * @var array
@@ -442,6 +456,10 @@ class Content_Gate {
 	public static function post_has_restrictions( $post_id = null ) {
 		$post_id = $post_id ? $post_id : get_the_ID();
 
+		if ( isset( self::$post_has_restrictions_cache[ $post_id ] ) ) {
+			return (bool) self::$post_has_restrictions_cache[ $post_id ];
+		}
+
 		// TODO: Content Gate content rules check.
 
 		/**
@@ -450,7 +468,9 @@ class Content_Gate {
 		 * @param bool $has_restrictions Whether the post has restrictions.
 		 * @param int  $post_id          Post ID.
 		 */
-		return apply_filters( 'newspack_post_has_restrictions', false, $post_id );
+		$has_restrictions = (bool) apply_filters( 'newspack_post_has_restrictions', false, $post_id );
+		self::$post_has_restrictions_cache[ $post_id ] = $has_restrictions;
+		return $has_restrictions;
 	}
 
 	/**
@@ -463,13 +483,19 @@ class Content_Gate {
 	public static function is_post_restricted( $post_id = null ) {
 		$post_id = $post_id ? $post_id : get_the_ID();
 
+		if ( isset( self::$is_post_restricted_cache[ $post_id ] ) ) {
+			return (bool) self::$is_post_restricted_cache[ $post_id ];
+		}
+
 		/**
 		 * Filters whether the post is restricted for the current user.
 		 *
 		 * @param bool $restricted_by Whether the post is restricted.
 		 * @param int  $post_id       Post ID.
 		 */
-		return apply_filters( 'newspack_is_post_restricted', false, $post_id );
+		$restricted = (bool) apply_filters( 'newspack_is_post_restricted', false, $post_id );
+		self::$is_post_restricted_cache[ $post_id ] = $restricted;
+		return $restricted;
 	}
 
 	/**
