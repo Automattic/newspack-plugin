@@ -320,7 +320,7 @@ class Guest_Contributor_Role {
 			// For guest authors, the form is modified via JS and we get the display name in the username field.
 			// Get the original display name from POST data (before WordPress sanitizes it).
 			// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verification happens in wp-admin/user-new.php before this hook.
-			$original_display_name = isset( $_POST['user_login'] ) ? sanitize_text_field( wp_unslash( $_POST['user_login'] ) ) : '';
+			$original_display_name = isset( $_POST['user_login'] ) ? sanitize_text_field( wp_unslash( $_POST['user_login'] ) ) : $user->user_login;
 
 			// Generate sanitized username from the original display name.
 			$user->user_login = self::generate_username( $original_display_name );
