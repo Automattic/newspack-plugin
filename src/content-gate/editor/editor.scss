@@ -49,3 +49,10 @@
 		margin: 0;
 	}
 }
+
+/**
+ * Hide the title input for the gate layout post type.
+ */
+.post-type-np_gate_layout .editor-post-title {
+	display: none;
+}

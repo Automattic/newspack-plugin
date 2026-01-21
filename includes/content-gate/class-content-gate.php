@@ -254,7 +254,7 @@ class Content_Gate {
 			]
 		);
 		// Register the layout post type.
-		self::register_layout_post_type( self::GATE_LAYOUT_CPT, __( 'Content Gate Layout', 'newspack' ), '', false );
+		self::register_layout_post_type( self::GATE_LAYOUT_CPT, __( 'Content Gate Layout', 'newspack' ) );
 	}
 
 	/**
@@ -468,11 +468,17 @@ class Content_Gate {
 	/**
 	 * Create a new gate layout post.
 	 *
+	 * @param string $title Optional gate layout title. Defaults to 'Content Gate Layout'.
+	 *
 	 * @return int|\WP_Error The gate layout post ID or error if not created.
 	 */
-	public static function create_gate_layout() {
+	public static function create_gate_layout( $title = '' ) {
+		if ( empty( $title ) ) {
+			$title = __( 'Content Gate Layout', 'newspack' );
+		}
 		return \wp_insert_post(
 			[
+				'post_title'   => $title,
 				'post_type'    => self::GATE_LAYOUT_CPT,
 				'post_content' => '<!-- wp:paragraph --><p>' . __( 'This post is only available to members.', 'newspack' ) . '</p><!-- /wp:paragraph -->',
 			]
@@ -547,7 +553,7 @@ class Content_Gate {
 			\wp_safe_redirect( \get_edit_post_link( $gate_layout_id, 'edit' ) );
 			exit;
 		} else {
-			$gate_layout_id = self::create_gate_layout();
+			$gate_layout_id = self::create_gate_layout( $gate_layout_default_title );
 			if ( is_wp_error( $gate_layout_id ) ) {
 				\wp_die( esc_html( $gate_layout_id->get_error_message() ) );
 			}
