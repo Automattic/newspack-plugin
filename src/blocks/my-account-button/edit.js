@@ -28,7 +28,7 @@ import { ToolbarButton, ToolbarGroup } from '@wordpress/components';
  * Internal dependencies
  */
 function MyAccountButtonEdit( { attributes, setAttributes } ) {
-	const { signedInLabel, signedOutLabel, style } = attributes;
+	const { signedInLabel, signedOutLabel, style, className: customClassName } = attributes;
 	const borderProps = useBorderProps( attributes );
 	const colorProps = useColorProps( attributes );
 	const spacingProps = useSpacingProps( attributes );
@@ -85,19 +85,23 @@ function MyAccountButtonEdit( { attributes, setAttributes } ) {
 					</ToolbarButton>
 				</ToolbarGroup>
 			</BlockControls>
-			<a { ...blockProps }>
-				<span className="wp-block-newspack-my-account-button__icon" aria-hidden="true">
-					{ icon }
-				</span>
-				<RichText
-					tagName="span"
-					aria-label={ __( 'Button text', 'newspack-plugin' ) }
-					placeholder={ placeholderText }
-					value={ activeLabel || '' }
-					onChange={ value => setButtonText( value ) }
-					withoutInteractiveFormatting
-				/>
-			</a>
+			<div className={ classnames( 'wp-block-buttons', customClassName ) }>
+				<div className="wp-block-button">
+					<div { ...blockProps }>
+						<span className="wp-block-newspack-my-account-button__icon" aria-hidden="true">
+							{ icon }
+						</span>
+						<RichText
+							tagName="span"
+							aria-label={ __( 'Button text', 'newspack-plugin' ) }
+							placeholder={ placeholderText }
+							value={ activeLabel || '' }
+							onChange={ value => setButtonText( value ) }
+							withoutInteractiveFormatting
+						/>
+					</div>
+				</div>
+			</div>
 		</>
 	);
 }
