@@ -72,26 +72,4 @@ class Newspack_Test_My_Account_Button_Block extends WP_UnitTestCase {
 		$this->assertStringContainsString( 'href="#"', $output );
 		$this->assertStringContainsString( '&quot;signedout&quot;:&quot;Sign in&quot;', $output );
 	}
-
-	/**
-	 * Test logged-in non-reader gets disabled class and account URL.
-	 */
-	public function test_render_block_logged_in_non_reader() {
-		self::$reader_activation_enabled = true;
-
-		$user_id = self::factory()->user->create(
-			[
-				'role' => 'administrator',
-			]
-		);
-		wp_set_current_user( $user_id );
-
-		$output = do_blocks(
-			'<!-- wp:newspack/my-account-button {"signedInLabel":"My Account","signedOutLabel":"Sign in"} /-->'
-		);
-
-		$this->assertNotEmpty( $output );
-		$this->assertStringContainsString( 'wp-block-newspack-my-account-button--disabled', $output );
-		$this->assertStringContainsString( 'href="https://example.com/my-account"', $output );
-	}
 }

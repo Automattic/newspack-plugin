@@ -109,7 +109,13 @@ final class My_Account_Button_Block {
 			return '';
 		}
 
-		$href = $is_signed_in ? $account_url : '#';
+		if ( $is_signed_in ) {
+			$href = $account_url;
+			$should_modal_trigger = '';
+		} else {
+			$href = '#';
+			$should_modal_trigger = 'data-newspack-reader-account-link';
+		}
 
 		$labels = [
 			'signedin'  => $attrs['signedInLabel'],
@@ -120,9 +126,6 @@ final class My_Account_Button_Block {
 			'wp-element-button',
 			'wp-block-button__link',
 		];
-		if ( \is_user_logged_in() && ! Reader_Activation::is_user_reader( \wp_get_current_user() ) ) {
-			$extra_classes[] = 'wp-block-newspack-my-account-button--disabled';
-		}
 
 		/** Get default wrapper attributes to extract custom classes */
 		$default_wrapper_attributes = \get_block_wrapper_attributes();
@@ -158,7 +161,7 @@ final class My_Account_Button_Block {
 
 		$link = '<div class="' . \esc_attr( implode( ' ', $wrapper_div_classes ) ) . '">';
 		$link .= '<div class="wp-block-button">';
-		$link .= '<a ' . $wrapper_attributes . ' data-labels="' . \esc_attr( \wp_json_encode( $labels ) ) . '" data-newspack-reader-account-link>';
+		$link .= '<a ' . $wrapper_attributes . ' data-labels="' . \esc_attr( \wp_json_encode( $labels ) ) . '" ' . $should_modal_trigger . '>';
 		$link .= '<span class="wp-block-newspack-my-account-button__icon">';
 		$link .= Newspack_UI_Icons::get_svg( 'account' );
 		$link .= '</span>';

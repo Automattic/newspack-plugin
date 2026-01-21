@@ -1,9 +1,4 @@
 .wp-block-newspack-my-account-button {
-	&--disabled {
-		opacity: 0.4;
-		pointer-events: none;
-	}
-
 	&__icon {
 		display: grid;
 		place-items: center;
