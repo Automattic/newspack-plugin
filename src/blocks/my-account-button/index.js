@@ -3,9 +3,13 @@
  */
 import metadata from './block.json';
 import edit from './edit';
-import { account as icon } from '../../../packages/icons';
 import colors from '../../../packages/colors/colors.module.scss';
 import './style.scss';
+
+/**
+ * WordPress dependencies
+ */
+import { button as icon } from '@wordpress/icons';
 
 const { name } = metadata;
 
