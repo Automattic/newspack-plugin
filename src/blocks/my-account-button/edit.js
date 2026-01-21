@@ -69,11 +69,19 @@ function MyAccountButtonEdit( { attributes, setAttributes } ) {
 		<>
 			<BlockControls>
 				<ToolbarGroup>
-					<ToolbarButton isPressed={ ! isSignedOutPreview } onClick={ () => setPreviewState( 'signedin' ) }>
-						{ __( 'Signed in', 'newspack-plugin' ) }
-					</ToolbarButton>
-					<ToolbarButton isPressed={ isSignedOutPreview } onClick={ () => setPreviewState( 'signedout' ) }>
+					<ToolbarButton
+						isPressed={ isSignedOutPreview }
+						onClick={ () => setPreviewState( 'signedout' ) }
+						style={ { paddingLeft: '12px', paddingRight: '12px' } }
+					>
 						{ __( 'Signed out', 'newspack-plugin' ) }
+					</ToolbarButton>
+					<ToolbarButton
+						isPressed={ ! isSignedOutPreview }
+						onClick={ () => setPreviewState( 'signedin' ) }
+						style={ { paddingLeft: '12px', paddingRight: '12px' } }
+					>
+						{ __( 'Signed in', 'newspack-plugin' ) }
 					</ToolbarButton>
 				</ToolbarGroup>
 			</BlockControls>
