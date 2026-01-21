@@ -77,13 +77,19 @@ trait Content_Gate_Layout {
 	/**
 	 * Register a gate custom post type with common configuration.
 	 *
-	 * @param string $post_type    The post type slug.
-	 * @param string $label        The singular label for the post type.
-	 * @param string $label_plural Optional plural label. Defaults to singular + 's'.
+	 * @param string  $post_type     The post type slug.
+	 * @param string  $label         The singular label for the post type.
+	 * @param string  $label_plural  Optional plural label. Defaults to singular + 's'.
+	 * @param boolean $supports_title Whether to support title. Defaults to true.
 	 */
-	public static function register_layout_post_type( $post_type, $label, $label_plural = '' ) {
+	public static function register_layout_post_type( $post_type, $label, $label_plural = '', $supports_title = true ) {
 		if ( empty( $label_plural ) ) {
 			$label_plural = $label . 's';
+		}
+
+		$supports = [ 'editor', 'custom-fields', 'revisions' ];
+		if ( $supports_title ) {
+			$supports[] = 'title';
 		}
 
 		\register_post_type(
@@ -108,7 +114,7 @@ trait Content_Gate_Layout {
 				'show_ui'      => true,
 				'show_in_menu' => false,
 				'show_in_rest' => true,
-				'supports'     => [ 'editor', 'custom-fields', 'revisions', 'title' ],
+				'supports'     => $supports,
 			]
 		);
 
