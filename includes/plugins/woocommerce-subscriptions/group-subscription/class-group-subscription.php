@@ -148,7 +148,12 @@ class Group_Subscription {
 			}
 
 			// Avoid adding duplicate meta entries.
-			$existing_group_subscription_ids = self::get_group_subscriptions_for_user( $member_id, true );
+			$existing_group_subscription_ids = array_map(
+				function( $subscription ) {
+					return $subscription->get_id();
+				},
+				self::get_group_subscriptions_for_user( $member_id )
+			);
 			if ( in_array( $subscription->get_id(), $existing_group_subscription_ids, true ) ) {
 				continue;
 			}
@@ -183,7 +188,13 @@ class Group_Subscription {
 		if ( ! $subscription ) {
 			return null;
 		}
-		$is_member = in_array( $subscription->get_id(), self::get_group_subscriptions_for_user( $user_id, true ), true ) || in_array( $user_id, self::get_managers( $subscription ), true );
+		$group_subscription_ids = array_map(
+			function( $subscription ) {
+				return $subscription->get_id();
+			},
+			self::get_group_subscriptions_for_user( $user_id )
+		);
+		$is_member = in_array( $subscription->get_id(), $group_subscription_ids, true ) || in_array( $user_id, self::get_managers( $subscription ), true );
 
 		/**
 		 * Filter whether a user is a member or manager of a group subscription.
@@ -199,13 +210,11 @@ class Group_Subscription {
 	 * Get the group subscriptions a user is a member of.
 	 * Group membership is represented as a repeatable user meta key with the subscription IDs the value.
 	 *
-	 * @param int      $user_id The user ID.
-	 * @param bool     $ids_only If true, return only the subscription IDs instead of the subscription objects.
-	 * @param string[] $subscription_statuses The statuses of the subscriptions to return.
+	 * @param int $user_id The user ID.
 	 *
-	 * @return WC_Subscription[]|int[] The group subscriptions or subscription IDs the user is a member of.
+	 * @return WC_Subscription[] The group subscriptions the user is a member of.
 	 */
-	public static function get_group_subscriptions_for_user( $user_id, $ids_only = false, $subscription_statuses = [ 'active', 'pending-cancel' ] ) {
+	public static function get_group_subscriptions_for_user( $user_id ) {
 		if ( ! function_exists( 'wcs_get_subscription' ) ) {
 			return [];
 		}
@@ -213,21 +222,19 @@ class Group_Subscription {
 			return [];
 		}
 		$subscription_ids = array_map( 'absint', \get_user_meta( $user_id, self::GROUP_SUBSCRIPTION_USER_META_KEY, false ) );
-		$subscriptions    = [];
-		foreach ( $subscription_ids as $subscription_id ) {
-			$subscription = \wcs_get_subscription( $subscription_id );
-			if ( $subscription && $subscription->has_status( $subscription_statuses ) ) {
-				$subscriptions[] = $ids_only ? $subscription_id : $subscription;
-			}
-		}
+		$subscriptions    = array_map(
+			function( $subscription_id ) {
+				return \wcs_get_subscription( $subscription_id );
+			},
+			$subscription_ids
+		);
 
 		/**
 		 * Filter the group subscriptions a user is a member of.
 		 *
-		 * @param WC_Subscription[]|int[] $subscriptions The group subscriptions or subscription IDs the user is a member of.
+		 * @param WC_Subscription[] $subscriptions The group subscriptions the user is a member of.
 		 * @param int $user_id The user ID.
-		 * @param string[] $subscription_statuses The statuses of the subscriptions to return.
 		 */
-		return apply_filters( 'newspack_group_subscriptions_for_user', $subscriptions, $user_id, $subscription_statuses );
+		return apply_filters( 'newspack_group_subscriptions_for_user', $subscriptions, $user_id );
 	}
 }
