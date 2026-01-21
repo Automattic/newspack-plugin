@@ -117,11 +117,36 @@ final class My_Account_Button_Block {
 		];
 
 		$extra_classes = [
+			'wp-element-button',
 			'wp-block-button__link',
-			'newspack-reader__account-link',
 		];
 		if ( \is_user_logged_in() && ! Reader_Activation::is_user_reader( \wp_get_current_user() ) ) {
 			$extra_classes[] = 'wp-block-newspack-my-account-button--disabled';
+		}
+
+		/** Get default wrapper attributes to extract custom classes */
+		$default_wrapper_attributes = \get_block_wrapper_attributes();
+
+		/** Extract custom classes (everything except the default block class) */
+		$default_block_class = 'wp-block-newspack-my-account-button';
+		$custom_classes      = [];
+
+		/** Parse class attribute from default wrapper */
+		if ( \preg_match( '/class=["\']([^"\']+)["\']/', $default_wrapper_attributes, $matches ) ) {
+			$all_classes = \explode( ' ', $matches[1] );
+			foreach ( $all_classes as $class ) {
+				$class = \trim( $class );
+				/** Only include classes that contain "-size" (e.g., has-small-size) */
+				if ( ! empty( $class ) && \strpos( $class, '-size' ) !== false ) {
+					$custom_classes[] = $class;
+				}
+			}
+		}
+
+		/** Build wrapper div classes */
+		$wrapper_div_classes = [ 'wp-block-buttons' ];
+		if ( ! empty( $custom_classes ) ) {
+			$wrapper_div_classes = \array_merge( $wrapper_div_classes, $custom_classes );
 		}
 
 		$wrapper_attributes = \get_block_wrapper_attributes(
@@ -131,12 +156,16 @@ final class My_Account_Button_Block {
 			]
 		);
 
-		$link  = '<a ' . $wrapper_attributes . ' data-labels="' . \esc_attr( \wp_json_encode( $labels ) ) . '" data-newspack-reader-account-link>';
+		$link = '<div class="' . \esc_attr( implode( ' ', $wrapper_div_classes ) ) . '">';
+		$link .= '<div class="wp-block-button">';
+		$link .= '<a ' . $wrapper_attributes . ' data-labels="' . \esc_attr( \wp_json_encode( $labels ) ) . '" data-newspack-reader-account-link>';
 		$link .= '<span class="wp-block-newspack-my-account-button__icon">';
 		$link .= Newspack_UI_Icons::get_svg( 'account' );
 		$link .= '</span>';
 		$link .= '<span class="newspack-reader__account-link__label">' . \esc_html( $label ) . '</span>';
 		$link .= '</a>';
+		$link .= '</div>';
+		$link .= '</div>';
 
 		/**
 		 * Filters the HTML for the My Account button block.
