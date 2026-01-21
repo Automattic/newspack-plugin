@@ -541,7 +541,7 @@ class Content_Gate {
 			}
 			$gate[ $gate_mode ]['gate_layout_id'] = $gate_layout_id;
 			self::update_gate_settings( $gate_id, $gate );
-			\wp_safe_redirect( \admin_url( 'post.php?post=' . $gate_layout_id . '&action=edit' ) );
+			\wp_safe_redirect( \get_edit_post_link( $gate_layout_id, 'edit' ) );
 			exit;
 		}
 	}
