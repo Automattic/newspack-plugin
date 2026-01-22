@@ -683,9 +683,15 @@ class Content_Gate {
 			$registration = [];
 		}
 
+		$default_metering = [
+			'enabled' => false,
+			'count'   => 0,
+			'period'  => 'month',
+		];
+
 		return [
 			'active'               => isset( $registration['active'] ) ? (bool) $registration['active'] : false,
-			'metering'             => isset( $registration['metering'] ) ? $registration['metering'] : Metering::get_metering_settings( $gate_id ),
+			'metering'             => isset( $registration['metering'] ) ? $registration['metering'] : $default_metering,
 			'require_verification' => isset( $registration['require_verification'] ) ? (bool) $registration['require_verification'] : false,
 			'gate_layout_id'       => isset( $registration['gate_layout_id'] ) ? (int) $registration['gate_layout_id'] : 0,
 		];
@@ -720,9 +726,15 @@ class Content_Gate {
 			$custom_access = [];
 		}
 
+		$default_metering = [
+			'enabled' => false,
+			'count'   => 0,
+			'period'  => 'month',
+		];
+
 		return [
 			'active'         => isset( $custom_access['active'] ) ? (bool) $custom_access['active'] : false,
-			'metering'       => isset( $custom_access['metering'] ) ? $custom_access['metering'] : Metering::get_metering_settings( $gate_id ),
+			'metering'       => isset( $custom_access['metering'] ) ? $custom_access['metering'] : $default_metering,
 			'access_rules'   => isset( $custom_access['access_rules'] ) ? $custom_access['access_rules'] : [],
 			'gate_layout_id' => isset( $custom_access['gate_layout_id'] ) ? (int) $custom_access['gate_layout_id'] : 0,
 		];
