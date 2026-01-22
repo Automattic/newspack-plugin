@@ -1,0 +1,37 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - release
+      - alpha
+      - 'hotfix/**'
+      - 'epic/**'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    uses: Automattic/newspack-scripts/.github/workflows/reusable-build.yml@refactor/deprecate-circle-ci
+
+  release:
+    needs: build
+    uses: Automattic/newspack-scripts/.github/workflows/reusable-release.yml@refactor/deprecate-circle-ci
+    secrets:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+  build-distributable:
+    needs: release
+    uses: Automattic/newspack-scripts/.github/workflows/reusable-build-distributable.yml@refactor/deprecate-circle-ci
+    with:
+      archive-name: newspack-plugin
+
+  post-release:
+    if: github.ref == 'refs/heads/release'
+    needs: release
+    uses: Automattic/newspack-scripts/.github/workflows/reusable-post-release.yml@refactor/deprecate-circle-ci
+    secrets:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
