@@ -20,7 +20,6 @@ jobs:
     needs: build
     uses: Automattic/newspack-scripts/.github/workflows/reusable-release.yml@refactor/deprecate-circle-ci
     secrets:
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
   build-distributable:
@@ -33,5 +32,3 @@ jobs:
     if: github.ref == 'refs/heads/release'
     needs: release
     uses: Automattic/newspack-scripts/.github/workflows/reusable-post-release.yml@refactor/deprecate-circle-ci
-    secrets:
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
