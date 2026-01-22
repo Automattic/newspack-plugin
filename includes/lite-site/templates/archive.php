@@ -22,7 +22,7 @@ namespace Newspack;
 	</header>
 	<h1><?php bloginfo( 'name' ); ?></h1>
 	<hr class="separator">
-	<ul>
+	<ul class="post-list">
 	<?php
 	$query_args = [
 		'posts_per_page' => Lite_Site::get_number_of_posts(),
