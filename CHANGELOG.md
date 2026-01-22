@@ -1,3 +1,10 @@
+## [6.29.1](https://github.com/Automattic/newspack-plugin/compare/v6.29.0...v6.29.1) (2026-01-22)
+
+
+### Bug Fixes
+
+* **content-gate:** support zero paragraph excerpt ([#4408](https://github.com/Automattic/newspack-plugin/issues/4408)) ([56fb741](https://github.com/Automattic/newspack-plugin/commit/56fb7415ad0ca8189808dd5672c91095ce49a7d9))
+
 # [6.29.0](https://github.com/Automattic/newspack-plugin/compare/v6.28.2...v6.29.0) (2026-01-19)
 
 

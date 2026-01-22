@@ -138,6 +138,18 @@ trait Content_Gate_Layout {
 	}
 
 	/**
+	 * Get the number of visible paragraphs for the gate.
+	 *
+	 * @param int $gate_post_id Gate post ID.
+	 *
+	 * @return int
+	 */
+	protected static function get_visible_paragraphs( $gate_post_id ) {
+		$visible_paragraphs = \get_post_meta( $gate_post_id, 'visible_paragraphs', true );
+		return '' === $visible_paragraphs ? 2 : max( 0, (int) $visible_paragraphs );
+	}
+
+	/**
 	 * Get the inline gate content with fade effect.
 	 *
 	 * @param int $gate_post_id The gate post ID.
@@ -150,8 +162,16 @@ trait Content_Gate_Layout {
 			return '';
 		}
 		$gate = \get_the_content( null, false, \get_post( $gate_post_id ) );
+
 		// Add clearfix to the gate.
 		$gate = '<div style=\'content:"";clear:both;display:table;\'></div>' . $gate;
+
+		// Apply inline fade.
+		$visible_paragraphs = self::get_visible_paragraphs( $gate_post_id );
+		if ( $visible_paragraphs > 0 && \get_post_meta( $gate_post_id, 'inline_fade', true ) ) {
+			$gate = '<div style="pointer-events: none; height: 10em; margin-top: -10em; width: 100%; position: absolute; background: linear-gradient(180deg, rgba(255,255,255,0) 14%, rgba(255,255,255,1) 76%);"></div>' . $gate;
+		}
+
 		// Wrap gate in a div for styling.
 		$gate = '<div class="newspack-content-gate__gate newspack-content-gate__inline-gate">' . $gate . '</div>';
 		return $gate;
@@ -167,19 +187,24 @@ trait Content_Gate_Layout {
 	 */
 	public static function get_restricted_post_excerpt_for_gate( $post, $gate_post_id ) {
 		$content = $post->post_content;
-		$style   = \get_post_meta( $gate_post_id, 'style', true );
 
-		$use_more_tag = \get_post_meta( $gate_post_id, 'use_more_tag', true );
+		$style = \get_post_meta( $gate_post_id, 'style', true );
+
+		$use_more_tag = get_post_meta( $gate_post_id, 'use_more_tag', true );
 		// Use <!--more--> as threshold if it exists.
 		if ( $use_more_tag && strpos( $content, '<!--more-->' ) ) {
 			$content = apply_filters( 'newspack_gate_content', explode( '<!--more-->', $content )[0] );
 		} else {
+			$count = self::get_visible_paragraphs( $gate_post_id );
+			if ( 0 === $count ) {
+				return '';
+			}
+
 			$content = apply_filters( 'newspack_gate_content', $content );
-			$count   = max( 1, (int) \get_post_meta( $gate_post_id, 'visible_paragraphs', true ) );
 			// Split into paragraphs.
 			$content = explode( '</p>', $content );
 			// Extract the first $x paragraphs only.
-			$content = array_slice( $content, 0, $count ?? 2 );
+			$content = array_slice( $content, 0, $count );
 			if ( 'overlay' === $style ) {
 				// Append ellipsis to the last paragraph.
 				$content[ count( $content ) - 1 ] .= ' [&hellip;]';
@@ -187,11 +212,7 @@ trait Content_Gate_Layout {
 			// Rejoin the paragraphs into a single string again.
 			$content = \force_balance_tags( \wp_kses_post( implode( '</p>', $content ) . '</p>' ) );
 		}
-		if ( \get_post_meta( $gate_post_id, 'inline_fade', true ) ) {
-			$content = '<div class="newspack-content-gate__inline-fade"></div>' . $content;
-		}
-		// Wrap restricted post excerpt in a div for styling and scripts.
-		return '<div class="newspack-content-gate__restricted-post-excerpt">' . $content . '</div>';
+		return $content;
 	}
 
 	/**
