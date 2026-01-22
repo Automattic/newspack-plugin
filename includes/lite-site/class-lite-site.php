@@ -41,6 +41,16 @@ class Lite_Site {
 	}
 
 	/**
+	 * Check if the current request is for the lite site.
+	 *
+	 * @return bool True if it's a lite site request, false otherwise.
+	 */
+	public static function is_lite_site_request() {
+		$lite_site = get_query_var( 'lite_site' );
+		return ! empty( $lite_site );
+	}
+
+	/**
 	 * Get the lite site URL base
 	 */
 	public static function get_url_base() {
