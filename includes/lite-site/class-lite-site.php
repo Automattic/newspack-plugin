@@ -487,6 +487,29 @@ class Lite_Site {
 
 		return $content;
 	}
+
+	/**
+	 * Get GA4 snippet if active and settings are present.
+	 */
+	public static function get_ga4_snippet() {
+		if ( ! GoogleSiteKit::is_active() ) {
+			return;
+		}
+		$settings = GoogleSiteKit::get_sitekit_ga4_settings();
+		if ( ! $settings || empty( $settings['measurementID'] ) ) {
+			return;
+		}
+		?>
+		<!-- Global site tag (gtag.js) - Google Analytics -->
+		<script async src="https://www.googletagmanager.com/gtag/js?id=<?php echo esc_js( $settings['measurementID'] ); ?>"></script>
+		<script>
+			window.dataLayer = window.dataLayer || [];
+			function gtag(){dataLayer.push(arguments);}
+			gtag('js', new Date());
+			gtag('config', '<?php echo esc_js( $settings['measurementID'] ); ?>');
+		</script>
+		<?php
+	}
 }
 
 // Initialize the class.
