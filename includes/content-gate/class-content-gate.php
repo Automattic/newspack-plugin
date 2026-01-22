@@ -885,6 +885,13 @@ class Content_Gate {
 	 * @return array Array of content gates.
 	 */
 	public static function get_gates( $post_type = self::GATE_CPT, $post_status = null ) {
+		if ( is_singular() || is_archive() || is_feed() ) {
+			$cached_result = wp_cache_get( self::get_gates_cache_key( $post_type, $post_status ) );
+			if ( is_array( $cached_result ) ) {
+				return $cached_result;
+			}
+		}
+
 		$posts = get_posts(
 			[
 				'post_type'      => $post_type,
@@ -901,7 +908,28 @@ class Content_Gate {
 				}
 			);
 		}
+		wp_cache_set( self::get_gates_cache_key( $post_type, $post_status ), $gates, '', 60 );
 		return $gates;
+	}
+
+	/**
+	 * Get cache key for gates.
+	 *
+	 * @param string          $post_type Post type.
+	 * @param string|string[] $post_status Post status or array of statuses to fetch.
+	 *
+	 * @return string Cache key.
+	 */
+	private static function get_gates_cache_key( $post_type, $post_status ) {
+		if ( empty( $post_status ) ) {
+			$post_status = self::get_post_statuses();
+		}
+
+		if ( is_array( $post_status ) ) {
+			$post_status = implode( '', $post_status );
+		}
+
+		return 'np_memberships_gates_cache_' . $post_type . '_' . $post_status;
 	}
 
 	/**
