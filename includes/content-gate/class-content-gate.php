@@ -63,7 +63,7 @@ class Content_Gate {
 		add_filter( 'newspack_reader_activity_article_view', [ __CLASS__, 'suppress_article_view_activity' ], 100 );
 
 		add_action( 'the_post', [ __CLASS__, 'restrict_post' ], 10, 2 );
-		add_filter( 'the_content', [ __CLASS__, 'handle_restricted_post_content_filtering' ], PHP_INT_MAX );
+		add_filter( 'the_content', [ __CLASS__, 'handle_restricted_content' ], PHP_INT_MAX );
 
 		/** Add gate content filters to mimic 'the_content'. See 'wp-includes/default-filters.php' for reference. */
 		add_filter( 'newspack_gate_content', 'capital_P_dangit', 11 );
@@ -182,7 +182,7 @@ class Content_Gate {
 	 *
 	 * @return string
 	 */
-	public static function handle_restricted_post_content_filtering( $content ) {
+	public static function handle_restricted_content( $content ) {
 		if ( ! isset( self::$restricted_content[ get_the_ID() ] ) ) {
 			return $content;
 		}
