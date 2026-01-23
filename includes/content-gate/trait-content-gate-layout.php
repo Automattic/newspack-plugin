@@ -161,7 +161,7 @@ trait Content_Gate_Layout {
 		if ( 'inline' !== $style ) {
 			return '';
 		}
-		$gate = \get_the_content( null, false, \get_post( $gate_post_id ) );
+		$gate = apply_filters( 'newspack_gate_content', \get_the_content( null, false, \get_post( $gate_post_id ) ) );
 
 		// Add clearfix to the gate.
 		$gate = '<div style=\'content:"";clear:both;display:table;\'></div>' . $gate;
