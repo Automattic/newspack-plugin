@@ -22,12 +22,6 @@ jobs:
     secrets:
       NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
-  build-distributable:
-    needs: release
-    uses: Automattic/newspack-scripts/.github/workflows/reusable-build-distributable.yml@refactor/deprecate-circle-ci
-    with:
-      archive-name: newspack-plugin
-
   post-release:
     if: github.ref == 'refs/heads/release'
     needs: release
