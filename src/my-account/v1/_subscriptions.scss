@@ -1,0 +1,97 @@
+.woocommerce-account.newspack-my-account.newspack-ui {
+	table.shop_table.order_details,
+	table.shop_table.subscription_details {
+		th, td {
+			border-bottom: none;
+		}
+		thead th,
+		td.product-name,
+		td.total {
+			font-weight: 700;
+		}
+	}
+	table.shop_table.order_details {
+		th, td {
+			padding-bottom: 4px;
+			padding-top: 4px;
+		}
+		thead th {
+			color: var(--newspack-ui-color-neutral-90);
+		}
+		td.product-name {
+			color: var(--newspack-ui-color-neutral-60);
+			font-weight: 600;
+		}
+		& + .subscription_details {
+			margin-top: var(--newspack-ui-spacer-base);
+		}
+	}
+	table.shop_table.subscription_details {
+		margin-bottom: var(--newspack-ui-spacer-5);
+		td:first-child,
+		.subscription-payment-method {
+			font-weight: 700;
+		}
+	}
+	table#woocommerce-subscriptions-related-orders-table {
+		table-layout: auto;
+		td {
+			width: calc( 25% - 12px );
+			&.woocommerce-orders-table__cell-order-actions {
+				width: 48px;
+			}
+		}
+	}
+	.newspack-my-account__subscription {
+		&--header {
+			align-items: center;
+			display: flex;
+			justify-content: space-between;
+			margin-bottom: var(--newspack-ui-spacer-2);
+			.newspack-ui__dropdown__toggle {
+				padding-right: var(--newspack-ui-spacer-base);
+			}
+			/* Hide the "Subscription totals" header. */
+			& + h2 {
+				display: none;
+			}
+		}
+		&--back-link.newspack-ui__button.newspack-ui__button--ghost {
+			padding-left: 0;
+			padding-right: 0;
+			svg {
+				border-radius: var(--newspack-ui-border-radius-s);
+				transition: background-color 125ms ease-in-out;
+			}
+			&:hover {
+				background-color: transparent;
+				svg {
+					background-color: var(--newspack-ui-color-neutral-5);
+				}
+			}
+			@media ( min-width: 768px ) {
+				margin-left: -28px;
+			}
+		}
+		&--change-subscription-item,
+		&--change-subscription-dropdown {
+			@media ( max-width: 767px ) {
+				display: none;
+			}
+		}
+		&--actions {
+			display: flex;
+			column-gap: var(--newspack-ui-spacer-2);
+		}
+		&--actions-dropdown {
+			.newspack-my-account__subscription--change-subscription-item {
+				@media ( max-width: 767px ) {
+					display: inline-flex;
+				}
+				@media ( min-width: 768px ) {
+					display: none;
+				}
+			}
+		}
+	}
+}

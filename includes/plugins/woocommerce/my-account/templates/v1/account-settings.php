@@ -3,8 +3,9 @@
  * My Account Account Settings page.
  * Based on woocommerce/templates/myaccount/form-edit-account.php.
  *
- * @package Newspack
- * @version 8.7.0
+ * @author   Newspack
+ * @category WooCommerce Subscriptions/Templates
+ * @package  Newspack
  */
 
 namespace Newspack;

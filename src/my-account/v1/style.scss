@@ -9,6 +9,7 @@
 @use "content";
 @use "forms";
 @use "addresses";
+@use "subscriptions";
 
 .newspack-my-account {
 	&--logged-in {

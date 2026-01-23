@@ -2,8 +2,9 @@
 /**
  * My Account Payment Information page. Replaces both "Payment Methods" and "Addresses" pages.
  *
- * @package Newspack
- * @version 8.7.0
+ * @author   Newspack
+ * @category WooCommerce Subscriptions/Templates
+ * @package  Newspack
  */
 
 namespace Newspack;
