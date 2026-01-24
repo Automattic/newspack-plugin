@@ -5,6 +5,7 @@ import { store as blockEditorStore } from '@wordpress/block-editor';
 import { store as coreStore } from '@wordpress/core-data';
 import { __, sprintf } from '@wordpress/i18n';
 import { useSelect } from '@wordpress/data';
+import { useMemo } from '@wordpress/element';
 
 /**
  * Internal dependencies
@@ -74,7 +75,7 @@ export function usePostAuthors( { postId, postType = 'post' } ) {
 
 	// Determine which author IDs to use.
 	const isCustomByline = bylineActive && bylineContent;
-	const bylineAuthorIds = isCustomByline ? extractAuthorIdsFromByline( bylineContent ) : [];
+	const bylineAuthorIds = useMemo( () => ( isCustomByline ? extractAuthorIdsFromByline( bylineContent ) : [] ), [ isCustomByline, bylineContent ] );
 
 	// Get avatar URLs for authors from the core store.
 	const authorsWithAvatars = useSelect(

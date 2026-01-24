@@ -79,10 +79,10 @@ final class Avatar_Block {
 		$authors        = [];
 
 		// 1. Check for custom byline first.
-		if ( class_exists( 'Newspack\Bylines' ) ) {
+		if ( class_exists( 'Newspack\Bylines' ) && Bylines::is_enabled() ) {
 			$byline_authors = Bylines::get_post_byline_authors( $post_id );
 			if ( ! empty( $byline_authors ) ) {
-				$authors = array_filter( $byline_authors ); // Remove any false values from missing users.
+				$authors = array_filter( $byline_authors ); // Remove false values from deleted users.
 			}
 		}
 
