@@ -29,7 +29,7 @@ class Tag_Labels {
 	 *
 	 * @return bool
 	 */
-	public static function is_tag_label( $term ) {
+	public static function has_label( $term ) {
 		if ( ! $term || ! $term->term_id ) {
 			return false;
 		}
@@ -47,7 +47,7 @@ class Tag_Labels {
 	 * @return array|null As ['flag' => FLAG_NAME, 'link' => TERM_LINK].
 	 */
 	public static function get_tag_label_for_term( $term ) {
-		if ( ! $term || ! $term->term_id || ! self::is_tag_label( $term ) ) {
+		if ( ! $term || ! $term->term_id || ! self::has_label( $term ) ) {
 			return null;
 		}
 
@@ -172,7 +172,7 @@ class Tag_Labels {
 	 */
 	public static function edit_term( $term ) {
 		$checkbox_id = self::TAG_LABEL_META_KEY;
-		$is_label = self::is_tag_label( $term );
+		$is_label = self::has_label( $term );
 
 		$label = self::get_tag_label_for_term( $term );
 		$label_flag  = $label ? $label['flag'] : $term->name;
