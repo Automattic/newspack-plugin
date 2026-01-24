@@ -151,7 +151,7 @@ class Tag_Labels {
 				aria-describedby="<?php echo esc_attr( self::TAG_LABEL_FLAG_META_KEY ); ?>-description"
 				type="text"
 				name="<?php echo esc_attr( self::TAG_LABEL_FLAG_META_KEY ); ?>"
-				placeholder="Enter custom label text"
+				placeholder="<?php echo esc_attr__( 'Enter custom label text', 'newspack-plugin' ); ?>"
 				value=""
 				disabled
 			>
