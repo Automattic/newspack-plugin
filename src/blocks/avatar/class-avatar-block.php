@@ -8,6 +8,7 @@
 namespace Newspack\Blocks\Avatar;
 
 use Newspack;
+use Newspack\Bylines;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -77,10 +78,25 @@ final class Avatar_Block {
 		$link_to_author = $attributes['linkToAuthorArchive'] ?? false;
 		$authors        = [];
 
-		if ( function_exists( 'get_coauthors' ) ) {
+		// 1. Check for custom byline first.
+		if ( class_exists( 'Newspack\Bylines' ) ) {
+			$byline_authors = Bylines::get_post_byline_authors( $post_id );
+			if ( ! empty( $byline_authors ) ) {
+				$authors = array_filter( $byline_authors ); // Remove any false values from missing users.
+			}
+		}
+
+		// 2. If no custom byline authors, check for CoAuthors Plus.
+		if ( empty( $authors ) && function_exists( 'get_coauthors' ) ) {
 			$authors = get_coauthors( $post_id );
-		} else {
-			$authors[] = get_userdata( get_post_field( 'post_author', $post_id ) );
+		}
+
+		// 3. Fallback to default WordPress author.
+		if ( empty( $authors ) ) {
+			$default_author = get_userdata( get_post_field( 'post_author', $post_id ) );
+			if ( $default_author ) {
+				$authors[] = $default_author;
+			}
 		}
 
 		$wrapper_attributes = get_block_wrapper_attributes( [ 'style' => '--avatar-size: ' . esc_attr( $image_size ) . 'px;' ] );

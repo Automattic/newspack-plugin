@@ -47,10 +47,16 @@ const AvatarInspectorControls = ( { setAttributes, attributes } ) => (
 
 const AvatarWrapper = ( { avatar, size, attributes } ) => {
 	const { className } = useBlockProps();
+	const borderProps = useBorderProps( attributes );
+
+	// Guard against undefined src. This can happen when CAP guest authors don't have WP user data.
+	if ( ! avatar?.src ) {
+		return null;
+	}
+
 	const duotoneClassName = className ? className.split( ' ' ).filter( classes => classes.includes( 'wp-duotone' ) ) : '';
 	const classNames = clsx( 'newspack-avatar-wrapper', duotoneClassName );
-	const borderProps = useBorderProps( attributes );
-	const doubledSizedSrc = addQueryArgs( removeQueryArgs( avatar?.src, [ 's' ] ), {
+	const doubledSizedSrc = addQueryArgs( removeQueryArgs( avatar.src, [ 's' ] ), {
 		s: attributes?.size * 2,
 	} );
 	const avatarImage = (
