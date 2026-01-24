@@ -60,8 +60,7 @@ if ( ! empty( $actions['change_payment_method']['name'] ) ) {
 			<?php
 		endif;
 	}
-	if ( ! empty( $actions ) ) :
-		?>
+	?>
 	<div class="newspack-my-account__subscription--actions">
 		<?php
 		$items = $subscription->get_items();
@@ -123,7 +122,12 @@ if ( ! empty( $actions['change_payment_method']['name'] ) ) {
 			<?php \WC_Subscriptions_Switcher::print_switch_link( $item->get_id(), $item, $subscription ); ?>
 			<?php
 		}
+		$parent_order = array_values( $subscription->get_related_orders( 'all', 'parent' ) );
+		if ( ! $subscription->has_status( 'active' ) && ! empty( $parent_order ) ) {
+			\woocommerce_order_again_button( $parent_order[0] );
+		}
 		?>
+		<?php if ( ! empty( $actions ) ) : ?>
 		<div class="newspack-ui__dropdown newspack-my-account__subscription--actions-dropdown">
 			<button class="newspack-ui__button newspack-ui__button--secondary newspack-ui__button--small newspack-ui__dropdown__toggle">
 				<span><?php _e( 'More', 'newspack-plugin' ); ?></span>
@@ -163,7 +167,7 @@ if ( ! empty( $actions['change_payment_method']['name'] ) ) {
 				</ul>
 			</div>
 		</div>
-		<?php \do_action( 'newspack_woocommerce_after_subscription_actions', $subscription, $actions ); ?>
+			<?php \do_action( 'newspack_woocommerce_after_subscription_actions', $subscription, $actions ); ?>
 	</div>
 	<?php endif; ?>
 </header>
