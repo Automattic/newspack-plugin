@@ -78,7 +78,7 @@ class Tag_Labels {
 			return null;
 		}
 
-		$post_id = ( is_a( 'WP_POST', $post ) ? $post->ID : (int) $post );
+		$post_id = ( is_a( $post, 'WP_Post' ) ? $post->ID : (int) $post );
 		$post_terms = get_the_terms( $post_id, 'post_tag' );
 
 		if ( ! $post_terms ) {
