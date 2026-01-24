@@ -105,8 +105,8 @@ class Tag_Labels {
 		add_action( 'post_tag_add_form_fields', [ __CLASS__, 'add_term' ] );
 		add_action( 'post_tag_edit_form_fields', [ __CLASS__, 'edit_term' ] );
 
-		add_action( 'created_post_tag', [ __CLASS__, 'save_new_term' ] );
-		add_action( 'edited_post_tag', [ __CLASS__, 'save_existing_term' ] );
+		add_action( 'created_post_tag', [ __CLASS__, 'save_term' ] );
+		add_action( 'edited_post_tag', [ __CLASS__, 'save_term' ] );
 	}
 
 	/**
@@ -218,7 +218,7 @@ class Tag_Labels {
 		<?php
 	}
 
-	// phpcs:disable WordPress.Security.NonceVerification.Missing -- nonce verified in accessors
+	// phpcs:disable WordPress.Security.NonceVerification.Missing -- nonce verified upstream
 	/**
 	 * Store custom term meta on save.
 	 *
@@ -242,37 +242,6 @@ class Tag_Labels {
 		}
 	}
 	// phpcs:enable WordPress.Security.NonceVerification.Missing
-
-	/**
-	 * Save label settings for new term.
-	 *
-	 * @param int $term_id Term ID.
-	 */
-	public static function save_new_term( $term_id ) {
-
-		check_admin_referer( 'add-tag', '_wpnonce_add-tag' );
-		if ( ! current_user_can( 'edit_term', $term_id ) ) {
-			return;
-		}
-
-			self::save_term( $term_id );
-	}
-
-	/**
-	 * Save label settings for existing term.
-	 *
-	 * @param int $term_id Term ID.
-	 */
-	public static function save_existing_term( $term_id ) {
-
-		// See wp-admin/edit-tag-form.php for this nonce.
-		check_admin_referer( 'update-tag_' . $term_id );
-		if ( ! current_user_can( 'edit_term', $term_id ) ) {
-			return;
-		}
-
-		self::save_term( $term_id );
-	}
 }
 
 Tag_Labels::init();
