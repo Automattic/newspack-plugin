@@ -1,3 +1,10 @@
+## [6.29.2](https://github.com/Automattic/newspack-plugin/compare/v6.29.1...v6.29.2) (2026-01-22)
+
+
+### Bug Fixes
+
+* lite site updates ([#4417](https://github.com/Automattic/newspack-plugin/issues/4417)) ([b65e7bc](https://github.com/Automattic/newspack-plugin/commit/b65e7bc88d97ead83718e13ba68dfdaabcbfa5ea))
+
 ## [6.29.1](https://github.com/Automattic/newspack-plugin/compare/v6.29.0...v6.29.1) (2026-01-22)
 
 
