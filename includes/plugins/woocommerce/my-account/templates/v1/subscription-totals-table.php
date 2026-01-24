@@ -23,14 +23,14 @@ $items = $subscription->get_items();
 			<th class="product-name"><?php echo esc_html_x( 'Amount', 'table headings in notification email', 'newspack-plugin' ); ?></th>
 			<th class="product-total">
 				<?php
-				if ( 1 === count( $totals ) && isset( $totals['order_total']['value'] ) ) {
+				if ( 2 >= count( $totals ) && isset( $totals['order_total']['value'] ) ) {
 					echo wp_kses_post( $totals['order_total']['value'] );
 				}
 				?>
 			</th>
 		</tr>
 	</thead>
-	<?php if ( 1 < count( $totals ) ) : ?>
+	<?php if ( 2 < count( $totals ) ) : ?>
 	<tfoot>
 		<?php
 		foreach ( $totals as $key => $total ) :

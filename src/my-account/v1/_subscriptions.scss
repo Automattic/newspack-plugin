@@ -56,6 +56,11 @@
 				display: none;
 			}
 		}
+		&--title {
+			.newspack-my-account__subscription--status-label {
+				margin-left: 4px;
+			}
+		}
 		&--back-link.newspack-ui__button.newspack-ui__button--ghost {
 			padding-left: 0;
 			padding-right: 0;

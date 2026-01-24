@@ -40,13 +40,19 @@ if ( ! empty( $actions['change_payment_method']['name'] ) ) {
 		$product   = \wc_get_product( $product_id );
 		$is_single = 1 === count( \wcs_get_users_subscriptions() ) && \apply_filters( 'wcs_my_account_redirect_to_single_subscription', true );
 		if ( $product ) :
+			$status = $subscription->get_status(); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 			?>
-		<h2 class="newspack-ui__font--m">
+		<h2 class="newspack-ui__font--m newspack-my-account__subscription--title">
 			<?php if ( ! $is_single ) : ?>
 				<a href="<?php echo esc_url( \wc_get_account_endpoint_url( 'subscriptions' ) ); ?>" class="newspack-my-account__subscription--back-link newspack-ui__button newspack-ui__button--ghost" title="<?php esc_attr_e( 'All subscriptions', 'newspack-plugin' ); ?>">
 				<?php Newspack_UI_Icons::print_svg( 'chevronLeft' ); ?>
 			<?php endif; ?>
 			<?php echo \esc_html( $product->get_name() ); ?>
+			<?php if ( ! $subscription->has_status( 'active' ) ) : ?>
+				<span class="newspack-my-account__subscription--status-label newspack-ui__badge newspack-ui__badge--secondary">
+					<?php echo esc_html( \wcs_get_subscription_status_name( $status ) ); ?>
+				</span>
+			<?php endif; ?>
 			<?php if ( ! $is_single ) : ?>
 				</a>
 			<?php endif; ?>
