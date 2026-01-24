@@ -224,7 +224,7 @@ class Tag_Labels {
 	 *
 	 * @param int $term_id Term ID.
 	 */
-	private static function save_term( $term_id ) {
+	public static function save_term( $term_id ) {
 
 		// Save label data if label is enabled; otherwise kill it.
 		if ( ! empty( $_POST[ self::TAG_LABEL_META_KEY ] ) ) {
