@@ -61,8 +61,8 @@ export function useUserAvatar( { postId, postType } ) {
 /**
  * Hook to get post authors with avatar data.
  *
- * Checks for custom byline first. If active, only returns authors from the byline.
- * Otherwise, uses the shared useCoAuthors hook for CAP integration.
+ * Checks for custom byline first. If active and has author shortcodes, returns only
+ * those authors. Otherwise, falls back to CAP authors.
  *
  * @param {Object} props          Hook props.
  * @param {number} props.postId   Post ID to get authors for.
@@ -73,24 +73,22 @@ export function usePostAuthors( { postId, postType = 'post' } ) {
 	const { bylineActive, bylineContent } = useCustomByline( postId, postType );
 	const { authors: coAuthors } = useCoAuthors( postId, postType );
 
-	// Determine which author IDs to use.
-	const isCustomByline = bylineActive && bylineContent;
-	const bylineAuthorIds = useMemo( () => ( isCustomByline ? extractAuthorIdsFromByline( bylineContent ) : [] ), [ isCustomByline, bylineContent ] );
+	// Extract author IDs from custom byline content.
+	const bylineAuthorIds = useMemo(
+		() => ( bylineActive && bylineContent ? extractAuthorIdsFromByline( bylineContent ) : [] ),
+		[ bylineActive, bylineContent ]
+	);
+
+	// Use custom byline authors if available, otherwise fall back to CAP authors.
+	const hasCustomBylineAuthors = bylineAuthorIds.length > 0;
 
 	// Get avatar URLs for authors from the core store.
 	const authorsWithAvatars = useSelect(
 		select => {
-			// Early return if no authors to process.
-			const noBylineAuthors = isCustomByline && bylineAuthorIds.length === 0;
-			const noCapAuthors = ! isCustomByline && ( ! coAuthors || coAuthors.length === 0 );
-			if ( noBylineAuthors || noCapAuthors ) {
-				return [];
-			}
-
 			const { getUser } = select( coreStore );
 
-			// If custom byline is active, use authors from the byline only.
-			if ( isCustomByline ) {
+			// If custom byline has author shortcodes, use those authors only.
+			if ( hasCustomBylineAuthors ) {
 				return bylineAuthorIds.map( authorId => {
 					const userData = getUser( authorId );
 					return {
@@ -102,20 +100,24 @@ export function usePostAuthors( { postId, postType = 'post' } ) {
 				} );
 			}
 
-			// Otherwise, use CAP authors.
-			return coAuthors.map( author => {
-				const userData = author.id ? getUser( author.id ) : null;
-				return {
-					id: author.id,
-					name: author.display_name,
-					display_name: author.display_name,
-					user_nicename: author.user_nicename,
-					author_link: author.author_link,
-					avatar_urls: userData?.avatar_urls || null,
-				};
-			} );
+			// Fall back to CAP authors.
+			if ( coAuthors && coAuthors.length > 0 ) {
+				return coAuthors.map( author => {
+					const userData = author.id ? getUser( author.id ) : null;
+					return {
+						id: author.id,
+						name: author.display_name,
+						display_name: author.display_name,
+						user_nicename: author.user_nicename,
+						author_link: author.author_link,
+						avatar_urls: userData?.avatar_urls || null,
+					};
+				} );
+			}
+
+			return [];
 		},
-		[ isCustomByline, bylineAuthorIds, coAuthors ]
+		[ hasCustomBylineAuthors, bylineAuthorIds, coAuthors ]
 	);
 
 	return authorsWithAvatars;
