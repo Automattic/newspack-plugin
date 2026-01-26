@@ -165,7 +165,7 @@ class Content_Gate {
 
 		$content = self::get_restricted_post_excerpt( $post );
 
-		$post->post_content   = $content . self::get_inline_gate_content();
+		$post->post_content   = $content . self::get_inline_gate_html();
 		$post->post_excerpt   = $content;
 		$post->comment_status = 'closed';
 		$post->comment_count  = 0;
