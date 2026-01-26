@@ -167,9 +167,9 @@ if ( ! empty( $actions['change_payment_method']['name'] ) ) {
 				</ul>
 			</div>
 		</div>
-			<?php \do_action( 'newspack_woocommerce_after_subscription_actions', $subscription, $actions ); ?>
+		<?php endif; ?>
+		<?php \do_action( 'newspack_woocommerce_after_subscription_actions', $subscription, $actions ); ?>
 	</div>
-	<?php endif; ?>
 </header>
 <?php
 \do_action( 'newspack_woocommerce_after_subscription_header', $subscription, $actions );
