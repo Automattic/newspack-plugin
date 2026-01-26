@@ -55,10 +55,17 @@ domReady( () => {
 	 */
 	const orderAgain = document.querySelectorAll( 'p.order-again a' );
 	orderAgain.forEach( button => {
-		registerModalCheckoutButton( button, null, 'order_again', data => {
-			// Track the reorder.
-			window.newspackRAS.push( [ 'product_reordered', { order_id: data.order_id, product_id: data.product_id } ] );
-		} );
+		registerModalCheckoutButton(
+			button,
+			null,
+			'order_again',
+			data => {
+				// Track the reorder.
+				window.newspackRAS.push( [ 'product_reordered', { order_id: data.order_id, product_id: data.product_id } ] );
+			},
+			null,
+			false
+		);
 	} );
 
 	/**
