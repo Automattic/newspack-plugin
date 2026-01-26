@@ -36,7 +36,6 @@ defined( 'ABSPATH' ) || exit;
 			continue;
 		}
 
-		$item_count = $order->get_item_count();
 		$order_date = $order->get_date_created();
 
 		?>
