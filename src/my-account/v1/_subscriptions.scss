@@ -36,12 +36,18 @@
 			font-weight: 700;
 		}
 	}
-	table#woocommerce-subscriptions-related-orders-table {
-		table-layout: auto;
-		td {
-			width: calc( 25% - 12px );
-			&.woocommerce-orders-table__cell-order-actions {
-				width: 48px;
+	table#woocommerce-subscriptions-related-orders-table,
+	table.woocommerce-orders-table--subscriptions {
+		td.woocommerce-orders-table__cell-order-actions {
+			text-align: right !important;
+		}
+		@media ( min-width: 768px ) {
+			table-layout: auto;
+			td {
+				width: calc( 25% - 12px );
+				&.woocommerce-orders-table__cell-order-actions {
+					width: 48px;
+				}
 			}
 		}
 	}
@@ -99,6 +105,22 @@
 				@media ( min-width: 768px ) {
 					display: none;
 				}
+			}
+		}
+		&--order-status-label {
+			margin-right: 4px;
+			&.completed,
+			&.refunded {
+				color: var(--newspack-ui-color-success-50);
+			}
+			&.on-hold,
+			&.pending,
+			&.processing {
+				color: var(--newspack-ui-color-warning-50);
+			}
+			&.cancelled,
+			&.failed {
+				color: var(--newspack-ui-color-error-50);
 			}
 		}
 	}

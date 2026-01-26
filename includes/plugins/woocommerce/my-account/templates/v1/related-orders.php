@@ -54,6 +54,9 @@ defined( 'ABSPATH' ) || exit;
 		<td class="order-status woocommerce-orders-table__cell woocommerce-orders-table__cell-order-status" data-title="<?php esc_attr_e( 'Status', 'newspack-plugin' ); ?>" style="white-space:nowrap;">
 			<?php
 			$order_status = $order->get_status();
+			?>
+			<span class="newspack-my-account__subscription--order-status-label <?php echo esc_attr( $order_status ); ?>">&#9679;</span>
+			<?php
 			if ( $order_status === 'completed' || $order_status === 'wc-completed' ) {
 				$order_status = __( 'Paid', 'newspack-plugin' );
 			}

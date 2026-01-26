@@ -1,6 +1,8 @@
 <?php
 /**
  * Custom subscription details table template.
+ * - Always show "next payment" date, even if it's empty.
+ * - Always show "payment method", even if no next payment date.
  *
  * @author   Newspack
  * @category WooCommerce Subscriptions/Templates
@@ -30,10 +32,10 @@ defined( 'ABSPATH' ) || exit;
 		foreach ( $dates_to_display as $date_type => $date_title ) :
 			?>
 			<?php $date = $subscription->get_date( $date_type ); ?>
-			<?php if ( ! empty( $date ) ) : ?>
+			<?php if ( ! empty( $date ) || $date_type === 'next_payment' ) : ?>
 				<tr>
 					<td><?php echo esc_html( $date_title ); ?></td>
-					<td><?php echo esc_html( $subscription->get_date_to_display( $date_type ) ); ?></td>
+					<td><?php echo esc_html( empty( $date ) ? '—' : $subscription->get_date_to_display( $date_type ) ); ?></td>
 				</tr>
 			<?php endif; ?>
 		<?php endforeach; ?>
@@ -68,14 +70,12 @@ defined( 'ABSPATH' ) || exit;
 			</tr>
 		<?php endif; ?>
 		<?php do_action( 'wcs_subscription_details_table_before_payment_method', $subscription ); ?>
-		<?php if ( $subscription->get_time( 'next_payment' ) > 0 ) : ?>
-			<tr>
-				<td><?php esc_html_e( 'Payment method', 'newspack-plugin' ); ?></td>
-				<td>
-					<span data-is_manual="<?php echo esc_attr( wc_bool_to_string( $subscription->is_manual() ) ); ?>" class="subscription-payment-method"><?php echo esc_html( $subscription->get_payment_method_to_display( 'customer' ) ); ?></span>
-				</td>
-			</tr>
-		<?php endif; ?>
+		<tr>
+			<td><?php esc_html_e( 'Payment method', 'newspack-plugin' ); ?></td>
+			<td>
+				<span data-is_manual="<?php echo esc_attr( wc_bool_to_string( $subscription->is_manual() ) ); ?>" class="subscription-payment-method"><?php echo esc_html( $subscription->get_payment_method_to_display( 'customer' ) ); ?></span>
+			</td>
+		</tr>
 		<?php do_action( 'woocommerce_subscription_before_actions', $subscription ); ?>
 		<?php // Action buttons moved to Newspack's subscription-header.php template. ?>
 		<?php do_action( 'woocommerce_subscription_after_actions', $subscription ); ?>

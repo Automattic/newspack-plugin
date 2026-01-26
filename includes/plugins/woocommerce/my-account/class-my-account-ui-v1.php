@@ -178,6 +178,10 @@ class My_Account_UI_V1 {
 				return __DIR__ . '/templates/v1/subscription-totals-table.php';
 			case 'myaccount/related-orders.php':
 				return __DIR__ . '/templates/v1/related-orders.php';
+			case 'myaccount/related-subscriptions.php':
+				return __DIR__ . '/templates/v1/related-subscriptions.php';
+			case 'order/order-again.php':
+				return __DIR__ . '/templates/v1/order-again.php';
 			default:
 				return $template;
 		}
