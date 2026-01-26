@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - trunk
-      - chore/deprecate-circle-ci
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
