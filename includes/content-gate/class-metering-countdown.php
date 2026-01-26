@@ -138,6 +138,9 @@ class Metering_Countdown {
 		}
 		// Only when singular and if enabled in the settings.
 		self::$is_enabled = ! is_admin() && is_singular() && self::get_settings( 'enabled' );
+		if ( false === self::$is_enabled ) {
+			return self::$is_enabled;
+		}
 
 		// In customizer preview.
 		if ( self::$is_enabled && is_customize_preview() ) {
