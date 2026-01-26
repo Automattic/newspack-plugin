@@ -141,7 +141,6 @@ class Metering_Countdown {
 
 		// In customizer preview.
 		if ( self::$is_enabled && is_customize_preview() ) {
-			self::$is_enabled = true;
 			return self::$is_enabled;
 		}
 
