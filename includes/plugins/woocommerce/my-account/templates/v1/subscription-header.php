@@ -123,7 +123,7 @@ if ( ! empty( $actions['change_payment_method']['name'] ) ) {
 			<?php
 		}
 		$parent_order = array_values( $subscription->get_related_orders( 'all', 'parent' ) );
-		if ( $subscription->has_status( [ 'cancelled', 'expired' ] ) && ! empty( $parent_order ) ) {
+		if ( $subscription->has_status( 'expired' ) && ! empty( $parent_order ) ) {
 			\woocommerce_order_again_button( $parent_order[0] );
 		}
 		?>

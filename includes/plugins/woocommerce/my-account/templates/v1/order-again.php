@@ -14,5 +14,5 @@ $button_text     = wcs_order_contains_subscription( $order, 'parent' ) ? __( 'Re
 ?>
 
 <p class="order-again">
-	<a href="<?php echo esc_url( $order_again_url ); ?>" class="button<?php echo esc_attr( $wp_button_class ); ?>"><?php echo esc_html( $button_text ); ?></a>
+	<a href="<?php echo esc_url( $order_again_url ); ?>" class="button <?php echo esc_attr( $wp_button_class ); ?>"><?php echo esc_html( $button_text ); ?></a>
 </p>
