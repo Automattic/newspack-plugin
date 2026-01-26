@@ -56,7 +56,7 @@ defined( 'ABSPATH' ) || exit;
 			?>
 			<span class="newspack-my-account__subscription--order-status-label <?php echo esc_attr( $order_status ); ?>">&#9679;</span>
 			<?php
-			if ( $order_status === 'completed' || $order_status === 'wc-completed' ) {
+			if ( $order_status === 'completed' ) {
 				$order_status = __( 'Paid', 'newspack-plugin' );
 			}
 			echo esc_html( wc_get_order_status_name( $order_status ) );
