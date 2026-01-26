@@ -50,6 +50,6 @@
 		"tachyons": "^4.12.0"
 	},
 	"devDependencies": {
-		"newspack-scripts": "github:Automattic/newspack-scripts#1b654fae0446656ac8221ae7400a42bbd80b2140"
+		"newspack-scripts": "^5.8.0"
 	}
 }
