@@ -256,10 +256,15 @@ class Metering {
 	/**
 	 * Get the metering expiration time for the given date.
 	 *
+	 * @param string|null $period Metering period. Default is null, which will use the gate's metering period.
+	 *
 	 * @return int Timestamp of the expiration time.
 	 */
-	private static function get_expiration_time() {
-		$period = \get_post_meta( Content_Gate::get_gate_post_id(), 'metering_period', true );
+	private static function get_expiration_time( $period = null ) {
+		if ( ! $period ) {
+			$settings = self::get_metering_settings( Content_Gate::get_gate_post_id() );
+			$period = $settings['period'];
+		}
 		switch ( $period ) {
 			case 'day':
 				return strtotime( 'tomorrow' );
@@ -385,7 +390,7 @@ class Metering {
 
 		$user_expiration = isset( $user_metering_data['expiration'] ) ? $user_metering_data['expiration'] : 0;
 
-		$current_expiration = self::get_expiration_time();
+		$current_expiration = self::get_expiration_time( $settings['period'] );
 		if ( $user_expiration !== $current_expiration ) {
 			// Clear content if expired.
 			if ( $user_expiration < $current_expiration ) {
@@ -505,14 +510,15 @@ class Metering {
 	 * @return int|boolean Total number of metered views if metering is enabled, otherwise false.
 	 */
 	public static function get_total_metered_views( $is_logged_in = false ) {
-		$gate_post_id = Content_Gate::get_gate_post_id( get_the_ID() );
+		$gate_post_id = Content_Gate::get_gate_post_id();
 		if ( ! $gate_post_id ) {
 			return false;
 		}
+		$metering_settings = self::get_metering_settings( $gate_post_id );
 		if ( ! $is_logged_in ) {
-			return (int) \get_post_meta( $gate_post_id, 'metering_anonymous_count', true );
+			return $metering_settings['anonymous_count'];
 		}
-		return (int) \get_post_meta( $gate_post_id, 'metering_registered_count', true );
+		return $metering_settings['registered_count'];
 	}
 }
 Metering::init();
