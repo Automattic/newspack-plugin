@@ -207,7 +207,7 @@ class Metering_Countdown {
 		if ( $views === 0 || Metering::is_frontend_metering() ) {
 			$classes[] = 'newspack-countdown-banner__cta--hidden';
 		}
-		$metering_settings = Metering::get_registration_metering_settings( Content_Gate::get_gate_post_id() );
+		$metering_settings = Metering::get_anonymous_settings( Content_Gate::get_gate_post_id() );
 		$registered_count  = $metering_settings['count'];
 		?>
 		<div class="newspack-ui">
