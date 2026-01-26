@@ -11,4 +11,4 @@ concurrency:
 
 jobs:
   i18n:
-    uses: Automattic/newspack-scripts/.github/workflows/reusable-i18n.yml@refactor/deprecate-circle-ci
+    uses: Automattic/newspack-scripts/.github/workflows/reusable-i18n.yml@refactor/deprecate-circle-ci-v2
