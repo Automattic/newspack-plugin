@@ -18,8 +18,9 @@ jobs:
 
   release:
     needs: build
-    uses: Automattic/newspack-scripts/.github/workflows/reusable-release.yml@refactor/deprecate-circle-ci
+    uses: Automattic/newspack-scripts/.github/workflows/reusable-release.yml@1b654fae0446656ac8221ae7400a42bbd80b2140
     secrets:
+      GITHUB_REPOSITORY: ${{ github.repository }}
       NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
   post-release:
