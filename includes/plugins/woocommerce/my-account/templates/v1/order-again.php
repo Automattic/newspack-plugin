@@ -9,7 +9,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-$wp_button_class = 'newspack-ui__button newspack-ui__button--secondary newspack-ui__button newspack-ui__button--small';
+$wp_button_class = 'newspack-ui__button newspack-ui__button--secondary newspack-ui__button--small';
 $button_text     = wcs_order_contains_subscription( $order, 'parent' ) ? __( 'Renew subscription', 'newspack-plugin' ) : __( 'Order again', 'newspack-plugin' );
 ?>
 
