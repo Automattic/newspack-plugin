@@ -130,7 +130,7 @@ if ( ! empty( $actions['change_payment_method']['name'] ) ) {
 		<?php if ( ! empty( $actions ) ) : ?>
 		<div class="newspack-ui__dropdown newspack-my-account__subscription--actions-dropdown">
 			<button class="newspack-ui__button newspack-ui__button--secondary newspack-ui__button--small newspack-ui__dropdown__toggle">
-				<span><?php _e( 'More', 'newspack-plugin' ); ?></span>
+				<span><?php esc_html_e( 'More', 'newspack-plugin' ); ?></span>
 				<?php Newspack_UI_Icons::print_svg( 'more' ); ?>
 			</button>
 			<div class="newspack-ui__dropdown__content">
