@@ -53,7 +53,7 @@ defined( 'ABSPATH' ) || exit;
 							$toggle_label     = __( 'Enable auto renew', 'newspack-plugin' );
 							$toggle_classes[] = 'subscription-auto-renew-toggle--off';
 
-							if ( WCS_Staging::is_duplicate_site() ) {
+							if ( \WCS_Staging::is_duplicate_site() ) {
 								$toggle_classes[] = 'subscription-auto-renew-toggle--disabled';
 							}
 						} else {
@@ -62,7 +62,7 @@ defined( 'ABSPATH' ) || exit;
 						}
 						?>
 						<a href="#" class="<?php echo esc_attr( implode( ' ', $toggle_classes ) ); ?>" aria-label="<?php echo esc_attr( $toggle_label ); ?>"><i class="subscription-auto-renew-toggle__i" aria-hidden="true"></i></a>
-						<?php if ( WCS_Staging::is_duplicate_site() ) : ?>
+						<?php if ( \WCS_Staging::is_duplicate_site() ) : ?>
 								<small class="subscription-auto-renew-toggle-disabled-note"><?php echo esc_html__( 'Using the auto-renewal toggle is disabled while in staging mode.', 'newspack-plugin' ); ?></small>
 						<?php endif; ?>
 					</div>
