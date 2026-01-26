@@ -955,8 +955,8 @@ class My_Account_UI_V1 {
 	 * @return string The formatted payment method.
 	 */
 	public static function formatted_payment_method( $payment_method, $subscription ) {
-		// Strip "via" from the payment method.
-		$payment_method = str_replace( 'Via ', '', $payment_method );
+		// Strip "via" from the payment method (case-insensitive).
+		$payment_method = str_ireplace( 'via ', '', $payment_method );
 		return $payment_method;
 	}
 }
