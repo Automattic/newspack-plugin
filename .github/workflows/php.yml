@@ -16,7 +16,7 @@ concurrency:
 
 jobs:
   lint-php:
-    uses: Automattic/newspack-scripts/.github/workflows/reusable-lint-php.yml@refactor/deprecate-circle-ci-v2
+    uses: Automattic/newspack-scripts/.github/workflows/reusable-lint-php.yml@refactor/deprecate-circle-ci
 
   test-php:
-    uses: Automattic/newspack-scripts/.github/workflows/reusable-test-php.yml@refactor/deprecate-circle-ci-v2
+    uses: Automattic/newspack-scripts/.github/workflows/reusable-test-php.yml@refactor/deprecate-circle-ci
