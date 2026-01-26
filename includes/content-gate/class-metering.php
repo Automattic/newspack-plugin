@@ -226,7 +226,8 @@ class Metering {
 		if ( ! \is_singular() || ! Content_Gate::is_post_restricted() || ! self::is_frontend_metering() ) {
 			return;
 		}
-		$gate_post_id = Content_Gate::get_gate_post_id();
+		$gate_layout_id = Content_Gate::get_gate_layout_id();
+		$gate_post_id   = Content_Gate::get_gate_post_id();
 		$handle       = 'newspack-content-gate-metering';
 		\wp_enqueue_script(
 			$handle,
@@ -240,8 +241,8 @@ class Metering {
 			$handle,
 			'newspack_metering_settings',
 			[
-				'visible_paragraphs' => \get_post_meta( $gate_post_id, 'visible_paragraphs', true ),
-				'use_more_tag'       => \get_post_meta( $gate_post_id, 'use_more_tag', true ),
+				'visible_paragraphs' => \get_post_meta( $gate_layout_id, 'visible_paragraphs', true ),
+				'use_more_tag'       => \get_post_meta( $gate_layout_id, 'use_more_tag', true ),
 				'count'              => $settings['anonymous_count'],
 				'period'             => $settings['anonymous_period'],
 				'gate_id'            => $gate_post_id,

@@ -369,6 +369,25 @@ class Content_Gate {
 	}
 
 	/**
+	 * Get the gate layout ID for the post.
+	 *
+	 * @param int $post_id Post ID. If not given, uses the current post ID.
+	 *
+	 * @return int|false
+	 */
+	public static function get_gate_layout_id( $post_id = null ) {
+		$gate_layout_id = Memberships::is_active() ? Memberships::get_gate_post_id( $post_id ) : Content_Restriction_Control::get_gate_layout_id( $post_id );
+
+		/**
+		 * Filters the gate layout ID.
+		 *
+		 * @param int $gate_layout_id Gate layout ID.
+		 * @param int $post_id      Post ID.
+		 */
+		return apply_filters( 'newspack_content_gate_layout_id', $gate_layout_id, $post_id );
+	}
+
+	/**
 	 * Get gate metadata to be used for analytics purposes.
 	 *
 	 * @return array {
@@ -593,8 +612,7 @@ class Content_Gate {
 	 * Get the inline gate content.
 	 */
 	public static function get_inline_gate_content() {
-		$gate_post_id = self::get_gate_post_id();
-		return self::get_inline_gate_content_for_post( $gate_post_id );
+		return self::get_inline_gate_content_for_post( self::get_gate_layout_id() );
 	}
 
 	/**
@@ -615,9 +633,7 @@ class Content_Gate {
 	 */
 	public static function get_restricted_post_excerpt( $post ) {
 		self::$is_gated = true;
-
-		$gate_post_id = self::get_gate_post_id();
-		return self::get_restricted_post_excerpt_for_gate( $post, $gate_post_id );
+		return self::get_restricted_post_excerpt_for_gate( $post, self::get_gate_layout_id() );
 	}
 
 	/**
@@ -645,8 +661,8 @@ class Content_Gate {
 		if ( ! Metering::is_frontend_metering() && Metering::is_logged_in_metering_allowed() ) {
 			return;
 		}
-		$gate_post_id = self::get_gate_post_id();
-		$style        = \get_post_meta( $gate_post_id, 'style', true );
+		$gate_layout_id = self::get_gate_layout_id();
+		$style          = \get_post_meta( $gate_layout_id, 'style', true );
 		if ( 'overlay' !== $style ) {
 			return;
 		}
@@ -654,10 +670,10 @@ class Content_Gate {
 
 		global $post;
 		$_post = $post;
-		$post  = \get_post( $gate_post_id ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		$post  = \get_post( $gate_layout_id ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 		setup_postdata( $post );
 
-		self::render_overlay_gate_html( $gate_post_id );
+		self::render_overlay_gate_html( $gate_layout_id );
 
 		self::mark_gate_as_rendered();
 		wp_reset_postdata();

@@ -262,7 +262,13 @@ class Content_Restriction_Control {
 	 * @return int|false
 	 */
 	public static function get_gate_layout_id( $post_id = null ) {
-		if ( ! self::get_gate_post_id( $post_id ) ) {
+		if ( ! Content_Gate::is_newspack_feature_enabled() ) {
+			return false;
+		}
+		if ( is_singular() ) {
+			$post_id = $post_id ? $post_id : get_queried_object_id();
+		}
+		if ( ! $post_id ) {
 			return false;
 		}
 		if ( ! empty( self::$post_gate_layout_id_map[ $post_id ] ) ) {
