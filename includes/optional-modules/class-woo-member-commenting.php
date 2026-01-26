@@ -134,7 +134,7 @@ class Woo_Member_Commenting {
 				wc_memberships_get_user_memberships(
 					get_current_user_id(),
 					[
-						'status' => Memberships::$active_statuses,
+						'status' => [ 'active', 'complimentary', 'free_trial', 'pending' ],
 					]
 				),
 				fn( $membership ) => in_array( $membership->get_plan()->get_slug(), self::get_plan_slugs() )
