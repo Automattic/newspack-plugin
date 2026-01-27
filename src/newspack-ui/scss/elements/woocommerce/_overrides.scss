@@ -39,7 +39,8 @@
 	.newspack-wc-message,
 	.woocommerce-message,
 	.woocommerce-info,
-	.woocommerce-error {
+	.woocommerce-error,
+	.wc-block-components-notice-banner {
 		@extend .newspack-ui__notice;
 		display: block;
 		list-style: none;

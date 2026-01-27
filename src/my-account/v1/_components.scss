@@ -73,4 +73,30 @@
 			margin-top: var(--newspack-ui-spacer-4);
 		}
 	}
+
+	.woocommerce-notices-wrapper {
+		.wc-block-components-notice-banner {
+			&.is-info,
+			&.is-error,
+			&.is-success {
+				background: #fcf9e8;
+				border: none;
+				border-left: 3px solid #dba617;
+
+				> svg {
+					display: none;
+				}
+			}
+
+			&.is-error {
+				background: #fcf0f0;
+				border-left-color: #cc1818;
+			}
+
+			&.is-success {
+				background: #f0fcf4;
+				border-left-color: #00a32a;
+			}
+		}
+	}
 }
