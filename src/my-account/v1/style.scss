@@ -77,7 +77,11 @@
 	h4,
 	h5,
 	h6 {
-		margin: 1.25rem 0;
+		margin: 1rem 0;
+	}
+
+	h4 {
+		font-size: var(--newspack-ui-font-size-m);
 	}
 }
 
