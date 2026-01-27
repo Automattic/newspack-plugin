@@ -159,8 +159,7 @@ class Metering {
 	 * @return array Anonymous metering settings.
 	 */
 	public static function get_anonymous_settings( $gate_id ) {
-		$registration = Content_Gate::get_registration_settings( $gate_id );
-		if ( empty( $registration ) ) {
+		if ( Memberships::is_active() ) {
 			// Fetch from legacy metering settings.
 			$metering = self::get_legacy_metering_settings( $gate_id );
 			return [
@@ -169,6 +168,8 @@ class Metering {
 				'period'  => $metering['period'],
 			];
 		}
+
+		$registration = Content_Gate::get_registration_settings( $gate_id );
 		return [
 			'enabled' => $registration['metering']['enabled'],
 			'count'   => absint( $registration['metering']['count'] ),
@@ -184,8 +185,7 @@ class Metering {
 	 * @return array Registered metering settings.
 	 */
 	public static function get_registered_settings( $gate_id ) {
-		$custom_access = Content_Gate::get_custom_access_settings( $gate_id );
-		if ( empty( $custom_access ) ) {
+		if ( Memberships::is_active() ) {
 			// Fetch from legacy metering settings.
 			$metering = self::get_legacy_metering_settings( $gate_id );
 			return [
@@ -194,6 +194,8 @@ class Metering {
 				'period'  => $metering['period'],
 			];
 		}
+
+		$custom_access = Content_Gate::get_custom_access_settings( $gate_id );
 		return [
 			'enabled' => $custom_access['metering']['enabled'],
 			'count'   => absint( $custom_access['metering']['count'] ),
