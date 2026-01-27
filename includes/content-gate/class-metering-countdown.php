@@ -15,6 +15,13 @@ class Metering_Countdown {
 	const OPTION_PREFIX = 'np_countdown_banner_';
 
 	/**
+	 * Whether the countdown banner is enabled.
+	 *
+	 * @var bool
+	 */
+	private static $is_enabled = null;
+
+	/**
 	 * Initialize hooks.
 	 */
 	public static function init() {
@@ -126,20 +133,27 @@ class Metering_Countdown {
 	 * @return bool
 	 */
 	public static function is_enabled() {
+		if ( is_bool( self::$is_enabled ) ) {
+			return self::$is_enabled;
+		}
 		// Only when singular and if enabled in the settings.
-		$enabled = ! is_admin() && is_singular() && self::get_settings( 'enabled' );
+		self::$is_enabled = ! is_admin() && is_singular() && self::get_settings( 'enabled' );
+		if ( false === self::$is_enabled ) {
+			return self::$is_enabled;
+		}
 
 		// In customizer preview.
-		if ( $enabled && is_customize_preview() ) {
-			return true;
+		if ( self::$is_enabled && is_customize_preview() ) {
+			return self::$is_enabled;
 		}
 
 		// In the frontend only when the post is metered.
 		if ( ! Metering::is_metering() || ! Content_Gate::is_post_restricted() ) {
-			return false;
+			self::$is_enabled = false;
+			return self::$is_enabled;
 		}
 
-		return $enabled;
+		return self::$is_enabled;
 	}
 
 	/**

@@ -44,6 +44,13 @@ class Content_Gate {
 	public static $valid_gate_post_statuses = [ 'publish', 'draft', 'pending', 'future', 'private', 'trash' ];
 
 	/**
+	 * Restricted content per post ID.
+	 *
+	 * @var string[]
+	 */
+	private static $restricted_content = [];
+
+	/**
 	 * Initialize hooks and filters.
 	 */
 	public static function init() {
@@ -56,6 +63,7 @@ class Content_Gate {
 		add_filter( 'newspack_reader_activity_article_view', [ __CLASS__, 'suppress_article_view_activity' ], 100 );
 
 		add_action( 'the_post', [ __CLASS__, 'restrict_post' ], 10, 2 );
+		add_filter( 'the_content', [ __CLASS__, 'handle_restricted_content' ], PHP_INT_MAX );
 
 		/** Add gate content filters to mimic 'the_content'. See 'wp-includes/default-filters.php' for reference. */
 		add_filter( 'newspack_gate_content', 'capital_P_dangit', 11 );
@@ -157,11 +165,28 @@ class Content_Gate {
 
 		$content = self::get_restricted_post_excerpt( $post );
 
-		$post->post_content   = $content . self::get_inline_gate_content();
+		$post->post_content   = $content . self::get_inline_gate_html();
 		$post->post_excerpt   = $content;
 		$post->comment_status = 'closed';
 		$post->comment_count  = 0;
+
+		self::$restricted_content[ $post->ID ] = $post->post_content;
+
 		self::mark_gate_as_rendered();
+	}
+
+	/**
+	 * Handle restricted post content filtering.
+	 *
+	 * @param string $content Content.
+	 *
+	 * @return string
+	 */
+	public static function handle_restricted_content( $content ) {
+		if ( ! isset( self::$restricted_content[ get_the_ID() ] ) ) {
+			return $content;
+		}
+		return self::$restricted_content[ get_the_ID() ];
 	}
 
 	/**

@@ -44,13 +44,14 @@ function handleClose() {
  * Must receive a link element with a `href` attribute that points to a cart
  * generation URL.
  *
- * @param {HTMLElement} element            The element to register.
- * @param {string}      title              The modal title.
- * @param {string}      actionType         The action type.
- * @param {Function}    onCheckoutComplete The function to call when the checkout is complete.
- * @param {Function}    onClose            The function to call when the modal is closed. Default is `handleClose`.
+ * @param {HTMLElement} element               The element to register.
+ * @param {string}      title                 The modal title.
+ * @param {string}      actionType            The action type.
+ * @param {Function}    onCheckoutComplete    The function to call when the checkout is complete.
+ * @param {Function}    onClose               The function to call when the modal is closed. Default is `handleClose`.
+ * @param {boolean}     redirectToResponseUrl Whether to redirect to the response URL. Default is `true`.
  */
-export function registerModalCheckoutButton( element, title, actionType, onCheckoutComplete, onClose ) {
+export function registerModalCheckoutButton( element, title, actionType, onCheckoutComplete, onClose, redirectToResponseUrl = true ) {
 	const spinner = document.createElement( 'div' );
 	spinner.classList.add( 'newspack-ui' );
 	spinner.innerHTML = '<div class="newspack-ui__spinner"><span></span></div>';
@@ -58,7 +59,7 @@ export function registerModalCheckoutButton( element, title, actionType, onCheck
 	const openCheckout = async url => {
 		const response = await fetch( url );
 		window.newspackOpenModalCheckout( {
-			url: response.url,
+			url: redirectToResponseUrl ? response.url : null,
 			title,
 			actionType,
 			onCheckoutComplete: data => {
