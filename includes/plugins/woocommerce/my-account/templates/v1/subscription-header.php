@@ -51,8 +51,18 @@ if ( ! empty( $actions['change_payment_method']['name'] ) ) {
 			<h2 class="newspack-ui__font--m">
 				<?php echo \esc_html( $product->get_name() ); ?>
 			</h2>
-			<?php if ( ! $subscription->has_status( 'active' ) ) : ?>
-				<span class="newspack-my-account__subscription--status-label newspack-ui__badge newspack-ui__badge--secondary">
+			<?php
+			if ( ! $subscription->has_status( 'active' ) ) :
+				$classes = [ 'newspack-ui__badge' ];
+				if ( $subscription->has_status( [ 'cancelled', 'expired' ] ) ) {
+					$classes[] = 'newspack-ui__badge--error';
+				} elseif ( $subscription->has_status( [ 'on-hold', 'pending', 'processing' ] ) ) {
+					$classes[] = 'newspack-ui__badge--warning';
+				} else {
+					$classes[] = 'newspack-ui__badge--secondary';
+				}
+				?>
+				<span class="<?php echo \esc_attr( implode( ' ', $classes ) ); ?>">
 					<?php echo esc_html( \wcs_get_subscription_status_name( $status ) ); ?>
 				</span>
 			<?php endif; ?>
