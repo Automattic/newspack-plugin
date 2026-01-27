@@ -14,14 +14,14 @@ use Newspack\Access_Rules;
  */
 class Content_Restriction_Control {
 	/**
-	 * Map of post IDs to gate layout IDs.
+	 * Map of post IDs to gate IDs.
 	 *
 	 * @var int[]
 	 */
 	private static $post_gate_id_map = [];
 
 	/**
-	 * Map of post IDs to gate IDs.
+	 * Map of post IDs to gate layout IDs.
 	 *
 	 * @var int[]
 	 */
