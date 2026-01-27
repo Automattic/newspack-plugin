@@ -225,7 +225,8 @@
 				color: var(--newspack-ui-color-neutral-0) !important;
 			}
 
-			&[class*="--ghost"] {
+			&[class*="--ghost"],
+			&[class*="--outline"] {
 				background: transparent;
 				color: var(--newspack-ui-color-error-50);
 
@@ -237,6 +238,14 @@
 				&:disabled {
 					background: transparent !important;
 					color: var(--newspack-ui-color-error-5) !important;
+				}
+			}
+			&[class*="--outline"] {
+				border-color: var(--newspack-ui-color-neutral-30);
+				&:hover {
+					background: transparent;
+					border-color: var(--newspack-ui-color-error-50);
+					color: var(--newspack-ui-color-error-60);
 				}
 			}
 		}

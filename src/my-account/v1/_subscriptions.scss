@@ -57,11 +57,12 @@
 			flex-direction: column;
 			gap: var(--newspack-ui-spacer-2);
 			justify-content: space-between;
-			margin-bottom: var(--newspack-ui-spacer-2);
+			margin-bottom: var(--newspack-ui-spacer-6);
 
 			@media ( min-width: 768px ) {
 				align-items: center;
 				flex-direction: row;
+				margin-bottom: var(--newspack-ui-spacer-8);
 			}
 
 			/* Hide the "Subscription totals" header. */
@@ -86,24 +87,31 @@
 				margin-left: calc(var(--newspack-ui-spacer-8) * -1 - var(--newspack-ui-spacer-base));
 			}
 		}
-		&--change-subscription-item,
-		&--change-subscription-dropdown {
-			@media ( max-width: 767px ) {
-				display: none;
-			}
-		}
 		&--actions {
 			display: flex;
 			column-gap: var(--newspack-ui-spacer-2);
-		}
-		&--actions-dropdown {
-			.newspack-my-account__subscription--change-subscription-item {
-				@media ( max-width: 767px ) {
-					display: inline-flex;
-				}
+			.newspack-ui__button {
+				width: 100%;
 				@media ( min-width: 768px ) {
+					width: auto;
+				}
+			}
+		}
+		&--actions-container .newspack-ui__button {
+			@media ( min-width: 768px ) {
+				font-size: var(--newspack-ui-font-size-xs);
+				line-height: var(--newspack-ui-line-height-xs);
+				min-height: var(--newspack-ui-spacer-8);
+				padding: var(--newspack-ui-spacer-base) var(--newspack-ui-spacer-3);
+				&.newspack-my-account__subscription--action-link {
 					display: none;
 				}
+			}
+		}
+		&--actions-dropdown {
+			display: none;
+			@media ( min-width: 768px ) {
+				display: block;
 			}
 		}
 		&--order-status-label {
