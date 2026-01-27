@@ -52,6 +52,24 @@
 			justify-content: flex-end;
 		}
 	}
+
+	table {
+		border-collapse: collapse;
+		width: 100%;
+
+		tr {
+			border-bottom: 1px solid #ddd;
+		}
+
+		th, td {
+			word-break: break-all;
+		}
+	}
+
+	a,
+	a:hover {
+		text-decoration: none;
+	}
 }
 
 /* stylelint-disable-next-line */
