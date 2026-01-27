@@ -53,38 +53,37 @@
 	}
 	.newspack-my-account__subscription {
 		&--header {
-			align-items: center;
 			display: flex;
+			flex-direction: column;
+			gap: var(--newspack-ui-spacer-2);
 			justify-content: space-between;
 			margin-bottom: var(--newspack-ui-spacer-2);
-			.newspack-ui__dropdown__toggle {
-				padding-right: var(--newspack-ui-spacer-base);
+
+			@media ( min-width: 768px ) {
+				align-items: center;
+				flex-direction: row;
 			}
+
 			/* Hide the "Subscription totals" header. */
 			& + h2 {
 				display: none;
 			}
 		}
 		&--title {
-			.newspack-my-account__subscription--status-label {
-				margin-left: 4px;
+			align-items: center;
+			display: flex;
+			gap: var(--newspack-ui-spacer-base);
+			flex-wrap: wrap;
+
+			h2 {
+				margin: 0;
 			}
 		}
-		&--back-link.newspack-ui__button.newspack-ui__button--ghost {
-			padding-left: 0;
-			padding-right: 0;
-			svg {
-				border-radius: var(--newspack-ui-border-radius-s);
-				transition: background-color 125ms ease-in-out;
-			}
-			&:hover {
-				background-color: transparent;
-				svg {
-					background-color: var(--newspack-ui-color-neutral-5);
-				}
-			}
+		&--back-link {
+			margin: 0;
+
 			@media ( min-width: 768px ) {
-				margin-left: -28px;
+				margin-left: calc(var(--newspack-ui-spacer-8) * -1 - var(--newspack-ui-spacer-base));
 			}
 		}
 		&--change-subscription-item,
@@ -108,19 +107,25 @@
 			}
 		}
 		&--order-status-label {
-			margin-right: 4px;
+			background: var(--newspack-ui-color-neutral-60);
+			border-radius: 100%;
+			display: inline-grid;
+			height: var(--newspack-ui-spacer-base);
+			margin-bottom: 1px;
+			margin-right: calc( var(--newspack-ui-spacer-base) - 0.25em);
+			width: var(--newspack-ui-spacer-base);
 			&.completed,
 			&.refunded {
-				color: var(--newspack-ui-color-success-50);
+				background: var(--newspack-ui-color-success-50);
 			}
 			&.on-hold,
 			&.pending,
 			&.processing {
-				color: var(--newspack-ui-color-warning-50);
+				background: var(--newspack-ui-color-warning-50);
 			}
 			&.cancelled,
 			&.failed {
-				color: var(--newspack-ui-color-error-50);
+				background: var(--newspack-ui-color-error-50);
 			}
 		}
 	}

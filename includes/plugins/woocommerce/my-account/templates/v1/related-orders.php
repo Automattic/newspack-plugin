@@ -54,7 +54,7 @@ defined( 'ABSPATH' ) || exit;
 			<?php
 			$order_status = $order->get_status();
 			?>
-			<span class="newspack-my-account__subscription--order-status-label <?php echo esc_attr( $order_status ); ?>">&#9679;</span>
+			<span class="newspack-my-account__subscription--order-status-label <?php echo esc_attr( $order_status ); ?>"></span>
 			<?php
 			if ( $order_status === 'completed' ) {
 				$order_status = __( 'Paid', 'newspack-plugin' );
@@ -100,9 +100,9 @@ defined( 'ABSPATH' ) || exit;
 			if ( $actions ) :
 				?>
 			<div class="newspack-ui__dropdown newspack-my-account__subscription--actions-dropdown">
-				<button class="newspack-ui__button newspack-ui__button--ghost newspack-ui__button--small newspack-ui__dropdown__toggle">
+				<button class="newspack-ui__button newspack-ui__button--ghost newspack-ui__button--small newspack-ui__dropdown__toggle newspack-ui__button--icon">
 					<?php Newspack_UI_Icons::print_svg( 'more' ); ?>
-					<span class="screen-reader-text"><?php esc_html_e( 'More', 'newspack-plugin' ); ?></span>
+					<span class="screen-reader-text"><?php \esc_html_e( 'More', 'newspack-plugin' ); ?></span>
 				</button>
 				<div class="newspack-ui__dropdown__content">
 					<ul>

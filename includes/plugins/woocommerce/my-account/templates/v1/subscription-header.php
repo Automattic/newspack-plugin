@@ -42,21 +42,21 @@ if ( ! empty( $actions['change_payment_method']['name'] ) ) {
 		if ( $product ) :
 			$status = $subscription->get_status(); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 			?>
-		<h2 class="newspack-ui__font--m newspack-my-account__subscription--title">
+		<div class="newspack-my-account__subscription--title">
 			<?php if ( ! $is_single ) : ?>
-				<a href="<?php echo esc_url( \wc_get_account_endpoint_url( 'subscriptions' ) ); ?>" class="newspack-my-account__subscription--back-link newspack-ui__button newspack-ui__button--ghost" title="<?php esc_attr_e( 'All subscriptions', 'newspack-plugin' ); ?>">
-				<?php Newspack_UI_Icons::print_svg( 'chevronLeft' ); ?>
+				<a href="<?php echo esc_url( \wc_get_account_endpoint_url( 'subscriptions' ) ); ?>" class="newspack-my-account__subscription--back-link newspack-ui__button newspack-ui__button--ghost newspack-ui__button--icon newspack-ui__button--small" title="<?php esc_attr_e( 'Back to all subscriptions', 'newspack-plugin' ); ?>">
+					<?php Newspack_UI_Icons::print_svg( 'chevronLeft' ); ?>
+				</a>
 			<?php endif; ?>
-			<?php echo \esc_html( $product->get_name() ); ?>
+			<h2 class="newspack-ui__font--m">
+				<?php echo \esc_html( $product->get_name() ); ?>
+			</h2>
 			<?php if ( ! $subscription->has_status( 'active' ) ) : ?>
 				<span class="newspack-my-account__subscription--status-label newspack-ui__badge newspack-ui__badge--secondary">
 					<?php echo esc_html( \wcs_get_subscription_status_name( $status ) ); ?>
 				</span>
 			<?php endif; ?>
-			<?php if ( ! $is_single ) : ?>
-				</a>
-			<?php endif; ?>
-		</h2>
+		</div>
 			<?php
 		endif;
 	}
@@ -130,7 +130,7 @@ if ( ! empty( $actions['change_payment_method']['name'] ) ) {
 		<?php if ( ! empty( $actions ) ) : ?>
 		<div class="newspack-ui__dropdown newspack-my-account__subscription--actions-dropdown">
 			<button class="newspack-ui__button newspack-ui__button--secondary newspack-ui__button--small newspack-ui__dropdown__toggle">
-				<span><?php esc_html_e( 'More', 'newspack-plugin' ); ?></span>
+				<span><?php \esc_html_e( 'More', 'newspack-plugin' ); ?></span>
 				<?php Newspack_UI_Icons::print_svg( 'more' ); ?>
 			</button>
 			<div class="newspack-ui__dropdown__content">
