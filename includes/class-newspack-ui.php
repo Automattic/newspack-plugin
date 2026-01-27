@@ -518,8 +518,10 @@ class Newspack_UI {
 				</div>
 			</div>
 			<button id="show-snackbar-example" class="newspack-ui__button newspack-ui__button--primary">Show snackbar</button>
-			<div id="snackbar-example" class="newspack-ui__snackbar newspack-ui__snackbar--top-right newspack-ui__snackbar--success">
-				This is a snackbar message
+			<div class="newspack-ui__snackbar newspack-ui__snackbar--top-right">
+				<div id="snackbar-example" class="newspack-ui__snackbar__item newspack-ui__snackbar__item--success">
+					<div class="newspack-ui__snackbar__content">This is a snackbar message</div>
+				</div>
 			</div>
 			<script>
 				( function() {
