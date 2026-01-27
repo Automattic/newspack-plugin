@@ -428,7 +428,7 @@ class Newspack_UI {
 				<div class="newspack-ui__dropdown">
 					<button class="newspack-ui__dropdown__toggle newspack-ui__button newspack-ui__button--icon newspack-ui__button--ghost">
 						<?php Newspack_UI_Icons::print_svg( 'more' ); ?>
-						<span class="screen-reader-text">More</span>
+						<span class="screen-reader-text"><?php esc_html_e( 'More', 'newspack-plugin' ); ?></span>
 					</button>
 					<div class="newspack-ui__dropdown__content">
 						<ul>
@@ -448,7 +448,7 @@ class Newspack_UI {
 					<div class="newspack-ui__dropdown">
 						<button class="newspack-ui__dropdown__toggle newspack-ui__button newspack-ui__button--icon newspack-ui__button--ghost">
 							<?php Newspack_UI_Icons::print_svg( 'more' ); ?>
-							<span class="screen-reader-text">More</span>
+							<span class="screen-reader-text"><?php esc_html_e( 'More', 'newspack-plugin' ); ?></span>
 						</button>
 						<div class="newspack-ui__dropdown__content">
 							<ul>
@@ -761,7 +761,7 @@ class Newspack_UI {
 			<h3>Dropdown buttons</h3>
 			<div class="newspack-ui__dropdown">
 				<button class="newspack-ui__button newspack-ui__button--secondary newspack-ui__dropdown__toggle">
-					<span>More</span>
+					<span><?php esc_html_e( 'More', 'newspack-plugin' ); ?></span>
 					<?php Newspack_UI_Icons::print_svg( 'more' ); ?>
 				</button>
 				<div class="newspack-ui__dropdown__content">
