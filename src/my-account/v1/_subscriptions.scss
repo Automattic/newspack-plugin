@@ -58,11 +58,16 @@
 			gap: var(--newspack-ui-spacer-2);
 			justify-content: space-between;
 			margin-bottom: var(--newspack-ui-spacer-6);
-
 			@media ( min-width: 768px ) {
 				align-items: center;
 				flex-direction: row;
 				margin-bottom: var(--newspack-ui-spacer-8);
+			}
+			.newspack-my-account__subscription--actions-dropdown {
+				display: none;
+				@media ( min-width: 768px ) {
+					display: block;
+				}
 			}
 
 			/* Hide the "Subscription totals" header. */
@@ -97,21 +102,18 @@
 				}
 			}
 		}
-		&--actions-container .newspack-ui__button {
+		&--actions-container {
+			width: 100%;
+			.newspack-ui__button {
 			@media ( min-width: 768px ) {
-				font-size: var(--newspack-ui-font-size-xs);
-				line-height: var(--newspack-ui-line-height-xs);
-				min-height: var(--newspack-ui-spacer-8);
-				padding: var(--newspack-ui-spacer-base) var(--newspack-ui-spacer-3);
-				&.newspack-my-account__subscription--action-link {
-					display: none;
+					font-size: var(--newspack-ui-font-size-xs);
+					line-height: var(--newspack-ui-line-height-xs);
+					min-height: var(--newspack-ui-spacer-8);
+					padding: var(--newspack-ui-spacer-base) var(--newspack-ui-spacer-3);
+					&.newspack-my-account__subscription--action-link {
+						display: none;
+					}
 				}
-			}
-		}
-		&--actions-dropdown {
-			display: none;
-			@media ( min-width: 768px ) {
-				display: block;
 			}
 		}
 		&--order-status-label {

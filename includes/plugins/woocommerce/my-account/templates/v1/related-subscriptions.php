@@ -47,7 +47,7 @@ defined( 'ABSPATH' ) || exit;
 					<?php echo wp_kses_post( $subscription->get_formatted_order_total() ); ?>
 				</td>
 				<td class="subscription-actions order-actions woocommerce-orders-table__cell woocommerce-orders-table__cell-subscription-actions woocommerce-orders-table__cell-order-actions">
-					<div class="newspack-ui__dropdown newspack-my-account__subscription--actions-dropdown">
+					<div class="newspack-ui__dropdown">
 						<button class="newspack-ui__button newspack-ui__button--ghost newspack-ui__button--small newspack-ui__dropdown__toggle newspack-ui__button--icon">
 							<?php Newspack_UI_Icons::print_svg( 'more' ); ?>
 							<span class="screen-reader-text"><?php \esc_html_e( 'More', 'newspack-plugin' ); ?></span>
