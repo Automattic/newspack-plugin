@@ -120,4 +120,32 @@ class Newspack_Test_My_Account_Button_Block extends WP_UnitTestCase {
 
 		$this->assertSame( '', trim( $signed_in_output ) );
 	}
+
+	/**
+	 * Test for the My Account URL, and don't render the button for logged-in readers if the link does not exist.
+	 */
+	public function test_render_block_signed_in_without_account_url() {
+		self::$reader_activation_enabled = true;
+
+		$user_id = self::factory()->user->create(
+			[
+				'role' => 'subscriber',
+			]
+		);
+		wp_set_current_user( $user_id );
+
+		add_filter(
+			'newspack_test_wc_account_url',
+			static function () {
+				return '';
+			},
+			10,
+			2
+		);
+
+		$output = do_blocks( '<!-- wp:newspack/my-account-button /-->' );
+		$this->assertSame( '', trim( $output ) );
+
+		remove_all_filters( 'newspack_test_wc_account_url' );
+	}
 }

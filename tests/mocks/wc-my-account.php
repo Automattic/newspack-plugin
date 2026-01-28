@@ -14,6 +14,7 @@ if ( ! function_exists( 'wc_get_account_endpoint_url' ) ) {
 	 * @return string
 	 */
 	function wc_get_account_endpoint_url( $endpoint ) {
-		return 'https://example.com/my-account';
+		$default_url = 'https://example.com/my-account';
+		return apply_filters( 'newspack_test_wc_account_url', $default_url, $endpoint );
 	}
 }
