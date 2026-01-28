@@ -29,7 +29,7 @@ class Memberships {
 	 *
 	 * @var array
 	 */
-	public static $active_statuses = [ 'active', 'complimentary', 'free-trial', 'pending' ];
+	public static $active_statuses = [ 'active', 'complimentary', 'free_trial', 'pending' ];
 
 	/**
 	 * Initialize hooks and filters.
