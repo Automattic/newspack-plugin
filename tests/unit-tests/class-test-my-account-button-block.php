@@ -72,4 +72,26 @@ class Newspack_Test_My_Account_Button_Block extends WP_UnitTestCase {
 		$this->assertStringContainsString( 'href="#"', $output );
 		$this->assertStringContainsString( '&quot;signedout&quot;:&quot;Sign in&quot;', $output );
 	}
+
+	/**
+	 * Test that My Account button links to /my-account and doesn't trigger the modal when the reader is signed in..
+	 */
+	public function test_render_block_signed_in() {
+		self::$reader_activation_enabled = true;
+
+		$user_id = self::factory()->user->create(
+			[
+				'role' => 'subscriber',
+			]
+		);
+		wp_set_current_user( $user_id );
+
+		$output = do_blocks(
+			'<!-- wp:newspack/my-account-button {"signedInLabel":"My Account","signedOutLabel":"Sign in"} /-->'
+		);
+
+		$this->assertNotEmpty( $output );
+		$this->assertStringContainsString( 'href="https://example.com/my-account"', $output );
+		$this->assertStringNotContainsString( 'data-newspack-reader-account-link', $output );
+	}
 }
