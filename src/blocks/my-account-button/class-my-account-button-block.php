@@ -125,6 +125,7 @@ final class My_Account_Button_Block {
 		$extra_classes = [
 			'wp-element-button',
 			'wp-block-button__link',
+			'newspack-reader__account-link',
 		];
 
 		/** Get default wrapper attributes to extract custom classes */
