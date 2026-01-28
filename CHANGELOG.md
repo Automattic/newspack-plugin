@@ -1,3 +1,10 @@
+## [6.29.4](https://github.com/Automattic/newspack-plugin/compare/v6.29.3...v6.29.4) (2026-01-28)
+
+
+### Bug Fixes
+
+* **memberships:** allow free trial members to comment ([#4428](https://github.com/Automattic/newspack-plugin/issues/4428)) ([32d455e](https://github.com/Automattic/newspack-plugin/commit/32d455eb299a486011e71c22c2e564005b689e0d))
+
 ## [6.29.3](https://github.com/Automattic/newspack-plugin/compare/v6.29.2...v6.29.3) (2026-01-26)
 
 
