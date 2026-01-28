@@ -163,7 +163,7 @@ final class My_Account_Button_Block {
 		$link = '<div class="' . \esc_attr( implode( ' ', $wrapper_div_classes ) ) . '">';
 		$link .= '<div class="wp-block-button">';
 		$link .= '<a ' . $wrapper_attributes . ' data-labels="' . \esc_attr( \wp_json_encode( $labels ) ) . '" ' . $should_modal_trigger . '>';
-		$link .= '<span class="wp-block-newspack-my-account-button__icon">';
+		$link .= '<span class="wp-block-newspack-my-account-button__icon" aria-hidden="true">';
 		$link .= Newspack_UI_Icons::get_svg( 'account' );
 		$link .= '</span>';
 		$link .= '<span class="newspack-reader__account-link__label">' . \esc_html( $label ) . '</span>';
