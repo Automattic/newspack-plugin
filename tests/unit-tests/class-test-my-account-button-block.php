@@ -94,4 +94,30 @@ class Newspack_Test_My_Account_Button_Block extends WP_UnitTestCase {
 		$this->assertStringContainsString( 'href="https://example.com/my-account"', $output );
 		$this->assertStringNotContainsString( 'data-newspack-reader-account-link', $output );
 	}
+
+	/**
+	 * Test empty labels -- render nothing if a button's state has an empty label.
+	 */
+	public function test_render_block_empty_label() {
+		self::$reader_activation_enabled = true;
+
+		$signed_out_output = do_blocks(
+			'<!-- wp:newspack/my-account-button {"signedInLabel":"My Account","signedOutLabel":""} /-->'
+		);
+
+		$this->assertSame( '', trim( $signed_out_output ) );
+
+		$user_id = self::factory()->user->create(
+			[
+				'role' => 'subscriber',
+			]
+		);
+		wp_set_current_user( $user_id );
+
+		$signed_in_output = do_blocks(
+			'<!-- wp:newspack/my-account-button {"signedInLabel":"","signedOutLabel":"Sign in"} /-->'
+		);
+
+		$this->assertSame( '', trim( $signed_in_output ) );
+	}
 }
