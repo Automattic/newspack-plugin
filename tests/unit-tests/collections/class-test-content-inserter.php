@@ -319,12 +319,12 @@ class Test_Content_Inserter extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * Test check_if_post_is_in_collection with mix of published and draft collections.
+	 * Test check_if_post_is_in_collection with mix of published, draft, and scheduled collections.
 	 *
 	 * @covers \Newspack\Collections\Content_Inserter::check_if_post_is_in_collection
 	 */
 	public function test_mixed_status_collections_only_includes_published() {
-		// Create one published and one draft collection.
+		// Create one published, one draft, and one scheduled collection.
 		$published_id = $this->create_test_collection(
 			[
 				'post_title'  => 'Published Collection',
@@ -339,12 +339,21 @@ class Test_Content_Inserter extends \WP_UnitTestCase {
 				'post_status' => 'draft',
 			]
 		);
+		$scheduled_id = $this->create_test_collection(
+			[
+				'post_title'  => 'Scheduled Collection',
+				'post_name'   => 'scheduled-collection',
+				'post_status' => 'future',
+				'post_date'   => gmdate( 'Y-m-d H:i:s', strtotime( '+1 week' ) ),
+			]
+		);
 
-		// Create a post and assign it to both collections.
-		$post_id          = self::factory()->post->create();
-		$published_term   = Sync::get_term_linked_to_collection( $published_id );
-		$draft_term       = Sync::get_term_linked_to_collection( $draft_id );
-		wp_set_object_terms( $post_id, [ $published_term, $draft_term ], Collection_Taxonomy::get_taxonomy() );
+		// Create a post and assign it to all three collections.
+		$post_id        = self::factory()->post->create();
+		$published_term = Sync::get_term_linked_to_collection( $published_id );
+		$draft_term     = Sync::get_term_linked_to_collection( $draft_id );
+		$scheduled_term = Sync::get_term_linked_to_collection( $scheduled_id );
+		wp_set_object_terms( $post_id, [ $published_term, $draft_term, $scheduled_term ], Collection_Taxonomy::get_taxonomy() );
 
 		$this->go_to( get_permalink( $post_id ) );
 		Content_Inserter::check_if_post_is_in_collection();
@@ -355,6 +364,7 @@ class Test_Content_Inserter extends \WP_UnitTestCase {
 
 		$this->assertContains( $published_id, $collections, 'Published collection should be included.' );
 		$this->assertNotContains( $draft_id, $collections, 'Draft collection should be excluded.' );
+		$this->assertNotContains( $scheduled_id, $collections, 'Scheduled collection should be excluded.' );
 
 		// Clean up.
 		$this->reset_enqueuer_data();
