@@ -19,12 +19,13 @@ domReady( function () {
  * Open a notice.
  *
  * @param {Element} element - The notice element.
+ * @param {boolean} remove  - Whether to remove the notice element on open.
  */
-function openNotice( element ) {
+function openNotice( element, remove = true ) {
 	element.classList.add( 'active' );
 	if ( element.dataset.autohide !== 'false' ) {
 		setTimeout( () => {
-			closeNotice( element );
+			closeNotice( element, remove );
 		}, 5000 );
 	}
 }
@@ -33,12 +34,15 @@ function openNotice( element ) {
  * Close a notice.
  *
  * @param {Element} element - The notice element.
+ * @param {boolean} remove  - Whether to remove the notice element on dismiss.
  */
-function closeNotice( element ) {
+function closeNotice( element, remove = true ) {
 	element.classList.remove( 'active' );
-	setTimeout( () => {
-		element.remove();
-	}, 125 );
+	if ( remove ) {
+		setTimeout( () => {
+			element.remove();
+		}, 125 );
+	}
 	wp.ajax.send( 'newspack_ui_notice_dismissed', {
 		data: {
 			id: element.dataset.noticeId,
@@ -46,3 +50,10 @@ function closeNotice( element ) {
 		},
 	} );
 }
+
+// Expose notice functions to the global namespace.
+window.newspackUI = window.newspackUI || {};
+window.newspackUI.notices = {
+	openNotice,
+	closeNotice,
+};
