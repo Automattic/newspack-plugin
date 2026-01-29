@@ -14,9 +14,16 @@ class Content_Restriction_Control {
 	/**
 	 * Map of post IDs to gate IDs.
 	 *
-	 * @var array
+	 * @var int[]
 	 */
 	private static $post_gate_id_map = [];
+
+	/**
+	 * Map of post IDs to gate layout IDs.
+	 *
+	 * @var int[]
+	 */
+	private static $post_gate_layout_id_map = [];
 
 	/**
 	 * Initialize hooks and filters.
@@ -209,7 +216,8 @@ class Content_Restriction_Control {
 			}
 
 			if ( $is_restricted && $gate_layout_id ) {
-				self::$post_gate_id_map[ $post_id ] = $gate_layout_id;
+				self::$post_gate_id_map[ $post_id ] = $gate['id'];
+				self::$post_gate_layout_id_map[ $post_id ] = $gate_layout_id;
 				return true;
 			}
 		}
@@ -235,6 +243,29 @@ class Content_Restriction_Control {
 		}
 		if ( ! empty( self::$post_gate_id_map[ $post_id ] ) ) {
 			return self::$post_gate_id_map[ $post_id ];
+		}
+		return false;
+	}
+
+	/**
+	 * Get the current gate layout ID.
+	 *
+	 * @param int $post_id Post ID. If not given, uses the current post ID.
+	 *
+	 * @return int|false
+	 */
+	public static function get_gate_layout_id( $post_id = null ) {
+		if ( ! Content_Gate::is_newspack_feature_enabled() ) {
+			return false;
+		}
+		if ( is_singular() ) {
+			$post_id = $post_id ? $post_id : get_queried_object_id();
+		}
+		if ( ! $post_id ) {
+			return false;
+		}
+		if ( ! empty( self::$post_gate_layout_id_map[ $post_id ] ) ) {
+			return self::$post_gate_layout_id_map[ $post_id ];
 		}
 		return false;
 	}
