@@ -37,9 +37,14 @@
 		}
 	}
 	table#woocommerce-subscriptions-related-orders-table,
-	table.woocommerce-orders-table--subscriptions {
+	table.woocommerce-orders-table--subscriptions,
+	table.woocommerce-orders-table.account-orders-table {
 		td.woocommerce-orders-table__cell-order-actions {
 			text-align: right !important;
+		}
+		tr > th:last-of-type,
+		tr > td:last-of-type {
+			padding-right: 0;
 		}
 		@media ( min-width: 768px ) {
 			table-layout: auto;
