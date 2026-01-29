@@ -1,3 +1,10 @@
+## [6.29.5](https://github.com/Automattic/newspack-plugin/compare/v6.29.4...v6.29.5) (2026-01-29)
+
+
+### Bug Fixes
+
+* **subscriptions:** skip free trial tweak during switches ([#4432](https://github.com/Automattic/newspack-plugin/issues/4432)) ([4277a3c](https://github.com/Automattic/newspack-plugin/commit/4277a3c2b03795d17cef4b86d0abec80f7814e7b))
+
 ## [6.29.4](https://github.com/Automattic/newspack-plugin/compare/v6.29.3...v6.29.4) (2026-01-28)
 
 
