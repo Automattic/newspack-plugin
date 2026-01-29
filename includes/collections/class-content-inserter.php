@@ -69,6 +69,17 @@ class Content_Inserter {
 			return;
 		}
 
+		// Only show indicators for published collections.
+		$collections = array_filter(
+			$collections,
+			function ( $collection_id ) {
+				return 'publish' === get_post_status( $collection_id );
+			}
+		);
+		if ( empty( $collections ) ) {
+			return;
+		}
+
 		// Sort by post date descending.
 		usort(
 			$collections,
