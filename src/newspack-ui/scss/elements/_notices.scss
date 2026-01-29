@@ -77,6 +77,7 @@
 			color: var(--newspack-ui-color-body-bg);
 			font-size: var(--newspack-ui-font-size-xs);
 			left: var(--newspack-ui-spacer-2);
+			line-height: var(--newspack-ui-line-height-xs);
 			position: fixed;
 			top: var(--newspack-ui-spacer-2);
 			z-index: 99997;
@@ -105,33 +106,36 @@
 				}
 			}
 			&__item {
+				background-color: var(--newspack-ui-color-neutral-90);
+				border-bottom-color: var(--newspack-ui-color-neutral-30);
+				border-radius: var(--newspack-ui-border-radius-s);
+				display: grid;
+				grid-template-columns: auto var(--newspack-ui-spacer-9);
 				pointer-events: none;
 				height: 0;
 				transition: height 125ms ease-out;
 				overflow: hidden;
 				&.active {
+					border-bottom-width: 3px;
+					border-bottom-style: solid;
 					height: auto;
 					pointer-events: auto;
 					transition: none;
 				}
 				&--success {
-					border-color: var(--newspack-ui-color-success-60);
+					border-bottom-color: var(--newspack-ui-color-success-60);
 				}
 				&--error {
-					border-color: var(--newspack-ui-color-error-60);
+					border-bottom-color: var(--newspack-ui-color-error-60);
 				}
 				&--warning {
-					border-color: var(--newspack-ui-color-warning-40);
+					border-bottom-color: var(--newspack-ui-color-warning-40);
 				}
 			}
 			&__content {
-				background-color: var(--newspack-ui-color-neutral-90);
-				border-radius: var(--newspack-ui-border-radius-s);
-				margin-bottom: var(--newspack-ui-spacer-2);
+				order: 0;
 				padding: var(--newspack-ui-spacer-2);
-				border-bottom-width: 3px;
-				border-bottom-style: solid;
-				border-bottom-color: inherit;
+
 				a {
 					text-decoration: underline;
 				}
@@ -140,12 +144,17 @@
 				background: none;
 				border: none;
 				cursor: pointer;
-				float: right;
 				padding: 0;
-				margin: var(--newspack-ui-spacer-2);
-				display: block;
-				width: var(--newspack-ui-font-size-l);
-				height: var(--newspack-ui-font-size-l);
+				margin: 0;
+				order: 1;
+				display: grid;
+				place-items: center;
+				width: var(--newspack-ui-spacer-9);
+				height: var(--newspack-ui-spacer-9);
+
+				&:hover {
+					opacity: 0.7;
+				}
 			}
 		}
 	}
