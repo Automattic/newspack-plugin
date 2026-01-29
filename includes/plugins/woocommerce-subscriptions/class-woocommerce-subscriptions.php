@@ -247,6 +247,21 @@ class WooCommerce_Subscriptions {
 	 * @return int The trial length.
 	 */
 	public static function limit_free_trials_to_one_per_user( $trial_length, $product ) {
+		/**
+		 * Bail if this is a subscription switch.
+		 *
+		 * Subscription switches mock a free trial on the cart item to make sure
+		 * the switch total doesn't include any recurring amount.
+		 *
+		 * With this method, if the product being switched to is a subscription
+		 * already owned, it'll charge the full subscription amount + proration.
+		 *
+		 * @see https://github.com/woocommerce/woocommerce-subscriptions/blob/8a3cd300786218d76eb51d28b8d2d9ff5eee3ef6/includes/switching/class-wc-subscriptions-switcher.php#L134
+		 */
+		if ( class_exists( 'WC_Subscriptions_Switcher' ) && \WC_Subscriptions_Switcher::cart_contains_switches() ) {
+			return $trial_length;
+		}
+
 		$user_id = get_current_user_id();
 
 		// If not logged in, try to get the user ID from the billing email.
