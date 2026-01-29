@@ -7,6 +7,7 @@
 
 namespace Newspack\Tests\Content_Gate;
 
+use Newspack\Access_Rules;
 use Newspack\Content_Gate;
 use Newspack\Content_Restriction_Control;
 
@@ -251,5 +252,137 @@ class Test_Content_Gates extends \WP_UnitTestCase {
 		$gates = Content_Restriction_Control::get_post_gates( $post3 );
 		$this->assertCount( 1, $gates, 'One gate for the post with no categories' );
 		$this->assertEquals( $this->gate_ids[2], $gates[0]['id'], 'Gate with publish status and matching rules configuration is included' );
+	}
+
+	/**
+	 * Test access rules normalization from flat to grouped format.
+	 */
+	public function test_normalize_access_rules() {
+		// Empty rules should return empty array.
+		$result = Access_Rules::normalize_rules( [] );
+		$this->assertEmpty( $result, 'Empty rules should return empty array' );
+
+		// Flat rules should be wrapped in a single group.
+		$flat_rules = [
+			[
+				'slug'  => 'subscription',
+				'value' => [ 1, 2 ],
+			],
+			[
+				'slug'  => 'email_domain',
+				'value' => 'example.com',
+			],
+		];
+		$result = Access_Rules::normalize_rules( $flat_rules );
+		$this->assertCount( 1, $result, 'Flat rules should be wrapped in single group' );
+		$this->assertEquals( $flat_rules, $result[0], 'Group should contain original rules' );
+
+		// Already grouped rules should remain unchanged.
+		$grouped_rules = [
+			[
+				[
+					'slug'  => 'subscription',
+					'value' => [ 1 ],
+				],
+			],
+			[
+				[
+					'slug'  => 'email_domain',
+					'value' => 'example.com',
+				],
+			],
+		];
+		$result = Access_Rules::normalize_rules( $grouped_rules );
+		$this->assertCount( 2, $result, 'Grouped rules should have 2 groups' );
+		$this->assertEquals( $grouped_rules, $result, 'Grouped rules should remain unchanged' );
+	}
+
+	/**
+	 * Test access rules evaluation with grouped OR logic.
+	 */
+	public function test_evaluate_access_rules_grouped() {
+		// Empty rules should grant access.
+		$result = Access_Rules::evaluate_rules( [] );
+		$this->assertTrue( $result, 'Empty rules should grant access' );
+
+		// Single empty group should grant access.
+		$result = Access_Rules::evaluate_rules( [ [] ] );
+		$this->assertTrue( $result, 'Single empty group should grant access' );
+	}
+
+	/**
+	 * Test that custom_access settings return grouped access_rules format.
+	 */
+	public function test_custom_access_returns_grouped_rules() {
+		// Create a gate with flat access rules (legacy format).
+		$gate_id = Content_Gate::create_gate( 'Test Grouped Rules Gate' );
+		$this->gate_ids[] = $gate_id;
+
+		// Save flat rules directly to post meta (simulating legacy data).
+		$custom_access = [
+			'active'       => true,
+			'metering'     => [
+				'enabled' => false,
+				'count'   => 0,
+				'period'  => 'month',
+			],
+			'access_rules' => [
+				[
+					'slug'  => 'email_domain',
+					'value' => 'example.com',
+				],
+			],
+		];
+		\update_post_meta( $gate_id, 'custom_access', $custom_access );
+
+		// Retrieve settings - should be normalized to grouped format.
+		$settings = Content_Gate::get_custom_access_settings( $gate_id );
+		$this->assertTrue( $settings['active'], 'Active should be true' );
+		$this->assertIsArray( $settings['access_rules'], 'access_rules should be an array' );
+
+		// Check that flat rules were normalized to grouped format.
+		$this->assertCount( 1, $settings['access_rules'], 'Should have one group' );
+		$this->assertIsArray( $settings['access_rules'][0], 'First element should be an array (group)' );
+		$this->assertCount( 1, $settings['access_rules'][0], 'Group should have one rule' );
+		$this->assertEquals( 'email_domain', $settings['access_rules'][0][0]['slug'], 'Rule slug should be preserved' );
+	}
+
+	/**
+	 * Test that already grouped access_rules remain unchanged.
+	 */
+	public function test_custom_access_preserves_grouped_rules() {
+		$gate_id = Content_Gate::create_gate( 'Test Preserve Grouped Rules Gate' );
+		$this->gate_ids[] = $gate_id;
+
+		// Save already grouped rules.
+		$grouped_rules = [
+			[
+				[
+					'slug'  => 'subscription',
+					'value' => [ 1 ],
+				],
+			],
+			[
+				[
+					'slug'  => 'email_domain',
+					'value' => 'example.com',
+				],
+			],
+		];
+		$custom_access = [
+			'active'       => true,
+			'metering'     => [
+				'enabled' => false,
+				'count'   => 0,
+				'period'  => 'month',
+			],
+			'access_rules' => $grouped_rules,
+		];
+		\update_post_meta( $gate_id, 'custom_access', $custom_access );
+
+		// Retrieve settings - should remain grouped.
+		$settings = Content_Gate::get_custom_access_settings( $gate_id );
+		$this->assertCount( 2, $settings['access_rules'], 'Should have two groups' );
+		$this->assertEquals( $grouped_rules, $settings['access_rules'], 'Grouped rules should be preserved' );
 	}
 }
