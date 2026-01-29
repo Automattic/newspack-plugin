@@ -181,21 +181,21 @@ trait Content_Gate_Layout {
 	 * Get the restricted post excerpt based on gate settings.
 	 *
 	 * @param \WP_Post $post         The post object to get excerpt from.
-	 * @param int      $gate_post_id The gate post ID containing layout settings.
+	 * @param int      $gate_layout_id The gate layout ID.
 	 *
 	 * @return string The restricted post excerpt HTML.
 	 */
-	public static function get_restricted_post_excerpt_for_gate( $post, $gate_post_id ) {
+	public static function get_restricted_post_excerpt_for_gate( $post, $gate_layout_id ) {
 		$content = $post->post_content;
 
-		$style = \get_post_meta( $gate_post_id, 'style', true );
+		$style = \get_post_meta( $gate_layout_id, 'style', true );
 
-		$use_more_tag = get_post_meta( $gate_post_id, 'use_more_tag', true );
+		$use_more_tag = get_post_meta( $gate_layout_id, 'use_more_tag', true );
 		// Use <!--more--> as threshold if it exists.
 		if ( $use_more_tag && strpos( $content, '<!--more-->' ) ) {
 			$content = apply_filters( 'newspack_gate_content', explode( '<!--more-->', $content )[0] );
 		} else {
-			$count = self::get_visible_paragraphs( $gate_post_id );
+			$count = self::get_visible_paragraphs( $gate_layout_id );
 			if ( 0 === $count ) {
 				return '';
 			}
