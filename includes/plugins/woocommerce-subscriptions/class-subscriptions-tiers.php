@@ -258,38 +258,14 @@ class Subscriptions_Tiers {
 	}
 
 	/**
-	 * Get tiered products by frequency given a grouped or
-	 * variable subscription product.
+	 * Get products organized by frequency.
 	 *
-	 * If no product is provided, it will use all
-	 * non-donation subscription products.
+	 * @param array $products      Array of product IDs or product objects.
+	 * @param bool  $sort_by_price Whether to sort by price.
 	 *
-	 * @param \WC_Product|null $product       Optional product.
-	 * @param bool|null        $sort_by_price Whether to sort by price.
-	 *
-	 * @return array<string, \WC_Product[]> Product tiers by frequency.
+	 * @return array<string, \WC_Product[]> Products organized by frequency.
 	 */
-	public static function get_tiers_by_frequency( $product = null, $sort_by_price = null ) {
-		if ( ! function_exists( 'wc_get_products' ) || ! function_exists( 'wcs_user_has_subscription' ) ) {
-			return [];
-		}
-
-		if ( empty( $product ) ) {
-			$products = wc_get_products(
-				[
-					'type'  => [ 'subscription', 'variable-subscription' ],
-					'limit' => -1,
-				]
-			);
-			$sort_by_price = $sort_by_price ?? true;
-		} elseif ( $product->is_type( 'grouped' ) ) {
-			$products = $product->get_children();
-			$sort_by_price = $sort_by_price ?? false;
-		} elseif ( $product->is_type( 'variable' ) || $product->is_type( 'variable_subscription' ) || $product->is_type( 'subscription' ) ) {
-			$products = [ $product ];
-			$sort_by_price = $sort_by_price ?? true;
-		}
-
+	public static function get_products_by_frequency( $products, $sort_by_price = true ) {
 		if ( empty( $products ) ) {
 			return [];
 		}
@@ -299,6 +275,10 @@ class Subscriptions_Tiers {
 		foreach ( $products as $product ) {
 			if ( is_int( $product ) ) {
 				$product = wc_get_product( $product );
+			}
+
+			if ( ! $product ) {
+				continue;
 			}
 
 			if ( ! in_array( $product->get_type(), [ 'subscription', 'variable-subscription' ], true ) ) {
@@ -330,19 +310,83 @@ class Subscriptions_Tiers {
 		}
 
 		if ( $sort_by_price ) {
-			foreach ( $products_by_frequency as $frequency => $products ) {
+			foreach ( $products_by_frequency as $frequency => $frequency_products ) {
 				usort(
-					$products,
+					$frequency_products,
 					function( $a, $b ) {
 						return intval( $a->get_price() ) <=> intval( $b->get_price() );
 					}
 				);
-				$products_by_frequency[ $frequency ] = $products;
+				$products_by_frequency[ $frequency ] = $frequency_products;
 			}
 		}
 
 		return $products_by_frequency;
 	}
+
+	/**
+	 * Get tiers by frequency given a grouped or variable subscription product.
+	 *
+	 * If no product is provided, it will use all
+	 * non-donation subscription products.
+	 *
+	 * @param \WC_Product|null $product       Optional product.
+	 * @param bool|null        $sort_by_price Whether to sort by price.
+	 *
+	 * @return array<string, \WC_Product[]> Product tiers by frequency.
+	 */
+	public static function get_tiers( $product = null, $sort_by_price = null ) {
+		if ( ! function_exists( 'wc_get_products' ) || ! function_exists( 'wcs_user_has_subscription' ) ) {
+			return [];
+		}
+
+		$products = [];
+
+		if ( empty( $product ) ) {
+			$products = wc_get_products(
+				[
+					'type'  => [ 'subscription', 'variable-subscription' ],
+					'limit' => -1,
+				]
+			);
+			$sort_by_price = $sort_by_price ?? true;
+		} elseif ( $product->is_type( 'grouped' ) ) {
+			$products = $product->get_children();
+			$sort_by_price = $sort_by_price ?? false;
+		} elseif ( $product->is_type( 'variable' ) || $product->is_type( 'variable_subscription' ) || $product->is_type( 'subscription' ) ) {
+			$products = [ $product ];
+			$sort_by_price = $sort_by_price ?? true;
+		}
+		return self::get_products_by_frequency( $products, $sort_by_price ?? true );
+	}
+
+	/**
+	 * Get upsell subscription products by frequency for a given product.
+	 *
+	 * Upsell products can be variable subscriptions, standalone subscriptions,
+	 * or grouped products with subscription children.
+	 *
+	 * @param \WC_Product $product Product.
+	 *
+	 * @return array<string, \WC_Product[]> Product tiers by frequency.
+	 */
+	public static function get_upsells( $product ) {
+		$upsells    = [];
+		$upsell_ids = $product->get_upsell_ids();
+		foreach ( $upsell_ids as $upsell_id ) {
+			$upsell_product = wc_get_product( $upsell_id );
+			if ( ! $upsell_product ) {
+				continue;
+			}
+			if ( $upsell_product->is_type( 'grouped' ) ) {
+				$upsells = array_merge( $upsells, $upsell_product->get_children() );
+			} elseif ( $upsell_product->is_type( 'variable-subscription' ) || $upsell_product->is_type( 'subscription' ) ) {
+				$upsells[] = $upsell_product;
+			}
+		}
+		return self::get_products_by_frequency( $upsells );
+	}
+
 
 	/**
 	 * Get product title.
@@ -565,7 +609,7 @@ class Subscriptions_Tiers {
 	 * @param array|null  $switch_data  Switch subscription data or null.
 	 */
 	public static function render_form( $product = null, $title = null, $button_label = null, $switch_data = null ) {
-		$tiers = self::get_tiers_by_frequency( $product );
+		$tiers = empty( $switch_data ) ? self::get_tiers( $product ) : self::get_upsells( $product );
 		if ( empty( $tiers ) ) {
 			return;
 		}
