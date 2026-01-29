@@ -23,9 +23,9 @@ const AudienceContentGates = ( props, ref ) => {
 	return (
 		<Wizard
 			apiSlug={ AUDIENCE_CONTENT_GATES_WIZARD_SLUG }
-			title={ __( 'Content Gating', 'newspack-plugin' ) }
+			title={ __( 'Access Control', 'newspack-plugin' ) }
 			description={ __( 'Configure content gating logic and appearance.', 'newspack-plugin' ) }
-			headerText={ __( 'Audience Management / Content Gates', 'newspack-plugin' ) }
+			headerText={ __( 'Audience Management / Access Control', 'newspack-plugin' ) }
 			ref={ ref }
 			sections={ [
 				{

@@ -54,7 +54,7 @@ const getGateStatusBadgeLevel = ( status: GateStatus ) => {
 };
 
 const ContentGates = () => {
-	const wizardData = useWizardData( 'newspack-audience-content-gates' ) as WizardData;
+	const wizardData = useWizardData( 'newspack-audience-access-control' ) as WizardData;
 	const { updateWizardSettings } = useDispatch( WIZARD_STORE_NAMESPACE );
 	const { wizardApiFetch, isFetching, errorMessage, resetError } = useWizardApiFetch( AUDIENCE_CONTENT_GATES_WIZARD_SLUG );
 	const [ showModal, setShowModal ] = useState( false );

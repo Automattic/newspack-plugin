@@ -19,7 +19,7 @@ class Audience_Content_Gates extends Wizard {
 	 *
 	 * @var string
 	 */
-	protected $slug = 'newspack-audience-content-gates';
+	protected $slug = 'newspack-audience-access-control';
 
 	/**
 	 * Parent slug.
@@ -127,7 +127,7 @@ class Audience_Content_Gates extends Wizard {
 		add_submenu_page(
 			$this->parent_slug,
 			$this->get_name(),
-			esc_html__( 'Content Gates', 'newspack-plugin' ),
+			esc_html__( 'Access Control', 'newspack-plugin' ),
 			$this->capability,
 			$this->slug,
 			[ $this, 'render_wizard' ]
