@@ -51,8 +51,18 @@ if ( ! empty( $actions['change_payment_method']['name'] ) ) {
 			<h2 class="newspack-ui__font--m">
 				<?php echo \esc_html( $product->get_name() ); ?>
 			</h2>
-			<?php if ( ! $subscription->has_status( 'active' ) ) : ?>
-				<span class="newspack-my-account__subscription--status-label newspack-ui__badge newspack-ui__badge--secondary">
+			<?php
+			if ( ! $subscription->has_status( 'active' ) ) :
+				$classes = [ 'newspack-ui__badge' ];
+				if ( $subscription->has_status( [ 'cancelled', 'expired' ] ) ) {
+					$classes[] = 'newspack-ui__badge--error';
+				} elseif ( $subscription->has_status( [ 'on-hold', 'pending', 'processing' ] ) ) {
+					$classes[] = 'newspack-ui__badge--warning';
+				} else {
+					$classes[] = 'newspack-ui__badge--secondary';
+				}
+				?>
+				<span class="<?php echo \esc_attr( implode( ' ', $classes ) ); ?>">
 					<?php echo esc_html( \wcs_get_subscription_status_name( $status ) ); ?>
 				</span>
 			<?php endif; ?>
@@ -62,6 +72,7 @@ if ( ! empty( $actions['change_payment_method']['name'] ) ) {
 	}
 	?>
 	<div class="newspack-my-account__subscription--actions">
+		<div class="newspack-my-account__subscription--actions-container">
 		<?php
 		$items = $subscription->get_items();
 		if ( 1 < count( $items ) ) {
@@ -72,7 +83,6 @@ if ( ! empty( $actions['change_payment_method']['name'] ) ) {
 						'wcs-switch-link',
 						'newspack-ui__button',
 						'newspack-ui__button--ghost',
-						'newspack-ui__button--small',
 					];
 				}
 			);
@@ -91,7 +101,7 @@ if ( ! empty( $actions['change_payment_method']['name'] ) ) {
 			);
 			?>
 			<div class="newspack-ui__dropdown newspack-my-account__subscription--change-subscription-dropdown">
-				<button class="newspack-ui__button newspack-ui__button--secondary newspack-ui__button--small newspack-ui__dropdown__toggle">
+				<button class="newspack-ui__button newspack-ui__button--secondary newspack-ui__dropdown__toggle">
 					<span><?php esc_html_e( 'Change subscription', 'newspack-plugin' ); ?></span>
 					<?php Newspack_UI_Icons::print_svg( 'more' ); ?>
 				</button>
@@ -113,7 +123,6 @@ if ( ! empty( $actions['change_payment_method']['name'] ) ) {
 						'wcs-switch-link',
 						'newspack-ui__button',
 						'newspack-ui__button--secondary',
-						'newspack-ui__button--small',
 						'newspack-my-account__subscription--change-subscription-item',
 					];
 				}
@@ -123,10 +132,29 @@ if ( ! empty( $actions['change_payment_method']['name'] ) ) {
 			<?php
 		}
 		$parent_order = array_values( $subscription->get_related_orders( 'all', 'parent' ) );
-		if ( $subscription->has_status( 'expired' ) && ! empty( $parent_order ) ) {
+		if ( $subscription->has_status( [ 'expired', 'cancelled' ] ) && ! empty( $parent_order ) && empty( $actions['resubscribe'] ) ) {
 			\woocommerce_order_again_button( $parent_order[0] );
 		}
 		?>
+		<?php if ( ! empty( $actions ) ) : ?>
+			<?php foreach ( $actions as $key => $action_link ) : ?>
+				<?php
+				$classes = [
+					'newspack-ui__button',
+					'newspack-my-account__subscription--action-link',
+					\sanitize_html_class( $key ),
+				];
+				if ( 'cancel' === $key ) {
+					$classes[] = 'newspack-ui__button--outline';
+					$classes[] = 'newspack-ui__button--destructive';
+				} else {
+					$classes[] = 'newspack-ui__button--secondary';
+				}
+				?>
+				<a class="<?php echo \esc_attr( implode( ' ', $classes ) ); ?>" href="<?php echo \esc_url( $action_link['url'] ); ?>"><?php echo \esc_html( $action_link['name'] ); ?></a>
+			<?php endforeach; ?>
+		<?php endif; ?>
+		</div>
 		<?php if ( ! empty( $actions ) ) : ?>
 		<div class="newspack-ui__dropdown newspack-my-account__subscription--actions-dropdown">
 			<button class="newspack-ui__button newspack-ui__button--secondary newspack-ui__button--small newspack-ui__dropdown__toggle">
@@ -135,22 +163,6 @@ if ( ! empty( $actions['change_payment_method']['name'] ) ) {
 			</button>
 			<div class="newspack-ui__dropdown__content">
 				<ul>
-					<?php
-					\add_filter(
-						'woocommerce_subscriptions_switch_link_classes',
-						function( $classes ) {
-							return [
-								'wcs-switch-link',
-								'newspack-ui__button',
-								'newspack-ui__button--ghost',
-								'newspack-ui__button--small',
-							];
-						}
-					);
-					?>
-					<?php foreach ( $items as $item ) : ?>
-						<li class="newspack-my-account__subscription--change-subscription-item"><?php \WC_Subscriptions_Switcher::print_switch_link( $item->get_id(), $item, $subscription ); ?></li>
-					<?php endforeach; ?>
 					<?php foreach ( $actions as $key => $action_link ) : ?>
 						<?php
 						$classes = [

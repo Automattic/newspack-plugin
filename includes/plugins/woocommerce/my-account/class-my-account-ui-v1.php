@@ -182,6 +182,12 @@ class My_Account_UI_V1 {
 				return __DIR__ . '/templates/v1/related-subscriptions.php';
 			case 'order/order-again.php':
 				return __DIR__ . '/templates/v1/order-again.php';
+			case 'notices/error.php':
+				return __DIR__ . '/templates/v1/notices/error.php';
+			case 'notices/notice.php':
+				return __DIR__ . '/templates/v1/notices/notice.php';
+			case 'notices/success.php':
+				return __DIR__ . '/templates/v1/notices/success.php';
 			default:
 				return $template;
 		}
