@@ -21,7 +21,7 @@ foreach ( $notices as $notice ) {
 			'id'             => uniqid( 'newspack-myaccount-error-' ),
 			'type'           => 'error',
 			'corner'         => 'top-right',
-			'autohide'       => false,
+			'autohide'       => true,
 			'active_on_load' => true,
 		]
 	);
