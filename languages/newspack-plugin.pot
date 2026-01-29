@@ -2,14 +2,14 @@
 # This file is distributed under the GPL2.
 msgid ""
 msgstr ""
-"Project-Id-Version: Newspack 6.29.3\n"
+"Project-Id-Version: Newspack 6.29.5\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/project\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-01-26T20:48:48+00:00\n"
+"POT-Creation-Date: 2026-01-29T18:06:45+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: newspack-plugin\n"
@@ -3105,7 +3105,10 @@ msgstr ""
 
 #: includes/plugins/woocommerce/class-woocommerce-connection.php:509
 #: includes/reader-activation/class-reader-activation.php:305
+#: src/blocks/my-account-button/class-my-account-button-block.php:94
 #: src/blocks/reader-registration/index.php:106
+#: dist/blocks.js:4
+#: src/blocks/my-account-button/edit.js:59
 msgid "My Account"
 msgstr ""
 
@@ -4057,6 +4060,9 @@ msgstr ""
 #: includes/templates/reader-activation-emails/otp.php:111
 #: includes/templates/reader-activation-emails/otp.php:281
 #: includes/templates/reader-activation-emails/otp.php:311
+#: src/blocks/my-account-button/class-my-account-button-block.php:95
+#: dist/blocks.js:4
+#: src/blocks/my-account-button/edit.js:59
 msgid "Sign in"
 msgstr ""
 
@@ -4590,7 +4596,7 @@ msgstr ""
 
 #: includes/templates/block-patterns/corrections/corrections-loop.php:18
 #: includes/templates/corrections/corrections-archive.php:16
-#: dist/blocks.js:1
+#: dist/blocks.js:4
 #: dist/other-scripts/corrections-modal.js:1
 #: src/blocks/correction-item/index.js:22
 #: src/other-scripts/corrections-modal/index.js:192
@@ -7902,13 +7908,12 @@ msgid "Manage Subscriptions"
 msgstr ""
 
 #: dist/avatar-block.js:1
-#: dist/blocks.js:1
+#: dist/blocks.js:4
 #: src/blocks/avatar/index.js:15
 msgid "Avatar"
 msgstr ""
 
 #: dist/avatar-block.js:1
-#: dist/blocks.js:1
 #: dist/blocks.js:4
 #: src/blocks/avatar/index.js:28
 #: src/blocks/byline/index.js:28
@@ -7916,19 +7921,18 @@ msgid "author"
 msgstr ""
 
 #: dist/avatar-block.js:1
-#: dist/blocks.js:1
+#: dist/blocks.js:4
 #: src/blocks/avatar/index.js:29
 msgid "user"
 msgstr ""
 
 #: dist/avatar-block.js:1
-#: dist/blocks.js:1
+#: dist/blocks.js:4
 #: src/blocks/avatar/index.js:30
 msgid "profile"
 msgstr ""
 
 #: dist/avatar-block.js:1
-#: dist/blocks.js:1
 #: dist/blocks.js:4
 #: dist/contribution-meter-block.js:5
 #: src/blocks/avatar/index.js:31
@@ -7939,7 +7943,7 @@ msgid "newspack"
 msgstr ""
 
 #: dist/avatar-block.js:1
-#: dist/blocks.js:1
+#: dist/blocks.js:4
 #: src/blocks/avatar/index.js:33
 msgid "Display post author avatar."
 msgstr ""
@@ -8402,92 +8406,6 @@ msgid "Edit Ad Unit"
 msgstr ""
 
 #: dist/blocks.js:1
-#: dist/commons.js:15
-#: dist/content-gate-countdown-box-block.js:1
-#: src/blocks/content-gate/countdown-box/edit.jsx:147
-#: src/blocks/content-gate/countdown-box/index.js:15
-msgid "Content Gate Countdown"
-msgstr ""
-
-#: dist/blocks.js:1
-#: dist/blocks.js:4
-#: dist/content-gate-countdown-box-block.js:1
-#: src/blocks/content-gate/countdown-box/index.js:28
-#: src/blocks/content-gate/countdown/index.js:27
-msgid "countdown"
-msgstr ""
-
-#: dist/blocks.js:1
-#: dist/blocks.js:4
-#: dist/content-gate-countdown-box-block.js:1
-#: src/blocks/content-gate/countdown-box/index.js:29
-#: src/blocks/content-gate/countdown/index.js:28
-msgid "content gate"
-msgstr ""
-
-#: dist/blocks.js:1
-#: dist/blocks.js:4
-#: dist/content-gate-countdown-box-block.js:1
-#: src/blocks/content-gate/countdown-box/index.js:30
-#: src/blocks/content-gate/countdown/index.js:29
-msgid "metered"
-msgstr ""
-
-#: dist/blocks.js:1
-#: dist/blocks.js:4
-#: dist/content-gate-countdown-box-block.js:1
-#: src/blocks/content-gate/countdown-box/index.js:31
-#: src/blocks/content-gate/countdown/index.js:30
-msgid "paywall"
-msgstr ""
-
-#: dist/blocks.js:1
-#: dist/blocks.js:4
-#: dist/content-gate-countdown-box-block.js:1
-#: src/blocks/content-gate/countdown-box/index.js:32
-#: src/blocks/content-gate/countdown/index.js:31
-msgid "tracking"
-msgstr ""
-
-#: dist/blocks.js:1
-#: dist/content-gate-countdown-box-block.js:1
-#: src/blocks/content-gate/countdown-box/index.js:34
-msgid "Displays how many free articles remain before the paywall, helping users track access with a real-time countdown."
-msgstr ""
-
-#: dist/blocks.js:1
-#: dist/correction-item-block.js:1
-#: src/blocks/correction-item/index.js:15
-msgid "Correction Item"
-msgstr ""
-
-#: dist/blocks.js:1
-#: dist/correction-item-block.js:1
-#: src/blocks/correction-item/index.js:56
-msgid "Display an archive of all the corrections and clarifications."
-msgstr ""
-
-#: dist/blocks.js:1
-#: src/blocks/correction-item/index.js:23
-msgid "Please select \"Corrections\" as the post type in the Query Loop to use this block."
-msgstr ""
-
-#: dist/blocks.js:1
-#: src/blocks/correction-item/index.js:31
-msgid "Correction Type, Date, and Time: "
-msgstr ""
-
-#: dist/blocks.js:1
-#: src/blocks/correction-item/index.js:33
-msgid "This is where the content will appear, providing details about the update, whether correcting an error or offering additional context."
-msgstr ""
-
-#: dist/blocks.js:1
-#: src/blocks/correction-item/index.js:40
-msgid "Post Title"
-msgstr ""
-
-#: dist/blocks.js:1
 #: src/blocks/reader-registration/edit.js:29
 msgid "Initial"
 msgstr ""
@@ -8597,6 +8515,21 @@ msgstr ""
 #: dist/blocks.js:4
 #: src/blocks/reader-registration/edit.js:363
 msgid "Logged in message…"
+msgstr ""
+
+#: dist/blocks.js:4
+#: src/blocks/my-account-button/edit.js:77
+msgid "Signed out"
+msgstr ""
+
+#: dist/blocks.js:4
+#: src/blocks/my-account-button/edit.js:84
+msgid "Signed in"
+msgstr ""
+
+#: dist/blocks.js:4
+#: src/blocks/my-account-button/edit.js:96
+msgid "Button text"
 msgstr ""
 
 #: dist/blocks.js:4
@@ -8954,8 +8887,89 @@ msgid "Article Counter"
 msgstr ""
 
 #: dist/blocks.js:4
+#: dist/content-gate-countdown-box-block.js:1
+#: src/blocks/content-gate/countdown-box/index.js:28
+#: src/blocks/content-gate/countdown/index.js:27
+msgid "countdown"
+msgstr ""
+
+#: dist/blocks.js:4
+#: dist/content-gate-countdown-box-block.js:1
+#: src/blocks/content-gate/countdown-box/index.js:29
+#: src/blocks/content-gate/countdown/index.js:28
+msgid "content gate"
+msgstr ""
+
+#: dist/blocks.js:4
+#: dist/content-gate-countdown-box-block.js:1
+#: src/blocks/content-gate/countdown-box/index.js:30
+#: src/blocks/content-gate/countdown/index.js:29
+msgid "metered"
+msgstr ""
+
+#: dist/blocks.js:4
+#: dist/content-gate-countdown-box-block.js:1
+#: src/blocks/content-gate/countdown-box/index.js:31
+#: src/blocks/content-gate/countdown/index.js:30
+msgid "paywall"
+msgstr ""
+
+#: dist/blocks.js:4
+#: dist/content-gate-countdown-box-block.js:1
+#: src/blocks/content-gate/countdown-box/index.js:32
+#: src/blocks/content-gate/countdown/index.js:31
+msgid "tracking"
+msgstr ""
+
+#: dist/blocks.js:4
 #: src/blocks/content-gate/countdown/index.js:33
 msgid "Displays the current free article count."
+msgstr ""
+
+#: dist/blocks.js:4
+#: dist/commons.js:15
+#: dist/content-gate-countdown-box-block.js:1
+#: src/blocks/content-gate/countdown-box/edit.jsx:147
+#: src/blocks/content-gate/countdown-box/index.js:15
+msgid "Content Gate Countdown"
+msgstr ""
+
+#: dist/blocks.js:4
+#: dist/content-gate-countdown-box-block.js:1
+#: src/blocks/content-gate/countdown-box/index.js:34
+msgid "Displays how many free articles remain before the paywall, helping users track access with a real-time countdown."
+msgstr ""
+
+#: dist/blocks.js:4
+#: dist/correction-item-block.js:1
+#: src/blocks/correction-item/index.js:15
+msgid "Correction Item"
+msgstr ""
+
+#: dist/blocks.js:4
+#: dist/correction-item-block.js:1
+#: src/blocks/correction-item/index.js:56
+msgid "Display an archive of all the corrections and clarifications."
+msgstr ""
+
+#: dist/blocks.js:4
+#: src/blocks/correction-item/index.js:23
+msgid "Please select \"Corrections\" as the post type in the Query Loop to use this block."
+msgstr ""
+
+#: dist/blocks.js:4
+#: src/blocks/correction-item/index.js:31
+msgid "Correction Type, Date, and Time: "
+msgstr ""
+
+#: dist/blocks.js:4
+#: src/blocks/correction-item/index.js:33
+msgid "This is where the content will appear, providing details about the update, whether correcting an error or offering additional context."
+msgstr ""
+
+#: dist/blocks.js:4
+#: src/blocks/correction-item/index.js:40
+msgid "Post Title"
 msgstr ""
 
 #: dist/blocks.js:4
@@ -12765,6 +12779,42 @@ msgstr ""
 #: src/blocks/contribution-meter/block.json
 msgctxt "block keyword"
 msgid "campaign"
+msgstr ""
+
+#: dist/blocks/my-account-button/block.json
+#: src/blocks/my-account-button/block.json
+msgctxt "block title"
+msgid "My Account Button"
+msgstr ""
+
+#: dist/blocks/my-account-button/block.json
+#: src/blocks/my-account-button/block.json
+msgctxt "block description"
+msgid "Button linking readers to their account or sign-in modal."
+msgstr ""
+
+#: dist/blocks/my-account-button/block.json
+#: src/blocks/my-account-button/block.json
+msgctxt "block keyword"
+msgid "account"
+msgstr ""
+
+#: dist/blocks/my-account-button/block.json
+#: src/blocks/my-account-button/block.json
+msgctxt "block keyword"
+msgid "signin"
+msgstr ""
+
+#: dist/blocks/my-account-button/block.json
+#: src/blocks/my-account-button/block.json
+msgctxt "block keyword"
+msgid "login"
+msgstr ""
+
+#: dist/blocks/my-account-button/block.json
+#: src/blocks/my-account-button/block.json
+msgctxt "block keyword"
+msgid "button"
 msgstr ""
 
 #: dist/blocks/reader-registration/block.json
