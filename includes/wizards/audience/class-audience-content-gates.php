@@ -513,14 +513,8 @@ class Audience_Content_Gates extends Wizard {
 			return [];
 		}
 
-		// Check if already in grouped format or flat format.
-		$first_element = reset( $rules );
-		$is_grouped    = is_array( $first_element ) && ! isset( $first_element['slug'] );
-
-		if ( ! $is_grouped ) {
-			// Convert flat format to single group.
-			$rules = [ $rules ];
-		}
+		// Normalize rules (flat or grouped) to a consistent grouped format.
+		$rules = Access_Rules::normalize_rules( $rules );
 
 		// Sanitize each group.
 		$sanitized_groups = [];
