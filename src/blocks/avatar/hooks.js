@@ -78,7 +78,7 @@ export function useUserAvatar( { postId, postType } ) {
  */
 export function usePostAuthors( { postId, postType = 'post' } ) {
 	const { bylineActive, bylineContent } = useCustomByline( postId, postType );
-	const { authors: coAuthors } = useCoAuthors( postId, postType );
+	const { authors: coAuthors } = useCoAuthors( postId, postType, bylineActive );
 	const defaultAvatarUrl = useDefaultAvatar();
 
 	// Extract author IDs from custom byline content.

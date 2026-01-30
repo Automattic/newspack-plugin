@@ -16,13 +16,17 @@ const CAP_STORE = 'cap/authors';
  * For Query Loop posts, it uses REST API data since CAP's store only works for the
  * currently-edited post.
  *
- * @param {number} postId   Post ID to get authors for.
- * @param {string} postType Post type (default: 'post').
+ * @param {number}  postId   Post ID to get authors for.
+ * @param {string}  postType Post type (default: 'post').
+ * @param {boolean} skip     Skip fetching (default: false).
  * @return {Object} Authors array and availability state.
  */
-export function useCoAuthors( postId, postType = 'post' ) {
+export function useCoAuthors( postId, postType = 'post', skip = false ) {
 	const { authors, isCapAvailable } = useSelect(
 		select => {
+			if ( skip ) {
+				return { authors: [], isCapAvailable: false };
+			}
 			// Check if CoAuthors Plus store is available.
 			const capStore = select( CAP_STORE );
 			const isCapStoreAvailable = Boolean( capStore && typeof capStore.getAuthors === 'function' );
@@ -73,7 +77,7 @@ export function useCoAuthors( postId, postType = 'post' ) {
 			// CAP not available or no authors found.
 			return { authors: [], isCapAvailable: isCapStoreAvailable };
 		},
-		[ postId, postType ]
+		[ postId, postType, skip ]
 	);
 
 	return { authors, isCapAvailable };
