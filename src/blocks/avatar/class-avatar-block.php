@@ -180,7 +180,7 @@ final class Avatar_Block {
 	 * @return string Constructed class name.
 	 */
 	public static function newspack_get_duotone_class_name( $preset_value ) {
-		if ( str_starts_with( $preset_value, 'var:preset|duotone|' ) ) {
+		if ( is_string( $preset_value ) && str_starts_with( $preset_value, 'var:preset|duotone|' ) ) {
 			$slug = str_replace( 'var:preset|duotone|', '', $preset_value );
 			return 'wp-duotone-' . sanitize_title( $slug );
 		}
