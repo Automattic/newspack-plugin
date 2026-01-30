@@ -311,6 +311,200 @@ class Test_Content_Gates extends \WP_UnitTestCase {
 	}
 
 	/**
+	 * Test access rules evaluation with real pass/fail combinations.
+	 */
+	public function test_evaluate_access_rules_pass_fail_combinations() {
+		// Create a test user with a specific email domain.
+		$user_id = $this->factory->user->create(
+			[
+				'user_email' => 'test@allowed-domain.com',
+			]
+		);
+		wp_set_current_user( $user_id );
+
+		// Test 1: Flat legacy rules with passing rule.
+		$flat_rules_pass = [
+			[
+				'slug'  => 'email_domain',
+				'value' => 'allowed-domain.com',
+			],
+		];
+		$result = Access_Rules::evaluate_rules( $flat_rules_pass );
+		$this->assertTrue( $result, 'Flat rules with passing email_domain should grant access' );
+
+		// Test 2: Flat legacy rules with failing rule.
+		$flat_rules_fail = [
+			[
+				'slug'  => 'email_domain',
+				'value' => 'other-domain.com',
+			],
+		];
+		$result = Access_Rules::evaluate_rules( $flat_rules_fail );
+		$this->assertFalse( $result, 'Flat rules with non-matching email_domain should deny access' );
+
+		// Test 3: Flat rules with mixed pass/fail (AND logic - should fail).
+		$flat_rules_mixed = [
+			[
+				'slug'  => 'email_domain',
+				'value' => 'allowed-domain.com', // Passes.
+			],
+			[
+				'slug'  => 'email_domain',
+				'value' => 'other-domain.com', // Fails.
+			],
+		];
+		$result = Access_Rules::evaluate_rules( $flat_rules_mixed );
+		$this->assertFalse( $result, 'Flat rules with mixed results should deny access (AND logic)' );
+
+		// Test 4: Multiple groups - first group fails, second passes (OR logic - should pass).
+		$grouped_rules_or_pass = [
+			// Group 1: Fails (non-matching domain).
+			[
+				[
+					'slug'  => 'email_domain',
+					'value' => 'other-domain.com',
+				],
+			],
+			// Group 2: Passes (matching domain).
+			[
+				[
+					'slug'  => 'email_domain',
+					'value' => 'allowed-domain.com',
+				],
+			],
+		];
+		$result = Access_Rules::evaluate_rules( $grouped_rules_or_pass );
+		$this->assertTrue( $result, 'Multiple groups with at least one passing should grant access (OR logic)' );
+
+		// Test 5: Multiple groups - all groups fail (OR logic - should fail).
+		$grouped_rules_all_fail = [
+			[
+				[
+					'slug'  => 'email_domain',
+					'value' => 'domain-a.com',
+				],
+			],
+			[
+				[
+					'slug'  => 'email_domain',
+					'value' => 'domain-b.com',
+				],
+			],
+		];
+		$result = Access_Rules::evaluate_rules( $grouped_rules_all_fail );
+		$this->assertFalse( $result, 'Multiple groups with all failing should deny access' );
+
+		// Test 6: Group with AND logic - both rules must pass.
+		$grouped_and_logic = [
+			[
+				[
+					'slug'  => 'email_domain',
+					'value' => 'allowed-domain.com', // Passes.
+				],
+				[
+					'slug'  => 'email_domain',
+					'value' => 'other-domain.com', // Fails.
+				],
+			],
+		];
+		$result = Access_Rules::evaluate_rules( $grouped_and_logic );
+		$this->assertFalse( $result, 'Single group with mixed AND rules should deny access' );
+
+		// Clean up.
+		wp_delete_user( $user_id );
+	}
+
+	/**
+	 * Test access rules evaluation with invalid or missing slug entries.
+	 */
+	public function test_evaluate_access_rules_invalid_entries() {
+		// Create a test user.
+		$user_id = $this->factory->user->create(
+			[
+				'user_email' => 'test@example.com',
+			]
+		);
+		wp_set_current_user( $user_id );
+
+		// Test 1: Rule with missing slug should be skipped (not block access).
+		$rules_missing_slug = [
+			[
+				[
+					'value' => 'some-value', // Missing 'slug' key.
+				],
+			],
+		];
+		$result = Access_Rules::evaluate_rules( $rules_missing_slug );
+		$this->assertTrue( $result, 'Rules with missing slug should be skipped and grant access' );
+
+		// Test 2: Rule with non-existent slug should not block access.
+		$rules_nonexistent_slug = [
+			[
+				[
+					'slug'  => 'nonexistent_rule',
+					'value' => 'some-value',
+				],
+			],
+		];
+		$result = Access_Rules::evaluate_rules( $rules_nonexistent_slug );
+		$this->assertTrue( $result, 'Rules with non-existent slug should not block access' );
+
+		// Test 3: Mixed valid failing rule and invalid rule in same group.
+		$rules_mixed_valid_invalid = [
+			[
+				[
+					'slug'  => 'email_domain',
+					'value' => 'other-domain.com', // Valid rule, fails.
+				],
+				[
+					'slug'  => 'nonexistent_rule', // Invalid, passes.
+					'value' => 'some-value',
+				],
+			],
+		];
+		$result = Access_Rules::evaluate_rules( $rules_mixed_valid_invalid );
+		$this->assertFalse( $result, 'Group with valid failing rule should deny access even with invalid rules' );
+
+		// Test 4: Group with only invalid rules should pass.
+		$rules_all_invalid = [
+			[
+				[
+					'slug'  => 'nonexistent_rule_1',
+					'value' => 'value1',
+				],
+				[
+					'value' => 'no-slug', // Missing slug.
+				],
+			],
+		];
+		$result = Access_Rules::evaluate_rules( $rules_all_invalid );
+		$this->assertTrue( $result, 'Group with only invalid/skipped rules should grant access' );
+
+		// Clean up.
+		wp_delete_user( $user_id );
+	}
+
+	/**
+	 * Test access rules evaluation requires logged-in user.
+	 */
+	public function test_evaluate_access_rules_requires_login() {
+		// Ensure no user is logged in.
+		wp_set_current_user( 0 );
+
+		// Any valid rule should fail when user is not logged in.
+		$rules = [
+			[
+				[
+					'slug'  => 'email_domain',
+					'value' => 'example.com',
+				],
+			],
+		];
+		$result = Access_Rules::evaluate_rules( $rules );
+		$this->assertFalse( $result, 'Rules should deny access when user is not logged in' );
+	}
+
+	/**
 	 * Test that custom_access settings return grouped access_rules format.
 	 */
 	public function test_custom_access_returns_grouped_rules() {
