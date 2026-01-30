@@ -54,31 +54,23 @@ describe( 'usePostAuthors', () => {
 	};
 
 	/**
-	 * Create a mock select function that handles both the block editor store
-	 * (for useDefaultAvatar) and the core store (for getUser).
-	 *
-	 * usePostAuthors calls useSelect twice:
-	 * 1. useDefaultAvatar() — expects getSettings from the block editor store.
-	 * 2. The inner useSelect — expects getUser from the core store.
-	 *
-	 * We use mockImplementation so each call receives the correct mock.
+	 * Create a store-level mock for useSelect that dispatches based on the
+	 * store being selected rather than relying on call order.
 	 */
 	const setupMocks = ( userData = mockUserData ) => {
-		let callCount = 0;
-		useSelect.mockImplementation( callback => {
-			callCount++;
-			// First call: useDefaultAvatar (block editor store).
-			if ( callCount === 1 ) {
-				return callback( () => ( {
-					getSettings: () => ( {
-						__experimentalDiscussionSettings: { avatarURL: DEFAULT_AVATAR_URL },
-					} ),
-				} ) );
-			}
-			// Second call: inner useSelect in usePostAuthors (core store).
-			return callback( () => ( {
+		const stores = {
+			'core/block-editor': {
+				getSettings: () => ( {
+					__experimentalDiscussionSettings: { avatarURL: DEFAULT_AVATAR_URL },
+				} ),
+			},
+			core: {
 				getUser: id => userData[ id ] || null,
-			} ) );
+			},
+		};
+
+		useSelect.mockImplementation( callback => {
+			return callback( storeName => stores[ storeName ] || {} );
 		} );
 	};
 
