@@ -11,7 +11,7 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import { ButtonCard, SectionHeader } from '../../../../../packages/components/src';
-import { wallPay, contentLoop } from '../../../../../packages/icons';
+import { content, settings, wallPay } from '../../../../../packages/icons';
 
 const ContentGatesOnboarding = () => {
 	return (
@@ -29,7 +29,9 @@ const ContentGatesOnboarding = () => {
 					href="#"
 					title={ __( 'Restrict all posts', 'newspack-plugin' ) }
 					desc={ __( 'All posts on your site will require access.', 'newspack-plugin' ) }
-					icon={ contentLoop }
+					borderRadius="large"
+					icon={ content }
+					iconBackgroundColor
 					chevron
 					isSmall
 				/>
@@ -37,7 +39,9 @@ const ContentGatesOnboarding = () => {
 					href="#"
 					title={ __( 'Choose specific content', 'newspack-plugin' ) }
 					desc={ __( 'Select which content to restrict using custom rules.', 'newspack-plugin' ) }
-					icon={ contentLoop }
+					borderRadius="large"
+					icon={ settings }
+					iconBackgroundColor
 					chevron
 					isSmall
 				/>
