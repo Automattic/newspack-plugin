@@ -363,4 +363,131 @@ class Test_Content_Gates extends \WP_UnitTestCase {
 		// Verify the gate is deleted.
 		$this->assertNull( get_post( $gate_id ), 'Gate should be deleted' );
 	}
+
+	/**
+	 * Test that get_inline_gate_content_for_post returns default content when layout post doesn't exist.
+	 */
+	public function test_inline_gate_content_with_missing_layout() {
+		$non_existent_id = 999999;
+
+		$content = Content_Gate::get_inline_gate_content_for_post( $non_existent_id );
+
+		// Should contain the clearfix div.
+		$this->assertStringContainsString( 'clear:both', $content, 'Clearfix div should be present' );
+
+		// Should contain the default gate content.
+		$this->assertStringContainsString( 'This post is only available to members', $content, 'Default content should be present' );
+
+		// Should be wrapped in gate container.
+		$this->assertStringContainsString( 'newspack-content-gate__inline-gate', $content, 'Gate container should be present' );
+	}
+
+	/**
+	 * Test that get_inline_gate_content_for_post returns actual content when layout post exists.
+	 */
+	public function test_inline_gate_content_with_existing_layout() {
+		$gate_id = Content_Gate::create_gate( 'Test Gate' );
+		$this->gate_ids[] = $gate_id;
+
+		$gate = Content_Gate::get_gate( $gate_id );
+		$layout_id = $gate['registration']['gate_layout_id'];
+
+		// Update the layout with custom content.
+		$custom_content = '<!-- wp:paragraph --><p>Custom gate message for testing.</p><!-- /wp:paragraph -->';
+		wp_update_post(
+			[
+				'ID'           => $layout_id,
+				'post_content' => $custom_content,
+			]
+		);
+
+		// Set style to inline.
+		update_post_meta( $layout_id, 'style', 'inline' );
+
+		$content = Content_Gate::get_inline_gate_content_for_post( $layout_id );
+
+		// Should contain the clearfix div.
+		$this->assertStringContainsString( 'clear:both', $content, 'Clearfix div should be present' );
+
+		// Should contain the custom content.
+		$this->assertStringContainsString( 'Custom gate message for testing', $content, 'Custom content should be present' );
+
+		// Should NOT contain the default content.
+		$this->assertStringNotContainsString( 'This post is only available to members', $content, 'Default content should not be present' );
+
+		// Should be wrapped in gate container.
+		$this->assertStringContainsString( 'newspack-content-gate__inline-gate', $content, 'Gate container should be present' );
+	}
+
+	/**
+	 * Test that get_inline_gate_content_for_post returns empty string for overlay style.
+	 */
+	public function test_inline_gate_content_returns_empty_for_overlay_style() {
+		$gate_id = Content_Gate::create_gate( 'Test Gate' );
+		$this->gate_ids[] = $gate_id;
+
+		$gate = Content_Gate::get_gate( $gate_id );
+		$layout_id = $gate['registration']['gate_layout_id'];
+
+		// Set style to overlay.
+		update_post_meta( $layout_id, 'style', 'overlay' );
+
+		$content = Content_Gate::get_inline_gate_content_for_post( $layout_id );
+
+		$this->assertEmpty( $content, 'Should return empty string for overlay style' );
+	}
+
+	/**
+	 * Test that get_restricted_post_excerpt_for_gate uses defaults when layout doesn't exist.
+	 */
+	public function test_restricted_excerpt_with_missing_layout() {
+		$post_id = $this->factory->post->create(
+			[
+				'post_content' => '<p>First paragraph.</p><p>Second paragraph.</p><p>Third paragraph.</p><p>Fourth paragraph.</p>',
+			]
+		);
+		$this->post_ids[] = $post_id;
+
+		$post = get_post( $post_id );
+		$non_existent_id = 999999;
+
+		$excerpt = Content_Gate::get_restricted_post_excerpt_for_gate( $post, $non_existent_id );
+
+		// Default visible_paragraphs is 2, so should have first two paragraphs.
+		$this->assertStringContainsString( 'First paragraph', $excerpt, 'First paragraph should be present' );
+		$this->assertStringContainsString( 'Second paragraph', $excerpt, 'Second paragraph should be present' );
+		$this->assertStringNotContainsString( 'Third paragraph', $excerpt, 'Third paragraph should not be present' );
+	}
+
+	/**
+	 * Test that get_restricted_post_excerpt_for_gate respects layout settings.
+	 */
+	public function test_restricted_excerpt_with_existing_layout() {
+		$gate_id = Content_Gate::create_gate( 'Test Gate' );
+		$this->gate_ids[] = $gate_id;
+
+		$gate = Content_Gate::get_gate( $gate_id );
+		$layout_id = $gate['registration']['gate_layout_id'];
+
+		// Set visible paragraphs to 3.
+		update_post_meta( $layout_id, 'visible_paragraphs', 3 );
+		update_post_meta( $layout_id, 'style', 'inline' );
+		update_post_meta( $layout_id, 'use_more_tag', false );
+
+		$post_id = $this->factory->post->create(
+			[
+				'post_content' => '<p>First paragraph.</p><p>Second paragraph.</p><p>Third paragraph.</p><p>Fourth paragraph.</p>',
+			]
+		);
+		$this->post_ids[] = $post_id;
+
+		$post = get_post( $post_id );
+		$excerpt = Content_Gate::get_restricted_post_excerpt_for_gate( $post, $layout_id );
+
+		// Should have first three paragraphs.
+		$this->assertStringContainsString( 'First paragraph', $excerpt, 'First paragraph should be present' );
+		$this->assertStringContainsString( 'Second paragraph', $excerpt, 'Second paragraph should be present' );
+		$this->assertStringContainsString( 'Third paragraph', $excerpt, 'Third paragraph should be present' );
+		$this->assertStringNotContainsString( 'Fourth paragraph', $excerpt, 'Fourth paragraph should not be present' );
+	}
 }
