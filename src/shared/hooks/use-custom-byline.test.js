@@ -124,4 +124,10 @@ describe( 'extractAuthorIdsFromByline', () => {
 		expect( result ).toEqual( [ 123 ] );
 		expect( typeof result[ 0 ] ).toBe( 'number' );
 	} );
+
+	it( 'should tolerate whitespace and case variations in shortcode', () => {
+		expect( extractAuthorIdsFromByline( '[author id=7]Name[/Author]' ) ).toEqual( [ 7 ] );
+		expect( extractAuthorIdsFromByline( '[Author  id = 5]Name[/Author]' ) ).toEqual( [ 5 ] );
+		expect( extractAuthorIdsFromByline( '[AUTHOR ID=3]Name[/Author]' ) ).toEqual( [ 3 ] );
+	} );
 } );
