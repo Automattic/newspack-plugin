@@ -38,7 +38,8 @@ export default function CustomAccess( { gateId, customAccess, onChange, cardProp
 	const handleRulesChange = useCallback(
 		( rules: GateAccessRule[] ) => {
 			// Wrap rules in a single group to maintain grouped format.
-			handleChange( { access_rules: [ rules ] } );
+			// If no rules, set empty array to avoid [ [] ] which would pass readiness checks.
+			handleChange( { access_rules: rules.length ? [ rules ] : [] } );
 		},
 		[ handleChange ]
 	);
