@@ -41,6 +41,8 @@ jest.mock( '../../shared/hooks/use-custom-byline', () => ( {
 	extractAuthorIdsFromByline: jest.requireActual( '../../shared/hooks/use-custom-byline' ).extractAuthorIdsFromByline,
 } ) );
 
+const DEFAULT_AVATAR_URL = 'https://example.com/default-avatar.png';
+
 describe( 'usePostAuthors', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
@@ -51,9 +53,32 @@ describe( 'usePostAuthors', () => {
 		2: { name: 'John Smith', avatar_urls: { 96: 'https://example.com/john.jpg' } },
 	};
 
-	const createMockSelect = ( userData = mockUserData ) => {
-		return () => ( {
-			getUser: id => userData[ id ] || null,
+	/**
+	 * Create a mock select function that handles both the block editor store
+	 * (for useDefaultAvatar) and the core store (for getUser).
+	 *
+	 * usePostAuthors calls useSelect twice:
+	 * 1. useDefaultAvatar() — expects getSettings from the block editor store.
+	 * 2. The inner useSelect — expects getUser from the core store.
+	 *
+	 * We use mockImplementation so each call receives the correct mock.
+	 */
+	const setupMocks = ( userData = mockUserData ) => {
+		let callCount = 0;
+		useSelect.mockImplementation( callback => {
+			callCount++;
+			// First call: useDefaultAvatar (block editor store).
+			if ( callCount === 1 ) {
+				return callback( () => ( {
+					getSettings: () => ( {
+						__experimentalDiscussionSettings: { avatarURL: DEFAULT_AVATAR_URL },
+					} ),
+				} ) );
+			}
+			// Second call: inner useSelect in usePostAuthors (core store).
+			return callback( () => ( {
+				getUser: id => userData[ id ] || null,
+			} ) );
 		} );
 	};
 
@@ -69,7 +94,7 @@ describe( 'usePostAuthors', () => {
 					{ id: 2, display_name: 'John Smith' },
 				],
 			} );
-			useSelect.mockImplementation( callback => callback( createMockSelect() ) );
+			setupMocks();
 
 			const { result } = renderHook( () => usePostAuthors( { postId: 123 } ) );
 
@@ -77,6 +102,7 @@ describe( 'usePostAuthors', () => {
 			expect( result.current[ 0 ].id ).toBe( 1 );
 			expect( result.current[ 0 ].name ).toBe( 'Jane Doe' );
 			expect( result.current[ 0 ].avatar_urls ).toEqual( { 96: 'https://example.com/jane.jpg' } );
+			expect( result.current[ 0 ].avatarSrc ).toBe( 'https://example.com/jane.jpg' );
 		} );
 
 		it( 'should return multiple authors when byline has multiple shortcodes', () => {
@@ -85,13 +111,28 @@ describe( 'usePostAuthors', () => {
 				bylineContent: 'By [Author id=1]Jane[/Author] and [Author id=2]John[/Author]',
 			} );
 			useCoAuthors.mockReturnValue( { authors: [] } );
-			useSelect.mockImplementation( callback => callback( createMockSelect() ) );
+			setupMocks();
 
 			const { result } = renderHook( () => usePostAuthors( { postId: 123 } ) );
 
 			expect( result.current ).toHaveLength( 2 );
 			expect( result.current[ 0 ].id ).toBe( 1 );
 			expect( result.current[ 1 ].id ).toBe( 2 );
+		} );
+
+		it( 'should show one avatar for mixed byline with one author shortcode and text', () => {
+			useCustomByline.mockReturnValue( {
+				bylineActive: true,
+				bylineContent: 'By [Author id=1]Jane[/Author] and the editorial team',
+			} );
+			useCoAuthors.mockReturnValue( { authors: [] } );
+			setupMocks();
+
+			const { result } = renderHook( () => usePostAuthors( { postId: 123 } ) );
+
+			expect( result.current ).toHaveLength( 1 );
+			expect( result.current[ 0 ].id ).toBe( 1 );
+			expect( result.current[ 0 ].avatarSrc ).toBe( 'https://example.com/jane.jpg' );
 		} );
 	} );
 
@@ -107,7 +148,7 @@ describe( 'usePostAuthors', () => {
 					{ id: 2, display_name: 'John Smith', user_nicename: 'john-smith' },
 				],
 			} );
-			useSelect.mockImplementation( callback => callback( createMockSelect() ) );
+			setupMocks();
 
 			const { result } = renderHook( () => usePostAuthors( { postId: 123 } ) );
 
@@ -120,7 +161,7 @@ describe( 'usePostAuthors', () => {
 				bylineContent: 'By Staff Reporter',
 			} );
 			useCoAuthors.mockReturnValue( { authors: [] } );
-			useSelect.mockImplementation( callback => callback( createMockSelect() ) );
+			setupMocks();
 
 			const { result } = renderHook( () => usePostAuthors( { postId: 123 } ) );
 
@@ -137,7 +178,7 @@ describe( 'usePostAuthors', () => {
 			useCoAuthors.mockReturnValue( {
 				authors: [ { id: 1, display_name: 'Jane Doe', author_link: '/author/jane/' } ],
 			} );
-			useSelect.mockImplementation( callback => callback( createMockSelect() ) );
+			setupMocks();
 
 			const { result } = renderHook( () => usePostAuthors( { postId: 123 } ) );
 
@@ -152,7 +193,7 @@ describe( 'usePostAuthors', () => {
 				bylineContent: '',
 			} );
 			useCoAuthors.mockReturnValue( { authors: [] } );
-			useSelect.mockImplementation( callback => callback( createMockSelect() ) );
+			setupMocks();
 
 			const { result } = renderHook( () => usePostAuthors( { postId: 123 } ) );
 
@@ -161,35 +202,37 @@ describe( 'usePostAuthors', () => {
 	} );
 
 	describe( 'avatar data handling', () => {
-		it( 'should include avatar_urls from user data for byline authors', () => {
+		it( 'should resolve avatarSrc from avatar_urls for byline authors', () => {
 			useCustomByline.mockReturnValue( {
 				bylineActive: true,
 				bylineContent: '[Author id=1]Jane[/Author]',
 			} );
 			useCoAuthors.mockReturnValue( { authors: [] } );
-			useSelect.mockImplementation( callback => callback( createMockSelect() ) );
+			setupMocks();
 
 			const { result } = renderHook( () => usePostAuthors( { postId: 123 } ) );
 
 			expect( result.current[ 0 ].avatar_urls ).toEqual( { 96: 'https://example.com/jane.jpg' } );
+			expect( result.current[ 0 ].avatarSrc ).toBe( 'https://example.com/jane.jpg' );
 		} );
 
-		it( 'should handle missing user data gracefully', () => {
+		it( 'should fall back to default avatar when user data is missing (deleted user)', () => {
 			useCustomByline.mockReturnValue( {
 				bylineActive: true,
 				bylineContent: '[Author id=999]Unknown[/Author]',
 			} );
 			useCoAuthors.mockReturnValue( { authors: [] } );
-			useSelect.mockImplementation( callback => callback( createMockSelect() ) );
+			setupMocks();
 
 			const { result } = renderHook( () => usePostAuthors( { postId: 123 } ) );
 
 			expect( result.current[ 0 ].id ).toBe( 999 );
 			expect( result.current[ 0 ].name ).toBe( '' );
 			expect( result.current[ 0 ].avatar_urls ).toBeNull();
+			expect( result.current[ 0 ].avatarSrc ).toBe( DEFAULT_AVATAR_URL );
 		} );
 
-		it( 'should include avatar_urls from user data for CAP authors', () => {
+		it( 'should resolve avatarSrc from avatar_urls for CAP authors', () => {
 			useCustomByline.mockReturnValue( {
 				bylineActive: false,
 				bylineContent: '',
@@ -197,14 +240,15 @@ describe( 'usePostAuthors', () => {
 			useCoAuthors.mockReturnValue( {
 				authors: [ { id: 1, display_name: 'Jane Doe' } ],
 			} );
-			useSelect.mockImplementation( callback => callback( createMockSelect() ) );
+			setupMocks();
 
 			const { result } = renderHook( () => usePostAuthors( { postId: 123 } ) );
 
 			expect( result.current[ 0 ].avatar_urls ).toEqual( { 96: 'https://example.com/jane.jpg' } );
+			expect( result.current[ 0 ].avatarSrc ).toBe( 'https://example.com/jane.jpg' );
 		} );
 
-		it( 'should return CAP guest authors even when they have no WP user data', () => {
+		it( 'should fall back to default avatar for CAP guest authors without WP user data', () => {
 			useCustomByline.mockReturnValue( {
 				bylineActive: false,
 				bylineContent: '',
@@ -213,13 +257,14 @@ describe( 'usePostAuthors', () => {
 			useCoAuthors.mockReturnValue( {
 				authors: [ { id: 0, display_name: 'Guest Writer', user_nicename: 'guest-writer' } ],
 			} );
-			useSelect.mockImplementation( callback => callback( createMockSelect() ) );
+			setupMocks();
 
 			const { result } = renderHook( () => usePostAuthors( { postId: 123 } ) );
 
 			expect( result.current ).toHaveLength( 1 );
 			expect( result.current[ 0 ].display_name ).toBe( 'Guest Writer' );
 			expect( result.current[ 0 ].avatar_urls ).toBeNull();
+			expect( result.current[ 0 ].avatarSrc ).toBe( DEFAULT_AVATAR_URL );
 		} );
 	} );
 } );

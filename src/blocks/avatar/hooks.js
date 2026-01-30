@@ -23,7 +23,7 @@ function getAvatarSizes( sizes ) {
 	};
 }
 
-export function useDefaultAvatar() {
+function useDefaultAvatar() {
 	const { avatarURL: defaultAvatarUrl } = useSelect( select => {
 		const { getSettings } = select( blockEditorStore );
 		const { __experimentalDiscussionSettings } = getSettings();
@@ -61,8 +61,15 @@ export function useUserAvatar( { postId, postType } ) {
 /**
  * Hook to get post authors with avatar data.
  *
- * Checks for custom byline first. If active and has author shortcodes, returns only
- * those authors. Otherwise, falls back to CAP authors.
+ * Resolution order mirrors the PHP get_avatar_authors() method:
+ * 1. Custom byline authors (if active and has [Author] shortcodes).
+ *    If the byline is active but text-only (no shortcodes), returns empty — no avatars.
+ * 2. CoAuthors Plus authors.
+ * 3. Empty array (caller falls back to useUserAvatar for single-author display).
+ *
+ * Each returned author includes an `avatarSrc` field with a resolved URL,
+ * falling back to the site's default avatar when user-specific data is unavailable
+ * (e.g. CAP guest authors without a linked WordPress account).
  *
  * @param {Object} props          Hook props.
  * @param {number} props.postId   Post ID to get authors for.
@@ -72,6 +79,7 @@ export function useUserAvatar( { postId, postType } ) {
 export function usePostAuthors( { postId, postType = 'post' } ) {
 	const { bylineActive, bylineContent } = useCustomByline( postId, postType );
 	const { authors: coAuthors } = useCoAuthors( postId, postType );
+	const defaultAvatarUrl = useDefaultAvatar();
 
 	// Extract author IDs from custom byline content.
 	const bylineAuthorIds = useMemo(
@@ -79,23 +87,22 @@ export function usePostAuthors( { postId, postType = 'post' } ) {
 		[ bylineActive, bylineContent ]
 	);
 
-	// Use custom byline authors if available, otherwise fall back to CAP authors.
 	const hasCustomBylineAuthors = bylineAuthorIds.length > 0;
 
-	// If custom byline is active but has no author shortcodes, show no avatars.
-	const shouldReturnEmpty = bylineActive && ! hasCustomBylineAuthors;
+	// Custom byline is active but contains no [Author] shortcodes — text-only byline.
+	const hasActiveTextOnlyByline = bylineActive && ! hasCustomBylineAuthors;
 
-	// Get avatar URLs for authors from the core store.
+	// Resolve authors from the core store.
 	const authorsWithAvatars = useSelect(
 		select => {
-			// If custom byline is active but has no author shortcodes, render nothing.
-			if ( shouldReturnEmpty ) {
+			// Text-only byline: no avatars to display.
+			if ( hasActiveTextOnlyByline ) {
 				return [];
 			}
 
 			const { getUser } = select( coreStore );
 
-			// If custom byline has author shortcodes, use those authors only.
+			// Custom byline with author shortcodes: use only those authors.
 			if ( hasCustomBylineAuthors ) {
 				return bylineAuthorIds.map( authorId => {
 					const userData = getUser( authorId );
@@ -108,7 +115,7 @@ export function usePostAuthors( { postId, postType = 'post' } ) {
 				} );
 			}
 
-			// Fall back to CAP authors.
+			// CoAuthors Plus authors.
 			if ( coAuthors && coAuthors.length > 0 ) {
 				return coAuthors.map( author => {
 					const userData = author.id ? getUser( author.id ) : null;
@@ -125,8 +132,17 @@ export function usePostAuthors( { postId, postType = 'post' } ) {
 
 			return [];
 		},
-		[ shouldReturnEmpty, hasCustomBylineAuthors, bylineAuthorIds, coAuthors ]
+		[ hasActiveTextOnlyByline, hasCustomBylineAuthors, bylineAuthorIds, coAuthors ]
 	);
 
-	return authorsWithAvatars;
+	// Resolve a concrete avatarSrc for each author so the render layer doesn't need
+	// to know about fallback logic.
+	return useMemo(
+		() =>
+			authorsWithAvatars.map( author => ( {
+				...author,
+				avatarSrc: author.avatar_urls?.[ '96' ] || defaultAvatarUrl,
+			} ) ),
+		[ authorsWithAvatars, defaultAvatarUrl ]
+	);
 }

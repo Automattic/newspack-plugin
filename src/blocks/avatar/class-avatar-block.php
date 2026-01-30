@@ -76,36 +76,10 @@ final class Avatar_Block {
 
 		$image_size     = $attributes['size'] ?? 48;
 		$link_to_author = $attributes['linkToAuthorArchive'] ?? false;
-		$authors        = [];
+		$authors        = self::get_avatar_authors( $post_id );
 
-		// 1. Check for custom byline first.
-		$byline_is_active = false;
-		if ( class_exists( 'Newspack\Bylines' ) && Bylines::is_enabled() ) {
-			$byline_is_active = (bool) get_post_meta( $post_id, Bylines::META_KEY_ACTIVE, true );
-			if ( $byline_is_active ) {
-				$byline_authors = Bylines::get_post_byline_authors( $post_id );
-				if ( ! empty( $byline_authors ) ) {
-					$authors = array_filter( $byline_authors ); // Remove false values from deleted users.
-				}
-			}
-		}
-
-		// If custom byline is active but has no author shortcodes, render nothing.
-		if ( $byline_is_active && empty( $authors ) ) {
-			return '';
-		}
-
-		// 2. If no custom byline authors, check for CoAuthors Plus.
-		if ( empty( $authors ) && function_exists( 'get_coauthors' ) ) {
-			$authors = get_coauthors( $post_id );
-		}
-
-		// 3. Fallback to default WordPress author.
 		if ( empty( $authors ) ) {
-			$default_author = get_userdata( get_post_field( 'post_author', $post_id ) );
-			if ( $default_author ) {
-				$authors[] = $default_author;
-			}
+			return '';
 		}
 
 		$wrapper_attributes = get_block_wrapper_attributes( [ 'style' => '--avatar-size: ' . esc_attr( $image_size ) . 'px;' ] );
@@ -159,6 +133,44 @@ final class Avatar_Block {
 		</div>
 		<?php
 		return ob_get_clean();
+	}
+
+	/**
+	 * Get the authors whose avatars should be displayed.
+	 *
+	 * Resolution order:
+	 * 1. Custom byline authors (if byline feature is enabled and active for this post).
+	 *    If the byline is active but contains no author shortcodes, returns empty — the
+	 *    avatar block should not render for text-only bylines like "By Staff Reporter".
+	 * 2. CoAuthors Plus authors.
+	 * 3. Default WordPress post author.
+	 *
+	 * @param int $post_id Post ID.
+	 * @return array Author objects, or empty array if no authors to display.
+	 */
+	private static function get_avatar_authors( $post_id ) {
+		// Custom byline takes full control when active.
+		if ( class_exists( 'Newspack\Bylines' ) && Bylines::is_enabled() ) {
+			$byline_is_active = get_post_meta( $post_id, Bylines::META_KEY_ACTIVE, true );
+			if ( $byline_is_active ) {
+				$byline_authors = Bylines::get_post_byline_authors( $post_id );
+				// Return whatever the byline provides — even if empty. A text-only byline
+				// (no [Author] shortcodes) intentionally produces no avatars.
+				return ! empty( $byline_authors ) ? array_filter( $byline_authors ) : [];
+			}
+		}
+
+		// CoAuthors Plus.
+		if ( function_exists( 'get_coauthors' ) ) {
+			$coauthors = get_coauthors( $post_id );
+			if ( ! empty( $coauthors ) ) {
+				return $coauthors;
+			}
+		}
+
+		// Default WordPress author.
+		$default_author = get_userdata( get_post_field( 'post_author', $post_id ) );
+		return $default_author ? [ $default_author ] : [];
 	}
 
 	/**

@@ -17,7 +17,7 @@ import { addQueryArgs, removeQueryArgs } from '@wordpress/url';
 /**
  * Internal dependencies
  */
-import { useUserAvatar, usePostAuthors, useDefaultAvatar } from './hooks';
+import { useUserAvatar, usePostAuthors } from './hooks';
 const AvatarInspectorControls = ( { setAttributes, attributes } ) => (
 	<InspectorControls>
 		<PanelBody title={ __( 'Settings', 'newspack-plugin' ) }>
@@ -45,12 +45,11 @@ const AvatarInspectorControls = ( { setAttributes, attributes } ) => (
 	</InspectorControls>
 );
 
-const AvatarWrapper = ( { avatar, size, attributes, defaultAvatarUrl } ) => {
+const AvatarWrapper = ( { avatar, size, attributes } ) => {
 	const { className } = useBlockProps();
 	const borderProps = useBorderProps( attributes );
 
-	// Use default avatar when src is unavailable (e.g. CAP guest authors without WP user data).
-	const avatarSrc = avatar?.src || defaultAvatarUrl;
+	const avatarSrc = avatar?.src;
 	if ( ! avatarSrc ) {
 		return null;
 	}
@@ -63,7 +62,7 @@ const AvatarWrapper = ( { avatar, size, attributes, defaultAvatarUrl } ) => {
 	const avatarImage = (
 		<img
 			src={ doubledSizedSrc }
-			alt={ avatar.alt }
+			alt={ avatar.alt || '' }
 			className={ clsx( 'avatar', 'avatar-' + size, 'photo', 'wp-block-newspack-avatar__image', borderProps.className ) }
 			style={ {
 				width: size,
@@ -94,7 +93,6 @@ const Edit = ( { attributes, context, setAttributes } ) => {
 	const { postId, postType } = context;
 	const avatar = useUserAvatar( { userId: attributes?.userId, postId, postType } );
 	const allAuthors = usePostAuthors( { postId, postType } );
-	const defaultAvatarUrl = useDefaultAvatar();
 	const blockProps = useBlockProps();
 
 	const authors = allAuthors?.length ? allAuthors : null;
@@ -105,13 +103,7 @@ const Edit = ( { attributes, context, setAttributes } ) => {
 	}
 
 	const renderAvatar = ( currentAvatar, key ) => (
-		<AvatarWrapper
-			key={ key }
-			avatar={ currentAvatar }
-			size={ attributes.size }
-			attributes={ attributes }
-			defaultAvatarUrl={ defaultAvatarUrl }
-		/>
+		<AvatarWrapper key={ key } avatar={ currentAvatar } size={ attributes.size } attributes={ attributes } />
 	);
 	return (
 		<>
@@ -119,10 +111,8 @@ const Edit = ( { attributes, context, setAttributes } ) => {
 			{ authors?.length
 				? authors.map( ( author, index ) => {
 						const currentAvatar = {
-							src: author?.avatar_urls?.[ '96' ],
-							alt: author?.name,
-							minSize: 16,
-							maxSize: 128,
+							src: author.avatarSrc,
+							alt: author?.name || author?.display_name || '',
 						};
 						return renderAvatar( currentAvatar, author.id || index );
 				  } )

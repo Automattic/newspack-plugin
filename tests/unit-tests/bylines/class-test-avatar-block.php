@@ -217,4 +217,73 @@ class Test_Avatar_Block extends \WP_UnitTestCase {
 
 		$this->assertStringNotContainsString( '<a href=', $output, 'Should not contain author link.' );
 	}
+
+	/**
+	 * Test render_block shows only the shortcode author for a mixed byline
+	 * (one [Author] shortcode plus plain text).
+	 *
+	 * @covers \Newspack\Blocks\Avatar\Avatar_Block::render_block
+	 */
+	public function test_render_block_mixed_byline_one_shortcode_and_text() {
+		update_post_meta( self::$post_id, Bylines::META_KEY_ACTIVE, true );
+		update_post_meta(
+			self::$post_id,
+			Bylines::META_KEY_BYLINE,
+			'By [Author id=' . self::$author_id . ']Avatar Test Author[/Author] and the editorial team'
+		);
+
+		$output = $this->render_avatar_block();
+
+		$this->assertStringContainsString( 'Avatar Test Author', $output, 'Should show the shortcode author avatar.' );
+		// Only one avatar wrapper should be present.
+		$this->assertSame( 1, substr_count( $output, 'newspack-avatar-wrapper' ), 'Should render exactly one avatar.' );
+	}
+
+	/**
+	 * Test render_block shows multiple avatars when byline has multiple author shortcodes.
+	 *
+	 * @covers \Newspack\Blocks\Avatar\Avatar_Block::render_block
+	 */
+	public function test_render_block_multiple_author_shortcodes() {
+		$second_author_id = static::factory()->user->create(
+			[
+				'user_login'   => 'avatartestauthor2',
+				'user_email'   => 'avatartestauthor2@example.com',
+				'display_name' => 'Second Author',
+				'role'         => 'author',
+			]
+		);
+
+		update_post_meta( self::$post_id, Bylines::META_KEY_ACTIVE, true );
+		update_post_meta(
+			self::$post_id,
+			Bylines::META_KEY_BYLINE,
+			'[Author id=' . self::$author_id . ']Avatar Test Author[/Author] and [Author id=' . $second_author_id . ']Second Author[/Author]'
+		);
+
+		$output = $this->render_avatar_block();
+
+		$this->assertStringContainsString( 'Avatar Test Author', $output, 'Should show first author.' );
+		$this->assertStringContainsString( 'Second Author', $output, 'Should show second author.' );
+		$this->assertSame( 2, substr_count( $output, 'newspack-avatar-wrapper' ), 'Should render two avatars.' );
+	}
+
+	/**
+	 * Test render_block returns empty when byline references a deleted user.
+	 *
+	 * @covers \Newspack\Blocks\Avatar\Avatar_Block::render_block
+	 */
+	public function test_render_block_empty_when_byline_author_deleted() {
+		update_post_meta( self::$post_id, Bylines::META_KEY_ACTIVE, true );
+		update_post_meta(
+			self::$post_id,
+			Bylines::META_KEY_BYLINE,
+			'[Author id=999999]Deleted User[/Author]'
+		);
+
+		$output = $this->render_avatar_block();
+
+		// get_user_by returns false for non-existent IDs, so array_filter removes it.
+		$this->assertEmpty( $output, 'Should return empty when byline author no longer exists.' );
+	}
 }
