@@ -166,8 +166,10 @@ trait Content_Gate_Layout {
 	 * @return string The inline gate HTML content.
 	 */
 	public static function get_inline_gate_content_for_post( $gate_layout_id ) {
-		$style = \get_post_meta( $gate_layout_id, 'style', true );
-		// Default to 'inline' style if not set.
+		$gate_layout_post = \get_post( $gate_layout_id );
+
+		// Get style, defaulting to 'inline' if post doesn't exist or meta is not set.
+		$style = $gate_layout_post ? \get_post_meta( $gate_layout_id, 'style', true ) : '';
 		if ( empty( $style ) ) {
 			$style = 'inline';
 		}
@@ -175,18 +177,22 @@ trait Content_Gate_Layout {
 		if ( 'inline' !== $style ) {
 			return '';
 		}
-		$gate_content = '<div style=\'content:"";clear:both;display:table;\'></div>';
 
-		$gate_layout_post = \get_post( $gate_layout_id );
+		// Build gate content.
+		$gate_content = '<div style=\'content:"";clear:both;display:table;\'></div>';
 		if ( $gate_layout_post ) {
-			$gate_content = $gate_content . \get_the_content( null, false, $gate_layout_post );
+			$gate_content        .= \get_the_content( null, false, $gate_layout_post );
+			$visible_paragraphs   = self::get_visible_paragraphs( $gate_layout_id );
+			$inline_fade          = \get_post_meta( $gate_layout_id, 'inline_fade', true );
 		} else {
-			$gate_content = $gate_content . self::get_default_gate_content();
+			// Use defaults when layout post doesn't exist.
+			$gate_content       .= self::get_default_gate_content();
+			$visible_paragraphs  = 2;
+			$inline_fade         = true;
 		}
 
 		// Apply inline fade.
-		$visible_paragraphs = self::get_visible_paragraphs( $gate_layout_id );
-		if ( $visible_paragraphs > 0 && \get_post_meta( $gate_layout_id, 'inline_fade', true ) ) {
+		if ( $visible_paragraphs > 0 && $inline_fade ) {
 			$gate_content = '<div style="pointer-events: none; height: 10em; margin-top: -10em; width: 100%; position: absolute; background: linear-gradient(180deg, rgba(255,255,255,0) 14%, rgba(255,255,255,1) 76%);"></div>' . $gate_content;
 		}
 
@@ -204,20 +210,29 @@ trait Content_Gate_Layout {
 	 * @return string The restricted post excerpt HTML.
 	 */
 	public static function get_restricted_post_excerpt_for_gate( $post, $gate_layout_id ) {
-		$content = $post->post_content;
+		$content          = $post->post_content;
+		$gate_layout_post = \get_post( $gate_layout_id );
 
-		$style = \get_post_meta( $gate_layout_id, 'style', true );
-		// Default to 'inline' style if not set (e.g., when using gate ID as fallback layout).
+		// Get settings from layout post, or use defaults if post doesn't exist.
+		if ( $gate_layout_post ) {
+			$style        = \get_post_meta( $gate_layout_id, 'style', true );
+			$use_more_tag = \get_post_meta( $gate_layout_id, 'use_more_tag', true );
+			$count        = self::get_visible_paragraphs( $gate_layout_id );
+		} else {
+			$style        = '';
+			$use_more_tag = true;
+			$count        = 2;
+		}
+
+		// Default to 'inline' style if not set.
 		if ( empty( $style ) ) {
 			$style = 'inline';
 		}
 
-		$use_more_tag = get_post_meta( $gate_layout_id, 'use_more_tag', true );
 		// Use <!--more--> as threshold if it exists.
 		if ( $use_more_tag && strpos( $content, '<!--more-->' ) ) {
 			$content = apply_filters( 'newspack_gate_content', explode( '<!--more-->', $content )[0] );
 		} else {
-			$count = self::get_visible_paragraphs( $gate_layout_id );
 			if ( 0 === $count ) {
 				return '';
 			}
