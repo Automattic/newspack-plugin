@@ -96,7 +96,7 @@ describe( 'usePostAuthors', () => {
 	} );
 
 	describe( 'custom byline without author shortcodes (plain text)', () => {
-		it( 'should fall back to CAP authors when byline has no shortcodes', () => {
+		it( 'should return empty array when byline is active but has no author shortcodes', () => {
 			useCustomByline.mockReturnValue( {
 				bylineActive: true,
 				bylineContent: 'By the editorial team',
@@ -111,9 +111,20 @@ describe( 'usePostAuthors', () => {
 
 			const { result } = renderHook( () => usePostAuthors( { postId: 123 } ) );
 
-			expect( result.current ).toHaveLength( 2 );
-			expect( result.current[ 0 ].display_name ).toBe( 'Jane Doe' );
-			expect( result.current[ 1 ].display_name ).toBe( 'John Smith' );
+			expect( result.current ).toEqual( [] );
+		} );
+
+		it( 'should return empty array for text-only byline like "By Staff Reporter"', () => {
+			useCustomByline.mockReturnValue( {
+				bylineActive: true,
+				bylineContent: 'By Staff Reporter',
+			} );
+			useCoAuthors.mockReturnValue( { authors: [] } );
+			useSelect.mockImplementation( callback => callback( createMockSelect() ) );
+
+			const { result } = renderHook( () => usePostAuthors( { postId: 123 } ) );
+
+			expect( result.current ).toEqual( [] );
 		} );
 	} );
 
@@ -191,6 +202,24 @@ describe( 'usePostAuthors', () => {
 			const { result } = renderHook( () => usePostAuthors( { postId: 123 } ) );
 
 			expect( result.current[ 0 ].avatar_urls ).toEqual( { 96: 'https://example.com/jane.jpg' } );
+		} );
+
+		it( 'should return CAP guest authors even when they have no WP user data', () => {
+			useCustomByline.mockReturnValue( {
+				bylineActive: false,
+				bylineContent: '',
+			} );
+			// Guest author with no WP user ID (id is 0 or falsy).
+			useCoAuthors.mockReturnValue( {
+				authors: [ { id: 0, display_name: 'Guest Writer', user_nicename: 'guest-writer' } ],
+			} );
+			useSelect.mockImplementation( callback => callback( createMockSelect() ) );
+
+			const { result } = renderHook( () => usePostAuthors( { postId: 123 } ) );
+
+			expect( result.current ).toHaveLength( 1 );
+			expect( result.current[ 0 ].display_name ).toBe( 'Guest Writer' );
+			expect( result.current[ 0 ].avatar_urls ).toBeNull();
 		} );
 	} );
 } );
