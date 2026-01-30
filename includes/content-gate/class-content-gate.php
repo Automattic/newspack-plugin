@@ -594,10 +594,18 @@ class Content_Gate {
 	 * @return string The pattern content, or empty string if not found.
 	 */
 	public static function get_block_pattern_content( $pattern_slug ) {
-		$path = __DIR__ . '/block-patterns/' . $pattern_slug . '.php';
-		if ( ! file_exists( $path ) ) {
+		$patterns_dir = realpath( __DIR__ . '/block-patterns' );
+		if ( ! $patterns_dir ) {
 			return '';
 		}
+
+		$path = realpath( $patterns_dir . '/' . $pattern_slug . '.php' );
+
+		// Ensure the resolved path is within the block-patterns directory to prevent directory traversal.
+		if ( ! $path || strpos( $path, $patterns_dir . DIRECTORY_SEPARATOR ) !== 0 ) {
+			return '';
+		}
+
 		ob_start();
 		require $path;
 		return ob_get_clean();
