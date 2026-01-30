@@ -1,0 +1,14 @@
+name: Build distributable
+
+on:
+  pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-distributable:
+    uses: Automattic/newspack-scripts/.github/workflows/reusable-build-distributable.yml
+    with:
+      archive-name: newspack-plugin
