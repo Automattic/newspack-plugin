@@ -216,7 +216,7 @@ describe( 'usePostAuthors', () => {
 			expect( result.current[ 0 ].avatarSrc ).toBe( 'https://example.com/jane.jpg' );
 		} );
 
-		it( 'should fall back to default avatar when user data is missing (deleted user)', () => {
+		it( 'should filter out deleted users from byline authors', () => {
 			useCustomByline.mockReturnValue( {
 				bylineActive: true,
 				bylineContent: '[Author id=999]Unknown[/Author]',
@@ -226,10 +226,7 @@ describe( 'usePostAuthors', () => {
 
 			const { result } = renderHook( () => usePostAuthors( { postId: 123 } ) );
 
-			expect( result.current[ 0 ].id ).toBe( 999 );
-			expect( result.current[ 0 ].name ).toBe( '' );
-			expect( result.current[ 0 ].avatar_urls ).toBeNull();
-			expect( result.current[ 0 ].avatarSrc ).toBe( DEFAULT_AVATAR_URL );
+			expect( result.current ).toEqual( [] );
 		} );
 
 		it( 'should resolve avatarSrc from avatar_urls for CAP authors', () => {

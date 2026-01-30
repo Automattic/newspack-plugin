@@ -103,16 +103,22 @@ export function usePostAuthors( { postId, postType = 'post' } ) {
 			const { getUser } = select( coreStore );
 
 			// Custom byline with author shortcodes: use only those authors.
+			// Filter out deleted users (getUser returns null).
 			if ( hasCustomBylineAuthors ) {
-				return bylineAuthorIds.map( authorId => {
-					const userData = getUser( authorId );
-					return {
-						id: authorId,
-						name: userData?.name || '',
-						display_name: userData?.name || '',
-						avatar_urls: userData?.avatar_urls || null,
-					};
-				} );
+				return bylineAuthorIds
+					.map( authorId => {
+						const userData = getUser( authorId );
+						if ( ! userData ) {
+							return null;
+						}
+						return {
+							id: authorId,
+							name: userData.name || '',
+							display_name: userData.name || '',
+							avatar_urls: userData.avatar_urls || null,
+						};
+					} )
+					.filter( Boolean );
 			}
 
 			// CoAuthors Plus authors.
