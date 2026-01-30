@@ -573,7 +573,7 @@ class Content_Gate {
 			$title = __( 'Content Gate Layout', 'newspack' );
 		}
 		if ( empty( $content ) ) {
-			$content = '<!-- wp:paragraph --><p>' . __( 'This post is only available to members.', 'newspack' ) . '</p><!-- /wp:paragraph -->';
+			$content = self::get_default_gate_content();
 		}
 		return \wp_insert_post(
 			[
