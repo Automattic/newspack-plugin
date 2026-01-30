@@ -506,7 +506,8 @@ class Content_Gate {
 				'meta_input'   => [
 					'gate_priority' => count( $all_gates ),
 				],
-			]
+			],
+			true // Return WP_Error on failure.
 		);
 
 		if ( is_wp_error( $gate_id ) ) {
@@ -580,7 +581,8 @@ class Content_Gate {
 				'post_title'   => $title,
 				'post_type'    => self::GATE_LAYOUT_CPT,
 				'post_content' => $content,
-			]
+			],
+			true // Return WP_Error on failure.
 		);
 	}
 
