@@ -26,7 +26,7 @@ function openNotice( element, remove = true ) {
 	if ( element.dataset.autohide !== 'false' ) {
 		setTimeout( () => {
 			closeNotice( element, remove );
-		}, 5000 );
+		}, 8000 );
 	}
 }
 
@@ -41,7 +41,7 @@ function closeNotice( element, remove = true ) {
 	if ( remove ) {
 		setTimeout( () => {
 			element.remove();
-		}, 125 );
+		}, 250 );
 	}
 	wp.ajax.send( 'newspack_ui_notice_dismissed', {
 		data: {
