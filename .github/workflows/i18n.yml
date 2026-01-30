@@ -11,4 +11,4 @@ concurrency:
 
 jobs:
   i18n:
-    uses: Automattic/newspack-scripts/.github/workflows/reusable-i18n.yml
+    uses: Automattic/newspack-scripts/.github/workflows/reusable-i18n.yml@trunk
