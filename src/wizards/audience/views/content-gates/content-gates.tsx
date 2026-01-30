@@ -19,6 +19,7 @@ import { useWizardData } from '../../../../../packages/components/src/wizard/sto
 import { WIZARD_STORE_NAMESPACE } from '../../../../../packages/components/src/wizard/store';
 import { useWizardApiFetch } from '../../../hooks/use-wizard-api-fetch';
 import WizardsActionCard from '../../../wizards-action-card';
+import ContentGatesOnboarding from './content-gates-onboarding';
 import ContentGateSettings from './content-gate-settings';
 import { AUDIENCE_CONTENT_GATES_WIZARD_SLUG } from './consts';
 import './style.scss';
@@ -188,6 +189,10 @@ const ContentGates = () => {
 		const newGates = gates.map( g => ( g.id === gate.id ? gate : g ) );
 		onChange( newGates );
 	};
+
+	if ( ! gates?.length ) {
+		return <ContentGatesOnboarding />;
+	}
 
 	return (
 		<div className="newspack-content-gates__gates">

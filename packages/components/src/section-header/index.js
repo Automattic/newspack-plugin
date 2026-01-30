@@ -6,6 +6,7 @@
  * WordPress dependencies
  */
 import { useEffect, useRef } from '@wordpress/element';
+import { Icon } from '@wordpress/icons';
 
 /**
  * Internal dependencies
@@ -22,14 +23,17 @@ import classnames from 'classnames';
  * Represents a section header component.
  *
  * @typedef {Object} SectionHeaderProps
- * @property {boolean}           [centered=false] - Indicates if the header is centered.
- * @property {?string}           [className=null] - Additional CSS class name.
- * @property {string|Function|*} [description]    - Description of the section.
- * @property {number}            [heading=2]      - HTML heading level, e.g., 1 for h1, 2 for h2, etc.
- * @property {boolean}           [isWhite=false]  - Indicates if the header should use a white theme.
- * @property {boolean}           [noMargin=false] - Indicates if the header should have no margin.
- * @property {string}            title            - The title of the section.
- * @property {?string}           [id=null]        - Optional ID for the header element.
+ * @property {boolean}            [centered=false]   - Indicates if the header is centered.
+ * @property {?string}            [className=null]   - Additional CSS class name.
+ * @property {string|Function|*}  [description]      - Description of the section.
+ * @property {number}             [heading=2]        - HTML heading level, e.g., 1 for h1, 2 for h2, etc.
+ * @property {string|Function|*}  [icon]             - Icon to display in the header.
+ * @property {boolean}            [isWhite=false]    - Indicates if the header should use a white theme.
+ * @property {boolean}            [noMargin=false]   - Indicates if the header should have no margin.
+ * @property {boolean}            [pageHeader=false] - Indicates if the header is used as a page header.
+ * @property {string}             title              - The title of the section.
+ * @property {?string}            [id=null]          - Optional ID for the header element.
+ * @property {?string|Function|*} [children=null]    - Optional children to display in the header.
  */
 
 /**
@@ -42,10 +46,13 @@ const SectionHeader = ( {
 	className = null,
 	description = '',
 	heading = 2,
+	icon = null,
 	isWhite = false,
 	noMargin = false,
+	pageHeader = false,
 	title,
 	id = null,
+	children = null,
 } ) => {
 	// If id is in the URL as a scrollTo param, scroll to it on render.
 	const ref = useRef();
@@ -65,19 +72,26 @@ const SectionHeader = ( {
 		centered && 'newspack-section-header--is-centered',
 		isWhite && 'newspack-section-header--is-white',
 		noMargin && 'newspack-section-header--no-margin',
+		pageHeader && 'newspack-section-header--page-header',
 		className
 	);
 
-	const HeadingTag = `h${ heading }`;
+	const HeadingTag = pageHeader ? 'h1' : `h${ heading }`;
 
 	return (
 		<div id={ id } className="newspack-section-header__container" ref={ ref }>
 			<Grid columns={ 1 } gutter={ 8 } className={ classes }>
+				{ icon && (
+					<div className="newspack-section-header__icon">
+						<Icon icon={ icon } size={ 48 } />
+					</div>
+				) }
 				{ typeof title === 'string' && <HeadingTag>{ title }</HeadingTag> }
 				{ typeof title === 'function' && <HeadingTag>{ title() }</HeadingTag> }
 				{ description && typeof description === 'string' && <p>{ description }</p> }
 				{ typeof description === 'function' && <p>{ description() }</p> }
 				{ description && typeof description !== 'string' && typeof description !== 'function' && <p>{ description }</p> }
+				{ children && <div className="newspack-section-header__children">{ children }</div> }
 			</Grid>
 		</div>
 	);

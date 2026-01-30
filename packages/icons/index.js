@@ -44,3 +44,4 @@ export { default as tabItem } from './src/tab-item';
 export { default as tabs } from './src/tabs';
 export { default as target } from './src/target';
 export { default as theme } from './src/theme';
+export { default as wallPay } from './src/wall-pay';
