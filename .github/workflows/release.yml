@@ -14,15 +14,15 @@ concurrency:
 
 jobs:
   build:
-    uses: Automattic/newspack-scripts/.github/workflows/reusable-build.yml@refactor/deprecate-circle-ci
+    uses: Automattic/newspack-scripts/.github/workflows/reusable-build.yml
 
   release:
     needs: build
-    uses: Automattic/newspack-scripts/.github/workflows/reusable-release.yml@refactor/deprecate-circle-ci
+    uses: Automattic/newspack-scripts/.github/workflows/reusable-release.yml
     secrets:
       NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
   post-release:
     if: github.ref == 'refs/heads/release'
     needs: release
-    uses: Automattic/newspack-scripts/.github/workflows/reusable-post-release.yml@refactor/deprecate-circle-ci
+    uses: Automattic/newspack-scripts/.github/workflows/reusable-post-release.yml
