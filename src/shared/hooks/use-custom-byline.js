@@ -37,7 +37,7 @@ export function extractAuthorIdsFromByline( bylineContent ) {
 	if ( ! bylineContent ) {
 		return [];
 	}
-	const regex = /\[Author id=(\d+)\]/g;
+	const regex = /\[Author\s+id\s*=\s*(\d+)\]/gi;
 	const ids = [];
 	let match;
 	while ( ( match = regex.exec( bylineContent ) ) !== null ) {
