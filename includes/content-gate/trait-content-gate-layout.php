@@ -52,6 +52,18 @@ trait Content_Gate_Layout {
 	}
 
 	/**
+	 * Get the default value for a layout meta field.
+	 *
+	 * @param string $key The meta field key.
+	 *
+	 * @return mixed The default value, or null if not found.
+	 */
+	protected static function get_layout_meta_default( $key ) {
+		$config = self::get_layout_meta_config();
+		return $config[ $key ]['default'] ?? null;
+	}
+
+	/**
 	 * Register layout meta fields for a given post type.
 	 *
 	 * @param string $post_type The post type to register meta for.
@@ -146,7 +158,7 @@ trait Content_Gate_Layout {
 	 */
 	protected static function get_visible_paragraphs( $gate_post_id ) {
 		$visible_paragraphs = \get_post_meta( $gate_post_id, 'visible_paragraphs', true );
-		return '' === $visible_paragraphs ? 2 : max( 0, (int) $visible_paragraphs );
+		return '' === $visible_paragraphs ? self::get_layout_meta_default( 'visible_paragraphs' ) : max( 0, (int) $visible_paragraphs );
 	}
 
 	/**
@@ -168,10 +180,10 @@ trait Content_Gate_Layout {
 	public static function get_inline_gate_content_for_post( $gate_layout_id ) {
 		$gate_layout_post = \get_post( $gate_layout_id );
 
-		// Get style, defaulting to 'inline' if post doesn't exist or meta is not set.
+		// Get style, defaulting if post doesn't exist or meta is not set.
 		$style = $gate_layout_post ? \get_post_meta( $gate_layout_id, 'style', true ) : '';
 		if ( empty( $style ) ) {
-			$style = 'inline';
+			$style = self::get_layout_meta_default( 'style' );
 		}
 
 		if ( 'inline' !== $style ) {
@@ -187,8 +199,8 @@ trait Content_Gate_Layout {
 		} else {
 			// Use defaults when layout post doesn't exist.
 			$gate_content       .= self::get_default_gate_content();
-			$visible_paragraphs  = 2;
-			$inline_fade         = true;
+			$visible_paragraphs  = self::get_layout_meta_default( 'visible_paragraphs' );
+			$inline_fade         = self::get_layout_meta_default( 'inline_fade' );
 		}
 
 		// Apply inline fade.
@@ -220,13 +232,13 @@ trait Content_Gate_Layout {
 			$count        = self::get_visible_paragraphs( $gate_layout_id );
 		} else {
 			$style        = '';
-			$use_more_tag = true;
-			$count        = 2;
+			$use_more_tag = self::get_layout_meta_default( 'use_more_tag' );
+			$count        = self::get_layout_meta_default( 'visible_paragraphs' );
 		}
 
-		// Default to 'inline' style if not set.
+		// Default to configured style if not set.
 		if ( empty( $style ) ) {
-			$style = 'inline';
+			$style = self::get_layout_meta_default( 'style' );
 		}
 
 		// Use <!--more--> as threshold if it exists.
