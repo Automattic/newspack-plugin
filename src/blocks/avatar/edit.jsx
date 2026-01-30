@@ -17,7 +17,7 @@ import { addQueryArgs, removeQueryArgs } from '@wordpress/url';
 /**
  * Internal dependencies
  */
-import { useUserAvatar, usePostAuthors } from './hooks';
+import { useUserAvatar, usePostAuthors, useDefaultAvatar } from './hooks';
 const AvatarInspectorControls = ( { setAttributes, attributes } ) => (
 	<InspectorControls>
 		<PanelBody title={ __( 'Settings', 'newspack-plugin' ) }>
@@ -45,18 +45,19 @@ const AvatarInspectorControls = ( { setAttributes, attributes } ) => (
 	</InspectorControls>
 );
 
-const AvatarWrapper = ( { avatar, size, attributes } ) => {
+const AvatarWrapper = ( { avatar, size, attributes, defaultAvatarUrl } ) => {
 	const { className } = useBlockProps();
 	const borderProps = useBorderProps( attributes );
 
-	// Guard against undefined src. This can happen when CAP guest authors don't have WP user data.
-	if ( ! avatar?.src ) {
+	// Use default avatar when src is unavailable (e.g. CAP guest authors without WP user data).
+	const avatarSrc = avatar?.src || defaultAvatarUrl;
+	if ( ! avatarSrc ) {
 		return null;
 	}
 
 	const duotoneClassName = className ? className.split( ' ' ).filter( classes => classes.includes( 'wp-duotone' ) ) : '';
 	const classNames = clsx( 'newspack-avatar-wrapper', duotoneClassName );
-	const doubledSizedSrc = addQueryArgs( removeQueryArgs( avatar.src, [ 's' ] ), {
+	const doubledSizedSrc = addQueryArgs( removeQueryArgs( avatarSrc, [ 's' ] ), {
 		s: attributes?.size * 2,
 	} );
 	const avatarImage = (
@@ -93,6 +94,7 @@ const Edit = ( { attributes, context, setAttributes } ) => {
 	const { postId, postType } = context;
 	const avatar = useUserAvatar( { userId: attributes?.userId, postId, postType } );
 	const allAuthors = usePostAuthors( { postId, postType } );
+	const defaultAvatarUrl = useDefaultAvatar();
 	const blockProps = useBlockProps();
 
 	const authors = allAuthors?.length ? allAuthors : null;
@@ -103,7 +105,13 @@ const Edit = ( { attributes, context, setAttributes } ) => {
 	}
 
 	const renderAvatar = ( currentAvatar, key ) => (
-		<AvatarWrapper key={ key } avatar={ currentAvatar } size={ attributes.size } attributes={ attributes } />
+		<AvatarWrapper
+			key={ key }
+			avatar={ currentAvatar }
+			size={ attributes.size }
+			attributes={ attributes }
+			defaultAvatarUrl={ defaultAvatarUrl }
+		/>
 	);
 	return (
 		<>

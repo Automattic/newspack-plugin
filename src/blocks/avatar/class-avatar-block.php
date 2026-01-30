@@ -79,11 +79,20 @@ final class Avatar_Block {
 		$authors        = [];
 
 		// 1. Check for custom byline first.
+		$byline_is_active = false;
 		if ( class_exists( 'Newspack\Bylines' ) && Bylines::is_enabled() ) {
-			$byline_authors = Bylines::get_post_byline_authors( $post_id );
-			if ( ! empty( $byline_authors ) ) {
-				$authors = array_filter( $byline_authors ); // Remove false values from deleted users.
+			$byline_is_active = (bool) get_post_meta( $post_id, Bylines::META_KEY_ACTIVE, true );
+			if ( $byline_is_active ) {
+				$byline_authors = Bylines::get_post_byline_authors( $post_id );
+				if ( ! empty( $byline_authors ) ) {
+					$authors = array_filter( $byline_authors ); // Remove false values from deleted users.
+				}
 			}
+		}
+
+		// If custom byline is active but has no author shortcodes, render nothing.
+		if ( $byline_is_active && empty( $authors ) ) {
+			return '';
 		}
 
 		// 2. If no custom byline authors, check for CoAuthors Plus.

@@ -23,7 +23,7 @@ function getAvatarSizes( sizes ) {
 	};
 }
 
-function useDefaultAvatar() {
+export function useDefaultAvatar() {
 	const { avatarURL: defaultAvatarUrl } = useSelect( select => {
 		const { getSettings } = select( blockEditorStore );
 		const { __experimentalDiscussionSettings } = getSettings();
@@ -82,9 +82,17 @@ export function usePostAuthors( { postId, postType = 'post' } ) {
 	// Use custom byline authors if available, otherwise fall back to CAP authors.
 	const hasCustomBylineAuthors = bylineAuthorIds.length > 0;
 
+	// If custom byline is active but has no author shortcodes, show no avatars.
+	const shouldReturnEmpty = bylineActive && ! hasCustomBylineAuthors;
+
 	// Get avatar URLs for authors from the core store.
 	const authorsWithAvatars = useSelect(
 		select => {
+			// If custom byline is active but has no author shortcodes, render nothing.
+			if ( shouldReturnEmpty ) {
+				return [];
+			}
+
 			const { getUser } = select( coreStore );
 
 			// If custom byline has author shortcodes, use those authors only.
@@ -117,7 +125,7 @@ export function usePostAuthors( { postId, postType = 'post' } ) {
 
 			return [];
 		},
-		[ hasCustomBylineAuthors, bylineAuthorIds, coAuthors ]
+		[ shouldReturnEmpty, hasCustomBylineAuthors, bylineAuthorIds, coAuthors ]
 	);
 
 	return authorsWithAvatars;
