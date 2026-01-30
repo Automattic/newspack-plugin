@@ -150,31 +150,49 @@ trait Content_Gate_Layout {
 	}
 
 	/**
+	 * Get the default gate content.
+	 *
+	 * @return string
+	 */
+	protected static function get_default_gate_content() {
+		return '<!-- wp:paragraph --><p>' . __( 'This post is only available to members.', 'newspack' ) . '</p><!-- /wp:paragraph -->';
+	}
+
+	/**
 	 * Get the inline gate content with fade effect.
 	 *
-	 * @param int $gate_post_id The gate post ID.
+	 * @param int $gate_layout_id The gate layout ID.
 	 *
 	 * @return string The inline gate HTML content.
 	 */
-	public static function get_inline_gate_content_for_post( $gate_post_id ) {
-		$style = \get_post_meta( $gate_post_id, 'style', true );
+	public static function get_inline_gate_content_for_post( $gate_layout_id ) {
+		$style = \get_post_meta( $gate_layout_id, 'style', true );
+		// Default to 'inline' style if not set.
+		if ( empty( $style ) ) {
+			$style = 'inline';
+		}
+
 		if ( 'inline' !== $style ) {
 			return '';
 		}
-		$gate = \get_the_content( null, false, \get_post( $gate_post_id ) );
+		$gate_content = '<div style=\'content:"";clear:both;display:table;\'></div>';
 
-		// Add clearfix to the gate.
-		$gate = '<div style=\'content:"";clear:both;display:table;\'></div>' . $gate;
+		$gate_layout_post = \get_post( $gate_layout_id );
+		if ( $gate_layout_post ) {
+			$gate_content = $gate_content . \get_the_content( null, false, $gate_layout_post );
+		} else {
+			$gate_content = $gate_content . self::get_default_gate_content();
+		}
 
 		// Apply inline fade.
-		$visible_paragraphs = self::get_visible_paragraphs( $gate_post_id );
-		if ( $visible_paragraphs > 0 && \get_post_meta( $gate_post_id, 'inline_fade', true ) ) {
-			$gate = '<div style="pointer-events: none; height: 10em; margin-top: -10em; width: 100%; position: absolute; background: linear-gradient(180deg, rgba(255,255,255,0) 14%, rgba(255,255,255,1) 76%);"></div>' . $gate;
+		$visible_paragraphs = self::get_visible_paragraphs( $gate_layout_id );
+		if ( $visible_paragraphs > 0 && \get_post_meta( $gate_layout_id, 'inline_fade', true ) ) {
+			$gate_content = '<div style="pointer-events: none; height: 10em; margin-top: -10em; width: 100%; position: absolute; background: linear-gradient(180deg, rgba(255,255,255,0) 14%, rgba(255,255,255,1) 76%);"></div>' . $gate_content;
 		}
 
 		// Wrap gate in a div for styling.
-		$gate = '<div class="newspack-content-gate__gate newspack-content-gate__inline-gate">' . $gate . '</div>';
-		return $gate;
+		$gate_content = '<div class="newspack-content-gate__gate newspack-content-gate__inline-gate">' . $gate_content . '</div>';
+		return $gate_content;
 	}
 
 	/**
@@ -189,6 +207,10 @@ trait Content_Gate_Layout {
 		$content = $post->post_content;
 
 		$style = \get_post_meta( $gate_layout_id, 'style', true );
+		// Default to 'inline' style if not set (e.g., when using gate ID as fallback layout).
+		if ( empty( $style ) ) {
+			$style = 'inline';
+		}
 
 		$use_more_tag = get_post_meta( $gate_layout_id, 'use_more_tag', true );
 		// Use <!--more--> as threshold if it exists.
