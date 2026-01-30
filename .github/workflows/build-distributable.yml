@@ -9,6 +9,6 @@ concurrency:
 
 jobs:
   build-distributable:
-    uses: Automattic/newspack-scripts/.github/workflows/reusable-build-distributable.yml
+    uses: Automattic/newspack-scripts/.github/workflows/reusable-build-distributable.yml@trunk
     with:
       archive-name: newspack-plugin
