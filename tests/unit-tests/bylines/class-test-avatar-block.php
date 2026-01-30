@@ -33,28 +33,37 @@ class Test_Avatar_Block extends \WP_UnitTestCase {
 	protected static $author_id;
 
 	/**
+	 * Create shared fixtures once for the entire suite.
+	 */
+	public static function set_up_before_class() {
+		parent::set_up_before_class();
+
+		self::$author_id = wp_insert_user(
+			[
+				'user_login'   => 'avatartestauthor',
+				'user_email'   => 'avatartestauthor@example.com',
+				'display_name' => 'Avatar Test Author',
+				'user_pass'    => 'password',
+				'role'         => 'author',
+			]
+		);
+
+		self::$post_id = wp_insert_post(
+			[
+				'post_author' => self::$author_id,
+				'post_status' => 'publish',
+				'post_title'  => 'Avatar Test Post',
+			]
+		);
+	}
+
+	/**
 	 * Set up test environment.
 	 */
 	public function set_up(): void {
 		parent::set_up();
 
 		require_once NEWSPACK_ABSPATH . 'src/blocks/avatar/class-avatar-block.php';
-
-		self::$author_id = static::factory()->user->create(
-			[
-				'user_login'   => 'avatartestauthor',
-				'user_email'   => 'avatartestauthor@example.com',
-				'display_name' => 'Avatar Test Author',
-				'role'         => 'author',
-			]
-		);
-
-		self::$post_id = static::factory()->post->create(
-			[
-				'post_author' => self::$author_id,
-				'post_status' => 'publish',
-			]
-		);
 
 		Bylines::register_post_meta();
 
