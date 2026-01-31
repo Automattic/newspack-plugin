@@ -255,5 +255,68 @@ describe( 'usePostAuthors', () => {
 			expect( result.current[ 0 ].avatar_urls ).toBeNull();
 			expect( result.current[ 0 ].avatarSrc ).toBe( DEFAULT_AVATAR_URL );
 		} );
+
+		it( 'should use avatar_urls from useCoAuthors for guest authors', () => {
+			useCustomByline.mockReturnValue( {
+				bylineActive: false,
+				bylineContent: '',
+			} );
+			// Guest author with avatar_urls provided by useCoAuthors (fetched from CAP REST API).
+			useCoAuthors.mockReturnValue( {
+				authors: [
+					{
+						id: 1591,
+						display_name: 'Guest Writer',
+						user_nicename: 'guest-writer',
+						isGuest: true,
+						avatar_urls: { 96: 'https://example.com/guest-avatar.jpg' },
+					},
+				],
+			} );
+			setupMocks();
+
+			const { result } = renderHook( () => usePostAuthors( { postId: 123 } ) );
+
+			expect( result.current ).toHaveLength( 1 );
+			expect( result.current[ 0 ].display_name ).toBe( 'Guest Writer' );
+			expect( result.current[ 0 ].avatarSrc ).toBe( 'https://example.com/guest-avatar.jpg' );
+		} );
+
+		it( 'should not call getUser for guest authors', () => {
+			useCustomByline.mockReturnValue( {
+				bylineActive: false,
+				bylineContent: '',
+			} );
+			useCoAuthors.mockReturnValue( {
+				authors: [
+					{
+						id: 1591,
+						display_name: 'Guest Writer',
+						user_nicename: 'guest-writer',
+						isGuest: true,
+						avatar_urls: { 96: 'https://example.com/guest-avatar.jpg' },
+					},
+				],
+			} );
+
+			const getUserMock = jest.fn( () => null );
+			const stores = {
+				'core/block-editor': {
+					getSettings: () => ( {
+						__experimentalDiscussionSettings: { avatarURL: DEFAULT_AVATAR_URL },
+					} ),
+				},
+				core: {
+					getUser: getUserMock,
+				},
+			};
+			useSelect.mockImplementation( callback => {
+				return callback( storeName => stores[ storeName ] || {} );
+			} );
+
+			renderHook( () => usePostAuthors( { postId: 123 } ) );
+
+			expect( getUserMock ).not.toHaveBeenCalled();
+		} );
 	} );
 } );

@@ -132,6 +132,27 @@ describe( 'useCoAuthors', () => {
 			expect( result.current.isCapAvailable ).toBe( true );
 		} );
 
+		it( 'should set isGuest to true for guest-author userType', () => {
+			const capAuthors = [
+				{ id: 1, display: 'Jane Doe', value: 'jane-doe', userType: 'wpuser' },
+				{ id: 1591, display: 'Guest Writer', value: 'guest-writer', userType: 'guest-author' },
+			];
+
+			useSelect.mockImplementation( callback =>
+				callback(
+					createMockSelect( {
+						capStore: { getAuthors: () => capAuthors },
+						currentPostId: 123,
+					} )
+				)
+			);
+
+			const { result } = renderHook( () => useCoAuthors( 123 ) );
+
+			expect( result.current.authors[ 0 ].isGuest ).toBe( false );
+			expect( result.current.authors[ 1 ].isGuest ).toBe( true );
+		} );
+
 		it( 'should fallback to value then label for display_name', () => {
 			const capAuthors = [
 				{ id: 1, value: 'from-value', label: 'From Label' }, // no display
