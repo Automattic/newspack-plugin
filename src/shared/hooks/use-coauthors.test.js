@@ -126,8 +126,8 @@ describe( 'useCoAuthors', () => {
 			const { result } = renderHook( () => useCoAuthors( 123 ) );
 
 			expect( result.current.authors ).toEqual( [
-				{ id: 1, display_name: 'Jane Doe', user_nicename: 'jane-doe' },
-				{ id: 2, display_name: 'John Smith', user_nicename: 'john-smith' },
+				{ id: 1, display_name: 'Jane Doe', user_nicename: 'jane-doe', isGuest: false },
+				{ id: 2, display_name: 'John Smith', user_nicename: 'john-smith', isGuest: false },
 			] );
 			expect( result.current.isCapAvailable ).toBe( true );
 		} );

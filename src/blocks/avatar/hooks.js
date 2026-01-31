@@ -124,14 +124,15 @@ export function usePostAuthors( { postId, postType = 'post' } ) {
 			// CoAuthors Plus authors.
 			if ( coAuthors && coAuthors.length > 0 ) {
 				return coAuthors.map( author => {
-					const userData = author.id ? getUser( author.id ) : null;
+					// Skip getUser for guest authors as they don't have WP user accounts.
+					const userData = author.id && ! author.isGuest ? getUser( author.id ) : null;
 					return {
 						id: author.id,
 						name: author.display_name,
 						display_name: author.display_name,
 						user_nicename: author.user_nicename,
 						author_link: author.author_link,
-						avatar_urls: userData?.avatar_urls || null,
+						avatar_urls: userData?.avatar_urls || author.avatar_urls || null,
 					};
 				} );
 			}

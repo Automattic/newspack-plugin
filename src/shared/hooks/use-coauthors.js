@@ -2,12 +2,15 @@
  * WordPress dependencies
  */
 import { useSelect } from '@wordpress/data';
+import { useState, useEffect } from '@wordpress/element';
 import { store as coreStore } from '@wordpress/core-data';
+import apiFetch from '@wordpress/api-fetch';
 
 /**
  * CoAuthors Plus store name.
  */
 const CAP_STORE = 'cap/authors';
+const COAUTHORS_ENDPOINT = '/coauthors/v1/coauthors';
 
 /**
  * Hook to get CoAuthors Plus authors from the CAP store or REST API.
@@ -47,6 +50,7 @@ export function useCoAuthors( postId, postType = 'post', skip = false ) {
 						id: author.id,
 						display_name: author.display || author.value || author.label,
 						user_nicename: author.value,
+						isGuest: author.userType === 'guest-author',
 					} ) );
 					return { authors: mappedAuthors, isCapAvailable: true };
 				}
@@ -80,5 +84,51 @@ export function useCoAuthors( postId, postType = 'post', skip = false ) {
 		[ postId, postType, skip ]
 	);
 
-	return { authors, isCapAvailable };
+	// Fetch avatar URLs from the CAP REST API for guest authors only.
+	// The CAP store strips avatar data via formatAuthorData(), so we need
+	// to fetch the raw REST response to get the avatar URL (especially for
+	// guest authors whose avatars come from featured images).
+	const [ avatarMap, setAvatarMap ] = useState( {} );
+
+	// Build a stable key from guest author IDs to avoid re-fetching on every render.
+	const guestAuthorIds = authors
+		.filter( author => author.isGuest )
+		.map( author => author.id )
+		.join( ',' );
+
+	useEffect( () => {
+		if ( skip || ! isCapAvailable || ! guestAuthorIds || ! postId ) {
+			return;
+		}
+
+		let cancelled = false;
+		apiFetch( { path: `${ COAUTHORS_ENDPOINT }?post_id=${ postId }` } ).then( result => {
+			if ( cancelled || ! Array.isArray( result ) ) {
+				return;
+			}
+			const map = {};
+			result.forEach( item => {
+				if ( item.id && item.avatar_urls ) {
+					map[ item.id ] = item.avatar_urls;
+				}
+			} );
+			if ( Object.keys( map ).length ) {
+				setAvatarMap( map );
+			}
+		} );
+
+		return () => {
+			cancelled = true;
+		};
+	}, [ skip, isCapAvailable, guestAuthorIds, postId ] );
+
+	// Merge avatar URLs into guest authors.
+	const authorsWithAvatars = authors.map( author => {
+		if ( ! author.isGuest || ! avatarMap[ author.id ] ) {
+			return author;
+		}
+		return { ...author, avatar_urls: avatarMap[ author.id ] };
+	} );
+
+	return { authors: authorsWithAvatars, isCapAvailable };
 }
