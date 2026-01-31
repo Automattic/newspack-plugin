@@ -12,6 +12,11 @@ import apiFetch from '@wordpress/api-fetch';
 const CAP_STORE = 'cap/authors';
 const COAUTHORS_ENDPOINT = '/coauthors/v1/coauthors';
 
+// Module-level cache for guest author avatar URLs, keyed by post ID.
+// Prevents duplicate REST requests when components re-mount or when
+// multiple avatar blocks in a Query Loop share the same guest authors.
+const guestAvatarCache = {};
+
 /**
  * Hook to get CoAuthors Plus authors from the CAP store or REST API.
  *
@@ -88,7 +93,7 @@ export function useCoAuthors( postId, postType = 'post', skip = false ) {
 	// The CAP store strips avatar data via formatAuthorData(), so we need
 	// to fetch the raw REST response to get the avatar URL (especially for
 	// guest authors whose avatars come from featured images).
-	const [ avatarMap, setAvatarMap ] = useState( {} );
+	const [ avatarMap, setAvatarMap ] = useState( () => guestAvatarCache[ postId ] || {} );
 
 	// Build a stable key from guest author IDs to avoid re-fetching on every render.
 	const guestAuthorIds = authors
@@ -98,6 +103,12 @@ export function useCoAuthors( postId, postType = 'post', skip = false ) {
 
 	useEffect( () => {
 		if ( skip || ! isCapAvailable || ! guestAuthorIds || ! postId ) {
+			return;
+		}
+
+		// Use cached data if available (avoids duplicate requests on re-mount).
+		if ( guestAvatarCache[ postId ] ) {
+			setAvatarMap( guestAvatarCache[ postId ] );
 			return;
 		}
 
@@ -113,6 +124,7 @@ export function useCoAuthors( postId, postType = 'post', skip = false ) {
 				}
 			} );
 			if ( Object.keys( map ).length ) {
+				guestAvatarCache[ postId ] = map;
 				setAvatarMap( map );
 			}
 		} );
