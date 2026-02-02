@@ -6,9 +6,11 @@ import { domReady } from '../../utils';
 
 domReady( function () {
 	// Show a confirmation dialog before cancelling a subscription.
-	const cancelButton = document.querySelector( '.subscription_details .button.cancel' );
+	const cancelButtons = Array.from(
+		document.querySelectorAll( '.subscription_details .button.cancel, .newspack-my-account__subscription--actions .cancel' )
+	);
 
-	if ( cancelButton ) {
+	cancelButtons.forEach( cancelButton => {
 		const confirmationModal = document.getElementById( 'newspack-my-account__confirm-subscription-cancellation' );
 		if ( confirmationModal ) {
 			cancelButton.classList.remove( 'wcs_block_ui_on_click' ); // Don't block subscription details table on click.
@@ -18,5 +20,5 @@ domReady( function () {
 			};
 			cancelButton.addEventListener( 'click', confirmCancel );
 		}
-	}
+	} );
 } );
