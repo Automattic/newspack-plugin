@@ -1,4 +1,5 @@
 {
+	"apiVersion": 3,
 	"name": "newspack/avatar",
 	"category": "newspack",
 	"attributes": {
