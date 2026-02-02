@@ -1,0 +1,225 @@
+<?php
+/**
+ * Tests the Access Rules class with group subscription support.
+ *
+ * @package Newspack\Tests
+ */
+
+use Newspack\Access_Rules;
+use Newspack\Group_Subscription;
+use Newspack\Reader_Activation;
+use Newspack\WooCommerce_Connection;
+
+/**
+ * Test Access Rules functionality.
+ *
+ * @group Access_Rules
+ */
+class Newspack_Test_Access_Rules extends WP_UnitTestCase {
+	/**
+	 * Test user ID for the subscription owner.
+	 *
+	 * @var int
+	 */
+	private static $owner_user_id;
+
+	/**
+	 * Test user ID for a group member.
+	 *
+	 * @var int
+	 */
+	private static $member_user_id;
+
+	/**
+	 * Test user ID for a non-member.
+	 *
+	 * @var int
+	 */
+	private static $non_member_user_id;
+
+	/**
+	 * Test subscription ID.
+	 *
+	 * @var int
+	 */
+	private static $subscription_id = 100;
+
+	/**
+	 * Test product ID.
+	 *
+	 * @var int
+	 */
+	private static $product_id = 50;
+
+	/**
+	 * Set up test fixtures.
+	 */
+	public static function set_up_before_class() {
+		parent::set_up_before_class();
+
+		// Include WC mocks.
+		require_once dirname( __DIR__, 2 ) . '/mocks/wc-mocks.php';
+	}
+
+	/**
+	 * Set up before each test.
+	 */
+	public function set_up() {
+		parent::set_up();
+
+		// Reset the subscriptions database.
+		global $subscriptions_database;
+		$subscriptions_database = [];
+
+		// Create test users.
+		self::$owner_user_id = $this->factory->user->create( [ 'role' => 'subscriber' ] );
+		self::$member_user_id = $this->factory->user->create( [ 'role' => 'subscriber' ] );
+		self::$non_member_user_id = $this->factory->user->create( [ 'role' => 'subscriber' ] );
+
+		// Mark users as readers.
+		update_user_meta( self::$owner_user_id, 'np_reader', true );
+		update_user_meta( self::$member_user_id, 'np_reader', true );
+		update_user_meta( self::$non_member_user_id, 'np_reader', true );
+	}
+
+	/**
+	 * Clean up after each test.
+	 */
+	public function tear_down() {
+		parent::tear_down();
+
+		// Clean up user meta.
+		delete_user_meta( self::$member_user_id, Group_Subscription::GROUP_SUBSCRIPTION_USER_META_KEY );
+	}
+
+	/**
+	 * Helper to create a test subscription.
+	 *
+	 * @param array $args Subscription arguments.
+	 * @return WC_Subscription
+	 */
+	private function create_subscription( $args = [] ) {
+		$defaults = [
+			'id'               => self::$subscription_id,
+			'customer_id'      => self::$owner_user_id,
+			'status'           => 'active',
+			'total'            => 10,
+			'billing_period'   => 'month',
+			'billing_interval' => 1,
+			'products'         => [ self::$product_id ],
+			'dates'            => [
+				'start' => gmdate( 'Y-m-d H:i:s', strtotime( '-1 month' ) ),
+			],
+		];
+
+		return wcs_create_subscription( array_merge( $defaults, $args ) );
+	}
+
+	/**
+	 * Helper to enable group subscription for a subscription.
+	 *
+	 * @param WC_Subscription $subscription The subscription.
+	 */
+	private function enable_group_subscription( $subscription ) {
+		$subscription->update_meta_data( '_newspack_group_subscription_enabled', 'yes' );
+		$subscription->update_meta_data( '_newspack_group_subscription_limit', 10 );
+	}
+
+	/**
+	 * Helper to add a user as a group member.
+	 *
+	 * @param int $user_id The user ID.
+	 * @param int $subscription_id The subscription ID.
+	 */
+	private function add_group_member( $user_id, $subscription_id ) {
+		add_user_meta( $user_id, Group_Subscription::GROUP_SUBSCRIPTION_USER_META_KEY, $subscription_id );
+	}
+
+	/**
+	 * Test that subscription owner has access via their own subscription.
+	 */
+	public function test_owner_has_access_via_own_subscription() {
+		$subscription = $this->create_subscription();
+
+		$has_access = Access_Rules::has_active_subscription( self::$owner_user_id, [ self::$product_id ] );
+
+		$this->assertTrue( $has_access, 'Subscription owner should have access via their own subscription.' );
+	}
+
+	/**
+	 * Test that group member has access via group subscription.
+	 */
+	public function test_group_member_has_access_via_group_subscription() {
+		$subscription = $this->create_subscription();
+		$this->enable_group_subscription( $subscription );
+		$this->add_group_member( self::$member_user_id, $subscription->get_id() );
+
+		$has_access = Access_Rules::has_active_subscription( self::$member_user_id, [ self::$product_id ] );
+
+		$this->assertTrue( $has_access, 'Group member should have access via group subscription.' );
+	}
+
+	/**
+	 * Test that non-member does not have access.
+	 */
+	public function test_non_member_does_not_have_access() {
+		$subscription = $this->create_subscription();
+		$this->enable_group_subscription( $subscription );
+
+		$has_access = Access_Rules::has_active_subscription( self::$non_member_user_id, [ self::$product_id ] );
+
+		$this->assertFalse( $has_access, 'Non-member should not have access.' );
+	}
+
+	/**
+	 * Test that group member does not have access if subscription is inactive.
+	 */
+	public function test_group_member_no_access_if_subscription_inactive() {
+		$subscription = $this->create_subscription( [ 'status' => 'cancelled' ] );
+		$this->enable_group_subscription( $subscription );
+		$this->add_group_member( self::$member_user_id, $subscription->get_id() );
+
+		$has_access = Access_Rules::has_active_subscription( self::$member_user_id, [ self::$product_id ] );
+
+		$this->assertFalse( $has_access, 'Group member should not have access if subscription is inactive.' );
+	}
+
+	/**
+	 * Test that group member does not have access if subscription has wrong product.
+	 */
+	public function test_group_member_no_access_if_wrong_product() {
+		$subscription = $this->create_subscription( [ 'products' => [ 999 ] ] );
+		$this->enable_group_subscription( $subscription );
+		$this->add_group_member( self::$member_user_id, $subscription->get_id() );
+
+		$has_access = Access_Rules::has_active_subscription( self::$member_user_id, [ self::$product_id ] );
+
+		$this->assertFalse( $has_access, 'Group member should not have access if subscription has wrong product.' );
+	}
+
+	/**
+	 * Test that group member has access with empty product filter (any subscription).
+	 */
+	public function test_group_member_has_access_with_empty_product_filter() {
+		$subscription = $this->create_subscription();
+		$this->enable_group_subscription( $subscription );
+		$this->add_group_member( self::$member_user_id, $subscription->get_id() );
+
+		$has_access = Access_Rules::has_active_subscription( self::$member_user_id, [] );
+
+		$this->assertTrue( $has_access, 'Group member should have access when no product filter is specified.' );
+	}
+
+	/**
+	 * Test pending-cancel status still grants access.
+	 */
+	public function test_pending_cancel_status_grants_access() {
+		$subscription = $this->create_subscription( [ 'status' => 'pending-cancel' ] );
+		$this->enable_group_subscription( $subscription );
+		$this->add_group_member( self::$member_user_id, $subscription->get_id() );
+
+		$has_access = Access_Rules::has_active_subscription( self::$member_user_id, [ self::$product_id ] );
+
+		$this->assertTrue( $has_access, 'Group member should have access with pending-cancel subscription.' );
+	}
+}

@@ -98,6 +98,7 @@ class WC_Customer {
 }
 
 $orders_database = [];
+$subscriptions_database = [];
 
 class WC_Order {
 	public $data = [ 'items' => [] ];
@@ -154,6 +155,7 @@ class WC_Subscription {
 	public $data = [];
 	public $meta = [];
 	public $orders = [];
+	public $products = [];
 	public function __construct( $data ) {
 		$this->data = array_merge( $data, $this->data );
 		if ( isset( $data['meta'] ) ) {
@@ -168,12 +170,21 @@ class WC_Subscription {
 				}
 			);
 		}
+		if ( isset( $data['products'] ) ) {
+			$this->products = $data['products'];
+		}
 	}
 	public function get_id() {
 		return $this->data['id'];
 	}
 	public function get_customer_id() {
-		return $this->data['customer_id'];
+		return $this->data['customer_id'] ?? null;
+	}
+	public function get_user_id() {
+		return $this->data['customer_id'] ?? null;
+	}
+	public function has_product( $product_id ) {
+		return in_array( $product_id, $this->products, true );
 	}
 	public function get_meta( $field_name ) {
 		return isset( $this->meta[ $field_name ] ) ? $this->meta[ $field_name ] : '';
@@ -245,13 +256,40 @@ function wcs_is_subscription( $order ) {
 	return false;
 }
 function wcs_create_subscription( $data = [] ) {
-	return new WC_Subscription( $data );
+	global $subscriptions_database;
+	// Auto-generate an ID if not provided.
+	if ( ! isset( $data['id'] ) ) {
+		$data['id'] = count( $subscriptions_database ) + 1;
+	}
+	$subscription = new WC_Subscription( $data );
+	$subscriptions_database[ $subscription->get_id() ] = $subscription;
+	return $subscription;
+}
+function wcs_get_subscription( $subscription_id ) {
+	global $subscriptions_database;
+	return $subscriptions_database[ $subscription_id ] ?? null;
 }
 function wcs_get_subscriptions_for_order( $order ) {
 	return [];
 }
-function wcs_get_users_subscriptions( $order ) {
-	return [];
+function wcs_get_users_subscriptions( $user_id ) {
+	global $subscriptions_database;
+	$user_subscriptions = [];
+	foreach ( $subscriptions_database as $id => $subscription ) {
+		if ( $subscription->get_customer_id() === $user_id ) {
+			$user_subscriptions[ $id ] = $subscription;
+		}
+	}
+	return $user_subscriptions;
+}
+function wcs_get_canonical_product_id( $item ) {
+	return null;
+}
+function wc_string_to_bool( $string ) {
+	return is_bool( $string ) ? $string : ( 'yes' === strtolower( $string ) || '1' === $string || 'true' === strtolower( $string ) );
+}
+function wc_bool_to_string( $bool ) {
+	return $bool ? 'yes' : 'no';
 }
 function wc_get_orders( $args ) {
 	global $orders_database;
