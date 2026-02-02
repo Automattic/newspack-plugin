@@ -19,7 +19,7 @@ domReady( function () {
  * Open a notice.
  *
  * @param {Element} element - The notice element.
- * @param {boolean} remove  - Whether to remove the notice element on open.
+ * @param {boolean} remove  - Whether to remove the notice element on close.
  */
 function openNotice( element, remove = true ) {
 	element.classList.add( 'active' );
