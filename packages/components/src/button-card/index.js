@@ -25,7 +25,7 @@ class ButtonCard extends Component {
 	 */
 	render() {
 		const {
-			borderRadius,
+			borderRadius, // 'none' (0px) | 'large' (8px) - default is 2px
 			chevron,
 			className,
 			desc,
