@@ -169,11 +169,11 @@ trait Content_Gate_Layout {
 		// Apply inline fade.
 		$visible_paragraphs = self::get_visible_paragraphs( $gate_post_id );
 		if ( $visible_paragraphs > 0 && \get_post_meta( $gate_post_id, 'inline_fade', true ) ) {
-			$gate = '<div style="pointer-events: none; height: 10em; margin-top: -10em; width: 100%; position: absolute; background: linear-gradient(180deg, rgba(255,255,255,0) 14%, rgba(255,255,255,1) 76%);"></div>' . $gate;
+			$gate = '<div style="pointer-events: none; height: 10em; margin-top: -10em; width: 100%; position: absolute; background: linear-gradient(180deg, rgba(255,255,255,0) 14%, rgba(255,255,255,1) 76%); max-width: 100%;"></div>' . $gate;
 		}
 
 		// Wrap gate in a div for styling.
-		$gate = '<div class="newspack-content-gate__gate newspack-content-gate__inline-gate">' . $gate . '</div>';
+		$gate = '<div class="newspack-content-gate__gate newspack-content-gate__inline-gate is-layout-constrained">' . $gate . '</div>';
 		return $gate;
 	}
 
