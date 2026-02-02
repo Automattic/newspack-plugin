@@ -107,10 +107,6 @@ final class My_Account_Button_Block {
 			$show_label = true;
 		}
 
-		if ( '' === trim( (string) $label ) ) {
-			$label = $is_signed_in ? $default_attrs['signedInLabel'] : $default_attrs['signedOutLabel'];
-		}
-
 		$account_url = self::get_account_url();
 
 		/** Do not render link for authenticated readers if account page doesn't exist. */
