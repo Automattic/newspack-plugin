@@ -12,7 +12,7 @@ import {
 	__experimentalUseBorderProps as useBorderProps,
 } from '@wordpress/block-editor';
 import { __ } from '@wordpress/i18n';
-import { useMemo } from '@wordpress/element';
+import { createContext, useContext, useMemo } from '@wordpress/element';
 import { PanelBody, RangeControl, ToggleControl } from '@wordpress/components';
 import { addQueryArgs, removeQueryArgs } from '@wordpress/url';
 /**
@@ -20,6 +20,19 @@ import { addQueryArgs, removeQueryArgs } from '@wordpress/url';
  */
 import { useUserAvatar, usePostAuthors } from './hooks';
 import { useCustomByline, extractAuthorIdsFromByline } from '../../shared/hooks/use-custom-byline';
+
+/**
+ * Fallback context that always returns null.
+ * Used when the shared AuthorContext from newspack-blocks is not available.
+ */
+const FallbackAuthorContext = createContext( null );
+
+/**
+ * Get the shared AuthorContext from newspack-blocks if available, otherwise use fallback.
+ * This allows the avatar block to be used inside the Author Profile block's nested mode.
+ */
+const SharedAuthorContext = typeof window !== 'undefined' && window.NewspackAuthorContext ? window.NewspackAuthorContext : FallbackAuthorContext;
+
 const AvatarInspectorControls = ( { setAttributes, attributes } ) => (
 	<InspectorControls>
 		<PanelBody title={ __( 'Settings', 'newspack-plugin' ) }>
@@ -120,14 +133,58 @@ const AvatarWrapper = ( { avatar, size, attributes, placeholder = false } ) => {
 };
 
 const Edit = ( { attributes, context, setAttributes } ) => {
+	const blockProps = useBlockProps();
+
+	// Check for parent block context first (nested mode - single author).
+	const authorFromBlockContext = context[ 'newspack-blocks/author' ];
+	const authorFromReactContext = useContext( SharedAuthorContext );
+	const authorFromParent = authorFromBlockContext || authorFromReactContext;
+
+	// Hooks must be called unconditionally per React rules.
 	const { postId, postType } = context;
 	const avatar = useUserAvatar( { userId: attributes?.userId, postId, postType } );
 	const allAuthors = usePostAuthors( { postId, postType } );
 	const { bylineActive, bylineContent } = useCustomByline( postId, postType );
-	const blockProps = useBlockProps();
+
+	// Memoize author ID extraction to avoid running regex on every render.
+	const authorIds = useMemo( () => extractAuthorIdsFromByline( bylineContent ), [ bylineContent ] );
+
+	const renderAvatar = ( currentAvatar, key ) => (
+		<AvatarWrapper key={ key } avatar={ currentAvatar } size={ attributes.size } attributes={ attributes } />
+	);
+
+	// Nested mode: render single author from parent context.
+	if ( authorFromParent ) {
+		let avatarUrl = '';
+		if ( authorFromParent.avatar ) {
+			if ( authorFromParent.avatar.includes( '<img' ) ) {
+				const match = authorFromParent.avatar.match( /src=["']([^"']+)["']/ );
+				avatarUrl = match?.[ 1 ] || '';
+			} else {
+				avatarUrl = authorFromParent.avatar;
+			}
+		}
+
+		if ( ! avatarUrl ) {
+			return null;
+		}
+
+		const parentAvatar = {
+			src: avatarUrl,
+			alt: authorFromParent.name || '',
+			minSize: 16,
+			maxSize: 128,
+		};
+
+		return (
+			<>
+				<AvatarInspectorControls attributes={ attributes } setAttributes={ setAttributes } />
+				<div { ...blockProps }>{ renderAvatar( parentAvatar, 'nested-author' ) }</div>
+			</>
+		);
+	}
 
 	// Text-only custom byline (no [Author] shortcodes) — show placeholder.
-	const authorIds = useMemo( () => extractAuthorIdsFromByline( bylineContent ), [ bylineContent ] );
 	const isTextOnlyByline = bylineActive && ( ! bylineContent || authorIds.length === 0 );
 	if ( isTextOnlyByline ) {
 		return (
@@ -138,6 +195,7 @@ const Edit = ( { attributes, context, setAttributes } ) => {
 		);
 	}
 
+	// Standalone mode: get authors from post context.
 	const authors = allAuthors?.length ? allAuthors : null;
 
 	// Wait until we have something to render
@@ -145,21 +203,20 @@ const Edit = ( { attributes, context, setAttributes } ) => {
 		return <div { ...blockProps }>{ __( 'Loading avatar…', 'newspack-plugin' ) }</div>;
 	}
 
-	const renderAvatar = ( currentAvatar, key ) => (
-		<AvatarWrapper key={ key } avatar={ currentAvatar } size={ attributes.size } attributes={ attributes } />
-	);
 	return (
 		<>
 			<AvatarInspectorControls attributes={ attributes } setAttributes={ setAttributes } />
-			{ authors?.length
-				? authors.map( ( author, index ) => {
-						const currentAvatar = {
-							src: author.avatarSrc,
-							alt: author?.name || author?.display_name || '',
-						};
-						return renderAvatar( currentAvatar, author.id || index );
-				  } )
-				: renderAvatar( avatar, 'single-author' ) }
+			<div { ...blockProps }>
+				{ authors?.length
+					? authors.map( ( author, index ) => {
+							const currentAvatar = {
+								src: author.avatarSrc,
+								alt: author?.name || author?.display_name || '',
+							};
+							return renderAvatar( currentAvatar, author.id || index );
+					  } )
+					: renderAvatar( avatar, 'single-author' ) }
+			</div>
 		</>
 	);
 };

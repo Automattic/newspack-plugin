@@ -50,6 +50,6 @@
 			"duotone": ".newspack-avatar-wrapper img"
 		}
 	},
-	"usesContext": ["postId", "postType"],
+	"usesContext": ["postId", "postType", "newspack-blocks/author"],
 	"textdomain": "newspack-plugin"
 }

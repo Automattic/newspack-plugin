@@ -53,7 +53,7 @@ final class Avatar_Block {
 			__DIR__ . '/block.json',
 			[
 				'render_callback' => [ __CLASS__, 'render_block' ],
-				'uses_context'    => [ 'postId', 'postType' ],
+				'uses_context'    => [ 'postId', 'postType', 'newspack-blocks/author' ],
 			]
 		);
 	}
@@ -68,15 +68,23 @@ final class Avatar_Block {
 	 * @return string The block HTML.
 	 */
 	public static function render_block( array $attributes, string $content, $block ) {
+		$image_size     = $attributes['size'] ?? 48;
+		$link_to_author = $attributes['linkToAuthorArchive'] ?? false;
+
+		// Check for parent block context first (nested mode - single author).
+		$author_from_parent = $block->context['newspack-blocks/author'] ?? null;
+		if ( ! empty( $author_from_parent ) ) {
+			return self::render_single_author_avatar( $author_from_parent, $attributes );
+		}
+
+		// Standalone mode: get authors from post context.
 		$post_id = $block->context['postId'] ?? null;
 
 		if ( empty( $post_id ) ) {
 			return '';
 		}
 
-		$image_size     = $attributes['size'] ?? 48;
-		$link_to_author = $attributes['linkToAuthorArchive'] ?? false;
-		$authors        = self::get_avatar_authors( $post_id );
+		$authors = self::get_avatar_authors( $post_id );
 
 		if ( empty( $authors ) ) {
 			return '';
@@ -130,6 +138,86 @@ final class Avatar_Block {
 					</div>
 				</div>
 			<?php endforeach; ?>
+		</div>
+		<?php
+		return ob_get_clean();
+	}
+
+	/**
+	 * Render a single author's avatar from parent block context.
+	 *
+	 * @param array $author     Author data from parent context.
+	 * @param array $attributes Block attributes.
+	 *
+	 * @return string The avatar HTML.
+	 */
+	public static function render_single_author_avatar( array $author, array $attributes ) {
+		$image_size     = $attributes['size'] ?? 48;
+		$link_to_author = $attributes['linkToAuthorArchive'] ?? false;
+
+		// Get avatar URL from parent context.
+		$avatar_url = '';
+		if ( ! empty( $author['avatar'] ) ) {
+			// If avatar is HTML, extract the src.
+			if ( strpos( $author['avatar'], '<img' ) !== false ) {
+				preg_match( '/src=["\']([^"\']+)["\']/', $author['avatar'], $matches );
+				$avatar_url = $matches[1] ?? '';
+			} else {
+				$avatar_url = $author['avatar'];
+			}
+		}
+
+		// Fallback: try to get avatar by author ID.
+		if ( empty( $avatar_url ) && ! empty( $author['id'] ) ) {
+			$avatar_url = get_avatar_url( $author['id'], [ 'size' => $image_size * 2 ] );
+		}
+
+		if ( empty( $avatar_url ) ) {
+			return '';
+		}
+
+		$author_name = esc_attr( $author['name'] ?? '' );
+		$author_url  = $author['url'] ?? '';
+
+		$wrapper_attributes = get_block_wrapper_attributes( [ 'style' => '--avatar-size: ' . esc_attr( $image_size ) . 'px;' ] );
+		$duotone_preset     = $attributes['style']['color']['duotone'] ?? null;
+		$duotone_class      = self::newspack_get_duotone_class_name( $duotone_preset );
+
+		$border_attributes = function_exists( 'get_block_core_avatar_border_attributes' )
+			? get_block_core_avatar_border_attributes( $attributes )
+			: [
+				'class' => '',
+				'style' => '',
+			];
+
+		$class = 'avatar avatar-' . esc_attr( $image_size ) . ' photo wp-block-newspack-avatar__image ' . ( $border_attributes['class'] ?? '' );
+
+		ob_start();
+		?>
+		<div <?php echo $wrapper_attributes; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+			<div class="newspack-avatar-wrapper <?php echo esc_attr( $duotone_class ); ?>">
+				<?php if ( $link_to_author && ! empty( $author_url ) ) : ?>
+					<a href="<?php echo esc_url( $author_url ); ?>" class="wp-block-newspack-avatar__link">
+						<img
+							src="<?php echo esc_url( $avatar_url ); ?>"
+							class="<?php echo esc_attr( $class ); ?>"
+							alt="<?php echo esc_attr( $author_name ); ?>"
+							width="<?php echo esc_attr( $image_size ); ?>"
+							height="<?php echo esc_attr( $image_size ); ?>"
+							style="<?php echo esc_attr( $border_attributes['style'] ?? '' ); ?>"
+						/>
+					</a>
+				<?php else : ?>
+					<img
+						src="<?php echo esc_url( $avatar_url ); ?>"
+						class="<?php echo esc_attr( $class ); ?>"
+						alt="<?php echo esc_attr( $author_name ); ?>"
+						width="<?php echo esc_attr( $image_size ); ?>"
+						height="<?php echo esc_attr( $image_size ); ?>"
+						style="<?php echo esc_attr( $border_attributes['style'] ?? '' ); ?>"
+					/>
+				<?php endif; ?>
+			</div>
 		</div>
 		<?php
 		return ob_get_clean();
