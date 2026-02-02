@@ -51,9 +51,5 @@ function closeNotice( element, remove = true ) {
 	} );
 }
 
-// Expose notice functions to the global namespace.
-window.newspackUI = window.newspackUI || {};
-window.newspackUI.notices = {
-	openNotice,
-	closeNotice,
-};
+// Expose notice functions to the global API.
+export default { openNotice, closeNotice };
