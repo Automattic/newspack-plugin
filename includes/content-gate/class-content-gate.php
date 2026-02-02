@@ -57,6 +57,7 @@ class Content_Gate {
 		add_action( 'init', [ __CLASS__, 'register_post_type' ] );
 		add_action( 'admin_init', [ __CLASS__, 'redirect_cpt' ] );
 		add_action( 'admin_init', [ __CLASS__, 'handle_edit_gate_layout' ] );
+		add_action( 'wp_enqueue_scripts', [ __CLASS__, 'prepare_overlay_gate_styles' ], 21 );
 		add_action( 'wp_enqueue_scripts', [ __CLASS__, 'enqueue_scripts' ] );
 		add_action( 'wp_footer', [ __CLASS__, 'render_overlay_gate' ], 1 );
 		add_filter( 'newspack_popups_assess_has_disabled_popups', [ __CLASS__, 'disable_popups' ] );
@@ -637,33 +638,41 @@ class Content_Gate {
 	}
 
 	/**
-	 * Render the overlay gate.
+	 * Get the overlay gate layout ID when rendering is allowed.
+	 *
+	 * @return int Gate layout ID or 0 when not renderable.
 	 */
-	public static function render_overlay_gate() {
-		if ( ! self::has_gate() ) {
-			return;
+	private static function get_overlay_gate_layout_id() {
+		if ( ! self::has_gate() || ! is_singular() || ! self::is_post_restricted() ) {
+			return 0;
 		}
-		if (
-			/**
-			 * Filters whether the overlay gate can be rendered.
-			 *
-			 * @param bool $can_render Whether the overlay gate can be rendered.
-			 */
-			! apply_filters( 'newspack_can_render_overlay_gate', true )
-		) {
-			return;
-		}
-		// Only render overlay gate for a restricted singular content.
-		if ( ! is_singular() || ! self::is_post_restricted() ) {
-			return;
+		/**
+		 * Filters whether the overlay gate can be rendered.
+		 *
+		 * @param bool $can_render Whether the overlay gate can be rendered.
+		 */
+		if ( ! apply_filters( 'newspack_can_render_overlay_gate', true ) ) {
+			return 0;
 		}
 		// Bail if metering allows rendering the content.
 		if ( ! Metering::is_frontend_metering() && Metering::is_logged_in_metering_allowed() ) {
-			return;
+			return 0;
 		}
 		$gate_layout_id = self::get_gate_layout_id();
 		$style          = \get_post_meta( $gate_layout_id, 'style', true );
 		if ( 'overlay' !== $style ) {
+			return 0;
+		}
+
+		return (int) $gate_layout_id;
+	}
+
+	/**
+	 * Render the overlay gate.
+	 */
+	public static function render_overlay_gate() {
+		$gate_layout_id = self::get_overlay_gate_layout_id();
+		if ( ! $gate_layout_id ) {
 			return;
 		}
 		self::$is_gated = true;
@@ -678,6 +687,74 @@ class Content_Gate {
 		self::mark_gate_as_rendered();
 		wp_reset_postdata();
 		$post = $_post; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+	}
+
+	/**
+	 * Prepare overlay gate styles early so block layout CSS is printed in the head.
+	 *
+	 * Otherwise, certain per-block styles -- like block alignment and spacing -- are missing from the gate content.
+	 */
+	public static function prepare_overlay_gate_styles() {
+		static $styles_prepared = false;
+		if ( $styles_prepared ) {
+			return;
+		}
+		// Only run for block themes.
+		if ( function_exists( 'wp_is_block_theme' ) && ! wp_is_block_theme() ) {
+			return;
+		}
+		$gate_layout_id = self::get_overlay_gate_layout_id();
+		if ( ! $gate_layout_id ) {
+			return;
+		}
+		// Ensure the global styles handle exists before adding inline styles.
+		if ( function_exists( 'wp_enqueue_global_styles' ) ) {
+			wp_enqueue_global_styles();
+		}
+
+		// Get existing block-supports rules so we don't repeat them with the gate's styles.
+		$store              = null;
+		$existing_rule_keys = [];
+		if ( class_exists( '\WP_Style_Engine_CSS_Rules_Store' ) && method_exists( '\WP_Style_Engine_CSS_Rules_Store', 'get_store' ) ) {
+			$store = \WP_Style_Engine_CSS_Rules_Store::get_store( 'block-supports' );
+			if ( $store && method_exists( $store, 'get_all_rules' ) ) {
+				$existing_rule_keys = array_keys( $store->get_all_rules() );
+			}
+		}
+
+		// Temporarily swap the global post with the gate's post ID.
+		global $post;
+		$_post = $post;
+		$post  = \get_post( $gate_layout_id ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		setup_postdata( $post );
+
+		// Render blocks to register layout CSS in time for wp_head.
+		\apply_filters( 'newspack_gate_content', \get_the_content( null, null, $gate_layout_id ) );
+
+		// Loop through the block-supports rules and get only the new rules added when the gate is rendered.
+		$block_supports_css = '';
+		if ( $store && method_exists( $store, 'get_all_rules' ) ) {
+			foreach ( $store->get_all_rules() as $key => $rule ) {
+				if ( in_array( $key, $existing_rule_keys, true ) ) {
+					continue;
+				}
+				if ( is_object( $rule ) && method_exists( $rule, 'get_css' ) ) {
+					$block_supports_css .= $rule->get_css();
+				}
+			}
+		}
+
+		// Print the gate's block-supports CSS inline.
+		if ( '' !== $block_supports_css ) {
+			wp_register_style( 'newspack-content-gate-block-supports', false, [], true );
+			wp_add_inline_style( 'newspack-content-gate-block-supports', $block_supports_css );
+			wp_enqueue_style( 'newspack-content-gate-block-supports' );
+		}
+
+		// Set the global post back to normal.
+		wp_reset_postdata();
+		$post = $_post; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		$styles_prepared = true;
 	}
 
 	/**
