@@ -2479,7 +2479,17 @@ final class Reader_Activation {
 	 * @return bool True if the display name was generated.
 	 */
 	public static function reader_has_generic_display_name( $user_id = 0 ) {
-		// Allow an environment constant to override this check so that even generic/generated display names are allowed.
+		/**
+		 * When enabled, allows readers to keep auto-generated display names
+		 * (derived from email addresses) without being prompted to update them.
+		 *
+		 * @constant NEWSPACK_ALLOW_GENERIC_READER_DISPLAY_NAMES
+		 * @type     bool
+		 * @default  Generic display names trigger update prompts
+		 * @status   draft
+		 *
+		 * @example define( 'NEWSPACK_ALLOW_GENERIC_READER_DISPLAY_NAMES', true );
+		 */
 		if ( defined( 'NEWSPACK_ALLOW_GENERIC_READER_DISPLAY_NAMES' ) && NEWSPACK_ALLOW_GENERIC_READER_DISPLAY_NAMES ) {
 			return false;
 		}

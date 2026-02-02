@@ -91,6 +91,17 @@ class Content_Gate {
 	 * @return bool
 	 */
 	public static function is_newspack_feature_enabled() {
+		/**
+		 * Enables the content gating feature which allows restricting
+		 * content access based on membership, donations, or other criteria.
+		 *
+		 * @constant NEWSPACK_CONTENT_GATES
+		 * @type     bool
+		 * @default  Content gates disabled
+		 * @status   draft
+		 *
+		 * @example define( 'NEWSPACK_CONTENT_GATES', true );
+		 */
 		return defined( 'NEWSPACK_CONTENT_GATES' ) && NEWSPACK_CONTENT_GATES;
 	}
 
