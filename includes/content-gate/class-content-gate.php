@@ -767,6 +767,11 @@ class Content_Gate {
 			$custom_access = [];
 		}
 
+		$access_rules = isset( $custom_access['access_rules'] ) ? $custom_access['access_rules'] : [];
+
+		// Normalize legacy flat rules to grouped format.
+		$access_rules = Access_Rules::normalize_rules( $access_rules );
+
 		$default_metering = [
 			'enabled' => false,
 			'count'   => 0,
@@ -776,7 +781,7 @@ class Content_Gate {
 		return [
 			'active'         => isset( $custom_access['active'] ) ? (bool) $custom_access['active'] : false,
 			'metering'       => isset( $custom_access['metering'] ) ? $custom_access['metering'] : $default_metering,
-			'access_rules'   => isset( $custom_access['access_rules'] ) ? $custom_access['access_rules'] : [],
+			'access_rules'   => $access_rules,
 			'gate_layout_id' => isset( $custom_access['gate_layout_id'] ) ? (int) $custom_access['gate_layout_id'] : 0,
 		];
 	}

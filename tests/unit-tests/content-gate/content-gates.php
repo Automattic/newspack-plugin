@@ -7,6 +7,7 @@
 
 namespace Newspack\Tests\Content_Gate;
 
+use Newspack\Access_Rules;
 use Newspack\Content_Gate;
 use Newspack\Content_Restriction_Control;
 
@@ -251,5 +252,331 @@ class Test_Content_Gates extends \WP_UnitTestCase {
 		$gates = Content_Restriction_Control::get_post_gates( $post3 );
 		$this->assertCount( 1, $gates, 'One gate for the post with no categories' );
 		$this->assertEquals( $this->gate_ids[2], $gates[0]['id'], 'Gate with publish status and matching rules configuration is included' );
+	}
+
+	/**
+	 * Test access rules normalization from flat to grouped format.
+	 */
+	public function test_normalize_access_rules() {
+		// Empty rules should return empty array.
+		$result = Access_Rules::normalize_rules( [] );
+		$this->assertEmpty( $result, 'Empty rules should return empty array' );
+
+		// Flat rules should be wrapped in a single group.
+		$flat_rules = [
+			[
+				'slug'  => 'subscription',
+				'value' => [ 1, 2 ],
+			],
+			[
+				'slug'  => 'email_domain',
+				'value' => 'example.com',
+			],
+		];
+		$result = Access_Rules::normalize_rules( $flat_rules );
+		$this->assertCount( 1, $result, 'Flat rules should be wrapped in single group' );
+		$this->assertEquals( $flat_rules, $result[0], 'Group should contain original rules' );
+
+		// Already grouped rules should remain unchanged.
+		$grouped_rules = [
+			[
+				[
+					'slug'  => 'subscription',
+					'value' => [ 1 ],
+				],
+			],
+			[
+				[
+					'slug'  => 'email_domain',
+					'value' => 'example.com',
+				],
+			],
+		];
+		$result = Access_Rules::normalize_rules( $grouped_rules );
+		$this->assertCount( 2, $result, 'Grouped rules should have 2 groups' );
+		$this->assertEquals( $grouped_rules, $result, 'Grouped rules should remain unchanged' );
+	}
+
+	/**
+	 * Test access rules evaluation with grouped OR logic.
+	 */
+	public function test_evaluate_access_rules_grouped() {
+		// Empty rules should grant access.
+		$result = Access_Rules::evaluate_rules( [] );
+		$this->assertTrue( $result, 'Empty rules should grant access' );
+
+		// Single empty group should grant access.
+		$result = Access_Rules::evaluate_rules( [ [] ] );
+		$this->assertTrue( $result, 'Single empty group should grant access' );
+	}
+
+	/**
+	 * Test access rules evaluation with real pass/fail combinations.
+	 */
+	public function test_evaluate_access_rules_pass_fail_combinations() {
+		// Create a test user with a specific email domain.
+		$user_id = $this->factory->user->create(
+			[
+				'user_email' => 'test@allowed-domain.com',
+			]
+		);
+		wp_set_current_user( $user_id );
+
+		// Test 1: Flat legacy rules with passing rule.
+		$flat_rules_pass = [
+			[
+				'slug'  => 'email_domain',
+				'value' => 'allowed-domain.com',
+			],
+		];
+		$result = Access_Rules::evaluate_rules( $flat_rules_pass );
+		$this->assertTrue( $result, 'Flat rules with passing email_domain should grant access' );
+
+		// Test 2: Flat legacy rules with failing rule.
+		$flat_rules_fail = [
+			[
+				'slug'  => 'email_domain',
+				'value' => 'other-domain.com',
+			],
+		];
+		$result = Access_Rules::evaluate_rules( $flat_rules_fail );
+		$this->assertFalse( $result, 'Flat rules with non-matching email_domain should deny access' );
+
+		// Test 3: Flat rules with mixed pass/fail (AND logic - should fail).
+		$flat_rules_mixed = [
+			[
+				'slug'  => 'email_domain',
+				'value' => 'allowed-domain.com', // Passes.
+			],
+			[
+				'slug'  => 'email_domain',
+				'value' => 'other-domain.com', // Fails.
+			],
+		];
+		$result = Access_Rules::evaluate_rules( $flat_rules_mixed );
+		$this->assertFalse( $result, 'Flat rules with mixed results should deny access (AND logic)' );
+
+		// Test 4: Multiple groups - first group fails, second passes (OR logic - should pass).
+		$grouped_rules_or_pass = [
+			// Group 1: Fails (non-matching domain).
+			[
+				[
+					'slug'  => 'email_domain',
+					'value' => 'other-domain.com',
+				],
+			],
+			// Group 2: Passes (matching domain).
+			[
+				[
+					'slug'  => 'email_domain',
+					'value' => 'allowed-domain.com',
+				],
+			],
+		];
+		$result = Access_Rules::evaluate_rules( $grouped_rules_or_pass );
+		$this->assertTrue( $result, 'Multiple groups with at least one passing should grant access (OR logic)' );
+
+		// Test 5: Multiple groups - all groups fail (OR logic - should fail).
+		$grouped_rules_all_fail = [
+			[
+				[
+					'slug'  => 'email_domain',
+					'value' => 'domain-a.com',
+				],
+			],
+			[
+				[
+					'slug'  => 'email_domain',
+					'value' => 'domain-b.com',
+				],
+			],
+		];
+		$result = Access_Rules::evaluate_rules( $grouped_rules_all_fail );
+		$this->assertFalse( $result, 'Multiple groups with all failing should deny access' );
+
+		// Test 6: Group with AND logic - both rules must pass.
+		$grouped_and_logic = [
+			[
+				[
+					'slug'  => 'email_domain',
+					'value' => 'allowed-domain.com', // Passes.
+				],
+				[
+					'slug'  => 'email_domain',
+					'value' => 'other-domain.com', // Fails.
+				],
+			],
+		];
+		$result = Access_Rules::evaluate_rules( $grouped_and_logic );
+		$this->assertFalse( $result, 'Single group with mixed AND rules should deny access' );
+
+		// Clean up.
+		wp_delete_user( $user_id );
+	}
+
+	/**
+	 * Test access rules evaluation with invalid or missing slug entries.
+	 */
+	public function test_evaluate_access_rules_invalid_entries() {
+		// Create a test user.
+		$user_id = $this->factory->user->create(
+			[
+				'user_email' => 'test@example.com',
+			]
+		);
+		wp_set_current_user( $user_id );
+
+		// Test 1: Rule with missing slug should be skipped (not block access).
+		$rules_missing_slug = [
+			[
+				[
+					'value' => 'some-value', // Missing 'slug' key.
+				],
+			],
+		];
+		$result = Access_Rules::evaluate_rules( $rules_missing_slug );
+		$this->assertTrue( $result, 'Rules with missing slug should be skipped and grant access' );
+
+		// Test 2: Rule with non-existent slug should not block access.
+		$rules_nonexistent_slug = [
+			[
+				[
+					'slug'  => 'nonexistent_rule',
+					'value' => 'some-value',
+				],
+			],
+		];
+		$result = Access_Rules::evaluate_rules( $rules_nonexistent_slug );
+		$this->assertTrue( $result, 'Rules with non-existent slug should not block access' );
+
+		// Test 3: Mixed valid failing rule and invalid rule in same group.
+		$rules_mixed_valid_invalid = [
+			[
+				[
+					'slug'  => 'email_domain',
+					'value' => 'other-domain.com', // Valid rule, fails.
+				],
+				[
+					'slug'  => 'nonexistent_rule', // Invalid, passes.
+					'value' => 'some-value',
+				],
+			],
+		];
+		$result = Access_Rules::evaluate_rules( $rules_mixed_valid_invalid );
+		$this->assertFalse( $result, 'Group with valid failing rule should deny access even with invalid rules' );
+
+		// Test 4: Group with only invalid rules should pass.
+		$rules_all_invalid = [
+			[
+				[
+					'slug'  => 'nonexistent_rule_1',
+					'value' => 'value1',
+				],
+				[
+					'value' => 'no-slug', // Missing slug.
+				],
+			],
+		];
+		$result = Access_Rules::evaluate_rules( $rules_all_invalid );
+		$this->assertTrue( $result, 'Group with only invalid/skipped rules should grant access' );
+
+		// Clean up.
+		wp_delete_user( $user_id );
+	}
+
+	/**
+	 * Test access rules evaluation requires logged-in user.
+	 */
+	public function test_evaluate_access_rules_requires_login() {
+		// Ensure no user is logged in.
+		wp_set_current_user( 0 );
+
+		// Any valid rule should fail when user is not logged in.
+		$rules = [
+			[
+				[
+					'slug'  => 'email_domain',
+					'value' => 'example.com',
+				],
+			],
+		];
+		$result = Access_Rules::evaluate_rules( $rules );
+		$this->assertFalse( $result, 'Rules should deny access when user is not logged in' );
+	}
+
+	/**
+	 * Test that custom_access settings return grouped access_rules format.
+	 */
+	public function test_custom_access_returns_grouped_rules() {
+		// Create a gate with flat access rules (legacy format).
+		$gate_id = Content_Gate::create_gate( 'Test Grouped Rules Gate' );
+		$this->gate_ids[] = $gate_id;
+
+		// Save flat rules directly to post meta (simulating legacy data).
+		$custom_access = [
+			'active'       => true,
+			'metering'     => [
+				'enabled' => false,
+				'count'   => 0,
+				'period'  => 'month',
+			],
+			'access_rules' => [
+				[
+					'slug'  => 'email_domain',
+					'value' => 'example.com',
+				],
+			],
+		];
+		\update_post_meta( $gate_id, 'custom_access', $custom_access );
+
+		// Retrieve settings - should be normalized to grouped format.
+		$settings = Content_Gate::get_custom_access_settings( $gate_id );
+		$this->assertTrue( $settings['active'], 'Active should be true' );
+		$this->assertIsArray( $settings['access_rules'], 'access_rules should be an array' );
+
+		// Check that flat rules were normalized to grouped format.
+		$this->assertCount( 1, $settings['access_rules'], 'Should have one group' );
+		$this->assertIsArray( $settings['access_rules'][0], 'First element should be an array (group)' );
+		$this->assertCount( 1, $settings['access_rules'][0], 'Group should have one rule' );
+		$this->assertEquals( 'email_domain', $settings['access_rules'][0][0]['slug'], 'Rule slug should be preserved' );
+	}
+
+	/**
+	 * Test that already grouped access_rules remain unchanged.
+	 */
+	public function test_custom_access_preserves_grouped_rules() {
+		$gate_id = Content_Gate::create_gate( 'Test Preserve Grouped Rules Gate' );
+		$this->gate_ids[] = $gate_id;
+
+		// Save already grouped rules.
+		$grouped_rules = [
+			[
+				[
+					'slug'  => 'subscription',
+					'value' => [ 1 ],
+				],
+			],
+			[
+				[
+					'slug'  => 'email_domain',
+					'value' => 'example.com',
+				],
+			],
+		];
+		$custom_access = [
+			'active'       => true,
+			'metering'     => [
+				'enabled' => false,
+				'count'   => 0,
+				'period'  => 'month',
+			],
+			'access_rules' => $grouped_rules,
+		];
+		\update_post_meta( $gate_id, 'custom_access', $custom_access );
+
+		// Retrieve settings - should remain grouped.
+		$settings = Content_Gate::get_custom_access_settings( $gate_id );
+		$this->assertCount( 2, $settings['access_rules'], 'Should have two groups' );
+		$this->assertEquals( $grouped_rules, $settings['access_rules'], 'Grouped rules should be preserved' );
 	}
 }
