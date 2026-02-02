@@ -110,6 +110,63 @@ class Newspack_Test_My_Account_Button_Block extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Test hidden label applies the screen-reader-text class.
+	 */
+	public function test_render_block_hidden_label_adds_screen_reader_text_class() {
+		self::$reader_activation_enabled = true;
+
+		$output = do_blocks(
+			'<!-- wp:newspack/my-account-button {"signedInLabel":"My Account","signedOutLabel":"Sign in","showLabel":false} /-->'
+		);
+
+		$this->assertNotEmpty( $output );
+		$this->assertStringContainsString( 'newspack-reader__account-link__label screen-reader-text', $output );
+	}
+
+	/**
+	 * Test hidden icon removes the icon markup.
+	 */
+	public function test_render_block_hidden_icon_removes_icon_markup() {
+		self::$reader_activation_enabled = true;
+
+		$output = do_blocks(
+			'<!-- wp:newspack/my-account-button {"signedInLabel":"My Account","signedOutLabel":"Sign in","showIcon":false} /-->'
+		);
+
+		$this->assertNotEmpty( $output );
+		$this->assertStringNotContainsString( 'wp-block-newspack-my-account-button__icon', $output );
+	}
+
+	/**
+	 * Test visible icon renders the icon markup.
+	 */
+	public function test_render_block_visible_icon_renders_icon_markup() {
+		self::$reader_activation_enabled = true;
+
+		$output = do_blocks(
+			'<!-- wp:newspack/my-account-button {"signedInLabel":"My Account","signedOutLabel":"Sign in","showIcon":true} /-->'
+		);
+
+		$this->assertNotEmpty( $output );
+		$this->assertStringContainsString( 'wp-block-newspack-my-account-button__icon', $output );
+	}
+
+	/**
+	 * Test invalid combo (hide label + icon) still renders label and no icon.
+	 */
+	public function test_render_block_hide_label_and_icon_renders_label_only() {
+		self::$reader_activation_enabled = true;
+
+		$output = do_blocks(
+			'<!-- wp:newspack/my-account-button {"signedInLabel":"My Account","signedOutLabel":"Sign in","showLabel":false,"showIcon":false} /-->'
+		);
+
+		$this->assertNotEmpty( $output );
+		$this->assertStringContainsString( 'newspack-reader__account-link__label', $output );
+		$this->assertStringNotContainsString( 'wp-block-newspack-my-account-button__icon', $output );
+	}
+
+	/**
 	 * Test empty signed-in label falls back to default.
 	 */
 	public function test_render_block_empty_signed_in_label() {
