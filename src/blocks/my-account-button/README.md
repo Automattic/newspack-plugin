@@ -5,6 +5,7 @@ Provides a reader account/sign-in button for sites using Newspack Reader Activat
 ## Settings
 - Signed in label (`signedInLabel`): Text shown when the reader is authenticated.
 - Signed out label (`signedOutLabel`): Text shown when the reader is not authenticated.
+- Display: ability to toggle on/off the display of the button's icon or text label. Note: you cannot toggle off both the icon and label at the same time.
 
 ## Editor behavior
 - Use the toolbar toggle (Signed in / Signed out) to edit each label.

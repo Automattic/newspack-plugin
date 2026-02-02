@@ -103,6 +103,11 @@ window.newspackRAS.push( readerActivation => {
 					const labels = JSON.parse( link.getAttribute( 'data-labels' ) );
 					const labelEl = link.querySelector( '.newspack-reader__account-link__label' );
 					if ( labelEl ) {
+						const isLoggedIn = link.getAttribute( 'data-wp-logged-in' ) === '1';
+						if ( isLoggedIn ) {
+							labelEl.textContent = labels.signedin;
+							return;
+						}
 						labelEl.textContent = reader?.authenticated ? labels.signedin : labels.signedout;
 
 						// Set my account link href if the reader is authenticated.

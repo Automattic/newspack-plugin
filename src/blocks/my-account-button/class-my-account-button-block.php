@@ -96,10 +96,19 @@ final class My_Account_Button_Block {
 		];
 		$attrs         = \wp_parse_args( $attrs, $default_attrs );
 
-		$is_signed_in = \is_user_logged_in();
-		$label        = $is_signed_in ? $attrs['signedInLabel'] : $attrs['signedOutLabel'];
+		$is_signed_in     = \is_user_logged_in();
+		$signed_in_label  = '' === trim( (string) $attrs['signedInLabel'] ) ? $default_attrs['signedInLabel'] : $attrs['signedInLabel'];
+		$signed_out_label = '' === trim( (string) $attrs['signedOutLabel'] ) ? $default_attrs['signedOutLabel'] : $attrs['signedOutLabel'];
+		$label            = $is_signed_in ? $signed_in_label : $signed_out_label;
+		$show_label       = isset( $attrs['showLabel'] ) ? (bool) $attrs['showLabel'] : true;
+		$show_icon        = isset( $attrs['showIcon'] ) ? (bool) $attrs['showIcon'] : true;
+
+		if ( ! $show_label && ! $show_icon ) {
+			$show_label = true;
+		}
+
 		if ( '' === trim( (string) $label ) ) {
-			return '';
+			$label = $is_signed_in ? $default_attrs['signedInLabel'] : $default_attrs['signedOutLabel'];
 		}
 
 		$account_url = self::get_account_url();
@@ -118,8 +127,8 @@ final class My_Account_Button_Block {
 		}
 
 		$labels = [
-			'signedin'  => $attrs['signedInLabel'],
-			'signedout' => $attrs['signedOutLabel'],
+			'signedin'  => $signed_in_label,
+			'signedout' => $signed_out_label,
 		];
 
 		$extra_classes = [
@@ -153,20 +162,26 @@ final class My_Account_Button_Block {
 			$wrapper_div_classes = \array_merge( $wrapper_div_classes, $custom_classes );
 		}
 
-		$wrapper_attributes = \get_block_wrapper_attributes(
-			[
-				'class' => implode( ' ', $extra_classes ),
-				'href'  => \esc_url_raw( $href ),
-			]
-		);
+		$wrapper_attribute_args = [
+			'class'             => implode( ' ', $extra_classes ),
+			'href'              => \esc_url_raw( $href ),
+			'data-wp-logged-in' => $is_signed_in ? '1' : '0',
+		];
+		$wrapper_attributes    = \get_block_wrapper_attributes( $wrapper_attribute_args );
 
 		$link = '<div class="' . \esc_attr( implode( ' ', $wrapper_div_classes ) ) . '">';
 		$link .= '<div class="wp-block-button">';
 		$link .= '<a ' . $wrapper_attributes . ' data-labels="' . \esc_attr( \wp_json_encode( $labels ) ) . '" ' . $should_modal_trigger . '>';
-		$link .= '<span class="wp-block-newspack-my-account-button__icon" aria-hidden="true">';
-		$link .= Newspack_UI_Icons::get_svg( 'account' );
-		$link .= '</span>';
-		$link .= '<span class="newspack-reader__account-link__label">' . \esc_html( $label ) . '</span>';
+		if ( $show_icon ) {
+			$link .= '<span class="wp-block-newspack-my-account-button__icon" aria-hidden="true">';
+			$link .= Newspack_UI_Icons::get_svg( 'account' );
+			$link .= '</span>';
+		}
+		$label_classes = [ 'newspack-reader__account-link__label' ];
+		if ( ! $show_label ) {
+			$label_classes[] = 'screen-reader-text';
+		}
+		$link .= '<span class="' . \esc_attr( implode( ' ', $label_classes ) ) . '">' . \esc_html( $label ) . '</span>';
 		$link .= '</a>';
 		$link .= '</div>';
 		$link .= '</div>';

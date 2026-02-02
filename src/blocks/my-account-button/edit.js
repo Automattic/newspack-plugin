@@ -14,6 +14,7 @@ import { __unstableStripHTML as stripHTML } from '@wordpress/dom';
 import { useState } from '@wordpress/element';
 import {
 	BlockControls,
+	InspectorControls,
 	RichText,
 	useBlockProps,
 	/* eslint-disable @wordpress/no-unsafe-wp-apis */
@@ -22,16 +23,18 @@ import {
 	__experimentalGetSpacingClassesAndStyles as useSpacingProps,
 	/* eslint-enable @wordpress/no-unsafe-wp-apis */
 } from '@wordpress/block-editor';
-import { ToolbarButton, ToolbarGroup } from '@wordpress/components';
+import { PanelBody, ToggleControl, ToolbarButton, ToolbarGroup } from '@wordpress/components';
 
 /**
  * Internal dependencies
  */
 function MyAccountButtonEdit( { attributes, setAttributes } ) {
-	const { signedInLabel, signedOutLabel, style, className: customClassName } = attributes;
+	const { signedInLabel, signedOutLabel, showLabel, showIcon, style, className: customClassName } = attributes;
 	const borderProps = useBorderProps( attributes );
 	const colorProps = useColorProps( attributes );
 	const spacingProps = useSpacingProps( attributes );
+	const isLabelVisible = showLabel !== false;
+	const isIconVisible = showIcon !== false;
 	const blockProps = useBlockProps( {
 		className: classnames(
 			'wp-block-button__link',
@@ -57,6 +60,21 @@ function MyAccountButtonEdit( { attributes, setAttributes } ) {
 	const isSignedOutPreview = previewState === 'signedout';
 	const activeLabel = isSignedOutPreview ? signedOutLabel : signedInLabel;
 	const placeholderText = isSignedOutPreview ? __( 'Sign in', 'newspack-plugin' ) : __( 'My Account', 'newspack-plugin' );
+	function setShowLabel( nextValue ) {
+		if ( ! nextValue && ! isIconVisible ) {
+			setAttributes( { showLabel: false, showIcon: true } );
+			return;
+		}
+		setAttributes( { showLabel: nextValue } );
+	}
+
+	function setShowIcon( nextValue ) {
+		if ( ! nextValue && ! isLabelVisible ) {
+			setAttributes( { showLabel: true, showIcon: false } );
+			return;
+		}
+		setAttributes( { showIcon: nextValue } );
+	}
 
 	function setButtonText( newText ) {
 		const cleaned = stripHTML( newText );
@@ -67,6 +85,12 @@ function MyAccountButtonEdit( { attributes, setAttributes } ) {
 		<div { ...blockProps } style={ { ...blockProps.style, display: 'none' } } />
 	) : (
 		<>
+			<InspectorControls>
+				<PanelBody title={ __( 'Display', 'newspack-plugin' ) }>
+					<ToggleControl label={ __( 'Show label', 'newspack-plugin' ) } checked={ isLabelVisible } onChange={ setShowLabel } />
+					<ToggleControl label={ __( 'Show icon', 'newspack-plugin' ) } checked={ isIconVisible } onChange={ setShowIcon } />
+				</PanelBody>
+			</InspectorControls>
 			<BlockControls>
 				<ToolbarGroup>
 					<ToolbarButton
@@ -88,11 +112,14 @@ function MyAccountButtonEdit( { attributes, setAttributes } ) {
 			<div className={ classnames( 'wp-block-buttons', customClassName ) }>
 				<div className="wp-block-button">
 					<div { ...blockProps }>
-						<span className="wp-block-newspack-my-account-button__icon" aria-hidden="true">
-							{ icon }
-						</span>
+						{ isIconVisible && (
+							<span className="wp-block-newspack-my-account-button__icon" aria-hidden="true">
+								{ icon }
+							</span>
+						) }
 						<RichText
 							tagName="span"
+							className={ ! isLabelVisible ? 'screen-reader-text' : undefined }
 							aria-label={ __( 'Button text', 'newspack-plugin' ) }
 							placeholder={ placeholderText }
 							value={ activeLabel || '' }

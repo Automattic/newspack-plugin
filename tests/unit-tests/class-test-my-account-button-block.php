@@ -96,16 +96,24 @@ class Newspack_Test_My_Account_Button_Block extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test empty labels -- render nothing if a button's state has an empty label.
+	 * Test empty signed-out label falls back to default.
 	 */
-	public function test_render_block_empty_label() {
+	public function test_render_block_empty_signed_out_label() {
 		self::$reader_activation_enabled = true;
 
 		$signed_out_output = do_blocks(
 			'<!-- wp:newspack/my-account-button {"signedInLabel":"My Account","signedOutLabel":""} /-->'
 		);
 
-		$this->assertSame( '', trim( $signed_out_output ) );
+		$this->assertNotEmpty( $signed_out_output );
+		$this->assertStringContainsString( '&quot;signedout&quot;:&quot;Sign in&quot;', $signed_out_output );
+	}
+
+	/**
+	 * Test empty signed-in label falls back to default.
+	 */
+	public function test_render_block_empty_signed_in_label() {
+		self::$reader_activation_enabled = true;
 
 		$user_id = self::factory()->user->create(
 			[
@@ -118,7 +126,8 @@ class Newspack_Test_My_Account_Button_Block extends WP_UnitTestCase {
 			'<!-- wp:newspack/my-account-button {"signedInLabel":"","signedOutLabel":"Sign in"} /-->'
 		);
 
-		$this->assertSame( '', trim( $signed_in_output ) );
+		$this->assertNotEmpty( $signed_in_output );
+		$this->assertStringContainsString( '&quot;signedin&quot;:&quot;My Account&quot;', $signed_in_output );
 	}
 
 	/**

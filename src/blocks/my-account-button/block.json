@@ -20,6 +20,14 @@
 		"signedOutLabel": {
 			"type": "string",
 			"default": "Sign in"
+		},
+		"showLabel": {
+			"type": "boolean",
+			"default": true
+		},
+		"showIcon": {
+			"type": "boolean",
+			"default": true
 		}
 	},
 	"supports": {
