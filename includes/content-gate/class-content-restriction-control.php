@@ -7,8 +7,6 @@
 
 namespace Newspack;
 
-use Newspack\Access_Rules;
-
 /**
  * Main class.
  */
@@ -211,14 +209,9 @@ class Content_Restriction_Control {
 			// If custom_access mode is active.
 			if ( ! $is_restricted && ! empty( $gate['custom_access']['active'] ) ) {
 				$access_rules = $gate['custom_access']['access_rules'] ?? [];
-				if ( ! empty( $access_rules ) ) {
-					foreach ( $access_rules as $rule ) {
-						if ( ! Access_Rules::evaluate_rule( $rule['slug'], $rule['value'] ?? null ) ) {
-							$is_restricted  = true;
-							$gate_layout_id = $gate['custom_access']['gate_layout_id'] ?? $gate['id'];
-							break;
-						}
-					}
+				if ( ! empty( $access_rules ) && ! Access_Rules::evaluate_rules( $access_rules ) ) {
+					$is_restricted  = true;
+					$gate_layout_id = $gate['custom_access']['gate_layout_id'] ?? $gate['id'];
 				}
 			}
 
