@@ -116,7 +116,7 @@
 				background-color: var(--newspack-ui-color-neutral-90);
 				border-radius: var(--newspack-ui-border-radius-s);
 				overflow: hidden;
-				display: grid;
+				display: flex;
 				opacity: 0;
 				pointer-events: none;
 				position: relative;
