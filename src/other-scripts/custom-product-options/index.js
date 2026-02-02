@@ -30,7 +30,7 @@
 
 	function showOrHideAllOptions( e ) {
 		const $checkbox = $( '.show_if_subscription' );
-		const $fields = $( '.show_if_newspack_group_subsription_enabled' );
+		const $fields = $( '.show_if_newspack_group_subscription_enabled' );
 
 		if ( e.currentTarget.value === 'subscription' || e.currentTarget.value === 'variable-subscription' ) {
 			$checkbox.show();
