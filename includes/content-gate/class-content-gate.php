@@ -830,7 +830,7 @@ class Content_Gate {
 
 		// Print the gate's block-supports CSS inline.
 		if ( '' !== $block_supports_css ) {
-			wp_register_style( 'newspack-content-gate-block-supports', false, [], true );
+			wp_register_style( 'newspack-content-gate-block-supports', false, [], NEWSPACK_PLUGIN_VERSION );
 			wp_add_inline_style( 'newspack-content-gate-block-supports', $block_supports_css );
 			wp_enqueue_style( 'newspack-content-gate-block-supports' );
 		}
