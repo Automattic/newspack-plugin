@@ -47,6 +47,14 @@ window.newspackRAS.push( readerActivation => {
 			ev.preventDefault();
 			const modalTrigger = ev.target;
 			let callback, redirect;
+
+			// If reader sees this form as a modal, it's likely they'll want
+			// to dismiss the modal and stay on the underlying page when
+			// sign-in flow is complete.
+			// Detect a modal container in ancestors and flag so we can skip
+			// the redirect later.
+			const isInsideOverlay = modalTrigger.closest( '.newspack-popup, .newspack-lightbox, [class*="lightbox"], [class*="popup"]' );
+
 			if ( ev.target.getAttribute( 'data-redirect' ) ) {
 				redirect = ev.target.getAttribute( 'data-redirect' );
 			} else {
@@ -62,7 +70,9 @@ window.newspackRAS.push( readerActivation => {
 					}
 				}
 			}
-			if ( redirect && redirect !== '#' ) {
+
+			// If we're in a modal, ignore redirect so 'Continue' dismisses it and reader can continue on the current page.
+			if ( redirect && redirect !== '#' && ! isInsideOverlay ) {
 				callback = () => {
 					window.location.href = redirect;
 				};
