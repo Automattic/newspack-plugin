@@ -73,31 +73,4 @@
 			margin-top: var(--newspack-ui-spacer-4);
 		}
 	}
-
-	.woocommerce-notices-wrapper {
-		.wc-block-components-notice-banner {
-			&.is-info,
-			&.is-error,
-			&.is-success {
-				background: var(--newspack-ui-color-warning-0);
-				border: none;
-				border-left: 3px solid var(--newspack-ui-color-warning-30);
-				font-family: var(--newspack-ui-font-family);
-
-				> svg {
-					display: none;
-				}
-			}
-
-			&.is-error {
-				background: var(--newspack-ui-color-error-0);
-				border-left-color: var(--newspack-ui-color-error-50);
-			}
-
-			&.is-success {
-				background: var(--newspack-ui-color-success-0);
-				border-left-color: var(--newspack-ui-color-success-50);
-			}
-		}
-	}
 }
