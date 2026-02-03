@@ -59,6 +59,7 @@ class Content_Gate {
 		add_action( 'admin_init', [ __CLASS__, 'handle_edit_gate_layout' ] );
 		add_action( 'wp_enqueue_scripts', [ __CLASS__, 'enqueue_scripts' ] );
 		add_action( 'wp_footer', [ __CLASS__, 'render_overlay_gate' ], 1 );
+		add_action( 'before_delete_post', [ __CLASS__, 'delete_gate_layouts' ], 10, 2 );
 		add_filter( 'newspack_popups_assess_has_disabled_popups', [ __CLASS__, 'disable_popups' ] );
 		add_filter( 'newspack_reader_activity_article_view', [ __CLASS__, 'suppress_article_view_activity' ], 100 );
 
@@ -496,37 +497,118 @@ class Content_Gate {
 	 */
 	public static function create_gate( $title = '', $post_type = self::GATE_CPT ) {
 		$all_gates = self::get_gates();
-		return \wp_insert_post(
+		$gate_id   = \wp_insert_post(
 			[
 				'post_title'   => $title,
 				'post_type'    => $post_type,
 				'post_status'  => 'draft',
-				'post_content' => '<!-- wp:paragraph --><p>' . __( 'This post is only available to members.', 'newspack' ) . '</p><!-- /wp:paragraph -->',
+				'post_content' => self::get_default_gate_content(),
 				'meta_input'   => [
 					'gate_priority' => count( $all_gates ),
 				],
-			]
+			],
+			true // Return WP_Error on failure.
 		);
+
+		if ( is_wp_error( $gate_id ) ) {
+			return $gate_id;
+		}
+
+		// Create default layouts for registration and custom_access modes.
+		$registration_content   = self::get_block_pattern_content( 'registration-card' );
+		$registration_layout_id = self::create_gate_layout(
+			__( 'Registration Access Layout', 'newspack' ),
+			$registration_content
+		);
+		if ( ! is_wp_error( $registration_layout_id ) ) {
+			self::update_registration_settings( $gate_id, [ 'gate_layout_id' => $registration_layout_id ] );
+		}
+
+		$custom_access_layout_id = self::create_gate_layout(
+			__( 'Paid Access Layout', 'newspack' )
+		);
+		if ( ! is_wp_error( $custom_access_layout_id ) ) {
+			self::update_custom_access_settings( $gate_id, [ 'gate_layout_id' => $custom_access_layout_id ] );
+		}
+
+		return $gate_id;
+	}
+
+	/**
+	 * Delete gate layouts when a gate is permanently deleted.
+	 *
+	 * @param int      $post_id Post ID.
+	 * @param \WP_Post $post    Post object.
+	 */
+	public static function delete_gate_layouts( $post_id, $post ) {
+		if ( self::GATE_CPT !== $post->post_type ) {
+			return;
+		}
+
+		$gate = self::get_gate( $post_id );
+		if ( is_wp_error( $gate ) ) {
+			return;
+		}
+
+		// Delete registration layout if it exists.
+		if ( ! empty( $gate['registration']['gate_layout_id'] ) ) {
+			\wp_delete_post( $gate['registration']['gate_layout_id'], true );
+		}
+
+		// Delete custom access layout if it exists.
+		if ( ! empty( $gate['custom_access']['gate_layout_id'] ) ) {
+			\wp_delete_post( $gate['custom_access']['gate_layout_id'], true );
+		}
 	}
 
 	/**
 	 * Create a new gate layout post.
 	 *
-	 * @param string $title Optional gate layout title. Defaults to 'Content Gate Layout'.
+	 * @param string $title   Optional gate layout title. Defaults to 'Content Gate Layout'.
+	 * @param string $content Optional post content. Defaults to a simple paragraph.
 	 *
 	 * @return int|\WP_Error The gate layout post ID or error if not created.
 	 */
-	public static function create_gate_layout( $title = '' ) {
+	public static function create_gate_layout( $title = '', $content = '' ) {
 		if ( empty( $title ) ) {
 			$title = __( 'Content Gate Layout', 'newspack' );
+		}
+		if ( empty( $content ) ) {
+			$content = self::get_default_gate_content();
 		}
 		return \wp_insert_post(
 			[
 				'post_title'   => $title,
 				'post_type'    => self::GATE_LAYOUT_CPT,
-				'post_content' => '<!-- wp:paragraph --><p>' . __( 'This post is only available to members.', 'newspack' ) . '</p><!-- /wp:paragraph -->',
-			]
+				'post_content' => $content,
+			],
+			true // Return WP_Error on failure.
 		);
+	}
+
+	/**
+	 * Get block pattern content by slug.
+	 *
+	 * @param string $pattern_slug The pattern slug (e.g., 'registration-wall').
+	 *
+	 * @return string The pattern content, or empty string if not found.
+	 */
+	public static function get_block_pattern_content( $pattern_slug ) {
+		$patterns_dir = realpath( __DIR__ . '/block-patterns' );
+		if ( ! $patterns_dir ) {
+			return '';
+		}
+
+		$path = realpath( $patterns_dir . '/' . $pattern_slug . '.php' );
+
+		// Ensure the resolved path is within the block-patterns directory to prevent directory traversal.
+		if ( ! $path || strpos( $path, $patterns_dir . DIRECTORY_SEPARATOR ) !== 0 ) {
+			return '';
+		}
+
+		ob_start();
+		require $path;
+		return ob_get_clean();
 	}
 
 	/**
@@ -597,7 +679,9 @@ class Content_Gate {
 			\wp_safe_redirect( \get_edit_post_link( $gate_layout_id, 'edit' ) );
 			exit;
 		} else {
-			$gate_layout_id = self::create_gate_layout( $gate_layout_default_title );
+			// Use registration pattern for registration mode, default content for custom_access.
+			$gate_layout_content = 'registration' === $gate_mode ? self::get_block_pattern_content( 'registration-card' ) : '';
+			$gate_layout_id      = self::create_gate_layout( $gate_layout_default_title, $gate_layout_content );
 			if ( is_wp_error( $gate_layout_id ) ) {
 				\wp_die( esc_html( $gate_layout_id->get_error_message() ) );
 			}
