@@ -255,6 +255,244 @@ class Test_Content_Gates extends \WP_UnitTestCase {
 	}
 
 	/**
+	 * Test that gate layouts are created when a gate is created.
+	 */
+	public function test_create_gate_creates_layouts() {
+		$gate_id = Content_Gate::create_gate( 'Test Gate' );
+		$this->gate_ids[] = $gate_id;
+
+		$gate = Content_Gate::get_gate( $gate_id );
+		$this->assertNotEmpty( $gate['registration']['gate_layout_id'], 'Registration layout ID should be set' );
+		$this->assertNotEmpty( $gate['custom_access']['gate_layout_id'], 'Custom access layout ID should be set' );
+
+		// Verify the layout posts exist.
+		$registration_layout = get_post( $gate['registration']['gate_layout_id'] );
+		$custom_access_layout = get_post( $gate['custom_access']['gate_layout_id'] );
+
+		$this->assertNotNull( $registration_layout, 'Registration layout post should exist' );
+		$this->assertNotNull( $custom_access_layout, 'Custom access layout post should exist' );
+		$this->assertEquals( Content_Gate::GATE_LAYOUT_CPT, $registration_layout->post_type, 'Registration layout should be correct post type' );
+		$this->assertEquals( Content_Gate::GATE_LAYOUT_CPT, $custom_access_layout->post_type, 'Custom access layout should be correct post type' );
+	}
+
+	/**
+	 * Test that layouts are deleted when a gate is permanently deleted.
+	 */
+	public function test_delete_gate_deletes_layouts() {
+		$gate_id = Content_Gate::create_gate( 'Test Gate for Deletion' );
+		$gate = Content_Gate::get_gate( $gate_id );
+
+		$registration_layout_id = $gate['registration']['gate_layout_id'];
+		$custom_access_layout_id = $gate['custom_access']['gate_layout_id'];
+
+		// Verify layouts exist before deletion.
+		$this->assertNotNull( get_post( $registration_layout_id ), 'Registration layout should exist before deletion' );
+		$this->assertNotNull( get_post( $custom_access_layout_id ), 'Custom access layout should exist before deletion' );
+
+		// Permanently delete the gate.
+		wp_delete_post( $gate_id, true );
+
+		// Verify layouts are deleted.
+		$this->assertNull( get_post( $registration_layout_id ), 'Registration layout should be deleted' );
+		$this->assertNull( get_post( $custom_access_layout_id ), 'Custom access layout should be deleted' );
+	}
+
+	/**
+	 * Test that only layouts associated with the deleted gate are removed.
+	 */
+	public function test_delete_gate_only_deletes_own_layouts() {
+		$gate1_id = Content_Gate::create_gate( 'Gate 1' );
+		$gate2_id = Content_Gate::create_gate( 'Gate 2' );
+		$this->gate_ids[] = $gate2_id;
+
+		$gate1 = Content_Gate::get_gate( $gate1_id );
+		$gate2 = Content_Gate::get_gate( $gate2_id );
+
+		$gate1_registration_layout_id = $gate1['registration']['gate_layout_id'];
+		$gate2_registration_layout_id = $gate2['registration']['gate_layout_id'];
+		$gate2_custom_access_layout_id = $gate2['custom_access']['gate_layout_id'];
+
+		// Delete gate 1.
+		wp_delete_post( $gate1_id, true );
+
+		// Gate 1's layout should be deleted.
+		$this->assertNull( get_post( $gate1_registration_layout_id ), 'Gate 1 registration layout should be deleted' );
+
+		// Gate 2's layouts should still exist.
+		$this->assertNotNull( get_post( $gate2_registration_layout_id ), 'Gate 2 registration layout should still exist' );
+		$this->assertNotNull( get_post( $gate2_custom_access_layout_id ), 'Gate 2 custom access layout should still exist' );
+	}
+
+	/**
+	 * Test that deleting a gate handles missing layouts gracefully.
+	 */
+	public function test_delete_gate_handles_missing_layouts() {
+		$gate_id = Content_Gate::create_gate( 'Test Gate' );
+		$gate = Content_Gate::get_gate( $gate_id );
+
+		$registration_layout_id = $gate['registration']['gate_layout_id'];
+
+		// Manually delete one layout first.
+		wp_delete_post( $registration_layout_id, true );
+		$this->assertNull( get_post( $registration_layout_id ), 'Registration layout should be deleted' );
+
+		// Deleting the gate should not cause errors even with missing layout.
+		wp_delete_post( $gate_id, true );
+
+		// Verify the gate is deleted.
+		$this->assertNull( get_post( $gate_id ), 'Gate should be deleted' );
+	}
+
+	/**
+	 * Test that deleting a gate handles gates without layouts (e.g., legacy gates).
+	 */
+	public function test_delete_gate_handles_gates_without_layouts() {
+		// Create a gate and manually remove layout IDs to simulate a legacy gate.
+		$gate_id = Content_Gate::create_gate( 'Legacy Gate' );
+		$gate = Content_Gate::get_gate( $gate_id );
+
+		// Delete the auto-created layouts and clear the settings.
+		wp_delete_post( $gate['registration']['gate_layout_id'], true );
+		wp_delete_post( $gate['custom_access']['gate_layout_id'], true );
+
+		Content_Gate::update_registration_settings( $gate_id, [ 'gate_layout_id' => 0 ] );
+		Content_Gate::update_custom_access_settings( $gate_id, [ 'gate_layout_id' => 0 ] );
+
+		// Deleting the gate should not cause errors.
+		wp_delete_post( $gate_id, true );
+
+		// Verify the gate is deleted.
+		$this->assertNull( get_post( $gate_id ), 'Gate should be deleted' );
+	}
+
+	/**
+	 * Test that get_inline_gate_content_for_post returns default content when layout post doesn't exist.
+	 */
+	public function test_inline_gate_content_with_missing_layout() {
+		$non_existent_id = 999999;
+
+		$content = Content_Gate::get_inline_gate_content_for_post( $non_existent_id );
+
+		// Should contain the clearfix div.
+		$this->assertStringContainsString( 'clear:both', $content, 'Clearfix div should be present' );
+
+		// Should contain the default gate content.
+		$this->assertStringContainsString( 'This post is only available to members', $content, 'Default content should be present' );
+
+		// Should be wrapped in gate container.
+		$this->assertStringContainsString( 'newspack-content-gate__inline-gate', $content, 'Gate container should be present' );
+	}
+
+	/**
+	 * Test that get_inline_gate_content_for_post returns actual content when layout post exists.
+	 */
+	public function test_inline_gate_content_with_existing_layout() {
+		$gate_id = Content_Gate::create_gate( 'Test Gate' );
+		$this->gate_ids[] = $gate_id;
+
+		$gate = Content_Gate::get_gate( $gate_id );
+		$layout_id = $gate['registration']['gate_layout_id'];
+
+		// Update the layout with custom content.
+		$custom_content = '<!-- wp:paragraph --><p>Custom gate message for testing.</p><!-- /wp:paragraph -->';
+		wp_update_post(
+			[
+				'ID'           => $layout_id,
+				'post_content' => $custom_content,
+			]
+		);
+
+		// Set style to inline.
+		update_post_meta( $layout_id, 'style', 'inline' );
+
+		$content = Content_Gate::get_inline_gate_content_for_post( $layout_id );
+
+		// Should contain the clearfix div.
+		$this->assertStringContainsString( 'clear:both', $content, 'Clearfix div should be present' );
+
+		// Should contain the custom content.
+		$this->assertStringContainsString( 'Custom gate message for testing', $content, 'Custom content should be present' );
+
+		// Should NOT contain the default content.
+		$this->assertStringNotContainsString( 'This post is only available to members', $content, 'Default content should not be present' );
+
+		// Should be wrapped in gate container.
+		$this->assertStringContainsString( 'newspack-content-gate__inline-gate', $content, 'Gate container should be present' );
+	}
+
+	/**
+	 * Test that get_inline_gate_content_for_post returns empty string for overlay style.
+	 */
+	public function test_inline_gate_content_returns_empty_for_overlay_style() {
+		$gate_id = Content_Gate::create_gate( 'Test Gate' );
+		$this->gate_ids[] = $gate_id;
+
+		$gate = Content_Gate::get_gate( $gate_id );
+		$layout_id = $gate['registration']['gate_layout_id'];
+
+		// Set style to overlay.
+		update_post_meta( $layout_id, 'style', 'overlay' );
+
+		$content = Content_Gate::get_inline_gate_content_for_post( $layout_id );
+
+		$this->assertEmpty( $content, 'Should return empty string for overlay style' );
+	}
+
+	/**
+	 * Test that get_restricted_post_excerpt_for_gate uses defaults when layout doesn't exist.
+	 */
+	public function test_restricted_excerpt_with_missing_layout() {
+		$post_id = $this->factory->post->create(
+			[
+				'post_content' => '<p>First paragraph.</p><p>Second paragraph.</p><p>Third paragraph.</p><p>Fourth paragraph.</p>',
+			]
+		);
+		$this->post_ids[] = $post_id;
+
+		$post = get_post( $post_id );
+		$non_existent_id = 999999;
+
+		$excerpt = Content_Gate::get_restricted_post_excerpt_for_gate( $post, $non_existent_id );
+
+		// Default visible_paragraphs is 2, so should have first two paragraphs.
+		$this->assertStringContainsString( 'First paragraph', $excerpt, 'First paragraph should be present' );
+		$this->assertStringContainsString( 'Second paragraph', $excerpt, 'Second paragraph should be present' );
+		$this->assertStringNotContainsString( 'Third paragraph', $excerpt, 'Third paragraph should not be present' );
+	}
+
+	/**
+	 * Test that get_restricted_post_excerpt_for_gate respects layout settings.
+	 */
+	public function test_restricted_excerpt_with_existing_layout() {
+		$gate_id = Content_Gate::create_gate( 'Test Gate' );
+		$this->gate_ids[] = $gate_id;
+
+		$gate = Content_Gate::get_gate( $gate_id );
+		$layout_id = $gate['registration']['gate_layout_id'];
+
+		// Set visible paragraphs to 3.
+		update_post_meta( $layout_id, 'visible_paragraphs', 3 );
+		update_post_meta( $layout_id, 'style', 'inline' );
+		update_post_meta( $layout_id, 'use_more_tag', false );
+
+		$post_id = $this->factory->post->create(
+			[
+				'post_content' => '<p>First paragraph.</p><p>Second paragraph.</p><p>Third paragraph.</p><p>Fourth paragraph.</p>',
+			]
+		);
+		$this->post_ids[] = $post_id;
+
+		$post = get_post( $post_id );
+		$excerpt = Content_Gate::get_restricted_post_excerpt_for_gate( $post, $layout_id );
+
+		// Should have first three paragraphs.
+		$this->assertStringContainsString( 'First paragraph', $excerpt, 'First paragraph should be present' );
+		$this->assertStringContainsString( 'Second paragraph', $excerpt, 'Second paragraph should be present' );
+		$this->assertStringContainsString( 'Third paragraph', $excerpt, 'Third paragraph should be present' );
+		$this->assertStringNotContainsString( 'Fourth paragraph', $excerpt, 'Fourth paragraph should not be present' );
+	}
+
+	/**
 	 * Test access rules normalization from flat to grouped format.
 	 */
 	public function test_normalize_access_rules() {
