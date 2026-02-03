@@ -283,33 +283,43 @@ class Access_Rules {
 	 * @return bool
 	 */
 	public static function has_active_subscription( $user_id, $product_ids ) {
+		$has_subscription = false;
+
 		// Check user's own subscriptions.
 		if ( ! empty( WooCommerce_Connection::get_active_subscriptions_for_user( $user_id, $product_ids ) ) ) {
-			return true;
+			$has_subscription = true;
 		}
 
 		// Check group subscriptions the user is a member of.
-		if ( ! function_exists( 'wcs_get_subscription' ) ) {
-			return false;
-		}
-		$group_subscriptions = Group_Subscription::get_group_subscriptions_for_user( $user_id );
-		foreach ( $group_subscriptions as $subscription ) {
-			if ( ! $subscription || ! $subscription->has_status( WooCommerce_Connection::ACTIVE_SUBSCRIPTION_STATUSES ) ) {
-				continue;
-			}
-			// If no product filter, any active group subscription grants access.
-			if ( empty( $product_ids ) ) {
-				return true;
-			}
-			// Check if the subscription has any of the required products.
-			foreach ( $product_ids as $product_id ) {
-				if ( $subscription->has_product( $product_id ) ) {
-					return true;
+		if ( ! $has_subscription && function_exists( 'wcs_get_subscription' ) ) {
+			$group_subscriptions = Group_Subscription::get_group_subscriptions_for_user( $user_id );
+			foreach ( $group_subscriptions as $subscription ) {
+				if ( ! $subscription || ! $subscription->has_status( WooCommerce_Connection::ACTIVE_SUBSCRIPTION_STATUSES ) ) {
+					continue;
+				}
+				// If no product filter, any active group subscription grants access.
+				if ( empty( $product_ids ) ) {
+					$has_subscription = true;
+					break;
+				}
+				// Check if the subscription has any of the required products.
+				foreach ( $product_ids as $product_id ) {
+					if ( $subscription->has_product( $product_id ) ) {
+						$has_subscription = true;
+						break 2;
+					}
 				}
 			}
 		}
 
-		return false;
+		/**
+		 * Filters whether a user has an active subscription for the given products.
+		 *
+		 * @param bool  $has_subscription Whether the user has an active subscription.
+		 * @param int   $user_id          User ID.
+		 * @param array $product_ids      Required product IDs.
+		 */
+		return apply_filters( 'newspack_access_rules_has_active_subscription', $has_subscription, $user_id, $product_ids );
 	}
 
 	/**
