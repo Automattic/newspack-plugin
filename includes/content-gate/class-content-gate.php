@@ -812,8 +812,8 @@ class Content_Gate {
 		$post  = \get_post( $gate_layout_id ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 		setup_postdata( $post );
 
-		// Render blocks to register layout CSS in time for wp_head.
-		\apply_filters( 'newspack_gate_content', \get_the_content( null, null, $gate_layout_id ) );
+		// Render blocks to register layout CSS in time for wp_head without invoking gate content filters.
+		\do_blocks( \get_the_content( null, null, $gate_layout_id ) );
 
 		// Loop through the block-supports rules and get only the new rules added when the gate is rendered.
 		$block_supports_css = '';
