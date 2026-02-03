@@ -14,7 +14,6 @@ import { __unstableStripHTML as stripHTML } from '@wordpress/dom';
 import { useState } from '@wordpress/element';
 import {
 	BlockControls,
-	InspectorControls,
 	RichText,
 	useBlockProps,
 	/* eslint-disable @wordpress/no-unsafe-wp-apis */
@@ -23,20 +22,25 @@ import {
 	__experimentalGetSpacingClassesAndStyles as useSpacingProps,
 	/* eslint-enable @wordpress/no-unsafe-wp-apis */
 } from '@wordpress/block-editor';
-import { PanelBody, ToggleControl, ToolbarButton, ToolbarGroup } from '@wordpress/components';
+import { ToolbarButton, ToolbarGroup } from '@wordpress/components';
 
-/**
- * Internal dependencies
- */
-function MyAccountButtonEdit( { attributes, setAttributes } ) {
-	const { signedInLabel, signedOutLabel, showLabel, showIcon, style, className: customClassName } = attributes;
+function MyAccountButtonEdit( { attributes, setAttributes, className: wrapperClassName } ) {
+	const { signedInLabel, signedOutLabel, style, className: blockClassName } = attributes;
 	const borderProps = useBorderProps( attributes );
 	const colorProps = useColorProps( attributes );
 	const spacingProps = useSpacingProps( attributes );
-	const isLabelVisible = showLabel !== false;
-	const isIconVisible = showIcon !== false;
+
+	// Block style comes from the Styles panel (wrapper) or saved className.
+	const blockWrapperProps = useBlockProps();
+	const className = blockWrapperProps?.className ?? wrapperClassName ?? blockClassName ?? '';
+	const isIconOnly = className.includes( 'is-style-icon-only' );
+	const isTextOnly = className.includes( 'is-style-text-only' );
+	const isLabelVisible = ! isIconOnly;
+	const isIconVisible = ! isTextOnly;
+
 	const blockProps = useBlockProps( {
 		className: classnames(
+			className,
 			'wp-block-button__link',
 			'newspack-reader__account-link',
 			'wp-block-newspack-my-account-button__link',
@@ -54,62 +58,48 @@ function MyAccountButtonEdit( { attributes, setAttributes } ) {
 			...spacingProps.style,
 		},
 	} );
-	const isReaderActivationEnabled = typeof newspack_blocks === 'undefined' || newspack_blocks.has_reader_activation;
 
+	const isReaderActivationEnabled = typeof newspack_blocks === 'undefined' || newspack_blocks.has_reader_activation;
 	const [ previewState, setPreviewState ] = useState( 'signedout' );
 	const isSignedOutPreview = previewState === 'signedout';
 	const activeLabel = isSignedOutPreview ? signedOutLabel : signedInLabel;
 	const placeholderText = isSignedOutPreview ? __( 'Sign in', 'newspack-plugin' ) : __( 'My Account', 'newspack-plugin' );
-	function setShowLabel( nextValue ) {
-		if ( ! nextValue && ! isIconVisible ) {
-			setAttributes( { showLabel: false, showIcon: true } );
-			return;
-		}
-		setAttributes( { showLabel: nextValue } );
-	}
-
-	function setShowIcon( nextValue ) {
-		if ( ! nextValue && ! isLabelVisible ) {
-			setAttributes( { showLabel: true, showIcon: false } );
-			return;
-		}
-		setAttributes( { showIcon: nextValue } );
-	}
 
 	function setButtonText( newText ) {
-		const cleaned = stripHTML( newText );
-		setAttributes( isSignedOutPreview ? { signedOutLabel: cleaned } : { signedInLabel: cleaned } );
+		setAttributes( isSignedOutPreview ? { signedOutLabel: stripHTML( newText ) } : { signedInLabel: stripHTML( newText ) } );
 	}
 
-	return ! isReaderActivationEnabled ? (
-		<div { ...blockProps } style={ { ...blockProps.style, display: 'none' } } />
-	) : (
+	if ( ! isReaderActivationEnabled ) {
+		return <div { ...blockProps } style={ { ...blockProps.style, display: 'none' } } />;
+	}
+
+	return (
 		<>
-			<InspectorControls>
-				<PanelBody title={ __( 'Display', 'newspack-plugin' ) }>
-					<ToggleControl label={ __( 'Show label', 'newspack-plugin' ) } checked={ isLabelVisible } onChange={ setShowLabel } />
-					<ToggleControl label={ __( 'Show icon', 'newspack-plugin' ) } checked={ isIconVisible } onChange={ setShowIcon } />
-				</PanelBody>
-			</InspectorControls>
-			<BlockControls>
-				<ToolbarGroup>
-					<ToolbarButton
-						isPressed={ isSignedOutPreview }
-						onClick={ () => setPreviewState( 'signedout' ) }
-						style={ { paddingLeft: '12px', paddingRight: '12px' } }
-					>
-						{ __( 'Signed out', 'newspack-plugin' ) }
-					</ToolbarButton>
-					<ToolbarButton
-						isPressed={ ! isSignedOutPreview }
-						onClick={ () => setPreviewState( 'signedin' ) }
-						style={ { paddingLeft: '12px', paddingRight: '12px' } }
-					>
-						{ __( 'Signed in', 'newspack-plugin' ) }
-					</ToolbarButton>
-				</ToolbarGroup>
-			</BlockControls>
-			<div className={ classnames( 'wp-block-buttons', customClassName ) }>
+			{ isLabelVisible && (
+				<BlockControls>
+					<ToolbarGroup>
+						<ToolbarButton
+							icon={ false }
+							isPressed={ isSignedOutPreview }
+							label={ __( 'Signed out', 'newspack-plugin' ) }
+							onClick={ () => setPreviewState( 'signedout' ) }
+							style={ { paddingLeft: '12px', paddingRight: '12px' } }
+						>
+							{ __( 'Signed out', 'newspack-plugin' ) }
+						</ToolbarButton>
+						<ToolbarButton
+							icon={ false }
+							isPressed={ ! isSignedOutPreview }
+							label={ __( 'Signed in', 'newspack-plugin' ) }
+							onClick={ () => setPreviewState( 'signedin' ) }
+							style={ { paddingLeft: '12px', paddingRight: '12px' } }
+						>
+							{ __( 'Signed in', 'newspack-plugin' ) }
+						</ToolbarButton>
+					</ToolbarGroup>
+				</BlockControls>
+			) }
+			<div className={ classnames( 'wp-block-buttons', blockClassName ) }>
 				<div className="wp-block-button">
 					<div { ...blockProps }>
 						{ isIconVisible && (
@@ -123,7 +113,7 @@ function MyAccountButtonEdit( { attributes, setAttributes } ) {
 							aria-label={ __( 'Button text', 'newspack-plugin' ) }
 							placeholder={ placeholderText }
 							value={ activeLabel || '' }
-							onChange={ value => setButtonText( value ) }
+							onChange={ setButtonText }
 							withoutInteractiveFormatting
 						/>
 					</div>

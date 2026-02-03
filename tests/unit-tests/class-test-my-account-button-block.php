@@ -110,13 +110,13 @@ class Newspack_Test_My_Account_Button_Block extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test hidden label applies the screen-reader-text class.
+	 * Test icon-only style applies the screen-reader-text class to the label.
 	 */
-	public function test_render_block_hidden_label_adds_screen_reader_text_class() {
+	public function test_render_block_icon_only_style_adds_screen_reader_text_class() {
 		self::$reader_activation_enabled = true;
 
 		$output = do_blocks(
-			'<!-- wp:newspack/my-account-button {"signedInLabel":"My Account","signedOutLabel":"Sign in","showLabel":false} /-->'
+			'<!-- wp:newspack/my-account-button {"signedInLabel":"My Account","signedOutLabel":"Sign in","className":"is-style-icon-only"} /-->'
 		);
 
 		$this->assertNotEmpty( $output );
@@ -124,13 +124,13 @@ class Newspack_Test_My_Account_Button_Block extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test hidden icon removes the icon markup.
+	 * Test text-only style removes the icon markup.
 	 */
-	public function test_render_block_hidden_icon_removes_icon_markup() {
+	public function test_render_block_text_only_style_removes_icon_markup() {
 		self::$reader_activation_enabled = true;
 
 		$output = do_blocks(
-			'<!-- wp:newspack/my-account-button {"signedInLabel":"My Account","signedOutLabel":"Sign in","showIcon":false} /-->'
+			'<!-- wp:newspack/my-account-button {"signedInLabel":"My Account","signedOutLabel":"Sign in","className":"is-style-text-only"} /-->'
 		);
 
 		$this->assertNotEmpty( $output );
@@ -138,13 +138,13 @@ class Newspack_Test_My_Account_Button_Block extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test visible icon renders the icon markup.
+	 * Test default style renders the icon markup.
 	 */
-	public function test_render_block_visible_icon_renders_icon_markup() {
+	public function test_render_block_default_style_renders_icon_markup() {
 		self::$reader_activation_enabled = true;
 
 		$output = do_blocks(
-			'<!-- wp:newspack/my-account-button {"signedInLabel":"My Account","signedOutLabel":"Sign in","showIcon":true} /-->'
+			'<!-- wp:newspack/my-account-button {"signedInLabel":"My Account","signedOutLabel":"Sign in"} /-->'
 		);
 
 		$this->assertNotEmpty( $output );
@@ -152,18 +152,18 @@ class Newspack_Test_My_Account_Button_Block extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test invalid combo (hide label + icon) still renders label and no icon.
+	 * Test default style (no className) renders both label and icon.
 	 */
-	public function test_render_block_hide_label_and_icon_renders_label_only() {
+	public function test_render_block_default_style_renders_label_and_icon() {
 		self::$reader_activation_enabled = true;
 
 		$output = do_blocks(
-			'<!-- wp:newspack/my-account-button {"signedInLabel":"My Account","signedOutLabel":"Sign in","showLabel":false,"showIcon":false} /-->'
+			'<!-- wp:newspack/my-account-button {"signedInLabel":"My Account","signedOutLabel":"Sign in"} /-->'
 		);
 
 		$this->assertNotEmpty( $output );
 		$this->assertStringContainsString( 'newspack-reader__account-link__label', $output );
-		$this->assertStringNotContainsString( 'wp-block-newspack-my-account-button__icon', $output );
+		$this->assertStringContainsString( 'wp-block-newspack-my-account-button__icon', $output );
 	}
 
 	/**

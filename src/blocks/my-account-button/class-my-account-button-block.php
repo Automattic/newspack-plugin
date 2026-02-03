@@ -93,6 +93,7 @@ final class My_Account_Button_Block {
 		$default_attrs = [
 			'signedInLabel'  => __( 'My Account', 'newspack-plugin' ),
 			'signedOutLabel' => __( 'Sign in', 'newspack-plugin' ),
+			'className'      => '',
 		];
 		$attrs         = \wp_parse_args( $attrs, $default_attrs );
 
@@ -100,11 +101,18 @@ final class My_Account_Button_Block {
 		$signed_in_label  = '' === trim( (string) $attrs['signedInLabel'] ) ? $default_attrs['signedInLabel'] : $attrs['signedInLabel'];
 		$signed_out_label = '' === trim( (string) $attrs['signedOutLabel'] ) ? $default_attrs['signedOutLabel'] : $attrs['signedOutLabel'];
 		$label            = $is_signed_in ? $signed_in_label : $signed_out_label;
-		$show_label       = isset( $attrs['showLabel'] ) ? (bool) $attrs['showLabel'] : true;
-		$show_icon        = isset( $attrs['showIcon'] ) ? (bool) $attrs['showIcon'] : true;
 
-		if ( ! $show_label && ! $show_icon ) {
+		/** Display mode from block style class in className (default = icon + text). */
+		$wrapper_class = (string) $attrs['className'];
+		if ( \strpos( $wrapper_class, 'is-style-icon-only' ) !== false ) {
+			$show_label = false;
+			$show_icon  = true;
+		} elseif ( \strpos( $wrapper_class, 'is-style-text-only' ) !== false ) {
 			$show_label = true;
+			$show_icon  = false;
+		} else {
+			$show_label = true;
+			$show_icon  = true;
 		}
 
 		$account_url = self::get_account_url();
