@@ -53,7 +53,9 @@ window.newspackRAS.push( readerActivation => {
 			// sign-in flow is complete.
 			// Detect a modal container in ancestors and flag so we can skip
 			// the redirect later.
-			const isInsideOverlay = modalTrigger.closest( '.newspack-popup, .newspack-lightbox, [class*="lightbox"], [class*="popup"]' );
+			const isInsideOverlay = Boolean(
+				modalTrigger.closest( '.newspack-popup, .newspack-lightbox, [class*="lightbox"], [class*="popup"]' )
+			);
 
 			if ( ev.target.getAttribute( 'data-redirect' ) ) {
 				redirect = ev.target.getAttribute( 'data-redirect' );
