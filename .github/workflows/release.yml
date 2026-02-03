@@ -26,3 +26,7 @@ jobs:
     if: github.ref == 'refs/heads/release'
     needs: release
     uses: Automattic/newspack-scripts/.github/workflows/reusable-post-release.yml@trunk
+    secrets:
+      GIT_COMMITTER_TOKEN: ${{ secrets.GIT_COMMITTER_TOKEN }}
+      SLACK_CHANNEL_ID: ${{ secrets.SLACK_CHANNEL_ID }}
+      SLACK_AUTH_TOKEN: ${{ secrets.SLACK_AUTH_TOKEN }}

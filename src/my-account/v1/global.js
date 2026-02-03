@@ -8,7 +8,7 @@
 import { domReady } from '../../utils';
 
 domReady( () => {
-	const interactionElements = [ '.newspack-ui--block-on-interaction', '.newspack-ui__dropdown__content a' ];
+	const interactionElements = [ '.newspack-ui--block-on-interaction' ];
 	const blockUIonInteraction = [ ...document.querySelectorAll( interactionElements.join( ',' ) ) ];
 	blockUIonInteraction.forEach( element => {
 		const parent = element.closest( 'form, div' );
