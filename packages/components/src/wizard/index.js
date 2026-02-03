@@ -124,15 +124,21 @@ const Wizard = (
 					<HandoffMessage />
 
 					<Switch>
-						{ displayedSections.map( ( section, index ) => {
+						{ sections.map( ( section, index ) => {
 							const SectionComponent = section.render;
+							const sectionProps = section.props || {};
 							return (
-								<Route key={ index } exact={ section.exact ?? false } path={ section.path }>
-									<div className={ classnames( 'newspack-wizard__content', className ) }>
-										{ 'function' === typeof renderAboveSections ? renderAboveSections() : null }
-										<SectionComponent />
-									</div>
-								</Route>
+								<Route
+									key={ index }
+									exact={ section.exact ?? false }
+									path={ section.path }
+									render={ routerProps => (
+										<div className={ classnames( 'newspack-wizard__content', className ) }>
+											{ 'function' === typeof renderAboveSections ? renderAboveSections() : null }
+											<SectionComponent { ...routerProps } { ...sectionProps } />
+										</div>
+									) }
+								/>
 							);
 						} ) }
 						<Redirect to={ displayedSections[ 0 ].path } />
