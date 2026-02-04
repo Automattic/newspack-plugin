@@ -35,7 +35,7 @@ class Contact_Sync_Admin {
 		add_filter( 'bulk_actions-users', [ __CLASS__, 'bulk_actions' ] );
 		add_filter( 'handle_bulk_actions-users', [ __CLASS__, 'handle_bulk_actions' ], 10, 3 );
 		add_action( 'admin_notices', [ __CLASS__, 'admin_notices' ] );
-		add_action( 'newspack_sync_admin_batch', [ 'Contact_Sync', 'sync_contact' ], 10, 1 ); // ActionScheduler hook.
+		add_action( 'newspack_sync_admin_batch', [ 'Newspack\Reader_Activation\Contact_Sync', 'sync_contact' ], 10, 1 ); // ActionScheduler hook.
 	}
 
 	/**
