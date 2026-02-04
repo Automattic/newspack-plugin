@@ -13,7 +13,7 @@
 		font-size: var(--newspack-ui-font-size-s);
 		font-style: normal;
 		font-weight: 600;
-		gap: calc(var(--newspack-ui-spacer-base) / 2);
+		gap: calc(var(--newspack-ui-spacer-5) * 0.5);
 		letter-spacing: initial; // Override for custom styles.
 		text-transform: none; // Override for custom styles.
 		justify-content: center;
@@ -70,6 +70,7 @@
 		&--x-small {
 			border-radius: var(--newspack-ui-border-radius-xs);
 			font-size: var(--newspack-ui-font-size-xs);
+			gap: calc(var(--newspack-ui-spacer-2) * 0.5);
 			line-height: var(--newspack-ui-line-height-xs);
 			min-height: var(--newspack-ui-spacer-7);
 			padding: calc(var(--newspack-ui-spacer-base) * 0.75) var(--newspack-ui-spacer-2);
@@ -78,6 +79,7 @@
 		&--small {
 			border-radius: var(--newspack-ui-border-radius-s);
 			font-size: var(--newspack-ui-font-size-xs);
+			gap: calc(var(--newspack-ui-spacer-3) * 0.5);
 			line-height: var(--newspack-ui-line-height-xs);
 			min-height: var(--newspack-ui-spacer-8);
 			padding: var(--newspack-ui-spacer-base) var(--newspack-ui-spacer-3);
@@ -223,7 +225,8 @@
 				color: var(--newspack-ui-color-neutral-0) !important;
 			}
 
-			&[class*="--ghost"] {
+			&[class*="--ghost"],
+			&[class*="--outline"] {
 				background: transparent;
 				color: var(--newspack-ui-color-error-50);
 
@@ -235,6 +238,14 @@
 				&:disabled {
 					background: transparent !important;
 					color: var(--newspack-ui-color-error-5) !important;
+				}
+			}
+			&[class*="--outline"] {
+				border-color: var(--newspack-ui-color-neutral-30);
+				&:hover {
+					background: transparent;
+					border-color: var(--newspack-ui-color-error-50);
+					color: var(--newspack-ui-color-error-60);
 				}
 			}
 		}
@@ -304,9 +315,24 @@
 			}
 		}
 
-		// Google OAuth
-		&--google-oauth {
-			gap: calc(var(--newspack-ui-spacer-base) * 0.75);
+		// Override margin for text + icon buttons.
+		&:not(&--icon) {
+
+			.newspack-ui__svg-icon--account {
+				margin: 0 -4px;
+			}
+
+			.newspack-ui__svg-icon--arrow-right {
+				margin: 0 -4px;
+			}
+
+			.newspack-ui__svg-icon--google {
+				margin: 0 -2px;
+			}
+
+			.newspack-ui__svg-icon--more {
+				margin: 0 -8px;
+			}
 		}
 	}
 	br + .newspack-ui__button,
