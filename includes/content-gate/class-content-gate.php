@@ -783,10 +783,6 @@ class Content_Gate {
 		if ( $styles_prepared ) {
 			return;
 		}
-		// Only run for block themes.
-		if ( function_exists( 'wp_is_block_theme' ) && ! wp_is_block_theme() ) {
-			return;
-		}
 		$gate_layout_id = self::get_overlay_gate_layout_id();
 		if ( ! $gate_layout_id ) {
 			return;
