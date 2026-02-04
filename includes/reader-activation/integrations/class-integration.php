@@ -67,6 +67,18 @@ abstract class Integration {
 
 
 	/**
+	 * Check if contacts can be synced to this integration.
+	 *
+	 * This method should be implemented by child classes to check
+	 * if the integration is properly configured and ready to sync.
+	 *
+	 * @param bool $return_errors Optional. Whether to return a WP_Error object with error details. Default false.
+	 *
+	 * @return bool|\WP_Error True if contacts can be synced, false otherwise. WP_Error if return_errors is true.
+	 */
+	abstract public function can_sync( $return_errors = false );
+
+	/**
 	 * Push contact data to the integration destination.
 	 *
 	 * This method should be implemented by child classes to send
