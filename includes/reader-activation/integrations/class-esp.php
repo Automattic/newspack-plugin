@@ -75,12 +75,13 @@ class ESP extends Integration {
 	/**
 	 * Push contact data to the integration destination.
 	 *
-	 * @param array  $contact The contact data to push.
-	 * @param string $context Optional. The context of the sync.
+	 * @param array      $contact The contact data to push.
+	 * @param string     $context Optional. The context of the sync.
+	 * @param array|null $existing_contact Optional. Existing contact data if available.
 	 *
 	 * @return true|\WP_Error True on success or WP_Error on failure.
 	 */
-	public function push_contact_data( $contact, $context = '' ) {
+	public function push_contact_data( $contact, $context = '', $existing_contact = null ) {
 
 		$can_sync = $this->can_sync( true );
 		if ( $can_sync->has_errors() ) {
@@ -89,6 +90,6 @@ class ESP extends Integration {
 
 		$master_list_id = Reader_Activation::get_esp_master_list_id();
 
-		return Newspack_Newsletters_Contacts::upsert( $contact, $master_list_id, $context );
+		return Newspack_Newsletters_Contacts::upsert( $contact, $master_list_id, $context, $existing_contact );
 	}
 }
