@@ -149,7 +149,7 @@ const Edit = ( { attributes, context, setAttributes } ) => {
 		<AvatarWrapper key={ key } avatar={ currentAvatar } size={ attributes.size } attributes={ attributes } />
 	);
 	return (
-		<>
+		<div { ...blockProps }>
 			<AvatarInspectorControls attributes={ attributes } setAttributes={ setAttributes } />
 			{ authors?.length
 				? authors.map( ( author, index ) => {
@@ -160,7 +160,7 @@ const Edit = ( { attributes, context, setAttributes } ) => {
 						return renderAvatar( currentAvatar, author.id || index );
 				  } )
 				: renderAvatar( avatar, 'single-author' ) }
-		</>
+		</div>
 	);
 };
 

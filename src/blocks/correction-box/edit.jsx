@@ -6,7 +6,7 @@ import { update } from '@wordpress/icons';
 import { useSelect } from '@wordpress/data';
 import { useState } from '@wordpress/element';
 import ServerSideRender from '@wordpress/server-side-render';
-import { BlockControls, InspectorControls } from '@wordpress/block-editor';
+import { BlockControls, InspectorControls, useBlockProps } from '@wordpress/block-editor';
 import { ToolbarGroup, ToolbarButton, PanelBody, PanelRow, SelectControl } from '@wordpress/components';
 
 /**
@@ -26,6 +26,7 @@ import meta from './block.json';
 export default function Edit( { attributes, setAttributes } ) {
 	const [ isRefreshing, setIsRefreshing ] = useState( false );
 	const postType = useSelect( select => select( 'core/editor' ).getCurrentPostType(), [] );
+	const blockProps = useBlockProps();
 
 	/**
 	 * Placeholder when no Corrections are available.
@@ -76,12 +77,12 @@ export default function Edit( { attributes, setAttributes } ) {
 	}
 
 	return 'wp_template' === postType ? (
-		<>
+		<div { ...blockProps }>
 			<EmptyPlaceholder />
 			<CorrectionSettings />
-		</>
+		</div>
 	) : (
-		<>
+		<div { ...blockProps }>
 			<CorrectionSettings />
 			<BlockControls>
 				<ToolbarGroup>
@@ -89,6 +90,6 @@ export default function Edit( { attributes, setAttributes } ) {
 				</ToolbarGroup>
 			</BlockControls>
 			<ServerSideRender block={ meta.name } EmptyResponsePlaceholder={ EmptyPlaceholder } refresh={ isRefreshing } attributes={ attributes } />
-		</>
+		</div>
 	);
 }
