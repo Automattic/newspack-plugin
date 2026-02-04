@@ -107,6 +107,14 @@ class Sync {
 
 		$integrations = Integrations::get_active_integrations();
 
+		// If there are no active integrations, return false or an error.
+		if ( empty( $integrations ) ) {
+			if ( $return_errors ) {
+				return new \WP_Error( 'no_active_integrations', __( 'No active integrations found.', 'newspack-plugin' ) );
+			}
+			return false;
+		}
+
 		$result = new \WP_Error();
 
 		foreach ( $integrations as $integration ) {
@@ -128,10 +136,7 @@ class Sync {
 			return $result;
 		}
 
-		if ( $result->has_errors() ) {
-			return false;
-		}
-
-		return true;
+		// If we've checked all integrations and none can sync, return false.
+		return false;
 	}
 }
