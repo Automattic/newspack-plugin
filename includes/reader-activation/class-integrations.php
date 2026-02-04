@@ -23,6 +23,13 @@ class Integrations {
 	private static $integrations = [];
 
 	/**
+	 * Whether integrations have been registered.
+	 *
+	 * @var bool
+	 */
+	private static $integrations_registered = false;
+
+	/**
 	 * Option name for storing enabled integrations.
 	 *
 	 * @var string
@@ -51,6 +58,9 @@ class Integrations {
 
 		// hardcode ESP integration as enabled for now.
 		self::enable( 'esp' );
+
+		// Mark integrations as registered.
+		self::$integrations_registered = true;
 	}
 
 	/**
@@ -183,5 +193,14 @@ class Integrations {
 		}
 
 		return $enabled;
+	}
+
+	/**
+	 * Check if integrations have been registered.
+	 *
+	 * @return bool True if integrations have been registered, false otherwise.
+	 */
+	public static function are_integrations_registered() {
+		return self::$integrations_registered;
 	}
 }
