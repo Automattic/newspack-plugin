@@ -97,17 +97,19 @@ class Sync {
 
 		// Check if integrations have been registered.
 		if ( ! Integrations::are_integrations_registered() ) {
+			$message = __( 'This method was called before integrations were registered. Integrations are registered on the "init" hook with priority 5. Make sure to call this method after that hook has fired.', 'newspack-plugin' );
+
 			_doing_it_wrong(
 				__METHOD__,
 				// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- _doing_it_wrong expects translated string.
-				__( 'This method was called before integrations were registered. Integrations are registered on the "init" hook with priority 5. Make sure to call this method after that hook has fired.', 'newspack-plugin' ),
+				$message,
 				'2.96.0'
 			);
 
 			if ( $return_errors ) {
 				return new \WP_Error(
 					'integrations_not_registered',
-					__( 'Integrations have not been registered yet. This method should be called after the "init" hook at priority 5.', 'newspack-plugin' )
+					$message
 				);
 			}
 
