@@ -103,7 +103,7 @@ class Sync {
 				__METHOD__,
 				// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- _doing_it_wrong expects translated string.
 				$message,
-				'2.96.0'
+				'6.29.3'
 			);
 
 			if ( $return_errors ) {
