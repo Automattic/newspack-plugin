@@ -310,46 +310,6 @@ function render_block( $attrs, $content ) {
 				</span>
 				<?php echo \wp_kses_post( $success_login_markup ); ?>
 			</div>
-			<!-- OTP State UI -->
-			<div class="newspack-registration__otp newspack-registration--hidden">
-				<p class="newspack-registration__otp-title"><?php esc_html_e( 'Enter the code sent to your email.', 'newspack-plugin' ); ?></p>
-				<p class="newspack-registration__otp-email"></p>
-				<div class="newspack-ui__code-input">
-					<input name="otp_code" type="text" maxlength="<?php echo \esc_attr( \Newspack\Magic_Link::OTP_LENGTH ); ?>" inputmode="numeric" autocomplete="one-time-code" />
-				</div>
-				<div class="newspack-registration__otp-actions">
-					<button type="button" class="newspack-ui__button newspack-ui__button--primary" data-otp-submit>
-						<?php esc_html_e( 'Continue', 'newspack-plugin' ); ?>
-					</button>
-					<button type="button" class="newspack-ui__button newspack-ui__button--ghost" data-otp-resend disabled>
-						<?php esc_html_e( 'Resend code', 'newspack-plugin' ); ?>
-					</button>
-					<button type="button" class="newspack-ui__button newspack-ui__button--ghost" data-otp-back>
-						<?php esc_html_e( 'Go back', 'newspack-plugin' ); ?>
-					</button>
-				</div>
-				<div class="newspack-registration__otp-response"></div>
-			</div>
-			<!-- Password State UI -->
-			<div class="newspack-registration__password newspack-registration--hidden">
-				<p class="newspack-registration__password-title"><?php esc_html_e( 'Enter your password to continue.', 'newspack-plugin' ); ?></p>
-				<p class="newspack-registration__password-email"></p>
-				<div class="newspack-registration__password-input">
-					<input name="password" type="password" placeholder="<?php esc_attr_e( 'Password', 'newspack-plugin' ); ?>" autocomplete="current-password" />
-				</div>
-				<div class="newspack-registration__password-actions">
-					<button type="button" class="newspack-ui__button newspack-ui__button--primary" data-pwd-submit>
-						<?php esc_html_e( 'Continue', 'newspack-plugin' ); ?>
-					</button>
-					<button type="button" class="newspack-ui__button newspack-ui__button--ghost" data-pwd-link>
-						<?php esc_html_e( 'Email me a one-time code instead', 'newspack-plugin' ); ?>
-					</button>
-					<button type="button" class="newspack-ui__button newspack-ui__button--ghost" data-pwd-back>
-						<?php esc_html_e( 'Go back', 'newspack-plugin' ); ?>
-					</button>
-				</div>
-				<div class="newspack-registration__password-response"></div>
-			</div>
 			<!-- Pending Verification UI (for logged-in unverified users) -->
 			<div class="newspack-registration__pending-verification <?php echo $show_pending_verification ? '' : 'newspack-registration--hidden'; ?> newspack-ui__box newspack-ui__box--warning newspack-ui__box--text-center">
 				<span class="newspack-ui__icon newspack-ui__icon--warning">
@@ -516,7 +476,17 @@ function process_form() {
 		$existing_user = \get_user_by( 'email', $email );
 		if ( $existing_user && Reader_Activation::is_user_reader( $existing_user ) ) {
 			if ( Reader_Activation::is_reader_without_password( $existing_user ) ) {
-				$response['action'] = 'otp';
+				// Check if there's already an active token.
+				if ( \Newspack\Magic_Link::has_active_token( $existing_user ) ) {
+					$response['action'] = 'otp';
+				} else {
+					// Send the magic link email which also sets the OTP hash cookie.
+					$sent = \Newspack\Magic_Link::send_email( $existing_user );
+					if ( true === $sent ) {
+						$response['action'] = 'otp';
+					}
+					// If sending failed, don't set action - let the auth modal handle it.
+				}
 			} else {
 				$response['action'] = 'pwd';
 			}
