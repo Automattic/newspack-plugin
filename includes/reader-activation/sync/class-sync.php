@@ -85,4 +85,53 @@ class Sync {
 
 		return true;
 	}
+
+	/**
+	 * Whether at least one integration is enabled and can sync.
+	 *
+	 * @param bool $return_errors Optional. Whether to return a WP_Error object. Default false.
+	 *
+	 * @return bool|WP_Error True if at least one integration can sync, false otherwise. WP_Error if return_errors is true.
+	 */
+	public static function has_one_syncable_integration( $return_errors = false ) {
+
+		$can_sync = static::can_sync( $return_errors );
+
+		if ( $return_errors && is_wp_error( $can_sync ) && $can_sync->has_errors() ) {
+			return $can_sync;
+		}
+
+		if ( ! $return_errors && false === $can_sync ) {
+			return false;
+		}
+
+		$integrations = Integrations::get_active_integrations();
+
+		$result = new \WP_Error();
+
+		foreach ( $integrations as $integration ) {
+			$can_sync_integration = $integration->can_sync( true );
+
+			// If any integration can sync, return true.
+			if ( ! $can_sync_integration->has_errors() ) {
+				if ( $return_errors ) {
+					return $result;
+				} else {
+					return true;
+				}
+			}
+
+			$result->merge_from( $can_sync_integration );
+		}
+
+		if ( $return_errors ) {
+			return $result;
+		}
+
+		if ( $result->has_errors() ) {
+			return false;
+		}
+
+		return true;
+	}
 }

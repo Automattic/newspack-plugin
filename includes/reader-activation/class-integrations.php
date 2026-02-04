@@ -36,17 +36,18 @@ class Integrations {
 		// Include required files.
 		require_once __DIR__ . '/integrations/class-integration.php';
 
-		self::register_native_integrations();
-
-		// Hook for other plugins/code to register their integrations.
-		do_action( 'newspack_reader_activation_register_integrations' );
+		add_action( 'init', [ __CLASS__, 'register_integrations' ], 5 );
 	}
 
 	/**
-	 * Register native integrations.
+	 * Register integrations.
 	 */
-	private static function register_native_integrations() {
+	public static function register_integrations() {
+		// Native integrations.
 		self::register( new Integrations\ESP() );
+
+		// Hook for other plugins/code to register their integrations.
+		do_action( 'newspack_reader_activation_register_integrations' );
 
 		// hardcode ESP integration as enabled for now.
 		self::enable( 'esp' );
