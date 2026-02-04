@@ -813,7 +813,10 @@ class Content_Gate {
 		setup_postdata( $post );
 
 		// Render blocks to register layout CSS in time for wp_head without invoking gate content filters.
+		$previous_is_gated = self::$is_gated;
+		self::$is_gated    = true;
 		\do_blocks( \get_the_content( null, null, $gate_layout_id ) );
+		self::$is_gated = $previous_is_gated;
 
 		// Loop through the block-supports rules and get only the new rules added when the gate is rendered.
 		$block_supports_css = '';
