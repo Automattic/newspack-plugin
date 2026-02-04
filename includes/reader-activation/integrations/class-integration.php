@@ -72,10 +72,11 @@ abstract class Integration {
 	 * This method should be implemented by child classes to send
 	 * contact data to their specific integration destination.
 	 *
-	 * @param array  $contact The contact data to push.
-	 * @param string $context Optional. The context of the sync.
+	 * @param array      $contact The contact data to push.
+	 * @param string     $context Optional. The context of the sync.
+	 * @param array|null $existing_contact Optional. Existing contact data if available.
 	 *
 	 * @return true|\WP_Error True on success or WP_Error on failure.
 	 */
-	abstract public function push_contact_data( $contact, $context = '' );
+	abstract public function push_contact_data( $contact, $context = '', $existing_contact = null );
 }
