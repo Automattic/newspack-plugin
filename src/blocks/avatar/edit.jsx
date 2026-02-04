@@ -149,18 +149,20 @@ const Edit = ( { attributes, context, setAttributes } ) => {
 		<AvatarWrapper key={ key } avatar={ currentAvatar } size={ attributes.size } attributes={ attributes } />
 	);
 	return (
-		<div { ...blockProps }>
+		<>
 			<AvatarInspectorControls attributes={ attributes } setAttributes={ setAttributes } />
-			{ authors?.length
-				? authors.map( ( author, index ) => {
-						const currentAvatar = {
-							src: author.avatarSrc,
-							alt: author?.name || author?.display_name || '',
-						};
-						return renderAvatar( currentAvatar, author.id || index );
-				  } )
-				: renderAvatar( avatar, 'single-author' ) }
-		</div>
+			<div { ...blockProps }>
+				{ authors?.length
+					? authors.map( ( author, index ) => {
+							const currentAvatar = {
+								src: author.avatarSrc,
+								alt: author?.name || author?.display_name || '',
+							};
+							return renderAvatar( currentAvatar, author.id || index );
+					} )
+					: renderAvatar( avatar, 'single-author' ) }
+			</div>
+		</>
 	);
 };
 

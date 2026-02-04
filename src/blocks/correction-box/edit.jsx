@@ -77,19 +77,28 @@ export default function Edit( { attributes, setAttributes } ) {
 	}
 
 	return 'wp_template' === postType ? (
-		<div { ...blockProps }>
-			<EmptyPlaceholder />
+		<>
 			<CorrectionSettings />
-		</div>
+			<div { ...blockProps }>
+				<EmptyPlaceholder />
+			</div>
+		</>
 	) : (
-		<div { ...blockProps }>
+		<>
 			<CorrectionSettings />
 			<BlockControls>
 				<ToolbarGroup>
 					<ToolbarButton icon={ update } label={ __( 'Refresh', 'newspack-plugin' ) } onClick={ toggleRefresh } />
 				</ToolbarGroup>
 			</BlockControls>
-			<ServerSideRender block={ meta.name } EmptyResponsePlaceholder={ EmptyPlaceholder } refresh={ isRefreshing } attributes={ attributes } />
-		</div>
+			<div { ...blockProps }>
+				<ServerSideRender
+					block={ meta.name }
+					EmptyResponsePlaceholder={ EmptyPlaceholder }
+					refresh={ isRefreshing }
+					attributes={ attributes }
+				/>
+			</div>
+		</>
 	);
 }
