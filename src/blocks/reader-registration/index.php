@@ -109,9 +109,8 @@ function render_block( $attrs, $content ) {
 
 	/** Handle default attributes. */
 	$default_attrs = [
-		'label'           => __( 'Sign up', 'newspack-plugin' ),
+		'label'           => __( 'Continue', 'newspack-plugin' ),
 		'newsletterLabel' => __( 'Subscribe to our newsletter', 'newspack-plugin' ),
-		'signInLabel'     => __( 'Sign in to an existing account', 'newspack-plugin' ),
 		'signedInLabel'   => __( 'An account was already registered with this email. Please check your inbox for an authentication link.', 'newspack-plugin' ),
 	];
 	$attrs         = \wp_parse_args( $attrs, $default_attrs );
@@ -141,6 +140,17 @@ function render_block( $attrs, $content ) {
 	}
 
 	$is_admin_preview = method_exists( 'Newspack_Popups', 'is_user_admin' ) && \Newspack_Popups::is_user_admin();
+
+	// Check if logged-in user has an unverified email (for pending verification state).
+	$show_pending_verification = false;
+	if (
+		! \is_preview() &&
+		! $is_admin_preview &&
+		\is_user_logged_in() &&
+		! Reader_Activation::is_reader_verified( \wp_get_current_user() )
+	) {
+		$show_pending_verification = true;
+	}
 
 	// phpcs:disable WordPress.Security.NonceVerification.Recommended
 	if (
@@ -270,11 +280,6 @@ function render_block( $attrs, $content ) {
 						</div>
 					</div>
 				</div>
-				<div class="newspack-registration__have-account">
-					<a href="<?php echo \esc_url( $sign_in_url ); ?>" data-newspack-reader-account-link class="newspack-ui__button newspack-ui__button--ghost">
-						<?php echo \wp_kses_post( $attrs['signInLabel'] ); ?>
-					</a>
-				</div>
 				<div class="newspack-registration__help-text">
 					<p>
 						<?php
@@ -304,6 +309,56 @@ function render_block( $attrs, $content ) {
 					<?php Newspack_UI_Icons::print_svg( 'emailSend' ); ?>
 				</span>
 				<?php echo \wp_kses_post( $success_login_markup ); ?>
+			</div>
+			<!-- OTP State UI -->
+			<div class="newspack-registration__otp newspack-registration--hidden">
+				<p class="newspack-registration__otp-title"><?php esc_html_e( 'Enter the code sent to your email.', 'newspack-plugin' ); ?></p>
+				<p class="newspack-registration__otp-email"></p>
+				<div class="newspack-ui__code-input">
+					<input name="otp_code" type="text" maxlength="<?php echo \esc_attr( \Newspack\Magic_Link::OTP_LENGTH ); ?>" inputmode="numeric" autocomplete="one-time-code" />
+				</div>
+				<div class="newspack-registration__otp-actions">
+					<button type="button" class="newspack-ui__button newspack-ui__button--primary" data-otp-submit>
+						<?php esc_html_e( 'Continue', 'newspack-plugin' ); ?>
+					</button>
+					<button type="button" class="newspack-ui__button newspack-ui__button--ghost" data-otp-resend disabled>
+						<?php esc_html_e( 'Resend code', 'newspack-plugin' ); ?>
+					</button>
+					<button type="button" class="newspack-ui__button newspack-ui__button--ghost" data-otp-back>
+						<?php esc_html_e( 'Go back', 'newspack-plugin' ); ?>
+					</button>
+				</div>
+				<div class="newspack-registration__otp-response"></div>
+			</div>
+			<!-- Password State UI -->
+			<div class="newspack-registration__password newspack-registration--hidden">
+				<p class="newspack-registration__password-title"><?php esc_html_e( 'Enter your password to continue.', 'newspack-plugin' ); ?></p>
+				<p class="newspack-registration__password-email"></p>
+				<div class="newspack-registration__password-input">
+					<input name="password" type="password" placeholder="<?php esc_attr_e( 'Password', 'newspack-plugin' ); ?>" autocomplete="current-password" />
+				</div>
+				<div class="newspack-registration__password-actions">
+					<button type="button" class="newspack-ui__button newspack-ui__button--primary" data-pwd-submit>
+						<?php esc_html_e( 'Continue', 'newspack-plugin' ); ?>
+					</button>
+					<button type="button" class="newspack-ui__button newspack-ui__button--ghost" data-pwd-link>
+						<?php esc_html_e( 'Email me a one-time code instead', 'newspack-plugin' ); ?>
+					</button>
+					<button type="button" class="newspack-ui__button newspack-ui__button--ghost" data-pwd-back>
+						<?php esc_html_e( 'Go back', 'newspack-plugin' ); ?>
+					</button>
+				</div>
+				<div class="newspack-registration__password-response"></div>
+			</div>
+			<!-- Pending Verification UI (for logged-in unverified users) -->
+			<div class="newspack-registration__pending-verification <?php echo $show_pending_verification ? '' : 'newspack-registration--hidden'; ?> newspack-ui__box newspack-ui__box--warning newspack-ui__box--text-center">
+				<span class="newspack-ui__icon newspack-ui__icon--warning">
+					<?php Newspack_UI_Icons::print_svg( 'email' ); ?>
+				</span>
+				<p><?php esc_html_e( 'Please verify your email to access this content.', 'newspack-plugin' ); ?></p>
+				<button type="button" class="newspack-ui__button newspack-ui__button--primary" data-resend-verification>
+					<?php esc_html_e( 'Resend verification email', 'newspack-plugin' ); ?>
+				</button>
 			</div>
 		<?php endif; ?>
 	</div>
@@ -449,13 +504,25 @@ function process_form() {
 
 	$user_logged_in = false !== $user_id;
 
-	return send_form_response(
-		[
-			'email'         => $email,
-			'authenticated' => $user_logged_in,
-			'existing_user' => ! $user_logged_in,
-			'metadata'      => $metadata,
-		]
-	);
+	// For existing users, determine if they need password or OTP authentication.
+	$response = [
+		'email'         => $email,
+		'authenticated' => $user_logged_in,
+		'existing_user' => ! $user_logged_in,
+		'metadata'      => $metadata,
+	];
+
+	if ( ! $user_logged_in ) {
+		$existing_user = \get_user_by( 'email', $email );
+		if ( $existing_user && Reader_Activation::is_user_reader( $existing_user ) ) {
+			if ( Reader_Activation::is_reader_without_password( $existing_user ) ) {
+				$response['action'] = 'otp';
+			} else {
+				$response['action'] = 'pwd';
+			}
+		}
+	}
+
+	return send_form_response( $response );
 }
 add_action( 'template_redirect', __NAMESPACE__ . '\\process_form' );

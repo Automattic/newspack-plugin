@@ -53,13 +53,9 @@
 			"type": "object",
 			"default": {}
 		},
-		"signInLabel": {
-			"type": "string",
-			"default": "Sign in to an existing account"
-		},
 		"signedInLabel": {
 			"type": "string",
-			"default": "An account was already registered with this email. Please check your inbox for an authentication link."
+			"default": "Success! You're signed in."
 		}
 	},
 	"supports": {

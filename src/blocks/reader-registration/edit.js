@@ -42,7 +42,6 @@ export default function ReaderRegistrationEdit( {
 		displayListDescription,
 		hideSubscriptionInput,
 		newsletterLabel,
-		signInLabel,
 		signedInLabel,
 		lists,
 		listsCheckboxes,
@@ -303,7 +302,7 @@ export default function ReaderRegistrationEdit( {
 											<button type="submit" className="newspack-ui__button newspack-ui__button--primary">
 												<RichText
 													onChange={ value => setAttributes( { label: value } ) }
-													placeholder={ __( 'Sign up', 'newspack-plugin' ) }
+													placeholder={ __( 'Continue', 'newspack-plugin' ) }
 													value={ label }
 													allowedFormats={ [] }
 													tagName="span"
@@ -313,21 +312,6 @@ export default function ReaderRegistrationEdit( {
 										<div className="newspack-registration__response" />
 									</div>
 								</div>
-							</div>
-							<div className="newspack-registration__have-account">
-								<a
-									href="/my-account"
-									onClick={ ev => ev.preventDefault() }
-									className="newspack-ui__button newspack-ui__button--ghost"
-								>
-									<RichText
-										onChange={ value => setAttributes( { signInLabel: value } ) }
-										placeholder={ __( 'Sign in to an existing account', 'newspack-plugin' ) }
-										value={ signInLabel }
-										allowedFormats={ [] }
-										tagName="span"
-									/>
-								</a>
 							</div>
 							<div className="newspack-registration__help-text">
 								<RichText

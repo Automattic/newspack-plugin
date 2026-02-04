@@ -3,9 +3,10 @@
 /**
  * Internal dependencies.
  */
-import { domReady, formatTime } from '../utils';
+import { domReady } from '../utils';
 import { getPendingCheckout } from '../reader-activation/checkout';
 import { openNewslettersSignupModal } from '../reader-activation-newsletters/newsletters-modal';
+import { createOTPTimerHandler, verifyOTP } from './auth-utils';
 
 import './google-oauth';
 import './otp-input';
@@ -192,29 +193,9 @@ window.newspackRAS.push( function ( readerActivation ) {
 			} );
 
 			/**
-			 * Handle OTP Timer.
+			 * Handle OTP Timer using shared utility.
 			 */
-			const handleOTPTimer = () => {
-				if ( ! resendCodeButton ) {
-					return;
-				}
-				resendCodeButton.originalButtonText = resendCodeButton.textContent.replace( /\s\(\d{1,}:\d{2}\)/, '' );
-				const updateButton = () => {
-					const remaining = readerActivation.getOTPTimeRemaining();
-					if ( remaining ) {
-						resendCodeButton.textContent = `${ resendCodeButton.originalButtonText } (${ formatTime( remaining ) })`;
-					} else {
-						resendCodeButton.textContent = resendCodeButton.originalButtonText;
-						clearInterval( resendCodeButton.otpTimerInterval );
-					}
-					resendCodeButton.disabled = !! remaining;
-				};
-				const remaining = readerActivation.getOTPTimeRemaining();
-				if ( remaining ) {
-					resendCodeButton.otpTimerInterval = setInterval( updateButton, 1000 );
-					updateButton();
-				}
-			};
+			const handleOTPTimer = createOTPTimerHandler( readerActivation, resendCodeButton );
 
 			if ( sendCodeButton || resendCodeButton ) {
 				[ sendCodeButton, resendCodeButton ].forEach( button => {
@@ -432,17 +413,18 @@ window.newspackRAS.push( function ( readerActivation ) {
 				}
 
 				if ( 'otp' === action ) {
-					readerActivation
-						.authenticateOTP( body.get( 'otp_code' ) )
-						.then( data => {
+					verifyOTP( readerActivation, body.get( 'otp_code' ), {
+						onSuccess: data => {
 							form.endLoginFlow( data.message, 200, data );
-						} )
-						.catch( data => {
-							if ( data.expired ) {
-								container.setFormAction( 'signin' );
-							}
+						},
+						onExpired: ( errorMessage, data ) => {
+							container.setFormAction( 'signin' );
 							form.endLoginFlow( data.message, 400 );
-						} );
+						},
+						onError: ( errorMessage, data ) => {
+							form.endLoginFlow( data?.message || errorMessage, 400 );
+						},
+					} );
 				} else {
 					fetch( form.getAttribute( 'action' ) || window.location.pathname, {
 						method: 'POST',
