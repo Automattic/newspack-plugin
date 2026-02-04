@@ -44,15 +44,48 @@ window.newspackRAS.push( function ( readerActivation ) {
 					// Set the reader email before opening the modal
 					readerActivation.setReaderEmail( email );
 
-					// Open auth modal with the appropriate initial state (otp or pwd)
-					openAuthModal( {
-						initialState: data.action,
-						closeOnSuccess: true,
-						onSuccess: () => {
-							// Refresh the page on successful authentication
-							window.location.reload();
-						},
-					} );
+					// Helper to open the modal
+					const openModal = initialState => {
+						openAuthModal( {
+							initialState,
+							closeOnSuccess: true,
+							onSuccess: () => window.location.reload(),
+						} );
+					};
+
+					// For OTP action, check if we have a valid OTP hash cookie
+					if ( data.action === 'otp' ) {
+						if ( readerActivation.getOTPHash() ) {
+							// Valid OTP hash exists, just open the modal
+							readerActivation.setOTPTimer();
+							openModal( 'otp' );
+						} else {
+							// No valid OTP hash, request a fresh one using the email we already have
+							const otpBody = new FormData();
+							otpBody.set( 'reader-activation-auth-form', '1' );
+							otpBody.set( 'npe', email );
+							otpBody.set( 'action', 'link' );
+
+							fetch( form.getAttribute( 'action' ) || window.location.pathname, {
+								method: 'POST',
+								headers: { Accept: 'application/json' },
+								body: otpBody,
+							} )
+								.then( res => {
+									if ( res.status === 200 ) {
+										readerActivation.setOTPTimer();
+										openModal( 'otp' );
+									} else {
+										openModal( 'signin' );
+									}
+								} )
+								.catch( () => openModal( 'signin' ) );
+						}
+						return;
+					}
+
+					// For password or other actions, just open the modal
+					openModal( data.action );
 					return;
 				}
 
@@ -153,9 +186,9 @@ window.newspackRAS.push( function ( readerActivation ) {
 					} );
 			} );
 
-			readerActivation.on( 'reader', ( { detail: { authenticated } } ) => {
-				if ( authenticated ) {
-					form.endLoginFlow( null, 200 );
+			readerActivation.on( 'reader', ( { detail } ) => {
+				if ( detail.authenticated ) {
+					form.endLoginFlow( null, 200, { existing_user: true } );
 				}
 			} );
 

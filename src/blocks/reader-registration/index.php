@@ -475,21 +475,8 @@ function process_form() {
 	if ( ! $user_logged_in ) {
 		$existing_user = \get_user_by( 'email', $email );
 		if ( $existing_user && Reader_Activation::is_user_reader( $existing_user ) ) {
-			if ( Reader_Activation::is_reader_without_password( $existing_user ) ) {
-				// Check if there's already an active token.
-				if ( \Newspack\Magic_Link::has_active_token( $existing_user ) ) {
-					$response['action'] = 'otp';
-				} else {
-					// Send the magic link email which also sets the OTP hash cookie.
-					$sent = \Newspack\Magic_Link::send_email( $existing_user );
-					if ( true === $sent ) {
-						$response['action'] = 'otp';
-					}
-					// If sending failed, don't set action - let the auth modal handle it.
-				}
-			} else {
-				$response['action'] = 'pwd';
-			}
+			// Return the action type - frontend will check OTP hash validity and request fresh OTP if needed.
+			$response['action'] = Reader_Activation::is_reader_without_password( $existing_user ) ? 'otp' : 'pwd';
 		}
 	}
 

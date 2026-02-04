@@ -127,6 +127,7 @@ window.newspackRAS.push( function ( readerActivation ) {
 				}
 				if ( 'otp' === action ) {
 					if ( ! readerActivation.getOTPHash() ) {
+						console.warn( 'No OTP hash found.' ); // eslint-disable-line no-console
 						return;
 					}
 					const emailAddressElements = container.querySelectorAll( '.email-address' );
