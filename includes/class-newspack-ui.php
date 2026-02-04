@@ -26,7 +26,6 @@ class Newspack_UI {
 	 * Initialize hooks.
 	 */
 	public static function init() {
-		\add_action( 'wp_enqueue_scripts', [ __CLASS__, 'enqueue_assets' ] );
 		\add_action( 'admin_enqueue_scripts', [ __CLASS__, 'enqueue_assets' ] );
 		\add_action( 'enqueue_block_assets', [ __CLASS__, 'enqueue_assets' ] );
 		\add_filter( 'the_content', [ __CLASS__, 'load_demo' ] );
