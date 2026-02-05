@@ -693,22 +693,6 @@ class Content_Gate {
 	}
 
 	/**
-	 * Get the inline gate content.
-	 */
-	public static function get_inline_gate_content() {
-		return self::get_inline_gate_content_for_post( self::get_gate_layout_id() );
-	}
-
-	/**
-	 * Get the inline gate HTML for rendering.
-	 *
-	 * @return string
-	 */
-	public static function get_inline_gate_html() {
-		return apply_filters( 'newspack_gate_content', self::get_inline_gate_content() );
-	}
-
-	/**
 	 * Get the post excerpt to be displayed in the gate.
 	 *
 	 * @param \WP_Post $post Post object.
