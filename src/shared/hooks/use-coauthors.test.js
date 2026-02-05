@@ -12,7 +12,7 @@ import apiFetch from '@wordpress/api-fetch';
 /**
  * Internal dependencies
  */
-import { useCoAuthors } from './use-coauthors';
+import { useCoAuthors, resetGuestAvatarCacheForTests } from './use-coauthors';
 
 jest.mock( '@wordpress/data', () => ( {
 	useSelect: jest.fn(),
@@ -55,6 +55,7 @@ const createMockSelect = ( { capStore = null, currentPostId = 123, entityRecords
 describe( 'useCoAuthors', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
+		resetGuestAvatarCacheForTests();
 		// Default: apiFetch resolves with empty object (no avatar_urls).
 		apiFetch.mockResolvedValue( {} );
 	} );
@@ -320,6 +321,29 @@ describe( 'useCoAuthors', () => {
 			// WP user should not have avatar_urls added by the hook.
 			const wpUser = result.current.authors.find( a => a.id === 1 );
 			expect( wpUser.avatar_urls ).toBeUndefined();
+		} );
+
+		it( 'should not fetch avatar for guest author without user_nicename', async () => {
+			setupWithGuest( [ { id: 1591, display: 'Guest Writer', value: undefined, userType: 'guest-author' } ] );
+
+			renderHook( () => useCoAuthors( 123 ) );
+
+			await act( () => Promise.resolve() );
+
+			expect( apiFetch ).not.toHaveBeenCalled();
+		} );
+
+		it( 'should encode nicename in the REST path', async () => {
+			apiFetch.mockResolvedValue( { avatar_urls: GUEST_AVATAR_URLS } );
+			setupWithGuest( [ { id: 1591, display: 'Guest Writer', value: 'name with spaces', userType: 'guest-author' } ] );
+
+			renderHook( () => useCoAuthors( 123 ) );
+
+			await waitFor( () => {
+				expect( apiFetch ).toHaveBeenCalledWith( {
+					path: '/coauthors/v1/coauthors/name%20with%20spaces',
+				} );
+			} );
 		} );
 
 		it( 'should handle failed fetches gracefully', async () => {

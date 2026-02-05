@@ -18,6 +18,13 @@ const COAUTHORS_ENDPOINT = '/coauthors/v1/coauthors';
 const guestAvatarCache = {};
 
 /**
+ * Reset the module-level guest avatar cache. Exposed for testing only.
+ */
+export function resetGuestAvatarCacheForTests() {
+	Object.keys( guestAvatarCache ).forEach( key => delete guestAvatarCache[ key ] );
+}
+
+/**
  * Hook to get CoAuthors Plus authors from the CAP store or REST API.
  *
  * For the currently-edited post, it uses CAP's JS store for real-time updates.
@@ -126,7 +133,7 @@ export function useCoAuthors( postId, postType = 'post', skip = false ) {
 		Promise.all(
 			toFetch.map(
 				a =>
-					apiFetch( { path: `${ COAUTHORS_ENDPOINT }/${ a.user_nicename }` } )
+					apiFetch( { path: `${ COAUTHORS_ENDPOINT }/${ encodeURIComponent( a.user_nicename ) }` } )
 						.then( result => {
 							if ( result?.avatar_urls ) {
 								guestAvatarCache[ a.user_nicename ] = result.avatar_urls;
@@ -153,11 +160,18 @@ export function useCoAuthors( postId, postType = 'post', skip = false ) {
 	}, [ skip, isCapAvailable, guestNicenames ] );
 
 	// Merge avatar URLs into guest authors.
+	// Check both the async avatarMap (populated by the effect) and the
+	// synchronous guestAvatarCache (populated by previous fetches) so that
+	// cached avatars render immediately without waiting for an effect cycle.
 	const authorsWithAvatars = authors.map( author => {
-		if ( ! author.isGuest || ! avatarMap[ author.id ] ) {
+		if ( ! author.isGuest || ! author.user_nicename ) {
 			return author;
 		}
-		return { ...author, avatar_urls: avatarMap[ author.id ] };
+		const urls = avatarMap[ author.id ] || guestAvatarCache[ author.user_nicename ];
+		if ( ! urls ) {
+			return author;
+		}
+		return { ...author, avatar_urls: urls };
 	} );
 
 	return { authors: authorsWithAvatars, isCapAvailable };
