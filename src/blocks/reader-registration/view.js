@@ -12,6 +12,47 @@ window.newspackRAS.push( function ( readerActivation ) {
 	domReady( function () {
 		document.querySelectorAll( '.newspack-registration' ).forEach( container => {
 			const form = container.querySelector( 'form' );
+
+			// Handle verification resend buttons (works with or without form)
+			container.querySelectorAll( '[data-resend-verification]' ).forEach( resendButton => {
+				const originalText = resendButton.textContent;
+				resendButton.addEventListener( 'click', () => {
+					resendButton.disabled = true;
+					const reader = readerActivation.getReader();
+					const email = reader?.email;
+
+					if ( ! email ) {
+						resendButton.disabled = false;
+						return;
+					}
+
+					const verifyBody = new FormData();
+					verifyBody.set( 'newspack_reader_registration', 'newspack_reader_registration' );
+					verifyBody.set( 'npe', email );
+
+					fetch( form?.getAttribute( 'action' ) || window.location.pathname, {
+						method: 'POST',
+						headers: { Accept: 'application/json' },
+						body: verifyBody,
+					} )
+						.then( res => {
+							if ( res.status === 200 ) {
+								resendButton.textContent = 'Email sent!';
+								setTimeout( () => {
+									resendButton.textContent = originalText;
+									resendButton.disabled = false;
+								}, 3000 );
+							} else {
+								resendButton.disabled = false;
+							}
+						} )
+						.catch( () => {
+							resendButton.disabled = false;
+						} );
+				} );
+			} );
+
+			// Form-specific logic
 			if ( ! form ) {
 				return;
 			}
@@ -217,48 +258,6 @@ window.newspackRAS.push( function ( readerActivation ) {
 				if ( detail.authenticated && ! flowCompleted ) {
 					form.endLoginFlow( null, 200, { existing_user: true } );
 				}
-			} );
-
-			// Store the form action URL before the form might be removed
-			const formActionUrl = form.getAttribute( 'action' ) || window.location.pathname;
-
-			// Handle verification resend buttons (pending verification and post-registration)
-			container.querySelectorAll( '[data-resend-verification]' ).forEach( resendButton => {
-				const originalText = resendButton.textContent;
-				resendButton.addEventListener( 'click', () => {
-					resendButton.disabled = true;
-					const reader = readerActivation.getReader();
-					const email = reader?.email;
-
-					if ( ! email ) {
-						resendButton.disabled = false;
-						return;
-					}
-
-					const verifyBody = new FormData();
-					verifyBody.set( 'newspack_reader_registration', 'newspack_reader_registration' );
-					verifyBody.set( 'npe', email );
-
-					fetch( formActionUrl, {
-						method: 'POST',
-						headers: { Accept: 'application/json' },
-						body: verifyBody,
-					} )
-						.then( res => {
-							if ( res.status === 200 ) {
-								resendButton.textContent = 'Email sent!';
-								setTimeout( () => {
-									resendButton.textContent = originalText;
-									resendButton.disabled = false;
-								}, 3000 );
-							} else {
-								resendButton.disabled = false;
-							}
-						} )
-						.catch( () => {
-							resendButton.disabled = false;
-						} );
-				} );
 			} );
 		} );
 	} );
