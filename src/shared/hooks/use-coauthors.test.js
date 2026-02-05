@@ -251,6 +251,56 @@ describe( 'useCoAuthors', () => {
 			expect( result.current.authors[ 0 ].user_nicename ).toBe( 'external-contributor' );
 		} );
 
+		it( 'should strip query params and hash fragments from author_link', () => {
+			const restAuthors = [
+				{ id: 1, display_name: 'Jane', author_link: '/author/jane/?utm_source=feed' },
+				{ id: 2, display_name: 'John', author_link: '/author/john/#bio' },
+				{ id: 3, display_name: 'Jill', author_link: '/author/jill/?x=1#top' },
+			];
+
+			useSelect.mockImplementation( callback =>
+				callback(
+					createMockSelect( {
+						capStore: { getAuthors: () => [] },
+						currentPostId: 123,
+						entityRecords: {
+							456: { newspack_author_info: restAuthors },
+						},
+					} )
+				)
+			);
+
+			const { result } = renderHook( () => useCoAuthors( 456, 'post' ) );
+
+			expect( result.current.authors[ 0 ].user_nicename ).toBe( 'jane' );
+			expect( result.current.authors[ 1 ].user_nicename ).toBe( 'john' );
+			expect( result.current.authors[ 2 ].user_nicename ).toBe( 'jill' );
+		} );
+
+		it( 'should return undefined user_nicename when author_link is missing', () => {
+			const restAuthors = [
+				{ id: 1, display_name: 'No Link Author', author_link: null },
+				{ id: 2, display_name: 'Empty Link Author', author_link: '' },
+			];
+
+			useSelect.mockImplementation( callback =>
+				callback(
+					createMockSelect( {
+						capStore: { getAuthors: () => [] },
+						currentPostId: 123,
+						entityRecords: {
+							456: { newspack_author_info: restAuthors },
+						},
+					} )
+				)
+			);
+
+			const { result } = renderHook( () => useCoAuthors( 456, 'post' ) );
+
+			expect( result.current.authors[ 0 ].user_nicename ).toBeUndefined();
+			expect( result.current.authors[ 1 ].user_nicename ).toBeUndefined();
+		} );
+
 		it( 'should fetch avatars for Query Loop authors via CAP endpoint', async () => {
 			const avatarUrls = { 96: 'https://example.com/guest-96.jpg' };
 			apiFetch.mockResolvedValue( { avatar_urls: avatarUrls } );
