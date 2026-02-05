@@ -98,6 +98,6 @@ describe( 'Avatar Edit', () => {
 		render( <Edit { ...defaultProps } /> );
 
 		expect( screen.getByRole( 'img' ) ).toBeInTheDocument();
-		expect( screen.getByRole( 'img' ) ).toBeInTheDocument();
+		expect( screen.queryByRole( 'img', { name: 'No avatar available' } ) ).not.toBeInTheDocument();
 	} );
 } );
