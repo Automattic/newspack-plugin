@@ -361,8 +361,10 @@ class Metering {
 			return false;
 		}
 
-		// Bail if the gate requires account verification and the user is not verified.
-		if ( Content_Gate::requires_account_verification() && ! Reader_Activation::is_reader_verified( \wp_get_current_user() ) ) {
+		// Bail if the gate requires account verification and the reader is not verified.
+		// Non-reader users (admins, editors) are exempt - they have full access through other means.
+		$user = \wp_get_current_user();
+		if ( Content_Gate::requires_account_verification() && Reader_Activation::is_user_reader( $user ) && ! Reader_Activation::is_reader_verified( $user ) ) {
 			return false;
 		}
 
