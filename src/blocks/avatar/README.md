@@ -67,5 +67,5 @@ The block supports standard styles, and the avatar size is exposed as a `--avata
 ## Related
 
 - [Newspack Byline Block](../byline/README.md) - Displays author name attribution, designed to be used alongside this block.
-- [Newspack Bylines Feature](../../../includes/class-bylines.php) - The underlying custom bylines system.
+- [Newspack Bylines Feature](../../../includes/bylines/class-bylines.php) - The underlying custom bylines system.
 - [useCoAuthors hook](../../shared/hooks/use-coauthors.js) - Shared hook for CoAuthors Plus integration, used by both Avatar and Byline blocks.
