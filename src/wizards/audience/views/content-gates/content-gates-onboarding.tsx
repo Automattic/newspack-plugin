@@ -39,7 +39,7 @@ const ContentGatesOnboarding = () => {
 								<p>{ __( 'All posts on your site will require access.', 'newspack-plugin' ) }</p>
 							</>
 						),
-						href: '#',
+						href: '#/edit/new/all',
 						icon: content,
 						iconBackgroundColor: true,
 					} }
@@ -56,7 +56,7 @@ const ContentGatesOnboarding = () => {
 								<p>{ __( 'Select which content to restrict using custom rules.', 'newspack-plugin' ) }</p>
 							</>
 						),
-						href: '#',
+						href: '#/edit/new/custom',
 						icon: settings,
 						iconBackgroundColor: true,
 					} }
