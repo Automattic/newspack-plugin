@@ -180,15 +180,27 @@ function render_block( $attrs, $content ) {
 	?>
 	<div class="newspack-registration newspack-ui <?php echo esc_attr( get_block_classes( $attrs ) ); ?>">
 		<?php if ( $show_pending_verification ) : ?>
-			<!-- Pending Verification UI (for logged-in unverified users) -->
-			<div class="newspack-registration__pending-verification newspack-ui__box newspack-ui__box--warning newspack-ui__box--text-center">
+			<div class="newspack-ui__box newspack-ui__box--warning newspack-ui__box--text-center">
 				<span class="newspack-ui__icon newspack-ui__icon--warning">
 					<?php Newspack_UI_Icons::print_svg( 'email' ); ?>
 				</span>
-				<p><?php esc_html_e( 'Please verify your email to access this content.', 'newspack-plugin' ); ?></p>
-				<button type="button" class="newspack-ui__button newspack-ui__button--primary" data-resend-verification>
-					<?php esc_html_e( 'Resend verification email', 'newspack-plugin' ); ?>
-				</button>
+				<p><strong><?php esc_html_e( 'Verify your email', 'newspack-plugin' ); ?></strong></p>
+				<p>
+					<?php
+					printf(
+						// translators: %s is the user's email address.
+						esc_html__( 'We\'ll send a verification link to %s.', 'newspack-plugin' ),
+						'<strong class="email-address">' . esc_html( \wp_get_current_user()->user_email ) . '</strong>'
+					);
+					?>
+					<br />
+					<?php esc_html_e( 'Click the link in your email to continue reading.', 'newspack-plugin' ); ?>
+				</p>
+				<p>
+					<button type="button" class="newspack-ui__button newspack-ui__button--primary" data-resend-verification>
+						<?php esc_html_e( 'Send verification email', 'newspack-plugin' ); ?>
+					</button>
+				</p>
 			</div>
 		<?php elseif ( $registered ) : ?>
 			<div class="newspack-ui__box newspack-ui__box--success newspack-ui__box--text-center">
