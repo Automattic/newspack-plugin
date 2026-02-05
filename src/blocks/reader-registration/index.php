@@ -94,9 +94,11 @@ function render_block( $attrs, $content ) {
 		return '';
 	}
 
-	$registered      = false;
-	$my_account_url  = function_exists( 'wc_get_account_endpoint_url' ) ? \wc_get_account_endpoint_url( 'dashboard' ) : false;
-	$message         = '';
+	$registered = false;
+	$show_pending_verification = false;
+
+	$my_account_url = function_exists( 'wc_get_account_endpoint_url' ) ? \wc_get_account_endpoint_url( 'dashboard' ) : false;
+	$message = '';
 	$success_message = __( 'Success! Your account was created and you’re signed in.', 'newspack-plugin' ) . '<br />';
 
 	if ( $my_account_url ) {
@@ -120,11 +122,6 @@ function render_block( $attrs, $content ) {
 		}
 	}
 
-	$sign_in_url = \wp_login_url();
-	if ( function_exists( 'wc_get_account_endpoint_url' ) ) {
-		$sign_in_url = $my_account_url;
-	}
-
 	/** Setup list subscription */
 	$lists = [];
 	if ( $attrs['newsletterSubscription'] && method_exists( 'Newspack_Newsletters_Subscription', 'get_lists_config' ) ) {
@@ -141,34 +138,24 @@ function render_block( $attrs, $content ) {
 
 	$is_admin_preview = method_exists( 'Newspack_Popups', 'is_user_admin' ) && \Newspack_Popups::is_user_admin();
 
-	// Check if logged-in user has an unverified email (for pending verification state).
-	$show_pending_verification = false;
-	if (
-		! \is_preview() &&
-		! $is_admin_preview &&
-		\is_user_logged_in() &&
-		! Reader_Activation::is_reader_verified( \wp_get_current_user() )
-	) {
-		$show_pending_verification = true;
-	}
-
-	// phpcs:disable WordPress.Security.NonceVerification.Recommended
 	if (
 		! \is_preview() &&
 		! $is_admin_preview &&
 		( ! method_exists( '\Newspack_Popups', 'is_preview_request' ) || ! \Newspack_Popups::is_preview_request() ) &&
 		(
 			\is_user_logged_in() ||
-			( isset( $_GET['newspack_reader'] ) && absint( $_GET['newspack_reader'] ) )
+			( isset( $_GET['newspack_reader'] ) && absint( $_GET['newspack_reader'] ) ) // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		)
 	) {
 		$registered = true;
-		$message    = $success_message;
+		if ( ! Reader_Activation::is_reader_verified( \wp_get_current_user() ) && \Newspack\Content_Gate::is_gated() ) {
+			$show_pending_verification = true;
+		}
 	}
-	if ( isset( $_GET['newspack_reader'] ) && isset( $_GET['message'] ) ) {
-		$message = \sanitize_text_field( $_GET['message'] );
+
+	if ( isset( $_GET['newspack_reader'] ) && isset( $_GET['message'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$message = \sanitize_text_field( $_GET['message'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 	}
-	// phpcs:enable
 
 	$success_registration_markup = $content;
 	if ( empty( \wp_strip_all_tags( $content ) ) ) {
@@ -192,7 +179,18 @@ function render_block( $attrs, $content ) {
 	ob_start();
 	?>
 	<div class="newspack-registration newspack-ui <?php echo esc_attr( get_block_classes( $attrs ) ); ?>">
-		<?php if ( $registered ) : ?>
+		<?php if ( $show_pending_verification ) : ?>
+			<!-- Pending Verification UI (for logged-in unverified users) -->
+			<div class="newspack-registration__pending-verification newspack-ui__box newspack-ui__box--warning newspack-ui__box--text-center">
+				<span class="newspack-ui__icon newspack-ui__icon--warning">
+					<?php Newspack_UI_Icons::print_svg( 'email' ); ?>
+				</span>
+				<p><?php esc_html_e( 'Please verify your email to access this content.', 'newspack-plugin' ); ?></p>
+				<button type="button" class="newspack-ui__button newspack-ui__button--primary" data-resend-verification>
+					<?php esc_html_e( 'Resend verification email', 'newspack-plugin' ); ?>
+				</button>
+			</div>
+		<?php elseif ( $registered ) : ?>
 			<div class="newspack-ui__box newspack-ui__box--success newspack-ui__box--text-center">
 				<span class="newspack-ui__icon newspack-ui__icon--success">
 					<?php Newspack_UI_Icons::print_svg( 'check' ); ?>
@@ -309,16 +307,6 @@ function render_block( $attrs, $content ) {
 					<?php Newspack_UI_Icons::print_svg( 'emailSend' ); ?>
 				</span>
 				<?php echo \wp_kses_post( $success_login_markup ); ?>
-			</div>
-			<!-- Pending Verification UI (for logged-in unverified users) -->
-			<div class="newspack-registration__pending-verification <?php echo $show_pending_verification ? '' : 'newspack-registration--hidden'; ?> newspack-ui__box newspack-ui__box--warning newspack-ui__box--text-center">
-				<span class="newspack-ui__icon newspack-ui__icon--warning">
-					<?php Newspack_UI_Icons::print_svg( 'email' ); ?>
-				</span>
-				<p><?php esc_html_e( 'Please verify your email to access this content.', 'newspack-plugin' ); ?></p>
-				<button type="button" class="newspack-ui__button newspack-ui__button--primary" data-resend-verification>
-					<?php esc_html_e( 'Resend verification email', 'newspack-plugin' ); ?>
-				</button>
 			</div>
 		<?php endif; ?>
 	</div>
