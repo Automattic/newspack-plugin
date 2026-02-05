@@ -26,4 +26,18 @@
 			display: flex;
 		}
 	}
+
+	.newspack-no-avatar-placeholder {
+		align-items: center;
+		background-color: var(--newspack-ui-color-neutral-10);
+		border-radius: 50%;
+		color: var(--newspack-ui-color-neutral-50);
+		display: flex;
+		font-size: calc(var(--avatar-size) * 0.2);
+		height: var(--avatar-size);
+		line-height: var(--newspack-ui-line-height-2xs);
+		padding: 0.5em;
+		text-align: center;
+		width: var(--avatar-size);
+	}
 }
