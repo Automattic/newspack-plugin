@@ -12,14 +12,14 @@ import { __experimentalVStack as VStack } from '@wordpress/components'; // eslin
  * Internal dependencies
  */
 import { Card, SectionHeader } from '../../../../../packages/components/src';
-import { content, settings, wallPay } from '../../../../../packages/icons';
+import { content, settings, paywall } from '../../../../../packages/icons';
 
 const ContentGatesOnboarding = () => {
 	return (
 		<>
 			<VStack style={ { margin: 'auto', gap: 0, maxWidth: '500px' } }>
 				<SectionHeader
-					icon={ wallPay }
+					icon={ paywall }
 					title={ __( 'Get started with access control', 'newspack-plugin' ) }
 					description={ __(
 						'Set up gates to manage what content readers can access across your site. Start by selecting which content to restrict, then configure access through registered and/or paid options (including metered rules).',
