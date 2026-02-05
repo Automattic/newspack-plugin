@@ -1,0 +1,16 @@
+name: Internationalization
+
+on:
+  push:
+    branches:
+      - trunk
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  i18n:
+    uses: Automattic/newspack-scripts/.github/workflows/reusable-i18n.yml@trunk
+    secrets:
+      GIT_COMMITTER_TOKEN: ${{ secrets.GIT_COMMITTER_TOKEN }}
