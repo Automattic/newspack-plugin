@@ -81,10 +81,13 @@ export function useCoAuthors( postId, postType = 'post', skip = false ) {
 
 				if ( restAuthors && Array.isArray( restAuthors ) && restAuthors.length > 0 ) {
 					// Map REST API author objects to our expected format.
+					// Extract user_nicename from author_link so the avatar
+					// effect can fetch from the CAP single-author endpoint.
 					const mappedAuthors = restAuthors.map( author => ( {
 						id: author.id,
 						display_name: author.display_name,
 						author_link: author.author_link,
+						user_nicename: author.author_link ? author.author_link.replace( /\/$/, '' ).split( '/' ).pop() : undefined,
 					} ) );
 					return { authors: mappedAuthors, isCapAvailable: true };
 				}
@@ -96,31 +99,38 @@ export function useCoAuthors( postId, postType = 'post', skip = false ) {
 		[ postId, postType, skip ]
 	);
 
-	// Fetch avatar URLs from the CAP REST API for guest authors only.
+	// Fetch avatar URLs from the CAP REST API for authors that need it.
 	// The CAP store strips avatar data via formatAuthorData(), so we need
 	// to fetch the raw REST response to get the avatar URL (especially for
 	// guest authors whose avatars come from featured images).
 	//
 	// Fetches per-author (by nicename) instead of per-post so that avatars
 	// resolve immediately when a guest author is added — before the post is saved.
+	//
+	// For currently-edited post authors, isGuest is explicitly true/false.
+	// For Query Loop authors, isGuest is undefined (we can't distinguish from
+	// REST data alone), so we fetch for all of them and let the consumer
+	// (hooks.js) prefer WP user data when available.
 	const [ avatarMap, setAvatarMap ] = useState( {} );
 
-	// Build a stable key from guest author nicenames to control effect re-runs.
-	const guestAuthors = authors.filter( author => author.isGuest && author.user_nicename );
-	const guestNicenames = guestAuthors.map( author => author.user_nicename ).join( ',' );
+	// Build a stable key from author nicenames to control effect re-runs.
+	// isGuest !== false: includes guest authors (true) and Query Loop authors (undefined),
+	// but excludes known WP users from the currently-edited post (false).
+	const authorsNeedingAvatars = authors.filter( author => author.isGuest !== false && author.user_nicename );
+	const avatarNicenames = authorsNeedingAvatars.map( author => author.user_nicename ).join( ',' );
 
 	useEffect( () => {
-		if ( skip || ! isCapAvailable || ! guestNicenames ) {
+		if ( skip || ! isCapAvailable || ! avatarNicenames ) {
 			return;
 		}
 
-		// Determine which guest authors still need fetching.
-		const toFetch = guestAuthors.filter( a => ! guestAvatarCache[ a.user_nicename ] );
+		// Determine which authors still need fetching.
+		const toFetch = authorsNeedingAvatars.filter( a => ! guestAvatarCache[ a.user_nicename ] );
 
 		// All cached — sync cache into state and return early.
 		if ( ! toFetch.length ) {
 			const map = {};
-			guestAuthors.forEach( a => {
+			authorsNeedingAvatars.forEach( a => {
 				if ( guestAvatarCache[ a.user_nicename ] ) {
 					map[ a.id ] = guestAvatarCache[ a.user_nicename ];
 				}
@@ -146,7 +156,7 @@ export function useCoAuthors( postId, postType = 'post', skip = false ) {
 				return;
 			}
 			const map = {};
-			guestAuthors.forEach( a => {
+			authorsNeedingAvatars.forEach( a => {
 				if ( guestAvatarCache[ a.user_nicename ] ) {
 					map[ a.id ] = guestAvatarCache[ a.user_nicename ];
 				}
@@ -157,14 +167,14 @@ export function useCoAuthors( postId, postType = 'post', skip = false ) {
 		return () => {
 			cancelled = true;
 		};
-	}, [ skip, isCapAvailable, guestNicenames ] );
+	}, [ skip, isCapAvailable, avatarNicenames ] );
 
 	// Merge avatar URLs into guest authors.
 	// Check both the async avatarMap (populated by the effect) and the
 	// synchronous guestAvatarCache (populated by previous fetches) so that
 	// cached avatars render immediately without waiting for an effect cycle.
 	const authorsWithAvatars = authors.map( author => {
-		if ( ! author.isGuest || ! author.user_nicename ) {
+		if ( author.isGuest === false || ! author.user_nicename ) {
 			return author;
 		}
 		const urls = avatarMap[ author.id ] || guestAvatarCache[ author.user_nicename ];

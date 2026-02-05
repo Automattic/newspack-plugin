@@ -204,8 +204,8 @@ describe( 'useCoAuthors', () => {
 			const { result } = renderHook( () => useCoAuthors( 456, 'post' ) );
 
 			expect( result.current.authors ).toEqual( [
-				{ id: 1, display_name: 'Jane Doe', author_link: '/author/jane/' },
-				{ id: 2, display_name: 'John Smith', author_link: '/author/john/' },
+				{ id: 1, display_name: 'Jane Doe', author_link: '/author/jane/', user_nicename: 'jane' },
+				{ id: 2, display_name: 'John Smith', author_link: '/author/john/', user_nicename: 'john' },
 			] );
 			expect( result.current.isCapAvailable ).toBe( true );
 		} );
@@ -227,6 +227,59 @@ describe( 'useCoAuthors', () => {
 
 			expect( result.current.authors ).toEqual( [] );
 			expect( result.current.isCapAvailable ).toBe( true );
+		} );
+
+		it( 'should extract user_nicename from author_link', () => {
+			const restAuthors = [
+				{ id: 1591, display_name: 'External Contributor', author_link: 'https://example.com/author/external-contributor/' },
+			];
+
+			useSelect.mockImplementation( callback =>
+				callback(
+					createMockSelect( {
+						capStore: { getAuthors: () => [] },
+						currentPostId: 123,
+						entityRecords: {
+							456: { newspack_author_info: restAuthors },
+						},
+					} )
+				)
+			);
+
+			const { result } = renderHook( () => useCoAuthors( 456, 'post' ) );
+
+			expect( result.current.authors[ 0 ].user_nicename ).toBe( 'external-contributor' );
+		} );
+
+		it( 'should fetch avatars for Query Loop authors via CAP endpoint', async () => {
+			const avatarUrls = { 96: 'https://example.com/guest-96.jpg' };
+			apiFetch.mockResolvedValue( { avatar_urls: avatarUrls } );
+
+			const restAuthors = [
+				{ id: 1591, display_name: 'External Contributor', author_link: 'https://example.com/author/external-contributor/' },
+			];
+
+			useSelect.mockImplementation( callback =>
+				callback(
+					createMockSelect( {
+						capStore: { getAuthors: () => [] },
+						currentPostId: 123,
+						entityRecords: {
+							456: { newspack_author_info: restAuthors },
+						},
+					} )
+				)
+			);
+
+			const { result } = renderHook( () => useCoAuthors( 456, 'post' ) );
+
+			await waitFor( () => {
+				expect( result.current.authors[ 0 ].avatar_urls ).toEqual( avatarUrls );
+			} );
+
+			expect( apiFetch ).toHaveBeenCalledWith( {
+				path: '/coauthors/v1/coauthors/external-contributor',
+			} );
 		} );
 
 		it( 'should return empty authors when post entity is not loaded', () => {
