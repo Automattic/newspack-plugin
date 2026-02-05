@@ -12,7 +12,7 @@ import apiFetch from '@wordpress/api-fetch';
 const CAP_STORE = 'cap/authors';
 const COAUTHORS_ENDPOINT = '/coauthors/v1/coauthors';
 
-// Module-level cache for guest author avatar URLs, keyed by post ID.
+// Module-level cache for guest author avatar URLs, keyed by user_nicename.
 // Prevents duplicate REST requests when components re-mount or when
 // multiple avatar blocks in a Query Loop share the same guest authors.
 const guestAvatarCache = {};
@@ -93,46 +93,64 @@ export function useCoAuthors( postId, postType = 'post', skip = false ) {
 	// The CAP store strips avatar data via formatAuthorData(), so we need
 	// to fetch the raw REST response to get the avatar URL (especially for
 	// guest authors whose avatars come from featured images).
-	const [ avatarMap, setAvatarMap ] = useState( () => guestAvatarCache[ postId ] || {} );
+	//
+	// Fetches per-author (by nicename) instead of per-post so that avatars
+	// resolve immediately when a guest author is added — before the post is saved.
+	const [ avatarMap, setAvatarMap ] = useState( {} );
 
-	// Build a stable key from guest author IDs to avoid re-fetching on every render.
-	const guestAuthorIds = authors
-		.filter( author => author.isGuest )
-		.map( author => author.id )
-		.join( ',' );
+	// Build a stable key from guest author nicenames to control effect re-runs.
+	const guestAuthors = authors.filter( author => author.isGuest && author.user_nicename );
+	const guestNicenames = guestAuthors.map( author => author.user_nicename ).join( ',' );
 
 	useEffect( () => {
-		if ( skip || ! isCapAvailable || ! guestAuthorIds || ! postId ) {
+		if ( skip || ! isCapAvailable || ! guestNicenames ) {
 			return;
 		}
 
-		// Use cached data if available (avoids duplicate requests on re-mount).
-		if ( guestAvatarCache[ postId ] ) {
-			setAvatarMap( guestAvatarCache[ postId ] );
+		// Determine which guest authors still need fetching.
+		const toFetch = guestAuthors.filter( a => ! guestAvatarCache[ a.user_nicename ] );
+
+		// All cached — sync cache into state and return early.
+		if ( ! toFetch.length ) {
+			const map = {};
+			guestAuthors.forEach( a => {
+				if ( guestAvatarCache[ a.user_nicename ] ) {
+					map[ a.id ] = guestAvatarCache[ a.user_nicename ];
+				}
+			} );
+			setAvatarMap( map );
 			return;
 		}
 
 		let cancelled = false;
-		apiFetch( { path: `${ COAUTHORS_ENDPOINT }?post_id=${ postId }` } ).then( result => {
-			if ( cancelled || ! Array.isArray( result ) ) {
+		Promise.all(
+			toFetch.map(
+				a =>
+					apiFetch( { path: `${ COAUTHORS_ENDPOINT }/${ a.user_nicename }` } )
+						.then( result => {
+							if ( result?.avatar_urls ) {
+								guestAvatarCache[ a.user_nicename ] = result.avatar_urls;
+							}
+						} )
+						.catch( () => {} ) // Silently skip failed fetches.
+			)
+		).then( () => {
+			if ( cancelled ) {
 				return;
 			}
 			const map = {};
-			result.forEach( item => {
-				if ( item.id && item.avatar_urls ) {
-					map[ item.id ] = item.avatar_urls;
+			guestAuthors.forEach( a => {
+				if ( guestAvatarCache[ a.user_nicename ] ) {
+					map[ a.id ] = guestAvatarCache[ a.user_nicename ];
 				}
 			} );
-			if ( Object.keys( map ).length ) {
-				guestAvatarCache[ postId ] = map;
-				setAvatarMap( map );
-			}
+			setAvatarMap( map );
 		} );
 
 		return () => {
 			cancelled = true;
 		};
-	}, [ skip, isCapAvailable, guestAuthorIds, postId ] );
+	}, [ skip, isCapAvailable, guestNicenames ] );
 
 	// Merge avatar URLs into guest authors.
 	const authorsWithAvatars = authors.map( author => {

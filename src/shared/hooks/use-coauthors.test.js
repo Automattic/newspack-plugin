@@ -1,12 +1,13 @@
 /**
  * External dependencies
  */
-import { renderHook } from '@testing-library/react';
+import { renderHook, act, waitFor } from '@testing-library/react';
 
 /**
  * WordPress dependencies
  */
 import { useSelect } from '@wordpress/data';
+import apiFetch from '@wordpress/api-fetch';
 
 /**
  * Internal dependencies
@@ -20,6 +21,8 @@ jest.mock( '@wordpress/data', () => ( {
 jest.mock( '@wordpress/core-data', () => ( {
 	store: 'core',
 } ) );
+
+jest.mock( '@wordpress/api-fetch', () => jest.fn() );
 
 /**
  * Helper to create a mock select function for multiple stores.
@@ -52,6 +55,8 @@ const createMockSelect = ( { capStore = null, currentPostId = 123, entityRecords
 describe( 'useCoAuthors', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
+		// Default: apiFetch resolves with empty object (no avatar_urls).
+		apiFetch.mockResolvedValue( {} );
 	} );
 
 	describe( 'CAP store availability', () => {
@@ -238,6 +243,97 @@ describe( 'useCoAuthors', () => {
 
 			expect( result.current.authors ).toEqual( [] );
 			expect( result.current.isCapAvailable ).toBe( true );
+		} );
+	} );
+
+	describe( 'guest author avatar fetching', () => {
+		const GUEST_AVATAR_URLS = { 24: 'https://example.com/guest-24.jpg', 96: 'https://example.com/guest-96.jpg' };
+
+		const setupWithGuest = capAuthors => {
+			useSelect.mockImplementation( callback =>
+				callback(
+					createMockSelect( {
+						capStore: { getAuthors: () => capAuthors },
+						currentPostId: 123,
+					} )
+				)
+			);
+		};
+
+		it( 'should fetch avatar by nicename for guest authors', async () => {
+			apiFetch.mockResolvedValue( { avatar_urls: GUEST_AVATAR_URLS } );
+			setupWithGuest( [
+				{ id: 1, display: 'Jane', value: 'jane-doe', userType: 'wpuser' },
+				{ id: 1591, display: 'Guest Writer', value: 'guest-writer', userType: 'guest-author' },
+			] );
+
+			const { result } = renderHook( () => useCoAuthors( 123 ) );
+
+			await waitFor( () => {
+				const guest = result.current.authors.find( a => a.id === 1591 );
+				expect( guest.avatar_urls ).toEqual( GUEST_AVATAR_URLS );
+			} );
+
+			expect( apiFetch ).toHaveBeenCalledWith( {
+				path: '/coauthors/v1/coauthors/guest-writer',
+			} );
+		} );
+
+		it( 'should not fetch avatars for WP users', async () => {
+			setupWithGuest( [
+				{ id: 1, display: 'Jane', value: 'jane-doe', userType: 'wpuser' },
+				{ id: 2, display: 'John', value: 'john-smith', userType: 'wpuser' },
+			] );
+
+			renderHook( () => useCoAuthors( 123 ) );
+
+			// Allow any pending effects to flush.
+			await act( () => Promise.resolve() );
+
+			expect( apiFetch ).not.toHaveBeenCalled();
+		} );
+
+		it( 'should not fetch avatars when skip is true', async () => {
+			apiFetch.mockResolvedValue( { avatar_urls: GUEST_AVATAR_URLS } );
+			setupWithGuest( [ { id: 1591, display: 'Guest Writer', value: 'guest-writer', userType: 'guest-author' } ] );
+
+			renderHook( () => useCoAuthors( 123, 'post', true ) );
+
+			await act( () => Promise.resolve() );
+
+			expect( apiFetch ).not.toHaveBeenCalled();
+		} );
+
+		it( 'should not modify WP user authors when merging avatar data', async () => {
+			apiFetch.mockResolvedValue( { avatar_urls: GUEST_AVATAR_URLS } );
+			setupWithGuest( [
+				{ id: 1, display: 'Jane', value: 'jane-doe', userType: 'wpuser' },
+				{ id: 1591, display: 'Guest Writer', value: 'guest-writer', userType: 'guest-author' },
+			] );
+
+			const { result } = renderHook( () => useCoAuthors( 123 ) );
+
+			await waitFor( () => {
+				expect( result.current.authors.find( a => a.id === 1591 ).avatar_urls ).toEqual( GUEST_AVATAR_URLS );
+			} );
+
+			// WP user should not have avatar_urls added by the hook.
+			const wpUser = result.current.authors.find( a => a.id === 1 );
+			expect( wpUser.avatar_urls ).toBeUndefined();
+		} );
+
+		it( 'should handle failed fetches gracefully', async () => {
+			apiFetch.mockRejectedValue( new Error( 'Not found' ) );
+			setupWithGuest( [ { id: 1591, display: 'Guest Writer', value: 'ghost-author', userType: 'guest-author' } ] );
+
+			const { result } = renderHook( () => useCoAuthors( 123 ) );
+
+			// Allow the failed promise to settle.
+			await act( () => Promise.resolve().then( () => Promise.resolve() ) );
+
+			// Guest author should still be in the list, just without avatar_urls.
+			expect( result.current.authors ).toHaveLength( 1 );
+			expect( result.current.authors[ 0 ].display_name ).toBe( 'Guest Writer' );
 		} );
 	} );
 } );
