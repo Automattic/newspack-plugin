@@ -923,6 +923,7 @@ final class Magic_Link {
 			'email'         => $email,
 			'existing_user' => true,
 			'metadata'      => $metadata,
+			'verified'      => Reader_Activation::is_reader_verified( $user ),
 		];
 
 		return self::send_otp_request_response( __( 'Login successful!', 'newspack-plugin' ), true, $data );

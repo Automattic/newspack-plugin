@@ -1,3 +1,4 @@
+/* globals reader_registration_block_config */
 /**
  * Internal dependencies
  */
@@ -16,6 +17,7 @@ window.newspackRAS.push( function ( readerActivation ) {
 			}
 
 			let body = new FormData( form );
+			let flowCompleted = false; // Guard to prevent re-running endLoginFlow
 			const messageElement = container.querySelector( '.newspack-registration__response' );
 			const submitElement = form.querySelector( 'button[type="submit"]' );
 			const spinner = document.createElement( 'span' );
@@ -30,6 +32,11 @@ window.newspackRAS.push( function ( readerActivation ) {
 			};
 
 			form.endLoginFlow = ( message = null, status = 500, data = null ) => {
+				// Prevent re-running after successful completion
+				if ( flowCompleted ) {
+					return;
+				}
+
 				let messageNode;
 
 				// For existing users, open the auth modal with the appropriate state
@@ -92,11 +99,29 @@ window.newspackRAS.push( function ( readerActivation ) {
 				// Determine which success element to show
 				const registrationSuccessEl = container.querySelector( '.newspack-registration__registration-success' );
 				const loginSuccessEl = container.querySelector( '.newspack-registration__login-success' );
-				const successElement = data?.existing_user ? loginSuccessEl : registrationSuccessEl;
+				const verifyEmailEl = container.querySelector( '.newspack-registration__verify-email' );
 
-				// Hide both success elements first to ensure only one shows
+				// Check if this is a new registration that needs email verification
+				// Note: verified can be false, null, or undefined - we need verification if it's not true
+				const needsVerification =
+					! data?.existing_user && reader_registration_block_config.require_account_verification && data?.verified !== true;
+
+				let successElement;
+				if ( needsVerification ) {
+					successElement = verifyEmailEl;
+					// Set the email address in the verification UI
+					const emailAddressEl = verifyEmailEl?.querySelector( '.newspack-registration__verify-email-address' );
+					if ( emailAddressEl && data?.email ) {
+						emailAddressEl.textContent = data.email;
+					}
+				} else {
+					successElement = data?.existing_user ? loginSuccessEl : registrationSuccessEl;
+				}
+
+				// Hide all success/verification elements first to ensure only one shows
 				registrationSuccessEl?.classList.add( 'newspack-registration--hidden' );
 				loginSuccessEl?.classList.add( 'newspack-registration--hidden' );
+				verifyEmailEl?.classList.add( 'newspack-registration--hidden' );
 
 				if ( message ) {
 					messageNode = document.createElement( 'p' );
@@ -111,6 +136,8 @@ window.newspackRAS.push( function ( readerActivation ) {
 				const isSuccess = status === 200;
 				container.classList.add( `newspack-registration--${ isSuccess ? 'success' : 'error' }` );
 				if ( isSuccess ) {
+					// Set flowCompleted early to prevent 'reader' event listener from interfering
+					flowCompleted = true;
 					successElement?.classList.remove( 'newspack-registration--hidden' );
 					if ( data?.email ) {
 						body = new FormData( form );
@@ -187,21 +214,24 @@ window.newspackRAS.push( function ( readerActivation ) {
 			} );
 
 			readerActivation.on( 'reader', ( { detail } ) => {
-				if ( detail.authenticated ) {
+				if ( detail.authenticated && ! flowCompleted ) {
 					form.endLoginFlow( null, 200, { existing_user: true } );
 				}
 			} );
 
-			// Handle pending verification resend button
-			const resendVerificationButton = container.querySelector( '[data-resend-verification]' );
-			if ( resendVerificationButton ) {
-				resendVerificationButton.addEventListener( 'click', () => {
-					resendVerificationButton.disabled = true;
+			// Store the form action URL before the form might be removed
+			const formActionUrl = form.getAttribute( 'action' ) || window.location.pathname;
+
+			// Handle verification resend buttons (pending verification and post-registration)
+			container.querySelectorAll( '[data-resend-verification]' ).forEach( resendButton => {
+				const originalText = resendButton.textContent;
+				resendButton.addEventListener( 'click', () => {
+					resendButton.disabled = true;
 					const reader = readerActivation.getReader();
 					const email = reader?.email;
 
 					if ( ! email ) {
-						resendVerificationButton.disabled = false;
+						resendButton.disabled = false;
 						return;
 					}
 
@@ -209,27 +239,27 @@ window.newspackRAS.push( function ( readerActivation ) {
 					verifyBody.set( 'newspack_reader_registration', 'newspack_reader_registration' );
 					verifyBody.set( 'npe', email );
 
-					fetch( form.getAttribute( 'action' ) || window.location.pathname, {
+					fetch( formActionUrl, {
 						method: 'POST',
 						headers: { Accept: 'application/json' },
 						body: verifyBody,
 					} )
 						.then( res => {
 							if ( res.status === 200 ) {
-								resendVerificationButton.textContent = 'Email sent!';
+								resendButton.textContent = 'Email sent!';
 								setTimeout( () => {
-									resendVerificationButton.textContent = 'Resend verification email';
-									resendVerificationButton.disabled = false;
+									resendButton.textContent = originalText;
+									resendButton.disabled = false;
 								}, 3000 );
 							} else {
-								resendVerificationButton.disabled = false;
+								resendButton.disabled = false;
 							}
 						} )
 						.catch( () => {
-							resendVerificationButton.disabled = false;
+							resendButton.disabled = false;
 						} );
 				} );
-			}
+			} );
 		} );
 	} );
 } );

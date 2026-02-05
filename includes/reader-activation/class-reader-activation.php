@@ -2092,6 +2092,9 @@ final class Reader_Activation {
 				$authenticated = self::set_current_reader( $user->ID );
 				$payload['authenticated'] = \is_wp_error( $authenticated ) ? 0 : 1;
 				$payload['existing_user'] = \is_wp_error( $authenticated ) ? 0 : 1;
+				if ( ! \is_wp_error( $authenticated ) ) {
+					$payload['verified'] = self::is_reader_verified( $user );
+				}
 				$metadata['login_method'] = 'auth-form-password';
 				break;
 			case 'link':

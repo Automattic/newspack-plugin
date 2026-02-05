@@ -65,6 +65,13 @@ function enqueue_scripts() {
 	);
 	\wp_script_add_data( $handle, 'async', true );
 	\wp_script_add_data( $handle, 'amp-plus', true );
+	wp_localize_script(
+		$handle,
+		'reader_registration_block_config',
+		[
+			'require_account_verification' => \Newspack\Content_Gate::requires_account_verification(),
+		]
+	);
 }
 add_action( 'wp_enqueue_scripts', __NAMESPACE__ . '\\enqueue_scripts' );
 
@@ -320,6 +327,23 @@ function render_block( $attrs, $content ) {
 				</span>
 				<?php echo \wp_kses_post( $success_login_markup ); ?>
 			</div>
+			<div class="newspack-registration__verify-email newspack-registration--hidden newspack-ui__box newspack-ui__box--warning newspack-ui__box--text-center">
+				<span class="newspack-ui__icon newspack-ui__icon--warning">
+					<?php Newspack_UI_Icons::print_svg( 'email' ); ?>
+				</span>
+				<p><strong><?php esc_html_e( 'Verify your email', 'newspack-plugin' ); ?></strong></p>
+				<p>
+					<?php esc_html_e( 'We\'ll send a verification link to', 'newspack-plugin' ); ?>
+					<strong class="newspack-registration__verify-email-address"></strong>.
+					<br />
+					<?php esc_html_e( 'Click the link in your email to continue reading.', 'newspack-plugin' ); ?>
+				</p>
+				<p>
+					<button type="button" class="newspack-ui__button newspack-ui__button--primary" data-resend-verification>
+						<?php esc_html_e( 'Send verification email', 'newspack-plugin' ); ?>
+					</button>
+				</p>
+			</div>
 		<?php endif; ?>
 	</div>
 	<?php
@@ -472,7 +496,13 @@ function process_form() {
 		'metadata'      => $metadata,
 	];
 
-	if ( ! $user_logged_in ) {
+	// Include verified status for newly registered users.
+	if ( $user_logged_in ) {
+		$user = \get_user_by( 'id', $user_id );
+		if ( $user ) {
+			$response['verified'] = Reader_Activation::is_reader_verified( $user );
+		}
+	} else {
 		$existing_user = \get_user_by( 'email', $email );
 		if ( $existing_user && Reader_Activation::is_user_reader( $existing_user ) ) {
 			// Return the action type - frontend will check OTP hash validity and request fresh OTP if needed.
