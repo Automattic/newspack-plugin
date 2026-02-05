@@ -56,7 +56,7 @@ if ( function_exists( 'wc_memberships_for_teams' ) ) {
 		<?php endif; ?>
 
 		<?php
-		if ( $is_teams_area_page && $team ) :
+		if ( $team ) :
 			$back_section = array_shift( $teams_area_sections );
 			?>
 			<a href="<?php echo esc_url( $back_section['url'] ); ?>" class="newspack-my-account__home-link newspack-ui__button newspack-ui__button--small newspack-ui__button--ghost-light">
