@@ -277,10 +277,12 @@ describe( 'useCoAuthors', () => {
 			expect( result.current.authors[ 2 ].user_nicename ).toBe( 'jill' );
 		} );
 
-		it( 'should return undefined user_nicename when author_link is missing', () => {
+		it( 'should return undefined user_nicename when author_link is missing or unusable', () => {
 			const restAuthors = [
 				{ id: 1, display_name: 'No Link Author', author_link: null },
 				{ id: 2, display_name: 'Empty Link Author', author_link: '' },
+				{ id: 3, display_name: 'Root URL Author', author_link: 'https://example.com' },
+				{ id: 4, display_name: 'Plain Permalink Author', author_link: '/?author=123' },
 			];
 
 			useSelect.mockImplementation( callback =>
@@ -299,6 +301,8 @@ describe( 'useCoAuthors', () => {
 
 			expect( result.current.authors[ 0 ].user_nicename ).toBeUndefined();
 			expect( result.current.authors[ 1 ].user_nicename ).toBeUndefined();
+			expect( result.current.authors[ 2 ].user_nicename ).toBeUndefined();
+			expect( result.current.authors[ 3 ].user_nicename ).toBeUndefined();
 		} );
 
 		it( 'should fetch avatars for Query Loop authors via CAP endpoint', async () => {

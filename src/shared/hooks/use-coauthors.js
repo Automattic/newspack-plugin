@@ -25,19 +25,24 @@ export function resetGuestAvatarCacheForTests() {
 }
 
 /**
- * Extract user_nicename from an author_link URL.
- * Strips query params and hash fragments, then takes the last path segment.
- * Returns undefined if the link is missing or yields no valid slug.
+ * Extract user_nicename from an author archive URL.
  *
- * @param {string} link Author archive URL.
- * @return {string|undefined} The extracted nicename, or undefined.
+ * @param {string} link Author archive URL (e.g. /author/jane/).
+ * @return {string|undefined} Extracted nicename, or undefined.
  */
 function extractNicenameFromLink( link ) {
 	if ( ! link ) {
 		return undefined;
 	}
-	const slug = link.split( '?' )[ 0 ].split( '#' )[ 0 ].replace( /\/$/, '' ).split( '/' ).pop();
-	return slug || undefined;
+	const cleaned = link.split( '?' )[ 0 ].split( '#' )[ 0 ].replace( /\/$/, '' );
+	const segments = cleaned.split( '/' );
+	const slug = segments.pop();
+	// Require a parent path segment so root URLs and plain permalinks are rejected.
+	const parent = segments[ segments.length - 1 ];
+	if ( ! slug || ! parent ) {
+		return undefined;
+	}
+	return slug;
 }
 
 /**
