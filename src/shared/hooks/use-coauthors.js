@@ -25,6 +25,22 @@ export function resetGuestAvatarCacheForTests() {
 }
 
 /**
+ * Extract user_nicename from an author_link URL.
+ * Strips query params and hash fragments, then takes the last path segment.
+ * Returns undefined if the link is missing or yields no valid slug.
+ *
+ * @param {string} link Author archive URL.
+ * @return {string|undefined} The extracted nicename, or undefined.
+ */
+function extractNicenameFromLink( link ) {
+	if ( ! link ) {
+		return undefined;
+	}
+	const slug = link.split( '?' )[ 0 ].split( '#' )[ 0 ].replace( /\/$/, '' ).split( '/' ).pop();
+	return slug || undefined;
+}
+
+/**
  * Hook to get CoAuthors Plus authors from the CAP store or REST API.
  *
  * For the currently-edited post, it uses CAP's JS store for real-time updates.
@@ -87,7 +103,7 @@ export function useCoAuthors( postId, postType = 'post', skip = false ) {
 						id: author.id,
 						display_name: author.display_name,
 						author_link: author.author_link,
-						user_nicename: author.author_link ? author.author_link.replace( /\/$/, '' ).split( '/' ).pop() : undefined,
+						user_nicename: extractNicenameFromLink( author.author_link ),
 					} ) );
 					return { authors: mappedAuthors, isCapAvailable: true };
 				}
