@@ -9,10 +9,10 @@ import '../../shared/js/public-path';
 /**
  * WordPress dependencies.
  */
+import { CardBody, CardDivider, CardMedia, ExternalLink } from '@wordpress/components';
 import { Component, Fragment, render, createInterpolateElement, createRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Icon, audio, category, plus, reusableBlock, typography } from '@wordpress/icons';
-import { ExternalLink } from '@wordpress/components';
 
 /**
  * Internal dependencies.
@@ -693,6 +693,102 @@ class ComponentsDemo extends Component {
 							chevron
 							isSmall
 							grouped
+						/>
+					</Card>
+					<Card>
+						<h2>{ __( 'Card (experimental Core component)', 'newspack-plugin' ) }</h2>
+						<p>
+							{ __(
+								'By passing the __experimentalCoreCard prop, the card will be rendered using WP Core’s Card component. ',
+								'newspack-plugin'
+							) }
+							<ExternalLink href="https://wordpress.github.io/gutenberg/?path=/docs/components-card--docs">
+								{ __( 'Component details', 'newspack-plugin' ) }
+							</ExternalLink>
+						</p>
+						<Card
+							__experimentalCoreCard
+							__experimentalCoreProps={ {
+								as: 'a',
+								header: (
+									<>
+										<h3>{ __( 'Button card w/ icon', 'newspack-plugin' ) }</h3>
+										<p>{ __( 'Can be used in lieu of the Newspack ButtonCard component.', 'newspack-plugin' ) }</p>
+									</>
+								),
+								href: '#',
+								icon: plus,
+							} }
+						/>
+						<Card
+							chevron
+							isSmall
+							__experimentalCoreCard
+							__experimentalCoreProps={ {
+								as: 'a',
+								header: (
+									<>
+										<h3>{ __( 'Small button card w/ icon + background color + chevron', 'newspack-plugin' ) }</h3>
+										<p>{ __( 'Can be used in lieu of the Newspack ButtonCard component.', 'newspack-plugin' ) }</p>
+									</>
+								),
+								href: '#',
+								icon: newspackIcons.settings,
+								iconBackgroundColor: true,
+							} }
+						/>
+						<Card
+							__experimentalCoreCard
+							__experimentalCoreProps={ {
+								header: <h3>{ __( 'Children as a single component', 'newspack-plugin' ) }</h3>,
+								footer: (
+									<>
+										<p>{ __( 'Card Footer', 'newspack-plugin' ) }</p>
+										<Button __next40pxDefaultSize variant="secondary">
+											{ __( 'Action Button', 'newspack-plugin' ) }
+										</Button>
+									</>
+								),
+							} }
+						>
+							<p>{ __( 'Children are wrapped in a <CardBody /> component.', 'newspack-plugin' ) }</p>
+						</Card>
+						<Card
+							__experimentalCoreCard
+							__experimentalCoreProps={ {
+								header: <h3>{ __( 'Children as an array of components', 'newspack-plugin' ) }</h3>,
+								footer: (
+									<>
+										<p>{ __( 'Card Footer', 'newspack-plugin' ) }</p>
+										<Button __next40pxDefaultSize variant="secondary">
+											{ __( 'Action Button', 'newspack-plugin' ) }
+										</Button>
+									</>
+								),
+							} }
+							children={ [
+								<CardBody key="1">
+									<p>
+										{ __(
+											'Children are rendered in the order of the array. Each component must be one of: CardBody, CardMedia, or CardDivider.',
+											'newspack-plugin'
+										) }
+									</p>
+								</CardBody>,
+								<CardMedia key="2">
+									<img
+										alt="Card Media"
+										src="https://images.unsplash.com/photo-1566125882500-87e10f726cdc?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1867&q=80"
+									/>
+								</CardMedia>,
+								<CardBody key="4">
+									<p>{ __( 'CardBody (before CardDivider)', 'newspack-plugin' ) }</p>
+								</CardBody>,
+								<CardDivider key="4" />,
+								<CardBody key="5">
+									<p>{ __( 'CardBody (after CardDivider)', 'newspack-plugin' ) }</p>
+								</CardBody>,
+							] }
 						/>
 					</Card>
 					<Card>
