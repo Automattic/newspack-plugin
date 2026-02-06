@@ -17,11 +17,46 @@ const COAUTHORS_ENDPOINT = '/coauthors/v1/coauthors';
 // multiple avatar blocks in a Query Loop share the same guest authors.
 const guestAvatarCache = {};
 
+// In-flight request promises, keyed by user_nicename.
+// Prevents duplicate concurrent requests when multiple block instances
+// mount simultaneously (e.g. Query Loop) and all check the cache before
+// any fetch has completed.
+const inflightRequests = {};
+
+/**
+ * Fetch a single coauthor's avatar URLs, deduplicating concurrent requests.
+ *
+ * @param {string} nicename Author nicename (slug).
+ * @return {Promise} Resolves when the fetch completes (result is stored in guestAvatarCache).
+ */
+function fetchCoauthorAvatar( nicename ) {
+	if ( guestAvatarCache[ nicename ] ) {
+		return Promise.resolve();
+	}
+	if ( inflightRequests[ nicename ] ) {
+		return inflightRequests[ nicename ];
+	}
+	inflightRequests[ nicename ] = apiFetch( {
+		path: `${ COAUTHORS_ENDPOINT }/${ encodeURIComponent( nicename ) }`,
+	} )
+		.then( result => {
+			if ( result?.avatar_urls ) {
+				guestAvatarCache[ nicename ] = result.avatar_urls;
+			}
+		} )
+		.catch( () => {} ) // Silently skip failed fetches.
+		.finally( () => {
+			delete inflightRequests[ nicename ];
+		} );
+	return inflightRequests[ nicename ];
+}
+
 /**
  * Reset the module-level guest avatar cache. Exposed for testing only.
  */
 export function resetGuestAvatarCacheForTests() {
 	Object.keys( guestAvatarCache ).forEach( key => delete guestAvatarCache[ key ] );
+	Object.keys( inflightRequests ).forEach( key => delete inflightRequests[ key ] );
 }
 
 /**
@@ -145,34 +180,8 @@ export function useCoAuthors( postId, postType = 'post', skip = false ) {
 			return;
 		}
 
-		// Determine which authors still need fetching.
-		const toFetch = authorsNeedingAvatars.filter( a => ! guestAvatarCache[ a.user_nicename ] );
-
-		// All cached — sync cache into state and return early.
-		if ( ! toFetch.length ) {
-			const map = {};
-			authorsNeedingAvatars.forEach( a => {
-				if ( guestAvatarCache[ a.user_nicename ] ) {
-					map[ a.id ] = guestAvatarCache[ a.user_nicename ];
-				}
-			} );
-			setAvatarMap( map );
-			return;
-		}
-
 		let cancelled = false;
-		Promise.all(
-			toFetch.map(
-				a =>
-					apiFetch( { path: `${ COAUTHORS_ENDPOINT }/${ encodeURIComponent( a.user_nicename ) }` } )
-						.then( result => {
-							if ( result?.avatar_urls ) {
-								guestAvatarCache[ a.user_nicename ] = result.avatar_urls;
-							}
-						} )
-						.catch( () => {} ) // Silently skip failed fetches.
-			)
-		).then( () => {
+		Promise.all( authorsNeedingAvatars.map( a => fetchCoauthorAvatar( a.user_nicename ) ) ).then( () => {
 			if ( cancelled ) {
 				return;
 			}

@@ -466,5 +466,38 @@ describe( 'useCoAuthors', () => {
 			expect( result.current.authors ).toHaveLength( 1 );
 			expect( result.current.authors[ 0 ].display_name ).toBe( 'Guest Writer' );
 		} );
+
+		it( 'should deduplicate concurrent avatar fetches for the same nicename', async () => {
+			apiFetch.mockResolvedValue( { avatar_urls: GUEST_AVATAR_URLS } );
+
+			// Two Query Loop posts sharing the same guest author.
+			const sharedAuthor = { id: 1591, display_name: 'Guest Writer', author_link: '/author/guest-writer/' };
+
+			useSelect.mockImplementation( callback =>
+				callback(
+					createMockSelect( {
+						capStore: { getAuthors: () => [] },
+						currentPostId: 123,
+						entityRecords: {
+							456: { newspack_author_info: [ sharedAuthor ] },
+							789: { newspack_author_info: [ sharedAuthor ] },
+						},
+					} )
+				)
+			);
+
+			// Render two hooks concurrently, simulating two avatar blocks in a Query Loop.
+			const { result: result1 } = renderHook( () => useCoAuthors( 456, 'post' ) );
+			const { result: result2 } = renderHook( () => useCoAuthors( 789, 'post' ) );
+
+			await waitFor( () => {
+				expect( result1.current.authors[ 0 ].avatar_urls ).toEqual( GUEST_AVATAR_URLS );
+				expect( result2.current.authors[ 0 ].avatar_urls ).toEqual( GUEST_AVATAR_URLS );
+			} );
+
+			// Only one apiFetch call should have been made despite two concurrent hooks.
+			const guestWriterCalls = apiFetch.mock.calls.filter( ( [ arg ] ) => arg.path === '/coauthors/v1/coauthors/guest-writer' );
+			expect( guestWriterCalls ).toHaveLength( 1 );
+		} );
 	} );
 } );
