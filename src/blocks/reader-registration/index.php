@@ -284,11 +284,6 @@ function render_block( $attrs, $content ) {
 		$success_registration_markup = '<p>' . $success_message . '</p>';
 	}
 
-	$success_login_markup = $attrs['signedInLabel'];
-	if ( ! empty( \wp_strip_all_tags( $attrs['signedInLabel'] ) ) ) {
-		$success_login_markup = '<p>' . $attrs['signedInLabel'] . '</p>';
-	}
-
 	$checked = [];
 	if ( ! empty( $attrs['listsCheckboxes'] ) ) {
 		foreach ( $lists as $list_id => $list_name ) {
@@ -411,17 +406,11 @@ function render_block( $attrs, $content ) {
 					</p>
 				</div>
 			</form>
-			<div class="newspack-registration__registration-success newspack-registration--hidden newspack-ui__box newspack-ui__box--success newspack-ui__box--text-center">
+			<div class="newspack-registration__registration-success newspack-registration--hidden newspack-ui__box newspack-ui__box--x-large newspack-ui__box--success newspack-ui__box--text-center">
 				<span class="newspack-ui__icon newspack-ui__icon--success">
 					<?php Newspack_UI_Icons::print_svg( 'check' ); ?>
 				</span>
 				<?php echo $success_registration_markup; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
-			</div>
-			<div class="newspack-registration__login-success newspack-registration--hidden newspack-ui__box newspack-ui__box--success newspack-ui__box--text-center">
-				<span class="newspack-ui__icon newspack-ui__icon--success">
-					<?php Newspack_UI_Icons::print_svg( 'emailSend' ); ?>
-				</span>
-				<?php echo \wp_kses_post( $success_login_markup ); ?>
 			</div>
 		<?php endif; ?>
 	</div>

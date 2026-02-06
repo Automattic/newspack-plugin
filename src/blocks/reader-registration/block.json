@@ -52,10 +52,6 @@
 		"listsCheckboxes": {
 			"type": "object",
 			"default": {}
-		},
-		"signedInLabel": {
-			"type": "string",
-			"default": "Success! You're signed in."
 		}
 	},
 	"supports": {

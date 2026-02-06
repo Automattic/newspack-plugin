@@ -19,7 +19,6 @@ import { Icon, check } from '@wordpress/icons';
  * Internal dependencies
  */
 import './editor.scss';
-import { emailSend } from '../../../packages/icons';
 
 const getListCheckboxId = listId => {
 	return 'newspack-reader-registration-list-checkbox-' + listId;
@@ -28,7 +27,6 @@ const getListCheckboxId = listId => {
 const editedStateOptions = [
 	{ label: __( 'Initial', 'newspack-plugin' ), value: 'initial' },
 	{ label: __( 'Registration Success', 'newspack-plugin' ), value: 'registration' },
-	{ label: __( 'Login Success', 'newspack-plugin' ), value: 'login' },
 ];
 export default function ReaderRegistrationEdit( {
 	setAttributes,
@@ -42,7 +40,6 @@ export default function ReaderRegistrationEdit( {
 		displayListDescription,
 		hideSubscriptionInput,
 		newsletterLabel,
-		signedInLabel,
 		lists,
 		listsCheckboxes,
 	},
@@ -327,28 +324,11 @@ export default function ReaderRegistrationEdit( {
 				) }
 				{ editedState === 'registration' && (
 					<div className="newspack-registration newspack-ui">
-						<div className="newspack-ui__box newspack-ui__box--success newspack-ui__box--text-center">
+						<div className="newspack-ui__box newspack-ui__box--success newspack-ui__box--x-large newspack-ui__box--text-center">
 							<span className="newspack-ui__icon newspack-ui__icon--success">
 								<Icon icon={ check } />
 							</span>
 							<div { ...innerBlocksProps } />
-						</div>
-					</div>
-				) }
-				{ editedState === 'login' && (
-					<div className="newspack-registration newspack-ui">
-						<div className="newspack-ui__box newspack-ui__box--success newspack-ui__box--text-center">
-							<span className="newspack-ui__icon newspack-ui__icon--success">
-								<Icon icon={ emailSend } />
-							</span>
-							<RichText
-								align="center"
-								onChange={ value => setAttributes( { signedInLabel: value } ) }
-								placeholder={ __( 'Logged in message…', 'newspack-plugin' ) }
-								value={ signedInLabel }
-								allowedFormats={ [] }
-								tagName="p"
-							/>
 						</div>
 					</div>
 				) }
