@@ -102,24 +102,24 @@ function render_verification_box() {
 		$email = $current_user->user_email;
 	}
 	?>
-	<div class="newspack__reader-verification newspack-ui__box newspack-ui__box--text-center" data-verify-email="<?php echo esc_attr( $email ); ?>">
-		<span class="newspack-ui__icon">
-			<?php Newspack_UI_Icons::print_svg( 'email' ); ?>
-		</span>
-		<p>
-			<?php
-			printf(
-				// translators: %s is the user's email address.
-				esc_html__( 'We\'ll send a code to %s.', 'newspack-plugin' ),
-				'<strong class="email-address">' . esc_html( $email ) . '</strong>'
-			);
-			?>
-		</p>
-		<p>
-			<button type="button" class="newspack-ui__button newspack-ui__button--primary" data-send-otp>
-				<?php esc_html_e( 'Send code', 'newspack-plugin' ); ?>
-			</button>
-		</p>
+	<div class="newspack__reader-verification newspack-ui__box newspack-ui__box--x-large newspack-ui__box--text-center" data-verify-email="<?php echo esc_attr( $email ); ?>">
+			<span class="newspack-ui__icon newspack-ui__icon--neutral">
+				<?php Newspack_UI_Icons::print_svg( 'email' ); ?>
+			</span>
+			<p>
+				<?php
+				printf(
+					// translators: %s is the user's email address.
+					esc_html__( 'We\'ll send a verification code to %s.', 'newspack-plugin' ),
+					'<strong class="email-address">' . esc_html( $email ) . '</strong>'
+				);
+				?>
+			</p>
+			<p>
+				<button type="button" class="newspack-ui__button newspack-ui__button--primary newspack-ui__button--wide" data-send-otp>
+					<?php esc_html_e( 'Send code', 'newspack-plugin' ); ?>
+				</button>
+			</p>
 	</div>
 	<?php
 }
@@ -130,11 +130,37 @@ function render_verification_box() {
  * @return void
  */
 function render_verification_modal() {
+	$email = '%EMAIL%';
+	if ( \is_user_logged_in() ) {
+		$current_user = \wp_get_current_user();
+		$email = $current_user->user_email;
+	}
 	ob_start();
-	render_verification_box();
+	?>
+	<div class="newspack-ui__box newspack-ui__box--text-center">
+		<span class="newspack-ui__icon newspack-ui__icon--neutral">
+			<?php Newspack_UI_Icons::print_svg( 'email' ); ?>
+		</span>
+		<p>
+			<?php
+			printf(
+				// translators: %s is the user's email address.
+				esc_html__( 'We\'ll send a verification code to %s.', 'newspack-plugin' ),
+				'<strong class="email-address">' . esc_html( $email ) . '</strong>' // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			);
+			?>
+		</p>
+	</div>
+	<button type="button" class="newspack-ui__button newspack-ui__button--primary newspack-ui__button--wide" data-send-otp>
+		<?php esc_html_e( 'Send code', 'newspack-plugin' ); ?>
+	</button>
+	<button type="button" class="newspack-ui__button newspack-ui__button--ghost newspack-ui__button--wide newspack-ui__modal__close">
+		<?php esc_html_e( 'Go back', 'newspack-plugin' ); ?>
+	</button>
+	<?php
 	$content = ob_get_clean();
 	?>
-	<div class="newspack-ui">
+	<div class="newspack-ui newspack__reader-verification">
 		<?php
 		\Newspack\Newspack_UI::generate_modal(
 			[

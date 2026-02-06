@@ -43,13 +43,13 @@ window.newspackRAS.push( function ( readerActivation ) {
 
 	domReady( function () {
 		const verificationModal = document.getElementById( 'newspack-my-account__newspack-reader-verification' );
-		const verificationBox = verificationModal.querySelectorAll( '.newspack__reader-verification' );
+		const verificationBox = document.querySelectorAll( '.newspack__reader-verification' );
 		if ( [ ...verificationBox ].length ) {
 			verificationBox.forEach( box => {
 				const sendOtpButton = box.querySelector( '[data-send-otp]' );
 
-				// Detect parent modal
-				const modal = box.closest( '.newspack-ui__modal-container' );
+				// Find parent modal
+				const modal = sendOtpButton.closest( '.newspack-ui__modal-container' );
 
 				if ( sendOtpButton ) {
 					sendOtpButton.addEventListener( 'click', () => {
@@ -190,6 +190,11 @@ window.newspackRAS.push( function ( readerActivation ) {
 						readerActivation.setReaderEmail( data.email );
 
 						if ( needsVerification ) {
+							// Update %EMAIL% placeholder in verification modal
+							const emailNode = verificationModal.querySelector( '.email-address' );
+							if ( emailNode ) {
+								emailNode.textContent = data.email;
+							}
 							verificationModal.setAttribute( 'data-state', 'open' );
 						} else {
 							readerActivation.setAuthenticated( data?.authenticated );
