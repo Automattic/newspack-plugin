@@ -18,7 +18,7 @@ import sections from './sections';
 import BrandHeader from '../../components/brand-header';
 import QuickActions from '../../components/quick-actions';
 import SiteStatuses from '../../components/site-statuses';
-import { GlobalNotices, Notice, Separator, Wizard } from '../../../../../packages/components/src';
+import { Divider, GlobalNotices, Notice, Wizard } from '../../../../../packages/components/src';
 
 const {
 	newspack_aux_data: { is_debug_mode: isDebugMode = false },
@@ -36,7 +36,7 @@ function Dashboard() {
 					<>
 						<BrandHeader />
 						<SiteStatuses />
-						<Separator variant="tertiary" />
+						<Divider variant="tertiary" />
 						<QuickActions />
 					</>
 				) }

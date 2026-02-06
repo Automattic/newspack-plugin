@@ -1,4 +1,4 @@
-# Separator
+# Divider
 
 Horizontal rule component with alignment, variant, and margin options.
 
@@ -15,11 +15,11 @@ Horizontal rule component with alignment, variant, and margin options.
 ## Usage
 
 ```jsx
-import { Separator } from '@newspack/components';
+import { Divider } from 'newspack-components';
 
-<Separator />
+<Divider />
 
-<Separator alignment="full-width" variant="primary" />
+<Divider alignment="full-width" variant="primary" />
 
-<Separator marginBottom={ 48 } marginTop={ 32 } variant="secondary" />
+<Divider marginBottom={ 48 } marginTop={ 32 } variant="secondary" />
 ```
