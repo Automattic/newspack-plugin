@@ -36,7 +36,7 @@ function Dashboard() {
 					<>
 						<BrandHeader />
 						<SiteStatuses />
-						<Separator alignment="none" />
+						<Separator variant="tertiary" />
 						<QuickActions />
 					</>
 				) }

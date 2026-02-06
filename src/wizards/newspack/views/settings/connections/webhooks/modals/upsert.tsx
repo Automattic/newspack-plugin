@@ -153,7 +153,7 @@ const Upsert = ( {
 						</Button>
 					</Card>
 				</Grid>
-				<Separator />
+				<Separator alignment="full-width" variant="tertiary" />
 				<TextControl
 					label={ __( 'Label (optional)', 'newspack-plugin' ) }
 					help={ __( 'A label to help you identify this endpoint. It will not be sent to the endpoint.', 'newspack-plugin' ) }

@@ -100,7 +100,7 @@ const NRHSettings = () => {
 					{ __( 'Save Settings' ) }
 				</Button>
 			</div>
-			<Separator />
+			<Separator alignment="full-width" variant="tertiary" />
 		</WizardsSection>
 	);
 };

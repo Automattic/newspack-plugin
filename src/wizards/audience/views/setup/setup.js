@@ -125,7 +125,7 @@ export default withWizardScreen(
 					) ) }
 				{ config.enabled && (
 					<Card noBorder>
-						<Separator />
+						<Separator alignment="full-width" variant="tertiary" />
 						<ActionCard
 							title={ __( 'Present newsletter signup after checkout and registration', 'newspack-plugin' ) }
 							description={ __(
@@ -171,7 +171,7 @@ export default withWizardScreen(
 							toggleOnChange={ value => updateConfig( 'oauth_redirect_to_ras', value ) }
 						/>
 
-						<Separator />
+						<Separator alignment="full-width" variant="tertiary" />
 
 						<SectionHeader
 							title={ __( 'Email Service Provider (ESP) Advanced Settings', 'newspack-plugin' ) }
@@ -314,7 +314,7 @@ export default withWizardScreen(
 				) }
 				{ newspackAudience.can_use_salesforce && (
 					<Card noBorder>
-						<Separator />
+						<Separator alignment="full-width" variant="tertiary" />
 						<Salesforce />
 					</Card>
 				) }

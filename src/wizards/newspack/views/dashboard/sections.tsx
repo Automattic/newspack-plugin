@@ -38,7 +38,7 @@ export default [
 			return dashSectionsKeys.map( sectionKey => {
 				return (
 					<Fragment key={ sectionKey }>
-						<Separator alignment="none" />
+						<Separator variant="tertiary" />
 						<div className="newspack-dashboard__section">
 							<h3>{ dashSections[ sectionKey ].title }</h3>
 							<p>{ dashSections[ sectionKey ].desc }</p>

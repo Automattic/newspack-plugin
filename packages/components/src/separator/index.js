@@ -12,7 +12,7 @@ import './style.scss';
  */
 import classNames from 'classnames';
 
-const Separator = ( { alignment = 'full-width', className, marginBottom = 64, marginTop = 64, variant = 'tertiary', ...otherProps } ) => {
+const Separator = ( { alignment = 'none', className = undefined, marginBottom = 64, marginTop = 64, variant = 'default', ...otherProps } ) => {
 	const classes = classNames(
 		'newspack-separator',
 		className,
