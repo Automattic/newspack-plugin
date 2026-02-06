@@ -3,8 +3,8 @@
 	display: flex;
 	gap: 0.5rem;
 
-	&.is-style-stacked,
-	&[class*="is-style-stacked"] {
+	&.is-style-overlapped,
+	&[class*="is-style-overlapped"] {
 		gap: 0;
 
 		.newspack-avatar-wrapper:not(:last-of-type) {

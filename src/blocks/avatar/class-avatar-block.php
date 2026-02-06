@@ -36,8 +36,8 @@ final class Avatar_Block {
 			register_block_style(
 				'newspack/avatar',
 				[
-					'name'  => 'stacked',
-					'label' => __( 'Stacked', 'newspack-plugin' ),
+					'name'  => 'overlapped',
+					'label' => __( 'Overlapped', 'newspack-plugin' ),
 				]
 			);
 		}
