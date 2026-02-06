@@ -1,3 +1,10 @@
+## [6.30.1](https://github.com/Automattic/newspack-plugin/compare/v6.30.0...v6.30.1) (2026-02-05)
+
+
+### Bug Fixes
+
+* **my-account:** teams for memberships navigation ([#4457](https://github.com/Automattic/newspack-plugin/issues/4457)) ([e776e4d](https://github.com/Automattic/newspack-plugin/commit/e776e4d641942491ce692e20da6fb21380530278))
+
 # [6.30.0](https://github.com/Automattic/newspack-plugin/compare/v6.29.5...v6.30.0) (2026-02-02)
 
 

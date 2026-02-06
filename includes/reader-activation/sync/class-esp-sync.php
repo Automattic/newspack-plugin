@@ -8,6 +8,7 @@
 namespace Newspack\Reader_Activation;
 
 use Newspack\Reader_Activation;
+use Newspack\Reader_Activation\Integrations;
 use Newspack\Data_Events;
 use Newspack\Logger;
 
@@ -135,7 +136,14 @@ class ESP_Sync extends Sync {
 		 */
 		$contact = \apply_filters( 'newspack_esp_sync_contact', $contact, $context );
 		$contact = Sync\Metadata::normalize_contact_data( $contact );
-		$result  = \Newspack_Newsletters_Contacts::upsert( $contact, $master_list_id, $context, $existing_contact );
+
+		$integrations = Integrations::get_active_integrations();
+
+		foreach ( $integrations as $integration ) {
+			// TODO: We know there's only one integration for now and we expect result to be wp_error or true. We'll refactor this to do a try catch.
+			// Not changing it now because of the retry scheduled by Newspack\WooCommerce_My_Account::sync_email_change_with_esp.
+			$result = $integration->push_contact_data( $contact, $context, $existing_contact );
+		}
 
 		return \is_wp_error( $result ) ? $result : true;
 	}

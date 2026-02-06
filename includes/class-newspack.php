@@ -92,6 +92,8 @@ final class Newspack {
 		include_once NEWSPACK_ABSPATH . 'includes/reader-activation/sync/class-woocommerce.php';
 		include_once NEWSPACK_ABSPATH . 'includes/reader-activation/sync/class-esp-sync.php';
 		include_once NEWSPACK_ABSPATH . 'includes/reader-activation/sync/class-esp-sync-admin.php';
+		include_once NEWSPACK_ABSPATH . 'includes/reader-activation/class-integrations.php';
+		\Newspack\Reader_Activation\Integrations::init();
 		include_once NEWSPACK_ABSPATH . 'includes/data-events/class-utils.php';
 		include_once NEWSPACK_ABSPATH . 'includes/data-events/class-data-events.php';
 		include_once NEWSPACK_ABSPATH . 'includes/data-events/class-webhooks.php';

@@ -20,6 +20,7 @@ jobs:
     needs: build
     uses: Automattic/newspack-scripts/.github/workflows/reusable-release.yml@trunk
     secrets:
+      GIT_COMMITTER_TOKEN: ${{ secrets.GIT_COMMITTER_TOKEN }}
       NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
   post-release:

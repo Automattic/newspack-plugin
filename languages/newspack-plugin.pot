@@ -2,14 +2,14 @@
 # This file is distributed under the GPL2.
 msgid ""
 msgstr ""
-"Project-Id-Version: Newspack 6.30.0\n"
+"Project-Id-Version: Newspack 6.30.1\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/newspack-plugin\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-02-03T17:03:42+00:00\n"
+"POT-Creation-Date: 2026-02-06T12:43:44+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: newspack-plugin\n"
@@ -1041,7 +1041,7 @@ msgstr ""
 #: includes/collections/class-post-type.php:73
 #: includes/collections/class-query-helper.php:205
 #: includes/plugins/woocommerce/my-account/templates/v1/related-orders.php:22
-#: src/blocks/collections/class-collections-block.php:391
+#: src/blocks/collections/class-collections-block.php:411
 #: dist/blocks.js:4
 #: src/blocks/collections/components/CollectionItem.jsx:61
 msgid "Order"
@@ -1252,7 +1252,7 @@ msgid "View Collections"
 msgstr ""
 
 #: includes/collections/class-post-type.php:104
-#: src/blocks/collections/class-collections-block.php:110
+#: src/blocks/collections/class-collections-block.php:122
 msgid "No collections found."
 msgstr ""
 
@@ -1285,7 +1285,7 @@ msgid "This collection could not be saved because a collection with the same tit
 msgstr ""
 
 #: includes/collections/class-query-helper.php:204
-#: src/blocks/collections/class-collections-block.php:387
+#: src/blocks/collections/class-collections-block.php:407
 #: dist/blocks.js:4
 #: src/blocks/collections/components/CollectionItem.jsx:57
 msgid "Subscribe"
@@ -1293,7 +1293,7 @@ msgstr ""
 
 #. translators: %s is the volume number of a collection
 #: includes/collections/class-template-helper.php:253
-#: src/blocks/collections/class-collections-block.php:334
+#: src/blocks/collections/class-collections-block.php:354
 #, php-format
 msgctxt "collection volume number"
 msgid "Vol. %s"
@@ -1301,7 +1301,7 @@ msgstr ""
 
 #. translators: %s is the issue number of a collection
 #: includes/collections/class-template-helper.php:258
-#: src/blocks/collections/class-collections-block.php:347
+#: src/blocks/collections/class-collections-block.php:367
 #, php-format
 msgctxt "collection issue number"
 msgid "No. %s"
@@ -3830,24 +3830,24 @@ msgstr ""
 msgid "My account"
 msgstr ""
 
-#: includes/plugins/woocommerce/my-account/templates/v1/navigation.php:34
+#: includes/plugins/woocommerce/my-account/templates/v1/navigation.php:45
 msgid "Open navigation"
 msgstr ""
 
-#: includes/plugins/woocommerce/my-account/templates/v1/navigation.php:34
+#: includes/plugins/woocommerce/my-account/templates/v1/navigation.php:45
 msgid "Close navigation"
 msgstr ""
 
-#: includes/plugins/woocommerce/my-account/templates/v1/navigation.php:41
+#: includes/plugins/woocommerce/my-account/templates/v1/navigation.php:52
 msgid "Account pages"
 msgstr ""
 
-#: includes/plugins/woocommerce/my-account/templates/v1/navigation.php:44
-#: includes/plugins/woocommerce/my-account/templates/v1/navigation.php:51
+#: includes/plugins/woocommerce/my-account/templates/v1/navigation.php:55
+#: includes/plugins/woocommerce/my-account/templates/v1/navigation.php:84
 msgid "Back to Homepage"
 msgstr ""
 
-#: includes/plugins/woocommerce/my-account/templates/v1/navigation.php:85
+#: includes/plugins/woocommerce/my-account/templates/v1/navigation.php:118
 msgid "Sign out"
 msgstr ""
 
@@ -4572,6 +4572,10 @@ msgstr ""
 msgid "I have read and accept the {{Terms & Conditions}}."
 msgstr ""
 
+#: includes/reader-activation/integrations/class-esp.php:26
+msgid "ESPs Integration"
+msgstr ""
+
 #: includes/reader-activation/sync/class-esp-sync-admin.php:77
 msgid "Resync contact to ESP"
 msgstr ""
@@ -4598,46 +4602,46 @@ msgstr ""
 msgid "Click here to monitor progress."
 msgstr ""
 
-#: includes/reader-activation/sync/class-esp-sync.php:64
+#: includes/reader-activation/sync/class-esp-sync.php:65
 msgid "Newspack Newsletters is not available."
 msgstr ""
 
-#: includes/reader-activation/sync/class-esp-sync.php:71
+#: includes/reader-activation/sync/class-esp-sync.php:72
 msgid "ESP sync is not enabled."
 msgstr ""
 
-#: includes/reader-activation/sync/class-esp-sync.php:78
+#: includes/reader-activation/sync/class-esp-sync.php:79
 msgid "ESP master list ID is not set."
 msgstr ""
 
 #. Translators: %s is the email address of the contact to synced.
-#: includes/reader-activation/sync/class-esp-sync.php:164
+#: includes/reader-activation/sync/class-esp-sync.php:172
 #, php-format
 msgid "Scheduling secondary sync for contact %s."
 msgstr ""
 
-#: includes/reader-activation/sync/class-esp-sync.php:199
-#: includes/reader-activation/sync/class-esp-sync.php:204
+#: includes/reader-activation/sync/class-esp-sync.php:207
+#: includes/reader-activation/sync/class-esp-sync.php:212
 msgid "WC_Customer class unavailable."
 msgstr ""
 
 #. Translators: %d is the user ID.
-#: includes/reader-activation/sync/class-esp-sync.php:212
+#: includes/reader-activation/sync/class-esp-sync.php:220
 #, php-format
 msgid "Customer with ID %d does not exist."
 msgstr ""
 
 #. Translators: %1$s is the status and %2$s is the contact's email address.
-#: includes/reader-activation/sync/class-esp-sync.php:260
+#: includes/reader-activation/sync/class-esp-sync.php:268
 #, php-format
 msgid "%1$s contact data for %2$s."
 msgstr ""
 
-#: includes/reader-activation/sync/class-esp-sync.php:261
+#: includes/reader-activation/sync/class-esp-sync.php:269
 msgid "Would sync"
 msgstr ""
 
-#: includes/reader-activation/sync/class-esp-sync.php:261
+#: includes/reader-activation/sync/class-esp-sync.php:269
 #: dist/other-scripts/salesforce.js:1
 #: src/other-scripts/salesforce/index.js:30
 msgid "Synced"
@@ -4753,7 +4757,7 @@ msgstr ""
 
 #: includes/templates/block-patterns/corrections/corrections-loop.php:18
 #: includes/templates/corrections/corrections-archive.php:16
-#: dist/blocks.js:4
+#: dist/blocks.js:1
 #: dist/other-scripts/corrections-modal.js:1
 #: src/blocks/correction-item/index.js:22
 #: src/other-scripts/corrections-modal/index.js:192
@@ -5821,7 +5825,7 @@ msgstr ""
 msgid "Loading..."
 msgstr ""
 
-#: src/blocks/avatar/class-avatar-block.php:39
+#: src/blocks/avatar/class-avatar-block.php:40
 msgid "Stacked"
 msgstr ""
 
@@ -8056,12 +8060,13 @@ msgid "Manage Subscriptions"
 msgstr ""
 
 #: dist/avatar-block.js:1
-#: dist/blocks.js:4
+#: dist/blocks.js:1
 #: src/blocks/avatar/index.js:15
 msgid "Avatar"
 msgstr ""
 
 #: dist/avatar-block.js:1
+#: dist/blocks.js:1
 #: dist/blocks.js:4
 #: src/blocks/avatar/index.js:28
 #: src/blocks/byline/index.js:28
@@ -8069,18 +8074,19 @@ msgid "author"
 msgstr ""
 
 #: dist/avatar-block.js:1
-#: dist/blocks.js:4
+#: dist/blocks.js:1
 #: src/blocks/avatar/index.js:29
 msgid "user"
 msgstr ""
 
 #: dist/avatar-block.js:1
-#: dist/blocks.js:4
+#: dist/blocks.js:1
 #: src/blocks/avatar/index.js:30
 msgid "profile"
 msgstr ""
 
 #: dist/avatar-block.js:1
+#: dist/blocks.js:1
 #: dist/blocks.js:4
 #: dist/contribution-meter-block.js:5
 #: src/blocks/avatar/index.js:31
@@ -8091,7 +8097,7 @@ msgid "newspack"
 msgstr ""
 
 #: dist/avatar-block.js:1
-#: dist/blocks.js:4
+#: dist/blocks.js:1
 #: src/blocks/avatar/index.js:33
 msgid "Display post author avatar."
 msgstr ""
@@ -8551,6 +8557,116 @@ msgstr ""
 #: dist/billboard.js:12
 #: src/wizards/advertising/index.js:244
 msgid "Edit Ad Unit"
+msgstr ""
+
+#: dist/blocks.js:1
+#: dist/commons.js:15
+#: dist/content-gate-countdown-box-block.js:1
+#: src/blocks/content-gate/countdown-box/edit.jsx:147
+#: src/blocks/content-gate/countdown-box/index.js:15
+msgid "Content Gate Countdown"
+msgstr ""
+
+#: dist/blocks.js:1
+#: dist/blocks.js:4
+#: dist/content-gate-countdown-box-block.js:1
+#: src/blocks/content-gate/countdown-box/index.js:28
+#: src/blocks/content-gate/countdown/index.js:27
+msgid "countdown"
+msgstr ""
+
+#: dist/blocks.js:1
+#: dist/blocks.js:4
+#: dist/content-gate-countdown-box-block.js:1
+#: src/blocks/content-gate/countdown-box/index.js:29
+#: src/blocks/content-gate/countdown/index.js:28
+msgid "content gate"
+msgstr ""
+
+#: dist/blocks.js:1
+#: dist/blocks.js:4
+#: dist/content-gate-countdown-box-block.js:1
+#: src/blocks/content-gate/countdown-box/index.js:30
+#: src/blocks/content-gate/countdown/index.js:29
+msgid "metered"
+msgstr ""
+
+#: dist/blocks.js:1
+#: dist/blocks.js:4
+#: dist/content-gate-countdown-box-block.js:1
+#: src/blocks/content-gate/countdown-box/index.js:31
+#: src/blocks/content-gate/countdown/index.js:30
+msgid "paywall"
+msgstr ""
+
+#: dist/blocks.js:1
+#: dist/blocks.js:4
+#: dist/content-gate-countdown-box-block.js:1
+#: src/blocks/content-gate/countdown-box/index.js:32
+#: src/blocks/content-gate/countdown/index.js:31
+msgid "tracking"
+msgstr ""
+
+#: dist/blocks.js:1
+#: dist/content-gate-countdown-box-block.js:1
+#: src/blocks/content-gate/countdown-box/index.js:34
+msgid "Displays how many free articles remain before the paywall, helping users track access with a real-time countdown."
+msgstr ""
+
+#: dist/blocks.js:1
+#: dist/correction-item-block.js:1
+#: src/blocks/correction-item/index.js:15
+msgid "Correction Item"
+msgstr ""
+
+#: dist/blocks.js:1
+#: dist/correction-item-block.js:1
+#: src/blocks/correction-item/index.js:56
+msgid "Display an archive of all the corrections and clarifications."
+msgstr ""
+
+#: dist/blocks.js:1
+#: src/blocks/correction-item/index.js:23
+msgid "Please select \"Corrections\" as the post type in the Query Loop to use this block."
+msgstr ""
+
+#: dist/blocks.js:1
+#: src/blocks/correction-item/index.js:31
+msgid "Correction Type, Date, and Time: "
+msgstr ""
+
+#: dist/blocks.js:1
+#: src/blocks/correction-item/index.js:33
+msgid "This is where the content will appear, providing details about the update, whether correcting an error or offering additional context."
+msgstr ""
+
+#: dist/blocks.js:1
+#: src/blocks/correction-item/index.js:40
+msgid "Post Title"
+msgstr ""
+
+#: dist/blocks.js:1
+#: dist/correction-box-block.js:1
+#: src/blocks/correction-box/index.js:15
+msgid "Corrections"
+msgstr ""
+
+#: dist/blocks.js:1
+#: dist/correction-box-block.js:1
+#: src/blocks/correction-box/index.js:27
+msgid "clarifications"
+msgstr ""
+
+#: dist/blocks.js:1
+#: dist/correction-box-block.js:1
+#: src/blocks/correction-box/index.js:27
+msgid "updates"
+msgstr ""
+
+#: dist/blocks.js:1
+#: dist/correction-box-block.js:1
+#: src/blocks/correction-box/index.js:28
+msgid "Display all corrections and clarifications made to a post."
 msgstr ""
 
 #: dist/blocks.js:1
@@ -9035,113 +9151,8 @@ msgid "Article Counter"
 msgstr ""
 
 #: dist/blocks.js:4
-#: dist/content-gate-countdown-box-block.js:1
-#: src/blocks/content-gate/countdown-box/index.js:28
-#: src/blocks/content-gate/countdown/index.js:27
-msgid "countdown"
-msgstr ""
-
-#: dist/blocks.js:4
-#: dist/content-gate-countdown-box-block.js:1
-#: src/blocks/content-gate/countdown-box/index.js:29
-#: src/blocks/content-gate/countdown/index.js:28
-msgid "content gate"
-msgstr ""
-
-#: dist/blocks.js:4
-#: dist/content-gate-countdown-box-block.js:1
-#: src/blocks/content-gate/countdown-box/index.js:30
-#: src/blocks/content-gate/countdown/index.js:29
-msgid "metered"
-msgstr ""
-
-#: dist/blocks.js:4
-#: dist/content-gate-countdown-box-block.js:1
-#: src/blocks/content-gate/countdown-box/index.js:31
-#: src/blocks/content-gate/countdown/index.js:30
-msgid "paywall"
-msgstr ""
-
-#: dist/blocks.js:4
-#: dist/content-gate-countdown-box-block.js:1
-#: src/blocks/content-gate/countdown-box/index.js:32
-#: src/blocks/content-gate/countdown/index.js:31
-msgid "tracking"
-msgstr ""
-
-#: dist/blocks.js:4
 #: src/blocks/content-gate/countdown/index.js:33
 msgid "Displays the current free article count."
-msgstr ""
-
-#: dist/blocks.js:4
-#: dist/commons.js:15
-#: dist/content-gate-countdown-box-block.js:1
-#: src/blocks/content-gate/countdown-box/edit.jsx:147
-#: src/blocks/content-gate/countdown-box/index.js:15
-msgid "Content Gate Countdown"
-msgstr ""
-
-#: dist/blocks.js:4
-#: dist/content-gate-countdown-box-block.js:1
-#: src/blocks/content-gate/countdown-box/index.js:34
-msgid "Displays how many free articles remain before the paywall, helping users track access with a real-time countdown."
-msgstr ""
-
-#: dist/blocks.js:4
-#: dist/correction-item-block.js:1
-#: src/blocks/correction-item/index.js:15
-msgid "Correction Item"
-msgstr ""
-
-#: dist/blocks.js:4
-#: dist/correction-item-block.js:1
-#: src/blocks/correction-item/index.js:56
-msgid "Display an archive of all the corrections and clarifications."
-msgstr ""
-
-#: dist/blocks.js:4
-#: src/blocks/correction-item/index.js:23
-msgid "Please select \"Corrections\" as the post type in the Query Loop to use this block."
-msgstr ""
-
-#: dist/blocks.js:4
-#: src/blocks/correction-item/index.js:31
-msgid "Correction Type, Date, and Time: "
-msgstr ""
-
-#: dist/blocks.js:4
-#: src/blocks/correction-item/index.js:33
-msgid "This is where the content will appear, providing details about the update, whether correcting an error or offering additional context."
-msgstr ""
-
-#: dist/blocks.js:4
-#: src/blocks/correction-item/index.js:40
-msgid "Post Title"
-msgstr ""
-
-#: dist/blocks.js:4
-#: dist/correction-box-block.js:1
-#: src/blocks/correction-box/index.js:15
-msgid "Corrections"
-msgstr ""
-
-#: dist/blocks.js:4
-#: dist/correction-box-block.js:1
-#: src/blocks/correction-box/index.js:27
-msgid "clarifications"
-msgstr ""
-
-#: dist/blocks.js:4
-#: dist/correction-box-block.js:1
-#: src/blocks/correction-box/index.js:27
-msgid "updates"
-msgstr ""
-
-#: dist/blocks.js:4
-#: dist/correction-box-block.js:1
-#: src/blocks/correction-box/index.js:28
-msgid "Display all corrections and clarifications made to a post."
 msgstr ""
 
 #: dist/bylines.js:1
@@ -9624,18 +9635,18 @@ msgstr ""
 
 #. translators: %s: Author name.
 #: dist/commons.js:13
-#: src/blocks/avatar/hooks.js:51
+#: src/blocks/avatar/hooks.js:56
 #, js-format
 msgid "%s Avatar"
 msgstr ""
 
 #: dist/commons.js:13
-#: src/blocks/avatar/hooks.js:52
+#: src/blocks/avatar/hooks.js:57
 msgid "Default Avatar"
 msgstr ""
 
 #: dist/commons.js:13
-#: src/blocks/avatar/edit.jsx:96
+#: src/blocks/avatar/edit.jsx:102
 msgid "Loading avatar…"
 msgstr ""
 
