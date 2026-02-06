@@ -38,7 +38,7 @@ export function openAuthModal( config = {} ) {
 	const reader = window.newspackReaderActivation.getReader();
 	const modalTrigger = config.trigger;
 
-	if ( reader?.authenticated ) {
+	if ( ! config.skipAuthenticatedCheck && reader?.authenticated ) {
 		if ( config.onSuccess && typeof config.onSuccess === 'function' ) {
 			config.onSuccess();
 		}

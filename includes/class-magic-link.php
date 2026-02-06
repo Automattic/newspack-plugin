@@ -861,8 +861,12 @@ final class Magic_Link {
 		if ( ! Reader_Activation::is_enabled() ) {
 			return;
 		}
+		// Allow logged-in unverified readers to verify via OTP.
 		if ( \is_user_logged_in() ) {
-			return;
+			$current_user = \wp_get_current_user();
+			if ( ! Reader_Activation::is_user_reader( $current_user ) || Reader_Activation::is_reader_verified( $current_user ) ) {
+				return;
+			}
 		}
 
 		// phpcs:disable WordPress.Security.NonceVerification.Missing

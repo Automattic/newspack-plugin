@@ -70,6 +70,7 @@ function enqueue_scripts() {
 		'reader_registration_block_config',
 		[
 			'require_account_verification' => \Newspack\Content_Gate::requires_account_verification(),
+			'verification_url'             => \admin_url( 'admin-ajax.php' ),
 		]
 	);
 }
@@ -88,6 +89,94 @@ add_action( 'wp_enqueue_scripts', __NAMESPACE__ . '\\enqueue_scripts' );
 function get_form_id() {
 	return \wp_unique_id( 'newspack-register-' );
 }
+
+/**
+ * Render the verification box markup for the registration block.
+ *
+ * @return void
+ */
+function render_verification_box() {
+	$email = '%EMAIL%';
+	if ( \is_user_logged_in() ) {
+		$current_user = \wp_get_current_user();
+		$email = $current_user->user_email;
+	}
+	?>
+	<div class="newspack__reader-verification newspack-ui__box newspack-ui__box--text-center" data-verify-email="<?php echo esc_attr( $email ); ?>">
+		<span class="newspack-ui__icon">
+			<?php Newspack_UI_Icons::print_svg( 'email' ); ?>
+		</span>
+		<p>
+			<?php
+			printf(
+				// translators: %s is the user's email address.
+				esc_html__( 'We\'ll send a code to %s.', 'newspack-plugin' ),
+				'<strong class="email-address">' . esc_html( $email ) . '</strong>'
+			);
+			?>
+		</p>
+		<p>
+			<button type="button" class="newspack-ui__button newspack-ui__button--primary" data-send-otp>
+				<?php esc_html_e( 'Send code', 'newspack-plugin' ); ?>
+			</button>
+		</p>
+	</div>
+	<?php
+}
+
+/**
+ * Render the verification modal for the registration block.
+ *
+ * @return void
+ */
+function render_verification_modal() {
+	ob_start();
+	render_verification_box();
+	$content = ob_get_clean();
+	?>
+	<div class="newspack-ui">
+		<?php
+		\Newspack\Newspack_UI::generate_modal(
+			[
+				'id'      => 'newspack-reader-verification',
+				'title'   => __( 'Verify your email', 'newspack-plugin' ),
+				'content' => $content,
+			]
+		);
+		?>
+	</div>
+	<?php
+}
+add_action( 'wp_footer', __NAMESPACE__ . '\\render_verification_modal' );
+
+/**
+ * Process the verification request.
+ *
+ * @return never
+ */
+function process_verification_request() {
+	if ( ! \wp_is_json_request() ) {
+		\wp_die( \esc_html__( 'Unsupported request method', 'newspack-plugin' ) );
+	}
+
+	if ( ! is_user_logged_in() ) {
+		\wp_send_json_error( __( 'User not logged in', 'newspack-plugin' ) );
+	}
+
+	$current_user = \wp_get_current_user();
+	if ( ! Reader_Activation::is_user_reader( $current_user ) || Reader_Activation::is_reader_verified( $current_user ) ) {
+		\wp_send_json_error( __( 'User is not a reader or is already verified', 'newspack-plugin' ) );
+	}
+
+	$otp_sent = \Newspack\Magic_Link::send_email( $current_user );
+	if ( ! $otp_sent ) {
+		\wp_send_json_error( $otp_sent->get_error_message() );
+	}
+
+	\wp_send_json_success( __( 'OTP sent', 'newspack-plugin' ) );
+}
+add_action( 'wp_ajax_newspack_reader_registration_verification', __NAMESPACE__ . '\\process_verification_request' );
+add_action( 'wp_ajax_nopriv_newspack_reader_registration_verification', __NAMESPACE__ . '\\process_verification_request' );
 
 /**
  * Render Registration Block.
@@ -186,30 +275,11 @@ function render_block( $attrs, $content ) {
 	ob_start();
 	?>
 	<div class="newspack-registration newspack-ui <?php echo esc_attr( get_block_classes( $attrs ) ); ?>">
-		<?php if ( $show_pending_verification ) : ?>
-			<div class="newspack-ui__box newspack-ui__box--warning newspack-ui__box--text-center">
-				<span class="newspack-ui__icon newspack-ui__icon--warning">
-					<?php Newspack_UI_Icons::print_svg( 'email' ); ?>
-				</span>
-				<p><strong><?php esc_html_e( 'Verify your email', 'newspack-plugin' ); ?></strong></p>
-				<p>
-					<?php
-					printf(
-						// translators: %s is the user's email address.
-						esc_html__( 'We\'ll send a verification link to %s.', 'newspack-plugin' ),
-						'<strong class="email-address">' . esc_html( \wp_get_current_user()->user_email ) . '</strong>'
-					);
-					?>
-					<br />
-					<?php esc_html_e( 'Click the link in your email to continue reading.', 'newspack-plugin' ); ?>
-				</p>
-				<p>
-					<button type="button" class="newspack-ui__button newspack-ui__button--primary" data-resend-verification>
-						<?php esc_html_e( 'Send verification email', 'newspack-plugin' ); ?>
-					</button>
-				</p>
-			</div>
-		<?php elseif ( $registered ) : ?>
+		<?php
+		if ( $show_pending_verification ) :
+			render_verification_box();
+		elseif ( $registered ) :
+			?>
 			<div class="newspack-ui__box newspack-ui__box--success newspack-ui__box--text-center">
 				<span class="newspack-ui__icon newspack-ui__icon--success">
 					<?php Newspack_UI_Icons::print_svg( 'check' ); ?>
@@ -326,23 +396,6 @@ function render_block( $attrs, $content ) {
 					<?php Newspack_UI_Icons::print_svg( 'emailSend' ); ?>
 				</span>
 				<?php echo \wp_kses_post( $success_login_markup ); ?>
-			</div>
-			<div class="newspack-registration__verify-email newspack-registration--hidden newspack-ui__box newspack-ui__box--warning newspack-ui__box--text-center">
-				<span class="newspack-ui__icon newspack-ui__icon--warning">
-					<?php Newspack_UI_Icons::print_svg( 'email' ); ?>
-				</span>
-				<p><strong><?php esc_html_e( 'Verify your email', 'newspack-plugin' ); ?></strong></p>
-				<p>
-					<?php esc_html_e( 'We\'ll send a verification link to', 'newspack-plugin' ); ?>
-					<strong class="newspack-registration__verify-email-address"></strong>.
-					<br />
-					<?php esc_html_e( 'Click the link in your email to continue reading.', 'newspack-plugin' ); ?>
-				</p>
-				<p>
-					<button type="button" class="newspack-ui__button newspack-ui__button--primary" data-resend-verification>
-						<?php esc_html_e( 'Send verification email', 'newspack-plugin' ); ?>
-					</button>
-				</p>
 			</div>
 		<?php endif; ?>
 	</div>
@@ -501,6 +554,10 @@ function process_form() {
 		$user = \get_user_by( 'id', $user_id );
 		if ( $user ) {
 			$response['verified'] = Reader_Activation::is_reader_verified( $user );
+			// Signal frontend to open OTP verification flow.
+			if ( ! $response['verified'] && \Newspack\Content_Gate::requires_account_verification() ) {
+				$response['action'] = 'otp';
+			}
 		}
 	} else {
 		$existing_user = \get_user_by( 'email', $email );

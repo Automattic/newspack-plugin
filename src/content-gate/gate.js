@@ -94,7 +94,7 @@ function initReloadHandler() {
 					debugLog( 'log', '[Gate] Reloading page!' );
 					window.location.reload();
 				}
-			}, 5 );
+			}, 50 );
 		};
 
 		ras.on( 'overlay', refreshPage ); // When an overlay is closed.

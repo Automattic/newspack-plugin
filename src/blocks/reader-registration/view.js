@@ -9,48 +9,68 @@ import { openAuthModal } from '../../reader-activation-auth/auth-modal';
 window.newspackRAS = window.newspackRAS || [];
 
 window.newspackRAS.push( function ( readerActivation ) {
+	/**
+	 * Send verification OTP via the dedicated AJAX endpoint.
+	 *
+	 * @return {Promise} Resolves on success, rejects on failure.
+	 */
+	const sendVerificationOTP = () => {
+		const body = new FormData();
+		body.set( 'action', 'newspack_reader_registration_verification' );
+		return fetch( reader_registration_block_config.verification_url, {
+			method: 'POST',
+			headers: { Accept: 'application/json' },
+			body,
+		} ).then( res => {
+			if ( ! res.ok ) {
+				throw new Error( res.statusText );
+			}
+			readerActivation.setOTPTimer();
+			return res.json();
+		} );
+	};
+
+	const openAuth = ( initialState = 'otp' ) => {
+		openAuthModal( {
+			skipAuthenticatedCheck: true,
+			initialState,
+			closeOnSuccess: false,
+			skipSuccess: true,
+			onSuccess: () => window.location.reload(),
+			onDismiss: () => window.location.reload(),
+		} );
+	};
+
 	domReady( function () {
+		const verificationModal = document.getElementById( 'newspack-my-account__newspack-reader-verification' );
+		const verificationBox = verificationModal.querySelectorAll( '.newspack__reader-verification' );
+		if ( [ ...verificationBox ].length ) {
+			verificationBox.forEach( box => {
+				const sendOtpButton = box.querySelector( '[data-send-otp]' );
+
+				// Detect parent modal
+				const modal = box.closest( '.newspack-ui__modal-container' );
+
+				if ( sendOtpButton ) {
+					sendOtpButton.addEventListener( 'click', () => {
+						sendOtpButton.disabled = true;
+						sendVerificationOTP()
+							.then( () => {
+								if ( modal ) {
+									modal.setAttribute( 'data-state', 'closed' );
+								}
+								openAuth( 'otp' );
+							} )
+							.catch( () => {
+								sendOtpButton.disabled = false;
+							} );
+					} );
+				}
+			} );
+		}
+
 		document.querySelectorAll( '.newspack-registration' ).forEach( container => {
 			const form = container.querySelector( 'form' );
-
-			// Handle verification resend buttons (works with or without form)
-			container.querySelectorAll( '[data-resend-verification]' ).forEach( resendButton => {
-				const originalText = resendButton.textContent;
-				resendButton.addEventListener( 'click', () => {
-					resendButton.disabled = true;
-					const reader = readerActivation.getReader();
-					const email = reader?.email;
-
-					if ( ! email ) {
-						resendButton.disabled = false;
-						return;
-					}
-
-					const verifyBody = new FormData();
-					verifyBody.set( 'newspack_reader_registration', 'newspack_reader_registration' );
-					verifyBody.set( 'npe', email );
-
-					fetch( form?.getAttribute( 'action' ) || window.location.pathname, {
-						method: 'POST',
-						headers: { Accept: 'application/json' },
-						body: verifyBody,
-					} )
-						.then( res => {
-							if ( res.status === 200 ) {
-								resendButton.textContent = 'Email sent!';
-								setTimeout( () => {
-									resendButton.textContent = originalText;
-									resendButton.disabled = false;
-								}, 3000 );
-							} else {
-								resendButton.disabled = false;
-							}
-						} )
-						.catch( () => {
-							resendButton.disabled = false;
-						} );
-				} );
-			} );
 
 			// Form-specific logic
 			if ( ! form ) {
@@ -92,21 +112,12 @@ window.newspackRAS.push( function ( readerActivation ) {
 					// Set the reader email before opening the modal
 					readerActivation.setReaderEmail( email );
 
-					// Helper to open the modal
-					const openModal = initialState => {
-						openAuthModal( {
-							initialState,
-							closeOnSuccess: true,
-							onSuccess: () => window.location.reload(),
-						} );
-					};
-
 					// For OTP action, check if we have a valid OTP hash cookie
 					if ( data.action === 'otp' ) {
 						if ( readerActivation.getOTPHash() ) {
 							// Valid OTP hash exists, just open the modal
 							readerActivation.setOTPTimer();
-							openModal( 'otp' );
+							openAuth( 'otp' );
 						} else {
 							// No valid OTP hash, request a fresh one using the email we already have
 							const otpBody = new FormData();
@@ -122,47 +133,38 @@ window.newspackRAS.push( function ( readerActivation ) {
 								.then( res => {
 									if ( res.status === 200 ) {
 										readerActivation.setOTPTimer();
-										openModal( 'otp' );
+										openAuth( 'otp' );
 									} else {
-										openModal( 'signin' );
+										openAuth( 'signin' );
 									}
 								} )
-								.catch( () => openModal( 'signin' ) );
+								.catch( () => openAuth( 'signin' ) );
 						}
 						return;
 					}
 
 					// For password or other actions, just open the modal
-					openModal( data.action );
+					openAuth( data.action );
 					return;
 				}
 
 				// Determine which success element to show
 				const registrationSuccessEl = container.querySelector( '.newspack-registration__registration-success' );
 				const loginSuccessEl = container.querySelector( '.newspack-registration__login-success' );
-				const verifyEmailEl = container.querySelector( '.newspack-registration__verify-email' );
 
 				// Check if this is a new registration that needs email verification
 				// Note: verified can be false, null, or undefined - we need verification if it's not true
 				const needsVerification =
 					! data?.existing_user && reader_registration_block_config.require_account_verification && data?.verified !== true;
 
-				let successElement;
-				if ( needsVerification ) {
-					successElement = verifyEmailEl;
-					// Set the email address in the verification UI
-					const emailAddressEl = verifyEmailEl?.querySelector( '.newspack-registration__verify-email-address' );
-					if ( emailAddressEl && data?.email ) {
-						emailAddressEl.textContent = data.email;
-					}
-				} else {
-					successElement = data?.existing_user ? loginSuccessEl : registrationSuccessEl;
-				}
-
 				// Hide all success/verification elements first to ensure only one shows
 				registrationSuccessEl?.classList.add( 'newspack-registration--hidden' );
 				loginSuccessEl?.classList.add( 'newspack-registration--hidden' );
-				verifyEmailEl?.classList.add( 'newspack-registration--hidden' );
+
+				let successElement;
+				if ( ! needsVerification ) {
+					successElement = data?.existing_user ? loginSuccessEl : registrationSuccessEl;
+				}
 
 				if ( message ) {
 					messageNode = document.createElement( 'p' );
@@ -179,13 +181,20 @@ window.newspackRAS.push( function ( readerActivation ) {
 				if ( isSuccess ) {
 					// Set flowCompleted early to prevent 'reader' event listener from interfering
 					flowCompleted = true;
-					successElement?.classList.remove( 'newspack-registration--hidden' );
+					if ( successElement ) {
+						form.remove();
+						successElement.classList.remove( 'newspack-registration--hidden' );
+					}
 					if ( data?.email ) {
 						body = new FormData( form );
 						readerActivation.setReaderEmail( data.email );
-						readerActivation.setAuthenticated( data?.authenticated );
 
-						if ( data.authenticated ) {
+						if ( needsVerification ) {
+							verificationModal.setAttribute( 'data-state', 'open' );
+						} else {
+							readerActivation.setAuthenticated( data?.authenticated );
+						}
+						if ( data.authenticated && ! needsVerification ) {
 							const baseActivity = { email: data.email };
 							const lists = body.getAll( 'lists[]' );
 							if ( body.has( 'newspack_popup_id' ) ) {
@@ -217,7 +226,6 @@ window.newspackRAS.push( function ( readerActivation ) {
 							}
 						}
 					}
-					form.remove();
 				} else if ( messageNode ) {
 					messageElement.appendChild( messageNode );
 					messageElement.classList.remove( 'newspack-registration--hidden' );
