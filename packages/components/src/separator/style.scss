@@ -1,0 +1,47 @@
+/**
+ * Separator
+ */
+
+@use "~@wordpress/base-styles/colors" as wp-colors;
+
+.newspack-separator {
+	background: transparent;
+	border: 0;
+	display: block;
+	height: 1px;
+	margin-bottom: min(32px, var(--separator-margin-bottom, 64px));
+	margin-left: 0;
+	margin-right: 0;
+	margin-top: min(32px, var(--separator-margin-top, 64px));
+	padding: 0;
+
+	@media screen and (min-width: 783px) {
+		margin-bottom: var(--separator-margin-bottom, 64px);
+		margin-top: var(--separator-margin-top, 64px);
+	}
+
+	// Alignment
+
+	&--alignment-full-width {
+		margin-left: calc(-50vw + 50%);
+		width: 100vw;
+	}
+
+	&--alignment-none {
+		width: 100%;
+	}
+
+	// Variant
+
+	&--variant-primary {
+		background-color: var(--wp-admin-theme-color);
+	}
+
+	&--variant-secondary {
+		background-color: wp-colors.$gray-300;
+	}
+
+	&--variant-tertiary {
+		background-color: wp-colors.$gray-100;
+	}
+}

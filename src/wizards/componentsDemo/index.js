@@ -38,6 +38,7 @@ import {
 	PluginToggle,
 	ProgressBar,
 	SelectControl,
+	Separator,
 	Waiting,
 	WebPreview,
 } from '../../../packages/components/src';
@@ -122,7 +123,7 @@ class ComponentsDemo extends Component {
 							selectedItems={ selectedPostForAutocompleteWithSuggestions }
 						/>
 
-						<hr />
+						<Separator />
 
 						<h2>{ __( 'Autocomplete with Suggestions (multi-select)', 'newspack-plugin' ) }</h2>
 						<AutocompleteWithSuggestions
@@ -153,7 +154,7 @@ class ComponentsDemo extends Component {
 							selectedItems={ selectedPostForAutocompleteWithLatestPosts }
 						/>
 
-						<hr />
+						<Separator />
 
 						<h2>{ __( 'Autocomplete with Latest Posts (multi-select)', 'newspack-plugin' ) }</h2>
 						<AutocompleteWithLatestPosts
