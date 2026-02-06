@@ -1,0 +1,33 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - release
+      - alpha
+      - 'hotfix/**'
+      - 'epic/**'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    uses: Automattic/newspack-scripts/.github/workflows/reusable-build.yml@trunk
+
+  release:
+    needs: build
+    uses: Automattic/newspack-scripts/.github/workflows/reusable-release.yml@trunk
+    secrets:
+      GIT_COMMITTER_TOKEN: ${{ secrets.GIT_COMMITTER_TOKEN }}
+      NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+  post-release:
+    if: github.ref == 'refs/heads/release'
+    needs: release
+    uses: Automattic/newspack-scripts/.github/workflows/reusable-post-release.yml@trunk
+    secrets:
+      GIT_COMMITTER_TOKEN: ${{ secrets.GIT_COMMITTER_TOKEN }}
+      SLACK_CHANNEL_ID: ${{ secrets.SLACK_CHANNEL_ID }}
+      SLACK_AUTH_TOKEN: ${{ secrets.SLACK_AUTH_TOKEN }}

@@ -9,6 +9,7 @@ import { registerBlockType } from '@wordpress/blocks';
  * Internal dependencies
  */
 import * as readerRegistration from './reader-registration';
+import * as myAccountButton from './my-account-button';
 import * as correctionBox from './correction-box';
 import * as correctionItem from './correction-item';
 import * as avatar from './avatar';
@@ -24,6 +25,7 @@ import './core-image';
 
 export const blocks = [
 	readerRegistration,
+	myAccountButton,
 	correctionBox,
 	correctionItem,
 	avatar,
@@ -33,11 +35,11 @@ export const blocks = [
 	contentGateCountdownBox,
 ];
 
-const readerActivationBlocks = [ 'newspack/reader-registration' ];
+const readerActivationBlocks = [ 'newspack/reader-registration', 'newspack/my-account-button' ];
 const correctionBlocks = [ 'newspack/correction-box', 'newspack/correction-item' ];
 const collectionsBlocks = [ 'newspack/collections' ];
 const contentGateBlocks = [ 'newspack/content-gate-countdown', 'newspack/content-gate-countdown-box' ];
-const blockThemeBlocks = [ 'newspack/avatar', 'newspack/byline' ];
+const blockThemeBlocks = [ 'newspack/avatar', 'newspack/byline', 'newspack/my-account-button' ];
 
 /**
  * Function to register an individual block.
@@ -50,6 +52,7 @@ const registerBlock = block => {
 	}
 
 	const { metadata, settings, name } = block;
+	const blockMetadata = { name, ...metadata };
 
 	/** Do not register reader activation blocks if it's disabled. */
 	if ( readerActivationBlocks.includes( name ) && ! newspack_blocks.has_reader_activation ) {
@@ -72,7 +75,7 @@ const registerBlock = block => {
 		return;
 	}
 
-	registerBlockType( { name, ...metadata }, settings );
+	registerBlockType( blockMetadata, settings );
 };
 
 for ( const block of blocks ) {

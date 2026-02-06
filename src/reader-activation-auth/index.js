@@ -80,7 +80,10 @@ window.newspackRAS.push( readerActivation => {
 		 * Initialize trigger links.
 		 */
 		function initializeTriggerLinks() {
-			const triggerLinks = document.querySelectorAll( `[data-newspack-reader-account-link],[href="${ newspack_ras_config.account_url }"]` );
+			const triggerLinks = document.querySelectorAll(
+				// The href selector excludes the My Account Button block.
+				`[data-newspack-reader-account-link],[href="${ newspack_ras_config.account_url }"]:not(.wp-block-newspack-my-account-button)`
+			);
 			triggerLinks.forEach( link => {
 				link.addEventListener( 'click', handleAccountLinkClick );
 			} );

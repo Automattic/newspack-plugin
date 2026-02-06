@@ -30,11 +30,11 @@
 		}
 	}
 	.woocommerce-notices-wrapper:not(:empty) {
+		display: grid;
+		gap: var(--newspack-ui-spacer-3);
+		grid-auto-rows: minmax(var(--newspack-ui-spacer-8), auto);
 		margin-bottom: var(--newspack-ui-spacer-6);
-
-		> *:first-child {
-			margin-top: 0;
-		}
+		width: 100%;
 	}
 	.newspack-wc-message,
 	.woocommerce-message,
@@ -43,7 +43,8 @@
 		@extend .newspack-ui__notice;
 		display: block;
 		list-style: none;
-		margin: var(--newspack-ui-spacer-3) 0;
+		margin: 0;
+		min-height: auto;
 
 		> p:first-child {
 			margin-top: 0;

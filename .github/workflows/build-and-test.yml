@@ -1,0 +1,27 @@
+name: Build and Test
+
+on:
+  pull_request:
+  push:
+    branches:
+      - trunk
+      - release
+      - alpha
+      - 'hotfix/**'
+      - 'epic/**'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    uses: Automattic/newspack-scripts/.github/workflows/reusable-build.yml@trunk
+
+  lint-js-scss:
+    needs: build
+    uses: Automattic/newspack-scripts/.github/workflows/reusable-lint-js-scss.yml@trunk
+
+  test-js:
+    needs: build
+    uses: Automattic/newspack-scripts/.github/workflows/reusable-test-js.yml@trunk
