@@ -8,8 +8,8 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { ActionCard, Card } from '../../../../../packages/components/src';
-import { getEditGateLayoutUrl } from './utils';
+import { ActionCard, Card } from '../../../../../../packages/components/src';
+import { getEditGateLayoutUrl } from '../utils';
 import Metering from './metering';
 
 interface RegistrationProps {

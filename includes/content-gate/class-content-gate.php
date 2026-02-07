@@ -918,16 +918,18 @@ class Content_Gate {
 	public static function get_content_rules() {
 		$content_rules = [
 			'post_types' => [
-				'name'    => __( 'Post Types', 'newspack-plugin' ),
-				'options' => Content_Restriction_Control::get_available_post_types(),
-				'default' => [ 'post' ],
+				'name'        => __( 'Post Types', 'newspack-plugin' ),
+				'options'     => Content_Restriction_Control::get_available_post_types(),
+				'default'     => [ 'post' ],
+				'description' => __( 'Content types like posts, pages, or listings.', 'newspack-plugin' ),
 			],
 		];
 		$available_taxonomies = Content_Restriction_Control::get_available_taxonomies();
 		foreach ( $available_taxonomies as $taxonomy ) {
 			$content_rules[ $taxonomy['slug'] ] = [
-				'name'    => $taxonomy['label'],
-				'default' => [],
+				'name'        => $taxonomy['label'],
+				'default'     => [],
+				'description' => $taxonomy['description'],
 			];
 		}
 

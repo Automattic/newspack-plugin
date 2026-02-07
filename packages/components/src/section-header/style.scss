@@ -12,8 +12,26 @@
 
 	margin: 64px 0 32px;
 
-	&__container:not(:first-child) {
-		margin-top: 48px;
+	&__container {
+		position: relative;
+		&:not(:first-child) {
+			margin-top: 48px;
+		}
+		&.newspack-section-header--has-back-nav {
+			margin-left: 48px;
+			@media (min-width: 782px) {
+				margin-left: 0;
+			}
+		}
+	}
+
+	&__back-nav {
+		position: absolute;
+		left: -48px;
+		top: calc(50% - 18px);
+		a {
+			color: inherit !important;
+		}
 	}
 
 	&--no-margin,

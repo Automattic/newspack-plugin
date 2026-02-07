@@ -7,8 +7,8 @@ import { useCallback } from '@wordpress/element';
 /**
  * Internal dependencies
  */
-import { ActionCard, Card } from '../../../../../packages/components/src';
-import { getEditGateLayoutUrl } from './utils';
+import { ActionCard, Card } from '../../../../../../packages/components/src';
+import { getEditGateLayoutUrl } from '../utils';
 import Metering from './metering';
 import AccessRules from './access-rules';
 

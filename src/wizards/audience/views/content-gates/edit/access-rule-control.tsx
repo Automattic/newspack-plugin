@@ -6,7 +6,7 @@ import { CheckboxControl, TextControl } from '@wordpress/components';
 /**
  * Internal dependencies
  */
-import { FormTokenField } from '../../../../../packages/components/src';
+import { FormTokenField } from '../../../../../../packages/components/src';
 
 const noop = () => {};
 

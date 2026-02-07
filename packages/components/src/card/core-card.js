@@ -6,7 +6,7 @@
 /**
  * WordPress dependencies
  */
-import { Card as CardWrapper, CardBody, CardHeader, CardFooter } from '@wordpress/components';
+import { Card as CardWrapper, CardHeader, CardFooter } from '@wordpress/components';
 import { Icon, chevronRight } from '@wordpress/icons';
 
 /**
@@ -28,8 +28,10 @@ const CoreCard = ( {
 	header,
 	icon,
 	iconBackgroundColor,
+	isActive,
 	isNarrow,
 	isSmall,
+	onHeaderClick,
 	noBorder,
 	children,
 	...otherProps
@@ -41,7 +43,9 @@ const CoreCard = ( {
 		isNarrow && 'newspack-card--core__is-narrow',
 		isSmall && 'newspack-card--core__is-small',
 		icon && 'newspack-card--core__has-icon',
-		iconBackgroundColor && 'newspack-card--core__has-icon-background-color'
+		iconBackgroundColor && 'newspack-card--core__has-icon-background-color',
+		isActive && 'newspack-card--core__is-active',
+		children && 'newspack-card--core__has-children'
 	);
 	let sizeProps = isSmall ? 'small' : otherProps.size;
 	if ( buttonsCard || as === 'a' ) {
@@ -58,7 +62,12 @@ const CoreCard = ( {
 	return (
 		<CardWrapper as={ as } className={ classes } { ...otherProps }>
 			{ ( header || icon ) && (
-				<CardHeader className="newspack-card--core__header" size={ sizeProps }>
+				<CardHeader
+					as={ onHeaderClick ? 'button' : undefined }
+					className="newspack-card--core__header"
+					size={ sizeProps }
+					onClick={ onHeaderClick }
+				>
 					{ icon && (
 						<div className="newspack-card--core__icon">
 							<Icon icon={ icon } height={ isSmall ? 24 : 48 } width={ isSmall ? 24 : 48 } />
@@ -69,7 +78,7 @@ const CoreCard = ( {
 				</CardHeader>
 			) }
 			{ Array.isArray( children ) && children.map( Child => Child ) }
-			{ children && ! Array.isArray( children ) && <CardBody size={ sizeProps }>{ children }</CardBody> }
+			{ children }
 			{ footer && <CardFooter size={ sizeProps }>{ footer }</CardFooter> }
 		</CardWrapper>
 	);

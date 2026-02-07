@@ -8,7 +8,7 @@ import { useCallback, useMemo } from '@wordpress/element';
 /**
  * Internal dependencies
  */
-import { ActionCard, Grid } from '../../../../../packages/components/src';
+import { ActionCard, Grid } from '../../../../../../packages/components/src';
 import RulesChoices from './rules-choices';
 import AccessRuleControl from './access-rule-control';
 

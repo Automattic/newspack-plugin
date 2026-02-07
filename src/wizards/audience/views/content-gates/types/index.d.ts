@@ -45,10 +45,28 @@ type GateAccessRuleControlProps = {
 	onChange: (value: GateAccessRuleValue) => void;
 };
 
+type GateContentRuleConfig = {
+	name: string;
+	description?: string;
+	options?: { value: string; label: string }[];
+	default: string[];
+};
+
 type GateContentRule = {
 	slug: string;
 	value: string[];
 	exclusion?: boolean;
+};
+
+type GateContentRuleProps = {
+	config: GateContentRuleConfig;
+	rule?: GateContentRule;
+	enabled?: boolean;
+	onToggle?: (slug: string) => void;
+	slug: string;
+	exclusion?: boolean;
+	onChange: (value: GateContentRuleValue) => void;
+	onChangeExclusion?: (value: boolean) => void;
 };
 
 type GateContentRuleControlProps = {

@@ -12,7 +12,7 @@ import { CheckboxControl } from '@wordpress/components';
  * Internal dependencies
  */
 import ContentRuleControlTaxonomy from './content-rule-control-taxonomy';
-import { FormTokenField } from '../../../../../packages/components/src';
+import { FormTokenField } from '../../../../../../packages/components/src';
 
 export default function ContentRuleControl( { slug, value, exclusion, onChange, onChangeExclusion }: GateContentRuleControlProps ) {
 	const rule = window.newspackAudienceContentGates.available_content_rules[ slug ];
@@ -20,7 +20,6 @@ export default function ContentRuleControl( { slug, value, exclusion, onChange, 
 	if ( ! rule || ! Array.isArray( value ) ) {
 		return null;
 	}
-
 	return (
 		<div className="newspack-content-gates__content-rule-control">
 			{ rule.options && rule.options.length > 0 ? (

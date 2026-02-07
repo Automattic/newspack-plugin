@@ -7,7 +7,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { ActionCard, Card, Grid, Notice, SelectControl } from '../../../../../packages/components/src';
+import { ActionCard, Card, Grid, Notice, SelectControl } from '../../../../../../packages/components/src';
 
 interface MeteringProps {
 	metering: Metering;

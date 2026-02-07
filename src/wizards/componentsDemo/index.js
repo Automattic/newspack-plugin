@@ -743,7 +743,7 @@ class ComponentsDemo extends Component {
 						<Card
 							__experimentalCoreCard
 							__experimentalCoreProps={ {
-								header: <h3>{ __( 'Children as a single component', 'newspack-plugin' ) }</h3>,
+								header: <h3>{ __( 'Card w/ child components', 'newspack-plugin' ) }</h3>,
 								footer: (
 									<>
 										<p>{ __( 'Card Footer', 'newspack-plugin' ) }</p>
@@ -754,45 +754,25 @@ class ComponentsDemo extends Component {
 								),
 							} }
 						>
-							<p>{ __( 'Children are wrapped in a <CardBody /> component.', 'newspack-plugin' ) }</p>
-						</Card>
-						<Card
-							__experimentalCoreCard
-							__experimentalCoreProps={ {
-								header: <h3>{ __( 'Children as an array of components', 'newspack-plugin' ) }</h3>,
-								footer: (
-									<>
-										<p>{ __( 'Card Footer', 'newspack-plugin' ) }</p>
-										<Button __next40pxDefaultSize variant="secondary">
-											{ __( 'Action Button', 'newspack-plugin' ) }
-										</Button>
-									</>
-								),
-							} }
-							children={ [
+							<>
 								<CardBody key="1">
-									<p>
-										{ __(
-											'Children are rendered in the order of the array. Each component must be one of: CardBody, CardMedia, or CardDivider.',
-											'newspack-plugin'
-										) }
-									</p>
-								</CardBody>,
+									<p>{ __( 'Recommended top-level child components: CardBody, CardMedia, or CardDivider.', 'newspack-plugin' ) }</p>
+								</CardBody>
 								<CardMedia key="2">
 									<img
 										alt="Card Media"
 										src="https://images.unsplash.com/photo-1566125882500-87e10f726cdc?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1867&q=80"
 									/>
-								</CardMedia>,
+								</CardMedia>
 								<CardBody key="4">
 									<p>{ __( 'CardBody (before CardDivider)', 'newspack-plugin' ) }</p>
-								</CardBody>,
+								</CardBody>
 								<CardDivider key="4" />,
 								<CardBody key="5">
 									<p>{ __( 'CardBody (after CardDivider)', 'newspack-plugin' ) }</p>
-								</CardBody>,
-							] }
-						/>
+								</CardBody>
+							</>
+						</Card>
 					</Card>
 					<Card>
 						<h2>{ __( 'Plugin Settings Section', 'newspack-plugin' ) }</h2>

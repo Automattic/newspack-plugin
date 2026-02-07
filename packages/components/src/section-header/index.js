@@ -5,13 +5,14 @@
 /**
  * WordPress dependencies
  */
+import { __ } from '@wordpress/i18n';
 import { useEffect, useRef } from '@wordpress/element';
-import { Icon } from '@wordpress/icons';
+import { Icon, chevronLeft } from '@wordpress/icons';
 
 /**
  * Internal dependencies
  */
-import { Grid } from '..';
+import { Button, Grid } from '..';
 import './style.scss';
 
 /**
@@ -23,6 +24,7 @@ import classnames from 'classnames';
  * Represents a section header component.
  *
  * @typedef {Object} SectionHeaderProps
+ * @property {string}             [backNav='']       - URL to navigate back to.
  * @property {boolean}            [centered=false]   - Indicates if the header is centered.
  * @property {?string}            [className=null]   - Additional CSS class name.
  * @property {string|Function|*}  [description]      - Description of the section.
@@ -42,6 +44,7 @@ import classnames from 'classnames';
  * @param {SectionHeaderProps} props - The properties for the section header.
  */
 const SectionHeader = ( {
+	backNav = '',
 	centered = false,
 	className = null,
 	description = '',
@@ -79,11 +82,22 @@ const SectionHeader = ( {
 	const HeadingTag = pageHeader ? 'h1' : `h${ heading }`;
 
 	return (
-		<div id={ id } className="newspack-section-header__container" ref={ ref }>
+		<div
+			id={ id }
+			className={ classnames( 'newspack-section-header__container', backNav && 'newspack-section-header--has-back-nav' ) }
+			ref={ ref }
+		>
 			<Grid columns={ 1 } gutter={ 8 } className={ classes }>
 				{ icon && (
 					<div className="newspack-section-header__icon">
 						<Icon icon={ icon } size={ 48 } />
+					</div>
+				) }
+				{ backNav && (
+					<div className="newspack-section-header__back-nav">
+						<Button href={ backNav } icon={ chevronLeft }>
+							<span className="screen-reader-text">{ __( 'Go back', 'newspack-plugin' ) }</span>
+						</Button>
 					</div>
 				) }
 				{ typeof title === 'string' && <HeadingTag>{ title }</HeadingTag> }

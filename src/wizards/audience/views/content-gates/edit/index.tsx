@@ -1,0 +1,119 @@
+/**
+ * Content Gates edit component.
+ */
+
+/**
+ * WordPress dependencies.
+ */
+import { __, sprintf } from '@wordpress/i18n';
+import { __experimentalVStack as VStack } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
+import { useEffect, useState } from '@wordpress/element';
+
+/**
+ * Internal dependencies
+ */
+import { Divider, Grid, SectionHeader, TextControl } from '../../../../../../packages/components/src';
+import { content, settings } from '../../../../../../packages/icons';
+import { BASE_HEADER_TEXT } from '../consts';
+import SettingsGroup from './settings-group';
+import ContentRules from './content-rules';
+import './style.scss';
+
+type ContentGateEditProps = {
+	gate?: Gate;
+	match: { params: { id: string; type: string } };
+	setHeaderText: ( text: string ) => void;
+};
+
+const DEFAULT_GATE: Gate = {
+	id: 0,
+	title: '',
+	priority: 0,
+	status: 'publish',
+	content_rules: [],
+	registration: { active: false, metering: { enabled: false, count: 0, period: 'week' }, require_verification: false, gate_layout_id: 0 },
+	custom_access: { active: false, metering: { enabled: false, count: 0, period: 'week' }, gate_layout_id: 0, access_rules: [] },
+};
+
+const Edit = ( { match, setHeaderText }: ContentGateEditProps ) => {
+	const { id, type } = match.params;
+	const [ gate ] = useState< Gate >( DEFAULT_GATE );
+	const [ title, setTitle ] = useState< string >( gate.title );
+	const [ contentRules, setContentRules ] = useState< GateContentRule[] >( gate.content_rules );
+	const [ contentType, setContentType ] = useState< 'all' | 'custom' >( type as 'all' | 'custom' );
+
+	const isNew = id === 'new';
+
+	useEffect( () => {
+		if ( isNew ) {
+			setHeaderText( `${ BASE_HEADER_TEXT } / ${ __( 'Add new', 'newspack-plugin' ) }` );
+		} else {
+			setHeaderText( `${ BASE_HEADER_TEXT } / ${ __( 'Edit', 'newspack-plugin' ) }` );
+		}
+	}, [ isNew, setHeaderText ] );
+
+	// Set the default content rules for new gates.
+	useEffect( () => {
+		if ( isNew ) {
+			setContentRules( [ { slug: 'post_types', value: [ 'post' ] } ] );
+		}
+	}, [ isNew, type ] );
+
+	return (
+		<div className="newspack-content-gate__edit">
+			<SectionHeader
+				backNav="#/content-gates"
+				heading={ 1 }
+				title={ sprintf(
+					/* translators: %s is Add new or Edit. */
+					__( '%s content gate', 'newspack-plugin' ),
+					isNew ? __( 'Add new', 'newspack-plugin' ) : __( 'Edit', 'newspack-plugin' )
+				) }
+			/>
+			{ isNew && (
+				<Grid columns={ 2 } gutter={ 16 }>
+					<SectionHeader
+						heading={ 2 }
+						title={ __( 'What should we call this gate?', 'newspack-plugin' ) }
+						description={ __( 'Choose a name to help you find this gate later. It won’t be shown to readers.', 'newspack-plugin' ) }
+					/>
+					<TextControl
+						label={ __( 'Content gate name', 'newspack-plugin' ) }
+						placeholder={ __( 'e.g. Premium Articles', 'newspack-plugin' ) }
+						value={ title }
+						onChange={ setTitle }
+						hideLabelFromVision
+						__next40pxDefaultSize
+					/>
+				</Grid>
+			) }
+			<Divider alignment="full-width" />
+			<Grid columns={ 2 } gutter={ 16 }>
+				<SectionHeader
+					heading={ 2 }
+					title={ __( 'What would you like to restrict?', 'newspack-plugin' ) }
+					description={ __( 'Choose whether to restrict all posts or select specific content..', 'newspack-plugin' ) }
+				/>
+				<VStack>
+					<SettingsGroup
+						title={ __( 'Restrict all posts', 'newspack-plugin' ) }
+						description={ __( 'All posts on your site will require access.', 'newspack-plugin' ) }
+						icon={ content }
+						isActive={ contentType === 'all' }
+						onEnable={ () => setContentType( 'all' ) }
+					/>
+					<SettingsGroup
+						title={ __( 'Choose specific content', 'newspack-plugin' ) }
+						description={ __( 'Select which content to restrict using custom rules.', 'newspack-plugin' ) }
+						icon={ settings }
+						isActive={ contentType === 'custom' }
+						onEnable={ () => setContentType( 'custom' ) }
+					>
+						<ContentRules rules={ contentRules } onChange={ setContentRules } />
+					</SettingsGroup>
+				</VStack>
+			</Grid>
+		</div>
+	);
+};
+export default Edit;

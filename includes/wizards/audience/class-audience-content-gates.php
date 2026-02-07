@@ -74,7 +74,7 @@ class Audience_Content_Gates extends Wizard {
 	 * @return string The wizard name.
 	 */
 	public function get_name() {
-		return esc_html__( 'Audience Management / Content Gates', 'newspack-plugin' );
+		return esc_html__( 'Audience Management / Access Control', 'newspack-plugin' );
 	}
 
 	/**
