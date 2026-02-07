@@ -38,6 +38,7 @@ import {
 	PluginToggle,
 	ProgressBar,
 	SelectControl,
+	Divider,
 	Waiting,
 	WebPreview,
 } from '../../../packages/components/src';
@@ -122,7 +123,7 @@ class ComponentsDemo extends Component {
 							selectedItems={ selectedPostForAutocompleteWithSuggestions }
 						/>
 
-						<hr />
+						<Divider marginTop={ 32 } marginBottom={ 32 } />
 
 						<h2>{ __( 'Autocomplete with Suggestions (multi-select)', 'newspack-plugin' ) }</h2>
 						<AutocompleteWithSuggestions
@@ -153,7 +154,7 @@ class ComponentsDemo extends Component {
 							selectedItems={ selectedPostForAutocompleteWithLatestPosts }
 						/>
 
-						<hr />
+						<Divider marginTop={ 32 } marginBottom={ 32 } />
 
 						<h2>{ __( 'Autocomplete with Latest Posts (multi-select)', 'newspack-plugin' ) }</h2>
 						<AutocompleteWithLatestPosts
@@ -612,6 +613,7 @@ class ComponentsDemo extends Component {
 								<Button>{ __( 'Default', 'newspack-plugin' ) }</Button>
 								<Button isLink>{ __( 'isLink', 'newspack-plugin' ) }</Button>
 							</Card>
+							<Divider variant="tertiary" />
 							<p>
 								<strong>{ __( 'Disabled', 'newspack-plugin' ) }</strong>
 							</p>
@@ -630,6 +632,7 @@ class ComponentsDemo extends Component {
 									{ __( 'isLink', 'newspack-plugin' ) }
 								</Button>
 							</Card>
+							<Divider variant="tertiary" />
 							<p>
 								<strong>{ __( 'Small', 'newspack-plugin' ) }</strong>
 							</p>
