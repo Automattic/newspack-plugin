@@ -77,8 +77,7 @@ const CoreCard = ( {
 					{ chevron && <Icon icon={ chevronRight } height={ 24 } width={ 24 } /> }
 				</CardHeader>
 			) }
-			{ Array.isArray( children ) && children.map( Child => Child ) }
-			{ children }
+			{ children && <div className="newspack-card--core__body">{ children }</div> }
 			{ footer && <CardFooter size={ sizeProps }>{ footer }</CardFooter> }
 		</CardWrapper>
 	);

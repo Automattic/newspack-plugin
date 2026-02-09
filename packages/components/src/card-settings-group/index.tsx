@@ -3,17 +3,12 @@
  */
 
 /**
- * WordPress dependencies.
- */
-import { __, sprintf } from '@wordpress/i18n';
-import { useEffect, useState } from '@wordpress/element';
-
-/**
  * Internal dependencies
  */
-import { Card } from '../../../../../../packages/components/src';
+import { Card } from '../';
+import './style.scss';
 
-const SettingsGroup = ( {
+const CardSettingsGroup = ( {
 	children,
 	icon = null,
 	title = '',
@@ -30,6 +25,7 @@ const SettingsGroup = ( {
 } ) => {
 	return (
 		<Card
+			className="newspack-card--core--settings-group"
 			chevron
 			isSmall
 			__experimentalCoreCard
@@ -51,4 +47,4 @@ const SettingsGroup = ( {
 	);
 };
 
-export default SettingsGroup;
+export default CardSettingsGroup;

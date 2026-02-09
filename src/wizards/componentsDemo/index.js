@@ -767,7 +767,7 @@ class ComponentsDemo extends Component {
 								<CardBody key="4">
 									<p>{ __( 'CardBody (before CardDivider)', 'newspack-plugin' ) }</p>
 								</CardBody>
-								<CardDivider key="4" />,
+								<CardDivider key="4" />
 								<CardBody key="5">
 									<p>{ __( 'CardBody (after CardDivider)', 'newspack-plugin' ) }</p>
 								</CardBody>

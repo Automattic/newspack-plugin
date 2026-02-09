@@ -1,0 +1,15 @@
+.newspack-card--core--settings-group {
+	.components-card__body {
+		/** ToggleControl switch should appear after the label. */
+		> .components-toggle-control {
+			.components-h-stack {
+				.components-form-toggle {
+					order: 2;
+				}
+			}
+			.components-toggle-control__help {
+				margin-inline-start: auto;
+			}
+		}
+	}
+}

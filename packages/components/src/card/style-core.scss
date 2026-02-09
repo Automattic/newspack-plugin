@@ -145,4 +145,12 @@
 			max-width: 576px;
 		}
 	}
+	&__body {
+		> div:not(.components-card__body):not(.components-card__media):not(.components-card__divider) {
+			padding: 16px 24px;
+			.newspack-card--core__is-small & {
+				padding: 16px;
+			}
+		}
+	}
 }
