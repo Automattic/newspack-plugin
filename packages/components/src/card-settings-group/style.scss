@@ -11,5 +11,10 @@
 				margin-inline-start: auto;
 			}
 		}
+		.newspack-grid:last-child,
+		.components-base-control:last-child,
+		p:last-child {
+			margin-bottom: 0;
+		}
 	}
 }

@@ -130,7 +130,7 @@ export default function ContentRuleControlTaxonomy( { slug, value, onChange }: G
 
 	return (
 		<FormTokenField
-			label={ rule.name }
+			label={ '' }
 			suggestions={ suggestions.map( s => `${ s.value }: ${ s.label }` ) }
 			onInputChange={ handleInputChange }
 			value={ tokens }
