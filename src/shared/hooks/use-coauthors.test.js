@@ -305,7 +305,7 @@ describe( 'useCoAuthors', () => {
 			expect( result.current.authors[ 3 ].user_nicename ).toBeUndefined();
 		} );
 
-		it( 'should fetch avatars for Query Loop authors via CAP endpoint', async () => {
+		it( 'should fetch avatars for Query Loop authors via CAP endpoint when not enriched', async () => {
 			const avatarUrls = { 96: 'https://example.com/guest-96.jpg' };
 			apiFetch.mockResolvedValue( { avatar_urls: avatarUrls } );
 
@@ -334,6 +334,127 @@ describe( 'useCoAuthors', () => {
 			expect( apiFetch ).toHaveBeenCalledWith( {
 				path: '/coauthors/v1/coauthors/external-contributor',
 			} );
+		} );
+
+		it( 'should use enriched user_nicename directly when available', () => {
+			const restAuthors = [ { id: 1, display_name: 'Jane Doe', author_link: '/author/jane/', user_nicename: 'jane-doe-enriched' } ];
+
+			useSelect.mockImplementation( callback =>
+				callback(
+					createMockSelect( {
+						capStore: { getAuthors: () => [] },
+						currentPostId: 123,
+						entityRecords: {
+							456: { newspack_author_info: restAuthors },
+						},
+					} )
+				)
+			);
+
+			const { result } = renderHook( () => useCoAuthors( 456, 'post' ) );
+
+			expect( result.current.authors[ 0 ].user_nicename ).toBe( 'jane-doe-enriched' );
+		} );
+
+		it( 'should map is_guest from enriched REST data', () => {
+			const restAuthors = [
+				{ id: 1, display_name: 'WP User', author_link: '/author/wp-user/', user_nicename: 'wp-user', is_guest: false },
+				{ id: 2, display_name: 'Guest', author_link: '/author/guest/', user_nicename: 'guest', is_guest: true },
+			];
+
+			useSelect.mockImplementation( callback =>
+				callback(
+					createMockSelect( {
+						capStore: { getAuthors: () => [] },
+						currentPostId: 123,
+						entityRecords: {
+							456: { newspack_author_info: restAuthors },
+						},
+					} )
+				)
+			);
+
+			const { result } = renderHook( () => useCoAuthors( 456, 'post' ) );
+
+			expect( result.current.authors[ 0 ].isGuest ).toBe( false );
+			expect( result.current.authors[ 1 ].isGuest ).toBe( true );
+		} );
+
+		it( 'should pass through avatar_urls from enriched REST data', () => {
+			const avatarUrls = { 96: 'https://example.com/avatar-96.jpg' };
+			const restAuthors = [
+				{ id: 1, display_name: 'Jane', author_link: '/author/jane/', user_nicename: 'jane', is_guest: false, avatar_urls: avatarUrls },
+			];
+
+			useSelect.mockImplementation( callback =>
+				callback(
+					createMockSelect( {
+						capStore: { getAuthors: () => [] },
+						currentPostId: 123,
+						entityRecords: {
+							456: { newspack_author_info: restAuthors },
+						},
+					} )
+				)
+			);
+
+			const { result } = renderHook( () => useCoAuthors( 456, 'post' ) );
+
+			expect( result.current.authors[ 0 ].avatar_urls ).toEqual( avatarUrls );
+		} );
+
+		it( 'should skip avatar fetch for enriched authors with is_guest false', async () => {
+			const restAuthors = [ { id: 1, display_name: 'WP User', author_link: '/author/wp-user/', user_nicename: 'wp-user', is_guest: false } ];
+
+			useSelect.mockImplementation( callback =>
+				callback(
+					createMockSelect( {
+						capStore: { getAuthors: () => [] },
+						currentPostId: 123,
+						entityRecords: {
+							456: { newspack_author_info: restAuthors },
+						},
+					} )
+				)
+			);
+
+			renderHook( () => useCoAuthors( 456, 'post' ) );
+
+			await act( () => Promise.resolve() );
+
+			expect( apiFetch ).not.toHaveBeenCalled();
+		} );
+
+		it( 'should skip avatar fetch when avatar_urls are already in REST data', async () => {
+			const avatarUrls = { 96: 'https://example.com/guest-96.jpg' };
+			const restAuthors = [
+				{
+					id: 1591,
+					display_name: 'Guest Author',
+					author_link: '/author/guest/',
+					user_nicename: 'guest',
+					is_guest: true,
+					avatar_urls: avatarUrls,
+				},
+			];
+
+			useSelect.mockImplementation( callback =>
+				callback(
+					createMockSelect( {
+						capStore: { getAuthors: () => [] },
+						currentPostId: 123,
+						entityRecords: {
+							456: { newspack_author_info: restAuthors },
+						},
+					} )
+				)
+			);
+
+			renderHook( () => useCoAuthors( 456, 'post' ) );
+
+			await act( () => Promise.resolve() );
+
+			expect( apiFetch ).not.toHaveBeenCalled();
 		} );
 
 		it( 'should return empty authors when post entity is not loaded', () => {

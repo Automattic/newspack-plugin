@@ -137,13 +137,15 @@ export function useCoAuthors( postId, postType = 'post', skip = false ) {
 
 				if ( restAuthors && Array.isArray( restAuthors ) && restAuthors.length > 0 ) {
 					// Map REST API author objects to our expected format.
-					// Extract user_nicename from author_link so the avatar
-					// effect can fetch from the CAP single-author endpoint.
+					// Use enriched fields (user_nicename, is_guest, avatar_urls)
+					// when available, falling back to extracting from author_link.
 					const mappedAuthors = restAuthors.map( author => ( {
 						id: author.id,
 						display_name: author.display_name,
 						author_link: author.author_link,
-						user_nicename: extractNicenameFromLink( author.author_link ),
+						user_nicename: author.user_nicename || extractNicenameFromLink( author.author_link ),
+						...( typeof author.is_guest === 'boolean' ? { isGuest: author.is_guest } : {} ),
+						...( author.avatar_urls ? { avatar_urls: author.avatar_urls } : {} ),
 					} ) );
 					return { authors: mappedAuthors, isCapAvailable: true };
 				}
@@ -172,7 +174,7 @@ export function useCoAuthors( postId, postType = 'post', skip = false ) {
 	// Build a stable key from author nicenames to control effect re-runs.
 	// isGuest !== false: includes guest authors (true) and Query Loop authors (undefined),
 	// but excludes known WP users from the currently-edited post (false).
-	const authorsNeedingAvatars = authors.filter( author => author.isGuest !== false && author.user_nicename );
+	const authorsNeedingAvatars = authors.filter( author => author.isGuest !== false && author.user_nicename && ! author.avatar_urls );
 	const avatarNicenames = authorsNeedingAvatars.map( author => author.user_nicename ).join( ',' );
 
 	useEffect( () => {
