@@ -1,5 +1,9 @@
 .newspack-card--core--settings-group {
 	.components-card__body {
+		> .components-base-control:first-child {
+			margin-top: 0;
+		}
+
 		/** ToggleControl switch should appear after the label. */
 		> .components-toggle-control {
 			.components-h-stack {

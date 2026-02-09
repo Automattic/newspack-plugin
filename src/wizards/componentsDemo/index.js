@@ -9,10 +9,10 @@ import '../../shared/js/public-path';
 /**
  * WordPress dependencies.
  */
-import { CardBody, CardDivider, CardMedia, ExternalLink } from '@wordpress/components';
+import { CardBody, CardDivider, CardMedia, ExternalLink, ToggleControl } from '@wordpress/components';
 import { Component, Fragment, render, createInterpolateElement, createRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Icon, audio, category, plus, reusableBlock, typography } from '@wordpress/icons';
+import { Icon, audio, category, plus, reusableBlock, settings, typography } from '@wordpress/icons';
 
 /**
  * Internal dependencies.
@@ -25,6 +25,7 @@ import {
 	Button,
 	ButtonCard,
 	Card,
+	CardSettingsGroup,
 	ColorPicker,
 	Footer,
 	Grid,
@@ -38,6 +39,7 @@ import {
 	PluginToggle,
 	ProgressBar,
 	SelectControl,
+	TextControl,
 	Divider,
 	Waiting,
 	WebPreview,
@@ -69,6 +71,7 @@ class ComponentsDemo extends Component {
 				{ id: 4, title: 'Draggable Item 4' },
 				{ id: 5, title: 'Draggable Item 5' },
 			],
+			settingsGroupCardActive: false,
 		};
 		this.dragWrapperRef = createRef();
 	}
@@ -773,6 +776,33 @@ class ComponentsDemo extends Component {
 								</CardBody>
 							</>
 						</Card>
+						<CardSettingsGroup
+							actionType="toggle"
+							title={ __( 'Settings Group Card', 'newspack-plugin' ) }
+							description={ __( 'Can be used in lieu of the ActionCard component.', 'newspack-plugin' ) }
+							icon={ settings }
+							isActive={ this.state.settingsGroupCardActive }
+							onEnable={ () => this.setState( { settingsGroupCardActive: ! this.state.settingsGroupCardActive } ) }
+						>
+							<>
+								<CardBody>
+									<ToggleControl
+										label={ __( 'A settings option', 'newspack-plugin' ) }
+										help={ __( 'A description of the setting', 'newspack-plugin' ) }
+										checked={ false }
+									/>
+								</CardBody>
+								<CardDivider />
+								<CardBody>
+									<TextControl
+										label={ __( 'A text input', 'newspack-plugin' ) }
+										help={ __( 'A description of the input', 'newspack-plugin' ) }
+										placeholder={ __( 'A placeholder for the input', 'newspack-plugin' ) }
+										value={ '' }
+									/>
+								</CardBody>
+							</>
+						</CardSettingsGroup>
 					</Card>
 					<Card>
 						<h2>{ __( 'Plugin Settings Section', 'newspack-plugin' ) }</h2>
