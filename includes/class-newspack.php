@@ -90,6 +90,7 @@ final class Newspack {
 		include_once NEWSPACK_ABSPATH . 'includes/reader-activation/sync/class-sync.php';
 		include_once NEWSPACK_ABSPATH . 'includes/reader-activation/sync/class-metadata.php';
 		include_once NEWSPACK_ABSPATH . 'includes/reader-activation/sync/class-woocommerce.php';
+		include_once NEWSPACK_ABSPATH . 'includes/reader-activation/sync/class-sync-queue.php';
 		include_once NEWSPACK_ABSPATH . 'includes/reader-activation/sync/class-esp-sync.php';
 		include_once NEWSPACK_ABSPATH . 'includes/reader-activation/sync/class-esp-sync-admin.php';
 		include_once NEWSPACK_ABSPATH . 'includes/reader-activation/class-integrations.php';

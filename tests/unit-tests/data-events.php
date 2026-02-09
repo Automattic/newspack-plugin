@@ -479,6 +479,109 @@ class Newspack_Test_Data_Events extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Test handle_from_scheduler calls handle() with correct args.
+	 */
+	public function test_handle_from_scheduler() {
+		$action_name = 'test_as_action';
+		Data_Events::register_action( $action_name );
+
+		$handler_data = [
+			'called' => 0,
+			'args'   => [],
+		];
+		$handler = function( ...$args ) use ( &$handler_data ) {
+			$handler_data['called']++;
+			$handler_data['args'] = $args;
+		};
+		Data_Events::register_handler( $handler, $action_name );
+
+		$timestamp = time();
+		$data      = [ 'test' => 'scheduler_data' ];
+		$client_id = 'test-client-id';
+
+		Data_Events::handle_from_scheduler(
+			[
+				'action_name' => $action_name,
+				'timestamp'   => $timestamp,
+				'data'        => $data,
+				'client_id'   => $client_id,
+			]
+		);
+
+		$this->assertEquals( 1, $handler_data['called'] );
+		$this->assertEquals( $timestamp, $handler_data['args'][0] );
+		$this->assertEquals( $data, $handler_data['args'][1] );
+		$this->assertEquals( $client_id, $handler_data['args'][2] );
+	}
+
+	/**
+	 * Test handle_from_scheduler rejects invalid dispatch data.
+	 */
+	public function test_handle_from_scheduler_invalid_data() {
+		$action_name = 'test_as_invalid_action';
+		Data_Events::register_action( $action_name );
+
+		$handler_called = 0;
+		$handler = function() use ( &$handler_called ) {
+			$handler_called++;
+		};
+		Data_Events::register_handler( $handler, $action_name );
+
+		// Non-array data should be rejected.
+		Data_Events::handle_from_scheduler( 'not_an_array' );
+		$this->assertEquals( 0, $handler_called );
+
+		// Unregistered action should be rejected.
+		Data_Events::handle_from_scheduler(
+			[
+				'action_name' => 'nonexistent_action',
+				'timestamp'   => time(),
+				'data'        => [],
+				'client_id'   => null,
+			]
+		);
+		$this->assertEquals( 0, $handler_called );
+
+		// Missing action_name should be rejected.
+		Data_Events::handle_from_scheduler(
+			[
+				'timestamp' => time(),
+				'data'      => [],
+				'client_id' => null,
+			]
+		);
+		$this->assertEquals( 0, $handler_called );
+	}
+
+	/**
+	 * Test that the dispatched hook fires in both AS and remote post paths.
+	 */
+	public function test_dispatched_hook_fires_in_both_paths() {
+		$action_name = 'test_dispatched_hook';
+		Data_Events::register_action( $action_name );
+
+		// Test remote post path (default when AS filter returns false).
+		$hook_called_remote = 0;
+		$hook_request_remote = 'not_set';
+		$remote_hook = function( $request, $dispatches ) use ( &$hook_called_remote, &$hook_request_remote ) {
+			$hook_called_remote++;
+			$hook_request_remote = $request;
+		};
+
+		// Short-circuit HTTP to avoid actual requests.
+		add_filter( 'pre_http_request', '__return_true' );
+		add_action( 'newspack_data_events_dispatched', $remote_hook, 10, 2 );
+
+		Data_Events::dispatch( $action_name, [ 'path' => 'remote' ] );
+		Data_Events::execute_queued_dispatches();
+
+		remove_action( 'newspack_data_events_dispatched', $remote_hook );
+		remove_filter( 'pre_http_request', '__return_true' );
+
+		$this->assertEquals( 1, $hook_called_remote, 'Dispatched hook should fire in remote post path.' );
+	}
+
+	/**
 	 * Test that dispatches work with both current and previous nonces during grace period.
 	 */
 	public function test_dispatch_with_grace_period() {

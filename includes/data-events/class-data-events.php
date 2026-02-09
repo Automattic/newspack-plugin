@@ -8,6 +8,7 @@
 namespace Newspack;
 
 use WP_Error;
+use WP_HTTP_Response;
 
 /**
  * Main class.
@@ -82,12 +83,80 @@ final class Data_Events {
 	private static $current_event = null;
 
 	/**
+	 * ActionScheduler group for dispatch actions.
+	 */
+	const DISPATCH_AS_GROUP = 'newspack-data-events-dispatch';
+
+	/**
+	 * ActionScheduler hook for handling dispatched events.
+	 */
+	const DISPATCH_AS_HOOK = 'newspack_data_events_handle';
+
+	/**
+	 * Number of pending AS actions that triggers a warning log.
+	 */
+	const PENDING_AS_ACTIONS_WARNING_THRESHOLD = 10000;
+
+	/**
 	 * Initialize hooks.
 	 */
 	public static function init() {
 		\add_action( 'wp_ajax_' . self::ACTION, [ __CLASS__, 'maybe_handle' ] );
 		\add_action( 'wp_ajax_nopriv_' . self::ACTION, [ __CLASS__, 'maybe_handle' ] );
 		\add_action( 'shutdown', [ __CLASS__, 'execute_queued_dispatches' ] );
+		\add_action( self::DISPATCH_AS_HOOK, [ __CLASS__, 'handle_from_scheduler' ] );
+	}
+
+	/**
+	 * Whether to use Action Scheduler for dispatching events.
+	 *
+	 * @return bool
+	 */
+	private static function use_action_scheduler() {
+		$use_action_scheduler = function_exists( 'as_enqueue_async_action' );
+		/**
+		 * Filters whether to use Action Scheduler for dispatching data events.
+		 *
+		 * When enabled, events are persisted to the database via ActionScheduler
+		 * instead of using a fire-and-forget wp_remote_post() to admin-ajax.php.
+		 * This provides guaranteed delivery and retry capabilities.
+		 *
+		 * Note: This filter is distinct from 'newspack_data_events_use_action_scheduler'
+		 * which controls AS usage for webhooks.
+		 *
+		 * @param bool $use_action_scheduler Whether to use Action Scheduler.
+		 */
+		return \apply_filters( 'newspack_data_events_dispatch_use_action_scheduler', $use_action_scheduler );
+	}
+
+	/**
+	 * Handle a dispatched event from Action Scheduler.
+	 *
+	 * This is the callback for AS-dispatched events. It extracts the event data
+	 * from the scheduled action and calls the existing handle() method.
+	 *
+	 * @param array $dispatch The dispatch data containing action_name, timestamp, data, and client_id.
+	 */
+	public static function handle_from_scheduler( $dispatch ) {
+		if ( ! is_array( $dispatch ) ) {
+			Logger::error( 'Invalid dispatch data received from Action Scheduler.', self::LOGGER_HEADER );
+			return;
+		}
+
+		$action_name = isset( $dispatch['action_name'] ) ? sanitize_text_field( $dispatch['action_name'] ) : null;
+		$timestamp   = isset( $dispatch['timestamp'] ) ? sanitize_text_field( $dispatch['timestamp'] ) : null;
+		$data        = $dispatch['data'] ?? null;
+		$client_id   = isset( $dispatch['client_id'] ) ? sanitize_text_field( $dispatch['client_id'] ) : null;
+
+		if ( empty( $action_name ) || ! self::is_action_registered( $action_name ) ) {
+			Logger::error(
+				sprintf( 'Action "%s" not registered when handling from Action Scheduler.', $action_name ?? 'null' ),
+				self::LOGGER_HEADER
+			);
+			return;
+		}
+
+		self::handle( $action_name, $timestamp, $data, $client_id );
 	}
 
 	/**
@@ -496,6 +565,73 @@ final class Data_Events {
 			self::LOGGER_HEADER
 		);
 
+		if ( self::use_action_scheduler() ) {
+			self::dispatch_via_action_scheduler();
+		} else {
+			self::dispatch_via_remote_post();
+		}
+
+		// Clear the queue in case of a retry.
+		self::$queued_dispatches = [];
+	}
+
+	/**
+	 * Dispatch queued events via Action Scheduler.
+	 *
+	 * Each dispatch is scheduled as an individual AS action for independent
+	 * processing and retry. Includes a circuit breaker to prevent queue bloat.
+	 */
+	private static function dispatch_via_action_scheduler() {
+		// Warn if pending count is high, but don't block dispatch.
+		// AS can handle a large queue; dropping events is worse than a backlog.
+		$pending_count = \as_get_scheduled_actions(
+			[
+				'group'  => self::DISPATCH_AS_GROUP,
+				'status' => \ActionScheduler_Store::STATUS_PENDING,
+			],
+			'ARRAY_A'
+		);
+
+		if ( count( $pending_count ) >= self::PENDING_AS_ACTIONS_WARNING_THRESHOLD ) {
+			Logger::error(
+				sprintf(
+					'Warning: %d pending actions in group "%s". Queue processing may be stalled.',
+					count( $pending_count ),
+					self::DISPATCH_AS_GROUP
+				),
+				self::LOGGER_HEADER
+			);
+		}
+
+		foreach ( self::$queued_dispatches as $dispatch ) {
+			\as_enqueue_async_action(
+				self::DISPATCH_AS_HOOK,
+				[ $dispatch ],
+				self::DISPATCH_AS_GROUP
+			);
+		}
+
+		Logger::log(
+			sprintf( 'Scheduled %d dispatch(es) via Action Scheduler.', count( self::$queued_dispatches ) ),
+			self::LOGGER_HEADER
+		);
+
+		/**
+		 * Fires after dispatching queued actions.
+		 *
+		 * @param WP_Error|WP_HTTP_Response|null $request           The request object, or null when using Action Scheduler.
+		 * @param array                          $queued_dispatches The queued dispatches.
+		 */
+		\do_action( 'newspack_data_events_dispatched', null, self::$queued_dispatches );
+	}
+
+	/**
+	 * Dispatch queued events via non-blocking wp_remote_post().
+	 *
+	 * This is the legacy dispatch method that fires a single fire-and-forget
+	 * HTTP request to admin-ajax.php.
+	 */
+	private static function dispatch_via_remote_post() {
 		$url = \add_query_arg(
 			[
 				'action' => self::ACTION,
@@ -518,13 +654,10 @@ final class Data_Events {
 		/**
 		 * Fires after dispatching queued actions.
 		 *
-		 * @param WP_Error|WP_HTTP_Response $request           The request object.
-		 * @param array                     $queued_dispatches The queued dispatches.
+		 * @param WP_Error|WP_HTTP_Response|null $request           The request object, or null when using Action Scheduler.
+		 * @param array                          $queued_dispatches The queued dispatches.
 		 */
 		\do_action( 'newspack_data_events_dispatched', $request, self::$queued_dispatches );
-
-		// Clear the queue in case of a retry.
-		self::$queued_dispatches = [];
 	}
 }
 Data_Events::init();
