@@ -61,17 +61,27 @@ const AvatarWrapper = ( { avatar, size, attributes, placeholder = false } ) => {
 
 	// Render placeholder for text-only bylines.
 	if ( placeholder ) {
-		const placeholderLabel = __( 'No Avatar', 'newspack-plugin' );
 		return (
-			<div className={ classNames } style={ { '--avatar-size': size + 'px' } }>
-				<div
-					className={ clsx( 'newspack-no-avatar-placeholder', borderProps.className ) }
-					style={ borderProps.style }
-					role="img"
-					aria-label={ placeholderLabel }
+			<div
+				className={ clsx( 'newspack-avatar-wrapper--placeholder', classNames ) }
+				style={ {
+					'--avatar-size': size + 'px',
+					filter: duotoneClassName?.length ? `url(#${ duotoneClassName[ 0 ] })` : undefined,
+					...borderProps.style,
+				} }
+				role="img"
+				aria-label={ __( 'No avatar available', 'newspack-plugin' ) }
+			>
+				<svg
+					fill="none"
+					xmlns="http://www.w3.org/2000/svg"
+					viewBox="0 0 60 60"
+					preserveAspectRatio="none"
+					aria-hidden="true"
+					focusable="false"
 				>
-					{ placeholderLabel }
-				</div>
+					<path vectorEffect="non-scaling-stroke" d="M60 60 0 0" />
+				</svg>
 			</div>
 		);
 	}
