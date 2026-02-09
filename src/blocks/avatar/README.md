@@ -1,10 +1,10 @@
 # Avatar Block
 
-A Gutenberg block that displays author avatar images with support for multiple authorship systems.
+A Gutenberg block that displays author avatars with support for multiple authorship systems.
 
 ## Overview
 
-The Avatar block renders circular author profile pictures for the current post. It automatically detects the authorship system in use and displays the appropriate avatar(s). When multiple authors are present, each author gets their own avatar image.
+The Avatar block renders circular author profile pictures for the current post. It automatically detects the authorship system in use and displays the appropriate avatar(s). When multiple authors are present, each author gets their own avatar.
 
 ## Author resolution priority
 
