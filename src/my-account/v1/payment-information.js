@@ -68,4 +68,10 @@ domReady( function () {
 
 	// Prevent multiple form submissions and show loading state for all modals.
 	document.addEventListener( 'submit', handleFormSubmission );
+
+	// Force display first payment method.
+	const firstPaymentMethod = document.querySelector( '.woocommerce-PaymentMethod:first-child' );
+	if ( firstPaymentMethod ) {
+		firstPaymentMethod.classList.add( 'active' );
+	}
 } );
