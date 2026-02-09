@@ -43,6 +43,10 @@ class Contact_Sync extends Sync {
 	/**
 	 * Sync contact to the ESP.
 	 *
+	 * When ActionScheduler is available, delegates to the Sync_Queue for
+	 * persistent, deduplicated processing. Otherwise, falls back to the
+	 * in-memory queue + shutdown execution pattern.
+	 *
 	 * @param array  $contact          The contact data to sync.
 	 * @param string $context          The context of the sync. Defaults to static::$context.
 	 * @param array  $existing_contact Optional. Existing contact data to merge with. Defaults to null.
@@ -59,6 +63,14 @@ class Contact_Sync extends Sync {
 			$context = static::$context;
 		}
 
+		// When Sync_Queue is available (AS-backed), delegate to it for
+		// persistent, deduplicated processing.
+		if ( Sync_Queue::is_available() && Data_Events::current_event() ) {
+			Sync_Queue::push( $contact, $context, $existing_contact );
+			return true;
+		}
+
+		// Fallback: in-memory queue + shutdown execution.
 		// If we're running in a data event, queue the sync to run on shutdown.
 		if ( ! isset( self::$queued_syncs[ $contact['email'] ] ) ) {
 			self::$queued_syncs[ $contact['email'] ] = [
@@ -127,7 +139,17 @@ class Contact_Sync extends Sync {
 				'context'    => $context,
 			]
 		);
-		\wp_schedule_single_event( \time() + $delay, 'newspack_scheduled_esp_sync', [ $user_id, $context ] );
+
+		if ( Sync_Queue::is_available() ) {
+			\as_schedule_single_action(
+				\time() + $delay,
+				'newspack_scheduled_esp_sync',
+				[ $user_id, $context ],
+				Sync_Queue::AS_GROUP
+			);
+		} else {
+			\wp_schedule_single_event( \time() + $delay, 'newspack_scheduled_esp_sync', [ $user_id, $context ] );
+		}
 	}
 
 	/**
