@@ -37,9 +37,11 @@ const DEFAULT_GATE: Gate = {
 
 const Edit = ( { match, setHeaderText }: ContentGateEditProps ) => {
 	const { id, type } = match.params;
-	const [ gate ] = useState< Gate >( DEFAULT_GATE );
+	const [ gate, setGate ] = useState< Gate >( DEFAULT_GATE );
 	const [ title, setTitle ] = useState< string >( gate.title );
 	const [ contentRules, setContentRules ] = useState< GateContentRule[] >( gate.content_rules );
+	const [ registration, setRegistration ] = useState< Registration >( gate.registration );
+	const [ customAccess, setCustomAccess ] = useState< CustomAccess >( gate.custom_access );
 	const [ contentType, setContentType ] = useState< 'all' | 'custom' >( type as 'all' | 'custom' );
 
 	const isNew = id === 'new';

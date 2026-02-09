@@ -5,6 +5,8 @@
 /**
  * WordPress dependencies.
  */
+import { __, sprintf } from '@wordpress/i18n';
+import { useEffect, useState } from '@wordpress/element';
 
 /**
  * Internal dependencies
