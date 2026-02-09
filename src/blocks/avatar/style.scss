@@ -30,8 +30,6 @@
 	.newspack-avatar-wrapper--placeholder {
 		border-radius: 50%;
 		overflow: hidden;
-		size: var(--avatar-size);
-
 		&::before,
 		svg {
 			inset: 0;
