@@ -94,15 +94,17 @@ class ESP_Sync extends Sync {
 	/**
 	 * Sync contact to the ESP.
 	 *
-	 * When ActionScheduler is available, delegates to the Sync_Queue for
-	 * persistent, deduplicated processing. Otherwise, falls back to the
-	 * in-memory queue + shutdown execution pattern.
+	 * During data event handler execution, pushes immediately and throws on
+	 * failure so the Data Events retry mechanism can schedule retries.
+	 * Outside data events, uses the in-memory queue for batch execution on shutdown.
 	 *
 	 * @param array  $contact          The contact data to sync.
 	 * @param string $context          The context of the sync. Defaults to static::$context.
 	 * @param array  $existing_contact Optional. Existing contact data to merge with. Defaults to null.
 	 *
 	 * @return true|\WP_Error True if succeeded or WP_Error.
+	 *
+	 * @throws \RuntimeException When sync fails during data event handler execution.
 	 */
 	public static function sync( $contact, $context = '', $existing_contact = null ) {
 		$can_sync = static::can_esp_sync( true );
@@ -114,15 +116,14 @@ class ESP_Sync extends Sync {
 			$context = static::$context;
 		}
 
-		// When Sync_Queue is available (AS-backed), delegate to it for
-		// persistent, deduplicated processing.
-		if ( Sync_Queue::is_available() && Data_Events::current_event() ) {
-			Sync_Queue::push( $contact, $context, $existing_contact );
-			return true;
+		// During data event handler execution, push immediately.
+		// Failures throw so the Data Events handler retry mechanism can catch
+		// the exception and schedule a retry via ActionScheduler.
+		if ( Data_Events::current_event() && ! did_action( 'shutdown' ) ) {
+			return self::push_to_integrations( $contact, $context, $existing_contact, true );
 		}
 
-		// Fallback: in-memory queue + shutdown execution.
-		// If we're running in a data event, queue the sync to run on shutdown.
+		// Outside data event context: in-memory queue + shutdown execution.
 		if ( ! isset( self::$queued_syncs[ $contact['email'] ] ) ) {
 			self::$queued_syncs[ $contact['email'] ] = [
 				'contexts' => [],
@@ -134,30 +135,53 @@ class ESP_Sync extends Sync {
 		}
 		self::$queued_syncs[ $contact['email'] ]['contexts'][] = $context;
 		self::$queued_syncs[ $contact['email'] ]['contact']    = $contact;
-		if ( Data_Events::current_event() && ! did_action( 'shutdown' ) ) {
+
+		// If shutdown hasn't happened yet, defer execution.
+		if ( ! did_action( 'shutdown' ) ) {
 			return;
 		}
 
-		$master_list_id = Reader_Activation::get_esp_master_list_id();
+		return self::push_to_integrations( $contact, $context, $existing_contact );
+	}
 
-		/**
-		 * Filters the contact data before normalizing and syncing to the ESP.
-		 *
-		 * @param array  $contact The contact data to sync.
-		 * @param string $context The context of the sync.
-		 */
+	/**
+	 * Push contact data to all active integrations.
+	 *
+	 * @param array  $contact          The contact data to sync.
+	 * @param string $context          The context of the sync.
+	 * @param array  $existing_contact Optional. Existing contact data to merge with.
+	 * @param bool   $throw_on_failure Whether to throw an exception on failure.
+	 *
+	 * @return true|\WP_Error True if succeeded or WP_Error.
+	 *
+	 * @throws \RuntimeException When $throw_on_failure is true and an integration fails.
+	 */
+	private static function push_to_integrations( $contact, $context, $existing_contact = null, $throw_on_failure = false ) {
+		/** This filter is documented in includes/reader-activation/sync/class-esp-sync.php */
 		$contact = \apply_filters( 'newspack_esp_sync_contact', $contact, $context );
 		$contact = Sync\Metadata::normalize_contact_data( $contact );
 
 		$integrations = Integrations::get_active_integrations();
+		$errors       = [];
 
 		foreach ( $integrations as $integration ) {
-			// TODO: We know there's only one integration for now and we expect result to be wp_error or true. We'll refactor this to do a try catch.
-			// Not changing it now because of the retry scheduled by Newspack\WooCommerce_My_Account::sync_email_change_with_esp.
 			$result = $integration->push_contact_data( $contact, $context, $existing_contact );
+			if ( \is_wp_error( $result ) ) {
+				$errors[] = $result->get_error_message();
+			}
 		}
 
-		return \is_wp_error( $result ) ? $result : true;
+		if ( ! empty( $errors ) ) {
+			$error_message = implode( '; ', $errors );
+			if ( $throw_on_failure ) {
+				throw new \RuntimeException(
+					sprintf( 'ESP sync failed for %s: %s', sanitize_email( $contact['email'] ?? 'unknown' ), esc_html( $error_message ) ) // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
+				);
+			}
+			return new \WP_Error( 'newspack_esp_sync_failed', $error_message );
+		}
+
+		return true;
 	}
 
 	/**
@@ -190,17 +214,7 @@ class ESP_Sync extends Sync {
 				'context'    => $context,
 			]
 		);
-
-		if ( Sync_Queue::is_available() ) {
-			\as_schedule_single_action(
-				\time() + $delay,
-				'newspack_scheduled_esp_sync',
-				[ $user_id, $context ],
-				Sync_Queue::AS_GROUP
-			);
-		} else {
-			\wp_schedule_single_event( \time() + $delay, 'newspack_scheduled_esp_sync', [ $user_id, $context ] );
-		}
+		\wp_schedule_single_event( \time() + $delay, 'newspack_scheduled_esp_sync', [ $user_id, $context ] );
 	}
 
 	/**
