@@ -22,4 +22,15 @@ class Sample_Integration extends Integration {
 	public function push_contact_data( $contact, $context = '', $existing_contact = null ) {
 		return true;
 	}
+
+	/**
+	 * Whether contacts can be synced to the ESP.
+	 *
+	 * @param bool $return_errors Optional. Whether to return a WP_Error object. Default false.
+	 *
+	 * @return bool|WP_Error True if contacts can be synced, false otherwise. WP_Error if return_errors is true.
+	 */
+	public function can_sync( $return_errors = false ) {
+		return $return_errors ? new \WP_Error() : true;
+	}
 }
