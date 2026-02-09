@@ -97,6 +97,7 @@ const Edit = ( { match, setHeaderText }: ContentGateEditProps ) => {
 				/>
 				<VStack style={ { gap: 0 } }>
 					<CardSettingsGroup
+						actionType="chevron"
 						title={ __( 'Restrict all posts', 'newspack-plugin' ) }
 						description={ __( 'All posts on your site will require access.', 'newspack-plugin' ) }
 						icon={ content }
@@ -104,6 +105,7 @@ const Edit = ( { match, setHeaderText }: ContentGateEditProps ) => {
 						onEnable={ () => setContentType( 'all' ) }
 					/>
 					<CardSettingsGroup
+						actionType="chevron"
 						title={ __( 'Choose specific content', 'newspack-plugin' ) }
 						description={ __( 'Select which content to restrict using custom rules.', 'newspack-plugin' ) }
 						icon={ settings }
@@ -126,6 +128,7 @@ const Edit = ( { match, setHeaderText }: ContentGateEditProps ) => {
 				/>
 				<VStack style={ { gap: 0 } }>
 					<CardSettingsGroup
+						actionType="toggle"
 						title={ __( 'Registered Access', 'newspack-plugin' ) }
 						description={ __( 'Readers must log in to view this content.', 'newspack-plugin' ) }
 						icon={ content }
@@ -133,6 +136,7 @@ const Edit = ( { match, setHeaderText }: ContentGateEditProps ) => {
 						onEnable={ () => setRegistration( { ...registration, active: ! registration.active } ) }
 					/>
 					<CardSettingsGroup
+						actionType="toggle"
 						title={ __( 'Paid Access', 'newspack-plugin' ) }
 						description={ __( 'Set conditions like subscriptions, domain, and more.', 'newspack-plugin' ) }
 						icon={ content }

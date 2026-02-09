@@ -28,7 +28,7 @@ const ContentGatesOnboarding = () => {
 					pageHeader
 				/>
 				<Card
-					chevron
+					actionType="chevron"
 					isSmall
 					__experimentalCoreCard
 					__experimentalCoreProps={ {
@@ -45,7 +45,7 @@ const ContentGatesOnboarding = () => {
 					} }
 				/>
 				<Card
-					chevron
+					actionType="chevron"
 					isSmall
 					__experimentalCoreCard
 					__experimentalCoreProps={ {

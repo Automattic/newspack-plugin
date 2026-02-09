@@ -2,7 +2,7 @@
  * WordPress dependencies.
  */
 import { CardDivider } from '@wordpress/components';
-import { useCallback } from '@wordpress/element';
+import { Fragment, useCallback } from '@wordpress/element';
 
 /**
  * Internal dependencies
@@ -49,9 +49,8 @@ export default function ContentRules( { rules, onChange }: ContentRulesProps ) {
 				const ruleConfig = availableContentRules[ slug ];
 				const rule = rules.find( r => r.slug === slug );
 				return (
-					<>
+					<Fragment key={ slug }>
 						<ContentRule
-							key={ slug }
 							config={ ruleConfig }
 							enabled={ rules.map( r => r.slug ).includes( slug ) }
 							rule={ rule }
@@ -61,7 +60,7 @@ export default function ContentRules( { rules, onChange }: ContentRulesProps ) {
 							onToggle={ handleToggle }
 						/>
 						{ index < Object.keys( availableContentRules ).length - 1 && <CardDivider key={ index } /> }
-					</>
+					</Fragment>
 				);
 			} ) }
 		</>

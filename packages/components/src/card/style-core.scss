@@ -57,6 +57,9 @@
 	&__header {
 		color: wp-colors.$gray-700;
 		column-gap: 16px;
+		.newspack-card--core__action {
+			margin: 0;
+		}
 	}
 	button.newspack-card--core__header {
 		appearance: none;

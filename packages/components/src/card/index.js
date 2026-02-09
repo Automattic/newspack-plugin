@@ -25,7 +25,6 @@ class Card extends Component {
 	render() {
 		const {
 			buttonsCard,
-			chevron,
 			className,
 			headerActions,
 			isNarrow,
@@ -37,6 +36,7 @@ class Card extends Component {
 			__experimentalCoreCard,
 			// Pass props supported by WP Core's Card component in this single prop.
 			__experimentalCoreProps = {
+				actionType: null, // chevron | toggle | button | link | none
 				header: null, // Pass a React component to render in a CardHeader component.
 				icon: null,
 				footer: null, // Pass a React component to render in a CardFooter component.
@@ -46,7 +46,6 @@ class Card extends Component {
 		if ( __experimentalCoreCard ) {
 			const props = {
 				buttonsCard,
-				chevron,
 				className,
 				isMedium,
 				isNarrow,
@@ -63,7 +62,6 @@ class Card extends Component {
 			className,
 			buttonsCard && 'newspack-card__buttons-card',
 			headerActions && 'newspack-card__header-actions',
-			chevron && 'newspack-card__chevron',
 			isMedium && 'newspack-card__is-medium',
 			isNarrow && 'newspack-card__is-narrow',
 			isSmall && 'newspack-card__is-small',

@@ -1,6 +1,7 @@
 .newspack-content-gate__edit {
 	.newspack-grid {
-		.newspack-section-header:first-child {
+		.newspack-section-header {
+			margin-bottom: 0;
 			margin-top: 0;
 		}
 		h2 {

@@ -9,6 +9,7 @@ import { Card } from '../';
 import './style.scss';
 
 const CardSettingsGroup = ( {
+	actionType = 'chevron',
 	children,
 	icon = null,
 	title = '',
@@ -16,6 +17,7 @@ const CardSettingsGroup = ( {
 	isActive = false,
 	onEnable = () => {},
 }: {
+	actionType?: 'chevron' | 'toggle' | 'button' | 'link' | 'none';
 	children?: React.ReactNode;
 	icon?: React.ReactNode;
 	title: string;
@@ -26,7 +28,7 @@ const CardSettingsGroup = ( {
 	return (
 		<Card
 			className="newspack-card--core--settings-group"
-			chevron
+			actionType={ actionType }
 			isSmall
 			__experimentalCoreCard
 			__experimentalCoreProps={ {

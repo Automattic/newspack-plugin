@@ -6,7 +6,7 @@
 /**
  * WordPress dependencies
  */
-import { Card as CardWrapper, CardHeader, CardFooter } from '@wordpress/components';
+import { Card as CardWrapper, CardHeader, CardFooter, ToggleControl } from '@wordpress/components';
 import { Icon, chevronRight } from '@wordpress/icons';
 
 /**
@@ -20,9 +20,9 @@ import './style-core.scss';
 import classNames from 'classnames';
 
 const CoreCard = ( {
+	actionType,
 	as,
 	buttonsCard,
-	chevron,
 	className,
 	footer,
 	header,
@@ -74,7 +74,8 @@ const CoreCard = ( {
 						</div>
 					) }
 					{ header && <div className="newspack-card--core__header-content">{ header }</div> }
-					{ chevron && <Icon icon={ chevronRight } height={ 24 } width={ 24 } /> }
+					{ actionType === 'chevron' && <Icon className="newspack-card--core__action" icon={ chevronRight } height={ 24 } width={ 24 } /> }
+					{ actionType === 'toggle' && <ToggleControl className="newspack-card--core__action" checked={ isActive } /> }
 				</CardHeader>
 			) }
 			{ children && <div className="newspack-card--core__body">{ children }</div> }
