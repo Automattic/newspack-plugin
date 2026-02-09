@@ -12,10 +12,9 @@ import { useEffect, useState } from '@wordpress/element';
 /**
  * Internal dependencies
  */
-import { Divider, Grid, SectionHeader, TextControl } from '../../../../../../packages/components/src';
+import { CardSettingsGroup, Divider, Grid, SectionHeader, TextControl } from '../../../../../../packages/components/src';
 import { content, settings } from '../../../../../../packages/icons';
 import { BASE_HEADER_TEXT } from '../consts';
-import SettingsGroup from './settings-group';
 import ContentRules from './content-rules';
 import './style.scss';
 
@@ -37,7 +36,7 @@ const DEFAULT_GATE: Gate = {
 
 const Edit = ( { match, setHeaderText }: ContentGateEditProps ) => {
 	const { id, type } = match.params;
-	const [ gate, setGate ] = useState< Gate >( DEFAULT_GATE );
+	const [ gate, setGate ] = useState< Gate >( DEFAULT_GATE ); // eslint-disable-line @typescript-eslint/no-unused-vars
 	const [ title, setTitle ] = useState< string >( gate.title );
 	const [ contentRules, setContentRules ] = useState< GateContentRule[] >( gate.content_rules );
 	const [ registration, setRegistration ] = useState< Registration >( gate.registration );
@@ -73,7 +72,7 @@ const Edit = ( { match, setHeaderText }: ContentGateEditProps ) => {
 				) }
 			/>
 			{ isNew && (
-				<Grid columns={ 2 } gutter={ 16 }>
+				<Grid columns={ 2 } gutter={ 32 }>
 					<SectionHeader
 						heading={ 2 }
 						title={ __( 'What should we call this gate?', 'newspack-plugin' ) }
@@ -90,21 +89,21 @@ const Edit = ( { match, setHeaderText }: ContentGateEditProps ) => {
 				</Grid>
 			) }
 			<Divider alignment="full-width" />
-			<Grid columns={ 2 } gutter={ 16 }>
+			<Grid columns={ 2 } gutter={ 32 }>
 				<SectionHeader
 					heading={ 2 }
 					title={ __( 'What would you like to restrict?', 'newspack-plugin' ) }
-					description={ __( 'Choose whether to restrict all posts or select specific content..', 'newspack-plugin' ) }
+					description={ __( 'Choose whether to restrict all posts or select specific content.', 'newspack-plugin' ) }
 				/>
-				<VStack>
-					<SettingsGroup
+				<VStack style={ { gap: 0 } }>
+					<CardSettingsGroup
 						title={ __( 'Restrict all posts', 'newspack-plugin' ) }
 						description={ __( 'All posts on your site will require access.', 'newspack-plugin' ) }
 						icon={ content }
 						isActive={ contentType === 'all' }
 						onEnable={ () => setContentType( 'all' ) }
 					/>
-					<SettingsGroup
+					<CardSettingsGroup
 						title={ __( 'Choose specific content', 'newspack-plugin' ) }
 						description={ __( 'Select which content to restrict using custom rules.', 'newspack-plugin' ) }
 						icon={ settings }
@@ -112,7 +111,34 @@ const Edit = ( { match, setHeaderText }: ContentGateEditProps ) => {
 						onEnable={ () => setContentType( 'custom' ) }
 					>
 						<ContentRules rules={ contentRules } onChange={ setContentRules } />
-					</SettingsGroup>
+					</CardSettingsGroup>
+				</VStack>
+			</Grid>
+			<Divider alignment="full-width" />
+			<Grid columns={ 2 } gutter={ 32 }>
+				<SectionHeader
+					heading={ 2 }
+					title={ __( 'What’s required to access this content?', 'newspack-plugin' ) }
+					description={ __(
+						'Choose how readers can unlock this content. Enable registered access, paid access, or both. Each option can include metering to give readers limited free access before the restriction applies.',
+						'newspack-plugin'
+					) }
+				/>
+				<VStack style={ { gap: 0 } }>
+					<CardSettingsGroup
+						title={ __( 'Registered Access', 'newspack-plugin' ) }
+						description={ __( 'Readers must log in to view this content.', 'newspack-plugin' ) }
+						icon={ content }
+						isActive={ registration?.active }
+						onEnable={ () => setRegistration( { ...registration, active: ! registration.active } ) }
+					/>
+					<CardSettingsGroup
+						title={ __( 'Paid Access', 'newspack-plugin' ) }
+						description={ __( 'Set conditions like subscriptions, domain, and more.', 'newspack-plugin' ) }
+						icon={ content }
+						isActive={ customAccess?.active }
+						onEnable={ () => setCustomAccess( { ...customAccess, active: ! customAccess.active } ) }
+					/>
 				</VStack>
 			</Grid>
 		</div>
