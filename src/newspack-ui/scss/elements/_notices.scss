@@ -20,7 +20,7 @@
 			line-height: var(--newspack-ui-line-height-xs);
 			margin: var(--newspack-ui-spacer-6) 0;
 			min-height: var(--newspack-ui-spacer-9);
-			padding: var(--newspack-ui-spacer-2);
+			padding: var(--newspack-ui-spacer-2) !important;
 
 			a {
 				text-decoration: underline;
