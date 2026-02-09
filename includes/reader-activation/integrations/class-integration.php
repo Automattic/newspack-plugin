@@ -87,4 +87,34 @@ abstract class Integration {
 	 * @return true|\WP_Error True on success or WP_Error on failure.
 	 */
 	abstract public function push_contact_data( $contact, $context = '', $existing_contact = null );
+
+	/**
+	 * Get incoming available contact fields from the integration.
+	 *
+	 * This method should be implemented by child classes to return
+	 * an array of available contact fields from their integration.
+	 *
+	 * @return Integrations\Incoming_Contact_Field[] Array of incoming contact field objects.
+	 */
+	abstract public function get_incoming_available_contact_fields();
+
+	/**
+	 * Get incoming contact fields that are not already in the metadata.
+	 *
+	 * This method filters the available contact fields to exclude fields
+	 * whose keys already exist in the synced metadata.
+	 *
+	 * @return Integrations\Incoming_Contact_Field[] Array of filtered incoming contact field objects.
+	 */
+	public function get_incoming_contact_fields() {
+		$available_fields = $this->get_incoming_available_contact_fields();
+		$prefixed_keys    = Sync\Metadata::get_all_prefixed_keys();
+
+		return array_filter(
+			$available_fields,
+			function( $field ) use ( $prefixed_keys ) {
+				return ! in_array( $field->get_key(), $prefixed_keys, true );
+			}
+		);
+	}
 }

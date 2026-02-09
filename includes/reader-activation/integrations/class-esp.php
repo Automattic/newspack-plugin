@@ -92,4 +92,29 @@ class ESP extends Integration {
 
 		return Newspack_Newsletters_Contacts::upsert( $contact, $master_list_id, $context, $existing_contact );
 	}
+
+	/**
+	 * Get incoming available contact fields from the integration.
+	 *
+	 * @return Incoming_Contact_Field[] Array of incoming contact field objects.
+	 */
+	public function get_incoming_available_contact_fields() {
+		$master_list_id = Reader_Activation::get_esp_master_list_id();
+
+		if ( empty( $master_list_id ) ) {
+			return new \WP_Error(
+				'ras_esp_master_list_id_not_found',
+				__( 'ESP master list ID is not set.', 'newspack-plugin' )
+			);
+		}
+
+		$fields = Newspack_Newsletters_Contacts::get_fields( $master_list_id );
+
+		return array_map(
+			function( $field ) {
+				return new Incoming_Contact_Field( $field['key'] );
+			},
+			$fields
+		);
+	}
 }
