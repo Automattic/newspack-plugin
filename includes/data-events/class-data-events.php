@@ -139,19 +139,7 @@ final class Data_Events {
 	 * @return bool
 	 */
 	private static function use_action_scheduler() {
-		$use = function_exists( 'as_enqueue_async_action' );
-		/**
-		 * Filters whether to use Action Scheduler for dispatching data events.
-		 *
-		 * When enabled, events are persisted to the database via ActionScheduler
-		 * instead of using a fire-and-forget wp_remote_post() to admin-ajax.php.
-		 *
-		 * Note: This filter is distinct from 'newspack_data_events_use_action_scheduler'
-		 * which controls AS usage for webhooks.
-		 *
-		 * @param bool $use Whether to use Action Scheduler.
-		 */
-		return \apply_filters( 'newspack_data_events_dispatch_use_action_scheduler', $use );
+		return defined( 'NEWSPACK_DATA_EVENTS_ACTIONSCHEDULER' ) && NEWSPACK_DATA_EVENTS_ACTIONSCHEDULER;
 	}
 
 	/**

@@ -387,9 +387,6 @@ class Newspack_Test_Data_Events extends WP_UnitTestCase {
 		$action_name = 'test_nonce_action';
 		Data_Events::register_action( $action_name );
 
-		// Force wp_remote_post path since nonce is only used there.
-		add_filter( 'newspack_data_events_dispatch_use_action_scheduler', '__return_false' );
-
 		// Hook into the dispatched action to capture the URL.
 		$captured_url = '';
 		add_filter(
@@ -405,8 +402,6 @@ class Newspack_Test_Data_Events extends WP_UnitTestCase {
 		// Dispatch an action.
 		Data_Events::dispatch( $action_name, [ 'test' => 'data' ] );
 		Data_Events::execute_queued_dispatches();
-
-		remove_filter( 'newspack_data_events_dispatch_use_action_scheduler', '__return_false' );
 
 		// Verify the URL contains our custom nonce.
 		$nonce = Data_Events::get_nonce();
@@ -491,9 +486,6 @@ class Newspack_Test_Data_Events extends WP_UnitTestCase {
 		$action_name = 'test_grace_period_action';
 		Data_Events::register_action( $action_name );
 
-		// Force wp_remote_post path since nonce is only used there.
-		add_filter( 'newspack_data_events_dispatch_use_action_scheduler', '__return_false' );
-
 		// Get initial nonce.
 		$initial_nonce = Data_Events::get_nonce();
 
@@ -517,8 +509,6 @@ class Newspack_Test_Data_Events extends WP_UnitTestCase {
 		Data_Events::dispatch( $action_name, [ 'test' => 'data' ] );
 		Data_Events::execute_queued_dispatches();
 
-		remove_filter( 'newspack_data_events_dispatch_use_action_scheduler', '__return_false' );
-
 		// Verify the URL contains the new nonce.
 		$this->assertStringContainsString( 'nonce=' . $new_nonce, $captured_url );
 
@@ -533,6 +523,13 @@ class Newspack_Test_Data_Events extends WP_UnitTestCase {
 	public function test_dispatch_via_action_scheduler() {
 		if ( ! function_exists( 'as_enqueue_async_action' ) ) {
 			$this->markTestSkipped( 'ActionScheduler not available.' );
+		}
+
+		// Enable AS dispatch via constant (off by default).
+		if ( ! defined( 'NEWSPACK_DATA_EVENTS_ACTIONSCHEDULER' ) ) {
+			define( 'NEWSPACK_DATA_EVENTS_ACTIONSCHEDULER', true );
+		} elseif ( ! NEWSPACK_DATA_EVENTS_ACTIONSCHEDULER ) {
+			$this->markTestSkipped( 'NEWSPACK_DATA_EVENTS_ACTIONSCHEDULER constant is false and cannot be redefined.' );
 		}
 
 		$action_name = 'test_as_dispatch';
