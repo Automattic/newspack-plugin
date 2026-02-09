@@ -715,6 +715,7 @@ class ComponentsDemo extends Component {
 						<Card
 							__experimentalCoreCard
 							__experimentalCoreProps={ {
+								actionType: 'chevron',
 								as: 'a',
 								header: (
 									<>
@@ -727,10 +728,10 @@ class ComponentsDemo extends Component {
 							} }
 						/>
 						<Card
-							chevron
 							isSmall
 							__experimentalCoreCard
 							__experimentalCoreProps={ {
+								actionType: 'chevron',
 								as: 'a',
 								header: (
 									<>
