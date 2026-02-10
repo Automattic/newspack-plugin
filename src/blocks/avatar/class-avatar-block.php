@@ -100,7 +100,7 @@ final class Avatar_Block {
 			<?php
 			foreach ( $authors as $index => $author ) :
 				$avatar_url  = get_avatar_url( $author->ID, [ 'size' => $image_size * 2 ] );
-				$author_name = esc_attr( $author->display_name );
+				$author_name = $author->display_name;
 				$author_url  = get_author_posts_url( $author->ID );
 
 				$border_attributes = function_exists( 'get_block_core_avatar_border_attributes' )
