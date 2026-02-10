@@ -14,6 +14,8 @@ import * as correctionBox from './correction-box';
 import * as correctionItem from './correction-item';
 import * as avatar from './avatar';
 import * as byline from './byline';
+import * as authorProfileSocial from './author-profile-social';
+import * as authorSocialLink from './author-social-link';
 import * as collections from './collections';
 import * as contentGateCountdown from './content-gate/countdown';
 import * as contentGateCountdownBox from './content-gate/countdown-box';
@@ -30,6 +32,8 @@ export const blocks = [
 	correctionItem,
 	avatar,
 	byline,
+	authorProfileSocial,
+	authorSocialLink,
 	collections,
 	contentGateCountdown,
 	contentGateCountdownBox,
@@ -39,7 +43,13 @@ const readerActivationBlocks = [ 'newspack/reader-registration', 'newspack/my-ac
 const correctionBlocks = [ 'newspack/correction-box', 'newspack/correction-item' ];
 const collectionsBlocks = [ 'newspack/collections' ];
 const contentGateBlocks = [ 'newspack/content-gate-countdown', 'newspack/content-gate-countdown-box' ];
-const blockThemeBlocks = [ 'newspack/avatar', 'newspack/byline', 'newspack/my-account-button' ];
+const blockThemeBlocks = [
+	'newspack/author-profile-social',
+	'newspack/author-social-link',
+	'newspack/avatar',
+	'newspack/byline',
+	'newspack/my-account-button',
+];
 
 /**
  * Function to register an individual block.

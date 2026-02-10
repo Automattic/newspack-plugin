@@ -1,0 +1,17 @@
+// Editor-specific styles for horizontal layout
+.wp-block-newspack-author-profile-social {
+	.author-profile-social__list {
+		// Make InnerBlocks render horizontally in the editor
+		.block-editor-inner-blocks,
+		.block-editor-block-list__layout {
+			display: flex;
+			flex-wrap: wrap;
+			gap: var(--wp--custom--spacing--10, 8px);
+		}
+
+		// Remove default block margins in horizontal layout
+		.wp-block {
+			margin: 0;
+		}
+	}
+}
