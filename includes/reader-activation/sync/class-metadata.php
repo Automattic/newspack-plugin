@@ -183,13 +183,10 @@ class Metadata {
 	 * @return string[] List of prefixed metadata keys.
 	 */
 	public static function get_all_prefixed_keys() {
-		$fields_to_sync = self::get_all_fields();
-		$prefixed_keys  = [];
+		$prefixed_keys = [];
 
 		foreach ( self::get_keys() as $raw_key => $field_name ) {
-			if ( in_array( $field_name, $fields_to_sync, true ) ) {
-				$prefixed_keys[] = self::get_key( $raw_key );
-			}
+			$prefixed_keys[] = self::get_key( $raw_key );
 		}
 
 		return array_unique( $prefixed_keys );
