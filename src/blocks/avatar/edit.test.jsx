@@ -13,6 +13,7 @@ import { useCustomByline } from '../../shared/hooks/use-custom-byline';
 jest.mock( './hooks', () => ( {
 	useUserAvatar: jest.fn(),
 	usePostAuthors: jest.fn(),
+	useDefaultAvatar: jest.fn( () => '' ),
 } ) );
 
 jest.mock( '../../shared/hooks/use-custom-byline', () => ( {
