@@ -138,9 +138,15 @@
 			}
 		}
 	}
-	#payment-methods .newspack-ui__row > .payment-method {
-		min-height: 106px;
+	#payment-methods {
+		.newspack-ui__dropdown:has( ul > li:only-child .disabled ) {
+			display: none;
+		}
+		.newspack-ui__row > .payment-method {
+			min-height: 106px;
+		}
 	}
+
 	#wcpay-upe-element,
 	.wcpay-upe-element {
 		margin-bottom: var(--newspack-ui-spacer-2);
