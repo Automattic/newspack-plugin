@@ -18,7 +18,7 @@ import { addQueryArgs, removeQueryArgs } from '@wordpress/url';
 /**
  * Internal dependencies
  */
-import { useUserAvatar, usePostAuthors } from './hooks';
+import { useUserAvatar, usePostAuthors, useDefaultAvatar } from './hooks';
 import { useCustomByline, extractAuthorIdsFromByline } from '../../shared/hooks/use-custom-byline';
 
 /**
@@ -151,6 +151,7 @@ const Edit = ( { attributes, context, setAttributes } ) => {
 	const authorFromParent = authorFromBlockContext || authorFromReactContext;
 
 	// Hooks must be called unconditionally per React rules.
+	const defaultAvatarUrl = useDefaultAvatar();
 	const { postId, postType } = context;
 	const avatar = useUserAvatar( { userId: attributes?.userId, postId, postType } );
 	const allAuthors = usePostAuthors( { postId, postType } );
@@ -176,7 +177,25 @@ const Edit = ( { attributes, context, setAttributes } ) => {
 		}
 
 		if ( ! avatarUrl ) {
-			return null;
+			// Use the site's default avatar (gravatar silhouette) as fallback.
+			const fallbackAvatar = {
+				src: defaultAvatarUrl || '',
+				alt: authorFromParent.name || '',
+				minSize: 16,
+				maxSize: 128,
+			};
+			return (
+				<>
+					<AvatarInspectorControls attributes={ attributes } setAttributes={ setAttributes } />
+					<div { ...blockProps }>
+						{ fallbackAvatar.src ? (
+							renderAvatar( fallbackAvatar, 'nested-default' )
+						) : (
+							<AvatarWrapper size={ attributes.size } attributes={ attributes } placeholder />
+						) }
+					</div>
+				</>
+			);
 		}
 
 		const parentAvatar = {

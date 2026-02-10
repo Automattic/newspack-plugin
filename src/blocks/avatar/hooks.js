@@ -23,7 +23,7 @@ function getAvatarSizes( sizes ) {
 	};
 }
 
-function useDefaultAvatar() {
+export function useDefaultAvatar() {
 	const { avatarURL: defaultAvatarUrl } = useSelect( select => {
 		const { getSettings } = select( blockEditorStore );
 		const { __experimentalDiscussionSettings } = getSettings();
