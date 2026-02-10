@@ -102,7 +102,7 @@ final class My_Account_Button_Block {
 		$signed_out_label = '' === trim( (string) $attrs['signedOutLabel'] ) ? $default_attrs['signedOutLabel'] : $attrs['signedOutLabel'];
 		$label            = $is_signed_in ? $signed_in_label : $signed_out_label;
 
-		/** Display mode from block style class in className (default = icon + text). */
+		// Display mode from block style class in className (default = icon + text).
 		$wrapper_class = (string) $attrs['className'];
 		if ( \strpos( $wrapper_class, 'is-style-icon-only' ) !== false ) {
 			$show_label = false;
@@ -117,7 +117,7 @@ final class My_Account_Button_Block {
 
 		$account_url = self::get_account_url();
 
-		/** Do not render link for authenticated readers if account page doesn't exist. */
+		// Do not render link for authenticated readers if account page doesn't exist.
 		if ( empty( $account_url ) && \is_user_logged_in() ) {
 			return '';
 		}
@@ -141,26 +141,25 @@ final class My_Account_Button_Block {
 			'newspack-reader__account-link',
 		];
 
-		/** Get default wrapper attributes to extract custom classes */
+		// Get default wrapper attributes to extract custom classes.
 		$default_wrapper_attributes = \get_block_wrapper_attributes();
 
-		/** Extract custom classes (everything except the default block class) */
-		$default_block_class = 'wp-block-newspack-my-account-button';
-		$custom_classes      = [];
+		// Extract custom classes (everything except the default block class).
+		$custom_classes = [];
 
-		/** Parse class attribute from default wrapper */
+		// Parse class attribute from default wrapper.
 		if ( \preg_match( '/class=["\']([^"\']+)["\']/', $default_wrapper_attributes, $matches ) ) {
 			$all_classes = \explode( ' ', $matches[1] );
 			foreach ( $all_classes as $class ) {
 				$class = \trim( $class );
-				/** Only include classes that contain "-size" (e.g., has-small-size) */
+				// Only include classes that contain "-size" (e.g., has-small-size).
 				if ( ! empty( $class ) && \strpos( $class, '-size' ) !== false ) {
 					$custom_classes[] = $class;
 				}
 			}
 		}
 
-		/** Build wrapper div classes */
+		// Build wrapper div classes.
 		$wrapper_div_classes = [ 'wp-block-buttons' ];
 		if ( ! empty( $custom_classes ) ) {
 			$wrapper_div_classes = \array_merge( $wrapper_div_classes, $custom_classes );
