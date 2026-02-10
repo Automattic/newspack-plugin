@@ -20,7 +20,7 @@ export { name };
 
 export const settings = {
 	...metadata,
-	title: __( 'Author Social Links', 'newspack' ),
+	title: __( 'Author Social Links', 'newspack-plugin' ),
 	icon: share,
 	edit,
 	save: () => <InnerBlocks.Content />,

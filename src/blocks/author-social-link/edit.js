@@ -124,9 +124,9 @@ export default function AuthorSocialLinkEdit( { attributes } ) {
 			soundcloud: 'SoundCloud',
 			tumblr: 'Tumblr',
 			wikipedia: 'Wikipedia',
-			website: __( 'Website', 'newspack' ),
-			email: __( 'Email', 'newspack' ),
-			phone: __( 'Phone', 'newspack' ),
+			website: __( 'Website', 'newspack-plugin' ),
+			email: __( 'Email', 'newspack-plugin' ),
+			phone: __( 'Phone', 'newspack-plugin' ),
 		}[ service ] || service;
 
 	return (

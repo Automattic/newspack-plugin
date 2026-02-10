@@ -137,7 +137,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 	if ( services.length === 0 && innerBlockCount === 0 ) {
 		return (
 			<div { ...blockProps }>
-				<p className="social-links-placeholder">{ __( 'Social links will appear here.', 'newspack' ) }</p>
+				<p className="social-links-placeholder">{ __( 'Social links will appear here.', 'newspack-plugin' ) }</p>
 			</div>
 		);
 	}
@@ -146,13 +146,13 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 		<>
 			<BlockControls>
 				<ToolbarGroup>
-					<ToolbarButton icon={ backup } label={ __( 'Reset links', 'newspack' ) } onClick={ resetLinks } />
+					<ToolbarButton icon={ backup } label={ __( 'Reset links', 'newspack-plugin' ) } onClick={ resetLinks } />
 				</ToolbarGroup>
 			</BlockControls>
 			<InspectorControls>
-				<PanelBody title={ __( 'Social Links Settings', 'newspack' ) }>
+				<PanelBody title={ __( 'Social Links Settings', 'newspack-plugin' ) }>
 					<RangeControl
-						label={ __( 'Icon Size', 'newspack' ) }
+						label={ __( 'Icon Size', 'newspack-plugin' ) }
 						value={ iconSize }
 						onChange={ value => setAttributes( { iconSize: value } ) }
 						min={ 16 }
@@ -160,7 +160,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 					/>
 					{ missingServices.length > 0 && (
 						<Button variant="secondary" onClick={ addMissingLinks }>
-							{ __( 'Add missing links', 'newspack' ) }
+							{ __( 'Add missing links', 'newspack-plugin' ) }
 						</Button>
 					) }
 				</PanelBody>

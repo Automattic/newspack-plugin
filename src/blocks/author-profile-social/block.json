@@ -10,7 +10,7 @@
 	"providesContext": {
 		"newspack-blocks/iconSize": "iconSize"
 	},
-	"textdomain": "newspack",
+	"textdomain": "newspack-plugin",
 	"attributes": {
 		"showEmail": {
 			"type": "boolean",

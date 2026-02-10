@@ -7,7 +7,7 @@
 	"parent": [ "newspack/author-profile-social" ],
 	"description": "Display a single social media icon for the author.",
 	"usesContext": [ "newspack-blocks/author", "newspack-blocks/iconSize" ],
-	"textdomain": "newspack",
+	"textdomain": "newspack-plugin",
 	"attributes": {
 		"service": {
 			"type": "string",

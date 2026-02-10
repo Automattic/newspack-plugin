@@ -17,7 +17,7 @@ export { name };
 
 export const settings = {
 	...metadata,
-	title: __( 'Author Social Link', 'newspack' ),
+	title: __( 'Author Social Link', 'newspack-plugin' ),
 	icon: share,
 	edit,
 	save: () => null,
