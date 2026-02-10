@@ -30,7 +30,7 @@ const inflightRequests = {};
  * @return {Promise} Resolves when the fetch completes (result is stored in guestAvatarCache).
  */
 function fetchCoauthorAvatar( nicename ) {
-	if ( guestAvatarCache[ nicename ] ) {
+	if ( nicename in guestAvatarCache ) {
 		return Promise.resolve();
 	}
 	if ( inflightRequests[ nicename ] ) {
@@ -40,11 +40,11 @@ function fetchCoauthorAvatar( nicename ) {
 		path: `${ COAUTHORS_ENDPOINT }/${ encodeURIComponent( nicename ) }`,
 	} )
 		.then( result => {
-			if ( result?.avatar_urls ) {
-				guestAvatarCache[ nicename ] = result.avatar_urls;
-			}
+			guestAvatarCache[ nicename ] = result?.avatar_urls || false;
 		} )
-		.catch( () => {} ) // Silently skip failed fetches.
+		.catch( () => {
+			guestAvatarCache[ nicename ] = false;
+		} )
 		.finally( () => {
 			delete inflightRequests[ nicename ];
 		} );
