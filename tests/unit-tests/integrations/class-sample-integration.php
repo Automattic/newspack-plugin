@@ -33,4 +33,16 @@ class Sample_Integration extends Integration {
 	public function can_sync( $return_errors = false ) {
 		return $return_errors ? new \WP_Error() : true;
 	}
+
+	/**
+	 * Get incoming available contact fields from the integration.
+	 *
+	 * This method should be implemented by child classes to return
+	 * an array of available contact fields from their integration.
+	 *
+	 * @return Integrations\Incoming_Contact_Field[] Array of incoming contact field objects.
+	 */
+	public function get_incoming_available_contact_fields() {
+		return [];
+	}
 }
