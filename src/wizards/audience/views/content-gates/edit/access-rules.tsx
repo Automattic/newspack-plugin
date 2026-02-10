@@ -1,16 +1,12 @@
 /**
  * WordPress dependencies.
  */
-import { __ } from '@wordpress/i18n';
-import { CardDivider, DropdownMenu } from '@wordpress/components';
-import { Fragment, useCallback, useMemo } from '@wordpress/element';
+import { CardDivider } from '@wordpress/components';
+import { Fragment, useCallback } from '@wordpress/element';
 
 /**
  * Internal dependencies
  */
-import { ActionCard, Grid } from '../../../../../../packages/components/src';
-import RulesChoices from './rules-choices';
-import AccessRuleControl from './access-rule-control';
 import AccessRule from './access-rule';
 
 const availableAccessRules = window.newspackAudienceContentGates.available_access_rules || {};
@@ -21,17 +17,6 @@ interface AccessRulesProps {
 }
 
 export default function AccessRules( { rules, onChange }: AccessRulesProps ) {
-	const choices = useMemo( () => {
-		return Object.keys( availableAccessRules ).map( slug => {
-			const rule = availableAccessRules[ slug ];
-			return {
-				label: rule.name,
-				value: slug,
-				info: rule.description,
-			};
-		} );
-	}, [] );
-
 	const handleToggle = useCallback(
 		( slug: string ) => {
 			const hasRule = rules.find( r => r.slug === slug );
@@ -71,28 +56,5 @@ export default function AccessRules( { rules, onChange }: AccessRulesProps ) {
 				);
 			} ) }
 		</>
-	);
-
-	return (
-		<ActionCard
-			title={ __( 'Access Rules', 'newspack-plugin' ) }
-			description={ __( 'Configure how readers can bypass this content gate.', 'newspack-plugin' ) }
-			hasWhiteHeader={ true }
-			noBorder={ true }
-			noMargin={ true }
-			actionContent={
-				<div style={ { background: 'var(--newspack-ui-color-neutral-5)' } }>
-					<DropdownMenu icon={ false } text={ __( 'Manage Rules', 'newspack-plugin' ) } label={ __( 'Manage Rules', 'newspack-plugin' ) }>
-						{ () => <RulesChoices choices={ choices } onSelect={ handleToggle } value={ rules.map( r => r.slug ) } /> }
-					</DropdownMenu>
-				</div>
-			}
-		>
-			<Grid columns={ 2 } gutter={ 32 } noMargin={ true }>
-				{ rules.map( ( rule: GateAccessRule ) => (
-					<AccessRuleControl key={ rule.slug } slug={ rule.slug } value={ rule.value } onChange={ handleChange( rule.slug ) } />
-				) ) }
-			</Grid>
-		</ActionCard>
 	);
 }
