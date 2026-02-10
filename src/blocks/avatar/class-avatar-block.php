@@ -155,21 +155,16 @@ final class Avatar_Block {
 		$image_size     = $attributes['size'] ?? 48;
 		$link_to_author = $attributes['linkToAuthorArchive'] ?? false;
 
-		// Get avatar URL from parent context.
-		$avatar_url = '';
-		if ( ! empty( $author['avatar'] ) ) {
-			// If avatar is HTML, extract the src.
-			if ( strpos( $author['avatar'], '<img' ) !== false ) {
-				preg_match( '/src=["\']([^"\']+)["\']/', $author['avatar'], $matches );
-				$avatar_url = $matches[1] ?? '';
-			} else {
-				$avatar_url = $author['avatar'];
-			}
-		}
+		// Resolve avatar at the block's own size. The parent context's 'avatar' key
+		// signals that a real (non-default) avatar exists; avatarHideDefault controls
+		// whether to fall back to the gravatar default when no custom avatar is set.
+		$has_parent_avatar = ! empty( $author['avatar'] );
+		$hide_default      = ! empty( $author['avatarHideDefault'] );
 
-		// Fallback: try to get avatar by author ID.
-		if ( empty( $avatar_url ) && ! empty( $author['id'] ) ) {
+		if ( ! empty( $author['id'] ) && ( $has_parent_avatar || ! $hide_default ) ) {
 			$avatar_url = get_avatar_url( $author['id'], [ 'size' => $image_size * 2 ] );
+		} else {
+			$avatar_url = '';
 		}
 
 		if ( empty( $avatar_url ) ) {
