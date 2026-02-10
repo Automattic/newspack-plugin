@@ -64,8 +64,6 @@ final class Author_Profile_Social_Block {
 	 * @return string The rendered block markup.
 	 */
 	public static function render_block( array $attributes, string $content, WP_Block $block ) {
-		\Newspack_Blocks::enqueue_view_assets( 'author-profile-social' );
-
 		$author = $block->context['newspack-blocks/author'] ?? null;
 		if ( ! $author ) {
 			return '';

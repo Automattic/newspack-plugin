@@ -1,7 +1,9 @@
 @use "../../shared/scss/mixins";
 
 .wp-block-newspack-author-profile-social {
-	margin-top: 0.5em;
+	&.wp-block-newspack-author-profile-social {
+		margin-block-start: 0.5rem;
+	}
 
 	.author-profile-social__list {
 		display: flex;
