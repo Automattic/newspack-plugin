@@ -12,7 +12,7 @@ import {
 	__experimentalUseBorderProps as useBorderProps,
 } from '@wordpress/block-editor';
 import { __ } from '@wordpress/i18n';
-import { createContext, useContext, useMemo } from '@wordpress/element';
+import { createContext, useContext, useEffect, useMemo, useState } from '@wordpress/element';
 import { PanelBody, RangeControl, ToggleControl } from '@wordpress/components';
 import { addQueryArgs, removeQueryArgs } from '@wordpress/url';
 /**
@@ -29,9 +29,10 @@ const FallbackAuthorContext = createContext( null );
 
 /**
  * Get the shared AuthorContext from newspack-blocks if available, otherwise use fallback.
- * This allows the avatar block to be used inside the Author Profile block's nested mode.
+ * Resolved at render time (not module load) so it works regardless of script load order.
  */
-const SharedAuthorContext = typeof window !== 'undefined' && window.NewspackAuthorContext ? window.NewspackAuthorContext : FallbackAuthorContext;
+const getSharedAuthorContext = () =>
+	typeof window !== 'undefined' && window.NewspackAuthorContext ? window.NewspackAuthorContext : FallbackAuthorContext;
 
 const AvatarInspectorControls = ( { setAttributes, attributes } ) => (
 	<InspectorControls>
@@ -63,6 +64,14 @@ const AvatarInspectorControls = ( { setAttributes, attributes } ) => (
 const AvatarWrapper = ( { avatar, size, attributes, placeholder = false } ) => {
 	const { className } = useBlockProps();
 	const borderProps = useBorderProps( attributes );
+
+	// Debounce the size used for image fetching so dragging the slider
+	// doesn't fire a network request on every pixel change.
+	const [ imageFetchSize, setImageFetchSize ] = useState( attributes?.size ?? 48 );
+	useEffect( () => {
+		const timer = setTimeout( () => setImageFetchSize( attributes?.size ?? 48 ), 150 );
+		return () => clearTimeout( timer );
+	}, [ attributes?.size ] );
 
 	const avatarSrc = avatar?.src;
 	if ( ! avatarSrc && ! placeholder ) {
@@ -100,7 +109,7 @@ const AvatarWrapper = ( { avatar, size, attributes, placeholder = false } ) => {
 	}
 
 	const doubledSizedSrc = addQueryArgs( removeQueryArgs( avatarSrc, [ 's' ] ), {
-		s: attributes?.size * 2,
+		s: imageFetchSize * 2,
 	} );
 	const avatarImage = (
 		<img
@@ -137,7 +146,8 @@ const Edit = ( { attributes, context, setAttributes } ) => {
 
 	// Check for parent block context first (nested mode - single author).
 	const authorFromBlockContext = context[ 'newspack-blocks/author' ];
-	const authorFromReactContext = useContext( SharedAuthorContext );
+	const ResolvedAuthorContext = getSharedAuthorContext();
+	const authorFromReactContext = useContext( ResolvedAuthorContext );
 	const authorFromParent = authorFromBlockContext || authorFromReactContext;
 
 	// Hooks must be called unconditionally per React rules.
