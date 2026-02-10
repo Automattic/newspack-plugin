@@ -7,6 +7,7 @@ import { PanelBody, RangeControl, Button, ToolbarButton, ToolbarGroup } from '@w
 import { useSelect, useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { backup } from '@wordpress/icons';
+import { createBlock } from '@wordpress/blocks';
 
 /**
  * Get the shared AuthorContext from newspack-blocks (via window global).
@@ -79,13 +80,14 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 	} );
 
 	// Check current inner blocks.
-	const { innerBlockCount, currentServices } = useSelect(
+	const { innerBlockCount, currentServices, innerBlocks } = useSelect(
 		select => {
 			const editor = select( 'core/block-editor' );
-			const innerBlocks = editor.getBlocks( clientId );
+			const blocks = editor.getBlocks( clientId );
 			return {
-				innerBlockCount: innerBlocks.length,
-				currentServices: innerBlocks.map( b => b.attributes.service ).filter( Boolean ),
+				innerBlockCount: blocks.length,
+				currentServices: blocks.map( b => b.attributes.service ).filter( Boolean ),
+				innerBlocks: blocks,
 			};
 		},
 		[ clientId ]
@@ -106,7 +108,6 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 
 		hasPopulated.current = true;
 
-		const { createBlock } = wp.blocks;
 		const blocks = services.map( service => createBlock( 'newspack/author-social-link', { service } ) );
 		replaceInnerBlocks( clientId, blocks, false );
 	}, [ author, innerBlockCount, clientId, replaceInnerBlocks ] );
@@ -115,17 +116,13 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 	const missingServices = services.filter( s => ! currentServices.includes( s ) );
 
 	const resetLinks = () => {
-		const { createBlock } = wp.blocks;
 		const blocks = services.map( service => createBlock( 'newspack/author-social-link', { service } ) );
 		replaceInnerBlocks( clientId, blocks, false );
 	};
 
 	const addMissingLinks = () => {
-		const { createBlock } = wp.blocks;
 		const newBlocks = missingServices.map( service => createBlock( 'newspack/author-social-link', { service } ) );
-		const editor = wp.data.select( 'core/block-editor' );
-		const existingBlocks = editor.getBlocks( clientId );
-		replaceInnerBlocks( clientId, [ ...existingBlocks, ...newBlocks ], false );
+		replaceInnerBlocks( clientId, [ ...innerBlocks, ...newBlocks ], false );
 	};
 
 	if ( services.length === 0 && innerBlockCount === 0 ) {
