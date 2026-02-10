@@ -60,6 +60,7 @@ const Wizard = (
 ) => {
 	const isLoading = useSelect( select => select( WIZARD_STORE_NAMESPACE ).isLoading() );
 	const isQuietLoading = useSelect( select => select( WIZARD_STORE_NAMESPACE ).isQuietLoading() );
+	const headerSection = useSelect( select => select( WIZARD_STORE_NAMESPACE ).getHeaderSection() );
 
 	// Trigger initial data fetch. Some sections might not use the wizard data,
 	// but for consistency, fetching is triggered regardless of the section.
@@ -109,7 +110,7 @@ const Wizard = (
 									<NewspackIcon size={ 36 } />
 								) }
 								<div>
-									{ headerText && <h2>{ headerText }</h2> }
+									{ headerText && <h2>{ `${ headerText } ${ headerSection ? ` / ${ headerSection }` : '' }` }</h2> }
 									{ subHeaderText && <span>{ subHeaderText }</span> }
 								</div>
 							</div>

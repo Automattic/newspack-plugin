@@ -21,7 +21,7 @@ import { useWizardApiFetch } from '../../../hooks/use-wizard-api-fetch';
 import WizardsActionCard from '../../../wizards-action-card';
 import ContentGatesOnboarding from './content-gates-onboarding';
 import ContentGateSettings from './content-gate-settings';
-import { AUDIENCE_CONTENT_GATES_WIZARD_SLUG, BASE_HEADER_TEXT } from './consts';
+import { AUDIENCE_CONTENT_GATES_WIZARD_SLUG } from './consts';
 import './style.scss';
 
 const getGateStatus = ( status: GateStatus ) => {
@@ -54,9 +54,9 @@ const getGateStatusBadgeLevel = ( status: GateStatus ) => {
 	}
 };
 
-const ContentGates = ( { setHeaderText }: { setHeaderText: ( text: string ) => void } ) => {
+const ContentGates = () => {
 	const wizardData = useWizardData( 'newspack-audience-access-control' ) as WizardData;
-	const { updateWizardSettings } = useDispatch( WIZARD_STORE_NAMESPACE );
+	const { setHeaderSection, updateWizardSettings } = useDispatch( WIZARD_STORE_NAMESPACE );
 	const { wizardApiFetch, isFetching, errorMessage, resetError } = useWizardApiFetch( AUDIENCE_CONTENT_GATES_WIZARD_SLUG );
 	const [ showModal, setShowModal ] = useState( false );
 	const [ newGateName, setNewGateName ] = useState( '' );
@@ -75,8 +75,8 @@ const ContentGates = ( { setHeaderText }: { setHeaderText: ( text: string ) => v
 	};
 
 	useEffect( () => {
-		setHeaderText( BASE_HEADER_TEXT );
-	}, [] );
+		setHeaderSection( '' );
+	}, [ setHeaderSection ] );
 
 	useEffect( () => {
 		if ( isFetching ) {

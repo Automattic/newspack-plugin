@@ -7,14 +7,15 @@
  */
 import { __, sprintf } from '@wordpress/i18n';
 import { __experimentalVStack as VStack } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
+import { useDispatch } from '@wordpress/data';
 import { useEffect, useState } from '@wordpress/element';
 
 /**
  * Internal dependencies
  */
 import { CardSettingsGroup, Divider, Grid, SectionHeader, TextControl } from '../../../../../../packages/components/src';
+import { WIZARD_STORE_NAMESPACE } from '../../../../../../packages/components/src/wizard/store';
 import { account, currency, content, settings } from '../../../../../../packages/icons';
-import { BASE_HEADER_TEXT } from '../consts';
 import ContentRules from './content-rules';
 import Registration from './registration';
 import CustomAccess from './custom-access';
@@ -23,7 +24,6 @@ import './style.scss';
 type ContentGateEditProps = {
 	gate?: Gate;
 	match: { params: { id: string; type: string } };
-	setHeaderText: ( text: string ) => void;
 };
 
 const DEFAULT_GATE: Gate = {
@@ -31,36 +31,37 @@ const DEFAULT_GATE: Gate = {
 	title: '',
 	priority: 0,
 	status: 'publish',
-	content_rules: [],
+	content_rules: [ { slug: 'post_types', value: [ 'post' ] } ],
 	registration: { active: false, metering: { enabled: false, count: 1, period: 'month' }, require_verification: false, gate_layout_id: 0 },
 	custom_access: { active: false, metering: { enabled: false, count: 1, period: 'month' }, gate_layout_id: 0, access_rules: [] },
 };
 
-const Edit = ( { match, setHeaderText }: ContentGateEditProps ) => {
+const Edit = ( { match }: ContentGateEditProps ) => {
 	const { id, type } = match.params;
 	const [ gate, setGate ] = useState< Gate >( DEFAULT_GATE ); // eslint-disable-line @typescript-eslint/no-unused-vars
 	const [ title, setTitle ] = useState< string >( gate.title );
 	const [ contentRules, setContentRules ] = useState< GateContentRule[] >( gate.content_rules );
 	const [ registration, setRegistration ] = useState< Registration >( gate.registration );
 	const [ customAccess, setCustomAccess ] = useState< CustomAccess >( gate.custom_access );
-	const [ contentType, setContentType ] = useState< 'all' | 'custom' >( type as 'all' | 'custom' );
+	const [ contentType, setContentType ] = useState< 'all' | 'custom' | undefined >( type as 'all' | 'custom' | undefined );
+	const { setHeaderSection } = useDispatch( WIZARD_STORE_NAMESPACE );
 
 	const isNew = id === 'new';
 
 	useEffect( () => {
-		if ( isNew ) {
-			setHeaderText( `${ BASE_HEADER_TEXT } / ${ __( 'Add new', 'newspack-plugin' ) }` );
-		} else {
-			setHeaderText( `${ BASE_HEADER_TEXT } / ${ __( 'Edit', 'newspack-plugin' ) }` );
-		}
-	}, [ isNew, setHeaderText ] );
+		setHeaderSection( isNew ? __( 'Add new', 'newspack-plugin' ) : __( 'Edit', 'newspack-plugin' ) );
+	}, [ isNew, setHeaderSection ] );
 
-	// Set the default content rules for new gates.
+	// Update gate settings.
 	useEffect( () => {
-		if ( isNew ) {
-			setContentRules( [ { slug: 'post_types', value: [ 'post' ] } ] );
-		}
-	}, [ isNew, type ] );
+		setGate( {
+			...gate,
+			title,
+			content_rules: contentType === 'all' ? DEFAULT_GATE.content_rules : contentRules,
+			registration,
+			custom_access: customAccess,
+		} );
+	}, [ contentRules, contentType, registration, customAccess, title ] );
 
 	return (
 		<div className="newspack-content-gate__edit">

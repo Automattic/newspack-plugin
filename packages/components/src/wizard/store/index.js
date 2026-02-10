@@ -16,6 +16,7 @@ import { createAction } from './utils.js';
 export const WIZARD_STORE_NAMESPACE = 'newspack/wizards';
 
 const DEFAULT_STATE = {
+	headerSection: '',
 	isLoading: false,
 	isQuietLoading: false,
 	apiData: {},
@@ -31,6 +32,8 @@ const clone = objectToClone => JSON.parse( JSON.stringify( objectToClone ) );
 
 const reducer = ( state = DEFAULT_STATE, { type, payload = {} } ) => {
 	switch ( type ) {
+		case 'SET_HEADER_SECTION':
+			return { ...state, headerSection: payload };
 		case 'START_LOADING_DATA':
 			if ( payload.isQuietLoading ) {
 				return { ...state, isQuietLoading: true };
@@ -51,6 +54,7 @@ const reducer = ( state = DEFAULT_STATE, { type, payload = {} } ) => {
 
 const actions = {
 	// Regular actions.
+	setHeaderSection: createAction( 'SET_HEADER_SECTION' ),
 	startLoadingData: createAction( 'START_LOADING_DATA' ),
 	finishLoadingData: createAction( 'FINISH_LOADING_DATA' ),
 	fetchFromAPI: createAction( 'FETCH_FROM_API' ),
@@ -85,6 +89,7 @@ const actions = {
 };
 
 const selectors = {
+	getHeaderSection: state => state.headerSection,
 	isLoading: state => state.isLoading,
 	isQuietLoading: state => state.isQuietLoading,
 	getWizardAPIData: ( state, slug ) => state.apiData[ slug ] || {},
