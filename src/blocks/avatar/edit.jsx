@@ -159,7 +159,7 @@ const Edit = ( { attributes, context, setAttributes } ) => {
 								alt: author?.name || author?.display_name || '',
 							};
 							return renderAvatar( currentAvatar, author.id || index );
-					} )
+					  } )
 					: renderAvatar( avatar, 'single-author' ) }
 			</div>
 		</>
