@@ -171,7 +171,7 @@ final class Avatar_Block {
 			return '';
 		}
 
-		$author_name = esc_attr( $author['name'] ?? '' );
+		$author_name = $author['name'] ?? '';
 		$author_url  = $author['url'] ?? '';
 
 		$wrapper_attributes = get_block_wrapper_attributes( [ 'style' => '--avatar-size: ' . esc_attr( $image_size ) . 'px;' ] );
