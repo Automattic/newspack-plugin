@@ -1,4 +1,9 @@
 /**
+ * WordPress dependencies
+ */
+import { safeHTML } from '@wordpress/dom';
+
+/**
  * Fallback SVG icon map for social services.
  * Used when Newspack_SVG_Icons (from newspack-theme) is not available (e.g., block theme).
  */
@@ -42,9 +47,9 @@ export default SOCIAL_ICONS;
  * @return {string|null} SVG markup string or null.
  */
 export function getSocialIconSvg( service, authorData ) {
-	// If the REST API provided an SVG (from Newspack_SVG_Icons on classic theme), use it.
+	// If the REST API provided an SVG (from Newspack_SVG_Icons on classic theme), sanitize and use it.
 	if ( authorData?.svg ) {
-		return authorData.svg;
+		return safeHTML( authorData.svg );
 	}
 	// Fall back to built-in SVG map (for block theme).
 	return SOCIAL_ICONS[ service ] || null;
