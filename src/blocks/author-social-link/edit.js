@@ -91,13 +91,14 @@ function getServiceData( author, service ) {
  *
  * @param {Object} props            Block props.
  * @param {Object} props.attributes Block attributes.
+ * @param {Object} props.context    Block context.
  * @return {JSX.Element|null} The edit component.
  */
-export default function AuthorSocialLinkEdit( { attributes } ) {
+export default function AuthorSocialLinkEdit( { attributes, context } ) {
 	const AuthorContext = getSharedAuthorContext();
 	const author = useContext( AuthorContext );
 	const { service } = attributes;
-	const iconSize = author?._iconSize || 24;
+	const iconSize = context?.[ 'newspack-blocks/iconSize' ] ?? 24;
 
 	const blockProps = useBlockProps( {
 		className: 'wp-block-newspack-author-social-link',

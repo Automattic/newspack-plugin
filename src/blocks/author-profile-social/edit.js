@@ -78,12 +78,6 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 		},
 	} );
 
-	// Pass iconSize to author context for child blocks to read.
-	// We use a mutable property on the author object as a simple way to pass it down.
-	if ( author ) {
-		author._iconSize = iconSize;
-	}
-
 	// Check current inner blocks.
 	const { innerBlockCount, currentServices } = useSelect(
 		select => {
