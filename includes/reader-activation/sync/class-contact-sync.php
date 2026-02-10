@@ -162,7 +162,7 @@ class Contact_Sync extends Sync {
 			throw new \RuntimeException( sprintf( 'Integration "%s" not found.', sanitize_text_field( $integration_id ) ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
 		}
 
-		/** This filter is documented in includes/reader-activation/sync/class-esp-sync.php */
+		/** This filter is documented in includes/reader-activation/sync/class-contact-sync.php */
 		$contact = \apply_filters( 'newspack_esp_sync_contact', $contact, $context );
 		$contact = Sync\Metadata::normalize_contact_data( $contact );
 
@@ -190,7 +190,7 @@ class Contact_Sync extends Sync {
 	 * @return true|\WP_Error True if all succeeded, or WP_Error with combined messages.
 	 */
 	private static function push_to_integrations( $contact, $context, $existing_contact = null ) {
-		/** This filter is documented in includes/reader-activation/sync/class-esp-sync.php */
+		/** This filter is documented in includes/reader-activation/sync/class-contact-sync.php */
 		$contact = \apply_filters( 'newspack_esp_sync_contact', $contact, $context );
 		$contact = Sync\Metadata::normalize_contact_data( $contact );
 
