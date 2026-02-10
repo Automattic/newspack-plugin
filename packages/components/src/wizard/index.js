@@ -110,7 +110,16 @@ const Wizard = (
 									<NewspackIcon size={ 36 } />
 								) }
 								<div>
-									{ headerText && <h2>{ `${ headerText } ${ headerSection ? ` / ${ headerSection }` : '' }` }</h2> }
+									{ headerText && (
+										<h2 className="newspack-wizard__header__title">
+											{ headerText }
+											{ headerSection && (
+												<span className="newspack-wizard__header__section">
+													<span className="newspack-wizard__header__section__separator"> / </span> { headerSection }
+												</span>
+											) }
+										</h2>
+									) }
 									{ subHeaderText && <span>{ subHeaderText }</span> }
 								</div>
 							</div>
