@@ -139,7 +139,8 @@ final class Data_Events {
 	 * @return bool
 	 */
 	private static function use_action_scheduler() {
-		return defined( 'NEWSPACK_DATA_EVENTS_ACTIONSCHEDULER' ) && NEWSPACK_DATA_EVENTS_ACTIONSCHEDULER;
+		$use = defined( 'NEWSPACK_DATA_EVENTS_ACTIONSCHEDULER' ) && NEWSPACK_DATA_EVENTS_ACTIONSCHEDULER;
+		return apply_filters( 'newspack_data_events_use_action_scheduler_dispatch', $use );
 	}
 
 	/**

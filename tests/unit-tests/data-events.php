@@ -525,12 +525,8 @@ class Newspack_Test_Data_Events extends WP_UnitTestCase {
 			$this->markTestSkipped( 'ActionScheduler not available.' );
 		}
 
-		// Enable AS dispatch via constant (off by default).
-		if ( ! defined( 'NEWSPACK_DATA_EVENTS_ACTIONSCHEDULER' ) ) {
-			define( 'NEWSPACK_DATA_EVENTS_ACTIONSCHEDULER', true );
-		} elseif ( ! NEWSPACK_DATA_EVENTS_ACTIONSCHEDULER ) {
-			$this->markTestSkipped( 'NEWSPACK_DATA_EVENTS_ACTIONSCHEDULER constant is false and cannot be redefined.' );
-		}
+		// Enable AS dispatch via filter.
+		add_filter( 'newspack_data_events_use_action_scheduler_dispatch', '__return_true' );
 
 		$action_name = 'test_as_dispatch';
 		Data_Events::register_action( $action_name );
@@ -559,6 +555,8 @@ class Newspack_Test_Data_Events extends WP_UnitTestCase {
 			'ARRAY_A'
 		);
 		$this->assertNotEmpty( $pending, 'AS dispatch should schedule pending actions.' );
+
+		remove_filter( 'newspack_data_events_use_action_scheduler_dispatch', '__return_true' );
 	}
 
 	/**
