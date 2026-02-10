@@ -57,11 +57,6 @@ class Contact_Sync extends Sync {
 	/**
 	 * Sync contact to the ESP.
 	 *
-	 * During data event handler execution, dispatches a separate data event
-	 * per active integration. Each per-integration event is handled
-	 * independently by Data Events, which provides handler-level retry with
-	 * exponential backoff if a push fails.
-	 *
 	 * Outside data events, uses the in-memory queue for batch execution on shutdown.
 	 *
 	 * @param array  $contact          The contact data to sync.
@@ -78,12 +73,6 @@ class Contact_Sync extends Sync {
 
 		if ( empty( $context ) ) {
 			$context = static::$context;
-		}
-
-		// During data event handler execution, dispatch a separate event per
-		// integration so each can be independently retried by Data Events.
-		if ( Data_Events::current_event() && ! did_action( 'shutdown' ) ) {
-			return self::dispatch_integration_syncs( $contact, $context, $existing_contact );
 		}
 
 		// Outside data event context: in-memory queue + shutdown execution.
@@ -105,34 +94,6 @@ class Contact_Sync extends Sync {
 		}
 
 		return self::push_to_integrations( $contact, $context, $existing_contact );
-	}
-
-	/**
-	 * Dispatch a per-integration sync event for each active integration.
-	 *
-	 * Each integration gets its own Data Events dispatch so it can be
-	 * independently processed and retried by the handler retry mechanism.
-	 *
-	 * @param array  $contact          The contact data to sync.
-	 * @param string $context          The context of the sync.
-	 * @param array  $existing_contact Optional. Existing contact data to merge with.
-	 *
-	 * @return true
-	 */
-	private static function dispatch_integration_syncs( $contact, $context, $existing_contact = null ) {
-		$integrations = Integrations::get_active_integrations();
-		foreach ( $integrations as $integration_id => $integration ) {
-			Data_Events::dispatch(
-				self::SYNC_INTEGRATION_ACTION,
-				[
-					'integration_id'   => $integration_id,
-					'contact'          => $contact,
-					'context'          => $context,
-					'existing_contact' => $existing_contact,
-				]
-			);
-		}
-		return true;
 	}
 
 	/**
@@ -181,7 +142,9 @@ class Contact_Sync extends Sync {
 	/**
 	 * Push contact data to all active integrations.
 	 *
-	 * Used outside data event context (shutdown queue, WP-CLI, manual calls).
+	 * When running inside a data event handler, failed integrations are
+	 * dispatched as individual esp_sync_integration events so Data Events
+	 * can retry them independently with exponential backoff.
 	 *
 	 * @param array  $contact          The contact data to sync.
 	 * @param string $context          The context of the sync.
@@ -200,6 +163,17 @@ class Contact_Sync extends Sync {
 		foreach ( $integrations as $integration_id => $integration ) {
 			$result = $integration->push_contact_data( $contact, $context, $existing_contact );
 			if ( \is_wp_error( $result ) ) {
+				// Dispatch a per-integration retry event so Data Events
+				// can retry this integration independently.
+				Data_Events::dispatch(
+					self::SYNC_INTEGRATION_ACTION,
+					[
+						'integration_id'   => $integration_id,
+						'contact'          => $contact,
+						'context'          => $context,
+						'existing_contact' => $existing_contact,
+					]
+				);
 				$errors[] = sprintf( '[%s] %s', $integration_id, $result->get_error_message() );
 			}
 		}
