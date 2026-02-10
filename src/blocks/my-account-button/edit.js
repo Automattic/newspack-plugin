@@ -24,23 +24,19 @@ import {
 } from '@wordpress/block-editor';
 import { ToolbarButton, ToolbarGroup } from '@wordpress/components';
 
-function MyAccountButtonEdit( { attributes, setAttributes, className: wrapperClassName } ) {
+function MyAccountButtonEdit( { attributes, setAttributes } ) {
 	const { signedInLabel, signedOutLabel, style, className: blockClassName } = attributes;
 	const borderProps = useBorderProps( attributes );
 	const colorProps = useColorProps( attributes );
 	const spacingProps = useSpacingProps( attributes );
-
-	// Block style comes from the Styles panel (wrapper) or saved className.
-	const blockWrapperProps = useBlockProps();
-	const className = blockWrapperProps?.className ?? wrapperClassName ?? blockClassName ?? '';
-	const isIconOnly = className.includes( 'is-style-icon-only' );
-	const isTextOnly = className.includes( 'is-style-text-only' );
+	const isIconOnly = ( blockClassName || '' ).includes( 'is-style-icon-only' );
+	const isTextOnly = ( blockClassName || '' ).includes( 'is-style-text-only' );
 	const isLabelVisible = ! isIconOnly;
 	const isIconVisible = ! isTextOnly;
 
 	const blockProps = useBlockProps( {
 		className: classnames(
-			className,
+			blockClassName,
 			'wp-block-button__link',
 			'newspack-reader__account-link',
 			'wp-block-newspack-my-account-button__link',
