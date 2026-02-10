@@ -103,11 +103,11 @@ final class My_Account_Button_Block {
 		$label            = $is_signed_in ? $signed_in_label : $signed_out_label;
 
 		// Display mode from block style class in className (default = icon + text).
-		$wrapper_class = (string) $attrs['className'];
-		if ( \strpos( $wrapper_class, 'is-style-icon-only' ) !== false ) {
+		$classes = explode( ' ', (string) $attrs['className'] );
+		if ( in_array( 'is-style-icon-only', $classes, true ) ) {
 			$show_label = false;
 			$show_icon  = true;
-		} elseif ( \strpos( $wrapper_class, 'is-style-text-only' ) !== false ) {
+		} elseif ( in_array( 'is-style-text-only', $classes, true ) ) {
 			$show_label = true;
 			$show_icon  = false;
 		} else {
