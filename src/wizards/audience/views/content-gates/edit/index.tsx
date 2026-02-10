@@ -13,9 +13,11 @@ import { useEffect, useState } from '@wordpress/element';
  * Internal dependencies
  */
 import { CardSettingsGroup, Divider, Grid, SectionHeader, TextControl } from '../../../../../../packages/components/src';
-import { content, settings } from '../../../../../../packages/icons';
+import { account, currency, content, settings } from '../../../../../../packages/icons';
 import { BASE_HEADER_TEXT } from '../consts';
 import ContentRules from './content-rules';
+import Registration from './registration';
+import CustomAccess from './custom-access';
 import './style.scss';
 
 type ContentGateEditProps = {
@@ -30,8 +32,8 @@ const DEFAULT_GATE: Gate = {
 	priority: 0,
 	status: 'publish',
 	content_rules: [],
-	registration: { active: false, metering: { enabled: false, count: 0, period: 'week' }, require_verification: false, gate_layout_id: 0 },
-	custom_access: { active: false, metering: { enabled: false, count: 0, period: 'week' }, gate_layout_id: 0, access_rules: [] },
+	registration: { active: false, metering: { enabled: false, count: 1, period: 'month' }, require_verification: false, gate_layout_id: 0 },
+	custom_access: { active: false, metering: { enabled: false, count: 1, period: 'month' }, gate_layout_id: 0, access_rules: [] },
 };
 
 const Edit = ( { match, setHeaderText }: ContentGateEditProps ) => {
@@ -131,18 +133,22 @@ const Edit = ( { match, setHeaderText }: ContentGateEditProps ) => {
 						actionType="toggle"
 						title={ __( 'Registered Access', 'newspack-plugin' ) }
 						description={ __( 'Readers must log in to view this content.', 'newspack-plugin' ) }
-						icon={ content }
+						icon={ account }
 						isActive={ registration?.active }
 						onEnable={ () => setRegistration( { ...registration, active: ! registration.active } ) }
-					/>
+					>
+						<Registration gateId={ gate.id } registration={ registration } onChange={ setRegistration } />
+					</CardSettingsGroup>
 					<CardSettingsGroup
 						actionType="toggle"
 						title={ __( 'Paid Access', 'newspack-plugin' ) }
 						description={ __( 'Set conditions like subscriptions, domain, and more.', 'newspack-plugin' ) }
-						icon={ content }
+						icon={ currency }
 						isActive={ customAccess?.active }
 						onEnable={ () => setCustomAccess( { ...customAccess, active: ! customAccess.active } ) }
-					/>
+					>
+						<CustomAccess gateId={ gate.id } customAccess={ customAccess } onChange={ setCustomAccess } />
+					</CardSettingsGroup>
 				</VStack>
 			</Grid>
 		</div>

@@ -1,80 +1,69 @@
 /**
  * WordPress dependencies.
  */
-import { CheckboxControl, __experimentalNumberControl as NumberControl } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
+import {
+	__experimentalNumberControl as NumberControl, // eslint-disable-line @wordpress/no-unsafe-wp-apis
+	__experimentalToggleGroupControl as ToggleGroupControl, // eslint-disable-line @wordpress/no-unsafe-wp-apis
+	__experimentalToggleGroupControlOption as ToggleGroupControlOption, // eslint-disable-line @wordpress/no-unsafe-wp-apis,
+	ToggleControl,
+} from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
  */
-import { ActionCard, Card, Grid, Notice, SelectControl } from '../../../../../../packages/components/src';
+import { Notice } from '../../../../../../packages/components/src';
 
 interface MeteringProps {
+	description?: string;
 	metering: Metering;
 	onChange: React.Dispatch< React.SetStateAction< Metering > > | ( ( metering: Metering ) => void );
 }
 
-export default function Metering( { metering, onChange }: MeteringProps ) {
+export default function Metering( { description, metering, onChange }: MeteringProps ) {
 	const count = typeof metering.count === 'number' ? metering.count : parseInt( String( metering.count ), 10 );
 	const isCountZero = ! isNaN( count ) && count === 0;
 
 	return (
-		<ActionCard
-			title={ __( 'Metering', 'newspack-plugin' ) }
-			description={ __( 'Configure how many times a reader can view restricted content before being gated.', 'newspack-plugin' ) }
-			hasWhiteHeader={ true }
-			noBorder={ true }
-			noMargin={ true }
-		>
-			<Card noBorder>
-				<CheckboxControl
-					label={ __( 'Meter content views for this gate', 'newspack-plugin' ) }
-					checked={ metering.enabled }
-					onChange={ () => onChange( { ...metering, enabled: ! metering.enabled } ) }
-				/>
-				{ metering.enabled && isCountZero && (
-					<Notice
-						isWarning
-						noticeText={ __(
-							'Metering is enabled but the number of views is set to 0. Content will be gated for all readers.',
-							'newspack-plugin'
-						) }
-					/>
-				) }
-			</Card>
+		<>
+			<ToggleControl
+				label={ __( 'Metering', 'newspack-plugin' ) }
+				help={ description || __( 'Allow limited free views before access conditions apply.', 'newspack-plugin' ) }
+				checked={ metering.enabled }
+				onChange={ () => onChange( { ...metering, enabled: ! metering.enabled } ) }
+			/>
 			{ metering.enabled && (
-				<Grid columns={ 2 } gutter={ 32 } noMargin={ true }>
+				<>
+					{ metering.enabled && isCountZero && (
+						<Notice
+							isWarning
+							noticeText={ __(
+								'Metering is enabled but the number of views is set to 0. Content will be gated for all readers.',
+								'newspack-plugin'
+							) }
+						/>
+					) }
 					<NumberControl
-						label={ __( 'Number of views', 'newspack-plugin' ) }
-						help={ __(
-							'Number of times a reader can view gated content. If set to 0, readers will always be gated.',
-							'newspack-plugin'
-						) }
-						min={ 0 }
+						label={ __( 'Free views', 'newspack-plugin' ) }
+						help={ __( 'Free views before the gate appears.', 'newspack-plugin' ) }
+						min={ 1 }
 						value={ count }
 						onChange={ v => onChange( { ...metering, count: v !== undefined ? Number( v ) : 0 } ) }
+						__next40pxDefaultSize
 					/>
-					<SelectControl
-						label={ __( 'Period', 'newspack-plugin' ) }
-						help={ __(
-							'The period during which the metering views will be counted. For example, if the metering period is set to "Weekly", the metering views will be reset every week.',
-							'newspack-plugin'
-						) }
+					<ToggleGroupControl
+						label={ __( 'Reset period', 'newspack-plugin' ) }
+						help={ __( 'How often free views reset.', 'newspack-plugin' ) }
 						value={ metering.period }
 						onChange={ v => onChange( { ...metering, period: v as Metering[ 'period' ] } ) }
-						options={ [
-							{
-								value: 'week',
-								label: __( 'Weekly', 'newspack-plugin' ),
-							},
-							{
-								value: 'month',
-								label: __( 'Monthly', 'newspack-plugin' ),
-							},
-						] }
-					/>
-				</Grid>
+						isBlock
+						__next40pxDefaultSize
+					>
+						<ToggleGroupControlOption label={ __( 'Monthly', 'newspack-plugin' ) } value="month" />
+						<ToggleGroupControlOption label={ __( 'Weekly', 'newspack-plugin' ) } value="week" />
+					</ToggleGroupControl>
+				</>
 			) }
-		</ActionCard>
+		</>
 	);
 }

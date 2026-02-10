@@ -1,14 +1,14 @@
 /**
  * WordPress dependencies.
  */
-import { CheckboxControl } from '@wordpress/components';
+import { CardBody, CardDivider, ToggleControl } from '@wordpress/components';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
  */
-import { ActionCard, Card } from '../../../../../../packages/components/src';
+import { ActionCard, Button } from '../../../../../../packages/components/src';
 import { getEditGateLayoutUrl } from '../utils';
 import Metering from './metering';
 
@@ -19,7 +19,7 @@ interface RegistrationProps {
 	cardProps?: Partial< React.ComponentPropsWithoutRef< typeof ActionCard > >;
 }
 
-export default function Registration( { gateId, registration, onChange, cardProps = {} }: RegistrationProps ) {
+export default function Registration( { gateId, registration, onChange }: RegistrationProps ) {
 	const handleChange = useCallback(
 		( value: Partial< Registration > ) => {
 			onChange( {
@@ -32,26 +32,33 @@ export default function Registration( { gateId, registration, onChange, cardProp
 		[ registration, onChange ]
 	);
 	return (
-		<ActionCard
-			title={ __( 'Registered Access', 'newspack-plugin' ) }
-			description={ __( 'Readers must log in to view this content.', 'newspack-plugin' ) }
-			toggleChecked={ registration.active }
-			toggleOnChange={ ( active: boolean ) => handleChange( { active } ) }
-			actionText={ gateId ? __( 'Edit Layout', 'newspack-plugin' ) : undefined }
-			href={ gateId ? getEditGateLayoutUrl( gateId, 'registration' ) : undefined }
-			{ ...cardProps }
-		>
-			{ registration.active && (
-				<Card noBorder>
-					<CheckboxControl
-						label={ __( 'Require readers to verify their email address.', 'newspack-plugin' ) }
-						checked={ registration.require_verification }
-						onChange={ () => handleChange( { require_verification: ! registration.require_verification } ) }
-					/>
-					<hr />
-					<Metering metering={ registration.metering } onChange={ ( metering: Metering ) => handleChange( { metering } ) } />
-				</Card>
-			) }
-		</ActionCard>
+		<>
+			{ gateId ? (
+				<>
+					<CardBody>
+						<Button variant="secondary" href={ getEditGateLayoutUrl( gateId, 'registration' ) }>
+							{ __( 'Edit Layout', 'newspack-plugin' ) }
+						</Button>
+					</CardBody>
+					<CardDivider />
+				</>
+			) : null }
+			<CardBody>
+				<ToggleControl
+					label={ __( 'Require verification', 'newspack-plugin' ) }
+					help={ __( 'Readers must verify their account to access.', 'newspack-plugin' ) }
+					checked={ registration.require_verification }
+					onChange={ () => handleChange( { require_verification: ! registration.require_verification } ) }
+				/>
+			</CardBody>
+			<CardDivider />
+			<CardBody>
+				<Metering
+					description={ __( 'Allow limited free views before requiring login.', 'newspack-plugin' ) }
+					metering={ registration.metering }
+					onChange={ ( metering: Metering ) => handleChange( { metering } ) }
+				/>
+			</CardBody>
+		</>
 	);
 }

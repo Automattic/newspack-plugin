@@ -1,25 +1,49 @@
 declare module '@wordpress/block-editor';
 
+type GateAccessRuleValue = string | string[] | boolean;
 type AccessRule = {
 	name: string;
-	description: string;
+	default: GateAccessRuleValue;
+	description?: string;
+	id?: string;
+	is_boolean?: boolean;
 	options?: { value: string; label: string }[];
-	is_boolean: boolean;
-	default: string | string[] | boolean;
+	placeholder?: string;
+	value: GateAccessRuleValue;
 };
 
+type GateContentRuleValue = string[];
 type ContentRule = {
 	name: string;
+	default: GateContentRuleValue;
 	description?: string;
 	options?: { value: string; label: string }[];
-	value: string[];
-	default: string[];
+	value: GateContentRuleValue;
 };
 
 type Metering = {
 	enabled: boolean;
 	count: number;
 	period: 'week' | 'month';
+};
+
+type GateRuleProps = {
+	config: AccessRule | ContentRule;
+	rule?: GateAccessRule | GateContentRule;
+	enabled?: boolean;
+	onToggle?: (slug: string) => void;
+	slug: string;
+	exclusion?: boolean;
+	onChange: (value: GateRuleValue) => void;
+	onChangeExclusion?: (value: boolean) => void;
+};
+
+type GateRuleControlProps = {
+	slug: string;
+	value: GateRuleValue;
+	exclusion?: boolean;
+	onChange: (value: GateRuleValue) => void;
+	onChangeExclusion?: (value: boolean) => void;
 };
 
 type AccessRules = {
@@ -32,49 +56,13 @@ type ContentRules = {
 
 type GateAccessRule = {
 	slug: string;
-	value: string | string[] | boolean;
-};
-
-type GateAccessRuleValue = string | string[] | boolean;
-
-type GateContentRuleValue = string[];
-
-type GateAccessRuleControlProps = {
-	slug: string;
 	value: GateAccessRuleValue;
-	onChange: (value: GateAccessRuleValue) => void;
-};
-
-type GateContentRuleConfig = {
-	name: string;
-	description?: string;
-	options?: { value: string; label: string }[];
-	default: string[];
 };
 
 type GateContentRule = {
 	slug: string;
-	value: string[];
-	exclusion?: boolean;
-};
-
-type GateContentRuleProps = {
-	config: GateContentRuleConfig;
-	rule?: GateContentRule;
-	enabled?: boolean;
-	onToggle?: (slug: string) => void;
-	slug: string;
-	exclusion?: boolean;
-	onChange: (value: GateContentRuleValue) => void;
-	onChangeExclusion?: (value: boolean) => void;
-};
-
-type GateContentRuleControlProps = {
-	slug: string;
 	value: GateContentRuleValue;
 	exclusion?: boolean;
-	onChange: (value: GateContentRuleValue) => void;
-	onChangeExclusion?: (value: boolean) => void;
 };
 
 type GateStatus = 'publish' | 'draft' | 'pending' | 'future' | 'private' | 'trash';

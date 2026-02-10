@@ -18,6 +18,7 @@ export { default as contentLoop } from './src/content-loop';
 export { default as corrections } from './src/corrections';
 export { default as countdown } from './src/countdown';
 export { default as curatedList } from './src/curated-list';
+export { default as currency } from './src/currency';
 export { default as emailAd } from './src/email-ad';
 export { default as emailCheck } from './src/email-check';
 export { default as emailError } from './src/email-error';

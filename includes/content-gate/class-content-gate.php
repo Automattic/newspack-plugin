@@ -810,7 +810,7 @@ class Content_Gate {
 
 		$default_metering = [
 			'enabled' => false,
-			'count'   => 0,
+			'count'   => 1,
 			'period'  => 'month',
 		];
 
@@ -858,7 +858,7 @@ class Content_Gate {
 
 		$default_metering = [
 			'enabled' => false,
-			'count'   => 0,
+			'count'   => 1,
 			'period'  => 'month',
 		];
 

@@ -2,8 +2,8 @@
  * WordPress dependencies.
  */
 import { __ } from '@wordpress/i18n';
-import { DropdownMenu } from '@wordpress/components';
-import { useCallback, useMemo } from '@wordpress/element';
+import { CardDivider, DropdownMenu } from '@wordpress/components';
+import { Fragment, useCallback, useMemo } from '@wordpress/element';
 
 /**
  * Internal dependencies
@@ -11,6 +11,7 @@ import { useCallback, useMemo } from '@wordpress/element';
 import { ActionCard, Grid } from '../../../../../../packages/components/src';
 import RulesChoices from './rules-choices';
 import AccessRuleControl from './access-rule-control';
+import AccessRule from './access-rule';
 
 const availableAccessRules = window.newspackAudienceContentGates.available_access_rules || {};
 
@@ -48,6 +49,28 @@ export default function AccessRules( { rules, onChange }: AccessRulesProps ) {
 			onChange( rules.map( r => ( r.slug === slug ? { ...r, value: v } : r ) ) );
 		},
 		[ onChange, rules ]
+	);
+
+	return (
+		<>
+			{ Object.keys( availableAccessRules ).map( slug => {
+				const ruleConfig = availableAccessRules[ slug ];
+				const rule = rules.find( r => r.slug === slug );
+				return (
+					<Fragment key={ slug }>
+						<AccessRule
+							config={ ruleConfig }
+							enabled={ rules.map( r => r.slug ).includes( slug ) }
+							rule={ rule }
+							slug={ slug }
+							onChange={ handleChange( slug ) }
+							onToggle={ handleToggle }
+						/>
+						<CardDivider />
+					</Fragment>
+				);
+			} ) }
+		</>
 	);
 
 	return (

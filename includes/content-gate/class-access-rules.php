@@ -86,14 +86,14 @@ class Access_Rules {
 	public static function register_default_rules() {
 		$rules = [
 			'subscription' => [
-				'name'        => 'Has Active Subscription',
-				'description' => 'The user must be logged into a reader account and have an active subscription with one of the selected products.',
+				'name'        => 'Active Subscription',
+				'description' => 'Requires an active subscription to selected products.',
 				'options'     => [ __CLASS__, 'get_subscription_products_options' ],
 				'callback'    => [ __CLASS__, 'has_active_subscription' ],
 			],
 			'email_domain' => [
-				'name'        => __( 'Has Whitelisted Email Domain', 'newspack-plugin' ),
-				'description' => 'The user must be logged into a reader account whose email address contains one of these domains. Specify multiple domains by separating them with a comma or line break.',
+				'name'        => __( 'Whitelisted Email Domain', 'newspack-plugin' ),
+				'description' => 'Only allow readers with specific email domains.',
 				'placeholder' => 'example.com,another.com',
 				'callback'    => [ __CLASS__, 'is_email_domain_whitelisted' ],
 			],

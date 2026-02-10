@@ -30,7 +30,7 @@ export default function ContentRules( { rules, onChange }: ContentRulesProps ) {
 	);
 
 	const handleChange = useCallback(
-		( slug: string ) => ( v: GateContentRuleValue ) => {
+		( slug: string ) => ( v: string[] ) => {
 			onChange( rules.map( r => ( r.slug === slug ? { ...r, value: v } : r ) ) );
 		},
 		[ onChange, rules ]

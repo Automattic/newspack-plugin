@@ -8,10 +8,8 @@
 import { __ } from '@wordpress/i18n';
 import {
 	CheckboxControl,
-	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
-	__experimentalToggleGroupControl as ToggleGroupControl,
-	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
-	__experimentalToggleGroupControlOption as ToggleGroupControlOption,
+	__experimentalToggleGroupControl as ToggleGroupControl, // eslint-disable-line @wordpress/no-unsafe-wp-apis
+	__experimentalToggleGroupControlOption as ToggleGroupControlOption, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/components';
 
 /**
@@ -20,7 +18,7 @@ import {
 import ContentRuleControlTaxonomy from './content-rule-control-taxonomy';
 import { Grid } from '../../../../../../packages/components/src';
 
-export default function ContentRuleControl( { slug, value, exclusion, onChange, onChangeExclusion }: GateContentRuleControlProps ) {
+export default function ContentRuleControl( { slug, value, exclusion, onChange, onChangeExclusion }: GateRuleControlProps ) {
 	const rule = window.newspackAudienceContentGates.available_content_rules[ slug ];
 
 	if ( ! rule || ! Array.isArray( value ) ) {
