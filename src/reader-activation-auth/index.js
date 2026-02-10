@@ -103,7 +103,8 @@ window.newspackRAS.push( readerActivation => {
 					const labels = JSON.parse( link.getAttribute( 'data-labels' ) );
 					const labelEl = link.querySelector( '.newspack-reader__account-link__label' );
 					if ( labelEl ) {
-						const isLoggedIn = link.getAttribute( 'data-wp-logged-in' ) === '1';
+						// Change the label for the My Account button only.
+						const isLoggedIn = link.getAttribute( 'data-newspack-logged-in' ) === '1';
 						if ( isLoggedIn ) {
 							labelEl.textContent = labels.signedin;
 							return;

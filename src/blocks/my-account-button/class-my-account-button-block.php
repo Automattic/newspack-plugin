@@ -166,9 +166,9 @@ final class My_Account_Button_Block {
 		}
 
 		$wrapper_attribute_args = [
-			'class'             => implode( ' ', $extra_classes ),
-			'href'              => \esc_url_raw( $href ),
-			'data-wp-logged-in' => $is_signed_in ? '1' : '0',
+			'class'                   => implode( ' ', $extra_classes ),
+			'href'                    => \esc_url_raw( $href ),
+			'data-newspack-logged-in' => $is_signed_in ? '1' : '0',
 		];
 		$wrapper_attributes    = \get_block_wrapper_attributes( $wrapper_attribute_args );
 
