@@ -99,7 +99,7 @@ class Access_Rules {
 			],
 			'reader_data'  => [
 				'name'        => __( 'Reader Data', 'newspack-plugin' ),
-				'description' => 'Determine reader data key-values the reader must have.',
+				'description' => 'Set custom conditions based on reader data key/value pairs.',
 				'callback'    => [ __CLASS__, 'has_reader_data' ],
 			],
 		];
