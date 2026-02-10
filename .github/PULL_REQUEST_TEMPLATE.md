@@ -2,7 +2,7 @@
 
 * [ ] Have you followed the [Newspack Contributing guideline](https://github.com/Automattic/newspack-plugin/blob/trunk/.github/CONTRIBUTING.md)?
 * [ ] Does your code follow the [WordPress' coding standards](https://make.wordpress.org/core/handbook/best-practices/coding-standards/) and [VIP Go coding standards](https://vip.wordpress.com/documentation/vip-go/code-review-blockers-warnings-notices/)?
-* [ ] Have you checked to ensure there aren't other open [Pull Requests](../../pulls) for the same update/change?
+* [ ] Have you checked to ensure there aren't other open [Pull Requests](../../pulls?q=is%3Apr+is%3Aopen+label%3A%22%5BStatus%5D+Needs+Review%22) for the same update/change?
 
 <!-- Mark completed items with an [x] -->
 
