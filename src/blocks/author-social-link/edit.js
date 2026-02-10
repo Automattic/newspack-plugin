@@ -139,9 +139,9 @@ export default function AuthorSocialLinkEdit( { attributes } ) {
 				</PanelBody>
 			</InspectorControls>
 			<li { ...blockProps }>
-				<a href={ url } onClick={ e => e.preventDefault() }>
+				<a href={ url } aria-label={ serviceLabel } onClick={ e => e.preventDefault() }>
 					{ svg ? (
-						<span dangerouslySetInnerHTML={ { __html: svg } } style={ { width: iconSize, height: iconSize } } />
+						<span dangerouslySetInnerHTML={ { __html: svg } } style={ { width: iconSize, height: iconSize } } aria-hidden="true" />
 					) : (
 						<span className="service-name">{ service }</span>
 					) }

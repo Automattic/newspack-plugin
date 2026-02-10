@@ -203,14 +203,15 @@ final class Author_Profile_Social_Block {
 		$output = '<ul class="author-profile-social__list">';
 
 		foreach ( $social_links as $service => $social_data ) {
-			$output .= '<li>';
-			$output .= sprintf( '<a href="%s">', esc_url( $social_data['url'] ) );
+			$service_label = ucfirst( $service );
+			$output       .= '<li>';
+			$output       .= sprintf( '<a href="%s" aria-label="%s">', esc_url( $social_data['url'] ), esc_attr( $service_label ) );
 
 			$svg = ! empty( $social_data['svg'] ) ? $social_data['svg'] : self::get_fallback_social_svg( $service );
 
 			if ( $svg ) {
 				$output .= sprintf(
-					'<span style="width: %dpx; height: %dpx;">%s</span>',
+					'<span style="width: %dpx; height: %dpx;" aria-hidden="true">%s</span>',
 					absint( $icon_size ),
 					absint( $icon_size ),
 					Newspack_Blocks::sanitize_svg( $svg )
