@@ -69,7 +69,7 @@ const AvatarWrapper = ( { avatar, size, attributes, placeholder = false } ) => {
 	// doesn't fire a network request on every pixel change.
 	const [ imageFetchSize, setImageFetchSize ] = useState( attributes?.size ?? 48 );
 	useEffect( () => {
-		const timer = setTimeout( () => setImageFetchSize( attributes?.size ?? 48 ), 150 );
+		const timer = setTimeout( () => setImageFetchSize( attributes?.size ?? 48 ), 500 );
 		return () => clearTimeout( timer );
 	}, [ attributes?.size ] );
 
