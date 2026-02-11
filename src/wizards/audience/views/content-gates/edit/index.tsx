@@ -187,7 +187,7 @@ const Edit = ( { history, match, updateGatesData }: ContentGateEditProps ) => {
 			setRegistration( DEFAULT_GATE.registration );
 			setCustomAccess( DEFAULT_GATE.custom_access );
 			setStatus( 'draft' );
-			setContentType( type as 'all' | 'custom' | undefined );
+			setContentType( 'all' );
 			history.push( `/edit/new/all` );
 			return;
 		}
@@ -199,7 +199,7 @@ const Edit = ( { history, match, updateGatesData }: ContentGateEditProps ) => {
 		setStatus( matchedGate.status );
 		setContentType( getContentTypeFromRules( matchedGate.content_rules ) );
 		resetError();
-	}, [ gates, id, isDeleting, isFetching, isNew, type ] );
+	}, [ gates, id, isDeleting, isFetching, isNew ] );
 
 	// Set header actions.
 	useEffect( () => {
