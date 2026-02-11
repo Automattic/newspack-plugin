@@ -208,7 +208,19 @@ const Edit = ( { history, match, updateGatesData }: ContentGateEditProps ) => {
 				type: 'primary',
 				label: __( 'Save', 'newspack-plugin' ),
 				action: isNew ? handleCreate : handleSave,
-				disabled: isFetching || ! title || ! contentRules.length || ( ! registration.active && ! customAccess.active ),
+				disabled:
+					isFetching ||
+					! title ||
+					! contentRules.length ||
+					( ! registration.active && ! customAccess.active ) ||
+					( ! registration.active &&
+						! customAccess.access_rules.some( ruleGroup =>
+							ruleGroup.some(
+								rule =>
+									( Array.isArray( rule.value ) && rule.value?.length > 0 ) ||
+									( ! Array.isArray( rule.value ) && rule.hasOwnProperty( 'value' ) )
+							)
+						) ),
 			},
 		];
 		if ( ! isNew ) {
