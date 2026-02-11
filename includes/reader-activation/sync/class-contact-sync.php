@@ -9,6 +9,7 @@ namespace Newspack\Reader_Activation;
 
 use Newspack\Reader_Activation;
 use Newspack\Reader_Activation\Integrations;
+use Newspack\Data_Events;
 use Newspack\Logger;
 
 defined( 'ABSPATH' ) || exit;
@@ -64,8 +65,6 @@ class Contact_Sync extends Sync {
 	/**
 	 * Sync contact to the ESP.
 	 *
-	 * Outside data events, uses the in-memory queue for batch execution on shutdown.
-	 *
 	 * @param array  $contact          The contact data to sync.
 	 * @param string $context          The context of the sync. Defaults to static::$context.
 	 * @param array  $existing_contact Optional. Existing contact data to merge with. Defaults to null.
@@ -82,12 +81,11 @@ class Contact_Sync extends Sync {
 			$context = static::$context;
 		}
 
-		// Outside data event context: in-memory queue + shutdown execution.
+		// If we're running in a data event, queue the sync to run on shutdown.
 		if ( ! isset( self::$queued_syncs[ $contact['email'] ] ) ) {
 			self::$queued_syncs[ $contact['email'] ] = [
-				'contexts'         => [],
-				'contact'          => [],
-				'existing_contact' => null,
+				'contexts' => [],
+				'contact'  => [],
 			];
 		}
 		if ( ! empty( self::$queued_syncs[ $contact['email'] ]['contact']['metadata'] ) ) {
@@ -95,12 +93,7 @@ class Contact_Sync extends Sync {
 		}
 		self::$queued_syncs[ $contact['email'] ]['contexts'][] = $context;
 		self::$queued_syncs[ $contact['email'] ]['contact']    = $contact;
-		if ( null !== $existing_contact ) {
-			self::$queued_syncs[ $contact['email'] ]['existing_contact'] = $existing_contact;
-		}
-
-		// If shutdown hasn't happened yet, defer execution.
-		if ( ! did_action( 'shutdown' ) ) {
+		if ( Data_Events::current_event() && ! did_action( 'shutdown' ) ) {
 			return true;
 		}
 
@@ -400,9 +393,8 @@ class Contact_Sync extends Sync {
 			if ( ! $contact ) {
 				continue;
 			}
-			$contexts         = $queued_sync['contexts'];
-			$existing_contact = $queued_sync['existing_contact'] ?? null;
-			self::sync( $contact, implode( '; ', $contexts ), $existing_contact );
+			$contexts = $queued_sync['contexts'];
+			self::sync( $contact, implode( '; ', $contexts ) );
 		}
 
 		self::$queued_syncs = [];
