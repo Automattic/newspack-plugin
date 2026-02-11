@@ -114,7 +114,7 @@ abstract class Integration {
 			return $available_fields;
 		}
 
-		$prefixed_keys = Sync\Metadata::get_all_prefixed_keys();
+		$prefixed_keys    = Sync\Metadata::get_all_prefixed_keys();
 
 		return array_filter(
 			$available_fields,

@@ -57,7 +57,7 @@ class Mock_Integration extends Integration {
 	/**
 	 * Get incoming available contact fields from the integration.
 	 *
-	 * @return Incoming_Contact_Field[]|WP_Error Array of incoming contact field objects or WP_Error on failure.
+	 * @return Incoming_Contact_Field[]|\WP_Error Array of incoming contact field objects or WP_Error on failure.
 	 */
 	public function get_incoming_available_contact_fields() {
 		return $this->available_fields;
