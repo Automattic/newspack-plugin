@@ -37,7 +37,7 @@ window.newspackRAS.push( function ( readerActivation ) {
 			closeOnSuccess: false,
 			skipSuccess: true,
 			onSuccess: () => window.location.reload(),
-			onDismiss: () => window.location.reload(),
+			onClose: () => window.location.reload(),
 		} );
 	};
 

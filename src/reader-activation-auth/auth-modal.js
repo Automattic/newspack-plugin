@@ -88,6 +88,12 @@ export function openAuthModal( config = {} ) {
 	 * @param {boolean} dismiss Whether it's a dismiss action.
 	 */
 	const close = ( dismiss = true ) => {
+		// Disconnect observer before setting data-state to avoid re-entry.
+		if ( stateObserver ) {
+			stateObserver.disconnect();
+			stateObserver = null;
+		}
+
 		container.config = {};
 		modal.setAttribute( 'data-state', 'closed' );
 		document.body.classList.remove( 'newspack-signin' );
@@ -108,11 +114,23 @@ export function openAuthModal( config = {} ) {
 			config.onDismiss();
 		}
 
+		if ( config.onClose && typeof config.onClose === 'function' ) {
+			config.onClose();
+		}
+
 		document.removeEventListener( 'keydown', handleKeydown );
 		closeButtons.forEach( closeButton => {
 			closeButton.removeEventListener( 'click', handleCloseButtonClick );
 		} );
 	};
+
+	// Observe modal state to catch external closes (e.g., from newspack-ui modals.js).
+	let stateObserver = new MutationObserver( () => {
+		if ( modal.dataset.state === 'closed' ) {
+			close();
+		}
+	} );
+	stateObserver.observe( modal, { attributes: true, attributeFilter: [ 'data-state' ] } );
 
 	const closeButtons = modal.querySelectorAll( 'button[data-close], .newspack-ui__modal__close' );
 	if ( closeButtons?.length ) {
