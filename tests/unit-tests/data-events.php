@@ -525,6 +525,9 @@ class Newspack_Test_Data_Events extends WP_UnitTestCase {
 			$this->markTestSkipped( 'ActionScheduler not available.' );
 		}
 
+		// Clear any pending dispatch actions from previous tests.
+		as_unschedule_all_actions( Data_Events::DISPATCH_AS_HOOK );
+
 		// Enable AS dispatch via filter.
 		add_filter( 'newspack_data_events_use_action_scheduler_dispatch', '__return_true' );
 
@@ -622,6 +625,9 @@ class Newspack_Test_Data_Events extends WP_UnitTestCase {
 		if ( ! function_exists( 'as_schedule_single_action' ) ) {
 			$this->markTestSkipped( 'ActionScheduler not available.' );
 		}
+
+		// Clear any pending retry actions from previous tests.
+		as_unschedule_all_actions( Data_Events::HANDLER_RETRY_HOOK );
 
 		$action_name = 'test_retry_action';
 		Data_Events::register_action( $action_name );
