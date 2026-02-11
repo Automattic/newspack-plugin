@@ -94,7 +94,7 @@ abstract class Integration {
 	 * This method should be implemented by child classes to return
 	 * an array of available contact fields from their integration.
 	 *
-	 * @return Integrations\Incoming_Contact_Field[] Array of incoming contact field objects.
+	 * @return Integrations\Incoming_Contact_Field[]|\WP_Error Array of incoming contact field objects or WP_Error on failure.
 	 */
 	abstract public function get_incoming_available_contact_fields();
 
@@ -104,11 +104,16 @@ abstract class Integration {
 	 * This method filters the available contact fields to exclude fields
 	 * whose keys already exist in the synced metadata.
 	 *
-	 * @return Integrations\Incoming_Contact_Field[] Array of filtered incoming contact field objects.
+	 * @return Integrations\Incoming_Contact_Field[]|\WP_Error Array of filtered incoming contact field objects or WP_Error on failure.
 	 */
 	public function get_incoming_contact_fields() {
 		$available_fields = $this->get_incoming_available_contact_fields();
-		$prefixed_keys    = Sync\Metadata::get_all_prefixed_keys();
+
+		if ( is_wp_error( $available_fields ) ) {
+			return $available_fields;
+		}
+
+		$prefixed_keys = Sync\Metadata::get_all_prefixed_keys();
 
 		return array_filter(
 			$available_fields,
