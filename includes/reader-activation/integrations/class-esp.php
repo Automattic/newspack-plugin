@@ -99,6 +99,11 @@ class ESP extends Integration {
 	 * @return Incoming_Contact_Field[]|WP_Error Array of incoming contact field objects or WP_Error on failure.
 	 */
 	public function get_incoming_available_contact_fields() {
+		$can_sync = $this->can_sync( true );
+		if ( $can_sync->has_errors() ) {
+			return $can_sync;
+		}
+
 		$master_list_id = Reader_Activation::get_esp_master_list_id();
 
 		if ( empty( $master_list_id ) ) {
