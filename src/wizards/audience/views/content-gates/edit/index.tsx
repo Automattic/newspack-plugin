@@ -203,6 +203,7 @@ const Edit = ( { history, match, updateGatesData }: ContentGateEditProps ) => {
 
 	// Load gate data.
 	useEffect( () => {
+		setHeaderSection( isNew ? __( 'Add new', 'newspack-plugin' ) : __( 'Edit', 'newspack-plugin' ) );
 		if ( isNew ) {
 			return;
 		}
@@ -217,7 +218,6 @@ const Edit = ( { history, match, updateGatesData }: ContentGateEditProps ) => {
 		setCustomAccess( matchedGate.custom_access );
 		setStatus( matchedGate.status );
 		setContentType( getContentTypeFromRules( matchedGate.content_rules ) );
-		setHeaderSection( isNew ? __( 'Add new', 'newspack-plugin' ) : __( 'Edit', 'newspack-plugin' ) );
 	}, [ gates, id, isNew ] );
 
 	// Update header actions.
