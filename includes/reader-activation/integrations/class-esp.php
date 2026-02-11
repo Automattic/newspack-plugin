@@ -99,9 +99,11 @@ class ESP extends Integration {
 	 * @return Incoming_Contact_Field[]|WP_Error Array of incoming contact field objects or WP_Error on failure.
 	 */
 	public function get_incoming_available_contact_fields() {
-		$can_sync = $this->can_sync( true );
-		if ( $can_sync->has_errors() ) {
-			return $can_sync;
+		if ( ! class_exists( 'Newspack_Newsletters_Contacts' ) ) {
+			return new \WP_Error(
+				'newspack_newsletters_contacts_not_found',
+				__( 'Newspack Newsletters is not available.', 'newspack-plugin' )
+			);
 		}
 
 		$master_list_id = Reader_Activation::get_esp_master_list_id();
