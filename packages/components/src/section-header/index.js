@@ -12,7 +12,7 @@ import { Icon, chevronLeft } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
-import { Button, Grid } from '..';
+import { Badge, Button, Grid } from '..';
 import './style.scss';
 
 /**
@@ -24,18 +24,20 @@ import classnames from 'classnames';
  * Represents a section header component.
  *
  * @typedef {Object} SectionHeaderProps
- * @property {string}             [backNav='']       - URL to navigate back to.
- * @property {boolean}            [centered=false]   - Indicates if the header is centered.
- * @property {?string}            [className=null]   - Additional CSS class name.
- * @property {string|Function|*}  [description]      - Description of the section.
- * @property {number}             [heading=2]        - HTML heading level, e.g., 1 for h1, 2 for h2, etc.
- * @property {string|Function|*}  [icon]             - Icon to display in the header.
- * @property {boolean}            [isWhite=false]    - Indicates if the header should use a white theme.
- * @property {boolean}            [noMargin=false]   - Indicates if the header should have no margin.
- * @property {boolean}            [pageHeader=false] - Indicates if the header is used as a page header.
- * @property {string}             title              - The title of the section.
- * @property {?string}            [id=null]          - Optional ID for the header element.
- * @property {?string|Function|*} [children=null]    - Optional children to display in the header.
+ * @property {string}             [backNav='']        - URL to navigate back to.
+ * @property {string|string[]}    [badge]             - Badge to display in the header.
+ * @property {string}             [badgeLevel='info'] - Badge level, e.g., 'success', 'info', 'warning', 'error'.
+ * @property {boolean}            [centered=false]    - Indicates if the header is centered.
+ * @property {?string}            [className=null]    - Additional CSS class name.
+ * @property {string|Function|*}  [description]       - Description of the section.
+ * @property {number}             [heading=2]         - HTML heading level, e.g., 1 for h1, 2 for h2, etc.
+ * @property {string|Function|*}  [icon]              - Icon to display in the header.
+ * @property {boolean}            [isWhite=false]     - Indicates if the header should use a white theme.
+ * @property {boolean}            [noMargin=false]    - Indicates if the header should have no margin.
+ * @property {boolean}            [pageHeader=false]  - Indicates if the header is used as a page header.
+ * @property {string}             title               - The title of the section.
+ * @property {?string}            [id=null]           - Optional ID for the header element.
+ * @property {?string|Function|*} [children=null]     - Optional children to display in the header.
  */
 
 /**
@@ -45,6 +47,8 @@ import classnames from 'classnames';
  */
 const SectionHeader = ( {
 	backNav = '',
+	badge,
+	badgeLevel = 'info',
 	centered = false,
 	className = null,
 	description = '',
@@ -80,6 +84,7 @@ const SectionHeader = ( {
 	);
 
 	const HeadingTag = pageHeader ? 'h1' : `h${ heading }`;
+	const badges = ! Array.isArray( badge ) && badge ? [ badge ] : badge;
 
 	return (
 		<div
@@ -100,7 +105,12 @@ const SectionHeader = ( {
 						</Button>
 					</div>
 				) }
-				{ typeof title === 'string' && <HeadingTag>{ title }</HeadingTag> }
+				{ typeof title === 'string' && (
+					<HeadingTag>
+						{ title }
+						{ badges?.length && badges.map( ( badgeText, i ) => <Badge key={ i } text={ badgeText } level={ badgeLevel } /> ) }
+					</HeadingTag>
+				) }
 				{ typeof title === 'function' && <HeadingTag>{ title() }</HeadingTag> }
 				{ description && typeof description === 'string' && <p>{ description }</p> }
 				{ typeof description === 'function' && <p>{ description() }</p> }

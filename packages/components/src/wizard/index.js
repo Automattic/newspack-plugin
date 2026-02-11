@@ -6,10 +6,11 @@ import classnames from 'classnames';
 /**
  * WordPress dependencies.
  */
+import { DropdownMenu, MenuItem } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { useState, forwardRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { category } from '@wordpress/icons';
+import { category, moreVertical } from '@wordpress/icons';
 
 /**
  * Internal dependencies
@@ -49,18 +50,24 @@ const Wizard = (
 		sections = [],
 		headerText,
 		apiSlug,
+		sharedProps = {},
 		subHeaderText,
 		hasSimpleFooter,
 		className,
 		renderAboveSections,
 		requiredPlugins = [],
 		isInitialFetchTriggered = true,
+		fixedHeader = false,
 	},
 	ref
 ) => {
 	const isLoading = useSelect( select => select( WIZARD_STORE_NAMESPACE ).isLoading() );
 	const isQuietLoading = useSelect( select => select( WIZARD_STORE_NAMESPACE ).isQuietLoading() );
+	const headerActions = useSelect( select => select( WIZARD_STORE_NAMESPACE ).getHeaderActions() );
 	const headerSection = useSelect( select => select( WIZARD_STORE_NAMESPACE ).getHeaderSection() );
+
+	const headerMainActions = headerActions?.filter( action => action.type === 'primary' || action.type === 'secondary' );
+	const headerMoreActions = headerActions?.filter( action => action.type === 'more' );
 
 	// Trigger initial data fetch. Some sections might not use the wizard data,
 	// but for consistency, fetching is triggered regardless of the section.
@@ -88,11 +95,12 @@ const Wizard = (
 			<div
 				className={ classnames( isLoading ? 'newspack-wizard__is-loading' : 'newspack-wizard__is-loaded', {
 					'newspack-wizard__is-loading-quiet': isQuietLoading,
+					'newspack-wizard__fixed-header': fixedHeader,
 				} ) }
 			>
 				<HashRouter hashType="slash">
 					{ newspack_aux_data.is_debug_mode && <Notice debugMode /> }
-					<div className="bg-white">
+					<div className="newspack-wizard__header">
 						<div className="newspack-wizard__header__inner">
 							<div className="newspack-wizard__title">
 								{ newspack_urls.dashboard !== urlWithoutHash ? (
@@ -124,6 +132,39 @@ const Wizard = (
 								</div>
 							</div>
 						</div>
+						{ headerActions?.length > 0 && (
+							<div className="newspack-wizard__header__actions">
+								{ headerMainActions.map( ( action, index ) => (
+									<Button
+										key={ index }
+										icon={ action.icon }
+										variant={ action.type }
+										onClick={ action.action }
+										disabled={ action.disabled || false }
+										isDestructive={ action.destructive || false }
+									>
+										{ action.label }
+									</Button>
+								) ) }
+								{ headerMoreActions.length > 0 && (
+									<DropdownMenu icon={ moreVertical } label={ __( 'More', 'newspack-plugin' ) }>
+										{ () =>
+											headerMoreActions.map( ( action, index ) => (
+												<MenuItem
+													key={ index }
+													icon={ action.icon }
+													onClick={ action.action }
+													disabled={ action.disabled || false }
+													isDestructive={ action.destructive || false }
+												>
+													{ action.label }
+												</MenuItem>
+											) )
+										}
+									</DropdownMenu>
+								) }
+							</div>
+						) }
 					</div>
 
 					{ displayedSections.length > 1 && (
@@ -145,7 +186,7 @@ const Wizard = (
 									render={ routerProps => (
 										<div className={ classnames( 'newspack-wizard__content', className ) }>
 											{ 'function' === typeof renderAboveSections ? renderAboveSections() : null }
-											<SectionComponent { ...routerProps } { ...sectionProps } />
+											<SectionComponent { ...routerProps } { ...sectionProps } { ...sharedProps } />
 										</div>
 									) }
 								/>

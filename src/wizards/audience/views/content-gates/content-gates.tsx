@@ -22,41 +22,12 @@ import WizardsActionCard from '../../../wizards-action-card';
 import ContentGatesOnboarding from './content-gates-onboarding';
 import ContentGateSettings from './content-gate-settings';
 import { AUDIENCE_CONTENT_GATES_WIZARD_SLUG } from './consts';
+import { getGateStatus, getGateStatusBadgeLevel } from './utils';
 import './style.scss';
 
-const getGateStatus = ( status: GateStatus ) => {
-	switch ( status ) {
-		case 'publish':
-			return __( 'Active', 'newspack-plugin' );
-		case 'draft':
-			return __( 'Draft', 'newspack-plugin' );
-		case 'pending':
-			return __( 'Pending Review', 'newspack-plugin' );
-		case 'future':
-			return __( 'Scheduled', 'newspack-plugin' );
-		case 'private':
-			return __( 'Private', 'newspack-plugin' );
-		case 'trash':
-			return __( 'Trash', 'newspack-plugin' );
-		default:
-			return undefined;
-	}
-};
-
-const getGateStatusBadgeLevel = ( status: GateStatus ) => {
-	switch ( status ) {
-		case 'publish':
-			return 'success';
-		case 'trash':
-			return 'error';
-		default:
-			return 'info';
-	}
-};
-
-const ContentGates = () => {
-	const wizardData = useWizardData( 'newspack-audience-access-control' ) as WizardData;
-	const { setHeaderSection, updateWizardSettings } = useDispatch( WIZARD_STORE_NAMESPACE );
+const ContentGates = ( { updateGatesData }: { updateGatesData: ( gates: Gate[] ) => void } ) => {
+	const wizardData = useWizardData( AUDIENCE_CONTENT_GATES_WIZARD_SLUG ) as WizardData;
+	const { setHeaderSection, setHeaderActions } = useDispatch( WIZARD_STORE_NAMESPACE );
 	const { wizardApiFetch, isFetching, errorMessage, resetError } = useWizardApiFetch( AUDIENCE_CONTENT_GATES_WIZARD_SLUG );
 	const [ showModal, setShowModal ] = useState( false );
 	const [ newGateName, setNewGateName ] = useState( '' );
@@ -66,17 +37,10 @@ const ContentGates = () => {
 
 	const gates = ( wizardData?.gates || [] ) as Gate[];
 
-	const onChange = ( newGates: Gate[] ) => {
-		updateWizardSettings( {
-			slug: AUDIENCE_CONTENT_GATES_WIZARD_SLUG,
-			path: [ 'gates' ],
-			value: newGates,
-		} );
-	};
-
 	useEffect( () => {
 		setHeaderSection( '' );
-	}, [ setHeaderSection ] );
+		setHeaderActions( [] );
+	}, [] );
 
 	useEffect( () => {
 		if ( isFetching ) {
@@ -108,7 +72,10 @@ const ContentGates = () => {
 				path: `/newspack/v1/wizard/${ AUDIENCE_CONTENT_GATES_WIZARD_SLUG }`,
 				method: 'POST',
 				data: {
-					title: newGateName,
+					gate: {
+						title: newGateName,
+						status: 'draft',
+					},
 				},
 			},
 			{
@@ -120,7 +87,7 @@ const ContentGates = () => {
 						} ),
 						{ ...data, isExpanded: true },
 					];
-					onChange( newGates );
+					updateGatesData( newGates );
 					setShowModal( false );
 					setNewGateName( '' );
 				},
@@ -149,7 +116,7 @@ const ContentGates = () => {
 				onSuccess() {
 					if ( currentStatus === 'trash' ) {
 						const newGates = gates.filter( g => g.id !== id );
-						onChange( newGates );
+						updateGatesData( newGates );
 					} else {
 						const newGates = gates.map( g => {
 							if ( g.id === id ) {
@@ -157,7 +124,7 @@ const ContentGates = () => {
 							}
 							return g;
 						} );
-						onChange( newGates );
+						updateGatesData( newGates );
 					}
 				},
 			}
@@ -169,7 +136,7 @@ const ContentGates = () => {
 			return;
 		}
 		const oldGates = [ ...gates ];
-		onChange( updates );
+		updateGatesData( updates );
 		setIsInFlight( true );
 		resetErrors();
 		apiFetch< Gate >( {
@@ -181,7 +148,7 @@ const ContentGates = () => {
 		} )
 			.catch( ( fetchError: WpFetchError ) => {
 				setError( fetchError.message );
-				onChange( oldGates );
+				updateGatesData( oldGates );
 			} )
 			.finally( () => setIsInFlight( false ) );
 	};
@@ -191,7 +158,7 @@ const ContentGates = () => {
 			return;
 		}
 		const newGates = gates.map( g => ( g.id === gate.id ? gate : g ) );
-		onChange( newGates );
+		updateGatesData( newGates );
 	};
 
 	if ( ! gates?.length ) {
@@ -261,6 +228,7 @@ const ContentGates = () => {
 							id={ gate.id }
 							key={ gate.id }
 							title={ gate.title }
+							titleLink={ `#/edit/${ gate.id }` }
 							isMedium={ gates.length > 1 }
 							toggleChecked={ true }
 							dragIndex={ index }

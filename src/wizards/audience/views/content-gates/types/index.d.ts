@@ -1,5 +1,14 @@
 declare module '@wordpress/block-editor';
 
+type HeaderAction = {
+	type: 'primary' | 'secondary' | 'more';
+	label: string;
+	icon: React.ReactNode;
+	action: () => void;
+	disabled?: boolean;
+	destructive?: boolean;
+};
+
 type GateAccessRuleValue = string | string[] | boolean;
 type AccessRule = {
 	name: string;

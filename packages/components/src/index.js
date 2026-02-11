@@ -3,6 +3,7 @@ export { default as ActionCard } from './action-card';
 export { default as AutocompleteTokenField } from './autocomplete-tokenfield';
 export { default as AutocompleteWithSuggestions } from './autocomplete-with-suggestions';
 export { default as AutocompleteWithLatestPosts } from './autocomplete-with-latest-posts';
+export { default as Badge } from './badge';
 export { default as Button } from './button';
 export { default as ButtonCard } from './button-card';
 export { default as BoxContrast } from './box-contrast';

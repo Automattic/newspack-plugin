@@ -246,15 +246,85 @@ class Audience_Content_Gates extends Wizard {
 				'methods'             => 'POST',
 				'callback'            => [ $this, 'create_gate' ],
 				'args'                => [
-					'title' => [
-						'type'     => 'string',
-						'required' => true,
-						'messages' => [
-							'required' => __( 'Title is required.', 'newspack-plugin' ),
+					'gate' => [
+						'type'              => 'object',
+						'sanitize_callback' => [ $this, 'sanitize_gate' ],
+						'properties'        => [
+							'title'         => [ 'type' => 'string' ],
+							'status'        => [ 'type' => 'string' ],
+							'metering'      => [
+								'type'       => 'object',
+								'properties' => [
+									'enabled'          => [ 'type' => 'boolean' ],
+									'anonymous_count'  => [ 'type' => 'integer' ],
+									'registered_count' => [ 'type' => 'integer' ],
+									'period'           => [ 'type' => 'string' ],
+								],
+							],
+							'content_rules' => [
+								'type'  => 'array',
+								'items' => [
+									'type'       => 'object',
+									'properties' => [
+										'slug'      => [ 'type' => 'string' ],
+										'value'     => [ 'type' => 'mixed' ],
+										'exclusion' => [ 'type' => 'boolean' ],
+									],
+								],
+							],
+							'registration'  => [
+								'type'       => 'object',
+								'properties' => [
+									'active'               => [ 'type' => 'boolean' ],
+									'require_verification' => [ 'type' => 'boolean' ],
+									'gate_layout_id'       => [
+										'type'     => 'integer',
+										'required' => false,
+									],
+									'metering'             => [
+										'type'       => 'object',
+										'properties' => [
+											'enabled' => [ 'type' => 'boolean' ],
+											'count'   => [ 'type' => 'integer' ],
+											'period'  => [ 'type' => 'string' ],
+										],
+									],
+								],
+							],
+							'custom_access' => [
+								'type'       => 'object',
+								'properties' => [
+									'active'         => [ 'type' => 'boolean' ],
+									'metering'       => [
+										'type'       => 'object',
+										'properties' => [
+											'enabled' => [ 'type' => 'boolean' ],
+											'count'   => [ 'type' => 'integer' ],
+											'period'  => [ 'type' => 'string' ],
+										],
+									],
+									'gate_layout_id' => [
+										'type'     => 'integer',
+										'required' => false,
+									],
+									'access_rules'   => [
+										'type'  => 'array',
+										'items' => [
+											'type'  => 'array',
+											'items' => [
+												'type' => 'object',
+												'properties' => [
+													'slug' => [ 'type' => 'string' ],
+													'value' => [ 'type' => 'mixed' ],
+												],
+											],
+										],
+									],
+								],
+							],
 						],
 					],
 				],
-				'required'            => [ 'title' ],
 				'permission_callback' => [ $this, 'api_permissions_check' ],
 			]
 		);
@@ -730,7 +800,7 @@ class Audience_Content_Gates extends Wizard {
 	 * @return \WP_REST_Response|\WP_Error
 	 */
 	public function create_gate( $request ) {
-		$gate = Content_Gate::create_gate( $request->get_param( 'title' ) );
+		$gate = Content_Gate::create_gate( $request->get_param( 'gate' ) );
 		if ( is_wp_error( $gate ) ) {
 			return $gate;
 		}
@@ -753,12 +823,7 @@ class Audience_Content_Gates extends Wizard {
 		if ( Content_Gate::GATE_CPT !== $gate->post_type ) {
 			return new \WP_Error( 'invalid_gate_type', __( 'Invalid gate type.', 'newspack-plugin' ), [ 'status' => 400 ] );
 		}
-		$force = $gate->post_status === 'trash';
-		if ( $force ) {
-			wp_delete_post( $id, $force );
-		} else {
-			wp_trash_post( $id );
-		}
+		wp_delete_post( $id, true );
 		return rest_ensure_response( true );
 	}
 

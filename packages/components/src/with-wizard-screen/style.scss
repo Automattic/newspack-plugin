@@ -44,12 +44,40 @@
 	}
 
 	&__header {
+		align-items: center;
 		background: white;
+		border-bottom: 1px solid wp-colors.$gray-300;
+		display: flex;
+		.newspack-wizard__fixed-header & {
+			box-shadow: rgba(0, 0, 0, 0.1) 0 1px 3px 0;
+			position: sticky;
+			top: 0;
+			width: 100%;
+			z-index: 1000;
+			.admin-bar & {
+				@media only screen and ( min-width: 601px ) {
+					top: 46px;
+				}
+				@media only screen and ( min-width: 782px ) {
+					top: 32px;
+				}
+			}
+		}
+		&__inner {
+			flex: 1;
+		}
+		&__actions {
+			align-items: center;
+			display: flex;
+			flex: 1 1 auto;
+			gap: 16px;
+			justify-content: flex-end;
+			padding: 0 32px;
+		}
 	}
 
 	&__title {
 		align-items: center;
-		border-bottom: 1px solid wp-colors.$gray-300;
 		display: flex;
 
 		h2 {
