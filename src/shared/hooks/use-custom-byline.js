@@ -26,3 +26,22 @@ export function useCustomByline( postId, postType ) {
 
 	return { bylineActive, bylineContent };
 }
+
+/**
+ * Extract author IDs from custom byline shortcode content.
+ *
+ * @param {string} bylineContent Byline content with [Author id=X]...[/Author] shortcodes.
+ * @return {Array} Array of author IDs (integers).
+ */
+export function extractAuthorIdsFromByline( bylineContent ) {
+	if ( ! bylineContent ) {
+		return [];
+	}
+	const regex = /\[Author\s+id\s*=\s*(\d+)\]/gi;
+	const ids = [];
+	let match;
+	while ( ( match = regex.exec( bylineContent ) ) !== null ) {
+		ids.push( parseInt( match[ 1 ], 10 ) );
+	}
+	return ids;
+}

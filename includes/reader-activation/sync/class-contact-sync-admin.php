@@ -1,6 +1,6 @@
 <?php
 /**
- * Admin panel tools for the ESP Sync.
+ * Admin panel tools for the Contact Sync.
  *
  * @package Newspack
  */
@@ -10,9 +10,9 @@ namespace Newspack\Reader_Activation;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * ESP Sync Admin Class.
+ * Contact Sync Admin Class.
  */
-class ESP_Sync_Admin extends ESP_Sync {
+class Contact_Sync_Admin {
 
 	const ADMIN_ACTION = 'newspack-esp-sync';
 
@@ -35,7 +35,7 @@ class ESP_Sync_Admin extends ESP_Sync {
 		add_filter( 'bulk_actions-users', [ __CLASS__, 'bulk_actions' ] );
 		add_filter( 'handle_bulk_actions-users', [ __CLASS__, 'handle_bulk_actions' ], 10, 3 );
 		add_action( 'admin_notices', [ __CLASS__, 'admin_notices' ] );
-		add_action( 'newspack_sync_admin_batch', [ __CLASS__, 'sync_contact' ], 10, 1 ); // ActionScheduler hook.
+		add_action( 'newspack_sync_admin_batch', [ 'Newspack\Reader_Activation\Contact_Sync', 'sync_contact' ], 10, 1 ); // ActionScheduler hook.
 	}
 
 	/**
@@ -70,7 +70,7 @@ class ESP_Sync_Admin extends ESP_Sync {
 		if ( ! \current_user_can( 'edit_user', $user->ID ) ) {
 			return $actions;
 		}
-		if ( ! self::can_esp_sync() ) {
+		if ( ! Contact_Sync::has_one_syncable_integration() ) {
 			return $actions;
 		}
 		$url = self::get_admin_action_url( $user->ID );
@@ -89,7 +89,7 @@ class ESP_Sync_Admin extends ESP_Sync {
 		if ( ! current_user_can( 'edit_users' ) ) {
 			return $actions;
 		}
-		if ( ! self::can_esp_sync() ) {
+		if ( ! Contact_Sync::has_one_syncable_integration() ) {
 			return $actions;
 		}
 		// Bulk action requires ActionScheduler, so we don't show it if it's not available.
@@ -117,7 +117,7 @@ class ESP_Sync_Admin extends ESP_Sync {
 		if ( ! class_exists( 'ActionScheduler' ) ) {
 			\wp_die( \esc_html__( 'ActionScheduler is not available to perform the bulk action.', 'newspack-plugin' ) );
 		}
-		$can_sync = self::can_esp_sync( true );
+		$can_sync = Contact_Sync::has_one_syncable_integration( true );
 		if ( $can_sync->has_errors() ) {
 			\wp_die( $can_sync ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		}
@@ -169,7 +169,7 @@ class ESP_Sync_Admin extends ESP_Sync {
 			\wp_die( \esc_html__( 'User not found.', 'newspack-plugin' ) );
 		}
 
-		$result = self::sync_contact( $user_id );
+		$result = Contact_Sync::sync_contact( $user_id, self::$context );
 		if ( \is_wp_error( $result ) ) {
 			\wp_die( $result ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		}
@@ -215,4 +215,4 @@ class ESP_Sync_Admin extends ESP_Sync {
 		// phpcs:enable
 	}
 }
-ESP_Sync_Admin::init_hooks();
+Contact_Sync_Admin::init_hooks();

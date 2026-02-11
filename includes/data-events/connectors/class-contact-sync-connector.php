@@ -1,6 +1,6 @@
 <?php
 /**
- * Newspack Data Events ESP Connector.
+ * Newspack Data Events Contact Sync Connector.
  *
  * @package Newspack
  */
@@ -9,16 +9,18 @@ namespace Newspack\Data_Events\Connectors;
 
 use Newspack\Data_Events;
 use Newspack\Reader_Activation;
-use Newspack\Reader_Activation\Sync;
+use Newspack\Reader_Activation\Contact_Sync;
 use Newspack_Newsletters_Contacts;
 use Newspack\WooCommerce_Connection;
+use Newspack\Reader_Activation\Sync\WooCommerce as Sync_WooCommerce;
+use Newspack\Reader_Activation\Sync\Metadata as Sync_Metadata;
 
 defined( 'ABSPATH' ) || exit;
 
 /**
- * ESP Connector Class.
+ * Contact Sync Connector Class.
  */
-class ESP_Connector extends Reader_Activation\ESP_Sync {
+class Contact_Sync_Connector {
 	/**
 	 * Initialize hooks.
 	 */
@@ -32,7 +34,7 @@ class ESP_Connector extends Reader_Activation\ESP_Sync {
 	 * Register handlers.
 	 */
 	public static function register_handlers() {
-		if ( ! self::can_esp_sync() ) {
+		if ( ! Contact_Sync::has_one_syncable_integration() ) {
 			return;
 		}
 		Data_Events::register_handler( [ __CLASS__, 'reader_registered' ], 'reader_registered' );
@@ -67,7 +69,7 @@ class ESP_Connector extends Reader_Activation\ESP_Sync {
 
 		// Get WooCommerce customer data.
 		$customer = new \WC_Customer( $user_id );
-		$contact = Sync\WooCommerce::get_contact_from_customer( $customer );
+		$contact = Sync_WooCommerce::get_contact_from_customer( $customer );
 
 		$data_to_store = [
 			'email'         => $user->user_email,
@@ -87,7 +89,7 @@ class ESP_Connector extends Reader_Activation\ESP_Sync {
 	public static function reader_registered( $timestamp, $data, $client_id ) {
 		$metadata = [
 			'account'           => $data['user_id'],
-			'registration_date' => gmdate( Sync\Metadata::DATE_FORMAT, $timestamp ),
+			'registration_date' => gmdate( Sync_Metadata::DATE_FORMAT, $timestamp ),
 		];
 		if ( isset( $data['metadata']['current_page_url'] ) ) {
 			$metadata['registration_page'] = $data['metadata']['current_page_url'];
@@ -101,7 +103,7 @@ class ESP_Connector extends Reader_Activation\ESP_Sync {
 			'metadata' => $metadata,
 		];
 
-		self::sync( $contact, 'RAS Reader registration' );
+		Contact_Sync::sync( $contact, 'RAS Reader registration' );
 	}
 
 	/**
@@ -123,9 +125,9 @@ class ESP_Connector extends Reader_Activation\ESP_Sync {
 			return;
 		}
 
-		$contact = Sync\WooCommerce::get_contact_from_customer( $customer );
+		$contact = Sync_WooCommerce::get_contact_from_customer( $customer );
 
-		self::sync( $contact, 'RAS Reader login' );
+		Contact_Sync::sync( $contact, 'RAS Reader login' );
 	}
 
 	/**
@@ -147,13 +149,13 @@ class ESP_Connector extends Reader_Activation\ESP_Sync {
 		}
 
 		$order_id = $data['platform_data']['order_id'];
-		$contact  = Sync\WooCommerce::get_contact_from_order( $order_id, $data['referer'] );
+		$contact  = Sync_WooCommerce::get_contact_from_order( $order_id, $data['referer'] );
 
 		if ( ! $contact ) {
 			return;
 		}
 
-		self::sync( $contact, 'RAS Order completed' );
+		Contact_Sync::sync( $contact, 'RAS Order completed' );
 	}
 
 	/**
@@ -168,13 +170,13 @@ class ESP_Connector extends Reader_Activation\ESP_Sync {
 			return;
 		}
 
-		$contact = Sync\WooCommerce::get_contact_from_order( $data['subscription_id'] );
+		$contact = Sync_WooCommerce::get_contact_from_order( $data['subscription_id'] );
 
 		if ( ! $contact ) {
 			return;
 		}
 
-		self::sync(
+		Contact_Sync::sync(
 			$contact,
 			sprintf(
 				'RAS Woo Subscription updated. Status changed from %s to %s',
@@ -269,7 +271,7 @@ class ESP_Connector extends Reader_Activation\ESP_Sync {
 		delete_transient( 'newspack_user_deletion_data_' . $data['user_id'] );
 
 		// Sync contact information with ESP.
-		$sync_result = self::sync( $contact, 'RAS Reader deletion' );
+		$sync_result = Contact_Sync::sync( $contact, 'RAS Reader deletion' );
 	}
 
 	/**
@@ -307,7 +309,7 @@ class ESP_Connector extends Reader_Activation\ESP_Sync {
 				'newsletter_selection' => implode( ', ', $lists_names ),
 			]
 		);
-		self::sync( $contact, 'Updating newsletter_selection field after a change in the subscription lists.' );
+		Contact_Sync::sync( $contact, 'Updating newsletter_selection field after a change in the subscription lists.' );
 	}
 
 	/**
@@ -321,7 +323,7 @@ class ESP_Connector extends Reader_Activation\ESP_Sync {
 		$user_id = $data['user_id'];
 		$registration_site = $data['registration_site'];
 
-		$contact = Sync\WooCommerce::get_contact_from_customer( new \WC_Customer( $user_id ) );
+		$contact = Sync_WooCommerce::get_contact_from_customer( new \WC_Customer( $user_id ) );
 
 		if ( ! $contact ) {
 			return;
@@ -340,7 +342,7 @@ class ESP_Connector extends Reader_Activation\ESP_Sync {
 		$contact['metadata']['network_registration_site'] = $registration_site;
 
 		$site_url = get_site_url();
-		self::sync( $contact, sprintf( 'RAS Newspack Network: User propagated from another site in the network. Propagated from %s to %s.', $registration_site, $site_url ) );
+		Contact_Sync::sync( $contact, sprintf( 'RAS Newspack Network: User propagated from another site in the network. Propagated from %s to %s.', $registration_site, $site_url ) );
 	}
 }
-ESP_Connector::init_hooks();
+Contact_Sync_Connector::init_hooks();
