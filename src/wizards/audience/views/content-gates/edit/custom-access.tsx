@@ -49,7 +49,7 @@ export default function CustomAccess( { gateId, customAccess, onChange }: Custom
 			{ gateId ? (
 				<>
 					<CardBody>
-						<Button variant="secondary" href={ getEditGateLayoutUrl( gateId, 'registration' ) }>
+						<Button variant="secondary" href={ getEditGateLayoutUrl( gateId, 'custom_access' ) }>
 							{ __( 'Edit Layout', 'newspack-plugin' ) }
 						</Button>
 					</CardBody>
