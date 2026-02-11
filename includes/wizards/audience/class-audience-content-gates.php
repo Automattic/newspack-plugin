@@ -267,7 +267,7 @@ class Audience_Content_Gates extends Wizard {
 									'type'       => 'object',
 									'properties' => [
 										'slug'      => [ 'type' => 'string' ],
-										'value'     => [ 'type' => 'mixed' ],
+										'value'     => [ 'type' => [ 'string', 'array' ] ],
 										'exclusion' => [ 'type' => 'boolean' ],
 									],
 								],
@@ -315,7 +315,7 @@ class Audience_Content_Gates extends Wizard {
 												'type' => 'object',
 												'properties' => [
 													'slug' => [ 'type' => 'string' ],
-													'value' => [ 'type' => 'mixed' ],
+													'value' => [ 'type' => [ 'string', 'array' ] ],
 												],
 											],
 										],
@@ -396,7 +396,7 @@ class Audience_Content_Gates extends Wizard {
 									'type'       => 'object',
 									'properties' => [
 										'slug'      => [ 'type' => 'string' ],
-										'value'     => [ 'type' => 'mixed' ],
+										'value'     => [ 'type' => [ 'string', 'array' ] ],
 										'exclusion' => [ 'type' => 'boolean' ],
 									],
 								],
@@ -444,7 +444,7 @@ class Audience_Content_Gates extends Wizard {
 												'type' => 'object',
 												'properties' => [
 													'slug' => [ 'type' => 'string' ],
-													'value' => [ 'type' => 'mixed' ],
+													'value' => [ 'type' => [ 'string', 'array' ] ],
 												],
 											],
 										],
@@ -470,11 +470,11 @@ class Audience_Content_Gates extends Wizard {
 	public function sanitize_gate( $gate ) {
 		return [
 			'title'         => isset( $gate['title'] ) ? sanitize_text_field( $gate['title'] ) : __( 'Untitled Content Gate', 'newspack-plugin' ),
-			'priority'      => intval( $gate['priority'] ),
-			'status'        => $this->sanitize_status( $gate['status'], $gate['id'] ),
-			'content_rules' => $this->sanitize_rules( $gate['content_rules'], 'content' ),
-			'registration'  => $this->sanitize_registration( $gate['registration'] ),
-			'custom_access' => $this->sanitize_custom_access( $gate['custom_access'] ),
+			'priority'      => isset( $gate['priority'] ) ? intval( $gate['priority'] ) : 0,
+			'status'        => isset( $gate['status'] ) && ! empty( $gate['id'] ) ? $this->sanitize_status( $gate['status'], $gate['id'] ) : 'draft',
+			'content_rules' => isset( $gate['content_rules'] ) ? $this->sanitize_rules( $gate['content_rules'], 'content' ) : [],
+			'registration'  => isset( $gate['registration'] ) ? $this->sanitize_registration( $gate['registration'] ) : [],
+			'custom_access' => isset( $gate['custom_access'] ) ? $this->sanitize_custom_access( $gate['custom_access'] ) : [],
 		];
 	}
 
