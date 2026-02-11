@@ -44,7 +44,7 @@ const components: Record< string, any > = {
 		component: lazy( () => import( /* webpackChunkName: "audience-wizards" */ './audience/views/campaigns' ) ),
 	},
 	'newspack-audience-access-control': {
-		label: __( 'Audience Content Gates', 'newspack-plugin' ),
+		label: __( 'Access Control', 'newspack-plugin' ),
 		component: lazy( () => import( /* webpackChunkName: "audience-wizards" */ './audience/views/content-gates' ) ),
 	},
 	'newspack-audience-donations': {
