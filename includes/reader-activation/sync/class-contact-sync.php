@@ -1,6 +1,6 @@
 <?php
 /**
- * Reader contact data syncing with the connected ESP using Newspack Newsletters.
+ * Reader contact data syncing with the active integrations.
  *
  * @package Newspack
  */
@@ -15,15 +15,15 @@ use Newspack\Logger;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * ESP Sync Class.
+ * Contact Sync Class.
  */
-class ESP_Sync extends Sync {
+class Contact_Sync extends Sync {
 	/**
 	 * Context of the sync.
 	 *
 	 * @var string
 	 */
-	protected static $context = 'ESP Sync';
+	protected static $context = 'Contact Sync';
 
 	/**
 	 * Queued syncs containing their contexts keyed by email address.
@@ -41,57 +41,6 @@ class ESP_Sync extends Sync {
 	}
 
 	/**
-	 * Whether contacts can be synced to the ESP.
-	 *
-	 * @param bool $return_errors Optional. Whether to return a WP_Error object. Default false.
-	 *
-	 * @return bool|WP_Error True if contacts can be synced, false otherwise. WP_Error if return_errors is true.
-	 */
-	public static function can_esp_sync( $return_errors = false ) {
-		$errors = new \WP_Error();
-
-		if ( defined( 'NEWSPACK_FORCE_ALLOW_ESP_SYNC' ) && NEWSPACK_FORCE_ALLOW_ESP_SYNC ) {
-			return $return_errors ? $errors : true;
-		}
-
-		$can_sync = static::can_sync( true );
-		if ( $can_sync->has_errors() ) {
-			$can_sync->export_to( $errors );
-		}
-
-		if ( ! class_exists( 'Newspack_Newsletters_Contacts' ) ) {
-			$errors->add(
-				'newspack_newsletters_contacts_not_found',
-				__( 'Newspack Newsletters is not available.', 'newspack-plugin' )
-			);
-		}
-
-		if ( ! Reader_Activation::get_setting( 'sync_esp' ) ) {
-			$errors->add(
-				'ras_esp_sync_not_enabled',
-				__( 'ESP sync is not enabled.', 'newspack-plugin' )
-			);
-		}
-
-		if ( ! Reader_Activation::get_esp_master_list_id() ) {
-			$errors->add(
-				'ras_esp_master_list_id_not_found',
-				__( 'ESP master list ID is not set.', 'newspack-plugin' )
-			);
-		}
-
-		if ( $return_errors ) {
-			return $errors;
-		}
-
-		if ( $errors->has_errors() ) {
-			return false;
-		}
-
-		return true;
-	}
-
-	/**
 	 * Sync contact to the ESP.
 	 *
 	 * @param array  $contact          The contact data to sync.
@@ -101,7 +50,7 @@ class ESP_Sync extends Sync {
 	 * @return true|\WP_Error True if succeeded or WP_Error.
 	 */
 	public static function sync( $contact, $context = '', $existing_contact = null ) {
-		$can_sync = static::can_esp_sync( true );
+		$can_sync = static::can_sync( true );
 		if ( $can_sync->has_errors() ) {
 			return $can_sync;
 		}
@@ -244,12 +193,13 @@ class ESP_Sync extends Sync {
 	 * the connected ESP.
 	 *
 	 * @param int|\WC_order $user_id_or_order User ID or WC_Order object.
+	 * @param string        $context          The context of the sync.
 	 * @param bool          $is_dry_run       True if a dry run.
 	 *
 	 * @return true|\WP_Error True if the contact was synced successfully, WP_Error otherwise.
 	 */
-	public static function sync_contact( $user_id_or_order, $is_dry_run = false ) {
-		$can_sync = static::can_esp_sync( true );
+	public static function sync_contact( $user_id_or_order, $context = '', $is_dry_run = false ) {
+		$can_sync = static::can_sync( true );
 		if ( ! $is_dry_run && $can_sync->has_errors() ) {
 			return $can_sync;
 		}
@@ -259,7 +209,7 @@ class ESP_Sync extends Sync {
 		$user_id  = $is_order ? $order->get_customer_id() : $user_id_or_order;
 
 		$contact = $is_order ? Sync\WooCommerce::get_contact_from_order( $order ) : self::get_contact_data( $user_id );
-		$result  = $is_dry_run ? true : self::sync( $contact );
+		$result  = $is_dry_run ? true : self::sync( $contact, $context );
 
 		if ( $result && ! \is_wp_error( $result ) ) {
 			static::log(
@@ -305,4 +255,4 @@ class ESP_Sync extends Sync {
 		self::$queued_syncs = [];
 	}
 }
-ESP_Sync::init_hooks();
+Contact_Sync::init_hooks();
