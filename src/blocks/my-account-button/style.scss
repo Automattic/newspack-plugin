@@ -16,4 +16,8 @@
 			margin-right: calc( max(4px, 0.25em) * -1);
 		}
 	}
+
+	.wp-block-buttons > .wp-block-button:has(&) {
+		display: inline-flex;
+	}
 }

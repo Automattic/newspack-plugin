@@ -160,7 +160,7 @@ final class My_Account_Button_Block {
 		}
 
 		// Build wrapper div classes.
-		$wrapper_div_classes = [ 'wp-block-buttons' ];
+		$wrapper_div_classes = [ 'wp-block-buttons', 'is-layout-flex' ];
 		if ( ! empty( $custom_classes ) ) {
 			$wrapper_div_classes = \array_merge( $wrapper_div_classes, $custom_classes );
 		}

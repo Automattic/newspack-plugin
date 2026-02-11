@@ -95,7 +95,7 @@ function MyAccountButtonEdit( { attributes, setAttributes } ) {
 					</ToolbarGroup>
 				</BlockControls>
 			) }
-			<div className={ classnames( 'wp-block-buttons', blockClassName ) }>
+			<div className={ classnames( 'wp-block-buttons', 'is-layout-flex', blockClassName ) }>
 				<div className="wp-block-button">
 					<div { ...blockProps }>
 						{ isIconVisible && (
