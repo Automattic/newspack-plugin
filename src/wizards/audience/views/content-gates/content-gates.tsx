@@ -40,6 +40,7 @@ const ContentGates = ( { updateGatesData }: { updateGatesData: ( gates: Gate[] )
 	useEffect( () => {
 		setHeaderSection( '' );
 		setHeaderActions( [] );
+		resetErrors();
 	}, [] );
 
 	useEffect( () => {

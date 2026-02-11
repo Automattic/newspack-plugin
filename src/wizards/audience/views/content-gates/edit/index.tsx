@@ -35,7 +35,7 @@ const DEFAULT_GATE: Gate = {
 	id: 0,
 	title: '',
 	priority: 0,
-	status: 'publish',
+	status: 'draft',
 	content_rules: [ { slug: 'post_types', value: [ 'post' ] } ],
 	registration: { active: false, metering: { enabled: false, count: 1, period: 'month' }, require_verification: false, gate_layout_id: 0 },
 	custom_access: { active: false, metering: { enabled: false, count: 1, period: 'month' }, gate_layout_id: 0, access_rules: [] },
@@ -61,12 +61,13 @@ const getContentTypeFromRules = ( rules: GateContentRule[] ): 'all' | 'custom' |
 const Edit = ( { history, match, updateGatesData }: ContentGateEditProps ) => {
 	const { id: _id, type } = match.params;
 	const id = _id ? parseInt( _id ) : 0;
-	const { gates = [] as Gate[] } = useWizardData( AUDIENCE_CONTENT_GATES_WIZARD_SLUG ) as WizardData;
+	const { gates = null as unknown as Gate[] } = useWizardData( AUDIENCE_CONTENT_GATES_WIZARD_SLUG ) as WizardData;
 	const { wizardApiFetch, isFetching, errorMessage, resetError, setError } = useWizardApiFetch( AUDIENCE_CONTENT_GATES_WIZARD_SLUG );
 	const { setHeaderSection, setHeaderActions } = useDispatch( WIZARD_STORE_NAMESPACE );
-	const [ gate, setGate ] = useState< Gate >( gates.find( g => g.id === id ) || DEFAULT_GATE ); // eslint-disable-line @typescript-eslint/no-unused-vars
+	const [ gate, setGate ] = useState< Gate >( ( gates && gates.find( g => g.id === id ) ) || DEFAULT_GATE ); // eslint-disable-line @typescript-eslint/no-unused-vars
 	const [ title, setTitle ] = useState< string >( gate.title );
 	const [ isRenaming, setIsRenaming ] = useState< boolean >( false );
+	const [ isDeleting, setIsDeleting ] = useState< boolean >( false );
 	const [ contentRules, setContentRules ] = useState< GateContentRule[] >( gate.content_rules );
 	const [ registration, setRegistration ] = useState< Registration >( gate.registration );
 	const [ customAccess, setCustomAccess ] = useState< CustomAccess >( gate.custom_access );
@@ -132,6 +133,9 @@ const Edit = ( { history, match, updateGatesData }: ContentGateEditProps ) => {
 	}, [ gate, contentRules, registration, customAccess, status, title ] );
 
 	const handleStatusChange = ( _status: GateStatus ) => {
+		if ( isFetching ) {
+			return;
+		}
 		setStatus( _status );
 	};
 
@@ -142,6 +146,7 @@ const Edit = ( { history, match, updateGatesData }: ContentGateEditProps ) => {
 				return;
 			}
 			resetError();
+			setIsDeleting( true );
 			wizardApiFetch(
 				{
 					path: `/newspack/v1/wizard/${ AUDIENCE_CONTENT_GATES_WIZARD_SLUG }/${ gateId }`,
@@ -152,6 +157,10 @@ const Edit = ( { history, match, updateGatesData }: ContentGateEditProps ) => {
 						const newGates = gates.filter( g => g.id !== gateId );
 						updateGatesData( newGates );
 						history.push( `/content-gates` );
+						setIsDeleting( false );
+					},
+					onFinally() {
+						setIsDeleting( false );
 					},
 				}
 			);
@@ -159,26 +168,27 @@ const Edit = ( { history, match, updateGatesData }: ContentGateEditProps ) => {
 		[ gate, contentRules, registration, customAccess, status, title ]
 	);
 
-	const matchedGate = gates.find( g => g.id === id );
-	const stringifiedGate = matchedGate ? JSON.stringify( matchedGate ) : '';
-
 	// Load gate data.
 	useEffect( () => {
 		setHeaderSection( isNew ? __( 'Add new', 'newspack-plugin' ) : __( 'Edit', 'newspack-plugin' ) );
 		if ( isNew ) {
+			return;
+		}
+		const matchedGate = gates ? gates.find( g => g.id === id ) : null;
+		if ( matchedGate === null || isDeleting || isFetching ) {
+			return;
+		}
+		if ( matchedGate === undefined ) {
+			// translators: %d is the content gate ID.
+			setError( sprintf( __( 'Content gate %d not found. Create a new gate?', 'newspack-plugin' ), id ) );
 			setGate( DEFAULT_GATE );
 			setTitle( '' );
-			setContentRules( [] );
+			setContentRules( DEFAULT_GATE.content_rules );
 			setRegistration( DEFAULT_GATE.registration );
 			setCustomAccess( DEFAULT_GATE.custom_access );
 			setStatus( 'draft' );
 			setContentType( type as 'all' | 'custom' | undefined );
-			return;
-		}
-		if ( ! matchedGate ) {
-			// translators: %d is the content gate ID.
-			setError( sprintf( __( 'Content gate with ID %d not found. Create a new gate?', 'newspack-plugin' ), id ) );
-			history.push( '/edit/new' );
+			history.push( `/edit/new/all` );
 			return;
 		}
 		setGate( matchedGate );
@@ -188,7 +198,8 @@ const Edit = ( { history, match, updateGatesData }: ContentGateEditProps ) => {
 		setCustomAccess( matchedGate.custom_access );
 		setStatus( matchedGate.status );
 		setContentType( getContentTypeFromRules( matchedGate.content_rules ) );
-	}, [ stringifiedGate, id, isNew, type ] );
+		resetError();
+	}, [ gates, id, isDeleting, isFetching, isNew, type ] );
 
 	// Set header actions.
 	useEffect( () => {
@@ -231,7 +242,19 @@ const Edit = ( { history, match, updateGatesData }: ContentGateEditProps ) => {
 			} );
 		}
 		setHeaderActions( actions );
-	}, [ contentRules.length, customAccess.active, gate.id, gate.status, isFetching, isNew, isRenaming, registration.active, title ] );
+	}, [
+		contentRules.length,
+		customAccess.active,
+		gate.id,
+		gate.status,
+		handleCreate,
+		handleSave,
+		isFetching,
+		isNew,
+		isRenaming,
+		registration.active,
+		title,
+	] );
 
 	// Update content rules.
 	useEffect( () => {
@@ -243,7 +266,7 @@ const Edit = ( { history, match, updateGatesData }: ContentGateEditProps ) => {
 		if ( ! isNew && status !== gate.status ) {
 			handleSave();
 		}
-	}, [ status, gate, handleSave ] );
+	}, [ isNew, gate.status, status, handleSave ] );
 
 	return (
 		<div className="newspack-content-gate__edit">
