@@ -5,10 +5,10 @@
 /**
  * WordPress dependencies.
  */
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { __experimentalVStack as VStack } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
 import { useDispatch } from '@wordpress/data';
-import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
+import { useCallback, useEffect, useState } from '@wordpress/element';
 
 /**
  * Internal dependencies
@@ -62,7 +62,7 @@ const Edit = ( { history, match, updateGatesData }: ContentGateEditProps ) => {
 	const { id: _id, type } = match.params;
 	const id = _id ? parseInt( _id ) : 0;
 	const { gates = [] as Gate[] } = useWizardData( AUDIENCE_CONTENT_GATES_WIZARD_SLUG ) as WizardData;
-	const { wizardApiFetch, isFetching, errorMessage, resetError } = useWizardApiFetch( AUDIENCE_CONTENT_GATES_WIZARD_SLUG );
+	const { wizardApiFetch, isFetching, errorMessage, resetError, setError } = useWizardApiFetch( AUDIENCE_CONTENT_GATES_WIZARD_SLUG );
 	const { setHeaderSection, setHeaderActions } = useDispatch( WIZARD_STORE_NAMESPACE );
 	const [ gate, setGate ] = useState< Gate >( gates.find( g => g.id === id ) || DEFAULT_GATE ); // eslint-disable-line @typescript-eslint/no-unused-vars
 	const [ title, setTitle ] = useState< string >( gate.title );
@@ -75,7 +75,7 @@ const Edit = ( { history, match, updateGatesData }: ContentGateEditProps ) => {
 
 	const isNew = _id === 'new' || ! id;
 
-	const handleCreate = () => {
+	const handleCreate = useCallback( () => {
 		if ( isFetching ) {
 			return;
 		}
@@ -101,7 +101,7 @@ const Edit = ( { history, match, updateGatesData }: ContentGateEditProps ) => {
 				},
 			}
 		);
-	};
+	}, [ gate, contentRules, registration, customAccess, status, title ] );
 
 	const handleSave = useCallback( () => {
 		if ( isFetching ) {
@@ -135,80 +135,50 @@ const Edit = ( { history, match, updateGatesData }: ContentGateEditProps ) => {
 		setStatus( _status );
 	};
 
-	const handleDelete = ( gateId: number ) => {
-		// eslint-disable-next-line no-alert
-		if ( ! confirm( __( 'Are you sure you want to permanently delete this content gate?', 'newspack-plugin' ) ) ) {
-			return;
-		}
-		resetError();
-		wizardApiFetch(
-			{
-				path: `/newspack/v1/wizard/${ AUDIENCE_CONTENT_GATES_WIZARD_SLUG }/${ gateId }`,
-				method: 'DELETE',
-			},
-			{
-				onSuccess() {
-					const newGates = gates.filter( g => g.id !== gateId );
-					updateGatesData( newGates );
-					history.push( `/content-gates` );
+	const handleDelete = useCallback(
+		( gateId: number ) => {
+			// eslint-disable-next-line no-alert
+			if ( ! confirm( __( 'Are you sure you want to permanently delete this content gate?', 'newspack-plugin' ) ) ) {
+				return;
+			}
+			resetError();
+			wizardApiFetch(
+				{
+					path: `/newspack/v1/wizard/${ AUDIENCE_CONTENT_GATES_WIZARD_SLUG }/${ gateId }`,
+					method: 'DELETE',
 				},
-			}
-		);
-	};
+				{
+					onSuccess() {
+						const newGates = gates.filter( g => g.id !== gateId );
+						updateGatesData( newGates );
+						history.push( `/content-gates` );
+					},
+				}
+			);
+		},
+		[ gate, contentRules, registration, customAccess, status, title ]
+	);
 
-	// Set header actions.
-	const actions = useMemo( () => {
-		const _actions = [
-			{
-				type: 'primary',
-				label: __( 'Save', 'newspack-plugin' ),
-				action: isNew ? handleCreate : handleSave,
-				disabled: isFetching || ! title || ! contentRules.length || ( ! registration.active && ! customAccess.active ),
-			},
-		];
-		if ( ! isNew ) {
-			if ( ! isRenaming ) {
-				_actions.push( {
-					type: 'more',
-					label: __( 'Rename', 'newspack-plugin' ),
-					action: () => setIsRenaming( true ),
-					disabled: isFetching,
-				} );
-			}
-			if ( gate.status !== 'publish' ) {
-				_actions.push( {
-					type: 'more',
-					label: __( 'Activate', 'newspack-plugin' ),
-					action: () => handleStatusChange( 'publish' ),
-					disabled: isFetching,
-				} );
-			} else {
-				_actions.push( {
-					type: 'more',
-					label: __( 'Deactivate', 'newspack-plugin' ),
-					action: () => handleStatusChange( 'draft' ),
-					disabled: isFetching,
-				} );
-			}
-			_actions.push( {
-				type: 'more',
-				label: __( 'Delete', 'newspack-plugin' ),
-				action: () => handleDelete( gate.id ),
-				disabled: isFetching,
-				destructive: true,
-			} );
-		}
-		return _actions;
-	}, [ contentRules, customAccess, isFetching, isRenaming, registration, title ] );
+	const matchedGate = gates.find( g => g.id === id );
+	const stringifiedGate = matchedGate ? JSON.stringify( matchedGate ) : '';
 
 	// Load gate data.
 	useEffect( () => {
 		setHeaderSection( isNew ? __( 'Add new', 'newspack-plugin' ) : __( 'Edit', 'newspack-plugin' ) );
 		if ( isNew ) {
+			setGate( DEFAULT_GATE );
+			setTitle( '' );
+			setContentRules( [] );
+			setRegistration( DEFAULT_GATE.registration );
+			setCustomAccess( DEFAULT_GATE.custom_access );
+			setStatus( 'draft' );
+			setContentType( type as 'all' | 'custom' | undefined );
 			return;
 		}
-		const matchedGate = gates.find( g => g.id === id );
 		if ( ! matchedGate ) {
+			// translators: %d is the content gate ID.
+			setError( sprintf( __( 'Content gate with ID %d not found. Create a new gate?', 'newspack-plugin' ), id ) );
+			history.push( '/edit/new' );
 			return;
 		}
 		setGate( matchedGate );
@@ -218,12 +188,50 @@ const Edit = ( { history, match, updateGatesData }: ContentGateEditProps ) => {
 		setCustomAccess( matchedGate.custom_access );
 		setStatus( matchedGate.status );
 		setContentType( getContentTypeFromRules( matchedGate.content_rules ) );
-	}, [ gates, id, isNew ] );
+	}, [ stringifiedGate, id, isNew, type ] );
 
-	// Update header actions.
+	// Set header actions.
 	useEffect( () => {
+		const actions = [
+			{
+				type: 'primary',
+				label: __( 'Save', 'newspack-plugin' ),
+				action: isNew ? handleCreate : handleSave,
+				disabled: isFetching || ! title || ! contentRules.length || ( ! registration.active && ! customAccess.active ),
+			},
+		];
+		if ( ! isNew ) {
+			actions.push( {
+				type: 'more',
+				label: __( 'Rename', 'newspack-plugin' ),
+				action: () => setIsRenaming( true ),
+				disabled: isFetching || isRenaming,
+			} );
+			if ( gate.status !== 'publish' ) {
+				actions.push( {
+					type: 'more',
+					label: __( 'Activate', 'newspack-plugin' ),
+					action: () => handleStatusChange( 'publish' ),
+					disabled: isFetching,
+				} );
+			} else {
+				actions.push( {
+					type: 'more',
+					label: __( 'Deactivate', 'newspack-plugin' ),
+					action: () => handleStatusChange( 'draft' ),
+					disabled: isFetching,
+				} );
+			}
+			actions.push( {
+				type: 'more',
+				label: __( 'Delete', 'newspack-plugin' ),
+				action: () => handleDelete( gate.id ),
+				disabled: isFetching,
+				destructive: true,
+			} );
+		}
 		setHeaderActions( actions );
-	}, [ actions, setHeaderActions ] );
+	}, [ contentRules.length, customAccess.active, gate.id, gate.status, isFetching, isNew, isRenaming, registration.active, title ] );
 
 	// Update content rules.
 	useEffect( () => {
@@ -232,10 +240,10 @@ const Edit = ( { history, match, updateGatesData }: ContentGateEditProps ) => {
 
 	// Update gate status.
 	useEffect( () => {
-		if ( status !== gate.status ) {
+		if ( ! isNew && status !== gate.status ) {
 			handleSave();
 		}
-	}, [ status, gate.status, handleSave ] );
+	}, [ status, gate, handleSave ] );
 
 	return (
 		<div className="newspack-content-gate__edit">
