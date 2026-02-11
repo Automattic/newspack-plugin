@@ -124,4 +124,41 @@ class Test_Integrations extends \WP_UnitTestCase {
 		$this->assertArrayHasKey( 'one', $available );
 		$this->assertArrayHasKey( 'two', $available );
 	}
+
+	/**
+	 * Test get_incoming_contact_fields returns empty array when no fields available.
+	 */
+	public function test_get_incoming_contact_fields_empty() {
+		$integration = new Sample_Integration( 'test-id', 'Test Integration' );
+		Integrations::register( $integration );
+
+		$fields = $integration->get_incoming_contact_fields();
+
+		$this->assertIsArray( $fields );
+		$this->assertEmpty( $fields );
+	}
+
+	/**
+	 * Test get_incoming_contact_fields propagates WP_Error from get_incoming_available_contact_fields.
+	 */
+	public function test_get_incoming_contact_fields_propagates_error() {
+		$integration = new class( 'error-test', 'Error Test' ) extends Sample_Integration {
+			/**
+			 * Get incoming available contact fields (returns error for test).
+			 *
+			 * @return \WP_Error
+			 */
+			public function get_incoming_available_contact_fields() {
+				return new \WP_Error( 'test_error', 'Test error message' );
+			}
+		};
+
+		Integrations::register( $integration );
+
+		$result = $integration->get_incoming_contact_fields();
+
+		$this->assertWPError( $result );
+		$this->assertEquals( 'test_error', $result->get_error_code() );
+		$this->assertEquals( 'Test error message', $result->get_error_message() );
+	}
 }
