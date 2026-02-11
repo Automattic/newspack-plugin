@@ -1,3 +1,10 @@
+# [6.31.0](https://github.com/Automattic/newspack-plugin/compare/v6.30.2...v6.31.0) (2026-02-10)
+
+
+### Features
+
+* release the redesign of the My Account dashboard ([#4468](https://github.com/Automattic/newspack-plugin/issues/4468)) ([20a374c](https://github.com/Automattic/newspack-plugin/commit/20a374c1ef5b97e2487d55b07b76bbb747e2410b))
+
 ## [6.30.2](https://github.com/Automattic/newspack-plugin/compare/v6.30.1...v6.30.2) (2026-02-09)
 
 
