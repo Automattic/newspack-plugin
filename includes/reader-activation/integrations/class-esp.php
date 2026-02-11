@@ -106,13 +106,6 @@ class ESP extends Integration {
 
 		$master_list_id = Reader_Activation::get_esp_master_list_id();
 
-		if ( empty( $master_list_id ) ) {
-			return new \WP_Error(
-				'ras_esp_master_list_id_not_found',
-				__( 'ESP master list ID is not set.', 'newspack-plugin' )
-			);
-		}
-
 		$fields = Newspack_Newsletters_Contacts::get_fields( $master_list_id );
 
 		if ( is_wp_error( $fields ) ) {
