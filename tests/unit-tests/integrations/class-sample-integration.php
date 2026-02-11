@@ -40,7 +40,7 @@ class Sample_Integration extends Integration {
 	 * This method should be implemented by child classes to return
 	 * an array of available contact fields from their integration.
 	 *
-	 * @return Integrations\Incoming_Contact_Field[] Array of incoming contact field objects.
+	 * @return Integrations\Incoming_Contact_Field[]|\WP_Error Array of incoming contact field objects or WP_Error on failure.
 	 */
 	public function get_incoming_available_contact_fields() {
 		return [];
