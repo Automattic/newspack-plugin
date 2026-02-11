@@ -166,21 +166,14 @@ window.newspackRAS.push( function ( readerActivation ) {
 					return;
 				}
 
-				// Determine which success element to show
-				const registrationSuccessEl = container.querySelector( '.newspack-registration__registration-success' );
-
 				// Check if this is a new registration that needs email verification
 				// Note: verified can be false, null, or undefined - we need verification if it's not true
 				const needsVerification =
 					! data?.existing_user && reader_registration_block_config.require_account_verification && data?.verified !== true;
 
 				// Hide success element first to ensure clean state
-				registrationSuccessEl?.classList.add( 'newspack-registration--hidden' );
-
-				let successElement;
-				if ( ! needsVerification ) {
-					successElement = registrationSuccessEl;
-				}
+				const successElement = container.querySelector( '.newspack-registration__registration-success' );
+				successElement?.classList.add( 'newspack-registration--hidden' );
 
 				if ( message ) {
 					messageNode = document.createElement( 'p' );
@@ -197,7 +190,7 @@ window.newspackRAS.push( function ( readerActivation ) {
 				if ( isSuccess ) {
 					// Set flowCompleted early to prevent 'reader' event listener from interfering
 					flowCompleted = true;
-					if ( successElement ) {
+					if ( ! needsVerification && ! data?.existing_user ) {
 						form.remove();
 						successElement.classList.remove( 'newspack-registration--hidden' );
 					}
