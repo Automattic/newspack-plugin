@@ -12,7 +12,7 @@ import '../../shared/js/public-path';
 import { CardBody, CardDivider, CardMedia, ExternalLink, ToggleControl } from '@wordpress/components';
 import { Component, Fragment, render, createInterpolateElement, createRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Icon, audio, category, plus, reusableBlock, settings, typography } from '@wordpress/icons';
+import { Icon, audio, category, plus, postList, reusableBlock, settings, typography } from '@wordpress/icons';
 
 /**
  * Internal dependencies.
@@ -740,7 +740,7 @@ class ComponentsDemo extends Component {
 									</>
 								),
 								href: '#',
-								icon: newspackIcons.settings,
+								icon: postList,
 								iconBackgroundColor: true,
 							} }
 						/>

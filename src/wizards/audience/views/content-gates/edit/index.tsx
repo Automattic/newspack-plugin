@@ -9,6 +9,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import { __experimentalVStack as VStack } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
 import { useDispatch } from '@wordpress/data';
 import { useCallback, useEffect, useState } from '@wordpress/element';
+import { commentAuthorAvatar, currencyDollar, postList, settings } from '@wordpress/icons';
 
 /**
  * Internal dependencies
@@ -18,7 +19,6 @@ import { CardSettingsGroup, Divider, Grid, Notice, SectionHeader, TextControl } 
 import { WIZARD_STORE_NAMESPACE } from '../../../../../../packages/components/src/wizard/store';
 import { useWizardData } from '../../../../../../packages/components/src/wizard/store/utils';
 import { useWizardApiFetch } from '../../../../hooks/use-wizard-api-fetch';
-import { account, currency, content, settings } from '../../../../../../packages/icons';
 import ContentRules from './content-rules';
 import Registration from './registration';
 import CustomAccess from './custom-access';
@@ -321,7 +321,7 @@ const Edit = ( { history, match, updateGatesData }: ContentGateEditProps ) => {
 						actionType="chevron"
 						title={ __( 'Restrict all posts', 'newspack-plugin' ) }
 						description={ __( 'All posts on your site will require access.', 'newspack-plugin' ) }
-						icon={ content }
+						icon={ postList }
 						isActive={ contentType === 'all' }
 						onEnable={ () => setContentType( 'all' ) }
 					/>
@@ -352,7 +352,7 @@ const Edit = ( { history, match, updateGatesData }: ContentGateEditProps ) => {
 						actionType="toggle"
 						title={ __( 'Registered Access', 'newspack-plugin' ) }
 						description={ __( 'Readers must log in to view this content.', 'newspack-plugin' ) }
-						icon={ account }
+						icon={ commentAuthorAvatar }
 						isActive={ registration?.active }
 						onEnable={ () => setRegistration( { ...registration, active: ! registration.active } ) }
 					>
@@ -362,7 +362,7 @@ const Edit = ( { history, match, updateGatesData }: ContentGateEditProps ) => {
 						actionType="toggle"
 						title={ __( 'Paid Access', 'newspack-plugin' ) }
 						description={ __( 'Set conditions like subscriptions, domain, and more.', 'newspack-plugin' ) }
-						icon={ currency }
+						icon={ currencyDollar }
 						isActive={ customAccess?.active }
 						onEnable={ () => setCustomAccess( { ...customAccess, active: ! customAccess.active } ) }
 					>

@@ -7,12 +7,13 @@
  */
 import { __ } from '@wordpress/i18n';
 import { __experimentalVStack as VStack } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
+import { postList, settings } from '@wordpress/icons';
 
 /**
  * Internal dependencies
  */
 import { Card, SectionHeader } from '../../../../../packages/components/src';
-import { content, settings, paywall } from '../../../../../packages/icons';
+import { paywall } from '../../../../../packages/icons';
 
 const ContentGatesOnboarding = () => {
 	return (
@@ -40,7 +41,7 @@ const ContentGatesOnboarding = () => {
 							</>
 						),
 						href: '#/edit/new/all',
-						icon: content,
+						icon: postList,
 						iconBackgroundColor: true,
 					} }
 				/>
