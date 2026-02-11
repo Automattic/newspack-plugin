@@ -8,7 +8,7 @@ import { useEffect, useState } from '@wordpress/element';
 /**
  * Internal dependencies
  */
-import { AutocompleteWithSuggestions, Button, Grid, TextControl } from '../../../../../packages/components/src';
+import { AutocompleteWithSuggestions, Button, Divider, Grid, TextControl } from '../../../../../packages/components/src';
 import { useWizardData } from '../../../../../packages/components/src/wizard/store/utils';
 import { WIZARD_STORE_NAMESPACE } from '../../../../../packages/components/src/wizard/store';
 import WizardsSection from '../../../wizards-section';
@@ -100,7 +100,7 @@ const NRHSettings = () => {
 					{ __( 'Save Settings' ) }
 				</Button>
 			</div>
-			<hr />
+			<Divider alignment="full-width" variant="tertiary" />
 		</WizardsSection>
 	);
 };

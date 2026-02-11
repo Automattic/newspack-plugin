@@ -1,3 +1,17 @@
+# [6.31.0](https://github.com/Automattic/newspack-plugin/compare/v6.30.2...v6.31.0) (2026-02-10)
+
+
+### Features
+
+* release the redesign of the My Account dashboard ([#4468](https://github.com/Automattic/newspack-plugin/issues/4468)) ([20a374c](https://github.com/Automattic/newspack-plugin/commit/20a374c1ef5b97e2487d55b07b76bbb747e2410b))
+
+## [6.30.2](https://github.com/Automattic/newspack-plugin/compare/v6.30.1...v6.30.2) (2026-02-09)
+
+
+### Bug Fixes
+
+* **my-account:** activate first payment method on load ([#4463](https://github.com/Automattic/newspack-plugin/issues/4463)) ([680a48e](https://github.com/Automattic/newspack-plugin/commit/680a48ecf308ce4b4348d709738876e83a5aa008))
+
 ## [6.30.1](https://github.com/Automattic/newspack-plugin/compare/v6.30.0...v6.30.1) (2026-02-05)
 
 
