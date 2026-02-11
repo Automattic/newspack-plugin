@@ -235,7 +235,7 @@ const Edit = ( { history, match, updateGatesData }: ContentGateEditProps ) => {
 		if ( status !== gate.status ) {
 			handleSave();
 		}
-	}, [ status ] );
+	}, [ status, gate.status, handleSave ] );
 
 	return (
 		<div className="newspack-content-gate__edit">
