@@ -271,12 +271,6 @@
 		@include mixins.visuallyHidden;
 	}
 
-	// Pending verification state
-	&__pending-verification {
-		p {
-			margin: var(--newspack-ui-spacer-2) 0 var(--newspack-ui-spacer-4);
-		}
-	}
 }
 
 @container registration ( width > 568px ) {

@@ -127,7 +127,6 @@ window.newspackRAS.push( function ( readerActivation ) {
 				}
 				if ( 'otp' === action ) {
 					if ( ! readerActivation.getOTPHash() ) {
-						console.warn( 'No OTP hash found.' ); // eslint-disable-line no-console
 						return;
 					}
 					const emailAddressElements = container.querySelectorAll( '.email-address' );
@@ -218,6 +217,9 @@ window.newspackRAS.push( function ( readerActivation ) {
 				};
 				const remaining = readerActivation.getOTPTimeRemaining();
 				if ( remaining ) {
+					if ( resendCodeButton.otpTimerInterval ) {
+						clearInterval( resendCodeButton.otpTimerInterval );
+					}
 					resendCodeButton.otpTimerInterval = setInterval( updateButton, 1000 );
 					updateButton();
 				}

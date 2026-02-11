@@ -65,12 +65,13 @@ function enqueue_scripts() {
 	);
 	\wp_script_add_data( $handle, 'async', true );
 	\wp_script_add_data( $handle, 'amp-plus', true );
-	wp_localize_script(
+	\wp_localize_script(
 		$handle,
 		'reader_registration_block_config',
 		[
 			'require_account_verification' => \Newspack\Content_Gate::requires_account_verification(),
 			'verification_url'             => \admin_url( 'admin-ajax.php' ),
+			'verification_nonce'           => \wp_create_nonce( 'newspack_reader_registration_verification' ),
 		]
 	);
 }
@@ -108,10 +109,12 @@ function render_verification_box() {
 			</span>
 			<p>
 				<?php
-				printf(
-					// translators: %s is the user's email address.
-					esc_html__( 'We\'ll send a verification code to %s.', 'newspack-plugin' ),
-					'<strong class="email-address">' . esc_html( $email ) . '</strong>'
+				echo wp_kses_post(
+					sprintf(
+						// translators: %s is the user's email address.
+						__( 'We\'ll send a verification code to %s.', 'newspack-plugin' ),
+						'<strong class="email-address">' . esc_html( $email ) . '</strong>'
+					)
 				);
 				?>
 			</p>
@@ -188,8 +191,12 @@ function process_verification_request() {
 		\wp_die( \esc_html__( 'Unsupported request method', 'newspack-plugin' ) );
 	}
 
-	if ( ! is_user_logged_in() ) {
-		\wp_send_json_error( __( 'User not logged in', 'newspack-plugin' ) );
+	if ( ! \check_ajax_referer( 'newspack_reader_registration_verification', 'nonce', false ) ) {
+		\wp_send_json_error( \__( 'Invalid request. Please refresh the page and try again.', 'newspack-plugin' ) );
+	}
+
+	if ( ! \is_user_logged_in() ) {
+		\wp_send_json_error( \__( 'User not logged in', 'newspack-plugin' ) );
 	}
 
 	$current_user = \wp_get_current_user();
@@ -205,7 +212,6 @@ function process_verification_request() {
 	\wp_send_json_success( __( 'OTP sent', 'newspack-plugin' ) );
 }
 add_action( 'wp_ajax_newspack_reader_registration_verification', __NAMESPACE__ . '\\process_verification_request' );
-add_action( 'wp_ajax_nopriv_newspack_reader_registration_verification', __NAMESPACE__ . '\\process_verification_request' );
 
 /**
  * Render Registration Block.
@@ -272,7 +278,7 @@ function render_block( $attrs, $content ) {
 		)
 	) {
 		$registered = true;
-		if ( ! Reader_Activation::is_reader_verified( \wp_get_current_user() ) && \Newspack\Content_Gate::is_gated() ) {
+		if ( \is_user_logged_in() && ! Reader_Activation::is_reader_verified( \wp_get_current_user() ) && \Newspack\Content_Gate::is_gated() ) {
 			$show_pending_verification = true;
 		}
 	}
@@ -573,7 +579,8 @@ function process_form() {
 			$response['verified'] = Reader_Activation::is_reader_verified( $user );
 			// Signal frontend to open OTP verification flow.
 			if ( ! $response['verified'] && \Newspack\Content_Gate::requires_account_verification() ) {
-				$response['action'] = 'otp';
+				$response['action']             = 'otp';
+				$response['verification_nonce'] = \wp_create_nonce( 'newspack_reader_registration_verification' );
 			}
 		}
 	} else {

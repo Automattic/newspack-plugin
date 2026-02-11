@@ -17,6 +17,7 @@ window.newspackRAS.push( function ( readerActivation ) {
 	const sendVerificationOTP = () => {
 		const body = new FormData();
 		body.set( 'action', 'newspack_reader_registration_verification' );
+		body.set( 'nonce', reader_registration_block_config.verification_nonce );
 		return fetch( reader_registration_block_config.verification_url, {
 			method: 'POST',
 			headers: { Accept: 'application/json' },
@@ -66,6 +67,11 @@ window.newspackRAS.push( function ( readerActivation ) {
 							} )
 							.catch( () => {
 								sendOtpButton.disabled = false;
+								sendOtpButton.textContent = sendOtpButton.textContent.trim();
+								const errorP = box.querySelector( 'p:not(:has(button))' );
+								if ( errorP ) {
+									errorP.textContent = 'Something went wrong. Please try again.';
+								}
 							} );
 					} );
 				}
@@ -162,20 +168,18 @@ window.newspackRAS.push( function ( readerActivation ) {
 
 				// Determine which success element to show
 				const registrationSuccessEl = container.querySelector( '.newspack-registration__registration-success' );
-				const loginSuccessEl = container.querySelector( '.newspack-registration__login-success' );
 
 				// Check if this is a new registration that needs email verification
 				// Note: verified can be false, null, or undefined - we need verification if it's not true
 				const needsVerification =
 					! data?.existing_user && reader_registration_block_config.require_account_verification && data?.verified !== true;
 
-				// Hide all success/verification elements first to ensure only one shows
+				// Hide success element first to ensure clean state
 				registrationSuccessEl?.classList.add( 'newspack-registration--hidden' );
-				loginSuccessEl?.classList.add( 'newspack-registration--hidden' );
 
 				let successElement;
 				if ( ! needsVerification ) {
-					successElement = data?.existing_user ? loginSuccessEl : registrationSuccessEl;
+					successElement = registrationSuccessEl;
 				}
 
 				if ( message ) {
@@ -200,16 +204,19 @@ window.newspackRAS.push( function ( readerActivation ) {
 					if ( data?.email ) {
 						body = new FormData( form );
 						readerActivation.setReaderEmail( data.email );
+						readerActivation.setAuthenticated( data?.authenticated );
 
 						if ( needsVerification ) {
+							// Use the fresh nonce from the registration response (session changed after login).
+							if ( data.verification_nonce ) {
+								reader_registration_block_config.verification_nonce = data.verification_nonce;
+							}
 							// Update %EMAIL% placeholder in verification modal
 							const emailNode = verificationModal.querySelector( '.email-address' );
 							if ( emailNode ) {
 								emailNode.textContent = data.email;
 							}
 							verificationModal.setAttribute( 'data-state', 'open' );
-						} else {
-							readerActivation.setAuthenticated( data?.authenticated );
 						}
 						if ( data.authenticated && ! needsVerification ) {
 							const baseActivity = { email: data.email };
@@ -272,7 +279,9 @@ window.newspackRAS.push( function ( readerActivation ) {
 					body,
 				} )
 					.then( res => {
-						res.json().then( ( { message, data } ) => form.endLoginFlow( message, res.status, data ) );
+						res.json()
+							.then( ( { message, data } ) => form.endLoginFlow( message, res.status, data ) )
+							.catch( () => form.endLoginFlow( 'An error occurred.', res.status || 400 ) );
 					} )
 					.catch( e => {
 						form.endLoginFlow( e?.message || 'An error occurred.', 400 );
