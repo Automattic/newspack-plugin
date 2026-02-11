@@ -729,11 +729,11 @@ final class Data_Events {
 
 		$handler     = $retry_data['handler'];
 		$action_name = $retry_data['action_name'];
-		$timestamp   = $retry_data['timestamp'];
-		$data        = $retry_data['data'];
-		$client_id   = $retry_data['client_id'];
-		$is_global   = $retry_data['is_global'];
-		$retry_count = $retry_data['retry_count'];
+		$timestamp   = $retry_data['timestamp'] ?? null;
+		$data        = $retry_data['data'] ?? null;
+		$client_id   = $retry_data['client_id'] ?? null;
+		$is_global   = $retry_data['is_global'] ?? false;
+		$retry_count = $retry_data['retry_count'] ?? 1;
 
 		if ( ! is_callable( $handler ) ) {
 			self::log( sprintf( 'Handler for "%s" is no longer callable on retry %d.', $action_name, $retry_count ), 'error' );
