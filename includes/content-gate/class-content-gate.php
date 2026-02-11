@@ -816,6 +816,9 @@ class Content_Gate {
 	public static function requires_account_verification( $gate_id = null ) {
 		if ( ! $gate_id ) {
 			$gate_id = self::get_gate_post_id();
+			if ( ! $gate_id ) {
+				return false;
+			}
 		}
 		$registration = self::get_registration_settings( $gate_id );
 		return $registration['require_verification'];
@@ -835,24 +838,6 @@ class Content_Gate {
 			$settings = wp_parse_args( $settings, $registration );
 		}
 		\update_post_meta( $gate_id, 'registration', $settings );
-	}
-
-	/**
-	 * Whether the gate requires account verification.
-	 *
-	 * @param int $gate_id Optional gate ID. Default is the current gate.
-	 *
-	 * @return bool Whether the gate requires account verification.
-	 */
-	public static function requires_account_verification( $gate_id = null ) {
-		if ( ! $gate_id ) {
-			$gate_id = self::get_gate_post_id();
-			if ( ! $gate_id ) {
-				return false;
-			}
-		}
-		$registration = self::get_registration_settings( $gate_id );
-		return $registration['require_verification'];
 	}
 
 	/**
