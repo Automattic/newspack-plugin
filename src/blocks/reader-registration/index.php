@@ -130,6 +130,9 @@ function render_verification_box() {
  * @return void
  */
 function render_verification_modal() {
+	if ( ! \Newspack\Content_Gate::requires_account_verification() ) {
+		return;
+	}
 	$email = '%EMAIL%';
 	if ( \is_user_logged_in() ) {
 		$current_user = \wp_get_current_user();
@@ -195,7 +198,7 @@ function process_verification_request() {
 	}
 
 	$otp_sent = \Newspack\Magic_Link::send_email( $current_user );
-	if ( ! $otp_sent ) {
+	if ( \is_wp_error( $otp_sent ) ) {
 		\wp_send_json_error( $otp_sent->get_error_message() );
 	}
 
@@ -235,7 +238,6 @@ function render_block( $attrs, $content ) {
 	$default_attrs = [
 		'label'           => __( 'Continue', 'newspack-plugin' ),
 		'newsletterLabel' => __( 'Subscribe to our newsletter', 'newspack-plugin' ),
-		'signedInLabel'   => __( 'An account was already registered with this email. Please check your inbox for an authentication link.', 'newspack-plugin' ),
 	];
 	$attrs         = \wp_parse_args( $attrs, $default_attrs );
 	foreach ( $default_attrs as $key => $value ) {
