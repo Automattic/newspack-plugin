@@ -156,7 +156,7 @@ final class Data_Events {
 		}
 
 		$action_name = isset( $dispatch['action_name'] ) ? sanitize_text_field( $dispatch['action_name'] ) : null;
-		$timestamp   = isset( $dispatch['timestamp'] ) ? sanitize_text_field( $dispatch['timestamp'] ) : null;
+		$timestamp   = isset( $dispatch['timestamp'] ) ? absint( $dispatch['timestamp'] ) : null;
 		$data        = $dispatch['data'] ?? null;
 		$client_id   = isset( $dispatch['client_id'] ) ? sanitize_text_field( $dispatch['client_id'] ) : null;
 
