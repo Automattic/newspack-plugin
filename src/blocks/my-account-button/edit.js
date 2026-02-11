@@ -29,8 +29,9 @@ function MyAccountButtonEdit( { attributes, setAttributes } ) {
 	const borderProps = useBorderProps( attributes );
 	const colorProps = useColorProps( attributes );
 	const spacingProps = useSpacingProps( attributes );
-	const isIconOnly = ( blockClassName || '' ).includes( 'is-style-icon-only' );
-	const isTextOnly = ( blockClassName || '' ).includes( 'is-style-text-only' );
+	const classes = ( blockClassName || '' ).split( ' ' );
+	const isIconOnly = classes.includes( 'is-style-icon-only' );
+	const isTextOnly = classes.includes( 'is-style-text-only' );
 	const isLabelVisible = ! isIconOnly;
 	const isIconVisible = ! isTextOnly;
 
