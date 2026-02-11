@@ -87,12 +87,16 @@ export function openAuthModal( config = {} ) {
 	 *
 	 * @param {boolean} dismiss Whether it's a dismiss action.
 	 */
-	const close = ( dismiss = true ) => {
-		// Disconnect observer before setting data-state to avoid re-entry.
-		if ( stateObserver ) {
-			stateObserver.disconnect();
-			stateObserver = null;
+	let closed = false;
+	let succeeded = false;
+
+	const close = () => {
+		if ( closed ) {
+			return;
 		}
+		closed = true;
+
+		modal.removeEventListener( 'closeModal', handleModalClose );
 
 		container.config = {};
 		modal.setAttribute( 'data-state', 'closed' );
@@ -110,12 +114,8 @@ export function openAuthModal( config = {} ) {
 			modalTrigger.focus();
 		}
 
-		if ( dismiss && config.onDismiss && typeof config.onDismiss === 'function' ) {
+		if ( ! succeeded && config.onDismiss && typeof config.onDismiss === 'function' ) {
 			config.onDismiss();
-		}
-
-		if ( config.onClose && typeof config.onClose === 'function' ) {
-			config.onClose();
 		}
 
 		document.removeEventListener( 'keydown', handleKeydown );
@@ -124,13 +124,9 @@ export function openAuthModal( config = {} ) {
 		} );
 	};
 
-	// Observe modal state to catch external closes (e.g., from newspack-ui modals.js).
-	let stateObserver = new MutationObserver( () => {
-		if ( modal.dataset.state === 'closed' ) {
-			close();
-		}
-	} );
-	stateObserver.observe( modal, { attributes: true, attributeFilter: [ 'data-state' ] } );
+	// Listen for closeModal events dispatched by the newspack-ui modals system.
+	const handleModalClose = () => close();
+	modal.addEventListener( 'closeModal', handleModalClose );
 
 	const closeButtons = modal.querySelectorAll( 'button[data-close], .newspack-ui__modal__close' );
 	if ( closeButtons?.length ) {
@@ -150,8 +146,9 @@ export function openAuthModal( config = {} ) {
 	container.config = config;
 
 	container.authCallback = ( message, data ) => {
+		succeeded = true;
 		if ( config?.closeOnSuccess ) {
-			close( false );
+			close();
 		}
 		if ( config.onSuccess && typeof config.onSuccess === 'function' ) {
 			config.onSuccess( message, data );

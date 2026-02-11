@@ -51,11 +51,14 @@ window.newspackRAS.push( function ( readerActivation ) {
 				// Find parent modal
 				const modal = sendOtpButton.closest( '.newspack-ui__modal-container' );
 
+				let otpSent = false;
+
 				if ( sendOtpButton ) {
 					sendOtpButton.addEventListener( 'click', () => {
 						sendOtpButton.disabled = true;
 						sendVerificationOTP()
 							.then( () => {
+								otpSent = true;
 								if ( modal ) {
 									modal.setAttribute( 'data-state', 'closed' );
 								}
@@ -64,6 +67,15 @@ window.newspackRAS.push( function ( readerActivation ) {
 							.catch( () => {
 								sendOtpButton.disabled = false;
 							} );
+					} );
+				}
+
+				// Reload when the verification modal is dismissed.
+				if ( modal ) {
+					modal.addEventListener( 'closeModal', () => {
+						if ( ! otpSent ) {
+							window.location.reload();
+						}
 					} );
 				}
 			} );
