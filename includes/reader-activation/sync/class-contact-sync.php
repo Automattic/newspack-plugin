@@ -85,8 +85,9 @@ class Contact_Sync extends Sync {
 		// Outside data event context: in-memory queue + shutdown execution.
 		if ( ! isset( self::$queued_syncs[ $contact['email'] ] ) ) {
 			self::$queued_syncs[ $contact['email'] ] = [
-				'contexts' => [],
-				'contact'  => [],
+				'contexts'         => [],
+				'contact'          => [],
+				'existing_contact' => null,
 			];
 		}
 		if ( ! empty( self::$queued_syncs[ $contact['email'] ]['contact']['metadata'] ) ) {
@@ -94,10 +95,13 @@ class Contact_Sync extends Sync {
 		}
 		self::$queued_syncs[ $contact['email'] ]['contexts'][] = $context;
 		self::$queued_syncs[ $contact['email'] ]['contact']    = $contact;
+		if ( null !== $existing_contact ) {
+			self::$queued_syncs[ $contact['email'] ]['existing_contact'] = $existing_contact;
+		}
 
 		// If shutdown hasn't happened yet, defer execution.
 		if ( ! did_action( 'shutdown' ) ) {
-			return;
+			return true;
 		}
 
 		return self::push_to_integrations( $contact, $context, $existing_contact );
@@ -396,8 +400,9 @@ class Contact_Sync extends Sync {
 			if ( ! $contact ) {
 				continue;
 			}
-			$contexts = $queued_sync['contexts'];
-			self::sync( $contact, implode( '; ', $contexts ) );
+			$contexts         = $queued_sync['contexts'];
+			$existing_contact = $queued_sync['existing_contact'] ?? null;
+			self::sync( $contact, implode( '; ', $contexts ), $existing_contact );
 		}
 
 		self::$queued_syncs = [];
