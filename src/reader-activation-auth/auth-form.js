@@ -164,6 +164,12 @@ window.newspackRAS.push( function ( readerActivation ) {
 				if ( container.formActionCallback ) {
 					container.formActionCallback( action );
 				}
+				// Hide back buttons when authenticated to prevent switching to a different email.
+				if ( readerActivation.getReader()?.authenticated ) {
+					backButtons.forEach( button => {
+						button.style.display = 'none';
+					} );
+				}
 			};
 			container.setFormAction( 'signin' );
 
