@@ -8,7 +8,7 @@ import { domReady } from '../utils';
  *
  * @param {HTMLInputElement} originalInput The original input element with name="otp_code".
  *
- * @return {HTMLInputElement|null} The hidden input holding the OTP code value, or null if initialization failed.
+ * @return {HTMLInputElement|null} The hidden input holding the OTP code value, the original input if maxlength is missing, or null if no input provided.
  */
 export function initOTPInput( originalInput ) {
 	if ( ! originalInput ) {
