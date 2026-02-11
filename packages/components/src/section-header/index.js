@@ -108,7 +108,7 @@ const SectionHeader = ( {
 				{ typeof title === 'string' && (
 					<HeadingTag>
 						{ title }
-						{ badges?.length && badges.map( ( badgeText, i ) => <Badge key={ i } text={ badgeText } level={ badgeLevel } /> ) }
+						{ badges?.length ? badges.map( ( badgeText, i ) => <Badge key={ i } text={ badgeText } level={ badgeLevel } /> ) : null }
 					</HeadingTag>
 				) }
 				{ typeof title === 'function' && <HeadingTag>{ title() }</HeadingTag> }
