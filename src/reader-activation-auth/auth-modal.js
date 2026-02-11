@@ -118,6 +118,10 @@ export function openAuthModal( config = {} ) {
 			config.onDismiss();
 		}
 
+		if ( config.onClose && typeof config.onClose === 'function' ) {
+			config.onClose();
+		}
+
 		document.removeEventListener( 'keydown', handleKeydown );
 		closeButtons.forEach( closeButton => {
 			closeButton.removeEventListener( 'click', handleCloseButtonClick );
