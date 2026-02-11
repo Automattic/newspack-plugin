@@ -223,7 +223,7 @@ class Test_Integration_Base extends \WP_UnitTestCase {
 		$available_fields = [
 			new Incoming_Contact_Field( 'CUSTOM_Account' ),
 			new Incoming_Contact_Field( 'custom_field_1' ),
-			new Incoming_Contact_Field( 'NP_Account' ), // This shouldn't be filtered with the new prefix.
+			new Incoming_Contact_Field( 'NP_Account' ), // This should not be filtered with the new prefix.
 		];
 
 		$this->integration->set_available_fields( $available_fields );
