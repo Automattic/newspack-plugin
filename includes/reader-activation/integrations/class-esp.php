@@ -96,7 +96,7 @@ class ESP extends Integration {
 	/**
 	 * Get incoming available contact fields from the integration.
 	 *
-	 * @return Incoming_Contact_Field[]|WP_Error Array of incoming contact field objects or WP_Error on failure.
+	 * @return Incoming_Contact_Field[]|\WP_Error Array of incoming contact field objects or WP_Error on failure.
 	 */
 	public function get_incoming_available_contact_fields() {
 		$master_list_id = Reader_Activation::get_esp_master_list_id();
