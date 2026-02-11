@@ -18,14 +18,14 @@ class Mock_Integration extends Integration {
 	/**
 	 * The fields to return from get_incoming_available_contact_fields.
 	 *
-	 * @var Incoming_Contact_Field[]|WP_Error
+	 * @var Incoming_Contact_Field[]|\WP_Error
 	 */
 	private $available_fields;
 
 	/**
 	 * Set the available fields.
 	 *
-	 * @param Incoming_Contact_Field[]|WP_Error $fields The fields to return.
+	 * @param Incoming_Contact_Field[]|\WP_Error $fields The fields to return.
 	 */
 	public function set_available_fields( $fields ) {
 		$this->available_fields = $fields;
