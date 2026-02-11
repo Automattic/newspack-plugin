@@ -2,14 +2,14 @@
 # This file is distributed under the GPL2.
 msgid ""
 msgstr ""
-"Project-Id-Version: Newspack 6.30.2\n"
+"Project-Id-Version: Newspack 6.31.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/newspack-plugin\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-02-09T21:37:38+00:00\n"
+"POT-Creation-Date: 2026-02-11T19:18:03+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: newspack-plugin\n"
@@ -86,7 +86,7 @@ msgstr ""
 #: includes/class-magic-link.php:1098
 #: includes/cli/class-ras.php:74
 #: includes/plugins/co-authors-plus/class-nicename-change-ui.php:127
-#: includes/reader-activation/sync/class-esp-sync-admin.php:169
+#: includes/reader-activation/sync/class-contact-sync-admin.php:169
 msgid "User not found."
 msgstr ""
 
@@ -193,13 +193,13 @@ msgstr ""
 #: includes/plugins/woocommerce/my-account/class-woocommerce-my-account.php:549
 #: includes/plugins/woocommerce/my-account/class-woocommerce-my-account.php:569
 #: includes/reader-activation/class-reader-activation.php:2038
-#: includes/reader-activation/sync/class-esp-sync-admin.php:157
+#: includes/reader-activation/sync/class-contact-sync-admin.php:157
 msgid "Invalid request."
 msgstr ""
 
 #: includes/class-magic-link.php:1092
-#: includes/reader-activation/sync/class-esp-sync-admin.php:125
-#: includes/reader-activation/sync/class-esp-sync-admin.php:163
+#: includes/reader-activation/sync/class-contact-sync-admin.php:125
+#: includes/reader-activation/sync/class-contact-sync-admin.php:163
 msgid "You do not have permission to do that."
 msgstr ""
 
@@ -780,72 +780,72 @@ msgstr ""
 msgid "Please specify at least one field to delete."
 msgstr ""
 
-#: includes/cli/class-ras-esp-sync.php:92
+#: includes/cli/class-ras-contact-sync.php:92
 msgid "Running ESP contact sync..."
 msgstr ""
 
-#: includes/cli/class-ras-esp-sync.php:109
+#: includes/cli/class-ras-contact-sync.php:109
 msgid "Syncing by subscription ID..."
 msgstr ""
 
 #. Translators: %d is the subscription ID arg passed to the script.
-#: includes/cli/class-ras-esp-sync.php:119
+#: includes/cli/class-ras-contact-sync.php:119
 #, php-format
 msgid "No subscription with ID %d. Skipping."
 msgstr ""
 
 #. Translators: %1$d is the subscription ID arg passed to the script. %2$s is the error message.
-#: includes/cli/class-ras-esp-sync.php:132
+#: includes/cli/class-ras-contact-sync.php:132
 #, php-format
 msgid "Error syncing contact info for subscription ID %1$d. %2$s"
 msgstr ""
 
-#: includes/cli/class-ras-esp-sync.php:155
+#: includes/cli/class-ras-contact-sync.php:155
 msgid "Syncing by order ID..."
 msgstr ""
 
 #. Translators: %d is the order ID.
-#: includes/cli/class-ras-esp-sync.php:163
+#: includes/cli/class-ras-contact-sync.php:163
 #, php-format
 msgid "No order with ID %d. Skipping."
 msgstr ""
 
 #. Translators: %1$d is the order ID arg passed to the script. %2$s is the error message.
-#: includes/cli/class-ras-esp-sync.php:176
+#: includes/cli/class-ras-contact-sync.php:176
 #, php-format
 msgid "Error syncing contact info for order ID %1$d. %2$s"
 msgstr ""
 
-#: includes/cli/class-ras-esp-sync.php:189
+#: includes/cli/class-ras-contact-sync.php:189
 msgid "Syncing by customer user ID..."
 msgstr ""
 
 #. Translators: %1$d is the user ID arg passed to the script. %2$s is the error message.
-#: includes/cli/class-ras-esp-sync.php:197
+#: includes/cli/class-ras-contact-sync.php:197
 #, php-format
 msgid "Error syncing contact info for user ID %1$d. %2$s"
 msgstr ""
 
-#: includes/cli/class-ras-esp-sync.php:215
+#: includes/cli/class-ras-contact-sync.php:215
 msgid "Syncing all readers with active subscriptions..."
 msgstr ""
 
-#: includes/cli/class-ras-esp-sync.php:217
+#: includes/cli/class-ras-contact-sync.php:217
 msgid "Syncing all readers..."
 msgstr ""
 
-#: includes/cli/class-ras-esp-sync.php:300
+#: includes/cli/class-ras-contact-sync.php:300
 msgid "The migrated-subscriptions flag requires the Newspack_Subscription_Migrations plugin to be installed and active."
 msgstr ""
 
 #. Translators: %s is the source of the subscriptions.
-#: includes/cli/class-ras-esp-sync.php:319
+#: includes/cli/class-ras-contact-sync.php:319
 #, php-format
 msgid "Invalid subscription migration type: %s"
 msgstr ""
 
 #. Translators: total number of synced contacts.
-#: includes/cli/class-ras-esp-sync.php:409
+#: includes/cli/class-ras-contact-sync.php:409
 #, php-format
 msgid "Synced %d contacts."
 msgstr ""
@@ -1359,7 +1359,7 @@ msgstr ""
 msgid "Reader Data"
 msgstr ""
 
-#: includes/content-gate/class-content-gate.php:921
+#: includes/content-gate/class-content-gate.php:936
 #: dist/billboard.js:12
 #: src/wizards/advertising/components/suppression/index.js:78
 msgid "Post Types"
@@ -2711,7 +2711,7 @@ msgid "Help format and provide context to AP and DDHQ elections embeds."
 msgstr ""
 
 #. translators: Placeholders: %1$s - subscription product name, %2%s - order number
-#: includes/plugins/class-teams-for-memberships.php:299
+#: includes/plugins/class-teams-for-memberships.php:300
 #, php-format
 msgid "Membership re-activated due to subscription re-purchase (%1$s, Order %2$s)."
 msgstr ""
@@ -4576,72 +4576,72 @@ msgstr ""
 msgid "ESPs Integration"
 msgstr ""
 
-#: includes/reader-activation/sync/class-esp-sync-admin.php:77
+#: includes/reader-activation/integrations/class-esp.php:46
+msgid "Newspack Newsletters is not available."
+msgstr ""
+
+#: includes/reader-activation/integrations/class-esp.php:53
+msgid "ESP sync is not enabled."
+msgstr ""
+
+#: includes/reader-activation/integrations/class-esp.php:60
+msgid "ESP master list ID is not set."
+msgstr ""
+
+#: includes/reader-activation/sync/class-contact-sync-admin.php:77
 msgid "Resync contact to ESP"
 msgstr ""
 
-#: includes/reader-activation/sync/class-esp-sync-admin.php:99
+#: includes/reader-activation/sync/class-contact-sync-admin.php:99
 msgid "Resync to the ESP"
 msgstr ""
 
-#: includes/reader-activation/sync/class-esp-sync-admin.php:118
+#: includes/reader-activation/sync/class-contact-sync-admin.php:118
 msgid "ActionScheduler is not available to perform the bulk action."
 msgstr ""
 
-#: includes/reader-activation/sync/class-esp-sync-admin.php:194
+#: includes/reader-activation/sync/class-contact-sync-admin.php:194
 msgid "Contact resynced to the ESP."
 msgstr ""
 
 #. translators: %d: number of contacts resynced.
-#: includes/reader-activation/sync/class-esp-sync-admin.php:199
+#: includes/reader-activation/sync/class-contact-sync-admin.php:199
 #, php-format
 msgid "%d contacts scheculed for resync to the ESP and should complete in a couple of minutes."
 msgstr ""
 
-#: includes/reader-activation/sync/class-esp-sync-admin.php:209
+#: includes/reader-activation/sync/class-contact-sync-admin.php:209
 msgid "Click here to monitor progress."
 msgstr ""
 
-#: includes/reader-activation/sync/class-esp-sync.php:65
-msgid "Newspack Newsletters is not available."
-msgstr ""
-
-#: includes/reader-activation/sync/class-esp-sync.php:72
-msgid "ESP sync is not enabled."
-msgstr ""
-
-#: includes/reader-activation/sync/class-esp-sync.php:79
-msgid "ESP master list ID is not set."
-msgstr ""
-
 #. Translators: %s is the email address of the contact to synced.
-#: includes/reader-activation/sync/class-esp-sync.php:172
+#: includes/reader-activation/sync/class-contact-sync.php:121
 #, php-format
 msgid "Scheduling secondary sync for contact %s."
 msgstr ""
 
-#: includes/reader-activation/sync/class-esp-sync.php:207
-#: includes/reader-activation/sync/class-esp-sync.php:212
+#: includes/reader-activation/sync/class-contact-sync.php:156
+#: includes/reader-activation/sync/class-contact-sync.php:161
 msgid "WC_Customer class unavailable."
 msgstr ""
 
 #. Translators: %d is the user ID.
-#: includes/reader-activation/sync/class-esp-sync.php:220
+#: includes/reader-activation/sync/class-contact-sync.php:169
 #, php-format
 msgid "Customer with ID %d does not exist."
 msgstr ""
 
 #. Translators: %1$s is the status and %2$s is the contact's email address.
-#: includes/reader-activation/sync/class-esp-sync.php:268
+#: includes/reader-activation/sync/class-contact-sync.php:218
 #, php-format
 msgid "%1$s contact data for %2$s."
 msgstr ""
 
-#: includes/reader-activation/sync/class-esp-sync.php:269
+#: includes/reader-activation/sync/class-contact-sync.php:219
 msgid "Would sync"
 msgstr ""
 
-#: includes/reader-activation/sync/class-esp-sync.php:269
+#: includes/reader-activation/sync/class-contact-sync.php:219
 #: dist/other-scripts/salesforce.js:1
 #: src/other-scripts/salesforce/index.js:30
 msgid "Synced"
@@ -4657,6 +4657,14 @@ msgstr ""
 
 #: includes/reader-activation/sync/class-sync.php:74
 msgid "Contact data syncing is disabled for staging sites. To bypass this check, set the NEWSPACK_ALLOW_READER_SYNC constant in your wp-config.php."
+msgstr ""
+
+#: includes/reader-activation/sync/class-sync.php:100
+msgid "This method was called before integrations were registered. Integrations are registered on the \"init\" hook with priority 5. Make sure to call this method after that hook has fired."
+msgstr ""
+
+#: includes/reader-activation/sync/class-sync.php:134
+msgid "No active integrations found."
 msgstr ""
 
 #: includes/reader-revenue/class-reader-revenue-emails.php:60
