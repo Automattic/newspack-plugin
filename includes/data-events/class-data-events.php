@@ -139,8 +139,28 @@ final class Data_Events {
 	 * @return bool
 	 */
 	private static function use_action_scheduler() {
+		/**
+		 * Enables Action Scheduler-based dispatching for Data Events.
+		 * When enabled, events are persisted to the database via Action Scheduler
+		 * instead of being dispatched via non-blocking wp_remote_post().
+		 * Requires Action Scheduler to be available.
+		 *
+		 * @constant NEWSPACK_DATA_EVENTS_ACTIONSCHEDULER
+		 * @type     bool
+		 * @default  Action Scheduler dispatch disabled
+		 * @status   draft
+		 *
+		 * @example define( 'NEWSPACK_DATA_EVENTS_ACTIONSCHEDULER', true );
+		 */
 		$use = defined( 'NEWSPACK_DATA_EVENTS_ACTIONSCHEDULER' ) && NEWSPACK_DATA_EVENTS_ACTIONSCHEDULER
 			&& function_exists( 'as_enqueue_async_action' );
+
+		/**
+		 * Filters whether to use Action Scheduler for dispatching Data Events.
+		 *
+		 * @param bool $use Whether to use Action Scheduler. Default based on the
+		 *                  NEWSPACK_DATA_EVENTS_ACTIONSCHEDULER constant and AS availability.
+		 */
 		return apply_filters( 'newspack_data_events_use_action_scheduler_dispatch', $use );
 	}
 
