@@ -14,7 +14,8 @@
 			margin-top: 48px;
 		}
 		&.newspack-section-header--has-back-nav {
-			margin-left: 48px;
+			--back-nav-button-size: 36px;
+			margin-left: calc(var(--back-nav-button-size) + 8px);
 			@media (min-width: 782px) {
 				margin-left: 0;
 			}
@@ -22,9 +23,9 @@
 	}
 
 	&__back-nav {
+		left: calc((var(--back-nav-button-size) + 8px) * -1);
 		position: absolute;
-		left: -48px;
-		top: calc(50% - 18px);
+		top: calc(50% - (var(--back-nav-button-size) / 2));
 		a {
 			color: inherit !important;
 		}

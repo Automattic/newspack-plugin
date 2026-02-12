@@ -7,6 +7,7 @@
  */
 import { __ } from '@wordpress/i18n';
 import { useEffect, useRef } from '@wordpress/element';
+import { Tooltip } from '@wordpress/components';
 import { Icon, chevronLeft } from '@wordpress/icons';
 
 /**
@@ -100,9 +101,9 @@ const SectionHeader = ( {
 				) }
 				{ backNav && (
 					<div className="newspack-section-header__back-nav">
-						<Button href={ backNav } icon={ chevronLeft }>
-							<span className="screen-reader-text">{ __( 'Go back', 'newspack-plugin' ) }</span>
-						</Button>
+						<Tooltip text={ __( 'Go back', 'newspack-plugin' ) }>
+							<Button href={ backNav } icon={ chevronLeft } variant="tertiary" />
+						</Tooltip>
 					</div>
 				) }
 				{ typeof title === 'string' && (
