@@ -270,20 +270,21 @@ class Subscriptions_Tiers {
 			if ( ! $product ) {
 				continue;
 			}
-			if ( $product->get_status() === 'private' ) {
+			if ( ! $product->is_purchasable() ) {
 				continue;
 			}
-			// Expand grouped products into their children.
+			// Expand grouped products into their purchasable children.
 			if ( $product->is_type( 'grouped' ) ) {
 				foreach ( $product->get_children() as $child_id ) {
 					$child = wc_get_product( $child_id );
-					if ( ! $child ) {
+					if ( ! $child || ! $child->is_purchasable() ) {
 						continue;
 					}
+					// Expand variable subscriptions into their purchasable variations.
 					if ( $child->is_type( 'variable-subscription' ) ) {
 						foreach ( $child->get_available_variations() as $variation ) {
 							$variation_product = wc_get_product( $variation['variation_id'] );
-							if ( $variation_product ) {
+							if ( $variation_product && $variation_product->is_purchasable() ) {
 								$purchasable[] = $variation_product;
 							}
 						}
@@ -296,11 +297,11 @@ class Subscriptions_Tiers {
 			if ( ! in_array( $product->get_type(), [ 'subscription', 'subscription_variation', 'variable-subscription' ], true ) ) {
 				continue;
 			}
-			// Expand variable subscriptions into their variations.
+			// Expand variable subscriptions into their purchasable variations.
 			if ( $product->is_type( 'variable-subscription' ) ) {
 				foreach ( $product->get_available_variations() as $variation ) {
 					$variation_product = wc_get_product( $variation['variation_id'] );
-					if ( $variation_product ) {
+					if ( $variation_product && $variation_product->is_purchasable() ) {
 						$purchasable[] = $variation_product;
 					}
 				}
@@ -308,7 +309,7 @@ class Subscriptions_Tiers {
 				$purchasable[] = $product;
 			}
 		}
-		return $purchasable;
+		return array_values( $purchasable );
 	}
 
 	/**
