@@ -218,10 +218,6 @@ class Contact_Sync extends Sync {
 			return;
 		}
 
-		/** This filter is documented in includes/reader-activation/sync/class-contact-sync.php */
-		$contact = \apply_filters( 'newspack_esp_sync_contact', $contact, $context );
-		$contact = Sync\Metadata::normalize_contact_data( $contact );
-
 		static::log( sprintf( 'Executing retry %d/%d for integration "%s" sync of %s.', $retry_count, self::MAX_RETRIES, $integration_id, $contact['email'] ?? 'unknown' ) );
 
 		$result = $integration->push_contact_data( $contact, $context, $existing_contact );
