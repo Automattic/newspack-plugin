@@ -185,7 +185,7 @@ class My_Account_UI_V1 {
 			case 'notices/error.php':
 				// Only override error notices on My Account pages to avoid breaking checkout validation.
 				// Guard is_account_page() to avoid running before the main query.
-				if ( \did_action( 'wp' ) && function_exists( 'is_account_page' ) && \is_account_page() ) {
+				if ( function_exists( 'is_account_page' ) && function_exists( 'did_action' ) && \did_action( 'wp' ) && \is_account_page() ) {
 					return __DIR__ . '/templates/v1/notices/error.php';
 				}
 				return $template;
