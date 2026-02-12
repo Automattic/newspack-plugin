@@ -289,6 +289,7 @@ const Edit = ( { history, match, updateGatesData }: ContentGateEditProps ) => {
 				title={ isNew ? __( 'Add new content gate', 'newspack-plugin' ) : title || __( 'Untitled content gate', 'newspack-plugin' ) }
 				badge={ isNew ? undefined : getGateStatus( gate.status ) }
 				badgeLevel={ isNew ? undefined : getGateStatusBadgeLevel( gate.status ) }
+				noMargin
 			/>
 			{ ( isNew || isRenaming ) && (
 				<>
@@ -307,7 +308,7 @@ const Edit = ( { history, match, updateGatesData }: ContentGateEditProps ) => {
 							__next40pxDefaultSize
 						/>
 					</Grid>
-					<Divider alignment="full-width" />
+					<Divider alignment="full-width" variant="tertiary" />
 				</>
 			) }
 			<Grid columns={ 2 } gutter={ 32 }>
@@ -316,7 +317,7 @@ const Edit = ( { history, match, updateGatesData }: ContentGateEditProps ) => {
 					title={ __( 'What would you like to restrict?', 'newspack-plugin' ) }
 					description={ __( 'Choose whether to restrict all posts or select specific content.', 'newspack-plugin' ) }
 				/>
-				<VStack style={ { gap: 0 } }>
+				<VStack spacing={ 4 }>
 					<CardSettingsGroup
 						actionType="chevron"
 						title={ __( 'Restrict all posts', 'newspack-plugin' ) }
@@ -337,7 +338,7 @@ const Edit = ( { history, match, updateGatesData }: ContentGateEditProps ) => {
 					</CardSettingsGroup>
 				</VStack>
 			</Grid>
-			<Divider alignment="full-width" />
+			<Divider alignment="full-width" variant="tertiary" />
 			<Grid columns={ 2 } gutter={ 32 }>
 				<SectionHeader
 					heading={ 2 }
@@ -347,7 +348,7 @@ const Edit = ( { history, match, updateGatesData }: ContentGateEditProps ) => {
 						'newspack-plugin'
 					) }
 				/>
-				<VStack style={ { gap: 0 } }>
+				<VStack spacing={ 4 }>
 					<CardSettingsGroup
 						actionType="toggle"
 						title={ __( 'Registered Access', 'newspack-plugin' ) }
