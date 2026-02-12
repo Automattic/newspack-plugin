@@ -209,10 +209,20 @@ class Contact_Sync extends Sync {
 		}
 
 		$integration_id   = $retry_data['integration_id'];
-		$contact          = $retry_data['contact'];
+		$stored_contact   = $retry_data['contact'];
 		$context          = $retry_data['context'] ?? static::$context;
 		$existing_contact = $retry_data['existing_contact'] ?? null;
 		$retry_count      = $retry_data['retry_count'] ?? 1;
+
+		// Fetch fresh contact data to avoid pushing stale state (e.g. outdated subscription status).
+		$email = $stored_contact['email'] ?? '';
+		$user  = $email ? \get_user_by( 'email', $email ) : false;
+		if ( $user ) {
+			$contact = self::get_contact_data( $user->ID );
+		} else {
+			// User deleted — fall back to the stored contact data.
+			$contact = $stored_contact;
+		}
 
 		$integration = Integrations::get_integration( $integration_id );
 		if ( ! $integration ) {
