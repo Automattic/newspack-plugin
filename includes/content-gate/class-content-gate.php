@@ -30,13 +30,6 @@ class Content_Gate {
 	private static $gate_rendered = false;
 
 	/**
-	 * Deferred tiers modals to render in wp_footer.
-	 *
-	 * @var array[]
-	 */
-	private static $deferred_tiers_modals = [];
-
-	/**
 	 * Whether the gate is being rendered.
 	 *
 	 * @var boolean
@@ -66,7 +59,6 @@ class Content_Gate {
 		add_action( 'admin_init', [ __CLASS__, 'handle_edit_gate_layout' ] );
 		add_action( 'wp_enqueue_scripts', [ __CLASS__, 'enqueue_scripts' ] );
 		add_action( 'wp_footer', [ __CLASS__, 'render_overlay_gate' ], 1 );
-		add_action( 'wp_footer', [ __CLASS__, 'render_deferred_tiers_modals' ], 100 );
 		add_action( 'before_delete_post', [ __CLASS__, 'delete_gate_layouts' ], 10, 2 );
 		add_filter( 'newspack_popups_assess_has_disabled_popups', [ __CLASS__, 'disable_popups' ] );
 		add_filter( 'newspack_reader_activity_article_view', [ __CLASS__, 'suppress_article_view_activity' ], 100 );
@@ -1145,51 +1137,6 @@ class Content_Gate {
 			}
 		}
 		return array_values( array_unique( array_filter( $product_ids ) ) );
-	}
-
-	/**
-	 * Render product checkout button(s) for the given product IDs.
-	 *
-	 * Queues a subscription tiers modal for deferred rendering and outputs
-	 * a CTA button that opens it. Product resolution (expanding grouped and
-	 * variable subscriptions into purchasable children) is handled by the
-	 * subscription tiers class.
-	 *
-	 * @param int[]  $product_ids  Array of product IDs to render buttons for.
-	 * @param string $button_label Button label text.
-	 * @param string $button_class CSS class for the button.
-	 */
-	public static function render_product_checkout_buttons( $product_ids, $button_label, $button_class ) {
-		if ( ! class_exists( 'Newspack_Blocks' ) || ! class_exists( 'Newspack_Blocks\Modal_Checkout' ) ) {
-			return;
-		}
-		\Newspack_Blocks\Modal_Checkout::enqueue_modal();
-
-		$modal_id = 'newspack-gate-tiers-modal-' . md5( implode( '-', $product_ids ) );
-
-		// Queue the modal for deferred rendering.
-		self::$deferred_tiers_modals[ $modal_id ] = [
-			'product_ids'  => $product_ids,
-			'button_label' => $button_label,
-		];
-
-		// Render the CTA button that opens the modal.
-		?>
-		<button type="button" class="newspack-ui__button newspack-ui__button--x-small <?php echo esc_attr( $button_class ); ?>" data-tiers-modal="<?php echo esc_attr( $modal_id ); ?>"><?php echo esc_html( $button_label ); ?></button>
-		<?php
-	}
-
-	/**
-	 * Render all deferred tiers modals.
-	 *
-	 * Called on wp_footer at a late priority so modals are rendered
-	 * at the top level of the DOM, outside any banner wrappers.
-	 */
-	public static function render_deferred_tiers_modals() {
-		foreach ( self::$deferred_tiers_modals as $modal_id => $data ) {
-			Subscriptions_Tiers::render_modal( $data['product_ids'], null, $data['button_label'], null, 'closed', $modal_id );
-		}
-		self::$deferred_tiers_modals = [];
 	}
 
 	/**

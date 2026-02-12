@@ -142,7 +142,7 @@ class Content_Gifting_CTA {
 		if ( $cta_type === 'product' ) {
 			$product_ids = Content_Gate::get_gate_access_product_ids();
 			if ( ! empty( $product_ids ) ) {
-				Content_Gate::render_product_checkout_buttons( $product_ids, $button_label, $button_class );
+				Subscriptions_Tiers::render_checkout_button( $product_ids, $button_label, $button_class );
 			}
 		}
 	}
