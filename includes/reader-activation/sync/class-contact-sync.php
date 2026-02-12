@@ -82,19 +82,21 @@ class Contact_Sync extends Sync {
 		}
 
 		// If we're running in a data event, queue the sync to run on shutdown.
-		if ( ! isset( self::$queued_syncs[ $contact['email'] ] ) ) {
-			self::$queued_syncs[ $contact['email'] ] = [
-				'contexts' => [],
-				'contact'  => [],
-			];
-		}
-		if ( ! empty( self::$queued_syncs[ $contact['email'] ]['contact']['metadata'] ) ) {
-			$contact['metadata'] = array_merge( self::$queued_syncs[ $contact['email'] ]['contact']['metadata'], $contact['metadata'] );
-		}
-		self::$queued_syncs[ $contact['email'] ]['contexts'][] = $context;
-		self::$queued_syncs[ $contact['email'] ]['contact']    = $contact;
-		if ( Data_Events::current_event() && ! did_action( 'shutdown' ) ) {
-			return true;
+		if ( Data_Events::current_event() ) {
+			if ( ! isset( self::$queued_syncs[ $contact['email'] ] ) ) {
+				self::$queued_syncs[ $contact['email'] ] = [
+					'contexts' => [],
+					'contact'  => [],
+				];
+			}
+			if ( ! empty( self::$queued_syncs[ $contact['email'] ]['contact']['metadata'] ) ) {
+				$contact['metadata'] = array_merge( self::$queued_syncs[ $contact['email'] ]['contact']['metadata'], $contact['metadata'] );
+			}
+			self::$queued_syncs[ $contact['email'] ]['contexts'][] = $context;
+			self::$queued_syncs[ $contact['email'] ]['contact']    = $contact;
+			if ( ! did_action( 'shutdown' ) ) {
+				return true;
+			}
 		}
 
 		return self::push_to_integrations( $contact, $context, $existing_contact );
