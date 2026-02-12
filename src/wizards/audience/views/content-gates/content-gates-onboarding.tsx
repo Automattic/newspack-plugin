@@ -13,14 +13,14 @@ import { postList, settings } from '@wordpress/icons';
  * Internal dependencies
  */
 import { Card, Grid, SectionHeader } from '../../../../../packages/components/src';
-import { paywall } from '../../../../../packages/icons';
+import { lockDoor } from '../../../../../packages/icons';
 
 const ContentGatesOnboarding = () => {
 	return (
 		<Grid columns={ 4 } noMargin>
 			<VStack start={ 2 } end={ 4 } spacing={ 8 }>
 				<SectionHeader
-					icon={ paywall }
+					icon={ lockDoor }
 					title={ __( 'Get started with access control', 'newspack-plugin' ) }
 					description={ __(
 						'Set up gates to manage what content readers can access across your site. Start by selecting which content to restrict, then configure access through registered and/or paid options (including metered rules).',
