@@ -766,6 +766,16 @@ class Subscriptions_Tiers {
 	 * @param string $button_class CSS class for the button.
 	 */
 	public static function render_checkout_button( $product_ids, $button_label, $button_class ) {
+		$modal_id = 'newspack-tiers-modal-' . md5( implode( '-', $product_ids ) );
+
+		// If modal is already queued, just render the button.
+		if ( isset( self::$deferred_modals[ $modal_id ] ) ) {
+			?>
+			<button type="button" class="newspack-ui__button newspack-ui__button--x-small <?php echo esc_attr( $button_class ); ?>" data-tiers-modal="<?php echo esc_attr( $modal_id ); ?>"><?php echo esc_html( $button_label ); ?></button>
+			<?php
+			return;
+		}
+
 		// Resolve purchasable products.
 		$products = self::resolve_purchasable_products( $product_ids );
 		if ( empty( $products ) ) {
@@ -776,8 +786,6 @@ class Subscriptions_Tiers {
 			return;
 		}
 		\Newspack_Blocks\Modal_Checkout::enqueue_modal();
-
-		$modal_id = 'newspack-tiers-modal-' . md5( implode( '-', $product_ids ) );
 
 		// Queue the modal for deferred rendering.
 		self::$deferred_modals[ $modal_id ] = [
