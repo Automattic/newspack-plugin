@@ -55,10 +55,11 @@ export default function CountdownBanner( { config, setConfig, updateConfig, noBo
 						</ToggleGroupControl>
 						<ToggleGroupControl
 							label={ __( 'Subscribe button action', 'newspack-plugin' ) }
-							help={ __(
-								'Whether the subscribe button should start a product checkout or redirect to a landing page.',
-								'newspack-plugin'
-							) }
+							help={
+								( config.countdown_banner.cta_type || 'product' ) === 'product'
+									? __( 'The product is automatically set by the content gate access rules.', 'newspack-plugin' )
+									: __( 'Redirect to a landing page.', 'newspack-plugin' )
+							}
 							value={ config.countdown_banner.cta_type || 'product' }
 							onChange={ value => setConfig( { ...config, countdown_banner: { ...config.countdown_banner, cta_type: value } } ) }
 							isBlock

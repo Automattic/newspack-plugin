@@ -117,10 +117,11 @@ export default function ContentGifting( { config, setConfig, updateConfig, noBor
 						</ToggleGroupControl>
 						<ToggleGroupControl
 							label={ __( 'Subscribe button action', 'newspack-plugin' ) }
-							help={ __(
-								'Whether the subscribe button should start a product checkout or redirect to a landing page.',
-								'newspack-plugin'
-							) }
+							help={
+								( config.content_gifting.cta_type || 'product' ) === 'product'
+									? __( 'The product is automatically set by the content gate access rules.', 'newspack-plugin' )
+									: __( 'Redirect to a landing page.', 'newspack-plugin' )
+							}
 							value={ config.content_gifting.cta_type || 'product' }
 							onChange={ value => setConfig( { ...config, content_gifting: { ...config.content_gifting, cta_type: value } } ) }
 							isBlock
