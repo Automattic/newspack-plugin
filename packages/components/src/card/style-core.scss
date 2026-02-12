@@ -16,15 +16,11 @@
 	svg {
 		transition: fill 125ms ease-in-out;
 	}
-	+ .newspack-card--core {
-		margin-top: 16px;
-	}
 	&__icon {
-		align-items: center;
 		border-radius: 50%;
-		display: flex;
+		display: grid;
 		height: 48px;
-		justify-content: center;
+		place-items: center;
 		width: 48px;
 		svg {
 			fill: var(--wp-admin-theme-color);

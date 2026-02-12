@@ -49,7 +49,6 @@
 		border-bottom: 1px solid wp-colors.$gray-300;
 		display: flex;
 		.newspack-wizard__fixed-header & {
-			box-shadow: rgba(0, 0, 0, 0.1) 0 1px 3px 0;
 			position: sticky;
 			top: 0;
 			width: 100%;
@@ -149,12 +148,8 @@
 
 	&__content {
 		margin: 0 auto;
-		max-width: 1208px;
-		padding: 0 16px;
-
-		@media screen and ( min-width: 744px ) {
-			padding: 40px 84px;
-		}
+		max-width: calc(calc(var(--newspack-wizard-section-space) * 2) + var(--newspack-wizard-section-width));
+		padding: calc(var(--newspack-wizard-section-space) * 2) var(--newspack-wizard-section-space) 0;
 
 		// Typography
 

@@ -18,6 +18,14 @@ body.newspack-wizard-page:not(.newspack-admin-header) {
 		padding-bottom: 220px;
 		min-height: 100vh;
 
+		@media screen and ( min-width: 600px ) {
+			min-height: calc(100vh - 46px);
+		}
+
+		@media screen and ( min-width: 783px ) {
+			min-height: calc(100vh - 32px);
+		}
+
 		// For admin notices directly ">" at top of page above the Wizard header.
 		// PHP code should hide these notices, but just incase add this style.
 		> .notice {
@@ -29,8 +37,8 @@ body.newspack-wizard-page:not(.newspack-admin-header) {
 			padding-bottom: 202px;
 		}
 
-		@media screen and ( min-width: 1128px ) {
-			padding-bottom: 168px;
+		@media screen and ( min-width: 1054px ) {
+			padding-bottom: 136px;
 		}
 	}
 }

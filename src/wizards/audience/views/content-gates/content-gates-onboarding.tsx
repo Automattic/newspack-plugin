@@ -12,13 +12,13 @@ import { postList, settings } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
-import { Card, SectionHeader } from '../../../../../packages/components/src';
+import { Card, Grid, SectionHeader } from '../../../../../packages/components/src';
 import { paywall } from '../../../../../packages/icons';
 
 const ContentGatesOnboarding = () => {
 	return (
-		<>
-			<VStack style={ { margin: 'auto', gap: 0, maxWidth: '500px' } }>
+		<Grid columns={ 4 } noMargin>
+			<VStack start={ 2 } end={ 4 } spacing={ 8 }>
 				<SectionHeader
 					icon={ paywall }
 					title={ __( 'Get started with access control', 'newspack-plugin' ) }
@@ -27,43 +27,46 @@ const ContentGatesOnboarding = () => {
 						'newspack-plugin'
 					) }
 					pageHeader
+					noMargin
 				/>
-				<Card
-					actionType="chevron"
-					isSmall
-					__experimentalCoreCard
-					__experimentalCoreProps={ {
-						as: 'a',
-						header: (
-							<>
-								<h3>{ __( 'Restrict all posts', 'newspack-plugin' ) }</h3>
-								<p>{ __( 'All posts on your site will require access.', 'newspack-plugin' ) }</p>
-							</>
-						),
-						href: '#/edit/new/all',
-						icon: postList,
-						iconBackgroundColor: true,
-					} }
-				/>
-				<Card
-					actionType="chevron"
-					isSmall
-					__experimentalCoreCard
-					__experimentalCoreProps={ {
-						as: 'a',
-						header: (
-							<>
-								<h3>{ __( 'Choose specific content', 'newspack-plugin' ) }</h3>
-								<p>{ __( 'Select which content to restrict using custom rules.', 'newspack-plugin' ) }</p>
-							</>
-						),
-						href: '#/edit/new/custom',
-						icon: settings,
-						iconBackgroundColor: true,
-					} }
-				/>
+				<VStack spacing={ 4 }>
+					<Card
+						actionType="chevron"
+						isSmall
+						__experimentalCoreCard
+						__experimentalCoreProps={ {
+							as: 'a',
+							header: (
+								<>
+									<h3>{ __( 'Restrict all posts', 'newspack-plugin' ) }</h3>
+									<p>{ __( 'All posts on your site will require access.', 'newspack-plugin' ) }</p>
+								</>
+							),
+							href: '#/edit/new/all',
+							icon: postList,
+							iconBackgroundColor: true,
+						} }
+					/>
+					<Card
+						actionType="chevron"
+						isSmall
+						__experimentalCoreCard
+						__experimentalCoreProps={ {
+							as: 'a',
+							header: (
+								<>
+									<h3>{ __( 'Choose specific content', 'newspack-plugin' ) }</h3>
+									<p>{ __( 'Select which content to restrict using custom rules.', 'newspack-plugin' ) }</p>
+								</>
+							),
+							href: '#/edit/new/custom',
+							icon: settings,
+							iconBackgroundColor: true,
+						} }
+					/>
+				</VStack>
 			</VStack>
-		</>
+		</Grid>
 	);
 };
 
