@@ -948,7 +948,7 @@ class Content_Gate {
 	public static function get_content_rules() {
 		$content_rules = [
 			'post_types' => [
-				'name'        => __( 'Post Types', 'newspack-plugin' ),
+				'name'        => __( 'Post types', 'newspack-plugin' ),
 				'options'     => Content_Restriction_Control::get_available_post_types(),
 				'default'     => [ 'post' ],
 				'description' => __( 'Content types like posts, pages, or listings.', 'newspack-plugin' ),

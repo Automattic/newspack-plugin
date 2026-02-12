@@ -35,7 +35,7 @@ export default function Registration( { gateId, registration, onChange }: Regist
 		<>
 			{ gateId ? (
 				<>
-					<CardBody>
+					<CardBody size="small">
 						<Button variant="secondary" href={ getEditGateLayoutUrl( gateId, 'registration' ) }>
 							{ __( 'Edit Layout', 'newspack-plugin' ) }
 						</Button>
@@ -43,7 +43,7 @@ export default function Registration( { gateId, registration, onChange }: Regist
 					<CardDivider />
 				</>
 			) : null }
-			<CardBody>
+			<CardBody size="small">
 				<ToggleControl
 					label={ __( 'Require verification', 'newspack-plugin' ) }
 					help={ __( 'Readers must verify their account to access.', 'newspack-plugin' ) }
@@ -52,7 +52,7 @@ export default function Registration( { gateId, registration, onChange }: Regist
 				/>
 			</CardBody>
 			<CardDivider />
-			<CardBody>
+			<CardBody size="small">
 				<Metering
 					description={ __( 'Allow limited free views before requiring login.', 'newspack-plugin' ) }
 					metering={ registration.metering }

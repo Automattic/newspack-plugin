@@ -42,6 +42,7 @@ const CardSettingsGroup = ( {
 				icon,
 				iconBackgroundColor: true,
 				isActive,
+				title,
 			} }
 		>
 			{ isActive && children }

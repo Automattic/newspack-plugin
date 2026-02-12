@@ -76,7 +76,13 @@ const CoreCard = ( {
 					{ header && <div className="newspack-card--core__header-content">{ header }</div> }
 					{ actionType === 'chevron' && <Icon className="newspack-card--core__action" icon={ chevronRight } height={ 24 } width={ 24 } /> }
 					{ actionType === 'toggle' && (
-						<ToggleControl className="newspack-card--core__action" checked={ isActive } onChange={ () => {} } />
+						<ToggleControl
+							className="newspack-card--core__action"
+							label={ otherProps.title }
+							hideLabelFromVision
+							checked={ isActive }
+							onChange={ () => {} }
+						/>
 					) }
 				</CardHeader>
 			) }

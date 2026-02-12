@@ -14,7 +14,7 @@ import AccessRuleControl from './access-rule-control';
 
 export default function AccessRule( { config, enabled, onToggle = () => {}, rule, slug, onChange }: GateRuleProps ) {
 	return (
-		<CardBody>
+		<CardBody size="small">
 			<ToggleControl label={ config.name } help={ config.description } checked={ enabled } onChange={ () => onToggle( slug ) } />
 			{ enabled && <AccessRuleControl slug={ slug } value={ rule?.value ?? config.default } onChange={ onChange } /> }
 		</CardBody>

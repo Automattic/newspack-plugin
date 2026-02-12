@@ -14,7 +14,7 @@ import ContentRuleControl from './content-rule-control';
 
 export default function ContentRule( { config, enabled, onToggle = () => {}, rule, slug, onChange, onChangeExclusion }: GateRuleProps ) {
 	return (
-		<CardBody>
+		<CardBody size="small">
 			<ToggleControl label={ config.name } help={ config.description } checked={ enabled } onChange={ () => onToggle( slug ) } />
 			{ enabled && (
 				<ContentRuleControl

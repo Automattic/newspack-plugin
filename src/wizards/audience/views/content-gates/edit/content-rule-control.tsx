@@ -38,7 +38,7 @@ export default function ContentRuleControl( { slug, value, exclusion, onChange, 
 				<ToggleGroupControlOption label={ __( 'Exclude', 'newspack-plugin' ) } value="exclude" />
 			</ToggleGroupControl>
 			{ rule.options && rule.options.length > 0 ? (
-				<Grid columns={ 2 } gutter={ 16 }>
+				<Grid columns={ 2 } gutter={ 8 }>
 					{ ( rule.options || [] ).map( option => (
 						<CheckboxControl
 							key={ option.value }

@@ -48,7 +48,7 @@ export default function CustomAccess( { gateId, customAccess, onChange }: Custom
 		<>
 			{ gateId ? (
 				<>
-					<CardBody>
+					<CardBody size="small">
 						<Button variant="secondary" href={ getEditGateLayoutUrl( gateId, 'custom_access' ) }>
 							{ __( 'Edit Layout', 'newspack-plugin' ) }
 						</Button>
@@ -57,7 +57,7 @@ export default function CustomAccess( { gateId, customAccess, onChange }: Custom
 				</>
 			) : null }
 			<AccessRules rules={ currentRules } onChange={ handleRulesChange } />
-			<CardBody>
+			<CardBody size="small">
 				<Metering metering={ customAccess.metering } onChange={ ( metering: Metering ) => handleChange( { metering } ) } />
 			</CardBody>
 		</>

@@ -339,7 +339,7 @@ const Edit = ( { history, match, updateGatesData }: ContentGateEditProps ) => {
 				</VStack>
 			</Grid>
 			<Divider alignment="full-width" variant="tertiary" />
-			<Grid columns={ 2 } gutter={ 32 }>
+			<Grid columns={ 2 } gutter={ 32 } noMargin>
 				<SectionHeader
 					heading={ 2 }
 					title={ __( 'What’s required to access this content?', 'newspack-plugin' ) }
@@ -351,7 +351,7 @@ const Edit = ( { history, match, updateGatesData }: ContentGateEditProps ) => {
 				<VStack spacing={ 4 }>
 					<CardSettingsGroup
 						actionType="toggle"
-						title={ __( 'Registered Access', 'newspack-plugin' ) }
+						title={ __( 'Registered access', 'newspack-plugin' ) }
 						description={ __( 'Readers must log in to view this content.', 'newspack-plugin' ) }
 						icon={ commentAuthorAvatar }
 						isActive={ registration?.active }
@@ -361,7 +361,7 @@ const Edit = ( { history, match, updateGatesData }: ContentGateEditProps ) => {
 					</CardSettingsGroup>
 					<CardSettingsGroup
 						actionType="toggle"
-						title={ __( 'Paid Access', 'newspack-plugin' ) }
+						title={ __( 'Paid access', 'newspack-plugin' ) }
 						description={ __( 'Set conditions like subscriptions, domain, and more.', 'newspack-plugin' ) }
 						icon={ currencyDollar }
 						isActive={ customAccess?.active }

@@ -5987,7 +5987,7 @@ msgid "The period during which the metering views will be counted. For example, 
 msgstr ""
 
 #: dist/audience-wizards.5538f481436840b87981.js:1
-msgid "Registered Access"
+msgid "Registered access"
 msgstr ""
 
 #: dist/audience-wizards.5538f481436840b87981.js:1
