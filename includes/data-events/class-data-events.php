@@ -56,7 +56,7 @@ final class Data_Events {
 	/**
 	 * Registered callable handlers, keyed by their action name.
 	 *
-	 * @var callable[]
+	 * @var array<string, callable[]>
 	 */
 	private static $actions = [];
 
@@ -622,8 +622,8 @@ final class Data_Events {
 		/**
 		 * Fires after dispatching queued actions.
 		 *
-		 * @param WP_Error|WP_HTTP_Response|null $request           The request object, or null when using Action Scheduler.
-		 * @param array                          $queued_dispatches The queued dispatches.
+		 * @param WP_Error|\WP_HTTP_Response|null $request           The request object, or null when using Action Scheduler.
+		 * @param array                           $queued_dispatches The queued dispatches.
 		 */
 		\do_action( 'newspack_data_events_dispatched', $request, self::$queued_dispatches );
 	}
