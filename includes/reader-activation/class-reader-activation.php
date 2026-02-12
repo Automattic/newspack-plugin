@@ -1731,7 +1731,7 @@ final class Reader_Activation {
 					<?php
 					foreach ( $newsletters_lists as $list ) {
 						$checkbox_id = sprintf( 'newspack-plugin-list-%s', $list['id'] );
-						$is_hidden = $loop_index <= $default_list_size ? '' : 'hidden';
+						$is_hidden   = $loop_index <= $default_list_size ? '' : 'hidden';
 						$loop_index++;
 						?>
 						<label class="newspack-ui__input-card <?php echo esc_attr( $is_hidden ); ?>" for="<?php echo \esc_attr( $checkbox_id ); ?>">
@@ -1752,6 +1752,11 @@ final class Reader_Activation {
 							<?php endif; ?>
 						</label>
 						<?php
+						if ( $loop_index === (int) $default_list_size && count( $newsletters_lists ) > $default_list_size ) :
+							?>
+							<div class="newsletter-list-divider"></div>
+							<?php
+						endif;
 					}
 					?>
 					</div>
@@ -1802,9 +1807,9 @@ final class Reader_Activation {
 					</p>
 					<p class="newspack-ui__font--xs newspack-ui__color-text-gray recipient">
 						<?php echo esc_html( __( 'Sending to: ', 'newspack-plugin' ) ); ?>
-						<span class="email">
+						<strong class="email">
 							<?php echo esc_html( $email_address ); ?>
-						</span>
+						</strong>
 					</p>
 					<?php self::render_newsletters_signup_form( $email_address, $newsletters_lists, $newsletter_list_initial_size ); ?>
 				</div>

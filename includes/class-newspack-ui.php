@@ -1135,7 +1135,7 @@ class Newspack_UI {
 					<section class="newspack-ui__modal__content">
 
 						<p>Get the best of The News Paper directly to your email inbox.<br>
-						<span class="newspack-ui__color-text-gray">Sending to: email@address.</span></p>
+						<span class="newspack-ui__color-text-gray">Sending to: <strong>email@address.</strong></span></p>
 
 						<label class="newspack-ui__input-card">
 							<input type="checkbox" name="checkbox-option-1">
