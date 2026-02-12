@@ -3,40 +3,34 @@
  */
 
 @use "~@wordpress/base-styles/colors" as wp-colors;
+@use "../../../colors/colors.module" as colors;
 
-/**
- * External dependencies
- */
+$badge-colors: (
+	"info": colors.$primary-600,
+	"warning": wp-colors.$alert-yellow,
+	"error": wp-colors.$alert-red,
+	"success": wp-colors.$alert-green,
+);
+
 .newspack-badge {
-	background: wp-colors.$gray-100;
+	background-color: color-mix(in srgb, wp-colors.$white 90%, var(--base-color));
 	border-radius: 2px;
-	color: wp-colors.$gray-900;
+	color: color-mix(in srgb, wp-colors.$black 50%, var(--base-color));
 	display: block;
 	flex: 0 0 auto;
 	font-size: 12px;
-	font-weight: 400;
-	line-height: 1.333;
-	margin: 0 8px 0 0;
-	padding: 2px 4px;
+	line-height: 1.5;
+	padding: 1px 4px;
 
-	&.newspack-badge__badge-level-warning {
-		background-color: color-mix(in srgb, #fff 90%, wp-colors.$alert-yellow);
-		color: color-mix(in srgb, #000 50%, wp-colors.$alert-yellow);
-	}
-	&.newspack-badge__badge-level-error {
-		background-color: color-mix(in srgb, #fff 90%, wp-colors.$alert-red);
-		color: color-mix(in srgb, #000 50%, wp-colors.$alert-red);
-	}
-	&.newspack-badge__badge-level-success {
-		background-color: color-mix(in srgb, #fff 90%, wp-colors.$alert-green);
-		color: color-mix(in srgb, #000 50%, wp-colors.$alert-green);
-	}
-	&.newspack-badge__badge-level-brand {
-		background-color: color-mix(in srgb, #fff 90%, var(--wp-admin-theme-color));
-		color: color-mix(in srgb, #000 50%, var(--wp-admin-theme-color));
+	&:where(.is-default) {
+		background-color: wp-colors.$gray-100;
+		color: wp-colors.$gray-800;
 	}
 
-	+ .newspack-badge {
-		margin-left: -4px;
+	// Generate color variants
+	@each $type, $color in $badge-colors {
+		&.is-#{$type} {
+			--base-color: #{$color};
+		}
 	}
 }

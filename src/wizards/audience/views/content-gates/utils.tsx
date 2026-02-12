@@ -32,5 +32,5 @@ export const getGateStatus = ( status: GateStatus ) => {
 };
 
 export const getGateStatusBadgeLevel = ( status: GateStatus ) => {
-	return status === 'publish' ? 'success' : 'info';
+	return status === 'publish' ? 'success' : 'default';
 };

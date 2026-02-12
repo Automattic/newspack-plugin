@@ -62,6 +62,16 @@
 		color: wp-colors.$gray-700;
 	}
 
+	&__title-container {
+		align-items: center;
+		display: flex;
+		gap: 8px;
+
+		.newspack-badge {
+			margin-top: 4px;
+		}
+	}
+
 	&__children {
 		margin-top: 32px;
 		width: 100%;
