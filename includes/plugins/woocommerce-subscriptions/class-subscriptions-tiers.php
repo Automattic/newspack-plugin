@@ -765,6 +765,12 @@ class Subscriptions_Tiers {
 	 * @param string $button_class CSS class for the button.
 	 */
 	public static function render_checkout_button( $product_ids, $button_label, $button_class ) {
+		// Resolve purchasable products.
+		$products = self::resolve_purchasable_products( $product_ids );
+		if ( empty( $products ) ) {
+			return;
+		}
+
 		if ( ! class_exists( 'Newspack_Blocks' ) || ! class_exists( 'Newspack_Blocks\Modal_Checkout' ) ) {
 			return;
 		}
@@ -774,7 +780,7 @@ class Subscriptions_Tiers {
 
 		// Queue the modal for deferred rendering.
 		self::$deferred_modals[ $modal_id ] = [
-			'product_ids'  => $product_ids,
+			'products'     => $products,
 			'button_label' => $button_label,
 		];
 
@@ -792,7 +798,7 @@ class Subscriptions_Tiers {
 	 */
 	public static function render_deferred_modals() {
 		foreach ( self::$deferred_modals as $modal_id => $data ) {
-			self::render_modal( $data['product_ids'], null, $data['button_label'], null, 'closed', $modal_id );
+			self::render_modal( $data['products'], null, $data['button_label'], null, 'closed', $modal_id );
 		}
 		self::$deferred_modals = [];
 	}
