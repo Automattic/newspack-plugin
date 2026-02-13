@@ -404,7 +404,7 @@ class Subscriptions_Tiers {
 		} elseif ( $product->is_type( 'grouped' ) ) {
 			$products      = [ $product ];
 			$sort_by_price = $sort_by_price ?? false;
-		} elseif ( $product->is_type( 'variable' ) || $product->is_type( 'variable_subscription' ) || $product->is_type( 'subscription' ) ) {
+		} elseif ( $product->is_type( 'variable' ) || $product->is_type( 'variable-subscription' ) || $product->is_type( 'subscription' ) ) {
 			$products      = [ $product ];
 			$sort_by_price = $sort_by_price ?? true;
 		}
@@ -766,6 +766,11 @@ class Subscriptions_Tiers {
 	 * @param string $button_class CSS class for the button.
 	 */
 	public static function render_checkout_button( $product_ids, $button_label, $button_class ) {
+		// Normalize product IDs so the modal ID is stable for the same set of products.
+		$product_ids = array_map( 'intval', (array) $product_ids );
+		$product_ids = array_values( array_unique( $product_ids ) );
+		sort( $product_ids, SORT_NUMERIC );
+
 		$modal_id = 'newspack-tiers-modal-' . md5( implode( '-', $product_ids ) );
 
 		// If modal is already queued, just render the button.

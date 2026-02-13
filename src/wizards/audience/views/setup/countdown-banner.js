@@ -13,6 +13,7 @@ import {
 import { ActionCard, Button, Grid, TextControl } from '../../../../../packages/components/src';
 
 export default function CountdownBanner( { config, setConfig, updateConfig, noBorder = false } ) {
+	const ctaType = config.countdown_banner?.cta_type || 'product';
 	return (
 		<ActionCard
 			title={ __( 'Metered Countdown', 'newspack-plugin' ) }
@@ -56,11 +57,11 @@ export default function CountdownBanner( { config, setConfig, updateConfig, noBo
 						<ToggleGroupControl
 							label={ __( 'Subscribe button action', 'newspack-plugin' ) }
 							help={
-								( config.countdown_banner.cta_type || 'product' ) === 'product'
+								ctaType === 'product'
 									? __( 'The product is automatically set by the content gate access rules.', 'newspack-plugin' )
 									: __( 'Redirect to a landing page.', 'newspack-plugin' )
 							}
-							value={ config.countdown_banner.cta_type || 'product' }
+							value={ ctaType }
 							onChange={ value => setConfig( { ...config, countdown_banner: { ...config.countdown_banner, cta_type: value } } ) }
 							isBlock
 							__next40pxDefaultSize
@@ -68,7 +69,7 @@ export default function CountdownBanner( { config, setConfig, updateConfig, noBo
 							<ToggleGroupControlOption label={ __( 'Product', 'newspack-plugin' ) } value="product" />
 							<ToggleGroupControlOption label={ __( 'Landing page', 'newspack-plugin' ) } value="url" />
 						</ToggleGroupControl>
-						{ config.countdown_banner.cta_type === 'url' && (
+						{ ctaType === 'url' && (
 							<TextControl
 								label={ __( 'Subscribe button URL', 'newspack-plugin' ) }
 								help={ __( 'URL for the landing page to redirect to.', 'newspack-plugin' ) }
@@ -97,8 +98,7 @@ export default function CountdownBanner( { config, setConfig, updateConfig, noBo
 														<a href="#signin_modal">{ __( 'Sign in to an existing account', 'newspack-plugin' ) }</a>.
 													</span>
 												</div>
-												{ ( config.countdown_banner.cta_type === 'product' ||
-													( config.countdown_banner.cta_type === 'url' && config.countdown_banner.cta_url ) ) && (
+												{ ( ctaType === 'product' || ( ctaType === 'url' && config.countdown_banner.cta_url ) ) && (
 													<button
 														className={ `newspack-ui__button newspack-ui__button--x-small ${
 															( config.countdown_banner.style || 'light' ) === 'dark'

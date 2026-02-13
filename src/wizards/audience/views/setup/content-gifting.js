@@ -17,6 +17,7 @@ import {
 import { ActionCard, Button, Grid, Notice, SelectControl, TextControl } from '../../../../../packages/components/src';
 
 export default function ContentGifting( { config, setConfig, updateConfig, noBorder = false } ) {
+	const ctaType = config.content_gifting?.cta_type || 'product';
 	const giftingErrors = Object.values( newspackAudience?.content_gifting?.can_use_gifting?.errors || {} ).flat();
 	const hasMetering = newspackAudience?.content_gifting?.has_metering;
 
@@ -118,11 +119,11 @@ export default function ContentGifting( { config, setConfig, updateConfig, noBor
 						<ToggleGroupControl
 							label={ __( 'Subscribe button action', 'newspack-plugin' ) }
 							help={
-								( config.content_gifting.cta_type || 'product' ) === 'product'
+								ctaType === 'product'
 									? __( 'The product is automatically set by the content gate access rules.', 'newspack-plugin' )
 									: __( 'Redirect to a landing page.', 'newspack-plugin' )
 							}
-							value={ config.content_gifting.cta_type || 'product' }
+							value={ ctaType }
 							onChange={ value => setConfig( { ...config, content_gifting: { ...config.content_gifting, cta_type: value } } ) }
 							isBlock
 							__next40pxDefaultSize
@@ -130,7 +131,7 @@ export default function ContentGifting( { config, setConfig, updateConfig, noBor
 							<ToggleGroupControlOption label={ __( 'Product', 'newspack-plugin' ) } value="product" />
 							<ToggleGroupControlOption label={ __( 'Landing page', 'newspack-plugin' ) } value="url" />
 						</ToggleGroupControl>
-						{ config.content_gifting.cta_type === 'url' && (
+						{ ctaType === 'url' && (
 							<TextControl
 								label={ __( 'Subscribe button URL', 'newspack-plugin' ) }
 								help={ __( 'URL for the landing page to redirect to.', 'newspack-plugin' ) }
@@ -161,8 +162,7 @@ export default function ContentGifting( { config, setConfig, updateConfig, noBor
 														) }
 													</div>
 												</div>
-												{ ( config.content_gifting.cta_type === 'product' ||
-													( config.content_gifting.cta_type === 'url' && config.content_gifting.cta_url ) ) && (
+												{ ( ctaType === 'product' || ( ctaType === 'url' && config.content_gifting.cta_url ) ) && (
 													<button
 														className={ `newspack-ui__button newspack-ui__button--x-small ${
 															( config.content_gifting.style || 'light' ) === 'dark'
