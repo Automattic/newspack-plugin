@@ -7,6 +7,7 @@
 
 namespace Newspack\Reader_Activation;
 
+use Newspack\Reader;
 use Newspack\Reader_Activation;
 use Newspack\Reader_Activation\Integrations;
 use Newspack\Data_Events;
@@ -300,33 +301,19 @@ class Contact_Sync extends Sync {
 	 * @return array|\WP_Error The contact data or WP_Error.
 	 */
 	public static function get_contact_data( $user_id ) {
-		if ( ! class_exists( '\WC_Customer' ) ) {
-			return new \WP_Error( 'newspack_esp_sync_contact', __( 'WC_Customer class unavailable.', 'newspack-plugin' ) );
-		}
-		$user = \get_userdata( $user_id );
-
-		if ( ! class_exists( '\WC_Customer' ) ) {
-			return new \WP_Error( 'newspack_esp_sync_contact', __( 'WC_Customer class unavailable.', 'newspack-plugin' ) );
-		}
-		$customer = new \WC_Customer( $user_id );
-		if ( ! $customer || ! $customer->get_id() ) {
+		$reader = Reader::get( $user_id );
+		if ( ! $reader ) {
 			return new \WP_Error(
 				'newspack_esp_sync_contact',
 				sprintf(
 				// Translators: %d is the user ID.
-					__( 'Customer with ID %d does not exist.', 'newspack-plugin' ),
+					__( 'User with ID %d does not exist.', 'newspack-plugin' ),
 					$user_id
 				)
 			);
 		}
 
-		// Ensure the customer has a billing address.
-		if ( ! $customer->get_billing_email() && $customer->get_email() ) {
-			$customer->set_billing_email( $customer->get_email() );
-			$customer->save();
-		}
-
-		$contact = Sync\WooCommerce::get_contact_from_customer( $customer );
+		$contact = $reader->get_contact_data();
 
 		// Include data from queued syncs too.
 		if ( ! empty( self::$queued_syncs[ $contact['email'] ]['contact']['metadata'] ) ) {

@@ -8,6 +8,7 @@
 namespace Newspack\Data_Events\Connectors;
 
 use Newspack\Data_Events;
+use Newspack\Reader;
 use Newspack\Reader_Activation;
 use Newspack\Reader_Activation\Contact_Sync;
 use Newspack_Newsletters_Contacts;
@@ -87,23 +88,22 @@ class Contact_Sync_Connector {
 	 * @param int   $client_id ID of the client that triggered the event.
 	 */
 	public static function reader_registered( $timestamp, $data, $client_id ) {
-		$metadata = [
-			'account'           => $data['user_id'],
-			'registration_date' => gmdate( Sync_Metadata::DATE_FORMAT, $timestamp ),
-		];
+		$reader = Reader::get( $data['user_id'] );
+		if ( ! $reader ) {
+			return;
+		}
+
+		// Persist registration metadata so it survives sync retries.
 		if ( isset( $data['metadata']['current_page_url'] ) ) {
-			$metadata['registration_page'] = $data['metadata']['current_page_url'];
+			$reader->set_registration_page( $data['metadata']['current_page_url'] );
+			$reader->set_signup_utms_from_url( $data['metadata']['current_page_url'] );
 		}
 		if ( isset( $data['metadata']['registration_method'] ) ) {
-			$metadata['registration_method'] = $data['metadata']['registration_method'];
+			$reader->set_registration_method( $data['metadata']['registration_method'] );
 		}
+		$reader->save();
 
-		$contact = [
-			'email'    => $data['email'],
-			'metadata' => $metadata,
-		];
-
-		Contact_Sync::sync( $contact, 'RAS Reader registration' );
+		Contact_Sync::sync( $reader->get_contact_data(), 'RAS Reader registration' );
 	}
 
 	/**

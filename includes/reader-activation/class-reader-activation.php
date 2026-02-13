@@ -2321,12 +2321,20 @@ final class Reader_Activation {
 		 */
 		$metadata = apply_filters( 'newspack_register_reader_metadata', $metadata, $user_id, $existing_user );
 
-		// Note the user's login method for later use.
-		if ( isset( $metadata['registration_method'] ) ) {
-			\update_user_meta( $user_id, self::REGISTRATION_METHOD, $metadata['registration_method'] );
-			if ( in_array( $metadata['registration_method'], self::SSO_REGISTRATION_METHODS, true ) ) {
-				self::set_reader_verified( $user_id );
+		// Persist registration metadata via the Reader entity.
+		$reader = Reader::get( $user_id );
+		if ( $reader ) {
+			if ( isset( $metadata['registration_method'] ) ) {
+				$reader->set_registration_method( $metadata['registration_method'] );
 			}
+			if ( isset( $metadata['current_page_url'] ) ) {
+				$reader->set_registration_page( $metadata['current_page_url'] );
+				$reader->set_signup_utms_from_url( $metadata['current_page_url'] );
+			}
+			$reader->save();
+		}
+		if ( isset( $metadata['registration_method'] ) && in_array( $metadata['registration_method'], self::SSO_REGISTRATION_METHODS, true ) ) {
+			self::set_reader_verified( $user_id );
 		}
 
 		/**
