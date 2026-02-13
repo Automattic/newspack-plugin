@@ -165,30 +165,36 @@ final class Data_Events {
 	}
 
 	/**
-	 * Handle a dispatched event from Action Scheduler.
+	 * Handle a batch of dispatched events from Action Scheduler.
 	 *
-	 * @param array $dispatch The dispatch data containing action_name, timestamp, data, and client_id.
+	 * @param array $dispatches Array of dispatch arrays, each containing action_name, timestamp, data, and client_id.
 	 */
-	public static function handle_from_scheduler( $dispatch ) {
-		if ( ! is_array( $dispatch ) ) {
+	public static function handle_from_scheduler( $dispatches ) {
+		if ( ! is_array( $dispatches ) ) {
 			self::log( 'Invalid dispatch data from Action Scheduler.', 'error' );
 			return;
 		}
 
-		$action_name = isset( $dispatch['action_name'] ) ? sanitize_text_field( $dispatch['action_name'] ) : null;
-		$timestamp   = isset( $dispatch['timestamp'] ) ? absint( $dispatch['timestamp'] ) : null;
-		$data        = $dispatch['data'] ?? null;
-		$client_id   = isset( $dispatch['client_id'] ) ? sanitize_text_field( $dispatch['client_id'] ) : null;
+		foreach ( $dispatches as $dispatch ) {
+			if ( ! is_array( $dispatch ) ) {
+				continue;
+			}
 
-		if ( empty( $action_name ) || ! self::is_action_registered( $action_name ) ) {
-			self::log(
-				sprintf( 'Action "%s" not registered when handling from Action Scheduler.', $action_name ?? 'null' ),
-				'error'
-			);
-			return;
+			$action_name = isset( $dispatch['action_name'] ) ? sanitize_text_field( $dispatch['action_name'] ) : null;
+			$timestamp   = isset( $dispatch['timestamp'] ) ? absint( $dispatch['timestamp'] ) : null;
+			$data        = $dispatch['data'] ?? null;
+			$client_id   = isset( $dispatch['client_id'] ) ? sanitize_text_field( $dispatch['client_id'] ) : null;
+
+			if ( empty( $action_name ) || ! self::is_action_registered( $action_name ) ) {
+				self::log(
+					sprintf( 'Action "%s" not registered when handling from Action Scheduler.', $action_name ?? 'null' ),
+					'error'
+				);
+				continue;
+			}
+
+			self::handle( $action_name, $timestamp, $data, $client_id );
 		}
-
-		self::handle( $action_name, $timestamp, $data, $client_id );
 	}
 
 	/**
@@ -600,13 +606,11 @@ final class Data_Events {
 	 * processing, guaranteed delivery, and retry via the handler retry mechanism.
 	 */
 	private static function dispatch_via_action_scheduler() {
-		foreach ( self::$queued_dispatches as $dispatch ) {
-			\as_enqueue_async_action(
-				self::DISPATCH_AS_HOOK,
-				[ $dispatch ],
-				self::DISPATCH_AS_GROUP
-			);
-		}
+		\as_enqueue_async_action(
+			self::DISPATCH_AS_HOOK,
+			[ self::$queued_dispatches ],
+			self::DISPATCH_AS_GROUP
+		);
 
 		self::log( sprintf( 'Scheduled %d dispatch(es) via Action Scheduler.', count( self::$queued_dispatches ) ) );
 

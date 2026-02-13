@@ -557,7 +557,7 @@ class Newspack_Test_Data_Events extends WP_UnitTestCase {
 			],
 			'ARRAY_A'
 		);
-		$this->assertNotEmpty( $pending, 'AS dispatch should schedule pending actions.' );
+		$this->assertCount( 1, $pending, 'AS dispatch should schedule exactly one batched action.' );
 
 		remove_filter( 'newspack_data_events_use_action_scheduler_dispatch', '__return_true' );
 	}
@@ -581,10 +581,12 @@ class Newspack_Test_Data_Events extends WP_UnitTestCase {
 
 		Data_Events::handle_from_scheduler(
 			[
-				'action_name' => $action_name,
-				'timestamp'   => $timestamp,
-				'data'        => $data,
-				'client_id'   => $client_id,
+				[
+					'action_name' => $action_name,
+					'timestamp'   => $timestamp,
+					'data'        => $data,
+					'client_id'   => $client_id,
+				],
 			]
 		);
 
@@ -592,6 +594,46 @@ class Newspack_Test_Data_Events extends WP_UnitTestCase {
 		$this->assertEquals( $timestamp, $handler_args[0] );
 		$this->assertEquals( $data, $handler_args[1] );
 		$this->assertEquals( $client_id, $handler_args[2] );
+	}
+
+	/**
+	 * Test handle_from_scheduler processes a batch of dispatches.
+	 */
+	public function test_handle_from_scheduler_batch() {
+		$action_a = 'test_as_batch_a';
+		$action_b = 'test_as_batch_b';
+		Data_Events::register_action( $action_a );
+		Data_Events::register_action( $action_b );
+
+		$called_actions = [];
+		$handler = function( ...$args ) use ( &$called_actions ) {
+			$called_actions[] = $args;
+		};
+		Data_Events::register_handler( $handler, $action_a );
+		Data_Events::register_handler( $handler, $action_b );
+
+		$timestamp = time();
+
+		Data_Events::handle_from_scheduler(
+			[
+				[
+					'action_name' => $action_a,
+					'timestamp'   => $timestamp,
+					'data'        => [ 'order' => 1 ],
+					'client_id'   => 'batch-client',
+				],
+				[
+					'action_name' => $action_b,
+					'timestamp'   => $timestamp,
+					'data'        => [ 'order' => 2 ],
+					'client_id'   => 'batch-client',
+				],
+			]
+		);
+
+		$this->assertCount( 2, $called_actions, 'Both dispatches in the batch should be handled.' );
+		$this->assertEquals( [ 'order' => 1 ], $called_actions[0][1] );
+		$this->assertEquals( [ 'order' => 2 ], $called_actions[1][1] );
 	}
 
 	/**
@@ -613,8 +655,8 @@ class Newspack_Test_Data_Events extends WP_UnitTestCase {
 		Data_Events::handle_from_scheduler( 'not_an_array' );
 		$this->assertEquals( 0, $called );
 
-		// Unregistered action should be rejected.
-		Data_Events::handle_from_scheduler( [ 'action_name' => 'nonexistent' ] );
+		// Unregistered action should be skipped.
+		Data_Events::handle_from_scheduler( [ [ 'action_name' => 'nonexistent' ] ] );
 		$this->assertEquals( 0, $called );
 	}
 
