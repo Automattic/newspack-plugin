@@ -34,10 +34,10 @@ window.newspackRAS.push( function ( readerActivation ) {
 	const openAuth = ( initialState = 'otp' ) => {
 		openAuthModal( {
 			skipAuthenticatedCheck: true,
+			skipNewslettersSignup: true,
 			initialState,
-			closeOnSuccess: false,
-			skipSuccess: true,
-			onSuccess: () => window.location.reload(),
+			closeOnSuccess: true,
+			skipSuccess: false,
 			onClose: () => window.location.reload(),
 		} );
 	};
