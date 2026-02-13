@@ -171,7 +171,7 @@ function render_verification_modal() {
 		\Newspack\Newspack_UI::generate_modal(
 			[
 				'id'      => 'newspack-reader-verification',
-				'title'   => __( 'Verify your email', 'newspack-plugin' ),
+				'title'   => __( 'Sign in', 'newspack-plugin' ),
 				'content' => $content,
 			]
 		);

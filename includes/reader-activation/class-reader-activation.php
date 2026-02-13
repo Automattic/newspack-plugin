@@ -286,7 +286,7 @@ final class Reader_Activation {
 					'continue'        => __( 'Continue', 'newspack-plugin' ),
 					'resend_code'     => __( 'Resend code', 'newspack-plugin' ),
 					'otp'             => __( 'Email me a one-time code instead', 'newspack-plugin' ),
-					'otp_title'       => __( 'Enter the code sent to your email.', 'newspack-plugin' ),
+					'otp_title'       => __( 'Enter the code sent to your email', 'newspack-plugin' ),
 					'forgot_password' => __( 'Forgot password', 'newspack-plugin' ),
 					'create_account'  => __( 'Create an account', 'newspack-plugin' ),
 					'register'        => __( 'Sign in to an existing account', 'newspack-plugin' ),
