@@ -186,7 +186,7 @@ class Contact_Sync extends Sync {
 			if ( self::$current_as_action_id ) {
 				\ActionScheduler_Logger::instance()->log(
 					self::$current_as_action_id,
-					sprintf( 'Max retries exhausted. Final error: %s', $error_message )
+					'Max retries exhausted.'
 				);
 			}
 			return;
@@ -204,19 +204,12 @@ class Contact_Sync extends Sync {
 			'reason'           => $error_message,
 		];
 
-		$action_id = \as_schedule_single_action(
+		\as_schedule_single_action(
 			time() + $backoff_seconds,
 			self::RETRY_HOOK,
 			[ $retry_data ],
 			'newspack'
 		);
-
-		if ( $action_id ) {
-			\ActionScheduler_Logger::instance()->log(
-				$action_id,
-				sprintf( 'Failure reason: %s', $error_message )
-			);
-		}
 
 		static::log(
 			sprintf(
@@ -277,6 +270,12 @@ class Contact_Sync extends Sync {
 					implode( '; ', $result->get_error_messages() )
 				)
 			);
+			if ( self::$current_as_action_id ) {
+				\ActionScheduler_Logger::instance()->log(
+					self::$current_as_action_id,
+					implode( '; ', $result->get_error_messages() )
+				);
+			}
 			self::schedule_integration_retry(
 				$integration_id,
 				$contact,
