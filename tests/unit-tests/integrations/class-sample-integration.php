@@ -12,6 +12,13 @@ use Newspack\Reader_Activation\Integration;
  */
 class Sample_Integration extends Integration {
 	/**
+	 * Captured handler arguments from data event dispatch.
+	 *
+	 * @var array|null
+	 */
+	public static $handler_args = null;
+
+	/**
 	 * Push contact data (test implementation).
 	 *
 	 * @param array      $contact The contact data.
@@ -32,5 +39,37 @@ class Sample_Integration extends Integration {
 	 */
 	public function can_sync( $return_errors = false ) {
 		return $return_errors ? new \WP_Error() : true;
+	}
+
+	/**
+	 * Register a data event handler (public wrapper for testing).
+	 *
+	 * @param string $action_name The data event action name.
+	 * @param string $method      The instance method to call.
+	 */
+	public function test_register_data_event_handler( $action_name, $method ) {
+		$this->register_data_event_handler( $action_name, $method );
+	}
+
+	/**
+	 * Sample handler method for data events.
+	 *
+	 * @param int    $timestamp Timestamp.
+	 * @param array  $data      Data.
+	 * @param string $client_id Client ID.
+	 */
+	public function handle_test_event( $timestamp, $data, $client_id ) {
+		self::$handler_args = [
+			'timestamp' => $timestamp,
+			'data'      => $data,
+			'client_id' => $client_id,
+		];
+	}
+
+	/**
+	 * Reset captured state between tests.
+	 */
+	public static function reset() {
+		self::$handler_args = null;
 	}
 }

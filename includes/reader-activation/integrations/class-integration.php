@@ -8,6 +8,7 @@
 namespace Newspack\Reader_Activation;
 
 use Newspack\Data_Events;
+use Newspack\Logger;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -113,6 +114,18 @@ abstract class Integration {
 	 * @param string $method      The instance method to call on this integration.
 	 */
 	protected function register_data_event_handler( $action_name, $method ) {
+		if ( ! is_callable( [ $this, $method ] ) ) {
+			Logger::error(
+				sprintf(
+					'Integration "%s" tried to register uncallable method "%s" for data event "%s".',
+					$this->id,
+					$method,
+					$action_name
+				)
+			);
+			return;
+		}
+
 		$key = static::class . '::' . $action_name;
 		self::$handler_map[ $key ] = [
 			'integration_id' => $this->id,
@@ -140,17 +153,38 @@ abstract class Integration {
 	public static function dispatch_data_event_handler( $timestamp, $data, $client_id ) {
 		$action = Data_Events::current_event();
 		if ( ! $action ) {
+			Logger::error(
+				sprintf( 'Integration data event dispatch aborted for %s: no current event available.', static::class )
+			);
 			return;
 		}
 
 		$key = static::class . '::' . $action;
 		if ( ! isset( self::$handler_map[ $key ] ) ) {
+			Logger::error(
+				sprintf( 'No integration data event handler registered for key "%s".', $key )
+			);
 			return;
 		}
 
 		$entry       = self::$handler_map[ $key ];
 		$integration = Integrations::get_integration( $entry['integration_id'] );
 		if ( ! $integration ) {
+			Logger::error(
+				sprintf( 'Failed to resolve integration "%s" for data event "%s".', $entry['integration_id'], $action )
+			);
+			return;
+		}
+
+		if ( ! is_callable( [ $integration, $entry['method'] ] ) ) {
+			Logger::error(
+				sprintf(
+					'Method "%s" is not callable on integration "%s" for data event "%s".',
+					$entry['method'],
+					$entry['integration_id'],
+					$action
+				)
+			);
 			return;
 		}
 
