@@ -429,7 +429,7 @@ class Newspack_Test_Reader_Activation_Sync extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test that scheduling an integration retry creates an AS log entry with the failure reason.
+	 * Test that a failed integration retry logs the error to the current AS action.
 	 */
 	public function test_integration_retry_as_log_entry() {
 		if ( ! function_exists( 'as_schedule_single_action' ) ) {
@@ -448,6 +448,10 @@ class Newspack_Test_Reader_Activation_Sync extends WP_UnitTestCase {
 			'metadata' => [],
 		];
 
+		// Schedule a dummy AS action to simulate the currently-executing action.
+		$dummy_action_id = as_schedule_single_action( time() + 3600, 'newspack_dummy_log_action' );
+		Contact_Sync::set_current_as_action_id( $dummy_action_id );
+
 		Contact_Sync::execute_integration_retry(
 			[
 				'integration_id'   => 'log_mock',
@@ -458,21 +462,10 @@ class Newspack_Test_Reader_Activation_Sync extends WP_UnitTestCase {
 			]
 		);
 
-		// Get the scheduled retry action.
-		$pending = as_get_scheduled_actions(
-			[
-				'hook'   => Contact_Sync::RETRY_HOOK,
-				'group'  => 'newspack',
-				'status' => \ActionScheduler_Store::STATUS_PENDING,
-			],
-			'ARRAY_A'
-		);
-		$this->assertNotEmpty( $pending );
+		Contact_Sync::clear_current_as_action_id();
 
-		$action_id = array_key_first( $pending );
-
-		// Verify AS log entry.
-		$logs     = \ActionScheduler_Logger::instance()->get_logs( $action_id );
+		// Verify AS log entry on the current action.
+		$logs     = \ActionScheduler_Logger::instance()->get_logs( $dummy_action_id );
 		$messages = array_map(
 			function ( $log ) {
 				return $log->get_message();
@@ -480,9 +473,12 @@ class Newspack_Test_Reader_Activation_Sync extends WP_UnitTestCase {
 			$logs
 		);
 		$this->assertTrue(
-			in_array( 'Failure reason: Mock push failed', $messages, true ),
-			'AS logs should contain the failure reason.'
+			in_array( 'Mock push failed', $messages, true ),
+			'AS logs should contain the error message on the current action.'
 		);
+
+		// Clean up.
+		as_unschedule_all_actions( 'newspack_dummy_log_action' );
 	}
 
 	/**
@@ -533,7 +529,7 @@ class Newspack_Test_Reader_Activation_Sync extends WP_UnitTestCase {
 			$logs
 		);
 		$this->assertTrue(
-			in_array( 'Max retries exhausted. Final error: Mock push failed', $messages, true ),
+			in_array( 'Max retries exhausted.', $messages, true ),
 			'AS logs should contain the max retries exhausted message.'
 		);
 
