@@ -443,7 +443,7 @@ final class Data_Events {
 				sprintf(
 					'ATTENTION: Data Event handler for action "%s" was not properly registered: %s',
 					$action_name,
-					$error->get_error_message()
+					implode( '; ', $error->get_error_messages() )
 				)
 			);
 
@@ -590,7 +590,7 @@ final class Data_Events {
 		$body = apply_filters( 'newspack_data_events_dispatch_body', $body, $action_name );
 
 		if ( is_wp_error( $body ) ) {
-			self::log( sprintf( 'Error dispatching action "%s": %s', $action_name, $body->get_error_message() ) );
+			self::log( sprintf( 'Error dispatching action "%s": %s', $action_name, implode( '; ', $body->get_error_messages() ) ) );
 			return $body;
 		}
 

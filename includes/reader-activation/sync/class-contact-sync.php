@@ -279,10 +279,17 @@ class Contact_Sync extends Sync {
 					$retry_count,
 					$integration_id,
 					$contact['email'] ?? 'unknown',
-					$result->get_error_message()
+					implode( '; ', $result->get_error_messages() )
 				)
 			);
-			self::schedule_integration_retry( $integration_id, $contact, $context, $existing_contact, $retry_count, $result->get_error_message() );
+			self::schedule_integration_retry(
+				$integration_id,
+				$contact,
+				$context,
+				$existing_contact,
+				$retry_count,
+				implode( '; ', $result->get_error_messages() )
+			);
 			return;
 		}
 
