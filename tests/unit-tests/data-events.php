@@ -552,7 +552,7 @@ class Newspack_Test_Data_Events extends WP_UnitTestCase {
 		$pending = as_get_scheduled_actions(
 			[
 				'hook'   => Data_Events::DISPATCH_AS_HOOK,
-				'group'  => Data_Events::DISPATCH_AS_GROUP,
+				'group'  => 'newspack',
 				'status' => \ActionScheduler_Store::STATUS_PENDING,
 			],
 			'ARRAY_A'
@@ -684,7 +684,7 @@ class Newspack_Test_Data_Events extends WP_UnitTestCase {
 		$pending = as_get_scheduled_actions(
 			[
 				'hook'   => Data_Events::HANDLER_RETRY_HOOK,
-				'group'  => Data_Events::HANDLER_RETRY_GROUP,
+				'group'  => 'newspack',
 				'status' => \ActionScheduler_Store::STATUS_PENDING,
 			],
 			'ARRAY_A'
@@ -716,7 +716,7 @@ class Newspack_Test_Data_Events extends WP_UnitTestCase {
 		$pending = as_get_scheduled_actions(
 			[
 				'hook'   => Data_Events::HANDLER_RETRY_HOOK,
-				'group'  => Data_Events::HANDLER_RETRY_GROUP,
+				'group'  => 'newspack',
 				'status' => \ActionScheduler_Store::STATUS_PENDING,
 			],
 			'ARRAY_A'
@@ -819,7 +819,7 @@ class Newspack_Test_Data_Events extends WP_UnitTestCase {
 		$pending = as_get_scheduled_actions(
 			[
 				'hook'   => Data_Events::HANDLER_RETRY_HOOK,
-				'group'  => Data_Events::HANDLER_RETRY_GROUP,
+				'group'  => 'newspack',
 				'status' => \ActionScheduler_Store::STATUS_PENDING,
 			],
 			'ARRAY_A'
