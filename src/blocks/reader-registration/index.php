@@ -105,7 +105,7 @@ function render_verification_box() {
 	?>
 	<div class="newspack__reader-verification newspack-ui__box newspack-ui__box--x-large newspack-ui__box--text-center" data-verify-email="<?php echo esc_attr( $email ); ?>">
 			<span class="newspack-ui__icon newspack-ui__icon--neutral">
-				<?php Newspack_UI_Icons::print_svg( 'email' ); ?>
+				<?php Newspack_UI_Icons::print_svg( 'login' ); ?>
 			</span>
 			<p>
 				<?php
@@ -145,7 +145,7 @@ function render_verification_modal() {
 	?>
 	<div class="newspack-ui__box newspack-ui__box--text-center">
 		<span class="newspack-ui__icon newspack-ui__icon--neutral">
-			<?php Newspack_UI_Icons::print_svg( 'email' ); ?>
+			<?php Newspack_UI_Icons::print_svg( 'login' ); ?>
 		</span>
 		<p>
 			<?php
