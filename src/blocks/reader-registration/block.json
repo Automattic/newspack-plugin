@@ -19,7 +19,7 @@
 		},
 		"label": {
 			"type": "string",
-			"default": "Sign up",
+			"default": "Continue",
 			"required": true
 		},
 		"privacyLabel": {

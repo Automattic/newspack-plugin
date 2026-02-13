@@ -288,7 +288,7 @@ export default function ReaderRegistrationEdit( {
 														__html: newspack_blocks.google_logo_svg,
 													} }
 												/>
-												{ __( 'Sign in with Google', 'newspack-plugin' ) }
+												{ __( 'Continue with Google', 'newspack-plugin' ) }
 											</button>
 											<div className="newspack-ui__word-divider">{ __( 'Or', 'newspack-plugin' ) }</div>
 										</div>
