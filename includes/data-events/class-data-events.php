@@ -89,11 +89,6 @@ final class Data_Events {
 	private static $current_as_action_id = null;
 
 	/**
-	 * ActionScheduler group for dispatch actions.
-	 */
-	const DISPATCH_AS_GROUP = 'newspack-data-events-dispatch';
-
-	/**
 	 * ActionScheduler hook for handling dispatched events.
 	 */
 	const DISPATCH_AS_HOOK = 'newspack_data_events_handle';
@@ -102,11 +97,6 @@ final class Data_Events {
 	 * ActionScheduler hook for retrying a failed handler.
 	 */
 	const HANDLER_RETRY_HOOK = 'newspack_data_events_retry_handler';
-
-	/**
-	 * ActionScheduler group for handler retry actions.
-	 */
-	const HANDLER_RETRY_GROUP = 'newspack-data-events-handler-retry';
 
 	/**
 	 * Maximum number of retries for a failed handler.
@@ -634,7 +624,7 @@ final class Data_Events {
 		\as_enqueue_async_action(
 			self::DISPATCH_AS_HOOK,
 			[ self::$queued_dispatches ],
-			self::DISPATCH_AS_GROUP
+			'newspack'
 		);
 
 		self::log( sprintf( 'Scheduled %d dispatch(es) via Action Scheduler.', count( self::$queued_dispatches ) ) );
@@ -757,7 +747,7 @@ final class Data_Events {
 			time() + $backoff_seconds,
 			self::HANDLER_RETRY_HOOK,
 			[ $retry_data ],
-			self::HANDLER_RETRY_GROUP
+			'newspack'
 		);
 
 		if ( $action_id ) {

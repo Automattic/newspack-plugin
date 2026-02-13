@@ -45,11 +45,6 @@ class Contact_Sync extends Sync {
 	const RETRY_HOOK = 'newspack_contact_sync_retry';
 
 	/**
-	 * ActionScheduler group for integration sync retries.
-	 */
-	const RETRY_GROUP = 'newspack-contact-sync-retry';
-
-	/**
 	 * Maximum number of retries for a failed integration sync.
 	 */
 	const MAX_RETRIES = 5;
@@ -213,7 +208,7 @@ class Contact_Sync extends Sync {
 			time() + $backoff_seconds,
 			self::RETRY_HOOK,
 			[ $retry_data ],
-			self::RETRY_GROUP
+			'newspack'
 		);
 
 		if ( $action_id ) {
