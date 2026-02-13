@@ -181,7 +181,7 @@ class Contact_Sync extends Sync {
 			time() + $backoff_seconds,
 			self::RETRY_HOOK,
 			[ $retry_data ],
-			self::RETRY_GROUP
+			'newspack'
 		);
 
 		static::log(
