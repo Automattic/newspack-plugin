@@ -38,11 +38,6 @@ class Contact_Sync extends Sync {
 	const RETRY_HOOK = 'newspack_contact_sync_retry';
 
 	/**
-	 * ActionScheduler group for integration sync retries.
-	 */
-	const RETRY_GROUP = 'newspack-contact-sync-retry';
-
-	/**
 	 * Maximum number of retries for a failed integration sync.
 	 */
 	const MAX_RETRIES = 5;
@@ -82,19 +77,21 @@ class Contact_Sync extends Sync {
 		}
 
 		// If we're running in a data event, queue the sync to run on shutdown.
-		if ( ! isset( self::$queued_syncs[ $contact['email'] ] ) ) {
-			self::$queued_syncs[ $contact['email'] ] = [
-				'contexts' => [],
-				'contact'  => [],
-			];
-		}
-		if ( ! empty( self::$queued_syncs[ $contact['email'] ]['contact']['metadata'] ) ) {
-			$contact['metadata'] = array_merge( self::$queued_syncs[ $contact['email'] ]['contact']['metadata'], $contact['metadata'] );
-		}
-		self::$queued_syncs[ $contact['email'] ]['contexts'][] = $context;
-		self::$queued_syncs[ $contact['email'] ]['contact']    = $contact;
-		if ( Data_Events::current_event() && ! did_action( 'shutdown' ) ) {
-			return true;
+		if ( Data_Events::current_event() ) {
+			if ( ! isset( self::$queued_syncs[ $contact['email'] ] ) ) {
+				self::$queued_syncs[ $contact['email'] ] = [
+					'contexts' => [],
+					'contact'  => [],
+				];
+			}
+			if ( ! empty( self::$queued_syncs[ $contact['email'] ]['contact']['metadata'] ) ) {
+				$contact['metadata'] = array_merge( self::$queued_syncs[ $contact['email'] ]['contact']['metadata'], $contact['metadata'] );
+			}
+			self::$queued_syncs[ $contact['email'] ]['contexts'][] = $context;
+			self::$queued_syncs[ $contact['email'] ]['contact']    = $contact;
+			if ( ! did_action( 'shutdown' ) ) {
+				return true;
+			}
 		}
 
 		return self::push_to_integrations( $contact, $context, $existing_contact );
@@ -179,7 +176,7 @@ class Contact_Sync extends Sync {
 			time() + $backoff_seconds,
 			self::RETRY_HOOK,
 			[ $retry_data ],
-			self::RETRY_GROUP
+			'newspack'
 		);
 
 		static::log(
@@ -207,20 +204,26 @@ class Contact_Sync extends Sync {
 		}
 
 		$integration_id   = $retry_data['integration_id'];
-		$contact          = $retry_data['contact'];
+		$stored_contact   = $retry_data['contact'];
 		$context          = $retry_data['context'] ?? static::$context;
 		$existing_contact = $retry_data['existing_contact'] ?? null;
 		$retry_count      = $retry_data['retry_count'] ?? 1;
+
+		// Fetch fresh contact data to avoid pushing stale state (e.g. outdated subscription status).
+		$email = $stored_contact['email'] ?? '';
+		$user  = $email ? \get_user_by( 'email', $email ) : false;
+		if ( $user ) {
+			$contact = self::get_contact_data( $user->ID );
+		} else {
+			// User deleted — fall back to the stored contact data.
+			$contact = $stored_contact;
+		}
 
 		$integration = Integrations::get_integration( $integration_id );
 		if ( ! $integration ) {
 			Logger::log( sprintf( 'Integration "%s" not found on retry %d.', $integration_id, $retry_count ), 'NEWSPACK-SYNC', 'error' );
 			return;
 		}
-
-		/** This filter is documented in includes/reader-activation/sync/class-contact-sync.php */
-		$contact = \apply_filters( 'newspack_esp_sync_contact', $contact, $context );
-		$contact = Sync\Metadata::normalize_contact_data( $contact );
 
 		static::log( sprintf( 'Executing retry %d/%d for integration "%s" sync of %s.', $retry_count, self::MAX_RETRIES, $integration_id, $contact['email'] ?? 'unknown' ) );
 
