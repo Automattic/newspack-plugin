@@ -212,7 +212,7 @@ class Test_Integrations extends \WP_UnitTestCase {
 		Data_Events::register_action( $action_name );
 
 		$integration = new Sample_Integration( 'test-id', 'Test' );
-		// Register the handler but do NOT register the integration with Integrations.
+		// Register the integration and its handler, then later clear the registry to simulate a missing integration.
 		Integrations::register( $integration );
 		$integration->test_register_data_event_handler( $action_name, 'handle_test_event' );
 
