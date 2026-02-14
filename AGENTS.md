@@ -18,7 +18,7 @@ npm run fix:php          # Auto-fix PHP issues (PHPCBF)
 - `npm run lint` runs JS + SCSS only. PHP linting requires a separate `npm run lint:php`.
 - After adding a new PHP file, run `composer dump-autoload` to update the classmap (Composer uses `classmap`, not PSR-4).
 - Individual JS test files cannot run independently. Always run `npm test` for the full suite.
-- Never import `react-router-dom` directly. Use the proxy: `import Router from '../../packages/components/src/proxied-imports/router'`.
+- Never import `react-router-dom` directly in source code. Use the proxy: `import Router from '../../packages/components/src/proxied-imports/router'`. Tests may import `react-router-dom` directly.
 - New standalone webpack entry points must import `src/shared/js/public-path.js` first.
 - Plugin integration classes in `includes/plugins/` use the root `Newspack` namespace despite living in subdirectories.
 
@@ -190,7 +190,7 @@ Mixed JS/TS codebase (~30% TypeScript). Newer wizard views are `.tsx`; older wiz
 import { Button, ActionCard } from '../../packages/components/src';
 ```
 
-**Router**: Always import through the proxy, never directly from `react-router-dom`:
+**Router**: In source code, always import through the proxy, never directly from `react-router-dom` (tests may import directly):
 ```js
 import Router from '../../packages/components/src/proxied-imports/router';
 const { HashRouter, Route, Switch } = Router;
