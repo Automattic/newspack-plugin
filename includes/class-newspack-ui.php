@@ -358,6 +358,7 @@ class Newspack_UI {
 				<li><a href="?ui-demo#buttons">Buttons</a></li>
 				<li><a href="#buttons-icon">Buttons Icon</a></li>
 				<li><a href="?ui-demo#modals">Modals</a></li>
+				<li><a href="?ui-demo#newsletters-signup">Newsletters Signup</a></li>
 			</ul>
 
 			<hr>
@@ -1260,6 +1261,138 @@ class Newspack_UI {
 					}
 					closeModal.onclick = function() {
 						newspackModal.setAttribute( 'data-state', 'closed' );
+					}
+				} )();
+			</script>
+
+			<hr>
+
+			<h2 id="newsletters-signup">Newsletters Signup Form</h2>
+
+			<?php
+			// Sample data for testing the newsletters signup form.
+			$demo_email_address = 'demo@example.com';
+			$demo_newsletters_lists = [
+				[
+					'id'          => '1',
+					'title'       => 'Daily News',
+					'description' => 'Get the latest news delivered to your inbox every morning.',
+					'checked'     => true,
+				],
+				[
+					'id'          => '2',
+					'title'       => 'Weekly Digest',
+					'description' => 'A weekly summary of our top stories.',
+					'checked'     => false,
+				],
+				[
+					'id'          => '3',
+					'title'       => 'Breaking News',
+					'description' => 'Receive instant alerts for breaking news stories.',
+					'checked'     => false,
+				],
+				[
+					'id'          => '4',
+					'title'       => 'Sports Updates',
+					'description' => 'Stay up to date with all the latest sports news.',
+					'checked'     => false,
+				],
+				[
+					'id'          => '5',
+					'title'       => 'Technology News',
+					'description' => 'The latest in technology and innovation.',
+					'checked'     => false,
+				],
+			];
+			$demo_default_list_size = 2;
+
+			// Render the newsletters signup form, replicating the function structure.
+			$loop_index = 0;
+			?>
+			<div class="newspack-ui newspack-newsletters-signup">
+				<form method="post" target="_top">
+					<input type="hidden" name="reader-activation-newsletters-signup" value="1" />
+					<input type="hidden" name="email_address" value="<?php echo esc_attr( $demo_email_address ); ?>" />
+
+					<div class="newspack-ui__vstack newsletter-list-container" data-spacing="2" data-list-default-size="<?php echo esc_attr( $demo_default_list_size ); ?>">
+					<?php
+					foreach ( $demo_newsletters_lists as $list ) {
+						$checkbox_id = sprintf( 'newspack-plugin-list-%s', $list['id'] );
+						$is_hidden   = $loop_index <= $demo_default_list_size ? '' : 'hidden';
+						$loop_index++;
+						?>
+						<label class="newspack-ui__input-card <?php echo esc_attr( $is_hidden ); ?>" for="<?php echo esc_attr( $checkbox_id ); ?>">
+							<input
+								type="checkbox"
+								name="lists[]"
+								value="<?php echo esc_attr( $list['id'] ); ?>"
+								id="<?php echo esc_attr( $checkbox_id ); ?>"
+								<?php
+								if ( isset( $list['checked'] ) && $list['checked'] ) {
+									echo 'checked';
+								}
+								?>
+							>
+							<strong><?php echo esc_html( $list['title'] ); ?></strong>
+							<?php if ( ! empty( $list['description'] ) ) : ?>
+								<span class="newspack-ui__helper-text"><?php echo esc_html( $list['description'] ); ?></span>
+							<?php endif; ?>
+						</label>
+						<?php
+						if ( $loop_index === (int) $demo_default_list_size && count( $demo_newsletters_lists ) > $demo_default_list_size ) :
+							?>
+							<div class="newspack-ui__gradient-divider"></div>
+							<?php
+						endif;
+					}
+					?>
+					</div>
+
+					<?php if ( count( $demo_newsletters_lists ) > $demo_default_list_size ) : ?>
+						<button type="button" class="newspack-ui__button newspack-ui__button--wide newspack-ui__button--secondary see-all-button">
+							<span><?php esc_html_e( 'See all', 'newspack-plugin' ); ?></span>
+							<?php Newspack_UI_Icons::print_svg( 'arrowRight' ); ?>
+						</button>
+					<?php endif; ?>
+					<button type="submit" class="newspack-ui__button newspack-ui__button--wide newspack-ui__button--primary"><?php esc_html_e( 'Continue', 'newspack-plugin' ); ?></button>
+				</form>
+			</div>
+			<script>
+				( function() {
+					const container = document.querySelector( '.newspack-newsletters-signup' );
+					if ( ! container ) {
+						return;
+					}
+					const seeAllButton = container.querySelector( '.see-all-button' );
+					const newsletterContainer = container.querySelector( '.newsletter-list-container' );
+
+					if ( seeAllButton && newsletterContainer ) {
+						seeAllButton.addEventListener( 'click', function() {
+							newsletterContainer.querySelectorAll( '.hidden' ).forEach( function( item ) {
+								item.classList.remove( 'hidden' );
+							} );
+							newsletterContainer.style.maxHeight = 'none';
+							seeAllButton.remove();
+						} );
+
+						// Set the initial height to show partially visible.
+						const listDefaultSize = parseInt( newsletterContainer.dataset.listDefaultSize, 10 );
+						const newsletterItems = newsletterContainer.querySelectorAll( '.newspack-ui__input-card' );
+
+						if ( newsletterItems.length > listDefaultSize ) {
+							const gap = 12;
+							const extraSpace = 32;
+
+							let totalHeight = 0;
+							newsletterItems.forEach( function( item, index ) {
+								if ( index < listDefaultSize ) {
+									totalHeight += item.offsetHeight;
+								}
+							} );
+
+							const maxHeight = totalHeight + listDefaultSize * gap + extraSpace;
+							newsletterContainer.style.maxHeight = maxHeight + 'px';
+						}
 					}
 				} )();
 			</script>
