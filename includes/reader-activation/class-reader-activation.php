@@ -1761,13 +1761,15 @@ final class Reader_Activation {
 					?>
 					</div>
 
-					<?php if ( count( $newsletters_lists ) > $default_list_size ) : ?>
-						<button type="button" class="newspack-ui__button newspack-ui__button--wide newspack-ui__button--secondary see-all-button">
-							<span><?php esc_html_e( 'See all', 'newspack-plugin' ); ?></span>
-							<?php Newspack_UI_Icons::print_svg( 'arrowRight' ); ?>
-						</button>
-					<?php endif; ?>
-					<button type="submit" class="newspack-ui__button newspack-ui__button--wide newspack-ui__button--primary" data-margin-top="2"><?php echo \esc_html( self::get_reader_activation_labels( 'newsletters_continue' ) ); ?></button>
+					<div class="newspack-ui__vstack" data-gap="2" data-margin-top="5">
+						<?php if ( count( $newsletters_lists ) > $default_list_size ) : ?>
+							<button type="button" class="newspack-ui__button newspack-ui__button--wide newspack-ui__button--secondary see-all-button" aria-label="<?php esc_attr_e( 'See all newsletters', 'newspack-plugin' ); ?>">
+								<span aria-hidden="true"><?php esc_html_e( 'See all', 'newspack-plugin' ); ?></span>
+								<?php Newspack_UI_Icons::print_svg( 'arrowRight' ); ?>
+							</button>
+						<?php endif; ?>
+						<button type="submit" class="newspack-ui__button newspack-ui__button--wide newspack-ui__button--primary"><?php echo \esc_html( self::get_reader_activation_labels( 'newsletters_continue' ) ); ?></button>
+					</div>
 				</form>
 			</div>
 		<?php
@@ -1802,15 +1804,17 @@ final class Reader_Activation {
 					</button>
 				</div>
 				<div class="newspack-ui__modal__content">
-					<p class="newspack-ui__font--xs details">
-						<?php echo \esc_html( self::get_reader_activation_labels( 'newsletters_details' ) ); ?>
-					</p>
-					<p class="newspack-ui__font--xs newspack-ui__color-text-gray recipient">
-						<?php echo esc_html( __( 'Sending to: ', 'newspack-plugin' ) ); ?>
-						<strong class="email">
-							<?php echo esc_html( $email_address ); ?>
-						</strong>
-					</p>
+					<div class="newspack-ui__vstack" data-gap="0">
+						<p>
+							<?php echo \esc_html( self::get_reader_activation_labels( 'newsletters_details' ) ); ?>
+						</p>
+						<p class="newspack-ui__color-text-gray">
+							<?php echo esc_html( __( 'Sending to: ', 'newspack-plugin' ) ); ?>
+							<strong class="email">
+								<?php echo esc_html( $email_address ); ?>
+							</strong>
+						</p>
+					</div>
 					<?php self::render_newsletters_signup_form( $email_address, $newsletters_lists, $newsletter_list_initial_size ); ?>
 				</div>
 			</div>

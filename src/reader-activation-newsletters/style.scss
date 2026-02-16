@@ -4,29 +4,11 @@
 		pointer-events: none;
 	}
 
-	p.details {
-		margin-bottom: 0;
-	}
-
-	p.recipient {
-		margin-top: 4px;
-		margin-bottom: 0;
-	}
-
 	.newspack-newsletters-signup {
 		margin-top: var(--newspack-ui-spacer-5);
 
 		.newsletter-list-container {
 			transition: max-height 250ms ease-in-out;
-		}
-
-		.see-all-button {
-			justify-content: space-between;
-			margin: var(--newspack-ui-spacer-2) 0 var(--newspack-ui-spacer-5) 0 !important;
-		}
-
-		button[type="submit"] {
-			background: var(--newspack-ui-color-primary);
 		}
 	}
 }
