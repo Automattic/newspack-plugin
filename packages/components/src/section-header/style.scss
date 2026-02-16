@@ -26,7 +26,8 @@
 		left: calc((var(--back-nav-button-size) + 8px) * -1);
 		position: absolute;
 		top: calc(50% - (var(--back-nav-button-size) / 2));
-		a {
+		a,
+		button {
 			color: inherit !important;
 		}
 	}
