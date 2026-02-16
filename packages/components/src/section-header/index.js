@@ -48,8 +48,7 @@ import classnames from 'classnames';
  */
 const SectionHeader = ( {
 	backNav = '',
-	badge,
-	badgeLevel,
+	badges,
 	centered = false,
 	className = null,
 	description = '',
@@ -85,7 +84,6 @@ const SectionHeader = ( {
 	);
 
 	const HeadingTag = pageHeader ? 'h1' : `h${ heading }`;
-	const badges = ! Array.isArray( badge ) && badge ? [ badge ] : badge;
 
 	return (
 		<div
@@ -109,7 +107,9 @@ const SectionHeader = ( {
 				{ typeof title === 'string' && (
 					<div className="newspack-section-header__title-container">
 						<HeadingTag>{ title }</HeadingTag>
-						{ badges?.length ? badges.map( ( badgeText, i ) => <Badge key={ i } text={ badgeText } level={ badgeLevel } /> ) : null }
+						{ badges?.length
+							? badges.map( ( badge, i ) => <Badge key={ i } text={ badge.label } level={ badge.level || 'default' } /> )
+							: null }
 					</div>
 				) }
 				{ typeof title === 'function' && <HeadingTag>{ title() }</HeadingTag> }

@@ -16,8 +16,13 @@ import { createAction } from './utils.js';
 export const WIZARD_STORE_NAMESPACE = 'newspack/wizards';
 
 const DEFAULT_STATE = {
-	headerActions: [],
-	headerSection: '',
+	headerData: {
+		actions: [],
+		backNav: '',
+		badges: [],
+		sectionName: '',
+		sectionTitle: '',
+	},
 	isLoading: false,
 	isQuietLoading: false,
 	apiData: {},
@@ -33,10 +38,10 @@ const clone = objectToClone => JSON.parse( JSON.stringify( objectToClone ) );
 
 const reducer = ( state = DEFAULT_STATE, { type, payload = {} } ) => {
 	switch ( type ) {
-		case 'SET_HEADER_ACTIONS':
-			return { ...state, headerActions: payload };
-		case 'SET_HEADER_SECTION':
-			return { ...state, headerSection: payload };
+		case 'SET_HEADER_DATA':
+			return { ...state, headerData: { ...state.headerData, ...payload } };
+		case 'RESET_HEADER_DATA':
+			return { ...state, headerData: { ...DEFAULT_STATE.headerData } };
 		case 'START_LOADING_DATA':
 			if ( payload.isQuietLoading ) {
 				return { ...state, isQuietLoading: true };
@@ -57,8 +62,8 @@ const reducer = ( state = DEFAULT_STATE, { type, payload = {} } ) => {
 
 const actions = {
 	// Regular actions.
-	setHeaderActions: createAction( 'SET_HEADER_ACTIONS' ),
-	setHeaderSection: createAction( 'SET_HEADER_SECTION' ),
+	setHeaderData: createAction( 'SET_HEADER_DATA' ),
+	resetHeaderData: createAction( 'RESET_HEADER_DATA' ),
 	startLoadingData: createAction( 'START_LOADING_DATA' ),
 	finishLoadingData: createAction( 'FINISH_LOADING_DATA' ),
 	fetchFromAPI: createAction( 'FETCH_FROM_API' ),
@@ -93,8 +98,7 @@ const actions = {
 };
 
 const selectors = {
-	getHeaderActions: state => state.headerActions,
-	getHeaderSection: state => state.headerSection,
+	getHeaderData: state => state.headerData,
 	isLoading: state => state.isLoading,
 	isQuietLoading: state => state.isQuietLoading,
 	getWizardAPIData: ( state, slug ) => state.apiData[ slug ] || {},

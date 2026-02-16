@@ -6,7 +6,6 @@
  * WordPress dependencies.
  */
 import apiFetch from '@wordpress/api-fetch';
-import { useDispatch } from '@wordpress/data';
 import { useEffect, useRef, useState } from '@wordpress/element';
 import { ENTER } from '@wordpress/keycodes';
 import { __ } from '@wordpress/i18n';
@@ -16,7 +15,6 @@ import { __ } from '@wordpress/i18n';
  */
 import { Button, Card, Modal, Notice, SectionHeader, TextControl } from '../../../../../packages/components/src';
 import { useWizardData } from '../../../../../packages/components/src/wizard/store/utils';
-import { WIZARD_STORE_NAMESPACE } from '../../../../../packages/components/src/wizard/store';
 import { useWizardApiFetch } from '../../../hooks/use-wizard-api-fetch';
 import WizardsActionCard from '../../../wizards-action-card';
 import ContentGatesOnboarding from './content-gates-onboarding';
@@ -27,7 +25,6 @@ import './style.scss';
 
 const ContentGates = ( { updateGatesData }: { updateGatesData: ( gates: Gate[] ) => void } ) => {
 	const wizardData = useWizardData( AUDIENCE_CONTENT_GATES_WIZARD_SLUG ) as WizardData;
-	const { setHeaderSection, setHeaderActions } = useDispatch( WIZARD_STORE_NAMESPACE );
 	const { wizardApiFetch, isFetching, errorMessage, resetError } = useWizardApiFetch( AUDIENCE_CONTENT_GATES_WIZARD_SLUG );
 	const [ showModal, setShowModal ] = useState( false );
 	const [ newGateName, setNewGateName ] = useState( '' );
@@ -37,9 +34,12 @@ const ContentGates = ( { updateGatesData }: { updateGatesData: ( gates: Gate[] )
 
 	const gates = ( wizardData?.gates || [] ) as Gate[];
 
+	const resetErrors = () => {
+		setError( null );
+		resetError();
+	};
+
 	useEffect( () => {
-		setHeaderSection( '' );
-		setHeaderActions( [] );
 		resetErrors();
 	}, [] );
 
@@ -56,11 +56,6 @@ const ContentGates = ( { updateGatesData }: { updateGatesData: ( gates: Gate[] )
 			setError( errorMessage );
 		}
 	}, [ errorMessage ] );
-
-	const resetErrors = () => {
-		setError( null );
-		resetError();
-	};
 
 	const handleCreateGate = () => {
 		if ( isInFlight ) {

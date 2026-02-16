@@ -63,7 +63,7 @@ const Edit = ( { history, match, updateGatesData }: ContentGateEditProps ) => {
 	const id = _id ? parseInt( _id ) : 0;
 	const { gates = null as unknown as Gate[] } = useWizardData( AUDIENCE_CONTENT_GATES_WIZARD_SLUG ) as WizardData;
 	const { wizardApiFetch, isFetching, errorMessage, resetError, setError } = useWizardApiFetch( AUDIENCE_CONTENT_GATES_WIZARD_SLUG );
-	const { setHeaderSection, setHeaderActions } = useDispatch( WIZARD_STORE_NAMESPACE );
+	const { setHeaderData } = useDispatch( WIZARD_STORE_NAMESPACE );
 	const [ gate, setGate ] = useState< Gate >( ( gates && gates.find( g => g.id === id ) ) || DEFAULT_GATE ); // eslint-disable-line @typescript-eslint/no-unused-vars
 	const [ title, setTitle ] = useState< string >( gate.title );
 	const [ isRenaming, setIsRenaming ] = useState< boolean >( false );
@@ -170,7 +170,12 @@ const Edit = ( { history, match, updateGatesData }: ContentGateEditProps ) => {
 
 	// Load gate data.
 	useEffect( () => {
-		setHeaderSection( isNew ? __( 'Add new', 'newspack-plugin' ) : __( 'Edit', 'newspack-plugin' ) );
+		setHeaderData( {
+			backNav: '#/content-gates',
+			badges: isNew ? [] : [ { label: getGateStatus( gate.status ), level: getGateStatusBadgeLevel( gate.status ) } ],
+			sectionName: isNew ? __( 'Add new', 'newspack-plugin' ) : __( 'Edit', 'newspack-plugin' ),
+			sectionTitle: isNew ? __( 'Add new content gate', 'newspack-plugin' ) : title || __( 'Untitled content gate', 'newspack-plugin' ),
+		} );
 		if ( isNew ) {
 			return;
 		}
@@ -253,7 +258,7 @@ const Edit = ( { history, match, updateGatesData }: ContentGateEditProps ) => {
 				destructive: true,
 			} );
 		}
-		setHeaderActions( actions );
+		setHeaderData( { actions } );
 	}, [
 		contentRules.length,
 		customAccess.active,
@@ -283,14 +288,6 @@ const Edit = ( { history, match, updateGatesData }: ContentGateEditProps ) => {
 	return (
 		<div className="newspack-content-gate__edit">
 			{ errorMessage && <Notice isError noticeText={ errorMessage } /> }
-			<SectionHeader
-				backNav="#/content-gates"
-				heading={ 1 }
-				title={ isNew ? __( 'Add new content gate', 'newspack-plugin' ) : title || __( 'Untitled content gate', 'newspack-plugin' ) }
-				badge={ isNew ? undefined : getGateStatus( gate.status ) }
-				badgeLevel={ isNew ? undefined : getGateStatusBadgeLevel( gate.status ) }
-				noMargin
-			/>
 			{ ( isNew || isRenaming ) && (
 				<>
 					<Grid columns={ 2 } gutter={ 32 }>

@@ -40,7 +40,6 @@ const AudienceContentGates = ( props, ref ) => {
 			fixedHeader
 			sections={ [
 				{
-					label: __( 'Content Gates', 'newspack-plugin' ),
 					path: '/content-gates',
 					render: ContentGates,
 				},
