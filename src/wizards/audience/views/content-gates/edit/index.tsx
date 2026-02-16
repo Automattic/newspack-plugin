@@ -172,9 +172,7 @@ const Edit = ( { history, match, updateGatesData }: ContentGateEditProps ) => {
 	useEffect( () => {
 		setHeaderData( {
 			backNav: '#/content-gates',
-			badges: isNew ? [] : [ { label: getGateStatus( gate.status ), level: getGateStatusBadgeLevel( gate.status ) } ],
 			sectionName: isNew ? __( 'Add new', 'newspack-plugin' ) : __( 'Edit', 'newspack-plugin' ),
-			sectionTitle: isNew ? __( 'Add new content gate', 'newspack-plugin' ) : title || __( 'Untitled content gate', 'newspack-plugin' ),
 		} );
 		if ( isNew ) {
 			return;
@@ -258,7 +256,11 @@ const Edit = ( { history, match, updateGatesData }: ContentGateEditProps ) => {
 				destructive: true,
 			} );
 		}
-		setHeaderData( { actions } );
+		setHeaderData( {
+			actions,
+			badges: isNew ? [] : [ { label: getGateStatus( gate.status ), level: getGateStatusBadgeLevel( gate.status ) } ],
+			sectionTitle: isNew ? __( 'Add new content gate', 'newspack-plugin' ) : title || __( 'Untitled content gate', 'newspack-plugin' ),
+		} );
 	}, [
 		contentRules.length,
 		customAccess.active,

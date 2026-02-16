@@ -204,7 +204,7 @@ const Wizard = (
 										<div className={ classnames( 'newspack-wizard__content', className ) }>
 											{ 'function' === typeof renderAboveSections ? renderAboveSections() : null }
 											{ sectionTitle && (
-												<SectionHeader backNav={ backNav } heading={ 1 } title={ sectionTitle } badge={ badges } noMargin />
+												<SectionHeader backNav={ backNav } heading={ 1 } title={ sectionTitle } badges={ badges } noMargin />
 											) }
 											<SectionComponent { ...routerProps } { ...sectionProps } { ...sharedProps } />
 										</div>
