@@ -29,6 +29,86 @@ class Audience_Content_Gates extends Wizard {
 	protected $parent_slug = 'newspack-audience';
 
 	/**
+	 * Gate schema properites.
+	 *
+	 * @var array
+	 */
+	protected $gate_properties = [
+		'title'         => [ 'type' => 'string' ],
+		'status'        => [ 'type' => 'string' ],
+		'metering'      => [
+			'type'       => 'object',
+			'properties' => [
+				'enabled'          => [ 'type' => 'boolean' ],
+				'anonymous_count'  => [ 'type' => 'integer' ],
+				'registered_count' => [ 'type' => 'integer' ],
+				'period'           => [ 'type' => 'string' ],
+			],
+		],
+		'content_rules' => [
+			'type'  => 'array',
+			'items' => [
+				'type'       => 'object',
+				'properties' => [
+					'slug'      => [ 'type' => 'string' ],
+					'value'     => [ 'type' => [ 'string', 'array' ] ],
+					'exclusion' => [ 'type' => 'boolean' ],
+				],
+			],
+		],
+		'registration'  => [
+			'type'       => 'object',
+			'properties' => [
+				'active'               => [ 'type' => 'boolean' ],
+				'require_verification' => [ 'type' => 'boolean' ],
+				'gate_layout_id'       => [
+					'type'     => 'integer',
+					'required' => false,
+				],
+				'metering'             => [
+					'type'       => 'object',
+					'properties' => [
+						'enabled' => [ 'type' => 'boolean' ],
+						'count'   => [ 'type' => 'integer' ],
+						'period'  => [ 'type' => 'string' ],
+					],
+				],
+			],
+		],
+		'custom_access' => [
+			'type'       => 'object',
+			'properties' => [
+				'active'         => [ 'type' => 'boolean' ],
+				'metering'       => [
+					'type'       => 'object',
+					'properties' => [
+						'enabled' => [ 'type' => 'boolean' ],
+						'count'   => [ 'type' => 'integer' ],
+						'period'  => [ 'type' => 'string' ],
+					],
+				],
+				'gate_layout_id' => [
+					'type'     => 'integer',
+					'required' => false,
+				],
+				'access_rules'   => [
+					'type'  => 'array',
+					'items' => [
+						'type'  => 'array',
+						'items' => [
+							'type'       => 'object',
+							'properties' => [
+								'slug'  => [ 'type' => 'string' ],
+								'value' => [ 'type' => [ 'string', 'array' ] ],
+							],
+						],
+					],
+				],
+			],
+		],
+	];
+
+	/**
 	 * Constructor.
 	 */
 	public function __construct() {
@@ -249,80 +329,7 @@ class Audience_Content_Gates extends Wizard {
 					'gate' => [
 						'type'              => 'object',
 						'sanitize_callback' => [ $this, 'sanitize_gate' ],
-						'properties'        => [
-							'title'         => [ 'type' => 'string' ],
-							'status'        => [ 'type' => 'string' ],
-							'metering'      => [
-								'type'       => 'object',
-								'properties' => [
-									'enabled'          => [ 'type' => 'boolean' ],
-									'anonymous_count'  => [ 'type' => 'integer' ],
-									'registered_count' => [ 'type' => 'integer' ],
-									'period'           => [ 'type' => 'string' ],
-								],
-							],
-							'content_rules' => [
-								'type'  => 'array',
-								'items' => [
-									'type'       => 'object',
-									'properties' => [
-										'slug'      => [ 'type' => 'string' ],
-										'value'     => [ 'type' => [ 'string', 'array' ] ],
-										'exclusion' => [ 'type' => 'boolean' ],
-									],
-								],
-							],
-							'registration'  => [
-								'type'       => 'object',
-								'properties' => [
-									'active'               => [ 'type' => 'boolean' ],
-									'require_verification' => [ 'type' => 'boolean' ],
-									'gate_layout_id'       => [
-										'type'     => 'integer',
-										'required' => false,
-									],
-									'metering'             => [
-										'type'       => 'object',
-										'properties' => [
-											'enabled' => [ 'type' => 'boolean' ],
-											'count'   => [ 'type' => 'integer' ],
-											'period'  => [ 'type' => 'string' ],
-										],
-									],
-								],
-							],
-							'custom_access' => [
-								'type'       => 'object',
-								'properties' => [
-									'active'         => [ 'type' => 'boolean' ],
-									'metering'       => [
-										'type'       => 'object',
-										'properties' => [
-											'enabled' => [ 'type' => 'boolean' ],
-											'count'   => [ 'type' => 'integer' ],
-											'period'  => [ 'type' => 'string' ],
-										],
-									],
-									'gate_layout_id' => [
-										'type'     => 'integer',
-										'required' => false,
-									],
-									'access_rules'   => [
-										'type'  => 'array',
-										'items' => [
-											'type'  => 'array',
-											'items' => [
-												'type' => 'object',
-												'properties' => [
-													'slug' => [ 'type' => 'string' ],
-													'value' => [ 'type' => [ 'string', 'array' ] ],
-												],
-											],
-										],
-									],
-								],
-							],
-						],
+						'properties'        => $this->gate_properties,
 					],
 				],
 				'permission_callback' => [ $this, 'api_permissions_check' ],
@@ -378,80 +385,7 @@ class Audience_Content_Gates extends Wizard {
 					'gate' => [
 						'type'              => 'object',
 						'sanitize_callback' => [ $this, 'sanitize_gate' ],
-						'properties'        => [
-							'title'         => [ 'type' => 'string' ],
-							'status'        => [ 'type' => 'string' ],
-							'metering'      => [
-								'type'       => 'object',
-								'properties' => [
-									'enabled'          => [ 'type' => 'boolean' ],
-									'anonymous_count'  => [ 'type' => 'integer' ],
-									'registered_count' => [ 'type' => 'integer' ],
-									'period'           => [ 'type' => 'string' ],
-								],
-							],
-							'content_rules' => [
-								'type'  => 'array',
-								'items' => [
-									'type'       => 'object',
-									'properties' => [
-										'slug'      => [ 'type' => 'string' ],
-										'value'     => [ 'type' => [ 'string', 'array' ] ],
-										'exclusion' => [ 'type' => 'boolean' ],
-									],
-								],
-							],
-							'registration'  => [
-								'type'       => 'object',
-								'properties' => [
-									'active'               => [ 'type' => 'boolean' ],
-									'require_verification' => [ 'type' => 'boolean' ],
-									'gate_layout_id'       => [
-										'type'     => 'integer',
-										'required' => false,
-									],
-									'metering'             => [
-										'type'       => 'object',
-										'properties' => [
-											'enabled' => [ 'type' => 'boolean' ],
-											'count'   => [ 'type' => 'integer' ],
-											'period'  => [ 'type' => 'string' ],
-										],
-									],
-								],
-							],
-							'custom_access' => [
-								'type'       => 'object',
-								'properties' => [
-									'active'         => [ 'type' => 'boolean' ],
-									'metering'       => [
-										'type'       => 'object',
-										'properties' => [
-											'enabled' => [ 'type' => 'boolean' ],
-											'count'   => [ 'type' => 'integer' ],
-											'period'  => [ 'type' => 'string' ],
-										],
-									],
-									'gate_layout_id' => [
-										'type'     => 'integer',
-										'required' => false,
-									],
-									'access_rules'   => [
-										'type'  => 'array',
-										'items' => [
-											'type'  => 'array',
-											'items' => [
-												'type' => 'object',
-												'properties' => [
-													'slug' => [ 'type' => 'string' ],
-													'value' => [ 'type' => [ 'string', 'array' ] ],
-												],
-											],
-										],
-									],
-								],
-							],
-						],
+						'properties'        => $this->gate_properties,
 					],
 				],
 			]
