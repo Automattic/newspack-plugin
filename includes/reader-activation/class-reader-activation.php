@@ -1727,7 +1727,7 @@ final class Reader_Activation {
 					<input type="hidden" name="<?php echo \esc_attr( self::NEWSLETTERS_SIGNUP_FORM_ACTION ); ?>" value="1" />
 					<input type="hidden" name="email_address" value="<?php echo esc_attr( $email_address ); ?>" />
 
-					<div class="newsletter-list-container" data-list-default-size="<?php echo esc_attr( $default_list_size ); ?>">
+					<div class="newspack-ui__vstack newsletter-list-container" data-spacing="2" data-list-default-size="<?php echo esc_attr( $default_list_size ); ?>">
 					<?php
 					foreach ( $newsletters_lists as $list ) {
 						$checkbox_id = sprintf( 'newspack-plugin-list-%s', $list['id'] );
@@ -1754,7 +1754,7 @@ final class Reader_Activation {
 						<?php
 						if ( $loop_index === (int) $default_list_size && count( $newsletters_lists ) > $default_list_size ) :
 							?>
-							<div class="newsletter-list-divider"></div>
+							<div class="newspack-ui__gradient-divider"></div>
 							<?php
 						endif;
 					}
