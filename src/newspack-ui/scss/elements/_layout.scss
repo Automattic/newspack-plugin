@@ -66,6 +66,22 @@
 			}
 		}
 	}
+	&__vstack {
+		display: flex;
+		flex-direction: column;
+		gap: var(--newspack-ui-spacer-1);
+
+		@for $i from 1 through 12 {
+			&[data-spacing="#{$i}"] {
+				gap: var(--newspack-ui-spacer-#{$i});
+			}
+		}
+
+		> * {
+			margin-bottom: 0 !important;
+			margin-top: 0 !important;
+		}
+	}
 	&--loading::after {
 		background-color: var(--newspack-ui-color-neutral-0);
 		content: "";
