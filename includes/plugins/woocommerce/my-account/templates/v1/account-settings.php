@@ -30,7 +30,7 @@ $display_email           = $is_pending_email_change ? $user->get( WooCommerce_My
 ?>
 
 <section id="account-profile">
-	<h4 class="newspack-ui__font--m newspack-ui__spacing-top--0"><?php \esc_html_e( 'Profile', 'newspack-plugin' ); ?></h4>
+	<h4 class="newspack-ui__font--m" data-margin-top="0"><?php \esc_html_e( 'Profile', 'newspack-plugin' ); ?></h4>
 	<form class="woocommerce-EditAccountForm edit-profile" action="" name="edit_account" method="post" <?php \do_action( 'newspack_woocommerce_edit_account_form_tag' ); ?> >
 
 		<?php \do_action( 'newspack_woocommerce_edit_account_form_start' ); ?>

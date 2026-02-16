@@ -1314,7 +1314,7 @@ class Newspack_UI {
 					<input type="hidden" name="reader-activation-newsletters-signup" value="1" />
 					<input type="hidden" name="email_address" value="<?php echo esc_attr( $demo_email_address ); ?>" />
 
-					<div class="newspack-ui__vstack newsletter-list-container" data-spacing="2" data-list-default-size="<?php echo esc_attr( $demo_default_list_size ); ?>">
+					<div class="newspack-ui__vstack overflow-hidden position-relative newsletter-list-container" data-gap="2" data-list-default-size="<?php echo esc_attr( $demo_default_list_size ); ?>">
 					<?php
 					foreach ( $demo_newsletters_lists as $list ) {
 						$checkbox_id = sprintf( 'newspack-plugin-list-%s', $list['id'] );
@@ -1354,7 +1354,7 @@ class Newspack_UI {
 							<?php Newspack_UI_Icons::print_svg( 'arrowRight' ); ?>
 						</button>
 					<?php endif; ?>
-					<button type="submit" class="newspack-ui__button newspack-ui__button--wide newspack-ui__button--primary"><?php esc_html_e( 'Continue', 'newspack-plugin' ); ?></button>
+					<button type="submit" class="newspack-ui__button newspack-ui__button--wide newspack-ui__button--primary" data-margin-top="2"><?php esc_html_e( 'Continue', 'newspack-plugin' ); ?></button>
 				</form>
 			</div>
 			<script>
@@ -1365,6 +1365,7 @@ class Newspack_UI {
 					}
 					const seeAllButton = container.querySelector( '.see-all-button' );
 					const newsletterContainer = container.querySelector( '.newsletter-list-container' );
+					const divider = newsletterContainer.querySelector( '.newspack-ui__gradient-divider' );
 
 					if ( seeAllButton && newsletterContainer ) {
 						seeAllButton.addEventListener( 'click', function() {
@@ -1372,7 +1373,8 @@ class Newspack_UI {
 								item.classList.remove( 'hidden' );
 							} );
 							newsletterContainer.style.maxHeight = 'none';
-							seeAllButton.remove();
+							divider.classList.add( 'hidden' );
+							seeAllButton.classList.add( 'hidden' );
 						} );
 
 						// Set the initial height to show partially visible.

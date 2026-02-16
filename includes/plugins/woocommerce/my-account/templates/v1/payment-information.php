@@ -18,7 +18,7 @@ $types         = \wc_get_account_payment_methods_types();
 \do_action( 'newspack_woocommerce_before_account_payment_methods', $has_methods ); ?>
 
 <section id="payment-methods">
-	<h4 class="newspack-ui__font--m newspack-ui__spacing-top--0"><?php \esc_html_e( 'Payment methods', 'newspack-plugin' ); ?></h4>
+	<h4 class="newspack-ui__font--m" data-margin-top="0"><?php \esc_html_e( 'Payment methods', 'newspack-plugin' ); ?></h4>
 	<?php if ( $has_methods ) : ?>
 
 		<div class="newspack-my-account__payment-methods newspack-ui__row newspack-ui__row--no-padding">
