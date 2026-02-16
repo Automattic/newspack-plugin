@@ -156,7 +156,7 @@
 	}
 	.woocommerce form .form-row label,
 	.woocommerce-page form .form-row label {
-		display: inline;
+		display: inline-flex;
 	}
 	label:has(input[type="checkbox"]):not(.newspack-ui__input-card),
 	label:has(input[type="radio"]):not(.newspack-ui__input-card) {
