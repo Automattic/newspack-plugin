@@ -1,3 +1,10 @@
+## [6.31.1](https://github.com/Automattic/newspack-plugin/compare/v6.31.0...v6.31.1) (2026-02-16)
+
+
+### Bug Fixes
+
+* adjust lazy loading logic ([#4485](https://github.com/Automattic/newspack-plugin/issues/4485)) ([29f0458](https://github.com/Automattic/newspack-plugin/commit/29f0458a717568b170fc98e098d7bf0d359218e6))
+
 # [6.31.0](https://github.com/Automattic/newspack-plugin/compare/v6.30.2...v6.31.0) (2026-02-10)
 
 
