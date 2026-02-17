@@ -110,36 +110,6 @@ final class Author_Profile_Social_Block {
 			}
 		}
 
-		// Also render any services the author has that aren't in saved inner blocks (fallback).
-		$saved_services = [];
-		foreach ( $block->inner_blocks as $inner_block ) {
-			$service = $inner_block->parsed_block['attrs']['service'] ?? '';
-			if ( $service ) {
-				$saved_services[] = $service;
-			}
-		}
-
-		$all_services = self::get_author_available_services( $author );
-		foreach ( $all_services as $service ) {
-			if ( ! in_array( $service, $saved_services, true ) ) {
-				// Render unsaved service as a fallback.
-				$fallback_block = new WP_Block(
-					[
-						'blockName' => 'newspack/author-social-link',
-						'attrs'     => [ 'service' => $service ],
-					],
-					[
-						'newspack-blocks/author'   => $author,
-						'newspack-blocks/iconSize' => $icon_size,
-					]
-				);
-				$rendered       = $fallback_block->render();
-				if ( $rendered ) {
-					$inner_content .= $rendered;
-				}
-			}
-		}
-
 		if ( empty( $inner_content ) ) {
 			return '';
 		}
@@ -226,34 +196,6 @@ final class Author_Profile_Social_Block {
 		$output .= '</ul>';
 
 		return sprintf( '<div %s>%s</div>', $wrapper_attributes, $output );
-	}
-
-	/**
-	 * Get all available social services for an author.
-	 *
-	 * @param array $author Author data.
-	 * @return array List of service keys.
-	 */
-	private static function get_author_available_services( $author ) {
-		$services = [];
-
-		if ( ! empty( $author['social'] ) && is_array( $author['social'] ) ) {
-			foreach ( $author['social'] as $service => $data ) {
-				if ( ! empty( $data['url'] ) ) {
-					$services[] = $service;
-				}
-			}
-		}
-
-		if ( ! empty( $author['email'] ) ) {
-			$services[] = 'email';
-		}
-
-		if ( ! empty( $author['newspack_phone_number'] ) ) {
-			$services[] = 'phone';
-		}
-
-		return $services;
 	}
 
 	/**
