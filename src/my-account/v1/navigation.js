@@ -8,32 +8,6 @@
 import { domReady } from '../../utils';
 
 domReady( () => {
-	const adminBar = document.getElementById( 'wpadminbar' );
-
-	const updateAdminBarScrolled = () => {
-		const hasAdminBar = !! adminBar;
-		const isSmallScreen = window.innerWidth < 601;
-		const adminBarHeight = hasAdminBar ? adminBar.offsetHeight : 0;
-		const scrollTop = Math.max( window.scrollY, document.documentElement.scrollTop );
-		const adminBarScroll = hasAdminBar && isSmallScreen ? Math.min( scrollTop, adminBarHeight ) : 0;
-
-		document.body.style.setProperty( '--wp-admin--admin-bar--scroll', `${ adminBarScroll }px` );
-	};
-
-	const debounce = ( callback, wait = 100 ) => {
-		let timeoutId;
-
-		return ( ...args ) => {
-			window.clearTimeout( timeoutId );
-			timeoutId = window.setTimeout( () => callback( ...args ), wait );
-		};
-	};
-
-	const handleScrollOrResize = debounce( updateAdminBarScrolled, 100 );
-
-	window.addEventListener( 'scroll', handleScrollOrResize );
-	window.addEventListener( 'resize', handleScrollOrResize );
-
 	// Open and close navigation menu.
 	const openNavigationButton = document.querySelector( '.newspack-my-account__navigation-topbar__button .newspack-ui__button' );
 	let setButtonState;
@@ -51,7 +25,6 @@ domReady( () => {
 		openNavigationButton.addEventListener( 'click', () => {
 			const isOpen = document.body.classList.toggle( 'navigation-open' );
 			setButtonState( isOpen );
-			updateAdminBarScrolled();
 		} );
 	}
 
@@ -62,9 +35,6 @@ domReady( () => {
 			if ( setButtonState ) {
 				setButtonState( false );
 			}
-			updateAdminBarScrolled();
 		}
 	} );
-
-	updateAdminBarScrolled();
 } );

@@ -3,12 +3,33 @@
  */
 
 .newspack-my-account {
+	&--logged-in.admin-bar {
+		html:has(&) {
+			margin-top: 0 !important;
+
+			@media ( min-width: 601px ) {
+				margin-top: var(--wp-admin--admin-bar--height) !important;
+			}
+		}
+
+		#wpadminbar {
+			display: none;
+
+			@media ( min-width: 601px ) {
+				display: block;
+			}
+		}
+	}
 	.woocommerce-MyAccount-navigation,
 	.woocommerce-MyAccount-content {
 		transition: transform 125ms ease-in-out;
 	}
 	&.navigation-open {
 		overflow: hidden;
+
+		@media ( min-width: 768px ) {
+			overflow: visible;
+		}
 
 		.woocommerce-MyAccount-navigation,
 		.woocommerce-MyAccount-content {
@@ -105,7 +126,7 @@
 			width: 301px;
 		}
 		@at-root .admin-bar#{&} {
-			top: calc(var(--wp-admin--admin-bar--height) - var(--wp-admin--admin-bar--scroll, var(--wp-admin--admin-bar--height)));
+			top: 0;
 
 			@media ( min-width: 601px ) {
 				top: var(--wp-admin--admin-bar--height);
