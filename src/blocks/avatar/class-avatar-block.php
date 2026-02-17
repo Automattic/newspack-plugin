@@ -99,45 +99,17 @@ final class Avatar_Block {
 		<div <?php echo $wrapper_attributes; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
 			<?php
 			foreach ( $authors as $index => $author ) :
-				$avatar_url  = get_avatar_url( $author->ID, [ 'size' => $image_size * 2 ] );
-				$author_name = $author->display_name;
-				$author_url  = get_author_posts_url( $author->ID );
-
-				$border_attributes = function_exists( 'get_block_core_avatar_border_attributes' )
-					? get_block_core_avatar_border_attributes( $attributes )
-					: [
-						'class' => '',
-						'style' => '',
-					];
-
-				$class = 'avatar avatar-' . esc_attr( $image_size ) . ' photo wp-block-newspack-avatar__image ' . ( $border_attributes['class'] ?? '' );
-				?>
-				<div class="newspack-avatar-wrapper <?php echo esc_attr( $duotone_class ); ?>">
-					<?php if ( $link_to_author ) : ?>
-						<a href="<?php echo esc_url( $author_url ); ?>" class="wp-block-newspack-avatar__link">
-							<img
-								src="<?php echo esc_url( $avatar_url ); ?>"
-								class="<?php echo esc_attr( $class ); ?>"
-								alt="<?php echo esc_attr( $author_name ); ?>"
-								width="<?php echo esc_attr( $image_size ); ?>"
-								height="<?php echo esc_attr( $image_size ); ?>"
-								style="<?php echo esc_attr( $border_attributes['style'] ?? '' ); ?>"
-							/>
-						</a>
-					<?php else : ?>
-						<img
-							src="<?php echo esc_url( $avatar_url ); ?>"
-							class="<?php echo esc_attr( $class ); ?>"
-							alt="<?php echo esc_attr( $author_name ); ?>"
-							width="<?php echo esc_attr( $image_size ); ?>"
-							height="<?php echo esc_attr( $image_size ); ?>"
-							style="<?php echo esc_attr( $border_attributes['style'] ?? '' ); ?>"
-						/>
-					<?php endif; ?>
-					<div>
-					</div>
-				</div>
-			<?php endforeach; ?>
+				self::render_avatar_image(
+					get_avatar_url( $author->ID, [ 'size' => $image_size * 2 ] ),
+					$author->display_name,
+					get_author_posts_url( $author->ID ),
+					$image_size,
+					$link_to_author,
+					$attributes,
+					$duotone_class
+				);
+			endforeach;
+			?>
 		</div>
 		<?php
 		return ob_get_clean();
@@ -178,6 +150,39 @@ final class Avatar_Block {
 		$duotone_preset     = $attributes['style']['color']['duotone'] ?? null;
 		$duotone_class      = self::newspack_get_duotone_class_name( $duotone_preset );
 
+		ob_start();
+		?>
+		<div <?php echo $wrapper_attributes; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+			<?php
+			self::render_avatar_image(
+				$avatar_url,
+				$author_name,
+				$author_url,
+				$image_size,
+				$link_to_author,
+				$attributes,
+				$duotone_class
+			);
+			?>
+		</div>
+		<?php
+		return ob_get_clean();
+	}
+
+	/**
+	 * Render a single avatar image, optionally wrapped in a link.
+	 *
+	 * @param string $avatar_url      Avatar image URL.
+	 * @param string $author_name     Author display name (used as alt text).
+	 * @param string $author_url      Author archive URL (empty to skip the link).
+	 * @param int    $image_size      Avatar size in pixels.
+	 * @param bool   $link_to_author  Whether to wrap the image in a link.
+	 * @param array  $attributes      Block attributes (for border props).
+	 * @param string $duotone_class   Duotone filter class name.
+	 *
+	 * @return void Outputs directly (callers are inside ob_start).
+	 */
+	private static function render_avatar_image( $avatar_url, $author_name, $author_url, $image_size, $link_to_author, $attributes, $duotone_class ) {
 		$border_attributes = function_exists( 'get_block_core_avatar_border_attributes' )
 			? get_block_core_avatar_border_attributes( $attributes )
 			: [
@@ -185,37 +190,26 @@ final class Avatar_Block {
 				'style' => '',
 			];
 
-		$class = 'avatar avatar-' . esc_attr( $image_size ) . ' photo wp-block-newspack-avatar__image ' . ( $border_attributes['class'] ?? '' );
-
-		ob_start();
+		$class     = 'avatar avatar-' . esc_attr( $image_size ) . ' photo wp-block-newspack-avatar__image ' . ( $border_attributes['class'] ?? '' );
+		$show_link = $link_to_author && ! empty( $author_url );
 		?>
-		<div <?php echo $wrapper_attributes; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
-			<div class="newspack-avatar-wrapper <?php echo esc_attr( $duotone_class ); ?>">
-				<?php if ( $link_to_author && ! empty( $author_url ) ) : ?>
-					<a href="<?php echo esc_url( $author_url ); ?>" class="wp-block-newspack-avatar__link">
-						<img
-							src="<?php echo esc_url( $avatar_url ); ?>"
-							class="<?php echo esc_attr( $class ); ?>"
-							alt="<?php echo esc_attr( $author_name ); ?>"
-							width="<?php echo esc_attr( $image_size ); ?>"
-							height="<?php echo esc_attr( $image_size ); ?>"
-							style="<?php echo esc_attr( $border_attributes['style'] ?? '' ); ?>"
-						/>
-					</a>
-				<?php else : ?>
-					<img
-						src="<?php echo esc_url( $avatar_url ); ?>"
-						class="<?php echo esc_attr( $class ); ?>"
-						alt="<?php echo esc_attr( $author_name ); ?>"
-						width="<?php echo esc_attr( $image_size ); ?>"
-						height="<?php echo esc_attr( $image_size ); ?>"
-						style="<?php echo esc_attr( $border_attributes['style'] ?? '' ); ?>"
-					/>
-				<?php endif; ?>
-			</div>
+		<div class="newspack-avatar-wrapper <?php echo esc_attr( $duotone_class ); ?>">
+			<?php if ( $show_link ) : ?>
+				<a href="<?php echo esc_url( $author_url ); ?>" class="wp-block-newspack-avatar__link">
+			<?php endif; ?>
+			<img
+				src="<?php echo esc_url( $avatar_url ); ?>"
+				class="<?php echo esc_attr( $class ); ?>"
+				alt="<?php echo esc_attr( $author_name ); ?>"
+				width="<?php echo esc_attr( $image_size ); ?>"
+				height="<?php echo esc_attr( $image_size ); ?>"
+				style="<?php echo esc_attr( $border_attributes['style'] ?? '' ); ?>"
+			/>
+			<?php if ( $show_link ) : ?>
+				</a>
+			<?php endif; ?>
 		</div>
 		<?php
-		return ob_get_clean();
 	}
 
 	/**
