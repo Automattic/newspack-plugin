@@ -35,6 +35,7 @@ final class Blocks {
 			require_once NEWSPACK_ABSPATH . 'src/blocks/byline/class-byline-block.php';
 			require_once NEWSPACK_ABSPATH . 'src/blocks/author-profile-social/class-author-profile-social-block.php';
 			require_once NEWSPACK_ABSPATH . 'src/blocks/author-social-link/class-author-social-link-block.php';
+			require_once NEWSPACK_ABSPATH . 'src/blocks/copyright-date/class-copyright-date-block.php';
 			Social_Icons::init();
 		}
 		if ( Collections::is_module_active() ) {
