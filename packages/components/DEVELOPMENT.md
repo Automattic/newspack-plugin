@@ -36,7 +36,7 @@ This package provides custom React components designed specifically for Newspack
 - Examples: Dashboard, Settings, Audience Management, Setup Wizard
 
 **Gutenberg Blocks:**
-- ✅ **Use WordPress components** - Blocks should use `@wordpress/components` for consistency with the block editor
+- ✅ **Use WordPress components** - Block editor UI should use `@wordpress/components` for consistency with the block editor
 - ⚠️ **Exception:** `AutocompleteTokenField` - Can be used in blocks when autocomplete functionality is needed
 - Examples: All blocks in `src/blocks/` use WordPress components
 
