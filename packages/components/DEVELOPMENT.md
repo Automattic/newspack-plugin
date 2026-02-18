@@ -40,7 +40,7 @@ This package provides custom React components designed specifically for Newspack
 - ⚠️ **Exception:** `AutocompleteTokenField` - Can be used in blocks when autocomplete functionality is needed
 - Examples: All blocks in `src/blocks/` use WordPress components
 
-**Frontend (Reader-facing UI):**
+**Frontend (Reader-facing UI, including block render output):**
 - ❌ **Don't use Newspack components** - Use Newspack UI (`src/newspack-ui/`) or theme components instead
 - Examples: My Account, Reader Activation modals, Auth screens
 
