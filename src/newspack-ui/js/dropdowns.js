@@ -15,16 +15,28 @@ domReady( function () {
 				dropdown.classList.toggle( 'active' );
 
 				const rect = content.getBoundingClientRect();
-				const viewportWidth = window.innerWidth;
 
 				// If content would overflow the right edge of viewport.
-				if ( rect.right + rect.width > viewportWidth ) {
-					content.style.left = `auto`;
-					content.style.right = `0`;
+				if ( rect.right + rect.width > window.innerWidth ) {
+					content.style.left = 'auto';
+					content.style.right = '0';
 				} else {
 					// Reset position if no overflow
 					content.style.removeProperty( 'left' );
 					content.style.removeProperty( 'right' );
+					// Remove the entire style attribute if it's empty
+					if ( content.style.length === 0 ) {
+						content.removeAttribute( 'style' );
+					}
+				}
+				// If content would overflow the bottom edge of the viewport.
+				if ( rect.bottom + rect.height > window.innerHeight ) {
+					content.style.top = 'auto';
+					content.style.bottom = '0';
+				} else {
+					// Reset position if no overflow
+					content.style.removeProperty( 'top' );
+					content.style.removeProperty( 'bottom' );
 					// Remove the entire style attribute if it's empty
 					if ( content.style.length === 0 ) {
 						content.removeAttribute( 'style' );
