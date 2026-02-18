@@ -7,8 +7,8 @@
 
 namespace Newspack\Blocks\Author_Social_Link;
 
+use Newspack\Social_Icons;
 use Newspack_Blocks;
-use Newspack\Blocks\Author_Profile_Social\Author_Profile_Social_Block;
 use WP_Block;
 
 defined( 'ABSPATH' ) || exit;
@@ -128,7 +128,7 @@ final class Author_Social_Link_Block {
 	 * @return string|null SVG markup or null.
 	 */
 	private static function get_social_service_svg( $author, $service ) {
-		// Check if REST API provided an SVG (from Newspack_SVG_Icons on classic theme).
+		// Check if REST API provided an SVG.
 		if ( 'email' === $service ) {
 			$email = $author['email'] ?? null;
 			if ( is_array( $email ) && ! empty( $email['svg'] ) ) {
@@ -147,7 +147,7 @@ final class Author_Social_Link_Block {
 		}
 
 		// Fall back to built-in SVG map from parent block.
-		return Author_Profile_Social_Block::get_social_svg( $service );
+		return Social_Icons::get_svg( $service );
 	}
 }
 
