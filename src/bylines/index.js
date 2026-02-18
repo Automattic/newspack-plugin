@@ -389,6 +389,7 @@ const BylinesSettingsPanel = () => {
 				help={ __( 'Provides flexibility in defining how the byline appears.', 'newspack-plugin' ) }
 				label={ __( 'Enable custom byline', 'newspack-plugin' ) }
 				onChange={ () => handleEnableToggle( ! isEnabled ) }
+				__nextHasNoMarginBottom
 			/>
 			{ isEnabled && (
 				<>
