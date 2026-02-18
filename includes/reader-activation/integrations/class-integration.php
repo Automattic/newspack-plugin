@@ -16,6 +16,13 @@ defined( 'ABSPATH' ) || exit;
  */
 abstract class Integration {
 	/**
+	 * Option name prefix for storing selected fields per integration.
+	 *
+	 * @var string
+	 */
+	const OPTION_PREFIX = 'np_integration_selected_fields_';
+
+	/**
 	 * The unique identifier for this integration.
 	 *
 	 * @var string
@@ -121,5 +128,24 @@ abstract class Integration {
 				return ! in_array( $field->get_key(), $prefixed_keys, true );
 			}
 		);
+	}
+
+	/**
+	 * Get the selected fields for this integration.
+	 *
+	 * @return array Array of selected field keys.
+	 */
+	public function get_selected_fields() {
+		return \get_option( self::OPTION_PREFIX . $this->id, [] );
+	}
+
+	/**
+	 * Set the selected fields for this integration.
+	 *
+	 * @param array $fields Array of field keys to store.
+	 * @return bool True if the option was updated, false otherwise.
+	 */
+	public function set_selected_fields( $fields ) {
+		return \update_option( self::OPTION_PREFIX . $this->id, array_values( $fields ) );
 	}
 }

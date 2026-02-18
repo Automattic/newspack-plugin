@@ -161,4 +161,36 @@ class Test_Integrations extends \WP_UnitTestCase {
 		$this->assertEquals( 'test_error', $result->get_error_code() );
 		$this->assertEquals( 'Test error message', $result->get_error_message() );
 	}
+	/**
+	 * Test get_selected_fields returns empty array by default.
+	 */
+	public function test_get_selected_fields_default_empty() {
+		$integration = new Sample_Integration( 'test-id', 'Test Integration' );
+
+		$this->assertSame( [], $integration->get_selected_fields() );
+	}
+
+	/**
+	 * Test set_selected_fields and get_selected_fields round-trip.
+	 */
+	public function test_set_and_get_selected_fields() {
+		$integration = new Sample_Integration( 'test-id', 'Test Integration' );
+		$fields      = [ 'first_name', 'last_name', 'phone' ];
+
+		$integration->set_selected_fields( $fields );
+
+		$this->assertSame( $fields, $integration->get_selected_fields() );
+	}
+
+	/**
+	 * Test set_selected_fields stores any keys without validation.
+	 */
+	public function test_set_selected_fields_stores_any_keys() {
+		$integration = new Sample_Integration( 'test-id', 'Test Integration' );
+		$fields      = [ 'nonexistent_field', 'another_unknown' ];
+
+		$integration->set_selected_fields( $fields );
+
+		$this->assertSame( $fields, $integration->get_selected_fields() );
+	}
 }
