@@ -56,6 +56,7 @@ Follow this step-by-step process when selecting a component:
 2. **If not available, use WordPress components**
    - Visit [@wordpress/components Storybook](https://wordpress.github.io/gutenberg/?path=/docs/docs-introduction--page)
    - Check [@wordpress/components npm package](https://www.npmjs.com/package/@wordpress/components)
+   - Cross-reference Storybook documentation and NPM package code with the version of `@wordpress/components` installed via `package.json` to confirm that the installed package contains the expected component(s)
    - WordPress components provide standard admin UI patterns
 
 3. **If still not available, flag for designer review**
