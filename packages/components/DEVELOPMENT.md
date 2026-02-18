@@ -766,14 +766,15 @@ When creating new components:
 1. **Check if WordPress component exists** – Consider wrapping/extending WordPress components first.
 2. **Align with design** – For new patterns or layouts (e.g. a new card style or wizard step), get designer review before implementing so spacing, hierarchy, and component choice match the design system.
 3. **Follow import patterns** – Use the standard import order with JSDoc comments.
-4. **Use TypeScript** – Prefer `.tsx` for new components (codebase is migrating to TypeScript).
-5. **Add PropTypes or TypeScript types** – Document component props.
-6. **Include styles** – Add component-specific styles in `style.scss`; use the [spacing scale](#spacing-scale-design-system) (8px multiples: 16, 24, 32, 48, 64) so new components match Card, ActionCard, and Grid.
-7. **Follow naming conventions** – Use BEM-ish naming with `newspack-` prefix.
-8. **Use WordPress design system** – Leverage WordPress colors and the same spacing values as existing components.
-9. **Export from index.js** – Add component to `packages/components/src/index.js`.
-10. **Document usage** – Add JSDoc comments and update this guide.
-11. **Components Demo** - If the component is complex or would benefit from demo examples, add it to the [Components Demo page](#testing).
+4. **Translate static strings** – Always wrap user-facing text in translation functions (`__()`, `_e()`, `_n()`, etc.) from `@wordpress/i18n` with the `'newspack-plugin'` text domain. This includes labels, button text, error messages, help text, and any other strings displayed to users.
+5. **Use TypeScript** – Prefer `.tsx` for new components (codebase is migrating to TypeScript).
+6. **Add PropTypes or TypeScript types** – Document component props.
+7. **Include styles** – Add component-specific styles in `style.scss`; use the [spacing scale](#spacing-scale-design-system) (8px multiples: 16, 24, 32, 48, 64) so new components match Card, ActionCard, and Grid.
+8. **Follow naming conventions** – Use BEM-ish naming with `newspack-` prefix.
+9. **Use WordPress design system** – Leverage WordPress colors and the same spacing values as existing components.
+10. **Export from index.js** – Add component to `packages/components/src/index.js`.
+11. **Document usage** – Add JSDoc comments and update this guide.
+12. **Components Demo** - If the component is complex or would benefit from demo examples, add it to the [Components Demo page](#testing).
 
 ## Testing
 
