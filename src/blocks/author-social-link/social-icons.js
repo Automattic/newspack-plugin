@@ -4,8 +4,7 @@
 import { safeHTML } from '@wordpress/dom';
 
 /**
- * Fallback SVG icon map for social services.
- * Used when Newspack_SVG_Icons (from newspack-theme) is not available (e.g., block theme).
+ * SVG icon map for social services.
  */
 const SOCIAL_ICONS = {
 	facebook:

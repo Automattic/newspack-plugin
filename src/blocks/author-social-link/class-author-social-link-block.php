@@ -147,7 +147,7 @@ final class Author_Social_Link_Block {
 		}
 
 		// Fall back to built-in SVG map from parent block.
-		return Author_Profile_Social_Block::get_fallback_social_svg( $service );
+		return Author_Profile_Social_Block::get_social_svg( $service );
 	}
 }
 

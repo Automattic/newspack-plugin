@@ -17,8 +17,7 @@ defined( 'ABSPATH' ) || exit;
  */
 final class Author_Profile_Social_Block {
 	/**
-	 * Fallback SVG icons for social services.
-	 * Used when Newspack_SVG_Icons (from newspack-theme) is not available (e.g., block theme).
+	 * SVG icons for social services.
 	 *
 	 * @var array|null
 	 */
@@ -177,7 +176,7 @@ final class Author_Profile_Social_Block {
 			$output       .= '<li>';
 			$output       .= sprintf( '<a href="%s" aria-label="%s">', esc_url( $social_data['url'] ), esc_attr( $service_label ) );
 
-			$svg = ! empty( $social_data['svg'] ) ? $social_data['svg'] : self::get_fallback_social_svg( $service );
+			$svg = ! empty( $social_data['svg'] ) ? $social_data['svg'] : self::get_social_svg( $service );
 
 			if ( $svg ) {
 				$output .= sprintf(
@@ -199,7 +198,7 @@ final class Author_Profile_Social_Block {
 	}
 
 	/**
-	 * Get fallback SVG icons map for social services.
+	 * Get SVG icons map for social services.
 	 *
 	 * @return array Map of service name to SVG markup.
 	 */
@@ -228,13 +227,13 @@ final class Author_Profile_Social_Block {
 	}
 
 	/**
-	 * Get fallback SVG icon for a social service.
+	 * Get SVG icon for a social service.
 	 *
 	 * @param string $service Service key (e.g. 'facebook', 'email').
 	 * @param int    $size    Icon size in pixels. Default 24.
 	 * @return string|null SVG markup or null.
 	 */
-	public static function get_fallback_social_svg( $service, $size = 24 ) {
+	public static function get_social_svg( $service, $size = 24 ) {
 		$map = self::get_social_icon_svg_map();
 		$svg = $map[ $service ] ?? null;
 		if ( $svg ) {
