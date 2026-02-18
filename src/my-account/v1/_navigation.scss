@@ -20,6 +20,15 @@
 			}
 		}
 	}
+	&:not(.is-block-theme) {
+		.site-content {
+			overflow: visible;
+
+			@media ( min-width: 768px ) {
+				overflow: hidden;
+			}
+		}
+	}
 	.woocommerce-MyAccount-navigation,
 	.woocommerce-MyAccount-content {
 		transition: transform 125ms ease-in-out;
@@ -51,7 +60,7 @@
 		position: sticky;
 		top: 0;
 		width: calc(100% + var(--newspack-ui-spacer-3) * 2);
-		z-index: 99998;
+		z-index: 99996;
 
 		@media ( min-width: 601px ) {
 			.admin-bar & {
