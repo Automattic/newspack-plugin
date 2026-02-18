@@ -588,6 +588,7 @@ Newspack components use SCSS with BEM-ish naming conventions and a consistent sp
 
 - **Prefix:** `newspack-` (e.g. `.newspack-card`, `.newspack-button`)
 - **Modifiers:** Use `--` for modifiers (e.g. `.newspack-card--no-border`)
+- **Elements**: Use `__` for elements that are part of a larger block-level component (e.g. `.newspack-card__header-content`)
 - **WordPress colors:** Use WordPress design system colors (see [Colors Development Guide](../colors/DEVELOPMENT.md))
 - **Custom styles:** Component-specific styles live in `packages/components/src/{component}/style.scss`
 
