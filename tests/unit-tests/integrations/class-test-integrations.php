@@ -9,6 +9,7 @@ namespace Newspack\Tests\Unit\Integrations;
 
 use Newspack\Reader_Activation\Integration;
 use Newspack\Reader_Activation\Integrations;
+use Newspack\Reader_Activation\Integrations\Contact_Pull;
 use Sample_Integration;
 
 /**
@@ -202,10 +203,10 @@ class Test_Integrations extends \WP_UnitTestCase {
 	public function test_pull_skipped_when_not_logged_in() {
 		wp_set_current_user( 0 );
 
-		Integrations::maybe_pull_contact_data();
+		Contact_Pull::maybe_pull_contact_data();
 
 		// No user meta should be written since no one is logged in.
-		$users = get_users( [ 'meta_key' => Integrations::LAST_PULL_META ] );
+		$users = get_users( [ 'meta_key' => Contact_Pull::LAST_PULL_META ] );
 		$this->assertEmpty( $users );
 	}
 
@@ -217,24 +218,24 @@ class Test_Integrations extends \WP_UnitTestCase {
 		wp_set_current_user( $user_id );
 
 		$now = time();
-		update_user_meta( $user_id, Integrations::LAST_PULL_META, $now );
+		update_user_meta( $user_id, Contact_Pull::LAST_PULL_META, $now );
 
-		Integrations::maybe_pull_contact_data();
+		Contact_Pull::maybe_pull_contact_data();
 
 		// The meta should remain unchanged (not updated to a newer timestamp).
-		$last_pull = (int) get_user_meta( $user_id, Integrations::LAST_PULL_META, true );
+		$last_pull = (int) get_user_meta( $user_id, Contact_Pull::LAST_PULL_META, true );
 		$this->assertSame( $now, $last_pull );
 	}
 
 	/**
-	 * Test pull runs after interval and stores data via Reader_Data.
+	 * Test sync pull runs when data is older than 24 hours.
 	 */
-	public function test_pull_runs_after_interval() {
+	public function test_sync_pull_when_data_stale() {
 		$user_id = $this->factory()->user->create();
 		wp_set_current_user( $user_id );
 
-		// Set last pull to beyond the interval.
-		update_user_meta( $user_id, Integrations::LAST_PULL_META, time() - 301 );
+		// Set last pull to beyond the 24h threshold.
+		update_user_meta( $user_id, Contact_Pull::LAST_PULL_META, time() - Contact_Pull::PULL_SYNC_THRESHOLD - 1 );
 
 		// Create an integration that returns data from pull.
 		$integration = new class( 'pull-test', 'Pull Test' ) extends Sample_Integration {
@@ -254,25 +255,25 @@ class Test_Integrations extends \WP_UnitTestCase {
 		Integrations::register( $integration );
 		Integrations::enable( 'pull-test' );
 
-		Integrations::maybe_pull_contact_data();
+		Contact_Pull::maybe_pull_contact_data();
 
-		// Verify the data was stored.
+		// Verify the data was stored synchronously.
 		$stored = get_user_meta( $user_id, 'newspack_reader_data_item_favorite_color', true );
 		$this->assertSame( 'blue', $stored );
 
 		// Verify last pull meta was updated.
-		$last_pull = (int) get_user_meta( $user_id, Integrations::LAST_PULL_META, true );
+		$last_pull = (int) get_user_meta( $user_id, Contact_Pull::LAST_PULL_META, true );
 		$this->assertGreaterThanOrEqual( time() - 2, $last_pull );
 	}
 
 	/**
-	 * Test pull filters returned data by selected fields only.
+	 * Test sync pull filters returned data by selected fields only.
 	 */
-	public function test_pull_filters_by_selected_fields() {
+	public function test_sync_pull_filters_by_selected_fields() {
 		$user_id = $this->factory()->user->create();
 		wp_set_current_user( $user_id );
 
-		update_user_meta( $user_id, Integrations::LAST_PULL_META, time() - 301 );
+		update_user_meta( $user_id, Contact_Pull::LAST_PULL_META, time() - Contact_Pull::PULL_SYNC_THRESHOLD - 1 );
 
 		$integration = new class( 'filter-test', 'Filter Test' ) extends Sample_Integration {
 			/**
@@ -296,7 +297,7 @@ class Test_Integrations extends \WP_UnitTestCase {
 		Integrations::register( $integration );
 		Integrations::enable( 'filter-test' );
 
-		Integrations::maybe_pull_contact_data();
+		Contact_Pull::maybe_pull_contact_data();
 
 		// a and c should be stored.
 		$this->assertSame( 'value_a', get_user_meta( $user_id, 'newspack_reader_data_item_field_a', true ) );
@@ -307,13 +308,13 @@ class Test_Integrations extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * Test pull catches throwable from integration without fatal.
+	 * Test sync pull catches throwable from integration without fatal.
 	 */
-	public function test_pull_catches_throwable() {
+	public function test_sync_pull_catches_throwable() {
 		$user_id = $this->factory()->user->create();
 		wp_set_current_user( $user_id );
 
-		update_user_meta( $user_id, Integrations::LAST_PULL_META, time() - 301 );
+		update_user_meta( $user_id, Contact_Pull::LAST_PULL_META, time() - Contact_Pull::PULL_SYNC_THRESHOLD - 1 );
 
 		$integration = new class( 'throw-test', 'Throw Test' ) extends Sample_Integration {
 			/**
@@ -333,10 +334,154 @@ class Test_Integrations extends \WP_UnitTestCase {
 		Integrations::enable( 'throw-test' );
 
 		// Should not throw — the routine catches Throwable.
-		Integrations::maybe_pull_contact_data();
+		Contact_Pull::maybe_pull_contact_data();
 
 		// Last pull meta should still have been set.
-		$last_pull = (int) get_user_meta( $user_id, Integrations::LAST_PULL_META, true );
+		$last_pull = (int) get_user_meta( $user_id, Contact_Pull::LAST_PULL_META, true );
 		$this->assertGreaterThanOrEqual( time() - 2, $last_pull );
+	}
+
+	/**
+	 * Test async pull is scheduled when data is fresh (< 24h but past interval).
+	 */
+	public function test_async_pull_scheduled_when_fresh() {
+		$user_id = $this->factory()->user->create();
+		wp_set_current_user( $user_id );
+
+		// Last pull 10 minutes ago — past interval but within 24h.
+		update_user_meta( $user_id, Contact_Pull::LAST_PULL_META, time() - 600 );
+
+		$integration = new class( 'async-test', 'Async Test' ) extends Sample_Integration {
+			/**
+			 * Pull contact data (should NOT be called synchronously).
+			 *
+			 * @param int $user_id WordPress user ID.
+			 * @param int $timeout Max seconds.
+			 * @return array
+			 */
+			public function pull_contact_data( $user_id, $timeout ) {
+				return [ 'city' => 'Portland' ];
+			}
+		};
+
+		$integration->set_selected_fields( [ 'city' ] );
+		Integrations::register( $integration );
+		Integrations::enable( 'async-test' );
+
+		Contact_Pull::maybe_pull_contact_data();
+
+		// Data should NOT have been stored synchronously.
+		$stored = get_user_meta( $user_id, 'newspack_reader_data_item_city', true );
+		$this->assertEmpty( $stored );
+
+		// Verify an AS action was scheduled.
+		$actions = as_get_scheduled_actions(
+			[
+				'hook'   => Contact_Pull::ASYNC_PULL_HOOK,
+				'status' => \ActionScheduler_Store::STATUS_PENDING,
+			]
+		);
+		$this->assertNotEmpty( $actions );
+	}
+
+	/**
+	 * Test handle_async_pull processes data for a single integration.
+	 */
+	public function test_handle_async_pull() {
+		$user_id = $this->factory()->user->create();
+
+		$integration = new class( 'handle-test', 'Handle Test' ) extends Sample_Integration {
+			/**
+			 * Pull contact data returning test data.
+			 *
+			 * @param int $user_id WordPress user ID.
+			 * @param int $timeout Max seconds.
+			 * @return array
+			 */
+			public function pull_contact_data( $user_id, $timeout ) {
+				return [ 'language' => 'PHP' ];
+			}
+		};
+
+		$integration->set_selected_fields( [ 'language' ] );
+		Integrations::register( $integration );
+		Integrations::enable( 'handle-test' );
+
+		Contact_Pull::handle_async_pull(
+			[
+				'user_id'        => $user_id,
+				'integration_id' => 'handle-test',
+			]
+		);
+
+		$stored = get_user_meta( $user_id, 'newspack_reader_data_item_language', true );
+		$this->assertSame( 'PHP', $stored );
+	}
+
+	/**
+	 * Test handle_async_pull skips disabled integration.
+	 */
+	public function test_handle_async_pull_skips_disabled() {
+		$user_id = $this->factory()->user->create();
+
+		$integration = new class( 'disabled-test', 'Disabled Test' ) extends Sample_Integration {
+			/**
+			 * Pull contact data returning test data.
+			 *
+			 * @param int $user_id WordPress user ID.
+			 * @param int $timeout Max seconds.
+			 * @return array
+			 */
+			public function pull_contact_data( $user_id, $timeout ) {
+				return [ 'pet' => 'cat' ];
+			}
+		};
+
+		$integration->set_selected_fields( [ 'pet' ] );
+		Integrations::register( $integration );
+		// Not enabled.
+
+		Contact_Pull::handle_async_pull(
+			[
+				'user_id'        => $user_id,
+				'integration_id' => 'disabled-test',
+			]
+		);
+
+		$stored = get_user_meta( $user_id, 'newspack_reader_data_item_pet', true );
+		$this->assertEmpty( $stored );
+	}
+
+	/**
+	 * Test that first-ever pull (no meta) runs synchronously.
+	 */
+	public function test_first_pull_runs_sync() {
+		$user_id = $this->factory()->user->create();
+		wp_set_current_user( $user_id );
+
+		// No LAST_PULL_META set — age will be time() - 0, which is > 24h.
+
+		$integration = new class( 'first-test', 'First Test' ) extends Sample_Integration {
+			/**
+			 * Pull contact data returning test data.
+			 *
+			 * @param int $user_id WordPress user ID.
+			 * @param int $timeout Max seconds.
+			 * @return array
+			 */
+			public function pull_contact_data( $user_id, $timeout ) {
+				return [ 'first_field' => 'hello' ];
+			}
+		};
+
+		$integration->set_selected_fields( [ 'first_field' ] );
+		Integrations::register( $integration );
+		Integrations::enable( 'first-test' );
+
+		Contact_Pull::maybe_pull_contact_data();
+
+		// Should have run synchronously.
+		$stored = get_user_meta( $user_id, 'newspack_reader_data_item_first_field', true );
+		$this->assertSame( 'hello', $stored );
 	}
 }

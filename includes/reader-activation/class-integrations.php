@@ -37,35 +37,16 @@ class Integrations {
 	const OPTION_NAME = 'newspack_reader_activation_enabled_integrations';
 
 	/**
-	 * Pull interval in seconds (5 minutes).
-	 *
-	 * @var int
-	 */
-	const PULL_INTERVAL = 300;
-
-	/**
-	 * Max seconds for the entire pull routine.
-	 *
-	 * @var int
-	 */
-	const PULL_TIME_LIMIT = 5;
-
-	/**
-	 * User meta key for last pull timestamp.
-	 *
-	 * @var string
-	 */
-	const LAST_PULL_META = 'np_integrations_last_pull';
-
-	/**
 	 * Initialize integrations system.
 	 */
 	public static function init() {
 		// Include required files.
 		require_once __DIR__ . '/integrations/class-integration.php';
+		require_once __DIR__ . '/integrations/class-contact-pull.php';
 
 		add_action( 'init', [ __CLASS__, 'register_integrations' ], 5 );
-		add_action( 'init', [ __CLASS__, 'maybe_pull_contact_data' ], 20 );
+
+		Integrations\Contact_Pull::init();
 	}
 
 	/**
@@ -200,65 +181,6 @@ class Integrations {
 	public static function is_enabled( $integration_id ) {
 		$enabled_ids = self::get_enabled_integration_ids();
 		return in_array( $integration_id, $enabled_ids, true );
-	}
-
-	/**
-	 * Pull contact data from active integrations for the current logged-in user.
-	 *
-	 * Runs periodically based on PULL_INTERVAL and respects PULL_TIME_LIMIT.
-	 */
-	public static function maybe_pull_contact_data() {
-		if ( ! is_user_logged_in() ) {
-			return;
-		}
-
-		$user      = wp_get_current_user();
-		$last_pull = (int) get_user_meta( $user->ID, self::LAST_PULL_META, true );
-
-		if ( time() - $last_pull < self::PULL_INTERVAL ) {
-			return;
-		}
-
-		// Set immediately to prevent concurrent pulls from overlapping page loads.
-		update_user_meta( $user->ID, self::LAST_PULL_META, time() );
-
-		$active_integrations = self::get_active_integrations();
-		$start               = microtime( true );
-
-		foreach ( $active_integrations as $integration ) {
-			$elapsed = microtime( true ) - $start;
-			if ( $elapsed >= self::PULL_TIME_LIMIT ) {
-				\Newspack\Logger::log( 'Pull routine time limit reached.' );
-				break;
-			}
-
-			$selected_fields = $integration->get_selected_fields();
-			if ( empty( $selected_fields ) ) {
-				continue;
-			}
-
-			$remaining = self::PULL_TIME_LIMIT - ( microtime( true ) - $start );
-			$timeout   = max( 1, (int) $remaining );
-
-			try {
-				$data = $integration->pull_contact_data( $user->ID, $timeout );
-
-				if ( is_wp_error( $data ) ) {
-					\Newspack\Logger::log( 'Pull error from ' . $integration->get_id() . ': ' . $data->get_error_message() );
-					continue;
-				}
-
-				$selected_keys = array_flip( $selected_fields );
-				$data          = array_intersect_key( $data, $selected_keys );
-
-				foreach ( $data as $key => $value ) {
-					\Newspack\Reader_Data::update_item( $user->ID, $key, $value );
-				}
-			} catch ( \Throwable $e ) {
-				\Newspack\Logger::log( 'Pull exception from ' . $integration->get_id() . ': ' . $e->getMessage() );
-				continue;
-			}
-		}
 	}
 
 	/**
