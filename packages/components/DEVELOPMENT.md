@@ -22,7 +22,7 @@ Comprehensive developer guidelines for working with the Newspack Components pack
 
 This package provides custom React components designed specifically for Newspack backend/admin interfaces (wizards, settings pages, etc.). These components are built on top of WordPress components and provide Newspack-specific functionality, styling, and patterns.
 
-**In short:** For backend/admin screens use Newspack components first (Card, ActionCard, SectionHeader, etc.), fall back to WordPress components when needed, and follow the spacing scale and hierarchy patterns so UIs stay consistent. For blocks use WordPress components (and `AutocompleteTokenField` only when you need autocomplete). For reader-facing UI use Newspack UI or theme components, not this package.
+**In short:** For backend/admin screens use Newspack components first (Card, ActionCard, SectionHeader, etc.), fall back to WordPress components when needed, and follow the spacing scale and hierarchy patterns so UIs stay consistent. For block editor UI use WordPress components (and `AutocompleteTokenField` only when you need autocomplete). For reader-facing UI use Newspack UI or theme components, not this package.
 
 **Design-wise:** Backend UIs should feel consistent with the WordPress admin, with clear visual hierarchy (section → card → controls) and predictable spacing. Use the same components and spacing scale across wizards so design and code stay aligned; when introducing a new pattern or layout, align with design (and designer review) before implementing.
 
