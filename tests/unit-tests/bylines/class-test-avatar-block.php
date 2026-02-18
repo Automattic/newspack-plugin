@@ -104,8 +104,13 @@ class Test_Avatar_Block extends \WP_UnitTestCase {
 			'attrs'     => $attributes,
 		];
 
-		$block          = new \stdClass();
-		$block->context = [ 'postId' => $post_id ];
+		$block = new \WP_Block(
+			[
+				'blockName' => 'newspack/avatar',
+				'attrs'     => $attributes,
+			],
+			[ 'postId' => $post_id ]
+		);
 
 		$output = Avatar_Block::render_block( $attributes, '', $block );
 
@@ -120,8 +125,12 @@ class Test_Avatar_Block extends \WP_UnitTestCase {
 	 * @covers \Newspack\Blocks\Avatar\Avatar_Block::render_block
 	 */
 	public function test_render_block_empty_for_invalid_post() {
-		$block          = new \stdClass();
-		$block->context = [];
+		$block = new \WP_Block(
+			[
+				'blockName' => 'newspack/avatar',
+				'attrs'     => [],
+			]
+		);
 
 		$output = Avatar_Block::render_block( [], '', $block );
 
