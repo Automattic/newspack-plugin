@@ -441,10 +441,10 @@ function MyComponent() {
 		field1: '',
 		field2: false,
 	} );
-	
+
 	// Update nested field
 	setData( { field1: 'new value' } );
-	
+
 	// Confirm action utility
 	const handleDelete = () => {
 		if ( utils.confirmAction( __( 'Are you sure?', 'newspack-plugin' ) ) ) {
@@ -761,6 +761,86 @@ const ActionCard = ( {
 };
 ```
 
+### Functional vs Class Components
+
+Modern React APIs prefer functional components over class components, even though both are currently still supported. Some older Newspack components are still class-based, while newer components are functional. When creating new Newspack components, use functional components instead of class components.
+
+**Example - Functional component (correct):**
+```jsx
+// ✅ CORRECT - example from the Divider component
+/**
+ * Divider
+ */
+
+/**
+ * Internal dependencies
+ */
+import './style.scss';
+
+/**
+ * External dependencies
+ */
+import classNames from 'classnames';
+
+const Divider = ( { alignment = 'none', className = undefined, marginBottom = 64, marginTop = 64, variant = 'default', ...otherProps } ) => {
+	const classes = classNames(
+		'newspack-divider',
+		className,
+		alignment && `newspack-divider--alignment-${ alignment }`,
+		variant && `newspack-divider--variant-${ variant }`
+	);
+
+	const style = {
+		'--divider-margin-bottom': typeof marginBottom === 'number' ? `${ marginBottom }px` : marginBottom,
+		'--divider-margin-top': typeof marginTop === 'number' ? `${ marginTop }px` : marginTop,
+	};
+
+	return <hr className={ classes } style={ style } { ...otherProps } />;
+};
+
+export default Divider;
+```
+
+**Example - Class component (avoid in new code):**
+```jsx
+// ❌ WRONG – Example from the older `Popover` component
+/**
+ * WordPress dependencies
+ */
+import { Popover as BaseComponent } from '@wordpress/components';
+import { Component } from '@wordpress/element';
+
+/**
+ * Internal dependencies
+ */
+import './style.scss';
+
+/**
+ * External dependencies
+ */
+import classnames from 'classnames';
+
+/**
+ * Popover
+ */
+class Popover extends Component {
+	/**
+	 * Render
+	 */
+	render() {
+		const { className, padding, ...otherProps } = this.props;
+		const classes = classnames( 'newspack-popover', padding && 'newspack-popover__padding-' + padding, className );
+		return <BaseComponent className={ classes } { ...otherProps } />;
+	}
+}
+
+Popover.defaultProps = {
+	padding: false,
+};
+
+export default Popover;
+```
+
 ## Component Development Guidelines
 
 When creating new components:
@@ -769,14 +849,15 @@ When creating new components:
 2. **Align with design** – For new patterns or layouts (e.g. a new card style or wizard step), get designer review before implementing so spacing, hierarchy, and component choice match the design system.
 3. **Follow import patterns** – Use the standard import order with JSDoc comments.
 4. **Translate static strings** – Always wrap user-facing text in translation functions (`__()`, `_e()`, `_n()`, etc.) from `@wordpress/i18n` with the `'newspack-plugin'` text domain. This includes labels, button text, error messages, help text, and any other strings displayed to users.
-5. **Use TypeScript** – Prefer `.tsx` for new components (codebase is migrating to TypeScript).
-6. **Add PropTypes or TypeScript types** – Document component props.
-7. **Include styles** – Add component-specific styles in `style.scss`; use the [spacing scale](#spacing-scale-design-system) (8px multiples: 16, 24, 32, 48, 64) so new components match Card, ActionCard, and Grid.
-8. **Follow naming conventions** – Use BEM-ish naming with `newspack-` prefix.
-9. **Use WordPress design system** – Leverage WordPress colors and the same spacing values as existing components.
-10. **Export from index.js** – Add component to `packages/components/src/index.js`.
-11. **Document usage** – Add JSDoc comments and update this guide.
-12. **Components Demo** - If the component is complex or would benefit from demo examples, add it to the [Components Demo page](#testing).
+5. **Prefer functional components** – Use functional components instead of class components for new components. See [Functional vs Class Components](#functional-vs-class-components) for examples.
+6. **Use TypeScript** – Prefer `.tsx` for new components (codebase is migrating to TypeScript).
+7. **Add PropTypes or TypeScript types** – Document component props.
+8. **Include styles** – Add component-specific styles in `style.scss`; use the [spacing scale](#spacing-scale-design-system) (8px multiples: 16, 24, 32, 48, 64) so new components match Card, ActionCard, and Grid.
+9. **Follow naming conventions** – Use BEM-ish naming with `newspack-` prefix.
+10. **Use WordPress design system** – Leverage WordPress colors and the same spacing values as existing components.
+11. **Export from index.js** – Add component to `packages/components/src/index.js`.
+12. **Document usage** – Add JSDoc comments and update this guide.
+13. **Components Demo** - If the component is complex or would benefit from demo examples, add it to the [Components Demo page](#testing).
 
 ## Testing
 
