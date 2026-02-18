@@ -42,6 +42,17 @@ class Failing_Sample_Integration extends Integration {
 	}
 
 	/**
+	 * Pull contact data (test implementation).
+	 *
+	 * @param int $user_id WordPress user ID.
+	 * @param int $timeout Max seconds this call is allowed to take.
+	 * @return array
+	 */
+	public function pull_contact_data( $user_id, $timeout ) {
+		return [];
+	}
+
+	/**
 	 * Whether contacts can be synced.
 	 *
 	 * @param bool $return_errors Whether to return WP_Error.
@@ -49,6 +60,15 @@ class Failing_Sample_Integration extends Integration {
 	 */
 	public function can_sync( $return_errors = false ) {
 		return $return_errors ? new \WP_Error() : true;
+	}
+
+	/**
+	 * Get incoming available contact fields (test implementation).
+	 *
+	 * @return array
+	 */
+	public function get_incoming_available_contact_fields() {
+		return [];
 	}
 
 	/**

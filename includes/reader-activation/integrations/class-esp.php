@@ -94,6 +94,18 @@ class ESP extends Integration {
 	}
 
 	/**
+	 * Pull contact data from the ESP for a given user.
+	 *
+	 * @param int $user_id WordPress user ID.
+	 * @param int $timeout Max seconds this call is allowed to take.
+	 *
+	 * @return array|\WP_Error Associative array of field_key => value pairs on success, WP_Error on failure.
+	 */
+	public function pull_contact_data( $user_id, $timeout ) {
+		return [];
+	}
+
+	/**
 	 * Get incoming available contact fields from the integration.
 	 *
 	 * @return Incoming_Contact_Field[]|\WP_Error Array of incoming contact field objects or WP_Error on failure.

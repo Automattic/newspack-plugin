@@ -24,6 +24,17 @@ class Sample_Integration extends Integration {
 	}
 
 	/**
+	 * Pull contact data (test implementation).
+	 *
+	 * @param int $user_id WordPress user ID.
+	 * @param int $timeout Max seconds this call is allowed to take.
+	 * @return array
+	 */
+	public function pull_contact_data( $user_id, $timeout ) {
+		return [];
+	}
+
+	/**
 	 * Whether contacts can be synced to the ESP.
 	 *
 	 * @param bool $return_errors Optional. Whether to return a WP_Error object. Default false.

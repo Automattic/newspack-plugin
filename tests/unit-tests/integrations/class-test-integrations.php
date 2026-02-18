@@ -7,6 +7,7 @@
 
 namespace Newspack\Tests\Unit\Integrations;
 
+use Newspack\Reader_Activation\Integration;
 use Newspack\Reader_Activation\Integrations;
 use Sample_Integration;
 
@@ -161,6 +162,7 @@ class Test_Integrations extends \WP_UnitTestCase {
 		$this->assertEquals( 'test_error', $result->get_error_code() );
 		$this->assertEquals( 'Test error message', $result->get_error_message() );
 	}
+
 	/**
 	 * Test get_selected_fields returns empty array by default.
 	 */
@@ -192,5 +194,149 @@ class Test_Integrations extends \WP_UnitTestCase {
 		$integration->set_selected_fields( $fields );
 
 		$this->assertSame( $fields, $integration->get_selected_fields() );
+	}
+
+	/**
+	 * Test pull is skipped when no user is logged in.
+	 */
+	public function test_pull_skipped_when_not_logged_in() {
+		wp_set_current_user( 0 );
+
+		Integrations::maybe_pull_contact_data();
+
+		// No user meta should be written since no one is logged in.
+		$users = get_users( [ 'meta_key' => Integrations::LAST_PULL_META ] );
+		$this->assertEmpty( $users );
+	}
+
+	/**
+	 * Test pull is throttled by the interval.
+	 */
+	public function test_pull_throttled_by_interval() {
+		$user_id = $this->factory()->user->create();
+		wp_set_current_user( $user_id );
+
+		$now = time();
+		update_user_meta( $user_id, Integrations::LAST_PULL_META, $now );
+
+		Integrations::maybe_pull_contact_data();
+
+		// The meta should remain unchanged (not updated to a newer timestamp).
+		$last_pull = (int) get_user_meta( $user_id, Integrations::LAST_PULL_META, true );
+		$this->assertSame( $now, $last_pull );
+	}
+
+	/**
+	 * Test pull runs after interval and stores data via Reader_Data.
+	 */
+	public function test_pull_runs_after_interval() {
+		$user_id = $this->factory()->user->create();
+		wp_set_current_user( $user_id );
+
+		// Set last pull to beyond the interval.
+		update_user_meta( $user_id, Integrations::LAST_PULL_META, time() - 301 );
+
+		// Create an integration that returns data from pull.
+		$integration = new class( 'pull-test', 'Pull Test' ) extends Sample_Integration {
+			/**
+			 * Pull contact data returning test data.
+			 *
+			 * @param int $user_id WordPress user ID.
+			 * @param int $timeout Max seconds.
+			 * @return array
+			 */
+			public function pull_contact_data( $user_id, $timeout ) {
+				return [ 'favorite_color' => 'blue' ];
+			}
+		};
+
+		$integration->set_selected_fields( [ 'favorite_color' ] );
+		Integrations::register( $integration );
+		Integrations::enable( 'pull-test' );
+
+		Integrations::maybe_pull_contact_data();
+
+		// Verify the data was stored.
+		$stored = get_user_meta( $user_id, 'newspack_reader_data_item_favorite_color', true );
+		$this->assertSame( 'blue', $stored );
+
+		// Verify last pull meta was updated.
+		$last_pull = (int) get_user_meta( $user_id, Integrations::LAST_PULL_META, true );
+		$this->assertGreaterThanOrEqual( time() - 2, $last_pull );
+	}
+
+	/**
+	 * Test pull filters returned data by selected fields only.
+	 */
+	public function test_pull_filters_by_selected_fields() {
+		$user_id = $this->factory()->user->create();
+		wp_set_current_user( $user_id );
+
+		update_user_meta( $user_id, Integrations::LAST_PULL_META, time() - 301 );
+
+		$integration = new class( 'filter-test', 'Filter Test' ) extends Sample_Integration {
+			/**
+			 * Pull contact data returning multiple fields.
+			 *
+			 * @param int $user_id WordPress user ID.
+			 * @param int $timeout Max seconds.
+			 * @return array
+			 */
+			public function pull_contact_data( $user_id, $timeout ) {
+				return [
+					'field_a' => 'value_a',
+					'field_b' => 'value_b',
+					'field_c' => 'value_c',
+				];
+			}
+		};
+
+		// Only select fields a and c.
+		$integration->set_selected_fields( [ 'field_a', 'field_c' ] );
+		Integrations::register( $integration );
+		Integrations::enable( 'filter-test' );
+
+		Integrations::maybe_pull_contact_data();
+
+		// a and c should be stored.
+		$this->assertSame( 'value_a', get_user_meta( $user_id, 'newspack_reader_data_item_field_a', true ) );
+		$this->assertSame( 'value_c', get_user_meta( $user_id, 'newspack_reader_data_item_field_c', true ) );
+
+		// b should NOT be stored.
+		$this->assertEmpty( get_user_meta( $user_id, 'newspack_reader_data_item_field_b', true ) );
+	}
+
+	/**
+	 * Test pull catches throwable from integration without fatal.
+	 */
+	public function test_pull_catches_throwable() {
+		$user_id = $this->factory()->user->create();
+		wp_set_current_user( $user_id );
+
+		update_user_meta( $user_id, Integrations::LAST_PULL_META, time() - 301 );
+
+		$integration = new class( 'throw-test', 'Throw Test' ) extends Sample_Integration {
+			/**
+			 * Pull contact data that throws an exception.
+			 *
+			 * @param int $user_id WordPress user ID.
+			 * @param int $timeout Max seconds.
+			 * @throws \RuntimeException Always.
+			 */
+			public function pull_contact_data( $user_id, $timeout ) {
+				throw new \RuntimeException( 'Something went wrong' );
+			}
+		};
+
+		$integration->set_selected_fields( [ 'some_field' ] );
+		Integrations::register( $integration );
+		Integrations::enable( 'throw-test' );
+
+		// Should not throw — the routine catches Throwable.
+		Integrations::maybe_pull_contact_data();
+
+		// Last pull meta should still have been set.
+		$last_pull = (int) get_user_meta( $user_id, Integrations::LAST_PULL_META, true );
+		$this->assertGreaterThanOrEqual( time() - 2, $last_pull );
 	}
 }
