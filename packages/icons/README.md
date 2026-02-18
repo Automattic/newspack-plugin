@@ -11,6 +11,7 @@ npm install newspack-icons
 ## Usage
 
 ```js
+import { Icon } from '@wordpress/icons';
 import { ad, emailAd, gift } from 'newspack-icons';
 
 // Use with WordPress Icon component

@@ -8,8 +8,10 @@
 use Newspack\Reader_Activation;
 use Newspack\Reader_Activation\Sync;
 use Newspack\Reader_Activation\Contact_Sync;
+use Newspack\Reader_Activation\Integrations;
 
 require_once __DIR__ . '/../mocks/newsletters-mocks.php';
+require_once __DIR__ . '/integrations/class-failing-sample-integration.php';
 
 /**
  * Test the Esp_Metadata_Sync class.
@@ -63,7 +65,7 @@ class Newspack_Test_Reader_Activation_Sync extends WP_UnitTestCase {
 	 */
 	public function test_esp_integration_checks() {
 
-		$esp_integration = new Newspack\Reader_Activation\Integrations\ESP();
+		$esp_integration = new Integrations\ESP();
 		$errors = $esp_integration->can_sync( true );
 		$this->assertInstanceOf( 'WP_Error', $errors );
 		$this->assertTrue( $errors->has_errors() );
@@ -276,5 +278,184 @@ class Newspack_Test_Reader_Activation_Sync extends WP_UnitTestCase {
 		$normalized = Sync\Metadata::normalize_contact_data( $contact );
 		$this->assertArrayHasKey( Sync\Metadata::get_key( 'signup_page_utm' ) . 'foo', $normalized['metadata'] );
 		$this->assertArrayHasKey( Sync\Metadata::get_key( 'payment_page_utm' ) . 'yyy', $normalized['metadata'] );
+	}
+
+	/**
+	 * Register a Failing_Sample_Integration and enable it.
+	 *
+	 * @param string $id Integration ID.
+	 * @return Failing_Sample_Integration
+	 */
+	private function register_failing_integration( $id = 'failing_mock' ) {
+		$integration = new Failing_Sample_Integration( $id, 'Failing Mock' );
+		Integrations::register( $integration );
+		Integrations::enable( $id );
+		return $integration;
+	}
+
+	/**
+	 * Test that a failed integration push schedules an AS retry.
+	 */
+	public function test_integration_retry_scheduling() {
+		if ( ! function_exists( 'as_schedule_single_action' ) ) {
+			$this->markTestSkipped( 'ActionScheduler not available.' );
+		}
+
+		Failing_Sample_Integration::reset();
+		Failing_Sample_Integration::$should_fail = true;
+		$this->register_failing_integration();
+
+		// Clear any pending retries.
+		as_unschedule_all_actions( Contact_Sync::RETRY_HOOK );
+
+		$contact = [
+			'email'    => 'retry@test.com',
+			'name'     => 'Retry Test',
+			'metadata' => [],
+		];
+
+		Contact_Sync::execute_integration_retry(
+			[
+				'integration_id'   => 'failing_mock',
+				'contact'          => $contact,
+				'context'          => 'Test',
+				'existing_contact' => null,
+				'retry_count'      => 1,
+			]
+		);
+
+		$pending = as_get_scheduled_actions(
+			[
+				'hook'   => Contact_Sync::RETRY_HOOK,
+				'group'  => 'newspack',
+				'status' => \ActionScheduler_Store::STATUS_PENDING,
+			],
+			'ARRAY_A'
+		);
+		$this->assertNotEmpty( $pending, 'A retry should be scheduled when an integration push fails.' );
+	}
+
+	/**
+	 * Test that a successful retry does not schedule another retry.
+	 */
+	public function test_integration_retry_success() {
+		if ( ! function_exists( 'as_schedule_single_action' ) ) {
+			$this->markTestSkipped( 'ActionScheduler not available.' );
+		}
+
+		Failing_Sample_Integration::reset();
+		$this->register_failing_integration( 'success_mock' );
+
+		// Clear any pending retries.
+		as_unschedule_all_actions( Contact_Sync::RETRY_HOOK );
+
+		$contact = [
+			'email'    => 'success@test.com',
+			'name'     => 'Success Test',
+			'metadata' => [],
+		];
+
+		Contact_Sync::execute_integration_retry(
+			[
+				'integration_id'   => 'success_mock',
+				'contact'          => $contact,
+				'context'          => 'Test',
+				'existing_contact' => null,
+				'retry_count'      => 1,
+			]
+		);
+
+		$this->assertEquals( 1, Failing_Sample_Integration::$push_count, 'Integration push should have been called once.' );
+
+		$pending = as_get_scheduled_actions(
+			[
+				'hook'   => Contact_Sync::RETRY_HOOK,
+				'group'  => 'newspack',
+				'status' => \ActionScheduler_Store::STATUS_PENDING,
+			],
+			'ARRAY_A'
+		);
+		$this->assertEmpty( $pending, 'No retry should be scheduled on success.' );
+	}
+
+	/**
+	 * Test that retries stop after MAX_RETRIES.
+	 */
+	public function test_integration_max_retries() {
+		if ( ! function_exists( 'as_schedule_single_action' ) ) {
+			$this->markTestSkipped( 'ActionScheduler not available.' );
+		}
+
+		Failing_Sample_Integration::reset();
+		Failing_Sample_Integration::$should_fail = true;
+		$this->register_failing_integration( 'max_mock' );
+
+		// Clear any pending retries.
+		as_unschedule_all_actions( Contact_Sync::RETRY_HOOK );
+
+		$contact = [
+			'email'    => 'max@test.com',
+			'name'     => 'Max Retry Test',
+			'metadata' => [],
+		];
+
+		// Simulate a retry at the max count — should NOT schedule another.
+		Contact_Sync::execute_integration_retry(
+			[
+				'integration_id'   => 'max_mock',
+				'contact'          => $contact,
+				'context'          => 'Test',
+				'existing_contact' => null,
+				'retry_count'      => Contact_Sync::MAX_RETRIES,
+			]
+		);
+
+		$pending = as_get_scheduled_actions(
+			[
+				'hook'   => Contact_Sync::RETRY_HOOK,
+				'group'  => 'newspack',
+				'status' => \ActionScheduler_Store::STATUS_PENDING,
+			],
+			'ARRAY_A'
+		);
+		$this->assertEmpty( $pending, 'No retry should be scheduled after max retries.' );
+	}
+
+	/**
+	 * Test that invalid retry data is handled gracefully.
+	 */
+	public function test_integration_retry_invalid_data() {
+		if ( ! function_exists( 'as_schedule_single_action' ) ) {
+			$this->markTestSkipped( 'ActionScheduler not available.' );
+		}
+
+		// Clear any pending retries.
+		as_unschedule_all_actions( Contact_Sync::RETRY_HOOK );
+
+		// Missing integration_id.
+		Contact_Sync::execute_integration_retry(
+			[
+				'contact'     => [ 'email' => 'test@test.com' ],
+				'retry_count' => 1,
+			]
+		);
+
+		// Missing contact.
+		Contact_Sync::execute_integration_retry(
+			[
+				'integration_id' => 'failing_mock',
+				'retry_count'    => 1,
+			]
+		);
+
+		$pending = as_get_scheduled_actions(
+			[
+				'hook'   => Contact_Sync::RETRY_HOOK,
+				'group'  => 'newspack',
+				'status' => \ActionScheduler_Store::STATUS_PENDING,
+			],
+			'ARRAY_A'
+		);
+		$this->assertEmpty( $pending, 'No retry should be scheduled for invalid data.' );
 	}
 }

@@ -183,7 +183,12 @@ class My_Account_UI_V1 {
 			case 'order/order-again.php':
 				return __DIR__ . '/templates/v1/order-again.php';
 			case 'notices/error.php':
-				return __DIR__ . '/templates/v1/notices/error.php';
+				// Only override error notices on My Account pages to avoid breaking checkout validation.
+				// Guard is_account_page() to avoid running before the main query.
+				if ( function_exists( 'is_account_page' ) && function_exists( 'did_action' ) && \did_action( 'wp' ) && \is_account_page() ) {
+					return __DIR__ . '/templates/v1/notices/error.php';
+				}
+				return $template;
 			case 'notices/notice.php':
 				return __DIR__ . '/templates/v1/notices/notice.php';
 			case 'notices/success.php':
@@ -215,12 +220,18 @@ class My_Account_UI_V1 {
 		// Remove logout menu item (to be replaced in our custom template).
 		unset( $items['customer-logout'] );
 
-		// Rename "Payment Methods" to "Payment Information".
+		// Rename "Payment Methods" to "Payment information".
 		if ( isset( $items['payment-methods'] ) ) {
 			$items['payment-methods'] = __( 'Payment information', 'newspack-plugin' );
 		}
 
-		// Remove "Addresses" (replaced by custom "Payment Information" page).
+		// Rename singular "My Subscription" to "Subscription" while keeping plural "Subscriptions" as-is.
+		// Compare against WooCommerce Subscriptions' translated string so this also works in non-English sites.
+		if ( isset( $items['subscriptions'] ) && __( 'My Subscription', 'woocommerce-subscriptions' ) === $items['subscriptions'] ) {
+			$items['subscriptions'] = __( 'Subscription', 'newspack-plugin' );
+		}
+
+		// Remove "Addresses" (replaced by custom "Payment information" page).
 		unset( $items['edit-address'] );
 
 		return $items;

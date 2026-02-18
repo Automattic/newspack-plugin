@@ -2,14 +2,14 @@
 # This file is distributed under the GPL2.
 msgid ""
 msgstr ""
-"Project-Id-Version: Newspack 6.31.0\n"
+"Project-Id-Version: Newspack 6.32.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/newspack-plugin\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-02-11T18:57:24+00:00\n"
+"POT-Creation-Date: 2026-02-18T17:58:14+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: newspack-plugin\n"
@@ -86,7 +86,7 @@ msgstr ""
 #: includes/class-magic-link.php:1098
 #: includes/cli/class-ras.php:74
 #: includes/plugins/co-authors-plus/class-nicename-change-ui.php:127
-#: includes/reader-activation/sync/class-esp-sync-admin.php:169
+#: includes/reader-activation/sync/class-contact-sync-admin.php:169
 msgid "User not found."
 msgstr ""
 
@@ -97,7 +97,7 @@ msgstr ""
 
 #: includes/class-magic-link.php:572
 #: includes/class-magic-link.php:602
-#: includes/plugins/woocommerce/my-account/class-my-account-ui-v1.php:390
+#: includes/plugins/woocommerce/my-account/class-my-account-ui-v1.php:401
 msgid "Invalid token."
 msgstr ""
 
@@ -193,13 +193,13 @@ msgstr ""
 #: includes/plugins/woocommerce/my-account/class-woocommerce-my-account.php:549
 #: includes/plugins/woocommerce/my-account/class-woocommerce-my-account.php:569
 #: includes/reader-activation/class-reader-activation.php:2038
-#: includes/reader-activation/sync/class-esp-sync-admin.php:157
+#: includes/reader-activation/sync/class-contact-sync-admin.php:157
 msgid "Invalid request."
 msgstr ""
 
 #: includes/class-magic-link.php:1092
-#: includes/reader-activation/sync/class-esp-sync-admin.php:125
-#: includes/reader-activation/sync/class-esp-sync-admin.php:163
+#: includes/reader-activation/sync/class-contact-sync-admin.php:125
+#: includes/reader-activation/sync/class-contact-sync-admin.php:163
 msgid "You do not have permission to do that."
 msgstr ""
 
@@ -780,72 +780,72 @@ msgstr ""
 msgid "Please specify at least one field to delete."
 msgstr ""
 
-#: includes/cli/class-ras-esp-sync.php:92
+#: includes/cli/class-ras-contact-sync.php:92
 msgid "Running ESP contact sync..."
 msgstr ""
 
-#: includes/cli/class-ras-esp-sync.php:109
+#: includes/cli/class-ras-contact-sync.php:109
 msgid "Syncing by subscription ID..."
 msgstr ""
 
 #. Translators: %d is the subscription ID arg passed to the script.
-#: includes/cli/class-ras-esp-sync.php:119
+#: includes/cli/class-ras-contact-sync.php:119
 #, php-format
 msgid "No subscription with ID %d. Skipping."
 msgstr ""
 
 #. Translators: %1$d is the subscription ID arg passed to the script. %2$s is the error message.
-#: includes/cli/class-ras-esp-sync.php:132
+#: includes/cli/class-ras-contact-sync.php:132
 #, php-format
 msgid "Error syncing contact info for subscription ID %1$d. %2$s"
 msgstr ""
 
-#: includes/cli/class-ras-esp-sync.php:155
+#: includes/cli/class-ras-contact-sync.php:155
 msgid "Syncing by order ID..."
 msgstr ""
 
 #. Translators: %d is the order ID.
-#: includes/cli/class-ras-esp-sync.php:163
+#: includes/cli/class-ras-contact-sync.php:163
 #, php-format
 msgid "No order with ID %d. Skipping."
 msgstr ""
 
 #. Translators: %1$d is the order ID arg passed to the script. %2$s is the error message.
-#: includes/cli/class-ras-esp-sync.php:176
+#: includes/cli/class-ras-contact-sync.php:176
 #, php-format
 msgid "Error syncing contact info for order ID %1$d. %2$s"
 msgstr ""
 
-#: includes/cli/class-ras-esp-sync.php:189
+#: includes/cli/class-ras-contact-sync.php:189
 msgid "Syncing by customer user ID..."
 msgstr ""
 
 #. Translators: %1$d is the user ID arg passed to the script. %2$s is the error message.
-#: includes/cli/class-ras-esp-sync.php:197
+#: includes/cli/class-ras-contact-sync.php:197
 #, php-format
 msgid "Error syncing contact info for user ID %1$d. %2$s"
 msgstr ""
 
-#: includes/cli/class-ras-esp-sync.php:215
+#: includes/cli/class-ras-contact-sync.php:215
 msgid "Syncing all readers with active subscriptions..."
 msgstr ""
 
-#: includes/cli/class-ras-esp-sync.php:217
+#: includes/cli/class-ras-contact-sync.php:217
 msgid "Syncing all readers..."
 msgstr ""
 
-#: includes/cli/class-ras-esp-sync.php:300
+#: includes/cli/class-ras-contact-sync.php:300
 msgid "The migrated-subscriptions flag requires the Newspack_Subscription_Migrations plugin to be installed and active."
 msgstr ""
 
 #. Translators: %s is the source of the subscriptions.
-#: includes/cli/class-ras-esp-sync.php:319
+#: includes/cli/class-ras-contact-sync.php:319
 #, php-format
 msgid "Invalid subscription migration type: %s"
 msgstr ""
 
 #. Translators: total number of synced contacts.
-#: includes/cli/class-ras-esp-sync.php:409
+#: includes/cli/class-ras-contact-sync.php:409
 #, php-format
 msgid "Synced %d contacts."
 msgstr ""
@@ -1359,7 +1359,7 @@ msgstr ""
 msgid "Reader Data"
 msgstr ""
 
-#: includes/content-gate/class-content-gate.php:936
+#: includes/content-gate/class-content-gate.php:937
 #: dist/billboard.js:12
 #: src/wizards/advertising/components/suppression/index.js:78
 msgid "Post Types"
@@ -2121,7 +2121,7 @@ msgid "Nonce verification failed for id: %s"
 msgstr ""
 
 #: includes/oauth/class-google-login.php:127
-#: includes/plugins/woocommerce/my-account/class-my-account-ui-v1.php:386
+#: includes/plugins/woocommerce/my-account/class-my-account-ui-v1.php:397
 #: includes/plugins/woocommerce/my-account/templates/delete-account.php:20
 msgid "Invalid nonce."
 msgstr ""
@@ -2711,7 +2711,7 @@ msgid "Help format and provide context to AP and DDHQ elections embeds."
 msgstr ""
 
 #. translators: Placeholders: %1$s - subscription product name, %2%s - order number
-#: includes/plugins/class-teams-for-memberships.php:299
+#: includes/plugins/class-teams-for-memberships.php:300
 #, php-format
 msgid "Membership re-activated due to subscription re-purchase (%1$s, Order %2$s)."
 msgstr ""
@@ -2847,25 +2847,25 @@ msgstr ""
 msgid "Bulk edit changes were reverted because this membership is linked to a subscription."
 msgstr ""
 
-#: includes/plugins/woocommerce-subscriptions/class-on-hold-duration.php:56
+#: includes/plugins/woocommerce-subscriptions/class-on-hold-duration.php:51
 msgid "Newspack Subscriptions Settings"
 msgstr ""
 
-#: includes/plugins/woocommerce-subscriptions/class-on-hold-duration.php:58
+#: includes/plugins/woocommerce-subscriptions/class-on-hold-duration.php:53
 msgid "Subscriptions settings added by Newspack."
 msgstr ""
 
-#: includes/plugins/woocommerce-subscriptions/class-on-hold-duration.php:62
+#: includes/plugins/woocommerce-subscriptions/class-on-hold-duration.php:57
 msgid "On-hold Duration"
 msgstr ""
 
 #. Translators: %s is a line break.
-#: includes/plugins/woocommerce-subscriptions/class-on-hold-duration.php:73
+#: includes/plugins/woocommerce-subscriptions/class-on-hold-duration.php:68
 #, php-format
 msgid "Set the number of days a subscription remains in the On-Hold status after all automatic payment retries have failed.%sDuring this period, subscribers can update their payment details to restore the subscription at their current price. Once this time expires, the subscription will automatically transition to expired."
 msgstr ""
 
-#: includes/plugins/woocommerce-subscriptions/class-on-hold-duration.php:194
+#: includes/plugins/woocommerce-subscriptions/class-on-hold-duration.php:189
 msgid "Subscription status updated by Newspack."
 msgstr ""
 
@@ -2936,12 +2936,12 @@ msgstr ""
 
 #: includes/plugins/woocommerce-subscriptions/class-subscriptions-tiers.php:683
 #: includes/plugins/woocommerce/my-account/class-my-account-ui-v1-passwords.php:239
-#: includes/plugins/woocommerce/my-account/class-my-account-ui-v1.php:337
-#: includes/plugins/woocommerce/my-account/class-my-account-ui-v1.php:423
-#: includes/plugins/woocommerce/my-account/class-my-account-ui-v1.php:653
-#: includes/plugins/woocommerce/my-account/class-my-account-ui-v1.php:689
-#: includes/plugins/woocommerce/my-account/class-my-account-ui-v1.php:743
-#: includes/plugins/woocommerce/my-account/class-my-account-ui-v1.php:838
+#: includes/plugins/woocommerce/my-account/class-my-account-ui-v1.php:348
+#: includes/plugins/woocommerce/my-account/class-my-account-ui-v1.php:434
+#: includes/plugins/woocommerce/my-account/class-my-account-ui-v1.php:664
+#: includes/plugins/woocommerce/my-account/class-my-account-ui-v1.php:700
+#: includes/plugins/woocommerce/my-account/class-my-account-ui-v1.php:754
+#: includes/plugins/woocommerce/my-account/class-my-account-ui-v1.php:849
 #: dist/audience-wizards.5538f481436840b87981.js:1
 #: dist/audience-wizards.5538f481436840b87981.js:10
 #: dist/audience-wizards.5538f481436840b87981.js:16
@@ -3120,8 +3120,8 @@ msgstr ""
 #: includes/reader-activation/class-reader-activation.php:305
 #: src/blocks/my-account-button/class-my-account-button-block.php:94
 #: src/blocks/reader-registration/index.php:106
-#: dist/blocks.js:4
-#: src/blocks/my-account-button/edit.js:59
+#: dist/commons.js:18
+#: src/blocks/my-account-button/edit.js:63
 msgid "My Account"
 msgstr ""
 
@@ -3150,7 +3150,7 @@ msgid "subscription"
 msgstr ""
 
 #. Translators: %s is the user's billing first and last name – or company name.
-#: includes/plugins/woocommerce/class-woocommerce-connection.php:850
+#: includes/plugins/woocommerce/class-woocommerce-connection.php:853
 #, php-format
 msgid "%s's Team"
 msgstr ""
@@ -3352,78 +3352,86 @@ msgstr ""
 msgid "Change payment method"
 msgstr ""
 
-#: includes/plugins/woocommerce/my-account/class-my-account-ui-v1.php:220
+#: includes/plugins/woocommerce/my-account/class-my-account-ui-v1.php:225
 msgid "Payment information"
 msgstr ""
 
-#: includes/plugins/woocommerce/my-account/class-my-account-ui-v1.php:264
-#: includes/plugins/woocommerce/my-account/class-my-account-ui-v1.php:396
-#: includes/plugins/woocommerce/my-account/class-my-account-ui-v1.php:490
+#: includes/plugins/woocommerce/my-account/class-my-account-ui-v1.php:231
+#: includes/plugins/woocommerce/my-account/templates/v1/subscription-totals-table.php:38
+#: dist/audience-wizards.5538f481436840b87981.js:46
+msgid "Subscription"
+msgid_plural "Subscriptions"
+msgstr[0] ""
+msgstr[1] ""
+
+#: includes/plugins/woocommerce/my-account/class-my-account-ui-v1.php:275
+#: includes/plugins/woocommerce/my-account/class-my-account-ui-v1.php:407
+#: includes/plugins/woocommerce/my-account/class-my-account-ui-v1.php:501
 msgid "Are you sure?"
 msgstr ""
 
 #. Translators: %s will be displayed only if the user has active subscriptions or newsletter subscriptions.
-#: includes/plugins/woocommerce/my-account/class-my-account-ui-v1.php:271
+#: includes/plugins/woocommerce/my-account/class-my-account-ui-v1.php:282
 #, php-format
 msgid "Deleting your account is permanent and cannot be undone. All your data will be removed from our systems. %s"
 msgstr ""
 
-#: includes/plugins/woocommerce/my-account/class-my-account-ui-v1.php:272
+#: includes/plugins/woocommerce/my-account/class-my-account-ui-v1.php:283
 msgid "Your newsletter subscriptions and all recurring payments will be cancelled."
 msgstr ""
 
-#: includes/plugins/woocommerce/my-account/class-my-account-ui-v1.php:280
+#: includes/plugins/woocommerce/my-account/class-my-account-ui-v1.php:291
 msgid "Instead of deleting your account, you may want to:"
 msgstr ""
 
-#: includes/plugins/woocommerce/my-account/class-my-account-ui-v1.php:289
+#: includes/plugins/woocommerce/my-account/class-my-account-ui-v1.php:300
 #: includes/wizards/audience/class-audience-subscriptions.php:100
 #: includes/wizards/newspack/class-newspack-dashboard.php:70
 #: includes/wizards/newspack/class-newspack-dashboard.php:218
 msgid "Subscriptions"
 msgstr ""
 
-#: includes/plugins/woocommerce/my-account/class-my-account-ui-v1.php:290
+#: includes/plugins/woocommerce/my-account/class-my-account-ui-v1.php:301
 msgid "Review and cancel active subscriptions."
 msgstr ""
 
-#: includes/plugins/woocommerce/my-account/class-my-account-ui-v1.php:294
+#: includes/plugins/woocommerce/my-account/class-my-account-ui-v1.php:305
 msgid "Manage subscriptions"
 msgstr ""
 
-#: includes/plugins/woocommerce/my-account/class-my-account-ui-v1.php:302
+#: includes/plugins/woocommerce/my-account/class-my-account-ui-v1.php:313
 #: includes/wizards/newspack/class-newspack-dashboard.php:81
 #: dist/audience-wizards.5538f481436840b87981.js:18
 #: src/wizards/audience/views/campaigns/segments/single-segment.js:208
 msgid "Newsletters"
 msgstr ""
 
-#: includes/plugins/woocommerce/my-account/class-my-account-ui-v1.php:303
+#: includes/plugins/woocommerce/my-account/class-my-account-ui-v1.php:314
 msgid "Update your newsletter preferences."
 msgstr ""
 
-#: includes/plugins/woocommerce/my-account/class-my-account-ui-v1.php:307
+#: includes/plugins/woocommerce/my-account/class-my-account-ui-v1.php:318
 msgid "Manage newsletters"
 msgstr ""
 
-#: includes/plugins/woocommerce/my-account/class-my-account-ui-v1.php:319
-#: includes/plugins/woocommerce/my-account/class-my-account-ui-v1.php:324
-#: includes/plugins/woocommerce/my-account/class-my-account-ui-v1.php:363
-#: includes/plugins/woocommerce/my-account/class-my-account-ui-v1.php:412
-#: includes/plugins/woocommerce/my-account/class-my-account-ui-v1.php:419
+#: includes/plugins/woocommerce/my-account/class-my-account-ui-v1.php:330
+#: includes/plugins/woocommerce/my-account/class-my-account-ui-v1.php:335
+#: includes/plugins/woocommerce/my-account/class-my-account-ui-v1.php:374
+#: includes/plugins/woocommerce/my-account/class-my-account-ui-v1.php:423
+#: includes/plugins/woocommerce/my-account/class-my-account-ui-v1.php:430
 #: includes/plugins/woocommerce/my-account/templates/v1/account-settings.php:263
 msgid "Delete account"
 msgstr ""
 
-#: includes/plugins/woocommerce/my-account/class-my-account-ui-v1.php:352
+#: includes/plugins/woocommerce/my-account/class-my-account-ui-v1.php:363
 msgid "Your account deletion has been requested."
 msgstr ""
 
-#: includes/plugins/woocommerce/my-account/class-my-account-ui-v1.php:354
+#: includes/plugins/woocommerce/my-account/class-my-account-ui-v1.php:365
 msgid "We just sent instructions on how to delete your account to"
 msgstr ""
 
-#: includes/plugins/woocommerce/my-account/class-my-account-ui-v1.php:368
+#: includes/plugins/woocommerce/my-account/class-my-account-ui-v1.php:379
 #: includes/reader-activation/class-reader-activation.php:286
 #: includes/reader-activation/class-reader-activation.php:314
 #: dist/audience-wizards.5538f481436840b87981.js:43
@@ -3431,51 +3439,51 @@ msgstr ""
 msgid "Continue"
 msgstr ""
 
-#: includes/plugins/woocommerce/my-account/class-my-account-ui-v1.php:399
+#: includes/plugins/woocommerce/my-account/class-my-account-ui-v1.php:410
 #: includes/plugins/woocommerce/my-account/templates/delete-account.php:39
 msgid "Confirm to delete your account permanently."
 msgstr ""
 
-#: includes/plugins/woocommerce/my-account/class-my-account-ui-v1.php:400
+#: includes/plugins/woocommerce/my-account/class-my-account-ui-v1.php:411
 #: includes/plugins/woocommerce/my-account/templates/delete-account.php:45
 msgid "Caution, this action is irreversible!"
 msgstr ""
 
-#: includes/plugins/woocommerce/my-account/class-my-account-ui-v1.php:455
+#: includes/plugins/woocommerce/my-account/class-my-account-ui-v1.php:466
 msgid "Your account has been successfully deleted."
 msgstr ""
 
 #. Translators: %s is either the next payment date, or a generic explanation of when the subscription will end if cancelled.
-#: includes/plugins/woocommerce/my-account/class-my-account-ui-v1.php:497
+#: includes/plugins/woocommerce/my-account/class-my-account-ui-v1.php:508
 #, php-format
 msgid "If you cancel now, your subscription will remain active until %s."
 msgstr ""
 
-#: includes/plugins/woocommerce/my-account/class-my-account-ui-v1.php:498
+#: includes/plugins/woocommerce/my-account/class-my-account-ui-v1.php:509
 msgid "the end of your current billing period"
 msgstr ""
 
-#: includes/plugins/woocommerce/my-account/class-my-account-ui-v1.php:504
+#: includes/plugins/woocommerce/my-account/class-my-account-ui-v1.php:515
 msgid "After this, your subscription access will end unless you choose to renew."
 msgstr ""
 
-#: includes/plugins/woocommerce/my-account/class-my-account-ui-v1.php:511
-#: includes/plugins/woocommerce/my-account/class-my-account-ui-v1.php:515
+#: includes/plugins/woocommerce/my-account/class-my-account-ui-v1.php:522
+#: includes/plugins/woocommerce/my-account/class-my-account-ui-v1.php:526
 #: includes/plugins/woocommerce/my-account/templates/v1/subscription-header.php:24
 msgid "Cancel subscription"
 msgstr ""
 
-#: includes/plugins/woocommerce/my-account/class-my-account-ui-v1.php:520
+#: includes/plugins/woocommerce/my-account/class-my-account-ui-v1.php:531
 msgid "Keep subscription"
 msgstr ""
 
-#: includes/plugins/woocommerce/my-account/class-my-account-ui-v1.php:596
+#: includes/plugins/woocommerce/my-account/class-my-account-ui-v1.php:607
 msgid "Are you sure you want to delete this payment method from your account?"
 msgstr ""
 
 #. translators: last 4 digits.
 #. translators: last 4 digits
-#: includes/plugins/woocommerce/my-account/class-my-account-ui-v1.php:608
+#: includes/plugins/woocommerce/my-account/class-my-account-ui-v1.php:619
 #: includes/plugins/woocommerce/my-account/templates/v1/payment-information.php:54
 #, php-format
 msgid "Ending in %s"
@@ -3483,59 +3491,59 @@ msgstr ""
 
 #. translators: expiration date.
 #. translators: expiration date
-#: includes/plugins/woocommerce/my-account/class-my-account-ui-v1.php:616
+#: includes/plugins/woocommerce/my-account/class-my-account-ui-v1.php:627
 #: includes/plugins/woocommerce/my-account/templates/v1/payment-information.php:67
 #, php-format
 msgid "Exp. %s"
 msgstr ""
 
-#: includes/plugins/woocommerce/my-account/class-my-account-ui-v1.php:641
-#: includes/plugins/woocommerce/my-account/class-my-account-ui-v1.php:649
+#: includes/plugins/woocommerce/my-account/class-my-account-ui-v1.php:652
+#: includes/plugins/woocommerce/my-account/class-my-account-ui-v1.php:660
 #: includes/plugins/woocommerce/my-account/templates/v1/payment-information.php:118
 msgid "Delete payment method"
 msgstr ""
 
-#: includes/plugins/woocommerce/my-account/class-my-account-ui-v1.php:680
+#: includes/plugins/woocommerce/my-account/class-my-account-ui-v1.php:691
 msgid "Add Payment Method"
 msgstr ""
 
-#: includes/plugins/woocommerce/my-account/class-my-account-ui-v1.php:705
-#: includes/plugins/woocommerce/my-account/class-my-account-ui-v1.php:761
+#: includes/plugins/woocommerce/my-account/class-my-account-ui-v1.php:716
+#: includes/plugins/woocommerce/my-account/class-my-account-ui-v1.php:772
 #: includes/plugins/woocommerce/my-account/templates/v1/payment-information.php:174
 msgid "Billing"
 msgstr ""
 
-#: includes/plugins/woocommerce/my-account/class-my-account-ui-v1.php:707
-#: includes/plugins/woocommerce/my-account/class-my-account-ui-v1.php:763
+#: includes/plugins/woocommerce/my-account/class-my-account-ui-v1.php:718
+#: includes/plugins/woocommerce/my-account/class-my-account-ui-v1.php:774
 #: includes/plugins/woocommerce/my-account/templates/v1/payment-information.php:176
 msgid "Shipping"
 msgstr ""
 
 #. Translators: %s is the address type.
-#: includes/plugins/woocommerce/my-account/class-my-account-ui-v1.php:728
+#: includes/plugins/woocommerce/my-account/class-my-account-ui-v1.php:739
 #, php-format
 msgid "Edit %s address"
 msgstr ""
 
 #. Translators: %s is the address type.
 #. translators: address type
-#: includes/plugins/woocommerce/my-account/class-my-account-ui-v1.php:732
+#: includes/plugins/woocommerce/my-account/class-my-account-ui-v1.php:743
 #: includes/plugins/woocommerce/my-account/templates/v1/payment-information.php:250
 #, php-format
 msgid "Add %s address"
 msgstr ""
 
-#: includes/plugins/woocommerce/my-account/class-my-account-ui-v1.php:775
+#: includes/plugins/woocommerce/my-account/class-my-account-ui-v1.php:786
 msgid "Are you sure you want to delete this address from your account?"
 msgstr ""
 
 #. Translators: %s is the address type.
-#: includes/plugins/woocommerce/my-account/class-my-account-ui-v1.php:824
+#: includes/plugins/woocommerce/my-account/class-my-account-ui-v1.php:835
 #, php-format
 msgid "Delete %s address"
 msgstr ""
 
-#: includes/plugins/woocommerce/my-account/class-my-account-ui-v1.php:834
+#: includes/plugins/woocommerce/my-account/class-my-account-ui-v1.php:845
 #: includes/plugins/woocommerce/my-account/templates/v1/payment-information.php:223
 msgid "Delete address"
 msgstr ""
@@ -3864,11 +3872,14 @@ msgid "Expired"
 msgstr ""
 
 #: includes/plugins/woocommerce/my-account/templates/v1/payment-information.php:101
+#: dist/blocks.js:1
 #: dist/componentsDemo.js:1
+#: dist/my-account-button-block.js:1
 #: dist/newspack-wizards.7343496958b10e09b426.js:1
 #: dist/newspack-wizards.7343496958b10e09b426.js:23
 #: dist/newspack-wizards.7343496958b10e09b426.js:24
 #: dist/setup.js:7
+#: src/blocks/my-account-button/index.js:22
 #: src/wizards/componentsDemo/index.js:607
 #: src/wizards/componentsDemo/index.js:613
 #: src/wizards/componentsDemo/index.js:630
@@ -4037,13 +4048,6 @@ msgstr ""
 msgctxt "table headings in notification email"
 msgid "Amount"
 msgstr ""
-
-#: includes/plugins/woocommerce/my-account/templates/v1/subscription-totals-table.php:38
-#: dist/audience-wizards.5538f481436840b87981.js:46
-msgid "Subscription"
-msgid_plural "Subscriptions"
-msgstr[0] ""
-msgstr[1] ""
 
 #: includes/plugins/woocommerce/my-account/templates/verify.php:53
 msgid "You must verify your account before you can manage account settings. Verify with a link or by setting a password."
@@ -4218,8 +4222,8 @@ msgstr ""
 #: includes/templates/reader-activation-emails/otp.php:281
 #: includes/templates/reader-activation-emails/otp.php:311
 #: src/blocks/my-account-button/class-my-account-button-block.php:95
-#: dist/blocks.js:4
-#: src/blocks/my-account-button/edit.js:59
+#: dist/commons.js:18
+#: src/blocks/my-account-button/edit.js:63
 msgid "Sign in"
 msgstr ""
 
@@ -4576,72 +4580,72 @@ msgstr ""
 msgid "ESPs Integration"
 msgstr ""
 
-#: includes/reader-activation/sync/class-esp-sync-admin.php:77
+#: includes/reader-activation/integrations/class-esp.php:46
+msgid "Newspack Newsletters is not available."
+msgstr ""
+
+#: includes/reader-activation/integrations/class-esp.php:53
+msgid "ESP sync is not enabled."
+msgstr ""
+
+#: includes/reader-activation/integrations/class-esp.php:60
+msgid "ESP master list ID is not set."
+msgstr ""
+
+#: includes/reader-activation/sync/class-contact-sync-admin.php:77
 msgid "Resync contact to ESP"
 msgstr ""
 
-#: includes/reader-activation/sync/class-esp-sync-admin.php:99
+#: includes/reader-activation/sync/class-contact-sync-admin.php:99
 msgid "Resync to the ESP"
 msgstr ""
 
-#: includes/reader-activation/sync/class-esp-sync-admin.php:118
+#: includes/reader-activation/sync/class-contact-sync-admin.php:118
 msgid "ActionScheduler is not available to perform the bulk action."
 msgstr ""
 
-#: includes/reader-activation/sync/class-esp-sync-admin.php:194
+#: includes/reader-activation/sync/class-contact-sync-admin.php:194
 msgid "Contact resynced to the ESP."
 msgstr ""
 
 #. translators: %d: number of contacts resynced.
-#: includes/reader-activation/sync/class-esp-sync-admin.php:199
+#: includes/reader-activation/sync/class-contact-sync-admin.php:199
 #, php-format
 msgid "%d contacts scheculed for resync to the ESP and should complete in a couple of minutes."
 msgstr ""
 
-#: includes/reader-activation/sync/class-esp-sync-admin.php:209
+#: includes/reader-activation/sync/class-contact-sync-admin.php:209
 msgid "Click here to monitor progress."
 msgstr ""
 
-#: includes/reader-activation/sync/class-esp-sync.php:65
-msgid "Newspack Newsletters is not available."
-msgstr ""
-
-#: includes/reader-activation/sync/class-esp-sync.php:72
-msgid "ESP sync is not enabled."
-msgstr ""
-
-#: includes/reader-activation/sync/class-esp-sync.php:79
-msgid "ESP master list ID is not set."
-msgstr ""
-
 #. Translators: %s is the email address of the contact to synced.
-#: includes/reader-activation/sync/class-esp-sync.php:172
+#: includes/reader-activation/sync/class-contact-sync.php:269
 #, php-format
 msgid "Scheduling secondary sync for contact %s."
 msgstr ""
 
-#: includes/reader-activation/sync/class-esp-sync.php:207
-#: includes/reader-activation/sync/class-esp-sync.php:212
+#: includes/reader-activation/sync/class-contact-sync.php:304
+#: includes/reader-activation/sync/class-contact-sync.php:309
 msgid "WC_Customer class unavailable."
 msgstr ""
 
 #. Translators: %d is the user ID.
-#: includes/reader-activation/sync/class-esp-sync.php:220
+#: includes/reader-activation/sync/class-contact-sync.php:317
 #, php-format
 msgid "Customer with ID %d does not exist."
 msgstr ""
 
 #. Translators: %1$s is the status and %2$s is the contact's email address.
-#: includes/reader-activation/sync/class-esp-sync.php:268
+#: includes/reader-activation/sync/class-contact-sync.php:366
 #, php-format
 msgid "%1$s contact data for %2$s."
 msgstr ""
 
-#: includes/reader-activation/sync/class-esp-sync.php:269
+#: includes/reader-activation/sync/class-contact-sync.php:367
 msgid "Would sync"
 msgstr ""
 
-#: includes/reader-activation/sync/class-esp-sync.php:269
+#: includes/reader-activation/sync/class-contact-sync.php:367
 #: dist/other-scripts/salesforce.js:1
 #: src/other-scripts/salesforce/index.js:30
 msgid "Synced"
@@ -4657,6 +4661,14 @@ msgstr ""
 
 #: includes/reader-activation/sync/class-sync.php:74
 msgid "Contact data syncing is disabled for staging sites. To bypass this check, set the NEWSPACK_ALLOW_READER_SYNC constant in your wp-config.php."
+msgstr ""
+
+#: includes/reader-activation/sync/class-sync.php:100
+msgid "This method was called before integrations were registered. Integrations are registered on the \"init\" hook with priority 5. Make sure to call this method after that hook has fired."
+msgstr ""
+
+#: includes/reader-activation/sync/class-sync.php:134
+msgid "No active integrations found."
 msgstr ""
 
 #: includes/reader-revenue/class-reader-revenue-emails.php:60
@@ -4757,7 +4769,7 @@ msgstr ""
 
 #: includes/templates/block-patterns/corrections/corrections-loop.php:18
 #: includes/templates/corrections/corrections-archive.php:16
-#: dist/blocks.js:1
+#: dist/blocks.js:4
 #: dist/other-scripts/corrections-modal.js:1
 #: src/blocks/correction-item/index.js:22
 #: src/other-scripts/corrections-modal/index.js:192
@@ -8059,13 +8071,12 @@ msgid "Manage Subscriptions"
 msgstr ""
 
 #: dist/avatar-block.js:1
-#: dist/blocks.js:1
+#: dist/blocks.js:4
 #: src/blocks/avatar/index.js:15
 msgid "Avatar"
 msgstr ""
 
 #: dist/avatar-block.js:1
-#: dist/blocks.js:1
 #: dist/blocks.js:4
 #: src/blocks/avatar/index.js:28
 #: src/blocks/byline/index.js:28
@@ -8073,19 +8084,18 @@ msgid "author"
 msgstr ""
 
 #: dist/avatar-block.js:1
-#: dist/blocks.js:1
+#: dist/blocks.js:4
 #: src/blocks/avatar/index.js:29
 msgid "user"
 msgstr ""
 
 #: dist/avatar-block.js:1
-#: dist/blocks.js:1
+#: dist/blocks.js:4
 #: src/blocks/avatar/index.js:30
 msgid "profile"
 msgstr ""
 
 #: dist/avatar-block.js:1
-#: dist/blocks.js:1
 #: dist/blocks.js:4
 #: dist/contribution-meter-block.js:5
 #: src/blocks/avatar/index.js:31
@@ -8096,7 +8106,7 @@ msgid "newspack"
 msgstr ""
 
 #: dist/avatar-block.js:1
-#: dist/blocks.js:1
+#: dist/blocks.js:4
 #: src/blocks/avatar/index.js:33
 msgid "Display post author avatar."
 msgstr ""
@@ -8559,6 +8569,18 @@ msgid "Edit Ad Unit"
 msgstr ""
 
 #: dist/blocks.js:1
+#: dist/my-account-button-block.js:1
+#: src/blocks/my-account-button/index.js:28
+msgid "Icon only"
+msgstr ""
+
+#: dist/blocks.js:1
+#: dist/my-account-button-block.js:1
+#: src/blocks/my-account-button/index.js:33
+msgid "Text only"
+msgstr ""
+
+#: dist/blocks.js:1
 #: dist/commons.js:6
 #: dist/content-gate-countdown-box-block.js:1
 #: src/blocks/content-gate/countdown-box/edit.jsx:147
@@ -8610,62 +8632,6 @@ msgstr ""
 #: dist/content-gate-countdown-box-block.js:1
 #: src/blocks/content-gate/countdown-box/index.js:34
 msgid "Displays how many free articles remain before the paywall, helping users track access with a real-time countdown."
-msgstr ""
-
-#: dist/blocks.js:1
-#: dist/correction-item-block.js:1
-#: src/blocks/correction-item/index.js:15
-msgid "Correction Item"
-msgstr ""
-
-#: dist/blocks.js:1
-#: dist/correction-item-block.js:1
-#: src/blocks/correction-item/index.js:56
-msgid "Display an archive of all the corrections and clarifications."
-msgstr ""
-
-#: dist/blocks.js:1
-#: src/blocks/correction-item/index.js:23
-msgid "Please select \"Corrections\" as the post type in the Query Loop to use this block."
-msgstr ""
-
-#: dist/blocks.js:1
-#: src/blocks/correction-item/index.js:31
-msgid "Correction Type, Date, and Time: "
-msgstr ""
-
-#: dist/blocks.js:1
-#: src/blocks/correction-item/index.js:33
-msgid "This is where the content will appear, providing details about the update, whether correcting an error or offering additional context."
-msgstr ""
-
-#: dist/blocks.js:1
-#: src/blocks/correction-item/index.js:40
-msgid "Post Title"
-msgstr ""
-
-#: dist/blocks.js:1
-#: dist/correction-box-block.js:1
-#: src/blocks/correction-box/index.js:15
-msgid "Corrections"
-msgstr ""
-
-#: dist/blocks.js:1
-#: dist/correction-box-block.js:1
-#: src/blocks/correction-box/index.js:27
-msgid "clarifications"
-msgstr ""
-
-#: dist/blocks.js:1
-#: dist/correction-box-block.js:1
-#: src/blocks/correction-box/index.js:27
-msgid "updates"
-msgstr ""
-
-#: dist/blocks.js:1
-#: dist/correction-box-block.js:1
-#: src/blocks/correction-box/index.js:28
-msgid "Display all corrections and clarifications made to a post."
 msgstr ""
 
 #: dist/blocks.js:1
@@ -8778,21 +8744,6 @@ msgstr ""
 #: dist/blocks.js:4
 #: src/blocks/reader-registration/edit.js:363
 msgid "Logged in message…"
-msgstr ""
-
-#: dist/blocks.js:4
-#: src/blocks/my-account-button/edit.js:77
-msgid "Signed out"
-msgstr ""
-
-#: dist/blocks.js:4
-#: src/blocks/my-account-button/edit.js:84
-msgid "Signed in"
-msgstr ""
-
-#: dist/blocks.js:4
-#: src/blocks/my-account-button/edit.js:96
-msgid "Button text"
 msgstr ""
 
 #: dist/blocks.js:4
@@ -9152,6 +9103,62 @@ msgstr ""
 #: dist/blocks.js:4
 #: src/blocks/content-gate/countdown/index.js:33
 msgid "Displays the current free article count."
+msgstr ""
+
+#: dist/blocks.js:4
+#: dist/correction-item-block.js:1
+#: src/blocks/correction-item/index.js:15
+msgid "Correction Item"
+msgstr ""
+
+#: dist/blocks.js:4
+#: dist/correction-item-block.js:1
+#: src/blocks/correction-item/index.js:56
+msgid "Display an archive of all the corrections and clarifications."
+msgstr ""
+
+#: dist/blocks.js:4
+#: src/blocks/correction-item/index.js:23
+msgid "Please select \"Corrections\" as the post type in the Query Loop to use this block."
+msgstr ""
+
+#: dist/blocks.js:4
+#: src/blocks/correction-item/index.js:31
+msgid "Correction Type, Date, and Time: "
+msgstr ""
+
+#: dist/blocks.js:4
+#: src/blocks/correction-item/index.js:33
+msgid "This is where the content will appear, providing details about the update, whether correcting an error or offering additional context."
+msgstr ""
+
+#: dist/blocks.js:4
+#: src/blocks/correction-item/index.js:40
+msgid "Post Title"
+msgstr ""
+
+#: dist/blocks.js:4
+#: dist/correction-box-block.js:1
+#: src/blocks/correction-box/index.js:15
+msgid "Corrections"
+msgstr ""
+
+#: dist/blocks.js:4
+#: dist/correction-box-block.js:1
+#: src/blocks/correction-box/index.js:27
+msgid "clarifications"
+msgstr ""
+
+#: dist/blocks.js:4
+#: dist/correction-box-block.js:1
+#: src/blocks/correction-box/index.js:27
+msgid "updates"
+msgstr ""
+
+#: dist/blocks.js:4
+#: dist/correction-box-block.js:1
+#: src/blocks/correction-box/index.js:28
+msgid "Display all corrections and clarifications made to a post."
 msgstr ""
 
 #: dist/bylines.js:1
@@ -9706,6 +9713,23 @@ msgstr ""
 #: dist/newspack-wizards.7343496958b10e09b426.js:31
 #: src/wizards/componentsDemo/index.js:420
 msgid "Disconnect"
+msgstr ""
+
+#: dist/commons.js:18
+#: src/blocks/my-account-button/edit.js:81
+#: src/blocks/my-account-button/edit.js:85
+msgid "Signed out"
+msgstr ""
+
+#: dist/commons.js:18
+#: src/blocks/my-account-button/edit.js:90
+#: src/blocks/my-account-button/edit.js:94
+msgid "Signed in"
+msgstr ""
+
+#: dist/commons.js:18
+#: src/blocks/my-account-button/edit.js:110
+msgid "Button text"
 msgstr ""
 
 #: dist/componentsDemo.js:1
