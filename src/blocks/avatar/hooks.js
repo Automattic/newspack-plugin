@@ -111,55 +111,80 @@ export function usePostAuthors( { postId, postType = 'post' } ) {
 	// Custom byline is active but contains no [Author] shortcodes — text-only byline.
 	const hasActiveTextOnlyByline = bylineActive && ! hasCustomBylineAuthors;
 
-	// Resolve authors from the core store.
-	const authorsWithAvatars = useSelect(
+	// Resolve user data from the core store. Return raw getUser() references
+	// (stable store objects) to avoid useSelect memoization warnings from
+	// creating new objects via .map() inside the selector.
+	const userDataMap = useSelect(
 		select => {
-			// Text-only byline: no avatars to display.
 			if ( hasActiveTextOnlyByline ) {
-				return [];
+				return null;
 			}
 
 			const { getUser } = select( coreStore );
 
-			// Custom byline with author shortcodes: use only those authors.
-			// Filter out deleted users (getUser returns null).
 			if ( hasCustomBylineAuthors ) {
-				return bylineAuthorIds
-					.map( authorId => {
-						const userData = getUser( authorId );
-						if ( ! userData ) {
-							return null;
-						}
-						return {
-							id: authorId,
-							name: userData.name || '',
-							display_name: userData.name || '',
-							avatar_urls: userData.avatar_urls || null,
-						};
-					} )
-					.filter( Boolean );
-			}
-
-			// CoAuthors Plus authors.
-			if ( coAuthors && coAuthors.length > 0 ) {
-				return coAuthors.map( author => {
-					// Skip getUser for guest authors as they don't have WP user accounts.
-					const userData = author.id && ! author.isGuest ? getUser( author.id ) : null;
-					return {
-						id: author.id,
-						name: author.display_name,
-						display_name: author.display_name,
-						user_nicename: author.user_nicename,
-						author_link: author.author_link,
-						avatar_urls: userData?.avatar_urls || author.avatar_urls || null,
-					};
+				const map = {};
+				bylineAuthorIds.forEach( authorId => {
+					map[ authorId ] = getUser( authorId ) || null;
 				} );
+				return map;
 			}
 
-			return [];
+			if ( coAuthors && coAuthors.length > 0 ) {
+				const map = {};
+				coAuthors.forEach( author => {
+					if ( author.id && ! author.isGuest ) {
+						map[ author.id ] = getUser( author.id ) || null;
+					}
+				} );
+				return map;
+			}
+
+			return null;
 		},
 		[ hasActiveTextOnlyByline, hasCustomBylineAuthors, bylineAuthorIds, coAuthors ]
 	);
+
+	// Build the authors array outside useSelect so .map() doesn't trigger
+	// memoization warnings.
+	const authorsWithAvatars = useMemo( () => {
+		if ( hasActiveTextOnlyByline || ! userDataMap ) {
+			return [];
+		}
+
+		if ( hasCustomBylineAuthors ) {
+			return bylineAuthorIds
+				.map( authorId => {
+					const userData = userDataMap[ authorId ];
+					if ( ! userData ) {
+						return null;
+					}
+					return {
+						id: authorId,
+						name: userData.name || '',
+						display_name: userData.name || '',
+						avatar_urls: userData.avatar_urls || null,
+					};
+				} )
+				.filter( Boolean );
+		}
+
+		if ( coAuthors && coAuthors.length > 0 ) {
+			return coAuthors.map( author => {
+				const userData = author.id && ! author.isGuest ? userDataMap[ author.id ] : null;
+				return {
+					id: author.id,
+					name: author.display_name,
+					display_name: author.display_name,
+					user_nicename: author.user_nicename,
+					author_link: author.author_link,
+					avatar_urls: userData?.avatar_urls || author.avatar_urls || null,
+				};
+			} );
+		}
+
+		return [];
+	}, [ hasActiveTextOnlyByline, hasCustomBylineAuthors, bylineAuthorIds, coAuthors, userDataMap ] );
 
 	// Resolve a concrete avatarSrc for each author so the render layer doesn't need
 	// to know about fallback logic.

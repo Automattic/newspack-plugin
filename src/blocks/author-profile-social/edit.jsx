@@ -1,7 +1,7 @@
 /**
  * WordPress dependencies
  */
-import { useContext, useEffect, useRef } from '@wordpress/element';
+import { useContext, useEffect, useMemo, useRef } from '@wordpress/element';
 import { BlockControls, useBlockProps, InnerBlocks, InspectorControls } from '@wordpress/block-editor';
 import { PanelBody, RangeControl, Button, ToolbarButton, ToolbarGroup } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
@@ -39,19 +39,10 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 		},
 	} );
 
-	// Check current inner blocks.
-	const { innerBlockCount, currentServices, innerBlocks } = useSelect(
-		select => {
-			const editor = select( 'core/block-editor' );
-			const blocks = editor.getBlocks( clientId );
-			return {
-				innerBlockCount: blocks.length,
-				currentServices: blocks.map( b => b.attributes.service ).filter( Boolean ),
-				innerBlocks: blocks,
-			};
-		},
-		[ clientId ]
-	);
+	// Get inner blocks (stable reference from the store).
+	const innerBlocks = useSelect( select => select( 'core/block-editor' ).getBlocks( clientId ), [ clientId ] );
+	const innerBlockCount = innerBlocks.length;
+	const currentServices = useMemo( () => innerBlocks.map( b => b.attributes.service ).filter( Boolean ), [ innerBlocks ] );
 
 	const { replaceInnerBlocks } = useDispatch( 'core/block-editor' );
 

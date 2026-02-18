@@ -2,7 +2,7 @@
  * WordPress dependencies
  */
 import { useSelect } from '@wordpress/data';
-import { useState, useEffect } from '@wordpress/element';
+import { useState, useEffect, useMemo } from '@wordpress/element';
 import { store as coreStore } from '@wordpress/core-data';
 import apiFetch from '@wordpress/api-fetch';
 
@@ -93,69 +93,69 @@ function extractNicenameFromLink( link ) {
  * @return {Object} Authors array and availability state.
  */
 export function useCoAuthors( postId, postType = 'post', skip = false ) {
-	const { authors, isCapAvailable } = useSelect(
+	// Return raw store references from useSelect to avoid creating new objects
+	// on every render (which triggers useSelect memoization warnings).
+	// The .map() transformations happen in useMemo below.
+	const { capAuthors, restAuthors, isCapAvailable } = useSelect(
 		select => {
 			if ( skip ) {
-				return { authors: [], isCapAvailable: false };
+				return { capAuthors: null, restAuthors: null, isCapAvailable: false };
 			}
-			// Check if CoAuthors Plus store is available.
+
 			const capStore = select( CAP_STORE );
 			const isCapStoreAvailable = Boolean( capStore && typeof capStore.getAuthors === 'function' );
 
-			// Get the currently-edited post ID to detect Query Loop context.
 			const editorStore = select( 'core/editor' );
 			const currentPostId = editorStore?.getCurrentPostId?.();
 			const isQueryLoopContext = postId && currentPostId && postId !== currentPostId;
 
 			// For the currently-edited post, use CAP's store for real-time updates.
 			if ( isCapStoreAvailable && ! isQueryLoopContext ) {
-				const capAuthors = postId ? capStore.getAuthors( postId ) : [];
-
-				if ( capAuthors && capAuthors.length > 0 ) {
-					// Map CAP store author objects to our expected format.
-					// CAP stores: { id, label, display, value, userType }
-					const mappedAuthors = capAuthors.map( author => ( {
-						id: author.id,
-						display_name: author.display || author.value || author.label,
-						user_nicename: author.value,
-						isGuest: author.userType === 'guest-author',
-					} ) );
-					return { authors: mappedAuthors, isCapAvailable: true };
-				}
-
-				return { authors: [], isCapAvailable: true };
+				const rawCapAuthors = postId ? capStore.getAuthors( postId ) : null;
+				return { capAuthors: rawCapAuthors, restAuthors: null, isCapAvailable: true };
 			}
 
 			// For Query Loop context, try to get coauthors from REST API.
-			// Newspack adds 'newspack_author_info' with full author data.
+			// If REST author data exists, treat CAP as available (matching original behavior)
+			// since the server-side plugin provided the data even if the JS store isn't loaded.
 			if ( isQueryLoopContext && postId ) {
 				const { getEntityRecord } = select( coreStore );
 				const post = getEntityRecord( 'postType', postType, postId );
-
-				// Use newspack_author_info which has full author objects.
-				const restAuthors = post?.newspack_author_info;
-
-				if ( restAuthors && Array.isArray( restAuthors ) && restAuthors.length > 0 ) {
-					// Map REST API author objects to our expected format.
-					// Use enriched fields (user_nicename, is_guest, avatar_urls)
-					// when available, falling back to extracting from author_link.
-					const mappedAuthors = restAuthors.map( author => ( {
-						id: author.id,
-						display_name: author.display_name,
-						author_link: author.author_link,
-						user_nicename: author.user_nicename || extractNicenameFromLink( author.author_link ),
-						...( typeof author.is_guest === 'boolean' ? { isGuest: author.is_guest } : {} ),
-						...( author.avatar_urls ? { avatar_urls: author.avatar_urls } : {} ),
-					} ) );
-					return { authors: mappedAuthors, isCapAvailable: true };
-				}
+				const restData = post?.newspack_author_info || null;
+				return { capAuthors: null, restAuthors: restData, isCapAvailable: restData ? true : isCapStoreAvailable };
 			}
 
-			// CAP not available or no authors found.
-			return { authors: [], isCapAvailable: isCapStoreAvailable };
+			return { capAuthors: null, restAuthors: null, isCapAvailable: isCapStoreAvailable };
 		},
 		[ postId, postType, skip ]
 	);
+
+	// Map raw store data to our normalized author format.
+	const authors = useMemo( () => {
+		// CAP store authors: { id, label, display, value, userType }
+		if ( capAuthors && capAuthors.length > 0 ) {
+			return capAuthors.map( author => ( {
+				id: author.id,
+				display_name: author.display || author.value || author.label,
+				user_nicename: author.value,
+				isGuest: author.userType === 'guest-author',
+			} ) );
+		}
+
+		// REST API authors from newspack_author_info.
+		if ( restAuthors && Array.isArray( restAuthors ) && restAuthors.length > 0 ) {
+			return restAuthors.map( author => ( {
+				id: author.id,
+				display_name: author.display_name,
+				author_link: author.author_link,
+				user_nicename: author.user_nicename || extractNicenameFromLink( author.author_link ),
+				...( typeof author.is_guest === 'boolean' ? { isGuest: author.is_guest } : {} ),
+				...( author.avatar_urls ? { avatar_urls: author.avatar_urls } : {} ),
+			} ) );
+		}
+
+		return [];
+	}, [ capAuthors, restAuthors ] );
 
 	// Fetch avatar URLs from the CAP REST API for authors that need it.
 	// The CAP store strips avatar data via formatAuthorData(), so we need
