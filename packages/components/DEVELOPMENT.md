@@ -773,6 +773,7 @@ When creating new components:
 8. **Use WordPress design system** – Leverage WordPress colors and the same spacing values as existing components.
 9. **Export from index.js** – Add component to `packages/components/src/index.js`.
 10. **Document usage** – Add JSDoc comments and update this guide.
+11. **Components Demo** - If the component is complex or would benefit from demo examples, add it to the [Components Demo page](#testing).
 
 ## Testing
 
