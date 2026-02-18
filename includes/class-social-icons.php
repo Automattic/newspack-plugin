@@ -44,7 +44,7 @@ final class Social_Icons {
 	 * @param int    $size    Icon size in pixels. Default 24.
 	 * @return string|null SVG markup with width/height attributes, or null.
 	 */
-	public static function get_svg( $service, $size = 24 ) {
+	public static function get_svg( string $service, int $size = 24 ): ?string {
 		$svg = self::SVG_MAP[ $service ] ?? null;
 
 		if ( $svg ) {

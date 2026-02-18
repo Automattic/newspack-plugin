@@ -22,7 +22,7 @@ final class Author_Profile_Social_Block {
 	 *
 	 * @return void
 	 */
-	public static function init() {
+	public static function init(): void {
 		add_action( 'init', [ __CLASS__, 'register_block' ] );
 	}
 
@@ -31,7 +31,7 @@ final class Author_Profile_Social_Block {
 	 *
 	 * @return void
 	 */
-	public static function register_block() {
+	public static function register_block(): void {
 		// Enable inserter only in block themes where nested layout is supported.
 		$is_nested_mode = wp_is_block_theme();
 
@@ -56,7 +56,7 @@ final class Author_Profile_Social_Block {
 	 *
 	 * @return string The rendered block markup.
 	 */
-	public static function render_block( array $attributes, string $content, WP_Block $block ) {
+	public static function render_block( array $attributes, string $content, WP_Block $block ): string {
 		$author = $block->context['newspack-blocks/author'] ?? null;
 		if ( ! $author ) {
 			return '';
@@ -82,7 +82,7 @@ final class Author_Profile_Social_Block {
 	 * @param int      $icon_size  Icon size in pixels.
 	 * @return string Rendered HTML.
 	 */
-	private static function render_social_with_inner_blocks( $attributes, $block, $author, $icon_size ) {
+	private static function render_social_with_inner_blocks( array $attributes, WP_Block $block, array $author, int $icon_size ): string {
 		$inner_content = '';
 
 		foreach ( $block->inner_blocks as $inner_block ) {
@@ -130,7 +130,7 @@ final class Author_Profile_Social_Block {
 	 * @param int      $icon_size  Icon size in pixels.
 	 * @return string Rendered HTML.
 	 */
-	private static function render_social_flat( $attributes, $block, $author, $icon_size ) {
+	private static function render_social_flat( array $attributes, WP_Block $block, array $author, int $icon_size ): string {
 		$show_email = $attributes['showEmail'] ?? false;
 
 		// Build social links array.

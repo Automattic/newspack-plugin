@@ -22,7 +22,7 @@ final class Author_Social_Link_Block {
 	 *
 	 * @return void
 	 */
-	public static function init() {
+	public static function init(): void {
 		add_action( 'init', [ __CLASS__, 'register_block' ] );
 	}
 
@@ -31,7 +31,7 @@ final class Author_Social_Link_Block {
 	 *
 	 * @return void
 	 */
-	public static function register_block() {
+	public static function register_block(): void {
 		register_block_type_from_metadata(
 			__DIR__ . '/block.json',
 			[
@@ -50,7 +50,7 @@ final class Author_Social_Link_Block {
 	 *
 	 * @return string The rendered block markup.
 	 */
-	public static function render_block( array $attributes, string $content, $block ) {
+	public static function render_block( array $attributes, string $content, WP_Block $block ): string {
 		$author  = $block->context['newspack-blocks/author'] ?? null;
 		$service = $attributes['service'] ?? '';
 
@@ -93,7 +93,7 @@ final class Author_Social_Link_Block {
 	 * @param string $service Service key.
 	 * @return string|null URL or null.
 	 */
-	private static function get_social_service_url( $author, $service ) {
+	private static function get_social_service_url( array $author, string $service ): ?string {
 		if ( 'email' === $service ) {
 			$email = $author['email'] ?? null;
 			if ( ! $email ) {
@@ -127,7 +127,7 @@ final class Author_Social_Link_Block {
 	 * @param string $service Service key.
 	 * @return string|null SVG markup or null.
 	 */
-	private static function get_social_service_svg( $author, $service ) {
+	private static function get_social_service_svg( array $author, string $service ): ?string {
 		// Check if REST API provided an SVG.
 		if ( 'email' === $service ) {
 			$email = $author['email'] ?? null;

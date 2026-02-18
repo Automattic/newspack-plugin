@@ -13,6 +13,12 @@ import { useMemo } from '@wordpress/element';
 import { useCoAuthors } from '../../shared/hooks/use-coauthors';
 import { useCustomByline, extractAuthorIdsFromByline } from '../../shared/hooks/use-custom-byline';
 
+/**
+ * Compute min and max avatar sizes from available size keys.
+ *
+ * @param {Array|null} sizes Array of available size strings.
+ * @return {Object} Object with minSize and maxSize properties.
+ */
 function getAvatarSizes( sizes ) {
 	const minSize = sizes ? sizes[ 0 ] : 24;
 	const maxSize = sizes ? sizes[ sizes.length - 1 ] : 128;
@@ -23,6 +29,11 @@ function getAvatarSizes( sizes ) {
 	};
 }
 
+/**
+ * Hook to get the site's default avatar URL from block editor settings.
+ *
+ * @return {string|undefined} Default avatar URL.
+ */
 export function useDefaultAvatar() {
 	const { avatarURL: defaultAvatarUrl } = useSelect( select => {
 		const { getSettings } = select( blockEditorStore );
@@ -32,6 +43,14 @@ export function useDefaultAvatar() {
 	return defaultAvatarUrl;
 }
 
+/**
+ * Hook to get the avatar data for the post's primary author.
+ *
+ * @param {Object} props          Hook props.
+ * @param {number} props.postId   Post ID.
+ * @param {string} props.postType Post type.
+ * @return {Object} Avatar object with src, alt, minSize, and maxSize.
+ */
 export function useUserAvatar( { postId, postType } ) {
 	const { authorDetails } = useSelect(
 		select => {

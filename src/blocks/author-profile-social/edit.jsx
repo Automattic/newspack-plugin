@@ -1,7 +1,7 @@
 /**
  * WordPress dependencies
  */
-import { createContext, useContext, useEffect, useRef } from '@wordpress/element';
+import { useContext, useEffect, useRef } from '@wordpress/element';
 import { BlockControls, useBlockProps, InnerBlocks, InspectorControls } from '@wordpress/block-editor';
 import { PanelBody, RangeControl, Button, ToolbarButton, ToolbarGroup } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
@@ -10,52 +10,12 @@ import { backup } from '@wordpress/icons';
 import { createBlock } from '@wordpress/blocks';
 
 /**
- * Get the shared AuthorContext from newspack-blocks (via window global).
- * Falls back to a local context if not available.
+ * Internal dependencies
  */
-const FallbackAuthorContext = createContext( null );
-const getSharedAuthorContext = () =>
-	typeof window !== 'undefined' && window.NewspackAuthorContext ? window.NewspackAuthorContext : FallbackAuthorContext;
+import { getSharedAuthorContext } from '../../shared/author-context';
+import { getAvailableServices, buildTemplate } from './utils';
 
 const ALLOWED_BLOCKS = [ 'newspack/author-social-link' ];
-
-/**
- * Get the list of available services from author data.
- *
- * @param {Object} author Author data.
- * @return {Array} Array of service key strings.
- */
-function getAvailableServices( author ) {
-	const services = [];
-
-	if ( author?.social ) {
-		Object.entries( author.social ).forEach( ( [ service, data ] ) => {
-			if ( data?.url ) {
-				services.push( service );
-			}
-		} );
-	}
-
-	if ( author?.email ) {
-		services.push( 'email' );
-	}
-
-	if ( author?.newspack_phone_number ) {
-		services.push( 'phone' );
-	}
-
-	return services;
-}
-
-/**
- * Build InnerBlocks template from available services.
- *
- * @param {Array} services List of service keys.
- * @return {Array} Block template array.
- */
-function buildTemplate( services ) {
-	return services.map( service => [ 'newspack/author-social-link', { service } ] );
-}
 
 /**
  * Edit component for the Author Social Links inner block.

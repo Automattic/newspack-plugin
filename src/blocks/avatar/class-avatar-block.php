@@ -21,7 +21,7 @@ final class Avatar_Block {
 	 *
 	 * @return void
 	 */
-	public static function init() {
+	public static function init(): void {
 		add_action( 'init', [ __CLASS__, 'register_block' ] );
 		add_action( 'init', [ __CLASS__, 'register_block_styles' ] );
 	}
@@ -31,7 +31,7 @@ final class Avatar_Block {
 	 *
 	 * @return void
 	 */
-	public static function register_block_styles() {
+	public static function register_block_styles(): void {
 		if ( is_plugin_active( 'co-authors-plus/co-authors-plus.php' ) && function_exists( 'get_coauthors' ) ) {
 			register_block_style(
 				'newspack/avatar',
@@ -48,7 +48,7 @@ final class Avatar_Block {
 	 *
 	 * @return void
 	 */
-	public static function register_block() {
+	public static function register_block(): void {
 		register_block_type_from_metadata(
 			__DIR__ . '/block.json',
 			[
@@ -61,13 +61,13 @@ final class Avatar_Block {
 	/**
 	 * Block render callback.
 	 *
-	 * @param array  $attributes The block attributes.
-	 * @param string $content    The block content.
-	 * @param object $block      The block.
+	 * @param array     $attributes The block attributes.
+	 * @param string    $content    The block content.
+	 * @param \WP_Block $block      The block.
 	 *
 	 * @return string The block HTML.
 	 */
-	public static function render_block( array $attributes, string $content, $block ) {
+	public static function render_block( array $attributes, string $content, \WP_Block $block ): string {
 		$image_size     = $attributes['size'] ?? 48;
 		$link_to_author = $attributes['linkToAuthorArchive'] ?? false;
 
@@ -129,7 +129,7 @@ final class Avatar_Block {
 	 *
 	 * @return string The avatar HTML.
 	 */
-	public static function render_single_author_avatar( array $author, array $attributes ) {
+	public static function render_single_author_avatar( array $author, array $attributes ): string {
 		$image_size     = $attributes['size'] ?? 48;
 		$link_to_author = $attributes['linkToAuthorArchive'] ?? false;
 
@@ -188,7 +188,7 @@ final class Avatar_Block {
 	 *
 	 * @return void Outputs directly (callers are inside ob_start).
 	 */
-	private static function render_avatar_image( $avatar_url, $author_name, $author_url, $image_size, $link_to_author, $attributes, $duotone_class ) {
+	private static function render_avatar_image( string $avatar_url, string $author_name, string $author_url, int $image_size, bool $link_to_author, array $attributes, string $duotone_class ): void {
 		$border_attributes = function_exists( 'get_block_core_avatar_border_attributes' )
 			? get_block_core_avatar_border_attributes( $attributes )
 			: [
@@ -230,7 +230,7 @@ final class Avatar_Block {
 	 *
 	 * @return string CSS fragment (e.g. "--overlap-mask: url(data:...);") or empty string.
 	 */
-	private static function get_overlap_mask_style( array $attributes ) {
+	private static function get_overlap_mask_style( array $attributes ): string {
 		if ( false === strpos( $attributes['className'] ?? '', 'is-style-overlapped' ) ) {
 			return '';
 		}
@@ -299,7 +299,7 @@ final class Avatar_Block {
 	 * @param int $post_id Post ID.
 	 * @return array Author objects, or empty array if no authors to display.
 	 */
-	private static function get_avatar_authors( $post_id ) {
+	private static function get_avatar_authors( int $post_id ): array {
 		// Custom byline takes full control when active.
 		if ( class_exists( 'Newspack\Bylines' ) && Bylines::is_enabled() ) {
 			$byline_is_active = get_post_meta( $post_id, Bylines::META_KEY_ACTIVE, true );
@@ -330,7 +330,7 @@ final class Avatar_Block {
 	 * @param  mixed $preset_value Duotone preset value.
 	 * @return string Constructed class name.
 	 */
-	public static function newspack_get_duotone_class_name( $preset_value ) {
+	public static function newspack_get_duotone_class_name( mixed $preset_value ): string {
 		if ( is_string( $preset_value ) && str_starts_with( $preset_value, 'var:preset|duotone|' ) ) {
 			$slug = str_replace( 'var:preset|duotone|', '', $preset_value );
 			return 'wp-duotone-' . sanitize_title( $slug );
