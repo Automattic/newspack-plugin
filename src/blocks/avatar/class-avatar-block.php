@@ -90,7 +90,13 @@ final class Avatar_Block {
 			return '';
 		}
 
-		$wrapper_attributes = get_block_wrapper_attributes( [ 'style' => '--avatar-size: ' . esc_attr( $image_size ) . 'px;' ] );
+		$overlap_mask_style = self::get_overlap_mask_style( $attributes );
+		$wrapper_style      = '--avatar-size: ' . esc_attr( $image_size ) . 'px;';
+		if ( $overlap_mask_style ) {
+			$wrapper_style .= ' ' . $overlap_mask_style;
+		}
+
+		$wrapper_attributes = get_block_wrapper_attributes( [ 'style' => $wrapper_style ] );
 		$duotone_preset     = $attributes['style']['color']['duotone'] ?? null;
 		$duotone_class      = self::newspack_get_duotone_class_name( $duotone_preset );
 
@@ -210,6 +216,74 @@ final class Avatar_Block {
 			<?php endif; ?>
 		</div>
 		<?php
+	}
+
+	/**
+	 * Generate a --overlap-mask CSS custom property for non-circular border radii.
+	 *
+	 * When the Overlapped style is active and the avatar uses a non-circular
+	 * border-radius, the default radial-gradient mask creates a circular cutout
+	 * that doesn't match the avatar shape. This method builds an SVG mask with
+	 * a <rect rx="..."> that adapts to the actual border-radius.
+	 *
+	 * @param array $attributes Block attributes.
+	 *
+	 * @return string CSS fragment (e.g. "--overlap-mask: url(data:...);") or empty string.
+	 */
+	private static function get_overlap_mask_style( array $attributes ) {
+		if ( false === strpos( $attributes['className'] ?? '', 'is-style-overlapped' ) ) {
+			return '';
+		}
+
+		$radius = $attributes['style']['border']['radius'] ?? null;
+
+		if ( empty( $radius ) ) {
+			return '';
+		}
+
+		// Per-corner object: use the value if all corners are the same.
+		if ( is_array( $radius ) ) {
+			$values = array_values( $radius );
+			if ( count( array_unique( $values ) ) === 1 ) {
+				$radius = $values[0];
+			} else {
+				return '';
+			}
+		}
+
+		if ( ! is_string( $radius ) || '50%' === $radius ) {
+			return '';
+		}
+
+		$image_size = $attributes['size'] ?? 48;
+
+		// Convert border-radius to an SVG rx value on a 0-100 scale.
+		if ( str_ends_with( $radius, 'px' ) ) {
+			$rx = ( (float) $radius / $image_size ) * 100;
+		} elseif ( str_ends_with( $radius, '%' ) ) {
+			$rx = (float) $radius;
+		} elseif ( str_ends_with( $radius, 'rem' ) || str_ends_with( $radius, 'em' ) ) {
+			// Approximate em/rem using the 16px browser default base font size.
+			$rx = ( (float) $radius * 16 / $image_size ) * 100;
+		} else {
+			// Plain number, treat as px.
+			$rx = ( (float) $radius / $image_size ) * 100;
+		}
+
+		$rx = round( max( 0, min( 50, $rx ) ), 2 );
+
+		// SVG mask: an internal <mask> uses luminance (white=visible, black=hidden)
+		// to cut out the overlap notch, then a white rect is painted through it.
+		// The result has real alpha transparency, which works with CSS mask-image's
+		// default alpha mode across all browsers.
+		$svg = "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'>"
+			. "<defs><mask id='m'><rect width='100' height='100' fill='white'/>"
+			. "<rect x='75' y='0' width='100' height='100' rx='{$rx}' ry='{$rx}' fill='black'/>"
+			. '</mask></defs>'
+			. "<rect width='100' height='100' fill='white' mask='url(#m)'/>"
+			. '</svg>';
+
+		return '--overlap-mask: url(data:image/svg+xml,' . rawurlencode( $svg ) . ');';
 	}
 
 	/**
