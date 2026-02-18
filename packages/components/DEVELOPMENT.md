@@ -40,7 +40,7 @@ This package provides custom React components designed specifically for Newspack
 - ⚠️ **Exception:** `AutocompleteTokenField` - Can be used in blocks when autocomplete functionality is needed
 - Examples: All blocks in `src/blocks/` use WordPress components
 
-**Frontend (Reader-facing UI):**
+**Frontend (Reader-facing UI, including block render output):**
 - ❌ **Don't use Newspack components** - Use Newspack UI (`src/newspack-ui/`) or theme components instead
 - Examples: My Account, Reader Activation modals, Auth screens
 
@@ -56,6 +56,7 @@ Follow this step-by-step process when selecting a component:
 2. **If not available, use WordPress components**
    - Visit [@wordpress/components Storybook](https://wordpress.github.io/gutenberg/?path=/docs/docs-introduction--page)
    - Check [@wordpress/components npm package](https://www.npmjs.com/package/@wordpress/components)
+   - Cross-reference Storybook documentation and NPM package code with the version of `@wordpress/components` installed via `package.json` to confirm that the installed package contains the expected component(s)
    - WordPress components provide standard admin UI patterns
 
 3. **If still not available, flag for designer review**
@@ -587,6 +588,7 @@ Newspack components use SCSS with BEM-ish naming conventions and a consistent sp
 
 - **Prefix:** `newspack-` (e.g. `.newspack-card`, `.newspack-button`)
 - **Modifiers:** Use `--` for modifiers (e.g. `.newspack-card--no-border`)
+- **Elements**: Use `__` for elements that are part of a larger block-level component (e.g. `.newspack-card__header-content`)
 - **WordPress colors:** Use WordPress design system colors (see [Colors Development Guide](../colors/DEVELOPMENT.md))
 - **Custom styles:** Component-specific styles live in `packages/components/src/{component}/style.scss`
 
