@@ -38,6 +38,39 @@ final class Social_Icons {
 	];
 
 	/**
+	 * Initialize hooks.
+	 */
+	public static function init(): void {
+		add_action( 'rest_api_init', [ __CLASS__, 'register_rest_routes' ] );
+	}
+
+	/**
+	 * Register REST routes.
+	 */
+	public static function register_rest_routes(): void {
+		register_rest_route(
+			NEWSPACK_API_NAMESPACE,
+			'/social-icons',
+			[
+				'methods'             => \WP_REST_Server::READABLE,
+				'callback'            => [ __CLASS__, 'rest_get_icons' ],
+				'permission_callback' => function () {
+					return current_user_can( 'edit_posts' );
+				},
+			]
+		);
+	}
+
+	/**
+	 * REST callback: return the SVG icon map.
+	 *
+	 * @return \WP_REST_Response
+	 */
+	public static function rest_get_icons(): \WP_REST_Response {
+		return new \WP_REST_Response( self::SVG_MAP );
+	}
+
+	/**
 	 * Get SVG icon for a social service.
 	 *
 	 * @param string $service Service key (e.g. 'facebook', 'email').
