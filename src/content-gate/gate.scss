@@ -86,6 +86,9 @@
 		width: 100%;
 		overflow: clip;
 	}
+	&__inline-gate {
+		max-width: 100%;
+	}
 	&__inline-fade {
 		position: absolute;
 		bottom: 0;

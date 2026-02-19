@@ -1,6 +1,6 @@
 <?php
 /**
- * CLI tools for the RAS ESP Sync.
+ * CLI tools for the RAS Contact Sync.
  *
  * @package Newspack
  */
@@ -9,16 +9,16 @@ namespace Newspack\CLI;
 
 use WP_CLI;
 use Newspack\Reader_Activation;
-
+use Newspack\Reader_Activation\Contact_Sync;
 use Newspack_Subscription_Migrations\CSV_Importers\CSV_Importer;
 use Newspack_Subscription_Migrations\Stripe_Sync;
 
 defined( 'ABSPATH' ) || exit;
 
 /**
- * RAS ESP Sync CLI Class.
+ * RAS Contact Sync CLI Class.
  */
-class RAS_ESP_Sync extends Reader_Activation\ESP_Sync {
+class RAS_Contact_Sync {
 
 	/**
 	 * Context of the sync.
@@ -52,7 +52,7 @@ class RAS_ESP_Sync extends Reader_Activation\ESP_Sync {
 	}
 
 	/**
-	 * Sync reader contact data to the connected ESP.
+	 * Sync reader contact data to the connected integrations.
 	 *
 	 * @param array $config {
 	 *   Configuration options.
@@ -91,7 +91,7 @@ class RAS_ESP_Sync extends Reader_Activation\ESP_Sync {
 
 		static::log( __( 'Running ESP contact sync...', 'newspack-plugin' ) );
 
-		$can_sync = self::can_esp_sync( true );
+		$can_sync = Contact_Sync::has_one_syncable_integration( true );
 		if ( ! $config['is_dry_run'] && $can_sync->has_errors() ) {
 			return $can_sync;
 		}
@@ -124,7 +124,7 @@ class RAS_ESP_Sync extends Reader_Activation\ESP_Sync {
 					continue;
 				}
 
-				$result = self::sync_contact( $subscription, $config['is_dry_run'] );
+				$result = Contact_Sync::sync_contact( $subscription, self::$context, $config['is_dry_run'] );
 				if ( \is_wp_error( $result ) ) {
 					static::log(
 						sprintf(
@@ -168,7 +168,7 @@ class RAS_ESP_Sync extends Reader_Activation\ESP_Sync {
 					continue;
 				}
 
-				$result = self::sync_contact( $order, $config['is_dry_run'] );
+				$result = Contact_Sync::sync_contact( $order, self::$context, $config['is_dry_run'] );
 				if ( \is_wp_error( $result ) ) {
 					static::log(
 						sprintf(
@@ -189,7 +189,7 @@ class RAS_ESP_Sync extends Reader_Activation\ESP_Sync {
 			static::log( __( 'Syncing by customer user ID...', 'newspack-plugin' ) );
 			foreach ( $config['user_ids'] as $user_id ) {
 				if ( ! $config['active_only'] || self::user_has_active_subscriptions( $user_id ) ) {
-					$result = self::sync_contact( $user_id, $config['is_dry_run'] );
+					$result = Contact_Sync::sync_contact( $user_id, self::$context, $config['is_dry_run'] );
 					if ( \is_wp_error( $result ) ) {
 						static::log(
 							sprintf(
@@ -222,7 +222,7 @@ class RAS_ESP_Sync extends Reader_Activation\ESP_Sync {
 			while ( $user_ids ) {
 				$user_id = array_shift( $user_ids );
 				if ( ! $config['active_only'] || self::user_has_active_subscriptions( $user_id ) ) {
-					$result = self::sync_contact( $user_id, $config['is_dry_run'] );
+					$result = Contact_Sync::sync_contact( $user_id, self::$context, $config['is_dry_run'] );
 					if ( \is_wp_error( $result ) ) {
 						static::log(
 							sprintf(

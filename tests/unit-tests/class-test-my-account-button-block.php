@@ -96,16 +96,81 @@ class Newspack_Test_My_Account_Button_Block extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test empty labels -- render nothing if a button's state has an empty label.
+	 * Test empty signed-out label falls back to default.
 	 */
-	public function test_render_block_empty_label() {
+	public function test_render_block_empty_signed_out_label() {
 		self::$reader_activation_enabled = true;
 
 		$signed_out_output = do_blocks(
 			'<!-- wp:newspack/my-account-button {"signedInLabel":"My Account","signedOutLabel":""} /-->'
 		);
 
-		$this->assertSame( '', trim( $signed_out_output ) );
+		$this->assertNotEmpty( $signed_out_output );
+		$this->assertStringContainsString( '&quot;signedout&quot;:&quot;Sign in&quot;', $signed_out_output );
+	}
+
+	/**
+	 * Test icon-only style applies the screen-reader-text class to the label.
+	 */
+	public function test_render_block_icon_only_style_adds_screen_reader_text_class() {
+		self::$reader_activation_enabled = true;
+
+		$output = do_blocks(
+			'<!-- wp:newspack/my-account-button {"signedInLabel":"My Account","signedOutLabel":"Sign in","className":"is-style-icon-only"} /-->'
+		);
+
+		$this->assertNotEmpty( $output );
+		$this->assertStringContainsString( 'newspack-reader__account-link__label screen-reader-text', $output );
+	}
+
+	/**
+	 * Test text-only style removes the icon markup.
+	 */
+	public function test_render_block_text_only_style_removes_icon_markup() {
+		self::$reader_activation_enabled = true;
+
+		$output = do_blocks(
+			'<!-- wp:newspack/my-account-button {"signedInLabel":"My Account","signedOutLabel":"Sign in","className":"is-style-text-only"} /-->'
+		);
+
+		$this->assertNotEmpty( $output );
+		$this->assertStringNotContainsString( 'wp-block-newspack-my-account-button__icon', $output );
+	}
+
+	/**
+	 * Test default style renders the icon markup.
+	 */
+	public function test_render_block_default_style_renders_icon_markup() {
+		self::$reader_activation_enabled = true;
+
+		$output = do_blocks(
+			'<!-- wp:newspack/my-account-button {"signedInLabel":"My Account","signedOutLabel":"Sign in"} /-->'
+		);
+
+		$this->assertNotEmpty( $output );
+		$this->assertStringContainsString( 'wp-block-newspack-my-account-button__icon', $output );
+	}
+
+	/**
+	 * Test default style (no className) renders both label and icon.
+	 */
+	public function test_render_block_default_style_renders_label_and_icon() {
+		self::$reader_activation_enabled = true;
+
+		$output = do_blocks(
+			'<!-- wp:newspack/my-account-button {"signedInLabel":"My Account","signedOutLabel":"Sign in"} /-->'
+		);
+
+		$this->assertNotEmpty( $output );
+		$this->assertStringContainsString( 'newspack-reader__account-link__label', $output );
+		$this->assertStringContainsString( 'wp-block-newspack-my-account-button__icon', $output );
+	}
+
+	/**
+	 * Test empty signed-in label falls back to default.
+	 */
+	public function test_render_block_empty_signed_in_label() {
+		self::$reader_activation_enabled = true;
 
 		$user_id = self::factory()->user->create(
 			[
@@ -118,7 +183,8 @@ class Newspack_Test_My_Account_Button_Block extends WP_UnitTestCase {
 			'<!-- wp:newspack/my-account-button {"signedInLabel":"","signedOutLabel":"Sign in"} /-->'
 		);
 
-		$this->assertSame( '', trim( $signed_in_output ) );
+		$this->assertNotEmpty( $signed_in_output );
+		$this->assertStringContainsString( '&quot;signedin&quot;:&quot;My Account&quot;', $signed_in_output );
 	}
 
 	/**

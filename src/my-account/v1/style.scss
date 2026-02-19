@@ -21,12 +21,11 @@
 			width: auto;
 		}
 		.woocommerce {
-			padding: var(--newspack-ui-spacer-11) var(--newspack-ui-spacer-3);
+			padding: 0 var(--newspack-ui-spacer-3) var(--newspack-ui-spacer-3);
 
 			/* WooCommerce breakpoint is 768px. */
 			@media ( min-width: 768px ) {
-				padding-left: var(--newspack-ui-spacer-5);
-				padding-right: var(--newspack-ui-spacer-5);
+				padding: var(--newspack-ui-spacer-11) var(--newspack-ui-spacer-5);
 			}
 		}
 		.woocommerce-MyAccount-navigation,

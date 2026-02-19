@@ -65,6 +65,14 @@ abstract class Integration {
 		return $this->name;
 	}
 
+	/**
+	 * Whether contacts can be synced to the ESP.
+	 *
+	 * @param bool $return_errors Optional. Whether to return a WP_Error object. Default false.
+	 *
+	 * @return bool|WP_Error True if contacts can be synced, false otherwise. WP_Error if return_errors is true.
+	 */
+	abstract public function can_sync( $return_errors = false );
 
 	/**
 	 * Push contact data to the integration destination.

@@ -35,7 +35,7 @@ class Test_Content_Gates extends \WP_UnitTestCase {
 	 */
 	public function set_up() {
 		parent::set_up();
-		$this->gate_ids[] = Content_Gate::create_gate( 'Draft Gate' );
+		$this->gate_ids[] = Content_Gate::create_gate( [ 'title' => 'Draft Gate' ] );
 		Content_Gate::update_gate_settings(
 			$this->gate_ids[0],
 			[
@@ -60,7 +60,7 @@ class Test_Content_Gates extends \WP_UnitTestCase {
 				],
 			]
 		);
-		$this->gate_ids[] = Content_Gate::create_gate( 'Trash Gate' );
+		$this->gate_ids[] = Content_Gate::create_gate( [ 'title' => 'Trash Gate' ] );
 		Content_Gate::update_gate_settings(
 			$this->gate_ids[1],
 			[
@@ -85,7 +85,7 @@ class Test_Content_Gates extends \WP_UnitTestCase {
 				],
 			]
 		);
-		$this->gate_ids[] = Content_Gate::create_gate( 'Published Gate' );
+		$this->gate_ids[] = Content_Gate::create_gate( [ 'title' => 'Published Gate' ] );
 		Content_Gate::update_gate_settings(
 			$this->gate_ids[2],
 			[
@@ -110,7 +110,7 @@ class Test_Content_Gates extends \WP_UnitTestCase {
 				],
 			]
 		);
-		$this->gate_ids[] = Content_Gate::create_gate( 'Published Gate w/ missing config' );
+		$this->gate_ids[] = Content_Gate::create_gate( [ 'title' => 'Published Gate w/ missing config' ] );
 		Content_Gate::update_gate_settings(
 			$this->gate_ids[3],
 			[
@@ -258,7 +258,7 @@ class Test_Content_Gates extends \WP_UnitTestCase {
 	 * Test that gate layouts are created when a gate is created.
 	 */
 	public function test_create_gate_creates_layouts() {
-		$gate_id = Content_Gate::create_gate( 'Test Gate' );
+		$gate_id = Content_Gate::create_gate( [ 'title' => 'Test Gate' ] );
 		$this->gate_ids[] = $gate_id;
 
 		$gate = Content_Gate::get_gate( $gate_id );
@@ -273,13 +273,15 @@ class Test_Content_Gates extends \WP_UnitTestCase {
 		$this->assertNotNull( $custom_access_layout, 'Custom access layout post should exist' );
 		$this->assertEquals( Content_Gate::GATE_LAYOUT_CPT, $registration_layout->post_type, 'Registration layout should be correct post type' );
 		$this->assertEquals( Content_Gate::GATE_LAYOUT_CPT, $custom_access_layout->post_type, 'Custom access layout should be correct post type' );
+		$this->assertEquals( 'publish', $registration_layout->post_status, 'Registration layout should be published' );
+		$this->assertEquals( 'publish', $custom_access_layout->post_status, 'Custom access layout should be published' );
 	}
 
 	/**
 	 * Test that layouts are deleted when a gate is permanently deleted.
 	 */
 	public function test_delete_gate_deletes_layouts() {
-		$gate_id = Content_Gate::create_gate( 'Test Gate for Deletion' );
+		$gate_id = Content_Gate::create_gate( [ 'title' => 'Test Gate for Deletion' ] );
 		$gate = Content_Gate::get_gate( $gate_id );
 
 		$registration_layout_id = $gate['registration']['gate_layout_id'];
@@ -301,8 +303,8 @@ class Test_Content_Gates extends \WP_UnitTestCase {
 	 * Test that only layouts associated with the deleted gate are removed.
 	 */
 	public function test_delete_gate_only_deletes_own_layouts() {
-		$gate1_id = Content_Gate::create_gate( 'Gate 1' );
-		$gate2_id = Content_Gate::create_gate( 'Gate 2' );
+		$gate1_id = Content_Gate::create_gate( [ 'title' => 'Gate 1' ] );
+		$gate2_id = Content_Gate::create_gate( [ 'title' => 'Gate 2' ] );
 		$this->gate_ids[] = $gate2_id;
 
 		$gate1 = Content_Gate::get_gate( $gate1_id );
@@ -327,7 +329,7 @@ class Test_Content_Gates extends \WP_UnitTestCase {
 	 * Test that deleting a gate handles missing layouts gracefully.
 	 */
 	public function test_delete_gate_handles_missing_layouts() {
-		$gate_id = Content_Gate::create_gate( 'Test Gate' );
+		$gate_id = Content_Gate::create_gate( [ 'title' => 'Test Gate' ] );
 		$gate = Content_Gate::get_gate( $gate_id );
 
 		$registration_layout_id = $gate['registration']['gate_layout_id'];
@@ -348,7 +350,7 @@ class Test_Content_Gates extends \WP_UnitTestCase {
 	 */
 	public function test_delete_gate_handles_gates_without_layouts() {
 		// Create a gate and manually remove layout IDs to simulate a legacy gate.
-		$gate_id = Content_Gate::create_gate( 'Legacy Gate' );
+		$gate_id = Content_Gate::create_gate( [ 'title' => 'Legacy Gate' ] );
 		$gate = Content_Gate::get_gate( $gate_id );
 
 		// Delete the auto-created layouts and clear the settings.
@@ -387,7 +389,7 @@ class Test_Content_Gates extends \WP_UnitTestCase {
 	 * Test that get_inline_gate_content_for_post returns actual content when layout post exists.
 	 */
 	public function test_inline_gate_content_with_existing_layout() {
-		$gate_id = Content_Gate::create_gate( 'Test Gate' );
+		$gate_id = Content_Gate::create_gate( [ 'title' => 'Test Gate' ] );
 		$this->gate_ids[] = $gate_id;
 
 		$gate = Content_Gate::get_gate( $gate_id );
@@ -424,7 +426,7 @@ class Test_Content_Gates extends \WP_UnitTestCase {
 	 * Test that get_inline_gate_content_for_post returns empty string for overlay style.
 	 */
 	public function test_inline_gate_content_returns_empty_for_overlay_style() {
-		$gate_id = Content_Gate::create_gate( 'Test Gate' );
+		$gate_id = Content_Gate::create_gate( [ 'title' => 'Test Gate' ] );
 		$this->gate_ids[] = $gate_id;
 
 		$gate = Content_Gate::get_gate( $gate_id );
@@ -464,7 +466,7 @@ class Test_Content_Gates extends \WP_UnitTestCase {
 	 * Test that get_restricted_post_excerpt_for_gate respects layout settings.
 	 */
 	public function test_restricted_excerpt_with_existing_layout() {
-		$gate_id = Content_Gate::create_gate( 'Test Gate' );
+		$gate_id = Content_Gate::create_gate( [ 'title' => 'Test Gate' ] );
 		$this->gate_ids[] = $gate_id;
 
 		$gate = Content_Gate::get_gate( $gate_id );
@@ -747,7 +749,7 @@ class Test_Content_Gates extends \WP_UnitTestCase {
 	 */
 	public function test_custom_access_returns_grouped_rules() {
 		// Create a gate with flat access rules (legacy format).
-		$gate_id = Content_Gate::create_gate( 'Test Grouped Rules Gate' );
+		$gate_id = Content_Gate::create_gate( [ 'title' => 'Test Grouped Rules Gate' ] );
 		$this->gate_ids[] = $gate_id;
 
 		// Save flat rules directly to post meta (simulating legacy data).
@@ -783,7 +785,7 @@ class Test_Content_Gates extends \WP_UnitTestCase {
 	 * Test that already grouped access_rules remain unchanged.
 	 */
 	public function test_custom_access_preserves_grouped_rules() {
-		$gate_id = Content_Gate::create_gate( 'Test Preserve Grouped Rules Gate' );
+		$gate_id = Content_Gate::create_gate( [ 'title' => 'Test Preserve Grouped Rules Gate' ] );
 		$this->gate_ids[] = $gate_id;
 
 		// Save already grouped rules.
