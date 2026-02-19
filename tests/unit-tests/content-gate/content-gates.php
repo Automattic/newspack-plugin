@@ -273,6 +273,8 @@ class Test_Content_Gates extends \WP_UnitTestCase {
 		$this->assertNotNull( $custom_access_layout, 'Custom access layout post should exist' );
 		$this->assertEquals( Content_Gate::GATE_LAYOUT_CPT, $registration_layout->post_type, 'Registration layout should be correct post type' );
 		$this->assertEquals( Content_Gate::GATE_LAYOUT_CPT, $custom_access_layout->post_type, 'Custom access layout should be correct post type' );
+		$this->assertEquals( 'publish', $registration_layout->post_status, 'Registration layout should be published' );
+		$this->assertEquals( 'publish', $custom_access_layout->post_status, 'Custom access layout should be published' );
 	}
 
 	/**

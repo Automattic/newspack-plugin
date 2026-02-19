@@ -581,6 +581,7 @@ class Content_Gate {
 				'post_title'   => $title,
 				'post_type'    => self::GATE_LAYOUT_CPT,
 				'post_content' => $content,
+				'post_status'  => 'publish',
 			],
 			true // Return WP_Error on failure.
 		);
