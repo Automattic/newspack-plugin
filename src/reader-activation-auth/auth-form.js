@@ -163,12 +163,6 @@ window.newspackRAS.push( function ( readerActivation ) {
 				if ( container.formActionCallback ) {
 					container.formActionCallback( action );
 				}
-				// Hide back buttons when authenticated to prevent switching to a different email.
-				if ( readerActivation.getReader()?.authenticated ) {
-					backButtons.forEach( button => {
-						button.style.display = 'none';
-					} );
-				}
 			};
 			container.setFormAction( 'signin' );
 
@@ -192,6 +186,14 @@ window.newspackRAS.push( function ( readerActivation ) {
 			backButtons.forEach( backButton => {
 				backButton.addEventListener( 'click', function ( ev ) {
 					ev.preventDefault();
+					// Close the modal instead of navigating back when configured or if the reader is authenticated.
+					if ( container.config?.backButtonClosesModal || readerActivation.getReader()?.authenticated ) {
+						const modal = container.closest( '.newspack-ui__modal-container' );
+						if ( modal ) {
+							modal.setAttribute( 'data-state', 'closed' );
+							return;
+						}
+					}
 					form.setMessageContent();
 					container.setFormAction( 'signin', true );
 				} );

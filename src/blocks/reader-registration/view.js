@@ -35,6 +35,7 @@ window.newspackRAS.push( function ( readerActivation ) {
 		openAuthModal( {
 			skipAuthenticatedCheck: true,
 			skipNewslettersSignup: true,
+			backButtonClosesModal: true,
 			initialState,
 			closeOnSuccess: true,
 			skipSuccess: false,
