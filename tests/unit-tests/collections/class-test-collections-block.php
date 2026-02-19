@@ -199,7 +199,7 @@ class Test_Collections_Block extends \WP_UnitTestCase {
 			'imageSize' => 'small',
 		];
 		$size       = Collections_Block::get_image_size_from_attributes( $attributes );
-		$this->assertEquals( 'medium', $size, 'Small should map to medium' );
+		$this->assertEquals( 'newspack_collection_small', $size, 'Small should map to newspack_collection_small' );
 
 		// Test medium size.
 		$attributes = [
@@ -207,7 +207,7 @@ class Test_Collections_Block extends \WP_UnitTestCase {
 			'imageSize' => 'medium',
 		];
 		$size       = Collections_Block::get_image_size_from_attributes( $attributes );
-		$this->assertEquals( 'medium_large', $size, 'Medium should map to medium_large' );
+		$this->assertEquals( 'newspack_collection_medium', $size, 'Medium should map to newspack_collection_medium' );
 
 		// Test large size.
 		$attributes = [
@@ -215,17 +215,40 @@ class Test_Collections_Block extends \WP_UnitTestCase {
 			'imageSize' => 'large',
 		];
 		$size       = Collections_Block::get_image_size_from_attributes( $attributes );
-		$this->assertEquals( 'full', $size, 'Large should map to full' );
+		$this->assertEquals( 'newspack_collection_large', $size, 'Large should map to newspack_collection_large' );
 
 		// Test default.
 		$attributes = [ 'layout' => 'list' ];
 		$size       = Collections_Block::get_image_size_from_attributes( $attributes );
-		$this->assertEquals( 'medium', $size, 'Default should be medium' );
+		$this->assertEquals( 'newspack_collection_small', $size, 'Default should be newspack_collection_small' );
 
-		// Test grid layout.
-		$attributes = [ 'layout' => 'grid' ];
+		// Test grid layout with columns < 3 (should return newspack_collection_large).
+		foreach ( [ 1, 2 ] as $columns ) {
+			$attributes = [
+				'layout'  => 'grid',
+				'columns' => $columns,
+			];
+			$size       = Collections_Block::get_image_size_from_attributes( $attributes );
+			$this->assertEquals( 'newspack_collection_large', $size, "Grid layout with {$columns} columns should map to newspack_collection_large" );
+		}
+
+		// Test grid layout with columns = 3 (should return newspack_collection_medium).
+		$attributes = [
+			'layout'  => 'grid',
+			'columns' => 3,
+		];
 		$size       = Collections_Block::get_image_size_from_attributes( $attributes );
-		$this->assertEquals( 'post-thumbnail', $size, 'Grid layout should map to post-thumbnail' );
+		$this->assertEquals( 'newspack_collection_medium', $size, 'Grid layout with 3 columns should map to newspack_collection_medium' );
+
+		// Test grid layout with columns >= 4 (should return newspack_collection_small).
+		foreach ( [ 4, 5, 6 ] as $columns ) {
+			$attributes = [
+				'layout'  => 'grid',
+				'columns' => $columns,
+			];
+			$size       = Collections_Block::get_image_size_from_attributes( $attributes );
+			$this->assertEquals( 'newspack_collection_small', $size, "Grid layout with {$columns} columns should map to newspack_collection_small" );
+		}
 	}
 
 	/**

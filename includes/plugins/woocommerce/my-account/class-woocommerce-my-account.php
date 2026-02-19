@@ -7,7 +7,7 @@
 
 namespace Newspack;
 
-use Newspack\Reader_Activation\ESP_Sync;
+use Newspack\Reader_Activation\Contact_Sync;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -112,12 +112,12 @@ class WooCommerce_My_Account {
 		 *
 		 * @constant NEWSPACK_MY_ACCOUNT_VERSION
 		 * @type     string
-		 * @default  '0.0.0' (core WooCommerce My Account)
+		 * @default  '1.0.0' (Newspack custom My Account)
 		 * @status   draft
 		 *
 		 * @example define( 'NEWSPACK_MY_ACCOUNT_VERSION', '1.0.0' );
 		 */
-		$version = defined( 'NEWSPACK_MY_ACCOUNT_VERSION' ) ? NEWSPACK_MY_ACCOUNT_VERSION : '0.0.0';
+		$version = defined( 'NEWSPACK_MY_ACCOUNT_VERSION' ) ? NEWSPACK_MY_ACCOUNT_VERSION : '1.0.0'; // Increment this version number to default to a newer My Account version.
 
 		/**
 		 * Filters the version number of the Newspack My Account UI.
@@ -1259,14 +1259,14 @@ class WooCommerce_My_Account {
 	 * @param string $old_email Old email address.
 	 */
 	public static function sync_email_change_with_esp( $user_id, $new_email, $old_email ) {
-		if ( ! ESP_Sync::can_esp_sync() ) {
+		if ( ! Contact_Sync::has_one_syncable_integration() ) {
 			return;
 		}
-		$contact = ESP_Sync::get_contact_data( $user_id );
+		$contact = Contact_Sync::get_contact_data( $user_id );
 		if ( ! $contact || is_wp_error( $contact ) ) {
 			return;
 		}
-		$update = ESP_Sync::sync( $contact, 'Email_Change', array_merge( $contact, [ 'email' => $old_email ] ) );
+		$update = Contact_Sync::sync( $contact, 'Email_Change', array_merge( $contact, [ 'email' => $old_email ] ) );
 		if ( is_wp_error( $update ) ) {
 			// If the update failed, retry in 24 hours.
 			\wp_schedule_single_event( time() + DAY_IN_SECONDS, self::SYNC_ESP_EMAIL_CHANGE_CRON_HOOK, [ $user_id, $new_email, $old_email ] );

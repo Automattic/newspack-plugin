@@ -16,7 +16,7 @@ concurrency:
 
 jobs:
   lint-php:
-    uses: Automattic/newspack-scripts/.github/workflows/reusable-lint-php.yml
+    uses: Automattic/newspack-scripts/.github/workflows/reusable-lint-php.yml@trunk
 
   test-php:
-    uses: Automattic/newspack-scripts/.github/workflows/reusable-test-php.yml
+    uses: Automattic/newspack-scripts/.github/workflows/reusable-test-php.yml@trunk

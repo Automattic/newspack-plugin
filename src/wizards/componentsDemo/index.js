@@ -9,10 +9,10 @@ import '../../shared/js/public-path';
 /**
  * WordPress dependencies.
  */
+import { CardBody, CardDivider, CardMedia, ExternalLink, ToggleControl } from '@wordpress/components';
 import { Component, Fragment, render, createInterpolateElement, createRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Icon, audio, category, plus, reusableBlock, typography } from '@wordpress/icons';
-import { ExternalLink } from '@wordpress/components';
+import { Icon, audio, category, plus, postList, reusableBlock, settings, typography } from '@wordpress/icons';
 
 /**
  * Internal dependencies.
@@ -25,6 +25,7 @@ import {
 	Button,
 	ButtonCard,
 	Card,
+	CardSettingsGroup,
 	ColorPicker,
 	Footer,
 	Grid,
@@ -38,6 +39,8 @@ import {
 	PluginToggle,
 	ProgressBar,
 	SelectControl,
+	TextControl,
+	Divider,
 	Waiting,
 	WebPreview,
 } from '../../../packages/components/src';
@@ -68,6 +71,7 @@ class ComponentsDemo extends Component {
 				{ id: 4, title: 'Draggable Item 4' },
 				{ id: 5, title: 'Draggable Item 5' },
 			],
+			settingsGroupCardActive: false,
 		};
 		this.dragWrapperRef = createRef();
 	}
@@ -122,7 +126,7 @@ class ComponentsDemo extends Component {
 							selectedItems={ selectedPostForAutocompleteWithSuggestions }
 						/>
 
-						<hr />
+						<Divider marginTop={ 32 } marginBottom={ 32 } />
 
 						<h2>{ __( 'Autocomplete with Suggestions (multi-select)', 'newspack-plugin' ) }</h2>
 						<AutocompleteWithSuggestions
@@ -153,7 +157,7 @@ class ComponentsDemo extends Component {
 							selectedItems={ selectedPostForAutocompleteWithLatestPosts }
 						/>
 
-						<hr />
+						<Divider marginTop={ 32 } marginBottom={ 32 } />
 
 						<h2>{ __( 'Autocomplete with Latest Posts (multi-select)', 'newspack-plugin' ) }</h2>
 						<AutocompleteWithLatestPosts
@@ -612,6 +616,7 @@ class ComponentsDemo extends Component {
 								<Button>{ __( 'Default', 'newspack-plugin' ) }</Button>
 								<Button isLink>{ __( 'isLink', 'newspack-plugin' ) }</Button>
 							</Card>
+							<Divider variant="tertiary" />
 							<p>
 								<strong>{ __( 'Disabled', 'newspack-plugin' ) }</strong>
 							</p>
@@ -630,6 +635,7 @@ class ComponentsDemo extends Component {
 									{ __( 'isLink', 'newspack-plugin' ) }
 								</Button>
 							</Card>
+							<Divider variant="tertiary" />
 							<p>
 								<strong>{ __( 'Small', 'newspack-plugin' ) }</strong>
 							</p>
@@ -694,6 +700,110 @@ class ComponentsDemo extends Component {
 							isSmall
 							grouped
 						/>
+					</Card>
+					<Card>
+						<h2>{ __( 'Card (experimental Core component)', 'newspack-plugin' ) }</h2>
+						<p>
+							{ __(
+								'By passing the __experimentalCoreCard prop, the card will be rendered using WP Core’s Card component. ',
+								'newspack-plugin'
+							) }
+							<ExternalLink href="https://wordpress.github.io/gutenberg/?path=/docs/components-card--docs">
+								{ __( 'Component details', 'newspack-plugin' ) }
+							</ExternalLink>
+						</p>
+						<Card
+							__experimentalCoreCard
+							__experimentalCoreProps={ {
+								actionType: 'chevron',
+								as: 'a',
+								header: (
+									<>
+										<h3>{ __( 'Button card w/ icon', 'newspack-plugin' ) }</h3>
+										<p>{ __( 'Can be used in lieu of the Newspack ButtonCard component.', 'newspack-plugin' ) }</p>
+									</>
+								),
+								href: '#',
+								icon: plus,
+							} }
+						/>
+						<Card
+							isSmall
+							__experimentalCoreCard
+							__experimentalCoreProps={ {
+								actionType: 'chevron',
+								as: 'a',
+								header: (
+									<>
+										<h3>{ __( 'Small button card w/ icon + background color + chevron', 'newspack-plugin' ) }</h3>
+										<p>{ __( 'Can be used in lieu of the Newspack ButtonCard component.', 'newspack-plugin' ) }</p>
+									</>
+								),
+								href: '#',
+								icon: postList,
+								iconBackgroundColor: true,
+							} }
+						/>
+						<Card
+							__experimentalCoreCard
+							__experimentalCoreProps={ {
+								header: <h3>{ __( 'Card w/ child components', 'newspack-plugin' ) }</h3>,
+								footer: (
+									<>
+										<p>{ __( 'Card Footer', 'newspack-plugin' ) }</p>
+										<Button __next40pxDefaultSize variant="secondary">
+											{ __( 'Action Button', 'newspack-plugin' ) }
+										</Button>
+									</>
+								),
+							} }
+						>
+							<>
+								<CardBody key="1">
+									<p>{ __( 'Recommended top-level child components: CardBody, CardMedia, or CardDivider.', 'newspack-plugin' ) }</p>
+								</CardBody>
+								<CardMedia key="2">
+									<img
+										alt="Card Media"
+										src="https://images.unsplash.com/photo-1566125882500-87e10f726cdc?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1867&q=80"
+									/>
+								</CardMedia>
+								<CardBody key="4">
+									<p>{ __( 'CardBody (before CardDivider)', 'newspack-plugin' ) }</p>
+								</CardBody>
+								<CardDivider key="4" />
+								<CardBody key="5">
+									<p>{ __( 'CardBody (after CardDivider)', 'newspack-plugin' ) }</p>
+								</CardBody>
+							</>
+						</Card>
+						<CardSettingsGroup
+							actionType="toggle"
+							title={ __( 'Settings Group Card', 'newspack-plugin' ) }
+							description={ __( 'Can be used in lieu of the ActionCard component.', 'newspack-plugin' ) }
+							icon={ settings }
+							isActive={ this.state.settingsGroupCardActive }
+							onEnable={ () => this.setState( { settingsGroupCardActive: ! this.state.settingsGroupCardActive } ) }
+						>
+							<>
+								<CardBody>
+									<ToggleControl
+										label={ __( 'A settings option', 'newspack-plugin' ) }
+										help={ __( 'A description of the setting', 'newspack-plugin' ) }
+										checked={ false }
+									/>
+								</CardBody>
+								<CardDivider />
+								<CardBody>
+									<TextControl
+										label={ __( 'A text input', 'newspack-plugin' ) }
+										help={ __( 'A description of the input', 'newspack-plugin' ) }
+										placeholder={ __( 'A placeholder for the input', 'newspack-plugin' ) }
+										value={ '' }
+									/>
+								</CardBody>
+							</>
+						</CardSettingsGroup>
 					</Card>
 					<Card>
 						<h2>{ __( 'Plugin Settings Section', 'newspack-plugin' ) }</h2>

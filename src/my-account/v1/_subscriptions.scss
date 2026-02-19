@@ -1,0 +1,146 @@
+.woocommerce-account.newspack-my-account.newspack-ui {
+	table.shop_table.order_details,
+	table.shop_table.subscription_details {
+		th, td {
+			border-bottom: none;
+		}
+		thead th,
+		td.product-name,
+		td.total {
+			font-weight: 700;
+		}
+		th.product-total {
+			font-weight: 400;
+		}
+	}
+	table.shop_table.order_details {
+		th, td {
+			padding-bottom: 4px;
+			padding-top: 4px;
+		}
+		thead th {
+			color: var(--newspack-ui-color-neutral-90);
+		}
+		td.product-name {
+			color: var(--newspack-ui-color-neutral-60);
+			font-weight: 600;
+		}
+		& + .subscription_details {
+			margin-top: var(--newspack-ui-spacer-2);
+		}
+	}
+	table.shop_table.subscription_details {
+		margin-bottom: var(--newspack-ui-spacer-5);
+		td:first-child,
+		.subscription-payment-method {
+			font-weight: 700;
+		}
+	}
+	table#woocommerce-subscriptions-related-orders-table,
+	table.woocommerce-orders-table--subscriptions,
+	table.woocommerce-orders-table.account-orders-table {
+		td.woocommerce-orders-table__cell-order-actions {
+			text-align: right !important;
+		}
+		@media ( min-width: 768px ) {
+			table-layout: auto;
+			td {
+				width: calc( 25% - 12px );
+				&.woocommerce-orders-table__cell-order-actions {
+					width: 48px;
+				}
+			}
+		}
+	}
+	.newspack-my-account__subscription {
+		&--header {
+			display: flex;
+			flex-direction: column;
+			gap: var(--newspack-ui-spacer-2);
+			justify-content: space-between;
+			margin-bottom: var(--newspack-ui-spacer-6);
+			@media ( min-width: 768px ) {
+				align-items: center;
+				flex-direction: row;
+				margin-bottom: var(--newspack-ui-spacer-8);
+			}
+			.newspack-my-account__subscription--actions-dropdown {
+				display: none;
+				@media ( min-width: 768px ) {
+					display: block;
+				}
+			}
+			a.wcs-switch-link {
+				margin-top: 0;
+			}
+
+			/* Hide the "Subscription totals" header. */
+			& + h2 {
+				display: none;
+			}
+		}
+		&--title {
+			align-items: center;
+			display: flex;
+			gap: var(--newspack-ui-spacer-base);
+			flex-wrap: wrap;
+
+			h2 {
+				margin: 0;
+			}
+		}
+		&--back-link {
+			margin: 0;
+
+			@media ( min-width: 768px ) {
+				margin-left: calc(var(--newspack-ui-spacer-8) * -1 - var(--newspack-ui-spacer-base));
+			}
+		}
+		&--actions {
+			display: flex;
+			column-gap: var(--newspack-ui-spacer-2);
+			.newspack-ui__button {
+				width: 100%;
+				@media ( min-width: 768px ) {
+					width: auto;
+				}
+			}
+		}
+		&--actions-container {
+			width: 100%;
+			.newspack-ui__button {
+			@media ( min-width: 768px ) {
+					font-size: var(--newspack-ui-font-size-xs);
+					line-height: var(--newspack-ui-line-height-xs);
+					min-height: var(--newspack-ui-spacer-8);
+					padding: var(--newspack-ui-spacer-base) var(--newspack-ui-spacer-3);
+					&.newspack-my-account__subscription--action-link {
+						display: none;
+					}
+				}
+			}
+		}
+		&--order-status-label {
+			background: var(--newspack-ui-color-neutral-60);
+			border-radius: 100%;
+			display: inline-grid;
+			height: var(--newspack-ui-spacer-base);
+			margin-bottom: 1px;
+			margin-right: calc( var(--newspack-ui-spacer-base) - 0.25em);
+			width: var(--newspack-ui-spacer-base);
+			&.completed,
+			&.refunded {
+				background: var(--newspack-ui-color-success-50);
+			}
+			&.on-hold,
+			&.pending,
+			&.processing {
+				background: var(--newspack-ui-color-warning-50);
+			}
+			&.cancelled,
+			&.failed {
+				background: var(--newspack-ui-color-error-50);
+			}
+		}
+	}
+}

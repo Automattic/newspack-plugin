@@ -279,6 +279,98 @@ class Test_Content_Inserter extends \WP_UnitTestCase {
 	}
 
 	/**
+	 * Test check_if_post_is_in_collection excludes draft collections.
+	 *
+	 * @covers \Newspack\Collections\Content_Inserter::check_if_post_is_in_collection
+	 */
+	public function test_draft_collection_excludes_indicator() {
+		$filter_name     = 'the_content';
+		$filter_function = [ Content_Inserter::class, 'maybe_insert_collection_indicators' ];
+
+		// Create a draft collection and assign a post to it.
+		$collection_id = $this->create_test_collection( [ 'post_status' => 'draft' ] );
+		$post_id       = self::factory()->post->create();
+		$term_id       = Sync::get_term_linked_to_collection( $collection_id );
+		wp_set_object_terms( $post_id, $term_id, Collection_Taxonomy::get_taxonomy() );
+
+		$this->go_to( get_permalink( $post_id ) );
+		Content_Inserter::check_if_post_is_in_collection();
+
+		$this->assertFalse( has_filter( $filter_name, $filter_function ), 'Filter should not be added when collection is a draft.' );
+
+		// Reset state.
+		$this->reset_content_inserter_state();
+
+		// Now publish the collection and verify the filter IS added.
+		wp_update_post(
+			[
+				'ID'          => $collection_id,
+				'post_status' => 'publish',
+			]
+		);
+
+		$this->go_to( get_permalink( $post_id ) );
+		Content_Inserter::check_if_post_is_in_collection();
+
+		$this->assertNotFalse( has_filter( $filter_name, $filter_function ), 'Filter should be added when collection is published.' );
+
+		// Clean up.
+		$this->reset_enqueuer_data();
+	}
+
+	/**
+	 * Test check_if_post_is_in_collection with mix of published, draft, and scheduled collections.
+	 *
+	 * @covers \Newspack\Collections\Content_Inserter::check_if_post_is_in_collection
+	 */
+	public function test_mixed_status_collections_only_includes_published() {
+		// Create one published, one draft, and one scheduled collection.
+		$published_id = $this->create_test_collection(
+			[
+				'post_title'  => 'Published Collection',
+				'post_name'   => 'published-collection',
+				'post_status' => 'publish',
+			]
+		);
+		$draft_id     = $this->create_test_collection(
+			[
+				'post_title'  => 'Draft Collection',
+				'post_name'   => 'draft-collection',
+				'post_status' => 'draft',
+			]
+		);
+		$scheduled_id = $this->create_test_collection(
+			[
+				'post_title'  => 'Scheduled Collection',
+				'post_name'   => 'scheduled-collection',
+				'post_status' => 'future',
+				'post_date'   => gmdate( 'Y-m-d H:i:s', strtotime( '+1 week' ) ),
+			]
+		);
+
+		// Create a post and assign it to all three collections.
+		$post_id        = self::factory()->post->create();
+		$published_term = Sync::get_term_linked_to_collection( $published_id );
+		$draft_term     = Sync::get_term_linked_to_collection( $draft_id );
+		$scheduled_term = Sync::get_term_linked_to_collection( $scheduled_id );
+		wp_set_object_terms( $post_id, [ $published_term, $draft_term, $scheduled_term ], Collection_Taxonomy::get_taxonomy() );
+
+		$this->go_to( get_permalink( $post_id ) );
+		Content_Inserter::check_if_post_is_in_collection();
+
+		// The stored collections should only include the published one.
+		$reflection  = new \ReflectionClass( Content_Inserter::class );
+		$collections = $reflection->getStaticPropertyValue( 'post_collections' );
+
+		$this->assertContains( $published_id, $collections, 'Published collection should be included.' );
+		$this->assertNotContains( $draft_id, $collections, 'Draft collection should be excluded.' );
+		$this->assertNotContains( $scheduled_id, $collections, 'Scheduled collection should be excluded.' );
+
+		// Clean up.
+		$this->reset_enqueuer_data();
+	}
+
+	/**
 	 * Test build_default_indicator_html with empty collections.
 	 *
 	 * @covers \Newspack\Collections\Content_Inserter::build_default_indicator_html

@@ -16,7 +16,7 @@ class Logger {
 	/**
 	 * A logger.
 	 *
-	 * @param any    $payload The payload to log.
+	 * @param mixed  $payload The payload to log.
 	 * @param string $header Log message header.
 	 * @param string $type Type of the message.
 	 */
@@ -86,7 +86,7 @@ class Logger {
 	/**
 	 * A logger for errors.
 	 *
-	 * @param any    $payload The payload to log.
+	 * @param mixed  $payload The payload to log.
 	 * @param string $header Log message header.
 	 */
 	public static function error( $payload, $header = 'NEWSPACK' ) {

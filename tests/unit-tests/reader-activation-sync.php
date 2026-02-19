@@ -7,9 +7,11 @@
 
 use Newspack\Reader_Activation;
 use Newspack\Reader_Activation\Sync;
-use Newspack\Reader_Activation\ESP_Sync;
+use Newspack\Reader_Activation\Contact_Sync;
+use Newspack\Reader_Activation\Integrations;
 
 require_once __DIR__ . '/../mocks/newsletters-mocks.php';
+require_once __DIR__ . '/integrations/class-failing-sample-integration.php';
 
 /**
  * Test the Esp_Metadata_Sync class.
@@ -45,9 +47,9 @@ class Newspack_Test_Reader_Activation_Sync extends WP_UnitTestCase {
 	 * Test whether reader data can be synced.
 	 */
 	public function test_can_esp_sync() {
-		$this->assertFalse( ESP_Sync::can_esp_sync(), 'Reader data should not be syncable by default' );
+		$this->assertFalse( Contact_Sync::can_sync(), 'Reader data should not be syncable by default' );
 
-		$errors = ESP_Sync::can_esp_sync( true );
+		$errors = Contact_Sync::can_sync( true );
 		$this->assertInstanceOf( 'WP_Error', $errors );
 
 		// Assert all errors.
@@ -56,11 +58,24 @@ class Newspack_Test_Reader_Activation_Sync extends WP_UnitTestCase {
 		$this->assertNotContains( 'ras_not_enabled', $error_codes, 'Reader Activation is always enabled in test env' );
 		$this->assertNotContains( 'ras_esp_sync_not_enabled', $error_codes, 'RAS ESP Sync is enabled by default' );
 		$this->assertContains( 'esp_sync_not_allowed', $error_codes, 'RAS ESP Sync is not allowed on non-production site' );
+	}
+
+	/**
+	 * Test specific ESP integration checks.
+	 */
+	public function test_esp_integration_checks() {
+
+		$esp_integration = new Integrations\ESP();
+		$errors = $esp_integration->can_sync( true );
+		$this->assertInstanceOf( 'WP_Error', $errors );
+		$this->assertTrue( $errors->has_errors() );
+		$error_codes = $errors->get_error_codes();
+
 		$this->assertContains( 'ras_esp_master_list_id_not_found', $error_codes, 'Missing master list ID' );
 
 		// Disable ESP sync.
 		Reader_Activation::update_setting( 'sync_esp', false );
-		$errors = ESP_Sync::can_esp_sync( true );
+		$errors = $esp_integration->can_sync( true );
 		$this->assertContains( 'ras_esp_sync_not_enabled', $errors->get_error_codes(), 'RAS ESP Sync is disabled' );
 
 		// Reenable ESP sync.
@@ -68,25 +83,19 @@ class Newspack_Test_Reader_Activation_Sync extends WP_UnitTestCase {
 
 		// Allow ESP sync via constant. We're not testing `Newspack_Manager::is_connected_to_production_manager()` here.
 		define( 'NEWSPACK_ALLOW_READER_SYNC', true );
-		$errors = ESP_Sync::can_esp_sync( true );
+		$errors = $esp_integration->can_sync( true );
 		$this->assertNotContains( 'esp_sync_not_allowed', $errors->get_error_codes(), 'RAS ESP Sync is allowed via constant' );
 
 		// Set master list ID.
 		update_option( 'newspack_newsletters_service_provider', 'mailchimp' );
 		Reader_Activation::update_setting( 'mailchimp_audience_id', '123' );
-		$errors = ESP_Sync::can_esp_sync( true );
+		$errors = $esp_integration->can_sync( true );
 		$this->assertNotContains( 'ras_esp_master_list_id_not_found', $errors->get_error_codes(), 'Master list ID is set' );
 
-		$this->assertTrue( ESP_Sync::can_esp_sync(), 'Reader data should be syncable after conditions are met' );
-	}
-
-	/**
-	 * Test whether reader data can be synced with a force constant.
-	 */
-	public function test_can_esp_sync_force() {
+		$this->assertTrue( $esp_integration->can_sync(), 'Reader data should be syncable after conditions are met' );
 		define( 'NEWSPACK_FORCE_ALLOW_ESP_SYNC', true );
-		$this->assertTrue( ESP_Sync::can_esp_sync(), 'Reader data should be syncable with a force constant' );
-		$errors = ESP_Sync::can_esp_sync( true );
+		$this->assertTrue( $esp_integration->can_sync(), 'Reader data should be syncable with a force constant' );
+		$errors = $esp_integration->can_sync( true );
 		$this->assertFalse( $errors->has_errors(), 'No errors should be returned with a force constant' );
 	}
 
@@ -269,5 +278,184 @@ class Newspack_Test_Reader_Activation_Sync extends WP_UnitTestCase {
 		$normalized = Sync\Metadata::normalize_contact_data( $contact );
 		$this->assertArrayHasKey( Sync\Metadata::get_key( 'signup_page_utm' ) . 'foo', $normalized['metadata'] );
 		$this->assertArrayHasKey( Sync\Metadata::get_key( 'payment_page_utm' ) . 'yyy', $normalized['metadata'] );
+	}
+
+	/**
+	 * Register a Failing_Sample_Integration and enable it.
+	 *
+	 * @param string $id Integration ID.
+	 * @return Failing_Sample_Integration
+	 */
+	private function register_failing_integration( $id = 'failing_mock' ) {
+		$integration = new Failing_Sample_Integration( $id, 'Failing Mock' );
+		Integrations::register( $integration );
+		Integrations::enable( $id );
+		return $integration;
+	}
+
+	/**
+	 * Test that a failed integration push schedules an AS retry.
+	 */
+	public function test_integration_retry_scheduling() {
+		if ( ! function_exists( 'as_schedule_single_action' ) ) {
+			$this->markTestSkipped( 'ActionScheduler not available.' );
+		}
+
+		Failing_Sample_Integration::reset();
+		Failing_Sample_Integration::$should_fail = true;
+		$this->register_failing_integration();
+
+		// Clear any pending retries.
+		as_unschedule_all_actions( Contact_Sync::RETRY_HOOK );
+
+		$contact = [
+			'email'    => 'retry@test.com',
+			'name'     => 'Retry Test',
+			'metadata' => [],
+		];
+
+		Contact_Sync::execute_integration_retry(
+			[
+				'integration_id'   => 'failing_mock',
+				'contact'          => $contact,
+				'context'          => 'Test',
+				'existing_contact' => null,
+				'retry_count'      => 1,
+			]
+		);
+
+		$pending = as_get_scheduled_actions(
+			[
+				'hook'   => Contact_Sync::RETRY_HOOK,
+				'group'  => 'newspack',
+				'status' => \ActionScheduler_Store::STATUS_PENDING,
+			],
+			'ARRAY_A'
+		);
+		$this->assertNotEmpty( $pending, 'A retry should be scheduled when an integration push fails.' );
+	}
+
+	/**
+	 * Test that a successful retry does not schedule another retry.
+	 */
+	public function test_integration_retry_success() {
+		if ( ! function_exists( 'as_schedule_single_action' ) ) {
+			$this->markTestSkipped( 'ActionScheduler not available.' );
+		}
+
+		Failing_Sample_Integration::reset();
+		$this->register_failing_integration( 'success_mock' );
+
+		// Clear any pending retries.
+		as_unschedule_all_actions( Contact_Sync::RETRY_HOOK );
+
+		$contact = [
+			'email'    => 'success@test.com',
+			'name'     => 'Success Test',
+			'metadata' => [],
+		];
+
+		Contact_Sync::execute_integration_retry(
+			[
+				'integration_id'   => 'success_mock',
+				'contact'          => $contact,
+				'context'          => 'Test',
+				'existing_contact' => null,
+				'retry_count'      => 1,
+			]
+		);
+
+		$this->assertEquals( 1, Failing_Sample_Integration::$push_count, 'Integration push should have been called once.' );
+
+		$pending = as_get_scheduled_actions(
+			[
+				'hook'   => Contact_Sync::RETRY_HOOK,
+				'group'  => 'newspack',
+				'status' => \ActionScheduler_Store::STATUS_PENDING,
+			],
+			'ARRAY_A'
+		);
+		$this->assertEmpty( $pending, 'No retry should be scheduled on success.' );
+	}
+
+	/**
+	 * Test that retries stop after MAX_RETRIES.
+	 */
+	public function test_integration_max_retries() {
+		if ( ! function_exists( 'as_schedule_single_action' ) ) {
+			$this->markTestSkipped( 'ActionScheduler not available.' );
+		}
+
+		Failing_Sample_Integration::reset();
+		Failing_Sample_Integration::$should_fail = true;
+		$this->register_failing_integration( 'max_mock' );
+
+		// Clear any pending retries.
+		as_unschedule_all_actions( Contact_Sync::RETRY_HOOK );
+
+		$contact = [
+			'email'    => 'max@test.com',
+			'name'     => 'Max Retry Test',
+			'metadata' => [],
+		];
+
+		// Simulate a retry at the max count — should NOT schedule another.
+		Contact_Sync::execute_integration_retry(
+			[
+				'integration_id'   => 'max_mock',
+				'contact'          => $contact,
+				'context'          => 'Test',
+				'existing_contact' => null,
+				'retry_count'      => Contact_Sync::MAX_RETRIES,
+			]
+		);
+
+		$pending = as_get_scheduled_actions(
+			[
+				'hook'   => Contact_Sync::RETRY_HOOK,
+				'group'  => 'newspack',
+				'status' => \ActionScheduler_Store::STATUS_PENDING,
+			],
+			'ARRAY_A'
+		);
+		$this->assertEmpty( $pending, 'No retry should be scheduled after max retries.' );
+	}
+
+	/**
+	 * Test that invalid retry data is handled gracefully.
+	 */
+	public function test_integration_retry_invalid_data() {
+		if ( ! function_exists( 'as_schedule_single_action' ) ) {
+			$this->markTestSkipped( 'ActionScheduler not available.' );
+		}
+
+		// Clear any pending retries.
+		as_unschedule_all_actions( Contact_Sync::RETRY_HOOK );
+
+		// Missing integration_id.
+		Contact_Sync::execute_integration_retry(
+			[
+				'contact'     => [ 'email' => 'test@test.com' ],
+				'retry_count' => 1,
+			]
+		);
+
+		// Missing contact.
+		Contact_Sync::execute_integration_retry(
+			[
+				'integration_id' => 'failing_mock',
+				'retry_count'    => 1,
+			]
+		);
+
+		$pending = as_get_scheduled_actions(
+			[
+				'hook'   => Contact_Sync::RETRY_HOOK,
+				'group'  => 'newspack',
+				'status' => \ActionScheduler_Store::STATUS_PENDING,
+			],
+			'ARRAY_A'
+		);
+		$this->assertEmpty( $pending, 'No retry should be scheduled for invalid data.' );
 	}
 }
