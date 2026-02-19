@@ -7,7 +7,6 @@
  */
 import { __, sprintf } from '@wordpress/i18n';
 import { __experimentalVStack as VStack } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
-import { useDispatch } from '@wordpress/data';
 import { useCallback, useEffect, useState } from '@wordpress/element';
 import { commentAuthorAvatar, currencyDollar, postList, settings } from '@wordpress/icons';
 
@@ -16,8 +15,8 @@ import { commentAuthorAvatar, currencyDollar, postList, settings } from '@wordpr
  */
 import { AUDIENCE_CONTENT_GATES_WIZARD_SLUG } from '../consts';
 import { CardSettingsGroup, Divider, Grid, Notice, SectionHeader, TextControl } from '../../../../../../packages/components/src';
-import { WIZARD_STORE_NAMESPACE } from '../../../../../../packages/components/src/wizard/store';
 import { useWizardData } from '../../../../../../packages/components/src/wizard/store/utils';
+import useWizardHeader from '../../../../../../packages/components/src/wizard/store/use-wizard-header';
 import { useWizardApiFetch } from '../../../../hooks/use-wizard-api-fetch';
 import ContentRules from './content-rules';
 import Registration from './registration';
@@ -63,7 +62,6 @@ const Edit = ( { history, match, updateGatesData }: ContentGateEditProps ) => {
 	const id = _id ? parseInt( _id ) : 0;
 	const { gates = null as unknown as Gate[] } = useWizardData( AUDIENCE_CONTENT_GATES_WIZARD_SLUG ) as WizardData;
 	const { wizardApiFetch, isFetching, errorMessage, resetError, setError } = useWizardApiFetch( AUDIENCE_CONTENT_GATES_WIZARD_SLUG );
-	const { setHeaderData } = useDispatch( WIZARD_STORE_NAMESPACE );
 	const [ gate, setGate ] = useState< Gate >( ( gates && gates.find( g => g.id === id ) ) || DEFAULT_GATE ); // eslint-disable-line @typescript-eslint/no-unused-vars
 	const [ title, setTitle ] = useState< string >( gate.title );
 	const [ isRenaming, setIsRenaming ] = useState< boolean >( false );
@@ -168,12 +166,17 @@ const Edit = ( { history, match, updateGatesData }: ContentGateEditProps ) => {
 		[ gate, contentRules, registration, customAccess, status, title ]
 	);
 
-	// Load gate data.
-	useEffect( () => {
-		setHeaderData( {
+	// Section header info — stable, only changes on route.
+	useWizardHeader(
+		{
 			backNav: '#/content-gates',
 			sectionName: isNew ? __( 'Add new', 'newspack-plugin' ) : __( 'Edit', 'newspack-plugin' ),
-		} );
+		},
+		[ isNew ]
+	);
+
+	// Load gate data.
+	useEffect( () => {
 		if ( isNew ) {
 			return;
 		}
@@ -204,76 +207,77 @@ const Edit = ( { history, match, updateGatesData }: ContentGateEditProps ) => {
 		resetError();
 	}, [ gates, id, isDeleting, isFetching, isNew ] );
 
-	// Set header actions.
-	useEffect( () => {
-		const actions = [
-			{
-				type: 'primary',
-				label: __( 'Save', 'newspack-plugin' ),
-				action: isNew ? handleCreate : handleSave,
-				disabled:
-					isFetching ||
-					! title ||
-					! contentRules.length ||
-					( ! registration.active && ! customAccess.active ) ||
-					( ! registration.active &&
-						! customAccess.access_rules.some( ruleGroup =>
-							ruleGroup.some(
-								rule =>
-									( Array.isArray( rule.value ) && rule.value?.length > 0 ) ||
-									( ! Array.isArray( rule.value ) && rule.hasOwnProperty( 'value' ) )
-							)
-						) ),
-			},
-		];
-		if ( ! isNew ) {
-			actions.push( {
+	// Dynamic header content — changes as user edits.
+	const headerActions = [
+		{
+			type: 'primary',
+			label: __( 'Save', 'newspack-plugin' ),
+			action: isNew ? handleCreate : handleSave,
+			disabled:
+				isFetching ||
+				! title ||
+				! contentRules.length ||
+				( ! registration.active && ! customAccess.active ) ||
+				( ! registration.active &&
+					! customAccess.access_rules.some( ruleGroup =>
+						ruleGroup.some(
+							rule =>
+								( Array.isArray( rule.value ) && rule.value?.length > 0 ) ||
+								( ! Array.isArray( rule.value ) && rule.hasOwnProperty( 'value' ) )
+						)
+					) ),
+		},
+	];
+	if ( ! isNew ) {
+		headerActions.push( {
+			type: 'more',
+			label: __( 'Rename', 'newspack-plugin' ),
+			action: () => setIsRenaming( true ),
+			disabled: isFetching || isRenaming,
+		} );
+		if ( gate.status !== 'publish' ) {
+			headerActions.push( {
 				type: 'more',
-				label: __( 'Rename', 'newspack-plugin' ),
-				action: () => setIsRenaming( true ),
-				disabled: isFetching || isRenaming,
-			} );
-			if ( gate.status !== 'publish' ) {
-				actions.push( {
-					type: 'more',
-					label: __( 'Activate', 'newspack-plugin' ),
-					action: () => handleStatusChange( 'publish' ),
-					disabled: isFetching,
-				} );
-			} else {
-				actions.push( {
-					type: 'more',
-					label: __( 'Deactivate', 'newspack-plugin' ),
-					action: () => handleStatusChange( 'draft' ),
-					disabled: isFetching,
-				} );
-			}
-			actions.push( {
-				type: 'more',
-				label: __( 'Delete', 'newspack-plugin' ),
-				action: () => handleDelete( gate.id ),
+				label: __( 'Activate', 'newspack-plugin' ),
+				action: () => handleStatusChange( 'publish' ),
 				disabled: isFetching,
-				destructive: true,
+			} );
+		} else {
+			headerActions.push( {
+				type: 'more',
+				label: __( 'Deactivate', 'newspack-plugin' ),
+				action: () => handleStatusChange( 'draft' ),
+				disabled: isFetching,
 			} );
 		}
-		setHeaderData( {
-			actions,
+		headerActions.push( {
+			type: 'more',
+			label: __( 'Delete', 'newspack-plugin' ),
+			action: () => handleDelete( gate.id ),
+			disabled: isFetching,
+			destructive: true,
+		} );
+	}
+	useWizardHeader(
+		{
+			actions: headerActions,
 			badges: isNew ? [] : [ { label: getGateStatus( gate.status ), level: getGateStatusBadgeLevel( gate.status ) } ],
 			sectionTitle: isNew ? __( 'Add new content gate', 'newspack-plugin' ) : title || __( 'Untitled content gate', 'newspack-plugin' ),
-		} );
-	}, [
-		contentRules.length,
-		customAccess.active,
-		gate.id,
-		gate.status,
-		handleCreate,
-		handleSave,
-		isFetching,
-		isNew,
-		isRenaming,
-		registration.active,
-		title,
-	] );
+		},
+		[
+			contentRules.length,
+			customAccess.active,
+			gate.id,
+			gate.status,
+			handleCreate,
+			handleSave,
+			isFetching,
+			isNew,
+			isRenaming,
+			registration.active,
+			title,
+		]
+	);
 
 	// Update content rules.
 	useEffect( () => {

@@ -25,16 +25,15 @@ registerStore();
 const { HashRouter, Redirect, Route, Switch, useLocation } = Router;
 
 /**
- * Reset the header data when a new section is rendered.
+ * Clear error state when navigating between sections.
  */
-const ResetHeaderData = () => {
+const ResetError = () => {
 	const location = useLocation();
-	const { resetHeaderData, setError } = useDispatch( WIZARD_STORE_NAMESPACE );
+	const { setError } = useDispatch( WIZARD_STORE_NAMESPACE );
 
 	useEffect( () => {
-		resetHeaderData();
 		setError( null );
-	}, [ location.pathname, setError, resetHeaderData ] );
+	}, [ location.pathname, setError ] );
 
 	return null;
 };
@@ -189,7 +188,7 @@ const Wizard = (
 					) }
 					<HandoffMessage />
 
-					{ sections.length > 1 && <ResetHeaderData /> }
+					{ sections.length > 1 && <ResetError /> }
 
 					<Switch>
 						{ sections.map( ( section, index ) => {
