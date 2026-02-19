@@ -147,7 +147,8 @@ abstract class Wizard {
 		// It should not actually load a JS file.
 		wp_register_script( 'newspack_data', '', [], '1.0', false );
 
-		$plugin_data   = get_plugin_data( NEWSPACK_PLUGIN_FILE );
+		$plugin_data = get_plugin_data( NEWSPACK_PLUGIN_FILE );
+
 		/**
 		 * Support email address displayed in the Newspack admin UI.
 		 * Users can contact this email for help.
