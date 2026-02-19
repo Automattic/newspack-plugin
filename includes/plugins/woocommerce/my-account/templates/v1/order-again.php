@@ -11,7 +11,7 @@ defined( 'ABSPATH' ) || exit;
 
 $wp_button_class = 'newspack-ui__button newspack-ui__button--secondary';
 $contains_subscription = wcs_order_contains_subscription( $order, 'parent' );
-$button_text     = $contains_subscription ? __( 'Renew subscription', 'newspack-plugin' ) : __( 'Order again', 'newspack-plugin' );
+$button_text = $contains_subscription ? __( 'Renew subscription', 'newspack-plugin' ) : __( 'Order again', 'newspack-plugin' );
 if ( $contains_subscription ) {
 	$subscriptions = wcs_get_subscriptions_for_order( $order->get_id() );
 	if ( empty( $subscriptions ) ) {
