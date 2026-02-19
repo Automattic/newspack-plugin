@@ -11,6 +11,7 @@
 namespace Newspack\Reader_Activation\Integrations;
 
 use Newspack\Reader_Activation\Integrations;
+use Newspack\Logger;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -121,7 +122,7 @@ class Contact_Pull {
 
 			$elapsed = microtime( true ) - $start;
 			if ( $elapsed >= self::PULL_TIME_LIMIT ) {
-				\Newspack\Logger::log( 'Pull routine time limit reached. Scheduling remaining integrations async.' );
+				Logger::log( 'Pull routine time limit reached. Scheduling remaining integrations async.' );
 				// Re-add the current integration that didn't get a chance to run.
 				$remaining_integrations = [ $id => $integration ] + $remaining_integrations;
 				break;
@@ -161,18 +162,21 @@ class Contact_Pull {
 			$data = $integration->pull_contact_data( $user_id, $timeout );
 
 			if ( is_wp_error( $data ) ) {
-				\Newspack\Logger::log( 'Pull error from ' . $integration->get_id() . ': ' . $data->get_error_message() );
+				// TODO: Surface these errors.
+				Logger::log( 'Pull error from ' . $integration->get_id() . ': ' . $data->get_error_message() );
 				return;
 			}
 
 			$selected_keys = array_flip( $selected_fields );
 			$data          = array_intersect_key( $data, $selected_keys );
+			Logger::log( 'Pulled data from ' . $integration->get_id() . ': ' . wp_json_encode( $data ) );
 
 			foreach ( $data as $key => $value ) {
 				\Newspack\Reader_Data::update_item( $user_id, $key, $value );
 			}
 		} catch ( \Throwable $e ) {
-			\Newspack\Logger::log( 'Pull exception from ' . $integration->get_id() . ': ' . $e->getMessage() );
+			// TODO: Surface these errors.
+			Logger::log( 'Pull exception from ' . $integration->get_id() . ': ' . $e->getMessage() );
 		}
 	}
 

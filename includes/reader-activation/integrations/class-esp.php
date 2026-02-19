@@ -10,6 +10,7 @@ namespace Newspack\Reader_Activation\Integrations;
 use Newspack\Reader_Activation\Integration;
 use Newspack\Reader_Activation;
 use Newspack_Newsletters_Contacts;
+use Newspack_Newsletters_Subscription;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -102,6 +103,26 @@ class ESP extends Integration {
 	 * @return array|\WP_Error Associative array of field_key => value pairs on success, WP_Error on failure.
 	 */
 	public function pull_contact_data( $user_id, $timeout ) {
+		if ( ! $this->can_sync() ) {
+			return new \WP_Error( 'missing_dependency', __( 'ESP Integration is not fully configured.', 'newspack-plugin' ) );
+		}
+
+		$user = get_userdata( $user_id );
+		if ( ! $user ) {
+			return new \WP_Error( 'user_not_found', __( 'User not found.', 'newspack-plugin' ) );
+		}
+
+		// At this point we are ignoring the $timeout, because that would require a larger refactor on Newspack Newsletters to support it.
+		$contact_data = Newspack_Newsletters_Subscription::get_contact_data( $user->user_email, true );
+
+		if ( is_wp_error( $contact_data ) ) {
+			return $contact_data;
+		}
+
+		if ( ! empty( $contact_data['metadata'] ) ) {
+			return $contact_data['metadata'];
+		}
+
 		return [];
 	}
 
