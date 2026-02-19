@@ -1,3 +1,5 @@
+$overlap-fraction: 0.175; // Keep in sync with utils.js and class-avatar-block.php.
+
 [data-type="newspack/avatar"],
 .wp-block-newspack-avatar {
 	display: flex;
@@ -8,7 +10,7 @@
 		gap: 0;
 
 		.newspack-avatar-wrapper:not(:last-of-type) {
-			margin-right: calc(var(--avatar-size) * -0.175);
+			margin-right: calc(var(--avatar-size) * #{-$overlap-fraction});
 
 			img {
 				--overlap-mask-default: radial-gradient(var(--avatar-size) at calc(62.5% + calc(var(--avatar-size) * 0.875) - calc(var(--avatar-size) * 0.25)) 50%, transparent 50%, white 50%);

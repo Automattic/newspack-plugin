@@ -1,3 +1,14 @@
+const SVG_SIZE = 100;
+
+// How much the next avatar overlaps into the current one (fraction of avatar
+// size). Keep in sync with style.scss and class-avatar-block.php.
+const OVERLAP_FRACTION = 0.175;
+
+// The SVG mask cutout starts at this x position. The difference between the
+// cutout width and the overlap is the visible separator.
+const CUTOUT_X = 75;
+const OVERLAP_GAP = SVG_SIZE - CUTOUT_X - OVERLAP_FRACTION * SVG_SIZE; // 7.5
+
 /**
  * Compute an SVG overlap mask CSS custom property for non-circular border radii.
  * Returns a style object with --overlap-mask, or empty object for circular/default.
@@ -33,25 +44,25 @@ export const getOverlapMaskStyle = attrs => {
 	const size = attrs.size || 48;
 	let rx;
 
-	if ( radius.endsWith( 'px' ) ) {
-		rx = ( parseFloat( radius ) / size ) * 100;
-	} else if ( radius.endsWith( '%' ) ) {
+	if ( radius.endsWith( '%' ) ) {
 		rx = parseFloat( radius );
 	} else if ( radius.endsWith( 'rem' ) || radius.endsWith( 'em' ) ) {
 		// Approximate em/rem using the 16px browser default base font size.
-		rx = ( ( parseFloat( radius ) * 16 ) / size ) * 100;
+		rx = ( ( parseFloat( radius ) * 16 ) / size ) * SVG_SIZE;
 	} else {
-		rx = ( parseFloat( radius ) / size ) * 100;
+		// px or plain number: convert to SVG scale.
+		rx = ( parseFloat( radius ) / size ) * SVG_SIZE;
 	}
 
-	rx = Math.round( Math.max( 0, Math.min( 50, rx ) ) * 100 ) / 100;
+	// Clamp rx between 0 and half the viewBox, then round to 2 decimals.
+	rx = Math.round( Math.max( 0, Math.min( SVG_SIZE / 2, rx - OVERLAP_GAP ) ) * 100 ) / 100;
 
 	const svg =
-		`<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'>` +
-		`<defs><mask id='m'><rect width='100' height='100' fill='white'/>` +
-		`<rect x='75' y='0' width='100' height='100' rx='${ rx }' ry='${ rx }' fill='black'/>` +
+		`<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 ${ SVG_SIZE } ${ SVG_SIZE }'>` +
+		`<defs><mask id='m'><rect width='${ SVG_SIZE }' height='${ SVG_SIZE }' fill='white'/>` +
+		`<rect x='${ CUTOUT_X }' y='0' width='${ SVG_SIZE }' height='${ SVG_SIZE }' rx='${ rx }' ry='${ rx }' fill='black'/>` +
 		`</mask></defs>` +
-		`<rect width='100' height='100' fill='white' mask='url(#m)'/>` +
+		`<rect width='${ SVG_SIZE }' height='${ SVG_SIZE }' fill='white' mask='url(#m)'/>` +
 		`</svg>`;
 
 	return {
