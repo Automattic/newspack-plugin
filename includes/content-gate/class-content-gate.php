@@ -801,6 +801,10 @@ class Content_Gate {
 				$existing_rule_keys = array_keys( $store->get_all_rules() );
 			}
 		}
+		// If block-supports storage isn't available, skip rendering blocks just to collect CSS.
+		if ( ! $store || ! method_exists( $store, 'get_all_rules' ) ) {
+			return;
+		}
 
 		// Temporarily swap the global post with the gate's post ID.
 		global $post;
