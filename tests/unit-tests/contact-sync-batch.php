@@ -120,11 +120,6 @@ class Newspack_Test_Contact_Sync_Batch extends WP_UnitTestCase {
 		Integrations::register( $integration );
 		Integrations::enable( 'batch_fail_mock' );
 
-		// Allow sync in test environment.
-		if ( ! defined( 'NEWSPACK_ALLOW_READER_SYNC' ) ) {
-			define( 'NEWSPACK_ALLOW_READER_SYNC', true );
-		}
-
 		as_unschedule_all_actions( Contact_Sync_Batch::BATCH_HOOK );
 
 		// Create real WordPress users.

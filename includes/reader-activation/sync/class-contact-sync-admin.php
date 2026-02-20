@@ -46,7 +46,6 @@ class Contact_Sync_Admin {
 		add_filter( 'bulk_actions-users', [ __CLASS__, 'bulk_actions' ] );
 		add_filter( 'handle_bulk_actions-users', [ __CLASS__, 'handle_bulk_actions' ], 10, 3 );
 		add_action( 'admin_notices', [ __CLASS__, 'admin_notices' ] );
-		add_action( 'newspack_sync_admin_batch', [ 'Newspack\Reader_Activation\Contact_Sync', 'sync_contact' ], 10, 1 ); // ActionScheduler hook.
 	}
 
 	/**
@@ -135,9 +134,7 @@ class Contact_Sync_Admin {
 		if ( ! \current_user_can( 'edit_users' ) ) {
 			\wp_die( \esc_html__( 'You do not have permission to do that.', 'newspack-plugin' ) );
 		}
-		foreach ( $items as $user_id ) {
-			as_schedule_single_action( time(), 'newspack_sync_admin_batch', [ 'user_id' => $user_id ] );
-		}
+		Contact_Sync_Batch::enqueue( $items, [ 'context' => self::$context ] );
 		$sendback = \add_query_arg(
 			[
 				'update'                  => self::ADMIN_ACTION,
@@ -216,7 +213,7 @@ class Contact_Sync_Admin {
 			<p>
 				<?php echo esc_html( $message ); ?>
 				<?php if ( isset( $_GET['scheduled-sync-contacts'] ) ) : ?>
-					<a href="<?php echo esc_url( admin_url( 'admin.php?page=wc-status&tab=action-scheduler&s=newspack_sync_admin_batch&orderby=schedule&order=desc' ) ); ?>">
+					<a href="<?php echo esc_url( admin_url( 'admin.php?page=wc-status&tab=action-scheduler&s=newspack_contact_sync_batch&orderby=schedule&order=desc' ) ); ?>">
 						<?php echo esc_html__( 'Click here to monitor progress.', 'newspack-plugin' ); ?>
 					</a>
 				<?php endif; ?>
