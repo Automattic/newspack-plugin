@@ -204,7 +204,7 @@ class Contact_Sync_Admin {
 			$scheduled_syncs = absint( wp_unslash( $_GET['scheduled-sync-contacts'] ) );
 			$message         = sprintf(
 				// translators: %d: number of contacts resynced.
-				__( '%d contacts scheculed for resync to the ESP and should complete in a couple of minutes.', 'newspack-plugin' ),
+				__( '%d contacts scheduled for resync to the ESP and should complete in a couple of minutes.', 'newspack-plugin' ),
 				$scheduled_syncs
 			);
 		}

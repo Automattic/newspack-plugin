@@ -113,7 +113,13 @@ class RAS_Contact_Sync {
 			return count( $user_ids );
 		}
 
-		$batch_id = Contact_Sync_Batch::enqueue( $user_ids, [ 'batch_size' => $config['batch_size'] ] );
+		$batch_id = Contact_Sync_Batch::enqueue(
+			$user_ids,
+			[
+				'batch_size' => $config['batch_size'],
+				'context'    => $config['context'],
+			]
+		);
 
 		return self::poll_progress( $batch_id );
 	}
@@ -286,6 +292,8 @@ class RAS_Contact_Sync {
 		$last_finished = 0;
 
 		while ( true ) {
+			// Clear the object cache so we get fresh progress from the database.
+			wp_cache_delete( Contact_Sync_Batch::PROGRESS_OPTION_PREFIX . $batch_id, 'options' );
 			$progress = Contact_Sync_Batch::get_progress( $batch_id );
 			if ( ! $progress ) {
 				break;

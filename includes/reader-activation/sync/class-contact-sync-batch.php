@@ -54,15 +54,21 @@ class Contact_Sync_Batch {
 	 * @param array $user_ids Array of user IDs to sync.
 	 * @param array $config   Optional. Configuration options.
 	 *                        - batch_size (int): Number of users per chunk. Default DEFAULT_BATCH_SIZE.
+	 *                        - context (string): Context string for sync logging. Default 'Batch sync'.
 	 *
-	 * @return string The batch ID.
+	 * @return string The batch ID, or empty string if no user IDs provided.
 	 */
 	public static function enqueue( array $user_ids, array $config = [] ) {
+		if ( empty( $user_ids ) ) {
+			return '';
+		}
+
 		$batch_size = isset( $config['batch_size'] ) ? absint( $config['batch_size'] ) : self::DEFAULT_BATCH_SIZE;
 		if ( $batch_size < 1 ) {
 			$batch_size = self::DEFAULT_BATCH_SIZE;
 		}
 
+		$context  = isset( $config['context'] ) ? $config['context'] : 'Batch sync';
 		$batch_id = 'batch_' . uniqid();
 		$chunks   = array_chunk( $user_ids, $batch_size );
 
@@ -71,6 +77,7 @@ class Contact_Sync_Batch {
 			'completed'  => 0,
 			'failed'     => 0,
 			'status'     => 'running',
+			'context'    => $context,
 			'created_at' => time(),
 		];
 		self::save_progress( $batch_id, $progress );
@@ -121,7 +128,7 @@ class Contact_Sync_Batch {
 			return;
 		}
 
-		$context = 'Batch sync';
+		$context = isset( $progress['context'] ) ? $progress['context'] : 'Batch sync';
 
 		foreach ( $user_ids as $user_id ) {
 			try {
@@ -173,8 +180,20 @@ class Contact_Sync_Batch {
 			return;
 		}
 
-		if ( function_exists( 'as_unschedule_all_actions' ) ) {
-			as_unschedule_all_actions( self::BATCH_HOOK, null, 'newspack' );
+		if ( function_exists( 'as_get_scheduled_actions' ) ) {
+			$actions = as_get_scheduled_actions(
+				[
+					'hook'   => self::BATCH_HOOK,
+					'group'  => 'newspack',
+					'status' => \ActionScheduler_Store::STATUS_PENDING,
+				]
+			);
+			foreach ( $actions as $action_id => $action ) {
+				$args = $action->get_args();
+				if ( isset( $args[0] ) && $args[0] === $batch_id ) {
+					\ActionScheduler::store()->cancel_action( $action_id );
+				}
+			}
 		}
 
 		$progress['status'] = 'cancelled';
