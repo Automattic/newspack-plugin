@@ -1765,7 +1765,7 @@ final class Reader_Activation {
 						<?php if ( count( $newsletters_lists ) > $default_list_size ) : ?>
 							<button type="button" class="newspack-ui__button newspack-ui__button--wide newspack-ui__button--secondary see-all-button" aria-label="<?php esc_attr_e( 'See all newsletters', 'newspack-plugin' ); ?>">
 								<span aria-hidden="true"><?php esc_html_e( 'See all', 'newspack-plugin' ); ?></span>
-								<?php Newspack_UI_Icons::print_svg( 'arrowRight' ); ?>
+								<?php Newspack_UI_Icons::print_svg( 'chevronDownSmall' ); ?>
 							</button>
 						<?php endif; ?>
 						<button type="submit" class="newspack-ui__button newspack-ui__button--wide newspack-ui__button--primary"><?php echo \esc_html( self::get_reader_activation_labels( 'newsletters_continue' ) ); ?></button>
