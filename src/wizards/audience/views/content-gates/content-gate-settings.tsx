@@ -21,7 +21,7 @@ type ContentGateSettingsProps = {
 };
 
 export default function ContentGateSettings( { gate, onDelete, onSave }: ContentGateSettingsProps ) {
-	const { wizardApiFetch } = useWizardApiFetch( AUDIENCE_CONTENT_GATES_WIZARD_SLUG );
+	const { wizardApiFetch, resetError } = useWizardApiFetch( AUDIENCE_CONTENT_GATES_WIZARD_SLUG );
 	const [ contentRules, setContentRules ] = useState< GateContentRule[] >( gate.content_rules );
 	const [ registration, setRegistration ] = useState< Registration >( gate.registration );
 	const [ customAccess, setCustomAccess ] = useState< CustomAccess >( gate.custom_access );
@@ -40,6 +40,7 @@ export default function ContentGateSettings( { gate, onDelete, onSave }: Content
 			custom_access: customAccess,
 			status,
 		};
+		resetError();
 		wizardApiFetch< Gate >(
 			{
 				path: `/newspack/v1/wizard/${ AUDIENCE_CONTENT_GATES_WIZARD_SLUG }/${ gate.id }`,
@@ -49,9 +50,6 @@ export default function ContentGateSettings( { gate, onDelete, onSave }: Content
 			{
 				onSuccess( data ) {
 					onSave( data );
-				},
-				onError( error ) {
-					console.error( error ); // eslint-disable-line no-console
 				},
 				onFinally() {
 					setIsEditingStatus( false );

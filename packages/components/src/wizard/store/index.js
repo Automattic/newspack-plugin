@@ -20,6 +20,7 @@ const DEFAULT_STATE = {
 		actions: [],
 		backNav: '',
 		badges: [],
+		sectionDescription: '',
 		sectionName: '',
 		sectionTitle: '',
 	},

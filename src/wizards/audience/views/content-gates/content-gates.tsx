@@ -6,6 +6,7 @@
  * WordPress dependencies.
  */
 import apiFetch from '@wordpress/api-fetch';
+import { useDispatch } from '@wordpress/data';
 import { useEffect, useRef, useState } from '@wordpress/element';
 import { ENTER } from '@wordpress/keycodes';
 import { __ } from '@wordpress/i18n';
@@ -13,9 +14,10 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { Button, Card, Modal, Notice, SectionHeader, TextControl } from '../../../../../packages/components/src';
+import { Button, Card, Modal, Notice, TextControl } from '../../../../../packages/components/src';
 import { useWizardData } from '../../../../../packages/components/src/wizard/store/utils';
 import { useWizardApiFetch } from '../../../hooks/use-wizard-api-fetch';
+import { WIZARD_STORE_NAMESPACE } from '../../../../../packages/components/src/wizard/store';
 import WizardsActionCard from '../../../wizards-action-card';
 import ContentGatesOnboarding from './content-gates-onboarding';
 import ContentGateSettings from './content-gate-settings';
@@ -25,23 +27,14 @@ import './style.scss';
 
 const ContentGates = ( { updateGatesData }: { updateGatesData: ( gates: Gate[] ) => void } ) => {
 	const wizardData = useWizardData( AUDIENCE_CONTENT_GATES_WIZARD_SLUG ) as WizardData;
-	const { wizardApiFetch, isFetching, errorMessage, resetError } = useWizardApiFetch( AUDIENCE_CONTENT_GATES_WIZARD_SLUG );
+	const { wizardApiFetch, isFetching, error, errorMessage, resetError, setError } = useWizardApiFetch( AUDIENCE_CONTENT_GATES_WIZARD_SLUG );
+	const { setHeaderData } = useDispatch( WIZARD_STORE_NAMESPACE );
 	const [ showModal, setShowModal ] = useState( false );
 	const [ newGateName, setNewGateName ] = useState( '' );
 	const [ isInFlight, setIsInFlight ] = useState( false );
-	const [ error, setError ] = useState< string | null >( null );
 	const ref = useRef( null );
 
 	const gates = ( wizardData?.gates || [] ) as Gate[];
-
-	const resetErrors = () => {
-		setError( null );
-		resetError();
-	};
-
-	useEffect( () => {
-		resetErrors();
-	}, [] );
 
 	useEffect( () => {
 		if ( isFetching ) {
@@ -52,16 +45,26 @@ const ContentGates = ( { updateGatesData }: { updateGatesData: ( gates: Gate[] )
 	}, [ isFetching ] );
 
 	useEffect( () => {
-		if ( errorMessage ) {
-			setError( errorMessage );
+		if ( isInFlight || ! gates?.length ) {
+			return;
 		}
-	}, [ errorMessage ] );
+		setHeaderData( {
+			sectionPrimaryAction: {
+				label: __( 'Add new content gate', 'newspack-plugin' ),
+				href: '#/edit/new/all',
+			},
+			sectionSecondaryAction: {
+				label: __( 'Gate priority', 'newspack-plugin' ),
+				action: () => setShowModal( true ),
+			},
+		} );
+	}, [ isInFlight, gates ] );
 
 	const handleCreateGate = () => {
 		if ( isInFlight ) {
 			return;
 		}
-		resetErrors();
+		resetError();
 		setIsInFlight( true );
 		wizardApiFetch< Gate >(
 			{
@@ -102,7 +105,7 @@ const ContentGates = ( { updateGatesData }: { updateGatesData: ( gates: Gate[] )
 				return;
 			}
 		}
-		resetErrors();
+		resetError();
 		wizardApiFetch(
 			{
 				path: `/newspack/v1/wizard/${ AUDIENCE_CONTENT_GATES_WIZARD_SLUG }/${ id }`,
@@ -134,7 +137,7 @@ const ContentGates = ( { updateGatesData }: { updateGatesData: ( gates: Gate[] )
 		const oldGates = [ ...gates ];
 		updateGatesData( updates );
 		setIsInFlight( true );
-		resetErrors();
+		resetError();
 		apiFetch< Gate >( {
 			path: `/newspack/v1/wizard/${ AUDIENCE_CONTENT_GATES_WIZARD_SLUG }/priority`,
 			method: 'POST',
@@ -143,7 +146,7 @@ const ContentGates = ( { updateGatesData }: { updateGatesData: ( gates: Gate[] )
 			},
 		} )
 			.catch( ( fetchError: WpFetchError ) => {
-				setError( fetchError.message );
+				setError( fetchError );
 				updateGatesData( oldGates );
 			} )
 			.finally( () => setIsInFlight( false ) );
@@ -163,12 +166,8 @@ const ContentGates = ( { updateGatesData }: { updateGatesData: ( gates: Gate[] )
 
 	return (
 		<div className="newspack-content-gates__gates">
-			{ error && <Notice isError noticeText={ error } /> }
+			{ error && <Notice isError noticeText={ errorMessage } /> }
 			<Card noBorder headerActions>
-				<SectionHeader heading={ 1 } title={ __( 'Content Gates', 'newspack-plugin' ) } noMargin />
-				<Button variant="secondary" onClick={ () => setShowModal( true ) }>
-					{ __( 'Add Content Gate', 'newspack-plugin' ) }
-				</Button>
 				{ showModal && (
 					<Modal isNarrow title={ __( 'Add Content Gate', 'newspack-plugin' ) } onRequestClose={ () => setShowModal( false ) }>
 						<TextControl

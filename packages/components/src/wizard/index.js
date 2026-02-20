@@ -29,12 +29,11 @@ const { HashRouter, Redirect, Route, Switch, useLocation } = Router;
  */
 const ResetHeaderData = () => {
 	const location = useLocation();
-	const { resetHeaderData, setError } = useDispatch( WIZARD_STORE_NAMESPACE );
+	const { resetHeaderData } = useDispatch( WIZARD_STORE_NAMESPACE );
 
 	useEffect( () => {
 		resetHeaderData();
-		setError( null );
-	}, [ location.pathname, setError, resetHeaderData ] );
+	}, [ location.pathname, resetHeaderData ] );
 
 	return null;
 };
@@ -79,7 +78,7 @@ const Wizard = (
 	const isLoading = useSelect( select => select( WIZARD_STORE_NAMESPACE ).isLoading() );
 	const isQuietLoading = useSelect( select => select( WIZARD_STORE_NAMESPACE ).isQuietLoading() );
 	const headerData = useSelect( select => select( WIZARD_STORE_NAMESPACE ).getHeaderData() );
-	const { actions, backNav, badges, sectionName, sectionTitle } = headerData;
+	const { actions, backNav, badges, sectionDescription, sectionName, sectionTitle, sectionPrimaryAction, sectionSecondaryAction } = headerData;
 
 	const mainActions = actions?.filter( action => action.type === 'primary' || action.type === 'secondary' );
 	const moreActions = actions?.filter( action => action.type === 'more' );
@@ -203,8 +202,17 @@ const Wizard = (
 									render={ routerProps => (
 										<div className={ classnames( 'newspack-wizard__content', className ) }>
 											{ 'function' === typeof renderAboveSections ? renderAboveSections() : null }
-											{ sectionTitle && (
-												<SectionHeader backNav={ backNav } heading={ 1 } title={ sectionTitle } badges={ badges } noMargin />
+											{ ( sectionTitle || section.title ) && (
+												<SectionHeader
+													backNav={ backNav || section.backNav }
+													title={ sectionTitle || section.title }
+													description={ sectionDescription || section.description }
+													badges={ badges || section.badges }
+													primaryAction={ sectionPrimaryAction || section.primaryAction }
+													secondaryAction={ sectionSecondaryAction || section.secondaryAction }
+													heading={ 1 }
+													noMargin
+												/>
 											) }
 											<SectionComponent { ...routerProps } { ...sectionProps } { ...sharedProps } />
 										</div>
