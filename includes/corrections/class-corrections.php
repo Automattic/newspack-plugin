@@ -531,12 +531,11 @@ class Corrections {
 	 * Uses only basic HTML elements (<p>, <strong>) that render
 	 * distinctly without CSS, since republished content is stripped of styles.
 	 *
-	 * @param array  $corrections Array of correction post objects.
-	 * @param string $priority    The priority level ('high' or 'low').
+	 * @param array $corrections Array of correction post objects.
 	 *
 	 * @return string The simplified corrections markup.
 	 */
-	private static function get_republish_corrections_markup( $corrections, $priority = 'low' ) {
+	private static function get_republish_corrections_markup( $corrections ) {
 		if ( empty( $corrections ) ) {
 			return '';
 		}
