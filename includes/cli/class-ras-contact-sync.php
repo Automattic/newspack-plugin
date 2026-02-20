@@ -10,6 +10,7 @@ namespace Newspack\CLI;
 use WP_CLI;
 use Newspack\Reader_Activation;
 use Newspack\Reader_Activation\Contact_Sync;
+use Newspack\Reader_Activation\Contact_Sync_Batch;
 use Newspack_Subscription_Migrations\CSV_Importers\CSV_Importer;
 use Newspack_Subscription_Migrations\Stripe_Sync;
 
@@ -26,15 +27,6 @@ class RAS_Contact_Sync {
 	 * @var string
 	 */
 	protected static $context = 'Contact sync manually triggered via CLI';
-
-	/**
-	 * The final results object.
-	 *
-	 * @var array
-	 */
-	protected static $results = [
-		'processed' => 0,
-	];
 
 	/**
 	 * Log to WP CLI.
@@ -54,6 +46,9 @@ class RAS_Contact_Sync {
 	/**
 	 * Sync reader contact data to the connected integrations.
 	 *
+	 * Collects user IDs based on config, enqueues them via Contact_Sync_Batch,
+	 * and polls progress until complete.
+	 *
 	 * @param array $config {
 	 *   Configuration options.
 	 *
@@ -63,7 +58,7 @@ class RAS_Contact_Sync {
 	 *   @type array|bool  $config['subscription_ids'] If set, only sync the given subscription IDs.
 	 *   @type array|bool  $config['user_ids'] If set, only sync the given user IDs.
 	 *   @type array|bool  $config['order_ids'] If set, only sync the given order IDs.
-	 *   @type int         $config['batch_size'] Number of contacts to sync per batch.
+	 *   @type int         $config['batch_size'] Number of contacts to sync per batch chunk.
 	 *   @type int         $config['offset'] Number of contacts to skip.
 	 *   @type int         $config['max_batches'] Maximum number of batches to process.
 	 *   @type bool        $config['is_dry_run'] True if a dry run.
@@ -96,67 +91,62 @@ class RAS_Contact_Sync {
 			return $can_sync;
 		}
 
-		// If syncing only migrated subscriptions.
-		if ( $config['migrated_only'] ) {
-			$config['subscription_ids'] = self::get_migrated_subscriptions( $config['migrated_only'], $config['batch_size'], $config['offset'], $config['active_only'] );
-			if ( \is_wp_error( $config['subscription_ids'] ) ) {
-				return $config['subscription_ids'];
-			}
-			$batches = 0;
+		$user_ids = self::collect_user_ids( $config );
+		if ( \is_wp_error( $user_ids ) ) {
+			return $user_ids;
 		}
 
-		if ( ! empty( $config['subscription_ids'] ) ) {
-			static::log( __( 'Syncing by subscription ID...', 'newspack-plugin' ) );
-
-			while ( ! empty( $config['subscription_ids'] ) ) {
-				$subscription_id = array_shift( $config['subscription_ids'] );
-				$subscription    = \wcs_get_subscription( $subscription_id );
-
-				if ( \is_wp_error( $subscription ) ) {
-					static::log(
-						sprintf(
-							// Translators: %d is the subscription ID arg passed to the script.
-							__( 'No subscription with ID %d. Skipping.', 'newspack-plugin' ),
-							$subscription_id
-						)
-					);
-
-					continue;
-				}
-
-				$result = Contact_Sync::sync_contact( $subscription, self::$context, $config['is_dry_run'] );
-				if ( \is_wp_error( $result ) ) {
-					static::log(
-						sprintf(
-							// Translators: %1$d is the subscription ID arg passed to the script. %2$s is the error message.
-							__( 'Error syncing contact info for subscription ID %1$d. %2$s', 'newspack-plugin' ),
-							$subscription_id,
-							$result->get_error_message()
-						)
-					);
-				}
-
-				// Get the next batch.
-				if ( $config['migrated_only'] && empty( $config['subscription_ids'] ) ) {
-					$batches++;
-
-					if ( $config['max_batches'] && $batches >= $config['max_batches'] ) {
-						break;
-					}
-
-					$next_batch_offset = $config['offset'] + ( $batches * $config['batch_size'] );
-					$config['subscription_ids'] = self::get_migrated_subscriptions( $config['migrated_only'], $config['batch_size'], $next_batch_offset, $config['active_only'] );
-				}
-			}
+		if ( empty( $user_ids ) ) {
+			static::log( __( 'No contacts found to sync.', 'newspack-plugin' ) );
+			return 0;
 		}
 
-		// If order-ids flag is passed, sync contacts for those orders.
+		static::log(
+			sprintf(
+				// Translators: %d is the number of contacts collected.
+				__( 'Collected %d contacts for syncing.', 'newspack-plugin' ),
+				count( $user_ids )
+			)
+		);
+
+		if ( $config['is_dry_run'] ) {
+			return count( $user_ids );
+		}
+
+		$batch_id = Contact_Sync_Batch::enqueue( $user_ids, [ 'batch_size' => $config['batch_size'] ] );
+
+		return self::poll_progress( $batch_id );
+	}
+
+	/**
+	 * Collect user IDs to sync based on the provided configuration.
+	 *
+	 * @param array $config Configuration options (see sync_contacts).
+	 *
+	 * @return array|\WP_Error Array of user IDs or WP_Error.
+	 */
+	private static function collect_user_ids( $config ) {
+		// If user-ids flag is passed, use those directly.
+		if ( ! empty( $config['user_ids'] ) ) {
+			static::log( __( 'Collecting user IDs from --user-ids...', 'newspack-plugin' ) );
+			if ( $config['active_only'] ) {
+				return array_values(
+					array_filter(
+						$config['user_ids'],
+						[ __CLASS__, 'user_has_active_subscriptions' ]
+					)
+				);
+			}
+			return $config['user_ids'];
+		}
+
+		// If order-ids flag is passed, convert orders to user IDs.
 		if ( ! empty( $config['order_ids'] ) ) {
-			static::log( __( 'Syncing by order ID...', 'newspack-plugin' ) );
+			static::log( __( 'Collecting user IDs from --order-ids...', 'newspack-plugin' ) );
+			$user_ids = [];
 			foreach ( $config['order_ids'] as $order_id ) {
-				$order = new \WC_Order( $order_id );
-
-				if ( \is_wp_error( $order ) ) {
+				$order = \wc_get_order( $order_id );
+				if ( ! $order ) {
 					static::log(
 						sprintf(
 							// Translators: %d is the order ID.
@@ -164,91 +154,170 @@ class RAS_Contact_Sync {
 							$order_id
 						)
 					);
-
 					continue;
 				}
+				$user_id = $order->get_customer_id();
+				if ( $user_id ) {
+					$user_ids[] = $user_id;
+				}
+			}
+			return array_values( array_unique( $user_ids ) );
+		}
 
-				$result = Contact_Sync::sync_contact( $order, self::$context, $config['is_dry_run'] );
-				if ( \is_wp_error( $result ) ) {
+		// If migrated-only or subscription-ids flag is passed, convert subscriptions to user IDs.
+		if ( $config['migrated_only'] || ! empty( $config['subscription_ids'] ) ) {
+			$subscription_ids = ! empty( $config['subscription_ids'] )
+				? $config['subscription_ids']
+				: self::get_all_migrated_subscriptions( $config );
+
+			if ( \is_wp_error( $subscription_ids ) ) {
+				return $subscription_ids;
+			}
+
+			static::log(
+				sprintf(
+					// Translators: %d is the number of subscriptions found.
+					__( 'Collecting user IDs from %d subscriptions...', 'newspack-plugin' ),
+					count( $subscription_ids )
+				)
+			);
+
+			$user_ids = [];
+			foreach ( $subscription_ids as $subscription_id ) {
+				$subscription = \wcs_get_subscription( $subscription_id );
+				if ( \is_wp_error( $subscription ) || ! $subscription ) {
 					static::log(
 						sprintf(
-							// Translators: %1$d is the order ID arg passed to the script. %2$s is the error message.
-							__( 'Error syncing contact info for order ID %1$d. %2$s', 'newspack-plugin' ),
-							$order_id,
-							$result->get_error_message()
+							// Translators: %d is the subscription ID.
+							__( 'No subscription with ID %d. Skipping.', 'newspack-plugin' ),
+							$subscription_id
 						)
 					);
-				} elseif ( ! empty( static::$results ) ) {
-					static::$results['processed']++;
+					continue;
+				}
+				$user_id = $subscription->get_customer_id();
+				if ( $user_id ) {
+					$user_ids[] = $user_id;
 				}
 			}
+			return array_values( array_unique( $user_ids ) );
 		}
 
-		// If user-ids flag is passed, sync those users.
-		if ( ! empty( $config['user_ids'] ) ) {
-			static::log( __( 'Syncing by customer user ID...', 'newspack-plugin' ) );
-			foreach ( $config['user_ids'] as $user_id ) {
+		// Default: collect all readers.
+		if ( $config['active_only'] ) {
+			static::log( __( 'Collecting all readers with active subscriptions...', 'newspack-plugin' ) );
+		} else {
+			static::log( __( 'Collecting all reader IDs...', 'newspack-plugin' ) );
+		}
+
+		$all_user_ids = [];
+		$batch_ids    = self::get_batch_of_readers( $config['batch_size'], $config['offset'] );
+		$batches      = 0;
+
+		while ( $batch_ids ) {
+			foreach ( $batch_ids as $user_id ) {
 				if ( ! $config['active_only'] || self::user_has_active_subscriptions( $user_id ) ) {
-					$result = Contact_Sync::sync_contact( $user_id, self::$context, $config['is_dry_run'] );
-					if ( \is_wp_error( $result ) ) {
-						static::log(
-							sprintf(
-								// Translators: %1$d is the user ID arg passed to the script. %2$s is the error message.
-								__( 'Error syncing contact info for user ID %1$d. %2$s', 'newspack-plugin' ),
-								$user_id,
-								$result->get_error_message()
-							)
-						);
-					}
+					$all_user_ids[] = $user_id;
 				}
 			}
+
+			$batches++;
+			if ( $config['max_batches'] && $batches >= $config['max_batches'] ) {
+				break;
+			}
+
+			$batch_ids = self::get_batch_of_readers( $config['batch_size'], $config['offset'] + ( $batches * $config['batch_size'] ) );
 		}
 
-		// Default behavior: sync all readers.
-		if (
-			false === $config['user_ids'] &&
-			false === $config['order_ids'] &&
-			false === $config['subscription_ids'] &&
-			false === $config['migrated_only']
-		) {
-			if ( $config['active_only'] ) {
-				static::log( __( 'Syncing all readers with active subscriptions...', 'newspack-plugin' ) );
-			} else {
-				static::log( __( 'Syncing all readers...', 'newspack-plugin' ) );
+		return $all_user_ids;
+	}
+
+	/**
+	 * Collect all migrated subscription IDs across batches.
+	 *
+	 * @param array $config Configuration options (see sync_contacts).
+	 *
+	 * @return array|\WP_Error Array of subscription IDs or WP_Error.
+	 */
+	private static function get_all_migrated_subscriptions( $config ) {
+		static::log( __( 'Collecting migrated subscription IDs...', 'newspack-plugin' ) );
+
+		$all_subscription_ids = [];
+		$batches              = 0;
+		$offset               = $config['offset'];
+
+		while ( true ) {
+			$batch = self::get_migrated_subscriptions( $config['migrated_only'], $config['batch_size'], $offset, $config['active_only'] );
+			if ( \is_wp_error( $batch ) ) {
+				return $batch;
 			}
-			$user_ids = self::get_batch_of_readers( $config['batch_size'], $config['offset'] );
-			$batches  = 0;
 
-			while ( $user_ids ) {
-				$user_id = array_shift( $user_ids );
-				if ( ! $config['active_only'] || self::user_has_active_subscriptions( $user_id ) ) {
-					$result = Contact_Sync::sync_contact( $user_id, self::$context, $config['is_dry_run'] );
-					if ( \is_wp_error( $result ) ) {
-						static::log(
-							sprintf(
-								// Translators: $1$s is the contact's user ID. %2$s is the error message.
-								__( 'Error syncing contact info for user ID %1$d. %2$s' ),
-								$user_id,
-								$result->get_error_message()
-							)
-						);
-					}
-				}
-
-				// Get the next batch.
-				if ( empty( $user_ids ) ) {
-					$batches++;
-
-					if ( $config['max_batches'] && $batches >= $config['max_batches'] ) {
-						break;
-					}
-
-					$user_ids = self::get_batch_of_readers( $config['batch_size'], $config['offset'] + ( $batches * $config['batch_size'] ) );
-				}
+			if ( empty( $batch ) ) {
+				break;
 			}
+
+			$all_subscription_ids = array_merge( $all_subscription_ids, $batch );
+			$batches++;
+
+			if ( $config['max_batches'] && $batches >= $config['max_batches'] ) {
+				break;
+			}
+
+			$offset = $config['offset'] + ( $batches * $config['batch_size'] );
 		}
 
-		return static::$results['processed'];
+		return $all_subscription_ids;
+	}
+
+	/**
+	 * Poll the progress of a Contact_Sync_Batch until complete.
+	 *
+	 * @param string $batch_id The batch ID to poll.
+	 *
+	 * @return int The number of completed contacts.
+	 */
+	private static function poll_progress( $batch_id ) {
+		$progress = Contact_Sync_Batch::get_progress( $batch_id );
+		if ( ! $progress ) {
+			return 0;
+		}
+
+		$progress_bar  = \WP_CLI\Utils\make_progress_bar( __( 'Syncing contacts', 'newspack-plugin' ), $progress['total'] );
+		$last_finished = 0;
+
+		while ( true ) {
+			$progress = Contact_Sync_Batch::get_progress( $batch_id );
+			if ( ! $progress ) {
+				break;
+			}
+
+			$finished = $progress['completed'] + $progress['failed'];
+			$new      = $finished - $last_finished;
+			for ( $i = 0; $i < $new; $i++ ) {
+				$progress_bar->tick();
+			}
+			$last_finished = $finished;
+
+			if ( 'running' !== $progress['status'] ) {
+				break;
+			}
+
+			sleep( 2 );
+		}
+
+		$progress_bar->finish();
+
+		if ( $progress && $progress['failed'] > 0 ) {
+			WP_CLI::warning(
+				sprintf(
+					// Translators: %d is the number of failed contacts.
+					__( '%d contacts failed to sync.', 'newspack-plugin' ),
+					$progress['failed']
+				)
+			);
+		}
+
+		return $progress ? $progress['completed'] : 0;
 	}
 
 	/**
