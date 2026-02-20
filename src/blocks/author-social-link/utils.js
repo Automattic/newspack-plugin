@@ -1,4 +1,38 @@
 /**
+ * WordPress dependencies
+ */
+import { __ } from '@wordpress/i18n';
+
+/**
+ * Human-readable label for a service key (for block title, aria-label, etc.).
+ * Only Email and Phone are translatable; company names are left as-is.
+ *
+ * @param {string} service Service key (e.g. 'facebook', 'email').
+ * @return {string} Display label.
+ */
+export function getServiceLabel( service ) {
+	if ( ! service ) {
+		return '';
+	}
+	const labels = {
+		facebook: 'Facebook',
+		twitter: 'X',
+		instagram: 'Instagram',
+		linkedin: 'LinkedIn',
+		youtube: 'YouTube',
+		bluesky: 'Bluesky',
+		pinterest: 'Pinterest',
+		myspace: 'Myspace',
+		soundcloud: 'SoundCloud',
+		tumblr: 'Tumblr',
+		wikipedia: 'Wikipedia',
+		email: __( 'Email', 'newspack-plugin' ),
+		phone: __( 'Phone', 'newspack-plugin' ),
+	};
+	return labels[ service ] || service;
+}
+
+/**
  * Get the URL for a service from author data.
  *
  * @param {Object} author  Author data object.

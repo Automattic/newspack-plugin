@@ -4,14 +4,13 @@
 import { useContext } from '@wordpress/element';
 import { useBlockProps, InspectorControls } from '@wordpress/block-editor';
 import { PanelBody, ExternalLink } from '@wordpress/components';
-import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
  */
 import { getSharedAuthorContext } from '../../shared/author-context';
 import { getSocialIconSvg } from './social-icons';
-import { getServiceUrl, getServiceData } from './utils';
+import { getServiceUrl, getServiceData, getServiceLabel } from './utils';
 
 /**
  * Edit component for a single Author Social Link block.
@@ -38,23 +37,7 @@ export default function AuthorSocialLinkEdit( { attributes, context } ) {
 
 	const serviceData = getServiceData( author, service );
 	const svg = getSocialIconSvg( service, serviceData );
-
-	const serviceLabel =
-		{
-			facebook: 'Facebook',
-			twitter: 'X (Twitter)',
-			instagram: 'Instagram',
-			linkedin: 'LinkedIn',
-			youtube: 'YouTube',
-			bluesky: 'Bluesky',
-			pinterest: 'Pinterest',
-			myspace: 'Myspace',
-			soundcloud: 'SoundCloud',
-			tumblr: 'Tumblr',
-			wikipedia: 'Wikipedia',
-			email: __( 'Email', 'newspack-plugin' ),
-			phone: __( 'Phone', 'newspack-plugin' ),
-		}[ service ] || service;
+	const serviceLabel = service ? getServiceLabel( service ) : service;
 
 	return (
 		<>
