@@ -105,6 +105,18 @@ class WooCommerce_My_Account {
 	 * @return string The version number.
 	 */
 	public static function get_version() {
+		/**
+		 * Sets which version of the Newspack My Account UI to use.
+		 * '0.0.0' uses core WooCommerce My Account.
+		 * '1.0.0' and above use Newspack's custom My Account UI.
+		 *
+		 * @constant NEWSPACK_MY_ACCOUNT_VERSION
+		 * @type     string
+		 * @default  '1.0.0' (Newspack custom My Account)
+		 * @status   draft
+		 *
+		 * @example define( 'NEWSPACK_MY_ACCOUNT_VERSION', '1.0.0' );
+		 */
 		$version = defined( 'NEWSPACK_MY_ACCOUNT_VERSION' ) ? NEWSPACK_MY_ACCOUNT_VERSION : '1.0.0'; // Increment this version number to default to a newer My Account version.
 
 		/**
@@ -822,6 +834,18 @@ class WooCommerce_My_Account {
 	 * Restrict account content for unverified readers.
 	 */
 	public static function restrict_account_content() {
+		/**
+		 * Allows unverified readers to access My Account content without
+		 * email verification. By default, unverified users see a verification
+		 * prompt instead of their account content.
+		 *
+		 * @constant NEWSPACK_ALLOW_MY_ACCOUNT_ACCESS_WITHOUT_VERIFICATION
+		 * @type     bool
+		 * @default  Unverified users see verification prompt
+		 * @status   draft
+		 *
+		 * @example define( 'NEWSPACK_ALLOW_MY_ACCOUNT_ACCESS_WITHOUT_VERIFICATION', true );
+		 */
 		if ( defined( 'NEWSPACK_ALLOW_MY_ACCOUNT_ACCESS_WITHOUT_VERIFICATION' ) && NEWSPACK_ALLOW_MY_ACCOUNT_ACCESS_WITHOUT_VERIFICATION ) {
 			return;
 		}

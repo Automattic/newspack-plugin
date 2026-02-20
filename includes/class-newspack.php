@@ -63,6 +63,17 @@ final class Newspack {
 	private function define_constants() {
 		define( 'NEWSPACK_VERSION', '0.0.1' );
 		define( 'NEWSPACK_ABSPATH', dirname( NEWSPACK_PLUGIN_FILE ) . '/' );
+		/**
+		 * Path to Composer's vendor directory. Override to use a shared vendor directory
+		 * across multiple plugins.
+		 *
+		 * @constant NEWSPACK_COMPOSER_ABSPATH
+		 * @type     string
+		 * @default  Plugin's vendor/ directory
+		 * @status   draft
+		 *
+		 * @example define( 'NEWSPACK_COMPOSER_ABSPATH', '/path/to/shared/vendor/' );
+		 */
 		if ( ! defined( 'NEWSPACK_COMPOSER_ABSPATH' ) ) {
 			define( 'NEWSPACK_COMPOSER_ABSPATH', dirname( NEWSPACK_PLUGIN_FILE ) . '/vendor/' );
 		}
@@ -331,6 +342,18 @@ final class Newspack {
 	 * @param WP_Screen $current_screen Current WP_Screen object.
 	 */
 	public static function restrict_user_access( $current_screen ) {
+		/**
+		 * Array of user IDs allowed to access plugin management screens
+		 * (plugins, plugin-install, plugin-editor). When defined, only listed
+		 * users can access these screens; others are redirected to the dashboard.
+		 *
+		 * @constant NEWSPACK_ALLOWED_PLUGIN_EDITORS
+		 * @type     array
+		 * @default  All users with appropriate capabilities can access plugin screens
+		 * @status   draft
+		 *
+		 * @example define( 'NEWSPACK_ALLOWED_PLUGIN_EDITORS', [ 1, 2, 3 ] );
+		 */
 		if ( ! defined( 'NEWSPACK_ALLOWED_PLUGIN_EDITORS' ) ) {
 			return;
 		}

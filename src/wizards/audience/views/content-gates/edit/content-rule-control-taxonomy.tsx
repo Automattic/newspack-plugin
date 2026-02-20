@@ -21,7 +21,7 @@ const debounce = ( func: ( search?: string ) => void, wait: number ) => {
 	};
 };
 
-export default function ContentRuleControlTaxonomy( { slug, value, onChange }: GateContentRuleControlProps ) {
+export default function ContentRuleControlTaxonomy( { slug, value, onChange }: GateRuleControlProps ) {
 	const rule = useMemo( () => window.newspackAudienceContentGates.available_content_rules[ slug ], [ slug ] );
 
 	const [ savedItems, setSavedItems ] = useState< { value: string; label: string }[] >( [] );
@@ -130,7 +130,7 @@ export default function ContentRuleControlTaxonomy( { slug, value, onChange }: G
 
 	return (
 		<FormTokenField
-			label={ rule.name }
+			label={ '' }
 			suggestions={ suggestions.map( s => `${ s.value }: ${ s.label }` ) }
 			onInputChange={ handleInputChange }
 			value={ tokens }

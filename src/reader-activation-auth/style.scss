@@ -124,7 +124,8 @@ li.menu-item .newspack-reader__account-link {
  * Hide login links when logged in.
  */
 body.logged-in {
-	a[href="#signin_modal"] {
+	a[href="#signin_modal"],
+	a[href="#register_modal"] {
 		display: none;
 	}
 }

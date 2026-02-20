@@ -92,6 +92,17 @@ class Content_Gate {
 	 * @return bool
 	 */
 	public static function is_newspack_feature_enabled() {
+		/**
+		 * Enables the content gating feature which allows restricting
+		 * content access based on membership, donations, or other criteria.
+		 *
+		 * @constant NEWSPACK_CONTENT_GATES
+		 * @type     bool
+		 * @default  Content gates disabled
+		 * @status   draft
+		 *
+		 * @example define( 'NEWSPACK_CONTENT_GATES', true );
+		 */
 		return defined( 'NEWSPACK_CONTENT_GATES' ) && NEWSPACK_CONTENT_GATES;
 	}
 
@@ -490,19 +501,19 @@ class Content_Gate {
 	/**
 	 * Create a new gate post.
 	 *
-	 * @param string $title     Optional gate title. Defaults to 'Content Gate'.
+	 * @param array  $gate Gate settings.
 	 * @param string $post_type Optional post type. Defaults to self::GATE_CPT.
 	 *
 	 * @return int|\WP_Error The gate post ID or error if not created.
 	 */
-	public static function create_gate( $title = '', $post_type = self::GATE_CPT ) {
+	public static function create_gate( $gate, $post_type = self::GATE_CPT ) {
 		$all_gates = self::get_gates();
 		$gate_id   = \wp_insert_post(
 			[
-				'post_title'   => $title,
+				'post_title'   => $gate['title'],
 				'post_type'    => $post_type,
-				'post_status'  => 'draft',
-				'post_content' => self::get_default_gate_content(),
+				'post_status'  => $gate['status'] ?? 'draft',
+				'post_content' => '',
 				'meta_input'   => [
 					'gate_priority' => count( $all_gates ),
 				],
@@ -514,22 +525,37 @@ class Content_Gate {
 			return $gate_id;
 		}
 
-		// Create default layouts for registration and custom_access modes.
-		$registration_content   = self::get_block_pattern_content( 'registration-card' );
-		$registration_layout_id = self::create_gate_layout(
-			__( 'Registration Access Layout', 'newspack' ),
-			$registration_content
-		);
-		if ( ! is_wp_error( $registration_layout_id ) ) {
-			self::update_registration_settings( $gate_id, [ 'gate_layout_id' => $registration_layout_id ] );
+		// Update content rules.
+		if ( isset( $gate['content_rules'] ) ) {
+			self::update_post_content_rules( $gate_id, $gate['content_rules'] );
 		}
 
-		$custom_access_layout_id = self::create_gate_layout(
-			__( 'Paid Access Layout', 'newspack' )
-		);
-		if ( ! is_wp_error( $custom_access_layout_id ) ) {
-			self::update_custom_access_settings( $gate_id, [ 'gate_layout_id' => $custom_access_layout_id ] );
+		// Create default layouts for registration and custom_access modes.
+		$registration_settings  = $gate['registration'] ?? [];
+		$registration_layout_id = $registration_settings['gate_layout_id'] ?? 0;
+		if ( ! $registration_layout_id ) {
+			$registration_content   = self::get_block_pattern_content( 'registration-card' );
+			$registration_layout_id = self::create_gate_layout(
+				__( 'Registration Access Layout', 'newspack' ),
+				$registration_content
+			);
 		}
+		if ( ! is_wp_error( $registration_layout_id ) ) {
+			$registration_settings['gate_layout_id'] = $registration_layout_id;
+		}
+		self::update_registration_settings( $gate_id, $registration_settings );
+
+		$custom_access_settings  = $gate['custom_access'] ?? [];
+		$custom_access_layout_id = $custom_access_settings['gate_layout_id'] ?? 0;
+		if ( ! $custom_access_layout_id ) {
+			$custom_access_layout_id = self::create_gate_layout(
+				__( 'Paid Access Layout', 'newspack' )
+			);
+			if ( ! is_wp_error( $custom_access_layout_id ) ) {
+				$custom_access_settings['gate_layout_id'] = $custom_access_layout_id;
+			}
+		}
+		self::update_custom_access_settings( $gate_id, $custom_access_settings );
 
 		return $gate_id;
 	}
@@ -694,22 +720,6 @@ class Content_Gate {
 	}
 
 	/**
-	 * Get the inline gate content.
-	 */
-	public static function get_inline_gate_content() {
-		return self::get_inline_gate_content_for_post( self::get_gate_layout_id() );
-	}
-
-	/**
-	 * Get the inline gate HTML for rendering.
-	 *
-	 * @return string
-	 */
-	public static function get_inline_gate_html() {
-		return apply_filters( 'newspack_gate_content', self::get_inline_gate_content() );
-	}
-
-	/**
 	 * Get the post excerpt to be displayed in the gate.
 	 *
 	 * @param \WP_Post $post Post object.
@@ -811,7 +821,7 @@ class Content_Gate {
 
 		$default_metering = [
 			'enabled' => false,
-			'count'   => 0,
+			'count'   => 1,
 			'period'  => 'month',
 		];
 
@@ -833,6 +843,9 @@ class Content_Gate {
 	public static function requires_account_verification( $gate_id = null ) {
 		if ( ! $gate_id ) {
 			$gate_id = self::get_gate_post_id();
+			if ( ! $gate_id ) {
+				return false;
+			}
 		}
 		$registration = self::get_registration_settings( $gate_id );
 		return $registration['require_verification'];
@@ -874,7 +887,7 @@ class Content_Gate {
 
 		$default_metering = [
 			'enabled' => false,
-			'count'   => 0,
+			'count'   => 1,
 			'period'  => 'month',
 		];
 
@@ -934,16 +947,18 @@ class Content_Gate {
 	public static function get_content_rules() {
 		$content_rules = [
 			'post_types' => [
-				'name'    => __( 'Post Types', 'newspack-plugin' ),
-				'options' => Content_Restriction_Control::get_available_post_types(),
-				'default' => [ 'post' ],
+				'name'        => __( 'Post types', 'newspack-plugin' ),
+				'options'     => Content_Restriction_Control::get_available_post_types(),
+				'default'     => [ 'post' ],
+				'description' => __( 'Content types like posts, pages, or listings.', 'newspack-plugin' ),
 			],
 		];
 		$available_taxonomies = Content_Restriction_Control::get_available_taxonomies();
 		foreach ( $available_taxonomies as $taxonomy ) {
 			$content_rules[ $taxonomy['slug'] ] = [
-				'name'    => $taxonomy['label'],
-				'default' => [],
+				'name'        => $taxonomy['label'],
+				'default'     => [],
+				'description' => $taxonomy['description'],
 			];
 		}
 

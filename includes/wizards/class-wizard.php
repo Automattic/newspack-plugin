@@ -147,7 +147,19 @@ abstract class Wizard {
 		// It should not actually load a JS file.
 		wp_register_script( 'newspack_data', '', [], '1.0', false );
 
-		$plugin_data   = get_plugin_data( NEWSPACK_PLUGIN_FILE );
+		$plugin_data = get_plugin_data( NEWSPACK_PLUGIN_FILE );
+
+		/**
+		 * Support email address displayed in the Newspack admin UI.
+		 * Users can contact this email for help.
+		 *
+		 * @constant NEWSPACK_SUPPORT_EMAIL
+		 * @type     string
+		 * @default  No support email shown
+		 * @status   draft
+		 *
+		 * @example define( 'NEWSPACK_SUPPORT_EMAIL', 'support@example.com' );
+		 */
 		$support_email = ( defined( 'NEWSPACK_SUPPORT_EMAIL' ) && NEWSPACK_SUPPORT_EMAIL ) ? NEWSPACK_SUPPORT_EMAIL : false;
 
 		$urls = [
