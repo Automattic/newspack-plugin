@@ -145,6 +145,9 @@ class WooCommerce_Update_Payment_Notice {
 			}
 
 			$line_items = $subscription->get_items();
+			if ( empty( $line_items ) ) {
+				continue;
+			}
 			$line_item  = reset( $line_items );
 			$product    = wc_get_product( $line_item->get_product_id() );
 			// If the product has a parent, use the parent product.
