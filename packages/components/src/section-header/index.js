@@ -81,8 +81,7 @@ const SectionHeader = ( {
 		centered && 'newspack-section-header--is-centered',
 		isWhite && 'newspack-section-header--is-white',
 		noMargin && 'newspack-section-header--no-margin',
-		pageHeader && 'newspack-section-header--page-header',
-		className
+		pageHeader && 'newspack-section-header--page-header'
 	);
 
 	const HeadingTag = pageHeader ? 'h1' : `h${ heading }`;
@@ -93,7 +92,8 @@ const SectionHeader = ( {
 			className={ classnames(
 				'newspack-section-header__container',
 				backNav && 'newspack-section-header--has-back-nav',
-				primaryAction && 'newspack-section-header--has-primary-action'
+				primaryAction && 'newspack-section-header--has-primary-action',
+				className
 			) }
 			ref={ ref }
 		>

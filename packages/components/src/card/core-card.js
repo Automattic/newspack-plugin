@@ -6,8 +6,9 @@
 /**
  * WordPress dependencies
  */
-import { Card as CardWrapper, CardHeader, CardFooter, ToggleControl } from '@wordpress/components';
-import { Icon, chevronRight } from '@wordpress/icons';
+import { __ } from '@wordpress/i18n';
+import { Card as CardWrapper, CardHeader, CardFooter, DropdownMenu, MenuItem, ToggleControl } from '@wordpress/components';
+import { Icon, chevronRight, moreVertical } from '@wordpress/icons';
 
 /**
  * Internal dependencies
@@ -20,6 +21,7 @@ import './style-core.scss';
 import classNames from 'classnames';
 
 const CoreCard = ( {
+	actions,
 	actionType,
 	as,
 	buttonsCard,
@@ -74,8 +76,10 @@ const CoreCard = ( {
 						</div>
 					) }
 					{ header && <div className="newspack-card--core__header-content">{ header }</div> }
-					{ actionType === 'chevron' && <Icon className="newspack-card--core__action" icon={ chevronRight } height={ 24 } width={ 24 } /> }
-					{ actionType === 'toggle' && (
+					{ ! actions && actionType === 'chevron' && (
+						<Icon className="newspack-card--core__action" icon={ chevronRight } height={ 24 } width={ 24 } />
+					) }
+					{ ! actions && actionType === 'toggle' && (
 						<ToggleControl
 							className="newspack-card--core__action"
 							label={ otherProps.title }
@@ -83,6 +87,23 @@ const CoreCard = ( {
 							checked={ isActive }
 							onChange={ () => {} }
 						/>
+					) }
+					{ actions?.length > 0 && (
+						<DropdownMenu icon={ moreVertical } label={ __( 'More', 'newspack-plugin' ) }>
+							{ () =>
+								actions.map( ( action, index ) => (
+									<MenuItem
+										key={ index }
+										icon={ action.icon }
+										onClick={ action.action }
+										disabled={ action.disabled || false }
+										isDestructive={ action.destructive || false }
+									>
+										{ action.label }
+									</MenuItem>
+								) )
+							}
+						</DropdownMenu>
 					) }
 				</CardHeader>
 			) }

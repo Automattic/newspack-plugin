@@ -204,6 +204,7 @@ const Wizard = (
 											{ 'function' === typeof renderAboveSections ? renderAboveSections() : null }
 											{ ( sectionTitle || section.title ) && (
 												<SectionHeader
+													className="newspack-wizard__section-header"
 													backNav={ backNav || section.backNav }
 													title={ sectionTitle || section.title }
 													description={ sectionDescription || section.description }

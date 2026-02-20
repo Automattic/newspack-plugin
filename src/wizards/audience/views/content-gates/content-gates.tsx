@@ -6,6 +6,7 @@
  * WordPress dependencies.
  */
 import apiFetch from '@wordpress/api-fetch';
+import { CardBody, __experimentalVStack as VStack } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
 import { useDispatch } from '@wordpress/data';
 import { useEffect, useRef, useState } from '@wordpress/element';
 import { ENTER } from '@wordpress/keycodes';
@@ -14,18 +15,20 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { Button, Card, Modal, Notice, TextControl } from '../../../../../packages/components/src';
+import { Badge, Button, Card, Modal, Notice, Router, TextControl } from '../../../../../packages/components/src';
 import { useWizardData } from '../../../../../packages/components/src/wizard/store/utils';
 import { useWizardApiFetch } from '../../../hooks/use-wizard-api-fetch';
 import { WIZARD_STORE_NAMESPACE } from '../../../../../packages/components/src/wizard/store';
-import WizardsActionCard from '../../../wizards-action-card';
 import ContentGatesOnboarding from './content-gates-onboarding';
 import ContentGateSettings from './content-gate-settings';
 import { AUDIENCE_CONTENT_GATES_WIZARD_SLUG } from './consts';
 import { getGateStatus, getGateStatusBadgeLevel } from './utils';
 import './style.scss';
 
+const { useHistory } = Router;
+
 const ContentGates = ( { updateGatesData }: { updateGatesData: ( gates: Gate[] ) => void } ) => {
+	const history = useHistory();
 	const wizardData = useWizardData( AUDIENCE_CONTENT_GATES_WIZARD_SLUG ) as WizardData;
 	const { wizardApiFetch, isFetching, error, errorMessage, resetError, setError } = useWizardApiFetch( AUDIENCE_CONTENT_GATES_WIZARD_SLUG );
 	const { setHeaderData } = useDispatch( WIZARD_STORE_NAMESPACE );
@@ -165,38 +168,31 @@ const ContentGates = ( { updateGatesData }: { updateGatesData: ( gates: Gate[] )
 	}
 
 	return (
-		<div className="newspack-content-gates__gates">
+		<VStack className="newspack-content-gates__gates" spacing="16px">
 			{ error && <Notice isError noticeText={ errorMessage } /> }
-			<Card noBorder headerActions>
-				{ showModal && (
-					<Modal isNarrow title={ __( 'Add Content Gate', 'newspack-plugin' ) } onRequestClose={ () => setShowModal( false ) }>
-						<TextControl
-							disabled={ isInFlight }
-							label={ __( 'Name', 'newspack-plugin' ) }
-							placeholder={ __( 'Enter a name for the content gate', 'newspack-plugin' ) }
-							onChange={ ( value: string ) => setNewGateName( value ) }
-							onKeyUp={ ( event: KeyboardEvent ) => {
-								if ( ENTER === event.keyCode && '' !== newGateName ) {
-									event.preventDefault();
-									handleCreateGate();
-								}
-							} }
-						/>
-						<Card buttonsCard noBorder className="justify-end">
-							<Button variant="primary" onClick={ handleCreateGate } disabled={ isInFlight }>
-								{ __( 'Add Content Gate', 'newspack-plugin' ) }
-							</Button>
-							<Button disabled={ isInFlight } isDestructive variant="secondary" onClick={ () => setShowModal( false ) }>
-								{ __( 'Cancel', 'newspack-plugin' ) }
-							</Button>
-						</Card>
-					</Modal>
-				) }
-			</Card>
-			{ gates.length === 0 && (
-				<Card noBorder>
-					<p>{ __( 'No content gates configured. Add a content gate to configure access rules.', 'newspack-plugin' ) }</p>
-				</Card>
+			{ showModal && (
+				<Modal isNarrow title={ __( 'Add Content Gate', 'newspack-plugin' ) } onRequestClose={ () => setShowModal( false ) }>
+					<TextControl
+						disabled={ isInFlight }
+						label={ __( 'Name', 'newspack-plugin' ) }
+						placeholder={ __( 'Enter a name for the content gate', 'newspack-plugin' ) }
+						onChange={ ( value: string ) => setNewGateName( value ) }
+						onKeyUp={ ( event: KeyboardEvent ) => {
+							if ( ENTER === event.keyCode && '' !== newGateName ) {
+								event.preventDefault();
+								handleCreateGate();
+							}
+						} }
+					/>
+					<Card buttonsCard noBorder className="justify-end">
+						<Button variant="primary" onClick={ handleCreateGate } disabled={ isInFlight }>
+							{ __( 'Add Content Gate', 'newspack-plugin' ) }
+						</Button>
+						<Button disabled={ isInFlight } isDestructive variant="secondary" onClick={ () => setShowModal( false ) }>
+							{ __( 'Cancel', 'newspack-plugin' ) }
+						</Button>
+					</Card>
+				</Modal>
 			) }
 			<div ref={ ref }>
 				{ gates.map( ( gate, index ) => {
@@ -215,30 +211,50 @@ const ContentGates = ( { updateGatesData }: { updateGatesData: ( gates: Gate[] )
 						}
 					};
 					return (
-						<WizardsActionCard
+						<Card
 							className="newspack-content-gates__gate"
-							draggable={ gates.length > 1 }
-							expandable
-							isExpanded={ gate.isExpanded || gates.length === 1 }
 							id={ gate.id }
 							key={ gate.id }
-							title={ gate.title }
-							titleLink={ `#/edit/${ gate.id }` }
-							isMedium={ gates.length > 1 }
-							toggleChecked={ true }
-							dragIndex={ index }
-							dragWrapperRef={ ref }
-							onDragCallback={ reorderGates }
-							disabled={ isInFlight }
-							badge={ getGateStatus( gate.status ) }
-							badgeLevel={ getGateStatusBadgeLevel( gate.status ) }
+							isSmall
+							__experimentalCoreCard
+							__experimentalCoreProps={ {
+								header: (
+									<>
+										<h3>
+											{ gate.title }
+											<Badge level={ getGateStatusBadgeLevel( gate.status ) } text={ getGateStatus( gate.status ) } />
+										</h3>
+									</>
+								),
+								actions: [
+									{
+										label: __( 'Edit', 'newspack-plugin' ),
+										action: () => history.push( `/edit/${ gate.id }` ),
+										disabled: isFetching,
+									},
+									{
+										label:
+											gate.status !== 'publish' ? __( 'Activate', 'newspack-plugin' ) : __( 'Deactivate', 'newspack-plugin' ),
+										action: () => console.log( gate.status ),
+										disabled: isFetching,
+									},
+									{
+										label: __( 'Delete', 'newspack-plugin' ),
+										action: () => handleDeleteGate( gate.id ),
+										disabled: isFetching,
+										destructive: true,
+									},
+								],
+							} }
 						>
-							<ContentGateSettings gate={ gate } onDelete={ handleDeleteGate } onSave={ handleSaveGate } />
-						</WizardsActionCard>
+							<CardBody>
+								<ContentGateSettings gate={ gate } onDelete={ handleDeleteGate } onSave={ handleSaveGate } />
+							</CardBody>
+						</Card>
 					);
 				} ) }
 			</div>
-		</div>
+		</VStack>
 	);
 };
 export default ContentGates;

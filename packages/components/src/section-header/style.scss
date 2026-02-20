@@ -62,7 +62,7 @@
 		text-align: center;
 	}
 
-	&:not( #{&}--no-margin ) + *:not( #{&} ) {
+	&:not( #{&}--no-margin ) + *:not( #{&} ):not(.newspack-wizard__section-header):not(.newspack-section-header__primary-action) {
 		margin-top: -16px !important;
 	}
 

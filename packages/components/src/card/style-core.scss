@@ -8,6 +8,7 @@
 .newspack-card--core,
 .newspack-wizard .newspack-card--core {
 	background: white;
+	position: relative;
 	transition: background-color 125ms ease-in-out, box-shadow 125ms ease-in-out, color 125ms ease-in-out;
 	svg {
 		transition: fill 125ms ease-in-out;
@@ -49,9 +50,9 @@
 	&__header {
 		color: wp-colors.$gray-700;
 		column-gap: 16px;
+		position: relative;
 		.newspack-card--core__action {
 			margin: 0;
-
 			label {
 				border: 0;
 				clip-path: inset(50%);
@@ -63,6 +64,16 @@
 				width: 1px;
 				word-wrap: normal !important;
 			}
+		}
+		.components-dropdown-menu {
+			align-items: center;
+			border-left: 1px solid wp-colors.$gray-200;
+			display: flex;
+			height: 100%;
+			padding: 4px;
+			position: absolute;
+			right: 0;
+			top: 0;
 		}
 	}
 	button.newspack-card--core__header {
@@ -93,7 +104,14 @@
 		h4,
 		h5,
 		h6 {
+			align-items: center;
 			color: wp-colors.$gray-900;
+			font-weight: 500;
+			display: flex;
+			gap: 8px;
+			.newspack-badge {
+				font-weight: 400;
+			}
 		}
 	}
 	&__is-active {
