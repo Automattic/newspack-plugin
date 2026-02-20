@@ -101,13 +101,53 @@ class Contact_Sync_Batch {
 	}
 
 	/**
-	 * Process a batch chunk. Placeholder for Task 2.
+	 * Process a batch chunk of user IDs for contact syncing.
+	 *
+	 * Called by ActionScheduler for each chunk. Syncs each user via Contact_Sync::sync_contact(),
+	 * increments completed/failed counters, and sets status to 'complete' when all contacts
+	 * have been processed.
 	 *
 	 * @param string $batch_id The batch ID.
 	 * @param array  $user_ids The user IDs in this chunk.
 	 */
 	public static function process_batch( $batch_id, $user_ids ) {
-		// To be implemented in Task 2.
+		if ( empty( $batch_id ) || ! is_array( $user_ids ) ) {
+			Logger::log( 'Invalid batch data received from Action Scheduler.', 'NEWSPACK-SYNC', 'error' );
+			return;
+		}
+
+		$progress = self::get_progress( $batch_id );
+		if ( ! $progress || 'running' !== $progress['status'] ) {
+			return;
+		}
+
+		$context = 'Batch sync';
+
+		foreach ( $user_ids as $user_id ) {
+			$result = Contact_Sync::sync_contact( $user_id, $context );
+			if ( \is_wp_error( $result ) ) {
+				$progress['failed']++;
+			} else {
+				$progress['completed']++;
+			}
+		}
+
+		// Check if all contacts have been processed.
+		if ( ( $progress['completed'] + $progress['failed'] ) >= $progress['total'] ) {
+			$progress['status'] = 'complete';
+			Logger::log(
+				sprintf(
+					'Batch %s complete: %d succeeded, %d failed out of %d.',
+					$batch_id,
+					$progress['completed'],
+					$progress['failed'],
+					$progress['total']
+				),
+				'NEWSPACK-SYNC'
+			);
+		}
+
+		self::save_progress( $batch_id, $progress );
 	}
 
 	/**
