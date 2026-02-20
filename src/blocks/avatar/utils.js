@@ -1,14 +1,3 @@
-const SVG_SIZE = 100;
-
-// How much the next avatar overlaps into the current one (fraction of avatar
-// size). Keep in sync with style.scss and class-avatar-block.php.
-const OVERLAP_FRACTION = 0.175;
-
-// The SVG mask cutout starts at this x position. The difference between the
-// cutout width and the overlap is the visible separator.
-const CUTOUT_X = 75;
-const OVERLAP_GAP = SVG_SIZE - CUTOUT_X - OVERLAP_FRACTION * SVG_SIZE; // 7.5
-
 /**
  * Compute an SVG overlap mask CSS custom property for non-circular border radii.
  * Returns a style object with --overlap-mask, or empty object for circular/default.
@@ -16,6 +5,10 @@ const OVERLAP_GAP = SVG_SIZE - CUTOUT_X - OVERLAP_FRACTION * SVG_SIZE; // 7.5
  * @param {Object} attrs Block attributes.
  * @return {Object} Style object to spread onto the block wrapper.
  */
+const SVG_SIZE = 100;
+const CUTOUT_X = 75;
+const CUTOUT_SCALE = 1.05;
+
 export const getOverlapMaskStyle = attrs => {
 	const className = attrs.className || '';
 	if ( ! className.includes( 'is-style-overlapped' ) ) {
@@ -55,12 +48,17 @@ export const getOverlapMaskStyle = attrs => {
 	}
 
 	// Clamp rx between 0 and half the viewBox, then round to 2 decimals.
-	rx = Math.round( Math.max( 0, Math.min( SVG_SIZE / 2, rx - OVERLAP_GAP ) ) * 100 ) / 100;
+	rx = Math.round( Math.max( 0, Math.min( SVG_SIZE / 2, rx ) ) * 100 ) / 100;
+	const inflateHalf = ( SVG_SIZE * ( CUTOUT_SCALE - 1 ) ) / 2;
+	const cutoutSize = SVG_SIZE * CUTOUT_SCALE;
+	const cutoutX = CUTOUT_X - inflateHalf;
+	const cutoutY = -inflateHalf;
+	const cutoutRx = Math.round( Math.max( 0, Math.min( cutoutSize / 2, rx ) ) * 100 ) / 100;
 
 	const svg =
 		`<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 ${ SVG_SIZE } ${ SVG_SIZE }'>` +
 		`<defs><mask id='m'><rect width='${ SVG_SIZE }' height='${ SVG_SIZE }' fill='white'/>` +
-		`<rect x='${ CUTOUT_X }' y='0' width='${ SVG_SIZE }' height='${ SVG_SIZE }' rx='${ rx }' ry='${ rx }' fill='black'/>` +
+		`<rect x='${ cutoutX }' y='${ cutoutY }' width='${ cutoutSize }' height='${ cutoutSize }' rx='${ cutoutRx }' ry='${ cutoutRx }' fill='black'/>` +
 		`</mask></defs>` +
 		`<rect width='${ SVG_SIZE }' height='${ SVG_SIZE }' fill='white' mask='url(#m)'/>` +
 		`</svg>`;

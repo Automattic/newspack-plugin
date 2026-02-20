@@ -30,6 +30,7 @@ final class Avatar_Block {
 	 */
 	const CUTOUT_X = 75;
 	const OVERLAP_GAP = self::SVG_SIZE - self::CUTOUT_X - self::OVERLAP_FRACTION * self::SVG_SIZE; // 7.5
+	const CUTOUT_SCALE = 1.05;
 
 	/**
 	 * Initializes the block.
@@ -272,32 +273,33 @@ final class Avatar_Block {
 
 		$image_size = $attributes['size'] ?? 48;
 
-		$s = self::SVG_SIZE;
-		$x = self::CUTOUT_X;
-
 		// Convert border-radius to an SVG rx value.
 		if ( str_ends_with( $radius, '%' ) ) {
 			$rx = (float) $radius;
 		} elseif ( str_ends_with( $radius, 'rem' ) || str_ends_with( $radius, 'em' ) ) {
 			// Approximate em/rem using the 16px browser default base font size.
-			$rx = ( (float) $radius * 16 / $image_size ) * $s;
+			$rx = ( (float) $radius * 16 / $image_size ) * 100;
 		} else {
-			// px or plain number: convert to SVG scale.
-			$rx = ( (float) $radius / $image_size ) * $s;
+			// Plain number, treat as px.
+			$rx = ( (float) $radius / $image_size ) * 100;
 		}
 
-		// Clamp rx between 0 and half the viewBox, then round to 2 decimals.
-		$rx = round( max( 0, min( $s / 2, $rx - self::OVERLAP_GAP ) ), 2 );
+		$rx = round( max( 0, min( 50, $rx ) ), 2 );
+		$inflate_half = ( self::SVG_SIZE * ( self::CUTOUT_SCALE - 1 ) ) / 2;
+		$cutout_size  = self::SVG_SIZE * self::CUTOUT_SCALE;
+		$cutout_x     = self::CUTOUT_X - $inflate_half;
+		$cutout_y     = -$inflate_half;
+		$cutout_rx    = round( max( 0, min( $cutout_size / 2, $rx ) ), 2 );
 
 		// SVG mask: an internal <mask> uses luminance (white=visible, black=hidden)
 		// to cut out the overlap notch, then a white rect is painted through it.
 		// The result has real alpha transparency, which works with CSS mask-image's
 		// default alpha mode across all browsers.
-		$svg = "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 {$s} {$s}'>"
-			. "<defs><mask id='m'><rect width='{$s}' height='{$s}' fill='white'/>"
-			. "<rect x='{$x}' y='0' width='{$s}' height='{$s}' rx='{$rx}' ry='{$rx}' fill='black'/>"
+		$svg = "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'>"
+			. "<defs><mask id='m'><rect width='100' height='100' fill='white'/>"
+			. "<rect x='{$cutout_x}' y='{$cutout_y}' width='{$cutout_size}' height='{$cutout_size}' rx='{$cutout_rx}' ry='{$cutout_rx}' fill='black'/>"
 			. '</mask></defs>'
-			. "<rect width='{$s}' height='{$s}' fill='white' mask='url(#m)'/>"
+			. "<rect width='100' height='100' fill='white' mask='url(#m)'/>"
 			. '</svg>';
 
 		return '--overlap-mask: url(data:image/svg+xml,' . rawurlencode( $svg ) . ');';
