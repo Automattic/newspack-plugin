@@ -197,7 +197,6 @@ final class Author_Profile_Social_Block {
 
 		$wrapper_attributes = get_block_wrapper_attributes(
 			[
-				'class' => 'wp-block-newspack-author-profile-social',
 				'style' => self::get_wrapper_style( $attributes, $icon_size ),
 			]
 		);
