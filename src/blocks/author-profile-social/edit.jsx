@@ -3,10 +3,9 @@
  */
 import { useContext, useEffect, useMemo, useRef, useState } from '@wordpress/element';
 import { BlockControls, useBlockProps, InnerBlocks, InspectorControls } from '@wordpress/block-editor';
-import { PanelBody, RangeControl, Button, ToolbarButton, ToolbarGroup } from '@wordpress/components';
+import { PanelBody, RangeControl, Button, ToolbarButton, ToolbarGroup, Tooltip } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
-import { backup } from '@wordpress/icons';
 import { createBlock } from '@wordpress/blocks';
 import apiFetch from '@wordpress/api-fetch';
 
@@ -108,7 +107,11 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 		<>
 			<BlockControls>
 				<ToolbarGroup>
-					<ToolbarButton icon={ backup } label={ __( 'Reset links', 'newspack-plugin' ) } onClick={ resetLinks } />
+					<Tooltip text={ __( 'Reset links', 'newspack-plugin' ) }>
+						<ToolbarButton label={ __( 'Reset links', 'newspack-plugin' ) } onClick={ resetLinks }>
+							{ __( 'Reset', 'newspack-plugin' ) }
+						</ToolbarButton>
+					</Tooltip>
 				</ToolbarGroup>
 			</BlockControls>
 			<InspectorControls>
