@@ -107,12 +107,7 @@ final class Author_Profile_Social_Block {
 			return '';
 		}
 
-		$wrapper_attributes = get_block_wrapper_attributes(
-			[
-				'class' => 'wp-block-newspack-author-profile-social',
-				'style' => sprintf( '--icon-size: %dpx;', absint( $icon_size ) ),
-			]
-		);
+		$wrapper_attributes = self::get_block_wrapper_attributes( $block, $attributes, $icon_size );
 
 		return sprintf(
 			'<div %s><ul class="author-profile-social__list">%s</ul></div>',
@@ -156,12 +151,7 @@ final class Author_Profile_Social_Block {
 			return '';
 		}
 
-		$wrapper_attributes = get_block_wrapper_attributes(
-			[
-				'class' => 'wp-block-newspack-author-profile-social',
-				'style' => sprintf( '--icon-size: %dpx;', absint( $icon_size ) ),
-			]
-		);
+		$wrapper_attributes = self::get_block_wrapper_attributes( $block, $attributes, $icon_size );
 
 		$output = '<ul class="author-profile-social__list">';
 
@@ -189,6 +179,55 @@ final class Author_Profile_Social_Block {
 		$output .= '</ul>';
 
 		return sprintf( '<div %s>%s</div>', $wrapper_attributes, $output );
+	}
+
+	/**
+	 * Get wrapper attributes (class, style, etc.) for the block.
+	 * Sets block context so core includes default class, custom className, and other supports.
+	 * Style is built from full attributes.style (spacing, color, border, etc.) plus block-specific --icon-size.
+	 *
+	 * @param WP_Block $block      Block instance.
+	 * @param array    $attributes Block attributes.
+	 * @param int      $icon_size  Icon size in pixels.
+	 * @return string HTML attributes for the wrapper div.
+	 */
+	private static function get_block_wrapper_attributes( WP_Block $block, array $attributes, int $icon_size ): string {
+		$previous = \WP_Block_Supports::$block_to_render ?? null;
+		\WP_Block_Supports::$block_to_render = $block->parsed_block;
+
+		$wrapper_attributes = get_block_wrapper_attributes(
+			[
+				'class' => 'wp-block-newspack-author-profile-social',
+				'style' => self::get_wrapper_style( $attributes, $icon_size ),
+			]
+		);
+
+		\WP_Block_Supports::$block_to_render = $previous;
+		return $wrapper_attributes;
+	}
+
+	/**
+	 * Build wrapper style from block attributes.style (spacing, color, border, etc.) and block-specific vars.
+	 * Uses the style engine so presets (e.g. var:preset|spacing|20) are converted to CSS.
+	 *
+	 * @param array $attributes Block attributes.
+	 * @param int   $icon_size  Icon size in pixels.
+	 * @return string Inline style string.
+	 */
+	private static function get_wrapper_style( array $attributes, int $icon_size ): string {
+		$parts = [];
+		$style = $attributes['style'] ?? null;
+		if ( ! empty( $style ) && is_array( $style ) ) {
+			$styles = wp_style_engine_get_styles(
+				$style,
+				[ 'context' => 'block-supports' ]
+			);
+			if ( ! empty( $styles['css'] ) ) {
+				$parts[] = $styles['css'];
+			}
+		}
+		$parts[] = sprintf( '--icon-size: %dpx;', absint( $icon_size ) );
+		return implode( ' ', $parts );
 	}
 }
 
