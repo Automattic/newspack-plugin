@@ -1243,7 +1243,9 @@ class Newspack_UI {
 											item.classList.remove( 'hidden' );
 										} );
 										newsletterContainer.style.maxHeight = 'none';
-										divider.classList.add( 'hidden' );
+										if ( divider ) {
+											divider.classList.add( 'hidden' );
+										}
 										seeAllButton.classList.add( 'hidden' );
 									} );
 
