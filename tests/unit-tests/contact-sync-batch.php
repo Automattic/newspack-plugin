@@ -6,6 +6,9 @@
  */
 
 use Newspack\Reader_Activation\Contact_Sync_Batch;
+use Newspack\Reader_Activation\Integrations;
+
+require_once __DIR__ . '/integrations/class-failing-sample-integration.php';
 
 /**
  * Test the Contact_Sync_Batch class.
@@ -100,5 +103,120 @@ class Newspack_Test_Contact_Sync_Batch extends WP_UnitTestCase {
 		Contact_Sync_Batch::process_batch( $batch_id, [ 3, 4 ] );
 		$progress = Contact_Sync_Batch::get_progress( $batch_id );
 		$this->assertEquals( 'complete', $progress['status'], 'Status should be complete after all chunks processed.' );
+	}
+
+	/**
+	 * Test that process_batch handles failures from integrations.
+	 */
+	public function test_process_batch_handles_failures() {
+		if ( ! function_exists( 'as_schedule_single_action' ) ) {
+			$this->markTestSkipped( 'ActionScheduler not available.' );
+		}
+
+		// Register a failing integration.
+		Failing_Sample_Integration::reset();
+		Failing_Sample_Integration::$should_fail = true;
+		$integration = new Failing_Sample_Integration( 'batch_fail_mock', 'Batch Fail Mock' );
+		Integrations::register( $integration );
+		Integrations::enable( 'batch_fail_mock' );
+
+		// Allow sync in test environment.
+		if ( ! defined( 'NEWSPACK_ALLOW_READER_SYNC' ) ) {
+			define( 'NEWSPACK_ALLOW_READER_SYNC', true );
+		}
+
+		as_unschedule_all_actions( Contact_Sync_Batch::BATCH_HOOK );
+
+		// Create real WordPress users.
+		$user_id_1 = self::factory()->user->create();
+		$user_id_2 = self::factory()->user->create();
+		$user_ids  = [ $user_id_1, $user_id_2 ];
+
+		$batch_id = Contact_Sync_Batch::enqueue( $user_ids, [ 'batch_size' => 2 ] );
+
+		// Process the batch directly.
+		Contact_Sync_Batch::process_batch( $batch_id, $user_ids );
+
+		$progress = Contact_Sync_Batch::get_progress( $batch_id );
+		$this->assertGreaterThan( 0, $progress['failed'], 'Some contacts should have failed.' );
+		$this->assertEquals( 'complete', $progress['status'], 'Batch should complete even with failures.' );
+	}
+
+	/**
+	 * Test that cancel() stops a batch and marks it as cancelled.
+	 */
+	public function test_cancel_batch() {
+		if ( ! function_exists( 'as_schedule_single_action' ) ) {
+			$this->markTestSkipped( 'ActionScheduler not available.' );
+		}
+
+		as_unschedule_all_actions( Contact_Sync_Batch::BATCH_HOOK );
+
+		$user_ids = [ 1, 2, 3, 4, 5, 6 ];
+		$batch_id = Contact_Sync_Batch::enqueue( $user_ids, [ 'batch_size' => 2 ] );
+
+		// Verify AS actions are pending.
+		$pending = as_get_scheduled_actions(
+			[
+				'hook'   => Contact_Sync_Batch::BATCH_HOOK,
+				'group'  => 'newspack',
+				'status' => \ActionScheduler_Store::STATUS_PENDING,
+			],
+			'ARRAY_A'
+		);
+		$this->assertNotEmpty( $pending, 'There should be pending AS actions before cancel.' );
+
+		// Cancel the batch.
+		Contact_Sync_Batch::cancel( $batch_id );
+
+		// Verify progress is cancelled.
+		$progress = Contact_Sync_Batch::get_progress( $batch_id );
+		$this->assertEquals( 'cancelled', $progress['status'], 'Status should be cancelled after cancel().' );
+
+		// Verify no pending AS actions remain.
+		$pending_after = as_get_scheduled_actions(
+			[
+				'hook'   => Contact_Sync_Batch::BATCH_HOOK,
+				'group'  => 'newspack',
+				'status' => \ActionScheduler_Store::STATUS_PENDING,
+			],
+			'ARRAY_A'
+		);
+		$this->assertEmpty( $pending_after, 'No pending AS actions should remain after cancel.' );
+	}
+
+	/**
+	 * Test that stale progress records are cleaned up on enqueue.
+	 */
+	public function test_progress_cleanup() {
+		if ( ! function_exists( 'as_schedule_single_action' ) ) {
+			$this->markTestSkipped( 'ActionScheduler not available.' );
+		}
+
+		as_unschedule_all_actions( Contact_Sync_Batch::BATCH_HOOK );
+
+		// Manually insert a stale progress record.
+		$stale_batch_id = 'batch_stale_test';
+		$option_name    = Contact_Sync_Batch::PROGRESS_OPTION_PREFIX . $stale_batch_id;
+		update_option(
+			$option_name,
+			[
+				'total'      => 10,
+				'completed'  => 5,
+				'failed'     => 0,
+				'status'     => 'running',
+				'created_at' => time() - ( DAY_IN_SECONDS + 1 ),
+			],
+			false
+		);
+
+		// Verify the option exists.
+		$this->assertNotFalse( get_option( $option_name ), 'Stale progress record should exist before cleanup.' );
+
+		// Enqueue triggers cleanup.
+		Contact_Sync_Batch::enqueue( [ 1 ] );
+
+		// Verify the stale option was cleaned up.
+		$this->assertFalse( get_option( $option_name ), 'Stale progress record should be deleted after cleanup.' );
 	}
 }

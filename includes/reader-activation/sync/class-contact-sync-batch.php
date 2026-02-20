@@ -124,11 +124,20 @@ class Contact_Sync_Batch {
 		$context = 'Batch sync';
 
 		foreach ( $user_ids as $user_id ) {
-			$result = Contact_Sync::sync_contact( $user_id, $context );
-			if ( \is_wp_error( $result ) ) {
+			try {
+				$result = Contact_Sync::sync_contact( $user_id, $context );
+				if ( \is_wp_error( $result ) ) {
+					$progress['failed']++;
+				} else {
+					$progress['completed']++;
+				}
+			} catch ( \Throwable $e ) {
 				$progress['failed']++;
-			} else {
-				$progress['completed']++;
+				Logger::log(
+					sprintf( 'Batch %s: error syncing user %d: %s', $batch_id, $user_id, $e->getMessage() ),
+					'NEWSPACK-SYNC',
+					'error'
+				);
 			}
 		}
 
@@ -148,6 +157,38 @@ class Contact_Sync_Batch {
 		}
 
 		self::save_progress( $batch_id, $progress );
+	}
+
+	/**
+	 * Cancel a running batch.
+	 *
+	 * Unschedules all pending ActionScheduler actions for the batch hook
+	 * and marks the batch progress as cancelled.
+	 *
+	 * @param string $batch_id The batch ID.
+	 */
+	public static function cancel( $batch_id ) {
+		$progress = self::get_progress( $batch_id );
+		if ( ! $progress ) {
+			return;
+		}
+
+		if ( function_exists( 'as_unschedule_all_actions' ) ) {
+			as_unschedule_all_actions( self::BATCH_HOOK, null, 'newspack' );
+		}
+
+		$progress['status'] = 'cancelled';
+		self::save_progress( $batch_id, $progress );
+
+		Logger::log(
+			sprintf(
+				'Batch %s cancelled. %d/%d completed before cancellation.',
+				$batch_id,
+				$progress['completed'],
+				$progress['total']
+			),
+			'NEWSPACK-SYNC'
+		);
 	}
 
 	/**
