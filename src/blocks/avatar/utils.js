@@ -11,10 +11,7 @@ export const getOverlapMaskStyle = attrs => {
 		return {};
 	}
 
-	let radius = attrs?.style?.border?.radius;
-	if ( ! radius ) {
-		return {};
-	}
+	let radius = attrs?.style?.border?.radius ?? '100%';
 
 	// Per-corner object: use the value if all corners are the same.
 	if ( typeof radius === 'object' ) {
@@ -26,32 +23,40 @@ export const getOverlapMaskStyle = attrs => {
 		}
 	}
 
-	if ( typeof radius !== 'string' || radius === '50%' ) {
+	if ( typeof radius !== 'string' ) {
 		return {};
 	}
 
-	const size = attrs.size || 48;
-	let rx;
+	const avatarSize = attrs.size || 48;
+	const svgSize = avatarSize * 1.1;
+	const offset = ( svgSize - avatarSize ) / 2;
+	let radiusPx;
 
-	if ( radius.endsWith( 'px' ) ) {
-		rx = ( parseFloat( radius ) / size ) * 100;
-	} else if ( radius.endsWith( '%' ) ) {
-		rx = parseFloat( radius );
+	if ( radius.endsWith( '%' ) ) {
+		radiusPx = ( parseFloat( radius ) / 100 ) * avatarSize;
 	} else if ( radius.endsWith( 'rem' ) || radius.endsWith( 'em' ) ) {
 		// Approximate em/rem using the 16px browser default base font size.
-		rx = ( ( parseFloat( radius ) * 16 ) / size ) * 100;
+		radiusPx = parseFloat( radius ) * 16;
 	} else {
-		rx = ( parseFloat( radius ) / size ) * 100;
+		// px or plain number.
+		radiusPx = parseFloat( radius );
 	}
 
-	rx = Math.round( Math.max( 0, Math.min( 50, rx ) ) * 100 ) / 100;
+	if ( Number.isNaN( radiusPx ) ) {
+		return {};
+	}
+
+	// Offset the rounded rectangle equally on all sides for a border-like shape.
+	const cutoutRx = Math.round(
+		Math.max( 0, Math.min( svgSize / 2, radiusPx + offset ) ) * 100
+	) / 100;
 
 	const svg =
-		`<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'>` +
-		`<defs><mask id='m'><rect width='100' height='100' fill='white'/>` +
-		`<rect x='75' y='0' width='100' height='100' rx='${ rx }' ry='${ rx }' fill='black'/>` +
+		`<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 ${ avatarSize } ${ avatarSize }'>` +
+		`<defs><mask id='m'><rect width='${ avatarSize }' height='${ avatarSize }' fill='white'/>` +
+		`<rect x='${ avatarSize * 0.75 - offset }' y='${ -offset }' width='${ svgSize }' height='${ svgSize }' rx='${ cutoutRx }' ry='${ cutoutRx }' fill='black'/>` +
 		`</mask></defs>` +
-		`<rect width='100' height='100' fill='white' mask='url(#m)'/>` +
+		`<rect width='${ avatarSize }' height='${ avatarSize }' fill='white' mask='url(#m)'/>` +
 		`</svg>`;
 
 	return {

@@ -235,11 +235,7 @@ final class Avatar_Block {
 			return '';
 		}
 
-		$radius = $attributes['style']['border']['radius'] ?? null;
-
-		if ( empty( $radius ) ) {
-			return '';
-		}
+		$radius = $attributes['style']['border']['radius'] ?? '100%';
 
 		// Per-corner object: use the value if all corners are the same.
 		if ( is_array( $radius ) ) {
@@ -251,36 +247,41 @@ final class Avatar_Block {
 			}
 		}
 
-		if ( ! is_string( $radius ) || '50%' === $radius ) {
+		if ( ! is_string( $radius ) ) {
 			return '';
 		}
 
 		$image_size = $attributes['size'] ?? 48;
+		$svg_size   = $image_size * 1.1;
+		$offset     = ( $svg_size - $image_size ) / 2;
 
-		// Convert border-radius to an SVG rx value on a 0-100 scale.
-		if ( str_ends_with( $radius, 'px' ) ) {
-			$rx = ( (float) $radius / $image_size ) * 100;
-		} elseif ( str_ends_with( $radius, '%' ) ) {
-			$rx = (float) $radius;
+		// Convert border-radius to px first.
+		if ( str_ends_with( $radius, '%' ) ) {
+			$radius_px = ( (float) $radius / 100 ) * $image_size;
 		} elseif ( str_ends_with( $radius, 'rem' ) || str_ends_with( $radius, 'em' ) ) {
 			// Approximate em/rem using the 16px browser default base font size.
-			$rx = ( (float) $radius * 16 / $image_size ) * 100;
+			$radius_px = (float) $radius * 16;
 		} else {
-			// Plain number, treat as px.
-			$rx = ( (float) $radius / $image_size ) * 100;
+			// px or plain number.
+			$radius_px = (float) $radius;
 		}
 
-		$rx = round( max( 0, min( 50, $rx ) ), 2 );
+		if ( ! is_finite( $radius_px ) ) {
+			return '';
+		}
+
+		// Offset the rounded rectangle equally on all sides for a border-like shape.
+		$cutout_rx = round( max( 0, min( $svg_size / 2, $radius_px + $offset ) ), 2 );
 
 		// SVG mask: an internal <mask> uses luminance (white=visible, black=hidden)
 		// to cut out the overlap notch, then a white rect is painted through it.
 		// The result has real alpha transparency, which works with CSS mask-image's
 		// default alpha mode across all browsers.
-		$svg = "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'>"
-			. "<defs><mask id='m'><rect width='100' height='100' fill='white'/>"
-			. "<rect x='75' y='0' width='100' height='100' rx='{$rx}' ry='{$rx}' fill='black'/>"
+		$svg = "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 {$image_size} {$image_size}'>"
+			. "<defs><mask id='m'><rect width='{$image_size}' height='{$image_size}' fill='white'/>"
+			. "<rect x='" . ( $image_size * 0.75 - $offset ) . "' y='" . ( -$offset ) . "' width='{$svg_size}' height='{$svg_size}' rx='{$cutout_rx}' ry='{$cutout_rx}' fill='black'/>"
 			. '</mask></defs>'
-			. "<rect width='100' height='100' fill='white' mask='url(#m)'/>"
+			. "<rect width='{$image_size}' height='{$image_size}' fill='white' mask='url(#m)'/>"
 			. '</svg>';
 
 		return '--overlap-mask: url(data:image/svg+xml,' . rawurlencode( $svg ) . ');';
