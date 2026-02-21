@@ -1,5 +1,3 @@
-$overlap-fraction: 0.175; // Keep in sync with utils.js and class-avatar-block.php.
-
 [data-type="newspack/avatar"],
 .wp-block-newspack-avatar {
 	display: flex;
@@ -10,11 +8,10 @@ $overlap-fraction: 0.175; // Keep in sync with utils.js and class-avatar-block.p
 		gap: 0;
 
 		.newspack-avatar-wrapper:not(:last-of-type) {
-			margin-right: calc(var(--avatar-size) * #{-$overlap-fraction});
+			margin-right: calc(var(--avatar-size) * -0.175);
 
 			img {
-				--overlap-mask-default: radial-gradient(var(--avatar-size) at calc(62.5% + calc(var(--avatar-size) * 0.875) - calc(var(--avatar-size) * 0.25)) 50%, transparent 50%, white 50%);
-				mask-image: var(--overlap-mask, var(--overlap-mask-default));
+				mask-image: var(--overlap-mask);
 				mask-size: 100% 100%;
 				mask-repeat: no-repeat;
 			}
