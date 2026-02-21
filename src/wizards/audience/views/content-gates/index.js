@@ -42,11 +42,6 @@ const AudienceContentGates = ( props, ref ) => {
 				{
 					path: '/content-gates',
 					render: ContentGates,
-					title: __( 'Access control' ),
-					description: __(
-						'Set up gates to manage what content readers can access across your site. Start by selecting which content to restrict, then configure access through registered and/or paid options (including metered rules).',
-						'newspack-plugin'
-					),
 				},
 				{
 					path: '/edit/:id/:type?',

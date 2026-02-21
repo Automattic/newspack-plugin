@@ -31,7 +31,7 @@ const ContentGates = ( { updateGatesData }: { updateGatesData: ( gates: Gate[] )
 	const history = useHistory();
 	const wizardData = useWizardData( AUDIENCE_CONTENT_GATES_WIZARD_SLUG ) as WizardData;
 	const { wizardApiFetch, isFetching, error, errorMessage, resetError, setError } = useWizardApiFetch( AUDIENCE_CONTENT_GATES_WIZARD_SLUG );
-	const { setHeaderData } = useDispatch( WIZARD_STORE_NAMESPACE );
+	const { resetHeaderData, setHeaderData } = useDispatch( WIZARD_STORE_NAMESPACE );
 	const [ showModal, setShowModal ] = useState( false );
 	const [ newGateName, setNewGateName ] = useState( '' );
 	const [ isInFlight, setIsInFlight ] = useState( false );
@@ -48,18 +48,30 @@ const ContentGates = ( { updateGatesData }: { updateGatesData: ( gates: Gate[] )
 	}, [ isFetching ] );
 
 	useEffect( () => {
-		if ( isInFlight || ! gates?.length ) {
+		if ( isInFlight ) {
+			return;
+		}
+		if ( ! gates?.length ) {
+			resetHeaderData();
 			return;
 		}
 		setHeaderData( {
+			sectionTitle: __( 'Access control', 'newspack-plugin' ),
+			sectionDescription: __(
+				'Set up gates to manage what content readers can access across your site. Start by selecting which content to restrict, then configure access through registered and/or paid options (including metered rules).',
+				'newspack-plugin'
+			),
 			sectionPrimaryAction: {
 				label: __( 'Add new content gate', 'newspack-plugin' ),
 				href: '#/edit/new/all',
 			},
-			sectionSecondaryAction: {
-				label: __( 'Gate priority', 'newspack-plugin' ),
-				action: () => setShowModal( true ),
-			},
+			sectionSecondaryAction:
+				gates.length > 1
+					? {
+							label: __( 'Gate priority', 'newspack-plugin' ),
+							action: () => setShowModal( true ),
+					  }
+					: undefined,
 		} );
 	}, [ isInFlight, gates ] );
 
@@ -100,13 +112,37 @@ const ContentGates = ( { updateGatesData }: { updateGatesData: ( gates: Gate[] )
 		);
 	};
 
-	const handleDeleteGate = ( id: number ) => {
-		const currentStatus = gates.find( g => g.id === id )?.status;
-		if ( currentStatus === 'trash' ) {
-			// eslint-disable-next-line no-alert
-			if ( ! confirm( __( 'Are you sure you want to permanently delete this content gate?', 'newspack-plugin' ) ) ) {
-				return;
+	const toggleStatus = ( id: number ) => {
+		if ( isFetching ) {
+			return;
+		}
+		resetError();
+		const gate = gates.find( g => g.id === id );
+		if ( ! gate ) {
+			return;
+		}
+		const _gate = {
+			...gate,
+			status: gate.status === 'publish' ? 'draft' : 'publish',
+		};
+		wizardApiFetch< Gate >(
+			{
+				path: `/newspack/v1/wizard/${ AUDIENCE_CONTENT_GATES_WIZARD_SLUG }/${ gate.id }`,
+				method: 'POST',
+				data: { gate: _gate },
+			},
+			{
+				onSuccess( data: Gate ) {
+					updateGatesData( gates.map( g => ( g.id === data.id ? data : g ) ) );
+				},
 			}
+		);
+	};
+
+	const handleDelete = ( id: number ) => {
+		// eslint-disable-next-line no-alert
+		if ( ! confirm( __( 'Are you sure you want to permanently delete this content gate?', 'newspack-plugin' ) ) ) {
+			return;
 		}
 		resetError();
 		wizardApiFetch(
@@ -116,18 +152,8 @@ const ContentGates = ( { updateGatesData }: { updateGatesData: ( gates: Gate[] )
 			},
 			{
 				onSuccess() {
-					if ( currentStatus === 'trash' ) {
-						const newGates = gates.filter( g => g.id !== id );
-						updateGatesData( newGates );
-					} else {
-						const newGates = gates.map( g => {
-							if ( g.id === id ) {
-								g.status = 'trash';
-							}
-							return g;
-						} );
-						updateGatesData( newGates );
-					}
+					const newGates = gates.filter( g => g.id !== id );
+					updateGatesData( newGates );
 				},
 			}
 		);
@@ -235,12 +261,12 @@ const ContentGates = ( { updateGatesData }: { updateGatesData: ( gates: Gate[] )
 									{
 										label:
 											gate.status !== 'publish' ? __( 'Activate', 'newspack-plugin' ) : __( 'Deactivate', 'newspack-plugin' ),
-										action: () => console.log( gate.status ),
+										action: () => toggleStatus( gate.id ),
 										disabled: isFetching,
 									},
 									{
 										label: __( 'Delete', 'newspack-plugin' ),
-										action: () => handleDeleteGate( gate.id ),
+										action: () => handleDelete( gate.id ),
 										disabled: isFetching,
 										destructive: true,
 									},
@@ -248,7 +274,7 @@ const ContentGates = ( { updateGatesData }: { updateGatesData: ( gates: Gate[] )
 							} }
 						>
 							<CardBody>
-								<ContentGateSettings gate={ gate } onDelete={ handleDeleteGate } onSave={ handleSaveGate } />
+								<ContentGateSettings gate={ gate } onDelete={ handleDelete } onSave={ handleSaveGate } />
 							</CardBody>
 						</Card>
 					);

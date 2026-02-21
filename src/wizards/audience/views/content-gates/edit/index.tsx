@@ -84,7 +84,7 @@ const Edit = ( { history, match, updateGatesData }: ContentGateEditProps ) => {
 		const _gate = {
 			...gate,
 			title,
-			status: 'draft',
+			status: 'publish',
 			content_rules: contentRules,
 			registration,
 			custom_access: customAccess,
@@ -98,7 +98,7 @@ const Edit = ( { history, match, updateGatesData }: ContentGateEditProps ) => {
 			{
 				onSuccess( data ) {
 					updateGatesData( [ ...gates, { ...data } ] );
-					history.push( `/edit/${ data.id }` );
+					history.push( `/content-gates` );
 				},
 			}
 		);
@@ -127,6 +127,7 @@ const Edit = ( { history, match, updateGatesData }: ContentGateEditProps ) => {
 				onSuccess( data: Gate ) {
 					updateGatesData( gates.map( g => ( g.id === data.id ? data : g ) ) );
 					setIsRenaming( false );
+					history.push( `/content-gates` );
 				},
 			}
 		);
