@@ -36,6 +36,17 @@ class ESP extends Integration {
 	public function can_sync( $return_errors = false ) {
 		$errors = new \WP_Error();
 
+		/**
+		 * Forces ESP sync to be allowed, bypassing all validation checks.
+		 * Use with caution - may sync data to production ESP from staging.
+		 *
+		 * @constant NEWSPACK_FORCE_ALLOW_ESP_SYNC
+		 * @type     bool
+		 * @default  ESP sync follows normal validation rules
+		 * @status   draft
+		 *
+		 * @example define( 'NEWSPACK_FORCE_ALLOW_ESP_SYNC', true );
+		 */
 		if ( defined( 'NEWSPACK_FORCE_ALLOW_ESP_SYNC' ) && NEWSPACK_FORCE_ALLOW_ESP_SYNC ) {
 			return $return_errors ? $errors : true;
 		}

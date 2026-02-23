@@ -47,6 +47,9 @@ function setupModalObserver( modal ) {
 			if ( mutation.type === 'attributes' && mutation.attributeName === 'data-state' ) {
 				const newState = modal.dataset.state;
 				handleModalOverlay( modal, newState );
+				if ( newState === 'closed' ) {
+					modal.dispatchEvent( new CustomEvent( 'closeModal' ) );
+				}
 			}
 		} );
 	} );

@@ -13,6 +13,8 @@
 	--wp-admin-theme-color-darker-10--rgb: var(--newspack-ui-color-primary-rgb);
 	--wp-admin-theme-color-darker-20: #{colors.$primary-700};
 	--wp-admin-theme-color-darker-20--rgb: #{colors.$primary-700--rgb};
+	--wp-admin-theme-color-lighter-10: #{colors.$primary-000};
+	--wp-admin-theme-color-lighter-10--rgb: #{colors.$primary-000--rgb};
 
 	background: white;
 	border-bottom: 1px solid wp-colors.$gray-300;

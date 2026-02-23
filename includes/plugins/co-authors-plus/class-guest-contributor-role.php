@@ -104,6 +104,17 @@ class Guest_Contributor_Role {
 	 * @return void
 	 */
 	public static function early_init() {
+		/**
+		 * Enables Co-Authors Plus native guest author functionality instead
+		 * of Newspack's custom guest contributor role system.
+		 *
+		 * @constant NEWSPACK_ENABLE_CAP_GUEST_AUTHORS
+		 * @type     bool
+		 * @default  CAP guest authors use contributor role
+		 * @status   draft
+		 *
+		 * @example define( 'NEWSPACK_ENABLE_CAP_GUEST_AUTHORS', true );
+		 */
 		if ( defined( 'NEWSPACK_ENABLE_CAP_GUEST_AUTHORS' ) && NEWSPACK_ENABLE_CAP_GUEST_AUTHORS ) {
 			return;
 		}
