@@ -401,7 +401,7 @@ export default withWizardScreen( ( { config, updateConfig, saveConfig, renderPri
 } );
 ```
 
-**When to use:** Modern wizard screens (Audience Management, Settings sections, etc.)
+**When to use:** Modern wizard screens (Audience Management, Settings sections, etc.). Use when you need more precise control over the layout and routing structure in a wizard view than the `Wizard` component can provide.
 
 ### Using withWizard HOC (Legacy Pattern)
 
