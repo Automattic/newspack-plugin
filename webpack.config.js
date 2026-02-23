@@ -66,6 +66,7 @@ const entry = {
 	'content-gate-editor-memberships': path.join( __dirname, 'src', 'content-gate', 'editor', 'memberships.js' ),
 	'content-gate-editor-metering': path.join( __dirname, 'src', 'content-gate', 'editor', 'metering-settings.js' ),
 	'content-gate-block-patterns': path.join( __dirname, 'src', 'content-gate', 'editor', 'block-patterns.js' ),
+	'content-gate-ip-check': path.join( __dirname, 'src', 'content-gate', 'ip-check.js' ),
 	'content-banner': path.join( __dirname, 'src', 'content-gate', 'content-banner.js' ),
 	wizards: path.join( __dirname, 'src', 'wizards', 'index.tsx' ),
 	'newspack-ui': path.join( __dirname, 'src', 'newspack-ui', 'index.js' ),
