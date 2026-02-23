@@ -152,50 +152,47 @@ abstract class Integration {
 	 * inherited via late static binding, static::class resolves to the
 	 * concrete subclass, keeping each integration's handler independent.
 	 *
+	 * Throws on failure so that Data Events' retry mechanism (which catches
+	 * \Throwable) can re-queue the handler via ActionScheduler.
+	 *
 	 * @param int    $timestamp Timestamp of the event.
 	 * @param array  $data      Data associated with the event.
 	 * @param string $client_id Client ID.
+	 *
+	 * @throws \RuntimeException When the handler cannot be dispatched.
 	 */
 	public static function dispatch_data_event_handler( $timestamp, $data, $client_id ) {
 		$action = Data_Events::current_event();
 		if ( ! $action ) {
-			Logger::error(
-				sprintf( 'Integration data event dispatch aborted for %s: no current event available.', static::class ),
-				self::LOGGER_HEADER
-			);
-			return;
+			$message = sprintf( 'Integration data event dispatch aborted for %s: no current event available.', static::class );
+			Logger::error( $message, self::LOGGER_HEADER );
+			throw new \RuntimeException( esc_html( $message ) );
 		}
 
 		$key = static::class . '::' . $action;
 		if ( ! isset( self::$handler_map[ $key ] ) ) {
-			Logger::error(
-				sprintf( 'No integration data event handler registered for key "%s".', $key ),
-				self::LOGGER_HEADER
-			);
-			return;
+			$message = sprintf( 'No integration data event handler registered for key "%s".', $key );
+			Logger::error( $message, self::LOGGER_HEADER );
+			throw new \RuntimeException( esc_html( $message ) );
 		}
 
 		$entry       = self::$handler_map[ $key ];
 		$integration = Integrations::get_integration( $entry['integration_id'] );
 		if ( ! $integration ) {
-			Logger::error(
-				sprintf( 'Failed to resolve integration "%s" for data event "%s".', $entry['integration_id'], $action ),
-				self::LOGGER_HEADER
-			);
-			return;
+			$message = sprintf( 'Failed to resolve integration "%s" for data event "%s".', $entry['integration_id'], $action );
+			Logger::error( $message, self::LOGGER_HEADER );
+			throw new \RuntimeException( esc_html( $message ) );
 		}
 
 		if ( ! is_callable( [ $integration, $entry['method'] ] ) ) {
-			Logger::error(
-				sprintf(
-					'Method "%s" is not callable on integration "%s" for data event "%s".',
-					$entry['method'],
-					$entry['integration_id'],
-					$action
-				),
-				self::LOGGER_HEADER
+			$message = sprintf(
+				'Method "%s" is not callable on integration "%s" for data event "%s".',
+				$entry['method'],
+				$entry['integration_id'],
+				$action
 			);
-			return;
+			Logger::error( $message, self::LOGGER_HEADER );
+			throw new \RuntimeException( esc_html( $message ) );
 		}
 
 		$integration->{ $entry['method'] }( $timestamp, $data, $client_id );

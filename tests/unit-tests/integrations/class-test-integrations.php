@@ -205,9 +205,10 @@ class Test_Integrations extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * Test that dispatch gracefully returns when integration is not found.
+	 * Test that dispatch throws when integration is not found, allowing
+	 * Data Events to catch the error and schedule a retry.
 	 */
-	public function test_dispatch_returns_when_integration_missing() {
+	public function test_dispatch_throws_when_integration_missing() {
 		$action_name = 'test_missing_integration_event';
 		Data_Events::register_action( $action_name );
 
@@ -219,7 +220,8 @@ class Test_Integrations extends \WP_UnitTestCase {
 		// Now remove the integration from the registry.
 		$this->reset_integrations();
 
-		// Should not throw, and should not call the handler.
+		// Data_Events::handle() catches \Throwable and schedules a retry,
+		// so this should not propagate, but the handler should not be called.
 		Data_Events::handle( $action_name, time(), [], 'client' );
 
 		$this->assertNull( Sample_Integration::$handler_args, 'Handler should not be called when integration is missing.' );
