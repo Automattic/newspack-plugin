@@ -115,7 +115,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 				</ToolbarGroup>
 			</BlockControls>
 			<InspectorControls>
-				<PanelBody title={ __( 'Social Links Settings', 'newspack-plugin' ) }>
+				<PanelBody title={ __( 'Settings', 'newspack-plugin' ) }>
 					<SelectControl
 						label={ __( 'Icon size', 'newspack-plugin' ) }
 						value={ iconSize ?? 24 }
