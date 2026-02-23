@@ -52,7 +52,11 @@ class Sync {
 			);
 		}
 
-		if ( class_exists( 'WCS_Staging' ) && \WCS_Staging::is_duplicate_site() ) {
+		if (
+			! ( defined( 'WP_CLI' ) && WP_CLI ) &&
+			class_exists( 'WCS_Staging' ) &&
+			\WCS_Staging::is_duplicate_site()
+		) {
 			$errors->add(
 				'wcs_duplicate_site',
 				__( 'Audience Management contact data syncing is disabled for cloned sites.', 'newspack-plugin' )
