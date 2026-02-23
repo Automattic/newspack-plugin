@@ -48,6 +48,9 @@ abstract class Integration {
 	 * Maps registered data event handlers to their integration and method.
 	 *
 	 * Keyed by "ClassName::action_name" to allow per-integration dispatch.
+	 * This means only one instance per concrete subclass can register a
+	 * handler for a given action. If multiple instances of the same subclass
+	 * register for the same action, the last registration wins.
 	 *
 	 * @var array<string, array{integration_id: string, method: string}>
 	 */
@@ -115,6 +118,9 @@ abstract class Integration {
 	 * — two strings, fully serializable. The instance method is resolved from
 	 * the integration registry at execution time.
 	 *
+	 * Note: the handler map is keyed by class name, so only one instance per
+	 * concrete subclass can register a handler for a given action.
+	 *
 	 * @param string $action_name The data event action name.
 	 * @param string $method      The instance method to call on this integration.
 	 */
@@ -150,7 +156,7 @@ abstract class Integration {
 	 * Resolves the concrete integration instance from the registry and
 	 * calls the registered instance method. Because this is a static method
 	 * inherited via late static binding, static::class resolves to the
-	 * concrete subclass, keeping each integration's handler independent.
+	 * concrete subclass.
 	 *
 	 * Throws on failure so that Data Events' retry mechanism (which catches
 	 * \Throwable) can re-queue the handler via ActionScheduler.
