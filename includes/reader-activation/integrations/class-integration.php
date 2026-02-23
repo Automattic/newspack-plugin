@@ -49,7 +49,7 @@ abstract class Integration {
 	 *
 	 * Keyed by "ClassName::action_name" to allow per-integration dispatch.
 	 *
-	 * @var array
+	 * @var array<string, array{integration_id: string, method: string}>
 	 */
 	private static $handler_map = [];
 
