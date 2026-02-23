@@ -147,7 +147,8 @@ When building a screen, use the **spacing scale** (8px unit: 16, 24, 32, 48, 64)
 
 - **`hooks`** - Custom React hooks (e.g., `useObjectState`, `usePrompt`, `useOnClickOutside`)
 - **`utils`** - Utility functions (e.g., `confirmAction`, color utilities)
-- **`Router`** - Proxied router import (use instead of direct `react-router-dom` import)
+- **`Router`** - Proxied React Router import (use instead of direct `react-router-dom` import)
+  - Note: This package currently uses [React Router v5](https://v5.reactrouter.com/). Please refer to v5 documentation for API details.
 
 ## Import Patterns
 
