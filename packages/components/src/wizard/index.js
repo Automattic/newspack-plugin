@@ -18,6 +18,7 @@ import { category, moreVertical } from '@wordpress/icons';
 import { Footer, Notice, Button, NewspackIcon, TabbedNavigation, PluginInstaller, SectionHeader, HandoffMessage } from '../';
 import Router from '../proxied-imports/router';
 import registerStore, { WIZARD_STORE_NAMESPACE } from './store';
+import WizardSnackbar from './components/WizardSnackbar';
 import WizardError from './components/WizardError';
 
 registerStore();
@@ -78,6 +79,7 @@ const Wizard = (
 	const isLoading = useSelect( select => select( WIZARD_STORE_NAMESPACE ).isLoading() );
 	const isQuietLoading = useSelect( select => select( WIZARD_STORE_NAMESPACE ).isQuietLoading() );
 	const headerData = useSelect( select => select( WIZARD_STORE_NAMESPACE ).getHeaderData() );
+	const notices = useSelect( select => select( WIZARD_STORE_NAMESPACE ).getNotices() );
 	const { actions, backNav, badges, sectionDescription, sectionName, sectionTitle, sectionPrimaryAction, sectionSecondaryAction } = headerData;
 
 	const mainActions = actions?.filter( action => action.type === 'primary' || action.type === 'secondary' );
@@ -224,6 +226,12 @@ const Wizard = (
 						<Redirect to={ displayedSections[ 0 ].path } />
 					</Switch>
 				</HashRouter>
+				{ notices?.length > 0 &&
+					notices.map( ( notice, index ) => (
+						<WizardSnackbar key={ index } type={ notice.type } id={ notice.id }>
+							{ notice.message }
+						</WizardSnackbar>
+					) ) }
 			</div>
 			{ ! isLoading && <Footer simple={ hasSimpleFooter } /> }
 		</div>

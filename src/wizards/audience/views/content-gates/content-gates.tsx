@@ -5,12 +5,12 @@
 /**
  * WordPress dependencies.
  */
+import { __ } from '@wordpress/i18n';
 import apiFetch from '@wordpress/api-fetch';
 import { CardBody, __experimentalVStack as VStack } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
 import { useDispatch } from '@wordpress/data';
 import { useEffect, useRef, useState } from '@wordpress/element';
 import { ENTER } from '@wordpress/keycodes';
-import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies

@@ -63,7 +63,7 @@ const Edit = ( { history, match, updateGatesData }: ContentGateEditProps ) => {
 	const id = _id ? parseInt( _id ) : 0;
 	const { gates = null as unknown as Gate[] } = useWizardData( AUDIENCE_CONTENT_GATES_WIZARD_SLUG ) as WizardData;
 	const { wizardApiFetch, isFetching, errorMessage, resetError, setError } = useWizardApiFetch( AUDIENCE_CONTENT_GATES_WIZARD_SLUG );
-	const { setHeaderData } = useDispatch( WIZARD_STORE_NAMESPACE );
+	const { setHeaderData, addNotice } = useDispatch( WIZARD_STORE_NAMESPACE );
 	const [ gate, setGate ] = useState< Gate >( ( gates && gates.find( g => g.id === id ) ) || DEFAULT_GATE ); // eslint-disable-line @typescript-eslint/no-unused-vars
 	const [ title, setTitle ] = useState< string >( gate.title );
 	const [ isRenaming, setIsRenaming ] = useState< boolean >( false );
@@ -127,6 +127,12 @@ const Edit = ( { history, match, updateGatesData }: ContentGateEditProps ) => {
 					updateGatesData( gates.map( g => ( g.id === data.id ? data : g ) ) );
 					setIsRenaming( false );
 					history.push( `/content-gates` );
+					addNotice( {
+						// translators: %s is the gate title.
+						message: sprintf( __( '“%s” gate updated.', 'newspack-plugin' ), data.title ),
+						type: 'success',
+						id: 'content-gate-updated',
+					} );
 				},
 			}
 		);
