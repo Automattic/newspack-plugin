@@ -35,6 +35,7 @@ const CoreCard = ( {
 	isSmall,
 	onHeaderClick,
 	noBorder,
+	noMargin,
 	children,
 	...otherProps
 } ) => {
@@ -47,7 +48,8 @@ const CoreCard = ( {
 		icon && 'newspack-card--core__has-icon',
 		iconBackgroundColor && 'newspack-card--core__has-icon-background-color',
 		isActive && 'newspack-card--core__is-active',
-		children && 'newspack-card--core__has-children'
+		children && 'newspack-card--core__has-children',
+		noMargin && 'newspack-card--core__no-margin'
 	);
 	let sizeProps = isSmall ? 'small' : otherProps.size;
 	if ( buttonsCard || as === 'a' ) {

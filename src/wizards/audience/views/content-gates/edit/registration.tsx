@@ -8,18 +8,16 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { ActionCard, Button } from '../../../../../../packages/components/src';
-import { getEditGateLayoutUrl } from '../utils';
+import { ActionCard } from '../../../../../../packages/components/src';
 import Metering from './metering';
 
 interface RegistrationProps {
-	gateId?: number;
 	registration: Registration;
 	onChange: ( registration: Partial< Registration > ) => void;
 	cardProps?: Partial< React.ComponentPropsWithoutRef< typeof ActionCard > >;
 }
 
-export default function Registration( { gateId, registration, onChange }: RegistrationProps ) {
+export default function Registration( { registration, onChange }: RegistrationProps ) {
 	const handleChange = useCallback(
 		( value: Partial< Registration > ) => {
 			onChange( {
@@ -33,16 +31,6 @@ export default function Registration( { gateId, registration, onChange }: Regist
 	);
 	return (
 		<>
-			{ gateId ? (
-				<>
-					<CardBody size="small">
-						<Button variant="secondary" href={ getEditGateLayoutUrl( gateId, 'registration' ) }>
-							{ __( 'Edit Layout', 'newspack-plugin' ) }
-						</Button>
-					</CardBody>
-					<CardDivider />
-				</>
-			) : null }
 			<CardBody size="small">
 				<ToggleControl
 					label={ __( 'Require verification', 'newspack-plugin' ) }

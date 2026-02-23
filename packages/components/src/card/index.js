@@ -40,6 +40,7 @@ class Card extends Component {
 				header: null, // Pass a React component to render in a CardHeader component.
 				icon: null,
 				footer: null, // Pass a React component to render in a CardFooter component.
+				noMargin: false,
 			},
 			...otherProps
 		} = this.props;

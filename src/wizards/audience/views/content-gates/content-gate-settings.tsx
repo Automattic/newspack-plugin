@@ -1,118 +1,109 @@
 /**
  * WordPress dependencies.
  */
-import { useEffect, useMemo, useState, useCallback } from '@wordpress/element';
-import { Button } from '@wordpress/components';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
  */
-import { AUDIENCE_CONTENT_GATES_WIZARD_SLUG } from './consts';
-import { useWizardApiFetch } from '../../../hooks/use-wizard-api-fetch';
-import ContentRules from './edit/content-rules';
-import Registration from './edit/registration';
-import CustomAccess from './edit/custom-access';
+import { Button, Grid } from '../../../../../packages/components/src';
+import ContentRuleControl from './edit/content-rule-control';
+import { getEditGateLayoutUrl } from './utils';
 
 type ContentGateSettingsProps = {
 	gate: Gate;
-	onDelete: ( id: number ) => void;
-	onSave: ( gate: Gate ) => void;
 };
 
-export default function ContentGateSettings( { gate, onDelete, onSave }: ContentGateSettingsProps ) {
-	const { wizardApiFetch, resetError } = useWizardApiFetch( AUDIENCE_CONTENT_GATES_WIZARD_SLUG );
-	const [ contentRules, setContentRules ] = useState< GateContentRule[] >( gate.content_rules );
-	const [ registration, setRegistration ] = useState< Registration >( gate.registration );
-	const [ customAccess, setCustomAccess ] = useState< CustomAccess >( gate.custom_access );
-	const [ status, setStatus ] = useState< GateStatus >( gate.status );
-	const [ isEditingStatus, setIsEditingStatus ] = useState( false );
+const availableAccessRules = window.newspackAudienceContentGates.available_access_rules || {};
 
-	const isReady = useMemo( () => {
-		return contentRules.length > 0 && ( registration.active || ( customAccess.active && customAccess.access_rules.length > 0 ) );
-	}, [ contentRules, registration, customAccess ] );
+const noOp = () => {};
 
-	const handleSave = useCallback( () => {
-		const _gate = {
-			...gate,
-			content_rules: contentRules,
-			registration,
-			custom_access: customAccess,
-			status,
-		};
-		resetError();
-		wizardApiFetch< Gate >(
-			{
-				path: `/newspack/v1/wizard/${ AUDIENCE_CONTENT_GATES_WIZARD_SLUG }/${ gate.id }`,
-				method: 'POST',
-				data: { gate: _gate },
-			},
-			{
-				onSuccess( data ) {
-					onSave( data );
-				},
-				onFinally() {
-					setIsEditingStatus( false );
-				},
-			}
-		);
-	}, [ contentRules, registration, customAccess, status ] );
-
-	// Update status and trigger save.
-	useEffect( () => {
-		if ( ! isEditingStatus ) {
-			return;
-		}
-		handleSave();
-	}, [ isEditingStatus, status, handleSave ] );
-
-	const handleDelete = () => onDelete( gate.id );
-	const handleRestore = () => {
-		setIsEditingStatus( true );
-		setStatus( 'draft' );
-	};
-
-	const handlePublish = () => {
-		// eslint-disable-next-line no-alert
-		if ( ! confirm( __( 'Are you sure you want to publish this content gate?', 'newspack-plugin' ) ) ) {
-			return;
-		}
-		setIsEditingStatus( true );
-		setStatus( 'publish' );
-	};
-
+export default function ContentGateSettings( { gate }: ContentGateSettingsProps ) {
 	return (
-		<>
-			<ContentRules rules={ contentRules } onChange={ setContentRules } />
-			<Registration gateId={ gate.id } registration={ registration } onChange={ setRegistration } />
-			<CustomAccess gateId={ gate.id } customAccess={ customAccess } onChange={ setCustomAccess } />
-			<div className="newspack-buttons-card">
-				{ gate.status === 'draft' && (
-					<Button disabled={ ! isReady } variant="primary" onClick={ handlePublish }>
-						{ __( 'Publish', 'newspack-plugin' ) }
-					</Button>
+		<Grid className="newspack-content-gates__gate__settings" columns={ 3 } gutter={ 16 } borders noMargin>
+			<div>
+				<h4>{ __( 'Content rules', 'newspack-plugin' ) }</h4>
+				{ gate.content_rules.length > 0 ? (
+					gate.content_rules.map( rule => (
+						<ContentRuleControl
+							key={ rule.slug }
+							slug={ rule.slug }
+							value={ rule.value }
+							exclusion={ rule.exclusion }
+							onChange={ noOp }
+							onChangeExclusion={ noOp }
+							isStatic
+						/>
+					) )
+				) : (
+					<p>{ __( 'N/A', 'newspack-plugin' ) }</p>
 				) }
-				{ gate.status !== 'trash' && (
-					<Button variant={ gate.status === 'publish' ? 'primary' : 'secondary' } onClick={ handleSave }>
-						{ gate.status === 'publish' ? __( 'Update', 'newspack-plugin' ) : __( 'Save draft', 'newspack-plugin' ) }
-					</Button>
+			</div>
+			<div>
+				<h4>{ __( 'Registered access', 'newspack-plugin' ) }</h4>
+				{ gate.registration?.active && (
+					<p>
+						<strong>{ __( 'Require verification:', 'newspack-plugin' ) } </strong>{ ' ' }
+						{ gate.registration.require_verification ? __( 'Yes', 'newspack-plugin' ) : __( 'No', 'newspack-plugin' ) }
+					</p>
 				) }
-				{ gate.status === 'publish' && (
-					<Button isDestructive variant="secondary" onClick={ handleRestore }>
-						{ __( 'Unpublish', 'newspack-plugin' ) }
-					</Button>
+				{ gate.registration?.active && gate.registration.metering.enabled && (
+					<p>
+						<strong>{ __( 'Metered:', 'newspack-plugin' ) } </strong>{ ' ' }
+						{ sprintf(
+							// translators: 1: metering count, 2: metering period
+							__( '%1$d free views per %2$s', 'newspack-plugin' ),
+							gate.registration.metering.count,
+							gate.registration.metering.period
+						) }
+					</p>
 				) }
-				{ 'trash' === gate.status && (
-					<Button variant="secondary" onClick={ handleRestore }>
-						{ __( 'Restore', 'newspack-plugin' ) }
-					</Button>
-				) }
-				{ gate.status !== 'publish' && (
-					<Button variant="tertiary" isDestructive onClick={ handleDelete }>
-						{ 'trash' === gate.status ? __( 'Delete permanently', 'newspack-plugin' ) : __( 'Delete', 'newspack-plugin' ) }
+				{ ! gate.registration?.active && <p>{ __( 'N/A', 'newspack-plugin' ) }</p> }
+				{ gate.registration?.active && gate.registration.gate_layout_id && (
+					<Button variant="secondary" href={ getEditGateLayoutUrl( gate.id, 'registration' ) }>
+						{ __( 'Customize registered access layout', 'newspack-plugin' ) }
 					</Button>
 				) }
 			</div>
-		</>
+			<div>
+				<h4>{ __( 'Paid access', 'newspack-plugin' ) }</h4>
+				{ gate.custom_access?.active &&
+					gate.custom_access.access_rules.length > 0 &&
+					gate.custom_access.access_rules.map( ruleGroup =>
+						ruleGroup.map( rule =>
+							availableAccessRules[ rule.slug ]?.name ? (
+								<p key={ rule.slug }>
+									<strong>{ availableAccessRules[ rule.slug ].name }:</strong>{ ' ' }
+									{ Array.isArray( rule.value ) && availableAccessRules[ rule.slug ]?.options
+										? rule.value
+												.map(
+													value =>
+														availableAccessRules[ rule.slug ].options?.find( option => option.value === value )?.label
+												)
+												.join( ', ' )
+										: rule.value }
+								</p>
+							) : null
+						)
+					) }
+				{ gate.custom_access?.active && gate.custom_access.metering.enabled && (
+					<p>
+						<strong>{ __( 'Metered:', 'newspack-plugin' ) } </strong>{ ' ' }
+						{ sprintf(
+							// translators: 1: metering count, 2: metering period
+							__( '%1$d free views per %2$s', 'newspack-plugin' ),
+							gate.custom_access.metering.count,
+							gate.custom_access.metering.period
+						) }
+					</p>
+				) }
+				{ ( ! gate.custom_access?.active || gate.custom_access.access_rules?.length === 0 ) && <p>{ __( 'N/A', 'newspack-plugin' ) }</p> }
+				{ gate.custom_access?.active && gate.custom_access.access_rules?.length > 0 && gate.custom_access.gate_layout_id && (
+					<Button variant="secondary" href={ getEditGateLayoutUrl( gate.id, 'custom_access' ) }>
+						{ __( 'Customize paid access layout', 'newspack-plugin' ) }
+					</Button>
+				) }
+			</div>
+		</Grid>
 	);
 }

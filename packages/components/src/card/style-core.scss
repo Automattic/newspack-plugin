@@ -47,6 +47,9 @@
 			}
 		}
 	}
+	&__no-margin .components-card__body {
+		padding: 0 !important;
+	}
 	&__header {
 		color: wp-colors.$gray-700;
 		column-gap: 16px;
@@ -184,6 +187,9 @@
 			padding: 16px 24px;
 			.newspack-card--core__is-small & {
 				padding: 16px;
+			}
+			.newspack-card--core__no-margin & {
+				padding: 0;
 			}
 		}
 	}

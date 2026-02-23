@@ -35,7 +35,7 @@ const DEFAULT_GATE: Gate = {
 	id: 0,
 	title: '',
 	priority: 0,
-	status: 'draft',
+	status: 'publish',
 	content_rules: [ { slug: 'post_types', value: [ 'post' ] } ],
 	registration: { active: false, metering: { enabled: false, count: 1, period: 'month' }, require_verification: false, gate_layout_id: 0 },
 	custom_access: { active: false, metering: { enabled: false, count: 1, period: 'month' }, gate_layout_id: 0, access_rules: [] },
@@ -84,7 +84,6 @@ const Edit = ( { history, match, updateGatesData }: ContentGateEditProps ) => {
 		const _gate = {
 			...gate,
 			title,
-			status: 'publish',
 			content_rules: contentRules,
 			registration,
 			custom_access: customAccess,
@@ -357,7 +356,7 @@ const Edit = ( { history, match, updateGatesData }: ContentGateEditProps ) => {
 						isActive={ registration?.active }
 						onEnable={ () => setRegistration( { ...registration, active: ! registration.active } ) }
 					>
-						<Registration gateId={ gate.id } registration={ registration } onChange={ setRegistration } />
+						<Registration registration={ registration } onChange={ setRegistration } />
 					</CardSettingsGroup>
 					<CardSettingsGroup
 						actionType="toggle"
@@ -367,7 +366,7 @@ const Edit = ( { history, match, updateGatesData }: ContentGateEditProps ) => {
 						isActive={ customAccess?.active }
 						onEnable={ () => setCustomAccess( { ...customAccess, active: ! customAccess.active } ) }
 					>
-						<CustomAccess gateId={ gate.id } customAccess={ customAccess } onChange={ setCustomAccess } />
+						<CustomAccess customAccess={ customAccess } onChange={ setCustomAccess } />
 					</CardSettingsGroup>
 				</VStack>
 			</Grid>

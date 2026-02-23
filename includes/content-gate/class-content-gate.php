@@ -512,7 +512,7 @@ class Content_Gate {
 			[
 				'post_title'   => $gate['title'],
 				'post_type'    => $post_type,
-				'post_status'  => $gate['status'] ?? 'draft',
+				'post_status'  => 'publish',
 				'post_content' => '',
 				'meta_input'   => [
 					'gate_priority' => count( $all_gates ),

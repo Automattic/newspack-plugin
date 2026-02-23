@@ -75,43 +75,6 @@ const ContentGates = ( { updateGatesData }: { updateGatesData: ( gates: Gate[] )
 		} );
 	}, [ isInFlight, gates ] );
 
-	const handleCreateGate = () => {
-		if ( isInFlight ) {
-			return;
-		}
-		resetError();
-		setIsInFlight( true );
-		wizardApiFetch< Gate >(
-			{
-				path: `/newspack/v1/wizard/${ AUDIENCE_CONTENT_GATES_WIZARD_SLUG }`,
-				method: 'POST',
-				data: {
-					gate: {
-						title: newGateName,
-						status: 'draft',
-					},
-				},
-			},
-			{
-				onSuccess( data ) {
-					const newGates = [
-						...gates.map( g => {
-							g.isExpanded = false;
-							return g;
-						} ),
-						{ ...data, isExpanded: true },
-					];
-					updateGatesData( newGates );
-					setShowModal( false );
-					setNewGateName( '' );
-				},
-				onFinally() {
-					setIsInFlight( false );
-				},
-			}
-		);
-	};
-
 	const toggleStatus = ( id: number ) => {
 		if ( isFetching ) {
 			return;
@@ -194,7 +157,7 @@ const ContentGates = ( { updateGatesData }: { updateGatesData: ( gates: Gate[] )
 	}
 
 	return (
-		<VStack className="newspack-content-gates__gates" spacing="16px">
+		<>
 			{ error && <Notice isError noticeText={ errorMessage } /> }
 			{ showModal && (
 				<Modal isNarrow title={ __( 'Add Content Gate', 'newspack-plugin' ) } onRequestClose={ () => setShowModal( false ) }>
@@ -206,12 +169,11 @@ const ContentGates = ( { updateGatesData }: { updateGatesData: ( gates: Gate[] )
 						onKeyUp={ ( event: KeyboardEvent ) => {
 							if ( ENTER === event.keyCode && '' !== newGateName ) {
 								event.preventDefault();
-								handleCreateGate();
 							}
 						} }
 					/>
 					<Card buttonsCard noBorder className="justify-end">
-						<Button variant="primary" onClick={ handleCreateGate } disabled={ isInFlight }>
+						<Button variant="primary" onClick={ () => {} } disabled={ isInFlight }>
 							{ __( 'Add Content Gate', 'newspack-plugin' ) }
 						</Button>
 						<Button disabled={ isInFlight } isDestructive variant="secondary" onClick={ () => setShowModal( false ) }>
@@ -220,7 +182,7 @@ const ContentGates = ( { updateGatesData }: { updateGatesData: ( gates: Gate[] )
 					</Card>
 				</Modal>
 			) }
-			<div ref={ ref }>
+			<VStack className="newspack-content-gates__gates" spacing="16px" ref={ ref }>
 				{ gates.map( ( gate, index ) => {
 					const reorderGates = ( targetIndex: number ) => {
 						const sortedGates = [ ...gates ];
@@ -244,6 +206,7 @@ const ContentGates = ( { updateGatesData }: { updateGatesData: ( gates: Gate[] )
 							isSmall
 							__experimentalCoreCard
 							__experimentalCoreProps={ {
+								noMargin: true,
 								header: (
 									<>
 										<h3>
@@ -279,8 +242,8 @@ const ContentGates = ( { updateGatesData }: { updateGatesData: ( gates: Gate[] )
 						</Card>
 					);
 				} ) }
-			</div>
-		</VStack>
+			</VStack>
+		</>
 	);
 };
 export default ContentGates;
