@@ -454,7 +454,7 @@ function MyComponent() {
 }
 ```
 
-### Using AutocompleteTokenField in Blocks
+### Using AutocompleteTokenField in the Block Editor
 
 ```jsx
 /**
