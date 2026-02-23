@@ -154,9 +154,9 @@ abstract class Integration {
 	 * Static dispatcher called by Data Events.
 	 *
 	 * Resolves the concrete integration instance from the registry and
-	 * calls the registered instance method. Because this is a static method
-	 * inherited via late static binding, static::class resolves to the
-	 * concrete subclass.
+	 * calls the registered instance method. All subclasses share a single
+	 * $handler_map on the base class; entries are disambiguated by using
+	 * static::class (resolved via late static binding) as a key prefix.
 	 *
 	 * Throws on failure so that Data Events' retry mechanism (which catches
 	 * \Throwable) can re-queue the handler via ActionScheduler.
