@@ -190,28 +190,25 @@ class Newspack_Test_Contact_Sync_Batch extends WP_UnitTestCase {
 
 		as_unschedule_all_actions( Contact_Sync_Batch::BATCH_HOOK );
 
-		// Manually insert a stale progress record.
+		// Manually insert a stale progress record into the single option.
 		$stale_batch_id = 'batch_stale_test';
-		$option_name    = Contact_Sync_Batch::PROGRESS_OPTION_PREFIX . $stale_batch_id;
-		update_option(
-			$option_name,
-			[
-				'total'      => 10,
-				'completed'  => 5,
-				'failed'     => 0,
-				'status'     => 'running',
-				'created_at' => time() - ( DAY_IN_SECONDS + 1 ),
-			],
-			false
-		);
+		$all_progress   = get_option( Contact_Sync_Batch::PROGRESS_OPTION, [] );
+		$all_progress[ $stale_batch_id ] = [
+			'total'      => 10,
+			'completed'  => 5,
+			'failed'     => 0,
+			'status'     => 'running',
+			'created_at' => time() - ( DAY_IN_SECONDS + 1 ),
+		];
+		update_option( Contact_Sync_Batch::PROGRESS_OPTION, $all_progress, false );
 
-		// Verify the option exists.
-		$this->assertNotFalse( get_option( $option_name ), 'Stale progress record should exist before cleanup.' );
+		// Verify the stale record exists.
+		$this->assertNotFalse( Contact_Sync_Batch::get_progress( $stale_batch_id ), 'Stale progress record should exist before cleanup.' );
 
 		// Enqueue triggers cleanup.
 		Contact_Sync_Batch::enqueue( [ 1 ] );
 
-		// Verify the stale option was cleaned up.
-		$this->assertFalse( get_option( $option_name ), 'Stale progress record should be deleted after cleanup.' );
+		// Verify the stale record was cleaned up.
+		$this->assertFalse( Contact_Sync_Batch::get_progress( $stale_batch_id ), 'Stale progress record should be deleted after cleanup.' );
 	}
 }

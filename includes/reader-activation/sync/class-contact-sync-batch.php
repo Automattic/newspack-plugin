@@ -24,9 +24,9 @@ class Contact_Sync_Batch {
 	const BATCH_HOOK = 'newspack_contact_sync_batch';
 
 	/**
-	 * Option name prefix for batch progress records.
+	 * Option name for batch progress records.
 	 */
-	const PROGRESS_OPTION_PREFIX = 'newspack_contact_sync_batch_';
+	const PROGRESS_OPTION = 'newspack_contact_sync_batch_progress';
 
 	/**
 	 * Default number of user IDs per batch chunk.
@@ -218,8 +218,8 @@ class Contact_Sync_Batch {
 	 * @return array|false The progress array, or false if the batch ID is not found.
 	 */
 	public static function get_progress( $batch_id ) {
-		$progress = get_option( self::PROGRESS_OPTION_PREFIX . $batch_id, false );
-		return $progress;
+		$all_progress = get_option( self::PROGRESS_OPTION, [] );
+		return isset( $all_progress[ $batch_id ] ) ? $all_progress[ $batch_id ] : false;
 	}
 
 	/**
@@ -229,30 +229,29 @@ class Contact_Sync_Batch {
 	 * @param array  $progress The progress data.
 	 */
 	private static function save_progress( $batch_id, $progress ) {
-		update_option( self::PROGRESS_OPTION_PREFIX . $batch_id, $progress, false );
+		$all_progress              = get_option( self::PROGRESS_OPTION, [] );
+		$all_progress[ $batch_id ] = $progress;
+		update_option( self::PROGRESS_OPTION, $all_progress, false );
 	}
 
 	/**
 	 * Delete stale progress records older than PROGRESS_TTL.
 	 */
 	private static function cleanup_stale_progress() {
-		global $wpdb;
-		$prefix  = self::PROGRESS_OPTION_PREFIX;
-		$results = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-			$wpdb->prepare(
-				"SELECT option_name, option_value FROM {$wpdb->options} WHERE option_name LIKE %s",
-				$wpdb->esc_like( $prefix ) . '%'
-			)
-		);
-		if ( empty( $results ) ) {
+		$all_progress = get_option( self::PROGRESS_OPTION, [] );
+		if ( empty( $all_progress ) ) {
 			return;
 		}
-		$now = time();
-		foreach ( $results as $row ) {
-			$progress = maybe_unserialize( $row->option_value );
+		$now     = time();
+		$cleaned = false;
+		foreach ( $all_progress as $batch_id => $progress ) {
 			if ( is_array( $progress ) && isset( $progress['created_at'] ) && ( $now - $progress['created_at'] ) > self::PROGRESS_TTL ) {
-				delete_option( $row->option_name );
+				unset( $all_progress[ $batch_id ] );
+				$cleaned = true;
 			}
+		}
+		if ( $cleaned ) {
+			update_option( self::PROGRESS_OPTION, $all_progress, false );
 		}
 	}
 }

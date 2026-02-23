@@ -293,7 +293,7 @@ class RAS_Contact_Sync {
 
 		while ( true ) {
 			// Clear the object cache so we get fresh progress from the database.
-			wp_cache_delete( Contact_Sync_Batch::PROGRESS_OPTION_PREFIX . $batch_id, 'options' );
+			wp_cache_delete( Contact_Sync_Batch::PROGRESS_OPTION, 'options' );
 			$progress = Contact_Sync_Batch::get_progress( $batch_id );
 			if ( ! $progress ) {
 				break;
