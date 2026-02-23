@@ -113,6 +113,7 @@ When building a screen, use the **spacing scale** (8px unit: 16, 24, 32, 48, 64)
   - Provides plugin management, error handling, loading states
   - Used in older wizards like Setup Wizard
   - Passes props: `wizardApiFetch`, `setError`, `isLoading`, `pluginRequirements`, etc.
+  - Do not use for new view components; use `Wizard` and/or `withWizardScreen` instead
 - **`withWizardScreen`** - Higher-order component for wizard screens (modern pattern, function-based)
   - Provides header, tabbed navigation, button actions, handoff messages
   - Used in newer wizards like Audience Management
