@@ -1,4 +1,34 @@
 /**
+ * WordPress dependencies
+ */
+import { __ } from '@wordpress/i18n';
+
+/**
+ * Options for the icon size SelectControl (value is pixel number; 23 for Normal so it's distinct from Default 24).
+ *
+ * @return {Array<{label: string, value: number}>} Options for the SelectControl.
+ */
+export function getIconSizeOptions() {
+	return [
+		{ label: __( 'Default', 'newspack-plugin' ), value: 24 },
+		{ label: __( 'Small', 'newspack-plugin' ), value: 16 },
+		{ label: __( 'Normal', 'newspack-plugin' ), value: 23 },
+		{ label: __( 'Large', 'newspack-plugin' ), value: 36 },
+		{ label: __( 'Huge', 'newspack-plugin' ), value: 48 },
+	];
+}
+
+/**
+ * Round to nearest 2px for display (e.g. 17→18, 23→24).
+ *
+ * @param {number} value Stored icon size.
+ * @return {number} Rounded pixel value.
+ */
+export function roundIconSize( value ) {
+	return Math.round( ( value ?? 24 ) / 2 ) * 2;
+}
+
+/**
  * Get the list of available services from author data.
  *
  * @param {Object} author Author data.

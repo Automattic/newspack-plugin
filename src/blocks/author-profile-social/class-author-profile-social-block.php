@@ -62,7 +62,7 @@ final class Author_Profile_Social_Block {
 			return '';
 		}
 
-		$icon_size = $attributes['iconSize'] ?? 24;
+		$icon_size = (int) ( round( ( $attributes['iconSize'] ?? 24 ) / 2 ) * 2 );
 
 		// If we have inner blocks (InnerBlocks mode), render them.
 		if ( ! empty( $block->inner_blocks ) ) {

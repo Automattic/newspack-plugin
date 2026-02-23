@@ -9,6 +9,7 @@ import { PanelBody, ExternalLink } from '@wordpress/components';
  * Internal dependencies
  */
 import { getSharedAuthorContext } from '../../shared/author-context';
+import { roundIconSize } from '../author-profile-social/utils';
 import { getSocialIconSvg } from './social-icons';
 import { getServiceUrl, getServiceData, getServiceLabel } from './utils';
 
@@ -51,7 +52,11 @@ export default function AuthorSocialLinkEdit( { attributes, context } ) {
 			<li { ...blockProps }>
 				<a href={ url } aria-label={ serviceLabel } onClick={ e => e.preventDefault() }>
 					{ svg ? (
-						<span dangerouslySetInnerHTML={ { __html: svg } } style={ { width: iconSize, height: iconSize } } aria-hidden="true" />
+						<span
+							dangerouslySetInnerHTML={ { __html: svg } }
+							style={ { width: roundIconSize( iconSize ), height: roundIconSize( iconSize ) } }
+							aria-hidden="true"
+						/>
 					) : (
 						<span className="service-name">{ service }</span>
 					) }

@@ -63,7 +63,7 @@ final class Author_Social_Link_Block {
 			return '';
 		}
 
-		$icon_size     = $block->context['newspack-blocks/iconSize'] ?? 24;
+		$icon_size     = (int) ( round( ( $block->context['newspack-blocks/iconSize'] ?? 24 ) / 2 ) * 2 );
 		$svg           = self::get_social_service_svg( $author, $service );
 		$service_label = ucfirst( $service );
 

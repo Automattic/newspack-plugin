@@ -3,7 +3,7 @@
  */
 import { useContext, useEffect, useMemo, useRef, useState } from '@wordpress/element';
 import { BlockControls, useBlockProps, InnerBlocks, InspectorControls } from '@wordpress/block-editor';
-import { PanelBody, RangeControl, Button, ToolbarButton, ToolbarGroup, Tooltip } from '@wordpress/components';
+import { PanelBody, SelectControl, Button, ToolbarButton, ToolbarGroup, Tooltip } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { createBlock } from '@wordpress/blocks';
@@ -13,7 +13,7 @@ import apiFetch from '@wordpress/api-fetch';
  * Internal dependencies
  */
 import { getSharedAuthorContext } from '../../shared/author-context';
-import { getAvailableServices } from './utils';
+import { getAvailableServices, getIconSizeOptions, roundIconSize } from './utils';
 
 const ALLOWED_BLOCKS = [ 'newspack/author-social-link' ];
 
@@ -47,7 +47,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 	const blockProps = useBlockProps( {
 		className: 'wp-block-newspack-author-profile-social',
 		style: {
-			'--icon-size': `${ iconSize }px`,
+			'--icon-size': `${ roundIconSize( iconSize ) }px`,
 		},
 	} );
 
@@ -116,12 +116,12 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 			</BlockControls>
 			<InspectorControls>
 				<PanelBody title={ __( 'Social Links Settings', 'newspack-plugin' ) }>
-					<RangeControl
-						label={ __( 'Icon Size', 'newspack-plugin' ) }
-						value={ iconSize }
+					<SelectControl
+						label={ __( 'Icon size', 'newspack-plugin' ) }
+						value={ iconSize ?? 24 }
+						options={ getIconSizeOptions() }
 						onChange={ value => setAttributes( { iconSize: value } ) }
-						min={ 16 }
-						max={ 48 }
+						__next40pxDefaultSize
 					/>
 					{ missingServices.length > 0 && (
 						<Button variant="secondary" onClick={ addMissingLinks }>
