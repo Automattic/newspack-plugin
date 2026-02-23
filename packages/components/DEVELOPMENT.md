@@ -427,7 +427,7 @@ function MyWizardScreen( { wizardApiFetch, setError, isLoading, pluginRequiremen
 export default withWizard( MyWizardScreen, [ 'required-plugin-slug' ] );
 ```
 
-**When to use:** Legacy wizards (Setup Wizard, older wizard implementations)
+**When to use:** Legacy wizards (Setup Wizard, older wizard implementations). Do not use for new wizards.
 
 ### Using Hooks and Utilities
 
