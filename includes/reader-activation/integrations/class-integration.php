@@ -19,6 +19,11 @@ defined( 'ABSPATH' ) || exit;
  */
 abstract class Integration {
 	/**
+	 * Logger header for integration-related messages.
+	 */
+	const LOGGER_HEADER = 'NEWSPACK-INTEGRATION';
+
+	/**
 	 * The unique identifier for this integration.
 	 *
 	 * @var string
@@ -121,7 +126,8 @@ abstract class Integration {
 					$this->id,
 					$method,
 					$action_name
-				)
+				),
+				self::LOGGER_HEADER
 			);
 			return;
 		}
@@ -154,7 +160,8 @@ abstract class Integration {
 		$action = Data_Events::current_event();
 		if ( ! $action ) {
 			Logger::error(
-				sprintf( 'Integration data event dispatch aborted for %s: no current event available.', static::class )
+				sprintf( 'Integration data event dispatch aborted for %s: no current event available.', static::class ),
+				self::LOGGER_HEADER
 			);
 			return;
 		}
@@ -162,7 +169,8 @@ abstract class Integration {
 		$key = static::class . '::' . $action;
 		if ( ! isset( self::$handler_map[ $key ] ) ) {
 			Logger::error(
-				sprintf( 'No integration data event handler registered for key "%s".', $key )
+				sprintf( 'No integration data event handler registered for key "%s".', $key ),
+				self::LOGGER_HEADER
 			);
 			return;
 		}
@@ -171,7 +179,8 @@ abstract class Integration {
 		$integration = Integrations::get_integration( $entry['integration_id'] );
 		if ( ! $integration ) {
 			Logger::error(
-				sprintf( 'Failed to resolve integration "%s" for data event "%s".', $entry['integration_id'], $action )
+				sprintf( 'Failed to resolve integration "%s" for data event "%s".', $entry['integration_id'], $action ),
+				self::LOGGER_HEADER
 			);
 			return;
 		}
@@ -183,7 +192,8 @@ abstract class Integration {
 					$entry['method'],
 					$entry['integration_id'],
 					$action
-				)
+				),
+				self::LOGGER_HEADER
 			);
 			return;
 		}
