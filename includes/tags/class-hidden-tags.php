@@ -49,6 +49,16 @@ class Hidden_Tags {
 	private static $initiated = false;
 
 	/**
+	 * In-memory cache for get_hidden_tags() results, keyed by $fields.
+	 *
+	 * Cleared whenever a term's hidden status changes to avoid stale data
+	 * within the same request.
+	 *
+	 * @var array<string, array>
+	 */
+	private static $cache = [];
+
+	/**
 	 * Initialize the class and register hooks.
 	 *
 	 * @return void
@@ -166,38 +176,59 @@ class Hidden_Tags {
 			// rather than storing a false value. get_term_meta() returns '' for missing keys.
 			delete_term_meta( $term_id, self::META_KEY );
 		}
+		self::clear_cache();
 	}
 
 	/**
-	 * Remove hidden tags from post tag link lists.
+	 * Remove hidden tags from post tag link lists on the frontend.
 	 *
-	 * Filters the output of get_the_term_list(), which returns an array of HTML
-	 * anchor strings rather than term objects. Each link is matched by tag name
-	 * via regex to identify and remove hidden tags.
+	 * Rather than parsing the rendered HTML strings, this fetches
+	 * the current post's term objects directly, filters out hidden
+	 * tags, and rebuilds the link list cleanly from term data.
+	 *
+	 * Note: custom attributes added to links by themes or plugins will not be
+	 * preserved, as the links are rebuilt from scratch.
 	 *
 	 * @param array $links Array of tag link HTML strings.
 	 * @return array
 	 */
 	public static function filter_tag_links( $links ) {
-		$filtered = [];
-		foreach ( $links as $link ) {
-			// If the link can't be parsed, keep it to avoid accidentally hiding things.
-			if ( ! preg_match( '/<a[^>]*>([^<]+)<\/a>/', $link, $matches ) ) {
-				$filtered[] = $link;
-				continue;
-			}
-			// If the tag can't be found by name, keep it.
-			$term = get_term_by( 'name', $matches[1], 'post_tag' );
-			if ( ! $term ) {
-				$filtered[] = $link;
-				continue;
-			}
-			// Only keep the link if the tag is not hidden.
-			if ( ! self::is_term_hidden( $term ) ) {
-				$filtered[] = $link;
-			}
+		// This filter fires in wp-admin too (e.g. Posts list table Tags column).
+		// Hidden tags should remain visible to editors — only hide on the frontend.
+		if ( is_admin() ) {
+			return $links;
 		}
-		return $filtered;
+
+		global $post;
+		if ( ! $post instanceof \WP_Post ) {
+			return $links;
+		}
+
+		$terms = get_the_terms( $post, 'post_tag' );
+		if ( ! is_array( $terms ) || empty( $terms ) ) {
+			return $links;
+		}
+
+		$visible_terms = array_filter(
+			$terms,
+			function( $term ) {
+				return ! self::is_term_hidden( $term );
+			}
+		);
+		if ( empty( $visible_terms ) ) {
+			return [];
+		}
+
+		$filtered_links = [];
+		foreach ( $visible_terms as $term ) {
+			$link = get_term_link( $term );
+			if ( is_wp_error( $link ) ) {
+				continue;
+			}
+			$filtered_links[] = sprintf( '<a href="%s" rel="tag">%s</a>', esc_url( $link ), esc_html( $term->name ) );
+		}
+
+		return $filtered_links;
 	}
 
 	/**
@@ -250,6 +281,10 @@ class Hidden_Tags {
 	 * @return array
 	 */
 	private static function get_hidden_tags( $fields ) {
+		if ( isset( self::$cache[ $fields ] ) ) {
+			return self::$cache[ $fields ];
+		}
+
 		$result = get_terms(
 			[
 				'taxonomy'   => 'post_tag',
@@ -260,11 +295,21 @@ class Hidden_Tags {
 			]
 		);
 
-		if ( empty( $result ) || is_wp_error( $result ) ) {
-			return [];
-		}
+		self::$cache[ $fields ] = ( empty( $result ) || is_wp_error( $result ) ) ? [] : $result;
 
-		return $result;
+		return self::$cache[ $fields ];
+	}
+
+	/**
+	 * Clear the in-memory cache for get_hidden_tags().
+	 *
+	 * Called after saving a term to ensure subsequent filter calls in the same
+	 * request reflect the updated hidden status.
+	 *
+	 * @return void
+	 */
+	private static function clear_cache() {
+		self::$cache = [];
 	}
 
 	/**
@@ -407,6 +452,16 @@ class Hidden_Tags {
 	}
 
 	/**
+	 * Return the translatable "(hidden)" suffix used in admin labels.
+	 *
+	 * @return string
+	 */
+	private static function get_hidden_label() {
+		/* translators: suffix appended to tag names in the admin to indicate they are hidden */
+		return ' ' . __( '(hidden)', 'newspack-plugin' );
+	}
+
+	/**
 	 * Append "(hidden)" to the tag name in the admin area.
 	 *
 	 * @param string      $name The term name.
@@ -419,7 +474,7 @@ class Hidden_Tags {
 		}
 
 		// Guard against double-appending if both the term_name and REST filters fire.
-		if ( false !== strpos( $name, ' (hidden)' ) ) {
+		if ( false !== strpos( $name, self::get_hidden_label() ) ) {
 			return $name;
 		}
 
@@ -435,7 +490,7 @@ class Hidden_Tags {
 		}
 
 		if ( self::is_term_hidden( $term ) ) {
-			$name .= ' (hidden)';
+			$name .= self::get_hidden_label();
 		}
 
 		return $name;
@@ -454,8 +509,8 @@ class Hidden_Tags {
 			return $response;
 		}
 
-		if ( self::is_term_hidden( $term ) && false === strpos( $response->data['name'], ' (hidden)' ) ) {
-			$response->data['name'] .= ' (hidden)';
+		if ( self::is_term_hidden( $term ) && false === strpos( $response->data['name'], self::get_hidden_label() ) ) {
+			$response->data['name'] .= self::get_hidden_label();
 		}
 
 		return $response;
@@ -488,10 +543,24 @@ class Hidden_Tags {
 			return $content;
 		}
 		$is_hidden = (bool) get_term_meta( $term_id, self::META_KEY, true );
+
+		// This is to help screen reader users understand the meaning of the checkmark / empty cell.
+		if ( $is_hidden ) {
+			$display = sprintf(
+				'<span aria-hidden="true">&#10003;</span><span class="screen-reader-text">%s</span>',
+				esc_html__( 'Hidden', 'newspack-plugin' )
+			);
+		} else {
+			$display = sprintf(
+				'<span class="screen-reader-text">%s</span>',
+				esc_html__( 'Not hidden', 'newspack-plugin' )
+			);
+		}
+
 		return sprintf(
 			'<span data-np-hidden="%s">%s</span>',
 			$is_hidden ? '1' : '0',
-			$is_hidden ? '&#10003;' : ''
+			$display
 		);
 	}
 
@@ -531,6 +600,15 @@ class Hidden_Tags {
 	 * @return void
 	 */
 	public static function save_quick_edit( $term_id ) {
+		// Only run during a real Quick Edit AJAX request.
+		// wp_doing_ajax() is only true when the request is from /wp-admin/admin-ajax.php
+		// The inline-save-tax action check narrows it to specifically Quick Edit saves.
+		// Anything else (WP-CLI, REST, programmatic) returns early without touching the meta.
+		$action = isset( $_POST['action'] ) ? sanitize_key( $_POST['action'] ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Action read only to gate execution; nonce verified by WP core (taxinlineeditnonce) below.
+		if ( ! wp_doing_ajax() || 'inline-save-tax' !== $action ) {
+			return;
+		}
+
 		if ( ! empty( $_POST[ self::META_KEY ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified by WP core (taxinlineeditnonce) before this hook fires.
 			update_term_meta( $term_id, self::META_KEY, 1 );
 		} else {
@@ -538,6 +616,7 @@ class Hidden_Tags {
 			// rather than storing a false value. get_term_meta() returns '' for missing keys.
 			delete_term_meta( $term_id, self::META_KEY );
 		}
+		self::clear_cache();
 	}
 
 	/**
