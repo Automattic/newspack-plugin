@@ -123,6 +123,12 @@ class Contact_Sync_Admin {
 		if ( self::ADMIN_ACTION !== $doaction ) {
 			return $sendback;
 		}
+		// Prevent duplicate processing across redirected requests.
+		$guard_key = 'newspack_esp_sync_' . md5( wp_json_encode( $items ) );
+		if ( \get_transient( $guard_key ) ) {
+			return $sendback;
+		}
+		\set_transient( $guard_key, true, 30 );
 		// Bulk action requires ActionScheduler, so we don't show it if it's not available.
 		if ( ! class_exists( 'ActionScheduler' ) ) {
 			\wp_die( \esc_html__( 'ActionScheduler is not available to perform the bulk action.', 'newspack-plugin' ) );
@@ -135,6 +141,7 @@ class Contact_Sync_Admin {
 			\wp_die( \esc_html__( 'You do not have permission to do that.', 'newspack-plugin' ) );
 		}
 		Contact_Sync_Batch::enqueue( $items, [ 'context' => self::$context ] );
+		$sendback = \remove_query_arg( [ 'action', 'action2', 'users', '_wpnonce', '_wp_http_referer' ], $sendback );
 		$sendback = \add_query_arg(
 			[
 				'update'                  => self::ADMIN_ACTION,
