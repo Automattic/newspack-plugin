@@ -17,7 +17,6 @@ import * as byline from './byline';
 import * as collections from './collections';
 import * as contentGateCountdown from './content-gate/countdown';
 import * as contentGateCountdownBox from './content-gate/countdown-box';
-import * as contentGateIpCheck from './content-gate/ip-check';
 
 /**
  * Block Scripts
@@ -34,7 +33,6 @@ export const blocks = [
 	collections,
 	contentGateCountdown,
 	contentGateCountdownBox,
-	contentGateIpCheck,
 ];
 
 const readerActivationBlocks = [ 'newspack/reader-registration', 'newspack/my-account-button' ];

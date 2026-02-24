@@ -65,20 +65,6 @@ class IP_Check {
 	}
 
 	/**
-	 * Render the inner IP check content (message div, spinner, continue button).
-	 *
-	 * @return string The HTML content.
-	 */
-	public static function render_ip_check_content() {
-		ob_start();
-		?>
-		<div class="newspack-signin-ip-login-message"></div>
-		<button type="submit" class="newspack-signin-ip-button newspack-ui__button newspack-ui__button--primary newspack-ui__button--wide"><?php esc_html_e( 'Continue', 'newspack-plugin' ); ?></button>
-		<?php
-		return ob_get_clean();
-	}
-
-	/**
 	 * Add login modal HTML to footer.
 	 */
 	public static function add_login_modal() {
@@ -97,7 +83,10 @@ class IP_Check {
 				</div>
 				<div class="newspack-ui__modal__content">
 					<div class="newspack-ui">
-						<?php echo self::render_ip_check_content(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+
+						<div id="newspack-signin-ip-login-message"></div>
+						<button type="submit" id="newspack-signin-ip-button" class="newspack-ui__button newspack-ui__button--primary newspack-ui__button--wide"><?php esc_html_e( 'Continue', 'newspack-teams-for-wc-memberships-access-by-ip' ); ?></button>
+
 					</div>
 				</div>
 			</div>

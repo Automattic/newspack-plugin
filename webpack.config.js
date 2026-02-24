@@ -46,7 +46,6 @@ const entry = {
 	'correction-box-block': path.join( __dirname, 'src', 'blocks', 'correction-box', 'index.js' ),
 	'correction-item-block': path.join( __dirname, 'src', 'blocks', 'correction-item', 'index.js' ),
 	'content-gate-countdown-block': path.join( __dirname, 'src', 'blocks', 'content-gate', 'countdown', 'view.js' ),
-	'content-gate-ip-check-block': path.join( __dirname, 'src', 'blocks', 'content-gate', 'ip-check', 'view.js' ),
 	'content-gate-countdown-box-block': path.join( __dirname, 'src', 'blocks', 'content-gate', 'countdown-box', 'index.js' ),
 	'contribution-meter-block': path.join( __dirname, 'src', 'blocks', 'contribution-meter', 'index.js' ),
 	'avatar-block': path.join( __dirname, 'src', 'blocks', 'avatar', 'index.js' ),

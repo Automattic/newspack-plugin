@@ -20,9 +20,9 @@ jQuery( document ).ready( function ( $ ) {
 		},
 
 		resetModalState() {
-			$( '#newspack-signin-ip-login-modal .newspack-signin-ip-login-message' ).removeClass( 'success error' ).empty();
+			$( '#newspack-signin-ip-login-message' ).removeClass( 'success error' ).empty();
 			$( '#newspack-signin-ip-spinner' ).show();
-			$( '#newspack-signin-ip-login-modal .newspack-signin-ip-button' ).hide();
+			$( '#newspack-signin-ip-button' ).hide();
 		},
 
 		showSpinner() {
@@ -46,7 +46,7 @@ jQuery( document ).ready( function ( $ ) {
 		},
 
 		showLoginMessage( type, message ) {
-			const $msg = $( '#newspack-signin-ip-login-modal .newspack-signin-ip-login-message' );
+			const $msg = $( '#newspack-signin-ip-login-message' );
 			$msg.removeClass( 'success error' );
 			if ( type ) {
 				$msg.addClass( type );
@@ -61,7 +61,7 @@ jQuery( document ).ready( function ( $ ) {
 			self.openModal();
 			self.showSpinner();
 			self.showLoginMessage( '', 'Checking IP…' );
-			$( '#newspack-signin-ip-login-modal .newspack-signin-ip-button' ).hide();
+			$( '#newspack-signin-ip-button' ).hide();
 
 			$.ajax( {
 				url: newspack_ip_access.ajax_url,
@@ -76,7 +76,7 @@ jQuery( document ).ready( function ( $ ) {
 					if ( response && response.valid_ip ) {
 						self.createCookie( newspack_ip_access.cookie_name, '1', 3 );
 						self.showLoginMessage( 'success', 'Your IP has been verified. You have access to our content.' );
-						$( '#newspack-signin-ip-login-modal .newspack-signin-ip-button' ).show();
+						$( '#newspack-signin-ip-button' ).show();
 					} else {
 						self.showLoginMessage( 'error', 'Sorry, your IP does not give you access to our content.' );
 					}
@@ -113,7 +113,7 @@ jQuery( document ).ready( function ( $ ) {
 			// Bind continue button click — just reload, no cookie.
 			$( document ).on(
 				'click',
-				'#newspack-signin-ip-login-modal .newspack-signin-ip-button',
+				'#newspack-signin-ip-button',
 				function ( e ) {
 					e.preventDefault();
 					window.location.reload();
