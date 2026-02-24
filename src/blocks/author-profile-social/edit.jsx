@@ -96,6 +96,44 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 	const iconSizeValue = typeof iconSize === 'number' ? iconSize : parseInt( iconSize ?? 24, 10 ) || 24;
 	const iconColor = resolveColor( textColor, styleAttr?.color?.text );
 	const iconBackground = resolveColor( backgroundColor, styleAttr?.color?.background );
+
+	// Rename "Text" / "Background" color labels to "Icon color" / "Icon background".
+	useEffect( () => {
+		const inspector = document.querySelector( '.block-editor-block-inspector' );
+		if ( ! inspector ) {
+			return;
+		}
+		const COLOR_LABEL_MAP = {
+			Text: __( 'Icon color', 'newspack-plugin' ),
+			Background: __( 'Icon background', 'newspack-plugin' ),
+		};
+		const renameIn = container => {
+			container.querySelectorAll( '.block-editor-panel-color-gradient-settings__color-name' ).forEach( el => {
+				if ( COLOR_LABEL_MAP[ el.textContent ] ) {
+					el.textContent = COLOR_LABEL_MAP[ el.textContent ];
+				}
+			} );
+			container.querySelectorAll( '.components-menu-item__item' ).forEach( el => {
+				if ( COLOR_LABEL_MAP[ el.textContent ] ) {
+					el.textContent = COLOR_LABEL_MAP[ el.textContent ];
+				}
+			} );
+		};
+
+		renameIn( inspector );
+
+		const inspectorObserver = new MutationObserver( () => renameIn( inspector ) );
+		inspectorObserver.observe( inspector, { childList: true, subtree: true } );
+
+		// The color options dropdown is portalled to document.body; watch for popover content changes.
+		const bodyObserver = new MutationObserver( () => renameIn( document.body ) );
+		bodyObserver.observe( document.body, { childList: true, subtree: true } );
+
+		return () => {
+			inspectorObserver.disconnect();
+			bodyObserver.disconnect();
+		};
+	} );
 	const gapVars = resolveBlockGap( styleAttr?.spacing?.blockGap );
 
 	const blockProps = stripColorFromBlockProps( useBlockProps( { className: 'wp-block-newspack-author-profile-social' } ) );
