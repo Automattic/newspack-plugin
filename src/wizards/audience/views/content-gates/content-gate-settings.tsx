@@ -4,6 +4,7 @@
 import { __, sprintf } from '@wordpress/i18n';
 import { CardBody } from '@wordpress/components';
 import { useDispatch } from '@wordpress/data';
+import { useRef } from '@wordpress/element';
 
 /**
  * Internal dependencies
@@ -28,12 +29,15 @@ export default function ContentGateSettings( { gate, updateGatesData }: { gate: 
 	const { wizardApiFetch, isFetching, resetError } = useWizardApiFetch( AUDIENCE_CONTENT_GATES_WIZARD_SLUG );
 	const { addNotice, resetNotices } = useDispatch( WIZARD_STORE_NAMESPACE );
 
-	const handleStatusChange = ( status: GateStatus, showNotice = true ) => {
+	const updateStatus = useRef< ( status: GateStatus ) => void >();
+	const handleStatusChange = ( status: GateStatus ) => {
 		if ( isFetching ) {
 			return;
 		}
 		resetError();
 		resetNotices();
+		const prevStatus = gate.status;
+		const gateTitle = gate.title;
 		const _gate = {
 			...gate,
 			status,
@@ -47,24 +51,22 @@ export default function ContentGateSettings( { gate, updateGatesData }: { gate: 
 			{
 				onSuccess( data: Gate ) {
 					updateGatesData( gates.map( g => ( g.id === data.id ? data : g ) ) );
-					if ( showNotice ) {
-						addNotice( {
-							message: sprintf(
-								// translators: 1: the gate title, or "Content" if we can't determine the gate title. 2: the gate status. __(
-								'%1$s gate %2$s.',
-								gate.title ? `“${ gate.title }”` : __( 'Content', 'newspack-plugin' ),
-								gate.status === 'publish' ? __( 'disabled', 'newspack-plugin' ) : __( 'enabled', 'newspack-plugin' )
-							),
-							type: 'success',
-							id: 'content-gate-updated',
-							buttonLabel: __( 'Undo', 'newspack-plugin' ),
-							onClick: () => handleStatusChange( gate.status, false ),
-						} );
-					}
+					addNotice( {
+						message: sprintf(
+							// translators: 1: the gate title, or "Content" if we can't determine the gate title. 2: the gate status.
+							'%1$s gate %2$s.',
+							gateTitle ? `"${ gateTitle }"` : __( 'Content', 'newspack-plugin' ),
+							prevStatus === 'publish' ? __( 'disabled', 'newspack-plugin' ) : __( 'enabled', 'newspack-plugin' )
+						),
+						type: 'success',
+						id: 'content-gate-status-changed',
+						actions: [ { label: __( 'Undo', 'newspack-plugin' ), onClick: () => updateStatus.current?.( prevStatus ) } ],
+					} );
 				},
 			}
 		);
 	};
+	updateStatus.current = handleStatusChange;
 
 	const handleDelete = () => {
 		// eslint-disable-next-line no-alert
@@ -122,7 +124,7 @@ export default function ContentGateSettings( { gate, updateGatesData }: { gate: 
 					},
 					{
 						label: gate.status !== 'publish' ? __( 'Activate', 'newspack-plugin' ) : __( 'Deactivate', 'newspack-plugin' ),
-						action: () => handleStatusChange( gate.status === 'publish' ? 'draft' : 'publish' ),
+						action: () => updateStatus.current?.( gate.status === 'publish' ? 'draft' : 'publish' ),
 						disabled: isFetching,
 					},
 					{

@@ -8,7 +8,7 @@
 import { __, sprintf } from '@wordpress/i18n';
 import { __experimentalVStack as VStack } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
 import { useDispatch } from '@wordpress/data';
-import { useCallback, useEffect, useState } from '@wordpress/element';
+import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { commentAuthorAvatar, currencyDollar, postList, settings } from '@wordpress/icons';
 
 /**
@@ -104,9 +104,10 @@ const Edit = ( { match, updateGatesData }: ContentGateEditProps ) => {
 					history.push( `/content-gates` );
 					addNotice( {
 						// translators: %s is the gate title.
-						message: sprintf( __( '“%s” gate created.', 'newspack-plugin' ), title ),
+						message: sprintf( __( '"%s" gate created.', 'newspack-plugin' ), title ),
 						type: 'success',
 						id: 'content-gate-created',
+						actions: [ { label: __( 'Edit', 'newspack-plugin' ), url: `#/edit/${ data.id }` } ],
 					} );
 				},
 			}
@@ -119,6 +120,8 @@ const Edit = ( { match, updateGatesData }: ContentGateEditProps ) => {
 		}
 		resetError();
 		resetNotices();
+		const prevStatus = gate.status;
+		const gateTitle = title || gate.title;
 		const _gate = {
 			...gate,
 			title,
@@ -136,25 +139,60 @@ const Edit = ( { match, updateGatesData }: ContentGateEditProps ) => {
 			{
 				onSuccess( data: Gate ) {
 					updateGatesData( gates.map( g => ( g.id === data.id ? data : g ) ) );
-					setIsRenaming( false );
-					history.push( `/content-gates` );
 					addNotice( {
-						// translators: %s is the gate title.
-						message: sprintf( __( '“%s” gate updated.', 'newspack-plugin' ), data.title ),
+						message: sprintf(
+							// translators: 1: the gate title, or "Content" if we can't determine the gate title. 2: the gate status.
+							'%1$s gate %2$s.',
+							gateTitle ? `"${ gateTitle }"` : __( 'Content', 'newspack-plugin' ),
+							prevStatus === 'publish' ? __( 'disabled', 'newspack-plugin' ) : __( 'enabled', 'newspack-plugin' )
+						),
 						type: 'success',
-						id: 'content-gate-updated',
+						id: 'content-gate-status-changed',
+						actions: [ { label: __( 'Undo', 'newspack-plugin' ), onClick: () => updateStatus.current?.( prevStatus ) } ],
 					} );
 				},
 			}
 		);
 	}, [ gate, contentRules, registration, customAccess, status, title ] );
 
+	const updateStatus = useRef< ( _status: GateStatus ) => void >();
 	const handleStatusChange = ( _status: GateStatus ) => {
 		if ( isFetching ) {
 			return;
 		}
-		setStatus( _status );
+		resetError();
+		resetNotices();
+		const prevStatus = gate.status;
+		const gateTitle = gate.title;
+		const _gate = {
+			...gate,
+			status: _status,
+		};
+		wizardApiFetch< Gate >(
+			{
+				path: `/newspack/v1/wizard/${ AUDIENCE_CONTENT_GATES_WIZARD_SLUG }/${ gate.id }`,
+				method: 'POST',
+				data: { gate: _gate },
+			},
+			{
+				onSuccess( data: Gate ) {
+					updateGatesData( gates.map( g => ( g.id === data.id ? data : g ) ) );
+					addNotice( {
+						message: sprintf(
+							// translators: 1: the gate title, or "Content" if we can't determine the gate title. 2: the gate status.
+							'%1$s gate %2$s.',
+							gateTitle ? `"${ gateTitle }"` : __( 'Content', 'newspack-plugin' ),
+							prevStatus === 'publish' ? __( 'disabled', 'newspack-plugin' ) : __( 'enabled', 'newspack-plugin' )
+						),
+						type: 'success',
+						id: 'content-gate-status-changed',
+						actions: [ { label: __( 'Undo', 'newspack-plugin' ), onClick: () => updateStatus.current?.( prevStatus ) } ],
+					} );
+				},
+			}
+		);
 	};
+	updateStatus.current = handleStatusChange;
 
 	const handleDelete = useCallback(
 		( gateId: number ) => {
@@ -260,14 +298,14 @@ const Edit = ( { match, updateGatesData }: ContentGateEditProps ) => {
 				actions.push( {
 					type: 'more',
 					label: __( 'Activate', 'newspack-plugin' ),
-					action: () => handleStatusChange( 'publish' ),
+					action: () => updateStatus.current?.( 'publish' ),
 					disabled: isFetching,
 				} );
 			} else {
 				actions.push( {
 					type: 'more',
 					label: __( 'Deactivate', 'newspack-plugin' ),
-					action: () => handleStatusChange( 'draft' ),
+					action: () => updateStatus.current?.( 'draft' ),
 					disabled: isFetching,
 				} );
 			}
@@ -306,9 +344,9 @@ const Edit = ( { match, updateGatesData }: ContentGateEditProps ) => {
 	// Update gate status.
 	useEffect( () => {
 		if ( ! isNew && status !== gate.status ) {
-			handleSave();
+			updateStatus.current?.( status );
 		}
-	}, [ isNew, gate.status, status, handleSave ] );
+	}, [ isNew, gate.status, status, updateStatus ] );
 
 	return (
 		<div className="newspack-content-gate__edit">
