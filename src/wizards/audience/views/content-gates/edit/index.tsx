@@ -78,6 +78,7 @@ const Edit = ( { match, updateGatesData }: ContentGateEditProps ) => {
 	const [ status, setStatus ] = useState< GateStatus >( gate.status );
 
 	const isNew = _id === 'new' || ! id;
+	const isSaving = useRef( false );
 
 	const isDirty =
 		isNew ||
@@ -108,6 +109,7 @@ const Edit = ( { match, updateGatesData }: ContentGateEditProps ) => {
 			{
 				onSuccess( data ) {
 					updateGatesData( [ ...gates, { ...data } ] );
+					isSaving.current = true;
 					history.push( `/content-gates` );
 					addNotice( {
 						// translators: %s is the gate title.
@@ -127,7 +129,6 @@ const Edit = ( { match, updateGatesData }: ContentGateEditProps ) => {
 		}
 		resetError();
 		resetNotices();
-		const prevStatus = gate.status;
 		const gateTitle = title || gate.title;
 		const _gate = {
 			...gate,
@@ -146,16 +147,16 @@ const Edit = ( { match, updateGatesData }: ContentGateEditProps ) => {
 			{
 				onSuccess( data: Gate ) {
 					updateGatesData( gates.map( g => ( g.id === data.id ? data : g ) ) );
+					isSaving.current = true;
+					history.push( `/content-gates` );
 					addNotice( {
 						message: sprintf(
-							// translators: 1: the gate title, or "Content" if we can't determine the gate title. 2: the gate status.
-							'%1$s gate %2$s.',
-							gateTitle ? `"${ gateTitle }"` : __( 'Content', 'newspack-plugin' ),
-							prevStatus === 'publish' ? __( 'disabled', 'newspack-plugin' ) : __( 'enabled', 'newspack-plugin' )
+							// translators: %s is the gate title.
+							__( '%s gate updated.', 'newspack-plugin' ),
+							gateTitle ? `"${ gateTitle }"` : __( 'Content', 'newspack-plugin' )
 						),
 						type: 'success',
-						id: 'content-gate-status-changed',
-						actions: [ { label: __( 'Undo', 'newspack-plugin' ), onClick: () => updateStatus.current?.( prevStatus ) } ],
+						id: 'content-gate-updated',
 					} );
 				},
 			}
@@ -357,7 +358,10 @@ const Edit = ( { match, updateGatesData }: ContentGateEditProps ) => {
 
 	return (
 		<div className="newspack-content-gate__edit">
-			<Prompt when={ isDirty } message={ __( 'This gate has unsaved changes. Discard changes?', 'newspack-plugin' ) } />
+			<Prompt
+				when={ isDirty }
+				message={ () => isSaving.current || __( 'This gate has unsaved changes. Discard changes?', 'newspack-plugin' ) }
+			/>
 			{ errorMessage && <Notice isError noticeText={ errorMessage } /> }
 			{ ( isNew || isRenaming ) && (
 				<>
