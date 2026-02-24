@@ -49,7 +49,7 @@
 	"selectors": {
 		"border": "img.wp-block-newspack-avatar__image",
 		"filter": {
-			"duotone": ".newspack-avatar-wrapper img"
+			"duotone": ".wp-block-newspack-avatar .newspack-avatar-wrapper img"
 		}
 	},
 	"usesContext": ["postId", "postType", "newspack-blocks/author"],
