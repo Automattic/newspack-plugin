@@ -709,7 +709,7 @@ final class Data_Events {
 			return;
 		}
 
-		$failure_layer = 'framework';
+		$failure_layer = 'newspack';
 		$next_retry    = $retry_count + 1;
 		if ( $next_retry > self::MAX_HANDLER_RETRIES ) {
 			self::log(
@@ -738,7 +738,7 @@ final class Data_Events {
 			 *     @type array  $data          The event data.
 			 *     @type int    $retry_count   Total retries attempted.
 			 *     @type string $reason        The final error message.
-			 *     @type string $failure_layer 'framework', 'integration', or 'api'.
+			 *     @type string $failure_layer 'newspack', 'integration', or 'api'.
 			 * }
 			 */
 			do_action(

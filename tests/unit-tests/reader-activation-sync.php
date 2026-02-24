@@ -582,7 +582,7 @@ class Newspack_Test_Reader_Activation_Sync extends WP_UnitTestCase {
 		$action    = \ActionScheduler::store()->fetch_action( $action_id );
 		$args      = $action->get_args();
 		$this->assertArrayHasKey( 'failure_layer', $args[0], 'Retry data should include failure_layer.' );
-		$this->assertContains( $args[0]['failure_layer'], [ 'framework', 'integration', 'api' ], 'failure_layer must be a valid value.' );
+		$this->assertContains( $args[0]['failure_layer'], [ 'newspack', 'integration', 'api' ], 'failure_layer must be a valid value.' );
 	}
 
 	/**

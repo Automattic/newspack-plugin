@@ -69,13 +69,13 @@ class Newspack_Test_Alert_Manager extends WP_UnitTestCase {
 				'data'          => [],
 				'retry_count'   => 5,
 				'reason'        => 'Handler threw exception',
-				'failure_layer' => 'framework',
+				'failure_layer' => 'newspack',
 			]
 		);
 
 		$this->assertTrue( $alert_fired, 'newspack_alert should fire.' );
 		$this->assertEquals( 'data_event_retry_exhausted', $alert_data['type'] );
-		$this->assertEquals( 'framework', $alert_data['failure_layer'] );
+		$this->assertEquals( 'newspack', $alert_data['failure_layer'] );
 	}
 
 	/**

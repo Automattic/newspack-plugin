@@ -47,7 +47,7 @@ class Alert_Manager {
 		 *     Structured alert data.
 		 *
 		 *     @type string $type          Alert type identifier.
-		 *     @type string $failure_layer 'framework', 'integration', or 'api'.
+		 *     @type string $failure_layer 'newspack', 'integration', or 'api'.
 		 *     @type string $severity      Alert severity ('error', 'warning').
 		 *     @type string $message       Human-readable alert message.
 		 *     @type array  $context       Full payload from the source hook.
@@ -90,7 +90,7 @@ class Alert_Manager {
 			'newspack_alert',
 			[
 				'type'          => 'data_event_retry_exhausted',
-				'failure_layer' => $payload['failure_layer'] ?? 'framework',
+				'failure_layer' => $payload['failure_layer'] ?? 'newspack',
 				'severity'      => 'error',
 				'message'       => $message,
 				'context'       => $payload,

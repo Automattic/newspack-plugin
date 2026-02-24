@@ -1002,8 +1002,8 @@ class Newspack_Test_Data_Events extends WP_UnitTestCase {
 		$action    = \ActionScheduler::store()->fetch_action( $action_id );
 		$args      = $action->get_args();
 		$this->assertArrayHasKey( 'failure_layer', $args[0], 'Retry data should include failure_layer.' );
-		// Handler exceptions default to 'framework' layer.
-		$this->assertEquals( 'framework', $args[0]['failure_layer'], 'Exception from handler defaults to framework layer.' );
+		// Handler exceptions default to 'newspack' layer.
+		$this->assertEquals( 'newspack', $args[0]['failure_layer'], 'Exception from handler defaults to newspack layer.' );
 	}
 
 	/**

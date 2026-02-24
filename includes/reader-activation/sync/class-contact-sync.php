@@ -172,7 +172,7 @@ class Contact_Sync extends Sync {
 			return;
 		}
 
-		$failure_layer = $error instanceof \WP_Error ? self::get_failure_layer( $error ) : 'framework';
+		$failure_layer = $error instanceof \WP_Error ? self::get_failure_layer( $error ) : 'newspack';
 		$error_message = $error instanceof \WP_Error ? $error->get_error_message() : (string) $error;
 
 		$next_retry = $retry_count + 1;
@@ -203,7 +203,7 @@ class Contact_Sync extends Sync {
 			 *     @type string $context        The sync context.
 			 *     @type int    $retry_count    Total retries attempted.
 			 *     @type string $reason         The final error message.
-			 *     @type string $failure_layer  'framework', 'integration', or 'api'.
+			 *     @type string $failure_layer  'newspack', 'integration', or 'api'.
 			 * }
 			 */
 			do_action(
@@ -257,20 +257,20 @@ class Contact_Sync extends Sync {
 	 * Classify a WP_Error into a failure layer.
 	 *
 	 * @param \WP_Error $error The error to classify.
-	 * @return string 'framework', 'integration', or 'api'.
+	 * @return string 'newspack', 'integration', or 'api'.
 	 */
 	private static function get_failure_layer( $error ) {
 		if ( ! is_wp_error( $error ) ) {
-			return 'framework';
+			return 'newspack';
 		}
 		$code = $error->get_error_code();
 		// Integration-layer errors use newspack_* or ras_* prefixed codes.
 		if ( preg_match( '/^(newspack_|ras_)/', $code ) ) {
 			return 'integration';
 		}
-		// Framework errors.
+		// newspack errors.
 		if ( in_array( $code, [ 'no_active_integrations', 'integrations_not_registered' ], true ) ) {
-			return 'framework';
+			return 'newspack';
 		}
 		// Everything else comes from the third-party API.
 		return 'api';
