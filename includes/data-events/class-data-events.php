@@ -709,7 +709,8 @@ final class Data_Events {
 			return;
 		}
 
-		$next_retry = $retry_count + 1;
+		$failure_layer = 'framework';
+		$next_retry    = $retry_count + 1;
 		if ( $next_retry > self::MAX_HANDLER_RETRIES ) {
 			self::log(
 				sprintf(
@@ -733,14 +734,15 @@ final class Data_Events {
 		$backoff_seconds = self::RETRY_BACKOFF[ $backoff_index ];
 
 		$retry_data = [
-			'handler'     => $handler,
-			'action_name' => $action_name,
-			'timestamp'   => $timestamp,
-			'data'        => $data,
-			'client_id'   => $client_id,
-			'is_global'   => $is_global,
-			'retry_count' => $next_retry,
-			'reason'      => $error->getMessage(),
+			'handler'       => $handler,
+			'action_name'   => $action_name,
+			'timestamp'     => $timestamp,
+			'data'          => $data,
+			'client_id'     => $client_id,
+			'is_global'     => $is_global,
+			'retry_count'   => $next_retry,
+			'reason'        => $error->getMessage(),
+			'failure_layer' => $failure_layer,
 		];
 
 		$action_id = \as_schedule_single_action(

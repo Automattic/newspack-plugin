@@ -958,6 +958,54 @@ class Newspack_Test_Data_Events extends WP_UnitTestCase {
 		as_unschedule_all_actions( 'newspack_dummy_action' );
 	}
 
+	/**
+	 * Test that handler retry data includes failure_layer.
+	 */
+	public function test_handler_retry_includes_failure_layer() {
+		if ( ! function_exists( 'as_schedule_single_action' ) ) {
+			$this->markTestSkipped( 'ActionScheduler not available.' );
+		}
+
+		as_unschedule_all_actions( Data_Events::HANDLER_RETRY_HOOK );
+
+		$action_name = 'test_failure_layer';
+		Data_Events::register_action( $action_name );
+
+		$handler = [ self::class, 'throwing_handler' ];
+		Data_Events::register_handler( $handler, $action_name );
+
+		// Trigger via execute_handler_retry at retry_count 1 (not max), so a new retry is scheduled.
+		Data_Events::execute_handler_retry(
+			[
+				'handler'     => $handler,
+				'action_name' => $action_name,
+				'timestamp'   => time(),
+				'data'        => [],
+				'client_id'   => null,
+				'is_global'   => false,
+				'retry_count' => 1,
+			]
+		);
+
+		$pending = as_get_scheduled_actions(
+			[
+				'hook'   => Data_Events::HANDLER_RETRY_HOOK,
+				'group'  => 'newspack',
+				'status' => \ActionScheduler_Store::STATUS_PENDING,
+			],
+			'ARRAY_A'
+		);
+
+		$this->assertNotEmpty( $pending, 'A retry action should be scheduled.' );
+
+		$action_id = array_key_first( $pending );
+		$action    = \ActionScheduler::store()->fetch_action( $action_id );
+		$args      = $action->get_args();
+		$this->assertArrayHasKey( 'failure_layer', $args[0], 'Retry data should include failure_layer.' );
+		// Handler exceptions default to 'framework' layer.
+		$this->assertEquals( 'framework', $args[0]['failure_layer'], 'Exception from handler defaults to framework layer.' );
+	}
+
 	// --- Helper methods for tests ---
 
 	/**
