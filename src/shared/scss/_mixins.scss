@@ -15,9 +15,9 @@
 // Used by: author-profile-social, author-social-link blocks
 // Hex fallbacks from newspack-block-theme theme.json defaults.
 @mixin socialButton {
-	background: var(--wp--preset--color--base-2, #f0f0f0);
+	background: var(--icon-background, var(--wp--preset--color--base-2, #f0f0f0));
 	border-radius: 50%; // Circular
-	color: var(--wp--preset--color--contrast, #1e1e1e);
+	color: var(--icon-color, var(--wp--preset--color--contrast, #1e1e1e));
 	display: grid;
 	place-items: center;
 	text-decoration: none;
@@ -32,8 +32,8 @@
 	padding: 0;
 
 	&:hover {
-		background: var(--wp--preset--color--base-3, #ddd);
-		color: var(--wp--preset--color--contrast, #1e1e1e);
+		background: color-mix(in srgb, var(--icon-background, var(--wp--preset--color--base-2, #f0f0f0)) 92%, black);
+		color: var(--icon-color, var(--wp--preset--color--contrast, #1e1e1e));
 		text-decoration: none;
 	}
 

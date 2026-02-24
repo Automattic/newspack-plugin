@@ -202,16 +202,23 @@ final class Author_Profile_Social_Block {
 		);
 
 		\WP_Block_Supports::$block_to_render = $previous;
+
+		// Strip color classes/styles from wrapper so only the icon link (via CSS vars) is colored.
+		$wrapper_attributes = preg_replace( '/\bhas-[\w-]+-(color|background-color)\b/', '', $wrapper_attributes );
+		$wrapper_attributes = preg_replace( '/\bhas-text-color\b/', '', $wrapper_attributes );
+		$wrapper_attributes = preg_replace( '/\bhas-background\b/', '', $wrapper_attributes );
+		$wrapper_attributes = preg_replace( '/\s+/', ' ', $wrapper_attributes );
+
 		return $wrapper_attributes;
 	}
 
 	/**
-	 * Convert preset token to CSS var (e.g. var:preset|spacing|20 -> var(--wp--preset--spacing--20)).
+	 * Convert a preset token (var:preset|type|slug) to a CSS variable reference.
 	 *
-	 * @param string $value Raw value from attributes.
-	 * @return string CSS value.
+	 * @param string $value Raw value, e.g. "var:preset|spacing|20" or "#fff".
+	 * @return string CSS value, e.g. "var(--wp--preset--spacing--20)" or "#fff".
 	 */
-	private static function block_gap_preset_to_css( string $value ): string {
+	private static function preset_to_css( string $value ): string {
 		if ( preg_match( '/^var:preset\|([^|]+)\|(.+)$/', $value, $matches ) ) {
 			return sprintf( 'var(--wp--preset--%s--%s)', $matches[1], $matches[2] );
 		}
@@ -219,78 +226,85 @@ final class Author_Profile_Social_Block {
 	}
 
 	/**
-	 * Build wrapper inline style from block attributes (spacing, etc.) and block-specific CSS vars.
+	 * Resolve a color value from attributes (preset slug or custom style token).
+	 *
+	 * @param array  $attributes Block attributes.
+	 * @param string $preset_key Top-level preset attribute key (e.g. "textColor").
+	 * @param string $style_key  Key under style.color (e.g. "text").
+	 * @return string|null CSS color value or null.
+	 */
+	private static function resolve_color( array $attributes, string $preset_key, string $style_key ): ?string {
+		if ( ! empty( $attributes[ $preset_key ] ) && is_string( $attributes[ $preset_key ] ) ) {
+			return sprintf( 'var(--wp--preset--color--%s)', $attributes[ $preset_key ] );
+		}
+		$custom = $attributes['style']['color'][ $style_key ] ?? null;
+		if ( ! empty( $custom ) && is_string( $custom ) ) {
+			return self::preset_to_css( $custom );
+		}
+		return null;
+	}
+
+	/**
+	 * Resolve blockGap into row-gap and column-gap CSS values.
+	 *
+	 * @param array $attributes Block attributes.
+	 * @return array{row: string|null, column: string|null}
+	 */
+	private static function resolve_block_gap( array $attributes ): array {
+		$block_gap = $attributes['style']['spacing']['blockGap'] ?? null;
+		$result = [
+			'row'    => null,
+			'column' => null,
+		];
+
+		if ( empty( $block_gap ) ) {
+			return $result;
+		}
+
+		if ( is_string( $block_gap ) ) {
+			$val             = self::preset_to_css( $block_gap );
+			$result['row']    = $val;
+			$result['column'] = $val;
+			return $result;
+		}
+
+		if ( is_array( $block_gap ) ) {
+			$row = $block_gap['vertical'] ?? $block_gap['top'] ?? null;
+			$col = $block_gap['horizontal'] ?? $block_gap['left'] ?? null;
+
+			$result['row']    = is_string( $row ) ? self::preset_to_css( $row ) : null;
+			$result['column'] = is_string( $col ) ? self::preset_to_css( $col ) : null;
+		}
+
+		return $result;
+	}
+
+	/**
+	 * Build wrapper inline style with custom CSS variables for icon sizing, gap, and color.
+	 * Block supports (margin, etc.) are handled by get_block_wrapper_attributes().
 	 *
 	 * @param array $attributes Block attributes.
 	 * @param int   $icon_size  Icon size in pixels.
 	 * @return string Inline style string for the block wrapper.
 	 */
 	private static function get_wrapper_style( array $attributes, int $icon_size ): string {
-		$parts           = [];
-		$style           = $attributes['style'] ?? null;
-		$icon_row_gap    = null;
-		$icon_column_gap = null;
+		$parts = [];
 
-		// Read blockGap directly from attributes (style engine may not output gap without layout on wrapper).
-		if ( ! empty( $style['spacing']['blockGap'] ) ) {
-			$block_gap = $style['spacing']['blockGap'];
-			if ( is_string( $block_gap ) ) {
-				$icon_row_gap    = self::block_gap_preset_to_css( $block_gap );
-				$icon_column_gap = $icon_row_gap;
-			} elseif ( is_array( $block_gap ) ) {
-				if ( ! empty( $block_gap['vertical'] ) && is_string( $block_gap['vertical'] ) ) {
-					$icon_row_gap = self::block_gap_preset_to_css( $block_gap['vertical'] );
-				} elseif ( ! empty( $block_gap['top'] ) && is_string( $block_gap['top'] ) ) {
-					$icon_row_gap = self::block_gap_preset_to_css( $block_gap['top'] );
-				}
-				if ( ! empty( $block_gap['horizontal'] ) && is_string( $block_gap['horizontal'] ) ) {
-					$icon_column_gap = self::block_gap_preset_to_css( $block_gap['horizontal'] );
-				} elseif ( ! empty( $block_gap['left'] ) && is_string( $block_gap['left'] ) ) {
-					$icon_column_gap = self::block_gap_preset_to_css( $block_gap['left'] );
-				}
-				if ( null === $icon_row_gap && null === $icon_column_gap && ! empty( $block_gap ) ) {
-					$first = reset( $block_gap );
-					if ( is_string( $first ) ) {
-						$icon_row_gap    = self::block_gap_preset_to_css( $first );
-						$icon_column_gap = $icon_row_gap;
-					}
-				}
-			}
+		$icon_color      = self::resolve_color( $attributes, 'textColor', 'text' );
+		$icon_background = self::resolve_color( $attributes, 'backgroundColor', 'background' );
+		$gap             = self::resolve_block_gap( $attributes );
+
+		if ( null !== $gap['row'] ) {
+			$parts[] = sprintf( '--icon-row-gap: %s;', $gap['row'] );
 		}
-
-		// If style engine output has gap, prefer that (handles custom values).
-		if ( ! empty( $style ) && is_array( $style ) ) {
-			$styles = wp_style_engine_get_styles(
-				$style,
-				[ 'context' => 'block-supports' ]
-			);
-
-			if ( ! empty( $styles['css'] ) ) {
-				$parts[] = $styles['css'];
-
-				if ( preg_match( '/(?:^|;)\s*row-gap:([^;]+);?/', $styles['css'], $matches ) ) {
-					$icon_row_gap = trim( $matches[1] );
-				}
-				if ( preg_match( '/(?:^|;)\s*column-gap:([^;]+);?/', $styles['css'], $matches ) ) {
-					$icon_column_gap = trim( $matches[1] );
-				}
-				if ( ( null === $icon_row_gap || null === $icon_column_gap ) && preg_match( '/(?:^|;)\s*gap:([^;]+);?/', $styles['css'], $matches ) ) {
-					$single = trim( $matches[1] );
-					if ( null === $icon_row_gap ) {
-						$icon_row_gap = $single;
-					}
-					if ( null === $icon_column_gap ) {
-						$icon_column_gap = $single;
-					}
-				}
-			}
+		if ( null !== $gap['column'] ) {
+			$parts[] = sprintf( '--icon-column-gap: %s;', $gap['column'] );
 		}
-
-		if ( null !== $icon_row_gap ) {
-			$parts[] = sprintf( '--icon-row-gap: %s;', $icon_row_gap );
+		if ( null !== $icon_color ) {
+			$parts[] = sprintf( '--icon-color: %s;', $icon_color );
 		}
-		if ( null !== $icon_column_gap ) {
-			$parts[] = sprintf( '--icon-column-gap: %s;', $icon_column_gap );
+		if ( null !== $icon_background ) {
+			$parts[] = sprintf( '--icon-background: %s;', $icon_background );
 		}
 		$parts[] = sprintf( '--icon-size: %dpx;', absint( $icon_size ) );
 

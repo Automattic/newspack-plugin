@@ -22,10 +22,15 @@
 		}
 	},
 	"supports": {
+		"color": {
+			"enableContrastChecker": false,
+			"background": true,
+			"text": true
+		},
 		"html": false,
 		"spacing": {
-			"margin": [ "bottom", "left", "right", "top" ],
-			"blockGap": [ "horizontal", "vertical" ]
+			"blockGap": [ "horizontal", "vertical" ],
+			"margin": true
 		}
 	}
 }

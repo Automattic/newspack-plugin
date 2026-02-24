@@ -28,6 +28,55 @@ const fetchAllServiceKeys = () => {
 	return allServiceKeysCache;
 };
 
+const presetToVar = value => {
+	if ( typeof value !== 'string' ) {
+		return value;
+	}
+	return value.replace( /^var:preset\|([^|]+)\|(.+)$/, 'var(--wp--preset--$1--$2)' );
+};
+
+const resolveColor = ( presetSlug, customValue ) => {
+	if ( presetSlug ) {
+		return `var(--wp--preset--color--${ presetSlug })`;
+	}
+	if ( typeof customValue === 'string' ) {
+		return presetToVar( customValue ) || customValue;
+	}
+	return undefined;
+};
+
+const resolveBlockGap = blockGap => {
+	if ( ! blockGap ) {
+		return {};
+	}
+	if ( typeof blockGap === 'string' ) {
+		const val = presetToVar( blockGap ) || blockGap;
+		return { '--icon-row-gap': val, '--icon-column-gap': val };
+	}
+	const result = {};
+	const row = blockGap.vertical ?? blockGap.top;
+	const col = blockGap.horizontal ?? blockGap.left;
+	if ( typeof row === 'string' ) {
+		result[ '--icon-row-gap' ] = presetToVar( row ) || row;
+	}
+	if ( typeof col === 'string' ) {
+		result[ '--icon-column-gap' ] = presetToVar( col ) || col;
+	}
+	return result;
+};
+
+const COLOR_CLASS_RE = /^has-([\w-]+-)?(color|background-color)$|^has-text-color$|^has-background$/;
+
+const stripColorFromBlockProps = rawBlockProps => {
+	// eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
+	const { color, backgroundColor: bg, ...cleanStyle } = rawBlockProps.style || {};
+	const cleanClassName = ( rawBlockProps.className || '' )
+		.split( ' ' )
+		.filter( c => ! COLOR_CLASS_RE.test( c ) )
+		.join( ' ' );
+	return { ...rawBlockProps, className: cleanClassName, style: cleanStyle };
+};
+
 /**
  * Edit component for the Author Social Links inner block.
  *
@@ -40,47 +89,23 @@ const fetchAllServiceKeys = () => {
 export default function Edit( { attributes, setAttributes, clientId } ) {
 	const AuthorContext = getSharedAuthorContext();
 	const author = useContext( AuthorContext );
-	const { iconSize, style: styleAttr } = attributes;
+	const { iconSize, style: styleAttr, textColor, backgroundColor } = attributes;
 	const hasPopulated = useRef( false );
 	const [ allServiceKeys, setAllServiceKeys ] = useState( null ); // null = loading
 
-	const presetToVar = value => {
-		if ( typeof value !== 'string' ) {
-			return value;
-		}
-		return value.replace( /^var:preset\|([^|]+)\|(.+)$/, 'var(--wp--preset--$1--$2)' );
-	};
-
-	const rawBlockGap = styleAttr?.spacing?.blockGap;
-	let iconRowGap;
-	let iconColumnGap;
-
-	if ( typeof rawBlockGap === 'string' ) {
-		const converted = presetToVar( rawBlockGap ) || rawBlockGap;
-		iconRowGap = converted;
-		iconColumnGap = converted;
-	} else if ( rawBlockGap && typeof rawBlockGap === 'object' ) {
-		// Axial: vertical = row-gap, horizontal = column-gap (WP uses top/left in saved content).
-		const rowVal = rawBlockGap.vertical ?? rawBlockGap.top;
-		const colVal = rawBlockGap.horizontal ?? rawBlockGap.left;
-		if ( typeof rowVal === 'string' ) {
-			iconRowGap = presetToVar( rowVal ) || rowVal;
-		}
-		if ( typeof colVal === 'string' ) {
-			iconColumnGap = presetToVar( colVal ) || colVal;
-		}
-	}
-
 	const iconSizeValue = typeof iconSize === 'number' ? iconSize : parseInt( iconSize ?? 24, 10 ) || 24;
+	const iconColor = resolveColor( textColor, styleAttr?.color?.text );
+	const iconBackground = resolveColor( backgroundColor, styleAttr?.color?.background );
+	const gapVars = resolveBlockGap( styleAttr?.spacing?.blockGap );
 
-	const blockProps = useBlockProps( {
-		className: 'wp-block-newspack-author-profile-social',
-		style: {
-			'--icon-size': `${ roundIconSize( iconSizeValue ) }px`,
-			...( iconRowGap !== undefined && { '--icon-row-gap': iconRowGap } ),
-			...( iconColumnGap !== undefined && { '--icon-column-gap': iconColumnGap } ),
-		},
-	} );
+	const blockProps = stripColorFromBlockProps( useBlockProps( { className: 'wp-block-newspack-author-profile-social' } ) );
+	blockProps.style = {
+		...blockProps.style,
+		'--icon-size': `${ roundIconSize( iconSizeValue ) }px`,
+		...gapVars,
+		...( iconColor && { '--icon-color': iconColor } ),
+		...( iconBackground && { '--icon-background': iconBackground } ),
+	};
 
 	// Get inner blocks (stable reference from the store).
 	const innerBlocks = useSelect( select => select( 'core/block-editor' ).getBlocks( clientId ), [ clientId ] );
