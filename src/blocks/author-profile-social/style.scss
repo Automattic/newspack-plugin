@@ -7,7 +7,8 @@
 		list-style: none;
 		margin: 0;
 		padding: 0;
-		gap: var(--wp--preset--spacing--20, 0.5rem);
+		column-gap: var(--icon-column-gap, var(--wp--preset--spacing--20, 0.5rem));
+		row-gap: var(--icon-row-gap, var(--wp--preset--spacing--20, 0.5rem));
 
 		li {
 			line-height: 0;

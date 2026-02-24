@@ -40,14 +40,45 @@ const fetchAllServiceKeys = () => {
 export default function Edit( { attributes, setAttributes, clientId } ) {
 	const AuthorContext = getSharedAuthorContext();
 	const author = useContext( AuthorContext );
-	const { iconSize } = attributes;
+	const { iconSize, style: styleAttr } = attributes;
 	const hasPopulated = useRef( false );
 	const [ allServiceKeys, setAllServiceKeys ] = useState( null ); // null = loading
+
+	const presetToVar = value => {
+		if ( typeof value !== 'string' ) {
+			return value;
+		}
+		return value.replace( /^var:preset\|([^|]+)\|(.+)$/, 'var(--wp--preset--$1--$2)' );
+	};
+
+	const rawBlockGap = styleAttr?.spacing?.blockGap;
+	let iconRowGap;
+	let iconColumnGap;
+
+	if ( typeof rawBlockGap === 'string' ) {
+		const converted = presetToVar( rawBlockGap ) || rawBlockGap;
+		iconRowGap = converted;
+		iconColumnGap = converted;
+	} else if ( rawBlockGap && typeof rawBlockGap === 'object' ) {
+		// Axial: vertical = row-gap, horizontal = column-gap (WP uses top/left in saved content).
+		const rowVal = rawBlockGap.vertical ?? rawBlockGap.top;
+		const colVal = rawBlockGap.horizontal ?? rawBlockGap.left;
+		if ( typeof rowVal === 'string' ) {
+			iconRowGap = presetToVar( rowVal ) || rowVal;
+		}
+		if ( typeof colVal === 'string' ) {
+			iconColumnGap = presetToVar( colVal ) || colVal;
+		}
+	}
+
+	const iconSizeValue = typeof iconSize === 'number' ? iconSize : parseInt( iconSize ?? 24, 10 ) || 24;
 
 	const blockProps = useBlockProps( {
 		className: 'wp-block-newspack-author-profile-social',
 		style: {
-			'--icon-size': `${ roundIconSize( iconSize ) }px`,
+			'--icon-size': `${ roundIconSize( iconSizeValue ) }px`,
+			...( iconRowGap !== undefined && { '--icon-row-gap': iconRowGap } ),
+			...( iconColumnGap !== undefined && { '--icon-column-gap': iconColumnGap } ),
 		},
 	} );
 
@@ -118,9 +149,9 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 				<PanelBody title={ __( 'Settings', 'newspack-plugin' ) }>
 					<SelectControl
 						label={ __( 'Icon size', 'newspack-plugin' ) }
-						value={ iconSize ?? 24 }
+						value={ iconSizeValue }
 						options={ getIconSizeOptions() }
-						onChange={ value => setAttributes( { iconSize: value } ) }
+						onChange={ value => setAttributes( { iconSize: Number( value ) || 24 } ) }
 						__next40pxDefaultSize
 					/>
 					{ missingServices.length > 0 && (

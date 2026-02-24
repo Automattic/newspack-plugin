@@ -206,26 +206,94 @@ final class Author_Profile_Social_Block {
 	}
 
 	/**
-	 * Build wrapper style from block attributes.style (spacing, color, border, etc.) and block-specific vars.
-	 * Uses the style engine so presets (e.g. var:preset|spacing|20) are converted to CSS.
+	 * Convert preset token to CSS var (e.g. var:preset|spacing|20 -> var(--wp--preset--spacing--20)).
+	 *
+	 * @param string $value Raw value from attributes.
+	 * @return string CSS value.
+	 */
+	private static function block_gap_preset_to_css( string $value ): string {
+		if ( preg_match( '/^var:preset\|([^|]+)\|(.+)$/', $value, $matches ) ) {
+			return sprintf( 'var(--wp--preset--%s--%s)', $matches[1], $matches[2] );
+		}
+		return $value;
+	}
+
+	/**
+	 * Build wrapper inline style from block attributes (spacing, etc.) and block-specific CSS vars.
 	 *
 	 * @param array $attributes Block attributes.
 	 * @param int   $icon_size  Icon size in pixels.
-	 * @return string Inline style string.
+	 * @return string Inline style string for the block wrapper.
 	 */
 	private static function get_wrapper_style( array $attributes, int $icon_size ): string {
-		$parts = [];
-		$style = $attributes['style'] ?? null;
+		$parts           = [];
+		$style           = $attributes['style'] ?? null;
+		$icon_row_gap    = null;
+		$icon_column_gap = null;
+
+		// Read blockGap directly from attributes (style engine may not output gap without layout on wrapper).
+		if ( ! empty( $style['spacing']['blockGap'] ) ) {
+			$block_gap = $style['spacing']['blockGap'];
+			if ( is_string( $block_gap ) ) {
+				$icon_row_gap    = self::block_gap_preset_to_css( $block_gap );
+				$icon_column_gap = $icon_row_gap;
+			} elseif ( is_array( $block_gap ) ) {
+				if ( ! empty( $block_gap['vertical'] ) && is_string( $block_gap['vertical'] ) ) {
+					$icon_row_gap = self::block_gap_preset_to_css( $block_gap['vertical'] );
+				} elseif ( ! empty( $block_gap['top'] ) && is_string( $block_gap['top'] ) ) {
+					$icon_row_gap = self::block_gap_preset_to_css( $block_gap['top'] );
+				}
+				if ( ! empty( $block_gap['horizontal'] ) && is_string( $block_gap['horizontal'] ) ) {
+					$icon_column_gap = self::block_gap_preset_to_css( $block_gap['horizontal'] );
+				} elseif ( ! empty( $block_gap['left'] ) && is_string( $block_gap['left'] ) ) {
+					$icon_column_gap = self::block_gap_preset_to_css( $block_gap['left'] );
+				}
+				if ( null === $icon_row_gap && null === $icon_column_gap && ! empty( $block_gap ) ) {
+					$first = reset( $block_gap );
+					if ( is_string( $first ) ) {
+						$icon_row_gap    = self::block_gap_preset_to_css( $first );
+						$icon_column_gap = $icon_row_gap;
+					}
+				}
+			}
+		}
+
+		// If style engine output has gap, prefer that (handles custom values).
 		if ( ! empty( $style ) && is_array( $style ) ) {
 			$styles = wp_style_engine_get_styles(
 				$style,
 				[ 'context' => 'block-supports' ]
 			);
+
 			if ( ! empty( $styles['css'] ) ) {
 				$parts[] = $styles['css'];
+
+				if ( preg_match( '/(?:^|;)\s*row-gap:([^;]+);?/', $styles['css'], $matches ) ) {
+					$icon_row_gap = trim( $matches[1] );
+				}
+				if ( preg_match( '/(?:^|;)\s*column-gap:([^;]+);?/', $styles['css'], $matches ) ) {
+					$icon_column_gap = trim( $matches[1] );
+				}
+				if ( ( null === $icon_row_gap || null === $icon_column_gap ) && preg_match( '/(?:^|;)\s*gap:([^;]+);?/', $styles['css'], $matches ) ) {
+					$single = trim( $matches[1] );
+					if ( null === $icon_row_gap ) {
+						$icon_row_gap = $single;
+					}
+					if ( null === $icon_column_gap ) {
+						$icon_column_gap = $single;
+					}
+				}
 			}
 		}
+
+		if ( null !== $icon_row_gap ) {
+			$parts[] = sprintf( '--icon-row-gap: %s;', $icon_row_gap );
+		}
+		if ( null !== $icon_column_gap ) {
+			$parts[] = sprintf( '--icon-column-gap: %s;', $icon_column_gap );
+		}
 		$parts[] = sprintf( '--icon-size: %dpx;', absint( $icon_size ) );
+
 		return implode( ' ', $parts );
 	}
 }

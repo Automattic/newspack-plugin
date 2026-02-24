@@ -6,7 +6,8 @@
 		.block-editor-block-list__layout {
 			display: flex;
 			flex-wrap: wrap;
-			gap: var(--wp--preset--spacing--20, 0.5rem);
+			column-gap: var(--icon-column-gap, var(--wp--preset--spacing--20, 0.5rem));
+			row-gap: var(--icon-row-gap, var(--wp--preset--spacing--20, 0.5rem));
 		}
 
 		// Remove default block margins in horizontal layout
