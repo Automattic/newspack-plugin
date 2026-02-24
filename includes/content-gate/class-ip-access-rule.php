@@ -1,6 +1,6 @@
 <?php
 /**
- * Content Gate IP Check.
+ * Content Gate IP Access Rule.
  *
  * @package Newspack
  */
@@ -10,9 +10,9 @@ namespace Newspack\Content_Gate;
 use Newspack\Newspack;
 
 /**
- * IP Check class.
+ * IP Access Rule class.
  */
-class IP_Check {
+class IP_Access_Rule {
 
 	/**
 	 * The name of the cookie used to bypass cache and allow server side IP checking.
@@ -94,4 +94,4 @@ class IP_Check {
 		<?php
 	}
 }
-IP_Check::init();
+IP_Access_Rule::init();
