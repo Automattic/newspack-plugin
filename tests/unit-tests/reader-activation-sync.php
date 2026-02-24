@@ -538,6 +538,54 @@ class Newspack_Test_Reader_Activation_Sync extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Test that integration retry data includes failure_layer.
+	 */
+	public function test_integration_retry_includes_failure_layer() {
+		if ( ! function_exists( 'as_schedule_single_action' ) ) {
+			$this->markTestSkipped( 'ActionScheduler not available.' );
+		}
+
+		Failing_Sample_Integration::reset();
+		Failing_Sample_Integration::$should_fail = true;
+		$this->register_failing_integration( 'layer_mock' );
+
+		as_unschedule_all_actions( Contact_Sync::RETRY_HOOK );
+
+		$contact = [
+			'email'    => 'layer@test.com',
+			'name'     => 'Layer Test',
+			'metadata' => [],
+		];
+
+		Contact_Sync::execute_integration_retry(
+			[
+				'integration_id'   => 'layer_mock',
+				'contact'          => $contact,
+				'context'          => 'Test',
+				'existing_contact' => null,
+				'retry_count'      => 1,
+			]
+		);
+
+		$pending = as_get_scheduled_actions(
+			[
+				'hook'   => Contact_Sync::RETRY_HOOK,
+				'group'  => 'newspack',
+				'status' => \ActionScheduler_Store::STATUS_PENDING,
+			],
+			'ARRAY_A'
+		);
+
+		$this->assertNotEmpty( $pending, 'A retry action should be scheduled.' );
+
+		$action_id = array_key_last( $pending );
+		$action    = \ActionScheduler::store()->fetch_action( $action_id );
+		$args      = $action->get_args();
+		$this->assertArrayHasKey( 'failure_layer', $args[0], 'Retry data should include failure_layer.' );
+		$this->assertContains( $args[0]['failure_layer'], [ 'framework', 'integration', 'api' ], 'failure_layer must be a valid value.' );
+	}
+
+	/**
 	 * Test that invalid retry data is handled gracefully.
 	 */
 	public function test_integration_retry_invalid_data() {
