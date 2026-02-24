@@ -15,7 +15,7 @@ import { commentAuthorAvatar, currencyDollar, postList, settings } from '@wordpr
  * Internal dependencies
  */
 import { AUDIENCE_CONTENT_GATES_WIZARD_SLUG } from '../consts';
-import { CardSettingsGroup, Divider, Grid, Notice, SectionHeader, TextControl } from '../../../../../../packages/components/src';
+import { CardSettingsGroup, Divider, Grid, Notice, Router, SectionHeader, TextControl } from '../../../../../../packages/components/src';
 import { WIZARD_STORE_NAMESPACE } from '../../../../../../packages/components/src/wizard/store';
 import { useWizardData } from '../../../../../../packages/components/src/wizard/store/utils';
 import { useWizardApiFetch } from '../../../../hooks/use-wizard-api-fetch';
@@ -24,6 +24,8 @@ import Registration from './registration';
 import CustomAccess from './custom-access';
 import { getGateStatus, getGateStatusBadgeLevel } from '../utils';
 import './style.scss';
+
+const { useHistory } = Router;
 
 type ContentGateEditProps = {
 	history: { push: ( path: string ) => void };
@@ -58,12 +60,13 @@ const getContentTypeFromRules = ( rules: GateContentRule[] ): 'all' | 'custom' |
 	return 'all';
 };
 
-const Edit = ( { history, match, updateGatesData }: ContentGateEditProps ) => {
+const Edit = ( { match, updateGatesData }: ContentGateEditProps ) => {
+	const history = useHistory();
 	const { id: _id, type } = match.params;
 	const id = _id ? parseInt( _id ) : 0;
 	const { gates = null as unknown as Gate[] } = useWizardData( AUDIENCE_CONTENT_GATES_WIZARD_SLUG ) as WizardData;
 	const { wizardApiFetch, isFetching, errorMessage, resetError, setError } = useWizardApiFetch( AUDIENCE_CONTENT_GATES_WIZARD_SLUG );
-	const { setHeaderData, addNotice } = useDispatch( WIZARD_STORE_NAMESPACE );
+	const { addNotice, resetNotices, setHeaderData } = useDispatch( WIZARD_STORE_NAMESPACE );
 	const [ gate, setGate ] = useState< Gate >( ( gates && gates.find( g => g.id === id ) ) || DEFAULT_GATE ); // eslint-disable-line @typescript-eslint/no-unused-vars
 	const [ title, setTitle ] = useState< string >( gate.title );
 	const [ isRenaming, setIsRenaming ] = useState< boolean >( false );
@@ -80,6 +83,7 @@ const Edit = ( { history, match, updateGatesData }: ContentGateEditProps ) => {
 		if ( isFetching ) {
 			return;
 		}
+		resetNotices();
 		resetError();
 		const _gate = {
 			...gate,
@@ -98,6 +102,12 @@ const Edit = ( { history, match, updateGatesData }: ContentGateEditProps ) => {
 				onSuccess( data ) {
 					updateGatesData( [ ...gates, { ...data } ] );
 					history.push( `/content-gates` );
+					addNotice( {
+						// translators: %s is the gate title.
+						message: sprintf( __( '“%s” gate created.', 'newspack-plugin' ), title ),
+						type: 'success',
+						id: 'content-gate-created',
+					} );
 				},
 			}
 		);
@@ -108,6 +118,7 @@ const Edit = ( { history, match, updateGatesData }: ContentGateEditProps ) => {
 			return;
 		}
 		resetError();
+		resetNotices();
 		const _gate = {
 			...gate,
 			title,
@@ -164,6 +175,12 @@ const Edit = ( { history, match, updateGatesData }: ContentGateEditProps ) => {
 						updateGatesData( newGates );
 						history.push( `/content-gates` );
 						setIsDeleting( false );
+						addNotice( {
+							// translators: %s is the gate title.
+							message: sprintf( __( '“%s” gate deleted.', 'newspack-plugin' ), title ),
+							type: 'success',
+							id: 'content-gate-deleted',
+						} );
 					},
 					onFinally() {
 						setIsDeleting( false );

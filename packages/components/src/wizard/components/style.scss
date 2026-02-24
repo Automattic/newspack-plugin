@@ -1,5 +1,3 @@
-@use "../../../colors/colors.module" as colors;
-
 .newspack-wizard {
 	&__snackbar {
 		border-bottom: 2px solid transparent;
@@ -34,6 +32,16 @@
 			top: calc(16px + 46px); /* 46px for admin bar */
 			@media screen and ( min-width: 783px ) {
 				top: calc(16px + 32px); /* 32px for admin bar */
+			}
+		}
+		a,
+		.components-button.is-link {
+			color: var(--newspack-ui-color-neutral-0);
+			cursor: pointer;
+			margin-left: 16px;
+			&:hover,
+			&:focus {
+				color: var(--newspack-ui-color-neutral-10);
 			}
 		}
 	}

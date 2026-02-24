@@ -11,6 +11,7 @@ import { useDispatch } from '@wordpress/data';
 /**
  * Internal dependencies.
  */
+import { Button } from '../../';
 import { WIZARD_STORE_NAMESPACE } from '../store';
 import './style.scss';
 
@@ -22,14 +23,17 @@ import classnames from 'classnames';
 /**
  * WizardSnackbar component.
  *
- * @param {Object}      props          - The component props.
- * @param {JSX.Element} props.children - The component children.
- * @param {Object}      props.props    - The component props. See: https://wordpress.github.io/gutenberg/?path=/docs/components-snackbar--docs
- * @param {string}      props.position - The snackbar position.
- * @param {string}      props.type     - The snackbar type: 'info', 'success', 'warning', or 'error'.
+ * @param {Object}      props             - The component props.
+ * @param {string}      props.buttonLabel - The label of the button to navigate to when the button is clicked.
+ * @param {JSX.Element} props.children    - The component children.
+ * @param {string}      props.href        - The href to navigate to when the button is clicked.
+ * @param {Function}    props.onClick     - The function to call when the button is clicked.
+ * @param {Object}      props.props       - The component props. See: https://wordpress.github.io/gutenberg/?path=/docs/components-snackbar--docs
+ * @param {string}      props.position    - The snackbar position.
+ * @param {string}      props.type        - The snackbar type: 'info', 'success', 'warning', or 'error'.
  * @return {JSX.Element} The component.
  */
-const WizardSnackbar = ( { children, position = 'bottom-left', type = 'info', ...props } ) => {
+const WizardSnackbar = ( { children, position = 'bottom-left', type = 'info', buttonLabel, href, onClick, ...props } ) => {
 	const className = classnames(
 		'newspack-wizard__snackbar',
 		props.className,
@@ -50,6 +54,11 @@ const WizardSnackbar = ( { children, position = 'bottom-left', type = 'info', ..
 	return (
 		<BaseComponent className={ className } { ...props } onRemove={ onRemove }>
 			{ children }
+			{ buttonLabel && (
+				<Button variant="link" href={ href } onClick={ onClick }>
+					{ buttonLabel }
+				</Button>
+			) }
 		</BaseComponent>
 	);
 };
