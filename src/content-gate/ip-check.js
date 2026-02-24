@@ -21,17 +21,7 @@ jQuery( document ).ready( function ( $ ) {
 
 		resetModalState() {
 			$( '#newspack-signin-ip-login-message' ).removeClass( 'success error' ).empty();
-			$( '#newspack-signin-ip-spinner' ).show();
 			$( '#newspack-signin-ip-button' ).hide();
-		},
-
-		showSpinner() {
-			$( '#newspack-signin-ip-spinner' ).show();
-			this.showLoginMessage( '', 'Checking IP…' );
-		},
-
-		hideSpinner() {
-			$( '#newspack-signin-ip-spinner' ).hide();
 		},
 
 		// Function to create a cookie with TTL of 3 hours
@@ -59,7 +49,6 @@ jQuery( document ).ready( function ( $ ) {
 
 			// Open modal with loading state.
 			self.openModal();
-			self.showSpinner();
 			self.showLoginMessage( '', 'Checking IP…' );
 			$( '#newspack-signin-ip-button' ).hide();
 
@@ -71,19 +60,16 @@ jQuery( document ).ready( function ( $ ) {
 				},
 				dataType: 'json',
 				success( response ) {
-					self.hideSpinner();
-
 					if ( response && response.valid_ip ) {
 						self.createCookie( newspack_ip_access.cookie_name, '1', 3 );
-						self.showLoginMessage( 'success', 'Your IP has been verified. You have access to our content.' );
+						self.showLoginMessage( 'success', 'Your location has been verified. You now have access to our content.' );
 						$( '#newspack-signin-ip-button' ).show();
 					} else {
-						self.showLoginMessage( 'error', 'Sorry, your IP does not give you access to our content.' );
+						self.showLoginMessage( 'error', 'Sorry, your location does not give you access to our content.' );
 					}
 				},
 				error() {
-					self.hideSpinner();
-					self.showLoginMessage( 'error', 'An error occurred while checking your IP. Please try again.' );
+					self.showLoginMessage( 'error', 'An error occurred while checking your location. Please try again.' );
 				},
 			} );
 		},
