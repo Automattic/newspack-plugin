@@ -25,7 +25,7 @@ import CustomAccess from './custom-access';
 import { getGateStatus, getGateStatusBadgeLevel } from '../utils';
 import './style.scss';
 
-const { useHistory } = Router;
+const { useHistory, Prompt } = Router;
 
 type ContentGateEditProps = {
 	history: { push: ( path: string ) => void };
@@ -78,6 +78,13 @@ const Edit = ( { match, updateGatesData }: ContentGateEditProps ) => {
 	const [ status, setStatus ] = useState< GateStatus >( gate.status );
 
 	const isNew = _id === 'new' || ! id;
+
+	const isDirty =
+		isNew ||
+		title !== gate.title ||
+		JSON.stringify( contentRules ) !== JSON.stringify( gate.content_rules ) ||
+		JSON.stringify( registration ) !== JSON.stringify( gate.registration ) ||
+		JSON.stringify( customAccess ) !== JSON.stringify( gate.custom_access );
 
 	const handleCreate = useCallback( () => {
 		if ( isFetching ) {
@@ -350,6 +357,7 @@ const Edit = ( { match, updateGatesData }: ContentGateEditProps ) => {
 
 	return (
 		<div className="newspack-content-gate__edit">
+			<Prompt when={ isDirty } message={ __( 'This gate has unsaved changes. Discard changes?', 'newspack-plugin' ) } />
 			{ errorMessage && <Notice isError noticeText={ errorMessage } /> }
 			{ ( isNew || isRenaming ) && (
 				<>
