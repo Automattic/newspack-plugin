@@ -192,6 +192,31 @@ class Contact_Sync extends Sync {
 					'Max retries exhausted.'
 				);
 			}
+			/**
+			 * Fires when a contact sync integration has exhausted all retry attempts.
+			 *
+			 * @param array $alert_data {
+			 *     Alert data.
+			 *
+			 *     @type string $integration_id The integration that failed.
+			 *     @type array  $contact        The contact data that failed to sync.
+			 *     @type string $context        The sync context.
+			 *     @type int    $retry_count    Total retries attempted.
+			 *     @type string $reason         The final error message.
+			 *     @type string $failure_layer  'framework', 'integration', or 'api'.
+			 * }
+			 */
+			do_action(
+				'newspack_sync_retry_exhausted',
+				[
+					'integration_id' => $integration_id,
+					'contact'        => $contact,
+					'context'        => $context,
+					'retry_count'    => self::MAX_RETRIES,
+					'reason'         => $error_message,
+					'failure_layer'  => $failure_layer,
+				]
+			);
 			return;
 		}
 

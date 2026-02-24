@@ -727,6 +727,31 @@ final class Data_Events {
 					sprintf( 'Max retries exhausted. Final error: %s', $error->getMessage() )
 				);
 			}
+			/**
+			 * Fires when a Data Events handler has exhausted all retry attempts.
+			 *
+			 * @param array $alert_data {
+			 *     Alert data.
+			 *
+			 *     @type array  $handler       The handler callable.
+			 *     @type string $action_name   The data event action name.
+			 *     @type array  $data          The event data.
+			 *     @type int    $retry_count   Total retries attempted.
+			 *     @type string $reason        The final error message.
+			 *     @type string $failure_layer 'framework', 'integration', or 'api'.
+			 * }
+			 */
+			do_action(
+				'newspack_data_event_retry_exhausted',
+				[
+					'handler'       => $handler,
+					'action_name'   => $action_name,
+					'data'          => $data,
+					'retry_count'   => self::MAX_HANDLER_RETRIES,
+					'reason'        => $error->getMessage(),
+					'failure_layer' => $failure_layer,
+				]
+			);
 			return;
 		}
 
