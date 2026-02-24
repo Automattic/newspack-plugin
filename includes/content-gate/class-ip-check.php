@@ -73,7 +73,7 @@ class IP_Check {
 		ob_start();
 		?>
 		<div class="newspack-signin-ip-login-message"></div>
-		<button type="submit" class="newspack-signin-ip-button newspack-ui__button newspack-ui__button--primary newspack-ui__button--wide"><?php esc_html_e( 'Continue', 'newspack-teams-for-wc-memberships-access-by-ip' ); ?></button>
+		<button type="submit" class="newspack-signin-ip-button newspack-ui__button newspack-ui__button--primary newspack-ui__button--wide"><?php esc_html_e( 'Continue', 'newspack-plugin' ); ?></button>
 		<?php
 		return ob_get_clean();
 	}
