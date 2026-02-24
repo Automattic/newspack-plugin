@@ -89,6 +89,7 @@ final class Newspack {
 	 */
 	private function includes() {
 		include_once NEWSPACK_ABSPATH . 'includes/class-logger.php';
+		include_once NEWSPACK_ABSPATH . 'includes/class-alert-manager.php';
 
 		include_once NEWSPACK_ABSPATH . 'includes/util.php';
 		include_once NEWSPACK_ABSPATH . 'includes/emails/class-emails.php';
