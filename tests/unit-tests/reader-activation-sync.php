@@ -333,6 +333,13 @@ class Newspack_Test_Reader_Activation_Sync extends WP_UnitTestCase {
 			'ARRAY_A'
 		);
 		$this->assertNotEmpty( $pending, 'A retry should be scheduled when an integration push fails.' );
+
+		// Verify the retry data contains the reason key.
+		$action_id = array_key_first( $pending );
+		$action    = \ActionScheduler::store()->fetch_action( $action_id );
+		$args      = $action->get_args();
+		$this->assertArrayHasKey( 'reason', $args[0], 'Retry data should contain a reason key.' );
+		$this->assertEquals( 'Mock push failed', $args[0]['reason'], 'Reason should match the error message.' );
 	}
 
 	/**
@@ -419,6 +426,115 @@ class Newspack_Test_Reader_Activation_Sync extends WP_UnitTestCase {
 			'ARRAY_A'
 		);
 		$this->assertEmpty( $pending, 'No retry should be scheduled after max retries.' );
+	}
+
+	/**
+	 * Test that a failed integration retry logs the error to the current AS action.
+	 */
+	public function test_integration_retry_as_log_entry() {
+		if ( ! function_exists( 'as_schedule_single_action' ) ) {
+			$this->markTestSkipped( 'ActionScheduler not available.' );
+		}
+
+		Failing_Sample_Integration::reset();
+		Failing_Sample_Integration::$should_fail = true;
+		$this->register_failing_integration( 'log_mock' );
+
+		as_unschedule_all_actions( Contact_Sync::RETRY_HOOK );
+
+		$contact = [
+			'email'    => 'log@test.com',
+			'name'     => 'Log Test',
+			'metadata' => [],
+		];
+
+		// Schedule a dummy AS action to simulate the currently-executing action.
+		$dummy_action_id = as_schedule_single_action( time() + 3600, 'newspack_dummy_log_action' );
+		Contact_Sync::set_current_as_action_id( $dummy_action_id );
+
+		Contact_Sync::execute_integration_retry(
+			[
+				'integration_id'   => 'log_mock',
+				'contact'          => $contact,
+				'context'          => 'Test',
+				'existing_contact' => null,
+				'retry_count'      => 1,
+			]
+		);
+
+		Contact_Sync::clear_current_as_action_id();
+
+		// Verify AS log entry on the current action.
+		$logs     = \ActionScheduler_Logger::instance()->get_logs( $dummy_action_id );
+		$messages = array_map(
+			function ( $log ) {
+				return $log->get_message();
+			},
+			$logs
+		);
+		$this->assertTrue(
+			in_array( 'Mock push failed', $messages, true ),
+			'AS logs should contain the error message on the current action.'
+		);
+
+		// Clean up.
+		as_unschedule_all_actions( 'newspack_dummy_log_action' );
+	}
+
+	/**
+	 * Test that max retries exhausted creates an AS log entry on the current action.
+	 */
+	public function test_integration_max_retries_as_log_entry() {
+		if ( ! function_exists( 'as_schedule_single_action' ) ) {
+			$this->markTestSkipped( 'ActionScheduler not available.' );
+		}
+
+		Failing_Sample_Integration::reset();
+		Failing_Sample_Integration::$should_fail = true;
+		$this->register_failing_integration( 'deadletter_mock' );
+
+		as_unschedule_all_actions( Contact_Sync::RETRY_HOOK );
+
+		$contact = [
+			'email'    => 'deadletter@test.com',
+			'name'     => 'Dead Letter Test',
+			'metadata' => [],
+		];
+
+		// Schedule a dummy AS action to simulate the currently-executing action.
+		$dummy_action_id = as_schedule_single_action( time() + 3600, 'newspack_dummy_sync_action' );
+
+		// Set the current AS action ID.
+		Contact_Sync::set_current_as_action_id( $dummy_action_id );
+
+		// Execute at max retry count — push fails, triggers max-retries guard.
+		Contact_Sync::execute_integration_retry(
+			[
+				'integration_id'   => 'deadletter_mock',
+				'contact'          => $contact,
+				'context'          => 'Test',
+				'existing_contact' => null,
+				'retry_count'      => Contact_Sync::MAX_RETRIES,
+			]
+		);
+
+		Contact_Sync::clear_current_as_action_id();
+
+		// Verify AS log entry on the dummy action.
+		$logs     = \ActionScheduler_Logger::instance()->get_logs( $dummy_action_id );
+		$messages = array_map(
+			function ( $log ) {
+				return $log->get_message();
+			},
+			$logs
+		);
+		$this->assertTrue(
+			in_array( 'Max retries exhausted.', $messages, true ),
+			'AS logs should contain the max retries exhausted message.'
+		);
+
+		// Clean up.
+		as_unschedule_all_actions( 'newspack_dummy_sync_action' );
 	}
 
 	/**

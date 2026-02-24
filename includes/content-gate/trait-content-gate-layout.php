@@ -150,6 +150,16 @@ trait Content_Gate_Layout {
 	}
 
 	/**
+	 * Check if the current theme is a block theme.
+	 *
+	 * @return boolean True if the current theme is a block theme.
+	 */
+	private static function is_block_theme() {
+		return function_exists( 'wp_is_block_theme' ) && wp_is_block_theme();
+	}
+
+
+	/**
 	 * Get the number of visible paragraphs for the gate.
 	 *
 	 * @param int $gate_post_id Gate post ID.
@@ -205,11 +215,17 @@ trait Content_Gate_Layout {
 
 		// Apply inline fade.
 		if ( $visible_paragraphs > 0 && $inline_fade ) {
-			$gate_content = '<div style="pointer-events: none; height: 10em; margin-top: -10em; width: 100%; position: absolute; background: linear-gradient(180deg, rgba(255,255,255,0) 14%, rgba(255,255,255,1) 76%);"></div>' . $gate_content;
+			$gate_content = '<div style="pointer-events: none; height: 10em; margin-top: -10em; width: 100%; position: absolute; background: linear-gradient(180deg, rgba(255,255,255,0) 14%, rgba(255,255,255,1) 76%); max-width: 100%;"></div>' . $gate_content;
+		}
+
+		$gate_content_classes = [ 'newspack-content-gate__gate', 'newspack-content-gate__inline-gate' ];
+		// Add a class if the current theme is a block theme.
+		if ( self::is_block_theme() ) {
+			$gate_content_classes[] = 'is-layout-constrained';
 		}
 
 		// Wrap gate in a div for styling.
-		$gate_content = '<div class="newspack-content-gate__gate newspack-content-gate__inline-gate">' . $gate_content . '</div>';
+		$gate_content = '<div class="' . esc_attr( implode( ' ', $gate_content_classes ) ) . '">' . $gate_content . '</div>';
 		return $gate_content;
 	}
 
@@ -262,6 +278,22 @@ trait Content_Gate_Layout {
 			$content = \force_balance_tags( \wp_kses_post( implode( '</p>', $content ) . '</p>' ) );
 		}
 		return $content;
+	}
+
+	/**
+	 * Get the inline gate content.
+	 */
+	public static function get_inline_gate_content() {
+		return self::get_inline_gate_content_for_post( self::get_gate_layout_id() );
+	}
+
+	/**
+	 * Get the inline gate HTML for rendering.
+	 *
+	 * @return string
+	 */
+	public static function get_inline_gate_html() {
+		return apply_filters( 'newspack_gate_content', self::get_inline_gate_content() );
 	}
 
 	/**

@@ -19,7 +19,6 @@ import { Icon, check } from '@wordpress/icons';
  * Internal dependencies
  */
 import './editor.scss';
-import { emailSend } from '../../../packages/icons';
 
 const getListCheckboxId = listId => {
 	return 'newspack-reader-registration-list-checkbox-' + listId;
@@ -28,7 +27,6 @@ const getListCheckboxId = listId => {
 const editedStateOptions = [
 	{ label: __( 'Initial', 'newspack-plugin' ), value: 'initial' },
 	{ label: __( 'Registration Success', 'newspack-plugin' ), value: 'registration' },
-	{ label: __( 'Login Success', 'newspack-plugin' ), value: 'login' },
 ];
 export default function ReaderRegistrationEdit( {
 	setAttributes,
@@ -42,8 +40,6 @@ export default function ReaderRegistrationEdit( {
 		displayListDescription,
 		hideSubscriptionInput,
 		newsletterLabel,
-		signInLabel,
-		signedInLabel,
 		lists,
 		listsCheckboxes,
 	},
@@ -292,7 +288,7 @@ export default function ReaderRegistrationEdit( {
 														__html: newspack_blocks.google_logo_svg,
 													} }
 												/>
-												{ __( 'Sign in with Google', 'newspack-plugin' ) }
+												{ __( 'Continue with Google', 'newspack-plugin' ) }
 											</button>
 											<div className="newspack-ui__word-divider">{ __( 'Or', 'newspack-plugin' ) }</div>
 										</div>
@@ -303,7 +299,7 @@ export default function ReaderRegistrationEdit( {
 											<button type="submit" className="newspack-ui__button newspack-ui__button--primary">
 												<RichText
 													onChange={ value => setAttributes( { label: value } ) }
-													placeholder={ __( 'Sign up', 'newspack-plugin' ) }
+													placeholder={ __( 'Continue', 'newspack-plugin' ) }
 													value={ label }
 													allowedFormats={ [] }
 													tagName="span"
@@ -313,21 +309,6 @@ export default function ReaderRegistrationEdit( {
 										<div className="newspack-registration__response" />
 									</div>
 								</div>
-							</div>
-							<div className="newspack-registration__have-account">
-								<a
-									href="/my-account"
-									onClick={ ev => ev.preventDefault() }
-									className="newspack-ui__button newspack-ui__button--ghost"
-								>
-									<RichText
-										onChange={ value => setAttributes( { signInLabel: value } ) }
-										placeholder={ __( 'Sign in to an existing account', 'newspack-plugin' ) }
-										value={ signInLabel }
-										allowedFormats={ [] }
-										tagName="span"
-									/>
-								</a>
 							</div>
 							<div className="newspack-registration__help-text">
 								<RichText
@@ -343,28 +324,11 @@ export default function ReaderRegistrationEdit( {
 				) }
 				{ editedState === 'registration' && (
 					<div className="newspack-registration newspack-ui">
-						<div className="newspack-ui__box newspack-ui__box--success newspack-ui__box--text-center">
+						<div className="newspack-ui__box newspack-ui__box--success newspack-ui__box--x-large newspack-ui__box--text-center">
 							<span className="newspack-ui__icon newspack-ui__icon--success">
 								<Icon icon={ check } />
 							</span>
 							<div { ...innerBlocksProps } />
-						</div>
-					</div>
-				) }
-				{ editedState === 'login' && (
-					<div className="newspack-registration newspack-ui">
-						<div className="newspack-ui__box newspack-ui__box--success newspack-ui__box--text-center">
-							<span className="newspack-ui__icon newspack-ui__icon--success">
-								<Icon icon={ emailSend } />
-							</span>
-							<RichText
-								align="center"
-								onChange={ value => setAttributes( { signedInLabel: value } ) }
-								placeholder={ __( 'Logged in message…', 'newspack-plugin' ) }
-								value={ signedInLabel }
-								allowedFormats={ [] }
-								tagName="p"
-							/>
 						</div>
 					</div>
 				) }

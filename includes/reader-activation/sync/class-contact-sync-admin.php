@@ -27,6 +27,17 @@ class Contact_Sync_Admin {
 	 * Initializes hooks.
 	 */
 	public static function init_hooks() {
+		/**
+		 * Enables ESP sync administrative tools in the WordPress admin.
+		 * Provides UI for managing reader data synchronization.
+		 *
+		 * @constant NEWSPACK_ESP_SYNC_ADMIN
+		 * @type     bool
+		 * @default  ESP sync admin tools disabled
+		 * @status   draft
+		 *
+		 * @example define( 'NEWSPACK_ESP_SYNC_ADMIN', true );
+		 */
 		if ( ! defined( 'NEWSPACK_ESP_SYNC_ADMIN' ) || ! NEWSPACK_ESP_SYNC_ADMIN ) {
 			return;
 		}

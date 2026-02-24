@@ -1,28 +1,24 @@
 /**
  * WordPress dependencies.
  */
-import { CheckboxControl, TextControl } from '@wordpress/components';
+import { __ } from '@wordpress/i18n';
+import { TextControl } from '@wordpress/components';
 
 /**
  * Internal dependencies
  */
-import { FormTokenField } from '../../../../../packages/components/src';
+import { FormTokenField } from '../../../../../../packages/components/src';
 
-const noop = () => {};
-
-export default function AccessRuleControl( { slug, value, onChange }: GateAccessRuleControlProps ) {
+export default function AccessRuleControl( { slug, value, onChange }: GateRuleControlProps ) {
 	const rule = window.newspackAudienceContentGates.available_access_rules[ slug ];
 
-	if ( ! rule ) {
+	if ( ! rule || rule.is_boolean ) {
 		return null;
-	}
-	if ( rule.is_boolean ) {
-		return <CheckboxControl label={ rule.name } checked={ true } onChange={ noop } disabled help={ rule.description } />;
 	}
 	if ( rule.options && rule.options.length > 0 ) {
 		return (
 			<FormTokenField
-				label={ rule.name }
+				label={ '' }
 				value={ rule.options.filter( o => value.includes( o.value ) ).map( o => o.label ) }
 				onChange={ ( items: string[] ) => onChange( rule.options?.filter( o => items.includes( o.label ) ).map( o => o.value ) ?? [] ) }
 				suggestions={ rule.options.map( o => o.label ) }
@@ -31,5 +27,14 @@ export default function AccessRuleControl( { slug, value, onChange }: GateAccess
 			/>
 		);
 	}
-	return <TextControl label={ rule.name } value={ value as string } onChange={ onChange } help={ rule.description } __next40pxDefaultSize />;
+	return (
+		<TextControl
+			hideLabelFromVision
+			label={ rule.name }
+			help={ __( 'Separate with commas.', 'newspack-plugin' ) }
+			value={ value as string }
+			onChange={ onChange }
+			__next40pxDefaultSize
+		/>
+	);
 }

@@ -4,7 +4,7 @@
 
 @use "~@wordpress/base-styles/colors" as wp-colors;
 
-.audience_page_newspack-audience-content-gates {
+.audience_page_newspack-audience-access-control {
 	.newspack-content-gates {
 		&__title {
 			margin: 0;
@@ -24,6 +24,8 @@
 			}
 		}
 		&__content-rule-control {
+			margin-top: 16px;
+
 			> * + * {
 				margin-top: 16px;
 			}

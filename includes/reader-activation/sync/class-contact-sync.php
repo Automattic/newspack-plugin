@@ -33,6 +33,13 @@ class Contact_Sync extends Sync {
 	protected static $queued_syncs = [];
 
 	/**
+	 * The ID of the currently-executing ActionScheduler action.
+	 *
+	 * @var int|null
+	 */
+	private static $current_as_action_id = null;
+
+	/**
 	 * ActionScheduler hook for retrying a failed integration sync.
 	 */
 	const RETRY_HOOK = 'newspack_contact_sync_retry';
@@ -55,6 +62,24 @@ class Contact_Sync extends Sync {
 		add_action( 'newspack_scheduled_esp_sync', [ __CLASS__, 'scheduled_sync' ], 10, 2 );
 		add_action( 'shutdown', [ __CLASS__, 'run_queued_syncs' ] );
 		add_action( self::RETRY_HOOK, [ __CLASS__, 'execute_integration_retry' ] );
+		add_action( 'action_scheduler_begin_execute', [ __CLASS__, 'set_current_as_action_id' ] );
+		add_action( 'action_scheduler_after_execute', [ __CLASS__, 'clear_current_as_action_id' ] );
+	}
+
+	/**
+	 * Set the current ActionScheduler action ID.
+	 *
+	 * @param int $action_id The AS action ID.
+	 */
+	public static function set_current_as_action_id( $action_id ) {
+		self::$current_as_action_id = $action_id;
+	}
+
+	/**
+	 * Clear the current ActionScheduler action ID.
+	 */
+	public static function clear_current_as_action_id() {
+		self::$current_as_action_id = null;
 	}
 
 	/**
@@ -158,6 +183,12 @@ class Contact_Sync extends Sync {
 					$error_message
 				)
 			);
+			if ( self::$current_as_action_id ) {
+				\ActionScheduler_Logger::instance()->log(
+					self::$current_as_action_id,
+					'Max retries exhausted.'
+				);
+			}
 			return;
 		}
 
@@ -170,6 +201,7 @@ class Contact_Sync extends Sync {
 			'context'          => $context,
 			'existing_contact' => $existing_contact,
 			'retry_count'      => $next_retry,
+			'reason'           => $error_message,
 		];
 
 		\as_schedule_single_action(
@@ -235,10 +267,23 @@ class Contact_Sync extends Sync {
 					$retry_count,
 					$integration_id,
 					$contact['email'] ?? 'unknown',
-					$result->get_error_message()
+					implode( '; ', $result->get_error_messages() )
 				)
 			);
-			self::schedule_integration_retry( $integration_id, $contact, $context, $existing_contact, $retry_count, $result->get_error_message() );
+			if ( self::$current_as_action_id ) {
+				\ActionScheduler_Logger::instance()->log(
+					self::$current_as_action_id,
+					implode( '; ', $result->get_error_messages() )
+				);
+			}
+			self::schedule_integration_retry(
+				$integration_id,
+				$contact,
+				$context,
+				$existing_contact,
+				$retry_count,
+				implode( '; ', $result->get_error_messages() )
+			);
 			return;
 		}
 
