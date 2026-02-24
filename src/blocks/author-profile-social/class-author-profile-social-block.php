@@ -157,7 +157,7 @@ final class Author_Profile_Social_Block {
 
 		foreach ( $social_links as $service => $social_data ) {
 			$service_label = ucfirst( $service );
-			$output       .= '<li>';
+			$output       .= '<li data-service="' . esc_attr( $service ) . '">';
 			$output       .= sprintf( '<a href="%s" aria-label="%s">', esc_url( $social_data['url'] ), esc_attr( $service_label ) );
 
 			$svg = ! empty( $social_data['svg'] ) ? $social_data['svg'] : Social_Icons::get_svg( $service );
@@ -288,11 +288,9 @@ final class Author_Profile_Social_Block {
 	 * @return string Inline style string for the block wrapper.
 	 */
 	private static function get_wrapper_style( array $attributes, int $icon_size ): string {
-		$parts = [];
-
-		$icon_color      = self::resolve_color( $attributes, 'textColor', 'text' );
-		$icon_background = self::resolve_color( $attributes, 'backgroundColor', 'background' );
-		$gap             = self::resolve_block_gap( $attributes );
+		$parts    = [];
+		$is_brand = ! empty( $attributes['className'] ) && str_contains( $attributes['className'], 'is-style-brand' );
+		$gap      = self::resolve_block_gap( $attributes );
 
 		if ( null !== $gap['row'] ) {
 			$parts[] = sprintf( '--icon-row-gap: %s;', $gap['row'] );
@@ -300,12 +298,19 @@ final class Author_Profile_Social_Block {
 		if ( null !== $gap['column'] ) {
 			$parts[] = sprintf( '--icon-column-gap: %s;', $gap['column'] );
 		}
-		if ( null !== $icon_color ) {
-			$parts[] = sprintf( '--icon-color: %s;', $icon_color );
+
+		if ( ! $is_brand ) {
+			$icon_color      = self::resolve_color( $attributes, 'textColor', 'text' );
+			$icon_background = self::resolve_color( $attributes, 'backgroundColor', 'background' );
+
+			if ( null !== $icon_color ) {
+				$parts[] = sprintf( '--icon-color: %s;', $icon_color );
+			}
+			if ( null !== $icon_background ) {
+				$parts[] = sprintf( '--icon-background: %s;', $icon_background );
+			}
 		}
-		if ( null !== $icon_background ) {
-			$parts[] = sprintf( '--icon-background: %s;', $icon_background );
-		}
+
 		$parts[] = sprintf( '--icon-size: %dpx;', absint( $icon_size ) );
 
 		return implode( ' ', $parts );

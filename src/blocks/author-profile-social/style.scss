@@ -29,4 +29,49 @@
 			text-transform: uppercase;
 		}
 	}
+
+	// Brand style: per-service colors override --icon-background / --icon-color
+	&.is-style-brand .author-profile-social__list {
+		--icon-color: #fff;
+
+		li[data-service="bluesky"] {
+			--icon-background: #0a7aff;
+		}
+		li[data-service="email"] {
+			--icon-background: #1e1e1e;
+		}
+		li[data-service="facebook"] {
+			--icon-background: #0866ff;
+		}
+		li[data-service="instagram"] {
+			--icon-background: #f00075;
+		}
+		li[data-service="linkedin"] {
+			--icon-background: #0d66c2;
+		}
+		li[data-service="myspace"] {
+			--icon-background: #000;
+		}
+		li[data-service="phone"] {
+			--icon-background: #1e1e1e;
+		}
+		li[data-service="pinterest"] {
+			--icon-background: #e60122;
+		}
+		li[data-service="soundcloud"] {
+			--icon-background: #ff5600;
+		}
+		li[data-service="tumblr"] {
+			--icon-background: #011835;
+		}
+		li[data-service="twitter"] {
+			--icon-background: #000;
+		}
+		li[data-service="wikipedia"] {
+			--icon-background: #000;
+		}
+		li[data-service="youtube"] {
+			--icon-background: #f00;
+		}
+	}
 }

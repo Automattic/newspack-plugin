@@ -89,25 +89,36 @@ const stripColorFromBlockProps = rawBlockProps => {
 export default function Edit( { attributes, setAttributes, clientId } ) {
 	const AuthorContext = getSharedAuthorContext();
 	const author = useContext( AuthorContext );
-	const { iconSize, style: styleAttr, textColor, backgroundColor } = attributes;
+	const { iconSize, style: styleAttr, textColor, backgroundColor, className } = attributes;
 	const hasPopulated = useRef( false );
 	const [ allServiceKeys, setAllServiceKeys ] = useState( null ); // null = loading
 
+	const isBrand = ( className || '' ).includes( 'is-style-brand' );
 	const iconSizeValue = typeof iconSize === 'number' ? iconSize : parseInt( iconSize ?? 24, 10 ) || 24;
 	const iconColor = resolveColor( textColor, styleAttr?.color?.text );
 	const iconBackground = resolveColor( backgroundColor, styleAttr?.color?.background );
 
-	// Rename "Text" / "Background" color labels to "Icon color" / "Icon background".
+	// Hide color panel when "Brand" is active; rename labels when "Default".
 	useEffect( () => {
 		const inspector = document.querySelector( '.block-editor-block-inspector' );
 		if ( ! inspector ) {
 			return;
 		}
+
 		const COLOR_LABEL_MAP = {
 			Text: __( 'Icon color', 'newspack-plugin' ),
 			Background: __( 'Icon background', 'newspack-plugin' ),
 		};
-		const renameIn = container => {
+
+		const updateColorPanel = container => {
+			container.querySelectorAll( '.color-block-support-panel' ).forEach( el => {
+				el.style.display = isBrand ? 'none' : '';
+			} );
+
+			if ( isBrand ) {
+				return;
+			}
+
 			container.querySelectorAll( '.block-editor-panel-color-gradient-settings__color-name' ).forEach( el => {
 				if ( COLOR_LABEL_MAP[ el.textContent ] ) {
 					el.textContent = COLOR_LABEL_MAP[ el.textContent ];
@@ -120,13 +131,16 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 			} );
 		};
 
-		renameIn( inspector );
+		updateColorPanel( inspector );
 
-		const inspectorObserver = new MutationObserver( () => renameIn( inspector ) );
+		const inspectorObserver = new MutationObserver( () => updateColorPanel( inspector ) );
 		inspectorObserver.observe( inspector, { childList: true, subtree: true } );
 
-		// The color options dropdown is portalled to document.body; watch for popover content changes.
-		const bodyObserver = new MutationObserver( () => renameIn( document.body ) );
+		const bodyObserver = new MutationObserver( () => {
+			if ( ! isBrand ) {
+				updateColorPanel( document.body );
+			}
+		} );
 		bodyObserver.observe( document.body, { childList: true, subtree: true } );
 
 		return () => {
@@ -141,8 +155,8 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 		...blockProps.style,
 		'--icon-size': `${ roundIconSize( iconSizeValue ) }px`,
 		...gapVars,
-		...( iconColor && { '--icon-color': iconColor } ),
-		...( iconBackground && { '--icon-background': iconBackground } ),
+		...( ! isBrand && iconColor && { '--icon-color': iconColor } ),
+		...( ! isBrand && iconBackground && { '--icon-background': iconBackground } ),
 	};
 
 	// Get inner blocks (stable reference from the store).

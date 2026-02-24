@@ -21,6 +21,10 @@
 			"default": 24
 		}
 	},
+	"styles": [
+		{ "name": "default", "label": "Default", "isDefault": true },
+		{ "name": "brand", "label": "Brand" }
+	],
 	"supports": {
 		"color": {
 			"enableContrastChecker": false,
