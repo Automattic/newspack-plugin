@@ -28,7 +28,6 @@ const fetchAllServiceKeys = () => {
 	return allServiceKeysCache;
 };
 
-<<<<<<< ours
 const presetToVar = value => {
 	if ( typeof value !== 'string' ) {
 		return value;
@@ -78,8 +77,6 @@ const stripColorFromBlockProps = rawBlockProps => {
 	return { ...rawBlockProps, className: cleanClassName, style: cleanStyle };
 };
 
-=======
->>>>>>> theirs
 /**
  * Edit component for the Author Social Links inner block.
  *
@@ -92,7 +89,6 @@ const stripColorFromBlockProps = rawBlockProps => {
 export default function Edit( { attributes, setAttributes, clientId } ) {
 	const AuthorContext = getSharedAuthorContext();
 	const author = useContext( AuthorContext );
-<<<<<<< ours
 	const { iconSize, style: styleAttr, textColor, backgroundColor, className } = attributes;
 	const hasPopulated = useRef( false );
 	const [ allServiceKeys, setAllServiceKeys ] = useState( null ); // null = loading
@@ -162,18 +158,6 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 		...( ! isBrand && iconColor && { '--icon-color': iconColor } ),
 		...( ! isBrand && iconBackground && { '--icon-background': iconBackground } ),
 	};
-=======
-	const { iconSize } = attributes;
-	const hasPopulated = useRef( false );
-	const [ allServiceKeys, setAllServiceKeys ] = useState( null ); // null = loading
-
-	const blockProps = useBlockProps( {
-		className: 'wp-block-newspack-author-profile-social',
-		style: {
-			'--icon-size': `${ roundIconSize( iconSize ) }px`,
-		},
-	} );
->>>>>>> theirs
 
 	// Get inner blocks (stable reference from the store).
 	const innerBlocks = useSelect( select => select( 'core/block-editor' ).getBlocks( clientId ), [ clientId ] );
