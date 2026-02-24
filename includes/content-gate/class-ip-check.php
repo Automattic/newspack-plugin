@@ -17,7 +17,7 @@ class IP_Check {
 	/**
 	 * The name of the cookie used to bypass cache and allow server side IP checking.
 	 */
-	const COOKIE_NAME = 'wp_by_ip';
+	const COOKIE_NAME = 'wp_nocache_ip';
 
 	/**
 	 * Initialize hooks.
