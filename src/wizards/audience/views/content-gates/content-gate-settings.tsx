@@ -53,7 +53,7 @@ export default function ContentGateSettings( { gate, updateGatesData }: { gate: 
 								// translators: 1: the gate title, or "Content" if we can't determine the gate title. 2: the gate status. __(
 								'%1$s gate %2$s.',
 								gate.title ? `“${ gate.title }”` : __( 'Content', 'newspack-plugin' ),
-								gate.status === 'publish' ? __( 'enabled', 'newspack-plugin' ) : __( 'disabled', 'newspack-plugin' )
+								gate.status === 'publish' ? __( 'disabled', 'newspack-plugin' ) : __( 'enabled', 'newspack-plugin' )
 							),
 							type: 'success',
 							id: 'content-gate-updated',
