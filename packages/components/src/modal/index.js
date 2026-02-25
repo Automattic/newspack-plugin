@@ -18,10 +18,11 @@ import './style.scss';
  */
 import classnames from 'classnames';
 
-function Modal( { className, isWide, isNarrow, hideTitle, ...otherProps }, ref ) {
+function Modal( { className, isWide, isMedium, isNarrow, hideTitle, ...otherProps }, ref ) {
 	const classes = classnames(
 		'newspack-modal',
 		isWide && 'newspack-modal--wide',
+		isMedium && 'newspack-modal--medium',
 		isNarrow && 'newspack-modal--narrow',
 		hideTitle && 'newspack-modal--hide-title', // Note: also hides the X close button.
 		className

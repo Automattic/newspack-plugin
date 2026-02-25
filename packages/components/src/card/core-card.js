@@ -86,14 +86,14 @@ const CoreCard = ( {
 							<div className="newspack-card--core__header__draggable-controls__move-buttons">
 								<Button
 									icon={ chevronUp }
-									onClick={ () => onDragCallback( dragIndex - 1 ) }
+									onClick={ () => onDragCallback( dragIndex, dragIndex - 1 ) }
 									disabled={ isFirstTarget }
 									label={ __( 'Move one position up', 'newspack-plugin' ) }
 									size="small"
 								/>
 								<Button
 									icon={ chevronDown }
-									onClick={ () => onDragCallback( dragIndex + 1 ) }
+									onClick={ () => onDragCallback( dragIndex, dragIndex + 1 ) }
 									disabled={ isLastTarget }
 									label={ __( 'Move one position down', 'newspack-plugin' ) }
 									size="small"

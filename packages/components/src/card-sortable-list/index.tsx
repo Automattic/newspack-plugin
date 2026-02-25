@@ -6,7 +6,7 @@
  * WordPress dependencies.
  */
 import { Draggable, __experimentalVStack as VStack } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
-import { useEffect, useRef, useState } from '@wordpress/element';
+import { useEffect, useLayoutEffect, useRef, useState } from '@wordpress/element';
 
 /**
  * Internal dependencies
@@ -20,6 +20,7 @@ import './style.scss';
 import classNames from 'classnames';
 
 const DROP_ANIMATION_DURATION = 400; // ms — must match $drop-duration in style.scss
+const BUTTON_MOVE_DURATION = 200; // ms — must match $button-move-duration in style.scss
 
 type DraggableItem = {
 	title: string;
@@ -53,6 +54,14 @@ const CardSortableList = ( {
 	const listRef = useRef< HTMLDivElement | null >( null );
 	const itemRefs = useRef< ( HTMLDivElement | null )[] >( [] );
 	const dropAnimationTimer = useRef< ReturnType< typeof setTimeout > | null >( null );
+	const buttonMoveTimer = useRef< ReturnType< typeof setTimeout > | null >( null );
+	const buttonFlipRef = useRef< {
+		fromIndex: number;
+		toIndex: number;
+		stride: number;
+		direction: number;
+	} | null >( null );
+	const [ buttonMoveId, setButtonMoveId ] = useState( 0 );
 
 	// Keep sortedItems in sync when the items prop changes externally (e.g. after a save).
 	useEffect( () => {
@@ -65,10 +74,107 @@ const CardSortableList = ( {
 			if ( dropAnimationTimer.current ) {
 				clearTimeout( dropAnimationTimer.current );
 			}
+			if ( buttonMoveTimer.current ) {
+				clearTimeout( buttonMoveTimer.current );
+			}
 		};
 	}, [] );
 
+	/**
+	 * Handle a chevron-button move. Records item positions before the reorder so
+	 * the FLIP animation can play after React commits the new DOM order.
+	 */
+	const handleButtonMove = ( fromIndex: number, toIndex: number ) => {
+		if ( toIndex < 0 || toIndex >= sortedItems.length ) {
+			return;
+		}
+
+		const fromEl = itemRefs.current[ fromIndex ];
+		const toEl = itemRefs.current[ toIndex ];
+		if ( ! fromEl || ! toEl ) {
+			return;
+		}
+
+		const stride = Math.abs( toEl.getBoundingClientRect().top - fromEl.getBoundingClientRect().top );
+		const direction = toIndex > fromIndex ? 1 : -1;
+		buttonFlipRef.current = { fromIndex, toIndex, stride, direction };
+
+		const reordered = [ ...sortedItems ];
+		const [ moved ] = reordered.splice( fromIndex, 1 );
+		reordered.splice( toIndex, 0, moved );
+		setSortedItems( reordered );
+		setButtonMoveId( id => id + 1 );
+	};
+
+	/**
+	 * FLIP Invert+Play step: runs synchronously after React commits the reordered
+	 * DOM. Animate each swapped item from its previous position to its new one
+	 * using inline CSS transitions (no CSS classes, to avoid creating a new
+	 * containing block that would break position:fixed on the Draggable clone).
+	 */
+	useLayoutEffect( () => {
+		const flipData = buttonFlipRef.current;
+		if ( ! flipData ) {
+			return;
+		}
+		buttonFlipRef.current = null;
+
+		const { fromIndex, toIndex, stride, direction } = flipData;
+
+		const startAnimation = ( el: HTMLDivElement | null, startY: number ) => {
+			if ( ! el ) {
+				return;
+			}
+			// Snap to the starting position with no transition.
+			el.style.transition = 'none';
+			el.style.transform = `translateY(${ startY }px)`;
+			// Force a reflow so the browser registers the starting position
+			// before we switch to the animated transition.
+			el.getBoundingClientRect();
+			// Animate from startY back to 0 (its new natural position).
+			el.style.transition = `transform ${ BUTTON_MOVE_DURATION }ms ease-out`;
+			el.style.transform = '';
+		};
+
+		// Moved item is now at toIndex: animate it in from its old position.
+		startAnimation( itemRefs.current[ toIndex ], -direction * stride );
+		// Displaced item is now at fromIndex: animate it in from its old position.
+		startAnimation( itemRefs.current[ fromIndex ], direction * stride );
+
+		if ( buttonMoveTimer.current ) {
+			clearTimeout( buttonMoveTimer.current );
+		}
+		buttonMoveTimer.current = setTimeout( () => {
+			// Clear inline animation styles before calling the external callback so
+			// the subsequent React re-render doesn't fight a live animation.
+			[ fromIndex, toIndex ].forEach( i => {
+				const el = itemRefs.current[ i ];
+				if ( el ) {
+					el.style.transition = '';
+					el.style.transform = '';
+				}
+			} );
+			onDragCallback( fromIndex, toIndex );
+			buttonMoveTimer.current = null;
+		}, BUTTON_MOVE_DURATION );
+	}, [ buttonMoveId ] ); // eslint-disable-line react-hooks/exhaustive-deps
+
 	const handleDragStart = ( index: number ) => {
+		// Cancel any in-progress button-move animation so no item wrapper keeps
+		// an inline transform. A transformed ancestor breaks position:fixed on
+		// the Draggable clone (CSS spec: fixed positioning is relative to the
+		// nearest ancestor with a transform/filter/perspective).
+		if ( buttonMoveTimer.current ) {
+			clearTimeout( buttonMoveTimer.current );
+			buttonMoveTimer.current = null;
+			itemRefs.current.forEach( el => {
+				if ( el ) {
+					el.style.transition = '';
+					el.style.transform = '';
+				}
+			} );
+		}
+
 		const listEl = listRef.current;
 		if ( listEl ) {
 			const itemEls = itemRefs.current;
@@ -237,6 +343,7 @@ const CardSortableList = ( {
 							elementId={ `draggable-card-${ index }` }
 							onDragStart={ () => handleDragStart( index ) }
 							onDragEnd={ handleDragEnd }
+							appendToOwnerDocument
 						>
 							{ ( { onDraggableStart, onDraggableEnd } ) => (
 								<Card
@@ -256,9 +363,8 @@ const CardSortableList = ( {
 										isFirstTarget: index === 0,
 										isLastTarget: index === sortedItems.length - 1,
 										dragIndex: index,
-										onDragStart: () => handleDragStart( index ),
-										onDragEnd: handleDragEnd,
-										onDragOver: handleDragOver,
+										dragTargetIndex: hoverIndex,
+										onDragCallback: handleButtonMove,
 									} }
 								/>
 							) }

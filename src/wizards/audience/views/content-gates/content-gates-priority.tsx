@@ -23,12 +23,12 @@ const ContentGatesPriority = ( { closeModal, updateGatesData }: { closeModal: ()
 	const [ sortedGates, setSortedGates ] = useState< Gate[] >( gates );
 	const gateItems = useMemo(
 		() =>
-			gates.map( gate => ( {
+			sortedGates.map( gate => ( {
 				title: gate.title,
 				badgeLevel: getGateStatusBadgeLevel( gate.status ) as 'success' | 'info' | 'warning' | 'error',
 				badgeText: getGateStatus( gate.status ) as string,
 			} ) ),
-		[ gates ]
+		[ sortedGates ]
 	);
 
 	const handleUpdateGatePriorities = ( updates: Gate[] ) => {
@@ -36,7 +36,6 @@ const ContentGatesPriority = ( { closeModal, updateGatesData }: { closeModal: ()
 			return;
 		}
 		const oldGates = [ ...gates ];
-		updateGatesData( updates );
 		wizardApiFetch< Gate >(
 			{
 				path: `/newspack/v1/wizard/${ AUDIENCE_CONTENT_GATES_WIZARD_SLUG }/priority`,
@@ -47,6 +46,7 @@ const ContentGatesPriority = ( { closeModal, updateGatesData }: { closeModal: ()
 			},
 			{
 				onSuccess: () => {
+					updateGatesData( updates );
 					closeModal();
 				},
 				onError: ( fetchError: WpFetchError ) => {
@@ -62,8 +62,8 @@ const ContentGatesPriority = ( { closeModal, updateGatesData }: { closeModal: ()
 			return;
 		}
 
-		const gate = gates[ index as keyof typeof gates ];
-		const _sortedGates = [ ...gates ];
+		const gate = sortedGates[ index as keyof typeof gates ];
+		const _sortedGates = [ ...sortedGates ];
 
 		// Remove the gate and drop it back into the array at the target index.
 		_sortedGates.splice( index, 1 );
@@ -75,7 +75,7 @@ const ContentGatesPriority = ( { closeModal, updateGatesData }: { closeModal: ()
 	};
 
 	return (
-		<Modal isNarrow title={ __( 'Gate priority', 'newspack-plugin' ) } onRequestClose={ closeModal }>
+		<Modal isMedium title={ __( 'Gate priority', 'newspack-plugin' ) } onRequestClose={ closeModal }>
 			<p>
 				{ __(
 					'Gates are checked in this order. If content matches more than one gate, only the first matching gate will apply.',
