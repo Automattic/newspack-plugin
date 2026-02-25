@@ -7,8 +7,6 @@
 
 namespace Newspack\Content_Gate;
 
-use Newspack\Newspack;
-
 /**
  * IP Access Rule class.
  */
