@@ -8,7 +8,7 @@
 	"attributes": {
 		"prefix": {
 			"type": "string",
-			"default": "\u00a9"
+			"default": "\u00a9 "
 		},
 		"suffix": {
 			"type": "string",

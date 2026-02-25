@@ -55,25 +55,25 @@ final class Copyright_Date_Block {
 		$year        = wp_date( 'Y' );
 		$block_class = wp_get_block_default_classname( self::BLOCK_NAME );
 
-		$parts = [];
+		$inner = '';
 
 		if ( '' !== $prefix ) {
-			$parts[] = sprintf(
+			$inner .= sprintf(
 				'<span class="%s__prefix">%s</span>',
 				$block_class,
 				wp_kses_post( $prefix )
 			);
 		}
 
-		$parts[] = sprintf(
+		$inner .= sprintf(
 			'<span class="%s__year">%s</span>',
 			$block_class,
 			esc_html( $year )
 		);
 
 		if ( '' !== $suffix ) {
-			$parts[] = sprintf(
-				'<span class="%s__suffix">%s</span>',
+			$inner .= sprintf(
+				' <span class="%s__suffix">%s</span>',
 				$block_class,
 				wp_kses_post( $suffix )
 			);
@@ -84,7 +84,7 @@ final class Copyright_Date_Block {
 		return sprintf(
 			'<div %1$s>%2$s</div>',
 			$wrapper_attributes,
-			implode( ' ', $parts )
+			$inner
 		);
 	}
 }

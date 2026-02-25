@@ -35,7 +35,7 @@ export default function Edit( { attributes, setAttributes } ) {
 				value={ prefix }
 				onChange={ value => setAttributes( { prefix: value } ) }
 				allowedFormats={ [ 'core/link' ] }
-			/>{ ' ' }
+			/>
 			<span className={ `${ blockClass }__year` }>{ year }</span>{ ' ' }
 			<RichText
 				className={ `${ blockClass }__suffix` }

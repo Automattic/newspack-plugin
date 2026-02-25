@@ -179,7 +179,7 @@ class Newspack_Test_Copyright_Date_Block extends WP_UnitTestCase {
 			]
 		);
 
-		$this->assertStringContainsString( '</span> <span class="' . $this->block_class . '__year">', $output, 'Space should separate prefix and year.' );
+		$this->assertStringContainsString( '</span><span class="' . $this->block_class . '__year">', $output, 'Prefix and year should be adjacent (spacing controlled by prefix content).' );
 		$this->assertStringContainsString( '</span> <span class="' . $this->block_class . '__suffix">', $output, 'Space should separate year and suffix.' );
 
 		$prefix_pos = strpos( $output, $this->block_class . '__prefix' );
