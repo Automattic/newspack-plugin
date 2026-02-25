@@ -20,7 +20,7 @@ import './style.scss';
 import classNames from 'classnames';
 
 const DROP_ANIMATION_DURATION = 400; // ms — must match $drop-duration in style.scss
-const BUTTON_MOVE_DURATION = 200; // ms — must match $button-move-duration in style.scss
+const BUTTON_MOVE_DURATION = 200; // ms — must match $shift-duration in style.scss
 
 type DraggableItem = {
 	title: string;
