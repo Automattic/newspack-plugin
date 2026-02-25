@@ -228,7 +228,7 @@ const Wizard = (
 				</HashRouter>
 				{ notices?.length > 0 &&
 					notices.map( ( notice, index ) => (
-						<WizardSnackbar key={ index } type={ notice.type } id={ notice.id } actions={ notice.actions }>
+						<WizardSnackbar key={ notice.id || index } type={ notice.type } id={ notice.id } actions={ notice.actions }>
 							{ notice.message }
 						</WizardSnackbar>
 					) ) }
