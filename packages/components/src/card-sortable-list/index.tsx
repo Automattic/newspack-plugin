@@ -24,7 +24,7 @@ const BUTTON_MOVE_DURATION = 200; // ms — must match $shift-duration in style.
 
 type DraggableItem = {
 	title: string;
-	badgeLevel: 'success' | 'info' | 'warning' | 'error';
+	badgeLevel: 'default' | 'success' | 'info' | 'warning' | 'error';
 	badgeText: string;
 };
 
