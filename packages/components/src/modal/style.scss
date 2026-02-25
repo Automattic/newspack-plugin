@@ -41,6 +41,17 @@
 		}
 	}
 
+	&--destructive {
+		.components-button.is-primary {
+			background-color: colors.$error-500;
+			color: colors.$neutral-000;
+			&:hover,
+			&:focus {
+				background-color: colors.$error-600;
+			}
+		}
+	}
+
 	@media screen and ( min-width: 960px ) {
 		max-height: calc(100% - 128px);
 	}

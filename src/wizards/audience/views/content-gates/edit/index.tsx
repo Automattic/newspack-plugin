@@ -15,7 +15,16 @@ import { commentAuthorAvatar, currencyDollar, postList, settings } from '@wordpr
  * Internal dependencies
  */
 import { AUDIENCE_CONTENT_GATES_WIZARD_SLUG } from '../consts';
-import { CardSettingsGroup, Divider, Grid, Notice, Router, SectionHeader, TextControl } from '../../../../../../packages/components/src';
+import {
+	CardSettingsGroup,
+	ConfirmDialog,
+	Divider,
+	Grid,
+	Notice,
+	Router,
+	SectionHeader,
+	TextControl,
+} from '../../../../../../packages/components/src';
 import { WIZARD_STORE_NAMESPACE } from '../../../../../../packages/components/src/wizard/store';
 import { useWizardData } from '../../../../../../packages/components/src/wizard/store/utils';
 import { useWizardApiFetch } from '../../../../hooks/use-wizard-api-fetch';
@@ -25,7 +34,7 @@ import CustomAccess from './custom-access';
 import { getGateStatus, getGateStatusBadgeLevel } from '../utils';
 import './style.scss';
 
-const { useHistory, Prompt } = Router;
+const { useHistory } = Router;
 
 type ContentGateEditProps = {
 	history: { push: ( path: string ) => void };
@@ -76,9 +85,11 @@ const Edit = ( { match, updateGatesData }: ContentGateEditProps ) => {
 	const [ customAccess, setCustomAccess ] = useState< CustomAccess >( gate.custom_access );
 	const [ contentType, setContentType ] = useState< 'all' | 'custom' | undefined >( type as 'all' | 'custom' | undefined );
 	const [ status, setStatus ] = useState< GateStatus >( gate.status );
-
+	const [ showUnsavedChangesDialog, setShowUnsavedChangesDialog ] = useState( false );
+	const [ showDeleteDialog, setShowDeleteDialog ] = useState( false );
 	const isNew = _id === 'new' || ! id;
 	const isSaving = useRef( false );
+	const pendingNavigation = useRef< ( () => void ) | null >( null );
 
 	const isDirty =
 		isNew ||
@@ -204,10 +215,6 @@ const Edit = ( { match, updateGatesData }: ContentGateEditProps ) => {
 
 	const handleDelete = useCallback(
 		( gateId: number ) => {
-			// eslint-disable-next-line no-alert
-			if ( ! confirm( __( 'Are you sure you want to permanently delete this content gate?', 'newspack-plugin' ) ) ) {
-				return;
-			}
 			resetError();
 			setIsDeleting( true );
 			wizardApiFetch(
@@ -320,7 +327,7 @@ const Edit = ( { match, updateGatesData }: ContentGateEditProps ) => {
 			actions.push( {
 				type: 'more',
 				label: __( 'Delete', 'newspack-plugin' ),
-				action: () => handleDelete( gate.id ),
+				action: () => setShowDeleteDialog( true ),
 				disabled: isFetching,
 				destructive: true,
 			} );
@@ -356,12 +363,68 @@ const Edit = ( { match, updateGatesData }: ContentGateEditProps ) => {
 		}
 	}, [ isNew, gate.status, status, updateStatus ] );
 
+	// Block navigation when there are unsaved changes.
+	useEffect( () => {
+		if ( ! isDirty ) {
+			return;
+		}
+		const unblock = history.block( ( location: string, action: string ) => {
+			if ( isSaving.current ) {
+				return;
+			}
+			pendingNavigation.current = () => {
+				unblock();
+				if ( action === 'REPLACE' ) {
+					history.replace( location );
+				} else {
+					history.push( location );
+				}
+			};
+			setShowUnsavedChangesDialog( true );
+			return false;
+		} );
+		return unblock;
+	}, [ isDirty, history ] );
+
 	return (
 		<div className="newspack-content-gate__edit">
-			<Prompt
-				when={ isDirty }
-				message={ () => isSaving.current || __( 'This gate has unsaved changes. Discard changes?', 'newspack-plugin' ) }
-			/>
+			{ showUnsavedChangesDialog && (
+				<ConfirmDialog
+					title={ __( 'Unsaved changes', 'newspack-plugin' ) }
+					onConfirm={ () => {
+						setShowUnsavedChangesDialog( false );
+						pendingNavigation.current?.();
+						pendingNavigation.current = null;
+					} }
+					onCancel={ () => {
+						setShowUnsavedChangesDialog( false );
+						pendingNavigation.current = null;
+					} }
+					confirmButtonText={ __( 'Discard changes', 'newspack-plugin' ) }
+					isDestructive={ true }
+				>
+					<p>{ __( 'You have unsaved changes. Discard changes?', 'newspack-plugin' ) }</p>
+				</ConfirmDialog>
+			) }
+			{ showDeleteDialog && (
+				<ConfirmDialog
+					title={ __( 'Are you sure?', 'newspack-plugin' ) }
+					onConfirm={ () => handleDelete( gate.id ) }
+					onCancel={ () => setShowDeleteDialog( false ) }
+					confirmButtonText={ __( 'Delete', 'newspack-plugin' ) }
+					isDestructive={ true }
+				>
+					<p
+						dangerouslySetInnerHTML={ {
+							__html: sprintf(
+								// translators: %s is the gate title.
+								__( 'This will <strong>permanently delete</strong> “%s” and cannot be undone.', 'newspack-plugin' ),
+								gate.title
+							),
+						} }
+					/>
+				</ConfirmDialog>
+			) }
 			{ errorMessage && <Notice isError noticeText={ errorMessage } /> }
 			{ ( isNew || isRenaming ) && (
 				<>
