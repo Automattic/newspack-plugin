@@ -363,7 +363,6 @@ const CardSortableList = ( {
 										isFirstTarget: index === 0,
 										isLastTarget: index === sortedItems.length - 1,
 										dragIndex: index,
-										dragTargetIndex: hoverIndex,
 										onDragCallback: handleButtonMove,
 									} }
 								/>
