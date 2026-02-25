@@ -62,7 +62,7 @@ const ContentGatesPriority = ( { closeModal, updateGatesData }: { closeModal: ()
 			return;
 		}
 
-		const gate = sortedGates[ index as keyof typeof gates ];
+		const gate = sortedGates[ index ];
 		const _sortedGates = [ ...sortedGates ];
 
 		// Remove the gate and drop it back into the array at the target index.
