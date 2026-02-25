@@ -6,7 +6,6 @@
  * WordPress dependencies.
  */
 import { __ } from '@wordpress/i18n';
-import apiFetch from '@wordpress/api-fetch';
 import { __experimentalVStack as VStack } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
 import { useDispatch } from '@wordpress/data';
 import { useEffect, useRef, useState } from '@wordpress/element';
@@ -26,11 +25,10 @@ import './style.scss';
 
 const ContentGates = ( { updateGatesData }: { updateGatesData: ( gates: Gate[] ) => void } ) => {
 	const wizardData = useWizardData( AUDIENCE_CONTENT_GATES_WIZARD_SLUG ) as WizardData;
-	const { isFetching, error, errorMessage, resetError, setError } = useWizardApiFetch( AUDIENCE_CONTENT_GATES_WIZARD_SLUG );
+	const { isFetching, error, errorMessage } = useWizardApiFetch( AUDIENCE_CONTENT_GATES_WIZARD_SLUG );
 	const { resetHeaderData, setHeaderData } = useDispatch( WIZARD_STORE_NAMESPACE );
 	const [ showModal, setShowModal ] = useState( false );
 	const [ newGateName, setNewGateName ] = useState( '' );
-	const [ isInFlight, setIsInFlight ] = useState( false );
 	const ref = useRef( null );
 	const gates = ( wizardData?.gates || [] ) as Gate[];
 
@@ -62,26 +60,6 @@ const ContentGates = ( { updateGatesData }: { updateGatesData: ( gates: Gate[] )
 		} );
 	}, [ isFetching, gates ] );
 
-	const handleUpdateGatePriorities = ( updates: Gate[] ) => {
-		if ( isFetching ) {
-			return;
-		}
-		const oldGates = [ ...gates ];
-		updateGatesData( updates );
-		setIsInFlight( true );
-		resetError();
-		apiFetch< Gate >( {
-			path: `/newspack/v1/wizard/${ AUDIENCE_CONTENT_GATES_WIZARD_SLUG }/priority`,
-			method: 'POST',
-			data: {
-				gates: updates.map( g => ( { id: g.id, priority: g.priority } ) ),
-			},
-		} ).catch( ( fetchError: WpFetchError ) => {
-			setError( fetchError );
-			updateGatesData( oldGates );
-		} );
-	};
-
 	if ( ! gates?.length ) {
 		return <ContentGatesOnboarding />;
 	}
@@ -92,7 +70,7 @@ const ContentGates = ( { updateGatesData }: { updateGatesData: ( gates: Gate[] )
 			{ showModal && (
 				<Modal isNarrow title={ __( 'Add Content Gate', 'newspack-plugin' ) } onRequestClose={ () => setShowModal( false ) }>
 					<TextControl
-						disabled={ isInFlight }
+						disabled={ isFetching }
 						label={ __( 'Name', 'newspack-plugin' ) }
 						placeholder={ __( 'Enter a name for the content gate', 'newspack-plugin' ) }
 						onChange={ ( value: string ) => setNewGateName( value ) }
@@ -103,31 +81,17 @@ const ContentGates = ( { updateGatesData }: { updateGatesData: ( gates: Gate[] )
 						} }
 					/>
 					<Card buttonsCard noBorder className="justify-end">
-						<Button variant="primary" onClick={ () => {} } disabled={ isInFlight }>
+						<Button variant="primary" onClick={ () => {} } disabled={ isFetching }>
 							{ __( 'Add Content Gate', 'newspack-plugin' ) }
 						</Button>
-						<Button disabled={ isInFlight } isDestructive variant="secondary" onClick={ () => setShowModal( false ) }>
+						<Button disabled={ isFetching } isDestructive variant="secondary" onClick={ () => setShowModal( false ) }>
 							{ __( 'Cancel', 'newspack-plugin' ) }
 						</Button>
 					</Card>
 				</Modal>
 			) }
 			<VStack className="newspack-content-gates__gates" spacing="16px" ref={ ref }>
-				{ gates.map( ( gate, index ) => {
-					const reorderGates = ( targetIndex: number ) => {
-						const sortedGates = [ ...gates ];
-
-						sortedGates.splice( index, 1 );
-						sortedGates.splice( targetIndex, 0, gate );
-
-						// Reindex priorities to avoid gaps and dupes.
-						sortedGates.forEach( ( g, i ) => ( g.priority = i ) );
-
-						// Only trigger the API request if the order has changed.
-						if ( JSON.stringify( sortedGates ) !== JSON.stringify( gates ) ) {
-							handleUpdateGatePriorities( sortedGates );
-						}
-					};
+				{ gates.map( gate => {
 					return <ContentGateSettings key={ gate.id } gate={ gate } updateGatesData={ updateGatesData } />;
 				} ) }
 			</VStack>
