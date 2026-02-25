@@ -14,6 +14,7 @@ import * as correctionBox from './correction-box';
 import * as correctionItem from './correction-item';
 import * as avatar from './avatar';
 import * as byline from './byline';
+import * as featuredImageCaption from './featured-image-caption';
 import * as authorProfileSocial from './author-profile-social';
 import * as authorSocialLink from './author-social-link';
 import * as collections from './collections';
@@ -33,6 +34,7 @@ export const blocks = [
 	correctionItem,
 	avatar,
 	byline,
+	featuredImageCaption,
 	authorProfileSocial,
 	authorSocialLink,
 	collections,
@@ -51,6 +53,7 @@ const blockThemeBlocks = [
 	'newspack/avatar',
 	'newspack/byline',
 	'newspack/copyright-date',
+	'newspack/featured-image-caption',
 	'newspack/my-account-button',
 ];
 
