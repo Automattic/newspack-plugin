@@ -69,11 +69,12 @@
 			}
 		}
 		.components-dropdown-menu {
-			align-items: center;
+			aspect-ratio: 1;
 			border-left: 1px solid wp-colors.$gray-200;
-			display: flex;
+			display: grid;
 			height: 100%;
 			padding: 4px;
+			place-items: center;
 			position: absolute;
 			right: 0;
 			top: 0;
