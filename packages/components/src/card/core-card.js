@@ -7,8 +7,8 @@
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { Card as CardWrapper, CardHeader, CardFooter, DropdownMenu, MenuItem, ToggleControl } from '@wordpress/components';
-import { Icon, chevronRight, moreVertical } from '@wordpress/icons';
+import { Button, Card as CardWrapper, CardHeader, CardFooter, DropdownMenu, MenuItem, ToggleControl } from '@wordpress/components';
+import { Icon, chevronDown, chevronRight, chevronUp, dragHandle, moreVertical } from '@wordpress/icons';
 
 /**
  * Internal dependencies
@@ -31,18 +31,24 @@ const CoreCard = ( {
 	icon,
 	iconBackgroundColor,
 	isActive,
+	isDraggable,
+	isFirstTarget,
+	isLastTarget,
 	isNarrow,
 	isSmall,
+	dragIndex,
+	onDragCallback = () => {},
 	onHeaderClick,
 	noBorder,
 	noMargin,
-	children,
+	children = null,
 	...otherProps
 } ) => {
 	const classes = classNames(
 		'newspack-card--core',
 		className,
 		( buttonsCard || as === 'a' ) && 'newspack-card--core__buttons-card',
+		isDraggable && 'newspack-card--core__is-draggable',
 		isNarrow && 'newspack-card--core__is-narrow',
 		isSmall && 'newspack-card--core__is-small',
 		icon && 'newspack-card--core__has-icon',
@@ -68,10 +74,33 @@ const CoreCard = ( {
 			{ ( header || icon ) && (
 				<CardHeader
 					as={ onHeaderClick ? 'button' : undefined }
-					className="newspack-card--core__header"
+					className={ classNames( 'newspack-card--core__header', isDraggable && 'newspack-card--core__header--is-draggable' ) }
 					size={ sizeProps }
 					onClick={ onHeaderClick }
 				>
+					{ isDraggable && (
+						<div className="newspack-card--core__header__draggable-controls">
+							<div className="newspack-card--core__header__draggable-controls__drag-handle">
+								<Icon icon={ dragHandle } height={ 18 } width={ 18 } />
+							</div>
+							<div className="newspack-card--core__header__draggable-controls__move-buttons">
+								<Button
+									icon={ chevronUp }
+									onClick={ () => onDragCallback( dragIndex - 1 ) }
+									disabled={ isFirstTarget }
+									label={ __( 'Move one position up', 'newspack-plugin' ) }
+									size="small"
+								/>
+								<Button
+									icon={ chevronDown }
+									onClick={ () => onDragCallback( dragIndex + 1 ) }
+									disabled={ isLastTarget }
+									label={ __( 'Move one position down', 'newspack-plugin' ) }
+									size="small"
+								/>
+							</div>
+						</div>
+					) }
 					{ icon && (
 						<div className="newspack-card--core__icon">
 							<Icon icon={ icon } height={ isSmall ? 24 : 48 } width={ isSmall ? 24 : 48 } />
