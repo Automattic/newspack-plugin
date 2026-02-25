@@ -1,5 +1,5 @@
 /**
- * Content Gate component.
+ * Content Gate Priority component.
  */
 
 /**
