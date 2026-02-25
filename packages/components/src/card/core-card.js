@@ -78,10 +78,10 @@ const CoreCard = ( {
 						</div>
 					) }
 					{ header && <div className="newspack-card--core__header-content">{ header }</div> }
-					{ ! actions && actionType === 'chevron' && (
+					{ ! actions?.length > 0 && actionType === 'chevron' && (
 						<Icon className="newspack-card--core__action" icon={ chevronRight } height={ 24 } width={ 24 } />
 					) }
-					{ ! actions && actionType === 'toggle' && (
+					{ ! actions?.length > 0 && actionType === 'toggle' && (
 						<ToggleControl
 							className="newspack-card--core__action"
 							label={ otherProps.title }
