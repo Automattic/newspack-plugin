@@ -70,8 +70,11 @@ const ContentGatesPriority = ( { closeModal, updateGatesData }: { closeModal: ()
 		_sortedGates.splice( targetIndex, 0, gate );
 
 		// Reindex priorities to avoid gaps and dupes.
-		_sortedGates.forEach( ( _gate, _index ) => ( _gate.priority = _index ) );
-		setSortedGates( _sortedGates );
+		const reindexedGates = _sortedGates.map( ( _gate, _index ) => ( {
+			..._gate,
+			priority: _index,
+		} ) );
+		setSortedGates( reindexedGates );
 	};
 
 	return (
