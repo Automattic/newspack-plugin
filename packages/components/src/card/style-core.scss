@@ -109,13 +109,6 @@
 			}
 		}
 	}
-	&__header--is-draggable__drag-handle {
-		cursor: grab;
-	}
-	&__header--is-draggable__move-buttons {
-		display: flex;
-		flex-direction: column;
-	}
 	button.newspack-card--core__header {
 		appearance: none;
 		background-color: white;
