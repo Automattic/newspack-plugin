@@ -25,7 +25,7 @@ const ContentGatesPriority = ( { closeModal, updateGatesData }: { closeModal: ()
 		() =>
 			sortedGates.map( gate => ( {
 				title: gate.title,
-				badgeLevel: getGateStatusBadgeLevel( gate.status ) as 'success' | 'info' | 'warning' | 'error',
+				badgeLevel: getGateStatusBadgeLevel( gate.status ) as 'default' | 'success' | 'info' | 'warning' | 'error',
 				badgeText: getGateStatus( gate.status ) as string,
 			} ) ),
 		[ sortedGates ]
