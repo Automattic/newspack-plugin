@@ -111,7 +111,7 @@ export default function ContentGateSettings( { gate, updateGatesData }: { gate: 
 							__html: sprintf(
 								// translators: %s is the gate title.
 								__( 'This will <strong>permanently delete</strong> “%s” and cannot be undone.', 'newspack-plugin' ),
-								`“${ gate.title }”`
+								gate.title
 							),
 						} }
 					/>
