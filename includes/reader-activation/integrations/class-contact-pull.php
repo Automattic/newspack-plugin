@@ -272,14 +272,20 @@ class Contact_Pull {
 				continue;
 			}
 
+			$args = [
+				[
+					'user_id'        => $user_id,
+					'integration_id' => $integration->get_id(),
+				],
+			];
+
+			if ( function_exists( 'as_has_scheduled_action' ) && \as_has_scheduled_action( self::ASYNC_PULL_HOOK, $args, 'newspack' ) ) {
+				continue;
+			}
+
 			\as_enqueue_async_action(
 				self::ASYNC_PULL_HOOK,
-				[
-					[
-						'user_id'        => $user_id,
-						'integration_id' => $integration->get_id(),
-					],
-				],
+				$args,
 				'newspack'
 			);
 		}
