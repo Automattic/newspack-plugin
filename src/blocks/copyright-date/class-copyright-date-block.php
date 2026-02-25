@@ -61,7 +61,7 @@ final class Copyright_Date_Block {
 			$parts[] = sprintf(
 				'<span class="%s__prefix">%s</span>',
 				$block_class,
-				esc_html( $prefix )
+				wp_kses_post( $prefix )
 			);
 		}
 
@@ -75,7 +75,7 @@ final class Copyright_Date_Block {
 			$parts[] = sprintf(
 				'<span class="%s__suffix">%s</span>',
 				$block_class,
-				esc_html( $suffix )
+				wp_kses_post( $suffix )
 			);
 		}
 

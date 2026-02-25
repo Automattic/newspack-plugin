@@ -126,9 +126,9 @@ class Newspack_Test_Copyright_Date_Block extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test prefix and suffix are escaped with esc_html to prevent XSS.
+	 * Test prefix and suffix strip unsafe HTML to prevent XSS.
 	 */
-	public function test_html_is_escaped() {
+	public function test_unsafe_html_is_stripped() {
 		$xss    = '<script>alert(1)</script>';
 		$output = $this->render_block(
 			[
@@ -137,8 +137,22 @@ class Newspack_Test_Copyright_Date_Block extends WP_UnitTestCase {
 			]
 		);
 
-		$this->assertStringNotContainsString( '<script>', $output, 'Script tags should not appear in output.' );
-		$this->assertSame( 2, substr_count( $output, '&lt;script&gt;' ), 'Both prefix and suffix should be HTML-escaped.' );
+		$this->assertStringNotContainsString( '<script>', $output, 'Script tags should be stripped from output.' );
+	}
+
+	/**
+	 * Test prefix and suffix preserve safe HTML like links.
+	 */
+	public function test_links_are_preserved() {
+		$link   = '<a href="https://example.com">Acme Inc</a>';
+		$output = $this->render_block(
+			[
+				'prefix' => $link,
+				'suffix' => $link,
+			]
+		);
+
+		$this->assertSame( 2, substr_count( $output, '<a href="https://example.com">Acme Inc</a>' ), 'Links should be preserved in both prefix and suffix.' );
 	}
 
 	/**

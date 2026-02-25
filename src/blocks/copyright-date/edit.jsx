@@ -34,7 +34,7 @@ export default function Edit( { attributes, setAttributes } ) {
 				placeholder={ __( 'Prefix…', 'newspack-plugin' ) }
 				value={ prefix }
 				onChange={ value => setAttributes( { prefix: value } ) }
-				allowedFormats={ [] }
+				allowedFormats={ [ 'core/link' ] }
 			/>{ ' ' }
 			<span className={ `${ blockClass }__year` }>{ year }</span>{ ' ' }
 			<RichText
@@ -43,7 +43,7 @@ export default function Edit( { attributes, setAttributes } ) {
 				placeholder={ __( 'Suffix…', 'newspack-plugin' ) }
 				value={ suffix }
 				onChange={ value => setAttributes( { suffix: value } ) }
-				allowedFormats={ [] }
+				allowedFormats={ [ 'core/link' ] }
 			/>
 		</div>
 	);
