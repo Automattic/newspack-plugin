@@ -335,7 +335,6 @@ const CardSortableList = ( {
 						style={ translateY ? { transform: `translateY(${ translateY }px)` } : { transition: ! isDragging ? 'none' : undefined } }
 						id={ `draggable-card-${ index }` }
 						onDragOver={ e => handleDragOver( e, index ) }
-						// onDragLeave={ handleDragLeave }
 					>
 						<Draggable
 							transferData={ {} }
