@@ -56,7 +56,7 @@ class IP_Access_Rule {
 
 		// Never cache this page.
 		if ( function_exists( 'batcache_cancel' ) ) {
-				batcache_cancel();
+			batcache_cancel();
 		}
 
 		/**
