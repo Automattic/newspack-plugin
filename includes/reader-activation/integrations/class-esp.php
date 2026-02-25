@@ -98,11 +98,10 @@ class ESP extends Integration {
 	 * Pull contact data from the ESP for a given user.
 	 *
 	 * @param int $user_id WordPress user ID.
-	 * @param int $timeout Max seconds this call is allowed to take.
 	 *
 	 * @return array|\WP_Error Associative array of field_key => value pairs on success, WP_Error on failure.
 	 */
-	public function pull_contact_data( $user_id, $timeout ) {
+	public function pull_contact_data( $user_id ) {
 		if ( ! $this->can_sync() ) {
 			return new \WP_Error( 'missing_dependency', __( 'ESP Integration is not fully configured.', 'newspack-plugin' ) );
 		}
@@ -112,7 +111,6 @@ class ESP extends Integration {
 			return new \WP_Error( 'user_not_found', __( 'User not found.', 'newspack-plugin' ) );
 		}
 
-		// At this point we are ignoring the $timeout, because that would require a larger refactor on Newspack Newsletters to support it.
 		$contact_data = Newspack_Newsletters_Subscription::get_contact_data( $user->user_email, true );
 
 		if ( is_wp_error( $contact_data ) ) {

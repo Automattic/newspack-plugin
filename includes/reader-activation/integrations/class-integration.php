@@ -99,11 +99,10 @@ abstract class Integration {
 	 * Pull contact data from the integration for a given user.
 	 *
 	 * @param int $user_id WordPress user ID.
-	 * @param int $timeout Max seconds this call is allowed to take.
 	 *
 	 * @return array|\WP_Error Associative array of field_key => value pairs on success, WP_Error on failure.
 	 */
-	abstract public function pull_contact_data( $user_id, $timeout );
+	abstract public function pull_contact_data( $user_id );
 
 	/**
 	 * Get incoming available contact fields from the integration.

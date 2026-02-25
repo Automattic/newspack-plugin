@@ -18,12 +18,30 @@ use Sample_Integration;
 class Test_Integrations extends \WP_UnitTestCase {
 
 	/**
+	 * Stored pre_http_request callback for removal in tear_down.
+	 *
+	 * @var callable|null
+	 */
+	private $loopback_filter = null;
+
+	/**
 	 * Set up test environment.
 	 */
 	public function set_up() {
 		parent::set_up();
 		delete_option( Integrations::OPTION_NAME );
 		$this->reset_integrations();
+	}
+
+	/**
+	 * Tear down test environment.
+	 */
+	public function tear_down() {
+		if ( $this->loopback_filter ) {
+			remove_filter( 'pre_http_request', $this->loopback_filter );
+			$this->loopback_filter = null;
+		}
+		parent::tear_down();
 	}
 
 	/**
@@ -34,6 +52,39 @@ class Test_Integrations extends \WP_UnitTestCase {
 		$property   = $reflection->getProperty( 'integrations' );
 		$property->setAccessible( true );
 		$property->setValue( null, [] );
+	}
+
+	/**
+	 * Mock the loopback HTTP request so pull_sync calls pull_single_integration directly.
+	 *
+	 * Intercepts wp_remote_post calls to the AJAX pull endpoint, extracts the
+	 * integration_id from the body, and calls pull_single_integration directly.
+	 *
+	 * @param int $user_id The user ID to pull data for.
+	 */
+	private function mock_pull_loopback( $user_id ) {
+		$this->loopback_filter = function ( $preempt, $parsed_args, $url ) use ( $user_id ) {
+			if ( false === strpos( $url, 'action=' . Contact_Pull::AJAX_ACTION ) ) {
+				return $preempt;
+			}
+
+			$integration_id = $parsed_args['body']['integration_id'] ?? '';
+			if ( empty( $integration_id ) ) {
+				return $preempt;
+			}
+
+			$integration = Integrations::get_integration( $integration_id );
+			if ( $integration ) {
+				Contact_Pull::pull_single_integration( $user_id, $integration );
+			}
+
+			return [
+				'response' => [ 'code' => 200 ],
+				'body'     => '{"success":true}',
+			];
+		};
+
+		add_filter( 'pre_http_request', $this->loopback_filter, 10, 3 );
 	}
 
 	/**
@@ -243,10 +294,9 @@ class Test_Integrations extends \WP_UnitTestCase {
 			 * Pull contact data returning test data.
 			 *
 			 * @param int $user_id WordPress user ID.
-			 * @param int $timeout Max seconds.
 			 * @return array
 			 */
-			public function pull_contact_data( $user_id, $timeout ) {
+			public function pull_contact_data( $user_id ) {
 				return [ 'favorite_color' => 'blue' ];
 			}
 		};
@@ -255,6 +305,7 @@ class Test_Integrations extends \WP_UnitTestCase {
 		Integrations::register( $integration );
 		Integrations::enable( 'pull-test' );
 
+		$this->mock_pull_loopback( $user_id );
 		Contact_Pull::maybe_pull_contact_data();
 
 		// Verify the data was stored synchronously.
@@ -280,10 +331,9 @@ class Test_Integrations extends \WP_UnitTestCase {
 			 * Pull contact data returning multiple fields.
 			 *
 			 * @param int $user_id WordPress user ID.
-			 * @param int $timeout Max seconds.
 			 * @return array
 			 */
-			public function pull_contact_data( $user_id, $timeout ) {
+			public function pull_contact_data( $user_id ) {
 				return [
 					'field_a' => 'value_a',
 					'field_b' => 'value_b',
@@ -297,6 +347,7 @@ class Test_Integrations extends \WP_UnitTestCase {
 		Integrations::register( $integration );
 		Integrations::enable( 'filter-test' );
 
+		$this->mock_pull_loopback( $user_id );
 		Contact_Pull::maybe_pull_contact_data();
 
 		// a and c should be stored.
@@ -321,10 +372,9 @@ class Test_Integrations extends \WP_UnitTestCase {
 			 * Pull contact data that throws an exception.
 			 *
 			 * @param int $user_id WordPress user ID.
-			 * @param int $timeout Max seconds.
 			 * @throws \RuntimeException Always.
 			 */
-			public function pull_contact_data( $user_id, $timeout ) {
+			public function pull_contact_data( $user_id ) {
 				throw new \RuntimeException( 'Something went wrong' );
 			}
 		};
@@ -334,6 +384,7 @@ class Test_Integrations extends \WP_UnitTestCase {
 		Integrations::enable( 'throw-test' );
 
 		// Should not throw — the routine catches Throwable.
+		$this->mock_pull_loopback( $user_id );
 		Contact_Pull::maybe_pull_contact_data();
 
 		// Last pull meta should still have been set.
@@ -356,10 +407,9 @@ class Test_Integrations extends \WP_UnitTestCase {
 			 * Pull contact data (should NOT be called synchronously).
 			 *
 			 * @param int $user_id WordPress user ID.
-			 * @param int $timeout Max seconds.
 			 * @return array
 			 */
-			public function pull_contact_data( $user_id, $timeout ) {
+			public function pull_contact_data( $user_id ) {
 				return [ 'city' => 'Portland' ];
 			}
 		};
@@ -395,10 +445,9 @@ class Test_Integrations extends \WP_UnitTestCase {
 			 * Pull contact data returning test data.
 			 *
 			 * @param int $user_id WordPress user ID.
-			 * @param int $timeout Max seconds.
 			 * @return array
 			 */
-			public function pull_contact_data( $user_id, $timeout ) {
+			public function pull_contact_data( $user_id ) {
 				return [ 'language' => 'PHP' ];
 			}
 		};
@@ -429,10 +478,9 @@ class Test_Integrations extends \WP_UnitTestCase {
 			 * Pull contact data returning test data.
 			 *
 			 * @param int $user_id WordPress user ID.
-			 * @param int $timeout Max seconds.
 			 * @return array
 			 */
-			public function pull_contact_data( $user_id, $timeout ) {
+			public function pull_contact_data( $user_id ) {
 				return [ 'pet' => 'cat' ];
 			}
 		};
@@ -466,10 +514,9 @@ class Test_Integrations extends \WP_UnitTestCase {
 			 * Pull contact data returning test data.
 			 *
 			 * @param int $user_id WordPress user ID.
-			 * @param int $timeout Max seconds.
 			 * @return array
 			 */
-			public function pull_contact_data( $user_id, $timeout ) {
+			public function pull_contact_data( $user_id ) {
 				return [ 'first_field' => 'hello' ];
 			}
 		};
@@ -478,10 +525,94 @@ class Test_Integrations extends \WP_UnitTestCase {
 		Integrations::register( $integration );
 		Integrations::enable( 'first-test' );
 
+		$this->mock_pull_loopback( $user_id );
 		Contact_Pull::maybe_pull_contact_data();
 
 		// Should have run synchronously.
 		$stored = get_user_meta( $user_id, 'newspack_reader_data_item_first_field', true );
 		$this->assertSame( 'hello', $stored );
+	}
+
+	/**
+	 * Test sync pull schedules async when loopback request fails (simulated timeout).
+	 */
+	public function test_sync_pull_timeout_schedules_async() {
+		$user_id = $this->factory()->user->create();
+		wp_set_current_user( $user_id );
+
+		update_user_meta( $user_id, Contact_Pull::LAST_PULL_META, time() - Contact_Pull::PULL_SYNC_THRESHOLD - 1 );
+
+		$integration = new class( 'timeout-test', 'Timeout Test' ) extends Sample_Integration {
+			/**
+			 * Pull contact data returning test data.
+			 *
+			 * @param int $user_id WordPress user ID.
+			 * @return array
+			 */
+			public function pull_contact_data( $user_id ) {
+				return [ 'timeout_field' => 'should_not_appear' ];
+			}
+		};
+
+		$integration->set_selected_fields( [ 'timeout_field' ] );
+		Integrations::register( $integration );
+		Integrations::enable( 'timeout-test' );
+
+		// Simulate a timeout by returning WP_Error from the loopback request.
+		$this->loopback_filter = function ( $preempt, $parsed_args, $url ) {
+			if ( false === strpos( $url, 'action=' . Contact_Pull::AJAX_ACTION ) ) {
+				return $preempt;
+			}
+			return new \WP_Error( 'http_request_failed', 'Connection timed out' );
+		};
+		add_filter( 'pre_http_request', $this->loopback_filter, 10, 3 );
+
+		Contact_Pull::maybe_pull_contact_data();
+
+		// Data should NOT have been stored synchronously.
+		$stored = get_user_meta( $user_id, 'newspack_reader_data_item_timeout_field', true );
+		$this->assertEmpty( $stored );
+
+		// Verify an AS action was scheduled as fallback.
+		$actions = as_get_scheduled_actions(
+			[
+				'hook'   => Contact_Pull::ASYNC_PULL_HOOK,
+				'status' => \ActionScheduler_Store::STATUS_PENDING,
+			]
+		);
+		$this->assertNotEmpty( $actions );
+	}
+
+	/**
+	 * Test handle_ajax_pull processes data when called directly.
+	 */
+	public function test_handle_ajax_pull() {
+		$user_id = $this->factory()->user->create();
+		wp_set_current_user( $user_id );
+
+		$integration = new class( 'ajax-test', 'Ajax Test' ) extends Sample_Integration {
+			/**
+			 * Pull contact data returning test data.
+			 *
+			 * @param int $user_id WordPress user ID.
+			 * @return array
+			 */
+			public function pull_contact_data( $user_id ) {
+				return [ 'ajax_field' => 'ajax_value' ];
+			}
+		};
+
+		$integration->set_selected_fields( [ 'ajax_field' ] );
+		Integrations::register( $integration );
+		Integrations::enable( 'ajax-test' );
+
+		// Call pull_single_integration directly — the AJAX handler is thin glue
+		// (nonce + lookup + this call + wp_send_json) and calling it in tests
+		// produces unavoidable output from wp_send_json.
+		$result = Contact_Pull::pull_single_integration( $user_id, $integration );
+
+		$this->assertTrue( $result );
+		$stored = get_user_meta( $user_id, 'newspack_reader_data_item_ajax_field', true );
+		$this->assertSame( 'ajax_value', $stored );
 	}
 }

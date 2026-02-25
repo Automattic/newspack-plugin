@@ -27,10 +27,9 @@ class Sample_Integration extends Integration {
 	 * Pull contact data (test implementation).
 	 *
 	 * @param int $user_id WordPress user ID.
-	 * @param int $timeout Max seconds this call is allowed to take.
 	 * @return array
 	 */
-	public function pull_contact_data( $user_id, $timeout ) {
+	public function pull_contact_data( $user_id ) {
 		return [];
 	}
 

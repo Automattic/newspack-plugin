@@ -40,11 +40,25 @@ class Contact_Pull {
 	const PULL_SYNC_THRESHOLD = 86400;
 
 	/**
-	 * Max seconds for the entire synchronous pull routine.
+	 * HTTP timeout in seconds for each per-integration loopback request.
 	 *
 	 * @var int
 	 */
-	const PULL_TIME_LIMIT = 5;
+	const PULL_REQUEST_TIMEOUT = 2;
+
+	/**
+	 * AJAX action name for the loopback pull endpoint.
+	 *
+	 * @var string
+	 */
+	const AJAX_ACTION = 'newspack_pull_integration';
+
+	/**
+	 * Nonce action name for the loopback pull endpoint.
+	 *
+	 * @var string
+	 */
+	const NONCE_ACTION = 'newspack_pull_integration_nonce';
 
 	/**
 	 * User meta key for last pull timestamp.
@@ -66,6 +80,7 @@ class Contact_Pull {
 	public static function init() {
 		add_action( 'init', [ __CLASS__, 'maybe_pull_contact_data' ], 20 );
 		add_action( self::ASYNC_PULL_HOOK, [ __CLASS__, 'handle_async_pull' ] );
+		add_action( 'wp_ajax_' . self::AJAX_ACTION, [ __CLASS__, 'handle_ajax_pull' ] );
 	}
 
 	/**
@@ -107,42 +122,101 @@ class Contact_Pull {
 	}
 
 	/**
-	 * Run synchronous pull with a time limit. Any integrations that could not be
-	 * processed before the time limit are scheduled asynchronously.
+	 * Run synchronous pull via per-integration loopback requests.
+	 *
+	 * Each integration is pulled via a blocking wp_remote_post to the AJAX
+	 * endpoint with PULL_REQUEST_TIMEOUT. If the request completes, the handler
+	 * has already stored the data. If it times out or fails, the integration is
+	 * scheduled via Action Scheduler as a fallback.
 	 *
 	 * @param int                                       $user_id      WordPress user ID.
 	 * @param \Newspack\Reader_Activation\Integration[] $integrations Active integrations to pull from.
 	 */
 	private static function pull_sync( $user_id, $integrations ) {
-		$start      = microtime( true );
-		$remaining_integrations = $integrations;
+		$failed = [];
 
 		foreach ( $integrations as $id => $integration ) {
-			unset( $remaining_integrations[ $id ] );
-
-			$elapsed = microtime( true ) - $start;
-			if ( $elapsed >= self::PULL_TIME_LIMIT ) {
-				Logger::log( 'Pull routine time limit reached. Scheduling remaining integrations async.' );
-				// Re-add the current integration that didn't get a chance to run.
-				$remaining_integrations = [ $id => $integration ] + $remaining_integrations;
-				break;
-			}
-
 			$selected_fields = $integration->get_selected_fields();
 			if ( empty( $selected_fields ) ) {
 				continue;
 			}
 
-			$remaining = self::PULL_TIME_LIMIT - ( microtime( true ) - $start );
-			$timeout   = max( 1, (int) $remaining );
+			$response = self::fire_pull_request( $id );
 
-			self::pull_single_integration( $user_id, $integration, $timeout );
+			if ( is_wp_error( $response ) || 200 !== wp_remote_retrieve_response_code( $response ) ) {
+				$error_message = is_wp_error( $response ) ? $response->get_error_message() : 'Unexpected response code: ' . wp_remote_retrieve_response_code( $response );
+				Logger::log( 'Loopback pull failed for ' . $id . '. Scheduling async. Error: ' . $error_message );
+				$failed[ $id ] = $integration;
+			} else {
+				Logger::log( 'Loopback pull succeeded for ' . $id . '.' );
+			}
 		}
 
-		// Schedule any integrations that didn't run in time.
-		if ( ! empty( $remaining_integrations ) ) {
-			self::schedule_async_pulls( $user_id, $remaining_integrations );
+		if ( ! empty( $failed ) ) {
+			self::schedule_async_pulls( $user_id, $failed );
 		}
+	}
+
+	/**
+	 * Fire a blocking loopback request to pull data for a single integration.
+	 *
+	 * @param string $integration_id The integration identifier.
+	 * @return array|\WP_Error The response or WP_Error on failure.
+	 */
+	private static function fire_pull_request( $integration_id ) {
+		$url = add_query_arg(
+			[
+				'action' => self::AJAX_ACTION,
+				'nonce'  => wp_create_nonce( self::NONCE_ACTION ),
+			],
+			admin_url( 'admin-ajax.php' )
+		);
+
+		return wp_remote_post(
+			$url,
+			[
+				'timeout'   => self::PULL_REQUEST_TIMEOUT,
+				'blocking'  => true,
+				'body'      => [ 'integration_id' => $integration_id ],
+				'cookies'   => $_COOKIE, // phpcs:ignore
+				'sslverify' => apply_filters( 'https_local_ssl_verify', false ),
+			]
+		);
+	}
+
+	/**
+	 * Handle the AJAX loopback request for pulling a single integration.
+	 *
+	 * Verifies the nonce, looks up the integration, pulls and stores data,
+	 * then returns a JSON response.
+	 */
+	public static function handle_ajax_pull() {
+		if ( ! isset( $_REQUEST['nonce'] ) || ! wp_verify_nonce( sanitize_text_field( $_REQUEST['nonce'] ), self::NONCE_ACTION ) ) { // phpcs:ignore
+			wp_send_json_error( 'Invalid nonce.', 403 );
+		}
+
+		$integration_id = isset( $_POST['integration_id'] ) ? sanitize_text_field( $_POST['integration_id'] ) : ''; // phpcs:ignore
+		if ( empty( $integration_id ) ) {
+			wp_send_json_error( 'Missing integration_id.', 400 );
+		}
+
+		$integration = Integrations::get_integration( $integration_id );
+		if ( ! $integration || ! Integrations::is_enabled( $integration_id ) ) {
+			wp_send_json_error( 'Integration not found or not enabled.', 404 );
+		}
+
+		$user_id = get_current_user_id();
+		if ( ! $user_id ) {
+			wp_send_json_error( 'No user context.', 403 );
+		}
+
+		$result = self::pull_single_integration( $user_id, $integration );
+
+		if ( is_wp_error( $result ) ) {
+			wp_send_json_error( $result->get_error_message(), 500 );
+		}
+
+		wp_send_json_success();
 	}
 
 	/**
@@ -150,21 +224,20 @@ class Contact_Pull {
 	 *
 	 * @param int                                     $user_id     WordPress user ID.
 	 * @param \Newspack\Reader_Activation\Integration $integration The integration instance.
-	 * @param int                                     $timeout     Max seconds for this call.
+	 * @return true|\WP_Error True on success, WP_Error on failure.
 	 */
-	public static function pull_single_integration( $user_id, $integration, $timeout = 30 ) {
+	public static function pull_single_integration( $user_id, $integration ) {
 		$selected_fields = $integration->get_selected_fields();
 		if ( empty( $selected_fields ) ) {
-			return;
+			return new \WP_Error( 'no_selected_fields', 'No selected fields for ' . $integration->get_id() );
 		}
 
 		try {
-			$data = $integration->pull_contact_data( $user_id, $timeout );
+			$data = $integration->pull_contact_data( $user_id );
 
 			if ( is_wp_error( $data ) ) {
-				// TODO: Surface these errors.
 				Logger::log( 'Pull error from ' . $integration->get_id() . ': ' . $data->get_error_message() );
-				return;
+				return $data;
 			}
 
 			$selected_keys = array_flip( $selected_fields );
@@ -174,9 +247,11 @@ class Contact_Pull {
 			foreach ( $data as $key => $value ) {
 				\Newspack\Reader_Data::update_item( $user_id, $key, $value );
 			}
+
+			return true;
 		} catch ( \Throwable $e ) {
-			// TODO: Surface these errors.
 			Logger::log( 'Pull exception from ' . $integration->get_id() . ': ' . $e->getMessage() );
+			return new \WP_Error( 'pull_exception', $e->getMessage() );
 		}
 	}
 
