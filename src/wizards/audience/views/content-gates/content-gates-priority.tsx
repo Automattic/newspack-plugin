@@ -95,6 +95,7 @@ const ContentGatesPriority = ( { closeModal, updateGatesData }: { closeModal: ()
 					<Button
 						variant="primary"
 						disabled={ isFetching || JSON.stringify( sortedGates ) === JSON.stringify( gates ) }
+						loading={ isFetching }
 						onClick={ () => handleUpdateGatePriorities( sortedGates ) }
 					>
 						{ __( 'Save', 'newspack-plugin' ) }
