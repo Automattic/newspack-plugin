@@ -19,8 +19,7 @@ import classnames from 'classnames';
  */
 type ConfirmDialogProps = {
 	className?: string;
-	isWide?: boolean;
-	isNarrow?: boolean;
+	size?: 'small' | 'medium' | 'large' | 'x-large' | 'full';
 	hideTitle?: boolean;
 	title?: string;
 	isDestructive?: boolean;
@@ -31,14 +30,21 @@ type ConfirmDialogProps = {
 	children?: React.ReactNode;
 };
 
+const sizeClassMap = {
+	small: 'newspack-modal--size-small',
+	medium: 'newspack-modal--size-medium',
+	large: 'newspack-modal--size-large',
+	'x-large': 'newspack-modal--size-x-large',
+	full: 'newspack-modal--size-full',
+};
+
 function ConfirmDialog(
-	{ className, isWide, isNarrow = true, hideTitle, isDestructive, onConfirm, onCancel, ...otherProps }: ConfirmDialogProps,
+	{ className, size = 'small', hideTitle, isDestructive, onConfirm, onCancel, ...otherProps }: ConfirmDialogProps,
 	ref: React.Ref< HTMLDivElement >
 ) {
 	const classes = classnames(
 		'newspack-modal',
-		isWide && 'newspack-modal--wide',
-		isNarrow && 'newspack-modal--narrow',
+		sizeClassMap[ size ],
 		hideTitle && 'newspack-modal--hide-title', // Note: also hides the X close button.
 		isDestructive && 'newspack-modal--destructive',
 		className

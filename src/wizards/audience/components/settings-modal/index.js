@@ -22,7 +22,7 @@ const PromptSettingsModal = ( { prompt, disabled, onClose, updatePopup } ) => {
 	};
 
 	return (
-		<Modal title={ prompt.title } onRequestClose={ onClose } isWide>
+		<Modal title={ prompt.title } onRequestClose={ onClose } size="x-large">
 			<Button onClick={ () => onClose() } className="screen-reader-text">
 				{ __( 'Close Modal', 'newspack-plugin' ) }
 			</Button>

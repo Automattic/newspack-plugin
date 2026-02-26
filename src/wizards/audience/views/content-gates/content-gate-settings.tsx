@@ -4,7 +4,7 @@
 import { __, sprintf } from '@wordpress/i18n';
 import { CardBody } from '@wordpress/components';
 import { useDispatch } from '@wordpress/data';
-import { useRef, useState } from '@wordpress/element';
+import { createInterpolateElement, useRef, useState } from '@wordpress/element';
 
 /**
  * Internal dependencies
@@ -106,15 +106,14 @@ export default function ContentGateSettings( { gate, updateGatesData }: { gate: 
 					confirmButtonText={ __( 'Delete', 'newspack-plugin' ) }
 					isDestructive={ true }
 				>
-					<p
-						dangerouslySetInnerHTML={ {
-							__html: sprintf(
-								// translators: %s is the gate title.
-								__( 'This will <strong>permanently delete</strong> “%s” and cannot be undone.', 'newspack-plugin' ),
-								gate.title
-							),
-						} }
-					/>
+					{ createInterpolateElement(
+						sprintf(
+							// translators: %s is the gate title.
+							__( 'This will <strong>permanently delete</strong> “%s” and cannot be undone.', 'newspack-plugin' ),
+							gate.title
+						),
+						{ strong: <strong /> }
+					) }
 				</ConfirmDialog>
 			) }
 			<Card

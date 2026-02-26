@@ -68,7 +68,7 @@ const ContentGates = ( { updateGatesData }: { updateGatesData: ( gates: Gate[] )
 		<>
 			{ error && <Notice isError noticeText={ errorMessage } /> }
 			{ showModal && (
-				<Modal isNarrow title={ __( 'Add Content Gate', 'newspack-plugin' ) } onRequestClose={ () => setShowModal( false ) }>
+				<Modal size="small" title={ __( 'Add Content Gate', 'newspack-plugin' ) } onRequestClose={ () => setShowModal( false ) }>
 					<TextControl
 						disabled={ isFetching }
 						label={ __( 'Name', 'newspack-plugin' ) }

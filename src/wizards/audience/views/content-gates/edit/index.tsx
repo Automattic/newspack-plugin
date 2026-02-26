@@ -8,7 +8,7 @@
 import { __, sprintf } from '@wordpress/i18n';
 import { __experimentalVStack as VStack } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
 import { useDispatch } from '@wordpress/data';
-import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
+import { createInterpolateElement, useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { commentAuthorAvatar, currencyDollar, postList, settings } from '@wordpress/icons';
 
 /**
@@ -390,7 +390,6 @@ const Edit = ( { match, updateGatesData }: ContentGateEditProps ) => {
 		<div className="newspack-content-gate__edit">
 			{ showUnsavedChangesDialog && (
 				<ConfirmDialog
-					title={ __( 'Unsaved changes', 'newspack-plugin' ) }
 					onConfirm={ () => {
 						setShowUnsavedChangesDialog( false );
 						pendingNavigation.current?.();
@@ -401,9 +400,9 @@ const Edit = ( { match, updateGatesData }: ContentGateEditProps ) => {
 						pendingNavigation.current = null;
 					} }
 					confirmButtonText={ __( 'Discard changes', 'newspack-plugin' ) }
-					isDestructive={ true }
+					hideTitle
 				>
-					<p>{ __( 'You have unsaved changes. Discard changes?', 'newspack-plugin' ) }</p>
+					{ __( 'You have unsaved changes that will be lost. Discard changes?', 'newspack-plugin' ) }
 				</ConfirmDialog>
 			) }
 			{ showDeleteDialog && (
@@ -414,15 +413,14 @@ const Edit = ( { match, updateGatesData }: ContentGateEditProps ) => {
 					confirmButtonText={ __( 'Delete', 'newspack-plugin' ) }
 					isDestructive={ true }
 				>
-					<p
-						dangerouslySetInnerHTML={ {
-							__html: sprintf(
-								// translators: %s is the gate title.
-								__( 'This will <strong>permanently delete</strong> “%s” and cannot be undone.', 'newspack-plugin' ),
-								gate.title
-							),
-						} }
-					/>
+					{ createInterpolateElement(
+						sprintf(
+							// translators: %s is the gate title.
+							__( 'This will <strong>permanently delete</strong> “%s” and cannot be undone.', 'newspack-plugin' ),
+							gate.title
+						),
+						{ strong: <strong /> }
+					) }
 				</ConfirmDialog>
 			) }
 			{ errorMessage && <Notice isError noticeText={ errorMessage } /> }
