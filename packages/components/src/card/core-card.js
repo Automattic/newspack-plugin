@@ -81,7 +81,7 @@ const CoreCard = ( {
 					{ isDraggable && (
 						<div className="newspack-card--core__header__draggable-controls">
 							<div className="newspack-card--core__header__draggable-controls__drag-handle">
-								<Icon icon={ dragHandle } height={ 18 } width={ 18 } />
+								<Icon icon={ dragHandle } />
 							</div>
 							<div className="newspack-card--core__header__draggable-controls__move-buttons">
 								<Button

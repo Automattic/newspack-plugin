@@ -97,7 +97,8 @@
 		}
 		.newspack-card--core__header__draggable-controls__drag-handle {
 			cursor: grab;
-			height: 18px;
+			display: grid;
+			place-items: center;
 		}
 		.newspack-card--core__header__draggable-controls__move-buttons {
 			display: flex;
