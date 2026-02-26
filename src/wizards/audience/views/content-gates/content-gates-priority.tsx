@@ -87,7 +87,7 @@ const ContentGatesPriority = ( { closeModal, updateGatesData }: { closeModal: ()
 						'newspack-plugin'
 					) }
 				</span>
-				<CardSortableList isActive={ isFetching } items={ gateItems } onDragCallback={ sortGates } />
+				<CardSortableList disabled={ isFetching } items={ gateItems } onDragCallback={ sortGates } />
 				<HStack justify="end">
 					<Button variant="tertiary" disabled={ isFetching } onClick={ closeModal }>
 						{ __( 'Cancel', 'newspack-plugin' ) }

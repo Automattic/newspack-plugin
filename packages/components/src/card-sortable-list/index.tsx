@@ -5,7 +5,7 @@
 /**
  * WordPress dependencies.
  */
-import { Draggable, __experimentalVStack as VStack } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
+import { Disabled, Draggable, __experimentalVStack as VStack } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
 import { useEffect, useLayoutEffect, useRef, useState } from '@wordpress/element';
 
 /**
@@ -38,11 +38,11 @@ type DragMeasurements = {
 };
 
 const CardSortableList = ( {
-	isActive = false,
+	disabled = false,
 	items = [],
 	onDragCallback = () => {},
 }: {
-	isActive?: boolean;
+	disabled?: boolean;
 	items?: DraggableItem[];
 	onDragCallback?: ( index: number, targetIndex: number ) => void;
 } ) => {
@@ -333,7 +333,7 @@ const CardSortableList = ( {
 			ref={ listRef }
 			className={ classNames(
 				'newspack-card--core--sortable-list',
-				isActive && 'newspack-card--core--sortable-list__is-active',
+				disabled && 'newspack-card--core--sortable-list__is-disabled',
 				isDragging && 'newspack-card--core--sortable-list__is-dragging'
 			) }
 			style={ measurements ? { height: measurements.lockedHeight } : undefined }
@@ -342,51 +342,52 @@ const CardSortableList = ( {
 			{ sortedItems.map( ( item, index ) => {
 				const translateY = getTranslateY( index );
 				return (
-					<div
-						key={ index }
-						ref={ el => {
-							itemRefs.current[ index ] = el;
-						} }
-						className={ classNames( 'newspack-card--core--sortable-list__item', {
-							'is-source': draggingIndex === index,
-							'is-dropped': droppedIndex === index,
-						} ) }
-						style={ translateY ? { transform: `translateY(${ translateY }px)` } : { transition: ! isDragging ? 'none' : undefined } }
-						id={ `draggable-card-${ index }` }
-						onDragOver={ e => handleDragOver( e, index ) }
-					>
-						<Draggable
-							transferData={ {} }
-							cloneClassname="newspack-card--core--sortable-list__item__clone"
-							elementId={ `draggable-card-${ index }` }
-							onDragStart={ () => handleDragStart( index ) }
-							onDragEnd={ handleDragEnd }
-							appendToOwnerDocument
+					<Disabled key={ index } isDisabled={ disabled }>
+						<div
+							ref={ el => {
+								itemRefs.current[ index ] = el;
+							} }
+							className={ classNames( 'newspack-card--core--sortable-list__item', {
+								'is-source': draggingIndex === index,
+								'is-dropped': droppedIndex === index,
+							} ) }
+							style={ translateY ? { transform: `translateY(${ translateY }px)` } : { transition: ! isDragging ? 'none' : undefined } }
+							id={ `draggable-card-${ index }` }
+							onDragOver={ e => handleDragOver( e, index ) }
 						>
-							{ ( { onDraggableStart, onDraggableEnd } ) => (
-								<Card
-									isSmall
-									draggable
-									onDragStart={ onDraggableStart }
-									onDragEnd={ onDraggableEnd }
-									__experimentalCoreCard
-									__experimentalCoreProps={ {
-										header: (
-											<h3>
-												{ item.title }
-												<Badge level={ item.badgeLevel } text={ item.badgeText } />
-											</h3>
-										),
-										isDraggable: true,
-										isFirstTarget: index === 0,
-										isLastTarget: index === sortedItems.length - 1,
-										dragIndex: index,
-										onDragCallback: handleButtonMove,
-									} }
-								/>
-							) }
-						</Draggable>
-					</div>
+							<Draggable
+								transferData={ {} }
+								cloneClassname="newspack-card--core--sortable-list__item__clone"
+								elementId={ `draggable-card-${ index }` }
+								onDragStart={ () => handleDragStart( index ) }
+								onDragEnd={ handleDragEnd }
+								appendToOwnerDocument
+							>
+								{ ( { onDraggableStart, onDraggableEnd } ) => (
+									<Card
+										isSmall
+										draggable
+										onDragStart={ onDraggableStart }
+										onDragEnd={ onDraggableEnd }
+										__experimentalCoreCard
+										__experimentalCoreProps={ {
+											header: (
+												<h3>
+													{ item.title }
+													<Badge level={ item.badgeLevel } text={ item.badgeText } />
+												</h3>
+											),
+											isDraggable: true,
+											isFirstTarget: index === 0,
+											isLastTarget: index === sortedItems.length - 1,
+											dragIndex: index,
+											onDragCallback: handleButtonMove,
+										} }
+									/>
+								) }
+							</Draggable>
+						</div>
+					</Disabled>
 				);
 			} ) }
 		</VStack>
