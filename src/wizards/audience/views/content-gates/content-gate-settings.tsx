@@ -55,7 +55,7 @@ export default function ContentGateSettings( { gate, updateGatesData }: { gate: 
 					addNotice( {
 						message: sprintf(
 							// translators: 1: the gate title, or "Content" if we can't determine the gate title. 2: the gate status.
-							'%1$s gate %2$s.',
+							__( '%1$s gate %2$s.', 'newspack-plugin' ),
 							gateTitle ? `"${ gateTitle }"` : __( 'Content', 'newspack-plugin' ),
 							prevStatus === 'publish' ? __( 'disabled', 'newspack-plugin' ) : __( 'enabled', 'newspack-plugin' )
 						),
