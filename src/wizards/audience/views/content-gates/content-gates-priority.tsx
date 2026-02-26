@@ -36,6 +36,7 @@ const ContentGatesPriority = ( {
 	const gateItems = useMemo(
 		() =>
 			sortedGates.map( gate => ( {
+				id: gate.id,
 				title: gate.title,
 				badgeLevel: getGateStatusBadgeLevel( gate.status ) as 'default' | 'success' | 'info' | 'warning' | 'error',
 				badgeText: getGateStatus( gate.status ) as string,

@@ -23,6 +23,7 @@ const DROP_ANIMATION_DURATION = 400; // ms — must match $drop-duration in styl
 const BUTTON_MOVE_DURATION = 200; // ms — must match $shift-duration in style.scss
 
 type DraggableItem = {
+	id: string | number;
 	title: string;
 	badgeLevel: 'default' | 'success' | 'info' | 'warning' | 'error';
 	badgeText: string;
@@ -62,6 +63,7 @@ const CardSortableList = ( {
 		direction: number;
 	} | null >( null );
 	const [ buttonMoveId, setButtonMoveId ] = useState( 0 );
+	const documentDragOverRef = useRef< ( ( e: Event ) => void ) | null >( null );
 
 	// Keep sortedItems in sync when the items prop changes externally (e.g. after a save).
 	useEffect( () => {
@@ -76,6 +78,9 @@ const CardSortableList = ( {
 			}
 			if ( buttonMoveTimer.current ) {
 				clearTimeout( buttonMoveTimer.current );
+			}
+			if ( documentDragOverRef.current ) {
+				document.removeEventListener( 'dragover', documentDragOverRef.current );
 			}
 		};
 	}, [] );
@@ -215,11 +220,21 @@ const CardSortableList = ( {
 				itemTops: rects.map( rect => rect?.top ?? 0 ),
 			} );
 		}
+		// Make the entire document a valid drop target so the browser skips
+		// its snap-back animation when the cursor is released outside the list.
+		const preventSnapback = ( e: Event ) => e.preventDefault();
+		document.addEventListener( 'dragover', preventSnapback );
+		documentDragOverRef.current = preventSnapback;
+
 		setDraggingIndex( index );
 		setDroppedIndex( null );
 	};
 
 	const clearDragState = () => {
+		if ( documentDragOverRef.current ) {
+			document.removeEventListener( 'dragover', documentDragOverRef.current );
+			documentDragOverRef.current = null;
+		}
 		setDraggingIndex( null );
 		setHoverIndex( null );
 		setMeasurements( null );
@@ -342,7 +357,7 @@ const CardSortableList = ( {
 			{ sortedItems.map( ( item, index ) => {
 				const translateY = getTranslateY( index );
 				return (
-					<Disabled key={ index } isDisabled={ disabled }>
+					<Disabled key={ item.id } isDisabled={ disabled }>
 						<div
 							ref={ el => {
 								itemRefs.current[ index ] = el;
