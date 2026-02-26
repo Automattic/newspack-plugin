@@ -292,12 +292,12 @@ class Guest_Contributor_Role {
 	 */
 	public static function get_dummy_email_address( $user_or_name ) {
 		$email_domain = self::get_dummy_email_domain();
+		// Strip @ from the login — it may contain @ from legacy migrations, which produces
+		// a double-@ dummy email that sanitize_email() mangles into a non-detectable format.
 		if ( is_string( $user_or_name ) ) {
-			return $user_or_name . '@' . $email_domain;
+			$login = str_replace( '@', '', $user_or_name );
+			return $login . '@' . $email_domain;
 		}
-		// user_login may contain @ from legacy migrations, which produces a double-@ dummy
-		// email that sanitize_email() mangles into a non-detectable format. 
-		// Strip @ from the login to avoid this.
 		$login = str_replace( '@', '', $user_or_name->user_login );
 		return $login . '@' . $email_domain;
 	}
