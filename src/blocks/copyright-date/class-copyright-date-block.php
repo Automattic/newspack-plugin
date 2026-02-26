@@ -43,6 +43,18 @@ final class Copyright_Date_Block {
 	}
 
 	/**
+	 * Allowed HTML for prefix and suffix fields (links only).
+	 */
+	public const ALLOWED_HTML = [
+		'a' => [
+			'href'   => true,
+			'class'  => true,
+			'target' => true,
+			'rel'    => true,
+		],
+	];
+
+	/**
 	 * Block render callback.
 	 *
 	 * @param array $attributes The block attributes.
@@ -61,7 +73,7 @@ final class Copyright_Date_Block {
 			$inner .= sprintf(
 				'<span class="%s__prefix">%s</span>',
 				$block_class,
-				wp_kses_post( $prefix )
+				wp_kses( $prefix, self::ALLOWED_HTML )
 			);
 		}
 
@@ -75,7 +87,7 @@ final class Copyright_Date_Block {
 			$inner .= sprintf(
 				' <span class="%s__suffix">%s</span>',
 				$block_class,
-				wp_kses_post( $suffix )
+				wp_kses( $suffix, self::ALLOWED_HTML )
 			);
 		}
 

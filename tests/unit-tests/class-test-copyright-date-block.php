@@ -126,24 +126,9 @@ class Newspack_Test_Copyright_Date_Block extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test prefix and suffix strip unsafe HTML to prevent XSS.
+	 * Test only link tags are allowed; all other HTML is stripped.
 	 */
-	public function test_unsafe_html_is_stripped() {
-		$xss    = '<script>alert(1)</script>';
-		$output = $this->render_block(
-			[
-				'prefix' => $xss,
-				'suffix' => $xss,
-			]
-		);
-
-		$this->assertStringNotContainsString( '<script>', $output, 'Script tags should be stripped from output.' );
-	}
-
-	/**
-	 * Test prefix and suffix preserve safe HTML like links.
-	 */
-	public function test_links_are_preserved() {
+	public function test_only_links_are_allowed() {
 		$link   = '<a href="https://example.com">Acme Inc</a>';
 		$output = $this->render_block(
 			[
@@ -151,8 +136,18 @@ class Newspack_Test_Copyright_Date_Block extends WP_UnitTestCase {
 				'suffix' => $link,
 			]
 		);
+		$this->assertSame( 2, substr_count( $output, $link ), 'Links should be preserved in both prefix and suffix.' );
 
-		$this->assertSame( 2, substr_count( $output, '<a href="https://example.com">Acme Inc</a>' ), 'Links should be preserved in both prefix and suffix.' );
+		$other_html = '<strong>bold</strong> <em>italic</em> <script>alert(1)</script>';
+		$output     = $this->render_block(
+			[
+				'prefix' => $other_html,
+				'suffix' => $other_html,
+			]
+		);
+		$this->assertStringNotContainsString( '<strong>', $output, 'Strong tags should be stripped.' );
+		$this->assertStringNotContainsString( '<em>', $output, 'Em tags should be stripped.' );
+		$this->assertStringNotContainsString( '<script>', $output, 'Script tags should be stripped.' );
 	}
 
 	/**
