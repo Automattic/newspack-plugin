@@ -7,7 +7,7 @@
  */
 import { __ } from '@wordpress/i18n';
 import { useDispatch } from '@wordpress/data';
-import { useEffect, useMemo, useState } from '@wordpress/element';
+import { useMemo, useRef, useState } from '@wordpress/element';
 import { __experimentalHStack as HStack, __experimentalVStack as VStack } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
 
 /**
@@ -20,9 +20,17 @@ import { useWizardApiFetch } from '../../../hooks/use-wizard-api-fetch';
 import { getGateStatus, getGateStatusBadgeLevel } from './utils';
 import { AUDIENCE_CONTENT_GATES_WIZARD_SLUG } from './consts';
 
-const ContentGatesPriority = ( { closeModal, updateGatesData }: { closeModal: () => void; updateGatesData: ( gates: Gate[] ) => void } ) => {
+const ContentGatesPriority = ( {
+	closeModal,
+	showModal,
+	updateGatesData,
+}: {
+	closeModal: () => void;
+	showModal: boolean;
+	updateGatesData: ( gates: Gate[] ) => void;
+} ) => {
 	const { gates = [] as Gate[] } = useWizardData( AUDIENCE_CONTENT_GATES_WIZARD_SLUG ) as WizardData;
-	const { wizardApiFetch, isFetching, errorMessage, setError } = useWizardApiFetch( AUDIENCE_CONTENT_GATES_WIZARD_SLUG );
+	const { wizardApiFetch, isFetching, setError } = useWizardApiFetch( AUDIENCE_CONTENT_GATES_WIZARD_SLUG );
 	const { addNotice, resetNotices } = useDispatch( WIZARD_STORE_NAMESPACE );
 	const [ sortedGates, setSortedGates ] = useState< Gate[] >( gates );
 	const gateItems = useMemo(
@@ -35,12 +43,7 @@ const ContentGatesPriority = ( { closeModal, updateGatesData }: { closeModal: ()
 		[ sortedGates ]
 	);
 
-	useEffect( () => {
-		if ( errorMessage ) {
-			closeModal();
-		}
-	}, [ errorMessage ] );
-
+	const updatePriorities = useRef< ( updates: Gate[] ) => void >();
 	const handleUpdateGatePriorities = ( updates: Gate[] ) => {
 		if ( isFetching ) {
 			return;
@@ -58,20 +61,24 @@ const ContentGatesPriority = ( { closeModal, updateGatesData }: { closeModal: ()
 			{
 				onSuccess: () => {
 					updateGatesData( updates );
-					closeModal();
 					addNotice( {
 						message: __( 'Gate priority updated.', 'newspack-plugin' ),
 						type: 'success',
 						id: 'content-gates-priority-updated',
+						actions: [ { label: __( 'Undo', 'newspack-plugin' ), onClick: () => updatePriorities.current?.( oldGates ) } ],
 					} );
 				},
 				onError: ( fetchError: WpFetchError ) => {
 					setError( fetchError );
 					updateGatesData( oldGates );
 				},
+				onFinally: () => {
+					closeModal();
+				},
 			}
 		);
 	};
+	updatePriorities.current = handleUpdateGatePriorities;
 
 	const sortGates = ( index: number, targetIndex: number ) => {
 		if ( isFetching ) {
@@ -94,30 +101,32 @@ const ContentGatesPriority = ( { closeModal, updateGatesData }: { closeModal: ()
 	};
 
 	return (
-		<Modal title={ __( 'Gate priority', 'newspack-plugin' ) } onRequestClose={ closeModal }>
-			<VStack spacing={ 6 }>
-				<span>
-					{ __(
-						'Gates are checked in this order. If content matches more than one gate, only the first matching gate will apply.',
-						'newspack-plugin'
-					) }
-				</span>
-				<CardSortableList disabled={ isFetching } items={ gateItems } onDragCallback={ sortGates } />
-				<HStack justify="end">
-					<Button variant="tertiary" disabled={ isFetching } onClick={ closeModal }>
-						{ __( 'Cancel', 'newspack-plugin' ) }
-					</Button>
-					<Button
-						variant="primary"
-						disabled={ isFetching || JSON.stringify( sortedGates ) === JSON.stringify( gates ) }
-						loading={ isFetching }
-						onClick={ () => handleUpdateGatePriorities( sortedGates ) }
-					>
-						{ __( 'Save', 'newspack-plugin' ) }
-					</Button>
-				</HStack>
-			</VStack>
-		</Modal>
+		showModal && (
+			<Modal title={ __( 'Gate priority', 'newspack-plugin' ) } onRequestClose={ closeModal }>
+				<VStack spacing={ 6 }>
+					<span>
+						{ __(
+							'Gates are checked in this order. If content matches more than one gate, only the first matching gate will apply.',
+							'newspack-plugin'
+						) }
+					</span>
+					<CardSortableList disabled={ isFetching } items={ gateItems } onDragCallback={ sortGates } />
+					<HStack justify="end">
+						<Button variant="tertiary" disabled={ isFetching } onClick={ closeModal }>
+							{ __( 'Cancel', 'newspack-plugin' ) }
+						</Button>
+						<Button
+							variant="primary"
+							disabled={ isFetching || JSON.stringify( sortedGates ) === JSON.stringify( gates ) }
+							loading={ isFetching }
+							onClick={ () => updatePriorities.current?.( sortedGates ) }
+						>
+							{ __( 'Save', 'newspack-plugin' ) }
+						</Button>
+					</HStack>
+				</VStack>
+			</Modal>
+		)
 	);
 };
 

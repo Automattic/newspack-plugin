@@ -66,7 +66,13 @@ const ContentGates = ( { updateGatesData }: { updateGatesData: ( gates: Gate[] )
 	return (
 		<>
 			{ error && <Notice isError noticeText={ errorMessage } /> }
-			{ showPriorityModal && <ContentGatesPriority closeModal={ () => setShowPriorityModal( false ) } updateGatesData={ updateGatesData } /> }
+			{
+				<ContentGatesPriority
+					showModal={ showPriorityModal }
+					closeModal={ () => setShowPriorityModal( false ) }
+					updateGatesData={ updateGatesData }
+				/>
+			}
 			<VStack className="newspack-content-gates__gates" spacing="16px" ref={ ref }>
 				{ gates.map( gate => {
 					return <ContentGateSettings key={ gate.id } gate={ gate } updateGatesData={ updateGatesData } />;
