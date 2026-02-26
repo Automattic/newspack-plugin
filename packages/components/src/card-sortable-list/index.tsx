@@ -318,7 +318,7 @@ const CardSortableList = ( {
 				isDragging && 'newspack-card--core--sortable-list__is-dragging'
 			) }
 			style={ measurements ? { height: measurements.lockedHeight } : undefined }
-			spacing="16px"
+			spacing={ 4 }
 		>
 			{ sortedItems.map( ( item, index ) => {
 				const translateY = getTranslateY( index );
