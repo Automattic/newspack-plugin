@@ -7,7 +7,7 @@
  */
 import { __ } from '@wordpress/i18n';
 import { useDispatch } from '@wordpress/data';
-import { useMemo, useState } from '@wordpress/element';
+import { useEffect, useMemo, useState } from '@wordpress/element';
 import { __experimentalHStack as HStack, __experimentalVStack as VStack } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
 
 /**
@@ -22,7 +22,7 @@ import { AUDIENCE_CONTENT_GATES_WIZARD_SLUG } from './consts';
 
 const ContentGatesPriority = ( { closeModal, updateGatesData }: { closeModal: () => void; updateGatesData: ( gates: Gate[] ) => void } ) => {
 	const { gates = [] as Gate[] } = useWizardData( AUDIENCE_CONTENT_GATES_WIZARD_SLUG ) as WizardData;
-	const { wizardApiFetch, isFetching, setError } = useWizardApiFetch( AUDIENCE_CONTENT_GATES_WIZARD_SLUG );
+	const { wizardApiFetch, isFetching, errorMessage, setError } = useWizardApiFetch( AUDIENCE_CONTENT_GATES_WIZARD_SLUG );
 	const { addNotice, resetNotices } = useDispatch( WIZARD_STORE_NAMESPACE );
 	const [ sortedGates, setSortedGates ] = useState< Gate[] >( gates );
 	const gateItems = useMemo(
@@ -34,6 +34,12 @@ const ContentGatesPriority = ( { closeModal, updateGatesData }: { closeModal: ()
 			} ) ),
 		[ sortedGates ]
 	);
+
+	useEffect( () => {
+		if ( errorMessage ) {
+			closeModal();
+		}
+	}, [ errorMessage ] );
 
 	const handleUpdateGatePriorities = ( updates: Gate[] ) => {
 		if ( isFetching ) {
