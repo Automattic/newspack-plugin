@@ -7,11 +7,12 @@
  */
 import { __ } from '@wordpress/i18n';
 import { useMemo, useState } from '@wordpress/element';
+import { __experimentalHStack as HStack, __experimentalVStack as VStack } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
 
 /**
  * Internal dependencies
  */
-import { Button, Card, CardSortableList, Modal } from '../../../../../packages/components/src';
+import { Button, CardSortableList, Modal } from '../../../../../packages/components/src';
 import { useWizardData } from '../../../../../packages/components/src/wizard/store/utils';
 import { useWizardApiFetch } from '../../../hooks/use-wizard-api-fetch';
 import { getGateStatus, getGateStatusBadgeLevel } from './utils';
@@ -78,26 +79,28 @@ const ContentGatesPriority = ( { closeModal, updateGatesData }: { closeModal: ()
 	};
 
 	return (
-		<Modal isMedium title={ __( 'Gate priority', 'newspack-plugin' ) } onRequestClose={ closeModal }>
-			<p>
-				{ __(
-					'Gates are checked in this order. If content matches more than one gate, only the first matching gate will apply.',
-					'newspack-plugin'
-				) }
-			</p>
-			<CardSortableList isActive={ isFetching } items={ gateItems } onDragCallback={ sortGates } />
-			<Card buttonsCard noBorder className="justify-end">
-				<Button variant="tertiary" disabled={ isFetching } onClick={ closeModal }>
-					{ __( 'Cancel', 'newspack-plugin' ) }
-				</Button>
-				<Button
-					variant="primary"
-					disabled={ isFetching || JSON.stringify( sortedGates ) === JSON.stringify( gates ) }
-					onClick={ () => handleUpdateGatePriorities( sortedGates ) }
-				>
-					{ __( 'Save', 'newspack-plugin' ) }
-				</Button>
-			</Card>
+		<Modal title={ __( 'Gate priority', 'newspack-plugin' ) } onRequestClose={ closeModal }>
+			<VStack spacing={ 6 }>
+				<span>
+					{ __(
+						'Gates are checked in this order. If content matches more than one gate, only the first matching gate will apply.',
+						'newspack-plugin'
+					) }
+				</span>
+				<CardSortableList isActive={ isFetching } items={ gateItems } onDragCallback={ sortGates } />
+				<HStack justify="end">
+					<Button variant="tertiary" disabled={ isFetching } onClick={ closeModal }>
+						{ __( 'Cancel', 'newspack-plugin' ) }
+					</Button>
+					<Button
+						variant="primary"
+						disabled={ isFetching || JSON.stringify( sortedGates ) === JSON.stringify( gates ) }
+						onClick={ () => handleUpdateGatePriorities( sortedGates ) }
+					>
+						{ __( 'Save', 'newspack-plugin' ) }
+					</Button>
+				</HStack>
+			</VStack>
 		</Modal>
 	);
 };

@@ -3,8 +3,6 @@ $shift-duration: 150ms;
 $drop-duration: 400ms; /* must match DROP_ANIMATION_DURATION in index.tsx */
 
 .newspack-card--core--sortable-list {
-	margin: 16px 0;
-
 	&__item {
 		cursor: grab;
 
