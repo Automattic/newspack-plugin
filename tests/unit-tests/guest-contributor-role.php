@@ -42,8 +42,13 @@ class Newspack_Test_Guest_Contributor_Role extends WP_UnitTestCase {
 		$user             = new stdClass();
 		$user->user_login = 'legacy-author@old-domain.com';
 
+		$expected = 'legacy-authorold-domain.com@' . $email_domain;
+
 		$dummy_email = Guest_Contributor_Role::get_dummy_email_address( $user );
-		$this->assertSame( 'legacy-authorold-domain.com@' . $email_domain, $dummy_email );
+		$this->assertSame( $expected, $dummy_email );
+
+		$dummy_email = Guest_Contributor_Role::get_dummy_email_address( $user->user_login );
+		$this->assertSame( $expected, $dummy_email );
 	}
 
 	/**
