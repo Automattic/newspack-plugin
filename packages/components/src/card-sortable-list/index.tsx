@@ -154,6 +154,25 @@ const CardSortableList = ( {
 					el.style.transform = '';
 				}
 			} );
+
+			// Move focus to the matching chevron button on the card at toIndex.
+			// Focus before onDragCallback so a parent rerender can't steal focus.
+			const targetEl = itemRefs.current[ toIndex ];
+			if ( targetEl ) {
+				const moveButtons = targetEl.querySelectorAll< HTMLButtonElement >(
+					'.newspack-card--core__header__draggable-controls__move-buttons button'
+				);
+				// direction > 0 = moved down → prefer the down button (index 1).
+				// direction < 0 = moved up   → prefer the up   button (index 0).
+				const preferred = direction > 0 ? moveButtons[ 1 ] : moveButtons[ 0 ];
+				const fallback = direction > 0 ? moveButtons[ 0 ] : moveButtons[ 1 ];
+				if ( preferred && ! preferred.disabled ) {
+					preferred.focus();
+				} else if ( fallback && ! fallback.disabled ) {
+					fallback.focus();
+				}
+			}
+
 			onDragCallback( fromIndex, toIndex );
 			buttonMoveTimer.current = null;
 		}, BUTTON_MOVE_DURATION );
