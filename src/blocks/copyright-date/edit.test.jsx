@@ -79,13 +79,13 @@ describe( 'Copyright Date Edit', () => {
 		expect( screen.getByText( '2099' ) ).toHaveClass( `${ blockClass }__year` );
 	} );
 
-	it( 'should disable formatting on prefix and suffix RichText fields', () => {
+	it( 'should only allow link formatting on prefix and suffix RichText fields', () => {
 		render( <Edit { ...{ ...defaultProps, attributes: { prefix: '\u00a9', suffix: 'Acme' } } } /> );
 
 		const prefix = screen.getByText( '\u00a9' );
 		const suffix = screen.getByText( 'Acme' );
 
-		expect( prefix ).toHaveAttribute( 'data-allowed-formats', '[]' );
-		expect( suffix ).toHaveAttribute( 'data-allowed-formats', '[]' );
+		expect( prefix ).toHaveAttribute( 'data-allowed-formats', '["core/link"]' );
+		expect( suffix ).toHaveAttribute( 'data-allowed-formats', '["core/link"]' );
 	} );
 } );
