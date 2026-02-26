@@ -7534,7 +7534,7 @@ msgid "Please select a Constant Contact Master List."
 msgstr ""
 
 #: dist/audience-wizards.f3e1118ff4c1e097b5a1.js:40
-msgid "You have unsaved changes. Discard changes?"
+msgid "You have unsaved changes that will be lost. Discard changes?"
 msgstr ""
 
 #: dist/audience-wizards.f3e1118ff4c1e097b5a1.js:43
