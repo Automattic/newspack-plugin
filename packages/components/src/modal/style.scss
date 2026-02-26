@@ -38,7 +38,7 @@
 	}
 
 	&--size-x-large {
-		max-width: 1168px;
+		max-width: calc(var(--newspack-wizard-section-width) + 64px)
 	}
 
 	&--size-full {
