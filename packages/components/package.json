@@ -1,6 +1,6 @@
 {
 	"name": "newspack-components",
-	"version": "4.2.0",
+	"version": "4.3.0",
 	"description": "Newspack design system components",
 	"author": "Automattic",
 	"license": "GPL-2.0-or-later",
@@ -23,16 +23,15 @@
 		"access": "public"
 	},
 	"dependencies": {
-		"@wordpress/base-styles": "^5.0.0",
-		"@wordpress/components": "^28.0.0",
+		"@wordpress/base-styles": "^6.0.0",
+		"@wordpress/components": "^32.0.0",
 		"@wordpress/element": "^6.0.0",
-		"@wordpress/i18n": "^5.0.0",
-		"@wordpress/icons": "^10.0.0",
+		"@wordpress/i18n": "^6.0.0",
+		"@wordpress/icons": "^11.0.0",
 		"classnames": "^2.3.1",
 		"lodash": "^4.17.21",
 		"moment-range": "^3.1.1",
 		"qs": "^6.10.1",
-		"react-daterange-picker": "^2.0.1",
 		"react-router-dom": "^5.3.4"
 	},
 	"devDependencies": {
