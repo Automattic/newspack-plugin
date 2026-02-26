@@ -56,6 +56,7 @@ class IP_Access_Rule {
 		if ( function_exists( 'batcache_cancel' ) ) {
 			batcache_cancel();
 		}
+		nocache_headers();
 
 		/**
 		 * Filter whether the current IP is valid for content gate access.
