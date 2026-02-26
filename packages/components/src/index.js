@@ -9,6 +9,7 @@ export { default as ButtonCard } from './button-card';
 export { default as BoxContrast } from './box-contrast';
 export { default as Card } from './card';
 export { default as CardSettingsGroup } from './card-settings-group';
+export { default as CardSortableList } from './card-sortable-list';
 export { default as CategoryAutocomplete } from './category-autocomplete';
 export { default as ColorPicker } from './color-picker';
 export { default as ConfirmDialog } from './confirm-dialog';

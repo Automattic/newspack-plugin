@@ -41,6 +41,9 @@ class Card extends Component {
 				icon: null,
 				footer: null, // Pass a React component to render in a CardFooter component.
 				noMargin: false,
+				isDraggable: false,
+				dragIndex: null,
+				onDragCallback: () => {},
 			},
 			...otherProps
 		} = this.props;

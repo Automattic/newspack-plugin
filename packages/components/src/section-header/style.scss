@@ -77,12 +77,12 @@
 	}
 
 	&__title-container {
-		align-items: center;
+		align-items: baseline;
 		display: flex;
 		gap: 8px;
 
 		.newspack-badge {
-			margin-top: 4px;
+			transform: translateY(-4px);
 		}
 	}
 
@@ -95,13 +95,8 @@
 	}
 
 	&__secondary-action {
-		align-items: flex-end;
 		display: flex;
-		height: 100%;
 		margin-left: 8px;
-		.components-button {
-			line-height: 36px;
-		}
 	}
 
 	&__children {
