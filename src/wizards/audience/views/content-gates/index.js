@@ -18,6 +18,8 @@ import { Wizard, withWizard } from '../../../../../packages/components/src';
 import { WIZARD_STORE_NAMESPACE } from '../../../../../packages/components/src/wizard/store';
 import ContentGates from './content-gates';
 import Edit from './edit';
+import CountdownBanner from './edit/countdown-banner';
+import ContentGifting from './edit/content-gifting';
 import { AUDIENCE_CONTENT_GATES_WIZARD_SLUG, BASE_HEADER_TEXT } from './consts';
 
 const AudienceContentGates = ( props, ref ) => {
@@ -46,6 +48,18 @@ const AudienceContentGates = ( props, ref ) => {
 				{
 					path: '/edit/:id/:type?',
 					render: Edit,
+					isHidden: true,
+					exact: true,
+				},
+				{
+					path: '/settings/countdown-banner',
+					render: CountdownBanner,
+					isHidden: true,
+					exact: true,
+				},
+				{
+					path: '/settings/content-gifting',
+					render: ContentGifting,
 					isHidden: true,
 					exact: true,
 				},

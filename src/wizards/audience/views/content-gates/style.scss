@@ -49,6 +49,40 @@
 			}
 		}
 	}
+	&__other-settings {
+		margin-bottom: 32px;
+	}
+	&__settings-card {
+		p.newspack-content-gates__settings-card__description {
+			margin-bottom: 16px;
+		}
+		&__status {
+			color: var(--newspack-ui-color-error-60);
+			font-size: wp.$font-size-small;
+			text-transform: uppercase;
+			&::before {
+				content: '';
+				display: inline-block;
+				height: 8px;
+				border-radius: 50%;
+				background-color: var(--newspack-ui-color-error-60);
+				margin-right: 8px;
+				width: 8px;
+			}
+		}
+		&--enabled .newspack-content-gates__settings-card__status {
+			color: var(--newspack-ui-color-success-60);
+			&::before {
+				background-color: var(--newspack-ui-color-success-60);
+			}
+		}
+		&--disabled .newspack-content-gates__settings-card__status {
+			color: var(--newspack-ui-color-neutral-60);
+			&::before {
+				background-color: var(--newspack-ui-color-neutral-60);
+			}
+		}
+	}
 
 	.components-form-token-field {
 		position: relative;

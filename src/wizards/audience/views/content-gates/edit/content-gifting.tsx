@@ -10,12 +10,12 @@ import { useDispatch } from '@wordpress/data';
 /**
  * Internal dependencies
  */
-import { Notice } from '../../../../../packages/components/src';
-import { useWizardData } from '../../../../../packages/components/src/wizard/store/utils';
-import { WIZARD_STORE_NAMESPACE } from '../../../../../packages/components/src/wizard/store';
-import { useWizardApiFetch } from '../../../hooks/use-wizard-api-fetch';
-import ContentGifting from '../setup/content-gifting';
-import { AUDIENCE_CONTENT_GATES_WIZARD_SLUG } from './consts';
+import { Notice } from '../../../../../../packages/components/src';
+import { useWizardData } from '../../../../../../packages/components/src/wizard/store/utils';
+import { WIZARD_STORE_NAMESPACE } from '../../../../../../packages/components/src/wizard/store';
+import { useWizardApiFetch } from '../../../../hooks/use-wizard-api-fetch';
+import ContentGifting from '../../setup/content-gifting';
+import { AUDIENCE_CONTENT_GATES_WIZARD_SLUG } from '../consts';
 import './style.scss';
 
 const ContentGiftingSettings = () => {
