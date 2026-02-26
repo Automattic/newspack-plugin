@@ -17,9 +17,9 @@
 
 	border-radius: 8px;
 	margin: auto;
-	max-height: calc(100% - var(--newspack-wizard-section-space));
+	max-height: calc(100% - 64px);
 	max-width: 512px;
-	width: calc(100% - var(--newspack-wizard-section-space));
+	width: calc(100% - 64px);
 
 	&--size-small {
 		max-width: 384px;
@@ -65,10 +65,6 @@
 				background-color: colors.$error-600;
 			}
 		}
-	}
-
-	@media screen and ( min-width: 960px ) {
-		max-height: calc(100% - 128px);
 	}
 
 	// Links
