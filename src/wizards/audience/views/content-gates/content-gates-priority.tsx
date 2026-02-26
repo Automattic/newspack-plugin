@@ -31,7 +31,7 @@ const ContentGatesPriority = ( {
 } ) => {
 	const { gates = [] as Gate[] } = useWizardData( AUDIENCE_CONTENT_GATES_WIZARD_SLUG ) as WizardData;
 	const { wizardApiFetch, isFetching, setError } = useWizardApiFetch( AUDIENCE_CONTENT_GATES_WIZARD_SLUG );
-	const { addNotice, resetNotices } = useDispatch( WIZARD_STORE_NAMESPACE );
+	const { addNotice, resetError, resetNotices } = useDispatch( WIZARD_STORE_NAMESPACE );
 	const [ sortedGates, setSortedGates ] = useState< Gate[] >( gates );
 	const gateItems = useMemo(
 		() =>
@@ -49,6 +49,7 @@ const ContentGatesPriority = ( {
 			return;
 		}
 		const oldGates = [ ...gates ];
+		resetError();
 		resetNotices();
 		wizardApiFetch< Gate >(
 			{
