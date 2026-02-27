@@ -265,9 +265,15 @@ class My_Account_UI_V1 {
 			return self::delete_account_confirmation_modal();
 		}
 
-		$active_subscriptions     = json_decode( Reader_Data::get_data( $user->ID, 'active_subscriptions' ) );
+		$active_subscriptions = Reader_Data::get_data( $user->ID, 'active_subscriptions' );
+		if ( is_string( $active_subscriptions ) ) {
+			$active_subscriptions = json_decode( $active_subscriptions );
+		}
 		$active_donations         = boolval( Reader_Data::get_data( $user->ID, 'is_donor' ) );
-		$newsletter_subscriptions = json_decode( Reader_Data::get_data( $user->ID, 'newsletter_subscribed_lists' ) );
+		$newsletter_subscriptions = Reader_Data::get_data( $user->ID, 'newsletter_subscribed_lists' );
+		if ( is_string( $newsletter_subscriptions ) ) {
+			$newsletter_subscriptions = json_decode( $newsletter_subscriptions );
+		}
 
 		ob_start();
 		?>
