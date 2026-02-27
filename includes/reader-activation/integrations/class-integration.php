@@ -7,9 +7,6 @@
 
 namespace Newspack\Reader_Activation;
 
-use Newspack\Data_Events;
-use Newspack\Logger;
-
 defined( 'ABSPATH' ) || exit;
 
 /**
@@ -18,11 +15,6 @@ defined( 'ABSPATH' ) || exit;
  * This class should be extended by specific integration implementations.
  */
 abstract class Integration {
-	/**
-	 * Logger header for integration-related messages.
-	 */
-	const LOGGER_HEADER = 'NEWSPACK-INTEGRATION';
-
 	/**
 	 * The unique identifier for this integration.
 	 *
@@ -43,18 +35,6 @@ abstract class Integration {
 	 * @var array
 	 */
 	protected $settings_fields = [];
-
-	/**
-	 * Maps registered data event handlers to their integration and method.
-	 *
-	 * Keyed by "ClassName::action_name" to allow per-integration dispatch.
-	 * This means only one instance per concrete subclass can register a
-	 * handler for a given action. If multiple instances of the same subclass
-	 * register for the same action, the last registration wins.
-	 *
-	 * @var array<string, array{integration_id: string, method: string}>
-	 */
-	private static $handler_map = [];
 
 	/**
 	 * Constructor.
@@ -109,57 +89,34 @@ abstract class Integration {
 	abstract public function push_contact_data( $contact, $context = '', $existing_contact = null );
 
 	/**
+	 * Register data event handlers for this integration.
+	 *
+	 * Called by Integrations after all integrations have been registered.
+	 * Concrete classes should override this and call $this->register_handler()
+	 * for each data event they need to handle.
+	 */
+	public function register_handlers() {}
+
+	/**
 	 * Register a data event handler for this integration.
 	 *
-	 * Wraps the instance method in a serializable static dispatcher so
-	 * that Data Events handler-level retry works via ActionScheduler.
-	 *
-	 * What Data Events sees: [ static::class, 'dispatch_data_event_handler' ]
-	 * — two strings, fully serializable. The instance method is resolved from
-	 * the integration registry at execution time.
-	 *
-	 * Note: the handler map is keyed by class name, so only one instance per
-	 * concrete subclass can register a handler for a given action.
+	 * Delegates to Integrations which owns the handler map and
+	 * registers a serializable static callable with Data Events.
 	 *
 	 * @param string $action_name The data event action name.
 	 * @param string $method      The instance method to call on this integration.
 	 */
-	protected function register_data_event_handler( $action_name, $method ) {
-		if ( ! is_callable( [ $this, $method ] ) ) {
-			Logger::error(
-				sprintf(
-					'Integration "%s" tried to register uncallable method "%s" for data event "%s".',
-					$this->id,
-					$method,
-					$action_name
-				),
-				self::LOGGER_HEADER
-			);
-			return;
-		}
-
-		$key = static::class . '::' . $action_name;
-		self::$handler_map[ $key ] = [
-			'integration_id' => $this->id,
-			'method'         => $method,
-		];
-
-		Data_Events::register_handler(
-			[ static::class, 'dispatch_data_event_handler' ],
-			$action_name
-		);
+	protected function register_handler( $action_name, $method ) {
+		Integrations::register_data_event_handler( $this, static::class, $action_name, $method );
 	}
 
 	/**
 	 * Static dispatcher called by Data Events.
 	 *
-	 * Resolves the concrete integration instance from the registry and
-	 * calls the registered instance method. All subclasses share a single
-	 * $handler_map on the base class; entries are disambiguated by using
-	 * static::class (resolved via late static binding) as a key prefix.
-	 *
-	 * Throws on failure so that Data Events' retry mechanism (which catches
-	 * \Throwable) can re-queue the handler via ActionScheduler.
+	 * Thin trampoline that delegates to Integrations::dispatch_data_event_handler().
+	 * This method must live on Integration so that late static binding
+	 * (static::class) produces a unique serializable callable per concrete
+	 * subclass, which Data Events needs for independent handler retries.
 	 *
 	 * @param int    $timestamp Timestamp of the event.
 	 * @param array  $data      Data associated with the event.
@@ -168,39 +125,6 @@ abstract class Integration {
 	 * @throws \RuntimeException When the handler cannot be dispatched.
 	 */
 	public static function dispatch_data_event_handler( $timestamp, $data, $client_id ) {
-		$action = Data_Events::current_event();
-		if ( ! $action ) {
-			$message = sprintf( 'Integration data event dispatch aborted for %s: no current event available.', static::class );
-			Logger::error( $message, self::LOGGER_HEADER );
-			throw new \RuntimeException( esc_html( $message ) );
-		}
-
-		$key = static::class . '::' . $action;
-		if ( ! isset( self::$handler_map[ $key ] ) ) {
-			$message = sprintf( 'No integration data event handler registered for key "%s".', $key );
-			Logger::error( $message, self::LOGGER_HEADER );
-			throw new \RuntimeException( esc_html( $message ) );
-		}
-
-		$entry       = self::$handler_map[ $key ];
-		$integration = Integrations::get_integration( $entry['integration_id'] );
-		if ( ! $integration ) {
-			$message = sprintf( 'Failed to resolve integration "%s" for data event "%s".', $entry['integration_id'], $action );
-			Logger::error( $message, self::LOGGER_HEADER );
-			throw new \RuntimeException( esc_html( $message ) );
-		}
-
-		if ( ! is_callable( [ $integration, $entry['method'] ] ) ) {
-			$message = sprintf(
-				'Method "%s" is not callable on integration "%s" for data event "%s".',
-				$entry['method'],
-				$entry['integration_id'],
-				$action
-			);
-			Logger::error( $message, self::LOGGER_HEADER );
-			throw new \RuntimeException( esc_html( $message ) );
-		}
-
-		$integration->{ $entry['method'] }( $timestamp, $data, $client_id );
+		Integrations::dispatch_data_event_handler( static::class, $timestamp, $data, $client_id );
 	}
 }

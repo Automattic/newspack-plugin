@@ -47,8 +47,8 @@ class Sample_Integration extends Integration {
 	 * @param string $action_name The data event action name.
 	 * @param string $method      The instance method to call.
 	 */
-	public function test_register_data_event_handler( $action_name, $method ) {
-		$this->register_data_event_handler( $action_name, $method );
+	public function test_register_handler( $action_name, $method ) {
+		$this->register_handler( $action_name, $method );
 	}
 
 	/**

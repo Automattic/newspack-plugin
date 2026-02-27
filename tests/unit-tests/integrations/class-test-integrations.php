@@ -8,7 +8,6 @@
 namespace Newspack\Tests\Unit\Integrations;
 
 use Newspack\Data_Events;
-use Newspack\Reader_Activation\Integration;
 use Newspack\Reader_Activation\Integrations;
 use Sample_Integration;
 
@@ -42,7 +41,7 @@ class Test_Integrations extends \WP_UnitTestCase {
 	 * Reset handler_map via reflection.
 	 */
 	private function reset_handler_map() {
-		$reflection = new \ReflectionClass( Integration::class );
+		$reflection = new \ReflectionClass( Integrations::class );
 		$property   = $reflection->getProperty( 'handler_map' );
 		$property->setAccessible( true );
 		$property->setValue( null, [] );
@@ -143,14 +142,14 @@ class Test_Integrations extends \WP_UnitTestCase {
 	 * Test that registering a data event handler results in a serializable
 	 * static callable being registered with Data Events.
 	 */
-	public function test_register_data_event_handler_is_serializable() {
+	public function test_register_handler_is_serializable() {
 		$action_name = 'test_integration_event';
 		Data_Events::register_action( $action_name );
 
 		$integration = new Sample_Integration( 'test-id', 'Test' );
 		Integrations::register( $integration );
 
-		$integration->test_register_data_event_handler( $action_name, 'handle_test_event' );
+		$integration->test_register_handler( $action_name, 'handle_test_event' );
 
 		$handlers = Data_Events::get_action_handlers( $action_name );
 		$this->assertCount( 1, $handlers );
@@ -174,7 +173,7 @@ class Test_Integrations extends \WP_UnitTestCase {
 
 		$integration = new Sample_Integration( 'test-id', 'Test' );
 		Integrations::register( $integration );
-		$integration->test_register_data_event_handler( $action_name, 'handle_test_event' );
+		$integration->test_register_handler( $action_name, 'handle_test_event' );
 
 		$timestamp = time();
 		$data      = [ 'key' => 'value' ];
@@ -198,7 +197,7 @@ class Test_Integrations extends \WP_UnitTestCase {
 		$integration = new Sample_Integration( 'test-id', 'Test' );
 		Integrations::register( $integration );
 
-		$integration->test_register_data_event_handler( $action_name, 'nonexistent_method' );
+		$integration->test_register_handler( $action_name, 'nonexistent_method' );
 
 		$handlers = Data_Events::get_action_handlers( $action_name );
 		$this->assertEmpty( $handlers, 'Uncallable method should not be registered.' );
@@ -215,7 +214,7 @@ class Test_Integrations extends \WP_UnitTestCase {
 		$integration = new Sample_Integration( 'test-id', 'Test' );
 		// Register the integration and its handler, then later clear the registry to simulate a missing integration.
 		Integrations::register( $integration );
-		$integration->test_register_data_event_handler( $action_name, 'handle_test_event' );
+		$integration->test_register_handler( $action_name, 'handle_test_event' );
 
 		// Now remove the integration from the registry.
 		$this->reset_integrations();
