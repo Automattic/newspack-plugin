@@ -334,6 +334,9 @@ class Content_Gate {
 		if ( ! in_array( get_post_type(), array_column( Content_Restriction_Control::get_available_post_types(), 'value' ), true ) ) {
 			return;
 		}
+		if ( ! current_user_can( 'edit_others_posts' ) ) {
+			return;
+		}
 		$asset = require dirname( NEWSPACK_PLUGIN_FILE ) . '/dist/content-gate-post-settings.asset.php';
 		wp_enqueue_script( 'newspack-content-gate-post-settings', Newspack::plugin_url() . '/dist/content-gate-post-settings.js', $asset['dependencies'], $asset['version'], true );
 	}
