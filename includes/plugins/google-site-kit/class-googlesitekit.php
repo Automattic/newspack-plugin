@@ -277,6 +277,17 @@ class GoogleSiteKit {
 		// Set transport type to 'beacon' to allow async requests to complete after a new page is loaded.
 		$gtag_opt['transport_type'] = 'beacon';
 
+		/**
+		 * Enables custom Google Analytics parameters on the frontend.
+		 * Adds enhanced tracking parameters to GA events.
+		 *
+		 * @constant NEWSPACK_GA_ENABLE_CUSTOM_FE_PARAMS
+		 * @type     bool
+		 * @default  Custom frontend GA parameters disabled
+		 * @status   draft
+		 *
+		 * @example define( 'NEWSPACK_GA_ENABLE_CUSTOM_FE_PARAMS', true );
+		 */
 		$enable_fe_custom_params = defined( 'NEWSPACK_GA_ENABLE_CUSTOM_FE_PARAMS' ) && NEWSPACK_GA_ENABLE_CUSTOM_FE_PARAMS;
 		if ( ! $enable_fe_custom_params ) {
 			return $gtag_opt;

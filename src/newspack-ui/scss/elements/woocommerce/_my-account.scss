@@ -93,7 +93,7 @@
 				margin-top: 0;
 			}
 		}
-		& + *:not(.newspack-ui__modal-container) {
+		& + *:not(.newspack-ui__modal-container):not(.clear) {
 			margin-top: var(--newspack-ui-spacer-5);
 		}
 	}

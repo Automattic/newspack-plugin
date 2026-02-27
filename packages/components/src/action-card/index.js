@@ -29,7 +29,7 @@ import classnames from 'classnames';
  */
 const ActionCard = ( {
 	badge,
-	badgeLevel = 'info',
+	badgeLevel,
 	className,
 	checkbox,
 	children,
@@ -302,7 +302,7 @@ const ActionCard = ( {
 						<Card className={ classes } onClick={ simple && onClick } id={ id ?? null } noBorder={ noBorder }>
 							<div className="newspack-action-card__draggable-controls">
 								<div className="drag-handle" draggable onDragStart={ onDraggableStart } onDragEnd={ onDraggableEnd }>
-									<Icon icon={ dragHandle } height={ 18 } width={ 18 } />
+									<Icon icon={ dragHandle } />
 								</div>
 								<div className="movers">
 									<Button

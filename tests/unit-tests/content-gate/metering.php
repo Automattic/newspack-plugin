@@ -83,7 +83,7 @@ class Test_Metering extends \WP_UnitTestCase {
 		];
 		$args = wp_parse_args( $args, $defaults );
 
-		$gate_id = Content_Gate::create_gate( 'Test Gate' );
+		$gate_id = Content_Gate::create_gate( [ 'title' => 'Test Gate' ] );
 		$this->gate_ids[] = $gate_id;
 
 		Content_Gate::update_gate_settings(

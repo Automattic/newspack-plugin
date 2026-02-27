@@ -222,6 +222,18 @@ class Jetpack {
 	 * @return @bool Whether to render scripts.
 	 */
 	private static function should_amp_plus_modules() {
+		/**
+		 * Enables Jetpack module scripts on AMP pages when AMP Plus is active.
+		 * Includes sharing buttons, related posts, and other Jetpack features.
+		 * Requires NEWSPACK_AMP_PLUS_ENABLED to also be set.
+		 *
+		 * @constant NEWSPACK_AMP_PLUS_JETPACK_MODULES
+		 * @type     bool
+		 * @default  Jetpack modules AMP Plus handling disabled
+		 * @status   draft
+		 *
+		 * @example define( 'NEWSPACK_AMP_PLUS_JETPACK_MODULES', true );
+		 */
 		if ( defined( 'NEWSPACK_AMP_PLUS_JETPACK_MODULES' ) ) {
 			return true === NEWSPACK_AMP_PLUS_JETPACK_MODULES;
 		}

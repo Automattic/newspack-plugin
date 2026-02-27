@@ -339,6 +339,11 @@ class Metadata {
 			$metadata['registration_method'] = $registration_method;
 		}
 
+		$registration_page = self::has_key( 'registration_page', $metadata ) ? self::get_key_value( 'registration_page', $metadata ) : \get_user_meta( $user->ID, Reader_Activation::REGISTRATION_PAGE, true );
+		if ( ! empty( $registration_page ) ) {
+			$metadata['registration_page'] = $registration_page;
+		}
+
 		$connected_account = self::has_key( 'connected_account', $metadata ) ? self::get_key_value( 'connected_account', $metadata ) : \get_user_meta( $user->ID, Reader_Activation::CONNECTED_ACCOUNT, true );
 		if ( ! empty( $connected_account ) && in_array( $connected_account, Reader_Activation::SSO_REGISTRATION_METHODS ) ) {
 			$metadata['connected_account'] = $connected_account;
