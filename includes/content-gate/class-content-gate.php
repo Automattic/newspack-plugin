@@ -72,9 +72,9 @@ class Content_Gate {
 
 		add_action( 'the_post', [ __CLASS__, 'restrict_post' ], 10, 2 );
 		add_filter( 'the_content', [ __CLASS__, 'handle_restricted_content' ], PHP_INT_MAX );
-		add_filter( 'comments_open', [ __CLASS__, 'filter_comments_open' ] );
-		add_filter( 'comments_array', [ __CLASS__, 'filter_comments_array' ] );
-		add_filter( 'get_comments_number', [ __CLASS__, 'filter_comments_number' ] );
+		add_filter( 'comments_open', [ __CLASS__, 'filter_comments_open' ], 10, 2 );
+		add_filter( 'comments_array', [ __CLASS__, 'filter_comments_array' ], 10, 2 );
+		add_filter( 'get_comments_number', [ __CLASS__, 'filter_comments_number' ], 10, 2 );
 
 		/** Add gate content filters to mimic 'the_content'. See 'wp-includes/default-filters.php' for reference. */
 		add_filter( 'newspack_gate_content', 'capital_P_dangit', 11 );
@@ -230,11 +230,12 @@ class Content_Gate {
 	 * Close comments on gated and metered posts.
 	 *
 	 * @param bool $open    Whether comments are open.
+	 * @param int  $post_id Post ID.
 	 *
 	 * @return bool
 	 */
-	public static function filter_comments_open( $open ) {
-		if ( self::$is_gated || self::$is_metered ) {
+	public static function filter_comments_open( $open, $post_id ) {
+		if ( ( self::$is_gated || self::$is_metered ) && (int) $post_id === (int) get_queried_object_id() ) {
 			return false;
 		}
 		return $open;
@@ -246,11 +247,12 @@ class Content_Gate {
 	 * Hide all comments on fully gated posts.
 	 *
 	 * @param array $comments Array of comments.
+	 * @param int   $post_id  Post ID.
 	 *
 	 * @return array
 	 */
-	public static function filter_comments_array( $comments ) {
-		if ( self::$is_gated ) {
+	public static function filter_comments_array( $comments, $post_id ) {
+		if ( self::$is_gated && (int) $post_id === (int) get_queried_object_id() ) {
 			return [];
 		}
 		return $comments;
@@ -261,12 +263,13 @@ class Content_Gate {
 	 *
 	 * Return 0 on fully gated posts.
 	 *
-	 * @param int $count Comment count.
+	 * @param int $count   Comment count.
+	 * @param int $post_id Post ID.
 	 *
 	 * @return int
 	 */
-	public static function filter_comments_number( $count ) {
-		if ( self::$is_gated ) {
+	public static function filter_comments_number( $count, $post_id ) {
+		if ( self::$is_gated && (int) $post_id === (int) get_queried_object_id() ) {
 			return 0;
 		}
 		return $count;
