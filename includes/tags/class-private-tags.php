@@ -1,6 +1,6 @@
 <?php
 /**
- * Hidden Tags
+ * Private Tags
  *
  * @package Newspack
  */
@@ -12,10 +12,10 @@ use WP_Term;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Allows editors to mark tags as hidden, hiding them from public view
+ * Allows editors to mark tags as private, hiding them from public view
  * while keeping them usable for internal organization.
  *
- * When a tag is marked hidden, the following occurs:
+ * When a tag is marked private, the following occurs:
  * - It is not shown in post tag links on the frontend.
  * - It is excluded from tag cloud widgets.
  * - Its archive page returns a 404.
@@ -25,28 +25,28 @@ defined( 'ABSPATH' ) || exit;
  * - It is excluded from Yoast SEO structured data and sitemaps.
  *
  * In the admin area and Gutenberg editor:
- * - A "Hidden" column is added to the Tags list table, with a checkbox in Quick Edit.
- * - It is labeled "(hidden)" in the admin and Gutenberg editor.
+ * - A "Private" column is added to the Tags list table, with a checkbox in Quick Edit.
+ * - It is labeled "(private)" in the admin and Gutenberg editor.
  *
  * Note: This is a presentation-layer feature, not an access control mechanism.
- * Hidden tags remain in the database and may still be exposed by plugins or
+ * Private tags remain in the database and may still be exposed by plugins or
  * custom code outside the Newspack stack.
  */
-class Hidden_Tags {
+class Private_Tags {
 
 	/**
-	 * Meta key used to store the hidden tag flag.
+	 * Meta key used to store the private tag flag.
 	 *
 	 * @var string
 	 */
-	const META_KEY = 'np_hidden_tag';
+	const META_KEY = 'np_private_tag';
 
 	/**
-	 * Object cache group used for persistent caching of hidden tag queries.
+	 * Object cache group used for persistent caching of private tag queries.
 	 *
 	 * @var string
 	 */
-	const CACHE_GROUP = 'newspack_hidden_tags';
+	const CACHE_GROUP = 'newspack_private_tags';
 
 	/**
 	 * Whether the class has already been initialized.
@@ -56,11 +56,11 @@ class Hidden_Tags {
 	private static $initiated = false;
 
 	/**
-	 * In-memory cache for get_hidden_tags() results, keyed by $fields.
+	 * In-memory cache for get_private_tags() results, keyed by $fields.
 	 *
 	 * Acts as a first layer of caching within a single request, sitting in
 	 * front of the persistent object cache (wp_cache_get/set). Cleared
-	 * whenever a term's hidden status changes.
+	 * whenever a term's private status changes.
 	 *
 	 * @var array<string, array>
 	 */
@@ -86,41 +86,41 @@ class Hidden_Tags {
 		add_action( 'post_tag_edit_form_fields', [ __CLASS__, 'edit_term_fields' ] );
 		add_action( 'saved_post_tag', [ __CLASS__, 'save_term' ] );
 
-		// Admin: label hidden tags so editors can identify them.
-		add_filter( 'term_name', [ __CLASS__, 'append_hidden_label_to_name' ], 10, 2 );
-		add_filter( 'rest_prepare_post_tag', [ __CLASS__, 'append_hidden_label_to_rest' ], 10, 3 );
+		// Admin: label private tags so editors can identify them.
+		add_filter( 'term_name', [ __CLASS__, 'append_private_label_to_name' ], 10, 2 );
+		add_filter( 'rest_prepare_post_tag', [ __CLASS__, 'append_private_label_to_rest' ], 10, 2 );
 
-		// Admin: Hidden column and Quick Edit support.
-		add_filter( 'manage_edit-post_tag_columns', [ __CLASS__, 'add_hidden_column' ] );
-		add_filter( 'manage_post_tag_custom_column', [ __CLASS__, 'render_hidden_column' ], 10, 3 );
+		// Admin: Private column and Quick Edit support.
+		add_filter( 'manage_edit-post_tag_columns', [ __CLASS__, 'add_private_column' ] );
+		add_filter( 'manage_post_tag_custom_column', [ __CLASS__, 'render_private_column' ], 10, 3 );
 		add_action( 'quick_edit_custom_box', [ __CLASS__, 'quick_edit_fields' ], 10, 3 );
 		add_action( 'edited_post_tag', [ __CLASS__, 'save_quick_edit' ] );
 		add_action( 'admin_enqueue_scripts', [ __CLASS__, 'enqueue_admin_scripts' ] );
 
-		// Frontend: hide hidden tags from various surfaces.
+		// Frontend: hide private tags from various surfaces.
 		add_filter( 'term_links-post_tag', [ __CLASS__, 'filter_tag_links' ] );
 		add_filter( 'tag_cloud_sort', [ __CLASS__, 'filter_tag_cloud' ] );
 		add_action( 'pre_get_posts', [ __CLASS__, 'disable_tag_archives' ] );
 
-		// Frontend: strip hidden tag slugs from HTML class attributes.
+		// Frontend: strip private tag slugs from HTML class attributes.
 		add_filter( 'post_class', [ __CLASS__, 'filter_post_class' ] );
 		add_filter( 'body_class', [ __CLASS__, 'filter_body_class' ] );
 
-		// Integrations: strip hidden tags from ad targeting data.
+		// Integrations: strip private tags from ad targeting data.
 		add_filter( 'newspack_ads_ad_targeting', [ __CLASS__, 'filter_ad_targeting' ], 10, 2 );
 
-		// Integrations: strip hidden tags from Yoast SEO structured data and sitemaps.
+		// Integrations: strip private tags from Yoast SEO structured data and sitemaps.
 		add_filter( 'wpseo_schema_article', [ __CLASS__, 'filter_yoast_schema_article' ], 10, 2 );
 		add_filter( 'wpseo_exclude_from_sitemap_by_term_ids', [ __CLASS__, 'filter_yoast_sitemap_term_ids' ] );
 	}
 
 	/**
-	 * Check if a term is marked as hidden.
+	 * Check if a term is marked as private.
 	 *
 	 * @param WP_Term $term The term object.
 	 * @return bool
 	 */
-	public static function is_term_hidden( WP_Term $term ) {
+	public static function is_term_private( WP_Term $term ) {
 		// This class only handles post_tag; other taxonomies are out of scope.
 		if ( 'post_tag' !== $term->taxonomy ) {
 			return false;
@@ -133,7 +133,7 @@ class Hidden_Tags {
 	// -------------------------------------------------------------------------
 
 	/**
-	 * Get a specific field for all hidden tags.
+	 * Get a specific field for all private tags.
 	 *
 	 * Results are cached in two layers: static (per-request) and persistent
 	 * object cache (cross-request, when Memcached is available).
@@ -145,14 +145,14 @@ class Hidden_Tags {
 	 * @param string $fields The field to return ('slugs', 'names', 'ids').
 	 * @return array
 	 */
-	private static function get_hidden_tags( $fields ) {
+	private static function get_private_tags( $fields ) {
 		// Layer 1: in-memory static cache.
 		if ( isset( self::$cache[ $fields ] ) ) {
 			return self::$cache[ $fields ];
 		}
 
 		// Layer 2: persistent object cache (Memcached) — avoids DB query across requests.
-		$cache_key = 'hidden_tags_' . $fields;
+		$cache_key = 'private_tags_' . $fields;
 		$cached    = wp_cache_get( $cache_key, self::CACHE_GROUP );
 		if ( false !== $cached ) {
 			self::$cache[ $fields ] = $cached;
@@ -163,7 +163,7 @@ class Hidden_Tags {
 		$result = get_terms(
 			[
 				'taxonomy'   => 'post_tag',
-				'hide_empty' => false, // WP hides empty terms by default — include hidden tags even if they have zero posts.
+				'hide_empty' => false, // WP hides empty terms by default — include private tags even if they have zero posts.
 				'meta_key'   => self::META_KEY, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
 				'meta_value' => '1', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
 				'fields'     => $fields,
@@ -179,13 +179,13 @@ class Hidden_Tags {
 	}
 
 	/**
-	 * Clear both the in-memory and persistent object cache for get_hidden_tags().
+	 * Clear both the in-memory and persistent object cache for get_private_tags().
 	 *
 	 * Called after saving a term to ensure subsequent filter calls reflect
-	 * the updated hidden status within the same request and across requests.
+	 * the updated private status within the same request and across requests.
 	 *
 	 * The three cache keys correspond to the $fields values used by the
-	 * get_hidden_tag_slugs/names/ids() wrappers. If a new wrapper is added,
+	 * get_private_tag_slugs/names/ids() wrappers. If a new wrapper is added,
 	 * its $fields value must also be added to the foreach below.
 	 *
 	 * @return void
@@ -193,64 +193,64 @@ class Hidden_Tags {
 	private static function clear_cache() {
 		self::$cache = [];
 		foreach ( [ 'slugs', 'names', 'ids' ] as $fields ) {
-			wp_cache_delete( 'hidden_tags_' . $fields, self::CACHE_GROUP );
+			wp_cache_delete( 'private_tags_' . $fields, self::CACHE_GROUP );
 		}
 	}
 
 	/**
-	 * Get slugs of all hidden tags.
+	 * Get slugs of all private tags.
 	 *
 	 * @return string[]
 	 */
-	private static function get_hidden_tag_slugs() {
-		return self::get_hidden_tags( 'slugs' );
+	private static function get_private_tag_slugs() {
+		return self::get_private_tags( 'slugs' );
 	}
 
 	/**
-	 * Get names of all hidden tags.
+	 * Get names of all private tags.
 	 *
 	 * @return string[]
 	 */
-	private static function get_hidden_tag_names() {
-		return self::get_hidden_tags( 'names' );
+	private static function get_private_tag_names() {
+		return self::get_private_tags( 'names' );
 	}
 
 	/**
-	 * Get IDs of all hidden tags.
+	 * Get IDs of all private tags.
 	 *
 	 * WordPress's get_terms() returns IDs as numeric strings. This will cast to int
 	 * so Yoast and others can rely on a consistent type.
 	 *
 	 * @return int[]
 	 */
-	private static function get_hidden_tag_ids() {
-		return array_map( 'intval', self::get_hidden_tags( 'ids' ) );
+	private static function get_private_tag_ids() {
+		return array_map( 'intval', self::get_private_tags( 'ids' ) );
 	}
 
 	/**
-	 * Get CSS class names (tag-{slug}) for all hidden tags.
+	 * Get CSS class names (tag-{slug}) for all private tags.
 	 *
-	 * Used to strip hidden-tag classes from post and body class attributes.
+	 * Used to strip private-tag classes from post and body class attributes.
 	 *
 	 * @return string[]
 	 */
-	private static function get_hidden_tag_classes() {
+	private static function get_private_tag_classes() {
 		return array_map(
 			function( $slug ) {
 				return 'tag-' . $slug;
 			},
-			self::get_hidden_tag_slugs()
+			self::get_private_tag_slugs()
 		);
 	}
 
 	/**
-	 * Return the translatable "(hidden)" suffix used in admin labels.
+	 * Return the translatable "(private)" suffix used in admin labels.
 	 *
 	 * @return string
 	 */
-	private static function get_hidden_label() {
-		/* translators: suffix appended to tag names in the admin to indicate they are hidden */
-		return ' ' . __( '(hidden)', 'newspack-plugin' );
+	private static function get_private_label() {
+		/* translators: suffix appended to tag names in the admin to indicate they are private */
+		return ' ' . __( '(private)', 'newspack-plugin' );
 	}
 
 	// -------------------------------------------------------------------------
@@ -258,43 +258,43 @@ class Hidden_Tags {
 	// -------------------------------------------------------------------------
 
 	/**
-	 * Render the hidden tag checkbox on the Add Tag form.
+	 * Render the private tag checkbox on the Add Tag form.
 	 *
 	 * @return void
 	 */
 	public static function create_term_fields() {
 		?>
-		<div class="form-field term-hidden-wrap">
-			<label for="<?php echo esc_attr( self::META_KEY ); ?>"><?php esc_html_e( 'Hidden tag', 'newspack-plugin' ); ?></label>
+		<div class="form-field term-private-wrap">
+			<label for="<?php echo esc_attr( self::META_KEY ); ?>"><?php esc_html_e( 'Private tag', 'newspack-plugin' ); ?></label>
 			<input type="checkbox" name="<?php echo esc_attr( self::META_KEY ); ?>" id="<?php echo esc_attr( self::META_KEY ); ?>" value="1">
-			<p class="description"><?php esc_html_e( 'Hidden tags are not shown on the frontend. Their archive pages return 404 and they are excluded from tag clouds.', 'newspack-plugin' ); ?></p>
+			<p class="description"><?php esc_html_e( 'Private tags are not shown on the frontend. Their archive pages return 404 and they are excluded from tag clouds.', 'newspack-plugin' ); ?></p>
 		</div>
 		<?php
 	}
 
 	/**
-	 * Render the hidden tag checkbox on the Edit Tag form.
+	 * Render the private tag checkbox on the Edit Tag form.
 	 *
 	 * @param WP_Term $term The current term object.
 	 * @return void
 	 */
 	public static function edit_term_fields( WP_Term $term ) {
-		$is_hidden = get_term_meta( $term->term_id, self::META_KEY, true );
+		$is_private = get_term_meta( $term->term_id, self::META_KEY, true );
 		?>
 		<tr class="form-field term-<?php echo esc_attr( self::META_KEY ); ?>-wrap">
 			<th scope="row">
-				<label for="<?php echo esc_attr( self::META_KEY ); ?>"><?php esc_html_e( 'Hidden tag', 'newspack-plugin' ); ?></label>
+				<label for="<?php echo esc_attr( self::META_KEY ); ?>"><?php esc_html_e( 'Private tag', 'newspack-plugin' ); ?></label>
 			</th>
 			<td>
-				<input type="checkbox" name="<?php echo esc_attr( self::META_KEY ); ?>" id="<?php echo esc_attr( self::META_KEY ); ?>" value="1" <?php checked( '1', $is_hidden ); ?>>
-				<p class="description"><?php esc_html_e( 'Hidden tags are not shown on the frontend. Their archive pages return 404 and they are excluded from tag clouds.', 'newspack-plugin' ); ?></p>
+				<input type="checkbox" name="<?php echo esc_attr( self::META_KEY ); ?>" id="<?php echo esc_attr( self::META_KEY ); ?>" value="1" <?php checked( '1', $is_private ); ?>>
+				<p class="description"><?php esc_html_e( 'Private tags are not shown on the frontend. Their archive pages return 404 and they are excluded from tag clouds.', 'newspack-plugin' ); ?></p>
 			</td>
 		</tr>
 		<?php
 	}
 
 	/**
-	 * Save the hidden tag meta when a tag is created or updated.
+	 * Save the private tag meta when a tag is created or updated.
 	 *
 	 * @param int $term_id The term ID.
 	 * @return void
@@ -321,20 +321,20 @@ class Hidden_Tags {
 	}
 
 	/**
-	 * Append "(hidden)" to the tag name in the admin area.
+	 * Append "(private)" to the tag name in the admin area.
 	 *
 	 * @param string      $name The term name.
 	 * @param WP_Term|int $term The term object or term ID.
 	 * @return string
 	 */
-	public static function append_hidden_label_to_name( $name, $term ) {
-		// Only apply the label in the admin area; on the frontend, tag names should appear normally without the "(hidden)" suffix.
+	public static function append_private_label_to_name( $name, $term ) {
+		// Only apply the label in the admin area; on the frontend, tag names should appear normally without the "(private)" suffix.
 		if ( ! is_admin() ) {
 			return $name;
 		}
 
 		// Guard against double-appending if both the term_name and REST filters fire.
-		if ( false !== strpos( $name, self::get_hidden_label() ) ) {
+		if ( false !== strpos( $name, self::get_private_label() ) ) {
 			return $name;
 		}
 
@@ -347,60 +347,58 @@ class Hidden_Tags {
 			}
 		}
 
-		// Type guard: ensure we have a post_tag WP_Term before calling is_term_hidden().
+		// Type guard: ensure we have a post_tag WP_Term before calling is_term_private().
 		if ( ! $term instanceof WP_Term || 'post_tag' !== $term->taxonomy ) {
 			return $name;
 		}
 
-		// All passed. If the term is hidden, append the label.
-		if ( self::is_term_hidden( $term ) ) {
-			$name .= self::get_hidden_label();
+		// All passed. If the term is private, append the label.
+		if ( self::is_term_private( $term ) ) {
+			$name .= self::get_private_label();
 		}
 
 		return $name;
 	}
 
 	/**
-	 * Append "(hidden)" to tag names in REST API responses (Gutenberg editor).
+	 * Append "(private)" to tag names in REST API responses (Gutenberg editor).
+	 *
+	 * Note: No context parameter check here. Gutenberg's tag picker fetches tags
+	 * with context=view, not context=edit, so a context guard would prevent the
+	 * label from appearing in the editor — the opposite of the intended behavior.
 	 *
 	 * @param \WP_REST_Response $response The response object.
 	 * @param WP_Term           $term     The term object.
-	 * @param \WP_REST_Request  $request  The request object.
 	 * @return \WP_REST_Response
 	 */
-	public static function append_hidden_label_to_rest( $response, $term, $request ) {
-		// Only label hidden tags in edit context (Gutenberg editor); public REST consumers should see plain names.
-		if ( 'edit' !== $request->get_param( 'context' ) ) {
-			return $response;
-		}
-
+	public static function append_private_label_to_rest( $response, $term ) {
 		// rest_prepare_post_tag only fires for post_tag, but confirm the expectation explicitly.
 		if ( 'post_tag' !== $term->taxonomy ) {
 			return $response;
 		}
 
-		// Append the label if the tag is hidden and it isn't already there. This guards against
-		// double-appending if both this filter and append_hidden_label_to_name() fire together.
-		if ( self::is_term_hidden( $term ) && false === strpos( $response->data['name'], self::get_hidden_label() ) ) {
-			$response->data['name'] .= self::get_hidden_label();
+		// Append the label if the tag is private and it isn't already there. This guards against
+		// double-appending if both this filter and append_private_label_to_name() fire together.
+		if ( self::is_term_private( $term ) && false === strpos( $response->data['name'], self::get_private_label() ) ) {
+			$response->data['name'] .= self::get_private_label();
 		}
 
 		return $response;
 	}
 
 	/**
-	 * Add a "Hidden" column to the Tags list table.
+	 * Add a "Private" column to the Tags list table.
 	 *
 	 * @param string[] $columns Existing column headers.
 	 * @return string[]
 	 */
-	public static function add_hidden_column( $columns ) {
-		$columns['np_hidden'] = __( 'Hidden', 'newspack-plugin' );
+	public static function add_private_column( $columns ) {
+		$columns['np_private'] = __( 'Private', 'newspack-plugin' );
 		return $columns;
 	}
 
 	/**
-	 * Render the Hidden column cell for each tag row.
+	 * Render the Private column cell for each tag row.
 	 *
 	 * Uses a data attribute so the Quick Edit JS can read the current state
 	 * without parsing display text.
@@ -410,34 +408,34 @@ class Hidden_Tags {
 	 * @param int    $term_id     The term ID.
 	 * @return string
 	 */
-	public static function render_hidden_column( $content, $column_name, $term_id ) {
-		if ( 'np_hidden' !== $column_name ) {
+	public static function render_private_column( $content, $column_name, $term_id ) {
+		if ( 'np_private' !== $column_name ) {
 			return $content;
 		}
-		$is_hidden = (bool) get_term_meta( $term_id, self::META_KEY, true );
+		$is_private = (bool) get_term_meta( $term_id, self::META_KEY, true );
 
 		// The ✓ checkmark is decorative; screen-reader-text provides the accessible label.
-		if ( $is_hidden ) {
+		if ( $is_private ) {
 			$display = sprintf(
 				'<span aria-hidden="true">&#10003;</span><span class="screen-reader-text">%s</span>',
-				esc_html__( 'Hidden', 'newspack-plugin' )
+				esc_html__( 'Private', 'newspack-plugin' )
 			);
 		} else {
 			$display = sprintf(
 				'<span class="screen-reader-text">%s</span>',
-				esc_html__( 'Not hidden', 'newspack-plugin' )
+				esc_html__( 'Not private', 'newspack-plugin' )
 			);
 		}
 
 		return sprintf(
-			'<span data-np-hidden="%s">%s</span>',
-			$is_hidden ? '1' : '0',
+			'<span data-np-private="%s">%s</span>',
+			$is_private ? '1' : '0',
 			$display
 		);
 	}
 
 	/**
-	 * Render the hidden tag checkbox inside the Quick Edit form.
+	 * Render the private tag checkbox inside the Quick Edit form.
 	 *
 	 * Fires once per column; only outputs HTML for our custom column.
 	 *
@@ -447,7 +445,7 @@ class Hidden_Tags {
 	 * @return void
 	 */
 	public static function quick_edit_fields( $column_name, $screen, $taxonomy ) {
-		if ( 'post_tag' !== $taxonomy || 'np_hidden' !== $column_name ) {
+		if ( 'post_tag' !== $taxonomy || 'np_private' !== $column_name ) {
 			return;
 		}
 		?>
@@ -455,7 +453,7 @@ class Hidden_Tags {
 			<div class="inline-edit-col">
 				<label>
 					<input type="checkbox" name="<?php echo esc_attr( self::META_KEY ); ?>" value="1" />
-					<span class="title"><?php esc_html_e( 'Hidden tag', 'newspack-plugin' ); ?></span>
+					<span class="title"><?php esc_html_e( 'Private tag', 'newspack-plugin' ); ?></span>
 				</label>
 			</div>
 		</fieldset>
@@ -463,7 +461,7 @@ class Hidden_Tags {
 	}
 
 	/**
-	 * Save the hidden tag meta from the Quick Edit form.
+	 * Save the private tag meta from the Quick Edit form.
 	 *
 	 * WordPress core verifies the nonce (taxinlineeditnonce) before this hook
 	 * fires, so no additional nonce check is required here.
@@ -494,7 +492,7 @@ class Hidden_Tags {
 	/**
 	 * Enqueue inline JS to pre-populate the Quick Edit checkbox.
 	 *
-	 * Wraps the native inlineEditTax.edit() to read the current hidden state
+	 * Wraps the native inlineEditTax.edit() to read the current private state
 	 * from the row's data attribute and check the box accordingly.
 	 *
 	 * @param string $hook The current admin page hook.
@@ -526,13 +524,13 @@ class Hidden_Tags {
 					var row     = document.getElementById( 'tag-' + termId );
 					var editRow = document.getElementById( 'edit-' + termId );
 					if ( row && editRow ) {
-						var span     = row.querySelector( '.column-np_hidden span' );
-						// Read hidden state from the data attribute set by render_hidden_column().
-						var isHidden = span && '1' === span.getAttribute( 'data-np-hidden' );
-						var checkbox = editRow.querySelector( 'input[name=\"{$meta_key}\"]' );
+						var span      = row.querySelector( '.column-np_private span' );
+						// Read private state from the data attribute set by render_private_column().
+						var isPrivate = span && '1' === span.getAttribute( 'data-np-private' );
+						var checkbox  = editRow.querySelector( 'input[name=\"{$meta_key}\"]' );
 						if ( checkbox ) {
-							// Pre-populate the checkbox with the tag's current hidden state.
-							checkbox.checked = isHidden;
+							// Pre-populate the checkbox with the tag's current private state.
+							checkbox.checked = isPrivate;
 						}
 					}
 				};
@@ -548,10 +546,10 @@ class Hidden_Tags {
 	// -------------------------------------------------------------------------
 
 	/**
-	 * Remove hidden tags from post tag link lists on the frontend.
+	 * Remove private tags from post tag link lists on the frontend.
 	 *
 	 * Rather than parsing the rendered HTML strings, this fetches
-	 * the current post's term objects directly, filters out hidden
+	 * the current post's term objects directly, filters out private
 	 * tags, and rebuilds the link list cleanly from term data.
 	 *
 	 * This only runs inside the main WordPress Loop (in_the_loop()) to ensure the
@@ -566,7 +564,7 @@ class Hidden_Tags {
 	 */
 	public static function filter_tag_links( $links ) {
 		// This filter fires in wp-admin too (e.g. Posts list table Tags column).
-		// Hidden tags should remain visible to editors — only hide on the frontend.
+		// Private tags should remain visible to editors — only hide on the frontend.
 		if ( is_admin() ) {
 			return $links;
 		}
@@ -593,11 +591,11 @@ class Hidden_Tags {
 		$visible_terms = array_filter(
 			$terms,
 			function( $term ) {
-				return ! self::is_term_hidden( $term );
+				return ! self::is_term_private( $term );
 			}
 		);
 
-		// All tags on this post are hidden; return an empty array so the caller renders no tag list.
+		// All tags on this post are private; return an empty array so the caller renders no tag list.
 		if ( empty( $visible_terms ) ) {
 			return [];
 		}
@@ -616,7 +614,7 @@ class Hidden_Tags {
 	}
 
 	/**
-	 * Remove hidden tags from the tag cloud widget.
+	 * Remove private tags from the tag cloud widget.
 	 *
 	 * @param array $tags Array of WP_Term objects.
 	 * @return array
@@ -625,14 +623,14 @@ class Hidden_Tags {
 		return array_filter(
 			$tags,
 			function( $tag ) {
-				// Keep items we don't understand; only filter out WP_Terms that are hidden.
-				return ! $tag instanceof WP_Term || ! self::is_term_hidden( $tag );
+				// Keep items we don't understand; only filter out WP_Terms that are private.
+				return ! $tag instanceof WP_Term || ! self::is_term_private( $tag );
 			}
 		);
 	}
 
 	/**
-	 * Return 404 for hidden tag archive and feed pages.
+	 * Return 404 for private tag archive and feed pages.
 	 *
 	 * @param \WP_Query $query The current query.
 	 * @return void
@@ -646,7 +644,7 @@ class Hidden_Tags {
 
 		// get_queried_object() returns null if no object is associated with the query.
 		$tag = $query->get_queried_object();
-		if ( ! $tag || ! self::is_term_hidden( $tag ) ) {
+		if ( ! $tag || ! self::is_term_private( $tag ) ) {
 			return;
 		}
 
@@ -663,25 +661,25 @@ class Hidden_Tags {
 	}
 
 	/**
-	 * Strip hidden tag CSS classes from the post element.
+	 * Strip private tag CSS classes from the post element.
 	 *
 	 * @param string[] $classes CSS class names.
 	 * @return string[]
 	 */
 	public static function filter_post_class( $classes ) {
-		// array_diff removes hidden-tag classes; array_values re-indexes into a sequential array.
-		return array_values( array_diff( $classes, self::get_hidden_tag_classes() ) );
+		// array_diff removes private-tag classes; array_values re-indexes into a sequential array.
+		return array_values( array_diff( $classes, self::get_private_tag_classes() ) );
 	}
 
 	/**
-	 * Strip hidden tag CSS classes from the body element.
+	 * Strip private tag CSS classes from the body element.
 	 *
 	 * @param string[] $classes CSS class names.
 	 * @return string[]
 	 */
 	public static function filter_body_class( $classes ) {
-		// array_diff removes hidden-tag classes; array_values re-indexes into a sequential array.
-		return array_values( array_diff( $classes, self::get_hidden_tag_classes() ) );
+		// array_diff removes private-tag classes; array_values re-indexes into a sequential array.
+		return array_values( array_diff( $classes, self::get_private_tag_classes() ) );
 	}
 
 	// -------------------------------------------------------------------------
@@ -689,9 +687,9 @@ class Hidden_Tags {
 	// -------------------------------------------------------------------------
 
 	/**
-	 * Strip hidden tags from GAM ad targeting data.
+	 * Strip private tags from GAM ad targeting data.
 	 *
-	 * Hooks into newspack_ads_ad_targeting to remove hidden tag slugs
+	 * Hooks into newspack_ads_ad_targeting to remove private tag slugs
 	 * from the 'tag' targeting key before it is passed to Google Ad Manager.
 	 *
 	 * @param array $targeting The targeting data array.
@@ -703,13 +701,13 @@ class Hidden_Tags {
 			return $targeting;
 		}
 
-		$hidden_slugs = self::get_hidden_tag_slugs();
-		if ( empty( $hidden_slugs ) ) {
+		$private_slugs = self::get_private_tag_slugs();
+		if ( empty( $private_slugs ) ) {
 			return $targeting;
 		}
 
-		// array_diff removes hidden slugs; array_values re-indexes the result into a sequential array.
-		$targeting['tag'] = array_values( array_diff( $targeting['tag'], $hidden_slugs ) );
+		// array_diff removes private slugs; array_values re-indexes the result into a sequential array.
+		$targeting['tag'] = array_values( array_diff( $targeting['tag'], $private_slugs ) );
 
 		// Remove the key entirely rather than passing an empty array to GAM.
 		if ( empty( $targeting['tag'] ) ) {
@@ -720,9 +718,9 @@ class Hidden_Tags {
 	}
 
 	/**
-	 * Strip hidden tags from Yoast SEO Article schema keywords.
+	 * Strip private tags from Yoast SEO Article schema keywords.
 	 *
-	 * Hooks into wpseo_schema_article to remove hidden tag names from the
+	 * Hooks into wpseo_schema_article to remove private tag names from the
 	 * 'keywords' key before the JSON-LD structured data is output.
 	 *
 	 * @param array $data    The Article schema data.
@@ -734,13 +732,13 @@ class Hidden_Tags {
 			return $data;
 		}
 
-		$hidden_names = self::get_hidden_tag_names();
-		if ( empty( $hidden_names ) ) {
+		$private_names = self::get_private_tag_names();
+		if ( empty( $private_names ) ) {
 			return $data;
 		}
 
-		// array_diff removes hidden tag names; array_values re-indexes the result into a sequential array.
-		$data['keywords'] = array_values( array_diff( $data['keywords'], $hidden_names ) );
+		// array_diff removes private tag names; array_values re-indexes the result into a sequential array.
+		$data['keywords'] = array_values( array_diff( $data['keywords'], $private_names ) );
 
 		// Remove the key entirely rather than passing an empty array to Yoast's schema output.
 		if ( empty( $data['keywords'] ) ) {
@@ -751,23 +749,23 @@ class Hidden_Tags {
 	}
 
 	/**
-	 * Exclude hidden tags from the Yoast SEO XML sitemap.
+	 * Exclude private tags from the Yoast SEO XML sitemap.
 	 *
-	 * Hooks into wpseo_exclude_from_sitemap_by_term_ids to add hidden tag IDs
+	 * Hooks into wpseo_exclude_from_sitemap_by_term_ids to add private tag IDs
 	 * to the list of terms excluded from the taxonomy sitemap.
 	 *
 	 * @param int[] $excluded_ids Term IDs already excluded from the sitemap.
 	 * @return int[]
 	 */
 	public static function filter_yoast_sitemap_term_ids( $excluded_ids ) {
-		$hidden_ids = self::get_hidden_tag_ids();
-		if ( empty( $hidden_ids ) ) {
+		$private_ids = self::get_private_tag_ids();
+		if ( empty( $private_ids ) ) {
 			return $excluded_ids;
 		}
 
 		// Append to existing exclusions rather than replacing them.
-		return array_merge( $excluded_ids, $hidden_ids );
+		return array_merge( $excluded_ids, $private_ids );
 	}
 }
 
-Hidden_Tags::init();
+Private_Tags::init();
