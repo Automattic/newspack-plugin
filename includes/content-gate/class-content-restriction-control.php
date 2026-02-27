@@ -26,9 +26,15 @@ class Content_Restriction_Control {
 	private static $post_gate_layout_id_map = [];
 
 	/**
+	 * Post meta key for exempting a post from access control restrictions.
+	 */
+	const IS_EXEMPT_META_KEY = 'newspack_content_restriction_is_exempt';
+
+	/**
 	 * Initialize hooks and filters.
 	 */
 	public static function init() {
+		add_action( 'init', [ __CLASS__, 'register_meta' ] );
 		add_filter( 'newspack_is_post_restricted', [ __CLASS__, 'is_post_restricted' ], 10, 2 );
 	}
 
@@ -270,6 +276,26 @@ class Content_Restriction_Control {
 			return self::$post_gate_layout_id_map[ $post_id ];
 		}
 		return false;
+	}
+
+	/**
+	 * Register post meta for the exemption flag.
+	 */
+	public static function register_meta() {
+		$post_types = array_column( self::get_available_post_types(), 'value' );
+		foreach ( $post_types as $post_type ) {
+			\register_meta(
+				'post',
+				self::IS_EXEMPT_META_KEY,
+				[
+					'object_subtype' => $post_type,
+					'show_in_rest'   => true,
+					'type'           => 'boolean',
+					'default'        => false,
+					'single'         => true,
+				]
+			);
+		}
 	}
 }
 Content_Restriction_Control::init();
