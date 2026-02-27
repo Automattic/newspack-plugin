@@ -27,6 +27,8 @@ class Content_Restriction_Control {
 
 	/**
 	 * Post meta key for exempting a post from access control restrictions.
+	 *
+	 * @var string
 	 */
 	const IS_EXEMPT_META_KEY = 'newspack_content_restriction_is_exempt';
 
@@ -282,7 +284,7 @@ class Content_Restriction_Control {
 	 * Register post meta for the exemption flag.
 	 */
 	public static function register_meta() {
-		$post_types = array_column( self::get_available_post_types(), 'value' );
+		$post_types = array_column( (array) self::get_available_post_types(), 'value' );
 		foreach ( $post_types as $post_type ) {
 			\register_meta(
 				'post',
@@ -293,6 +295,9 @@ class Content_Restriction_Control {
 					'type'           => 'boolean',
 					'default'        => false,
 					'single'         => true,
+					'auth_callback'  => function() {
+						return current_user_can( 'edit_others_posts' );
+					},
 				]
 			);
 		}
