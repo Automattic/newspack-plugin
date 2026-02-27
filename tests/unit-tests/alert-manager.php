@@ -176,7 +176,6 @@ class Newspack_Test_Alert_Manager extends WP_UnitTestCase {
 				'context'        => 'Reader registered',
 				'retry_count'    => 5,
 				'reason'         => 'Invalid API key',
-				'failure_layer'  => 'api',
 			]
 		);
 
@@ -185,7 +184,6 @@ class Newspack_Test_Alert_Manager extends WP_UnitTestCase {
 		$this->assertEquals( 'mailchimp', $log[0]['integration_id'] );
 		$this->assertEquals( 'user@test.com', $log[0]['contact_email'] );
 		$this->assertEquals( 'Invalid API key', $log[0]['reason'] );
-		$this->assertEquals( 'api', $log[0]['failure_layer'] );
 		$this->assertNull( $log[0]['action_name'] );
 	}
 
@@ -198,12 +196,11 @@ class Newspack_Test_Alert_Manager extends WP_UnitTestCase {
 		do_action(
 			'newspack_data_event_retry_exhausted',
 			[
-				'handler'       => [ 'SomeClass', 'some_method' ],
-				'action_name'   => 'reader_registered',
-				'data'          => [],
-				'retry_count'   => 5,
-				'reason'        => 'Handler threw exception',
-				'failure_layer' => 'newspack',
+				'handler'     => [ 'SomeClass', 'some_method' ],
+				'action_name' => 'reader_registered',
+				'data'        => [],
+				'retry_count' => 5,
+				'reason'      => 'Handler threw exception',
 			]
 		);
 
@@ -230,7 +227,6 @@ class Newspack_Test_Alert_Manager extends WP_UnitTestCase {
 				'contact_email'  => "user{$i}@test.com",
 				'action_name'    => null,
 				'reason'         => "API timeout {$i}",
-				'failure_layer'  => 'api',
 			];
 		}
 		update_option( Alert_Manager::FAILURE_LOG_OPTION, $log, false );
@@ -272,7 +268,6 @@ class Newspack_Test_Alert_Manager extends WP_UnitTestCase {
 				'contact_email'  => "user{$i}@test.com",
 				'action_name'    => null,
 				'reason'         => "API timeout {$i}",
-				'failure_layer'  => 'api',
 			];
 		}
 		update_option( Alert_Manager::FAILURE_LOG_OPTION, $log, false );
@@ -307,7 +302,6 @@ class Newspack_Test_Alert_Manager extends WP_UnitTestCase {
 				'contact_email'  => "user{$i}@test.com",
 				'action_name'    => null,
 				'reason'         => "API timeout {$i}",
-				'failure_layer'  => 'api',
 			];
 		}
 		update_option( Alert_Manager::FAILURE_LOG_OPTION, $log, false );
@@ -341,7 +335,6 @@ class Newspack_Test_Alert_Manager extends WP_UnitTestCase {
 				'contact_email'  => "user{$i}@test.com",
 				'action_name'    => null,
 				'reason'         => "API timeout {$i}",
-				'failure_layer'  => 'api',
 			];
 		}
 		update_option( Alert_Manager::FAILURE_LOG_OPTION, $log, false );

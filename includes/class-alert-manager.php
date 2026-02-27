@@ -137,7 +137,6 @@ class Alert_Manager {
 			'contact_email'  => $payload['contact']['email'] ?? null,
 			'action_name'    => $payload['action_name'] ?? null,
 			'reason'         => $payload['reason'] ?? null,
-			'failure_layer'  => $payload['failure_layer'] ?? null,
 		];
 		update_option( self::FAILURE_LOG_OPTION, $log, false );
 	}
@@ -274,18 +273,6 @@ class Alert_Manager {
 					continue;
 				}
 
-				// Determine dominant failure layer.
-				$layer_counts = [];
-				foreach ( $entries as $entry ) {
-					$layer = $entry['failure_layer'] ?? 'unknown';
-					if ( ! isset( $layer_counts[ $layer ] ) ) {
-						$layer_counts[ $layer ] = 0;
-					}
-					$layer_counts[ $layer ]++;
-				}
-				arsort( $layer_counts );
-				$dominant_layer = array_key_first( $layer_counts );
-
 				$message = sprintf(
 					'Pattern detected: %d failures with %s "%s" in the last %s.',
 					count( $entries ),
@@ -298,11 +285,10 @@ class Alert_Manager {
 				do_action(
 					'newspack_alert',
 					[
-						'type'          => 'failure_pattern',
-						'failure_layer' => $dominant_layer,
-						'severity'      => 'error',
-						'message'       => $message,
-						'context'       => [
+						'type'      => 'failure_pattern',
+						'severity'  => 'error',
+						'message'   => $message,
+						'context'   => [
 							'rule_id'     => $rule['id'],
 							'group_by'    => $rule['group_by'],
 							'group_value' => $group_value,
@@ -310,7 +296,7 @@ class Alert_Manager {
 							'threshold'   => $rule['threshold'],
 							'interval'    => $rule['interval'],
 						],
-						'timestamp'     => time(),
+						'timestamp' => time(),
 					]
 				);
 
