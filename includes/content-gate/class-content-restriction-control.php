@@ -181,6 +181,11 @@ class Content_Restriction_Control {
 			return $is_post_restricted;
 		}
 
+		// Return early if this post is exempt from access control restrictions.
+		if ( $post_id && get_post_meta( $post_id, self::IS_EXEMPT_META_KEY, true ) ) {
+			return false;
+		}
+
 		// Return early if the post is already restricted for the current user.
 		if ( $is_post_restricted ) {
 			return $is_post_restricted;
