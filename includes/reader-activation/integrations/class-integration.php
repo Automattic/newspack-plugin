@@ -98,11 +98,15 @@ abstract class Integration {
 	/**
 	 * Pull contact data from the integration for a given user.
 	 *
+	 * Integrations that support pulling contact data should implement this method.
+	 *
 	 * @param int $user_id WordPress user ID.
 	 *
 	 * @return array|\WP_Error Associative array of field_key => value pairs on success, WP_Error on failure.
 	 */
-	abstract public function pull_contact_data( $user_id );
+	public function pull_contact_data( $user_id ) {
+		return [];
+	}
 
 	/**
 	 * Get incoming available contact fields from the integration.
