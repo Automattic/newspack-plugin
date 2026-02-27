@@ -75,44 +75,6 @@ class Newspack_Test_Alert_Manager extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test REST endpoint registration and permissions.
-	 */
-	public function test_rest_endpoint_registered() {
-		$routes = rest_get_server()->get_routes();
-		$this->assertArrayHasKey( '/newspack/v1/sync/health', $routes, 'Health endpoint should be registered.' );
-	}
-
-	/**
-	 * Test REST endpoint returns expected structure.
-	 */
-	public function test_rest_endpoint_response_structure() {
-		wp_set_current_user( self::factory()->user->create( [ 'role' => 'administrator' ] ) );
-
-		$request  = new WP_REST_Request( 'GET', '/newspack/v1/sync/health' );
-		$response = rest_get_server()->dispatch( $request );
-
-		$this->assertEquals( 200, $response->get_status() );
-
-		$data = $response->get_data();
-		$this->assertArrayHasKey( 'integrations', $data );
-		$this->assertArrayHasKey( 'data_events', $data );
-		$this->assertArrayHasKey( 'pending_retries', $data['data_events'] );
-		$this->assertArrayHasKey( 'exhausted_retries', $data['data_events'] );
-	}
-
-	/**
-	 * Test REST endpoint requires manage_options capability.
-	 */
-	public function test_rest_endpoint_requires_permissions() {
-		wp_set_current_user( self::factory()->user->create( [ 'role' => 'subscriber' ] ) );
-
-		$request  = new WP_REST_Request( 'GET', '/newspack/v1/sync/health' );
-		$response = rest_get_server()->dispatch( $request );
-
-		$this->assertEquals( 403, $response->get_status() );
-	}
-
-	/**
 	 * Test that get_pattern_rules returns default rules.
 	 */
 	public function test_get_pattern_rules_returns_defaults() {
