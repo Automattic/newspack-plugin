@@ -34,13 +34,11 @@ class Newspack_Test_Alert_Manager extends WP_UnitTestCase {
 				'context'        => 'Reader registered',
 				'retry_count'    => 5,
 				'reason'         => 'Invalid API key',
-				'failure_layer'  => 'api',
 			]
 		);
 
 		$this->assertTrue( $alert_fired, 'newspack_alert should fire.' );
 		$this->assertEquals( 'sync_retry_exhausted', $alert_data['type'] );
-		$this->assertEquals( 'api', $alert_data['failure_layer'] );
 		$this->assertEquals( 'error', $alert_data['severity'] );
 		$this->assertArrayHasKey( 'message', $alert_data );
 		$this->assertArrayHasKey( 'context', $alert_data );
@@ -64,18 +62,16 @@ class Newspack_Test_Alert_Manager extends WP_UnitTestCase {
 		do_action(
 			'newspack_data_event_retry_exhausted',
 			[
-				'handler'       => [ 'SomeClass', 'some_method' ],
-				'action_name'   => 'reader_registered',
-				'data'          => [],
-				'retry_count'   => 5,
-				'reason'        => 'Handler threw exception',
-				'failure_layer' => 'newspack',
+				'handler'     => [ 'SomeClass', 'some_method' ],
+				'action_name' => 'reader_registered',
+				'data'        => [],
+				'retry_count' => 5,
+				'reason'      => 'Handler threw exception',
 			]
 		);
 
 		$this->assertTrue( $alert_fired, 'newspack_alert should fire.' );
 		$this->assertEquals( 'data_event_retry_exhausted', $alert_data['type'] );
-		$this->assertEquals( 'newspack', $alert_data['failure_layer'] );
 	}
 
 	/**

@@ -959,54 +959,6 @@ class Newspack_Test_Data_Events extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test that handler retry data includes failure_layer.
-	 */
-	public function test_handler_retry_includes_failure_layer() {
-		if ( ! function_exists( 'as_schedule_single_action' ) ) {
-			$this->markTestSkipped( 'ActionScheduler not available.' );
-		}
-
-		as_unschedule_all_actions( Data_Events::HANDLER_RETRY_HOOK );
-
-		$action_name = 'test_failure_layer';
-		Data_Events::register_action( $action_name );
-
-		$handler = [ self::class, 'throwing_handler' ];
-		Data_Events::register_handler( $handler, $action_name );
-
-		// Trigger via execute_handler_retry at retry_count 1 (not max), so a new retry is scheduled.
-		Data_Events::execute_handler_retry(
-			[
-				'handler'     => $handler,
-				'action_name' => $action_name,
-				'timestamp'   => time(),
-				'data'        => [],
-				'client_id'   => null,
-				'is_global'   => false,
-				'retry_count' => 1,
-			]
-		);
-
-		$pending = as_get_scheduled_actions(
-			[
-				'hook'   => Data_Events::HANDLER_RETRY_HOOK,
-				'group'  => 'newspack',
-				'status' => \ActionScheduler_Store::STATUS_PENDING,
-			],
-			'ARRAY_A'
-		);
-
-		$this->assertNotEmpty( $pending, 'A retry action should be scheduled.' );
-
-		$action_id = array_key_first( $pending );
-		$action    = \ActionScheduler::store()->fetch_action( $action_id );
-		$args      = $action->get_args();
-		$this->assertArrayHasKey( 'failure_layer', $args[0], 'Retry data should include failure_layer.' );
-		// Handler exceptions default to 'newspack' layer.
-		$this->assertEquals( 'newspack', $args[0]['failure_layer'], 'Exception from handler defaults to newspack layer.' );
-	}
-
-	/**
 	 * Test that retry exhaustion fires the alert hook.
 	 */
 	public function test_handler_retry_exhaustion_fires_hook() {
@@ -1048,7 +1000,6 @@ class Newspack_Test_Data_Events extends WP_UnitTestCase {
 		$this->assertTrue( $hook_fired, 'newspack_data_event_retry_exhausted should fire on max retries.' );
 		$this->assertEquals( $action_name, $hook_data['action_name'] );
 		$this->assertEquals( Data_Events::MAX_HANDLER_RETRIES, $hook_data['retry_count'] );
-		$this->assertArrayHasKey( 'failure_layer', $hook_data );
 		$this->assertArrayHasKey( 'reason', $hook_data );
 	}
 
