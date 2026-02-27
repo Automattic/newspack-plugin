@@ -19,7 +19,7 @@ function PostSettings() {
 		<PluginDocumentSettingPanel name="content-gate-post-exemptions-panel" title={ __( 'Access control settings', 'newspack-plugin' ) }>
 			<ToggleControl
 				label={ __( 'Disable access control restrictions for this post', 'newspack-plugin' ) }
-				help={ () => (
+				help={
 					<>
 						{ __(
 							'If enabled, this post will be accessible to all readers regardless of content restriction rules.',
@@ -29,7 +29,7 @@ function PostSettings() {
 							{ __( 'Manage access control', 'newspack-plugin' ) }
 						</ExternalLink>
 					</>
-				) }
+				}
 				checked={ meta.newspack_content_restriction_is_exempt }
 				onChange={ value => editPost( { meta: { newspack_content_restriction_is_exempt: value } } ) }
 			/>
