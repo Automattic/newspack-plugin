@@ -34,6 +34,7 @@ final class Reader_Activation {
 	const EMAIL_VERIFIED                    = 'np_reader_email_verified';
 	const WITHOUT_PASSWORD                  = 'np_reader_without_password';
 	const REGISTRATION_METHOD               = 'np_reader_registration_method';
+	const REGISTRATION_PAGE                 = 'np_reader_registration_page';
 	const CONNECTED_ACCOUNT                 = 'np_reader_connected_account';
 	const READER_SAVED_GENERIC_DISPLAY_NAME = 'np_reader_saved_generic_display_name';
 
@@ -2330,6 +2331,10 @@ final class Reader_Activation {
 			if ( in_array( $metadata['registration_method'], self::SSO_REGISTRATION_METHODS, true ) ) {
 				self::set_reader_verified( $user_id );
 			}
+		}
+
+		if ( isset( $metadata['current_page_url'] ) ) {
+			\update_user_meta( $user_id, self::REGISTRATION_PAGE, $metadata['current_page_url'] );
 		}
 
 		/**

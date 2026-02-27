@@ -1,25 +1,21 @@
 /**
  * WordPress dependencies.
  */
-import { __ } from '@wordpress/i18n';
-import { CardBody, CardDivider } from '@wordpress/components';
+import { CardBody } from '@wordpress/components';
 import { useCallback } from '@wordpress/element';
 
 /**
  * Internal dependencies
  */
-import { Button } from '../../../../../../packages/components/src';
-import { getEditGateLayoutUrl } from '../utils';
 import Metering from './metering';
 import AccessRules from './access-rules';
 
 interface CustomAccessProps {
-	gateId?: number;
 	customAccess: CustomAccess;
 	onChange: ( customAccess: Partial< CustomAccess > ) => void;
 }
 
-export default function CustomAccess( { gateId, customAccess, onChange }: CustomAccessProps ) {
+export default function CustomAccess( { customAccess, onChange }: CustomAccessProps ) {
 	// Get the first group of rules (UI currently only supports a single group).
 	const currentRules = customAccess.access_rules[ 0 ] || [];
 
@@ -46,16 +42,6 @@ export default function CustomAccess( { gateId, customAccess, onChange }: Custom
 
 	return (
 		<>
-			{ gateId ? (
-				<>
-					<CardBody size="small">
-						<Button variant="secondary" href={ getEditGateLayoutUrl( gateId, 'custom_access' ) }>
-							{ __( 'Edit Layout', 'newspack-plugin' ) }
-						</Button>
-					</CardBody>
-					<CardDivider />
-				</>
-			) : null }
 			<AccessRules rules={ currentRules } onChange={ handleRulesChange } />
 			<CardBody size="small">
 				<Metering metering={ customAccess.metering } onChange={ ( metering: Metering ) => handleChange( { metering } ) } />

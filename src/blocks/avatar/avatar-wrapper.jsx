@@ -6,11 +6,8 @@ import clsx from 'clsx';
 /**
  * WordPress dependencies
  */
-import {
-	useBlockProps,
-	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
-	__experimentalUseBorderProps as useBorderProps,
-} from '@wordpress/block-editor';
+// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
+import { __experimentalUseBorderProps as useBorderProps } from '@wordpress/block-editor';
 import { __ } from '@wordpress/i18n';
 import { useEffect, useState } from '@wordpress/element';
 import { addQueryArgs, removeQueryArgs } from '@wordpress/url';
@@ -27,7 +24,6 @@ import { addQueryArgs, removeQueryArgs } from '@wordpress/url';
  * @return {JSX.Element|null} The avatar wrapper element.
  */
 const AvatarWrapper = ( { avatar, size, attributes, placeholder = false, overlapMaskStyle = {} } ) => {
-	const { className } = useBlockProps();
 	const borderProps = useBorderProps( attributes );
 
 	// Debounce the size used for image fetching so dragging the slider
@@ -43,17 +39,13 @@ const AvatarWrapper = ( { avatar, size, attributes, placeholder = false, overlap
 		return null;
 	}
 
-	const duotoneClassName = className ? className.split( ' ' ).filter( classes => classes.includes( 'wp-duotone' ) ) : '';
-	const classNames = clsx( 'newspack-avatar-wrapper', duotoneClassName );
-
 	// Render placeholder for text-only bylines.
 	if ( placeholder ) {
 		return (
 			<div
-				className={ clsx( 'newspack-avatar-wrapper--placeholder', classNames ) }
+				className="newspack-avatar-wrapper newspack-avatar-wrapper--placeholder"
 				style={ {
 					'--avatar-size': size + 'px',
-					filter: duotoneClassName?.length ? `url(#${ duotoneClassName[ 0 ] })` : undefined,
 					...borderProps.style,
 				} }
 				role="img"
@@ -90,7 +82,7 @@ const AvatarWrapper = ( { avatar, size, attributes, placeholder = false, overlap
 	);
 	return (
 		<div
-			className={ classNames }
+			className="newspack-avatar-wrapper"
 			style={ {
 				'--avatar-size': size + 'px',
 				...overlapMaskStyle,

@@ -84,6 +84,7 @@ class Content_Gate {
 		include __DIR__ . '/class-metering.php';
 		include __DIR__ . '/class-metering-countdown.php';
 		include __DIR__ . '/content-gifting/class-content-gifting.php';
+		include __DIR__ . '/class-ip-access-rule.php';
 	}
 
 	/**
@@ -512,7 +513,7 @@ class Content_Gate {
 			[
 				'post_title'   => $gate['title'],
 				'post_type'    => $post_type,
-				'post_status'  => $gate['status'] ?? 'draft',
+				'post_status'  => 'publish',
 				'post_content' => '',
 				'meta_input'   => [
 					'gate_priority' => count( $all_gates ),

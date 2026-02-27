@@ -5,7 +5,7 @@
 /**
  * WordPress dependencies.
  */
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { FormTokenField } from '@wordpress/components';
 import type { TokenItem } from '@wordpress/components/build-types/form-token-field/types.d.ts';
 import apiFetch from '@wordpress/api-fetch';
@@ -21,7 +21,7 @@ const debounce = ( func: ( search?: string ) => void, wait: number ) => {
 	};
 };
 
-export default function ContentRuleControlTaxonomy( { slug, value, onChange }: GateRuleControlProps ) {
+export default function ContentRuleControlTaxonomy( { slug, value, exclusion, onChange, isStatic = false }: GateRuleControlProps ) {
 	const rule = useMemo( () => window.newspackAudienceContentGates.available_content_rules[ slug ], [ slug ] );
 
 	const [ savedItems, setSavedItems ] = useState< { value: string; label: string }[] >( [] );
@@ -107,6 +107,15 @@ export default function ContentRuleControlTaxonomy( { slug, value, onChange }: G
 		return [ ...new Set( result ) ];
 	}, [ value, savedItems, suggestions ] );
 
+	const staticLabels = useMemo( () => {
+		return tokens.length === 0
+			? '-'
+			: tokens
+					.map( token => token.split( ':' ).slice( 1 ).join( ':' ).trim() )
+					.filter( label => label.length > 0 )
+					.join( ', ' );
+	}, [ tokens ] );
+
 	const handleChange = useCallback(
 		( newTokens: ( string | TokenItem )[] ) => {
 			const items = [ ...savedItems, ...suggestions ];
@@ -128,15 +137,33 @@ export default function ContentRuleControlTaxonomy( { slug, value, onChange }: G
 		return null;
 	}
 
+	if ( isStatic ) {
+		return (
+			<p>
+				<strong>
+					{ sprintf(
+						// translators: 1: rule name, 2: includes or excludes
+						__( '%1$s %2$s:', 'newspack-plugin' ),
+						rule.name,
+						exclusion ? __( 'exclude', 'newspack-plugin' ) : __( 'include', 'newspack-plugin' )
+					) }
+				</strong>{ ' ' }
+				{ staticLabels }
+			</p>
+		);
+	}
+
 	return (
-		<FormTokenField
-			label={ '' }
-			suggestions={ suggestions.map( s => `${ s.value }: ${ s.label }` ) }
-			onInputChange={ handleInputChange }
-			value={ tokens }
-			onChange={ handleChange }
-			__experimentalExpandOnFocus
-			__next40pxDefaultSize
-		/>
+		<>
+			<FormTokenField
+				label={ '' }
+				suggestions={ suggestions.map( s => `${ s.value }: ${ s.label }` ) }
+				onInputChange={ handleInputChange }
+				value={ tokens }
+				onChange={ handleChange }
+				__experimentalExpandOnFocus
+				__next40pxDefaultSize
+			/>
+		</>
 	);
 }

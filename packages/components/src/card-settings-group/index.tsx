@@ -1,5 +1,5 @@
 /**
- * Content Gates edit - settings group component.
+ * Card - Settings group component.
  */
 
 /**

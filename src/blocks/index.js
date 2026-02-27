@@ -19,6 +19,7 @@ import * as authorSocialLink from './author-social-link';
 import * as collections from './collections';
 import * as contentGateCountdown from './content-gate/countdown';
 import * as contentGateCountdownBox from './content-gate/countdown-box';
+import * as copyrightDate from './copyright-date';
 
 /**
  * Block Scripts
@@ -37,6 +38,7 @@ export const blocks = [
 	collections,
 	contentGateCountdown,
 	contentGateCountdownBox,
+	copyrightDate,
 ];
 
 const readerActivationBlocks = [ 'newspack/reader-registration', 'newspack/my-account-button' ];
@@ -48,6 +50,7 @@ const blockThemeBlocks = [
 	'newspack/author-social-link',
 	'newspack/avatar',
 	'newspack/byline',
+	'newspack/copyright-date',
 	'newspack/my-account-button',
 ];
 

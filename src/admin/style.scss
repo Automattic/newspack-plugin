@@ -164,22 +164,11 @@ h1 {
 }
 .newspack-wizard {
 	.newspack-wizard__loader {
+		display: grid;
 		height: 100%;
+		place-items: center;
 		position: absolute;
 		width: 100%;
-		display: flex;
-
-		> div {
-			position: relative;
-			margin: auto;
-			text-align: center;
-		}
-
-		span {
-			display: block;
-			color: #757575;
-			animation: opacity-pulse 1.4s infinite ease-in-out;
-		}
 	}
 
 	&.newspack-dashboard {

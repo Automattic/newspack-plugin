@@ -8,6 +8,7 @@
 .newspack-card--core,
 .newspack-wizard .newspack-card--core {
 	background: white;
+	position: relative;
 	transition: background-color 125ms ease-in-out, box-shadow 125ms ease-in-out, color 125ms ease-in-out;
 	svg {
 		transition: fill 125ms ease-in-out;
@@ -46,12 +47,15 @@
 			}
 		}
 	}
+	&__no-margin .components-card__body {
+		padding: 0 !important;
+	}
 	&__header {
 		color: wp-colors.$gray-700;
 		column-gap: 16px;
+		position: relative;
 		.newspack-card--core__action {
 			margin: 0;
-
 			label {
 				border: 0;
 				clip-path: inset(50%);
@@ -62,6 +66,47 @@
 				position: absolute !important;
 				width: 1px;
 				word-wrap: normal !important;
+			}
+		}
+		.components-dropdown-menu {
+			aspect-ratio: 1;
+			border-left: 1px solid wp-colors.$gray-200;
+			display: grid;
+			height: 100%;
+			padding: 4px;
+			place-items: center;
+			position: absolute;
+			right: 0;
+			top: 0;
+		}
+	}
+	&__header--is-draggable {
+		.newspack-card--core__header-content {
+			padding-left: 65px;
+		}
+		.newspack-card--core__header__draggable-controls {
+			align-items: center;
+			border-right: 1px solid wp-colors.$gray-200;
+			display: flex;
+			height: 100%;
+			justify-content: space-between;
+			left: 0;
+			padding: 0 8px;
+			position: absolute;
+			top: 0;
+		}
+		.newspack-card--core__header__draggable-controls__drag-handle {
+			cursor: grab;
+			display: grid;
+			place-items: center;
+		}
+		.newspack-card--core__header__draggable-controls__move-buttons {
+			display: flex;
+			flex-direction: column;
+			.components-button.has-icon {
+				height: 16px;
+				padding: 0;
+				width: 100%;
 			}
 		}
 	}
@@ -93,7 +138,14 @@
 		h4,
 		h5,
 		h6 {
+			align-items: center;
 			color: wp-colors.$gray-900;
+			font-weight: 500;
+			display: flex;
+			gap: 8px;
+			.newspack-badge {
+				font-weight: 400;
+			}
 		}
 	}
 	&__is-active {
@@ -166,6 +218,9 @@
 			padding: 16px 24px;
 			.newspack-card--core__is-small & {
 				padding: 16px;
+			}
+			.newspack-card--core__no-margin & {
+				padding: 0;
 			}
 		}
 	}

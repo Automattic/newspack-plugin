@@ -97,8 +97,6 @@ final class Avatar_Block {
 		}
 
 		$wrapper_attributes = get_block_wrapper_attributes( [ 'style' => $wrapper_style ] );
-		$duotone_preset     = $attributes['style']['color']['duotone'] ?? null;
-		$duotone_class      = self::newspack_get_duotone_class_name( $duotone_preset );
 
 		ob_start();
 		?>
@@ -111,8 +109,7 @@ final class Avatar_Block {
 					get_author_posts_url( $author->ID ),
 					$image_size,
 					$link_to_author,
-					$attributes,
-					$duotone_class
+					$attributes
 				);
 			endforeach;
 			?>
@@ -153,8 +150,6 @@ final class Avatar_Block {
 		$author_url  = $author['url'] ?? '';
 
 		$wrapper_attributes = get_block_wrapper_attributes( [ 'style' => '--avatar-size: ' . esc_attr( $image_size ) . 'px;' ] );
-		$duotone_preset     = $attributes['style']['color']['duotone'] ?? null;
-		$duotone_class      = self::newspack_get_duotone_class_name( $duotone_preset );
 
 		ob_start();
 		?>
@@ -166,8 +161,7 @@ final class Avatar_Block {
 				$author_url,
 				$image_size,
 				$link_to_author,
-				$attributes,
-				$duotone_class
+				$attributes
 			);
 			?>
 		</div>
@@ -184,11 +178,10 @@ final class Avatar_Block {
 	 * @param int    $image_size      Avatar size in pixels.
 	 * @param bool   $link_to_author  Whether to wrap the image in a link.
 	 * @param array  $attributes      Block attributes (for border props).
-	 * @param string $duotone_class   Duotone filter class name.
 	 *
 	 * @return void Outputs directly (callers are inside ob_start).
 	 */
-	private static function render_avatar_image( string $avatar_url, string $author_name, string $author_url, int $image_size, bool $link_to_author, array $attributes, string $duotone_class ): void {
+	private static function render_avatar_image( string $avatar_url, string $author_name, string $author_url, int $image_size, bool $link_to_author, array $attributes ): void {
 		$border_attributes = function_exists( 'get_block_core_avatar_border_attributes' )
 			? get_block_core_avatar_border_attributes( $attributes )
 			: [
@@ -199,7 +192,7 @@ final class Avatar_Block {
 		$class     = 'avatar avatar-' . esc_attr( $image_size ) . ' photo wp-block-newspack-avatar__image ' . ( $border_attributes['class'] ?? '' );
 		$show_link = $link_to_author && ! empty( $author_url );
 		?>
-		<div class="newspack-avatar-wrapper <?php echo esc_attr( $duotone_class ); ?>">
+		<div class="newspack-avatar-wrapper">
 			<?php if ( $show_link ) : ?>
 				<a href="<?php echo esc_url( $author_url ); ?>" class="wp-block-newspack-avatar__link">
 			<?php endif; ?>
@@ -323,20 +316,6 @@ final class Avatar_Block {
 		// Default WordPress author.
 		$default_author = get_userdata( get_post_field( 'post_author', $post_id ) );
 		return $default_author ? [ $default_author ] : [];
-	}
-
-	/**
-	 * This function is used to get the duotone class name from the preset value.
-	 *
-	 * @param  mixed $preset_value Duotone preset value.
-	 * @return string Constructed class name.
-	 */
-	public static function newspack_get_duotone_class_name( mixed $preset_value ): string {
-		if ( is_string( $preset_value ) && str_starts_with( $preset_value, 'var:preset|duotone|' ) ) {
-			$slug = str_replace( 'var:preset|duotone|', '', $preset_value );
-			return 'wp-duotone-' . sanitize_title( $slug );
-		}
-		return '';
 	}
 }
 

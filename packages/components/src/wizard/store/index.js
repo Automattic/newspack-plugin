@@ -20,12 +20,14 @@ const DEFAULT_STATE = {
 		actions: [],
 		backNav: '',
 		badges: [],
+		sectionDescription: '',
 		sectionName: '',
 		sectionTitle: '',
 	},
 	isLoading: false,
 	isQuietLoading: false,
 	apiData: {},
+	notices: [],
 	error: null,
 };
 
@@ -53,8 +55,14 @@ const reducer = ( state = DEFAULT_STATE, { type, payload = {} } ) => {
 			return set( clone( state ), [ 'apiData', payload.slug ], payload.data );
 		case 'UPDATE_WIZARD_SETTINGS':
 			return set( clone( state ), [ 'apiData', payload.slug, ...payload.path ], payload.value );
+		case 'ADD_NOTICE':
+			return { ...state, notices: [ ...state.notices, payload ] };
+		case 'REMOVE_NOTICE':
+			return { ...state, notices: state.notices.filter( notice => notice.id !== payload ) };
 		case 'SET_ERROR':
 			return { ...state, error: payload };
+		case 'RESET_NOTICES':
+			return { ...state, notices: DEFAULT_STATE.notices };
 		default:
 			return state;
 	}
@@ -69,6 +77,9 @@ const actions = {
 	fetchFromAPI: createAction( 'FETCH_FROM_API' ),
 	setAPIDataForWizard: createAction( 'SET_API_DATA' ),
 	updateWizardSettings: createAction( 'UPDATE_WIZARD_SETTINGS' ),
+	addNotice: createAction( 'ADD_NOTICE' ),
+	removeNotice: createAction( 'REMOVE_NOTICE' ),
+	resetNotices: createAction( 'RESET_NOTICES' ),
 	setError: createAction( 'SET_ERROR' ),
 
 	// Async actions. These will not show up in Redux devtools.
@@ -103,6 +114,7 @@ const selectors = {
 	isQuietLoading: state => state.isQuietLoading,
 	getWizardAPIData: ( state, slug ) => state.apiData[ slug ] || {},
 	getWizardData: ( state, slug ) => state.apiData[ slug ] ?? {},
+	getNotices: state => state.notices,
 	getError: state => state.error,
 };
 
