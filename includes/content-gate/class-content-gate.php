@@ -58,6 +58,7 @@ class Content_Gate {
 		add_action( 'admin_init', [ __CLASS__, 'redirect_cpt' ] );
 		add_action( 'admin_init', [ __CLASS__, 'handle_edit_gate_layout' ] );
 		add_action( 'wp_enqueue_scripts', [ __CLASS__, 'enqueue_scripts' ] );
+		add_action( 'enqueue_block_editor_assets', [ __CLASS__, 'enqueue_block_editor_assets' ] );
 		add_action( 'wp_footer', [ __CLASS__, 'render_overlay_gate' ], 1 );
 		add_action( 'before_delete_post', [ __CLASS__, 'delete_gate_layouts' ], 10, 2 );
 		add_filter( 'newspack_popups_assess_has_disabled_popups', [ __CLASS__, 'disable_popups' ] );
@@ -324,6 +325,17 @@ class Content_Gate {
 			wp_enqueue_script( 'newspack-content-banner', Newspack::plugin_url() . '/dist/content-banner.js', $asset['dependencies'], NEWSPACK_PLUGIN_VERSION, true );
 			wp_enqueue_style( 'newspack-content-banner', Newspack::plugin_url() . '/dist/content-banner.css', [], NEWSPACK_PLUGIN_VERSION );
 		}
+	}
+
+	/**
+	 * Enqueue block editor assets.
+	 */
+	public static function enqueue_block_editor_assets() {
+		if ( ! in_array( get_post_type(), Content_Restriction_Control::get_available_post_types(), true ) ) {
+			return;
+		}
+		$asset = require dirname( NEWSPACK_PLUGIN_FILE ) . '/dist/content-gate-post-exemptions.asset.php';
+		wp_enqueue_script( 'newspack-content-gate-post-exemptions', Newspack::plugin_url() . '/dist/content-gate-post-exemptions.js', $asset['dependencies'], $asset['version'], true );
 	}
 
 	/**
