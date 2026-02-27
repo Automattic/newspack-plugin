@@ -17,7 +17,6 @@
 	--wp-admin-theme-color-lighter-10--rgb: #{colors.$primary-000--rgb};
 
 	color: wp-colors.$gray-900;
-	overflow-x: hidden;
 
 	// Headings
 	h1,
@@ -56,6 +55,14 @@
 			top: 0;
 			width: 100%;
 			z-index: 1000;
+			.admin-bar & {
+				@media only screen and ( min-width: 601px ) {
+					top: 46px;
+				}
+				@media only screen and ( min-width: 782px ) {
+					top: 32px;
+				}
+			}
 		}
 		&__inner {
 			flex: 1;
@@ -63,12 +70,30 @@
 		&__actions {
 			align-items: center;
 			display: flex;
-			flex: 1 1 auto;
 			gap: 8px;
 			justify-content: flex-end;
 			padding: 0 24px 0 0;
+			> .newspack-wizard__header__actions__main {
+				display: none;
+			}
+			@media only screen and ( min-width: 782px ) {
+				flex: 1 1 auto;
+				> .newspack-wizard__header__actions__main {
+					display: flex;
+				}
+				&__more {
+					.newspack-wizard__header__actions__more__main {
+						display: none;
+					}
+				}
+			}
 		}
 	}
+
+	&__main {
+		overflow-x: hidden;
+	}
+
 
 	&__title {
 		align-items: center;

@@ -83,7 +83,6 @@ const Wizard = (
 	const { actions, backNav, badges, sectionDescription, sectionName, sectionTitle, sectionPrimaryAction, sectionSecondaryAction } = headerData;
 
 	const mainActions = actions?.filter( action => action.type === 'primary' || action.type === 'secondary' );
-	const moreActions = actions?.filter( action => action.type === 'more' );
 
 	// Trigger initial data fetch. Some sections might not use the wizard data,
 	// but for consistency, fetching is triggered regardless of the section.
@@ -153,6 +152,7 @@ const Wizard = (
 								{ mainActions.map( ( action, index ) => (
 									<Button
 										key={ index }
+										className="newspack-wizard__header__actions__main"
 										icon={ action.icon }
 										variant={ action.type }
 										onClick={ action.action }
@@ -162,12 +162,21 @@ const Wizard = (
 										{ action.label }
 									</Button>
 								) ) }
-								{ moreActions.length > 0 && (
-									<DropdownMenu icon={ moreVertical } label={ __( 'More', 'newspack-plugin' ) }>
+								{ actions?.length > 0 && (
+									<DropdownMenu
+										icon={ moreVertical }
+										label={ __( 'More', 'newspack-plugin' ) }
+										popoverProps={ { className: 'newspack-wizard__header__actions__more' } }
+									>
 										{ () =>
-											moreActions.map( ( action, index ) => (
+											actions.map( ( action, index ) => (
 												<MenuItem
 													key={ index }
+													className={
+														action.type === 'primary'
+															? 'newspack-wizard__header__actions__more__main'
+															: 'newspack-wizard__header__actions__more__more'
+													}
 													icon={ action.icon }
 													onClick={ action.action }
 													disabled={ action.disabled || false }
@@ -192,39 +201,41 @@ const Wizard = (
 
 					{ sections.length > 1 && <ResetHeaderData /> }
 
-					<Switch>
-						{ sections.map( ( section, index ) => {
-							const SectionComponent = section.render;
-							const sectionProps = section.props || {};
-							return (
-								<Route
-									key={ index }
-									exact={ section.exact ?? false }
-									path={ section.path }
-									render={ routerProps => (
-										<div className={ classnames( 'newspack-wizard__content', className ) }>
-											{ 'function' === typeof renderAboveSections ? renderAboveSections() : null }
-											{ ( sectionTitle || section.title ) && (
-												<SectionHeader
-													className="newspack-wizard__section-header"
-													backNav={ backNav || section.backNav }
-													title={ sectionTitle || section.title }
-													description={ sectionDescription || section.description }
-													badges={ badges || section.badges }
-													primaryAction={ sectionPrimaryAction || section.primaryAction }
-													secondaryAction={ sectionSecondaryAction || section.secondaryAction }
-													heading={ 1 }
-													noMargin
-												/>
-											) }
-											<SectionComponent { ...routerProps } { ...sectionProps } { ...sharedProps } />
-										</div>
-									) }
-								/>
-							);
-						} ) }
-						<Redirect to={ displayedSections[ 0 ].path } />
-					</Switch>
+					<div className="newspack-wizard__main">
+						<Switch>
+							{ sections.map( ( section, index ) => {
+								const SectionComponent = section.render;
+								const sectionProps = section.props || {};
+								return (
+									<Route
+										key={ index }
+										exact={ section.exact ?? false }
+										path={ section.path }
+										render={ routerProps => (
+											<div className={ classnames( 'newspack-wizard__content', className ) }>
+												{ 'function' === typeof renderAboveSections ? renderAboveSections() : null }
+												{ ( sectionTitle || section.title ) && (
+													<SectionHeader
+														className="newspack-wizard__section-header"
+														backNav={ backNav || section.backNav }
+														title={ sectionTitle || section.title }
+														description={ sectionDescription || section.description }
+														badges={ badges || section.badges }
+														primaryAction={ sectionPrimaryAction || section.primaryAction }
+														secondaryAction={ sectionSecondaryAction || section.secondaryAction }
+														heading={ 1 }
+														noMargin
+													/>
+												) }
+												<SectionComponent { ...routerProps } { ...sectionProps } { ...sharedProps } />
+											</div>
+										) }
+									/>
+								);
+							} ) }
+							<Redirect to={ displayedSections[ 0 ].path } />
+						</Switch>
+					</div>
 				</HashRouter>
 				{ notices?.length > 0 &&
 					notices.map( ( notice, index ) => (
