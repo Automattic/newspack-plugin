@@ -17,6 +17,7 @@
 	--wp-admin-theme-color-lighter-10--rgb: #{colors.$primary-000--rgb};
 
 	color: wp-colors.$gray-900;
+	overflow-x: hidden;
 
 	// Headings
 	h1,
@@ -55,14 +56,6 @@
 			top: 0;
 			width: 100%;
 			z-index: 1000;
-			.admin-bar & {
-				@media only screen and ( min-width: 601px ) {
-					top: 46px;
-				}
-				@media only screen and ( min-width: 782px ) {
-					top: 32px;
-				}
-			}
 		}
 		&__inner {
 			flex: 1;
