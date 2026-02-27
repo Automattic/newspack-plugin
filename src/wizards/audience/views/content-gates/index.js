@@ -35,7 +35,7 @@ const AudienceContentGates = ( props, ref ) => {
 	return (
 		<Wizard
 			apiSlug={ AUDIENCE_CONTENT_GATES_WIZARD_SLUG }
-			title={ __( 'Access Control', 'newspack-plugin' ) }
+			title={ __( 'Access control', 'newspack-plugin' ) }
 			headerText={ BASE_HEADER_TEXT }
 			ref={ ref }
 			sharedProps={ { updateGatesData } }

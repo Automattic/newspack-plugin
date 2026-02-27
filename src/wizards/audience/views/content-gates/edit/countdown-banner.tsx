@@ -44,7 +44,7 @@ const CountdownBannerSettings = () => {
 		return JSON.stringify( config?.countdown_banner ) !== JSON.stringify( wizardData?.config?.countdown_banner );
 	}, [ config, wizardData?.config ] );
 
-	const handleUpdateConfig = ( newConfig: GateSettings, message: string = __( 'Countdown banner updated.', 'newspack-plugin' ) ) => {
+	const handleUpdateConfig = ( newConfig: GateSettings, message: string = __( 'Metered countdown settings updated.', 'newspack-plugin' ) ) => {
 		resetError();
 		resetNotices();
 		wizardApiFetch(
