@@ -36,14 +36,23 @@ type Metering = {
 	period: 'week' | 'month';
 };
 
-type GateRuleProps = {
-	config: AccessRule | ContentRule;
-	rule?: GateAccessRule | GateContentRule;
+type GateAccessRuleProps = {
+	config: AccessRule;
+	rule?: GateAccessRule;
 	enabled?: boolean;
 	onToggle?: (slug: string) => void;
 	slug: string;
 	exclusion?: boolean;
 	onChange: (value: GateRuleValue) => void;
+};
+
+type GateContentRuleProps = {
+	config: ContentRule;
+	rule?: GateContentRule;
+	enabled?: boolean;
+	onToggle?: (slug: string) => void;
+	slug: string;
+	onChange: (value: GateContentRuleValue) => void;
 	onChangeExclusion?: (value: boolean) => void;
 };
 
@@ -53,6 +62,7 @@ type GateRuleControlProps = {
 	exclusion?: boolean;
 	onChange: (value: GateRuleValue) => void;
 	onChangeExclusion?: (value: boolean) => void;
+	isStatic?: boolean;
 };
 
 type AccessRules = {

@@ -23,7 +23,26 @@ class Newspack_Test_Guest_Contributor_Role extends WP_UnitTestCase {
 		$email_domain = Guest_Contributor_Role::get_dummy_email_domain();
 		$user = get_userdata( 1 );
 
-		$expected = $user->user_login . '@' . $email_domain;
+		// Mirror the sanitization in get_dummy_email_address() — user_login could contain @.
+		$expected = str_replace( '@', '', $user->user_login ) . '@' . $email_domain;
+
+		$dummy_email = Guest_Contributor_Role::get_dummy_email_address( $user );
+		$this->assertSame( $expected, $dummy_email );
+
+		$dummy_email = Guest_Contributor_Role::get_dummy_email_address( $user->user_login );
+		$this->assertSame( $expected, $dummy_email );
+	}
+
+	/**
+	 * Test that @ in user_login is stripped when generating dummy email.
+	 */
+	public function test_guest_contributor_role_get_dummy_email_with_at_in_login() {
+		$email_domain = Guest_Contributor_Role::get_dummy_email_domain();
+
+		$user             = new stdClass();
+		$user->user_login = 'legacy-author@old-domain.com';
+
+		$expected = 'legacy-authorold-domain.com@' . $email_domain;
 
 		$dummy_email = Guest_Contributor_Role::get_dummy_email_address( $user );
 		$this->assertSame( $expected, $dummy_email );

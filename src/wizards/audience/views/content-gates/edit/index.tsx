@@ -8,14 +8,23 @@
 import { __, sprintf } from '@wordpress/i18n';
 import { __experimentalVStack as VStack } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
 import { useDispatch } from '@wordpress/data';
-import { useCallback, useEffect, useState } from '@wordpress/element';
+import { createInterpolateElement, useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { commentAuthorAvatar, currencyDollar, postList, settings } from '@wordpress/icons';
 
 /**
  * Internal dependencies
  */
 import { AUDIENCE_CONTENT_GATES_WIZARD_SLUG } from '../consts';
-import { CardSettingsGroup, Divider, Grid, Notice, SectionHeader, TextControl } from '../../../../../../packages/components/src';
+import {
+	CardSettingsGroup,
+	ConfirmDialog,
+	Divider,
+	Grid,
+	Notice,
+	Router,
+	SectionHeader,
+	TextControl,
+} from '../../../../../../packages/components/src';
 import { WIZARD_STORE_NAMESPACE } from '../../../../../../packages/components/src/wizard/store';
 import { useWizardData } from '../../../../../../packages/components/src/wizard/store/utils';
 import { useWizardApiFetch } from '../../../../hooks/use-wizard-api-fetch';
@@ -24,6 +33,8 @@ import Registration from './registration';
 import CustomAccess from './custom-access';
 import { getGateStatus, getGateStatusBadgeLevel } from '../utils';
 import './style.scss';
+
+const { useHistory } = Router;
 
 type ContentGateEditProps = {
 	history: { push: ( path: string ) => void };
@@ -35,7 +46,7 @@ const DEFAULT_GATE: Gate = {
 	id: 0,
 	title: '',
 	priority: 0,
-	status: 'draft',
+	status: 'publish',
 	content_rules: [ { slug: 'post_types', value: [ 'post' ] } ],
 	registration: { active: false, metering: { enabled: false, count: 1, period: 'month' }, require_verification: false, gate_layout_id: 0 },
 	custom_access: { active: false, metering: { enabled: false, count: 1, period: 'month' }, gate_layout_id: 0, access_rules: [] },
@@ -58,12 +69,13 @@ const getContentTypeFromRules = ( rules: GateContentRule[] ): 'all' | 'custom' |
 	return 'all';
 };
 
-const Edit = ( { history, match, updateGatesData }: ContentGateEditProps ) => {
+const Edit = ( { match, updateGatesData }: ContentGateEditProps ) => {
+	const history = useHistory();
 	const { id: _id, type } = match.params;
 	const id = _id ? parseInt( _id ) : 0;
 	const { gates = null as unknown as Gate[] } = useWizardData( AUDIENCE_CONTENT_GATES_WIZARD_SLUG ) as WizardData;
 	const { wizardApiFetch, isFetching, errorMessage, resetError, setError } = useWizardApiFetch( AUDIENCE_CONTENT_GATES_WIZARD_SLUG );
-	const { setHeaderData } = useDispatch( WIZARD_STORE_NAMESPACE );
+	const { addNotice, resetNotices, setHeaderData } = useDispatch( WIZARD_STORE_NAMESPACE );
 	const [ gate, setGate ] = useState< Gate >( ( gates && gates.find( g => g.id === id ) ) || DEFAULT_GATE ); // eslint-disable-line @typescript-eslint/no-unused-vars
 	const [ title, setTitle ] = useState< string >( gate.title );
 	const [ isRenaming, setIsRenaming ] = useState< boolean >( false );
@@ -73,18 +85,28 @@ const Edit = ( { history, match, updateGatesData }: ContentGateEditProps ) => {
 	const [ customAccess, setCustomAccess ] = useState< CustomAccess >( gate.custom_access );
 	const [ contentType, setContentType ] = useState< 'all' | 'custom' | undefined >( type as 'all' | 'custom' | undefined );
 	const [ status, setStatus ] = useState< GateStatus >( gate.status );
-
+	const [ showUnsavedChangesDialog, setShowUnsavedChangesDialog ] = useState( false );
+	const [ showDeleteDialog, setShowDeleteDialog ] = useState( false );
 	const isNew = _id === 'new' || ! id;
+	const isSaving = useRef( false );
+	const pendingNavigation = useRef< ( () => void ) | null >( null );
+
+	const isDirty =
+		isNew ||
+		title !== gate.title ||
+		JSON.stringify( contentRules ) !== JSON.stringify( gate.content_rules ) ||
+		JSON.stringify( registration ) !== JSON.stringify( gate.registration ) ||
+		JSON.stringify( customAccess ) !== JSON.stringify( gate.custom_access );
 
 	const handleCreate = useCallback( () => {
 		if ( isFetching ) {
 			return;
 		}
+		resetNotices();
 		resetError();
 		const _gate = {
 			...gate,
 			title,
-			status: 'draft',
 			content_rules: contentRules,
 			registration,
 			custom_access: customAccess,
@@ -98,7 +120,15 @@ const Edit = ( { history, match, updateGatesData }: ContentGateEditProps ) => {
 			{
 				onSuccess( data ) {
 					updateGatesData( [ ...gates, { ...data } ] );
-					history.push( `/edit/${ data.id }` );
+					isSaving.current = true;
+					history.push( `/content-gates` );
+					addNotice( {
+						// translators: %s is the gate title.
+						message: sprintf( __( '"%s" gate created.', 'newspack-plugin' ), title ),
+						type: 'success',
+						id: 'content-gate-created',
+						actions: [ { label: __( 'Edit', 'newspack-plugin' ), url: `#/edit/${ data.id }` } ],
+					} );
 				},
 			}
 		);
@@ -109,6 +139,8 @@ const Edit = ( { history, match, updateGatesData }: ContentGateEditProps ) => {
 			return;
 		}
 		resetError();
+		resetNotices();
+		const gateTitle = title || gate.title;
 		const _gate = {
 			...gate,
 			title,
@@ -126,25 +158,63 @@ const Edit = ( { history, match, updateGatesData }: ContentGateEditProps ) => {
 			{
 				onSuccess( data: Gate ) {
 					updateGatesData( gates.map( g => ( g.id === data.id ? data : g ) ) );
-					setIsRenaming( false );
+					isSaving.current = true;
+					history.push( `/content-gates` );
+					addNotice( {
+						message: sprintf(
+							// translators: %s is the gate title.
+							__( '%s gate updated.', 'newspack-plugin' ),
+							gateTitle ? `"${ gateTitle }"` : __( 'Content', 'newspack-plugin' )
+						),
+						type: 'success',
+						id: 'content-gate-updated',
+					} );
 				},
 			}
 		);
 	}, [ gate, contentRules, registration, customAccess, status, title ] );
 
+	const updateStatus = useRef< ( _status: GateStatus ) => void >();
 	const handleStatusChange = ( _status: GateStatus ) => {
 		if ( isFetching ) {
 			return;
 		}
-		setStatus( _status );
+		resetError();
+		resetNotices();
+		const prevStatus = gate.status;
+		const gateTitle = gate.title;
+		const _gate = {
+			...gate,
+			status: _status,
+		};
+		wizardApiFetch< Gate >(
+			{
+				path: `/newspack/v1/wizard/${ AUDIENCE_CONTENT_GATES_WIZARD_SLUG }/${ gate.id }`,
+				method: 'POST',
+				data: { gate: _gate },
+			},
+			{
+				onSuccess( data: Gate ) {
+					updateGatesData( gates.map( g => ( g.id === data.id ? data : g ) ) );
+					addNotice( {
+						message: sprintf(
+							// translators: 1: the gate title, or "Content" if we can't determine the gate title. 2: the gate status.
+							__( '%1$s gate %2$s.', 'newspack-plugin' ),
+							gateTitle ? `"${ gateTitle }"` : __( 'Content', 'newspack-plugin' ),
+							prevStatus === 'publish' ? __( 'disabled', 'newspack-plugin' ) : __( 'enabled', 'newspack-plugin' )
+						),
+						type: 'success',
+						id: 'content-gate-status-changed',
+						actions: [ { label: __( 'Undo', 'newspack-plugin' ), onClick: () => updateStatus.current?.( prevStatus ) } ],
+					} );
+				},
+			}
+		);
 	};
+	updateStatus.current = handleStatusChange;
 
 	const handleDelete = useCallback(
 		( gateId: number ) => {
-			// eslint-disable-next-line no-alert
-			if ( ! confirm( __( 'Are you sure you want to permanently delete this content gate?', 'newspack-plugin' ) ) ) {
-				return;
-			}
 			resetError();
 			setIsDeleting( true );
 			wizardApiFetch(
@@ -158,6 +228,12 @@ const Edit = ( { history, match, updateGatesData }: ContentGateEditProps ) => {
 						updateGatesData( newGates );
 						history.push( `/content-gates` );
 						setIsDeleting( false );
+						addNotice( {
+							// translators: %s is the gate title.
+							message: sprintf( __( '“%s” gate deleted.', 'newspack-plugin' ), title ),
+							type: 'success',
+							id: 'content-gate-deleted',
+						} );
 					},
 					onFinally() {
 						setIsDeleting( false );
@@ -237,21 +313,21 @@ const Edit = ( { history, match, updateGatesData }: ContentGateEditProps ) => {
 				actions.push( {
 					type: 'more',
 					label: __( 'Activate', 'newspack-plugin' ),
-					action: () => handleStatusChange( 'publish' ),
+					action: () => updateStatus.current?.( 'publish' ),
 					disabled: isFetching,
 				} );
 			} else {
 				actions.push( {
 					type: 'more',
 					label: __( 'Deactivate', 'newspack-plugin' ),
-					action: () => handleStatusChange( 'draft' ),
+					action: () => updateStatus.current?.( 'draft' ),
 					disabled: isFetching,
 				} );
 			}
 			actions.push( {
 				type: 'more',
 				label: __( 'Delete', 'newspack-plugin' ),
-				action: () => handleDelete( gate.id ),
+				action: () => setShowDeleteDialog( true ),
 				disabled: isFetching,
 				destructive: true,
 			} );
@@ -283,12 +359,70 @@ const Edit = ( { history, match, updateGatesData }: ContentGateEditProps ) => {
 	// Update gate status.
 	useEffect( () => {
 		if ( ! isNew && status !== gate.status ) {
-			handleSave();
+			updateStatus.current?.( status );
 		}
-	}, [ isNew, gate.status, status, handleSave ] );
+	}, [ isNew, gate.status, status, updateStatus ] );
+
+	// Block navigation when there are unsaved changes.
+	useEffect( () => {
+		if ( ! isDirty ) {
+			return;
+		}
+		const unblock = history.block( ( location: string, action: string ) => {
+			if ( isSaving.current ) {
+				return;
+			}
+			pendingNavigation.current = () => {
+				unblock();
+				if ( action === 'REPLACE' ) {
+					history.replace( location );
+				} else {
+					history.push( location );
+				}
+			};
+			setShowUnsavedChangesDialog( true );
+			return false;
+		} );
+		return unblock;
+	}, [ isDirty, history ] );
 
 	return (
 		<div className="newspack-content-gate__edit">
+			{ showUnsavedChangesDialog && (
+				<ConfirmDialog
+					onConfirm={ () => {
+						setShowUnsavedChangesDialog( false );
+						pendingNavigation.current?.();
+						pendingNavigation.current = null;
+					} }
+					onCancel={ () => {
+						setShowUnsavedChangesDialog( false );
+						pendingNavigation.current = null;
+					} }
+					confirmButtonText={ __( 'Discard changes', 'newspack-plugin' ) }
+					hideTitle
+				>
+					{ __( 'You have unsaved changes that will be lost. Discard changes?', 'newspack-plugin' ) }
+				</ConfirmDialog>
+			) }
+			{ showDeleteDialog && (
+				<ConfirmDialog
+					title={ __( 'Are you sure?', 'newspack-plugin' ) }
+					onConfirm={ () => handleDelete( gate.id ) }
+					onCancel={ () => setShowDeleteDialog( false ) }
+					confirmButtonText={ __( 'Delete', 'newspack-plugin' ) }
+					isDestructive={ true }
+				>
+					{ createInterpolateElement(
+						sprintf(
+							// translators: %s is the gate title.
+							__( 'This will <strong>permanently delete</strong> “%s” and cannot be undone.', 'newspack-plugin' ),
+							gate.title
+						),
+						{ strong: <strong /> }
+					) }
+				</ConfirmDialog>
+			) }
 			{ errorMessage && <Notice isError noticeText={ errorMessage } /> }
 			{ ( isNew || isRenaming ) && (
 				<>
@@ -356,7 +490,7 @@ const Edit = ( { history, match, updateGatesData }: ContentGateEditProps ) => {
 						isActive={ registration?.active }
 						onEnable={ () => setRegistration( { ...registration, active: ! registration.active } ) }
 					>
-						<Registration gateId={ gate.id } registration={ registration } onChange={ setRegistration } />
+						<Registration registration={ registration } onChange={ setRegistration } />
 					</CardSettingsGroup>
 					<CardSettingsGroup
 						actionType="toggle"
@@ -366,7 +500,7 @@ const Edit = ( { history, match, updateGatesData }: ContentGateEditProps ) => {
 						isActive={ customAccess?.active }
 						onEnable={ () => setCustomAccess( { ...customAccess, active: ! customAccess.active } ) }
 					>
-						<CustomAccess gateId={ gate.id } customAccess={ customAccess } onChange={ setCustomAccess } />
+						<CustomAccess customAccess={ customAccess } onChange={ setCustomAccess } />
 					</CardSettingsGroup>
 				</VStack>
 			</Grid>

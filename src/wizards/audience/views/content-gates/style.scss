@@ -3,6 +3,7 @@
  */
 
 @use "~@wordpress/base-styles/colors" as wp-colors;
+@use "~@wordpress/base-styles/variables" as wp;
 
 .audience_page_newspack-audience-access-control {
 	.newspack-content-gates {
@@ -21,6 +22,23 @@
 				> * + * {
 					margin-top: 32px !important;
 				}
+			}
+			&__settings {
+				h4 {
+					font-size: wp.$font-size-small;
+					font-weight: wp.$font-weight-medium;
+					line-height: wp.$font-line-height-small;
+					margin-bottom: 8px;
+					text-transform: uppercase;
+				}
+				p {
+					color: wp-colors.$gray-700;
+					margin: 0;
+				}
+				.components-button {
+					justify-content: center;
+					margin-top: 16px;
+					width: 100%;
 			}
 		}
 		&__content-rule-control {
@@ -46,4 +64,5 @@
 			z-index: 1;
 		}
 	}
+}
 }
