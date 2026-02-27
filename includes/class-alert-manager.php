@@ -47,7 +47,6 @@ class Alert_Manager {
 		 *     Structured alert data.
 		 *
 		 *     @type string $type          Alert type identifier.
-		 *     @type string $failure_layer 'newspack', 'integration', or 'api'.
 		 *     @type string $severity      Alert severity ('error', 'warning').
 		 *     @type string $message       Human-readable alert message.
 		 *     @type array  $context       Full payload from the source hook.
@@ -57,12 +56,11 @@ class Alert_Manager {
 		do_action(
 			'newspack_alert',
 			[
-				'type'          => 'sync_retry_exhausted',
-				'failure_layer' => $payload['failure_layer'] ?? 'api',
-				'severity'      => 'error',
-				'message'       => $message,
-				'context'       => $payload,
-				'timestamp'     => time(),
+				'type'      => 'sync_retry_exhausted',
+				'severity'  => 'error',
+				'message'   => $message,
+				'context'   => $payload,
+				'timestamp' => time(),
 			]
 		);
 	}
@@ -89,12 +87,11 @@ class Alert_Manager {
 		do_action(
 			'newspack_alert',
 			[
-				'type'          => 'data_event_retry_exhausted',
-				'failure_layer' => $payload['failure_layer'] ?? 'newspack',
-				'severity'      => 'error',
-				'message'       => $message,
-				'context'       => $payload,
-				'timestamp'     => time(),
+				'type'      => 'data_event_retry_exhausted',
+				'severity'  => 'error',
+				'message'   => $message,
+				'context'   => $payload,
+				'timestamp' => time(),
 			]
 		);
 	}
@@ -183,7 +180,6 @@ class Alert_Manager {
 				'last_success'        => null,
 				'last_failure'        => null,
 				'last_failure_reason' => null,
-				'last_failure_layer'  => null,
 			];
 
 			// Count pending retries for this integration.
@@ -262,7 +258,6 @@ class Alert_Manager {
 						$integration_health['last_failure'] = $schedule->get_date()->format( 'c' );
 					}
 					$integration_health['last_failure_reason'] = $args[0]['reason'] ?? null;
-					$integration_health['last_failure_layer']  = $args[0]['failure_layer'] ?? null;
 				}
 			}
 

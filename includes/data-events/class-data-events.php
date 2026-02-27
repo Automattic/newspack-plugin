@@ -709,8 +709,7 @@ final class Data_Events {
 			return;
 		}
 
-		$failure_layer = 'newspack';
-		$next_retry    = $retry_count + 1;
+		$next_retry = $retry_count + 1;
 		if ( $next_retry > self::MAX_HANDLER_RETRIES ) {
 			self::log(
 				sprintf(
@@ -738,18 +737,16 @@ final class Data_Events {
 			 *     @type array  $data          The event data.
 			 *     @type int    $retry_count   Total retries attempted.
 			 *     @type string $reason        The final error message.
-			 *     @type string $failure_layer 'newspack', 'integration', or 'api'.
 			 * }
 			 */
 			do_action(
 				'newspack_data_event_retry_exhausted',
 				[
-					'handler'       => $handler,
-					'action_name'   => $action_name,
-					'data'          => $data,
-					'retry_count'   => self::MAX_HANDLER_RETRIES,
-					'reason'        => $error->getMessage(),
-					'failure_layer' => $failure_layer,
+					'handler'     => $handler,
+					'action_name' => $action_name,
+					'data'        => $data,
+					'retry_count' => self::MAX_HANDLER_RETRIES,
+					'reason'      => $error->getMessage(),
 				]
 			);
 			return;
@@ -759,15 +756,14 @@ final class Data_Events {
 		$backoff_seconds = self::RETRY_BACKOFF[ $backoff_index ];
 
 		$retry_data = [
-			'handler'       => $handler,
-			'action_name'   => $action_name,
-			'timestamp'     => $timestamp,
-			'data'          => $data,
-			'client_id'     => $client_id,
-			'is_global'     => $is_global,
-			'retry_count'   => $next_retry,
-			'reason'        => $error->getMessage(),
-			'failure_layer' => $failure_layer,
+			'handler'     => $handler,
+			'action_name' => $action_name,
+			'timestamp'   => $timestamp,
+			'data'        => $data,
+			'client_id'   => $client_id,
+			'is_global'   => $is_global,
+			'retry_count' => $next_retry,
+			'reason'      => $error->getMessage(),
 		];
 
 		$action_id = \as_schedule_single_action(
