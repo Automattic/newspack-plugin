@@ -148,6 +148,10 @@
 		}
 	}
 
+	&__section-header {
+		margin-bottom: 32px;
+	}
+
 	&__content {
 		margin: 0 auto;
 		max-width: calc(calc(var(--newspack-wizard-section-space) * 2) + var(--newspack-wizard-section-width));

@@ -5,7 +5,7 @@
 /**
  * WordPress dependencies.
  */
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import {
 	CheckboxControl,
 	__experimentalToggleGroupControl as ToggleGroupControl, // eslint-disable-line @wordpress/no-unsafe-wp-apis
@@ -18,11 +18,28 @@ import {
 import ContentRuleControlTaxonomy from './content-rule-control-taxonomy';
 import { Grid } from '../../../../../../packages/components/src';
 
-export default function ContentRuleControl( { slug, value, exclusion, onChange, onChangeExclusion }: GateRuleControlProps ) {
+export default function ContentRuleControl( { slug, value, exclusion, onChange, onChangeExclusion, isStatic = false }: GateRuleControlProps ) {
 	const rule = window.newspackAudienceContentGates.available_content_rules[ slug ];
 
 	if ( ! rule || ! Array.isArray( value ) ) {
 		return null;
+	}
+	if ( isStatic ) {
+		return rule.options && rule.options.length > 0 ? (
+			<p>
+				<strong>
+					{ sprintf(
+						// translators: 1: rule name, 2: includes or excludes
+						__( '%1$s %2$s:', 'newspack-plugin' ),
+						rule.name,
+						exclusion ? __( 'exclude', 'newspack-plugin' ) : __( 'include', 'newspack-plugin' )
+					) }
+				</strong>{ ' ' }
+				{ value.map( v => rule.options?.find( option => option.value === v )?.label ).join( ', ' ) }
+			</p>
+		) : (
+			<ContentRuleControlTaxonomy slug={ slug } value={ value } exclusion={ exclusion } onChange={ onChange } isStatic={ true } />
+		);
 	}
 	return (
 		<div className="newspack-content-gates__content-rule-control">
@@ -51,7 +68,7 @@ export default function ContentRuleControl( { slug, value, exclusion, onChange, 
 					) ) }
 				</Grid>
 			) : (
-				<ContentRuleControlTaxonomy slug={ slug } value={ value } onChange={ onChange } />
+				<ContentRuleControlTaxonomy slug={ slug } value={ value } onChange={ onChange } exclusion={ exclusion } />
 			) }
 		</div>
 	);

@@ -6,12 +6,22 @@
 @use "../../../colors/colors.module" as colors;
 
 .newspack-section-header {
+	flex: 1;
 	margin: 64px 0 32px;
 
 	&__container {
 		position: relative;
 		&:not(:first-child) {
 			margin-top: 48px;
+		}
+		&.newspack-section-header--has-primary-action {
+			display: flex;
+			flex-direction: column;
+			gap: 32px;
+			@media (min-width: 782px) {
+				align-items: flex-start;
+				flex-direction: row;
+			}
 		}
 		&.newspack-section-header--has-back-nav {
 			--back-nav-button-size: 36px;
@@ -32,7 +42,6 @@
 		}
 	}
 
-	&--no-margin,
 	h1,
 	h2,
 	h3,
@@ -45,11 +54,15 @@
 		margin: 0 !important;
 	}
 
+	&--no-margin {
+		margin: 0 !important;
+	}
+
 	&--is-centered {
 		text-align: center;
 	}
 
-	&:not( #{&}--no-margin ) + *:not( #{&} ) {
+	&:not( #{&}--no-margin ) + *:not( #{&} ):not(.newspack-wizard__section-header):not(.newspack-section-header__primary-action) {
 		margin-top: -16px !important;
 	}
 
@@ -64,13 +77,26 @@
 	}
 
 	&__title-container {
-		align-items: center;
+		align-items: baseline;
 		display: flex;
 		gap: 8px;
 
 		.newspack-badge {
-			margin-top: 4px;
+			transform: translateY(-4px);
 		}
+	}
+
+	&__primary-action {
+		@media (min-width: 782px) {
+			display: flex;
+			flex: 1;
+			justify-content: flex-end;
+		}
+	}
+
+	&__secondary-action {
+		display: flex;
+		margin-left: 8px;
 	}
 
 	&__children {

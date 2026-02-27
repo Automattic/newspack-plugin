@@ -39,6 +39,9 @@
 				opacity: 1;
 				transform: translateY(0);
 			}
+			@at-root body:has(&) {
+				overflow: hidden;
+			}
 		}
 	}
 

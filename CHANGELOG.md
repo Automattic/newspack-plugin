@@ -1,3 +1,10 @@
+# [6.33.0](https://github.com/Automattic/newspack-plugin/compare/v6.32.0...v6.33.0) (2026-02-27)
+
+
+### Features
+
+* trigger release with ip check landing page ([7fbcdcd](https://github.com/Automattic/newspack-plugin/commit/7fbcdcda69e43ef70fe1cfba00db30bbbc13647c))
+
 # [6.32.0](https://github.com/Automattic/newspack-plugin/compare/v6.31.1...v6.32.0) (2026-02-16)
 
 

@@ -101,7 +101,6 @@ export function openAuthModal( config = {} ) {
 		container.config = {};
 		modal.setAttribute( 'data-state', 'closed' );
 		document.body.classList.remove( 'newspack-signin' );
-		document.body.style.overflow = 'auto';
 		if ( modal.overlayId && window.newspackReaderActivation?.overlays ) {
 			window.newspackReaderActivation.overlays.remove( modal.overlayId );
 		}
@@ -209,7 +208,6 @@ export function openAuthModal( config = {} ) {
 	} );
 
 	document.body.classList.add( 'newspack-signin' );
-	document.body.style.overflow = 'hidden';
 	modal.setAttribute( 'data-state', 'open' );
 	if ( window.newspackReaderActivation?.overlays ) {
 		modal.overlayId = window.newspackReaderActivation.overlays.add( 'auth-modal' );

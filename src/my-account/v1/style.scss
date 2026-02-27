@@ -13,6 +13,8 @@
 
 .newspack-my-account {
 	&--logged-in {
+		background-color: var(--newspack-ui-color-body-bg);
+
 		.site-content {
 			margin-top: 0;
 		}

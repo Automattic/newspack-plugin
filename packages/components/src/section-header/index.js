@@ -59,6 +59,8 @@ const SectionHeader = ( {
 	pageHeader = false,
 	title,
 	id = null,
+	primaryAction,
+	secondaryAction,
 	children = null,
 } ) => {
 	// If id is in the URL as a scrollTo param, scroll to it on render.
@@ -79,8 +81,7 @@ const SectionHeader = ( {
 		centered && 'newspack-section-header--is-centered',
 		isWhite && 'newspack-section-header--is-white',
 		noMargin && 'newspack-section-header--no-margin',
-		pageHeader && 'newspack-section-header--page-header',
-		className
+		pageHeader && 'newspack-section-header--page-header'
 	);
 
 	const HeadingTag = pageHeader ? 'h1' : `h${ heading }`;
@@ -88,7 +89,12 @@ const SectionHeader = ( {
 	return (
 		<div
 			id={ id }
-			className={ classnames( 'newspack-section-header__container', backNav && 'newspack-section-header--has-back-nav' ) }
+			className={ classnames(
+				'newspack-section-header__container',
+				backNav && 'newspack-section-header--has-back-nav',
+				primaryAction && 'newspack-section-header--has-primary-action',
+				className
+			) }
 			ref={ ref }
 		>
 			<Grid columns={ 1 } gutter={ 8 } className={ classes }>
@@ -110,6 +116,13 @@ const SectionHeader = ( {
 						{ badges?.length
 							? badges.map( ( badge, i ) => <Badge key={ i } text={ badge.label } level={ badge.level || 'default' } /> )
 							: null }
+						{ secondaryAction && (
+							<div className="newspack-section-header__secondary-action">
+								<Button variant="link" href={ secondaryAction.href } onClick={ secondaryAction.action }>
+									{ secondaryAction.label }
+								</Button>
+							</div>
+						) }
 					</div>
 				) }
 				{ typeof title === 'function' && <HeadingTag>{ title() }</HeadingTag> }
@@ -118,6 +131,13 @@ const SectionHeader = ( {
 				{ description && typeof description !== 'string' && typeof description !== 'function' && <p>{ description }</p> }
 				{ children && <div className="newspack-section-header__children">{ children }</div> }
 			</Grid>
+			{ primaryAction && (
+				<div className="newspack-section-header__primary-action">
+					<Button href={ primaryAction.href } variant="primary" onClick={ primaryAction.action }>
+						{ primaryAction.label }
+					</Button>
+				</div>
+			) }
 		</div>
 	);
 };
