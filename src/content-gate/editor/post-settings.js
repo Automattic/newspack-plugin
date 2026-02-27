@@ -24,7 +24,7 @@ function PostSettings() {
 						{ __(
 							'If enabled, this post will be accessible to all readers regardless of content restriction rules.',
 							'newspack-plugin'
-						) }
+						) }{ ' ' }
 						<ExternalLink href="/wp-admin/admin.php?page=newspack-audience-access-control">
 							{ __( 'Manage access control', 'newspack-plugin' ) }
 						</ExternalLink>
