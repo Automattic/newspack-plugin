@@ -178,8 +178,8 @@ class Content_Restriction_Control {
 			return $is_post_restricted;
 		}
 
-		// Don't restrict posts for users with edit_posts capability.
-		if ( current_user_can( 'edit_posts' ) ) {
+		// Don't restrict this post for users who can edit it.
+		if ( ! empty( $post_id ) && current_user_can( 'edit_post', $post_id ) ) {
 			return false;
 		}
 
