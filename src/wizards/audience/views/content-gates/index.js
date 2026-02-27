@@ -56,12 +56,24 @@ const AudienceContentGates = ( props, ref ) => {
 					render: CountdownBanner,
 					isHidden: true,
 					exact: true,
+					backNav: '#/content-gates',
+					title: __( 'Metered countdown', 'newspack-plugin' ),
+					description: __(
+						'Show a countdown banner letting readers know how many free views they have left before content is restricted.',
+						'newspack-plugin'
+					),
 				},
 				{
 					path: '/settings/content-gifting',
 					render: ContentGifting,
 					isHidden: true,
 					exact: true,
+					backNav: '#/content-gates',
+					title: __( 'Content gifting', 'newspack-plugin' ),
+					description: __(
+						'Let members gift articles to non-subscribers. Recipients can read the full content without needing to subscribe.',
+						'newspack-plugin'
+					),
 				},
 			] }
 		/>

@@ -159,7 +159,7 @@ const Edit = ( { match, updateGatesData }: ContentGateEditProps ) => {
 				onSuccess( data: Gate ) {
 					updateGatesData( gates.map( g => ( g.id === data.id ? data : g ) ) );
 					isSaving.current = true;
-					history.push( `/content-gates` );
+					history.push( '/content-gates' );
 					addNotice( {
 						message: sprintf(
 							// translators: %s is the gate title.

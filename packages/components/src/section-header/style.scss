@@ -28,6 +28,10 @@
 			margin-left: calc(var(--back-nav-button-size) + 8px);
 			@media (min-width: 782px) {
 				margin-left: 0;
+				.newspack-section-header__title-container,
+				p {
+					max-width: 50%;
+				}
 			}
 		}
 	}

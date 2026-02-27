@@ -5,7 +5,7 @@
 /**
  * WordPress dependencies.
  */
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { __experimentalVStack as VStack } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
 import { useDispatch } from '@wordpress/data';
 import { useEffect, useRef, useState } from '@wordpress/element';
@@ -80,7 +80,16 @@ const ContentGates = ( { updateGatesData }: { updateGatesData: ( gates: Gate[] )
 						path: [ 'config' ],
 						value: { ...wizardData?.config, countdown_banner: data },
 					} );
-					addNotice( __( 'Countdown banner config updated successfully.', 'newspack-plugin' ) );
+					addNotice( {
+						message: sprintf(
+							// translators: %s is the status of the countdown banner.
+							__( 'Countdown banner %s.', 'newspack-plugin' ),
+							config.countdown_banner?.enabled ? __( 'disabled', 'newspack-plugin' ) : __( 'enabled', 'newspack-plugin' )
+						),
+						type: 'success',
+						id: 'countdown-banner-config-updated',
+						actions: [ { label: __( 'Undo', 'newspack-plugin' ), onClick: () => toggleCountdownBanner.current?.() } ],
+					} );
 				},
 			}
 		);
@@ -104,7 +113,16 @@ const ContentGates = ( { updateGatesData }: { updateGatesData: ( gates: Gate[] )
 						path: [ 'config' ],
 						value: { ...wizardData?.config, content_gifting: data },
 					} );
-					addNotice( __( 'Countdown banner config updated successfully.', 'newspack-plugin' ) );
+					addNotice( {
+						message: sprintf(
+							// translators: %s is the status of the content gifting.
+							__( 'Content gifting %s.', 'newspack-plugin' ),
+							config.content_gifting?.enabled ? __( 'enabled', 'newspack-plugin' ) : __( 'disabled', 'newspack-plugin' )
+						),
+						type: 'success',
+						id: 'content-gifting-config-updated',
+						actions: [ { label: __( 'Undo', 'newspack-plugin' ), onClick: () => toggleContentGifting.current?.() } ],
+					} );
 				},
 			}
 		);
