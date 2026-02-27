@@ -16,9 +16,18 @@ import { createAction } from './utils.js';
 export const WIZARD_STORE_NAMESPACE = 'newspack/wizards';
 
 const DEFAULT_STATE = {
+	headerData: {
+		actions: [],
+		backNav: '',
+		badges: [],
+		sectionDescription: '',
+		sectionName: '',
+		sectionTitle: '',
+	},
 	isLoading: false,
 	isQuietLoading: false,
 	apiData: {},
+	notices: [],
 	error: null,
 };
 
@@ -31,6 +40,10 @@ const clone = objectToClone => JSON.parse( JSON.stringify( objectToClone ) );
 
 const reducer = ( state = DEFAULT_STATE, { type, payload = {} } ) => {
 	switch ( type ) {
+		case 'SET_HEADER_DATA':
+			return { ...state, headerData: { ...state.headerData, ...payload } };
+		case 'RESET_HEADER_DATA':
+			return { ...state, headerData: { ...DEFAULT_STATE.headerData } };
 		case 'START_LOADING_DATA':
 			if ( payload.isQuietLoading ) {
 				return { ...state, isQuietLoading: true };
@@ -42,8 +55,14 @@ const reducer = ( state = DEFAULT_STATE, { type, payload = {} } ) => {
 			return set( clone( state ), [ 'apiData', payload.slug ], payload.data );
 		case 'UPDATE_WIZARD_SETTINGS':
 			return set( clone( state ), [ 'apiData', payload.slug, ...payload.path ], payload.value );
+		case 'ADD_NOTICE':
+			return { ...state, notices: [ ...state.notices, payload ] };
+		case 'REMOVE_NOTICE':
+			return { ...state, notices: state.notices.filter( notice => notice.id !== payload ) };
 		case 'SET_ERROR':
 			return { ...state, error: payload };
+		case 'RESET_NOTICES':
+			return { ...state, notices: DEFAULT_STATE.notices };
 		default:
 			return state;
 	}
@@ -51,11 +70,16 @@ const reducer = ( state = DEFAULT_STATE, { type, payload = {} } ) => {
 
 const actions = {
 	// Regular actions.
+	setHeaderData: createAction( 'SET_HEADER_DATA' ),
+	resetHeaderData: createAction( 'RESET_HEADER_DATA' ),
 	startLoadingData: createAction( 'START_LOADING_DATA' ),
 	finishLoadingData: createAction( 'FINISH_LOADING_DATA' ),
 	fetchFromAPI: createAction( 'FETCH_FROM_API' ),
 	setAPIDataForWizard: createAction( 'SET_API_DATA' ),
 	updateWizardSettings: createAction( 'UPDATE_WIZARD_SETTINGS' ),
+	addNotice: createAction( 'ADD_NOTICE' ),
+	removeNotice: createAction( 'REMOVE_NOTICE' ),
+	resetNotices: createAction( 'RESET_NOTICES' ),
 	setError: createAction( 'SET_ERROR' ),
 
 	// Async actions. These will not show up in Redux devtools.
@@ -85,10 +109,12 @@ const actions = {
 };
 
 const selectors = {
+	getHeaderData: state => state.headerData,
 	isLoading: state => state.isLoading,
 	isQuietLoading: state => state.isQuietLoading,
 	getWizardAPIData: ( state, slug ) => state.apiData[ slug ] || {},
 	getWizardData: ( state, slug ) => state.apiData[ slug ] ?? {},
+	getNotices: state => state.notices,
 	getError: state => state.error,
 };
 

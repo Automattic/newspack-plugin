@@ -690,6 +690,13 @@ class Newspack_Test_Data_Events extends WP_UnitTestCase {
 			'ARRAY_A'
 		);
 		$this->assertNotEmpty( $pending, 'A handler retry should be scheduled when a serializable handler throws.' );
+
+		// Verify the retry data contains the reason key.
+		$action_id = array_key_first( $pending );
+		$action    = \ActionScheduler::store()->fetch_action( $action_id );
+		$args      = $action->get_args();
+		$this->assertArrayHasKey( 'reason', $args[0], 'Retry data should contain a reason key.' );
+		$this->assertEquals( 'Test handler failure', $args[0]['reason'], 'Reason should match the error message.' );
 	}
 
 	/**
@@ -850,6 +857,105 @@ class Newspack_Test_Data_Events extends WP_UnitTestCase {
 
 		$this->assertEquals( $action_name, self::$captured_current_event, 'current_event should be set during retry.' );
 		$this->assertNull( Data_Events::current_event(), 'current_event should be null after retry completes.' );
+	}
+
+	/**
+	 * Test that scheduling a handler retry creates an AS log entry with the failure reason.
+	 */
+	public function test_handler_retry_as_log_entry() {
+		if ( ! function_exists( 'as_schedule_single_action' ) ) {
+			$this->markTestSkipped( 'ActionScheduler not available.' );
+		}
+
+		as_unschedule_all_actions( Data_Events::HANDLER_RETRY_HOOK );
+
+		$action_name = 'test_retry_as_log';
+		Data_Events::register_action( $action_name );
+
+		$handler = [ self::class, 'throwing_handler' ];
+		Data_Events::register_handler( $handler, $action_name );
+
+		Data_Events::handle( $action_name, time(), [ 'test' => 'data' ], 'client-1' );
+
+		// Get the scheduled retry action.
+		$pending = as_get_scheduled_actions(
+			[
+				'hook'   => Data_Events::HANDLER_RETRY_HOOK,
+				'group'  => 'newspack',
+				'status' => \ActionScheduler_Store::STATUS_PENDING,
+			],
+			'ARRAY_A'
+		);
+		$this->assertNotEmpty( $pending );
+
+		$action_id = array_key_first( $pending );
+
+		// Verify AS log entry.
+		$logs     = \ActionScheduler_Logger::instance()->get_logs( $action_id );
+		$messages = array_map(
+			function ( $log ) {
+				return $log->get_message();
+			},
+			$logs
+		);
+		$this->assertTrue(
+			in_array( 'Failure reason: Test handler failure', $messages, true ),
+			'AS logs should contain the failure reason.'
+		);
+	}
+
+	/**
+	 * Test that max retries exhausted creates an AS log entry on the current action.
+	 */
+	public function test_max_retries_as_log_entry() {
+		if ( ! function_exists( 'as_schedule_single_action' ) ) {
+			$this->markTestSkipped( 'ActionScheduler not available.' );
+		}
+
+		as_unschedule_all_actions( Data_Events::HANDLER_RETRY_HOOK );
+
+		$action_name = 'test_max_retries_log';
+		Data_Events::register_action( $action_name );
+
+		$handler = [ self::class, 'throwing_handler' ];
+		Data_Events::register_handler( $handler, $action_name );
+
+		// Schedule a dummy AS action to simulate the currently-executing action.
+		$dummy_action_id = as_schedule_single_action( time() + 3600, 'newspack_dummy_action' );
+
+		// Set the current AS action ID to simulate being inside an AS execution.
+		Data_Events::set_current_as_action_id( $dummy_action_id );
+
+		// Execute at max retry count — handler throws, triggers max-retries guard.
+		Data_Events::execute_handler_retry(
+			[
+				'handler'     => $handler,
+				'action_name' => $action_name,
+				'timestamp'   => time(),
+				'data'        => [],
+				'client_id'   => null,
+				'is_global'   => false,
+				'retry_count' => Data_Events::MAX_HANDLER_RETRIES,
+			]
+		);
+
+		Data_Events::clear_current_as_action_id();
+
+		// Verify AS log entry on the dummy action.
+		$logs     = \ActionScheduler_Logger::instance()->get_logs( $dummy_action_id );
+		$messages = array_map(
+			function ( $log ) {
+				return $log->get_message();
+			},
+			$logs
+		);
+		$this->assertTrue(
+			in_array( 'Max retries exhausted. Final error: Test handler failure', $messages, true ),
+			'AS logs should contain the max retries exhausted message.'
+		);
+
+		// Clean up.
+		as_unschedule_all_actions( 'newspack_dummy_action' );
 	}
 
 	// --- Helper methods for tests ---

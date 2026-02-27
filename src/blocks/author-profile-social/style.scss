@@ -1,0 +1,31 @@
+@use "../../shared/scss/mixins";
+
+.wp-block-newspack-author-profile-social {
+	.author-profile-social__list {
+		display: flex;
+		flex-wrap: wrap;
+		list-style: none;
+		margin: 0;
+		padding: 0;
+		gap: var(--wp--preset--spacing--20, 0.5rem);
+
+		li {
+			line-height: 0;
+		}
+
+		a {
+			@include mixins.socialButton;
+		}
+
+		// Fallback text for unsupported services (keeps old styling)
+		.service-name {
+			background: var(--wp--preset--color--base-2, #f0f0f0);
+			border-radius: var(--wp--custom--border--radius-small, 0.25rem);
+			display: block;
+			font-size: var(--wp--preset--font-size--xx-small, 0.75rem);
+			line-height: var(--wp--custom--line-height--xx-small, 1.3333);
+			padding: var(--wp--custom--spacing--10, 0.25rem) var(--wp--custom--spacing--25, 0.75rem);
+			text-transform: uppercase;
+		}
+	}
+}

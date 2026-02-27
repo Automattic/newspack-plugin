@@ -10,6 +10,7 @@ namespace Newspack\Tests\Unit\Bylines;
 
 use Newspack\Bylines;
 use Newspack\Blocks\Avatar\Avatar_Block;
+use Newspack\Author_Rest_Fields;
 
 /**
  * Test class for the Avatar Block.
@@ -103,8 +104,13 @@ class Test_Avatar_Block extends \WP_UnitTestCase {
 			'attrs'     => $attributes,
 		];
 
-		$block          = new \stdClass();
-		$block->context = [ 'postId' => $post_id ];
+		$block = new \WP_Block(
+			[
+				'blockName' => 'newspack/avatar',
+				'attrs'     => $attributes,
+			],
+			[ 'postId' => $post_id ]
+		);
 
 		$output = Avatar_Block::render_block( $attributes, '', $block );
 
@@ -119,8 +125,12 @@ class Test_Avatar_Block extends \WP_UnitTestCase {
 	 * @covers \Newspack\Blocks\Avatar\Avatar_Block::render_block
 	 */
 	public function test_render_block_empty_for_invalid_post() {
-		$block          = new \stdClass();
-		$block->context = [];
+		$block = new \WP_Block(
+			[
+				'blockName' => 'newspack/avatar',
+				'attrs'     => [],
+			]
+		);
 
 		$output = Avatar_Block::render_block( [], '', $block );
 
@@ -294,5 +304,48 @@ class Test_Avatar_Block extends \WP_UnitTestCase {
 
 		// get_user_by returns false for non-existent IDs, so array_filter removes it.
 		$this->assertEmpty( $output, 'Should return empty when byline author no longer exists.' );
+	}
+
+	/**
+	 * Test get_author_info returns enriched data for a WP author (no CAP).
+	 *
+	 * @covers \Newspack\Author_Rest_Fields::get_author_info
+	 */
+	public function test_get_author_info_default_wp_author() {
+		$post   = [ 'id' => self::$post_id ];
+		$result = Author_Rest_Fields::get_author_info( $post );
+
+		$this->assertIsArray( $result, 'Should return an array.' );
+		$this->assertCount( 1, $result, 'Should return exactly one author.' );
+
+		$author = $result[0];
+		$this->assertSame( self::$author_id, $author['id'], 'Author ID should match.' );
+		$this->assertSame( 'Avatar Test Author', $author['display_name'], 'Display name should match.' );
+		$this->assertArrayHasKey( 'author_link', $author, 'Should have author_link.' );
+		$this->assertArrayHasKey( 'user_nicename', $author, 'Should have user_nicename.' );
+		$this->assertFalse( $author['is_guest'], 'WP users should not be guests.' );
+		$this->assertArrayHasKey( 'avatar_urls', $author, 'Should have avatar_urls.' );
+		$this->assertIsArray( $author['avatar_urls'], 'avatar_urls should be an array.' );
+	}
+
+	/**
+	 * Test get_author_info returns empty array for non-existent author.
+	 *
+	 * @covers \Newspack\Author_Rest_Fields::get_author_info
+	 */
+	public function test_get_author_info_non_existent_author() {
+		$post_id = wp_insert_post(
+			[
+				'post_author' => 999999,
+				'post_status' => 'publish',
+				'post_title'  => 'Orphaned Post',
+			]
+		);
+
+		$result = Author_Rest_Fields::get_author_info( [ 'id' => $post_id ] );
+
+		$this->assertSame( [], $result, 'Should return empty array for non-existent author.' );
+
+		wp_delete_post( $post_id, true );
 	}
 }

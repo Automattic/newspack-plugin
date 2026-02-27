@@ -270,6 +270,7 @@
 	input[type="email"].nphp {
 		@include mixins.visuallyHidden;
 	}
+
 }
 
 @container registration ( width > 568px ) {

@@ -110,9 +110,13 @@ abstract class Integration {
 	 * This method should be implemented by child classes to return
 	 * an array of available contact fields from their integration.
 	 *
+	 * Integrations that support pulling contact data should implement this method.
+	 *
 	 * @return Integrations\Incoming_Contact_Field[]|\WP_Error Array of incoming contact field objects or WP_Error on failure.
 	 */
-	abstract public function get_incoming_available_contact_fields();
+	public function get_incoming_available_contact_fields() {
+		return [];
+	}
 
 	/**
 	 * Get incoming contact fields that are not already in the metadata.

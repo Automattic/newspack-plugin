@@ -16,12 +16,12 @@ defined( 'ABSPATH' ) || exit;
 
 define( 'NEWSPACK_PLUGIN_VERSION', '6.32.0' );
 
-// Define NEWSPACK_PLUGIN_FILE.
+// Path to the main Newspack plugin file.
 if ( ! defined( 'NEWSPACK_PLUGIN_FILE' ) ) {
 	define( 'NEWSPACK_PLUGIN_FILE', __FILE__ );
 }
 
-// Define NEWSPACK_PLUGIN_BASEDIR.
+// Base directory name for the Newspack plugin.
 if ( ! defined( 'NEWSPACK_PLUGIN_BASEDIR' ) ) {
 	define( 'NEWSPACK_PLUGIN_BASEDIR', dirname( plugin_basename( NEWSPACK_PLUGIN_FILE ) ) );
 }

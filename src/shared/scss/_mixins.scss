@@ -10,3 +10,49 @@
 	position: absolute !important;
 	word-wrap: normal !important; /* Many screen reader and browser combinations announce broken words as they would appear visually. */
 }
+
+// Circular social button style
+// Used by: author-profile-social, author-social-link blocks
+// Hex fallbacks from newspack-block-theme theme.json defaults.
+@mixin socialButton {
+	background: var(--wp--preset--color--base-2, #f0f0f0);
+	border-radius: 50%; // Circular
+	color: var(--wp--preset--color--contrast, #1e1e1e);
+	display: grid;
+	place-items: center;
+	text-decoration: none;
+	transition: background 125ms ease-in-out, color 125ms ease-in-out;
+
+	// Sizing - makes circular by using equal width/height
+	// --icon-size controls the circle diameter (e.g., 36px)
+	// Icon inside is 2/3 of circle size (e.g., 24px icon in 36px circle)
+	aspect-ratio: 1;
+	width: calc(var(--icon-size, 24px) * 1.5);
+	height: calc(var(--icon-size, 24px) * 1.5);
+	padding: 0;
+
+	&:hover {
+		background: var(--wp--preset--color--base-3, #ddd);
+		color: var(--wp--preset--color--contrast, #1e1e1e);
+		text-decoration: none;
+	}
+
+	&:focus {
+		outline: none;
+	}
+
+	&:focus-visible {
+		outline: 2px solid;
+		outline-offset: 1px;
+	}
+
+	// SVG icon sizing - icon is 2/3 of button size
+	// If button is 36px, icon is 24px (24/36 = 2/3)
+	svg,
+	span {
+		display: block;
+		fill: currentcolor;
+		width: var(--icon-size, 24px);
+		height: var(--icon-size, 24px);
+	}
+}
