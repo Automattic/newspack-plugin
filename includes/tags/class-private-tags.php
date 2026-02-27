@@ -97,6 +97,11 @@ class Private_Tags {
 		add_action( 'edited_post_tag', [ __CLASS__, 'save_quick_edit' ] );
 		add_action( 'admin_enqueue_scripts', [ __CLASS__, 'enqueue_admin_scripts' ] );
 
+		// Cache invalidation: also clear when meta is changed via WP-CLI, REST, or import scripts.
+		add_action( 'added_term_meta', [ __CLASS__, 'maybe_clear_cache' ], 10, 3 );
+		add_action( 'updated_term_meta', [ __CLASS__, 'maybe_clear_cache' ], 10, 3 );
+		add_action( 'deleted_term_meta', [ __CLASS__, 'maybe_clear_cache' ], 10, 3 );
+
 		// Frontend: hide private tags from various surfaces.
 		add_filter( 'term_links-post_tag', [ __CLASS__, 'filter_tag_links' ] );
 		add_filter( 'tag_cloud_sort', [ __CLASS__, 'filter_tag_cloud' ] );
@@ -194,6 +199,24 @@ class Private_Tags {
 		self::$cache = [];
 		foreach ( [ 'slugs', 'names', 'ids' ] as $fields ) {
 			wp_cache_delete( 'private_tags_' . $fields, self::CACHE_GROUP );
+		}
+	}
+
+	/**
+	 * Clear the cache if the changed meta key is META_KEY.
+	 *
+	 * Handles cache invalidation for code paths that bypass save_term() and
+	 * save_quick_edit() — e.g. WP-CLI, REST API, or import scripts that call
+	 * update_term_meta() / delete_term_meta() directly.
+	 *
+	 * @param int    $_meta_id   Unused — required positional parameter.
+	 * @param int    $_object_id Unused — required positional parameter.
+	 * @param string $meta_key  The meta key being changed.
+	 * @return void
+	 */
+	public static function maybe_clear_cache( $_meta_id, $_object_id, $meta_key ) {
+		if ( self::META_KEY === $meta_key ) {
+			self::clear_cache();
 		}
 	}
 
@@ -367,6 +390,12 @@ class Private_Tags {
 	 * with context=view, not context=edit, so a context guard would prevent the
 	 * label from appearing in the editor — the opposite of the intended behavior.
 	 *
+	 * Design note: This mutates the canonical REST name field, which means
+	 * public REST consumers (e.g. headless frontends) will see "(private)" in
+	 * the tag name. A cleaner approach would be to expose an np_is_private
+	 * field and let the client render the label, but that would require
+	 * Gutenberg JS changes that seem out of scope for current Newspack usage.
+	 *
 	 * @param \WP_REST_Response $response The response object.
 	 * @param WP_Term           $term     The term object.
 	 * @return \WP_REST_Response
@@ -524,7 +553,7 @@ class Private_Tags {
 					var row     = document.getElementById( 'tag-' + termId );
 					var editRow = document.getElementById( 'edit-' + termId );
 					if ( row && editRow ) {
-						var span      = row.querySelector( '.column-np_private span' );
+						var span      = row.querySelector( '.column-np_private span[data-np-private]' );
 						// Read private state from the data attribute set by render_private_column().
 						var isPrivate = span && '1' === span.getAttribute( 'data-np-private' );
 						var checkbox  = editRow.querySelector( 'input[name=\"{$meta_key}\"]' );
@@ -555,6 +584,11 @@ class Private_Tags {
 	 * This only runs inside the main WordPress Loop (in_the_loop()) to ensure the
 	 * post context is reliable. Tag links outside the loop (e.g. custom loops,
 	 * AJAX) are returned unfiltered to avoid operating on the wrong post.
+	 *
+	 * Known limitation: custom templates that call get_the_term_list() outside
+	 * the main loop will not have private tags filtered. Filtering at the
+	 * get_the_terms layer was considered but rejected due to performance concerns
+	 * as it fires on every term lookup across all taxonomies on every page load.
 	 *
 	 * Note: custom attributes added to links by themes or plugins will not be
 	 * preserved, as the links are rebuilt from scratch.
@@ -763,8 +797,8 @@ class Private_Tags {
 			return $excluded_ids;
 		}
 
-		// Append to existing exclusions rather than replacing them.
-		return array_merge( $excluded_ids, $private_ids );
+		// Append to existing exclusions, de-duplicating in case any IDs overlap.
+		return array_values( array_unique( array_merge( $excluded_ids, $private_ids ) ) );
 	}
 }
 
