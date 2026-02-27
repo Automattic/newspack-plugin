@@ -178,6 +178,11 @@ class Content_Restriction_Control {
 			return $is_post_restricted;
 		}
 
+		// Don't restrict posts for users with edit_posts capability.
+		if ( current_user_can( 'edit_posts' ) ) {
+			return false;
+		}
+
 		$post_gates = self::get_post_gates( $post_id );
 		if ( empty( $post_gates ) ) {
 			return false;
