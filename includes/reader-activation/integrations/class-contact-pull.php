@@ -40,13 +40,6 @@ class Contact_Pull {
 	const PULL_SYNC_THRESHOLD = 86400;
 
 	/**
-	 * HTTP timeout in seconds for each per-integration loopback request.
-	 *
-	 * @var int
-	 */
-	const PULL_REQUEST_TIMEOUT = 2;
-
-	/**
 	 * AJAX action name for the loopback pull endpoint.
 	 *
 	 * @var string
@@ -81,6 +74,21 @@ class Contact_Pull {
 		add_action( 'init', [ __CLASS__, 'maybe_pull_contact_data' ], 20 );
 		add_action( self::ASYNC_PULL_HOOK, [ __CLASS__, 'handle_async_pull' ] );
 		add_action( 'wp_ajax_' . self::AJAX_ACTION, [ __CLASS__, 'handle_ajax_pull' ] );
+	}
+
+	/**
+	 * Get the timeout for loopback pull requests.
+	 *
+	 * This allows integrations with longer pull times to extend the timeout
+	 * before the request is considered failed and falls back to async scheduling.
+	 *
+	 * @return int Timeout in seconds.
+	 */
+	private static function get_pull_request_timeout() {
+		/**
+		 * Newspack Integrations: Filter the max amount of time (in seconds) to allow for a synchronous contact metadata pull request before falling back to async scheduling.
+		 */
+		return apply_filters( 'newspack_pull_integration_request_timeout', 1 );
 	}
 
 	/**
@@ -125,7 +133,7 @@ class Contact_Pull {
 	 * Run synchronous pull via per-integration loopback requests.
 	 *
 	 * Each integration is pulled via a blocking wp_remote_post to the AJAX
-	 * endpoint with PULL_REQUEST_TIMEOUT. If the request completes, the handler
+	 * endpoint with get_pull_request_timeout. If the request completes, the handler
 	 * has already stored the data. If it times out or fails, the integration is
 	 * scheduled via Action Scheduler as a fallback.
 	 *
@@ -175,7 +183,7 @@ class Contact_Pull {
 		return wp_remote_post(
 			$url,
 			[
-				'timeout'   => self::PULL_REQUEST_TIMEOUT,
+				'timeout'   => self::get_pull_request_timeout(),
 				'blocking'  => true,
 				'body'      => [ 'integration_id' => $integration_id ],
 				'cookies'   => $_COOKIE, // phpcs:ignore
