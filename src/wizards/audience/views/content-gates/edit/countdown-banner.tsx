@@ -18,12 +18,12 @@ import {
 	__experimentalVStack as VStack,
 } from '@wordpress/components';
 import { useDispatch } from '@wordpress/data';
-import { useEffect, useMemo, useState } from '@wordpress/element';
+import { useEffect, useMemo, useRef, useState } from '@wordpress/element';
 
 /**
  * Internal dependencies
  */
-import { Grid, Notice, Router, SectionHeader, SelectControl, TextControl } from '../../../../../../packages/components/src';
+import { ConfirmDialog, Grid, Notice, Router, SectionHeader, SelectControl, TextControl } from '../../../../../../packages/components/src';
 import { useWizardData } from '../../../../../../packages/components/src/wizard/store/utils';
 import { WIZARD_STORE_NAMESPACE } from '../../../../../../packages/components/src/wizard/store';
 import { useWizardApiFetch } from '../../../../hooks/use-wizard-api-fetch';
@@ -39,12 +39,17 @@ const CountdownBannerSettings = () => {
 	const { wizardApiFetch, errorMessage, resetError } = useWizardApiFetch( AUDIENCE_CONTENT_GATES_WIZARD_SLUG );
 	const [ config, setConfig ] = useState< GateSettings >( wizardData?.config || {} );
 	const availableProducts = newspackAudience?.available_products || [];
-
 	const isDirty = useMemo( () => {
-		return JSON.stringify( config?.countdown_banner ) !== JSON.stringify( wizardData?.config?.countdown_banner );
+		return (
+			config?.countdown_banner &&
+			wizardData?.config?.countdown_banner &&
+			JSON.stringify( config?.countdown_banner ) !== JSON.stringify( wizardData?.config?.countdown_banner )
+		);
 	}, [ config, wizardData?.config ] );
+	const isSaving = useRef( false );
 
 	const handleUpdateConfig = ( newConfig: GateSettings, message: string = __( 'Metered countdown settings updated.', 'newspack-plugin' ) ) => {
+		isSaving.current = true;
 		resetError();
 		resetNotices();
 		wizardApiFetch(
@@ -67,6 +72,9 @@ const CountdownBannerSettings = () => {
 						id: 'countdown-banner-config-updated',
 					} );
 					history.push( '/content-gates' );
+				},
+				onFinally: () => {
+					isSaving.current = false;
 				},
 			}
 		);
@@ -111,6 +119,9 @@ const CountdownBannerSettings = () => {
 
 	return (
 		<div className="newspack-content-gate__edit">
+			<ConfirmDialog when={ isDirty && ! isSaving.current } confirmButtonText={ __( 'Discard changes', 'newspack-plugin' ) } hideTitle>
+				{ __( 'You have unsaved changes that will be lost. Discard changes?', 'newspack-plugin' ) }
+			</ConfirmDialog>
 			{ errorMessage && <Notice isError noticeText={ errorMessage } /> }
 			<Grid columns={ 2 } gutter={ 32 }>
 				<SectionHeader heading={ 2 } title={ __( 'Countdown banner', 'newspack-plugin' ) } />
@@ -118,7 +129,7 @@ const CountdownBannerSettings = () => {
 					<TextControl
 						label={ __( 'Message', 'newspack-plugin' ) }
 						help={ __( 'Text displayed in the countdown banner.', 'newspack-plugin' ) }
-						value={ config?.countdown_banner?.cta_label }
+						value={ config?.countdown_banner?.cta_label || '' }
 						onChange={ ( value: string ) =>
 							setConfig( { ...config, countdown_banner: { ...config?.countdown_banner, cta_label: value } } )
 						}
@@ -128,7 +139,7 @@ const CountdownBannerSettings = () => {
 					<TextControl
 						label={ __( 'Subscribe button label', 'newspack-plugin' ) }
 						help={ __( 'Text displayed on the subscribe button in the banner.', 'newspack-plugin' ) }
-						value={ config?.countdown_banner?.button_label }
+						value={ config?.countdown_banner?.button_label || '' }
 						onChange={ ( value: string ) =>
 							setConfig( { ...config, countdown_banner: { ...config?.countdown_banner, button_label: value } } )
 						}
@@ -166,7 +177,7 @@ const CountdownBannerSettings = () => {
 							label={ __( 'Subscribe button product', 'newspack-plugin' ) }
 							help={ __( 'Product linked to the subscribe button.', 'newspack-plugin' ) }
 							options={ [ { label: __( 'Select a product', 'newspack-plugin' ), value: 0, disabled: true }, ...availableProducts ] }
-							value={ config?.countdown_banner?.cta_product_id }
+							value={ config?.countdown_banner?.cta_product_id || 0 }
 							suggestions={ availableProducts.map( o => o.label ) }
 							onChange={ ( value: number ) =>
 								setConfig( { ...config, countdown_banner: { ...config?.countdown_banner, cta_product_id: value } } )
@@ -178,7 +189,7 @@ const CountdownBannerSettings = () => {
 						<TextControl
 							label={ __( 'Subscribe button URL', 'newspack-plugin' ) }
 							help={ __( 'URL for the landing page to redirect to.', 'newspack-plugin' ) }
-							value={ config?.countdown_banner?.cta_url }
+							value={ config?.countdown_banner?.cta_url || '' }
 							onChange={ ( value: string ) =>
 								setConfig( { ...config, countdown_banner: { ...config?.countdown_banner, cta_url: value } } )
 							}

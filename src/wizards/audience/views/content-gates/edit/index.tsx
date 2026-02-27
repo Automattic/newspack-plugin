@@ -85,11 +85,9 @@ const Edit = ( { match, updateGatesData }: ContentGateEditProps ) => {
 	const [ customAccess, setCustomAccess ] = useState< CustomAccess >( gate.custom_access );
 	const [ contentType, setContentType ] = useState< 'all' | 'custom' | undefined >( type as 'all' | 'custom' | undefined );
 	const [ status, setStatus ] = useState< GateStatus >( gate.status );
-	const [ showUnsavedChangesDialog, setShowUnsavedChangesDialog ] = useState( false );
 	const [ showDeleteDialog, setShowDeleteDialog ] = useState( false );
 	const isNew = _id === 'new' || ! id;
 	const isSaving = useRef( false );
-	const pendingNavigation = useRef< ( () => void ) | null >( null );
 
 	const isDirty =
 		isNew ||
@@ -102,6 +100,7 @@ const Edit = ( { match, updateGatesData }: ContentGateEditProps ) => {
 		if ( isFetching ) {
 			return;
 		}
+		isSaving.current = true;
 		resetNotices();
 		resetError();
 		const _gate = {
@@ -120,7 +119,6 @@ const Edit = ( { match, updateGatesData }: ContentGateEditProps ) => {
 			{
 				onSuccess( data ) {
 					updateGatesData( [ ...gates, { ...data } ] );
-					isSaving.current = true;
 					history.push( `/content-gates` );
 					addNotice( {
 						// translators: %s is the gate title.
@@ -130,6 +128,9 @@ const Edit = ( { match, updateGatesData }: ContentGateEditProps ) => {
 						actions: [ { label: __( 'Edit', 'newspack-plugin' ), url: `#/edit/${ data.id }` } ],
 					} );
 				},
+				onFinally: () => {
+					isSaving.current = false;
+				},
 			}
 		);
 	}, [ gate, contentRules, registration, customAccess, status, title ] );
@@ -138,6 +139,7 @@ const Edit = ( { match, updateGatesData }: ContentGateEditProps ) => {
 		if ( isFetching ) {
 			return;
 		}
+		isSaving.current = true;
 		resetError();
 		resetNotices();
 		const gateTitle = title || gate.title;
@@ -158,7 +160,6 @@ const Edit = ( { match, updateGatesData }: ContentGateEditProps ) => {
 			{
 				onSuccess( data: Gate ) {
 					updateGatesData( gates.map( g => ( g.id === data.id ? data : g ) ) );
-					isSaving.current = true;
 					history.push( '/content-gates' );
 					addNotice( {
 						message: sprintf(
@@ -170,6 +171,9 @@ const Edit = ( { match, updateGatesData }: ContentGateEditProps ) => {
 						id: 'content-gate-updated',
 					} );
 				},
+				onFinally: () => {
+					isSaving.current = false;
+				},
 			}
 		);
 	}, [ gate, contentRules, registration, customAccess, status, title ] );
@@ -179,6 +183,7 @@ const Edit = ( { match, updateGatesData }: ContentGateEditProps ) => {
 		if ( isFetching ) {
 			return;
 		}
+		isSaving.current = true;
 		resetError();
 		resetNotices();
 		const prevStatus = gate.status;
@@ -207,6 +212,9 @@ const Edit = ( { match, updateGatesData }: ContentGateEditProps ) => {
 						id: 'content-gate-status-changed',
 						actions: [ { label: __( 'Undo', 'newspack-plugin' ), onClick: () => updateStatus.current?.( prevStatus ) } ],
 					} );
+				},
+				onFinally: () => {
+					isSaving.current = false;
 				},
 			}
 		);
@@ -363,48 +371,11 @@ const Edit = ( { match, updateGatesData }: ContentGateEditProps ) => {
 		}
 	}, [ isNew, gate.status, status, updateStatus ] );
 
-	// Block navigation when there are unsaved changes.
-	useEffect( () => {
-		if ( ! isDirty ) {
-			return;
-		}
-		const unblock = history.block( ( location: string, action: string ) => {
-			if ( isSaving.current ) {
-				return;
-			}
-			pendingNavigation.current = () => {
-				unblock();
-				if ( action === 'REPLACE' ) {
-					history.replace( location );
-				} else {
-					history.push( location );
-				}
-			};
-			setShowUnsavedChangesDialog( true );
-			return false;
-		} );
-		return unblock;
-	}, [ isDirty, history ] );
-
 	return (
 		<div className="newspack-content-gate__edit">
-			{ showUnsavedChangesDialog && (
-				<ConfirmDialog
-					onConfirm={ () => {
-						setShowUnsavedChangesDialog( false );
-						pendingNavigation.current?.();
-						pendingNavigation.current = null;
-					} }
-					onCancel={ () => {
-						setShowUnsavedChangesDialog( false );
-						pendingNavigation.current = null;
-					} }
-					confirmButtonText={ __( 'Discard changes', 'newspack-plugin' ) }
-					hideTitle
-				>
-					{ __( 'You have unsaved changes that will be lost. Discard changes?', 'newspack-plugin' ) }
-				</ConfirmDialog>
-			) }
+			<ConfirmDialog when={ isDirty && ! isSaving.current } confirmButtonText={ __( 'Discard changes', 'newspack-plugin' ) } hideTitle>
+				{ __( 'You have unsaved changes that will be lost. Discard changes?', 'newspack-plugin' ) }
+			</ConfirmDialog>
 			{ showDeleteDialog && (
 				<ConfirmDialog
 					title={ __( 'Are you sure?', 'newspack-plugin' ) }

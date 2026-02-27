@@ -19,12 +19,12 @@ import {
 	__experimentalVStack as VStack,
 } from '@wordpress/components';
 import { useDispatch } from '@wordpress/data';
-import { useEffect, useMemo, useState } from '@wordpress/element';
+import { useEffect, useMemo, useRef, useState } from '@wordpress/element';
 
 /**
  * Internal dependencies
  */
-import { Divider, Grid, Notice, Router, SectionHeader, SelectControl, TextControl } from '../../../../../../packages/components/src';
+import { ConfirmDialog, Divider, Grid, Notice, Router, SectionHeader, SelectControl, TextControl } from '../../../../../../packages/components/src';
 import { useWizardData } from '../../../../../../packages/components/src/wizard/store/utils';
 import { WIZARD_STORE_NAMESPACE } from '../../../../../../packages/components/src/wizard/store';
 import { useWizardApiFetch } from '../../../../hooks/use-wizard-api-fetch';
@@ -42,12 +42,17 @@ const ContentGiftingSettings = () => {
 	const availableProducts = newspackAudience?.available_products || [];
 	const hasMetering = newspackAudience?.content_gifting?.has_metering;
 	const giftingErrors = Object.values( newspackAudience?.content_gifting?.can_use_gifting?.errors || {} ).flat() as string[];
-
 	const isDirty = useMemo( () => {
-		return JSON.stringify( config?.content_gifting ) !== JSON.stringify( wizardData?.config?.content_gifting );
+		return (
+			config?.content_gifting &&
+			wizardData?.config?.content_gifting &&
+			JSON.stringify( config?.content_gifting ) !== JSON.stringify( wizardData?.config?.content_gifting )
+		);
 	}, [ config, wizardData?.config ] );
+	const isSaving = useRef( false );
 
 	const handleUpdateConfig = ( newConfig: GateSettings, message: string = __( 'Content gifting settings updated.', 'newspack-plugin' ) ) => {
+		isSaving.current = true;
 		resetError();
 		resetNotices();
 		wizardApiFetch(
@@ -70,6 +75,9 @@ const ContentGiftingSettings = () => {
 						id: 'content-gifting-config-updated',
 					} );
 					history.push( '/content-gates' );
+				},
+				onFinally: () => {
+					isSaving.current = false;
 				},
 			}
 		);
@@ -114,24 +122,27 @@ const ContentGiftingSettings = () => {
 
 	return (
 		<div className="newspack-content-gate__edit">
+			<ConfirmDialog when={ isDirty && ! isSaving.current } confirmButtonText={ __( 'Discard changes', 'newspack-plugin' ) } hideTitle>
+				{ __( 'You have unsaved changes that will be lost. Discard changes?', 'newspack-plugin' ) }
+			</ConfirmDialog>
 			{ errorMessage && <Notice isError noticeText={ errorMessage } /> }
 			{ giftingErrors.length > 0 && <Notice noticeText={ giftingErrors.join( ', ' ) } isError /> }
 			<Grid columns={ 2 } gutter={ 32 }>
-				<SectionHeader heading={ 2 } title={ __( 'General Settings', 'newspack-plugin' ) } />
+				<SectionHeader heading={ 2 } title={ __( 'General settings', 'newspack-plugin' ) } />
 				<VStack spacing={ 4 }>
 					<RangeControl
 						label={ __( 'Gifting limit', 'newspack-plugin' ) }
 						help={ __( 'Maximum number of articles that can be gifted per user for the configured interval.', 'newspack-plugin' ) }
 						min={ 1 }
 						max={ 20 }
-						value={ config?.content_gifting?.limit }
+						value={ config?.content_gifting?.limit || 10 }
 						onChange={ ( value: number ) => setConfig( { ...config, content_gifting: { ...config?.content_gifting, limit: value } } ) }
 						__next40pxDefaultSize
 					/>
 					<SelectControl
 						label={ __( 'Gifting limit interval', 'newspack-plugin' ) }
 						help={ __( 'Interval at which the gifting limit is reset.', 'newspack-plugin' ) }
-						value={ config?.content_gifting?.interval }
+						value={ config?.content_gifting?.interval || 'month' }
 						onChange={ ( value: string ) => setConfig( { ...config, content_gifting: { ...config?.content_gifting, interval: value } } ) }
 						options={ [
 							{ value: 'day', label: __( 'Day', 'newspack-plugin' ) },
@@ -168,12 +179,12 @@ const ContentGiftingSettings = () => {
 			</Grid>
 			<Divider alignment="full-width" />
 			<Grid columns={ 2 } gutter={ 32 }>
-				<SectionHeader heading={ 2 } title={ __( 'Recipient Banner', 'newspack-plugin' ) } />
+				<SectionHeader heading={ 2 } title={ __( 'Recipient banner', 'newspack-plugin' ) } />
 				<VStack spacing={ 4 }>
 					<TextControl
 						label={ __( 'Message', 'newspack-plugin' ) }
 						help={ __( 'Text displayed in the banner shown to recipients of gifted articles.', 'newspack-plugin' ) }
-						value={ config?.content_gifting?.cta_label }
+						value={ config?.content_gifting?.cta_label || '' }
 						onChange={ ( value: string ) =>
 							setConfig( { ...config, content_gifting: { ...config?.content_gifting, cta_label: value } } )
 						}
@@ -183,7 +194,7 @@ const ContentGiftingSettings = () => {
 					<TextControl
 						label={ __( 'Subscribe button label', 'newspack-plugin' ) }
 						help={ __( 'Text displayed on the subscribe button in the banner.', 'newspack-plugin' ) }
-						value={ config?.content_gifting?.button_label }
+						value={ config?.content_gifting?.button_label || '' }
 						onChange={ ( value: string ) =>
 							setConfig( { ...config, content_gifting: { ...config?.content_gifting, button_label: value } } )
 						}
@@ -219,7 +230,7 @@ const ContentGiftingSettings = () => {
 							label={ __( 'Subscribe button product', 'newspack-plugin' ) }
 							help={ __( 'Product linked to the subscribe button.', 'newspack-plugin' ) }
 							options={ [ { label: __( 'Select a product', 'newspack-plugin' ), value: 0, disabled: true }, ...availableProducts ] }
-							value={ config?.content_gifting?.cta_product_id }
+							value={ config?.content_gifting?.cta_product_id || 0 }
 							suggestions={ availableProducts.map( o => o.label ) }
 							onChange={ ( value: number ) =>
 								setConfig( { ...config, content_gifting: { ...config?.content_gifting, cta_product_id: value } } )
@@ -231,7 +242,7 @@ const ContentGiftingSettings = () => {
 						<TextControl
 							label={ __( 'Subscribe button URL', 'newspack-plugin' ) }
 							help={ __( 'URL for the landing page to redirect to.', 'newspack-plugin' ) }
-							value={ config?.content_gifting?.cta_url }
+							value={ config?.content_gifting?.cta_url || '' }
 							onChange={ ( value: string ) =>
 								setConfig( { ...config, content_gifting: { ...config?.content_gifting, cta_url: value } } )
 							}

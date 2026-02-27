@@ -5,8 +5,14 @@
 /**
  * WordPress dependencies.
  */
-import { forwardRef } from '@wordpress/element';
 import { __experimentalConfirmDialog as BaseComponent } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
+import { forwardRef, useCallback, useEffect, useRef, useState } from '@wordpress/element';
+
+/**
+ * Internal dependencies.
+ */
+import Router from '../proxied-imports/router';
+const { useHistory } = Router;
 
 /**
  * External dependencies.
@@ -25,9 +31,8 @@ type ConfirmDialogProps = {
 	isDestructive?: boolean;
 	cancelButtonText?: string;
 	confirmButtonText?: string;
-	onConfirm: () => void;
-	onCancel: () => void;
 	children?: React.ReactNode;
+	when?: boolean;
 };
 
 const sizeClassMap = {
@@ -39,9 +44,48 @@ const sizeClassMap = {
 };
 
 function ConfirmDialog(
-	{ className, size = 'small', hideTitle, isDestructive, onConfirm, onCancel, ...otherProps }: ConfirmDialogProps,
+	{ className, size = 'small', hideTitle, isDestructive, when = false, ...otherProps }: ConfirmDialogProps,
 	ref: React.Ref< HTMLDivElement >
 ) {
+	const [ showUnsavedChangesDialog, setShowUnsavedChangesDialog ] = useState( false );
+	const history = useHistory();
+	const pendingNavigation = useRef< ( () => void ) | null >( null );
+
+	const onConfirm = useCallback( () => {
+		setShowUnsavedChangesDialog( false );
+		pendingNavigation.current?.();
+		pendingNavigation.current = null;
+	}, [ pendingNavigation ] );
+
+	const onCancel = useCallback( () => {
+		setShowUnsavedChangesDialog( false );
+		pendingNavigation.current = null;
+	}, [ pendingNavigation ] );
+
+	// Block navigation when there are unsaved changes.
+	useEffect( () => {
+		if ( ! when ) {
+			return;
+		}
+		const unblock = history.block( ( location: string, action: string ) => {
+			pendingNavigation.current = () => {
+				unblock();
+				if ( action === 'REPLACE' ) {
+					history.replace( location );
+				} else {
+					history.push( location );
+				}
+			};
+			setShowUnsavedChangesDialog( true );
+			return false;
+		} );
+		return unblock;
+	}, [ when, history ] );
+
+	if ( ! showUnsavedChangesDialog ) {
+		return null;
+	}
+
 	const classes = classnames(
 		'newspack-modal',
 		sizeClassMap[ size ],
