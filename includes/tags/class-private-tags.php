@@ -356,8 +356,8 @@ class Private_Tags {
 	/**
 	 * Append "(private)" to the tag name in the admin area.
 	 *
-	 * @param string      $name The term name.
-	 * @param WP_Term|int $term The term object or term ID.
+	 * @param string  $name The term name.
+	 * @param WP_Term $term The term object.
 	 * @return string
 	 */
 	public static function append_private_label_to_name( $name, $term ) {
@@ -371,15 +371,6 @@ class Private_Tags {
 		$label = self::get_private_label();
 		if ( substr( $name, -strlen( $label ) ) === $label ) {
 			return $name;
-		}
-
-		// $term may be passed as an ID or a WP_Term object depending on context; normalize to WP_Term.
-		if ( is_int( $term ) ) {
-			// get_term() returns null or WP_Error for unknown IDs; bail rather than crashing downstream.
-			$term = get_term( $term, 'post_tag' );
-			if ( ! $term || is_wp_error( $term ) ) {
-				return $name;
-			}
 		}
 
 		// Type guard: ensure we have a post_tag WP_Term before calling is_term_private().
@@ -673,6 +664,11 @@ class Private_Tags {
 	 * @return array
 	 */
 	public static function filter_tag_cloud( $tags ) {
+		// No private tags on this site — nothing to filter.
+		if ( empty( self::get_private_tag_slugs() ) ) {
+			return $tags;
+		}
+
 		return array_filter(
 			$tags,
 			function( $tag ) {
