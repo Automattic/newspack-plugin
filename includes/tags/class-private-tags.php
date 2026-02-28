@@ -219,7 +219,7 @@ class Private_Tags {
 	 *
 	 * @param int    $_meta_id   Unused — required positional parameter.
 	 * @param int    $_object_id Unused — required positional parameter.
-	 * @param string $meta_key  The meta key being changed.
+	 * @param string $meta_key   The meta key being changed.
 	 * @return void
 	 */
 	public static function maybe_clear_cache( $_meta_id, $_object_id, $meta_key ) {
@@ -349,6 +349,8 @@ class Private_Tags {
 			delete_term_meta( $term_id, self::META_KEY );
 		}
 		self::clear_cache();
+		// Note: on edits, clear_cache() also fires via the edited_post_tag hook — that's fine.
+		// The explicit call here covers new tag creation (saved_post_tag fires for adds too).
 	}
 
 	/**
@@ -526,7 +528,8 @@ class Private_Tags {
 			// rather than storing a false value. get_term_meta() returns '' for missing keys.
 			delete_term_meta( $term_id, self::META_KEY );
 		}
-		// Cache is cleared by the edited_post_tag hook registered in init().
+		// Cache is cleared by the clear_cache() callback registered to edited_post_tag
+		// after this callback in init(), so it runs after the meta is written.
 	}
 
 	/**
@@ -621,6 +624,11 @@ class Private_Tags {
 			return $links;
 		}
 
+		// No private tags on this site — nothing to filter.
+		if ( empty( self::get_private_tag_slugs() ) ) {
+			return $links;
+		}
+
 		// get_the_ID() returns false when no post is in context (e.g. during setup routines).
 		$post_id = get_the_ID();
 		if ( ! $post_id ) {
@@ -687,9 +695,10 @@ class Private_Tags {
 			return;
 		}
 
-		// get_queried_object() returns null if no object is associated with the query.
+		// get_queried_object() can return null or a non-WP_Term object; the instanceof
+		// check covers both cases and guards the WP_Term type hint in is_term_private().
 		$tag = $query->get_queried_object();
-		if ( ! $tag || ! self::is_term_private( $tag ) ) {
+		if ( ! $tag instanceof WP_Term || ! self::is_term_private( $tag ) ) {
 			return;
 		}
 
@@ -717,8 +726,13 @@ class Private_Tags {
 	 * @return string[]
 	 */
 	public static function filter_post_class( $classes ) {
+		$private_classes = self::get_private_tag_classes();
+		// No private tags on this site — skip the array_diff entirely.
+		if ( empty( $private_classes ) ) {
+			return $classes;
+		}
 		// array_diff removes private-tag classes; array_values re-indexes into a sequential array.
-		return array_values( array_diff( $classes, self::get_private_tag_classes() ) );
+		return array_values( array_diff( $classes, $private_classes ) );
 	}
 
 	/**
@@ -728,8 +742,13 @@ class Private_Tags {
 	 * @return string[]
 	 */
 	public static function filter_body_class( $classes ) {
+		$private_classes = self::get_private_tag_classes();
+		// No private tags on this site — skip the array_diff entirely.
+		if ( empty( $private_classes ) ) {
+			return $classes;
+		}
 		// array_diff removes private-tag classes; array_values re-indexes into a sequential array.
-		return array_values( array_diff( $classes, self::get_private_tag_classes() ) );
+		return array_values( array_diff( $classes, $private_classes ) );
 	}
 
 	// -------------------------------------------------------------------------
