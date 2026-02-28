@@ -586,9 +586,9 @@ class Private_Tags {
 	 * the current post's term objects directly, filters out private
 	 * tags, and rebuilds the link list cleanly from term data.
 	 *
-	 * This only runs inside the main WordPress Loop (in_the_loop()) to ensure the
-	 * post context is reliable. Tag links outside the loop (e.g. custom loops,
-	 * AJAX) are returned unfiltered to avoid operating on the wrong post.
+	 * This only runs inside an active WordPress loop (in_the_loop()) to ensure the
+	 * post context is reliable. Tag links rendered outside any active loop (e.g.
+	 * AJAX handlers) are returned unfiltered to avoid operating on the wrong post.
 	 *
 	 * Known limitation: custom templates that call get_the_term_list() outside
 	 * the main loop will not have private tags filtered. Filtering at the
@@ -615,8 +615,9 @@ class Private_Tags {
 			return $links;
 		}
 
-		// No private tags on this site — nothing to filter.
-		if ( empty( self::get_private_tag_slugs() ) ) {
+		// Fetch the cached private IDs list — used for both the early bail and the filter below.
+		$private_ids = self::get_private_tag_ids();
+		if ( empty( $private_ids ) ) {
 			return $links;
 		}
 
@@ -634,8 +635,8 @@ class Private_Tags {
 
 		$visible_terms = array_filter(
 			$terms,
-			function( $term ) {
-				return ! self::is_term_private( $term );
+			function( $term ) use ( $private_ids ) {
+				return ! in_array( $term->term_id, $private_ids, true );
 			}
 		);
 
@@ -665,15 +666,17 @@ class Private_Tags {
 	 */
 	public static function filter_tag_cloud( $tags ) {
 		// No private tags on this site — nothing to filter.
-		if ( empty( self::get_private_tag_slugs() ) ) {
+		$private_slugs = self::get_private_tag_slugs();
+		if ( empty( $private_slugs ) ) {
 			return $tags;
 		}
 
+		// Use the cached slugs list instead of get_term_meta() per tag.
 		return array_filter(
 			$tags,
-			function( $tag ) {
+			function( $tag ) use ( $private_slugs ) {
 				// Keep items we don't understand; only filter out WP_Terms that are private.
-				return ( ! $tag instanceof WP_Term ) || ! self::is_term_private( $tag );
+				return ( ! $tag instanceof WP_Term ) || ! in_array( $tag->slug, $private_slugs, true );
 			}
 		);
 	}
