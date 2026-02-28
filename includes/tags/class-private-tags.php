@@ -177,7 +177,13 @@ class Private_Tags {
 			]
 		);
 
-		$value = ( empty( $result ) || is_wp_error( $result ) ) ? [] : $result;
+		// Do not cache WP_Error results — a transient DB error would permanently
+		// suppress private-tag filtering until the cache is manually flushed.
+		if ( is_wp_error( $result ) ) {
+			return [];
+		}
+
+		$value = empty( $result ) ? [] : $result;
 
 		self::$cache[ $fields ] = $value;
 		wp_cache_set( $cache_key, $value, self::CACHE_GROUP );
@@ -691,6 +697,9 @@ class Private_Tags {
 		// actual HTTP 404 response code to the browser. Both are needed.
 		$query->set_404();
 		status_header( 404 );
+		// Prevent CDN/Batcache from caching the 404 — if the tag is later unmarked
+		// as private, visitors would otherwise continue to receive the cached 404.
+		nocache_headers();
 
 		// For feed requests, also deactivate the feed handlers — otherwise the feed XML is still generated.
 		if ( $query->is_feed() ) {
