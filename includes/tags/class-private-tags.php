@@ -381,7 +381,7 @@ class Private_Tags {
 
 		// All passed. If the term is private, append the label.
 		if ( self::is_term_private( $term ) ) {
-			$name .= self::get_private_label();
+			$name .= $label;
 		}
 
 		return $name;
@@ -414,7 +414,7 @@ class Private_Tags {
 		// (not substring) so tag names containing "(private)" aren't incorrectly skipped.
 		$label = self::get_private_label();
 		if ( self::is_term_private( $term ) && substr( $response->data['name'], -strlen( $label ) ) !== $label ) {
-			$response->data['name'] .= self::get_private_label();
+			$response->data['name'] .= $label;
 		}
 
 		return $response;
@@ -463,7 +463,7 @@ class Private_Tags {
 
 		return sprintf(
 			'<span data-np-private="%s">%s</span>',
-			$is_private ? '1' : '0',
+			esc_attr( $is_private ? '1' : '0' ),
 			$display
 		);
 	}
@@ -520,7 +520,7 @@ class Private_Tags {
 			// rather than storing a false value. get_term_meta() returns '' for missing keys.
 			delete_term_meta( $term_id, self::META_KEY );
 		}
-		self::clear_cache();
+		// Cache is cleared by the edited_post_tag hook registered in init().
 	}
 
 	/**
