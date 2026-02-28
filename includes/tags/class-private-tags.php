@@ -687,11 +687,13 @@ class Private_Tags {
 		$query->set_404();
 		status_header( 404 );
 
-		// For feeds, we need to deactivate the feed, otherwise the feed XML is still generated.
-		remove_action( 'do_feed_rdf', 'do_feed_rdf' );
-		remove_action( 'do_feed_rss', 'do_feed_rss' );
-		remove_action( 'do_feed_rss2', 'do_feed_rss2' );
-		remove_action( 'do_feed_atom', 'do_feed_atom' );
+		// For feed requests, also deactivate the feed handlers — otherwise the feed XML is still generated.
+		if ( $query->is_feed() ) {
+			remove_action( 'do_feed_rdf', 'do_feed_rdf' );
+			remove_action( 'do_feed_rss', 'do_feed_rss' );
+			remove_action( 'do_feed_rss2', 'do_feed_rss2' );
+			remove_action( 'do_feed_atom', 'do_feed_atom' );
+		}
 	}
 
 	/**
