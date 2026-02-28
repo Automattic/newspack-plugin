@@ -197,7 +197,7 @@ class Private_Tags {
 	 *
 	 * @return void
 	 */
-	private static function clear_cache() {
+	public static function clear_cache() {
 		self::$cache = [];
 		foreach ( [ 'slugs', 'names', 'ids' ] as $fields ) {
 			wp_cache_delete( 'private_tags_' . $fields, self::CACHE_GROUP );
