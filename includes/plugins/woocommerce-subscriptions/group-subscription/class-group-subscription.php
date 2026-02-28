@@ -196,6 +196,36 @@ class Group_Subscription {
 	}
 
 	/**
+	 * Check if a user is a manager of a group subscription.
+	 *
+	 * @param int                  $user_id The user ID.
+	 * @param \WC_Subscription|int $subscription The subscription object or ID.
+	 *
+	 * @return bool|null Whether the user is a manager of the group subscription, or null if not a group subscription.
+	 */
+	public static function user_is_manager( $user_id, $subscription ) {
+		if ( ! self::is_group_subscription( $subscription ) ) {
+			return null;
+		}
+		if ( ! is_a( $subscription, 'WC_Subscription' ) ) {
+			$subscription = \wcs_get_subscription( $subscription );
+		}
+		if ( ! $subscription ) {
+			return null;
+		}
+		$is_manager = in_array( $user_id, self::get_managers( $subscription ), true );
+
+		/**
+		 * Filter whether a user is a manager of a group subscription.
+		 *
+		 * @param bool|null $is_manager Whether the user is a manager of the group subscription, or null if not a group subscription.
+		 * @param int $user_id The user ID.
+		 * @param \WC_Subscription|int $subscription The subscription object or ID.
+		 */
+		return apply_filters( 'newspack_group_subscription_user_is_manager', $is_manager, $user_id, $subscription );
+	}
+
+	/**
 	 * Get the group subscriptions a user is a member of.
 	 * Group membership is represented as a repeatable user meta key with the subscription IDs the value.
 	 *

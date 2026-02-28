@@ -78,9 +78,11 @@ class Group_Subscription_Settings {
 			'newspack-group-subscription-admin',
 			'newspackGroupSubscriptions',
 			[
-				'apiUrl'      => \rest_url( Group_Subscription_API::NAMESPACE ),
-				'apiNonce'    => \wp_create_nonce( 'wp_rest' ),
-				'placeholder' => __( 'Search for a reader...', 'newspack-plugin' ),
+				'apiUrl'                => \rest_url( Group_Subscription_API::NAMESPACE ),
+				'apiNonce'              => \wp_create_nonce( 'wp_rest' ),
+				'placeholder'           => __( 'Search for a reader...', 'newspack-plugin' ),
+				'invalid_email_message' => __( 'Please enter a valid email address.', 'newspack-plugin' ),
+				'success_message'       => __( 'Invitation sent successfully.', 'newspack-plugin' ),
 			]
 		);
 	}
@@ -265,8 +267,8 @@ class Group_Subscription_Settings {
 		$product  = \wc_get_product( WooCommerce_Subscriptions::get_subscription_product_id( $subscription ) );
 		$members  = Group_Subscription::get_members( $subscription );
 		?>
-		<div class="newspack-group-subscription--container" data-subscription-id="<?php echo \esc_attr( $subscription->get_id() ); ?>">
-			<div class="newspack-group-subscription--settings">
+		<div class="newspack-group-subscription__container" data-subscription-id="<?php echo \esc_attr( $subscription->get_id() ); ?>">
+			<div class="newspack-group-subscription__settings">
 				<h3><?php \esc_html_e( 'Settings', 'newspack-plugin' ); ?></h3>
 				<p>
 					<em>
@@ -306,19 +308,19 @@ class Group_Subscription_Settings {
 					?>
 				</div>
 			</div>
-			<div class="newspack-group-subscription--members show_if_newspack_group_subscription_enabled" >
+			<div class="newspack-group-subscription__members show_if_newspack_group_subscription_enabled" >
 				<h3>
 					<?php
 					echo wp_kses_post(
 						sprintf(
 							// translators: %d: The number of group members.
-							__( 'Group members (<span class="newspack-group-subscription--members-count">%d</span>)', 'newspack-plugin' ),
+							__( 'Group members (<span class="newspack-group-subscription__members-count">%d</span>)', 'newspack-plugin' ),
 							count( $members )
 						)
 					);
 					?>
 				</h3>
-				<ul class="newspack-group-subscription--members-list">
+				<ul class="newspack-group-subscription__members-list">
 					<?php
 					foreach ( $members as $member_id ) :
 						$user = get_user_by( 'id', $member_id );
@@ -327,8 +329,8 @@ class Group_Subscription_Settings {
 						}
 						?>
 						<li>
-							<a class="newspack-group-subscription--member-user-link" href="<?php echo \esc_url( \get_edit_user_link( $user->ID ) ); ?>"><?php echo \esc_html( $user->user_email ); ?></a>
-							<a title="<?php \esc_attr_e( 'Remove', 'newspack-plugin' ); ?>" href="#" class="newspack-group-subscription--remove-member" data-user-id="<?php echo \esc_attr( $user->ID ); ?>">
+							<a class="newspack-group-subscription__member-user-link" href="<?php echo \esc_url( \get_edit_user_link( $user->ID ) ); ?>"><?php echo \esc_html( $user->user_email ); ?></a>
+							<a title="<?php \esc_attr_e( 'Remove', 'newspack-plugin' ); ?>" href="#" class="newspack-group-subscription__remove-member" data-user-id="<?php echo \esc_attr( $user->ID ); ?>">
 								&#215;
 								<span class="screen-reader-text"><?php \esc_html_e( 'Remove', 'newspack-plugin' ); ?></span>
 						</a>
@@ -338,13 +340,18 @@ class Group_Subscription_Settings {
 					?>
 				</ul>
 			</div>
-			<div class="newspack-group-subscription--add-member show_if_newspack_group_subscription_enabled form-row">
+			<div class="newspack-group-subscription__add-member show_if_newspack_group_subscription_enabled form-row">
 				<h3><?php \esc_html_e( 'Add new group members', 'newspack-plugin' ); ?></h3>
 				<select id="_newspack_group_subscription_member_ids" name="_newspack_group_subscription_member_ids[]">
 					<option value="">
 						<?php echo \esc_html( 'Select a reader...' ); ?>
 					</option>
 				</select>
+				<div class="newspack-group-subscription__invite-member">
+					<label for="<?php echo \esc_attr( self::GROUP_SUBSCRIPTION_META_PREFIX . 'invite_email' ); ?>"><?php \esc_html_e( 'Or, send an invitation to a new reader:', 'newspack-plugin' ); ?></label>
+					<input type="email" name="<?php echo \esc_attr( self::GROUP_SUBSCRIPTION_META_PREFIX . 'invite_email' ); ?>" id="<?php echo \esc_attr( self::GROUP_SUBSCRIPTION_META_PREFIX . 'invite_email' ); ?>" placeholder="<?php \esc_attr_e( 'Email address', 'newspack-plugin' ); ?>" />
+					<button type="submit" class="button button-primary"><?php \esc_html_e( 'Invite', 'newspack-plugin' ); ?></button>
+				</div>
 			</div>
 		</div>
 		<?php

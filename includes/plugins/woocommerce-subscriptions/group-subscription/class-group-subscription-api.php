@@ -78,6 +78,27 @@ class Group_Subscription_API {
 				],
 			]
 		);
+		\register_rest_route(
+			self::NAMESPACE,
+			'/invite',
+			[
+				'methods'             => \WP_REST_Server::EDITABLE,
+				'callback'            => [ __CLASS__, 'api_invite' ],
+				'permission_callback' => '__return_true',
+				'args'                => [
+					'subscription_id' => [
+						'type'              => 'integer',
+						'required'          => true,
+						'sanitize_callback' => 'absint',
+					],
+					'email'           => [
+						'type'              => 'string',
+						'required'          => true,
+						'sanitize_callback' => 'sanitize_email',
+					],
+				],
+			]
+		);
 	}
 
 	/**
@@ -189,6 +210,20 @@ class Group_Subscription_API {
 		$members_to_remove = $request->get_param( 'members_to_remove' );
 		$results           = Group_Subscription::update_members( $subscription_id, $members_to_add ?? [], $members_to_remove ?? [] );
 		return \rest_ensure_response( $results );
+	}
+
+	/**
+	 * Invite a user to a group subscription.
+	 *
+	 * @param \WP_REST_Request $request The request object.
+	 *
+	 * @return \WP_REST_Response The response object.
+	 */
+	public static function api_invite( $request ) {
+		$subscription_id = $request->get_param( 'subscription_id' );
+		$email           = $request->get_param( 'email' );
+		$invite = Group_Subscription_Invite::generate_invite_key( $subscription_id, $email );
+		return \rest_ensure_response( $invite );
 	}
 }
 Group_Subscription_API::init();
