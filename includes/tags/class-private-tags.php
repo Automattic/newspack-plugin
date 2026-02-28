@@ -167,13 +167,15 @@ class Private_Tags {
 		}
 
 		// Layer 3: database query — only on a full cache miss.
+		// Note: 'slugs' is not a valid get_terms() fields value; 'id=>slug' returns [id => 'slug']
+		// and we extract just the slug values below.
 		$result = get_terms(
 			[
 				'taxonomy'   => 'post_tag',
 				'hide_empty' => false, // WP hides empty terms by default — include private tags even if they have zero posts.
 				'meta_key'   => self::META_KEY, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
 				'meta_value' => '1', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
-				'fields'     => $fields,
+				'fields'     => ( 'slugs' === $fields ) ? 'id=>slug' : $fields,
 			]
 		);
 
@@ -183,7 +185,8 @@ class Private_Tags {
 			return [];
 		}
 
-		$value = empty( $result ) ? [] : $result;
+		// For 'slugs', get_terms() returns [id => 'slug'] — extract just the slug values.
+		$value = empty( $result ) ? [] : ( ( 'slugs' === $fields ) ? array_values( $result ) : $result );
 
 		self::$cache[ $fields ] = $value;
 		wp_cache_set( $cache_key, $value, self::CACHE_GROUP );
