@@ -81,7 +81,7 @@ class Group_Subscription_Invite {
 			$existing_invites = [];
 		}
 
-		// Filter out invites for the given email address.
+		// Filter out any invites for the given email address. There should only be one invitation per email address.
 		$all_invites = array_values(
 			array_filter(
 				$existing_invites,
@@ -91,7 +91,7 @@ class Group_Subscription_Invite {
 			)
 		);
 
-		// Filter out non-expired invites.
+		// Filter out non-expired invites. The number of active invites and existing members/managers should not exceed the subscription member limit.
 		$valid_invites = array_values(
 			array_filter(
 				$all_invites,
@@ -101,11 +101,13 @@ class Group_Subscription_Invite {
 			)
 		);
 		$subscription_settings = Group_Subscription_Settings::get_subscription_settings( $subscription );
-		if ( $subscription_settings['limit'] > 0 && count( $valid_invites ) >= $subscription_settings['limit'] ) {
-			return new \WP_Error( 'newspack_group_subscription_invite_limit_reached', __( 'You have reached the group member limit for this subscription. Please remove some members or cancel pending invitations before trying again.', 'newspack-plugin' ) );
+		if ( $subscription_settings['limit'] > 0 ) {
+			if ( count( $valid_invites ) + count( Group_Subscription::get_members( $subscription ) ) + count( Group_Subscription::get_managers( $subscription ) ) >= $subscription_settings['limit'] ) {
+				return new \WP_Error( 'newspack_group_subscription_invite_limit_reached', __( 'You have reached the group member limit for this subscription. Please remove some members or cancel pending invitations before inviting more group members.', 'newspack-plugin' ) );
+			}
 		}
 
-		// Add the new invite to the top of the array.
+		// Add the new invite.
 		$invite_data = [
 			'key'       => wp_generate_password( 32, false ),
 			'user_id'   => get_current_user_id(),
@@ -113,7 +115,7 @@ class Group_Subscription_Invite {
 			'timestamp' => time(), // When the key was generated.
 		];
 
-		array_unshift( $all_invites, $invite_data );
+		$all_invites[] = $invite_data;
 		$subscription->update_meta_data( self::META, $all_invites );
 		$subscription->save();
 		return $invite_data;
