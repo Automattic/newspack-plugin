@@ -101,6 +101,8 @@ class Private_Tags {
 		add_action( 'added_term_meta', [ __CLASS__, 'maybe_clear_cache' ], 10, 3 );
 		add_action( 'updated_term_meta', [ __CLASS__, 'maybe_clear_cache' ], 10, 3 );
 		add_action( 'deleted_term_meta', [ __CLASS__, 'maybe_clear_cache' ], 10, 3 );
+		// Also clear when a tag's slug or name changes (e.g. via WP-CLI or REST).
+		add_action( 'edited_post_tag', [ __CLASS__, 'clear_cache' ] );
 
 		// Frontend: hide private tags from various surfaces.
 		add_filter( 'term_links-post_tag', [ __CLASS__, 'filter_tag_links' ] );
@@ -356,8 +358,10 @@ class Private_Tags {
 			return $name;
 		}
 
-		// Guard against double-appending if both the term_name and REST filters fire.
-		if ( false !== strpos( $name, self::get_private_label() ) ) {
+		// Guard against double-appending — check suffix, not substring, so tag names
+		// that happen to contain "(private)" (e.g. "My (private) Notes") aren't skipped.
+		$label = self::get_private_label();
+		if ( substr( $name, -strlen( $label ) ) === $label ) {
 			return $name;
 		}
 
@@ -406,9 +410,10 @@ class Private_Tags {
 			return $response;
 		}
 
-		// Append the label if the tag is private and it isn't already there. This guards against
-		// double-appending if both this filter and append_private_label_to_name() fire together.
-		if ( self::is_term_private( $term ) && false === strpos( $response->data['name'], self::get_private_label() ) ) {
+		// Append the label if the tag is private and it isn't already suffixed. Check suffix
+		// (not substring) so tag names containing "(private)" aren't incorrectly skipped.
+		$label = self::get_private_label();
+		if ( self::is_term_private( $term ) && substr( $response->data['name'], -strlen( $label ) ) !== $label ) {
 			$response->data['name'] .= self::get_private_label();
 		}
 
