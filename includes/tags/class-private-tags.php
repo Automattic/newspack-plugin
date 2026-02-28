@@ -375,7 +375,7 @@ class Private_Tags {
 		}
 
 		// Type guard: ensure we have a post_tag WP_Term before calling is_term_private().
-		if ( ! $term instanceof WP_Term || 'post_tag' !== $term->taxonomy ) {
+		if ( ( ! $term instanceof WP_Term ) || 'post_tag' !== $term->taxonomy ) {
 			return $name;
 		}
 
@@ -663,7 +663,7 @@ class Private_Tags {
 			$tags,
 			function( $tag ) {
 				// Keep items we don't understand; only filter out WP_Terms that are private.
-				return ! $tag instanceof WP_Term || ! self::is_term_private( $tag );
+				return ( ! $tag instanceof WP_Term ) || ! self::is_term_private( $tag );
 			}
 		);
 	}
