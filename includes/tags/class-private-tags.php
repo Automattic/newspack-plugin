@@ -102,7 +102,8 @@ class Private_Tags {
 		add_action( 'updated_term_meta', [ __CLASS__, 'maybe_clear_cache' ], 10, 3 );
 		add_action( 'deleted_term_meta', [ __CLASS__, 'maybe_clear_cache' ], 10, 3 );
 		// Also clear when a tag's slug or name changes (e.g. via WP-CLI or REST).
-		add_action( 'edited_post_tag', [ __CLASS__, 'clear_cache' ] );
+		// Priority 11 — must run after save_quick_edit() (priority 10) has written the meta.
+		add_action( 'edited_post_tag', [ __CLASS__, 'clear_cache' ], 11 );
 
 		// Frontend: hide private tags from various surfaces.
 		add_filter( 'term_links-post_tag', [ __CLASS__, 'filter_tag_links' ] );
@@ -146,10 +147,10 @@ class Private_Tags {
 	 * object cache (cross-request, when Memcached is available).
 	 * Both layers are invalidated by clear_cache().
 	 *
-	 * Only 'slugs', 'names', and 'ids' are handled by clear_cache(). If a new
+	 * Only 'slugs' and 'ids' are handled by clear_cache(). If a new
 	 * $fields value is added, clear_cache() must be updated accordingly.
 	 *
-	 * @param string $fields The field to return ('slugs', 'names', 'ids').
+	 * @param string $fields The field to return ('slugs', 'ids').
 	 * @return array
 	 */
 	private static function get_private_tags( $fields ) {
@@ -185,8 +186,14 @@ class Private_Tags {
 			return [];
 		}
 
-		// For 'slugs', get_terms() returns [id => 'slug'] — extract just the slug values.
-		$value = empty( $result ) ? [] : ( ( 'slugs' === $fields ) ? array_values( $result ) : $result );
+		if ( empty( $result ) ) {
+			$value = [];
+		} elseif ( 'slugs' === $fields ) {
+			// For 'slugs', get_terms() returns [id => 'slug'] — extract just the slug values.
+			$value = array_values( $result );
+		} else {
+			$value = $result;
+		}
 
 		self::$cache[ $fields ] = $value;
 		wp_cache_set( $cache_key, $value, self::CACHE_GROUP );
@@ -200,15 +207,15 @@ class Private_Tags {
 	 * Called after saving a term to ensure subsequent filter calls reflect
 	 * the updated private status within the same request and across requests.
 	 *
-	 * The three cache keys correspond to the $fields values used by the
-	 * get_private_tag_slugs/names/ids() wrappers. If a new wrapper is added,
+	 * The two cache keys correspond to the $fields values used by the
+	 * get_private_tag_slugs/ids() wrappers. If a new wrapper is added,
 	 * its $fields value must also be added to the foreach below.
 	 *
 	 * @return void
 	 */
 	public static function clear_cache() {
 		self::$cache = [];
-		foreach ( [ 'slugs', 'names', 'ids' ] as $fields ) {
+		foreach ( [ 'slugs', 'ids' ] as $fields ) {
 			wp_cache_delete( 'private_tags_' . $fields, self::CACHE_GROUP );
 		}
 	}
@@ -220,9 +227,9 @@ class Private_Tags {
 	 * save_quick_edit() — e.g. WP-CLI, REST API, or import scripts that call
 	 * update_term_meta() / delete_term_meta() directly.
 	 *
-	 * @param int    $_meta_id   Unused — required positional parameter.
-	 * @param int    $_object_id Unused — required positional parameter.
-	 * @param string $meta_key   The meta key being changed.
+	 * @param int|int[] $_meta_id   Unused — required positional parameter. int for added/updated_term_meta, int[] for deleted_term_meta.
+	 * @param int       $_object_id Unused — required positional parameter.
+	 * @param string    $meta_key   The meta key being changed.
 	 * @return void
 	 */
 	public static function maybe_clear_cache( $_meta_id, $_object_id, $meta_key ) {
@@ -238,15 +245,6 @@ class Private_Tags {
 	 */
 	private static function get_private_tag_slugs() {
 		return self::get_private_tags( 'slugs' );
-	}
-
-	/**
-	 * Get names of all private tags.
-	 *
-	 * @return string[]
-	 */
-	private static function get_private_tag_names() {
-		return self::get_private_tags( 'names' );
 	}
 
 	/**
@@ -675,13 +673,16 @@ class Private_Tags {
 		}
 
 		// Use the cached slugs list instead of get_term_meta() per tag.
-		return array_filter(
+		$filtered = array_filter(
 			$tags,
 			function( $tag ) use ( $private_slugs ) {
 				// Keep items we don't understand; only filter out WP_Terms that are private.
 				return ( ! $tag instanceof WP_Term ) || ! in_array( $tag->slug, $private_slugs, true );
 			}
 		);
+
+		// array_values re-indexes into a sequential array after filtering.
+		return array_values( $filtered );
 	}
 
 	/**
@@ -803,13 +804,38 @@ class Private_Tags {
 			return $data;
 		}
 
-		$private_names = self::get_private_tag_names();
-		if ( empty( $private_names ) ) {
+		$private_ids = self::get_private_tag_ids();
+		if ( empty( $private_ids ) ) {
+			return $data;
+		}
+
+		// Get this post's tags and identify private ones by ID — not by name — to avoid
+		// accidentally removing keywords for a public tag that shares a name with a private tag.
+		$post_id = get_queried_object_id();
+		if ( ! $post_id ) {
+			return $data;
+		}
+
+		// get_the_terms() returns false when the post has no tags and WP_Error on failure — both are non-arrays.
+		$all_tags = get_the_terms( $post_id, 'post_tag' );
+		if ( ! is_array( $all_tags ) || empty( $all_tags ) ) {
+			return $data;
+		}
+
+		// Build the removal list from only this post's private tags.
+		$names_to_remove = [];
+		foreach ( $all_tags as $tag ) {
+			if ( in_array( $tag->term_id, $private_ids, true ) ) {
+				$names_to_remove[] = $tag->name;
+			}
+		}
+
+		if ( empty( $names_to_remove ) ) {
 			return $data;
 		}
 
 		// array_diff removes private tag names; array_values re-indexes the result into a sequential array.
-		$data['keywords'] = array_values( array_diff( $data['keywords'], $private_names ) );
+		$data['keywords'] = array_values( array_diff( $data['keywords'], $names_to_remove ) );
 
 		// Remove the key entirely rather than passing an empty array to Yoast's schema output.
 		if ( empty( $data['keywords'] ) ) {
@@ -835,7 +861,8 @@ class Private_Tags {
 		}
 
 		// Append to existing exclusions, de-duplicating in case any IDs overlap.
-		return array_values( array_unique( array_merge( $excluded_ids, $private_ids ) ) );
+		$merged = array_merge( $excluded_ids, $private_ids );
+		return array_values( array_unique( $merged ) );
 	}
 }
 
