@@ -387,22 +387,40 @@ class Private_Tags {
 	/**
 	 * Append "(private)" to the tag name in the admin area.
 	 *
-	 * Note: the term_name filter passes $term_id (int), not a WP_Term object. The
-	 * filter signature is: apply_filters( 'term_name', $value, $term_id, $taxonomy, $context ).
+	 * The term_name filter is called from multiple WordPress contexts with different
+	 * argument signatures:
+	 * - WP_Terms_List_Table::column_name() calls apply_filters( 'term_name', $name, $WP_Term )
+	 *   — 2 args, second arg is a WP_Term object.
+	 * - get_term_field() calls apply_filters( 'term_name', $value, $term_id, $taxonomy, $context )
+	 *   — 4 args, second arg is an integer term ID.
 	 *
-	 * @param string $name     The term name.
-	 * @param int    $term_id  The term ID.
-	 * @param string $taxonomy The taxonomy slug.
+	 * We register with accepted_args=3 to cover both cases, make $taxonomy optional
+	 * with a default of '', and detect which calling convention is in use by checking
+	 * whether $term_id is a WP_Term instance.
+	 *
+	 * @param string      $name     The term name.
+	 * @param int|WP_Term $term_id  The term ID (int) or WP_Term object depending on call context.
+	 * @param string      $taxonomy The taxonomy slug, or '' when called from WP_Terms_List_Table.
 	 * @return string
 	 */
-	public static function append_private_label_to_name( $name, $term_id, $taxonomy ) {
-		// Only apply the label in the admin area; on the frontend, tag names should appear normally without the "(private)" suffix.
+	public static function append_private_label_to_name( $name, $term_id, $taxonomy = '' ) {
+		// Only apply the label in the admin area; on the frontend, tag names should appear normally.
 		if ( ! is_admin() ) {
 			return $name;
 		}
 
-		if ( 'post_tag' !== $taxonomy ) {
-			return $name;
+		// Normalize the two calling conventions to a single $check_id integer.
+		// WP_Terms_List_Table passes a WP_Term object; get_term_field() passes an int + taxonomy string.
+		if ( $term_id instanceof WP_Term ) {
+			if ( 'post_tag' !== $term_id->taxonomy ) {
+				return $name;
+			}
+			$check_id = $term_id->term_id;
+		} else {
+			if ( 'post_tag' !== $taxonomy ) {
+				return $name;
+			}
+			$check_id = (int) $term_id;
 		}
 
 		// Guard against double-appending — check suffix, not substring, so tag names
@@ -413,7 +431,7 @@ class Private_Tags {
 		}
 
 		// Use the cached IDs list rather than a per-term get_term_meta() call.
-		if ( in_array( (int) $term_id, self::get_private_tag_ids(), true ) ) {
+		if ( in_array( $check_id, self::get_private_tag_ids(), true ) ) {
 			$name .= $label;
 		}
 
