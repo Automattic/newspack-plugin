@@ -31,6 +31,9 @@ defined( 'ABSPATH' ) || exit;
  * Note: This is a presentation-layer feature, not an access control mechanism.
  * Private tags remain in the database and may still be exposed by plugins or
  * custom code outside the Newspack stack.
+ *
+ * Note: the ad targeting and Yoast SEO integrations are no-ops if those plugins
+ * are not active — the filters they hook into simply won't fire.
  */
 class Private_Tags {
 
@@ -122,8 +125,16 @@ class Private_Tags {
 		add_filter( 'wpseo_exclude_from_sitemap_by_term_ids', [ __CLASS__, 'filter_yoast_sitemap_term_ids' ] );
 	}
 
+	// -------------------------------------------------------------------------
+	// Public API
+	// -------------------------------------------------------------------------
+
 	/**
 	 * Check if a term is marked as private.
+	 *
+	 * Note: not suitable for bulk use — calling this in a loop over many terms
+	 * will result in one get_term_meta() DB query per term. Use get_private_tag_ids()
+	 * for bulk filtering instead.
 	 *
 	 * @param WP_Term $term The term object.
 	 * @return bool
@@ -137,7 +148,7 @@ class Private_Tags {
 	}
 
 	// -------------------------------------------------------------------------
-	// Private helpers
+	// Cache & helpers
 	// -------------------------------------------------------------------------
 
 	/**
@@ -273,6 +284,25 @@ class Private_Tags {
 			},
 			self::get_private_tag_slugs()
 		);
+	}
+
+	/**
+	 * Strip private tag class names from a class list.
+	 *
+	 * Shared by filter_post_class() and filter_body_class() to avoid duplicating
+	 * the same logic. If the stripping logic ever changes, update it here.
+	 *
+	 * @param string[] $classes CSS class names.
+	 * @return string[]
+	 */
+	private static function strip_private_tag_classes( array $classes ): array {
+		$private_classes = self::get_private_tag_classes();
+		// No private tags on this site — skip the array_diff entirely.
+		if ( empty( $private_classes ) ) {
+			return $classes;
+		}
+		// array_diff removes private-tag classes; array_values re-indexes into a sequential array.
+		return array_values( array_diff( $classes, $private_classes ) );
 	}
 
 	/**
@@ -455,7 +485,9 @@ class Private_Tags {
 		if ( 'np_private' !== $column_name ) {
 			return $content;
 		}
-		$is_private = (bool) get_term_meta( $term_id, self::META_KEY, true );
+		// Use the cached IDs list rather than a per-row get_term_meta() call.
+		// The list table renders one cell per visible tag, so this avoids N DB queries.
+		$is_private = in_array( (int) $term_id, self::get_private_tag_ids(), true );
 
 		// The ✓ checkmark is decorative; screen-reader-text provides the accessible label.
 		if ( $is_private ) {
@@ -743,13 +775,7 @@ class Private_Tags {
 	 * @return string[]
 	 */
 	public static function filter_post_class( $classes ) {
-		$private_classes = self::get_private_tag_classes();
-		// No private tags on this site — skip the array_diff entirely.
-		if ( empty( $private_classes ) ) {
-			return $classes;
-		}
-		// array_diff removes private-tag classes; array_values re-indexes into a sequential array.
-		return array_values( array_diff( $classes, $private_classes ) );
+		return self::strip_private_tag_classes( $classes );
 	}
 
 	/**
@@ -759,13 +785,7 @@ class Private_Tags {
 	 * @return string[]
 	 */
 	public static function filter_body_class( $classes ) {
-		$private_classes = self::get_private_tag_classes();
-		// No private tags on this site — skip the array_diff entirely.
-		if ( empty( $private_classes ) ) {
-			return $classes;
-		}
-		// array_diff removes private-tag classes; array_values re-indexes into a sequential array.
-		return array_values( array_diff( $classes, $private_classes ) );
+		return self::strip_private_tag_classes( $classes );
 	}
 
 	// -------------------------------------------------------------------------
@@ -778,11 +798,11 @@ class Private_Tags {
 	 * Hooks into newspack_ads_ad_targeting to remove private tag slugs
 	 * from the 'tag' targeting key before it is passed to Google Ad Manager.
 	 *
-	 * @param array $targeting The targeting data array.
-	 * @param array $ad_unit   The ad unit configuration.
+	 * @param array $targeting  The targeting data array.
+	 * @param array $_ad_unit  The ad unit configuration (unused; accepted because the hook passes it).
 	 * @return array
 	 */
-	public static function filter_ad_targeting( $targeting, $ad_unit ) {
+	public static function filter_ad_targeting( $targeting, $_ad_unit ) {
 		if ( empty( $targeting['tag'] ) || ! is_array( $targeting['tag'] ) ) {
 			return $targeting;
 		}
@@ -809,11 +829,11 @@ class Private_Tags {
 	 * Hooks into wpseo_schema_article to remove private tag names from the
 	 * 'keywords' key before the JSON-LD structured data is output.
 	 *
-	 * @param array $data    The Article schema data.
-	 * @param mixed $context The Yoast schema context.
+	 * @param array $data     The Article schema data.
+	 * @param mixed $_context The Yoast schema context (unused; accepted because the hook passes it).
 	 * @return array
 	 */
-	public static function filter_yoast_schema_article( $data, $context ) {
+	public static function filter_yoast_schema_article( $data, $_context ) {
 		if ( empty( $data['keywords'] ) || ! is_array( $data['keywords'] ) ) {
 			return $data;
 		}
