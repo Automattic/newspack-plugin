@@ -412,8 +412,14 @@ class Private_Tags {
 
 		// Append the label if the tag is private and it isn't already suffixed. Check suffix
 		// (not substring) so tag names containing "(private)" aren't incorrectly skipped.
+		// isset/is_string guard covers REST requests that omit 'name' via the _fields param.
 		$label = self::get_private_label();
-		if ( self::is_term_private( $term ) && substr( $response->data['name'], -strlen( $label ) ) !== $label ) {
+		if (
+			isset( $response->data['name'] ) &&
+			is_string( $response->data['name'] ) &&
+			self::is_term_private( $term ) &&
+			substr( $response->data['name'], -strlen( $label ) ) !== $label
+		) {
 			$response->data['name'] .= $label;
 		}
 
