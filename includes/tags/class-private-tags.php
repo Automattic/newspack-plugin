@@ -87,7 +87,7 @@ class Private_Tags {
 		add_action( 'saved_post_tag', [ __CLASS__, 'save_term' ] );
 
 		// Admin: label private tags so editors can identify them.
-		add_filter( 'term_name', [ __CLASS__, 'append_private_label_to_name' ], 10, 2 );
+		add_filter( 'term_name', [ __CLASS__, 'append_private_label_to_name' ], 10, 3 );
 		add_filter( 'rest_prepare_post_tag', [ __CLASS__, 'append_private_label_to_rest' ], 10, 2 );
 
 		// Admin: Private column and Quick Edit support.
@@ -357,13 +357,21 @@ class Private_Tags {
 	/**
 	 * Append "(private)" to the tag name in the admin area.
 	 *
-	 * @param string  $name The term name.
-	 * @param WP_Term $term The term object.
+	 * Note: the term_name filter passes $term_id (int), not a WP_Term object. The
+	 * filter signature is: apply_filters( 'term_name', $value, $term_id, $taxonomy, $context ).
+	 *
+	 * @param string $name     The term name.
+	 * @param int    $term_id  The term ID.
+	 * @param string $taxonomy The taxonomy slug.
 	 * @return string
 	 */
-	public static function append_private_label_to_name( $name, $term ) {
+	public static function append_private_label_to_name( $name, $term_id, $taxonomy ) {
 		// Only apply the label in the admin area; on the frontend, tag names should appear normally without the "(private)" suffix.
 		if ( ! is_admin() ) {
+			return $name;
+		}
+
+		if ( 'post_tag' !== $taxonomy ) {
 			return $name;
 		}
 
@@ -374,13 +382,8 @@ class Private_Tags {
 			return $name;
 		}
 
-		// Type guard: ensure we have a post_tag WP_Term before calling is_term_private().
-		if ( ( ! $term instanceof WP_Term ) || 'post_tag' !== $term->taxonomy ) {
-			return $name;
-		}
-
-		// All passed. If the term is private, append the label.
-		if ( self::is_term_private( $term ) ) {
+		// Use the cached IDs list rather than a per-term get_term_meta() call.
+		if ( in_array( (int) $term_id, self::get_private_tag_ids(), true ) ) {
 			$name .= $label;
 		}
 
@@ -672,6 +675,11 @@ class Private_Tags {
 	 * @return array
 	 */
 	public static function filter_tag_cloud( $tags ) {
+		// Private tags should remain visible to editors — only hide on the frontend.
+		if ( is_admin() ) {
+			return $tags;
+		}
+
 		// No private tags on this site — nothing to filter.
 		$private_slugs = self::get_private_tag_slugs();
 		if ( empty( $private_slugs ) ) {
