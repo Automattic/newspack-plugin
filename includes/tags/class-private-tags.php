@@ -229,6 +229,8 @@ class Private_Tags {
 		foreach ( [ 'slugs', 'ids' ] as $fields ) {
 			wp_cache_delete( 'private_tags_' . $fields, self::CACHE_GROUP );
 		}
+		// 'classes' is derived from 'slugs' and stored only in self::$cache (not the
+		// persistent object cache), so clearing self::$cache above is sufficient.
 	}
 
 	/**
@@ -274,16 +276,22 @@ class Private_Tags {
 	 * Get CSS class names (tag-{slug}) for all private tags.
 	 *
 	 * Used to strip private-tag classes from post and body class attributes.
+	 * Result is cached in self::$cache to avoid rebuilding on every post_class
+	 * and body_class call (which fire once per post in archive page loops).
 	 *
 	 * @return string[]
 	 */
 	private static function get_private_tag_classes() {
-		return array_map(
+		if ( isset( self::$cache['classes'] ) ) {
+			return self::$cache['classes'];
+		}
+		self::$cache['classes'] = array_map(
 			function( $slug ) {
 				return 'tag-' . $slug;
 			},
 			self::get_private_tag_slugs()
 		);
+		return self::$cache['classes'];
 	}
 
 	/**
@@ -358,6 +366,9 @@ class Private_Tags {
 	/**
 	 * Save the private tag meta when a tag is created or updated.
 	 *
+	 * Verifies both the nonce (to confirm the request is from the expected form)
+	 * and the user's capability (to confirm they are allowed to edit terms).
+	 *
 	 * @param int $term_id The term ID.
 	 * @return void
 	 */
@@ -369,6 +380,13 @@ class Private_Tags {
 		} elseif ( 'add-tag' === $action ) {
 			check_admin_referer( 'add-tag', '_wpnonce_add-tag' );
 		} else {
+			return;
+		}
+
+		// Capability check: confirm the user can edit terms for this taxonomy.
+		// Uses the taxonomy object's own cap to respect any custom capability mapping.
+		$taxonomy_obj = get_taxonomy( 'post_tag' );
+		if ( ! $taxonomy_obj || ! current_user_can( $taxonomy_obj->cap->edit_terms ) ) {
 			return;
 		}
 
@@ -557,7 +575,8 @@ class Private_Tags {
 	 * Save the private tag meta from the Quick Edit form.
 	 *
 	 * WordPress core verifies the nonce (taxinlineeditnonce) before this hook
-	 * fires, so no additional nonce check is required here.
+	 * fires, so no additional nonce check is required here. A capability check
+	 * is still performed explicitly for defense-in-depth.
 	 *
 	 * @param int $term_id The term ID.
 	 * @return void
@@ -569,6 +588,13 @@ class Private_Tags {
 		// Anything else (WP-CLI, REST) returns early without touching the meta.
 		$action = isset( $_POST['action'] ) ? sanitize_key( $_POST['action'] ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Action read only to gate execution; nonce verified by WP core (taxinlineeditnonce) below.
 		if ( ! wp_doing_ajax() || 'inline-save-tax' !== $action ) {
+			return;
+		}
+
+		// Capability check: confirm the user can edit terms for this taxonomy.
+		// Uses the taxonomy object's own cap to respect any custom capability mapping.
+		$taxonomy_obj = get_taxonomy( 'post_tag' );
+		if ( ! $taxonomy_obj || ! current_user_can( $taxonomy_obj->cap->edit_terms ) ) {
 			return;
 		}
 
