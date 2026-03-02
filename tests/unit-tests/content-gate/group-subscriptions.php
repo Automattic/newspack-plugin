@@ -441,17 +441,19 @@ class Test_Group_Subscriptions extends \WP_UnitTestCase {
 	 * Test get_expiration_time() respects the filter.
 	 */
 	public function test_get_expiration_time_filter() {
+		$callback = function() {
+			return 7 * DAY_IN_SECONDS;
+		};
+
 		add_filter(
 			'newspack_group_subscription_invite_expiration_time',
-			function() {
-				return 7 * DAY_IN_SECONDS;
-			}
+			$callback
 		);
 
 		$time = Group_Subscription_Invite::get_expiration_time();
 		$this->assertEquals( 7 * DAY_IN_SECONDS, $time );
 
-		remove_all_filters( 'newspack_group_subscription_invite_expiration_time' );
+		remove_filter( 'newspack_group_subscription_invite_expiration_time', $callback );
 	}
 
 	/**
