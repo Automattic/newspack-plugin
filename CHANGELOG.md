@@ -1,3 +1,11 @@
+## [6.34.1](https://github.com/Automattic/newspack-plugin/compare/v6.34.0...v6.34.1) (2026-03-02)
+
+
+### Bug Fixes
+
+* enable payment method deletion for Braintree ([5eb5797](https://github.com/Automattic/newspack-plugin/commit/5eb5797a38b7c1557350cde783e6abde1e11bbf7))
+* enable payment method deletion for Braintree ([f0600c8](https://github.com/Automattic/newspack-plugin/commit/f0600c8f194a7444fbd48c9509aed8976dae3ba6))
+
 # [6.34.0](https://github.com/Automattic/newspack-plugin/compare/v6.33.0...v6.34.0) (2026-03-02)
 
 

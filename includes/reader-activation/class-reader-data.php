@@ -39,6 +39,38 @@ final class Reader_Data {
 	}
 
 	/**
+	 * Enumerate read-only keys.
+	 *
+	 * Server is the source of truth for these keys, and they
+	 * shouldn't be written to or deleted by the client.
+	 *
+	 * This list is surfaced to the client as
+	 * `newspack_reader_data.read_only_keys` to allow browser-side
+	 * validation and more graceful error handling.
+	 *
+	 * Implemented in a filter hook to permit plugins to alter the list.
+	 *
+	 * @return string[] Names of read-only keys.
+	 */
+	public static function get_read_only_keys() {
+		/**
+		 * Filters the list of read-only reader data keys.
+		 *
+		 * @param string[] $keys Names of read-only keys.
+		 */
+		return apply_filters(
+			'newspack_reader_data_read_only_keys',
+			[
+				'active_memberships',
+				'active_subscriptions',
+				'is_former_donor',
+				'is_donor',
+				'newsletter_subscribed_lists',
+			]
+		);
+	}
+
+	/**
 	 * Register all data event handlers.
 	 */
 	public static function register_data_event_handlers() {
@@ -79,6 +111,7 @@ final class Reader_Data {
 			'store_prefix'    => $store_prefix,
 			'is_temporary'    => $is_temporary,
 			'reader_activity' => self::$reader_activity,
+			'read_only_keys'  => self::get_read_only_keys(),
 		];
 
 		if ( \is_user_logged_in() ) {
@@ -250,6 +283,9 @@ final class Reader_Data {
 		if ( ! $key || ! $value ) {
 			return new \WP_Error( 'invalid_params', __( 'Invalid parameters.', 'newspack' ), [ 'status' => 400 ] );
 		}
+		if ( in_array( $key, self::get_read_only_keys(), true ) ) {
+			return new \WP_Error( 'read_only_key', __( 'This key is read-only.', 'newspack' ), [ 'status' => 403 ] );
+		}
 		// Value must be a valid stringified JSON.
 		if ( null === json_decode( $value ) ) {
 			return new \WP_Error( 'invalid_value', __( 'Invalid value.', 'newspack' ), [ 'status' => 400 ] );
@@ -272,6 +308,9 @@ final class Reader_Data {
 		$key = $request->get_param( 'key' );
 		if ( ! $key ) {
 			return new \WP_Error( 'invalid_params', __( 'Invalid parameters.', 'newspack' ), [ 'status' => 400 ] );
+		}
+		if ( in_array( $key, self::get_read_only_keys(), true ) ) {
+			return new \WP_Error( 'read_only_key', __( 'This key is read-only.', 'newspack' ), [ 'status' => 403 ] );
 		}
 		self::delete_item( \get_current_user_id(), $key );
 		return new \WP_REST_Response( [ 'success' => true ] );
