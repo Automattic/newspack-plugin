@@ -92,7 +92,6 @@ import './admin.scss';
 					const $membersCount = $select
 						.closest( '.newspack-group-subscription__container' )
 						.find( '.newspack-group-subscription__members-count' );
-					$membersCount.text( $membersList.find( 'li' ).length );
 					$membersList.append(
 						`<li><a class="newspack-group-subscription__member-user-link" href="#"></a><a href="#" class="newspack-group-subscription__remove-member">&#215; <span class="screen-reader-text">Remove</span></a></li>`
 					);
@@ -102,6 +101,7 @@ import './admin.scss';
 						.text( data.members_added[ memberToAdd ].email )
 						.attr( 'href', data.members_added[ memberToAdd ].url );
 					$added.find( ' .newspack-group-subscription__remove-member' ).data( 'user-id', memberToAdd );
+					$membersCount.text( $membersList.find( 'li' ).length );
 				}
 			} )
 			.catch( error => {
