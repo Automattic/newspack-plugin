@@ -126,6 +126,9 @@ class Group_Subscription_Invite {
 			return new \WP_Error( 'newspack_group_subscription_get_invites', __( 'Not a group subscription.', 'newspack-plugin' ) );
 		}
 		$all_invites = $subscription->get_meta( self::EXPIRATION_META, true );
+		if ( ! is_array( $all_invites ) ) {
+			$all_invites = [];
+		}
 		if ( ! $show_expired ) {
 			foreach ( array_keys( $all_invites ) as $key ) {
 				if ( self::is_invite_expired( $subscription, $key ) ) {
@@ -154,6 +157,13 @@ class Group_Subscription_Invite {
 		}
 		if ( ! current_user_can( 'manage_woocommerce' ) && ! Group_Subscription::user_is_manager( get_current_user_id(), $subscription ) ) {
 			return new \WP_Error( 'newspack_group_subscription_invite_invalid_user', __( 'User is not a manager of this group subscription.', 'newspack-plugin' ) );
+		}
+		$existing_user = get_user_by( 'email', $email );
+		if ( $existing_user && ! Reader_Activation::is_user_reader( $existing_user ) ) {
+			return new \WP_Error( 'newspack_group_subscription_invite_non_reader', __( 'Not a valid reader account.', 'newspack-plugin' ) );
+		}
+		if ( $existing_user && in_array( (int) $existing_user->ID, array_map( 'absint', Group_Subscription::get_members( $subscription ) ), true ) ) {
+			return new \WP_Error( 'newspack_group_subscription_invite_existing_user', __( 'User is already a member of this group subscription.', 'newspack-plugin' ) );
 		}
 
 		// Invite keys are simply hashed versions of the sanitized email string.

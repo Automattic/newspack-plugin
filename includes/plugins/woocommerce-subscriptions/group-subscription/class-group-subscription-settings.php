@@ -340,9 +340,10 @@ class Group_Subscription_Settings {
 						<?php
 					endforeach;
 					foreach ( $invites as $key => $invite ) :
+						$is_expired = Group_Subscription_Invite::is_invite_expired( $subscription, $invite['email'] );
 						?>
 						<li>
-							<span class="newspack-group-subscription__pending-invite"><?php echo \esc_html( $invite['email'] ); ?></span> <span class="newspack-group-subscription__pending-invite-label"><?php echo \esc_html( __( '(pending)', 'newspack-plugin' ) ); ?></span>
+							<span class="newspack-group-subscription__pending-invite"><?php echo \esc_html( $invite['email'] ); ?></span> <span class="newspack-group-subscription__pending-invite-label"><?php echo \esc_html( $is_expired ? __( '(expired)', 'newspack-plugin' ) : __( '(pending)', 'newspack-plugin' ) ); ?></span>
 							<a title="<?php \esc_attr_e( 'Cancel', 'newspack-plugin' ); ?>" href="#" class="newspack-group-subscription__cancel-invite">
 								&#215;
 								<span class="screen-reader-text"><?php \esc_html_e( 'Cancel', 'newspack-plugin' ); ?></span>

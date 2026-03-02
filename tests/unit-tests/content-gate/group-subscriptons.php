@@ -574,6 +574,61 @@ class Test_Group_Subscriptions extends \WP_UnitTestCase {
 	}
 
 	/**
+	 * Test generate_invite_key() returns WP_Error when the email belongs to an existing member.
+	 */
+	public function test_generate_invite_key_existing_member() {
+		$admin_id     = $this->create_admin_user();
+		$owner_id     = $this->create_reader_user();
+		$member_email = 'member@example.com';
+		$member_id    = $this->create_reader_user( $member_email );
+		$group_sub    = $this->create_group_subscription( $owner_id );
+		wp_set_current_user( $admin_id );
+
+		// Add the user as an existing member of the subscription.
+		update_user_meta( $member_id, Group_Subscription::GROUP_SUBSCRIPTION_USER_META_KEY, $group_sub->get_id() );
+
+		$result = Group_Subscription_Invite::generate_invite_key( $group_sub->get_id(), $member_email );
+
+		$this->assertWPError( $result );
+		$this->assertEquals(
+			'newspack_group_subscription_invite_existing_user',
+			$result->get_error_code()
+		);
+	}
+
+	/**
+	 * Test generate_invite_key() returns WP_Error when the email belongs to a WP user
+	 * who is not a Reader Activation reader (e.g. an editor).
+	 */
+	public function test_generate_invite_key_non_reader_wp_user() {
+		$admin_id     = $this->create_admin_user();
+		$owner_id     = $this->create_reader_user();
+		$group_sub    = $this->create_group_subscription( $owner_id );
+		wp_set_current_user( $admin_id );
+
+		// Create a WP user with editor role — not a reader (no _newspack_reader meta,
+		// and editor is in the restricted roles list).
+		$editor_email = 'editor@example.com';
+		$editor_id    = wp_insert_user(
+			[
+				'user_login' => 'test-editor-' . wp_generate_password( 6, false ),
+				'user_pass'  => wp_generate_password(),
+				'user_email' => $editor_email,
+				'role'       => 'editor',
+			]
+		);
+		$this->user_ids[] = $editor_id;
+
+		$result = Group_Subscription_Invite::generate_invite_key( $group_sub->get_id(), $editor_email );
+
+		$this->assertWPError( $result );
+		$this->assertEquals(
+			'newspack_group_subscription_invite_non_reader',
+			$result->get_error_code()
+		);
+	}
+
+	/**
 	 * Test generate_invite_key() succeeds when the current user has manage_woocommerce.
 	 */
 	public function test_generate_invite_key_as_woocommerce_admin() {
