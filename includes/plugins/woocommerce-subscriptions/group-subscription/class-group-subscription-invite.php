@@ -65,8 +65,8 @@ class Group_Subscription_Invite {
 	public static function is_invite_expired( $subscription, $invite_key ) {
 		$expirations = $subscription->get_meta( self::EXPIRATION_META, true );
 
-		// No timestamp found for this key; assume it's expired.
-		if ( ! isset( $expirations[ $invite_key ] ) ) {
+		// If expirations is not an array, or no timestamp found for this key, assume it's expired.
+		if ( ! is_array( $expirations ) || ! isset( $expirations[ $invite_key ]['expiration'] ) ) {
 			return true;
 		}
 		return $expirations[ $invite_key ]['expiration'] < time();
