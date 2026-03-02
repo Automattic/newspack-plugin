@@ -148,6 +148,9 @@ class Group_Subscription_Invite {
 	 * @return string|WP_Error The invite key, or a WP_Error if the key cannot be generated.
 	 */
 	public static function generate_invite_key( $subscription_id, $email ) {
+		if ( ! function_exists( 'wcs_get_subscription' ) ) {
+			return new \WP_Error( 'newspack_group_subscription_invite_wcs_unavailable', __( 'WooCommerce Subscriptions is not available.', 'newspack-plugin' ) );
+		}
 		$subscription = \wcs_get_subscription( $subscription_id );
 		if ( ! $subscription || ! Group_Subscription::is_group_subscription( $subscription ) ) {
 			return new \WP_Error( 'newspack_group_subscription_invite_invalid_subscription', __( 'Invalid subscription.', 'newspack-plugin' ) );
