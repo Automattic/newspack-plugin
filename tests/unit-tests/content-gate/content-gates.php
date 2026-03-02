@@ -745,6 +745,24 @@ class Test_Content_Gates extends \WP_UnitTestCase {
 	}
 
 	/**
+	 * Test that a post marked as exempt bypasses the content gate restriction.
+	 */
+	public function test_exempt_post_is_not_restricted() {
+		$post_id = $this->post_ids[0];
+
+		// Without the exemption flag, the post should be restricted by the published gate.
+		$is_restricted = apply_filters( 'newspack_is_post_restricted', false, $post_id );
+		$this->assertTrue( $is_restricted, 'Post matched by a published gate should be restricted' );
+
+		// Set the exemption meta key on the post.
+		update_post_meta( $post_id, Content_Restriction_Control::IS_EXEMPT_META_KEY, true );
+
+		// With the exemption flag set, the post should not be restricted even though it matches a gate.
+		$is_restricted = apply_filters( 'newspack_is_post_restricted', false, $post_id );
+		$this->assertFalse( $is_restricted, 'Post with exemption flag should not be restricted' );
+	}
+
+	/**
 	 * Test that custom_access settings return grouped access_rules format.
 	 */
 	public function test_custom_access_returns_grouped_rules() {
