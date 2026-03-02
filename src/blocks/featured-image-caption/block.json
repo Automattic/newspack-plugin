@@ -5,12 +5,6 @@
 	"title": "Featured Image Caption",
 	"category": "newspack",
 	"textdomain": "newspack-plugin",
-	"attributes": {
-		"customCaption": {
-			"type": "string",
-			"default": ""
-		}
-	},
 	"usesContext": [ "postId", "postType" ],
 	"supports": {
 		"html": false,

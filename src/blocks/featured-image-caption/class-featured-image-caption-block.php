@@ -52,24 +52,18 @@ final class Featured_Image_Caption_Block {
 			return '';
 		}
 
-		$custom_caption = $attributes['customCaption'] ?? '';
+		$caption = wp_kses_post( wp_get_attachment_caption( $featured_image_id ) );
+		$credit  = '';
 
-		if ( $custom_caption ) {
-			$output = wp_kses_post( $custom_caption );
-		} else {
-			$caption = wp_kses_post( wp_get_attachment_caption( $featured_image_id ) );
-			$credit  = '';
+		if ( class_exists( '\Newspack\Newspack_Image_Credits' ) ) {
+			$credit = \Newspack\Newspack_Image_Credits::get_media_credit_string( $featured_image_id );
+		}
 
-			if ( class_exists( '\Newspack\Newspack_Image_Credits' ) ) {
-				$credit = \Newspack\Newspack_Image_Credits::get_media_credit_string( $featured_image_id );
-			}
-
-			$output = trim( $caption );
-			if ( $output && $credit ) {
-				$output .= ' ' . $credit;
-			} elseif ( $credit ) {
-				$output = $credit;
-			}
+		$output = trim( $caption );
+		if ( $output && $credit ) {
+			$output .= ' ' . $credit;
+		} elseif ( $credit ) {
+			$output = $credit;
 		}
 
 		if ( ! $output ) {

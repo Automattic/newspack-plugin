@@ -1,4 +1,5 @@
-import { useBlockProps, RichText } from '@wordpress/block-editor';
+import { useBlockProps } from '@wordpress/block-editor';
+import { RawHTML } from '@wordpress/element';
 import { useEntityProp } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
 import { __, sprintf } from '@wordpress/i18n';
@@ -28,7 +29,7 @@ const generateCreditText = ( mediaCredit, organization ) => {
 	);
 };
 
-export const Edit = ( { attributes, setAttributes, context: { postType, postId } } ) => {
+export const Edit = ( { context: { postType, postId } } ) => {
 	const blockProps = useBlockProps();
 
 	const [ featuredImage ] = useEntityProp( 'postType', postType, 'featured_media', postId );
@@ -50,7 +51,7 @@ export const Edit = ( { attributes, setAttributes, context: { postType, postId }
 		[ featuredImage ]
 	);
 
-	const defaultText = [ caption, credit ].filter( Boolean ).join( ' ' );
+	const displayText = [ caption, credit ].filter( Boolean ).join( ' ' );
 
 	if ( ! featuredImage ) {
 		return (
@@ -60,14 +61,17 @@ export const Edit = ( { attributes, setAttributes, context: { postType, postId }
 		);
 	}
 
+	if ( ! displayText ) {
+		return (
+			<figcaption { ...blockProps }>
+				<span className="featured-image-caption-placeholder">{ __( 'No caption or credit available.', 'newspack-plugin' ) }</span>
+			</figcaption>
+		);
+	}
+
 	return (
-		<RichText
-			{ ...blockProps }
-			tagName="figcaption"
-			value={ attributes.customCaption }
-			onChange={ val => setAttributes( { customCaption: val } ) }
-			placeholder={ defaultText || __( 'Write caption…', 'newspack-plugin' ) }
-			allowedFormats={ [ 'core/bold', 'core/italic', 'core/link' ] }
-		/>
+		<figcaption { ...blockProps }>
+			<RawHTML>{ displayText }</RawHTML>
+		</figcaption>
 	);
 };
