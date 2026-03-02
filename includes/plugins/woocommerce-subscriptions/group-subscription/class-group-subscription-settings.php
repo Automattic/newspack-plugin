@@ -266,8 +266,17 @@ class Group_Subscription_Settings {
 		}
 		$settings = self::get_subscription_settings( $subscription );
 		$product  = \wc_get_product( WooCommerce_Subscriptions::get_subscription_product_id( $subscription ) );
-		$members  = Group_Subscription::get_members( $subscription );
-		$invites  = Group_Subscription_Invite::get_invites( $subscription );
+		$members  = [];
+		$invites  = [];
+
+		if ( ! empty( $settings['enabled'] ) ) {
+			$members = Group_Subscription::get_members( $subscription );
+			$invites = Group_Subscription_Invite::get_invites( $subscription );
+
+			if ( \is_wp_error( $invites ) || ! is_array( $invites ) ) {
+				$invites = [];
+			}
+		}
 		?>
 		<div class="newspack-group-subscription__container" data-subscription-id="<?php echo \esc_attr( $subscription->get_id() ); ?>">
 			<div class="newspack-group-subscription__settings">
