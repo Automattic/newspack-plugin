@@ -782,6 +782,101 @@ class Test_Content_Gates extends \WP_UnitTestCase {
 	}
 
 	/**
+	 * Helper to set a private static property on Content_Gate via reflection.
+	 *
+	 * @param string $property Property name.
+	 * @param mixed  $value    Value to set.
+	 */
+	private function set_content_gate_property( $property, $value ) {
+		$reflection = new \ReflectionProperty( Content_Gate::class, $property );
+		$reflection->setAccessible( true );
+		$reflection->setValue( null, $value );
+	}
+
+	/**
+	 * Test comment filters on fully gated posts.
+	 */
+	public function test_comments_closed_on_gated_post() {
+		$post_id = $this->post_ids[0];
+
+		$this->set_content_gate_property( 'is_gated', true );
+		$this->set_content_gate_property( 'is_metered', false );
+
+		// Simulate queried object.
+		$this->go_to( get_permalink( $post_id ) );
+
+		$this->assertFalse( Content_Gate::filter_comments_open( true, $post_id ), 'Comments should be closed on gated post' );
+		$this->assertEmpty( Content_Gate::filter_comments_array( [ 'comment1', 'comment2' ], $post_id ), 'Comments array should be empty on gated post' );
+		$this->assertSame( 0, Content_Gate::filter_comments_number( 5, $post_id ), 'Comment count should be 0 on gated post' );
+
+		// Reset.
+		$this->set_content_gate_property( 'is_gated', false );
+	}
+
+	/**
+	 * Test comment filters on metered posts.
+	 */
+	public function test_comments_closed_but_visible_on_metered_post() {
+		$post_id = $this->post_ids[0];
+
+		$this->set_content_gate_property( 'is_gated', false );
+		$this->set_content_gate_property( 'is_metered', true );
+
+		// Simulate queried object.
+		$this->go_to( get_permalink( $post_id ) );
+
+		$this->assertFalse( Content_Gate::filter_comments_open( true, $post_id ), 'Comments should be closed on metered post' );
+
+		$comments = [ 'comment1', 'comment2' ];
+		$this->assertSame( $comments, Content_Gate::filter_comments_array( $comments, $post_id ), 'Existing comments should remain visible on metered post' );
+		$this->assertSame( 5, Content_Gate::filter_comments_number( 5, $post_id ), 'Comment count should be unchanged on metered post' );
+
+		// Reset.
+		$this->set_content_gate_property( 'is_metered', false );
+	}
+
+	/**
+	 * Test comment filters do not affect unrelated posts.
+	 */
+	public function test_comments_unaffected_on_other_posts() {
+		$post_id = $this->post_ids[0];
+		$other_post_id = $this->factory->post->create();
+		$this->post_ids[] = $other_post_id;
+
+		$this->set_content_gate_property( 'is_gated', true );
+		$this->set_content_gate_property( 'is_metered', false );
+
+		// Simulate queried object as the gated post.
+		$this->go_to( get_permalink( $post_id ) );
+
+		// Filters should not affect the other post.
+		$this->assertTrue( Content_Gate::filter_comments_open( true, $other_post_id ), 'Comments should remain open on non-gated post' );
+		$comments = [ 'comment1' ];
+		$this->assertSame( $comments, Content_Gate::filter_comments_array( $comments, $other_post_id ), 'Comments array should be unchanged on non-gated post' );
+		$this->assertSame( 3, Content_Gate::filter_comments_number( 3, $other_post_id ), 'Comment count should be unchanged on non-gated post' );
+
+		// Reset.
+		$this->set_content_gate_property( 'is_gated', false );
+	}
+
+	/**
+	 * Test comment filters pass through on unrestricted posts.
+	 */
+	public function test_comments_unaffected_on_unrestricted_post() {
+		$post_id = $this->post_ids[0];
+
+		$this->set_content_gate_property( 'is_gated', false );
+		$this->set_content_gate_property( 'is_metered', false );
+
+		$this->go_to( get_permalink( $post_id ) );
+
+		$this->assertTrue( Content_Gate::filter_comments_open( true, $post_id ), 'Comments should remain open on unrestricted post' );
+		$comments = [ 'comment1', 'comment2' ];
+		$this->assertSame( $comments, Content_Gate::filter_comments_array( $comments, $post_id ), 'Comments array should be unchanged on unrestricted post' );
+		$this->assertSame( 5, Content_Gate::filter_comments_number( 5, $post_id ), 'Comment count should be unchanged on unrestricted post' );
+	}
+
+	/**
 	 * Test that already grouped access_rules remain unchanged.
 	 */
 	public function test_custom_access_preserves_grouped_rules() {
