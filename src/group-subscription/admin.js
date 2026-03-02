@@ -234,6 +234,8 @@ import './admin.scss';
 		$listItem.find( '.error' ).remove();
 		const email = $listItem.find( '.newspack-group-subscription__pending-invite' ).text();
 		if ( ! email ) {
+			$listItem.removeClass( 'newspack-group-subscription__to-remove' );
+			$this.parent().removeClass( 'newspack-group-subscription__to-remove' );
 			return;
 		}
 		const subscriptionId = $this.closest( '.newspack-group-subscription__container' ).data( 'subscription-id' );
