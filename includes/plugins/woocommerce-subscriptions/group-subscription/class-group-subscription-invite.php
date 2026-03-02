@@ -73,7 +73,7 @@ class Group_Subscription_Invite {
 	}
 
 	/**
-	 * Add an expiration timetamp for the given invite key.
+	 * Add an expiration timestamp for the given invite key.
 	 * Expiration timestamps are stored as an array map keyed by invite key.
 	 *
 	 * @param \WC_Subscription $subscription The subscription object.
