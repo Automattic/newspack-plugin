@@ -175,7 +175,7 @@ class Group_Subscription_Invite {
 		// Delete any invites for the given email address. There should only be one invitation per email address.
 		$subscription->delete_meta_data_value( self::META, $invite_key );
 
-		// The number of pending invites + existing members + managers should not exceed the subscription member limit.
+		// The number of pending invites + existing members should not exceed the subscription member limit.
 		$pending_invites = self::get_invites( $subscription, false );
 		if ( empty( $pending_invites ) || ! is_array( $pending_invites ) ) {
 			$pending_invites = [];
