@@ -83,6 +83,7 @@ class Group_Subscription_Settings {
 				'placeholder'           => __( 'Search for a reader...', 'newspack-plugin' ),
 				'invalid_email_message' => __( 'Please enter a valid email address.', 'newspack-plugin' ),
 				'success_message'       => __( 'Invitation sent successfully.', 'newspack-plugin' ),
+				'pending_label'         => __( ' (pending)', 'newspack-plugin' ),
 			]
 		);
 	}
@@ -266,6 +267,7 @@ class Group_Subscription_Settings {
 		$settings = self::get_subscription_settings( $subscription );
 		$product  = \wc_get_product( WooCommerce_Subscriptions::get_subscription_product_id( $subscription ) );
 		$members  = Group_Subscription::get_members( $subscription );
+		$invites  = Group_Subscription_Invite::get_invites( $subscription );
 		?>
 		<div class="newspack-group-subscription__container" data-subscription-id="<?php echo \esc_attr( $subscription->get_id() ); ?>">
 			<div class="newspack-group-subscription__settings">
@@ -315,7 +317,7 @@ class Group_Subscription_Settings {
 						sprintf(
 							// translators: %d: The number of group members.
 							__( 'Group members (<span class="newspack-group-subscription__members-count">%d</span>)', 'newspack-plugin' ),
-							count( $members )
+							count( $members ) + count( array_values( $invites ) )
 						)
 					);
 					?>
@@ -337,6 +339,17 @@ class Group_Subscription_Settings {
 						</li>
 						<?php
 					endforeach;
+					foreach ( $invites as $key => $invite ) :
+						?>
+						<li>
+							<span class="newspack-group-subscription__pending-invite"><?php echo \esc_html( $invite['email'] ); ?></span> <span class="newspack-group-subscription__pending-invite-label"><?php echo \esc_html( __( '(pending)', 'newspack-plugin' ) ); ?></span>
+							<a title="<?php \esc_attr_e( 'Cancel', 'newspack-plugin' ); ?>" href="#" class="newspack-group-subscription__cancel-invite">
+								&#215;
+								<span class="screen-reader-text"><?php \esc_html_e( 'Cancel', 'newspack-plugin' ); ?></span>
+						</a>
+						</li>
+						<?php
+					endforeach;
 					?>
 				</ul>
 			</div>
@@ -354,15 +367,15 @@ class Group_Subscription_Settings {
 				</div>
 			</div>
 		</div>
-		<?php
+						<?php
 	}
 
-	/**
-	 * Save Group Subscription meta to a subscription.
-	 *
-	 * @param int             $subscription_id Subscription ID.
-	 * @param WC_Subscription $subscription Optional. Subscription object. Default null - will be loaded from the ID.
-	 */
+					/**
+					 * Save Group Subscription meta to a subscription.
+					 *
+					 * @param int             $subscription_id Subscription ID.
+					 * @param WC_Subscription $subscription Optional. Subscription object. Default null - will be loaded from the ID.
+					 */
 	public static function save_group_subscription_meta( $subscription_id, $subscription = null ) {
 		if ( ! function_exists( 'wcs_is_subscription' ) || ! function_exists( 'wcs_get_subscription' ) || ! function_exists( 'wc_clean' ) || ! \wcs_is_subscription( $subscription_id ) ) {
 			return;
@@ -388,4 +401,4 @@ class Group_Subscription_Settings {
 		);
 	}
 }
-Group_Subscription_Settings::init();
+	Group_Subscription_Settings::init();

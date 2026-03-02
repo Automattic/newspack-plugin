@@ -92,9 +92,7 @@ import './admin.scss';
 					const $membersCount = $select
 						.closest( '.newspack-group-subscription__container' )
 						.find( '.newspack-group-subscription__members-count' );
-					if ( $membersCount.length ) {
-						$membersCount.text( parseInt( $membersCount.text() ) + 1 );
-					}
+					$membersCount.text( $membersList.find( 'li' ).length );
 					$membersList.append(
 						`<li><a class="newspack-group-subscription__member-user-link" href="#"></a><a href="#" class="newspack-group-subscription__remove-member">&#215; <span class="screen-reader-text">Remove</span></a></li>`
 					);
@@ -146,9 +144,8 @@ import './admin.scss';
 						.closest( '.newspack-group-subscription__members' )
 						.find( '.newspack-group-subscription__members-count' );
 
-					if ( $membersCount.length ) {
-						$membersCount.text( parseInt( $membersCount.text() ) - 1 );
-					}
+					const $membersList = $( '.newspack-group-subscription__members-list' );
+					$membersCount.text( $membersList.find( 'li' ).length );
 					$listItem.remove();
 				}
 			} )
@@ -198,6 +195,27 @@ import './admin.scss';
 					.parent()
 					.append( `<mark class="success"><span class="dashicons dashicons-yes-alt"></span><span class="message"></span></mark>` );
 				$this.parent().find( '.message' ).text( newspackGroupSubscriptions.success_message );
+				const $membersList = $( '.newspack-group-subscription__members-list' );
+				const $membersCount = $( '#_newspack_group_subscription_member_ids' )
+					.closest( '.newspack-group-subscription__container' )
+					.find( '.newspack-group-subscription__members-count' );
+				const $existingInvites = $membersList.find( '.newspack-group-subscription__pending-invite' );
+				if ( $existingInvites.length ) {
+					$existingInvites.each( function () {
+						const $thisInvite = $( this );
+						const $thisEmail = $thisInvite.text();
+						if ( $thisEmail === email ) {
+							$thisInvite.parent().remove();
+						}
+					} );
+				}
+				$membersList.append(
+					`<li><span class="newspack-group-subscription__pending-invite"></span> <span class="newspack-group-subscription__pending-invite-label"></span><a href="#" class="newspack-group-subscription__cancel-invite">&#215; <span class="screen-reader-text">Delete</span></a></li>`
+				);
+				const $added = $membersList.find( 'li' ).last();
+				$added.find( '.newspack-group-subscription__pending-invite' ).text( email );
+				$added.find( '.newspack-group-subscription__pending-invite-label' ).text( newspackGroupSubscriptions.pending_label );
+				$membersCount.text( $membersList.find( 'li' ).length );
 			} )
 			.catch( error => {
 				$this.parent().append( `<mark class="error"><span class="dashicons dashicons-warning"></span><span class="message"></span></mark>` );
@@ -208,12 +226,60 @@ import './admin.scss';
 				$button.attr( 'disabled', false );
 			} );
 	}
+	function cancelInvite( e ) {
+		e.preventDefault();
+		const $this = $( e.currentTarget );
+		const $listItem = $this.closest( 'li' );
+		$listItem.addClass( 'newspack-group-subscription__to-remove' );
+		$listItem.find( '.error' ).remove();
+		const email = $listItem.find( '.newspack-group-subscription__pending-invite' ).text();
+		if ( ! email ) {
+			return;
+		}
+		const subscriptionId = $this.closest( '.newspack-group-subscription__container' ).data( 'subscription-id' );
+		fetch( `${ newspackGroupSubscriptions.apiUrl }/invite`, {
+			method: 'DELETE',
+			headers: {
+				'Content-Type': 'application/json',
+				'X-WP-Nonce': newspackGroupSubscriptions.apiNonce,
+			},
+			body: JSON.stringify( { subscription_id: subscriptionId, email } ),
+		} )
+			.then( response => response.json() )
+			.then( data => {
+				if ( data.code && data.message && data.message !== 'abort' ) {
+					throw new Error( data.message );
+				}
+				const $membersList = $( '.newspack-group-subscription__members-list' );
+				const $membersCount = $( '#_newspack_group_subscription_member_ids' )
+					.closest( '.newspack-group-subscription__container' )
+					.find( '.newspack-group-subscription__members-count' );
+				const $existingInvites = $membersList.find( '.newspack-group-subscription__pending-invite' );
+				if ( $existingInvites.length ) {
+					$existingInvites.each( function () {
+						const $thisInvite = $( this );
+						const $thisEmail = $thisInvite.text();
+						if ( $thisEmail === email ) {
+							$thisInvite.parent().remove();
+						}
+					} );
+				}
+				$membersCount.text( $membersList.find( 'li' ).length );
+			} )
+			.catch( error => {
+				$this.after( `<mark class="error"><span class="dashicons dashicons-warning"></span><span class="message"></span></mark>` );
+				$this.parent().find( '.message' ).text( error.message );
+			} )
+			.finally( () => {
+				$this.parent().removeClass( 'newspack-group-subscription__to-remove' );
+			} );
+	}
 
 	$( '#newspack-group-subscription' ).on( 'change', 'input#_newspack_group_subscription_enabled', showOrHideOptions );
 	$( '#newspack-group-subscription' ).on( 'change', '#_newspack_group_subscription_member_ids', addMember );
 	$( '#newspack-group-subscription' ).on( 'click', '.newspack-group-subscription__remove-member', removeMember );
 	$( '#newspack-group-subscription' ).on( 'click', '.newspack-group-subscription__invite-member button', inviteMember );
 	$( '#newspack-group-subscription' ).on( 'keydown', '.newspack-group-subscription__invite-member input', inviteMember );
-
+	$( '#newspack-group-subscription' ).on( 'click', '.newspack-group-subscription__cancel-invite', cancelInvite );
 	$( document ).ready( init );
 } )( jQuery );

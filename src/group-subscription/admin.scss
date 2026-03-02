@@ -41,7 +41,8 @@
 		padding: 0;
 		margin-bottom: 16px;
 	}
-	a.newspack-group-subscription__remove-member {
+	a.newspack-group-subscription__remove-member,
+	a.newspack-group-subscription__cancel-invite {
 		color: #666;
 		display: inline-block;
 		font-size: 14px;
@@ -54,12 +55,14 @@
 		}
 	}
 	.newspack-group-subscription__to-remove {
-		a.newspack-group-subscription__member-user-link {
+		a.newspack-group-subscription__member-user-link,
+		.newspack-group-subscription__pending-invite {
 			color: #666;
 			pointer-events: none;
 			text-decoration: line-through;
 		}
-		.newspack-group-subscription__remove-member {
+		.newspack-group-subscription__remove-member,
+		.newspack-group-subscription__cancel-invite {
 			opacity: 0;
 		}
 	}

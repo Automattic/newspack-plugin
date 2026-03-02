@@ -99,6 +99,27 @@ class Group_Subscription_API {
 				],
 			]
 		);
+		\register_rest_route(
+			self::NAMESPACE,
+			'/invite',
+			[
+				'methods'             => \WP_REST_Server::DELETABLE,
+				'callback'            => [ __CLASS__, 'api_cancel_invite' ],
+				'permission_callback' => '__return_true',
+				'args'                => [
+					'subscription_id' => [
+						'type'              => 'integer',
+						'required'          => true,
+						'sanitize_callback' => 'absint',
+					],
+					'email'           => [
+						'type'              => 'string',
+						'required'          => true,
+						'sanitize_callback' => 'sanitize_email',
+					],
+				],
+			]
+		);
 	}
 
 	/**
@@ -224,6 +245,20 @@ class Group_Subscription_API {
 		$email           = $request->get_param( 'email' );
 		$invite = Group_Subscription_Invite::generate_invite_key( $subscription_id, $email );
 		return \rest_ensure_response( $invite );
+	}
+
+	/**
+	 * Cancel an invite for a group subscription.
+	 *
+	 * @param \WP_REST_Request $request The request object.
+	 *
+	 * @return \WP_REST_Response The response object.
+	 */
+	public static function api_cancel_invite( $request ) {
+		$subscription_id = $request->get_param( 'subscription_id' );
+		$email           = $request->get_param( 'email' );
+		$result = Group_Subscription_Invite::cancel_invite( $subscription_id, $email );
+		return \rest_ensure_response( $result );
 	}
 }
 Group_Subscription_API::init();
