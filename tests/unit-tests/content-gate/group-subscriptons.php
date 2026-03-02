@@ -430,17 +430,17 @@ class Test_Group_Subscriptions extends \WP_UnitTestCase {
 	// -------------------------------------------------------------------------
 
 	/**
-	 * Test get_invite_expiration_time() returns the default (30 days).
+	 * Test get_expiration_time() returns the default (30 days).
 	 */
-	public function test_get_invite_expiration_time_default() {
-		$time = Group_Subscription_Invite::get_invite_expiration_time();
+	public function test_get_expiration_time_default() {
+		$time = Group_Subscription_Invite::get_expiration_time();
 		$this->assertEquals( 30 * DAY_IN_SECONDS, $time );
 	}
 
 	/**
-	 * Test get_invite_expiration_time() respects the filter.
+	 * Test get_expiration_time() respects the filter.
 	 */
-	public function test_get_invite_expiration_time_filter() {
+	public function test_get_expiration_time_filter() {
 		add_filter(
 			'newspack_group_subscription_invite_expiration_time',
 			function() {
@@ -448,7 +448,7 @@ class Test_Group_Subscriptions extends \WP_UnitTestCase {
 			}
 		);
 
-		$time = Group_Subscription_Invite::get_invite_expiration_time();
+		$time = Group_Subscription_Invite::get_expiration_time();
 		$this->assertEquals( 7 * DAY_IN_SECONDS, $time );
 
 		remove_all_filters( 'newspack_group_subscription_invite_expiration_time' );
@@ -458,25 +458,46 @@ class Test_Group_Subscriptions extends \WP_UnitTestCase {
 	 * Test is_invite_expired() returns false for a fresh invite.
 	 */
 	public function test_is_invite_expired_fresh() {
-		$invite = [ 'timestamp' => time() ];
-		$this->assertFalse( Group_Subscription_Invite::is_invite_expired( $invite ) );
+		$owner_id  = $this->create_reader_user();
+		$group_sub = $this->create_group_subscription( $owner_id );
+		$email     = 'fresh@example.com';
+
+		Group_Subscription_Invite::add_invite_expiration( $group_sub, $email );
+
+		$this->assertFalse( Group_Subscription_Invite::is_invite_expired( $group_sub, wp_hash( $email ) ) );
 	}
 
 	/**
-	 * Test is_invite_expired() returns true for an invite older than the expiration.
+	 * Test is_invite_expired() returns true for an expired invite.
 	 */
 	public function test_is_invite_expired_old() {
-		$invite = [ 'timestamp' => time() - ( 31 * DAY_IN_SECONDS ) ];
-		$this->assertTrue( Group_Subscription_Invite::is_invite_expired( $invite ) );
+		$owner_id  = $this->create_reader_user();
+		$group_sub = $this->create_group_subscription( $owner_id );
+		$email     = 'old@example.com';
+		$key       = wp_hash( $email );
+
+		// Manually store an already-expired timestamp.
+		$group_sub->update_meta_data(
+			Group_Subscription_Invite::EXPIRATION_META,
+			[
+				$key => [
+					'expiration' => time() - ( 31 * DAY_IN_SECONDS ),
+					'email'      => $email,
+				],
+			]
+		);
+
+		$this->assertTrue( Group_Subscription_Invite::is_invite_expired( $group_sub, $key ) );
 	}
 
 	/**
-	 * Test is_invite_expired() returns false for an invite right at the boundary.
+	 * Test is_invite_expired() returns true when no entry exists for the key.
 	 */
-	public function test_is_invite_expired_boundary() {
-		// One second before expiry → should NOT be expired.
-		$invite = [ 'timestamp' => time() - 30 * DAY_IN_SECONDS + 2 ];
-		$this->assertFalse( Group_Subscription_Invite::is_invite_expired( $invite ) );
+	public function test_is_invite_expired_missing_key() {
+		$owner_id  = $this->create_reader_user();
+		$group_sub = $this->create_group_subscription( $owner_id );
+
+		$this->assertTrue( Group_Subscription_Invite::is_invite_expired( $group_sub, 'nonexistent-key' ) );
 	}
 
 	/**
@@ -536,9 +557,9 @@ class Test_Group_Subscriptions extends \WP_UnitTestCase {
 	 * a WooCommerce admin nor the subscription manager.
 	 */
 	public function test_generate_invite_key_non_manager_non_admin() {
-		$owner_id    = $this->create_reader_user();
-		$other_id    = $this->create_reader_user();
-		$group_sub   = $this->create_group_subscription( $owner_id );
+		$owner_id  = $this->create_reader_user();
+		$other_id  = $this->create_reader_user();
+		$group_sub = $this->create_group_subscription( $owner_id );
 
 		// Log in as a reader who does not own the subscription.
 		wp_set_current_user( $other_id );
@@ -563,13 +584,8 @@ class Test_Group_Subscriptions extends \WP_UnitTestCase {
 
 		$result = Group_Subscription_Invite::generate_invite_key( $group_sub->get_id(), 'invite@example.com' );
 
-		$this->assertIsArray( $result );
-		$this->assertArrayHasKey( 'key', $result );
-		$this->assertArrayHasKey( 'email', $result );
-		$this->assertArrayHasKey( 'timestamp', $result );
-		$this->assertArrayHasKey( 'user_id', $result );
-		$this->assertEquals( 'invite@example.com', $result['email'] );
-		$this->assertEquals( $admin_id, $result['user_id'] );
+		$this->assertIsString( $result );
+		$this->assertEquals( wp_hash( 'invite@example.com' ), $result );
 	}
 
 	/**
@@ -584,26 +600,24 @@ class Test_Group_Subscriptions extends \WP_UnitTestCase {
 
 		$result = Group_Subscription_Invite::generate_invite_key( $group_sub->get_id(), 'invite@example.com' );
 
-		$this->assertIsArray( $result );
-		$this->assertEquals( 'invite@example.com', $result['email'] );
-		$this->assertEquals( $owner_id, $result['user_id'] );
-		$this->assertNotEmpty( $result['key'] );
+		$this->assertIsString( $result );
+		$this->assertEquals( wp_hash( 'invite@example.com' ), $result );
 	}
 
 	/**
 	 * Test generate_invite_key() returns WP_Error when the member limit is reached.
 	 */
 	public function test_generate_invite_key_limit_reached() {
-		$admin_id = $this->create_admin_user();
-		// Limit of 1 – one fresh invite will consume the full allowance.
+		$admin_id  = $this->create_admin_user();
 		$owner_id  = $this->create_reader_user();
+		// Limit of 1 – one fresh invite will consume the full allowance.
 		$group_sub = $this->create_group_subscription( $owner_id, [ 'limit' => 1 ] );
 		wp_set_current_user( $admin_id );
 
-		// First invite for a different email fills the slot.
+		// First invite fills the slot.
 		Group_Subscription_Invite::generate_invite_key( $group_sub->get_id(), 'first@example.com' );
 
-		// Second invite for yet another email should hit the limit.
+		// Second invite for a different email should hit the limit.
 		$result = Group_Subscription_Invite::generate_invite_key( $group_sub->get_id(), 'second@example.com' );
 
 		$this->assertWPError( $result );
@@ -625,7 +639,7 @@ class Test_Group_Subscriptions extends \WP_UnitTestCase {
 
 		for ( $i = 1; $i <= 5; $i++ ) {
 			$result = Group_Subscription_Invite::generate_invite_key( $group_sub->get_id(), "user{$i}@example.com" );
-			$this->assertIsArray( $result, "Invite #{$i} should succeed when limit is 0" );
+			$this->assertIsString( $result, "Invite #{$i} should succeed when limit is 0" );
 		}
 	}
 
@@ -642,21 +656,17 @@ class Test_Group_Subscriptions extends \WP_UnitTestCase {
 		$first  = Group_Subscription_Invite::generate_invite_key( $group_sub->get_id(), 'repeat@example.com' );
 		$second = Group_Subscription_Invite::generate_invite_key( $group_sub->get_id(), 'repeat@example.com' );
 
-		$this->assertIsArray( $first );
-		$this->assertIsArray( $second );
+		$this->assertIsString( $first );
+		$this->assertIsString( $second );
 
-		// The second key must differ from the first (a new key was generated).
-		$this->assertNotEquals( $first['key'], $second['key'] );
+		// Invite keys are deterministic (hash of email), so both calls return the same key.
+		$this->assertEquals( $first, $second );
 
-		// There should be only one invite for this email stored on the subscription.
-		$stored = $group_sub->get_meta( Group_Subscription_Invite::META );
-		$email_invites = array_filter(
-			$stored,
-			function( $invite ) {
-				return $invite['email'] === 'repeat@example.com';
-			}
-		);
-		$this->assertCount( 1, $email_invites, 'Only one invite should exist for the same email' );
+		// There should be exactly one invite for this email in get_invites().
+		$invites = Group_Subscription_Invite::get_invites( $group_sub );
+		$key     = wp_hash( 'repeat@example.com' );
+		$this->assertArrayHasKey( $key, $invites );
+		$this->assertCount( 1, $invites, 'Only one invite should exist for the same email' );
 	}
 
 	/**
@@ -668,12 +678,83 @@ class Test_Group_Subscriptions extends \WP_UnitTestCase {
 		$group_sub = $this->create_group_subscription( $owner_id );
 		wp_set_current_user( $admin_id );
 
-		$result = Group_Subscription_Invite::generate_invite_key( $group_sub->get_id(), 'stored@example.com' );
+		$result  = Group_Subscription_Invite::generate_invite_key( $group_sub->get_id(), 'stored@example.com' );
+		$invites = Group_Subscription_Invite::get_invites( $group_sub );
+		$key     = wp_hash( 'stored@example.com' );
 
-		$stored = $group_sub->get_meta( Group_Subscription_Invite::META );
-		$this->assertIsArray( $stored );
-		$this->assertNotEmpty( $stored );
-		$this->assertEquals( 'stored@example.com', $stored[0]['email'] );
-		$this->assertEquals( $result['key'], $stored[0]['key'] );
+		$this->assertIsArray( $invites );
+		$this->assertArrayHasKey( $key, $invites );
+		$this->assertEquals( 'stored@example.com', $invites[ $key ]['email'] );
+		$this->assertEquals( $result, $key );
+	}
+
+	/**
+	 * Test get_invites() returns all invites for a subscription.
+	 */
+	public function test_get_invites() {
+		$admin_id  = $this->create_admin_user();
+		$owner_id  = $this->create_reader_user();
+		$group_sub = $this->create_group_subscription( $owner_id );
+		wp_set_current_user( $admin_id );
+
+		Group_Subscription_Invite::generate_invite_key( $group_sub->get_id(), 'one@example.com' );
+		Group_Subscription_Invite::generate_invite_key( $group_sub->get_id(), 'two@example.com' );
+
+		$invites = Group_Subscription_Invite::get_invites( $group_sub );
+
+		$this->assertIsArray( $invites );
+		$this->assertCount( 2, $invites );
+		$this->assertArrayHasKey( wp_hash( 'one@example.com' ), $invites );
+		$this->assertArrayHasKey( wp_hash( 'two@example.com' ), $invites );
+	}
+
+	/**
+	 * Test get_invites() filters out expired invites when $show_expired is false.
+	 */
+	public function test_get_invites_filters_expired() {
+		$owner_id  = $this->create_reader_user();
+		$group_sub = $this->create_group_subscription( $owner_id );
+		$email     = 'expired@example.com';
+		$key       = wp_hash( $email );
+
+		// Manually store an already-expired timestamp.
+		$group_sub->update_meta_data(
+			Group_Subscription_Invite::EXPIRATION_META,
+			[
+				$key => [
+					'expiration' => time() - ( 31 * DAY_IN_SECONDS ),
+					'email'      => $email,
+				],
+			]
+		);
+
+		// With show_expired = false, expired invites should be filtered out.
+		$invites = Group_Subscription_Invite::get_invites( $group_sub, false );
+		$this->assertEmpty( $invites );
+
+		// With show_expired = true (default), they should appear.
+		$invites_all = Group_Subscription_Invite::get_invites( $group_sub, true );
+		$this->assertCount( 1, $invites_all );
+	}
+
+	/**
+	 * Test cancel_invite() removes a pending invite.
+	 */
+	public function test_cancel_invite() {
+		$admin_id  = $this->create_admin_user();
+		$owner_id  = $this->create_reader_user();
+		$group_sub = $this->create_group_subscription( $owner_id );
+		wp_set_current_user( $admin_id );
+
+		Group_Subscription_Invite::generate_invite_key( $group_sub->get_id(), 'cancel@example.com' );
+
+		$before = Group_Subscription_Invite::get_invites( $group_sub );
+		$this->assertArrayHasKey( wp_hash( 'cancel@example.com' ), $before );
+
+		$cancelled = Group_Subscription_Invite::cancel_invite( $group_sub->get_id(), 'cancel@example.com' );
+		$this->assertTrue( $cancelled );
+
+		$after = Group_Subscription_Invite::get_invites( $group_sub );
+		$this->assertArrayNotHasKey( wp_hash( 'cancel@example.com' ), $after );
 	}
 }

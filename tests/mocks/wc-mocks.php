@@ -208,6 +208,24 @@ class WC_Subscription {
 	public function delete_meta_data( $field_name ) {
 		unset( $this->meta[ $field_name ] );
 	}
+	public function add_meta_data( $field_name, $value ) {
+		if ( ! isset( $this->meta[ $field_name ] ) || ! is_array( $this->meta[ $field_name ] ) ) {
+			$this->meta[ $field_name ] = [];
+		}
+		$this->meta[ $field_name ][] = $value;
+	}
+	public function delete_meta_data_value( $field_name, $value ) {
+		if ( isset( $this->meta[ $field_name ] ) && is_array( $this->meta[ $field_name ] ) ) {
+			$this->meta[ $field_name ] = array_values(
+				array_filter(
+					$this->meta[ $field_name ],
+					function( $v ) use ( $value ) {
+						return $v !== $value;
+					}
+				)
+			);
+		}
+	}
 	public function has_status( $statuses ) {
 		return in_array( $this->data['status'], $statuses );
 	}
