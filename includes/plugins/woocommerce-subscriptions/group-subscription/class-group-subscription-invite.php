@@ -14,7 +14,7 @@ defined( 'ABSPATH' ) || exit;
  */
 class Group_Subscription_Invite {
 	/**
-	 * The query arg for the group subscription invititation.
+	 * The query arg for the group subscription invitation.
 	 *
 	 * @var string
 	 */
