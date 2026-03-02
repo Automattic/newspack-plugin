@@ -145,8 +145,8 @@ import './admin.scss';
 						.find( '.newspack-group-subscription__members-count' );
 
 					const $membersList = $( '.newspack-group-subscription__members-list' );
-					$membersCount.text( $membersList.find( 'li' ).length );
 					$listItem.remove();
+					$membersCount.text( $membersList.find( 'li' ).length );
 				}
 			} )
 			.catch( error => {
