@@ -54,6 +54,8 @@ class WooCommerce_My_Account {
 		\add_filter( 'woocommerce_get_checkout_url', [ __CLASS__, 'get_checkout_url' ] );
 		\add_filter( 'woocommerce_get_checkout_payment_url', [ __CLASS__, 'get_checkout_url' ] );
 		\add_filter( 'wc_stripe_update_subs_payment_method_card_statuses', [ __CLASS__, 'update_payment_methods_for_all_subs' ] );
+		\add_filter( 'wc_subscriptions_allow_subscription_token_deletion', [ __CLASS__, 'allow_braintree_token_deletion' ], 10, 2 );
+		\add_filter( 'woocommerce_payment_methods_list_item', [ __CLASS__, 'remove_braintree_edit_actions' ], 20, 2 );
 
 		// Reader Activation mods.
 		if ( Reader_Activation::is_enabled() ) {
@@ -999,6 +1001,41 @@ class WooCommerce_My_Account {
 			'on-hold',
 			'pending-cancel',
 		];
+	}
+
+	/**
+	 * Permit 'Delete payment method' option for Braintree.
+	 * This is usually disabled when no alternative payment method is
+	 * available, but some gateways may not permit a new payment with
+	 * similar details (e.g., credit card with same number but updated
+	 * expiration) to one already in the system.
+	 *
+	 * @param bool              $allow_deletion Whether deletion is allowed.
+	 * @param \WC_Payment_Token $payment_token  The payment token.
+	 * @return bool
+	 */
+	public static function allow_braintree_token_deletion( $allow_deletion, $payment_token ) {
+		if ( str_starts_with( $payment_token->get_gateway_id(), 'braintree_' ) ) {
+			return true;
+		}
+		return $allow_deletion;
+	}
+
+	/**
+	 * Remove 'edit' and 'save' actions for Braintree.  This keeps parity
+	 * with existing Stripe integration.
+	 *
+	 * @param array             $item          Payment method list item data.
+	 * @param \WC_Payment_Token $payment_token The payment token.
+	 * @return array
+	 */
+	public static function remove_braintree_edit_actions( $item, $payment_token ) {
+		if ( str_starts_with( $payment_token->get_gateway_id(), 'braintree_' ) ) {
+			if ( ! empty( $item['actions']['edit'] ) || ! empty( $item['actions']['save'] ) ) {
+				unset( $item['actions']['edit'], $item['actions']['save'] );
+			}
+		}
+		return $item;
 	}
 
 	/**

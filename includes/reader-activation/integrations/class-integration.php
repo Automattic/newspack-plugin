@@ -16,6 +16,13 @@ defined( 'ABSPATH' ) || exit;
  */
 abstract class Integration {
 	/**
+	 * Option name prefix for storing selected fields per integration.
+	 *
+	 * @var string
+	 */
+	const OPTION_PREFIX = 'newspack_integration_selected_fields_';
+
+	/**
 	 * The unique identifier for this integration.
 	 *
 	 * @var string
@@ -129,5 +136,76 @@ abstract class Integration {
 	 */
 	final public static function dispatch_data_event_handler( $timestamp, $data, $client_id ) {
 		Integrations::dispatch_data_event_handler( static::class, $timestamp, $data, $client_id );
+	}
+
+	/**
+	 * Pull contact data from the integration for a given user.
+	 *
+	 * Integrations that support pulling contact data should implement this method.
+	 *
+	 * @param int $user_id WordPress user ID.
+	 *
+	 * @return array|\WP_Error Associative array of field_key => value pairs on success, WP_Error on failure.
+	 */
+	public function pull_contact_data( $user_id ) {
+		return [];
+	}
+
+	/**
+	 * Get incoming available contact fields from the integration.
+	 *
+	 * This method should be implemented by child classes to return
+	 * an array of available contact fields from their integration.
+	 *
+	 * Integrations that support pulling contact data should implement this method.
+	 *
+	 * @return Integrations\Incoming_Contact_Field[]|\WP_Error Array of incoming contact field objects or WP_Error on failure.
+	 */
+	public function get_incoming_available_contact_fields() {
+		return [];
+	}
+
+	/**
+	 * Get incoming contact fields that are not already in the metadata.
+	 *
+	 * This method filters the available contact fields to exclude fields
+	 * whose keys already exist in the synced metadata.
+	 *
+	 * @return Integrations\Incoming_Contact_Field[]|\WP_Error Array of filtered incoming contact field objects or WP_Error on failure.
+	 */
+	public function get_incoming_contact_fields() {
+		$available_fields = $this->get_incoming_available_contact_fields();
+
+		if ( is_wp_error( $available_fields ) ) {
+			return $available_fields;
+		}
+
+		$prefixed_keys = Sync\Metadata::get_all_prefixed_keys();
+
+		return array_filter(
+			$available_fields,
+			function( $field ) use ( $prefixed_keys ) {
+				return ! in_array( $field->get_key(), $prefixed_keys, true );
+			}
+		);
+	}
+
+	/**
+	 * Get the selected fields for this integration.
+	 *
+	 * @return array Array of selected field keys.
+	 */
+	public function get_selected_fields() {
+		return \get_option( self::OPTION_PREFIX . $this->id, [] );
+	}
+
+	/**
+	 * Set the selected fields for this integration.
+	 *
+	 * @param array $fields Array of field keys to store.
+	 * @return bool True if the option was updated, false otherwise.
+	 */
+	public function set_selected_fields( $fields ) {
+		return \update_option( self::OPTION_PREFIX . $this->id, array_values( $fields ) );
 	}
 }

@@ -33,6 +33,7 @@ final class Blocks {
 		if ( wp_is_block_theme() ) {
 			require_once NEWSPACK_ABSPATH . 'src/blocks/avatar/class-avatar-block.php';
 			require_once NEWSPACK_ABSPATH . 'src/blocks/byline/class-byline-block.php';
+			require_once NEWSPACK_ABSPATH . 'src/blocks/featured-image-caption/class-featured-image-caption-block.php';
 			require_once NEWSPACK_ABSPATH . 'src/blocks/author-profile-social/class-author-profile-social-block.php';
 			require_once NEWSPACK_ABSPATH . 'src/blocks/author-social-link/class-author-social-link-block.php';
 			require_once NEWSPACK_ABSPATH . 'src/blocks/copyright-date/class-copyright-date-block.php';
