@@ -337,6 +337,9 @@ class Content_Gate {
 		if ( ! current_user_can( 'edit_others_posts' ) ) {
 			return;
 		}
+		if ( 0 === count( self::get_gates() ) ) {
+			return;
+		}
 		$asset = require dirname( NEWSPACK_PLUGIN_FILE ) . '/dist/content-gate-post-settings.asset.php';
 		wp_enqueue_script( 'newspack-content-gate-post-settings', Newspack::plugin_url() . '/dist/content-gate-post-settings.js', $asset['dependencies'], $asset['version'], true );
 	}
