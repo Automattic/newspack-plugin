@@ -131,7 +131,7 @@ class WooCommerce_Subscriptions {
 	 * @return WC_Subscription|false The subscription object, or false if the subscription is not valid.
 	 */
 	public static function sanitize_subscription( $subscription ) {
-		if ( ! self::is_active() || ! function_exists( 'wcs_get_subscription' ) ) {
+		if ( ! function_exists( 'wcs_get_subscription' ) ) {
 			return false;
 		}
 		if ( ! is_a( $subscription, 'WC_Subscription' ) ) {

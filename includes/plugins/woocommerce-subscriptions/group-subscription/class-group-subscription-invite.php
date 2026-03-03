@@ -86,28 +86,6 @@ class Group_Subscription_Invite {
 	}
 
 	/**
-	 * Get an invite for a given email address and subscription.
-	 *
-	 * @param \WC_Subscription|int $subscription The subscription object or ID.
-	 * @param string               $email The email address receiving the invitation.
-	 *
-	 * @return array|false The invite data, or false if the invite cannot be found.
-	 */
-	public static function get_invite( $subscription, $email ) {
-		$subscription = WooCommerce_Subscriptions::sanitize_subscription( $subscription );
-		if ( ! $subscription || ! Group_Subscription::is_group_subscription( $subscription ) ) {
-			return false;
-		}
-		$all_invites = self::get_invites( $subscription );
-		foreach ( $all_invites as $key => $invite ) {
-			if ( $invite['email'] === $email ) {
-				return $invite;
-			}
-		}
-		return false;
-	}
-
-	/**
 	 * Generate a group subscription invite key.
 	 *
 	 * @param \WC_Subscription|int $subscription The subscription object or ID.
@@ -161,7 +139,6 @@ class Group_Subscription_Invite {
 			'added_by'   => get_current_user_id(),
 			'email'      => $email,
 			'expiration' => time() + self::get_expiration_time(),
-			'key'        => $invite_key,
 		];
 		$all_invites[ $invite_key ] = $new_invite;
 

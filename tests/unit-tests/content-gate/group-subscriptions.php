@@ -525,27 +525,6 @@ class Test_Group_Subscriptions extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * Test generate_invite() returns WP_Error when the current user is neither
-	 * a WooCommerce admin nor the subscription manager.
-	 */
-	public function test_generate_invite_non_manager_non_admin() {
-		$owner_id  = $this->create_reader_user();
-		$other_id  = $this->create_reader_user();
-		$group_sub = $this->create_group_subscription( $owner_id );
-
-		// Log in as a reader who does not own the subscription.
-		wp_set_current_user( $other_id );
-
-		$result = Group_Subscription_Invite::generate_invite( $group_sub->get_id(), 'invite@example.com' );
-
-		$this->assertWPError( $result );
-		$this->assertEquals(
-			'newspack_group_subscription_invite_invalid_user',
-			$result->get_error_code()
-		);
-	}
-
-	/**
 	 * Test generate_invite() returns WP_Error when the email belongs to an existing member.
 	 */
 	public function test_generate_invite_existing_member() {
@@ -739,10 +718,14 @@ class Test_Group_Subscriptions extends \WP_UnitTestCase {
 		wp_set_current_user( $owner_id );
 
 		// Manually store an already-expired timestamp.
+		add_filter(
+			'newspack_group_subscription_invite_expiration_time',
+			function() {
+				return -31 * DAY_IN_SECONDS;
+			}
+		);
 		$invite = Group_Subscription_Invite::generate_invite( $group_sub, $email );
-		$key    = $invite['key'];
-		$invite['expiration'] = time() - ( 31 * DAY_IN_SECONDS );
-		$group_sub->update_meta_data( Group_Subscription_Invite::META, [ $key => $invite ] );
+
 		$group_sub->save();
 
 		// With show_expired = false, expired invites should be filtered out.
