@@ -1,5 +1,18 @@
 <?php // phpcs:disable WordPress.Files.FileName.InvalidClassFileName, Squiz.Commenting.FunctionComment.Missing, Squiz.Commenting.ClassComment.Missing, Squiz.Commenting.VariableComment.Missing, Squiz.Commenting.FileComment.Missing, Generic.Files.OneObjectStructurePerFile.MultipleFound, Universal.Files.SeparateFunctionsFromOO.Mixed
 
+/**
+ * Minimal mock for WC_Payment_Token, used when WooCommerce is not loaded in the test environment.
+ */
+class WC_Payment_Token {
+	private $gateway_id;
+	public function __construct( $gateway_id ) {
+		$this->gateway_id = $gateway_id;
+	}
+	public function get_gateway_id() {
+		return $this->gateway_id;
+	}
+}
+
 class WC_Install {
 	public static function create_pages() {
 		return true;

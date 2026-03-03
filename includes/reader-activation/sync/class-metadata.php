@@ -178,6 +178,21 @@ class Metadata {
 	}
 
 	/**
+	 * Get all "prefixed" metadata keys.
+	 *
+	 * @return string[] List of prefixed metadata keys.
+	 */
+	public static function get_all_prefixed_keys() {
+		$prefixed_keys = [];
+
+		foreach ( self::get_keys() as $raw_key => $field_name ) {
+			$prefixed_keys[] = self::get_key( $raw_key );
+		}
+
+		return array_unique( $prefixed_keys );
+	}
+
+	/**
 	 * Given a field name, prepend it with the metadata field prefix.
 	 *
 	 * @param string $key Metadata field to fetch.

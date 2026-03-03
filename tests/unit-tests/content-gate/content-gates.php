@@ -745,6 +745,24 @@ class Test_Content_Gates extends \WP_UnitTestCase {
 	}
 
 	/**
+	 * Test that a post marked as exempt bypasses the content gate restriction.
+	 */
+	public function test_exempt_post_is_not_restricted() {
+		$post_id = $this->post_ids[0];
+
+		// Without the exemption flag, the post should be restricted by the published gate.
+		$is_restricted = apply_filters( 'newspack_is_post_restricted', false, $post_id );
+		$this->assertTrue( $is_restricted, 'Post matched by a published gate should be restricted' );
+
+		// Set the exemption meta key on the post.
+		update_post_meta( $post_id, Content_Restriction_Control::IS_EXEMPT_META_KEY, true );
+
+		// With the exemption flag set, the post should not be restricted even though it matches a gate.
+		$is_restricted = apply_filters( 'newspack_is_post_restricted', false, $post_id );
+		$this->assertFalse( $is_restricted, 'Post with exemption flag should not be restricted' );
+	}
+
+	/**
 	 * Test that custom_access settings return grouped access_rules format.
 	 */
 	public function test_custom_access_returns_grouped_rules() {
@@ -779,6 +797,101 @@ class Test_Content_Gates extends \WP_UnitTestCase {
 		$this->assertIsArray( $settings['access_rules'][0], 'First element should be an array (group)' );
 		$this->assertCount( 1, $settings['access_rules'][0], 'Group should have one rule' );
 		$this->assertEquals( 'email_domain', $settings['access_rules'][0][0]['slug'], 'Rule slug should be preserved' );
+	}
+
+	/**
+	 * Helper to set a private static property on Content_Gate via reflection.
+	 *
+	 * @param string $property Property name.
+	 * @param mixed  $value    Value to set.
+	 */
+	private function set_content_gate_property( $property, $value ) {
+		$reflection = new \ReflectionProperty( Content_Gate::class, $property );
+		$reflection->setAccessible( true );
+		$reflection->setValue( null, $value );
+	}
+
+	/**
+	 * Test comment filters on fully gated posts.
+	 */
+	public function test_comments_closed_on_gated_post() {
+		$post_id = $this->post_ids[0];
+
+		$this->set_content_gate_property( 'is_gated', true );
+		$this->set_content_gate_property( 'is_metered', false );
+
+		// Simulate queried object.
+		$this->go_to( get_permalink( $post_id ) );
+
+		$this->assertFalse( Content_Gate::filter_comments_open( true, $post_id ), 'Comments should be closed on gated post' );
+		$this->assertEmpty( Content_Gate::filter_comments_array( [ 'comment1', 'comment2' ], $post_id ), 'Comments array should be empty on gated post' );
+		$this->assertSame( 0, Content_Gate::filter_comments_number( 5, $post_id ), 'Comment count should be 0 on gated post' );
+
+		// Reset.
+		$this->set_content_gate_property( 'is_gated', false );
+	}
+
+	/**
+	 * Test comment filters on metered posts.
+	 */
+	public function test_comments_closed_but_visible_on_metered_post() {
+		$post_id = $this->post_ids[0];
+
+		$this->set_content_gate_property( 'is_gated', false );
+		$this->set_content_gate_property( 'is_metered', true );
+
+		// Simulate queried object.
+		$this->go_to( get_permalink( $post_id ) );
+
+		$this->assertFalse( Content_Gate::filter_comments_open( true, $post_id ), 'Comments should be closed on metered post' );
+
+		$comments = [ 'comment1', 'comment2' ];
+		$this->assertSame( $comments, Content_Gate::filter_comments_array( $comments, $post_id ), 'Existing comments should remain visible on metered post' );
+		$this->assertSame( 5, Content_Gate::filter_comments_number( 5, $post_id ), 'Comment count should be unchanged on metered post' );
+
+		// Reset.
+		$this->set_content_gate_property( 'is_metered', false );
+	}
+
+	/**
+	 * Test comment filters do not affect unrelated posts.
+	 */
+	public function test_comments_unaffected_on_other_posts() {
+		$post_id = $this->post_ids[0];
+		$other_post_id = $this->factory->post->create();
+		$this->post_ids[] = $other_post_id;
+
+		$this->set_content_gate_property( 'is_gated', true );
+		$this->set_content_gate_property( 'is_metered', false );
+
+		// Simulate queried object as the gated post.
+		$this->go_to( get_permalink( $post_id ) );
+
+		// Filters should not affect the other post.
+		$this->assertTrue( Content_Gate::filter_comments_open( true, $other_post_id ), 'Comments should remain open on non-gated post' );
+		$comments = [ 'comment1' ];
+		$this->assertSame( $comments, Content_Gate::filter_comments_array( $comments, $other_post_id ), 'Comments array should be unchanged on non-gated post' );
+		$this->assertSame( 3, Content_Gate::filter_comments_number( 3, $other_post_id ), 'Comment count should be unchanged on non-gated post' );
+
+		// Reset.
+		$this->set_content_gate_property( 'is_gated', false );
+	}
+
+	/**
+	 * Test comment filters pass through on unrestricted posts.
+	 */
+	public function test_comments_unaffected_on_unrestricted_post() {
+		$post_id = $this->post_ids[0];
+
+		$this->set_content_gate_property( 'is_gated', false );
+		$this->set_content_gate_property( 'is_metered', false );
+
+		$this->go_to( get_permalink( $post_id ) );
+
+		$this->assertTrue( Content_Gate::filter_comments_open( true, $post_id ), 'Comments should remain open on unrestricted post' );
+		$comments = [ 'comment1', 'comment2' ];
+		$this->assertSame( $comments, Content_Gate::filter_comments_array( $comments, $post_id ), 'Comments array should be unchanged on unrestricted post' );
+		$this->assertSame( 5, Content_Gate::filter_comments_number( 5, $post_id ), 'Comment count should be unchanged on unrestricted post' );
 	}
 
 	/**

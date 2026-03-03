@@ -26,9 +26,17 @@ class Content_Restriction_Control {
 	private static $post_gate_layout_id_map = [];
 
 	/**
+	 * Post meta key for exempting a post from access control restrictions.
+	 *
+	 * @var string
+	 */
+	const IS_EXEMPT_META_KEY = 'newspack_content_restriction_is_exempt';
+
+	/**
 	 * Initialize hooks and filters.
 	 */
 	public static function init() {
+		add_action( 'init', [ __CLASS__, 'register_meta' ] );
 		add_filter( 'newspack_is_post_restricted', [ __CLASS__, 'is_post_restricted' ], 10, 2 );
 	}
 
@@ -173,9 +181,19 @@ class Content_Restriction_Control {
 			return $is_post_restricted;
 		}
 
+		// Return early if this post is exempt from access control restrictions.
+		if ( $post_id && get_post_meta( $post_id, self::IS_EXEMPT_META_KEY, true ) ) {
+			return false;
+		}
+
 		// Return early if the post is already restricted for the current user.
 		if ( $is_post_restricted ) {
 			return $is_post_restricted;
+		}
+
+		// Don't restrict this post for users who can edit it.
+		if ( ! empty( $post_id ) && current_user_can( 'edit_post', $post_id ) ) {
+			return false;
 		}
 
 		$post_gates = self::get_post_gates( $post_id );
@@ -270,6 +288,29 @@ class Content_Restriction_Control {
 			return self::$post_gate_layout_id_map[ $post_id ];
 		}
 		return false;
+	}
+
+	/**
+	 * Register post meta for the exemption flag.
+	 */
+	public static function register_meta() {
+		$post_types = array_column( (array) self::get_available_post_types(), 'value' );
+		foreach ( $post_types as $post_type ) {
+			\register_meta(
+				'post',
+				self::IS_EXEMPT_META_KEY,
+				[
+					'object_subtype' => $post_type,
+					'show_in_rest'   => true,
+					'type'           => 'boolean',
+					'default'        => false,
+					'single'         => true,
+					'auth_callback'  => function() {
+						return current_user_can( 'edit_others_posts' );
+					},
+				]
+			);
+		}
 	}
 }
 Content_Restriction_Control::init();
