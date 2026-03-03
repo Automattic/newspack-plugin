@@ -241,8 +241,8 @@ import './admin.scss';
 		} )
 			.then( response => response.json() )
 			.then( data => {
-				if ( data.code && data.message && data.message !== 'abort' ) {
-					throw new Error( data.message );
+				if ( data === false || ( data && data.code && data.message && data.message !== 'abort' ) ) {
+					throw new Error( data.message || 'Failed to cancel invite' );
 				}
 				const $membersList = $( '.newspack-group-subscription__members-list' );
 				const $membersCount = $( '#_newspack_group_subscription_member_ids' )
