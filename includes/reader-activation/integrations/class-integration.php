@@ -16,6 +16,13 @@ defined( 'ABSPATH' ) || exit;
  */
 abstract class Integration {
 	/**
+	 * Option name prefix for storing selected fields per integration.
+	 *
+	 * @var string
+	 */
+	const OPTION_PREFIX = 'newspack_integration_selected_fields_';
+
+	/**
 	 * The unique identifier for this integration.
 	 *
 	 * @var string
@@ -89,6 +96,19 @@ abstract class Integration {
 	abstract public function push_contact_data( $contact, $context = '', $existing_contact = null );
 
 	/**
+	 * Pull contact data from the integration for a given user.
+	 *
+	 * Integrations that support pulling contact data should implement this method.
+	 *
+	 * @param int $user_id WordPress user ID.
+	 *
+	 * @return array|\WP_Error Associative array of field_key => value pairs on success, WP_Error on failure.
+	 */
+	public function pull_contact_data( $user_id ) {
+		return [];
+	}
+
+	/**
 	 * Get incoming available contact fields from the integration.
 	 *
 	 * This method should be implemented by child classes to return
@@ -125,5 +145,24 @@ abstract class Integration {
 				return ! in_array( $field->get_key(), $prefixed_keys, true );
 			}
 		);
+	}
+
+	/**
+	 * Get the selected fields for this integration.
+	 *
+	 * @return array Array of selected field keys.
+	 */
+	public function get_selected_fields() {
+		return \get_option( self::OPTION_PREFIX . $this->id, [] );
+	}
+
+	/**
+	 * Set the selected fields for this integration.
+	 *
+	 * @param array $fields Array of field keys to store.
+	 * @return bool True if the option was updated, false otherwise.
+	 */
+	public function set_selected_fields( $fields ) {
+		return \update_option( self::OPTION_PREFIX . $this->id, array_values( $fields ) );
 	}
 }

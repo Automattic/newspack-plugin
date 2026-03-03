@@ -42,8 +42,11 @@ class Integrations {
 	public static function init() {
 		// Include required files.
 		require_once __DIR__ . '/integrations/class-integration.php';
+		require_once __DIR__ . '/integrations/class-contact-pull.php';
 
 		add_action( 'init', [ __CLASS__, 'register_integrations' ], 5 );
+
+		Integrations\Contact_Pull::init();
 	}
 
 	/**
