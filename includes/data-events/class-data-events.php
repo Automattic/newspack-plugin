@@ -407,8 +407,16 @@ final class Data_Events {
 	/**
 	 * Register a handler for a triggerable action.
 	 *
+	 * Handler callback signature depends on the registration type:
+	 *
+	 * Action-specific handler (when $action_name is provided):
+	 *   function( int $timestamp, array $data, string $client_id ): void
+	 *
+	 * Global handler (when $action_name is null):
+	 *   function( string $action_name, int $timestamp, array $data, string $client_id ): void
+	 *
 	 * @param callable $handler     Action handler.
-	 * @param string   $action_name Action name.
+	 * @param string   $action_name Action name. If null, handler is called for all actions.
 	 *
 	 * @return void|WP_Error Error if action not registered, handler already registered or is not callable.
 	 */

@@ -103,10 +103,13 @@ abstract class Integration {
 	 * Delegates to Integrations which owns the handler map and
 	 * registers a serializable static callable with Data Events.
 	 *
+	 * The referenced method must have the following signature:
+	 *   public function $method( int $timestamp, array $data, string $client_id ): void
+	 *
 	 * @param string $action_name The data event action name.
 	 * @param string $method      The instance method to call on this integration.
 	 */
-	protected function register_handler( $action_name, $method ) {
+	final protected function register_handler( $action_name, $method ) {
 		Integrations::register_data_event_handler( $this, static::class, $action_name, $method );
 	}
 
@@ -124,7 +127,7 @@ abstract class Integration {
 	 *
 	 * @throws \RuntimeException When the handler cannot be dispatched.
 	 */
-	public static function dispatch_data_event_handler( $timestamp, $data, $client_id ) {
+	final public static function dispatch_data_event_handler( $timestamp, $data, $client_id ) {
 		Integrations::dispatch_data_event_handler( static::class, $timestamp, $data, $client_id );
 	}
 }
