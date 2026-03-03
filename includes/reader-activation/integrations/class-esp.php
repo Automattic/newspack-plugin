@@ -113,8 +113,9 @@ class ESP extends Integration {
 	 * @return array|\WP_Error Associative array of field_key => value pairs on success, WP_Error on failure.
 	 */
 	public function pull_contact_data( $user_id ) {
-		if ( ! $this->can_sync() ) {
-			return new \WP_Error( 'missing_dependency', __( 'ESP Integration is not fully configured.', 'newspack-plugin' ) );
+		$can_sync = $this->can_sync( true );
+		if ( $can_sync->has_errors() ) {
+			return $can_sync;
 		}
 
 		$user = get_userdata( $user_id );
