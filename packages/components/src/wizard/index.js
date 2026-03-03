@@ -83,6 +83,7 @@ const Wizard = (
 	const { actions, backNav, badges, sectionDescription, sectionName, sectionTitle, sectionPrimaryAction, sectionSecondaryAction } = headerData;
 
 	const mainActions = actions?.filter( action => action.type === 'primary' || action.type === 'secondary' );
+	const moreActions = actions?.filter( action => action.type === 'more' );
 
 	// Trigger initial data fetch. Some sections might not use the wizard data,
 	// but for consistency, fetching is triggered regardless of the section.
@@ -162,7 +163,7 @@ const Wizard = (
 										{ action.label }
 									</Button>
 								) ) }
-								{ actions?.length > 0 && (
+								{ moreActions?.length > 0 && (
 									<DropdownMenu
 										icon={ moreVertical }
 										label={ __( 'More', 'newspack-plugin' ) }
@@ -173,7 +174,7 @@ const Wizard = (
 												<MenuItem
 													key={ index }
 													className={
-														action.type === 'primary'
+														action.type === 'primary' || action.type === 'secondary'
 															? 'newspack-wizard__header__actions__more__main'
 															: 'newspack-wizard__header__actions__more__more'
 													}

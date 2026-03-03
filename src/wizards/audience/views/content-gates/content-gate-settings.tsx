@@ -98,24 +98,24 @@ export default function ContentGateSettings( { gate, updateGatesData }: { gate: 
 
 	return (
 		<>
-			{ showDeleteDialog && (
-				<ConfirmDialog
-					title={ __( 'Are you sure?', 'newspack-plugin' ) }
-					onConfirm={ handleDelete }
-					onCancel={ () => setShowDeleteDialog( false ) }
-					confirmButtonText={ __( 'Delete', 'newspack-plugin' ) }
-					isDestructive={ true }
-				>
-					{ createInterpolateElement(
-						sprintf(
-							// translators: %s is the gate title.
-							__( 'This will <strong>permanently delete</strong> “%s” and cannot be undone.', 'newspack-plugin' ),
-							gate.title
-						),
-						{ strong: <strong /> }
-					) }
-				</ConfirmDialog>
-			) }
+			<ConfirmDialog
+				title={ __( 'Are you sure?', 'newspack-plugin' ) }
+				onConfirm={ handleDelete }
+				onCancel={ () => setShowDeleteDialog( false ) }
+				confirmButtonText={ __( 'Delete', 'newspack-plugin' ) }
+				isDestructive={ true }
+				when={ showDeleteDialog && ! isFetching }
+				isShowingDialog={ showDeleteDialog }
+			>
+				{ createInterpolateElement(
+					sprintf(
+						// translators: %s is the gate title.
+						__( 'This will <strong>permanently delete</strong> “%s” and cannot be undone.', 'newspack-plugin' ),
+						gate.title
+					),
+					{ strong: <strong /> }
+				) }
+			</ConfirmDialog>
 			<Card
 				className="newspack-content-gates__gate"
 				id={ gate.id }

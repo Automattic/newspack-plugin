@@ -29,6 +29,9 @@ type ConfirmDialogProps = {
 	hideTitle?: boolean;
 	title?: string;
 	isDestructive?: boolean;
+	isShowingDialog?: boolean;
+	onConfirm?: () => void;
+	onCancel?: () => void;
 	cancelButtonText?: string;
 	confirmButtonText?: string;
 	children?: React.ReactNode;
@@ -43,23 +46,37 @@ const sizeClassMap = {
 	full: 'newspack-modal--size-full',
 };
 
+const noOp = () => {};
+
 function ConfirmDialog(
-	{ className, size = 'small', hideTitle, isDestructive, when = false, ...otherProps }: ConfirmDialogProps,
+	{
+		className,
+		size = 'small',
+		hideTitle,
+		isDestructive,
+		onConfirm = noOp,
+		onCancel = noOp,
+		when = false,
+		isShowingDialog = false,
+		...otherProps
+	}: ConfirmDialogProps,
 	ref: React.Ref< HTMLDivElement >
 ) {
-	const [ showUnsavedChangesDialog, setShowUnsavedChangesDialog ] = useState( false );
+	const [ showDialog, setShowDialog ] = useState( isShowingDialog );
 	const history = useHistory();
 	const pendingNavigation = useRef< ( () => void ) | null >( null );
 
-	const onConfirm = useCallback( () => {
-		setShowUnsavedChangesDialog( false );
+	const handleOnConfirm = useCallback( () => {
+		setShowDialog( false );
 		pendingNavigation.current?.();
 		pendingNavigation.current = null;
+		onConfirm();
 	}, [ pendingNavigation ] );
 
-	const onCancel = useCallback( () => {
-		setShowUnsavedChangesDialog( false );
+	const handleOnCancel = useCallback( () => {
+		setShowDialog( false );
 		pendingNavigation.current = null;
+		onCancel();
 	}, [ pendingNavigation ] );
 
 	// Block navigation when there are unsaved changes.
@@ -76,13 +93,19 @@ function ConfirmDialog(
 					history.push( location );
 				}
 			};
-			setShowUnsavedChangesDialog( true );
+			setShowDialog( true );
 			return false;
 		} );
 		return unblock;
 	}, [ when, history ] );
 
-	if ( ! showUnsavedChangesDialog ) {
+	useEffect( () => {
+		if ( isShowingDialog && when ) {
+			setShowDialog( true );
+		}
+	}, [ isShowingDialog, when ] );
+
+	if ( ! showDialog ) {
 		return null;
 	}
 
@@ -99,8 +122,8 @@ function ConfirmDialog(
 			className={ classes }
 			{ ...otherProps }
 			ref={ ref }
-			onConfirm={ onConfirm }
-			onCancel={ onCancel }
+			onConfirm={ handleOnConfirm }
+			onCancel={ handleOnCancel }
 			__experimentalHideHeader={ false }
 		/>
 	);
