@@ -84,7 +84,7 @@ class Group_Subscription_API {
 			[
 				'methods'             => \WP_REST_Server::EDITABLE,
 				'callback'            => [ __CLASS__, 'api_invite' ],
-				'permission_callback' => '__return_true',
+				'permission_callback' => [ __CLASS__, 'permission_callback' ],
 				'args'                => [
 					'subscription_id' => [
 						'type'              => 'integer',
@@ -105,7 +105,7 @@ class Group_Subscription_API {
 			[
 				'methods'             => \WP_REST_Server::DELETABLE,
 				'callback'            => [ __CLASS__, 'api_cancel_invite' ],
-				'permission_callback' => '__return_true',
+				'permission_callback' => [ __CLASS__, 'permission_callback' ],
 				'args'                => [
 					'subscription_id' => [
 						'type'              => 'integer',
@@ -123,10 +123,18 @@ class Group_Subscription_API {
 	}
 
 	/**
-	 * Permission callback for the add_members route.
+	 * Permission callback for managing group subscriptions.
+	 *
+	 * @param \WP_REST_Request $request The request object.
+	 * @return bool Whether the user has permission to invite to the group subscription.
 	 */
-	public static function permission_callback() {
-		return \current_user_can( 'manage_woocommerce' );
+	public static function permission_callback( $request ) {
+		$subscription_id = $request->get_param( 'subscription_id' );
+		$subscription    = WooCommerce_Subscriptions::sanitize_subscription( $subscription_id );
+		if ( ! $subscription ) {
+			return false;
+		}
+		return current_user_can( 'manage_woocommerce' ) || Group_Subscription::user_is_manager( get_current_user_id(), $subscription );
 	}
 
 	/**

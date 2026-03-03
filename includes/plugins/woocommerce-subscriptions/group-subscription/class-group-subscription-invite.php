@@ -63,14 +63,11 @@ class Group_Subscription_Invite {
 	 *
 	 * @param \WC_Subscription|int $subscription The subscription object or ID.
 	 * @param bool                 $show_expired If true, show expired invitations.
+	 *
+	 * @return array The invitations.
 	 */
 	public static function get_invites( $subscription, $show_expired = true ) {
-		if ( ! function_exists( 'wcs_get_subscription' ) ) {
-			return [];
-		}
-		if ( ! is_a( $subscription, 'WC_Subscription' ) ) {
-			$subscription = \wcs_get_subscription( $subscription );
-		}
+		$subscription = WooCommerce_Subscriptions::sanitize_subscription( $subscription );
 		if ( ! $subscription ) {
 			return [];
 		}
@@ -97,12 +94,7 @@ class Group_Subscription_Invite {
 	 * @return array|false The invite data, or false if the invite cannot be found.
 	 */
 	public static function get_invite( $subscription, $email ) {
-		if ( ! function_exists( 'wcs_get_subscription' ) ) {
-			return false;
-		}
-		if ( ! is_a( $subscription, 'WC_Subscription' ) ) {
-			$subscription = \wcs_get_subscription( $subscription );
-		}
+		$subscription = WooCommerce_Subscriptions::sanitize_subscription( $subscription );
 		if ( ! $subscription || ! Group_Subscription::is_group_subscription( $subscription ) ) {
 			return false;
 		}
@@ -124,20 +116,12 @@ class Group_Subscription_Invite {
 	 * @return array|WP_Error The invite data, or a WP_Error if the key cannot be generated.
 	 */
 	public static function generate_invite( $subscription, $email ) {
-		if ( ! function_exists( 'wcs_get_subscription' ) ) {
-			return new \WP_Error( 'newspack_group_subscription_invite_wcs_unavailable', __( 'WooCommerce Subscriptions is not available.', 'newspack-plugin' ) );
-		}
-		if ( ! is_a( $subscription, 'WC_Subscription' ) ) {
-			$subscription = \wcs_get_subscription( $subscription );
-		}
+		$subscription = WooCommerce_Subscriptions::sanitize_subscription( $subscription );
 		if ( ! $subscription || ! Group_Subscription::is_group_subscription( $subscription ) ) {
 			return new \WP_Error( 'newspack_group_subscription_invite_invalid_subscription', __( 'Invalid subscription.', 'newspack-plugin' ) );
 		}
 		if ( ! $email ) {
 			return new \WP_Error( 'newspack_group_subscription_invite_invalid_email', __( 'Invalid email address.', 'newspack-plugin' ) );
-		}
-		if ( ! current_user_can( 'manage_woocommerce' ) && ! Group_Subscription::user_is_manager( get_current_user_id(), $subscription ) ) {
-			return new \WP_Error( 'newspack_group_subscription_invite_invalid_user', __( 'User is not a manager of this group subscription.', 'newspack-plugin' ) );
 		}
 		$existing_user = get_user_by( 'email', $email );
 		if ( $existing_user && ! Reader_Activation::is_user_reader( $existing_user ) ) {
@@ -195,20 +179,12 @@ class Group_Subscription_Invite {
 	 * @return true|WP_Error Whether the invite was cancelled, or a WP_Error if the invite cannot be cancelled.
 	 */
 	public static function cancel_invite( $subscription, $email ) {
-		if ( ! function_exists( 'wcs_get_subscription' ) ) {
-			return new \WP_Error( 'newspack_group_subscription_invite_wcs_unavailable', __( 'WooCommerce Subscriptions is not available.', 'newspack-plugin' ) );
-		}
-		if ( ! is_a( $subscription, 'WC_Subscription' ) ) {
-			$subscription = \wcs_get_subscription( $subscription );
-		}
+		$subscription = WooCommerce_Subscriptions::sanitize_subscription( $subscription );
 		if ( ! $subscription || ! Group_Subscription::is_group_subscription( $subscription ) ) {
 			return new \WP_Error( 'newspack_group_subscription_invite_invalid_subscription', __( 'Invalid subscription.', 'newspack-plugin' ) );
 		}
 		if ( ! $email ) {
 			return new \WP_Error( 'newspack_group_subscription_invite_invalid_email', __( 'Invalid email address.', 'newspack-plugin' ) );
-		}
-		if ( ! current_user_can( 'manage_woocommerce' ) && ! Group_Subscription::user_is_manager( get_current_user_id(), $subscription ) ) {
-			return new \WP_Error( 'newspack_group_subscription_invite_invalid_user', __( 'User is not a manager of this group subscription.', 'newspack-plugin' ) );
 		}
 		$all_invites = self::get_invites( $subscription );
 		foreach ( $all_invites as $key => $invite ) {

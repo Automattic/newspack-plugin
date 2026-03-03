@@ -177,13 +177,8 @@ class Group_Subscription_Settings {
 	 * @return array The group subscription settings.
 	 */
 	public static function get_subscription_settings( $subscription ) {
-		if ( ! function_exists( 'wcs_get_subscription' ) || ! function_exists( 'wcs_get_canonical_product_id' ) ) {
-			return self::DEFAULT_SETTINGS;
-		}
-		if ( ! is_a( $subscription, 'WC_Subscription' ) ) {
-			$subscription = \wcs_get_subscription( $subscription );
-		}
-		if ( ! $subscription ) {
+		$subscription = WooCommerce_Subscriptions::sanitize_subscription( $subscription );
+		if ( ! $subscription || ! function_exists( 'wcs_get_canonical_product_id' ) ) {
 			return self::DEFAULT_SETTINGS;
 		}
 		$product_id          = WooCommerce_Subscriptions::get_subscription_product_id( $subscription );
@@ -207,9 +202,7 @@ class Group_Subscription_Settings {
 	 * @param array               $settings The group subscription settings.
 	 */
 	public static function update_subscription_settings( $subscription, $settings ) {
-		if ( ! is_a( $subscription, 'WC_Subscription' ) ) {
-			$subscription = \wcs_get_subscription( $subscription );
-		}
+		$subscription = WooCommerce_Subscriptions::sanitize_subscription( $subscription );
 		if ( ! $subscription ) {
 			return;
 		}

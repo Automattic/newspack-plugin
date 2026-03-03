@@ -38,9 +38,7 @@ class Group_Subscription {
 	 * @return int[] The group manager user IDs.
 	 */
 	public static function get_managers( $subscription ) {
-		if ( ! is_a( $subscription, 'WC_Subscription' ) ) {
-			$subscription = \wcs_get_subscription( $subscription );
-		}
+		$subscription = WooCommerce_Subscriptions::sanitize_subscription( $subscription );
 
 		/**
 		 * Filter the managers of a group subscription.
@@ -60,9 +58,7 @@ class Group_Subscription {
 	 * @return int[] Array of user IDs for the group subscription members.
 	 */
 	public static function get_members( $subscription ) {
-		if ( ! is_a( $subscription, 'WC_Subscription' ) ) {
-			$subscription = \wcs_get_subscription( $subscription );
-		}
+		$subscription = WooCommerce_Subscriptions::sanitize_subscription( $subscription );
 		if ( ! $subscription ) {
 			return [];
 		}
@@ -103,12 +99,7 @@ class Group_Subscription {
 	 * @return array|\WP_Error Added/removed results.
 	 */
 	public static function update_members( $subscription, $members_to_add, $members_to_remove = [] ) {
-		if ( ! function_exists( 'wcs_get_subscription' ) ) {
-			return new \WP_Error( 'newspack_group_subscription_update_members', __( 'WooCommerce Subscriptions is not available.', 'newspack-plugin' ) );
-		}
-		if ( ! is_a( $subscription, 'WC_Subscription' ) ) {
-			$subscription = \wcs_get_subscription( $subscription );
-		}
+		$subscription = WooCommerce_Subscriptions::sanitize_subscription( $subscription );
 		if ( ! $subscription ) {
 			return new \WP_Error( 'newspack_group_subscription_update_members', __( 'Subscription not found.', 'newspack-plugin' ) );
 		}
