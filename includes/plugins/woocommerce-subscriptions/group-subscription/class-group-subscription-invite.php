@@ -107,7 +107,12 @@ class Group_Subscription_Invite {
 			return false;
 		}
 		$all_invites = self::get_invites( $subscription );
-		return isset( $all_invites[ wp_hash( $email ) ] ) ? $all_invites[ wp_hash( $email ) ] : false;
+		foreach ( $all_invites as $key => $invite ) {
+			if ( $invite['email'] === $email ) {
+				return $invite;
+			}
+		}
+		return false;
 	}
 
 	/**
@@ -143,10 +148,11 @@ class Group_Subscription_Invite {
 		}
 
 		// Delete any invites for the given email address. There should only be one invitation per email address.
-		$hashed_email = wp_hash( $email );
 		$all_invites = self::get_invites( $subscription );
-		if ( isset( $all_invites[ $hashed_email ] ) ) {
-			unset( $all_invites[ $hashed_email ] );
+		foreach ( $all_invites as $key => $invite ) {
+			if ( $invite['email'] === $email ) {
+				unset( $all_invites[ $key ] );
+			}
 		}
 
 		// The number of pending invites + existing members should not exceed the subscription member limit.
@@ -166,13 +172,14 @@ class Group_Subscription_Invite {
 		}
 
 		// Add the new invite.
+		$invite_key = wp_generate_password( 32, false );
 		$new_invite = [
 			'added_by'   => get_current_user_id(),
 			'email'      => $email,
 			'expiration' => time() + self::get_expiration_time(),
-			'key'        => wp_generate_password( 32, false ),
+			'key'        => $invite_key,
 		];
-		$all_invites[ $hashed_email ] = $new_invite;
+		$all_invites[ $invite_key ] = $new_invite;
 
 		$subscription->update_meta_data( self::META, $all_invites );
 		$subscription->save();
@@ -203,12 +210,12 @@ class Group_Subscription_Invite {
 		if ( ! current_user_can( 'manage_woocommerce' ) && ! Group_Subscription::user_is_manager( get_current_user_id(), $subscription ) ) {
 			return new \WP_Error( 'newspack_group_subscription_invite_invalid_user', __( 'User is not a manager of this group subscription.', 'newspack-plugin' ) );
 		}
-		$all_invites  = self::get_invites( $subscription );
-		$hashed_email = wp_hash( $email );
-		if ( ! isset( $all_invites[ $hashed_email ] ) ) {
-			return false;
+		$all_invites = self::get_invites( $subscription );
+		foreach ( $all_invites as $key => $invite ) {
+			if ( $invite['email'] === $email ) {
+				unset( $all_invites[ $key ] );
+			}
 		}
-		unset( $all_invites[ $hashed_email ] );
 		$subscription->update_meta_data( self::META, $all_invites );
 		$subscription->save();
 		return true;

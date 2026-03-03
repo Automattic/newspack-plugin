@@ -688,8 +688,8 @@ class Test_Group_Subscriptions extends \WP_UnitTestCase {
 
 		// There should be exactly one invite for this email in get_invites().
 		$invites = Group_Subscription_Invite::get_invites( $group_sub );
-		$this->assertArrayHasKey( wp_hash( 'repeat@example.com' ), $invites );
 		$this->assertCount( 1, $invites, 'Only one invite should exist for the same email' );
+		$this->assertEquals( 'repeat@example.com', reset( $invites )['email'] );
 	}
 
 	/**
@@ -703,11 +703,9 @@ class Test_Group_Subscriptions extends \WP_UnitTestCase {
 
 		$result  = Group_Subscription_Invite::generate_invite( $group_sub->get_id(), 'stored@example.com' );
 		$invites = Group_Subscription_Invite::get_invites( $group_sub );
-		$key     = wp_hash( 'stored@example.com' );
 
 		$this->assertIsArray( $invites );
-		$this->assertArrayHasKey( $key, $invites );
-		$this->assertEquals( 'stored@example.com', $invites[ $key ]['email'] );
+		$this->assertEquals( 'stored@example.com', reset( $invites )['email'] );
 		$this->assertEquals( 'stored@example.com', $result['email'] );
 	}
 
@@ -727,8 +725,8 @@ class Test_Group_Subscriptions extends \WP_UnitTestCase {
 
 		$this->assertIsArray( $invites );
 		$this->assertCount( 2, $invites );
-		$this->assertArrayHasKey( wp_hash( 'one@example.com' ), $invites );
-		$this->assertArrayHasKey( wp_hash( 'two@example.com' ), $invites );
+		$this->assertEquals( 'one@example.com', reset( $invites )['email'] );
+		$this->assertEquals( 'two@example.com', next( $invites )['email'] );
 	}
 
 	/**
@@ -738,11 +736,11 @@ class Test_Group_Subscriptions extends \WP_UnitTestCase {
 		$owner_id  = $this->create_reader_user();
 		$group_sub = $this->create_group_subscription( $owner_id );
 		$email     = 'expired@example.com';
-		$key       = wp_hash( $email );
+		wp_set_current_user( $owner_id );
 
 		// Manually store an already-expired timestamp.
-		Group_Subscription_Invite::generate_invite( $group_sub, $email );
-		$invite = Group_Subscription_Invite::get_invite( $group_sub, $email );
+		$invite = Group_Subscription_Invite::generate_invite( $group_sub, $email );
+		$key    = $invite['key'];
 		$invite['expiration'] = time() - ( 31 * DAY_IN_SECONDS );
 		$group_sub->update_meta_data( Group_Subscription_Invite::META, [ $key => $invite ] );
 		$group_sub->save();
@@ -768,12 +766,12 @@ class Test_Group_Subscriptions extends \WP_UnitTestCase {
 		Group_Subscription_Invite::generate_invite( $group_sub->get_id(), 'cancel@example.com' );
 
 		$before = Group_Subscription_Invite::get_invites( $group_sub );
-		$this->assertArrayHasKey( wp_hash( 'cancel@example.com' ), $before );
+		$this->assertEquals( 'cancel@example.com', reset( $before )['email'] );
 
 		$cancelled = Group_Subscription_Invite::cancel_invite( $group_sub->get_id(), 'cancel@example.com' );
 		$this->assertTrue( $cancelled );
 
 		$after = Group_Subscription_Invite::get_invites( $group_sub );
-		$this->assertArrayNotHasKey( wp_hash( 'cancel@example.com' ), $after );
+		$this->assertEmpty( $after );
 	}
 }

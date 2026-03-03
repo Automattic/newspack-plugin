@@ -339,7 +339,7 @@ class Group_Subscription_Settings {
 						</li>
 						<?php
 					endforeach;
-					foreach ( $invites as $hash => $invite ) :
+					foreach ( array_values( $invites ) as $invite ) :
 						$is_expired = Group_Subscription_Invite::is_invite_expired( $invite );
 						?>
 						<li data-email="<?php echo \esc_attr( $invite['email'] ); ?>">
