@@ -10,7 +10,7 @@ namespace Newspack;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Settings class.
+ * Newspack Group Subscription Invite class.
  */
 class Group_Subscription_Invite {
 	/**
