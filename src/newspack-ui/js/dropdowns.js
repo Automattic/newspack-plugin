@@ -11,7 +11,7 @@ domReady( function () {
 		const content = dropdown.querySelector( '.newspack-ui__dropdown__content' );
 
 		if ( toggle && content ) {
-			toggle.addEventListener( 'click', () => {
+			toggle.addEventListener( 'click', e => {
 				dropdown.classList.toggle( 'active' );
 
 				const rect = content.getBoundingClientRect();
@@ -32,7 +32,7 @@ domReady( function () {
 				// If content would overflow the bottom edge of the viewport.
 				if ( rect.bottom + rect.height > window.innerHeight ) {
 					content.style.top = 'auto';
-					content.style.bottom = '40px';
+					content.style.bottom = `${ e.currentTarget.clientHeight + 4 }px`;
 				} else {
 					// Reset position if no overflow
 					content.style.removeProperty( 'top' );
