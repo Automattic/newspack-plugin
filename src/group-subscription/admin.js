@@ -199,13 +199,13 @@ import './admin.scss';
 				const $membersCount = $( '#_newspack_group_subscription_member_ids' )
 					.closest( '.newspack-group-subscription__container' )
 					.find( '.newspack-group-subscription__members-count' );
-				$membersList.find( `li[data-email="${ email }"]` ).remove();
+				$membersList.find( `li[data-email="${ data.email }"]` ).remove();
 				$membersList.append(
-					`<li data-email="${ email }"><span class="newspack-group-subscription__pending-invite"></span> <span class="newspack-group-subscription__pending-invite-label"></span><a href="#" class="newspack-group-subscription__cancel-invite">&#215; <span class="screen-reader-text">Delete</span></a></li>`
+					`<li data-email="${ data.email }"><span class="newspack-group-subscription__pending-invite"></span> <span class="newspack-group-subscription__pending-invite-label"></span><a href="#" class="newspack-group-subscription__cancel-invite">&#215; <span class="screen-reader-text">Delete</span></a></li>`
 				);
 				const $added = $membersList.find( 'li' ).last();
-				$added.data( 'email', email );
-				$added.find( '.newspack-group-subscription__pending-invite' ).text( email );
+				$added.data( 'email', data.email );
+				$added.find( '.newspack-group-subscription__pending-invite' ).text( data.email );
 				$added.find( '.newspack-group-subscription__pending-invite-label' ).text( newspackGroupSubscriptions.pending_label );
 				$membersCount.text( $membersList.find( 'li' ).length );
 			} )
