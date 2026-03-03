@@ -32,7 +32,7 @@ domReady( function () {
 				// If content would overflow the bottom edge of the viewport.
 				if ( rect.bottom + rect.height > window.innerHeight ) {
 					content.style.top = 'auto';
-					content.style.bottom = `${ e.currentTarget.clientHeight + 4 }px`;
+					content.style.bottom = `${ e.currentTarget.clientHeight + 8 }px`;
 				} else {
 					// Reset position if no overflow
 					content.style.removeProperty( 'top' );
