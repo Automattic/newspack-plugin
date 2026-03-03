@@ -20,7 +20,7 @@ abstract class Integration {
 	 *
 	 * @var string
 	 */
-	const OPTION_PREFIX = 'np_integration_selected_fields_';
+	const OPTION_PREFIX = 'newspack_integration_selected_fields_';
 
 	/**
 	 * The unique identifier for this integration.

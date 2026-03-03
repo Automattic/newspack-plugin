@@ -58,7 +58,7 @@ class Contact_Pull {
 	 *
 	 * @var string
 	 */
-	const LAST_PULL_META = 'np_integrations_last_pull';
+	const LAST_PULL_META = 'newspack_integrations_last_pull';
 
 	/**
 	 * Action Scheduler hook for async pull of a single integration.
