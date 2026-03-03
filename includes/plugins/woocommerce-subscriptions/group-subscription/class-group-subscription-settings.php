@@ -402,4 +402,4 @@ class Group_Subscription_Settings {
 		);
 	}
 }
-	Group_Subscription_Settings::init();
+Group_Subscription_Settings::init();
