@@ -192,7 +192,7 @@ class Group_Subscription_Invite {
 	 * @param \WC_Subscription|int $subscription The subscription object or ID.
 	 * @param string               $email The email address receiving the invitation.
 	 *
-	 * @return bool|WP_Error Whether the invite was cancelled, or a WP_Error if the invite cannot be cancelled.
+	 * @return true|WP_Error Whether the invite was cancelled, or a WP_Error if the invite cannot be cancelled.
 	 */
 	public static function cancel_invite( $subscription, $email ) {
 		if ( ! function_exists( 'wcs_get_subscription' ) ) {
