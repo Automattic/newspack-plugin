@@ -243,7 +243,7 @@ class Group_Subscription_API {
 	public static function api_invite( $request ) {
 		$subscription_id = $request->get_param( 'subscription_id' );
 		$email           = $request->get_param( 'email' );
-		$invite = Group_Subscription_Invite::generate_invite_key( $subscription_id, $email );
+		$invite = Group_Subscription_Invite::generate_invite( $subscription_id, $email );
 		return \rest_ensure_response( $invite );
 	}
 

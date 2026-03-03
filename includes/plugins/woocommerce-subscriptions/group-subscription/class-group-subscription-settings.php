@@ -266,17 +266,8 @@ class Group_Subscription_Settings {
 		}
 		$settings = self::get_subscription_settings( $subscription );
 		$product  = \wc_get_product( WooCommerce_Subscriptions::get_subscription_product_id( $subscription ) );
-		$members  = [];
-		$invites  = [];
-
-		if ( ! empty( $settings['enabled'] ) ) {
-			$members = Group_Subscription::get_members( $subscription );
-			$invites = Group_Subscription_Invite::get_invites( $subscription );
-
-			if ( \is_wp_error( $invites ) || ! is_array( $invites ) ) {
-				$invites = [];
-			}
-		}
+		$members = Group_Subscription::get_members( $subscription );
+		$invites = Group_Subscription_Invite::get_invites( $subscription );
 		?>
 		<div class="newspack-group-subscription__container" data-subscription-id="<?php echo \esc_attr( $subscription->get_id() ); ?>">
 			<div class="newspack-group-subscription__settings">
@@ -348,10 +339,10 @@ class Group_Subscription_Settings {
 						</li>
 						<?php
 					endforeach;
-					foreach ( $invites as $key => $invite ) :
-						$is_expired = Group_Subscription_Invite::is_invite_expired( $subscription, $invite['email'] );
+					foreach ( $invites as $hash => $invite ) :
+						$is_expired = Group_Subscription_Invite::is_invite_expired( $invite );
 						?>
-						<li>
+						<li data-email="<?php echo \esc_attr( $invite['email'] ); ?>">
 							<span class="newspack-group-subscription__pending-invite"><?php echo \esc_html( $invite['email'] ); ?></span> <span class="newspack-group-subscription__pending-invite-label"><?php echo \esc_html( $is_expired ? __( '(expired)', 'newspack-plugin' ) : __( '(pending)', 'newspack-plugin' ) ); ?></span>
 							<a title="<?php \esc_attr_e( 'Cancel', 'newspack-plugin' ); ?>" href="#" class="newspack-group-subscription__cancel-invite">
 								&#215;
@@ -380,12 +371,12 @@ class Group_Subscription_Settings {
 						<?php
 	}
 
-					/**
-					 * Save Group Subscription meta to a subscription.
-					 *
-					 * @param int             $subscription_id Subscription ID.
-					 * @param WC_Subscription $subscription Optional. Subscription object. Default null - will be loaded from the ID.
-					 */
+	/**
+	 * Save Group Subscription meta to a subscription.
+	 *
+	 * @param int             $subscription_id Subscription ID.
+	 * @param WC_Subscription $subscription Optional. Subscription object. Default null - will be loaded from the ID.
+	 */
 	public static function save_group_subscription_meta( $subscription_id, $subscription = null ) {
 		if ( ! function_exists( 'wcs_is_subscription' ) || ! function_exists( 'wcs_get_subscription' ) || ! function_exists( 'wc_clean' ) || ! \wcs_is_subscription( $subscription_id ) ) {
 			return;

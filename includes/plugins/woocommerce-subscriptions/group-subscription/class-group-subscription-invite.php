@@ -25,14 +25,7 @@ class Group_Subscription_Invite {
 	 *
 	 * @var string
 	 */
-	const META = 'newspack_group_subscription_invite_key';
-
-	/**
-	 * The subscription meta key for storing group subscription expiration timestamps for each invite key.
-	 *
-	 * @var string
-	 */
-	const EXPIRATION_META = 'newspack_group_subscription_invite_expirations';
+	const META = 'newspack_group_subscription_invites';
 
 	/**
 	 * Initialize hooks.
@@ -57,56 +50,12 @@ class Group_Subscription_Invite {
 	 * Check if a group subscription invitation has expired.
 	 * Expiration timestamps are stored as an array map keyed by invite key.
 	 *
-	 * @param \WC_Subscription $subscription The subscription object.
-	 * @param string           $invite_key The invite key to check.
+	 * @param array $invite The invite data.
 	 *
 	 * @return bool Whether the invitation has expired.
 	 */
-	public static function is_invite_expired( $subscription, $invite_key ) {
-		$expirations = $subscription->get_meta( self::EXPIRATION_META, true );
-
-		// If expirations is not an array, or no timestamp found for this key, assume it's expired.
-		if ( ! is_array( $expirations ) || ! isset( $expirations[ $invite_key ]['expiration'] ) ) {
-			return true;
-		}
-		return $expirations[ $invite_key ]['expiration'] < time();
-	}
-
-	/**
-	 * Add an expiration timestamp for the given invite key.
-	 * Expiration timestamps are stored as an array map keyed by invite key.
-	 *
-	 * @param \WC_Subscription $subscription The subscription object.
-	 * @param string           $email The email address receiving the invitation.
-	 */
-	public static function add_invite_expiration( $subscription, $email ) {
-		$expirations = $subscription->get_meta( self::EXPIRATION_META, true );
-		if ( ! is_array( $expirations ) ) {
-			$expirations = [];
-		}
-		$expirations[ wp_hash( $email ) ] = [
-			'expiration' => time() + self::get_expiration_time(),
-			'email'      => $email,
-		];
-		$subscription->update_meta_data( self::EXPIRATION_META, $expirations );
-		$subscription->save();
-	}
-
-	/**
-	 * Remove an expiration timestamp for the given invite key.
-	 * Expiration timestamps are stored as an array map keyed by invite key.
-	 *
-	 * @param \WC_Subscription $subscription The subscription object.
-	 * @param string           $email The email address receiving the invitation.
-	 */
-	public static function remove_invite_expiration( $subscription, $email ) {
-		$expirations = $subscription->get_meta( self::EXPIRATION_META, true );
-		if ( ! is_array( $expirations ) ) {
-			$expirations = [];
-		}
-		unset( $expirations[ wp_hash( $email ) ] );
-		$subscription->update_meta_data( self::EXPIRATION_META, $expirations );
-		$subscription->save();
+	public static function is_invite_expired( $invite ) {
+		return $invite['expiration'] < time();
 	}
 
 	/**
@@ -117,21 +66,21 @@ class Group_Subscription_Invite {
 	 */
 	public static function get_invites( $subscription, $show_expired = true ) {
 		if ( ! function_exists( 'wcs_get_subscription' ) ) {
-			return new \WP_Error( 'newspack_group_subscription_get_invites', __( 'WooCommerce Subscriptions is not available.', 'newspack-plugin' ) );
+			return [];
 		}
 		if ( ! is_a( $subscription, 'WC_Subscription' ) ) {
 			$subscription = \wcs_get_subscription( $subscription );
 		}
-		if ( ! $subscription || ! Group_Subscription::is_group_subscription( $subscription ) ) {
-			return new \WP_Error( 'newspack_group_subscription_get_invites', __( 'Not a group subscription.', 'newspack-plugin' ) );
+		if ( ! $subscription ) {
+			return [];
 		}
-		$all_invites = $subscription->get_meta( self::EXPIRATION_META, true );
+		$all_invites = $subscription->get_meta( self::META, true );
 		if ( ! is_array( $all_invites ) ) {
-			$all_invites = [];
+			return [];
 		}
 		if ( ! $show_expired ) {
-			foreach ( array_keys( $all_invites ) as $key ) {
-				if ( self::is_invite_expired( $subscription, $key ) ) {
+			foreach ( $all_invites as $key => $invite ) {
+				if ( self::is_invite_expired( $invite ) ) {
 					unset( $all_invites[ $key ] );
 				}
 			}
@@ -140,18 +89,42 @@ class Group_Subscription_Invite {
 	}
 
 	/**
+	 * Get an invite for a given email address and subscription.
+	 *
+	 * @param \WC_Subscription|int $subscription The subscription object or ID.
+	 * @param string               $email The email address receiving the invitation.
+	 *
+	 * @return array|false The invite data, or false if the invite cannot be found.
+	 */
+	public static function get_invite( $subscription, $email ) {
+		if ( ! function_exists( 'wcs_get_subscription' ) ) {
+			return false;
+		}
+		if ( ! is_a( $subscription, 'WC_Subscription' ) ) {
+			$subscription = \wcs_get_subscription( $subscription );
+		}
+		if ( ! $subscription || ! Group_Subscription::is_group_subscription( $subscription ) ) {
+			return false;
+		}
+		$all_invites = self::get_invites( $subscription );
+		return isset( $all_invites[ wp_hash( $email ) ] ) ? $all_invites[ wp_hash( $email ) ] : false;
+	}
+
+	/**
 	 * Generate a group subscription invite key.
 	 *
-	 * @param int    $subscription_id The subscription ID the key is for.
-	 * @param string $email The email address receiving the invitation.
+	 * @param \WC_Subscription|int $subscription The subscription object or ID.
+	 * @param string               $email The email address receiving the invitation.
 	 *
-	 * @return string|WP_Error The invite key, or a WP_Error if the key cannot be generated.
+	 * @return array|WP_Error The invite data, or a WP_Error if the key cannot be generated.
 	 */
-	public static function generate_invite_key( $subscription_id, $email ) {
+	public static function generate_invite( $subscription, $email ) {
 		if ( ! function_exists( 'wcs_get_subscription' ) ) {
 			return new \WP_Error( 'newspack_group_subscription_invite_wcs_unavailable', __( 'WooCommerce Subscriptions is not available.', 'newspack-plugin' ) );
 		}
-		$subscription = \wcs_get_subscription( $subscription_id );
+		if ( ! is_a( $subscription, 'WC_Subscription' ) ) {
+			$subscription = \wcs_get_subscription( $subscription );
+		}
 		if ( ! $subscription || ! Group_Subscription::is_group_subscription( $subscription ) ) {
 			return new \WP_Error( 'newspack_group_subscription_invite_invalid_subscription', __( 'Invalid subscription.', 'newspack-plugin' ) );
 		}
@@ -169,44 +142,58 @@ class Group_Subscription_Invite {
 			return new \WP_Error( 'newspack_group_subscription_invite_existing_user', __( 'User is already a member of this group subscription.', 'newspack-plugin' ) );
 		}
 
-		// Invite keys are simply hashed versions of the sanitized email string.
-		$invite_key = wp_hash( $email );
-
 		// Delete any invites for the given email address. There should only be one invitation per email address.
-		$subscription->delete_meta_data_value( self::META, $invite_key );
+		$hashed_email = wp_hash( $email );
+		$all_invites = self::get_invites( $subscription );
+		if ( isset( $all_invites[ $hashed_email ] ) ) {
+			unset( $all_invites[ $hashed_email ] );
+		}
 
 		// The number of pending invites + existing members should not exceed the subscription member limit.
-		$pending_invites = self::get_invites( $subscription, false );
-		if ( empty( $pending_invites ) || ! is_array( $pending_invites ) ) {
-			$pending_invites = [];
-		}
+		$pending_invites_count = count(
+			array_filter(
+				array_values( $all_invites ),
+				function( $invite_data ) {
+					return ! self::is_invite_expired( $invite_data );
+				}
+			)
+		);
 		$subscription_settings = Group_Subscription_Settings::get_subscription_settings( $subscription );
 		if ( $subscription_settings['limit'] > 0 ) {
-			if ( count( $pending_invites ) + count( Group_Subscription::get_members( $subscription ) ) >= $subscription_settings['limit'] ) {
+			if ( $pending_invites_count + count( Group_Subscription::get_members( $subscription ) ) >= $subscription_settings['limit'] ) {
 				return new \WP_Error( 'newspack_group_subscription_invite_limit_reached', __( 'You have reached the group member limit for this subscription. Please remove some members or cancel pending invitations before inviting more group members.', 'newspack-plugin' ) );
 			}
 		}
 
 		// Add the new invite.
-		$subscription->add_meta_data( self::META, $invite_key );
-		self::add_invite_expiration( $subscription, $email );
+		$new_invite = [
+			'added_by'   => get_current_user_id(),
+			'email'      => $email,
+			'expiration' => time() + self::get_expiration_time(),
+			'key'        => wp_generate_password( 32, false ),
+		];
+		$all_invites[ $hashed_email ] = $new_invite;
+
+		$subscription->update_meta_data( self::META, $all_invites );
 		$subscription->save();
-		return $invite_key;
+		return $new_invite;
 	}
 
 	/**
 	 * Cancel a pending invite for a given subscription and email address.
 	 *
-	 * @param int    $subscription_id The subscription ID the key is for.
-	 * @param string $email The email address receiving the invitation.
+	 * @param \WC_Subscription|int $subscription The subscription object or ID.
+	 * @param string               $email The email address receiving the invitation.
 	 *
 	 * @return bool Whether the invite was cancelled.
 	 */
-	public static function cancel_invite( $subscription_id, $email ) {
+	public static function cancel_invite( $subscription, $email ) {
 		if ( ! function_exists( 'wcs_get_subscription' ) ) {
 			return new \WP_Error( 'newspack_group_subscription_invite_wcs_unavailable', __( 'WooCommerce Subscriptions is not available.', 'newspack-plugin' ) );
 		}
-		$subscription = \wcs_get_subscription( $subscription_id );
+		if ( ! is_a( $subscription, 'WC_Subscription' ) ) {
+			$subscription = \wcs_get_subscription( $subscription );
+		}
 		if ( ! $subscription || ! Group_Subscription::is_group_subscription( $subscription ) ) {
 			return new \WP_Error( 'newspack_group_subscription_invite_invalid_subscription', __( 'Invalid subscription.', 'newspack-plugin' ) );
 		}
@@ -216,19 +203,13 @@ class Group_Subscription_Invite {
 		if ( ! current_user_can( 'manage_woocommerce' ) && ! Group_Subscription::user_is_manager( get_current_user_id(), $subscription ) ) {
 			return new \WP_Error( 'newspack_group_subscription_invite_invalid_user', __( 'User is not a manager of this group subscription.', 'newspack-plugin' ) );
 		}
-		$subscription = \wcs_get_subscription( $subscription_id );
-		if ( ! $subscription || ! Group_Subscription::is_group_subscription( $subscription ) ) {
+		$all_invites  = self::get_invites( $subscription );
+		$hashed_email = wp_hash( $email );
+		if ( ! isset( $all_invites[ $hashed_email ] ) ) {
 			return false;
 		}
-		if ( ! $email ) {
-			return false;
-		}
-		if ( ! current_user_can( 'manage_woocommerce' ) && ! Group_Subscription::user_is_manager( get_current_user_id(), $subscription ) ) {
-			return false;
-		}
-		$invite_key = wp_hash( $email );
-		$subscription->delete_meta_data_value( self::META, $invite_key );
-		self::remove_invite_expiration( $subscription, $email );
+		unset( $all_invites[ $hashed_email ] );
+		$subscription->update_meta_data( self::META, $all_invites );
 		$subscription->save();
 		return true;
 	}

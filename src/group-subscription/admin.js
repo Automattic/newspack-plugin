@@ -199,20 +199,12 @@ import './admin.scss';
 				const $membersCount = $( '#_newspack_group_subscription_member_ids' )
 					.closest( '.newspack-group-subscription__container' )
 					.find( '.newspack-group-subscription__members-count' );
-				const $existingInvites = $membersList.find( '.newspack-group-subscription__pending-invite' );
-				if ( $existingInvites.length ) {
-					$existingInvites.each( function () {
-						const $thisInvite = $( this );
-						const $thisEmail = $thisInvite.text();
-						if ( $thisEmail === email ) {
-							$thisInvite.parent().remove();
-						}
-					} );
-				}
+				$membersList.find( `li[data-email="${ email }"]` ).remove();
 				$membersList.append(
-					`<li><span class="newspack-group-subscription__pending-invite"></span> <span class="newspack-group-subscription__pending-invite-label"></span><a href="#" class="newspack-group-subscription__cancel-invite">&#215; <span class="screen-reader-text">Delete</span></a></li>`
+					`<li data-email="${ email }"><span class="newspack-group-subscription__pending-invite"></span> <span class="newspack-group-subscription__pending-invite-label"></span><a href="#" class="newspack-group-subscription__cancel-invite">&#215; <span class="screen-reader-text">Delete</span></a></li>`
 				);
 				const $added = $membersList.find( 'li' ).last();
+				$added.data( 'email', email );
 				$added.find( '.newspack-group-subscription__pending-invite' ).text( email );
 				$added.find( '.newspack-group-subscription__pending-invite-label' ).text( newspackGroupSubscriptions.pending_label );
 				$membersCount.text( $membersList.find( 'li' ).length );
@@ -256,16 +248,7 @@ import './admin.scss';
 				const $membersCount = $( '#_newspack_group_subscription_member_ids' )
 					.closest( '.newspack-group-subscription__container' )
 					.find( '.newspack-group-subscription__members-count' );
-				const $existingInvites = $membersList.find( '.newspack-group-subscription__pending-invite' );
-				if ( $existingInvites.length ) {
-					$existingInvites.each( function () {
-						const $thisInvite = $( this );
-						const $thisEmail = $thisInvite.text();
-						if ( $thisEmail === email ) {
-							$thisInvite.parent().remove();
-						}
-					} );
-				}
+				$listItem.remove();
 				$membersCount.text( $membersList.find( 'li' ).length );
 			} )
 			.catch( error => {
