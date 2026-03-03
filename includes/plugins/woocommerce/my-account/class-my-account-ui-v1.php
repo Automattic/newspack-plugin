@@ -466,13 +466,15 @@ class My_Account_UI_V1 {
 	public static function add_after_delete_account_notice() {
 		$account_deleted = filter_input( INPUT_GET, WooCommerce_My_Account::AFTER_ACCOUNT_DELETION_PARAM, FILTER_VALIDATE_BOOLEAN );
 		if ( $account_deleted ) {
-			?>
-			<div class="newspack-ui">
-				<div class="newspack-ui__snackbar newspack-ui__snackbar--top-right newspack-ui__snackbar--success active-on-load">
-					<?php esc_html_e( 'Your account has been successfully deleted.', 'newspack-plugin' ); ?>
-				</div>
-			</div>
-			<?php
+			Newspack_UI::add_notice(
+				__( 'Your account has been deleted.', 'newspack-plugin' ),
+				[
+					'id'       => 'after-delete-account',
+					'type'     => 'success',
+					'corner'   => 'top-right',
+					'autohide' => true,
+				]
+			);
 		}
 	}
 
