@@ -163,32 +163,31 @@ const Wizard = (
 										{ action.label }
 									</Button>
 								) ) }
-								{ moreActions?.length > 0 && (
-									<DropdownMenu
-										icon={ moreVertical }
-										label={ __( 'More', 'newspack-plugin' ) }
-										popoverProps={ { className: 'newspack-wizard__header__actions__more' } }
-									>
-										{ () =>
-											actions.map( ( action, index ) => (
-												<MenuItem
-													key={ index }
-													className={
-														action.type === 'primary' || action.type === 'secondary'
-															? 'newspack-wizard__header__actions__more__main'
-															: 'newspack-wizard__header__actions__more__more'
-													}
-													icon={ action.icon }
-													onClick={ action.action }
-													disabled={ action.disabled || false }
-													isDestructive={ action.destructive || false }
-												>
-													{ action.label }
-												</MenuItem>
-											) )
-										}
-									</DropdownMenu>
-								) }
+								<DropdownMenu
+									className={ moreActions?.length === 0 ? 'newspack-wizard__header__actions__more--primary-only' : '' }
+									icon={ moreVertical }
+									label={ __( 'More', 'newspack-plugin' ) }
+									popoverProps={ { className: 'newspack-wizard__header__actions__more' } }
+								>
+									{ () =>
+										actions.map( ( action, index ) => (
+											<MenuItem
+												key={ index }
+												className={
+													action.type === 'primary' || action.type === 'secondary'
+														? 'newspack-wizard__header__actions__more__main'
+														: 'newspack-wizard__header__actions__more__more'
+												}
+												icon={ action.icon }
+												onClick={ action.action }
+												disabled={ action.disabled || false }
+												isDestructive={ action.destructive || false }
+											>
+												{ action.label }
+											</MenuItem>
+										) )
+									}
+								</DropdownMenu>
 							</div>
 						) }
 					</div>

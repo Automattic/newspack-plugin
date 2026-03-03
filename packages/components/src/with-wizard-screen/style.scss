@@ -82,6 +82,7 @@
 					display: flex;
 				}
 				&__more {
+					&--primary-only,
 					.newspack-wizard__header__actions__more__main {
 						display: none;
 					}
