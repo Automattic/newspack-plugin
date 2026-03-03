@@ -58,6 +58,13 @@ class Content_Gate {
 	private static $restricted_content = [];
 
 	/**
+	 * Whether the overlay gate markup has been output in this execution.
+	 *
+	 * @var boolean
+	 */
+	private static $overlay_gate_output = false;
+
+	/**
 	 * Initialize hooks and filters.
 	 */
 	public static function init() {
@@ -66,7 +73,11 @@ class Content_Gate {
 		add_action( 'admin_init', [ __CLASS__, 'handle_edit_gate_layout' ] );
 		add_action( 'wp_enqueue_scripts', [ __CLASS__, 'enqueue_scripts' ] );
 		add_action( 'enqueue_block_editor_assets', [ __CLASS__, 'enqueue_block_editor_assets' ] );
-		add_action( 'wp_footer', [ __CLASS__, 'render_overlay_gate' ], 1 );
+		if ( function_exists( 'wp_is_block_theme' ) && wp_is_block_theme() ) {
+			add_filter( 'render_block', [ __CLASS__, 'inject_overlay_gate_after_post_content_block' ], 10, 2 );
+		} else {
+			add_action( 'get_footer', [ __CLASS__, 'render_overlay_gate' ], 1 );
+		}
 		add_action( 'before_delete_post', [ __CLASS__, 'delete_gate_layouts' ], 10, 2 );
 		add_filter( 'newspack_popups_assess_has_disabled_popups', [ __CLASS__, 'disable_popups' ] );
 		add_filter( 'newspack_reader_activity_article_view', [ __CLASS__, 'suppress_article_view_activity' ], 100 );
@@ -850,12 +861,39 @@ class Content_Gate {
 		$_post = $post;
 		$post  = \get_post( $gate_layout_id ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 		setup_postdata( $post );
-
 		self::render_overlay_gate_html( $gate_layout_id );
+		self::$overlay_gate_output = true;
 
 		self::mark_gate_as_rendered();
 		wp_reset_postdata();
 		$post = $_post; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+	}
+
+	/**
+	 * Inject overlay gate markup right after the post content block.
+	 *
+	 * Used for block themes where there aren't hooks to use in time to get do_blocks() to run.
+	 *
+	 * @param string $block_content Block content.
+	 * @param array  $block         Parsed block.
+	 *
+	 * @return string
+	 */
+	public static function inject_overlay_gate_after_post_content_block( $block_content, $block ) {
+		static $injected = false;
+
+		if ( $injected || self::$overlay_gate_output || ! is_singular() ) {
+			return $block_content;
+		}
+
+		if ( 'core/post-content' !== ( $block['blockName'] ?? '' ) ) {
+			return $block_content;
+		}
+
+		$injected = true;
+		ob_start();
+		self::render_overlay_gate();
+		return $block_content . ob_get_clean();
 	}
 
 	/**
