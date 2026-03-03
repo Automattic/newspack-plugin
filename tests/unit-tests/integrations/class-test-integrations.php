@@ -310,7 +310,7 @@ class Test_Integrations extends \WP_UnitTestCase {
 
 		// Verify the data was stored synchronously.
 		$stored = get_user_meta( $user_id, 'newspack_reader_data_item_favorite_color', true );
-		$this->assertSame( 'blue', $stored );
+		$this->assertSame( wp_json_encode( 'blue' ), $stored );
 
 		// Verify last pull meta was updated.
 		$last_pull = (int) get_user_meta( $user_id, Contact_Pull::LAST_PULL_META, true );
@@ -351,8 +351,8 @@ class Test_Integrations extends \WP_UnitTestCase {
 		Contact_Pull::maybe_pull_contact_data();
 
 		// a and c should be stored.
-		$this->assertSame( 'value_a', get_user_meta( $user_id, 'newspack_reader_data_item_field_a', true ) );
-		$this->assertSame( 'value_c', get_user_meta( $user_id, 'newspack_reader_data_item_field_c', true ) );
+		$this->assertSame( wp_json_encode( 'value_a' ), get_user_meta( $user_id, 'newspack_reader_data_item_field_a', true ) );
+		$this->assertSame( wp_json_encode( 'value_c' ), get_user_meta( $user_id, 'newspack_reader_data_item_field_c', true ) );
 
 		// b should NOT be stored.
 		$this->assertEmpty( get_user_meta( $user_id, 'newspack_reader_data_item_field_b', true ) );
@@ -464,7 +464,7 @@ class Test_Integrations extends \WP_UnitTestCase {
 		);
 
 		$stored = get_user_meta( $user_id, 'newspack_reader_data_item_language', true );
-		$this->assertSame( 'PHP', $stored );
+		$this->assertSame( wp_json_encode( 'PHP' ), $stored );
 	}
 
 	/**
@@ -530,7 +530,7 @@ class Test_Integrations extends \WP_UnitTestCase {
 
 		// Should have run synchronously.
 		$stored = get_user_meta( $user_id, 'newspack_reader_data_item_first_field', true );
-		$this->assertSame( 'hello', $stored );
+		$this->assertSame( wp_json_encode( 'hello' ), $stored );
 	}
 
 	/**
@@ -613,6 +613,6 @@ class Test_Integrations extends \WP_UnitTestCase {
 
 		$this->assertTrue( $result );
 		$stored = get_user_meta( $user_id, 'newspack_reader_data_item_ajax_field', true );
-		$this->assertSame( 'ajax_value', $stored );
+		$this->assertSame( wp_json_encode( 'ajax_value' ), $stored );
 	}
 }
