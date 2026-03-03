@@ -83,7 +83,7 @@ class Group_Subscription_Settings {
 				'placeholder'           => __( 'Search for a reader...', 'newspack-plugin' ),
 				'invalid_email_message' => __( 'Please enter a valid email address.', 'newspack-plugin' ),
 				'success_message'       => __( 'Invitation sent successfully.', 'newspack-plugin' ),
-				'pending_label'         => __( ' (pending)', 'newspack-plugin' ),
+				'pending_label'         => __( '(pending)', 'newspack-plugin' ),
 			]
 		);
 	}
