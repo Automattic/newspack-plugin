@@ -253,7 +253,7 @@ class Contact_Pull {
 			Logger::log( 'Pulled data from ' . $integration->get_id() . ': ' . wp_json_encode( $data ) );
 
 			foreach ( $data as $key => $value ) {
-				\Newspack\Reader_Data::update_item( $user_id, $key, $value );
+				\Newspack\Reader_Data::update_item( $user_id, $key, wp_json_encode( $value ) );
 			}
 
 			return true;
