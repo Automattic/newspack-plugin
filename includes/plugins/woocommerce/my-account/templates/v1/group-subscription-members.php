@@ -64,9 +64,9 @@ $is_at_limit          = count( $members ) + count( Group_Subscription_Invite::ge
 		endif;
 	}
 	?>
-	<div class="newspack-my-account__subscription__actions">
-		<div class="newspack-my-account__subscription__actions-container">
-			<button class="newspack-ui__button newspack-ui__button--secondary newspack-ui__button--small newspack-my-account__subscription--invite-member">
+	<div class="newspack-my-account__subscription--actions">
+		<div class="newspack-my-account__subscription--actions-container">
+			<button class="newspack-ui__button newspack-ui__button--secondary newspack-my-account__subscription--invite-member">
 				<?php Newspack_UI_Icons::print_svg( 'plus' ); ?>
 				<?php esc_html_e( 'Invite member', 'newspack-plugin' ); ?>
 			</button>
@@ -101,13 +101,13 @@ $is_at_limit          = count( $members ) + count( Group_Subscription_Invite::ge
 			?>
 		</a>
 	</p>
-	<table class="shop_table newspack-my-account__group_subscription__members">
+	<table class="shop_table shop_table_responsive newspack-my-account__group_subscription__members">
 		<thead>
 			<tr>
 				<th><?php esc_html_e( 'Name', 'newspack-plugin' ); ?></th>
 				<th><?php esc_html_e( 'Email', 'newspack-plugin' ); ?></th>
 				<th><?php esc_html_e( 'Role', 'newspack-plugin' ); ?></th>
-				<th class="newspack-my-account__group_subscription__members__actions">&nbsp;</th>
+				<th class="newspack-my-account__group_subscription__members--actions">&nbsp;</th>
 			</tr>
 		</thead>
 		<tbody>
@@ -129,15 +129,15 @@ $is_at_limit          = count( $members ) + count( Group_Subscription_Invite::ge
 			}
 			?>
 			<tr>
-				<td>
+				<td data-title="<?php esc_attr_e( 'Name', 'newspack-plugin' ); ?>">
 					<?php echo esc_html( $user->display_name ); ?>
 					<?php if ( $is_owner ) : ?>
 						<?php esc_html_e( ' (you)', 'newspack-plugin' ); ?>
 					<?php endif; ?>
 				</td>
-				<td><a href="mailto:<?php echo esc_attr( sanitize_email( $user->user_email ) ); ?>"><?php echo esc_html( sanitize_email( $user->user_email ) ); ?></a></td>
-				<td><?php echo esc_html( $member_role ); ?></td>
-				<td class="newspack-my-account__group_subscription__members__actions <?php echo esc_attr( $is_manager ? 'newspack-my-account__group_subscription__members__actions--manager' : '' ); ?>">
+				<td data-title="<?php esc_attr_e( 'Email', 'newspack-plugin' ); ?>"><a href="mailto:<?php echo esc_attr( sanitize_email( $user->user_email ) ); ?>"><?php echo esc_html( sanitize_email( $user->user_email ) ); ?></a></td>
+				<td data-title="<?php esc_attr_e( 'Role', 'newspack-plugin' ); ?>"><?php echo esc_html( $member_role ); ?></td>
+				<td class="newspack-my-account__group_subscription__members--actions order-actions <?php echo esc_attr( $is_manager ? 'newspack-my-account__group_subscription__members--actions--manager' : '' ); ?>">
 					<?php if ( ! $is_manager ) : ?>
 					<div class="newspack-ui__dropdown">
 						<button class="newspack-ui__button newspack-ui__button--ghost newspack-ui__button--small newspack-ui__dropdown__toggle newspack-ui__button--icon">
@@ -146,7 +146,15 @@ $is_at_limit          = count( $members ) + count( Group_Subscription_Invite::ge
 						</button>
 							<div class="newspack-ui__dropdown__content">
 								<ul>
-									<li><a class="newspack-ui__button newspack-ui__button--ghost newspack-ui__button--destructive" href="#"><?php \esc_html_e( 'Remove member', 'newspack-plugin' ); ?></a></li>
+									<li>
+										<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
+											<input type="hidden" name="action" value="newspack_group_subscription_remove_member">
+											<input type="hidden" name="subscription_id" value="<?php echo esc_attr( $subscription->get_id() ); ?>">
+											<input type="hidden" name="member_id" value="<?php echo esc_attr( $user->ID ); ?>">
+											<?php wp_nonce_field( Group_Subscription_MyAccount::REMOVE_MEMBER_NONCE_ACTION ); ?>
+											<button type="submit" class="newspack-ui__button newspack-ui__button--ghost newspack-ui__button--destructive"><?php \esc_html_e( 'Remove member', 'newspack-plugin' ); ?></button>
+										</form>
+									</li>
 								</ul>
 							</div>
 					</div>
@@ -157,7 +165,7 @@ $is_at_limit          = count( $members ) + count( Group_Subscription_Invite::ge
 		</tbody>
 	</table>
 
-	<table class="shop_table newspack-my-account__group_subscription__invites">
+	<table class="shop_table shop_table_responsive newspack-my-account__group_subscription__invites">
 		<thead>
 			<tr>
 				<th><?php esc_html_e( 'Sent to', 'newspack-plugin' ); ?></th>
@@ -170,9 +178,9 @@ $is_at_limit          = count( $members ) + count( Group_Subscription_Invite::ge
 		foreach ( Group_Subscription_Invite::get_invites( $subscription ) as $key => $invite ) :
 			?>
 			<tr>
-				<td><a href="mailto:<?php echo esc_attr( sanitize_email( $invite['email'] ) ); ?>"><?php echo esc_html( sanitize_email( $invite['email'] ) ); ?></a></td>
-				<td><?php echo esc_html( Group_Subscription_Invite::is_invite_expired( $invite ) ? __( 'Expired', 'newspack-plugin' ) : __( 'Pending', 'newspack-plugin' ) ); ?></td>
-			<td class="newspack-my-account__group_subscription__invites__actions <?php echo esc_attr( $is_manager ? 'newspack-my-account__group_subscription__invites__actions--manager' : '' ); ?>">
+				<td data-title="<?php esc_attr_e( 'Sent to', 'newspack-plugin' ); ?>"><a href="mailto:<?php echo esc_attr( sanitize_email( $invite['email'] ) ); ?>"><?php echo esc_html( sanitize_email( $invite['email'] ) ); ?></a></td>
+				<td data-title="<?php esc_attr_e( 'Status', 'newspack-plugin' ); ?>"><?php echo esc_html( Group_Subscription_Invite::is_invite_expired( $invite ) ? __( 'Expired', 'newspack-plugin' ) : __( 'Pending', 'newspack-plugin' ) ); ?></td>
+				<td class="newspack-my-account__group_subscription__invites--actions order-actions <?php echo esc_attr( $is_manager ? 'newspack-my-account__group_subscription__invites--actions--manager' : '' ); ?>">
 					<div class="newspack-ui__dropdown">
 						<button class="newspack-ui__button newspack-ui__button--ghost newspack-ui__button--small newspack-ui__dropdown__toggle newspack-ui__button--icon">
 							<?php Newspack_UI_Icons::print_svg( 'more' ); ?>

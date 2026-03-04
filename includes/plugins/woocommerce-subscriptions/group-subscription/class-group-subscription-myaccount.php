@@ -29,6 +29,11 @@ class Group_Subscription_MyAccount {
 	const CANCEL_INVITE_NONCE_ACTION = 'newspack_group_subscription_cancel_invite';
 
 	/**
+	 * Nonce action for the remove member form.
+	 */
+	const REMOVE_MEMBER_NONCE_ACTION = 'newspack_group_subscription_remove_member';
+
+	/**
 	 * Initialize hooks and filters.
 	 */
 	public static function init() {
@@ -40,6 +45,7 @@ class Group_Subscription_MyAccount {
 		add_filter( 'wcs_view_subscription_actions', [ __CLASS__, 'view_subscription_actions' ], 13, 3 );
 		add_action( 'admin_post_' . self::INVITE_NONCE_ACTION, [ __CLASS__, 'handle_invite_member' ] );
 		add_action( 'admin_post_' . self::CANCEL_INVITE_NONCE_ACTION, [ __CLASS__, 'handle_cancel_invite' ] );
+		add_action( 'admin_post_' . self::REMOVE_MEMBER_NONCE_ACTION, [ __CLASS__, 'handle_remove_member' ] );
 	}
 
 	/**
@@ -234,6 +240,66 @@ class Group_Subscription_MyAccount {
 						// translators: %s: The cancelled invitation's email address.
 						__( 'The invitation for %s has been cancelled.', 'newspack-plugin' ),
 						$email
+					),
+					'is_success' => true,
+				],
+				$redirect_url
+			)
+		);
+		exit;
+	}
+
+	/**
+	 * Handle the remove member form submission.
+	 */
+	public static function handle_remove_member() {
+		check_admin_referer( self::REMOVE_MEMBER_NONCE_ACTION );
+
+		$subscription_id = filter_input( INPUT_POST, 'subscription_id', FILTER_VALIDATE_INT ) ?? 0;
+		$redirect_url    = wc_get_account_endpoint_url( self::MANAGE_MEMBERS_ENDPOINT . '/' . $subscription_id );
+
+		$request = new \WP_REST_Request();
+		$request->set_param( 'subscription_id', $subscription_id );
+		if ( ! Group_Subscription_API::permission_callback( $request ) ) {
+			wp_safe_redirect(
+				add_query_arg(
+					[
+						'activeTab' => 'members',
+						'message'   => __( 'You do not have permission to remove members from this group subscription.', 'newspack-plugin' ),
+						'is_error'  => true,
+					],
+					$redirect_url
+				)
+			);
+			exit;
+		}
+
+		$member_id   = filter_input( INPUT_POST, 'member_id', FILTER_VALIDATE_INT ) ?? 0;
+		$member_data = get_userdata( $member_id );
+		$result      = Group_Subscription::update_members( $subscription_id, [], [ $member_id ] );
+
+		if ( is_wp_error( $result ) ) {
+			wp_safe_redirect(
+				add_query_arg(
+					[
+						'activeTab' => 'members',
+						'message'   => $result->get_error_message(),
+						'is_error'  => true,
+					],
+					$redirect_url
+				)
+			);
+			exit;
+		}
+
+		wp_safe_redirect(
+			add_query_arg(
+				[
+					'activeTab'  => 'members',
+					'message'    => sprintf(
+						// translators: %s: The removed member's email address.
+						__( '%s has been removed from this group subscription.', 'newspack-plugin' ),
+						$member_data ? $member_data->user_email : $member_id
 					),
 					'is_success' => true,
 				],

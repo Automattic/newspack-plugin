@@ -30,14 +30,18 @@
 	&__invites {
 		margin-top: var(--newspack-ui-spacer-5);
 	}
-	&__members__actions,
-	&__invites__actions {
+	&__members--actions,
+	&__invites--actions {
 		&--manager {
-			&::after {
-				content: '';
-				display: inline-block;
-				vertical-align: middle;
-				min-height: 36px;
+			display: none !important;
+			@media ( min-width: 768px ) {
+				display: table-cell !important;
+				&::after {
+					content: '';
+					display: inline-block;
+					vertical-align: middle;
+					min-height: 36px;
+				}
 			}
 		}
 	}
