@@ -127,7 +127,7 @@ class Group_Subscription_MyAccount {
 		}
 		$actions['manage_members'] = [
 			'url'  => self::get_manage_members_url( $subscription ),
-			'name' => __( 'Manage Members', 'woocommerce-subscriptions' ),
+			'name' => __( 'Manage members', 'woocommerce-subscriptions' ),
 		];
 		return $actions;
 	}

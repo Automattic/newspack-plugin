@@ -19,7 +19,9 @@ defined( 'ABSPATH' ) || exit;
 $members              = Group_Subscription::get_members( $subscription );
 $managers_and_members = array_merge( Group_Subscription::get_managers( $subscription ), $members );
 $member_limit         = Group_Subscription_Settings::get_subscription_settings( $subscription )['limit'];
-$is_at_limit          = count( $members ) + count( Group_Subscription_Invite::get_invites( $subscription, false ) ) >= $member_limit;
+$all_invites          = Group_Subscription_Invite::get_invites( $subscription );
+$pending_invites      = Group_Subscription_Invite::get_invites( $subscription, false );
+$is_at_limit          = count( $members ) + count( $pending_invites ) >= $member_limit;
 ?>
 <header class="newspack-my-account__subscription--header">
 	<?php
@@ -95,7 +97,7 @@ $is_at_limit          = count( $members ) + count( Group_Subscription_Invite::ge
 				sprintf(
 					// translators: %d: The number of members.
 					__( 'Invitations (<span class="newspack-group-subscription--invitations-count">%d</span>)', 'newspack-plugin' ),
-					count( Group_Subscription_Invite::get_invites( $subscription ) )
+					count( $all_invites )
 				)
 			);
 			?>
@@ -175,7 +177,14 @@ $is_at_limit          = count( $members ) + count( Group_Subscription_Invite::ge
 		</thead>
 		<tbody>
 		<?php
-		foreach ( Group_Subscription_Invite::get_invites( $subscription ) as $key => $invite ) :
+		if ( empty( $all_invites ) ) :
+			?>
+			<tr>
+				<td colspan="4"><?php esc_html_e( 'No invitations found.', 'newspack-plugin' ); ?></td>
+			</tr>
+			<?php
+		endif;
+		foreach ( $all_invites as $key => $invite ) :
 			?>
 			<tr>
 				<td data-title="<?php esc_attr_e( 'Sent to', 'newspack-plugin' ); ?>"><a href="mailto:<?php echo esc_attr( sanitize_email( $invite['email'] ) ); ?>"><?php echo esc_html( sanitize_email( $invite['email'] ) ); ?></a></td>
