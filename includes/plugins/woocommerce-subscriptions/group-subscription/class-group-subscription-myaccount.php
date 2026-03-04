@@ -40,6 +40,11 @@ class Group_Subscription_MyAccount {
 		if ( version_compare( WooCommerce_My_Account::get_version(), '1.0.0', '<' ) ) {
 			return;
 		}
+
+		// Ensure My Account UI v1 is active before registering endpoints/actions.
+		if ( ! class_exists( 'Newspack\\My_Account_UI_V1' ) ) {
+			return;
+		}
 		add_filter( 'woocommerce_get_query_vars', [ __CLASS__, 'add_manage_members_endpoint' ] );
 		add_action( 'woocommerce_account_' . self::MANAGE_MEMBERS_ENDPOINT . '_endpoint', [ __CLASS__, 'render_group_subscription_members_template' ] );
 		add_filter( 'wcs_view_subscription_actions', [ __CLASS__, 'view_subscription_actions' ], 13, 3 );
@@ -56,7 +61,11 @@ class Group_Subscription_MyAccount {
 	 * @return string The URL.
 	 */
 	public static function get_manage_members_url( $subscription ) {
-		return wc_get_account_endpoint_url( self::MANAGE_MEMBERS_ENDPOINT . '/' . $subscription->get_id() );
+		return wc_get_endpoint_url(
+			self::MANAGE_MEMBERS_ENDPOINT,
+			$subscription->get_id(),
+			wc_get_page_permalink( 'myaccount' )
+		);
 	}
 
 	/**
@@ -127,7 +136,7 @@ class Group_Subscription_MyAccount {
 		}
 		$actions['manage_members'] = [
 			'url'  => self::get_manage_members_url( $subscription ),
-			'name' => __( 'Manage members', 'woocommerce-subscriptions' ),
+			'name' => __( 'Manage members', 'newspack-plugin' ),
 		];
 		return $actions;
 	}
@@ -139,7 +148,7 @@ class Group_Subscription_MyAccount {
 		check_admin_referer( self::INVITE_NONCE_ACTION );
 
 		$subscription_id = filter_input( INPUT_POST, 'subscription_id', FILTER_VALIDATE_INT ) ?? 0;
-		$redirect_url    = wc_get_account_endpoint_url( self::MANAGE_MEMBERS_ENDPOINT . '/' . $subscription_id );
+		$redirect_url    = wc_get_endpoint_url( self::MANAGE_MEMBERS_ENDPOINT, $subscription_id, wc_get_page_permalink( 'myaccount' ) );
 
 		$request = new \WP_REST_Request();
 		$request->set_param( 'subscription_id', $subscription_id );
@@ -197,7 +206,11 @@ class Group_Subscription_MyAccount {
 		check_admin_referer( self::CANCEL_INVITE_NONCE_ACTION );
 
 		$subscription_id = filter_input( INPUT_POST, 'subscription_id', FILTER_VALIDATE_INT ) ?? 0;
-		$redirect_url    = wc_get_account_endpoint_url( self::MANAGE_MEMBERS_ENDPOINT . '/' . $subscription_id );
+		$redirect_url    = wc_get_endpoint_url(
+			self::MANAGE_MEMBERS_ENDPOINT,
+			$subscription_id,
+			wc_get_page_permalink( 'myaccount' )
+		);
 
 		$request = new \WP_REST_Request();
 		$request->set_param( 'subscription_id', $subscription_id );
@@ -256,7 +269,7 @@ class Group_Subscription_MyAccount {
 		check_admin_referer( self::REMOVE_MEMBER_NONCE_ACTION );
 
 		$subscription_id = filter_input( INPUT_POST, 'subscription_id', FILTER_VALIDATE_INT ) ?? 0;
-		$redirect_url    = wc_get_account_endpoint_url( self::MANAGE_MEMBERS_ENDPOINT . '/' . $subscription_id );
+		$redirect_url    = wc_get_endpoint_url( self::MANAGE_MEMBERS_ENDPOINT, $subscription_id, wc_get_page_permalink( 'myaccount' ) );
 
 		$request = new \WP_REST_Request();
 		$request->set_param( 'subscription_id', $subscription_id );

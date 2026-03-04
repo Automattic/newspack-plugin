@@ -21,7 +21,7 @@ $managers_and_members = array_merge( Group_Subscription::get_managers( $subscrip
 $member_limit         = Group_Subscription_Settings::get_subscription_settings( $subscription )['limit'];
 $all_invites          = Group_Subscription_Invite::get_invites( $subscription );
 $pending_invites      = Group_Subscription_Invite::get_invites( $subscription, false );
-$is_at_limit          = count( $members ) + count( $pending_invites ) >= $member_limit;
+$is_at_limit          = $member_limit > 0 && ( count( $members ) + count( $pending_invites ) ) >= $member_limit;
 ?>
 <header class="newspack-my-account__subscription--header">
 	<?php
@@ -32,7 +32,7 @@ $is_at_limit          = count( $members ) + count( $pending_invites ) >= $member
 			$status = $subscription->get_status(); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 			?>
 		<div class="newspack-my-account__subscription--title">
-			<a href="<?php echo esc_url( \wc_get_account_endpoint_url( 'view-subscription/' . $subscription->get_id() ) ); ?>" class="newspack-my-account__subscription--back-link newspack-ui__button newspack-ui__button--ghost newspack-ui__button--icon newspack-ui__button--small" title="<?php esc_attr_e( 'Back to subscription', 'newspack-plugin' ); ?>">
+			<a href="<?php echo esc_url( \wc_get_endpoint_url( 'view-subscription', $subscription->get_id(), \wc_get_page_permalink( 'myaccount' ) ) ); ?>" class="newspack-my-account__subscription--back-link newspack-ui__button newspack-ui__button--ghost newspack-ui__button--icon newspack-ui__button--small" title="<?php esc_attr_e( 'Back to subscription', 'newspack-plugin' ); ?>">
 				<?php Newspack_UI_Icons::print_svg( 'chevronLeft' ); ?>
 			</a>
 			<h2 class="newspack-ui__font--m">
@@ -180,7 +180,7 @@ $is_at_limit          = count( $members ) + count( $pending_invites ) >= $member
 		if ( empty( $all_invites ) ) :
 			?>
 			<tr>
-				<td colspan="4"><?php esc_html_e( 'No invitations found.', 'newspack-plugin' ); ?></td>
+				<td colspan="3"><?php esc_html_e( 'No invitations found.', 'newspack-plugin' ); ?></td>
 			</tr>
 			<?php
 		endif;
@@ -253,7 +253,7 @@ $is_at_limit          = count( $members ) + count( $pending_invites ) >= $member
 							</p>
 
 							<button class="newspack-ui__button newspack-ui__button--primary newspack-ui__button--wide"><?php esc_html_e( 'Invite', 'newspack-plugin' ); ?></button>
-							<button class="newspack-ui__button newspack-ui__button--secondary newspack-ui__button--wide newspack-ui__modal__close"><?php esc_html_e( 'Close', 'newspack-plugin' ); ?></button>
+							<button type="button" class="newspack-ui__button newspack-ui__button--secondary newspack-ui__button--wide newspack-ui__modal__close"><?php esc_html_e( 'Close', 'newspack-plugin' ); ?></button>
 						<?php endif; ?>
 					</form>
 				</section>

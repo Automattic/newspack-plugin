@@ -19,6 +19,9 @@ domReady( function () {
 		tab.addEventListener( 'click', event => {
 			event.preventDefault();
 			const tabName = event.currentTarget.getAttribute( 'data-tab' );
+			if ( ! content ) {
+				return;
+			}
 			content.setAttribute( 'data-active-tab', tabName );
 		} );
 	} );
