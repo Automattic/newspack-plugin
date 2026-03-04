@@ -51,6 +51,10 @@ body.newspack-wizard-page:not(.newspack-admin-header) {
 			padding-bottom: 136px;
 		}
 	}
+
+	.components-popover__content {
+		min-width: 192px;
+	}
 }
 
 // Styling for wizards that are admin-header-only.
