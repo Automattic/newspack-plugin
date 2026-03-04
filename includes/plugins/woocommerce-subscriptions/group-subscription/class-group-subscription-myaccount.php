@@ -24,6 +24,11 @@ class Group_Subscription_MyAccount {
 	const INVITE_NONCE_ACTION = 'newspack_group_subscription_invite';
 
 	/**
+	 * Nonce action for the cancel invite form.
+	 */
+	const CANCEL_INVITE_NONCE_ACTION = 'newspack_group_subscription_cancel_invite';
+
+	/**
 	 * Initialize hooks and filters.
 	 */
 	public static function init() {
@@ -34,6 +39,7 @@ class Group_Subscription_MyAccount {
 		add_action( 'woocommerce_account_' . self::MANAGE_MEMBERS_ENDPOINT . '_endpoint', [ __CLASS__, 'render_group_subscription_members_template' ] );
 		add_filter( 'wcs_view_subscription_actions', [ __CLASS__, 'view_subscription_actions' ], 13, 3 );
 		add_action( 'admin_post_' . self::INVITE_NONCE_ACTION, [ __CLASS__, 'handle_invite_member' ] );
+		add_action( 'admin_post_' . self::CANCEL_INVITE_NONCE_ACTION, [ __CLASS__, 'handle_cancel_invite' ] );
 	}
 
 	/**
@@ -126,7 +132,7 @@ class Group_Subscription_MyAccount {
 	public static function handle_invite_member() {
 		check_admin_referer( self::INVITE_NONCE_ACTION );
 
-		$subscription_id = absint( $_POST['subscription_id'] ?? 0 ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		$subscription_id = filter_input( INPUT_POST, 'subscription_id', FILTER_VALIDATE_INT ) ?? 0;
 		$redirect_url    = wc_get_account_endpoint_url( self::MANAGE_MEMBERS_ENDPOINT . '/' . $subscription_id );
 
 		$request = new \WP_REST_Request();
@@ -145,7 +151,7 @@ class Group_Subscription_MyAccount {
 			exit;
 		}
 
-		$email  = sanitize_email( wp_unslash( $_POST['newspack-group-subscription-invite-email'] ?? '' ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		$email  = filter_input( INPUT_POST, 'newspack-group-subscription-invite-email', FILTER_SANITIZE_EMAIL ) ?? '';
 		$invite = Group_Subscription_Invite::generate_invite( $subscription_id, $email );
 
 		if ( is_wp_error( $invite ) ) {
@@ -169,6 +175,64 @@ class Group_Subscription_MyAccount {
 					'message'    => sprintf(
 						// translators: %s: The invited email address.
 						__( '%s has been invited to become a member of this group subscription.', 'newspack-plugin' ),
+						$email
+					),
+					'is_success' => true,
+				],
+				$redirect_url
+			)
+		);
+		exit;
+	}
+	/**
+	 * Handle the cancel invite form submission.
+	 */
+	public static function handle_cancel_invite() {
+		check_admin_referer( self::CANCEL_INVITE_NONCE_ACTION );
+
+		$subscription_id = filter_input( INPUT_POST, 'subscription_id', FILTER_VALIDATE_INT ) ?? 0;
+		$redirect_url    = wc_get_account_endpoint_url( self::MANAGE_MEMBERS_ENDPOINT . '/' . $subscription_id );
+
+		$request = new \WP_REST_Request();
+		$request->set_param( 'subscription_id', $subscription_id );
+		if ( ! Group_Subscription_API::permission_callback( $request ) ) {
+			wp_safe_redirect(
+				add_query_arg(
+					[
+						'activeTab' => 'invites',
+						'message'   => __( 'You do not have permission to cancel invitations for this group subscription.', 'newspack-plugin' ),
+						'is_error'  => true,
+					],
+					$redirect_url
+				)
+			);
+			exit;
+		}
+
+		$email  = filter_input( INPUT_POST, 'email', FILTER_SANITIZE_EMAIL ) ?? '';
+		$result = Group_Subscription_Invite::cancel_invite( $subscription_id, $email );
+
+		if ( is_wp_error( $result ) ) {
+			wp_safe_redirect(
+				add_query_arg(
+					[
+						'activeTab' => 'invites',
+						'message'   => $result->get_error_message(),
+						'is_error'  => true,
+					],
+					$redirect_url
+				)
+			);
+			exit;
+		}
+
+		wp_safe_redirect(
+			add_query_arg(
+				[
+					'activeTab'  => 'invites',
+					'message'    => sprintf(
+						// translators: %s: The cancelled invitation's email address.
+						__( 'The invitation for %s has been cancelled.', 'newspack-plugin' ),
 						$email
 					),
 					'is_success' => true,

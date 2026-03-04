@@ -180,8 +180,24 @@ $is_at_limit          = count( $members ) + count( Group_Subscription_Invite::ge
 						</button>
 						<div class="newspack-ui__dropdown__content">
 							<ul>
-								<li><a class="newspack-ui__button newspack-ui__button--ghost" href="#"><?php \esc_html_e( 'Resend', 'newspack-plugin' ); ?></a></li>
-								<li><a class="newspack-ui__button newspack-ui__button--ghost newspack-ui__button--destructive" href="#"><?php \esc_html_e( 'Cancel', 'newspack-plugin' ); ?></a></li>
+								<li>
+									<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
+										<input type="hidden" name="action" value="newspack_group_subscription_invite">
+										<input type="hidden" name="subscription_id" value="<?php echo esc_attr( $subscription->get_id() ); ?>">
+										<input type="hidden" name="newspack-group-subscription-invite-email" value="<?php echo esc_attr( sanitize_email( $invite['email'] ) ); ?>">
+										<?php wp_nonce_field( Group_Subscription_MyAccount::INVITE_NONCE_ACTION ); ?>
+										<button type="submit" class="newspack-ui__button newspack-ui__button--ghost"><?php \esc_html_e( 'Resend', 'newspack-plugin' ); ?></button>
+									</form>
+								</li>
+								<li>
+									<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
+										<input type="hidden" name="action" value="newspack_group_subscription_cancel_invite">
+										<input type="hidden" name="subscription_id" value="<?php echo esc_attr( $subscription->get_id() ); ?>">
+										<input type="hidden" name="email" value="<?php echo esc_attr( sanitize_email( $invite['email'] ) ); ?>">
+										<?php wp_nonce_field( Group_Subscription_MyAccount::CANCEL_INVITE_NONCE_ACTION ); ?>
+										<button type="submit" class="newspack-ui__button newspack-ui__button--ghost newspack-ui__button--destructive"><?php \esc_html_e( 'Cancel', 'newspack-plugin' ); ?></button>
+									</form>
+								</li>
 							</ul>
 						</div>
 					</div>
