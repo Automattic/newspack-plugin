@@ -159,10 +159,11 @@ class Newspack_Test_User_Gate_Access extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test metabox renders for admin users.
+	 * Test metabox renders for admin users when gates exist.
 	 */
 	public function test_render_for_admin() {
 		wp_set_current_user( self::$admin_id );
+		$this->create_gate_with_rules( 'Test Gate', [] );
 		$user = get_user_by( 'id', self::$user_id );
 
 		ob_start();
@@ -170,6 +171,20 @@ class Newspack_Test_User_Gate_Access extends WP_UnitTestCase {
 		$output = ob_get_clean();
 
 		$this->assertStringContainsString( 'Content Gate Access', $output, 'Should render heading for admin users.' );
+	}
+
+	/**
+	 * Test metabox does not render when no custom-access gates exist.
+	 */
+	public function test_render_empty_when_no_gates() {
+		wp_set_current_user( self::$admin_id );
+		$user = get_user_by( 'id', self::$user_id );
+
+		ob_start();
+		User_Gate_Access::render_user_gate_access( $user );
+		$output = ob_get_clean();
+
+		$this->assertEmpty( $output, 'Should not render when no custom-access gates exist.' );
 	}
 
 	/**
