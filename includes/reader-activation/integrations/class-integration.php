@@ -51,6 +51,13 @@ abstract class Integration {
 	protected $description = '';
 
 	/**
+	 * Metadata fields for this integration.
+	 *
+	 * @var array
+	 */
+	protected $metadata_fields = [];
+
+	/**
 	 * Settings fields for this integration.
 	 *
 	 * @var array
@@ -68,7 +75,8 @@ abstract class Integration {
 		$this->id          = $id;
 		$this->name        = $name;
 		$this->description = $description;
-
+		$this->register_metadata_settings_fields();
+		// Register settings fields on init to ensure they're available when needed.
 		add_action( 'init', [ $this, 'register_settings_fields' ] );
 	}
 
@@ -97,6 +105,24 @@ abstract class Integration {
 	 */
 	public function get_description() {
 		return $this->description;
+	}
+
+	/**
+	 * Register metadata settings fields for this integration.
+	 */
+	public function register_metadata_settings_fields() {
+		$this->metadata_fields[] = [
+			'key'     => 'metadata_fields',
+			'type'    => 'metadata',
+			'label'   => __( 'Metadata fields', 'newspack-plugin' ),
+			'default' => [],
+		];
+		$this->metadata_fields[] = [
+			'key'     => 'custom_metadata_fields',
+			'type'    => 'custom_metadata',
+			'label'   => __( 'Custom metadata fields', 'newspack-plugin' ),
+			'default' => [],
+		];
 	}
 
 	/**
@@ -231,7 +257,7 @@ abstract class Integration {
 	 * @return array Array of selected field keys.
 	 */
 	public function get_selected_fields() {
-		return \get_option( self::OPTION_PREFIX . $this->id, [] );
+		return $this->get_settings_field_value( 'custom_metadata_fields' );
 	}
 
 	/**
@@ -241,7 +267,7 @@ abstract class Integration {
 	 * @return bool True if the option was updated, false otherwise.
 	 */
 	public function set_selected_fields( $fields ) {
-		return \update_option( self::OPTION_PREFIX . $this->id, array_values( $fields ) );
+		return $this->update_settings_field_value( 'custom_metadata_fields', $fields );
 	}
 
 	/**
@@ -357,7 +383,10 @@ abstract class Integration {
 	 * @return array Array of settings field declarations.
 	 */
 	public function get_settings_fields() {
-		return $this->settings_fields;
+		return array_merge(
+			$this->settings_fields,
+			$this->metadata_fields
+		);
 	}
 
 	/**

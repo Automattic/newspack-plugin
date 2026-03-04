@@ -114,18 +114,6 @@ class ESP extends Integration {
 			'description' => __( 'A string to prefix metadata fields attached to each contact synced to the ESP. Required to ensure that metadata field names are unique. Default: NP_', 'newspack-plugin' ),
 			'default'     => 'NP_',
 		];
-		$fields[] = [
-			'key'     => 'metadata_fields',
-			'type'    => 'metadata',
-			'label'   => __( 'Metadata fields', 'newspack-plugin' ),
-			'default' => [],
-		];
-		$fields[] = [
-			'key'     => 'custom_metadata_fields',
-			'type'    => 'custom_metadata',
-			'label'   => __( 'Custom metadata fields', 'newspack-plugin' ),
-			'default' => [],
-		];
 
 		$this->settings_fields = $fields;
 	}
