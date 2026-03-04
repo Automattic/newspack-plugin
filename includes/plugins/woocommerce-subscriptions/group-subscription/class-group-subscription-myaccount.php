@@ -103,7 +103,7 @@ class Group_Subscription_MyAccount {
 			wp_safe_redirect(
 				add_query_arg(
 					[
-						'message'  => __( 'You do not have permission to manage subscription.', 'newspack-plugin' ),
+						'message'  => __( 'You do not have permission to manage members of this subscription.', 'newspack-plugin' ),
 						'is_error' => true,
 					],
 					wc_get_account_endpoint_url( 'edit-account' )
@@ -157,7 +157,7 @@ class Group_Subscription_MyAccount {
 				add_query_arg(
 					[
 						'activeTab' => 'invites',
-						'message'   => __( 'You do not have permission to invite members to this group subscription.', 'newspack-plugin' ),
+						'message'   => __( 'You do not have permission to manage members for this group subscription.', 'newspack-plugin' ),
 						'is_error'  => true,
 					],
 					$redirect_url
@@ -219,7 +219,7 @@ class Group_Subscription_MyAccount {
 				add_query_arg(
 					[
 						'activeTab' => 'invites',
-						'message'   => __( 'You do not have permission to cancel invitations for this group subscription.', 'newspack-plugin' ),
+						'message'   => __( 'You do not have permission to manage members for this group subscription.', 'newspack-plugin' ),
 						'is_error'  => true,
 					],
 					$redirect_url
