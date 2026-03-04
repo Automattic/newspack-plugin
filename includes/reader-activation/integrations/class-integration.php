@@ -65,9 +65,11 @@ abstract class Integration {
 	 * @param string $description Optional. A short description for this integration.
 	 */
 	public function __construct( $id, $name, $description = '' ) {
-		$this->id          = $id;
-		$this->name        = $name;
-		$this->description = $description;
+		$this->id              = $id;
+		$this->name            = $name;
+		$this->description     = $description;
+
+		add_action( 'init', [ $this, 'register_settings_fields' ] );
 	}
 
 	/**
@@ -96,6 +98,14 @@ abstract class Integration {
 	public function get_description() {
 		return $this->description;
 	}
+
+	/**
+	 * Register settings fields for this integration.
+	 *
+	 * Child classes should override this method to define their settings fields.
+	 * Each field should be an associative array with keys: key, label, type, default, options (for select), etc.
+	 */
+	abstract public function register_settings_fields();
 
 	/**
 	 * Whether contacts can be synced to the ESP.
@@ -431,6 +441,7 @@ abstract class Integration {
 				$valid_values = array_column( $field['options'] ?? [], 'value' );
 				return in_array( $value, $valid_values, true ) ? $value : ( $field['default'] ?? '' );
 			case 'metadata':
+			case 'custom_metadata':
 				if ( ! is_array( $value ) ) {
 					return $field['default'] ?? [];
 				}

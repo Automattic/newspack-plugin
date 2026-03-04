@@ -28,7 +28,106 @@ class ESP extends Integration {
 	 * Constructor.
 	 */
 	public function __construct() {
-		parent::__construct( 'esp', __( 'ESP', 'newspack-plugin' ), __( 'Sync reader data and activity to the connected email service provider.', 'newspack-plugin' ) );
+		parent::__construct(
+			'esp',
+			__( 'ESP', 'newspack-plugin' ),
+			__( 'Sync reader data and activity to the connected email service provider.', 'newspack-plugin' )
+		);
+	}
+
+	/**
+	 * Register the settings fields declared by this integration.
+	 *
+	 * Dynamically builds the field list based on the active ESP provider.
+	 * Only returns fields when the integrations feature flag is ON and ESP is configured.
+	 *
+	 * @return array Array of settings field declarations.
+	 */
+	public function register_settings_fields() {
+		if ( ! Audience_Integrations::is_enabled() || ! Reader_Activation::is_esp_configured() ) {
+			return;
+		}
+
+		$fields       = [];
+		$list_options = $this->get_list_options();
+		$provider     = $this->get_provider();
+		switch ( $provider ) {
+			case 'mailchimp':
+				$fields[] = [
+					'key'         => 'mailchimp_audience_id',
+					'type'        => 'select',
+					'label'       => __( 'Mailchimp Audience', 'newspack-plugin' ),
+					'description' => __( 'Choose an audience to receive reader activity data.', 'newspack-plugin' ),
+					'options'     => $list_options,
+					'default'     => '',
+				];
+				$fields[] = [
+					'key'         => 'mailchimp_reader_default_status',
+					'type'        => 'select',
+					'label'       => __( 'Default reader status', 'newspack-plugin' ),
+					'description' => __( 'Choose which Mailchimp status readers should have by default if they are not subscribed to any newsletters.', 'newspack-plugin' ),
+					'options'     => [
+						[
+							'label' => __( 'Transactional/Non-Subscribed', 'newspack-plugin' ),
+							'value' => 'transactional',
+						],
+						[
+							'label' => __( 'Subscribed', 'newspack-plugin' ),
+							'value' => 'subscribed',
+						],
+					],
+					'default'     => 'transactional',
+				];
+				break;
+			case 'active_campaign':
+				$fields[] = [
+					'key'         => 'active_campaign_master_list',
+					'type'        => 'select',
+					'label'       => __( 'ActiveCampaign Master List', 'newspack-plugin' ),
+					'description' => __( 'Choose a master list to which all registered readers will be added.', 'newspack-plugin' ),
+					'options'     => $list_options,
+					'default'     => '',
+				];
+				break;
+			case 'constant_contact':
+				$fields[] = [
+					'key'         => 'constant_contact_list_id',
+					'type'        => 'select',
+					'label'       => __( 'Constant Contact Master List', 'newspack-plugin' ),
+					'description' => __( 'Choose a master list to which all registered readers will be added.', 'newspack-plugin' ),
+					'options'     => $list_options,
+					'default'     => '',
+				];
+				break;
+		}
+		$fields[] = [
+			'key'         => 'sync_esp_delete',
+			'type'        => 'checkbox',
+			'label'       => __( 'Sync user account deletion', 'newspack-plugin' ),
+			'description' => __( 'When a reader account is deleted, also remove the contact from the ESP.', 'newspack-plugin' ),
+			'default'     => true,
+		];
+		$fields[] = [
+			'key'         => 'metadata_prefix',
+			'type'        => 'text',
+			'label'       => __( 'Metadata field prefix', 'newspack-plugin' ),
+			'description' => __( 'A string to prefix metadata fields attached to each contact synced to the ESP. Required to ensure that metadata field names are unique. Default: NP_', 'newspack-plugin' ),
+			'default'     => 'NP_',
+		];
+		$fields[] = [
+			'key'     => 'metadata_fields',
+			'type'    => 'metadata',
+			'label'   => __( 'Metadata fields', 'newspack-plugin' ),
+			'default' => [],
+		];
+		$fields[] = [
+			'key'     => 'custom_metadata_fields',
+			'type'    => 'custom_metadata',
+			'label'   => __( 'Custom metadata fields', 'newspack-plugin' ),
+			'default' => [],
+		];
+
+		$this->settings_fields = $fields;
 	}
 
 	/**
@@ -90,103 +189,6 @@ class ESP extends Integration {
 		}
 
 		return $options;
-	}
-
-	/**
-	 * Get the settings fields declared by this integration.
-	 *
-	 * Dynamically builds the field list based on the active ESP provider.
-	 * Only returns fields when the integrations feature flag is ON and ESP is configured.
-	 *
-	 * @return array Array of settings field declarations.
-	 */
-	public function get_settings_fields() {
-		if ( ! Audience_Integrations::is_enabled() ) {
-			return [];
-		}
-
-		if ( ! Reader_Activation::is_esp_configured() ) {
-			return [];
-		}
-
-		$fields = [
-			[
-				'key'         => 'sync_esp_delete',
-				'type'        => 'checkbox',
-				'label'       => __( 'Sync user account deletion', 'newspack-plugin' ),
-				'description' => __( 'When a reader account is deleted, also remove the contact from the ESP.', 'newspack-plugin' ),
-				'default'     => true,
-			],
-		];
-
-		$provider     = $this->get_provider();
-		$list_options = $this->get_list_options();
-
-		switch ( $provider ) {
-			case 'mailchimp':
-				$fields[] = [
-					'key'         => 'mailchimp_audience_id',
-					'type'        => 'select',
-					'label'       => __( 'Mailchimp Audience', 'newspack-plugin' ),
-					'description' => __( 'Choose an audience to receive reader activity data.', 'newspack-plugin' ),
-					'options'     => $list_options,
-					'default'     => '',
-				];
-				$fields[] = [
-					'key'         => 'mailchimp_reader_default_status',
-					'type'        => 'select',
-					'label'       => __( 'Default reader status', 'newspack-plugin' ),
-					'description' => __( 'Choose which Mailchimp status readers should have by default if they are not subscribed to any newsletters.', 'newspack-plugin' ),
-					'options'     => [
-						[
-							'label' => __( 'Transactional/Non-Subscribed', 'newspack-plugin' ),
-							'value' => 'transactional',
-						],
-						[
-							'label' => __( 'Subscribed', 'newspack-plugin' ),
-							'value' => 'subscribed',
-						],
-					],
-					'default'     => 'transactional',
-				];
-				break;
-			case 'active_campaign':
-				$fields[] = [
-					'key'         => 'active_campaign_master_list',
-					'type'        => 'select',
-					'label'       => __( 'ActiveCampaign Master List', 'newspack-plugin' ),
-					'description' => __( 'Choose a master list to which all registered readers will be added.', 'newspack-plugin' ),
-					'options'     => $list_options,
-					'default'     => '',
-				];
-				break;
-			case 'constant_contact':
-				$fields[] = [
-					'key'         => 'constant_contact_list_id',
-					'type'        => 'select',
-					'label'       => __( 'Constant Contact Master List', 'newspack-plugin' ),
-					'description' => __( 'Choose a master list to which all registered readers will be added.', 'newspack-plugin' ),
-					'options'     => $list_options,
-					'default'     => '',
-				];
-				break;
-		}
-
-		$fields[] = [
-			'key'         => 'metadata_prefix',
-			'type'        => 'text',
-			'label'       => __( 'Metadata field prefix', 'newspack-plugin' ),
-			'description' => __( 'A string to prefix metadata fields attached to each contact synced to the ESP. Required to ensure that metadata field names are unique. Default: NP_', 'newspack-plugin' ),
-			'default'     => 'NP_',
-		];
-		$fields[] = [
-			'key'     => 'metadata_fields',
-			'type'    => 'metadata',
-			'label'   => __( 'Metadata fields to sync', 'newspack-plugin' ),
-			'default' => [],
-		];
-
-		return $fields;
 	}
 
 	/**
