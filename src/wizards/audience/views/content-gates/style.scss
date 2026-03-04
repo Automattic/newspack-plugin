@@ -81,7 +81,7 @@
 			&--disabled {
 				box-shadow: rgba(wp-colors.$black, 0.06) 0 0 0 1px;
 
-				.newspack-content-gates__settings-card__status {
+				:not(:has(.components-button.is-secondary[disabled])) .newspack-content-gates__settings-card__status {
 					color: var(--newspack-ui-color-neutral-60);
 					&::before {
 						background-color: var(--newspack-ui-color-neutral-60);
