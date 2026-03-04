@@ -56,6 +56,14 @@ class User_Gate_Access {
 		$access_rules = $gate['custom_access']['access_rules'] ?? [];
 		$access_rules = Access_Rules::normalize_rules( $access_rules );
 
+		// Empty rules means the gate does not restrict — matches Content_Restriction_Control behavior.
+		if ( empty( $access_rules ) ) {
+			return [
+				'can_bypass' => true,
+				'groups'     => [],
+			];
+		}
+
 		$can_bypass = false;
 		$groups     = [];
 

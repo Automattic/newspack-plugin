@@ -98,6 +98,21 @@ class Newspack_Test_User_Gate_Access extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Test evaluate_gate_for_user with empty rules returns can_bypass true.
+	 */
+	public function test_evaluate_gate_empty_rules_means_bypass() {
+		$gate_id = $this->create_gate_with_rules( 'Empty Gate', [] );
+		$gate    = Content_Gate::get_gate( $gate_id );
+
+		$method = new ReflectionMethod( User_Gate_Access::class, 'evaluate_gate_for_user' );
+		$method->setAccessible( true );
+		$result = $method->invoke( null, $gate, self::$user_id );
+
+		$this->assertTrue( $result['can_bypass'], 'Empty access rules should mean the user can bypass (gate does not restrict).' );
+		$this->assertEmpty( $result['groups'] );
+	}
+
+	/**
 	 * Test evaluate_gate_for_user with email domain rule.
 	 */
 	public function test_evaluate_gate_email_domain_pass() {
