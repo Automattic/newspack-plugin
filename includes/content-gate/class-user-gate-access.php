@@ -155,9 +155,10 @@ class User_Gate_Access {
 				<?php $result = self::evaluate_gate_for_user( $gate, $user->ID ); ?>
 				<tr>
 					<th>
-						<span style="margin-right: 5px;">
+						<span style="margin-right: 5px;" aria-hidden="true">
 							<?php echo wp_kses( $result['can_bypass'] ? '<span style="color: #00a32a;">&#10003;</span>' : '<span style="color: #d63638;">&#10005;</span>', [ 'span' => [ 'style' => [] ] ] ); ?>
 						</span>
+						<span class="screen-reader-text"><?php echo $result['can_bypass'] ? esc_html__( 'Pass', 'newspack-plugin' ) : esc_html__( 'Fail', 'newspack-plugin' ); ?></span>
 						<?php echo esc_html( $gate['title'] ); ?>
 					</th>
 					<td>
@@ -179,9 +180,10 @@ class User_Gate_Access {
 								<ul style="margin: 4px 0 12px;">
 									<?php foreach ( $group['rules'] as $rule ) : ?>
 										<li style="margin: 2px 0;">
-											<span style="margin-right: 5px;">
+											<span style="margin-right: 5px;" aria-hidden="true">
 												<?php echo wp_kses( $rule['passes'] ? '<span style="color: #00a32a;">&#10003;</span>' : '<span style="color: #d63638;">&#10005;</span>', [ 'span' => [ 'style' => [] ] ] ); ?>
 											</span>
+											<span class="screen-reader-text"><?php echo $rule['passes'] ? esc_html__( 'Pass', 'newspack-plugin' ) : esc_html__( 'Fail', 'newspack-plugin' ); ?></span>
 											<?php echo esc_html( $rule['name'] ); ?>:
 											<code><?php echo esc_html( self::format_rule_value( $rule['slug'], $rule['value'] ) ); ?></code>
 										</li>
