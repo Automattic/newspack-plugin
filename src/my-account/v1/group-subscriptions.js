@@ -18,10 +18,10 @@ domReady( function () {
 	tabs.forEach( tab => {
 		tab.addEventListener( 'click', event => {
 			event.preventDefault();
-			const tabName = event.currentTarget.getAttribute( 'data-tab' );
 			if ( ! content ) {
 				return;
 			}
+			const tabName = event.currentTarget.getAttribute( 'data-tab' );
 			content.setAttribute( 'data-active-tab', tabName );
 		} );
 	} );
@@ -29,7 +29,7 @@ domReady( function () {
 	// Handle invite modal.
 	const newspackModal = document.getElementById( 'newspack-my-account__group_subscription--invite-member' );
 	const openModal = document.querySelector( '.newspack-my-account__subscription--invite-member' );
-	if ( openModal ) {
+	if ( newspackModal && openModal ) {
 		openModal.addEventListener( 'click', event => {
 			event.preventDefault();
 			newspackModal.setAttribute( 'data-state', 'open' );
