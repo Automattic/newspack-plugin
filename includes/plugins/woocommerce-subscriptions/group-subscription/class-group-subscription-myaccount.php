@@ -122,7 +122,7 @@ class Group_Subscription_MyAccount {
 	 * @return array
 	 */
 	public static function view_subscription_actions( $actions, $subscription, $user_id ) {
-		if ( ! function_exists( 'is_account_page' ) || ! \is_account_page() || $subscription->get_customer_id() !== $user_id || ! Group_Subscription::user_is_manager( $user_id, $subscription ) ) {
+		if ( ! function_exists( 'is_account_page' ) || ! \is_account_page() || ! Group_Subscription::is_group_subscription( $subscription ) || $subscription->get_customer_id() !== $user_id || ! Group_Subscription::user_is_manager( $user_id, $subscription ) ) {
 			return $actions;
 		}
 		$actions['manage_members'] = [
