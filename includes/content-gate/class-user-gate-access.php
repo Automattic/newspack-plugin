@@ -145,14 +145,11 @@ class User_Gate_Access {
 		}
 
 		$gates = self::get_custom_access_gates();
+		if ( empty( $gates ) ) {
+			return;
+		}
 		?>
 		<h2><?php esc_html_e( 'Content Gate Access', 'newspack-plugin' ); ?></h2>
-		<?php if ( empty( $gates ) ) : ?>
-			<p><?php esc_html_e( 'No custom-access content gates are configured.', 'newspack-plugin' ); ?></p>
-			<?php
-			return;
-		endif;
-		?>
 		<table class="form-table" role="presentation">
 			<?php foreach ( $gates as $gate ) : ?>
 				<?php $result = self::evaluate_gate_for_user( $gate, $user->ID ); ?>
