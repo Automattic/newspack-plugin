@@ -617,7 +617,7 @@ class Content_Gate {
 		$registration_settings  = $gate['registration'] ?? [];
 		$registration_layout_id = $registration_settings['gate_layout_id'] ?? 0;
 		if ( ! $registration_layout_id ) {
-			$registration_content   = self::get_block_pattern_content( 'registration-card' );
+			$registration_content   = self::get_block_pattern_content( 'registration-wall' );
 			$registration_layout_id = self::create_gate_layout(
 				__( 'Registration Access Layout', 'newspack' ),
 				$registration_content
@@ -790,7 +790,7 @@ class Content_Gate {
 			exit;
 		} else {
 			// Use registration pattern for registration mode, default content for custom_access.
-			$gate_layout_content = 'registration' === $gate_mode ? self::get_block_pattern_content( 'registration-card' ) : '';
+			$gate_layout_content = 'registration' === $gate_mode ? self::get_block_pattern_content( 'registration-wall' ) : '';
 			$gate_layout_id      = self::create_gate_layout( $gate_layout_default_title, $gate_layout_content );
 			if ( is_wp_error( $gate_layout_id ) ) {
 				\wp_die( esc_html( $gate_layout_id->get_error_message() ) );
