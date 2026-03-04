@@ -222,11 +222,7 @@ abstract class Integration {
 	 * @return string[] List of enabled field names.
 	 */
 	public function get_enabled_outgoing_fields() {
-		$fields = \get_option( self::OUTGOING_FIELDS_OPTION_PREFIX . $this->id, null );
-		if ( null === $fields ) {
-			return Sync\Metadata::get_default_fields();
-		}
-		return $fields;
+		return array_values( \get_option( self::OUTGOING_FIELDS_OPTION_PREFIX . $this->id, Sync\Metadata::get_default_fields() ) );
 	}
 
 	/**
@@ -236,7 +232,9 @@ abstract class Integration {
 	 * @return bool True if updated, false otherwise.
 	 */
 	public function update_enabled_outgoing_fields( $fields ) {
-		return \update_option( self::OUTGOING_FIELDS_OPTION_PREFIX . $this->id, array_values( (array) $fields ) );
+		// Only allow fields that are in the metadata keys map.
+		$fields = array_intersect( Sync\Metadata::get_default_fields(), $fields );
+		return \update_option( self::OUTGOING_FIELDS_OPTION_PREFIX . $this->id, array_values( $fields ) );
 	}
 
 	/**

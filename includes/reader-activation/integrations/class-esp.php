@@ -38,7 +38,7 @@ class ESP extends Integration {
 	 */
 	public function get_enabled_outgoing_fields() {
 		$fields = \get_option( self::OUTGOING_FIELDS_OPTION_PREFIX . $this->id, null );
-		if ( null !== $fields ) {
+		if ( null !== $fields && is_array( $fields ) ) {
 			return $fields;
 		}
 

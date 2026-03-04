@@ -8,9 +8,7 @@
 namespace Newspack\Reader_Activation\Sync;
 
 use Newspack\Donations;
-use Newspack\Reader_Activation;
 use Newspack\Reader_Activation\Integrations;
-use Newspack\Logger;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -167,7 +165,7 @@ class Metadata {
 	 */
 	public static function update_fields( $fields ) {
 		$esp_integration = Integrations::get_integration( 'esp' );
-		return $esp_integration ? $esp_integration->update_enabled_outgoing_fields( $fields ) : [];
+		return $esp_integration ? $esp_integration->update_enabled_outgoing_fields( $fields ) : false;
 	}
 
 	/**
