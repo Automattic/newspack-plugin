@@ -86,6 +86,26 @@ const SectionHeader = ( {
 
 	const HeadingTag = pageHeader ? 'h1' : `h${ heading }`;
 
+	let titleContent = null;
+
+	if ( typeof title === 'string' ) {
+		titleContent = (
+			<div className="newspack-section-header__title-container">
+				<HeadingTag>{ title }</HeadingTag>
+				{ badges?.length ? badges.map( ( badge, i ) => <Badge key={ i } text={ badge.label } level={ badge.level || 'default' } /> ) : null }
+				{ secondaryAction && (
+					<div className="newspack-section-header__secondary-action">
+						<Button variant="link" href={ secondaryAction.href } onClick={ secondaryAction.action }>
+							{ secondaryAction.label }
+						</Button>
+					</div>
+				) }
+			</div>
+		);
+	} else if ( typeof title === 'function' ) {
+		titleContent = <HeadingTag>{ title() }</HeadingTag>;
+	}
+
 	return (
 		<div
 			id={ id }
@@ -98,36 +118,23 @@ const SectionHeader = ( {
 			ref={ ref }
 		>
 			<Grid columns={ 1 } gutter={ 8 } className={ classes }>
-				<HStack alignment="left" style={ { position: 'relative' } }>
-					{ icon && (
-						<div className="newspack-section-header__icon">
-							<Icon icon={ icon } size={ 48 } />
-						</div>
-					) }
-					{ backNav && (
+				{ icon && (
+					<div className="newspack-section-header__icon">
+						<Icon icon={ icon } size={ 48 } />
+					</div>
+				) }
+				{ backNav ? (
+					<HStack alignment="left" style={ { position: 'relative' } }>
 						<div className="newspack-section-header__back-nav">
 							<Tooltip text={ __( 'Go back', 'newspack-plugin' ) }>
 								<Button href={ backNav } icon={ chevronLeft } variant="tertiary" />
 							</Tooltip>
 						</div>
-					) }
-					{ typeof title === 'string' && (
-						<div className="newspack-section-header__title-container">
-							<HeadingTag>{ title }</HeadingTag>
-							{ badges?.length
-								? badges.map( ( badge, i ) => <Badge key={ i } text={ badge.label } level={ badge.level || 'default' } /> )
-								: null }
-							{ secondaryAction && (
-								<div className="newspack-section-header__secondary-action">
-									<Button variant="link" href={ secondaryAction.href } onClick={ secondaryAction.action }>
-										{ secondaryAction.label }
-									</Button>
-								</div>
-							) }
-						</div>
-					) }
-				</HStack>
-				{ typeof title === 'function' && <HeadingTag>{ title() }</HeadingTag> }
+						{ titleContent }
+					</HStack>
+				) : (
+					titleContent
+				) }
 				{ description && typeof description === 'string' && <p>{ description }</p> }
 				{ typeof description === 'function' && <p>{ description() }</p> }
 				{ description && typeof description !== 'string' && typeof description !== 'function' && <p>{ description }</p> }
