@@ -65,9 +65,9 @@ abstract class Integration {
 	 * @param string $description Optional. A short description for this integration.
 	 */
 	public function __construct( $id, $name, $description = '' ) {
-		$this->id              = $id;
-		$this->name            = $name;
-		$this->description     = $description;
+		$this->id          = $id;
+		$this->name        = $name;
+		$this->description = $description;
 
 		add_action( 'init', [ $this, 'register_settings_fields' ] );
 	}

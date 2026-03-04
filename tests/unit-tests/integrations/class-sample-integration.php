@@ -19,6 +19,14 @@ class Sample_Integration extends Integration {
 	public static $handler_args = null;
 
 	/**
+	 * Register settings fields (test implementation).
+	 */
+	public function register_settings_fields() {
+		// No settings fields for this test implementation.
+		$this->settings_fields = [];
+	}
+
+	/**
 	 * Push contact data (test implementation).
 	 *
 	 * @param array      $contact The contact data.
