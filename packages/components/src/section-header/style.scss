@@ -27,7 +27,7 @@
 			@media (min-width: 782px) {
 				.newspack-section-header__title-container,
 				p {
-					max-width: 50%;
+					max-width: calc(50% - 16px);
 				}
 			}
 		}
