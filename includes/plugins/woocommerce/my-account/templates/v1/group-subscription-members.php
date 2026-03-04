@@ -229,7 +229,7 @@ $is_at_limit          = $member_limit > 0 && ( count( $members ) + count( $pendi
 		<div class="newspack-ui__modal-container__overlay"></div>
 		<div class="newspack-ui__modal newspack-ui__modal--small">
 				<header class="newspack-ui__modal__header">
-					<h2>Invite a group member</h2>
+					<h2><?php esc_html_e( 'Invite a group member', 'newspack-plugin' ); ?></h2>
 
 					<button class="newspack-ui__button newspack-ui__button--icon newspack-ui__button--ghost newspack-ui__modal__close">
 						<span class="screen-reader-text"><?php esc_html_e( 'Close', 'newspack-plugin' ); ?></span>
@@ -249,7 +249,7 @@ $is_at_limit          = $member_limit > 0 && ( count( $members ) + count( $pendi
 						<?php else : ?>
 							<p><?php esc_html_e( 'Enter an email address to invite a new member to this group subscription.', 'newspack-plugin' ); ?></p>
 							<p>
-								<input type="email" placeholder="Recipient’s email address" name="newspack-group-subscription-invite-email" id="newspack-group-subscription-invite-email" required>
+								<input type="email" placeholder="<?php esc_attr_e( 'Recipient’s email address', 'newspack-plugin' ); ?>" name="newspack-group-subscription-invite-email" id="newspack-group-subscription-invite-email" required>
 							</p>
 
 							<button class="newspack-ui__button newspack-ui__button--primary newspack-ui__button--wide"><?php esc_html_e( 'Invite', 'newspack-plugin' ); ?></button>
