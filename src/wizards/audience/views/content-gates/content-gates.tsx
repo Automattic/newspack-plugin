@@ -83,7 +83,7 @@ const ContentGates = ( { updateGatesData }: { updateGatesData: ( gates: Gate[] )
 					addNotice( {
 						message: sprintf(
 							// translators: %s is the status of the countdown banner.
-							__( 'Countdown banner %s.', 'newspack-plugin' ),
+							__( 'Metered countdown %s.', 'newspack-plugin' ),
 							config.countdown_banner?.enabled ? __( 'disabled', 'newspack-plugin' ) : __( 'enabled', 'newspack-plugin' )
 						),
 						type: 'success',
@@ -117,7 +117,7 @@ const ContentGates = ( { updateGatesData }: { updateGatesData: ( gates: Gate[] )
 						message: sprintf(
 							// translators: %s is the status of the content gifting.
 							__( 'Content gifting %s.', 'newspack-plugin' ),
-							config.content_gifting?.enabled ? __( 'enabled', 'newspack-plugin' ) : __( 'disabled', 'newspack-plugin' )
+							config.content_gifting?.enabled ? __( 'disabled', 'newspack-plugin' ) : __( 'enabled', 'newspack-plugin' )
 						),
 						type: 'success',
 						id: 'content-gifting-config-updated',
