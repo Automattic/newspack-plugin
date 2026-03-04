@@ -745,7 +745,7 @@ class Content_Gate {
 		$pattern_slug = '';
 		if ( 'registration' === $gate_mode ) {
 			$pattern_slug = 'registration-wall';
-			if ( $custom_access_settings['active'] ) {
+			if ( ! empty( $custom_access_settings['active'] ) ) {
 				$pattern_slug = 'pay-wall-one-tier-metering';
 			}
 		} elseif ( 'custom_access' === $gate_mode ) {
