@@ -15,21 +15,21 @@
 
 	<!-- wp:heading {"textAlign":"center","level":3} -->
 	<h3 class="wp-block-heading has-text-align-center">
-		<?php esc_html_e( 'Continue reading for free', 'newspack' ); ?>
+		<?php esc_html_e( 'Continue reading for free', 'newspack-plugin' ); ?>
 	</h3>
 	<!-- /wp:heading -->
 
 	<!-- wp:paragraph {"align":"center"} -->
 	<p class="has-text-align-center">
-		<?php esc_html_e( 'Get unlimited access to this article and our full collection.', 'newspack' ); ?><br>
-		<?php esc_html_e( 'A free account unlocks everything.', 'newspack' ); ?>
+		<?php esc_html_e( 'Get unlimited access to this article and our full collection.', 'newspack-plugin' ); ?><br>
+		<?php esc_html_e( 'A free account unlocks everything.', 'newspack-plugin' ); ?>
 	</p>
 	<!-- /wp:paragraph -->
 
 	<!-- wp:newspack/reader-registration -->
 	<div class="wp-block-newspack-reader-registration">
 		<!-- wp:paragraph {"align":"center"} -->
-		<p class="has-text-align-center"><?php esc_html_e( 'Thank you for registering.', 'newspack' ); ?></p>
+		<p class="has-text-align-center"><?php esc_html_e( 'Thank you for registering.', 'newspack-plugin' ); ?></p>
 		<!-- /wp:paragraph -->
 	</div>
 	<!-- /wp:newspack/reader-registration -->

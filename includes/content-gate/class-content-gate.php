@@ -616,8 +616,11 @@ class Content_Gate {
 		// Create default layouts for registration and custom_access modes.
 		$registration_settings  = $gate['registration'] ?? [];
 		$registration_layout_id = $registration_settings['gate_layout_id'] ?? 0;
+		$custom_access_settings  = $gate['custom_access'] ?? [];
+		$custom_access_layout_id = $custom_access_settings['gate_layout_id'] ?? 0;
+
 		if ( ! $registration_layout_id ) {
-			$registration_content   = self::get_block_pattern_content( 'registration-wall' );
+			$registration_content   = self::get_layout_default_content( $gate_id, 'registration', $registration_settings, $custom_access_settings );
 			$registration_layout_id = self::create_gate_layout(
 				__( 'Registration Access Layout', 'newspack' ),
 				$registration_content
@@ -628,11 +631,11 @@ class Content_Gate {
 		}
 		self::update_registration_settings( $gate_id, $registration_settings );
 
-		$custom_access_settings  = $gate['custom_access'] ?? [];
-		$custom_access_layout_id = $custom_access_settings['gate_layout_id'] ?? 0;
 		if ( ! $custom_access_layout_id ) {
+			$custom_access_content   = self::get_layout_default_content( $gate_id, 'custom_access', $registration_settings, $custom_access_settings );
 			$custom_access_layout_id = self::create_gate_layout(
-				__( 'Paid Access Layout', 'newspack' )
+				__( 'Paid Access Layout', 'newspack' ),
+				$custom_access_content
 			);
 			if ( ! is_wp_error( $custom_access_layout_id ) ) {
 				$custom_access_settings['gate_layout_id'] = $custom_access_layout_id;
@@ -703,7 +706,7 @@ class Content_Gate {
 	 *
 	 * @return string The pattern content, or empty string if not found.
 	 */
-	public static function get_block_pattern_content( $pattern_slug ) {
+	private static function get_block_pattern_content( $pattern_slug ) {
 		$patterns_dir = realpath( __DIR__ . '/block-patterns' );
 		if ( ! $patterns_dir ) {
 			return '';
@@ -719,6 +722,40 @@ class Content_Gate {
 		ob_start();
 		require $path;
 		return ob_get_clean();
+	}
+
+	/**
+	 * Get the block pattern content for a gate layout.
+	 *
+	 * @param int    $gate_id                Gate ID.
+	 * @param string $gate_mode              Gate mode.
+	 * @param array  $registration_settings  Registration settings.
+	 * @param array  $custom_access_settings Custom access settings.
+	 *
+	 * @return string
+	 */
+	private static function get_layout_default_content( $gate_id, $gate_mode, $registration_settings = [], $custom_access_settings = [] ) {
+		if ( empty( $registration_settings ) ) {
+			$registration_settings = self::get_registration_settings( $gate_id );
+		}
+		if ( empty( $custom_access_settings ) ) {
+			$custom_access_settings = self::get_custom_access_settings( $gate_id );
+		}
+
+		$pattern_slug = '';
+		if ( 'registration' === $gate_mode ) {
+			$pattern_slug = 'registration-wall';
+			if ( $custom_access_settings['active'] ) {
+				$pattern_slug = 'pay-wall-one-tier-metering';
+			}
+		} elseif ( 'custom_access' === $gate_mode ) {
+			$pattern_slug = 'pay-wall-one-tier';
+		}
+
+		if ( empty( $pattern_slug ) ) {
+			return '<p>' . esc_html( __( 'This article is only available to members.', 'newspack' ) ) . '</p>';
+		}
+		return self::get_block_pattern_content( $pattern_slug );
 	}
 
 	/**
@@ -790,7 +827,7 @@ class Content_Gate {
 			exit;
 		} else {
 			// Use registration pattern for registration mode, default content for custom_access.
-			$gate_layout_content = 'registration' === $gate_mode ? self::get_block_pattern_content( 'registration-wall' ) : '';
+			$gate_layout_content = self::get_layout_default_content( $gate_id, $gate_mode, $gate['registration'], $gate['custom_access'] );
 			$gate_layout_id      = self::create_gate_layout( $gate_layout_default_title, $gate_layout_content );
 			if ( is_wp_error( $gate_layout_id ) ) {
 				\wp_die( esc_html( $gate_layout_id->get_error_message() ) );
