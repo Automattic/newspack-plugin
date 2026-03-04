@@ -205,9 +205,12 @@ $is_at_limit          = count( $members ) + count( Group_Subscription_Invite::ge
 				</header>
 
 				<section class="newspack-ui__modal__content">
-					<form>
+					<form name="newspack-group-subscription-invite-member" method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
+						<input type="hidden" name="action" value="newspack_group_subscription_invite">
+						<input type="hidden" name="subscription_id" value="<?php echo esc_attr( $subscription->get_id() ); ?>">
+						<?php wp_nonce_field( Group_Subscription_MyAccount::INVITE_NONCE_ACTION ); ?>
 						<?php if ( $is_at_limit ) : ?>
-							<p">
+							<p>
 								<?php esc_html_e( 'You have reached the member limit for this group subscription. Please remove some members or cancel pending invitations before inviting more group members.', 'newspack-plugin' ); ?>
 							</p>
 						<?php else : ?>
@@ -216,9 +219,9 @@ $is_at_limit          = count( $members ) + count( Group_Subscription_Invite::ge
 								<input type="email" placeholder="Recipient’s email address" name="newspack-group-subscription-invite-email" id="newspack-group-subscription-invite-email" required>
 							</p>
 
-							<button class="newspack-ui__button newspack-ui__button--primary newspack-ui__button--wide">Invite</button>
+							<button class="newspack-ui__button newspack-ui__button--primary newspack-ui__button--wide"><?php esc_html_e( 'Invite', 'newspack-plugin' ); ?></button>
+							<button class="newspack-ui__button newspack-ui__button--secondary newspack-ui__button--wide newspack-ui__modal__close"><?php esc_html_e( 'Close', 'newspack-plugin' ); ?></button>
 						<?php endif; ?>
-						<button class="newspack-ui__button newspack-ui__button--secondary newspack-ui__button--wide newspack-ui__modal__close">Cancel</button>
 					</form>
 				</section>
 			</div><!-- .newspack-ui__modal__small -->
