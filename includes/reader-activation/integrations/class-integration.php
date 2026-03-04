@@ -44,6 +44,13 @@ abstract class Integration {
 	protected $name;
 
 	/**
+	 * A short description for this integration.
+	 *
+	 * @var string
+	 */
+	protected $description = '';
+
+	/**
 	 * Settings fields for this integration.
 	 *
 	 * @var array
@@ -53,12 +60,14 @@ abstract class Integration {
 	/**
 	 * Constructor.
 	 *
-	 * @param string $id              The unique identifier for this integration.
-	 * @param string $name            The display name for this integration.
+	 * @param string $id          The unique identifier for this integration.
+	 * @param string $name        The display name for this integration.
+	 * @param string $description Optional. A short description for this integration.
 	 */
-	public function __construct( $id, $name ) {
-		$this->id   = $id;
-		$this->name = $name;
+	public function __construct( $id, $name, $description = '' ) {
+		$this->id          = $id;
+		$this->name        = $name;
+		$this->description = $description;
 	}
 
 	/**
@@ -77,6 +86,15 @@ abstract class Integration {
 	 */
 	public function get_name() {
 		return $this->name;
+	}
+
+	/**
+	 * Get the integration description.
+	 *
+	 * @return string The integration description.
+	 */
+	public function get_description() {
+		return $this->description;
 	}
 
 	/**
@@ -387,7 +405,7 @@ abstract class Integration {
 	 * @return array|null The field declaration or null if not found.
 	 */
 	private function get_settings_field_by_key( $key ) {
-		foreach ( $this->settings_fields as $field ) {
+		foreach ( $this->get_settings_fields() as $field ) {
 			if ( $field['key'] === $key ) {
 				return $field;
 			}
@@ -412,6 +430,11 @@ abstract class Integration {
 			case 'select':
 				$valid_values = array_column( $field['options'] ?? [], 'value' );
 				return in_array( $value, $valid_values, true ) ? $value : ( $field['default'] ?? '' );
+			case 'metadata':
+				if ( ! is_array( $value ) ) {
+					return $field['default'] ?? [];
+				}
+				return array_values( array_map( 'sanitize_text_field', $value ) );
 			case 'textarea':
 				return \sanitize_textarea_field( $value );
 			case 'text':

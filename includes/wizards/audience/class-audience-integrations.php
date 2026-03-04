@@ -7,6 +7,7 @@
 
 namespace Newspack;
 
+use Newspack\Reader_Activation;
 use Newspack\Reader_Activation\Integrations;
 use WP_Error, WP_REST_Request, WP_REST_Response, WP_REST_Server;
 
@@ -85,12 +86,19 @@ class Audience_Integrations extends Wizard {
 
 		wp_enqueue_script( 'newspack-wizards' );
 
+		$localized_data = [
+			'integrations_settings_enabled' => self::is_enabled(),
+			'esp_metadata_fields'           => Reader_Activation\Sync\Metadata::get_default_fields(),
+		];
+
+		if ( class_exists( 'Newspack_Newsletters' ) ) {
+			$localized_data['esp_provider'] = \Newspack_Newsletters::service_provider();
+		}
+
 		\wp_localize_script(
 			'newspack-wizards',
 			'newspackAudienceIntegrations',
-			[
-				'integrations_settings_enabled' => self::is_enabled(),
-			]
+			$localized_data
 		);
 	}
 
@@ -114,6 +122,16 @@ class Audience_Integrations extends Wizard {
 			[
 				'methods'             => WP_REST_Server::EDITABLE,
 				'callback'            => [ $this, 'api_update_integration_settings' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+			]
+		);
+
+		register_rest_route(
+			NEWSPACK_API_NAMESPACE,
+			'/wizard/' . $this->slug . '/settings/(?P<integration_id>[a-zA-Z0-9_-]+)/enabled',
+			[
+				'methods'             => WP_REST_Server::EDITABLE,
+				'callback'            => [ $this, 'api_update_integration_enabled' ],
 				'permission_callback' => [ $this, 'api_permissions_check' ],
 			]
 		);
@@ -153,6 +171,34 @@ class Audience_Integrations extends Wizard {
 				esc_html__( 'Integration not found.', 'newspack-plugin' ),
 				[ 'status' => 404 ]
 			);
+		}
+
+		return rest_ensure_response( Integrations::get_all_integration_settings() );
+	}
+
+	/**
+	 * Update the enabled state of a specific integration.
+	 *
+	 * @param WP_REST_Request $request Request object.
+	 * @return WP_REST_Response|WP_Error
+	 */
+	public function api_update_integration_enabled( WP_REST_Request $request ) {
+		$integration_id = $request->get_param( 'integration_id' );
+		$enabled        = $request->get_param( 'enabled' );
+
+		$integration = Integrations::get_integration( $integration_id );
+		if ( ! $integration ) {
+			return new WP_Error(
+				'newspack_integration_not_found',
+				esc_html__( 'Integration not found.', 'newspack-plugin' ),
+				[ 'status' => 404 ]
+			);
+		}
+
+		if ( $enabled ) {
+			Integrations::enable( $integration_id );
+		} else {
+			Integrations::disable( $integration_id );
 		}
 
 		return rest_ensure_response( Integrations::get_all_integration_settings() );

@@ -1,3 +1,4 @@
+/* global newspackAudienceIntegrations */
 /**
  * WordPress dependencies.
  */
@@ -9,7 +10,7 @@ import { CheckboxControl, ExternalLink } from '@wordpress/components';
 /**
  * Internal dependencies.
  */
-import { Button, Card, SectionHeader, SelectControl, TextControl, Wizard, withWizard } from '../../../../../packages/components/src';
+import { ActionCard, Button, Card, Grid, SelectControl, TextControl, Wizard, withWizard } from '../../../../../packages/components/src';
 import WizardsTab from '../../../wizards-tab';
 import WizardSection from '../../../wizards-section';
 
@@ -54,6 +55,30 @@ function SettingsField( { field, value, onChange } ) {
 					onChange={ onChange }
 				/>
 			);
+		case 'metadata': {
+			const availableFields = newspackAudienceIntegrations?.esp_metadata_fields || [];
+			const selectedFields = Array.isArray( value ) ? value : [];
+			return (
+				<div key={ key }>
+					<h3>{ __( 'Metadata fields to sync', 'newspack-plugin' ) }</h3>
+					<p className="components-base-control__help">{ __( 'Select which data to sync for each contact.', 'newspack-plugin' ) }</p>
+					<Grid columns={ 3 } rowGap={ 16 }>
+						{ availableFields.map( ( fieldName, index ) => (
+							<CheckboxControl
+								className="newspack-checkbox-control"
+								key={ index }
+								label={ fieldName.replace( ': ', '' ) }
+								checked={ selectedFields.includes( fieldName ) }
+								onChange={ checked => {
+									const newFields = checked ? [ ...selectedFields, fieldName ] : selectedFields.filter( f => f !== fieldName );
+									onChange( newFields );
+								} }
+							/>
+						) ) }
+					</Grid>
+				</div>
+			);
+		}
 		case 'textarea':
 			return (
 				<TextControl
@@ -100,6 +125,7 @@ function AudienceIntegrations( props, ref ) {
 	const [ integrations, setIntegrations ] = useState( {} );
 	const [ pendingChanges, setPendingChanges ] = useState( {} );
 	const [ saving, setSaving ] = useState( {} );
+	const [ toggling, setToggling ] = useState( {} );
 	const [ loading, setLoading ] = useState( true );
 
 	const fetchSettings = useCallback( () => {
@@ -150,6 +176,21 @@ function AudienceIntegrations( props, ref ) {
 			} );
 	};
 
+	const handleToggleEnabled = ( integrationId, enabled ) => {
+		setToggling( prev => ( { ...prev, [ integrationId ]: true } ) );
+		apiFetch( {
+			path: `${ API_PATH }/${ integrationId }/enabled`,
+			method: 'POST',
+			data: { enabled },
+		} )
+			.then( data => {
+				setIntegrations( data );
+			} )
+			.finally( () => {
+				setToggling( prev => ( { ...prev, [ integrationId ]: false } ) );
+			} );
+	};
+
 	const getFieldValue = ( integrationId, field ) => {
 		if ( pendingChanges[ integrationId ] && field.key in pendingChanges[ integrationId ] ) {
 			return pendingChanges[ integrationId ][ field.key ];
@@ -179,28 +220,44 @@ function AudienceIntegrations( props, ref ) {
 									integrationIds.map( id => {
 										const integration = integrations[ id ];
 										const hasPending = pendingChanges[ id ] && Object.keys( pendingChanges[ id ] ).length > 0;
+										const isEnabled = integration.enabled;
 										return (
-											<div key={ id }>
-												<SectionHeader title={ integration.name } />
-												<Card>
-													{ integration.settings.map( field => (
-														<SettingsField
-															key={ field.key }
-															field={ field }
-															value={ getFieldValue( id, field ) }
-															onChange={ val => handleFieldChange( id, field.key, val ) }
-														/>
-													) ) }
-													<Button
-														variant="primary"
-														onClick={ () => handleSave( id ) }
-														disabled={ ! hasPending || saving[ id ] }
-														isBusy={ saving[ id ] }
-													>
-														{ __( 'Save', 'newspack-plugin' ) }
-													</Button>
-												</Card>
-											</div>
+											<ActionCard
+												key={ id }
+												title={ integration.name }
+												description={ integration.description }
+												toggleChecked={ isEnabled }
+												toggleOnChange={ () => handleToggleEnabled( id, ! isEnabled ) }
+												disabled={ toggling[ id ] }
+												hasGreyHeader={ isEnabled }
+												actionContent={
+													isEnabled ? (
+														<Button
+															variant="primary"
+															onClick={ () => handleSave( id ) }
+															disabled={ ! hasPending || saving[ id ] }
+															isBusy={ saving[ id ] }
+														>
+															{ __( 'Save Settings', 'newspack-plugin' ) }
+														</Button>
+													) : null
+												}
+											>
+												{ isEnabled && (
+													<>
+														<Grid columns={ 1 } rowGap={ 16 }>
+															{ integration.settings.map( field => (
+																<SettingsField
+																	key={ field.key }
+																	field={ field }
+																	value={ getFieldValue( id, field ) }
+																	onChange={ val => handleFieldChange( id, field.key, val ) }
+																/>
+															) ) }
+														</Grid>
+													</>
+												) }
+											</ActionCard>
 										);
 									} ) }
 							</WizardSection>

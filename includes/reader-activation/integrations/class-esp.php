@@ -7,8 +7,11 @@
 
 namespace Newspack\Reader_Activation\Integrations;
 
+use Newspack\Audience_Integrations;
 use Newspack\Reader_Activation\Integration;
 use Newspack\Reader_Activation\Sync;
+use Newspack\Reader_Activation\Sync\Metadata;
+use Newspack\Reader_Activation\Integrations;
 use Newspack\Reader_Activation;
 use Newspack_Newsletters_Contacts;
 use Newspack_Newsletters_Subscription;
@@ -25,7 +28,190 @@ class ESP extends Integration {
 	 * Constructor.
 	 */
 	public function __construct() {
-		parent::__construct( 'esp', __( 'ESPs Integration', 'newspack-plugin' ) );
+		parent::__construct( 'esp', __( 'ESP', 'newspack-plugin' ), __( 'Sync reader data and activity to the connected email service provider.', 'newspack-plugin' ) );
+	}
+
+	/**
+	 * Get the active ESP provider name.
+	 *
+	 * @return string The provider name or empty string.
+	 */
+	private function get_provider() {
+		if ( class_exists( 'Newspack_Newsletters' ) ) {
+			return \Newspack_Newsletters::service_provider();
+		}
+		return '';
+	}
+
+	/**
+	 * Get list options from the Newsletters API for select fields.
+	 *
+	 * @return array Array of options with label and value keys.
+	 */
+	private function get_list_options() {
+		if ( ! method_exists( 'Newspack_Newsletters_Subscription', 'get_lists' ) ) {
+			return [];
+		}
+
+		$lists = Newspack_Newsletters_Subscription::get_lists();
+		if ( is_wp_error( $lists ) || ! is_array( $lists ) ) {
+			return [];
+		}
+
+		$provider = $this->get_provider();
+
+		// For Mailchimp, filter out groups and tags, only include remote lists.
+		if ( 'mailchimp' === $provider ) {
+			$lists = array_filter(
+				$lists,
+				function( $list ) {
+					if ( ! isset( $list['type'] ) || 'remote' !== $list['type'] ) {
+						return false;
+					}
+					if ( isset( $list['id'] ) && preg_match( '/^(group-|tag-)/', $list['id'] ) ) {
+						return false;
+					}
+					return true;
+				}
+			);
+		}
+
+		$options = [
+			[
+				'label' => __( 'None', 'newspack-plugin' ),
+				'value' => '',
+			],
+		];
+		foreach ( $lists as $list ) {
+			$options[] = [
+				'label' => $list['name'] ?? $list['id'],
+				'value' => $list['id'],
+			];
+		}
+
+		return $options;
+	}
+
+	/**
+	 * Get the settings fields declared by this integration.
+	 *
+	 * Dynamically builds the field list based on the active ESP provider.
+	 * Only returns fields when the integrations feature flag is ON and ESP is configured.
+	 *
+	 * @return array Array of settings field declarations.
+	 */
+	public function get_settings_fields() {
+		if ( ! Audience_Integrations::is_enabled() ) {
+			return [];
+		}
+
+		if ( ! Reader_Activation::is_esp_configured() ) {
+			return [];
+		}
+
+		$fields = [
+			[
+				'key'         => 'sync_esp_delete',
+				'type'        => 'checkbox',
+				'label'       => __( 'Sync user account deletion', 'newspack-plugin' ),
+				'description' => __( 'When a reader account is deleted, also remove the contact from the ESP.', 'newspack-plugin' ),
+				'default'     => true,
+			],
+		];
+
+		$provider     = $this->get_provider();
+		$list_options = $this->get_list_options();
+
+		switch ( $provider ) {
+			case 'mailchimp':
+				$fields[] = [
+					'key'         => 'mailchimp_audience_id',
+					'type'        => 'select',
+					'label'       => __( 'Mailchimp Audience', 'newspack-plugin' ),
+					'description' => __( 'Choose an audience to receive reader activity data.', 'newspack-plugin' ),
+					'options'     => $list_options,
+					'default'     => '',
+				];
+				$fields[] = [
+					'key'         => 'mailchimp_reader_default_status',
+					'type'        => 'select',
+					'label'       => __( 'Default reader status', 'newspack-plugin' ),
+					'description' => __( 'Choose which Mailchimp status readers should have by default if they are not subscribed to any newsletters.', 'newspack-plugin' ),
+					'options'     => [
+						[
+							'label' => __( 'Transactional/Non-Subscribed', 'newspack-plugin' ),
+							'value' => 'transactional',
+						],
+						[
+							'label' => __( 'Subscribed', 'newspack-plugin' ),
+							'value' => 'subscribed',
+						],
+					],
+					'default'     => 'transactional',
+				];
+				break;
+			case 'active_campaign':
+				$fields[] = [
+					'key'         => 'active_campaign_master_list',
+					'type'        => 'select',
+					'label'       => __( 'ActiveCampaign Master List', 'newspack-plugin' ),
+					'description' => __( 'Choose a master list to which all registered readers will be added.', 'newspack-plugin' ),
+					'options'     => $list_options,
+					'default'     => '',
+				];
+				break;
+			case 'constant_contact':
+				$fields[] = [
+					'key'         => 'constant_contact_list_id',
+					'type'        => 'select',
+					'label'       => __( 'Constant Contact Master List', 'newspack-plugin' ),
+					'description' => __( 'Choose a master list to which all registered readers will be added.', 'newspack-plugin' ),
+					'options'     => $list_options,
+					'default'     => '',
+				];
+				break;
+		}
+
+		$fields[] = [
+			'key'         => 'metadata_prefix',
+			'type'        => 'text',
+			'label'       => __( 'Metadata field prefix', 'newspack-plugin' ),
+			'description' => __( 'A string to prefix metadata fields attached to each contact synced to the ESP. Required to ensure that metadata field names are unique. Default: NP_', 'newspack-plugin' ),
+			'default'     => 'NP_',
+		];
+		$fields[] = [
+			'key'     => 'metadata_fields',
+			'type'    => 'metadata',
+			'label'   => __( 'Metadata fields to sync', 'newspack-plugin' ),
+			'default' => [],
+		];
+
+		return $fields;
+	}
+
+	/**
+	 * Get the master list ID from integration settings.
+	 *
+	 * @return string|false The master list ID or false.
+	 */
+	public function get_master_list_id() {
+		$provider = $this->get_provider();
+		switch ( $provider ) {
+			case 'mailchimp':
+				$audience_id = $this->get_settings_field_value( 'mailchimp_audience_id' );
+				if ( ! $audience_id && function_exists( 'mailchimp_get_list_id' ) ) {
+					$audience_id = \mailchimp_get_list_id();
+				}
+				return ! empty( $audience_id ) ? $audience_id : false;
+			case 'active_campaign':
+				$list_id = $this->get_settings_field_value( 'active_campaign_master_list' );
+				return ! empty( $list_id ) ? $list_id : false;
+			case 'constant_contact':
+				$list_id = $this->get_settings_field_value( 'constant_contact_list_id' );
+				return ! empty( $list_id ) ? $list_id : false;
+			default:
+				return false;
+		}
 	}
 
 	/**
@@ -84,18 +270,32 @@ class ESP extends Integration {
 			);
 		}
 
-		if ( ! Reader_Activation::get_setting( 'sync_esp' ) ) {
-			$errors->add(
-				'ras_esp_sync_not_enabled',
-				__( 'ESP sync is not enabled.', 'newspack-plugin' )
-			);
-		}
-
-		if ( ! Reader_Activation::get_esp_master_list_id() ) {
-			$errors->add(
-				'ras_esp_master_list_id_not_found',
-				__( 'ESP master list ID is not set.', 'newspack-plugin' )
-			);
+		if ( Audience_Integrations::is_enabled() ) {
+			if ( ! Integrations::is_enabled( $this->get_id() ) ) {
+				$errors->add(
+					'ras_esp_sync_not_enabled',
+					__( 'ESP sync is not enabled.', 'newspack-plugin' )
+				);
+			}
+			if ( ! $this->get_master_list_id() ) {
+				$errors->add(
+					'ras_esp_master_list_id_not_found',
+					__( 'ESP master list ID is not set.', 'newspack-plugin' )
+				);
+			}
+		} else {
+			if ( ! Reader_Activation::get_setting( 'sync_esp' ) ) {
+				$errors->add(
+					'ras_esp_sync_not_enabled',
+					__( 'ESP sync is not enabled.', 'newspack-plugin' )
+				);
+			}
+			if ( ! Reader_Activation::get_esp_master_list_id() ) {
+				$errors->add(
+					'ras_esp_master_list_id_not_found',
+					__( 'ESP master list ID is not set.', 'newspack-plugin' )
+				);
+			}
 		}
 
 		if ( $return_errors ) {
@@ -125,7 +325,11 @@ class ESP extends Integration {
 			return $can_sync;
 		}
 
-		$master_list_id = Reader_Activation::get_esp_master_list_id();
+		if ( Audience_Integrations::is_enabled() ) {
+			$master_list_id = $this->get_master_list_id();
+		} else {
+			$master_list_id = Reader_Activation::get_esp_master_list_id();
+		}
 
 		return Newspack_Newsletters_Contacts::upsert( $contact, $master_list_id, $context, $existing_contact );
 	}
@@ -190,7 +394,11 @@ class ESP extends Integration {
 			);
 		}
 
-		$master_list_id = Reader_Activation::get_esp_master_list_id();
+		if ( Audience_Integrations::is_enabled() ) {
+			$master_list_id = $this->get_master_list_id();
+		} else {
+			$master_list_id = Reader_Activation::get_esp_master_list_id();
+		}
 
 		if ( empty( $master_list_id ) ) {
 			return new \WP_Error(
