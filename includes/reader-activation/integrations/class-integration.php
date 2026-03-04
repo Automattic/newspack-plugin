@@ -322,4 +322,102 @@ abstract class Integration {
 
 		return array_unique( $prefixed_keys );
 	}
+
+	/**
+	 * Get the settings fields declared by this integration.
+	 *
+	 * @return array Array of settings field declarations.
+	 */
+	public function get_settings_fields() {
+		return $this->settings_fields;
+	}
+
+	/**
+	 * Get the value of a settings field.
+	 *
+	 * @param string $key The field key.
+	 * @return mixed The field value, or the default if not set.
+	 */
+	public function get_settings_field_value( $key ) {
+		$field = $this->get_settings_field_by_key( $key );
+		if ( ! $field ) {
+			return null;
+		}
+		$option_name = self::SETTINGS_OPTION_PREFIX . $this->id . '_' . $key;
+		$default     = $field['default'] ?? '';
+		return \get_option( $option_name, $default );
+	}
+
+	/**
+	 * Update the value of a settings field.
+	 *
+	 * @param string $key   The field key.
+	 * @param mixed  $value The new value.
+	 * @return bool True if updated, false otherwise.
+	 */
+	public function update_settings_field_value( $key, $value ) {
+		$field = $this->get_settings_field_by_key( $key );
+		if ( ! $field ) {
+			return false;
+		}
+		$sanitized   = $this->sanitize_settings_field_value( $field, $value );
+		$option_name = self::SETTINGS_OPTION_PREFIX . $this->id . '_' . $key;
+		return \update_option( $option_name, $sanitized );
+	}
+
+	/**
+	 * Get settings config with current values populated, for API responses.
+	 *
+	 * @return array Array of field declarations with current values.
+	 */
+	public function get_settings_config() {
+		$fields = $this->get_settings_fields();
+		$config = [];
+		foreach ( $fields as $field ) {
+			$field['value'] = $this->get_settings_field_value( $field['key'] );
+			$config[]       = $field;
+		}
+		return $config;
+	}
+
+	/**
+	 * Get a settings field declaration by key.
+	 *
+	 * @param string $key The field key.
+	 * @return array|null The field declaration or null if not found.
+	 */
+	private function get_settings_field_by_key( $key ) {
+		foreach ( $this->settings_fields as $field ) {
+			if ( $field['key'] === $key ) {
+				return $field;
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * Sanitize a settings field value based on its type.
+	 *
+	 * @param array $field The field declaration.
+	 * @param mixed $value The value to sanitize.
+	 * @return mixed The sanitized value.
+	 */
+	private function sanitize_settings_field_value( $field, $value ) {
+		$type = $field['type'] ?? 'text';
+		switch ( $type ) {
+			case 'checkbox':
+				return (bool) $value;
+			case 'number':
+				return is_numeric( $value ) ? $value + 0 : ( $field['default'] ?? 0 );
+			case 'select':
+				$valid_values = array_column( $field['options'] ?? [], 'value' );
+				return in_array( $value, $valid_values, true ) ? $value : ( $field['default'] ?? '' );
+			case 'textarea':
+				return \sanitize_textarea_field( $value );
+			case 'text':
+			case 'password':
+			default:
+				return \sanitize_text_field( $value );
+		}
+	}
 }

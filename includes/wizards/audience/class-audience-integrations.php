@@ -1,0 +1,160 @@
+<?php
+/**
+ * Audience Integrations Wizard
+ *
+ * @package Newspack
+ */
+
+namespace Newspack;
+
+use Newspack\Reader_Activation\Integrations;
+use WP_Error, WP_REST_Request, WP_REST_Response, WP_REST_Server;
+
+defined( 'ABSPATH' ) || exit;
+
+/**
+ * Audience Integrations Wizard.
+ */
+class Audience_Integrations extends Wizard {
+	/**
+	 * Admin page slug.
+	 *
+	 * @var string
+	 */
+	protected $slug = 'newspack-audience-integrations';
+
+	/**
+	 * Parent slug.
+	 *
+	 * @var string
+	 */
+	protected $parent_slug = 'newspack-audience';
+
+	/**
+	 * Constructor.
+	 */
+	public function __construct() {
+		if ( ! self::is_enabled() ) {
+			return;
+		}
+		parent::__construct();
+		add_action( 'rest_api_init', [ $this, 'register_api_endpoints' ] );
+	}
+
+	/**
+	 * Check if the integrations settings feature is enabled.
+	 *
+	 * @return bool
+	 */
+	public static function is_enabled() {
+		return defined( 'NEWSPACK_INTEGRATIONS_SETTINGS_ENABLED' ) && NEWSPACK_INTEGRATIONS_SETTINGS_ENABLED;
+	}
+
+	/**
+	 * Get the name for this wizard.
+	 *
+	 * @return string The wizard name.
+	 */
+	public function get_name() {
+		return esc_html__( 'Audience Management / Integrations', 'newspack-plugin' );
+	}
+
+	/**
+	 * Add Integrations page.
+	 */
+	public function add_page() {
+		add_submenu_page(
+			$this->parent_slug,
+			$this->get_name(),
+			esc_html__( 'Integrations', 'newspack-plugin' ),
+			$this->capability,
+			$this->slug,
+			[ $this, 'render_wizard' ]
+		);
+	}
+
+	/**
+	 * Enqueue scripts and styles.
+	 */
+	public function enqueue_scripts_and_styles() {
+		if ( ! $this->is_wizard_page() ) {
+			return;
+		}
+
+		parent::enqueue_scripts_and_styles();
+
+		wp_enqueue_script( 'newspack-wizards' );
+
+		\wp_localize_script(
+			'newspack-wizards',
+			'newspackAudienceIntegrations',
+			[
+				'integrations_settings_enabled' => self::is_enabled(),
+			]
+		);
+	}
+
+	/**
+	 * Register the endpoints needed for the wizard screens.
+	 */
+	public function register_api_endpoints() {
+		register_rest_route(
+			NEWSPACK_API_NAMESPACE,
+			'/wizard/' . $this->slug . '/settings',
+			[
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => [ $this, 'api_get_integration_settings' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+			]
+		);
+
+		register_rest_route(
+			NEWSPACK_API_NAMESPACE,
+			'/wizard/' . $this->slug . '/settings/(?P<integration_id>[a-zA-Z0-9_-]+)',
+			[
+				'methods'             => WP_REST_Server::EDITABLE,
+				'callback'            => [ $this, 'api_update_integration_settings' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+			]
+		);
+	}
+
+	/**
+	 * Get all integration settings.
+	 *
+	 * @return WP_REST_Response
+	 */
+	public function api_get_integration_settings() {
+		return rest_ensure_response( Integrations::get_all_integration_settings() );
+	}
+
+	/**
+	 * Update settings for a specific integration.
+	 *
+	 * @param WP_REST_Request $request Request object.
+	 * @return WP_REST_Response|WP_Error
+	 */
+	public function api_update_integration_settings( WP_REST_Request $request ) {
+		$integration_id = $request->get_param( 'integration_id' );
+		$settings       = $request->get_param( 'settings' );
+
+		if ( ! is_array( $settings ) ) {
+			return new WP_Error(
+				'newspack_invalid_param',
+				esc_html__( 'Settings must be an object of key-value pairs.', 'newspack-plugin' ),
+				[ 'status' => 400 ]
+			);
+		}
+
+		$result = Integrations::update_integration_settings( $integration_id, $settings );
+		if ( null === $result ) {
+			return new WP_Error(
+				'newspack_integration_not_found',
+				esc_html__( 'Integration not found.', 'newspack-plugin' ),
+				[ 'status' => 404 ]
+			);
+		}
+
+		return rest_ensure_response( Integrations::get_all_integration_settings() );
+	}
+}
