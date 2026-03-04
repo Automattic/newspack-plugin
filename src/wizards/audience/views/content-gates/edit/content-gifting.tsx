@@ -246,6 +246,7 @@ const ContentGiftingSettings = () => {
 							onChange={ ( value: string ) =>
 								setConfig( { ...config, content_gifting: { ...config?.content_gifting, cta_url: value } } )
 							}
+							withMargin={ false }
 							__next40pxDefaultSize
 						/>
 					) }

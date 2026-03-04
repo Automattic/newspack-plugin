@@ -193,6 +193,7 @@ const CountdownBannerSettings = () => {
 							onChange={ ( value: string ) =>
 								setConfig( { ...config, countdown_banner: { ...config?.countdown_banner, cta_url: value } } )
 							}
+							withMargin={ false }
 							__next40pxDefaultSize
 						/>
 					) }

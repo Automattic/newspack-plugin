@@ -50,6 +50,7 @@ const SettingsCard = ( { title, description, enabled, requirements, toggleEnable
 			className={ classes }
 			__experimentalCoreCard
 			__experimentalCoreProps={ {
+				headerStyle: { padding: 32 },
 				header: (
 					<>
 						<h2>{ title }</h2>

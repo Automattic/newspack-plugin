@@ -149,6 +149,7 @@ export default function ContentGifting( { config, setConfig, updateConfig, noBor
 								help={ __( 'URL for the landing page to redirect to.', 'newspack-plugin' ) }
 								value={ config.content_gifting.cta_url }
 								onChange={ value => setConfig( { ...config, content_gifting: { ...config.content_gifting, cta_url: value } } ) }
+								withMargin={ false }
 								__next40pxDefaultSize
 							/>
 						) }
