@@ -189,7 +189,7 @@ $is_at_limit          = $member_limit > 0 && ( count( $members ) + count( $pendi
 			<tr>
 				<td data-title="<?php esc_attr_e( 'Sent to', 'newspack-plugin' ); ?>"><a href="mailto:<?php echo esc_attr( sanitize_email( $invite['email'] ) ); ?>"><?php echo esc_html( sanitize_email( $invite['email'] ) ); ?></a></td>
 				<td data-title="<?php esc_attr_e( 'Status', 'newspack-plugin' ); ?>"><?php echo esc_html( Group_Subscription_Invite::is_invite_expired( $invite ) ? __( 'Expired', 'newspack-plugin' ) : __( 'Pending', 'newspack-plugin' ) ); ?></td>
-				<td class="newspack-my-account__group_subscription__invites--actions order-actions <?php echo esc_attr( $is_manager ? 'newspack-my-account__group_subscription__invites--actions--manager' : '' ); ?>">
+				<td class="newspack-my-account__group_subscription__invites--actions order-actions">
 					<div class="newspack-ui__dropdown">
 						<button class="newspack-ui__button newspack-ui__button--ghost newspack-ui__button--small newspack-ui__dropdown__toggle newspack-ui__button--icon">
 							<?php Newspack_UI_Icons::print_svg( 'more' ); ?>
