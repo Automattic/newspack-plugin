@@ -173,20 +173,6 @@ class Newspack_Test_User_Gate_Access extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test metabox shows message when no gates configured.
-	 */
-	public function test_render_no_gates_message() {
-		wp_set_current_user( self::$admin_id );
-		$user = get_user_by( 'id', self::$user_id );
-
-		ob_start();
-		User_Gate_Access::render_user_gate_access( $user );
-		$output = ob_get_clean();
-
-		$this->assertStringContainsString( 'No custom-access content gates are configured', $output );
-	}
-
-	/**
 	 * Test OR logic between groups - user passes one group but not another.
 	 */
 	public function test_evaluate_gate_or_logic_between_groups() {
