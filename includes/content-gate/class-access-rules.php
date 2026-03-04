@@ -176,10 +176,11 @@ class Access_Rules {
 	 * - Rules within a group use AND logic: reader must pass all rules in the group
 	 *
 	 * @param array $access_rules The access rules (array of groups, each group is an array of rules).
+	 * @param int   $user_id     Optional. User ID to evaluate rules for. Defaults to current user.
 	 *
 	 * @return bool True if access is granted, false if restricted.
 	 */
-	public static function evaluate_rules( $access_rules ) {
+	public static function evaluate_rules( $access_rules, $user_id = null ) {
 		if ( empty( $access_rules ) ) {
 			return true;
 		}
@@ -189,7 +190,7 @@ class Access_Rules {
 
 		// Evaluate each group with OR logic - if any group passes, grant access.
 		foreach ( $access_rules as $group ) {
-			if ( self::evaluate_rules_group( $group ) ) {
+			if ( self::evaluate_rules_group( $group, $user_id ) ) {
 				return true;
 			}
 		}
@@ -201,11 +202,12 @@ class Access_Rules {
 	/**
 	 * Evaluate a single group of access rules with AND logic.
 	 *
-	 * @param array $group Array of rules in the group.
+	 * @param array $group   Array of rules in the group.
+	 * @param int   $user_id Optional. User ID to evaluate rules for. Defaults to current user.
 	 *
 	 * @return bool True if all rules in the group pass, false otherwise.
 	 */
-	private static function evaluate_rules_group( $group ) {
+	private static function evaluate_rules_group( $group, $user_id = null ) {
 		if ( empty( $group ) || ! is_array( $group ) ) {
 			return true;
 		}
@@ -214,7 +216,7 @@ class Access_Rules {
 			if ( ! isset( $rule['slug'] ) ) {
 				continue;
 			}
-			if ( ! self::evaluate_rule( $rule['slug'], $rule['value'] ?? null ) ) {
+			if ( ! self::evaluate_rule( $rule['slug'], $rule['value'] ?? null, $user_id ) ) {
 				return false;
 			}
 		}
