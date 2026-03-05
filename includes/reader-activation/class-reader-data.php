@@ -187,7 +187,7 @@ final class Reader_Data {
 	public static function get_data( $user_id, $key = '' ) {
 		$user_keys = \get_user_meta( $user_id, 'newspack_reader_data_keys', true );
 		if ( ! $user_keys ) {
-			return [];
+			return ! empty( $key ) ? false : [];
 		}
 
 		if ( $key ) {
