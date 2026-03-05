@@ -738,9 +738,9 @@ class Test_Group_Subscriptions extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * Test generate_invite() returns the invite key.
+	 * Test generate_invite() stores the invite with a valid key.
 	 */
-	public function test_generate_invite_returns_key() {
+	public function test_generate_invite_stores_key() {
 		$admin_id  = $this->create_admin_user();
 		$owner_id  = $this->create_reader_user();
 		$group_sub = $this->create_group_subscription( $owner_id );
@@ -749,8 +749,9 @@ class Test_Group_Subscriptions extends \WP_UnitTestCase {
 		$result = Group_Subscription_Invite::generate_invite( $group_sub->get_id(), 'key-test@example.com' );
 
 		$this->assertIsArray( $result );
-		$this->assertArrayHasKey( 'key', $result, 'Result should include the invite key' );
-		$this->assertEquals( 32, strlen( $result['key'] ), 'Key should be 32 characters' );
+		$invites = Group_Subscription_Invite::get_invites( $group_sub );
+		$key     = array_key_first( $invites );
+		$this->assertEquals( 32, strlen( $key ), 'Key should be 32 characters' );
 	}
 
 	/**
@@ -762,14 +763,16 @@ class Test_Group_Subscriptions extends \WP_UnitTestCase {
 		$group_sub = $this->create_group_subscription( $owner_id );
 		wp_set_current_user( $admin_id );
 
-		$invite = Group_Subscription_Invite::generate_invite( $group_sub->get_id(), 'url-test@example.com' );
-		$url    = Group_Subscription_Invite::get_invite_url( $group_sub->get_id(), $invite['key'], 'url-test@example.com' );
+		Group_Subscription_Invite::generate_invite( $group_sub->get_id(), 'url-test@example.com' );
+		$invites    = Group_Subscription_Invite::get_invites( $group_sub );
+		$invite_key = array_key_first( $invites );
+		$url        = Group_Subscription_Invite::get_invite_url( $group_sub->get_id(), $invite_key, 'url-test@example.com' );
 
 		$parsed = wp_parse_url( $url );
 		parse_str( $parsed['query'], $query );
 
 		$this->assertEquals( 'group_invite', $query['action'] );
-		$this->assertEquals( $invite['key'], $query['key'] );
+		$this->assertEquals( $invite_key, $query['key'] );
 		$this->assertEquals( 'url-test@example.com', $query['email'] );
 		$this->assertEquals( (string) $group_sub->get_id(), $query['subscription'] );
 	}
@@ -783,8 +786,10 @@ class Test_Group_Subscriptions extends \WP_UnitTestCase {
 		$group_sub = $this->create_group_subscription( $owner_id );
 		wp_set_current_user( $admin_id );
 
-		$invite = Group_Subscription_Invite::generate_invite( $group_sub->get_id(), 'key-lookup@example.com' );
-		$found  = Group_Subscription_Invite::get_invite_by_key( $group_sub->get_id(), $invite['key'] );
+		Group_Subscription_Invite::generate_invite( $group_sub->get_id(), 'key-lookup@example.com' );
+		$invites    = Group_Subscription_Invite::get_invites( $group_sub );
+		$invite_key = array_key_first( $invites );
+		$found      = Group_Subscription_Invite::get_invite_by_key( $group_sub->get_id(), $invite_key );
 
 		$this->assertIsArray( $found );
 		$this->assertEquals( 'key-lookup@example.com', $found['email'] );
@@ -838,8 +843,9 @@ class Test_Group_Subscriptions extends \WP_UnitTestCase {
 		$group_sub = $this->create_group_subscription( $owner_id );
 		wp_set_current_user( $admin_id );
 
-		$invite = Group_Subscription_Invite::generate_invite( $group_sub->get_id(), $email );
-		$result = Group_Subscription_Invite::accept_invite( $group_sub->get_id(), $invite['key'], $email );
+		Group_Subscription_Invite::generate_invite( $group_sub->get_id(), $email );
+		$invite_key = array_key_first( Group_Subscription_Invite::get_invites( $group_sub ) );
+		$result     = Group_Subscription_Invite::accept_invite( $group_sub->get_id(), $invite_key, $email );
 
 		$this->assertTrue( $result );
 		$this->assertTrue( Group_Subscription::user_is_member( $member_id, $group_sub ) );
@@ -863,10 +869,11 @@ class Test_Group_Subscriptions extends \WP_UnitTestCase {
 				return -1;
 			}
 		);
-		$invite = Group_Subscription_Invite::generate_invite( $group_sub, $email );
+		Group_Subscription_Invite::generate_invite( $group_sub, $email );
 		remove_all_filters( 'newspack_group_subscription_invite_expiration_time' );
 
-		$result = Group_Subscription_Invite::accept_invite( $group_sub->get_id(), $invite['key'], $email );
+		$invite_key = array_key_first( Group_Subscription_Invite::get_invites( $group_sub, true ) );
+		$result     = Group_Subscription_Invite::accept_invite( $group_sub->get_id(), $invite_key, $email );
 
 		$this->assertWPError( $result );
 		$this->assertEquals( 'newspack_group_subscription_invite_expired', $result->get_error_code() );
@@ -894,8 +901,9 @@ class Test_Group_Subscriptions extends \WP_UnitTestCase {
 		$group_sub = $this->create_group_subscription( $owner_id );
 		wp_set_current_user( $admin_id );
 
-		$invite = Group_Subscription_Invite::generate_invite( $group_sub->get_id(), 'correct@example.com' );
-		$result = Group_Subscription_Invite::accept_invite( $group_sub->get_id(), $invite['key'], 'wrong@example.com' );
+		Group_Subscription_Invite::generate_invite( $group_sub->get_id(), 'correct@example.com' );
+		$invite_key = array_key_first( Group_Subscription_Invite::get_invites( $group_sub ) );
+		$result     = Group_Subscription_Invite::accept_invite( $group_sub->get_id(), $invite_key, 'wrong@example.com' );
 
 		$this->assertWPError( $result );
 		$this->assertEquals( 'newspack_group_subscription_invite_not_found', $result->get_error_code() );
@@ -911,12 +919,13 @@ class Test_Group_Subscriptions extends \WP_UnitTestCase {
 		$group_sub = $this->create_group_subscription( $owner_id );
 		wp_set_current_user( $admin_id );
 
-		$invite = Group_Subscription_Invite::generate_invite( $group_sub->get_id(), $email );
+		Group_Subscription_Invite::generate_invite( $group_sub->get_id(), $email );
+		$invite_key = array_key_first( Group_Subscription_Invite::get_invites( $group_sub ) );
 
 		// Simulate creating the user (as process_invite_request would).
 		$new_user_id = $this->create_reader_user( $email );
 
-		$result = Group_Subscription_Invite::accept_invite( $group_sub->get_id(), $invite['key'], $email );
+		$result = Group_Subscription_Invite::accept_invite( $group_sub->get_id(), $invite_key, $email );
 
 		$this->assertTrue( $result );
 		$this->assertTrue( Group_Subscription::user_is_member( $new_user_id, $group_sub ) );

@@ -208,7 +208,7 @@ class Group_Subscription_Invite {
 
 		self::send_invite_email( $subscription->get_id(), $invite_key, $email );
 
-		return array_merge( $new_invite, [ 'key' => $invite_key ] );
+		return $new_invite;
 	}
 
 	/**
