@@ -17,13 +17,13 @@ import { commentAuthorAvatar, currencyDollar, postList, settings } from '@wordpr
 import { AUDIENCE_CONTENT_GATES_WIZARD_SLUG } from '../consts';
 import {
 	CardSettingsGroup,
-	ConfirmDialog,
 	Divider,
 	Grid,
 	Notice,
 	Router,
 	SectionHeader,
 	TextControl,
+	useConfirmDialog,
 } from '../../../../../../packages/components/src';
 import { WIZARD_STORE_NAMESPACE } from '../../../../../../packages/components/src/wizard/store';
 import { useWizardData } from '../../../../../../packages/components/src/wizard/store/utils';
@@ -85,12 +85,10 @@ const Edit = ( { match, updateGatesData }: ContentGateEditProps ) => {
 	const [ customAccess, setCustomAccess ] = useState< CustomAccess >( gate.custom_access );
 	const [ contentType, setContentType ] = useState< 'all' | 'custom' | undefined >( type as 'all' | 'custom' | undefined );
 	const [ status, setStatus ] = useState< GateStatus >( gate.status );
-	const [ showDeleteDialog, setShowDeleteDialog ] = useState( false );
 	const [ error, setError ] = useState< string | null >( errorMessage );
 	const isNew = _id === 'new' || ! id;
 	const isSaving = useRef( false );
 	const gatesRef = useRef< Gate[] >( gates );
-
 	useEffect( () => {
 		if ( Array.isArray( gates ) ) {
 			gatesRef.current = gates;
@@ -103,6 +101,26 @@ const Edit = ( { match, updateGatesData }: ContentGateEditProps ) => {
 		JSON.stringify( contentRules ) !== JSON.stringify( gate.content_rules ) ||
 		JSON.stringify( registration ) !== JSON.stringify( gate.registration ) ||
 		JSON.stringify( customAccess ) !== JSON.stringify( gate.custom_access );
+
+	const { confirmDialog: navBlockDialog } = useConfirmDialog( {
+		when: isDirty && ! isSaving.current,
+		message: __( 'You have unsaved changes that will be lost. Discard changes?', 'newspack-plugin' ),
+		confirmButtonText: __( 'Discard changes', 'newspack-plugin' ),
+		hideTitle: true,
+	} );
+	const { confirmDialog: deleteDialog, requestConfirm: requestDelete } = useConfirmDialog( {
+		title: __( 'Are you sure?', 'newspack-plugin' ),
+		confirmButtonText: __( 'Delete', 'newspack-plugin' ),
+		isDestructive: true,
+		message: createInterpolateElement(
+			sprintf(
+				// translators: %s is the gate title.
+				__( 'This will <strong>permanently delete</strong> "%s" and cannot be undone.', 'newspack-plugin' ),
+				gate.title
+			),
+			{ strong: <strong /> }
+		),
+	} );
 
 	const handleCreate = useCallback( () => {
 		if ( isFetching ) {
@@ -257,7 +275,6 @@ const Edit = ( { match, updateGatesData }: ContentGateEditProps ) => {
 				},
 				onFinally() {
 					setIsDeleting( false );
-					setShowDeleteDialog( false );
 				},
 			}
 		);
@@ -346,7 +363,7 @@ const Edit = ( { match, updateGatesData }: ContentGateEditProps ) => {
 			actions.push( {
 				type: 'more',
 				label: __( 'Delete', 'newspack-plugin' ),
-				action: () => setShowDeleteDialog( true ),
+				action: () => requestDelete( handleDelete ),
 				disabled: isFetching,
 				destructive: true,
 			} );
@@ -389,27 +406,8 @@ const Edit = ( { match, updateGatesData }: ContentGateEditProps ) => {
 
 	return (
 		<div className="newspack-content-gate__edit">
-			<ConfirmDialog when={ isDirty && ! isSaving.current } confirmButtonText={ __( 'Discard changes', 'newspack-plugin' ) } hideTitle>
-				{ __( 'You have unsaved changes that will be lost. Discard changes?', 'newspack-plugin' ) }
-			</ConfirmDialog>
-			<ConfirmDialog
-				title={ __( 'Are you sure?', 'newspack-plugin' ) }
-				onConfirm={ handleDelete }
-				onCancel={ () => setShowDeleteDialog( false ) }
-				confirmButtonText={ __( 'Delete', 'newspack-plugin' ) }
-				isDestructive={ true }
-				when={ showDeleteDialog && ! isSaving.current && ! isDeleting && ! isFetching }
-				isShowingDialog={ showDeleteDialog }
-			>
-				{ createInterpolateElement(
-					sprintf(
-						// translators: %s is the gate title.
-						__( 'This will <strong>permanently delete</strong> “%s” and cannot be undone.', 'newspack-plugin' ),
-						gate.title
-					),
-					{ strong: <strong /> }
-				) }
-			</ConfirmDialog>
+			{ navBlockDialog }
+			{ deleteDialog }
 			{ error && <Notice isError noticeText={ error } /> }
 			{ ( isNew || isRenaming ) && (
 				<>

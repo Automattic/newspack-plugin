@@ -24,7 +24,16 @@ import { useEffect, useMemo, useRef, useState } from '@wordpress/element';
 /**
  * Internal dependencies
  */
-import { ConfirmDialog, Divider, Grid, Notice, Router, SectionHeader, SelectControl, TextControl } from '../../../../../../packages/components/src';
+import {
+	Divider,
+	Grid,
+	Notice,
+	Router,
+	SectionHeader,
+	SelectControl,
+	TextControl,
+	useConfirmDialog,
+} from '../../../../../../packages/components/src';
 import { useWizardData } from '../../../../../../packages/components/src/wizard/store/utils';
 import { WIZARD_STORE_NAMESPACE } from '../../../../../../packages/components/src/wizard/store';
 import { useWizardApiFetch } from '../../../../hooks/use-wizard-api-fetch';
@@ -39,7 +48,6 @@ const ContentGiftingSettings = () => {
 	const { addNotice, resetNotices, setHeaderData, updateWizardSettings } = useDispatch( WIZARD_STORE_NAMESPACE );
 	const { wizardApiFetch, errorMessage, resetError } = useWizardApiFetch( AUDIENCE_CONTENT_GATES_WIZARD_SLUG );
 	const [ config, setConfig ] = useState< GateSettings >( wizardData?.config || {} );
-	const [ pendingToggle, setPendingToggle ] = useState< ( () => void ) | null >( null );
 	const availableProducts = newspackAudience?.available_products || [];
 	const hasMetering = newspackAudience?.content_gifting?.has_metering;
 	const giftingErrors = Object.values( newspackAudience?.content_gifting?.can_use_gifting?.errors || {} ).flat() as string[];
@@ -51,6 +59,13 @@ const ContentGiftingSettings = () => {
 		);
 	}, [ config, wizardData?.config ] );
 	const isSaving = useRef( false );
+	const { confirmDialog, requestConfirm } = useConfirmDialog( {
+		when: !! ( isDirty && ! isSaving.current ),
+		message: __( 'You have unsaved changes that will be lost. Discard changes?', 'newspack-plugin' ),
+		confirmButtonText: __( 'Discard changes', 'newspack-plugin' ),
+		isDestructive: true,
+		hideTitle: true,
+	} );
 
 	const handleUpdateConfig = ( newConfig: GateSettings, message: string = __( 'Content gifting settings updated.', 'newspack-plugin' ) ) => {
 		isSaving.current = true;
@@ -108,11 +123,7 @@ const ContentGiftingSettings = () => {
 							__( 'Content gifting %s.', 'newspack-plugin' ),
 							config?.content_gifting?.enabled ? __( 'disabled', 'newspack-plugin' ) : __( 'enabled', 'newspack-plugin' )
 						);
-						if ( isDirty ) {
-							setPendingToggle( () => () => handleUpdateConfig( newConfig, message ) );
-						} else {
-							handleUpdateConfig( newConfig, message );
-						}
+						requestConfirm( () => handleUpdateConfig( newConfig, message ) );
 					},
 					type: 'more',
 				},
@@ -127,20 +138,7 @@ const ContentGiftingSettings = () => {
 
 	return (
 		<div className="newspack-content-gate__edit">
-			<ConfirmDialog
-				when={ isDirty && ! isSaving.current }
-				isOpen={ !! pendingToggle }
-				confirmButtonText={ __( 'Discard changes', 'newspack-plugin' ) }
-				isDestructive
-				hideTitle
-				onConfirm={ () => {
-					pendingToggle?.();
-					setPendingToggle( null );
-				} }
-				onCancel={ () => setPendingToggle( null ) }
-			>
-				{ __( 'You have unsaved changes that will be lost. Discard changes?', 'newspack-plugin' ) }
-			</ConfirmDialog>
+			{ confirmDialog }
 			{ errorMessage && <Notice isError noticeText={ errorMessage } /> }
 			{ giftingErrors.length > 0 && <Notice noticeText={ giftingErrors.join( ', ' ) } isError /> }
 			<Grid columns={ 2 } gutter={ 32 }>
