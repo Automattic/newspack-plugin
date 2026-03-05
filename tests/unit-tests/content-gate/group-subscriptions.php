@@ -869,10 +869,10 @@ class Test_Group_Subscriptions extends \WP_UnitTestCase {
 				return -1;
 			}
 		);
-		Group_Subscription_Invite::generate_invite( $group_sub, $email );
+		Group_Subscription_Invite::generate_invite( $group_sub->get_id(), $email );
 		remove_all_filters( 'newspack_group_subscription_invite_expiration_time' );
 
-		$invite_key = array_key_first( Group_Subscription_Invite::get_invites( $group_sub, true ) );
+		$invite_key = array_key_first( Group_Subscription_Invite::get_invites( $group_sub->get_id(), true ) );
 		$result     = Group_Subscription_Invite::accept_invite( $group_sub->get_id(), $invite_key, $email );
 
 		$this->assertWPError( $result );
