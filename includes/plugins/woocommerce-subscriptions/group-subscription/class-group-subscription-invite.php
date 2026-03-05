@@ -322,17 +322,6 @@ class Group_Subscription_Invite {
 			return;
 		}
 
-		// Validate the invite.
-		$invite = self::get_invite_by_key( $subscription_id, $key );
-		if ( ! $invite || $invite['email'] !== $email ) {
-			self::redirect_with_result( 'error', __( 'Invalid or expired invitation.', 'newspack-plugin' ) );
-			return;
-		}
-		if ( self::is_invite_expired( $invite ) ) {
-			self::redirect_with_result( 'error', __( 'This invitation has expired.', 'newspack-plugin' ) );
-			return;
-		}
-
 		$current_user = wp_get_current_user();
 
 		// Case 1: User is logged in.
@@ -350,17 +339,16 @@ class Group_Subscription_Invite {
 			return;
 		}
 
-		// Case 2: User is not logged in.
+		// Case 2: User is not logged in but has an existing account — store invite in cookie and redirect to login.
 		$existing_user = get_user_by( 'email', $email );
 		if ( $existing_user ) {
-			// Existing account — store invite in cookie and redirect to login.
 			self::set_invite_cookie( $subscription_id, $key, $email );
 			$login_url = function_exists( 'wc_get_page_permalink' ) ? wc_get_page_permalink( 'myaccount' ) : wp_login_url();
 			wp_safe_redirect( $login_url );
 			exit;
 		}
 
-		// New user — auto-create account, verify email, and accept.
+		// Case 3: New user — auto-create account, verify email, and accept.
 		$user_id = Reader_Activation::register_reader( $email, false );
 		if ( is_wp_error( $user_id ) || ! $user_id ) {
 			self::redirect_with_result( 'error', __( 'Could not create your account. Please try again.', 'newspack-plugin' ) );
