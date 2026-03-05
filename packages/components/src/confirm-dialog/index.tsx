@@ -71,13 +71,13 @@ function ConfirmDialog(
 		pendingNavigation.current?.();
 		pendingNavigation.current = null;
 		onConfirm();
-	}, [ pendingNavigation ] );
+	}, [ onConfirm, pendingNavigation ] );
 
 	const handleOnCancel = useCallback( () => {
 		setShowDialog( false );
 		pendingNavigation.current = null;
 		onCancel();
-	}, [ pendingNavigation ] );
+	}, [ onCancel, pendingNavigation ] );
 
 	// Block navigation when there are unsaved changes.
 	useEffect( () => {

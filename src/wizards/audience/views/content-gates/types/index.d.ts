@@ -136,7 +136,6 @@ type MeteringCountdownConfig = {
 	cta_url: string;
 	cta_type: string;
 	cta_product_id: number;
-	cta_url: string;
 };
 
 type GateSettings = {
