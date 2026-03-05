@@ -31,12 +31,13 @@ class User_Gate_Access {
 	 */
 	private static function get_custom_access_gates() {
 		$gates = Content_Gate::get_gates( Content_Gate::GATE_CPT, 'publish' );
-		return array_filter(
+		$custom_access_gates = array_filter(
 			$gates,
 			function( $gate ) {
-				return ! empty( $gate['custom_access']['active'] );
+				return ! is_wp_error( $gate ) && ! empty( $gate['custom_access']['active'] );
 			}
 		);
+		return array_values( $custom_access_gates );
 	}
 
 	/**
