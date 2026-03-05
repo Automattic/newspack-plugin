@@ -34,6 +34,7 @@ const ResetHeaderData = () => {
 
 	useEffect( () => {
 		resetHeaderData();
+		window.scrollTo( 0, 0 );
 	}, [ location.pathname, resetHeaderData ] );
 
 	return null;
