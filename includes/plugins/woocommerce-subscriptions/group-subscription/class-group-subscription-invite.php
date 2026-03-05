@@ -439,13 +439,7 @@ class Group_Subscription_Invite {
 			$type = 'error';
 		}
 
-		printf(
-			'<div class="newspack-group-invite-notice newspack-group-invite-notice--%1$s" style="position:fixed;bottom:24px;left:50%%;transform:translateX(-50%%);z-index:100000;padding:12px 24px;border-radius:4px;font-family:-apple-system,BlinkMacSystemFont,sans-serif;font-size:14px;line-height:1.5;box-shadow:0 2px 8px rgba(0,0,0,0.15);transition:opacity 0.3s;%2$s" role="alert">%3$s</div>' . "\n" .
-			'<script>setTimeout(function(){var n=document.querySelector(".newspack-group-invite-notice");if(n){n.style.opacity="0";setTimeout(function(){n.remove()},300);}},5000);</script>',
-			esc_attr( $type ),
-			'success' === $type ? 'background:#0a6b0a;color:#fff;' : 'background:#b00;color:#fff;',
-			esc_html( $message )
-		);
+		Newspack_UI::add_notice( $message, [ 'type' => $type ] );
 	}
 
 	/**
