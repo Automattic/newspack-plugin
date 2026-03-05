@@ -59,9 +59,6 @@ class Group_Subscription_Invite {
 	 * Initialize hooks.
 	 */
 	public static function init() {
-		if ( ! function_exists( 'wcs_get_subscription' ) ) {
-			return;
-		}
 		add_filter( 'newspack_email_configs', [ __CLASS__, 'add_email_config' ] );
 		add_action( 'template_redirect', [ __CLASS__, 'process_invite_request' ] );
 		add_action( 'wp_login', [ __CLASS__, 'process_deferred_invite' ], 10, 2 );
@@ -309,6 +306,9 @@ class Group_Subscription_Invite {
 	 * Handles the ?action=group_invite URL.
 	 */
 	public static function process_invite_request() {
+		if ( ! function_exists( 'wcs_get_subscription' ) ) {
+			return;
+		}
 		if ( ! isset( $_GET['action'] ) || self::QUERY_ARG !== $_GET['action'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			return;
 		}
@@ -526,3 +526,4 @@ class Group_Subscription_Invite {
 		return true;
 	}
 }
+Group_Subscription_Invite::init();

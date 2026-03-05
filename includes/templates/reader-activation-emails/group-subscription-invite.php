@@ -71,7 +71,7 @@ $email_html = '
 	<!doctype html>
 	<html lang="und" dir="auto" xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
 		<head>
-			<title>' . sprintf( /* Translators: s: The site name. */ __( "You've been invited to join %s", 'newspack-plugin' ), '*SITE_TITLE*' ) . '</title>
+			<title>' . __( 'Group subscription invitation', 'newspack-plugin' ) . '</title>
 			<!--[if !mso]><!-->
 			<meta http-equiv="X-UA-Compatible" content="IE=edge">
 			<!--<![endif]-->
@@ -256,7 +256,7 @@ $email_html = '
 	</html>';
 
 return array(
-	'post_title'   => sprintf( /* Translators: s: The site name. */ __( "You've been invited to join %s", 'newspack-plugin' ), '*SITE_TITLE*' ),
+	'post_title'   => __( 'Group subscription invitation', 'newspack-plugin' ),
 	'post_content' => $post_content,
 	'email_html'   => $email_html,
 );
