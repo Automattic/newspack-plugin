@@ -104,6 +104,10 @@ const Wizard = (
 		];
 	}
 
+	// When plugins are required but not yet satisfied, `displayedSections` is replaced with
+	// the PluginInstaller. Use it for routing so the installer actually mounts and runs.
+	const routedSections = pluginRequirementsSatisfied ? sections : displayedSections;
+
 	const urlWithoutHash = window.location.href.split( '#' )[ 0 ];
 
 	return (
@@ -203,7 +207,7 @@ const Wizard = (
 
 					<div className="newspack-wizard__main">
 						<Switch>
-							{ sections.map( ( section, index ) => {
+							{ routedSections.map( ( section, index ) => {
 								const SectionComponent = section.render;
 								const sectionProps = section.props || {};
 								return (

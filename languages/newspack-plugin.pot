@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-03-03T22:39:04+00:00\n"
+"POT-Creation-Date: 2026-03-04T16:28:13+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: newspack-plugin\n"
@@ -1742,177 +1742,177 @@ msgstr ""
 msgid "No donation products found."
 msgstr ""
 
-#: includes/corrections/class-corrections.php:143
+#: includes/corrections/class-corrections.php:144
 msgctxt "post type general name"
 msgid "Corrections"
 msgstr ""
 
-#: includes/corrections/class-corrections.php:144
+#: includes/corrections/class-corrections.php:145
 msgctxt "post type singular name"
 msgid "Correction"
 msgstr ""
 
-#: includes/corrections/class-corrections.php:145
+#: includes/corrections/class-corrections.php:146
 msgctxt "admin menu"
 msgid "Corrections"
 msgstr ""
 
-#: includes/corrections/class-corrections.php:146
+#: includes/corrections/class-corrections.php:147
 msgctxt "add new on admin bar"
 msgid "Correction"
 msgstr ""
 
-#: includes/corrections/class-corrections.php:147
+#: includes/corrections/class-corrections.php:148
 msgctxt "correction"
 msgid "Add New"
 msgstr ""
 
-#: includes/corrections/class-corrections.php:148
+#: includes/corrections/class-corrections.php:149
 #: dist/other-scripts/corrections-modal.js:1
 #: src/other-scripts/corrections-modal/index.js:208
 msgid "Add New Correction"
 msgstr ""
 
-#: includes/corrections/class-corrections.php:149
+#: includes/corrections/class-corrections.php:150
 msgid "New Correction"
 msgstr ""
 
-#: includes/corrections/class-corrections.php:150
+#: includes/corrections/class-corrections.php:151
 msgid "Edit Correction"
 msgstr ""
 
-#: includes/corrections/class-corrections.php:151
 #: includes/corrections/class-corrections.php:152
+#: includes/corrections/class-corrections.php:153
 msgid "View Correction"
 msgstr ""
 
-#: includes/corrections/class-corrections.php:153
+#: includes/corrections/class-corrections.php:154
 msgid "All Corrections"
 msgstr ""
 
-#: includes/corrections/class-corrections.php:154
+#: includes/corrections/class-corrections.php:155
 msgid "Search Corrections"
 msgstr ""
 
-#: includes/corrections/class-corrections.php:155
+#: includes/corrections/class-corrections.php:156
 msgid "Parent Correction:"
 msgstr ""
 
-#: includes/corrections/class-corrections.php:156
+#: includes/corrections/class-corrections.php:157
 msgid "No corrections found."
 msgstr ""
 
-#: includes/corrections/class-corrections.php:157
+#: includes/corrections/class-corrections.php:158
 msgid "No corrections found in Trash."
 msgstr ""
 
-#: includes/corrections/class-corrections.php:158
+#: includes/corrections/class-corrections.php:159
 msgid "Correction Archives"
 msgstr ""
 
-#: includes/corrections/class-corrections.php:159
+#: includes/corrections/class-corrections.php:160
 msgid "Correction Attributes"
 msgstr ""
 
-#: includes/corrections/class-corrections.php:160
+#: includes/corrections/class-corrections.php:161
 msgid "Insert into correction"
 msgstr ""
 
-#: includes/corrections/class-corrections.php:161
+#: includes/corrections/class-corrections.php:162
 msgid "Uploaded to this correction"
 msgstr ""
 
-#: includes/corrections/class-corrections.php:162
+#: includes/corrections/class-corrections.php:163
 msgid "Filter corrections list"
 msgstr ""
 
-#: includes/corrections/class-corrections.php:163
+#: includes/corrections/class-corrections.php:164
 msgid "Corrections list navigation"
 msgstr ""
 
-#: includes/corrections/class-corrections.php:164
+#: includes/corrections/class-corrections.php:165
 msgid "Corrections list"
 msgstr ""
 
-#: includes/corrections/class-corrections.php:165
+#: includes/corrections/class-corrections.php:166
 msgid "Correction published."
 msgstr ""
 
-#: includes/corrections/class-corrections.php:166
+#: includes/corrections/class-corrections.php:167
 msgid "Correction published privately."
 msgstr ""
 
-#: includes/corrections/class-corrections.php:167
+#: includes/corrections/class-corrections.php:168
 msgid "Correction reverted to draft."
 msgstr ""
 
-#: includes/corrections/class-corrections.php:168
+#: includes/corrections/class-corrections.php:169
 msgid "Correction scheduled."
 msgstr ""
 
-#: includes/corrections/class-corrections.php:169
+#: includes/corrections/class-corrections.php:170
 msgid "Correction updated."
 msgstr ""
 
-#: includes/corrections/class-corrections.php:170
+#: includes/corrections/class-corrections.php:171
 msgid "Correction Link"
 msgstr ""
 
-#: includes/corrections/class-corrections.php:171
+#: includes/corrections/class-corrections.php:172
 msgid "A link to a correction."
 msgstr ""
 
-#: includes/corrections/class-corrections.php:175
+#: includes/corrections/class-corrections.php:176
 msgid "Post type used to store corrections and clarifications."
 msgstr ""
 
-#: includes/corrections/class-corrections.php:265
+#: includes/corrections/class-corrections.php:266
 msgid "Corrections saved successfully."
 msgstr ""
 
-#: includes/corrections/class-corrections.php:412
+#: includes/corrections/class-corrections.php:413
 #: dist/other-scripts/corrections-modal.js:1
 #: src/other-scripts/corrections-modal/index.js:27
 msgid "Clarification"
 msgstr ""
 
-#: includes/corrections/class-corrections.php:414
+#: includes/corrections/class-corrections.php:415
 #: dist/other-scripts/corrections-modal.js:1
 #: src/other-scripts/corrections-modal/index.js:26
 msgid "Correction"
 msgstr ""
 
-#: includes/corrections/class-corrections.php:508
+#: includes/corrections/class-corrections.php:574
 msgid "Newspack Corrections"
 msgstr ""
 
-#: includes/corrections/class-corrections.php:516
+#: includes/corrections/class-corrections.php:582
 msgid "Corrections Loop"
 msgstr ""
 
-#: includes/corrections/class-corrections.php:517
+#: includes/corrections/class-corrections.php:583
 msgid "A block pattern for displaying an archive of corrections."
 msgstr ""
 
-#: includes/corrections/class-corrections.php:519
+#: includes/corrections/class-corrections.php:585
 msgid "corrections"
 msgstr ""
 
-#: includes/corrections/class-corrections.php:519
+#: includes/corrections/class-corrections.php:585
 msgid "archive"
 msgstr ""
 
-#: includes/corrections/class-corrections.php:519
+#: includes/corrections/class-corrections.php:585
 #: dist/blocks.js:6
 #: src/blocks/collections/index.js:33
 msgid "loop"
 msgstr ""
 
-#: includes/corrections/class-corrections.php:549
+#: includes/corrections/class-corrections.php:615
 msgid "Corrections Archive"
 msgstr ""
 
-#: includes/corrections/class-corrections.php:550
+#: includes/corrections/class-corrections.php:616
 msgid "A block template for displaying an archive of corrections."
 msgstr ""
 
@@ -2035,7 +2035,7 @@ msgid "Test email was not sent."
 msgstr ""
 
 #: includes/lite-site/class-lite-site.php:100
-#: includes/plugins/woocommerce-subscriptions/group-subscription/class-group-subscription-settings.php:270
+#: includes/plugins/woocommerce-subscriptions/group-subscription/class-group-subscription-settings.php:267
 #: includes/wizards/advertising/class-advertising-sponsors.php:94
 #: includes/wizards/class-listings-wizard.php:135
 #: includes/wizards/class-network-wizard.php:319
@@ -2519,7 +2519,7 @@ msgid "Every 3 hours"
 msgstr ""
 
 #: includes/optional-modules/class-rss.php:384
-#: includes/plugins/woocommerce-subscriptions/class-woocommerce-subscriptions.php:179
+#: includes/plugins/woocommerce-subscriptions/class-woocommerce-subscriptions.php:199
 msgid "Daily"
 msgstr ""
 
@@ -2988,6 +2988,8 @@ msgid "Purchase"
 msgstr ""
 
 #: includes/plugins/woocommerce-subscriptions/class-subscriptions-tiers.php:694
+#: includes/plugins/woocommerce-subscriptions/group-subscription/class-group-subscription-settings.php:340
+#: includes/plugins/woocommerce-subscriptions/group-subscription/class-group-subscription-settings.php:342
 #: includes/plugins/woocommerce/my-account/class-my-account-ui-v1-passwords.php:239
 #: includes/plugins/woocommerce/my-account/class-my-account-ui-v1.php:348
 #: includes/plugins/woocommerce/my-account/class-my-account-ui-v1.php:434
@@ -3018,104 +3020,142 @@ msgstr ""
 msgid "Cancel"
 msgstr ""
 
-#: includes/plugins/woocommerce-subscriptions/class-woocommerce-subscriptions.php:180
+#: includes/plugins/woocommerce-subscriptions/class-woocommerce-subscriptions.php:200
 #: dist/audience-wizards.d0258efb034579487f96.js:45
 msgid "Weekly"
 msgstr ""
 
-#: includes/plugins/woocommerce-subscriptions/class-woocommerce-subscriptions.php:181
+#: includes/plugins/woocommerce-subscriptions/class-woocommerce-subscriptions.php:201
 #: includes/plugins/woocommerce/class-woocommerce-connection.php:516
 #: includes/plugins/woocommerce/class-woocommerce-connection.php:610
 #: dist/audience-wizards.d0258efb034579487f96.js:45
 msgid "Monthly"
 msgstr ""
 
-#: includes/plugins/woocommerce-subscriptions/class-woocommerce-subscriptions.php:182
+#: includes/plugins/woocommerce-subscriptions/class-woocommerce-subscriptions.php:202
 #: includes/plugins/woocommerce/class-woocommerce-connection.php:517
 #: includes/plugins/woocommerce/class-woocommerce-connection.php:611
 msgid "Yearly"
 msgstr ""
 
-#: includes/plugins/woocommerce-subscriptions/class-woocommerce-subscriptions.php:187
+#: includes/plugins/woocommerce-subscriptions/class-woocommerce-subscriptions.php:207
 #, php-format
 msgid "%s Days"
 msgstr ""
 
-#: includes/plugins/woocommerce-subscriptions/class-woocommerce-subscriptions.php:188
+#: includes/plugins/woocommerce-subscriptions/class-woocommerce-subscriptions.php:208
 #, php-format
 msgid "%s Weeks"
 msgstr ""
 
-#: includes/plugins/woocommerce-subscriptions/class-woocommerce-subscriptions.php:189
+#: includes/plugins/woocommerce-subscriptions/class-woocommerce-subscriptions.php:209
 #, php-format
 msgid "%s Months"
 msgstr ""
 
-#: includes/plugins/woocommerce-subscriptions/class-woocommerce-subscriptions.php:190
+#: includes/plugins/woocommerce-subscriptions/class-woocommerce-subscriptions.php:210
 #, php-format
 msgid "%s Years"
 msgstr ""
 
 #. translators: 1: Subscription interval. 2: Subscription period.
-#: includes/plugins/woocommerce-subscriptions/class-woocommerce-subscriptions.php:204
+#: includes/plugins/woocommerce-subscriptions/class-woocommerce-subscriptions.php:224
 #, php-format
 msgid "%1$s %2$ss"
 msgstr ""
 
-#: includes/plugins/woocommerce-subscriptions/group-subscription/class-group-subscription-api.php:99
-#: includes/plugins/woocommerce-subscriptions/group-subscription/class-group-subscription.php:107
+#: includes/plugins/woocommerce-subscriptions/group-subscription/class-group-subscription-api.php:149
 msgid "WooCommerce Subscriptions is not available."
 msgstr ""
 
-#: includes/plugins/woocommerce-subscriptions/group-subscription/class-group-subscription-api.php:105
-#: includes/plugins/woocommerce-subscriptions/group-subscription/class-group-subscription.php:113
+#: includes/plugins/woocommerce-subscriptions/group-subscription/class-group-subscription-api.php:155
+#: includes/plugins/woocommerce-subscriptions/group-subscription/class-group-subscription.php:104
 msgid "Subscription not found."
+msgstr ""
+
+#: includes/plugins/woocommerce-subscriptions/group-subscription/class-group-subscription-invite.php:99
+#: includes/plugins/woocommerce-subscriptions/group-subscription/class-group-subscription-invite.php:161
+msgid "Invalid subscription."
+msgstr ""
+
+#: includes/plugins/woocommerce-subscriptions/group-subscription/class-group-subscription-invite.php:102
+#: includes/plugins/woocommerce-subscriptions/group-subscription/class-group-subscription-invite.php:164
+#: includes/reader-activation/class-reader-activation.php:1776
+msgid "Invalid email address."
+msgstr ""
+
+#: includes/plugins/woocommerce-subscriptions/group-subscription/class-group-subscription-invite.php:106
+msgid "Not a valid reader account."
+msgstr ""
+
+#: includes/plugins/woocommerce-subscriptions/group-subscription/class-group-subscription-invite.php:109
+msgid "User is already a member of this group subscription."
+msgstr ""
+
+#: includes/plugins/woocommerce-subscriptions/group-subscription/class-group-subscription-invite.php:132
+msgid "You have reached the group member limit for this subscription. Please remove some members or cancel pending invitations before inviting more group members."
 msgstr ""
 
 #: includes/plugins/woocommerce-subscriptions/group-subscription/class-group-subscription-settings.php:83
 msgid "Search for a reader..."
 msgstr ""
 
-#: includes/plugins/woocommerce-subscriptions/group-subscription/class-group-subscription-settings.php:101
-#: includes/plugins/woocommerce-subscriptions/group-subscription/class-group-subscription-settings.php:247
+#: includes/plugins/woocommerce-subscriptions/group-subscription/class-group-subscription-settings.php:84
+#: includes/plugins/woocommerce/my-account/class-woocommerce-my-account.php:1090
+#: includes/reader-activation/class-reader-activation.php:276
+#: includes/reader-activation/class-reader-activation.php:2246
+msgid "Please enter a valid email address."
+msgstr ""
+
+#: includes/plugins/woocommerce-subscriptions/group-subscription/class-group-subscription-settings.php:85
+msgid "Invitation sent successfully."
+msgstr ""
+
+#: includes/plugins/woocommerce-subscriptions/group-subscription/class-group-subscription-settings.php:86
+#: includes/plugins/woocommerce-subscriptions/group-subscription/class-group-subscription-settings.php:339
+msgid "(pending)"
+msgstr ""
+
+#: includes/plugins/woocommerce-subscriptions/group-subscription/class-group-subscription-settings.php:104
+#: includes/plugins/woocommerce-subscriptions/group-subscription/class-group-subscription-settings.php:243
 msgid "Group subscription"
 msgstr ""
 
-#: includes/plugins/woocommerce-subscriptions/group-subscription/class-group-subscription-settings.php:102
+#: includes/plugins/woocommerce-subscriptions/group-subscription/class-group-subscription-settings.php:105
 msgid "Enable group subscriptions for this product."
 msgstr ""
 
-#: includes/plugins/woocommerce-subscriptions/group-subscription/class-group-subscription-settings.php:125
+#: includes/plugins/woocommerce-subscriptions/group-subscription/class-group-subscription-settings.php:128
 msgid "Group subscription member limit"
 msgstr ""
 
-#: includes/plugins/woocommerce-subscriptions/group-subscription/class-group-subscription-settings.php:127
+#: includes/plugins/woocommerce-subscriptions/group-subscription/class-group-subscription-settings.php:130
 msgid "Set the maximum number of members for group subscriptions. Set to 0 to allow an unlimited number of group members."
 msgstr ""
 
 #. translators: %s: The product edit link or 'the product' if no product is found.
-#: includes/plugins/woocommerce-subscriptions/group-subscription/class-group-subscription-settings.php:277
+#: includes/plugins/woocommerce-subscriptions/group-subscription/class-group-subscription-settings.php:274
 #, php-format
 msgid "Changing these settings will override settings inherited from %s."
 msgstr ""
 
-#: includes/plugins/woocommerce-subscriptions/group-subscription/class-group-subscription-settings.php:278
+#: includes/plugins/woocommerce-subscriptions/group-subscription/class-group-subscription-settings.php:275
 #: dist/audience-wizards.d0258efb034579487f96.js:61
 msgid "the product"
 msgstr ""
 
-#: includes/plugins/woocommerce-subscriptions/group-subscription/class-group-subscription-settings.php:293
+#: includes/plugins/woocommerce-subscriptions/group-subscription/class-group-subscription-settings.php:290
 msgid "Group subscription enabled"
 msgstr ""
 
 #. translators: %d: The number of group members.
-#: includes/plugins/woocommerce-subscriptions/group-subscription/class-group-subscription-settings.php:315
+#: includes/plugins/woocommerce-subscriptions/group-subscription/class-group-subscription-settings.php:312
 #, php-format
-msgid "Group members (<span class=\"newspack-group-subscription--members-count\">%d</span>)"
+msgid "Group members (<span class=\"newspack-group-subscription__members-count\">%d</span>)"
 msgstr ""
 
-#: includes/plugins/woocommerce-subscriptions/group-subscription/class-group-subscription-settings.php:331
-#: includes/plugins/woocommerce-subscriptions/group-subscription/class-group-subscription-settings.php:333
+#: includes/plugins/woocommerce-subscriptions/group-subscription/class-group-subscription-settings.php:328
+#: includes/plugins/woocommerce-subscriptions/group-subscription/class-group-subscription-settings.php:330
 #: dist/audience-wizards.d0258efb034579487f96.js:74
 #: dist/commons.js:13
 #: dist/newspack-wizards.3415f5c733d1b89a1e34.js:11
@@ -3126,11 +3166,32 @@ msgstr ""
 msgid "Remove"
 msgstr ""
 
-#: includes/plugins/woocommerce-subscriptions/group-subscription/class-group-subscription-settings.php:342
+#: includes/plugins/woocommerce-subscriptions/group-subscription/class-group-subscription-settings.php:339
+msgid "(expired)"
+msgstr ""
+
+#: includes/plugins/woocommerce-subscriptions/group-subscription/class-group-subscription-settings.php:351
 msgid "Add new group members"
 msgstr ""
 
-#: includes/plugins/woocommerce-subscriptions/group-subscription/class-group-subscription.php:141
+#: includes/plugins/woocommerce-subscriptions/group-subscription/class-group-subscription-settings.php:358
+msgid "Or, send an invitation to a new reader:"
+msgstr ""
+
+#: includes/plugins/woocommerce-subscriptions/group-subscription/class-group-subscription-settings.php:359
+#: includes/plugins/woocommerce/my-account/class-woocommerce-my-account.php:678
+#: includes/plugins/woocommerce/my-account/templates/v0/edit-account.php:68
+#: includes/plugins/woocommerce/my-account/templates/v1/account-settings.php:98
+#: includes/reader-activation/class-reader-activation.php:996
+#: includes/reader-activation/class-reader-activation.php:1553
+msgid "Email address"
+msgstr ""
+
+#: includes/plugins/woocommerce-subscriptions/group-subscription/class-group-subscription-settings.php:360
+msgid "Invite"
+msgstr ""
+
+#: includes/plugins/woocommerce-subscriptions/group-subscription/class-group-subscription.php:132
 msgid "Member limit reached. Please remove some members or increase the limit."
 msgstr ""
 
@@ -3630,26 +3691,12 @@ msgstr ""
 msgid "Please check your email inbox for a link to verify your account."
 msgstr ""
 
-#: includes/plugins/woocommerce/my-account/class-woocommerce-my-account.php:678
-#: includes/plugins/woocommerce/my-account/templates/v0/edit-account.php:68
-#: includes/plugins/woocommerce/my-account/templates/v1/account-settings.php:98
-#: includes/reader-activation/class-reader-activation.php:996
-#: includes/reader-activation/class-reader-activation.php:1553
-msgid "Email address"
-msgstr ""
-
 #: includes/plugins/woocommerce/my-account/class-woocommerce-my-account.php:930
 msgid "Active Memberships"
 msgstr ""
 
 #: includes/plugins/woocommerce/my-account/class-woocommerce-my-account.php:931
 msgid "These memberships are active, but don't have an associated subscription. They will need to be manually renewed when they expire."
-msgstr ""
-
-#: includes/plugins/woocommerce/my-account/class-woocommerce-my-account.php:1090
-#: includes/reader-activation/class-reader-activation.php:276
-#: includes/reader-activation/class-reader-activation.php:2246
-msgid "Please enter a valid email address."
 msgstr ""
 
 #: includes/plugins/woocommerce/my-account/class-woocommerce-my-account.php:1092
@@ -4548,10 +4595,6 @@ msgstr ""
 
 #: includes/reader-activation/class-reader-activation.php:1747
 msgid "Sending to: "
-msgstr ""
-
-#: includes/reader-activation/class-reader-activation.php:1776
-msgid "Invalid email address."
 msgstr ""
 
 #: includes/reader-activation/class-reader-activation.php:1781

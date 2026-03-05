@@ -124,6 +124,26 @@ class WooCommerce_Subscriptions {
 	}
 
 	/**
+	 * Sanitize and validate a subscription ID or object as a WC_Subscription object.
+	 *
+	 * @param int|WC_Subscription $subscription The subscription ID or object.
+	 *
+	 * @return WC_Subscription|false The subscription object, or false if the subscription is not valid.
+	 */
+	public static function sanitize_subscription( $subscription ) {
+		if ( ! function_exists( 'wcs_get_subscription' ) ) {
+			return false;
+		}
+		if ( ! is_a( $subscription, 'WC_Subscription' ) ) {
+			$subscription = \wcs_get_subscription( $subscription );
+		}
+		if ( ! $subscription ) {
+			return false;
+		}
+		return $subscription;
+	}
+
+	/**
 	 * Get the user's subscription within a grouped or variable subscription product.
 	 *
 	 * @param \WC_Product $product Product.

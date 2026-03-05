@@ -251,6 +251,9 @@ class WC_Subscription {
 			$this->data['dates'][ $type ] = $date;
 		}
 	}
+	public function get_items() {
+		return $this->data['items'] ?? [];
+	}
 	public function save() {
 		return true;
 	}
