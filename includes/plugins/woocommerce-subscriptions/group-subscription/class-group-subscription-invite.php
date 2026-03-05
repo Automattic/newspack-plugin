@@ -360,13 +360,13 @@ class Group_Subscription_Invite {
 			exit;
 		}
 
-		// New user — auto-create account and accept.
+		// New user — auto-create account, verify email, and accept.
 		$user_id = Reader_Activation::register_reader( $email, false );
 		if ( is_wp_error( $user_id ) || ! $user_id ) {
 			self::redirect_with_result( 'error', __( 'Could not create your account. Please try again.', 'newspack-plugin' ) );
 			return;
 		}
-
+		Reader_Activation::set_reader_verified( $user_id );
 		Reader_Activation::set_current_reader( $user_id );
 
 		$result = self::accept_invite( $subscription_id, $key, $email );
