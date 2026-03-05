@@ -12,6 +12,7 @@ A modal confirmation dialog that intercepts client-side navigation when there ar
 | `confirmButtonText` | `string` | — | Label for the confirm button. |
 | `hideTitle` | `boolean` | — | When `true`, hides the modal title and the × close button. |
 | `isDestructive` | `boolean` | — | When `true`, applies destructive (e.g. red) styling to the confirm button. |
+| `isOpen` | `boolean` | `false` | When `true`, shows the dialog immediately without blocking navigation. Use this for imperative confirmation (e.g. confirming a destructive action on a button click). |
 | `size` | `'small'` \| `'medium'` \| `'large'` \| `'x-large'` \| `'full'` | `'small'` | Controls the width of the modal. |
 | `title` | `string` | — | Title displayed in the modal header. |
 | `when` | `boolean` | `false` | When `true`, blocks router navigation and shows the dialog on any attempted navigation. Set this to reflect whether the current form has unsaved changes. |
@@ -42,5 +43,24 @@ import { ConfirmDialog } from 'newspack-components';
 	cancelButtonText="Keep editing"
 >
 	Your changes will be lost if you leave this page.
+</ConfirmDialog>
+
+// Guard both navigation and an imperative action with a single dialog instance.
+// isOpen triggers the dialog immediately (e.g. on a button click) without
+// blocking navigation. Both when and isOpen can be used together.
+const [ pendingAction, setPendingAction ] = useState( null );
+<ConfirmDialog
+	when={ hasUnsavedChanges }
+	isOpen={ !! pendingAction }
+	confirmButtonText="Discard changes"
+	isDestructive
+	hideTitle
+	onConfirm={ () => {
+		pendingAction?.();
+		setPendingAction( null );
+	} }
+	onCancel={ () => setPendingAction( null ) }
+>
+	You have unsaved changes that will be lost. Discard changes?
 </ConfirmDialog>
 ```

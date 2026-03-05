@@ -38,6 +38,7 @@ const CountdownBannerSettings = () => {
 	const { addNotice, resetNotices, setHeaderData, updateWizardSettings } = useDispatch( WIZARD_STORE_NAMESPACE );
 	const { wizardApiFetch, errorMessage, resetError } = useWizardApiFetch( AUDIENCE_CONTENT_GATES_WIZARD_SLUG );
 	const [ config, setConfig ] = useState< GateSettings >( wizardData?.config || {} );
+	const [ pendingToggle, setPendingToggle ] = useState< ( () => void ) | null >( null );
 	const availableProducts = newspackAudience?.available_products || [];
 	const isDirty = useMemo( () => {
 		return (
@@ -91,21 +92,25 @@ const CountdownBannerSettings = () => {
 				},
 				{
 					label: config?.countdown_banner?.enabled ? __( 'Disable', 'newspack-plugin' ) : __( 'Enable', 'newspack-plugin' ),
-					action: () =>
-						handleUpdateConfig(
-							{
-								...wizardData?.config,
-								countdown_banner: {
-									...wizardData?.config?.countdown_banner,
-									enabled: wizardData?.config?.countdown_banner?.enabled ? false : true,
-								},
+					action: () => {
+						const newConfig = {
+							...wizardData?.config,
+							countdown_banner: {
+								...wizardData?.config?.countdown_banner,
+								enabled: ! wizardData?.config?.countdown_banner?.enabled,
 							},
-							sprintf(
-								// translators: %s is the status of the countdown banner.
-								__( 'Countdown banner %s.', 'newspack-plugin' ),
-								config?.countdown_banner?.enabled ? __( 'disabled', 'newspack-plugin' ) : __( 'enabled', 'newspack-plugin' )
-							)
-						),
+						};
+						const message = sprintf(
+							// translators: %s is the status of the countdown banner.
+							__( 'Countdown banner %s.', 'newspack-plugin' ),
+							config?.countdown_banner?.enabled ? __( 'disabled', 'newspack-plugin' ) : __( 'enabled', 'newspack-plugin' )
+						);
+						if ( isDirty ) {
+							setPendingToggle( () => () => handleUpdateConfig( newConfig, message ) );
+						} else {
+							handleUpdateConfig( newConfig, message );
+						}
+					},
 					type: 'more',
 				},
 			],
@@ -119,7 +124,18 @@ const CountdownBannerSettings = () => {
 
 	return (
 		<div className="newspack-content-gate__edit">
-			<ConfirmDialog when={ isDirty && ! isSaving.current } confirmButtonText={ __( 'Discard changes', 'newspack-plugin' ) } hideTitle>
+			<ConfirmDialog
+				when={ isDirty && ! isSaving.current }
+				isOpen={ !! pendingToggle }
+				confirmButtonText={ __( 'Discard changes', 'newspack-plugin' ) }
+				isDestructive
+				hideTitle
+				onConfirm={ () => {
+					pendingToggle?.();
+					setPendingToggle( null );
+				} }
+				onCancel={ () => setPendingToggle( null ) }
+			>
 				{ __( 'You have unsaved changes that will be lost. Discard changes?', 'newspack-plugin' ) }
 			</ConfirmDialog>
 			{ errorMessage && <Notice isError noticeText={ errorMessage } /> }

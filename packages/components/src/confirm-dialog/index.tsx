@@ -29,7 +29,7 @@ type ConfirmDialogProps = {
 	hideTitle?: boolean;
 	title?: string;
 	isDestructive?: boolean;
-	isShowingDialog?: boolean;
+	isOpen?: boolean;
 	onConfirm?: () => void;
 	onCancel?: () => void;
 	cancelButtonText?: string;
@@ -57,12 +57,12 @@ function ConfirmDialog(
 		onConfirm = noOp,
 		onCancel = noOp,
 		when = false,
-		isShowingDialog = false,
+		isOpen = false,
 		...otherProps
 	}: ConfirmDialogProps,
 	ref: React.Ref< HTMLDivElement >
 ) {
-	const [ showDialog, setShowDialog ] = useState( isShowingDialog );
+	const [ showDialog, setShowDialog ] = useState( isOpen );
 	const history = useHistory();
 	const pendingNavigation = useRef< ( () => void ) | null >( null );
 
@@ -99,11 +99,12 @@ function ConfirmDialog(
 		return unblock;
 	}, [ when, history ] );
 
+	// Show the dialog imperatively without blocking navigation.
 	useEffect( () => {
-		if ( isShowingDialog && when ) {
+		if ( isOpen ) {
 			setShowDialog( true );
 		}
-	}, [ isShowingDialog, when ] );
+	}, [ isOpen ] );
 
 	if ( ! showDialog ) {
 		return null;
