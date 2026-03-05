@@ -4,12 +4,12 @@
 import { __, sprintf } from '@wordpress/i18n';
 import { CardBody } from '@wordpress/components';
 import { useDispatch } from '@wordpress/data';
-import { createInterpolateElement, useRef, useState } from '@wordpress/element';
+import { createInterpolateElement, useRef } from '@wordpress/element';
 
 /**
  * Internal dependencies
  */
-import { Badge, Button, Card, ConfirmDialog, Grid, Router } from '../../../../../packages/components/src';
+import { Badge, Button, Card, Grid, Router, useConfirmDialog } from '../../../../../packages/components/src';
 import { useWizardData } from '../../../../../packages/components/src/wizard/store/utils';
 import { useWizardApiFetch } from '../../../hooks/use-wizard-api-fetch';
 import { WIZARD_STORE_NAMESPACE } from '../../../../../packages/components/src/wizard/store';
@@ -28,7 +28,19 @@ export default function ContentGateSettings( { gate, updateGatesData }: { gate: 
 	const { gates = null as unknown as Gate[] } = useWizardData( AUDIENCE_CONTENT_GATES_WIZARD_SLUG ) as WizardData;
 	const { wizardApiFetch, isFetching, resetError } = useWizardApiFetch( AUDIENCE_CONTENT_GATES_WIZARD_SLUG );
 	const { addNotice, resetNotices } = useDispatch( WIZARD_STORE_NAMESPACE );
-	const [ showDeleteDialog, setShowDeleteDialog ] = useState( false );
+	const { confirmDialog: deleteDialog, requestConfirm: requestDelete } = useConfirmDialog( {
+		title: __( 'Are you sure?', 'newspack-plugin' ),
+		confirmButtonText: __( 'Delete', 'newspack-plugin' ),
+		isDestructive: true,
+		message: createInterpolateElement(
+			sprintf(
+				// translators: %s is the gate title.
+				__( 'This will <strong>permanently delete</strong> “%s” and cannot be undone.', 'newspack-plugin' ),
+				gate.title
+			),
+			{ strong: <strong /> }
+		),
+	} );
 
 	const updateStatus = useRef< ( status: GateStatus ) => void >();
 	const handleStatusChange = ( status: GateStatus ) => {
@@ -98,24 +110,7 @@ export default function ContentGateSettings( { gate, updateGatesData }: { gate: 
 
 	return (
 		<>
-			{ showDeleteDialog && (
-				<ConfirmDialog
-					title={ __( 'Are you sure?', 'newspack-plugin' ) }
-					onConfirm={ handleDelete }
-					onCancel={ () => setShowDeleteDialog( false ) }
-					confirmButtonText={ __( 'Delete', 'newspack-plugin' ) }
-					isDestructive={ true }
-				>
-					{ createInterpolateElement(
-						sprintf(
-							// translators: %s is the gate title.
-							__( 'This will <strong>permanently delete</strong> “%s” and cannot be undone.', 'newspack-plugin' ),
-							gate.title
-						),
-						{ strong: <strong /> }
-					) }
-				</ConfirmDialog>
-			) }
+			{ deleteDialog }
 			<Card
 				className="newspack-content-gates__gate"
 				id={ gate.id }
@@ -145,7 +140,7 @@ export default function ContentGateSettings( { gate, updateGatesData }: { gate: 
 						},
 						{
 							label: __( 'Delete', 'newspack-plugin' ),
-							action: () => setShowDeleteDialog( true ),
+							action: () => requestDelete( handleDelete ),
 							disabled: isFetching,
 							destructive: true,
 						},

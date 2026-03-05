@@ -70,12 +70,32 @@
 		&__actions {
 			align-items: center;
 			display: flex;
-			flex: 1 1 auto;
 			gap: 8px;
 			justify-content: flex-end;
 			padding: 0 24px 0 0;
+			> .newspack-wizard__header__actions__main {
+				display: none;
+			}
+			@media only screen and ( min-width: 782px ) {
+				flex: 1 1 auto;
+				> .newspack-wizard__header__actions__main {
+					display: flex;
+				}
+				&__more {
+					&--primary-only,
+					.newspack-wizard__header__actions__more__main {
+						display: none;
+					}
+				}
+			}
 		}
 	}
+
+	&__main {
+		overflow-x: hidden;
+		padding-bottom: 1px; /* Prevents borders from being cut off */
+	}
+
 
 	&__title {
 		align-items: center;

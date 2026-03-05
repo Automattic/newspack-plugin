@@ -7,7 +7,7 @@
  */
 import { __ } from '@wordpress/i18n';
 import { useEffect, useRef } from '@wordpress/element';
-import { Tooltip } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
+import { Tooltip, __experimentalHStack as HStack } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
 import { Icon, chevronLeft } from '@wordpress/icons';
 
 /**
@@ -86,6 +86,26 @@ const SectionHeader = ( {
 
 	const HeadingTag = pageHeader ? 'h1' : `h${ heading }`;
 
+	let titleContent = null;
+
+	if ( typeof title === 'string' ) {
+		titleContent = (
+			<div className="newspack-section-header__title-container">
+				<HeadingTag>{ title }</HeadingTag>
+				{ badges?.length ? badges.map( ( badge, i ) => <Badge key={ i } text={ badge.label } level={ badge.level || 'default' } /> ) : null }
+				{ secondaryAction && (
+					<div className="newspack-section-header__secondary-action">
+						<Button variant="link" href={ secondaryAction.href } onClick={ secondaryAction.action }>
+							{ secondaryAction.label }
+						</Button>
+					</div>
+				) }
+			</div>
+		);
+	} else if ( typeof title === 'function' ) {
+		titleContent = <HeadingTag>{ title() }</HeadingTag>;
+	}
+
 	return (
 		<div
 			id={ id }
@@ -103,29 +123,18 @@ const SectionHeader = ( {
 						<Icon icon={ icon } size={ 48 } />
 					</div>
 				) }
-				{ backNav && (
-					<div className="newspack-section-header__back-nav">
-						<Tooltip text={ __( 'Go back', 'newspack-plugin' ) }>
-							<Button href={ backNav } icon={ chevronLeft } variant="tertiary" />
-						</Tooltip>
-					</div>
+				{ backNav ? (
+					<HStack alignment="left" style={ { position: 'relative' } }>
+						<div className="newspack-section-header__back-nav">
+							<Tooltip text={ __( 'Go back', 'newspack-plugin' ) }>
+								<Button href={ backNav } icon={ chevronLeft } variant="tertiary" />
+							</Tooltip>
+						</div>
+						{ titleContent }
+					</HStack>
+				) : (
+					titleContent
 				) }
-				{ typeof title === 'string' && (
-					<div className="newspack-section-header__title-container">
-						<HeadingTag>{ title }</HeadingTag>
-						{ badges?.length
-							? badges.map( ( badge, i ) => <Badge key={ i } text={ badge.label } level={ badge.level || 'default' } /> )
-							: null }
-						{ secondaryAction && (
-							<div className="newspack-section-header__secondary-action">
-								<Button variant="link" href={ secondaryAction.href } onClick={ secondaryAction.action }>
-									{ secondaryAction.label }
-								</Button>
-							</div>
-						) }
-					</div>
-				) }
-				{ typeof title === 'function' && <HeadingTag>{ title() }</HeadingTag> }
 				{ description && typeof description === 'string' && <p>{ description }</p> }
 				{ typeof description === 'function' && <p>{ description() }</p> }
 				{ description && typeof description !== 'string' && typeof description !== 'function' && <p>{ description }</p> }

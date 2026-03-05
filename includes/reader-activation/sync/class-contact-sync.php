@@ -145,7 +145,7 @@ class Contact_Sync extends Sync {
 		foreach ( $integrations as $integration_id => $integration ) {
 			$result = $integration->push_contact_data( $contact, $context, $existing_contact );
 			if ( \is_wp_error( $result ) ) {
-				self::schedule_integration_retry( $integration_id, $contact, $context, $existing_contact, 0, $result->get_error_message() );
+				self::schedule_integration_retry( $integration_id, $contact, $context, $existing_contact, 0, $result );
 				$errors[] = sprintf( '[%s] %s', $integration_id, $result->get_error_message() );
 			}
 		}
@@ -160,17 +160,19 @@ class Contact_Sync extends Sync {
 	/**
 	 * Schedule a retry for a failed integration sync via ActionScheduler.
 	 *
-	 * @param string $integration_id   The integration ID.
-	 * @param array  $contact          The contact data.
-	 * @param string $context          The sync context.
-	 * @param array  $existing_contact Optional. Existing contact data.
-	 * @param int    $retry_count      Current retry count (0 = first failure).
-	 * @param string $error_message    The error message from the failure.
+	 * @param string           $integration_id   The integration ID.
+	 * @param array            $contact          The contact data.
+	 * @param string           $context          The sync context.
+	 * @param array            $existing_contact Optional. Existing contact data.
+	 * @param int              $retry_count      Current retry count (0 = first failure).
+	 * @param string|\WP_Error $error            The error from the failure.
 	 */
-	private static function schedule_integration_retry( $integration_id, $contact, $context, $existing_contact, $retry_count, $error_message ) {
+	private static function schedule_integration_retry( $integration_id, $contact, $context, $existing_contact, $retry_count, $error ) {
 		if ( ! function_exists( 'as_schedule_single_action' ) ) {
 			return;
 		}
+
+		$error_message = $error instanceof \WP_Error ? $error->get_error_message() : (string) $error;
 
 		$next_retry = $retry_count + 1;
 		if ( $next_retry > self::MAX_RETRIES ) {
@@ -189,6 +191,29 @@ class Contact_Sync extends Sync {
 					'Max retries exhausted.'
 				);
 			}
+			/**
+			 * Fires when a contact sync integration has exhausted all retry attempts.
+			 *
+			 * @param array $alert_data {
+			 *     Alert data.
+			 *
+			 *     @type string $integration_id The integration that failed.
+			 *     @type array  $contact        The contact data that failed to sync.
+			 *     @type string $context        The sync context.
+			 *     @type int    $retry_count    Total retries attempted.
+			 *     @type string $reason         The final error message.
+			 * }
+			 */
+			do_action(
+				'newspack_sync_retry_exhausted',
+				[
+					'integration_id' => $integration_id,
+					'contact'        => $contact,
+					'context'        => $context,
+					'retry_count'    => self::MAX_RETRIES,
+					'reason'         => $error_message,
+				]
+			);
 			return;
 		}
 
@@ -282,7 +307,7 @@ class Contact_Sync extends Sync {
 				$context,
 				$existing_contact,
 				$retry_count,
-				implode( '; ', $result->get_error_messages() )
+				$result
 			);
 			return;
 		}

@@ -18,6 +18,8 @@ import { Wizard, withWizard } from '../../../../../packages/components/src';
 import { WIZARD_STORE_NAMESPACE } from '../../../../../packages/components/src/wizard/store';
 import ContentGates from './content-gates';
 import Edit from './edit';
+import CountdownBanner from './edit/countdown-banner';
+import ContentGifting from './edit/content-gifting';
 import { AUDIENCE_CONTENT_GATES_WIZARD_SLUG, BASE_HEADER_TEXT } from './consts';
 
 const AudienceContentGates = ( props, ref ) => {
@@ -33,7 +35,7 @@ const AudienceContentGates = ( props, ref ) => {
 	return (
 		<Wizard
 			apiSlug={ AUDIENCE_CONTENT_GATES_WIZARD_SLUG }
-			title={ __( 'Access Control', 'newspack-plugin' ) }
+			title={ __( 'Access control', 'newspack-plugin' ) }
 			headerText={ BASE_HEADER_TEXT }
 			ref={ ref }
 			sharedProps={ { updateGatesData } }
@@ -48,6 +50,30 @@ const AudienceContentGates = ( props, ref ) => {
 					render: Edit,
 					isHidden: true,
 					exact: true,
+				},
+				{
+					path: '/settings/countdown-banner',
+					render: CountdownBanner,
+					isHidden: true,
+					exact: true,
+					backNav: '#/content-gates',
+					title: __( 'Metered countdown', 'newspack-plugin' ),
+					description: __(
+						'Show a countdown banner letting readers know how many free views they have left before content is restricted.',
+						'newspack-plugin'
+					),
+				},
+				{
+					path: '/settings/content-gifting',
+					render: ContentGifting,
+					isHidden: true,
+					exact: true,
+					backNav: '#/content-gates',
+					title: __( 'Content gifting', 'newspack-plugin' ),
+					description: __(
+						'Let members gift articles to non-subscribers. Recipients can read the full content without needing to subscribe.',
+						'newspack-plugin'
+					),
 				},
 			] }
 		/>

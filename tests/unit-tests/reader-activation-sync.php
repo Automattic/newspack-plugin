@@ -538,6 +538,53 @@ class Newspack_Test_Reader_Activation_Sync extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Test that sync retry exhaustion fires the alert hook.
+	 */
+	public function test_sync_retry_exhaustion_fires_hook() {
+		if ( ! function_exists( 'as_schedule_single_action' ) ) {
+			$this->markTestSkipped( 'ActionScheduler not available.' );
+		}
+
+		$hook_fired = false;
+		$hook_data  = null;
+		add_action(
+			'newspack_sync_retry_exhausted',
+			function ( $data ) use ( &$hook_fired, &$hook_data ) {
+				$hook_fired = true;
+				$hook_data  = $data;
+			}
+		);
+
+		Failing_Sample_Integration::reset();
+		Failing_Sample_Integration::$should_fail = true;
+		$this->register_failing_integration( 'exhaustion_mock' );
+
+		as_unschedule_all_actions( Contact_Sync::RETRY_HOOK );
+
+		$contact = [
+			'email'    => 'exhaustion@test.com',
+			'name'     => 'Exhaustion Test',
+			'metadata' => [],
+		];
+
+		// Execute at max retry count — triggers exhaustion.
+		Contact_Sync::execute_integration_retry(
+			[
+				'integration_id'   => 'exhaustion_mock',
+				'contact'          => $contact,
+				'context'          => 'Test',
+				'existing_contact' => null,
+				'retry_count'      => Contact_Sync::MAX_RETRIES,
+			]
+		);
+
+		$this->assertTrue( $hook_fired, 'newspack_sync_retry_exhausted should fire on max retries.' );
+		$this->assertEquals( 'exhaustion_mock', $hook_data['integration_id'] );
+		$this->assertEquals( Contact_Sync::MAX_RETRIES, $hook_data['retry_count'] );
+		$this->assertArrayHasKey( 'reason', $hook_data );
+	}
+
+	/**
 	 * Test that invalid retry data is handled gracefully.
 	 */
 	public function test_integration_retry_invalid_data() {

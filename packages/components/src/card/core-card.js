@@ -28,6 +28,9 @@ const CoreCard = ( {
 	className,
 	footer,
 	header,
+	headerStyle,
+	childrenStyle,
+	footerStyle,
 	icon,
 	iconBackgroundColor,
 	isActive,
@@ -75,6 +78,7 @@ const CoreCard = ( {
 				<CardHeader
 					as={ onHeaderClick ? 'button' : undefined }
 					className={ classNames( 'newspack-card--core__header', isDraggable && 'newspack-card--core__header--is-draggable' ) }
+					style={ headerStyle }
 					size={ sizeProps }
 					onClick={ onHeaderClick }
 				>
@@ -138,8 +142,16 @@ const CoreCard = ( {
 					) }
 				</CardHeader>
 			) }
-			{ children && <div className="newspack-card--core__body">{ children }</div> }
-			{ footer && <CardFooter size={ sizeProps }>{ footer }</CardFooter> }
+			{ children && (
+				<div className="newspack-card--core__body" style={ childrenStyle }>
+					{ children }
+				</div>
+			) }
+			{ footer && (
+				<CardFooter size={ sizeProps } style={ footerStyle }>
+					{ footer }
+				</CardFooter>
+			) }
 		</CardWrapper>
 	);
 };

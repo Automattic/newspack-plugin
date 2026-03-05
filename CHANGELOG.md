@@ -1,3 +1,10 @@
+## [6.34.2](https://github.com/Automattic/newspack-plugin/compare/v6.34.1...v6.34.2) (2026-03-04)
+
+
+### Bug Fixes
+
+* **wizard:** restore PluginInstaller routing when required plugins unsatisfied ([#4545](https://github.com/Automattic/newspack-plugin/issues/4545)) ([f7105ce](https://github.com/Automattic/newspack-plugin/commit/f7105ce1d2fa28c5dd546d0e04878ad72e786ccb))
+
 ## [6.34.1](https://github.com/Automattic/newspack-plugin/compare/v6.34.0...v6.34.1) (2026-03-02)
 
 

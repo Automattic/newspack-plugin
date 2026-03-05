@@ -89,6 +89,7 @@ export default function CountdownBanner( { config, setConfig, updateConfig, noBo
 								help={ __( 'URL for the landing page to redirect to.', 'newspack-plugin' ) }
 								value={ config.countdown_banner.cta_url }
 								onChange={ value => setConfig( { ...config, countdown_banner: { ...config.countdown_banner, cta_url: value } } ) }
+								withMargin={ false }
 								__next40pxDefaultSize
 							/>
 						) }
