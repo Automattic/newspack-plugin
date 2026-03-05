@@ -37,10 +37,6 @@ class Group_Subscription_MyAccount {
 	 * Initialize hooks and filters.
 	 */
 	public static function init() {
-		if ( version_compare( WooCommerce_My_Account::get_version(), '1.0.0', '<' ) ) {
-			return;
-		}
-
 		// Ensure My Account UI v1 is active before registering endpoints/actions.
 		if ( ! class_exists( 'Newspack\\My_Account_UI_V1' ) ) {
 			return;
@@ -60,7 +56,7 @@ class Group_Subscription_MyAccount {
 	 *
 	 * @return string The URL.
 	 */
-	public static function get_manage_members_url( $subscription ) {
+	private static function get_manage_members_url( $subscription ) {
 		return wc_get_endpoint_url(
 			self::MANAGE_MEMBERS_ENDPOINT,
 			$subscription->get_id(),
@@ -142,124 +138,109 @@ class Group_Subscription_MyAccount {
 	}
 
 	/**
+	 * Get subscription ID and redirect URL from POST data.
+	 *
+	 * @return array{ 0: int, 1: string }
+	 */
+	private static function get_subscription_context(): array {
+		$subscription_id = filter_input( INPUT_POST, 'subscription_id', FILTER_VALIDATE_INT ) ?? 0;
+		$redirect_url    = wc_get_endpoint_url( self::MANAGE_MEMBERS_ENDPOINT, $subscription_id, wc_get_page_permalink( 'myaccount' ) );
+		return [ $subscription_id, $redirect_url ];
+	}
+
+	/**
+	 * Verify the current user has permission to manage the subscription, redirecting on failure.
+	 *
+	 * @param int         $subscription_id Subscription ID.
+	 * @param string      $redirect_url    URL to redirect to on failure.
+	 * @param string      $active_tab      Active tab slug for the redirect.
+	 * @param string|null $error_message   Error message to display.
+	 */
+	private static function verify_permission( $subscription_id, $redirect_url, $active_tab, $error_message = null ): void {
+		if ( ! $error_message ) {
+			$error_message = __( 'You do not have permission to manage members for this group subscription.', 'newspack-plugin' );
+		}
+		$request = new \WP_REST_Request();
+		$request->set_param( 'subscription_id', $subscription_id );
+		if ( ! Group_Subscription_API::permission_callback( $request ) ) {
+			self::redirect(
+				new \WP_Error( 'newspack_group_subscription_permission_denied', $error_message ),
+				$redirect_url,
+				$active_tab,
+				$error_message
+			);
+		}
+	}
+
+	/**
+	 * Redirect with a success or error message depending on the action result.
+	 *
+	 * @param \WP_Error|mixed $result          Result of the action.
+	 * @param string          $redirect_url    URL to redirect to.
+	 * @param string          $active_tab      Active tab slug for the redirect.
+	 * @param string          $success_message Success message to display.
+	 */
+	private static function redirect( $result, $redirect_url, $active_tab, $success_message ): never {
+		$query_args = [
+			'activeTab' => $active_tab,
+			'message'   => $success_message,
+		];
+		if ( is_wp_error( $result ) ) {
+			$query_args['is_error'] = true;
+			$query_args['message'] = $result->get_error_message();
+		} else {
+			$query_args['is_success'] = true;
+		}
+		wp_safe_redirect(
+			add_query_arg( $query_args, $redirect_url )
+		);
+		exit;
+	}
+
+	/**
 	 * Handle the invite member form submission.
 	 */
 	public static function handle_invite_member() {
 		check_admin_referer( self::INVITE_NONCE_ACTION );
-
-		$subscription_id = filter_input( INPUT_POST, 'subscription_id', FILTER_VALIDATE_INT ) ?? 0;
-		$redirect_url    = wc_get_endpoint_url( self::MANAGE_MEMBERS_ENDPOINT, $subscription_id, wc_get_page_permalink( 'myaccount' ) );
-
-		$request = new \WP_REST_Request();
-		$request->set_param( 'subscription_id', $subscription_id );
-		if ( ! Group_Subscription_API::permission_callback( $request ) ) {
-			wp_safe_redirect(
-				add_query_arg(
-					[
-						'activeTab' => 'invites',
-						'message'   => __( 'You do not have permission to manage members for this group subscription.', 'newspack-plugin' ),
-						'is_error'  => true,
-					],
-					$redirect_url
-				)
-			);
-			exit;
-		}
+		[ $subscription_id, $redirect_url ] = self::get_subscription_context();
+		self::verify_permission( $subscription_id, $redirect_url, 'invites' );
 
 		$email  = filter_input( INPUT_POST, 'newspack-group-subscription-invite-email', FILTER_SANITIZE_EMAIL ) ?? '';
 		$invite = Group_Subscription_Invite::generate_invite( $subscription_id, $email );
 
-		if ( is_wp_error( $invite ) ) {
-			wp_safe_redirect(
-				add_query_arg(
-					[
-						'activeTab' => 'invites',
-						'message'   => $invite->get_error_message(),
-						'is_error'  => true,
-					],
-					$redirect_url
-				)
-			);
-			exit;
-		}
-
-		wp_safe_redirect(
-			add_query_arg(
-				[
-					'activeTab'  => 'invites',
-					'message'    => sprintf(
-						// translators: %s: The invited email address.
-						__( '%s has been invited to become a member of this group subscription.', 'newspack-plugin' ),
-						$email
-					),
-					'is_success' => true,
-				],
-				$redirect_url
+		self::redirect(
+			$invite,
+			$redirect_url,
+			'invites',
+			sprintf(
+				// translators: %s: The invited email address.
+				__( '%s has been invited to become a member of this group subscription.', 'newspack-plugin' ),
+				$email
 			)
 		);
-		exit;
 	}
+
 	/**
 	 * Handle the cancel invite form submission.
 	 */
 	public static function handle_cancel_invite() {
 		check_admin_referer( self::CANCEL_INVITE_NONCE_ACTION );
-
-		$subscription_id = filter_input( INPUT_POST, 'subscription_id', FILTER_VALIDATE_INT ) ?? 0;
-		$redirect_url    = wc_get_endpoint_url(
-			self::MANAGE_MEMBERS_ENDPOINT,
-			$subscription_id,
-			wc_get_page_permalink( 'myaccount' )
-		);
-
-		$request = new \WP_REST_Request();
-		$request->set_param( 'subscription_id', $subscription_id );
-		if ( ! Group_Subscription_API::permission_callback( $request ) ) {
-			wp_safe_redirect(
-				add_query_arg(
-					[
-						'activeTab' => 'invites',
-						'message'   => __( 'You do not have permission to manage members for this group subscription.', 'newspack-plugin' ),
-						'is_error'  => true,
-					],
-					$redirect_url
-				)
-			);
-			exit;
-		}
+		[ $subscription_id, $redirect_url ] = self::get_subscription_context();
+		self::verify_permission( $subscription_id, $redirect_url, 'invites' );
 
 		$email  = filter_input( INPUT_POST, 'email', FILTER_SANITIZE_EMAIL ) ?? '';
 		$result = Group_Subscription_Invite::cancel_invite( $subscription_id, $email );
 
-		if ( is_wp_error( $result ) ) {
-			wp_safe_redirect(
-				add_query_arg(
-					[
-						'activeTab' => 'invites',
-						'message'   => $result->get_error_message(),
-						'is_error'  => true,
-					],
-					$redirect_url
-				)
-			);
-			exit;
-		}
-
-		wp_safe_redirect(
-			add_query_arg(
-				[
-					'activeTab'  => 'invites',
-					'message'    => sprintf(
-						// translators: %s: The cancelled invitation's email address.
-						__( 'The invitation for %s has been cancelled.', 'newspack-plugin' ),
-						$email
-					),
-					'is_success' => true,
-				],
-				$redirect_url
+		self::redirect(
+			$result,
+			$redirect_url,
+			'invites',
+			sprintf(
+				// translators: %s: The cancelled invitation's email address.
+				__( 'The invitation for %s has been cancelled.', 'newspack-plugin' ),
+				$email
 			)
 		);
-		exit;
 	}
 
 	/**
@@ -267,59 +248,23 @@ class Group_Subscription_MyAccount {
 	 */
 	public static function handle_remove_member() {
 		check_admin_referer( self::REMOVE_MEMBER_NONCE_ACTION );
-
-		$subscription_id = filter_input( INPUT_POST, 'subscription_id', FILTER_VALIDATE_INT ) ?? 0;
-		$redirect_url    = wc_get_endpoint_url( self::MANAGE_MEMBERS_ENDPOINT, $subscription_id, wc_get_page_permalink( 'myaccount' ) );
-
-		$request = new \WP_REST_Request();
-		$request->set_param( 'subscription_id', $subscription_id );
-		if ( ! Group_Subscription_API::permission_callback( $request ) ) {
-			wp_safe_redirect(
-				add_query_arg(
-					[
-						'activeTab' => 'members',
-						'message'   => __( 'You do not have permission to remove members from this group subscription.', 'newspack-plugin' ),
-						'is_error'  => true,
-					],
-					$redirect_url
-				)
-			);
-			exit;
-		}
+		[ $subscription_id, $redirect_url ] = self::get_subscription_context();
+		self::verify_permission( $subscription_id, $redirect_url, 'invites' );
 
 		$member_id   = filter_input( INPUT_POST, 'member_id', FILTER_VALIDATE_INT ) ?? 0;
 		$member_data = get_userdata( $member_id );
 		$result      = Group_Subscription::update_members( $subscription_id, [], [ $member_id ] );
 
-		if ( is_wp_error( $result ) ) {
-			wp_safe_redirect(
-				add_query_arg(
-					[
-						'activeTab' => 'members',
-						'message'   => $result->get_error_message(),
-						'is_error'  => true,
-					],
-					$redirect_url
-				)
-			);
-			exit;
-		}
-
-		wp_safe_redirect(
-			add_query_arg(
-				[
-					'activeTab'  => 'members',
-					'message'    => sprintf(
-						// translators: %s: The removed member's email address.
-						__( '%s has been removed from this group subscription.', 'newspack-plugin' ),
-						$member_data ? $member_data->user_email : $member_id
-					),
-					'is_success' => true,
-				],
-				$redirect_url
+		self::redirect(
+			$result,
+			$redirect_url,
+			'members',
+			sprintf(
+				// translators: %s: The removed member's email address.
+				__( '%s has been removed from this group subscription.', 'newspack-plugin' ),
+				$member_data ? $member_data->user_email : $member_id
 			)
 		);
-		exit;
 	}
 }
 Group_Subscription_MyAccount::init();
