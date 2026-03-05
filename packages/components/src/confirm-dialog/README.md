@@ -2,6 +2,8 @@
 
 A modal confirmation dialog that intercepts client-side navigation when there are unsaved changes. Built on top of WordPress's `__experimentalConfirmDialog`. The dialog is invisible until a navigation attempt is blocked; when `when` becomes `true` and the user navigates away, the dialog appears automatically and resumes or cancels the navigation based on the user's choice.
 
+For most imperative use cases (confirming a destructive action, guarding an action behind an unsaved-changes check) prefer the [`useConfirmDialog` hook](#useconfirmdialog-hook) over using `ConfirmDialog` directly.
+
 ## Props
 
 | Prop | Type | Default | Description |
@@ -63,4 +65,64 @@ const [ pendingAction, setPendingAction ] = useState( null );
 >
 	You have unsaved changes that will be lost. Discard changes?
 </ConfirmDialog>
+```
+
+---
+
+## `useConfirmDialog` hook
+
+A higher-level hook that wraps `ConfirmDialog` and manages the pending-action state for you. Prefer this over using `ConfirmDialog` directly when you need imperative confirmation.
+
+```jsx
+import { useConfirmDialog } from 'newspack-components';
+```
+
+### Options
+
+Accepts all `ConfirmDialog` props except `isOpen`, `onConfirm`, `onCancel`, and `children`, plus:
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `message` | `React.ReactNode` | — | Content rendered in the modal body. |
+| `when` | `boolean` | — | When explicitly `false`, `requestConfirm` skips the dialog and invokes the callback immediately. Omit (or pass `true`) to always show the dialog. Also controls router navigation blocking, same as the `when` prop on `ConfirmDialog`. |
+
+### Returns
+
+| Key | Type | Description |
+|-----|------|-------------|
+| `confirmDialog` | `React.ReactElement` | The dialog element — render this somewhere in your JSX. |
+| `requestConfirm` | `( callback: () => void ) => void` | Call with a callback to request confirmation. Shows the dialog (unless `when` is `false`); invokes the callback only if the user confirms. |
+
+### Usage
+
+```jsx
+// Always-confirm dialog (e.g. destructive delete action).
+const { confirmDialog, requestConfirm } = useConfirmDialog( {
+	title: 'Are you sure?',
+	confirmButtonText: 'Delete',
+	isDestructive: true,
+	message: 'This will permanently delete the item and cannot be undone.',
+} );
+
+// Render the dialog element in JSX:
+{ confirmDialog }
+
+// Call requestConfirm when the user initiates the action:
+<Button onClick={ () => requestConfirm( handleDelete ) }>Delete</Button>
+
+// Conditional dialog — skips confirmation when there are no unsaved changes.
+// Combines navigation blocking with imperative use in a single instance.
+const { confirmDialog, requestConfirm } = useConfirmDialog( {
+	when: isDirty,
+	message: 'You have unsaved changes that will be lost. Discard changes?',
+	confirmButtonText: 'Discard changes',
+	isDestructive: true,
+	hideTitle: true,
+} );
+
+{ confirmDialog }
+
+// In an action handler — shows the dialog only if isDirty, otherwise
+// calls the callback immediately:
+requestConfirm( () => handleToggleEnabled( newConfig ) );
 ```
