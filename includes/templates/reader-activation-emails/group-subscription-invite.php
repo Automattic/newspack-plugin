@@ -19,6 +19,12 @@ namespace Newspack;
 	'html_markup'  => $social_links_html
 ] = newspack_get_social_markup( $primary_text_color );
 
+$email_subject = sprintf(
+	// Translators: %s: The site name.
+	__( 'You’re invited to join %s', 'newspack-plugin' ),
+	get_bloginfo( 'name' )
+);
+
 $post_content =
 	// Main body.
 	'<!-- wp:group {"style":{"spacing":{"padding":{"top":"56px","bottom":"56px","left":"56px","right":"56px"}},"elements":{"link":{"color":{"textColor":"primary","text":"var:preset|color|primary"}}}},"layout":{"type":"constrained"}} -->
@@ -71,7 +77,7 @@ $email_html = '
 	<!doctype html>
 	<html lang="und" dir="auto" xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
 		<head>
-			<title>' . __( 'Group subscription invitation', 'newspack-plugin' ) . '</title>
+			<title>' . $email_subject . '</title>
 			<!--[if !mso]><!-->
 			<meta http-equiv="X-UA-Compatible" content="IE=edge">
 			<!--<![endif]-->
@@ -256,11 +262,7 @@ $email_html = '
 	</html>';
 
 return array(
-	'post_title'   => sprintf(
-		// Translators: %s: The site name.
-		__( 'You’re invited to join %s', 'newspack-plugin' ),
-		get_bloginfo( 'name' )
-	),
+	'post_title'   => $email_subject,
 	'post_content' => $post_content,
 	'email_html'   => $email_html,
 );
