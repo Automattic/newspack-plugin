@@ -62,7 +62,7 @@ class Group_Subscription_Invite {
 		add_filter( 'newspack_email_configs', [ __CLASS__, 'add_email_config' ] );
 		add_action( 'template_redirect', [ __CLASS__, 'process_invite_request' ] );
 		add_action( 'wp_login', [ __CLASS__, 'process_deferred_invite' ], 10, 2 );
-		add_action( 'wp_footer', [ __CLASS__, 'render_invite_notice' ] );
+		add_action( 'init', [ __CLASS__, 'render_invite_notice' ] );
 	}
 
 	/**
@@ -395,9 +395,13 @@ class Group_Subscription_Invite {
 	}
 
 	/**
-	 * Render a snackbar notice on the frontend for invite results.
+	 * Render invite result notice.
 	 */
 	public static function render_invite_notice() {
+		if ( ! function_exists( 'wc_add_notice' ) ) {
+			return;
+		}
+
 		$result = isset( $_GET[ self::RESULT_QUERY_ARG ] ) ? sanitize_text_field( wp_unslash( $_GET[ self::RESULT_QUERY_ARG ] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		if ( ! $result ) {
 			// Check for deferred acceptance notice.
@@ -418,7 +422,7 @@ class Group_Subscription_Invite {
 			$message = __( 'There was a problem with your invitation.', 'newspack-plugin' );
 			if ( isset( $_GET['message_key'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 				$transient_key  = sanitize_text_field( wp_unslash( $_GET['message_key'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-				$stored_message = get_transient( $transient_key );
+				$stored_message = get_transient( 'np_group_invite_msg_' . $transient_key );
 				if ( $stored_message ) {
 					$message = $stored_message;
 					delete_transient( $transient_key );
@@ -427,7 +431,7 @@ class Group_Subscription_Invite {
 			$type = 'error';
 		}
 
-		Newspack_UI::add_notice( $message, [ 'type' => $type ] );
+		wc_add_notice( $message, $type );
 	}
 
 	/**
@@ -440,11 +444,11 @@ class Group_Subscription_Invite {
 		$args = [ self::RESULT_QUERY_ARG => $status ];
 		if ( 'error' === $status && $message ) {
 			// Store message in a transient since it can be too long for a query param.
-			$transient_key = 'np_group_invite_msg_' . wp_generate_password( 8, false );
-			set_transient( $transient_key, $message, 60 );
+			$transient_key = wp_generate_password( 8, false );
+			set_transient( 'np_group_invite_msg_' . $transient_key, $message, 60 );
 			$args['message_key'] = $transient_key;
 		}
-		wp_safe_redirect( add_query_arg( $args, home_url() ) );
+		wp_safe_redirect( add_query_arg( $args, function_exists( 'wc_get_page_permalink' ) ? wc_get_page_permalink( 'myaccount' ) : home_url() ) );
 		exit;
 	}
 
@@ -487,7 +491,7 @@ class Group_Subscription_Invite {
 	 * @param \WC_Subscription|int $subscription The subscription object or ID.
 	 * @param string               $email The email address receiving the invitation.
 	 *
-	 * @return true|WP_Error Whether the invite was cancelled, or a WP_Error if the invite cannot be cancelled.
+	 * @return true|\WP_Error Whether the invite was cancelled, or a WP_Error if the invite cannot be cancelled.
 	 */
 	public static function cancel_invite( $subscription, $email ) {
 		$subscription = WooCommerce_Subscriptions::sanitize_subscription( $subscription );
