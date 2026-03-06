@@ -38,7 +38,8 @@ class Complianz {
 			'parsely.com'          => 'statistics',
 		];
 
-		$script_pattern = '/<script[^>]*? src=[\'\"]([^>]*?)[\'\"][^>]*?>/is';
+		// The regex matches <script src=""> tags.
+		$script_pattern = '/<script[^>]*?\s+src\s*=\s*([\'"])([^\'"]*?)\1[^>]*?>/is';
 		if ( preg_match_all( $script_pattern, $output, $matches, PREG_PATTERN_ORDER ) ) {
 			foreach ( $matches[0] as $index => $full_markup ) {
 
@@ -47,7 +48,7 @@ class Complianz {
 					continue;
 				}
 
-				$src = $matches[1][ $index ];
+				$src = $matches[2][ $index ];
 				foreach ( $scripts_to_block as $domain => $category ) {
 					if ( false === stripos( $src, $domain ) ) {
 						continue;
