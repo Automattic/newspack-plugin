@@ -48,6 +48,9 @@ function setupModalHandlers( selector, modalId, dataAttribute = null ) {
 					dropdown.classList.remove( 'active' );
 				}
 				jQuery( document.body ).trigger( 'refresh' );
+			} else if ( button.href ) {
+				// Modal not found in DOM (e.g. non-reader user) — fall back to native navigation rather than failing silently.
+				window.location.href = button.href;
 			}
 		} );
 	} );

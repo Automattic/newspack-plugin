@@ -676,9 +676,12 @@ class My_Account_UI_V1 {
 	 * Render the "Add Payment Method" modal.
 	 */
 	public static function add_payment_method_modal() {
-		if ( ! \is_user_logged_in() || ! Reader_Activation::is_user_reader( \wp_get_current_user() ) ) {
+		if ( ! \is_user_logged_in() ) {
 			return;
 		}
+		// No is_user_reader() check here. The modal needs to be available to all logged-in users,
+		// including legacy subscribers who predate Reader Activation and lack the np_reader meta.
+		// Restricting to readers causes the button to silently break for those users.
 		// Set the query var so payment gateways can detect the add-payment-method context.
 		global $wp;
 		$wp->query_vars['add-payment-method'] = true;
@@ -710,9 +713,10 @@ class My_Account_UI_V1 {
 	 * Render the "Add Address" modal.
 	 */
 	public static function add_address_modals() {
-		if ( ! \is_user_logged_in() || ! Reader_Activation::is_user_reader( \wp_get_current_user() ) ) {
+		if ( ! \is_user_logged_in() ) {
 			return;
 		}
+		// No is_user_reader() check here. The same reasoning as add_payment_method_modal().
 		$address_types = [ 'billing' => __( 'Billing', 'newspack-plugin' ) ];
 		if ( ! \wc_ship_to_billing_address_only() && \wc_shipping_enabled() ) {
 			$address_types['shipping'] = __( 'Shipping', 'newspack-plugin' );
