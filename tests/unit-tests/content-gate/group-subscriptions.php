@@ -763,17 +763,17 @@ class Test_Group_Subscriptions extends \WP_UnitTestCase {
 		$group_sub = $this->create_group_subscription( $owner_id );
 		wp_set_current_user( $admin_id );
 
-		Group_Subscription_Invite::generate_invite( $group_sub->get_id(), 'url-test@example.com' );
+		Group_Subscription_Invite::generate_invite( $group_sub->get_id(), 'url+test@example.com' );
 		$invites    = Group_Subscription_Invite::get_invites( $group_sub );
 		$invite_key = array_key_first( $invites );
-		$url        = Group_Subscription_Invite::get_invite_url( $group_sub->get_id(), $invite_key, 'url-test@example.com' );
+		$url        = Group_Subscription_Invite::get_invite_url( $group_sub->get_id(), $invite_key, 'url+test@example.com' );
 
 		$parsed = wp_parse_url( $url );
 		parse_str( $parsed['query'], $query );
 
 		$this->assertEquals( 'group_invite', $query['action'] );
 		$this->assertEquals( $invite_key, $query['key'] );
-		$this->assertEquals( 'url-test@example.com', $query['email'] );
+		$this->assertEquals( 'url+test@example.com', $query['email'] );
 		$this->assertEquals( (string) $group_sub->get_id(), $query['subscription'] );
 	}
 
