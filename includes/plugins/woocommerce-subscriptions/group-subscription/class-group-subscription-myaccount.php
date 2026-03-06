@@ -44,6 +44,7 @@ class Group_Subscription_MyAccount {
 		add_filter( 'woocommerce_get_query_vars', [ __CLASS__, 'add_manage_members_endpoint' ] );
 		add_action( 'woocommerce_account_' . self::MANAGE_MEMBERS_ENDPOINT . '_endpoint', [ __CLASS__, 'render_group_subscription_members_template' ] );
 		add_filter( 'wcs_get_users_subscriptions', [ __CLASS__, 'inject_member_group_subscriptions' ], 15, 2 );
+		add_filter( 'map_meta_cap', [ __CLASS__, 'grant_group_member_view_order_cap' ], 15, 4 );
 		add_filter( 'wcs_view_subscription_actions', [ __CLASS__, 'view_subscription_actions' ], 13, 3 );
 		add_action( 'admin_post_' . self::INVITE_NONCE_ACTION, [ __CLASS__, 'handle_invite_member' ] );
 		add_action( 'admin_post_' . self::CANCEL_INVITE_NONCE_ACTION, [ __CLASS__, 'handle_cancel_invite' ] );
@@ -274,6 +275,35 @@ class Group_Subscription_MyAccount {
 			$subscriptions[ $group_subscription->get_id() ] = $group_subscription;
 		}
 		return $subscriptions;
+	}
+
+	/**
+	 * Grant the `view_order` capability to group subscription members on My Account pages.
+	 *
+	 * WCS checks current_user_can( 'view_order', $subscription->get_id() ) before rendering
+	 * the view-subscription template. WC maps view_order → manage_woocommerce for non-owners.
+	 * We override this to 'read' (a primitive cap all logged-in users have) for group members.
+	 *
+	 * @param string[] $caps    Primitive capabilities required.
+	 * @param string   $cap     The meta capability being checked.
+	 * @param int      $user_id The user ID.
+	 * @param array    $args    Additional arguments; $args[0] is the post/order ID.
+	 *
+	 * @return string[]
+	 */
+	public static function grant_group_member_view_order_cap( $caps, $cap, $user_id, $args ) {
+		if ( 'view_order' !== $cap || ! function_exists( 'is_account_page' ) || ! \is_account_page() ) {
+			return $caps;
+		}
+		$order_id     = isset( $args[0] ) ? absint( $args[0] ) : 0;
+		$subscription = WooCommerce_Subscriptions::sanitize_subscription( $order_id );
+		if ( ! $subscription ) {
+			return $caps;
+		}
+		if ( Group_Subscription::user_is_member( $user_id, $subscription ) ) {
+			return [ 'read' ];
+		}
+		return $caps;
 	}
 
 	/**

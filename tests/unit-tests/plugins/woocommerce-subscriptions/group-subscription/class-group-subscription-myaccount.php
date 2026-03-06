@@ -241,4 +241,83 @@ class Test_Group_Subscription_MyAccount extends WP_UnitTestCase {
 			'Trashed subscription should not be injected'
 		);
 	}
+
+	// ---- grant_group_member_view_order_cap tests ----
+
+	/**
+	 * Group members receive the read cap when view_order is checked on a group subscription.
+	 */
+	public function test_grant_view_order_cap_for_group_member() {
+		$owner_id  = $this->create_reader_user();
+		$member_id = $this->create_reader_user();
+		$group_sub = $this->create_group_subscription( $owner_id );
+		$this->add_member( $member_id, $group_sub );
+
+		$result = Group_Subscription_MyAccount::grant_group_member_view_order_cap(
+			[ 'manage_woocommerce' ],
+			'view_order',
+			$member_id,
+			[ $group_sub->get_id() ]
+		);
+
+		$this->assertEquals( [ 'read' ], $result, 'Group member should receive read cap for view_order' );
+	}
+
+	/**
+	 * Non-members do not receive an elevated cap for view_order.
+	 */
+	public function test_does_not_grant_view_order_cap_for_non_member() {
+		$owner_id  = $this->create_reader_user();
+		$stranger  = $this->create_reader_user();
+		$group_sub = $this->create_group_subscription( $owner_id );
+
+		$original_caps = [ 'manage_woocommerce' ];
+		$result        = Group_Subscription_MyAccount::grant_group_member_view_order_cap(
+			$original_caps,
+			'view_order',
+			$stranger,
+			[ $group_sub->get_id() ]
+		);
+
+		$this->assertEquals( $original_caps, $result, 'Non-member should not receive elevated caps' );
+	}
+
+	/**
+	 * Cap is not granted when the request is outside of the My Account page.
+	 */
+	public function test_grant_view_order_cap_skipped_off_account_page() {
+		$GLOBALS['newspack_test_is_account_page'] = false;
+
+		$owner_id  = $this->create_reader_user();
+		$member_id = $this->create_reader_user();
+		$group_sub = $this->create_group_subscription( $owner_id );
+		$this->add_member( $member_id, $group_sub );
+
+		$original_caps = [ 'manage_woocommerce' ];
+		$result        = Group_Subscription_MyAccount::grant_group_member_view_order_cap(
+			$original_caps,
+			'view_order',
+			$member_id,
+			[ $group_sub->get_id() ]
+		);
+
+		$this->assertEquals( $original_caps, $result, 'Should not grant cap outside account page' );
+	}
+
+	/**
+	 * Caps other than view_order are passed through unchanged.
+	 */
+	public function test_grant_view_order_cap_ignores_other_caps() {
+		$member_id     = $this->create_reader_user();
+		$original_caps = [ 'manage_woocommerce' ];
+
+		$result = Group_Subscription_MyAccount::grant_group_member_view_order_cap(
+			$original_caps,
+			'edit_posts',
+			$member_id,
+			[ 999 ]
+		);
+
+		$this->assertEquals( $original_caps, $result, 'Non-view_order caps should be passed through unchanged' );
+	}
 }
