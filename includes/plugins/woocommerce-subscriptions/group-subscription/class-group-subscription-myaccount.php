@@ -120,7 +120,9 @@ class Group_Subscription_MyAccount {
 	/**
 	 * Filter the actions a group manager or member can take on a subscription.
 	 *
-	 * Only the purchaser of the subscription should see the actions.
+	 * Non-manager group members receive an empty actions array (view-only experience).
+	 * Managers (subscription owners) receive an additional "Manage members" action.
+	 * Non-group subscriptions and off-account-page requests pass through unchanged.
 	 *
 	 * @param array            $actions      Actions.
 	 * @param \WC_Subscription $subscription Subscription.
@@ -129,13 +131,23 @@ class Group_Subscription_MyAccount {
 	 * @return array
 	 */
 	public static function view_subscription_actions( $actions, $subscription, $user_id ) {
-		if ( ! function_exists( 'is_account_page' ) || ! \is_account_page() || ! Group_Subscription::is_group_subscription( $subscription ) || $subscription->get_customer_id() !== $user_id || ! Group_Subscription::user_is_manager( $user_id, $subscription ) ) {
+		if ( ! function_exists( 'is_account_page' ) || ! \is_account_page() || ! Group_Subscription::is_group_subscription( $subscription ) ) {
 			return $actions;
 		}
-		$actions['manage_members'] = [
-			'url'  => self::get_manage_members_url( $subscription ),
-			'name' => __( 'Manage members', 'newspack-plugin' ),
-		];
+
+		// Non-manager group members get a view-only experience: no actions.
+		if ( $subscription->get_customer_id() !== $user_id && Group_Subscription::user_is_member( $user_id, $subscription ) ) {
+			return [];
+		}
+
+		// Managers (subscription owners) get a "Manage members" action.
+		if ( $subscription->get_customer_id() === $user_id && Group_Subscription::user_is_manager( $user_id, $subscription ) ) {
+			$actions['manage_members'] = [
+				'url'  => self::get_manage_members_url( $subscription ),
+				'name' => __( 'Manage members', 'newspack-plugin' ),
+			];
+		}
+
 		return $actions;
 	}
 

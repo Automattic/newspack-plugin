@@ -320,4 +320,94 @@ class Test_Group_Subscription_MyAccount extends WP_UnitTestCase {
 
 		$this->assertEquals( $original_caps, $result, 'Non-view_order caps should be passed through unchanged' );
 	}
+
+	// ---- view_subscription_actions tests ----
+
+	/**
+	 * Non-manager group members should receive an empty actions array.
+	 */
+	public function test_view_subscription_actions_empty_for_non_manager_member() {
+		$owner_id  = $this->create_reader_user();
+		$member_id = $this->create_reader_user();
+		$group_sub = $this->create_group_subscription( $owner_id );
+		$this->add_member( $member_id, $group_sub );
+
+		$result = Group_Subscription_MyAccount::view_subscription_actions(
+			[
+				'cancel' => [
+					'url'  => '#',
+					'name' => 'Cancel',
+				],
+			],
+			$group_sub,
+			$member_id
+		);
+
+		$this->assertEmpty( $result, 'Non-manager group members should see no actions' );
+	}
+
+	/**
+	 * Managers (subscription owners) receive a "Manage members" action.
+	 */
+	public function test_view_subscription_actions_adds_manage_members_for_manager() {
+		$owner_id  = $this->create_reader_user();
+		$group_sub = $this->create_group_subscription( $owner_id );
+
+		$result = Group_Subscription_MyAccount::view_subscription_actions(
+			[],
+			$group_sub,
+			$owner_id
+		);
+
+		$this->assertArrayHasKey( 'manage_members', $result, 'Manager should see Manage members action' );
+		$this->assertStringContainsString( 'manage-members', $result['manage_members']['url'] );
+	}
+
+	/**
+	 * Regular (non-group) subscriptions pass through unchanged.
+	 */
+	public function test_view_subscription_actions_unchanged_for_regular_subscription() {
+		$owner_id    = $this->create_reader_user();
+		$regular_sub = $this->create_regular_subscription( $owner_id );
+		$actions     = [
+			'cancel' => [
+				'url'  => '#',
+				'name' => 'Cancel',
+			],
+		];
+
+		$result = Group_Subscription_MyAccount::view_subscription_actions(
+			$actions,
+			$regular_sub,
+			$owner_id
+		);
+
+		$this->assertEquals( $actions, $result, 'Regular subscription actions should be returned unchanged' );
+	}
+
+	/**
+	 * Actions pass through unchanged when not on the account page.
+	 */
+	public function test_view_subscription_actions_unchanged_off_account_page() {
+		$GLOBALS['newspack_test_is_account_page'] = false;
+
+		$owner_id  = $this->create_reader_user();
+		$member_id = $this->create_reader_user();
+		$group_sub = $this->create_group_subscription( $owner_id );
+		$this->add_member( $member_id, $group_sub );
+		$actions = [
+			'cancel' => [
+				'url'  => '#',
+				'name' => 'Cancel',
+			],
+		];
+
+		$result = Group_Subscription_MyAccount::view_subscription_actions(
+			$actions,
+			$group_sub,
+			$member_id
+		);
+
+		$this->assertEquals( $actions, $result, 'Actions should be unchanged when not on account page' );
+	}
 }
