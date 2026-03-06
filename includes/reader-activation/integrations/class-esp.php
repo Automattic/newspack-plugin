@@ -137,6 +137,22 @@ class ESP extends Integration {
 	}
 
 	/**
+	 * Test the live connection to the ESP.
+	 *
+	 * Calls get_incoming_available_contact_fields() which hits the ESP API.
+	 * By the time this runs, can_sync() has already passed.
+	 *
+	 * @return true|\WP_Error True on success, WP_Error on failure.
+	 */
+	public function test_connection() {
+		$fields = $this->get_incoming_available_contact_fields();
+		if ( is_wp_error( $fields ) ) {
+			return $fields;
+		}
+		return true;
+	}
+
+	/**
 	 * Get incoming available contact fields from the integration.
 	 *
 	 * @return Incoming_Contact_Field[]|\WP_Error Array of incoming contact field objects or WP_Error on failure.
