@@ -769,9 +769,10 @@ class My_Account_UI_V1 {
 	 * Render the "Delete Address" confirmation modals.
 	 */
 	public static function delete_address_modals() {
-		if ( ! \is_user_logged_in() || ! Reader_Activation::is_user_reader( \wp_get_current_user() ) ) {
+		if ( ! \is_user_logged_in() ) {
 			return;
 		}
+		// No is_user_reader() check here. The same reasoning as add_payment_method_modal().
 
 		$address_types = [ 'billing' => __( 'Billing', 'newspack-plugin' ) ];
 		if ( ! \wc_ship_to_billing_address_only() && \wc_shipping_enabled() ) {
