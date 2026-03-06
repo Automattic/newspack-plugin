@@ -43,6 +43,7 @@ class Group_Subscription_MyAccount {
 		}
 		add_filter( 'woocommerce_get_query_vars', [ __CLASS__, 'add_manage_members_endpoint' ] );
 		add_action( 'woocommerce_account_' . self::MANAGE_MEMBERS_ENDPOINT . '_endpoint', [ __CLASS__, 'render_group_subscription_members_template' ] );
+		add_filter( 'wcs_get_users_subscriptions', [ __CLASS__, 'inject_member_group_subscriptions' ], 15, 2 );
 		add_filter( 'wcs_view_subscription_actions', [ __CLASS__, 'view_subscription_actions' ], 13, 3 );
 		add_action( 'admin_post_' . self::INVITE_NONCE_ACTION, [ __CLASS__, 'handle_invite_member' ] );
 		add_action( 'admin_post_' . self::CANCEL_INVITE_NONCE_ACTION, [ __CLASS__, 'handle_cancel_invite' ] );
@@ -241,6 +242,38 @@ class Group_Subscription_MyAccount {
 				$email
 			)
 		);
+	}
+
+	/**
+	 * Inject group subscriptions the current user is a member of into the subscriptions list.
+	 *
+	 * Only runs on My Account pages to avoid side effects (e.g. trial limit checks)
+	 * in non-account contexts.
+	 *
+	 * @param array $subscriptions Existing subscriptions keyed by subscription ID.
+	 * @param int   $user_id       The user ID.
+	 *
+	 * @return array
+	 */
+	public static function inject_member_group_subscriptions( $subscriptions, $user_id ) {
+		if ( ! function_exists( 'is_account_page' ) || ! \is_account_page() ) {
+			return $subscriptions;
+		}
+		$existing_ids        = array_keys( $subscriptions );
+		$group_subscriptions = Group_Subscription::get_group_subscriptions_for_user( $user_id );
+		foreach ( $group_subscriptions as $group_subscription ) {
+			if ( ! ( $group_subscription instanceof \WC_Subscription ) ) {
+				continue;
+			}
+			if ( $group_subscription->has_status( [ 'trash' ] ) ) {
+				continue;
+			}
+			if ( in_array( $group_subscription->get_id(), $existing_ids, true ) ) {
+				continue;
+			}
+			$subscriptions[ $group_subscription->get_id() ] = $group_subscription;
+		}
+		return $subscriptions;
 	}
 
 	/**

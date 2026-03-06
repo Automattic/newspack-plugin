@@ -6,8 +6,6 @@
  * @group group-subscription-myaccount
  */
 
-namespace Newspack\Tests;
-
 use Newspack\Group_Subscription;
 use Newspack\Group_Subscription_MyAccount;
 use Newspack\Group_Subscription_Settings;
@@ -58,7 +56,7 @@ if ( ! function_exists( 'wc_get_page_permalink' ) ) {
 /**
  * Test Group_Subscription_MyAccount My Account integration.
  */
-class Test_Group_Subscription_MyAccount extends \WP_UnitTestCase {
+class Test_Group_Subscription_MyAccount extends WP_UnitTestCase {
 
 	/**
 	 * User IDs tracked for teardown.
@@ -124,9 +122,9 @@ class Test_Group_Subscription_MyAccount extends \WP_UnitTestCase {
 	 * Create a group subscription owned by $customer_id.
 	 *
 	 * @param int $customer_id The customer/owner user ID.
-	 * @return \WC_Subscription
+	 * @return WC_Subscription
 	 */
-	private function create_group_subscription( int $customer_id ): \WC_Subscription {
+	private function create_group_subscription( int $customer_id ): WC_Subscription {
 		$sub = wcs_create_subscription(
 			[
 				'customer_id'    => $customer_id,
@@ -142,9 +140,9 @@ class Test_Group_Subscription_MyAccount extends \WP_UnitTestCase {
 	 * Create a regular (non-group) subscription owned by $customer_id.
 	 *
 	 * @param int $customer_id The customer/owner user ID.
-	 * @return \WC_Subscription
+	 * @return WC_Subscription
 	 */
-	private function create_regular_subscription( int $customer_id ): \WC_Subscription {
+	private function create_regular_subscription( int $customer_id ): WC_Subscription {
 		return wcs_create_subscription(
 			[
 				'customer_id'    => $customer_id,
@@ -157,10 +155,88 @@ class Test_Group_Subscription_MyAccount extends \WP_UnitTestCase {
 	/**
 	 * Add $member_id as a member of $subscription.
 	 *
-	 * @param int              $member_id    The user ID to add as a member.
-	 * @param \WC_Subscription $subscription The group subscription.
+	 * @param int             $member_id    The user ID to add as a member.
+	 * @param WC_Subscription $subscription The group subscription.
 	 */
-	private function add_member( int $member_id, \WC_Subscription $subscription ): void {
+	private function add_member( int $member_id, WC_Subscription $subscription ): void {
 		add_user_meta( $member_id, Group_Subscription::GROUP_SUBSCRIPTION_USER_META_KEY, $subscription->get_id() );
+	}
+
+	// ---- inject_member_group_subscriptions tests ----
+
+	/**
+	 * Group subscriptions the user is a member of are injected into the list.
+	 */
+	public function test_inject_member_group_subscriptions_adds_group_sub() {
+		$owner_id  = $this->create_reader_user();
+		$member_id = $this->create_reader_user();
+		$group_sub = $this->create_group_subscription( $owner_id );
+		$this->add_member( $member_id, $group_sub );
+
+		// Start with an empty list (member has no owned subscriptions).
+		$result = Group_Subscription_MyAccount::inject_member_group_subscriptions( [], $member_id );
+
+		$this->assertArrayHasKey(
+			$group_sub->get_id(),
+			$result,
+			'Group subscription should be injected for the member'
+		);
+	}
+
+	/**
+	 * A subscription the member also owns is not duplicated.
+	 */
+	public function test_inject_does_not_duplicate_existing_subscription() {
+		$owner_id  = $this->create_reader_user();
+		$group_sub = $this->create_group_subscription( $owner_id );
+		// Owner is also a member via get_managers() check.
+		$existing = [ $group_sub->get_id() => $group_sub ];
+
+		$result = Group_Subscription_MyAccount::inject_member_group_subscriptions( $existing, $owner_id );
+
+		$this->assertCount( 1, $result, 'Should not duplicate a subscription already in the list' );
+	}
+
+	/**
+	 * Injection is skipped when not on an account page.
+	 */
+	public function test_inject_skipped_when_not_on_account_page() {
+		$GLOBALS['newspack_test_is_account_page'] = false;
+
+		$owner_id  = $this->create_reader_user();
+		$member_id = $this->create_reader_user();
+		$group_sub = $this->create_group_subscription( $owner_id );
+		$this->add_member( $member_id, $group_sub );
+
+		$result = Group_Subscription_MyAccount::inject_member_group_subscriptions( [], $member_id );
+
+		$this->assertEmpty( $result, 'Should not inject when not on account page' );
+	}
+
+	/**
+	 * Trashed group subscriptions are excluded.
+	 */
+	public function test_inject_excludes_trashed_subscriptions() {
+		$owner_id  = $this->create_reader_user();
+		$member_id = $this->create_reader_user();
+
+		// Create a trashed group subscription.
+		$trashed_sub = wcs_create_subscription(
+			[
+				'customer_id'    => $owner_id,
+				'status'         => 'trash',
+				'billing_period' => 'month',
+			]
+		);
+		$trashed_sub->update_meta_data( Group_Subscription_Settings::GROUP_SUBSCRIPTION_META_PREFIX . 'enabled', 'yes' );
+		$this->add_member( $member_id, $trashed_sub );
+
+		$result = Group_Subscription_MyAccount::inject_member_group_subscriptions( [], $member_id );
+
+		$this->assertArrayNotHasKey(
+			$trashed_sub->get_id(),
+			$result,
+			'Trashed subscription should not be injected'
+		);
 	}
 }
