@@ -34,7 +34,7 @@ $post_content =
 	<p style="font-style:normal;font-weight:400">' .
 		sprintf(
 			/* Translators: s: The site name. */
-			__( "You've been invited to access exclusive content on %s. Click the button below to accept the invitation.", 'newspack-plugin' ),
+			__( "You've been invited to access exclusive content on %s. Click the button below to accept the invitation. An account will be created for you if one doesn’t exist for your email address.", 'newspack-plugin' ),
 			'*SITE_TITLE*'
 		) .
 	'</p>
