@@ -39,7 +39,15 @@ if ( ! defined( 'ABSPATH' ) ) {
 					$item = reset( $items );
 					echo esc_html( $item->get_name() );
 				}
-				?>
+				$is_group_member_subscription = class_exists( 'Newspack\\Group_Subscription' )
+					&& \Newspack\Group_Subscription::is_group_subscription( $subscription )
+					&& $subscription->get_customer_id() !== get_current_user_id();
+				if ( $is_group_member_subscription ) :
+					?>
+					<span class="newspack-ui__badge newspack-ui__badge--secondary">
+						<?php esc_html_e( 'Group subscription', 'newspack-plugin' ); ?>
+					</span>
+				<?php endif; ?>
 			</td>
 			<td class="subscription-status order-status woocommerce-orders-table__cell woocommerce-orders-table__cell-subscription-status woocommerce-orders-table__cell-order-status" data-title="<?php esc_attr_e( 'Status', 'newspack-plugin' ); ?>">
 				<?php echo esc_attr( wcs_get_subscription_status_name( $subscription->get_status() ) ); ?>
