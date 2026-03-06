@@ -8,6 +8,7 @@
 namespace Newspack\Reader_Activation\Integrations;
 
 use Newspack\Reader_Activation\Integration;
+use Newspack\Reader_Activation\Sync;
 use Newspack\Reader_Activation;
 use Newspack_Newsletters_Contacts;
 use Newspack_Newsletters_Subscription;
@@ -25,6 +26,30 @@ class ESP extends Integration {
 	 */
 	public function __construct() {
 		parent::__construct( 'esp', __( 'ESPs Integration', 'newspack-plugin' ) );
+	}
+
+	/**
+	 * Get the enabled outgoing metadata fields for the ESP integration.
+	 *
+	 * Overrides the parent to provide lazy migration from the legacy global
+	 * option (Metadata::FIELDS_OPTION) to the per-integration option.
+	 *
+	 * @return string[] List of enabled field names.
+	 */
+	public function get_enabled_outgoing_fields() {
+		$fields = \get_option( self::OUTGOING_FIELDS_OPTION_PREFIX . $this->id, null );
+		if ( null !== $fields && is_array( $fields ) ) {
+			return $fields;
+		}
+
+		// Migrate from legacy global option.
+		$legacy = \get_option( Sync\Metadata::FIELDS_OPTION, null );
+		if ( null !== $legacy && is_array( $legacy ) ) {
+			$this->update_enabled_outgoing_fields( $legacy );
+			return $legacy;
+		}
+
+		return Sync\Metadata::get_default_fields();
 	}
 
 	/**

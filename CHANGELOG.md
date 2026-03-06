@@ -1,3 +1,10 @@
+## [6.34.3](https://github.com/Automattic/newspack-plugin/compare/v6.34.2...v6.34.3) (2026-03-06)
+
+
+### Bug Fixes
+
+* setcookie call ([#4534](https://github.com/Automattic/newspack-plugin/issues/4534)) ([27f473a](https://github.com/Automattic/newspack-plugin/commit/27f473a988793081d4a9cda6c043f058f3c6a91e))
+
 ## [6.34.2](https://github.com/Automattic/newspack-plugin/compare/v6.34.1...v6.34.2) (2026-03-04)
 
 

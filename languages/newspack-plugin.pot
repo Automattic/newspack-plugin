@@ -2,14 +2,14 @@
 # This file is distributed under the GPL2.
 msgid ""
 msgstr ""
-"Project-Id-Version: Newspack 6.34.2\n"
+"Project-Id-Version: Newspack 6.34.3\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/newspack-plugin\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-03-05T21:40:26+00:00\n"
+"POT-Creation-Date: 2026-03-06T19:38:39+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: newspack-plugin\n"
@@ -3123,27 +3123,99 @@ msgstr ""
 msgid "Subscription not found."
 msgstr ""
 
-#: includes/plugins/woocommerce-subscriptions/group-subscription/class-group-subscription-invite.php:99
-#: includes/plugins/woocommerce-subscriptions/group-subscription/class-group-subscription-invite.php:161
+#: includes/plugins/woocommerce-subscriptions/group-subscription/class-group-subscription-invite.php:78
+msgid "Group Subscription Invitation"
+msgstr ""
+
+#: includes/plugins/woocommerce-subscriptions/group-subscription/class-group-subscription-invite.php:79
+msgid "Email sent to invite a reader to join a group subscription."
+msgstr ""
+
+#: includes/plugins/woocommerce-subscriptions/group-subscription/class-group-subscription-invite.php:81
+msgid "This email will be sent when a reader is invited to join a group subscription."
+msgstr ""
+
+#: includes/plugins/woocommerce-subscriptions/group-subscription/class-group-subscription-invite.php:84
+#: includes/reader-activation/class-reader-activation-emails.php:61
+#: includes/reader-revenue/class-reader-revenue-emails.php:87
+msgid "the site title"
+msgstr ""
+
+#: includes/plugins/woocommerce-subscriptions/group-subscription/class-group-subscription-invite.php:88
+#: includes/reader-activation/class-reader-activation-emails.php:65
+#: includes/reader-revenue/class-reader-revenue-emails.php:91
+msgid "the site url"
+msgstr ""
+
+#: includes/plugins/woocommerce-subscriptions/group-subscription/class-group-subscription-invite.php:92
+msgid "the invitation acceptance link"
+msgstr ""
+
+#: includes/plugins/woocommerce-subscriptions/group-subscription/class-group-subscription-invite.php:96
+msgid "the sender name"
+msgstr ""
+
+#: includes/plugins/woocommerce-subscriptions/group-subscription/class-group-subscription-invite.php:100
+msgid "the sender email address"
+msgstr ""
+
+#: includes/plugins/woocommerce-subscriptions/group-subscription/class-group-subscription-invite.php:104
+msgid "the recipient email address"
+msgstr ""
+
+#: includes/plugins/woocommerce-subscriptions/group-subscription/class-group-subscription-invite.php:172
+#: includes/plugins/woocommerce-subscriptions/group-subscription/class-group-subscription-invite.php:533
 msgid "Invalid subscription."
 msgstr ""
 
-#: includes/plugins/woocommerce-subscriptions/group-subscription/class-group-subscription-invite.php:102
-#: includes/plugins/woocommerce-subscriptions/group-subscription/class-group-subscription-invite.php:164
+#: includes/plugins/woocommerce-subscriptions/group-subscription/class-group-subscription-invite.php:175
+#: includes/plugins/woocommerce-subscriptions/group-subscription/class-group-subscription-invite.php:536
 #: includes/reader-activation/class-reader-activation.php:1776
 msgid "Invalid email address."
 msgstr ""
 
-#: includes/plugins/woocommerce-subscriptions/group-subscription/class-group-subscription-invite.php:106
+#: includes/plugins/woocommerce-subscriptions/group-subscription/class-group-subscription-invite.php:179
 msgid "Not a valid reader account."
 msgstr ""
 
-#: includes/plugins/woocommerce-subscriptions/group-subscription/class-group-subscription-invite.php:109
+#: includes/plugins/woocommerce-subscriptions/group-subscription/class-group-subscription-invite.php:182
 msgid "User is already a member of this group subscription."
 msgstr ""
 
-#: includes/plugins/woocommerce-subscriptions/group-subscription/class-group-subscription-invite.php:132
+#: includes/plugins/woocommerce-subscriptions/group-subscription/class-group-subscription-invite.php:205
 msgid "You have reached the group member limit for this subscription. Please remove some members or cancel pending invitations before inviting more group members."
+msgstr ""
+
+#: includes/plugins/woocommerce-subscriptions/group-subscription/class-group-subscription-invite.php:284
+msgid "Invalid or expired invitation."
+msgstr ""
+
+#: includes/plugins/woocommerce-subscriptions/group-subscription/class-group-subscription-invite.php:287
+msgid "This invitation has expired."
+msgstr ""
+
+#: includes/plugins/woocommerce-subscriptions/group-subscription/class-group-subscription-invite.php:292
+msgid "No user found for this email address."
+msgstr ""
+
+#: includes/plugins/woocommerce-subscriptions/group-subscription/class-group-subscription-invite.php:355
+msgid "Invalid invitation link."
+msgstr ""
+
+#: includes/plugins/woocommerce-subscriptions/group-subscription/class-group-subscription-invite.php:364
+msgid "This invitation is for a different email address."
+msgstr ""
+
+#: includes/plugins/woocommerce-subscriptions/group-subscription/class-group-subscription-invite.php:388
+msgid "Could not create your account. Please try again."
+msgstr ""
+
+#: includes/plugins/woocommerce-subscriptions/group-subscription/class-group-subscription-invite.php:453
+msgid "You have successfully joined the group!"
+msgstr ""
+
+#: includes/plugins/woocommerce-subscriptions/group-subscription/class-group-subscription-invite.php:456
+msgid "There was a problem with your invitation."
 msgstr ""
 
 #: includes/plugins/woocommerce-subscriptions/group-subscription/class-group-subscription-settings.php:83
@@ -4234,16 +4306,6 @@ msgstr ""
 msgid "the site contact info, including site name and address"
 msgstr ""
 
-#: includes/reader-activation/class-reader-activation-emails.php:61
-#: includes/reader-revenue/class-reader-revenue-emails.php:87
-msgid "the site title"
-msgstr ""
-
-#: includes/reader-activation/class-reader-activation-emails.php:65
-#: includes/reader-revenue/class-reader-revenue-emails.php:91
-msgid "the site url"
-msgstr ""
-
 #: includes/reader-activation/class-reader-activation-emails.php:72
 msgid "Verification"
 msgstr ""
@@ -5255,6 +5317,36 @@ msgstr ""
 #: includes/templates/reader-activation-emails/delete-account.php:255
 #, php-format
 msgid "You received this email because you requested to delete your %s account."
+msgstr ""
+
+#. Translators: %s: The site name.
+#: includes/templates/reader-activation-emails/group-subscription-invite.php:24
+#, php-format
+msgid "You’re invited to join %s"
+msgstr ""
+
+#: includes/templates/reader-activation-emails/group-subscription-invite.php:36
+#: includes/templates/reader-activation-emails/group-subscription-invite.php:250
+msgid "You're invited"
+msgstr ""
+
+#. Translators: s: The site name.
+#: includes/templates/reader-activation-emails/group-subscription-invite.php:43
+#: includes/templates/reader-activation-emails/group-subscription-invite.php:252
+#, php-format
+msgid "You've been invited to access exclusive content on %s. Click the button below to accept the invitation. An account will be created for you if one doesn’t exist for your email address."
+msgstr ""
+
+#: includes/templates/reader-activation-emails/group-subscription-invite.php:54
+#: includes/templates/reader-activation-emails/group-subscription-invite.php:254
+msgid "Accept Invitation"
+msgstr ""
+
+#. Translators: s: link to site url.
+#: includes/templates/reader-activation-emails/group-subscription-invite.php:71
+#: includes/templates/reader-activation-emails/group-subscription-invite.php:259
+#, php-format
+msgid "You received this email because someone invited you to join %s"
 msgstr ""
 
 #. Translators: 1: Opening HTML anchor tag. 2: Closing HTML anchor tag.

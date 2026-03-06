@@ -23,6 +23,13 @@ abstract class Integration {
 	const OPTION_PREFIX = 'newspack_integration_selected_fields_';
 
 	/**
+	 * Option name prefix for storing enabled outgoing metadata fields per integration.
+	 *
+	 * @var string
+	 */
+	const OUTGOING_FIELDS_OPTION_PREFIX = 'newspack_integration_outgoing_fields_';
+
+	/**
 	 * The unique identifier for this integration.
 	 *
 	 * @var string
@@ -236,5 +243,79 @@ abstract class Integration {
 			return $connection;
 		}
 		return true;
+	}
+
+	/**
+	 * Get the enabled outgoing metadata fields for this integration.
+	 *
+	 * @return string[] List of enabled field names.
+	 */
+	public function get_enabled_outgoing_fields() {
+		return array_values( \get_option( self::OUTGOING_FIELDS_OPTION_PREFIX . $this->id, Sync\Metadata::get_default_fields() ) );
+	}
+
+	/**
+	 * Update the enabled outgoing metadata fields for this integration.
+	 *
+	 * @param array $fields List of field names to enable.
+	 * @return bool True if updated, false otherwise.
+	 */
+	public function update_enabled_outgoing_fields( $fields ) {
+		// Only allow fields that are in the metadata keys map.
+		$fields = array_intersect( Sync\Metadata::get_default_fields(), $fields );
+		return \update_option( self::OUTGOING_FIELDS_OPTION_PREFIX . $this->id, array_values( $fields ) );
+	}
+
+	/**
+	 * Filter metadata keys to only those whose field name is enabled for outgoing sync.
+	 *
+	 * @param string[] $keys Array of raw metadata keys to filter.
+	 * @return array Filtered key-value pairs from Metadata::get_keys().
+	 */
+	public function filter_enabled_outgoing_fields( $keys ) {
+		$enabled_fields = $this->get_enabled_outgoing_fields();
+		return array_filter(
+			Sync\Metadata::get_keys(),
+			function( $val, $key ) use ( $keys, $enabled_fields ) {
+				return in_array( $key, $keys ) && in_array( $val, $enabled_fields );
+			},
+			ARRAY_FILTER_USE_BOTH
+		);
+	}
+
+	/**
+	 * Get the raw (unprefixed) metadata keys enabled for outgoing sync.
+	 *
+	 * @return string[] List of raw metadata keys.
+	 */
+	public function get_enabled_outgoing_fields_raw_keys() {
+		$enabled_fields = $this->get_enabled_outgoing_fields();
+		$raw_keys       = [];
+
+		foreach ( Sync\Metadata::get_keys() as $raw_key => $field_name ) {
+			if ( in_array( $field_name, $enabled_fields, true ) ) {
+				$raw_keys[] = $raw_key;
+			}
+		}
+
+		return array_unique( $raw_keys );
+	}
+
+	/**
+	 * Get the prefixed metadata keys enabled for outgoing sync.
+	 *
+	 * @return string[] List of prefixed metadata keys.
+	 */
+	public function get_enabled_outgoing_fields_prefixed_keys() {
+		$enabled_fields = $this->get_enabled_outgoing_fields();
+		$prefixed_keys  = [];
+
+		foreach ( Sync\Metadata::get_keys() as $raw_key => $field_name ) {
+			if ( in_array( $field_name, $enabled_fields, true ) ) {
+				$prefixed_keys[] = Sync\Metadata::get_key( $raw_key );
+			}
+		}
+
+		return array_unique( $prefixed_keys );
 	}
 }

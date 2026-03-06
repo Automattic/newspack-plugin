@@ -44,6 +44,7 @@ class Test_Integrations extends \WP_UnitTestCase {
 			remove_filter( 'pre_http_request', $this->loopback_filter );
 			$this->loopback_filter = null;
 		}
+		Integrations::register_integrations(); // recover core integrations for future tests.
 		parent::tear_down();
 	}
 

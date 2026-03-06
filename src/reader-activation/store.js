@@ -45,6 +45,21 @@ function initializeSyncInterval( queue ) {
 /**
  * Get store item key
  *
+ * @param {boolean} internal Whether it's an internal (bookkeeping) prefix.
+ *
+ * @return {string} Store prefix string.
+ */
+function getStorePrefix( internal = false ) {
+	const parts = [ config.storePrefix ];
+	if ( internal ) {
+		parts.push( '_' );
+	}
+	return parts.join( '' );
+}
+
+/**
+ * Get store item key
+ *
  * @param {string}  key      Key to get.
  * @param {boolean} internal Whether it's an internal value.
  *
@@ -54,12 +69,7 @@ export function getStoreItemKey( key, internal = false ) {
 	if ( ! key ) {
 		throw new Error( 'Key is required.' );
 	}
-	const parts = [ config.storePrefix ];
-	if ( internal ) {
-		parts.push( '_' );
-	}
-	parts.push( key );
-	return parts.join( '' );
+	return getStorePrefix( internal ) + key;
 }
 
 /**
@@ -271,6 +281,30 @@ export default function Store() {
 				throw new Error( 'Key is required.' );
 			}
 			return _get( key );
+		},
+		/**
+		 * Get all values from the store.
+		 *
+		 * Iterates over keys in storage, filtering by our
+		 * store prefix to ensure only relevant items are included.
+		 *
+		 * @return {Object} Plain object with all key-value pairs.
+		 */
+		getAll: () => {
+			const data = {};
+			const prefix = getStorePrefix( false );
+			const internalPrefix = getStorePrefix( true );
+			for ( let i = 0; i < config.storage.length; i++ ) {
+				const storageKey = config.storage.key( i );
+				if ( ! storageKey ) {
+					continue;
+				}
+				if ( storageKey.startsWith( prefix ) && ! storageKey.startsWith( internalPrefix ) ) {
+					const key = storageKey.slice( prefix.length );
+					data[ key ] = decode( config.storage.getItem( storageKey ) );
+				}
+			}
+			return data;
 		},
 		/**
 		 * Set a value in the store.
