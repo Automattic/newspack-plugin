@@ -92,6 +92,18 @@ class Group_Subscription_Invite {
 					'label'    => __( 'the invitation acceptance link', 'newspack-plugin' ),
 					'template' => '*INVITE_URL*',
 				],
+				[
+					'label'    => __( 'the sender name', 'newspack-plugin' ),
+					'template' => '*SENDER_NAME*',
+				],
+				[
+					'label'    => __( 'the sender email address', 'newspack-plugin' ),
+					'template' => '*SENDER_EMAIL*',
+				],
+				[
+					'label'    => __( 'the recipient email address', 'newspack-plugin' ),
+					'template' => '*RECIPIENT_EMAIL*',
+				],
 			],
 		];
 		return $configs;
@@ -221,7 +233,17 @@ class Group_Subscription_Invite {
 	 * @return bool Whether the email was sent.
 	 */
 	public static function send_invite_email( $subscription_id, $key, $email ) {
-		$url = self::get_invite_url( $subscription_id, $key, $email );
+		$url          = self::get_invite_url( $subscription_id, $key, $email );
+		$invite       = self::get_invite_by_key( $subscription_id, $key );
+		$sender_email = '';
+		$sender_name  = '';
+		if ( $invite && ! empty( $invite['added_by'] ) ) {
+			$sender = get_user_by( 'id', $invite['added_by'] );
+			if ( $sender ) {
+				$sender_email = $sender->user_email;
+				$sender_name  = $sender->display_name;
+			}
+		}
 		return Emails::send_email(
 			self::EMAIL_TYPE,
 			$email,
@@ -229,6 +251,18 @@ class Group_Subscription_Invite {
 				[
 					'template' => '*INVITE_URL*',
 					'value'    => $url,
+				],
+				[
+					'template' => '*SENDER_NAME*',
+					'value'    => $sender_name,
+				],
+				[
+					'template' => '*SENDER_EMAIL*',
+					'value'    => $sender_email,
+				],
+				[
+					'template' => '*RECIPIENT_EMAIL*',
+					'value'    => $email,
 				],
 			]
 		);
