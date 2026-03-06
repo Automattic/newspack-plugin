@@ -41,7 +41,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 				}
 				$is_group_member_subscription = class_exists( 'Newspack\\Group_Subscription' )
 					&& \Newspack\Group_Subscription::is_group_subscription( $subscription )
-					&& $subscription->get_customer_id() !== get_current_user_id();
+					&& \Newspack\Group_Subscription::user_is_member( get_current_user_id(), $subscription )
+					&& ! \Newspack\Group_Subscription::user_is_manager( get_current_user_id(), $subscription );
 				if ( $is_group_member_subscription ) :
 					?>
 					<span class="newspack-ui__badge newspack-ui__badge--secondary">
