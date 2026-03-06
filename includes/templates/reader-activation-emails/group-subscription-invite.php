@@ -256,7 +256,11 @@ $email_html = '
 	</html>';
 
 return array(
-	'post_title'   => __( 'Group subscription invitation', 'newspack-plugin' ),
+	'post_title'   => sprintf(
+		// Translators: %s: The site name.
+		__( 'You’re invited to join %s', 'newspack-plugin' ),
+		get_bloginfo( 'name' )
+	),
 	'post_content' => $post_content,
 	'email_html'   => $email_html,
 );
