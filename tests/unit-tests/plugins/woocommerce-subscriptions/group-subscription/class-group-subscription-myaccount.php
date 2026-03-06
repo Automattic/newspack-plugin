@@ -184,17 +184,19 @@ class Test_Group_Subscription_MyAccount extends WP_UnitTestCase {
 	}
 
 	/**
-	 * A subscription the member also owns is not duplicated.
+	 * A subscription already in the list is not duplicated when the member is injected.
 	 */
 	public function test_inject_does_not_duplicate_existing_subscription() {
 		$owner_id  = $this->create_reader_user();
+		$member_id = $this->create_reader_user();
 		$group_sub = $this->create_group_subscription( $owner_id );
-		// Owner is also a member via get_managers() check.
+		$this->add_member( $member_id, $group_sub );
+
+		// Pre-populate $existing with the group sub — simulates the sub already being present.
 		$existing = [ $group_sub->get_id() => $group_sub ];
+		$result   = Group_Subscription_MyAccount::inject_member_group_subscriptions( $existing, $member_id );
 
-		$result = Group_Subscription_MyAccount::inject_member_group_subscriptions( $existing, $owner_id );
-
-		$this->assertCount( 1, $result, 'Should not duplicate a subscription already in the list' );
+		$this->assertCount( 1, $result, 'Should not duplicate subscription already in list.' );
 	}
 
 	/**

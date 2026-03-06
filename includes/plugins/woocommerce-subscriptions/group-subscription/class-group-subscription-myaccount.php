@@ -265,7 +265,7 @@ class Group_Subscription_MyAccount {
 			if ( ! ( $group_subscription instanceof \WC_Subscription ) ) {
 				continue;
 			}
-			if ( $group_subscription->has_status( [ 'trash' ] ) ) {
+			if ( $group_subscription->has_status( 'trash' ) ) {
 				continue;
 			}
 			if ( in_array( $group_subscription->get_id(), $existing_ids, true ) ) {
