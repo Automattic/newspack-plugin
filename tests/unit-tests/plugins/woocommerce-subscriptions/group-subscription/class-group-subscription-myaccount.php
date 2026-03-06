@@ -113,8 +113,10 @@ class Test_Group_Subscription_MyAccount extends \WP_UnitTestCase {
 				'role'       => 'subscriber',
 			]
 		);
-		update_user_meta( $user_id, '_newspack_reader', true );
-		$this->user_ids[] = $user_id;
+		if ( ! is_wp_error( $user_id ) ) {
+			update_user_meta( $user_id, '_newspack_reader', true );
+			$this->user_ids[] = $user_id;
+		}
 		return $user_id;
 	}
 
