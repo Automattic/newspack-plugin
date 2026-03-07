@@ -18,6 +18,9 @@ defined( 'ABSPATH' ) || exit;
 $actions      = $args['actions'];
 $subscription = $args['subscription'];
 
+$is_group_subscription = class_exists( 'Newspack\\Group_Subscription' )
+	&& Group_Subscription::is_group_subscription( $subscription );
+
 // Ensure the cancel action is shown last.
 if ( ! empty( $actions['cancel'] ) ) {
 	$cancel_action         = $actions['cancel'];
@@ -52,6 +55,13 @@ if ( ! empty( $actions['change_payment_method']['name'] ) ) {
 				<?php echo \esc_html( $product->get_name() ); ?>
 			</h2>
 			<?php
+			if ( $is_group_subscription ) :
+				?>
+					<span class="newspack-ui__badge newspack-ui__badge--secondary">
+					<?php esc_html_e( 'Group', 'newspack-plugin' ); ?>
+					</span>
+				<?php
+				endif;
 			if ( ! $subscription->has_status( 'active' ) ) :
 				$classes = [ 'newspack-ui__badge' ];
 				if ( $subscription->has_status( [ 'cancelled', 'expired' ] ) ) {
@@ -68,7 +78,7 @@ if ( ! empty( $actions['change_payment_method']['name'] ) ) {
 			<?php endif; ?>
 		</div>
 			<?php
-		endif;
+			endif;
 	}
 	?>
 	<div class="newspack-my-account__subscription--actions">
@@ -183,5 +193,5 @@ if ( ! empty( $actions['change_payment_method']['name'] ) ) {
 		<?php \do_action( 'newspack_woocommerce_after_subscription_actions', $subscription, $actions ); ?>
 	</div>
 </header>
-<?php
-\do_action( 'newspack_woocommerce_after_subscription_header', $subscription, $actions );
+		<?php
+		\do_action( 'newspack_woocommerce_after_subscription_header', $subscription, $actions );
