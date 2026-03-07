@@ -4,7 +4,7 @@ A Gutenberg block that displays the author's social media links and contact info
 
 ## Overview
 
-The Author Social Links block (`newspack/author-profile-social`) renders social media icons for the current author. It is designed exclusively as an inner block of the [Author Profile block](../../../../repos/newspack-blocks/src/blocks/author-profile/README.md) and appears only in block themes that support nested layout mode.
+The Author Social Links block (`newspack/author-profile-social`) renders social media icons for the current author. It is designed exclusively as an inner block of the [Author Profile block](https://github.com/Automattic/newspack-blocks/tree/trunk/src/blocks/author-profile) and appears only in block themes that support nested layout mode.
 
 Each social link is a separate [Author Social Link](../author-social-link/README.md) child block, allowing publishers to reorder or remove individual links.
 

@@ -63,7 +63,7 @@ Unknown service keys fall through to the raw key string as both label and fallba
 
 ## Availability
 
-This block requires the Author Social Links block as its parent ([`newspack/author-profile-social`]()). It cannot be inserted independently.
+This block requires the Author Social Links block as its parent ([`newspack/author-profile-social`](../author-profile-social/)). It cannot be inserted independently.
 
 ## Related
 
