@@ -73,11 +73,7 @@ class Content_Gate {
 		add_action( 'admin_init', [ __CLASS__, 'handle_edit_gate_layout' ] );
 		add_action( 'wp_enqueue_scripts', [ __CLASS__, 'enqueue_scripts' ] );
 		add_action( 'enqueue_block_editor_assets', [ __CLASS__, 'enqueue_block_editor_assets' ] );
-		if ( function_exists( 'wp_is_block_theme' ) && wp_is_block_theme() ) {
-			add_filter( 'render_block', [ __CLASS__, 'inject_overlay_gate_after_post_content_block' ], 10, 2 );
-		} else {
-			add_action( 'get_footer', [ __CLASS__, 'render_overlay_gate' ], 1 );
-		}
+		add_action( 'after_setup_theme', [ __CLASS__, 'register_overlay_gate_hooks' ] );
 		add_action( 'before_delete_post', [ __CLASS__, 'delete_gate_layouts' ], 10, 2 );
 		add_filter( 'newspack_popups_assess_has_disabled_popups', [ __CLASS__, 'disable_popups' ] );
 		add_filter( 'newspack_reader_activity_article_view', [ __CLASS__, 'suppress_article_view_activity' ], 100 );
@@ -870,6 +866,20 @@ class Content_Gate {
 	}
 
 	/**
+	 * Register overlay gate hooks after the theme has been set up.
+	 *
+	 * Deferred to after_setup_theme so that wp_is_block_theme() can be called safely,
+	 * after theme directories have been registered.
+	 */
+	public static function register_overlay_gate_hooks() {
+		if ( self::is_block_theme() ) {
+			add_filter( 'render_block', [ __CLASS__, 'inject_overlay_gate_after_post_content_block' ], 10, 2 );
+		} else {
+			add_action( 'get_footer', [ __CLASS__, 'render_overlay_gate' ], 1 );
+		}
+	}
+
+	/**
 	 * Inject overlay gate markup right after the post content block.
 	 *
 	 * Used for block themes where there aren't hooks to use in time to get do_blocks() to run.
@@ -882,6 +892,8 @@ class Content_Gate {
 	public static function inject_overlay_gate_after_post_content_block( $block_content, $block ) {
 		static $injected = false;
 
+		// $injected prevents re-entry even if render_overlay_gate() bails early (e.g. gate style is not "overlay").
+		// $overlay_gate_output is only set when HTML is actually rendered. Both guards are needed.
 		if ( $injected || self::$overlay_gate_output || ! is_singular() ) {
 			return $block_content;
 		}
