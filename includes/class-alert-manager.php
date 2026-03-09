@@ -247,9 +247,10 @@ class Alert_Manager {
 			$groups = [];
 			foreach ( $recent as $entry ) {
 				$key = $entry[ $rule['group_by'] ] ?? null;
-				if ( null === $key || '' === $key ) {
+				if ( ! is_scalar( $key ) || null === $key || '' === $key ) {
 					continue;
 				}
+				$key = (string) $key;
 				if ( ! isset( $groups[ $key ] ) ) {
 					$groups[ $key ] = [];
 				}
