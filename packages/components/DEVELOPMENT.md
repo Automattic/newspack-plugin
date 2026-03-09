@@ -88,7 +88,7 @@ When building a screen, use the **spacing scale** (8px unit: 16, 24, 32, 48, 64)
 - **`RadioControl`** - Radio button group control
 - **`ColorPicker`** - Color selection component
 - **`ImageUpload`** - Image upload and selection component
-- **`FormTokenField`** - Token input field for tags/categories
+- **`FormTokenField`** - Token input field for tags/categories; prefer the Newspack component over the core `FormTokenField` because it also supports a `description` prop for help text like other controls.
 - **`AutocompleteTokenField`** - Autocomplete token field (can be used in block editor)
 - **`AutocompleteWithSuggestions`** - Autocomplete with custom suggestions
 - **`AutocompleteWithLatestPosts`** - Autocomplete with latest posts
@@ -495,7 +495,7 @@ When Newspack components don't provide what you need, use these WordPress compon
 - **`TextControl`** – Single-line text input
 - **`TextareaControl`** – Multi-line text input
 - **`SelectControl`** – Select dropdown
-- **`FormTokenField`** – Token/tag input (e.g. categories, tags)
+- **`FormTokenField`** – Core token/tag input (e.g. categories, tags); for wizards and settings UIs prefer the Newspack `FormTokenField` wrapper, which adds a `description` prop for help text like other controls.
 - **`__experimentalNumberControl as NumberControl`** – Number input (use with `@wordpress/no-unsafe-wp-apis` eslint comment if needed)
 - **`__experimentalToggleGroupControl`** / **`__experimentalToggleGroupControlOption`** – Toggle group (e.g. content gifting, countdown banner, contribution meter; use with eslint comment for unsafe APIs)
 
