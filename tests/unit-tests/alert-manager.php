@@ -13,6 +13,18 @@ use Newspack\Alert_Manager;
 class Newspack_Test_Alert_Manager extends WP_UnitTestCase {
 
 	/**
+	 * Clean up hooks between tests to prevent callback leaking.
+	 */
+	public function tear_down() {
+		parent::tear_down();
+		remove_all_actions( 'newspack_alert' );
+		remove_all_filters( 'newspack_alert_pattern_rules' );
+		remove_all_filters( 'newspack_alert_failure_record' );
+		delete_option( Alert_Manager::FAILURE_LOG_OPTION );
+		wp_clear_scheduled_hook( Alert_Manager::PATTERN_SCAN_HOOK );
+	}
+
+	/**
 	 * Test that sync retry exhaustion triggers unified newspack_alert.
 	 */
 	public function test_sync_exhaustion_triggers_unified_alert() {
@@ -119,16 +131,12 @@ class Newspack_Test_Alert_Manager extends WP_UnitTestCase {
 		$rules = Alert_Manager::get_pattern_rules();
 		$ids   = array_column( $rules, 'id' );
 		$this->assertContains( 'custom_rule', $ids );
-
-		// Clean up to avoid polluting other tests.
-		remove_all_filters( 'newspack_alert_pattern_rules' );
 	}
 
 	/**
 	 * Test that sync retry exhaustion records a failure entry.
 	 */
 	public function test_sync_exhaustion_records_failure() {
-		delete_option( Alert_Manager::FAILURE_LOG_OPTION );
 
 		do_action(
 			'newspack_sync_retry_exhausted',
@@ -153,7 +161,6 @@ class Newspack_Test_Alert_Manager extends WP_UnitTestCase {
 	 * Test that the failure record is filterable.
 	 */
 	public function test_failure_record_is_filterable() {
-		delete_option( Alert_Manager::FAILURE_LOG_OPTION );
 
 		add_filter(
 			'newspack_alert_failure_record',
@@ -182,15 +189,12 @@ class Newspack_Test_Alert_Manager extends WP_UnitTestCase {
 		$this->assertCount( 1, $log );
 		$this->assertArrayHasKey( 'handler_name', $log[0] );
 		$this->assertEquals( 'SomeClass::some_method', $log[0]['handler_name'] );
-
-		remove_all_filters( 'newspack_alert_failure_record' );
 	}
 
 	/**
 	 * Test that data event retry exhaustion records a failure entry.
 	 */
 	public function test_data_event_exhaustion_records_failure() {
-		delete_option( Alert_Manager::FAILURE_LOG_OPTION );
 
 		do_action(
 			'newspack_data_event_retry_exhausted',
@@ -215,7 +219,6 @@ class Newspack_Test_Alert_Manager extends WP_UnitTestCase {
 	 * Test that the scanner fires a pattern alert when threshold is exceeded.
 	 */
 	public function test_scanner_fires_pattern_alert_above_threshold() {
-		delete_option( Alert_Manager::FAILURE_LOG_OPTION );
 
 		// Record 5 failures for the same integration (threshold is 5).
 		$log = [];
@@ -256,7 +259,6 @@ class Newspack_Test_Alert_Manager extends WP_UnitTestCase {
 	 * Test that the scanner does NOT fire when below threshold.
 	 */
 	public function test_scanner_does_not_fire_below_threshold() {
-		delete_option( Alert_Manager::FAILURE_LOG_OPTION );
 
 		// Record 4 failures (below threshold of 5).
 		$log = [];
@@ -290,7 +292,6 @@ class Newspack_Test_Alert_Manager extends WP_UnitTestCase {
 	 * Test that the scanner ignores failures outside the interval window.
 	 */
 	public function test_scanner_ignores_old_failures() {
-		delete_option( Alert_Manager::FAILURE_LOG_OPTION );
 
 		// Record 5 failures, but all older than the 1-hour interval.
 		$log = [];
@@ -324,7 +325,6 @@ class Newspack_Test_Alert_Manager extends WP_UnitTestCase {
 	 * Test that the scanner does not re-alert the same pattern within the interval.
 	 */
 	public function test_scanner_deduplicates_alerts() {
-		delete_option( Alert_Manager::FAILURE_LOG_OPTION );
 
 		$log = [];
 		for ( $i = 0; $i < 5; $i++ ) {
@@ -372,8 +372,5 @@ class Newspack_Test_Alert_Manager extends WP_UnitTestCase {
 			wp_next_scheduled( Alert_Manager::PATTERN_SCAN_HOOK ),
 			'Pattern scan cron event should be scheduled.'
 		);
-
-		// Clean up scheduled event to maintain test isolation.
-		wp_clear_scheduled_hook( Alert_Manager::PATTERN_SCAN_HOOK );
 	}
 }
