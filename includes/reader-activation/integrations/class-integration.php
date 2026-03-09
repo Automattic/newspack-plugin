@@ -364,7 +364,7 @@ abstract class Integration {
 
 		foreach ( Sync\Metadata::get_keys() as $raw_key => $field_name ) {
 			if ( in_array( $field_name, $enabled_fields, true ) ) {
-				$keys[] = $prefixed ? Sync\Metadata::get_key( $raw_kley ) : $raw_key;
+				$keys[] = $prefixed ? $this->get_metadata_prefix() . $field_name : $raw_key;
 			}
 		}
 
