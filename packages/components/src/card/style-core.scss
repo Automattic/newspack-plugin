@@ -68,7 +68,7 @@
 				word-wrap: normal !important;
 			}
 		}
-		.components-dropdown-menu {
+		> .components-dropdown-menu {
 			aspect-ratio: 1;
 			border-left: 1px solid wp-colors.$gray-200;
 			display: grid;

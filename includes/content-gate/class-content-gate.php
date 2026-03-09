@@ -37,6 +37,13 @@ class Content_Gate {
 	private static $is_gated = false;
 
 	/**
+	 * Whether the post is being shown via metering.
+	 *
+	 * @var boolean
+	 */
+	private static $is_metered = false;
+
+	/**
 	 * Valid gate post statuses.
 	 *
 	 * @var array
@@ -51,6 +58,13 @@ class Content_Gate {
 	private static $restricted_content = [];
 
 	/**
+	 * Whether the overlay gate markup has been output in this execution.
+	 *
+	 * @var boolean
+	 */
+	private static $overlay_gate_output = false;
+
+	/**
 	 * Initialize hooks and filters.
 	 */
 	public static function init() {
@@ -58,13 +72,17 @@ class Content_Gate {
 		add_action( 'admin_init', [ __CLASS__, 'redirect_cpt' ] );
 		add_action( 'admin_init', [ __CLASS__, 'handle_edit_gate_layout' ] );
 		add_action( 'wp_enqueue_scripts', [ __CLASS__, 'enqueue_scripts' ] );
-		add_action( 'wp_footer', [ __CLASS__, 'render_overlay_gate' ], 1 );
+		add_action( 'enqueue_block_editor_assets', [ __CLASS__, 'enqueue_block_editor_assets' ] );
+		add_action( 'after_setup_theme', [ __CLASS__, 'register_overlay_gate_hooks' ] );
 		add_action( 'before_delete_post', [ __CLASS__, 'delete_gate_layouts' ], 10, 2 );
 		add_filter( 'newspack_popups_assess_has_disabled_popups', [ __CLASS__, 'disable_popups' ] );
 		add_filter( 'newspack_reader_activity_article_view', [ __CLASS__, 'suppress_article_view_activity' ], 100 );
 
 		add_action( 'the_post', [ __CLASS__, 'restrict_post' ], 10, 2 );
 		add_filter( 'the_content', [ __CLASS__, 'handle_restricted_content' ], PHP_INT_MAX );
+		add_filter( 'comments_open', [ __CLASS__, 'filter_comments_open' ], 10, 2 );
+		add_filter( 'comments_array', [ __CLASS__, 'filter_comments_array' ], 10, 2 );
+		add_filter( 'get_comments_number', [ __CLASS__, 'filter_comments_number' ], 10, 2 );
 
 		/** Add gate content filters to mimic 'the_content'. See 'wp-includes/default-filters.php' for reference. */
 		add_filter( 'newspack_gate_content', 'capital_P_dangit', 11 );
@@ -85,6 +103,7 @@ class Content_Gate {
 		include __DIR__ . '/class-metering-countdown.php';
 		include __DIR__ . '/content-gifting/class-content-gifting.php';
 		include __DIR__ . '/class-ip-access-rule.php';
+		include __DIR__ . '/class-user-gate-access.php';
 	}
 
 	/**
@@ -171,6 +190,9 @@ class Content_Gate {
 			 */
 			! apply_filters( 'newspack_content_gate_restrict_post', true, $post->ID )
 		) {
+			// Content is accessible via metering — show comments but prevent commenting.
+			self::$is_metered        = true;
+			$post->comment_status    = 'closed';
 			return;
 		}
 
@@ -209,6 +231,57 @@ class Content_Gate {
 	 */
 	public static function is_gated() {
 		return self::$is_gated;
+	}
+
+	/**
+	 * Filter whether comments are open.
+	 *
+	 * Close comments on gated and metered posts.
+	 *
+	 * @param bool $open    Whether comments are open.
+	 * @param int  $post_id Post ID.
+	 *
+	 * @return bool
+	 */
+	public static function filter_comments_open( $open, $post_id ) {
+		if ( ( self::$is_gated || self::$is_metered ) && (int) $post_id === (int) get_queried_object_id() ) {
+			return false;
+		}
+		return $open;
+	}
+
+	/**
+	 * Filter comments array.
+	 *
+	 * Hide all comments on fully gated posts.
+	 *
+	 * @param array $comments Array of comments.
+	 * @param int   $post_id  Post ID.
+	 *
+	 * @return array
+	 */
+	public static function filter_comments_array( $comments, $post_id ) {
+		if ( self::$is_gated && (int) $post_id === (int) get_queried_object_id() ) {
+			return [];
+		}
+		return $comments;
+	}
+
+	/**
+	 * Filter the comment count.
+	 *
+	 * Return 0 on fully gated posts.
+	 *
+	 * @param int $count   Comment count.
+	 * @param int $post_id Post ID.
+	 *
+	 * @return int
+	 */
+	public static function filter_comments_number( $count, $post_id ) {
+		if ( self::$is_gated && (int) $post_id === (int) get_queried_object_id() ) {
+			return 0;
+		}
+		return $count;
 	}
 
 	/**
@@ -324,6 +397,23 @@ class Content_Gate {
 			wp_enqueue_script( 'newspack-content-banner', Newspack::plugin_url() . '/dist/content-banner.js', $asset['dependencies'], NEWSPACK_PLUGIN_VERSION, true );
 			wp_enqueue_style( 'newspack-content-banner', Newspack::plugin_url() . '/dist/content-banner.css', [], NEWSPACK_PLUGIN_VERSION );
 		}
+	}
+
+	/**
+	 * Enqueue block editor assets.
+	 */
+	public static function enqueue_block_editor_assets() {
+		if ( ! in_array( get_post_type(), array_column( Content_Restriction_Control::get_available_post_types(), 'value' ), true ) ) {
+			return;
+		}
+		if ( ! current_user_can( 'edit_others_posts' ) ) {
+			return;
+		}
+		if ( 0 === count( self::get_gates() ) ) {
+			return;
+		}
+		$asset = require dirname( NEWSPACK_PLUGIN_FILE ) . '/dist/content-gate-post-settings.asset.php';
+		wp_enqueue_script( 'newspack-content-gate-post-settings', Newspack::plugin_url() . '/dist/content-gate-post-settings.js', $asset['dependencies'], $asset['version'], true );
 	}
 
 	/**
@@ -768,12 +858,55 @@ class Content_Gate {
 		$_post = $post;
 		$post  = \get_post( $gate_layout_id ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 		setup_postdata( $post );
-
 		self::render_overlay_gate_html( $gate_layout_id );
+		self::$overlay_gate_output = true;
 
 		self::mark_gate_as_rendered();
 		wp_reset_postdata();
 		$post = $_post; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+	}
+
+	/**
+	 * Register overlay gate hooks after the theme has been set up.
+	 *
+	 * Deferred to after_setup_theme so that wp_is_block_theme() can be called safely,
+	 * after theme directories have been registered.
+	 */
+	public static function register_overlay_gate_hooks() {
+		if ( self::is_block_theme() ) {
+			add_filter( 'render_block', [ __CLASS__, 'inject_overlay_gate_after_post_content_block' ], 10, 2 );
+		} else {
+			add_action( 'get_footer', [ __CLASS__, 'render_overlay_gate' ], 1 );
+		}
+	}
+
+	/**
+	 * Inject overlay gate markup right after the post content block.
+	 *
+	 * Used for block themes where there aren't hooks to use in time to get do_blocks() to run.
+	 *
+	 * @param string $block_content Block content.
+	 * @param array  $block         Parsed block.
+	 *
+	 * @return string
+	 */
+	public static function inject_overlay_gate_after_post_content_block( $block_content, $block ) {
+		static $injected = false;
+
+		// $injected prevents re-entry even if render_overlay_gate() bails early (e.g. gate style is not "overlay").
+		// $overlay_gate_output is only set when HTML is actually rendered. Both guards are needed.
+		if ( $injected || self::$overlay_gate_output || ! is_singular() ) {
+			return $block_content;
+		}
+
+		if ( 'core/post-content' !== ( $block['blockName'] ?? '' ) ) {
+			return $block_content;
+		}
+
+		$injected = true;
+		ob_start();
+		self::render_overlay_gate();
+		return $block_content . ob_get_clean();
 	}
 
 	/**

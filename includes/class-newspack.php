@@ -101,6 +101,7 @@ final class Newspack {
 		include_once NEWSPACK_ABSPATH . 'includes/reader-activation/class-reader-data.php';
 		include_once NEWSPACK_ABSPATH . 'includes/reader-activation/sync/class-sync.php';
 		include_once NEWSPACK_ABSPATH . 'includes/reader-activation/sync/class-metadata.php';
+		include_once NEWSPACK_ABSPATH . 'includes/reader-activation/sync/class-legacy-metadata.php';
 		include_once NEWSPACK_ABSPATH . 'includes/reader-activation/sync/class-woocommerce.php';
 		include_once NEWSPACK_ABSPATH . 'includes/reader-activation/sync/class-contact-sync.php';
 		include_once NEWSPACK_ABSPATH . 'includes/reader-activation/sync/class-contact-sync-admin.php';
@@ -223,6 +224,7 @@ final class Newspack {
 		include_once NEWSPACK_ABSPATH . 'includes/plugins/woocommerce-subscriptions/class-woocommerce-subscriptions-gifting.php';
 		include_once NEWSPACK_ABSPATH . 'includes/plugins/woocommerce-subscriptions/group-subscription/class-group-subscription.php';
 		include_once NEWSPACK_ABSPATH . 'includes/plugins/woocommerce-subscriptions/group-subscription/class-group-subscription-api.php';
+		include_once NEWSPACK_ABSPATH . 'includes/plugins/woocommerce-subscriptions/group-subscription/class-group-subscription-invite.php';
 		include_once NEWSPACK_ABSPATH . 'includes/plugins/woocommerce-subscriptions/group-subscription/class-group-subscription-settings.php';
 		include_once NEWSPACK_ABSPATH . 'includes/plugins/class-woocommerce-gateway-stripe.php';
 		include_once NEWSPACK_ABSPATH . 'includes/plugins/class-teams-for-memberships.php';

@@ -24,18 +24,22 @@
 			}
 		}
 		&.newspack-section-header--has-back-nav {
-			--back-nav-button-size: 36px;
-			margin-left: calc(var(--back-nav-button-size) + 8px);
 			@media (min-width: 782px) {
-				margin-left: 0;
+				.newspack-section-header__title-container,
+				p {
+					max-width: calc(50% - 16px);
+				}
 			}
 		}
 	}
 
 	&__back-nav {
-		left: calc((var(--back-nav-button-size) + 8px) * -1);
-		position: absolute;
-		top: calc(50% - (var(--back-nav-button-size) / 2));
+		@media (min-width: 1280px) {
+			left: 0;
+			position: absolute;
+			top: 50%;
+			transform: translate(calc(-100% - 8px), -50%);
+		}
 		a,
 		button {
 			color: inherit !important;

@@ -17,13 +17,13 @@ import { commentAuthorAvatar, currencyDollar, postList, settings } from '@wordpr
 import { AUDIENCE_CONTENT_GATES_WIZARD_SLUG } from '../consts';
 import {
 	CardSettingsGroup,
-	ConfirmDialog,
 	Divider,
 	Grid,
 	Notice,
 	Router,
 	SectionHeader,
 	TextControl,
+	useConfirmDialog,
 } from '../../../../../../packages/components/src';
 import { WIZARD_STORE_NAMESPACE } from '../../../../../../packages/components/src/wizard/store';
 import { useWizardData } from '../../../../../../packages/components/src/wizard/store/utils';
@@ -74,7 +74,7 @@ const Edit = ( { match, updateGatesData }: ContentGateEditProps ) => {
 	const { id: _id, type } = match.params;
 	const id = _id ? parseInt( _id ) : 0;
 	const { gates = null as unknown as Gate[] } = useWizardData( AUDIENCE_CONTENT_GATES_WIZARD_SLUG ) as WizardData;
-	const { wizardApiFetch, isFetching, errorMessage, resetError, setError } = useWizardApiFetch( AUDIENCE_CONTENT_GATES_WIZARD_SLUG );
+	const { wizardApiFetch, isFetching, errorMessage, resetError } = useWizardApiFetch( AUDIENCE_CONTENT_GATES_WIZARD_SLUG );
 	const { addNotice, resetNotices, setHeaderData } = useDispatch( WIZARD_STORE_NAMESPACE );
 	const [ gate, setGate ] = useState< Gate >( ( gates && gates.find( g => g.id === id ) ) || DEFAULT_GATE ); // eslint-disable-line @typescript-eslint/no-unused-vars
 	const [ title, setTitle ] = useState< string >( gate.title );
@@ -85,11 +85,15 @@ const Edit = ( { match, updateGatesData }: ContentGateEditProps ) => {
 	const [ customAccess, setCustomAccess ] = useState< CustomAccess >( gate.custom_access );
 	const [ contentType, setContentType ] = useState< 'all' | 'custom' | undefined >( type as 'all' | 'custom' | undefined );
 	const [ status, setStatus ] = useState< GateStatus >( gate.status );
-	const [ showUnsavedChangesDialog, setShowUnsavedChangesDialog ] = useState( false );
-	const [ showDeleteDialog, setShowDeleteDialog ] = useState( false );
+	const [ error, setError ] = useState< string | null >( errorMessage );
 	const isNew = _id === 'new' || ! id;
 	const isSaving = useRef( false );
-	const pendingNavigation = useRef< ( () => void ) | null >( null );
+	const gatesRef = useRef< Gate[] >( gates );
+	useEffect( () => {
+		if ( Array.isArray( gates ) ) {
+			gatesRef.current = gates;
+		}
+	}, [ gates ] );
 
 	const isDirty =
 		isNew ||
@@ -98,10 +102,31 @@ const Edit = ( { match, updateGatesData }: ContentGateEditProps ) => {
 		JSON.stringify( registration ) !== JSON.stringify( gate.registration ) ||
 		JSON.stringify( customAccess ) !== JSON.stringify( gate.custom_access );
 
+	const { confirmDialog: navBlockDialog } = useConfirmDialog( {
+		when: isDirty && ! isSaving.current,
+		message: __( 'You have unsaved changes that will be lost. Discard changes?', 'newspack-plugin' ),
+		confirmButtonText: __( 'Discard changes', 'newspack-plugin' ),
+		hideTitle: true,
+	} );
+	const { confirmDialog: deleteDialog, requestConfirm: requestDelete } = useConfirmDialog( {
+		title: __( 'Are you sure?', 'newspack-plugin' ),
+		confirmButtonText: __( 'Delete', 'newspack-plugin' ),
+		isDestructive: true,
+		message: createInterpolateElement(
+			sprintf(
+				// translators: %s is the gate title.
+				__( 'This will <strong>permanently delete</strong> "%s" and cannot be undone.', 'newspack-plugin' ),
+				gate.title
+			),
+			{ strong: <strong /> }
+		),
+	} );
+
 	const handleCreate = useCallback( () => {
 		if ( isFetching ) {
 			return;
 		}
+		isSaving.current = true;
 		resetNotices();
 		resetError();
 		const _gate = {
@@ -119,8 +144,7 @@ const Edit = ( { match, updateGatesData }: ContentGateEditProps ) => {
 			},
 			{
 				onSuccess( data ) {
-					updateGatesData( [ ...gates, { ...data } ] );
-					isSaving.current = true;
+					updateGatesData( [ ...gatesRef.current, { ...data } ] );
 					history.push( `/content-gates` );
 					addNotice( {
 						// translators: %s is the gate title.
@@ -130,6 +154,9 @@ const Edit = ( { match, updateGatesData }: ContentGateEditProps ) => {
 						actions: [ { label: __( 'Edit', 'newspack-plugin' ), url: `#/edit/${ data.id }` } ],
 					} );
 				},
+				onFinally: () => {
+					isSaving.current = false;
+				},
 			}
 		);
 	}, [ gate, contentRules, registration, customAccess, status, title ] );
@@ -138,6 +165,7 @@ const Edit = ( { match, updateGatesData }: ContentGateEditProps ) => {
 		if ( isFetching ) {
 			return;
 		}
+		isSaving.current = true;
 		resetError();
 		resetNotices();
 		const gateTitle = title || gate.title;
@@ -157,9 +185,8 @@ const Edit = ( { match, updateGatesData }: ContentGateEditProps ) => {
 			},
 			{
 				onSuccess( data: Gate ) {
-					updateGatesData( gates.map( g => ( g.id === data.id ? data : g ) ) );
-					isSaving.current = true;
-					history.push( `/content-gates` );
+					updateGatesData( gatesRef.current.map( g => ( g.id === data.id ? data : g ) ) );
+					history.push( '/content-gates' );
 					addNotice( {
 						message: sprintf(
 							// translators: %s is the gate title.
@@ -170,6 +197,9 @@ const Edit = ( { match, updateGatesData }: ContentGateEditProps ) => {
 						id: 'content-gate-updated',
 					} );
 				},
+				onFinally: () => {
+					isSaving.current = false;
+				},
 			}
 		);
 	}, [ gate, contentRules, registration, customAccess, status, title ] );
@@ -179,6 +209,7 @@ const Edit = ( { match, updateGatesData }: ContentGateEditProps ) => {
 		if ( isFetching ) {
 			return;
 		}
+		isSaving.current = true;
 		resetError();
 		resetNotices();
 		const prevStatus = gate.status;
@@ -208,41 +239,46 @@ const Edit = ( { match, updateGatesData }: ContentGateEditProps ) => {
 						actions: [ { label: __( 'Undo', 'newspack-plugin' ), onClick: () => updateStatus.current?.( prevStatus ) } ],
 					} );
 				},
+				onFinally: () => {
+					isSaving.current = false;
+				},
 			}
 		);
 	};
 	updateStatus.current = handleStatusChange;
 
-	const handleDelete = useCallback(
-		( gateId: number ) => {
-			resetError();
-			setIsDeleting( true );
-			wizardApiFetch(
-				{
-					path: `/newspack/v1/wizard/${ AUDIENCE_CONTENT_GATES_WIZARD_SLUG }/${ gateId }`,
-					method: 'DELETE',
+	const handleDelete = useCallback( () => {
+		if ( isFetching ) {
+			return;
+		}
+		resetError();
+		resetNotices();
+		setIsDeleting( true );
+		wizardApiFetch(
+			{
+				path: `/newspack/v1/wizard/${ AUDIENCE_CONTENT_GATES_WIZARD_SLUG }/${ id }`,
+				method: 'DELETE',
+			},
+			{
+				onSuccess() {
+					const deletedGate = gatesRef.current.find( g => g.id === id );
+					const gateTitle = deletedGate?.title || title;
+					const newGates = gatesRef.current.filter( g => g.id !== id );
+					updateGatesData( newGates );
+					history.push( `/content-gates` );
+					addNotice( {
+						// translators: %s is the gate title.
+						message: sprintf( __( '“%s” gate deleted.', 'newspack-plugin' ), gateTitle ),
+						type: 'success',
+						id: 'content-gate-deleted',
+					} );
 				},
-				{
-					onSuccess() {
-						const newGates = gates.filter( g => g.id !== gateId );
-						updateGatesData( newGates );
-						history.push( `/content-gates` );
-						setIsDeleting( false );
-						addNotice( {
-							// translators: %s is the gate title.
-							message: sprintf( __( '“%s” gate deleted.', 'newspack-plugin' ), title ),
-							type: 'success',
-							id: 'content-gate-deleted',
-						} );
-					},
-					onFinally() {
-						setIsDeleting( false );
-					},
-				}
-			);
-		},
-		[ gate, contentRules, registration, customAccess, status, title ]
-	);
+				onFinally() {
+					setIsDeleting( false );
+				},
+			}
+		);
+	}, [ id, title, isFetching ] );
 
 	// Load gate data.
 	useEffect( () => {
@@ -327,7 +363,7 @@ const Edit = ( { match, updateGatesData }: ContentGateEditProps ) => {
 			actions.push( {
 				type: 'more',
 				label: __( 'Delete', 'newspack-plugin' ),
-				action: () => setShowDeleteDialog( true ),
+				action: () => requestDelete( handleDelete ),
 				disabled: isFetching,
 				destructive: true,
 			} );
@@ -356,6 +392,11 @@ const Edit = ( { match, updateGatesData }: ContentGateEditProps ) => {
 		setContentRules( contentType === 'all' ? DEFAULT_GATE.content_rules : contentRules );
 	}, [ contentType ] );
 
+	// Update error.
+	useEffect( () => {
+		setError( errorMessage );
+	}, [ errorMessage ] );
+
 	// Update gate status.
 	useEffect( () => {
 		if ( ! isNew && status !== gate.status ) {
@@ -363,67 +404,11 @@ const Edit = ( { match, updateGatesData }: ContentGateEditProps ) => {
 		}
 	}, [ isNew, gate.status, status, updateStatus ] );
 
-	// Block navigation when there are unsaved changes.
-	useEffect( () => {
-		if ( ! isDirty ) {
-			return;
-		}
-		const unblock = history.block( ( location: string, action: string ) => {
-			if ( isSaving.current ) {
-				return;
-			}
-			pendingNavigation.current = () => {
-				unblock();
-				if ( action === 'REPLACE' ) {
-					history.replace( location );
-				} else {
-					history.push( location );
-				}
-			};
-			setShowUnsavedChangesDialog( true );
-			return false;
-		} );
-		return unblock;
-	}, [ isDirty, history ] );
-
 	return (
 		<div className="newspack-content-gate__edit">
-			{ showUnsavedChangesDialog && (
-				<ConfirmDialog
-					onConfirm={ () => {
-						setShowUnsavedChangesDialog( false );
-						pendingNavigation.current?.();
-						pendingNavigation.current = null;
-					} }
-					onCancel={ () => {
-						setShowUnsavedChangesDialog( false );
-						pendingNavigation.current = null;
-					} }
-					confirmButtonText={ __( 'Discard changes', 'newspack-plugin' ) }
-					hideTitle
-				>
-					{ __( 'You have unsaved changes that will be lost. Discard changes?', 'newspack-plugin' ) }
-				</ConfirmDialog>
-			) }
-			{ showDeleteDialog && (
-				<ConfirmDialog
-					title={ __( 'Are you sure?', 'newspack-plugin' ) }
-					onConfirm={ () => handleDelete( gate.id ) }
-					onCancel={ () => setShowDeleteDialog( false ) }
-					confirmButtonText={ __( 'Delete', 'newspack-plugin' ) }
-					isDestructive={ true }
-				>
-					{ createInterpolateElement(
-						sprintf(
-							// translators: %s is the gate title.
-							__( 'This will <strong>permanently delete</strong> “%s” and cannot be undone.', 'newspack-plugin' ),
-							gate.title
-						),
-						{ strong: <strong /> }
-					) }
-				</ConfirmDialog>
-			) }
-			{ errorMessage && <Notice isError noticeText={ errorMessage } /> }
+			{ navBlockDialog }
+			{ deleteDialog }
+			{ error && <Notice isError noticeText={ error } /> }
 			{ ( isNew || isRenaming ) && (
 				<>
 					<Grid columns={ 2 } gutter={ 32 }>

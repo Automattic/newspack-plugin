@@ -48,6 +48,7 @@ export { default as withWizardScreen } from './with-wizard-screen';
 
 export { default as Router } from './proxied-imports/router';
 export { default as hooks } from './hooks';
+export { default as useConfirmDialog } from './hooks/use-confirm-dialog';
 export { default as utils } from './utils';
 
 import './style.scss';

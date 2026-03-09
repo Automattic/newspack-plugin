@@ -34,6 +34,7 @@ const ResetHeaderData = () => {
 
 	useEffect( () => {
 		resetHeaderData();
+		window.scrollTo( 0, 0 );
 	}, [ location.pathname, resetHeaderData ] );
 
 	return null;
@@ -104,6 +105,10 @@ const Wizard = (
 		];
 	}
 
+	// When plugins are required but not yet satisfied, `displayedSections` is replaced with
+	// the PluginInstaller. Use it for routing so the installer actually mounts and runs.
+	const routedSections = pluginRequirementsSatisfied ? sections : displayedSections;
+
 	const urlWithoutHash = window.location.href.split( '#' )[ 0 ];
 
 	return (
@@ -153,6 +158,7 @@ const Wizard = (
 								{ mainActions.map( ( action, index ) => (
 									<Button
 										key={ index }
+										className="newspack-wizard__header__actions__main"
 										icon={ action.icon }
 										variant={ action.type }
 										onClick={ action.action }
@@ -162,23 +168,31 @@ const Wizard = (
 										{ action.label }
 									</Button>
 								) ) }
-								{ moreActions.length > 0 && (
-									<DropdownMenu icon={ moreVertical } label={ __( 'More', 'newspack-plugin' ) }>
-										{ () =>
-											moreActions.map( ( action, index ) => (
-												<MenuItem
-													key={ index }
-													icon={ action.icon }
-													onClick={ action.action }
-													disabled={ action.disabled || false }
-													isDestructive={ action.destructive || false }
-												>
-													{ action.label }
-												</MenuItem>
-											) )
-										}
-									</DropdownMenu>
-								) }
+								<DropdownMenu
+									className={ moreActions?.length === 0 ? 'newspack-wizard__header__actions__more--primary-only' : '' }
+									icon={ moreVertical }
+									label={ __( 'More', 'newspack-plugin' ) }
+									popoverProps={ { className: 'newspack-wizard__header__actions__more' } }
+								>
+									{ () =>
+										actions.map( ( action, index ) => (
+											<MenuItem
+												key={ index }
+												className={
+													action.type === 'primary' || action.type === 'secondary'
+														? 'newspack-wizard__header__actions__more__main'
+														: 'newspack-wizard__header__actions__more__more'
+												}
+												icon={ action.icon }
+												onClick={ action.action }
+												disabled={ action.disabled || false }
+												isDestructive={ action.destructive || false }
+											>
+												{ action.label }
+											</MenuItem>
+										) )
+									}
+								</DropdownMenu>
 							</div>
 						) }
 					</div>
@@ -192,39 +206,41 @@ const Wizard = (
 
 					{ sections.length > 1 && <ResetHeaderData /> }
 
-					<Switch>
-						{ sections.map( ( section, index ) => {
-							const SectionComponent = section.render;
-							const sectionProps = section.props || {};
-							return (
-								<Route
-									key={ index }
-									exact={ section.exact ?? false }
-									path={ section.path }
-									render={ routerProps => (
-										<div className={ classnames( 'newspack-wizard__content', className ) }>
-											{ 'function' === typeof renderAboveSections ? renderAboveSections() : null }
-											{ ( sectionTitle || section.title ) && (
-												<SectionHeader
-													className="newspack-wizard__section-header"
-													backNav={ backNav || section.backNav }
-													title={ sectionTitle || section.title }
-													description={ sectionDescription || section.description }
-													badges={ badges || section.badges }
-													primaryAction={ sectionPrimaryAction || section.primaryAction }
-													secondaryAction={ sectionSecondaryAction || section.secondaryAction }
-													heading={ 1 }
-													noMargin
-												/>
-											) }
-											<SectionComponent { ...routerProps } { ...sectionProps } { ...sharedProps } />
-										</div>
-									) }
-								/>
-							);
-						} ) }
-						<Redirect to={ displayedSections[ 0 ].path } />
-					</Switch>
+					<div className="newspack-wizard__main">
+						<Switch>
+							{ routedSections.map( ( section, index ) => {
+								const SectionComponent = section.render;
+								const sectionProps = section.props || {};
+								return (
+									<Route
+										key={ index }
+										exact={ section.exact ?? false }
+										path={ section.path }
+										render={ routerProps => (
+											<div className={ classnames( 'newspack-wizard__content', className ) }>
+												{ 'function' === typeof renderAboveSections ? renderAboveSections() : null }
+												{ ( sectionTitle || section.title ) && (
+													<SectionHeader
+														className="newspack-wizard__section-header"
+														backNav={ backNav || section.backNav }
+														title={ sectionTitle || section.title }
+														description={ sectionDescription || section.description }
+														badges={ badges || section.badges }
+														primaryAction={ sectionPrimaryAction || section.primaryAction }
+														secondaryAction={ sectionSecondaryAction || section.secondaryAction }
+														heading={ 1 }
+														noMargin
+													/>
+												) }
+												<SectionComponent { ...routerProps } { ...sectionProps } { ...sharedProps } />
+											</div>
+										) }
+									/>
+								);
+							} ) }
+							<Redirect to={ displayedSections[ 0 ].path } />
+						</Switch>
+					</div>
 				</HashRouter>
 				{ notices?.length > 0 &&
 					notices.map( ( notice, index ) => (

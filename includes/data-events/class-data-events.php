@@ -56,7 +56,7 @@ final class Data_Events {
 	/**
 	 * Registered callable handlers, keyed by their action name.
 	 *
-	 * @var callable[]
+	 * @var array<string, callable[]>
 	 */
 	private static $actions = [];
 
@@ -407,8 +407,16 @@ final class Data_Events {
 	/**
 	 * Register a handler for a triggerable action.
 	 *
+	 * Handler callback signature depends on the registration type:
+	 *
+	 * Action-specific handler (when $action_name is provided):
+	 *   function( int $timestamp, array $data, string $client_id ): void
+	 *
+	 * Global handler (when $action_name is null):
+	 *   function( string $action_name, int $timestamp, array $data, string $client_id ): void
+	 *
 	 * @param callable $handler     Action handler.
-	 * @param string   $action_name Action name.
+	 * @param string   $action_name Action name. If null, handler is called for all actions.
 	 *
 	 * @return void|WP_Error Error if action not registered, handler already registered or is not callable.
 	 */
@@ -661,8 +669,8 @@ final class Data_Events {
 		/**
 		 * Fires after dispatching queued actions.
 		 *
-		 * @param WP_Error|WP_HTTP_Response|null $request           The request object, or null when using Action Scheduler.
-		 * @param array                          $queued_dispatches The queued dispatches.
+		 * @param WP_Error|\WP_HTTP_Response|null $request           The request object, or null when using Action Scheduler.
+		 * @param array                           $queued_dispatches The queued dispatches.
 		 */
 		\do_action( 'newspack_data_events_dispatched', $request, self::$queued_dispatches );
 	}

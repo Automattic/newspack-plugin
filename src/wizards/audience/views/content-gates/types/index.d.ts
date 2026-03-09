@@ -120,8 +120,12 @@ type ContentGiftingConfig = {
 	interval: string;
 	expiration_time: number;
 	expiration_time_unit: string;
+	style: string;
 	cta_label: string;
 	button_label: string;
+	cta_type: string;
+	cta_product_id: number;
+	cta_url: string;
 };
 
 type MeteringCountdownConfig = {
@@ -130,6 +134,8 @@ type MeteringCountdownConfig = {
 	cta_label: string;
 	button_label: string;
 	cta_url: string;
+	cta_type: string;
+	cta_product_id: number;
 };
 
 type GateSettings = {
