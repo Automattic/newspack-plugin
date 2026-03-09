@@ -117,7 +117,7 @@ class Alert_Manager {
 		$record = [
 			'timestamp'      => time(),
 			'integration_id' => $payload['integration_id'] ?? null,
-			'contact_email'  => $payload['contact']['email'] ?? null,
+			'contact_email'  => is_array( $payload['contact'] ?? null ) ? ( $payload['contact']['email'] ?? null ) : null,
 			'action_name'    => $payload['action_name'] ?? null,
 			'reason'         => $payload['reason'] ?? null,
 		];
