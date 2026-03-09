@@ -84,7 +84,6 @@ When building a screen, use the **spacing scale** (8px unit: 16, 24, 32, 48, 64)
 
 - **`Button`** - Enhanced button component (wraps WordPress Button with routing support)
 - **`TextControl`** - Text input with Newspack styling and required field support
-- **`SelectControl`** - Select dropdown with grouped and button variants
 - **`RadioControl`** - Radio button group control
 - **`ColorPicker`** - Color selection component
 - **`ImageUpload`** - Image upload and selection component
