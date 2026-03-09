@@ -151,6 +151,9 @@ class WooCommerce_My_Account {
 	 * Handle messages in 'message' query param.
 	 */
 	public static function handle_messages() {
+		if ( ! function_exists( 'is_account_page' ) || ! \is_account_page() ) {
+			return;
+		}
 		$message    = filter_input( INPUT_GET, 'message', FILTER_SANITIZE_FULL_SPECIAL_CHARS ) ?? false;
 		$is_success = filter_input( INPUT_GET, 'is_success', FILTER_VALIDATE_BOOLEAN ) ?? false;
 		$is_error   = filter_input( INPUT_GET, 'is_error', FILTER_VALIDATE_BOOLEAN ) ?? false;
