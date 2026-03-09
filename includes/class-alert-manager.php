@@ -321,6 +321,7 @@ class Alert_Manager {
 	 *
 	 * @param string $rule_id     The rule identifier.
 	 * @param string $group_value The grouped value.
+	 *
 	 * @return string Transient key.
 	 */
 	private static function get_dedup_key( $rule_id, $group_value ) {
@@ -331,6 +332,7 @@ class Alert_Manager {
 	 * Format a time interval in seconds as a human-readable string.
 	 *
 	 * @param int $seconds The interval in seconds.
+	 *
 	 * @return string Formatted interval (e.g. '1h', '5m').
 	 */
 	private static function format_interval( $seconds ) {
