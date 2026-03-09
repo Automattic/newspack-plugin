@@ -136,12 +136,12 @@ class Group_Subscription_MyAccount {
 		}
 
 		// Non-manager group members get a view-only experience: no actions.
-		if ( Group_Subscription::user_is_member( $user_id, $subscription ) && ! Group_Subscription::user_is_manager( $user_id, $subscription ) ) {
+		if ( $subscription->get_customer_id() !== $user_id && Group_Subscription::user_is_member( $user_id, $subscription ) ) {
 			return [];
 		}
 
-		// Managers get a "Manage members" action.
-		if ( Group_Subscription::user_is_manager( $user_id, $subscription ) ) {
+		// Managers (subscription owners) get a "Manage members" action.
+		if ( $subscription->get_customer_id() === $user_id && Group_Subscription::user_is_manager( $user_id, $subscription ) ) {
 			$actions['manage_members'] = [
 				'url'  => self::get_manage_members_url( $subscription ),
 				'name' => __( 'Manage members', 'newspack-plugin' ),
@@ -309,7 +309,7 @@ class Group_Subscription_MyAccount {
 		}
 		$order_id     = isset( $args[0] ) ? absint( $args[0] ) : 0;
 		$subscription = WooCommerce_Subscriptions::sanitize_subscription( $order_id );
-		if ( ! $subscription ) {
+		if ( ! $subscription || $subscription->has_status( 'trash' ) ) {
 			return $caps;
 		}
 		if ( Group_Subscription::user_is_member( $user_id, $subscription ) ) {
