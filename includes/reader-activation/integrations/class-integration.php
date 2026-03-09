@@ -38,6 +38,13 @@ abstract class Integration {
 	const SETTINGS_OPTION_PREFIX = 'newspack_integration_settings_';
 
 	/**
+	 * Option name prefix for storing metadata prefix per integration.
+	 *
+	 * @var string
+	 */
+	const METADATA_PREFIX_OPTION_PREFIX = 'newspack_integration_metadata_prefix_';
+
+	/**
 	 * The unique identifier for this integration.
 	 *
 	 * @var string
@@ -348,37 +355,21 @@ abstract class Integration {
 	/**
 	 * Get the raw (unprefixed) metadata keys enabled for outgoing sync.
 	 *
+	 * @param bool $prefixed Optional. Whether to return prefixed keys instead of raw keys. Default false.
+	 *
 	 * @return string[] List of raw metadata keys.
 	 */
-	public function get_enabled_outgoing_fields_raw_keys() {
+	public function get_enabled_outgoing_fields_keys( $prefixed = false ) {
 		$enabled_fields = $this->get_enabled_outgoing_fields();
-		$raw_keys       = [];
+		$keys           = [];
 
 		foreach ( Sync\Metadata::get_keys() as $raw_key => $field_name ) {
 			if ( in_array( $field_name, $enabled_fields, true ) ) {
-				$raw_keys[] = $raw_key;
+				$keys[] = $prefixed ? $this->get_metadata_prefix() . $field_name : $raw_key;
 			}
 		}
 
-		return array_unique( $raw_keys );
-	}
-
-	/**
-	 * Get the prefixed metadata keys enabled for outgoing sync.
-	 *
-	 * @return string[] List of prefixed metadata keys.
-	 */
-	public function get_enabled_outgoing_fields_prefixed_keys() {
-		$enabled_fields = $this->get_enabled_outgoing_fields();
-		$prefixed_keys  = [];
-
-		foreach ( Sync\Metadata::get_keys() as $raw_key => $field_name ) {
-			if ( in_array( $field_name, $enabled_fields, true ) ) {
-				$prefixed_keys[] = Sync\Metadata::get_key( $raw_key );
-			}
-		}
-
-		return array_unique( $prefixed_keys );
+		return array_unique( $keys );
 	}
 
 	/**
@@ -388,6 +379,13 @@ abstract class Integration {
 	 */
 	public function get_metadata_fields() {
 		return [
+			[
+				'key'         => 'metadata_prefix',
+				'type'        => 'text',
+				'label'       => __( 'Metadata field prefix', 'newspack-plugin' ),
+				'description' => __( 'A string to prefix metadata fields attached to each contact synced to the integration. Required to ensure that metadata field names are unique. Default: NP_', 'newspack-plugin' ),
+				'default'     => 'NP_',
+			],
 			[
 				'key'     => 'outgoing_metadata_fields',
 				'type'    => 'outgoing_metadata',
@@ -401,6 +399,28 @@ abstract class Integration {
 				'default' => [],
 			],
 		];
+	}
+
+	/**
+	 * Get the metadata prefix for this integration.
+	 *
+	 * @return string The metadata prefix.
+	 */
+	public function get_metadata_prefix() {
+		return \get_option( self::METADATA_PREFIX_OPTION_PREFIX . $this->id, 'NP_' );
+	}
+
+	/**
+	 * Update the metadata prefix for this integration.
+	 *
+	 * @param string $prefix The new prefix value.
+	 * @return bool True if updated, false otherwise.
+	 */
+	public function update_metadata_prefix( $prefix ) {
+		if ( empty( $prefix ) ) {
+			$prefix = 'NP_';
+		}
+		return \update_option( self::METADATA_PREFIX_OPTION_PREFIX . $this->id, \sanitize_text_field( $prefix ) );
 	}
 
 	/**
@@ -423,6 +443,9 @@ abstract class Integration {
 	 */
 	public function get_settings_field_value( $key ) {
 		// Route metadata fields to their dedicated getters.
+		if ( 'metadata_prefix' === $key ) {
+			return $this->get_metadata_prefix();
+		}
 		if ( 'outgoing_metadata_fields' === $key ) {
 			return $this->get_enabled_outgoing_fields();
 		}
@@ -454,6 +477,9 @@ abstract class Integration {
 		$sanitized = $this->sanitize_settings_field_value( $field, $value );
 
 		// Route metadata fields to their dedicated setters.
+		if ( 'metadata_prefix' === $key ) {
+			return $this->update_metadata_prefix( $sanitized );
+		}
 		if ( 'outgoing_metadata_fields' === $key ) {
 			return $this->update_enabled_outgoing_fields( $sanitized );
 		}

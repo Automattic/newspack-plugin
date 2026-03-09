@@ -106,13 +106,6 @@ class ESP extends Integration {
 			'description' => __( 'When a reader account is deleted, also remove the contact from the ESP.', 'newspack-plugin' ),
 			'default'     => true,
 		];
-		$fields[] = [
-			'key'         => 'metadata_prefix',
-			'type'        => 'text',
-			'label'       => __( 'Metadata field prefix', 'newspack-plugin' ),
-			'description' => __( 'A string to prefix metadata fields attached to each contact synced to the ESP. Required to ensure that metadata field names are unique. Default: NP_', 'newspack-plugin' ),
-			'default'     => 'NP_',
-		];
 		return $fields;
 	}
 

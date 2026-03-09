@@ -73,6 +73,19 @@ class Metadata {
 	 * @return string
 	 */
 	public static function get_prefix() {
+		// When the integrations feature is enabled, read prefix from the ESP integration.
+		if ( \Newspack\Audience_Integrations::is_enabled() ) {
+			$esp_integration = Integrations::get_integration( 'esp' );
+			if ( $esp_integration ) {
+				$prefix = $esp_integration->get_metadata_prefix();
+				if ( ! empty( $prefix ) ) {
+					/** This filter is documented below. */
+					return apply_filters( 'newspack_ras_metadata_prefix', $prefix );
+				}
+			}
+		}
+
+		// Legacy: read from global option.
 		$prefix = \get_option( self::PREFIX_OPTION, self::PREFIX );
 
 		// Guard against empty strings and falsy values.
@@ -174,12 +187,12 @@ class Metadata {
 	 * This method is deprecated. Now, each integration has its own set of enabled fields.
 	 * As a fallback, this method delegates to the ESP Integration.
 	 *
-	 * @deprecated Use Integration::get_enabled_outgoing_fields_raw_keys() instead.
+	 * @deprecated Use Integration::get_enabled_outgoing_fields_keys() instead.
 	 * @return string[] List of raw metadata keys.
 	 */
 	public static function get_raw_keys() {
 		$esp_integration = Integrations::get_integration( 'esp' );
-		return $esp_integration ? $esp_integration->get_enabled_outgoing_fields_raw_keys() : [];
+		return $esp_integration ? $esp_integration->get_enabled_outgoing_fields_keys() : [];
 	}
 
 	/**
@@ -188,12 +201,12 @@ class Metadata {
 	 * This method is deprecated. Now, each integration has its own set of enabled fields.
 	 * As a fallback, this method delegates to the ESP Integration.
 	 *
-	 * @deprecated Use Integration::get_enabled_outgoing_fields_prefixed_keys() instead.
+	 * @deprecated Use Integration::get_enabled_outgoing_fields_keys() instead.
 	 * @return string[] List of prefixed metadata keys.
 	 */
 	public static function get_prefixed_keys() {
 		$esp_integration = Integrations::get_integration( 'esp' );
-		return $esp_integration ? $esp_integration->get_enabled_outgoing_fields_prefixed_keys() : [];
+		return $esp_integration ? $esp_integration->get_enabled_outgoing_fields_keys( true ) : [];
 	}
 
 	/**
