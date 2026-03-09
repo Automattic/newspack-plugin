@@ -361,18 +361,16 @@ class Newspack_Test_Alert_Manager extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test that the pattern scan recurring action is scheduled.
+	 * Test that the pattern scan cron event is scheduled.
 	 */
 	public function test_pattern_scan_is_scheduled() {
-		if ( ! function_exists( 'as_has_scheduled_action' ) ) {
-			$this->markTestSkipped( 'Action Scheduler not available.' );
-		}
+		wp_clear_scheduled_hook( Alert_Manager::PATTERN_SCAN_HOOK );
 
 		Alert_Manager::schedule_pattern_scan();
 
-		$this->assertTrue(
-			as_has_scheduled_action( Alert_Manager::PATTERN_SCAN_HOOK ),
-			'Pattern scan recurring action should be scheduled.'
+		$this->assertNotFalse(
+			wp_next_scheduled( Alert_Manager::PATTERN_SCAN_HOOK ),
+			'Pattern scan cron event should be scheduled.'
 		);
 	}
 }

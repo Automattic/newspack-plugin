@@ -18,14 +18,9 @@ defined( 'ABSPATH' ) || exit;
 class Alert_Manager {
 
 	/**
-	 * ActionScheduler hook for the recurring pattern scan.
+	 * WP-Cron hook for the recurring pattern scan.
 	 */
 	const PATTERN_SCAN_HOOK = 'newspack_alert_pattern_scan';
-
-	/**
-	 * Default scan interval in seconds (5 minutes).
-	 */
-	const DEFAULT_SCAN_INTERVAL = 300;
 
 	/**
 	 * Option name for storing the failure log.
@@ -99,25 +94,13 @@ class Alert_Manager {
 	}
 
 	/**
-	 * Schedule the recurring pattern scan via Action Scheduler.
+	 * Schedule the recurring pattern scan via WP-Cron.
 	 */
 	public static function schedule_pattern_scan() {
-		if ( ! function_exists( 'as_next_scheduled_action' ) ) {
+		if ( wp_next_scheduled( self::PATTERN_SCAN_HOOK ) ) {
 			return;
 		}
-
-		if ( false !== as_next_scheduled_action( self::PATTERN_SCAN_HOOK ) ) {
-			return;
-		}
-
-		/**
-		 * Filters the interval in seconds for the failure pattern scan.
-		 *
-		 * @param int $interval Scan interval in seconds. Default 300 (5 minutes).
-		 */
-		$interval = apply_filters( 'newspack_alert_pattern_scan_interval', self::DEFAULT_SCAN_INTERVAL );
-
-		as_schedule_recurring_action( time(), $interval, self::PATTERN_SCAN_HOOK, [], 'newspack' );
+		wp_schedule_event( time(), 'hourly', self::PATTERN_SCAN_HOOK );
 	}
 
 	/**
