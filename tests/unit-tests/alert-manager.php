@@ -372,5 +372,8 @@ class Newspack_Test_Alert_Manager extends WP_UnitTestCase {
 			wp_next_scheduled( Alert_Manager::PATTERN_SCAN_HOOK ),
 			'Pattern scan cron event should be scheduled.'
 		);
+
+		// Clean up scheduled event to maintain test isolation.
+		wp_clear_scheduled_hook( Alert_Manager::PATTERN_SCAN_HOOK );
 	}
 }
