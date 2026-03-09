@@ -261,7 +261,7 @@ class Group_Subscription_MyAccount {
 	public static function handle_remove_member() {
 		check_admin_referer( self::REMOVE_MEMBER_NONCE_ACTION );
 		[ $subscription_id, $redirect_url ] = self::get_subscription_context();
-		self::verify_permission( $subscription_id, $redirect_url, 'invites' );
+		self::verify_permission( $subscription_id, $redirect_url, 'members' );
 
 		$member_id   = filter_input( INPUT_POST, 'member_id', FILTER_VALIDATE_INT ) ?? 0;
 		$member_data = get_userdata( $member_id );
