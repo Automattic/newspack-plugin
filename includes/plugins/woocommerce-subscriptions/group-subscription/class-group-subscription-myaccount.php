@@ -41,12 +41,24 @@ class Group_Subscription_MyAccount {
 		if ( ! class_exists( 'Newspack\\My_Account_UI_V1' ) ) {
 			return;
 		}
+		add_action( 'init', [ __CLASS__, 'flush_rewrite_rules' ] );
 		add_filter( 'woocommerce_get_query_vars', [ __CLASS__, 'add_manage_members_endpoint' ] );
 		add_action( 'woocommerce_account_' . self::MANAGE_MEMBERS_ENDPOINT . '_endpoint', [ __CLASS__, 'render_group_subscription_members_template' ] );
 		add_filter( 'wcs_view_subscription_actions', [ __CLASS__, 'view_subscription_actions' ], 13, 3 );
 		add_action( 'admin_post_' . self::INVITE_NONCE_ACTION, [ __CLASS__, 'handle_invite_member' ] );
 		add_action( 'admin_post_' . self::CANCEL_INVITE_NONCE_ACTION, [ __CLASS__, 'handle_cancel_invite' ] );
 		add_action( 'admin_post_' . self::REMOVE_MEMBER_NONCE_ACTION, [ __CLASS__, 'handle_remove_member' ] );
+	}
+
+	/**
+	 * Flush rewrite rules for My Account endpoints for group subscriptions.
+	 */
+	public static function flush_rewrite_rules() {
+		$rewrite_rules_updated_option_name = 'newspack_group_subscription_rewrite_rules_updated';
+		if ( false === get_option( $rewrite_rules_updated_option_name ) ) {
+			flush_rewrite_rules(); // phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.flush_rewrite_rules_flush_rewrite_rules
+			update_option( $rewrite_rules_updated_option_name, true );
+		}
 	}
 
 	/**
