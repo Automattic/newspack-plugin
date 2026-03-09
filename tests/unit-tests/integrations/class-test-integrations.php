@@ -818,6 +818,105 @@ class Test_Integrations extends \WP_UnitTestCase {
 	}
 
 	/**
+	 * Test get_metadata_prefix returns default 'NP_' when no custom prefix is set.
+	 */
+	public function test_get_metadata_prefix_default() {
+		$integration = new Sample_Integration( 'prefix-test', 'Prefix Test' );
+
+		$this->assertSame( 'NP_', $integration->get_metadata_prefix() );
+	}
+
+	/**
+	 * Test update_metadata_prefix stores and retrieves a custom prefix.
+	 */
+	public function test_update_and_get_metadata_prefix() {
+		$integration = new Sample_Integration( 'prefix-test', 'Prefix Test' );
+
+		$integration->update_metadata_prefix( 'CUSTOM_' );
+
+		$this->assertSame( 'CUSTOM_', $integration->get_metadata_prefix() );
+		$this->assertSame( 'CUSTOM_', get_option( 'newspack_integration_metadata_prefix_prefix-test' ) );
+	}
+
+	/**
+	 * Test update_metadata_prefix with empty string falls back to 'NP_'.
+	 */
+	public function test_update_metadata_prefix_empty_falls_back() {
+		$integration = new Sample_Integration( 'prefix-test', 'Prefix Test' );
+
+		$integration->update_metadata_prefix( 'CUSTOM_' );
+		$integration->update_metadata_prefix( '' );
+
+		$this->assertSame( 'NP_', $integration->get_metadata_prefix() );
+	}
+
+	/**
+	 * Test metadata prefix is isolated per integration.
+	 */
+	public function test_metadata_prefix_per_integration_isolation() {
+		$integration_a = new Sample_Integration( 'iso-a', 'Integration A' );
+		$integration_b = new Sample_Integration( 'iso-b', 'Integration B' );
+
+		$integration_a->update_metadata_prefix( 'AAA_' );
+		$integration_b->update_metadata_prefix( 'BBB_' );
+
+		$this->assertSame( 'AAA_', $integration_a->get_metadata_prefix() );
+		$this->assertSame( 'BBB_', $integration_b->get_metadata_prefix() );
+	}
+
+	/**
+	 * Test settings field value routing for metadata_prefix.
+	 */
+	public function test_settings_field_value_routes_metadata_prefix() {
+		$integration = new Sample_Integration( 'route-test', 'Route Test' );
+		$integration->init();
+
+		$this->assertTrue( $integration->update_settings_field_value( 'metadata_prefix', 'API_' ) );
+		$this->assertSame( 'API_', $integration->get_settings_field_value( 'metadata_prefix' ) );
+
+		// Verify it wrote to the dedicated option, not the generic settings option.
+		$this->assertSame( 'API_', get_option( 'newspack_integration_metadata_prefix_route-test' ) );
+		$this->assertFalse( get_option( 'newspack_integration_settings_route-test_metadata_prefix' ) );
+	}
+
+	/**
+	 * Test get_enabled_outgoing_fields_keys uses integration prefix when prefixed flag is true.
+	 */
+	public function test_get_enabled_outgoing_fields_keys_uses_integration_prefix() {
+		$integration = new Sample_Integration( 'keys-test', 'Keys Test' );
+		$integration->update_metadata_prefix( 'TEST_' );
+
+		$keys = $integration->get_enabled_outgoing_fields_keys( true );
+
+		$this->assertNotEmpty( $keys );
+		foreach ( $keys as $key ) {
+			$this->assertStringStartsWith( 'TEST_', $key, "Key '$key' should start with 'TEST_'" );
+		}
+	}
+
+	/**
+	 * Test get_settings_config includes metadata_prefix field with correct value.
+	 */
+	public function test_get_settings_config_includes_metadata_prefix() {
+		$integration = new Sample_Integration( 'config-test', 'Config Test' );
+		$integration->init();
+		$integration->update_metadata_prefix( 'CFG_' );
+
+		$config = $integration->get_settings_config();
+
+		$prefix_field = null;
+		foreach ( $config as $field ) {
+			if ( 'metadata_prefix' === $field['key'] ) {
+				$prefix_field = $field;
+				break;
+			}
+		}
+
+		$this->assertNotNull( $prefix_field, 'Settings config should contain a metadata_prefix field.' );
+		$this->assertSame( 'CFG_', $prefix_field['value'] );
+	}
+
+	/**
 	 * Test handle_ajax_pull processes data when called directly.
 	 */
 	public function test_handle_ajax_pull() {

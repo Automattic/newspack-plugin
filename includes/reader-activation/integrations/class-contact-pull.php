@@ -27,7 +27,7 @@ class Contact_Pull {
 	 *
 	 * @var int
 	 */
-	const PULL_INTERVAL = 30;
+	const PULL_INTERVAL = 300;
 
 	/**
 	 * Threshold in seconds (24 hours) for synchronous vs async pull.

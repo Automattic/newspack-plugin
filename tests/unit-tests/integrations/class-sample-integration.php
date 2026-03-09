@@ -23,7 +23,7 @@ class Sample_Integration extends Integration {
 	 */
 	public function register_settings_fields() {
 		// No settings fields for this test implementation.
-		$this->settings_fields = [];
+		return [];
 	}
 
 	/**
