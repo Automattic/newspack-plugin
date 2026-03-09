@@ -72,10 +72,10 @@ function SettingsField( { field, value, onChange } ) {
 				<div key={ key }>
 					<h3>{ label }</h3>
 					<Grid columns={ 3 } rowGap={ 16 }>
-						{ availableFields.map( ( fieldName, index ) => (
+						{ availableFields.map( fieldName => (
 							<CheckboxControl
 								className="newspack-checkbox-control"
-								key={ index }
+								key={ fieldName }
 								label={ fieldName.replace( ': ', '' ) }
 								checked={ selectedFields.includes( fieldName ) }
 								onChange={ checked => {

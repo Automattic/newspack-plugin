@@ -32,8 +32,7 @@ abstract class Integration {
 	/**
 	 * Option name prefix for storing all integration settings.
 	 *
-	 * @var strin
-	 * const SETTINGS_OPTION_PREFIX = 'newspack_integration_settings_';g
+	 * @var string
 	 */
 	const SETTINGS_OPTION_PREFIX = 'newspack_integration_settings_';
 
@@ -115,6 +114,15 @@ abstract class Integration {
 	}
 
 	/**
+	 * Initialize the integration, performing any necessary setup or validation.
+	 *
+	 * Currently only initializes settings fields, but can be extended by child classes for additional setup.
+	 */
+	public function init() {
+		$this->settings_fields = $this->register_settings_fields();
+	}
+
+	/**
 	 * Register settings fields for this integration.
 	 *
 	 * Child classes should override this method to define their settings fields.
@@ -155,15 +163,6 @@ abstract class Integration {
 	 * for each data event they need to handle.
 	 */
 	public function register_handlers() {}
-
-	/**
-	 * Initialize the integration, performing any necessary setup or validation.
-	 *
-	 * Currently only initializes settings fields, but can be extended by child classes for additional setup.
-	 */
-	public function init() {
-		$this->settings_fields = $this->register_settings_fields();
-	}
 
 	/**
 	 * Register a data event handler for this integration.
@@ -319,7 +318,7 @@ abstract class Integration {
 	 *
 	 * @return bool True if updated, false otherwise.
 	 */
-	public function update_enabled_incoming_fields( $fields ) {
+	public function update_incoming_fields( $fields ) {
 		return \update_option( self::INCOMING_FIELDS_OPTION_PREFIX . $this->id, $fields );
 	}
 
@@ -353,7 +352,7 @@ abstract class Integration {
 	}
 
 	/**
-	 * Get the raw (unprefixed) metadata keys enabled for outgoing sync.
+	 * Get the metadata keys enabled for outgoing sync.
 	 *
 	 * @param bool $prefixed Optional. Whether to return prefixed keys instead of raw keys. Default false.
 	 *
@@ -365,7 +364,7 @@ abstract class Integration {
 
 		foreach ( Sync\Metadata::get_keys() as $raw_key => $field_name ) {
 			if ( in_array( $field_name, $enabled_fields, true ) ) {
-				$keys[] = $prefixed ? $this->get_metadata_prefix() . $field_name : $raw_key;
+				$keys[] = $prefixed ? Sync\Metadata::get_key( $raw_kley ) : $raw_key;
 			}
 		}
 
@@ -484,7 +483,7 @@ abstract class Integration {
 			return $this->update_enabled_outgoing_fields( $sanitized );
 		}
 		if ( 'incoming_metadata_fields' === $key ) {
-			return $this->update_enabled_incoming_fields( $sanitized );
+			return $this->update_incoming_fields( $sanitized );
 		}
 
 		$option_name = self::SETTINGS_OPTION_PREFIX . $this->id . '_' . $key;

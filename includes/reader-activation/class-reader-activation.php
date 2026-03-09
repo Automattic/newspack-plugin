@@ -512,14 +512,7 @@ final class Reader_Activation {
 		if ( Audience_Integrations::is_enabled() ) {
 			$esp = Reader_Activation\Integrations::get_integration( 'esp' );
 			if ( $esp ) {
-				static $esp_keys = [
-					'mailchimp_audience_id',
-					'mailchimp_reader_default_status',
-					'active_campaign_master_list',
-					'constant_contact_list_id',
-					'sync_esp_delete',
-				];
-				if ( in_array( $key, $esp_keys, true ) ) {
+				if ( null !== self::get_esp_integration_setting( $key ) ) {
 					return $esp->update_settings_field_value( $key, $value );
 				}
 			}
