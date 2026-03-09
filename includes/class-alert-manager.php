@@ -102,11 +102,11 @@ class Alert_Manager {
 	 * Schedule the recurring pattern scan via Action Scheduler.
 	 */
 	public static function schedule_pattern_scan() {
-		if ( ! function_exists( 'as_has_scheduled_action' ) ) {
+		if ( ! function_exists( 'as_next_scheduled_action' ) ) {
 			return;
 		}
 
-		if ( as_has_scheduled_action( self::PATTERN_SCAN_HOOK ) ) {
+		if ( false !== as_next_scheduled_action( self::PATTERN_SCAN_HOOK ) ) {
 			return;
 		}
 
