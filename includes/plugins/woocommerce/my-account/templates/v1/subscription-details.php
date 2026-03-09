@@ -78,13 +78,15 @@ $is_group_member_subscription = class_exists( 'Newspack\\Group_Subscription' )
 		<?php
 		if ( $is_group_member_subscription ) :
 			$owner = get_user_by( 'id', $subscription->get_user_id() );
-			?>
-		<tr>
-			<td><?php esc_html_e( 'Subscription owner', 'newspack-plugin' ); ?></td>
-			<td>
-				<?php echo esc_html( $owner->display_name ); ?> (<a href="mailto:<?php echo esc_attr( sanitize_email( $owner->user_email ) ); ?>"><?php echo esc_html( sanitize_email( $owner->user_email ) ); ?></a>)
-			</td>
-		</tr>
+			if ( $owner ) :
+				?>
+				<tr>
+					<td><?php esc_html_e( 'Subscription owner', 'newspack-plugin' ); ?></td>
+					<td>
+						<?php echo esc_html( $owner->display_name ); ?> (<a href="mailto:<?php echo esc_attr( sanitize_email( $owner->user_email ) ); ?>"><?php echo esc_html( sanitize_email( $owner->user_email ) ); ?></a>)
+					</td>
+				</tr>
+			<?php endif; ?>
 		<?php else : ?>
 			<?php do_action( 'wcs_subscription_details_table_before_payment_method', $subscription ); ?>
 		<tr>
