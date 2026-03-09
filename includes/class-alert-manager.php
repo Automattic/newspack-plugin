@@ -227,25 +227,30 @@ class Alert_Manager {
 		$rules        = self::get_pattern_rules();
 		$now          = time();
 		$max_interval = 0;
-
 		foreach ( $rules as $rule ) {
 			if ( $rule['interval'] > $max_interval ) {
 				$max_interval = $rule['interval'];
 			}
+		}
 
+		// Pre-filter once using the widest interval.
+		$global_cutoff = $now - $max_interval;
+		$recent_log    = array_filter(
+			$log,
+			function ( $entry ) use ( $global_cutoff ) {
+				return $entry['timestamp'] >= $global_cutoff;
+			}
+		);
+
+		foreach ( $rules as $rule ) {
 			$cutoff = $now - $rule['interval'];
 
-			// Filter entries within the time window.
-			$recent = array_filter(
-				$log,
-				function ( $entry ) use ( $cutoff ) {
-					return $entry['timestamp'] >= $cutoff;
-				}
-			);
-
-			// Group by the rule's dimension.
+			// Group by the rule's dimension, skipping entries outside this rule's window.
 			$groups = [];
-			foreach ( $recent as $entry ) {
+			foreach ( $recent_log as $entry ) {
+				if ( $entry['timestamp'] < $cutoff ) {
+					continue;
+				}
 				$key = $entry[ $rule['group_by'] ] ?? null;
 				if ( ! is_scalar( $key ) || null === $key || '' === $key ) {
 					continue;
