@@ -129,14 +129,27 @@ class Alert_Manager {
 	 * @param array $payload Alert data from the exhaustion hook.
 	 */
 	private static function record_failure( $payload ) {
-		$log   = get_option( self::FAILURE_LOG_OPTION, [] );
-		$log[] = [
+		$log = get_option( self::FAILURE_LOG_OPTION, [] );
+
+		$record = [
 			'timestamp'      => time(),
 			'integration_id' => $payload['integration_id'] ?? null,
 			'contact_email'  => $payload['contact']['email'] ?? null,
 			'action_name'    => $payload['action_name'] ?? null,
 			'reason'         => $payload['reason'] ?? null,
 		];
+
+		/**
+		 * Filters the failure record before it is stored in the failure log.
+		 *
+		 * Useful for adding custom fields that a custom pattern rule can group by.
+		 *
+		 * @param array $record  The failure record to be stored.
+		 * @param array $payload The full payload from the exhaustion hook.
+		 */
+		$record = apply_filters( 'newspack_alert_failure_record', $record, $payload );
+
+		$log[] = $record;
 		update_option( self::FAILURE_LOG_OPTION, $log, false );
 	}
 

@@ -150,6 +150,43 @@ class Newspack_Test_Alert_Manager extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Test that the failure record is filterable.
+	 */
+	public function test_failure_record_is_filterable() {
+		delete_option( Alert_Manager::FAILURE_LOG_OPTION );
+
+		add_filter(
+			'newspack_alert_failure_record',
+			function ( $record, $payload ) {
+				$record['handler_name'] = is_array( $payload['handler'] ?? null )
+					? implode( '::', $payload['handler'] )
+					: ( $payload['handler'] ?? null );
+				return $record;
+			},
+			10,
+			2
+		);
+
+		do_action(
+			'newspack_data_event_retry_exhausted',
+			[
+				'handler'     => [ 'SomeClass', 'some_method' ],
+				'action_name' => 'reader_registered',
+				'data'        => [],
+				'retry_count' => 5,
+				'reason'      => 'Handler threw exception',
+			]
+		);
+
+		$log = get_option( Alert_Manager::FAILURE_LOG_OPTION, [] );
+		$this->assertCount( 1, $log );
+		$this->assertArrayHasKey( 'handler_name', $log[0] );
+		$this->assertEquals( 'SomeClass::some_method', $log[0]['handler_name'] );
+
+		remove_all_filters( 'newspack_alert_failure_record' );
+	}
+
+	/**
 	 * Test that data event retry exhaustion records a failure entry.
 	 */
 	public function test_data_event_exhaustion_records_failure() {
