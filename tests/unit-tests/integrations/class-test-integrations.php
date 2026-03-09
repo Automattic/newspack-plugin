@@ -318,36 +318,36 @@ class Test_Integrations extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * Test get_selected_fields returns empty array by default.
+	 * Test get_incoming_fields returns empty array by default.
 	 */
-	public function test_get_selected_fields_default_empty() {
+	public function test_get_incoming_fields_default_empty() {
 		$integration = new Sample_Integration( 'test-id', 'Test Integration' );
 
-		$this->assertSame( [], $integration->get_selected_fields() );
+		$this->assertSame( [], $integration->get_incoming_fields() );
 	}
 
 	/**
-	 * Test set_selected_fields and get_selected_fields round-trip.
+	 * Test set_incoming_fields and get_incoming_fields round-trip.
 	 */
-	public function test_set_and_get_selected_fields() {
+	public function test_set_and_get_incoming_fields() {
 		$integration = new Sample_Integration( 'test-id', 'Test Integration' );
 		$fields      = [ 'first_name', 'last_name', 'phone' ];
 
-		$integration->set_selected_fields( $fields );
+		$integration->set_incoming_fields( $fields );
 
-		$this->assertSame( $fields, $integration->get_selected_fields() );
+		$this->assertSame( $fields, $integration->get_incoming_fields() );
 	}
 
 	/**
-	 * Test set_selected_fields stores any keys without validation.
+	 * Test set_incoming_fields stores any keys without validation.
 	 */
-	public function test_set_selected_fields_stores_any_keys() {
+	public function test_set_incoming_fields_stores_any_keys() {
 		$integration = new Sample_Integration( 'test-id', 'Test Integration' );
 		$fields      = [ 'nonexistent_field', 'another_unknown' ];
 
-		$integration->set_selected_fields( $fields );
+		$integration->set_incoming_fields( $fields );
 
-		$this->assertSame( $fields, $integration->get_selected_fields() );
+		$this->assertSame( $fields, $integration->get_incoming_fields() );
 	}
 
 	/**
@@ -403,7 +403,7 @@ class Test_Integrations extends \WP_UnitTestCase {
 			}
 		};
 
-		$integration->set_selected_fields( [ 'favorite_color' ] );
+		$integration->set_incoming_fields( [ 'favorite_color' ] );
 		Integrations::register( $integration );
 		Integrations::enable( 'pull-test' );
 
@@ -422,7 +422,7 @@ class Test_Integrations extends \WP_UnitTestCase {
 	/**
 	 * Test sync pull filters returned data by selected fields only.
 	 */
-	public function test_sync_pull_filters_by_selected_fields() {
+	public function test_sync_pull_filters_by_incoming_fields() {
 		$user_id = $this->factory()->user->create();
 		wp_set_current_user( $user_id );
 
@@ -445,7 +445,7 @@ class Test_Integrations extends \WP_UnitTestCase {
 		};
 
 		// Only select fields a and c.
-		$integration->set_selected_fields( [ 'field_a', 'field_c' ] );
+		$integration->set_incoming_fields( [ 'field_a', 'field_c' ] );
 		Integrations::register( $integration );
 		Integrations::enable( 'filter-test' );
 
@@ -481,7 +481,7 @@ class Test_Integrations extends \WP_UnitTestCase {
 			}
 		};
 
-		$integration->set_selected_fields( [ 'some_field' ] );
+		$integration->set_incoming_fields( [ 'some_field' ] );
 		Integrations::register( $integration );
 		Integrations::enable( 'throw-test' );
 
@@ -516,7 +516,7 @@ class Test_Integrations extends \WP_UnitTestCase {
 			}
 		};
 
-		$integration->set_selected_fields( [ 'city' ] );
+		$integration->set_incoming_fields( [ 'city' ] );
 		Integrations::register( $integration );
 		Integrations::enable( 'async-test' );
 
@@ -554,7 +554,7 @@ class Test_Integrations extends \WP_UnitTestCase {
 			}
 		};
 
-		$integration->set_selected_fields( [ 'language' ] );
+		$integration->set_incoming_fields( [ 'language' ] );
 		Integrations::register( $integration );
 		Integrations::enable( 'handle-test' );
 
@@ -587,7 +587,7 @@ class Test_Integrations extends \WP_UnitTestCase {
 			}
 		};
 
-		$integration->set_selected_fields( [ 'pet' ] );
+		$integration->set_incoming_fields( [ 'pet' ] );
 		Integrations::register( $integration );
 		// Not enabled.
 
@@ -623,7 +623,7 @@ class Test_Integrations extends \WP_UnitTestCase {
 			}
 		};
 
-		$integration->set_selected_fields( [ 'first_field' ] );
+		$integration->set_incoming_fields( [ 'first_field' ] );
 		Integrations::register( $integration );
 		Integrations::enable( 'first-test' );
 
@@ -656,7 +656,7 @@ class Test_Integrations extends \WP_UnitTestCase {
 			}
 		};
 
-		$integration->set_selected_fields( [ 'timeout_field' ] );
+		$integration->set_incoming_fields( [ 'timeout_field' ] );
 		Integrations::register( $integration );
 		Integrations::enable( 'timeout-test' );
 
@@ -836,7 +836,7 @@ class Test_Integrations extends \WP_UnitTestCase {
 			}
 		};
 
-		$integration->set_selected_fields( [ 'ajax_field' ] );
+		$integration->set_incoming_fields( [ 'ajax_field' ] );
 		Integrations::register( $integration );
 		Integrations::enable( 'ajax-test' );
 

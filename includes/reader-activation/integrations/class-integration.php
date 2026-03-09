@@ -16,13 +16,6 @@ defined( 'ABSPATH' ) || exit;
  */
 abstract class Integration {
 	/**
-	 * Option name prefix for storing selected fields per integration.
-	 *
-	 * @var string
-	 */
-	const OPTION_PREFIX = 'newspack_integration_selected_fields_';
-
-	/**
 	 * Option name prefix for storing enabled incoming metadata fields per integration.
 	 *
 	 * @var string
@@ -252,12 +245,12 @@ abstract class Integration {
 	}
 
 	/**
-	 * Get the selected fields for this integration.
+	 * Get the enabled incoming metadata fields for this integration.
 	 *
-	 * @return array Array of selected field keys.
+	 * @return string[] List of enabled field names.
 	 */
-	public function get_selected_fields() {
-		return \get_option( self::OPTION_PREFIX . $this->id, [] );
+	public function get_incoming_fields() {
+		return \get_option( self::INCOMING_FIELDS_OPTION_PREFIX . $this->id, [] );
 	}
 
 	/**
@@ -266,17 +259,8 @@ abstract class Integration {
 	 * @param array $fields Array of field keys to store.
 	 * @return bool True if the option was updated, false otherwise.
 	 */
-	public function set_selected_fields( $fields ) {
-		return \update_option( self::OPTION_PREFIX . $this->id, array_values( $fields ) );
-	}
-
-	/**
-	 * Get the enabled incoming metadata fields for this integration.
-	 *
-	 * @return string[] List of enabled field names.
-	 */
-	public function get_enabled_incoming_fields() {
-		return \get_option( self::INCOMING_FIELDS_OPTION_PREFIX . $this->id, [] );
+	public function set_incoming_fields( $fields ) {
+		return \update_option( self::INCOMING_FIELDS_OPTION_PREFIX . $this->id, $fields );
 	}
 
 	/**
@@ -443,7 +427,7 @@ abstract class Integration {
 			return $this->get_enabled_outgoing_fields();
 		}
 		if ( 'incoming_metadata_fields' === $key ) {
-			return $this->get_enabled_incoming_fields();
+			return $this->get_incoming_fields();
 		}
 
 		$field = $this->get_settings_field_by_key( $key );
