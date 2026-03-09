@@ -333,9 +333,22 @@ class Alert_Manager {
 	 */
 	private static function format_interval( $seconds ) {
 		if ( $seconds >= 3600 ) {
-			return round( $seconds / 3600 ) . 'h';
+			$hours   = (int) floor( $seconds / 3600 );
+			$minutes = (int) floor( ( $seconds % 3600 ) / 60 );
+
+			if ( $minutes > 0 ) {
+				return $hours . 'h ' . $minutes . 'm';
+			}
+
+			return $hours . 'h';
 		}
-		return round( $seconds / 60 ) . 'm';
+
+		if ( $seconds >= 60 ) {
+			$minutes = (int) floor( $seconds / 60 );
+			return $minutes . 'm';
+		}
+
+		return (int) $seconds . 's';
 	}
 }
 Alert_Manager::init();
