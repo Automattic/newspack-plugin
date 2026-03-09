@@ -1,12 +1,12 @@
 # Author Social Links Block
 
-A Gutenberg block that displays the author's social media links and contact information as a row of icon links.
+A Gutenberg block that displays the author's social media links and contact information as a row of linked icons.
 
 ## Overview
 
-The Author Social Links block (`newspack/author-profile-social`) renders social media icons for the current author. It is designed exclusively as an inner block of the [Author Profile block](https://github.com/Automattic/newspack-blocks/tree/trunk/src/blocks/author-profile) and appears only in block themes that support nested layout mode.
+The Author Social Links block (`newspack/author-profile-social`) renders social media icons for the current author. It is designed exclusively as an inner block of the [Author Profile block](https://github.com/Automattic/newspack-blocks/tree/trunk/src/blocks/author-profile) and appears only in the nested layout mode of the block, available when using a block theme.
 
-Each social link is a separate [Author Social Link](../author-social-link/README.md) child block, allowing publishers to reorder or remove individual links.
+Each social link is a separate [Author Social Link](../author-social-link/) child block, allowing publishers to reorder or remove individual links.
 
 ## Block attributes
 
@@ -58,6 +58,6 @@ This block is only registered for the inserter in block themes. It requires the 
 
 ## Related
 
-- [Author Social Link Block](../author-social-link/README.md) - Child block for individual social icons.
+- [Author Social Link Block](../author-social-link/) - Child block for individual social icons.
 - [Author Profile Block](https://github.com/Automattic/newspack-blocks/tree/trunk/src/blocks/author-profile) - Parent block that provides author context.
 - [Social_Icons class](../../../includes/class-social-icons.php) - Backend SVG icon provider.

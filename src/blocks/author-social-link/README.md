@@ -4,7 +4,7 @@ A Gutenberg block that displays a single social media icon link for the author.
 
 ## Overview
 
-The Author Social Link block (`newspack/author-social-link`) renders a single social media or contact icon within the [Author Social Links](../author-profile-social/README.md) parent block. Each instance represents a specific service (e.g., Facebook, email, phone) and automatically resolves the URL and icon from the author's profile data.
+The Author Social Link block (`newspack/author-social-link`) renders a single social media or contact icon within the [Author Social Links](../author-profile-social/) parent block. Each instance represents a specific service (e.g., Facebook, email, phone) and automatically resolves the URL and icon from the author's profile data.
 
 ## Block attributes
 
@@ -67,6 +67,6 @@ This block requires the Author Social Links block as its parent ([`newspack/auth
 
 ## Related
 
-- [Author Social Links Block](../author-profile-social/README.md) - Parent block that manages the collection of social icons.
+- [Author Social Links Block](../author-profile-social/) - Parent block that manages the collection of social icons.
 - [Author Profile Block](https://github.com/Automattic/newspack-blocks/tree/trunk/src/blocks/author-profile) - Root block that provides author context.
 - [Social_Icons class](../../../includes/class-social-icons.php) - Backend SVG icon provider.
