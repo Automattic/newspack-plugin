@@ -97,10 +97,20 @@ class Alert_Manager {
 	 * Schedule the recurring pattern scan via WP-Cron.
 	 */
 	public static function schedule_pattern_scan() {
-		if ( wp_next_scheduled( self::PATTERN_SCAN_HOOK ) ) {
-			return;
+		register_deactivation_hook( NEWSPACK_PLUGIN_FILE, [ __CLASS__, 'deactivate_pattern_scan' ] );
+
+		if ( defined( 'NEWSPACK_CRON_DISABLE' ) && is_array( NEWSPACK_CRON_DISABLE ) && in_array( self::PATTERN_SCAN_HOOK, NEWSPACK_CRON_DISABLE, true ) ) {
+			self::deactivate_pattern_scan();
+		} elseif ( ! wp_next_scheduled( self::PATTERN_SCAN_HOOK ) ) {
+			wp_schedule_event( time(), 'hourly', self::PATTERN_SCAN_HOOK );
 		}
-		wp_schedule_event( time(), 'hourly', self::PATTERN_SCAN_HOOK );
+	}
+
+	/**
+	 * Deactivate the pattern scan cron job.
+	 */
+	public static function deactivate_pattern_scan() {
+		wp_clear_scheduled_hook( self::PATTERN_SCAN_HOOK );
 	}
 
 	/**
