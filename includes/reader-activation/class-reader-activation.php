@@ -431,6 +431,15 @@ final class Reader_Activation {
 		if ( ! isset( $config[ $name ] ) ) {
 			return null;
 		}
+
+		// When integration settings are enabled, route ESP settings to the integration.
+		if ( Audience_Integrations::is_enabled() ) {
+			$esp_setting = self::get_esp_integration_setting( $name );
+			if ( null !== $esp_setting ) {
+				return apply_filters( 'newspack_reader_activation_setting', $esp_setting, $name );
+			}
+		}
+
 		$value = \get_option( self::OPTIONS_PREFIX . $name, $config[ $name ] );
 
 		// Use default value type for casting bool option value.
@@ -438,6 +447,33 @@ final class Reader_Activation {
 			$value = (bool) $value;
 		}
 		return apply_filters( 'newspack_reader_activation_setting', $value, $name );
+	}
+
+	/**
+	 * Get an ESP setting value from the integration instance.
+	 *
+	 * @param string $name Setting name.
+	 * @return mixed|null The setting value, or null if this setting is not an ESP integration setting.
+	 */
+	private static function get_esp_integration_setting( $name ) {
+		static $esp_keys = [
+			'mailchimp_audience_id',
+			'mailchimp_reader_default_status',
+			'active_campaign_master_list',
+			'constant_contact_list_id',
+			'sync_esp_delete',
+		];
+
+		if ( ! in_array( $name, $esp_keys, true ) ) {
+			return null;
+		}
+
+		$esp = Reader_Activation\Integrations::get_integration( 'esp' );
+		if ( ! $esp ) {
+			return null;
+		}
+
+		return $esp->get_settings_field_value( $name );
 	}
 
 	/**
@@ -470,6 +506,23 @@ final class Reader_Activation {
 		}
 		if ( 'metadata_fields' === $key ) {
 			return Sync\Metadata::update_fields( $value );
+		}
+
+		// When integration settings are enabled, route ESP settings to the integration.
+		if ( Audience_Integrations::is_enabled() ) {
+			$esp = Reader_Activation\Integrations::get_integration( 'esp' );
+			if ( $esp ) {
+				static $esp_keys = [
+					'mailchimp_audience_id',
+					'mailchimp_reader_default_status',
+					'active_campaign_master_list',
+					'constant_contact_list_id',
+					'sync_esp_delete',
+				];
+				if ( in_array( $key, $esp_keys, true ) ) {
+					return $esp->update_settings_field_value( $key, $value );
+				}
+			}
 		}
 
 		return \update_option( self::OPTIONS_PREFIX . $key, $value );
