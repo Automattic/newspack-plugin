@@ -44,11 +44,10 @@ class ESP extends Integration {
 	 * @return array Array of settings field declarations.
 	 */
 	public function register_settings_fields() {
+		$fields = [];
 		if ( ! Audience_Integrations::is_enabled() || ! Reader_Activation::is_esp_configured() ) {
-			return;
+			return $fields;
 		}
-
-		$fields       = [];
 		$list_options = $this->get_list_options();
 		$provider     = $this->get_provider();
 		switch ( $provider ) {
@@ -114,8 +113,7 @@ class ESP extends Integration {
 			'description' => __( 'A string to prefix metadata fields attached to each contact synced to the ESP. Required to ensure that metadata field names are unique. Default: NP_', 'newspack-plugin' ),
 			'default'     => 'NP_',
 		];
-
-		$this->settings_fields = $fields;
+		return $fields;
 	}
 
 	/**

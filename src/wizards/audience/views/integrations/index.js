@@ -65,15 +65,12 @@ function SettingsField( { field, value, onChange } ) {
 					onChange={ onChange }
 				/>
 			);
-		case 'metadata': {
+		case 'outgoing_metadata': {
 			const availableFields = newspackAudienceIntegrations?.esp_metadata_fields || [];
 			const selectedFields = Array.isArray( value ) ? value : [];
 			return (
 				<div key={ key }>
-					<h3>{ __( 'Metadata fields', 'newspack-plugin' ) }</h3>
-					<p className="components-base-control__help">
-						{ __( 'Select which data to sync to the integration for each contact.', 'newspack-plugin' ) }
-					</p>
+					<h3>{ label }</h3>
 					<Grid columns={ 3 } rowGap={ 16 }>
 						{ availableFields.map( ( fieldName, index ) => (
 							<CheckboxControl
@@ -91,16 +88,14 @@ function SettingsField( { field, value, onChange } ) {
 				</div>
 			);
 		}
-		case 'custom_metadata':
+		case 'incoming_metadata':
 			return (
 				<div key={ key }>
-					<p className="components-base-control__help">
-						{ __( 'Select which data to sync from the integration for each contact.', 'newspack-plugin' ) }
-					</p>
+					<h3>{ label }</h3>
 					<Grid columns={ 1 } rowGap={ 16 }>
 						<FormTokenField
 							key={ key }
-							label={ __( 'Custom Metadata fields', 'newspack-plugin' ) }
+							label={ null }
 							description={ help }
 							value={ Array.isArray( value ) ? value : [] }
 							onChange={ onChange }

@@ -23,11 +23,26 @@ abstract class Integration {
 	const OPTION_PREFIX = 'newspack_integration_selected_fields_';
 
 	/**
+	 * Option name prefix for storing enabled incoming metadata fields per integration.
+	 *
+	 * @var string
+	 */
+	const INCOMING_FIELDS_OPTION_PREFIX = 'newspack_integration_incoming_fields_';
+
+	/**
 	 * Option name prefix for storing enabled outgoing metadata fields per integration.
 	 *
 	 * @var string
 	 */
 	const OUTGOING_FIELDS_OPTION_PREFIX = 'newspack_integration_outgoing_fields_';
+
+	/**
+	 * Option name prefix for storing all integration settings.
+	 *
+	 * @var strin
+	 * const SETTINGS_OPTION_PREFIX = 'newspack_integration_settings_';g
+	 */
+	const SETTINGS_OPTION_PREFIX = 'newspack_integration_settings_';
 
 	/**
 	 * The unique identifier for this integration.
@@ -51,13 +66,6 @@ abstract class Integration {
 	protected $description = '';
 
 	/**
-	 * Metadata fields for this integration.
-	 *
-	 * @var array
-	 */
-	protected $metadata_fields = [];
-
-	/**
 	 * Settings fields for this integration.
 	 *
 	 * @var array
@@ -75,9 +83,8 @@ abstract class Integration {
 		$this->id          = $id;
 		$this->name        = $name;
 		$this->description = $description;
-		$this->register_metadata_settings_fields();
-		// Register settings fields on init to ensure they're available when needed.
-		add_action( 'init', [ $this, 'register_settings_fields' ] );
+
+		add_action( 'init', [ $this, 'init' ] );
 	}
 
 	/**
@@ -108,28 +115,12 @@ abstract class Integration {
 	}
 
 	/**
-	 * Register metadata settings fields for this integration.
-	 */
-	public function register_metadata_settings_fields() {
-		$this->metadata_fields[] = [
-			'key'     => 'metadata_fields',
-			'type'    => 'metadata',
-			'label'   => __( 'Metadata fields', 'newspack-plugin' ),
-			'default' => [],
-		];
-		$this->metadata_fields[] = [
-			'key'     => 'custom_metadata_fields',
-			'type'    => 'custom_metadata',
-			'label'   => __( 'Custom metadata fields', 'newspack-plugin' ),
-			'default' => [],
-		];
-	}
-
-	/**
 	 * Register settings fields for this integration.
 	 *
 	 * Child classes should override this method to define their settings fields.
 	 * Each field should be an associative array with keys: key, label, type, default, options (for select), etc.
+	 *
+	 * @return array Array of settings field declarations.
 	 */
 	abstract public function register_settings_fields();
 
@@ -164,6 +155,15 @@ abstract class Integration {
 	 * for each data event they need to handle.
 	 */
 	public function register_handlers() {}
+
+	/**
+	 * Initialize the integration, performing any necessary setup or validation.
+	 *
+	 * Currently only initializes settings fields, but can be extended by child classes for additional setup.
+	 */
+	public function init() {
+		$this->settings_fields = $this->register_settings_fields();
+	}
 
 	/**
 	 * Register a data event handler for this integration.
@@ -257,7 +257,7 @@ abstract class Integration {
 	 * @return array Array of selected field keys.
 	 */
 	public function get_selected_fields() {
-		return $this->get_settings_field_value( 'custom_metadata_fields' );
+		return \get_option( self::OPTION_PREFIX . $this->id, [] );
 	}
 
 	/**
@@ -267,7 +267,16 @@ abstract class Integration {
 	 * @return bool True if the option was updated, false otherwise.
 	 */
 	public function set_selected_fields( $fields ) {
-		return $this->update_settings_field_value( 'custom_metadata_fields', $fields );
+		return \update_option( self::OPTION_PREFIX . $this->id, array_values( $fields ) );
+	}
+
+	/**
+	 * Get the enabled incoming metadata fields for this integration.
+	 *
+	 * @return string[] List of enabled field names.
+	 */
+	public function get_enabled_incoming_fields() {
+		return \get_option( self::INCOMING_FIELDS_OPTION_PREFIX . $this->id, [] );
 	}
 
 	/**
@@ -310,6 +319,17 @@ abstract class Integration {
 	 */
 	public function get_enabled_outgoing_fields() {
 		return array_values( \get_option( self::OUTGOING_FIELDS_OPTION_PREFIX . $this->id, Sync\Metadata::get_default_fields() ) );
+	}
+
+	/**
+	 * Update the enabled incoming metadata fields for this integration.
+	 *
+	 * @param array $fields List of field names to enable.
+	 *
+	 * @return bool True if updated, false otherwise.
+	 */
+	public function update_enabled_incoming_fields( $fields ) {
+		return \update_option( self::INCOMING_FIELDS_OPTION_PREFIX . $this->id, $fields );
 	}
 
 	/**
@@ -378,6 +398,28 @@ abstract class Integration {
 	}
 
 	/**
+	 * Get the metadata fields declared by this integration.
+	 *
+	 * @return array Array of settings field declarations.
+	 */
+	public function get_metadata_fields() {
+		return [
+			[
+				'key'     => 'outgoing_metadata_fields',
+				'type'    => 'outgoing_metadata',
+				'label'   => __( 'Outgoing metadata fields', 'newspack-plugin' ),
+				'default' => [],
+			],
+			[
+				'key'     => 'incoming_metadata_fields',
+				'type'    => 'incoming_metadata',
+				'label'   => __( 'Incoming metadata fields', 'newspack-plugin' ),
+				'default' => [],
+			],
+		];
+	}
+
+	/**
 	 * Get the settings fields declared by this integration.
 	 *
 	 * @return array Array of settings field declarations.
@@ -385,7 +427,7 @@ abstract class Integration {
 	public function get_settings_fields() {
 		return array_merge(
 			$this->settings_fields,
-			$this->metadata_fields
+			$this->get_metadata_fields()
 		);
 	}
 
@@ -396,6 +438,14 @@ abstract class Integration {
 	 * @return mixed The field value, or the default if not set.
 	 */
 	public function get_settings_field_value( $key ) {
+		// Route metadata fields to their dedicated getters.
+		if ( 'outgoing_metadata_fields' === $key ) {
+			return $this->get_enabled_outgoing_fields();
+		}
+		if ( 'incoming_metadata_fields' === $key ) {
+			return $this->get_enabled_incoming_fields();
+		}
+
 		$field = $this->get_settings_field_by_key( $key );
 		if ( ! $field ) {
 			return null;
@@ -417,7 +467,16 @@ abstract class Integration {
 		if ( ! $field ) {
 			return false;
 		}
-		$sanitized   = $this->sanitize_settings_field_value( $field, $value );
+		$sanitized = $this->sanitize_settings_field_value( $field, $value );
+
+		// Route metadata fields to their dedicated setters.
+		if ( 'outgoing_metadata_fields' === $key ) {
+			return $this->update_enabled_outgoing_fields( $sanitized );
+		}
+		if ( 'incoming_metadata_fields' === $key ) {
+			return $this->update_enabled_incoming_fields( $sanitized );
+		}
+
 		$option_name = self::SETTINGS_OPTION_PREFIX . $this->id . '_' . $key;
 		return \update_option( $option_name, $sanitized );
 	}
@@ -469,8 +528,8 @@ abstract class Integration {
 			case 'select':
 				$valid_values = array_column( $field['options'] ?? [], 'value' );
 				return in_array( $value, $valid_values, true ) ? $value : ( $field['default'] ?? '' );
-			case 'metadata':
-			case 'custom_metadata':
+			case 'outgoing_metadata':
+			case 'incoming_metadata':
 				if ( ! is_array( $value ) ) {
 					return $field['default'] ?? [];
 				}
