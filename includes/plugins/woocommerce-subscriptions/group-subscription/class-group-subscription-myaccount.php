@@ -148,12 +148,12 @@ class Group_Subscription_MyAccount {
 		}
 
 		// Non-manager group members get a view-only experience: no actions.
-		if ( $subscription->get_customer_id() !== $user_id && Group_Subscription::user_is_member( $user_id, $subscription ) ) {
+		if ( Group_Subscription::user_is_member( $user_id, $subscription ) ) {
 			return [];
 		}
 
 		// Managers (subscription owners) get a "Manage members" action.
-		if ( $subscription->get_customer_id() === $user_id && Group_Subscription::user_is_manager( $user_id, $subscription ) ) {
+		if ( Group_Subscription::user_is_manager( $user_id, $subscription ) ) {
 			$actions['manage_members'] = [
 				'url'  => self::get_manage_members_url( $subscription ),
 				'name' => __( 'Manage members', 'newspack-plugin' ),

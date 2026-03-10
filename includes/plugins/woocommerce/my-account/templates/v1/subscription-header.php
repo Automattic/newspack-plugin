@@ -193,9 +193,7 @@ if ( ! empty( $actions['change_payment_method']['name'] ) ) {
 	</div>
 </header>
 <?php
-$is_group_member_subscription = $is_group_subscription &&
-	Group_Subscription::user_is_member( get_current_user_id(), $subscription ) &&
-	! Group_Subscription::user_is_manager( get_current_user_id(), $subscription );
+$is_group_member_subscription = $is_group_subscription && Group_Subscription::user_is_member( get_current_user_id(), $subscription );
 
 if ( $is_group_member_subscription ) :
 	$owner = get_user_by( 'id', $subscription->get_user_id() );

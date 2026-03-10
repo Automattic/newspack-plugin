@@ -34,9 +34,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	<tbody>
 		<?php
 		foreach ( $subscriptions as $subscription_id => $subscription ) :
-			$is_group_member_subscription = Group_Subscription::is_group_subscription( $subscription )
-				&& Group_Subscription::user_is_member( get_current_user_id(), $subscription )
-				&& ! Group_Subscription::user_is_manager( get_current_user_id(), $subscription );
+			$is_group_member_subscription = Group_Subscription::is_group_subscription( $subscription ) && Group_Subscription::user_is_member( get_current_user_id(), $subscription );
 			?>
 		<tr class="order woocommerce-orders-table__row woocommerce-orders-table__row--status-<?php echo esc_attr( $subscription->get_status() ); ?>">
 			<td class="subscription-product-name woocommerce-orders-table__cell woocommerce-orders-table__cell-subscription-product-name woocommerce-orders-table__cell-order-product-name" data-title="<?php esc_attr_e( 'Product', 'newspack-plugin' ); ?>">
