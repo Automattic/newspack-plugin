@@ -146,7 +146,7 @@ final class Blocks {
 
 		// Load the block styles if we're on a post or page with a block from this plugin.
 		$post = get_post( get_the_ID() );
-		return $post && false !== strpos( $post->post_content, '"newspack/' );
+		return $post && false !== strpos( $post->post_content, 'wp:newspack/' );
 	}
 }
 Blocks::init();
