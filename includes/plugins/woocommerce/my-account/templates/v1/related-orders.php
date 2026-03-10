@@ -11,8 +11,7 @@ namespace Newspack;
 
 defined( 'ABSPATH' ) || exit;
 
-$is_group_member_subscription = class_exists( 'Newspack\\Group_Subscription' )
-	&& Group_Subscription::is_group_subscription( $subscription )
+$is_group_member_subscription = Group_Subscription::is_group_subscription( $subscription )
 	&& Group_Subscription::user_is_member( get_current_user_id(), $subscription )
 	&& ! Group_Subscription::user_is_manager( get_current_user_id(), $subscription );
 

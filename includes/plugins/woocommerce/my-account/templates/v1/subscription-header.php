@@ -18,8 +18,7 @@ defined( 'ABSPATH' ) || exit;
 $actions      = $args['actions'];
 $subscription = $args['subscription'];
 
-$is_group_subscription = class_exists( 'Newspack\\Group_Subscription' )
-	&& Group_Subscription::is_group_subscription( $subscription );
+$is_group_subscription = Group_Subscription::is_group_subscription( $subscription );
 
 // Ensure the cancel action is shown last.
 if ( ! empty( $actions['cancel'] ) ) {
