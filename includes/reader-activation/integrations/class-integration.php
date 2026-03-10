@@ -238,7 +238,11 @@ abstract class Integration {
 		if ( is_wp_error( $errors ) && $errors->has_errors() ) {
 			return $errors;
 		}
-		$connection = $this->test_connection();
+		try {
+			$connection = $this->test_connection();
+		} catch ( \Throwable $e ) {
+			return new \WP_Error( 'newspack_integration_connection_error', $e->getMessage() );
+		}
 		if ( is_wp_error( $connection ) ) {
 			return $connection;
 		}

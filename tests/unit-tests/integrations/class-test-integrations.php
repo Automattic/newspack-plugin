@@ -795,6 +795,29 @@ class Test_Integrations extends \WP_UnitTestCase {
 	}
 
 	/**
+	 * Test health_check catches Throwable from test_connection and returns WP_Error.
+	 */
+	public function test_health_check_catches_throwable_from_test_connection() {
+		$integration = new class( 'throw-conn', 'Throw Conn' ) extends Sample_Integration {
+			/**
+			 * Simulate a fatal error during connection test.
+			 *
+			 * @throws \RuntimeException Always.
+			 */
+			public function test_connection() {
+				throw new \RuntimeException( 'Fatal: something exploded' );
+			}
+		};
+		Integrations::register( $integration );
+
+		$result = $integration->health_check();
+
+		$this->assertWPError( $result );
+		$this->assertEquals( 'newspack_integration_connection_error', $result->get_error_code() );
+		$this->assertEquals( 'Fatal: something exploded', $result->get_error_message() );
+	}
+
+	/**
 	 * Test handle_ajax_pull processes data when called directly.
 	 */
 	public function test_handle_ajax_pull() {
