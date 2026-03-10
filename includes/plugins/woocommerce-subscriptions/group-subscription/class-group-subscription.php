@@ -174,7 +174,7 @@ class Group_Subscription {
 		/**
 		 * Filter whether a user is a member (not manager) of a group subscription.
 		 *
-		 * @param bool|null $is_member Whether the user is a member of the group subscription, or null if not a group subscription.
+		 * @param bool $is_member Whether the user is a member of the group subscription.
 		 * @param int $user_id The user ID.
 		 * @param \WC_Subscription|int $subscription The subscription object or ID.
 		 */
@@ -199,7 +199,7 @@ class Group_Subscription {
 		/**
 		 * Filter whether a user is a manager of a group subscription.
 		 *
-		 * @param bool|null $is_manager Whether the user is a manager of the group subscription, or null if not a group subscription.
+		 * @param bool $is_manager Whether the user is a manager of the group subscription.
 		 * @param int $user_id The user ID.
 		 * @param \WC_Subscription|int $subscription The subscription object or ID.
 		 */
