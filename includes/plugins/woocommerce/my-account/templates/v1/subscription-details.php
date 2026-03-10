@@ -83,7 +83,11 @@ $is_group_member_subscription = class_exists( 'Newspack\\Group_Subscription' )
 				<tr>
 					<td><?php esc_html_e( 'Subscription owner', 'newspack-plugin' ); ?></td>
 					<td>
-						<?php echo esc_html( $owner->display_name ); ?> (<a href="mailto:<?php echo esc_attr( sanitize_email( $owner->user_email ) ); ?>"><?php echo esc_html( sanitize_email( $owner->user_email ) ); ?></a>)
+						<?php
+						echo wp_kses_post(
+							'<a href="mailto:' . esc_attr( sanitize_email( $owner->user_email ) ) . '">' . esc_html( $owner->display_name ? $owner->display_name : $owner->user_email ) . '</a>'
+						);
+						?>
 					</td>
 				</tr>
 			<?php endif; ?>
@@ -101,10 +105,6 @@ $is_group_member_subscription = class_exists( 'Newspack\\Group_Subscription' )
 		<?php do_action( 'woocommerce_subscription_after_actions', $subscription ); ?>
 	</tbody>
 </table>
-
-<?php if ( $is_group_member_subscription ) : ?>
-	<p><?php esc_html_e( 'You are a member of this group subscription. It is managed by the subscription owner above.', 'newspack-plugin' ); ?></p>
-<?php endif; ?>
 
 <?php
 $notes = ! $is_group_member_subscription ? $subscription->get_customer_order_notes() : false;
