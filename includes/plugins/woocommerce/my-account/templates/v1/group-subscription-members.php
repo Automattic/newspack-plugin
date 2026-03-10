@@ -246,7 +246,6 @@ $is_at_limit          = $member_limit > 0 && ( count( $members ) + count( $pendi
 							<p>
 								<?php esc_html_e( 'You have reached the member limit for this group subscription. Please remove some members or cancel pending invitations before inviting more group members.', 'newspack-plugin' ); ?>
 							</p>
-						<button type="button" class="newspack-ui__button newspack-ui__button--ghost newspack-ui__button--wide newspack-ui__modal__close"><?php esc_html_e( 'Cancel', 'newspack-plugin' ); ?></button>
 						<?php else : ?>
 							<p><?php esc_html_e( 'Enter an email address to invite a new member to this group subscription.', 'newspack-plugin' ); ?></p>
 							<p>
@@ -254,7 +253,7 @@ $is_at_limit          = $member_limit > 0 && ( count( $members ) + count( $pendi
 							</p>
 
 							<button class="newspack-ui__button newspack-ui__button--primary newspack-ui__button--wide"><?php esc_html_e( 'Invite', 'newspack-plugin' ); ?></button>
-							<button type="button" class="newspack-ui__button newspack-ui__button--secondary newspack-ui__button--wide newspack-ui__modal__close"><?php esc_html_e( 'Cancel', 'newspack-plugin' ); ?></button>
+							<button type="button" class="newspack-ui__button newspack-ui__button--ghost newspack-ui__button--wide newspack-ui__modal__close"><?php esc_html_e( 'Cancel', 'newspack-plugin' ); ?></button>
 						<?php endif; ?>
 					</form>
 				</section>
