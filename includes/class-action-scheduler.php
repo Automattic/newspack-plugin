@@ -115,18 +115,14 @@ class Action_Scheduler {
 		$prepare_args[] = absint( $args['per_page'] );
 		$prepare_args[] = absint( $args['offset'] );
 
-		// Table names are built from $wpdb->prefix + hardcoded strings, safe for interpolation.
-		// $orderby and $order are validated via allowlist/ternary above.
-		$query = $wpdb->prepare( // phpcs:ignore WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
-			"SELECT a.* FROM {$actions_table} a " . // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-			"INNER JOIN {$groups_table} g ON a.group_id = g.group_id " . // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-			"WHERE g.slug IN ({$slug_placeholders}) " . // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
-			"{$status_clause}" . // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-			"ORDER BY a.{$orderby} {$order} " . // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-			'LIMIT %d OFFSET %d',
-			...$prepare_args
-		);
+		// Table names: $wpdb->prefix + hardcoded strings. $orderby/$order: allowlist/ternary validated.
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$sql = "SELECT a.* FROM {$actions_table} a INNER JOIN {$groups_table} g ON a.group_id = g.group_id WHERE g.slug IN ({$slug_placeholders}) {$status_clause}ORDER BY a.{$orderby} {$order} LIMIT %d OFFSET %d";
 
-		return $wpdb->get_results( $query ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
+		$query = $wpdb->prepare( $sql, ...$prepare_args );
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared
+		return $wpdb->get_results( $query );
 	}
 }
