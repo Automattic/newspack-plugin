@@ -68,11 +68,6 @@ class Integrations {
 	const ACTION_GROUP_PREFIX = 'newspack-';
 
 	/**
-	 * Default ActionScheduler group for non-integration actions.
-	 */
-	const DEFAULT_ACTION_GROUP = 'newspack';
-
-	/**
 	 * Get the ActionScheduler group name for a specific integration.
 	 *
 	 * @param string $integration_id The integration ID.
@@ -100,7 +95,7 @@ class Integrations {
 		if ( isset( self::$handler_map[ $key ] ) ) {
 			return self::get_action_group( self::$handler_map[ $key ]['integration_id'] );
 		}
-		return self::DEFAULT_ACTION_GROUP;
+		return null;
 	}
 
 	/**
@@ -116,7 +111,7 @@ class Integrations {
 	 * @return string The filtered group name.
 	 */
 	public static function filter_handler_action_group( $group, $class, $action_name ) {
-		return self::get_action_group_for_handler( $class, $action_name );
+		return self::get_action_group_for_handler( $class, $action_name ) ?? $group;
 	}
 
 	/**

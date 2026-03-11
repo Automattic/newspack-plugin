@@ -878,7 +878,7 @@ class Test_Integrations extends \WP_UnitTestCase {
 	 */
 	public function test_get_action_group_for_handler_fallback() {
 		$group = Integrations::get_action_group_for_handler( 'NonExistent', 'unknown_action' );
-		$this->assertSame( 'newspack', $group );
+		$this->assertNull( $group );
 	}
 
 	/**
