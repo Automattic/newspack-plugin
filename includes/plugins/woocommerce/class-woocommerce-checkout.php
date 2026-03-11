@@ -1,6 +1,6 @@
 <?php
 /**
- * Extensions for WooCommerce products.
+ * WooCommerce Checkout features.
  *
  * @package Newspack
  */
@@ -27,7 +27,7 @@ class WooCommerce_Checkout {
 	 */
 	public static function newspack_payment_heading() {
 		?>
-		<h3><?php esc_html_e( 'Payment info', 'newspack-theme' ); ?></h3>
+		<h3><?php esc_html_e( 'Payment info', 'newspack-plugin' ); ?></h3>
 		<?php
 	}
 }
