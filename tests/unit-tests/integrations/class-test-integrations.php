@@ -874,7 +874,7 @@ class Test_Integrations extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * Test get_action_group_for_handler falls back to 'newspack' for unknown handler.
+	 * Test get_action_group_for_handler returns null for unknown handler.
 	 */
 	public function test_get_action_group_for_handler_fallback() {
 		$group = Integrations::get_action_group_for_handler( 'NonExistent', 'unknown_action' );
