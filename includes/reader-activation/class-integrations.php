@@ -104,6 +104,22 @@ class Integrations {
 	}
 
 	/**
+	 * Filter the ActionScheduler group for a data event handler.
+	 *
+	 * Hooked to 'newspack_data_events_handler_action_group' to assign
+	 * integration-specific groups to handlers registered through integrations.
+	 *
+	 * @param string $group       The default group name.
+	 * @param string $class       The handler class name.
+	 * @param string $action_name The data event action name.
+	 *
+	 * @return string The filtered group name.
+	 */
+	public static function filter_handler_action_group( $group, $class, $action_name ) {
+		return self::get_action_group_for_handler( $class, $action_name );
+	}
+
+	/**
 	 * Get all ActionScheduler group slugs for Newspack integrations.
 	 *
 	 * Queries the actionscheduler_groups table for slugs matching
@@ -216,6 +232,7 @@ class Integrations {
 		add_action( 'init', [ __CLASS__, 'register_integrations' ], 5 );
 		add_action( 'init', [ __CLASS__, 'schedule_health_check' ] );
 		add_action( self::HEALTH_CHECK_CRON_HOOK, [ __CLASS__, 'run_health_checks' ] );
+		add_filter( 'newspack_data_events_handler_action_group', [ __CLASS__, 'filter_handler_action_group' ], 10, 3 );
 
 		Integrations\Contact_Pull::init();
 	}

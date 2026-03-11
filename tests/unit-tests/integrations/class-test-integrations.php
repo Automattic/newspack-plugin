@@ -880,4 +880,27 @@ class Test_Integrations extends \WP_UnitTestCase {
 		$group = Integrations::get_action_group_for_handler( 'NonExistent', 'unknown_action' );
 		$this->assertSame( 'newspack', $group );
 	}
+
+	/**
+	 * Test Data_Events::get_handler_action_group returns 'newspack' by default.
+	 */
+	public function test_data_events_get_handler_action_group_default() {
+		$group = Data_Events::get_handler_action_group( 'SomeClass', 'some_action' );
+		$this->assertSame( 'newspack', $group );
+	}
+
+	/**
+	 * Test Data_Events::get_handler_action_group is filtered by Integrations.
+	 */
+	public function test_data_events_get_handler_action_group_filtered() {
+		$action_name = 'test_filtered_group_event';
+		Data_Events::register_action( $action_name );
+
+		$integration = new Sample_Integration( 'filtered-id', 'Filtered' );
+		Integrations::register( $integration );
+		$integration->test_register_handler( $action_name, 'handle_test_event' );
+
+		$group = Data_Events::get_handler_action_group( Sample_Integration::class, $action_name );
+		$this->assertSame( 'newspack-filtered-id', $group );
+	}
 }

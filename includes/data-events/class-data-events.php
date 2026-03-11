@@ -625,6 +625,28 @@ final class Data_Events {
 	}
 
 	/**
+	 * Get the ActionScheduler group for a handler.
+	 *
+	 * Returns a filterable default of 'newspack'. Integrations or other
+	 * systems can filter this to assign handlers to specific groups.
+	 *
+	 * @param string $class       The handler class name.
+	 * @param string $action_name The data event action name.
+	 *
+	 * @return string The ActionScheduler group name.
+	 */
+	public static function get_handler_action_group( $class, $action_name ) {
+		/**
+		 * Filters the ActionScheduler group for a data event handler.
+		 *
+		 * @param string $group       The group name. Default 'newspack'.
+		 * @param string $class       The handler class name.
+		 * @param string $action_name The data event action name.
+		 */
+		return \apply_filters( 'newspack_data_events_handler_action_group', 'newspack', $class, $action_name );
+	}
+
+	/**
 	 * Dispatch queued events via Action Scheduler.
 	 *
 	 * Each dispatch is scheduled as an individual AS action for independent
@@ -810,7 +832,7 @@ final class Data_Events {
 			'reason'      => $error->getMessage(),
 		];
 
-		$group = \Newspack\Reader_Activation\Integrations::get_action_group_for_handler(
+		$group = self::get_handler_action_group(
 			is_array( $handler ) ? $handler[0] : '',
 			$action_name
 		);
