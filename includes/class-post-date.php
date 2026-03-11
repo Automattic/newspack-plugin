@@ -260,14 +260,14 @@ class Post_Date {
 		}
 
 		$handle = 'newspack-relative-time';
-		$path   = NEWSPACK_ABSPATH . 'dist/other-scripts/relative-time/index.js';
-		$url    = plugins_url( 'dist/other-scripts/relative-time/index.js', NEWSPACK_PLUGIN_FILE );
+		$path   = NEWSPACK_ABSPATH . 'dist/other-scripts/relative-time.js';
+		$url    = plugins_url( 'dist/other-scripts/relative-time.js', NEWSPACK_PLUGIN_FILE );
 
 		if ( ! file_exists( $path ) ) {
 			return;
 		}
 
-		$asset = include NEWSPACK_ABSPATH . 'dist/other-scripts/relative-time/index.asset.php';
+		$asset = include NEWSPACK_ABSPATH . 'dist/other-scripts/relative-time.asset.php';
 
 		wp_enqueue_script( $handle, $url, $asset['dependencies'] ?? [], $asset['version'] ?? false, true );
 		wp_localize_script(
@@ -293,14 +293,14 @@ class Post_Date {
 		$post_types = apply_filters( 'newspack_updated_date_supported_post_types', [ 'post' ] );
 
 		$handle = 'newspack-post-date-editor';
-		$path   = NEWSPACK_ABSPATH . 'dist/other-scripts/post-date-editor/index.js';
-		$url    = plugins_url( 'dist/other-scripts/post-date-editor/index.js', NEWSPACK_PLUGIN_FILE );
+		$path   = NEWSPACK_ABSPATH . 'dist/other-scripts/post-date-editor.js';
+		$url    = plugins_url( 'dist/other-scripts/post-date-editor.js', NEWSPACK_PLUGIN_FILE );
 
 		if ( ! file_exists( $path ) ) {
 			return;
 		}
 
-		$asset = include NEWSPACK_ABSPATH . 'dist/other-scripts/post-date-editor/index.asset.php';
+		$asset = include NEWSPACK_ABSPATH . 'dist/other-scripts/post-date-editor.asset.php';
 
 		wp_enqueue_script( $handle, $url, $asset['dependencies'] ?? [], $asset['version'] ?? false, true );
 		wp_localize_script(
