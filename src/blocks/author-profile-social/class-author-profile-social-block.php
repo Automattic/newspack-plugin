@@ -289,6 +289,19 @@ final class Author_Profile_Social_Block {
 	 */
 	private static function get_wrapper_style( array $attributes, int $icon_size ): string {
 		$parts    = [];
+		$style = $attributes['style'] ?? null;
+		
+		...
+		
+		if ( ! empty( $style ) && is_array( $style ) ) {
+			$styles = wp_style_engine_get_styles(
+				$style,
+				[ 'context' => 'block-supports' ]
+			);
+			if ( ! empty( $styles['css'] ) ) {
+				$parts[] = $styles['css'];
+			}
+		}
 		$is_brand = ! empty( $attributes['className'] ) && str_contains( $attributes['className'], 'is-style-brand' );
 		$gap      = self::resolve_block_gap( $attributes );
 
