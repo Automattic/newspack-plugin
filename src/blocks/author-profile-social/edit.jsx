@@ -100,8 +100,8 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 
 	// Hide color panel when "Brand" is active; rename labels when "Default".
 	useEffect( () => {
-		const inspector = document.querySelector( '.block-editor-block-inspector' );
-		if ( ! inspector ) {
+		const sidebar = document.querySelector( '.interface-complementary-area' );
+		if ( ! sidebar ) {
 			return;
 		}
 
@@ -131,23 +131,13 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 			} );
 		};
 
-		updateColorPanel( inspector );
+		updateColorPanel( sidebar );
 
-		const inspectorObserver = new MutationObserver( () => updateColorPanel( inspector ) );
-		inspectorObserver.observe( inspector, { childList: true, subtree: true } );
+		const observer = new MutationObserver( () => updateColorPanel( sidebar ) );
+		observer.observe( sidebar, { childList: true, subtree: true } );
 
-		const bodyObserver = new MutationObserver( () => {
-			if ( ! isBrand ) {
-				updateColorPanel( document.body );
-			}
-		} );
-		bodyObserver.observe( document.body, { childList: true, subtree: true } );
-
-		return () => {
-			inspectorObserver.disconnect();
-			bodyObserver.disconnect();
-		};
-	} );
+		return () => observer.disconnect();
+	}, [ isBrand ] );
 	const gapVars = resolveBlockGap( styleAttr?.spacing?.blockGap );
 
 	const rawProps = stripColorFromBlockProps( useBlockProps( { className: 'wp-block-newspack-author-profile-social' } ) );
