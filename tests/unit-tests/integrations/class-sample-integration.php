@@ -97,9 +97,11 @@ class Sample_Integration extends Integration {
 	 * This method should be implemented by child classes to return
 	 * an array of available contact fields from their integration.
 	 *
+	 * @param bool $filtered Whether to return only filtered fields.
+	 *
 	 * @return Integrations\Incoming_Contact_Field[]|\WP_Error Array of incoming contact field objects or WP_Error on failure.
 	 */
-	public function get_available_incoming_contact_fields() {
+	public function get_available_incoming_contact_fields( $filtered = false ) {
 		return [];
 	}
 }

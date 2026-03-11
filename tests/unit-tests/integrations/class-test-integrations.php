@@ -323,19 +323,19 @@ class Test_Integrations extends \WP_UnitTestCase {
 	public function test_get_incoming_fields_default_empty() {
 		$integration = new Sample_Integration( 'test-id', 'Test Integration' );
 
-		$this->assertSame( [], $integration->get_incoming_fields() );
+		$this->assertSame( [], $integration->get_enabled_incoming_fields() );
 	}
 
 	/**
 	 * Test update_incoming_fields and get_incoming_fields round-trip.
 	 */
-	public function test_set_and_get_incoming_fields() {
+	public function test_set_and_get_enabled_incoming_fields() {
 		$integration = new Sample_Integration( 'test-id', 'Test Integration' );
 		$fields      = [ 'first_name', 'last_name', 'phone' ];
 
-		$integration->update_incoming_fields( $fields );
+		$integration->update_enabled_incoming_fields( $fields );
 
-		$this->assertSame( $fields, $integration->get_incoming_fields() );
+		$this->assertSame( $fields, $integration->get_enabled_incoming_fields() );
 	}
 
 	/**
@@ -345,9 +345,9 @@ class Test_Integrations extends \WP_UnitTestCase {
 		$integration = new Sample_Integration( 'test-id', 'Test Integration' );
 		$fields      = [ 'nonexistent_field', 'another_unknown' ];
 
-		$integration->update_incoming_fields( $fields );
+		$integration->update_enabled_incoming_fields( $fields );
 
-		$this->assertSame( $fields, $integration->get_incoming_fields() );
+		$this->assertSame( $fields, $integration->get_enabled_incoming_fields() );
 	}
 
 	/**
@@ -403,7 +403,7 @@ class Test_Integrations extends \WP_UnitTestCase {
 			}
 		};
 
-		$integration->update_incoming_fields( [ 'favorite_color' ] );
+		$integration->update_enabled_incoming_fields( [ 'favorite_color' ] );
 		Integrations::register( $integration );
 		Integrations::enable( 'pull-test' );
 
@@ -445,7 +445,7 @@ class Test_Integrations extends \WP_UnitTestCase {
 		};
 
 		// Only select fields a and c.
-		$integration->update_incoming_fields( [ 'field_a', 'field_c' ] );
+		$integration->update_enabled_incoming_fields( [ 'field_a', 'field_c' ] );
 		Integrations::register( $integration );
 		Integrations::enable( 'filter-test' );
 
@@ -481,7 +481,7 @@ class Test_Integrations extends \WP_UnitTestCase {
 			}
 		};
 
-		$integration->update_incoming_fields( [ 'some_field' ] );
+		$integration->update_enabled_incoming_fields( [ 'some_field' ] );
 		Integrations::register( $integration );
 		Integrations::enable( 'throw-test' );
 
@@ -516,7 +516,7 @@ class Test_Integrations extends \WP_UnitTestCase {
 			}
 		};
 
-		$integration->update_incoming_fields( [ 'city' ] );
+		$integration->update_enabled_incoming_fields( [ 'city' ] );
 		Integrations::register( $integration );
 		Integrations::enable( 'async-test' );
 
@@ -554,7 +554,7 @@ class Test_Integrations extends \WP_UnitTestCase {
 			}
 		};
 
-		$integration->update_incoming_fields( [ 'language' ] );
+		$integration->update_enabled_incoming_fields( [ 'language' ] );
 		Integrations::register( $integration );
 		Integrations::enable( 'handle-test' );
 
@@ -587,7 +587,7 @@ class Test_Integrations extends \WP_UnitTestCase {
 			}
 		};
 
-		$integration->update_incoming_fields( [ 'pet' ] );
+		$integration->update_enabled_incoming_fields( [ 'pet' ] );
 		Integrations::register( $integration );
 		// Not enabled.
 
@@ -623,7 +623,7 @@ class Test_Integrations extends \WP_UnitTestCase {
 			}
 		};
 
-		$integration->update_incoming_fields( [ 'first_field' ] );
+		$integration->update_enabled_incoming_fields( [ 'first_field' ] );
 		Integrations::register( $integration );
 		Integrations::enable( 'first-test' );
 
@@ -656,7 +656,7 @@ class Test_Integrations extends \WP_UnitTestCase {
 			}
 		};
 
-		$integration->update_incoming_fields( [ 'timeout_field' ] );
+		$integration->update_enabled_incoming_fields( [ 'timeout_field' ] );
 		Integrations::register( $integration );
 		Integrations::enable( 'timeout-test' );
 
@@ -935,7 +935,7 @@ class Test_Integrations extends \WP_UnitTestCase {
 			}
 		};
 
-		$integration->update_incoming_fields( [ 'ajax_field' ] );
+		$integration->update_enabled_incoming_fields( [ 'ajax_field' ] );
 		Integrations::register( $integration );
 		Integrations::enable( 'ajax-test' );
 

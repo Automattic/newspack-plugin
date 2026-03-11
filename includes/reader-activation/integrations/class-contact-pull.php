@@ -144,7 +144,7 @@ class Contact_Pull {
 		$failed = [];
 
 		foreach ( $integrations as $id => $integration ) {
-			$selected_fields = $integration->get_incoming_fields();
+			$selected_fields = $integration->get_enabled_incoming_fields();
 			if ( empty( $selected_fields ) ) {
 				continue;
 			}
@@ -235,7 +235,7 @@ class Contact_Pull {
 	 * @return true|\WP_Error True on success, WP_Error on failure.
 	 */
 	public static function pull_single_integration( $user_id, $integration ) {
-		$selected_fields = $integration->get_incoming_fields();
+		$selected_fields = $integration->get_enabled_incoming_fields();
 		if ( empty( $selected_fields ) ) {
 			return new \WP_Error( 'no_selected_incoming_fields', 'No selected incoming fields for ' . $integration->get_id() );
 		}
@@ -275,7 +275,7 @@ class Contact_Pull {
 		}
 
 		foreach ( $integrations as $integration ) {
-			$selected_fields = $integration->get_incoming_fields();
+			$selected_fields = $integration->get_enabled_incoming_fields();
 			if ( empty( $selected_fields ) ) {
 				continue;
 			}
