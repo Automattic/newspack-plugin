@@ -81,42 +81,37 @@ class Action_Scheduler {
 			return [];
 		}
 
-		// Get group IDs from slugs.
-		$groups_table      = $wpdb->prefix . 'actionscheduler_groups';
-		$slug_placeholders = implode( ',', array_fill( 0, count( $slugs ), '%s' ) );
-		$group_ids         = $wpdb->get_col( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-			$wpdb->prepare(
-				"SELECT group_id FROM {$groups_table} WHERE slug IN ({$slug_placeholders})", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
-				...$slugs
-			)
-		);
-
-		if ( empty( $group_ids ) ) {
-			return [];
-		}
-
-		// Query actions.
-		$actions_table   = $wpdb->prefix . 'actionscheduler_actions';
-		$id_placeholders = implode( ',', array_fill( 0, count( $group_ids ), '%d' ) );
-
-		$where = $wpdb->prepare(
-			"WHERE group_id IN ({$id_placeholders})", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
-			...array_map( 'absint', $group_ids )
-		);
-
-		if ( ! empty( $args['status'] ) ) {
-			$where .= $wpdb->prepare( ' AND status = %s', $args['status'] );
-		}
-
 		$allowed_orderby = [ 'scheduled_date_gmt', 'action_id', 'hook', 'status' ];
 		$orderby         = in_array( $args['orderby'], $allowed_orderby, true ) ? $args['orderby'] : 'scheduled_date_gmt';
 		$order           = 'ASC' === strtoupper( $args['order'] ) ? 'ASC' : 'DESC';
 
-		$limit  = absint( $args['per_page'] );
-		$offset = absint( $args['offset'] );
+		$actions_table     = $wpdb->prefix . 'actionscheduler_actions';
+		$groups_table      = $wpdb->prefix . 'actionscheduler_groups';
+		$slug_placeholders = implode( ',', array_fill( 0, count( $slugs ), '%s' ) );
+		$prepare_args      = $slugs;
 
-		return $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-			"SELECT * FROM {$actions_table} {$where} ORDER BY {$orderby} {$order} LIMIT {$limit} OFFSET {$offset}" // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		// Build optional status filter.
+		$status_clause = '';
+		if ( ! empty( $args['status'] ) ) {
+			$status_clause  = 'AND a.status = %s ';
+			$prepare_args[] = $args['status'];
+		}
+
+		$prepare_args[] = absint( $args['per_page'] );
+		$prepare_args[] = absint( $args['offset'] );
+
+		// Table names are built from $wpdb->prefix + hardcoded strings, safe for interpolation.
+		// $orderby and $order are validated via allowlist/ternary above.
+		$query = $wpdb->prepare( // phpcs:ignore WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
+			"SELECT a.* FROM {$actions_table} a " . // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+			"INNER JOIN {$groups_table} g ON a.group_id = g.group_id " . // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+			"WHERE g.slug IN ({$slug_placeholders}) " . // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
+			"{$status_clause}" . // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+			"ORDER BY a.{$orderby} {$order} " . // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+			'LIMIT %d OFFSET %d',
+			...$prepare_args
 		);
+
+		return $wpdb->get_results( $query ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared
 	}
 }
