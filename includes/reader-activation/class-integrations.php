@@ -63,6 +63,67 @@ class Integrations {
 	const OPTION_NAME = 'newspack_reader_activation_enabled_integrations';
 
 	/**
+	 * ActionScheduler group prefix for integration-specific actions.
+	 */
+	const ACTION_GROUP_PREFIX = 'newspack-';
+
+	/**
+	 * Default ActionScheduler group for non-integration actions.
+	 */
+	const DEFAULT_ACTION_GROUP = 'newspack';
+
+	/**
+	 * Get the ActionScheduler group name for a specific integration.
+	 *
+	 * @param string $integration_id The integration ID.
+	 *
+	 * @return string The group name (e.g., 'newspack-esp').
+	 */
+	public static function get_action_group( $integration_id ) {
+		return self::ACTION_GROUP_PREFIX . $integration_id;
+	}
+
+	/**
+	 * Resolve the ActionScheduler group for a data event handler.
+	 *
+	 * Looks up the handler in the internal handler map and returns the
+	 * per-integration group. Falls back to the default 'newspack' group
+	 * if the handler is not registered through an integration.
+	 *
+	 * @param string $class       The handler class name.
+	 * @param string $action_name The data event action name.
+	 *
+	 * @return string The group name.
+	 */
+	public static function get_action_group_for_handler( $class, $action_name ) {
+		$key = $class . '::' . $action_name;
+		if ( isset( self::$handler_map[ $key ] ) ) {
+			return self::get_action_group( self::$handler_map[ $key ]['integration_id'] );
+		}
+		return self::DEFAULT_ACTION_GROUP;
+	}
+
+	/**
+	 * Get all ActionScheduler group slugs for Newspack integrations.
+	 *
+	 * Queries the actionscheduler_groups table for slugs matching
+	 * the integration prefix. Used by UI queries to fetch actions
+	 * across all integrations.
+	 *
+	 * @return string[] Array of group slug strings.
+	 */
+	public static function get_all_action_groups() {
+		global $wpdb;
+		$table = $wpdb->prefix . 'actionscheduler_groups';
+		return $wpdb->get_col( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+			$wpdb->prepare(
+				"SELECT slug FROM {$table} WHERE slug LIKE %s", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				$wpdb->esc_like( self::ACTION_GROUP_PREFIX ) . '%'
+			)
+		);
+	}
+
+	/**
 	 * Initialize integrations system.
 	 */
 	public static function init() {
