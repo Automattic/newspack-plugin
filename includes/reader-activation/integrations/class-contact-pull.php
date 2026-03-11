@@ -287,14 +287,16 @@ class Contact_Pull {
 				],
 			];
 
-			if ( function_exists( 'as_has_scheduled_action' ) && \as_has_scheduled_action( self::ASYNC_PULL_HOOK, $args, 'newspack' ) ) {
+			$group = Integrations::get_action_group( $integration->get_id() );
+
+			if ( function_exists( 'as_has_scheduled_action' ) && \as_has_scheduled_action( self::ASYNC_PULL_HOOK, $args, $group ) ) {
 				continue;
 			}
 
 			\as_enqueue_async_action(
 				self::ASYNC_PULL_HOOK,
 				$args,
-				'newspack'
+				$group
 			);
 		}
 	}
