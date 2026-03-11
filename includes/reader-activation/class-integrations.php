@@ -93,8 +93,8 @@ class Integrations {
 	 * Resolve the ActionScheduler group for a data event handler.
 	 *
 	 * Looks up the handler in the internal handler map and returns the
-	 * per-integration group. Falls back to the default 'newspack' group
-	 * if the handler is not registered through an integration.
+	 * per-integration group, or null if the handler is not registered
+	 * through an integration.
 	 *
 	 * @param string $class       The handler class name.
 	 * @param string $action_name The data event action name.
