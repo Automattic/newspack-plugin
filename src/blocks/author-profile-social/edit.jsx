@@ -93,7 +93,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 	const hasPopulated = useRef( false );
 	const [ allServiceKeys, setAllServiceKeys ] = useState( null ); // null = loading
 
-	const isBrand = ( className || '' ).includes( 'is-style-brand' );
+	const isBrand = ( className || '' ).split( ' ' ).includes( 'is-style-brand' );
 	const iconSizeValue = typeof iconSize === 'number' ? iconSize : parseInt( iconSize ?? 24, 10 ) || 24;
 	const iconColor = resolveColor( textColor, styleAttr?.color?.text );
 	const iconBackground = resolveColor( backgroundColor, styleAttr?.color?.background );
