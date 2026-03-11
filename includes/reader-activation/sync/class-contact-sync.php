@@ -256,7 +256,7 @@ class Contact_Sync extends Sync {
 			time() + $backoff_seconds,
 			self::RETRY_HOOK,
 			[ $retry_data ],
-			'newspack'
+			Integrations::get_action_group( $integration_id )
 		);
 
 		static::log(
