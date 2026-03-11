@@ -24,6 +24,15 @@ class Action_Scheduler {
 	const GROUP_PREFIX = 'newspack-';
 
 	/**
+	 * Whether ActionScheduler is available.
+	 *
+	 * @return bool
+	 */
+	public static function is_available() {
+		return class_exists( 'ActionScheduler' );
+	}
+
+	/**
 	 * Get ActionScheduler group slugs matching a prefix.
 	 *
 	 * @param string $prefix The prefix to match (e.g. 'newspack-').
@@ -31,6 +40,9 @@ class Action_Scheduler {
 	 * @return string[] Array of group slug strings.
 	 */
 	public static function get_groups_by_prefix( $prefix ) {
+		if ( ! self::is_available() ) {
+			return [];
+		}
 		global $wpdb;
 		$table = $wpdb->prefix . 'actionscheduler_groups';
 		return $wpdb->get_col( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
@@ -58,6 +70,9 @@ class Action_Scheduler {
 	 * @return array Array of action row objects.
 	 */
 	public static function get_scheduled_actions( $args = [] ) {
+		if ( ! self::is_available() ) {
+			return [];
+		}
 		global $wpdb;
 
 		$defaults = [
