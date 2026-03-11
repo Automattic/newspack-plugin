@@ -44,6 +44,8 @@ class Group_Subscription_MyAccount {
 		add_action( 'init', [ __CLASS__, 'flush_rewrite_rules' ] );
 		add_filter( 'woocommerce_get_query_vars', [ __CLASS__, 'add_manage_members_endpoint' ] );
 		add_action( 'woocommerce_account_' . self::MANAGE_MEMBERS_ENDPOINT . '_endpoint', [ __CLASS__, 'render_group_subscription_members_template' ] );
+		add_filter( 'wcs_get_users_subscriptions', [ __CLASS__, 'inject_member_group_subscriptions' ], 15, 2 );
+		add_filter( 'map_meta_cap', [ __CLASS__, 'grant_group_member_view_order_cap' ], 15, 4 );
 		add_filter( 'wcs_view_subscription_actions', [ __CLASS__, 'view_subscription_actions' ], 13, 3 );
 		add_action( 'admin_post_' . self::INVITE_NONCE_ACTION, [ __CLASS__, 'handle_invite_member' ] );
 		add_action( 'admin_post_' . self::CANCEL_INVITE_NONCE_ACTION, [ __CLASS__, 'handle_cancel_invite' ] );
@@ -130,7 +132,9 @@ class Group_Subscription_MyAccount {
 	/**
 	 * Filter the actions a group manager or member can take on a subscription.
 	 *
-	 * Only the purchaser of the subscription should see the actions.
+	 * Non-manager group members receive an empty actions array (view-only experience).
+	 * Managers (subscription owners) receive an additional "Manage members" action.
+	 * Non-group subscriptions and off-account-page requests pass through unchanged.
 	 *
 	 * @param array            $actions      Actions.
 	 * @param \WC_Subscription $subscription Subscription.
@@ -139,13 +143,23 @@ class Group_Subscription_MyAccount {
 	 * @return array
 	 */
 	public static function view_subscription_actions( $actions, $subscription, $user_id ) {
-		if ( ! function_exists( 'is_account_page' ) || ! \is_account_page() || ! Group_Subscription::is_group_subscription( $subscription ) || $subscription->get_customer_id() !== $user_id || ! Group_Subscription::user_is_manager( $user_id, $subscription ) ) {
+		if ( ! function_exists( 'is_account_page' ) || ! \is_account_page() || ! Group_Subscription::is_group_subscription( $subscription ) ) {
 			return $actions;
 		}
-		$actions['manage_members'] = [
-			'url'  => self::get_manage_members_url( $subscription ),
-			'name' => __( 'Manage members', 'newspack-plugin' ),
-		];
+
+		// Non-manager group members get a view-only experience: no actions.
+		if ( Group_Subscription::user_is_member( $user_id, $subscription ) ) {
+			return [];
+		}
+
+		// Managers (subscription owners) get a "Manage members" action.
+		if ( Group_Subscription::user_is_manager( $user_id, $subscription ) ) {
+			$actions['manage_members'] = [
+				'url'  => self::get_manage_members_url( $subscription ),
+				'name' => __( 'Manage members', 'newspack-plugin' ),
+			];
+		}
+
 		return $actions;
 	}
 
@@ -253,6 +267,67 @@ class Group_Subscription_MyAccount {
 				$email
 			)
 		);
+	}
+
+	/**
+	 * Inject group subscriptions the current user is a member of into the subscriptions list.
+	 *
+	 * Only runs on My Account pages to avoid side effects (e.g. trial limit checks)
+	 * in non-account contexts.
+	 *
+	 * @param array $subscriptions Existing subscriptions keyed by subscription ID.
+	 * @param int   $user_id       The user ID.
+	 *
+	 * @return array
+	 */
+	public static function inject_member_group_subscriptions( $subscriptions, $user_id ) {
+		if ( ! function_exists( 'is_account_page' ) || ! \is_account_page() ) {
+			return $subscriptions;
+		}
+		$existing_ids        = array_keys( $subscriptions );
+		$group_subscriptions = Group_Subscription::get_group_subscriptions_for_user( $user_id );
+		foreach ( $group_subscriptions as $group_subscription ) {
+			if ( ! ( $group_subscription instanceof \WC_Subscription ) ) {
+				continue;
+			}
+			if ( $group_subscription->has_status( 'trash' ) ) {
+				continue;
+			}
+			if ( in_array( $group_subscription->get_id(), $existing_ids, true ) ) {
+				continue;
+			}
+			$subscriptions[ $group_subscription->get_id() ] = $group_subscription;
+		}
+		return $subscriptions;
+	}
+
+	/**
+	 * Grant the `view_order` capability to group subscription members on My Account pages.
+	 *
+	 * WCS checks current_user_can( 'view_order', $subscription->get_id() ) before rendering
+	 * the view-subscription template. WC maps view_order → manage_woocommerce for non-owners.
+	 * We override this to 'read' (a primitive cap all logged-in users have) for group members.
+	 *
+	 * @param string[] $caps    Primitive capabilities required.
+	 * @param string   $cap     The meta capability being checked.
+	 * @param int      $user_id The user ID.
+	 * @param array    $args    Additional arguments; $args[0] is the post/order ID.
+	 *
+	 * @return string[]
+	 */
+	public static function grant_group_member_view_order_cap( $caps, $cap, $user_id, $args ) {
+		if ( 'view_order' !== $cap || ! function_exists( 'is_account_page' ) || ! \is_account_page() ) {
+			return $caps;
+		}
+		$order_id     = isset( $args[0] ) ? absint( $args[0] ) : 0;
+		$subscription = WooCommerce_Subscriptions::sanitize_subscription( $order_id );
+		if ( ! $subscription || $subscription->has_status( 'trash' ) ) {
+			return $caps;
+		}
+		if ( Group_Subscription::user_is_member( $user_id, $subscription ) ) {
+			return [ 'read' ];
+		}
+		return $caps;
 	}
 
 	/**

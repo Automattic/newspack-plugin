@@ -157,29 +157,24 @@ class Group_Subscription {
 	}
 
 	/**
-	 * Check if a user is a member or manager of a group subscription.
+	 * Check if a user is a member (not manager) of a group subscription.
 	 *
 	 * @param int                  $user_id The user ID.
 	 * @param \WC_Subscription|int $subscription The subscription object or ID.
 	 *
-	 * @return bool|null Whether the user has access to the group subscription, or null if not a group subscription.
+	 * @return bool|null Whether the user is a member of the group subscription, or null if not a group subscription.
 	 */
 	public static function user_is_member( $user_id, $subscription ) {
+		$subscription = WooCommerce_Subscriptions::sanitize_subscription( $subscription );
 		if ( ! self::is_group_subscription( $subscription ) ) {
 			return null;
 		}
-		if ( ! is_a( $subscription, 'WC_Subscription' ) ) {
-			$subscription = \wcs_get_subscription( $subscription );
-		}
-		if ( ! $subscription ) {
-			return null;
-		}
-		$is_member = in_array( $subscription->get_id(), self::get_group_subscriptions_for_user( $user_id, true ), true ) || in_array( $user_id, self::get_managers( $subscription ), true );
+		$is_member = in_array( $subscription->get_id(), self::get_group_subscriptions_for_user( $user_id, true ), true );
 
 		/**
-		 * Filter whether a user is a member or manager of a group subscription.
+		 * Filter whether a user is a member (not manager) of a group subscription.
 		 *
-		 * @param bool|null $is_member Whether the user is a member or manager of the group subscription, or null if not a group subscription.
+		 * @param bool $is_member Whether the user is a member of the group subscription.
 		 * @param int $user_id The user ID.
 		 * @param \WC_Subscription|int $subscription The subscription object or ID.
 		 */
@@ -195,13 +190,8 @@ class Group_Subscription {
 	 * @return bool|null Whether the user is a manager of the group subscription, or null if not a group subscription.
 	 */
 	public static function user_is_manager( $user_id, $subscription ) {
+		$subscription = WooCommerce_Subscriptions::sanitize_subscription( $subscription );
 		if ( ! self::is_group_subscription( $subscription ) ) {
-			return null;
-		}
-		if ( ! is_a( $subscription, 'WC_Subscription' ) ) {
-			$subscription = \wcs_get_subscription( $subscription );
-		}
-		if ( ! $subscription ) {
 			return null;
 		}
 		$is_manager = in_array( $user_id, self::get_managers( $subscription ), true );
@@ -209,7 +199,7 @@ class Group_Subscription {
 		/**
 		 * Filter whether a user is a manager of a group subscription.
 		 *
-		 * @param bool|null $is_manager Whether the user is a manager of the group subscription, or null if not a group subscription.
+		 * @param bool $is_manager Whether the user is a manager of the group subscription.
 		 * @param int $user_id The user ID.
 		 * @param \WC_Subscription|int $subscription The subscription object or ID.
 		 */
