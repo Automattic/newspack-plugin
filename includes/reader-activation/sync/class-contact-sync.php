@@ -145,6 +145,29 @@ class Contact_Sync extends Sync {
 		foreach ( $integrations as $integration_id => $integration ) {
 			$result = $integration->push_contact_data( $contact, $context, $existing_contact );
 			if ( \is_wp_error( $result ) ) {
+				/**
+				 * Fires when a contact sync fails on the original attempt (before retries).
+				 *
+				 * Used by Alert_Manager to record failures for early pattern detection.
+				 *
+				 * @param array $failure_data {
+				 *     Failure data.
+				 *
+				 *     @type string $integration_id The integration that failed.
+				 *     @type array  $contact        The contact data that failed to sync.
+				 *     @type string $context        The sync context.
+				 *     @type string $reason         The error message.
+				 * }
+				 */
+				do_action(
+					'newspack_sync_contact_failed',
+					[
+						'integration_id' => $integration_id,
+						'contact'        => $contact,
+						'context'        => $context,
+						'reason'         => $result->get_error_message(),
+					]
+				);
 				self::schedule_integration_retry( $integration_id, $contact, $context, $existing_contact, 0, $result );
 				$errors[] = sprintf( '[%s] %s', $integration_id, $result->get_error_message() );
 			}

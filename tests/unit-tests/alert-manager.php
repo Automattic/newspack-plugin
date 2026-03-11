@@ -134,17 +134,16 @@ class Newspack_Test_Alert_Manager extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test that sync retry exhaustion records a failure entry.
+	 * Test that each sync failure records a failure entry (not just exhaustion).
 	 */
-	public function test_sync_exhaustion_records_failure() {
+	public function test_sync_failure_records_entry() {
 
 		do_action(
-			'newspack_sync_retry_exhausted',
+			'newspack_sync_contact_failed',
 			[
 				'integration_id' => 'mailchimp',
 				'contact'        => [ 'email' => 'user@test.com' ],
 				'context'        => 'Reader registered',
-				'retry_count'    => 5,
 				'reason'         => 'Invalid API key',
 			]
 		);
@@ -175,12 +174,11 @@ class Newspack_Test_Alert_Manager extends WP_UnitTestCase {
 		);
 
 		do_action(
-			'newspack_data_event_retry_exhausted',
+			'newspack_data_event_handler_failed',
 			[
 				'handler'     => [ 'SomeClass', 'some_method' ],
 				'action_name' => 'reader_registered',
 				'data'        => [],
-				'retry_count' => 5,
 				'reason'      => 'Handler threw exception',
 			]
 		);
@@ -192,17 +190,16 @@ class Newspack_Test_Alert_Manager extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test that data event retry exhaustion records a failure entry.
+	 * Test that each data event handler failure records a failure entry.
 	 */
-	public function test_data_event_exhaustion_records_failure() {
+	public function test_data_event_failure_records_entry() {
 
 		do_action(
-			'newspack_data_event_retry_exhausted',
+			'newspack_data_event_handler_failed',
 			[
 				'handler'     => [ 'SomeClass', 'some_method' ],
 				'action_name' => 'reader_registered',
 				'data'        => [],
-				'retry_count' => 5,
 				'reason'      => 'Handler threw exception',
 			]
 		);

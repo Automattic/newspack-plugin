@@ -1,9 +1,13 @@
 <?php
 /**
- * Alert Manager for integration sync observability.
+ * Alert Manager for data event handlers, integration health checks, and contact
+ * syncs observability.
  *
- * Listens for retry exhaustion events and fires a unified
- * newspack_alert action.
+ * Listens for data event handler and integration sync retry exhaustion and
+ * fires a unified alert action for each.
+ *
+ * Also scans the failure log for recurring patterns and fires an alert when a
+ * threshold is exceeded within the configured time window.
  *
  * @package Newspack
  */
@@ -87,6 +91,8 @@ class Alert_Manager {
 	 * Initialize hooks.
 	 */
 	public static function init() {
+		add_action( 'newspack_sync_contact_failed', [ __CLASS__, 'record_failure' ] );
+		add_action( 'newspack_data_event_handler_failed', [ __CLASS__, 'record_failure' ] );
 		add_action( 'newspack_sync_retry_exhausted', [ __CLASS__, 'handle_sync_retry_exhausted' ] );
 		add_action( 'newspack_data_event_retry_exhausted', [ __CLASS__, 'handle_data_event_retry_exhausted' ] );
 		add_action( 'newspack_integration_health_check_failed', [ __CLASS__, 'handle_health_check_failed' ] );
@@ -122,7 +128,7 @@ class Alert_Manager {
 	 *
 	 * @param array $payload Alert data from the exhaustion hook.
 	 */
-	private static function record_failure( $payload ) {
+	public static function record_failure( $payload ) {
 		$log = get_option( self::FAILURE_LOG_OPTION, [] );
 
 		$record = [
@@ -153,8 +159,6 @@ class Alert_Manager {
 	 * @param array $payload Alert data from Contact_Sync.
 	 */
 	public static function handle_sync_retry_exhausted( $payload ) {
-		self::record_failure( $payload );
-
 		$message = sprintf(
 			'Max retries (%d) reached for integration "%s" sync of %s. Last error: %s',
 			$payload['retry_count'] ?? 0,
@@ -194,8 +198,6 @@ class Alert_Manager {
 	 * @param array $payload Alert data from Data_Events.
 	 */
 	public static function handle_data_event_retry_exhausted( $payload ) {
-		self::record_failure( $payload );
-
 		$handler_name = is_array( $payload['handler'] ?? null )
 			? implode( '::', $payload['handler'] )
 			: (string) ( $payload['handler'] ?? 'unknown' );
