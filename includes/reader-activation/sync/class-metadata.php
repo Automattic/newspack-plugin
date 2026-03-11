@@ -73,19 +73,16 @@ class Metadata {
 	 * @return string
 	 */
 	public static function get_prefix() {
-		// When the integrations feature is enabled, read prefix from the ESP integration.
-		if ( \Newspack\Audience_Integrations::is_enabled() ) {
-			$esp_integration = Integrations::get_integration( 'esp' );
-			if ( $esp_integration ) {
-				$prefix = $esp_integration->get_metadata_prefix();
-				if ( ! empty( $prefix ) ) {
-					/** This filter is documented below. */
-					return apply_filters( 'newspack_ras_metadata_prefix', $prefix );
-				}
+		$esp_integration = Integrations::get_integration( 'esp' );
+		if ( $esp_integration ) {
+			$prefix = $esp_integration->get_metadata_prefix();
+			if ( ! empty( $prefix ) ) {
+				/** This filter is documented below. */
+				return apply_filters( 'newspack_ras_metadata_prefix', $prefix );
 			}
 		}
 
-		// Legacy: read from global option.
+		// Fallback for edge case where integration isn't registered yet (before init priority 5).
 		$prefix = \get_option( self::PREFIX_OPTION, self::PREFIX );
 
 		// Guard against empty strings and falsy values.
@@ -109,11 +106,8 @@ class Metadata {
 	 * @return boolean True if updated, false otherwise.
 	 */
 	public static function update_prefix( $prefix ) {
-		if ( empty( $prefix ) ) {
-			$prefix = self::PREFIX;
-		}
-
-		return \update_option( self::PREFIX_OPTION, $prefix );
+		$esp_integration = Integrations::get_integration( 'esp' );
+		return $esp_integration ? $esp_integration->update_metadata_prefix( $prefix ) : false;
 	}
 
 	/**

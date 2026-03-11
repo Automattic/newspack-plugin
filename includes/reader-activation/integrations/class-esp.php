@@ -7,7 +7,6 @@
 
 namespace Newspack\Reader_Activation\Integrations;
 
-use Newspack\Audience_Integrations;
 use Newspack\Reader_Activation\Integration;
 use Newspack\Reader_Activation\Sync;
 use Newspack\Reader_Activation\Sync\Metadata;
@@ -25,6 +24,19 @@ defined( 'ABSPATH' ) || exit;
  */
 class ESP extends Integration {
 	/**
+	 * Map of ESP setting keys to their legacy option names.
+	 *
+	 * @var array<string, string>
+	 */
+	private static $legacy_option_map = [
+		'mailchimp_audience_id'           => 'newspack_reader_activation_mailchimp_audience_id',
+		'mailchimp_reader_default_status' => 'newspack_reader_activation_mailchimp_reader_default_status',
+		'active_campaign_master_list'     => 'newspack_reader_activation_active_campaign_master_list',
+		'constant_contact_list_id'        => 'newspack_reader_activation_constant_contact_list_id',
+		'sync_esp_delete'                 => 'newspack_reader_activation_sync_esp_delete',
+	];
+
+	/**
 	 * Constructor.
 	 */
 	public function __construct() {
@@ -39,13 +51,13 @@ class ESP extends Integration {
 	 * Register the settings fields declared by this integration.
 	 *
 	 * Dynamically builds the field list based on the active ESP provider.
-	 * Only returns fields when the integrations feature flag is ON and ESP is configured.
+	 * Only returns fields when ESP is configured.
 	 *
 	 * @return array Array of settings field declarations.
 	 */
 	public function register_settings_fields() {
 		$fields = [];
-		if ( ! Audience_Integrations::is_enabled() || ! Reader_Activation::is_esp_configured() ) {
+		if ( ! Reader_Activation::is_esp_configured() ) {
 			return $fields;
 		}
 		$list_options = $this->get_list_options();
@@ -160,6 +172,62 @@ class ESP extends Integration {
 	}
 
 	/**
+	 * Get a settings field value with lazy migration from legacy options.
+	 *
+	 * On first access, if the new per-integration option doesn't exist yet,
+	 * reads the legacy global option, persists it to the new location, and returns it.
+	 *
+	 * @param string $key The field key.
+	 * @return mixed The field value.
+	 */
+	public function get_settings_field_value( $key ) {
+		// For non-legacy keys, delegate to parent.
+		if ( ! isset( self::$legacy_option_map[ $key ] ) ) {
+			return parent::get_settings_field_value( $key );
+		}
+
+		// Check if new option exists (use sentinel to distinguish "not set" from falsy).
+		$sentinel    = '__newspack_not_set__';
+		$option_name = self::SETTINGS_OPTION_PREFIX . $this->id . '_' . $key;
+		$value       = \get_option( $option_name, $sentinel );
+		if ( $sentinel !== $value ) {
+			return $value;
+		}
+
+		// Lazy migrate from legacy option.
+		$legacy_value = \get_option( self::$legacy_option_map[ $key ], $sentinel );
+		if ( $sentinel !== $legacy_value ) {
+			$this->update_settings_field_value( $key, $legacy_value );
+			return $legacy_value;
+		}
+
+		// Fall back to field default.
+		return parent::get_settings_field_value( $key );
+	}
+
+	/**
+	 * Get the metadata prefix with lazy migration from legacy option.
+	 *
+	 * @return string The metadata prefix.
+	 */
+	public function get_metadata_prefix() {
+		$sentinel = '__newspack_not_set__';
+		$value    = \get_option( self::METADATA_PREFIX_OPTION_PREFIX . $this->id, $sentinel );
+		if ( $sentinel !== $value ) {
+			return $value;
+		}
+
+		// Lazy migrate from legacy global option.
+		$legacy = \get_option( Sync\Metadata::PREFIX_OPTION, $sentinel );
+		if ( $sentinel !== $legacy && ! empty( $legacy ) ) {
+			$this->update_metadata_prefix( $legacy );
+			return $legacy;
+		}
+
+		return 'NP_';
+	}
+
+	/**
 	 * Get the master list ID from integration settings.
 	 *
 	 * @return string|false The master list ID or false.
@@ -240,32 +308,17 @@ class ESP extends Integration {
 			);
 		}
 
-		if ( Audience_Integrations::is_enabled() ) {
-			if ( ! Integrations::is_enabled( $this->get_id() ) ) {
-				$errors->add(
-					'ras_esp_sync_not_enabled',
-					__( 'ESP sync is not enabled.', 'newspack-plugin' )
-				);
-			}
-			if ( ! $this->get_master_list_id() ) {
-				$errors->add(
-					'ras_esp_master_list_id_not_found',
-					__( 'ESP master list ID is not set.', 'newspack-plugin' )
-				);
-			}
-		} else {
-			if ( ! Reader_Activation::get_setting( 'sync_esp' ) ) {
-				$errors->add(
-					'ras_esp_sync_not_enabled',
-					__( 'ESP sync is not enabled.', 'newspack-plugin' )
-				);
-			}
-			if ( ! Reader_Activation::get_esp_master_list_id() ) {
-				$errors->add(
-					'ras_esp_master_list_id_not_found',
-					__( 'ESP master list ID is not set.', 'newspack-plugin' )
-				);
-			}
+		if ( ! Integrations::is_enabled( $this->get_id() ) ) {
+			$errors->add(
+				'ras_esp_sync_not_enabled',
+				__( 'ESP sync is not enabled.', 'newspack-plugin' )
+			);
+		}
+		if ( ! $this->get_master_list_id() ) {
+			$errors->add(
+				'ras_esp_master_list_id_not_found',
+				__( 'ESP master list ID is not set.', 'newspack-plugin' )
+			);
 		}
 
 		if ( $return_errors ) {
@@ -289,17 +342,12 @@ class ESP extends Integration {
 	 * @return true|\WP_Error True on success or WP_Error on failure.
 	 */
 	public function push_contact_data( $contact, $context = '', $existing_contact = null ) {
-
 		$can_sync = $this->can_sync( true );
 		if ( $can_sync->has_errors() ) {
 			return $can_sync;
 		}
 
-		if ( Audience_Integrations::is_enabled() ) {
-			$master_list_id = $this->get_master_list_id();
-		} else {
-			$master_list_id = Reader_Activation::get_esp_master_list_id();
-		}
+		$master_list_id = $this->get_master_list_id();
 
 		return Newspack_Newsletters_Contacts::upsert( $contact, $master_list_id, $context, $existing_contact );
 	}
@@ -364,11 +412,7 @@ class ESP extends Integration {
 			);
 		}
 
-		if ( Audience_Integrations::is_enabled() ) {
-			$master_list_id = $this->get_master_list_id();
-		} else {
-			$master_list_id = Reader_Activation::get_esp_master_list_id();
-		}
+		$master_list_id = $this->get_master_list_id();
 
 		if ( empty( $master_list_id ) ) {
 			return new \WP_Error(
