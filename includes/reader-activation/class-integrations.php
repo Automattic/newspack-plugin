@@ -63,6 +63,22 @@ class Integrations {
 	const OPTION_NAME = 'newspack_reader_activation_enabled_integrations';
 
 	/**
+	 * Initialize integrations system.
+	 */
+	public static function init() {
+		// Include required files.
+		require_once __DIR__ . '/integrations/class-integration.php';
+		require_once __DIR__ . '/integrations/class-contact-pull.php';
+
+		add_action( 'init', [ __CLASS__, 'register_integrations' ], 5 );
+		add_action( 'init', [ __CLASS__, 'schedule_health_check' ] );
+		add_action( self::HEALTH_CHECK_CRON_HOOK, [ __CLASS__, 'run_health_checks' ] );
+		add_filter( 'newspack_data_events_handler_action_group', [ __CLASS__, 'filter_handler_action_group' ], 10, 3 );
+
+		Integrations\Contact_Pull::init();
+	}
+
+	/**
 	 * Get the ActionScheduler group name for a specific integration.
 	 *
 	 * @param string $integration_id The integration ID.
@@ -149,22 +165,6 @@ class Integrations {
 		unset( $args['integration_id'] );
 
 		return \Newspack\Action_Scheduler::get_scheduled_actions( $args );
-	}
-
-	/**
-	 * Initialize integrations system.
-	 */
-	public static function init() {
-		// Include required files.
-		require_once __DIR__ . '/integrations/class-integration.php';
-		require_once __DIR__ . '/integrations/class-contact-pull.php';
-
-		add_action( 'init', [ __CLASS__, 'register_integrations' ], 5 );
-		add_action( 'init', [ __CLASS__, 'schedule_health_check' ] );
-		add_action( self::HEALTH_CHECK_CRON_HOOK, [ __CLASS__, 'run_health_checks' ] );
-		add_filter( 'newspack_data_events_handler_action_group', [ __CLASS__, 'filter_handler_action_group' ], 10, 3 );
-
-		Integrations\Contact_Pull::init();
 	}
 
 	/**
