@@ -810,11 +810,16 @@ final class Data_Events {
 			'reason'      => $error->getMessage(),
 		];
 
+		$group = \Newspack\Reader_Activation\Integrations::get_action_group_for_handler(
+			is_array( $handler ) ? $handler[0] : '',
+			$action_name
+		);
+
 		$action_id = \as_schedule_single_action(
 			time() + $backoff_seconds,
 			self::HANDLER_RETRY_HOOK,
 			[ $retry_data ],
-			'newspack'
+			$group
 		);
 
 		if ( $action_id ) {
