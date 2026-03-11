@@ -162,6 +162,21 @@ class ESP extends Integration {
 	}
 
 	/**
+	 * Test the live connection to the ESP.
+	 *
+	 * Delegates to Newspack_Newsletters::test_connection() if available.
+	 * By the time this runs, can_sync() has already passed.
+	 *
+	 * @return true|\WP_Error True on success, WP_Error on failure.
+	 */
+	public function test_connection() {
+		if ( ! method_exists( 'Newspack_Newsletters', 'test_connection' ) ) {
+			return true;
+		}
+		return \Newspack_Newsletters::test_connection();
+	}
+
+	/**
 	 * Get incoming available contact fields from the integration.
 	 *
 	 * @return Incoming_Contact_Field[]|\WP_Error Array of incoming contact field objects or WP_Error on failure.

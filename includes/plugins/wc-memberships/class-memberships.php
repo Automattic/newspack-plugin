@@ -79,7 +79,7 @@ class Memberships {
 	 * Register post type for custom gate.
 	 */
 	public static function register_post_type() {
-		self::register_layout_post_type( self::GATE_CPT, __( 'Memberships Gate', 'newspack' ) );
+		self::register_layout_post_type( self::GATE_CPT, __( 'Memberships Gate', 'newspack-plugin' ) );
 	}
 
 	/**
@@ -131,7 +131,7 @@ class Memberships {
 			$gate_post_id = absint( $_GET['gate_post_id'] );
 			$is_primary   = false;
 			if ( ! $gate_post_id || ! get_post( $gate_post_id ) ) {
-				\wp_die( esc_html( __( 'Invalid gate post ID.', 'newspack' ) ) );
+				\wp_die( esc_html( __( 'Invalid gate post ID.', 'newspack-plugin' ) ) );
 			}
 		}
 
@@ -145,7 +145,7 @@ class Memberships {
 			exit;
 		} else {
 			// Gate not found, create it.
-			$post_title   = __( 'Content Gate', 'newspack' );
+			$post_title   = __( 'Content Gate', 'newspack-plugin' );
 			$gate_post_id = Content_Gate::create_gate( [ 'title' => $post_title ], self::GATE_CPT );
 			if ( is_wp_error( $gate_post_id ) ) {
 				\wp_die( esc_html( $gate_post_id->get_error_message() ) );
@@ -258,7 +258,7 @@ class Memberships {
 
 		$plan_id = isset( $_GET['plan_id'] ) ? \absint( $_GET['plan_id'] ) : false;
 		if ( ! $plan_id ) {
-			\wp_die( esc_html( __( 'Plan ID is required.', 'newspack' ) ) );
+			\wp_die( esc_html( __( 'Plan ID is required.', 'newspack-plugin' ) ) );
 		}
 
 		$gate_post_id = self::get_plan_gate_id( $plan_id );
@@ -275,11 +275,11 @@ class Memberships {
 			// Gate not found, create it.
 			$plan = \wc_memberships_get_membership_plan( $plan_id );
 			if ( ! $plan ) {
-				\wp_die( esc_html( __( 'Plan not found.', 'newspack' ) ) );
+				\wp_die( esc_html( __( 'Plan not found.', 'newspack-plugin' ) ) );
 			}
 			$post_title = sprintf(
 				// Translators: %s is the plan name.
-				__( '%s Gate', 'newspack' ),
+				__( '%s Gate', 'newspack-plugin' ),
 				$plan->get_name()
 			);
 			$gate_post_id = Content_Gate::create_gate( [ 'title' => $post_title ], self::GATE_CPT );

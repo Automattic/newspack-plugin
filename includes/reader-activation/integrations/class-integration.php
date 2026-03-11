@@ -217,6 +217,39 @@ abstract class Integration {
 	}
 
 	/**
+	 * Test the live connection to the integration service.
+	 *
+	 * Subclasses should override this to perform a lightweight API call
+	 * verifying credentials and reachability.
+	 *
+	 * @return true|\WP_Error True on success, WP_Error on failure.
+	 */
+	public function test_connection() {
+		return true;
+	}
+
+	/**
+	 * Run a full health check: settings validation + live connection test.
+	 *
+	 * @return true|\WP_Error True if healthy, WP_Error on failure.
+	 */
+	final public function health_check() {
+		$errors = $this->can_sync( true );
+		if ( is_wp_error( $errors ) && $errors->has_errors() ) {
+			return $errors;
+		}
+		try {
+			$connection = $this->test_connection();
+		} catch ( \Throwable $e ) {
+			return new \WP_Error( 'newspack_integration_connection_error', $e->getMessage() );
+		}
+		if ( is_wp_error( $connection ) ) {
+			return $connection;
+		}
+		return true;
+	}
+
+	/**
 	 * Get the enabled outgoing metadata fields for this integration.
 	 *
 	 * @return string[] List of enabled field names.

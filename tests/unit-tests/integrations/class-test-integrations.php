@@ -686,6 +686,138 @@ class Test_Integrations extends \WP_UnitTestCase {
 	}
 
 	/**
+	 * Test health_check returns true when can_sync passes and test_connection succeeds.
+	 */
+	public function test_health_check_returns_true_when_healthy() {
+		$integration = new Sample_Integration( 'healthy', 'Healthy' );
+		Integrations::register( $integration );
+
+		$result = $integration->health_check();
+
+		$this->assertTrue( $result );
+	}
+
+	/**
+	 * Test health_check returns WP_Error from can_sync when validation fails.
+	 */
+	public function test_health_check_returns_can_sync_error() {
+		$integration = new class( 'sync-fail', 'Sync Fail' ) extends Sample_Integration {
+			/**
+			 * Simulate can_sync validation failure.
+			 *
+			 * @param bool $return_errors Whether to return WP_Error.
+			 * @return bool|\WP_Error
+			 */
+			public function can_sync( $return_errors = false ) {
+				if ( $return_errors ) {
+					$errors = new \WP_Error();
+					$errors->add( 'missing_key', 'API key is missing.' );
+					$errors->add( 'missing_list', 'List ID is not set.' );
+					return $errors;
+				}
+				return false;
+			}
+		};
+		Integrations::register( $integration );
+
+		$result = $integration->health_check();
+
+		$this->assertWPError( $result );
+		$this->assertEquals( 'missing_key', $result->get_error_code() );
+		$this->assertCount( 2, $result->get_error_messages() );
+	}
+
+	/**
+	 * Test health_check returns WP_Error from test_connection when live check fails.
+	 */
+	public function test_health_check_returns_test_connection_error() {
+		$integration = new class( 'conn-fail', 'Conn Fail' ) extends Sample_Integration {
+			/**
+			 * Simulate a connection failure.
+			 *
+			 * @return \WP_Error
+			 */
+			public function test_connection() {
+				return new \WP_Error( 'connection_failed', 'Could not reach the API.' );
+			}
+		};
+		Integrations::register( $integration );
+
+		$result = $integration->health_check();
+
+		$this->assertWPError( $result );
+		$this->assertEquals( 'connection_failed', $result->get_error_code() );
+		$this->assertEquals( 'Could not reach the API.', $result->get_error_message() );
+	}
+
+	/**
+	 * Test health_check short-circuits on can_sync failure without calling test_connection.
+	 */
+	public function test_health_check_skips_test_connection_on_can_sync_failure() {
+		$integration = new class( 'short-circuit', 'Short Circuit' ) extends Sample_Integration {
+			/**
+			 * Whether test_connection was called.
+			 *
+			 * @var bool
+			 */
+			public static $connection_called = false;
+
+			/**
+			 * Simulate can_sync validation failure.
+			 *
+			 * @param bool $return_errors Whether to return WP_Error.
+			 * @return bool|\WP_Error
+			 */
+			public function can_sync( $return_errors = false ) {
+				if ( $return_errors ) {
+					$errors = new \WP_Error();
+					$errors->add( 'not_configured', 'Not configured.' );
+					return $errors;
+				}
+				return false;
+			}
+
+			/**
+			 * Track whether this method is called.
+			 *
+			 * @return true
+			 */
+			public function test_connection() {
+				self::$connection_called = true;
+				return true;
+			}
+		};
+		Integrations::register( $integration );
+
+		$integration->health_check();
+
+		$this->assertFalse( $integration::$connection_called, 'test_connection should not be called when can_sync fails.' );
+	}
+
+	/**
+	 * Test health_check catches Throwable from test_connection and returns WP_Error.
+	 */
+	public function test_health_check_catches_throwable_from_test_connection() {
+		$integration = new class( 'throw-conn', 'Throw Conn' ) extends Sample_Integration {
+			/**
+			 * Simulate a fatal error during connection test.
+			 *
+			 * @throws \RuntimeException Always.
+			 */
+			public function test_connection() {
+				throw new \RuntimeException( 'Fatal: something exploded' );
+			}
+		};
+		Integrations::register( $integration );
+
+		$result = $integration->health_check();
+
+		$this->assertWPError( $result );
+		$this->assertEquals( 'newspack_integration_connection_error', $result->get_error_code() );
+		$this->assertEquals( 'Fatal: something exploded', $result->get_error_message() );
+	}
+
+	/**
 	 * Test handle_ajax_pull processes data when called directly.
 	 */
 	public function test_handle_ajax_pull() {

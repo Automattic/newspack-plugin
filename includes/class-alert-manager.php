@@ -89,6 +89,7 @@ class Alert_Manager {
 	public static function init() {
 		add_action( 'newspack_sync_retry_exhausted', [ __CLASS__, 'handle_sync_retry_exhausted' ] );
 		add_action( 'newspack_data_event_retry_exhausted', [ __CLASS__, 'handle_data_event_retry_exhausted' ] );
+		add_action( 'newspack_integration_health_check_failed', [ __CLASS__, 'handle_health_check_failed' ] );
 		add_action( self::PATTERN_SCAN_HOOK, [ __CLASS__, 'scan_failure_patterns' ] );
 		add_action( 'init', [ __CLASS__, 'schedule_pattern_scan' ] );
 	}
@@ -365,6 +366,32 @@ class Alert_Manager {
 		}
 
 		return (int) $seconds . 's';
+	}
+
+	/**
+	 * Handle integration health check failure.
+	 *
+	 * @param array $payload Health check failure data.
+	 */
+	public static function handle_health_check_failed( $payload ) {
+		$error   = $payload['error'] ?? null;
+		$message = sprintf(
+			'Integration "%s" health check failed: %s',
+			$payload['integration_name'] ?? 'unknown',
+			is_wp_error( $error ) ? implode( '; ', $error->get_error_messages() ) : 'unknown error'
+		);
+
+		/** This action is documented in includes/class-alert-manager.php */
+		do_action(
+			'newspack_alert',
+			[
+				'type'      => 'integration_health_check_failed',
+				'severity'  => 'error',
+				'message'   => $message,
+				'context'   => $payload,
+				'timestamp' => time(),
+			]
+		);
 	}
 }
 Alert_Manager::init();

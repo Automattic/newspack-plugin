@@ -25,6 +25,11 @@ class Integrations {
 	const LOGGER_HEADER = 'NEWSPACK-INTEGRATION';
 
 	/**
+	 * Cron hook name for integration health checks.
+	 */
+	const HEALTH_CHECK_CRON_HOOK = 'newspack_integration_health_check';
+
+	/**
 	 * Registered integrations.
 	 *
 	 * @var Integration[]
@@ -66,6 +71,8 @@ class Integrations {
 		require_once __DIR__ . '/integrations/class-contact-pull.php';
 
 		add_action( 'init', [ __CLASS__, 'register_integrations' ], 5 );
+		add_action( 'init', [ __CLASS__, 'schedule_health_check' ] );
+		add_action( self::HEALTH_CHECK_CRON_HOOK, [ __CLASS__, 'run_health_checks' ] );
 
 		Integrations\Contact_Pull::init();
 	}
@@ -323,5 +330,69 @@ class Integrations {
 		}
 
 		$integration->{ $entry['method'] }( $timestamp, $data, $client_id );
+	}
+
+	/**
+	 * Schedule the hourly health check cron event.
+	 *
+	 * Respects NEWSPACK_CRON_DISABLE to allow selective disabling.
+	 */
+	public static function schedule_health_check() {
+		register_deactivation_hook( NEWSPACK_PLUGIN_FILE, [ __CLASS__, 'deactivate_health_check' ] );
+
+		if ( defined( 'NEWSPACK_CRON_DISABLE' ) && is_array( NEWSPACK_CRON_DISABLE ) && in_array( self::HEALTH_CHECK_CRON_HOOK, NEWSPACK_CRON_DISABLE, true ) ) {
+			self::deactivate_health_check();
+		} elseif ( ! \wp_next_scheduled( self::HEALTH_CHECK_CRON_HOOK ) ) {
+			\wp_schedule_event( time(), 'hourly', self::HEALTH_CHECK_CRON_HOOK );
+		}
+	}
+
+	/**
+	 * Deactivate the health check cron event.
+	 */
+	public static function deactivate_health_check() {
+		\wp_clear_scheduled_hook( self::HEALTH_CHECK_CRON_HOOK );
+	}
+
+	/**
+	 * Run health checks on all active integrations.
+	 *
+	 * Logs failures and fires an action for the Alert Manager.
+	 */
+	public static function run_health_checks() {
+		$active = self::get_active_integrations();
+		foreach ( $active as $integration ) {
+			$result = $integration->health_check();
+			if ( is_wp_error( $result ) ) {
+				Logger::error(
+					sprintf(
+						'Health check failed for integration "%s": %s',
+						$integration->get_name(),
+						implode( '; ', $result->get_error_messages() )
+					),
+					self::LOGGER_HEADER
+				);
+
+				/**
+				 * Fires when an integration health check fails.
+				 *
+				 * @param array $payload {
+				 *     Health check failure data.
+				 *
+				 *     @type string    $integration_id   The integration ID.
+				 *     @type string    $integration_name The integration display name.
+				 *     @type \WP_Error $error            The error object.
+				 * }
+				 */
+				do_action(
+					'newspack_integration_health_check_failed',
+					[
+						'integration_id'   => $integration->get_id(),
+						'integration_name' => $integration->get_name(),
+						'error'            => $result,
+					]
+				);
+			}
+		}
 	}
 }
