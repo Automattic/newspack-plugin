@@ -1,4 +1,3 @@
-/* global newspackAudienceIntegrations */
 /**
  * WordPress dependencies.
  */
@@ -10,17 +9,7 @@ import { CheckboxControl, ExternalLink } from '@wordpress/components';
 /**
  * Internal dependencies.
  */
-import {
-	ActionCard,
-	Button,
-	Card,
-	FormTokenField,
-	Grid,
-	SelectControl,
-	TextControl,
-	Wizard,
-	withWizard,
-} from '../../../../../packages/components/src';
+import { ActionCard, Button, Card, Grid, SelectControl, TextControl, Wizard, withWizard } from '../../../../../packages/components/src';
 import WizardsTab from '../../../wizards-tab';
 import WizardSection from '../../../wizards-section';
 
@@ -49,30 +38,13 @@ function SettingsField( { field, value, onChange } ) {
 	);
 
 	switch ( type ) {
-		case 'checkbox':
-			return <CheckboxControl key={ key } label={ label } help={ help } checked={ !! value } onChange={ onChange } />;
-		case 'select':
-			return (
-				<SelectControl
-					key={ key }
-					label={ label }
-					help={ help }
-					value={ value }
-					options={ ( options || [] ).map( opt => ( {
-						label: opt.label,
-						value: opt.value,
-					} ) ) }
-					onChange={ onChange }
-				/>
-			);
-		case 'outgoing_metadata': {
-			const availableFields = newspackAudienceIntegrations?.esp_metadata_fields || [];
+		case 'metadata': {
 			const selectedFields = Array.isArray( value ) ? value : [];
 			return (
 				<div key={ key }>
 					<h3>{ label }</h3>
 					<Grid columns={ 3 } rowGap={ 16 }>
-						{ availableFields.map( fieldName => (
+						{ options.map( fieldName => (
 							<CheckboxControl
 								className="newspack-checkbox-control"
 								key={ fieldName }
@@ -88,22 +60,21 @@ function SettingsField( { field, value, onChange } ) {
 				</div>
 			);
 		}
-		case 'incoming_metadata':
+		case 'checkbox':
+			return <CheckboxControl key={ key } label={ label } help={ help } checked={ !! value } onChange={ onChange } />;
+		case 'select':
 			return (
-				<div key={ key }>
-					<h3>{ label }</h3>
-					<Grid columns={ 1 } rowGap={ 16 }>
-						<FormTokenField
-							key={ key }
-							label={ null }
-							description={ help }
-							value={ Array.isArray( value ) ? value : [] }
-							onChange={ onChange }
-							__next40pxDefaultSize
-							tokenizeOnBlur
-						/>
-					</Grid>
-				</div>
+				<SelectControl
+					key={ key }
+					label={ label }
+					help={ help }
+					value={ value }
+					options={ ( options || [] ).map( opt => ( {
+						label: opt.label,
+						value: opt.value,
+					} ) ) }
+					onChange={ onChange }
+				/>
 			);
 		case 'textarea':
 			return (

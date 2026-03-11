@@ -88,7 +88,6 @@ class Audience_Integrations extends Wizard {
 
 		$localized_data = [
 			'integrations_settings_enabled' => self::is_enabled(),
-			'esp_metadata_fields'           => Reader_Activation\Sync\Metadata::get_default_fields(),
 		];
 
 		if ( class_exists( 'Newspack_Newsletters' ) ) {

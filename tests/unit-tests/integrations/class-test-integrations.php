@@ -294,7 +294,7 @@ class Test_Integrations extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * Test get_incoming_contact_fields propagates WP_Error from get_incoming_available_contact_fields.
+	 * Test get_incoming_contact_fields propagates WP_Error from get_available_incoming_contact_fields.
 	 */
 	public function test_get_incoming_contact_fields_propagates_error() {
 		$integration = new class( 'error-test', 'Error Test' ) extends Sample_Integration {
@@ -303,7 +303,7 @@ class Test_Integrations extends \WP_UnitTestCase {
 			 *
 			 * @return \WP_Error
 			 */
-			public function get_incoming_available_contact_fields() {
+			public function get_available_incoming_contact_fields() {
 				return new \WP_Error( 'test_error', 'Test error message' );
 			}
 		};

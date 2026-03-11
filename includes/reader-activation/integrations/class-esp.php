@@ -24,19 +24,6 @@ defined( 'ABSPATH' ) || exit;
  */
 class ESP extends Integration {
 	/**
-	 * Map of ESP setting keys to their legacy option names.
-	 *
-	 * @var array<string, string>
-	 */
-	private static $legacy_option_map = [
-		'mailchimp_audience_id'           => 'newspack_reader_activation_mailchimp_audience_id',
-		'mailchimp_reader_default_status' => 'newspack_reader_activation_mailchimp_reader_default_status',
-		'active_campaign_master_list'     => 'newspack_reader_activation_active_campaign_master_list',
-		'constant_contact_list_id'        => 'newspack_reader_activation_constant_contact_list_id',
-		'sync_esp_delete'                 => 'newspack_reader_activation_sync_esp_delete',
-	];
-
-	/**
 	 * Constructor.
 	 */
 	public function __construct() {
@@ -169,62 +156,6 @@ class ESP extends Integration {
 		}
 
 		return $options;
-	}
-
-	/**
-	 * Get a settings field value with lazy migration from legacy options.
-	 *
-	 * On first access, if the new per-integration option doesn't exist yet,
-	 * reads the legacy global option, persists it to the new location, and returns it.
-	 *
-	 * @param string $key The field key.
-	 * @return mixed The field value.
-	 */
-	public function get_settings_field_value( $key ) {
-		// For non-legacy keys, delegate to parent.
-		if ( ! isset( self::$legacy_option_map[ $key ] ) ) {
-			return parent::get_settings_field_value( $key );
-		}
-
-		// Check if new option exists (use sentinel to distinguish "not set" from falsy).
-		$sentinel    = '__newspack_not_set__';
-		$option_name = self::SETTINGS_OPTION_PREFIX . $this->id . '_' . $key;
-		$value       = \get_option( $option_name, $sentinel );
-		if ( $sentinel !== $value ) {
-			return $value;
-		}
-
-		// Lazy migrate from legacy option.
-		$legacy_value = \get_option( self::$legacy_option_map[ $key ], $sentinel );
-		if ( $sentinel !== $legacy_value ) {
-			$this->update_settings_field_value( $key, $legacy_value );
-			return $legacy_value;
-		}
-
-		// Fall back to field default.
-		return parent::get_settings_field_value( $key );
-	}
-
-	/**
-	 * Get the metadata prefix with lazy migration from legacy option.
-	 *
-	 * @return string The metadata prefix.
-	 */
-	public function get_metadata_prefix() {
-		$sentinel = '__newspack_not_set__';
-		$value    = \get_option( self::METADATA_PREFIX_OPTION_PREFIX . $this->id, $sentinel );
-		if ( $sentinel !== $value ) {
-			return $value;
-		}
-
-		// Lazy migrate from legacy global option.
-		$legacy = \get_option( Sync\Metadata::PREFIX_OPTION, $sentinel );
-		if ( $sentinel !== $legacy && ! empty( $legacy ) ) {
-			$this->update_metadata_prefix( $legacy );
-			return $legacy;
-		}
-
-		return 'NP_';
 	}
 
 	/**
@@ -401,10 +332,11 @@ class ESP extends Integration {
 	/**
 	 * Get incoming available contact fields from the integration.
 	 *
+	 * @param bool $filtered Optional. Whether to filter out fields that are already in the metadata. Default false.
+	 *
 	 * @return Incoming_Contact_Field[]|\WP_Error Array of incoming contact field objects or WP_Error on failure.
 	 */
-	public function get_incoming_available_contact_fields() {
-
+	public function get_available_incoming_contact_fields( $filtered = false ) {
 		if ( ! class_exists( 'Newspack_Newsletters_Contacts' ) ) {
 			return new \WP_Error(
 				'newspack_newsletters_contacts_not_found',
@@ -427,11 +359,23 @@ class ESP extends Integration {
 			return $fields;
 		}
 
-		return array_map(
+		$incoming_fields = array_map(
 			function( $field ) {
 				return new Incoming_Contact_Field( $field['key'] );
 			},
 			$fields
 		);
+
+		if ( $filtered ) {
+			$keys_to_filter  = Sync\Metadata::get_all_prefixed_keys();
+			$incoming_fields = array_filter(
+				$incoming_fields,
+				function( $field ) use ( $keys_to_filter ) {
+					return ! in_array( $field->get_key(), $keys_to_filter, true );
+				}
+			);
+		}
+
+		return $incoming_fields;
 	}
 }

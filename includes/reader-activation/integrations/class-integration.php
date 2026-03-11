@@ -16,6 +16,19 @@ defined( 'ABSPATH' ) || exit;
  */
 abstract class Integration {
 	/**
+	 * Map of ESP setting keys to their legacy option names.
+	 *
+	 * @var array<string, string>
+	 */
+	private static $legacy_option_map = [
+		'mailchimp_audience_id'           => 'newspack_reader_activation_mailchimp_audience_id',
+		'mailchimp_reader_default_status' => 'newspack_reader_activation_mailchimp_reader_default_status',
+		'active_campaign_master_list'     => 'newspack_reader_activation_active_campaign_master_list',
+		'constant_contact_list_id'        => 'newspack_reader_activation_constant_contact_list_id',
+		'sync_esp_delete'                 => 'newspack_reader_activation_sync_esp_delete',
+	];
+
+	/**
 	 * Option name prefix for storing enabled incoming metadata fields per integration.
 	 *
 	 * @var string
@@ -219,35 +232,12 @@ abstract class Integration {
 	 *
 	 * Integrations that support pulling contact data should implement this method.
 	 *
+	 * @param bool $filtered Optional. Whether to filter out fields that are already in the metadata. Default false.
+	 *
 	 * @return Integrations\Incoming_Contact_Field[]|\WP_Error Array of incoming contact field objects or WP_Error on failure.
 	 */
-	public function get_incoming_available_contact_fields() {
+	public function get_available_incoming_contact_fields( $filtered ) {
 		return [];
-	}
-
-	/**
-	 * Get incoming contact fields that are not already in the metadata.
-	 *
-	 * This method filters the available contact fields to exclude fields
-	 * whose keys already exist in the synced metadata.
-	 *
-	 * @return Integrations\Incoming_Contact_Field[]|\WP_Error Array of filtered incoming contact field objects or WP_Error on failure.
-	 */
-	public function get_incoming_contact_fields() {
-		$available_fields = $this->get_incoming_available_contact_fields();
-
-		if ( is_wp_error( $available_fields ) ) {
-			return $available_fields;
-		}
-
-		$prefixed_keys = Sync\Metadata::get_all_prefixed_keys();
-
-		return array_filter(
-			$available_fields,
-			function( $field ) use ( $prefixed_keys ) {
-				return ! in_array( $field->get_key(), $prefixed_keys, true );
-			}
-		);
 	}
 
 	/**
@@ -367,6 +357,9 @@ abstract class Integration {
 	 * @return array Array of settings field declarations.
 	 */
 	public function get_metadata_fields() {
+		$incoming_fields = $this->get_available_incoming_contact_fields( true );
+		$outgoing_fields = Sync\Metadata::get_default_fields();
+
 		return [
 			[
 				'key'         => 'metadata_prefix',
@@ -377,15 +370,23 @@ abstract class Integration {
 			],
 			[
 				'key'     => 'outgoing_metadata_fields',
-				'type'    => 'outgoing_metadata',
+				'type'    => 'metadata',
 				'label'   => __( 'Outgoing metadata fields', 'newspack-plugin' ),
-				'default' => [],
+				'options' => $outgoing_fields,
 			],
 			[
 				'key'     => 'incoming_metadata_fields',
-				'type'    => 'incoming_metadata',
+				'type'    => 'metadata',
 				'label'   => __( 'Incoming metadata fields', 'newspack-plugin' ),
 				'default' => [],
+				'options' => array_values(
+					array_map(
+						function( $field ) {
+							return $field->get_key();
+						},
+						is_wp_error( $incoming_fields ) ? [] : $incoming_fields
+					)
+				),
 			],
 		];
 	}
@@ -396,7 +397,18 @@ abstract class Integration {
 	 * @return string The metadata prefix.
 	 */
 	public function get_metadata_prefix() {
-		return \get_option( self::METADATA_PREFIX_OPTION_PREFIX . $this->id, 'NP_' );
+		$value = \get_option( self::METADATA_PREFIX_OPTION_PREFIX . $this->id, null );
+		if ( null !== $value ) {
+			return $value;
+		}
+		// Lazy migrate from legacy global option.
+		$legacy_value = \get_option( Sync\Metadata::PREFIX_OPTION, null );
+		if ( null !== $legacy_value ) {
+			// update option directly to avoid infinite loop.
+			\update_option( self::METADATA_PREFIX_OPTION_PREFIX . $this->id, $legacy_value );
+			return $legacy_value;
+		}
+		return 'NP_';
 	}
 
 	/**
@@ -447,8 +459,22 @@ abstract class Integration {
 			return null;
 		}
 		$option_name = self::SETTINGS_OPTION_PREFIX . $this->id . '_' . $key;
-		$default     = $field['default'] ?? '';
-		return \get_option( $option_name, $default );
+		$value       = \get_option( $option_name, null );
+
+		if ( null !== $value ) {
+			return $value;
+		}
+		// Attempt to migrate old setting if the field is found in the key map.
+		if ( isset( self::$legacy_option_map[ $key ] ) ) {
+			// Lazy migrate from legacy option.
+			$legacy_value = \get_option( self::$legacy_option_map[ $key ], null );
+			if ( null !== $legacy_value ) {
+				// update option directly to avoid infinite loop.
+				\update_option( $option_name, $legacy_value );
+				return $legacy_value;
+			}
+		}
+		return $field['default'] ?? '';
 	}
 
 	/**

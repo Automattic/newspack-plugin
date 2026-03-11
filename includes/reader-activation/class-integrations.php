@@ -87,8 +87,8 @@ class Integrations {
 		// Hook for other plugins/code to register their integrations.
 		do_action( 'newspack_reader_activation_register_integrations' );
 
-		// Migrate ESP enabled state from legacy option.
-		self::maybe_migrate_esp_enabled();
+		// hardcode ESP integration as enabled for now..
+		self::enable( 'esp' );
 
 		// Let each integration register its data event handlers.
 		foreach ( self::$integrations as $integration ) {
@@ -229,27 +229,6 @@ class Integrations {
 		}
 
 		return $enabled;
-	}
-
-	/**
-	 * Migrate ESP enabled state from the legacy sync_esp option.
-	 *
-	 * On first run, reads the legacy option and sets the ESP integration
-	 * enabled/disabled accordingly. Defaults to enabled if no legacy option exists.
-	 */
-	private static function maybe_migrate_esp_enabled() {
-		$migrated_key = 'newspack_esp_enabled_migrated';
-		if ( \get_option( $migrated_key ) ) {
-			return;
-		}
-
-		$legacy_sync_esp = \get_option( 'newspack_reader_activation_sync_esp', null );
-		if ( null !== $legacy_sync_esp && ! $legacy_sync_esp ) {
-			self::disable( 'esp' );
-		} else {
-			self::enable( 'esp' );
-		}
-		\update_option( $migrated_key, true );
 	}
 
 	/**
