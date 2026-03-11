@@ -50,7 +50,7 @@ class ESP extends Integration {
 		}
 		$list_options = $this->get_list_options();
 		$provider     = $this->get_provider();
-		switch ( $provider ) {
+		switch ( $provider->service ) {
 			case 'mailchimp':
 				$fields[] = [
 					'key'         => 'mailchimp_audience_id',
@@ -112,13 +112,13 @@ class ESP extends Integration {
 	/**
 	 * Get the active ESP provider name.
 	 *
-	 * @return string The provider name or empty string.
+	 * @return Newspack_Newsletters_Service_Provider|null The service provider object or null if not available.
 	 */
 	private function get_provider() {
 		if ( class_exists( 'Newspack_Newsletters' ) ) {
-			return \Newspack_Newsletters::service_provider();
+			return \Newspack_Newsletters::get_service_provider();
 		}
-		return '';
+		return null;
 	}
 
 	/**
@@ -139,19 +139,8 @@ class ESP extends Integration {
 		$provider = $this->get_provider();
 
 		// For Mailchimp, filter out groups and tags, only include remote lists.
-		if ( 'mailchimp' === $provider ) {
-			$lists = array_filter(
-				$lists,
-				function( $list ) {
-					if ( ! isset( $list['type'] ) || 'remote' !== $list['type'] ) {
-						return false;
-					}
-					if ( isset( $list['id'] ) && preg_match( '/^(group-|tag-)/', $list['id'] ) ) {
-						return false;
-					}
-					return true;
-				}
-			);
+		if ( 'mailchimp' === $provider->service ) {
+			$lists = $provider->get_lists( true );
 		}
 
 		$options = [
@@ -177,7 +166,7 @@ class ESP extends Integration {
 	 */
 	public function get_master_list_id() {
 		$provider = $this->get_provider();
-		switch ( $provider ) {
+		switch ( $provider->service ) {
 			case 'mailchimp':
 				$audience_id = $this->get_settings_field_value( 'mailchimp_audience_id' );
 				if ( ! $audience_id && function_exists( 'mailchimp_get_list_id' ) ) {

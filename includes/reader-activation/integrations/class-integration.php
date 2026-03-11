@@ -251,25 +251,6 @@ abstract class Integration {
 	}
 
 	/**
-	 * Get the enabled incoming metadata fields for this integration.
-	 *
-	 * @return string[] List of enabled field names.
-	 */
-	public function get_incoming_fields() {
-		return \get_option( self::INCOMING_FIELDS_OPTION_PREFIX . $this->id, [] );
-	}
-
-	/**
-	 * Set the selected fields for this integration.
-	 *
-	 * @param array $fields Array of field keys to store.
-	 * @return bool True if the option was updated, false otherwise.
-	 */
-	public function set_incoming_fields( $fields ) {
-		return \update_option( self::INCOMING_FIELDS_OPTION_PREFIX . $this->id, $fields );
-	}
-
-	/**
 	 * Test the live connection to the integration service.
 	 *
 	 * Subclasses should override this to perform a lightweight API call
@@ -303,6 +284,15 @@ abstract class Integration {
 	}
 
 	/**
+	 * Get the enabled incoming metadata fields for this integration.
+	 *
+	 * @return string[] List of enabled field names.
+	 */
+	public function get_enabled_incoming_fields() {
+		return \get_option( self::INCOMING_FIELDS_OPTION_PREFIX . $this->id, [] );
+	}
+
+	/**
 	 * Get the enabled outgoing metadata fields for this integration.
 	 *
 	 * @return string[] List of enabled field names.
@@ -318,7 +308,7 @@ abstract class Integration {
 	 *
 	 * @return bool True if updated, false otherwise.
 	 */
-	public function update_incoming_fields( $fields ) {
+	public function update_enabled_incoming_fields( $fields ) {
 		return \update_option( self::INCOMING_FIELDS_OPTION_PREFIX . $this->id, $fields );
 	}
 
@@ -449,7 +439,7 @@ abstract class Integration {
 			return $this->get_enabled_outgoing_fields();
 		}
 		if ( 'incoming_metadata_fields' === $key ) {
-			return $this->get_incoming_fields();
+			return $this->get_enabled_incoming_fields();
 		}
 
 		$field = $this->get_settings_field_by_key( $key );
@@ -483,7 +473,7 @@ abstract class Integration {
 			return $this->update_enabled_outgoing_fields( $sanitized );
 		}
 		if ( 'incoming_metadata_fields' === $key ) {
-			return $this->update_incoming_fields( $sanitized );
+			return $this->update_enabled_incoming_fields( $sanitized );
 		}
 
 		$option_name = self::SETTINGS_OPTION_PREFIX . $this->id . '_' . $key;
