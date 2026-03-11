@@ -254,7 +254,7 @@ abstract class Integration {
 	 *
 	 * @return string The group name (e.g., 'newspack-esp').
 	 */
-	public function get_action_group() {
+	final public function get_action_group() {
 		return Integrations::get_action_group( $this->id );
 	}
 
@@ -265,7 +265,7 @@ abstract class Integration {
 	 *
 	 * @return array Array of action row objects.
 	 */
-	public function get_scheduled_actions( $args = [] ) {
+	final public function get_scheduled_actions( $args = [] ) {
 		$args['integration_id'] = $this->id;
 		return Integrations::get_scheduled_actions( $args );
 	}
