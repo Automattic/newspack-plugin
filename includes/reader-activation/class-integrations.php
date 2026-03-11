@@ -164,6 +164,11 @@ class Integrations {
 		}
 		unset( $args['integration_id'] );
 
+		// No groups to query, return empty array.
+		if ( empty( $args['groups'] ) ) {
+			return [];
+		}
+
 		return \Newspack\Action_Scheduler::get_scheduled_actions( $args );
 	}
 
