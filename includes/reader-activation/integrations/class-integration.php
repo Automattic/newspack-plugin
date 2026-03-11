@@ -252,7 +252,7 @@ abstract class Integration {
 	/**
 	 * Get the ActionScheduler group name for this integration.
 	 *
-	 * @return string The group name (e.g., 'newspack-esp').
+	 * @return string The group name (e.g., 'newspack-integration-esp').
 	 */
 	final public function get_action_group() {
 		return Integrations::get_action_group( $this->id );

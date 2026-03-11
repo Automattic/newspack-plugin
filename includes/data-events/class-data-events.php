@@ -643,7 +643,7 @@ final class Data_Events {
 		 * @param string $class       The handler class name.
 		 * @param string $action_name The data event action name.
 		 */
-		return \apply_filters( 'newspack_data_events_handler_action_group', 'newspack', $class, $action_name );
+		return \apply_filters( 'newspack_data_events_handler_action_group', Action_Scheduler::DEFAULT_GROUP, $class, $action_name );
 	}
 
 	/**
@@ -656,7 +656,7 @@ final class Data_Events {
 		\as_enqueue_async_action(
 			self::DISPATCH_AS_HOOK,
 			[ self::$queued_dispatches ],
-			'newspack'
+			Action_Scheduler::DEFAULT_GROUP
 		);
 
 		self::log( sprintf( 'Scheduled %d dispatch(es) via Action Scheduler.', count( self::$queued_dispatches ) ) );

@@ -854,8 +854,8 @@ class Test_Integrations extends \WP_UnitTestCase {
 	 * Test get_action_group returns prefixed integration ID.
 	 */
 	public function test_get_action_group() {
-		$this->assertSame( 'newspack-esp', Integrations::get_action_group( 'esp' ) );
-		$this->assertSame( 'newspack-my-crm', Integrations::get_action_group( 'my-crm' ) );
+		$this->assertSame( 'newspack-integration-esp', Integrations::get_action_group( 'esp' ) );
+		$this->assertSame( 'newspack-integration-my-crm', Integrations::get_action_group( 'my-crm' ) );
 	}
 
 	/**
@@ -870,7 +870,7 @@ class Test_Integrations extends \WP_UnitTestCase {
 		$integration->test_register_handler( $action_name, 'handle_test_event' );
 
 		$group = Integrations::get_action_group_for_handler( Sample_Integration::class, $action_name );
-		$this->assertSame( 'newspack-test-id', $group );
+		$this->assertSame( 'newspack-integration-test-id', $group );
 	}
 
 	/**
@@ -901,6 +901,6 @@ class Test_Integrations extends \WP_UnitTestCase {
 		$integration->test_register_handler( $action_name, 'handle_test_event' );
 
 		$group = Data_Events::get_handler_action_group( Sample_Integration::class, $action_name );
-		$this->assertSame( 'newspack-filtered-id', $group );
+		$this->assertSame( 'newspack-integration-filtered-id', $group );
 	}
 }

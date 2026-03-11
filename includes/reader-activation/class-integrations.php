@@ -63,19 +63,14 @@ class Integrations {
 	const OPTION_NAME = 'newspack_reader_activation_enabled_integrations';
 
 	/**
-	 * ActionScheduler group prefix for integration-specific actions.
-	 */
-	const ACTION_GROUP_PREFIX = 'newspack-';
-
-	/**
 	 * Get the ActionScheduler group name for a specific integration.
 	 *
 	 * @param string $integration_id The integration ID.
 	 *
-	 * @return string The group name (e.g., 'newspack-esp').
+	 * @return string The group name (e.g., 'newspack-integration-esp').
 	 */
 	public static function get_action_group( $integration_id ) {
-		return self::ACTION_GROUP_PREFIX . $integration_id;
+		return \Newspack\Action_Scheduler::GROUP_PREFIX . 'integration-' . $integration_id;
 	}
 
 	/**
@@ -117,28 +112,14 @@ class Integrations {
 	/**
 	 * Get all ActionScheduler group slugs for Newspack integrations.
 	 *
-	 * Queries the actionscheduler_groups table for slugs matching
-	 * the integration prefix. Used by UI queries to fetch actions
-	 * across all integrations.
-	 *
 	 * @return string[] Array of group slug strings.
 	 */
 	public static function get_all_action_groups() {
-		global $wpdb;
-		$table = $wpdb->prefix . 'actionscheduler_groups';
-		return $wpdb->get_col( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-			$wpdb->prepare(
-				"SELECT slug FROM {$table} WHERE slug LIKE %s", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-				$wpdb->esc_like( self::ACTION_GROUP_PREFIX ) . '%'
-			)
-		);
+		return \Newspack\Action_Scheduler::get_groups_by_prefix( \Newspack\Action_Scheduler::GROUP_PREFIX . 'integration-' );
 	}
 
 	/**
 	 * Get ActionScheduler actions for Newspack integrations.
-	 *
-	 * Two-step query: resolves group slugs to group IDs, then queries
-	 * the actions table with IN() on the indexed group_id column.
 	 *
 	 * @param array $args {
 	 *     Optional. Query arguments.
@@ -154,66 +135,20 @@ class Integrations {
 	 * @return array Array of action row objects.
 	 */
 	public static function get_scheduled_actions( $args = [] ) {
-		global $wpdb;
-
 		$defaults = [
 			'integration_id' => '',
-			'status'         => '',
-			'per_page'       => 20,
-			'offset'         => 0,
-			'orderby'        => 'scheduled_date_gmt',
-			'order'          => 'DESC',
 		];
 		$args = wp_parse_args( $args, $defaults );
 
-		// Resolve group slugs.
+		// Resolve integration_id to group slugs.
 		if ( ! empty( $args['integration_id'] ) ) {
-			$slugs = [ self::get_action_group( $args['integration_id'] ) ];
+			$args['groups'] = [ self::get_action_group( $args['integration_id'] ) ];
 		} else {
-			$slugs = self::get_all_action_groups();
+			$args['groups'] = self::get_all_action_groups();
 		}
+		unset( $args['integration_id'] );
 
-		if ( empty( $slugs ) ) {
-			return [];
-		}
-
-		// Get group IDs from slugs.
-		$groups_table      = $wpdb->prefix . 'actionscheduler_groups';
-		$slug_placeholders = implode( ',', array_fill( 0, count( $slugs ), '%s' ) );
-		$group_ids         = $wpdb->get_col( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-			$wpdb->prepare(
-				"SELECT group_id FROM {$groups_table} WHERE slug IN ({$slug_placeholders})", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
-				...$slugs
-			)
-		);
-
-		if ( empty( $group_ids ) ) {
-			return [];
-		}
-
-		// Query actions.
-		$actions_table   = $wpdb->prefix . 'actionscheduler_actions';
-		$id_placeholders = implode( ',', array_fill( 0, count( $group_ids ), '%d' ) );
-
-		$where = $wpdb->prepare(
-			"WHERE group_id IN ({$id_placeholders})", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
-			...array_map( 'absint', $group_ids )
-		);
-
-		if ( ! empty( $args['status'] ) ) {
-			$where .= $wpdb->prepare( ' AND status = %s', $args['status'] );
-		}
-
-		$allowed_orderby = [ 'scheduled_date_gmt', 'action_id', 'hook', 'status' ];
-		$orderby         = in_array( $args['orderby'], $allowed_orderby, true ) ? $args['orderby'] : 'scheduled_date_gmt';
-		$order           = 'ASC' === strtoupper( $args['order'] ) ? 'ASC' : 'DESC';
-
-		$limit  = absint( $args['per_page'] );
-		$offset = absint( $args['offset'] );
-
-		return $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-			"SELECT * FROM {$actions_table} {$where} ORDER BY {$orderby} {$order} LIMIT {$limit} OFFSET {$offset}" // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-		);
+		return \Newspack\Action_Scheduler::get_scheduled_actions( $args );
 	}
 
 	/**
