@@ -150,14 +150,18 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 	} );
 	const gapVars = resolveBlockGap( styleAttr?.spacing?.blockGap );
 
-	const blockProps = stripColorFromBlockProps( useBlockProps( { className: 'wp-block-newspack-author-profile-social' } ) );
-	blockProps.style = {
-		...blockProps.style,
-		'--icon-size': `${ roundIconSize( iconSizeValue ) }px`,
-		...gapVars,
-		...( ! isBrand && iconColor && { '--icon-color': iconColor } ),
-		...( ! isBrand && iconBackground && { '--icon-background': iconBackground } ),
-	};
+const rawProps = stripColorFromBlockProps( useBlockProps( { className:
+  'wp-block-newspack-author-profile-social' } ) );
+  const blockProps = {
+      ...rawProps,
+      style: {
+          ...rawProps.style,
+          '--icon-size': `${ roundIconSize( iconSizeValue ) }px`,
+          ...gapVars,
+          ...( ! isBrand && iconColor && { '--icon-color': iconColor } ),
+          ...( ! isBrand && iconBackground && { '--icon-background': iconBackground } ),
+      },
+  };
 
 	// Get inner blocks (stable reference from the store).
 	const innerBlocks = useSelect( select => select( 'core/block-editor' ).getBlocks( clientId ), [ clientId ] );
