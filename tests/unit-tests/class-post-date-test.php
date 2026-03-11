@@ -52,6 +52,36 @@ class Test_Post_Date extends \WP_UnitTestCase {
 		parent::tear_down();
 	}
 
+	/**
+	 * Helper: create a post and set its modified date via direct DB update.
+	 *
+	 * WordPress ignores `post_modified` in wp_insert_post, so we must update it
+	 * directly in the database after creation.
+	 *
+	 * @param string $post_date     Post date in 'Y-m-d H:i:s' format.
+	 * @param string $post_modified Post modified date in 'Y-m-d H:i:s' format.
+	 * @return int Post ID.
+	 */
+	private function create_post_with_modified_date( $post_date, $post_modified ) {
+		global $wpdb;
+		$post_id = static::factory()->post->create(
+			[
+				'post_date'     => $post_date,
+				'post_date_gmt' => $post_date,
+			]
+		);
+		$wpdb->update( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+			$wpdb->posts,
+			[
+				'post_modified'     => $post_modified,
+				'post_modified_gmt' => $post_modified,
+			],
+			[ 'ID' => $post_id ]
+		);
+		clean_post_cache( $post_id );
+		return $post_id;
+	}
+
 	// ─── Time Ago: convert_to_time_ago() ───
 
 	/**
@@ -212,11 +242,9 @@ class Test_Post_Date extends \WP_UnitTestCase {
 		set_theme_mod( 'post_updated_date', true );
 		set_theme_mod( 'post_updated_date_threshold', 24 );
 
-		$post_id = static::factory()->post->create(
-			[
-				'post_date'     => gmdate( 'Y-m-d H:i:s', time() - 7 * DAY_IN_SECONDS ),
-				'post_modified' => gmdate( 'Y-m-d H:i:s', time() - 3 * DAY_IN_SECONDS ),
-			] 
+		$post_id = $this->create_post_with_modified_date(
+			gmdate( 'Y-m-d H:i:s', time() - 7 * DAY_IN_SECONDS ),
+			gmdate( 'Y-m-d H:i:s', time() - 3 * DAY_IN_SECONDS )
 		);
 
 		$this->assertTrue(
@@ -234,11 +262,9 @@ class Test_Post_Date extends \WP_UnitTestCase {
 		set_theme_mod( 'post_updated_date', true );
 		set_theme_mod( 'post_updated_date_threshold', 24 );
 
-		$post_id = static::factory()->post->create(
-			[
-				'post_date'     => gmdate( 'Y-m-d H:i:s', time() - 2 * HOUR_IN_SECONDS ),
-				'post_modified' => gmdate( 'Y-m-d H:i:s', time() - 1 * HOUR_IN_SECONDS ),
-			] 
+		$post_id = $this->create_post_with_modified_date(
+			gmdate( 'Y-m-d H:i:s', time() - 2 * HOUR_IN_SECONDS ),
+			gmdate( 'Y-m-d H:i:s', time() - 1 * HOUR_IN_SECONDS )
 		);
 
 		$this->assertFalse(
@@ -255,11 +281,9 @@ class Test_Post_Date extends \WP_UnitTestCase {
 	public function test_modified_date_sitewide_off_no_override() {
 		set_theme_mod( 'post_updated_date', false );
 
-		$post_id = static::factory()->post->create(
-			[
-				'post_date'     => gmdate( 'Y-m-d H:i:s', time() - 7 * DAY_IN_SECONDS ),
-				'post_modified' => gmdate( 'Y-m-d H:i:s', time() - 3 * DAY_IN_SECONDS ),
-			] 
+		$post_id = $this->create_post_with_modified_date(
+			gmdate( 'Y-m-d H:i:s', time() - 7 * DAY_IN_SECONDS ),
+			gmdate( 'Y-m-d H:i:s', time() - 3 * DAY_IN_SECONDS )
 		);
 
 		$this->assertFalse(
@@ -276,11 +300,9 @@ class Test_Post_Date extends \WP_UnitTestCase {
 	public function test_modified_date_per_post_show_override() {
 		set_theme_mod( 'post_updated_date', false );
 
-		$post_id = static::factory()->post->create(
-			[
-				'post_date'     => gmdate( 'Y-m-d H:i:s', time() - 7 * DAY_IN_SECONDS ),
-				'post_modified' => gmdate( 'Y-m-d H:i:s', time() - 3 * DAY_IN_SECONDS ),
-			] 
+		$post_id = $this->create_post_with_modified_date(
+			gmdate( 'Y-m-d H:i:s', time() - 7 * DAY_IN_SECONDS ),
+			gmdate( 'Y-m-d H:i:s', time() - 3 * DAY_IN_SECONDS )
 		);
 		update_post_meta( $post_id, 'newspack_show_updated_date', true );
 
@@ -299,11 +321,9 @@ class Test_Post_Date extends \WP_UnitTestCase {
 		set_theme_mod( 'post_updated_date', true );
 		set_theme_mod( 'post_updated_date_threshold', 24 );
 
-		$post_id = static::factory()->post->create(
-			[
-				'post_date'     => gmdate( 'Y-m-d H:i:s', time() - 7 * DAY_IN_SECONDS ),
-				'post_modified' => gmdate( 'Y-m-d H:i:s', time() - 3 * DAY_IN_SECONDS ),
-			] 
+		$post_id = $this->create_post_with_modified_date(
+			gmdate( 'Y-m-d H:i:s', time() - 7 * DAY_IN_SECONDS ),
+			gmdate( 'Y-m-d H:i:s', time() - 3 * DAY_IN_SECONDS )
 		);
 		update_post_meta( $post_id, 'newspack_hide_updated_date', true );
 
@@ -322,11 +342,9 @@ class Test_Post_Date extends \WP_UnitTestCase {
 		set_theme_mod( 'post_updated_date', true );
 		set_theme_mod( 'post_updated_date_threshold', 0 );
 
-		$post_id = static::factory()->post->create(
-			[
-				'post_date'     => gmdate( 'Y-m-d H:i:s', time() - 1 * HOUR_IN_SECONDS ),
-				'post_modified' => gmdate( 'Y-m-d H:i:s', time() - 30 * MINUTE_IN_SECONDS ),
-			] 
+		$post_id = $this->create_post_with_modified_date(
+			gmdate( 'Y-m-d H:i:s', time() - 1 * HOUR_IN_SECONDS ),
+			gmdate( 'Y-m-d H:i:s', time() - 30 * MINUTE_IN_SECONDS )
 		);
 
 		$this->assertTrue(
@@ -348,11 +366,9 @@ class Test_Post_Date extends \WP_UnitTestCase {
 		$block_content = '<div class="wp-block-post-date wp-block-post-date__modified-date"><time datetime="2026-03-10T10:00:00+00:00">March 10, 2026</time></div>';
 		$block = [ 'blockName' => 'core/post-date' ];
 
-		$post_id = static::factory()->post->create(
-			[
-				'post_date'     => gmdate( 'Y-m-d H:i:s', time() - 7 * DAY_IN_SECONDS ),
-				'post_modified' => gmdate( 'Y-m-d H:i:s', time() - 3 * DAY_IN_SECONDS ),
-			] 
+		$post_id = $this->create_post_with_modified_date(
+			gmdate( 'Y-m-d H:i:s', time() - 7 * DAY_IN_SECONDS ),
+			gmdate( 'Y-m-d H:i:s', time() - 3 * DAY_IN_SECONDS )
 		);
 
 		global $post;
@@ -379,9 +395,15 @@ class Test_Post_Date extends \WP_UnitTestCase {
 		$old_mods['post_updated_date_threshold'] = 12;
 		update_option( "theme_mods_$old_theme_slug", $old_mods );
 
-		// Create a mock old WP_Theme object.
-		$old_theme = $this->createMock( \WP_Theme::class );
-		$old_theme->method( 'get_stylesheet' )->willReturn( $old_theme_slug );
+		// Create a simple object that implements get_stylesheet().
+		$old_theme = new class() {
+			/**
+			 * Return the old theme stylesheet slug.
+			 */
+			public function get_stylesheet() {
+				return 'newspack-theme';
+			}
+		};
 
 		\Newspack\Post_Date::migrate_date_settings( 'Newspack', $old_theme );
 
