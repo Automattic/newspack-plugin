@@ -202,4 +202,195 @@ class Test_Post_Date extends \WP_UnitTestCase {
 		$this->assertStringNotContainsString( 'ago', $result, 'Date beyond cutoff should not be converted.' );
 		$this->assertStringContainsString( 'February 19, 2026', $result, 'Original date text should be preserved.' );
 	}
+
+	// ─── Modified Date: should_display_updated_date() ───
+
+	/**
+	 * Test modified date shows when sitewide on, beyond threshold.
+	 */
+	public function test_modified_date_sitewide_on_beyond_threshold() {
+		set_theme_mod( 'post_updated_date', true );
+		set_theme_mod( 'post_updated_date_threshold', 24 );
+
+		$post_id = static::factory()->post->create(
+			[
+				'post_date'     => gmdate( 'Y-m-d H:i:s', time() - 7 * DAY_IN_SECONDS ),
+				'post_modified' => gmdate( 'Y-m-d H:i:s', time() - 3 * DAY_IN_SECONDS ),
+			] 
+		);
+
+		$this->assertTrue(
+			\Newspack\Post_Date::should_display_updated_date( $post_id ),
+			'Modified date should display when sitewide is on and post was modified beyond threshold.'
+		);
+
+		wp_delete_post( $post_id, true );
+	}
+
+	/**
+	 * Test modified date hidden when sitewide on but within threshold.
+	 */
+	public function test_modified_date_sitewide_on_within_threshold() {
+		set_theme_mod( 'post_updated_date', true );
+		set_theme_mod( 'post_updated_date_threshold', 24 );
+
+		$post_id = static::factory()->post->create(
+			[
+				'post_date'     => gmdate( 'Y-m-d H:i:s', time() - 2 * HOUR_IN_SECONDS ),
+				'post_modified' => gmdate( 'Y-m-d H:i:s', time() - 1 * HOUR_IN_SECONDS ),
+			] 
+		);
+
+		$this->assertFalse(
+			\Newspack\Post_Date::should_display_updated_date( $post_id ),
+			'Modified date should not display when modification is within threshold hours of publish.'
+		);
+
+		wp_delete_post( $post_id, true );
+	}
+
+	/**
+	 * Test modified date hidden when sitewide off and no per-post override.
+	 */
+	public function test_modified_date_sitewide_off_no_override() {
+		set_theme_mod( 'post_updated_date', false );
+
+		$post_id = static::factory()->post->create(
+			[
+				'post_date'     => gmdate( 'Y-m-d H:i:s', time() - 7 * DAY_IN_SECONDS ),
+				'post_modified' => gmdate( 'Y-m-d H:i:s', time() - 3 * DAY_IN_SECONDS ),
+			] 
+		);
+
+		$this->assertFalse(
+			\Newspack\Post_Date::should_display_updated_date( $post_id ),
+			'Modified date should not display when sitewide is off and no per-post override.'
+		);
+
+		wp_delete_post( $post_id, true );
+	}
+
+	/**
+	 * Test per-post show override when sitewide off.
+	 */
+	public function test_modified_date_per_post_show_override() {
+		set_theme_mod( 'post_updated_date', false );
+
+		$post_id = static::factory()->post->create(
+			[
+				'post_date'     => gmdate( 'Y-m-d H:i:s', time() - 7 * DAY_IN_SECONDS ),
+				'post_modified' => gmdate( 'Y-m-d H:i:s', time() - 3 * DAY_IN_SECONDS ),
+			] 
+		);
+		update_post_meta( $post_id, 'newspack_show_updated_date', true );
+
+		$this->assertTrue(
+			\Newspack\Post_Date::should_display_updated_date( $post_id ),
+			'Modified date should display when per-post show override is on.'
+		);
+
+		wp_delete_post( $post_id, true );
+	}
+
+	/**
+	 * Test per-post hide override when sitewide on.
+	 */
+	public function test_modified_date_per_post_hide_override() {
+		set_theme_mod( 'post_updated_date', true );
+		set_theme_mod( 'post_updated_date_threshold', 24 );
+
+		$post_id = static::factory()->post->create(
+			[
+				'post_date'     => gmdate( 'Y-m-d H:i:s', time() - 7 * DAY_IN_SECONDS ),
+				'post_modified' => gmdate( 'Y-m-d H:i:s', time() - 3 * DAY_IN_SECONDS ),
+			] 
+		);
+		update_post_meta( $post_id, 'newspack_hide_updated_date', true );
+
+		$this->assertFalse(
+			\Newspack\Post_Date::should_display_updated_date( $post_id ),
+			'Modified date should not display when per-post hide override is on.'
+		);
+
+		wp_delete_post( $post_id, true );
+	}
+
+	/**
+	 * Test threshold of zero shows modified date immediately.
+	 */
+	public function test_modified_date_threshold_zero() {
+		set_theme_mod( 'post_updated_date', true );
+		set_theme_mod( 'post_updated_date_threshold', 0 );
+
+		$post_id = static::factory()->post->create(
+			[
+				'post_date'     => gmdate( 'Y-m-d H:i:s', time() - 1 * HOUR_IN_SECONDS ),
+				'post_modified' => gmdate( 'Y-m-d H:i:s', time() - 30 * MINUTE_IN_SECONDS ),
+			] 
+		);
+
+		$this->assertTrue(
+			\Newspack\Post_Date::should_display_updated_date( $post_id ),
+			'Modified date should display immediately when threshold is zero.'
+		);
+
+		wp_delete_post( $post_id, true );
+	}
+
+	// ─── Modified Date: render_block filter ───
+
+	/**
+	 * Test render_block hides modified date block when sitewide off.
+	 */
+	public function test_render_block_hides_modified_date_when_off() {
+		set_theme_mod( 'post_updated_date', false );
+
+		$block_content = '<div class="wp-block-post-date wp-block-post-date__modified-date"><time datetime="2026-03-10T10:00:00+00:00">March 10, 2026</time></div>';
+		$block = [ 'blockName' => 'core/post-date' ];
+
+		$post_id = static::factory()->post->create(
+			[
+				'post_date'     => gmdate( 'Y-m-d H:i:s', time() - 7 * DAY_IN_SECONDS ),
+				'post_modified' => gmdate( 'Y-m-d H:i:s', time() - 3 * DAY_IN_SECONDS ),
+			] 
+		);
+
+		global $post;
+		$post = get_post( $post_id );
+
+		$result = \Newspack\Post_Date::filter_post_date_block( $block_content, $block );
+		$this->assertEmpty( $result, 'Modified date block should be hidden when sitewide is off.' );
+
+		wp_delete_post( $post_id, true );
+	}
+
+	// ─── Theme Switch Migration ───
+
+	/**
+	 * Test theme switch copies date settings from old theme to new.
+	 */
+	public function test_theme_switch_migration() {
+		// Simulate old theme having settings.
+		$old_theme_slug = 'newspack-theme';
+		$old_mods = get_option( "theme_mods_$old_theme_slug", [] );
+		$old_mods['post_time_ago'] = true;
+		$old_mods['post_time_ago_cut_off'] = 7;
+		$old_mods['post_updated_date'] = true;
+		$old_mods['post_updated_date_threshold'] = 12;
+		update_option( "theme_mods_$old_theme_slug", $old_mods );
+
+		// Create a mock old WP_Theme object.
+		$old_theme = $this->createMock( \WP_Theme::class );
+		$old_theme->method( 'get_stylesheet' )->willReturn( $old_theme_slug );
+
+		\Newspack\Post_Date::migrate_date_settings( 'Newspack', $old_theme );
+
+		$this->assertTrue( get_theme_mod( 'post_time_ago' ), 'post_time_ago should be migrated.' );
+		$this->assertEquals( 7, get_theme_mod( 'post_time_ago_cut_off' ), 'post_time_ago_cut_off should be migrated.' );
+		$this->assertTrue( get_theme_mod( 'post_updated_date' ), 'post_updated_date should be migrated.' );
+		$this->assertEquals( 12, get_theme_mod( 'post_updated_date_threshold' ), 'post_updated_date_threshold should be migrated.' );
+
+		// Cleanup.
+		delete_option( "theme_mods_$old_theme_slug" );
+	}
 }
