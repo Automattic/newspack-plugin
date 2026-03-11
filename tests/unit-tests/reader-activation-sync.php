@@ -327,7 +327,7 @@ class Newspack_Test_Reader_Activation_Sync extends WP_UnitTestCase {
 		$pending = as_get_scheduled_actions(
 			[
 				'hook'   => Contact_Sync::RETRY_HOOK,
-				'group'  => 'newspack',
+				'group'  => Integrations::get_action_group( 'failing_mock' ),
 				'status' => \ActionScheduler_Store::STATUS_PENDING,
 			],
 			'ARRAY_A'
@@ -377,7 +377,7 @@ class Newspack_Test_Reader_Activation_Sync extends WP_UnitTestCase {
 		$pending = as_get_scheduled_actions(
 			[
 				'hook'   => Contact_Sync::RETRY_HOOK,
-				'group'  => 'newspack',
+				'group'  => Integrations::get_action_group( 'success_mock' ),
 				'status' => \ActionScheduler_Store::STATUS_PENDING,
 			],
 			'ARRAY_A'
@@ -420,7 +420,7 @@ class Newspack_Test_Reader_Activation_Sync extends WP_UnitTestCase {
 		$pending = as_get_scheduled_actions(
 			[
 				'hook'   => Contact_Sync::RETRY_HOOK,
-				'group'  => 'newspack',
+				'group'  => Integrations::get_action_group( 'max_mock' ),
 				'status' => \ActionScheduler_Store::STATUS_PENDING,
 			],
 			'ARRAY_A'
@@ -614,7 +614,7 @@ class Newspack_Test_Reader_Activation_Sync extends WP_UnitTestCase {
 		$pending = as_get_scheduled_actions(
 			[
 				'hook'   => Contact_Sync::RETRY_HOOK,
-				'group'  => 'newspack',
+				'group'  => Integrations::get_action_group( 'failing_mock' ),
 				'status' => \ActionScheduler_Store::STATUS_PENDING,
 			],
 			'ARRAY_A'
