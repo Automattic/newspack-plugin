@@ -88,7 +88,7 @@ class Integrations {
 	 * @param string $class       The handler class name.
 	 * @param string $action_name The data event action name.
 	 *
-	 * @return string The group name.
+	 * @return string|null The group name or null if the handler is not registered through an integration.
 	 */
 	public static function get_action_group_for_handler( $class, $action_name ) {
 		$key = $class . '::' . $action_name;
