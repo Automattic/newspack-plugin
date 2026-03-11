@@ -138,7 +138,6 @@ class Test_Post_Date extends \WP_UnitTestCase {
 			]
 		);
 
-		\Newspack\Post_Date::init();
 		$date = get_the_date( '', $post_id );
 		$this->assertStringContainsString( 'ago', $date, 'get_the_date should return relative date when feature is on.' );
 
@@ -157,7 +156,6 @@ class Test_Post_Date extends \WP_UnitTestCase {
 			]
 		);
 
-		\Newspack\Post_Date::init();
 		$date = get_the_date( '', $post_id );
 		$this->assertStringNotContainsString( 'ago', $date, 'get_the_date should return full date when feature is off.' );
 
@@ -177,7 +175,6 @@ class Test_Post_Date extends \WP_UnitTestCase {
 			]
 		);
 
-		\Newspack\Post_Date::init();
 		$date = get_the_date( 'Y-m-d\TH:i:sP', $post_id );
 		$this->assertStringNotContainsString( 'ago', $date, 'ISO format should not be converted to time-ago.' );
 
@@ -203,18 +200,34 @@ class Test_Post_Date extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * Test render_block filter does NOT convert modified date blocks.
+	 * Test render_block filter does NOT convert modified date blocks to time-ago,
+	 * even when the modified date feature is enabled and the block should display.
 	 */
 	public function test_render_block_time_ago_skips_modified_date() {
 		set_theme_mod( 'post_time_ago', true );
 		set_theme_mod( 'post_time_ago_cut_off', 14 );
+		set_theme_mod( 'post_updated_date', true );
+		set_theme_mod( 'post_updated_date_threshold', 24 );
 
 		$two_hours_ago = gmdate( 'Y-m-d\TH:i:sP', time() - 2 * HOUR_IN_SECONDS );
 		$block_content = '<div class="wp-block-post-date wp-block-post-date__modified-date"><time datetime="' . $two_hours_ago . '">March 11, 2026</time></div>';
-		$block = [ 'blockName' => 'core/post-date' ];
+		$block         = [ 'blockName' => 'core/post-date' ];
+
+		// Create a post with a modified date well beyond threshold.
+		$post_id = $this->create_post_with_modified_date(
+			gmdate( 'Y-m-d H:i:s', time() - 7 * DAY_IN_SECONDS ),
+			gmdate( 'Y-m-d H:i:s', time() - 2 * HOUR_IN_SECONDS )
+		);
+
+		global $post;
+		$post = get_post( $post_id );
 
 		$result = \Newspack\Post_Date::filter_post_date_block( $block_content, $block );
+		// Modified date block should be returned unchanged (no time-ago conversion).
+		$this->assertStringContainsString( 'March 11, 2026', $result, 'Modified date block should preserve original text.' );
 		$this->assertStringNotContainsString( 'ago', $result, 'Modified date block should NOT get time-ago treatment.' );
+
+		wp_delete_post( $post_id, true );
 	}
 
 	/**

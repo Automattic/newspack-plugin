@@ -47,8 +47,6 @@
 	 * Format and replace date text in time elements.
 	 */
 	function updateDates() {
-		// Block theme: .wp-block-post-date time
-		// Classic theme / newspack-blocks: time.entry-date
 		let formatter;
 		try {
 			formatter = new Intl.RelativeTimeFormat( locale.replace( '_', '-' ), {

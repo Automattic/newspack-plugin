@@ -48,8 +48,11 @@ class Post_Date {
 	 */
 	public static function convert_to_time_ago( $date_string, $cutoff_days ) {
 		$timestamp = strtotime( $date_string );
-		$now       = time();
-		$diff      = $now - $timestamp;
+		if ( false === $timestamp ) {
+			return null;
+		}
+		$now  = time();
+		$diff = $now - $timestamp;
 		$cutoff    = $cutoff_days * DAY_IN_SECONDS;
 
 		if ( $diff >= $cutoff ) {
@@ -152,9 +155,9 @@ class Post_Date {
 	/**
 	 * Filter get_the_date() for classic theme support.
 	 *
-	 * @param string  $the_date Formatted date.
-	 * @param string  $format   Date format.
-	 * @param WP_Post $post     Post object.
+	 * @param string   $the_date Formatted date.
+	 * @param string   $format   Date format.
+	 * @param \WP_Post $post     Post object.
 	 * @return string
 	 */
 	public static function filter_get_the_date( $the_date, $format, $post ) {
@@ -201,21 +204,34 @@ class Post_Date {
 				$post_type,
 				'newspack_hide_updated_date',
 				[
-					'show_in_rest' => true,
-					'single'       => true,
-					'type'         => 'boolean',
+					'show_in_rest'  => true,
+					'single'        => true,
+					'type'          => 'boolean',
+					'default'       => false,
+					'auth_callback' => [ __CLASS__, 'auth_callback' ],
 				]
 			);
 			register_post_meta(
 				$post_type,
 				'newspack_show_updated_date',
 				[
-					'show_in_rest' => true,
-					'single'       => true,
-					'type'         => 'boolean',
+					'show_in_rest'  => true,
+					'single'        => true,
+					'type'          => 'boolean',
+					'default'       => false,
+					'auth_callback' => [ __CLASS__, 'auth_callback' ],
 				]
 			);
 		}
+	}
+
+	/**
+	 * Auth callback for post meta.
+	 *
+	 * @return bool
+	 */
+	public static function auth_callback() {
+		return current_user_can( 'edit_posts' );
 	}
 
 	/**
