@@ -125,4 +125,68 @@ class Action_Scheduler {
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared
 		return $wpdb->get_results( $query );
 	}
+
+	/**
+	 * Count ActionScheduler actions matching the given query args.
+	 *
+	 * @param array $args Same as get_scheduled_actions() but per_page/offset/orderby/order are ignored.
+	 *
+	 * @return int Total count.
+	 */
+	public static function count_scheduled_actions( $args = [] ) {
+		if ( ! self::is_available() ) {
+			return 0;
+		}
+		global $wpdb;
+
+		$args  = wp_parse_args(
+			$args,
+			[
+				'groups' => [],
+				'status' => '',
+			] 
+		);
+		$slugs = $args['groups'];
+		if ( empty( $slugs ) ) {
+			$slugs = array_merge(
+				[ self::DEFAULT_GROUP ],
+				self::get_groups_by_prefix( self::GROUP_PREFIX )
+			);
+		}
+		if ( empty( $slugs ) ) {
+			return 0;
+		}
+
+		$actions_table     = $wpdb->prefix . 'actionscheduler_actions';
+		$groups_table      = $wpdb->prefix . 'actionscheduler_groups';
+		$slug_placeholders = implode( ',', array_fill( 0, count( $slugs ), '%s' ) );
+		$prepare_args      = $slugs;
+
+		$status_clause = '';
+		if ( ! empty( $args['status'] ) ) {
+			$status_clause  = 'AND a.status = %s ';
+			$prepare_args[] = $args['status'];
+		}
+
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$sql = "SELECT COUNT(*) FROM {$actions_table} a INNER JOIN {$groups_table} g ON a.group_id = g.group_id WHERE g.slug IN ({$slug_placeholders}) {$status_clause}";
+
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
+		$query = $wpdb->prepare( $sql, ...$prepare_args );
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared
+		return (int) $wpdb->get_var( $query );
+	}
+
+	/**
+	 * Get all known Newspack group slugs.
+	 *
+	 * @return string[] Array of group slug strings.
+	 */
+	public static function get_all_groups() {
+		return array_merge(
+			[ self::DEFAULT_GROUP ],
+			self::get_groups_by_prefix( self::GROUP_PREFIX )
+		);
+	}
 }

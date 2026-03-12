@@ -56,6 +56,10 @@ const components: Record< string, any > = {
 		label: __( 'Audience Subscriptions', 'newspack-plugin' ),
 		component: lazy( () => import( /* webpackChunkName: "audience-wizards" */ './audience/views/subscriptions' ) ),
 	},
+	'newspack-status': {
+		label: __( 'Status', 'newspack-plugin' ),
+		component: lazy( () => import( /* webpackChunkName: "newspack-wizards" */ './newspack/views/status' ) ),
+	},
 } as const;
 
 const AdminPageLoader = ( { label }: { label: string } ) => {

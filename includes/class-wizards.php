@@ -60,6 +60,7 @@ class Wizards {
 					],
 				]
 			),
+			'newspack-status'         => new Newspack_Status(),
 			'advertising-display-ads' => new Advertising_Display_Ads(),
 			'advertising-sponsors'    => new Advertising_Sponsors(),
 			'audience'                => new Audience_Wizard(),
