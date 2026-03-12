@@ -5,14 +5,14 @@
 /**
  * WordPress dependencies
  */
-import { useState } from '@wordpress/element';
+import { useState, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
  */
 import './style.scss';
-import conversations, { Conversation } from './demo-data';
+import initialConversations, { Conversation } from './demo-data';
 
 const intentClassMap: Record< string, string > = {
 	'Refund Request': 'newspack-inbox__intent--refund-request',
@@ -20,15 +20,19 @@ const intentClassMap: Record< string, string > = {
 	'Billing Issue': 'newspack-inbox__intent--billing-issue',
 	'Comp Request': 'newspack-inbox__intent--comp-request',
 	Complaint: 'newspack-inbox__intent--complaint',
+	Retention: 'newspack-inbox__intent--retention',
+	'Access Issue': 'newspack-inbox__intent--access-issue',
 };
 
 function ConversationList( {
 	items,
 	selectedId,
+	readIds,
 	onSelect,
 }: {
 	items: Conversation[];
 	selectedId: string | null;
+	readIds: Set< string >;
 	onSelect: ( id: string ) => void;
 } ) {
 	return (
@@ -38,10 +42,11 @@ function ConversationList( {
 			</div>
 			{ items.map( item => {
 				const isSelected = item.id === selectedId;
+				const isRead = readIds.has( item.id );
 				const classNames = [
 					'newspack-inbox__conversation-item',
 					isSelected && 'newspack-inbox__conversation-item--selected',
-					! item.read && 'newspack-inbox__conversation-item--unread',
+					! isRead && 'newspack-inbox__conversation-item--unread',
 				]
 					.filter( Boolean )
 					.join( ' ' );
@@ -60,7 +65,7 @@ function ConversationList( {
 					>
 						<div className="newspack-inbox__conversation-item-top-row">
 							<span className="newspack-inbox__conversation-item-sender">
-								{ ! item.read && (
+								{ ! isRead && (
 									<span className="newspack-inbox__conversation-item-unread-dot" />
 								) }
 								{ item.senderName }
@@ -84,7 +89,15 @@ function ConversationList( {
 	);
 }
 
-function Thread( { conversation }: { conversation: Conversation | null } ) {
+function Thread( {
+	conversation,
+	actionStates,
+	onToggleAction,
+}: {
+	conversation: Conversation | null;
+	actionStates: Record< string, boolean >;
+	onToggleAction: ( label: string ) => void;
+} ) {
 	if ( ! conversation ) {
 		return (
 			<div className="newspack-inbox__thread">
@@ -100,21 +113,65 @@ function Thread( { conversation }: { conversation: Conversation | null } ) {
 				<h2>{ conversation.subject }</h2>
 				<span>{ conversation.senderName } &lt;{ conversation.senderEmail }&gt;</span>
 			</div>
-			<div className="newspack-inbox__thread-messages">
+			<div className="newspack-inbox__thread-body">
 				{ conversation.messages.map( message => (
-					<div key={ message.id } className="newspack-inbox__message">
-						<div className="newspack-inbox__message-header">
-							<span className="newspack-inbox__message-from">
-								{ message.from }
-							</span>
-							<span>{ message.date }</span>
+					<div key={ message.id } className="newspack-inbox__message-group">
+						<div className="newspack-inbox__message">
+							<div className="newspack-inbox__message-header">
+								<span className="newspack-inbox__message-from">
+									{ message.from }
+								</span>
+								<span>{ message.date }</span>
+							</div>
+							<div className="newspack-inbox__message-body">{ message.body }</div>
 						</div>
-						<div className="newspack-inbox__message-body">{ message.body }</div>
+						{ message.aiAssessment && (
+							<div
+								className={ `newspack-inbox__ai-assessment newspack-inbox__ai-assessment--${ message.aiAssessment.status }` }
+							>
+								<span className="newspack-inbox__ai-assessment-label">
+									{ message.aiAssessment.status === 'verified'
+										? __( 'Verified', 'newspack-plugin' )
+										: __( 'Discrepancy', 'newspack-plugin' ) }
+								</span>
+								{ message.aiAssessment.body }
+							</div>
+						) }
 					</div>
 				) ) }
-			</div>
-			<div className="newspack-inbox__reply-area">
-				<textarea placeholder={ __( 'Write a reply…', 'newspack-plugin' ) } />
+
+				<div className="newspack-inbox__reply-area">
+					<div className="newspack-inbox__reply-label">
+						{ __( 'Draft reply', 'newspack-plugin' ) }
+					</div>
+					<textarea
+						defaultValue={ conversation.draftReply }
+						key={ conversation.id }
+					/>
+					<div className="newspack-inbox__reply-footer">
+						{ conversation.actions.length > 0 && (
+							<div className="newspack-inbox__reply-actions">
+								{ conversation.actions.map( action => (
+									<label key={ action.label } className="newspack-inbox__reply-action">
+										<input
+											type="checkbox"
+											checked={ actionStates[ action.label ] ?? action.checked }
+											onChange={ () => onToggleAction( action.label ) }
+										/>
+										<span>{ action.label }</span>
+									</label>
+								) ) }
+							</div>
+						) }
+						<button className="newspack-inbox__send-button" type="button">
+							{ conversation.actions.some(
+								a => actionStates[ a.label ] ?? a.checked
+							)
+								? __( 'Send reply & perform actions', 'newspack-plugin' )
+								: __( 'Send reply', 'newspack-plugin' ) }
+						</button>
+					</div>
+				</div>
 			</div>
 		</div>
 	);
@@ -147,36 +204,68 @@ function ContextSidebar( { conversation }: { conversation: Conversation | null }
 					) ) }
 				</div>
 			) ) }
-			<div className="newspack-inbox__actions">
-				<div className="newspack-inbox__actions-heading">
-					{ __( 'Suggested Actions', 'newspack-plugin' ) }
-				</div>
-				{ conversation.suggestedActions.map( action => (
-					<button
-						key={ action.label }
-						className={ `newspack-inbox__action-button newspack-inbox__action-button--${ action.variant }` }
-						type="button"
-					>
-						{ action.label }
-					</button>
-				) ) }
-			</div>
 		</div>
 	);
 }
 
 export default function Inbox() {
-	const [ selectedId, setSelectedId ] = useState< string | null >( conversations[ 0 ]?.id || null );
-	const selected = conversations.find( c => c.id === selectedId ) || null;
+	const [ selectedId, setSelectedId ] = useState< string | null >(
+		initialConversations[ 0 ]?.id || null
+	);
+	const [ readIds, setReadIds ] = useState< Set< string > >( () => new Set() );
+	const [ actionStates, setActionStates ] = useState< Record< string, Record< string, boolean > > >( {} );
+
+	const handleSelect = useCallback( ( id: string ) => {
+		setSelectedId( id );
+		setReadIds( prev => {
+			if ( prev.has( id ) ) {
+				return prev;
+			}
+			const next = new Set( prev );
+			next.add( id );
+			return next;
+		} );
+	}, [] );
+
+	const selected = initialConversations.find( c => c.id === selectedId ) || null;
+
+	const currentActionStates = selectedId ? ( actionStates[ selectedId ] || {} ) : {};
+
+	const handleToggleAction = useCallback(
+		( label: string ) => {
+			if ( ! selectedId || ! selected ) {
+				return;
+			}
+			setActionStates( prev => {
+				const convActions = prev[ selectedId ] || {};
+				const defaultChecked =
+					selected.actions.find( a => a.label === label )?.checked ?? true;
+				const current = convActions[ label ] ?? defaultChecked;
+				return {
+					...prev,
+					[ selectedId ]: {
+						...convActions,
+						[ label ]: ! current,
+					},
+				};
+			} );
+		},
+		[ selectedId, selected ]
+	);
 
 	return (
 		<div className="newspack-inbox-layout">
 			<ConversationList
-				items={ conversations }
+				items={ initialConversations }
 				selectedId={ selectedId }
-				onSelect={ setSelectedId }
+				readIds={ readIds }
+				onSelect={ handleSelect }
 			/>
-			<Thread conversation={ selected } />
+			<Thread
+				conversation={ selected }
+				actionStates={ currentActionStates }
+				onToggleAction={ handleToggleAction }
+			/>
 			<ContextSidebar conversation={ selected } />
 		</div>
 	);

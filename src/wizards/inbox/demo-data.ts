@@ -3,11 +3,18 @@ export type IntentLabel =
 	| 'Login Issue'
 	| 'Billing Issue'
 	| 'Comp Request'
-	| 'Complaint';
+	| 'Complaint'
+	| 'Retention'
+	| 'Access Issue';
 
-export interface ContextAction {
+export interface SuggestedAction {
 	label: string;
-	variant: 'primary' | 'secondary';
+	checked: boolean;
+}
+
+export interface AiAssessment {
+	body: string;
+	status: 'verified' | 'discrepancy';
 }
 
 export interface ContextPanel {
@@ -20,6 +27,7 @@ export interface Message {
 	from: string;
 	date: string;
 	body: string;
+	aiAssessment?: AiAssessment;
 }
 
 export interface Conversation {
@@ -29,21 +37,73 @@ export interface Conversation {
 	subject: string;
 	intentLabel: IntentLabel;
 	timestamp: string;
-	read: boolean;
 	messages: Message[];
 	contextPanels: ContextPanel[];
-	suggestedActions: ContextAction[];
+	draftReply: string;
+	actions: SuggestedAction[];
 }
 
 const conversations: Conversation[] = [
 	{
+		id: '2',
+		senderName: 'Mike Torres',
+		senderEmail: 'miketorres84@gmail.com',
+		subject: 'Can\'t log in to my account',
+		intentLabel: 'Login Issue',
+		timestamp: '30 min ago',
+		messages: [
+			{
+				id: '2-1',
+				from: 'Mike Torres',
+				date: 'Mar 12, 2026 at 7:30 AM',
+				body: `Hello,
+
+I've been trying to log in for the past hour but I keep getting "invalid password" even though I'm sure my password is correct.
+
+My email is miketorres84@gmail.com. Can you please help?
+
+Mike`,
+				aiAssessment: {
+					status: 'verified',
+					body: 'Account found for miketorres84@gmail.com.',
+				},
+			},
+		],
+		contextPanels: [
+			{
+				heading: 'Reader',
+				fields: {
+					Email: 'miketorres84@gmail.com',
+					'Member since': 'Jan 12, 2025',
+					'Last login': 'Feb 28, 2026',
+				},
+			},
+			{
+				heading: 'Account',
+				fields: {
+					Status: 'Active',
+					'Email verified': 'Yes',
+				},
+			},
+		],
+		draftReply: `Hi Mike,
+
+Sorry you're having trouble getting in! I can see your account is active.
+
+Here's a direct link to reset your password: [password reset link]
+
+If you still have trouble after resetting, let me know and we can try an alternative approach.
+
+Best regards`,
+		actions: [],
+	},
+	{
 		id: '1',
 		senderName: 'Sarah Chen',
-		senderEmail: 'sarah.chen@email.com',
+		senderEmail: 'schen.writes@gmail.com',
 		subject: 'Requesting refund for annual subscription',
 		intentLabel: 'Refund Request',
-		timestamp: '2 hours ago',
-		read: false,
+		timestamp: '5 hours ago',
 		messages: [
 			{
 				id: '1-1',
@@ -57,13 +117,17 @@ Could I please get a refund? I paid $120 for the year.
 
 Thanks,
 Sarah`,
+				aiAssessment: {
+					status: 'verified',
+					body: 'Reader says "last week" — subscription started Mar 5, 2026 (7 days ago). Reader says "$120" — matches the single charge on file.',
+				},
 			},
 		],
 		contextPanels: [
 			{
 				heading: 'Reader',
 				fields: {
-					Email: 'sarah.chen@email.com',
+					Email: 'schen.writes@gmail.com',
 					'Member since': 'Mar 5, 2026',
 					'Total spent': '$120.00',
 				},
@@ -78,64 +142,27 @@ Sarah`,
 				},
 			},
 		],
-		suggestedActions: [
-			{ label: 'Process Full Refund', variant: 'primary' },
-			{ label: 'Draft Response', variant: 'secondary' },
-		],
-	},
-	{
-		id: '2',
-		senderName: 'Mike Torres',
-		senderEmail: 'mike.torres@email.com',
-		subject: 'Can\'t log in to my account',
-		intentLabel: 'Login Issue',
-		timestamp: '5 hours ago',
-		read: false,
-		messages: [
-			{
-				id: '2-1',
-				from: 'Mike Torres',
-				date: 'Mar 12, 2026 at 7:30 AM',
-				body: `Hello,
+		draftReply: `Hi Sarah,
 
-I've been trying to log in for the past hour but I keep getting "invalid password" even though I'm sure my password is correct. I've tried resetting it twice but never received the reset email.
+Thank you for reaching out. I'm sorry to hear our content hasn't met your expectations — we appreciate the feedback.
 
-My email is mike.torres@email.com. Can you please help?
+I've gone ahead and processed a full refund of $120.00 to your original payment method. You should see it reflected within 5–10 business days.
 
-Mike`,
-			},
-		],
-		contextPanels: [
-			{
-				heading: 'Reader',
-				fields: {
-					Email: 'mike.torres@email.com',
-					'Member since': 'Jan 12, 2025',
-					'Last login': 'Feb 28, 2026',
-				},
-			},
-			{
-				heading: 'Account',
-				fields: {
-					Status: 'Active',
-					'Email verified': 'Yes',
-					'Failed logins (24h)': '6',
-				},
-			},
-		],
-		suggestedActions: [
-			{ label: 'Send Password Reset', variant: 'primary' },
-			{ label: 'Draft Response', variant: 'secondary' },
+If you'd like to give us another try in the future, we'd love to have you back. We have several investigative series launching in the coming months.
+
+Best regards`,
+		actions: [
+			{ label: 'Process full refund ($120.00)', checked: true },
+			{ label: 'Cancel subscription', checked: true },
 		],
 	},
 	{
 		id: '3',
 		senderName: 'David Park',
-		senderEmail: 'david.park@email.com',
+		senderEmail: 'dpark@outlook.com',
 		subject: 'Subscription stopped — card expired?',
 		intentLabel: 'Billing Issue',
 		timestamp: '1 day ago',
-		read: true,
 		messages: [
 			{
 				id: '3-1',
@@ -148,13 +175,17 @@ I just noticed I can't access subscriber-only articles anymore. I think my credi
 Can you help me get my subscription back? I've been a subscriber for over two years and don't want to lose access.
 
 David`,
+				aiAssessment: {
+					status: 'verified',
+					body: 'Reader says card "expired" — confirmed, Visa ending in 4821 expired Feb 2026. Reader says "over two years" — subscribed since Nov 2023 (28 months).',
+				},
 			},
 		],
 		contextPanels: [
 			{
 				heading: 'Reader',
 				fields: {
-					Email: 'david.park@email.com',
+					Email: 'dpark@outlook.com',
 					'Member since': 'Nov 3, 2023',
 					'Total spent': '$360.00',
 				},
@@ -169,19 +200,27 @@ David`,
 				},
 			},
 		],
-		suggestedActions: [
-			{ label: 'Send Payment Update Link', variant: 'primary' },
-			{ label: 'Draft Response', variant: 'secondary' },
+		draftReply: `Hi David,
+
+Thanks for being a loyal subscriber for over two years — we really appreciate your support!
+
+It does look like your last payment on March 3rd didn't go through, which is why access was paused. I've sent you a secure link to update your payment method. Once you update your card, your subscription will resume immediately and you'll have full access again.
+
+No need to re-subscribe or pay anything extra — we'll just pick up where you left off.
+
+Best regards`,
+		actions: [
+			{ label: 'Send payment method update link', checked: true },
+			{ label: 'Extend access for 7 days while card is updated', checked: true },
 		],
 	},
 	{
 		id: '4',
 		senderName: 'Maria Gonzalez',
-		senderEmail: 'maria.gonzalez@email.com',
+		senderEmail: 'mgonzalez@downtowncommunityalliance.org',
 		subject: 'Complimentary subscription for our nonprofit',
 		intentLabel: 'Comp Request',
 		timestamp: '2 days ago',
-		read: true,
 		messages: [
 			{
 				id: '4-1',
@@ -198,31 +237,42 @@ Happy to discuss further or provide any documentation about our organization.
 Best regards,
 Maria Gonzalez
 Executive Director, Downtown Community Alliance`,
+				aiAssessment: {
+					status: 'verified',
+					body: 'Reader says "executive director" — email domain matches the organization. No existing subscriber account for this address.',
+				},
 			},
 		],
 		contextPanels: [
 			{
 				heading: 'Reader',
 				fields: {
-					Email: 'maria.gonzalez@email.com',
+					Email: 'mgonzalez@downtowncommunityalliance.org',
 					'Member since': 'Not a member',
 					Organization: 'Downtown Community Alliance',
 				},
 			},
 		],
-		suggestedActions: [
-			{ label: 'Grant Comp Subscription', variant: 'primary' },
-			{ label: 'Draft Response', variant: 'secondary' },
+		draftReply: `Dear Maria,
+
+Thank you for reaching out, and for the important work the Downtown Community Alliance does in our community.
+
+We'd be happy to provide a complimentary digital subscription for your organization. I've set one up on your account — you should now have full access using your email address mgonzalez@downtowncommunityalliance.org.
+
+This comp subscription is valid for one year and will be reviewed at that point. If you need access for additional team members, feel free to let us know.
+
+Best regards`,
+		actions: [
+			{ label: 'Grant 1-year comp subscription', checked: true },
 		],
 	},
 	{
 		id: '5',
 		senderName: 'Rachel Kim',
-		senderEmail: 'rachel.kim@email.com',
+		senderEmail: 'rachelkim77@yahoo.com',
 		subject: 'CHARGED TWICE — need immediate refund',
 		intentLabel: 'Complaint',
 		timestamp: '3 days ago',
-		read: true,
 		messages: [
 			{
 				id: '5-1',
@@ -233,13 +283,17 @@ Executive Director, Downtown Community Alliance`,
 I need the duplicate charge refunded IMMEDIATELY. If this isn't resolved today I'm canceling my subscription entirely and disputing both charges with my bank.
 
 Rachel Kim`,
+				aiAssessment: {
+					status: 'verified',
+					body: 'Reader says "charged TWICE" and "$15 on March 3rd AND March 5th" — confirmed, two charges of $15.00 found on those dates. The Mar 5 charge is a duplicate.',
+				},
 			},
 		],
 		contextPanels: [
 			{
 				heading: 'Reader',
 				fields: {
-					Email: 'rachel.kim@email.com',
+					Email: 'rachelkim77@yahoo.com',
 					'Member since': 'Aug 22, 2025',
 					'Total spent': '$105.00',
 				},
@@ -254,11 +308,218 @@ Rachel Kim`,
 				},
 			},
 		],
-		suggestedActions: [
-			{ label: 'Refund Duplicate Charge', variant: 'primary' },
-			{ label: 'Draft Response', variant: 'secondary' },
+		draftReply: `Hi Rachel,
+
+I sincerely apologize for the duplicate charge — that should not have happened and I completely understand your frustration.
+
+I've confirmed that the $15.00 charge on March 5th was indeed a duplicate, and I've processed a refund for it immediately. You should see the $15.00 credited back to your account within 3–5 business days.
+
+Your subscription remains active and in good standing, with your next regular renewal on April 3rd. Please don't hesitate to reach out if you have any other concerns.
+
+Best regards`,
+		actions: [
+			{ label: 'Refund duplicate charge ($15.00 on Mar 5)', checked: true },
+		],
+	},
+	{
+		id: '6',
+		senderName: 'James Wright',
+		senderEmail: 'jwright@protonmail.com',
+		subject: 'Refund for my $200 subscription',
+		intentLabel: 'Refund Request',
+		timestamp: '3 days ago',
+		messages: [
+			{
+				id: '6-1',
+				from: 'James Wright',
+				date: 'Mar 9, 2026 at 2:40 PM',
+				body: `Hi,
+
+I'd like to request a refund for my annual subscription. I paid $200 for the year and I'd like the full amount back. I just don't have time to read anymore.
+
+Thanks,
+James Wright`,
+				aiAssessment: {
+					status: 'discrepancy',
+					body: 'The reader states they paid $200, but the only charge on file is $120.00 for the Annual plan on Sep 15, 2025.',
+				},
+			},
+		],
+		contextPanels: [
+			{
+				heading: 'Reader',
+				fields: {
+					Email: 'jwright@protonmail.com',
+					'Member since': 'Sep 15, 2025',
+					'Total spent': '$120.00',
+				},
+			},
+			{
+				heading: 'Subscription',
+				fields: {
+					Plan: 'Annual — $120/yr',
+					Status: 'Active',
+					'Started on': 'Sep 15, 2025',
+					'Next renewal': 'Sep 15, 2026',
+				},
+			},
+		],
+		draftReply: `Hi James,
+
+Thank you for reaching out. I'd be happy to help with your refund request.
+
+I did want to clarify the amount — our records show your annual subscription was charged at $120.00 on September 15, 2025. I wasn't able to find a charge of $200 on your account. Could you double-check your statement in case the $200 charge is from a different service?
+
+In the meantime, I can process a refund of $120.00 if you'd like to go ahead with canceling. Just let me know how you'd like to proceed.
+
+Best regards`,
+		actions: [
+			{ label: 'Process refund ($120.00)', checked: false },
+			{ label: 'Cancel subscription', checked: false },
+		],
+	},
+	{
+		id: '7',
+		senderName: 'Lisa Pham',
+		senderEmail: 'lisa.pham@fastmail.com',
+		subject: 'Please cancel my subscription',
+		intentLabel: 'Retention',
+		timestamp: '4 days ago',
+		messages: [
+			{
+				id: '7-1',
+				from: 'Lisa Pham',
+				date: 'Mar 8, 2026 at 9:12 AM',
+				body: `Please cancel my subscription. I just can't afford it right now.`,
+				aiAssessment: {
+					status: 'verified',
+					body: 'Reader says "can\'t afford it" — active subscription at $15/mo.',
+				},
+			},
+			{
+				id: '7-2',
+				from: 'Lisa Pham',
+				date: 'Mar 8, 2026 at 3:45 PM',
+				body: `Actually, do you have any kind of reduced rate? I really do value the journalism, I just took a pay cut.`,
+			},
+			{
+				id: '7-3',
+				from: 'Lisa Pham',
+				date: 'Mar 8, 2026 at 6:50 PM',
+				body: `I looked at your site and don't see a discounted tier. If there isn't one, go ahead and cancel.`,
+				aiAssessment: {
+					status: 'verified',
+					body: 'Reader says "don\'t see a discounted tier" — correct, no reduced-rate plan is listed publicly. However, an unlisted $5/mo plan exists.',
+				},
+			},
+		],
+		contextPanels: [
+			{
+				heading: 'Reader',
+				fields: {
+					Email: 'lisa.pham@fastmail.com',
+					'Member since': 'Feb 10, 2022',
+					'Total spent': '$720.00',
+					'Articles (30 days)': '23',
+				},
+			},
+			{
+				heading: 'Subscription',
+				fields: {
+					Plan: 'Monthly — $15/mo',
+					Status: 'Active',
+					'Next renewal': 'Mar 22, 2026',
+				},
+			},
+			{
+				heading: 'Available Plans',
+				fields: {
+					'Reduced rate': '$5/mo (unlisted)',
+					Standard: '$15/mo',
+					Annual: '$120/yr',
+				},
+			},
+		],
+		draftReply: `Hi Lisa,
+
+Thank you for being a reader for four years — we really value your support and your readership.
+
+We do have a reduced rate that isn't listed on the site. I can switch your subscription to $5/month so you can keep reading without the strain on your budget.
+
+If that works for you, I'll make the change right away — your next billing on March 22nd would be at the lower rate. And if your circumstances change in the future, you can always switch back.
+
+Let me know!
+
+Best regards`,
+		actions: [
+			{ label: 'Switch to reduced rate ($5/mo)', checked: true },
+		],
+	},
+	{
+		id: '8',
+		senderName: 'Tony Rezende',
+		senderEmail: 'trezende@gmail.com',
+		subject: 'Premium content still paywalled — I donate $25/month',
+		intentLabel: 'Access Issue',
+		timestamp: '5 days ago',
+		messages: [
+			{
+				id: '8-1',
+				from: 'Tony Rezende',
+				date: 'Mar 7, 2026 at 11:30 AM',
+				body: `Hi,
+
+I've been a monthly donor ($25/month) for over a year now and I was told donors at my level get access to all premium content. But I'm still hitting the paywall on every article. Can you fix this?
+
+Thanks,
+Tony`,
+				aiAssessment: {
+					status: 'discrepancy',
+					body: 'Reader says "$25/month for over a year" — confirmed, recurring $25/mo since Jan 2025. Reader says "donors at my level get access" — correct per policy ($20+/mo = premium access), but no access has been provisioned on this account.',
+				},
+			},
+		],
+		contextPanels: [
+			{
+				heading: 'Reader',
+				fields: {
+					Email: 'trezende@gmail.com',
+					'Account created': 'Jan 5, 2025',
+					'Has subscription': 'No',
+				},
+			},
+			{
+				heading: 'Donations',
+				fields: {
+					'Recurring amount': '$25/mo',
+					'Active since': 'Jan 2025',
+					'Total donated': '$350.00',
+					Payments: '14',
+				},
+			},
+			{
+				heading: 'Donor Benefits Policy',
+				fields: {
+					'$10+/mo': 'Newsletter access',
+					'$20+/mo': 'Premium content access',
+					'$50+/mo': 'Premium + events',
+				},
+			},
+		],
+		draftReply: `Hi Tony,
+
+Thank you so much for your generous support — 14 months of monthly donations is incredible, and we truly appreciate it.
+
+You're absolutely right that donors at your level should have full premium access. I'm sorry this wasn't set up properly on your account — that's our mistake. I've activated premium access for you now, so you should be able to read all content immediately.
+
+This access will remain active as long as your monthly donation continues. Please let me know if you run into any further issues.
+
+Best regards`,
+		actions: [
+			{ label: 'Grant premium content access', checked: true },
 		],
 	},
 ];
 
 export default conversations;
+

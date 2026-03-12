@@ -125,6 +125,16 @@
 			background: #fee5e5;
 			color: #9b1a1a;
 		}
+
+		&--retention {
+			background: #f3e5fe;
+			color: #6b1a9b;
+		}
+
+		&--access-issue {
+			background: #e5f0fe;
+			color: #1a4d9b;
+		}
 	}
 
 	&__thread {
@@ -148,7 +158,7 @@
 			}
 		}
 
-		&-messages {
+		&-body {
 			flex: 1;
 			overflow-y: auto;
 			padding: 24px;
@@ -164,12 +174,21 @@
 		}
 	}
 
-	&__message {
+	&__message-group {
 		margin-bottom: 24px;
+	}
+
+	&__message {
 		padding: 16px;
 		border: 1px solid #e0e0e0;
 		border-radius: 4px;
 		background: #fafafa;
+
+		// Remove bottom radius when an AI assessment follows.
+		.newspack-inbox__message-group:has( .newspack-inbox__ai-assessment ) & {
+			border-radius: 4px 4px 0 0;
+			border-bottom: none;
+		}
 
 		&-header {
 			display: flex;
@@ -192,23 +211,112 @@
 		}
 	}
 
+	&__ai-assessment {
+		margin-top: -1px;
+		padding: 10px 16px;
+		font-size: 12px;
+		line-height: 1.5;
+		border-radius: 0 0 4px 4px;
+		border: 1px solid;
+
+		&-label {
+			font-weight: 600;
+			margin-right: 6px;
+		}
+
+		&--verified {
+			background: #f0faf0;
+			border-color: #c3e6c3;
+			color: #2e5a2e;
+		}
+
+		&--discrepancy {
+			background: #fef6e5;
+			border-color: #e6d2a3;
+			color: #7a5c1f;
+		}
+	}
+
 	&__reply-area {
-		padding: 16px 24px;
-		border-top: 1px solid #ddd;
+		border: 1px solid #ddd;
+		border-radius: 4px;
+		padding: 16px;
+		background: #fff;
 
 		textarea {
 			width: 100%;
-			min-height: 80px;
-			padding: 8px 12px;
+			min-height: 160px;
+			padding: 12px;
 			border: 1px solid #ddd;
 			border-radius: 4px;
 			font-size: 13px;
+			line-height: 1.6;
 			resize: vertical;
 			font-family: inherit;
+			color: #1e1e1e;
+			background: #fafafa;
 
-			&::placeholder {
-				color: #999;
+			&:focus {
+				border-color: #3858e9;
+				outline: none;
+				box-shadow: 0 0 0 1px #3858e9;
 			}
+		}
+	}
+
+	&__reply-label {
+		font-size: 11px;
+		font-weight: 600;
+		text-transform: uppercase;
+		letter-spacing: 0.5px;
+		color: #757575;
+		margin-bottom: 8px;
+	}
+
+	&__reply-footer {
+		margin-top: 12px;
+		background: #eef1fb;
+		border: 1px solid #c5cdf0;
+		border-radius: 4px;
+		padding: 12px;
+	}
+
+	&__reply-actions {
+		margin-bottom: 12px;
+	}
+
+	&__reply-action {
+		display: flex;
+		align-items: center;
+		gap: 8px;
+		padding: 5px 0;
+		font-size: 13px;
+		color: #1e1e1e;
+		cursor: pointer;
+
+		input[type="checkbox"] {
+			width: 16px;
+			height: 16px;
+			accent-color: #3858e9;
+			cursor: pointer;
+		}
+	}
+
+	&__send-button {
+		display: block;
+		width: 100%;
+		padding: 10px 16px;
+		background: #3858e9;
+		color: #fff;
+		border: none;
+		border-radius: 4px;
+		font-size: 13px;
+		font-weight: 500;
+		cursor: pointer;
+		transition: background-color 0.15s;
+
+		&:hover {
+			background: #2d47c5;
 		}
 	}
 
@@ -254,51 +362,6 @@
 				color: #1e1e1e;
 				font-weight: 500;
 				text-align: right;
-			}
-		}
-	}
-
-	&__actions {
-		padding: 16px;
-
-		&-heading {
-			font-size: 11px;
-			font-weight: 600;
-			text-transform: uppercase;
-			letter-spacing: 0.5px;
-			color: #757575;
-			margin-bottom: 12px;
-		}
-	}
-
-	&__action-button {
-		display: block;
-		width: 100%;
-		padding: 8px 16px;
-		margin-bottom: 8px;
-		border: 1px solid #ddd;
-		border-radius: 4px;
-		font-size: 13px;
-		cursor: pointer;
-		text-align: center;
-		transition: background-color 0.15s;
-
-		&--primary {
-			background: #3858e9;
-			color: #fff;
-			border-color: #3858e9;
-
-			&:hover {
-				background: #2d47c5;
-			}
-		}
-
-		&--secondary {
-			background: #fff;
-			color: #1e1e1e;
-
-			&:hover {
-				background: #f0f0f0;
 			}
 		}
 	}
