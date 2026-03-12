@@ -1,0 +1,305 @@
+// Override the wizard container to not interfere with the inbox layout.
+.newspack-wizard.newspack-inbox {
+	max-width: none;
+	padding: 0;
+	margin: 0;
+}
+
+.newspack-inbox-layout {
+	display: grid;
+	grid-template-columns: 280px 1fr 320px;
+	height: calc( 100vh - 32px ); // Account for WP admin bar.
+	background: #fff;
+	border: 1px solid #ddd;
+	overflow: hidden;
+}
+
+.newspack-inbox {
+	&__conversation-list {
+		border-right: 1px solid #ddd;
+		overflow-y: auto;
+
+		&-header {
+			padding: 16px;
+			border-bottom: 1px solid #ddd;
+			font-size: 14px;
+			font-weight: 600;
+		}
+	}
+
+	&__conversation-item {
+		padding: 12px 16px;
+		border-bottom: 1px solid #f0f0f0;
+		cursor: pointer;
+		transition: background-color 0.15s;
+
+		&:hover {
+			background-color: #f6f7f7;
+		}
+
+		&--selected {
+			background-color: #e9f0f5;
+
+			&:hover {
+				background-color: #e9f0f5;
+			}
+		}
+
+		&--unread &-sender,
+		&--unread &-subject {
+			font-weight: 600;
+		}
+
+		&-top-row {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			margin-bottom: 4px;
+		}
+
+		&-sender {
+			font-size: 13px;
+			color: #1e1e1e;
+			display: flex;
+			align-items: center;
+			gap: 6px;
+		}
+
+		&-unread-dot {
+			display: inline-block;
+			width: 8px;
+			height: 8px;
+			background: #3858e9;
+			border-radius: 50%;
+			flex-shrink: 0;
+		}
+
+		&-time {
+			font-size: 11px;
+			color: #757575;
+			white-space: nowrap;
+		}
+
+		&-subject {
+			font-size: 12px;
+			color: #1e1e1e;
+			margin-bottom: 4px;
+			white-space: nowrap;
+			overflow: hidden;
+			text-overflow: ellipsis;
+		}
+
+		&-intent {
+			display: inline-block;
+			font-size: 11px;
+			padding: 2px 8px;
+			border-radius: 10px;
+			font-weight: 500;
+			line-height: 1.4;
+		}
+	}
+
+	// Intent label colors.
+	&__intent {
+		&--refund-request {
+			background: #fef0e5;
+			color: #9b4d1a;
+		}
+
+		&--login-issue {
+			background: #e5f0fe;
+			color: #1a4d9b;
+		}
+
+		&--billing-issue {
+			background: #fef5e5;
+			color: #8b6914;
+		}
+
+		&--comp-request {
+			background: #e5fee8;
+			color: #1a7a2e;
+		}
+
+		&--complaint {
+			background: #fee5e5;
+			color: #9b1a1a;
+		}
+	}
+
+	&__thread {
+		overflow-y: auto;
+		display: flex;
+		flex-direction: column;
+
+		&-header {
+			padding: 16px 24px;
+			border-bottom: 1px solid #ddd;
+
+			h2 {
+				margin: 0 0 4px;
+				font-size: 16px;
+				font-weight: 600;
+			}
+
+			span {
+				font-size: 12px;
+				color: #757575;
+			}
+		}
+
+		&-messages {
+			flex: 1;
+			overflow-y: auto;
+			padding: 24px;
+		}
+
+		&-empty {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			height: 100%;
+			color: #757575;
+			font-size: 14px;
+		}
+	}
+
+	&__message {
+		margin-bottom: 24px;
+		padding: 16px;
+		border: 1px solid #e0e0e0;
+		border-radius: 4px;
+		background: #fafafa;
+
+		&-header {
+			display: flex;
+			justify-content: space-between;
+			margin-bottom: 12px;
+			font-size: 12px;
+			color: #757575;
+		}
+
+		&-from {
+			font-weight: 600;
+			color: #1e1e1e;
+		}
+
+		&-body {
+			font-size: 14px;
+			line-height: 1.6;
+			white-space: pre-wrap;
+			color: #1e1e1e;
+		}
+	}
+
+	&__reply-area {
+		padding: 16px 24px;
+		border-top: 1px solid #ddd;
+
+		textarea {
+			width: 100%;
+			min-height: 80px;
+			padding: 8px 12px;
+			border: 1px solid #ddd;
+			border-radius: 4px;
+			font-size: 13px;
+			resize: vertical;
+			font-family: inherit;
+
+			&::placeholder {
+				color: #999;
+			}
+		}
+	}
+
+	&__sidebar {
+		border-left: 1px solid #ddd;
+		overflow-y: auto;
+		background: #fafafa;
+
+		&-empty {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			height: 100%;
+			color: #757575;
+			font-size: 14px;
+		}
+	}
+
+	&__context-panel {
+		padding: 16px;
+		border-bottom: 1px solid #e0e0e0;
+
+		&-heading {
+			font-size: 11px;
+			font-weight: 600;
+			text-transform: uppercase;
+			letter-spacing: 0.5px;
+			color: #757575;
+			margin-bottom: 12px;
+		}
+
+		&-field {
+			display: flex;
+			justify-content: space-between;
+			font-size: 13px;
+			padding: 4px 0;
+
+			&-label {
+				color: #757575;
+			}
+
+			&-value {
+				color: #1e1e1e;
+				font-weight: 500;
+				text-align: right;
+			}
+		}
+	}
+
+	&__actions {
+		padding: 16px;
+
+		&-heading {
+			font-size: 11px;
+			font-weight: 600;
+			text-transform: uppercase;
+			letter-spacing: 0.5px;
+			color: #757575;
+			margin-bottom: 12px;
+		}
+	}
+
+	&__action-button {
+		display: block;
+		width: 100%;
+		padding: 8px 16px;
+		margin-bottom: 8px;
+		border: 1px solid #ddd;
+		border-radius: 4px;
+		font-size: 13px;
+		cursor: pointer;
+		text-align: center;
+		transition: background-color 0.15s;
+
+		&--primary {
+			background: #3858e9;
+			color: #fff;
+			border-color: #3858e9;
+
+			&:hover {
+				background: #2d47c5;
+			}
+		}
+
+		&--secondary {
+			background: #fff;
+			color: #1e1e1e;
+
+			&:hover {
+				background: #f0f0f0;
+			}
+		}
+	}
+}
