@@ -3,12 +3,16 @@ export { default as ActionCard } from './action-card';
 export { default as AutocompleteTokenField } from './autocomplete-tokenfield';
 export { default as AutocompleteWithSuggestions } from './autocomplete-with-suggestions';
 export { default as AutocompleteWithLatestPosts } from './autocomplete-with-latest-posts';
+export { default as Badge } from './badge';
 export { default as Button } from './button';
 export { default as ButtonCard } from './button-card';
 export { default as BoxContrast } from './box-contrast';
 export { default as Card } from './card';
+export { default as CardSettingsGroup } from './card-settings-group';
+export { default as CardSortableList } from './card-sortable-list';
 export { default as CategoryAutocomplete } from './category-autocomplete';
 export { default as ColorPicker } from './color-picker';
+export { default as ConfirmDialog } from './confirm-dialog';
 export { default as CustomSelectControl } from './custom-select-control';
 export { default as Divider } from './divider';
 export { default as FormTokenField } from './form-token-field';
@@ -44,6 +48,7 @@ export { default as withWizardScreen } from './with-wizard-screen';
 
 export { default as Router } from './proxied-imports/router';
 export { default as hooks } from './hooks';
+export { default as useConfirmDialog } from './hooks/use-confirm-dialog';
 export { default as utils } from './utils';
 
 import './style.scss';

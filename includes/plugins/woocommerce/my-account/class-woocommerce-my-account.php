@@ -33,11 +33,6 @@ class WooCommerce_My_Account {
 	];
 
 	/**
-	 * Cron hook for syncing email change with ESP.
-	 */
-	const SYNC_ESP_EMAIL_CHANGE_CRON_HOOK = 'newspack_esp_sync_email_change';
-
-	/**
 	 * Memoized nonce for account deletion.
 	 *
 	 * @var string
@@ -59,9 +54,12 @@ class WooCommerce_My_Account {
 		\add_filter( 'woocommerce_get_checkout_url', [ __CLASS__, 'get_checkout_url' ] );
 		\add_filter( 'woocommerce_get_checkout_payment_url', [ __CLASS__, 'get_checkout_url' ] );
 		\add_filter( 'wc_stripe_update_subs_payment_method_card_statuses', [ __CLASS__, 'update_payment_methods_for_all_subs' ] );
+		\add_filter( 'wc_subscriptions_allow_subscription_token_deletion', [ __CLASS__, 'allow_braintree_token_deletion' ], 10, 2 );
+		\add_filter( 'woocommerce_payment_methods_list_item', [ __CLASS__, 'remove_braintree_edit_actions' ], 20, 2 );
 
 		// Reader Activation mods.
 		if ( Reader_Activation::is_enabled() ) {
+			\add_action( 'wp_footer', [ __CLASS__, 'handle_messages' ] );
 			\add_action( 'wp_enqueue_scripts', [ __CLASS__, 'enqueue_scripts' ] );
 			\add_action( 'template_redirect', [ __CLASS__, 'handle_password_reset_request' ] );
 			\add_action( 'template_redirect', [ __CLASS__, 'handle_delete_account' ] );
@@ -81,8 +79,6 @@ class WooCommerce_My_Account {
 			\add_filter( 'wc_memberships_members_area_my-memberships_actions', [ __CLASS__, 'hide_cancel_button_from_memberships_table' ] );
 			\add_filter( 'wc_memberships_my_memberships_column_names', [ __CLASS__, 'remove_next_bill_on' ], 21 );
 			\add_action( 'profile_update', [ __CLASS__, 'handle_admin_email_change_request' ], 10, 3 );
-			\add_action( self::SYNC_ESP_EMAIL_CHANGE_CRON_HOOK, [ __CLASS__, 'sync_email_change_with_esp' ], 10, 3 );
-
 			\add_action(
 				'init',
 				function() {
@@ -105,6 +101,18 @@ class WooCommerce_My_Account {
 	 * @return string The version number.
 	 */
 	public static function get_version() {
+		/**
+		 * Sets which version of the Newspack My Account UI to use.
+		 * '0.0.0' uses core WooCommerce My Account.
+		 * '1.0.0' and above use Newspack's custom My Account UI.
+		 *
+		 * @constant NEWSPACK_MY_ACCOUNT_VERSION
+		 * @type     string
+		 * @default  '1.0.0' (Newspack custom My Account)
+		 * @status   draft
+		 *
+		 * @example define( 'NEWSPACK_MY_ACCOUNT_VERSION', '1.0.0' );
+		 */
 		$version = defined( 'NEWSPACK_MY_ACCOUNT_VERSION' ) ? NEWSPACK_MY_ACCOUNT_VERSION : '1.0.0'; // Increment this version number to default to a newer My Account version.
 
 		/**
@@ -137,6 +145,22 @@ class WooCommerce_My_Account {
 				'permission_callback' => '__return_true',
 			]
 		);
+	}
+
+	/**
+	 * Handle messages in 'message' query param.
+	 */
+	public static function handle_messages() {
+		if ( ! function_exists( 'is_account_page' ) || ! \is_account_page() ) {
+			return;
+		}
+		$message    = filter_input( INPUT_GET, 'message', FILTER_SANITIZE_FULL_SPECIAL_CHARS ) ?? false;
+		$is_success = filter_input( INPUT_GET, 'is_success', FILTER_VALIDATE_BOOLEAN ) ?? false;
+		$is_error   = filter_input( INPUT_GET, 'is_error', FILTER_VALIDATE_BOOLEAN ) ?? false;
+		if ( $message ) {
+			\wc_add_notice( $message, $is_success ? 'success' : ( $is_error ? 'error' : 'notice' ) );
+			\wc_print_notices();
+		}
 	}
 
 	/**
@@ -822,6 +846,18 @@ class WooCommerce_My_Account {
 	 * Restrict account content for unverified readers.
 	 */
 	public static function restrict_account_content() {
+		/**
+		 * Allows unverified readers to access My Account content without
+		 * email verification. By default, unverified users see a verification
+		 * prompt instead of their account content.
+		 *
+		 * @constant NEWSPACK_ALLOW_MY_ACCOUNT_ACCESS_WITHOUT_VERIFICATION
+		 * @type     bool
+		 * @default  Unverified users see verification prompt
+		 * @status   draft
+		 *
+		 * @example define( 'NEWSPACK_ALLOW_MY_ACCOUNT_ACCESS_WITHOUT_VERIFICATION', true );
+		 */
 		if ( defined( 'NEWSPACK_ALLOW_MY_ACCOUNT_ACCESS_WITHOUT_VERIFICATION' ) && NEWSPACK_ALLOW_MY_ACCOUNT_ACCESS_WITHOUT_VERIFICATION ) {
 			return;
 		}
@@ -982,6 +1018,41 @@ class WooCommerce_My_Account {
 			'on-hold',
 			'pending-cancel',
 		];
+	}
+
+	/**
+	 * Permit 'Delete payment method' option for Braintree.
+	 * This is usually disabled when no alternative payment method is
+	 * available, but some gateways may not permit a new payment with
+	 * similar details (e.g., credit card with same number but updated
+	 * expiration) to one already in the system.
+	 *
+	 * @param bool              $allow_deletion Whether deletion is allowed.
+	 * @param \WC_Payment_Token $payment_token  The payment token.
+	 * @return bool
+	 */
+	public static function allow_braintree_token_deletion( $allow_deletion, $payment_token ) {
+		if ( str_starts_with( $payment_token->get_gateway_id(), 'braintree_' ) ) {
+			return true;
+		}
+		return $allow_deletion;
+	}
+
+	/**
+	 * Remove 'edit' and 'save' actions for Braintree.  This keeps parity
+	 * with existing Stripe integration.
+	 *
+	 * @param array             $item          Payment method list item data.
+	 * @param \WC_Payment_Token $payment_token The payment token.
+	 * @return array
+	 */
+	public static function remove_braintree_edit_actions( $item, $payment_token ) {
+		if ( str_starts_with( $payment_token->get_gateway_id(), 'braintree_' ) ) {
+			if ( ! empty( $item['actions']['edit'] ) || ! empty( $item['actions']['save'] ) ) {
+				unset( $item['actions']['edit'], $item['actions']['save'] );
+			}
+		}
+		return $item;
 	}
 
 	/**
@@ -1242,12 +1313,7 @@ class WooCommerce_My_Account {
 		if ( ! $contact || is_wp_error( $contact ) ) {
 			return;
 		}
-		$update = Contact_Sync::sync( $contact, 'Email_Change', array_merge( $contact, [ 'email' => $old_email ] ) );
-		if ( is_wp_error( $update ) ) {
-			// If the update failed, retry in 24 hours.
-			\wp_schedule_single_event( time() + DAY_IN_SECONDS, self::SYNC_ESP_EMAIL_CHANGE_CRON_HOOK, [ $user_id, $new_email, $old_email ] );
-			Logger::error( 'Error syncing email change with ESP: ' . $update->get_error_message() . '. Retrying in 24 hours.' );
-		}
+		Contact_Sync::sync( $contact, 'Email_Change', array_merge( $contact, [ 'email' => $old_email ] ) );
 	}
 
 	/**

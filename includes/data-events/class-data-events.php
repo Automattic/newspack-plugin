@@ -56,7 +56,7 @@ final class Data_Events {
 	/**
 	 * Registered callable handlers, keyed by their action name.
 	 *
-	 * @var callable[]
+	 * @var array<string, callable[]>
 	 */
 	private static $actions = [];
 
@@ -82,12 +82,118 @@ final class Data_Events {
 	private static $current_event = null;
 
 	/**
+	 * The ID of the currently-executing ActionScheduler action.
+	 *
+	 * @var int|null
+	 */
+	private static $current_as_action_id = null;
+
+	/**
+	 * ActionScheduler hook for handling dispatched events.
+	 */
+	const DISPATCH_AS_HOOK = 'newspack_data_events_handle';
+
+	/**
+	 * ActionScheduler hook for retrying a failed handler.
+	 */
+	const HANDLER_RETRY_HOOK = 'newspack_data_events_retry_handler';
+
+	/**
+	 * Maximum number of retries for a failed handler.
+	 */
+	const MAX_HANDLER_RETRIES = 5;
+
+	/**
+	 * Backoff schedule in seconds for handler retries.
+	 * 30s, 2min, 8min, 30min, 2h.
+	 */
+	const RETRY_BACKOFF = [ 30, 120, 480, 1800, 7200 ];
+
+	/**
+	 * Log a message with the Data Events header.
+	 *
+	 * @param string $message The message to log.
+	 * @param string $type    Type of the message. Default 'info'.
+	 */
+	private static function log( $message, $type = 'info' ) {
+		Logger::log( $message, self::LOGGER_HEADER, $type );
+	}
+
+	/**
 	 * Initialize hooks.
 	 */
 	public static function init() {
 		\add_action( 'wp_ajax_' . self::ACTION, [ __CLASS__, 'maybe_handle' ] );
 		\add_action( 'wp_ajax_nopriv_' . self::ACTION, [ __CLASS__, 'maybe_handle' ] );
 		\add_action( 'shutdown', [ __CLASS__, 'execute_queued_dispatches' ] );
+		\add_action( self::DISPATCH_AS_HOOK, [ __CLASS__, 'handle_from_scheduler' ] );
+		\add_action( self::HANDLER_RETRY_HOOK, [ __CLASS__, 'execute_handler_retry' ] );
+		\add_action( 'action_scheduler_begin_execute', [ __CLASS__, 'set_current_as_action_id' ] );
+		\add_action( 'action_scheduler_after_execute', [ __CLASS__, 'clear_current_as_action_id' ] );
+	}
+
+	/**
+	 * Whether to use Action Scheduler for dispatching events.
+	 *
+	 * @return bool
+	 */
+	private static function use_action_scheduler() {
+		/**
+		 * Enables Action Scheduler-based dispatching for Data Events.
+		 * When enabled, events are persisted to the database via Action Scheduler
+		 * instead of being dispatched via non-blocking wp_remote_post().
+		 * Requires Action Scheduler to be available.
+		 *
+		 * @constant NEWSPACK_DATA_EVENTS_ACTIONSCHEDULER
+		 * @type     bool
+		 * @default  Action Scheduler dispatch disabled
+		 * @status   draft
+		 *
+		 * @example define( 'NEWSPACK_DATA_EVENTS_ACTIONSCHEDULER', true );
+		 */
+		$use = defined( 'NEWSPACK_DATA_EVENTS_ACTIONSCHEDULER' ) && NEWSPACK_DATA_EVENTS_ACTIONSCHEDULER
+			&& function_exists( 'as_enqueue_async_action' );
+
+		/**
+		 * Filters whether to use Action Scheduler for dispatching Data Events.
+		 *
+		 * @param bool $use Whether to use Action Scheduler. Default based on the
+		 *                  NEWSPACK_DATA_EVENTS_ACTIONSCHEDULER constant and AS availability.
+		 */
+		return apply_filters( 'newspack_data_events_use_action_scheduler_dispatch', $use );
+	}
+
+	/**
+	 * Handle a batch of dispatched events from Action Scheduler.
+	 *
+	 * @param array $dispatches Array of dispatch arrays, each containing action_name, timestamp, data, and client_id.
+	 */
+	public static function handle_from_scheduler( $dispatches ) {
+		if ( ! is_array( $dispatches ) ) {
+			self::log( 'Invalid dispatch data from Action Scheduler.', 'error' );
+			return;
+		}
+
+		foreach ( $dispatches as $dispatch ) {
+			if ( ! is_array( $dispatch ) ) {
+				continue;
+			}
+
+			$action_name = isset( $dispatch['action_name'] ) ? sanitize_text_field( $dispatch['action_name'] ) : null;
+			$timestamp   = isset( $dispatch['timestamp'] ) ? absint( $dispatch['timestamp'] ) : null;
+			$data        = $dispatch['data'] ?? null;
+			$client_id   = isset( $dispatch['client_id'] ) ? sanitize_text_field( $dispatch['client_id'] ) : null;
+
+			if ( empty( $action_name ) || ! self::is_action_registered( $action_name ) ) {
+				self::log(
+					sprintf( 'Action "%s" not registered when handling from Action Scheduler.', $action_name ?? 'null' ),
+					'error'
+				);
+				continue;
+			}
+
+			self::handle( $action_name, $timestamp, $data, $client_id );
+		}
 	}
 
 	/**
@@ -202,31 +308,27 @@ final class Data_Events {
 		self::set_current_event( $action_name );
 
 		// Execute global handlers.
-		Logger::log(
-			sprintf( 'Executing global action handlers for "%s".', $action_name ),
-			self::LOGGER_HEADER
-		);
+		self::log( sprintf( 'Executing global action handlers for "%s".', $action_name ) );
 		foreach ( self::$global_handlers as $handler ) {
 			try {
 				call_user_func( $handler, $action_name, $timestamp, $data, $client_id );
 			} catch ( \Throwable $e ) {
-				// Catch fatal errors so it doesn't disrupt other handlers.
-				Logger::error( $e->getMessage(), self::LOGGER_HEADER );
+				self::log( $e->getMessage(), 'error' );
+				self::fire_handler_failed( $handler, $action_name, $data, $e );
+				self::schedule_handler_retry( $handler, $action_name, $timestamp, $data, $client_id, true, 0, $e );
 			}
 		}
 
 		// Execute action handlers.
-		Logger::log(
-			sprintf( 'Executing action handlers for "%s".', $action_name ),
-			self::LOGGER_HEADER
-		);
+		self::log( sprintf( 'Executing action handlers for "%s".', $action_name ) );
 		$handlers = self::get_action_handlers( $action_name );
 		foreach ( $handlers as $handler ) {
 			try {
 				call_user_func( $handler, $timestamp, $data, $client_id );
 			} catch ( \Throwable $e ) {
-				// Catch fatal errors so it doesn't disrupt other handlers.
-				Logger::error( $e->getMessage(), self::LOGGER_HEADER );
+				self::log( $e->getMessage(), 'error' );
+				self::fire_handler_failed( $handler, $action_name, $data, $e );
+				self::schedule_handler_retry( $handler, $action_name, $timestamp, $data, $client_id, false, 0, $e );
 			}
 		}
 
@@ -275,6 +377,22 @@ final class Data_Events {
 	}
 
 	/**
+	 * Set the current ActionScheduler action ID.
+	 *
+	 * @param int $action_id The AS action ID.
+	 */
+	public static function set_current_as_action_id( $action_id ) {
+		self::$current_as_action_id = $action_id;
+	}
+
+	/**
+	 * Clear the current ActionScheduler action ID.
+	 */
+	public static function clear_current_as_action_id() {
+		self::$current_as_action_id = null;
+	}
+
+	/**
 	 * Register a triggerable action.
 	 *
 	 * @param string $action_name Action name.
@@ -291,8 +409,16 @@ final class Data_Events {
 	/**
 	 * Register a handler for a triggerable action.
 	 *
+	 * Handler callback signature depends on the registration type:
+	 *
+	 * Action-specific handler (when $action_name is provided):
+	 *   function( int $timestamp, array $data, string $client_id ): void
+	 *
+	 * Global handler (when $action_name is null):
+	 *   function( string $action_name, int $timestamp, array $data, string $client_id ): void
+	 *
 	 * @param callable $handler     Action handler.
-	 * @param string   $action_name Action name.
+	 * @param string   $action_name Action name. If null, handler is called for all actions.
 	 *
 	 * @return void|WP_Error Error if action not registered, handler already registered or is not callable.
 	 */
@@ -313,14 +439,12 @@ final class Data_Events {
 		}
 
 		if ( $error ) {
-
-			Logger::log(
+			self::log(
 				sprintf(
 					'ATTENTION: Data Event handler for action "%s" was not properly registered: %s',
 					$action_name,
-					$error->get_error_message()
-				),
-				'DATA EVENTS'
+					implode( '; ', $error->get_error_messages() )
+				)
 			);
 
 			return $error;
@@ -466,10 +590,7 @@ final class Data_Events {
 		$body = apply_filters( 'newspack_data_events_dispatch_body', $body, $action_name );
 
 		if ( is_wp_error( $body ) ) {
-			Logger::log(
-				sprintf( 'Error dispatching action "%s": %s', $action_name, $body->get_error_message() ),
-				self::LOGGER_HEADER
-			);
+			self::log( sprintf( 'Error dispatching action "%s": %s', $action_name, implode( '; ', $body->get_error_messages() ) ) );
 			return $body;
 		}
 
@@ -491,11 +612,43 @@ final class Data_Events {
 
 		$actions = array_column( self::$queued_dispatches, 'action_name' );
 
-		Logger::log(
-			sprintf( 'Dispatching actions: "%s".', implode( ', ', $actions ) ),
-			self::LOGGER_HEADER
+		self::log( sprintf( 'Dispatching actions: "%s".', implode( ', ', $actions ) ) );
+
+		if ( self::use_action_scheduler() ) {
+			self::dispatch_via_action_scheduler();
+		} else {
+			self::dispatch_via_remote_post();
+		}
+
+		// Clear the queue.
+		self::$queued_dispatches = [];
+	}
+
+	/**
+	 * Dispatch queued events via Action Scheduler.
+	 *
+	 * Each dispatch is scheduled as an individual AS action for independent
+	 * processing, guaranteed delivery, and retry via the handler retry mechanism.
+	 */
+	private static function dispatch_via_action_scheduler() {
+		\as_enqueue_async_action(
+			self::DISPATCH_AS_HOOK,
+			[ self::$queued_dispatches ],
+			'newspack'
 		);
 
+		self::log( sprintf( 'Scheduled %d dispatch(es) via Action Scheduler.', count( self::$queued_dispatches ) ) );
+
+		/** This action is documented below in dispatch_via_remote_post(). */
+		\do_action( 'newspack_data_events_dispatched', null, self::$queued_dispatches );
+	}
+
+	/**
+	 * Dispatch queued events via non-blocking wp_remote_post().
+	 *
+	 * Fallback dispatch method when ActionScheduler is not available.
+	 */
+	private static function dispatch_via_remote_post() {
 		$url = \add_query_arg(
 			[
 				'action' => self::ACTION,
@@ -518,13 +671,211 @@ final class Data_Events {
 		/**
 		 * Fires after dispatching queued actions.
 		 *
-		 * @param WP_Error|WP_HTTP_Response $request           The request object.
-		 * @param array                     $queued_dispatches The queued dispatches.
+		 * @param WP_Error|\WP_HTTP_Response|null $request           The request object, or null when using Action Scheduler.
+		 * @param array                           $queued_dispatches The queued dispatches.
 		 */
 		\do_action( 'newspack_data_events_dispatched', $request, self::$queued_dispatches );
+	}
 
-		// Clear the queue in case of a retry.
-		self::$queued_dispatches = [];
+	/**
+	 * Check whether a handler can be serialized for ActionScheduler storage.
+	 *
+	 * Only static method arrays (e.g. [ClassName::class, 'method']) and string
+	 * function names are serializable. Closures and object-method arrays are not.
+	 *
+	 * @param callable $handler The handler to check.
+	 *
+	 * @return bool
+	 */
+	private static function is_handler_serializable( $handler ) {
+		if ( is_array( $handler ) && 2 === count( $handler ) && is_string( $handler[0] ) && is_string( $handler[1] ) ) {
+			return true;
+		}
+		if ( is_string( $handler ) ) {
+			return true;
+		}
+		return false;
+	}
+
+	/**
+	 * Fire the handler failed action for the original failure (before retries).
+	 *
+	 * @param callable   $handler     The handler that failed.
+	 * @param string     $action_name Action name.
+	 * @param array      $data        Event data.
+	 * @param \Throwable $error       The error that caused the failure.
+	 */
+	private static function fire_handler_failed( $handler, $action_name, $data, $error ) {
+		/**
+		 * Fires when a data event handler fails on the original attempt (before retries).
+		 *
+		 * Used by Alert_Manager to record failures for early pattern detection.
+		 *
+		 * @param array $failure_data {
+		 *     Failure data.
+		 *
+		 *     @type callable $handler     The handler that failed.
+		 *     @type string   $action_name The data event action name.
+		 *     @type array    $data        The event data.
+		 *     @type string   $reason      The error message.
+		 * }
+		 */
+		do_action(
+			'newspack_data_event_handler_failed',
+			[
+				'handler'     => $handler,
+				'action_name' => $action_name,
+				'data'        => $data,
+				'reason'      => $error->getMessage(),
+			]
+		);
+	}
+
+	/**
+	 * Schedule a retry for a failed handler via ActionScheduler.
+	 *
+	 * @param callable   $handler     The handler that failed.
+	 * @param string     $action_name Action name.
+	 * @param int        $timestamp   Event timestamp.
+	 * @param array      $data        Event data.
+	 * @param string     $client_id   Client ID.
+	 * @param bool       $is_global   Whether this is a global handler.
+	 * @param int        $retry_count Current retry count (0 = first failure).
+	 * @param \Throwable $error       The error that caused the failure.
+	 */
+	private static function schedule_handler_retry( $handler, $action_name, $timestamp, $data, $client_id, $is_global, $retry_count, $error ) {
+		if ( ! function_exists( 'as_schedule_single_action' ) ) {
+			return;
+		}
+
+		if ( ! self::is_handler_serializable( $handler ) ) {
+			self::log( sprintf( 'Handler for "%s" is not serializable, cannot schedule retry.', $action_name ) );
+			return;
+		}
+
+		$next_retry = $retry_count + 1;
+		if ( $next_retry > self::MAX_HANDLER_RETRIES ) {
+			self::log(
+				sprintf(
+					'Max retries (%d) reached for handler on "%s". Giving up. Last error: %s',
+					self::MAX_HANDLER_RETRIES,
+					$action_name,
+					$error->getMessage()
+				),
+				'error'
+			);
+			if ( self::$current_as_action_id ) {
+				\ActionScheduler_Logger::instance()->log(
+					self::$current_as_action_id,
+					sprintf( 'Max retries exhausted. Final error: %s', $error->getMessage() )
+				);
+			}
+			/**
+			 * Fires when a Data Events handler has exhausted all retry attempts.
+			 *
+			 * @param array $alert_data {
+			 *     Alert data.
+			 *
+			 *     @type array  $handler       The handler callable.
+			 *     @type string $action_name   The data event action name.
+			 *     @type array  $data          The event data.
+			 *     @type int    $retry_count   Total retries attempted.
+			 *     @type string $reason        The final error message.
+			 * }
+			 */
+			do_action(
+				'newspack_data_event_retry_exhausted',
+				[
+					'handler'     => $handler,
+					'action_name' => $action_name,
+					'data'        => $data,
+					'retry_count' => self::MAX_HANDLER_RETRIES,
+					'reason'      => $error->getMessage(),
+				]
+			);
+			return;
+		}
+
+		$backoff_index   = min( $retry_count, count( self::RETRY_BACKOFF ) - 1 );
+		$backoff_seconds = self::RETRY_BACKOFF[ $backoff_index ];
+
+		$retry_data = [
+			'handler'     => $handler,
+			'action_name' => $action_name,
+			'timestamp'   => $timestamp,
+			'data'        => $data,
+			'client_id'   => $client_id,
+			'is_global'   => $is_global,
+			'retry_count' => $next_retry,
+			'reason'      => $error->getMessage(),
+		];
+
+		$action_id = \as_schedule_single_action(
+			time() + $backoff_seconds,
+			self::HANDLER_RETRY_HOOK,
+			[ $retry_data ],
+			'newspack'
+		);
+
+		if ( $action_id ) {
+			\ActionScheduler_Logger::instance()->log(
+				$action_id,
+				sprintf( 'Failure reason: %s', $error->getMessage() )
+			);
+		}
+
+		self::log(
+			sprintf(
+				'Scheduled retry %d/%d for handler on "%s" in %ds. Error: %s',
+				$next_retry,
+				self::MAX_HANDLER_RETRIES,
+				$action_name,
+				$backoff_seconds,
+				$error->getMessage()
+			)
+		);
+	}
+
+	/**
+	 * Execute a handler retry from ActionScheduler.
+	 *
+	 * @param array $retry_data The retry data containing handler, event data, and retry count.
+	 */
+	public static function execute_handler_retry( $retry_data ) {
+		if ( ! is_array( $retry_data ) || empty( $retry_data['handler'] ) || empty( $retry_data['action_name'] ) ) {
+			self::log( 'Invalid retry data received from Action Scheduler.', 'error' );
+			return;
+		}
+
+		$handler     = $retry_data['handler'];
+		$action_name = $retry_data['action_name'];
+		$timestamp   = $retry_data['timestamp'] ?? null;
+		$data        = $retry_data['data'] ?? null;
+		$client_id   = $retry_data['client_id'] ?? null;
+		$is_global   = $retry_data['is_global'] ?? false;
+		$retry_count = $retry_data['retry_count'] ?? 1;
+
+		if ( ! is_callable( $handler ) ) {
+			self::log( sprintf( 'Handler for "%s" is no longer callable on retry %d.', $action_name, $retry_count ), 'error' );
+			return;
+		}
+
+		self::log( sprintf( 'Executing retry %d/%d for handler on "%s".', $retry_count, self::MAX_HANDLER_RETRIES, $action_name ) );
+
+		try {
+			self::set_current_event( $action_name );
+			if ( $is_global ) {
+				call_user_func( $handler, $action_name, $timestamp, $data, $client_id );
+			} else {
+				call_user_func( $handler, $timestamp, $data, $client_id );
+			}
+			self::log( sprintf( 'Retry %d succeeded for handler on "%s".', $retry_count, $action_name ) );
+		} catch ( \Throwable $e ) {
+			self::log( sprintf( 'Retry %d failed for handler on "%s": %s', $retry_count, $action_name, $e->getMessage() ), 'error' );
+			self::schedule_handler_retry( $handler, $action_name, $timestamp, $data, $client_id, $is_global, $retry_count, $e );
+		} finally {
+			self::set_current_event( null );
+		}
 	}
 }
 Data_Events::init();

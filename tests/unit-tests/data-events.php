@@ -83,7 +83,7 @@ class Newspack_Test_Data_Events extends WP_UnitTestCase {
 		$action_name = 'test_action';
 		$data        = [ 'test' => 'data' ];
 
-		$hook_request = null;
+		$hook_request = 'not_called';
 		$hook_queued_dispatches = null;
 
 		$hook = function( $request, $queued_dispatches ) use ( &$hook_request, &$hook_queued_dispatches ) {
@@ -96,7 +96,8 @@ class Newspack_Test_Data_Events extends WP_UnitTestCase {
 		Data_Events::dispatch( $action_name, $data );
 		Data_Events::execute_queued_dispatches();
 
-		$this->assertIsArray( $hook_request );
+		// Request is null when using AS, array when using wp_remote_post.
+		$this->assertNotEquals( 'not_called', $hook_request, 'Dispatched hook should fire.' );
 		$this->assertIsArray( $hook_queued_dispatches );
 
 		// Find our test action (other events may be queued from other tests).
@@ -514,5 +515,530 @@ class Newspack_Test_Data_Events extends WP_UnitTestCase {
 		// Manually verify a request with the old nonce would be accepted.
 		$_REQUEST['nonce'] = $initial_nonce;
 		$this->assertTrue( Data_Events::verify_nonce( $initial_nonce ), 'Old nonce should be valid during grace period' );
+	}
+
+	/**
+	 * Test that AS dispatch schedules actions instead of making HTTP requests.
+	 */
+	public function test_dispatch_via_action_scheduler() {
+		if ( ! function_exists( 'as_enqueue_async_action' ) ) {
+			$this->markTestSkipped( 'ActionScheduler not available.' );
+		}
+
+		// Clear any pending dispatch actions from previous tests.
+		as_unschedule_all_actions( Data_Events::DISPATCH_AS_HOOK );
+
+		// Enable AS dispatch via filter.
+		add_filter( 'newspack_data_events_use_action_scheduler_dispatch', '__return_true' );
+
+		$action_name = 'test_as_dispatch';
+		Data_Events::register_action( $action_name );
+
+		$hook_request = 'not_called';
+		$hook = function( $request ) use ( &$hook_request ) {
+			$hook_request = $request;
+		};
+		add_action( 'newspack_data_events_dispatched', $hook, 10, 1 );
+
+		Data_Events::dispatch( $action_name, [ 'test' => 'as' ] );
+		Data_Events::execute_queued_dispatches();
+
+		remove_action( 'newspack_data_events_dispatched', $hook );
+
+		// AS path passes null as request.
+		$this->assertNull( $hook_request, 'Request should be null when dispatching via AS.' );
+
+		// Verify an action was scheduled.
+		$pending = as_get_scheduled_actions(
+			[
+				'hook'   => Data_Events::DISPATCH_AS_HOOK,
+				'group'  => 'newspack',
+				'status' => \ActionScheduler_Store::STATUS_PENDING,
+			],
+			'ARRAY_A'
+		);
+		$this->assertCount( 1, $pending, 'AS dispatch should schedule exactly one batched action.' );
+
+		remove_filter( 'newspack_data_events_use_action_scheduler_dispatch', '__return_true' );
+	}
+
+	/**
+	 * Test handle_from_scheduler calls handle() with correct args.
+	 */
+	public function test_handle_from_scheduler() {
+		$action_name = 'test_as_handle';
+		Data_Events::register_action( $action_name );
+
+		$handler_args = null;
+		$handler = function( ...$args ) use ( &$handler_args ) {
+			$handler_args = $args;
+		};
+		Data_Events::register_handler( $handler, $action_name );
+
+		$timestamp = time();
+		$data      = [ 'from' => 'scheduler' ];
+		$client_id = 'as-client';
+
+		Data_Events::handle_from_scheduler(
+			[
+				[
+					'action_name' => $action_name,
+					'timestamp'   => $timestamp,
+					'data'        => $data,
+					'client_id'   => $client_id,
+				],
+			]
+		);
+
+		$this->assertNotNull( $handler_args, 'Handler should be called from scheduler.' );
+		$this->assertEquals( $timestamp, $handler_args[0] );
+		$this->assertEquals( $data, $handler_args[1] );
+		$this->assertEquals( $client_id, $handler_args[2] );
+	}
+
+	/**
+	 * Test handle_from_scheduler processes a batch of dispatches.
+	 */
+	public function test_handle_from_scheduler_batch() {
+		$action_a = 'test_as_batch_a';
+		$action_b = 'test_as_batch_b';
+		Data_Events::register_action( $action_a );
+		Data_Events::register_action( $action_b );
+
+		$called_actions = [];
+		$handler = function( ...$args ) use ( &$called_actions ) {
+			$called_actions[] = $args;
+		};
+		Data_Events::register_handler( $handler, $action_a );
+		Data_Events::register_handler( $handler, $action_b );
+
+		$timestamp = time();
+
+		Data_Events::handle_from_scheduler(
+			[
+				[
+					'action_name' => $action_a,
+					'timestamp'   => $timestamp,
+					'data'        => [ 'order' => 1 ],
+					'client_id'   => 'batch-client',
+				],
+				[
+					'action_name' => $action_b,
+					'timestamp'   => $timestamp,
+					'data'        => [ 'order' => 2 ],
+					'client_id'   => 'batch-client',
+				],
+			]
+		);
+
+		$this->assertCount( 2, $called_actions, 'Both dispatches in the batch should be handled.' );
+		$this->assertEquals( [ 'order' => 1 ], $called_actions[0][1] );
+		$this->assertEquals( [ 'order' => 2 ], $called_actions[1][1] );
+	}
+
+	/**
+	 * Test handle_from_scheduler rejects invalid data.
+	 */
+	public function test_handle_from_scheduler_invalid_data() {
+		$action_name = 'test_as_invalid';
+		Data_Events::register_action( $action_name );
+
+		$called = 0;
+		Data_Events::register_handler(
+			function() use ( &$called ) {
+				$called++;
+			},
+			$action_name
+		);
+
+		// Non-array should be rejected.
+		Data_Events::handle_from_scheduler( 'not_an_array' );
+		$this->assertEquals( 0, $called );
+
+		// Unregistered action should be skipped.
+		Data_Events::handle_from_scheduler( [ [ 'action_name' => 'nonexistent' ] ] );
+		$this->assertEquals( 0, $called );
+	}
+
+	/**
+	 * Test that a throwing handler schedules an AS retry when AS is available.
+	 */
+	public function test_handler_retry_scheduling() {
+		if ( ! function_exists( 'as_schedule_single_action' ) ) {
+			$this->markTestSkipped( 'ActionScheduler not available.' );
+		}
+
+		// Clear any pending retry actions from previous tests.
+		as_unschedule_all_actions( Data_Events::HANDLER_RETRY_HOOK );
+
+		$action_name = 'test_retry_action';
+		Data_Events::register_action( $action_name );
+
+		// Use a serializable (static method array) handler that throws.
+		$handler = [ self::class, 'throwing_handler' ];
+		Data_Events::register_handler( $handler, $action_name );
+
+		Data_Events::handle( $action_name, time(), [ 'test' => 'data' ], 'client-1' );
+
+		// Verify a retry was scheduled.
+		$pending = as_get_scheduled_actions(
+			[
+				'hook'   => Data_Events::HANDLER_RETRY_HOOK,
+				'group'  => 'newspack',
+				'status' => \ActionScheduler_Store::STATUS_PENDING,
+			],
+			'ARRAY_A'
+		);
+		$this->assertNotEmpty( $pending, 'A handler retry should be scheduled when a serializable handler throws.' );
+
+		// Verify the retry data contains the reason key.
+		$action_id = array_key_first( $pending );
+		$action    = \ActionScheduler::store()->fetch_action( $action_id );
+		$args      = $action->get_args();
+		$this->assertArrayHasKey( 'reason', $args[0], 'Retry data should contain a reason key.' );
+		$this->assertEquals( 'Test handler failure', $args[0]['reason'], 'Reason should match the error message.' );
+	}
+
+	/**
+	 * Test that a non-serializable (closure) handler does NOT schedule a retry.
+	 */
+	public function test_closure_handler_no_retry() {
+		if ( ! function_exists( 'as_schedule_single_action' ) ) {
+			$this->markTestSkipped( 'ActionScheduler not available.' );
+		}
+
+		// Clear any pending retries from previous tests.
+		as_unschedule_all_actions( Data_Events::HANDLER_RETRY_HOOK );
+
+		$action_name = 'test_closure_retry_action';
+		Data_Events::register_action( $action_name );
+
+		$handler = function() {
+			throw new \RuntimeException( 'Closure failure' );
+		};
+		Data_Events::register_handler( $handler, $action_name );
+
+		Data_Events::handle( $action_name, time(), [], 'client-1' );
+
+		$pending = as_get_scheduled_actions(
+			[
+				'hook'   => Data_Events::HANDLER_RETRY_HOOK,
+				'group'  => 'newspack',
+				'status' => \ActionScheduler_Store::STATUS_PENDING,
+			],
+			'ARRAY_A'
+		);
+		$this->assertEmpty( $pending, 'Closure handlers should not schedule retries.' );
+	}
+
+	/**
+	 * Test that execute_handler_retry calls the handler with correct arguments.
+	 */
+	public function test_execute_handler_retry_action_handler() {
+		$action_name = 'test_retry_exec_action';
+		Data_Events::register_action( $action_name );
+
+		$captured_args = null;
+		$handler = [ self::class, 'capturing_handler' ];
+		Data_Events::register_handler( $handler, $action_name );
+
+		self::$captured_handler_args = null;
+
+		$timestamp = time();
+		$data      = [ 'retry' => 'test' ];
+		$client_id = 'retry-client';
+
+		Data_Events::execute_handler_retry(
+			[
+				'handler'     => $handler,
+				'action_name' => $action_name,
+				'timestamp'   => $timestamp,
+				'data'        => $data,
+				'client_id'   => $client_id,
+				'is_global'   => false,
+				'retry_count' => 1,
+			]
+		);
+
+		$this->assertNotNull( self::$captured_handler_args, 'Handler should have been called during retry.' );
+		$this->assertEquals( $timestamp, self::$captured_handler_args[0] );
+		$this->assertEquals( $data, self::$captured_handler_args[1] );
+		$this->assertEquals( $client_id, self::$captured_handler_args[2] );
+	}
+
+	/**
+	 * Test that execute_handler_retry passes action_name for global handlers.
+	 */
+	public function test_execute_handler_retry_global_handler() {
+		$action_name = 'test_retry_global';
+		Data_Events::register_action( $action_name );
+
+		self::$captured_handler_args = null;
+
+		$handler = [ self::class, 'capturing_handler' ];
+
+		Data_Events::execute_handler_retry(
+			[
+				'handler'     => $handler,
+				'action_name' => $action_name,
+				'timestamp'   => time(),
+				'data'        => [ 'global' => true ],
+				'client_id'   => 'client-1',
+				'is_global'   => true,
+				'retry_count' => 1,
+			]
+		);
+
+		$this->assertNotNull( self::$captured_handler_args );
+		// Global handlers receive action_name as first arg.
+		$this->assertEquals( $action_name, self::$captured_handler_args[0] );
+	}
+
+	/**
+	 * Test that max retries are respected.
+	 */
+	public function test_max_retries_respected() {
+		if ( ! function_exists( 'as_schedule_single_action' ) ) {
+			$this->markTestSkipped( 'ActionScheduler not available.' );
+		}
+
+		as_unschedule_all_actions( Data_Events::HANDLER_RETRY_HOOK );
+
+		$action_name = 'test_max_retries';
+		Data_Events::register_action( $action_name );
+
+		$handler = [ self::class, 'throwing_handler' ];
+		Data_Events::register_handler( $handler, $action_name );
+
+		// Simulate a retry at max count — should NOT schedule another.
+		Data_Events::execute_handler_retry(
+			[
+				'handler'     => $handler,
+				'action_name' => $action_name,
+				'timestamp'   => time(),
+				'data'        => [],
+				'client_id'   => null,
+				'is_global'   => false,
+				'retry_count' => Data_Events::MAX_HANDLER_RETRIES,
+			]
+		);
+
+		$pending = as_get_scheduled_actions(
+			[
+				'hook'   => Data_Events::HANDLER_RETRY_HOOK,
+				'group'  => 'newspack',
+				'status' => \ActionScheduler_Store::STATUS_PENDING,
+			],
+			'ARRAY_A'
+		);
+		$this->assertEmpty( $pending, 'No retry should be scheduled after max retries.' );
+	}
+
+	/**
+	 * Test that current_event is set during handler retry execution.
+	 */
+	public function test_current_event_set_during_retry() {
+		$action_name = 'test_retry_current_event';
+		Data_Events::register_action( $action_name );
+
+		self::$captured_current_event = null;
+
+		Data_Events::execute_handler_retry(
+			[
+				'handler'     => [ self::class, 'current_event_capturing_handler' ],
+				'action_name' => $action_name,
+				'timestamp'   => time(),
+				'data'        => [],
+				'client_id'   => null,
+				'is_global'   => false,
+				'retry_count' => 1,
+			]
+		);
+
+		$this->assertEquals( $action_name, self::$captured_current_event, 'current_event should be set during retry.' );
+		$this->assertNull( Data_Events::current_event(), 'current_event should be null after retry completes.' );
+	}
+
+	/**
+	 * Test that scheduling a handler retry creates an AS log entry with the failure reason.
+	 */
+	public function test_handler_retry_as_log_entry() {
+		if ( ! function_exists( 'as_schedule_single_action' ) ) {
+			$this->markTestSkipped( 'ActionScheduler not available.' );
+		}
+
+		as_unschedule_all_actions( Data_Events::HANDLER_RETRY_HOOK );
+
+		$action_name = 'test_retry_as_log';
+		Data_Events::register_action( $action_name );
+
+		$handler = [ self::class, 'throwing_handler' ];
+		Data_Events::register_handler( $handler, $action_name );
+
+		Data_Events::handle( $action_name, time(), [ 'test' => 'data' ], 'client-1' );
+
+		// Get the scheduled retry action.
+		$pending = as_get_scheduled_actions(
+			[
+				'hook'   => Data_Events::HANDLER_RETRY_HOOK,
+				'group'  => 'newspack',
+				'status' => \ActionScheduler_Store::STATUS_PENDING,
+			],
+			'ARRAY_A'
+		);
+		$this->assertNotEmpty( $pending );
+
+		$action_id = array_key_first( $pending );
+
+		// Verify AS log entry.
+		$logs     = \ActionScheduler_Logger::instance()->get_logs( $action_id );
+		$messages = array_map(
+			function ( $log ) {
+				return $log->get_message();
+			},
+			$logs
+		);
+		$this->assertTrue(
+			in_array( 'Failure reason: Test handler failure', $messages, true ),
+			'AS logs should contain the failure reason.'
+		);
+	}
+
+	/**
+	 * Test that max retries exhausted creates an AS log entry on the current action.
+	 */
+	public function test_max_retries_as_log_entry() {
+		if ( ! function_exists( 'as_schedule_single_action' ) ) {
+			$this->markTestSkipped( 'ActionScheduler not available.' );
+		}
+
+		as_unschedule_all_actions( Data_Events::HANDLER_RETRY_HOOK );
+
+		$action_name = 'test_max_retries_log';
+		Data_Events::register_action( $action_name );
+
+		$handler = [ self::class, 'throwing_handler' ];
+		Data_Events::register_handler( $handler, $action_name );
+
+		// Schedule a dummy AS action to simulate the currently-executing action.
+		$dummy_action_id = as_schedule_single_action( time() + 3600, 'newspack_dummy_action' );
+
+		// Set the current AS action ID to simulate being inside an AS execution.
+		Data_Events::set_current_as_action_id( $dummy_action_id );
+
+		// Execute at max retry count — handler throws, triggers max-retries guard.
+		Data_Events::execute_handler_retry(
+			[
+				'handler'     => $handler,
+				'action_name' => $action_name,
+				'timestamp'   => time(),
+				'data'        => [],
+				'client_id'   => null,
+				'is_global'   => false,
+				'retry_count' => Data_Events::MAX_HANDLER_RETRIES,
+			]
+		);
+
+		Data_Events::clear_current_as_action_id();
+
+		// Verify AS log entry on the dummy action.
+		$logs     = \ActionScheduler_Logger::instance()->get_logs( $dummy_action_id );
+		$messages = array_map(
+			function ( $log ) {
+				return $log->get_message();
+			},
+			$logs
+		);
+		$this->assertTrue(
+			in_array( 'Max retries exhausted. Final error: Test handler failure', $messages, true ),
+			'AS logs should contain the max retries exhausted message.'
+		);
+
+		// Clean up.
+		as_unschedule_all_actions( 'newspack_dummy_action' );
+	}
+
+	/**
+	 * Test that retry exhaustion fires the alert hook.
+	 */
+	public function test_handler_retry_exhaustion_fires_hook() {
+		if ( ! function_exists( 'as_schedule_single_action' ) ) {
+			$this->markTestSkipped( 'ActionScheduler not available.' );
+		}
+
+		$hook_fired = false;
+		$hook_data  = null;
+		add_action(
+			'newspack_data_event_retry_exhausted',
+			function ( $data ) use ( &$hook_fired, &$hook_data ) {
+				$hook_fired = true;
+				$hook_data  = $data;
+			}
+		);
+
+		as_unschedule_all_actions( Data_Events::HANDLER_RETRY_HOOK );
+
+		$action_name = 'test_exhaustion_hook';
+		Data_Events::register_action( $action_name );
+
+		$handler = [ self::class, 'throwing_handler' ];
+		Data_Events::register_handler( $handler, $action_name );
+
+		// Execute at max retry count — triggers exhaustion.
+		Data_Events::execute_handler_retry(
+			[
+				'handler'     => $handler,
+				'action_name' => $action_name,
+				'timestamp'   => time(),
+				'data'        => [ 'test' => true ],
+				'client_id'   => 'test-client',
+				'is_global'   => false,
+				'retry_count' => Data_Events::MAX_HANDLER_RETRIES,
+			]
+		);
+
+		$this->assertTrue( $hook_fired, 'newspack_data_event_retry_exhausted should fire on max retries.' );
+		$this->assertEquals( $action_name, $hook_data['action_name'] );
+		$this->assertEquals( Data_Events::MAX_HANDLER_RETRIES, $hook_data['retry_count'] );
+		$this->assertArrayHasKey( 'reason', $hook_data );
+	}
+
+	// --- Helper methods for tests ---
+
+	/**
+	 * Captured handler arguments.
+	 *
+	 * @var array|null
+	 */
+	public static $captured_handler_args = null;
+
+	/**
+	 * Captured current event during handler execution.
+	 *
+	 * @var string|null
+	 */
+	public static $captured_current_event = null;
+
+	/**
+	 * A serializable handler that throws.
+	 *
+	 * @throws \RuntimeException Always.
+	 */
+	public static function throwing_handler() {
+		throw new \RuntimeException( 'Test handler failure' );
+	}
+
+	/**
+	 * A serializable handler that captures its arguments.
+	 */
+	public static function capturing_handler() {
+		self::$captured_handler_args = func_get_args();
+	}
+
+	/**
+	 * A serializable handler that captures the current event.
+	 */
+	public static function current_event_capturing_handler() {
+		self::$captured_current_event = Data_Events::current_event();
 	}
 }

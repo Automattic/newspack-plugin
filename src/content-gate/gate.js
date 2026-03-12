@@ -94,7 +94,7 @@ function initReloadHandler() {
 					debugLog( 'log', '[Gate] Reloading page!' );
 					window.location.reload();
 				}
-			}, 5 );
+			}, 50 );
 		};
 
 		ras.on( 'overlay', refreshPage ); // When an overlay is closed.
@@ -245,7 +245,7 @@ function handleFormSubmission( evt, gate ) {
 function initOverlay( gate ) {
 	let entry = document.querySelector( '.entry-content' );
 	if ( ! entry ) {
-		entry = document.querySelector( '#content' );
+		entry = document.querySelector( '#content' ) || document.querySelector( 'main' );
 	}
 	gate.style.removeProperty( 'display' );
 	let seen = false;

@@ -211,6 +211,78 @@ class Newspack_Test_Access_Rules extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Test evaluate_rules passes user_id to rule callbacks.
+	 */
+	public function test_evaluate_rules_with_explicit_user_id() {
+		// Register a simple test rule that checks user meta.
+		Access_Rules::register_rule(
+			[
+				'id'       => 'test_meta_rule',
+				'name'     => 'Test meta rule',
+				'callback' => function( $user_id, $args ) {
+					return (bool) get_user_meta( $user_id, $args, true );
+				},
+			]
+		);
+
+		// Set meta on member but not on non-member.
+		update_user_meta( self::$member_user_id, 'test_gate_pass', '1' );
+
+		$rules = [
+			[
+				[
+					'slug'  => 'test_meta_rule',
+					'value' => 'test_gate_pass',
+				],
+			],
+		];
+
+		// Member should pass.
+		$this->assertTrue(
+			Access_Rules::evaluate_rules( $rules, self::$member_user_id ),
+			'User with matching meta should pass evaluate_rules.'
+		);
+
+		// Non-member should fail.
+		$this->assertFalse(
+			Access_Rules::evaluate_rules( $rules, self::$non_member_user_id ),
+			'User without matching meta should fail evaluate_rules.'
+		);
+	}
+
+	/**
+	 * Test evaluate_rules defaults to current user when no user_id is passed.
+	 */
+	public function test_evaluate_rules_defaults_to_current_user() {
+		Access_Rules::register_rule(
+			[
+				'id'       => 'test_current_user_rule',
+				'name'     => 'Test current user rule',
+				'callback' => function( $user_id, $args ) {
+					return $user_id === (int) $args;
+				},
+			]
+		);
+
+		wp_set_current_user( self::$member_user_id );
+
+		$rules = [
+			[
+				[
+					'slug'  => 'test_current_user_rule',
+					'value' => (string) self::$member_user_id,
+				],
+			],
+		];
+
+		// Should pass using current user (no user_id argument).
+		$this->assertTrue(
+			Access_Rules::evaluate_rules( $rules ),
+			'evaluate_rules should default to current user when no user_id is passed.'
+		);
+	}
+
+	/**
 	 * Test pending-cancel status still grants access.
 	 */
 	public function test_pending_cancel_status_grants_access() {

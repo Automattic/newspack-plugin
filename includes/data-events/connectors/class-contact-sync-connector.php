@@ -87,21 +87,13 @@ class Contact_Sync_Connector {
 	 * @param int   $client_id ID of the client that triggered the event.
 	 */
 	public static function reader_registered( $timestamp, $data, $client_id ) {
-		$metadata = [
-			'account'           => $data['user_id'],
-			'registration_date' => gmdate( Sync_Metadata::DATE_FORMAT, $timestamp ),
-		];
-		if ( isset( $data['metadata']['current_page_url'] ) ) {
-			$metadata['registration_page'] = $data['metadata']['current_page_url'];
-		}
-		if ( isset( $data['metadata']['registration_method'] ) ) {
-			$metadata['registration_method'] = $data['metadata']['registration_method'];
+		if ( empty( $data['user_id'] ) ) {
+			return;
 		}
 
-		$contact = [
-			'email'    => $data['email'],
-			'metadata' => $metadata,
-		];
+		$customer = new \WC_Customer( $data['user_id'] );
+
+		$contact = Sync_WooCommerce::get_contact_from_customer( $customer );
 
 		Contact_Sync::sync( $contact, 'RAS Reader registration' );
 	}
@@ -328,18 +320,6 @@ class Contact_Sync_Connector {
 		if ( ! $contact ) {
 			return;
 		}
-
-		// Ensure email is set as the user probably won't have a billing email.
-		if ( empty( $contact['email'] ) ) {
-			$user = get_userdata( $user_id );
-			$contact['email'] = $user->user_email;
-		}
-
-		if ( empty( $contact['metadata'] ) ) {
-			$contact['metadata'] = [];
-		}
-
-		$contact['metadata']['network_registration_site'] = $registration_site;
 
 		$site_url = get_site_url();
 		Contact_Sync::sync( $contact, sprintf( 'RAS Newspack Network: User propagated from another site in the network. Propagated from %s to %s.', $registration_site, $site_url ) );

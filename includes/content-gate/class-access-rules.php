@@ -86,20 +86,20 @@ class Access_Rules {
 	public static function register_default_rules() {
 		$rules = [
 			'subscription' => [
-				'name'        => 'Has Active Subscription',
-				'description' => 'The user must be logged into a reader account and have an active subscription with one of the selected products.',
+				'name'        => __( 'Active subscription', 'newspack-plugin' ),
+				'description' => __( 'Requires an active subscription to selected products.', 'newspack-plugin' ),
 				'options'     => [ __CLASS__, 'get_subscription_products_options' ],
 				'callback'    => [ __CLASS__, 'has_active_subscription' ],
 			],
 			'email_domain' => [
-				'name'        => __( 'Has Whitelisted Email Domain', 'newspack-plugin' ),
-				'description' => 'The user must be logged into a reader account whose email address contains one of these domains. Specify multiple domains by separating them with a comma or line break.',
-				'placeholder' => 'example.com,another.com',
+				'name'        => __( 'Whitelisted email domain', 'newspack-plugin' ),
+				'description' => __( 'Only allow readers with specific email domains.', 'newspack-plugin' ),
+				'placeholder' => __( 'example.com,another.com', 'newspack-plugin' ),
 				'callback'    => [ __CLASS__, 'is_email_domain_whitelisted' ],
 			],
 			'reader_data'  => [
-				'name'        => __( 'Reader Data', 'newspack-plugin' ),
-				'description' => 'Determine reader data key-values the reader must have.',
+				'name'        => __( 'Reader data', 'newspack-plugin' ),
+				'description' => __( 'Set custom conditions based on reader data key/value pairs.', 'newspack-plugin' ),
 				'callback'    => [ __CLASS__, 'has_reader_data' ],
 			],
 		];
@@ -176,10 +176,11 @@ class Access_Rules {
 	 * - Rules within a group use AND logic: reader must pass all rules in the group
 	 *
 	 * @param array $access_rules The access rules (array of groups, each group is an array of rules).
+	 * @param int   $user_id     Optional. User ID to evaluate rules for. Defaults to current user.
 	 *
 	 * @return bool True if access is granted, false if restricted.
 	 */
-	public static function evaluate_rules( $access_rules ) {
+	public static function evaluate_rules( $access_rules, $user_id = null ) {
 		if ( empty( $access_rules ) ) {
 			return true;
 		}
@@ -189,7 +190,7 @@ class Access_Rules {
 
 		// Evaluate each group with OR logic - if any group passes, grant access.
 		foreach ( $access_rules as $group ) {
-			if ( self::evaluate_rules_group( $group ) ) {
+			if ( self::evaluate_rules_group( $group, $user_id ) ) {
 				return true;
 			}
 		}
@@ -201,11 +202,12 @@ class Access_Rules {
 	/**
 	 * Evaluate a single group of access rules with AND logic.
 	 *
-	 * @param array $group Array of rules in the group.
+	 * @param array $group   Array of rules in the group.
+	 * @param int   $user_id Optional. User ID to evaluate rules for. Defaults to current user.
 	 *
 	 * @return bool True if all rules in the group pass, false otherwise.
 	 */
-	private static function evaluate_rules_group( $group ) {
+	private static function evaluate_rules_group( $group, $user_id = null ) {
 		if ( empty( $group ) || ! is_array( $group ) ) {
 			return true;
 		}
@@ -214,7 +216,7 @@ class Access_Rules {
 			if ( ! isset( $rule['slug'] ) ) {
 				continue;
 			}
-			if ( ! self::evaluate_rule( $rule['slug'], $rule['value'] ?? null ) ) {
+			if ( ! self::evaluate_rule( $rule['slug'], $rule['value'] ?? null, $user_id ) ) {
 				return false;
 			}
 		}

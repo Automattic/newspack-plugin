@@ -8,8 +8,10 @@
 use Newspack\Reader_Activation;
 use Newspack\Reader_Activation\Sync;
 use Newspack\Reader_Activation\Contact_Sync;
+use Newspack\Reader_Activation\Integrations;
 
 require_once __DIR__ . '/../mocks/newsletters-mocks.php';
+require_once __DIR__ . '/integrations/class-failing-sample-integration.php';
 
 /**
  * Test the Esp_Metadata_Sync class.
@@ -26,7 +28,7 @@ class Newspack_Test_Reader_Activation_Sync extends WP_UnitTestCase {
 			'name'     => 'Test Contact',
 			'metadata' => [],
 		];
-		foreach ( array_keys( Sync\Metadata::$keys ) as $key ) {
+		foreach ( array_keys( Sync\Metadata::get_keys() ) as $key ) {
 			$contact['metadata'][ Sync\Metadata::get_key( $key ) ] = 'value';
 		}
 		return $contact;
@@ -63,7 +65,7 @@ class Newspack_Test_Reader_Activation_Sync extends WP_UnitTestCase {
 	 */
 	public function test_esp_integration_checks() {
 
-		$esp_integration = new Newspack\Reader_Activation\Integrations\ESP();
+		$esp_integration = new Integrations\ESP();
 		$errors = $esp_integration->can_sync( true );
 		$this->assertInstanceOf( 'WP_Error', $errors );
 		$this->assertTrue( $errors->has_errors() );
@@ -223,8 +225,8 @@ class Newspack_Test_Reader_Activation_Sync extends WP_UnitTestCase {
 	 */
 	public function test_with_all_valid_selected() {
 		$contact = $this->get_sample_contact();
-		$defaults = array_keys( Sync\Metadata::$keys );
-		$this->set_option( [ Sync\Metadata::$keys[ $defaults[0] ], Sync\Metadata::$keys[ $defaults[1] ] ] );
+		$defaults = array_keys( Sync\Metadata::get_keys() );
+		$this->set_option( [ Sync\Metadata::get_keys()[ $defaults[0] ], Sync\Metadata::get_keys()[ $defaults[1] ] ] );
 		$normalized = Sync\Metadata::normalize_contact_data( $contact );
 		$this->assertArrayHasKey( Sync\Metadata::get_key( $defaults[0] ), $normalized['metadata'] );
 		$this->assertArrayHasKey( Sync\Metadata::get_key( $defaults[1] ), $normalized['metadata'] );
@@ -237,8 +239,8 @@ class Newspack_Test_Reader_Activation_Sync extends WP_UnitTestCase {
 	 */
 	public function test_with_valid_and_invalid_selected() {
 		$contact  = $this->get_sample_contact();
-		$defaults = array_keys( Sync\Metadata::$keys );
-		$this->set_option( [ Sync\Metadata::$keys[ $defaults[0] ], Sync\Metadata::$keys[ $defaults[1] ], 'invalid' ] );
+		$defaults = array_keys( Sync\Metadata::get_keys() );
+		$this->set_option( [ Sync\Metadata::get_keys()[ $defaults[0] ], Sync\Metadata::get_keys()[ $defaults[1] ], 'invalid' ] );
 		$normalized = Sync\Metadata::normalize_contact_data( $contact );
 		$this->assertArrayHasKey( Sync\Metadata::get_key( $defaults[0] ), $normalized['metadata'] );
 		$this->assertArrayHasKey( Sync\Metadata::get_key( $defaults[1] ), $normalized['metadata'] );
@@ -253,8 +255,8 @@ class Newspack_Test_Reader_Activation_Sync extends WP_UnitTestCase {
 	 */
 	public function test_with_utm_fields() {
 		$contact  = $this->get_sample_contact();
-		$defaults = array_keys( Sync\Metadata::$keys );
-		$this->set_option( [ Sync\Metadata::$keys['signup_page_utm'], Sync\Metadata::$keys['payment_page_utm'] ] );
+		$defaults = array_keys( Sync\Metadata::get_keys() );
+		$this->set_option( [ Sync\Metadata::get_keys()['signup_page_utm'], Sync\Metadata::get_keys()['payment_page_utm'] ] );
 		$contact['metadata'][ Sync\Metadata::get_key( 'signup_page_utm' ) . 'foo' ] = 'bar';
 		$contact['metadata'][ Sync\Metadata::get_key( 'payment_page_utm' ) . 'yyy' ] = 'zzz';
 		$normalized = Sync\Metadata::normalize_contact_data( $contact );
@@ -269,12 +271,354 @@ class Newspack_Test_Reader_Activation_Sync extends WP_UnitTestCase {
 	 */
 	public function test_with_raw_utm_fields() {
 		$contact  = $this->get_sample_contact();
-		$defaults = array_keys( Sync\Metadata::$keys );
-		$this->set_option( [ Sync\Metadata::$keys['signup_page_utm'], Sync\Metadata::$keys['payment_page_utm'] ] );
+		$defaults = array_keys( Sync\Metadata::get_keys() );
+		$this->set_option( [ Sync\Metadata::get_keys()['signup_page_utm'], Sync\Metadata::get_keys()['payment_page_utm'] ] );
 		$contact['metadata']['signup_page_utm_foo'] = 'bar';
 		$contact['metadata']['payment_page_utm_yyy'] = 'zzz';
 		$normalized = Sync\Metadata::normalize_contact_data( $contact );
 		$this->assertArrayHasKey( Sync\Metadata::get_key( 'signup_page_utm' ) . 'foo', $normalized['metadata'] );
 		$this->assertArrayHasKey( Sync\Metadata::get_key( 'payment_page_utm' ) . 'yyy', $normalized['metadata'] );
+	}
+
+	/**
+	 * Register a Failing_Sample_Integration and enable it.
+	 *
+	 * @param string $id Integration ID.
+	 * @return Failing_Sample_Integration
+	 */
+	private function register_failing_integration( $id = 'failing_mock' ) {
+		$integration = new Failing_Sample_Integration( $id, 'Failing Mock' );
+		Integrations::register( $integration );
+		Integrations::enable( $id );
+		return $integration;
+	}
+
+	/**
+	 * Test that a failed integration push schedules an AS retry.
+	 */
+	public function test_integration_retry_scheduling() {
+		if ( ! function_exists( 'as_schedule_single_action' ) ) {
+			$this->markTestSkipped( 'ActionScheduler not available.' );
+		}
+
+		Failing_Sample_Integration::reset();
+		Failing_Sample_Integration::$should_fail = true;
+		$this->register_failing_integration();
+
+		// Clear any pending retries.
+		as_unschedule_all_actions( Contact_Sync::RETRY_HOOK );
+
+		$contact = [
+			'email'    => 'retry@test.com',
+			'name'     => 'Retry Test',
+			'metadata' => [],
+		];
+
+		Contact_Sync::execute_integration_retry(
+			[
+				'integration_id'   => 'failing_mock',
+				'contact'          => $contact,
+				'context'          => 'Test',
+				'existing_contact' => null,
+				'retry_count'      => 1,
+			]
+		);
+
+		$pending = as_get_scheduled_actions(
+			[
+				'hook'   => Contact_Sync::RETRY_HOOK,
+				'group'  => 'newspack',
+				'status' => \ActionScheduler_Store::STATUS_PENDING,
+			],
+			'ARRAY_A'
+		);
+		$this->assertNotEmpty( $pending, 'A retry should be scheduled when an integration push fails.' );
+
+		// Verify the retry data contains the reason key.
+		$action_id = array_key_first( $pending );
+		$action    = \ActionScheduler::store()->fetch_action( $action_id );
+		$args      = $action->get_args();
+		$this->assertArrayHasKey( 'reason', $args[0], 'Retry data should contain a reason key.' );
+		$this->assertEquals( 'Mock push failed', $args[0]['reason'], 'Reason should match the error message.' );
+	}
+
+	/**
+	 * Test that a successful retry does not schedule another retry.
+	 */
+	public function test_integration_retry_success() {
+		if ( ! function_exists( 'as_schedule_single_action' ) ) {
+			$this->markTestSkipped( 'ActionScheduler not available.' );
+		}
+
+		Failing_Sample_Integration::reset();
+		$this->register_failing_integration( 'success_mock' );
+
+		// Clear any pending retries.
+		as_unschedule_all_actions( Contact_Sync::RETRY_HOOK );
+
+		$contact = [
+			'email'    => 'success@test.com',
+			'name'     => 'Success Test',
+			'metadata' => [],
+		];
+
+		Contact_Sync::execute_integration_retry(
+			[
+				'integration_id'   => 'success_mock',
+				'contact'          => $contact,
+				'context'          => 'Test',
+				'existing_contact' => null,
+				'retry_count'      => 1,
+			]
+		);
+
+		$this->assertEquals( 1, Failing_Sample_Integration::$push_count, 'Integration push should have been called once.' );
+
+		$pending = as_get_scheduled_actions(
+			[
+				'hook'   => Contact_Sync::RETRY_HOOK,
+				'group'  => 'newspack',
+				'status' => \ActionScheduler_Store::STATUS_PENDING,
+			],
+			'ARRAY_A'
+		);
+		$this->assertEmpty( $pending, 'No retry should be scheduled on success.' );
+	}
+
+	/**
+	 * Test that retries stop after MAX_RETRIES.
+	 */
+	public function test_integration_max_retries() {
+		if ( ! function_exists( 'as_schedule_single_action' ) ) {
+			$this->markTestSkipped( 'ActionScheduler not available.' );
+		}
+
+		Failing_Sample_Integration::reset();
+		Failing_Sample_Integration::$should_fail = true;
+		$this->register_failing_integration( 'max_mock' );
+
+		// Clear any pending retries.
+		as_unschedule_all_actions( Contact_Sync::RETRY_HOOK );
+
+		$contact = [
+			'email'    => 'max@test.com',
+			'name'     => 'Max Retry Test',
+			'metadata' => [],
+		];
+
+		// Simulate a retry at the max count — should NOT schedule another.
+		Contact_Sync::execute_integration_retry(
+			[
+				'integration_id'   => 'max_mock',
+				'contact'          => $contact,
+				'context'          => 'Test',
+				'existing_contact' => null,
+				'retry_count'      => Contact_Sync::MAX_RETRIES,
+			]
+		);
+
+		$pending = as_get_scheduled_actions(
+			[
+				'hook'   => Contact_Sync::RETRY_HOOK,
+				'group'  => 'newspack',
+				'status' => \ActionScheduler_Store::STATUS_PENDING,
+			],
+			'ARRAY_A'
+		);
+		$this->assertEmpty( $pending, 'No retry should be scheduled after max retries.' );
+	}
+
+	/**
+	 * Test that a failed integration retry logs the error to the current AS action.
+	 */
+	public function test_integration_retry_as_log_entry() {
+		if ( ! function_exists( 'as_schedule_single_action' ) ) {
+			$this->markTestSkipped( 'ActionScheduler not available.' );
+		}
+
+		Failing_Sample_Integration::reset();
+		Failing_Sample_Integration::$should_fail = true;
+		$this->register_failing_integration( 'log_mock' );
+
+		as_unschedule_all_actions( Contact_Sync::RETRY_HOOK );
+
+		$contact = [
+			'email'    => 'log@test.com',
+			'name'     => 'Log Test',
+			'metadata' => [],
+		];
+
+		// Schedule a dummy AS action to simulate the currently-executing action.
+		$dummy_action_id = as_schedule_single_action( time() + 3600, 'newspack_dummy_log_action' );
+		Contact_Sync::set_current_as_action_id( $dummy_action_id );
+
+		Contact_Sync::execute_integration_retry(
+			[
+				'integration_id'   => 'log_mock',
+				'contact'          => $contact,
+				'context'          => 'Test',
+				'existing_contact' => null,
+				'retry_count'      => 1,
+			]
+		);
+
+		Contact_Sync::clear_current_as_action_id();
+
+		// Verify AS log entry on the current action.
+		$logs     = \ActionScheduler_Logger::instance()->get_logs( $dummy_action_id );
+		$messages = array_map(
+			function ( $log ) {
+				return $log->get_message();
+			},
+			$logs
+		);
+		$this->assertTrue(
+			in_array( 'Mock push failed', $messages, true ),
+			'AS logs should contain the error message on the current action.'
+		);
+
+		// Clean up.
+		as_unschedule_all_actions( 'newspack_dummy_log_action' );
+	}
+
+	/**
+	 * Test that max retries exhausted creates an AS log entry on the current action.
+	 */
+	public function test_integration_max_retries_as_log_entry() {
+		if ( ! function_exists( 'as_schedule_single_action' ) ) {
+			$this->markTestSkipped( 'ActionScheduler not available.' );
+		}
+
+		Failing_Sample_Integration::reset();
+		Failing_Sample_Integration::$should_fail = true;
+		$this->register_failing_integration( 'deadletter_mock' );
+
+		as_unschedule_all_actions( Contact_Sync::RETRY_HOOK );
+
+		$contact = [
+			'email'    => 'deadletter@test.com',
+			'name'     => 'Dead Letter Test',
+			'metadata' => [],
+		];
+
+		// Schedule a dummy AS action to simulate the currently-executing action.
+		$dummy_action_id = as_schedule_single_action( time() + 3600, 'newspack_dummy_sync_action' );
+
+		// Set the current AS action ID.
+		Contact_Sync::set_current_as_action_id( $dummy_action_id );
+
+		// Execute at max retry count — push fails, triggers max-retries guard.
+		Contact_Sync::execute_integration_retry(
+			[
+				'integration_id'   => 'deadletter_mock',
+				'contact'          => $contact,
+				'context'          => 'Test',
+				'existing_contact' => null,
+				'retry_count'      => Contact_Sync::MAX_RETRIES,
+			]
+		);
+
+		Contact_Sync::clear_current_as_action_id();
+
+		// Verify AS log entry on the dummy action.
+		$logs     = \ActionScheduler_Logger::instance()->get_logs( $dummy_action_id );
+		$messages = array_map(
+			function ( $log ) {
+				return $log->get_message();
+			},
+			$logs
+		);
+		$this->assertTrue(
+			in_array( 'Max retries exhausted.', $messages, true ),
+			'AS logs should contain the max retries exhausted message.'
+		);
+
+		// Clean up.
+		as_unschedule_all_actions( 'newspack_dummy_sync_action' );
+	}
+
+	/**
+	 * Test that sync retry exhaustion fires the alert hook.
+	 */
+	public function test_sync_retry_exhaustion_fires_hook() {
+		if ( ! function_exists( 'as_schedule_single_action' ) ) {
+			$this->markTestSkipped( 'ActionScheduler not available.' );
+		}
+
+		$hook_fired = false;
+		$hook_data  = null;
+		add_action(
+			'newspack_sync_retry_exhausted',
+			function ( $data ) use ( &$hook_fired, &$hook_data ) {
+				$hook_fired = true;
+				$hook_data  = $data;
+			}
+		);
+
+		Failing_Sample_Integration::reset();
+		Failing_Sample_Integration::$should_fail = true;
+		$this->register_failing_integration( 'exhaustion_mock' );
+
+		as_unschedule_all_actions( Contact_Sync::RETRY_HOOK );
+
+		$contact = [
+			'email'    => 'exhaustion@test.com',
+			'name'     => 'Exhaustion Test',
+			'metadata' => [],
+		];
+
+		// Execute at max retry count — triggers exhaustion.
+		Contact_Sync::execute_integration_retry(
+			[
+				'integration_id'   => 'exhaustion_mock',
+				'contact'          => $contact,
+				'context'          => 'Test',
+				'existing_contact' => null,
+				'retry_count'      => Contact_Sync::MAX_RETRIES,
+			]
+		);
+
+		$this->assertTrue( $hook_fired, 'newspack_sync_retry_exhausted should fire on max retries.' );
+		$this->assertEquals( 'exhaustion_mock', $hook_data['integration_id'] );
+		$this->assertEquals( Contact_Sync::MAX_RETRIES, $hook_data['retry_count'] );
+		$this->assertArrayHasKey( 'reason', $hook_data );
+	}
+
+	/**
+	 * Test that invalid retry data is handled gracefully.
+	 */
+	public function test_integration_retry_invalid_data() {
+		if ( ! function_exists( 'as_schedule_single_action' ) ) {
+			$this->markTestSkipped( 'ActionScheduler not available.' );
+		}
+
+		// Clear any pending retries.
+		as_unschedule_all_actions( Contact_Sync::RETRY_HOOK );
+
+		// Missing integration_id.
+		Contact_Sync::execute_integration_retry(
+			[
+				'contact'     => [ 'email' => 'test@test.com' ],
+				'retry_count' => 1,
+			]
+		);
+
+		// Missing contact.
+		Contact_Sync::execute_integration_retry(
+			[
+				'integration_id' => 'failing_mock',
+				'retry_count'    => 1,
+			]
+		);
+
+		$pending = as_get_scheduled_actions(
+			[
+				'hook'   => Contact_Sync::RETRY_HOOK,
+				'group'  => 'newspack',
+				'status' => \ActionScheduler_Store::STATUS_PENDING,
+			],
+			'ARRAY_A'
+		);
+		$this->assertEmpty( $pending, 'No retry should be scheduled for invalid data.' );
 	}
 }

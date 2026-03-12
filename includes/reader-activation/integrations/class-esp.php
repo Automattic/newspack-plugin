@@ -8,8 +8,10 @@
 namespace Newspack\Reader_Activation\Integrations;
 
 use Newspack\Reader_Activation\Integration;
+use Newspack\Reader_Activation\Sync;
 use Newspack\Reader_Activation;
 use Newspack_Newsletters_Contacts;
+use Newspack_Newsletters_Subscription;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -27,6 +29,30 @@ class ESP extends Integration {
 	}
 
 	/**
+	 * Get the enabled outgoing metadata fields for the ESP integration.
+	 *
+	 * Overrides the parent to provide lazy migration from the legacy global
+	 * option (Metadata::FIELDS_OPTION) to the per-integration option.
+	 *
+	 * @return string[] List of enabled field names.
+	 */
+	public function get_enabled_outgoing_fields() {
+		$fields = \get_option( self::OUTGOING_FIELDS_OPTION_PREFIX . $this->id, null );
+		if ( null !== $fields && is_array( $fields ) ) {
+			return $fields;
+		}
+
+		// Migrate from legacy global option.
+		$legacy = \get_option( Sync\Metadata::FIELDS_OPTION, null );
+		if ( null !== $legacy && is_array( $legacy ) ) {
+			$this->update_enabled_outgoing_fields( $legacy );
+			return $legacy;
+		}
+
+		return Sync\Metadata::get_default_fields();
+	}
+
+	/**
 	 * Whether contacts can be synced to the ESP.
 	 *
 	 * @param bool $return_errors Optional. Whether to return a WP_Error object. Default false.
@@ -36,6 +62,17 @@ class ESP extends Integration {
 	public function can_sync( $return_errors = false ) {
 		$errors = new \WP_Error();
 
+		/**
+		 * Forces ESP sync to be allowed, bypassing all validation checks.
+		 * Use with caution - may sync data to production ESP from staging.
+		 *
+		 * @constant NEWSPACK_FORCE_ALLOW_ESP_SYNC
+		 * @type     bool
+		 * @default  ESP sync follows normal validation rules
+		 * @status   draft
+		 *
+		 * @example define( 'NEWSPACK_FORCE_ALLOW_ESP_SYNC', true );
+		 */
 		if ( defined( 'NEWSPACK_FORCE_ALLOW_ESP_SYNC' ) && NEWSPACK_FORCE_ALLOW_ESP_SYNC ) {
 			return $return_errors ? $errors : true;
 		}
@@ -91,5 +128,88 @@ class ESP extends Integration {
 		$master_list_id = Reader_Activation::get_esp_master_list_id();
 
 		return Newspack_Newsletters_Contacts::upsert( $contact, $master_list_id, $context, $existing_contact );
+	}
+
+	/**
+	 * Pull contact data from the ESP for a given user.
+	 *
+	 * @param int $user_id WordPress user ID.
+	 *
+	 * @return array|\WP_Error Associative array of field_key => value pairs on success, WP_Error on failure.
+	 */
+	public function pull_contact_data( $user_id ) {
+		$can_sync = $this->can_sync( true );
+		if ( $can_sync->has_errors() ) {
+			return $can_sync;
+		}
+
+		$user = get_userdata( $user_id );
+		if ( ! $user ) {
+			return new \WP_Error( 'user_not_found', __( 'User not found.', 'newspack-plugin' ) );
+		}
+
+		$contact_data = Newspack_Newsletters_Subscription::get_contact_data( $user->user_email, true );
+
+		if ( is_wp_error( $contact_data ) ) {
+			return $contact_data;
+		}
+
+		if ( ! empty( $contact_data['metadata'] ) ) {
+			return $contact_data['metadata'];
+		}
+
+		return [];
+	}
+
+	/**
+	 * Test the live connection to the ESP.
+	 *
+	 * Delegates to Newspack_Newsletters::test_connection() if available.
+	 * By the time this runs, can_sync() has already passed.
+	 *
+	 * @return true|\WP_Error True on success, WP_Error on failure.
+	 */
+	public function test_connection() {
+		if ( ! method_exists( 'Newspack_Newsletters', 'test_connection' ) ) {
+			return true;
+		}
+		return \Newspack_Newsletters::test_connection();
+	}
+
+	/**
+	 * Get incoming available contact fields from the integration.
+	 *
+	 * @return Incoming_Contact_Field[]|\WP_Error Array of incoming contact field objects or WP_Error on failure.
+	 */
+	public function get_incoming_available_contact_fields() {
+
+		if ( ! class_exists( 'Newspack_Newsletters_Contacts' ) ) {
+			return new \WP_Error(
+				'newspack_newsletters_contacts_not_found',
+				__( 'Newspack Newsletters is not available.', 'newspack-plugin' )
+			);
+		}
+
+		$master_list_id = Reader_Activation::get_esp_master_list_id();
+
+		if ( empty( $master_list_id ) ) {
+			return new \WP_Error(
+				'ras_esp_master_list_id_not_found',
+				__( 'ESP master list ID is not set.', 'newspack-plugin' )
+			);
+		}
+
+		$fields = Newspack_Newsletters_Contacts::get_fields( $master_list_id );
+
+		if ( is_wp_error( $fields ) ) {
+			return $fields;
+		}
+
+		return array_map(
+			function( $field ) {
+				return new Incoming_Contact_Field( $field['key'] );
+			},
+			$fields
+		);
 	}
 }

@@ -1,0 +1,31 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "newspack/author-profile-social",
+	"title": "Author Social Links",
+	"category": "newspack",
+	"ancestor": [ "newspack-blocks/author-profile" ],
+	"description": "Display the author's social media links and email.",
+	"usesContext": [ "newspack-blocks/author" ],
+	"providesContext": {
+		"newspack-blocks/iconSize": "iconSize"
+	},
+	"textdomain": "newspack-plugin",
+	"attributes": {
+		"showEmail": {
+			"type": "boolean",
+			"default": false
+		},
+		"iconSize": {
+			"type": "number",
+			"default": 24
+		}
+	},
+	"supports": {
+		"html": false,
+		"spacing": {
+			"margin": true,
+			"padding": true
+		}
+	}
+}

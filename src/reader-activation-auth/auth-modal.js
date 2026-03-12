@@ -38,7 +38,7 @@ export function openAuthModal( config = {} ) {
 	const reader = window.newspackReaderActivation.getReader();
 	const modalTrigger = config.trigger;
 
-	if ( reader?.authenticated ) {
+	if ( ! config.skipAuthenticatedCheck && reader?.authenticated ) {
 		if ( config.onSuccess && typeof config.onSuccess === 'function' ) {
 			config.onSuccess();
 		}
@@ -87,11 +87,20 @@ export function openAuthModal( config = {} ) {
 	 *
 	 * @param {boolean} dismiss Whether it's a dismiss action.
 	 */
-	const close = ( dismiss = true ) => {
+	let closed = false;
+	let succeeded = false;
+
+	const close = () => {
+		if ( closed ) {
+			return;
+		}
+		closed = true;
+
+		modal.removeEventListener( 'closeModal', handleModalClose );
+
 		container.config = {};
 		modal.setAttribute( 'data-state', 'closed' );
 		document.body.classList.remove( 'newspack-signin' );
-		document.body.style.overflow = 'auto';
 		if ( modal.overlayId && window.newspackReaderActivation?.overlays ) {
 			window.newspackReaderActivation.overlays.remove( modal.overlayId );
 		}
@@ -104,8 +113,12 @@ export function openAuthModal( config = {} ) {
 			modalTrigger.focus();
 		}
 
-		if ( dismiss && config.onDismiss && typeof config.onDismiss === 'function' ) {
+		if ( ! succeeded && config.onDismiss && typeof config.onDismiss === 'function' ) {
 			config.onDismiss();
+		}
+
+		if ( config.onClose && typeof config.onClose === 'function' ) {
+			config.onClose();
 		}
 
 		document.removeEventListener( 'keydown', handleKeydown );
@@ -113,6 +126,10 @@ export function openAuthModal( config = {} ) {
 			closeButton.removeEventListener( 'click', handleCloseButtonClick );
 		} );
 	};
+
+	// Listen for closeModal events dispatched by the newspack-ui modals system.
+	const handleModalClose = () => close();
+	modal.addEventListener( 'closeModal', handleModalClose );
 
 	const closeButtons = modal.querySelectorAll( 'button[data-close], .newspack-ui__modal__close' );
 	if ( closeButtons?.length ) {
@@ -132,8 +149,9 @@ export function openAuthModal( config = {} ) {
 	container.config = config;
 
 	container.authCallback = ( message, data ) => {
+		succeeded = true;
 		if ( config?.closeOnSuccess ) {
-			close( false );
+			close();
 		}
 		if ( config.onSuccess && typeof config.onSuccess === 'function' ) {
 			config.onSuccess( message, data );
@@ -190,7 +208,6 @@ export function openAuthModal( config = {} ) {
 	} );
 
 	document.body.classList.add( 'newspack-signin' );
-	document.body.style.overflow = 'hidden';
 	modal.setAttribute( 'data-state', 'open' );
 	if ( window.newspackReaderActivation?.overlays ) {
 		modal.overlayId = window.newspackReaderActivation.overlays.add( 'auth-modal' );

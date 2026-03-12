@@ -34,6 +34,7 @@ final class Reader_Activation {
 	const EMAIL_VERIFIED                    = 'np_reader_email_verified';
 	const WITHOUT_PASSWORD                  = 'np_reader_without_password';
 	const REGISTRATION_METHOD               = 'np_reader_registration_method';
+	const REGISTRATION_PAGE                 = 'np_reader_registration_page';
 	const CONNECTED_ACCOUNT                 = 'np_reader_connected_account';
 	const READER_SAVED_GENERIC_DISPLAY_NAME = 'np_reader_saved_generic_display_name';
 
@@ -286,7 +287,7 @@ final class Reader_Activation {
 					'continue'        => __( 'Continue', 'newspack-plugin' ),
 					'resend_code'     => __( 'Resend code', 'newspack-plugin' ),
 					'otp'             => __( 'Email me a one-time code instead', 'newspack-plugin' ),
-					'otp_title'       => __( 'Enter the code sent to your email.', 'newspack-plugin' ),
+					'otp_title'       => __( 'Enter the code sent to your email', 'newspack-plugin' ),
 					'forgot_password' => __( 'Forgot password', 'newspack-plugin' ),
 					'create_account'  => __( 'Create an account', 'newspack-plugin' ),
 					'register'        => __( 'Sign in to an existing account', 'newspack-plugin' ),
@@ -1954,7 +1955,7 @@ final class Reader_Activation {
 		<div class="newspack-ui">
 			<button type="button" class="newspack-ui__button newspack-ui__button--wide newspack-ui__button--secondary newspack-ui__button--google-oauth">
 				<?php Newspack_UI_Icons::print_svg( 'google' ); ?>
-				<?php echo \esc_html__( 'Sign in with Google', 'newspack-plugin' ); ?>
+				<?php echo \esc_html__( 'Continue with Google', 'newspack-plugin' ); ?>
 			</button>
 			<div class="newspack-ui__word-divider">
 				<?php echo \esc_html__( 'Or', 'newspack-plugin' ); ?>
@@ -2092,6 +2093,9 @@ final class Reader_Activation {
 				$authenticated = self::set_current_reader( $user->ID );
 				$payload['authenticated'] = \is_wp_error( $authenticated ) ? 0 : 1;
 				$payload['existing_user'] = \is_wp_error( $authenticated ) ? 0 : 1;
+				if ( ! \is_wp_error( $authenticated ) ) {
+					$payload['verified'] = self::is_reader_verified( $user );
+				}
 				$metadata['login_method'] = 'auth-form-password';
 				break;
 			case 'link':
@@ -2329,6 +2333,10 @@ final class Reader_Activation {
 			}
 		}
 
+		if ( isset( $metadata['current_page_url'] ) ) {
+			\update_user_meta( $user_id, self::REGISTRATION_PAGE, $metadata['current_page_url'] );
+		}
+
 		/**
 		 * Action after registering and authenticating a reader.
 		 *
@@ -2479,7 +2487,17 @@ final class Reader_Activation {
 	 * @return bool True if the display name was generated.
 	 */
 	public static function reader_has_generic_display_name( $user_id = 0 ) {
-		// Allow an environment constant to override this check so that even generic/generated display names are allowed.
+		/**
+		 * When enabled, allows readers to keep auto-generated display names
+		 * (derived from email addresses) without being prompted to update them.
+		 *
+		 * @constant NEWSPACK_ALLOW_GENERIC_READER_DISPLAY_NAMES
+		 * @type     bool
+		 * @default  Generic display names trigger update prompts
+		 * @status   draft
+		 *
+		 * @example define( 'NEWSPACK_ALLOW_GENERIC_READER_DISPLAY_NAMES', true );
+		 */
 		if ( defined( 'NEWSPACK_ALLOW_GENERIC_READER_DISPLAY_NAMES' ) && NEWSPACK_ALLOW_GENERIC_READER_DISPLAY_NAMES ) {
 			return false;
 		}

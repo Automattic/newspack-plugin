@@ -7,6 +7,7 @@
  * @package  Newspack
  */
 
+use Newspack\My_Account_UI_V1;
 use Newspack\Newspack_UI_Icons;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -42,7 +43,7 @@ if ( function_exists( 'wc_memberships_for_teams' ) ) {
 	<h1 class="newspack-ui__font--s newspack-ui__spacing-top--0 newspack-ui__spacing-bottom--0"><?php echo esc_html( $current_page_name ); ?></h1>
 
 	<div class="newspack-my-account__navigation-topbar__button">
-		<button class="newspack-ui__button newspack-ui__button--x-small newspack-ui__button--ghost newspack-ui__button--icon" aria-expanded="false" aria-label="<?php esc_attr_e( 'Open navigation', 'newspack-plugin' ); ?>" data-label-close="<?php esc_attr_e( 'Close navigation', 'newspack-plugin' ); ?>" data-label-open="<?php esc_attr_e( 'Open navigation', 'newspack-plugin' ); ?>">
+		<button class="newspack-ui__button newspack-ui__button--medium newspack-ui__button--ghost newspack-ui__button--icon" aria-expanded="false" aria-label="<?php esc_attr_e( 'Open navigation', 'newspack-plugin' ); ?>" data-label-close="<?php esc_attr_e( 'Close navigation', 'newspack-plugin' ); ?>" data-label-open="<?php esc_attr_e( 'Open navigation', 'newspack-plugin' ); ?>">
 			<?php Newspack_UI_Icons::print_svg( 'menu' ); ?>
 			<?php Newspack_UI_Icons::print_svg( 'close' ); ?>
 		</button>
@@ -84,17 +85,10 @@ if ( function_exists( 'wc_memberships_for_teams' ) ) {
 				<?php _e( 'Back to Homepage', 'newspack-plugin' ); ?>
 			</a>
 			<ul>
-				<?php
-				// Check if viewing a single subscription page.
-				$is_viewing_single_subscription = false;
-				if ( function_exists( 'is_wc_endpoint_url' ) && is_wc_endpoint_url( 'view-subscription' ) ) {
-					$is_viewing_single_subscription = true;
-				}
-				?>
 				<?php foreach ( $account_menu_items as $endpoint => $label ) : ?>
 					<?php
 					// Highlight subscriptions menu item if viewing a single subscription.
-					$is_current_item = wc_is_current_account_menu_item( $endpoint ) || ( $is_viewing_single_subscription && 'subscriptions' === $endpoint );
+					$is_current_item = wc_is_current_account_menu_item( $endpoint ) || My_Account_UI_V1::is_subscription_page( $endpoint );
 					?>
 					<li class="<?php echo esc_attr( wc_get_account_menu_item_classes( $endpoint ) ); ?>">
 						<a href="<?php echo esc_url( wc_get_account_endpoint_url( $endpoint ) ); ?>" <?php echo $is_current_item ? 'aria-current="page"' : ''; ?> class="newspack-ui__button newspack-ui__button--small <?php echo $is_current_item ? 'newspack-ui__button--accent' : 'newspack-ui__button--ghost'; ?>">

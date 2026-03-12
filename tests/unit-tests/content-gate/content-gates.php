@@ -35,7 +35,7 @@ class Test_Content_Gates extends \WP_UnitTestCase {
 	 */
 	public function set_up() {
 		parent::set_up();
-		$this->gate_ids[] = Content_Gate::create_gate( 'Draft Gate' );
+		$this->gate_ids[] = Content_Gate::create_gate( [ 'title' => 'Draft Gate' ] );
 		Content_Gate::update_gate_settings(
 			$this->gate_ids[0],
 			[
@@ -60,7 +60,7 @@ class Test_Content_Gates extends \WP_UnitTestCase {
 				],
 			]
 		);
-		$this->gate_ids[] = Content_Gate::create_gate( 'Trash Gate' );
+		$this->gate_ids[] = Content_Gate::create_gate( [ 'title' => 'Trash Gate' ] );
 		Content_Gate::update_gate_settings(
 			$this->gate_ids[1],
 			[
@@ -85,7 +85,7 @@ class Test_Content_Gates extends \WP_UnitTestCase {
 				],
 			]
 		);
-		$this->gate_ids[] = Content_Gate::create_gate( 'Published Gate' );
+		$this->gate_ids[] = Content_Gate::create_gate( [ 'title' => 'Published Gate' ] );
 		Content_Gate::update_gate_settings(
 			$this->gate_ids[2],
 			[
@@ -110,7 +110,7 @@ class Test_Content_Gates extends \WP_UnitTestCase {
 				],
 			]
 		);
-		$this->gate_ids[] = Content_Gate::create_gate( 'Published Gate w/ missing config' );
+		$this->gate_ids[] = Content_Gate::create_gate( [ 'title' => 'Published Gate w/ missing config' ] );
 		Content_Gate::update_gate_settings(
 			$this->gate_ids[3],
 			[
@@ -258,7 +258,7 @@ class Test_Content_Gates extends \WP_UnitTestCase {
 	 * Test that gate layouts are created when a gate is created.
 	 */
 	public function test_create_gate_creates_layouts() {
-		$gate_id = Content_Gate::create_gate( 'Test Gate' );
+		$gate_id = Content_Gate::create_gate( [ 'title' => 'Test Gate' ] );
 		$this->gate_ids[] = $gate_id;
 
 		$gate = Content_Gate::get_gate( $gate_id );
@@ -273,13 +273,15 @@ class Test_Content_Gates extends \WP_UnitTestCase {
 		$this->assertNotNull( $custom_access_layout, 'Custom access layout post should exist' );
 		$this->assertEquals( Content_Gate::GATE_LAYOUT_CPT, $registration_layout->post_type, 'Registration layout should be correct post type' );
 		$this->assertEquals( Content_Gate::GATE_LAYOUT_CPT, $custom_access_layout->post_type, 'Custom access layout should be correct post type' );
+		$this->assertEquals( 'publish', $registration_layout->post_status, 'Registration layout should be published' );
+		$this->assertEquals( 'publish', $custom_access_layout->post_status, 'Custom access layout should be published' );
 	}
 
 	/**
 	 * Test that layouts are deleted when a gate is permanently deleted.
 	 */
 	public function test_delete_gate_deletes_layouts() {
-		$gate_id = Content_Gate::create_gate( 'Test Gate for Deletion' );
+		$gate_id = Content_Gate::create_gate( [ 'title' => 'Test Gate for Deletion' ] );
 		$gate = Content_Gate::get_gate( $gate_id );
 
 		$registration_layout_id = $gate['registration']['gate_layout_id'];
@@ -301,8 +303,8 @@ class Test_Content_Gates extends \WP_UnitTestCase {
 	 * Test that only layouts associated with the deleted gate are removed.
 	 */
 	public function test_delete_gate_only_deletes_own_layouts() {
-		$gate1_id = Content_Gate::create_gate( 'Gate 1' );
-		$gate2_id = Content_Gate::create_gate( 'Gate 2' );
+		$gate1_id = Content_Gate::create_gate( [ 'title' => 'Gate 1' ] );
+		$gate2_id = Content_Gate::create_gate( [ 'title' => 'Gate 2' ] );
 		$this->gate_ids[] = $gate2_id;
 
 		$gate1 = Content_Gate::get_gate( $gate1_id );
@@ -327,7 +329,7 @@ class Test_Content_Gates extends \WP_UnitTestCase {
 	 * Test that deleting a gate handles missing layouts gracefully.
 	 */
 	public function test_delete_gate_handles_missing_layouts() {
-		$gate_id = Content_Gate::create_gate( 'Test Gate' );
+		$gate_id = Content_Gate::create_gate( [ 'title' => 'Test Gate' ] );
 		$gate = Content_Gate::get_gate( $gate_id );
 
 		$registration_layout_id = $gate['registration']['gate_layout_id'];
@@ -348,7 +350,7 @@ class Test_Content_Gates extends \WP_UnitTestCase {
 	 */
 	public function test_delete_gate_handles_gates_without_layouts() {
 		// Create a gate and manually remove layout IDs to simulate a legacy gate.
-		$gate_id = Content_Gate::create_gate( 'Legacy Gate' );
+		$gate_id = Content_Gate::create_gate( [ 'title' => 'Legacy Gate' ] );
 		$gate = Content_Gate::get_gate( $gate_id );
 
 		// Delete the auto-created layouts and clear the settings.
@@ -387,7 +389,7 @@ class Test_Content_Gates extends \WP_UnitTestCase {
 	 * Test that get_inline_gate_content_for_post returns actual content when layout post exists.
 	 */
 	public function test_inline_gate_content_with_existing_layout() {
-		$gate_id = Content_Gate::create_gate( 'Test Gate' );
+		$gate_id = Content_Gate::create_gate( [ 'title' => 'Test Gate' ] );
 		$this->gate_ids[] = $gate_id;
 
 		$gate = Content_Gate::get_gate( $gate_id );
@@ -424,7 +426,7 @@ class Test_Content_Gates extends \WP_UnitTestCase {
 	 * Test that get_inline_gate_content_for_post returns empty string for overlay style.
 	 */
 	public function test_inline_gate_content_returns_empty_for_overlay_style() {
-		$gate_id = Content_Gate::create_gate( 'Test Gate' );
+		$gate_id = Content_Gate::create_gate( [ 'title' => 'Test Gate' ] );
 		$this->gate_ids[] = $gate_id;
 
 		$gate = Content_Gate::get_gate( $gate_id );
@@ -464,7 +466,7 @@ class Test_Content_Gates extends \WP_UnitTestCase {
 	 * Test that get_restricted_post_excerpt_for_gate respects layout settings.
 	 */
 	public function test_restricted_excerpt_with_existing_layout() {
-		$gate_id = Content_Gate::create_gate( 'Test Gate' );
+		$gate_id = Content_Gate::create_gate( [ 'title' => 'Test Gate' ] );
 		$this->gate_ids[] = $gate_id;
 
 		$gate = Content_Gate::get_gate( $gate_id );
@@ -743,11 +745,29 @@ class Test_Content_Gates extends \WP_UnitTestCase {
 	}
 
 	/**
+	 * Test that a post marked as exempt bypasses the content gate restriction.
+	 */
+	public function test_exempt_post_is_not_restricted() {
+		$post_id = $this->post_ids[0];
+
+		// Without the exemption flag, the post should be restricted by the published gate.
+		$is_restricted = apply_filters( 'newspack_is_post_restricted', false, $post_id );
+		$this->assertTrue( $is_restricted, 'Post matched by a published gate should be restricted' );
+
+		// Set the exemption meta key on the post.
+		update_post_meta( $post_id, Content_Restriction_Control::IS_EXEMPT_META_KEY, true );
+
+		// With the exemption flag set, the post should not be restricted even though it matches a gate.
+		$is_restricted = apply_filters( 'newspack_is_post_restricted', false, $post_id );
+		$this->assertFalse( $is_restricted, 'Post with exemption flag should not be restricted' );
+	}
+
+	/**
 	 * Test that custom_access settings return grouped access_rules format.
 	 */
 	public function test_custom_access_returns_grouped_rules() {
 		// Create a gate with flat access rules (legacy format).
-		$gate_id = Content_Gate::create_gate( 'Test Grouped Rules Gate' );
+		$gate_id = Content_Gate::create_gate( [ 'title' => 'Test Grouped Rules Gate' ] );
 		$this->gate_ids[] = $gate_id;
 
 		// Save flat rules directly to post meta (simulating legacy data).
@@ -780,10 +800,105 @@ class Test_Content_Gates extends \WP_UnitTestCase {
 	}
 
 	/**
+	 * Helper to set a private static property on Content_Gate via reflection.
+	 *
+	 * @param string $property Property name.
+	 * @param mixed  $value    Value to set.
+	 */
+	private function set_content_gate_property( $property, $value ) {
+		$reflection = new \ReflectionProperty( Content_Gate::class, $property );
+		$reflection->setAccessible( true );
+		$reflection->setValue( null, $value );
+	}
+
+	/**
+	 * Test comment filters on fully gated posts.
+	 */
+	public function test_comments_closed_on_gated_post() {
+		$post_id = $this->post_ids[0];
+
+		$this->set_content_gate_property( 'is_gated', true );
+		$this->set_content_gate_property( 'is_metered', false );
+
+		// Simulate queried object.
+		$this->go_to( get_permalink( $post_id ) );
+
+		$this->assertFalse( Content_Gate::filter_comments_open( true, $post_id ), 'Comments should be closed on gated post' );
+		$this->assertEmpty( Content_Gate::filter_comments_array( [ 'comment1', 'comment2' ], $post_id ), 'Comments array should be empty on gated post' );
+		$this->assertSame( 0, Content_Gate::filter_comments_number( 5, $post_id ), 'Comment count should be 0 on gated post' );
+
+		// Reset.
+		$this->set_content_gate_property( 'is_gated', false );
+	}
+
+	/**
+	 * Test comment filters on metered posts.
+	 */
+	public function test_comments_closed_but_visible_on_metered_post() {
+		$post_id = $this->post_ids[0];
+
+		$this->set_content_gate_property( 'is_gated', false );
+		$this->set_content_gate_property( 'is_metered', true );
+
+		// Simulate queried object.
+		$this->go_to( get_permalink( $post_id ) );
+
+		$this->assertFalse( Content_Gate::filter_comments_open( true, $post_id ), 'Comments should be closed on metered post' );
+
+		$comments = [ 'comment1', 'comment2' ];
+		$this->assertSame( $comments, Content_Gate::filter_comments_array( $comments, $post_id ), 'Existing comments should remain visible on metered post' );
+		$this->assertSame( 5, Content_Gate::filter_comments_number( 5, $post_id ), 'Comment count should be unchanged on metered post' );
+
+		// Reset.
+		$this->set_content_gate_property( 'is_metered', false );
+	}
+
+	/**
+	 * Test comment filters do not affect unrelated posts.
+	 */
+	public function test_comments_unaffected_on_other_posts() {
+		$post_id = $this->post_ids[0];
+		$other_post_id = $this->factory->post->create();
+		$this->post_ids[] = $other_post_id;
+
+		$this->set_content_gate_property( 'is_gated', true );
+		$this->set_content_gate_property( 'is_metered', false );
+
+		// Simulate queried object as the gated post.
+		$this->go_to( get_permalink( $post_id ) );
+
+		// Filters should not affect the other post.
+		$this->assertTrue( Content_Gate::filter_comments_open( true, $other_post_id ), 'Comments should remain open on non-gated post' );
+		$comments = [ 'comment1' ];
+		$this->assertSame( $comments, Content_Gate::filter_comments_array( $comments, $other_post_id ), 'Comments array should be unchanged on non-gated post' );
+		$this->assertSame( 3, Content_Gate::filter_comments_number( 3, $other_post_id ), 'Comment count should be unchanged on non-gated post' );
+
+		// Reset.
+		$this->set_content_gate_property( 'is_gated', false );
+	}
+
+	/**
+	 * Test comment filters pass through on unrestricted posts.
+	 */
+	public function test_comments_unaffected_on_unrestricted_post() {
+		$post_id = $this->post_ids[0];
+
+		$this->set_content_gate_property( 'is_gated', false );
+		$this->set_content_gate_property( 'is_metered', false );
+
+		$this->go_to( get_permalink( $post_id ) );
+
+		$this->assertTrue( Content_Gate::filter_comments_open( true, $post_id ), 'Comments should remain open on unrestricted post' );
+		$comments = [ 'comment1', 'comment2' ];
+		$this->assertSame( $comments, Content_Gate::filter_comments_array( $comments, $post_id ), 'Comments array should be unchanged on unrestricted post' );
+		$this->assertSame( 5, Content_Gate::filter_comments_number( 5, $post_id ), 'Comment count should be unchanged on unrestricted post' );
+	}
+
+	/**
 	 * Test that already grouped access_rules remain unchanged.
 	 */
 	public function test_custom_access_preserves_grouped_rules() {
-		$gate_id = Content_Gate::create_gate( 'Test Preserve Grouped Rules Gate' );
+		$gate_id = Content_Gate::create_gate( [ 'title' => 'Test Preserve Grouped Rules Gate' ] );
 		$this->gate_ids[] = $gate_id;
 
 		// Save already grouped rules.

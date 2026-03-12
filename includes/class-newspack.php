@@ -63,6 +63,17 @@ final class Newspack {
 	private function define_constants() {
 		define( 'NEWSPACK_VERSION', '0.0.1' );
 		define( 'NEWSPACK_ABSPATH', dirname( NEWSPACK_PLUGIN_FILE ) . '/' );
+		/**
+		 * Path to Composer's vendor directory. Override to use a shared vendor directory
+		 * across multiple plugins.
+		 *
+		 * @constant NEWSPACK_COMPOSER_ABSPATH
+		 * @type     string
+		 * @default  Plugin's vendor/ directory
+		 * @status   draft
+		 *
+		 * @example define( 'NEWSPACK_COMPOSER_ABSPATH', '/path/to/shared/vendor/' );
+		 */
 		if ( ! defined( 'NEWSPACK_COMPOSER_ABSPATH' ) ) {
 			define( 'NEWSPACK_COMPOSER_ABSPATH', dirname( NEWSPACK_PLUGIN_FILE ) . '/vendor/' );
 		}
@@ -78,6 +89,7 @@ final class Newspack {
 	 */
 	private function includes() {
 		include_once NEWSPACK_ABSPATH . 'includes/class-logger.php';
+		include_once NEWSPACK_ABSPATH . 'includes/class-alert-manager.php';
 
 		include_once NEWSPACK_ABSPATH . 'includes/util.php';
 		include_once NEWSPACK_ABSPATH . 'includes/emails/class-emails.php';
@@ -89,6 +101,7 @@ final class Newspack {
 		include_once NEWSPACK_ABSPATH . 'includes/reader-activation/class-reader-data.php';
 		include_once NEWSPACK_ABSPATH . 'includes/reader-activation/sync/class-sync.php';
 		include_once NEWSPACK_ABSPATH . 'includes/reader-activation/sync/class-metadata.php';
+		include_once NEWSPACK_ABSPATH . 'includes/reader-activation/sync/class-legacy-metadata.php';
 		include_once NEWSPACK_ABSPATH . 'includes/reader-activation/sync/class-woocommerce.php';
 		include_once NEWSPACK_ABSPATH . 'includes/reader-activation/sync/class-contact-sync.php';
 		include_once NEWSPACK_ABSPATH . 'includes/reader-activation/sync/class-contact-sync-admin.php';
@@ -200,6 +213,7 @@ final class Newspack {
 		include_once NEWSPACK_ABSPATH . 'includes/plugins/class-organic-profile-block.php';
 		include_once NEWSPACK_ABSPATH . 'includes/plugins/class-perfmatters.php';
 		include_once NEWSPACK_ABSPATH . 'includes/plugins/class-pwa.php';
+		include_once NEWSPACK_ABSPATH . 'includes/plugins/co-authors-plus/class-author-rest-fields.php';
 		include_once NEWSPACK_ABSPATH . 'includes/plugins/co-authors-plus/class-guest-contributor-role.php';
 		include_once NEWSPACK_ABSPATH . 'includes/plugins/co-authors-plus/class-nicename-change.php';
 		include_once NEWSPACK_ABSPATH . 'includes/plugins/co-authors-plus/class-nicename-change-ui.php';
@@ -210,6 +224,8 @@ final class Newspack {
 		include_once NEWSPACK_ABSPATH . 'includes/plugins/woocommerce-subscriptions/class-woocommerce-subscriptions-gifting.php';
 		include_once NEWSPACK_ABSPATH . 'includes/plugins/woocommerce-subscriptions/group-subscription/class-group-subscription.php';
 		include_once NEWSPACK_ABSPATH . 'includes/plugins/woocommerce-subscriptions/group-subscription/class-group-subscription-api.php';
+		include_once NEWSPACK_ABSPATH . 'includes/plugins/woocommerce-subscriptions/group-subscription/class-group-subscription-invite.php';
+		include_once NEWSPACK_ABSPATH . 'includes/plugins/woocommerce-subscriptions/group-subscription/class-group-subscription-myaccount.php';
 		include_once NEWSPACK_ABSPATH . 'includes/plugins/woocommerce-subscriptions/group-subscription/class-group-subscription-settings.php';
 		include_once NEWSPACK_ABSPATH . 'includes/plugins/class-woocommerce-gateway-stripe.php';
 		include_once NEWSPACK_ABSPATH . 'includes/plugins/class-teams-for-memberships.php';
@@ -331,6 +347,18 @@ final class Newspack {
 	 * @param WP_Screen $current_screen Current WP_Screen object.
 	 */
 	public static function restrict_user_access( $current_screen ) {
+		/**
+		 * Array of user IDs allowed to access plugin management screens
+		 * (plugins, plugin-install, plugin-editor). When defined, only listed
+		 * users can access these screens; others are redirected to the dashboard.
+		 *
+		 * @constant NEWSPACK_ALLOWED_PLUGIN_EDITORS
+		 * @type     array
+		 * @default  All users with appropriate capabilities can access plugin screens
+		 * @status   draft
+		 *
+		 * @example define( 'NEWSPACK_ALLOWED_PLUGIN_EDITORS', [ 1, 2, 3 ] );
+		 */
 		if ( ! defined( 'NEWSPACK_ALLOWED_PLUGIN_EDITORS' ) ) {
 			return;
 		}

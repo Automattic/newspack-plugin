@@ -102,9 +102,9 @@ const SegmentGroup = props => {
 									onRequestClose={ () => setModalVisible( false ) }
 									shouldCloseOnEsc={ false }
 									shouldCloseOnClickOutside={ false }
-									isWide
+									size="x-large"
 								>
-									<Grid gutter={ 32 } columns={ 3 }>
+									<Grid columns={ 3 } noMargin>
 										<ButtonCard
 											href={ addNewURL( 'overlay-center', campaignId, id ) }
 											title={ __( 'Center Overlay', 'newspack-plugin' ) }
