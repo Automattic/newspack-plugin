@@ -948,7 +948,7 @@ class Test_Content_Gates extends \WP_UnitTestCase {
 	 * Test get_gate_access_product_ids returns empty when custom access is inactive.
 	 */
 	public function test_get_gate_access_product_ids_inactive_custom_access() {
-		$gate_id = Content_Gate::create_gate( 'Inactive Custom Access Gate' );
+		$gate_id = Content_Gate::create_gate( [ 'title' => 'Inactive Custom Access Gate' ] );
 		$this->gate_ids[] = $gate_id;
 
 		Content_Gate::update_custom_access_settings(
@@ -982,7 +982,7 @@ class Test_Content_Gates extends \WP_UnitTestCase {
 	 * Test get_gate_access_product_ids extracts subscription product IDs from access rules.
 	 */
 	public function test_get_gate_access_product_ids_extracts_subscriptions() {
-		$gate_id = Content_Gate::create_gate( 'Subscription Gate' );
+		$gate_id = Content_Gate::create_gate( [ 'title' => 'Subscription Gate' ] );
 		$this->gate_ids[] = $gate_id;
 
 		Content_Gate::update_custom_access_settings(
@@ -1016,7 +1016,7 @@ class Test_Content_Gates extends \WP_UnitTestCase {
 	 * Test get_gate_access_product_ids extracts from multiple groups and deduplicates.
 	 */
 	public function test_get_gate_access_product_ids_multiple_groups() {
-		$gate_id = Content_Gate::create_gate( 'Multi Group Gate' );
+		$gate_id = Content_Gate::create_gate( [ 'title' => 'Multi Group Gate' ] );
 		$this->gate_ids[] = $gate_id;
 
 		Content_Gate::update_custom_access_settings(
@@ -1059,7 +1059,7 @@ class Test_Content_Gates extends \WP_UnitTestCase {
 	 * Test get_gate_access_product_ids ignores non-subscription rules.
 	 */
 	public function test_get_gate_access_product_ids_ignores_non_subscription() {
-		$gate_id = Content_Gate::create_gate( 'Mixed Rules Gate' );
+		$gate_id = Content_Gate::create_gate( [ 'title' => 'Mixed Rules Gate' ] );
 		$this->gate_ids[] = $gate_id;
 
 		Content_Gate::update_custom_access_settings(
