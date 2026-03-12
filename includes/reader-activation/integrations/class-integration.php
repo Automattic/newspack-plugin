@@ -236,7 +236,7 @@ abstract class Integration {
 	 *
 	 * @return Integrations\Incoming_Contact_Field[]|\WP_Error Array of incoming contact field objects or WP_Error on failure.
 	 */
-	public function get_available_incoming_contact_fields( $filtered ) {
+	public function get_available_incoming_contact_fields( $filtered = false ) {
 		return [];
 	}
 
@@ -507,7 +507,7 @@ abstract class Integration {
 			$field['value'] = $this->get_settings_field_value( $field['key'] );
 			// Inject metadata options for metadata fields.
 			if ( 'incoming_metadata_fields' === $field['key'] ) {
-				$incoming_fields = $this->get_available_incoming_contact_fields( false );
+				$incoming_fields = $this->get_available_incoming_contact_fields( true );
 				$field['options'] = array_map(
 					function( $incoming_field ) {
 						return $incoming_field->get_key();

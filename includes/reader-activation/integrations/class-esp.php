@@ -359,23 +359,28 @@ class ESP extends Integration {
 			return $fields;
 		}
 
-		$incoming_fields = array_map(
+		if ( $filtered ) {
+			$keys_to_filter = Sync\Metadata::get_all_prefixed_keys();
+			$fields         = (array) array_values(
+				array_filter(
+					$fields,
+					function( $field ) use ( $keys_to_filter ) {
+						foreach ( $keys_to_filter as $key_to_filter ) {
+							if ( strpos( $field['key'], $key_to_filter ) === 0 ) {
+								return false;
+							}
+						}
+						return true;
+					}
+				)
+			);
+		}
+
+		return array_map(
 			function( $field ) {
 				return new Incoming_Contact_Field( $field['key'] );
 			},
 			$fields
 		);
-
-		if ( $filtered ) {
-			$keys_to_filter  = Sync\Metadata::get_all_prefixed_keys();
-			$incoming_fields = array_filter(
-				$incoming_fields,
-				function( $field ) use ( $keys_to_filter ) {
-					return ! in_array( $field->get_key(), $keys_to_filter, true );
-				}
-			);
-		}
-
-		return $incoming_fields;
 	}
 }
