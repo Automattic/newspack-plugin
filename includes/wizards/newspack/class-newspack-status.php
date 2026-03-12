@@ -185,7 +185,7 @@ class Newspack_Status extends Wizard {
 		$total   = Action_Scheduler::count_scheduled_actions( $query_args );
 
 		// Resolve group slugs for display.
-		$group_map = self::get_group_map();
+		$group_map = Action_Scheduler::get_group_map();
 
 		$formatted = array_map(
 			function ( $action ) use ( $group_map ) {
@@ -261,23 +261,6 @@ class Newspack_Status extends Wizard {
 	 */
 	public function api_get_groups() {
 		return new \WP_REST_Response( Action_Scheduler::get_all_groups() );
-	}
-
-	/**
-	 * Build a map of group_id => slug for display.
-	 *
-	 * @return array
-	 */
-	private static function get_group_map() {
-		global $wpdb;
-		$table = $wpdb->prefix . 'actionscheduler_groups';
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-		$rows = $wpdb->get_results( "SELECT group_id, slug FROM {$table}" );
-		$map  = [];
-		foreach ( $rows as $row ) {
-			$map[ $row->group_id ] = $row->slug;
-		}
-		return $map;
 	}
 
 	/**

@@ -189,4 +189,24 @@ class Action_Scheduler {
 			self::get_groups_by_prefix( self::GROUP_PREFIX )
 		);
 	}
+
+	/**
+	 * Get a map of group_id => slug for all ActionScheduler groups.
+	 *
+	 * @return array<int,string>
+	 */
+	public static function get_group_map() {
+		if ( ! self::is_available() ) {
+			return [];
+		}
+		global $wpdb;
+		$table = $wpdb->prefix . 'actionscheduler_groups';
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$rows = $wpdb->get_results( "SELECT group_id, slug FROM {$table}" );
+		$map  = [];
+		foreach ( $rows as $row ) {
+			$map[ $row->group_id ] = $row->slug;
+		}
+		return $map;
+	}
 }
