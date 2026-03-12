@@ -288,7 +288,7 @@ abstract class Integration {
 	 * @return string[] List of enabled field names.
 	 */
 	public function get_enabled_outgoing_fields() {
-		return array_values( \get_option( self::OUTGOING_FIELDS_OPTION_PREFIX . $this->id, Sync\Metadata::get_default_fields() ) );
+		return array_values( \get_option( self::OUTGOING_FIELDS_OPTION_PREFIX . $this->id, [] ) );
 	}
 
 	/**
@@ -324,8 +324,8 @@ abstract class Integration {
 		$enabled_fields = $this->get_enabled_outgoing_fields();
 		return array_filter(
 			Sync\Metadata::get_keys(),
-			function( $val, $key ) use ( $keys, $enabled_fields ) {
-				return in_array( $key, $keys ) && in_array( $val, $enabled_fields );
+			function ( $val, $key ) use ( $keys, $enabled_fields ) {
+				return in_array( $key, $keys, true ) && in_array( $val, $enabled_fields, true );
 			},
 			ARRAY_FILTER_USE_BOTH
 		);
@@ -507,9 +507,9 @@ abstract class Integration {
 			$field['value'] = $this->get_settings_field_value( $field['key'] );
 			// Inject metadata options for metadata fields.
 			if ( 'incoming_metadata_fields' === $field['key'] ) {
-				$incoming_fields = $this->get_available_incoming_contact_fields( true );
+				$incoming_fields  = $this->get_available_incoming_contact_fields( true );
 				$field['options'] = array_map(
-					function( $incoming_field ) {
+					function ( $incoming_field ) {
 						return $incoming_field->get_key();
 					},
 					is_wp_error( $incoming_fields ) ? [] : $incoming_fields

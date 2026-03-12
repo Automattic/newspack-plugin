@@ -165,12 +165,12 @@ class ESP extends Integration {
 	 */
 	public function get_master_list_id() {
 		$provider = $this->get_provider();
+		if ( ! $provider ) {
+			return false;
+		}
 		switch ( $provider->service ) {
 			case 'mailchimp':
 				$audience_id = $this->get_settings_field_value( 'mailchimp_audience_id' );
-				if ( ! $audience_id && function_exists( 'mailchimp_get_list_id' ) ) {
-					$audience_id = \mailchimp_get_list_id();
-				}
 				return ! empty( $audience_id ) ? $audience_id : false;
 			case 'active_campaign':
 				$list_id = $this->get_settings_field_value( 'active_campaign_master_list' );

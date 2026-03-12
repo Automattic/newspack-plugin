@@ -281,36 +281,38 @@ class Test_Integrations extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * Test get_incoming_contact_fields returns empty array when no fields available.
+	 * Test get_available_incoming_contact_fields returns empty array when no fields available.
 	 */
-	public function test_get_incoming_contact_fields_empty() {
+	public function test_get_available_incoming_contact_fields_empty() {
 		$integration = new Sample_Integration( 'test-id', 'Test Integration' );
 		Integrations::register( $integration );
 
-		$fields = $integration->get_incoming_contact_fields();
+		$fields = $integration->get_available_incoming_contact_fields();
 
 		$this->assertIsArray( $fields );
 		$this->assertEmpty( $fields );
 	}
 
 	/**
-	 * Test get_incoming_contact_fields propagates WP_Error from get_available_incoming_contact_fields.
+	 * Test get_available_incoming_contact_fields propagates WP_Error from get_available_incoming_contact_fields.
 	 */
-	public function test_get_incoming_contact_fields_propagates_error() {
+	public function test_get_available_incoming_contact_fields_propagates_error() {
 		$integration = new class( 'error-test', 'Error Test' ) extends Sample_Integration {
 			/**
 			 * Get incoming available contact fields (returns error for test).
 			 *
+			 * @param bool $filtered Whether to return only filtered fields.
+			 *
 			 * @return \WP_Error
 			 */
-			public function get_available_incoming_contact_fields() {
+			public function get_available_incoming_contact_fields( $filtered = false ) {
 				return new \WP_Error( 'test_error', 'Test error message' );
 			}
 		};
 
 		Integrations::register( $integration );
 
-		$result = $integration->get_incoming_contact_fields();
+		$result = $integration->get_available_incoming_contact_fields();
 
 		$this->assertWPError( $result );
 		$this->assertEquals( 'test_error', $result->get_error_code() );
@@ -885,6 +887,7 @@ class Test_Integrations extends \WP_UnitTestCase {
 	public function test_get_enabled_outgoing_fields_keys_uses_integration_prefix() {
 		$integration = new Sample_Integration( 'keys-test', 'Keys Test' );
 		$integration->update_metadata_prefix( 'TEST_' );
+		$integration->update_enabled_outgoing_fields( [ 'Account' ] );
 
 		$keys = $integration->get_enabled_outgoing_fields_keys( true );
 
