@@ -200,7 +200,7 @@
 	}
 
 	.woocommerce-terms-and-conditions-wrapper {
-		font-size: var(--newspack-theme-font-size-sm, --newspack-ui-font-size-s);
+		font-size: var(--newspack-theme-font-size-sm, var(--newspack-ui-font-size-s));
 		margin-bottom: 2rem;
 
 		input[type="checkbox"] {
