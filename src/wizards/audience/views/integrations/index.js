@@ -8,11 +8,8 @@ import { forwardRef, useState, useEffect, useCallback } from '@wordpress/element
 /**
  * Internal dependencies.
  */
-import { ActionCard, Button, Card, Grid, Wizard, withWizard } from '../../../../../packages/components/src';
-import WizardsTab from '../../../wizards-tab';
-import WizardSection from '../../../wizards-section';
-
-import { SettingsField } from './settings-field';
+import { Wizard, withWizard } from '../../../../../packages/components/src';
+import { SettingsSection } from './settings-section';
 
 const API_PATH = '/newspack/v1/wizard/newspack-audience-integrations/settings';
 
@@ -37,7 +34,7 @@ const AudienceIntegrations = ( props, ref ) => {
 		fetchSettings();
 	}, [ fetchSettings ] );
 
-	const handleFieldChange = ( integrationId, fieldKey, value ) => {
+	const handleFieldChange = useCallback( ( integrationId, fieldKey, value ) => {
 		setPendingChanges( prev => ( {
 			...prev,
 			[ integrationId ]: {
@@ -45,33 +42,36 @@ const AudienceIntegrations = ( props, ref ) => {
 				[ fieldKey ]: value,
 			},
 		} ) );
-	};
+	}, [] );
 
-	const handleSave = integrationId => {
-		const changes = pendingChanges[ integrationId ];
-		if ( ! changes || Object.keys( changes ).length === 0 ) {
-			return;
-		}
-		setSaving( prev => ( { ...prev, [ integrationId ]: true } ) );
-		apiFetch( {
-			path: `${ API_PATH }/${ integrationId }`,
-			method: 'POST',
-			data: { settings: changes },
-		} )
-			.then( data => {
-				setIntegrations( data );
-				setPendingChanges( prev => {
-					const next = { ...prev };
-					delete next[ integrationId ];
-					return next;
-				} );
+	const handleSave = useCallback( integrationId => {
+		setPendingChanges( currentPendingChanges => {
+			const changes = currentPendingChanges[ integrationId ];
+			if ( ! changes || Object.keys( changes ).length === 0 ) {
+				return currentPendingChanges;
+			}
+			setSaving( prev => ( { ...prev, [ integrationId ]: true } ) );
+			apiFetch( {
+				path: `${ API_PATH }/${ integrationId }`,
+				method: 'POST',
+				data: { settings: changes },
 			} )
-			.finally( () => {
-				setSaving( prev => ( { ...prev, [ integrationId ]: false } ) );
-			} );
-	};
+				.then( data => {
+					setIntegrations( data );
+					setPendingChanges( prev => {
+						const next = { ...prev };
+						delete next[ integrationId ];
+						return next;
+					} );
+				} )
+				.finally( () => {
+					setSaving( prev => ( { ...prev, [ integrationId ]: false } ) );
+				} );
+			return currentPendingChanges;
+		} );
+	}, [] );
 
-	const handleToggleEnabled = ( integrationId, enabled ) => {
+	const handleToggleEnabled = useCallback( ( integrationId, enabled ) => {
 		setToggling( prev => ( { ...prev, [ integrationId ]: true } ) );
 		apiFetch( {
 			path: `${ API_PATH }/${ integrationId }/enabled`,
@@ -84,16 +84,7 @@ const AudienceIntegrations = ( props, ref ) => {
 			.finally( () => {
 				setToggling( prev => ( { ...prev, [ integrationId ]: false } ) );
 			} );
-	};
-
-	const getFieldValue = ( integrationId, field ) => {
-		if ( pendingChanges[ integrationId ] && field.key in pendingChanges[ integrationId ] ) {
-			return pendingChanges[ integrationId ][ field.key ];
-		}
-		return field.value;
-	};
-
-	const integrationIds = Object.keys( integrations );
+	}, [] );
 
 	return (
 		<Wizard
@@ -102,62 +93,17 @@ const AudienceIntegrations = ( props, ref ) => {
 				{
 					label: __( 'Settings', 'newspack-plugin' ),
 					path: '/settings',
-					render: () => (
-						<WizardsTab title={ __( 'Integrations Settings', 'newspack-plugin' ) }>
-							<WizardSection>
-								{ loading && <p>{ __( 'Loading…', 'newspack-plugin' ) }</p> }
-								{ ! loading && integrationIds.length === 0 && (
-									<Card>
-										<p>{ __( 'No integrations with configurable settings are registered.', 'newspack-plugin' ) }</p>
-									</Card>
-								) }
-								{ ! loading &&
-									integrationIds.map( id => {
-										const integration = integrations[ id ];
-										const hasPending = pendingChanges[ id ] && Object.keys( pendingChanges[ id ] ).length > 0;
-										const isEnabled = integration.enabled;
-										return (
-											<ActionCard
-												key={ id }
-												title={ integration.name }
-												description={ integration.description }
-												toggleChecked={ isEnabled }
-												toggleOnChange={ () => handleToggleEnabled( id, ! isEnabled ) }
-												disabled={ toggling[ id ] }
-												hasGreyHeader={ isEnabled }
-												actionContent={
-													isEnabled ? (
-														<Button
-															variant="primary"
-															onClick={ () => handleSave( id ) }
-															disabled={ ! hasPending || saving[ id ] }
-															isBusy={ saving[ id ] }
-														>
-															{ __( 'Save Settings', 'newspack-plugin' ) }
-														</Button>
-													) : null
-												}
-											>
-												{ isEnabled && (
-													<>
-														<Grid columns={ 1 } rowGap={ 16 }>
-															{ integration.settings.map( field => (
-																<SettingsField
-																	key={ field.key }
-																	field={ field }
-																	value={ getFieldValue( id, field ) }
-																	onChange={ val => handleFieldChange( id, field.key, val ) }
-																/>
-															) ) }
-														</Grid>
-													</>
-												) }
-											</ActionCard>
-										);
-									} ) }
-							</WizardSection>
-						</WizardsTab>
-					),
+					render: SettingsSection,
+					props: {
+						integrations,
+						pendingChanges,
+						saving,
+						toggling,
+						loading,
+						onFieldChange: handleFieldChange,
+						onSave: handleSave,
+						onToggleEnabled: handleToggleEnabled,
+					},
 				},
 			] }
 			ref={ ref }
