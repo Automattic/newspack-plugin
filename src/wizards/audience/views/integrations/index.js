@@ -4,121 +4,19 @@
 import { __ } from '@wordpress/i18n';
 import apiFetch from '@wordpress/api-fetch';
 import { forwardRef, useState, useEffect, useCallback } from '@wordpress/element';
-import { CheckboxControl, ExternalLink } from '@wordpress/components';
 
 /**
  * Internal dependencies.
  */
-import { ActionCard, Button, Card, Grid, SelectControl, TextControl, Wizard, withWizard } from '../../../../../packages/components/src';
+import { ActionCard, Button, Card, Grid, Wizard, withWizard } from '../../../../../packages/components/src';
 import WizardsTab from '../../../wizards-tab';
 import WizardSection from '../../../wizards-section';
 
+import { SettingsField } from './settings-field';
+
 const API_PATH = '/newspack/v1/wizard/newspack-audience-integrations/settings';
 
-/**
- * Render a single settings field.
- *
- * @param {Object}   props          Component props.
- * @param {Object}   props.field    Field declaration.
- * @param {*}        props.value    Current value.
- * @param {Function} props.onChange Change handler.
- */
-function SettingsField( { field, value, onChange } ) {
-	const { key, type, label, description, placeholder, options, help_url: helpUrl } = field;
-	const help = (
-		<>
-			{ description }
-			{ helpUrl && (
-				<>
-					{ ' ' }
-					<ExternalLink href={ helpUrl }>{ __( 'Learn more', 'newspack-plugin' ) }</ExternalLink>
-				</>
-			) }
-		</>
-	);
-
-	switch ( type ) {
-		case 'metadata': {
-			const selectedFields = Array.isArray( value ) ? value : [];
-			return (
-				<div key={ key }>
-					<h3>{ label }</h3>
-					<Grid columns={ 3 } rowGap={ 16 }>
-						{ options.map( fieldName => (
-							<CheckboxControl
-								className="newspack-checkbox-control"
-								key={ fieldName }
-								label={ fieldName.replace( ': ', '' ) }
-								checked={ selectedFields.includes( fieldName ) }
-								onChange={ checked => {
-									const newFields = checked ? [ ...selectedFields, fieldName ] : selectedFields.filter( f => f !== fieldName );
-									onChange( newFields );
-								} }
-							/>
-						) ) }
-					</Grid>
-				</div>
-			);
-		}
-		case 'checkbox':
-			return <CheckboxControl key={ key } label={ label } help={ help } checked={ !! value } onChange={ onChange } />;
-		case 'select':
-			return (
-				<SelectControl
-					key={ key }
-					label={ label }
-					help={ help }
-					value={ value }
-					options={ ( options || [] ).map( opt => ( {
-						label: opt.label,
-						value: opt.value,
-					} ) ) }
-					onChange={ onChange }
-				/>
-			);
-		case 'textarea':
-			return (
-				<TextControl
-					key={ key }
-					label={ label }
-					help={ help }
-					value={ value || '' }
-					placeholder={ placeholder }
-					onChange={ onChange }
-					isTextarea
-				/>
-			);
-		case 'number':
-			return (
-				<TextControl
-					key={ key }
-					label={ label }
-					help={ help }
-					value={ value ?? '' }
-					placeholder={ placeholder }
-					onChange={ onChange }
-					type="number"
-				/>
-			);
-		case 'password':
-			return (
-				<TextControl
-					key={ key }
-					label={ label }
-					help={ help }
-					value={ value || '' }
-					placeholder={ placeholder }
-					onChange={ onChange }
-					type="password"
-				/>
-			);
-		case 'text':
-		default:
-			return <TextControl key={ key } label={ label } help={ help } value={ value || '' } placeholder={ placeholder } onChange={ onChange } />;
-	}
-}
-
-function AudienceIntegrations( props, ref ) {
+const AudienceIntegrations = ( props, ref ) => {
 	const [ integrations, setIntegrations ] = useState( {} );
 	const [ pendingChanges, setPendingChanges ] = useState( {} );
 	const [ saving, setSaving ] = useState( {} );
@@ -265,6 +163,6 @@ function AudienceIntegrations( props, ref ) {
 			ref={ ref }
 		/>
 	);
-}
+};
 
 export default withWizard( forwardRef( AudienceIntegrations ) );

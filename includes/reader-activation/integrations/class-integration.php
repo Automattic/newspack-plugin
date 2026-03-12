@@ -357,36 +357,25 @@ abstract class Integration {
 	 * @return array Array of settings field declarations.
 	 */
 	public function get_metadata_fields() {
-		$incoming_fields = $this->get_available_incoming_contact_fields( true );
-		$outgoing_fields = Sync\Metadata::get_default_fields();
-
 		return [
 			[
 				'key'         => 'metadata_prefix',
 				'type'        => 'text',
 				'label'       => __( 'Metadata field prefix', 'newspack-plugin' ),
-				'description' => __( 'A string to prefix metadata fields attached to each contact synced to the integration. Required to ensure that metadata field names are unique. Default: NP_', 'newspack-plugin' ),
+				'description' => __( 'A string to prefix metadata fields synced to the integration. Required to ensure that metadata field names are unique. Default: NP_', 'newspack-plugin' ),
 				'default'     => 'NP_',
 			],
 			[
 				'key'     => 'outgoing_metadata_fields',
 				'type'    => 'metadata',
 				'label'   => __( 'Outgoing metadata fields', 'newspack-plugin' ),
-				'options' => $outgoing_fields,
+				'default' => [],
 			],
 			[
 				'key'     => 'incoming_metadata_fields',
 				'type'    => 'metadata',
 				'label'   => __( 'Incoming metadata fields', 'newspack-plugin' ),
 				'default' => [],
-				'options' => array_values(
-					array_map(
-						function( $field ) {
-							return $field->get_key();
-						},
-						is_wp_error( $incoming_fields ) ? [] : $incoming_fields
-					)
-				),
 			],
 		];
 	}
@@ -516,7 +505,20 @@ abstract class Integration {
 		$config = [];
 		foreach ( $fields as $field ) {
 			$field['value'] = $this->get_settings_field_value( $field['key'] );
-			$config[]       = $field;
+			// Inject metadata options for metadata fields.
+			if ( 'incoming_metadata_fields' === $field['key'] ) {
+				$incoming_fields = $this->get_available_incoming_contact_fields( false );
+				$field['options'] = array_map(
+					function( $incoming_field ) {
+						return $incoming_field->get_key();
+					},
+					is_wp_error( $incoming_fields ) ? [] : $incoming_fields
+				);
+			}
+			if ( 'outgoing_metadata_fields' === $field['key'] ) {
+				$field['options'] = Sync\Metadata::get_default_fields();
+			}
+			$config[] = $field;
 		}
 		return $config;
 	}
@@ -553,8 +555,7 @@ abstract class Integration {
 			case 'select':
 				$valid_values = array_column( $field['options'] ?? [], 'value' );
 				return in_array( $value, $valid_values, true ) ? $value : ( $field['default'] ?? '' );
-			case 'outgoing_metadata':
-			case 'incoming_metadata':
+			case 'metadata':
 				if ( ! is_array( $value ) ) {
 					return $field['default'] ?? [];
 				}
