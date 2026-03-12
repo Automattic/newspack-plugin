@@ -274,6 +274,9 @@ class Tag_Labels {
 	 * @param int $term_id Term ID.
 	 */
 	public static function save_term( $term_id ) {
+		if ( ! current_user_can( 'manage_categories' ) ) {
+			return;
+		}
 
 		// Save label data if label is enabled; otherwise kill it.
 		if ( ! empty( $_POST[ self::TAG_LABEL_META_KEY ] ) ) {
