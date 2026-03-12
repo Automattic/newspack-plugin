@@ -70,6 +70,11 @@ class Metadata {
 	 * Fetch the prefix for synced metadata fields.
 	 * Default is NP_ but it can be configured in the Reader Activation settings page.
 	 *
+	 * This method is deprecated. Now, each integration has its own metadata prefix, which can be retrieved with Integration::get_metadata_prefix().
+	 * As a fallback, this method returns the metadata prefix for the ESP Integration.
+	 *
+	 * @deprecated Use Integration::get_metadata_prefix() instead.
+	 *
 	 * @return string
 	 */
 	public static function get_prefix() {

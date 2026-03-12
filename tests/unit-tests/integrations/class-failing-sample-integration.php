@@ -72,11 +72,9 @@ class Failing_Sample_Integration extends Integration {
 	/**
 	 * Get incoming available contact fields (test implementation).
 	 *
-	 * @param bool $filtered Whether to return only filtered fields.
-	 *
 	 * @return array
 	 */
-	public function get_available_incoming_contact_fields( $filtered = false ) {
+	public function get_available_incoming_contact_fields() {
 		return [];
 	}
 

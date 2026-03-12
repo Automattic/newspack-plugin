@@ -301,11 +301,9 @@ class Test_Integrations extends \WP_UnitTestCase {
 			/**
 			 * Get incoming available contact fields (returns error for test).
 			 *
-			 * @param bool $filtered Whether to return only filtered fields.
-			 *
 			 * @return \WP_Error
 			 */
-			public function get_available_incoming_contact_fields( $filtered = false ) {
+			public function get_available_incoming_contact_fields() {
 				return new \WP_Error( 'test_error', 'Test error message' );
 			}
 		};

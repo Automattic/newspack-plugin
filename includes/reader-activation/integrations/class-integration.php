@@ -232,12 +232,36 @@ abstract class Integration {
 	 *
 	 * Integrations that support pulling contact data should implement this method.
 	 *
-	 * @param bool $filtered Optional. Whether to filter out fields that are already in the metadata. Default false.
-	 *
 	 * @return Integrations\Incoming_Contact_Field[]|\WP_Error Array of incoming contact field objects or WP_Error on failure.
 	 */
-	public function get_available_incoming_contact_fields( $filtered = false ) {
+	public function get_available_incoming_contact_fields() {
 		return [];
+	}
+
+	/**
+	 * Get filtered incoming contact fields from the integration.
+	 *
+	 * @return Integrations\Incoming_Contact_Field[] Array of incoming contact field objects.
+	 */
+	public function get_filtered_incoming_contact_fields() {
+		$fields = $this->get_available_incoming_contact_fields();
+		if ( is_wp_error( $fields ) ) {
+			return [];
+		}
+		$keys_to_filter = Sync\Metadata::get_all_prefixed_keys();
+		return array_values(
+			array_filter(
+				$fields,
+				function( $field ) use ( $keys_to_filter ) {
+					foreach ( $keys_to_filter as $key_to_filter ) {
+						if ( strpos( $field->get_key(), $key_to_filter ) === 0 ) {
+							return false;
+						}
+					}
+					return true;
+				}
+			)
+		);
 	}
 
 	/**
@@ -507,7 +531,7 @@ abstract class Integration {
 			$field['value'] = $this->get_settings_field_value( $field['key'] );
 			// Inject metadata options for metadata fields.
 			if ( 'incoming_metadata_fields' === $field['key'] ) {
-				$incoming_fields  = $this->get_available_incoming_contact_fields( true );
+				$incoming_fields  = $this->get_filtered_incoming_contact_fields( true );
 				$field['options'] = array_map(
 					function ( $incoming_field ) {
 						return $incoming_field->get_key();

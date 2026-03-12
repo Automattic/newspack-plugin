@@ -49,54 +49,56 @@ class ESP extends Integration {
 		}
 		$list_options = $this->get_list_options();
 		$provider     = $this->get_provider();
-		switch ( $provider->service ) {
-			case 'mailchimp':
-				$fields[] = [
-					'key'         => 'mailchimp_audience_id',
-					'type'        => 'select',
-					'label'       => __( 'Mailchimp Audience', 'newspack-plugin' ),
-					'description' => __( 'Choose an audience to receive reader activity data.', 'newspack-plugin' ),
-					'options'     => $list_options,
-					'default'     => '',
-				];
-				$fields[] = [
-					'key'         => 'mailchimp_reader_default_status',
-					'type'        => 'select',
-					'label'       => __( 'Default reader status', 'newspack-plugin' ),
-					'description' => __( 'Choose which Mailchimp status readers should have by default if they are not subscribed to any newsletters.', 'newspack-plugin' ),
-					'options'     => [
-						[
-							'label' => __( 'Transactional/Non-Subscribed', 'newspack-plugin' ),
-							'value' => 'transactional',
+		if ( $provider ) {
+			switch ( $provider->service ) {
+				case 'mailchimp':
+					$fields[] = [
+						'key'         => 'mailchimp_audience_id',
+						'type'        => 'select',
+						'label'       => __( 'Mailchimp Audience', 'newspack-plugin' ),
+						'description' => __( 'Choose an audience to receive reader activity data.', 'newspack-plugin' ),
+						'options'     => $list_options,
+						'default'     => '',
+					];
+					$fields[] = [
+						'key'         => 'mailchimp_reader_default_status',
+						'type'        => 'select',
+						'label'       => __( 'Default reader status', 'newspack-plugin' ),
+						'description' => __( 'Choose which Mailchimp status readers should have by default if they are not subscribed to any newsletters.', 'newspack-plugin' ),
+						'options'     => [
+							[
+								'label' => __( 'Transactional/Non-Subscribed', 'newspack-plugin' ),
+								'value' => 'transactional',
+							],
+							[
+								'label' => __( 'Subscribed', 'newspack-plugin' ),
+								'value' => 'subscribed',
+							],
 						],
-						[
-							'label' => __( 'Subscribed', 'newspack-plugin' ),
-							'value' => 'subscribed',
-						],
-					],
-					'default'     => 'transactional',
-				];
-				break;
-			case 'active_campaign':
-				$fields[] = [
-					'key'         => 'active_campaign_master_list',
-					'type'        => 'select',
-					'label'       => __( 'ActiveCampaign Master List', 'newspack-plugin' ),
-					'description' => __( 'Choose a master list to which all registered readers will be added.', 'newspack-plugin' ),
-					'options'     => $list_options,
-					'default'     => '',
-				];
-				break;
-			case 'constant_contact':
-				$fields[] = [
-					'key'         => 'constant_contact_list_id',
-					'type'        => 'select',
-					'label'       => __( 'Constant Contact Master List', 'newspack-plugin' ),
-					'description' => __( 'Choose a master list to which all registered readers will be added.', 'newspack-plugin' ),
-					'options'     => $list_options,
-					'default'     => '',
-				];
-				break;
+						'default'     => 'transactional',
+					];
+					break;
+				case 'active_campaign':
+					$fields[] = [
+						'key'         => 'active_campaign_master_list',
+						'type'        => 'select',
+						'label'       => __( 'ActiveCampaign Master List', 'newspack-plugin' ),
+						'description' => __( 'Choose a master list to which all registered readers will be added.', 'newspack-plugin' ),
+						'options'     => $list_options,
+						'default'     => '',
+					];
+					break;
+				case 'constant_contact':
+					$fields[] = [
+						'key'         => 'constant_contact_list_id',
+						'type'        => 'select',
+						'label'       => __( 'Constant Contact Master List', 'newspack-plugin' ),
+						'description' => __( 'Choose a master list to which all registered readers will be added.', 'newspack-plugin' ),
+						'options'     => $list_options,
+						'default'     => '',
+					];
+					break;
+			}
 		}
 		$fields[] = [
 			'key'         => 'sync_esp_delete',
@@ -332,11 +334,9 @@ class ESP extends Integration {
 	/**
 	 * Get incoming available contact fields from the integration.
 	 *
-	 * @param bool $filtered Optional. Whether to filter out fields that are already in the metadata. Default false.
-	 *
 	 * @return Incoming_Contact_Field[]|\WP_Error Array of incoming contact field objects or WP_Error on failure.
 	 */
-	public function get_available_incoming_contact_fields( $filtered = false ) {
+	public function get_available_incoming_contact_fields() {
 		if ( ! class_exists( 'Newspack_Newsletters_Contacts' ) ) {
 			return new \WP_Error(
 				'newspack_newsletters_contacts_not_found',
@@ -357,23 +357,6 @@ class ESP extends Integration {
 
 		if ( is_wp_error( $fields ) ) {
 			return $fields;
-		}
-
-		if ( $filtered ) {
-			$keys_to_filter = Sync\Metadata::get_all_prefixed_keys();
-			$fields         = (array) array_values(
-				array_filter(
-					$fields,
-					function( $field ) use ( $keys_to_filter ) {
-						foreach ( $keys_to_filter as $key_to_filter ) {
-							if ( strpos( $field['key'], $key_to_filter ) === 0 ) {
-								return false;
-							}
-						}
-						return true;
-					}
-				)
-			);
 		}
 
 		return array_map(
