@@ -126,8 +126,8 @@
 
 		.payment_box {
 			padding: 1rem;
-			background: var(--newspack-theme-color-bg-pre, --newspack-ui-color-neutral-20);
-			font-size: var(--newspack-theme-font-size-sm, --newspack-ui-font-size-s);
+			background: var(--newspack-theme-color-bg-pre, var(--newspack-ui-color-neutral-20));
+			font-size: var(--newspack-theme-font-size-sm, var(--newspack-ui-font-size-s));
 
 			ul,
 			ol {
