@@ -61,6 +61,7 @@ class Action_Scheduler {
 	 *
 	 *     @type string[] $groups   Array of group slugs to query.
 	 *     @type string   $status   ActionScheduler status (pending, complete, failed, canceled).
+	 *     @type string   $hook     Hook name to filter by.
 	 *     @type int      $per_page Number of actions to return. Default 20.
 	 *     @type int      $offset   Offset for pagination. Default 0.
 	 *     @type string   $orderby  Column to order by. Default 'scheduled_date_gmt'.
@@ -105,11 +106,15 @@ class Action_Scheduler {
 		$slug_placeholders = implode( ',', array_fill( 0, count( $slugs ), '%s' ) );
 		$prepare_args      = $slugs;
 
-		// Build optional status filter.
-		$status_clause = '';
+		// Build optional filters.
+		$where_clauses = '';
 		if ( ! empty( $args['status'] ) ) {
-			$status_clause  = 'AND a.status = %s ';
+			$where_clauses .= 'AND a.status = %s ';
 			$prepare_args[] = $args['status'];
+		}
+		if ( ! empty( $args['hook'] ) ) {
+			$where_clauses .= 'AND a.hook = %s ';
+			$prepare_args[] = $args['hook'];
 		}
 
 		$prepare_args[] = absint( $args['per_page'] );
@@ -117,7 +122,7 @@ class Action_Scheduler {
 
 		// Table names: $wpdb->prefix + hardcoded strings. $orderby/$order: allowlist/ternary validated.
 		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-		$sql = "SELECT a.* FROM {$actions_table} a INNER JOIN {$groups_table} g ON a.group_id = g.group_id WHERE g.slug IN ({$slug_placeholders}) {$status_clause}ORDER BY a.{$orderby} {$order} LIMIT %d OFFSET %d";
+		$sql = "SELECT a.* FROM {$actions_table} a INNER JOIN {$groups_table} g ON a.group_id = g.group_id WHERE g.slug IN ({$slug_placeholders}) {$where_clauses}ORDER BY a.{$orderby} {$order} LIMIT %d OFFSET %d";
 
 		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
 		$query = $wpdb->prepare( $sql, ...$prepare_args );
@@ -162,14 +167,18 @@ class Action_Scheduler {
 		$slug_placeholders = implode( ',', array_fill( 0, count( $slugs ), '%s' ) );
 		$prepare_args      = $slugs;
 
-		$status_clause = '';
+		$where_clauses = '';
 		if ( ! empty( $args['status'] ) ) {
-			$status_clause  = 'AND a.status = %s ';
+			$where_clauses .= 'AND a.status = %s ';
 			$prepare_args[] = $args['status'];
+		}
+		if ( ! empty( $args['hook'] ) ) {
+			$where_clauses .= 'AND a.hook = %s ';
+			$prepare_args[] = $args['hook'];
 		}
 
 		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-		$sql = "SELECT COUNT(*) FROM {$actions_table} a INNER JOIN {$groups_table} g ON a.group_id = g.group_id WHERE g.slug IN ({$slug_placeholders}) {$status_clause}";
+		$sql = "SELECT COUNT(*) FROM {$actions_table} a INNER JOIN {$groups_table} g ON a.group_id = g.group_id WHERE g.slug IN ({$slug_placeholders}) {$where_clauses}";
 
 		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
 		$query = $wpdb->prepare( $sql, ...$prepare_args );
@@ -188,6 +197,44 @@ class Action_Scheduler {
 			[ self::DEFAULT_GROUP ],
 			self::get_groups_by_prefix( self::GROUP_PREFIX )
 		);
+	}
+
+	/**
+	 * Get distinct hook names for Newspack ActionScheduler actions.
+	 *
+	 * @return string[] Array of hook name strings.
+	 */
+	public static function get_hooks() {
+		if ( ! self::is_available() ) {
+			return [];
+		}
+
+		$cache_key = 'newspack_as_hooks';
+		$cached    = get_transient( $cache_key );
+		if ( false !== $cached ) {
+			return $cached;
+		}
+
+		global $wpdb;
+
+		$slugs = self::get_all_groups();
+		if ( empty( $slugs ) ) {
+			return [];
+		}
+
+		$actions_table     = $wpdb->prefix . 'actionscheduler_actions';
+		$groups_table      = $wpdb->prefix . 'actionscheduler_groups';
+		$slug_placeholders = implode( ',', array_fill( 0, count( $slugs ), '%s' ) );
+
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$sql = "SELECT DISTINCT a.hook FROM {$actions_table} a INNER JOIN {$groups_table} g ON a.group_id = g.group_id WHERE g.slug IN ({$slug_placeholders}) ORDER BY a.hook ASC";
+
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$hooks = $wpdb->get_col( $wpdb->prepare( $sql, ...$slugs ) );
+
+		set_transient( $cache_key, $hooks, 5 * MINUTE_IN_SECONDS );
+
+		return $hooks;
 	}
 
 	/**

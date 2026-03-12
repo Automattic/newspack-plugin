@@ -103,6 +103,11 @@ class Newspack_Status extends Wizard {
 						'default'           => 'DESC',
 						'sanitize_callback' => 'sanitize_text_field',
 					],
+					'hook'     => [
+						'type'              => 'string',
+						'default'           => '',
+						'sanitize_callback' => 'sanitize_text_field',
+					],
 					'search'   => [
 						'type'              => 'string',
 						'default'           => '',
@@ -117,6 +122,15 @@ class Newspack_Status extends Wizard {
 			[
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => [ $this, 'api_get_groups' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+			]
+		);
+		register_rest_route(
+			NEWSPACK_API_NAMESPACE,
+			'wizard/' . $this->slug . '/hooks',
+			[
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => [ $this, 'api_get_hooks' ],
 				'permission_callback' => [ $this, 'api_permissions_check' ],
 			]
 		);
@@ -160,6 +174,7 @@ class Newspack_Status extends Wizard {
 		$page     = $request->get_param( 'page' );
 		$status   = $request->get_param( 'status' );
 		$group    = $request->get_param( 'group' );
+		$hook     = $request->get_param( 'hook' );
 		$search   = $request->get_param( 'search' );
 
 		$query_args = [
@@ -175,6 +190,10 @@ class Newspack_Status extends Wizard {
 
 		if ( ! empty( $group ) ) {
 			$query_args['groups'] = [ $group ];
+		}
+
+		if ( ! empty( $hook ) ) {
+			$query_args['hook'] = $hook;
 		}
 
 		if ( ! empty( $search ) ) {
@@ -261,6 +280,15 @@ class Newspack_Status extends Wizard {
 	 */
 	public function api_get_groups() {
 		return new \WP_REST_Response( Action_Scheduler::get_all_groups() );
+	}
+
+	/**
+	 * Get distinct hook names for Newspack ActionScheduler actions.
+	 *
+	 * @return \WP_REST_Response
+	 */
+	public function api_get_hooks() {
+		return new \WP_REST_Response( Action_Scheduler::get_hooks() );
 	}
 
 	/**

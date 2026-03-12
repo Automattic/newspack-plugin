@@ -111,15 +111,20 @@ function Status() {
 	const [ isLoading, setIsLoading ] = useState( true );
 	const [ view, setView ] = useState< View >( DEFAULT_VIEW );
 	const [ groups, setGroups ] = useState< string[] >( [] );
+	const [ hooks, setHooks ] = useState< string[] >( [] );
 
-	// Fetch available groups on mount.
+	// Fetch available groups and hooks on mount.
 	useEffect( () => {
 		apiFetch< string[] >( {
 			path: '/newspack/v1/wizard/newspack-status/groups',
 		} ).then( setGroups );
+		apiFetch< string[] >( {
+			path: '/newspack/v1/wizard/newspack-status/hooks',
+		} ).then( setHooks );
 	}, [] );
 
 	const groupOptions = useMemo( () => groups.map( g => ( { value: g, label: g } ) ), [ groups ] );
+	const hookOptions = useMemo( () => hooks.map( h => ( { value: h, label: h } ) ), [ hooks ] );
 
 	// Fetch actions when view changes.
 	const fetchActions = useCallback(
@@ -156,6 +161,9 @@ function Status() {
 					if ( filter.field === 'group' && filter.value ) {
 						params.set( 'group', filter.value );
 					}
+					if ( filter.field === 'hook' && filter.value ) {
+						params.set( 'hook', filter.value );
+					}
 				}
 			}
 
@@ -190,6 +198,11 @@ function Status() {
 				label: __( 'Hook', 'newspack-plugin' ),
 				enableSorting: true,
 				enableGlobalSearch: true,
+				elements: hookOptions,
+				filterBy: {
+					operators: [ 'is' as const ],
+					isPrimary: true,
+				},
 				render: ( { item } ) => <code style={ { fontSize: '12px' } }>{ item.hook }</code>,
 			},
 			{
@@ -254,7 +267,7 @@ function Status() {
 				},
 			},
 		],
-		[ groupOptions ]
+		[ groupOptions, hookOptions ]
 	);
 
 	const actions: Action< ScheduledAction >[] = useMemo(
