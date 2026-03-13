@@ -337,6 +337,10 @@ class Contact_Sync extends Sync {
 
 		static::log( sprintf( 'Executing retry %d/%d for integration "%s" sync of user %d (%s).', $retry_count, self::MAX_RETRIES, $integration_id, $user_id, $contact['email'] ?? 'unknown' ) );
 
+		/** This filter is documented in includes/reader-activation/sync/class-contact-sync.php */
+		$contact = \apply_filters( 'newspack_esp_sync_contact', $contact, $context );
+		$contact = Sync\Metadata::normalize_contact_data( $contact );
+
 		$result = $integration->push_contact_data( $contact, $context );
 		if ( \is_wp_error( $result ) ) {
 			$error_messages = implode( '; ', $result->get_error_messages() );
