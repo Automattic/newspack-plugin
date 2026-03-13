@@ -130,6 +130,19 @@ final class Data_Events {
 		\add_action( self::HANDLER_RETRY_HOOK, [ __CLASS__, 'execute_handler_retry' ] );
 		\add_action( 'action_scheduler_begin_execute', [ __CLASS__, 'set_current_as_action_id' ] );
 		\add_action( 'action_scheduler_after_execute', [ __CLASS__, 'clear_current_as_action_id' ] );
+		\add_filter( 'newspack_action_scheduler_hook_labels', [ __CLASS__, 'register_hook_labels' ] );
+	}
+
+	/**
+	 * Register hook labels for Data Events actions.
+	 *
+	 * @param array $labels Existing labels.
+	 * @return array
+	 */
+	public static function register_hook_labels( $labels ) {
+		$labels[ self::DISPATCH_AS_HOOK ]   = __( 'Data Event Handler', 'newspack-plugin' );
+		$labels[ self::HANDLER_RETRY_HOOK ] = __( 'Data Event Retry', 'newspack-plugin' );
+		return $labels;
 	}
 
 	/**

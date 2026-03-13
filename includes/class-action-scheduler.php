@@ -154,7 +154,7 @@ class Action_Scheduler {
 			[
 				'groups' => [],
 				'status' => '',
-			] 
+			]
 		);
 		$slugs = $args['groups'];
 		if ( empty( $slugs ) ) {
@@ -371,6 +371,45 @@ class Action_Scheduler {
 			$map[ $row->group_id ] = $row->slug;
 		}
 		return $map;
+	}
+
+	/**
+	 * Get labels for known hooks.
+	 *
+	 * Returns an associative array of hook slug => human-readable label.
+	 * Subsystems can extend this via the `newspack_action_scheduler_hook_labels` filter.
+	 *
+	 * @return array<string,string>
+	 */
+	public static function get_hook_labels() {
+		/**
+		 * Filters the human-readable labels for ActionScheduler hook names.
+		 *
+		 * @param array<string,string> $labels Hook slug => label pairs.
+		 */
+		return apply_filters( 'newspack_action_scheduler_hook_labels', [] );
+	}
+
+	/**
+	 * Get labels for known groups.
+	 *
+	 * Returns an associative array of group slug => human-readable label.
+	 * Subsystems can extend this via the `newspack_action_scheduler_group_labels` filter.
+	 *
+	 * @return array<string,string>
+	 */
+	public static function get_group_labels() {
+		/**
+		 * Filters the human-readable labels for ActionScheduler group slugs.
+		 *
+		 * @param array<string,string> $labels Group slug => label pairs.
+		 */
+		return apply_filters(
+			'newspack_action_scheduler_group_labels',
+			[
+				'newspack' => 'Newspack',
+			]
+		);
 	}
 
 	/**

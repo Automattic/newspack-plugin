@@ -74,8 +74,22 @@ class Integrations {
 		add_action( 'init', [ __CLASS__, 'schedule_health_check' ] );
 		add_action( self::HEALTH_CHECK_CRON_HOOK, [ __CLASS__, 'run_health_checks' ] );
 		add_filter( 'newspack_data_events_handler_action_group', [ __CLASS__, 'filter_handler_action_group' ], 10, 3 );
+		add_filter( 'newspack_action_scheduler_group_labels', [ __CLASS__, 'register_group_labels' ] );
 
 		Integrations\Contact_Pull::init();
+	}
+
+	/**
+	 * Register group labels for integration ActionScheduler groups.
+	 *
+	 * @param array $labels Existing labels.
+	 * @return array
+	 */
+	public static function register_group_labels( $labels ) {
+		foreach ( self::get_active_integrations() as $integration ) {
+			$labels[ self::get_action_group( $integration->get_id() ) ] = $integration->get_name();
+		}
+		return $labels;
 	}
 
 	/**
