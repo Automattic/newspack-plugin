@@ -105,8 +105,9 @@ class Contact_Sync extends Sync {
 		if ( Data_Events::current_event() ) {
 			if ( ! isset( self::$queued_syncs[ $contact['email'] ] ) ) {
 				self::$queued_syncs[ $contact['email'] ] = [
-					'contexts' => [],
-					'contact'  => [],
+					'contexts'     => [],
+					'contact'      => [],
+					'as_action_id' => self::$current_as_action_id,
 				];
 			}
 			if ( ! empty( self::$queued_syncs[ $contact['email'] ]['contact']['metadata'] ) ) {
@@ -535,7 +536,12 @@ class Contact_Sync extends Sync {
 			return;
 		}
 
+		// Restore the AS action ID so push_to_integrations() can log against it.
+		$saved_action_id = self::$current_as_action_id;
+
 		foreach ( self::$queued_syncs as $email => $queued_sync ) {
+			self::$current_as_action_id = $queued_sync['as_action_id'] ?? null;
+
 			$user = get_user_by( 'email', $email );
 			$contact = null;
 			if ( $user ) {
@@ -552,6 +558,7 @@ class Contact_Sync extends Sync {
 			self::sync( $contact, implode( '; ', $contexts ) );
 		}
 
+		self::$current_as_action_id = $saved_action_id;
 		self::$queued_syncs = [];
 	}
 }
