@@ -1,0 +1,89 @@
+<?php
+/**
+ * Base class for all the contact metadata classes for Reader Activation Sync.
+ *
+ * @package Newspack
+ */
+
+namespace Newspack\Reader_Activation\Sync;
+
+defined( 'ABSPATH' ) || exit;
+
+/**
+ * Reader Activation Class.
+ */
+abstract class Contact_Metadata {
+
+	/**
+	 * The WP_User object.
+	 *
+	 * @var \WP_User|false
+	 */
+	protected $user = false;
+
+	/**
+	 * The WC_Customer object.
+	 *
+	 * @var \WC_Customer|false
+	 */
+	protected $customer = false;
+
+	/**
+	 * The WC_Order object.
+	 *
+	 * @var \WC_Order|false
+	 */
+	protected $order = false;
+
+	/**
+	 * Contact_Metadata constructor.
+	 *
+	 * @param \WP_User|\WC_Customer|\WC_Order|int $user_customer_or_order WP_User, WC_Customer, WC_Order object or ID of the user, customer or order to get the metadata for.
+	 */
+	public function __construct( $user_customer_or_order ) {
+		if ( $user_customer_or_order instanceof \WC_Order ) {
+			$this->order = $user_customer_or_order;
+			$user_id     = $this->order->get_customer_id();
+		} elseif ( $user_customer_or_order instanceof \WC_Customer ) {
+			$this->customer = $user_customer_or_order;
+			$user_id        = $this->customer->get_id();
+		} elseif ( $user_customer_or_order instanceof \WP_User ) {
+			$this->user = $user_customer_or_order;
+			$user_id    = $this->user->ID;
+		} else {
+			$user_id = (int) $user_customer_or_order;
+		}
+
+		if ( ! $this->user && $user_id ) {
+			$this->user = \get_user_by( 'id', $user_id );
+		}
+
+		if ( ! $this->customer && $user_id && class_exists( 'WC_Customer' ) ) {
+			$this->customer = new \WC_Customer( $user_id );
+			if ( ! $this->customer->get_id() ) {
+				$this->customer = false;
+			}
+		}
+	}
+
+	/**
+	 * Whether or not the metadata fields of this class are available to be synced.
+	 *
+	 * @return boolean
+	 */
+	abstract public static function is_available();
+
+	/**
+	 * The fields handled by this metadata class, returned as an array of key/value pairs where the key is the key of the field that will be prefixed and synced, and the value is the human readable name of the field that will be used in the UI for selecting which fields to sync.
+	 *
+	 * @return array
+	 */
+	abstract public static function get_fields();
+
+	/**
+	 * Get the metadata for the given user, customer or order, returned as an array of key/value pairs where the key is the key of the field that will be prefixed and synced, and the value is the value of the field for that user, customer or order.
+	 *
+	 * @return array
+	 */
+	abstract public function get_metadata();
+}

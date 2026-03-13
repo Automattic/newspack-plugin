@@ -36,6 +36,33 @@ class Metadata {
 	const FIELDS_OPTION = '_newspack_metadata_fields';
 
 	/**
+	 * Get the metadata classes to be used for syncing contact metadata to the ESP.
+	 *
+	 * This are the metadata classes that will be used in case get_version is not legacy.
+	 *
+	 * @return array List of metadata classes.
+	 */
+	protected static function get_metadata_classes() {
+		$classes = [
+			'Profile',
+			'Subscription',
+			'Donation',
+			'Content_Gate',
+			'Financial',
+		];
+
+		$classnames = [];
+
+		foreach ( $classes as $class ) {
+			$classname = __NAMESPACE__ . '\\Contact_Metadata\\' . $class;
+			if ( class_exists( $classname ) ) {
+				$classnames[] = $classname;
+			}
+		}
+		return $classnames;
+	}
+
+	/**
 	 * Get the current metadata schema version.
 	 *
 	 * @return string
@@ -63,7 +90,7 @@ class Metadata {
 			return Legacy_Metadata::get_keys();
 		}
 
-		return self::get_all_fields();
+		return self::get_all_fields( true );
 	}
 
 	/**
@@ -250,20 +277,25 @@ class Metadata {
 	}
 
 	/**
-	 * Get all metadata fields.
+	 * Get all metadata fields
 	 *
+	 * @param boolean $only_available Whether to return only available fields or all fields.
 	 * @return array List of fields.
 	 */
-	public static function get_all_fields() {
+	public static function get_all_fields( $only_available = false ) {
 		if ( 'legacy' === self::get_version() ) {
 			return Legacy_Metadata::get_all_fields();
 		}
 
-		return [
-			'first_name' => 'First Name',
-			'last_name'  => 'Last Name',
-			'full_name'  => 'Full Name',
-		];
+		$classes = self::get_metadata_classes();
+		$keys    = [];
+		foreach ( $classes as $class ) {
+			if ( ! $only_available || $class::is_available() ) {
+				$fields = $class::get_fields();
+				$keys = array_merge( $keys, $fields );
+			}
+		}
+		return $keys;
 	}
 
 
