@@ -43,13 +43,20 @@ class Metadata {
 	 * @return array List of metadata classes.
 	 */
 	protected static function get_metadata_classes() {
-		$classes = [
-			'Profile',
-			'Subscription',
-			'Donation',
-			'Content_Gate',
-			'Financial',
-		];
+		if ( 'legacy' === self::get_version() ) {
+			$classes = [
+				'Legacy_Basic',
+				'Legacy_Payment',
+			];
+		} else {
+			$classes = [
+				'Profile',
+				'Subscription',
+				'Donation',
+				'Content_Gate',
+				'Financial',
+			];
+		}
 
 		$classnames = [];
 
@@ -86,10 +93,6 @@ class Metadata {
 	 * @return array List of fields.
 	 */
 	public static function get_keys() {
-		if ( 'legacy' === self::get_version() ) {
-			return Legacy_Metadata::get_keys();
-		}
-
 		return self::get_all_fields( true );
 	}
 
@@ -283,10 +286,6 @@ class Metadata {
 	 * @return array List of fields.
 	 */
 	public static function get_all_fields( $only_available = false ) {
-		if ( 'legacy' === self::get_version() ) {
-			return Legacy_Metadata::get_all_fields();
-		}
-
 		$classes = self::get_metadata_classes();
 		$keys    = [];
 		foreach ( $classes as $class ) {
@@ -299,6 +298,35 @@ class Metadata {
 	}
 
 
+
+	/**
+	 * Get a contact array with email and metadata for the given user, customer or order.
+	 *
+	 * @param \WP_User|\WC_Customer|\WC_Order|int $user_customer_or_order WP_User, WC_Customer, WC_Order object or ID.
+	 *
+	 * @return array Contact array with 'email' and 'metadata' keys.
+	 */
+	public static function get_contact_with_metadata( $user_customer_or_order ) {
+		$classes   = self::get_metadata_classes();
+		$metadata  = [];
+		$email     = '';
+		$full_name = '';
+
+		foreach ( $classes as $class ) {
+			if ( $class::is_available() ) {
+				$instance  = new $class( $user_customer_or_order );
+				$metadata  = array_merge( $metadata, $instance->get_metadata() );
+				$email     = $instance->get_email();
+				$full_name = $instance->get_full_name();
+			}
+		}
+
+		return [
+			'email'    => $email,
+			'name'     => $full_name,
+			'metadata' => $metadata,
+		];
+	}
 
 	/**
 	 * Check if a metadata key exists in the given metadata.

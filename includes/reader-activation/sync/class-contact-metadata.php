@@ -86,4 +86,34 @@ abstract class Contact_Metadata {
 	 * @return array
 	 */
 	abstract public function get_metadata();
+
+	/**
+	 * Get the email address for the contact.
+	 *
+	 * @return string
+	 */
+	public function get_email() {
+		if ( $this->customer ) {
+			return $this->customer->get_email();
+		}
+		if ( $this->user ) {
+			return $this->user->user_email;
+		}
+		if ( $this->order ) {
+			return $this->order->get_billing_email();
+		}
+		return '';
+	}
+
+	/**
+	 * Get the full name for the contact from the WC_Customer billing name.
+	 *
+	 * @return string
+	 */
+	public function get_full_name() {
+		if ( $this->customer ) {
+			return trim( $this->customer->get_billing_first_name() . ' ' . $this->customer->get_billing_last_name() );
+		}
+		return '';
+	}
 }
