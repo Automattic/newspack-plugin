@@ -473,7 +473,7 @@ final class Reader_Activation {
 		}
 
 		if ( 'sync_esp' === $name ) {
-			return $esp->is_enabled();
+			return Reader_Activation\Integrations::is_enabled( 'esp' );
 		}
 
 		return $esp->get_settings_field_value( $name );
