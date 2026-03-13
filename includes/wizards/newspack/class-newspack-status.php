@@ -73,42 +73,52 @@ class Newspack_Status extends Wizard {
 				'callback'            => [ $this, 'api_get_actions' ],
 				'permission_callback' => [ $this, 'api_permissions_check' ],
 				'args'                => [
-					'per_page' => [
+					'per_page'        => [
 						'type'              => 'integer',
 						'default'           => 20,
 						'sanitize_callback' => 'absint',
 					],
-					'page'     => [
+					'page'            => [
 						'type'              => 'integer',
 						'default'           => 1,
 						'sanitize_callback' => 'absint',
 					],
-					'status'   => [
+					'status'          => [
 						'type'              => 'string',
 						'default'           => '',
 						'sanitize_callback' => 'sanitize_text_field',
 					],
-					'group'    => [
+					'group'           => [
 						'type'              => 'string',
 						'default'           => '',
 						'sanitize_callback' => 'sanitize_text_field',
 					],
-					'orderby'  => [
+					'orderby'         => [
 						'type'              => 'string',
 						'default'           => 'scheduled_date_gmt',
 						'sanitize_callback' => 'sanitize_text_field',
 					],
-					'order'    => [
+					'order'           => [
 						'type'              => 'string',
 						'default'           => 'DESC',
 						'sanitize_callback' => 'sanitize_text_field',
 					],
-					'hook'     => [
+					'hook'            => [
 						'type'              => 'string',
 						'default'           => '',
 						'sanitize_callback' => 'sanitize_text_field',
 					],
-					'search'   => [
+					'search'          => [
+						'type'              => 'string',
+						'default'           => '',
+						'sanitize_callback' => 'sanitize_text_field',
+					],
+					'scheduled_op'    => [
+						'type'              => 'string',
+						'default'           => '',
+						'sanitize_callback' => 'sanitize_text_field',
+					],
+					'scheduled_value' => [
 						'type'              => 'string',
 						'default'           => '',
 						'sanitize_callback' => 'sanitize_text_field',
@@ -132,6 +142,22 @@ class Newspack_Status extends Wizard {
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => [ $this, 'api_get_hooks' ],
 				'permission_callback' => [ $this, 'api_permissions_check' ],
+			]
+		);
+		register_rest_route(
+			NEWSPACK_API_NAMESPACE,
+			'wizard/' . $this->slug . '/actions/(?P<id>\d+)/logs',
+			[
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => [ $this, 'api_get_action_logs' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+				'args'                => [
+					'id' => [
+						'type'              => 'integer',
+						'required'          => true,
+						'sanitize_callback' => 'absint',
+					],
+				],
 			]
 		);
 		register_rest_route(
@@ -198,6 +224,13 @@ class Newspack_Status extends Wizard {
 
 		if ( ! empty( $search ) ) {
 			$query_args['search'] = $search;
+		}
+
+		$scheduled_op    = $request->get_param( 'scheduled_op' );
+		$scheduled_value = $request->get_param( 'scheduled_value' );
+		if ( ! empty( $scheduled_op ) && ! empty( $scheduled_value ) ) {
+			$query_args['scheduled_op']    = $scheduled_op;
+			$query_args['scheduled_value'] = json_decode( $scheduled_value, true );
 		}
 
 		$actions = Action_Scheduler::get_scheduled_actions( $query_args );
@@ -289,6 +322,28 @@ class Newspack_Status extends Wizard {
 	 */
 	public function api_get_hooks() {
 		return new \WP_REST_Response( Action_Scheduler::get_hooks() );
+	}
+
+	/**
+	 * Get log entries for a specific action.
+	 *
+	 * @param \WP_REST_Request $request Request object.
+	 * @return \WP_REST_Response
+	 */
+	public function api_get_action_logs( $request ) {
+		$logs = Action_Scheduler::get_action_logs( $request->get_param( 'id' ) );
+		return new \WP_REST_Response(
+			array_map(
+				function ( $log ) {
+					return [
+						'id'      => (int) $log->log_id,
+						'message' => $log->message,
+						'date'    => $log->log_date_gmt,
+					];
+				},
+				$logs
+			)
+		);
 	}
 
 	/**

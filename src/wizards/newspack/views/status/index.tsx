@@ -8,11 +8,11 @@
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { useState, useEffect, useCallback, useMemo, useRef } from '@wordpress/element';
+import { useState, useEffect, useCallback, useMemo, useRef, Fragment } from '@wordpress/element';
 import apiFetch from '@wordpress/api-fetch';
 import { DataViews } from '@wordpress/dataviews';
 /* eslint-disable @wordpress/no-unsafe-wp-apis */
-import { Button, __experimentalHStack as HStack, __experimentalVStack as VStack } from '@wordpress/components';
+import { Button, Spinner, __experimentalHStack as HStack, __experimentalVStack as VStack } from '@wordpress/components';
 /* eslint-enable @wordpress/no-unsafe-wp-apis */
 import type { Action, Field, View, SupportedLayouts } from '@wordpress/dataviews';
 
@@ -104,6 +104,49 @@ function formatArgs( args: string ) {
 	}
 }
 
+interface LogEntry {
+	id: number;
+	message: string;
+	date: string;
+}
+
+function ActionLogs( { actionId }: { actionId: number } ) {
+	const [ logs, setLogs ] = useState< LogEntry[] | null >( null );
+
+	useEffect( () => {
+		apiFetch< LogEntry[] >( {
+			path: `/newspack/v1/wizard/newspack-status/actions/${ actionId }/logs`,
+		} ).then( setLogs );
+	}, [ actionId ] );
+
+	if ( logs === null ) {
+		return <Spinner />;
+	}
+
+	if ( logs.length === 0 ) {
+		return <em>{ __( 'No log entries.', 'newspack-plugin' ) }</em>;
+	}
+
+	return (
+		<table className="widefat striped" style={ { margin: 0 } }>
+			<thead>
+				<tr>
+					<th style={ { width: '180px' } }>{ __( 'Date', 'newspack-plugin' ) }</th>
+					<th>{ __( 'Message', 'newspack-plugin' ) }</th>
+				</tr>
+			</thead>
+			<tbody>
+				{ logs.map( log => (
+					<tr key={ log.id }>
+						<td style={ { fontSize: '12px', whiteSpace: 'nowrap' } }>{ formatDate( log.date ) }</td>
+						<td style={ { fontSize: '12px' } }>{ log.message }</td>
+					</tr>
+				) ) }
+			</tbody>
+		</table>
+	);
+}
+
 function Status() {
 	const [ data, setData ] = useState< ScheduledAction[] >( [] );
 	const [ totalItems, setTotalItems ] = useState( 0 );
@@ -155,14 +198,20 @@ function Status() {
 
 			if ( view.filters ) {
 				for ( const filter of view.filters ) {
-					if ( filter.field === 'status' && filter.value ) {
-						params.set( 'status', filter.value );
+					if ( filter.field === 'scheduled' && filter.operator && filter.value ) {
+						params.set( 'scheduled_op', filter.operator );
+						params.set( 'scheduled_value', JSON.stringify( filter.value ) );
+						continue;
 					}
-					if ( filter.field === 'group' && filter.value ) {
-						params.set( 'group', filter.value );
+					const val = typeof filter.value === 'string' ? filter.value : '';
+					if ( filter.field === 'status' && val ) {
+						params.set( 'status', val );
 					}
-					if ( filter.field === 'hook' && filter.value ) {
-						params.set( 'hook', filter.value );
+					if ( filter.field === 'group' && val ) {
+						params.set( 'group', val );
+					}
+					if ( filter.field === 'hook' && val ) {
+						params.set( 'hook', val );
 					}
 				}
 			}
@@ -229,8 +278,18 @@ function Status() {
 			},
 			{
 				id: 'scheduled',
+				type: 'datetime' as const,
 				label: __( 'Scheduled', 'newspack-plugin' ),
 				enableSorting: true,
+				getValue: ( { item }: { item: ScheduledAction } ) => {
+					if ( ! item.scheduled || item.scheduled === '0000-00-00 00:00:00' ) {
+						return '';
+					}
+					return item.scheduled.replace( ' ', 'T' ) + 'Z';
+				},
+				filterBy: {
+					isPrimary: true,
+				},
 				render: ( { item } ) => {
 					if ( ! item.scheduled || item.scheduled === '0000-00-00 00:00:00' ) {
 						return <em>{ __( 'N/A', 'newspack-plugin' ) }</em>;
@@ -272,6 +331,87 @@ function Status() {
 
 	const actions: Action< ScheduledAction >[] = useMemo(
 		() => [
+			{
+				id: 'run',
+				label: __( 'Run now', 'newspack-plugin' ),
+				isPrimary: true,
+				isEligible: item => item.status !== 'complete',
+				RenderModal: ( { items, closeModal } ) => {
+					const item = items[ 0 ];
+					const [ isRunning, setIsRunning ] = useState( false );
+					const [ result, setResult ] = useState< { success?: boolean; error?: string } | null >( null );
+
+					const onRun = () => {
+						setIsRunning( true );
+						apiFetch< { success: boolean; status: string } >( {
+							path: `/newspack/v1/wizard/newspack-status/actions/${ item.id }/run`,
+							method: 'POST',
+						} )
+							.then( response => {
+								setResult( { success: response.success } );
+								fetchRef.current( true );
+							} )
+							.catch( ( error: Error & { message?: string } ) => {
+								setResult( { error: error.message || __( 'Failed to run action.', 'newspack-plugin' ) } );
+							} )
+							.finally( () => setIsRunning( false ) );
+					};
+
+					if ( result ) {
+						return (
+							<VStack spacing={ 4 }>
+								{ result.success ? (
+									<p style={ { color: '#155724' } }>{ __( 'Action executed successfully.', 'newspack-plugin' ) }</p>
+								) : (
+									<p style={ { color: '#721C24' } }>{ result.error }</p>
+								) }
+								<HStack justify="flex-end">
+									<Button variant="tertiary" onClick={ closeModal }>
+										{ __( 'Close', 'newspack-plugin' ) }
+									</Button>
+								</HStack>
+							</VStack>
+						);
+					}
+
+					return (
+						<VStack spacing={ 4 }>
+							<p>{ __( 'Run this action immediately?', 'newspack-plugin' ) }</p>
+							<table className="widefat striped" style={ { margin: 0 } }>
+								<tbody>
+									<tr>
+										<th style={ { width: '100px' } }>{ __( 'Hook', 'newspack-plugin' ) }</th>
+										<td>
+											<code>{ item.hook }</code>
+										</td>
+									</tr>
+									<tr>
+										<th>{ __( 'Status', 'newspack-plugin' ) }</th>
+										<td>
+											<StatusBadge status={ item.status } />
+										</td>
+									</tr>
+									<tr>
+										<th>{ __( 'Group', 'newspack-plugin' ) }</th>
+										<td>
+											<code>{ item.group }</code>
+										</td>
+									</tr>
+								</tbody>
+							</table>
+							<HStack justify="flex-end">
+								<Button variant="tertiary" onClick={ closeModal }>
+									{ __( 'Cancel', 'newspack-plugin' ) }
+								</Button>
+								<Button variant="primary" onClick={ onRun } isBusy={ isRunning } disabled={ isRunning }>
+									{ isRunning ? __( 'Running…', 'newspack-plugin' ) : __( 'Run now', 'newspack-plugin' ) }
+								</Button>
+							</HStack>
+						</VStack>
+					);
+				},
+				modalHeader: ( items: ScheduledAction[] ) => `${ __( 'Run action', 'newspack-plugin' ) } #${ items[ 0 ].id }`,
+			},
 			{
 				id: 'view',
 				label: __( 'View details', 'newspack-plugin' ),
@@ -368,6 +508,8 @@ function Status() {
 									) }
 								</tbody>
 							</table>
+							<h4 style={ { margin: 0 } }>{ __( 'Logs', 'newspack-plugin' ) }</h4>
+							<ActionLogs actionId={ item.id } />
 							<HStack justify="flex-end">
 								<Button variant="tertiary" onClick={ closeModal }>
 									{ __( 'Close', 'newspack-plugin' ) }
@@ -377,86 +519,6 @@ function Status() {
 					);
 				},
 				modalHeader: ( items: ScheduledAction[] ) => `#${ items[ 0 ].id } — ${ items[ 0 ].hook }`,
-			},
-			{
-				id: 'run',
-				label: __( 'Run now', 'newspack-plugin' ),
-				isEligible: item => item.status !== 'complete',
-				RenderModal: ( { items, closeModal } ) => {
-					const item = items[ 0 ];
-					const [ isRunning, setIsRunning ] = useState( false );
-					const [ result, setResult ] = useState< { success?: boolean; error?: string } | null >( null );
-
-					const onRun = () => {
-						setIsRunning( true );
-						apiFetch< { success: boolean; status: string } >( {
-							path: `/newspack/v1/wizard/newspack-status/actions/${ item.id }/run`,
-							method: 'POST',
-						} )
-							.then( response => {
-								setResult( { success: response.success } );
-								fetchRef.current( true );
-							} )
-							.catch( ( error: Error & { message?: string } ) => {
-								setResult( { error: error.message || __( 'Failed to run action.', 'newspack-plugin' ) } );
-							} )
-							.finally( () => setIsRunning( false ) );
-					};
-
-					if ( result ) {
-						return (
-							<VStack spacing={ 4 }>
-								{ result.success ? (
-									<p style={ { color: '#155724' } }>{ __( 'Action executed successfully.', 'newspack-plugin' ) }</p>
-								) : (
-									<p style={ { color: '#721C24' } }>{ result.error }</p>
-								) }
-								<HStack justify="flex-end">
-									<Button variant="tertiary" onClick={ closeModal }>
-										{ __( 'Close', 'newspack-plugin' ) }
-									</Button>
-								</HStack>
-							</VStack>
-						);
-					}
-
-					return (
-						<VStack spacing={ 4 }>
-							<p>{ __( 'Run this action immediately?', 'newspack-plugin' ) }</p>
-							<table className="widefat striped" style={ { margin: 0 } }>
-								<tbody>
-									<tr>
-										<th style={ { width: '100px' } }>{ __( 'Hook', 'newspack-plugin' ) }</th>
-										<td>
-											<code>{ item.hook }</code>
-										</td>
-									</tr>
-									<tr>
-										<th>{ __( 'Status', 'newspack-plugin' ) }</th>
-										<td>
-											<StatusBadge status={ item.status } />
-										</td>
-									</tr>
-									<tr>
-										<th>{ __( 'Group', 'newspack-plugin' ) }</th>
-										<td>
-											<code>{ item.group }</code>
-										</td>
-									</tr>
-								</tbody>
-							</table>
-							<HStack justify="flex-end">
-								<Button variant="tertiary" onClick={ closeModal }>
-									{ __( 'Cancel', 'newspack-plugin' ) }
-								</Button>
-								<Button variant="primary" onClick={ onRun } isBusy={ isRunning } disabled={ isRunning }>
-									{ isRunning ? __( 'Running…', 'newspack-plugin' ) : __( 'Run now', 'newspack-plugin' ) }
-								</Button>
-							</HStack>
-						</VStack>
-					);
-				},
-				modalHeader: ( items: ScheduledAction[] ) => `${ __( 'Run action', 'newspack-plugin' ) } #${ items[ 0 ].id }`,
 			},
 		],
 		[]

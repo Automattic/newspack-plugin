@@ -116,6 +116,11 @@ class Action_Scheduler {
 			$where_clauses .= 'AND a.hook = %s ';
 			$prepare_args[] = $args['hook'];
 		}
+		if ( ! empty( $args['scheduled_op'] ) && ! empty( $args['scheduled_value'] ) ) {
+			list( $date_clause, $date_args ) = self::build_date_clause( $args['scheduled_op'], $args['scheduled_value'] );
+			$where_clauses .= $date_clause;
+			$prepare_args   = array_merge( $prepare_args, $date_args );
+		}
 
 		$prepare_args[] = absint( $args['per_page'] );
 		$prepare_args[] = absint( $args['offset'] );
@@ -176,6 +181,11 @@ class Action_Scheduler {
 			$where_clauses .= 'AND a.hook = %s ';
 			$prepare_args[] = $args['hook'];
 		}
+		if ( ! empty( $args['scheduled_op'] ) && ! empty( $args['scheduled_value'] ) ) {
+			list( $date_clause, $date_args ) = self::build_date_clause( $args['scheduled_op'], $args['scheduled_value'] );
+			$where_clauses .= $date_clause;
+			$prepare_args   = array_merge( $prepare_args, $date_args );
+		}
 
 		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		$sql = "SELECT COUNT(*) FROM {$actions_table} a INNER JOIN {$groups_table} g ON a.group_id = g.group_id WHERE g.slug IN ({$slug_placeholders}) {$where_clauses}";
@@ -185,6 +195,89 @@ class Action_Scheduler {
 
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared
 		return (int) $wpdb->get_var( $query );
+	}
+
+	/**
+	 * Build SQL WHERE clause and prepare args for scheduled date filtering.
+	 *
+	 * Supports DataViews date filter operators: on, notOn, before, after,
+	 * beforeInc, afterInc, inThePast, over, between.
+	 *
+	 * @param string $operator    The DataViews filter operator.
+	 * @param mixed  $value       The filter value (ISO date string, array for between, or object for relative).
+	 *
+	 * @return array{string, array} Tuple of [ SQL clause string, prepare args array ].
+	 */
+	private static function build_date_clause( $operator, $value ) {
+		$clause       = '';
+		$prepare_args = [];
+
+		$allowed_ops = [ 'on', 'notOn', 'before', 'after', 'beforeInc', 'afterInc', 'inThePast', 'over', 'between' ];
+		if ( ! in_array( $operator, $allowed_ops, true ) ) {
+			return [ $clause, $prepare_args ];
+		}
+
+		switch ( $operator ) {
+			case 'on':
+				$clause         = 'AND DATE(a.scheduled_date_gmt) = %s ';
+				$prepare_args[] = gmdate( 'Y-m-d', strtotime( $value ) );
+				break;
+			case 'notOn':
+				$clause         = 'AND DATE(a.scheduled_date_gmt) != %s ';
+				$prepare_args[] = gmdate( 'Y-m-d', strtotime( $value ) );
+				break;
+			case 'before':
+				$clause         = 'AND a.scheduled_date_gmt < %s ';
+				$prepare_args[] = gmdate( 'Y-m-d 00:00:00', strtotime( $value ) );
+				break;
+			case 'after':
+				$clause         = 'AND a.scheduled_date_gmt > %s ';
+				$prepare_args[] = gmdate( 'Y-m-d 23:59:59', strtotime( $value ) );
+				break;
+			case 'beforeInc':
+				$clause         = 'AND a.scheduled_date_gmt <= %s ';
+				$prepare_args[] = gmdate( 'Y-m-d 23:59:59', strtotime( $value ) );
+				break;
+			case 'afterInc':
+				$clause         = 'AND a.scheduled_date_gmt >= %s ';
+				$prepare_args[] = gmdate( 'Y-m-d 00:00:00', strtotime( $value ) );
+				break;
+			case 'inThePast':
+				if ( is_array( $value ) && isset( $value['value'], $value['unit'] ) ) {
+					$units          = [
+						'days'   => 'DAY',
+						'weeks'  => 'WEEK',
+						'months' => 'MONTH',
+						'years'  => 'YEAR',
+					];
+					$unit           = $units[ $value['unit'] ] ?? 'DAY';
+					$clause         = "AND a.scheduled_date_gmt >= DATE_SUB(NOW(), INTERVAL %d {$unit}) "; // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+					$prepare_args[] = absint( $value['value'] );
+				}
+				break;
+			case 'over':
+				if ( is_array( $value ) && isset( $value['value'], $value['unit'] ) ) {
+					$units          = [
+						'days'   => 'DAY',
+						'weeks'  => 'WEEK',
+						'months' => 'MONTH',
+						'years'  => 'YEAR',
+					];
+					$unit           = $units[ $value['unit'] ] ?? 'DAY';
+					$clause         = "AND a.scheduled_date_gmt < DATE_SUB(NOW(), INTERVAL %d {$unit}) "; // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+					$prepare_args[] = absint( $value['value'] );
+				}
+				break;
+			case 'between':
+				if ( is_array( $value ) && count( $value ) === 2 ) {
+					$clause         = 'AND a.scheduled_date_gmt >= %s AND a.scheduled_date_gmt <= %s ';
+					$prepare_args[] = gmdate( 'Y-m-d 00:00:00', strtotime( $value[0] ) );
+					$prepare_args[] = gmdate( 'Y-m-d 23:59:59', strtotime( $value[1] ) );
+				}
+				break;
+		}
+
+		return [ $clause, $prepare_args ];
 	}
 
 	/**
