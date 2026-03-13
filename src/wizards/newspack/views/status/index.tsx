@@ -33,6 +33,22 @@ interface ScheduledAction {
 	args: string;
 }
 
+interface RetryLogEntry {
+	message: string;
+	date: string;
+}
+
+interface RetryAction {
+	id: number;
+	status: string;
+	group: string;
+	scheduled: string | null;
+	retry_count: number | null;
+	max_retries: number | null;
+	reason: string;
+	logs: RetryLogEntry[];
+}
+
 interface ActionsResponse {
 	actions: ScheduledAction[];
 	total: number;
@@ -140,6 +156,68 @@ function ActionLogs( { actionId }: { actionId: number } ) {
 					<tr key={ log.id }>
 						<td style={ { fontSize: '12px', whiteSpace: 'nowrap' } }>{ formatDate( log.date ) }</td>
 						<td style={ { fontSize: '12px' } }>{ log.message }</td>
+					</tr>
+				) ) }
+			</tbody>
+		</table>
+	);
+}
+
+const RETRY_HOOK = 'newspack_contact_sync_retry';
+
+function getSyncId( item: ScheduledAction ): string | null {
+	if ( item.hook !== RETRY_HOOK ) {
+		return null;
+	}
+	const raw = item.extended_args || item.args;
+	try {
+		const parsed = JSON.parse( raw );
+		return parsed?.[ 0 ]?.sync_id || null;
+	} catch {
+		return null;
+	}
+}
+
+function RetryTimeline( { actionId }: { actionId: number } ) {
+	const [ retries, setRetries ] = useState< RetryAction[] | null >( null );
+
+	useEffect( () => {
+		apiFetch< RetryAction[] >( {
+			path: `/newspack/v1/wizard/newspack-status/actions/${ actionId }/retries`,
+		} ).then( setRetries );
+	}, [ actionId ] );
+
+	if ( retries === null ) {
+		return <Spinner />;
+	}
+
+	if ( retries.length === 0 ) {
+		return <em>{ __( 'No related retries found.', 'newspack-plugin' ) }</em>;
+	}
+
+	return (
+		<table className="widefat striped" style={ { margin: 0 } }>
+			<thead>
+				<tr>
+					<th style={ { width: '80px' } }>{ __( 'Retry', 'newspack-plugin' ) }</th>
+					<th style={ { width: '180px' } }>{ __( 'Scheduled', 'newspack-plugin' ) }</th>
+					<th>{ __( 'Reason', 'newspack-plugin' ) }</th>
+				</tr>
+			</thead>
+			<tbody>
+				{ retries.map( retry => (
+					<tr key={ retry.id } style={ retry.id === actionId ? { backgroundColor: '#f0f6fc' } : {} }>
+						<td style={ { fontSize: '12px' } }>
+							<strong>{ `${ retry.retry_count ?? '?' }/${ retry.max_retries ?? '?' }` }</strong>
+						</td>
+						<td style={ { fontSize: '12px', whiteSpace: 'nowrap' } }>{ formatDate( retry.scheduled ) }</td>
+						<td style={ { fontSize: '12px' } }>
+							{ retry.reason ? (
+								<span style={ { color: '#721C24' } }>{ retry.reason }</span>
+							) : (
+								<span style={ { color: '#155724' } }>{ __( 'Succeeded', 'newspack-plugin' ) }</span>
+							) }
+						</td>
 					</tr>
 				) ) }
 			</tbody>
@@ -420,6 +498,7 @@ function Status() {
 					const item = items[ 0 ];
 					const argsFormatted = formatArgs( item.args );
 					const extArgsFormatted = formatArgs( item.extended_args );
+					const syncId = getSyncId( item );
 					return (
 						<VStack spacing={ 4 }>
 							<table className="widefat striped" style={ { margin: 0 } }>
@@ -510,6 +589,12 @@ function Status() {
 							</table>
 							<h4 style={ { margin: 0 } }>{ __( 'Logs', 'newspack-plugin' ) }</h4>
 							<ActionLogs actionId={ item.id } />
+							{ syncId && (
+								<Fragment>
+									<h4 style={ { margin: 0 } }>{ __( 'Retry timeline', 'newspack-plugin' ) }</h4>
+									<RetryTimeline actionId={ item.id } />
+								</Fragment>
+							) }
 							<HStack justify="flex-end">
 								<Button variant="tertiary" onClick={ closeModal }>
 									{ __( 'Close', 'newspack-plugin' ) }

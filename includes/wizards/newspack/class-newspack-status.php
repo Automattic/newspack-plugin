@@ -146,6 +146,22 @@ class Newspack_Status extends Wizard {
 		);
 		register_rest_route(
 			NEWSPACK_API_NAMESPACE,
+			'wizard/' . $this->slug . '/actions/(?P<id>\d+)/retries',
+			[
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => [ $this, 'api_get_action_retries' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+				'args'                => [
+					'id' => [
+						'type'              => 'integer',
+						'required'          => true,
+						'sanitize_callback' => 'absint',
+					],
+				],
+			]
+		);
+		register_rest_route(
+			NEWSPACK_API_NAMESPACE,
 			'wizard/' . $this->slug . '/actions/(?P<id>\d+)/logs',
 			[
 				'methods'             => WP_REST_Server::READABLE,
@@ -344,6 +360,75 @@ class Newspack_Status extends Wizard {
 				$logs
 			)
 		);
+	}
+
+	/**
+	 * Get related retry actions for a sync retry action.
+	 *
+	 * Extracts the sync_id from the action's args and returns all retries
+	 * belonging to the same sync attempt.
+	 *
+	 * @param \WP_REST_Request $request Request object.
+	 * @return \WP_REST_Response|\WP_Error
+	 */
+	public function api_get_action_retries( $request ) {
+		if ( ! Action_Scheduler::is_available() ) {
+			return new \WP_Error( 'action_scheduler_unavailable', __( 'ActionScheduler is not available.', 'newspack-plugin' ), [ 'status' => 500 ] );
+		}
+
+		$action_id = $request->get_param( 'id' );
+		$store     = \ActionScheduler_Store::instance();
+		$action    = $store->fetch_action( $action_id );
+
+		if ( ! $action->get_hook() ) {
+			return new \WP_Error( 'action_not_found', __( 'Action not found.', 'newspack-plugin' ), [ 'status' => 404 ] );
+		}
+
+		$args    = $action->get_args();
+		$sync_id = $args[0]['sync_id'] ?? '';
+		if ( empty( $sync_id ) ) {
+			return new \WP_REST_Response( [] );
+		}
+
+		$retries   = Reader_Activation\Contact_Sync::get_retries_by_sync_id( $sync_id );
+		$logger    = \ActionScheduler_Logger::instance();
+
+		$formatted = [];
+		foreach ( $retries as $retry_id => $retry_action ) {
+			$retry_args = $retry_action->get_args();
+			$schedule   = $retry_action->get_schedule();
+			$date       = $schedule->get_date();
+			$logs       = $logger->get_logs( $retry_id );
+
+			$formatted[] = [
+				'id'          => (int) $retry_id,
+				'status'      => $store->get_status( $retry_id ),
+				'group'       => $retry_action->get_group(),
+				'scheduled'   => $date ? $date->format( 'Y-m-d H:i:s' ) : null,
+				'retry_count' => $retry_args[0]['retry_count'] ?? null,
+				'max_retries' => Reader_Activation\Contact_Sync::MAX_RETRIES,
+				'reason'      => $retry_args[0]['reason'] ?? '',
+				'logs'        => array_map(
+					function ( $log ) {
+						return [
+							'message' => $log->get_message(),
+							'date'    => $log->get_date()->format( 'Y-m-d H:i:s' ),
+						];
+					},
+					$logs
+				),
+			];
+		}
+
+		// Sort by retry_count ascending.
+		usort(
+			$formatted,
+			function ( $a, $b ) {
+				return ( $a['retry_count'] ?? 0 ) - ( $b['retry_count'] ?? 0 );
+			}
+		);
+
+		return new \WP_REST_Response( $formatted );
 	}
 
 	/**
