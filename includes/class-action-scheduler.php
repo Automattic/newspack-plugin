@@ -238,6 +238,29 @@ class Action_Scheduler {
 	}
 
 	/**
+	 * Get log entries for a specific ActionScheduler action.
+	 *
+	 * @param int $action_id The action ID.
+	 *
+	 * @return array Array of log row objects with log_id, message, and log_date_gmt.
+	 */
+	public static function get_action_logs( $action_id ) {
+		if ( ! self::is_available() ) {
+			return [];
+		}
+		global $wpdb;
+		$table = $wpdb->prefix . 'actionscheduler_logs';
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		return $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT log_id, message, log_date_gmt FROM {$table} WHERE action_id = %d ORDER BY log_date_gmt ASC, log_id ASC", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				$action_id
+			)
+		);
+	}
+
+	/**
 	 * Get a map of group_id => slug for all ActionScheduler groups.
 	 *
 	 * @return array<int,string>
