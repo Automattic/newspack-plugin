@@ -142,6 +142,10 @@ class Contact_Sync extends Sync {
 		$integrations = Integrations::get_active_integrations();
 		$errors       = [];
 
+		// Resolve user ID for retry scheduling.
+		$user    = ! empty( $contact['email'] ) ? \get_user_by( 'email', $contact['email'] ) : false;
+		$user_id = $user ? $user->ID : 0;
+
 		foreach ( $integrations as $integration_id => $integration ) {
 			$result = $integration->push_contact_data( $contact, $context, $existing_contact );
 			if ( \is_wp_error( $result ) ) {
@@ -168,7 +172,7 @@ class Contact_Sync extends Sync {
 						'reason'         => $result->get_error_message(),
 					]
 				);
-				self::schedule_integration_retry( $integration_id, $contact, $context, $existing_contact, 0, $result, \Newspack\Action_Scheduler::generate_retry_id() );
+				self::schedule_integration_retry( $integration_id, $user_id, $context, 0, $result, \Newspack\Action_Scheduler::generate_retry_id() );
 				$errors[] = sprintf( '[%s] %s', $integration_id, $result->get_error_message() );
 				if ( self::$current_as_action_id ) {
 					\ActionScheduler_Logger::instance()->log(
@@ -194,29 +198,36 @@ class Contact_Sync extends Sync {
 	/**
 	 * Schedule a retry for a failed integration sync via ActionScheduler.
 	 *
-	 * @param string           $integration_id   The integration ID.
-	 * @param array            $contact          The contact data.
-	 * @param string           $context          The sync context.
-	 * @param array            $existing_contact Optional. Existing contact data.
-	 * @param int              $retry_count      Current retry count (0 = first failure).
-	 * @param string|\WP_Error $error            The error from the failure.
-	 * @param string           $retry_id          Unique ID linking all retries from the same sync attempt.
+	 * @param string           $integration_id The integration ID.
+	 * @param int              $user_id        The WordPress user ID.
+	 * @param string           $context        The sync context.
+	 * @param int              $retry_count    Current retry count (0 = first failure).
+	 * @param string|\WP_Error $error          The error from the failure.
+	 * @param string           $retry_id       Unique ID linking all retries from the same sync attempt.
 	 */
-	private static function schedule_integration_retry( $integration_id, $contact, $context, $existing_contact, $retry_count, $error, $retry_id ) {
+	private static function schedule_integration_retry( $integration_id, $user_id, $context, $retry_count, $error, $retry_id ) {
 		if ( ! function_exists( 'as_schedule_single_action' ) ) {
 			return;
 		}
 
+		if ( empty( $user_id ) || ! \get_userdata( $user_id ) ) {
+			static::log( sprintf( 'Cannot schedule retry for integration "%s": user %d not found.', $integration_id, $user_id ) );
+			return;
+		}
+
 		$error_message = $error instanceof \WP_Error ? $error->get_error_message() : (string) $error;
+		$user          = \get_userdata( $user_id );
+		$user_email    = $user ? $user->user_email : 'unknown';
 
 		$next_retry = $retry_count + 1;
 		if ( $next_retry > self::MAX_RETRIES ) {
 			static::log(
 				sprintf(
-					'Max retries (%d) reached for integration "%s" sync of %s. Giving up. Last error: %s',
+					'Max retries (%d) reached for integration "%s" sync of user %d (%s). Giving up. Last error: %s',
 					self::MAX_RETRIES,
 					$integration_id,
-					$contact['email'] ?? 'unknown',
+					$user_id,
+					$user_email,
 					$error_message
 				)
 			);
@@ -233,18 +244,18 @@ class Contact_Sync extends Sync {
 			 *     Alert data.
 			 *
 			 *     @type string $integration_id The integration that failed.
-			 *     @type array  $contact        The contact data that failed to sync.
+			 *     @type int    $user_id        The WordPress user ID.
 			 *     @type string $context        The sync context.
 			 *     @type int    $retry_count    Total retries attempted.
 			 *     @type string $reason         The final error message.
-			 *     @type string $retry_id        Unique ID linking all retries from the same sync attempt.
+			 *     @type string $retry_id       Unique ID linking all retries from the same sync attempt.
 			 * }
 			 */
 			do_action(
 				'newspack_sync_retry_exhausted',
 				[
 					'integration_id' => $integration_id,
-					'contact'        => $contact,
+					'user_id'        => $user_id,
 					'context'        => $context,
 					'retry_count'    => self::MAX_RETRIES,
 					'reason'         => $error_message,
@@ -258,14 +269,13 @@ class Contact_Sync extends Sync {
 		$backoff_seconds = self::RETRY_BACKOFF[ $backoff_index ];
 
 		$retry_data = [
-			'integration_id'   => $integration_id,
-			'contact'          => $contact,
-			'context'          => $context,
-			'existing_contact' => $existing_contact,
-			'retry_count'      => $next_retry,
-			'max_retries'      => self::MAX_RETRIES,
-			'reason'           => $error_message,
-			'retry_id'         => $retry_id,
+			'integration_id' => $integration_id,
+			'user_id'        => $user_id,
+			'context'        => $context,
+			'retry_count'    => $next_retry,
+			'max_retries'    => self::MAX_RETRIES,
+			'reason'         => $error_message,
+			'retry_id'       => $retry_id,
 		];
 
 		\as_schedule_single_action(
@@ -277,11 +287,12 @@ class Contact_Sync extends Sync {
 
 		static::log(
 			sprintf(
-				'Scheduled retry %d/%d for integration "%s" sync of %s in %ds. Error: %s',
+				'Scheduled retry %d/%d for integration "%s" sync of user %d (%s) in %ds. Error: %s',
 				$next_retry,
 				self::MAX_RETRIES,
 				$integration_id,
-				$contact['email'] ?? 'unknown',
+				$user_id,
+				$user_email,
 				$backoff_seconds,
 				$error_message
 			)
@@ -296,26 +307,31 @@ class Contact_Sync extends Sync {
 	 * @throws \Exception When the final retry fails, so ActionScheduler marks the action as "failed".
 	 */
 	public static function execute_integration_retry( $retry_data ) {
-		if ( ! is_array( $retry_data ) || empty( $retry_data['integration_id'] ) || empty( $retry_data['contact'] ) ) {
+		if ( ! is_array( $retry_data ) || empty( $retry_data['integration_id'] ) || empty( $retry_data['user_id'] ) ) {
 			Logger::log( 'Invalid integration retry data received from Action Scheduler.', 'NEWSPACK-SYNC', 'error' );
 			return;
 		}
 
-		$integration_id   = $retry_data['integration_id'];
-		$stored_contact   = $retry_data['contact'];
-		$context          = $retry_data['context'] ?? static::$context;
-		$existing_contact = $retry_data['existing_contact'] ?? null;
-		$retry_count      = $retry_data['retry_count'] ?? 1;
-		$retry_id          = $retry_data['retry_id'] ?? '';
+		$integration_id = $retry_data['integration_id'];
+		$user_id        = $retry_data['user_id'];
+		$context        = $retry_data['context'] ?? static::$context;
+		$retry_count    = $retry_data['retry_count'] ?? 1;
+		$retry_id       = $retry_data['retry_id'] ?? '';
 
-		// Fetch fresh contact data to avoid pushing stale state (e.g. outdated subscription status).
-		$email = $stored_contact['email'] ?? '';
-		$user  = $email ? \get_user_by( 'email', $email ) : false;
-		if ( $user ) {
-			$contact = self::get_contact_data( $user->ID );
-		} else {
-			// User deleted — fall back to the stored contact data.
-			$contact = $stored_contact;
+		$user = \get_userdata( $user_id );
+		if ( ! $user ) {
+			Logger::log( sprintf( 'User %d not found on retry %d.', $user_id, $retry_count ), 'NEWSPACK-SYNC', 'error' );
+			return;
+		}
+
+		$contact = self::get_contact_data( $user_id );
+		if ( \is_wp_error( $contact ) ) {
+			// Basic fallback when WooCommerce is unavailable.
+			$contact = [
+				'email'    => $user->user_email,
+				'name'     => $user->display_name,
+				'metadata' => [],
+			];
 		}
 
 		$integration = Integrations::get_integration( $integration_id );
@@ -324,34 +340,35 @@ class Contact_Sync extends Sync {
 			return;
 		}
 
-		static::log( sprintf( 'Executing retry %d/%d for integration "%s" sync of %s.', $retry_count, self::MAX_RETRIES, $integration_id, $contact['email'] ?? 'unknown' ) );
+		static::log( sprintf( 'Executing retry %d/%d for integration "%s" sync of user %d (%s).', $retry_count, self::MAX_RETRIES, $integration_id, $user_id, $contact['email'] ?? 'unknown' ) );
 
-		$result = $integration->push_contact_data( $contact, $context, $existing_contact );
+		$result = $integration->push_contact_data( $contact, $context );
 		if ( \is_wp_error( $result ) ) {
 			$error_messages = implode( '; ', $result->get_error_messages() );
 			static::log(
 				sprintf(
-					'Retry %d failed for integration "%s" sync of %s: %s',
+					'Retry %d failed for integration "%s" sync of user %d (%s): %s',
 					$retry_count,
 					$integration_id,
+					$user_id,
 					$contact['email'] ?? 'unknown',
 					$error_messages
 				)
 			);
 			self::schedule_integration_retry(
 				$integration_id,
-				$contact,
+				$user_id,
 				$context,
-				$existing_contact,
 				$retry_count,
 				$result,
 				$retry_id
 			);
 			$error_message = sprintf(
-				'Retry %d/%d failed for integration "%s" sync of %s: %s',
+				'Retry %d/%d failed for integration "%s" sync of user %d (%s): %s',
 				absint( $retry_count ),
 				absint( self::MAX_RETRIES ),
 				esc_html( $integration_id ),
+				absint( $user_id ),
 				esc_html( $contact['email'] ?? 'unknown' ),
 				esc_html( $error_messages )
 			);
@@ -368,10 +385,11 @@ class Contact_Sync extends Sync {
 			}
 		} else {
 			$success_message = sprintf(
-				'Retry %d/%d succeeded for integration "%s" sync of %s.',
+				'Retry %d/%d succeeded for integration "%s" sync of user %d (%s).',
 				absint( $retry_count ),
 				absint( self::MAX_RETRIES ),
 				esc_html( $integration_id ),
+				absint( $user_id ),
 				esc_html( $contact['email'] ?? 'unknown' )
 			);
 			static::log( $success_message );
