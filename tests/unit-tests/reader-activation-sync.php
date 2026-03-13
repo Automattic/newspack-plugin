@@ -406,16 +406,23 @@ class Newspack_Test_Reader_Activation_Sync extends WP_UnitTestCase {
 			'metadata' => [],
 		];
 
-		// Simulate a retry at the max count — should NOT schedule another.
-		Contact_Sync::execute_integration_retry(
-			[
-				'integration_id'   => 'max_mock',
-				'contact'          => $contact,
-				'context'          => 'Test',
-				'existing_contact' => null,
-				'retry_count'      => Contact_Sync::MAX_RETRIES,
-			]
-		);
+		// Simulate a retry at the max count — should NOT schedule another and should throw.
+		$threw = false;
+		try {
+			Contact_Sync::execute_integration_retry(
+				[
+					'integration_id'   => 'max_mock',
+					'contact'          => $contact,
+					'context'          => 'Test',
+					'existing_contact' => null,
+					'retry_count'      => Contact_Sync::MAX_RETRIES,
+				]
+			);
+		} catch ( \Exception $e ) {
+			$threw = true;
+		}
+
+		$this->assertTrue( $threw, 'Should throw an exception on the last retry.' );
 
 		$pending = as_get_scheduled_actions(
 			[
@@ -464,7 +471,8 @@ class Newspack_Test_Reader_Activation_Sync extends WP_UnitTestCase {
 
 		Contact_Sync::clear_current_as_action_id();
 
-		// Verify AS log entry on the current action.
+		// Intermediate retries complete normally without AS log entries
+		// (only the final retry logs via exception).
 		$logs     = \ActionScheduler_Logger::instance()->get_logs( $dummy_action_id );
 		$messages = array_map(
 			function ( $log ) {
@@ -472,9 +480,9 @@ class Newspack_Test_Reader_Activation_Sync extends WP_UnitTestCase {
 			},
 			$logs
 		);
-		$this->assertTrue(
+		$this->assertFalse(
 			in_array( 'Mock push failed', $messages, true ),
-			'AS logs should contain the error message on the current action.'
+			'Intermediate retries should not log errors to AS.'
 		);
 
 		// Clean up.
@@ -507,16 +515,20 @@ class Newspack_Test_Reader_Activation_Sync extends WP_UnitTestCase {
 		// Set the current AS action ID.
 		Contact_Sync::set_current_as_action_id( $dummy_action_id );
 
-		// Execute at max retry count — push fails, triggers max-retries guard.
-		Contact_Sync::execute_integration_retry(
-			[
-				'integration_id'   => 'deadletter_mock',
-				'contact'          => $contact,
-				'context'          => 'Test',
-				'existing_contact' => null,
-				'retry_count'      => Contact_Sync::MAX_RETRIES,
-			]
-		);
+		// Execute at max retry count — push fails, triggers max-retries guard and throws.
+		try {
+			Contact_Sync::execute_integration_retry(
+				[
+					'integration_id'   => 'deadletter_mock',
+					'contact'          => $contact,
+					'context'          => 'Test',
+					'existing_contact' => null,
+					'retry_count'      => Contact_Sync::MAX_RETRIES,
+				]
+			);
+		} catch ( \Exception $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
+			// Expected — final retry throws so AS marks the action as failed.
+		}
 
 		Contact_Sync::clear_current_as_action_id();
 
@@ -567,16 +579,20 @@ class Newspack_Test_Reader_Activation_Sync extends WP_UnitTestCase {
 			'metadata' => [],
 		];
 
-		// Execute at max retry count — triggers exhaustion.
-		Contact_Sync::execute_integration_retry(
-			[
-				'integration_id'   => 'exhaustion_mock',
-				'contact'          => $contact,
-				'context'          => 'Test',
-				'existing_contact' => null,
-				'retry_count'      => Contact_Sync::MAX_RETRIES,
-			]
-		);
+		// Execute at max retry count — triggers exhaustion and throws.
+		try {
+			Contact_Sync::execute_integration_retry(
+				[
+					'integration_id'   => 'exhaustion_mock',
+					'contact'          => $contact,
+					'context'          => 'Test',
+					'existing_contact' => null,
+					'retry_count'      => Contact_Sync::MAX_RETRIES,
+				]
+			);
+		} catch ( \Exception $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
+			// Expected — final retry throws so AS marks the action as failed.
+		}
 
 		$this->assertTrue( $hook_fired, 'newspack_sync_retry_exhausted should fire on max retries.' );
 		$this->assertEquals( 'exhaustion_mock', $hook_data['integration_id'] );
