@@ -305,6 +305,18 @@ class Newspack_Status extends Wizard {
 			return new \WP_Error( 'action_already_complete', __( 'This action has already completed.', 'newspack-plugin' ), [ 'status' => 400 ] );
 		}
 
+		// Reset failed actions to pending so AS will process them.
+		if ( \ActionScheduler_Store::STATUS_FAILED === $status ) {
+			global $wpdb;
+			$wpdb->update( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+				$wpdb->prefix . 'actionscheduler_actions',
+				[ 'status' => \ActionScheduler_Store::STATUS_PENDING ],
+				[ 'action_id' => $action_id ],
+				[ '%s' ],
+				[ '%d' ]
+			);
+		}
+
 		try {
 			$runner = new \ActionScheduler_QueueRunner( $store );
 			$runner->process_action( $action_id, 'Newspack Status' );
