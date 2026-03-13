@@ -23,6 +23,7 @@ import FeaturedImagePostsNew from './featured-image-posts-new';
 import MediaCredits from './media-credits';
 import AccessibilityStatement from './accessibility-statement';
 import PwaDisplayMode from './pwa-display-mode';
+import PrimaryCategory from './primary-category';
 
 export default function AdvancedSettings() {
 	const [ data, setData ] = hooks.useObjectState< AdvancedSettings >( {
@@ -40,9 +41,17 @@ export default function AdvancedSettings() {
 		relatedPostsUpdated: false,
 	} );
 
+	const [ primaryCategoryData, setPrimaryCategoryData ] = hooks.useObjectState( {
+		enabled: true,
+		yoast_active: false,
+	} );
+
 	const { wizardApiFetch, isFetching, errorMessage } = useWizardApiFetch( 'newspack-settings/theme-mods' );
 	const { wizardApiFetch: wizardApiFetchRecirculation, isFetching: isFetchingRecirculation } = useWizardApiFetch(
 		'newspack-settings/advanced-settings/recirculation'
+	);
+	const { wizardApiFetch: wizardApiFetchPrimaryCategory, isFetching: isFetchingPrimaryCategory } = useWizardApiFetch(
+		'newspack-settings/advanced-settings/primary-category'
 	);
 
 	const fetchThemeMods = () => {
@@ -69,6 +78,14 @@ export default function AdvancedSettings() {
 				onSuccess: setRecirculationData,
 			}
 		);
+		wizardApiFetchPrimaryCategory(
+			{
+				path: '/newspack/v1/wizard/newspack-settings/primary-category',
+			},
+			{
+				onSuccess: setPrimaryCategoryData,
+			}
+		);
 	}, [] );
 
 	function save() {
@@ -83,6 +100,17 @@ export default function AdvancedSettings() {
 			},
 			{
 				onSuccess: setRecirculationData,
+			}
+		);
+		wizardApiFetchPrimaryCategory(
+			{
+				path: '/newspack/v1/wizard/newspack-settings/primary-category',
+				method: 'POST',
+				updateCacheMethods: [ 'GET' ],
+				data: primaryCategoryData,
+			},
+			{
+				onSuccess: setPrimaryCategoryData,
 			}
 		);
 		if ( data.featured_image_all_posts !== 'none' || data.post_template_all_posts !== 'none' ) {
@@ -115,10 +143,19 @@ export default function AdvancedSettings() {
 	}
 
 	return (
-		<WizardsTab title={ __( 'Advanced Settings', 'newspack-plugin' ) } isFetching={ isFetching || isFetchingRecirculation }>
+		<WizardsTab
+			title={ __( 'Advanced Settings', 'newspack-plugin' ) }
+			isFetching={ isFetching || isFetchingRecirculation || isFetchingPrimaryCategory }
+		>
 			<WizardSection title={ __( 'Recirculation', 'newspack-plugin' ) }>
 				<Recirculation isFetching={ isFetchingRecirculation } update={ setRecirculationData } data={ recirculationData } />
 			</WizardSection>
+
+			{ primaryCategoryData.yoast_active && (
+				<WizardSection title={ __( 'Primary Category', 'newspack-plugin' ) }>
+					<PrimaryCategory data={ primaryCategoryData } isFetching={ isFetchingPrimaryCategory } update={ setPrimaryCategoryData } />
+				</WizardSection>
+			) }
 
 			<WizardSection title={ __( 'Author Bio', 'newspack-plugin' ) }>
 				<AuthorBio update={ setData } data={ data } isFetching={ isFetching } />

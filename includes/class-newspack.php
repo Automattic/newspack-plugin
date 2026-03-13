@@ -165,6 +165,7 @@ final class Newspack {
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/newspack/class-seo-section.php';
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/newspack/class-pixels-section.php';
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/newspack/class-recirculation-section.php';
+		include_once NEWSPACK_ABSPATH . 'includes/wizards/newspack/class-primary-category-section.php';
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/newspack/class-collections-section.php';
 
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-setup-wizard.php';
@@ -233,6 +234,7 @@ final class Newspack {
 		include_once NEWSPACK_ABSPATH . 'includes/plugins/class-teams-for-memberships.php';
 		include_once NEWSPACK_ABSPATH . 'includes/plugins/class-newspack-elections.php';
 		include_once NEWSPACK_ABSPATH . 'includes/plugins/class-yoast.php';
+		include_once NEWSPACK_ABSPATH . 'includes/class-primary-category.php';
 
 		include_once NEWSPACK_ABSPATH . 'includes/class-patches.php';
 		include_once NEWSPACK_ABSPATH . 'includes/polyfills/class-amp-polyfills.php';
