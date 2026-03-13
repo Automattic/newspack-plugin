@@ -365,8 +365,8 @@ class Newspack_Status extends Wizard {
 	/**
 	 * Get related retry actions for a sync retry action.
 	 *
-	 * Extracts the sync_id from the action's args and returns all retries
-	 * belonging to the same sync attempt.
+	 * Extracts the retry_id from the action's args and returns all retries
+	 * belonging to the same attempt.
 	 *
 	 * @param \WP_REST_Request $request Request object.
 	 * @return \WP_REST_Response|\WP_Error
@@ -384,29 +384,29 @@ class Newspack_Status extends Wizard {
 			return new \WP_Error( 'action_not_found', __( 'Action not found.', 'newspack-plugin' ), [ 'status' => 404 ] );
 		}
 
-		$args    = $action->get_args();
-		$sync_id = $args[0]['sync_id'] ?? '';
-		if ( empty( $sync_id ) ) {
+		$args     = $action->get_args();
+		$retry_id = $args[0]['retry_id'] ?? '';
+		if ( empty( $retry_id ) ) {
 			return new \WP_REST_Response( [] );
 		}
 
-		$retries   = Reader_Activation\Contact_Sync::get_retries_by_sync_id( $sync_id );
-		$logger    = \ActionScheduler_Logger::instance();
+		$retries = Action_Scheduler::get_actions_by_retry_id( $retry_id, $action->get_hook() );
+		$logger  = \ActionScheduler_Logger::instance();
 
 		$formatted = [];
-		foreach ( $retries as $retry_id => $retry_action ) {
+		foreach ( $retries as $action_id => $retry_action ) {
 			$retry_args = $retry_action->get_args();
 			$schedule   = $retry_action->get_schedule();
 			$date       = $schedule->get_date();
-			$logs       = $logger->get_logs( $retry_id );
+			$logs       = $logger->get_logs( $action_id );
 
 			$formatted[] = [
-				'id'          => (int) $retry_id,
-				'status'      => $store->get_status( $retry_id ),
+				'id'          => (int) $action_id,
+				'status'      => $store->get_status( $action_id ),
 				'group'       => $retry_action->get_group(),
 				'scheduled'   => $date ? $date->format( 'Y-m-d H:i:s' ) : null,
 				'retry_count' => $retry_args[0]['retry_count'] ?? null,
-				'max_retries' => Reader_Activation\Contact_Sync::MAX_RETRIES,
+				'max_retries' => $retry_args[0]['max_retries'] ?? null,
 				'reason'      => $retry_args[0]['reason'] ?? '',
 				'logs'        => array_map(
 					function ( $log ) {

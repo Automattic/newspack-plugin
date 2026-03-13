@@ -372,4 +372,39 @@ class Action_Scheduler {
 		}
 		return $map;
 	}
+
+	/**
+	 * Generate a unique retry ID to link all retries from the same attempt.
+	 *
+	 * @return string UUID v4.
+	 */
+	public static function generate_retry_id() {
+		return wp_generate_uuid4();
+	}
+
+	/**
+	 * Get all actions associated with a retry ID.
+	 *
+	 * Uses ActionScheduler's search parameter to match the retry_id
+	 * against args or extended_args.
+	 *
+	 * @param string $retry_id The retry ID to search for.
+	 * @param string $hook     Optional. Hook name to filter by.
+	 *
+	 * @return array ActionScheduler action objects keyed by action ID.
+	 */
+	public static function get_actions_by_retry_id( $retry_id, $hook = '' ) {
+		if ( ! function_exists( 'as_get_scheduled_actions' ) || empty( $retry_id ) ) {
+			return [];
+		}
+		$args = [
+			'search'   => $retry_id,
+			'status'   => '',
+			'per_page' => -1,
+		];
+		if ( ! empty( $hook ) ) {
+			$args['hook'] = $hook;
+		}
+		return as_get_scheduled_actions( $args );
+	}
 }

@@ -315,7 +315,7 @@ final class Data_Events {
 			} catch ( \Throwable $e ) {
 				self::log( $e->getMessage(), 'error' );
 				self::fire_handler_failed( $handler, $action_name, $data, $e );
-				self::schedule_handler_retry( $handler, $action_name, $timestamp, $data, $client_id, true, 0, $e );
+				self::schedule_handler_retry( $handler, $action_name, $timestamp, $data, $client_id, true, 0, $e, Action_Scheduler::generate_retry_id() );
 			}
 		}
 
@@ -328,7 +328,7 @@ final class Data_Events {
 			} catch ( \Throwable $e ) {
 				self::log( $e->getMessage(), 'error' );
 				self::fire_handler_failed( $handler, $action_name, $data, $e );
-				self::schedule_handler_retry( $handler, $action_name, $timestamp, $data, $client_id, false, 0, $e );
+				self::schedule_handler_retry( $handler, $action_name, $timestamp, $data, $client_id, false, 0, $e, Action_Scheduler::generate_retry_id() );
 			}
 		}
 
@@ -764,8 +764,9 @@ final class Data_Events {
 	 * @param bool       $is_global   Whether this is a global handler.
 	 * @param int        $retry_count Current retry count (0 = first failure).
 	 * @param \Throwable $error       The error that caused the failure.
+	 * @param string     $retry_id    Unique ID linking all retries from the same attempt.
 	 */
-	private static function schedule_handler_retry( $handler, $action_name, $timestamp, $data, $client_id, $is_global, $retry_count, $error ) {
+	private static function schedule_handler_retry( $handler, $action_name, $timestamp, $data, $client_id, $is_global, $retry_count, $error, $retry_id ) {
 		if ( ! function_exists( 'as_schedule_single_action' ) ) {
 			return;
 		}
@@ -803,6 +804,7 @@ final class Data_Events {
 			 *     @type array  $data          The event data.
 			 *     @type int    $retry_count   Total retries attempted.
 			 *     @type string $reason        The final error message.
+			 *     @type string $retry_id      Unique ID linking all retries from the same attempt.
 			 * }
 			 */
 			do_action(
@@ -813,6 +815,7 @@ final class Data_Events {
 					'data'        => $data,
 					'retry_count' => self::MAX_HANDLER_RETRIES,
 					'reason'      => $error->getMessage(),
+					'retry_id'    => $retry_id,
 				]
 			);
 			return;
@@ -829,7 +832,9 @@ final class Data_Events {
 			'client_id'   => $client_id,
 			'is_global'   => $is_global,
 			'retry_count' => $next_retry,
+			'max_retries' => self::MAX_HANDLER_RETRIES,
 			'reason'      => $error->getMessage(),
+			'retry_id'    => $retry_id,
 		];
 
 		$group = self::get_handler_action_group(
@@ -881,6 +886,7 @@ final class Data_Events {
 		$client_id   = $retry_data['client_id'] ?? null;
 		$is_global   = $retry_data['is_global'] ?? false;
 		$retry_count = $retry_data['retry_count'] ?? 1;
+		$retry_id    = $retry_data['retry_id'] ?? '';
 
 		if ( ! is_callable( $handler ) ) {
 			self::log( sprintf( 'Handler for "%s" is no longer callable on retry %d.', $action_name, $retry_count ), 'error' );
@@ -899,7 +905,7 @@ final class Data_Events {
 			self::log( sprintf( 'Retry %d succeeded for handler on "%s".', $retry_count, $action_name ) );
 		} catch ( \Throwable $e ) {
 			self::log( sprintf( 'Retry %d failed for handler on "%s": %s', $retry_count, $action_name, $e->getMessage() ), 'error' );
-			self::schedule_handler_retry( $handler, $action_name, $timestamp, $data, $client_id, $is_global, $retry_count, $e );
+			self::schedule_handler_retry( $handler, $action_name, $timestamp, $data, $client_id, $is_global, $retry_count, $e, $retry_id );
 		} finally {
 			self::set_current_event( null );
 		}

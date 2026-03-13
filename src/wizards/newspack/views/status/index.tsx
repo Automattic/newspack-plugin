@@ -163,16 +163,11 @@ function ActionLogs( { actionId }: { actionId: number } ) {
 	);
 }
 
-const RETRY_HOOK = 'newspack_contact_sync_retry';
-
-function getSyncId( item: ScheduledAction ): string | null {
-	if ( item.hook !== RETRY_HOOK ) {
-		return null;
-	}
+function getRetryId( item: ScheduledAction ): string | null {
 	const raw = item.extended_args || item.args;
 	try {
 		const parsed = JSON.parse( raw );
-		return parsed?.[ 0 ]?.sync_id || null;
+		return parsed?.[ 0 ]?.retry_id || null;
 	} catch {
 		return null;
 	}
@@ -498,7 +493,7 @@ function Status() {
 					const item = items[ 0 ];
 					const argsFormatted = formatArgs( item.args );
 					const extArgsFormatted = formatArgs( item.extended_args );
-					const syncId = getSyncId( item );
+					const retryId = getRetryId( item );
 					return (
 						<VStack spacing={ 4 }>
 							<table className="widefat striped" style={ { margin: 0 } }>
@@ -589,7 +584,7 @@ function Status() {
 							</table>
 							<h4 style={ { margin: 0 } }>{ __( 'Logs', 'newspack-plugin' ) }</h4>
 							<ActionLogs actionId={ item.id } />
-							{ syncId && (
+							{ retryId && (
 								<Fragment>
 									<h4 style={ { margin: 0 } }>{ __( 'Retry timeline', 'newspack-plugin' ) }</h4>
 									<RetryTimeline actionId={ item.id } />

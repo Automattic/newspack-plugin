@@ -168,7 +168,7 @@ class Contact_Sync extends Sync {
 						'reason'         => $result->get_error_message(),
 					]
 				);
-				self::schedule_integration_retry( $integration_id, $contact, $context, $existing_contact, 0, $result, wp_generate_uuid4() );
+				self::schedule_integration_retry( $integration_id, $contact, $context, $existing_contact, 0, $result, \Newspack\Action_Scheduler::generate_retry_id() );
 				$errors[] = sprintf( '[%s] %s', $integration_id, $result->get_error_message() );
 				if ( self::$current_as_action_id ) {
 					\ActionScheduler_Logger::instance()->log(
@@ -200,9 +200,9 @@ class Contact_Sync extends Sync {
 	 * @param array            $existing_contact Optional. Existing contact data.
 	 * @param int              $retry_count      Current retry count (0 = first failure).
 	 * @param string|\WP_Error $error            The error from the failure.
-	 * @param string           $sync_id          Unique ID linking all retries from the same sync attempt.
+	 * @param string           $retry_id          Unique ID linking all retries from the same sync attempt.
 	 */
-	private static function schedule_integration_retry( $integration_id, $contact, $context, $existing_contact, $retry_count, $error, $sync_id ) {
+	private static function schedule_integration_retry( $integration_id, $contact, $context, $existing_contact, $retry_count, $error, $retry_id ) {
 		if ( ! function_exists( 'as_schedule_single_action' ) ) {
 			return;
 		}
@@ -237,7 +237,7 @@ class Contact_Sync extends Sync {
 			 *     @type string $context        The sync context.
 			 *     @type int    $retry_count    Total retries attempted.
 			 *     @type string $reason         The final error message.
-			 *     @type string $sync_id        Unique ID linking all retries from the same sync attempt.
+			 *     @type string $retry_id        Unique ID linking all retries from the same sync attempt.
 			 * }
 			 */
 			do_action(
@@ -248,7 +248,7 @@ class Contact_Sync extends Sync {
 					'context'        => $context,
 					'retry_count'    => self::MAX_RETRIES,
 					'reason'         => $error_message,
-					'sync_id'        => $sync_id,
+					'retry_id'       => $retry_id,
 				]
 			);
 			return;
@@ -263,8 +263,9 @@ class Contact_Sync extends Sync {
 			'context'          => $context,
 			'existing_contact' => $existing_contact,
 			'retry_count'      => $next_retry,
+			'max_retries'      => self::MAX_RETRIES,
 			'reason'           => $error_message,
-			'sync_id'          => $sync_id,
+			'retry_id'         => $retry_id,
 		];
 
 		\as_schedule_single_action(
@@ -305,7 +306,7 @@ class Contact_Sync extends Sync {
 		$context          = $retry_data['context'] ?? static::$context;
 		$existing_contact = $retry_data['existing_contact'] ?? null;
 		$retry_count      = $retry_data['retry_count'] ?? 1;
-		$sync_id          = $retry_data['sync_id'] ?? '';
+		$retry_id          = $retry_data['retry_id'] ?? '';
 
 		// Fetch fresh contact data to avoid pushing stale state (e.g. outdated subscription status).
 		$email = $stored_contact['email'] ?? '';
@@ -344,7 +345,7 @@ class Contact_Sync extends Sync {
 				$existing_contact,
 				$retry_count,
 				$result,
-				$sync_id
+				$retry_id
 			);
 			$error_message = sprintf(
 				'Retry %d/%d failed for integration "%s" sync of %s: %s',
@@ -383,22 +384,12 @@ class Contact_Sync extends Sync {
 	/**
 	 * Get all retry actions associated with a sync attempt.
 	 *
-	 * @param string $sync_id The sync ID to search for.
+	 * @param string $retry_id The retry ID to search for.
 	 *
-	 * @return array ActionScheduler actions matching the sync ID.
+	 * @return array ActionScheduler actions matching the retry ID.
 	 */
-	public static function get_retries_by_sync_id( $sync_id ) {
-		if ( ! function_exists( 'as_get_scheduled_actions' ) ) {
-			return [];
-		}
-		return as_get_scheduled_actions(
-			[
-				'hook'     => self::RETRY_HOOK,
-				'search'   => $sync_id,
-				'status'   => '',
-				'per_page' => -1,
-			]
-		);
+	public static function get_retries_by_retry_id( $retry_id ) {
+		return \Newspack\Action_Scheduler::get_actions_by_retry_id( $retry_id, self::RETRY_HOOK );
 	}
 
 	/**
