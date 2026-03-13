@@ -72,7 +72,7 @@ const DEFAULT_VIEW: View = {
 		field: 'scheduled',
 		direction: 'desc',
 	},
-	fields: [ 'hook', 'status', 'group', 'scheduled', 'args' ],
+	fields: [ 'hook', 'status', 'group', 'scheduled', 'user_id', 'retry', 'reason' ],
 	filters: [],
 };
 
@@ -118,6 +118,28 @@ function formatArgs( args: string ) {
 	} catch {
 		return args;
 	}
+}
+
+function parseActionArgs( item: ScheduledAction ): Record< string, unknown > | null {
+	const raw = item.extended_args || item.args;
+	try {
+		const parsed = JSON.parse( raw );
+		return parsed?.[ 0 ] ?? null;
+	} catch {
+		return null;
+	}
+}
+
+function getActionArg( item: ScheduledAction, key: string ): string | null {
+	const args = parseActionArgs( item );
+	if ( ! args || args[ key ] === undefined || args[ key ] === null ) {
+		return null;
+	}
+	return String( args[ key ] );
+}
+
+function getUserId( item: ScheduledAction ): string | null {
+	return getActionArg( item, 'user_id' );
 }
 
 interface LogEntry {
@@ -372,17 +394,41 @@ function Status() {
 				},
 			},
 			{
-				id: 'args',
-				label: __( 'Arguments', 'newspack-plugin' ),
+				id: 'user_id',
+				label: __( 'User ID', 'newspack-plugin' ),
 				enableSorting: false,
 				enableHiding: true,
 				render: ( { item } ) => {
-					const formatted = formatArgs( item.args );
-					if ( ! formatted ) {
-						return <em>{ __( 'None', 'newspack-plugin' ) }</em>;
+					const userId = getUserId( item );
+					return userId ? <code style={ { fontSize: '12px' } }>{ userId }</code> : <em>{ __( 'N/A', 'newspack-plugin' ) }</em>;
+				},
+			},
+			{
+				id: 'retry',
+				label: __( 'Retry', 'newspack-plugin' ),
+				enableSorting: false,
+				enableHiding: true,
+				render: ( { item } ) => {
+					const retryCount = getActionArg( item, 'retry_count' );
+					const maxRetries = getActionArg( item, 'max_retries' );
+					if ( ! retryCount ) {
+						return <em>{ __( 'N/A', 'newspack-plugin' ) }</em>;
+					}
+					return <span style={ { fontSize: '12px' } }>{ `${ retryCount }/${ maxRetries ?? '?' }` }</span>;
+				},
+			},
+			{
+				id: 'reason',
+				label: __( 'Reason', 'newspack-plugin' ),
+				enableSorting: false,
+				enableHiding: true,
+				render: ( { item } ) => {
+					const reason = getActionArg( item, 'reason' );
+					if ( ! reason ) {
+						return <em>{ __( 'N/A', 'newspack-plugin' ) }</em>;
 					}
 					return (
-						<code
+						<span
 							style={ {
 								fontSize: '11px',
 								maxWidth: '300px',
@@ -391,10 +437,10 @@ function Status() {
 								whiteSpace: 'nowrap',
 								display: 'block',
 							} }
-							title={ formatted }
+							title={ reason }
 						>
-							{ formatted.replace( /\n/g, ' ' ) }
-						</code>
+							{ reason }
+						</span>
 					);
 				},
 			},
