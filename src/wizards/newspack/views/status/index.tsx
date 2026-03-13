@@ -72,11 +72,14 @@ const DEFAULT_VIEW: View = {
 		field: 'scheduled',
 		direction: 'desc',
 	},
-	fields: [ 'hook', 'status', 'group', 'scheduled', 'user_id', 'retry', 'reason' ],
+	fields: [ 'group', 'hook', 'status', 'scheduled', 'user_id', 'details' ],
 	filters: [],
 };
 
 const defaultLayouts: SupportedLayouts = { table: {} };
+
+// Stable sections array for Wizard — renders nothing (DataViews is rendered outside).
+const WIZARD_SECTIONS = [ { path: '/', render: () => null } ];
 
 function StatusBadge( { status }: { status: string } ) {
 	const colors: Record< string, { bg: string; fg: string } > = {
@@ -139,7 +142,107 @@ function getActionArg( item: ScheduledAction, key: string ): string | null {
 }
 
 function getUserId( item: ScheduledAction ): string | null {
-	return getActionArg( item, 'user_id' );
+	// Direct user_id arg (e.g. retries).
+	const direct = getActionArg( item, 'user_id' );
+	if ( direct ) {
+		return direct;
+	}
+
+	// Data event handler: look for data.user_id in the dispatches array.
+	if ( item.hook === 'newspack_data_events_handle' ) {
+		const raw = item.extended_args || item.args;
+		try {
+			const parsed = JSON.parse( raw );
+			const dispatches = parsed?.[ 0 ];
+			if ( Array.isArray( dispatches ) ) {
+				for ( const dispatch of dispatches ) {
+					const uid = dispatch?.data?.user_id;
+					if ( uid !== undefined && uid !== null ) {
+						return String( uid );
+					}
+				}
+			}
+		} catch {
+			// Ignore parse errors.
+		}
+	}
+
+	return null;
+}
+
+function getDetails( item: ScheduledAction ): JSX.Element | null {
+	const raw = item.extended_args || item.args;
+	let parsed: unknown;
+	try {
+		parsed = JSON.parse( raw );
+	} catch {
+		return null;
+	}
+	if ( ! Array.isArray( parsed ) || parsed.length === 0 ) {
+		return null;
+	}
+
+	// Data event handler: AS args is [ dispatches[] ], so parsed[0] is the dispatches array.
+	if ( item.hook === 'newspack_data_events_handle' ) {
+		const dispatches = parsed[ 0 ];
+		if ( ! Array.isArray( dispatches ) ) {
+			return null;
+		}
+		const names = dispatches.map( ( d: Record< string, unknown > ) => d?.action_name ).filter( Boolean ) as string[];
+		if ( ! names.length ) {
+			return null;
+		}
+		return (
+			<>
+				<strong>{ __( 'Actions: ', 'newspack-plugin' ) }</strong>
+				{ names.join( ', ' ) }
+			</>
+		);
+	}
+
+	// Sync retry / data event retry: single object at [0] with context and reason.
+	const first = parsed[ 0 ] as Record< string, unknown > | undefined;
+	if ( ! first ) {
+		return null;
+	}
+	const parts: JSX.Element[] = [];
+	if ( first.retry_count !== undefined && first.max_retries !== undefined ) {
+		parts.push(
+			<Fragment key="retry">
+				<strong>{ __( 'Retry: ', 'newspack-plugin' ) }</strong>
+				{ `${ first.retry_count }/${ first.max_retries }` }
+			</Fragment>
+		);
+	}
+	if ( first.context ) {
+		parts.push(
+			<Fragment key="context">
+				<strong>{ __( 'Context: ', 'newspack-plugin' ) }</strong>
+				{ String( first.context ) }
+			</Fragment>
+		);
+	}
+	if ( first.reason ) {
+		parts.push(
+			<Fragment key="reason">
+				<strong>{ __( 'Reason: ', 'newspack-plugin' ) }</strong>
+				{ String( first.reason ) }
+			</Fragment>
+		);
+	}
+	if ( ! parts.length ) {
+		return null;
+	}
+	return (
+		<>
+			{ parts.map( ( part, i ) => (
+				<Fragment key={ i }>
+					{ i > 0 && <br /> }
+					{ part }
+				</Fragment>
+			) ) }
+		</>
+	);
 }
 
 interface LogEntry {
@@ -250,8 +353,9 @@ function Status() {
 	const [ view, setView ] = useState< View >( DEFAULT_VIEW );
 	const [ groups, setGroups ] = useState< string[] >( [] );
 	const [ hooks, setHooks ] = useState< string[] >( [] );
+	const [ labels, setLabels ] = useState< { hooks: Record< string, string >; groups: Record< string, string > } >( { hooks: {}, groups: {} } );
 
-	// Fetch available groups and hooks on mount.
+	// Fetch available groups, hooks, and labels on mount.
 	useEffect( () => {
 		apiFetch< string[] >( {
 			path: '/newspack/v1/wizard/newspack-status/groups',
@@ -259,81 +363,102 @@ function Status() {
 		apiFetch< string[] >( {
 			path: '/newspack/v1/wizard/newspack-status/hooks',
 		} ).then( setHooks );
+		apiFetch< { hooks: Record< string, string >; groups: Record< string, string > } >( {
+			path: '/newspack/v1/wizard/newspack-status/labels',
+		} ).then( setLabels );
 	}, [] );
 
-	const groupOptions = useMemo( () => groups.map( g => ( { value: g, label: g } ) ), [ groups ] );
-	const hookOptions = useMemo( () => hooks.map( h => ( { value: h, label: h } ) ), [ hooks ] );
+	const groupOptions = useMemo( () => groups.map( g => ( { value: g, label: labels.groups[ g ] || g } ) ), [ groups, labels ] );
+	const hookOptions = useMemo( () => hooks.map( h => ( { value: h, label: labels.hooks[ h ] || h } ) ), [ hooks, labels ] );
 
-	// Fetch actions when view changes.
-	const fetchActions = useCallback(
-		( silent = false ) => {
-			if ( ! silent ) {
-				setIsLoading( true );
-			}
+	// Keep a ref to the latest view so fetchActions can read it without being recreated.
+	const viewRef = useRef( view );
+	viewRef.current = view;
 
-			const params = new URLSearchParams( {
-				per_page: String( view.perPage || 20 ),
-				page: String( view.page || 1 ),
-			} );
+	// Stable fetch function that reads from viewRef.
+	const fetchActions = useCallback( ( silent = false ) => {
+		const currentView = viewRef.current;
+		if ( ! silent ) {
+			setIsLoading( true );
+		}
 
-			if ( view.sort?.field ) {
-				const orderbyMap: Record< string, string > = {
-					scheduled: 'scheduled_date_gmt',
-					hook: 'hook',
-					status: 'status',
-					id: 'action_id',
-				};
-				params.set( 'orderby', orderbyMap[ view.sort.field ] || 'scheduled_date_gmt' );
-				params.set( 'order', view.sort.direction?.toUpperCase() || 'DESC' );
-			}
+		const params = new URLSearchParams( {
+			per_page: String( currentView.perPage || 20 ),
+			page: String( currentView.page || 1 ),
+		} );
 
-			if ( view.search ) {
-				params.set( 'search', view.search );
-			}
+		if ( currentView.sort?.field ) {
+			const orderbyMap: Record< string, string > = {
+				scheduled: 'scheduled_date_gmt',
+				hook: 'hook',
+				status: 'status',
+				id: 'action_id',
+			};
+			params.set( 'orderby', orderbyMap[ currentView.sort.field ] || 'scheduled_date_gmt' );
+			params.set( 'order', currentView.sort.direction?.toUpperCase() || 'DESC' );
+		}
 
-			if ( view.filters ) {
-				for ( const filter of view.filters ) {
-					if ( filter.field === 'scheduled' && filter.operator && filter.value ) {
-						params.set( 'scheduled_op', filter.operator );
-						params.set( 'scheduled_value', JSON.stringify( filter.value ) );
-						continue;
-					}
-					const val = typeof filter.value === 'string' ? filter.value : '';
-					if ( filter.field === 'status' && val ) {
-						params.set( 'status', val );
-					}
-					if ( filter.field === 'group' && val ) {
-						params.set( 'group', val );
-					}
-					if ( filter.field === 'hook' && val ) {
-						params.set( 'hook', val );
-					}
+		if ( currentView.search ) {
+			params.set( 'search', currentView.search );
+		}
+
+		if ( currentView.filters ) {
+			for ( const filter of currentView.filters ) {
+				if ( filter.field === 'scheduled' && filter.operator && filter.value ) {
+					params.set( 'scheduled_op', filter.operator );
+					params.set( 'scheduled_value', JSON.stringify( filter.value ) );
+					continue;
+				}
+				const val = typeof filter.value === 'string' ? filter.value : '';
+				if ( filter.field === 'status' && val ) {
+					params.set( 'status', val );
+				}
+				if ( filter.field === 'group' && val ) {
+					params.set( 'group', val );
+				}
+				if ( filter.field === 'hook' && val ) {
+					params.set( 'hook', val );
 				}
 			}
+		}
 
-			apiFetch< ActionsResponse >( {
-				path: `/newspack/v1/wizard/newspack-status/actions?${ params.toString() }`,
+		apiFetch< ActionsResponse >( {
+			path: `/newspack/v1/wizard/newspack-status/actions?${ params.toString() }`,
+		} )
+			.then( response => {
+				setData( response.actions );
+				setTotalItems( response.total );
+				setTotalPages( response.total_pages );
 			} )
-				.then( response => {
-					setData( response.actions );
-					setTotalItems( response.total );
-					setTotalPages( response.total_pages );
-				} )
-				.finally( () => {
-					if ( ! silent ) {
-						setIsLoading( false );
-					}
-				} );
-		},
-		[ view ]
-	);
-
-	useEffect( () => {
-		fetchActions();
-	}, [ fetchActions ] );
+			.finally( () => {
+				if ( ! silent ) {
+					setIsLoading( false );
+				}
+			} );
+	}, [] );
 
 	const fetchRef = useRef( fetchActions );
 	fetchRef.current = fetchActions;
+
+	// Serialize view properties that should trigger an immediate fetch (excluding search).
+	const viewKey = JSON.stringify( {
+		perPage: view.perPage,
+		page: view.page,
+		sort: view.sort,
+		filters: view.filters,
+	} );
+
+	// Fetch immediately when non-search view properties change.
+	useEffect( () => {
+		fetchActions();
+	}, [ viewKey ] ); // eslint-disable-line react-hooks/exhaustive-deps
+
+	// Debounce search changes.
+	const debounceRef = useRef< ReturnType< typeof setTimeout > >();
+	useEffect( () => {
+		debounceRef.current = setTimeout( () => fetchActions(), 300 );
+		return () => clearTimeout( debounceRef.current );
+	}, [ view.search ] ); // eslint-disable-line react-hooks/exhaustive-deps
 
 	const fields: Field< ScheduledAction >[] = useMemo(
 		() => [
@@ -347,7 +472,16 @@ function Status() {
 					operators: [ 'is' as const ],
 					isPrimary: true,
 				},
-				render: ( { item } ) => <code style={ { fontSize: '12px' } }>{ item.hook }</code>,
+				render: ( { item } ) => {
+					const hookLabel = labels.hooks[ item.hook ];
+					return hookLabel ? (
+						<span title={ item.hook } style={ { fontSize: '12px' } }>
+							{ hookLabel }
+						</span>
+					) : (
+						<code style={ { fontSize: '12px' } }>{ item.hook }</code>
+					);
+				},
 			},
 			{
 				id: 'status',
@@ -369,7 +503,16 @@ function Status() {
 					operators: [ 'is' as const ],
 					isPrimary: true,
 				},
-				render: ( { item } ) => <code style={ { fontSize: '12px' } }>{ item.group }</code>,
+				render: ( { item } ) => {
+					const groupLabel = labels.groups[ item.group ];
+					return groupLabel ? (
+						<span title={ item.group } style={ { fontSize: '12px' } }>
+							{ groupLabel }
+						</span>
+					) : (
+						<code style={ { fontSize: '12px' } }>{ item.group }</code>
+					);
+				},
 			},
 			{
 				id: 'scheduled',
@@ -404,48 +547,20 @@ function Status() {
 				},
 			},
 			{
-				id: 'retry',
-				label: __( 'Retry', 'newspack-plugin' ),
+				id: 'details',
+				label: __( 'Details', 'newspack-plugin' ),
 				enableSorting: false,
 				enableHiding: true,
 				render: ( { item } ) => {
-					const retryCount = getActionArg( item, 'retry_count' );
-					const maxRetries = getActionArg( item, 'max_retries' );
-					if ( ! retryCount ) {
+					const details = getDetails( item );
+					if ( ! details ) {
 						return <em>{ __( 'N/A', 'newspack-plugin' ) }</em>;
 					}
-					return <span style={ { fontSize: '12px' } }>{ `${ retryCount }/${ maxRetries ?? '?' }` }</span>;
-				},
-			},
-			{
-				id: 'reason',
-				label: __( 'Reason', 'newspack-plugin' ),
-				enableSorting: false,
-				enableHiding: true,
-				render: ( { item } ) => {
-					const reason = getActionArg( item, 'reason' );
-					if ( ! reason ) {
-						return <em>{ __( 'N/A', 'newspack-plugin' ) }</em>;
-					}
-					return (
-						<span
-							style={ {
-								fontSize: '11px',
-								maxWidth: '300px',
-								overflow: 'hidden',
-								textOverflow: 'ellipsis',
-								whiteSpace: 'nowrap',
-								display: 'block',
-							} }
-							title={ reason }
-						>
-							{ reason }
-						</span>
-					);
+					return <span style={ { fontSize: '11px' } }>{ details }</span>;
 				},
 			},
 		],
-		[ groupOptions, hookOptions ]
+		[ groupOptions, hookOptions, labels ]
 	);
 
 	const actions: Action< ScheduledAction >[] = useMemo(
@@ -651,31 +766,24 @@ function Status() {
 	);
 
 	const paginationInfo = useMemo( () => ( { totalItems, totalPages } ), [ totalItems, totalPages ] );
-
-	const wizardSections = [
-		{
-			path: '/',
-			render: () => (
-				<DataViews
-					data={ data }
-					fields={ fields }
-					view={ view }
-					onChangeView={ setView }
-					actions={ actions }
-					paginationInfo={ paginationInfo }
-					defaultLayouts={ defaultLayouts }
-					isLoading={ isLoading }
-					getItemId={ ( item: ScheduledAction ) => String( item.id ) }
-					search
-				/>
-			),
-		},
-	];
+	const getItemId = useCallback( ( item: ScheduledAction ) => String( item.id ), [] );
 
 	return (
 		<>
 			<GlobalNotices />
-			<Wizard headerText={ __( 'Newspack / Status', 'newspack-plugin' ) } sections={ wizardSections } />
+			<Wizard headerText={ __( 'Newspack / Status', 'newspack-plugin' ) } sections={ WIZARD_SECTIONS } />
+			<DataViews
+				data={ data }
+				fields={ fields }
+				view={ view }
+				onChangeView={ setView }
+				actions={ actions }
+				paginationInfo={ paginationInfo }
+				defaultLayouts={ defaultLayouts }
+				isLoading={ isLoading }
+				getItemId={ getItemId }
+				search
+			/>
 		</>
 	);
 }

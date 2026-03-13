@@ -116,6 +116,13 @@ class Action_Scheduler {
 			$where_clauses .= 'AND a.hook = %s ';
 			$prepare_args[] = $args['hook'];
 		}
+		if ( ! empty( $args['search'] ) ) {
+			$like            = '%' . $wpdb->esc_like( $args['search'] ) . '%';
+			$where_clauses  .= 'AND (a.hook LIKE %s OR a.args LIKE %s OR a.extended_args LIKE %s) ';
+			$prepare_args[]  = $like;
+			$prepare_args[]  = $like;
+			$prepare_args[]  = $like;
+		}
 		if ( ! empty( $args['scheduled_op'] ) && ! empty( $args['scheduled_value'] ) ) {
 			list( $date_clause, $date_args ) = self::build_date_clause( $args['scheduled_op'], $args['scheduled_value'] );
 			$where_clauses .= $date_clause;
@@ -180,6 +187,13 @@ class Action_Scheduler {
 		if ( ! empty( $args['hook'] ) ) {
 			$where_clauses .= 'AND a.hook = %s ';
 			$prepare_args[] = $args['hook'];
+		}
+		if ( ! empty( $args['search'] ) ) {
+			$like            = '%' . $wpdb->esc_like( $args['search'] ) . '%';
+			$where_clauses  .= 'AND (a.hook LIKE %s OR a.args LIKE %s OR a.extended_args LIKE %s) ';
+			$prepare_args[]  = $like;
+			$prepare_args[]  = $like;
+			$prepare_args[]  = $like;
 		}
 		if ( ! empty( $args['scheduled_op'] ) && ! empty( $args['scheduled_value'] ) ) {
 			list( $date_clause, $date_args ) = self::build_date_clause( $args['scheduled_op'], $args['scheduled_value'] );

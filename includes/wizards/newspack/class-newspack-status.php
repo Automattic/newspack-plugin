@@ -146,6 +146,15 @@ class Newspack_Status extends Wizard {
 		);
 		register_rest_route(
 			NEWSPACK_API_NAMESPACE,
+			'wizard/' . $this->slug . '/labels',
+			[
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => [ $this, 'api_get_labels' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+			]
+		);
+		register_rest_route(
+			NEWSPACK_API_NAMESPACE,
 			'wizard/' . $this->slug . '/actions/(?P<id>\d+)/retries',
 			[
 				'methods'             => WP_REST_Server::READABLE,
@@ -350,6 +359,20 @@ class Newspack_Status extends Wizard {
 	 */
 	public function api_get_hooks() {
 		return new \WP_REST_Response( Action_Scheduler::get_hooks() );
+	}
+
+	/**
+	 * Get labels for hooks and groups.
+	 *
+	 * @return \WP_REST_Response
+	 */
+	public function api_get_labels() {
+		return new \WP_REST_Response(
+			[
+				'hooks'  => Action_Scheduler::get_hook_labels(),
+				'groups' => Action_Scheduler::get_group_labels(),
+			]
+		);
 	}
 
 	/**
