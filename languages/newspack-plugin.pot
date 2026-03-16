@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-03-12T20:48:32+00:00\n"
+"POT-Creation-Date: 2026-03-13T19:57:58+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: newspack-plugin\n"
@@ -3229,15 +3229,15 @@ msgid "Weekly"
 msgstr ""
 
 #: includes/plugins/woocommerce-subscriptions/class-woocommerce-subscriptions.php:201
-#: includes/plugins/woocommerce/class-woocommerce-connection.php:516
-#: includes/plugins/woocommerce/class-woocommerce-connection.php:610
+#: includes/plugins/woocommerce/class-woocommerce-connection.php:517
+#: includes/plugins/woocommerce/class-woocommerce-connection.php:611
 #: dist/audience-wizards.43b7bb91017a2011b357.js:52
 msgid "Monthly"
 msgstr ""
 
 #: includes/plugins/woocommerce-subscriptions/class-woocommerce-subscriptions.php:202
-#: includes/plugins/woocommerce/class-woocommerce-connection.php:517
-#: includes/plugins/woocommerce/class-woocommerce-connection.php:611
+#: includes/plugins/woocommerce/class-woocommerce-connection.php:518
+#: includes/plugins/woocommerce/class-woocommerce-connection.php:612
 msgid "Yearly"
 msgstr ""
 
@@ -3502,6 +3502,10 @@ msgstr ""
 msgid "Member limit reached. Please remove some members or increase the limit."
 msgstr ""
 
+#: includes/plugins/woocommerce/class-woocommerce-checkout.php:30
+msgid "Payment info"
+msgstr ""
+
 #. Translators: %s is the fee percentage.
 #: includes/plugins/woocommerce/class-woocommerce-cli.php:143
 #: includes/plugins/woocommerce/class-woocommerce-cover-fees.php:81
@@ -3509,35 +3513,35 @@ msgstr ""
 msgid "Transaction fee (%s)"
 msgstr ""
 
-#: includes/plugins/woocommerce/class-woocommerce-connection.php:246
+#: includes/plugins/woocommerce/class-woocommerce-connection.php:247
 #: includes/reader-activation/class-reader-activation.php:2615
 msgid "Please wait a moment before trying again."
 msgstr ""
 
-#: includes/plugins/woocommerce/class-woocommerce-connection.php:288
+#: includes/plugins/woocommerce/class-woocommerce-connection.php:289
 msgid "Please wait a moment before trying to complete this transaction again."
 msgstr ""
 
-#: includes/plugins/woocommerce/class-woocommerce-connection.php:299
+#: includes/plugins/woocommerce/class-woocommerce-connection.php:300
 #: includes/plugins/woocommerce/my-account/class-woocommerce-my-account.php:352
 msgid "Please wait a moment before trying to add a new payment method."
 msgstr ""
 
-#: includes/plugins/woocommerce/class-woocommerce-connection.php:356
+#: includes/plugins/woocommerce/class-woocommerce-connection.php:357
 msgid "The card will be automatically saved to your active subscriptions and set as your default payment method."
 msgstr ""
 
-#: includes/plugins/woocommerce/class-woocommerce-connection.php:546
-#: includes/plugins/woocommerce/class-woocommerce-connection.php:642
+#: includes/plugins/woocommerce/class-woocommerce-connection.php:547
+#: includes/plugins/woocommerce/class-woocommerce-connection.php:643
 msgid "One-time"
 msgstr ""
 
-#: includes/plugins/woocommerce/class-woocommerce-connection.php:562
+#: includes/plugins/woocommerce/class-woocommerce-connection.php:563
 #: dist/newspack-wizards.a6298c3ddc087726381d.js:28
 msgid "Card"
 msgstr ""
 
-#: includes/plugins/woocommerce/class-woocommerce-connection.php:566
+#: includes/plugins/woocommerce/class-woocommerce-connection.php:567
 #: includes/reader-activation/class-reader-activation.php:306
 #: src/blocks/my-account-button/class-my-account-button-block.php:94
 #: src/blocks/reader-registration/index.php:239
@@ -3546,32 +3550,32 @@ msgstr ""
 msgid "My Account"
 msgstr ""
 
-#: includes/plugins/woocommerce/class-woocommerce-connection.php:654
+#: includes/plugins/woocommerce/class-woocommerce-connection.php:655
 msgid "Restart Donation"
 msgstr ""
 
-#: includes/plugins/woocommerce/class-woocommerce-connection.php:654
+#: includes/plugins/woocommerce/class-woocommerce-connection.php:655
 msgid "Restart Subscription"
 msgstr ""
 
-#: includes/plugins/woocommerce/class-woocommerce-connection.php:662
+#: includes/plugins/woocommerce/class-woocommerce-connection.php:663
 msgid "Donation Cancelled"
 msgstr ""
 
-#: includes/plugins/woocommerce/class-woocommerce-connection.php:662
+#: includes/plugins/woocommerce/class-woocommerce-connection.php:663
 msgid "Subscription Cancelled"
 msgstr ""
 
-#: includes/plugins/woocommerce/class-woocommerce-connection.php:666
+#: includes/plugins/woocommerce/class-woocommerce-connection.php:667
 msgid "recurring donation"
 msgstr ""
 
-#: includes/plugins/woocommerce/class-woocommerce-connection.php:666
+#: includes/plugins/woocommerce/class-woocommerce-connection.php:667
 msgid "subscription"
 msgstr ""
 
 #. Translators: %s is the user's billing first and last name – or company name.
-#: includes/plugins/woocommerce/class-woocommerce-connection.php:921
+#: includes/plugins/woocommerce/class-woocommerce-connection.php:922
 #, php-format
 msgid "%s's Team"
 msgstr ""

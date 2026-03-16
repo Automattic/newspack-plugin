@@ -1,3 +1,45 @@
+# [6.35.0](https://github.com/Automattic/newspack-plugin/compare/v6.34.4...v6.35.0) (2026-03-16)
+
+
+### Bug Fixes
+
+* allow deletion of payment method for Braintree ([63ceec3](https://github.com/Automattic/newspack-plugin/commit/63ceec3b6dfcc74cb11bb685b9dd17ff404144d8))
+* apply Copilot suggestion for tests ([6133636](https://github.com/Automattic/newspack-plugin/commit/6133636efaeaaf34c9a4605ae4bd47ca416de7db))
+* **avatar:** correct duotone selector to support custom colors ([#4513](https://github.com/Automattic/newspack-plugin/issues/4513)) ([c4458d4](https://github.com/Automattic/newspack-plugin/commit/c4458d411c17c48ff713fe0669f345f735a1e4ba))
+* **byline:** update placeholder text to "Author Name" ([#4510](https://github.com/Automattic/newspack-plugin/issues/4510)) ([727b1e8](https://github.com/Automattic/newspack-plugin/commit/727b1e88d2aaf55b6eac48ddb42ee39378358d0a))
+* **co-authors-plus:** sanitize user_login before building dummy email… ([#4520](https://github.com/Automattic/newspack-plugin/issues/4520)) ([32c2602](https://github.com/Automattic/newspack-plugin/commit/32c26026ffad3417d3c97314716cbd083ffe81f3))
+* do not depend on _get() to return an array ([2816470](https://github.com/Automattic/newspack-plugin/commit/28164704b0c3306e2065277eafd29d8893362912))
+* **dropdown-menu:** avoid overflow at bottom of viewport ([#4495](https://github.com/Automattic/newspack-plugin/issues/4495)) ([a5ce464](https://github.com/Automattic/newspack-plugin/commit/a5ce464d00ebda5598f36a5b31fcdfd73226c357))
+* enable payment method deletion for Braintree ([c50f094](https://github.com/Automattic/newspack-plugin/commit/c50f094805dd1d9389ccf4f890aeffb0b998320a))
+* iframe editor compatiblity ([#4444](https://github.com/Automattic/newspack-plugin/issues/4444)) ([12dfaba](https://github.com/Automattic/newspack-plugin/commit/12dfababdcb1d42678a25b17abe1f15587ab5c28))
+* **my-account:** don't show subscription payment notice in modal checkout ([#4500](https://github.com/Automattic/newspack-plugin/issues/4500)) ([2cb3324](https://github.com/Automattic/newspack-plugin/commit/2cb3324cdf5592fa4b51fac11573d85be3b4adab))
+* **my-account:** force white background color ([#4514](https://github.com/Automattic/newspack-plugin/issues/4514)) ([02e2555](https://github.com/Automattic/newspack-plugin/commit/02e2555eb9b714268314fac5703d7a4a2306594b))
+* **my-account:** resubscription validation in order-again template ([#4498](https://github.com/Automattic/newspack-plugin/issues/4498)) ([36871fc](https://github.com/Automattic/newspack-plugin/commit/36871fc47db8f99b29912eea3b201a106a623d14))
+* **newspack-icon:** background color ([#4516](https://github.com/Automattic/newspack-plugin/issues/4516)) ([8c5dc9c](https://github.com/Automattic/newspack-plugin/commit/8c5dc9c3017b6095b7d82abefe15dcfa62f21e66))
+* **newspack-ui:** remove overflow when modal is open ([#4515](https://github.com/Automattic/newspack-plugin/issues/4515)) ([0b2cbd3](https://github.com/Automattic/newspack-plugin/commit/0b2cbd31d397252d2bcb635048d0b8b2f16515b6))
+* prune read-only keys from sync queue ([bf81734](https://github.com/Automattic/newspack-plugin/commit/bf817349e0c62857ff0e165419f340d56b51f182))
+* remove unused 'edit' and 'save' actions from Braintree payment methods ([8f72a8d](https://github.com/Automattic/newspack-plugin/commit/8f72a8dc4c38a02dadd5263d3814b360468a8161))
+* **snackbar:** autohide progress bar not always appearing ([#4504](https://github.com/Automattic/newspack-plugin/issues/4504)) ([4eda60f](https://github.com/Automattic/newspack-plugin/commit/4eda60f8cc3df7492505e04dbbef2bbd2c68d109))
+
+
+### Features
+
+*  identify and enforce read-only items for Reader Data Library ([4f2ef8a](https://github.com/Automattic/newspack-plugin/commit/4f2ef8a7e6054bf352ed349f2c828b0f40686df8))
+* add featured image caption block ([#4519](https://github.com/Automattic/newspack-plugin/issues/4519)) ([0b744ff](https://github.com/Automattic/newspack-plugin/commit/0b744ffbfc9e3d1be6c3318038e3ab3517c6e222))
+* **author-profile:** avatar and social blocks for nested author profile ([#4448](https://github.com/Automattic/newspack-plugin/issues/4448)) ([cff670b](https://github.com/Automattic/newspack-plugin/commit/cff670ba928adb5967989dcee53bc69db6a2a4e1))
+* **content-gate:** comment restriction with metering support ([#4529](https://github.com/Automattic/newspack-plugin/issues/4529)) ([714c8b7](https://github.com/Automattic/newspack-plugin/commit/714c8b79f66a83f099a906d829833c3118ba2dee))
+* **content-gate:** per-post access control exemption ([#4530](https://github.com/Automattic/newspack-plugin/issues/4530)) ([636679b](https://github.com/Automattic/newspack-plugin/commit/636679b8deace53d79980e3ee7174a8a531ee724))
+* **content-gate:** user access information ([#4542](https://github.com/Automattic/newspack-plugin/issues/4542)) ([b49347e](https://github.com/Automattic/newspack-plugin/commit/b49347e4ee769f9cdb76049f63484ac5c822e567))
+* **content-gating:** group subscription invitations data structure + admin UI ([#4536](https://github.com/Automattic/newspack-plugin/issues/4536)) ([e609e83](https://github.com/Automattic/newspack-plugin/commit/e609e83304bdcbcafefea02bd743652869d0fd81))
+* **content-gating:** i3 designs for content gates list view ([#4512](https://github.com/Automattic/newspack-plugin/issues/4512)) ([dcbb239](https://github.com/Automattic/newspack-plugin/commit/dcbb2398ef0437f1e92270569b22345149623b9b))
+* **corrections:** append corrections to Republication Tracker Tool content ([#4501](https://github.com/Automattic/newspack-plugin/issues/4501)) ([71bd177](https://github.com/Automattic/newspack-plugin/commit/71bd1771a5c4c9b74032e105d6a40e9e537872f9))
+* data event handler registration and dispatching to integrations ([#4481](https://github.com/Automattic/newspack-plugin/issues/4481)) ([7c79da6](https://github.com/Automattic/newspack-plugin/commit/7c79da6930997c5918f895fe8c5c64319f837b9f))
+* **data-events:** add ActionScheduler logging and retry reason ([#4488](https://github.com/Automattic/newspack-plugin/issues/4488)) ([e8af964](https://github.com/Automattic/newspack-plugin/commit/e8af9647005169978f259b6fefc48746921a57b1))
+* **integrations:** make sure contact data is read from persistent data ([#4505](https://github.com/Automattic/newspack-plugin/issues/4505)) ([c2ee26a](https://github.com/Automattic/newspack-plugin/commit/c2ee26a30de06db2036457be175fff3792193282))
+* **integrations:** start get fields abstraction and pull contact data ([#4470](https://github.com/Automattic/newspack-plugin/issues/4470)) ([8ddcf23](https://github.com/Automattic/newspack-plugin/commit/8ddcf23b8c0a930984f90e3d23d7aa99768f1661)), closes [#4477](https://github.com/Automattic/newspack-plugin/issues/4477)
+* **reader-registration-block:** password, OTP, and verification flows ([#4452](https://github.com/Automattic/newspack-plugin/issues/4452)) ([fc4567e](https://github.com/Automattic/newspack-plugin/commit/fc4567e61ab70b538bc239c9da3078837ef756db))
+* reject changes to specific reader data keys ([fe52e12](https://github.com/Automattic/newspack-plugin/commit/fe52e12c0ef6a14424c14211628c94b2adf1835e))
+
 ## [6.34.4](https://github.com/Automattic/newspack-plugin/compare/v6.34.3...v6.34.4) (2026-03-11)
 
 
