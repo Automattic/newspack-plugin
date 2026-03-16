@@ -147,6 +147,13 @@ class Contact_Sync extends Sync {
 		$user    = ! empty( $contact['email'] ) ? \get_user_by( 'email', $contact['email'] ) : false;
 		$user_id = $user ? $user->ID : 0;
 
+		// Preserve the previous email for retry when the contact's email has changed
+		// (e.g. Email_Change context) so integrations can upsert against the old address.
+		$previous_email = '';
+		if ( ! empty( $existing_contact['email'] ) && $existing_contact['email'] !== $contact['email'] ) {
+			$previous_email = $existing_contact['email'];
+		}
+
 		foreach ( $integrations as $integration_id => $integration ) {
 			$result = $integration->push_contact_data( $contact, $context, $existing_contact );
 			if ( \is_wp_error( $result ) ) {
@@ -173,7 +180,7 @@ class Contact_Sync extends Sync {
 						'reason'         => $result->get_error_message(),
 					]
 				);
-				self::schedule_integration_retry( $integration_id, $user_id, $context, 0, $result );
+				self::schedule_integration_retry( $integration_id, $user_id, $context, 0, $result, $previous_email );
 				$errors[] = sprintf( '[%s] %s', $integration_id, $result->get_error_message() );
 				if ( self::$current_as_action_id ) {
 					\ActionScheduler_Logger::instance()->log(
@@ -204,8 +211,9 @@ class Contact_Sync extends Sync {
 	 * @param string           $context        The sync context.
 	 * @param int              $retry_count    Current retry count (0 = first failure).
 	 * @param string|\WP_Error $error          The error from the failure.
+	 * @param string           $previous_email Optional. Previous email for email-change retries.
 	 */
-	private static function schedule_integration_retry( $integration_id, $user_id, $context, $retry_count, $error ) {
+	private static function schedule_integration_retry( $integration_id, $user_id, $context, $retry_count, $error, $previous_email = '' ) {
 		if ( ! function_exists( 'as_schedule_single_action' ) ) {
 			return;
 		}
@@ -273,6 +281,7 @@ class Contact_Sync extends Sync {
 			'retry_count'    => $next_retry,
 			'max_retries'    => self::MAX_RETRIES,
 			'reason'         => $error_message,
+			'previous_email' => $previous_email,
 		];
 
 		\as_schedule_single_action(
@@ -313,6 +322,7 @@ class Contact_Sync extends Sync {
 		$user_id        = $retry_data['user_id'];
 		$context        = $retry_data['context'] ?? static::$context;
 		$retry_count    = $retry_data['retry_count'] ?? 1;
+		$previous_email = $retry_data['previous_email'] ?? '';
 
 		$user = \get_userdata( $user_id );
 		if ( ! $user ) {
@@ -342,7 +352,14 @@ class Contact_Sync extends Sync {
 		$contact = \apply_filters( 'newspack_esp_sync_contact', $contact, $context );
 		$contact = Sync\Metadata::normalize_contact_data( $contact );
 
-		$result = $integration->push_contact_data( $contact, $context );
+		// Reconstruct existing_contact for email-change retries so integrations
+		// can upsert against the previous email address.
+		$existing_contact = null;
+		if ( ! empty( $previous_email ) ) {
+			$existing_contact = array_merge( $contact, [ 'email' => $previous_email ] );
+		}
+
+		$result = $integration->push_contact_data( $contact, $context, $existing_contact );
 		if ( \is_wp_error( $result ) ) {
 			$error_messages = implode( '; ', $result->get_error_messages() );
 			static::log(
@@ -360,7 +377,8 @@ class Contact_Sync extends Sync {
 				$user_id,
 				$context,
 				$retry_count,
-				$result
+				$result,
+				$previous_email
 			);
 			$error_message = sprintf(
 				'Retry %d/%d failed for integration "%s" sync of user %d (%s): %s',
