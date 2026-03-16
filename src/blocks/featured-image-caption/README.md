@@ -8,7 +8,7 @@ The block reads the current post's featured image and combines its caption with 
 
 ## Photo credit integration
 
-When a featured image contains credit metadata, the block appends a formatted credit string after the caption. The credit line follows the pattern `Credit: Name` or `Credit: Name / Organization` when an organization is also set.
+When a featured image contains credit metadata, the block appends a formatted credit string after the caption. The exact wording and markup of this credit line (typically including a creator name and optional organization) is determined by `Newspack_Image_Credits::get_media_credit_string()` and its configuration, and may include HTML elements or links.
 
 In the editor, credit data is read from the media object's `_media_credit` and `_navis_media_credit_org` meta fields. On the front end, credit rendering is delegated to `Newspack_Image_Credits::get_media_credit_string()`.
 
