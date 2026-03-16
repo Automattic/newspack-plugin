@@ -489,8 +489,10 @@ class Metering {
 		if ( ! $post_id ) {
 			$post_id = get_the_ID();
 		}
-		$gate_post_id = Content_Gate::get_gate_post_id( $post_id );
-		$settings     = self::get_metering_settings( $gate_post_id );
+		$gate_post_id         = Content_Gate::get_gate_post_id( $post_id );
+		$anonymous_settings   = self::get_anonymous_settings( $gate_post_id );
+		$registered_settings  = self::get_registered_settings( $gate_post_id );
+		$settings = $anonymous_settings['enabled'] ? $anonymous_settings : $registered_settings;
 		return $settings['period'];
 	}
 
