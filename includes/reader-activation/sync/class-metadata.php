@@ -74,7 +74,7 @@ class Metadata {
 	 *
 	 * @return string
 	 */
-	protected static function get_version() {
+	public static function get_version() {
 		if ( defined( 'NEWSPACK_SYNC_METADATA_VERSION' ) ) {
 			return NEWSPACK_SYNC_METADATA_VERSION;
 		}

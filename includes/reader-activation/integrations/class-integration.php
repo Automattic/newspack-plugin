@@ -425,6 +425,40 @@ abstract class Integration {
 	}
 
 	/**
+	 * Prepare contact data for this integration by filtering to enabled
+	 * outgoing fields and adding the metadata prefix.
+	 *
+	 * In legacy mode, metadata classes already return filtered and prefixed
+	 * data, so the contact is returned unchanged.
+	 *
+	 * @param array $contact Contact data with raw metadata keys.
+	 * @return array Contact data with filtered, prefixed metadata.
+	 */
+	public function prepare_contact( $contact ) {
+		if ( 'legacy' === Sync\Metadata::get_version() ) {
+			return $contact;
+		}
+
+		if ( empty( $contact['metadata'] ) ) {
+			return $contact;
+		}
+
+		$enabled_fields = $this->get_enabled_outgoing_fields();
+		$prefix         = $this->get_metadata_prefix();
+		$keys_map       = Sync\Metadata::get_keys();
+		$prepared       = [];
+
+		foreach ( $contact['metadata'] as $raw_key => $value ) {
+			if ( isset( $keys_map[ $raw_key ] ) && in_array( $keys_map[ $raw_key ], $enabled_fields, true ) ) {
+				$prepared[ $prefix . $keys_map[ $raw_key ] ] = $value;
+			}
+		}
+
+		$contact['metadata'] = $prepared;
+		return $contact;
+	}
+
+	/**
 	 * Update the metadata prefix for this integration.
 	 *
 	 * @param string $prefix The new prefix value.

@@ -141,7 +141,8 @@ class Contact_Sync extends Sync {
 		$errors       = [];
 
 		foreach ( $integrations as $integration_id => $integration ) {
-			$result = $integration->push_contact_data( $contact, $context, $existing_contact );
+			$integration_contact = $integration->prepare_contact( $contact );
+			$result              = $integration->push_contact_data( $integration_contact, $context, $existing_contact );
 			if ( \is_wp_error( $result ) ) {
 				/**
 				 * Fires when a contact sync fails on the original attempt (before retries).
