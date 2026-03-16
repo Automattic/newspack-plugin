@@ -68,7 +68,7 @@ class Block_Patterns {
 	 * Register block patterns.
 	 */
 	public static function register_block_patterns() {
-		\register_block_pattern_category( 'newspack-content-gate', [ 'label' => __( 'Newspack Content Gate', 'newspack' ) ] );
+		\register_block_pattern_category( 'newspack-content-gate', [ 'label' => __( 'Newspack Access Control', 'newspack' ) ] );
 		$patterns = self::get_block_patterns();
 		foreach ( $patterns as $slug => $title ) {
 			$path = __DIR__ . '/block-patterns/' . $slug . '.php';
