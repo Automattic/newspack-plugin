@@ -124,6 +124,17 @@ class Post_Date {
 			if ( ! self::should_display_updated_date( $post_id ) ) {
 				return '';
 			}
+			// Wrap the date text with a translatable "Updated %s" label.
+			$block_content = preg_replace_callback(
+				'/(<time[^>]*>)(.*?)(<\/time>)/s',
+				function ( $matches ) {
+					/* translators: %s: Modified date. */
+					$label = sprintf( __( 'Updated %s', 'newspack-plugin' ), $matches[2] );
+					return $matches[1] . $label . $matches[3];
+				},
+				$block_content,
+				1
+			);
 			return $block_content;
 		}
 
