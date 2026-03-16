@@ -19,18 +19,9 @@ if ( ! empty( $pattern_context['custom_access_settings']['metering'] ) ) {
 	}
 }
 
-// Extract the first subscription product ID from custom access rules, if available.
-$product_id = 0;
-if ( ! empty( $pattern_context['custom_access_settings']['access_rules'] ) ) {
-	foreach ( $pattern_context['custom_access_settings']['access_rules'] as $group ) {
-		foreach ( $group as $rule ) {
-			if ( 'subscription' === ( $rule['slug'] ?? '' ) && ! empty( $rule['value'] ) ) {
-				$product_id = absint( is_array( $rule['value'] ) ? reset( $rule['value'] ) : $rule['value'] );
-				break 2;
-			}
-		}
-	}
-}
+// Get the first purchasable subscription product from custom access rules, if available.
+$product_ids = \Newspack\Content_Gate\Access_Rules::get_subscription_product_ids( $pattern_context['custom_access_settings']['access_rules'] ?? [] );
+$product_id  = ! empty( $product_ids ) ? $product_ids[0] : 0;
 
 $checkout_attrs = [
 	'text'  => esc_html__( 'Become a member', 'newspack' ),
