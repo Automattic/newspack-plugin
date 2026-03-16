@@ -307,23 +307,20 @@ class Metadata {
 	 * @return array Contact array with 'email' and 'metadata' keys.
 	 */
 	public static function get_contact_with_metadata( $user_customer_or_order ) {
-		$classes   = self::get_metadata_classes();
-		$metadata  = [];
-		$email     = '';
-		$full_name = '';
+		$core_contact = new Contact_Metadata\Core_Contact( $user_customer_or_order );
+		$classes      = self::get_metadata_classes();
+		$metadata     = [];
 
 		foreach ( $classes as $class ) {
 			if ( $class::is_available() ) {
-				$instance  = new $class( $user_customer_or_order );
-				$metadata  = array_merge( $metadata, $instance->get_metadata() );
-				$email     = $instance->get_email();
-				$full_name = $instance->get_full_name();
+				$instance = new $class( $user_customer_or_order );
+				$metadata = array_merge( $metadata, $instance->get_metadata() );
 			}
 		}
 
 		return [
-			'email'    => $email,
-			'name'     => $full_name,
+			'email'    => $core_contact->get_email(),
+			'name'     => $core_contact->get_full_name(),
 			'metadata' => $metadata,
 		];
 	}
