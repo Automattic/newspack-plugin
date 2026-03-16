@@ -51,8 +51,7 @@ class Block_Patterns {
 	 */
 	public static function get_block_patterns() {
 		return [
-			'registration-card'          => __( 'Registration Card', 'newspack' ),
-			'registration-card-compact'  => __( 'Registration Card (Compact)', 'newspack' ),
+			'registration-banner'        => __( 'Registration Banner', 'newspack' ),
 			'registration-wall'          => __( 'Registration Wall', 'newspack' ),
 			'donation-wall'              => __( 'Donation Wall', 'newspack' ),
 			'pay-wall-one-tier'          => __( 'Paywall with One Tier', 'newspack' ),

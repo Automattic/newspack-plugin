@@ -1,6 +1,6 @@
 <?php
 /**
- * Memberships Registration Card (Compact) Pattern.
+ * Memberships Registration Banner Pattern.
  *
  * @package Newspack
  */
