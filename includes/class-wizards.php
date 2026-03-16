@@ -66,6 +66,7 @@ class Wizards {
 			'audience-campaigns'      => new Audience_Campaigns(),
 			'audience-content-gates'  => new Audience_Content_Gates(),
 			'audience-donations'      => new Audience_Donations(),
+			'audience-integrations'   => new Audience_Integrations(),
 			'listings'                => new Listings_Wizard(),
 			'network'                 => new Network_Wizard(),
 			'newsletters'             => new Newsletters_Wizard(),

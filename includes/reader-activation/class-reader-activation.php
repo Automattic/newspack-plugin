@@ -431,6 +431,13 @@ final class Reader_Activation {
 		if ( ! isset( $config[ $name ] ) ) {
 			return null;
 		}
+
+		// Route ESP settings to the integration.
+		$esp_setting = self::get_esp_integration_setting( $name );
+		if ( null !== $esp_setting ) {
+			return apply_filters( 'newspack_reader_activation_setting', $esp_setting, $name );
+		}
+
 		$value = \get_option( self::OPTIONS_PREFIX . $name, $config[ $name ] );
 
 		// Use default value type for casting bool option value.
@@ -438,6 +445,38 @@ final class Reader_Activation {
 			$value = (bool) $value;
 		}
 		return apply_filters( 'newspack_reader_activation_setting', $value, $name );
+	}
+
+	/**
+	 * Get an ESP setting value from the integration instance.
+	 *
+	 * @param string $name Setting name.
+	 * @return mixed|null The setting value, or null if this setting is not an ESP integration setting.
+	 */
+	private static function get_esp_integration_setting( $name ) {
+		static $esp_keys = [
+			'mailchimp_audience_id',
+			'mailchimp_reader_default_status',
+			'active_campaign_master_list',
+			'constant_contact_list_id',
+			'sync_esp_delete',
+			'sync_esp',
+		];
+
+		if ( ! in_array( $name, $esp_keys, true ) ) {
+			return null;
+		}
+
+		$esp = Reader_Activation\Integrations::get_integration( 'esp' );
+		if ( ! $esp ) {
+			return null;
+		}
+
+		if ( 'sync_esp' === $name ) {
+			return Reader_Activation\Integrations::is_enabled( 'esp' );
+		}
+
+		return $esp->get_settings_field_value( $name );
 	}
 
 	/**
@@ -470,6 +509,24 @@ final class Reader_Activation {
 		}
 		if ( 'metadata_fields' === $key ) {
 			return Sync\Metadata::update_fields( $value );
+		}
+
+		// Route sync_esp to the integration enabled state.
+		if ( 'sync_esp' === $key ) {
+			if ( $value ) {
+				Reader_Activation\Integrations::enable( 'esp' );
+			} else {
+				Reader_Activation\Integrations::disable( 'esp' );
+			}
+			// Also write to legacy option for backward compat with external hooks.
+			\update_option( self::OPTIONS_PREFIX . $key, $value );
+			return true;
+		}
+
+		// Route ESP settings to the integration.
+		$esp = Reader_Activation\Integrations::get_integration( 'esp' );
+		if ( $esp && null !== self::get_esp_integration_setting( $key ) ) {
+			return $esp->update_settings_field_value( $key, $value );
 		}
 
 		return \update_option( self::OPTIONS_PREFIX . $key, $value );

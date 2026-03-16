@@ -82,6 +82,13 @@
 				margin-top: 0;
 			}
 		}
+		.newspack-ui__dropdown {
+			* + button,
+			* + .button,
+			* + .woocommerce-Button {
+				margin: 0;
+			}
+		}
 		.newspack-ui__dropdown .newspack-ui__dropdown__toggle {
 			margin: 0;
 			padding: 0;

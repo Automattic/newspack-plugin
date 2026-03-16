@@ -10,6 +10,7 @@
 @use "forms";
 @use "addresses";
 @use "subscriptions";
+@use "group-subscriptions";
 
 .newspack-my-account {
 	&--logged-in {

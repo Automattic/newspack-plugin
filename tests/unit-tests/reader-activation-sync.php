@@ -64,8 +64,8 @@ class Newspack_Test_Reader_Activation_Sync extends WP_UnitTestCase {
 	 * Test specific ESP integration checks.
 	 */
 	public function test_esp_integration_checks() {
-
 		$esp_integration = new Integrations\ESP();
+		$esp_integration->init();
 		$errors = $esp_integration->can_sync( true );
 		$this->assertInstanceOf( 'WP_Error', $errors );
 		$this->assertTrue( $errors->has_errors() );
@@ -74,12 +74,13 @@ class Newspack_Test_Reader_Activation_Sync extends WP_UnitTestCase {
 		$this->assertContains( 'ras_esp_master_list_id_not_found', $error_codes, 'Missing master list ID' );
 
 		// Disable ESP sync.
-		Reader_Activation::update_setting( 'sync_esp', false );
+		Integrations::disable( 'esp' );
+		$esp_integration->update_settings_field_value( 'sync_esp', false );
 		$errors = $esp_integration->can_sync( true );
 		$this->assertContains( 'ras_esp_sync_not_enabled', $errors->get_error_codes(), 'RAS ESP Sync is disabled' );
 
 		// Reenable ESP sync.
-		Reader_Activation::update_setting( 'sync_esp', true );
+		Integrations::enable( 'esp' );
 
 		// Allow ESP sync via constant. We're not testing `Newspack_Manager::is_connected_to_production_manager()` here.
 		define( 'NEWSPACK_ALLOW_READER_SYNC', true );
@@ -87,8 +88,7 @@ class Newspack_Test_Reader_Activation_Sync extends WP_UnitTestCase {
 		$this->assertNotContains( 'esp_sync_not_allowed', $errors->get_error_codes(), 'RAS ESP Sync is allowed via constant' );
 
 		// Set master list ID.
-		update_option( 'newspack_newsletters_service_provider', 'mailchimp' );
-		Reader_Activation::update_setting( 'mailchimp_audience_id', '123' );
+		$esp_integration->update_settings_field_value( 'mailchimp_audience_id', '123' );
 		$errors = $esp_integration->can_sync( true );
 		$this->assertNotContains( 'ras_esp_master_list_id_not_found', $errors->get_error_codes(), 'Master list ID is set' );
 
@@ -148,7 +148,7 @@ class Newspack_Test_Reader_Activation_Sync extends WP_UnitTestCase {
 		);
 
 		// Clear from last test.
-		\delete_option( Sync\Metadata::PREFIX_OPTION );
+		Sync\Metadata::update_prefix( '' );
 
 		$contact_data_with_prefixed_keys['metadata']['NP_Invalid_Key'] = 'Invalid data';
 		$this->assertEquals(

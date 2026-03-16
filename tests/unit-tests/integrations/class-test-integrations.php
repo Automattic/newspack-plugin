@@ -281,36 +281,36 @@ class Test_Integrations extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * Test get_incoming_contact_fields returns empty array when no fields available.
+	 * Test get_available_incoming_contact_fields returns empty array when no fields available.
 	 */
-	public function test_get_incoming_contact_fields_empty() {
+	public function test_get_available_incoming_contact_fields_empty() {
 		$integration = new Sample_Integration( 'test-id', 'Test Integration' );
 		Integrations::register( $integration );
 
-		$fields = $integration->get_incoming_contact_fields();
+		$fields = $integration->get_available_incoming_contact_fields();
 
 		$this->assertIsArray( $fields );
 		$this->assertEmpty( $fields );
 	}
 
 	/**
-	 * Test get_incoming_contact_fields propagates WP_Error from get_incoming_available_contact_fields.
+	 * Test get_available_incoming_contact_fields propagates WP_Error from get_available_incoming_contact_fields.
 	 */
-	public function test_get_incoming_contact_fields_propagates_error() {
+	public function test_get_available_incoming_contact_fields_propagates_error() {
 		$integration = new class( 'error-test', 'Error Test' ) extends Sample_Integration {
 			/**
 			 * Get incoming available contact fields (returns error for test).
 			 *
 			 * @return \WP_Error
 			 */
-			public function get_incoming_available_contact_fields() {
+			public function get_available_incoming_contact_fields() {
 				return new \WP_Error( 'test_error', 'Test error message' );
 			}
 		};
 
 		Integrations::register( $integration );
 
-		$result = $integration->get_incoming_contact_fields();
+		$result = $integration->get_available_incoming_contact_fields();
 
 		$this->assertWPError( $result );
 		$this->assertEquals( 'test_error', $result->get_error_code() );
@@ -318,36 +318,36 @@ class Test_Integrations extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * Test get_selected_fields returns empty array by default.
+	 * Test get_incoming_fields returns empty array by default.
 	 */
-	public function test_get_selected_fields_default_empty() {
+	public function test_get_incoming_fields_default_empty() {
 		$integration = new Sample_Integration( 'test-id', 'Test Integration' );
 
-		$this->assertSame( [], $integration->get_selected_fields() );
+		$this->assertSame( [], $integration->get_enabled_incoming_fields() );
 	}
 
 	/**
-	 * Test set_selected_fields and get_selected_fields round-trip.
+	 * Test update_incoming_fields and get_incoming_fields round-trip.
 	 */
-	public function test_set_and_get_selected_fields() {
+	public function test_set_and_get_enabled_incoming_fields() {
 		$integration = new Sample_Integration( 'test-id', 'Test Integration' );
 		$fields      = [ 'first_name', 'last_name', 'phone' ];
 
-		$integration->set_selected_fields( $fields );
+		$integration->update_enabled_incoming_fields( $fields );
 
-		$this->assertSame( $fields, $integration->get_selected_fields() );
+		$this->assertSame( $fields, $integration->get_enabled_incoming_fields() );
 	}
 
 	/**
-	 * Test set_selected_fields stores any keys without validation.
+	 * Test update_incoming_fields stores any keys without validation.
 	 */
-	public function test_set_selected_fields_stores_any_keys() {
+	public function test_update_incoming_fields_stores_any_keys() {
 		$integration = new Sample_Integration( 'test-id', 'Test Integration' );
 		$fields      = [ 'nonexistent_field', 'another_unknown' ];
 
-		$integration->set_selected_fields( $fields );
+		$integration->update_enabled_incoming_fields( $fields );
 
-		$this->assertSame( $fields, $integration->get_selected_fields() );
+		$this->assertSame( $fields, $integration->get_enabled_incoming_fields() );
 	}
 
 	/**
@@ -403,7 +403,7 @@ class Test_Integrations extends \WP_UnitTestCase {
 			}
 		};
 
-		$integration->set_selected_fields( [ 'favorite_color' ] );
+		$integration->update_enabled_incoming_fields( [ 'favorite_color' ] );
 		Integrations::register( $integration );
 		Integrations::enable( 'pull-test' );
 
@@ -422,7 +422,7 @@ class Test_Integrations extends \WP_UnitTestCase {
 	/**
 	 * Test sync pull filters returned data by selected fields only.
 	 */
-	public function test_sync_pull_filters_by_selected_fields() {
+	public function test_sync_pull_filters_by_incoming_fields() {
 		$user_id = $this->factory()->user->create();
 		wp_set_current_user( $user_id );
 
@@ -445,7 +445,7 @@ class Test_Integrations extends \WP_UnitTestCase {
 		};
 
 		// Only select fields a and c.
-		$integration->set_selected_fields( [ 'field_a', 'field_c' ] );
+		$integration->update_enabled_incoming_fields( [ 'field_a', 'field_c' ] );
 		Integrations::register( $integration );
 		Integrations::enable( 'filter-test' );
 
@@ -481,7 +481,7 @@ class Test_Integrations extends \WP_UnitTestCase {
 			}
 		};
 
-		$integration->set_selected_fields( [ 'some_field' ] );
+		$integration->update_enabled_incoming_fields( [ 'some_field' ] );
 		Integrations::register( $integration );
 		Integrations::enable( 'throw-test' );
 
@@ -516,7 +516,7 @@ class Test_Integrations extends \WP_UnitTestCase {
 			}
 		};
 
-		$integration->set_selected_fields( [ 'city' ] );
+		$integration->update_enabled_incoming_fields( [ 'city' ] );
 		Integrations::register( $integration );
 		Integrations::enable( 'async-test' );
 
@@ -554,7 +554,7 @@ class Test_Integrations extends \WP_UnitTestCase {
 			}
 		};
 
-		$integration->set_selected_fields( [ 'language' ] );
+		$integration->update_enabled_incoming_fields( [ 'language' ] );
 		Integrations::register( $integration );
 		Integrations::enable( 'handle-test' );
 
@@ -587,7 +587,7 @@ class Test_Integrations extends \WP_UnitTestCase {
 			}
 		};
 
-		$integration->set_selected_fields( [ 'pet' ] );
+		$integration->update_enabled_incoming_fields( [ 'pet' ] );
 		Integrations::register( $integration );
 		// Not enabled.
 
@@ -623,7 +623,7 @@ class Test_Integrations extends \WP_UnitTestCase {
 			}
 		};
 
-		$integration->set_selected_fields( [ 'first_field' ] );
+		$integration->update_enabled_incoming_fields( [ 'first_field' ] );
 		Integrations::register( $integration );
 		Integrations::enable( 'first-test' );
 
@@ -656,7 +656,7 @@ class Test_Integrations extends \WP_UnitTestCase {
 			}
 		};
 
-		$integration->set_selected_fields( [ 'timeout_field' ] );
+		$integration->update_enabled_incoming_fields( [ 'timeout_field' ] );
 		Integrations::register( $integration );
 		Integrations::enable( 'timeout-test' );
 
@@ -818,6 +818,106 @@ class Test_Integrations extends \WP_UnitTestCase {
 	}
 
 	/**
+	 * Test get_metadata_prefix returns default 'NP_' when no custom prefix is set.
+	 */
+	public function test_get_metadata_prefix_default() {
+		$integration = new Sample_Integration( 'prefix-test', 'Prefix Test' );
+
+		$this->assertSame( 'NP_', $integration->get_metadata_prefix() );
+	}
+
+	/**
+	 * Test update_metadata_prefix stores and retrieves a custom prefix.
+	 */
+	public function test_update_and_get_metadata_prefix() {
+		$integration = new Sample_Integration( 'prefix-test', 'Prefix Test' );
+
+		$integration->update_metadata_prefix( 'CUSTOM_' );
+
+		$this->assertSame( 'CUSTOM_', $integration->get_metadata_prefix() );
+		$this->assertSame( 'CUSTOM_', get_option( 'newspack_integration_metadata_prefix_prefix-test' ) );
+	}
+
+	/**
+	 * Test update_metadata_prefix with empty string falls back to 'NP_'.
+	 */
+	public function test_update_metadata_prefix_empty_falls_back() {
+		$integration = new Sample_Integration( 'prefix-test', 'Prefix Test' );
+
+		$integration->update_metadata_prefix( 'CUSTOM_' );
+		$integration->update_metadata_prefix( '' );
+
+		$this->assertSame( 'NP_', $integration->get_metadata_prefix() );
+	}
+
+	/**
+	 * Test metadata prefix is isolated per integration.
+	 */
+	public function test_metadata_prefix_per_integration_isolation() {
+		$integration_a = new Sample_Integration( 'iso-a', 'Integration A' );
+		$integration_b = new Sample_Integration( 'iso-b', 'Integration B' );
+
+		$integration_a->update_metadata_prefix( 'AAA_' );
+		$integration_b->update_metadata_prefix( 'BBB_' );
+
+		$this->assertSame( 'AAA_', $integration_a->get_metadata_prefix() );
+		$this->assertSame( 'BBB_', $integration_b->get_metadata_prefix() );
+	}
+
+	/**
+	 * Test settings field value routing for metadata_prefix.
+	 */
+	public function test_settings_field_value_routes_metadata_prefix() {
+		$integration = new Sample_Integration( 'route-test', 'Route Test' );
+		$integration->init();
+
+		$this->assertTrue( $integration->update_settings_field_value( 'metadata_prefix', 'API_' ) );
+		$this->assertSame( 'API_', $integration->get_settings_field_value( 'metadata_prefix' ) );
+
+		// Verify it wrote to the dedicated option, not the generic settings option.
+		$this->assertSame( 'API_', get_option( 'newspack_integration_metadata_prefix_route-test' ) );
+		$this->assertFalse( get_option( 'newspack_integration_settings_route-test_metadata_prefix' ) );
+	}
+
+	/**
+	 * Test get_enabled_outgoing_fields_keys uses integration prefix when prefixed flag is true.
+	 */
+	public function test_get_enabled_outgoing_fields_keys_uses_integration_prefix() {
+		$integration = new Sample_Integration( 'keys-test', 'Keys Test' );
+		$integration->update_metadata_prefix( 'TEST_' );
+		$integration->update_enabled_outgoing_fields( [ 'Account' ] );
+
+		$keys = $integration->get_enabled_outgoing_fields_keys( true );
+
+		$this->assertNotEmpty( $keys );
+		foreach ( $keys as $key ) {
+			$this->assertStringStartsWith( 'TEST_', $key, "Key '$key' should start with 'TEST_'" );
+		}
+	}
+
+	/**
+	 * Test get_settings_config includes metadata_prefix field with correct value.
+	 */
+	public function test_get_settings_config_includes_metadata_prefix() {
+		$integration = new Sample_Integration( 'config-test', 'Config Test' );
+		$integration->init();
+		$integration->update_metadata_prefix( 'CFG_' );
+
+		$config = $integration->get_settings_config();
+
+		$prefix_field = null;
+		foreach ( $config as $field ) {
+			if ( 'metadata_prefix' === $field['key'] ) {
+				$prefix_field = $field;
+				break;
+			}
+		}
+
+		$this->assertNotNull( $prefix_field, 'Settings config should contain a metadata_prefix field.' );
+		$this->assertSame( 'CFG_', $prefix_field['value'] );
+	}
+
+	/**
 	 * Test handle_ajax_pull processes data when called directly.
 	 */
 	public function test_handle_ajax_pull() {
@@ -836,7 +936,7 @@ class Test_Integrations extends \WP_UnitTestCase {
 			}
 		};
 
-		$integration->set_selected_fields( [ 'ajax_field' ] );
+		$integration->update_enabled_incoming_fields( [ 'ajax_field' ] );
 		Integrations::register( $integration );
 		Integrations::enable( 'ajax-test' );
 
