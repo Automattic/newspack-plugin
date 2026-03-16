@@ -26,7 +26,7 @@
 
 	<!-- wp:group {"metadata":{"name":"<?php esc_html_e( 'Buttons', 'newspack-plugin' ); ?>"},"style":{"spacing":{"blockGap":"12px"}},"layout":{"type":"constrained","contentSize":"410px"}} -->
 	<div class="wp-block-group">
-		<!-- wp:newspack-blocks/checkout-button {"text":"<?php esc_html_e( 'Subscribe', 'newspack' ); ?>","width":100,"align":"center"} /-->
+		<!-- wp:newspack-blocks/checkout-button {"text":"<?php esc_html_e( 'Become a member', 'newspack' ); ?>","width":100,"align":"center"} /-->
 
 		<!-- wp:buttons -->
 		<div class="wp-block-buttons">
