@@ -711,10 +711,11 @@ class Content_Gate {
 	 * Get block pattern content by slug.
 	 *
 	 * @param string $pattern_slug The pattern slug (e.g., 'registration-wall').
+	 * @param array  $pattern_context Optional context available to pattern files as $pattern_context.
 	 *
 	 * @return string The pattern content, or empty string if not found.
 	 */
-	private static function get_block_pattern_content( $pattern_slug ) {
+	public static function get_block_pattern_content( $pattern_slug, $pattern_context = [] ) {
 		$patterns_dir = realpath( __DIR__ . '/block-patterns' );
 		if ( ! $patterns_dir ) {
 			return '';
@@ -763,7 +764,13 @@ class Content_Gate {
 		if ( empty( $pattern_slug ) ) {
 			return '<p>' . esc_html( __( 'This article is only available to members.', 'newspack-plugin' ) ) . '</p>';
 		}
-		return self::get_block_pattern_content( $pattern_slug );
+		return self::get_block_pattern_content(
+			$pattern_slug,
+			[
+				'registration_settings'  => $registration_settings,
+				'custom_access_settings' => $custom_access_settings,
+			]
+		);
 	}
 
 	/**
