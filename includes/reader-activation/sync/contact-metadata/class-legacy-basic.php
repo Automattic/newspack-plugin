@@ -9,6 +9,7 @@ namespace Newspack\Reader_Activation\Sync\Contact_Metadata;
 
 use Newspack\Reader_Activation\Sync\Contact_Metadata;
 use Newspack\Reader_Activation\Sync\Legacy_Metadata;
+use Newspack\Reader_Activation\Sync\WooCommerce;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -38,9 +39,23 @@ class Legacy_Basic extends Contact_Metadata {
 	/**
 	 * Get the metadata for the given user, customer or order.
 	 *
+	 * Delegates to the legacy WooCommerce and normalization logic to build
+	 * the full set of legacy metadata fields.
+	 *
 	 * @return array
 	 */
 	public function get_metadata() {
-		return [];
+		if ( ! $this->customer ) {
+			return [];
+		}
+
+		$contact = WooCommerce::get_contact_from_customer( $this->customer );
+		if ( ! $contact ) {
+			return [];
+		}
+
+		$contact = Legacy_Metadata::normalize_contact_data( $contact );
+
+		return $contact['metadata'] ?? [];
 	}
 }

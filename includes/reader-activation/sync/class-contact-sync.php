@@ -137,8 +137,6 @@ class Contact_Sync extends Sync {
 	private static function push_to_integrations( $contact, $context, $existing_contact = null ) {
 		/** This filter is documented in includes/reader-activation/sync/class-contact-sync.php */
 		$contact = \apply_filters( 'newspack_esp_sync_contact', $contact, $context );
-		$contact = Sync\Metadata::normalize_contact_data( $contact );
-
 		$integrations = Integrations::get_active_integrations();
 		$errors       = [];
 
@@ -378,7 +376,7 @@ class Contact_Sync extends Sync {
 	 * @param string $context The context of the sync.
 	 */
 	public static function scheduled_sync( $user_id, $context ) {
-		$contact = Sync\WooCommerce::get_contact_from_customer( new \WC_Customer( $user_id ) );
+		$contact = Sync\Metadata::get_contact_with_metadata( $user_id );
 		if ( ! $contact ) {
 			return;
 		}
@@ -419,7 +417,7 @@ class Contact_Sync extends Sync {
 			$customer->save();
 		}
 
-		$contact = Sync\WooCommerce::get_contact_from_customer( $customer );
+		$contact = Sync\Metadata::get_contact_with_metadata( $customer );
 
 		// Include data from queued syncs too.
 		if ( ! empty( self::$queued_syncs[ $contact['email'] ]['contact']['metadata'] ) ) {
@@ -449,7 +447,7 @@ class Contact_Sync extends Sync {
 		$order    = $is_order ? $user_id_or_order : false;
 		$user_id  = $is_order ? $order->get_customer_id() : $user_id_or_order;
 
-		$contact = $is_order ? Sync\WooCommerce::get_contact_from_order( $order ) : self::get_contact_data( $user_id );
+		$contact = $is_order ? Sync\Metadata::get_contact_with_metadata( $order ) : self::get_contact_data( $user_id );
 		$result  = $is_dry_run ? true : self::sync( $contact, $context );
 
 		if ( $result && ! \is_wp_error( $result ) ) {
