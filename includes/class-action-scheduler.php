@@ -72,15 +72,6 @@ class Action_Scheduler {
 	}
 
 	/**
-	 * Generate a unique retry ID to link all retries from the same attempt.
-	 *
-	 * @return string UUID v4.
-	 */
-	public static function generate_retry_id() {
-		return wp_generate_uuid4();
-	}
-
-	/**
 	 * Get all actions associated with a retry ID.
 	 *
 	 * Uses ActionScheduler's search parameter to match the retry_id
