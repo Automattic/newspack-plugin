@@ -6,8 +6,11 @@
  */
 
 // Get the first purchasable subscription product from custom access rules, if available.
-$product_ids = \Newspack\Content_Gate\Access_Rules::get_subscription_product_ids( $pattern_context['custom_access_settings']['access_rules'] ?? [] );
-$product_id  = ! empty( $product_ids ) ? $product_ids[0] : 0;
+$product_id = 0;
+if ( class_exists( '\Newspack\Content_Gate\Access_Rules' ) ) {
+	$product_ids = \Newspack\Content_Gate\Access_Rules::get_subscription_product_ids( $pattern_context['custom_access_settings']['access_rules'] ?? [] );
+	$product_id  = ! empty( $product_ids ) ? $product_ids[0] : 0;
+}
 
 $checkout_attrs = [
 	'text'  => esc_html__( 'Become a member', 'newspack' ),
