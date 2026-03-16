@@ -6,56 +6,70 @@
  */
 
 ?>
-<!-- wp:separator {"className":"is-style-dots"} -->
-<hr class="wp-block-separator has-alpha-channel-opacity is-style-dots"/>
-<!-- /wp:separator -->
-
-<!-- wp:group {"metadata":{"name":"<?php esc_html_e( 'Wall', 'newspack-plugin' ); ?>"},"align":"wide","style":{"spacing":{"padding":{"top":"var:preset|spacing|80","bottom":"var:preset|spacing|80","left":"var:preset|spacing|80","right":"var:preset|spacing|80"}},"border":{"radius":"6px","width":"1px"}},"borderColor":"base-3","layout":{"type":"constrained"}} -->
-<div class="wp-block-group alignwide has-border-color has-base-3-border-color" style="border-width:1px;border-radius:6px;padding-top:var(--wp--preset--spacing--80);padding-right:var(--wp--preset--spacing--80);padding-bottom:var(--wp--preset--spacing--80);padding-left:var(--wp--preset--spacing--80)">
-
-	<!-- wp:heading {"textAlign":"center","level":3} -->
+<!-- wp:group {"metadata":{"name":"<?php esc_html_e( 'Subscription', 'newspack-plugin' ); ?>"},"align":"wide","style":{"spacing":{"padding":{"top":"var:preset|spacing|80","bottom":"var:preset|spacing|80","left":"var:preset|spacing|80","right":"var:preset|spacing|80"}},"border":{"radius":{"topLeft":"8px","topRight":"8px","bottomLeft":"8px","bottomRight":"8px"},"width":"1px"}},"borderColor":"base-3","layout":{"type":"constrained"}} -->
+<div class="wp-block-group alignwide has-border-color has-base-3-border-color" style="border-width:1px;border-top-left-radius:8px;border-top-right-radius:8px;border-bottom-left-radius:8px;border-bottom-right-radius:8px;padding-top:var(--wp--preset--spacing--80);padding-right:var(--wp--preset--spacing--80);padding-bottom:var(--wp--preset--spacing--80);padding-left:var(--wp--preset--spacing--80)">
+	<!-- wp:heading {"textAlign":"center","level":3,"metadata":{"name":"<?php esc_html_e( 'Title', 'newspack-plugin' ); ?>"}} -->
 	<h3 class="wp-block-heading has-text-align-center">
-		<?php esc_html_e( 'Continue reading for free', 'newspack-plugin' ); ?>
+		<?php esc_html_e( 'Unlock the full article', 'newspack' ); ?>
 	</h3>
 	<!-- /wp:heading -->
 
-	<!-- wp:columns {"metadata":{"name":"<?php esc_html_e( 'Content', 'newspack-plugin' ); ?>"},"className":"is-style-borders","fontSize":"small"} -->
-	<div class="wp-block-columns is-style-borders has-small-font-size">
+	<!-- wp:paragraph {"align":"center"} -->
+	<p class="has-text-align-center">
+		<?php esc_html_e( 'Join a community of passionate readers and never miss a story.', 'newspack' ); ?>
+	</p>
+	<!-- /wp:paragraph -->
 
+	<!-- wp:columns {"metadata":{"name":"<?php esc_html_e( 'Content', 'newspack-plugin' ); ?>"},"className":"is-style-borders","style":{"spacing":{"margin":{"top":"var:preset|spacing|80","bottom":"var:preset|spacing|80"}}}} -->
+	<div class="wp-block-columns is-style-borders" style="margin-top:var(--wp--preset--spacing--80);margin-bottom:var(--wp--preset--spacing--80)">
 		<!-- wp:column -->
 		<div class="wp-block-column">
-			<!-- wp:paragraph {"align":"center"} -->
-			<p class="has-text-align-center">
-				<?php echo wp_kses( __( 'Register now and get<br><strong>3 free articles every week.</strong>', 'newspack-plugin' ), 'post' ); ?>
-			</p>
-			<!-- /wp:paragraph -->
+			<!-- wp:group {"style":{"dimensions":{"minHeight":"100%"}},"layout":{"type":"flex","orientation":"vertical","justifyContent":"stretch","verticalAlignment":"space-between"}} -->
+			<div class="wp-block-group" style="min-height:100%">
+				<!-- wp:paragraph {"align":"center"} -->
+				<p class="has-text-align-center">
+					<?php
+					printf(
+						wp_kses_post(
+							/* translators: 1: number of free articles, 2: period label such as "month" or "week". */
+							__( 'Get %1$s free articles every %2$s with a free account.', 'newspack' )
+						),
+						'<strong>4</strong>',
+						esc_html__( 'month', 'newspack' ) // later can be 'week', 'weeks', etc.
+					);
+					?>
+				</p>
+				<!-- /wp:paragraph -->
 
-			<!-- wp:buttons -->
-			<div class="wp-block-buttons">
-				<!-- wp:button {"width":100,"className":"is-style-outline"} -->
-				<div class="wp-block-button has-custom-width wp-block-button__width-100 is-style-outline">
-					<a class="wp-block-button__link wp-element-button" href="#register_modal">
-						<?php esc_html_e( 'Register for free', 'newspack-plugin' ); ?>
-					</a>
+				<!-- wp:buttons -->
+				<div class="wp-block-buttons">
+					<!-- wp:button {"width":100,"className":"is-style-outline"} -->
+					<div class="wp-block-button has-custom-width wp-block-button__width-100 is-style-outline">
+						<a class="wp-block-button__link wp-element-button" href="#register_modal"><?php esc_html_e( 'Create a free account', 'newspack' ); ?></a>
+					</div>
+					<!-- /wp:button -->
 				</div>
-				<!-- /wp:button -->
+				<!-- /wp:buttons -->
 			</div>
-			<!-- /wp:buttons -->
+			<!-- /wp:group -->
 		</div>
 		<!-- /wp:column -->
 
 		<!-- wp:column -->
 		<div class="wp-block-column">
-			<!-- wp:paragraph {"align":"center"} -->
-			<p class="has-text-align-center">
-				<?php echo wp_kses( __( 'Unlimited access to our<br><strong>daily content and archives</strong>.', 'newspack-plugin' ), 'post' ); ?>
-			</p>
-			<!-- /wp:paragraph -->
+			<!-- wp:group {"style":{"dimensions":{"minHeight":"100%"}},"layout":{"type":"flex","orientation":"vertical","justifyContent":"stretch","verticalAlignment":"space-between"}} -->
+			<div class="wp-block-group" style="min-height:100%">
+				<!-- wp:paragraph {"align":"center"} -->
+				<p class="has-text-align-center">
+					<?php esc_html_e( 'Support our journalism and get unlimited access to our full archive.', 'newspack' ); ?>
+				</p>
+				<!-- /wp:paragraph -->
 
-			<!-- wp:newspack-blocks/checkout-button {"text":"<?php esc_html_e( 'Subscribe for $5/month', 'newspack-plugin' ); ?>","width":100,"align":"wide"} /-->
+				<!-- wp:newspack-blocks/checkout-button {"text":"<?php esc_html_e( 'Become a member', 'newspack' ); ?>","width":100,"align":"center"} /-->
+			</div>
+			<!-- /wp:group -->
 		</div>
 		<!-- /wp:column -->
-
 	</div>
 	<!-- /wp:columns -->
 
@@ -64,11 +78,11 @@
 		<!-- wp:button {"backgroundColor":"base","textColor":"contrast","style":{"elements":{"link":{"color":{"text":"var:preset|color|contrast"}}}}} -->
 		<div class="wp-block-button">
 			<a class="wp-block-button__link has-contrast-color has-base-background-color has-text-color has-background has-link-color wp-element-button" href="#signin_modal">
-				<?php esc_html_e( 'Sign in to an existing account', 'newspack-plugin' ); ?>
+				<?php esc_html_e( 'Sign in to an existing account', 'newspack' ); ?>
 			</a>
 		</div>
 		<!-- /wp:button -->
-	</div><!-- /wp:buttons -->
-
+	</div>
+	<!-- /wp:buttons -->
 </div>
 <!-- /wp:group -->
