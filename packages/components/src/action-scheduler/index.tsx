@@ -199,7 +199,6 @@ function getDetailRows( item: ScheduledAction ): { label: string; value: string 
 }
 
 interface LogEntry {
-	id: number;
 	message: string;
 	date: string;
 }
@@ -230,8 +229,8 @@ function ActionLogs( { actionId }: { actionId: number } ) {
 				</tr>
 			</thead>
 			<tbody>
-				{ logs.map( log => (
-					<tr key={ log.id }>
+				{ logs.map( ( log, index ) => (
+					<tr key={ index }>
 						<td style={ { fontSize: '12px', whiteSpace: 'nowrap' } }>{ formatDate( log.date ) }</td>
 						<td style={ { fontSize: '12px' } }>{ log.message }</td>
 					</tr>
