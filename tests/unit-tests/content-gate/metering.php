@@ -571,6 +571,7 @@ class Test_Metering extends \WP_UnitTestCase {
 					],
 				],
 				'custom_access' => [
+					'active'   => true,
 					'metering' => [
 						'enabled' => true,
 						'count'   => 5,
