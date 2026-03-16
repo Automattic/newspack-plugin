@@ -715,7 +715,7 @@ class Content_Gate {
 	 *
 	 * @return string The pattern content, or empty string if not found.
 	 */
-	public static function get_block_pattern_content( $pattern_slug, $pattern_context = [] ) {
+	private static function get_block_pattern_content( $pattern_slug, $pattern_context = [] ) {
 		$patterns_dir = realpath( __DIR__ . '/block-patterns' );
 		if ( ! $patterns_dir ) {
 			return '';
