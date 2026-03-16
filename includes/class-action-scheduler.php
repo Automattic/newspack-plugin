@@ -24,6 +24,18 @@ class Action_Scheduler {
 	const GROUP_PREFIX = 'newspack-';
 
 	/**
+	 * REST API base path for action scheduler endpoints.
+	 */
+	const API_NAMESPACE = 'action-scheduler';
+
+	/**
+	 * Initialize hooks.
+	 */
+	public static function init() {
+		add_action( 'rest_api_init', [ __CLASS__, 'register_rest_routes' ] );
+	}
+
+	/**
 	 * Whether ActionScheduler is available.
 	 *
 	 * @return bool
@@ -460,4 +472,418 @@ class Action_Scheduler {
 		}
 		return as_get_scheduled_actions( $args );
 	}
+
+	/**
+	 * Permission callback for REST API endpoints.
+	 *
+	 * @return bool
+	 */
+	public static function api_permissions_check() {
+		return current_user_can( 'manage_options' );
+	}
+
+	/**
+	 * Register REST API endpoints.
+	 */
+	public static function register_rest_routes() {
+		$base = self::API_NAMESPACE;
+
+		register_rest_route(
+			NEWSPACK_API_NAMESPACE,
+			$base . '/actions',
+			[
+				'methods'             => \WP_REST_Server::READABLE,
+				'callback'            => [ __CLASS__, 'api_get_actions' ],
+				'permission_callback' => [ __CLASS__, 'api_permissions_check' ],
+				'args'                => [
+					'per_page'        => [
+						'type'              => 'integer',
+						'default'           => 20,
+						'sanitize_callback' => 'absint',
+					],
+					'page'            => [
+						'type'              => 'integer',
+						'default'           => 1,
+						'sanitize_callback' => 'absint',
+					],
+					'status'          => [
+						'type'              => 'string',
+						'default'           => '',
+						'sanitize_callback' => 'sanitize_text_field',
+					],
+					'group'           => [
+						'type'              => 'string',
+						'default'           => '',
+						'sanitize_callback' => 'sanitize_text_field',
+					],
+					'orderby'         => [
+						'type'              => 'string',
+						'default'           => 'scheduled_date_gmt',
+						'sanitize_callback' => 'sanitize_text_field',
+					],
+					'order'           => [
+						'type'              => 'string',
+						'default'           => 'DESC',
+						'sanitize_callback' => 'sanitize_text_field',
+					],
+					'hook'            => [
+						'type'              => 'string',
+						'default'           => '',
+						'sanitize_callback' => 'sanitize_text_field',
+					],
+					'search'          => [
+						'type'              => 'string',
+						'default'           => '',
+						'sanitize_callback' => 'sanitize_text_field',
+					],
+					'scheduled_op'    => [
+						'type'              => 'string',
+						'default'           => '',
+						'sanitize_callback' => 'sanitize_text_field',
+					],
+					'scheduled_value' => [
+						'type'              => 'string',
+						'default'           => '',
+						'sanitize_callback' => 'sanitize_text_field',
+					],
+				],
+			]
+		);
+		register_rest_route(
+			NEWSPACK_API_NAMESPACE,
+			$base . '/groups',
+			[
+				'methods'             => \WP_REST_Server::READABLE,
+				'callback'            => [ __CLASS__, 'api_get_groups' ],
+				'permission_callback' => [ __CLASS__, 'api_permissions_check' ],
+			]
+		);
+		register_rest_route(
+			NEWSPACK_API_NAMESPACE,
+			$base . '/hooks',
+			[
+				'methods'             => \WP_REST_Server::READABLE,
+				'callback'            => [ __CLASS__, 'api_get_hooks' ],
+				'permission_callback' => [ __CLASS__, 'api_permissions_check' ],
+			]
+		);
+		register_rest_route(
+			NEWSPACK_API_NAMESPACE,
+			$base . '/labels',
+			[
+				'methods'             => \WP_REST_Server::READABLE,
+				'callback'            => [ __CLASS__, 'api_get_labels' ],
+				'permission_callback' => [ __CLASS__, 'api_permissions_check' ],
+			]
+		);
+		register_rest_route(
+			NEWSPACK_API_NAMESPACE,
+			$base . '/actions/(?P<id>\d+)/run',
+			[
+				'methods'             => \WP_REST_Server::CREATABLE,
+				'callback'            => [ __CLASS__, 'api_run_action' ],
+				'permission_callback' => [ __CLASS__, 'api_permissions_check' ],
+				'args'                => [
+					'id' => [
+						'type'              => 'integer',
+						'required'          => true,
+						'sanitize_callback' => 'absint',
+					],
+				],
+			]
+		);
+		register_rest_route(
+			NEWSPACK_API_NAMESPACE,
+			$base . '/actions/(?P<id>\d+)/logs',
+			[
+				'methods'             => \WP_REST_Server::READABLE,
+				'callback'            => [ __CLASS__, 'api_get_action_logs' ],
+				'permission_callback' => [ __CLASS__, 'api_permissions_check' ],
+				'args'                => [
+					'id' => [
+						'type'              => 'integer',
+						'required'          => true,
+						'sanitize_callback' => 'absint',
+					],
+				],
+			]
+		);
+		register_rest_route(
+			NEWSPACK_API_NAMESPACE,
+			$base . '/actions/(?P<id>\d+)/retries',
+			[
+				'methods'             => \WP_REST_Server::READABLE,
+				'callback'            => [ __CLASS__, 'api_get_action_retries' ],
+				'permission_callback' => [ __CLASS__, 'api_permissions_check' ],
+				'args'                => [
+					'id' => [
+						'type'              => 'integer',
+						'required'          => true,
+						'sanitize_callback' => 'absint',
+					],
+				],
+			]
+		);
+	}
+
+	/**
+	 * REST: Get ActionScheduler actions.
+	 *
+	 * @param \WP_REST_Request $request Request object.
+	 * @return \WP_REST_Response
+	 */
+	public static function api_get_actions( $request ) {
+		if ( ! self::is_available() ) {
+			return new \WP_REST_Response(
+				[
+					'actions'     => [],
+					'total'       => 0,
+					'page'        => 1,
+					'total_pages' => 0,
+				]
+			);
+		}
+
+		$per_page = $request->get_param( 'per_page' );
+		$page     = $request->get_param( 'page' );
+		$status   = $request->get_param( 'status' );
+		$group    = $request->get_param( 'group' );
+		$hook     = $request->get_param( 'hook' );
+		$search   = $request->get_param( 'search' );
+
+		$query_args = [
+			'per_page' => $per_page,
+			'offset'   => ( $page - 1 ) * $per_page,
+			'orderby'  => $request->get_param( 'orderby' ),
+			'order'    => $request->get_param( 'order' ),
+		];
+
+		if ( ! empty( $status ) ) {
+			$query_args['status'] = $status;
+		}
+
+		if ( ! empty( $group ) ) {
+			$query_args['groups'] = [ $group ];
+		}
+
+		if ( ! empty( $hook ) ) {
+			$query_args['hook'] = $hook;
+		}
+
+		if ( ! empty( $search ) ) {
+			$query_args['search'] = $search;
+		}
+
+		$scheduled_op    = $request->get_param( 'scheduled_op' );
+		$scheduled_value = $request->get_param( 'scheduled_value' );
+		if ( ! empty( $scheduled_op ) && ! empty( $scheduled_value ) ) {
+			$query_args['scheduled_op']    = $scheduled_op;
+			$query_args['scheduled_value'] = json_decode( $scheduled_value, true );
+		}
+
+		$actions = self::get_scheduled_actions( $query_args );
+		$total   = self::count_scheduled_actions( $query_args );
+
+		// Resolve group slugs for display.
+		$group_map = self::get_group_map();
+
+		$formatted = array_map(
+			function ( $action ) use ( $group_map ) {
+				return [
+					'id'            => (int) $action->action_id,
+					'hook'          => $action->hook,
+					'status'        => $action->status,
+					'group'         => $group_map[ $action->group_id ] ?? __( 'Unknown', 'newspack-plugin' ),
+					'scheduled'     => $action->scheduled_date_gmt,
+					'last_attempt'  => $action->last_attempt_gmt ?? null,
+					'claim_id'      => (int) ( $action->claim_id ?? 0 ),
+					'extended_args' => $action->extended_args ?? '',
+					'args'          => $action->args,
+				];
+			},
+			$actions
+		);
+
+		return new \WP_REST_Response(
+			[
+				'actions'     => $formatted,
+				'total'       => $total,
+				'page'        => $page,
+				'total_pages' => (int) ceil( $total / $per_page ),
+			]
+		);
+	}
+
+	/**
+	 * REST: Run a scheduled action immediately.
+	 *
+	 * @param \WP_REST_Request $request Request object.
+	 * @return \WP_REST_Response|\WP_Error
+	 */
+	public static function api_run_action( $request ) {
+		if ( ! self::is_available() ) {
+			return new \WP_Error( 'action_scheduler_unavailable', __( 'ActionScheduler is not available.', 'newspack-plugin' ), [ 'status' => 500 ] );
+		}
+
+		$action_id = $request->get_param( 'id' );
+		$store     = \ActionScheduler_Store::instance();
+		$status    = $store->get_status( $action_id );
+
+		if ( false === $status ) {
+			return new \WP_Error( 'action_not_found', __( 'Action not found.', 'newspack-plugin' ), [ 'status' => 404 ] );
+		}
+
+		if ( \ActionScheduler_Store::STATUS_COMPLETE === $status ) {
+			return new \WP_Error( 'action_already_complete', __( 'This action has already completed.', 'newspack-plugin' ), [ 'status' => 400 ] );
+		}
+
+		// Reset failed actions to pending so AS will process them.
+		if ( \ActionScheduler_Store::STATUS_FAILED === $status ) {
+			global $wpdb;
+			$wpdb->update( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+				$wpdb->prefix . 'actionscheduler_actions',
+				[ 'status' => \ActionScheduler_Store::STATUS_PENDING ],
+				[ 'action_id' => $action_id ],
+				[ '%s' ],
+				[ '%d' ]
+			);
+		}
+
+		try {
+			$runner = new \ActionScheduler_QueueRunner( $store );
+			$runner->process_action( $action_id, 'Newspack Status' );
+		} catch ( \Exception $e ) {
+			return new \WP_Error( 'action_execution_failed', $e->getMessage(), [ 'status' => 500 ] );
+		}
+
+		$new_status = $store->get_status( $action_id );
+
+		return new \WP_REST_Response(
+			[
+				'success' => true,
+				'status'  => $new_status,
+			]
+		);
+	}
+
+	/**
+	 * REST: Get all Newspack ActionScheduler groups.
+	 *
+	 * @return \WP_REST_Response
+	 */
+	public static function api_get_groups() {
+		return new \WP_REST_Response( self::get_all_groups() );
+	}
+
+	/**
+	 * REST: Get distinct hook names for Newspack ActionScheduler actions.
+	 *
+	 * @return \WP_REST_Response
+	 */
+	public static function api_get_hooks() {
+		return new \WP_REST_Response( self::get_hooks() );
+	}
+
+	/**
+	 * REST: Get labels for hooks and groups.
+	 *
+	 * @return \WP_REST_Response
+	 */
+	public static function api_get_labels() {
+		return new \WP_REST_Response(
+			[
+				'hooks'  => self::get_hook_labels(),
+				'groups' => self::get_group_labels(),
+			]
+		);
+	}
+
+	/**
+	 * REST: Get log entries for a specific action.
+	 *
+	 * @param \WP_REST_Request $request Request object.
+	 * @return \WP_REST_Response
+	 */
+	public static function api_get_action_logs( $request ) {
+		$logs = self::get_action_logs( $request->get_param( 'id' ) );
+		return new \WP_REST_Response(
+			array_map(
+				function ( $log ) {
+					return [
+						'id'      => (int) $log->log_id,
+						'message' => $log->message,
+						'date'    => $log->log_date_gmt,
+					];
+				},
+				$logs
+			)
+		);
+	}
+
+	/**
+	 * REST: Get related retry actions for a sync retry action.
+	 *
+	 * @param \WP_REST_Request $request Request object.
+	 * @return \WP_REST_Response|\WP_Error
+	 */
+	public static function api_get_action_retries( $request ) {
+		if ( ! self::is_available() ) {
+			return new \WP_Error( 'action_scheduler_unavailable', __( 'ActionScheduler is not available.', 'newspack-plugin' ), [ 'status' => 500 ] );
+		}
+
+		$action_id = $request->get_param( 'id' );
+		$store     = \ActionScheduler_Store::instance();
+		$action    = $store->fetch_action( $action_id );
+
+		if ( ! $action->get_hook() ) {
+			return new \WP_Error( 'action_not_found', __( 'Action not found.', 'newspack-plugin' ), [ 'status' => 404 ] );
+		}
+
+		$args     = $action->get_args();
+		$retry_id = $args[0]['retry_id'] ?? '';
+		if ( empty( $retry_id ) ) {
+			return new \WP_REST_Response( [] );
+		}
+
+		$retries = self::get_actions_by_retry_id( $retry_id, $action->get_hook() );
+		$logger  = \ActionScheduler_Logger::instance();
+
+		$formatted = [];
+		foreach ( $retries as $action_id => $retry_action ) {
+			$retry_args = $retry_action->get_args();
+			$schedule   = $retry_action->get_schedule();
+			$date       = $schedule->get_date();
+			$logs       = $logger->get_logs( $action_id );
+
+			$formatted[] = [
+				'id'          => (int) $action_id,
+				'status'      => $store->get_status( $action_id ),
+				'group'       => $retry_action->get_group(),
+				'scheduled'   => $date ? $date->format( 'Y-m-d H:i:s' ) : null,
+				'retry_count' => $retry_args[0]['retry_count'] ?? null,
+				'max_retries' => $retry_args[0]['max_retries'] ?? null,
+				'reason'      => $retry_args[0]['reason'] ?? '',
+				'logs'        => array_map(
+					function ( $log ) {
+						return [
+							'message' => $log->get_message(),
+							'date'    => $log->get_date()->format( 'Y-m-d H:i:s' ),
+						];
+					},
+					$logs
+				),
+			];
+		}
+
+		// Sort by retry_count ascending.
+		usort(
+			$formatted,
+			function ( $a, $b ) {
+				return ( $a['retry_count'] ?? 0 ) - ( $b['retry_count'] ?? 0 );
+			}
+		);
+
+		return new \WP_REST_Response( $formatted );
+	}
 }
+Action_Scheduler::init();
