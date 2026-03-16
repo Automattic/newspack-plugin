@@ -70,9 +70,24 @@ class Metadata {
 	 * Fetch the prefix for synced metadata fields.
 	 * Default is NP_ but it can be configured in the Reader Activation settings page.
 	 *
+	 * This method is deprecated. Now, each integration has its own metadata prefix, which can be retrieved with Integration::get_metadata_prefix().
+	 * As a fallback, this method returns the metadata prefix for the ESP Integration.
+	 *
+	 * @deprecated Use Integration::get_metadata_prefix() instead.
+	 *
 	 * @return string
 	 */
 	public static function get_prefix() {
+		$esp_integration = Integrations::get_integration( 'esp' );
+		if ( $esp_integration ) {
+			$prefix = $esp_integration->get_metadata_prefix();
+			if ( ! empty( $prefix ) ) {
+				/** This filter is documented below. */
+				return apply_filters( 'newspack_ras_metadata_prefix', $prefix );
+			}
+		}
+
+		// Fallback for edge case where integration isn't registered yet (before init priority 5).
 		$prefix = \get_option( self::PREFIX_OPTION, self::PREFIX );
 
 		// Guard against empty strings and falsy values.
@@ -96,11 +111,8 @@ class Metadata {
 	 * @return boolean True if updated, false otherwise.
 	 */
 	public static function update_prefix( $prefix ) {
-		if ( empty( $prefix ) ) {
-			$prefix = self::PREFIX;
-		}
-
-		return \update_option( self::PREFIX_OPTION, $prefix );
+		$esp_integration = Integrations::get_integration( 'esp' );
+		return $esp_integration ? $esp_integration->update_metadata_prefix( $prefix ) : false;
 	}
 
 	/**
@@ -174,12 +186,12 @@ class Metadata {
 	 * This method is deprecated. Now, each integration has its own set of enabled fields.
 	 * As a fallback, this method delegates to the ESP Integration.
 	 *
-	 * @deprecated Use Integration::get_enabled_outgoing_fields_raw_keys() instead.
+	 * @deprecated Use Integration::get_enabled_outgoing_fields_keys() instead.
 	 * @return string[] List of raw metadata keys.
 	 */
 	public static function get_raw_keys() {
 		$esp_integration = Integrations::get_integration( 'esp' );
-		return $esp_integration ? $esp_integration->get_enabled_outgoing_fields_raw_keys() : [];
+		return $esp_integration ? $esp_integration->get_enabled_outgoing_fields_keys() : [];
 	}
 
 	/**
@@ -188,12 +200,12 @@ class Metadata {
 	 * This method is deprecated. Now, each integration has its own set of enabled fields.
 	 * As a fallback, this method delegates to the ESP Integration.
 	 *
-	 * @deprecated Use Integration::get_enabled_outgoing_fields_prefixed_keys() instead.
+	 * @deprecated Use Integration::get_enabled_outgoing_fields_keys() instead.
 	 * @return string[] List of prefixed metadata keys.
 	 */
 	public static function get_prefixed_keys() {
 		$esp_integration = Integrations::get_integration( 'esp' );
-		return $esp_integration ? $esp_integration->get_enabled_outgoing_fields_prefixed_keys() : [];
+		return $esp_integration ? $esp_integration->get_enabled_outgoing_fields_keys( true ) : [];
 	}
 
 	/**

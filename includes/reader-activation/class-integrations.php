@@ -350,6 +350,47 @@ class Integrations {
 	}
 
 	/**
+	 * Get settings config for all integrations that have settings fields.
+	 *
+	 * @return array Keyed array of integration settings.
+	 */
+	public static function get_all_integration_settings() {
+		$result = [];
+		foreach ( self::$integrations as $id => $integration ) {
+			$fields = $integration->get_settings_fields();
+			if ( empty( $fields ) ) {
+				continue;
+			}
+			$result[ $id ] = [
+				'id'          => $id,
+				'name'        => $integration->get_name(),
+				'description' => $integration->get_description(),
+				'enabled'     => self::is_enabled( $id ),
+				'settings'    => $integration->get_settings_config(),
+			];
+		}
+		return $result;
+	}
+
+	/**
+	 * Update settings for a specific integration.
+	 *
+	 * @param string $integration_id The integration ID.
+	 * @param array  $settings       Key-value pairs of settings to update.
+	 * @return bool|null True if updated, null if integration not found.
+	 */
+	public static function update_integration_settings( $integration_id, $settings ) {
+		$integration = self::get_integration( $integration_id );
+		if ( ! $integration ) {
+			return null;
+		}
+		foreach ( $settings as $key => $value ) {
+			$integration->update_settings_field_value( $key, $value );
+		}
+		return true;
+	}
+
+	/**
 	 * Register a data event handler for an integration.
 	 *
 	 * Validates the method, stores the handler in the map, and registers

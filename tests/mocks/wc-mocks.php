@@ -152,7 +152,10 @@ class WC_Order {
 		return isset( $this->meta[ $field_name ] ) ? $this->meta[ $field_name ] : '';
 	}
 	public function has_status( $statuses ) {
-		return in_array( $this->data['status'], $statuses );
+		if ( ! is_array( $statuses ) ) {
+			$statuses = [ $statuses ];
+		}
+		return in_array( $this->data['status'], $statuses, true );
 	}
 	public function get_items() {
 		return $this->data['items'];
@@ -216,7 +219,10 @@ class WC_Subscription {
 		unset( $this->meta[ $field_name ] );
 	}
 	public function has_status( $statuses ) {
-		return in_array( $this->data['status'], $statuses );
+		if ( ! is_array( $statuses ) ) {
+			$statuses = [ $statuses ];
+		}
+		return in_array( $this->data['status'], $statuses, true );
 	}
 	public function get_date_paid() {
 		return new WC_DateTime( $this->data['date_paid'] );

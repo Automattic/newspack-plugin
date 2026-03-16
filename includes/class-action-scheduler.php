@@ -45,6 +45,71 @@ class Action_Scheduler {
 	}
 
 	/**
+	 * Get labels for known hooks.
+	 *
+	 * Returns an associative array of hook slug => human-readable label.
+	 * Subsystems can extend this via the `newspack_action_scheduler_hook_labels` filter.
+	 *
+	 * @return array<string,string>
+	 */
+	public static function get_hook_labels() {
+		/**
+		 * Filters the human-readable labels for ActionScheduler hook names.
+		 *
+		 * @param array<string,string> $labels Hook slug => label pairs.
+		 */
+		return apply_filters( 'newspack_action_scheduler_hook_labels', [] );
+	}
+
+	/**
+	 * Get labels for known groups.
+	 *
+	 * Returns an associative array of group slug => human-readable label.
+	 * Subsystems can extend this via the `newspack_action_scheduler_group_labels` filter.
+	 *
+	 * @return array<string,string>
+	 */
+	public static function get_group_labels() {
+		/**
+		 * Filters the human-readable labels for ActionScheduler group slugs.
+		 *
+		 * @param array<string,string> $labels Group slug => label pairs.
+		 */
+		return apply_filters(
+			'newspack_action_scheduler_group_labels',
+			[
+				'newspack' => 'Newspack',
+			]
+		);
+	}
+
+	/**
+	 * Get all actions associated with a retry ID.
+	 *
+	 * Uses ActionScheduler's search parameter to match the retry_id
+	 * against args or extended_args.
+	 *
+	 * @param string $retry_id The retry ID to search for.
+	 * @param string $hook     Optional. Hook name to filter by.
+	 *
+	 * @return array ActionScheduler action objects keyed by action ID.
+	 */
+	public static function get_actions_by_retry_id( $retry_id, $hook = '' ) {
+		if ( ! function_exists( 'as_get_scheduled_actions' ) || empty( $retry_id ) ) {
+			return [];
+		}
+		$args = [
+			'search'   => $retry_id,
+			'status'   => '',
+			'per_page' => -1,
+		];
+		if ( ! empty( $hook ) ) {
+			$args['hook'] = $hook;
+		}
+		return as_get_scheduled_actions( $args );
+	}
+
+	/**
 	 * Get ActionScheduler group slugs matching a prefix.
 	 *
 	 * @param string $prefix The prefix to match (e.g. 'newspack-').
@@ -66,37 +131,40 @@ class Action_Scheduler {
 	}
 
 	/**
-	 * Query ActionScheduler actions by group slugs.
+	 * Get all known Newspack group slugs.
 	 *
-	 * @param array $args {
-	 *     Query arguments.
-	 *
-	 *     @type string[] $groups   Array of group slugs to query.
-	 *     @type string   $status   ActionScheduler status (pending, complete, failed, canceled).
-	 *     @type string   $hook     Hook name to filter by.
-	 *     @type int      $per_page Number of actions to return. Default 20.
-	 *     @type int      $offset   Offset for pagination. Default 0.
-	 *     @type string   $orderby  Column to order by. Default 'scheduled_date_gmt'.
-	 *     @type string   $order    ASC or DESC. Default 'DESC'.
-	 * }
-	 *
-	 * @return array Array of action row objects.
+	 * @return string[] Array of group slug strings.
 	 */
-	public static function get_scheduled_actions( $args = [] ) {
-		if ( ! self::is_available() ) {
-			return [];
-		}
+	public static function get_all_groups() {
+		return array_merge(
+			[ self::DEFAULT_GROUP ],
+			self::get_groups_by_prefix( self::GROUP_PREFIX )
+		);
+	}
+
+	/**
+	 * Build the base query components shared by get/count methods.
+	 *
+	 * Resolves group slugs and builds the JOIN, WHERE clause, and prepare args.
+	 *
+	 * @param array $args Query arguments (groups, status, hook, search, date_op, date).
+	 *
+	 * @return array|null {
+	 *     @var string $from         FROM + JOIN clause.
+	 *     @var string $where        WHERE clause.
+	 *     @var array  $prepare_args Prepare arguments for the query.
+	 * } Null if no groups found.
+	 */
+	private static function build_query( $args ) {
 		global $wpdb;
 
-		$defaults = [
-			'groups'   => [],
-			'status'   => '',
-			'per_page' => 20,
-			'offset'   => 0,
-			'orderby'  => 'scheduled_date_gmt',
-			'order'    => 'DESC',
-		];
-		$args = wp_parse_args( $args, $defaults );
+		$args = wp_parse_args(
+			$args,
+			[
+				'groups' => [],
+				'status' => '',
+			]
+		);
 
 		$slugs = $args['groups'];
 		if ( empty( $slugs ) ) {
@@ -106,19 +174,14 @@ class Action_Scheduler {
 			);
 		}
 		if ( empty( $slugs ) ) {
-			return [];
+			return null;
 		}
-
-		$allowed_orderby = [ 'scheduled_date_gmt', 'action_id', 'hook', 'status' ];
-		$orderby         = in_array( $args['orderby'], $allowed_orderby, true ) ? $args['orderby'] : 'scheduled_date_gmt';
-		$order           = 'ASC' === strtoupper( $args['order'] ) ? 'ASC' : 'DESC';
 
 		$actions_table     = $wpdb->prefix . 'actionscheduler_actions';
 		$groups_table      = $wpdb->prefix . 'actionscheduler_groups';
 		$slug_placeholders = implode( ',', array_fill( 0, count( $slugs ), '%s' ) );
 		$prepare_args      = $slugs;
 
-		// Build optional filters.
 		$where_clauses = '';
 		if ( ! empty( $args['status'] ) ) {
 			$where_clauses .= 'AND a.status = %s ';
@@ -135,24 +198,78 @@ class Action_Scheduler {
 			$prepare_args[]  = $like;
 			$prepare_args[]  = $like;
 		}
-		if ( ! empty( $args['scheduled_op'] ) && ! empty( $args['scheduled_value'] ) ) {
-			list( $date_clause, $date_args ) = self::build_date_clause( $args['scheduled_op'], $args['scheduled_value'] );
+		if ( ! empty( $args['date_op'] ) && ! empty( $args['date'] ) ) {
+			list( $date_clause, $date_args ) = self::build_date_clause( $args['date_op'], $args['date'] );
 			$where_clauses .= $date_clause;
 			$prepare_args   = array_merge( $prepare_args, $date_args );
 		}
 
+		return [
+			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+			'from'         => "{$actions_table} a INNER JOIN {$groups_table} g ON a.group_id = g.group_id",
+			'where'        => "WHERE g.slug IN ({$slug_placeholders}) {$where_clauses}",
+			'prepare_args' => $prepare_args,
+		];
+	}
+
+	/**
+	 * Query ActionScheduler actions by group slugs.
+	 *
+	 * @param array $args {
+	 *     Query arguments.
+	 *
+	 *     @type string   $search   Search term to match against hook, args, or extended_args.
+	 *     @type string[] $groups   Array of group slugs to query.
+	 *     @type string   $status   ActionScheduler status (pending, complete, failed, canceled).
+	 *     @type string   $hook     Hook name to filter by.
+	 *     @type int      $per_page Number of actions to return. Default 20.
+	 *     @type int      $offset   Offset for pagination. Default 0.
+	 *     @type string   $date_op  Scheduled date filter operator.
+	 *     @type mixed    $date     Scheduled date filter value.
+	 *     @type string   $orderby  Column to order by. Default 'scheduled_date_gmt'.
+	 *     @type string   $order    ASC or DESC. Default 'DESC'.
+	 * }
+	 *
+	 * @return array Array of action row objects.
+	 */
+	public static function get_scheduled_actions( $args = [] ) {
+		if ( ! self::is_available() ) {
+			return [];
+		}
+
+		$args  = wp_parse_args(
+			$args,
+			[
+				'per_page' => 20,
+				'offset'   => 0,
+				'orderby'  => 'scheduled_date_gmt',
+				'order'    => 'DESC',
+			]
+		);
+		$query = self::build_query( $args );
+		if ( ! $query ) {
+			return [];
+		}
+
+		global $wpdb;
+
+		$allowed_orderby = [ 'scheduled_date_gmt', 'action_id', 'hook', 'status' ];
+		$orderby         = in_array( $args['orderby'], $allowed_orderby, true ) ? $args['orderby'] : 'scheduled_date_gmt';
+		$order           = 'ASC' === strtoupper( $args['order'] ) ? 'ASC' : 'DESC';
+
+		$prepare_args   = $query['prepare_args'];
 		$prepare_args[] = absint( $args['per_page'] );
 		$prepare_args[] = absint( $args['offset'] );
 
 		// Table names: $wpdb->prefix + hardcoded strings. $orderby/$order: allowlist/ternary validated.
 		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-		$sql = "SELECT a.* FROM {$actions_table} a INNER JOIN {$groups_table} g ON a.group_id = g.group_id WHERE g.slug IN ({$slug_placeholders}) {$where_clauses}ORDER BY a.{$orderby} {$order} LIMIT %d OFFSET %d";
+		$sql = "SELECT a.* FROM {$query['from']} {$query['where']}ORDER BY a.{$orderby} {$order} LIMIT %d OFFSET %d";
 
 		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
-		$query = $wpdb->prepare( $sql, ...$prepare_args );
+		$prepared = $wpdb->prepare( $sql, ...$prepare_args );
 
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared
-		return $wpdb->get_results( $query );
+		return $wpdb->get_results( $prepared );
 	}
 
 	/**
@@ -166,61 +283,22 @@ class Action_Scheduler {
 		if ( ! self::is_available() ) {
 			return 0;
 		}
-		global $wpdb;
 
-		$args  = wp_parse_args(
-			$args,
-			[
-				'groups' => [],
-				'status' => '',
-			]
-		);
-		$slugs = $args['groups'];
-		if ( empty( $slugs ) ) {
-			$slugs = array_merge(
-				[ self::DEFAULT_GROUP ],
-				self::get_groups_by_prefix( self::GROUP_PREFIX )
-			);
-		}
-		if ( empty( $slugs ) ) {
+		$query = self::build_query( $args );
+		if ( ! $query ) {
 			return 0;
 		}
 
-		$actions_table     = $wpdb->prefix . 'actionscheduler_actions';
-		$groups_table      = $wpdb->prefix . 'actionscheduler_groups';
-		$slug_placeholders = implode( ',', array_fill( 0, count( $slugs ), '%s' ) );
-		$prepare_args      = $slugs;
-
-		$where_clauses = '';
-		if ( ! empty( $args['status'] ) ) {
-			$where_clauses .= 'AND a.status = %s ';
-			$prepare_args[] = $args['status'];
-		}
-		if ( ! empty( $args['hook'] ) ) {
-			$where_clauses .= 'AND a.hook = %s ';
-			$prepare_args[] = $args['hook'];
-		}
-		if ( ! empty( $args['search'] ) ) {
-			$like            = '%' . $wpdb->esc_like( $args['search'] ) . '%';
-			$where_clauses  .= 'AND (a.hook LIKE %s OR a.args LIKE %s OR a.extended_args LIKE %s) ';
-			$prepare_args[]  = $like;
-			$prepare_args[]  = $like;
-			$prepare_args[]  = $like;
-		}
-		if ( ! empty( $args['scheduled_op'] ) && ! empty( $args['scheduled_value'] ) ) {
-			list( $date_clause, $date_args ) = self::build_date_clause( $args['scheduled_op'], $args['scheduled_value'] );
-			$where_clauses .= $date_clause;
-			$prepare_args   = array_merge( $prepare_args, $date_args );
-		}
+		global $wpdb;
 
 		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-		$sql = "SELECT COUNT(*) FROM {$actions_table} a INNER JOIN {$groups_table} g ON a.group_id = g.group_id WHERE g.slug IN ({$slug_placeholders}) {$where_clauses}";
+		$sql = "SELECT COUNT(*) FROM {$query['from']} {$query['where']}";
 
 		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
-		$query = $wpdb->prepare( $sql, ...$prepare_args );
+		$prepared = $wpdb->prepare( $sql, ...$query['prepare_args'] );
 
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared
-		return (int) $wpdb->get_var( $query );
+		return (int) $wpdb->get_var( $prepared );
 	}
 
 	/**
@@ -229,8 +307,8 @@ class Action_Scheduler {
 	 * Supports DataViews date filter operators: on, notOn, before, after,
 	 * beforeInc, afterInc, inThePast, over, between.
 	 *
-	 * @param string $operator    The DataViews filter operator.
-	 * @param mixed  $value       The filter value (ISO date string, array for between, or object for relative).
+	 * @param string $operator The filter operator.
+	 * @param mixed  $value    The filter value (ISO date string, array for between, or object for relative).
 	 *
 	 * @return array{string, array} Tuple of [ SQL clause string, prepare args array ].
 	 */
@@ -307,18 +385,6 @@ class Action_Scheduler {
 	}
 
 	/**
-	 * Get all known Newspack group slugs.
-	 *
-	 * @return string[] Array of group slug strings.
-	 */
-	public static function get_all_groups() {
-		return array_merge(
-			[ self::DEFAULT_GROUP ],
-			self::get_groups_by_prefix( self::GROUP_PREFIX )
-		);
-	}
-
-	/**
 	 * Get distinct hook names for Newspack ActionScheduler actions.
 	 *
 	 * @return string[] Array of hook name strings.
@@ -334,22 +400,18 @@ class Action_Scheduler {
 			return $cached;
 		}
 
-		global $wpdb;
-
-		$slugs = self::get_all_groups();
-		if ( empty( $slugs ) ) {
+		$query = self::build_query( [] );
+		if ( ! $query ) {
 			return [];
 		}
 
-		$actions_table     = $wpdb->prefix . 'actionscheduler_actions';
-		$groups_table      = $wpdb->prefix . 'actionscheduler_groups';
-		$slug_placeholders = implode( ',', array_fill( 0, count( $slugs ), '%s' ) );
+		global $wpdb;
 
 		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-		$sql = "SELECT DISTINCT a.hook FROM {$actions_table} a INNER JOIN {$groups_table} g ON a.group_id = g.group_id WHERE g.slug IN ({$slug_placeholders}) ORDER BY a.hook ASC";
+		$sql = "SELECT DISTINCT a.hook FROM {$query['from']} {$query['where']}ORDER BY a.hook ASC";
 
-		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-		$hooks = $wpdb->get_col( $wpdb->prepare( $sql, ...$slugs ) );
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$hooks = $wpdb->get_col( $wpdb->prepare( $sql, ...$query['prepare_args'] ) );
 
 		set_transient( $cache_key, $hooks, 5 * MINUTE_IN_SECONDS );
 
@@ -400,77 +462,12 @@ class Action_Scheduler {
 	}
 
 	/**
-	 * Get labels for known hooks.
-	 *
-	 * Returns an associative array of hook slug => human-readable label.
-	 * Subsystems can extend this via the `newspack_action_scheduler_hook_labels` filter.
-	 *
-	 * @return array<string,string>
-	 */
-	public static function get_hook_labels() {
-		/**
-		 * Filters the human-readable labels for ActionScheduler hook names.
-		 *
-		 * @param array<string,string> $labels Hook slug => label pairs.
-		 */
-		return apply_filters( 'newspack_action_scheduler_hook_labels', [] );
-	}
-
-	/**
-	 * Get labels for known groups.
-	 *
-	 * Returns an associative array of group slug => human-readable label.
-	 * Subsystems can extend this via the `newspack_action_scheduler_group_labels` filter.
-	 *
-	 * @return array<string,string>
-	 */
-	public static function get_group_labels() {
-		/**
-		 * Filters the human-readable labels for ActionScheduler group slugs.
-		 *
-		 * @param array<string,string> $labels Group slug => label pairs.
-		 */
-		return apply_filters(
-			'newspack_action_scheduler_group_labels',
-			[
-				'newspack' => 'Newspack',
-			]
-		);
-	}
-
-	/**
 	 * Generate a unique retry ID to link all retries from the same attempt.
 	 *
 	 * @return string UUID v4.
 	 */
 	public static function generate_retry_id() {
 		return wp_generate_uuid4();
-	}
-
-	/**
-	 * Get all actions associated with a retry ID.
-	 *
-	 * Uses ActionScheduler's search parameter to match the retry_id
-	 * against args or extended_args.
-	 *
-	 * @param string $retry_id The retry ID to search for.
-	 * @param string $hook     Optional. Hook name to filter by.
-	 *
-	 * @return array ActionScheduler action objects keyed by action ID.
-	 */
-	public static function get_actions_by_retry_id( $retry_id, $hook = '' ) {
-		if ( ! function_exists( 'as_get_scheduled_actions' ) || empty( $retry_id ) ) {
-			return [];
-		}
-		$args = [
-			'search'   => $retry_id,
-			'status'   => '',
-			'per_page' => -1,
-		];
-		if ( ! empty( $hook ) ) {
-			$args['hook'] = $hook;
-		}
-		return as_get_scheduled_actions( $args );
 	}
 
 	/**

@@ -180,6 +180,8 @@ class My_Account_UI_V1 {
 				return __DIR__ . '/templates/v1/related-orders.php';
 			case 'myaccount/related-subscriptions.php':
 				return __DIR__ . '/templates/v1/related-subscriptions.php';
+			case 'myaccount/group-subscription-members.php':
+				return __DIR__ . '/templates/v1/group-subscription-members.php';
 			case 'order/order-again.php':
 				return __DIR__ . '/templates/v1/order-again.php';
 			case 'notices/error.php':
@@ -235,6 +237,19 @@ class My_Account_UI_V1 {
 		unset( $items['edit-address'] );
 
 		return $items;
+	}
+
+	/**
+	 * Check if the current page is a subscription page.
+	 *
+	 * @param string $endpoint The current My Account page endpoint.
+	 * @return bool Whether the current page is a subscription page.
+	 */
+	public static function is_subscription_page( $endpoint ) {
+		if ( 'subscriptions' !== $endpoint ) {
+			return false;
+		}
+		return function_exists( 'is_wc_endpoint_url' ) && ( is_wc_endpoint_url( 'view-subscription' ) || is_wc_endpoint_url( 'manage-members' ) );
 	}
 
 	/**

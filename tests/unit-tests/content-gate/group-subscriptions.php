@@ -326,7 +326,7 @@ class Test_Group_Subscriptions extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * Test user_is_member() returns true for explicit members and for the manager.
+	 * Test user_is_member() returns true for explicit members and false for the manager.
 	 */
 	public function test_user_is_member() {
 		$owner_id   = $this->create_reader_user();
@@ -336,9 +336,9 @@ class Test_Group_Subscriptions extends \WP_UnitTestCase {
 
 		Group_Subscription::update_members( $group_sub, [ $member_id ] );
 
-		$this->assertTrue(
+		$this->assertFalse(
 			Group_Subscription::user_is_member( $owner_id, $group_sub ),
-			'Owner/manager should be considered a member'
+			'Owner/manager should not be considered a member'
 		);
 		$this->assertTrue(
 			Group_Subscription::user_is_member( $member_id, $group_sub ),

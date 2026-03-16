@@ -126,11 +126,6 @@
 				&:has([class*="=__close"]) {
 					grid-template-columns: auto var(--newspack-ui-spacer-9) auto;
 				}
-				&[data-autohide="true"] {
-					.newspack-ui__snackbar__content::after {
-						opacity: 0;
-					}
-				}
 				&.active {
 					max-height: 200px;
 					opacity: 1;
