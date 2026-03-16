@@ -451,8 +451,7 @@ class Newspack_Test_Reader_Activation_Sync extends WP_UnitTestCase {
 
 		Contact_Sync::clear_current_as_action_id();
 
-		// Intermediate retries complete normally without AS log entries
-		// (only the final retry logs via exception).
+		// Intermediate retries log a formatted failure message to the current AS action.
 		$logs     = \ActionScheduler_Logger::instance()->get_logs( $dummy_action_id );
 		$messages = array_map(
 			function ( $log ) {
@@ -460,9 +459,16 @@ class Newspack_Test_Reader_Activation_Sync extends WP_UnitTestCase {
 			},
 			$logs
 		);
-		$this->assertFalse(
-			in_array( 'Mock push failed', $messages, true ),
-			'Intermediate retries should not log errors to AS.'
+		$has_retry_log = false;
+		foreach ( $messages as $message ) {
+			if ( false !== strpos( $message, 'Retry 1/' . Contact_Sync::MAX_RETRIES . ' failed for integration "log_mock"' ) ) {
+				$has_retry_log = true;
+				break;
+			}
+		}
+		$this->assertTrue(
+			$has_retry_log,
+			'Intermediate retries should log a formatted failure message to AS.'
 		);
 
 		// Clean up.

@@ -299,7 +299,7 @@ class Contact_Sync extends Sync {
 	/**
 	 * Execute an integration sync retry from ActionScheduler.
 	 *
-	 * @param array $retry_data The retry data containing integration_id, contact, context, and retry_count.
+	 * @param array $retry_data The retry data containing integration_id, user_id, context, and retry_count.
 	 *
 	 * @throws \Exception When the final retry fails, so ActionScheduler marks the action as "failed".
 	 */
@@ -364,12 +364,12 @@ class Contact_Sync extends Sync {
 			);
 			$error_message = sprintf(
 				'Retry %d/%d failed for integration "%s" sync of user %d (%s): %s',
-				absint( $retry_count ),
-				absint( self::MAX_RETRIES ),
-				esc_html( $integration_id ),
-				absint( $user_id ),
-				esc_html( $contact['email'] ?? 'unknown' ),
-				esc_html( $error_messages )
+				$retry_count,
+				self::MAX_RETRIES,
+				$integration_id,
+				$user_id,
+				$contact['email'] ?? 'unknown',
+				$error_messages
 			);
 			if ( self::$current_as_action_id ) {
 				\ActionScheduler_Logger::instance()->log(
@@ -385,11 +385,11 @@ class Contact_Sync extends Sync {
 		} else {
 			$success_message = sprintf(
 				'Retry %d/%d succeeded for integration "%s" sync of user %d (%s).',
-				absint( $retry_count ),
-				absint( self::MAX_RETRIES ),
-				esc_html( $integration_id ),
-				absint( $user_id ),
-				esc_html( $contact['email'] ?? 'unknown' )
+				$retry_count,
+				self::MAX_RETRIES,
+				$integration_id,
+				$user_id,
+				$contact['email'] ?? 'unknown'
 			);
 			static::log( $success_message );
 			if ( self::$current_as_action_id ) {
