@@ -5,20 +5,6 @@
  * @package Newspack
  */
 
-// Extract metering settings from custom access context, with defaults.
-// Custom access metering applies to registered readers without an active subscription.
-$metering_count  = 4;
-$metering_period = __( 'month', 'newspack' );
-if ( ! empty( $pattern_context['custom_access_settings']['metering'] ) ) {
-	$metering = $pattern_context['custom_access_settings']['metering'];
-	if ( ! empty( $metering['count'] ) ) {
-		$metering_count = absint( $metering['count'] );
-	}
-	if ( ! empty( $metering['period'] ) ) {
-		$metering_period = esc_html( $metering['period'] );
-	}
-}
-
 ?>
 <!-- wp:group {"metadata":{"name":"<?php esc_html_e( 'Registration', 'newspack' ); ?>"},"align":"wide","style":{"spacing":{"padding":{"top":"var:preset|spacing|50","bottom":"var:preset|spacing|50","left":"var:preset|spacing|50","right":"var:preset|spacing|50"},"blockGap":"var:preset|spacing|30"},"border":{"radius":"8px","width":"1px"}},"borderColor":"base-3","layout":{"type":"flex","flexWrap":"wrap","justifyContent":"space-between"}} -->
 <div class="wp-block-group alignwide has-border-color has-base-3-border-color" style="border-width:1px;border-radius:8px;padding-top:var(--wp--preset--spacing--50);padding-right:var(--wp--preset--spacing--50);padding-bottom:var(--wp--preset--spacing--50);padding-left:var(--wp--preset--spacing--50)">
@@ -33,8 +19,8 @@ if ( ! empty( $pattern_context['custom_access_settings']['metering'] ) ) {
 					/* translators: 1: number of free articles, 2: period label such as "month" or "week". */
 					__( 'Get %1$s free articles every %2$s with a free account.', 'newspack' )
 				),
-				'<strong>' . esc_html( $metering_count ) . '</strong>',
-				esc_html( $metering_period )
+				'<strong>4</strong>',
+				esc_html__( 'month', 'newspack' ) // later can be 'week', 'weeks', etc.
 			);
 			?>
 		</p>
