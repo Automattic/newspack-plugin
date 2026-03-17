@@ -189,7 +189,7 @@ class Contact_Sync_Connector {
 		* second one setting it back to active. This sometimes creates a race condition on the ESP side.
 		* This third request will make sure the ESP always has the correct and most up to date data about the reader.
 		*/
-		self::schedule_sync(
+		Contact_Sync::schedule_sync(
 			$data['user_id'],
 			sprintf(
 				// Translators: %d is the subscription ID and %s is the customer's email address.
