@@ -55,7 +55,7 @@ function PostSettings() {
 
 	const matchingGates = useMemo(
 		() => gates.filter( gate => gateMatchesPost( gate.content_rules, postType, termsByTax ) ),
-		[ gates, postType, termsByTax ]
+		[ postType, termsByTax ]
 	);
 
 	return (
