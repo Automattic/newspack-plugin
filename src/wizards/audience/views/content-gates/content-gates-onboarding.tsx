@@ -5,7 +5,7 @@
 /**
  * WordPress dependencies.
  */
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { __experimentalVStack as VStack } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
 import { postList, settings } from '@wordpress/icons';
 
@@ -15,17 +15,28 @@ import { postList, settings } from '@wordpress/icons';
 import { Card, Grid, SectionHeader } from '../../../../../packages/components/src';
 import { lockDoor } from '../../../../../packages/icons';
 
-const ContentGatesOnboarding = () => {
+const ContentGatesOnboarding = ( { isNewsletter = false }: { isNewsletter?: boolean } ) => {
 	return (
 		<Grid columns={ 4 } noMargin>
 			<VStack start={ 2 } end={ 4 } spacing={ 8 }>
 				<SectionHeader
 					icon={ lockDoor }
-					title={ __( 'Get started with access control', 'newspack-plugin' ) }
-					description={ __(
-						'Set up gates to manage what content readers can access across your site. Start by selecting which content to restrict, then configure access through registered and/or paid options (including metered rules).',
-						'newspack-plugin'
+					title={ sprintf(
+						// translators: %s is the type of content to restrict.
+						__( 'Get started with %s', 'newspack-plugin' ),
+						isNewsletter ? __( 'premium newsletters', 'newspack-plugin' ) : __( 'access control', 'newspack-plugin' )
 					) }
+					description={
+						isNewsletter
+							? __(
+									'Set up premium newsletters to manage which lists readers can sign up for. Start by selecting which lists to restrict, then configure access through registered and/or paid options.',
+									'newspack-plugin'
+							  )
+							: __(
+									'Set up gates to manage what content readers can access across your site. Start by selecting which content to restrict, then configure access through registered and/or paid options (including metered rules).',
+									'newspack-plugin'
+							  )
+					}
 					pageHeader
 					noMargin
 				/>
@@ -38,7 +49,13 @@ const ContentGatesOnboarding = () => {
 							as: 'a',
 							header: (
 								<>
-									<h3>{ __( 'Restrict all posts', 'newspack-plugin' ) }</h3>
+									<h3>
+										{ sprintf(
+											// translators: %s is the type of content to restrict.
+											__( 'Restrict all %s', 'newspack-plugin' ),
+											isNewsletter ? __( 'lists', 'newspack-plugin' ) : __( 'posts', 'newspack-plugin' )
+										) }
+									</h3>
 									<p>{ __( 'All posts on your site will require access.', 'newspack-plugin' ) }</p>
 								</>
 							),
@@ -55,7 +72,13 @@ const ContentGatesOnboarding = () => {
 							as: 'a',
 							header: (
 								<>
-									<h3>{ __( 'Choose specific content', 'newspack-plugin' ) }</h3>
+									<h3>
+										{ sprintf(
+											// translators: %s is the type of content to restrict.
+											__( 'Choose specific %s', 'newspack-plugin' ),
+											isNewsletter ? __( 'lists', 'newspack-plugin' ) : __( 'posts', 'newspack-plugin' )
+										) }
+									</h3>
 									<p>{ __( 'Select which content to restrict using custom rules.', 'newspack-plugin' ) }</p>
 								</>
 							),

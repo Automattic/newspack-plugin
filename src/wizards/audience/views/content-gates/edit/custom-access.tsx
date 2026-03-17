@@ -13,9 +13,10 @@ import AccessRules from './access-rules';
 interface CustomAccessProps {
 	customAccess: CustomAccess;
 	onChange: ( customAccess: Partial< CustomAccess > ) => void;
+	isNewsletter?: boolean;
 }
 
-export default function CustomAccess( { customAccess, onChange }: CustomAccessProps ) {
+export default function CustomAccess( { customAccess, onChange, isNewsletter = false }: CustomAccessProps ) {
 	// Get the first group of rules (UI currently only supports a single group).
 	const currentRules = customAccess.access_rules[ 0 ] || [];
 
@@ -43,9 +44,11 @@ export default function CustomAccess( { customAccess, onChange }: CustomAccessPr
 	return (
 		<>
 			<AccessRules rules={ currentRules } onChange={ handleRulesChange } />
-			<CardBody size="small">
-				<Metering metering={ customAccess.metering } onChange={ ( metering: Metering ) => handleChange( { metering } ) } />
-			</CardBody>
+			{ ! isNewsletter && (
+				<CardBody size="small">
+					<Metering metering={ customAccess.metering } onChange={ ( metering: Metering ) => handleChange( { metering } ) } />
+				</CardBody>
+			) }
 		</>
 	);
 }

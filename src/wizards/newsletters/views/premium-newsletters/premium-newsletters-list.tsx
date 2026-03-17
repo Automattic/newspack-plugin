@@ -1,0 +1,72 @@
+/**
+ * Content Gate component.
+ */
+
+/**
+ * WordPress dependencies.
+ */
+import { __ } from '@wordpress/i18n';
+import { __experimentalVStack as VStack } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
+import { useDispatch } from '@wordpress/data';
+import { useEffect, useRef } from '@wordpress/element';
+
+/**
+ * Internal dependencies
+ */
+import { Notice } from '../../../../../packages/components/src';
+import { useWizardData } from '../../../../../packages/components/src/wizard/store/utils';
+import { useWizardApiFetch } from '../../../hooks/use-wizard-api-fetch';
+import { WIZARD_STORE_NAMESPACE } from '../../../../../packages/components/src/wizard/store';
+import ContentGateOnboarding from '../../../audience/views/content-gates/content-gates-onboarding';
+import ContentGateSettings from '../../../audience/views/content-gates/content-gate-settings';
+import { PREMIUM_NEWSLETTERS_WIZARD_SLUG } from './consts';
+
+const ContentGates = ( { updateGatesData }: { updateGatesData: ( gates: Gate[] ) => void } ) => {
+	const wizardData = useWizardData( PREMIUM_NEWSLETTERS_WIZARD_SLUG ) as WizardData;
+	const { isFetching, error, errorMessage } = useWizardApiFetch( PREMIUM_NEWSLETTERS_WIZARD_SLUG );
+	const { resetHeaderData, setHeaderData } = useDispatch( WIZARD_STORE_NAMESPACE );
+	const ref = useRef( null );
+	const gates = ( wizardData?.gates || [] ) as Gate[];
+
+	useEffect( () => {
+		if ( isFetching ) {
+			return;
+		}
+		if ( ! gates?.length ) {
+			resetHeaderData();
+			return;
+		}
+		setHeaderData( {
+			sectionTitle: __( 'Premium newsletters', 'newspack-plugin' ),
+			sectionDescription: __( 'Set up premium newsletters to control access to your newsletters.', 'newspack-plugin' ),
+			sectionPrimaryAction: {
+				label: __( 'Add new premium newsletter', 'newspack-plugin' ),
+				href: '#/edit/new/all',
+			},
+		} );
+	}, [ isFetching, gates ] );
+
+	if ( ! gates?.length ) {
+		return <ContentGateOnboarding isNewsletter />;
+	}
+
+	return (
+		<>
+			{ error && <Notice isError noticeText={ errorMessage } /> }
+			<VStack className="newspack-content-gates__gates" spacing="16px" ref={ ref }>
+				{ gates.map( gate => {
+					return (
+						<ContentGateSettings
+							key={ gate.id }
+							gate={ gate }
+							updateGatesData={ updateGatesData }
+							slug={ PREMIUM_NEWSLETTERS_WIZARD_SLUG }
+							isNewsletter
+						/>
+					);
+				} ) }
+			</VStack>
+		</>
+	);
+};
+export default ContentGates;

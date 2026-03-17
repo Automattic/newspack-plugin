@@ -29,86 +29,6 @@ class Audience_Content_Gates extends Wizard {
 	protected $parent_slug = 'newspack-audience';
 
 	/**
-	 * Gate schema properites.
-	 *
-	 * @var array
-	 */
-	protected $gate_properties = [
-		'title'         => [ 'type' => 'string' ],
-		'status'        => [ 'type' => 'string' ],
-		'metering'      => [
-			'type'       => 'object',
-			'properties' => [
-				'enabled'          => [ 'type' => 'boolean' ],
-				'anonymous_count'  => [ 'type' => 'integer' ],
-				'registered_count' => [ 'type' => 'integer' ],
-				'period'           => [ 'type' => 'string' ],
-			],
-		],
-		'content_rules' => [
-			'type'  => 'array',
-			'items' => [
-				'type'       => 'object',
-				'properties' => [
-					'slug'      => [ 'type' => 'string' ],
-					'value'     => [ 'type' => [ 'string', 'array' ] ],
-					'exclusion' => [ 'type' => 'boolean' ],
-				],
-			],
-		],
-		'registration'  => [
-			'type'       => 'object',
-			'properties' => [
-				'active'               => [ 'type' => 'boolean' ],
-				'require_verification' => [ 'type' => 'boolean' ],
-				'gate_layout_id'       => [
-					'type'     => 'integer',
-					'required' => false,
-				],
-				'metering'             => [
-					'type'       => 'object',
-					'properties' => [
-						'enabled' => [ 'type' => 'boolean' ],
-						'count'   => [ 'type' => 'integer' ],
-						'period'  => [ 'type' => 'string' ],
-					],
-				],
-			],
-		],
-		'custom_access' => [
-			'type'       => 'object',
-			'properties' => [
-				'active'         => [ 'type' => 'boolean' ],
-				'metering'       => [
-					'type'       => 'object',
-					'properties' => [
-						'enabled' => [ 'type' => 'boolean' ],
-						'count'   => [ 'type' => 'integer' ],
-						'period'  => [ 'type' => 'string' ],
-					],
-				],
-				'gate_layout_id' => [
-					'type'     => 'integer',
-					'required' => false,
-				],
-				'access_rules'   => [
-					'type'  => 'array',
-					'items' => [
-						'type'  => 'array',
-						'items' => [
-							'type'       => 'object',
-							'properties' => [
-								'slug'  => [ 'type' => 'string' ],
-								'value' => [ 'type' => [ 'string', 'array' ] ],
-							],
-						],
-					],
-				],
-			],
-		],
-	];
-
-	/**
 	 * Constructor.
 	 */
 	public function __construct() {
@@ -154,7 +74,7 @@ class Audience_Content_Gates extends Wizard {
 	 * @return string The wizard name.
 	 */
 	public function get_name() {
-		return esc_html__( 'Audience Management / Access Control', 'newspack-plugin' );
+		return esc_html__( 'Audience Management / Access control', 'newspack-plugin' );
 	}
 
 	/**
@@ -207,7 +127,7 @@ class Audience_Content_Gates extends Wizard {
 		add_submenu_page(
 			$this->parent_slug,
 			$this->get_name(),
-			esc_html__( 'Access Control', 'newspack-plugin' ),
+			esc_html__( 'Access control', 'newspack-plugin' ),
 			$this->capability,
 			$this->slug,
 			[ $this, 'render_wizard' ]
@@ -329,7 +249,7 @@ class Audience_Content_Gates extends Wizard {
 					'gate' => [
 						'type'              => 'object',
 						'sanitize_callback' => [ $this, 'sanitize_gate' ],
-						'properties'        => $this->gate_properties,
+						'properties'        => Content_Gate::$gate_properties,
 					],
 				],
 				'permission_callback' => [ $this, 'api_permissions_check' ],
@@ -385,7 +305,7 @@ class Audience_Content_Gates extends Wizard {
 					'gate' => [
 						'type'              => 'object',
 						'sanitize_callback' => [ $this, 'sanitize_gate' ],
-						'properties'        => $this->gate_properties,
+						'properties'        => Content_Gate::$gate_properties,
 					],
 				],
 			]

@@ -40,6 +40,8 @@ type ContentGateEditProps = {
 	history: { push: ( path: string ) => void };
 	match: { params: { id: string; type: string } };
 	updateGatesData: ( gates: Gate[] ) => void;
+	slug?: string;
+	isNewsletter?: boolean;
 };
 
 const DEFAULT_GATE: Gate = {
@@ -69,12 +71,12 @@ const getContentTypeFromRules = ( rules: GateContentRule[] ): 'all' | 'custom' |
 	return 'all';
 };
 
-const Edit = ( { match, updateGatesData }: ContentGateEditProps ) => {
+const Edit = ( { match, updateGatesData, slug = AUDIENCE_CONTENT_GATES_WIZARD_SLUG, isNewsletter = false }: ContentGateEditProps ) => {
 	const history = useHistory();
 	const { id: _id, type } = match.params;
 	const id = _id ? parseInt( _id ) : 0;
-	const { gates = null as unknown as Gate[] } = useWizardData( AUDIENCE_CONTENT_GATES_WIZARD_SLUG ) as WizardData;
-	const { wizardApiFetch, isFetching, errorMessage, resetError } = useWizardApiFetch( AUDIENCE_CONTENT_GATES_WIZARD_SLUG );
+	const { gates = null as unknown as Gate[] } = useWizardData( slug ) as WizardData;
+	const { wizardApiFetch, isFetching, errorMessage, resetError } = useWizardApiFetch( slug );
 	const { addNotice, resetNotices, setHeaderData } = useDispatch( WIZARD_STORE_NAMESPACE );
 	const [ gate, setGate ] = useState< Gate >( ( gates && gates.find( g => g.id === id ) ) || DEFAULT_GATE ); // eslint-disable-line @typescript-eslint/no-unused-vars
 	const [ title, setTitle ] = useState< string >( gate.title );
@@ -138,7 +140,7 @@ const Edit = ( { match, updateGatesData }: ContentGateEditProps ) => {
 		};
 		wizardApiFetch< Gate >(
 			{
-				path: `/newspack/v1/wizard/${ AUDIENCE_CONTENT_GATES_WIZARD_SLUG }`,
+				path: `/newspack/v1/wizard/${ slug }`,
 				method: 'POST',
 				data: { gate: _gate },
 			},
@@ -179,7 +181,7 @@ const Edit = ( { match, updateGatesData }: ContentGateEditProps ) => {
 		};
 		wizardApiFetch< Gate >(
 			{
-				path: `/newspack/v1/wizard/${ AUDIENCE_CONTENT_GATES_WIZARD_SLUG }/${ gate.id }`,
+				path: `/newspack/v1/wizard/${ slug }/${ gate.id }`,
 				method: 'POST',
 				data: { gate: _gate },
 			},
@@ -220,7 +222,7 @@ const Edit = ( { match, updateGatesData }: ContentGateEditProps ) => {
 		};
 		wizardApiFetch< Gate >(
 			{
-				path: `/newspack/v1/wizard/${ AUDIENCE_CONTENT_GATES_WIZARD_SLUG }/${ gate.id }`,
+				path: `/newspack/v1/wizard/${ slug }/${ gate.id }`,
 				method: 'POST',
 				data: { gate: _gate },
 			},
@@ -256,7 +258,7 @@ const Edit = ( { match, updateGatesData }: ContentGateEditProps ) => {
 		setIsDeleting( true );
 		wizardApiFetch(
 			{
-				path: `/newspack/v1/wizard/${ AUDIENCE_CONTENT_GATES_WIZARD_SLUG }/${ id }`,
+				path: `/newspack/v1/wizard/${ slug }/${ id }`,
 				method: 'DELETE',
 			},
 			{
@@ -371,7 +373,18 @@ const Edit = ( { match, updateGatesData }: ContentGateEditProps ) => {
 		setHeaderData( {
 			actions,
 			badges: isNew ? [] : [ { label: getGateStatus( gate.status ), level: getGateStatusBadgeLevel( gate.status ) } ],
-			sectionTitle: isNew ? __( 'Add new content gate', 'newspack-plugin' ) : title || __( 'Untitled content gate', 'newspack-plugin' ),
+			sectionTitle: isNew
+				? sprintf(
+						// translators: %s is the type of content to restrict.
+						__( 'Add new %s', 'newspack-plugin' ),
+						isNewsletter ? __( 'premium newsletter', 'newspack-plugin' ) : __( 'gate', 'newspack-plugin' )
+				  )
+				: title ||
+				  sprintf(
+						// translators: %s is the type of content to restrict.
+						__( 'Untitled %s', 'newspack-plugin' ),
+						isNewsletter ? __( 'premium newsletter', 'newspack-plugin' ) : __( 'gate', 'newspack-plugin' )
+				  ),
 		} );
 	}, [
 		contentRules.length,
@@ -414,12 +427,28 @@ const Edit = ( { match, updateGatesData }: ContentGateEditProps ) => {
 					<Grid columns={ 2 } gutter={ 32 }>
 						<SectionHeader
 							heading={ 2 }
-							title={ __( 'What should we call this gate?', 'newspack-plugin' ) }
-							description={ __( 'Choose a name to help you find this gate later. It won’t be shown to readers.', 'newspack-plugin' ) }
+							title={ sprintf(
+								// translators: %s is the type of content to restrict.
+								__( 'What should we call this %s?', 'newspack-plugin' ),
+								isNewsletter ? __( 'premium newsletter', 'newspack-plugin' ) : __( 'gate', 'newspack-plugin' )
+							) }
+							description={ sprintf(
+								// translators: %s is the type of content to restrict.
+								__( 'Choose a name to help you find this %s later. It won’t be shown to readers.', 'newspack-plugin' ),
+								isNewsletter ? __( 'premium newsletter', 'newspack-plugin' ) : __( 'gate', 'newspack-plugin' )
+							) }
 						/>
 						<TextControl
-							label={ __( 'Content gate name', 'newspack-plugin' ) }
-							placeholder={ __( 'e.g. Premium Articles', 'newspack-plugin' ) }
+							label={ sprintf(
+								// translators: %s is the type of content to restrict.
+								__( '%s name', 'newspack-plugin' ),
+								isNewsletter ? __( 'premium newsletter', 'newspack-plugin' ) : __( 'gate', 'newspack-plugin' )
+							) }
+							placeholder={ sprintf(
+								// translators: %s is the type of content to restrict.
+								__( 'e.g. %s', 'newspack-plugin' ),
+								isNewsletter ? __( 'Premium Lists', 'newspack-plugin' ) : __( 'Premium Articles', 'newspack-plugin' )
+							) }
 							value={ title }
 							onChange={ setTitle }
 							hideLabelFromVision
@@ -433,21 +462,42 @@ const Edit = ( { match, updateGatesData }: ContentGateEditProps ) => {
 				<SectionHeader
 					heading={ 2 }
 					title={ __( 'What would you like to restrict?', 'newspack-plugin' ) }
-					description={ __( 'Choose whether to restrict all posts or select specific content.', 'newspack-plugin' ) }
+					description={ sprintf(
+						// translators: 1: the type of content to restrict, 2: content or "lists".
+						__( 'Choose whether to restrict all %1$s or select specific %2$s.', 'newspack-plugin' ),
+						isNewsletter ? __( 'lists', 'newspack-plugin' ) : __( 'posts', 'newspack-plugin' ),
+						isNewsletter ? __( 'lists', 'newspack-plugin' ) : __( 'content', 'newspack-plugin' )
+					) }
 				/>
 				<VStack spacing={ 4 }>
 					<CardSettingsGroup
 						actionType="chevron"
-						title={ __( 'Restrict all posts', 'newspack-plugin' ) }
-						description={ __( 'All posts on your site will require access.', 'newspack-plugin' ) }
+						title={ sprintf(
+							// translators: %s is the type of content to restrict.
+							__( 'Restrict all %s', 'newspack-plugin' ),
+							isNewsletter ? __( 'lists', 'newspack-plugin' ) : __( 'posts', 'newspack-plugin' )
+						) }
+						description={ sprintf(
+							// translators: %s is the type of content to restrict.
+							__( 'All %s on your site will require access.', 'newspack-plugin' ),
+							isNewsletter ? __( 'lists', 'newspack-plugin' ) : __( 'posts', 'newspack-plugin' )
+						) }
 						icon={ postList }
 						isActive={ contentType === 'all' }
 						onEnable={ () => setContentType( 'all' ) }
 					/>
 					<CardSettingsGroup
 						actionType="chevron"
-						title={ __( 'Choose specific content', 'newspack-plugin' ) }
-						description={ __( 'Select which content to restrict using custom rules.', 'newspack-plugin' ) }
+						title={ sprintf(
+							// translators: %s is the type of content to restrict.
+							__( 'Choose specific %s', 'newspack-plugin' ),
+							isNewsletter ? __( 'lists', 'newspack-plugin' ) : __( 'content', 'newspack-plugin' )
+						) }
+						description={ sprintf(
+							// translators: %s is the type of content to restrict.
+							__( 'Select which %s to restrict using custom rules.', 'newspack-plugin' ),
+							isNewsletter ? __( 'lists', 'newspack-plugin' ) : __( 'content', 'newspack-plugin' )
+						) }
 						icon={ settings }
 						isActive={ contentType === 'custom' }
 						onEnable={ () => setContentType( 'custom' ) }
@@ -460,22 +510,37 @@ const Edit = ( { match, updateGatesData }: ContentGateEditProps ) => {
 			<Grid columns={ 2 } gutter={ 32 } noMargin>
 				<SectionHeader
 					heading={ 2 }
-					title={ __( 'What’s required to access this content?', 'newspack-plugin' ) }
-					description={ __(
-						'Choose how readers can unlock this content. Enable registered access, paid access, or both. Each option can include metering to give readers limited free access before the restriction applies.',
-						'newspack-plugin'
+					title={ sprintf(
+						// translators: %s is the type of content to restrict.
+						__( 'What’s required to access this %s?', 'newspack-plugin' ),
+						isNewsletter ? __( 'list', 'newspack-plugin' ) : __( 'content', 'newspack-plugin' )
+					) }
+					description={ sprintf(
+						// translators: 1: the type of content to restrict, 2: the metering description.
+						__( 'Choose how readers can unlock this %1$s. Enable registered access, paid access, or both. %2$s', 'newspack-plugin' ),
+						isNewsletter ? __( 'list', 'newspack-plugin' ) : __( 'content', 'newspack-plugin' ),
+						isNewsletter
+							? ''
+							: __(
+									'Each option can include metering to give readers limited free access before the restriction applies.',
+									'newspack-plugin'
+							  )
 					) }
 				/>
 				<VStack spacing={ 4 }>
 					<CardSettingsGroup
 						actionType="toggle"
 						title={ __( 'Registered access', 'newspack-plugin' ) }
-						description={ __( 'Readers must log in to view this content.', 'newspack-plugin' ) }
+						description={ sprintf(
+							// translators: %s is the type of content to restrict.
+							__( 'Readers must log in to view %s.', 'newspack-plugin' ),
+							isNewsletter ? __( 'these lists', 'newspack-plugin' ) : __( 'this content', 'newspack-plugin' )
+						) }
 						icon={ commentAuthorAvatar }
 						isActive={ registration?.active }
 						onEnable={ () => setRegistration( { ...registration, active: ! registration.active } ) }
 					>
-						<Registration registration={ registration } onChange={ setRegistration } />
+						<Registration registration={ registration } onChange={ setRegistration } isNewsletter={ isNewsletter } />
 					</CardSettingsGroup>
 					<CardSettingsGroup
 						actionType="toggle"
@@ -485,7 +550,7 @@ const Edit = ( { match, updateGatesData }: ContentGateEditProps ) => {
 						isActive={ customAccess?.active }
 						onEnable={ () => setCustomAccess( { ...customAccess, active: ! customAccess.active } ) }
 					>
-						<CustomAccess customAccess={ customAccess } onChange={ setCustomAccess } />
+						<CustomAccess customAccess={ customAccess } onChange={ setCustomAccess } isNewsletter={ isNewsletter } />
 					</CardSettingsGroup>
 				</VStack>
 			</Grid>

@@ -65,6 +65,86 @@ class Content_Gate {
 	private static $overlay_gate_output = false;
 
 	/**
+	 * Gate schema properites.
+	 *
+	 * @var array
+	 */
+	public static $gate_properties = [
+		'title'         => [ 'type' => 'string' ],
+		'status'        => [ 'type' => 'string' ],
+		'metering'      => [
+			'type'       => 'object',
+			'properties' => [
+				'enabled'          => [ 'type' => 'boolean' ],
+				'anonymous_count'  => [ 'type' => 'integer' ],
+				'registered_count' => [ 'type' => 'integer' ],
+				'period'           => [ 'type' => 'string' ],
+			],
+		],
+		'content_rules' => [
+			'type'  => 'array',
+			'items' => [
+				'type'       => 'object',
+				'properties' => [
+					'slug'      => [ 'type' => 'string' ],
+					'value'     => [ 'type' => [ 'string', 'array' ] ],
+					'exclusion' => [ 'type' => 'boolean' ],
+				],
+			],
+		],
+		'registration'  => [
+			'type'       => 'object',
+			'properties' => [
+				'active'               => [ 'type' => 'boolean' ],
+				'require_verification' => [ 'type' => 'boolean' ],
+				'gate_layout_id'       => [
+					'type'     => 'integer',
+					'required' => false,
+				],
+				'metering'             => [
+					'type'       => 'object',
+					'properties' => [
+						'enabled' => [ 'type' => 'boolean' ],
+						'count'   => [ 'type' => 'integer' ],
+						'period'  => [ 'type' => 'string' ],
+					],
+				],
+			],
+		],
+		'custom_access' => [
+			'type'       => 'object',
+			'properties' => [
+				'active'         => [ 'type' => 'boolean' ],
+				'metering'       => [
+					'type'       => 'object',
+					'properties' => [
+						'enabled' => [ 'type' => 'boolean' ],
+						'count'   => [ 'type' => 'integer' ],
+						'period'  => [ 'type' => 'string' ],
+					],
+				],
+				'gate_layout_id' => [
+					'type'     => 'integer',
+					'required' => false,
+				],
+				'access_rules'   => [
+					'type'  => 'array',
+					'items' => [
+						'type'  => 'array',
+						'items' => [
+							'type'       => 'object',
+							'properties' => [
+								'slug'  => [ 'type' => 'string' ],
+								'value' => [ 'type' => [ 'string', 'array' ] ],
+							],
+						],
+					],
+				],
+			],
+		],
+	];
+
+	/**
 	 * Initialize hooks and filters.
 	 */
 	public static function init() {
@@ -594,21 +674,26 @@ class Content_Gate {
 	 *
 	 * @param array  $gate Gate settings.
 	 * @param string $post_type Optional post type. Defaults to self::GATE_CPT.
+	 * @param bool   $is_newsletter Whether the gate is for a newsletter.
 	 *
 	 * @return int|\WP_Error The gate post ID or error if not created.
 	 */
-	public static function create_gate( $gate, $post_type = self::GATE_CPT ) {
+	public static function create_gate( $gate, $post_type = self::GATE_CPT, $is_newsletter = false ) {
 		$all_gates = self::get_gates();
-		$gate_id   = \wp_insert_post(
-			[
-				'post_title'   => $gate['title'],
-				'post_type'    => $post_type,
-				'post_status'  => 'publish',
-				'post_content' => '',
-				'meta_input'   => [
-					'gate_priority' => count( $all_gates ),
-				],
+		$args      = [
+			'post_title'   => $gate['title'],
+			'post_type'    => $post_type,
+			'post_status'  => 'publish',
+			'post_content' => '',
+			'meta_input'   => [
+				'gate_priority' => count( $all_gates ),
 			],
+		];
+		if ( $is_newsletter ) {
+			$args['meta_input']['is_newsletter'] = true;
+		}
+		$gate_id = \wp_insert_post(
+			$args,
 			true // Return WP_Error on failure.
 		);
 
@@ -1274,15 +1359,22 @@ class Content_Gate {
 	 *
 	 * @param string          $post_type Post type.
 	 * @param string|string[] $post_status Post status or array of statuses to fetch.
+	 * @param bool            $is_newsletter Whether to fetch premium newsletter gates.
 	 *
 	 * @return array Array of content gates.
 	 */
-	public static function get_gates( $post_type = self::GATE_CPT, $post_status = null ) {
+	public static function get_gates( $post_type = self::GATE_CPT, $post_status = null, $is_newsletter = false ) {
 		$posts = get_posts(
 			[
 				'post_type'      => $post_type,
 				'post_status'    => $post_status ? $post_status : self::get_post_statuses(),
 				'posts_per_page' => -1,
+				'meta_query'     => [ // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
+					[
+						'key'     => 'is_newsletter',
+						'compare' => $is_newsletter ? 'EXISTS' : 'NOT EXISTS',
+					],
+				],
 			]
 		);
 		$gates = array_map( [ __CLASS__, 'get_gate' ], wp_list_pluck( $posts, 'ID' ) );
