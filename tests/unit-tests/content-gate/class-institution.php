@@ -203,9 +203,9 @@ class Test_Institution extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test IP range match via cookie.
+	 * Test IP range match via real IP.
 	 */
-	public function test_ip_range_match_via_cookie() {
+	public function test_ip_range_match() {
 		$inst_id   = $this->create_institution(
 			'IP Institution',
 			[ '_np_institution_ip_range' => '10.0.0.0/8' ]
@@ -214,11 +214,53 @@ class Test_Institution extends WP_UnitTestCase {
 
 		delete_transient( Institution::TRANSIENT_KEY );
 
+		// phpcs:disable WordPressVIPMinimum.Variables.ServerVariables.UserControlledHeaders, WordPressVIPMinimum.Variables.RestrictedVariables.cache_constraints___SERVER__REMOTE_ADDR__
+
+		// No IP set — no match.
+		unset( $_SERVER['REMOTE_ADDR'] );
 		$this->assertFalse( Institution::evaluate( $reader_id, [ $inst_id ] ) );
 
-		$_COOKIE[ \Newspack\Content_Gate\IP_Access_Rule::COOKIE_NAME ] = '1'; // phpcs:ignore WordPressVIPMinimum.Variables.RestrictedVariables.cache_constraints___COOKIE
+		// Matching IP.
+		$_SERVER['REMOTE_ADDR'] = '10.1.2.3';
 		$this->assertTrue( Institution::evaluate( $reader_id, [ $inst_id ] ) );
-		unset( $_COOKIE[ \Newspack\Content_Gate\IP_Access_Rule::COOKIE_NAME ] ); // phpcs:ignore WordPressVIPMinimum.Variables.RestrictedVariables.cache_constraints___COOKIE
+
+		// Non-matching IP.
+		$_SERVER['REMOTE_ADDR'] = '192.168.1.1';
+		$this->assertFalse( Institution::evaluate( $reader_id, [ $inst_id ] ) );
+
+		unset( $_SERVER['REMOTE_ADDR'] );
+
+		// phpcs:enable
+	}
+
+	/**
+	 * Test anonymous user can match via IP range.
+	 */
+	public function test_anonymous_ip_range_match() {
+		$inst_id = $this->create_institution(
+			'Anon IP Institution',
+			[ '_np_institution_ip_range' => '10.0.0.0/8' ]
+		);
+
+		delete_transient( Institution::TRANSIENT_KEY );
+
+		// phpcs:disable WordPressVIPMinimum.Variables.ServerVariables.UserControlledHeaders, WordPressVIPMinimum.Variables.RestrictedVariables.cache_constraints___SERVER__REMOTE_ADDR__
+
+		$_SERVER['REMOTE_ADDR'] = '10.1.2.3';
+		$this->assertTrue(
+			\Newspack\Access_Rules::evaluate_rule( 'institution', [ $inst_id ], 0 ),
+			'Anonymous user with matching IP should get institutional access'
+		);
+
+		$_SERVER['REMOTE_ADDR'] = '192.168.1.1';
+		$this->assertFalse(
+			\Newspack\Access_Rules::evaluate_rule( 'institution', [ $inst_id ], 0 ),
+			'Anonymous user with non-matching IP should not get access'
+		);
+
+		unset( $_SERVER['REMOTE_ADDR'] );
+
+		// phpcs:enable
 	}
 
 	/**
@@ -283,12 +325,16 @@ class Test_Institution extends WP_UnitTestCase {
 	/**
 	 * Test evaluate_rule returns false for anonymous users.
 	 */
-	public function test_evaluate_rule_anonymous_returns_false() {
+	/**
+	 * Test anonymous user without matching IP is denied.
+	 */
+	public function test_evaluate_rule_anonymous_no_ip_returns_false() {
 		$inst_id = $this->create_institution(
 			'Anon Test',
-			[ '_np_institution_ip_range' => '10.0.0.0/8' ]
+			[ '_np_institution_email_domain' => 'test.edu' ]
 		);
 		delete_transient( Institution::TRANSIENT_KEY );
+		// Anonymous user can't match email domain rules.
 		$this->assertFalse(
 			\Newspack\Access_Rules::evaluate_rule( 'institution', [ $inst_id ], 0 )
 		);

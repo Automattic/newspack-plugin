@@ -213,7 +213,7 @@ class Institution {
 
 		if ( ! empty( $rules['ip_range'] ) ) {
 			$has_any_rule = true;
-			if ( isset( $_COOKIE[ IP_Access_Rule::COOKIE_NAME ] ) ) {
+			if ( IP_Access_Rule::ip_matches_ranges( IP_Access_Rule::get_visitor_ip(), $rules['ip_range'] ) ) {
 				return true;
 			}
 		}
@@ -234,7 +234,7 @@ class Institution {
 	 *
 	 * @param bool $valid_ip Current validation result.
 	 *
-	 * @return bool Whether the IP is valid.
+	 * @return bool Whether the IP matches any institutional IP range.
 	 */
 	public static function check_ip( $valid_ip ) {
 		if ( $valid_ip ) {
