@@ -208,7 +208,7 @@ class Post_Date {
 			// Wrap the date text with a translatable "Updated %s" label.
 			$date_text = wp_strip_all_tags( preg_match( '/(<time[^>]*>)(.*?)(<\/time>)/s', $block_content, $m ) ? $m[2] : '' );
 			/* translators: %s: Modified date. */
-			$label = sprintf( __( 'Updated %s', 'newspack-plugin' ), $date_text );
+			$label = sprintf( esc_html__( 'Updated %s', 'newspack-plugin' ), esc_html( $date_text ) );
 			return self::replace_time_text( $block_content, $label );
 		}
 
