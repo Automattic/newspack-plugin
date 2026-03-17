@@ -7,6 +7,8 @@
 
 namespace Newspack\Tests;
 
+use Newspack\Post_Date;
+
 /**
  * Test class for Post_Date.
  *
@@ -82,7 +84,7 @@ class Test_Post_Date extends \WP_UnitTestCase {
 	 */
 	public function test_time_ago_within_cutoff() {
 		$two_hours_ago = gmdate( 'Y-m-d H:i:s', time() - 2 * HOUR_IN_SECONDS );
-		$result = \Newspack\Post_Date::convert_to_time_ago( $two_hours_ago, 14 );
+		$result = Post_Date::convert_to_time_ago( $two_hours_ago, 14 );
 		$this->assertStringContainsString( 'ago', $result, 'Post 2 hours old should show relative date.' );
 	}
 
@@ -91,7 +93,7 @@ class Test_Post_Date extends \WP_UnitTestCase {
 	 */
 	public function test_time_ago_beyond_cutoff() {
 		$twenty_days_ago = gmdate( 'Y-m-d H:i:s', time() - 20 * DAY_IN_SECONDS );
-		$result = \Newspack\Post_Date::convert_to_time_ago( $twenty_days_ago, 14 );
+		$result = Post_Date::convert_to_time_ago( $twenty_days_ago, 14 );
 		$this->assertNull( $result, 'Post beyond cutoff should return null.' );
 	}
 
@@ -100,7 +102,7 @@ class Test_Post_Date extends \WP_UnitTestCase {
 	 */
 	public function test_time_ago_at_boundary() {
 		$exactly_14_days = gmdate( 'Y-m-d H:i:s', time() - 14 * DAY_IN_SECONDS );
-		$result = \Newspack\Post_Date::convert_to_time_ago( $exactly_14_days, 14 );
+		$result = Post_Date::convert_to_time_ago( $exactly_14_days, 14 );
 		$this->assertNull( $result, 'Post at exact cutoff boundary should return null.' );
 	}
 
@@ -109,10 +111,10 @@ class Test_Post_Date extends \WP_UnitTestCase {
 	 */
 	public function test_time_ago_custom_cutoff() {
 		$three_days_ago = gmdate( 'Y-m-d H:i:s', time() - 3 * DAY_IN_SECONDS );
-		$result_within = \Newspack\Post_Date::convert_to_time_ago( $three_days_ago, 7 );
+		$result_within = Post_Date::convert_to_time_ago( $three_days_ago, 7 );
 		$this->assertStringContainsString( 'ago', $result_within, 'Post 3 days old with 7-day cutoff should show relative date.' );
 
-		$result_beyond = \Newspack\Post_Date::convert_to_time_ago( $three_days_ago, 2 );
+		$result_beyond = Post_Date::convert_to_time_ago( $three_days_ago, 2 );
 		$this->assertNull( $result_beyond, 'Post 3 days old with 2-day cutoff should return null.' );
 	}
 
@@ -122,11 +124,11 @@ class Test_Post_Date extends \WP_UnitTestCase {
 	public function test_time_ago_cutoff_reduced_when_updated_date_enabled() {
 		set_theme_mod( 'post_time_ago_cut_off', 14 );
 
-		$this->assertEquals( 14, \Newspack\Post_Date::get_time_ago_cutoff_days(), 'Cutoff should be 14 days by default.' );
+		$this->assertEquals( 14, Post_Date::get_time_ago_cutoff_days(), 'Cutoff should be 14 days by default.' );
 
 		set_theme_mod( 'post_updated_date', true );
 
-		$this->assertEquals( 1, \Newspack\Post_Date::get_time_ago_cutoff_days(), 'Cutoff should be 1 day when updated date is enabled.' );
+		$this->assertEquals( 1, Post_Date::get_time_ago_cutoff_days(), 'Cutoff should be 1 day when updated date is enabled.' );
 	}
 
 	// ─── Time Ago: get_the_date filter (classic theme) ───
@@ -197,7 +199,7 @@ class Test_Post_Date extends \WP_UnitTestCase {
 		$block_content = '<div class="wp-block-post-date"><time datetime="' . $two_hours_ago . '">March 11, 2026</time></div>';
 		$block = [ 'blockName' => 'core/post-date' ];
 
-		$result = \Newspack\Post_Date::filter_post_date_block( $block_content, $block );
+		$result = Post_Date::filter_post_date_block( $block_content, $block );
 		$this->assertStringContainsString( 'ago', $result, 'Publish date block should show relative date.' );
 		$this->assertStringContainsString( 'datetime="' . $two_hours_ago . '"', $result, 'datetime attribute should be preserved.' );
 	}
@@ -225,7 +227,7 @@ class Test_Post_Date extends \WP_UnitTestCase {
 		global $post;
 		$post = get_post( $post_id );
 
-		$result = \Newspack\Post_Date::filter_post_date_block( $block_content, $block );
+		$result = Post_Date::filter_post_date_block( $block_content, $block );
 		$this->assertStringContainsString( 'Updated', $result, 'Modified date block should have Updated label.' );
 		$this->assertStringContainsString( 'ago', $result, 'Modified date block should get time-ago treatment when enabled.' );
 	}
@@ -241,7 +243,7 @@ class Test_Post_Date extends \WP_UnitTestCase {
 		$block_content = '<div class="wp-block-post-date"><time datetime="' . $twenty_days_ago . '">February 19, 2026</time></div>';
 		$block = [ 'blockName' => 'core/post-date' ];
 
-		$result = \Newspack\Post_Date::filter_post_date_block( $block_content, $block );
+		$result = Post_Date::filter_post_date_block( $block_content, $block );
 		$this->assertStringNotContainsString( 'ago', $result, 'Date beyond cutoff should not be converted.' );
 		$this->assertStringContainsString( 'February 19, 2026', $result, 'Original date text should be preserved.' );
 	}
@@ -261,7 +263,7 @@ class Test_Post_Date extends \WP_UnitTestCase {
 		);
 
 		$this->assertTrue(
-			\Newspack\Post_Date::should_display_updated_date( $post_id ),
+			Post_Date::should_display_updated_date( $post_id ),
 			'Modified date should display when sitewide is on and post was modified beyond threshold.'
 		);
 	}
@@ -279,7 +281,7 @@ class Test_Post_Date extends \WP_UnitTestCase {
 		);
 
 		$this->assertFalse(
-			\Newspack\Post_Date::should_display_updated_date( $post_id ),
+			Post_Date::should_display_updated_date( $post_id ),
 			'Modified date should not display when modification is within threshold hours of publish.'
 		);
 	}
@@ -296,7 +298,7 @@ class Test_Post_Date extends \WP_UnitTestCase {
 		);
 
 		$this->assertFalse(
-			\Newspack\Post_Date::should_display_updated_date( $post_id ),
+			Post_Date::should_display_updated_date( $post_id ),
 			'Modified date should not display when sitewide is off and no per-post override.'
 		);
 	}
@@ -316,7 +318,7 @@ class Test_Post_Date extends \WP_UnitTestCase {
 		update_post_meta( $post_id, 'newspack_show_updated_date', true );
 
 		$this->assertTrue(
-			\Newspack\Post_Date::should_display_updated_date( $post_id ),
+			Post_Date::should_display_updated_date( $post_id ),
 			'Per-post show override should bypass threshold.'
 		);
 	}
@@ -335,7 +337,7 @@ class Test_Post_Date extends \WP_UnitTestCase {
 		update_post_meta( $post_id, 'newspack_hide_updated_date', true );
 
 		$this->assertFalse(
-			\Newspack\Post_Date::should_display_updated_date( $post_id ),
+			Post_Date::should_display_updated_date( $post_id ),
 			'Modified date should not display when per-post hide override is on.'
 		);
 	}
@@ -353,7 +355,7 @@ class Test_Post_Date extends \WP_UnitTestCase {
 		);
 
 		$this->assertTrue(
-			\Newspack\Post_Date::should_display_updated_date( $post_id ),
+			Post_Date::should_display_updated_date( $post_id ),
 			'Modified date should display immediately when threshold is zero.'
 		);
 	}
@@ -377,7 +379,7 @@ class Test_Post_Date extends \WP_UnitTestCase {
 		global $post;
 		$post = get_post( $post_id );
 
-		$result = \Newspack\Post_Date::filter_post_date_block( $block_content, $block );
+		$result = Post_Date::filter_post_date_block( $block_content, $block );
 		$this->assertEmpty( $result, 'Modified date block should be hidden when sitewide is off.' );
 	}
 
@@ -411,7 +413,7 @@ class Test_Post_Date extends \WP_UnitTestCase {
 			],
 		];
 
-		$result = \Newspack\Post_Date::filter_post_date_block( $block_content, $block );
+		$result = Post_Date::filter_post_date_block( $block_content, $block );
 		$this->assertEmpty( $result, 'Modified date block detected via bindings should be hidden when sitewide is off.' );
 	}
 
@@ -435,7 +437,7 @@ class Test_Post_Date extends \WP_UnitTestCase {
 			'attrs'     => [ 'displayType' => 'modified' ],
 		];
 
-		$result = \Newspack\Post_Date::filter_post_date_block( $block_content, $block );
+		$result = Post_Date::filter_post_date_block( $block_content, $block );
 		$this->assertEmpty( $result, 'Modified date block detected via displayType should be hidden when sitewide is off.' );
 	}
 
@@ -458,7 +460,7 @@ class Test_Post_Date extends \WP_UnitTestCase {
 		$block_content = '<div class="wp-block-post-date wp-block-post-date__modified-date"><time datetime="2026-03-14T10:00:00+00:00">March 14, 2026</time></div>';
 		$block         = [ 'blockName' => 'core/post-date' ];
 
-		$result = \Newspack\Post_Date::filter_post_date_block( $block_content, $block );
+		$result = Post_Date::filter_post_date_block( $block_content, $block );
 		$this->assertStringContainsString( 'Updated', $result, 'Modified date should have Updated label even without time-ago.' );
 		$this->assertStringNotContainsString( 'ago', $result, 'Date should not show time-ago when feature is off.' );
 	}
@@ -479,7 +481,7 @@ class Test_Post_Date extends \WP_UnitTestCase {
 			]
 		);
 
-		$result = \Newspack\Post_Date::filter_blocks_formatted_date( 'March 17, 2026', get_post( $post_id ) );
+		$result = Post_Date::filter_blocks_formatted_date( 'March 17, 2026', get_post( $post_id ) );
 		$this->assertStringContainsString( 'ago', $result, 'Blocks formatted date should show relative date when enabled.' );
 	}
 
@@ -496,7 +498,7 @@ class Test_Post_Date extends \WP_UnitTestCase {
 			]
 		);
 
-		$result = \Newspack\Post_Date::filter_blocks_formatted_date( 'March 17, 2026', get_post( $post_id ) );
+		$result = Post_Date::filter_blocks_formatted_date( 'March 17, 2026', get_post( $post_id ) );
 		$this->assertEquals( 'March 17, 2026', $result, 'Blocks formatted date should be unchanged when disabled.' );
 	}
 
@@ -525,7 +527,7 @@ class Test_Post_Date extends \WP_UnitTestCase {
 			}
 		};
 
-		\Newspack\Post_Date::migrate_date_settings( 'Newspack', $old_theme );
+		Post_Date::migrate_date_settings( 'Newspack', $old_theme );
 
 		$this->assertTrue( get_theme_mod( 'post_time_ago' ), 'post_time_ago should be migrated.' );
 		$this->assertEquals( 7, get_theme_mod( 'post_time_ago_cut_off' ), 'post_time_ago_cut_off should be migrated.' );
