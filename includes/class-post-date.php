@@ -14,6 +14,10 @@ defined( 'ABSPATH' ) || exit;
  */
 class Post_Date {
 
+	const DEFAULT_TIME_AGO_CUTOFF_DAYS = 14;
+
+	const UPDATED_DATE_TIME_AGO_CUTOFF_DAYS = 1;
+
 	/**
 	 * Theme mod keys to migrate on theme switch.
 	 *
@@ -113,6 +117,20 @@ class Post_Date {
 	}
 
 	/**
+	 * Get the effective time-ago cutoff in days. Reduced to 1 day when the
+	 * updated date feature is also enabled.
+	 *
+	 * @return int Cutoff in days.
+	 */
+	public static function get_time_ago_cutoff_days() {
+		$cutoff = get_theme_mod( 'post_updated_date', false )
+			? self::UPDATED_DATE_TIME_AGO_CUTOFF_DAYS
+			: (int) get_theme_mod( 'post_time_ago_cut_off', self::DEFAULT_TIME_AGO_CUTOFF_DAYS );
+
+		return (int) apply_filters( 'newspack_time_ago_cutoff_days', $cutoff );
+	}
+
+	/**
 	 * Apply time-ago conversion to block content if enabled and within cutoff.
 	 *
 	 * @param string $block_content Rendered block content containing a <time> tag.
@@ -127,7 +145,7 @@ class Post_Date {
 			return $block_content;
 		}
 
-		$cutoff_days = (int) get_theme_mod( 'post_time_ago_cut_off', 14 );
+		$cutoff_days = self::get_time_ago_cutoff_days();
 		$gmt_date    = gmdate( 'Y-m-d H:i:s', strtotime( $matches[1] ) );
 		$time_ago    = self::convert_to_time_ago( $gmt_date, $cutoff_days );
 
@@ -208,8 +226,7 @@ class Post_Date {
 			return $the_date;
 		}
 
-		$cutoff_days = (int) get_theme_mod( 'post_time_ago_cut_off', 14 );
-		$time_ago    = self::convert_to_time_ago( $post->post_date_gmt, $cutoff_days );
+		$time_ago = self::convert_to_time_ago( $post->post_date_gmt, self::get_time_ago_cutoff_days() );
 
 		return null !== $time_ago ? $time_ago : $the_date;
 	}
@@ -226,8 +243,7 @@ class Post_Date {
 			return $date;
 		}
 
-		$cutoff_days = (int) get_theme_mod( 'post_time_ago_cut_off', 14 );
-		$time_ago    = self::convert_to_time_ago( $post->post_date_gmt, $cutoff_days );
+		$time_ago = self::convert_to_time_ago( $post->post_date_gmt, self::get_time_ago_cutoff_days() );
 
 		return null !== $time_ago ? $time_ago : $date;
 	}
@@ -315,7 +331,7 @@ class Post_Date {
 			$handle,
 			'newspackRelativeTime',
 			[
-				'cutoff' => (int) get_theme_mod( 'post_time_ago_cut_off', 14 ) * DAY_IN_SECONDS,
+				'cutoff' => self::get_time_ago_cutoff_days() * DAY_IN_SECONDS,
 				'locale' => get_locale(),
 			]
 		);

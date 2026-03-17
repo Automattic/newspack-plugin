@@ -116,6 +116,19 @@ class Test_Post_Date extends \WP_UnitTestCase {
 		$this->assertNull( $result_beyond, 'Post 3 days old with 2-day cutoff should return null.' );
 	}
 
+	/**
+	 * Test cutoff is reduced to 1 day when updated date is enabled.
+	 */
+	public function test_time_ago_cutoff_reduced_when_updated_date_enabled() {
+		set_theme_mod( 'post_time_ago_cut_off', 14 );
+
+		$this->assertEquals( 14, \Newspack\Post_Date::get_time_ago_cutoff_days(), 'Cutoff should be 14 days by default.' );
+
+		set_theme_mod( 'post_updated_date', true );
+
+		$this->assertEquals( 1, \Newspack\Post_Date::get_time_ago_cutoff_days(), 'Cutoff should be 1 day when updated date is enabled.' );
+	}
+
 	// ─── Time Ago: get_the_date filter (classic theme) ───
 
 	/**
