@@ -108,14 +108,6 @@ class Post_Date {
 	}
 
 	/**
-	 * Filter the render output of core/post-date blocks.
-	 * Handles both time-ago conversion (publish dates) and modified date visibility.
-	 *
-	 * @param string $block_content Rendered block content.
-	 * @param array  $block         Block data.
-	 * @return string
-	 */
-	/**
 	 * Apply time-ago conversion to block content if enabled and within cutoff.
 	 *
 	 * @param string $block_content Rendered block content containing a <time> tag.
