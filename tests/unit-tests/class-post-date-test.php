@@ -248,6 +248,47 @@ class Test_Post_Date extends \WP_UnitTestCase {
 		$this->assertStringContainsString( 'February 19, 2026', $result, 'Original date text should be preserved.' );
 	}
 
+	/**
+	 * Test render_block preserves anchor tag when isLink is enabled.
+	 */
+	public function test_render_block_time_ago_preserves_link() {
+		set_theme_mod( 'post_time_ago', true );
+		set_theme_mod( 'post_time_ago_cut_off', 14 );
+
+		$two_hours_ago = gmdate( 'Y-m-d\TH:i:sP', time() - 2 * HOUR_IN_SECONDS );
+		$block_content = '<div class="wp-block-post-date"><time datetime="' . $two_hours_ago . '"><a href="/2026/03/11/test/">March 11, 2026</a></time></div>';
+		$block         = [ 'blockName' => 'core/post-date' ];
+
+		$result = Post_Date::filter_post_date_block( $block_content, $block );
+		$this->assertStringContainsString( 'ago', $result, 'Linked date should still show time-ago.' );
+		$this->assertStringContainsString( '<a href="/2026/03/11/test/">', $result, 'Anchor tag should be preserved.' );
+		$this->assertStringContainsString( '</a>', $result, 'Anchor closing tag should be preserved.' );
+	}
+
+	/**
+	 * Test render_block preserves anchor tag on modified date with Updated label.
+	 */
+	public function test_render_block_updated_label_preserves_link() {
+		set_theme_mod( 'post_time_ago', false );
+		set_theme_mod( 'post_updated_date', true );
+		set_theme_mod( 'post_updated_date_threshold', 24 );
+
+		$post_id = $this->create_post_with_modified_date(
+			gmdate( 'Y-m-d H:i:s', time() - 7 * DAY_IN_SECONDS ),
+			gmdate( 'Y-m-d H:i:s', time() - 3 * DAY_IN_SECONDS )
+		);
+
+		global $post;
+		$post = get_post( $post_id );
+
+		$block_content = '<div class="wp-block-post-date wp-block-post-date__modified-date"><time datetime="2026-03-15T10:00:00+00:00"><a href="/2026/03/15/test/">March 15, 2026</a></time></div>';
+		$block         = [ 'blockName' => 'core/post-date' ];
+
+		$result = Post_Date::filter_post_date_block( $block_content, $block );
+		$this->assertStringContainsString( 'Updated', $result, 'Modified linked date should have Updated label.' );
+		$this->assertStringContainsString( '<a href="/2026/03/15/test/">', $result, 'Anchor tag should be preserved on modified date.' );
+	}
+
 	// ─── Modified Date: should_display_updated_date() ───
 
 	/**
@@ -457,7 +498,7 @@ class Test_Post_Date extends \WP_UnitTestCase {
 		global $post;
 		$post = get_post( $post_id );
 
-		$block_content = '<div class="wp-block-post-date wp-block-post-date__modified-date"><time datetime="2026-03-14T10:00:00+00:00">March 14, 2026</time></div>';
+		$block_content = '<div class="wp-block-post-date wp-block-post-date__modified-date"><time datetime="2026-03-15T10:00:00+00:00">March 15, 2026</time></div>';
 		$block         = [ 'blockName' => 'core/post-date' ];
 
 		$result = Post_Date::filter_post_date_block( $block_content, $block );

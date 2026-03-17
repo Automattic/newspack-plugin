@@ -131,6 +131,28 @@ class Post_Date {
 	}
 
 	/**
+	 * Replace the text content of a <time> tag, preserving any <a> wrapper.
+	 *
+	 * @param string $block_content Block HTML containing a <time> tag.
+	 * @param string $new_text      Replacement text (should already be escaped).
+	 * @return string Modified block content, or original if no <time> tag found.
+	 */
+	private static function replace_time_text( $block_content, $new_text ) {
+		return preg_replace_callback(
+			'/(<time[^>]*>)(.*?)(<\/time>)/s',
+			function ( $matches ) use ( $new_text ) {
+				// Preserve <a> wrapper when isLink is enabled.
+				if ( preg_match( '/^(\s*<a\s[^>]*>).*?(<\/a>\s*)$/s', $matches[2], $link ) ) {
+					return $matches[1] . $link[1] . $new_text . $link[2] . $matches[3];
+				}
+				return $matches[1] . $new_text . $matches[3];
+			},
+			$block_content,
+			1
+		) ?? $block_content;
+	}
+
+	/**
 	 * Apply time-ago conversion to block content if enabled and within cutoff.
 	 *
 	 * @param string $block_content Rendered block content containing a <time> tag.
@@ -153,14 +175,7 @@ class Post_Date {
 			return $block_content;
 		}
 
-		return preg_replace_callback(
-			'/(<time[^>]*>)(.*?)(<\/time>)/s',
-			function ( $matches ) use ( $time_ago ) {
-				return $matches[1] . esc_html( $time_ago ) . $matches[3];
-			},
-			$block_content,
-			1
-		);
+		return self::replace_time_text( $block_content, esc_html( $time_ago ) );
 	}
 
 	/**
@@ -191,16 +206,10 @@ class Post_Date {
 			$block_content = self::maybe_apply_time_ago_to_block( $block_content );
 
 			// Wrap the date text with a translatable "Updated %s" label.
-			return preg_replace_callback(
-				'/(<time[^>]*>)(.*?)(<\/time>)/s',
-				function ( $matches ) {
-					/* translators: %s: Modified date. */
-					$label = sprintf( __( 'Updated %s', 'newspack-plugin' ), esc_html( $matches[2] ) );
-					return $matches[1] . $label . $matches[3];
-				},
-				$block_content,
-				1
-			);
+			$date_text = wp_strip_all_tags( preg_match( '/(<time[^>]*>)(.*?)(<\/time>)/s', $block_content, $m ) ? $m[2] : '' );
+			/* translators: %s: Modified date. */
+			$label = sprintf( __( 'Updated %s', 'newspack-plugin' ), $date_text );
+			return self::replace_time_text( $block_content, $label );
 		}
 
 		// Handle time-ago for publish dates.

@@ -93,7 +93,13 @@
 				el.setAttribute( 'title', el.textContent );
 			}
 
-			el.textContent = formatted;
+			// Preserve <a> wrapper when isLink is enabled.
+			const anchor = el.querySelector( 'a' );
+			if ( anchor ) {
+				anchor.textContent = formatted;
+			} else {
+				el.textContent = formatted;
+			}
 		} );
 	}
 
