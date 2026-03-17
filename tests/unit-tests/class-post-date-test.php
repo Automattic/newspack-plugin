@@ -15,13 +15,6 @@ namespace Newspack\Tests;
 class Test_Post_Date extends \WP_UnitTestCase {
 
 	/**
-	 * Post ID for testing.
-	 *
-	 * @var int
-	 */
-	private static $post_id;
-
-	/**
 	 * Setup before class.
 	 */
 	public static function set_up_before_class(): void {
@@ -140,8 +133,6 @@ class Test_Post_Date extends \WP_UnitTestCase {
 
 		$date = get_the_date( '', $post_id );
 		$this->assertStringContainsString( 'ago', $date, 'get_the_date should return relative date when feature is on.' );
-
-		wp_delete_post( $post_id, true );
 	}
 
 	/**
@@ -158,8 +149,6 @@ class Test_Post_Date extends \WP_UnitTestCase {
 
 		$date = get_the_date( '', $post_id );
 		$this->assertStringNotContainsString( 'ago', $date, 'get_the_date should return full date when feature is off.' );
-
-		wp_delete_post( $post_id, true );
 	}
 
 	/**
@@ -226,8 +215,6 @@ class Test_Post_Date extends \WP_UnitTestCase {
 		$result = \Newspack\Post_Date::filter_post_date_block( $block_content, $block );
 		$this->assertStringContainsString( 'Updated', $result, 'Modified date block should have Updated label.' );
 		$this->assertStringContainsString( 'ago', $result, 'Modified date block should get time-ago treatment when enabled.' );
-
-		wp_delete_post( $post_id, true );
 	}
 
 	/**
@@ -264,8 +251,6 @@ class Test_Post_Date extends \WP_UnitTestCase {
 			\Newspack\Post_Date::should_display_updated_date( $post_id ),
 			'Modified date should display when sitewide is on and post was modified beyond threshold.'
 		);
-
-		wp_delete_post( $post_id, true );
 	}
 
 	/**
@@ -284,8 +269,6 @@ class Test_Post_Date extends \WP_UnitTestCase {
 			\Newspack\Post_Date::should_display_updated_date( $post_id ),
 			'Modified date should not display when modification is within threshold hours of publish.'
 		);
-
-		wp_delete_post( $post_id, true );
 	}
 
 	/**
@@ -303,8 +286,6 @@ class Test_Post_Date extends \WP_UnitTestCase {
 			\Newspack\Post_Date::should_display_updated_date( $post_id ),
 			'Modified date should not display when sitewide is off and no per-post override.'
 		);
-
-		wp_delete_post( $post_id, true );
 	}
 
 	/**
@@ -344,8 +325,6 @@ class Test_Post_Date extends \WP_UnitTestCase {
 			\Newspack\Post_Date::should_display_updated_date( $post_id ),
 			'Modified date should not display when per-post hide override is on.'
 		);
-
-		wp_delete_post( $post_id, true );
 	}
 
 	/**
@@ -364,8 +343,6 @@ class Test_Post_Date extends \WP_UnitTestCase {
 			\Newspack\Post_Date::should_display_updated_date( $post_id ),
 			'Modified date should display immediately when threshold is zero.'
 		);
-
-		wp_delete_post( $post_id, true );
 	}
 
 	// ─── Modified Date: render_block filter ───
@@ -389,8 +366,6 @@ class Test_Post_Date extends \WP_UnitTestCase {
 
 		$result = \Newspack\Post_Date::filter_post_date_block( $block_content, $block );
 		$this->assertEmpty( $result, 'Modified date block should be hidden when sitewide is off.' );
-
-		wp_delete_post( $post_id, true );
 	}
 
 	/**
@@ -425,8 +400,6 @@ class Test_Post_Date extends \WP_UnitTestCase {
 
 		$result = \Newspack\Post_Date::filter_post_date_block( $block_content, $block );
 		$this->assertEmpty( $result, 'Modified date block detected via bindings should be hidden when sitewide is off.' );
-
-		wp_delete_post( $post_id, true );
 	}
 
 	/**
