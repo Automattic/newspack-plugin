@@ -31,12 +31,14 @@
 			{ unit: 'second', threshold: 60 },
 			{ unit: 'minute', threshold: 3600 },
 			{ unit: 'hour', threshold: 86400 },
-			{ unit: 'day', threshold: Infinity },
+			{ unit: 'day', threshold: 2592000 },
+			{ unit: 'month', threshold: 31536000 },
+			{ unit: 'year', threshold: Infinity },
 		];
 
 		for ( const { unit, threshold } of units ) {
 			if ( diffSeconds < threshold ) {
-				const divisors = { second: 1, minute: 60, hour: 3600, day: 86400 };
+				const divisors = { second: 1, minute: 60, hour: 3600, day: 86400, month: 2592000, year: 31536000 };
 				return { value: -Math.round( diffSeconds / divisors[ unit ] ), unit };
 			}
 		}
@@ -59,7 +61,11 @@
 
 		// Block theme: .wp-block-post-date time
 		// Classic theme / newspack-blocks: time.entry-date
-		const selectors = [ '.wp-block-post-date:not(.wp-block-post-date__modified-date) time[datetime]', 'time.entry-date.published[datetime]' ];
+		const selectors = [
+			'.wp-block-post-date:not(.wp-block-post-date__modified-date) time[datetime]',
+			'time.entry-date.published[datetime]',
+			'.comment-meta time[datetime]',
+		];
 		const elements = document.querySelectorAll( selectors.join( ', ' ) );
 		const now = Date.now();
 
