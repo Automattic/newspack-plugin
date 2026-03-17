@@ -69,6 +69,8 @@ abstract class Contact_Metadata {
 	/**
 	 * Whether or not the metadata fields of this class are available to be synced.
 	 *
+	 * An example of when this might be false is when the metadata relies on a plugin that isn't active, like WooCommerce.
+	 *
 	 * @return boolean
 	 */
 	abstract public static function is_available();
