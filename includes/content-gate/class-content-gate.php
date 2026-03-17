@@ -70,6 +70,7 @@ class Content_Gate {
 	public static function init() {
 		add_action( 'init', [ __CLASS__, 'register_post_type' ] );
 		add_action( 'admin_init', [ __CLASS__, 'redirect_cpt' ] );
+		add_filter( 'get_edit_post_link', [ __CLASS__, 'filter_edit_post_link' ], 10, 2 );
 		add_action( 'admin_init', [ __CLASS__, 'handle_edit_gate_layout' ] );
 		add_action( 'wp_enqueue_scripts', [ __CLASS__, 'enqueue_scripts' ] );
 		add_action( 'enqueue_block_editor_assets', [ __CLASS__, 'enqueue_block_editor_assets' ] );
@@ -369,6 +370,21 @@ class Content_Gate {
 	}
 
 	/**
+	 * Filter the edit post link for gate CPTs to point to the access control wizard.
+	 *
+	 * @param string $link    The edit link.
+	 * @param int    $post_id Post ID.
+	 *
+	 * @return string Filtered edit link.
+	 */
+	public static function filter_edit_post_link( $link, $post_id ) {
+		if ( get_post_type( $post_id ) === self::GATE_CPT ) {
+			return admin_url( 'admin.php?page=newspack-audience-access-control#/edit/' . $post_id );
+		}
+		return $link;
+	}
+
+	/**
 	 * Redirect the custom gate CPT to the Content Gating wizard
 	 */
 	public static function redirect_cpt() {
@@ -447,8 +463,9 @@ class Content_Gate {
 			'newspack-content-gate-post-settings',
 			'newspackContentGates',
 			[
-				'gates'       => $gates_data,
-				'taxonomyMap' => $taxonomy_map,
+				'gates'        => $gates_data,
+				'taxonomyMap'  => $taxonomy_map,
+				'canEditGates' => current_user_can( 'manage_options' ),
 			]
 		);
 	}

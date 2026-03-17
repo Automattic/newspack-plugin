@@ -1,14 +1,14 @@
 /**
  * WordPress dependencies
  */
-import { __, sprintf } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 import { useMemo } from '@wordpress/element';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { PluginDocumentSettingPanel } from '@wordpress/edit-post';
 import { registerPlugin } from '@wordpress/plugins';
 import { ExternalLink, ToggleControl } from '@wordpress/components';
 
-const { gates = [], taxonomyMap = {} } = window.newspackContentGates || {};
+const { gates = [], taxonomyMap = {}, canEditGates = false } = window.newspackContentGates || {};
 
 /**
  * Check if a gate's content rules match the current post state.
@@ -62,11 +62,13 @@ function PostSettings() {
 		<PluginDocumentSettingPanel name="content-gate-post-exemptions-panel" title={ __( 'Access control settings', 'newspack-plugin' ) }>
 			{ matchingGates.length > 0 ? (
 				<p>
-					{ sprintf(
-						// translators: %s is the list of gates.
-						__( 'Gates that apply to this post: %s', 'newspack-plugin' ),
-						matchingGates.map( gate => gate.title ).join( ', ' )
-					) }
+					{ __( 'Gates that apply to this post: ', 'newspack-plugin' ) }
+					{ matchingGates.map( ( gate, index ) => (
+						<span key={ gate.id }>
+							{ index > 0 && ', ' }
+							{ canEditGates && gate.edit_url ? <a href={ gate.edit_url }>{ gate.title }</a> : gate.title }
+						</span>
+					) ) }
 				</p>
 			) : (
 				<p>{ __( 'No gates apply to this post.', 'newspack-plugin' ) }</p>
