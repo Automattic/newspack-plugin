@@ -115,6 +115,40 @@ class Post_Date {
 	 * @param array  $block         Block data.
 	 * @return string
 	 */
+	/**
+	 * Apply time-ago conversion to block content if enabled and within cutoff.
+	 *
+	 * @param string $block_content Rendered block content containing a <time> tag.
+	 * @return string Block content with time-ago applied, or unchanged.
+	 */
+	private static function maybe_apply_time_ago_to_block( $block_content ) {
+		if ( ! get_theme_mod( 'post_time_ago', false ) ) {
+			return $block_content;
+		}
+
+		if ( ! preg_match( '/datetime="([^"]+)"/', $block_content, $matches ) ) {
+			return $block_content;
+		}
+
+		$cutoff_days = (int) get_theme_mod( 'post_time_ago_cut_off', 14 );
+		$gmt_date    = gmdate( 'Y-m-d H:i:s', strtotime( $matches[1] ) );
+		$time_ago    = self::convert_to_time_ago( $gmt_date, $cutoff_days );
+
+		if ( null === $time_ago ) {
+			return $block_content;
+		}
+
+		return preg_replace( '/(<time[^>]*>)(.*?)(<\/time>)/s', '${1}' . esc_html( $time_ago ) . '${3}', $block_content, 1 );
+	}
+
+	/**
+	 * Filter the render output of core/post-date blocks.
+	 * Handles time-ago conversion, modified date visibility, and "Updated" label.
+	 *
+	 * @param string $block_content Rendered block content.
+	 * @param array  $block         Block data.
+	 * @return string Filtered block content.
+	 */
 	public static function filter_post_date_block( $block_content, $block ) {
 		// Detect modified date blocks via CSS class or block bindings attributes.
 		$is_modified = str_contains( $block_content, 'wp-block-post-date__modified-date' )
@@ -131,8 +165,11 @@ class Post_Date {
 			if ( empty( $block_content ) ) {
 				return '';
 			}
+
+			$block_content = self::maybe_apply_time_ago_to_block( $block_content );
+
 			// Wrap the date text with a translatable "Updated %s" label.
-			$block_content = preg_replace_callback(
+			return preg_replace_callback(
 				'/(<time[^>]*>)(.*?)(<\/time>)/s',
 				function ( $matches ) {
 					/* translators: %s: Modified date. */
@@ -142,32 +179,10 @@ class Post_Date {
 				$block_content,
 				1
 			);
-			return $block_content;
 		}
 
 		// Handle time-ago for publish dates.
-		if ( ! get_theme_mod( 'post_time_ago', false ) ) {
-			return $block_content;
-		}
-
-		$cutoff_days = (int) get_theme_mod( 'post_time_ago_cut_off', 14 );
-
-		// Extract datetime attribute from <time datetime="...">.
-		if ( ! preg_match( '/datetime="([^"]+)"/', $block_content, $matches ) ) {
-			return $block_content;
-		}
-
-		$datetime  = $matches[1];
-		$timestamp = strtotime( $datetime );
-		$gmt_date  = gmdate( 'Y-m-d H:i:s', $timestamp );
-		$time_ago  = self::convert_to_time_ago( $gmt_date, $cutoff_days );
-
-		if ( null === $time_ago ) {
-			return $block_content;
-		}
-
-		// Replace visible text between <time> tags while preserving the datetime attribute.
-		return preg_replace( '/(<time[^>]*>)(.*?)(<\/time>)/s', '${1}' . esc_html( $time_ago ) . '${3}', $block_content );
+		return self::maybe_apply_time_ago_to_block( $block_content );
 	}
 
 	/**

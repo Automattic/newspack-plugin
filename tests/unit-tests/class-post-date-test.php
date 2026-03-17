@@ -200,10 +200,10 @@ class Test_Post_Date extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * Test render_block filter does NOT convert modified date blocks to time-ago,
-	 * even when the modified date feature is enabled and the block should display.
+	 * Test render_block filter applies time-ago to modified date blocks
+	 * and wraps with "Updated" label.
 	 */
-	public function test_render_block_time_ago_skips_modified_date() {
+	public function test_render_block_time_ago_applies_to_modified_date() {
 		set_theme_mod( 'post_time_ago', true );
 		set_theme_mod( 'post_time_ago_cut_off', 14 );
 		set_theme_mod( 'post_updated_date', true );
@@ -223,9 +223,8 @@ class Test_Post_Date extends \WP_UnitTestCase {
 		$post = get_post( $post_id );
 
 		$result = \Newspack\Post_Date::filter_post_date_block( $block_content, $block );
-		// Modified date block should be returned unchanged (no time-ago conversion).
-		$this->assertStringContainsString( 'March 11, 2026', $result, 'Modified date block should preserve original text.' );
-		$this->assertStringNotContainsString( 'ago', $result, 'Modified date block should NOT get time-ago treatment.' );
+		$this->assertStringContainsString( 'Updated', $result, 'Modified date block should have Updated label.' );
+		$this->assertStringContainsString( 'ago', $result, 'Modified date block should get time-ago treatment when enabled.' );
 
 		wp_delete_post( $post_id, true );
 	}
