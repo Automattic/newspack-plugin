@@ -414,6 +414,43 @@ class Content_Gate {
 		}
 		$asset = require dirname( NEWSPACK_PLUGIN_FILE ) . '/dist/content-gate-post-settings.asset.php';
 		wp_enqueue_script( 'newspack-content-gate-post-settings', Newspack::plugin_url() . '/dist/content-gate-post-settings.js', $asset['dependencies'], $asset['version'], true );
+
+		// Localize active gates data for reactive matching in the editor.
+		$gates      = self::get_gates( self::GATE_CPT, 'publish' );
+		$gates_data = [];
+		foreach ( $gates as $gate ) {
+			if ( empty( $gate['registration']['active'] ) && empty( $gate['custom_access']['active'] ) ) {
+				continue;
+			}
+			if ( empty( $gate['content_rules'] ) ) {
+				continue;
+			}
+			$gates_data[] = [
+				'id'            => $gate['id'],
+				'title'         => $gate['title'],
+				'edit_url'      => get_edit_post_link( $gate['id'], 'raw' ),
+				'content_rules' => $gate['content_rules'],
+			];
+		}
+
+		// Build taxonomy slug to REST attribute name map.
+		$taxonomy_map = [];
+		foreach ( Content_Restriction_Control::get_available_taxonomies() as $tax ) {
+			$taxonomy_obj = get_taxonomy( $tax['slug'] );
+			if ( $taxonomy_obj && $taxonomy_obj->show_in_rest ) {
+				$rest_base                    = ! empty( $taxonomy_obj->rest_base ) ? $taxonomy_obj->rest_base : $taxonomy_obj->name;
+				$taxonomy_map[ $tax['slug'] ] = $rest_base;
+			}
+		}
+
+		wp_localize_script(
+			'newspack-content-gate-post-settings',
+			'newspackContentGates',
+			[
+				'gates'       => $gates_data,
+				'taxonomyMap' => $taxonomy_map,
+			]
+		);
 	}
 
 	/**
