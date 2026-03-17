@@ -38,8 +38,8 @@ class ESP extends Integration {
 	 * Register the settings fields declared by this integration.
 	 *
 	 * Returns ALL possible ESP fields unconditionally as static
-	 * declarations. No provider check, no API calls. Labels, descriptions,
-	 * and options are added in get_settings_config() for the UI only.
+	 * declarations. No provider check, no API calls. Provider options
+	 * are added in get_settings_config().
 	 *
 	 * @return array Array of settings field declarations.
 	 */
@@ -142,9 +142,10 @@ class ESP extends Integration {
 				);
 				break;
 		}
-		$enriched[] = $config['sync_esp_delete'];
+		$enriched[]    = $config['sync_esp_delete'];
+		$metadata_keys = array_column( $this->get_metadata_fields(), 'key' );
 		foreach ( $config as $field ) {
-			if ( in_array( $field['key'], array_column( $this->get_metadata_fields(), 'key' ) ) ) {
+			if ( in_array( $field['key'], $metadata_keys ) ) {
 				$enriched[] = $config[ $field['key'] ];
 			}
 		}
