@@ -482,11 +482,12 @@ class Private_Tags {
 		// Append the label if the tag is private and it isn't already suffixed. Check suffix
 		// (not substring) so tag names containing "(private)" aren't incorrectly skipped.
 		// isset/is_string guard covers REST requests that omit 'name' via the _fields param.
+		// Use cached ID list instead of per-term get_term_meta() to avoid N+1 queries.
 		$label = self::get_private_label();
 		if (
 			isset( $response->data['name'] ) &&
 			is_string( $response->data['name'] ) &&
-			self::is_term_private( $term ) &&
+			in_array( $term->term_id, self::get_private_tag_ids(), true ) &&
 			substr( $response->data['name'], -strlen( $label ) ) !== $label
 		) {
 			$response->data['name'] .= $label;
@@ -913,6 +914,8 @@ class Private_Tags {
 		}
 
 		// array_diff removes private tag names; array_values re-indexes the result into a sequential array.
+		// Safe to diff by name: wp_insert_term() prevents duplicate names within
+		// non-hierarchical taxonomies unless a unique slug is explicitly provided.
 		$data['keywords'] = array_values( array_diff( $data['keywords'], $names_to_remove ) );
 
 		// Remove the key entirely rather than passing an empty array to Yoast's schema output.
