@@ -121,14 +121,13 @@ class ESP extends Integration {
 			'options' => $this->get_list_options(),
 		];
 
-		$enriched[] = $config['sync_esp_delete'];
 		switch ( $provider->service ) {
 			case 'mailchimp':
-				$enriched[] = $config['mailchimp_reader_default_status'];
 				$enriched[] = array_merge(
 					$config['mailchimp_audience_id'],
 					$list_options
 				);
+				$enriched[] = $config['mailchimp_reader_default_status'];
 				break;
 			case 'active_campaign':
 				$enriched[] = array_merge(
@@ -143,6 +142,7 @@ class ESP extends Integration {
 				);
 				break;
 		}
+		$enriched[] = $config['sync_esp_delete'];
 		foreach ( $config as $field ) {
 			if ( in_array( $field['key'], array_column( $this->get_metadata_fields(), 'key' ) ) ) {
 				$enriched[] = $config[ $field['key'] ];
