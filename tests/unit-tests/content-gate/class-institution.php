@@ -214,27 +214,30 @@ class Test_Institution extends WP_UnitTestCase {
 
 		delete_transient( Institution::TRANSIENT_KEY );
 
-		// phpcs:disable WordPressVIPMinimum.Variables.ServerVariables.UserControlledHeaders, WordPressVIPMinimum.Variables.RestrictedVariables.cache_constraints___SERVER__REMOTE_ADDR__
+		// phpcs:disable WordPressVIPMinimum.Variables.ServerVariables.UserControlledHeaders, WordPressVIPMinimum.Variables.RestrictedVariables.cache_constraints___SERVER__REMOTE_ADDR__, WordPressVIPMinimum.Variables.RestrictedVariables.cache_constraints___COOKIE
 
-		// No IP set — no match.
-		unset( $_SERVER['REMOTE_ADDR'] );
+		// Without cache-bypass cookie — no IP evaluation happens.
+		$_SERVER['REMOTE_ADDR'] = '10.1.2.3';
 		$this->assertFalse( Institution::evaluate( $reader_id, [ $inst_id ] ) );
 
-		// Matching IP.
+		// Set cache-bypass cookie (simulates having visited /institutional-access).
+		$_COOKIE[ \Newspack\Content_Gate\IP_Access_Rule::COOKIE_NAME ] = '1';
+
+		// Matching IP with cookie.
 		$_SERVER['REMOTE_ADDR'] = '10.1.2.3';
 		$this->assertTrue( Institution::evaluate( $reader_id, [ $inst_id ] ) );
 
-		// Non-matching IP.
+		// Non-matching IP with cookie.
 		$_SERVER['REMOTE_ADDR'] = '192.168.1.1';
 		$this->assertFalse( Institution::evaluate( $reader_id, [ $inst_id ] ) );
 
-		unset( $_SERVER['REMOTE_ADDR'] );
+		unset( $_SERVER['REMOTE_ADDR'], $_COOKIE[ \Newspack\Content_Gate\IP_Access_Rule::COOKIE_NAME ] );
 
 		// phpcs:enable
 	}
 
 	/**
-	 * Test anonymous user can match via IP range.
+	 * Test anonymous user can match via IP range on uncached request.
 	 */
 	public function test_anonymous_ip_range_match() {
 		$inst_id = $this->create_institution(
@@ -244,18 +247,29 @@ class Test_Institution extends WP_UnitTestCase {
 
 		delete_transient( Institution::TRANSIENT_KEY );
 
-		// phpcs:disable WordPressVIPMinimum.Variables.ServerVariables.UserControlledHeaders, WordPressVIPMinimum.Variables.RestrictedVariables.cache_constraints___SERVER__REMOTE_ADDR__
+		// phpcs:disable WordPressVIPMinimum.Variables.ServerVariables.UserControlledHeaders, WordPressVIPMinimum.Variables.RestrictedVariables.cache_constraints___SERVER__REMOTE_ADDR__, WordPressVIPMinimum.Variables.RestrictedVariables.cache_constraints___COOKIE
+
+		// Set cache-bypass cookie.
+		$_COOKIE[ \Newspack\Content_Gate\IP_Access_Rule::COOKIE_NAME ] = '1';
 
 		$_SERVER['REMOTE_ADDR'] = '10.1.2.3';
 		$this->assertTrue(
 			\Newspack\Access_Rules::evaluate_rule( 'institution', [ $inst_id ], 0 ),
-			'Anonymous user with matching IP should get institutional access'
+			'Anonymous user with matching IP on uncached request should get institutional access'
 		);
 
 		$_SERVER['REMOTE_ADDR'] = '192.168.1.1';
 		$this->assertFalse(
 			\Newspack\Access_Rules::evaluate_rule( 'institution', [ $inst_id ], 0 ),
 			'Anonymous user with non-matching IP should not get access'
+		);
+
+		// Without cookie — no evaluation even with matching IP.
+		unset( $_COOKIE[ \Newspack\Content_Gate\IP_Access_Rule::COOKIE_NAME ] );
+		$_SERVER['REMOTE_ADDR'] = '10.1.2.3';
+		$this->assertFalse(
+			\Newspack\Access_Rules::evaluate_rule( 'institution', [ $inst_id ], 0 ),
+			'Anonymous user without cache-bypass cookie should not trigger IP evaluation'
 		);
 
 		unset( $_SERVER['REMOTE_ADDR'] );

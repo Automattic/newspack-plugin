@@ -213,7 +213,11 @@ class Institution {
 
 		if ( ! empty( $rules['ip_range'] ) ) {
 			$has_any_rule = true;
-			if ( IP_Access_Rule::ip_matches_ranges( IP_Access_Rule::get_visitor_ip(), $rules['ip_range'] ) ) {
+			// Only evaluate IP on uncached requests (cookie signals cache bypass via /institutional-access).
+			if (
+				isset( $_COOKIE[ IP_Access_Rule::COOKIE_NAME ] ) && // phpcs:ignore WordPressVIPMinimum.Variables.RestrictedVariables.cache_constraints___COOKIE
+				IP_Access_Rule::ip_matches_ranges( IP_Access_Rule::get_visitor_ip(), $rules['ip_range'] )
+			) {
 				return true;
 			}
 		}
