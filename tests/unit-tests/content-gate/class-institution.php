@@ -72,7 +72,14 @@ class Test_Institution extends WP_UnitTestCase {
 	 * @param string $email Email address.
 	 * @return int User ID.
 	 */
-	private function create_reader( $email ) {
+	/**
+	 * Create a reader user with verified email.
+	 *
+	 * @param string $email    Email address.
+	 * @param bool   $verified Whether the email is verified. Default true.
+	 * @return int User ID.
+	 */
+	private function create_reader( $email, $verified = true ) {
 		$user_id = wp_insert_user(
 			[
 				'user_login' => 'reader-' . wp_generate_password( 6, false ),
@@ -83,6 +90,9 @@ class Test_Institution extends WP_UnitTestCase {
 		);
 		if ( ! is_wp_error( $user_id ) ) {
 			update_user_meta( $user_id, '_newspack_reader', true );
+			if ( $verified ) {
+				update_user_meta( $user_id, \Newspack\Reader_Activation::EMAIL_VERIFIED, true );
+			}
 			$this->user_ids[] = $user_id;
 		}
 		return $user_id;
@@ -173,6 +183,23 @@ class Test_Institution extends WP_UnitTestCase {
 		delete_transient( Institution::TRANSIENT_KEY );
 		$this->assertTrue( Institution::evaluate( $match_reader, [ $inst_id ] ) );
 		$this->assertFalse( Institution::evaluate( $no_match_reader, [ $inst_id ] ) );
+	}
+
+	/**
+	 * Test email domain requires verified email.
+	 */
+	public function test_email_domain_requires_verification() {
+		$inst_id = $this->create_institution(
+			'Verified University',
+			[ '_np_institution_email_domain' => 'verified.edu' ]
+		);
+		$unverified_reader = $this->create_reader( 'student@verified.edu', false );
+
+		delete_transient( Institution::TRANSIENT_KEY );
+		$this->assertFalse(
+			Institution::evaluate( $unverified_reader, [ $inst_id ] ),
+			'Unverified email should not grant institutional access'
+		);
 	}
 
 	/**

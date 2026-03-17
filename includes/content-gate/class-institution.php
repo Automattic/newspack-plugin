@@ -203,7 +203,10 @@ class Institution {
 
 		if ( ! empty( $rules['email_domain'] ) ) {
 			$has_any_rule = true;
-			if ( Access_Rules::is_email_domain_whitelisted( $user_id, $rules['email_domain'] ) ) {
+			if (
+				\get_user_meta( $user_id, Reader_Activation::EMAIL_VERIFIED, true ) &&
+				Access_Rules::is_email_domain_whitelisted( $user_id, $rules['email_domain'] )
+			) {
 				return true;
 			}
 		}
