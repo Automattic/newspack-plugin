@@ -163,9 +163,9 @@ class Test_Post_Date extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * Test get_the_date filter skips machine-readable ISO format.
+	 * Test get_the_date filter only converts default format, skips explicit formats.
 	 */
-	public function test_get_the_date_skips_iso_format() {
+	public function test_get_the_date_skips_explicit_format() {
 		set_theme_mod( 'post_time_ago', true );
 		set_theme_mod( 'post_time_ago_cut_off', 14 );
 
@@ -175,10 +175,11 @@ class Test_Post_Date extends \WP_UnitTestCase {
 			]
 		);
 
-		$date = get_the_date( 'Y-m-d\TH:i:sP', $post_id );
-		$this->assertStringNotContainsString( 'ago', $date, 'ISO format should not be converted to time-ago.' );
+		$date = get_the_date( 'F j, Y', $post_id );
+		$this->assertStringNotContainsString( 'ago', $date, 'Explicit format should not be converted to time-ago.' );
 
-		wp_delete_post( $post_id, true );
+		$unix = get_the_date( 'U', $post_id );
+		$this->assertTrue( is_numeric( $unix ), 'Unix timestamp format should return a numeric value.' );
 	}
 
 	// ─── Time Ago: render_block filter (block theme) ───
@@ -307,23 +308,23 @@ class Test_Post_Date extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * Test per-post show override when sitewide off.
+	 * Test per-post show override bypasses threshold.
 	 */
 	public function test_modified_date_per_post_show_override() {
 		set_theme_mod( 'post_updated_date', false );
+		set_theme_mod( 'post_updated_date_threshold', 24 );
 
+		// Modified only 1 hour after publish (within threshold).
 		$post_id = $this->create_post_with_modified_date(
 			gmdate( 'Y-m-d H:i:s', time() - 7 * DAY_IN_SECONDS ),
-			gmdate( 'Y-m-d H:i:s', time() - 3 * DAY_IN_SECONDS )
+			gmdate( 'Y-m-d H:i:s', time() - 7 * DAY_IN_SECONDS + HOUR_IN_SECONDS )
 		);
 		update_post_meta( $post_id, 'newspack_show_updated_date', true );
 
 		$this->assertTrue(
 			\Newspack\Post_Date::should_display_updated_date( $post_id ),
-			'Modified date should display when per-post show override is on.'
+			'Per-post show override should bypass threshold.'
 		);
-
-		wp_delete_post( $post_id, true );
 	}
 
 	/**
@@ -388,26 +389,6 @@ class Test_Post_Date extends \WP_UnitTestCase {
 
 		$result = \Newspack\Post_Date::filter_post_date_block( $block_content, $block );
 		$this->assertEmpty( $result, 'Modified date block should be hidden when sitewide is off.' );
-
-		wp_delete_post( $post_id, true );
-	}
-
-	/**
-	 * Test get_the_date filter skips Unix timestamp format.
-	 */
-	public function test_get_the_date_skips_unix_format() {
-		set_theme_mod( 'post_time_ago', true );
-		set_theme_mod( 'post_time_ago_cut_off', 14 );
-
-		$post_id = static::factory()->post->create(
-			[
-				'post_date' => gmdate( 'Y-m-d H:i:s', time() - 2 * HOUR_IN_SECONDS ),
-			]
-		);
-
-		$date = get_the_date( 'U', $post_id );
-		$this->assertStringNotContainsString( 'ago', $date, 'Unix timestamp format should not be converted to time-ago.' );
-		$this->assertTrue( is_numeric( $date ), 'Unix timestamp format should return a numeric value.' );
 
 		wp_delete_post( $post_id, true );
 	}

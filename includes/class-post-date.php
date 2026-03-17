@@ -87,11 +87,16 @@ class Post_Date {
 		$show_meta = get_post_meta( $post_id, 'newspack_show_updated_date', true );
 		$hide_meta = get_post_meta( $post_id, 'newspack_hide_updated_date', true );
 
+		// Per-post show override bypasses threshold (matches classic theme behavior).
+		if ( ! $sitewide && $show_meta ) {
+			return true;
+		}
+
 		if ( $sitewide ) {
 			if ( $hide_meta ) {
 				return false;
 			}
-		} elseif ( ! $show_meta ) {
+		} else {
 			return false;
 		}
 
@@ -197,8 +202,9 @@ class Post_Date {
 			return $the_date;
 		}
 
-		// Skip machine-readable formats (ISO 8601, Unix timestamp).
-		if ( 'Y-m-d\TH:i:sP' === $format || 'c' === $format || 'U' === $format ) {
+		// Only convert the default date format (empty string). Explicit formats must be preserved
+		// because they may be machine-readable (ISO 8601, Unix) or requested by templates/blocks.
+		if ( ! empty( $format ) ) {
 			return $the_date;
 		}
 
