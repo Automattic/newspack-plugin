@@ -869,7 +869,6 @@ class Test_Integrations extends \WP_UnitTestCase {
 	 */
 	public function test_settings_field_value_routes_metadata_prefix() {
 		$integration = new Sample_Integration( 'route-test', 'Route Test' );
-		$integration->init();
 
 		$this->assertTrue( $integration->update_settings_field_value( 'metadata_prefix', 'API_' ) );
 		$this->assertSame( 'API_', $integration->get_settings_field_value( 'metadata_prefix' ) );
@@ -900,7 +899,6 @@ class Test_Integrations extends \WP_UnitTestCase {
 	 */
 	public function test_get_settings_config_includes_metadata_prefix() {
 		$integration = new Sample_Integration( 'config-test', 'Config Test' );
-		$integration->init();
 		$integration->update_metadata_prefix( 'CFG_' );
 
 		$config = $integration->get_settings_config();

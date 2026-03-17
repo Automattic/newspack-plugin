@@ -65,7 +65,6 @@ class Newspack_Test_Reader_Activation_Sync extends WP_UnitTestCase {
 	 */
 	public function test_esp_integration_checks() {
 		$esp_integration = new Integrations\ESP();
-		$esp_integration->init();
 		$errors = $esp_integration->can_sync( true );
 		$this->assertInstanceOf( 'WP_Error', $errors );
 		$this->assertTrue( $errors->has_errors() );
