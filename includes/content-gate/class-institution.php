@@ -199,10 +199,7 @@ class Institution {
 	 * @return bool Whether the user matches any rule.
 	 */
 	private static function user_matches_institution( $user_id, $rules ) {
-		$has_any_rule = false;
-
 		if ( ! empty( $rules['email_domain'] ) ) {
-			$has_any_rule = true;
 			if (
 				\get_user_meta( $user_id, Reader_Activation::EMAIL_VERIFIED, true ) &&
 				Access_Rules::is_email_domain_whitelisted( $user_id, $rules['email_domain'] )
@@ -212,24 +209,19 @@ class Institution {
 		}
 
 		if ( ! empty( $rules['ip_range'] ) ) {
-			$has_any_rule = true;
-			// Only evaluate IP on uncached requests (cookie signals cache bypass via /institutional-access).
-			if (
-				isset( $_COOKIE[ IP_Access_Rule::COOKIE_NAME ] ) && // phpcs:ignore WordPressVIPMinimum.Variables.RestrictedVariables.cache_constraints___COOKIE
-				IP_Access_Rule::ip_matches_ranges( IP_Access_Rule::get_visitor_ip(), $rules['ip_range'] )
-			) {
+			$is_uncached = ! empty( $user_id ) || isset( $_COOKIE[ IP_Access_Rule::COOKIE_NAME ] ); // phpcs:ignore WordPressVIPMinimum.Variables.RestrictedVariables.cache_constraints___COOKIE
+			if ( $is_uncached && IP_Access_Rule::ip_matches_ranges( IP_Access_Rule::get_visitor_ip(), $rules['ip_range'] ) ) {
 				return true;
 			}
 		}
 
 		if ( ! empty( $rules['reader_data'] ) ) {
-			$has_any_rule = true;
 			if ( Access_Rules::has_reader_data( $user_id, $rules['reader_data'] ) ) {
 				return true;
 			}
 		}
 
-		return $has_any_rule ? false : false;
+		return false;
 	}
 
 	/**

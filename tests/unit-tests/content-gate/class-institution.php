@@ -214,24 +214,21 @@ class Test_Institution extends WP_UnitTestCase {
 
 		delete_transient( Institution::TRANSIENT_KEY );
 
-		// phpcs:disable WordPressVIPMinimum.Variables.ServerVariables.UserControlledHeaders, WordPressVIPMinimum.Variables.RestrictedVariables.cache_constraints___SERVER__REMOTE_ADDR__, WordPressVIPMinimum.Variables.RestrictedVariables.cache_constraints___COOKIE
+		// phpcs:disable WordPressVIPMinimum.Variables.ServerVariables.UserControlledHeaders, WordPressVIPMinimum.Variables.RestrictedVariables.cache_constraints___SERVER__REMOTE_ADDR__
 
-		// Without cache-bypass cookie — no IP evaluation happens.
-		$_SERVER['REMOTE_ADDR'] = '10.1.2.3';
-		$this->assertFalse( Institution::evaluate( $reader_id, [ $inst_id ] ) );
+		// Logged-in users are always uncached — IP is checked directly, no cookie needed.
 
-		// Set cache-bypass cookie (simulates having visited /institutional-access).
-		$_COOKIE[ \Newspack\Content_Gate\IP_Access_Rule::COOKIE_NAME ] = '1';
-
-		// Matching IP with cookie.
+		// Matching IP.
 		$_SERVER['REMOTE_ADDR'] = '10.1.2.3';
 		$this->assertTrue( Institution::evaluate( $reader_id, [ $inst_id ] ) );
 
-		// Non-matching IP with cookie.
+		// Non-matching IP.
 		$_SERVER['REMOTE_ADDR'] = '192.168.1.1';
 		$this->assertFalse( Institution::evaluate( $reader_id, [ $inst_id ] ) );
 
-		unset( $_SERVER['REMOTE_ADDR'], $_COOKIE[ \Newspack\Content_Gate\IP_Access_Rule::COOKIE_NAME ] );
+		// No IP set.
+		unset( $_SERVER['REMOTE_ADDR'] );
+		$this->assertFalse( Institution::evaluate( $reader_id, [ $inst_id ] ) );
 
 		// phpcs:enable
 	}
