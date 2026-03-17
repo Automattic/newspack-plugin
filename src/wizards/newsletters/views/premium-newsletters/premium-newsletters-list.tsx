@@ -38,7 +38,7 @@ const ContentGates = ( { updateGatesData }: { updateGatesData: ( gates: Gate[] )
 		}
 		setHeaderData( {
 			sectionTitle: __( 'Premium newsletters', 'newspack-plugin' ),
-			sectionDescription: __( 'Set up premium newsletters to control access to your newsletters.', 'newspack-plugin' ),
+			sectionDescription: __( 'Set up premium newsletters to control access to your lists.', 'newspack-plugin' ),
 			sectionPrimaryAction: {
 				label: __( 'Add new premium newsletter', 'newspack-plugin' ),
 				href: '#/edit/new/all',

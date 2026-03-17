@@ -44,16 +44,6 @@ type ContentGateEditProps = {
 	isNewsletter?: boolean;
 };
 
-const DEFAULT_GATE: Gate = {
-	id: 0,
-	title: '',
-	priority: 0,
-	status: 'publish',
-	content_rules: [ { slug: 'post_types', value: [ 'post' ] } ],
-	registration: { active: false, metering: { enabled: false, count: 1, period: 'month' }, require_verification: false, gate_layout_id: 0 },
-	custom_access: { active: false, metering: { enabled: false, count: 1, period: 'month' }, gate_layout_id: 0, access_rules: [] },
-};
-
 const getContentTypeFromRules = ( rules: GateContentRule[] ): 'all' | 'custom' | undefined => {
 	if ( rules.length === 0 ) {
 		return undefined;
@@ -62,6 +52,9 @@ const getContentTypeFromRules = ( rules: GateContentRule[] ): 'all' | 'custom' |
 		return 'custom';
 	}
 	const [ rule ] = rules;
+	if ( rule.slug === 'newsletters' && rule.value.length > 0 ) {
+		return 'custom';
+	}
 	if ( rule.slug !== 'post_types' || ! Array.isArray( rule.value ) ) {
 		return 'custom';
 	}
@@ -72,6 +65,16 @@ const getContentTypeFromRules = ( rules: GateContentRule[] ): 'all' | 'custom' |
 };
 
 const Edit = ( { match, updateGatesData, slug = AUDIENCE_CONTENT_GATES_WIZARD_SLUG, isNewsletter = false }: ContentGateEditProps ) => {
+	const DEFAULT_GATE: Gate = {
+		id: 0,
+		title: '',
+		priority: 0,
+		status: 'publish',
+		content_rules: isNewsletter ? [ { slug: 'newsletters', value: [] } ] : [ { slug: 'post_types', value: [ 'post' ] } ],
+		registration: { active: false, metering: { enabled: false, count: 1, period: 'month' }, require_verification: false, gate_layout_id: 0 },
+		custom_access: { active: false, metering: { enabled: false, count: 1, period: 'month' }, gate_layout_id: 0, access_rules: [] },
+	};
+
 	const history = useHistory();
 	const { id: _id, type } = match.params;
 	const id = _id ? parseInt( _id ) : 0;
@@ -91,6 +94,7 @@ const Edit = ( { match, updateGatesData, slug = AUDIENCE_CONTENT_GATES_WIZARD_SL
 	const isNew = _id === 'new' || ! id;
 	const isSaving = useRef( false );
 	const gatesRef = useRef< Gate[] >( gates );
+
 	useEffect( () => {
 		if ( Array.isArray( gates ) ) {
 			gatesRef.current = gates;

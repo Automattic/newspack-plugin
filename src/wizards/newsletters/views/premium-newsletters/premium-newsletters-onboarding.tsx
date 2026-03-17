@@ -23,7 +23,7 @@ const PremiumNewslettersOnboarding = () => {
 					icon={ lockDoor }
 					title={ __( 'Get started with premium newsletters', 'newspack-plugin' ) }
 					description={ __(
-						'Set up premium newsletters to manage which newsletter lists readers can sign up for. Start by selecting which lists to restrict, then configure access through registered and/or paid options.',
+						'Set up premium newsletters to manage which lists readers can sign up for. Start by selecting which lists to restrict, then configure access through registered and/or paid options.',
 						'newspack-plugin'
 					) }
 					pageHeader

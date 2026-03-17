@@ -32,9 +32,12 @@ export default function ContentRuleControl( { slug, value, exclusion, onChange, 
 						// translators: 1: rule name, 2: includes or excludes
 						__( '%1$s %2$s:', 'newspack-plugin' ),
 						rule.name,
-						exclusion ? __( 'exclude', 'newspack-plugin' ) : __( 'include', 'newspack-plugin' )
+						exclusion && ( slug !== 'newsletters' || value?.length )
+							? __( 'exclude', 'newspack-plugin' )
+							: __( 'include', 'newspack-plugin' )
 					) }
 				</strong>{ ' ' }
+				{ slug === 'newsletters' && ! value?.length && __( 'All lists', 'newspack-plugin' ) }
 				{ value.map( v => rule.options?.find( option => option.value === v )?.label ).join( ', ' ) }
 			</p>
 		) : (
@@ -56,10 +59,11 @@ export default function ContentRuleControl( { slug, value, exclusion, onChange, 
 			</ToggleGroupControl>
 			{ rule.options && rule.options.length > 0 ? (
 				<Grid columns={ 2 } gutter={ 8 }>
-					{ ( rule.options || [] ).map( option => (
+					{ ( rule.options || [] ).map( ( option: { value: string; label: string; help?: string } ) => (
 						<CheckboxControl
 							key={ option.value }
 							label={ option.label }
+							help={ option.help }
 							checked={ value.includes( option.value ) }
 							onChange={ () =>
 								onChange( value.includes( option.value ) ? value.filter( v => v !== option.value ) : [ ...value, option.value ] )
