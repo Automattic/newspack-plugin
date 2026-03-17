@@ -72,5 +72,60 @@ class IP_Access_Rule {
 		wp_safe_redirect( home_url( '/' ) );
 		exit;
 	}
+	/**
+	 * Check if an IP address matches any of the given ranges.
+	 *
+	 * @param string $ip     The IP address to check.
+	 * @param string $ranges Comma-separated list of IPs and/or CIDR blocks.
+	 *
+	 * @return bool Whether the IP matches any range.
+	 */
+	public static function ip_matches_ranges( $ip, $ranges ) {
+		if ( empty( $ranges ) || ! filter_var( $ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 ) ) {
+			return false;
+		}
+		$ranges  = array_map( 'trim', explode( ',', $ranges ) );
+		$ranges  = array_filter( $ranges );
+		$ip_long = ip2long( $ip );
+
+		foreach ( $ranges as $range ) {
+			if ( strpos( $range, '/' ) !== false ) {
+				list( $subnet, $bits ) = explode( '/', $range, 2 );
+				$bits = (int) $bits;
+				if ( $bits < 0 || $bits > 32 || ! filter_var( $subnet, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 ) ) {
+					continue;
+				}
+				$subnet_long = ip2long( $subnet );
+				$mask        = -1 << ( 32 - $bits );
+				if ( ( $ip_long & $mask ) === ( $subnet_long & $mask ) ) {
+					return true;
+				}
+			} elseif ( filter_var( $range, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 ) ) {
+				if ( $ip_long === ip2long( $range ) ) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * Get the visitor's IP address, accounting for proxy headers.
+	 *
+	 * @return string The visitor's IP address.
+	 */
+	public static function get_visitor_ip() {
+		$headers = [ 'HTTP_X_FORWARDED_FOR', 'HTTP_X_REAL_IP', 'REMOTE_ADDR' ];
+		foreach ( $headers as $header ) {
+			if ( ! empty( $_SERVER[ $header ] ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidated
+				$ip = explode( ',', sanitize_text_field( wp_unslash( $_SERVER[ $header ] ) ) )[0];
+				$ip = trim( $ip );
+				if ( filter_var( $ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 ) ) {
+					return $ip;
+				}
+			}
+		}
+		return '';
+	}
 }
 IP_Access_Rule::init();
