@@ -130,7 +130,14 @@ class Post_Date {
 			return $block_content;
 		}
 
-		return preg_replace( '/(<time[^>]*>)(.*?)(<\/time>)/s', '${1}' . esc_html( $time_ago ) . '${3}', $block_content, 1 );
+		return preg_replace_callback(
+			'/(<time[^>]*>)(.*?)(<\/time>)/s',
+			function ( $matches ) use ( $time_ago ) {
+				return $matches[1] . esc_html( $time_ago ) . $matches[3];
+			},
+			$block_content,
+			1
+		);
 	}
 
 	/**
@@ -165,7 +172,7 @@ class Post_Date {
 				'/(<time[^>]*>)(.*?)(<\/time>)/s',
 				function ( $matches ) {
 					/* translators: %s: Modified date. */
-					$label = sprintf( __( 'Updated %s', 'newspack-plugin' ), $matches[2] );
+					$label = sprintf( __( 'Updated %s', 'newspack-plugin' ), esc_html( $matches[2] ) );
 					return $matches[1] . $label . $matches[3];
 				},
 				$block_content,
@@ -253,10 +260,13 @@ class Post_Date {
 	/**
 	 * Auth callback for post meta.
 	 *
+	 * @param bool   $allowed  Whether the user can add the post meta.
+	 * @param string $meta_key The meta key.
+	 * @param int    $post_id  Post ID.
 	 * @return bool
 	 */
-	public static function auth_callback() {
-		return current_user_can( 'edit_posts' );
+	public static function auth_callback( $allowed, $meta_key, $post_id ) {
+		return current_user_can( 'edit_post', $post_id );
 	}
 
 	/**
