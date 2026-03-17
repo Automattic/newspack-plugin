@@ -325,13 +325,18 @@ class Post_Date {
 	 * Enqueue editor sidebar script for per-post toggles.
 	 */
 	public static function enqueue_editor_assets() {
+		$post_types = apply_filters( 'newspack_updated_date_supported_post_types', [ 'post' ] );
+
+		$screen = get_current_screen();
+		if ( $screen && ! in_array( $screen->post_type, $post_types, true ) ) {
+			return;
+		}
+
 		if ( ! get_theme_mod( 'post_updated_date', false ) ) {
 			$mode = 'show';
 		} else {
 			$mode = 'hide';
 		}
-
-		$post_types = apply_filters( 'newspack_updated_date_supported_post_types', [ 'post' ] );
 
 		$handle = 'newspack-post-date-editor';
 		$path   = NEWSPACK_ABSPATH . 'dist/other-scripts/post-date-editor.js';
