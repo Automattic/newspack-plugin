@@ -959,6 +959,46 @@ class WooCommerce_Connection {
 
 		return $args;
 	}
+
+	/**
+	 * Check whether the customer is considered a "returning customer" for the purposes of our reader activation flows.
+	 *
+	 * @param int $customer_id The customer ID to check.
+	 *
+	 * @return bool True if the customer is a returning customer, false otherwise.
+	 */
+	public static function is_returning_customer( $customer_id ) {
+		$is_returning_customer = false;
+		if ( ! class_exists( 'WC_Customer' ) ) {
+			return $is_returning_customer;
+		}
+
+		$customer = new \WC_Customer( $user_id );
+		if ( $customer->get_order_count() > 0 ) {
+			$is_returning_customer = true;
+		}
+
+		if ( ! $is_returning_customer && function_exists( 'wcs_user_has_subscription' ) ) {
+			$is_returning_customer = wcs_user_has_subscription(
+				$customer_id,
+				0,
+				[
+					'active',
+					'pending-cancel',
+					'cancelled',
+					'expired',
+				]
+			);
+		}
+
+		/**
+		 * Filters whether a user is considered a returning customer.
+		 *
+		 * @param bool $is_returning_customer Whether the user is a returning customer.
+		 * @param int  $customer_id           The customer ID.
+		 */
+		return apply_filters( 'newspack_woocommerce_connection_is_returning_customer', $is_returning_customer, $customer_id );
+	}
 }
 
 WooCommerce_Connection::init();

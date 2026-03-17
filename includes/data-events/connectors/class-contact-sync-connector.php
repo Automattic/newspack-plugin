@@ -87,6 +87,10 @@ class Contact_Sync_Connector {
 	 * @param int   $client_id ID of the client that triggered the event.
 	 */
 	public static function reader_registered( $timestamp, $data, $client_id ) {
+		if ( ! class_exists( 'WC_Customer' ) ) {
+			return;
+		}
+
 		if ( empty( $data['user_id'] ) ) {
 			return;
 		}
@@ -106,18 +110,20 @@ class Contact_Sync_Connector {
 	 * @param int   $client_id ID of the client that triggered the event.
 	 */
 	public static function reader_logged_in( $timestamp, $data, $client_id ) {
+		if ( ! class_exists( 'WC_Customer' ) ) {
+			return;
+		}
+
 		if ( empty( $data['email'] ) || empty( $data['user_id'] ) ) {
 			return;
 		}
 
-		$customer = new \WC_Customer( $data['user_id'] );
-
-		// If user is not a Woo customer, don't need to sync them.
-		if ( ! $customer->get_order_count() && empty( WooCommerce_Connection::get_active_subscriptions_for_user( $data['user_id'] ) ) ) {
+		if ( ! WooCommerce_Connection::is_returning_customer( $data['user_id'] ) ) {
 			return;
 		}
 
-		$contact = Sync_WooCommerce::get_contact_from_customer( $customer );
+		$customer = new \WC_Customer( $data['user_id'] );
+		$contact  = Sync_WooCommerce::get_contact_from_customer( $customer );
 
 		Contact_Sync::sync( $contact, 'RAS Reader login' );
 	}
