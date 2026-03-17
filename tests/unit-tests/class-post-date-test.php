@@ -393,6 +393,62 @@ class Test_Post_Date extends \WP_UnitTestCase {
 		wp_delete_post( $post_id, true );
 	}
 
+	/**
+	 * Test get_the_date filter skips Unix timestamp format.
+	 */
+	public function test_get_the_date_skips_unix_format() {
+		set_theme_mod( 'post_time_ago', true );
+		set_theme_mod( 'post_time_ago_cut_off', 14 );
+
+		$post_id = static::factory()->post->create(
+			[
+				'post_date' => gmdate( 'Y-m-d H:i:s', time() - 2 * HOUR_IN_SECONDS ),
+			]
+		);
+
+		$date = get_the_date( 'U', $post_id );
+		$this->assertStringNotContainsString( 'ago', $date, 'Unix timestamp format should not be converted to time-ago.' );
+		$this->assertTrue( is_numeric( $date ), 'Unix timestamp format should return a numeric value.' );
+
+		wp_delete_post( $post_id, true );
+	}
+
+	/**
+	 * Test render_block detects modified date via block bindings attributes.
+	 */
+	public function test_render_block_detects_modified_via_bindings() {
+		set_theme_mod( 'post_updated_date', false );
+
+		$post_id = $this->create_post_with_modified_date(
+			gmdate( 'Y-m-d H:i:s', time() - 7 * DAY_IN_SECONDS ),
+			gmdate( 'Y-m-d H:i:s', time() - 3 * DAY_IN_SECONDS )
+		);
+
+		global $post;
+		$post = get_post( $post_id );
+
+		// Block with bindings attrs (no CSS class in content) should still be detected as modified.
+		$block_content = '<div class="wp-block-post-date"><time datetime="2026-03-16T10:00:00+00:00">March 16, 2026</time></div>';
+		$block         = [
+			'blockName' => 'core/post-date',
+			'attrs'     => [
+				'metadata' => [
+					'bindings' => [
+						'datetime' => [
+							'source' => 'core/post-data',
+							'args'   => [ 'field' => 'modified' ],
+						],
+					],
+				],
+			],
+		];
+
+		$result = \Newspack\Post_Date::filter_post_date_block( $block_content, $block );
+		$this->assertEmpty( $result, 'Modified date block detected via bindings should be hidden when sitewide is off.' );
+
+		wp_delete_post( $post_id, true );
+	}
+
 	// ─── Theme Switch Migration ───
 
 	/**

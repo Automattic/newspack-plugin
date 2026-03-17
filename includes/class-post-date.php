@@ -128,16 +128,8 @@ class Post_Date {
 			if ( ! self::should_display_updated_date( $post_id ) ) {
 				return '';
 			}
-			// If core returned empty (e.g. block bindings resolved to ''), render the date ourselves.
 			if ( empty( $block_content ) ) {
-				$post             = get_post( $post_id );
-				$format           = $block['attrs']['format'] ?? get_option( 'date_format' );
-				$modified_date    = get_the_modified_date( $format, $post );
-				$modified_iso     = get_the_modified_date( 'c', $post );
-				$wrapper_attrs    = get_block_wrapper_attributes( [ 'class' => 'wp-block-post-date__modified-date' ] );
-				/* translators: %s: Modified date. */
-				$label = sprintf( __( 'Updated %s', 'newspack-plugin' ), esc_html( $modified_date ) );
-				return sprintf( '<div %1$s><time datetime="%2$s">%3$s</time></div>', $wrapper_attrs, esc_attr( $modified_iso ), $label );
+				return '';
 			}
 			// Wrap the date text with a translatable "Updated %s" label.
 			$block_content = preg_replace_callback(
