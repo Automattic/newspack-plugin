@@ -208,6 +208,44 @@ class Test_Institution extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Test that the institution access rule is registered.
+	 */
+	public function test_access_rule_registered() {
+		$rules = \Newspack\Access_Rules::get_registered_rules();
+		$this->assertArrayHasKey( 'institution', $rules );
+	}
+
+	/**
+	 * Test evaluate_rule integration with the institution rule.
+	 */
+	public function test_evaluate_rule_integration() {
+		$inst_id = $this->create_institution(
+			'Integration Test University',
+			[ '_np_institution_email_domain' => 'integration.edu' ]
+		);
+		$reader_id = $this->create_reader( 'reader@integration.edu' );
+
+		delete_transient( Institution::TRANSIENT_KEY );
+		$this->assertTrue(
+			\Newspack\Access_Rules::evaluate_rule( 'institution', [ $inst_id ], $reader_id )
+		);
+	}
+
+	/**
+	 * Test evaluate_rule returns false for anonymous users.
+	 */
+	public function test_evaluate_rule_anonymous_returns_false() {
+		$inst_id = $this->create_institution(
+			'Anon Test',
+			[ '_np_institution_ip_range' => '10.0.0.0/8' ]
+		);
+		delete_transient( Institution::TRANSIENT_KEY );
+		$this->assertFalse(
+			\Newspack\Access_Rules::evaluate_rule( 'institution', [ $inst_id ], 0 )
+		);
+	}
+
+	/**
 	 * Test check_ip filter handler.
 	 */
 	public function test_check_ip_filter() {

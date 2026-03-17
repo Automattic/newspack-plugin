@@ -102,6 +102,12 @@ class Access_Rules {
 				'description' => __( 'Set custom conditions based on reader data key/value pairs.', 'newspack-plugin' ),
 				'callback'    => [ __CLASS__, 'has_reader_data' ],
 			],
+			'institution'  => [
+				'name'        => __( 'Institutional access', 'newspack-plugin' ),
+				'description' => __( 'Grant access to readers from selected institutions.', 'newspack-plugin' ),
+				'options'     => [ Institution::class, 'get_options' ],
+				'callback'    => [ Institution::class, 'evaluate' ],
+			],
 		];
 
 		foreach ( $rules as $id => $rule ) {
