@@ -38,7 +38,7 @@ class Metadata {
 	/**
 	 * Get the metadata classes to be used for syncing contact metadata to the ESP.
 	 *
-	 * This are the metadata classes that will be used in case get_version is not legacy.
+	 * These are the metadata classes that will be used in case get_version is not legacy.
 	 *
 	 * @return array List of metadata classes.
 	 */
