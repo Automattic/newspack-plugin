@@ -102,8 +102,8 @@ class Post_Date {
 
 		// Apply threshold.
 		$threshold = (int) get_theme_mod( 'post_updated_date_threshold', 24 );
-		$published = strtotime( $post->post_date );
-		$modified  = strtotime( $post->post_modified );
+		$published = strtotime( $post->post_date_gmt );
+		$modified  = strtotime( $post->post_modified_gmt );
 
 		if ( ( $modified - $published ) < $threshold * HOUR_IN_SECONDS ) {
 			return false;
