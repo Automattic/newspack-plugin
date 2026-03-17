@@ -47,6 +47,41 @@ class Institution {
 	}
 
 	/**
+	 * Create an institution.
+	 *
+	 * @param string $name  Institution name.
+	 * @param array  $rules {
+	 *     Optional. Institution rules.
+	 *
+	 *     @type string $email_domain Comma-separated domains (e.g., 'university.edu,uni.ac.uk').
+	 *     @type string $ip_range     Comma-separated IPs/CIDR (e.g., '192.168.1.0/24,10.0.0.5').
+	 *     @type string $reader_data  Semicolon-delimited key=value pairs (e.g., 'org=uni;role=staff').
+	 * }
+	 *
+	 * @return int|\WP_Error Post ID on success, WP_Error on failure.
+	 */
+	public static function create( $name, $rules = [] ) {
+		$post_id = \wp_insert_post(
+			[
+				'post_type'   => self::POST_TYPE,
+				'post_title'  => $name,
+				'post_status' => 'publish',
+			],
+			true
+		);
+		if ( \is_wp_error( $post_id ) ) {
+			return $post_id;
+		}
+		$allowed_keys = [ 'email_domain', 'ip_range', 'reader_data' ];
+		foreach ( $rules as $key => $value ) {
+			if ( in_array( $key, $allowed_keys, true ) && ! empty( $value ) ) {
+				\update_post_meta( $post_id, self::META_PREFIX . $key, sanitize_text_field( $value ) );
+			}
+		}
+		return $post_id;
+	}
+
+	/**
 	 * Get institution options for the access rule multi-select.
 	 *
 	 * @return array Array of [ 'label' => string, 'value' => int ].

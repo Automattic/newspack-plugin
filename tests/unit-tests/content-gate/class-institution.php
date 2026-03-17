@@ -89,6 +89,28 @@ class Test_Institution extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Test creating an institution via the public API.
+	 */
+	public function test_create_institution() {
+		$post_id = Institution::create(
+			'API University',
+			[
+				'email_domain' => 'api.edu',
+				'ip_range'     => '10.0.0.0/8',
+			]
+		);
+		$this->assertIsInt( $post_id );
+		$this->post_ids[] = $post_id;
+
+		$post = get_post( $post_id );
+		$this->assertEquals( 'API University', $post->post_title );
+		$this->assertEquals( 'publish', $post->post_status );
+		$this->assertEquals( 'api.edu', get_post_meta( $post_id, '_np_institution_email_domain', true ) );
+		$this->assertEquals( '10.0.0.0/8', get_post_meta( $post_id, '_np_institution_ip_range', true ) );
+		$this->assertEmpty( get_post_meta( $post_id, '_np_institution_reader_data', true ) );
+	}
+
+	/**
 	 * Test CPT is registered.
 	 */
 	public function test_cpt_registered() {
