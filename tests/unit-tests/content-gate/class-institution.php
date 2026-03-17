@@ -67,12 +67,6 @@ class Test_Institution extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Create a reader user.
-	 *
-	 * @param string $email Email address.
-	 * @return int User ID.
-	 */
-	/**
 	 * Create a reader user with verified email.
 	 *
 	 * @param string $email    Email address.
