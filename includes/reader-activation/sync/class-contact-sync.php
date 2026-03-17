@@ -135,7 +135,12 @@ class Contact_Sync extends Sync {
 	 * @return true|\WP_Error True if all succeeded, or WP_Error with combined messages.
 	 */
 	private static function push_to_integrations( $contact, $context, $existing_contact = null ) {
-		/** This filter is documented in includes/reader-activation/sync/class-contact-sync.php */
+		/**
+		 * Filters the contact data before syncing to the integration, allowing modifications or additions to the contact data.
+		 *
+		 * @param array  $contact The contact data to sync.
+		 * @param string $context The context of the sync.
+		 */
 		$contact = \apply_filters( 'newspack_esp_sync_contact', $contact, $context );
 		$integrations = Integrations::get_active_integrations();
 		$errors       = [];

@@ -294,7 +294,13 @@ class Metadata {
 				$keys = array_merge( $keys, $fields );
 			}
 		}
-		return $keys;
+		/**
+		 * Filters the list of key/value pairs for metadata fields to be synced to the connected ESP.
+		 *
+		 * @param array $keys The list of key/value pairs for metadata fields to be synced to the connected ESP.
+		 * @param boolean $only_available Whether the list of fields is filtered to only available fields or not.
+		 */
+		return \apply_filters( 'newspack_ras_metadata_keys', $keys, $only_available );
 	}
 
 
