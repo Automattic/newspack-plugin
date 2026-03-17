@@ -21,7 +21,7 @@ import ContentGateOnboarding from '../../../audience/views/content-gates/content
 import ContentGateSettings from '../../../audience/views/content-gates/content-gate-settings';
 import { PREMIUM_NEWSLETTERS_WIZARD_SLUG } from './consts';
 
-const ContentGates = ( { updateGatesData }: { updateGatesData: ( gates: Gate[] ) => void } ) => {
+const PremiumNewslettersList = ( { updateGatesData }: { updateGatesData: ( gates: Gate[] ) => void } ) => {
 	const wizardData = useWizardData( PREMIUM_NEWSLETTERS_WIZARD_SLUG ) as WizardData;
 	const { isFetching, error, errorMessage } = useWizardApiFetch( PREMIUM_NEWSLETTERS_WIZARD_SLUG );
 	const { resetHeaderData, setHeaderData } = useDispatch( WIZARD_STORE_NAMESPACE );
@@ -69,4 +69,4 @@ const ContentGates = ( { updateGatesData }: { updateGatesData: ( gates: Gate[] )
 		</>
 	);
 };
-export default ContentGates;
+export default PremiumNewslettersList;
