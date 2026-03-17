@@ -311,7 +311,8 @@ class Contact_Sync extends Sync {
 
 		static::log( sprintf( 'Executing retry %d/%d for integration "%s" sync of %s.', $retry_count, self::MAX_RETRIES, $integration_id, $contact['email'] ?? 'unknown' ) );
 
-		$result = $integration->push_contact_data( $contact, $context, $existing_contact );
+		$integration_contact = $integration->prepare_contact( $contact );
+		$result              = $integration->push_contact_data( $integration_contact, $context, $existing_contact );
 		if ( \is_wp_error( $result ) ) {
 			static::log(
 				sprintf(

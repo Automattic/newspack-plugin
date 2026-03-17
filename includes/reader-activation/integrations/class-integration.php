@@ -440,9 +440,19 @@ abstract class Integration {
 		$keys_map       = Sync\Metadata::get_keys();
 		$prepared       = [];
 
-		foreach ( $contact['metadata'] as $raw_key => $value ) {
-			if ( isset( $keys_map[ $raw_key ] ) && in_array( $keys_map[ $raw_key ], $enabled_fields, true ) ) {
-				$prepared[ $prefix . $keys_map[ $raw_key ] ] = $value;
+		foreach ( $contact['metadata'] as $key => $value ) {
+			// If the key is already prefixed, keep it as-is if its field is enabled.
+			if ( ! empty( $prefix ) && 0 === strpos( $key, $prefix ) ) {
+				$field_name = substr( $key, strlen( $prefix ) );
+				if ( in_array( $field_name, $enabled_fields, true ) ) {
+					$prepared[ $key ] = $value;
+				}
+				continue;
+			}
+
+			// Otherwise, prefix raw keys that are in the keys map and enabled.
+			if ( isset( $keys_map[ $key ] ) && in_array( $keys_map[ $key ], $enabled_fields, true ) ) {
+				$prepared[ $prefix . $keys_map[ $key ] ] = $value;
 			}
 		}
 
