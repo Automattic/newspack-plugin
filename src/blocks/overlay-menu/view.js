@@ -1,0 +1,237 @@
+/**
+ * Flyout Menu Block — Frontend Script
+ *
+ * Initializes a self-contained overlay menu for each block instance on the
+ * page. Multiple instances work independently: each button opens only its own
+ * panel. No shared mutable state exists at the module level.
+ */
+
+/**
+ * Internal dependencies
+ */
+import { domReady } from '../../utils';
+
+// ─── Focusable element selector ───────────────────────────────────────────────
+const FOCUSABLE_SELECTOR =
+	'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), ' +
+	'textarea:not([disabled]), [tabindex]:not([tabindex="-1"]), iframe, object, embed, ' +
+	'[contenteditable="true"]';
+
+/**
+ * Returns all visible, focusable elements within a container.
+ *
+ * @param {HTMLElement} container
+ * @return {HTMLElement[]} Visible, focusable elements within the container.
+ */
+const getVisibleFocusable = container =>
+	Array.from( container.querySelectorAll( FOCUSABLE_SELECTOR ) ).filter( el => {
+		try {
+			const rect = el.getBoundingClientRect();
+			const style = window.getComputedStyle( el );
+			return rect.width > 0 && rect.height > 0 && style.visibility !== 'hidden' && style.display !== 'none' && ! el.hasAttribute( 'hidden' );
+		} catch {
+			return false;
+		}
+	} );
+
+/**
+ * Creates a self-contained overlay menu controller for one block instance.
+ *
+ * @param {HTMLElement} wrapper The block's root element (.wp-block-newspack-overlay-menu).
+ */
+const createFlyoutInstance = wrapper => {
+	const overlayId = wrapper.dataset.overlayId;
+	const trigger = wrapper.querySelector( '.overlay-menu__trigger' );
+	const panel = wrapper.querySelector( `#newspack-overlay-panel-${ overlayId }` );
+
+	if ( ! trigger || ! panel ) {
+		return;
+	}
+
+	const closeBtn = wrapper.querySelector( '.overlay-menu__close' );
+
+	let isOpen = false;
+	let lastFocused = null;
+	let overlay = null;
+	let focusTrapCleanup = null;
+
+	// Save original DOM position so the panel can be restored after close.
+	const originalParent = panel.parentNode;
+	const originalNextSibling = panel.nextSibling;
+
+	// ─── Overlay ──────────────────────────────────────────────────────────────
+
+	const showOverlay = color => {
+		overlay = document.createElement( 'div' );
+		overlay.className = 'overlay-menu__scrim alignfull';
+		overlay.setAttribute( 'aria-hidden', 'true' );
+		overlay.style.opacity = '0';
+		if ( color ) {
+			overlay.style.background = color;
+		}
+		overlay.addEventListener( 'click', closeMenu );
+		document.body.appendChild( overlay );
+		// Force reflow so the CSS transition fires on the opacity change.
+		void overlay.offsetHeight;
+		requestAnimationFrame( () => {
+			overlay.style.opacity = '1';
+		} );
+	};
+
+	const hideOverlay = () => {
+		if ( ! overlay ) {
+			return;
+		}
+		const el = overlay;
+		overlay = null;
+		el.style.opacity = '0';
+		// Remove from DOM once the CSS opacity transition finishes.
+		el.addEventListener( 'transitionend', () => el.remove(), { once: true } );
+	};
+
+	// ─── Slide animation ──────────────────────────────────────────────────────
+	// CSS owns the transition and all position values.
+	// JS only adds/removes the --open modifier class.
+
+	const slideIn = () => {
+		// Force reflow so the browser registers the panel's hidden position
+		// before the class change triggers the CSS transition.
+		void panel.offsetHeight;
+		panel.classList.add( 'overlay-menu__panel--open' );
+	};
+
+	const slideOut = callback => {
+		panel.classList.remove( 'overlay-menu__panel--open' );
+		// Wait for the position transition (left/right/top/bottom/transform) to finish
+		// before restoring the panel to the DOM. Opacity finishes first so we filter it out.
+		const positionProperties = new Set( [ 'left', 'right' ] );
+		const onEnd = e => {
+			if ( e.target !== panel || ! positionProperties.has( e.propertyName ) ) {
+				return;
+			}
+			panel.removeEventListener( 'transitionend', onEnd );
+			callback();
+		};
+		panel.addEventListener( 'transitionend', onEnd );
+	};
+
+	// ─── Focus trap ───────────────────────────────────────────────────────────
+
+	const trapFocus = () => {
+		const handleKeyDown = e => {
+			if ( e.key !== 'Tab' ) {
+				return;
+			}
+			const focusable = getVisibleFocusable( panel );
+			if ( ! focusable.length ) {
+				e.preventDefault();
+				return;
+			}
+			const first = focusable[ 0 ];
+			const last = focusable[ focusable.length - 1 ];
+			const active = panel.ownerDocument.activeElement;
+			if ( e.shiftKey && active === first ) {
+				e.preventDefault();
+				last.focus();
+			} else if ( ! e.shiftKey && active === last ) {
+				e.preventDefault();
+				first.focus();
+			}
+		};
+		document.addEventListener( 'keydown', handleKeyDown, true );
+		return () => document.removeEventListener( 'keydown', handleKeyDown, true );
+	};
+
+	// ─── Open / Close ─────────────────────────────────────────────────────────
+
+	const openMenu = () => {
+		if ( isOpen ) {
+			return;
+		}
+		isOpen = true;
+		lastFocused = trigger.ownerDocument.activeElement;
+
+		// Move panel to body so position:fixed works without stacking context issues.
+		document.body.appendChild( panel );
+
+		slideIn();
+
+		// ARIA state.
+		trigger.setAttribute( 'aria-expanded', 'true' );
+		panel.setAttribute( 'aria-hidden', 'false' );
+		document.body.classList.add( `menu-open--overlay-menu-${ overlayId }` );
+
+		// Show scrim overlay (reads overlay color from data attribute).
+		const overlayColor = panel.dataset.overlayColor || '';
+		showOverlay( overlayColor );
+
+		// Focus trap.
+		focusTrapCleanup = trapFocus();
+
+		// Move focus into the panel.
+		setTimeout( () => {
+			const firstFocusable = getVisibleFocusable( panel )[ 0 ] || closeBtn;
+			if ( firstFocusable && document.contains( firstFocusable ) ) {
+				firstFocusable.focus();
+			}
+		}, 50 );
+	};
+
+	const closeMenu = () => {
+		if ( ! isOpen ) {
+			return;
+		}
+		isOpen = false;
+
+		// Release focus trap.
+		if ( focusTrapCleanup ) {
+			focusTrapCleanup();
+			focusTrapCleanup = null;
+		}
+
+		// Restore ARIA state.
+		trigger.setAttribute( 'aria-expanded', 'false' );
+		panel.setAttribute( 'aria-hidden', 'true' );
+		document.body.classList.remove( `menu-open--overlay-menu-${ overlayId }` );
+
+		// Return focus immediately so screen readers don't lose context.
+		if ( lastFocused && document.contains( lastFocused ) ) {
+			lastFocused.focus();
+		}
+
+		hideOverlay();
+
+		// Animate out, then restore the panel to its original DOM position.
+		slideOut( () => {
+			if ( originalNextSibling && document.contains( originalNextSibling ) ) {
+				originalParent.insertBefore( panel, originalNextSibling );
+			} else {
+				originalParent.appendChild( panel );
+			}
+		} );
+	};
+
+	// ─── Event listeners ──────────────────────────────────────────────────────
+
+	trigger.addEventListener( 'click', () => ( isOpen ? closeMenu() : openMenu() ) );
+
+	if ( closeBtn ) {
+		closeBtn.addEventListener( 'click', e => {
+			e.preventDefault();
+			closeMenu();
+		} );
+	}
+
+	// ESC key — only responds when this instance is open.
+	document.addEventListener( 'keydown', e => {
+		if ( e.key === 'Escape' && isOpen ) {
+			closeMenu();
+		}
+	} );
+};
+
+// ─── Initialization ───────────────────────────────────────────────────────────
+
+domReady( () => {
+	document.querySelectorAll( '.wp-block-newspack-overlay-menu[data-overlay-id]' ).forEach( createFlyoutInstance );
+} );
