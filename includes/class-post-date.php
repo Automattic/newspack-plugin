@@ -116,13 +116,28 @@ class Post_Date {
 	 * @return string
 	 */
 	public static function filter_post_date_block( $block_content, $block ) {
-		$is_modified = str_contains( $block_content, 'wp-block-post-date__modified-date' );
+		// Detect modified date blocks via CSS class or block bindings attributes.
+		$is_modified = str_contains( $block_content, 'wp-block-post-date__modified-date' )
+			|| ( isset( $block['attrs']['metadata']['bindings']['datetime']['args']['field'] )
+				&& 'modified' === $block['attrs']['metadata']['bindings']['datetime']['args']['field'] )
+			|| ( isset( $block['attrs']['displayType'] ) && 'modified' === $block['attrs']['displayType'] );
 
 		// Handle modified date visibility.
 		if ( $is_modified ) {
 			$post_id = get_the_ID();
 			if ( ! self::should_display_updated_date( $post_id ) ) {
 				return '';
+			}
+			// If core returned empty (e.g. block bindings resolved to ''), render the date ourselves.
+			if ( empty( $block_content ) ) {
+				$post             = get_post( $post_id );
+				$format           = $block['attrs']['format'] ?? get_option( 'date_format' );
+				$modified_date    = get_the_modified_date( $format, $post );
+				$modified_iso     = get_the_modified_date( 'c', $post );
+				$wrapper_attrs    = get_block_wrapper_attributes( [ 'class' => 'wp-block-post-date__modified-date' ] );
+				/* translators: %s: Modified date. */
+				$label = sprintf( __( 'Updated %s', 'newspack-plugin' ), esc_html( $modified_date ) );
+				return sprintf( '<div %1$s><time datetime="%2$s">%3$s</time></div>', $wrapper_attrs, esc_attr( $modified_iso ), $label );
 			}
 			// Wrap the date text with a translatable "Updated %s" label.
 			$block_content = preg_replace_callback(
@@ -176,8 +191,8 @@ class Post_Date {
 			return $the_date;
 		}
 
-		// Skip machine-readable formats.
-		if ( 'Y-m-d\TH:i:sP' === $format || 'c' === $format ) {
+		// Skip machine-readable formats (ISO 8601, Unix timestamp).
+		if ( 'Y-m-d\TH:i:sP' === $format || 'c' === $format || 'U' === $format ) {
 			return $the_date;
 		}
 
