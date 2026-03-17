@@ -378,7 +378,7 @@ class Contact_Sync extends Sync {
 	 */
 	public static function scheduled_sync( $user_id, $context ) {
 		$contact = Sync\Metadata::get_contact_with_metadata( $user_id );
-		if ( ! $contact ) {
+		if ( empty( $contact['email'] ) ) {
 			return;
 		}
 		self::sync( $contact, $context );
@@ -449,7 +449,10 @@ class Contact_Sync extends Sync {
 		$user_id  = $is_order ? $order->get_customer_id() : $user_id_or_order;
 
 		$contact = $is_order ? Sync\Metadata::get_contact_with_metadata( $order ) : self::get_contact_data( $user_id );
-		$result  = $is_dry_run ? true : self::sync( $contact, $context );
+		if ( \is_wp_error( $contact ) || empty( $contact['email'] ) ) {
+			return \is_wp_error( $contact ) ? $contact : new \WP_Error( 'newspack_esp_sync_contact', __( 'Contact email is empty.', 'newspack-plugin' ) );
+		}
+		$result = $is_dry_run ? true : self::sync( $contact, $context );
 
 		if ( $result && ! \is_wp_error( $result ) ) {
 			static::log(
