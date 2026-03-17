@@ -8,6 +8,8 @@
 
 namespace Newspack;
 
+use Newspack\Wizards\Newspack\Privacy_Section;
+
 defined( 'ABSPATH' ) || exit;
 
 /**
@@ -20,6 +22,21 @@ class Complianz {
 	public static function init() {
 		add_filter( 'cmplz_cookie_blocker_output', [ __CLASS__, 'extra_third_party_script_blocking' ] );
 		add_filter( 'newspack_pixel_script_markup', [ __CLASS__, 'pixel_handling_for_complianz' ] );
+		add_filter( 'cmplz_option_enable_cookie_blocker', [ __CLASS__, 'force_cookie_blocker' ] );
+	}
+
+	/**
+	 * Force Complianz cookie blocker on if the setting is enabled.
+	 *
+	 * @param mixed $value Current option value.
+	 * @return mixed 'yes' if force is enabled, original value otherwise.
+	 */
+	public static function force_cookie_blocker( $value ) {
+		$privacy_settings = Privacy_Section::get_settings();
+		if ( $privacy_settings['force_cookie_blocker'] ) {
+			return 'yes';
+		}
+		return $value;
 	}
 
 	/**
@@ -32,11 +49,26 @@ class Complianz {
 		// Format is 'domain' => 'category'.
 		// Category is one of 'statistics', 'marketing', or 'functional'.
 		// 'functional' doesn't make sense here though because those shouldn't be blocked.
-		$scripts_to_block = [
+		$trackers = [
 			'googletagmanager.com' => 'statistics',
-			'doubleclick.net'      => 'marketing',
 			'parsely.com'          => 'statistics',
 		];
+		$ads = [
+			'doubleclick.net' => 'marketing',
+		];
+
+		$privacy_settings = Privacy_Section::get_settings();
+		if ( ! $privacy_settings['block_third_party_trackers_before_consent'] && ! $privacy_settings['block_ads_before_consent'] ) {
+			return $output;
+		}
+
+		$scripts_to_block = [];
+		if ( $privacy_settings['block_third_party_trackers_before_consent'] ) {
+			$scripts_to_block = array_merge( $scripts_to_block, $trackers );
+		}
+		if ( $privacy_settings['block_ads_before_consent'] ) {
+			$scripts_to_block = array_merge( $scripts_to_block, $ads );
+		}
 
 		// The regex matches <script src=""> tags.
 		$script_pattern = '/<script[^>]*?\s+src\s*=\s*([\'"])([^\'"]*?)\1[^>]*?>/is';
@@ -72,10 +104,15 @@ class Complianz {
 	 * @return string Modified $markup.
 	 */
 	public static function pixel_handling_for_complianz( $markup ) {
-		if ( self::should_block_third_party_scripts() ) {
+		$privacy_settings = Privacy_Section::get_settings();
+		if ( $privacy_settings['block_third_party_trackers_before_consent'] && self::is_cookie_blocker_active() ) {
 			$markup = str_ireplace( '<script', '<script type="text/plain" data-category="marketing"', $markup );
 		}
 		return $markup;
+	}
+
+	public static function is_complianz_active() {
+		return function_exists( 'cmplz_can_run_cookie_blocker' );
 	}
 
 	/**
@@ -83,7 +120,7 @@ class Complianz {
 	 *
 	 * @return bool Whether Cookie Blocker is running.
 	 */
-	private static function should_block_third_party_scripts() {
+	public static function is_complianz_with_cookie_blocker_active() {
 		return function_exists( 'cmplz_can_run_cookie_blocker' ) && cmplz_can_run_cookie_blocker();
 	}
 }
