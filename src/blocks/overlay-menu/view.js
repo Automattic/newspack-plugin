@@ -11,7 +11,7 @@
  */
 import { domReady } from '../../utils';
 
-// ─── Focusable element selector ───────────────────────────────────────────────
+// Focusable element selector
 const FOCUSABLE_SELECTOR =
 	'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), ' +
 	'textarea:not([disabled]), [tabindex]:not([tabindex="-1"]), iframe, object, embed, ' +
@@ -59,8 +59,7 @@ const createFlyoutInstance = wrapper => {
 	const originalParent = panel.parentNode;
 	const originalNextSibling = panel.nextSibling;
 
-	// ─── Overlay ──────────────────────────────────────────────────────────────
-
+	// Overlay
 	const showOverlay = color => {
 		overlay = document.createElement( 'div' );
 		overlay.className = 'overlay-menu__scrim alignfull';
@@ -89,10 +88,8 @@ const createFlyoutInstance = wrapper => {
 		el.addEventListener( 'transitionend', () => el.remove(), { once: true } );
 	};
 
-	// ─── Slide animation ──────────────────────────────────────────────────────
-	// CSS owns the transition and all position values.
-	// JS only adds/removes the --open modifier class.
-
+	// Slide animation
+	// CSS owns the transition and all position values; JS only adds/removes the --open modifier class.
 	const slideIn = () => {
 		// Force reflow so the browser registers the panel's hidden position
 		// before the class change triggers the CSS transition.
@@ -115,8 +112,7 @@ const createFlyoutInstance = wrapper => {
 		panel.addEventListener( 'transitionend', onEnd );
 	};
 
-	// ─── Focus trap ───────────────────────────────────────────────────────────
-
+	// Trap focus within the menu panel when it's open.
 	const trapFocus = () => {
 		const handleKeyDown = e => {
 			if ( e.key !== 'Tab' ) {
@@ -142,8 +138,7 @@ const createFlyoutInstance = wrapper => {
 		return () => document.removeEventListener( 'keydown', handleKeyDown, true );
 	};
 
-	// ─── Open / Close ─────────────────────────────────────────────────────────
-
+	// Open menu.
 	const openMenu = () => {
 		if ( isOpen ) {
 			return;
@@ -177,6 +172,7 @@ const createFlyoutInstance = wrapper => {
 		}, 50 );
 	};
 
+	// Close menu.
 	const closeMenu = () => {
 		if ( ! isOpen ) {
 			return;
@@ -211,8 +207,7 @@ const createFlyoutInstance = wrapper => {
 		} );
 	};
 
-	// ─── Event listeners ──────────────────────────────────────────────────────
-
+	// Event listeners.
 	trigger.addEventListener( 'click', () => ( isOpen ? closeMenu() : openMenu() ) );
 
 	if ( closeBtn ) {
@@ -230,8 +225,7 @@ const createFlyoutInstance = wrapper => {
 	} );
 };
 
-// ─── Initialization ───────────────────────────────────────────────────────────
-
+// Initialization.
 domReady( () => {
 	document.querySelectorAll( '.wp-block-newspack-overlay-menu[data-overlay-id]' ).forEach( createFlyoutInstance );
 } );
