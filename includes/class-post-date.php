@@ -55,11 +55,11 @@ class Post_Date {
 		if ( false === $timestamp ) {
 			return null;
 		}
-		$now  = time();
-		$diff = $now - $timestamp;
-		$cutoff    = $cutoff_days * DAY_IN_SECONDS;
+		$now    = time();
+		$diff   = $now - $timestamp;
+		$cutoff = $cutoff_days * DAY_IN_SECONDS;
 
-		if ( $diff >= $cutoff ) {
+		if ( $diff < 0 || $diff >= $cutoff ) {
 			return null;
 		}
 
