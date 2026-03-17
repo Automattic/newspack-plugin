@@ -306,6 +306,10 @@ class Private_Tags {
 	 * @return string[]
 	 */
 	private static function strip_private_tag_classes( array $classes ): array {
+		if ( ! self::is_behavior_enabled( 'css_classes' ) ) {
+			return $classes;
+		}
+
 		$private_classes = self::get_private_tag_classes();
 		// No private tags on this site — skip the array_diff entirely.
 		if ( empty( $private_classes ) ) {
@@ -323,6 +327,67 @@ class Private_Tags {
 	private static function get_private_label() {
 		/* translators: suffix appended to tag names in the admin to indicate they are private */
 		return ' ' . __( '(private)', 'newspack-plugin' );
+	}
+
+	// -------------------------------------------------------------------------
+	// Settings
+	// -------------------------------------------------------------------------
+
+	/**
+	 * Get the private tags settings with defaults.
+	 *
+	 * Returns the saved settings merged with defaults. When 'all' is true,
+	 * all behaviors are active regardless of individual flags.
+	 *
+	 * @return array<string, bool>
+	 */
+	public static function get_settings(): array {
+		$defaults = [
+			'all'            => true,
+			'archives'       => true,
+			'feeds'          => true,
+			'tag_links'      => true,
+			'tag_clouds'     => true,
+			'css_classes'    => true,
+			'gam_targeting'  => true,
+			'yoast_metadata' => true,
+			'yoast_sitemap'  => true,
+		];
+		$saved = get_option( 'newspack_private_tags_settings', [] );
+		return wp_parse_args( $saved, $defaults );
+	}
+
+	/**
+	 * Check if a specific private tag behavior is enabled.
+	 *
+	 * Returns true if the 'all' master toggle is on, or if the individual
+	 * behavior flag is on.
+	 *
+	 * @param string $key The behavior key (e.g. 'archives', 'feeds', 'tag_links').
+	 * @return bool
+	 */
+	public static function is_behavior_enabled( string $key ): bool {
+		$settings = self::get_settings();
+		return ! empty( $settings['all'] ) || ! empty( $settings[ $key ] );
+	}
+
+	/**
+	 * Sanitize settings input.
+	 *
+	 * Whitelists known keys and casts each value to boolean. Unknown keys
+	 * are discarded. Used by the setup wizard save handler to ensure only
+	 * valid data is stored in the option.
+	 *
+	 * @param mixed $input Raw input from the REST request.
+	 * @return array<string, bool>
+	 */
+	public static function sanitize_settings( $input ): array {
+		$defaults  = self::get_settings();
+		$sanitized = [];
+		foreach ( array_keys( $defaults ) as $key ) {
+			$sanitized[ $key ] = ! empty( $input[ $key ] );
+		}
+		return $sanitized;
 	}
 
 	// -------------------------------------------------------------------------
@@ -697,6 +762,10 @@ class Private_Tags {
 			return $links;
 		}
 
+		if ( ! self::is_behavior_enabled( 'tag_links' ) ) {
+			return $links;
+		}
+
 		// Only filter when inside a proper WordPress loop where the post context
 		// is reliable. Returning early here is safe — links are left unfiltered
 		// rather than accidentally filtered against the wrong post's terms.
@@ -759,6 +828,10 @@ class Private_Tags {
 			return $tags;
 		}
 
+		if ( ! self::is_behavior_enabled( 'tag_clouds' ) ) {
+			return $tags;
+		}
+
 		// No private tags on this site — nothing to filter.
 		$private_slugs = self::get_private_tag_slugs();
 		if ( empty( $private_slugs ) ) {
@@ -796,6 +869,18 @@ class Private_Tags {
 
 		// get_queried_object() can return null or a non-WP_Term object; the instanceof
 		// check covers both cases and guards the WP_Term type hint in is_term_private().
+		// Check which behaviors are enabled — archives and feeds can be toggled independently.
+		$is_feed         = $query->is_feed();
+		$archives_enabled = self::is_behavior_enabled( 'archives' );
+		$feeds_enabled    = self::is_behavior_enabled( 'feeds' );
+
+		if ( $is_feed && ! $feeds_enabled ) {
+			return;
+		}
+		if ( ! $is_feed && ! $archives_enabled ) {
+			return;
+		}
+
 		$tag = $query->get_queried_object();
 		if ( ! $tag instanceof WP_Term || ! self::is_term_private( $tag ) ) {
 			return;
@@ -810,7 +895,7 @@ class Private_Tags {
 		nocache_headers();
 
 		// For feed requests, also deactivate the feed handlers — otherwise the feed XML is still generated.
-		if ( $query->is_feed() ) {
+		if ( $is_feed ) {
 			remove_action( 'do_feed_rdf', 'do_feed_rdf' );
 			remove_action( 'do_feed_rss', 'do_feed_rss' );
 			remove_action( 'do_feed_rss2', 'do_feed_rss2' );
@@ -853,6 +938,10 @@ class Private_Tags {
 	 * @return array
 	 */
 	public static function filter_ad_targeting( $targeting, $_ad_unit ) {
+		if ( ! self::is_behavior_enabled( 'gam_targeting' ) ) {
+			return $targeting;
+		}
+
 		if ( empty( $targeting['tag'] ) || ! is_array( $targeting['tag'] ) ) {
 			return $targeting;
 		}
@@ -884,6 +973,10 @@ class Private_Tags {
 	 * @return array
 	 */
 	public static function filter_yoast_schema_article( $data, $_context ) {
+		if ( ! self::is_behavior_enabled( 'yoast_metadata' ) ) {
+			return $data;
+		}
+
 		if ( empty( $data['keywords'] ) || ! is_array( $data['keywords'] ) ) {
 			return $data;
 		}
@@ -941,6 +1034,10 @@ class Private_Tags {
 	 * @return int[]
 	 */
 	public static function filter_yoast_sitemap_term_ids( $excluded_ids ) {
+		if ( ! self::is_behavior_enabled( 'yoast_sitemap' ) ) {
+			return $excluded_ids;
+		}
+
 		$private_ids = self::get_private_tag_ids();
 		if ( empty( $private_ids ) ) {
 			return $excluded_ids;

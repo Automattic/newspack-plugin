@@ -1,0 +1,86 @@
+/**
+ * WordPress dependencies
+ */
+import { __ } from '@wordpress/i18n';
+import { BaseControl, CheckboxControl } from '@wordpress/components';
+
+/**
+ * Internal dependencies
+ */
+import WizardsActionCard from '../../../../wizards-action-card';
+import { Grid } from '../../../../../../packages/components/src';
+
+const PUBLIC_TOGGLES = [
+	{ key: 'archives', label: __( 'Archive pages', 'newspack-plugin' ) },
+	{ key: 'feeds', label: __( 'RSS feeds', 'newspack-plugin' ) },
+	{ key: 'tag_links', label: __( 'Tag lists on posts', 'newspack-plugin' ) },
+	{ key: 'tag_clouds', label: __( 'Tag cloud widgets', 'newspack-plugin' ) },
+];
+
+const INTEGRATION_TOGGLES = [
+	{ key: 'css_classes', label: __( 'CSS body classes', 'newspack-plugin' ) },
+	{ key: 'gam_targeting', label: __( 'GAM targeting', 'newspack-plugin' ) },
+	{ key: 'yoast_metadata', label: __( 'Yoast metadata', 'newspack-plugin' ) },
+	{ key: 'yoast_sitemap', label: __( 'Yoast XML sitemap', 'newspack-plugin' ) },
+];
+
+export default function PrivateTags( { data, isFetching, update }: ThemeModComponentProps< AdvancedSettings > ) {
+	const settings = data.newspack_private_tags_settings;
+	if ( ! settings ) {
+		return null;
+	}
+
+	const isCustom = ! Boolean( settings.all );
+
+	const updateSetting = ( key: string, value: boolean ) => {
+		update( {
+			newspack_private_tags_settings: {
+				...settings,
+				[ key ]: value,
+			},
+		} );
+	};
+
+	return (
+		<WizardsActionCard
+			isMedium
+			title={ __( 'Customize where private tags are hidden', 'newspack-plugin' ) }
+			description={ __( 'Private tags are hidden everywhere by default. Turn this on to choose where they are hidden.', 'newspack-plugin' ) }
+			disabled={ isFetching }
+			toggleChecked={ isCustom }
+			toggleOnChange={ ( value: boolean ) => updateSetting( 'all', ! value ) }
+			hasGreyHeader={ isCustom }
+		>
+			{ isCustom && (
+				<Grid columns={ 2 } gutter={ 24 } style={ { marginTop: -8, marginBottom: -8 } }>
+					<BaseControl label={ __( 'Public-facing site', 'newspack-plugin' ) } id="private-tags-public">
+						<Grid columns={ 1 } rowGap={ 16 }>
+							{ PUBLIC_TOGGLES.map( ( { key, label } ) => (
+								<CheckboxControl
+									key={ key }
+									label={ label }
+									disabled={ isFetching }
+									checked={ Boolean( settings[ key ] ) }
+									onChange={ ( value: boolean ) => updateSetting( key, value ) }
+								/>
+							) ) }
+						</Grid>
+					</BaseControl>
+					<BaseControl label={ __( 'SEO and integrations', 'newspack-plugin' ) } id="private-tags-integrations">
+						<Grid columns={ 1 } rowGap={ 16 }>
+							{ INTEGRATION_TOGGLES.map( ( { key, label } ) => (
+								<CheckboxControl
+									key={ key }
+									label={ label }
+									disabled={ isFetching }
+									checked={ Boolean( settings[ key ] ) }
+									onChange={ ( value: boolean ) => updateSetting( key, value ) }
+								/>
+							) ) }
+						</Grid>
+					</BaseControl>
+				</Grid>
+			) }
+		</WizardsActionCard>
+	);
+}

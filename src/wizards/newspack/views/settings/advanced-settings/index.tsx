@@ -23,6 +23,7 @@ import FeaturedImagePostsNew from './featured-image-posts-new';
 import MediaCredits from './media-credits';
 import AccessibilityStatement from './accessibility-statement';
 import PwaDisplayMode from './pwa-display-mode';
+import PrivateTags from './private-tags';
 
 export default function AdvancedSettings() {
 	const [ data, setData ] = hooks.useObjectState< AdvancedSettings >( {
@@ -159,6 +160,11 @@ export default function AdvancedSettings() {
 			{ etc.has_pwa_plugin ? (
 				<WizardSection title={ __( 'Progressive Web App', 'newspack-plugin' ) }>
 					<PwaDisplayMode data={ data } update={ setData } isFetching={ isFetching } />
+				</WizardSection>
+			) : null }
+			{ data.newspack_private_tags_settings ? (
+				<WizardSection title={ __( 'Private Tags', 'newspack-plugin' ) }>
+					<PrivateTags data={ data } update={ setData } isFetching={ isFetching } />
 				</WizardSection>
 			) : null }
 			{ errorMessage && <Notice /> }

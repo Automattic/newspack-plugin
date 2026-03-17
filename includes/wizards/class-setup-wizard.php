@@ -387,6 +387,11 @@ class Setup_Wizard extends Wizard {
 		// Append post content fallback image option.
 		$theme_mods['post_content_fallback_image'] = get_option( Default_Image::OPTION_NAME, null );
 
+		// Append private tags settings (only when the feature is enabled).
+		if ( defined( 'NEWSPACK_PRIVATE_TAGS_ENABLED' ) && NEWSPACK_PRIVATE_TAGS_ENABLED ) {
+			$theme_mods['newspack_private_tags_settings'] = Private_Tags::get_settings();
+		}
+
 		return rest_ensure_response(
 			[
 				'theme'             => Starter_Content::get_theme(),
@@ -536,6 +541,14 @@ class Setup_Wizard extends Wizard {
 			// Post content fallback image is an option, not a theme mod.
 			if ( 'post_content_fallback_image' === $key ) {
 				update_option( Default_Image::OPTION_NAME, $value );
+				continue;
+			}
+
+			// Private tags settings are stored as a single option, not a theme mod.
+			if ( 'newspack_private_tags_settings' === $key ) {
+				if ( defined( 'NEWSPACK_PRIVATE_TAGS_ENABLED' ) && NEWSPACK_PRIVATE_TAGS_ENABLED ) {
+					update_option( 'newspack_private_tags_settings', Private_Tags::sanitize_settings( $value ) );
+				}
 				continue;
 			}
 
