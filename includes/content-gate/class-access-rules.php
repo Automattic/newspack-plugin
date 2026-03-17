@@ -277,36 +277,6 @@ class Access_Rules {
 	}
 
 	/**
-	 * Get purchasable subscription product IDs from access rules.
-	 *
-	 * @param array $access_rules Access rules in grouped format.
-	 *
-	 * @return int[] Purchasable product IDs.
-	 */
-	public static function get_subscription_product_ids( $access_rules ) {
-		if ( empty( $access_rules ) || ! function_exists( 'wc_get_product' ) ) {
-			return [];
-		}
-		$result       = [];
-		$access_rules = self::normalize_rules( $access_rules );
-		foreach ( $access_rules as $group ) {
-			foreach ( $group as $rule ) {
-				if ( 'subscription' !== ( $rule['slug'] ?? '' ) || empty( $rule['value'] ) ) {
-					continue;
-				}
-				$product_ids = is_array( $rule['value'] ) ? $rule['value'] : [ $rule['value'] ];
-				foreach ( $product_ids as $product_id ) {
-					$product = \wc_get_product( $product_id );
-					if ( $product && $product->is_purchasable() ) {
-						$result[] = absint( $product_id );
-					}
-				}
-			}
-		}
-		return array_unique( $result );
-	}
-
-	/**
 	 * Whether the user has an active subscription for one of the given products.
 	 * Also checks if the user is a member of a group subscription with the required products.
 	 *

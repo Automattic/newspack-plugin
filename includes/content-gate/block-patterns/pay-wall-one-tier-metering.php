@@ -21,9 +21,18 @@ if ( ! empty( $pattern_context['custom_access_settings']['metering'] ) ) {
 
 // Get the first purchasable subscription product from custom access rules, if available.
 $product_id = 0;
-if ( class_exists( '\Newspack\Content_Gate\Access_Rules' ) ) {
-	$product_ids = \Newspack\Content_Gate\Access_Rules::get_subscription_product_ids( $pattern_context['custom_access_settings']['access_rules'] ?? [] );
-	$product_id  = ! empty( $product_ids ) ? $product_ids[0] : 0;
+if ( ! empty( $pattern_context['custom_access_settings']['access_rules'] ) && function_exists( 'wc_get_product' ) ) {
+	foreach ( $pattern_context['custom_access_settings']['access_rules'] as $group ) {
+		foreach ( $group as $rule ) {
+			if ( 'subscription' === ( $rule['slug'] ?? '' ) && ! empty( $rule['value'] ) ) {
+				$product = \wc_get_product( absint( is_array( $rule['value'] ) ? reset( $rule['value'] ) : $rule['value'] ) );
+				if ( $product && $product->is_purchasable() ) {
+					$product_id = $product->get_id();
+					break 2;
+				}
+			}
+		}
+	}
 }
 
 $checkout_attrs = [
