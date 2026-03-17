@@ -429,6 +429,91 @@ class Test_Post_Date extends \WP_UnitTestCase {
 		wp_delete_post( $post_id, true );
 	}
 
+	/**
+	 * Test render_block detects modified date via displayType attribute.
+	 */
+	public function test_render_block_detects_modified_via_display_type() {
+		set_theme_mod( 'post_updated_date', false );
+
+		$post_id = $this->create_post_with_modified_date(
+			gmdate( 'Y-m-d H:i:s', time() - 7 * DAY_IN_SECONDS ),
+			gmdate( 'Y-m-d H:i:s', time() - 3 * DAY_IN_SECONDS )
+		);
+
+		global $post;
+		$post = get_post( $post_id );
+
+		$block_content = '<div class="wp-block-post-date"><time datetime="2026-03-16T10:00:00+00:00">March 16, 2026</time></div>';
+		$block         = [
+			'blockName' => 'core/post-date',
+			'attrs'     => [ 'displayType' => 'modified' ],
+		];
+
+		$result = \Newspack\Post_Date::filter_post_date_block( $block_content, $block );
+		$this->assertEmpty( $result, 'Modified date block detected via displayType should be hidden when sitewide is off.' );
+	}
+
+	/**
+	 * Test Updated label appears even when time-ago is disabled.
+	 */
+	public function test_render_block_updated_label_without_time_ago() {
+		set_theme_mod( 'post_time_ago', false );
+		set_theme_mod( 'post_updated_date', true );
+		set_theme_mod( 'post_updated_date_threshold', 24 );
+
+		$post_id = $this->create_post_with_modified_date(
+			gmdate( 'Y-m-d H:i:s', time() - 7 * DAY_IN_SECONDS ),
+			gmdate( 'Y-m-d H:i:s', time() - 3 * DAY_IN_SECONDS )
+		);
+
+		global $post;
+		$post = get_post( $post_id );
+
+		$block_content = '<div class="wp-block-post-date wp-block-post-date__modified-date"><time datetime="2026-03-14T10:00:00+00:00">March 14, 2026</time></div>';
+		$block         = [ 'blockName' => 'core/post-date' ];
+
+		$result = \Newspack\Post_Date::filter_post_date_block( $block_content, $block );
+		$this->assertStringContainsString( 'Updated', $result, 'Modified date should have Updated label even without time-ago.' );
+		$this->assertStringNotContainsString( 'ago', $result, 'Date should not show time-ago when feature is off.' );
+	}
+
+	// ─── Time Ago: Newspack Blocks filter ───
+
+	/**
+	 * Test filter_blocks_formatted_date converts date when enabled.
+	 */
+	public function test_blocks_formatted_date_enabled() {
+		set_theme_mod( 'post_time_ago', true );
+		set_theme_mod( 'post_time_ago_cut_off', 14 );
+
+		$post_id = static::factory()->post->create(
+			[
+				'post_date'     => gmdate( 'Y-m-d H:i:s', time() - 2 * HOUR_IN_SECONDS ),
+				'post_date_gmt' => gmdate( 'Y-m-d H:i:s', time() - 2 * HOUR_IN_SECONDS ),
+			]
+		);
+
+		$result = \Newspack\Post_Date::filter_blocks_formatted_date( 'March 17, 2026', get_post( $post_id ) );
+		$this->assertStringContainsString( 'ago', $result, 'Blocks formatted date should show relative date when enabled.' );
+	}
+
+	/**
+	 * Test filter_blocks_formatted_date preserves date when disabled.
+	 */
+	public function test_blocks_formatted_date_disabled() {
+		set_theme_mod( 'post_time_ago', false );
+
+		$post_id = static::factory()->post->create(
+			[
+				'post_date'     => gmdate( 'Y-m-d H:i:s', time() - 2 * HOUR_IN_SECONDS ),
+				'post_date_gmt' => gmdate( 'Y-m-d H:i:s', time() - 2 * HOUR_IN_SECONDS ),
+			]
+		);
+
+		$result = \Newspack\Post_Date::filter_blocks_formatted_date( 'March 17, 2026', get_post( $post_id ) );
+		$this->assertEquals( 'March 17, 2026', $result, 'Blocks formatted date should be unchanged when disabled.' );
+	}
+
 	// ─── Theme Switch Migration ───
 
 	/**
