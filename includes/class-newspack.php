@@ -134,6 +134,7 @@ final class Newspack {
 		include_once NEWSPACK_ABSPATH . 'includes/tracking/class-twitter-pixel.php';
 		include_once NEWSPACK_ABSPATH . 'includes/revisions-control/class-revisions-control.php';
 
+		// Feature-flagged for gradual rollout via Newspack Manager. Remove gate once fully released.
 		if ( defined( 'NEWSPACK_PRIVATE_TAGS_ENABLED' ) && NEWSPACK_PRIVATE_TAGS_ENABLED ) {
 			include_once NEWSPACK_ABSPATH . 'includes/tags/class-private-tags.php';
 		}

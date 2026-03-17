@@ -107,6 +107,8 @@ class Private_Tags {
 		// Also clear when a tag's slug or name changes (e.g. via WP-CLI or REST).
 		// Priority 11 — must run after save_quick_edit() (priority 10) has written the meta.
 		add_action( 'edited_post_tag', [ __CLASS__, 'clear_cache' ], 11 );
+		// Clear when a tag is deleted, so stale private tag IDs/slugs don't persist in cache.
+		add_action( 'delete_post_tag', [ __CLASS__, 'clear_cache' ] );
 
 		// Frontend: hide private tags from various surfaces.
 		add_filter( 'term_links-post_tag', [ __CLASS__, 'filter_tag_links' ] );
@@ -767,8 +769,11 @@ class Private_Tags {
 		$filtered = array_filter(
 			$tags,
 			function( $tag ) use ( $private_slugs ) {
-				// Keep items we don't understand; only filter out WP_Terms that are private.
-				return ( ! $tag instanceof WP_Term ) || ! in_array( $tag->slug, $private_slugs, true );
+				// Keep non-WP_Term items and terms from other taxonomies — tag_cloud_sort
+				// fires for any taxonomy, so only filter post_tag terms.
+				return ( ! $tag instanceof WP_Term )
+					|| 'post_tag' !== $tag->taxonomy
+					|| ! in_array( $tag->slug, $private_slugs, true );
 			}
 		);
 
