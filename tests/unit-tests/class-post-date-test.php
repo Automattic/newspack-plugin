@@ -25,10 +25,19 @@ class Test_Post_Date extends \WP_UnitTestCase {
 	}
 
 	/**
+	 * Original global $post value, saved in set_up and restored in tear_down.
+	 *
+	 * @var \WP_Post|null
+	 */
+	private $original_post;
+
+	/**
 	 * Setup.
 	 */
 	public function set_up(): void {
 		parent::set_up();
+		global $post;
+		$this->original_post = $post;
 		// Reset theme mods for each test.
 		remove_theme_mod( 'post_time_ago' );
 		remove_theme_mod( 'post_time_ago_cut_off' );
@@ -40,6 +49,8 @@ class Test_Post_Date extends \WP_UnitTestCase {
 	 * Tear down.
 	 */
 	public function tear_down(): void {
+		global $post;
+		$post = $this->original_post; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 		remove_theme_mod( 'post_time_ago' );
 		remove_theme_mod( 'post_time_ago_cut_off' );
 		remove_theme_mod( 'post_updated_date' );
