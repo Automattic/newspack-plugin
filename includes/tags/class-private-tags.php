@@ -85,20 +85,20 @@ class Private_Tags {
 		self::$initiated = true;
 
 		// Admin UI: add checkbox to tag forms.
-		add_action( 'post_tag_add_form_fields', [ __CLASS__, 'create_term_fields' ] );
-		add_action( 'post_tag_edit_form_fields', [ __CLASS__, 'edit_term_fields' ] );
-		add_action( 'saved_post_tag', [ __CLASS__, 'save_term' ] );
+		add_action( 'post_tag_add_form_fields', [ __CLASS__, 'create_term_fields' ], 10, 1 );
+		add_action( 'post_tag_edit_form_fields', [ __CLASS__, 'edit_term_fields' ], 10, 1 );
+		add_action( 'saved_post_tag', [ __CLASS__, 'save_term' ], 10, 1 );
 
 		// Admin: label private tags so editors can identify them.
 		add_filter( 'term_name', [ __CLASS__, 'append_private_label_to_name' ], 10, 3 );
 		add_filter( 'rest_prepare_post_tag', [ __CLASS__, 'append_private_label_to_rest' ], 10, 2 );
 
 		// Admin: Private column and Quick Edit support.
-		add_filter( 'manage_edit-post_tag_columns', [ __CLASS__, 'add_private_column' ] );
+		add_filter( 'manage_edit-post_tag_columns', [ __CLASS__, 'add_private_column' ], 10, 1 );
 		add_filter( 'manage_post_tag_custom_column', [ __CLASS__, 'render_private_column' ], 10, 3 );
 		add_action( 'quick_edit_custom_box', [ __CLASS__, 'quick_edit_fields' ], 10, 3 );
-		add_action( 'edited_post_tag', [ __CLASS__, 'save_quick_edit' ] );
-		add_action( 'admin_enqueue_scripts', [ __CLASS__, 'enqueue_admin_scripts' ] );
+		add_action( 'edited_post_tag', [ __CLASS__, 'save_quick_edit' ], 10, 1 );
+		add_action( 'admin_enqueue_scripts', [ __CLASS__, 'enqueue_admin_scripts' ], 10, 1 );
 
 		// Cache invalidation: also clear when meta is changed via WP-CLI, REST, or import scripts.
 		add_action( 'added_term_meta', [ __CLASS__, 'maybe_clear_cache' ], 10, 3 );
@@ -106,25 +106,25 @@ class Private_Tags {
 		add_action( 'deleted_term_meta', [ __CLASS__, 'maybe_clear_cache' ], 10, 3 );
 		// Also clear when a tag's slug or name changes (e.g. via WP-CLI or REST).
 		// Priority 11 — must run after save_quick_edit() (priority 10) has written the meta.
-		add_action( 'edited_post_tag', [ __CLASS__, 'clear_cache' ], 11 );
+		add_action( 'edited_post_tag', [ __CLASS__, 'clear_cache' ], 11, 1 );
 		// Clear when a tag is deleted, so stale private tag IDs/slugs don't persist in cache.
-		add_action( 'delete_post_tag', [ __CLASS__, 'clear_cache' ] );
+		add_action( 'delete_post_tag', [ __CLASS__, 'clear_cache' ], 10, 1 );
 
 		// Frontend: hide private tags from various surfaces.
-		add_filter( 'term_links-post_tag', [ __CLASS__, 'filter_tag_links' ] );
-		add_filter( 'tag_cloud_sort', [ __CLASS__, 'filter_tag_cloud' ] );
-		add_action( 'pre_get_posts', [ __CLASS__, 'disable_tag_archives' ] );
+		add_filter( 'term_links-post_tag', [ __CLASS__, 'filter_tag_links' ], 10, 1 );
+		add_filter( 'tag_cloud_sort', [ __CLASS__, 'filter_tag_cloud' ], 10, 1 );
+		add_action( 'pre_get_posts', [ __CLASS__, 'disable_tag_archives' ], 10, 1 );
 
 		// Frontend: strip private tag slugs from HTML class attributes.
-		add_filter( 'post_class', [ __CLASS__, 'filter_post_class' ] );
-		add_filter( 'body_class', [ __CLASS__, 'filter_body_class' ] );
+		add_filter( 'post_class', [ __CLASS__, 'filter_post_class' ], 10, 1 );
+		add_filter( 'body_class', [ __CLASS__, 'filter_body_class' ], 10, 1 );
 
 		// Integrations: strip private tags from ad targeting data.
 		add_filter( 'newspack_ads_ad_targeting', [ __CLASS__, 'filter_ad_targeting' ], 10, 2 );
 
 		// Integrations: strip private tags from Yoast SEO structured data and sitemaps.
 		add_filter( 'wpseo_schema_article', [ __CLASS__, 'filter_yoast_schema_article' ], 10, 2 );
-		add_filter( 'wpseo_exclude_from_sitemap_by_term_ids', [ __CLASS__, 'filter_yoast_sitemap_term_ids' ] );
+		add_filter( 'wpseo_exclude_from_sitemap_by_term_ids', [ __CLASS__, 'filter_yoast_sitemap_term_ids' ], 10, 1 );
 	}
 
 	// -------------------------------------------------------------------------
@@ -334,15 +334,16 @@ class Private_Tags {
 	// -------------------------------------------------------------------------
 
 	/**
-	 * Get the private tags settings with defaults.
+	 * Get the default private tags settings.
 	 *
-	 * Returns the saved settings merged with defaults. When 'all' is true,
-	 * all behaviors are active regardless of individual flags.
+	 * Defines the canonical list of allowed setting keys and their default
+	 * values. Used by get_settings() for merging and sanitize_settings()
+	 * for whitelisting.
 	 *
 	 * @return array<string, bool>
 	 */
-	public static function get_settings(): array {
-		$defaults = [
+	private static function get_default_settings(): array {
+		return [
 			'all'            => true,
 			'archives'       => true,
 			'feeds'          => true,
@@ -353,7 +354,19 @@ class Private_Tags {
 			'yoast_metadata' => true,
 			'yoast_sitemap'  => true,
 		];
-		$saved = get_option( 'newspack_private_tags_settings', [] );
+	}
+
+	/**
+	 * Get the private tags settings with defaults.
+	 *
+	 * Returns the saved settings merged with defaults. When 'all' is true,
+	 * all behaviors are active regardless of individual flags.
+	 *
+	 * @return array<string, bool>
+	 */
+	public static function get_settings(): array {
+		$defaults = self::get_default_settings();
+		$saved    = get_option( 'newspack_private_tags_settings', [] );
 		return wp_parse_args( $saved, $defaults );
 	}
 
@@ -382,8 +395,11 @@ class Private_Tags {
 	 * @return array<string, bool>
 	 */
 	public static function sanitize_settings( $input ): array {
-		$defaults  = self::get_settings();
+		$defaults  = self::get_default_settings();
 		$sanitized = [];
+		if ( ! is_array( $input ) ) {
+			$input = [];
+		}
 		foreach ( array_keys( $defaults ) as $key ) {
 			$sanitized[ $key ] = ! empty( $input[ $key ] );
 		}
@@ -526,21 +542,25 @@ class Private_Tags {
 	/**
 	 * Append "(private)" to tag names in REST API responses (Gutenberg editor).
 	 *
+	 * Only applies for authenticated users who can edit content. Public REST
+	 * consumers (headless frontends, mobile apps) see the plain tag name.
+	 *
 	 * Note: No context parameter check here. Gutenberg's tag picker fetches tags
 	 * with context=view, not context=edit, so a context guard would prevent the
 	 * label from appearing in the editor — the opposite of the intended behavior.
-	 *
-	 * Design note: This mutates the canonical REST name field, which means
-	 * public REST consumers (e.g. headless frontends) will see "(private)" in
-	 * the tag name. A cleaner approach would be to expose an np_is_private
-	 * field and let the client render the label, but that would require
-	 * Gutenberg JS changes that seem out of scope for current Newspack usage.
+	 * The capability check achieves the same goal without that side effect.
 	 *
 	 * @param \WP_REST_Response $response The response object.
 	 * @param WP_Term           $term     The term object.
 	 * @return \WP_REST_Response
 	 */
 	public static function append_private_label_to_rest( $response, $term ) {
+		// Only show the "(private)" label to users who can edit content.
+		// Public REST consumers see the plain tag name.
+		if ( ! current_user_can( 'edit_posts' ) ) {
+			return $response;
+		}
+
 		// rest_prepare_post_tag only fires for post_tag, but confirm the expectation explicitly.
 		if ( 'post_tag' !== $term->taxonomy ) {
 			return $response;
