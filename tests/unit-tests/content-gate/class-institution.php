@@ -327,10 +327,7 @@ class Test_Institution extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test evaluate_rule returns false for anonymous users.
-	 */
-	/**
-	 * Test anonymous user without matching IP is denied.
+	 * Test that evaluate_rule returns false for anonymous users without matching IP.
 	 */
 	public function test_evaluate_rule_anonymous_no_ip_returns_false() {
 		$inst_id = $this->create_institution(
