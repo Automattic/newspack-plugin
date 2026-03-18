@@ -35,13 +35,36 @@ class Institution {
 	 * Register the institution post type.
 	 */
 	public static function register_post_type() {
+		$capabilities = array_fill_keys(
+			[
+				'edit_post',
+				'read_post',
+				'delete_post',
+				'edit_posts',
+				'edit_others_posts',
+				'delete_posts',
+				'publish_posts',
+				'read_private_posts',
+				'create_posts',
+			],
+			'manage_options'
+		);
+
 		\register_post_type(
 			self::POST_TYPE,
 			[
 				'label'        => __( 'Institutions', 'newspack-plugin' ),
 				'public'       => false,
+				'show_ui'      => false,
+				'show_in_menu' => false,
 				'show_in_rest' => true,
 				'supports'     => [ 'title' ],
+				/**
+				 * Institutions effectively grant access, so restrict all CRUD operations
+				 * (including via REST) to the `manage_options` user capability.
+				 */
+				'capabilities' => $capabilities,
+				'map_meta_cap' => true,
 			]
 		);
 	}
