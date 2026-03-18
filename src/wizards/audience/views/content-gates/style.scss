@@ -1,10 +1,10 @@
 /**
  * Content gates group
  */
-
-@import "@wordpress/dataviews/build-style/style.css";
+/* stylelint-disable no-invalid-position-at-import-rule */
 @use "~@wordpress/base-styles/colors" as wp-colors;
 @use "~@wordpress/base-styles/variables" as wp;
+@import "@wordpress/dataviews/build-style/style.css";
 
 .audience_page_newspack-audience-access-control {
 	.newspack-content-gates {
