@@ -1499,25 +1499,11 @@ class Content_Gate {
 
 		return [
 			'newsletters' => [
-				'name'        => __( 'Lists', 'newspack-plugin' ),
-				'options'     => array_map(
-					function( $list ) {
-						return [
-							'value' => $list['id'],
-							'label' => ! empty( $list['local_name'] ) ? $list['local_name'] : $list['name'],
-							'help'  => sprintf(
-								// translators: 1: list type, 2: subscriber count, 3: subscriber or subscribers.
-								__( '%1$s (%2$d %3$s)', 'newspack-plugin' ),
-								$list['type'],
-								(int) $list['subscriber_count'],
-								(int) $list['subscriber_count'] === 1 ? __( 'subscriber', 'newspack-plugin' ) : __( 'subscribers', 'newspack-plugin' )
-							),
-						];
-					},
-					$lists
-				),
-				'default'     => [],
-				'description' => __( 'Newsletter subscription lists.', 'newspack-plugin' ),
+				'name'         => __( 'Lists', 'newspack-plugin' ),
+				'default'      => [],
+				'description'  => __( 'Newsletter subscription lists.', 'newspack-plugin' ),
+				'endpoint'     => 'newspack-newsletters/v1/lists',
+				'include_only' => true,
 			],
 		];
 	}

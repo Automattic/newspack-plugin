@@ -15,7 +15,7 @@ import {
 /**
  * Internal dependencies
  */
-import ContentRuleControlTaxonomy from './content-rule-control-taxonomy';
+import ContentRuleControlTokenField from './content-rule-control-tokenfield';
 import { Grid } from '../../../../../../packages/components/src';
 
 export default function ContentRuleControl( { slug, value, exclusion, onChange, onChangeExclusion, isStatic = false }: GateRuleControlProps ) {
@@ -41,22 +41,24 @@ export default function ContentRuleControl( { slug, value, exclusion, onChange, 
 				{ value.map( v => rule.options?.find( option => option.value === v )?.label ).join( ', ' ) }
 			</p>
 		) : (
-			<ContentRuleControlTaxonomy slug={ slug } value={ value } exclusion={ exclusion } onChange={ onChange } isStatic={ true } />
+			<ContentRuleControlTokenField slug={ slug } value={ value } exclusion={ exclusion } onChange={ onChange } isStatic={ true } />
 		);
 	}
 	return (
 		<div className="newspack-content-gates__content-rule-control">
-			<ToggleGroupControl
-				label={ __( 'Mode', 'newspack-plugin' ) }
-				value={ exclusion ? 'exclude' : 'include' }
-				onChange={ () => onChangeExclusion?.( exclusion ? false : true ) }
-				hideLabelFromVision
-				isBlock
-				__next40pxDefaultSize
-			>
-				<ToggleGroupControlOption label={ __( 'Include', 'newspack-plugin' ) } value="include" />
-				<ToggleGroupControlOption label={ __( 'Exclude', 'newspack-plugin' ) } value="exclude" />
-			</ToggleGroupControl>
+			{ ! rule.include_only && (
+				<ToggleGroupControl
+					label={ __( 'Mode', 'newspack-plugin' ) }
+					value={ exclusion ? 'exclude' : 'include' }
+					onChange={ () => onChangeExclusion?.( exclusion ? false : true ) }
+					hideLabelFromVision
+					isBlock
+					__next40pxDefaultSize
+				>
+					<ToggleGroupControlOption label={ __( 'Include', 'newspack-plugin' ) } value="include" />
+					<ToggleGroupControlOption label={ __( 'Exclude', 'newspack-plugin' ) } value="exclude" />
+				</ToggleGroupControl>
+			) }
 			{ rule.options && rule.options.length > 0 ? (
 				<Grid columns={ 2 } gutter={ 8 }>
 					{ ( rule.options || [] ).map( ( option: { value: string; label: string; help?: string } ) => (
@@ -72,7 +74,7 @@ export default function ContentRuleControl( { slug, value, exclusion, onChange, 
 					) ) }
 				</Grid>
 			) : (
-				<ContentRuleControlTaxonomy slug={ slug } value={ value } onChange={ onChange } exclusion={ exclusion } />
+				<ContentRuleControlTokenField slug={ slug } value={ value } onChange={ onChange } exclusion={ exclusion } />
 			) }
 		</div>
 	);

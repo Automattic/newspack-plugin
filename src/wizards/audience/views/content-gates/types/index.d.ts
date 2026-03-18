@@ -26,6 +26,8 @@ type ContentRule = {
 	name: string;
 	default: GateContentRuleValue;
 	description?: string;
+	endpoint?: string;
+	include_only?: boolean;
 	options?: { value: string; label: string }[];
 	value: GateContentRuleValue;
 };
