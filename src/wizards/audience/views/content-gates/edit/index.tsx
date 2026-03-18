@@ -52,7 +52,10 @@ const getContentTypeFromRules = ( rules: GateContentRule[] ): 'all' | 'custom' |
 		return 'custom';
 	}
 	const [ rule ] = rules;
-	if ( rule.slug === 'newsletters' && rule.value.length > 0 ) {
+	if ( rule.slug === 'newsletters' ) {
+		if ( Array.isArray( rule.value ) && rule.value.length === 0 ) {
+			return 'all';
+		}
 		return 'custom';
 	}
 	if ( rule.slug !== 'post_types' || ! Array.isArray( rule.value ) ) {

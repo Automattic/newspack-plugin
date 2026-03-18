@@ -7,8 +7,6 @@
 
 namespace Newspack;
 
-use Newspack_Newsletters;
-
 defined( 'ABSPATH' ) || exit;
 
 /**
@@ -331,7 +329,7 @@ class Premium_Newsletters extends Wizard {
 		if ( is_wp_error( $gate ) ) {
 			return $gate;
 		}
-		return rest_ensure_response( Content_Gate::get_gate( $gate, Content_Gate::GATE_CPT, true ) );
+		return rest_ensure_response( Content_Gate::get_gate( $gate ) );
 	}
 
 	/**
@@ -342,13 +340,16 @@ class Premium_Newsletters extends Wizard {
 	 * @return \WP_REST_Response|\WP_Error
 	 */
 	public function delete_gate( $request ) {
-		$id = $request->get_param( 'id' );
+		$id   = $request->get_param( 'id' );
 		$gate = get_post( $id );
 		if ( ! $gate ) {
 			return new \WP_Error( 'invalid_gate_id', __( 'Invalid gate ID.', 'newspack-plugin' ), [ 'status' => 400 ] );
 		}
 		if ( Content_Gate::GATE_CPT !== $gate->post_type ) {
 			return new \WP_Error( 'invalid_gate_type', __( 'Invalid gate type.', 'newspack-plugin' ), [ 'status' => 400 ] );
+		}
+		if ( ! get_post_meta( $id, 'is_newsletter', true ) ) {
+			return new \WP_Error( 'invalid_newsletter_gate', __( 'Invalid newsletter gate.', 'newspack-plugin' ), [ 'status' => 400 ] );
 		}
 		wp_delete_post( $id, true );
 		return rest_ensure_response( true );
@@ -362,10 +363,21 @@ class Premium_Newsletters extends Wizard {
 	 * @return \WP_REST_Response|\WP_Error
 	 */
 	public function update_gate( $request ) {
-		$gate = Content_Gate::update_gate_settings( $request->get_param( 'id' ), $request->get_param( 'gate' ) );
-		if ( is_wp_error( $gate ) ) {
-			return $gate;
+		$id   = $request->get_param( 'id' );
+		$gate = get_post( $id );
+		if ( ! $gate ) {
+			return new \WP_Error( 'invalid_gate_id', __( 'Invalid gate ID.', 'newspack-plugin' ), [ 'status' => 400 ] );
 		}
-		return rest_ensure_response( $gate );
+		if ( Content_Gate::GATE_CPT !== $gate->post_type ) {
+			return new \WP_Error( 'invalid_gate_type', __( 'Invalid gate type.', 'newspack-plugin' ), [ 'status' => 400 ] );
+		}
+		if ( ! get_post_meta( $id, 'is_newsletter', true ) ) {
+			return new \WP_Error( 'invalid_newsletter_gate', __( 'Invalid newsletter gate.', 'newspack-plugin' ), [ 'status' => 400 ] );
+		}
+		$updated_gate = Content_Gate::update_gate_settings( $id, $request->get_param( 'gate' ) );
+		if ( is_wp_error( $updated_gate ) ) {
+			return $updated_gate;
+		}
+		return rest_ensure_response( $updated_gate );
 	}
 }

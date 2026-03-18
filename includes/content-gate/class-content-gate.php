@@ -65,7 +65,7 @@ class Content_Gate {
 	private static $overlay_gate_output = false;
 
 	/**
-	 * Gate schema properites.
+	 * Gate schema properties.
 	 *
 	 * @var array
 	 */
@@ -1384,8 +1384,11 @@ class Content_Gate {
 	 * @return mixed|\WP_Error The sanitized content rule or error if invalid.
 	 */
 	public static function sanitize_content_rule( $content_rule ) {
-		$rules = array_merge( self::get_content_rules(), self::get_premium_newsletter_content_rules() );
-		$slug  = sanitize_text_field( $content_rule['slug'] );
+		$rules                = self::get_content_rules();
+		$newsletter_rules     = self::get_premium_newsletter_content_rules();
+		$newsletter_rules_arr = ( is_array( $newsletter_rules ) && ! is_wp_error( $newsletter_rules ) ) ? $newsletter_rules : [];
+		$rules                = array_merge( $rules, $newsletter_rules_arr );
+		$slug                 = sanitize_text_field( $content_rule['slug'] );
 
 		if ( empty( $slug ) || ! isset( $rules[ $slug ] ) ) {
 			return new \WP_Error( 'invalid_content_rule_slug', __( 'Invalid content rule slug.', 'newspack-plugin' ), [ 'status' => 400 ] );
@@ -1488,7 +1491,12 @@ class Content_Gate {
 	 */
 	public static function get_premium_newsletter_content_rules() {
 		$newsletters_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-newsletters' );
-		$lists = $newsletters_configuration_manager->get_lists();
+		$lists                             = $newsletters_configuration_manager->get_lists();
+
+		if ( is_wp_error( $lists ) || ! is_array( $lists ) ) {
+			return [];
+		}
+
 		return [
 			'newsletters' => [
 				'name'        => __( 'Lists', 'newspack-plugin' ),

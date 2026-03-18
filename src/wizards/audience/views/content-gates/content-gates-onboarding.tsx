@@ -56,7 +56,11 @@ const ContentGatesOnboarding = ( { isNewsletter = false }: { isNewsletter?: bool
 											isNewsletter ? __( 'lists', 'newspack-plugin' ) : __( 'posts', 'newspack-plugin' )
 										) }
 									</h3>
-									<p>{ __( 'All posts on your site will require access.', 'newspack-plugin' ) }</p>
+									<p>
+										{ isNewsletter
+											? __( 'All lists on your site will require access.', 'newspack-plugin' )
+											: __( 'All posts on your site will require access.', 'newspack-plugin' ) }
+									</p>
 								</>
 							),
 							href: '#/edit/new/all',
@@ -79,7 +83,11 @@ const ContentGatesOnboarding = ( { isNewsletter = false }: { isNewsletter?: bool
 											isNewsletter ? __( 'lists', 'newspack-plugin' ) : __( 'posts', 'newspack-plugin' )
 										) }
 									</h3>
-									<p>{ __( 'Select which content to restrict using custom rules.', 'newspack-plugin' ) }</p>
+									<p>
+										{ isNewsletter
+											? __( 'Select which lists to restrict using custom rules.', 'newspack-plugin' )
+											: __( 'Select which content to restrict using custom rules.', 'newspack-plugin' ) }
+									</p>
 								</>
 							),
 							href: '#/edit/new/custom',
