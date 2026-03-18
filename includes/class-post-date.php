@@ -41,7 +41,7 @@ class Post_Date {
 		add_filter( 'newspack_blocks_formatted_displayed_post_date', [ __CLASS__, 'filter_blocks_formatted_date' ], 10, 2 );
 		add_action( 'wp_enqueue_scripts', [ __CLASS__, 'enqueue_scripts' ] );
 		add_action( 'enqueue_block_editor_assets', [ __CLASS__, 'enqueue_editor_assets' ] );
-		add_action( 'newspack_theme_entry_meta', [ __CLASS__, 'render_updated_date_classic' ], 5 );
+		add_action( 'newspack_theme_after_posted_on', [ __CLASS__, 'render_updated_date_classic' ] );
 	}
 
 	/**
@@ -269,7 +269,7 @@ class Post_Date {
 
 	/**
 	 * Render updated date for classic (non-block) themes.
-	 * Hooked to `newspack_theme_entry_meta` which fires after `newspack_posted_on()`.
+	 * Hooked to `newspack_theme_after_posted_on` which fires after `newspack_posted_on()`.
 	 */
 	public static function render_updated_date_classic() {
 		if ( wp_is_block_theme() || ! is_singular() ) {
