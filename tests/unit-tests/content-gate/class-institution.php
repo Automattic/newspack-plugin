@@ -96,8 +96,8 @@ class Newspack_Test_Institution extends WP_UnitTestCase {
 	public function test_create_institution() {
 		$post_id = Institution::create(
 			'API University',
+			'API University description',
 			[
-				'description'  => 'API University description',
 				'email_domain' => 'api.edu',
 				'ip_range'     => '10.0.0.0/8',
 			]
@@ -141,6 +141,7 @@ class Newspack_Test_Institution extends WP_UnitTestCase {
 	public function test_cache_built_and_invalidated() {
 		$id = Institution::create(
 			'Cached University',
+			'',
 			[ 'email_domain' => 'cached.edu' ]
 		);
 		$this->assertIsInt( $id );
@@ -176,6 +177,7 @@ class Newspack_Test_Institution extends WP_UnitTestCase {
 	public function test_email_domain_match() {
 		$inst_id = Institution::create(
 			'University of Test',
+			'',
 			[ 'email_domain' => 'university.edu' ]
 		);
 		$this->assertIsInt( $inst_id );
@@ -194,6 +196,7 @@ class Newspack_Test_Institution extends WP_UnitTestCase {
 	public function test_email_domain_requires_verification() {
 		$inst_id = Institution::create(
 			'Verified University',
+			'',
 			[ 'email_domain' => 'verified.edu' ]
 		);
 		$this->assertIsInt( $inst_id );
@@ -213,6 +216,7 @@ class Newspack_Test_Institution extends WP_UnitTestCase {
 	public function test_ip_range_match() {
 		$inst_id = Institution::create(
 			'IP Institution',
+			'',
 			[ 'ip_range' => '10.0.0.0/8' ]
 		);
 		$this->assertIsInt( $inst_id );
@@ -246,6 +250,7 @@ class Newspack_Test_Institution extends WP_UnitTestCase {
 	public function test_anonymous_ip_range_match() {
 		$inst_id = Institution::create(
 			'Anon IP Institution',
+			'',
 			[ 'ip_range' => '10.0.0.0/8' ]
 		);
 		$this->assertIsInt( $inst_id );
@@ -289,6 +294,7 @@ class Newspack_Test_Institution extends WP_UnitTestCase {
 	public function test_or_logic_within_institution() {
 		$inst_id = Institution::create(
 			'OR Logic Institution',
+			'',
 			[
 				'email_domain' => 'university.edu',
 				'ip_range'     => '10.0.0.0/8',
@@ -308,6 +314,7 @@ class Newspack_Test_Institution extends WP_UnitTestCase {
 	public function test_multi_institution_selection() {
 		$inst_a = Institution::create(
 			'Institution A',
+			'',
 			[ 'email_domain' => 'a.edu' ]
 		);
 		$this->assertIsInt( $inst_a );
@@ -315,6 +322,7 @@ class Newspack_Test_Institution extends WP_UnitTestCase {
 
 		$inst_b = Institution::create(
 			'Institution B',
+			'',
 			[ 'email_domain' => 'b.edu' ]
 		);
 		$this->assertIsInt( $inst_b );
@@ -339,6 +347,7 @@ class Newspack_Test_Institution extends WP_UnitTestCase {
 	public function test_evaluate_rule_integration() {
 		$inst_id = Institution::create(
 			'Integration Test University',
+			'',
 			[ 'email_domain' => 'integration.edu' ]
 		);
 		$this->assertIsInt( $inst_id );
@@ -357,6 +366,7 @@ class Newspack_Test_Institution extends WP_UnitTestCase {
 	public function test_evaluate_rule_anonymous_no_ip_returns_false() {
 		$inst_id = Institution::create(
 			'Anon Test',
+			'',
 			[ 'email_domain' => 'test.edu' ]
 		);
 		$this->assertIsInt( $inst_id );
@@ -374,6 +384,7 @@ class Newspack_Test_Institution extends WP_UnitTestCase {
 	public function test_check_ip_filter() {
 		$inst_id = Institution::create(
 			'IP Filter Institution',
+			'',
 			[ 'ip_range' => '192.168.1.0/24' ]
 		);
 		$this->assertIsInt( $inst_id );
