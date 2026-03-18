@@ -12,7 +12,7 @@ use Newspack\Content_Gate\IP_Access_Rule;
  *
  * @group Access_Rules
  */
-class Test_IP_Access_Rule extends WP_UnitTestCase {
+class Newspack_Test_IP_Access_Rule extends WP_UnitTestCase {
 
 	/**
 	 * Test exact IP matching.
