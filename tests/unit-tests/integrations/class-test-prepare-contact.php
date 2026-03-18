@@ -41,7 +41,9 @@ class Test_Prepare_Contact extends \WP_UnitTestCase {
 	 * Tear down test environment.
 	 */
 	public function tear_down() {
+		$this->reset_integrations();
 		Integrations::register_integrations();
+		$this->set_metadata_version( 'legacy' );
 		parent::tear_down();
 	}
 
