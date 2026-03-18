@@ -49,7 +49,7 @@
 	 * Format and replace date text in time elements.
 	 */
 	function updateDates() {
-		const localeTag = locale.replace( '_', '-' );
+		const localeTag = locale.replaceAll( '_', '-' );
 
 		let formatter;
 		try {
