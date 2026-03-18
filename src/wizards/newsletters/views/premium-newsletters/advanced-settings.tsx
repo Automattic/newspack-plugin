@@ -20,16 +20,14 @@ import { useWizardApiFetch } from '../../../hooks/use-wizard-api-fetch';
 import { PREMIUM_NEWSLETTERS_WIZARD_SLUG } from './consts';
 
 type PremiumNewslettersConfig = {
-	auto_signup_on_purchase: boolean;
+	auto_signup: boolean;
 };
 
 const AdvancedSettings = ( { closeModal, showModal }: { closeModal: () => void; showModal: boolean } ) => {
 	const wizardData = useWizardData( PREMIUM_NEWSLETTERS_WIZARD_SLUG ) as WizardData;
 	const { wizardApiFetch, isFetching, resetError, setError } = useWizardApiFetch( PREMIUM_NEWSLETTERS_WIZARD_SLUG );
 	const { addNotice, resetNotices, updateWizardSettings } = useDispatch( WIZARD_STORE_NAMESPACE );
-	const [ config, setConfig ] = useState< PremiumNewslettersConfig >(
-		( wizardData?.config as PremiumNewslettersConfig ) || { auto_signup_on_purchase: false }
-	);
+	const [ config, setConfig ] = useState< PremiumNewslettersConfig >( ( wizardData?.config as PremiumNewslettersConfig ) || { auto_signup: true } );
 
 	const updateConfig = useRef< ( _config: PremiumNewslettersConfig ) => void >();
 	const handleUpdateConfig = ( _config: PremiumNewslettersConfig ) => {
@@ -78,8 +76,8 @@ const AdvancedSettings = ( { closeModal, showModal }: { closeModal: () => void; 
 					<ToggleControl
 						label={ __( 'Auto signup', 'newspack-plugin' ) }
 						help={ __( 'Automatically sign up users when they meet access requirements for premium newsletters.', 'newspack-plugin' ) }
-						checked={ config?.auto_signup_on_purchase || false }
-						onChange={ value => setConfig( { ...config, auto_signup_on_purchase: value } ) }
+						checked={ config?.auto_signup || true }
+						onChange={ value => setConfig( { ...config, auto_signup: value } ) }
 					/>
 				</VStack>
 				<HStack justify="end">
