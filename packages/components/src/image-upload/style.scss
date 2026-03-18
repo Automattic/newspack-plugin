@@ -3,40 +3,35 @@
  */
 
 @use "~@wordpress/base-styles/colors" as wp-colors;
+@use "~@wordpress/base-styles/variables" as wp-vars;
 
 .newspack-image-upload {
-	margin: 32px 0;
-	&__header {
-		display: flex;
-	}
-	&__label {
-		margin: 0 0 8px;
-	}
+	margin: wp-vars.$grid-unit-40 0;
 	&__image {
 		align-items: center;
+		background-position: center;
 		background-repeat: no-repeat;
 		background-size: contain;
-		background-position: center;
-		border: 1px dashed wp-colors.$gray-700;
-		border-radius: 2px;
+		border: 1px dashed wp-colors.$gray-600;
+		border-radius: wp-vars.$radius-small;
 		display: flex;
 		justify-content: center;
 		max-width: 100%;
-		min-height: 48px;
+		min-height: wp-vars.$grid-unit-50;
 		position: relative;
 		&--covering {
 			background-size: cover;
 		}
 		&:not(&--has-image) {
 			.newspack-button {
-				background: white !important;
-				border-radius: 2px !important;
-				padding: 4px 16px !important;
+				background: wp-colors.$white !important;
+				border-radius: wp-vars.$radius-small !important;
+				padding: wp-vars.$grid-unit-05 wp-vars.$grid-unit-20 !important;
 
 				&:active,
 				&:focus,
 				&:hover {
-					background: white !important;
+					background: wp-colors.$white !important;
 				}
 
 				&:focus {
@@ -49,8 +44,8 @@
 			overflow: hidden;
 			&::before,
 			&::after {
-				border: 1px solid rgba(black, 0.54);
-				border-radius: 2px;
+				border: 1px solid rgba(wp-colors.$black, 0.54);
+				border-radius: wp-vars.$radius-small;
 				content: "";
 				inset: 0;
 				position: absolute;
@@ -66,7 +61,7 @@
 				position: relative;
 			}
 			&::after {
-				background: rgba(white, 0.9);
+				background: rgba(wp-colors.$white, 0.95);
 				border-color: wp-colors.$gray-700;
 			}
 			&:focus-within,
@@ -83,16 +78,11 @@
 			.sep {
 				background: transparent;
 				display: block;
-				height: 8px;
+				height: wp-vars.$grid-unit-10;
 				margin: 0;
 				width: 100%;
 			}
 		}
-	}
-	&__image + &__help {
-		color: wp-colors.$gray-700;
-		font-size: 12px;
-		margin: 1em 0 0;
 	}
 	&__controls {
 		align-items: center;
