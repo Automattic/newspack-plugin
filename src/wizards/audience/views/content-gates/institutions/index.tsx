@@ -67,7 +67,7 @@ export default function Institutions() {
 				id: 'email_domain',
 				label: __( 'Email Domain', 'newspack-plugin' ),
 				render: ( { item }: { item: Institution } ) => {
-					const val = item.meta?._np_institution_email_domain;
+					const val = item.meta?.np_institution_email_domain;
 					return val ? <code>{ val }</code> : <span className="newspack-institutions__empty">&mdash;</span>;
 				},
 			},
@@ -75,7 +75,7 @@ export default function Institutions() {
 				id: 'ip_range',
 				label: __( 'IP Range', 'newspack-plugin' ),
 				render: ( { item }: { item: Institution } ) => {
-					const val = item.meta?._np_institution_ip_range;
+					const val = item.meta?.np_institution_ip_range;
 					return val ? <code>{ val }</code> : <span className="newspack-institutions__empty">&mdash;</span>;
 				},
 			},
@@ -83,7 +83,7 @@ export default function Institutions() {
 				id: 'reader_data',
 				label: __( 'Reader Data', 'newspack-plugin' ),
 				render: ( { item }: { item: Institution } ) => {
-					const val = item.meta?._np_institution_reader_data;
+					const val = item.meta?.np_institution_reader_data;
 					return val ? <code>{ val }</code> : <span className="newspack-institutions__empty">&mdash;</span>;
 				},
 			},

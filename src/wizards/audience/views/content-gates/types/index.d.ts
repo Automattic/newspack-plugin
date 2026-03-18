@@ -154,8 +154,8 @@ type Institution = {
 	excerpt: { raw: string; rendered: string };
 	status: string;
 	meta: {
-		_np_institution_email_domain: string;
-		_np_institution_ip_range: string;
-		_np_institution_reader_data: string;
+		np_institution_email_domain: string;
+		np_institution_ip_range: string;
+		np_institution_reader_data: string;
 	};
 };

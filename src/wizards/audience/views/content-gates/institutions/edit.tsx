@@ -28,9 +28,9 @@ const EMPTY_INSTITUTION: Omit< Institution, 'id' > = {
 	excerpt: { raw: '', rendered: '' },
 	status: 'publish',
 	meta: {
-		_np_institution_email_domain: '',
-		_np_institution_ip_range: '',
-		_np_institution_reader_data: '',
+		np_institution_email_domain: '',
+		np_institution_ip_range: '',
+		np_institution_reader_data: '',
 	},
 };
 
@@ -151,11 +151,7 @@ export default function InstitutionEdit( { match }: { match: { params: { id: str
 
 	const name = institution.title.raw;
 	const description = institution.excerpt.raw;
-	const {
-		_np_institution_email_domain: emailDomain,
-		_np_institution_ip_range: ipRange,
-		_np_institution_reader_data: readerData,
-	} = institution.meta;
+	const { np_institution_email_domain: emailDomain, np_institution_ip_range: ipRange, np_institution_reader_data: readerData } = institution.meta;
 
 	return (
 		<div className="newspack-institution__edit">
@@ -202,14 +198,14 @@ export default function InstitutionEdit( { match }: { match: { params: { id: str
 						icon={ envelope }
 						actionType="toggle"
 						isActive={ !! emailDomain }
-						onEnable={ () => updateMeta( '_np_institution_email_domain', emailDomain ? '' : ' ' ) }
+						onEnable={ () => updateMeta( 'np_institution_email_domain', emailDomain ? '' : ' ' ) }
 					>
 						{ !! emailDomain && (
 							<CardBody size="small">
 								<TextControl
 									label={ __( 'Domains (comma-separated)', 'newspack-plugin' ) }
 									value={ emailDomain.trim() }
-									onChange={ ( val: string ) => updateMeta( '_np_institution_email_domain', val ) }
+									onChange={ ( val: string ) => updateMeta( 'np_institution_email_domain', val ) }
 									placeholder="university.edu, school.org"
 								/>
 							</CardBody>
@@ -222,14 +218,14 @@ export default function InstitutionEdit( { match }: { match: { params: { id: str
 						icon={ globe }
 						actionType="toggle"
 						isActive={ !! ipRange }
-						onEnable={ () => updateMeta( '_np_institution_ip_range', ipRange ? '' : ' ' ) }
+						onEnable={ () => updateMeta( 'np_institution_ip_range', ipRange ? '' : ' ' ) }
 					>
 						{ !! ipRange && (
 							<CardBody size="small">
 								<TextControl
 									label={ __( 'IPs / CIDR blocks (comma-separated)', 'newspack-plugin' ) }
 									value={ ipRange.trim() }
-									onChange={ ( val: string ) => updateMeta( '_np_institution_ip_range', val ) }
+									onChange={ ( val: string ) => updateMeta( 'np_institution_ip_range', val ) }
 									placeholder="192.168.1.0/24, 10.0.0.5"
 								/>
 							</CardBody>
@@ -242,14 +238,14 @@ export default function InstitutionEdit( { match }: { match: { params: { id: str
 						icon={ customPostType }
 						actionType="toggle"
 						isActive={ !! readerData }
-						onEnable={ () => updateMeta( '_np_institution_reader_data', readerData ? '' : ' ' ) }
+						onEnable={ () => updateMeta( 'np_institution_reader_data', readerData ? '' : ' ' ) }
 					>
 						{ !! readerData && (
 							<CardBody size="small">
 								<TextControl
 									label={ __( 'Key=value pairs (semicolon-delimited)', 'newspack-plugin' ) }
 									value={ readerData.trim() }
-									onChange={ ( val: string ) => updateMeta( '_np_institution_reader_data', val ) }
+									onChange={ ( val: string ) => updateMeta( 'np_institution_reader_data', val ) }
 									placeholder="org=university;role=staff"
 								/>
 							</CardBody>
