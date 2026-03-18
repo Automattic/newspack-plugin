@@ -15,7 +15,7 @@ import apiFetch from '@wordpress/api-fetch';
 /**
  * Internal dependencies
  */
-import { CardSettingsGroup, Grid, Router, SectionHeader, TextControl, useConfirmDialog } from '../../../../../../packages/components/src';
+import { CardSettingsGroup, Divider, Grid, Router, SectionHeader, TextControl, useConfirmDialog } from '../../../../../../packages/components/src';
 import { WIZARD_STORE_NAMESPACE } from '../../../../../../packages/components/src/wizard/store';
 import './style.scss';
 
@@ -34,10 +34,10 @@ const EMPTY_INSTITUTION: Omit< Institution, 'id' > = {
 	},
 };
 
-export default function InstitutionEdit( { match }: { match: { params: { id: string } } } ) {
+export default function InstitutionEdit( { match }: { match: { params: { id?: string } } } ) {
 	const history = useHistory();
-	const { id } = match.params;
-	const isNew = id === 'new';
+	const id = match.params.id;
+	const isNew = ! id || id === 'new';
 
 	const { setHeaderData } = useDispatch( WIZARD_STORE_NAMESPACE );
 
@@ -182,6 +182,8 @@ export default function InstitutionEdit( { match }: { match: { params: { id: str
 					/>
 				</VStack>
 			</Grid>
+
+			<Divider alignment="full-width" variant="tertiary" />
 
 			{ /* Section 2: Access Rules */ }
 			<Grid columns={ 2 } gutter={ 32 } noMargin>
