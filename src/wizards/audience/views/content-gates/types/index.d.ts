@@ -147,3 +147,15 @@ type GateConfig = {
 	gates: Gate[];
 	config: GateSettings
 };
+
+type Institution = {
+	id: number;
+	title: { raw: string; rendered: string };
+	excerpt: { raw: string; rendered: string };
+	status: string;
+	meta: {
+		_np_institution_email_domain: string;
+		_np_institution_ip_range: string;
+		_np_institution_reader_data: string;
+	};
+};
