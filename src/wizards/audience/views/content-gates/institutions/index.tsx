@@ -23,7 +23,7 @@ const { useHistory } = Router;
 const API_PATH = '/wp/v2/np_institution';
 
 const DEFAULT_VIEW: View = {
-	type: 'table',
+	type: 'grid',
 	page: 1,
 	perPage: 25,
 	sort: { field: 'name', direction: 'asc' },
@@ -56,6 +56,7 @@ export default function Institutions() {
 				id: 'name',
 				label: __( 'Name', 'newspack-plugin' ),
 				enableGlobalSearch: true,
+				getValue: ( { item }: { item: Institution } ) => item.title.raw,
 				render: ( { item }: { item: Institution } ) => (
 					<div>
 						<strong>{ item.title.raw }</strong>
@@ -66,6 +67,7 @@ export default function Institutions() {
 			{
 				id: 'email_domain',
 				label: __( 'Email Domain', 'newspack-plugin' ),
+				getValue: ( { item }: { item: Institution } ) => item.meta?.np_institution_email_domain || '',
 				render: ( { item }: { item: Institution } ) => {
 					const val = item.meta?.np_institution_email_domain;
 					return val ? <code>{ val }</code> : <span className="newspack-institutions__empty">&mdash;</span>;
@@ -74,6 +76,7 @@ export default function Institutions() {
 			{
 				id: 'ip_range',
 				label: __( 'IP Range', 'newspack-plugin' ),
+				getValue: ( { item }: { item: Institution } ) => item.meta?.np_institution_ip_range || '',
 				render: ( { item }: { item: Institution } ) => {
 					const val = item.meta?.np_institution_ip_range;
 					return val ? <code>{ val }</code> : <span className="newspack-institutions__empty">&mdash;</span>;
@@ -82,6 +85,7 @@ export default function Institutions() {
 			{
 				id: 'reader_data',
 				label: __( 'Reader Data', 'newspack-plugin' ),
+				getValue: ( { item }: { item: Institution } ) => item.meta?.np_institution_reader_data || '',
 				render: ( { item }: { item: Institution } ) => {
 					const val = item.meta?.np_institution_reader_data;
 					return val ? <code>{ val }</code> : <span className="newspack-institutions__empty">&mdash;</span>;
@@ -166,9 +170,10 @@ export default function Institutions() {
 				onChangeView={ setView }
 				actions={ actions }
 				paginationInfo={ { totalItems: data.length, totalPages: 1 } }
-				defaultLayouts={ { table: {} } }
+				defaultLayouts={ { table: {}, grid: {} } }
 				isLoading={ isLoading }
 				getItemId={ ( item: Institution ) => String( item.id ) }
+				primaryField="name"
 				search
 			/>
 		</div>
