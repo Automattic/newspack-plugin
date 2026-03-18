@@ -17,7 +17,7 @@ defined( 'ABSPATH' ) || exit;
 class Institution {
 
 	const POST_TYPE     = 'np_institution';
-	const META_PREFIX   = '_np_institution_';
+	const META_PREFIX   = 'np_institution_';
 	const TRANSIENT_KEY = 'newspack_institutions';
 	const TRANSIENT_TTL = 300;
 

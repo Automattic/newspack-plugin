@@ -109,9 +109,9 @@ class Newspack_Test_Institution extends WP_UnitTestCase {
 		$this->assertEquals( 'API University', $post->post_title );
 		$this->assertEquals( 'API University description', $post->post_excerpt );
 		$this->assertEquals( 'publish', $post->post_status );
-		$this->assertEquals( 'api.edu', get_post_meta( $post_id, '_np_institution_email_domain', true ) );
-		$this->assertEquals( '10.0.0.0/8', get_post_meta( $post_id, '_np_institution_ip_range', true ) );
-		$this->assertEmpty( get_post_meta( $post_id, '_np_institution_reader_data', true ) );
+		$this->assertEquals( 'api.edu', get_post_meta( $post_id, 'np_institution_email_domain', true ) );
+		$this->assertEquals( '10.0.0.0/8', get_post_meta( $post_id, 'np_institution_ip_range', true ) );
+		$this->assertEmpty( get_post_meta( $post_id, 'np_institution_reader_data', true ) );
 	}
 
 	/**
