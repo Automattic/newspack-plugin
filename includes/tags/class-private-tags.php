@@ -420,7 +420,7 @@ class Private_Tags {
 		<div class="form-field term-private-wrap">
 			<label for="<?php echo esc_attr( self::META_KEY ); ?>"><?php esc_html_e( 'Private tag', 'newspack-plugin' ); ?></label>
 			<input type="checkbox" name="<?php echo esc_attr( self::META_KEY ); ?>" id="<?php echo esc_attr( self::META_KEY ); ?>" value="1">
-			<p class="description"><?php esc_html_e( 'Private tags are not shown on the frontend. Their archive pages return 404 and they are excluded from tag clouds.', 'newspack-plugin' ); ?></p>
+			<p class="description"><?php esc_html_e( 'Private tags are hidden from your site\'s frontend—including tag links, archives, RSS feeds, tag clouds, CSS classes, ad targeting, and SEO metadata. You can customize this behavior in Newspack → Settings → Advanced Settings.', 'newspack-plugin' ); ?></p>
 		</div>
 		<?php
 	}
@@ -440,7 +440,7 @@ class Private_Tags {
 			</th>
 			<td>
 				<input type="checkbox" name="<?php echo esc_attr( self::META_KEY ); ?>" id="<?php echo esc_attr( self::META_KEY ); ?>" value="1" <?php checked( '1', $is_private ); ?>>
-				<p class="description"><?php esc_html_e( 'Private tags are not shown on the frontend. Their archive pages return 404 and they are excluded from tag clouds.', 'newspack-plugin' ); ?></p>
+				<p class="description"><?php esc_html_e( 'Private tags are hidden from your site\'s frontend—including tag links, archives, RSS feeds, tag clouds, CSS classes, ad targeting, and SEO metadata. You can customize this behavior in Newspack → Settings → Advanced Settings.', 'newspack-plugin' ); ?></p>
 			</td>
 		</tr>
 		<?php
