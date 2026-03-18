@@ -9,7 +9,7 @@ import { __ } from '@wordpress/i18n';
 import { __experimentalVStack as VStack, TextareaControl, CardBody } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
 import { useDispatch } from '@wordpress/data';
 import { useState, useEffect, useCallback } from '@wordpress/element';
-import { envelope, globe, tag } from '@wordpress/icons';
+import { envelope, globe, customPostType } from '@wordpress/icons';
 import apiFetch from '@wordpress/api-fetch';
 
 /**
@@ -239,7 +239,7 @@ export default function InstitutionEdit( { match }: { match: { params: { id: str
 					<CardSettingsGroup
 						title={ __( 'Reader Data', 'newspack-plugin' ) }
 						description={ __( 'Match readers by custom metadata', 'newspack-plugin' ) }
-						icon={ tag }
+						icon={ customPostType }
 						actionType="toggle"
 						isActive={ !! readerData }
 						onEnable={ () => updateMeta( '_np_institution_reader_data', readerData ? '' : ' ' ) }
