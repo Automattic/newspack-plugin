@@ -49,15 +49,12 @@ final class Overlay_Menu_Block {
 	 * @return string Block HTML.
 	 */
 	public static function render_block( array $attributes, string $content ) {
-		$instance_id = ! empty( $attributes['instanceId'] )
-			? esc_attr( $attributes['instanceId'] )
-			: wp_unique_id( 'overlay-menu-' );
+		$instance_id = esc_attr( $attributes['instanceId'] ?? '' );
 
-		$wrapper_attributes = get_block_wrapper_attributes(
-			[
-				'data-overlay-id' => $instance_id,
-			]
-		);
+		// Only add data-overlay-id when instanceId is set to avoid empty selectors.
+		$extra_attrs = $instance_id ? [ 'data-overlay-id' => $instance_id ] : [];
+
+		$wrapper_attributes = get_block_wrapper_attributes( $extra_attrs );
 
 		return sprintf(
 			'<div %s>%s</div>',
