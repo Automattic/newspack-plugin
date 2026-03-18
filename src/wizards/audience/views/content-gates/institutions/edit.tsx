@@ -99,6 +99,20 @@ export default function InstitutionEdit( { match }: { match: { params: { id: str
 		} );
 	}, [ id, history ] );
 
+	const { confirmDialog: navBlockDialog } = useConfirmDialog( {
+		when: isDirty && ! isSaving,
+		message: __( 'You have unsaved changes that will be lost. Discard changes?', 'newspack-plugin' ),
+		confirmButtonText: __( 'Discard changes', 'newspack-plugin' ),
+		hideTitle: true,
+	} );
+
+	const { confirmDialog: deleteDialog, requestConfirm: requestDelete } = useConfirmDialog( {
+		title: __( 'Are you sure?', 'newspack-plugin' ),
+		confirmButtonText: __( 'Delete', 'newspack-plugin' ),
+		isDestructive: true,
+		message: __( 'This will permanently delete this institution. This action cannot be undone.', 'newspack-plugin' ),
+	} );
+
 	// Set header navigation and actions.
 	useEffect( () => {
 		setHeaderData( {
@@ -130,20 +144,6 @@ export default function InstitutionEdit( { match }: { match: { params: { id: str
 		}
 		setHeaderData( { actions } );
 	}, [ handleSave, handleDelete, requestDelete, institution.title.raw, isNew, isSaving, setHeaderData ] );
-
-	const { confirmDialog: navBlockDialog } = useConfirmDialog( {
-		when: isDirty && ! isSaving,
-		message: __( 'You have unsaved changes that will be lost. Discard changes?', 'newspack-plugin' ),
-		confirmButtonText: __( 'Discard changes', 'newspack-plugin' ),
-		hideTitle: true,
-	} );
-
-	const { confirmDialog: deleteDialog, requestConfirm: requestDelete } = useConfirmDialog( {
-		title: __( 'Are you sure?', 'newspack-plugin' ),
-		confirmButtonText: __( 'Delete', 'newspack-plugin' ),
-		isDestructive: true,
-		message: __( 'This will permanently delete this institution. This action cannot be undone.', 'newspack-plugin' ),
-	} );
 
 	if ( isLoading ) {
 		return null;
