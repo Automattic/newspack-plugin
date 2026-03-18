@@ -75,7 +75,7 @@
 			}
 
 			// Only replace text on publish dates, not modified date blocks.
-			if ( el.closest( '.wp-block-post-date__modified-date' ) ) {
+			if ( el.closest( '[data-newspack-modified]' ) || el.closest( '.wp-block-post-date__modified-date' ) ) {
 				return;
 			}
 

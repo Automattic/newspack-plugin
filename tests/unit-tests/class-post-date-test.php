@@ -494,6 +494,42 @@ class Test_Post_Date extends \WP_UnitTestCase {
 	}
 
 	/**
+	 * Test modified date output includes data-newspack-modified attribute.
+	 */
+	public function test_render_block_modified_has_data_attribute() {
+		set_theme_mod( 'post_updated_date', true );
+		set_theme_mod( 'post_updated_date_threshold', 24 );
+
+		$post_id = $this->create_post_with_modified_date(
+			gmdate( 'Y-m-d H:i:s', time() - 7 * DAY_IN_SECONDS ),
+			gmdate( 'Y-m-d H:i:s', time() - 3 * DAY_IN_SECONDS )
+		);
+
+		global $post;
+		$post = get_post( $post_id );
+
+		// Block without the CSS class (block bindings path).
+		$block_content = '<div class="wp-block-post-date"><time datetime="2026-03-15T10:00:00+00:00">March 15, 2026</time></div>';
+		$block         = [
+			'blockName' => 'core/post-date',
+			'attrs'     => [
+				'metadata' => [
+					'bindings' => [
+						'datetime' => [
+							'source' => 'core/post-data',
+							'args'   => [ 'field' => 'modified' ],
+						],
+					],
+				],
+			],
+		];
+
+		$result = Post_Date::filter_post_date_block( $block_content, $block );
+		$this->assertStringContainsString( 'data-newspack-modified', $result, 'Modified date block should have data-newspack-modified attribute.' );
+		$this->assertStringContainsString( 'Updated', $result, 'Modified date block should have Updated label.' );
+	}
+
+	/**
 	 * Test Updated label appears even when time-ago is disabled.
 	 */
 	public function test_render_block_updated_label_without_time_ago() {

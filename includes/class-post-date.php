@@ -209,7 +209,16 @@ class Post_Date {
 			$date_text = wp_strip_all_tags( preg_match( '/(<time[^>]*>)(.*?)(<\/time>)/s', $block_content, $m ) ? $m[2] : '' );
 			/* translators: %s: Modified date. */
 			$label = sprintf( esc_html__( 'Updated %s', 'newspack-plugin' ), esc_html( $date_text ) );
-			return self::replace_time_text( $block_content, $label );
+			$block_content = self::replace_time_text( $block_content, $label );
+
+			// Mark as modified so the relative-time JS can skip text replacement,
+			// even when core omits the wp-block-post-date__modified-date class (block bindings path).
+			$processor = new \WP_HTML_Tag_Processor( $block_content );
+			if ( $processor->next_tag() ) {
+				$processor->set_attribute( 'data-newspack-modified', '' );
+				$block_content = $processor->get_updated_html();
+			}
+			return $block_content;
 		}
 
 		// Handle time-ago for publish dates.
