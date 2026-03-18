@@ -7,6 +7,7 @@
  */
 import { __ } from '@wordpress/i18n';
 import { useState, useEffect, useCallback, useMemo } from '@wordpress/element';
+import { useDispatch } from '@wordpress/data';
 import apiFetch from '@wordpress/api-fetch';
 import { DataViews } from '@wordpress/dataviews';
 import type { Action, Field, View } from '@wordpress/dataviews';
@@ -16,6 +17,7 @@ import { Button } from '@wordpress/components';
  * Internal dependencies
  */
 import { Router } from '../../../../../../packages/components/src';
+import { WIZARD_STORE_NAMESPACE } from '../../../../../../packages/components/src/wizard/store';
 import './style.scss';
 
 const { useHistory } = Router;
@@ -23,7 +25,7 @@ const { useHistory } = Router;
 const API_PATH = '/wp/v2/np_institution';
 
 const DEFAULT_VIEW: View = {
-	type: 'grid',
+	type: 'table',
 	page: 1,
 	perPage: 25,
 	sort: { field: 'name', direction: 'asc' },
@@ -35,9 +37,14 @@ const DEFAULT_VIEW: View = {
 
 export default function Institutions() {
 	const history = useHistory();
+	const { setHeaderData } = useDispatch( WIZARD_STORE_NAMESPACE );
 	const [ data, setData ] = useState< Institution[] >( [] );
 	const [ isLoading, setIsLoading ] = useState( true );
 	const [ view, setView ] = useState< View >( DEFAULT_VIEW );
+
+	useEffect( () => {
+		setHeaderData( { sectionName: __( 'Institutions', 'newspack-plugin' ) } );
+	}, [ setHeaderData ] );
 
 	const fetchData = useCallback( () => {
 		setIsLoading( true );
@@ -173,7 +180,6 @@ export default function Institutions() {
 				defaultLayouts={ { table: {}, grid: {} } }
 				isLoading={ isLoading }
 				getItemId={ ( item: Institution ) => String( item.id ) }
-				primaryField="name"
 				search
 			/>
 		</div>
