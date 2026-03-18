@@ -39,7 +39,7 @@ export default function InstitutionEdit( { match }: { match: { params: { id?: st
 	const id = match.params.id;
 	const isNew = ! id || id === 'new';
 
-	const { setHeaderData } = useDispatch( WIZARD_STORE_NAMESPACE );
+	const { setHeaderData, startLoadingData, finishLoadingData } = useDispatch( WIZARD_STORE_NAMESPACE );
 
 	const [ institution, setInstitution ] = useState( EMPTY_INSTITUTION );
 	const [ isLoading, setIsLoading ] = useState( ! isNew );
@@ -74,6 +74,7 @@ export default function InstitutionEdit( { match }: { match: { params: { id?: st
 
 	const handleSave = useCallback( () => {
 		setIsSaving( true );
+		startLoadingData( { isQuietLoading: true } );
 		const payload = {
 			title: institution.title.raw,
 			excerpt: institution.excerpt.raw,
@@ -89,15 +90,21 @@ export default function InstitutionEdit( { match }: { match: { params: { id?: st
 				setIsDirty( false );
 				history.push( '/institutions' );
 			} )
-			.finally( () => setIsSaving( false ) );
-	}, [ institution, isNew, id, history ] );
+			.finally( () => {
+				setIsSaving( false );
+				finishLoadingData();
+			} );
+	}, [ institution, isNew, id, history, startLoadingData, finishLoadingData ] );
 
 	const handleDelete = useCallback( () => {
-		apiFetch( { path: `${ API_PATH }/${ id }?force=true`, method: 'DELETE' } ).then( () => {
-			setIsDirty( false );
-			history.push( '/institutions' );
-		} );
-	}, [ id, history ] );
+		startLoadingData( { isQuietLoading: true } );
+		apiFetch( { path: `${ API_PATH }/${ id }?force=true`, method: 'DELETE' } )
+			.then( () => {
+				setIsDirty( false );
+				history.push( '/institutions' );
+			} )
+			.finally( () => finishLoadingData() );
+	}, [ id, history, startLoadingData, finishLoadingData ] );
 
 	const { confirmDialog: navBlockDialog } = useConfirmDialog( {
 		when: isDirty && ! isSaving,
