@@ -147,7 +147,7 @@ const ContentGates = ( { updateGatesData }: { updateGatesData: ( gates: Gate[] )
 				} ) }
 			</VStack>
 			<Divider alignment="full-width" />
-			<Grid className="newspack-content-gates__other-settings" columns={ 2 } gutter={ 32 }>
+			<Grid className="newspack-content-gates__other-settings" columns={ 3 } gutter={ 32 }>
 				<SettingsCard
 					title={ __( 'Metered countdown', 'newspack-plugin' ) }
 					description={ __(
@@ -168,6 +168,15 @@ const ContentGates = ( { updateGatesData }: { updateGatesData: ( gates: Gate[] )
 					enabled={ !! config.content_gifting?.enabled }
 					toggleEnabled={ toggleContentGifting.current }
 					href={ '/settings/content-gifting' }
+				/>
+				<SettingsCard
+					title={ __( 'Institutions', 'newspack-plugin' ) }
+					description={ __(
+						'Grant content access to groups of readers based on email domain, IP address, or custom metadata.',
+						'newspack-plugin'
+					) }
+					enabled
+					href={ '/institutions' }
 				/>
 			</Grid>
 		</>

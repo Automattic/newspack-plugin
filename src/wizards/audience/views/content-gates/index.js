@@ -81,6 +81,9 @@ const AudienceContentGates = ( props, ref ) => {
 					path: '/institutions',
 					render: Institutions,
 					exact: true,
+					isHidden: true,
+					backNav: '#/content-gates',
+					title: __( 'Institutions', 'newspack-plugin' ),
 				},
 				{
 					path: '/institutions/new',
