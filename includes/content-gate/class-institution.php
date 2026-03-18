@@ -64,7 +64,6 @@ class Institution {
 				 * (including via REST) to the `manage_options` user capability.
 				 */
 				'capabilities' => $capabilities,
-				'map_meta_cap' => true,
 			]
 		);
 	}
