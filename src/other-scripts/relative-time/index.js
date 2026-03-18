@@ -49,57 +49,47 @@
 	 * Format and replace date text in time elements.
 	 */
 	function updateDates() {
+		const localeTag = locale.replace( '_', '-' );
+
 		let formatter;
 		try {
-			formatter = new Intl.RelativeTimeFormat( locale.replace( '_', '-' ), {
-				numeric: 'auto',
-			} );
+			formatter = new Intl.RelativeTimeFormat( localeTag, { numeric: 'auto' } );
 		} catch {
-			// Fallback: no Intl support.
-			return;
+			return; // No Intl support.
 		}
 
-		// Block theme: .wp-block-post-date time
-		// Classic theme / newspack-blocks: time.entry-date
-		const selectors = [
-			'.wp-block-post-date:not(.wp-block-post-date__modified-date) time[datetime]',
-			'time.entry-date.published[datetime]',
-			'.comment-meta time[datetime]',
-		];
-		const elements = document.querySelectorAll( selectors.join( ', ' ) );
+		const elements = document.querySelectorAll(
+			'.wp-block-post-date time[datetime], time.entry-date.published[datetime], .comment-meta time[datetime]'
+		);
 		const now = Date.now();
 
 		elements.forEach( function ( el ) {
-			// Skip if already inside a modified date wrapper.
-			if ( el.closest( '.wp-block-post-date__modified-date' ) ) {
-				return;
-			}
-
 			const datetime = el.getAttribute( 'datetime' );
 			if ( ! datetime ) {
 				return;
 			}
 
-			const timestamp = new Date( datetime ).getTime();
-			const diffSeconds = Math.round( ( now - timestamp ) / 1000 );
+			// Show full date on hover for all date elements.
+			if ( ! el.getAttribute( 'title' ) ) {
+				el.setAttribute( 'title', new Date( datetime ).toLocaleString( localeTag ) );
+			}
 
+			// Only replace text on publish dates, not modified date blocks.
+			if ( el.closest( '.wp-block-post-date__modified-date' ) ) {
+				return;
+			}
+
+			const diffSeconds = Math.round( ( now - new Date( datetime ).getTime() ) / 1000 );
 			if ( diffSeconds < 0 ) {
-				return; // Future date.
+				return;
 			}
 
 			const relative = getRelativeUnit( diffSeconds );
 			if ( ! relative ) {
-				return; // Beyond cutoff.
+				return;
 			}
 
 			const formatted = formatter.format( relative.value, relative.unit );
-
-			// Store original text as title for hover.
-			if ( ! el.getAttribute( 'title' ) ) {
-				el.setAttribute( 'title', el.textContent );
-			}
-
-			// Preserve <a> wrapper when isLink is enabled.
 			const anchor = el.querySelector( 'a' );
 			if ( anchor ) {
 				anchor.textContent = formatted;
