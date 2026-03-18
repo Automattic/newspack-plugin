@@ -110,18 +110,51 @@ class IP_Access_Rule {
 	}
 
 	/**
-	 * Get the visitor's IP address, accounting for proxy headers.
+	 * Get the visitor's IP address.
+	 *
+	 * By default only REMOTE_ADDR is trusted, because proxy headers like
+	 * X-Forwarded-For and X-Real-IP can be set by the client and used to
+	 * spoof an allowed IP for institutional access.
+	 *
+	 * To trust proxy headers (when the site sits behind a known reverse
+	 * proxy), use the `newspack_trusted_proxy_headers` filter:
+	 *
+	 *     add_filter( 'newspack_trusted_proxy_headers', function () {
+	 *         return [ 'HTTP_X_FORWARDED_FOR', 'HTTP_X_REAL_IP' ];
+	 *     } );
+	 *
+	 * For full control over IP resolution use `newspack_visitor_ip`.
 	 *
 	 * @return string The visitor's IP address.
 	 */
 	public static function get_visitor_ip() {
-		$headers = [ 'HTTP_X_FORWARDED_FOR', 'HTTP_X_REAL_IP', 'REMOTE_ADDR' ];
+		/**
+		 * Filter the list of trusted proxy headers checked before REMOTE_ADDR.
+		 *
+		 * Return an array of `$_SERVER` keys (e.g. `HTTP_X_FORWARDED_FOR`,
+		 * `HTTP_X_REAL_IP`) that your reverse-proxy infrastructure is known
+		 * to set reliably. An empty array (the default) means only
+		 * REMOTE_ADDR is used.
+		 *
+		 * @param string[] $headers Trusted header keys. Default empty array.
+		 */
+		$trusted_headers = apply_filters( 'newspack_trusted_proxy_headers', [] );
+
+		// Always end with REMOTE_ADDR as the final fallback.
+		$headers = array_merge( (array) $trusted_headers, [ 'REMOTE_ADDR' ] );
+
 		foreach ( $headers as $header ) {
 			if ( ! empty( $_SERVER[ $header ] ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidated
 				$ip = explode( ',', sanitize_text_field( wp_unslash( $_SERVER[ $header ] ) ) )[0];
 				$ip = trim( $ip );
 				if ( filter_var( $ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 ) ) {
-					return $ip;
+					/**
+					 * Filter the resolved visitor IP address.
+					 *
+					 * @param string $ip     Resolved IP address.
+					 * @param string $header The $_SERVER key it was read from.
+					 */
+					return apply_filters( 'newspack_visitor_ip', $ip, $header );
 				}
 			}
 		}
