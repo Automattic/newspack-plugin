@@ -58,7 +58,7 @@ class Institution {
 				'show_ui'      => false,
 				'show_in_menu' => false,
 				'show_in_rest' => true,
-				'supports'     => [ 'title' ],
+				'supports'     => [ 'title', 'excerpt' ],
 				/**
 				 * Institutions effectively grant access, so restrict all CRUD operations
 				 * (including via REST) to the `manage_options` user capability.
@@ -76,6 +76,7 @@ class Institution {
 	 * @param array  $rules {
 	 *     Optional. Institution rules.
 	 *
+	 *     @type string $description  Institution description.
 	 *     @type string $email_domain Comma-separated domains (e.g., 'university.edu,uni.ac.uk').
 	 *     @type string $ip_range     Comma-separated IPs/CIDR (e.g., '192.168.1.0/24,10.0.0.5').
 	 *     @type string $reader_data  Semicolon-delimited key=value pairs (e.g., 'org=uni;role=staff').
@@ -84,11 +85,13 @@ class Institution {
 	 * @return int|\WP_Error Post ID on success, WP_Error on failure.
 	 */
 	public static function create( $name, $rules = [] ) {
+		$description = $rules['description'] ?? '';
 		$post_id = \wp_insert_post(
 			[
-				'post_type'   => self::POST_TYPE,
-				'post_title'  => $name,
-				'post_status' => 'publish',
+				'post_type'    => self::POST_TYPE,
+				'post_title'   => sanitize_text_field( $name ),
+				'post_excerpt' => sanitize_text_field( $description ),
+				'post_status'  => 'publish',
 			],
 			true
 		);

@@ -45,28 +45,6 @@ class Newspack_Test_Institution extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Create an institution post.
-	 *
-	 * @param string $name Institution name.
-	 * @param array  $meta Post meta to set.
-	 * @return int Post ID.
-	 */
-	private function create_institution( $name, $meta = [] ) {
-		$post_id = wp_insert_post(
-			[
-				'post_type'   => Institution::POST_TYPE,
-				'post_title'  => $name,
-				'post_status' => 'publish',
-			]
-		);
-		foreach ( $meta as $key => $value ) {
-			update_post_meta( $post_id, $key, $value );
-		}
-		$this->post_ids[] = $post_id;
-		return $post_id;
-	}
-
-	/**
 	 * Create a reader user with verified email.
 	 *
 	 * @param string $email    Email address.
@@ -98,6 +76,7 @@ class Newspack_Test_Institution extends WP_UnitTestCase {
 		$post_id = Institution::create(
 			'API University',
 			[
+				'description'  => 'API University description',
 				'email_domain' => 'api.edu',
 				'ip_range'     => '10.0.0.0/8',
 			]
@@ -107,6 +86,7 @@ class Newspack_Test_Institution extends WP_UnitTestCase {
 
 		$post = get_post( $post_id );
 		$this->assertEquals( 'API University', $post->post_title );
+		$this->assertEquals( 'API University description', $post->post_excerpt );
 		$this->assertEquals( 'publish', $post->post_status );
 		$this->assertEquals( 'api.edu', get_post_meta( $post_id, '_np_institution_email_domain', true ) );
 		$this->assertEquals( '10.0.0.0/8', get_post_meta( $post_id, '_np_institution_ip_range', true ) );
@@ -124,7 +104,10 @@ class Newspack_Test_Institution extends WP_UnitTestCase {
 	 * Test get_options returns published institutions.
 	 */
 	public function test_get_options_returns_published_institutions() {
-		$id      = $this->create_institution( 'Test University' );
+		$id = Institution::create( 'Test University' );
+		$this->assertIsInt( $id );
+		$this->post_ids[] = $id;
+
 		$options = Institution::get_options();
 		$this->assertCount( 1, $options );
 		$this->assertEquals( 'Test University', $options[0]['label'] );
@@ -135,10 +118,12 @@ class Newspack_Test_Institution extends WP_UnitTestCase {
 	 * Test cache is built and can be invalidated.
 	 */
 	public function test_cache_built_and_invalidated() {
-		$id = $this->create_institution(
+		$id = Institution::create(
 			'Cached University',
-			[ '_np_institution_email_domain' => 'cached.edu' ]
+			[ 'email_domain' => 'cached.edu' ]
 		);
+		$this->assertIsInt( $id );
+		$this->post_ids[] = $id;
 		delete_transient( Institution::TRANSIENT_KEY );
 
 		$cached = Institution::get_cached_institutions();
@@ -155,7 +140,9 @@ class Newspack_Test_Institution extends WP_UnitTestCase {
 	 * Test institution with no rules matches nobody.
 	 */
 	public function test_institution_with_no_rules_matches_nobody() {
-		$inst_id   = $this->create_institution( 'Empty Institution' );
+		$inst_id = Institution::create( 'Empty Institution' );
+		$this->assertIsInt( $inst_id );
+		$this->post_ids[] = $inst_id;
 		$reader_id = $this->create_reader( 'reader@test.com' );
 
 		delete_transient( Institution::TRANSIENT_KEY );
@@ -166,10 +153,12 @@ class Newspack_Test_Institution extends WP_UnitTestCase {
 	 * Test email domain matching.
 	 */
 	public function test_email_domain_match() {
-		$inst_id = $this->create_institution(
+		$inst_id = Institution::create(
 			'University of Test',
-			[ '_np_institution_email_domain' => 'university.edu' ]
+			[ 'email_domain' => 'university.edu' ]
 		);
+		$this->assertIsInt( $inst_id );
+		$this->post_ids[] = $inst_id;
 		$match_reader    = $this->create_reader( 'student@university.edu' );
 		$no_match_reader = $this->create_reader( 'student@other.com' );
 
@@ -182,10 +171,12 @@ class Newspack_Test_Institution extends WP_UnitTestCase {
 	 * Test email domain requires verified email.
 	 */
 	public function test_email_domain_requires_verification() {
-		$inst_id = $this->create_institution(
+		$inst_id = Institution::create(
 			'Verified University',
-			[ '_np_institution_email_domain' => 'verified.edu' ]
+			[ 'email_domain' => 'verified.edu' ]
 		);
+		$this->assertIsInt( $inst_id );
+		$this->post_ids[] = $inst_id;
 		$unverified_reader = $this->create_reader( 'student@verified.edu', false );
 
 		delete_transient( Institution::TRANSIENT_KEY );
@@ -199,10 +190,12 @@ class Newspack_Test_Institution extends WP_UnitTestCase {
 	 * Test IP range match via real IP.
 	 */
 	public function test_ip_range_match() {
-		$inst_id   = $this->create_institution(
+		$inst_id = Institution::create(
 			'IP Institution',
-			[ '_np_institution_ip_range' => '10.0.0.0/8' ]
+			[ 'ip_range' => '10.0.0.0/8' ]
 		);
+		$this->assertIsInt( $inst_id );
+		$this->post_ids[] = $inst_id;
 		$reader_id = $this->create_reader( 'reader@test.com' );
 
 		delete_transient( Institution::TRANSIENT_KEY );
@@ -230,10 +223,12 @@ class Newspack_Test_Institution extends WP_UnitTestCase {
 	 * Test anonymous user can match via IP range on uncached request.
 	 */
 	public function test_anonymous_ip_range_match() {
-		$inst_id = $this->create_institution(
+		$inst_id = Institution::create(
 			'Anon IP Institution',
-			[ '_np_institution_ip_range' => '10.0.0.0/8' ]
+			[ 'ip_range' => '10.0.0.0/8' ]
 		);
+		$this->assertIsInt( $inst_id );
+		$this->post_ids[] = $inst_id;
 
 		delete_transient( Institution::TRANSIENT_KEY );
 
@@ -271,13 +266,15 @@ class Newspack_Test_Institution extends WP_UnitTestCase {
 	 * Test OR logic within an institution (any rule match is enough).
 	 */
 	public function test_or_logic_within_institution() {
-		$inst_id = $this->create_institution(
+		$inst_id = Institution::create(
 			'OR Logic Institution',
 			[
-				'_np_institution_email_domain' => 'university.edu',
-				'_np_institution_ip_range'     => '10.0.0.0/8',
+				'email_domain' => 'university.edu',
+				'ip_range'     => '10.0.0.0/8',
 			]
 		);
+		$this->assertIsInt( $inst_id );
+		$this->post_ids[] = $inst_id;
 		$reader_id = $this->create_reader( 'student@university.edu' );
 
 		delete_transient( Institution::TRANSIENT_KEY );
@@ -288,14 +285,19 @@ class Newspack_Test_Institution extends WP_UnitTestCase {
 	 * Test multi-institution selection (any institution match is enough).
 	 */
 	public function test_multi_institution_selection() {
-		$inst_a = $this->create_institution(
+		$inst_a = Institution::create(
 			'Institution A',
-			[ '_np_institution_email_domain' => 'a.edu' ]
+			[ 'email_domain' => 'a.edu' ]
 		);
-		$inst_b = $this->create_institution(
+		$this->assertIsInt( $inst_a );
+		$this->post_ids[] = $inst_a;
+
+		$inst_b = Institution::create(
 			'Institution B',
-			[ '_np_institution_email_domain' => 'b.edu' ]
+			[ 'email_domain' => 'b.edu' ]
 		);
+		$this->assertIsInt( $inst_b );
+		$this->post_ids[] = $inst_b;
 		$reader_id = $this->create_reader( 'reader@b.edu' );
 
 		delete_transient( Institution::TRANSIENT_KEY );
@@ -314,10 +316,12 @@ class Newspack_Test_Institution extends WP_UnitTestCase {
 	 * Test evaluate_rule integration with the institution rule.
 	 */
 	public function test_evaluate_rule_integration() {
-		$inst_id = $this->create_institution(
+		$inst_id = Institution::create(
 			'Integration Test University',
-			[ '_np_institution_email_domain' => 'integration.edu' ]
+			[ 'email_domain' => 'integration.edu' ]
 		);
+		$this->assertIsInt( $inst_id );
+		$this->post_ids[] = $inst_id;
 		$reader_id = $this->create_reader( 'reader@integration.edu' );
 
 		delete_transient( Institution::TRANSIENT_KEY );
@@ -330,10 +334,12 @@ class Newspack_Test_Institution extends WP_UnitTestCase {
 	 * Test that evaluate_rule returns false for anonymous users without matching IP.
 	 */
 	public function test_evaluate_rule_anonymous_no_ip_returns_false() {
-		$inst_id = $this->create_institution(
+		$inst_id = Institution::create(
 			'Anon Test',
-			[ '_np_institution_email_domain' => 'test.edu' ]
+			[ 'email_domain' => 'test.edu' ]
 		);
+		$this->assertIsInt( $inst_id );
+		$this->post_ids[] = $inst_id;
 		delete_transient( Institution::TRANSIENT_KEY );
 		// Anonymous user can't match email domain rules.
 		$this->assertFalse(
@@ -345,10 +351,12 @@ class Newspack_Test_Institution extends WP_UnitTestCase {
 	 * Test check_ip filter handler.
 	 */
 	public function test_check_ip_filter() {
-		$this->create_institution(
+		$inst_id = Institution::create(
 			'IP Filter Institution',
-			[ '_np_institution_ip_range' => '192.168.1.0/24' ]
+			[ 'ip_range' => '192.168.1.0/24' ]
 		);
+		$this->assertIsInt( $inst_id );
+		$this->post_ids[] = $inst_id;
 		delete_transient( Institution::TRANSIENT_KEY );
 
 		$_SERVER['REMOTE_ADDR'] = '192.168.1.50'; // phpcs:ignore WordPressVIPMinimum.Variables.ServerVariables.UserControlledHeaders, WordPressVIPMinimum.Variables.RestrictedVariables.cache_constraints___SERVER__REMOTE_ADDR__
