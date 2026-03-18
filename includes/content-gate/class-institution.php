@@ -26,9 +26,30 @@ class Institution {
 	 */
 	public static function init() {
 		add_action( 'init', [ __CLASS__, 'register_post_type' ] );
+		add_action( 'init', [ __CLASS__, 'register_meta' ] );
 		add_action( 'save_post_' . self::POST_TYPE, [ __CLASS__, 'invalidate_cache' ] );
 		add_action( 'before_delete_post', [ __CLASS__, 'maybe_invalidate_cache_on_delete' ] );
 		add_filter( 'newspack_content_gate_check_ip', [ __CLASS__, 'check_ip' ] );
+	}
+
+	/**
+	 * Register meta fields for the REST API.
+	 */
+	public static function register_meta() {
+		$meta_keys = [ 'email_domain', 'ip_range', 'reader_data' ];
+		foreach ( $meta_keys as $key ) {
+			\register_post_meta(
+				self::POST_TYPE,
+				self::META_PREFIX . $key,
+				[
+					'show_in_rest'      => true,
+					'type'              => 'string',
+					'single'            => true,
+					'default'           => '',
+					'sanitize_callback' => 'sanitize_text_field',
+				]
+			);
+		}
 	}
 
 	/**
