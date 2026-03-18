@@ -43,8 +43,18 @@ export default function Institutions() {
 	const [ view, setView ] = useState< View >( DEFAULT_VIEW );
 
 	useEffect( () => {
-		setHeaderData( { sectionName: __( 'Institutions', 'newspack-plugin' ) } );
-	}, [ setHeaderData ] );
+		setHeaderData( {
+			sectionName: __( 'Institutions', 'newspack-plugin' ),
+			actions: [
+				{
+					type: 'primary',
+					label: __( 'Add New', 'newspack-plugin' ),
+					icon: null,
+					action: () => history.push( '/institutions/new' ),
+				},
+			],
+		} );
+	}, [ setHeaderData, history ] );
 
 	const fetchData = useCallback( () => {
 		setIsLoading( true );
@@ -150,26 +160,13 @@ export default function Institutions() {
 		return (
 			<div className="newspack-institutions__empty-state">
 				<h3>{ __( 'No institutions yet', 'newspack-plugin' ) }</h3>
-				<p>
-					{ __(
-						'Institutions let you grant content access to groups of readers based on email domain, IP address, or custom metadata.',
-						'newspack-plugin'
-					) }
-				</p>
-				<Button variant="primary" onClick={ () => history.push( '/institutions/new' ) }>
-					{ __( 'Add New Institution', 'newspack-plugin' ) }
-				</Button>
+				<p>{ __( 'Use the "Add New" button above to create your first institution.', 'newspack-plugin' ) }</p>
 			</div>
 		);
 	}
 
 	return (
 		<div className="newspack-institutions">
-			<div className="newspack-institutions__header">
-				<Button variant="primary" onClick={ () => history.push( '/institutions/new' ) }>
-					{ __( 'Add New', 'newspack-plugin' ) }
-				</Button>
-			</div>
 			<DataViews
 				data={ data }
 				fields={ fields }
