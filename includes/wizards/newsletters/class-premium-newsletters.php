@@ -113,34 +113,6 @@ class Premium_Newsletters extends Wizard {
 
 		register_rest_route(
 			NEWSPACK_API_NAMESPACE,
-			'/wizard/' . $this->slug . '/priority',
-			[
-				'methods'             => 'POST',
-				'callback'            => [ $this, 'update_gate_priorities' ],
-				'permission_callback' => [ $this, 'api_permissions_check' ],
-				'args'                => [
-					'gates' => [
-						'type'  => 'array',
-						'items' => [
-							'type'       => 'object',
-							'properties' => [
-								'id'       => [
-									'type'              => 'integer',
-									'sanitize_callback' => 'absint',
-								],
-								'priority' => [
-									'type'              => 'integer',
-									'sanitize_callback' => 'absint',
-								],
-							],
-						],
-					],
-				],
-			]
-		);
-
-		register_rest_route(
-			NEWSPACK_API_NAMESPACE,
 			'/wizard/' . $this->slug . '/(?P<id>\d+)',
 			[
 				'methods'             => 'POST',
