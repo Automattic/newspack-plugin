@@ -83,7 +83,6 @@ class Test_Institution extends WP_UnitTestCase {
 			]
 		);
 		if ( ! is_wp_error( $user_id ) ) {
-			update_user_meta( $user_id, '_newspack_reader', true );
 			if ( $verified ) {
 				update_user_meta( $user_id, \Newspack\Reader_Activation::EMAIL_VERIFIED, true );
 			}
