@@ -64,7 +64,7 @@
 				&::before {
 					background-color: var(--newspack-ui-color-error-60);
 					border-radius: 50%;
-					content: '';
+					content: "";
 					display: inline-block;
 					height: 8px;
 					margin-right: 8px;
@@ -104,6 +104,16 @@
 				width: 100%;
 				z-index: 1;
 			}
+		}
+	}
+
+	/**
+	 * DataViews styles
+	 */
+	.dataviews-wrapper {
+		@media (min-width: 1280px) {
+			margin-left: -48px;
+			margin-right: -48px;
 		}
 	}
 }

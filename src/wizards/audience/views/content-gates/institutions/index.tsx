@@ -30,9 +30,11 @@ const DEFAULT_VIEW: View = {
 	perPage: 25,
 	sort: { field: 'name', direction: 'asc' },
 	search: '',
-	fields: [ 'name', 'email_domain', 'ip_range', 'reader_data' ],
+	fields: [ 'email_domain', 'ip_range', 'reader_data' ],
 	filters: [],
 	layout: {},
+	titleField: 'title',
+	descriptionField: 'description',
 };
 
 export default function Institutions() {
@@ -70,16 +72,23 @@ export default function Institutions() {
 	const fields: Field< Institution >[] = useMemo(
 		() => [
 			{
-				id: 'name',
-				label: __( 'Name', 'newspack-plugin' ),
+				id: 'title',
+				label: __( 'Title', 'newspack-plugin' ),
 				enableGlobalSearch: true,
 				getValue: ( { item }: { item: Institution } ) => item.title.raw,
 				render: ( { item }: { item: Institution } ) => (
 					<div>
 						<strong>{ item.title.raw }</strong>
-						{ item.excerpt.raw && <div className="newspack-institutions__description">{ item.excerpt.raw }</div> }
 					</div>
 				),
+			},
+			{
+				id: 'description',
+				label: __( 'Description', 'newspack-plugin' ),
+				enableGlobalSearch: true,
+				getValue: ( { item }: { item: Institution } ) => item.excerpt.raw,
+				render: ( { item }: { item: Institution } ) =>
+					item.excerpt.raw ? <div className="newspack-institutions__description">{ item.excerpt.raw }</div> : null,
 			},
 			{
 				id: 'email_domain',
