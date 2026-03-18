@@ -6,8 +6,8 @@
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
+import { IconButton, Tooltip, __experimentalHStack as HStack } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
 import { useEffect, useRef } from '@wordpress/element';
-import { Tooltip, __experimentalHStack as HStack } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
 import { Icon, chevronLeft } from '@wordpress/icons';
 
 /**
@@ -60,7 +60,7 @@ const SectionHeader = ( {
 	title,
 	id = null,
 	primaryAction,
-	secondaryAction,
+	secondaryActions,
 	children = null,
 } ) => {
 	// If id is in the URL as a scrollTo param, scroll to it on render.
@@ -93,11 +93,20 @@ const SectionHeader = ( {
 			<div className="newspack-section-header__title-container">
 				<HeadingTag>{ title }</HeadingTag>
 				{ badges?.length ? badges.map( ( badge, i ) => <Badge key={ i } text={ badge.label } level={ badge.level || 'default' } /> ) : null }
-				{ secondaryAction && (
+				{ secondaryActions && secondaryActions.length === 1 && (
 					<div className="newspack-section-header__secondary-action">
-						<Button variant="link" href={ secondaryAction.href } onClick={ secondaryAction.action }>
-							{ secondaryAction.label }
-						</Button>
+						{ secondaryActions[ 0 ].icon && secondaryActions[ 0 ].iconOnly ? (
+							<IconButton icon={ secondaryActions[ 0 ].icon } variant="minimal" onClick={ secondaryActions[ 0 ].action } />
+						) : (
+							<Button
+								icon={ secondaryActions[ 0 ].icon || undefined }
+								variant="minimal"
+								href={ secondaryActions[ 0 ].href }
+								onClick={ secondaryActions[ 0 ].action }
+							>
+								{ secondaryActions[ 0 ].label }
+							</Button>
+						) }
 					</div>
 				) }
 			</div>

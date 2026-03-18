@@ -52,12 +52,14 @@ const ContentGates = ( { updateGatesData }: { updateGatesData: ( gates: Gate[] )
 				label: __( 'Add new content gate', 'newspack-plugin' ),
 				href: '#/edit/new/all',
 			},
-			sectionSecondaryAction:
+			sectionSecondaryActions:
 				gates.length > 1
-					? {
-							label: __( 'Gate priority', 'newspack-plugin' ),
-							action: () => setShowPriorityModal( true ),
-					  }
+					? [
+							{
+								label: __( 'Gate priority', 'newspack-plugin' ),
+								action: () => setShowPriorityModal( true ),
+							},
+					  ]
 					: undefined,
 		} );
 	}, [ isFetching, gates ] );

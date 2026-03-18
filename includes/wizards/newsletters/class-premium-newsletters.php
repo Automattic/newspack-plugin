@@ -86,6 +86,16 @@ class Premium_Newsletters extends Wizard {
 
 		register_rest_route(
 			NEWSPACK_API_NAMESPACE,
+			'/wizard/' . $this->slug . '/config',
+			[
+				'methods'             => 'POST',
+				'callback'            => [ $this, 'update_config' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+			]
+		);
+
+		register_rest_route(
+			NEWSPACK_API_NAMESPACE,
 			'/wizard/' . $this->slug,
 			[
 				'methods'             => 'POST',
@@ -284,9 +294,25 @@ class Premium_Newsletters extends Wizard {
 	 */
 	public function get_config() {
 		$config = [
-			'gates' => Content_Gate::get_gates( Content_Gate::GATE_CPT, null, true ),
+			'gates'  => Content_Gate::get_gates( Content_Gate::GATE_CPT, null, true ),
+			'config' => [
+				'auto_signup_on_purchase' => get_option( 'newspack_premium_newsletters_auto_signup', false ),
+			],
 		];
 		return rest_ensure_response( $config );
+	}
+
+	/**
+	 * Update advanced settings.
+	 *
+	 * @param \WP_REST_Request $request The request object.
+	 *
+	 * @return \WP_REST_Response|\WP_Error
+	 */
+	public function update_config( $request ) {
+		$config = $request->get_param( 'config' );
+		update_option( 'newspack_premium_newsletters_auto_signup', (bool) $config['auto_signup_on_purchase'] );
+		return rest_ensure_response( true );
 	}
 
 	/**

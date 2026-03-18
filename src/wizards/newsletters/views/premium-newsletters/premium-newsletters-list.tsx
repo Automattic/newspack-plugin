@@ -8,7 +8,8 @@
 import { __ } from '@wordpress/i18n';
 import { __experimentalVStack as VStack } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
 import { useDispatch } from '@wordpress/data';
-import { useEffect, useRef } from '@wordpress/element';
+import { useEffect, useRef, useState } from '@wordpress/element';
+import { settings } from '@wordpress/icons';
 
 /**
  * Internal dependencies
@@ -19,12 +20,15 @@ import { useWizardApiFetch } from '../../../hooks/use-wizard-api-fetch';
 import { WIZARD_STORE_NAMESPACE } from '../../../../../packages/components/src/wizard/store';
 import ContentGateOnboarding from '../../../audience/views/content-gates/content-gates-onboarding';
 import ContentGateSettings from '../../../audience/views/content-gates/content-gate-settings';
+import AdvancedSettings from './advanced-settings';
 import { PREMIUM_NEWSLETTERS_WIZARD_SLUG } from './consts';
 
 const PremiumNewslettersList = ( { updateGatesData }: { updateGatesData: ( gates: Gate[] ) => void } ) => {
 	const wizardData = useWizardData( PREMIUM_NEWSLETTERS_WIZARD_SLUG ) as WizardData;
 	const { isFetching, error, errorMessage } = useWizardApiFetch( PREMIUM_NEWSLETTERS_WIZARD_SLUG );
 	const { resetHeaderData, setHeaderData } = useDispatch( WIZARD_STORE_NAMESPACE );
+	const [ showAdvancedSettings, setShowAdvancedSettings ] = useState( false );
+
 	const ref = useRef( null );
 	const gates = ( wizardData?.gates || [] ) as Gate[];
 
@@ -43,6 +47,14 @@ const PremiumNewslettersList = ( { updateGatesData }: { updateGatesData: ( gates
 				label: __( 'Add new premium newsletter', 'newspack-plugin' ),
 				href: '#/edit/new/all',
 			},
+			sectionSecondaryActions: [
+				{
+					label: __( 'Advanced settings', 'newspack-plugin' ),
+					action: () => setShowAdvancedSettings( true ),
+					icon: settings,
+					iconOnly: true,
+				},
+			],
 		} );
 	}, [ isFetching, gates ] );
 
@@ -66,6 +78,7 @@ const PremiumNewslettersList = ( { updateGatesData }: { updateGatesData: ( gates
 					);
 				} ) }
 			</VStack>
+			<AdvancedSettings showModal={ showAdvancedSettings } closeModal={ () => setShowAdvancedSettings( false ) } />
 		</>
 	);
 };
