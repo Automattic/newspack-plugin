@@ -12,7 +12,7 @@ use Newspack\Institution;
  *
  * @group Access_Rules
  */
-class Test_Institution extends WP_UnitTestCase {
+class Newspack_Test_Institution extends WP_UnitTestCase {
 
 	/**
 	 * Post IDs for cleanup.
