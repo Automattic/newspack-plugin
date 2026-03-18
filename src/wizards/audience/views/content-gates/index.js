@@ -80,6 +80,7 @@ const AudienceContentGates = ( props, ref ) => {
 				{
 					path: '/institutions',
 					render: Institutions,
+					exact: true,
 				},
 				{
 					path: '/institutions/new',
