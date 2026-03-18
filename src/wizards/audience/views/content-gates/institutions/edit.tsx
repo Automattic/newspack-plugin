@@ -151,7 +151,8 @@ export default function InstitutionEdit( { match }: { match: { params: { id: str
 
 	const name = institution.title.raw;
 	const description = institution.excerpt.raw;
-	const { np_institution_email_domain: emailDomain, np_institution_ip_range: ipRange, np_institution_reader_data: readerData } = institution.meta;
+	const meta = institution.meta || EMPTY_INSTITUTION.meta;
+	const { np_institution_email_domain: emailDomain, np_institution_ip_range: ipRange, np_institution_reader_data: readerData } = meta;
 
 	return (
 		<div className="newspack-institution__edit">

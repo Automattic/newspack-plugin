@@ -79,7 +79,7 @@ class Institution {
 				'show_ui'      => false,
 				'show_in_menu' => false,
 				'show_in_rest' => true,
-				'supports'     => [ 'title', 'excerpt' ],
+				'supports'     => [ 'title', 'excerpt', 'custom-fields' ],
 				/**
 				 * Institutions effectively grant access, so restrict all CRUD operations
 				 * (including via REST) to the `manage_options` user capability.
