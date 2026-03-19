@@ -85,13 +85,8 @@ class ImageUpload extends Component {
 			{ 'newspack-image-upload__image--covering': isCovering }
 		);
 		return (
-			<BaseControl
-				className={ classnames( 'newspack-image-upload', className ) }
-				help={ help }
-				id={ this.props.id || this.baseControlId }
-				label={ label }
-			>
-				<div className={ classes } style={ { ...style } }>
+			<BaseControl className={ classnames( 'newspack-image-upload', className ) } help={ help } id={ this.baseControlId } label={ label }>
+				<div className={ classes } style={ style }>
 					{ image?.url ? (
 						<>
 							<img data-testid="image-upload" src={ image.url } alt={ __( 'Image preview', 'newspack-plugin' ) } />
@@ -99,19 +94,13 @@ class ImageUpload extends Component {
 								<Button disabled={ disabled } onClick={ this.openModal } variant="tertiary">
 									{ __( 'Replace', 'newspack-plugin' ) }
 								</Button>
-								<span className="sep" />
 								<Button disabled={ disabled } onClick={ () => onChange( null ) } variant="tertiary" isDestructive>
 									{ __( 'Remove', 'newspack-plugin' ) }
 								</Button>
 							</div>
 						</>
 					) : (
-						<Button
-							disabled={ disabled }
-							onClick={ this.openModal }
-							variant="tertiary"
-							style={ { width: 'calc(100% - 2px)', justifyContent: 'center' } }
-						>
+						<Button disabled={ disabled } id={ this.baseControlId } onClick={ this.openModal } variant="tertiary">
 							{ buttonLabel ? buttonLabel : __( 'Upload', 'newspack-plugin' ) }
 						</Button>
 					) }
