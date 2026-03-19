@@ -101,9 +101,6 @@ abstract class Contact_Metadata {
 		if ( $this->user ) {
 			return $this->user->user_email;
 		}
-		if ( $this->order ) {
-			return $this->order->get_billing_email();
-		}
 		return '';
 	}
 
