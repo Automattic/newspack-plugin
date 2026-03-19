@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-03-19T18:00:49+00:00\n"
+"POT-Creation-Date: 2026-03-19T20:25:54+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: newspack-plugin\n"
@@ -1462,87 +1462,95 @@ msgstr ""
 msgid "Set custom conditions based on reader data key/value pairs."
 msgstr ""
 
-#: includes/content-gate/class-content-gate.php:352
+#: includes/content-gate/class-access-rules.php:106
+msgid "Institutional access"
+msgstr ""
+
+#: includes/content-gate/class-access-rules.php:107
+msgid "Grant access to readers from selected institutions."
+msgstr ""
+
+#: includes/content-gate/class-content-gate.php:353
 #: includes/plugins/wc-memberships/class-memberships.php:148
 #: dist/audience-wizards.0a7741e2d00c77abb41d.js:92
 #: src/wizards/audience/views/setup/content-gating.js:73
 msgid "Content Gate"
 msgstr ""
 
-#: includes/content-gate/class-content-gate.php:354
+#: includes/content-gate/class-content-gate.php:355
 msgid "Content Gate published."
 msgstr ""
 
-#: includes/content-gate/class-content-gate.php:355
+#: includes/content-gate/class-content-gate.php:356
 msgid "Content Gate reverted to draft."
 msgstr ""
 
-#: includes/content-gate/class-content-gate.php:356
+#: includes/content-gate/class-content-gate.php:357
 msgid "Content Gate updated."
 msgstr ""
 
-#: includes/content-gate/class-content-gate.php:357
+#: includes/content-gate/class-content-gate.php:358
 msgid "New Content Gate"
 msgstr ""
 
-#: includes/content-gate/class-content-gate.php:358
+#: includes/content-gate/class-content-gate.php:359
 msgid "Edit Content Gate"
 msgstr ""
 
-#: includes/content-gate/class-content-gate.php:359
+#: includes/content-gate/class-content-gate.php:360
 msgid "View Content Gate"
 msgstr ""
 
-#: includes/content-gate/class-content-gate.php:369
-#: includes/content-gate/class-content-gate.php:748
-#: includes/content-gate/class-content-gate.php:871
+#: includes/content-gate/class-content-gate.php:370
+#: includes/content-gate/class-content-gate.php:749
+#: includes/content-gate/class-content-gate.php:872
 msgid "Content Gate Layout"
 msgstr ""
 
-#: includes/content-gate/class-content-gate.php:687
-#: includes/content-gate/class-content-gate.php:875
+#: includes/content-gate/class-content-gate.php:688
+#: includes/content-gate/class-content-gate.php:876
 msgid "Registration Access Layout"
 msgstr ""
 
-#: includes/content-gate/class-content-gate.php:699
-#: includes/content-gate/class-content-gate.php:878
+#: includes/content-gate/class-content-gate.php:700
+#: includes/content-gate/class-content-gate.php:879
 msgid "Paid Access Layout"
 msgstr ""
 
-#: includes/content-gate/class-content-gate.php:818
+#: includes/content-gate/class-content-gate.php:819
 msgid "This article is only available to members."
 msgstr ""
 
-#: includes/content-gate/class-content-gate.php:857
+#: includes/content-gate/class-content-gate.php:858
 msgid "Gate ID is required."
 msgstr ""
 
-#: includes/content-gate/class-content-gate.php:862
+#: includes/content-gate/class-content-gate.php:863
 msgid "Gate mode is required."
 msgstr ""
 
-#: includes/content-gate/class-content-gate.php:867
-#: includes/content-gate/class-content-gate.php:1153
-#: includes/content-gate/class-content-gate.php:1229
-#: includes/content-gate/class-content-gate.php:1279
+#: includes/content-gate/class-content-gate.php:868
+#: includes/content-gate/class-content-gate.php:1154
+#: includes/content-gate/class-content-gate.php:1230
+#: includes/content-gate/class-content-gate.php:1280
 msgid "Gate not found."
 msgstr ""
 
-#: includes/content-gate/class-content-gate.php:880
+#: includes/content-gate/class-content-gate.php:881
 msgid "Invalid gate mode."
 msgstr ""
 
-#: includes/content-gate/class-content-gate.php:1175
+#: includes/content-gate/class-content-gate.php:1176
 #: dist/billboard.js:12
 #: src/wizards/advertising/components/suppression/index.js:78
 msgid "Post types"
 msgstr ""
 
-#: includes/content-gate/class-content-gate.php:1178
+#: includes/content-gate/class-content-gate.php:1179
 msgid "Content types like posts, pages, or listings."
 msgstr ""
 
-#: includes/content-gate/class-content-gate.php:1252
+#: includes/content-gate/class-content-gate.php:1253
 msgid "Invalid gate setting key."
 msgstr ""
 
@@ -1552,6 +1560,10 @@ msgstr ""
 
 #: includes/content-gate/class-content-restriction-control.php:100
 msgid "Content labeled with certain tags."
+msgstr ""
+
+#: includes/content-gate/class-institution.php:56
+msgid "Institutions"
 msgstr ""
 
 #: includes/content-gate/class-metering-countdown.php:43

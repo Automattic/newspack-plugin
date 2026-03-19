@@ -102,6 +102,13 @@ class Access_Rules {
 				'description' => __( 'Set custom conditions based on reader data key/value pairs.', 'newspack-plugin' ),
 				'callback'    => [ __CLASS__, 'has_reader_data' ],
 			],
+			'institution'  => [
+				'name'               => __( 'Institutional access', 'newspack-plugin' ),
+				'description'        => __( 'Grant access to readers from selected institutions.', 'newspack-plugin' ),
+				'options'            => [ Institution::class, 'get_options' ],
+				'callback'           => [ Institution::class, 'evaluate' ],
+				'supports_anonymous' => true,
+			],
 		];
 
 		foreach ( $rules as $id => $rule ) {
@@ -154,9 +161,9 @@ class Access_Rules {
 			return true;
 		}
 
-		// If evaluating for the current user, they must be logged in.
+		// If evaluating for the current user, they must be logged in (unless the rule supports anonymous evaluation).
 		$user_id = $user_id ?? \get_current_user_id();
-		if ( ! $user_id ) {
+		if ( ! $user_id && empty( $rule['supports_anonymous'] ) ) {
 			return false;
 		}
 
