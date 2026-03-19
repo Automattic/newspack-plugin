@@ -132,7 +132,7 @@ export default function ContentGateSettings( {
 					header: (
 						<>
 							<h3>
-								{ gate.title }
+								<a href={ `#/edit/${ gate.id }` }>{ gate.title }</a>
 								<Badge level={ getGateStatusBadgeLevel( gate.status ) } text={ getGateStatus( gate.status ) } />
 							</h3>
 						</>
