@@ -157,7 +157,7 @@ const ContentGates = ( { updateGatesData }: { updateGatesData: ( gates: Gate[] )
 				} ) }
 			</VStack>
 			<Divider alignment="full-width" />
-			<Grid className="newspack-content-gates__other-settings" columns={ 3 } gutter={ 32 }>
+			<Grid className="newspack-content-gates__other-settings" columns={ 2 } gutter={ 32 }>
 				<SettingsCard
 					title={ __( 'Metered countdown', 'newspack-plugin' ) }
 					description={ __(
