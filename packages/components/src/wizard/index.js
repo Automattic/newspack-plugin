@@ -160,6 +160,7 @@ const Wizard = (
 									<Button
 										key={ index }
 										className="newspack-wizard__header__actions__main"
+										href={ action.href }
 										icon={ action.icon }
 										variant={ action.type }
 										onClick={ action.action }
@@ -218,7 +219,11 @@ const Wizard = (
 										exact={ section.exact ?? false }
 										path={ section.path }
 										render={ routerProps => (
-											<div className={ classnames( 'newspack-wizard__content', className ) }>
+											<div
+												className={ classnames( 'newspack-wizard__content', className, {
+													'newspack-wizard__content--full-width': section.fullWidth,
+												} ) }
+											>
 												{ 'function' === typeof renderAboveSections ? renderAboveSections() : null }
 												{ ( sectionTitle || section.title ) && (
 													<SectionHeader

@@ -83,11 +83,7 @@ const AudienceContentGates = ( props, ref ) => {
 					exact: true,
 					isHidden: true,
 					backNav: '#/content-gates',
-					title: __( 'Institutions', 'newspack-plugin' ),
-					description: __(
-						'Grant content access to groups of readers based on email domain, IP address, or custom metadata.',
-						'newspack-plugin'
-					),
+					fullWidth: true,
 				},
 				{
 					path: '/institutions/new',

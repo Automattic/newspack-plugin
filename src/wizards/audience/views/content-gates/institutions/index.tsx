@@ -49,14 +49,20 @@ export default function Institutions() {
 			sectionName: __( 'Institutions', 'newspack-plugin' ),
 			actions: [
 				{
-					type: 'primary',
-					label: __( 'Add New', 'newspack-plugin' ),
+					type: 'secondary',
+					label: __( '\u2190 Back to Access control', 'newspack-plugin' ),
 					icon: null,
-					action: () => history.push( '/institutions/new' ),
+					href: '#/content-gates',
+				},
+				{
+					type: 'primary',
+					label: __( 'Add New Institution', 'newspack-plugin' ),
+					icon: null,
+					href: '#/institutions/new',
 				},
 			],
 		} );
-	}, [ setHeaderData, history ] );
+	}, [ setHeaderData ] );
 
 	const fetchData = useCallback( () => {
 		setIsLoading( true );

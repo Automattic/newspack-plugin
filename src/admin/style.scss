@@ -180,6 +180,16 @@ h1 {
 	}
 }
 
+.newspack-wizard__content--full-width {
+	max-width: 100%;
+	padding-left: 0;
+	padding-right: 0;
+	/* Make sure full-width DataViews aligns with the 48px margin. */
+	.dataviews-wrapper {
+		margin-top: -16px;
+	}
+}
+
 .newspack-wizard__sections {
 	margin: 0 auto;
 	padding: calc(var(--newspack-wizard-section-space) * 2) var(--newspack-wizard-section-space) 0;
