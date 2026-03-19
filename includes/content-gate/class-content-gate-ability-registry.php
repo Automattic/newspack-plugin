@@ -31,71 +31,103 @@ class Content_Gate_Ability_Registry {
 		wp_register_ability(
 			'newspack/check-content-access',
 			[
-				'category'     => 'content-gating',
-				'description'  => __( 'Check whether a post is restricted and identify the gate.', 'newspack-plugin' ),
-				'permission'   => 'read',
-				'show_in_rest' => true,
-				'args'         => [
-					'post_id' => [
-						'type'        => 'integer',
-						'required'    => true,
-						'description' => __( 'The post ID to check.', 'newspack-plugin' ),
+				'label'               => __( 'Check Content Access', 'newspack-plugin' ),
+				'category'            => 'content-gating',
+				'description'         => __( 'Check whether a post is restricted and identify the gate.', 'newspack-plugin' ),
+				'execute_callback'    => [ __CLASS__, 'execute_check_content_access' ],
+				'permission_callback' => '__return_true',
+				'input_schema'        => [
+					'type'       => 'object',
+					'properties' => [
+						'post_id' => [
+							'type'        => 'integer',
+							'description' => __( 'The post ID to check.', 'newspack-plugin' ),
+						],
+						'user_id' => [
+							'type'        => 'integer',
+							'description' => __( 'Optional user ID to check access for. Requires manage_options.', 'newspack-plugin' ),
+						],
 					],
-					'user_id' => [
-						'type'        => 'integer',
-						'required'    => false,
-						'description' => __( 'Optional user ID to check access for. Requires manage_options.', 'newspack-plugin' ),
+					'required'   => [ 'post_id' ],
+				],
+				'output_schema'       => [
+					'type'       => 'object',
+					'properties' => [
+						'has_access' => [ 'type' => 'boolean' ],
+						'gate_id'    => [ 'type' => [ 'integer', 'null' ] ],
+						'reason'     => [ 'type' => 'string' ],
 					],
 				],
-				'callback'     => [ __CLASS__, 'execute_check_content_access' ],
+				'meta'                => [
+					'show_in_rest' => true,
+					'annotations'  => [ 'readonly' => true ],
+				],
 			]
 		);
 
 		wp_register_ability(
 			'newspack/list-gates',
 			[
-				'category'     => 'content-gating',
-				'description'  => __( 'List all published content gates.', 'newspack-plugin' ),
-				'permission'   => 'manage_options',
-				'show_in_rest' => true,
-				'args'         => [],
-				'callback'     => [ __CLASS__, 'execute_list_gates' ],
+				'label'               => __( 'List Gates', 'newspack-plugin' ),
+				'category'            => 'content-gating',
+				'description'         => __( 'List all published content gates.', 'newspack-plugin' ),
+				'execute_callback'    => [ __CLASS__, 'execute_list_gates' ],
+				'permission_callback' => function () {
+					return current_user_can( 'manage_options' );
+				},
+				'meta'                => [
+					'show_in_rest' => true,
+					'annotations'  => [ 'readonly' => true ],
+				],
 			]
 		);
 
 		wp_register_ability(
 			'newspack/get-gate-for-post',
 			[
-				'category'     => 'content-gating',
-				'description'  => __( 'Get the gate configuration for a specific post.', 'newspack-plugin' ),
-				'permission'   => 'read',
-				'show_in_rest' => true,
-				'args'         => [
-					'post_id' => [
-						'type'        => 'integer',
-						'required'    => true,
-						'description' => __( 'The post ID to get gate for.', 'newspack-plugin' ),
+				'label'               => __( 'Get Gate for Post', 'newspack-plugin' ),
+				'category'            => 'content-gating',
+				'description'         => __( 'Get the gate configuration for a specific post.', 'newspack-plugin' ),
+				'execute_callback'    => [ __CLASS__, 'execute_get_gate_for_post' ],
+				'permission_callback' => '__return_true',
+				'input_schema'        => [
+					'type'       => 'object',
+					'properties' => [
+						'post_id' => [
+							'type'        => 'integer',
+							'description' => __( 'The post ID to get gate for.', 'newspack-plugin' ),
+						],
 					],
+					'required'   => [ 'post_id' ],
 				],
-				'callback'     => [ __CLASS__, 'execute_get_gate_for_post' ],
+				'meta'                => [
+					'show_in_rest' => true,
+					'annotations'  => [ 'readonly' => true ],
+				],
 			]
 		);
 
 		wp_register_ability(
 			'newspack/get-metering-status',
 			[
-				'category'     => 'content-gating',
-				'description'  => __( 'Get metering settings and current user view count.', 'newspack-plugin' ),
-				'permission'   => 'read',
-				'show_in_rest' => true,
-				'args'         => [
-					'gate_id' => [
-						'type'        => 'integer',
-						'required'    => false,
-						'description' => __( 'The gate ID to get metering settings for.', 'newspack-plugin' ),
+				'label'               => __( 'Get Metering Status', 'newspack-plugin' ),
+				'category'            => 'content-gating',
+				'description'         => __( 'Get metering settings and current user view count.', 'newspack-plugin' ),
+				'execute_callback'    => [ __CLASS__, 'execute_get_metering_status' ],
+				'permission_callback' => '__return_true',
+				'input_schema'        => [
+					'type'       => 'object',
+					'properties' => [
+						'gate_id' => [
+							'type'        => 'integer',
+							'description' => __( 'The gate ID to get metering settings for.', 'newspack-plugin' ),
+						],
 					],
 				],
-				'callback'     => [ __CLASS__, 'execute_get_metering_status' ],
+				'meta'                => [
+					'show_in_rest' => true,
+					'annotations'  => [ 'readonly' => true ],
+				],
 			]
 		);
 	}
@@ -107,79 +139,108 @@ class Content_Gate_Ability_Registry {
 		wp_register_ability(
 			'newspack/access-subscription',
 			[
-				'category'     => 'content-access',
-				'description'  => __( 'Check if a user has an active subscription to specified products.', 'newspack-plugin' ),
-				'permission'   => 'read',
-				'show_in_rest' => true,
-				'args'         => [
-					'user_id'     => [
-						'type'        => 'integer',
-						'required'    => false,
-						'description' => __( 'User ID to check. Defaults to current user.', 'newspack-plugin' ),
-					],
-					'product_ids' => [
-						'type'        => 'array',
-						'items'       => [ 'type' => 'integer' ],
-						'required'    => false,
-						'description' => __( 'Product IDs to check subscription for.', 'newspack-plugin' ),
+				'label'               => __( 'Access: Active Subscription', 'newspack-plugin' ),
+				'category'            => 'content-access',
+				'description'         => __( 'Check if a user has an active subscription to specified products.', 'newspack-plugin' ),
+				'execute_callback'    => [ __CLASS__, 'execute_access_subscription' ],
+				'permission_callback' => '__return_true',
+				'input_schema'        => [
+					'type'       => 'object',
+					'properties' => [
+						'user_id'     => [
+							'type'        => 'integer',
+							'description' => __( 'User ID to check. Defaults to current user.', 'newspack-plugin' ),
+						],
+						'product_ids' => [
+							'type'        => 'array',
+							'items'       => [ 'type' => 'integer' ],
+							'description' => __( 'Product IDs to check subscription for.', 'newspack-plugin' ),
+						],
 					],
 				],
-				'meta'         => [
-					'rule_id' => 'subscription',
+				'output_schema'       => [
+					'type'       => 'object',
+					'properties' => [
+						'has_access' => [ 'type' => 'boolean' ],
+					],
 				],
-				'callback'     => [ __CLASS__, 'execute_access_subscription' ],
+				'meta'                => [
+					'rule_id'      => 'subscription',
+					'show_in_rest' => true,
+					'annotations'  => [ 'readonly' => true ],
+				],
 			]
 		);
 
 		wp_register_ability(
 			'newspack/access-email-domain',
 			[
-				'category'     => 'content-access',
-				'description'  => __( 'Check if a user email belongs to a whitelisted domain.', 'newspack-plugin' ),
-				'permission'   => 'read',
-				'show_in_rest' => true,
-				'args'         => [
-					'user_id' => [
-						'type'        => 'integer',
-						'required'    => false,
-						'description' => __( 'User ID to check. Defaults to current user.', 'newspack-plugin' ),
+				'label'               => __( 'Access: Email Domain', 'newspack-plugin' ),
+				'category'            => 'content-access',
+				'description'         => __( 'Check if a user email belongs to a whitelisted domain.', 'newspack-plugin' ),
+				'execute_callback'    => [ __CLASS__, 'execute_access_email_domain' ],
+				'permission_callback' => '__return_true',
+				'input_schema'        => [
+					'type'       => 'object',
+					'properties' => [
+						'user_id' => [
+							'type'        => 'integer',
+							'description' => __( 'User ID to check. Defaults to current user.', 'newspack-plugin' ),
+						],
+						'domains' => [
+							'type'        => 'string',
+							'description' => __( 'Comma-separated list of allowed email domains.', 'newspack-plugin' ),
+						],
 					],
-					'domains' => [
-						'type'        => 'string',
-						'required'    => true,
-						'description' => __( 'Comma-separated list of allowed email domains.', 'newspack-plugin' ),
+					'required'   => [ 'domains' ],
+				],
+				'output_schema'       => [
+					'type'       => 'object',
+					'properties' => [
+						'has_access' => [ 'type' => 'boolean' ],
 					],
 				],
-				'meta'         => [
-					'rule_id' => 'email_domain',
+				'meta'                => [
+					'rule_id'      => 'email_domain',
+					'show_in_rest' => true,
+					'annotations'  => [ 'readonly' => true ],
 				],
-				'callback'     => [ __CLASS__, 'execute_access_email_domain' ],
 			]
 		);
 
 		wp_register_ability(
 			'newspack/access-reader-data',
 			[
-				'category'     => 'content-access',
-				'description'  => __( 'Check if a user has specific reader data key/value pairs.', 'newspack-plugin' ),
-				'permission'   => 'read',
-				'show_in_rest' => true,
-				'args'         => [
-					'user_id' => [
-						'type'        => 'integer',
-						'required'    => false,
-						'description' => __( 'User ID to check. Defaults to current user.', 'newspack-plugin' ),
+				'label'               => __( 'Access: Reader Data', 'newspack-plugin' ),
+				'category'            => 'content-access',
+				'description'         => __( 'Check if a user has specific reader data key/value pairs.', 'newspack-plugin' ),
+				'execute_callback'    => [ __CLASS__, 'execute_access_reader_data' ],
+				'permission_callback' => '__return_true',
+				'input_schema'        => [
+					'type'       => 'object',
+					'properties' => [
+						'user_id' => [
+							'type'        => 'integer',
+							'description' => __( 'User ID to check. Defaults to current user.', 'newspack-plugin' ),
+						],
+						'data'    => [
+							'type'        => 'string',
+							'description' => __( 'Semicolon-separated key=value pairs to check.', 'newspack-plugin' ),
+						],
 					],
-					'data'    => [
-						'type'        => 'string',
-						'required'    => true,
-						'description' => __( 'Semicolon-separated key=value pairs to check.', 'newspack-plugin' ),
+					'required'   => [ 'data' ],
+				],
+				'output_schema'       => [
+					'type'       => 'object',
+					'properties' => [
+						'has_access' => [ 'type' => 'boolean' ],
 					],
 				],
-				'meta'         => [
-					'rule_id' => 'reader_data',
+				'meta'                => [
+					'rule_id'      => 'reader_data',
+					'show_in_rest' => true,
+					'annotations'  => [ 'readonly' => true ],
 				],
-				'callback'     => [ __CLASS__, 'execute_access_reader_data' ],
 			]
 		);
 	}
