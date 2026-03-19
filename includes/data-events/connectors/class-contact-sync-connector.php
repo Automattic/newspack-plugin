@@ -152,11 +152,11 @@ class Contact_Sync_Connector {
 	 * @param int   $client_id ID of the client that triggered the event.
 	 */
 	public static function subscription_updated( $timestamp, $data, $client_id ) {
-		if ( empty( $data['status_before'] ) || empty( $data['status_after'] ) || empty( $data['subscription_id'] ) || ! function_exists( 'wc_get_order' ) ) {
+		if ( empty( $data['status_before'] ) || empty( $data['status_after'] ) || empty( $data['subscription_id'] ) || ! function_exists( 'wcs_get_subscription' ) ) {
 			return;
 		}
 
-		$order = \wc_get_order( $data['subscription_id'] );
+		$order = \wcs_get_subscription( $data['subscription_id'] );
 
 		if ( ! $order instanceof \WC_Order ) {
 			return;
