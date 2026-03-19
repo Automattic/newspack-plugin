@@ -37,77 +37,119 @@ class ESP extends Integration {
 	/**
 	 * Register the settings fields declared by this integration.
 	 *
-	 * Dynamically builds the field list based on the active ESP provider.
-	 * Only returns fields when ESP is configured.
+	 * Returns ALL possible ESP fields unconditionally as static
+	 * declarations. No provider check, no API calls. Provider options
+	 * are added in get_settings_config().
 	 *
 	 * @return array Array of settings field declarations.
 	 */
 	public function register_settings_fields() {
-		$fields = [];
+		return [
+			[
+				'key'         => 'mailchimp_audience_id',
+				'type'        => 'select',
+				'default'     => '',
+				'label'       => __( 'Mailchimp Audience', 'newspack-plugin' ),
+				'description' => __( 'Choose an audience to receive reader activity data.', 'newspack-plugin' ),
+			],
+			[
+				'key'         => 'mailchimp_reader_default_status',
+				'type'        => 'select',
+				'default'     => 'transactional',
+				'label'       => __( 'Default reader status', 'newspack-plugin' ),
+				'description' => __( 'Choose which Mailchimp status readers should have by default if they are not subscribed to any newsletters.', 'newspack-plugin' ),
+				'options'     => [
+					[
+						'label' => __( 'Transactional/Non-Subscribed', 'newspack-plugin' ),
+						'value' => 'transactional',
+					],
+					[
+						'label' => __( 'Subscribed', 'newspack-plugin' ),
+						'value' => 'subscribed',
+					],
+				],
+			],
+			[
+				'key'         => 'active_campaign_master_list',
+				'type'        => 'select',
+				'default'     => '',
+				'label'       => __( 'ActiveCampaign Master List', 'newspack-plugin' ),
+				'description' => __( 'Choose a master list to which all registered readers will be added.', 'newspack-plugin' ),
+			],
+			[
+				'key'         => 'constant_contact_list_id',
+				'type'        => 'select',
+				'default'     => '',
+				'label'       => __( 'Constant Contact Master List', 'newspack-plugin' ),
+				'description' => __( 'Choose a master list to which all registered readers will be added.', 'newspack-plugin' ),
+			],
+			[
+				'key'         => 'sync_esp_delete',
+				'type'        => 'checkbox',
+				'default'     => true,
+				'label'       => __( 'Sync user account deletion', 'newspack-plugin' ),
+				'description' => __( 'When a reader account is deleted, also remove the contact from the ESP.', 'newspack-plugin' ),
+			],
+		];
+	}
+
+	/**
+	 * Get settings config with current values, labels, descriptions, and options.
+	 *
+	 * Filters fields to the active provider and enriches them with
+	 * expensive data (API-fetched list options).
+	 * Only called when serving the settings UI.
+	 *
+	 * @return array Array of field declarations with current values.
+	 */
+	public function get_settings_config() {
 		if ( ! Reader_Activation::is_esp_configured() ) {
-			return $fields;
+			return [];
 		}
-		$list_options = $this->get_list_options();
-		$provider     = $this->get_provider();
-		if ( $provider ) {
-			switch ( $provider->service ) {
-				case 'mailchimp':
-					$fields[] = [
-						'key'         => 'mailchimp_audience_id',
-						'type'        => 'select',
-						'label'       => __( 'Mailchimp Audience', 'newspack-plugin' ),
-						'description' => __( 'Choose an audience to receive reader activity data.', 'newspack-plugin' ),
-						'options'     => $list_options,
-						'default'     => '',
-					];
-					$fields[] = [
-						'key'         => 'mailchimp_reader_default_status',
-						'type'        => 'select',
-						'label'       => __( 'Default reader status', 'newspack-plugin' ),
-						'description' => __( 'Choose which Mailchimp status readers should have by default if they are not subscribed to any newsletters.', 'newspack-plugin' ),
-						'options'     => [
-							[
-								'label' => __( 'Transactional/Non-Subscribed', 'newspack-plugin' ),
-								'value' => 'transactional',
-							],
-							[
-								'label' => __( 'Subscribed', 'newspack-plugin' ),
-								'value' => 'subscribed',
-							],
-						],
-						'default'     => 'transactional',
-					];
-					break;
-				case 'active_campaign':
-					$fields[] = [
-						'key'         => 'active_campaign_master_list',
-						'type'        => 'select',
-						'label'       => __( 'ActiveCampaign Master List', 'newspack-plugin' ),
-						'description' => __( 'Choose a master list to which all registered readers will be added.', 'newspack-plugin' ),
-						'options'     => $list_options,
-						'default'     => '',
-					];
-					break;
-				case 'constant_contact':
-					$fields[] = [
-						'key'         => 'constant_contact_list_id',
-						'type'        => 'select',
-						'label'       => __( 'Constant Contact Master List', 'newspack-plugin' ),
-						'description' => __( 'Choose a master list to which all registered readers will be added.', 'newspack-plugin' ),
-						'options'     => $list_options,
-						'default'     => '',
-					];
-					break;
+		$provider = $this->get_provider();
+		if ( ! $provider ) {
+			return [];
+		}
+
+		$enriched     = [];
+		$config       = parent::get_settings_config();
+		$config       = array_combine(
+			array_column( $config, 'key' ),
+			$config
+		);
+		$list_options = [
+			'options' => $this->get_list_options(),
+		];
+
+		switch ( $provider->service ) {
+			case 'mailchimp':
+				$enriched[] = array_merge(
+					$config['mailchimp_audience_id'],
+					$list_options
+				);
+				$enriched[] = $config['mailchimp_reader_default_status'];
+				break;
+			case 'active_campaign':
+				$enriched[] = array_merge(
+					$config['active_campaign_master_list'],
+					$list_options
+				);
+				break;
+			case 'constant_contact':
+				$enriched[] = array_merge(
+					$config['constant_contact_list_id'],
+					$list_options
+				);
+				break;
+		}
+		$enriched[]    = $config['sync_esp_delete'];
+		$metadata_keys = array_column( $this->get_metadata_fields(), 'key' );
+		foreach ( $config as $field ) {
+			if ( in_array( $field['key'], $metadata_keys ) ) {
+				$enriched[] = $config[ $field['key'] ];
 			}
 		}
-		$fields[] = [
-			'key'         => 'sync_esp_delete',
-			'type'        => 'checkbox',
-			'label'       => __( 'Sync user account deletion', 'newspack-plugin' ),
-			'description' => __( 'When a reader account is deleted, also remove the contact from the ESP.', 'newspack-plugin' ),
-			'default'     => true,
-		];
-		return $fields;
+		return $enriched;
 	}
 
 	/**
