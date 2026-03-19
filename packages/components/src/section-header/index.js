@@ -6,9 +6,9 @@
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { IconButton, Tooltip, __experimentalHStack as HStack } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
+import { DropdownMenu, MenuItem, Tooltip, __experimentalHStack as HStack } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
 import { useEffect, useRef } from '@wordpress/element';
-import { Icon, chevronLeft } from '@wordpress/icons';
+import { Icon, chevronLeft, moreVertical } from '@wordpress/icons';
 
 /**
  * Internal dependencies
@@ -93,20 +93,23 @@ const SectionHeader = ( {
 			<div className="newspack-section-header__title-container">
 				<HeadingTag>{ title }</HeadingTag>
 				{ badges?.length ? badges.map( ( badge, i ) => <Badge key={ i } text={ badge.label } level={ badge.level || 'default' } /> ) : null }
-				{ secondaryActions && secondaryActions.length === 1 && (
+				{ secondaryActions?.length && (
 					<div className="newspack-section-header__secondary-action">
-						{ secondaryActions[ 0 ].icon && secondaryActions[ 0 ].iconOnly ? (
-							<IconButton icon={ secondaryActions[ 0 ].icon } variant="minimal" onClick={ secondaryActions[ 0 ].action } />
-						) : (
-							<Button
-								icon={ secondaryActions[ 0 ].icon || undefined }
-								variant="minimal"
-								href={ secondaryActions[ 0 ].href }
-								onClick={ secondaryActions[ 0 ].action }
-							>
-								{ secondaryActions[ 0 ].label }
-							</Button>
-						) }
+						<DropdownMenu icon={ moreVertical } label={ __( 'More', 'newspack-plugin' ) }>
+							{ () =>
+								secondaryActions.map( action => (
+									<MenuItem
+										key={ action.label }
+										icon={ action.icon }
+										onClick={ action.action }
+										disabled={ action.disabled || false }
+										isDestructive={ action.destructive || false }
+									>
+										{ action.label }
+									</MenuItem>
+								) )
+							}
+						</DropdownMenu>
 					</div>
 				) }
 			</div>

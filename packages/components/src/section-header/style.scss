@@ -81,9 +81,8 @@
 	}
 
 	&__title-container {
-		align-items: baseline;
+		align-items: flex-end;
 		display: flex;
-		gap: 8px;
 
 		.newspack-badge {
 			transform: translateY(-4px);

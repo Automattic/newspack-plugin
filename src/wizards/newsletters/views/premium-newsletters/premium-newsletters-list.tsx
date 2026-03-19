@@ -9,7 +9,6 @@ import { __ } from '@wordpress/i18n';
 import { __experimentalVStack as VStack } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
 import { useDispatch } from '@wordpress/data';
 import { useEffect, useRef, useState } from '@wordpress/element';
-import { settings } from '@wordpress/icons';
 
 /**
  * Internal dependencies
@@ -52,8 +51,6 @@ const PremiumNewslettersList = ( { updateGatesData }: { updateGatesData: ( gates
 				{
 					label: __( 'Advanced settings', 'newspack-plugin' ),
 					action: () => setShowAdvancedSettings( true ),
-					icon: settings,
-					iconOnly: true,
 				},
 			],
 		} );
