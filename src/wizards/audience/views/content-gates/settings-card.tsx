@@ -29,20 +29,9 @@ type SettingsCardProps = {
 	href?: string;
 	requirements?: string;
 	toggleEnabled?: () => void;
-	canToggle?: boolean;
-	actionText?: string;
 };
 
-const SettingsCard = ( {
-	title,
-	description,
-	enabled,
-	requirements,
-	toggleEnabled = () => {},
-	href = '',
-	canToggle = false,
-	actionText = '',
-}: SettingsCardProps ) => {
+const SettingsCard = ( { title, description, enabled, requirements, toggleEnabled = () => {}, href = '' }: SettingsCardProps ) => {
 	const history = useHistory();
 	const classes = classNames( 'newspack-content-gates__settings-card', {
 		'newspack-content-gates__settings-card--enabled': enabled && ! requirements,
@@ -50,13 +39,12 @@ const SettingsCard = ( {
 	} );
 	const status = enabled ? __( 'Enabled', 'newspack-plugin' ) : __( 'Disabled', 'newspack-plugin' );
 	const handleClick = () => {
-		if ( canToggle && ! enabled ) {
+		if ( ! enabled ) {
 			toggleEnabled();
 		} else {
 			history.push( href );
 		}
 	};
-	actionText = actionText || ( ! enabled || requirements ? __( 'Enable', 'newspack-plugin' ) : __( 'Configure', 'newspack-plugin' ) );
 	return (
 		<Card
 			className={ classes }
@@ -70,9 +58,9 @@ const SettingsCard = ( {
 						<HStack alignment="edge">
 							<HStack expanded={ false } justify="flex-start" spacing="8px" className="newspack-content-gates__settings-card__buttons">
 								<Button variant="secondary" disabled={ !! requirements } onClick={ handleClick }>
-									{ actionText }
+									{ ! enabled || requirements ? __( 'Enable', 'newspack-plugin' ) : __( 'Configure', 'newspack-plugin' ) }
 								</Button>
-								{ canToggle && enabled && ! requirements && (
+								{ enabled && ! requirements && (
 									<DropdownMenu
 										icon={ moreVertical }
 										label={ __( 'More', 'newspack-plugin' ) }
@@ -85,7 +73,7 @@ const SettingsCard = ( {
 									/>
 								) }
 							</HStack>
-							{ canToggle && <p className="newspack-content-gates__settings-card__status">{ requirements || status }</p> }
+							<p className="newspack-content-gates__settings-card__status">{ requirements || status }</p>
 						</HStack>
 					</>
 				),
