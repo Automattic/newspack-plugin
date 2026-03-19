@@ -71,7 +71,12 @@ if ( $product_id ) {
 					printf(
 						wp_kses_post(
 							/* translators: 1: number of free articles, 2: period label such as "month" or "week". */
-							__( 'Get %1$s free articles every %2$s with a free account.', 'newspack' )
+							_n(
+								'Get %1$s free article every %2$s with a free account.',
+								'Get %1$s free articles every %2$s with a free account.',
+								$metering_count,
+								'newspack'
+							)
 						),
 						'<strong>' . esc_html( $metering_count ) . '</strong>',
 						esc_html( $metering_period )
