@@ -9,7 +9,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import { __experimentalVStack as VStack } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
 import { useDispatch } from '@wordpress/data';
 import { createInterpolateElement, useCallback, useEffect, useRef, useState } from '@wordpress/element';
-import { commentAuthorAvatar, currencyDollar, postList, settings } from '@wordpress/icons';
+import { commentAuthorAvatar, currencyDollar, envelope, postList, settings } from '@wordpress/icons';
 
 /**
  * Internal dependencies
@@ -489,7 +489,7 @@ const Edit = ( { match, updateGatesData, slug = AUDIENCE_CONTENT_GATES_WIZARD_SL
 							__( 'All %s on your site will require access.', 'newspack-plugin' ),
 							isNewsletter ? __( 'lists', 'newspack-plugin' ) : __( 'posts', 'newspack-plugin' )
 						) }
-						icon={ postList }
+						icon={ isNewsletter ? envelope : postList }
 						isActive={ contentType === 'all' }
 						onEnable={ () => setContentType( 'all' ) }
 					/>

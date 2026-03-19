@@ -7,20 +7,20 @@
  */
 import { __, sprintf } from '@wordpress/i18n';
 import { __experimentalVStack as VStack } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
-import { postList, settings } from '@wordpress/icons';
+import { envelope, postList, settings } from '@wordpress/icons';
 
 /**
  * Internal dependencies
  */
 import { Card, Grid, SectionHeader } from '../../../../../packages/components/src';
-import { lockDoor } from '../../../../../packages/icons';
+import { contentLocked, emailPremium } from '../../../../../packages/icons';
 
 const ContentGatesOnboarding = ( { isNewsletter = false }: { isNewsletter?: boolean } ) => {
 	return (
 		<Grid columns={ 4 } noMargin>
 			<VStack start={ 2 } end={ 4 } spacing={ 8 }>
 				<SectionHeader
-					icon={ lockDoor }
+					icon={ isNewsletter ? emailPremium : contentLocked }
 					title={ sprintf(
 						// translators: %s is the type of content to restrict.
 						__( 'Get started with %s', 'newspack-plugin' ),
@@ -64,7 +64,7 @@ const ContentGatesOnboarding = ( { isNewsletter = false }: { isNewsletter?: bool
 								</>
 							),
 							href: '#/edit/new/all',
-							icon: postList,
+							icon: isNewsletter ? envelope : postList,
 							iconBackgroundColor: true,
 						} }
 					/>
