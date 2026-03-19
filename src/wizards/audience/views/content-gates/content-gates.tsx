@@ -48,6 +48,16 @@ const ContentGates = ( { updateGatesData }: { updateGatesData: ( gates: Gate[] )
 				'Set up gates to manage what content readers can access across your site. Start by selecting which content to restrict, then configure access through registered and/or paid options (including metered rules).',
 				'newspack-plugin'
 			),
+			sectionMenu: [
+				{
+					label: __( 'Institutions', 'newspack-plugin' ),
+					href: '#/institutions',
+				},
+				{
+					label: __( 'Advanced Settings', 'newspack-plugin' ),
+					disabled: true,
+				},
+			],
 			sectionPrimaryAction: {
 				label: __( 'Add new content gate', 'newspack-plugin' ),
 				href: '#/edit/new/all',

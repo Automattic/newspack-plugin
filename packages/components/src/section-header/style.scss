@@ -90,6 +90,10 @@
 		}
 	}
 
+	&__menu {
+		align-self: center;
+	}
+
 	&__primary-action {
 		@media (min-width: 782px) {
 			display: flex;

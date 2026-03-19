@@ -7,8 +7,8 @@
  */
 import { __ } from '@wordpress/i18n';
 import { useEffect, useRef } from '@wordpress/element';
-import { Tooltip, __experimentalHStack as HStack } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
-import { Icon, chevronLeft } from '@wordpress/icons';
+import { DropdownMenu, MenuItem, Tooltip, __experimentalHStack as HStack } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
+import { Icon, chevronLeft, moreVertical } from '@wordpress/icons';
 
 /**
  * Internal dependencies
@@ -59,6 +59,7 @@ const SectionHeader = ( {
 	pageHeader = false,
 	title,
 	id = null,
+	menu,
 	primaryAction,
 	secondaryAction,
 	children = null,
@@ -92,6 +93,24 @@ const SectionHeader = ( {
 		titleContent = (
 			<div className="newspack-section-header__title-container">
 				<HeadingTag>{ title }</HeadingTag>
+				{ menu?.length > 0 && (
+					<DropdownMenu className="newspack-section-header__menu" icon={ moreVertical } label={ __( 'More options', 'newspack-plugin' ) }>
+						{ () =>
+							menu.map( ( item, index ) => (
+								<MenuItem
+									key={ index }
+									icon={ item.icon }
+									href={ item.href }
+									onClick={ item.action }
+									disabled={ item.disabled || false }
+									isDestructive={ item.destructive || false }
+								>
+									{ item.label }
+								</MenuItem>
+							) )
+						}
+					</DropdownMenu>
+				) }
 				{ badges?.length ? badges.map( ( badge, i ) => <Badge key={ i } text={ badge.label } level={ badge.level || 'default' } /> ) : null }
 				{ secondaryAction && (
 					<div className="newspack-section-header__secondary-action">
