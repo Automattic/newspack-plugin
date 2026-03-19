@@ -179,15 +179,6 @@ const ContentGates = ( { updateGatesData }: { updateGatesData: ( gates: Gate[] )
 					toggleEnabled={ toggleContentGifting.current }
 					href={ '/settings/content-gifting' }
 				/>
-				<SettingsCard
-					title={ __( 'Institutions', 'newspack-plugin' ) }
-					description={ __(
-						'Grant content access to groups of readers based on email domain, IP address, or custom metadata.',
-						'newspack-plugin'
-					) }
-					enabled
-					href={ '/institutions' }
-				/>
 			</Grid>
 		</>
 	);
