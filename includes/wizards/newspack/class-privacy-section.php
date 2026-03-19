@@ -50,11 +50,7 @@ class Privacy_Section extends Wizard_Section {
 							'type'              => 'boolean',
 							'sanitize_callback' => 'rest_sanitize_boolean',
 						],
-						'block_third_party_trackers_before_consent' => [
-							'type'              => 'boolean',
-							'sanitize_callback' => 'rest_sanitize_boolean',
-						],
-						'force_cookie_blocker'                      => [
+						'block_before_consent'                      => [
 							'type'              => 'boolean',
 							'sanitize_callback' => 'rest_sanitize_boolean',
 						],
@@ -72,8 +68,7 @@ class Privacy_Section extends Wizard_Section {
 	public static function get_settings() {
 		return [
 			'block_ads_before_consent'                  => (bool) get_option( self::OPTION_PREFIX . 'block_ads_before_consent', false ),
-			'block_third_party_trackers_before_consent' => (bool) get_option( self::OPTION_PREFIX . 'block_third_party_trackers_before_consent', false ),
-			'force_cookie_blocker'                      => (bool) get_option( self::OPTION_PREFIX . 'force_cookie_blocker', false ),
+			'block_before_consent'                      => (bool) get_option( self::OPTION_PREFIX . 'block_before_consent', false ),
 		];
 	}
 
@@ -96,11 +91,8 @@ class Privacy_Section extends Wizard_Section {
 		if ( isset( $request['block_ads_before_consent'] ) ) {
 			update_option( self::OPTION_PREFIX . 'block_ads_before_consent', (bool) $request['block_ads_before_consent'] );
 		}
-		if ( isset( $request['block_third_party_trackers_before_consent'] ) ) {
-			update_option( self::OPTION_PREFIX . 'block_third_party_trackers_before_consent', (bool) $request['block_third_party_trackers_before_consent'] );
-		}
-		if ( isset( $request['force_cookie_blocker'] ) ) {
-			update_option( self::OPTION_PREFIX . 'force_cookie_blocker', (bool) $request['force_cookie_blocker'] );
+		if ( isset( $request['block_before_consent'] ) ) {
+			update_option( self::OPTION_PREFIX . 'block_before_consent', (bool) $request['block_before_consent'] );
 		}
 		return rest_ensure_response( self::get_settings() );
 	}

@@ -22,7 +22,8 @@ class Complianz {
 	public static function init() {
 		add_filter( 'cmplz_cookie_blocker_output', [ __CLASS__, 'extra_third_party_script_blocking' ] );
 		add_filter( 'newspack_pixel_script_markup', [ __CLASS__, 'pixel_handling_for_complianz' ] );
-		add_filter( 'cmplz_option_enable_cookie_blocker', [ __CLASS__, 'force_cookie_blocker' ] );
+		add_filter( 'cmplz_option_enable_cookie_blocker', [ __CLASS__, 'block_before_consent' ] );
+		add_filter( 'cmplz_consenttype', [ __CLASS__, 'force_optin_consenttype' ], 10, 2 );
 	}
 
 	/**
@@ -31,12 +32,27 @@ class Complianz {
 	 * @param mixed $value Current option value.
 	 * @return mixed 'yes' if force is enabled, original value otherwise.
 	 */
-	public static function force_cookie_blocker( $value ) {
+	public static function block_before_consent( $value ) {
 		$privacy_settings = Privacy_Section::get_settings();
-		if ( $privacy_settings['force_cookie_blocker'] ) {
+		if ( $privacy_settings['block_before_consent'] ) {
 			return 'yes';
 		}
 		return $value;
+	}
+
+	/**
+	 * Force optin consent type when force cookie blocker is enabled.
+	 *
+	 * @param string $consenttype Current consent type.
+	 * @param string $region      Region being evaluated.
+	 * @return string
+	 */
+	public static function force_optin_consenttype( $consenttype, $region ) {
+		$privacy_settings = Privacy_Section::get_settings();
+		if ( $privacy_settings['block_before_consent'] ) {
+			return 'optin';
+		}
+		return $consenttype;
 	}
 
 	/**
@@ -58,12 +74,12 @@ class Complianz {
 		];
 
 		$privacy_settings = Privacy_Section::get_settings();
-		if ( ! $privacy_settings['block_third_party_trackers_before_consent'] && ! $privacy_settings['block_ads_before_consent'] ) {
+		if ( ! $privacy_settings['block_before_consent'] && ! $privacy_settings['block_ads_before_consent'] ) {
 			return $output;
 		}
 
 		$scripts_to_block = [];
-		if ( $privacy_settings['block_third_party_trackers_before_consent'] ) {
+		if ( $privacy_settings['block_before_consent'] ) {
 			$scripts_to_block = array_merge( $scripts_to_block, $trackers );
 		}
 		if ( $privacy_settings['block_ads_before_consent'] ) {
@@ -86,8 +102,7 @@ class Complianz {
 						continue;
 					}
 
-					$extra_markup = 'type="text/plain" data-category="' . $category . '" data-cmplz-src="' . $src . '" ';
-					$new_full_markup = str_ireplace( '<script', '<script ' . $extra_markup, $full_markup );
+					$new_full_markup = str_ireplace( ' src=', ' type="text/plain" data-category="' . $category . '" data-cmplz-src=', $full_markup );
 					$output = str_replace( $full_markup, $new_full_markup, $output );
 					break;
 				}
@@ -105,7 +120,7 @@ class Complianz {
 	 */
 	public static function pixel_handling_for_complianz( $markup ) {
 		$privacy_settings = Privacy_Section::get_settings();
-		if ( $privacy_settings['block_third_party_trackers_before_consent'] && self::is_cookie_blocker_active() ) {
+		if ( $privacy_settings['block_before_consent'] && self::is_complianz_with_cookie_blocker_active() ) {
 			$markup = str_ireplace( '<script', '<script type="text/plain" data-category="marketing"', $markup );
 		}
 		return $markup;

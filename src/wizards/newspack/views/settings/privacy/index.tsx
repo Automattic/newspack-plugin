@@ -20,8 +20,7 @@ const PATH = '/newspack/v1/wizard/newspack-settings/privacy';
 
 type PrivacyData = {
 	block_ads_before_consent: boolean;
-	block_third_party_trackers_before_consent: boolean;
-	force_cookie_blocker: boolean;
+	block_before_consent: boolean;
 };
 
 function Privacy() {
@@ -29,8 +28,7 @@ function Privacy() {
 
 	const [ data, setData ] = useState< PrivacyData >( {
 		block_ads_before_consent: false,
-		block_third_party_trackers_before_consent: false,
-		force_cookie_blocker: false,
+		block_before_consent: false,
 	} );
 
 	useEffect( get, [] );
@@ -63,42 +61,31 @@ function Privacy() {
 				<ActionCard
 					isMedium
 					disabled={ isFetching }
-					toggleChecked={ data.block_ads_before_consent }
-					title={ __( 'Block ad scripts before consent', 'newspack-plugin' ) }
-					toggleOnChange={ ( block_ads_before_consent: boolean ) =>
-						setData( { ...data, block_ads_before_consent } )
+					toggleChecked={ data.block_before_consent }
+					title={ __( 'Block cookies and third-party trackers before consent', 'newspack-plugin' ) }
+					toggleOnChange={ ( block_before_consent: boolean ) =>
+						setData( { ...data, block_before_consent } )
 					}
 					description={ __(
-						'Attempt to prevent ad scripts from loading until the visitor has accepted the cookie notice.',
+						'Force Complianz to attempt to block cookies and third-party trackers if a user has not consented to the cookie notice, regardless of its own configuration.',
 						'newspack-plugin'
 					) }
 				/>
-				<ActionCard
-					isMedium
-					disabled={ isFetching }
-					toggleChecked={ data.block_third_party_trackers_before_consent }
-					title={ __( 'Block third-party scripts before consent', 'newspack-plugin' ) }
-					toggleOnChange={ ( block_third_party_trackers_before_consent: boolean ) =>
-						setData( { ...data, block_third_party_trackers_before_consent } )
-					}
-					description={ __(
-						'Attempt to prevent third-party scripts (e.g. Google Tag Manager) from loading until the visitor has accepted the cookie notice.',
-						'newspack-plugin'
-					) }
-				/>
-			<ActionCard
-					isMedium
-					disabled={ isFetching }
-					toggleChecked={ data.force_cookie_blocker }
-					title={ __( 'Force enable cookie blocker', 'newspack-plugin' ) }
-					toggleOnChange={ ( force_cookie_blocker: boolean ) =>
-						setData( { ...data, force_cookie_blocker } )
-					}
-					description={ __(
-						'Force Complianz cookie blocker mode on, regardless of its own configuration.',
-						'newspack-plugin'
-					) }
-				/>
+				{ data.block_before_consent && (
+					<ActionCard
+						isMedium
+						disabled={ isFetching }
+						toggleChecked={ data.block_ads_before_consent }
+						title={ __( 'Block ad scripts before consent', 'newspack-plugin' ) }
+						toggleOnChange={ ( block_ads_before_consent: boolean ) =>
+							setData( { ...data, block_ads_before_consent } )
+						}
+						description={ __(
+							'Attempt to prevent ad scripts from loading until the visitor has accepted the cookie notice.',
+							'newspack-plugin'
+						) }
+					/>
+				) }
 			</WizardSection>
 			<div className="newspack-buttons-card">
 				<Button isPrimary onClick={ save } disabled={ isFetching }>
