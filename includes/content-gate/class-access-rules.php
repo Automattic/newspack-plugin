@@ -353,6 +353,9 @@ class Access_Rules {
 		if ( ! $email ) {
 			return false;
 		}
+		if ( Reader_Activation::is_reader_verified( $user ) === false ) {
+			return false;
+		}
 		$email_domain = substr( $email, strrpos( $email, '@' ) + 1 );
 		return in_array( $email_domain, $domains, true );
 	}
