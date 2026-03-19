@@ -1,3 +1,11 @@
+## [6.35.1](https://github.com/Automattic/newspack-plugin/compare/v6.35.0...v6.35.1) (2026-03-18)
+
+
+### Bug Fixes
+
+* membership cancellation bug ([4eb5397](https://github.com/Automattic/newspack-plugin/commit/4eb53974d52eb51f422eb5eb6696d61e3742ecf7))
+* membership cancellation bug ([#4566](https://github.com/Automattic/newspack-plugin/issues/4566)) ([0bd82fa](https://github.com/Automattic/newspack-plugin/commit/0bd82fa394b71c64d90340b1f049a2a0c66c91bb))
+
 # [6.35.0](https://github.com/Automattic/newspack-plugin/compare/v6.34.4...v6.35.0) (2026-03-16)
 
 

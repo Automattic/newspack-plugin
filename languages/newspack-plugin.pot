@@ -2,14 +2,14 @@
 # This file is distributed under the GPL2.
 msgid ""
 msgstr ""
-"Project-Id-Version: Newspack 6.35.0\n"
+"Project-Id-Version: Newspack 6.35.1\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/newspack-plugin\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-03-17T15:49:14+00:00\n"
+"POT-Creation-Date: 2026-03-19T13:27:23+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: newspack-plugin\n"
@@ -86,7 +86,7 @@ msgstr ""
 #: includes/class-magic-link.php:1103
 #: includes/cli/class-ras.php:74
 #: includes/plugins/co-authors-plus/class-nicename-change-ui.php:138
-#: includes/reader-activation/integrations/class-esp.php:303
+#: includes/reader-activation/integrations/class-esp.php:345
 #: includes/reader-activation/sync/class-contact-sync-admin.php:180
 msgid "User not found."
 msgstr ""
@@ -1462,87 +1462,87 @@ msgstr ""
 msgid "Set custom conditions based on reader data key/value pairs."
 msgstr ""
 
-#: includes/content-gate/class-content-gate.php:351
+#: includes/content-gate/class-content-gate.php:352
 #: includes/plugins/wc-memberships/class-memberships.php:148
 #: dist/audience-wizards.43b7bb91017a2011b357.js:92
 #: src/wizards/audience/views/setup/content-gating.js:73
 msgid "Content Gate"
 msgstr ""
 
-#: includes/content-gate/class-content-gate.php:353
+#: includes/content-gate/class-content-gate.php:354
 msgid "Content Gate published."
 msgstr ""
 
-#: includes/content-gate/class-content-gate.php:354
+#: includes/content-gate/class-content-gate.php:355
 msgid "Content Gate reverted to draft."
 msgstr ""
 
-#: includes/content-gate/class-content-gate.php:355
+#: includes/content-gate/class-content-gate.php:356
 msgid "Content Gate updated."
 msgstr ""
 
-#: includes/content-gate/class-content-gate.php:356
+#: includes/content-gate/class-content-gate.php:357
 msgid "New Content Gate"
 msgstr ""
 
-#: includes/content-gate/class-content-gate.php:357
+#: includes/content-gate/class-content-gate.php:358
 msgid "Edit Content Gate"
 msgstr ""
 
-#: includes/content-gate/class-content-gate.php:358
+#: includes/content-gate/class-content-gate.php:359
 msgid "View Content Gate"
 msgstr ""
 
-#: includes/content-gate/class-content-gate.php:368
-#: includes/content-gate/class-content-gate.php:694
-#: includes/content-gate/class-content-gate.php:817
+#: includes/content-gate/class-content-gate.php:369
+#: includes/content-gate/class-content-gate.php:748
+#: includes/content-gate/class-content-gate.php:871
 msgid "Content Gate Layout"
 msgstr ""
 
-#: includes/content-gate/class-content-gate.php:633
-#: includes/content-gate/class-content-gate.php:821
+#: includes/content-gate/class-content-gate.php:687
+#: includes/content-gate/class-content-gate.php:875
 msgid "Registration Access Layout"
 msgstr ""
 
-#: includes/content-gate/class-content-gate.php:645
-#: includes/content-gate/class-content-gate.php:824
+#: includes/content-gate/class-content-gate.php:699
+#: includes/content-gate/class-content-gate.php:878
 msgid "Paid Access Layout"
 msgstr ""
 
-#: includes/content-gate/class-content-gate.php:764
+#: includes/content-gate/class-content-gate.php:818
 msgid "This article is only available to members."
 msgstr ""
 
-#: includes/content-gate/class-content-gate.php:803
+#: includes/content-gate/class-content-gate.php:857
 msgid "Gate ID is required."
 msgstr ""
 
-#: includes/content-gate/class-content-gate.php:808
+#: includes/content-gate/class-content-gate.php:862
 msgid "Gate mode is required."
 msgstr ""
 
-#: includes/content-gate/class-content-gate.php:813
-#: includes/content-gate/class-content-gate.php:1099
-#: includes/content-gate/class-content-gate.php:1175
-#: includes/content-gate/class-content-gate.php:1225
+#: includes/content-gate/class-content-gate.php:867
+#: includes/content-gate/class-content-gate.php:1153
+#: includes/content-gate/class-content-gate.php:1229
+#: includes/content-gate/class-content-gate.php:1279
 msgid "Gate not found."
 msgstr ""
 
-#: includes/content-gate/class-content-gate.php:826
+#: includes/content-gate/class-content-gate.php:880
 msgid "Invalid gate mode."
 msgstr ""
 
-#: includes/content-gate/class-content-gate.php:1121
+#: includes/content-gate/class-content-gate.php:1175
 #: dist/billboard.js:12
 #: src/wizards/advertising/components/suppression/index.js:78
 msgid "Post types"
 msgstr ""
 
-#: includes/content-gate/class-content-gate.php:1124
+#: includes/content-gate/class-content-gate.php:1178
 msgid "Content types like posts, pages, or listings."
 msgstr ""
 
-#: includes/content-gate/class-content-gate.php:1198
+#: includes/content-gate/class-content-gate.php:1252
 msgid "Invalid gate setting key."
 msgstr ""
 
@@ -3054,7 +3054,7 @@ msgid "Check availability"
 msgstr ""
 
 #. translators: %s: Subscription ID
-#: includes/plugins/wc-memberships/class-membership-expiry.php:54
+#: includes/plugins/wc-memberships/class-membership-expiry.php:60
 #, php-format
 msgid "Another active subscription for this product was found (Subscription ID: %s). Expiry prevented."
 msgstr ""
@@ -5116,69 +5116,69 @@ msgstr ""
 msgid "Sync reader data and activity to the connected email service provider."
 msgstr ""
 
-#: includes/reader-activation/integrations/class-esp.php:58
+#: includes/reader-activation/integrations/class-esp.php:52
 msgid "Mailchimp Audience"
 msgstr ""
 
-#: includes/reader-activation/integrations/class-esp.php:59
+#: includes/reader-activation/integrations/class-esp.php:53
 #: dist/audience-wizards.43b7bb91017a2011b357.js:80
 #: src/wizards/audience/components/mailchimp.js:47
 #: src/wizards/audience/components/settings.js:37
 msgid "Choose an audience to receive reader activity data."
 msgstr ""
 
-#: includes/reader-activation/integrations/class-esp.php:66
+#: includes/reader-activation/integrations/class-esp.php:59
 #: dist/audience-wizards.43b7bb91017a2011b357.js:83
 #: src/wizards/audience/components/mailchimp.js:58
 #: src/wizards/audience/components/settings.js:74
 msgid "Default reader status"
 msgstr ""
 
-#: includes/reader-activation/integrations/class-esp.php:67
+#: includes/reader-activation/integrations/class-esp.php:60
 msgid "Choose which Mailchimp status readers should have by default if they are not subscribed to any newsletters."
 msgstr ""
 
-#: includes/reader-activation/integrations/class-esp.php:70
+#: includes/reader-activation/integrations/class-esp.php:63
 #: dist/audience-wizards.43b7bb91017a2011b357.js:86
 #: src/wizards/audience/components/mailchimp.js:69
 #: src/wizards/audience/components/settings.js:89
 msgid "Transactional/Non-Subscribed"
 msgstr ""
 
-#: includes/reader-activation/integrations/class-esp.php:74
+#: includes/reader-activation/integrations/class-esp.php:67
 #: dist/audience-wizards.43b7bb91017a2011b357.js:86
 #: src/wizards/audience/components/mailchimp.js:71
 #: src/wizards/audience/components/settings.js:91
 msgid "Subscribed"
 msgstr ""
 
-#: includes/reader-activation/integrations/class-esp.php:85
+#: includes/reader-activation/integrations/class-esp.php:76
 msgid "ActiveCampaign Master List"
 msgstr ""
 
-#: includes/reader-activation/integrations/class-esp.php:86
-#: includes/reader-activation/integrations/class-esp.php:96
+#: includes/reader-activation/integrations/class-esp.php:77
+#: includes/reader-activation/integrations/class-esp.php:84
 #: dist/audience-wizards.43b7bb91017a2011b357.js:80
 #: src/wizards/audience/components/settings.js:38
 msgid "Choose a master list to which all registered readers will be added."
 msgstr ""
 
-#: includes/reader-activation/integrations/class-esp.php:95
+#: includes/reader-activation/integrations/class-esp.php:83
 msgid "Constant Contact Master List"
 msgstr ""
 
-#: includes/reader-activation/integrations/class-esp.php:106
+#: includes/reader-activation/integrations/class-esp.php:90
 #: dist/audience-wizards.43b7bb91017a2011b357.js:86
 #: src/wizards/audience/views/setup/setup.js:241
 #: src/wizards/audience/views/setup/setup.js:248
 msgid "Sync user account deletion"
 msgstr ""
 
-#: includes/reader-activation/integrations/class-esp.php:107
+#: includes/reader-activation/integrations/class-esp.php:91
 msgid "When a reader account is deleted, also remove the contact from the ESP."
 msgstr ""
 
-#: includes/reader-activation/integrations/class-esp.php:149
+#: includes/reader-activation/integrations/class-esp.php:191
 #: dist/audience-wizards.43b7bb91017a2011b357.js:83
 #: src/wizards/audience/components/active-campaign.js:52
 #: src/wizards/audience/components/mailchimp.js:52
@@ -5186,35 +5186,35 @@ msgstr ""
 msgid "None"
 msgstr ""
 
-#: includes/reader-activation/integrations/class-esp.php:240
-#: includes/reader-activation/integrations/class-esp.php:343
+#: includes/reader-activation/integrations/class-esp.php:282
+#: includes/reader-activation/integrations/class-esp.php:385
 msgid "Newspack Newsletters is not available."
 msgstr ""
 
-#: includes/reader-activation/integrations/class-esp.php:247
+#: includes/reader-activation/integrations/class-esp.php:289
 msgid "ESP sync is not enabled."
 msgstr ""
 
-#: includes/reader-activation/integrations/class-esp.php:253
-#: includes/reader-activation/integrations/class-esp.php:352
+#: includes/reader-activation/integrations/class-esp.php:295
+#: includes/reader-activation/integrations/class-esp.php:394
 msgid "ESP master list ID is not set."
 msgstr ""
 
-#: includes/reader-activation/integrations/class-integration.php:388
+#: includes/reader-activation/integrations/class-integration.php:380
 #: dist/audience-wizards.43b7bb91017a2011b357.js:86
 #: src/wizards/audience/components/metadata-fields.js:20
 msgid "Metadata field prefix"
 msgstr ""
 
-#: includes/reader-activation/integrations/class-integration.php:389
+#: includes/reader-activation/integrations/class-integration.php:381
 msgid "A string to prefix metadata fields synced to the integration. Required to ensure that metadata field names are unique. Default: NP_"
 msgstr ""
 
-#: includes/reader-activation/integrations/class-integration.php:395
+#: includes/reader-activation/integrations/class-integration.php:387
 msgid "Outgoing metadata fields"
 msgstr ""
 
-#: includes/reader-activation/integrations/class-integration.php:401
+#: includes/reader-activation/integrations/class-integration.php:393
 msgid "Incoming metadata fields"
 msgstr ""
 
@@ -11850,22 +11850,32 @@ msgid "Override the default paragraph count on pages where a “More” block ha
 msgstr ""
 
 #: dist/content-gate-post-settings.js:1
-#: src/content-gate/editor/post-settings.js:19
+#: src/content-gate/editor/post-settings.js:62
 msgid "Access control settings"
 msgstr ""
 
 #: dist/content-gate-post-settings.js:1
-#: src/content-gate/editor/post-settings.js:21
+#: src/content-gate/editor/post-settings.js:65
+msgid "Gates that apply to this post: "
+msgstr ""
+
+#: dist/content-gate-post-settings.js:1
+#: src/content-gate/editor/post-settings.js:74
+msgid "No gates apply to this post."
+msgstr ""
+
+#: dist/content-gate-post-settings.js:1
+#: src/content-gate/editor/post-settings.js:78
 msgid "Disable access control restrictions for this post"
 msgstr ""
 
 #: dist/content-gate-post-settings.js:1
-#: src/content-gate/editor/post-settings.js:24
+#: src/content-gate/editor/post-settings.js:81
 msgid "If enabled, this post will be accessible to all readers regardless of content restriction rules."
 msgstr ""
 
 #: dist/content-gate-post-settings.js:1
-#: src/content-gate/editor/post-settings.js:29
+#: src/content-gate/editor/post-settings.js:86
 msgid "Manage access control"
 msgstr ""
 
