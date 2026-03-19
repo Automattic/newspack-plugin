@@ -579,7 +579,7 @@ class Test_Content_Gates extends \WP_UnitTestCase {
 		$result = Access_Rules::evaluate_rules( $flat_rules_pass );
 		$this->assertTrue( $result, 'Flat rules with passing email_domain should grant access for verified reader' );
 
-		// Test 2: Flat legacy rules with failing rule.
+		// Test 3: Flat legacy rules with failing rule.
 		$flat_rules_fail = [
 			[
 				'slug'  => 'email_domain',
@@ -589,7 +589,7 @@ class Test_Content_Gates extends \WP_UnitTestCase {
 		$result = Access_Rules::evaluate_rules( $flat_rules_fail );
 		$this->assertFalse( $result, 'Flat rules with non-matching email_domain should deny access' );
 
-		// Test 3: Flat rules with mixed pass/fail (OR logic - should pass).
+		// Test 4: Flat rules with mixed pass/fail (OR logic - should pass).
 		$flat_rules_mixed = [
 			[
 				'slug'  => 'email_domain',
@@ -603,7 +603,7 @@ class Test_Content_Gates extends \WP_UnitTestCase {
 		$result = Access_Rules::evaluate_rules( $flat_rules_mixed );
 		$this->assertTrue( $result, 'Flat rules with mixed results should grant access (OR logic)' );
 
-		// Test 4: Multiple groups - first group fails, second passes (OR logic - should pass).
+		// Test 5: Multiple groups - first group fails, second passes (OR logic - should pass).
 		$grouped_rules_or_pass = [
 			// Group 1: Fails (non-matching domain).
 			[
@@ -623,7 +623,7 @@ class Test_Content_Gates extends \WP_UnitTestCase {
 		$result = Access_Rules::evaluate_rules( $grouped_rules_or_pass );
 		$this->assertTrue( $result, 'Multiple groups with at least one passing should grant access (OR logic)' );
 
-		// Test 5: Multiple groups - all groups fail (OR logic - should fail).
+		// Test 6: Multiple groups - all groups fail (OR logic - should fail).
 		$grouped_rules_all_fail = [
 			[
 				[
@@ -641,7 +641,7 @@ class Test_Content_Gates extends \WP_UnitTestCase {
 		$result = Access_Rules::evaluate_rules( $grouped_rules_all_fail );
 		$this->assertFalse( $result, 'Multiple groups with all failing should deny access' );
 
-		// Test 6: Group with AND logic - both rules must pass.
+		// Test 7: Group with AND logic - both rules must pass.
 		$grouped_and_logic = [
 			[
 				[
