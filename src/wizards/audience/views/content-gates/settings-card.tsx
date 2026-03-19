@@ -45,8 +45,8 @@ const SettingsCard = ( {
 }: SettingsCardProps ) => {
 	const history = useHistory();
 	const classes = classNames( 'newspack-content-gates__settings-card', {
-		'newspack-content-gates__settings-card--enabled': ! canToggle || ( enabled && ! requirements ),
-		'newspack-content-gates__settings-card--disabled': canToggle && ( ! enabled || !! requirements ),
+		'newspack-content-gates__settings-card--enabled': enabled && ! requirements,
+		'newspack-content-gates__settings-card--disabled': ! enabled || !! requirements,
 	} );
 	const status = enabled ? __( 'Enabled', 'newspack-plugin' ) : __( 'Disabled', 'newspack-plugin' );
 	const handleClick = () => {
