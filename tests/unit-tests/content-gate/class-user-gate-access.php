@@ -7,6 +7,7 @@
 
 use Newspack\Access_Rules;
 use Newspack\Content_Gate;
+use Newspack\Reader_Activation;
 use Newspack\User_Gate_Access;
 
 /**
@@ -35,12 +36,13 @@ class Newspack_Test_User_Gate_Access extends WP_UnitTestCase {
 	 */
 	public function set_up() {
 		parent::set_up();
-		self::$user_id  = $this->factory->user->create(
+		self::$user_id = $this->factory->user->create(
 			[
 				'role'       => 'subscriber',
 				'user_email' => 'reader@example.com',
 			]
 		);
+		Reader_Activation::set_reader_verified( self::$user_id );
 		self::$admin_id = $this->factory->user->create( [ 'role' => 'administrator' ] );
 	}
 

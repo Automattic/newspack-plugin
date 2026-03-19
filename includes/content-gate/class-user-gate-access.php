@@ -54,7 +54,7 @@ class User_Gate_Access {
 	 * }
 	 */
 	private static function evaluate_gate_for_user( $gate, $user_id ) {
-		$access_rules = $gate['custom_access']['access_rules'] ?? [];
+		$access_rules = Access_Rules::normalize_rules( $gate['custom_access']['access_rules'] ?? [] );
 
 		// Empty rules means the gate does not restrict — matches Content_Restriction_Control behavior.
 		if ( empty( $access_rules ) ) {
@@ -173,8 +173,17 @@ class User_Gate_Access {
 						<?php if ( empty( $result['groups'] ) ) : ?>
 							<p class="description"><?php esc_html_e( 'No access rules configured.', 'newspack-plugin' ); ?></p>
 						<?php else : ?>
+							<?php
+							$has_and_groups = false;
+							foreach ( $result['groups'] as $group ) {
+								if ( count( $group['rules'] ) > 1 ) {
+									$has_and_groups = true;
+									break;
+								}
+							}
+							?>
 							<?php foreach ( $result['groups'] as $group_index => $group ) : ?>
-								<?php if ( count( $result['groups'] ) > 1 ) : ?>
+								<?php if ( $has_and_groups && count( $result['groups'] ) > 1 ) : ?>
 									<p><strong>
 										<?php
 										printf(
@@ -184,8 +193,10 @@ class User_Gate_Access {
 										);
 										?>
 									</strong></p>
+								<?php elseif ( $group_index > 0 ) : ?>
+									<p style="color: #757575; margin: 8px 0;"><em><?php esc_html_e( 'or', 'newspack-plugin' ); ?></em></p>
 								<?php endif; ?>
-								<ul style="margin: 4px 0 12px;">
+								<ul style="margin: 4px 0;">
 									<?php foreach ( $group['rules'] as $rule ) : ?>
 										<li style="margin: 2px 0;">
 											<span style="margin-right: 5px;" aria-hidden="true">

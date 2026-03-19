@@ -227,7 +227,8 @@ class Access_Rules {
 	/**
 	 * Normalize access rules to grouped format.
 	 *
-	 * Converts legacy flat rules [ rule1, rule2 ] to grouped format [ [ rule1, rule2 ] ].
+	 * Converts flat rules [ rule1, rule2 ] to grouped format [ [ rule1 ], [ rule2 ] ],
+	 * where each rule is its own group (OR logic). Already grouped rules are left as-is.
 	 *
 	 * @param array $access_rules The access rules.
 	 *
@@ -247,8 +248,13 @@ class Access_Rules {
 			return $access_rules;
 		}
 
-		// Convert flat format to single group.
-		return [ $access_rules ];
+		// Convert flat format to OR logic: each rule becomes its own group.
+		return array_map(
+			function ( $rule ) {
+				return [ $rule ];
+			},
+			$access_rules
+		);
 	}
 
 	/**
@@ -280,7 +286,7 @@ class Access_Rules {
 	 * Whether the user has an active subscription for one of the given products.
 	 * Also checks if the user is a member of a group subscription with the required products.
 	 *
-	 * @param int   $user_id User ID.
+	 * @param int   $user_id     User ID.
 	 * @param array $product_ids Required product IDs.
 	 * @return bool
 	 */
@@ -345,6 +351,9 @@ class Access_Rules {
 		}
 		$email = $user->data->user_email;
 		if ( ! $email ) {
+			return false;
+		}
+		if ( Reader_Activation::is_reader_verified( $user ) === false ) {
 			return false;
 		}
 		$email_domain = substr( $email, strrpos( $email, '@' ) + 1 );
