@@ -74,6 +74,7 @@ class Block_Patterns {
 			if ( ! file_exists( $path ) ) {
 				continue;
 			}
+			$pattern_context = []; // No gate context available for the pattern inserter.
 			ob_start();
 			require $path;
 			$content = ob_get_clean();
