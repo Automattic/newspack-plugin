@@ -37,12 +37,15 @@ const ColorPicker = ( { label, help, color = '#ffffff', onChange, className } ) 
 	const [ isExpanded, setIsExpanded ] = useState( false );
 	const ref = useRef();
 	const id = useInstanceId( ColorPicker, 'newspack-color-picker' );
+	const labelId = `${ id }-label`;
 	const colordColor = colord( color );
 	hooks.useOnClickOutside( ref, () => setIsExpanded( false ) );
 	return (
-		<BaseControl className={ classnames( 'newspack-color-picker', className ) } id={ id } label={ label } help={ help }>
+		<BaseControl className={ classnames( 'newspack-color-picker', className ) } help={ help }>
+			<BaseControl.VisualLabel id={ labelId }>{ label }</BaseControl.VisualLabel>
 			<InteractiveDiv
 				id={ id }
+				aria-labelledby={ labelId }
 				aria-expanded={ isExpanded }
 				className={ 'newspack-color-picker__expander' }
 				onClick={ () => setIsExpanded( ! isExpanded ) }
