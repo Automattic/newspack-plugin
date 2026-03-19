@@ -552,7 +552,10 @@ const Edit = ( { match, updateGatesData, slug = AUDIENCE_CONTENT_GATES_WIZARD_SL
 					<CardSettingsGroup
 						actionType="toggle"
 						title={ __( 'Paid access', 'newspack-plugin' ) }
-						description={ __( 'Set conditions like subscriptions, domain, and more.', 'newspack-plugin' ) }
+						description={ __(
+							'Set conditions like subscriptions, domain, and more. Readers must meet at least one condition to gain access.',
+							'newspack-plugin'
+						) }
 						icon={ currencyDollar }
 						isActive={ customAccess?.active }
 						onEnable={ () => setCustomAccess( { ...customAccess, active: ! customAccess.active } ) }

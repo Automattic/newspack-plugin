@@ -150,6 +150,7 @@ class Content_Gate {
 	public static function init() {
 		add_action( 'init', [ __CLASS__, 'register_post_type' ] );
 		add_action( 'admin_init', [ __CLASS__, 'redirect_cpt' ] );
+		add_filter( 'get_edit_post_link', [ __CLASS__, 'filter_edit_post_link' ], 10, 2 );
 		add_action( 'admin_init', [ __CLASS__, 'handle_edit_gate_layout' ] );
 		add_action( 'wp_enqueue_scripts', [ __CLASS__, 'enqueue_scripts' ] );
 		add_action( 'enqueue_block_editor_assets', [ __CLASS__, 'enqueue_block_editor_assets' ] );
@@ -449,6 +450,21 @@ class Content_Gate {
 	}
 
 	/**
+	 * Filter the edit post link for gate CPTs to point to the access control wizard.
+	 *
+	 * @param string $link    The edit link.
+	 * @param int    $post_id Post ID.
+	 *
+	 * @return string Filtered edit link.
+	 */
+	public static function filter_edit_post_link( $link, $post_id ) {
+		if ( get_post_type( $post_id ) === self::GATE_CPT ) {
+			return admin_url( 'admin.php?page=newspack-audience-access-control#/edit/' . $post_id );
+		}
+		return $link;
+	}
+
+	/**
 	 * Redirect the custom gate CPT to the Content Gating wizard
 	 */
 	public static function redirect_cpt() {
@@ -494,6 +510,44 @@ class Content_Gate {
 		}
 		$asset = require dirname( NEWSPACK_PLUGIN_FILE ) . '/dist/content-gate-post-settings.asset.php';
 		wp_enqueue_script( 'newspack-content-gate-post-settings', Newspack::plugin_url() . '/dist/content-gate-post-settings.js', $asset['dependencies'], $asset['version'], true );
+
+		// Localize active gates data for reactive matching in the editor.
+		$gates      = self::get_gates( self::GATE_CPT, 'publish' );
+		$gates_data = [];
+		foreach ( $gates as $gate ) {
+			if ( empty( $gate['registration']['active'] ) && empty( $gate['custom_access']['active'] ) ) {
+				continue;
+			}
+			if ( empty( $gate['content_rules'] ) ) {
+				continue;
+			}
+			$gates_data[] = [
+				'id'            => $gate['id'],
+				'title'         => $gate['title'],
+				'edit_url'      => get_edit_post_link( $gate['id'], 'raw' ),
+				'content_rules' => $gate['content_rules'],
+			];
+		}
+
+		// Build taxonomy slug to REST attribute name map.
+		$taxonomy_map = [];
+		foreach ( Content_Restriction_Control::get_available_taxonomies() as $tax ) {
+			$taxonomy_obj = get_taxonomy( $tax['slug'] );
+			if ( $taxonomy_obj && $taxonomy_obj->show_in_rest ) {
+				$rest_base                    = ! empty( $taxonomy_obj->rest_base ) ? $taxonomy_obj->rest_base : $taxonomy_obj->name;
+				$taxonomy_map[ $tax['slug'] ] = $rest_base;
+			}
+		}
+
+		wp_localize_script(
+			'newspack-content-gate-post-settings',
+			'newspackContentGates',
+			[
+				'gates'        => $gates_data,
+				'taxonomyMap'  => $taxonomy_map,
+				'canEditGates' => current_user_can( 'manage_options' ),
+			]
+		);
 	}
 
 	/**
