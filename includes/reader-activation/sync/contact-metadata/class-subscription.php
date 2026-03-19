@@ -32,19 +32,19 @@ class Subscription extends Contact_Metadata {
 	 */
 	public static function get_fields() {
 		return [
-			'Subscriber_Status'                      => 'Subscriber_Status',
-			'Active_Subscription_Count'              => 'Active_Subscription_Count',
-			'Current_Subscription_Start_Date'        => 'Current_Subscription_Start_Date',
-			'Current_Subscription_End_Date'          => 'Current_Subscription_End_Date',
-			'Subscription_Cancellation_Reason'       => 'Subscription_Cancellation_Reason',
-			'Current_Subscription_Billing_Cycle'     => 'Current_Subscription_Billing_Cycle',
-			'Current_Subscription_Recurring_Payment' => 'Current_Subscription_Recurring_Payment',
-			'Current_Subscription_Next_Payment_Date' => 'Current_Subscription_Next_Payment_Date',
-			'Current_Subscription_Product_Name'      => 'Current_Subscription_Product_Name',
-			'Previous_Subscription_Product'          => 'Previous_Subscription_Product',
-			'Current_Subscription_Coupon_Code'       => 'Current_Subscription_Coupon_Code',
-			'Last_Payment_Amount'                    => 'Last_Payment_Amount',
-			'Last_Payment_Date'                      => 'Last_Payment_Date',
+			'Subscriber_Status'                      => 'Subscriber Status',
+			'Active_Subscription_Count'              => 'Active Subscription Count',
+			'Current_Subscription_Start_Date'        => 'Current Subscription Start Date',
+			'Current_Subscription_End_Date'          => 'Current Subscription End Date',
+			'Subscription_Cancellation_Reason'       => 'Subscription Cancellation Reason',
+			'Current_Subscription_Billing_Cycle'     => 'Current Subscription Billing Cycle',
+			'Current_Subscription_Recurring_Payment' => 'Current Subscription Recurring Payment',
+			'Current_Subscription_Next_Payment_Date' => 'Current Subscription Next Payment Date',
+			'Current_Subscription_Product_Name'      => 'Current Subscription Product Name',
+			'Previous_Subscription_Product'          => 'Previous Subscription Product',
+			'Current_Subscription_Coupon_Code'       => 'Current Subscription Coupon Code',
+			'Last_Payment_Amount'                    => 'Last Payment Amount',
+			'Last_Payment_Date'                      => 'Last Payment Date',
 		];
 	}
 

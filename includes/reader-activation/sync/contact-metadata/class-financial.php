@@ -32,11 +32,11 @@ class Financial extends Contact_Metadata {
 	 */
 	public static function get_fields() {
 		return [
-			'Payment_Page'         => 'Payment_Page',
-			'Payment_UTM_Source'   => 'Payment_UTM_Source',
-			'Payment_UTM_Medium'   => 'Payment_UTM_Medium',
-			'Payment_UTM_Campaign' => 'Payment_UTM_Campaign',
-			'Total_Paid'           => 'Total_Paid',
+			'Payment_Page'         => 'Payment Page',
+			'Payment_UTM_Source'   => 'Payment UTM Source',
+			'Payment_UTM_Medium'   => 'Payment UTM Medium',
+			'Payment_UTM_Campaign' => 'Payment UTM Campaign',
+			'Total_Paid'           => 'Total Paid',
 		];
 	}
 

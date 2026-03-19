@@ -32,18 +32,18 @@ class Donation extends Contact_Metadata {
 	 */
 	public static function get_fields() {
 		return [
-			'Donor_Status'                   => 'Donor_Status',
-			'Active_Donation_Count'          => 'Active_Donation_Count',
-			'Current_Donation_Start_Date'    => 'Current_Donation_Start_Date',
-			'Current_Donation_End_Date'      => 'Current_Donation_End_Date',
-			'Current_Donation_Cycle'         => 'Current_Donation_Cycle',
-			'Current_Recurring_Donation'     => 'Current_Recurring_Donation',
-			'Next_Donation_Date'             => 'Next_Donation_Date',
-			'_Current_Donation_Product_Name' => '_Current_Donation_Product_Name',
-			'Previous_Donation_Product'      => 'Previous_Donation_Product',
-			'Previous_Donation_Amount'       => 'Previous_Donation_Amount',
-			'Last_Donation_Amount'           => 'Last_Donation_Amount',
-			'Last_Donation_Date'             => 'Last_Donation_Date',
+			'Donor_Status'                  => 'Donor Status',
+			'Active_Donation_Count'         => 'Active Donation Count',
+			'Current_Donation_Start_Date'   => 'Current Donation Start Date',
+			'Current_Donation_End_Date'     => 'Current Donation End Date',
+			'Current_Donation_Cycle'        => 'Current Donation Cycle',
+			'Current_Recurring_Donation'    => 'Current Recurring Donation',
+			'Next_Donation_Date'            => 'Next Donation Date',
+			'Current_Donation_Product_Name' => 'Current Donation Product Name',
+			'Previous_Donation_Product'     => 'Previous Donation Product',
+			'Previous_Donation_Amount'      => 'Previous Donation Amount',
+			'Last_Donation_Amount'          => 'Last Donation Amount',
+			'Last_Donation_Date'            => 'Last Donation Date',
 		];
 	}
 
