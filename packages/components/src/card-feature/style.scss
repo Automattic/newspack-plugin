@@ -49,9 +49,6 @@
 	}
 
 	// Unmet requirements state: lighter border, muted content.
-	// Use doubled base class (.newspack-card-feature.newspack-card-feature--muted) to
-	// produce specificity (0,3,0) and beat the .newspack-wizard .newspack-card--core__header-content h2
-	// rule in style-core.scss which compiles to (0,2,1).
 	&.newspack-card-feature--muted {
 		border-color: wp-colors.$gray-100;
 		box-shadow: wp-colors.$gray-100 0 0 0 1px;
