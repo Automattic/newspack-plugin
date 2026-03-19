@@ -42,6 +42,8 @@ const ColorPicker = ( { label, help, color = '#ffffff', onChange, className } ) 
 	return (
 		<BaseControl className={ classnames( 'newspack-color-picker', className ) } id={ id } label={ label } help={ help }>
 			<InteractiveDiv
+				id={ id }
+				aria-expanded={ isExpanded }
 				className={ 'newspack-color-picker__expander' }
 				onClick={ () => setIsExpanded( ! isExpanded ) }
 				style={ {
@@ -53,7 +55,7 @@ const ColorPicker = ( { label, help, color = '#ffffff', onChange, className } ) 
 			</InteractiveDiv>
 
 			<div className="newspack-color-picker__main" ref={ ref }>
-				{ isExpanded && <ColorPickerComponent color={ color } onChange={ hex => onChange( hex ) } enableAlpha={ false } /> }
+				{ isExpanded && <ColorPickerComponent color={ color } onChange={ onChange } enableAlpha={ false } /> }
 			</div>
 		</BaseControl>
 	);
