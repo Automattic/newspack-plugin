@@ -56,6 +56,7 @@ type GateContentRuleProps = {
 	slug: string;
 	onChange: (value: GateContentRuleValue) => void;
 	onChangeExclusion?: (value: boolean) => void;
+	isNewsletter?: boolean;
 };
 
 type GateRuleControlProps = {

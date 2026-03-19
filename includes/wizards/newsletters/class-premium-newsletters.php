@@ -183,7 +183,7 @@ class Premium_Newsletters extends Wizard {
 	 * @return string The wizard name.
 	 */
 	public function get_name() {
-		return esc_html__( 'Newsletters / Premium newsletters', 'newspack-plugin' );
+		return esc_html__( 'Newspack / Premium Newsletters', 'newspack-plugin' );
 	}
 
 	/**
@@ -267,7 +267,7 @@ class Premium_Newsletters extends Wizard {
 			'',
 			$this->capability,
 			$this->slug,
-			'',
+			$this->get_name(),
 			'hidden',
 		];
 

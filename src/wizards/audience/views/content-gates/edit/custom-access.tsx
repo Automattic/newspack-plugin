@@ -1,7 +1,7 @@
 /**
  * WordPress dependencies.
  */
-import { CardBody } from '@wordpress/components';
+import { CardBody, CardDivider } from '@wordpress/components';
 import { useCallback } from '@wordpress/element';
 
 /**
@@ -44,9 +44,12 @@ export default function CustomAccess( { customAccess, onChange, isNewsletter = f
 		<>
 			<AccessRules rules={ currentRules } onChange={ handleRulesChange } />
 			{ ! isNewsletter && (
-				<CardBody size="small">
-					<Metering metering={ customAccess.metering } onChange={ ( metering: Metering ) => handleChange( { metering } ) } />
-				</CardBody>
+				<>
+					<CardDivider />
+					<CardBody size="small">
+						<Metering metering={ customAccess.metering } onChange={ ( metering: Metering ) => handleChange( { metering } ) } />
+					</CardBody>
+				</>
 			) }
 		</>
 	);

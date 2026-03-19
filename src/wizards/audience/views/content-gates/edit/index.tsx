@@ -509,7 +509,7 @@ const Edit = ( { match, updateGatesData, slug = AUDIENCE_CONTENT_GATES_WIZARD_SL
 						isActive={ contentType === 'custom' }
 						onEnable={ () => setContentType( 'custom' ) }
 					>
-						<ContentRules rules={ contentRules } onChange={ setContentRules } />
+						<ContentRules rules={ contentRules } onChange={ setContentRules } isNewsletter={ isNewsletter } />
 					</CardSettingsGroup>
 				</VStack>
 			</Grid>

@@ -175,6 +175,7 @@ export default function ContentRuleControlTokenField( { slug, value, exclusion, 
 				onInputChange={ handleInputChange }
 				value={ tokens }
 				onChange={ handleChange }
+				placeholder={ __( 'Click to select, type to search', 'newspack-plugin' ) }
 				__experimentalExpandOnFocus
 				__next40pxDefaultSize
 			/>

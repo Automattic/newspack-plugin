@@ -22,6 +22,7 @@ import ContentGateOnboarding from '../../../audience/views/content-gates/content
 import ContentGateSettings from '../../../audience/views/content-gates/content-gate-settings';
 import AdvancedSettings from './advanced-settings';
 import { PREMIUM_NEWSLETTERS_WIZARD_SLUG } from './consts';
+import '../../../audience/views/content-gates/style.scss';
 
 const PremiumNewslettersList = ( { updateGatesData }: { updateGatesData: ( gates: Gate[] ) => void } ) => {
 	const wizardData = useWizardData( PREMIUM_NEWSLETTERS_WIZARD_SLUG ) as WizardData;
