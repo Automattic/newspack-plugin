@@ -403,12 +403,12 @@ abstract class Integration {
 	 */
 	public function get_metadata_prefix() {
 		$value = \get_option( self::METADATA_PREFIX_OPTION_PREFIX . $this->id, null );
-		if ( null !== $value ) {
+		if ( null !== $value && ! empty( $value ) ) {
 			return $value;
 		}
 		// Lazy migrate from legacy global option.
 		$legacy_value = \get_option( Sync\Metadata::PREFIX_OPTION, null );
-		if ( null !== $legacy_value ) {
+		if ( null !== $legacy_value && ! empty( $legacy_value ) ) {
 			// update option directly to avoid infinite loop.
 			\update_option( self::METADATA_PREFIX_OPTION_PREFIX . $this->id, $legacy_value );
 			return $legacy_value;
@@ -442,7 +442,7 @@ abstract class Integration {
 
 		foreach ( $contact['metadata'] as $key => $value ) {
 			// If the key is already prefixed, keep it as-is if its field is enabled.
-			if ( ! empty( $prefix ) && 0 === strpos( $key, $prefix ) ) {
+			if ( 0 === strpos( $key, $prefix ) ) {
 				$field_name = substr( $key, strlen( $prefix ) );
 				if ( in_array( $field_name, $enabled_fields, true ) ) {
 					$prepared[ $key ] = $value;
