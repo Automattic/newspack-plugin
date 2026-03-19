@@ -7,6 +7,7 @@
 
 namespace Newspack\Tests\Content_Gate;
 
+use Newspack\Reader_Activation;
 use Newspack\Access_Rules;
 use Newspack\Content_Gate;
 use Newspack\Content_Restriction_Control;
@@ -571,7 +572,12 @@ class Test_Content_Gates extends \WP_UnitTestCase {
 			],
 		];
 		$result = Access_Rules::evaluate_rules( $flat_rules_pass );
-		$this->assertTrue( $result, 'Flat rules with passing email_domain should grant access' );
+		$this->assertFalse( $result, 'Flat rules with passing email_domain should deny access for unverified reader' );
+
+		// Test 2: Flat legacy rules with passing rule for verified reader.
+		Reader_Activation::set_reader_verified( $user_id );
+		$result = Access_Rules::evaluate_rules( $flat_rules_pass );
+		$this->assertTrue( $result, 'Flat rules with passing email_domain should grant access for verified reader' );
 
 		// Test 2: Flat legacy rules with failing rule.
 		$flat_rules_fail = [
