@@ -502,7 +502,7 @@ class Test_Content_Gates extends \WP_UnitTestCase {
 		$result = Access_Rules::normalize_rules( [] );
 		$this->assertEmpty( $result, 'Empty rules should return empty array' );
 
-		// Flat rules should be wrapped in a single group.
+		// Flat rules should each become their own group (OR logic).
 		$flat_rules = [
 			[
 				'slug'  => 'subscription',
@@ -514,8 +514,9 @@ class Test_Content_Gates extends \WP_UnitTestCase {
 			],
 		];
 		$result = Access_Rules::normalize_rules( $flat_rules );
-		$this->assertCount( 1, $result, 'Flat rules should be wrapped in single group' );
-		$this->assertEquals( $flat_rules, $result[0], 'Group should contain original rules' );
+		$this->assertCount( 2, $result, 'Each flat rule should become its own group' );
+		$this->assertEquals( [ $flat_rules[0] ], $result[0], 'First group should contain first rule' );
+		$this->assertEquals( [ $flat_rules[1] ], $result[1], 'Second group should contain second rule' );
 
 		// Already grouped rules should remain unchanged.
 		$grouped_rules = [
@@ -582,7 +583,7 @@ class Test_Content_Gates extends \WP_UnitTestCase {
 		$result = Access_Rules::evaluate_rules( $flat_rules_fail );
 		$this->assertFalse( $result, 'Flat rules with non-matching email_domain should deny access' );
 
-		// Test 3: Flat rules with mixed pass/fail (AND logic - should fail).
+		// Test 3: Flat rules with mixed pass/fail (OR logic - should pass).
 		$flat_rules_mixed = [
 			[
 				'slug'  => 'email_domain',
@@ -594,7 +595,7 @@ class Test_Content_Gates extends \WP_UnitTestCase {
 			],
 		];
 		$result = Access_Rules::evaluate_rules( $flat_rules_mixed );
-		$this->assertFalse( $result, 'Flat rules with mixed results should deny access (AND logic)' );
+		$this->assertTrue( $result, 'Flat rules with mixed results should grant access (OR logic)' );
 
 		// Test 4: Multiple groups - first group fails, second passes (OR logic - should pass).
 		$grouped_rules_or_pass = [
