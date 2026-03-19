@@ -23,7 +23,7 @@
 			background-size: cover;
 		}
 		&:not(&--has-image) {
-			.newspack-button {
+			.components-button {
 				background: wp-colors.$white !important;
 				border-radius: wp-vars.$radius-small !important;
 				padding: wp-vars.$grid-unit-05 wp-vars.$grid-unit-20 !important;
