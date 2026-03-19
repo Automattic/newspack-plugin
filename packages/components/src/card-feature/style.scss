@@ -1,0 +1,64 @@
+/**
+ * CardFeature
+ */
+
+@use "~@wordpress/base-styles/colors" as wp-colors;
+@use "~@wordpress/base-styles/variables" as wp;
+
+.newspack-card-feature {
+	.newspack-card--core__header-content {
+		grid-gap: 16px;
+	}
+
+	&__content {
+		flex: 1;
+		min-width: 0; // prevent flex blowout on long words
+	}
+
+	&__title {
+		font-size: wp.$font-size-x-large;
+		line-height: wp.$font-line-height-x-large;
+		text-align: left;
+	}
+
+	&__description {
+		text-align: left;
+	}
+
+	&__icon {
+		align-items: center;
+		display: flex;
+		flex: 0 0 40px;
+		height: 40px;
+		justify-content: center;
+
+		svg {
+			display: block;
+			fill: currentcolor;
+			height: 24px;
+			width: 24px;
+		}
+
+		&--radius-small {
+			border-radius: wp.$radius-small;
+		}
+
+		&--radius-full {
+			border-radius: wp.$radius-round;
+		}
+	}
+
+	// Unmet requirements state: lighter border, muted content.
+	// Use doubled base class (.newspack-card-feature.newspack-card-feature--muted) to
+	// produce specificity (0,3,0) and beat the .newspack-wizard .newspack-card--core__header-content h2
+	// rule in style-core.scss which compiles to (0,2,1).
+	&.newspack-card-feature--muted {
+		border-color: wp-colors.$gray-100;
+		box-shadow: wp-colors.$gray-100 0 0 0 1px;
+
+		.newspack-card-feature__title,
+		.newspack-card-feature__description {
+			color: wp-colors.$gray-700;
+		}
+	}
+}
