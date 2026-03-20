@@ -42,6 +42,11 @@ export default function InstitutionEdit( { match }: { match: { params: { id?: st
 	const { setHeaderData, startLoadingData, finishLoadingData } = useDispatch( WIZARD_STORE_NAMESPACE );
 
 	const [ institution, setInstitution ] = useState( EMPTY_INSTITUTION );
+	const [ enabledRules, setEnabledRules ] = useState< Record< string, boolean > >( {
+		np_institution_email_domain: false,
+		np_institution_ip_range: false,
+		np_institution_reader_data: false,
+	} );
 	const [ isLoading, setIsLoading ] = useState( ! isNew );
 	const [ isSaving, setIsSaving ] = useState( false );
 	const [ isDirty, setIsDirty ] = useState( false );
@@ -50,7 +55,14 @@ export default function InstitutionEdit( { match }: { match: { params: { id?: st
 		if ( ! isNew ) {
 			setIsLoading( true );
 			apiFetch< Institution >( { path: `${ API_PATH }/${ id }?context=edit` } )
-				.then( setInstitution )
+				.then( data => {
+					setInstitution( data );
+					setEnabledRules( {
+						np_institution_email_domain: !! data.meta?.np_institution_email_domain,
+						np_institution_ip_range: !! data.meta?.np_institution_ip_range,
+						np_institution_reader_data: !! data.meta?.np_institution_reader_data,
+					} );
+				} )
 				.finally( () => setIsLoading( false ) );
 		}
 	}, [ id, isNew ] );
@@ -70,6 +82,21 @@ export default function InstitutionEdit( { match }: { match: { params: { id?: st
 			...prev,
 			meta: { ...prev.meta, [ key ]: value },
 		} ) );
+	}, [] );
+
+	const toggleRule = useCallback( ( key: string ) => {
+		setIsDirty( true );
+		setEnabledRules( prev => {
+			const nowEnabled = ! prev[ key ];
+			if ( ! nowEnabled ) {
+				// Clear the meta value when disabling.
+				setInstitution( inst => ( {
+					...inst,
+					meta: { ...inst.meta, [ key ]: '' },
+				} ) );
+			}
+			return { ...prev, [ key ]: nowEnabled };
+		} );
 	}, [] );
 
 	const handleSave = useCallback( () => {
@@ -207,19 +234,17 @@ export default function InstitutionEdit( { match }: { match: { params: { id?: st
 						description={ __( 'Match readers by verified email domain', 'newspack-plugin' ) }
 						icon={ envelope }
 						actionType="toggle"
-						isActive={ !! emailDomain }
-						onEnable={ () => updateMeta( 'np_institution_email_domain', emailDomain ? '' : ' ' ) }
+						isActive={ enabledRules.np_institution_email_domain }
+						onEnable={ () => toggleRule( 'np_institution_email_domain' ) }
 					>
-						{ !! emailDomain && (
-							<CardBody size="small">
-								<TextControl
-									label={ __( 'Domains (comma-separated)', 'newspack-plugin' ) }
-									value={ emailDomain.trim() }
-									onChange={ ( val: string ) => updateMeta( 'np_institution_email_domain', val ) }
-									placeholder="university.edu, school.org"
-								/>
-							</CardBody>
-						) }
+						<CardBody size="small">
+							<TextControl
+								label={ __( 'Domains (comma-separated)', 'newspack-plugin' ) }
+								value={ emailDomain }
+								onChange={ ( val: string ) => updateMeta( 'np_institution_email_domain', val ) }
+								placeholder="university.edu, school.org"
+							/>
+						</CardBody>
 					</CardSettingsGroup>
 
 					<CardSettingsGroup
@@ -227,19 +252,17 @@ export default function InstitutionEdit( { match }: { match: { params: { id?: st
 						description={ __( 'Match visitors by IP address or CIDR block', 'newspack-plugin' ) }
 						icon={ globe }
 						actionType="toggle"
-						isActive={ !! ipRange }
-						onEnable={ () => updateMeta( 'np_institution_ip_range', ipRange ? '' : ' ' ) }
+						isActive={ enabledRules.np_institution_ip_range }
+						onEnable={ () => toggleRule( 'np_institution_ip_range' ) }
 					>
-						{ !! ipRange && (
-							<CardBody size="small">
-								<TextControl
-									label={ __( 'IPs / CIDR blocks (comma-separated)', 'newspack-plugin' ) }
-									value={ ipRange.trim() }
-									onChange={ ( val: string ) => updateMeta( 'np_institution_ip_range', val ) }
-									placeholder="192.168.1.0/24, 10.0.0.5"
-								/>
-							</CardBody>
-						) }
+						<CardBody size="small">
+							<TextControl
+								label={ __( 'IPs / CIDR blocks (comma-separated)', 'newspack-plugin' ) }
+								value={ ipRange }
+								onChange={ ( val: string ) => updateMeta( 'np_institution_ip_range', val ) }
+								placeholder="192.168.1.0/24, 10.0.0.5"
+							/>
+						</CardBody>
 					</CardSettingsGroup>
 
 					<CardSettingsGroup
@@ -247,19 +270,17 @@ export default function InstitutionEdit( { match }: { match: { params: { id?: st
 						description={ __( 'Match readers by custom metadata', 'newspack-plugin' ) }
 						icon={ customPostType }
 						actionType="toggle"
-						isActive={ !! readerData }
-						onEnable={ () => updateMeta( 'np_institution_reader_data', readerData ? '' : ' ' ) }
+						isActive={ enabledRules.np_institution_reader_data }
+						onEnable={ () => toggleRule( 'np_institution_reader_data' ) }
 					>
-						{ !! readerData && (
-							<CardBody size="small">
-								<TextControl
-									label={ __( 'Key=value pairs (semicolon-delimited)', 'newspack-plugin' ) }
-									value={ readerData.trim() }
-									onChange={ ( val: string ) => updateMeta( 'np_institution_reader_data', val ) }
-									placeholder="org=university;role=staff"
-								/>
-							</CardBody>
-						) }
+						<CardBody size="small">
+							<TextControl
+								label={ __( 'Key=value pairs (semicolon-delimited)', 'newspack-plugin' ) }
+								value={ readerData }
+								onChange={ ( val: string ) => updateMeta( 'np_institution_reader_data', val ) }
+								placeholder="org=university;role=staff"
+							/>
+						</CardBody>
 					</CardSettingsGroup>
 				</VStack>
 			</Grid>
