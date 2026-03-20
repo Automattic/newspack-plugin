@@ -46,11 +46,11 @@ class Privacy_Section extends Wizard_Section {
 					'callback'            => [ $this, 'api_update' ],
 					'permission_callback' => [ $this, 'api_permissions_check' ],
 					'args'                => [
-						'block_ads_before_consent'                  => [
+						'block_ads_before_consent' => [
 							'type'              => 'boolean',
 							'sanitize_callback' => 'rest_sanitize_boolean',
 						],
-						'block_before_consent'                      => [
+						'block_before_consent'     => [
 							'type'              => 'boolean',
 							'sanitize_callback' => 'rest_sanitize_boolean',
 						],
@@ -67,8 +67,8 @@ class Privacy_Section extends Wizard_Section {
 	 */
 	public static function get_settings() {
 		return [
-			'block_ads_before_consent'                  => (bool) get_option( self::OPTION_PREFIX . 'block_ads_before_consent', false ),
-			'block_before_consent'                      => (bool) get_option( self::OPTION_PREFIX . 'block_before_consent', false ),
+			'block_ads_before_consent' => (bool) get_option( self::OPTION_PREFIX . 'block_ads_before_consent', false ),
+			'block_before_consent'     => (bool) get_option( self::OPTION_PREFIX . 'block_before_consent', false ),
 		];
 	}
 

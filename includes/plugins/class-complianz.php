@@ -126,12 +126,17 @@ class Complianz {
 		return $markup;
 	}
 
+	/**
+	 * Determines whether the Complianz plugin is active.
+	 *
+	 * @return bool True if active. False if not.
+	 */
 	public static function is_complianz_active() {
 		return function_exists( 'cmplz_can_run_cookie_blocker' );
 	}
 
 	/**
-	 * Determine whether Complianz is running in Cookie Blocker mode.
+	 * Determine whether Complianz is active and can run cookie blocker.
 	 *
 	 * @return bool Whether Cookie Blocker is running.
 	 */

@@ -113,7 +113,7 @@ class Newspack_Settings extends Wizard {
 			'advanced-settings' => [
 				'label' => __( 'Advanced Settings', 'newspack-plugin' ),
 			],
-			];
+		];
 		if ( Complianz::is_complianz_active() ) {
 			$newspack_settings['privacy'] = [
 				'label' => __( 'Privacy', 'newspack-plugin' ),
