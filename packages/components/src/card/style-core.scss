@@ -80,7 +80,7 @@
 		}
 	}
 	&__header--is-draggable {
-		padding-left: 80px;
+		padding-left: 80px !important;
 		.newspack-card--core__header__draggable-controls {
 			align-items: center;
 			border-right: 1px solid wp-colors.$gray-200;
