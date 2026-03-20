@@ -9,6 +9,7 @@ export type IntentLabel =
 
 export interface SuggestedAction {
 	label: string;
+	completedLabel: string;
 	checked: boolean;
 }
 
@@ -90,7 +91,7 @@ Mike`,
 
 Sorry you're having trouble getting in! I can see your account is active.
 
-Here's a direct link to reset your password: [password reset link]
+Here's a direct link to reset your password: https://dailytribune.com/my-account/lost-password/?key=aB3kP9xmQ7nR&id=48291
 
 If you still have trouble after resetting, let me know and we can try an alternative approach.
 
@@ -152,8 +153,8 @@ If you'd like to give us another try in the future, we'd love to have you back. 
 
 Best regards`,
 		actions: [
-			{ label: 'Process full refund ($120.00)', checked: true },
-			{ label: 'Cancel subscription', checked: true },
+			{ label: 'Process full refund ($120.00)', completedLabel: 'Refunded $120.00 to Visa ending in 9042 — <a href="https://dailytribune.com/wp-admin/post.php?post=8834&action=edit">refund #8834</a>', checked: true },
+			{ label: 'Cancel subscription', completedLabel: 'Cancelled subscription <a href="https://dailytribune.com/wp-admin/post.php?post=8801&action=edit">#8801</a>', checked: true },
 		],
 	},
 	{
@@ -210,8 +211,8 @@ No need to re-subscribe or pay anything extra — we'll just pick up where you l
 
 Best regards`,
 		actions: [
-			{ label: 'Send payment method update link', checked: true },
-			{ label: 'Extend access for 7 days while card is updated', checked: true },
+			{ label: 'Send payment method update link', completedLabel: 'Sent payment update link to dpark@outlook.com', checked: true },
+			{ label: 'Extend access for 7 days while card is updated', completedLabel: 'Extended access on subscription <a href="https://dailytribune.com/wp-admin/post.php?post=6215&action=edit">#6215</a> until Mar 18, 2026', checked: true },
 		],
 	},
 	{
@@ -263,7 +264,7 @@ This comp subscription is valid for one year and will be reviewed at that point.
 
 Best regards`,
 		actions: [
-			{ label: 'Grant 1-year comp subscription', checked: true },
+			{ label: 'Grant 1-year comp subscription', completedLabel: 'Created comp subscription <a href="https://dailytribune.com/wp-admin/post.php?post=9102&action=edit">#9102</a> — expires Mar 12, 2027', checked: true },
 		],
 	},
 	{
@@ -318,7 +319,7 @@ Your subscription remains active and in good standing, with your next regular re
 
 Best regards`,
 		actions: [
-			{ label: 'Refund duplicate charge ($15.00 on Mar 5)', checked: true },
+			{ label: 'Refund duplicate charge ($15.00 on Mar 5)', completedLabel: 'Refunded $15.00 to Mastercard ending in 7763 — <a href="https://dailytribune.com/wp-admin/post.php?post=9044&action=edit">refund #9044</a>', checked: true },
 		],
 	},
 	{
@@ -374,8 +375,8 @@ In the meantime, I can process a refund of $120.00 if you'd like to go ahead wit
 
 Best regards`,
 		actions: [
-			{ label: 'Process refund ($120.00)', checked: false },
-			{ label: 'Cancel subscription', checked: false },
+			{ label: 'Process refund ($120.00)', completedLabel: 'Refunded $120.00 to Visa ending in 3318 — <a href="https://dailytribune.com/wp-admin/post.php?post=7550&action=edit">refund #7550</a>', checked: false },
+			{ label: 'Cancel subscription', completedLabel: 'Cancelled subscription <a href="https://dailytribune.com/wp-admin/post.php?post=7401&action=edit">#7401</a>', checked: false },
 		],
 	},
 	{
@@ -452,7 +453,7 @@ Let me know!
 
 Best regards`,
 		actions: [
-			{ label: 'Switch to reduced rate ($5/mo)', checked: true },
+			{ label: 'Switch to reduced rate ($5/mo)', completedLabel: 'Switched subscription <a href="https://dailytribune.com/wp-admin/post.php?post=4190&action=edit">#4190</a> from $15/mo to $5/mo — effective Mar 22, 2026', checked: true },
 		],
 	},
 	{
@@ -475,7 +476,7 @@ Thanks,
 Tony`,
 				aiAssessment: {
 					status: 'discrepancy',
-					body: 'Reader says "$25/month for over a year" — confirmed, recurring $25/mo since Jan 2025. Reader says "donors at my level get access" — correct per policy ($20+/mo = premium access), but no access has been provisioned on this account.',
+					body: 'Reader says "$25/month for over a year" — confirmed, recurring $25/mo since Jan 2025. Reader says "donors at my level get access" — correct per Premium membership plan ($20+/mo), but no access has been provisioned on this account.',
 				},
 			},
 		],
@@ -498,11 +499,11 @@ Tony`,
 				},
 			},
 			{
-				heading: 'Donor Benefits Policy',
+				heading: 'Membership Plans',
 				fields: {
-					'$10+/mo': 'Newsletter access',
-					'$20+/mo': 'Premium content access',
-					'$50+/mo': 'Premium + events',
+					Supporter: '$10+/mo — Newsletter access',
+					Premium: '$20+/mo — Full content access',
+					Patron: '$50+/mo — Content + events',
 				},
 			},
 		],
@@ -516,7 +517,7 @@ This access will remain active as long as your monthly donation continues. Pleas
 
 Best regards`,
 		actions: [
-			{ label: 'Grant premium content access', checked: true },
+			{ label: 'Grant premium content access', completedLabel: 'Granted Premium access on membership <a href="https://dailytribune.com/wp-admin/post.php?post=9201&action=edit">#9201</a>', checked: true },
 		],
 	},
 ];

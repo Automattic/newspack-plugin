@@ -5,7 +5,7 @@
 /**
  * WordPress dependencies
  */
-import { useState, useCallback } from '@wordpress/element';
+import { useState, useCallback, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
 /**
@@ -13,6 +13,13 @@ import { __ } from '@wordpress/i18n';
  */
 import './style.scss';
 import initialConversations, { Conversation } from './demo-data';
+
+type SendState = 'idle' | 'sending' | 'sent';
+
+interface SentResult {
+	replyText: string;
+	actionsPerformed: string[];
+}
 
 const intentClassMap: Record< string, string > = {
 	'Refund Request': 'newspack-inbox__intent--refund-request',
@@ -28,11 +35,13 @@ function ConversationList( {
 	items,
 	selectedId,
 	readIds,
+	sentIds,
 	onSelect,
 }: {
 	items: Conversation[];
 	selectedId: string | null;
 	readIds: Set< string >;
+	sentIds: Set< string >;
 	onSelect: ( id: string ) => void;
 } ) {
 	return (
@@ -43,10 +52,12 @@ function ConversationList( {
 			{ items.map( item => {
 				const isSelected = item.id === selectedId;
 				const isRead = readIds.has( item.id );
+				const isSent = sentIds.has( item.id );
 				const classNames = [
 					'newspack-inbox__conversation-item',
 					isSelected && 'newspack-inbox__conversation-item--selected',
 					! isRead && 'newspack-inbox__conversation-item--unread',
+					isSent && 'newspack-inbox__conversation-item--sent',
 				]
 					.filter( Boolean )
 					.join( ' ' );
@@ -71,7 +82,9 @@ function ConversationList( {
 								{ item.senderName }
 							</span>
 							<span className="newspack-inbox__conversation-item-time">
-								{ item.timestamp }
+								{ isSent
+									? __( 'Replied', 'newspack-plugin' )
+									: item.timestamp }
 							</span>
 						</div>
 						<div className="newspack-inbox__conversation-item-subject">
@@ -92,12 +105,20 @@ function ConversationList( {
 function Thread( {
 	conversation,
 	actionStates,
+	sendState,
+	sentResult,
 	onToggleAction,
+	onSend,
 }: {
 	conversation: Conversation | null;
 	actionStates: Record< string, boolean >;
+	sendState: SendState;
+	sentResult: SentResult | null;
 	onToggleAction: ( label: string ) => void;
+	onSend: ( replyText: string ) => void;
 } ) {
+	const textareaRef = useRef< HTMLTextAreaElement >( null );
+
 	if ( ! conversation ) {
 		return (
 			<div className="newspack-inbox__thread">
@@ -107,6 +128,13 @@ function Thread( {
 			</div>
 		);
 	}
+
+	const isSending = sendState === 'sending';
+	const isSent = sendState === 'sent';
+	const hasActiveActions = conversation.actions.some(
+		a => actionStates[ a.label ] ?? a.checked
+	);
+
 	return (
 		<div className="newspack-inbox__thread">
 			<div className="newspack-inbox__thread-header">
@@ -140,38 +168,73 @@ function Thread( {
 					</div>
 				) ) }
 
-				<div className="newspack-inbox__reply-area">
-					<div className="newspack-inbox__reply-label">
-						{ __( 'Draft reply', 'newspack-plugin' ) }
-					</div>
-					<textarea
-						defaultValue={ conversation.draftReply }
-						key={ conversation.id }
-					/>
-					<div className="newspack-inbox__reply-footer">
-						{ conversation.actions.length > 0 && (
-							<div className="newspack-inbox__reply-actions">
-								{ conversation.actions.map( action => (
-									<label key={ action.label } className="newspack-inbox__reply-action">
-										<input
-											type="checkbox"
-											checked={ actionStates[ action.label ] ?? action.checked }
-											onChange={ () => onToggleAction( action.label ) }
-										/>
-										<span>{ action.label }</span>
-									</label>
+				{ isSent && sentResult ? (
+					<>
+						<div className="newspack-inbox__message-group">
+							<div className="newspack-inbox__message newspack-inbox__message--outbound">
+								<div className="newspack-inbox__message-header">
+									<span className="newspack-inbox__message-from">
+										{ __( 'You', 'newspack-plugin' ) }
+									</span>
+									<span>{ __( 'Just now', 'newspack-plugin' ) }</span>
+								</div>
+								<div className="newspack-inbox__message-body">{ sentResult.replyText }</div>
+							</div>
+						</div>
+						{ sentResult.actionsPerformed.length > 0 && (
+							<div className="newspack-inbox__actions-log">
+								{ sentResult.actionsPerformed.map( ( completedLabel, i ) => (
+									<div
+										key={ i }
+										className="newspack-inbox__actions-log-item"
+										dangerouslySetInnerHTML={ { __html: '&#10003; ' + completedLabel } }
+									/>
 								) ) }
 							</div>
 						) }
-						<button className="newspack-inbox__send-button" type="button">
-							{ conversation.actions.some(
-								a => actionStates[ a.label ] ?? a.checked
-							)
-								? __( 'Send reply & perform actions', 'newspack-plugin' )
-								: __( 'Send reply', 'newspack-plugin' ) }
-						</button>
+					</>
+				) : (
+					<div className={ `newspack-inbox__reply-area ${ isSending ? 'newspack-inbox__reply-area--sending' : '' }` }>
+						<div className="newspack-inbox__reply-label">
+							{ __( 'Draft reply', 'newspack-plugin' ) }
+						</div>
+						<textarea
+							ref={ textareaRef }
+							defaultValue={ conversation.draftReply }
+							key={ conversation.id }
+							disabled={ isSending }
+						/>
+						<div className="newspack-inbox__reply-footer">
+							{ conversation.actions.length > 0 && (
+								<div className="newspack-inbox__reply-actions">
+									{ conversation.actions.map( action => (
+										<label key={ action.label } className="newspack-inbox__reply-action">
+											<input
+												type="checkbox"
+												checked={ actionStates[ action.label ] ?? action.checked }
+												onChange={ () => onToggleAction( action.label ) }
+												disabled={ isSending }
+											/>
+											<span>{ action.label }</span>
+										</label>
+									) ) }
+								</div>
+							) }
+							<button
+								className="newspack-inbox__send-button"
+								type="button"
+								disabled={ isSending }
+								onClick={ () => onSend( textareaRef.current?.value || '' ) }
+							>
+								{ isSending
+									? __( 'Sending…', 'newspack-plugin' )
+									: hasActiveActions
+										? __( 'Send reply & perform actions', 'newspack-plugin' )
+										: __( 'Send reply', 'newspack-plugin' ) }
+							</button>
+						</div>
 					</div>
-				</div>
+				) }
 			</div>
 		</div>
 	);
@@ -214,6 +277,8 @@ export default function Inbox() {
 	);
 	const [ readIds, setReadIds ] = useState< Set< string > >( () => new Set() );
 	const [ actionStates, setActionStates ] = useState< Record< string, Record< string, boolean > > >( {} );
+	const [ sendStates, setSendStates ] = useState< Record< string, SendState > >( {} );
+	const [ sentResults, setSentResults ] = useState< Record< string, SentResult > >( {} );
 
 	const handleSelect = useCallback( ( id: string ) => {
 		setSelectedId( id );
@@ -230,6 +295,8 @@ export default function Inbox() {
 	const selected = initialConversations.find( c => c.id === selectedId ) || null;
 
 	const currentActionStates = selectedId ? ( actionStates[ selectedId ] || {} ) : {};
+	const currentSendState: SendState = selectedId ? ( sendStates[ selectedId ] || 'idle' ) : 'idle';
+	const currentSentResult = selectedId ? ( sentResults[ selectedId ] || null ) : null;
 
 	const handleToggleAction = useCallback(
 		( label: string ) => {
@@ -253,18 +320,48 @@ export default function Inbox() {
 		[ selectedId, selected ]
 	);
 
+	const handleSend = useCallback( ( replyText: string ) => {
+		if ( ! selectedId || ! selected ) {
+			return;
+		}
+		const convActionStates = actionStates[ selectedId ] || {};
+		const performedActions = selected.actions
+			.filter( a => convActionStates[ a.label ] ?? a.checked )
+			.map( a => a.completedLabel );
+
+		setSendStates( prev => ( { ...prev, [ selectedId ]: 'sending' } ) );
+
+		setTimeout( () => {
+			setSendStates( prev => ( { ...prev, [ selectedId ]: 'sent' } ) );
+			setSentResults( prev => ( {
+				...prev,
+				[ selectedId ]: { replyText, actionsPerformed: performedActions },
+			} ) );
+		}, 1200 );
+	}, [ selectedId, selected, actionStates ] );
+
+	const sentIds = new Set(
+		Object.entries( sendStates )
+			.filter( ( [ , state ] ) => state === 'sent' )
+			.map( ( [ id ] ) => id )
+	);
+
 	return (
 		<div className="newspack-inbox-layout">
 			<ConversationList
 				items={ initialConversations }
 				selectedId={ selectedId }
 				readIds={ readIds }
+				sentIds={ sentIds }
 				onSelect={ handleSelect }
 			/>
 			<Thread
 				conversation={ selected }
 				actionStates={ currentActionStates }
+				sendState={ currentSendState }
+				sentResult={ currentSentResult }
 				onToggleAction={ handleToggleAction }
+				onSend={ handleSend }
 			/>
 			<ContextSidebar conversation={ selected } />
 		</div>

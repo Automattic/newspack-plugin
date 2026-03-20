@@ -97,6 +97,16 @@
 			font-weight: 500;
 			line-height: 1.4;
 		}
+
+		&--sent &-time {
+			color: #2e5a2e;
+			font-weight: 500;
+		}
+
+		&--sent &-sender,
+		&--sent &-subject {
+			color: #757575;
+		}
 	}
 
 	// Intent label colors.
@@ -190,6 +200,11 @@
 			border-bottom: none;
 		}
 
+		&--outbound {
+			background: #eef1fb;
+			border-color: #c5cdf0;
+		}
+
 		&-header {
 			display: flex;
 			justify-content: space-between;
@@ -208,6 +223,29 @@
 			line-height: 1.6;
 			white-space: pre-wrap;
 			color: #1e1e1e;
+		}
+	}
+
+	&__actions-log {
+		background: #f0faf0;
+		border: 1px solid #c3e6c3;
+		border-radius: 4px;
+		padding: 12px 16px;
+		margin-bottom: 24px;
+
+		&-item {
+			font-size: 12px;
+			color: #2e5a2e;
+			padding: 3px 0;
+
+			a {
+				color: #1a6b2a;
+				text-decoration: underline;
+
+				&:hover {
+					color: #0f4a1c;
+				}
+			}
 		}
 	}
 
@@ -242,6 +280,12 @@
 		border-radius: 4px;
 		padding: 16px;
 		background: #fff;
+		transition: opacity 0.2s;
+
+		&--sending {
+			opacity: 0.5;
+			pointer-events: none;
+		}
 
 		textarea {
 			width: 100%;
@@ -260,6 +304,10 @@
 				border-color: #3858e9;
 				outline: none;
 				box-shadow: 0 0 0 1px #3858e9;
+			}
+
+			&:disabled {
+				cursor: not-allowed;
 			}
 		}
 	}
@@ -315,8 +363,12 @@
 		cursor: pointer;
 		transition: background-color 0.15s;
 
-		&:hover {
+		&:hover:not( :disabled ) {
 			background: #2d47c5;
+		}
+
+		&:disabled {
+			cursor: not-allowed;
 		}
 	}
 
