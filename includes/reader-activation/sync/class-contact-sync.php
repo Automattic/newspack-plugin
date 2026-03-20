@@ -218,13 +218,13 @@ class Contact_Sync extends Sync {
 			return;
 		}
 
-		if ( empty( $user_id ) || ! \get_userdata( $user_id ) ) {
+		$user = \get_userdata( $user_id );
+		if ( ! $user ) {
 			static::log( sprintf( 'Cannot schedule retry for integration "%s": user %d not found.', $integration_id, $user_id ) );
 			return;
 		}
 
 		$error_message = $error instanceof \WP_Error ? $error->get_error_message() : (string) $error;
-		$user          = \get_userdata( $user_id );
 		$user_email    = $user ? $user->user_email : 'unknown';
 
 		$next_retry = $retry_count + 1;
