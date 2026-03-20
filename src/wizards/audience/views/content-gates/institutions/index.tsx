@@ -45,7 +45,14 @@ export default function Institutions() {
 	const [ view, setView ] = useState< View >( DEFAULT_VIEW );
 
 	useEffect( () => {
-		const actions: HeaderAction[] = [];
+		const actions: HeaderAction[] = [
+			{
+				type: 'secondary',
+				label: __( 'Back to Access control', 'newspack-plugin' ),
+				icon: 'chevronLeft',
+				href: '#/content-gates',
+			},
+		];
 		if ( data.length !== 0 ) {
 			actions.push( {
 				type: 'primary',
@@ -56,12 +63,6 @@ export default function Institutions() {
 		setHeaderData( {
 			sectionName: __( 'Institutions', 'newspack-plugin' ),
 			actions,
-			backNav: '#/content-gates',
-			sectionTitle: __( 'Institutions', 'newspack-plugin' ),
-			sectionDescription: __(
-				'Create institutions to manage access to your content by email domain, IP range, or reader data.',
-				'newspack-plugin'
-			),
 		} );
 	}, [ setHeaderData, data, isLoading ] );
 

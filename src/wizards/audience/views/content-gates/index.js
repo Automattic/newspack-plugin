@@ -83,6 +83,7 @@ const AudienceContentGates = ( props, ref ) => {
 					exact: true,
 					isHidden: true,
 					backNav: '#/content-gates',
+					fullWidth: true,
 				},
 				{
 					path: '/institutions/new',
