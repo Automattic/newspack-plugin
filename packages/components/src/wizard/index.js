@@ -186,6 +186,7 @@ const Wizard = (
 														: 'newspack-wizard__header__actions__more__more'
 												}
 												icon={ action.icon }
+												href={ action.href }
 												onClick={ action.action }
 												disabled={ action.disabled || false }
 												isDestructive={ action.destructive || false }
