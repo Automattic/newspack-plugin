@@ -224,7 +224,7 @@ export default function InstitutionEdit( { match }: { match: { params: { id?: st
 						label={ __( 'Name', 'newspack-plugin' ) }
 						value={ name }
 						onChange={ ( val: string ) => updateField( 'title', val ) }
-						required
+						withMargin={ false }
 					/>
 					<TextareaControl
 						label={ __( 'Description', 'newspack-plugin' ) }

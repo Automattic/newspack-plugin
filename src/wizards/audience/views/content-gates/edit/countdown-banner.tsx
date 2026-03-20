@@ -28,7 +28,6 @@ import { useWizardData } from '../../../../../../packages/components/src/wizard/
 import { WIZARD_STORE_NAMESPACE } from '../../../../../../packages/components/src/wizard/store';
 import { useWizardApiFetch } from '../../../../hooks/use-wizard-api-fetch';
 import { AUDIENCE_CONTENT_GATES_WIZARD_SLUG } from '../consts';
-import './style.scss';
 
 const { useHistory } = Router;
 
