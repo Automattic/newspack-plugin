@@ -299,7 +299,7 @@ const Campaigns = props => {
 					) }
 				</div>
 			</Card>
-			<VStack spacing="32px">
+			<VStack spacing={ 4 }>
 				{ groupBySegment( segments, prompts ).map( ( segment, index ) =>
 					DEFAULT_CAMPAIGNS_FILTER === campaignId && segment.configuration.is_disabled ? null : (
 						<SegmentGroup key={ index } segment={ segment } campaignId={ campaignId } campaignData={ campaignData } { ...props } />
