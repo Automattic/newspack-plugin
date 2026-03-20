@@ -40,7 +40,7 @@ const DEFAULT_VIEW: View = {
 
 export default function Institutions() {
 	const history = useHistory();
-	const { setHeaderData } = useDispatch( WIZARD_STORE_NAMESPACE );
+	const { setHeaderData, addNotice } = useDispatch( WIZARD_STORE_NAMESPACE );
 	const [ data, setData ] = useState< Institution[] >( [] );
 	const [ isLoading, setIsLoading ] = useState( true );
 	const [ view, setView ] = useState< View >( DEFAULT_VIEW );
@@ -147,21 +147,35 @@ export default function Institutions() {
 				isDestructive: true,
 				RenderModal: ( { items, closeModal }: { items: Institution[]; closeModal: () => void } ) => {
 					const item = items[ 0 ];
+					const [ isDeleting, setIsDeleting ] = useState( false );
 					return (
 						<div>
 							<p>{ __( 'This will permanently delete this institution. This action cannot be undone.', 'newspack-plugin' ) }</p>
 							<div style={ { display: 'flex', gap: '8px', justifyContent: 'flex-end' } }>
-								<Button variant="tertiary" onClick={ closeModal }>
+								<Button variant="tertiary" onClick={ closeModal } disabled={ isDeleting }>
 									{ __( 'Cancel', 'newspack-plugin' ) }
 								</Button>
 								<Button
 									variant="primary"
 									isDestructive
+									isBusy={ isDeleting }
+									disabled={ isDeleting }
 									onClick={ () => {
-										apiFetch( { path: `${ API_PATH }/${ item.id }?force=true`, method: 'DELETE' } ).then( () => {
-											fetchData();
-											closeModal();
-										} );
+										setIsDeleting( true );
+										apiFetch( { path: `${ API_PATH }/${ item.id }?force=true`, method: 'DELETE' } )
+											.then( () => {
+												fetchData();
+												closeModal();
+											} )
+											.catch( () => {
+												setIsDeleting( false );
+												closeModal();
+												addNotice( {
+													message: __( 'Failed to delete institution. Please try again.', 'newspack-plugin' ),
+													type: 'error',
+													id: 'institution-delete-error',
+												} );
+											} );
 									} }
 								>
 									{ __( 'Delete', 'newspack-plugin' ) }
