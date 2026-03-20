@@ -41,12 +41,15 @@ const PremiumNewslettersList = ( { updateGatesData }: { updateGatesData: ( gates
 			return;
 		}
 		setHeaderData( {
+			actions: [
+				{
+					type: 'primary',
+					label: __( 'Add new premium newsletter', 'newspack-plugin' ),
+					href: '#/edit/new/all',
+				},
+			],
 			sectionTitle: __( 'Premium newsletters', 'newspack-plugin' ),
 			sectionDescription: __( 'Set up premium newsletters to control access to your lists.', 'newspack-plugin' ),
-			sectionPrimaryAction: {
-				label: __( 'Add new premium newsletter', 'newspack-plugin' ),
-				href: '#/edit/new/all',
-			},
 			sectionMenu: [
 				{
 					label: __( 'Advanced settings', 'newspack-plugin' ),

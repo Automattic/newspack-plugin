@@ -59,16 +59,19 @@ const ContentGates = ( { updateGatesData }: { updateGatesData: ( gates: Gate[] )
 			} );
 		}
 		setHeaderData( {
+			actions: [
+				{
+					type: 'primary',
+					label: __( 'Add new content gate', 'newspack-plugin' ),
+					href: '#/edit/new/all',
+				},
+			],
 			sectionTitle: __( 'Access control', 'newspack-plugin' ),
 			sectionDescription: __(
 				'Set up gates to manage what content readers can access across your site. Start by selecting which content to restrict, then configure access through registered and/or paid options (including metered rules).',
 				'newspack-plugin'
 			),
 			sectionMenu,
-			sectionPrimaryAction: {
-				label: __( 'Add new content gate', 'newspack-plugin' ),
-				href: '#/edit/new/all',
-			},
 		} );
 	}, [ isFetching, gates ] );
 
