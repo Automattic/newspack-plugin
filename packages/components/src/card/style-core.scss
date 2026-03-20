@@ -147,7 +147,7 @@
 			}
 		}
 	}
-	&__is-active {
+	&__is-active:not(.newspack-card--core__is-draggable) {
 		border-color: var(--wp-admin-theme-color);
 		box-shadow: var(--wp-admin-theme-color) 0 0 0 1px;
 		button.newspack-card--core__header {

@@ -41,6 +41,7 @@ const CoreCard = ( {
 	isSmall,
 	dragIndex,
 	onDragCallback = () => {},
+	onToggle = () => {},
 	onHeaderClick,
 	noBorder,
 	noMargin,
@@ -123,7 +124,7 @@ const CoreCard = ( {
 							label={ otherProps.title }
 							hideLabelFromVision
 							checked={ isActive }
-							onChange={ () => {} }
+							onChange={ onToggle }
 						/>
 					) }
 					{ actions?.length > 0 && (

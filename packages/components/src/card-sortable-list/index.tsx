@@ -27,6 +27,8 @@ type DraggableItem = {
 	title: string;
 	badgeLevel: 'default' | 'success' | 'info' | 'warning' | 'error';
 	badgeText: string;
+	toggleChecked?: boolean;
+	onToggleChange?: () => void;
 };
 
 type DragMeasurements = {
@@ -397,6 +399,11 @@ const CardSortableList = ( {
 											isLastTarget: index === sortedItems.length - 1,
 											dragIndex: index,
 											onDragCallback: handleButtonMove,
+											...( item.onToggleChange !== undefined && {
+												actionType: 'toggle',
+												isActive: item.toggleChecked,
+												onToggle: item.onToggleChange,
+											} ),
 										} }
 									/>
 								) }
