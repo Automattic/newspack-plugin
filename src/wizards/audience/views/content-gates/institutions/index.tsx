@@ -9,6 +9,7 @@ import { __ } from '@wordpress/i18n';
 import { useState, useEffect, useCallback, useMemo } from '@wordpress/element';
 import { useDispatch } from '@wordpress/data';
 import apiFetch from '@wordpress/api-fetch';
+import { filterSortAndPaginate } from '@wordpress/dataviews';
 import type { Action, Field, View } from '@wordpress/dataviews';
 import { Button, Spinner } from '@wordpress/components';
 
@@ -174,6 +175,8 @@ export default function Institutions() {
 		[ fetchData, history ]
 	);
 
+	const { data: processedData, paginationInfo } = useMemo( () => filterSortAndPaginate( data, view, fields ), [ data, view, fields ] );
+
 	if ( isLoading ) {
 		return (
 			<div style={ { display: 'flex', justifyContent: 'center', alignItems: 'center' } }>
@@ -189,12 +192,12 @@ export default function Institutions() {
 	return (
 		<DataViews
 			className="newspack-institutions"
-			data={ data }
+			data={ processedData }
 			fields={ fields }
 			view={ view }
 			onChangeView={ setView }
 			actions={ actions }
-			paginationInfo={ { totalItems: data.length, totalPages: 1 } }
+			paginationInfo={ paginationInfo }
 			defaultLayouts={ { table: {}, grid: {} } }
 			isLoading={ isLoading }
 			getItemId={ ( item: Institution ) => String( item.id ) }
