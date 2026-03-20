@@ -6,7 +6,7 @@
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { __experimentalVStack as VStack, TextareaControl, CardBody } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
+import { __experimentalVStack as VStack, TextareaControl, CardBody, Spinner } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
 import { useDispatch } from '@wordpress/data';
 import { useState, useEffect, useCallback } from '@wordpress/element';
 import { envelope, globe, customPostType } from '@wordpress/icons';
@@ -180,7 +180,11 @@ export default function InstitutionEdit( { match }: { match: { params: { id?: st
 	}, [ handleSave, handleDelete, requestDelete, institution.title.raw, isNew, isSaving, setHeaderData ] );
 
 	if ( isLoading ) {
-		return null;
+		return (
+			<div style={ { display: 'flex', justifyContent: 'center', alignItems: 'center' } }>
+				<Spinner />
+			</div>
+		);
 	}
 
 	const name = institution.title.raw;
