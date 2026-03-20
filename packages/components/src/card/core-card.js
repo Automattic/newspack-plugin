@@ -53,6 +53,7 @@ const CoreCard = ( {
 		'newspack-card--core',
 		className,
 		( buttonsCard || as === 'a' ) && 'newspack-card--core__buttons-card',
+		actions?.length > 0 && 'newspack-card--core__header--has-actions',
 		isDraggable && 'newspack-card--core__is-draggable',
 		isNarrow && 'newspack-card--core__is-narrow',
 		isSmall && 'newspack-card--core__is-small',
@@ -113,6 +114,15 @@ const CoreCard = ( {
 						<div className="newspack-card--core__icon">
 							<Icon icon={ icon } height={ isSmall ? 24 : 48 } width={ isSmall ? 24 : 48 } />
 						</div>
+					) }
+					{ actions?.length > 0 && actionType === 'toggle' && (
+						<ToggleControl
+							className="newspack-card--core__action"
+							label={ otherProps.title }
+							hideLabelFromVision
+							checked={ isActive }
+							onChange={ onToggle }
+						/>
 					) }
 					{ header && <div className="newspack-card--core__header-content">{ header }</div> }
 					{ ! actions?.length > 0 && actionType === 'chevron' && (

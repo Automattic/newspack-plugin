@@ -80,9 +80,7 @@
 		}
 	}
 	&__header--is-draggable {
-		.newspack-card--core__header-content {
-			padding-left: 65px;
-		}
+		padding-left: 80px;
 		.newspack-card--core__header__draggable-controls {
 			align-items: center;
 			border-right: 1px solid wp-colors.$gray-200;
@@ -107,6 +105,11 @@
 				padding: 0;
 				width: 100%;
 			}
+		}
+	}
+	&__header--has-actions {
+		.newspack-card--core__header {
+			padding-right: 70px;
 		}
 	}
 	button.newspack-card--core__header {

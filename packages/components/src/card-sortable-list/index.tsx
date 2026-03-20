@@ -22,6 +22,14 @@ import classNames from 'classnames';
 const DROP_ANIMATION_DURATION = 400; // ms — must match $drop-duration in style.scss
 const BUTTON_MOVE_DURATION = 200; // ms — must match $shift-duration in style.scss
 
+type DraggableItemAction = {
+	label: string;
+	icon?: unknown;
+	action: () => void;
+	disabled?: boolean;
+	destructive?: boolean;
+};
+
 type DraggableItem = {
 	id: string | number;
 	title: string;
@@ -29,6 +37,7 @@ type DraggableItem = {
 	badgeText: string;
 	toggleChecked?: boolean;
 	onToggleChange?: () => void;
+	actions?: DraggableItemAction[];
 };
 
 type DragMeasurements = {
@@ -403,6 +412,9 @@ const CardSortableList = ( {
 												actionType: 'toggle',
 												isActive: item.toggleChecked,
 												onToggle: item.onToggleChange,
+											} ),
+											...( item.actions !== undefined && {
+												actions: item.actions,
 											} ),
 										} }
 									/>

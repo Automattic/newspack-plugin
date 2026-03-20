@@ -10,7 +10,7 @@ import { __ } from '@wordpress/i18n';
  */
 import { Button, Card, CardSortableList, Notice, Router } from '../../../../../../packages/components/src';
 
-const { NavLink } = Router;
+const { NavLink, useHistory } = Router;
 
 const AddNewSegmentLink = () => (
 	<NavLink to="segments/new">
@@ -21,6 +21,7 @@ const AddNewSegmentLink = () => (
 const SegmentsList = ( { wizardApiFetch, segments, setSegments, isLoading } ) => {
 	const [ inFlight, setInFlight ] = useState( false );
 	const [ error, setError ] = useState( null );
+	const history = useHistory();
 	useEffect( () => {
 		window.scrollTo( 0, 0 );
 	}, [] );
@@ -41,6 +42,26 @@ const SegmentsList = ( { wizardApiFetch, segments, setSegments, isLoading } ) =>
 					},
 					criteria: segment.criteria,
 				},
+			} )
+				.then( _segments => {
+					setInFlight( false );
+					setSegments( _segments );
+				} )
+				.catch( () => {
+					setInFlight( false );
+				} );
+		},
+		[ wizardApiFetch ]
+	);
+
+	const deleteSegment = useCallback(
+		segment => {
+			setInFlight( true );
+			setError( null );
+			wizardApiFetch( {
+				path: `${ newspackAudienceCampaigns.api }/segmentation/${ segment.id }`,
+				method: 'DELETE',
+				quiet: true,
 			} )
 				.then( _segments => {
 					setInFlight( false );
@@ -87,8 +108,19 @@ const SegmentsList = ( { wizardApiFetch, segments, setSegments, isLoading } ) =>
 				badgeText: segment.is_criteria_duplicated ? __( 'Duplicate', 'newspack-plugin' ) : '',
 				toggleChecked: ! segment.configuration.is_disabled,
 				onToggleChange: () => toggleSegmentStatus( segment ),
+				actions: [
+					{
+						label: __( 'Edit', 'newspack-plugin' ),
+						action: () => history.push( `/segments/${ segment.id }` ),
+					},
+					{
+						label: __( 'Delete', 'newspack-plugin' ),
+						action: () => deleteSegment( segment ),
+						destructive: true,
+					},
+				],
 			} ) ),
-		[ segments, toggleSegmentStatus ]
+		[ segments, toggleSegmentStatus, deleteSegment, history ]
 	);
 
 	if ( segments === null ) {
