@@ -91,7 +91,7 @@ const AudienceContentGates = ( props, ref ) => {
 					isHidden: true,
 					exact: true,
 					backNav: '#/institutions',
-					title: __( 'New Institution', 'newspack-plugin' ),
+					title: __( 'Add new institution', 'newspack-plugin' ),
 				},
 				{
 					path: '/institutions/:id',
@@ -99,7 +99,7 @@ const AudienceContentGates = ( props, ref ) => {
 					isHidden: true,
 					exact: true,
 					backNav: '#/institutions',
-					title: __( 'Edit Institution', 'newspack-plugin' ),
+					title: __( 'Edit institution', 'newspack-plugin' ),
 				},
 			] }
 		/>

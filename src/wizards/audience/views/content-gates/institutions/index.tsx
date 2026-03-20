@@ -57,7 +57,7 @@ export default function Institutions() {
 		if ( data.length !== 0 ) {
 			actions.push( {
 				type: 'primary',
-				label: __( 'Add New Institution', 'newspack-plugin' ),
+				label: __( 'Add new institution', 'newspack-plugin' ),
 				icon: null,
 				href: '#/institutions/new',
 			} );
@@ -109,7 +109,7 @@ export default function Institutions() {
 			},
 			{
 				id: 'email_domain',
-				label: __( 'Email Domain', 'newspack-plugin' ),
+				label: __( 'Email domain', 'newspack-plugin' ),
 				getValue: ( { item }: { item: Institution } ) => item.meta?.np_institution_email_domain || '',
 				render: ( { item }: { item: Institution } ) => {
 					const val = item.meta?.np_institution_email_domain;
@@ -118,7 +118,7 @@ export default function Institutions() {
 			},
 			{
 				id: 'ip_range',
-				label: __( 'IP Range', 'newspack-plugin' ),
+				label: __( 'IP range', 'newspack-plugin' ),
 				getValue: ( { item }: { item: Institution } ) => item.meta?.np_institution_ip_range || '',
 				render: ( { item }: { item: Institution } ) => {
 					const val = item.meta?.np_institution_ip_range;
@@ -127,7 +127,7 @@ export default function Institutions() {
 			},
 			{
 				id: 'reader_data',
-				label: __( 'Reader Data', 'newspack-plugin' ),
+				label: __( 'Reader data', 'newspack-plugin' ),
 				getValue: ( { item }: { item: Institution } ) => item.meta?.np_institution_reader_data || '',
 				render: ( { item }: { item: Institution } ) => {
 					const val = item.meta?.np_institution_reader_data;
