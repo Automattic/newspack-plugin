@@ -39,7 +39,7 @@ export default function InstitutionEdit( { match }: { match: { params: { id?: st
 	const id = match.params.id;
 	const isNew = ! id || id === 'new';
 
-	const { setHeaderData, startLoadingData, finishLoadingData } = useDispatch( WIZARD_STORE_NAMESPACE );
+	const { setHeaderData, startLoadingData, finishLoadingData, addNotice } = useDispatch( WIZARD_STORE_NAMESPACE );
 
 	const [ institution, setInstitution ] = useState( EMPTY_INSTITUTION );
 	const [ enabledRules, setEnabledRules ] = useState< Record< string, boolean > >( {
@@ -117,11 +117,18 @@ export default function InstitutionEdit( { match }: { match: { params: { id?: st
 				setIsDirty( false );
 				history.push( '/institutions' );
 			} )
+			.catch( () => {
+				addNotice( {
+					message: __( 'Failed to save institution. Please try again.', 'newspack-plugin' ),
+					type: 'error',
+					id: 'institution-save-error',
+				} );
+			} )
 			.finally( () => {
 				setIsSaving( false );
 				finishLoadingData();
 			} );
-	}, [ institution, isNew, id, history, startLoadingData, finishLoadingData ] );
+	}, [ institution, isNew, id, history, startLoadingData, finishLoadingData, addNotice ] );
 
 	const handleDelete = useCallback( () => {
 		startLoadingData( { isQuietLoading: true } );
@@ -130,8 +137,15 @@ export default function InstitutionEdit( { match }: { match: { params: { id?: st
 				setIsDirty( false );
 				history.push( '/institutions' );
 			} )
+			.catch( () => {
+				addNotice( {
+					message: __( 'Failed to delete institution. Please try again.', 'newspack-plugin' ),
+					type: 'error',
+					id: 'institution-delete-error',
+				} );
+			} )
 			.finally( () => finishLoadingData() );
-	}, [ id, history, startLoadingData, finishLoadingData ] );
+	}, [ id, history, startLoadingData, finishLoadingData, addNotice ] );
 
 	const { confirmDialog: navBlockDialog } = useConfirmDialog( {
 		when: isDirty && ! isSaving,
