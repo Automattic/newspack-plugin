@@ -17,7 +17,6 @@ import apiFetch from '@wordpress/api-fetch';
  */
 import { CardSettingsGroup, Divider, Grid, Router, SectionHeader, TextControl, useConfirmDialog } from '../../../../../../packages/components/src';
 import { WIZARD_STORE_NAMESPACE } from '../../../../../../packages/components/src/wizard/store';
-import './style.scss';
 
 const { useHistory } = Router;
 
