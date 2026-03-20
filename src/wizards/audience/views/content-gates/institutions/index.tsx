@@ -72,8 +72,15 @@ export default function Institutions() {
 		setIsLoading( true );
 		apiFetch< Institution[] >( { path: `${ API_PATH }?per_page=100&context=edit` } )
 			.then( setData )
+			.catch( () => {
+				addNotice( {
+					message: __( 'Failed to load institutions. Please refresh the page.', 'newspack-plugin' ),
+					type: 'error',
+					id: 'institutions-fetch-error',
+				} );
+			} )
 			.finally( () => setIsLoading( false ) );
-	}, [] );
+	}, [ addNotice ] );
 
 	useEffect( () => {
 		fetchData();
