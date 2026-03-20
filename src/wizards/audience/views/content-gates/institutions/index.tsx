@@ -29,7 +29,7 @@ const DEFAULT_VIEW: View = {
 	type: 'table',
 	page: 1,
 	perPage: 25,
-	sort: { field: 'name', direction: 'asc' },
+	sort: { field: 'title', direction: 'asc' },
 	search: '',
 	fields: [ 'email_domain', 'ip_range', 'reader_data' ],
 	filters: [],
