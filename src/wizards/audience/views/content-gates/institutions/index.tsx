@@ -9,14 +9,13 @@ import { __ } from '@wordpress/i18n';
 import { useState, useEffect, useCallback, useMemo } from '@wordpress/element';
 import { useDispatch } from '@wordpress/data';
 import apiFetch from '@wordpress/api-fetch';
-import { DataViews } from '@wordpress/dataviews';
 import type { Action, Field, View } from '@wordpress/dataviews';
 import { Button } from '@wordpress/components';
 
 /**
  * Internal dependencies
  */
-import { Router } from '../../../../../../packages/components/src';
+import { DataViews, Router } from '../../../../../../packages/components/src';
 import { WIZARD_STORE_NAMESPACE } from '../../../../../../packages/components/src/wizard/store';
 import './style.scss';
 
@@ -181,19 +180,18 @@ export default function Institutions() {
 	}
 
 	return (
-		<div className="newspack-institutions">
-			<DataViews
-				data={ data }
-				fields={ fields }
-				view={ view }
-				onChangeView={ setView }
-				actions={ actions }
-				paginationInfo={ { totalItems: data.length, totalPages: 1 } }
-				defaultLayouts={ { table: {}, grid: {} } }
-				isLoading={ isLoading }
-				getItemId={ ( item: Institution ) => String( item.id ) }
-				search
-			/>
-		</div>
+		<DataViews
+			className="newspack-institutions"
+			data={ data }
+			fields={ fields }
+			view={ view }
+			onChangeView={ setView }
+			actions={ actions }
+			paginationInfo={ { totalItems: data.length, totalPages: 1 } }
+			defaultLayouts={ { table: {}, grid: {} } }
+			isLoading={ isLoading }
+			getItemId={ ( item: Institution ) => String( item.id ) }
+			search
+		/>
 	);
 }

@@ -1,0 +1,16 @@
+/* stylelint-disable no-invalid-position-at-import-rule */
+@import "@wordpress/dataviews/build-style/style.css";
+
+.newspack-dataviews {
+	code {
+		font-size: 12px;
+		background: #f0f0f0;
+		padding: 2px 6px;
+		border-radius: 3px;
+	}
+}
+
+/* Make sure full-width DataViews aligns with the 48px margin. */
+.newspack-wizard__content--full-width .dataviews-wrapper {
+	margin-top: -16px;
+}

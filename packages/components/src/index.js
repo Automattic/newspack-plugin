@@ -14,6 +14,7 @@ export { default as CategoryAutocomplete } from './category-autocomplete';
 export { default as ColorPicker } from './color-picker';
 export { default as ConfirmDialog } from './confirm-dialog';
 export { default as CustomSelectControl } from './custom-select-control';
+export { default as DataViews } from './dataviews';
 export { default as Divider } from './divider';
 export { default as FormTokenField } from './form-token-field';
 export { default as Footer } from './footer';
