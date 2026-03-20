@@ -246,6 +246,8 @@ final class Newspack {
 		include_once NEWSPACK_ABSPATH . 'includes/optional-modules/class-indesign-exporter.php';
 		include_once NEWSPACK_ABSPATH . 'includes/optional-modules/class-nextdoor.php';
 
+		include_once NEWSPACK_ABSPATH . 'includes/experimental-tools/class-experimental-tools.php';
+
 		if ( Donations::is_platform_nrh() ) {
 			include_once NEWSPACK_ABSPATH . 'includes/class-nrh.php';
 		}
