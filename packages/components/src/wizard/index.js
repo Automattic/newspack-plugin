@@ -10,7 +10,7 @@ import { DropdownMenu, MenuItem } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useEffect, useState, forwardRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { category, moreVertical } from '@wordpress/icons';
+import { category, chevronLeft, moreVertical } from '@wordpress/icons';
 
 /**
  * Internal dependencies
@@ -22,6 +22,19 @@ import WizardSnackbar from './components/WizardSnackbar';
 import WizardError from './components/WizardError';
 
 registerStore();
+
+/**
+ * Icon registry for resolving icon name strings passed through the data store.
+ * React elements from @wordpress/icons can't cross webpack entry point boundaries
+ * because each bundle has its own copy of the icon primitives.
+ */
+const ICON_REGISTRY = { chevronLeft, category, moreVertical };
+const resolveIcon = icon => {
+	if ( typeof icon === 'string' ) {
+		return ICON_REGISTRY[ icon ] || null;
+	}
+	return icon;
+};
 
 const { HashRouter, Redirect, Route, Switch, useLocation } = Router;
 
@@ -161,7 +174,7 @@ const Wizard = (
 										key={ index }
 										className="newspack-wizard__header__actions__main"
 										href={ action.href }
-										icon={ action.icon }
+										icon={ resolveIcon( action.icon ) }
 										variant={ action.type }
 										onClick={ action.action }
 										disabled={ action.disabled || false }

@@ -49,8 +49,8 @@ export default function Institutions() {
 		const actions: HeaderAction[] = [
 			{
 				type: 'secondary',
-				label: __( '\u2190 Back to Access control', 'newspack-plugin' ),
-				icon: null,
+				label: __( 'Back to Access control', 'newspack-plugin' ),
+				icon: 'chevronLeft',
 				href: '#/content-gates',
 			},
 		];
@@ -58,7 +58,6 @@ export default function Institutions() {
 			actions.push( {
 				type: 'primary',
 				label: __( 'Add new institution', 'newspack-plugin' ),
-				icon: null,
 				href: '#/institutions/new',
 			} );
 		}

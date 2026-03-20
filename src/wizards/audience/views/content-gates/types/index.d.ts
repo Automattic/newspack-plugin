@@ -1,9 +1,10 @@
 declare module '@wordpress/block-editor';
+import type { Icon } from '@wordpress/icons';
 
 type HeaderAction = {
 	type: 'primary' | 'secondary' | 'more';
 	label: string;
-	icon: React.ReactNode;
+	icon?: Icon | string;
 	disabled?: boolean;
 	destructive?: boolean;
 	action?: () => void;
