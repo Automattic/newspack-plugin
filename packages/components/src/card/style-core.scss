@@ -52,7 +52,6 @@
 	}
 	&__header {
 		color: wp-colors.$gray-700;
-		column-gap: 16px;
 		position: relative;
 		.newspack-card--core__action {
 			margin: 0;
@@ -203,14 +202,34 @@
 			}
 		}
 	}
+	&.is-destructive {
+		button.newspack-card--core__header {
+			h1,
+			h2,
+			h3,
+			h4,
+			h5,
+			h6 {
+				color: wp-colors.$alert-red;
+			}
+			&:hover,
+			&:focus {
+				background-color: wp-colors.$gray-100;
+			}
+		}
+		.newspack-card--core__action,
+		.newspack-card--core__action svg {
+			fill: wp-colors.$alert-red;
+		}
+	}
 	hr.components-card__divider {
 		margin: 0;
 	}
 	&__is-narrow {
 		margin-left: auto;
 		margin-right: auto;
-		@media screen and ( min-width: 608px ) {
-			max-width: 576px;
+		@media screen and ( min-width: 615px ) {
+			max-width: 583px;
 		}
 	}
 	&__body {

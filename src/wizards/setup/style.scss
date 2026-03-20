@@ -83,9 +83,5 @@
 }
 
 .newspack-footer {
-	flex-direction: row-reverse;
-
-	&__logo {
-		margin-left: 0;
-	}
+	display: none;
 }

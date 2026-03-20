@@ -98,7 +98,7 @@ class Test_Metering extends \WP_UnitTestCase {
 						'value' => [ 'post' ],
 					],
 				],
-				'registration'  => [
+				'registration'  => $args['registration'] ?? [
 					'active'               => true,
 					'metering'             => [
 						'enabled' => $args['metering_enabled'],
@@ -108,7 +108,7 @@ class Test_Metering extends \WP_UnitTestCase {
 					'require_verification' => $args['require_verification'],
 					'gate_id'              => 0,
 				],
-				'custom_access' => [
+				'custom_access' => $args['custom_access'] ?? [
 					'active'       => true,
 					'metering'     => [
 						'enabled' => $args['metering_enabled'],
@@ -553,5 +553,64 @@ class Test_Metering extends \WP_UnitTestCase {
 		// Logged-in metering should be blocked for anonymous users.
 		$result = Metering::is_logged_in_metering_allowed( $post_id );
 		$this->assertFalse( $result, 'Logged-in metering should be blocked for anonymous users' );
+	}
+
+	/**
+	 * Test that front-end metering settings fall back to registered settings if anonymous settings are not enabled.
+	 */
+	public function test_metering_settings_fall_back_to_registered_settings() {
+		// Create a gate with metering enabled.
+		$gate_id = $this->create_gate_with_settings(
+			[
+				'registration'  => [
+					'active'   => false,
+					'metering' => [
+						'enabled' => false,
+						'count'   => 0,
+						'period'  => 'month',
+					],
+				],
+				'custom_access' => [
+					'active'   => true,
+					'metering' => [
+						'enabled' => true,
+						'count'   => 5,
+						'period'  => 'month',
+					],
+				],
+			]
+		);
+
+		// Create a post.
+		$post_id = $this->factory->post->create();
+		$this->post_ids[] = $post_id;
+
+		// Set query to current post.
+		global $wp_query;
+		$wp_query = new \WP_Query( [ 'p' => $post_id ] );
+		add_filter( 'newspack_is_post_restricted', '__return_true' );
+
+		// Ensure no user is logged in.
+		wp_set_current_user( 0 );
+
+		// Apply the filter to control the gate context for testing.
+		add_filter(
+			'newspack_content_gate_post_id',
+			function() use ( $gate_id ) {
+				return $gate_id;
+			}
+		);
+
+		// Anonymous metering is not enabled.
+		$anonymous_settings = Metering::get_anonymous_settings( $gate_id );
+		$this->assertFalse( $anonymous_settings['enabled'], 'Anonymous settings should not be enabled' );
+
+		// Registered metering is enabled.
+		$registered_settings = Metering::get_registered_settings( $gate_id );
+		$this->assertTrue( $registered_settings['enabled'], 'Registered settings should be enabled' );
+
+		// Front-end metering should fall back to registered settings if anonymous settings are not enabled.
+		$this->assertTrue( Metering::is_frontend_metering(), 'Front-end metering should fall back to registered settings if anonymous settings are not enabled' );
+		$this->assertEquals( $registered_settings['count'], Metering::get_total_metered_views(), 'Total metered views should be the same as registered settings' );
 	}
 }
