@@ -52,7 +52,7 @@ const SegmentsList = ( { wizardApiFetch, segments, setSegments, isLoading } ) =>
 					setInFlight( false );
 				} );
 		},
-		[ wizardApiFetch ]
+		[ wizardApiFetch, setSegments ]
 	);
 
 	const deleteSegment = useCallback(
@@ -106,7 +106,7 @@ const SegmentsList = ( { wizardApiFetch, segments, setSegments, isLoading } ) =>
 				title: segment.name,
 				description: segmentDescription( segment ),
 				badgeLevel: segment.is_criteria_duplicated ? 'warning' : 'default',
-				badgeText: segment.is_criteria_duplicated ? __( 'Duplicate', 'newspack-plugin' ) : '',
+				badgeText: segment.is_criteria_duplicated ? __( 'Duplicate', 'newspack-plugin' ) : undefined,
 				toggleChecked: ! segment.configuration.is_disabled,
 				onToggleChange: () => toggleSegmentStatus( segment ),
 				actions: [
