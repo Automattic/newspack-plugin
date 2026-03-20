@@ -10,13 +10,14 @@ import { useState, useEffect, useCallback, useMemo } from '@wordpress/element';
 import { useDispatch } from '@wordpress/data';
 import apiFetch from '@wordpress/api-fetch';
 import type { Action, Field, View } from '@wordpress/dataviews';
-import { Button } from '@wordpress/components';
+import { Button, Spinner } from '@wordpress/components';
 
 /**
  * Internal dependencies
  */
 import { DataViews, Router } from '../../../../../../packages/components/src';
 import { WIZARD_STORE_NAMESPACE } from '../../../../../../packages/components/src/wizard/store';
+import InstitutionsOnboarding from './onboarding';
 import './style.scss';
 
 const { useHistory } = Router;
@@ -44,24 +45,27 @@ export default function Institutions() {
 	const [ view, setView ] = useState< View >( DEFAULT_VIEW );
 
 	useEffect( () => {
+		const actions: HeaderAction[] = [
+			{
+				type: 'secondary',
+				label: __( '\u2190 Back to Access control', 'newspack-plugin' ),
+				icon: null,
+				href: '#/content-gates',
+			},
+		];
+		if ( data.length !== 0 ) {
+			actions.push( {
+				type: 'primary',
+				label: __( 'Add New Institution', 'newspack-plugin' ),
+				icon: null,
+				href: '#/institutions/new',
+			} );
+		}
 		setHeaderData( {
 			sectionName: __( 'Institutions', 'newspack-plugin' ),
-			actions: [
-				{
-					type: 'secondary',
-					label: __( '\u2190 Back to Access control', 'newspack-plugin' ),
-					icon: null,
-					href: '#/content-gates',
-				},
-				{
-					type: 'primary',
-					label: __( 'Add New Institution', 'newspack-plugin' ),
-					icon: null,
-					href: '#/institutions/new',
-				},
-			],
+			actions,
 		} );
-	}, [ setHeaderData ] );
+	}, [ setHeaderData, data, isLoading ] );
 
 	const fetchData = useCallback( () => {
 		setIsLoading( true );
@@ -170,13 +174,16 @@ export default function Institutions() {
 		[ fetchData, history ]
 	);
 
-	if ( ! isLoading && data.length === 0 ) {
+	if ( isLoading ) {
 		return (
-			<div className="newspack-institutions__empty-state">
-				<h3>{ __( 'No institutions yet', 'newspack-plugin' ) }</h3>
-				<p>{ __( 'Use the "Add New" button above to create your first institution.', 'newspack-plugin' ) }</p>
+			<div style={ { display: 'flex', justifyContent: 'center', alignItems: 'center' } }>
+				<Spinner />
 			</div>
 		);
+	}
+
+	if ( ! isLoading && data.length === 0 ) {
+		return <InstitutionsOnboarding />;
 	}
 
 	return (

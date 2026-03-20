@@ -4,9 +4,10 @@ type HeaderAction = {
 	type: 'primary' | 'secondary' | 'more';
 	label: string;
 	icon: React.ReactNode;
-	action: () => void;
 	disabled?: boolean;
 	destructive?: boolean;
+	action?: () => void;
+	href?: string;
 };
 
 type GateAccessRuleValue = string | string[] | boolean;
@@ -40,37 +41,37 @@ type GateAccessRuleProps = {
 	config: AccessRule;
 	rule?: GateAccessRule;
 	enabled?: boolean;
-	onToggle?: (slug: string) => void;
+	onToggle?: ( slug: string ) => void;
 	slug: string;
 	exclusion?: boolean;
-	onChange: (value: GateRuleValue) => void;
+	onChange: ( value: GateRuleValue ) => void;
 };
 
 type GateContentRuleProps = {
 	config: ContentRule;
 	rule?: GateContentRule;
 	enabled?: boolean;
-	onToggle?: (slug: string) => void;
+	onToggle?: ( slug: string ) => void;
 	slug: string;
-	onChange: (value: GateContentRuleValue) => void;
-	onChangeExclusion?: (value: boolean) => void;
+	onChange: ( value: GateContentRuleValue ) => void;
+	onChangeExclusion?: ( value: boolean ) => void;
 };
 
 type GateRuleControlProps = {
 	slug: string;
 	value: GateRuleValue;
 	exclusion?: boolean;
-	onChange: (value: GateRuleValue) => void;
-	onChangeExclusion?: (value: boolean) => void;
+	onChange: ( value: GateRuleValue ) => void;
+	onChangeExclusion?: ( value: boolean ) => void;
 	isStatic?: boolean;
 };
 
 type AccessRules = {
-	[key: string]: AccessRule;
+	[ key: string ]: AccessRule;
 };
 
 type ContentRules = {
-	[key: string]: ContentRule;
+	[ key: string ]: ContentRule;
 };
 
 type GateAccessRule = {
@@ -145,7 +146,7 @@ type GateSettings = {
 
 type GateConfig = {
 	gates: Gate[];
-	config: GateSettings
+	config: GateSettings;
 };
 
 type Institution = {
