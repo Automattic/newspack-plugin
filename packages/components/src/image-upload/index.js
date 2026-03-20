@@ -21,8 +21,6 @@ import './style.scss';
 import classnames from 'classnames';
 
 class ImageUpload extends Component {
-	static instanceCounter = 0;
-
 	/**
 	 * Constructor.
 	 */
@@ -31,9 +29,6 @@ class ImageUpload extends Component {
 		this.state = {
 			frame: false,
 		};
-
-		ImageUpload.instanceCounter += 1;
-		this.baseControlId = this.props.id || `newspack-image-upload-${ ImageUpload.instanceCounter }`;
 	}
 
 	/**
@@ -85,7 +80,8 @@ class ImageUpload extends Component {
 			{ 'newspack-image-upload__image--covering': isCovering }
 		);
 		return (
-			<BaseControl className={ classnames( 'newspack-image-upload', className ) } help={ help } id={ this.baseControlId } label={ label }>
+			<BaseControl __nextHasNoMarginBottom className={ classnames( 'newspack-image-upload', className ) } help={ help }>
+				{ label && <BaseControl.VisualLabel>{ label }</BaseControl.VisualLabel> }
 				<div className={ classes } style={ style }>
 					{ image?.url ? (
 						<>
@@ -100,7 +96,7 @@ class ImageUpload extends Component {
 							</div>
 						</>
 					) : (
-						<Button disabled={ disabled } id={ this.baseControlId } onClick={ this.openModal } variant="tertiary">
+						<Button disabled={ disabled } onClick={ this.openModal } variant="tertiary">
 							{ buttonLabel ? buttonLabel : __( 'Upload', 'newspack-plugin' ) }
 						</Button>
 					) }
