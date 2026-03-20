@@ -164,7 +164,7 @@ class Major_Revisions {
 	public static function enqueue_scripts() {
 		wp_enqueue_script(
 			'newspack_revisions_control',
-			Newspack::plugin_url() . '/dist/revisions-control.js',
+			Newspack::plugin_url() . '/dist/newspack-revisions.js',
 			[ 'jquery' ],
 			NEWSPACK_PLUGIN_VERSION,
 			true
@@ -186,7 +186,7 @@ class Major_Revisions {
 		);
 		wp_enqueue_style(
 			'newspack_revisions_control',
-			Newspack::plugin_url() . '/dist/revisions-control.css',
+			Newspack::plugin_url() . '/dist/newspack-revisions.css',
 			NEWSPACK_PLUGIN_VERSION,
 			true
 		);

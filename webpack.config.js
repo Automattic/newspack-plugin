@@ -76,6 +76,7 @@ const entry = {
 	'collections-admin': path.join( __dirname, 'src', 'collections', 'admin', 'index.js' ),
 	'collections-frontend': path.join( __dirname, 'src', 'collections', 'frontend', 'index.js' ),
 	'group-subscription-admin': path.join( __dirname, 'src', 'group-subscription', 'admin.js' ),
+	'newspack-revisions': path.join( __dirname, 'src', 'newspack-revisions', 'index.js' ),
 };
 
 // Get files for other scripts.
