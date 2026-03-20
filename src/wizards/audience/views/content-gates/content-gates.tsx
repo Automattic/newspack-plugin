@@ -42,33 +42,33 @@ const ContentGates = ( { updateGatesData }: { updateGatesData: ( gates: Gate[] )
 			resetHeaderData();
 			return;
 		}
+		const sectionMenu = [
+			{
+				label: __( 'Institutions', 'newspack-plugin' ),
+				href: '#/institutions',
+			},
+			{
+				label: __( 'Advanced settings', 'newspack-plugin' ),
+				disabled: true,
+			},
+		];
+		if ( gates.length > 1 ) {
+			sectionMenu.unshift( {
+				label: __( 'Gate priority', 'newspack-plugin' ),
+				action: () => setShowPriorityModal( true ),
+			} );
+		}
 		setHeaderData( {
 			sectionTitle: __( 'Access control', 'newspack-plugin' ),
 			sectionDescription: __(
 				'Set up gates to manage what content readers can access across your site. Start by selecting which content to restrict, then configure access through registered and/or paid options (including metered rules).',
 				'newspack-plugin'
 			),
-			sectionMenu: [
-				{
-					label: __( 'Institutions', 'newspack-plugin' ),
-					href: '#/institutions',
-				},
-				{
-					label: __( 'Advanced settings', 'newspack-plugin' ),
-					disabled: true,
-				},
-			],
+			sectionMenu,
 			sectionPrimaryAction: {
 				label: __( 'Add new content gate', 'newspack-plugin' ),
 				href: '#/edit/new/all',
 			},
-			sectionSecondaryAction:
-				gates.length > 1
-					? {
-							label: __( 'Gate priority', 'newspack-plugin' ),
-							action: () => setShowPriorityModal( true ),
-					  }
-					: undefined,
 		} );
 	}, [ isFetching, gates ] );
 
