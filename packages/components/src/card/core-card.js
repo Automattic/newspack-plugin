@@ -45,6 +45,7 @@ const CoreCard = ( {
 	noBorder,
 	noMargin,
 	children = null,
+	hasGreyHeader,
 	...otherProps
 } ) => {
 	const classes = classNames(
@@ -58,7 +59,8 @@ const CoreCard = ( {
 		iconBackgroundColor && 'newspack-card--core__has-icon-background-color',
 		isActive && 'newspack-card--core__is-active',
 		children && 'newspack-card--core__has-children',
-		noMargin && 'newspack-card--core__no-margin'
+		noMargin && 'newspack-card--core__no-margin',
+		hasGreyHeader && 'newspack-card--core__has-grey-header'
 	);
 	let sizeProps = isSmall ? 'small' : otherProps.size;
 	if ( buttonsCard || as === 'a' ) {

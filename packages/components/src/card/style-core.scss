@@ -232,6 +232,11 @@
 			max-width: 583px;
 		}
 	}
+	&__has-grey-header {
+		.newspack-card--core__header {
+			background-color: rgba(black, 0.025);
+		}
+	}
 	&__body {
 		> div:not(.components-card__body):not(.components-card__media):not(.components-card__divider) {
 			padding: 16px 24px;
@@ -241,6 +246,9 @@
 			.newspack-card--core__no-margin & {
 				padding: 0;
 			}
+		}
+		> .components-card-media {
+			border-radius: 0 !important;
 		}
 	}
 }
