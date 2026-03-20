@@ -12,7 +12,7 @@ import apiFetch from '@wordpress/api-fetch';
 import { useRef, useEffect, useState } from '@wordpress/element';
 import { Icon, addCard, check, info, layout } from '@wordpress/icons';
 import { isURL } from '@wordpress/url';
-import { CheckboxControl } from '@wordpress/components';
+import { CheckboxControl, __experimentalHStack as HStack, __experimentalVStack as VStack } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
 
 /**
  * Internal dependencies
@@ -20,14 +20,12 @@ import { CheckboxControl } from '@wordpress/components';
 import {
 	ActionCard,
 	Button,
-	ButtonCard,
 	Card,
 	GlobalNotices,
 	Grid,
 	NewspackIcon,
 	Notice,
 	ProgressBar,
-	SectionHeader,
 	TextControl,
 	withWizardScreen,
 } from '../../../../../packages/components/src';
@@ -73,14 +71,14 @@ const Welcome = ( { buttonAction } ) => {
 	const total = ( shouldInstallStarterContent ? STARTER_CONTENT_REQUEST_COUNT : 0 ) + softwareInfo.length;
 
 	useEffect( () => {
-		document.body.classList.add( 'newspack-wizard__welcome', 'newspack-wizard__blue' );
+		document.body.classList.add( 'newspack-wizard__welcome' );
 
 		apiFetch( { path: '/newspack/v1/wizard/newspack-setup-wizard/initial-check/' } ).then( res => {
 			setSoftwareInfo( res.plugins );
 			setIsSSL( res.is_ssl );
 		} );
 
-		return () => document.body.classList.remove( 'newspack-wizard__welcome', 'newspack-wizard__blue' );
+		return () => document.body.classList.remove( 'newspack-wizard__welcome' );
 	}, [] );
 
 	const increment = () => setInstallationProgress( progress => progress + 1 );
@@ -258,25 +256,13 @@ const Welcome = ( { buttonAction } ) => {
 	return (
 		<>
 			{ isInit && (
-				<Grid columns={ 1 } gutter={ 8 }>
-					<NewspackIcon simple size={ 36 } white />
-					<SectionHeader
-						title={ () => (
-							<>
-								{ __( 'Welcome to Newspack,', 'newspack' ) }
-								<br />
-								{ __( 'the platform for news', 'newspack' ) }
-							</>
-						) }
-						heading={ 1 }
-						centered
-						isWhite
-						noMargin
-					/>
-				</Grid>
+				<HStack>
+					<h1 className="screen-reader-text">{ __( 'Welcome to Newspack', 'newspack' ) }</h1>
+					<NewspackIcon simple size={ 64 } />
+				</HStack>
 			) }
 
-			<Card isNarrow isWhite className={ errors.length === 0 && installationProgress > 0 && ! isDone ? 'loading' : null }>
+			<Card isNarrow noBorder className={ errors.length === 0 && installationProgress > 0 && ! isDone ? 'loading' : null }>
 				<Grid columns={ 1 }>
 					{ ! isInit && (
 						<h1>
@@ -310,28 +296,42 @@ const Welcome = ( { buttonAction } ) => {
 							<GlobalNotices />
 							{ isInit && (
 								<>
-									<Card noBorder>
-										<ButtonCard
-											href="#"
-											title={ __( 'Start a new site', 'newspack' ) }
-											desc={ __( "You don't have content to import", 'newspack' ) }
-											icon={ addCard }
-											className="br--top"
-											isPressed={ isSetupApproachNew }
-											onClick={ () => setSetupApproach( 'generated' ) }
-											grouped
+									<VStack spacing={ 4 }>
+										<Card
+											__experimentalCoreCard
+											isSmall
+											__experimentalCoreProps={ {
+												header: (
+													<>
+														<h3>{ __( 'Start a new site', 'newspack' ) }</h3>
+														<p style={ { margin: 0 } }>{ __( "You don't have content to import", 'newspack' ) }</p>
+													</>
+												),
+												icon: addCard,
+												iconBackgroundColor: true,
+												actionType: 'chevron',
+												onHeaderClick: () => setSetupApproach( 'generated' ),
+												isActive: isSetupApproachNew,
+											} }
 										/>
-										<ButtonCard
-											href="#"
-											title={ __( 'Migrate an existing WordPress site', 'newspack' ) }
-											desc={ __( 'You have content to import', 'newspack' ) }
-											icon={ layout }
-											className="br--bottom"
-											isPressed={ isSetupApproachMigrate }
-											onClick={ () => setSetupApproach( 'import' ) }
-											grouped
+										<Card
+											__experimentalCoreCard
+											isSmall
+											__experimentalCoreProps={ {
+												header: (
+													<>
+														<h3>{ __( 'Migrate an existing WordPress site', 'newspack' ) }</h3>
+														<p style={ { margin: 0 } }>{ __( 'You have content to import', 'newspack' ) }</p>
+													</>
+												),
+												icon: layout,
+												iconBackgroundColor: true,
+												actionType: 'chevron',
+												onHeaderClick: () => setSetupApproach( 'import' ),
+												isActive: isSetupApproachMigrate,
+											} }
 										/>
-									</Card>
+									</VStack>
 									{ isSetupApproachMigrate && (
 										<TextControl
 											label={ __( 'URL', 'newspack' ) }

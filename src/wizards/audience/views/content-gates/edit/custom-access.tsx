@@ -16,8 +16,8 @@ interface CustomAccessProps {
 }
 
 export default function CustomAccess( { customAccess, onChange }: CustomAccessProps ) {
-	// Get the first group of rules (UI currently only supports a single group).
-	const currentRules = customAccess.access_rules[ 0 ] || [];
+	// Flatten grouped rules for display (each group has one rule in OR mode).
+	const currentRules = customAccess.access_rules.map( group => group[ 0 ] ).filter( Boolean );
 
 	const handleChange = useCallback(
 		( value: Partial< CustomAccess > ) => {
@@ -33,9 +33,8 @@ export default function CustomAccess( { customAccess, onChange }: CustomAccessPr
 
 	const handleRulesChange = useCallback(
 		( rules: GateAccessRule[] ) => {
-			// Wrap rules in a single group to maintain grouped format.
-			// If no rules, set empty array to avoid [ [] ] which would pass readiness checks.
-			handleChange( { access_rules: rules.length ? [ rules ] : [] } );
+			// Each rule is its own group for OR logic: [ [rule1], [rule2] ].
+			handleChange( { access_rules: rules.map( rule => [ rule ] ) } );
 		},
 		[ handleChange ]
 	);

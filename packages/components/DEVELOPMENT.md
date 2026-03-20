@@ -97,7 +97,6 @@ When building a screen, use the **spacing scale** (8px unit: 16, 24, 32, 48, 64)
 ### Content Components
 
 - **`ActionCard`** – Use when one concept (e.g. a feature or setting) can be toggled on/off and may have extra content below. Internal padding (24px default; 16px/8px for isMedium/isSmall) and 24px between regions keep hierarchy clear; expandable content uses 24px top padding and 24px between siblings.
-- **`ButtonCard`** – Card with button actions.
 - **`Notice`** – Use for outcome feedback (success/error/warning) or short contextual messages. Vertical margin is 32px so notices don’t collide with cards; keep one primary message per area when possible.
 - **`Waiting`** – Loading state indicator.
 - **`ProgressBar`** – Progress indicator.

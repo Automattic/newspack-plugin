@@ -12,7 +12,7 @@ import { blockTable, header, layout, postList } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
-import { Button, ButtonCard, Card, Grid, Modal } from '../../../../../packages/components/src';
+import { Button, Card, Grid, Modal } from '../../../../../packages/components/src';
 import SegmentationPreview from '../segmentation-preview';
 import PromptActionCard from '../prompt-action-card';
 import { promptDescription, segmentDescription, getCardClassName, warningForPopup } from '../../views/campaigns/utils';
@@ -102,56 +102,144 @@ const SegmentGroup = props => {
 									onRequestClose={ () => setModalVisible( false ) }
 									shouldCloseOnEsc={ false }
 									shouldCloseOnClickOutside={ false }
-									size="x-large"
+									size="large"
 								>
-									<Grid columns={ 3 } noMargin>
-										<ButtonCard
+									<Grid columns={ 2 } gutter={ 16 } noMargin>
+										<Card
+											__experimentalCoreCard
+											isSmall
+											buttonsCard
 											href={ addNewURL( 'overlay-center', campaignId, id ) }
-											title={ __( 'Center Overlay', 'newspack-plugin' ) }
-											desc={ __( 'Fixed at the center of the screen', 'newspack-plugin' ) }
-											icon={ overlayCenter }
+											__experimentalCoreProps={ {
+												header: (
+													<>
+														<h3>{ __( 'Center Overlay', 'newspack-plugin' ) }</h3>
+														<p>{ __( 'Fixed at the center of the screen', 'newspack-plugin' ) }</p>
+													</>
+												),
+												icon: overlayCenter,
+												actionType: 'chevron',
+												iconBackgroundColor: true,
+											} }
 										/>
-										<ButtonCard
+										<Card
+											__experimentalCoreCard
+											isSmall
+											buttonsCard
 											href={ addNewURL( 'overlay-top', campaignId, id ) }
-											title={ __( 'Top Overlay', 'newspack-plugin' ) }
-											desc={ __( 'Fixed at the top of the screen', 'newspack-plugin' ) }
-											icon={ overlayTop }
+											__experimentalCoreProps={ {
+												header: (
+													<>
+														<h3>{ __( 'Top Overlay', 'newspack-plugin' ) }</h3>
+														<p>{ __( 'Fixed at the top of the screen', 'newspack-plugin' ) }</p>
+													</>
+												),
+												icon: overlayTop,
+												actionType: 'chevron',
+												iconBackgroundColor: true,
+											} }
 										/>
-										<ButtonCard
+										<Card
+											__experimentalCoreCard
+											isSmall
+											buttonsCard
 											href={ addNewURL( 'overlay-bottom', campaignId, id ) }
-											title={ __( 'Bottom Overlay', 'newspack-plugin' ) }
-											desc={ __( 'Fixed at the bottom of the screen', 'newspack-plugin' ) }
-											icon={ overlayBottom }
+											__experimentalCoreProps={ {
+												header: (
+													<>
+														<h3>{ __( 'Bottom Overlay', 'newspack-plugin' ) }</h3>
+														<p>{ __( 'Fixed at the bottom of the screen', 'newspack-plugin' ) }</p>
+													</>
+												),
+												icon: overlayBottom,
+												actionType: 'chevron',
+												iconBackgroundColor: true,
+											} }
 										/>
-										<ButtonCard
+										<Card
+											__experimentalCoreCard
+											isSmall
+											buttonsCard
 											href={ addNewURL( null, campaignId, id ) }
-											title={ __( 'Inline', 'newspack-plugin' ) }
-											desc={ __( 'Embedded in content', 'newspack-plugin' ) }
-											icon={ overlayInline }
+											__experimentalCoreProps={ {
+												header: (
+													<>
+														<h3>{ __( 'Inline', 'newspack-plugin' ) }</h3>
+														<p>{ __( 'Embedded in content', 'newspack-plugin' ) }</p>
+													</>
+												),
+												icon: overlayInline,
+												actionType: 'chevron',
+												iconBackgroundColor: true,
+											} }
 										/>
-										<ButtonCard
-											href={ addNewURL( 'archives', campaignId, id ) }
-											title={ __( 'In Archive Pages', 'newspack-plugin' ) }
-											desc={ __( 'Embedded once or many times in archive pages', 'newspack-plugin' ) }
-											icon={ postList }
-										/>
-										<ButtonCard
+										<Card
+											__experimentalCoreCard
+											isSmall
+											buttonsCard
 											href={ addNewURL( 'above-header', campaignId, id ) }
-											title={ __( 'Above Header', 'newspack-plugin' ) }
-											desc={ __( 'Embedded at the very top of the page', 'newspack-plugin' ) }
-											icon={ header }
+											__experimentalCoreProps={ {
+												header: (
+													<>
+														<h3>{ __( 'Above Header', 'newspack-plugin' ) }</h3>
+														<p>{ __( 'Embedded at the very top of the page', 'newspack-plugin' ) }</p>
+													</>
+												),
+												icon: header,
+												actionType: 'chevron',
+												iconBackgroundColor: true,
+											} }
 										/>
-										<ButtonCard
+										<Card
+											__experimentalCoreCard
+											isSmall
+											buttonsCard
 											href={ addNewURL( 'custom', campaignId, id ) }
-											title={ __( 'Custom Placement', 'newspack-plugin' ) }
-											desc={ __( 'Only appears when placed in content', 'newspack-plugin' ) }
-											icon={ layout }
+											__experimentalCoreProps={ {
+												header: (
+													<>
+														<h3>{ __( 'Custom Placement', 'newspack-plugin' ) }</h3>
+														<p>{ __( 'Only appears when placed in content', 'newspack-plugin' ) }</p>
+													</>
+												),
+												icon: layout,
+												actionType: 'chevron',
+												iconBackgroundColor: true,
+											} }
 										/>
-										<ButtonCard
+										<Card
+											__experimentalCoreCard
+											isSmall
+											buttonsCard
+											href={ addNewURL( 'archives', campaignId, id ) }
+											__experimentalCoreProps={ {
+												header: (
+													<>
+														<h3>{ __( 'In Archive Pages', 'newspack-plugin' ) }</h3>
+														<p>{ __( 'Embedded once or many times in archive pages', 'newspack-plugin' ) }</p>
+													</>
+												),
+												icon: postList,
+												actionType: 'chevron',
+												iconBackgroundColor: true,
+											} }
+										/>
+										<Card
+											__experimentalCoreCard
+											isSmall
+											buttonsCard
 											href={ addNewURL( 'manual', campaignId, id ) }
-											title={ __( 'Manual Only', 'newspack-plugin' ) }
-											desc={ __( 'Only appears where Single Prompt block is inserted', 'newspack-plugin' ) }
-											icon={ blockTable }
+											__experimentalCoreProps={ {
+												header: (
+													<>
+														<h3>{ __( 'Manual Only', 'newspack-plugin' ) }</h3>
+														<p>{ __( 'Only appears where Single Prompt block is inserted', 'newspack-plugin' ) }</p>
+													</>
+												),
+												icon: blockTable,
+												actionType: 'chevron',
+												iconBackgroundColor: true,
+											} }
 										/>
 									</Grid>
 								</Modal>
