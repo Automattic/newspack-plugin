@@ -1,6 +1,7 @@
 /**
  * Content gates group
  */
+
 @use "~@wordpress/base-styles/colors" as wp-colors;
 @use "~@wordpress/base-styles/variables" as wp;
 
@@ -62,7 +63,7 @@
 				&::before {
 					background-color: var(--newspack-ui-color-error-60);
 					border-radius: 50%;
-					content: "";
+					content: '';
 					display: inline-block;
 					height: 8px;
 					margin-right: 8px;
