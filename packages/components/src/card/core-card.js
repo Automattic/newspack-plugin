@@ -80,6 +80,7 @@ const CoreCard = ( {
 					className={ classNames( 'newspack-card--core__header', isDraggable && 'newspack-card--core__header--is-draggable' ) }
 					style={ headerStyle }
 					size={ sizeProps }
+					gap={ 4 }
 					onClick={ onHeaderClick }
 				>
 					{ isDraggable && (

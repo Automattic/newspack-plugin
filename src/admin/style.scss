@@ -279,7 +279,12 @@ table.fixed {
 	}
 
 	&.newspack-card__is-narrow {
-		padding: 3rem 4rem;
+		padding: 48px;
+
+		&.newspack-card__no-border {
+			padding-bottom: 0;
+			padding-top: 0;
+		}
 
 		h2 {
 			margin-block-start: 0;

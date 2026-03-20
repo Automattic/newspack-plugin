@@ -12,7 +12,7 @@ import '../../shared/js/public-path';
 import { CardBody, CardDivider, CardMedia, ExternalLink, ToggleControl, __experimentalVStack as VStack } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
 import { Component, Fragment, render, createInterpolateElement, createRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Icon, audio, category, plus, postList, reusableBlock, settings, typography } from '@wordpress/icons';
+import { Icon, category, plus, postList, settings } from '@wordpress/icons';
 
 /**
  * Internal dependencies.
@@ -23,7 +23,6 @@ import {
 	AutocompleteWithLatestPosts,
 	BoxContrast,
 	Button,
-	ButtonCard,
 	Card,
 	CardSettingsGroup,
 	ColorPicker,
@@ -657,51 +656,6 @@ class ComponentsDemo extends Component {
 						</Grid>
 					</Card>
 					<Card>
-						<h2>{ __( 'ButtonCard', 'newspack-plugin' ) }</h2>
-						<ButtonCard
-							href="admin.php?page=newspack-settings#/theme-and-brand"
-							title={ __( 'Theme and Brand', 'newspack-plugin' ) }
-							desc={ __( 'Customize the look and feel of your site', 'newspack-plugin' ) }
-							icon={ typography }
-							chevron
-						/>
-						<ButtonCard
-							href="#"
-							title={ __( 'Start a new site', 'newspack-plugin' ) }
-							desc={ __( "You don't have content to import", 'newspack-plugin' ) }
-							icon={ plus }
-							className="br--top"
-							grouped
-						/>
-						<ButtonCard
-							href="#"
-							title={ __( 'Migrate an existing site', 'newspack-plugin' ) }
-							desc={ __( 'You have content to import', 'newspack-plugin' ) }
-							icon={ reusableBlock }
-							className="br--bottom"
-							grouped
-						/>
-						<ButtonCard
-							href="#"
-							title={ __( 'Add a new Podcast', 'newspack-plugin' ) }
-							desc={ ( 'Small', 'newspack-plugin' ) }
-							icon={ audio }
-							className="br--top"
-							isSmall
-							grouped
-						/>
-						<ButtonCard
-							href="#"
-							title={ __( 'Add a new Font', 'newspack-plugin' ) }
-							desc={ ( 'Small + chevron', 'newspack-plugin' ) }
-							icon={ typography }
-							className="br--bottom"
-							chevron
-							isSmall
-							grouped
-						/>
-					</Card>
-					<Card>
 						<h2>{ __( 'Card (experimental Core component)', 'newspack-plugin' ) }</h2>
 						<p>
 							{ __(
@@ -721,7 +675,7 @@ class ComponentsDemo extends Component {
 									header: (
 										<>
 											<h3>{ __( 'Button card w/ icon', 'newspack-plugin' ) }</h3>
-											<p>{ __( 'Can be used in lieu of the Newspack ButtonCard component.', 'newspack-plugin' ) }</p>
+											<p>{ __( "Clickable card using Core's Card component.", 'newspack-plugin' ) }</p>
 										</>
 									),
 									href: '#',
@@ -737,7 +691,7 @@ class ComponentsDemo extends Component {
 									header: (
 										<>
 											<h3>{ __( 'Small button card w/ icon + background color + chevron', 'newspack-plugin' ) }</h3>
-											<p>{ __( 'Can be used in lieu of the Newspack ButtonCard component.', 'newspack-plugin' ) }</p>
+											<p>{ __( "Clickable card using Core's Card component.", 'newspack-plugin' ) }</p>
 										</>
 									),
 									href: '#',
