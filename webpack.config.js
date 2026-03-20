@@ -9,7 +9,6 @@
  */
 const fs = require( 'fs' );
 const getBaseWebpackConfig = require( 'newspack-scripts/config/getWebpackConfig' );
-const CopyWebpackPlugin = require( 'copy-webpack-plugin' );
 const path = require( 'path' );
 const wizardsDir = path.join( __dirname, 'src', 'wizards' );
 
@@ -105,17 +104,5 @@ webpackConfig.module.rules.push( {
 	test: /\.(woff|woff2|eot|ttf|otf)$/i,
 	type: 'asset/resource',
 } );
-
-// Copy @wordpress/dataviews styles to dist for the Status page.
-webpackConfig.plugins.push(
-	new CopyWebpackPlugin( {
-		patterns: [
-			{
-				from: path.resolve( __dirname, 'node_modules/@wordpress/dataviews/build-style/style.css' ),
-				to: path.resolve( __dirname, 'dist/dataviews-style.css' ),
-			},
-		],
-	} )
-);
 
 module.exports = webpackConfig;

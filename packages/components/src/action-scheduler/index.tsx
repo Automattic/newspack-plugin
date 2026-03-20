@@ -12,11 +12,15 @@
 import { __ } from '@wordpress/i18n';
 import { useState, useEffect, useCallback, useMemo, useRef, Fragment } from '@wordpress/element';
 import apiFetch from '@wordpress/api-fetch';
-import { DataViews } from '@wordpress/dataviews';
 /* eslint-disable @wordpress/no-unsafe-wp-apis */
 import { Button, Spinner, __experimentalHStack as HStack, __experimentalVStack as VStack } from '@wordpress/components';
 /* eslint-enable @wordpress/no-unsafe-wp-apis */
-import type { Action, Field, View, SupportedLayouts } from '@wordpress/dataviews';
+
+/**
+ * Internal dependencies
+ */
+import DataViews from '../dataviews';
+import type { Action, Field, View, SupportedLayouts } from '../dataviews';
 
 interface ScheduledAction {
 	id: number;
