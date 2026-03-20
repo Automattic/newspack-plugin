@@ -33,6 +33,7 @@ type DraggableItemAction = {
 type DraggableItem = {
 	id: string | number;
 	title: string;
+	description?: string;
 	badgeLevel: 'default' | 'success' | 'info' | 'warning' | 'error';
 	badgeText: string;
 	toggleChecked?: boolean;
@@ -398,10 +399,13 @@ const CardSortableList = ( {
 										__experimentalCoreCard
 										__experimentalCoreProps={ {
 											header: (
-												<h3>
-													{ item.title }
-													<Badge level={ item.badgeLevel } text={ item.badgeText } />
-												</h3>
+												<>
+													<h3>
+														{ item.title }
+														<Badge level={ item.badgeLevel } text={ item.badgeText } />
+													</h3>
+													{ item.description && <p>{ item.description }</p> }
+												</>
 											),
 											isDraggable: true,
 											isFirstTarget: index === 0,

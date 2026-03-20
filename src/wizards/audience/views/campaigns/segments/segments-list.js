@@ -9,6 +9,7 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies.
  */
 import { Button, Card, CardSortableList, Notice, Router } from '../../../../../../packages/components/src';
+import { segmentDescription } from '../utils';
 
 const { NavLink, useHistory } = Router;
 
@@ -98,12 +99,12 @@ const SegmentsList = ( { wizardApiFetch, segments, setSegments, isLoading } ) =>
 				setSegments( [ ...segments ] );
 			} );
 	};
-
 	const items = useMemo(
 		() =>
 			segments.map( segment => ( {
 				id: segment.id,
 				title: segment.name,
+				description: segmentDescription( segment ),
 				badgeLevel: segment.is_criteria_duplicated ? 'warning' : 'default',
 				badgeText: segment.is_criteria_duplicated ? __( 'Duplicate', 'newspack-plugin' ) : '',
 				toggleChecked: ! segment.configuration.is_disabled,

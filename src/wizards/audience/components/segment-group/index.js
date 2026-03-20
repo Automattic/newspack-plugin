@@ -50,7 +50,6 @@ const SegmentGroup = props => {
 		emptySegmentText = __( 'No active prompts in this segment.', 'newspack-plugin' );
 	}
 
-	const description = segmentDescription( segment );
 	return (
 		<Card
 			__experimentalCoreCard
@@ -78,7 +77,7 @@ const SegmentGroup = props => {
 								) }
 							</h3>
 							<span className="newspack-campaigns__segment-group__description">
-								{ id ? description() : __( 'All readers, regardless of segment', 'newspack-plugin' ) }
+								{ id ? segmentDescription( segment ) : __( 'All readers, regardless of segment', 'newspack-plugin' ) }
 							</span>
 						</div>
 						<div className="newspack-campaigns__segment-group__card__segment-actions">
