@@ -218,7 +218,7 @@ class Contact_Sync extends Sync {
 			return;
 		}
 
-		$user = \get_userdata( $user_id );
+		$user = ! empty( $user_id ) ? get_userdata( $user_id ) : false;
 		if ( ! $user ) {
 			static::log( sprintf( 'Cannot schedule retry for integration "%s": user %d not found.', $integration_id, $user_id ) );
 			return;
