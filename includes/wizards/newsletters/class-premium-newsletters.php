@@ -233,7 +233,7 @@ class Premium_Newsletters extends Wizard {
 		add_submenu_page(
 			'',
 			$this->get_name(),
-			esc_html__( 'Premium newsletters', 'newspack-plugin' ),
+			esc_html__( 'Premium', 'newspack-plugin' ),
 			$this->capability,
 			$this->slug,
 			[ $this, 'render_wizard' ]
@@ -281,7 +281,7 @@ class Premium_Newsletters extends Wizard {
 		// Visible entry: uses the full URL so WordPress renders it as a direct href,
 		// producing the correct admin.php?page=newspack-premium-newsletters link.
 		$submenu[ $this->parent_menu ][] = [ // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-			esc_html__( 'Premium newsletters', 'newspack-plugin' ),
+			esc_html__( 'Premium', 'newspack-plugin' ),
 			$this->capability,
 			'admin.php?page=' . $this->slug,
 		];
