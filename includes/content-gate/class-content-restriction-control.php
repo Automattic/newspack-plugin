@@ -7,6 +7,8 @@
 
 namespace Newspack;
 
+use Newspack\Newsletters\Subscription_Lists;
+
 /**
  * Main class.
  */
@@ -38,6 +40,7 @@ class Content_Restriction_Control {
 	public static function init() {
 		add_action( 'init', [ __CLASS__, 'register_meta' ] );
 		add_filter( 'newspack_is_post_restricted', [ __CLASS__, 'is_post_restricted' ], 10, 2 );
+		add_filter( 'newspack_newsletters_subscription_lists', [ __CLASS__, 'filter_subscription_lists' ] );
 	}
 
 	/**
@@ -119,8 +122,12 @@ class Content_Restriction_Control {
 		if ( ! $post_id ) {
 			return [];
 		}
+		$is_newsletter = false;
+		if ( Subscription_Lists::CPT && get_post_type( $post_id ) === Subscription_Lists::CPT ) {
+			$is_newsletter = true;
+		}
 
-		$gates = Content_Gate::get_gates( Content_Gate::GATE_CPT, 'publish' );
+		$gates = Content_Gate::get_gates( Content_Gate::GATE_CPT, 'publish', $is_newsletter );
 		if ( empty( $gates ) ) {
 			return [];
 		}
@@ -146,6 +153,11 @@ class Content_Restriction_Control {
 				if ( $content_rule['slug'] === 'post_types' ) {
 					$post_type = get_post_type( $post_id );
 					if ( $is_exclusion ? in_array( $post_type, $content_rule['value'], true ) : ! in_array( $post_type, $content_rule['value'], true ) ) {
+						continue 2;
+					}
+				} elseif ( $content_rule['slug'] === 'newsletters' ) {
+					$newsletter_lists = array_map( 'intval', $content_rule['value'] );
+					if ( ! in_array( $post_id, $newsletter_lists, true ) ) {
 						continue 2;
 					}
 				} else {
@@ -242,6 +254,25 @@ class Content_Restriction_Control {
 			}
 		}
 		return false;
+	}
+
+	/**
+	 * Filter the subscription lists.
+	 *
+	 * @param array $lists The lists.
+	 *
+	 * @return array The filtered lists.
+	 */
+	public static function filter_subscription_lists( $lists ) {
+		$lists = array_values(
+			array_filter(
+				$lists,
+				function( $list ) {
+					return ! self::is_post_restricted( false, $list->get_id() );
+				}
+			)
+		);
+		return $lists;
 	}
 
 	/**
