@@ -1,12 +1,14 @@
 declare module '@wordpress/block-editor';
+import type { Icon } from '@wordpress/icons';
 
 type HeaderAction = {
 	type: 'primary' | 'secondary' | 'more';
 	label: string;
-	icon: React.ReactNode;
-	action: () => void;
+	icon?: Icon | string;
 	disabled?: boolean;
 	destructive?: boolean;
+	action?: () => void;
+	href?: string;
 };
 
 type GateAccessRuleValue = string | string[] | boolean;
@@ -148,5 +150,17 @@ type GateSettings = {
 
 type GateConfig = {
 	gates: Gate[];
-	config: GateSettings
+	config: GateSettings;
+};
+
+type Institution = {
+	id: number;
+	title: { raw: string; rendered: string };
+	excerpt: { raw: string; rendered: string };
+	status: string;
+	meta: {
+		np_institution_email_domain: string;
+		np_institution_ip_range: string;
+		np_institution_reader_data: string;
+	};
 };

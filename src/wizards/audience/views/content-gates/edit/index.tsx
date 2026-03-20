@@ -32,7 +32,6 @@ import ContentRules from './content-rules';
 import Registration from './registration';
 import CustomAccess from './custom-access';
 import { getGateStatus, getGateStatusBadgeLevel } from '../utils';
-import './style.scss';
 
 const { useHistory } = Router;
 

@@ -47,7 +47,7 @@ const PremiumNewslettersList = ( { updateGatesData }: { updateGatesData: ( gates
 				label: __( 'Add new premium newsletter', 'newspack-plugin' ),
 				href: '#/edit/new/all',
 			},
-			sectionSecondaryActions: [
+			sectionMenu: [
 				{
 					label: __( 'Advanced settings', 'newspack-plugin' ),
 					action: () => setShowAdvancedSettings( true ),

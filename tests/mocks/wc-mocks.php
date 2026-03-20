@@ -108,6 +108,13 @@ class WC_Customer {
 	public function get_email() {
 		return get_userdata( $this->get_id() )->user_email;
 	}
+	public function get_billing_email() {
+		return $this->data['billing_email'] ?? '';
+	}
+	public function set_billing_email( $email ) {
+		$this->data['billing_email'] = $email;
+	}
+	public function save() {}
 }
 
 $orders_database = [];

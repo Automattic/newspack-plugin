@@ -10,7 +10,7 @@ import { useEffect, useState, useRef, Fragment } from '@wordpress/element';
 /**
  * Internal dependencies.
  */
-import { Card, ButtonCard, Notice, TextControl } from '../../../../../packages/components/src';
+import { Card, Notice, TextControl } from '../../../../../packages/components/src';
 import GoogleOAuth from '../../../newspack/views/settings/connections/google-oauth';
 import { handleJSONFile } from '../utils';
 
@@ -85,15 +85,24 @@ export default function AdsOnboarding( { onUpdate, onSuccess } ) {
 									value={ networkCode }
 									onChange={ setNetworkCode }
 								/>
-								<ButtonCard
-									disabled={ inFlight }
-									onClick={ () => credentialsInputFile.current.click() }
-									title={ __( 'Upload credentials', 'newspack-plugin' ) }
-									desc={ [
-										__( 'Upload your Service Account credentials file to connect your GAM account.', 'newspack-plugin' ),
-										fileError && <Notice noticeText={ fileError } isError />,
-									] }
-									chevron
+								<Card
+									__experimentalCoreCard
+									__experimentalCoreProps={ {
+										header: (
+											<>
+												<h3>{ __( 'Upload credentials', 'newspack-plugin' ) }</h3>
+												<p>
+													{ __(
+														'Upload your Service Account credentials file to connect your GAM account.',
+														'newspack-plugin'
+													) }
+												</p>
+												{ fileError && <Notice noticeText={ fileError } isError /> }
+											</>
+										),
+										actionType: 'chevron',
+										onHeaderClick: inFlight ? undefined : () => credentialsInputFile.current.click(),
+									} }
 								/>
 								<p>
 									<a href="https://developers.google.com/ad-manager/api/authentication" target="_blank" rel="noopener noreferrer">

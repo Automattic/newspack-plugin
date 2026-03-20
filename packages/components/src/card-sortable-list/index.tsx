@@ -22,11 +22,23 @@ import classNames from 'classnames';
 const DROP_ANIMATION_DURATION = 400; // ms — must match $drop-duration in style.scss
 const BUTTON_MOVE_DURATION = 200; // ms — must match $shift-duration in style.scss
 
+type DraggableItemAction = {
+	label: string;
+	icon?: unknown;
+	action: () => void;
+	disabled?: boolean;
+	destructive?: boolean;
+};
+
 type DraggableItem = {
 	id: string | number;
 	title: string;
+	description?: string;
 	badgeLevel: 'default' | 'success' | 'info' | 'warning' | 'error';
 	badgeText: string;
+	toggleChecked?: boolean;
+	onToggleChange?: () => void;
+	actions?: DraggableItemAction[];
 };
 
 type DragMeasurements = {
@@ -387,16 +399,27 @@ const CardSortableList = ( {
 										__experimentalCoreCard
 										__experimentalCoreProps={ {
 											header: (
-												<h3>
-													{ item.title }
-													<Badge level={ item.badgeLevel } text={ item.badgeText } />
-												</h3>
+												<>
+													<h3>
+														{ item.title }
+														<Badge level={ item.badgeLevel } text={ item.badgeText } />
+													</h3>
+													{ item.description && <p>{ item.description }</p> }
+												</>
 											),
 											isDraggable: true,
 											isFirstTarget: index === 0,
 											isLastTarget: index === sortedItems.length - 1,
 											dragIndex: index,
 											onDragCallback: handleButtonMove,
+											...( item.onToggleChange !== undefined && {
+												actionType: 'toggle',
+												isActive: item.toggleChecked,
+												onToggle: item.onToggleChange,
+											} ),
+											...( item.actions !== undefined && {
+												actions: item.actions,
+											} ),
 										} }
 									/>
 								) }
