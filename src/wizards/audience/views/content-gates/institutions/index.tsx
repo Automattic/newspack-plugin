@@ -77,7 +77,7 @@ export default function Institutions() {
 
 	useEffect( () => {
 		fetchData();
-	}, [] );
+	}, [ fetchData ] );
 
 	const fields: Field< Institution >[] = useMemo(
 		() => [
