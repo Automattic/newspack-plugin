@@ -3,6 +3,7 @@
  */
 import { __ } from '@wordpress/i18n';
 import { useEffect, useState } from '@wordpress/element';
+import { useDispatch } from '@wordpress/data';
 import apiFetch from '@wordpress/api-fetch';
 import { TextControl } from '@wordpress/components';
 
@@ -10,6 +11,7 @@ import { TextControl } from '@wordpress/components';
  * Internal dependencies
  */
 import { FormTokenField } from '../../../../../../packages/components/src';
+import { WIZARD_STORE_NAMESPACE } from '../../../../../../packages/components/src/wizard/store';
 
 type RuleOption = { value: string; label: string };
 
@@ -38,16 +40,33 @@ const DYNAMIC_OPTION_RULES: Record< string, DynamicRuleConfig< any > > = {
 function useRuleOptions( slug: string ) {
 	const rule = window.newspackAudienceContentGates.available_access_rules[ slug ];
 	const [ options, setOptions ] = useState< RuleOption[] >( rule?.options ?? [] );
+	const { addNotice } = useDispatch( WIZARD_STORE_NAMESPACE );
 
 	useEffect( () => {
 		const config = DYNAMIC_OPTION_RULES[ slug ];
 		if ( ! config ) {
 			return;
 		}
-		apiFetch< any[] >( { path: config.path } ).then( items => {
-			setOptions( items.map( config.mapItem ) );
-		} );
-	}, [ slug ] );
+		let cancelled = false;
+		apiFetch< any[] >( { path: config.path } ) // eslint-disable-line @typescript-eslint/no-explicit-any
+			.then( items => {
+				if ( ! cancelled ) {
+					setOptions( items.map( config.mapItem ) );
+				}
+			} )
+			.catch( () => {
+				if ( ! cancelled ) {
+					addNotice( {
+						message: __( 'Failed to load options. The list may be outdated.', 'newspack-plugin' ),
+						type: 'error',
+						id: `rule-options-error-${ slug }`,
+					} );
+				}
+			} );
+		return () => {
+			cancelled = true;
+		};
+	}, [ slug, addNotice ] );
 
 	return options;
 }
