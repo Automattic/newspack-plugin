@@ -13,7 +13,7 @@ import { TextControl } from '@wordpress/components';
 import { FormTokenField } from '../../../../../../packages/components/src';
 import { WIZARD_STORE_NAMESPACE } from '../../../../../../packages/components/src/wizard/store';
 
-type RuleOption = { value: string; label: string };
+type RuleOption = { value: string | number; label: string };
 
 interface DynamicRuleConfig< T > {
 	path: string;
@@ -30,7 +30,7 @@ function dynamicRule< T >( config: DynamicRuleConfig< T > ): DynamicRuleConfig< 
 const DYNAMIC_OPTION_RULES: Record< string, DynamicRuleConfig< any > > = {
 	institution: dynamicRule< Institution >( {
 		path: '/wp/v2/np_institution?per_page=100&context=edit',
-		mapItem: item => ( { value: item.id.toString(), label: item.title.raw } ),
+		mapItem: item => ( { value: item.id, label: item.title.raw } ),
 	} ),
 };
 
@@ -82,7 +82,9 @@ export default function AccessRuleControl( { slug, value, onChange }: GateRuleCo
 		return (
 			<FormTokenField
 				label={ '' }
-				value={ options.filter( o => value.includes( o.value ) ).map( o => o.label ) }
+				value={ options
+					.filter( o => ( value as Array< string | number > ).some( v => String( v ) === String( o.value ) ) )
+					.map( o => o.label ) }
 				onChange={ ( items: string[] ) => onChange( options?.filter( o => items.includes( o.label ) ).map( o => o.value ) ?? [] ) }
 				suggestions={ options.map( o => o.label ) }
 				__experimentalExpandOnFocus
