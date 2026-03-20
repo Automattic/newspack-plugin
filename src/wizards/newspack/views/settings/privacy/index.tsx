@@ -34,10 +34,7 @@ function Privacy() {
 	useEffect( get, [] );
 
 	function get() {
-		wizardApiFetch< PrivacyData >(
-			{ path: PATH },
-			{ onSuccess: res => setData( res ) }
-		);
+		wizardApiFetch< PrivacyData >( { path: PATH }, { onSuccess: res => setData( res ) } );
 	}
 
 	function save() {
@@ -56,16 +53,17 @@ function Privacy() {
 		<WizardsTab title={ __( 'Privacy', 'newspack-plugin' ) } className={ isFetching ? 'is-fetching' : '' }>
 			<WizardSection
 				title={ __( 'Complianz', 'newspack-plugin' ) }
-				description={ __( 'Adjust the Complianz plugin\'s behavior to control how scripts are loaded in relation to cookie consent.', 'newspack-plugin' ) }
+				description={ __(
+					"Adjust the Complianz plugin's behavior to control how scripts are loaded in relation to cookie consent.",
+					'newspack-plugin'
+				) }
 			>
 				<ActionCard
 					isMedium
 					disabled={ isFetching }
 					toggleChecked={ data.block_before_consent }
 					title={ __( 'Block cookies and third-party trackers before consent', 'newspack-plugin' ) }
-					toggleOnChange={ ( block_before_consent: boolean ) =>
-						setData( { ...data, block_before_consent } )
-					}
+					toggleOnChange={ ( block_before_consent: boolean ) => setData( { ...data, block_before_consent } ) }
 					description={ __(
 						'Force Complianz to attempt to block cookies and third-party trackers if a user has not consented to the cookie notice, regardless of its own configuration.',
 						'newspack-plugin'
@@ -77,9 +75,7 @@ function Privacy() {
 						disabled={ isFetching }
 						toggleChecked={ data.block_ads_before_consent }
 						title={ __( 'Block ad scripts before consent', 'newspack-plugin' ) }
-						toggleOnChange={ ( block_ads_before_consent: boolean ) =>
-							setData( { ...data, block_ads_before_consent } )
-						}
+						toggleOnChange={ ( block_ads_before_consent: boolean ) => setData( { ...data, block_ads_before_consent } ) }
 						description={ __(
 							'Attempt to prevent ad scripts from loading until the visitor has accepted the cookie notice.',
 							'newspack-plugin'
