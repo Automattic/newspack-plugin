@@ -10,7 +10,7 @@
 			line-height: 1.5;
 		}
 	}
-	.components-form-token-field {
+	.components-form-token-field:not(:only-child) {
 		margin-top: 16px;
 	}
 }
