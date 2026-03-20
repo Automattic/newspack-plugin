@@ -19,7 +19,6 @@ import { Button, Spinner } from '@wordpress/components';
 import { DataViews, Router } from '../../../../../../packages/components/src';
 import { WIZARD_STORE_NAMESPACE } from '../../../../../../packages/components/src/wizard/store';
 import InstitutionsOnboarding from './onboarding';
-import './style.scss';
 
 const { useHistory } = Router;
 
