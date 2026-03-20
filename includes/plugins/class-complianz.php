@@ -33,8 +33,7 @@ class Complianz {
 	 * @return mixed 'yes' if force is enabled, original value otherwise.
 	 */
 	public static function block_before_consent( $value ) {
-		$privacy_settings = Privacy_Section::get_settings();
-		if ( $privacy_settings['block_before_consent'] ) {
+		if ( self::should_block_trackers_before_consent() ) {
 			return 'yes';
 		}
 		return $value;
@@ -48,8 +47,7 @@ class Complianz {
 	 * @return string
 	 */
 	public static function force_optin_consenttype( $consenttype, $region ) {
-		$privacy_settings = Privacy_Section::get_settings();
-		if ( $privacy_settings['block_before_consent'] ) {
+		if ( self::should_block_trackers_before_consent() ) {
 			return 'optin';
 		}
 		return $consenttype;
@@ -73,16 +71,12 @@ class Complianz {
 			'doubleclick.net' => 'marketing',
 		];
 
-		$privacy_settings = Privacy_Section::get_settings();
-		if ( ! $privacy_settings['block_before_consent'] && ! $privacy_settings['block_ads_before_consent'] ) {
+		if ( ! self::should_block_trackers_before_consent() ) {
 			return $output;
 		}
 
-		$scripts_to_block = [];
-		if ( $privacy_settings['block_before_consent'] ) {
-			$scripts_to_block = array_merge( $scripts_to_block, $trackers );
-		}
-		if ( $privacy_settings['block_ads_before_consent'] ) {
+		$scripts_to_block = $trackers;
+		if ( self::should_block_ads_before_consent() ) {
 			$scripts_to_block = array_merge( $scripts_to_block, $ads );
 		}
 
@@ -119,8 +113,7 @@ class Complianz {
 	 * @return string Modified $markup.
 	 */
 	public static function pixel_handling_for_complianz( $markup ) {
-		$privacy_settings = Privacy_Section::get_settings();
-		if ( $privacy_settings['block_before_consent'] && self::is_complianz_with_cookie_blocker_active() ) {
+		if ( self::is_complianz_with_cookie_blocker_active() && self::should_block_trackers_before_consent() ) {
 			$markup = str_ireplace( '<script', '<script type="text/plain" data-category="marketing"', $markup );
 		}
 		return $markup;
@@ -142,6 +135,27 @@ class Complianz {
 	 */
 	public static function is_complianz_with_cookie_blocker_active() {
 		return function_exists( 'cmplz_can_run_cookie_blocker' ) && cmplz_can_run_cookie_blocker();
+	}
+
+	/**
+	 * Determine whether to block trackers before consent is given.
+	 *
+	 * @return bool True if it should block. False otherwise.
+	 */
+	public static function should_block_trackers_before_consent() {
+		$privacy_settings = Privacy_Section::get_settings();
+		return (bool) $privacy_settings['block_before_consent'];
+	}
+
+	/**
+	 * Determine whether to block ads before consent is given.
+	 * Note: Blocking ads only makes sense if also blocking trackers.
+	 *
+	 * @return bool True if it should block. False otherwise.
+	 */
+	public static function should_block_ads_before_consent() {
+		$privacy_settings = Privacy_Section::get_settings();
+		return (bool) $privacy_settings['block_before_consent'] && (bool) $privacy_settings['block_ads_before_consent'];
 	}
 }
 Complianz::init();
