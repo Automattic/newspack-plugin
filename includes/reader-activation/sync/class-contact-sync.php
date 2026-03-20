@@ -331,13 +331,9 @@ class Contact_Sync extends Sync {
 		}
 
 		$contact = self::get_contact_data( $user_id );
-		if ( \is_wp_error( $contact ) ) {
-			// Basic fallback when WooCommerce is unavailable.
-			$contact = [
-				'email'    => $user->user_email,
-				'name'     => $user->display_name,
-				'metadata' => [],
-			];
+		if ( is_wp_error( $contact ) ) {
+			Logger::log( sprintf( 'Error getting contact data for user %d on retry %d: %s', $user_id, $retry_count, $contact->get_error_message() ), 'NEWSPACK-SYNC', 'error' );
+			return;
 		}
 
 		$integration = Integrations::get_integration( $integration_id );
@@ -471,13 +467,19 @@ class Contact_Sync extends Sync {
 	 * @return array|\WP_Error The contact data or WP_Error.
 	 */
 	public static function get_contact_data( $user_id ) {
-		if ( ! class_exists( '\WC_Customer' ) ) {
-			return new \WP_Error( 'newspack_esp_sync_contact', __( 'WC_Customer class unavailable.', 'newspack-plugin' ) );
-		}
 		$user = \get_userdata( $user_id );
+		if ( ! $user ) {
+			return new \WP_Error( 'newspack_esp_sync_contact', __( 'User not found.', 'newspack-plugin' ) );
+		}
+
+		$contact = [
+			'email'    => $user->user_email,
+			'name'     => $user->display_name,
+			'metadata' => [],
+		];
 
 		if ( ! class_exists( '\WC_Customer' ) ) {
-			return new \WP_Error( 'newspack_esp_sync_contact', __( 'WC_Customer class unavailable.', 'newspack-plugin' ) );
+			return $contact;
 		}
 		$customer = new \WC_Customer( $user_id );
 		if ( ! $customer || ! $customer->get_id() ) {
@@ -498,11 +500,6 @@ class Contact_Sync extends Sync {
 		}
 
 		$contact = Sync\WooCommerce::get_contact_from_customer( $customer );
-
-		// Include data from queued syncs too.
-		if ( ! empty( self::$queued_syncs[ $contact['email'] ]['contact']['metadata'] ) ) {
-			$contact['metadata'] = array_merge( self::$queued_syncs[ $contact['email'] ]['contact']['metadata'], $contact['metadata'] );
-		}
 
 		return $contact;
 	}
