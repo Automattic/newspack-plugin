@@ -129,11 +129,24 @@ final class Blocks {
 	 * @return bool Whether to load block assets.
 	 */
 	private static function should_load_block_assets() {
-		return Collections::is_module_active() && (
-			( is_singular() && has_block( \Newspack\Blocks\Collections\Collections_Block::BLOCK_NAME, get_the_ID() ) ) ||
-			is_post_type_archive( \Newspack\Collections\Post_Type::get_post_type() ) ||
-			is_singular( \Newspack\Collections\Post_Type::get_post_type() )
-		);
+		// Load the block styles if we're on a single or archive Collections page.
+		if (
+			Collections::is_module_active() &&
+			(
+				is_post_type_archive( \Newspack\Collections\Post_Type::get_post_type() ) ||
+				is_singular( \Newspack\Collections\Post_Type::get_post_type() )
+			)
+		) {
+			return true;
+		}
+
+		if ( ! is_singular() ) {
+			return false;
+		}
+
+		// Load the block styles if we're on a post or page with a block from this plugin.
+		$post = get_post( get_the_ID() );
+		return $post && false !== strpos( $post->post_content, 'wp:newspack/' );
 	}
 }
 Blocks::init();

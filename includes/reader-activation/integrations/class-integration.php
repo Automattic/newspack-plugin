@@ -96,7 +96,7 @@ abstract class Integration {
 		$this->name        = $name;
 		$this->description = $description;
 
-		add_action( 'init', [ $this, 'init' ] );
+		$this->settings_fields = $this->register_settings_fields();
 	}
 
 	/**
@@ -127,19 +127,11 @@ abstract class Integration {
 	}
 
 	/**
-	 * Initialize the integration, performing any necessary setup or validation.
-	 *
-	 * Currently only initializes settings fields, but can be extended by child classes for additional setup.
-	 */
-	public function init() {
-		$this->settings_fields = $this->register_settings_fields();
-	}
-
-	/**
 	 * Register settings fields for this integration.
 	 *
-	 * Child classes should override this method to define their settings fields.
-	 * Each field should be an associative array with keys: key, label, type, default, options (for select), etc.
+	 * Child classes should override this method to return static field
+	 * declarations (key, type, default at minimum). No API calls, no conditional
+	 * logic based on external state. Called directly in the constructor.
 	 *
 	 * @return array Array of settings field declarations.
 	 */
@@ -522,6 +514,8 @@ abstract class Integration {
 	/**
 	 * Get settings config with current values populated, for API responses.
 	 *
+	 * Child classes can override this method to return filtered or enriched settings.
+	 *
 	 * @return array Array of field declarations with current values.
 	 */
 	public function get_settings_config() {
@@ -531,7 +525,7 @@ abstract class Integration {
 			$field['value'] = $this->get_settings_field_value( $field['key'] );
 			// Inject metadata options for metadata fields.
 			if ( 'incoming_metadata_fields' === $field['key'] ) {
-				$incoming_fields  = $this->get_filtered_incoming_contact_fields( true );
+				$incoming_fields  = $this->get_filtered_incoming_contact_fields();
 				$field['options'] = array_map(
 					function ( $incoming_field ) {
 						return $incoming_field->get_key();
@@ -578,6 +572,9 @@ abstract class Integration {
 				return is_numeric( $value ) ? $value + 0 : ( $field['default'] ?? 0 );
 			case 'select':
 				$valid_values = array_column( $field['options'] ?? [], 'value' );
+				if ( empty( $valid_values ) ) {
+					return \sanitize_text_field( $value );
+				}
 				return in_array( $value, $valid_values, true ) ? $value : ( $field['default'] ?? '' );
 			case 'metadata':
 				if ( ! is_array( $value ) ) {
