@@ -96,12 +96,12 @@ export default function AdsOnboarding( { onUpdate, onSuccess } ) {
 														'Upload your Service Account credentials file to connect your GAM account.',
 														'newspack-plugin'
 													) }
-													{ fileError && <Notice noticeText={ fileError } isError /> }
 												</p>
+												{ fileError && <Notice noticeText={ fileError } isError /> }
 											</>
 										),
 										actionType: 'chevron',
-										onHeaderClick: () => credentialsInputFile.current.click(),
+										onHeaderClick: inFlight ? undefined : () => credentialsInputFile.current.click(),
 									} }
 								/>
 								<p>

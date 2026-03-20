@@ -73,8 +73,8 @@ const ServiceAccountConnection = ( { updateWithAPI, isConnected } ) => {
 										'Upload your Service Account credentials file to connect your GAM account with Newspack Ads.',
 										'newspack'
 									) }
-									{ fileError && <Notice noticeText={ fileError } isError /> }
 								</p>
+								{ fileError && <Notice noticeText={ fileError } isError /> }
 							</>
 						),
 						actionType: 'chevron',

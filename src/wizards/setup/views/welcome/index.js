@@ -257,6 +257,7 @@ const Welcome = ( { buttonAction } ) => {
 		<>
 			{ isInit && (
 				<HStack>
+					<h1 className="screen-reader-text">{ __( 'Welcome to Newspack', 'newspack' ) }</h1>
 					<NewspackIcon simple size={ 64 } />
 				</HStack>
 			) }
