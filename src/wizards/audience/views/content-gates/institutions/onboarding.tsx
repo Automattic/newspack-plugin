@@ -6,13 +6,13 @@
  * WordPress dependencies.
  */
 import { __ } from '@wordpress/i18n';
-import { __experimentalVStack as VStack } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
-import { postList, institution } from '@wordpress/icons';
+import { __experimentalHStack as HStack, __experimentalVStack as VStack } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
+import { institution } from '@wordpress/icons';
 
 /**
  * Internal dependencies
  */
-import { Card, Grid, SectionHeader } from '../../../../../../packages/components/src';
+import { Button, Grid, SectionHeader } from '../../../../../../packages/components/src';
 
 const InstitutionsOnboarding = () => {
 	return (
@@ -27,7 +27,7 @@ const InstitutionsOnboarding = () => {
 				<VStack start={ 2 } end={ 4 } spacing={ 8 }>
 					<SectionHeader
 						icon={ institution }
-						title={ __( 'Get started with Institutions', 'newspack-plugin' ) }
+						title={ __( 'Get started with institutions', 'newspack-plugin' ) }
 						description={ __(
 							'Create institutions to manage access to your content by email domain, IP range, or reader data.',
 							'newspack-plugin'
@@ -35,24 +35,11 @@ const InstitutionsOnboarding = () => {
 						pageHeader
 						noMargin
 					/>
-					<VStack spacing={ 4 }>
-						<Card
-							actionType="chevron"
-							isSmall
-							__experimentalCoreCard
-							__experimentalCoreProps={ {
-								as: 'a',
-								header: (
-									<>
-										<h3>{ __( 'Create a new institution', 'newspack-plugin' ) }</h3>
-									</>
-								),
-								href: '#/institutions/new',
-								icon: postList,
-								iconBackgroundColor: true,
-							} }
-						/>
-					</VStack>
+					<HStack alignment="center">
+						<Button variant="primary" href="#/institutions/new">
+							{ __( 'Add new institution', 'newspack-plugin' ) }
+						</Button>
+					</HStack>
 				</VStack>
 			</Grid>
 		</div>

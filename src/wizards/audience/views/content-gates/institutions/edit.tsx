@@ -211,10 +211,10 @@ export default function InstitutionEdit( { match }: { match: { params: { id?: st
 			{ navBlockDialog }
 			{ deleteDialog }
 
-			{ /* Section 1: Name & Description */ }
+			{ /* Section 1: Name and description */ }
 			<Grid columns={ 2 } gutter={ 32 }>
 				<SectionHeader
-					title={ __( 'Name & Description', 'newspack-plugin' ) }
+					title={ __( 'Name and description', 'newspack-plugin' ) }
 					description={ __(
 						'Identify this institution for internal reference. The name and description are not shown to readers.',
 						'newspack-plugin'
@@ -240,7 +240,7 @@ export default function InstitutionEdit( { match }: { match: { params: { id?: st
 			{ /* Section 2: Access Rules */ }
 			<Grid columns={ 2 } gutter={ 32 } noMargin>
 				<SectionHeader
-					title={ __( 'Access Rules', 'newspack-plugin' ) }
+					title={ __( 'Access rules', 'newspack-plugin' ) }
 					description={ __(
 						'Define how readers from this institution are identified. Rules use OR logic — matching any rule grants access.',
 						'newspack-plugin'
@@ -248,7 +248,7 @@ export default function InstitutionEdit( { match }: { match: { params: { id?: st
 				/>
 				<VStack spacing={ 4 }>
 					<CardSettingsGroup
-						title={ __( 'Email Domain', 'newspack-plugin' ) }
+						title={ __( 'Email domain', 'newspack-plugin' ) }
 						description={ __( 'Match readers by verified email domain', 'newspack-plugin' ) }
 						icon={ envelope }
 						actionType="toggle"
@@ -266,7 +266,7 @@ export default function InstitutionEdit( { match }: { match: { params: { id?: st
 					</CardSettingsGroup>
 
 					<CardSettingsGroup
-						title={ __( 'IP Range', 'newspack-plugin' ) }
+						title={ __( 'IP range', 'newspack-plugin' ) }
 						description={ __( 'Match visitors by IP address or CIDR block', 'newspack-plugin' ) }
 						icon={ globe }
 						actionType="toggle"
@@ -284,7 +284,7 @@ export default function InstitutionEdit( { match }: { match: { params: { id?: st
 					</CardSettingsGroup>
 
 					<CardSettingsGroup
-						title={ __( 'Reader Data', 'newspack-plugin' ) }
+						title={ __( 'Reader data', 'newspack-plugin' ) }
 						description={ __( 'Match readers by custom metadata', 'newspack-plugin' ) }
 						icon={ customPostType }
 						actionType="toggle"

@@ -54,7 +54,7 @@ const ContentGates = ( { updateGatesData }: { updateGatesData: ( gates: Gate[] )
 					href: '#/institutions',
 				},
 				{
-					label: __( 'Advanced Settings', 'newspack-plugin' ),
+					label: __( 'Advanced settings', 'newspack-plugin' ),
 					disabled: true,
 				},
 			],
