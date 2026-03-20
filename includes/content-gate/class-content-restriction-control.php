@@ -40,7 +40,6 @@ class Content_Restriction_Control {
 	public static function init() {
 		add_action( 'init', [ __CLASS__, 'register_meta' ] );
 		add_filter( 'newspack_is_post_restricted', [ __CLASS__, 'is_post_restricted' ], 10, 2 );
-		add_filter( 'newspack_newsletters_subscription_lists', [ __CLASS__, 'filter_subscription_lists' ] );
 	}
 
 	/**
@@ -123,7 +122,7 @@ class Content_Restriction_Control {
 			return [];
 		}
 		$is_newsletter = false;
-		if ( Subscription_Lists::CPT && get_post_type( $post_id ) === Subscription_Lists::CPT ) {
+		if ( class_exists( 'Newspack\Newsletters\Subscription_Lists' ) && Subscription_Lists::CPT && get_post_type( $post_id ) === Subscription_Lists::CPT ) {
 			$is_newsletter = true;
 		}
 
@@ -254,25 +253,6 @@ class Content_Restriction_Control {
 			}
 		}
 		return false;
-	}
-
-	/**
-	 * Filter the subscription lists.
-	 *
-	 * @param array $lists The lists.
-	 *
-	 * @return array The filtered lists.
-	 */
-	public static function filter_subscription_lists( $lists ) {
-		$lists = array_values(
-			array_filter(
-				$lists,
-				function( $list ) {
-					return ! self::is_post_restricted( false, $list->get_id() );
-				}
-			)
-		);
-		return $lists;
 	}
 
 	/**
