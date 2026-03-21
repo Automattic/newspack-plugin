@@ -1,4 +1,9 @@
 /**
+ * External dependencies
+ */
+import classnames from 'classnames';
+
+/**
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
@@ -12,11 +17,6 @@ import Badge from '../badge';
 import Button from '../button';
 import Card from '../card';
 import './style.scss';
-
-/**
- * External dependencies
- */
-import classnames from 'classnames';
 
 type BadgeLevel = 'default' | 'info' | 'success' | 'warning' | 'error';
 
