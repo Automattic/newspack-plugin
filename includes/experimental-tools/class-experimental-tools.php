@@ -249,6 +249,7 @@ class Experimental_Tools {
 				'enabled_at'      => $saved['enabled_at'] ?? null,
 				'enabled_by'      => $saved['enabled_by'] ?? null,
 				'fields'          => $fields,
+				'usage_count'     => self::get_usage_count( $slug ),
 			];
 		}
 
@@ -392,34 +393,46 @@ class Experimental_Tools {
 		}
 		if ( ! isset( $all_settings[ $slug ]['users'][ $user_id ] ) ) {
 			$all_settings[ $slug ]['users'][ $user_id ] = [
-				'count'     => 0,
-				'first_use' => null,
-				'last_use'  => null,
+				'daily' => [],
 			];
 		}
 
-		$now = time();
-		$all_settings[ $slug ]['users'][ $user_id ]['count']++;
-		if ( ! $all_settings[ $slug ]['users'][ $user_id ]['first_use'] ) {
-			$all_settings[ $slug ]['users'][ $user_id ]['first_use'] = $now;
+		$today = gmdate( 'Y-m-d' );
+		if ( ! isset( $all_settings[ $slug ]['users'][ $user_id ]['daily'][ $today ] ) ) {
+			$all_settings[ $slug ]['users'][ $user_id ]['daily'][ $today ] = 0;
 		}
-		$all_settings[ $slug ]['users'][ $user_id ]['last_use'] = $now;
+		$all_settings[ $slug ]['users'][ $user_id ]['daily'][ $today ]++;
+
+		// Prune buckets older than 90 days to keep the option compact.
+		$cutoff = gmdate( 'Y-m-d', time() - 90 * DAY_IN_SECONDS );
+		foreach ( $all_settings[ $slug ]['users'][ $user_id ]['daily'] as $date => $count ) {
+			if ( $date < $cutoff ) {
+				unset( $all_settings[ $slug ]['users'][ $user_id ]['daily'][ $date ] );
+			}
+		}
 
 		update_option( self::OPTION_NAME, $all_settings );
 	}
 
 	/**
-	 * Get total usage count across all users for a tool.
+	 * Get usage count for a tool within a number of recent days.
 	 *
 	 * @param string $slug Tool slug.
+	 * @param int    $days Number of days to look back. Default 30.
 	 * @return int
 	 */
-	public static function get_total_usage_count( $slug ) {
+	public static function get_usage_count( $slug, $days = 30 ) {
 		$settings = self::get_tool_settings( $slug );
-		$total = 0;
+		$total    = 0;
+		$cutoff   = gmdate( 'Y-m-d', time() - $days * DAY_IN_SECONDS );
+
 		if ( ! empty( $settings['users'] ) ) {
 			foreach ( $settings['users'] as $user_data ) {
-				$total += (int) ( $user_data['count'] ?? 0 );
+				foreach ( $user_data['daily'] ?? [] as $date => $count ) {
+					if ( $date >= $cutoff ) {
+						$total += (int) $count;
+					}
+				}
 			}
 		}
 		return $total;

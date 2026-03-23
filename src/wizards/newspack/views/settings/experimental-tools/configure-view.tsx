@@ -151,6 +151,13 @@ export default function ConfigureView( {
 			<Button variant="primary" type="submit" disabled={ isFetching }>
 				{ __( 'Save', 'newspack-plugin' ) }
 			</Button>
+
+			<p className="experimental-tools__usage-note">
+				{
+					/* translators: 1: tool name, 2: usage count. */
+					sprintf( __( '%1$s was used %2$s times in the last 30 days.', 'newspack-plugin' ), tool.label, String( tool.usage_count ) )
+				}
+			</p>
 		</form>
 	);
 }

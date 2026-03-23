@@ -162,7 +162,7 @@ class Newspack_Test_Experimental_Tools extends WP_UnitTestCase {
 		Experimental_Tools::track_usage( $slug, $user_id );
 		Experimental_Tools::track_usage( $slug, $user_id );
 
-		$this->assertEquals( 3, Experimental_Tools::get_total_usage_count( $slug ) );
+		$this->assertEquals( 3, Experimental_Tools::get_usage_count( $slug ) );
 	}
 
 	/**

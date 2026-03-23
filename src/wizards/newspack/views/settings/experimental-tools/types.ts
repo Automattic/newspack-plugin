@@ -22,4 +22,5 @@ export interface Tool {
 	enabled_at: number | null;
 	enabled_by: number | null;
 	fields: ToolField[];
+	usage_count: number;
 }
