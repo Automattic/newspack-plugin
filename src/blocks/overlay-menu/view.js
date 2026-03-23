@@ -154,6 +154,7 @@ const createFlyoutInstance = wrapper => {
 		// ARIA state.
 		trigger.setAttribute( 'aria-expanded', 'true' );
 		panel.setAttribute( 'aria-hidden', 'false' );
+		panel.removeAttribute( 'inert' );
 		document.body.classList.add( `menu-open--overlay-menu-${ overlayId }` );
 
 		// Show scrim overlay (reads overlay color from data attribute).
@@ -188,6 +189,7 @@ const createFlyoutInstance = wrapper => {
 		// Restore ARIA state.
 		trigger.setAttribute( 'aria-expanded', 'false' );
 		panel.setAttribute( 'aria-hidden', 'true' );
+		panel.setAttribute( 'inert', '' );
 		document.body.classList.remove( `menu-open--overlay-menu-${ overlayId }` );
 
 		// Return focus immediately so screen readers don't lose context.
