@@ -2,7 +2,7 @@
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { BaseControl, CheckboxControl } from '@wordpress/components';
+import { CheckboxControl } from '@wordpress/components';
 
 /**
  * Internal dependencies
@@ -55,7 +55,8 @@ export default function PrivateTags( { data, isFetching, update }: ThemeModCompo
 		>
 			{ isCustom && (
 				<Grid columns={ 2 } gutter={ 24 } style={ { marginTop: -8, marginBottom: -8 } }>
-					<BaseControl label={ __( 'Public-facing site', 'newspack-plugin' ) } id="private-tags-public">
+					<fieldset style={ { border: 0, margin: 0, padding: 0 } }>
+						<legend className="components-base-control__label">{ __( 'Public-facing site', 'newspack-plugin' ) }</legend>
 						<Grid columns={ 1 } rowGap={ 16 }>
 							{ PUBLIC_TOGGLES.map( ( { key, label } ) => (
 								<CheckboxControl
@@ -67,8 +68,9 @@ export default function PrivateTags( { data, isFetching, update }: ThemeModCompo
 								/>
 							) ) }
 						</Grid>
-					</BaseControl>
-					<BaseControl label={ __( 'SEO and integrations', 'newspack-plugin' ) } id="private-tags-integrations">
+					</fieldset>
+					<fieldset style={ { border: 0, margin: 0, padding: 0 } }>
+						<legend className="components-base-control__label">{ __( 'SEO and integrations', 'newspack-plugin' ) }</legend>
 						<Grid columns={ 1 } rowGap={ 16 }>
 							{ INTEGRATION_TOGGLES.map( ( { key, label } ) => (
 								<CheckboxControl
@@ -80,7 +82,7 @@ export default function PrivateTags( { data, isFetching, update }: ThemeModCompo
 								/>
 							) ) }
 						</Grid>
-					</BaseControl>
+					</fieldset>
 				</Grid>
 			) }
 		</WizardsActionCard>
