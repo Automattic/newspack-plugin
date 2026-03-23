@@ -118,7 +118,7 @@ class Private_Tags {
 		self::$initiated = true;
 
 		// Admin UI: add checkbox to tag forms.
-		add_action( 'post_tag_add_form_fields', [ __CLASS__, 'create_term_fields' ], 10, 1 );
+		add_action( 'post_tag_add_form_fields', [ __CLASS__, 'create_term_fields' ], 10, 0 );
 		add_action( 'post_tag_edit_form_fields', [ __CLASS__, 'edit_term_fields' ], 10, 1 );
 		add_action( 'saved_post_tag', [ __CLASS__, 'save_term' ], 10, 1 );
 

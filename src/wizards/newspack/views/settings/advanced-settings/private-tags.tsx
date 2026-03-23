@@ -20,7 +20,7 @@ const PUBLIC_TOGGLES = [
 const INTEGRATION_TOGGLES = [
 	{ key: 'css_classes', label: __( 'Exclude from CSS body classes', 'newspack-plugin' ) },
 	{ key: 'gam_targeting', label: __( 'Exclude from Google Ad Manager targeting', 'newspack-plugin' ) },
-	{ key: 'yoast_metadata', label: __( 'Exclude from Yoast meta tags', 'newspack-plugin' ) },
+	{ key: 'yoast_metadata', label: __( 'Exclude from Yoast SEO metadata', 'newspack-plugin' ) },
 	{ key: 'yoast_sitemap', label: __( 'Exclude from Yoast XML sitemaps', 'newspack-plugin' ) },
 ];
 
