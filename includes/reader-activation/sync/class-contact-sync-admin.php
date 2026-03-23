@@ -136,7 +136,7 @@ class Contact_Sync_Admin {
 			\wp_die( \esc_html__( 'You do not have permission to do that.', 'newspack-plugin' ) );
 		}
 		foreach ( $items as $user_id ) {
-			as_schedule_single_action( time(), 'newspack_sync_admin_batch', [ 'user_id' => $user_id ] );
+			as_schedule_single_action( time(), 'newspack_sync_admin_batch', [ 'user_id' => $user_id ], 'newspack-sync' );
 		}
 		$sendback = \add_query_arg(
 			[
