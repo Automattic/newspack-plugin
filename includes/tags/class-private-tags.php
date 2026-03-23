@@ -152,6 +152,10 @@ class Private_Tags {
 		add_filter( 'post_class', [ __CLASS__, 'filter_post_class' ], 10, 1 );
 		add_filter( 'body_class', [ __CLASS__, 'filter_body_class' ], 10, 1 );
 
+		// Setup Wizard: inject settings into read, handle save on write.
+		add_filter( 'newspack_setup_wizard_settings', [ __CLASS__, 'filter_wizard_settings' ], 10, 1 );
+		add_filter( 'newspack_setup_wizard_update_setting', [ __CLASS__, 'handle_wizard_update' ], 10, 3 );
+
 		// Integrations: strip private tags from ad targeting data.
 		add_filter( 'newspack_ads_ad_targeting', [ __CLASS__, 'filter_ad_targeting' ], 10, 2 );
 
@@ -440,6 +444,37 @@ class Private_Tags {
 			$sanitized[ $key ] = ! empty( $input[ $key ] );
 		}
 		return $sanitized;
+	}
+
+	// -------------------------------------------------------------------------
+	// Setup Wizard integration
+	// -------------------------------------------------------------------------
+
+	/**
+	 * Add private tags settings to the Setup Wizard response.
+	 *
+	 * @param array $settings The wizard settings array.
+	 * @return array
+	 */
+	public static function filter_wizard_settings( array $settings ): array {
+		$settings['newspack_private_tags_settings'] = self::get_settings();
+		return $settings;
+	}
+
+	/**
+	 * Handle saving private tags settings from the Setup Wizard.
+	 *
+	 * @param bool   $handled Whether the setting has been handled.
+	 * @param string $key     The setting key.
+	 * @param mixed  $value   The setting value.
+	 * @return bool True if handled, false otherwise.
+	 */
+	public static function handle_wizard_update( bool $handled, string $key, $value ): bool {
+		if ( 'newspack_private_tags_settings' === $key ) {
+			update_option( 'newspack_private_tags_settings', self::sanitize_settings( $value ) );
+			return true;
+		}
+		return $handled;
 	}
 
 	// -------------------------------------------------------------------------

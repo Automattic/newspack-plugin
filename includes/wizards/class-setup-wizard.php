@@ -387,10 +387,15 @@ class Setup_Wizard extends Wizard {
 		// Append post content fallback image option.
 		$theme_mods['post_content_fallback_image'] = get_option( Default_Image::OPTION_NAME, null );
 
-		// Append private tags settings (only when the feature is enabled).
-		if ( Private_Tags::is_enabled() ) {
-			$theme_mods['newspack_private_tags_settings'] = Private_Tags::get_settings();
-		}
+		/**
+		 * Filters the settings returned by the Setup Wizard's theme/settings endpoint.
+		 *
+		 * Hooked callbacks can add non-theme-mod settings (e.g. feature options
+		 * stored as wp_options) to the response array.
+		 *
+		 * @param array $theme_mods The settings array (mix of theme mods and custom settings).
+		 */
+		$theme_mods = apply_filters( 'newspack_setup_wizard_settings', $theme_mods );
 
 		return rest_ensure_response(
 			[
@@ -526,6 +531,20 @@ class Setup_Wizard extends Wizard {
 
 		$theme_mods = $request['theme_mods'];
 		foreach ( $theme_mods as $key => $value ) {
+			/**
+			 * Filters whether a setting was already handled by a hooked callback.
+			 *
+			 * Callbacks should check $key and, if recognized, save the value and return
+			 * true to prevent the wizard from calling set_theme_mod() for that key.
+			 *
+			 * @param bool   $handled Whether the setting has been handled.
+			 * @param string $key     The setting key.
+			 * @param mixed  $value   The setting value.
+			 */
+			if ( apply_filters( 'newspack_setup_wizard_update_setting', false, $key, $value ) ) {
+				continue;
+			}
+
 			// Media credits are actually options, not theme mods.
 			if ( 'newspack_image_credits' === substr( $key, 0, 22 ) ) {
 				Newspack_Image_Credits::update_setting( $key, $value );
@@ -541,14 +560,6 @@ class Setup_Wizard extends Wizard {
 			// Post content fallback image is an option, not a theme mod.
 			if ( 'post_content_fallback_image' === $key ) {
 				update_option( Default_Image::OPTION_NAME, $value );
-				continue;
-			}
-
-			// Private tags settings are stored as a single option, not a theme mod.
-			if ( 'newspack_private_tags_settings' === $key ) {
-				if ( Private_Tags::is_enabled() ) {
-					update_option( 'newspack_private_tags_settings', Private_Tags::sanitize_settings( $value ) );
-				}
 				continue;
 			}
 
