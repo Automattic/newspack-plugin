@@ -56,7 +56,7 @@ class Experimental_Tools {
 			self::REST_NAMESPACE,
 			self::REST_ROUTE,
 			[
-				'methods'             => 'GET',
+				'methods'             => \WP_REST_Server::READABLE,
 				'callback'            => [ __CLASS__, 'api_get_tools' ],
 				'permission_callback' => [ __CLASS__, 'check_permission' ],
 			]
@@ -65,7 +65,7 @@ class Experimental_Tools {
 			self::REST_NAMESPACE,
 			self::REST_ROUTE . '/(?P<slug>[a-z0-9-]+)/toggle',
 			[
-				'methods'             => 'POST',
+				'methods'             => \WP_REST_Server::CREATABLE,
 				'callback'            => [ __CLASS__, 'api_toggle_tool' ],
 				'permission_callback' => [ __CLASS__, 'check_permission' ],
 				'args'                => [
@@ -84,7 +84,7 @@ class Experimental_Tools {
 			self::REST_NAMESPACE,
 			self::REST_ROUTE . '/(?P<slug>[a-z0-9-]+)/settings',
 			[
-				'methods'             => 'POST',
+				'methods'             => \WP_REST_Server::CREATABLE,
 				'callback'            => [ __CLASS__, 'api_save_settings' ],
 				'permission_callback' => [ __CLASS__, 'check_permission' ],
 				'args'                => [
@@ -93,7 +93,11 @@ class Experimental_Tools {
 						'sanitize_callback' => 'sanitize_title',
 					],
 					'fields' => [
-						'required' => true,
+						'required'          => true,
+						'type'              => 'object',
+						'validate_callback' => function ( $value ) {
+							return is_array( $value );
+						},
 					],
 				],
 			]
@@ -194,7 +198,9 @@ class Experimental_Tools {
 		$tools = [];
 		foreach ( $raw as $tool ) {
 			if ( ! empty( $tool['slug'] ) ) {
-				$tools[ $tool['slug'] ] = $tool;
+				$slug           = sanitize_title( $tool['slug'] );
+				$tool['slug']   = $slug;
+				$tools[ $slug ] = $tool;
 			}
 		}
 		return $tools;
@@ -227,6 +233,8 @@ class Experimental_Tools {
 			foreach ( $fields as &$field ) {
 				if ( isset( $saved_fields[ $field['key'] ] ) ) {
 					$field['value'] = $saved_fields[ $field['key'] ];
+				} elseif ( ! isset( $field['value'] ) && isset( $field['default'] ) ) {
+					$field['value'] = $field['default'];
 				}
 			}
 			unset( $field );
@@ -317,6 +325,9 @@ class Experimental_Tools {
 	 * @param array  $fields Key-value pairs of field values.
 	 */
 	public static function save_tool_fields( $slug, $fields ) {
+		if ( ! is_array( $fields ) ) {
+			return;
+		}
 		$registered = self::get_registered_tools();
 		$all_settings = get_option( self::OPTION_NAME, [] );
 
@@ -347,6 +358,14 @@ class Experimental_Tools {
 		}
 
 		update_option( self::OPTION_NAME, $all_settings );
+
+		/**
+		 * Fires after a tool's field values are saved.
+		 *
+		 * @param string $slug   Tool slug.
+		 * @param array  $fields Saved key-value pairs.
+		 */
+		do_action( 'newspack_experimental_tool_fields_saved', $slug, $all_settings[ $slug ]['fields'] );
 	}
 
 	/**

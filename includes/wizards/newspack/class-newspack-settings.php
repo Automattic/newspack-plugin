@@ -113,21 +113,6 @@ class Newspack_Settings extends Wizard {
 				'label' => __( 'Advanced Settings', 'newspack-plugin' ),
 			],
 		];
-		$experimental_tools = \Newspack\Experimental_Tools::get_tools();
-		if ( ! empty( $experimental_tools ) ) {
-			// Insert before 'advanced-settings'.
-			$insert_position = array_search( 'advanced-settings', array_keys( $newspack_settings ), true );
-			$newspack_settings = array_slice( $newspack_settings, 0, $insert_position, true )
-				+ [
-					'experimental-tools' => [
-						'label'    => __( 'Experimental tools', 'newspack-plugin' ),
-						'sections' => [
-							'tools' => $experimental_tools,
-						],
-					],
-				]
-				+ array_slice( $newspack_settings, $insert_position, null, true );
-		}
 		if ( \Newspack\Optional_Modules\Collections::is_feature_enabled() ) {
 			$newspack_settings['collections'] = [
 				'label' => __( 'Collections', 'newspack-plugin' ),
@@ -162,6 +147,17 @@ class Newspack_Settings extends Wizard {
 				],
 			];
 		}
+		$experimental_tools = \Newspack\Experimental_Tools::get_tools();
+		if ( ! empty( $experimental_tools ) ) {
+			$newspack_settings['experimental-tools'] = [
+				'label'          => __( 'Experimental tools', 'newspack-plugin' ),
+				'activeTabPaths' => [ '/experimental-tools/*' ],
+				'sections'       => [
+					'tools' => $experimental_tools,
+				],
+			];
+		}
+
 		return $newspack_settings;
 	}
 
