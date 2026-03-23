@@ -20,6 +20,8 @@ import ContentGates from './content-gates';
 import Edit from './edit';
 import CountdownBanner from './edit/countdown-banner';
 import ContentGifting from './edit/content-gifting';
+import Institutions from './institutions';
+import InstitutionEdit from './institutions/edit';
 import { AUDIENCE_CONTENT_GATES_WIZARD_SLUG, BASE_HEADER_TEXT } from './consts';
 
 const AudienceContentGates = ( props, ref ) => {
@@ -74,6 +76,30 @@ const AudienceContentGates = ( props, ref ) => {
 						'Let members gift articles to non-subscribers. Recipients can read the full content without needing to subscribe.',
 						'newspack-plugin'
 					),
+				},
+				{
+					path: '/institutions',
+					render: Institutions,
+					exact: true,
+					isHidden: true,
+					backNav: '#/content-gates',
+					fullWidth: true,
+				},
+				{
+					path: '/institutions/new',
+					render: InstitutionEdit,
+					isHidden: true,
+					exact: true,
+					backNav: '#/institutions',
+					title: __( 'Add new institution', 'newspack-plugin' ),
+				},
+				{
+					path: '/institutions/:id',
+					render: InstitutionEdit,
+					isHidden: true,
+					exact: true,
+					backNav: '#/institutions',
+					title: __( 'Edit institution', 'newspack-plugin' ),
 				},
 			] }
 		/>

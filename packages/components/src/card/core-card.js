@@ -41,16 +41,19 @@ const CoreCard = ( {
 	isSmall,
 	dragIndex,
 	onDragCallback = () => {},
+	onToggle = () => {},
 	onHeaderClick,
 	noBorder,
 	noMargin,
 	children = null,
+	hasGreyHeader,
 	...otherProps
 } ) => {
 	const classes = classNames(
 		'newspack-card--core',
 		className,
 		( buttonsCard || as === 'a' ) && 'newspack-card--core__buttons-card',
+		actions?.length > 0 && 'newspack-card--core__header--has-actions',
 		isDraggable && 'newspack-card--core__is-draggable',
 		isNarrow && 'newspack-card--core__is-narrow',
 		isSmall && 'newspack-card--core__is-small',
@@ -58,7 +61,8 @@ const CoreCard = ( {
 		iconBackgroundColor && 'newspack-card--core__has-icon-background-color',
 		isActive && 'newspack-card--core__is-active',
 		children && 'newspack-card--core__has-children',
-		noMargin && 'newspack-card--core__no-margin'
+		noMargin && 'newspack-card--core__no-margin',
+		hasGreyHeader && 'newspack-card--core__has-grey-header'
 	);
 	let sizeProps = isSmall ? 'small' : otherProps.size;
 	if ( buttonsCard || as === 'a' ) {
@@ -111,6 +115,15 @@ const CoreCard = ( {
 							<Icon icon={ icon } height={ isSmall ? 24 : 48 } width={ isSmall ? 24 : 48 } />
 						</div>
 					) }
+					{ actions?.length > 0 && actionType === 'toggle' && (
+						<ToggleControl
+							className="newspack-card--core__action"
+							label={ otherProps.title }
+							hideLabelFromVision
+							checked={ isActive }
+							onChange={ onToggle }
+						/>
+					) }
 					{ header && <div className="newspack-card--core__header-content">{ header }</div> }
 					{ ! actions?.length > 0 && actionType === 'chevron' && (
 						<Icon className="newspack-card--core__action" icon={ chevronRight } height={ 24 } width={ 24 } />
@@ -121,7 +134,7 @@ const CoreCard = ( {
 							label={ otherProps.title }
 							hideLabelFromVision
 							checked={ isActive }
-							onChange={ () => {} }
+							onChange={ onToggle }
 						/>
 					) }
 					{ actions?.length > 0 && (

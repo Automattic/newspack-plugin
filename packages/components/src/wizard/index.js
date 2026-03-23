@@ -10,7 +10,7 @@ import { DropdownMenu, MenuItem } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useEffect, useState, forwardRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { category, moreVertical } from '@wordpress/icons';
+import { category, chevronLeft, moreVertical } from '@wordpress/icons';
 
 /**
  * Internal dependencies
@@ -22,6 +22,19 @@ import WizardSnackbar from './components/WizardSnackbar';
 import WizardError from './components/WizardError';
 
 registerStore();
+
+/**
+ * Icon registry for resolving icon name strings passed through the data store.
+ * React elements from @wordpress/icons can't cross webpack entry point boundaries
+ * because each bundle has its own copy of the icon primitives.
+ */
+const ICON_REGISTRY = { chevronLeft, category, moreVertical };
+const resolveIcon = icon => {
+	if ( typeof icon === 'string' ) {
+		return ICON_REGISTRY[ icon ] || null;
+	}
+	return icon;
+};
 
 const { HashRouter, Redirect, Route, Switch, useLocation } = Router;
 
@@ -81,7 +94,8 @@ const Wizard = (
 	const isQuietLoading = useSelect( select => select( WIZARD_STORE_NAMESPACE ).isQuietLoading() );
 	const headerData = useSelect( select => select( WIZARD_STORE_NAMESPACE ).getHeaderData() );
 	const notices = useSelect( select => select( WIZARD_STORE_NAMESPACE ).getNotices() );
-	const { actions, backNav, badges, sectionDescription, sectionName, sectionTitle, sectionPrimaryAction, sectionSecondaryAction } = headerData;
+	const { actions, backNav, badges, sectionDescription, sectionMenu, sectionName, sectionTitle, sectionPrimaryAction, sectionSecondaryAction } =
+		headerData;
 
 	const mainActions = actions?.filter( action => action.type === 'primary' || action.type === 'secondary' );
 	const moreActions = actions?.filter( action => action.type === 'more' );
@@ -159,7 +173,8 @@ const Wizard = (
 									<Button
 										key={ index }
 										className="newspack-wizard__header__actions__main"
-										icon={ action.icon }
+										href={ action.href }
+										icon={ resolveIcon( action.icon ) }
 										variant={ action.type }
 										onClick={ action.action }
 										disabled={ action.disabled || false }
@@ -184,6 +199,7 @@ const Wizard = (
 														: 'newspack-wizard__header__actions__more__more'
 												}
 												icon={ action.icon }
+												href={ action.href }
 												onClick={ action.action }
 												disabled={ action.disabled || false }
 												isDestructive={ action.destructive || false }
@@ -217,7 +233,11 @@ const Wizard = (
 										exact={ section.exact ?? false }
 										path={ section.path }
 										render={ routerProps => (
-											<div className={ classnames( 'newspack-wizard__content', className ) }>
+											<div
+												className={ classnames( 'newspack-wizard__content', className, {
+													'newspack-wizard__content--full-width': section.fullWidth,
+												} ) }
+											>
 												{ 'function' === typeof renderAboveSections ? renderAboveSections() : null }
 												{ ( sectionTitle || section.title ) && (
 													<SectionHeader
@@ -226,6 +246,7 @@ const Wizard = (
 														title={ sectionTitle || section.title }
 														description={ sectionDescription || section.description }
 														badges={ badges || section.badges }
+														menu={ sectionMenu || section.menu }
 														primaryAction={ sectionPrimaryAction || section.primaryAction }
 														secondaryAction={ sectionSecondaryAction || section.secondaryAction }
 														heading={ 1 }

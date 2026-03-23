@@ -418,7 +418,6 @@ class Action_Scheduler {
 		return $hooks;
 	}
 
-
 	/**
 	 * Get a map of group_id => slug for all ActionScheduler groups.
 	 *

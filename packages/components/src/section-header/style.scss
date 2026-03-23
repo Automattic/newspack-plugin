@@ -3,6 +3,7 @@
  */
 
 @use "~@wordpress/base-styles/colors" as wp-colors;
+@use "~@wordpress/base-styles/variables" as wp;
 @use "../../../colors/colors.module" as colors;
 
 .newspack-section-header {
@@ -85,9 +86,19 @@
 		display: flex;
 		gap: 8px;
 
+		h2 {
+			font-size: wp.$font-size-x-large;
+			font-weight: wp.$font-weight-medium;
+			line-height: wp.$font-line-height-x-large;
+		}
+
 		.newspack-badge {
 			transform: translateY(-4px);
 		}
+	}
+
+	&__menu {
+		align-self: center;
 	}
 
 	&__primary-action {
@@ -146,9 +157,9 @@
 			}
 		}
 		h1 {
-			font-size: 1.25rem;
-			font-weight: 500;
-			line-height: 1.5;
+			font-size: wp.$font-size-x-large;
+			font-weight: wp.$font-weight-medium;
+			line-height: wp.$font-line-height-x-large;
 		}
 	}
 }
