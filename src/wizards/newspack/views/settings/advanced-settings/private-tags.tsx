@@ -11,17 +11,17 @@ import WizardsActionCard from '../../../../wizards-action-card';
 import { Grid } from '../../../../../../packages/components/src';
 
 const PUBLIC_TOGGLES = [
-	{ key: 'archives', label: __( 'Archive pages', 'newspack-plugin' ) },
-	{ key: 'feeds', label: __( 'RSS feeds', 'newspack-plugin' ) },
-	{ key: 'tag_links', label: __( 'Tag lists on posts', 'newspack-plugin' ) },
-	{ key: 'tag_clouds', label: __( 'Tag cloud widgets', 'newspack-plugin' ) },
+	{ key: 'archives', label: __( 'Disable tag archive pages', 'newspack-plugin' ) },
+	{ key: 'feeds', label: __( 'Disable tag RSS feeds', 'newspack-plugin' ) },
+	{ key: 'tag_links', label: __( 'Hide from tag lists on posts', 'newspack-plugin' ) },
+	{ key: 'tag_clouds', label: __( 'Hide from tag cloud widgets', 'newspack-plugin' ) },
 ];
 
 const INTEGRATION_TOGGLES = [
-	{ key: 'css_classes', label: __( 'CSS body classes', 'newspack-plugin' ) },
-	{ key: 'gam_targeting', label: __( 'GAM targeting', 'newspack-plugin' ) },
-	{ key: 'yoast_metadata', label: __( 'Yoast metadata', 'newspack-plugin' ) },
-	{ key: 'yoast_sitemap', label: __( 'Yoast XML sitemap', 'newspack-plugin' ) },
+	{ key: 'css_classes', label: __( 'Exclude from CSS body classes', 'newspack-plugin' ) },
+	{ key: 'gam_targeting', label: __( 'Exclude from Google Ad Manager targeting', 'newspack-plugin' ) },
+	{ key: 'yoast_metadata', label: __( 'Exclude from Yoast meta tags', 'newspack-plugin' ) },
+	{ key: 'yoast_sitemap', label: __( 'Exclude from Yoast XML sitemaps', 'newspack-plugin' ) },
 ];
 
 export default function PrivateTags( { data, isFetching, update }: ThemeModComponentProps< AdvancedSettings > ) {
@@ -45,7 +45,10 @@ export default function PrivateTags( { data, isFetching, update }: ThemeModCompo
 		<WizardsActionCard
 			isMedium
 			title={ __( 'Customize where private tags are hidden', 'newspack-plugin' ) }
-			description={ __( 'Private tags are hidden everywhere by default. Turn this on to choose where they are hidden.', 'newspack-plugin' ) }
+			description={ __(
+				'By default, private tags are hidden in all supported locations. Turn this on to customize where they are hidden.',
+				'newspack-plugin'
+			) }
 			disabled={ isFetching }
 			toggleChecked={ isCustom }
 			toggleOnChange={ ( value: boolean ) => updateSetting( 'all', ! value ) }
