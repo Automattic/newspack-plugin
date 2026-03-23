@@ -77,6 +77,7 @@ final class Overlay_Menu_Panel_Block {
 			'aria-hidden'        => 'true',
 			'role'               => 'dialog',
 			'aria-modal'         => 'true',
+			'aria-label'         => __( 'Menu', 'newspack-plugin' ),
 		];
 		if ( $panel_styles ) {
 			$extra_attributes['style'] = implode( ';', $panel_styles );
