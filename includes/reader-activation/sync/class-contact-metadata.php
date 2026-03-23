@@ -67,6 +67,13 @@ abstract class Contact_Metadata {
 	}
 
 	/**
+	 * The name of the metadata class, used as a section name for the fields handled by this class when syncing and in the UI for selecting which fields to sync.
+	 *
+	 * @return string
+	 */
+	abstract public static function get_section_name();
+
+	/**
 	 * Whether or not the metadata fields of this class are available to be synced.
 	 *
 	 * An example of when this might be false is when the metadata relies on a plugin that isn't active, like WooCommerce.
