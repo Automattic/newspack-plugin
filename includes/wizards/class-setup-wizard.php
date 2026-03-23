@@ -388,7 +388,7 @@ class Setup_Wizard extends Wizard {
 		$theme_mods['post_content_fallback_image'] = get_option( Default_Image::OPTION_NAME, null );
 
 		// Append private tags settings (only when the feature is enabled).
-		if ( defined( 'NEWSPACK_PRIVATE_TAGS_ENABLED' ) && NEWSPACK_PRIVATE_TAGS_ENABLED ) {
+		if ( Private_Tags::is_enabled() ) {
 			$theme_mods['newspack_private_tags_settings'] = Private_Tags::get_settings();
 		}
 
@@ -546,7 +546,7 @@ class Setup_Wizard extends Wizard {
 
 			// Private tags settings are stored as a single option, not a theme mod.
 			if ( 'newspack_private_tags_settings' === $key ) {
-				if ( defined( 'NEWSPACK_PRIVATE_TAGS_ENABLED' ) && NEWSPACK_PRIVATE_TAGS_ENABLED ) {
+				if ( Private_Tags::is_enabled() ) {
 					update_option( 'newspack_private_tags_settings', Private_Tags::sanitize_settings( $value ) );
 				}
 				continue;

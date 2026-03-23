@@ -69,17 +69,50 @@ class Private_Tags {
 	 */
 	private static $cache = [];
 
+	/**
+	 * In-memory cache for get_settings() results.
+	 *
+	 * Avoids repeated get_option() calls on archive pages where
+	 * is_behavior_enabled() fires per post via post_class/body_class.
+	 *
+	 * @var array<string, bool>|null
+	 */
+	private static $settings = null;
+
 	// -------------------------------------------------------------------------
 	// Initialization
 	// -------------------------------------------------------------------------
 
 	/**
-	 * Initialize the class and register hooks.
+	 * Checks if the feature is enabled.
 	 *
-	 * @return void
+	 * True when:
+	 * - NEWSPACK_PRIVATE_TAGS_ENABLED is defined and true.
+	 *
+	 * Feature-flagged for gradual rollout.
+	 * Remove this gate once fully released.
+	 *
+	 * @return bool True if the feature is enabled, false otherwise.
+	 */
+	public static function is_enabled() {
+		/**
+		 * Enables the Private Tags feature.
+		 *
+		 * @constant NEWSPACK_PRIVATE_TAGS_ENABLED
+		 * @type     bool
+		 * @default  Private tags feature disabled
+		 * @status   draft
+		 *
+		 * @example define( 'NEWSPACK_PRIVATE_TAGS_ENABLED', true );
+		 */
+		return defined( 'NEWSPACK_PRIVATE_TAGS_ENABLED' ) && NEWSPACK_PRIVATE_TAGS_ENABLED;
+	}
+
+	/**
+	 * Initialize the class and register hooks.
 	 */
 	public static function init() {
-		if ( self::$initiated ) {
+		if ( self::$initiated || ! self::is_enabled() ) {
 			return;
 		}
 		self::$initiated = true;
@@ -365,9 +398,12 @@ class Private_Tags {
 	 * @return array<string, bool>
 	 */
 	public static function get_settings(): array {
-		$defaults = self::get_default_settings();
-		$saved    = get_option( 'newspack_private_tags_settings', [] );
-		return wp_parse_args( $saved, $defaults );
+		if ( null === self::$settings ) {
+			$defaults       = self::get_default_settings();
+			$saved          = get_option( 'newspack_private_tags_settings', [] );
+			self::$settings = wp_parse_args( $saved, $defaults );
+		}
+		return self::$settings;
 	}
 
 	/**
