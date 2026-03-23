@@ -35,7 +35,6 @@ export default function PrivateTags( { data, isFetching, update }: ThemeModCompo
 	const updateSetting = ( key: string, value: boolean ) => {
 		update( {
 			newspack_private_tags_settings: {
-				...settings,
 				[ key ]: value,
 			},
 		} );

@@ -472,6 +472,7 @@ class Private_Tags {
 	public static function handle_wizard_update( bool $handled, string $key, $value ): bool {
 		if ( 'newspack_private_tags_settings' === $key ) {
 			update_option( 'newspack_private_tags_settings', self::sanitize_settings( $value ) );
+			self::$settings = null;
 			return true;
 		}
 		return $handled;
