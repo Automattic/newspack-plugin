@@ -64,6 +64,18 @@ class Contact_Sync extends Sync {
 		add_action( self::RETRY_HOOK, [ __CLASS__, 'execute_integration_retry' ] );
 		add_action( 'action_scheduler_begin_execute', [ __CLASS__, 'set_current_as_action_id' ] );
 		add_action( 'action_scheduler_after_execute', [ __CLASS__, 'clear_current_as_action_id' ] );
+		add_filter( 'newspack_action_scheduler_hook_labels', [ __CLASS__, 'register_hook_labels' ] );
+	}
+
+	/**
+	 * Register hook labels for Contact Sync actions.
+	 *
+	 * @param array $labels Existing labels.
+	 * @return array
+	 */
+	public static function register_hook_labels( $labels ) {
+		$labels[ self::RETRY_HOOK ] = __( 'Contact Sync Retry', 'newspack-plugin' );
+		return $labels;
 	}
 
 	/**
@@ -288,7 +300,7 @@ class Contact_Sync extends Sync {
 			time() + $backoff_seconds,
 			self::RETRY_HOOK,
 			[ $retry_data ],
-			'newspack'
+			Integrations::get_action_group( $integration_id )
 		);
 
 		static::log(

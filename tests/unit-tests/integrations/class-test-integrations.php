@@ -947,4 +947,58 @@ class Test_Integrations extends \WP_UnitTestCase {
 		$stored = get_user_meta( $user_id, 'newspack_reader_data_item_ajax_field', true );
 		$this->assertSame( wp_json_encode( 'ajax_value' ), $stored );
 	}
+
+	/**
+	 * Test get_action_group returns prefixed integration ID.
+	 */
+	public function test_get_action_group() {
+		$this->assertSame( 'newspack-integration-esp', Integrations::get_action_group( 'esp' ) );
+		$this->assertSame( 'newspack-integration-my-crm', Integrations::get_action_group( 'my-crm' ) );
+	}
+
+	/**
+	 * Test get_action_group_for_handler returns group for registered handler.
+	 */
+	public function test_get_action_group_for_handler_returns_group() {
+		$action_name = 'test_group_event';
+		Data_Events::register_action( $action_name );
+
+		$integration = new Sample_Integration( 'test-id', 'Test' );
+		Integrations::register( $integration );
+		$integration->test_register_handler( $action_name, 'handle_test_event' );
+
+		$group = Integrations::get_action_group_for_handler( Sample_Integration::class, $action_name );
+		$this->assertSame( 'newspack-integration-test-id', $group );
+	}
+
+	/**
+	 * Test get_action_group_for_handler returns null for unknown handler.
+	 */
+	public function test_get_action_group_for_handler_fallback() {
+		$group = Integrations::get_action_group_for_handler( 'NonExistent', 'unknown_action' );
+		$this->assertNull( $group );
+	}
+
+	/**
+	 * Test Data_Events::get_handler_action_group returns 'newspack' by default.
+	 */
+	public function test_data_events_get_handler_action_group_default() {
+		$group = Data_Events::get_handler_action_group( 'SomeClass', 'some_action' );
+		$this->assertSame( 'newspack', $group );
+	}
+
+	/**
+	 * Test Data_Events::get_handler_action_group is filtered by Integrations.
+	 */
+	public function test_data_events_get_handler_action_group_filtered() {
+		$action_name = 'test_filtered_group_event';
+		Data_Events::register_action( $action_name );
+
+		$integration = new Sample_Integration( 'filtered-id', 'Filtered' );
+		Integrations::register( $integration );
+		$integration->test_register_handler( $action_name, 'handle_test_event' );
+
+		$group = Data_Events::get_handler_action_group( Sample_Integration::class, $action_name );
+		$this->assertSame( 'newspack-integration-filtered-id', $group );
+	}
 }

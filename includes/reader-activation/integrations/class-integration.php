@@ -290,6 +290,27 @@ abstract class Integration {
 	}
 
 	/**
+	 * Get the ActionScheduler group name for this integration.
+	 *
+	 * @return string The group name (e.g., 'newspack-integration-esp').
+	 */
+	final public function get_action_group() {
+		return Integrations::get_action_group( $this->id );
+	}
+
+	/**
+	 * Get ActionScheduler actions for this integration.
+	 *
+	 * @param array $args Optional. Query arguments (status, per_page, offset, orderby, order).
+	 *
+	 * @return array Array of action row objects.
+	 */
+	final public function get_scheduled_actions( $args = [] ) {
+		$args['integration_id'] = $this->id;
+		return Integrations::get_scheduled_actions( $args );
+	}
+
+	/**
 	 * Get the enabled incoming metadata fields for this integration.
 	 *
 	 * @return string[] List of enabled field names.
