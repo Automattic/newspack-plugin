@@ -34,7 +34,7 @@ const AdvancedSettings = ( { closeModal, showModal }: { closeModal: () => void; 
 		if ( isFetching ) {
 			return;
 		}
-		const oldConfig = { ..._config };
+		const oldConfig = { ...( wizardData?.config as PremiumNewslettersConfig ) };
 		resetError();
 		resetNotices();
 		wizardApiFetch< Gate >(
@@ -47,6 +47,7 @@ const AdvancedSettings = ( { closeModal, showModal }: { closeModal: () => void; 
 			},
 			{
 				onSuccess: () => {
+					setConfig( _config );
 					updateWizardSettings( {
 						slug: PREMIUM_NEWSLETTERS_WIZARD_SLUG,
 						path: [ 'config' ],
@@ -76,7 +77,7 @@ const AdvancedSettings = ( { closeModal, showModal }: { closeModal: () => void; 
 					<ToggleControl
 						label={ __( 'Auto signup', 'newspack-plugin' ) }
 						help={ __( 'Automatically sign up users when they meet access requirements for premium newsletters.', 'newspack-plugin' ) }
-						checked={ config?.auto_signup || true }
+						checked={ config?.auto_signup }
 						onChange={ value => setConfig( { ...config, auto_signup: value } ) }
 					/>
 				</VStack>

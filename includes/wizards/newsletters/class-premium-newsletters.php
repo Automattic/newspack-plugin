@@ -297,7 +297,7 @@ class Premium_Newsletters extends Wizard {
 			'gates'  => Content_Gate::get_gates( Content_Gate::GATE_CPT, null, true ),
 			'config' => [
 				// Auto signup for restricted lists as soon as a user meets the access requirements. Defaults to true.
-				'auto_signup' => get_option( 'newspack_premium_newsletters_auto_signup', true ),
+				'auto_signup' => boolval( get_option( 'newspack_premium_newsletters_auto_signup', 1 ) ),
 			],
 		];
 		return rest_ensure_response( $config );
@@ -312,8 +312,8 @@ class Premium_Newsletters extends Wizard {
 	 */
 	public function update_config( $request ) {
 		$config = $request->get_param( 'config' );
-		update_option( 'newspack_premium_newsletters_auto_signup', (bool) $config['auto_signup'] );
-		return rest_ensure_response( true );
+		$updated = update_option( 'newspack_premium_newsletters_auto_signup', ( (bool) $config['auto_signup'] ? 1 : 0 ), false );
+		return rest_ensure_response( $updated );
 	}
 
 	/**
