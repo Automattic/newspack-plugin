@@ -168,7 +168,7 @@ const ContentGates = ( { updateGatesData }: { updateGatesData: ( gates: Gate[] )
 						'newspack-plugin'
 					) }
 					enabled={ !! config.countdown_banner?.enabled }
-					requirements={ ! hasMetering ? __( 'Requires gate with metering', 'newspack-plugin' ) : undefined }
+					requirements={ ! hasMetering ? __( 'Requires metering', 'newspack-plugin' ) : undefined }
 					toggleEnabled={ toggleCountdownBanner.current }
 					href={ '/settings/countdown-banner' }
 				/>

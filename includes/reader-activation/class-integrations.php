@@ -73,8 +73,117 @@ class Integrations {
 		add_action( 'init', [ __CLASS__, 'register_integrations' ], 5 );
 		add_action( 'init', [ __CLASS__, 'schedule_health_check' ] );
 		add_action( self::HEALTH_CHECK_CRON_HOOK, [ __CLASS__, 'run_health_checks' ] );
+		add_filter( 'newspack_data_events_handler_action_group', [ __CLASS__, 'filter_handler_action_group' ], 10, 3 );
+		add_filter( 'newspack_action_scheduler_group_labels', [ __CLASS__, 'register_group_labels' ] );
 
 		Integrations\Contact_Pull::init();
+	}
+
+	/**
+	 * Register group labels for integration ActionScheduler groups.
+	 *
+	 * @param array $labels Existing labels.
+	 * @return array
+	 */
+	public static function register_group_labels( $labels ) {
+		foreach ( self::get_active_integrations() as $integration ) {
+			$labels[ self::get_action_group( $integration->get_id() ) ] = $integration->get_name();
+		}
+		return $labels;
+	}
+
+	/**
+	 * Get the ActionScheduler group name for a specific integration.
+	 *
+	 * @param string $integration_id The integration ID.
+	 *
+	 * @return string The group name (e.g., 'newspack-integration-esp').
+	 */
+	public static function get_action_group( $integration_id ) {
+		return \Newspack\Action_Scheduler::GROUP_PREFIX . 'integration-' . $integration_id;
+	}
+
+	/**
+	 * Resolve the ActionScheduler group for a data event handler.
+	 *
+	 * Looks up the handler in the internal handler map and returns the
+	 * per-integration group, or null if the handler is not registered
+	 * through an integration.
+	 *
+	 * @param string $class       The handler class name.
+	 * @param string $action_name The data event action name.
+	 *
+	 * @return string|null The group name or null if the handler is not registered through an integration.
+	 */
+	public static function get_action_group_for_handler( $class, $action_name ) {
+		$key = $class . '::' . $action_name;
+		if ( isset( self::$handler_map[ $key ] ) ) {
+			return self::get_action_group( self::$handler_map[ $key ]['integration_id'] );
+		}
+		return null;
+	}
+
+	/**
+	 * Filter the ActionScheduler group for a data event handler.
+	 *
+	 * Hooked to 'newspack_data_events_handler_action_group' to assign
+	 * integration-specific groups to handlers registered through integrations.
+	 *
+	 * @param string $group       The default group name.
+	 * @param string $class       The handler class name.
+	 * @param string $action_name The data event action name.
+	 *
+	 * @return string The filtered group name.
+	 */
+	public static function filter_handler_action_group( $group, $class, $action_name ) {
+		return self::get_action_group_for_handler( $class, $action_name ) ?? $group;
+	}
+
+	/**
+	 * Get all ActionScheduler group slugs for Newspack integrations.
+	 *
+	 * @return string[] Array of group slug strings.
+	 */
+	public static function get_all_action_groups() {
+		return \Newspack\Action_Scheduler::get_groups_by_prefix( \Newspack\Action_Scheduler::GROUP_PREFIX . 'integration-' );
+	}
+
+	/**
+	 * Get ActionScheduler actions for Newspack integrations.
+	 *
+	 * @param array $args {
+	 *     Optional. Query arguments.
+	 *
+	 *     @type string $integration_id Filter by a single integration ID.
+	 *     @type string $status         ActionScheduler status (pending, complete, failed, canceled).
+	 *     @type int    $per_page       Number of actions to return. Default 20.
+	 *     @type int    $offset         Offset for pagination. Default 0.
+	 *     @type string $orderby        Column to order by. Default 'scheduled_date_gmt'.
+	 *     @type string $order          ASC or DESC. Default 'DESC'.
+	 * }
+	 *
+	 * @return array Array of action row objects.
+	 */
+	public static function get_scheduled_actions( $args = [] ) {
+		$defaults = [
+			'integration_id' => '',
+		];
+		$args = wp_parse_args( $args, $defaults );
+
+		// Resolve integration_id to group slugs.
+		if ( ! empty( $args['integration_id'] ) ) {
+			$args['groups'] = [ self::get_action_group( $args['integration_id'] ) ];
+		} else {
+			$args['groups'] = self::get_all_action_groups();
+		}
+		unset( $args['integration_id'] );
+
+		// No groups to query, return empty array.
+		if ( empty( $args['groups'] ) ) {
+			return [];
+		}
+
+		return \Newspack\Action_Scheduler::get_scheduled_actions( $args );
 	}
 
 	/**

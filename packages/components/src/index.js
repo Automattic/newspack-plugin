@@ -7,6 +7,7 @@ export { default as Badge } from './badge';
 export { default as Button } from './button';
 export { default as BoxContrast } from './box-contrast';
 export { default as Card } from './card';
+export { default as CardFeature } from './card-feature';
 export { default as CardSettingsGroup } from './card-settings-group';
 export { default as CardSortableList } from './card-sortable-list';
 export { default as CategoryAutocomplete } from './category-autocomplete';
