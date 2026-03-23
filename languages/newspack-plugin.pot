@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-03-21T08:52:40+00:00\n"
+"POT-Creation-Date: 2026-03-23T13:26:22+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: newspack-plugin\n"
@@ -88,7 +88,7 @@ msgstr ""
 #: includes/plugins/co-authors-plus/class-nicename-change-ui.php:138
 #: includes/reader-activation/integrations/class-esp.php:345
 #: includes/reader-activation/sync/class-contact-sync-admin.php:180
-#: includes/reader-activation/sync/class-contact-sync.php:472
+#: includes/reader-activation/sync/class-contact-sync.php:484
 msgid "User not found."
 msgstr ""
 
@@ -2119,6 +2119,14 @@ msgstr ""
 #: includes/data-events/class-api.php:285
 #, php-format
 msgid "URL \"%s\" is already in use."
+msgstr ""
+
+#: includes/data-events/class-data-events.php:143
+msgid "Data Event Handler"
+msgstr ""
+
+#: includes/data-events/class-data-events.php:144
+msgid "Data Event Retry"
 msgstr ""
 
 #: includes/emails/class-emails.php:68
@@ -5224,21 +5232,21 @@ msgstr ""
 msgid "ESP master list ID is not set."
 msgstr ""
 
-#: includes/reader-activation/integrations/class-integration.php:380
+#: includes/reader-activation/integrations/class-integration.php:401
 #: dist/audience-wizards.c8865080285b24fee6e9.js:37
 #: src/wizards/audience/components/metadata-fields.js:20
 msgid "Metadata field prefix"
 msgstr ""
 
-#: includes/reader-activation/integrations/class-integration.php:381
+#: includes/reader-activation/integrations/class-integration.php:402
 msgid "A string to prefix metadata fields synced to the integration. Required to ensure that metadata field names are unique. Default: NP_"
 msgstr ""
 
-#: includes/reader-activation/integrations/class-integration.php:387
+#: includes/reader-activation/integrations/class-integration.php:408
 msgid "Outgoing metadata fields"
 msgstr ""
 
-#: includes/reader-activation/integrations/class-integration.php:393
+#: includes/reader-activation/integrations/class-integration.php:414
 msgid "Incoming metadata fields"
 msgstr ""
 
@@ -5268,29 +5276,33 @@ msgstr ""
 msgid "Click here to monitor progress."
 msgstr ""
 
+#: includes/reader-activation/sync/class-contact-sync.php:77
+msgid "Contact Sync Retry"
+msgstr ""
+
 #. Translators: %s is the email address of the contact to synced.
-#: includes/reader-activation/sync/class-contact-sync.php:436
+#: includes/reader-activation/sync/class-contact-sync.php:448
 #, php-format
 msgid "Scheduling secondary sync for contact %s."
 msgstr ""
 
 #. Translators: %d is the user ID.
-#: includes/reader-activation/sync/class-contact-sync.php:490
+#: includes/reader-activation/sync/class-contact-sync.php:502
 #, php-format
 msgid "Customer with ID %d does not exist."
 msgstr ""
 
 #. Translators: %1$s is the status and %2$s is the contact's email address.
-#: includes/reader-activation/sync/class-contact-sync.php:534
+#: includes/reader-activation/sync/class-contact-sync.php:546
 #, php-format
 msgid "%1$s contact data for %2$s."
 msgstr ""
 
-#: includes/reader-activation/sync/class-contact-sync.php:535
+#: includes/reader-activation/sync/class-contact-sync.php:547
 msgid "Would sync"
 msgstr ""
 
-#: includes/reader-activation/sync/class-contact-sync.php:535
+#: includes/reader-activation/sync/class-contact-sync.php:547
 #: dist/other-scripts/salesforce.js:1
 #: src/other-scripts/salesforce/index.js:30
 msgid "Synced"
