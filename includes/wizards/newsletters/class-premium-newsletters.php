@@ -103,8 +103,8 @@ class Premium_Newsletters extends Wizard {
 				'args'                => [
 					'gate' => [
 						'type'              => 'object',
-						'sanitize_callback' => [ 'Newspack\Content_Gate', 'sanitize_gate' ],
-						'properties'        => Content_Gate::$gate_properties,
+						'sanitize_callback' => [ 'Newspack\Content_Gate_API', 'sanitize_gate' ],
+						'properties'        => Content_Gate_API::$gate_properties,
 					],
 				],
 				'permission_callback' => [ $this, 'api_permissions_check' ],
@@ -131,8 +131,8 @@ class Premium_Newsletters extends Wizard {
 				'args'                => [
 					'gate' => [
 						'type'              => 'object',
-						'sanitize_callback' => [ 'Newspack\Content_Gate', 'sanitize_gate' ],
-						'properties'        => Content_Gate::$gate_properties,
+						'sanitize_callback' => [ 'Newspack\Content_Gate_API', 'sanitize_gate' ],
+						'properties'        => Content_Gate_API::$gate_properties,
 					],
 				],
 			]
@@ -204,7 +204,7 @@ class Premium_Newsletters extends Wizard {
 			[
 				'api'                     => '/' . NEWSPACK_API_NAMESPACE . '/wizard/' . $this->slug,
 				'available_access_rules'  => Access_Rules::get_access_rules(),
-				'available_content_rules' => Content_Gate::get_premium_newsletter_content_rules(),
+				'available_content_rules' => Content_Rules::get_premium_newsletter_rules(),
 			]
 		);
 
