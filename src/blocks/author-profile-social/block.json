@@ -29,9 +29,19 @@
 		"color": {
 			"enableContrastChecker": false,
 			"background": true,
-			"text": true
+			"text": true,
+			"link": false,
+			"__experimentalSkipSerialization": [ "text", "background" ]
 		},
 		"html": false,
+		"layout": {
+			"allowSwitching": false,
+			"allowInheriting": false,
+			"allowVerticalAlignment": false,
+			"default": {
+				"type": "flex"
+			}
+		},
 		"spacing": {
 			"blockGap": [ "horizontal", "vertical" ],
 			"margin": true

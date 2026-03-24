@@ -15,12 +15,17 @@
 // Used by: author-profile-social, author-social-link blocks
 // Hex fallbacks from newspack-block-theme theme.json defaults.
 @mixin socialButton {
-	background: var(--icon-background, var(--wp--preset--color--base-2, #f0f0f0));
 	border-radius: 50%; // Circular
-	color: var(--icon-color, var(--wp--preset--color--contrast, #1e1e1e));
 	display: grid;
 	place-items: center;
 	text-decoration: none;
+
+	// Use :not(.wp-element-button) to beat wp-elements parent link colour rules,
+	// which use :where() and therefore have lower specificity.
+	&:not(.wp-element-button) {
+		background: var(--icon-background, var(--wp--preset--color--base-2, #f0f0f0));
+		color: var(--icon-color, var(--wp--preset--color--contrast, #1e1e1e));
+	}
 
 	@media not (prefers-reduced-motion) {
 		transition: transform 100ms ease;

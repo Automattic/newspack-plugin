@@ -45,38 +45,6 @@ const resolveColor = ( presetSlug, customValue ) => {
 	return undefined;
 };
 
-const resolveBlockGap = blockGap => {
-	if ( ! blockGap ) {
-		return {};
-	}
-	if ( typeof blockGap === 'string' ) {
-		const val = presetToVar( blockGap ) || blockGap;
-		return { '--icon-row-gap': val, '--icon-column-gap': val };
-	}
-	const result = {};
-	const row = blockGap.vertical ?? blockGap.top;
-	const col = blockGap.horizontal ?? blockGap.left;
-	if ( typeof row === 'string' ) {
-		result[ '--icon-row-gap' ] = presetToVar( row ) || row;
-	}
-	if ( typeof col === 'string' ) {
-		result[ '--icon-column-gap' ] = presetToVar( col ) || col;
-	}
-	return result;
-};
-
-const COLOR_CLASS_RE = /^has-([\w-]+-)?(color|background-color)$|^has-text-color$|^has-background$/;
-
-const stripColorFromBlockProps = rawBlockProps => {
-	// eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
-	const { color, backgroundColor: bg, ...cleanStyle } = rawBlockProps.style || {};
-	const cleanClassName = ( rawBlockProps.className || '' )
-		.split( ' ' )
-		.filter( c => ! COLOR_CLASS_RE.test( c ) )
-		.join( ' ' );
-	return { ...rawBlockProps, className: cleanClassName, style: cleanStyle };
-};
-
 /**
  * Edit component for the Author Social Links inner block.
  *
@@ -95,8 +63,8 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 
 	const isBrand = ( className || '' ).split( ' ' ).includes( 'is-style-brand' );
 	const iconSizeValue = typeof iconSize === 'number' ? iconSize : parseInt( iconSize ?? 24, 10 ) || 24;
-	const iconColor = resolveColor( textColor, styleAttr?.color?.text );
-	const iconBackground = resolveColor( backgroundColor, styleAttr?.color?.background );
+	const iconColor = ! isBrand ? resolveColor( textColor, styleAttr?.color?.text ) : undefined;
+	const iconBackground = ! isBrand ? resolveColor( backgroundColor, styleAttr?.color?.background ) : undefined;
 
 	// Hide color panel when "Brand" is active; rename labels when "Default".
 	useEffect( () => {
@@ -138,19 +106,15 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 
 		return () => observer.disconnect();
 	}, [ isBrand ] );
-	const gapVars = resolveBlockGap( styleAttr?.spacing?.blockGap );
 
-	const rawProps = stripColorFromBlockProps( useBlockProps( { className: 'wp-block-newspack-author-profile-social' } ) );
-	const blockProps = {
-		...rawProps,
+	const blockProps = useBlockProps( {
+		className: 'author-profile-social__list',
 		style: {
-			...rawProps.style,
 			'--icon-size': `${ roundIconSize( iconSizeValue ) }px`,
-			...gapVars,
-			...( ! isBrand && iconColor && { '--icon-color': iconColor } ),
-			...( ! isBrand && iconBackground && { '--icon-background': iconBackground } ),
+			...( iconColor && { '--icon-color': iconColor } ),
+			...( iconBackground && { '--icon-background': iconBackground } ),
 		},
-	};
+	} );
 
 	// Get inner blocks (stable reference from the store).
 	const innerBlocks = useSelect( select => select( 'core/block-editor' ).getBlocks( clientId ), [ clientId ] );
@@ -198,9 +162,9 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 
 	if ( services.length === 0 && innerBlockCount === 0 ) {
 		return (
-			<div { ...blockProps }>
-				<p className="social-links-placeholder">{ __( 'Social links will appear here.', 'newspack-plugin' ) }</p>
-			</div>
+			<ul { ...blockProps }>
+				<li className="social-links-placeholder">{ __( 'Social links will appear here.', 'newspack-plugin' ) }</li>
+			</ul>
 		);
 	}
 
@@ -231,11 +195,9 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 					) }
 				</PanelBody>
 			</InspectorControls>
-			<div { ...blockProps }>
-				<ul className="author-profile-social__list">
-					<InnerBlocks allowedBlocks={ ALLOWED_BLOCKS } orientation="horizontal" renderAppender={ false } />
-				</ul>
-			</div>
+			<ul { ...blockProps }>
+				<InnerBlocks allowedBlocks={ ALLOWED_BLOCKS } orientation="horizontal" renderAppender={ false } />
+			</ul>
 		</>
 	);
 }
