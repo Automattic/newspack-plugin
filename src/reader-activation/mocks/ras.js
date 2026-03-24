@@ -65,6 +65,9 @@ export function createMockRAS() {
 			for ( const key in storeData ) {
 				delete storeData[ key ];
 			}
+			for ( const event in handlers ) {
+				delete handlers[ event ];
+			}
 			activities.length = 0;
 			jest.clearAllMocks();
 		},
