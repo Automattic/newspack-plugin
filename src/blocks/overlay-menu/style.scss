@@ -95,7 +95,11 @@
 	}
 
 	.admin-bar & {
-		top: 32px;
+		top: 46px;
+
+		@media ( min-width: 782px ) {
+			top: 32px;
+		}
 	}
 }
 
