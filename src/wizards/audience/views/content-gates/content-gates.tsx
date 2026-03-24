@@ -13,7 +13,7 @@ import { useEffect, useRef, useState } from '@wordpress/element';
 /**
  * Internal dependencies
  */
-import { Divider, Grid, Notice } from '../../../../../packages/components/src';
+import { Divider, Grid } from '../../../../../packages/components/src';
 import { useWizardData } from '../../../../../packages/components/src/wizard/store/utils';
 import { useWizardApiFetch } from '../../../hooks/use-wizard-api-fetch';
 import { WIZARD_STORE_NAMESPACE } from '../../../../../packages/components/src/wizard/store';
@@ -26,7 +26,7 @@ import './style.scss';
 
 const ContentGates = ( { updateGatesData }: { updateGatesData: ( gates: Gate[] ) => void } ) => {
 	const wizardData = useWizardData( AUDIENCE_CONTENT_GATES_WIZARD_SLUG ) as WizardData;
-	const { wizardApiFetch, isFetching, error, errorMessage, resetError } = useWizardApiFetch( AUDIENCE_CONTENT_GATES_WIZARD_SLUG );
+	const { wizardApiFetch, isFetching, errorMessage, resetError } = useWizardApiFetch( AUDIENCE_CONTENT_GATES_WIZARD_SLUG );
 	const { addNotice, resetNotices, resetHeaderData, setHeaderData, updateWizardSettings } = useDispatch( WIZARD_STORE_NAMESPACE );
 	const [ showPriorityModal, setShowPriorityModal ] = useState( false );
 	const ref = useRef( null );
@@ -142,13 +142,22 @@ const ContentGates = ( { updateGatesData }: { updateGatesData: ( gates: Gate[] )
 	};
 	toggleContentGifting.current = handleToggleContentGifting;
 
+	useEffect( () => {
+		if ( errorMessage ) {
+			addNotice( {
+				message: errorMessage,
+				type: 'error',
+				id: 'content-gate-error',
+			} );
+		}
+	}, [ errorMessage ] );
+
 	if ( ! gates?.length ) {
 		return <ContentGatesOnboarding />;
 	}
 
 	return (
 		<>
-			{ error && <Notice isError noticeText={ errorMessage } /> }
 			<ContentGatesPriority
 				showModal={ showPriorityModal }
 				closeModal={ () => setShowPriorityModal( false ) }
