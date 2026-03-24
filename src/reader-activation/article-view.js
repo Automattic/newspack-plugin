@@ -36,5 +36,24 @@ export default function setupArticleViewsAggregates( ras ) {
 		}
 		per_month[ month ][ data.post_id ] = true;
 		ras.store.set( 'article_view_per_month', per_month );
+
+		// articles_read — count of unique articles viewed.
+		const uniqueViews = ras.getUniqueActivitiesBy( 'article_view', 'post_id' );
+		ras.store.set( 'articles_read', uniqueViews.length );
+
+		// favorite_categories — top 5 category IDs by view frequency.
+		const allActivities = ras.getActivities( 'article_view' );
+		const catCounts = {};
+		for ( const activity of allActivities ) {
+			const cats = activity.data?.categories || [];
+			for ( const cat of cats ) {
+				catCounts[ cat ] = ( catCounts[ cat ] || 0 ) + 1;
+			}
+		}
+		const topCategories = Object.entries( catCounts )
+			.sort( ( a, b ) => b[ 1 ] - a[ 1 ] )
+			.slice( 0, 5 )
+			.map( ( [ id ] ) => Number( id ) );
+		ras.store.set( 'favorite_categories', topCategories );
 	} );
 }

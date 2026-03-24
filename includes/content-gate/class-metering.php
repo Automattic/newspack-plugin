@@ -426,6 +426,13 @@ class Metering {
 		// Allowed if the content has been accessed or the metering limit has not been reached.
 		$allowed = $accessed_content || ! $limited;
 
+		// Increment paywall_hits in reader data when the reader is blocked.
+		if ( ! $allowed ) {
+			$current_hits = Reader_Data::get_data( \get_current_user_id(), 'paywall_hits' );
+			$current_hits = $current_hits ? (int) json_decode( $current_hits ) : 0;
+			Reader_Data::update_item( \get_current_user_id(), 'paywall_hits', $current_hits + 1 );
+		}
+
 		/**
 		 * Filters whether to allow content rendering through metering for logged in user.
 		 *
