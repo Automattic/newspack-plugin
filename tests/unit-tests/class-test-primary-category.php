@@ -20,6 +20,32 @@ if ( ! class_exists( 'WPSEO_Primary_Term' ) ) {
 class Test_Primary_Category extends WP_UnitTestCase {
 
 	/**
+	 * Original global $post value, saved in set_up and restored in tear_down.
+	 *
+	 * @var \WP_Post|null
+	 */
+	private $original_post;
+
+	/**
+	 * Setup.
+	 */
+	public function set_up(): void {
+		parent::set_up();
+		global $post;
+		$this->original_post = $post;
+	}
+
+	/**
+	 * Tear down.
+	 */
+	public function tear_down(): void {
+		global $post;
+		$post = $this->original_post; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		delete_option( Primary_Category::OPTION_NAME );
+		parent::tear_down();
+	}
+
+	/**
 	 * Test is_yoast_active() returns true (mock is loaded).
 	 */
 	public function test_is_yoast_active() {
@@ -42,7 +68,6 @@ class Test_Primary_Category extends WP_UnitTestCase {
 		$this->assertFalse( Primary_Category::is_enabled() );
 		update_option( Primary_Category::OPTION_NAME, 1 );
 		$this->assertTrue( Primary_Category::is_enabled() );
-		delete_option( Primary_Category::OPTION_NAME );
 	}
 
 	/**
@@ -52,7 +77,6 @@ class Test_Primary_Category extends WP_UnitTestCase {
 		update_option( Primary_Category::OPTION_NAME, 0 );
 		$post_id = self::factory()->post->create();
 		$this->assertFalse( Primary_Category::get( $post_id ) );
-		delete_option( Primary_Category::OPTION_NAME );
 	}
 
 	/**
@@ -68,7 +92,6 @@ class Test_Primary_Category extends WP_UnitTestCase {
 	 * Test get() returns false when no primary category meta is set.
 	 */
 	public function test_get_returns_false_without_primary_meta() {
-		delete_option( Primary_Category::OPTION_NAME );
 		$post_id = self::factory()->post->create();
 		$this->assertFalse( Primary_Category::get( $post_id ) );
 	}
@@ -77,7 +100,6 @@ class Test_Primary_Category extends WP_UnitTestCase {
 	 * Test get() returns false when the primary category term has been deleted.
 	 */
 	public function test_get_returns_false_when_primary_term_deleted() {
-		delete_option( Primary_Category::OPTION_NAME );
 		$post_id  = self::factory()->post->create();
 		$category = self::factory()->category->create_and_get( [ 'name' => 'Temp Cat' ] );
 		update_post_meta( $post_id, '_yoast_wpseo_primary_category', $category->term_id );
@@ -90,7 +112,6 @@ class Test_Primary_Category extends WP_UnitTestCase {
 	 * Test get() returns the primary category term.
 	 */
 	public function test_get_returns_primary_category() {
-		delete_option( Primary_Category::OPTION_NAME );
 		$post_id  = self::factory()->post->create();
 		$category = self::factory()->category->create_and_get( [ 'name' => 'Primary Cat' ] );
 		wp_set_post_categories( $post_id, [ $category->term_id ] );
@@ -125,7 +146,6 @@ class Test_Primary_Category extends WP_UnitTestCase {
 	 * Test filter replaces categories with primary category.
 	 */
 	public function test_filter_replaces_category_block_content() {
-		delete_option( Primary_Category::OPTION_NAME );
 		$post_id  = self::factory()->post->create();
 		$primary  = self::factory()->category->create_and_get( [ 'name' => 'Primary Cat' ] );
 		$other    = self::factory()->category->create_and_get( [ 'name' => 'Other Cat' ] );
@@ -156,7 +176,6 @@ class Test_Primary_Category extends WP_UnitTestCase {
 	 * Test filter preserves prefix and suffix.
 	 */
 	public function test_filter_preserves_prefix_and_suffix() {
-		delete_option( Primary_Category::OPTION_NAME );
 		$post_id  = self::factory()->post->create();
 		$category = self::factory()->category->create_and_get( [ 'name' => 'Tech' ] );
 		wp_set_post_categories( $post_id, [ $category->term_id ] );
@@ -185,7 +204,6 @@ class Test_Primary_Category extends WP_UnitTestCase {
 	 * Test filter returns original content when no primary category is set.
 	 */
 	public function test_filter_returns_original_when_no_primary_category() {
-		delete_option( Primary_Category::OPTION_NAME );
 		$post_id = self::factory()->post->create();
 
 		$html   = '<div class="taxonomy-category"><a href="/cat/uncategorized/" rel="tag">Uncategorized</a></div>';
@@ -202,7 +220,6 @@ class Test_Primary_Category extends WP_UnitTestCase {
 	 * Test filter handles malformed HTML gracefully.
 	 */
 	public function test_filter_handles_malformed_html() {
-		delete_option( Primary_Category::OPTION_NAME );
 		$post_id  = self::factory()->post->create();
 		$category = self::factory()->category->create_and_get( [ 'name' => 'News' ] );
 		wp_set_post_categories( $post_id, [ $category->term_id ] );
