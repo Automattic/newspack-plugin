@@ -54,6 +54,7 @@ const createFlyoutInstance = wrapper => {
 	let lastFocused = null;
 	let overlay = null;
 	let focusTrapCleanup = null;
+	let escCleanup = null;
 
 	// Move the panel to document.body once so position:fixed works without
 	// stacking context issues regardless of the wrapper's CSS transforms.
@@ -150,6 +151,15 @@ const createFlyoutInstance = wrapper => {
 		// Focus trap.
 		focusTrapCleanup = trapFocus();
 
+		// ESC key.
+		const onEsc = e => {
+			if ( e.key === 'Escape' ) {
+				closeMenu();
+			}
+		};
+		document.addEventListener( 'keydown', onEsc );
+		escCleanup = () => document.removeEventListener( 'keydown', onEsc );
+
 		// Move focus into the panel.
 		setTimeout( () => {
 			const firstFocusable = getVisibleFocusable( panel )[ 0 ] || closeBtn;
@@ -166,10 +176,14 @@ const createFlyoutInstance = wrapper => {
 		}
 		isOpen = false;
 
-		// Release focus trap.
+		// Release focus trap and ESC listener.
 		if ( focusTrapCleanup ) {
 			focusTrapCleanup();
 			focusTrapCleanup = null;
+		}
+		if ( escCleanup ) {
+			escCleanup();
+			escCleanup = null;
 		}
 
 		// Restore ARIA state.
@@ -196,13 +210,6 @@ const createFlyoutInstance = wrapper => {
 			closeMenu();
 		} );
 	}
-
-	// ESC key — only responds when this instance is open.
-	document.addEventListener( 'keydown', e => {
-		if ( e.key === 'Escape' && isOpen ) {
-			closeMenu();
-		}
-	} );
 };
 
 // Initialization.
