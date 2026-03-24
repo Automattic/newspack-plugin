@@ -1,9 +1,9 @@
 /**
  * WordPress dependencies.
  */
-import { ToggleControl } from '@wordpress/components';
+import { FormToggle } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
-import { PluginDocumentSettingPanel } from '@wordpress/editor';
+import { PluginPostStatusInfo } from '@wordpress/editor';
 import { __ } from '@wordpress/i18n';
 import { registerPlugin } from '@wordpress/plugins';
 
@@ -35,26 +35,26 @@ const PostDateSettingsPanel = () => {
 
 	if ( mode === 'hide' ) {
 		return (
-			<PluginDocumentSettingPanel name="newspack-post-date-settings" title={ __( 'Updated Date', 'newspack-plugin' ) }>
-				<ToggleControl
-					label={ __( 'Hide last updated date', 'newspack-plugin' ) }
-					help={ __( 'Override the sitewide setting and hide the updated date on this post.', 'newspack-plugin' ) }
+			<PluginPostStatusInfo>
+				<label htmlFor="newspack_hide_updated_date">{ __( 'Hide last updated date', 'newspack-plugin' ) }</label>
+				<FormToggle
 					checked={ !! meta.newspack_hide_updated_date }
-					onChange={ value => updateMeta( 'newspack_hide_updated_date', value ) }
+					onChange={ () => updateMeta( 'newspack_hide_updated_date', ! meta.newspack_hide_updated_date ) }
+					id="newspack_hide_updated_date"
 				/>
-			</PluginDocumentSettingPanel>
+			</PluginPostStatusInfo>
 		);
 	}
 
 	return (
-		<PluginDocumentSettingPanel name="newspack-post-date-settings" title={ __( 'Updated Date', 'newspack-plugin' ) }>
-			<ToggleControl
-				label={ __( 'Show last updated date', 'newspack-plugin' ) }
-				help={ __( 'Show the updated date on this post even though the sitewide setting is off.', 'newspack-plugin' ) }
+		<PluginPostStatusInfo>
+			<label htmlFor="newspack_show_updated_date">{ __( 'Show last updated date', 'newspack-plugin' ) }</label>
+			<FormToggle
 				checked={ !! meta.newspack_show_updated_date }
-				onChange={ value => updateMeta( 'newspack_show_updated_date', value ) }
+				onChange={ () => updateMeta( 'newspack_show_updated_date', ! meta.newspack_show_updated_date ) }
+				id="newspack_show_updated_date"
 			/>
-		</PluginDocumentSettingPanel>
+		</PluginPostStatusInfo>
 	);
 };
 
