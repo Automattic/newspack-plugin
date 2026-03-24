@@ -163,6 +163,13 @@ function getGateEventPayload( payload, gate ) {
  * @param {HTMLElement} gate The gate element.
  */
 function handleSeen( gate ) {
+	// paywall_hits - Number of times reader has reached a paywall.
+	window.newspackRAS = window.newspackRAS || [];
+	window.newspackRAS.push( function ( ras ) {
+		const currentHits = ras.store.get( 'paywall_hits' ) || 0;
+		ras.store.set( 'paywall_hits', currentHits + 1 );
+	} );
+
 	if ( 'function' !== typeof window.gtag ) {
 		return;
 	}
@@ -318,10 +325,8 @@ domReady( function () {
 		const detectSeen = () => {
 			const delta = ( gate?.getBoundingClientRect().top || 0 ) - window.innerHeight / 2;
 			if ( delta < 0 ) {
-				if ( 'function' === typeof window.gtag ) {
-					handleSeen( gate );
-					document.removeEventListener( 'scroll', detectSeen );
-				}
+				handleSeen( gate );
+				document.removeEventListener( 'scroll', detectSeen );
 			}
 		};
 		document.addEventListener( 'scroll', detectSeen );

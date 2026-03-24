@@ -37,11 +37,11 @@ export default function setupArticleViewsAggregates( ras ) {
 		per_month[ month ][ data.post_id ] = true;
 		ras.store.set( 'article_view_per_month', per_month );
 
-		// articles_read — count of unique articles viewed.
+		// articles_read — A cumulative count of articles the reader has read.
 		const uniqueViews = ras.getUniqueActivitiesBy( 'article_view', 'post_id' );
 		ras.store.set( 'articles_read', uniqueViews.length );
 
-		// favorite_categories — top 5 category IDs by view frequency.
+		// favorite_categories — A list of the reader's most-engaged content categories, ordered by frequency.
 		const allActivities = ras.getActivities( 'article_view' );
 		const catCounts = {};
 		for ( const activity of allActivities ) {

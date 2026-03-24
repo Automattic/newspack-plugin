@@ -434,13 +434,6 @@ class Metering {
 		 */
 		self::$logged_in_metering_cache[ $post_id ] = apply_filters( 'newspack_content_gate_is_logged_in_metering_allowed', $allowed, $post_id );
 
-		// Increment paywall_hits in reader data when the reader is blocked.
-		if ( ! self::$logged_in_metering_cache[ $post_id ] ) {
-			$current_hits = Reader_Data::get_data( \get_current_user_id(), 'paywall_hits' );
-			$current_hits = $current_hits ? (int) json_decode( $current_hits ) : 0;
-			Reader_Data::update_item( \get_current_user_id(), 'paywall_hits', $current_hits + 1 );
-		}
-
 		return self::$logged_in_metering_cache[ $post_id ];
 	}
 

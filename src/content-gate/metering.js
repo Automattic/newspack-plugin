@@ -94,8 +94,6 @@ function meter( ras ) {
 	if ( settings.count <= data.content.length && ! data.content.includes( settings.post_id ) ) {
 		lockContent( ras );
 		ras.dispatchActivity( 'metering_restricted', { post_id: settings.post_id, metering: data } );
-		const currentHits = ras.store.get( 'paywall_hits' ) || 0;
-		ras.store.set( 'paywall_hits', currentHits + 1 );
 		locked = true;
 	} else {
 		const gates = document.querySelectorAll( '.newspack-content-gate__gate' );
