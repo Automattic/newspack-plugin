@@ -108,7 +108,7 @@ class Premium_Newsletters {
 		$restricted_lists = array_values( array_unique( $restricted_lists ) );
 		$restricted_lists = array_map(
 			function( $list_id ) {
-				$list = new \Newspack\Newsletters\Subscription_List( $list_id );
+				$list = new Subscription_List( $list_id );
 				if ( ! $list ) {
 					return null;
 				}
