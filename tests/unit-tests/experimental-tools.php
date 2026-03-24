@@ -223,5 +223,16 @@ class Newspack_Test_Experimental_Tools extends WP_UnitTestCase {
 		$this->assertEquals( 1, Experimental_Tools::get_user_usage_count( $slug, $user_b ) );
 		// Total across all users.
 		$this->assertEquals( 3, Experimental_Tools::get_usage_count( $slug ) );
+
+		// Seed an older daily bucket and verify it's excluded with a narrow window.
+		$all_settings = get_option( Experimental_Tools::OPTION_NAME, [] );
+		$old_date     = gmdate( 'Y-m-d', time() - 10 * DAY_IN_SECONDS );
+		$all_settings[ $slug ]['users'][ (string) $user_a ]['daily'][ $old_date ] = 7;
+		update_option( Experimental_Tools::OPTION_NAME, $all_settings );
+
+		// 5-day window excludes the 10-day-old bucket.
+		$this->assertEquals( 2, Experimental_Tools::get_user_usage_count( $slug, $user_a, 5 ) );
+		// Full retention window includes it.
+		$this->assertEquals( 9, Experimental_Tools::get_user_usage_count( $slug, $user_a, Experimental_Tools::USAGE_RETENTION_DAYS ) );
 	}
 }
