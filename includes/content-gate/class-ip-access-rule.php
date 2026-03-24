@@ -243,7 +243,7 @@ class IP_Access_Rule {
 	 */
 	private static function render_loading_page() {
 		$redirect_url = self::get_dedicated_redirect_url();
-		$rest_url     = rest_url( NEWSPACK_API_NAMESPACE . '/' . self::REST_ROUTE );
+		$rest_url     = rest_url( NEWSPACK_API_NAMESPACE . self::REST_ROUTE );
 		$result_param = self::RESULT_PARAM;
 		$site_name    = get_bloginfo( 'name' );
 		$timeout_ms   = 10000;
