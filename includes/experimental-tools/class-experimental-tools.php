@@ -49,6 +49,27 @@ class Experimental_Tools {
 	// ─── REST API ────────────────────────────────────────────────
 
 	/**
+	 * Feedback trigger: days since tool was enabled.
+	 *
+	 * @var int
+	 */
+	const FEEDBACK_DAYS_THRESHOLD = 30;
+
+	/**
+	 * Feedback trigger: per-user usage count.
+	 *
+	 * @var int
+	 */
+	const FEEDBACK_USAGE_THRESHOLD = 50;
+
+	/**
+	 * Maximum number of times the feedback modal is shown before giving up.
+	 *
+	 * @var int
+	 */
+	const FEEDBACK_MAX_TOUCHES = 2;
+
+	/**
 	 * Register REST routes.
 	 */
 	public static function register_routes() {
@@ -98,6 +119,43 @@ class Experimental_Tools {
 						'validate_callback' => function ( $value ) {
 							return is_array( $value );
 						},
+					],
+				],
+			]
+		);
+		register_rest_route(
+			self::REST_NAMESPACE,
+			self::REST_ROUTE . '/(?P<slug>[a-z0-9-]+)/feedback/touch',
+			[
+				'methods'             => \WP_REST_Server::CREATABLE,
+				'callback'            => [ __CLASS__, 'api_record_feedback_touch' ],
+				'permission_callback' => [ __CLASS__, 'check_permission' ],
+				'args'                => [
+					'slug' => [
+						'required'          => true,
+						'sanitize_callback' => 'sanitize_title',
+					],
+				],
+			]
+		);
+		register_rest_route(
+			self::REST_NAMESPACE,
+			self::REST_ROUTE . '/(?P<slug>[a-z0-9-]+)/feedback/answer',
+			[
+				'methods'             => \WP_REST_Server::CREATABLE,
+				'callback'            => [ __CLASS__, 'api_save_feedback_answer' ],
+				'permission_callback' => [ __CLASS__, 'check_permission' ],
+				'args'                => [
+					'slug'     => [
+						'required'          => true,
+						'sanitize_callback' => 'sanitize_title',
+					],
+					'question' => [
+						'required'          => true,
+						'sanitize_callback' => 'sanitize_text_field',
+					],
+					'answer'   => [
+						'required' => true,
 					],
 				],
 			]
@@ -186,6 +244,61 @@ class Experimental_Tools {
 		return rest_ensure_response( self::get_tools() );
 	}
 
+	/**
+	 * POST handler -- record that the feedback modal was shown to the user.
+	 *
+	 * @param \WP_REST_Request $request Request object.
+	 * @return \WP_REST_Response|\WP_Error
+	 */
+	public static function api_record_feedback_touch( $request ) {
+		$slug = $request['slug'];
+
+		$tools = self::get_registered_tools();
+		if ( ! isset( $tools[ $slug ] ) ) {
+			return new \WP_Error(
+				'newspack_tool_not_found',
+				__( 'Tool not found.', 'newspack-plugin' ),
+				[ 'status' => 404 ]
+			);
+		}
+
+		self::record_feedback_touch( $slug, get_current_user_id() );
+		return rest_ensure_response( self::get_tools() );
+	}
+
+	/**
+	 * POST handler -- save a single feedback answer.
+	 *
+	 * @param \WP_REST_Request $request Request object.
+	 * @return \WP_REST_Response|\WP_Error
+	 */
+	public static function api_save_feedback_answer( $request ) {
+		$slug     = $request['slug'];
+		$question = $request['question'];
+		$answer   = $request['answer'];
+
+		$tools = self::get_registered_tools();
+		if ( ! isset( $tools[ $slug ] ) ) {
+			return new \WP_Error(
+				'newspack_tool_not_found',
+				__( 'Tool not found.', 'newspack-plugin' ),
+				[ 'status' => 404 ]
+			);
+		}
+
+		$valid_keys = wp_list_pluck( self::get_feedback_questions(), 'key' );
+		if ( ! in_array( $question, $valid_keys, true ) ) {
+			return new \WP_Error(
+				'newspack_invalid_question',
+				__( 'Invalid feedback question key.', 'newspack-plugin' ),
+				[ 'status' => 400 ]
+			);
+		}
+
+		self::save_feedback_answer( $slug, get_current_user_id(), $question, $answer );
+		return rest_ensure_response( self::get_tools() );
+	}
+
 	// ─── Data accessors ──────────────────────────────────────────
 
 	/**
@@ -252,6 +365,7 @@ class Experimental_Tools {
 				'enabled_by'      => $saved['enabled_by'] ?? null,
 				'fields'          => $fields,
 				'usage_count'     => self::get_usage_count( $slug ),
+				'feedback'        => self::get_feedback_state( $slug, get_current_user_id() ),
 			];
 		}
 
@@ -445,23 +559,204 @@ class Experimental_Tools {
 	 *
 	 * @param string $slug    Tool slug.
 	 * @param int    $user_id User ID.
-	 * @param int    $days    Number of days to look back. Default 30.
+	 * @param int    $days    Number of days to look back. Default 90.
 	 * @return int
 	 */
-	public static function get_user_usage_count( $slug, $user_id, $days = 30 ) {
-		$settings = self::get_tool_settings( $slug );
-		$user_key = (string) $user_id;
-		$total    = 0;
-		$cutoff   = gmdate( 'Y-m-d', time() - $days * DAY_IN_SECONDS );
+	public static function get_user_usage_count( $slug, $user_id, $days = 90 ) {
+		$settings  = self::get_tool_settings( $slug );
+		$user_key  = (string) $user_id;
+		$user_data = $settings['users'][ $user_key ] ?? [];
+		$total     = 0;
+		$cutoff    = gmdate( 'Y-m-d', time() - $days * DAY_IN_SECONDS );
 
-		if ( ! empty( $settings['users'][ $user_key ]['daily'] ) ) {
-			foreach ( $settings['users'][ $user_key ]['daily'] as $date => $count ) {
-				if ( $date >= $cutoff ) {
-					$total += (int) $count;
-				}
+		foreach ( $user_data['daily'] ?? [] as $date => $count ) {
+			if ( $date >= $cutoff ) {
+				$total += (int) $count;
 			}
 		}
 		return $total;
+	}
+
+	// ─── Feedback ────────────────────────────────────────────────
+
+	/**
+	 * Get the canonical feedback question definitions.
+	 *
+	 * @return array
+	 */
+	public static function get_feedback_questions() {
+		return [
+			[
+				'key'    => 'recommend',
+				'text'   => __( 'Would you recommend this tool to another newsroom?', 'newspack-plugin' ),
+				'type'   => 'scale',
+				'min'    => 1,
+				'max'    => 5,
+				'labels' => [
+					__( 'Not at all', 'newspack-plugin' ),
+					__( 'Absolutely', 'newspack-plugin' ),
+				],
+			],
+			[
+				'key'    => 'time_saved',
+				'text'   => __( 'Has it saved you time?', 'newspack-plugin' ),
+				'type'   => 'scale',
+				'min'    => 1,
+				'max'    => 5,
+				'labels' => [
+					__( 'Not really', 'newspack-plugin' ),
+					__( 'A lot', 'newspack-plugin' ),
+				],
+			],
+			[
+				'key'    => 'editing_needed',
+				'text'   => __( 'How much editing do the outputs need?', 'newspack-plugin' ),
+				'type'   => 'scale',
+				'min'    => 1,
+				'max'    => 5,
+				'labels' => [
+					__( 'Heavy editing', 'newspack-plugin' ),
+					__( 'Ready to use', 'newspack-plugin' ),
+				],
+			],
+			[
+				'key'  => 'improvement_ideas',
+				'text' => __( 'What would make it more useful?', 'newspack-plugin' ),
+				'type' => 'text',
+			],
+		];
+	}
+
+	/**
+	 * Evaluate feedback state for a tool and user.
+	 *
+	 * @param string $slug    Tool slug.
+	 * @param int    $user_id User ID.
+	 * @return array
+	 */
+	public static function get_feedback_state( $slug, $user_id ) {
+		$settings    = self::get_tool_settings( $slug );
+		$user_key    = (string) $user_id;
+		$user_data   = $settings['users'][ $user_key ] ?? [];
+		$feedback    = $user_data['feedback'] ?? [];
+		$all_keys    = wp_list_pluck( self::get_feedback_questions(), 'key' );
+		$answers     = $feedback['answers'] ?? [];
+		$touch_count = $feedback['touch_count'] ?? 0;
+
+		$base = [
+			'should_show' => false,
+			'touch_count' => $touch_count,
+			'answers'     => $answers,
+			'questions'   => self::get_feedback_questions(),
+		];
+
+		// Already completed all questions.
+		if ( ! empty( $feedback['completed'] ) ) {
+			return $base;
+		}
+
+		// Exhausted maximum touches.
+		if ( $touch_count >= self::FEEDBACK_MAX_TOUCHES ) {
+			return $base;
+		}
+
+		// Tool not enabled or no enable timestamp.
+		if ( empty( $settings['enabled'] ) || empty( $settings['enabled_at'] ) ) {
+			return $base;
+		}
+
+		// Check thresholds: 30 days since enable OR 50 uses by this user.
+		$days_since_enable = ( time() - (int) $settings['enabled_at'] ) / DAY_IN_SECONDS;
+		$user_usage        = self::get_user_usage_count( $slug, $user_id );
+
+		if ( $days_since_enable < self::FEEDBACK_DAYS_THRESHOLD && $user_usage < self::FEEDBACK_USAGE_THRESHOLD ) {
+			return $base;
+		}
+
+		$base['should_show'] = true;
+		return $base;
+	}
+
+	/**
+	 * Record that the feedback modal was shown to a user.
+	 *
+	 * @param string $slug    Tool slug.
+	 * @param int    $user_id User ID.
+	 */
+	public static function record_feedback_touch( $slug, $user_id ) {
+		$all_settings = get_option( self::OPTION_NAME, [] );
+		$user_key     = (string) $user_id;
+
+		if ( ! isset( $all_settings[ $slug ] ) ) {
+			$all_settings[ $slug ] = [
+				'enabled'    => false,
+				'enabled_at' => null,
+				'enabled_by' => null,
+				'users'      => [],
+				'fields'     => [],
+			];
+		}
+		if ( ! isset( $all_settings[ $slug ]['users'][ $user_key ] ) ) {
+			$all_settings[ $slug ]['users'][ $user_key ] = [ 'daily' => [] ];
+		}
+		if ( ! isset( $all_settings[ $slug ]['users'][ $user_key ]['feedback'] ) ) {
+			$all_settings[ $slug ]['users'][ $user_key ]['feedback'] = [
+				'touch_count'   => 0,
+				'completed'     => false,
+				'answers'       => [],
+				'last_shown_at' => null,
+			];
+		}
+
+		$all_settings[ $slug ]['users'][ $user_key ]['feedback']['touch_count']++;
+		$all_settings[ $slug ]['users'][ $user_key ]['feedback']['last_shown_at'] = time();
+
+		update_option( self::OPTION_NAME, $all_settings );
+	}
+
+	/**
+	 * Save a single feedback answer for a user.
+	 *
+	 * @param string     $slug     Tool slug.
+	 * @param int        $user_id  User ID.
+	 * @param string     $question Question key.
+	 * @param string|int $answer   Answer value.
+	 */
+	public static function save_feedback_answer( $slug, $user_id, $question, $answer ) {
+		$all_settings = get_option( self::OPTION_NAME, [] );
+		$user_key     = (string) $user_id;
+
+		if ( ! isset( $all_settings[ $slug ] ) ) {
+			$all_settings[ $slug ] = [
+				'enabled'    => false,
+				'enabled_at' => null,
+				'enabled_by' => null,
+				'users'      => [],
+				'fields'     => [],
+			];
+		}
+		if ( ! isset( $all_settings[ $slug ]['users'][ $user_key ] ) ) {
+			$all_settings[ $slug ]['users'][ $user_key ] = [ 'daily' => [] ];
+		}
+		if ( ! isset( $all_settings[ $slug ]['users'][ $user_key ]['feedback'] ) ) {
+			$all_settings[ $slug ]['users'][ $user_key ]['feedback'] = [
+				'touch_count'   => 0,
+				'completed'     => false,
+				'answers'       => [],
+				'last_shown_at' => null,
+			];
+		}
+
+		$all_settings[ $slug ]['users'][ $user_key ]['feedback']['answers'][ $question ] = sanitize_textarea_field( (string) $answer );
+
+		// Check if all questions have been answered.
+		$all_keys     = wp_list_pluck( self::get_feedback_questions(), 'key' );
+		$answered     = array_keys( $all_settings[ $slug ]['users'][ $user_key ]['feedback']['answers'] );
+		if ( empty( array_diff( $all_keys, $answered ) ) ) {
+			$all_settings[ $slug ]['users'][ $user_key ]['feedback']['completed'] = true;
+		}
+
+		update_option( self::OPTION_NAME, $all_settings );
 	}
 }
 
