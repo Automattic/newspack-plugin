@@ -14,9 +14,20 @@ defined( 'ABSPATH' ) || exit;
  */
 class Post_Date {
 
+	/**
+	 * Default number of days for the time-ago cutoff.
+	 * Posts older than this show the full date instead.
+	 *
+	 * @var int
+	 */
 	const DEFAULT_TIME_AGO_CUTOFF_DAYS = 14;
 
-	const UPDATED_DATE_TIME_AGO_CUTOFF_DAYS = 1;
+	/**
+	 * Default time-ago cutoff in days when the updated date feature is enabled.
+	 *
+	 * @var int
+	 */
+	const DEFAULT_UPDATED_DATE_TIME_AGO_CUTOFF_DAYS = 1;
 
 	/**
 	 * Theme mod keys to migrate on theme switch.
@@ -125,7 +136,7 @@ class Post_Date {
 	 */
 	public static function get_time_ago_cutoff_days() {
 		$cutoff = get_theme_mod( 'post_updated_date', false )
-			? self::UPDATED_DATE_TIME_AGO_CUTOFF_DAYS
+			? self::DEFAULT_UPDATED_DATE_TIME_AGO_CUTOFF_DAYS
 			: (int) get_theme_mod( 'post_time_ago_cut_off', self::DEFAULT_TIME_AGO_CUTOFF_DAYS );
 
 		return (int) apply_filters( 'newspack_time_ago_cutoff_days', $cutoff );
@@ -209,7 +220,7 @@ class Post_Date {
 			// Wrap the date text with a translatable "Updated %s" label.
 			$date_text = wp_strip_all_tags( preg_match( '/(<time[^>]*>)(.*?)(<\/time>)/s', $block_content, $m ) ? $m[2] : '' );
 			/* translators: %s: Modified date. */
-			$label = sprintf( esc_html__( 'Updated %s', 'newspack-plugin' ), esc_html( $date_text ) );
+			$label = sprintf( esc_html__( 'Updated %s', 'newspack-plugin' ), $date_text );
 			$block_content = self::replace_time_text( $block_content, $label );
 
 			// Mark as modified so the relative-time JS can skip text replacement,
@@ -295,7 +306,7 @@ class Post_Date {
 		}
 
 		/* translators: %s: Modified date. */
-		$label = sprintf( esc_html__( 'Updated %s', 'newspack-plugin' ), esc_html( $modified_date ) );
+		$label = sprintf( esc_html__( 'Updated %s', 'newspack-plugin' ), $modified_date );
 
 		printf(
 			'<span class="posted-on updated-date" data-newspack-modified><time class="entry-date updated" datetime="%1$s">%2$s</time></span>',
@@ -308,6 +319,11 @@ class Post_Date {
 	 * Register per-post meta for updated date toggles.
 	 */
 	public static function register_meta() {
+		/**
+		 * Filters the post types that support the updated date feature.
+		 *
+		 * @param string[] $post_types Array of post type slugs. Default: [ 'post' ].
+		 */
 		$post_types = apply_filters( 'newspack_updated_date_supported_post_types', [ 'post' ] );
 		foreach ( $post_types as $post_type ) {
 			register_post_meta(
@@ -358,7 +374,7 @@ class Post_Date {
 		$old_mods       = get_option( "theme_mods_$old_stylesheet", [] );
 
 		foreach ( self::THEME_MOD_KEYS as $key ) {
-			if ( isset( $old_mods[ $key ] ) ) {
+			if ( isset( $old_mods[ $key ] ) && false === get_theme_mod( $key, false ) ) {
 				set_theme_mod( $key, $old_mods[ $key ] );
 			}
 		}
