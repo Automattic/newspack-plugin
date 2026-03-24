@@ -7,7 +7,6 @@
 
 namespace Newspack\Content_Gate;
 
-use Newspack\Newspack;
 use Newspack\Newspack_UI;
 
 /**
@@ -33,7 +32,7 @@ class IP_Access_Rule {
 	/**
 	 * The REST API route for the IP check.
 	 */
-	const REST_ROUTE = 'institutional-access/check';
+	const REST_ROUTE = '/institutional-access/check';
 
 	/**
 	 * Initialize hooks.
@@ -157,6 +156,12 @@ class IP_Access_Rule {
 		if ( empty( $_GET[ self::RESULT_PARAM ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			return;
 		}
+
+		// Prevent this response from being cached so other users don't see the snackbar.
+		if ( function_exists( 'batcache_cancel' ) ) {
+			batcache_cancel();
+		}
+		nocache_headers();
 
 		$result = sanitize_text_field( wp_unslash( $_GET[ self::RESULT_PARAM ] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
