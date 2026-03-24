@@ -30,6 +30,7 @@ class Institution {
 		add_action( 'save_post_' . self::POST_TYPE, [ __CLASS__, 'invalidate_cache' ] );
 		add_action( 'before_delete_post', [ __CLASS__, 'maybe_invalidate_cache_on_delete' ] );
 		add_filter( 'newspack_content_gate_check_ip', [ __CLASS__, 'check_ip' ] );
+		add_action( 'template_redirect', [ __CLASS__, 'handle_institution_page' ] );
 	}
 
 	/**
@@ -75,11 +76,13 @@ class Institution {
 			self::POST_TYPE,
 			[
 				'label'        => __( 'Institutions', 'newspack-plugin' ),
-				'public'       => false,
+				'public'       => true,
 				'show_ui'      => false,
 				'show_in_menu' => false,
 				'show_in_rest' => true,
-				'supports'     => [ 'title', 'excerpt', 'custom-fields' ],
+				'has_archive'  => false,
+				'rewrite'      => [ 'slug' => IP_Access_Rule::ENDPOINT ],
+				'supports'     => [ 'title', 'excerpt', 'thumbnail', 'custom-fields' ],
 				/**
 				 * Institutions effectively grant access, so restrict all CRUD operations
 				 * (including via REST) to the `manage_options` user capability.
@@ -243,7 +246,7 @@ class Institution {
 	 *
 	 * @return bool Whether the user matches any rule.
 	 */
-	private static function user_matches_institution( $user_id, $rules ) {
+	public static function user_matches_institution( $user_id, $rules ) {
 		if ( ! empty( $rules['email_domain'] ) ) {
 			if ( Access_Rules::is_email_domain_whitelisted( $user_id, $rules['email_domain'] ) ) {
 				return true;
@@ -264,6 +267,27 @@ class Institution {
 		}
 
 		return false;
+	}
+
+	/**
+	 * Handle institution single page as a verification endpoint.
+	 *
+	 * When visiting an institution permalink (e.g., /institutional-access/library-name/),
+	 * renders a personalized loading page that checks access for that specific institution.
+	 */
+	public static function handle_institution_page() {
+		if ( ! is_singular( self::POST_TYPE ) ) {
+			return;
+		}
+
+		if ( function_exists( 'batcache_cancel' ) ) {
+			batcache_cancel();
+		}
+		nocache_headers();
+
+		$post = get_queried_object();
+		IP_Access_Rule::render_loading_page( $post->ID );
+		exit;
 	}
 
 	/**
