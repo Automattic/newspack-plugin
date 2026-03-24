@@ -202,8 +202,17 @@ class Content_Restriction_Control {
 			return $is_post_restricted;
 		}
 
+		/**
+		 * Filters the user ID to use for evaluating content restriction.
+		 * REST API callbacks may execute in a different context than the logged-in user session,
+		 * so this lets us get restriction status for a specific user ID.
+		 *
+		 * @param int $user_id Current user ID.
+		 */
+		$user_id = apply_filters( 'newspack_content_restriction_control_user_id', get_current_user_id() );
+
 		// Don't restrict this post for users who can edit it.
-		if ( ! empty( $post_id ) && current_user_can( 'edit_post', $post_id ) ) {
+		if ( ! empty( $post_id ) && user_can( $user_id, 'edit_post', $post_id ) ) {
 			return false;
 		}
 
@@ -224,12 +233,12 @@ class Content_Restriction_Control {
 			// If registration mode is active.
 			if ( ! empty( $gate['registration']['active'] ) ) {
 				// Check if user is logged in.
-				if ( ! \is_user_logged_in() ) {
+				if ( $user_id === 0 ) {
 					$is_restricted  = true;
 					$gate_layout_id = $gate['registration']['gate_layout_id'] ?? $gate['id'];
 				} elseif ( ! empty( $gate['registration']['require_verification'] ) ) {
 					// Check if email verification is required.
-					$user = \wp_get_current_user();
+					$user = get_user_by( 'id', $user_id );
 					if ( ! \get_user_meta( $user->ID, Reader_Activation::EMAIL_VERIFIED, true ) ) {
 						$is_restricted  = true;
 						$gate_layout_id = $gate['registration']['gate_layout_id'] ?? $gate['id'];
@@ -240,7 +249,7 @@ class Content_Restriction_Control {
 			// If custom_access mode is active.
 			if ( ! $is_restricted && ! empty( $gate['custom_access']['active'] ) ) {
 				$access_rules = $gate['custom_access']['access_rules'] ?? [];
-				if ( ! empty( $access_rules ) && ! Access_Rules::evaluate_rules( $access_rules ) ) {
+				if ( ! empty( $access_rules ) && ! Access_Rules::evaluate_rules( $access_rules, $user_id ) ) {
 					$is_restricted  = true;
 					$gate_layout_id = $gate['custom_access']['gate_layout_id'] ?? $gate['id'];
 				}

@@ -1704,8 +1704,21 @@ final class Reader_Activation {
 	 * @return WP_REST_Response
 	 */
 	public static function api_render_newsletters_signup_form( $request ) {
+		$email = $request['email_address'];
+
+		// If the email address is associated with a user, use that user's ID for evaluating content restrictions.
+		$user_id = get_user_by( 'email', $email );
+		if ( $user_id ) {
+			$email = $user_id->user_email;
+			add_filter(
+				'newspack_content_restriction_control_user_id',
+				function() use ( $user_id ) {
+					return $user_id->ID;
+				}
+			);
+		}
 		ob_start();
-		self::render_newsletters_signup_modal( $request['email_address'] );
+		self::render_newsletters_signup_modal( $email );
 		$html = trim( ob_get_clean() );
 		return new \WP_REST_Response( [ 'html' => $html ] );
 	}
