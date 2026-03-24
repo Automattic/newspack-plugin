@@ -96,6 +96,7 @@ const Edit = ( { match, updateGatesData, slug = AUDIENCE_CONTENT_GATES_WIZARD_SL
 	const isNew = _id === 'new' || ! id;
 	const isSaving = useRef( false );
 	const gatesRef = useRef< Gate[] >( gates );
+	const savedCustomRules = useRef< GateContentRule[] >( gate.content_rules );
 
 	useEffect( () => {
 		if ( Array.isArray( gates ) ) {
@@ -317,6 +318,7 @@ const Edit = ( { match, updateGatesData, slug = AUDIENCE_CONTENT_GATES_WIZARD_SL
 		setGate( matchedGate );
 		setTitle( matchedGate.title );
 		setContentRules( matchedGate.content_rules );
+		savedCustomRules.current = matchedGate.content_rules;
 		setRegistration( matchedGate.registration );
 		setCustomAccess( matchedGate.custom_access );
 		setStatus( matchedGate.status );
@@ -408,7 +410,12 @@ const Edit = ( { match, updateGatesData, slug = AUDIENCE_CONTENT_GATES_WIZARD_SL
 
 	// Update content rules.
 	useEffect( () => {
-		setContentRules( contentType === 'all' ? DEFAULT_GATE.content_rules : contentRules );
+		if ( contentType === 'all' ) {
+			savedCustomRules.current = contentRules;
+			setContentRules( DEFAULT_GATE.content_rules );
+		} else if ( contentType === 'custom' ) {
+			setContentRules( savedCustomRules.current );
+		}
 	}, [ contentType ] );
 
 	// Update error.
