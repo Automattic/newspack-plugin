@@ -48,8 +48,16 @@ class IP_Access_Rule {
 	 * Register the rewrite rule for the institutional access endpoint.
 	 */
 	public static function add_rewrite_rule() {
+		// Match /institutional-access/<slug>/ for institution-specific pages.
+		add_rewrite_rule(
+			'^' . self::ENDPOINT . '/([^/]+)/?$',
+			'index.php?' . self::ENDPOINT . '=1&' . self::ENDPOINT . '-slug=$matches[1]',
+			'top'
+		);
+		// Match /institutional-access/ for the generic page.
 		add_rewrite_rule( '^' . self::ENDPOINT . '/?$', 'index.php?' . self::ENDPOINT . '=1', 'top' );
 		add_rewrite_tag( '%' . self::ENDPOINT . '%', '1' );
+		add_rewrite_tag( '%' . self::ENDPOINT . '-slug%', '([^/]+)' );
 
 		$option_key = 'newspack_ip_access_rule_flushed_v2';
 		if ( ! get_option( $option_key ) ) {
@@ -104,7 +112,7 @@ class IP_Access_Rule {
 			$institutions = \Newspack\Institution::get_cached_institutions();
 			if ( isset( $institutions[ $institution_id ] ) ) {
 				$user_id  = get_current_user_id();
-				$valid    = \Newspack\Institution::user_matches_institution( $user_id, $institutions[ $institution_id ] );
+				$valid    = \Newspack\Institution::user_matches_institution( $user_id, $institutions[ $institution_id ], true );
 				$inst_name = get_the_title( $institution_id );
 			}
 		} else {
@@ -149,11 +157,25 @@ class IP_Access_Rule {
 		nocache_headers();
 
 		// Check if this is the dedicated endpoint or a query param on a regular URL.
+		$slug = get_query_var( self::ENDPOINT . '-slug' );
 		$request_path = wp_parse_url( $_SERVER['REQUEST_URI'], PHP_URL_PATH ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
-		$is_dedicated = (bool) preg_match( '#^/?' . preg_quote( self::ENDPOINT, '#' ) . '/?$#', trim( $request_path, '/' ) );
+		$is_dedicated = $slug || (bool) preg_match( '#^/?' . preg_quote( self::ENDPOINT, '#' ) . '/?$#', trim( $request_path, '/' ) );
 
 		if ( $is_dedicated ) {
-			self::render_loading_page();
+			$institution_id = null;
+			if ( $slug ) {
+				$posts = get_posts(
+					[
+						'post_type'      => \Newspack\Institution::POST_TYPE,
+						'name'           => sanitize_title( $slug ),
+						'posts_per_page' => 1,
+						'post_status'    => 'publish',
+						'fields'         => 'ids',
+					]
+				);
+				$institution_id = ! empty( $posts ) ? $posts[0] : null;
+			}
+			self::render_loading_page( $institution_id );
 			exit;
 		}
 

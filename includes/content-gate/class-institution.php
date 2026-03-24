@@ -30,7 +30,6 @@ class Institution {
 		add_action( 'save_post_' . self::POST_TYPE, [ __CLASS__, 'invalidate_cache' ] );
 		add_action( 'before_delete_post', [ __CLASS__, 'maybe_invalidate_cache_on_delete' ] );
 		add_filter( 'newspack_content_gate_check_ip', [ __CLASS__, 'check_ip' ] );
-		add_action( 'template_redirect', [ __CLASS__, 'handle_institution_page' ] );
 	}
 
 	/**
@@ -76,12 +75,10 @@ class Institution {
 			self::POST_TYPE,
 			[
 				'label'        => __( 'Institutions', 'newspack-plugin' ),
-				'public'       => true,
+				'public'       => false,
 				'show_ui'      => false,
 				'show_in_menu' => false,
 				'show_in_rest' => true,
-				'has_archive'  => false,
-				'rewrite'      => [ 'slug' => IP_Access_Rule::ENDPOINT ],
 				'supports'     => [ 'title', 'excerpt', 'thumbnail', 'custom-fields' ],
 				/**
 				 * Institutions effectively grant access, so restrict all CRUD operations
@@ -241,12 +238,14 @@ class Institution {
 	/**
 	 * Check if a user matches an institution's rules (OR logic).
 	 *
-	 * @param int   $user_id User ID.
-	 * @param array $rules   Institution rules with keys: email_domain, ip_range, reader_data.
+	 * @param int   $user_id  User ID.
+	 * @param array $rules    Institution rules with keys: email_domain, ip_range, reader_data.
+	 * @param bool  $uncached Whether the request is known to be uncached (e.g., REST endpoint).
+	 *                        When true, the IP check runs regardless of cookie/login state.
 	 *
 	 * @return bool Whether the user matches any rule.
 	 */
-	public static function user_matches_institution( $user_id, $rules ) {
+	public static function user_matches_institution( $user_id, $rules, $uncached = false ) {
 		if ( ! empty( $rules['email_domain'] ) ) {
 			if ( Access_Rules::is_email_domain_whitelisted( $user_id, $rules['email_domain'] ) ) {
 				return true;
@@ -254,7 +253,7 @@ class Institution {
 		}
 
 		if ( ! empty( $rules['ip_range'] ) ) {
-			$is_uncached = ! empty( $user_id ) || isset( $_COOKIE[ IP_Access_Rule::COOKIE_NAME ] ); // phpcs:ignore WordPressVIPMinimum.Variables.RestrictedVariables.cache_constraints___COOKIE
+			$is_uncached = $uncached || ! empty( $user_id ) || isset( $_COOKIE[ IP_Access_Rule::COOKIE_NAME ] ); // phpcs:ignore WordPressVIPMinimum.Variables.RestrictedVariables.cache_constraints___COOKIE
 			if ( $is_uncached && IP_Access_Rule::ip_matches_ranges( IP_Access_Rule::get_visitor_ip(), $rules['ip_range'] ) ) {
 				return true;
 			}
@@ -267,27 +266,6 @@ class Institution {
 		}
 
 		return false;
-	}
-
-	/**
-	 * Handle institution single page as a verification endpoint.
-	 *
-	 * When visiting an institution permalink (e.g., /institutional-access/library-name/),
-	 * renders a personalized loading page that checks access for that specific institution.
-	 */
-	public static function handle_institution_page() {
-		if ( ! is_singular( self::POST_TYPE ) ) {
-			return;
-		}
-
-		if ( function_exists( 'batcache_cancel' ) ) {
-			batcache_cancel();
-		}
-		nocache_headers();
-
-		$post = get_queried_object();
-		IP_Access_Rule::render_loading_page( $post->ID );
-		exit;
 	}
 
 	/**
