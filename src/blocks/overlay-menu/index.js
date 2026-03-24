@@ -33,7 +33,7 @@ export const settings = {
 		__( 'overlay', 'newspack-plugin' ),
 		__( 'hamburger', 'newspack-plugin' ),
 	],
-	description: __( 'A trigger button that opens a overlay drawer panel with customizable content.', 'newspack-plugin' ),
+	description: __( 'A trigger button that opens an overlay drawer panel with customizable content.', 'newspack-plugin' ),
 	edit: Edit,
 	save: () => (
 		<div { ...useBlockProps.save() }>
