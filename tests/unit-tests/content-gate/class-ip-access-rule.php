@@ -187,6 +187,8 @@ class Newspack_Test_IP_Access_Rule extends WP_UnitTestCase {
 	 * Test REST endpoint with institution_id param — matching IP.
 	 */
 	public function test_rest_endpoint_institution_id_match() {
+		$original_addr = isset( $_SERVER['REMOTE_ADDR'] ) ? $_SERVER['REMOTE_ADDR'] : null; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput, WordPressVIPMinimum.Variables.ServerVariables.UserControlledHeaders, WordPressVIPMinimum.Variables.RestrictedVariables.cache_constraints___SERVER__REMOTE_ADDR__
+
 		$inst_id = \Newspack\Institution::create(
 			'REST Test Library',
 			'',
@@ -205,7 +207,7 @@ class Newspack_Test_IP_Access_Rule extends WP_UnitTestCase {
 		$this->assertTrue( $data['valid'] );
 		$this->assertSame( 'REST Test Library', $data['institution'] );
 
-		unset( $_SERVER['REMOTE_ADDR'] ); // phpcs:ignore WordPressVIPMinimum.Variables.ServerVariables.UserControlledHeaders, WordPressVIPMinimum.Variables.RestrictedVariables.cache_constraints___SERVER__REMOTE_ADDR__
+		$_SERVER['REMOTE_ADDR'] = $original_addr; // phpcs:ignore WordPressVIPMinimum.Variables.ServerVariables.UserControlledHeaders, WordPressVIPMinimum.Variables.RestrictedVariables.cache_constraints___SERVER__REMOTE_ADDR__
 		wp_delete_post( $inst_id, true );
 	}
 
@@ -213,6 +215,8 @@ class Newspack_Test_IP_Access_Rule extends WP_UnitTestCase {
 	 * Test REST endpoint with institution_id param — non-matching IP.
 	 */
 	public function test_rest_endpoint_institution_id_no_match() {
+		$original_addr = isset( $_SERVER['REMOTE_ADDR'] ) ? $_SERVER['REMOTE_ADDR'] : null; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput, WordPressVIPMinimum.Variables.ServerVariables.UserControlledHeaders, WordPressVIPMinimum.Variables.RestrictedVariables.cache_constraints___SERVER__REMOTE_ADDR__
+
 		$inst_id = \Newspack\Institution::create(
 			'REST Test Library',
 			'',
@@ -231,7 +235,7 @@ class Newspack_Test_IP_Access_Rule extends WP_UnitTestCase {
 		$this->assertFalse( $data['valid'] );
 		$this->assertSame( 'REST Test Library', $data['institution'], 'Institution name should be returned even on failure.' );
 
-		unset( $_SERVER['REMOTE_ADDR'] ); // phpcs:ignore WordPressVIPMinimum.Variables.ServerVariables.UserControlledHeaders, WordPressVIPMinimum.Variables.RestrictedVariables.cache_constraints___SERVER__REMOTE_ADDR__
+		$_SERVER['REMOTE_ADDR'] = $original_addr; // phpcs:ignore WordPressVIPMinimum.Variables.ServerVariables.UserControlledHeaders, WordPressVIPMinimum.Variables.RestrictedVariables.cache_constraints___SERVER__REMOTE_ADDR__
 		wp_delete_post( $inst_id, true );
 	}
 
