@@ -6,7 +6,7 @@ type ThemeNames = 'theme' | 'scott' | 'nelson' | 'katharine' | 'sacha' | 'joseph
 /**
  * Theme names with `newspack` prefix.
  */
-type NewspackThemes = `newspack-${ThemeNames}`;
+type NewspackThemes = `newspack-${ ThemeNames }`;
 
 /**
  * Property on theme mods endpoint.
@@ -19,10 +19,10 @@ interface Etc {
 /**
  * Theme and brand schema.
  */
-interface ThemeData<T = {}> {
+interface ThemeData< T = {} > {
 	etc: Etc;
 	theme: '' | NewspackThemes;
-	theme_mods: ThemeMods<T>;
+	theme_mods: ThemeMods< T >;
 	homepage_patterns: HomepagePattern[];
 }
 
@@ -77,8 +77,8 @@ interface ThemeAndBrand {
 /**
  * Theme mods component.
  */
-type ThemeModComponentProps<T = ThemeMods> = {
-	update: (a: Partial<T>) => void;
+type ThemeModComponentProps< T = ThemeMods > = {
+	update: ( a: Partial< T > ) => void;
 	isFetching?: boolean;
 	data: T;
 };
@@ -124,6 +124,12 @@ interface AdvancedSettings {
 		pageUrl: string;
 	};
 
+	// Post Date.
+	post_time_ago: boolean;
+	post_time_ago_cut_off: number;
+	post_updated_date: boolean;
+	post_updated_date_threshold: number;
+
 	// PWA Display Mode.
 	pwa_display_mode: string;
 
@@ -138,4 +144,4 @@ interface MiscSettings {
 	custom_css_post_id: number;
 }
 
-interface ThemeMods extends ThemeAndBrand, AdvancedSettings, MiscSettings { }
+interface ThemeMods extends ThemeAndBrand, AdvancedSettings, MiscSettings {}

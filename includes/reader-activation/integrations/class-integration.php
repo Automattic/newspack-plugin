@@ -424,17 +424,61 @@ abstract class Integration {
 	 */
 	public function get_metadata_prefix() {
 		$value = \get_option( self::METADATA_PREFIX_OPTION_PREFIX . $this->id, null );
-		if ( null !== $value ) {
+		if ( null !== $value && ! empty( $value ) ) {
 			return $value;
 		}
 		// Lazy migrate from legacy global option.
 		$legacy_value = \get_option( Sync\Metadata::PREFIX_OPTION, null );
-		if ( null !== $legacy_value ) {
+		if ( null !== $legacy_value && ! empty( $legacy_value ) ) {
 			// update option directly to avoid infinite loop.
 			\update_option( self::METADATA_PREFIX_OPTION_PREFIX . $this->id, $legacy_value );
 			return $legacy_value;
 		}
 		return 'NP_';
+	}
+
+	/**
+	 * Prepare contact data for this integration by filtering to enabled
+	 * outgoing fields and adding the metadata prefix.
+	 *
+	 * In legacy mode, metadata classes already return filtered and prefixed
+	 * data, so the contact is returned unchanged.
+	 *
+	 * @param array $contact Contact data with raw metadata keys.
+	 * @return array Contact data with filtered, prefixed metadata.
+	 */
+	public function prepare_contact( $contact ) {
+		if ( 'legacy' === Sync\Metadata::get_version() ) {
+			return $contact;
+		}
+
+		if ( empty( $contact['metadata'] ) ) {
+			return $contact;
+		}
+
+		$enabled_fields = $this->get_enabled_outgoing_fields();
+		$prefix         = $this->get_metadata_prefix();
+		$keys_map       = Sync\Metadata::get_keys();
+		$prepared       = [];
+
+		foreach ( $contact['metadata'] as $key => $value ) {
+			// If the key is already prefixed, keep it as-is if its field is enabled.
+			if ( 0 === strpos( $key, $prefix ) ) {
+				$field_name = substr( $key, strlen( $prefix ) );
+				if ( in_array( $field_name, $enabled_fields, true ) ) {
+					$prepared[ $key ] = $value;
+				}
+				continue;
+			}
+
+			// Otherwise, prefix raw keys that are in the keys map and enabled.
+			if ( isset( $keys_map[ $key ] ) && in_array( $keys_map[ $key ], $enabled_fields, true ) ) {
+				$prepared[ $prefix . $keys_map[ $key ] ] = $value;
+			}
+		}
+
+		$contact['metadata'] = $prepared;
+		return $contact;
 	}
 
 	/**
