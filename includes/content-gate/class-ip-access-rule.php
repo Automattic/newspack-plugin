@@ -345,8 +345,6 @@ class IP_Access_Rule {
 					);
 				}, <?php echo (int) $timeout_ms; ?> );
 
-				return;
-
 				var minDelay = new Promise( function( resolve ) { setTimeout( resolve, 1000 ); } );
 
 				Promise.all( [
