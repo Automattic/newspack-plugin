@@ -47,6 +47,15 @@ final class Primary_Category {
 		if ( ! self::is_yoast_active() ) {
 			return false;
 		}
+
+		// Honor the legacy classic theme mod if it was explicitly disabled.
+		if ( ! wp_is_block_theme() ) {
+			$theme_mods = get_theme_mods();
+			if ( isset( $theme_mods['post_primary_category'] ) && ! $theme_mods['post_primary_category'] ) {
+				return false;
+			}
+		}
+
 		return (bool) get_option( self::OPTION_NAME, 1 );
 	}
 

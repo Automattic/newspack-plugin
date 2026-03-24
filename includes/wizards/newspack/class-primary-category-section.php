@@ -74,6 +74,8 @@ class Primary_Category_Section extends Wizard_Section {
 	public function api_update_settings( $request ) {
 		if ( isset( $request['enabled'] ) ) {
 			update_option( Primary_Category::OPTION_NAME, (int) $request['enabled'] );
+			// Clean up legacy classic theme mod now that the setting is managed here.
+			remove_theme_mod( 'post_primary_category' );
 		}
 		return rest_ensure_response( $this->get_settings() );
 	}
@@ -85,7 +87,7 @@ class Primary_Category_Section extends Wizard_Section {
 	 */
 	private function get_settings() {
 		return [
-			'enabled'      => (bool) get_option( Primary_Category::OPTION_NAME, 1 ),
+			'enabled'      => Primary_Category::is_enabled(),
 			'yoast_active' => Primary_Category::is_yoast_active(),
 		];
 	}
