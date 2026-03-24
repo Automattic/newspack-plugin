@@ -165,7 +165,6 @@ final class Newspack {
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/newspack/class-seo-section.php';
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/newspack/class-pixels-section.php';
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/newspack/class-recirculation-section.php';
-		include_once NEWSPACK_ABSPATH . 'includes/wizards/newspack/class-primary-category-section.php';
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/newspack/class-collections-section.php';
 
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-setup-wizard.php';

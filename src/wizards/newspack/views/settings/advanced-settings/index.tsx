@@ -41,18 +41,17 @@ export default function AdvancedSettings() {
 		relatedPostsUpdated: false,
 	} );
 
-	const [ primaryCategoryData, setPrimaryCategoryData ] = hooks.useObjectState( {
-		enabled: true,
-		yoast_active: false,
-	} );
-
 	const { wizardApiFetch, isFetching, errorMessage } = useWizardApiFetch( 'newspack-settings/theme-mods' );
 	const { wizardApiFetch: wizardApiFetchRecirculation, isFetching: isFetchingRecirculation } = useWizardApiFetch(
 		'newspack-settings/advanced-settings/recirculation'
 	);
-	const { wizardApiFetch: wizardApiFetchPrimaryCategory, isFetching: isFetchingPrimaryCategory } = useWizardApiFetch(
-		'newspack-settings/advanced-settings/primary-category'
-	);
+	const { wizardApiFetch: wizardApiFetchPrimaryCategory, isFetching: isFetchingPrimaryCategory } =
+		useWizardApiFetch( 'newspack-settings/primary-category' );
+
+	const [ primaryCategoryData, setPrimaryCategoryData ] = hooks.useObjectState< PrimaryCategoryData >( {
+		enabled: true,
+		yoast_active: false,
+	} );
 
 	const fetchThemeMods = () => {
 		wizardApiFetch< ThemeData >(
@@ -78,7 +77,7 @@ export default function AdvancedSettings() {
 				onSuccess: setRecirculationData,
 			}
 		);
-		wizardApiFetchPrimaryCategory(
+		wizardApiFetchPrimaryCategory< PrimaryCategoryData >(
 			{
 				path: '/newspack/v1/wizard/newspack-settings/primary-category',
 			},
@@ -100,17 +99,6 @@ export default function AdvancedSettings() {
 			},
 			{
 				onSuccess: setRecirculationData,
-			}
-		);
-		wizardApiFetchPrimaryCategory(
-			{
-				path: '/newspack/v1/wizard/newspack-settings/primary-category',
-				method: 'POST',
-				updateCacheMethods: [ 'GET' ],
-				data: primaryCategoryData,
-			},
-			{
-				onSuccess: setPrimaryCategoryData,
 			}
 		);
 		if ( data.featured_image_all_posts !== 'none' || data.post_template_all_posts !== 'none' ) {
@@ -140,6 +128,19 @@ export default function AdvancedSettings() {
 				},
 			}
 		);
+		if ( primaryCategoryData.yoast_active ) {
+			wizardApiFetchPrimaryCategory< PrimaryCategoryData >(
+				{
+					path: '/newspack/v1/wizard/newspack-settings/primary-category',
+					method: 'POST',
+					updateCacheMethods: [ 'GET' ],
+					data: primaryCategoryData,
+				},
+				{
+					onSuccess: setPrimaryCategoryData,
+				}
+			);
+		}
 	}
 
 	return (
@@ -150,12 +151,6 @@ export default function AdvancedSettings() {
 			<WizardSection title={ __( 'Recirculation', 'newspack-plugin' ) }>
 				<Recirculation isFetching={ isFetchingRecirculation } update={ setRecirculationData } data={ recirculationData } />
 			</WizardSection>
-
-			{ primaryCategoryData.yoast_active && (
-				<WizardSection title={ __( 'Primary Category', 'newspack-plugin' ) }>
-					<PrimaryCategory data={ primaryCategoryData } isFetching={ isFetchingPrimaryCategory } update={ setPrimaryCategoryData } />
-				</WizardSection>
-			) }
 
 			<WizardSection title={ __( 'Author Bio', 'newspack-plugin' ) }>
 				<AuthorBio update={ setData } data={ data } isFetching={ isFetching } />
@@ -196,6 +191,11 @@ export default function AdvancedSettings() {
 			{ etc.has_pwa_plugin ? (
 				<WizardSection title={ __( 'Progressive Web App', 'newspack-plugin' ) }>
 					<PwaDisplayMode data={ data } update={ setData } isFetching={ isFetching } />
+				</WizardSection>
+			) : null }
+			{ primaryCategoryData.yoast_active ? (
+				<WizardSection title={ __( 'Primary Category', 'newspack-plugin' ) }>
+					<PrimaryCategory data={ primaryCategoryData } update={ setPrimaryCategoryData } isFetching={ isFetchingPrimaryCategory } />
 				</WizardSection>
 			) : null }
 			{ errorMessage && <Notice /> }

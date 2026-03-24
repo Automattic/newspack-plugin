@@ -94,6 +94,14 @@ interface Recirculation {
 }
 
 /**
+ * Primary Category settings.
+ */
+interface PrimaryCategoryData {
+	enabled: boolean;
+	yoast_active: boolean;
+}
+
+/**
  * Advanced settings.
  */
 interface AdvancedSettings {

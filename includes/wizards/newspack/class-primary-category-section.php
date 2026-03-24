@@ -1,6 +1,6 @@
 <?php
 /**
- * Newspack > Settings > Advanced Settings > Primary Category Section.
+ * Newspack's Primary Category Section.
  *
  * @package Newspack
  */
@@ -13,12 +13,19 @@ use Newspack\Wizards\Wizard_Section;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Primary Category settings section.
+ * Primary Category Section Class.
  */
 class Primary_Category_Section extends Wizard_Section {
 
 	/**
-	 * Register REST routes.
+	 * Containing wizard slug.
+	 *
+	 * @var string
+	 */
+	protected $wizard_slug = 'newspack-settings';
+
+	/**
+	 * Register the endpoints needed for the section.
 	 *
 	 * @return void
 	 */
@@ -32,7 +39,6 @@ class Primary_Category_Section extends Wizard_Section {
 				'permission_callback' => [ $this, 'api_permissions_check' ],
 			]
 		);
-
 		register_rest_route(
 			NEWSPACK_API_NAMESPACE,
 			'/wizard/' . $this->wizard_slug . '/primary-category',
@@ -40,6 +46,12 @@ class Primary_Category_Section extends Wizard_Section {
 				'methods'             => \WP_REST_Server::EDITABLE,
 				'callback'            => [ $this, 'api_update_settings' ],
 				'permission_callback' => [ $this, 'api_permissions_check' ],
+				'args'                => [
+					'enabled' => [
+						'type'              => 'boolean',
+						'sanitize_callback' => 'rest_sanitize_boolean',
+					],
+				],
 			]
 		);
 	}
@@ -50,32 +62,31 @@ class Primary_Category_Section extends Wizard_Section {
 	 * @return \WP_REST_Response
 	 */
 	public function api_get_settings() {
-		return rest_ensure_response(
-			[
-				'enabled'      => Primary_Category::is_enabled(),
-				'yoast_active' => Primary_Category::is_yoast_active(),
-			]
-		);
+		return rest_ensure_response( $this->get_settings() );
 	}
 
 	/**
 	 * Update primary category settings.
 	 *
-	 * @param \WP_REST_Request $request Request object.
+	 * @param \WP_REST_Request $request Full details about the request.
 	 * @return \WP_REST_Response
 	 */
 	public function api_update_settings( $request ) {
-		$params = $request->get_params();
-
-		if ( isset( $params['enabled'] ) ) {
-			update_option( Primary_Category::OPTION_NAME, (bool) $params['enabled'] );
+		if ( isset( $request['enabled'] ) ) {
+			update_option( Primary_Category::OPTION_NAME, (int) $request['enabled'] );
 		}
+		return rest_ensure_response( $this->get_settings() );
+	}
 
-		return rest_ensure_response(
-			[
-				'enabled'      => Primary_Category::is_enabled(),
-				'yoast_active' => Primary_Category::is_yoast_active(),
-			]
-		);
+	/**
+	 * Retrieve settings.
+	 *
+	 * @return array Settings data.
+	 */
+	private function get_settings() {
+		return [
+			'enabled'      => (bool) get_option( Primary_Category::OPTION_NAME, 1 ),
+			'yoast_active' => Primary_Category::is_yoast_active(),
+		];
 	}
 }
