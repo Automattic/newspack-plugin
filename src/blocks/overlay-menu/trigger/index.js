@@ -12,7 +12,7 @@ import metadata from './block.json';
 import Edit from './edit';
 import colors from '../../../../packages/colors/colors.module.scss';
 
-export const title = __( 'Menu Trigger', 'newspack-plugin' );
+export const title = __( 'Overlay Button', 'newspack-plugin' );
 
 const { name } = metadata;
 
