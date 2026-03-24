@@ -13,7 +13,6 @@ import { useEffect, useRef, useState } from '@wordpress/element';
 /**
  * Internal dependencies
  */
-import { Notice } from '../../../../../packages/components/src';
 import { useWizardData } from '../../../../../packages/components/src/wizard/store/utils';
 import { useWizardApiFetch } from '../../../hooks/use-wizard-api-fetch';
 import { WIZARD_STORE_NAMESPACE } from '../../../../../packages/components/src/wizard/store';
@@ -25,8 +24,8 @@ import '../../../audience/views/content-gates/style.scss';
 
 const PremiumNewslettersList = ( { updateGatesData }: { updateGatesData: ( gates: Gate[] ) => void } ) => {
 	const wizardData = useWizardData( PREMIUM_NEWSLETTERS_WIZARD_SLUG ) as WizardData;
-	const { isFetching, error, errorMessage } = useWizardApiFetch( PREMIUM_NEWSLETTERS_WIZARD_SLUG );
-	const { resetHeaderData, setHeaderData } = useDispatch( WIZARD_STORE_NAMESPACE );
+	const { isFetching, errorMessage } = useWizardApiFetch( PREMIUM_NEWSLETTERS_WIZARD_SLUG );
+	const { addNotice, resetHeaderData, setHeaderData } = useDispatch( WIZARD_STORE_NAMESPACE );
 	const [ showAdvancedSettings, setShowAdvancedSettings ] = useState( false );
 
 	const ref = useRef( null );
@@ -59,13 +58,22 @@ const PremiumNewslettersList = ( { updateGatesData }: { updateGatesData: ( gates
 		} );
 	}, [ isFetching, gates ] );
 
+	useEffect( () => {
+		if ( errorMessage ) {
+			addNotice( {
+				message: errorMessage,
+				type: 'error',
+				id: 'premium-newsletter-error',
+			} );
+		}
+	}, [ errorMessage ] );
+
 	if ( ! gates?.length ) {
 		return <ContentGateOnboarding isNewsletter />;
 	}
 
 	return (
 		<>
-			{ error && <Notice isError noticeText={ errorMessage } /> }
 			<VStack className="newspack-content-gates__gates" spacing="16px" ref={ ref }>
 				{ gates.map( gate => {
 					return (

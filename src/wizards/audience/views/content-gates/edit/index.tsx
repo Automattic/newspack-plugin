@@ -15,16 +15,7 @@ import { commentAuthorAvatar, currencyDollar, envelope, postList, settings } fro
  * Internal dependencies
  */
 import { AUDIENCE_CONTENT_GATES_WIZARD_SLUG } from '../consts';
-import {
-	CardSettingsGroup,
-	Divider,
-	Grid,
-	Notice,
-	Router,
-	SectionHeader,
-	TextControl,
-	useConfirmDialog,
-} from '../../../../../../packages/components/src';
+import { CardSettingsGroup, Divider, Grid, Router, SectionHeader, TextControl, useConfirmDialog } from '../../../../../../packages/components/src';
 import { WIZARD_STORE_NAMESPACE } from '../../../../../../packages/components/src/wizard/store';
 import { useWizardData } from '../../../../../../packages/components/src/wizard/store/utils';
 import { useWizardApiFetch } from '../../../../hooks/use-wizard-api-fetch';
@@ -92,10 +83,10 @@ const Edit = ( { match, updateGatesData, slug = AUDIENCE_CONTENT_GATES_WIZARD_SL
 	const [ customAccess, setCustomAccess ] = useState< CustomAccess >( gate.custom_access );
 	const [ contentType, setContentType ] = useState< 'all' | 'custom' | undefined >( type as 'all' | 'custom' | undefined );
 	const [ status, setStatus ] = useState< GateStatus >( gate.status );
-	const [ error, setError ] = useState< string | null >( errorMessage );
 	const isNew = _id === 'new' || ! id;
 	const isSaving = useRef( false );
 	const gatesRef = useRef< Gate[] >( gates );
+	const savedCustomRules = useRef< GateContentRule[] >( gate.content_rules );
 
 	useEffect( () => {
 		if ( Array.isArray( gates ) ) {
@@ -290,6 +281,9 @@ const Edit = ( { match, updateGatesData, slug = AUDIENCE_CONTENT_GATES_WIZARD_SL
 
 	// Load gate data.
 	useEffect( () => {
+		if ( isSaving.current || isFetching || isDeleting ) {
+			return;
+		}
 		setHeaderData( {
 			backNav: '#/content-gates',
 			sectionName: isNew ? __( 'Add new', 'newspack-plugin' ) : __( 'Edit', 'newspack-plugin' ),
@@ -302,8 +296,12 @@ const Edit = ( { match, updateGatesData, slug = AUDIENCE_CONTENT_GATES_WIZARD_SL
 			return;
 		}
 		if ( matchedGate === undefined ) {
-			// translators: %d is the content gate ID.
-			setError( sprintf( __( 'Content gate %d not found. Create a new gate?', 'newspack-plugin' ), id ) );
+			addNotice( {
+				// translators: %d is the content gate ID.
+				message: sprintf( __( 'Content gate %d not found. Create a new gate?', 'newspack-plugin' ), id ),
+				type: 'error',
+				id: 'content-gate-not-found',
+			} );
 			setGate( DEFAULT_GATE );
 			setTitle( '' );
 			setContentRules( DEFAULT_GATE.content_rules );
@@ -317,12 +315,13 @@ const Edit = ( { match, updateGatesData, slug = AUDIENCE_CONTENT_GATES_WIZARD_SL
 		setGate( matchedGate );
 		setTitle( matchedGate.title );
 		setContentRules( matchedGate.content_rules );
+		savedCustomRules.current = matchedGate.content_rules;
 		setRegistration( matchedGate.registration );
 		setCustomAccess( matchedGate.custom_access );
 		setStatus( matchedGate.status );
 		setContentType( getContentTypeFromRules( matchedGate.content_rules ) );
 		resetError();
-	}, [ gates, id, isDeleting, isFetching, isNew ] );
+	}, [ gates, id, isDeleting, isFetching, isSaving, isNew ] );
 
 	// Set header actions.
 	useEffect( () => {
@@ -408,12 +407,23 @@ const Edit = ( { match, updateGatesData, slug = AUDIENCE_CONTENT_GATES_WIZARD_SL
 
 	// Update content rules.
 	useEffect( () => {
-		setContentRules( contentType === 'all' ? DEFAULT_GATE.content_rules : contentRules );
+		if ( contentType === 'all' ) {
+			savedCustomRules.current = contentRules;
+			setContentRules( DEFAULT_GATE.content_rules );
+		} else if ( contentType === 'custom' ) {
+			setContentRules( savedCustomRules.current );
+		}
 	}, [ contentType ] );
 
-	// Update error.
+	// Display API errors as notices.
 	useEffect( () => {
-		setError( errorMessage );
+		if ( errorMessage ) {
+			addNotice( {
+				message: errorMessage,
+				type: 'error',
+				id: 'content-gate-error',
+			} );
+		}
 	}, [ errorMessage ] );
 
 	// Update gate status.
@@ -427,7 +437,6 @@ const Edit = ( { match, updateGatesData, slug = AUDIENCE_CONTENT_GATES_WIZARD_SL
 		<div className="newspack-content-gate__edit">
 			{ navBlockDialog }
 			{ deleteDialog }
-			{ error && <Notice isError noticeText={ error } /> }
 			{ ( isNew || isRenaming ) && (
 				<>
 					<Grid columns={ 2 } gutter={ 32 }>
