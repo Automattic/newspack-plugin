@@ -55,9 +55,9 @@ const createFlyoutInstance = wrapper => {
 	let overlay = null;
 	let focusTrapCleanup = null;
 
-	// Save original DOM position so the panel can be restored after close.
-	const originalParent = panel.parentNode;
-	const originalNextSibling = panel.nextSibling;
+	// Move the panel to document.body once so position:fixed works without
+	// stacking context issues regardless of the wrapper's CSS transforms.
+	document.body.appendChild( panel );
 
 	// Overlay
 	const showOverlay = color => {
@@ -97,19 +97,8 @@ const createFlyoutInstance = wrapper => {
 		panel.classList.add( 'overlay-menu__panel--open' );
 	};
 
-	const slideOut = callback => {
+	const slideOut = () => {
 		panel.classList.remove( 'overlay-menu__panel--open' );
-		// Wait for the position transition (left/right/top/bottom/transform) to finish
-		// before restoring the panel to the DOM. Opacity finishes first so we filter it out.
-		const positionProperties = new Set( [ 'left', 'right' ] );
-		const onEnd = e => {
-			if ( e.target !== panel || ! positionProperties.has( e.propertyName ) ) {
-				return;
-			}
-			panel.removeEventListener( 'transitionend', onEnd );
-			callback();
-		};
-		panel.addEventListener( 'transitionend', onEnd );
 	};
 
 	// Trap focus within the menu panel when it's open.
@@ -145,9 +134,6 @@ const createFlyoutInstance = wrapper => {
 		}
 		isOpen = true;
 		lastFocused = trigger.ownerDocument.activeElement;
-
-		// Move panel to body so position:fixed works without stacking context issues.
-		document.body.appendChild( panel );
 
 		slideIn();
 
@@ -198,15 +184,7 @@ const createFlyoutInstance = wrapper => {
 		}
 
 		hideOverlay();
-
-		// Animate out, then restore the panel to its original DOM position.
-		slideOut( () => {
-			if ( originalNextSibling && document.contains( originalNextSibling ) ) {
-				originalParent.insertBefore( panel, originalNextSibling );
-			} else {
-				originalParent.appendChild( panel );
-			}
-		} );
+		slideOut();
 	};
 
 	// Event listeners.
