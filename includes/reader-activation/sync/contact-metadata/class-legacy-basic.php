@@ -28,6 +28,15 @@ class Legacy_Basic extends Contact_Metadata {
 	}
 
 	/**
+	 * The name of the metadata class, used as a section name for the fields handled by this class when syncing and in the UI for selecting which fields to sync.
+	 *
+	 * @return string
+	 */
+	public static function get_section_name() {
+		return ''; // Legacy fields are not separated into sections.
+	}
+
+	/**
 	 * The fields handled by this metadata class.
 	 *
 	 * @return array
