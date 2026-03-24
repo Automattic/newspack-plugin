@@ -148,10 +148,13 @@ class Contact_Sync extends Sync {
 	 * @return true|\WP_Error True if all succeeded, or WP_Error with combined messages.
 	 */
 	private static function push_to_integrations( $contact, $context, $existing_contact = null ) {
-		/** This filter is documented in includes/reader-activation/sync/class-contact-sync.php */
+		/**
+		 * Filters the contact data before syncing to the integration, allowing modifications or additions to the contact data.
+		 *
+		 * @param array  $contact The contact data to sync.
+		 * @param string $context The context of the sync.
+		 */
 		$contact = \apply_filters( 'newspack_esp_sync_contact', $contact, $context );
-		$contact = Sync\Metadata::normalize_contact_data( $contact );
-
 		$integrations = Integrations::get_active_integrations();
 		$errors       = [];
 
@@ -167,7 +170,8 @@ class Contact_Sync extends Sync {
 		}
 
 		foreach ( $integrations as $integration_id => $integration ) {
-			$result = $integration->push_contact_data( $contact, $context, $existing_contact );
+			$integration_contact = $integration->prepare_contact( $contact );
+			$result              = $integration->push_contact_data( $integration_contact, $context, $existing_contact );
 			if ( \is_wp_error( $result ) ) {
 				/**
 				 * Fires when a contact sync fails on the original attempt (before retries).
@@ -367,7 +371,8 @@ class Contact_Sync extends Sync {
 			$existing_contact = array_merge( $contact, [ 'email' => $previous_email ] );
 		}
 
-		$result = $integration->push_contact_data( $contact, $context, $existing_contact );
+		$integration_contact = $integration->prepare_contact( $contact );
+		$result              = $integration->push_contact_data( $integration_contact, $context, $existing_contact );
 		if ( \is_wp_error( $result ) ) {
 			$error_messages = implode( '; ', $result->get_error_messages() );
 			static::log(
@@ -464,8 +469,8 @@ class Contact_Sync extends Sync {
 	 * @param string $context The context of the sync.
 	 */
 	public static function scheduled_sync( $user_id, $context ) {
-		$contact = Sync\WooCommerce::get_contact_from_customer( new \WC_Customer( $user_id ) );
-		if ( ! $contact ) {
+		$contact = Sync\Metadata::get_contact_with_metadata( $user_id );
+		if ( empty( $contact['email'] ) ) {
 			return;
 		}
 		self::sync( $contact, $context );
@@ -511,7 +516,7 @@ class Contact_Sync extends Sync {
 			$customer->save();
 		}
 
-		$contact = Sync\WooCommerce::get_contact_from_customer( $customer );
+		$contact = Sync\Metadata::get_contact_with_metadata( $customer );
 
 		return $contact;
 	}
@@ -536,8 +541,11 @@ class Contact_Sync extends Sync {
 		$order    = $is_order ? $user_id_or_order : false;
 		$user_id  = $is_order ? $order->get_customer_id() : $user_id_or_order;
 
-		$contact = $is_order ? Sync\WooCommerce::get_contact_from_order( $order ) : self::get_contact_data( $user_id );
-		$result  = $is_dry_run ? true : self::sync( $contact, $context );
+		$contact = $is_order ? Sync\Metadata::get_contact_with_metadata( $order ) : self::get_contact_data( $user_id );
+		if ( \is_wp_error( $contact ) || empty( $contact['email'] ) ) {
+			return \is_wp_error( $contact ) ? $contact : new \WP_Error( 'newspack_esp_sync_contact', __( 'Contact email is empty.', 'newspack-plugin' ) );
+		}
+		$result = $is_dry_run ? true : self::sync( $contact, $context );
 
 		if ( $result && ! \is_wp_error( $result ) ) {
 			static::log(
