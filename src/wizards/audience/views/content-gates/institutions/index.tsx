@@ -152,13 +152,22 @@ export default function Institutions() {
 				callback: ( items: Institution[] ) => {
 					const url = items[ 0 ].link;
 					if ( url ) {
-						navigator.clipboard.writeText( url ).then( () => {
-							addNotice( {
-								message: __( 'URL copied to clipboard.', 'newspack-plugin' ),
-								type: 'success',
-								id: 'institution-url-copied',
-							} );
-						} );
+						navigator.clipboard.writeText( url ).then(
+							() => {
+								addNotice( {
+									message: __( 'URL copied to clipboard.', 'newspack-plugin' ),
+									type: 'success',
+									id: 'institution-url-copied',
+								} );
+							},
+							() => {
+								addNotice( {
+									message: __( 'Failed to copy URL. Please copy it manually.', 'newspack-plugin' ),
+									type: 'error',
+									id: 'institution-url-copy-error',
+								} );
+							}
+						);
 					}
 				},
 			},
