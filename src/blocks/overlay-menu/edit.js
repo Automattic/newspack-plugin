@@ -28,12 +28,13 @@ const BLOCKS_TEMPLATE = [ [ 'newspack/overlay-menu-trigger' ], [ 'newspack/overl
 export default function OverlayMenuEdit( { attributes, setAttributes, clientId } ) {
 	const { instanceId } = attributes;
 
-	// Set a stable instance ID derived from the block's client ID on first insert.
+	// Keep instanceId in sync with clientId so duplicated blocks get a unique ID.
 	useEffect( () => {
-		if ( ! instanceId ) {
-			setAttributes( { instanceId: clientId.replace( /-/g, '' ).slice( 0, 12 ) } );
+		const derived = clientId.replace( /-/g, '' ).slice( 0, 12 );
+		if ( instanceId !== derived ) {
+			setAttributes( { instanceId: derived } );
 		}
-	}, [] ); // eslint-disable-line react-hooks/exhaustive-deps
+	}, [ clientId ] ); // eslint-disable-line react-hooks/exhaustive-deps
 
 	// Find the child panel block so we can read and toggle its isPreviewOpen attribute.
 	const panelBlock = useSelect( select => {
