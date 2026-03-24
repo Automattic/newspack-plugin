@@ -147,6 +147,22 @@ export default function Institutions() {
 				},
 			},
 			{
+				id: 'copy-url',
+				label: __( 'Copy access page URL', 'newspack-plugin' ),
+				callback: ( items: Institution[] ) => {
+					const url = items[ 0 ].link;
+					if ( url ) {
+						navigator.clipboard.writeText( url ).then( () => {
+							addNotice( {
+								message: __( 'URL copied to clipboard.', 'newspack-plugin' ),
+								type: 'success',
+								id: 'institution-url-copied',
+							} );
+						} );
+					}
+				},
+			},
+			{
 				id: 'delete',
 				label: __( 'Delete', 'newspack-plugin' ),
 				isDestructive: true,
@@ -191,7 +207,7 @@ export default function Institutions() {
 				},
 			},
 		],
-		[ fetchData, history ]
+		[ addNotice, fetchData, history ]
 	);
 
 	const { data: processedData, paginationInfo } = useMemo( () => filterSortAndPaginate( data, view, fields ), [ data, view, fields ] );
