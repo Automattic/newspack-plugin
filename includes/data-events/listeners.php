@@ -419,6 +419,69 @@ Data_Events::register_listener(
 );
 
 /**
+ * When a WooCommerce Subscription successfully completes a payment.
+ * This hook is fired for initial orders, renewals, and successful switch orders.
+ *
+ * See: https://woocommerce.com/document/subscriptions/develop/action-reference/#woocommerce_subscription_payment_complete
+ */
+Data_Events::register_listener(
+	'woocommerce_subscription_payment_complete',
+	'subscription_payment_complete',
+	function( $subscription ) {
+		if ( ! $subscription instanceof \WC_Subscription ) {
+			return;
+		}
+		$product_ids = \Newspack\WooCommerce_Connection::get_products_for_order( $subscription->get_id(), true );
+		if ( empty( $product_ids ) ) {
+			return;
+		}
+
+		return [
+			'user_id'         => $subscription->get_customer_id(),
+			'email'           => $subscription->get_billing_email(),
+			'subscription_id' => $subscription->get_id(),
+			'product_ids'     => $product_ids,
+			'amount'          => (float) $subscription->get_total(),
+			'currency'        => $subscription->get_currency(),
+			'recurrence'      => $subscription->get_billing_period(),
+			'status'          => $subscription->get_status(),
+		];
+	}
+);
+
+/**
+ * When a WooCommerce Subscription *renewal* fails to complete a payment.
+ * This hook is only fired for failed renewals, not initial orders or switch orders.
+ *
+ * See: https://woocommerce.com/document/subscriptions/develop/action-reference/#woocommerce_subscription_renewal_payment_failed
+ */
+Data_Events::register_listener(
+	'woocommerce_subscription_renewal_payment_failed',
+	'subscription_renewal_payment_failed',
+	function( $subscription ) {
+		if ( ! $subscription instanceof \WC_Subscription ) {
+			return;
+		}
+
+		$product_ids = \Newspack\WooCommerce_Connection::get_products_for_order( $subscription->get_id(), true );
+		if ( empty( $product_ids ) ) {
+			return;
+		}
+
+		return [
+			'user_id'         => $subscription->get_customer_id(),
+			'email'           => $subscription->get_billing_email(),
+			'subscription_id' => $subscription->get_id(),
+			'product_ids'     => $product_ids,
+			'amount'          => (float) $subscription->get_total(),
+			'currency'        => $subscription->get_currency(),
+			'recurrence'      => $subscription->get_billing_period(),
+			'status'          => $subscription->get_status(),
+		];
+	}
+);
+
+/**
  * When a WooCommerce Memberships plan becomes active for a reader.
  * This hook is fired whenever a user is granted access to a membership plan.
  * The membership plan will be add to the user's list of active memberships.

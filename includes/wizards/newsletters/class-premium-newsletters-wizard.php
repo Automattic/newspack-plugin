@@ -7,12 +7,14 @@
 
 namespace Newspack;
 
+use Newspack_Newsletters_Contacts;
+
 defined( 'ABSPATH' ) || exit;
 
 /**
  * Premium Newsletters Wizard.
  */
-class Premium_Newsletters extends Wizard {
+class Premium_Newsletters_Wizard extends Wizard {
 
 	/**
 	 * Admin page slug.
@@ -64,9 +66,6 @@ class Premium_Newsletters extends Wizard {
 		// Determine active menu items.
 		add_filter( 'parent_file', [ $this, 'parent_file' ] );
 		add_filter( 'submenu_file', [ $this, 'submenu_file' ] );
-
-		// Filter the subscription lists.
-		add_filter( 'newspack_newsletters_subscription_lists', [ $this, 'filter_subscription_lists' ] );
 	}
 
 	/**
@@ -381,24 +380,5 @@ class Premium_Newsletters extends Wizard {
 			return $updated_gate;
 		}
 		return rest_ensure_response( $updated_gate );
-	}
-
-	/**
-	 * Filter the subscription lists.
-	 *
-	 * @param array $lists The lists.
-	 *
-	 * @return array The filtered lists.
-	 */
-	public static function filter_subscription_lists( $lists ) {
-		$lists = array_values(
-			array_filter(
-				$lists,
-				function( $list ) {
-					return ! Content_Restriction_Control::is_post_restricted( false, $list->get_id() );
-				}
-			)
-		);
-		return $lists;
 	}
 }

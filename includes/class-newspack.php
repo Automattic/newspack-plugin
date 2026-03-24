@@ -191,7 +191,7 @@ final class Newspack {
 
 		// Newsletters Wizard.
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/newsletters/class-newsletters-wizard.php';
-		include_once NEWSPACK_ABSPATH . 'includes/wizards/newsletters/class-premium-newsletters.php';
+		include_once NEWSPACK_ABSPATH . 'includes/wizards/newsletters/class-premium-newsletters-wizard.php';
 
 		/* Unified Wizards */
 		include_once NEWSPACK_ABSPATH . 'includes/class-wizards.php';
