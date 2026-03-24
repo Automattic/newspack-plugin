@@ -161,7 +161,8 @@ export default function Institutions() {
 				id: 'copy-url',
 				label: __( 'Copy access page URL', 'newspack-plugin' ),
 				callback: ( items: Institution[] ) => {
-					const url = items[ 0 ].link;
+					const baseUrl = ( window as any ).newspackAudience?.institutional_access_url;
+					const url = baseUrl ? `${ baseUrl }/${ items[ 0 ].slug }/` : '';
 					if ( url ) {
 						navigator.clipboard.writeText( url ).then(
 							() => {

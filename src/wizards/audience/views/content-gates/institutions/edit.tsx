@@ -35,7 +35,7 @@ const EMPTY_INSTITUTION: Omit< Institution, 'id' > = {
 	title: { raw: '', rendered: '' },
 	excerpt: { raw: '', rendered: '' },
 	featured_media: 0,
-	link: '',
+	slug: '',
 	status: 'publish',
 	meta: {
 		np_institution_email_domain: '',

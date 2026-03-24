@@ -155,7 +155,7 @@ type Institution = {
 	title: { raw: string; rendered: string };
 	excerpt: { raw: string; rendered: string };
 	featured_media: number;
-	link: string;
+	slug: string;
 	status: string;
 	meta: {
 		np_institution_email_domain: string;
