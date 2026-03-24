@@ -270,9 +270,9 @@ class Institution {
 	 * Check visitor's IP against all institutional IP ranges.
 	 * Hooked to newspack_content_gate_check_ip filter.
 	 *
-	 * @param bool $valid_ip Current validation result.
+	 * @param bool|int $valid_ip Current validation result.
 	 *
-	 * @return bool Whether the IP matches any institutional IP range.
+	 * @return bool|int The matching institution post ID, or the original value.
 	 */
 	public static function check_ip( $valid_ip ) {
 		if ( $valid_ip ) {
@@ -285,9 +285,9 @@ class Institution {
 		}
 
 		$institutions = self::get_cached_institutions();
-		foreach ( $institutions as $rules ) {
+		foreach ( $institutions as $inst_id => $rules ) {
 			if ( ! empty( $rules['ip_range'] ) && IP_Access_Rule::ip_matches_ranges( $visitor_ip, $rules['ip_range'] ) ) {
-				return true;
+				return $inst_id;
 			}
 		}
 
