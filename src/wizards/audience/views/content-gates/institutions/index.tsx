@@ -34,6 +34,7 @@ const DEFAULT_VIEW: View = {
 	filters: [],
 	layout: {},
 	titleField: 'title',
+	mediaField: 'logo',
 	descriptionField: 'description',
 };
 
@@ -68,7 +69,7 @@ export default function Institutions() {
 
 	const fetchData = useCallback( () => {
 		setIsLoading( true );
-		apiFetch< Institution[] >( { path: `${ API_PATH }?per_page=100&context=edit` } )
+		apiFetch< Institution[] >( { path: `${ API_PATH }?per_page=100&context=edit&_embed=wp:featuredmedia` } )
 			.then( setData )
 			.catch( () => {
 				addNotice( {
@@ -86,6 +87,16 @@ export default function Institutions() {
 
 	const fields: Field< Institution >[] = useMemo(
 		() => [
+			{
+				id: 'logo',
+				label: __( 'Logo', 'newspack-plugin' ),
+				type: 'media',
+				render: ( { item }: { item: Institution } ) => {
+					const url = item._embedded?.[ 'wp:featuredmedia' ]?.[ 0 ]?.source_url;
+					return url ? <img src={ url } alt={ item.title.raw } /> : null;
+				},
+				enableSorting: false,
+			},
 			{
 				id: 'title',
 				label: __( 'Title', 'newspack-plugin' ),
