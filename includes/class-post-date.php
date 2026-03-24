@@ -94,6 +94,7 @@ class Post_Date {
 			return false;
 		}
 
+		/** This filter is documented in includes/class-post-date.php */
 		$post_types = apply_filters( 'newspack_updated_date_supported_post_types', [ 'post' ] );
 		if ( ! in_array( $post->post_type, $post_types, true ) ) {
 			return false;
@@ -421,6 +422,7 @@ class Post_Date {
 	 * Enqueue editor sidebar script for per-post toggles.
 	 */
 	public static function enqueue_editor_assets() {
+		/** This filter is documented in includes/class-post-date.php */
 		$post_types = apply_filters( 'newspack_updated_date_supported_post_types', [ 'post' ] );
 
 		$screen = get_current_screen();
