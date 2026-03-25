@@ -7,8 +7,6 @@
 
 namespace Newspack;
 
-use Newspack_Newsletters_Contacts;
-
 defined( 'ABSPATH' ) || exit;
 
 /**
