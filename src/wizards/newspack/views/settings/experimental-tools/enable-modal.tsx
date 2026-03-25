@@ -30,15 +30,11 @@ export default function EnableModal( {
 			title={ sprintf( __( 'Enable %s?', 'newspack-plugin' ), tool.label ) }
 			onRequestClose={ onClose }
 		>
-			{ /* Both initial tools (Roundup Block, Editorial Assistant) use OpenAI.
-			   When non-OpenAI tools are added, make this configurable via a
-			   `disclosure` field on the tool registration. */ }
-			<p>
-				{ __(
-					"Your content is sent to OpenAI to generate suggestions, but it is not used to train their models. This tool is in active development. We'll check in after you've had a chance to use it.",
-					'newspack-plugin'
-				) }
-			</p>
+			{ tool.disclosure ? (
+				<p>{ tool.disclosure }</p>
+			) : (
+				<p>{ __( 'This tool is in active development. Your experience using it directly shapes what it becomes.', 'newspack-plugin' ) }</p>
+			) }
 			<Card buttonsCard noBorder className="justify-end">
 				<Button variant="secondary" onClick={ onClose } disabled={ disabled }>
 					{ __( 'Cancel', 'newspack-plugin' ) }

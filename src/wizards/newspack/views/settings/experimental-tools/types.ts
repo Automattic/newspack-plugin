@@ -16,6 +16,7 @@ export interface Tool {
 	slug: string;
 	label: string;
 	description: string;
+	disclosure?: string;
 	constant: string | null;
 	constant_active: boolean;
 	enabled: boolean;
