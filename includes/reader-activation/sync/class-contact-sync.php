@@ -132,6 +132,9 @@ class Contact_Sync extends Sync {
 			}
 		}
 
+		Logger::log( sprintf( 'Syncing contact %s for context "%s".', $contact['email'] ?? 'unknown', $context ) );
+		Logger::log( $contact );
+
 		return self::push_to_integrations( $contact, $context, $existing_contact );
 	}
 
