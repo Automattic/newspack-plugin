@@ -157,10 +157,15 @@ type Institution = {
 	id: number;
 	title: { raw: string; rendered: string };
 	excerpt: { raw: string; rendered: string };
+	featured_media: number;
+	slug: string;
 	status: string;
 	meta: {
 		np_institution_email_domain: string;
 		np_institution_ip_range: string;
 		np_institution_reader_data: string;
+	};
+	_embedded?: {
+		'wp:featuredmedia'?: Array< { source_url: string } >;
 	};
 };
