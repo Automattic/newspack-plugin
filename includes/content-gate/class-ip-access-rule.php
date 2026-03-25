@@ -165,14 +165,15 @@ class IP_Access_Rule {
 	 *     {"ip": "127.0.0.1"}
 	 *
 	 * @param \WP_REST_Request $request The REST request.
-	 * @return \WP_REST_Response
+	 * @return \WP_REST_Response|\WP_Error
 	 */
 	public static function check_external_ip_rest( $request ) {
 		$ip = $request->get_param( 'ip' );
 		if ( ! filter_var( $ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 ) ) {
-			return new \WP_REST_Response(
-				[ 'error' => 'Only IPv4 addresses are supported.' ],
-				400
+			return new \WP_Error(
+				'rest_invalid_param',
+				'Only IPv4 addresses are supported.',
+				[ 'status' => 400 ]
 			);
 		}
 
