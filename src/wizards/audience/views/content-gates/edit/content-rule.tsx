@@ -27,7 +27,7 @@ export default function ContentRule( {
 			{ ! isNewsletter && (
 				<ToggleControl label={ config.name } help={ config.description } checked={ enabled } onChange={ () => onToggle( slug ) } />
 			) }
-			{ enabled && (
+			{ ( isNewsletter || enabled ) && (
 				<ContentRuleControl
 					slug={ slug }
 					exclusion={ rule?.exclusion ?? false }

@@ -93,15 +93,13 @@ class Premium_Newsletters {
 			if ( ! $requires_subscription ) {
 				continue;
 			}
-			$content_rules = $gate['content_rules'];
-			if ( empty( $content_rules ) ) {
-				continue;
-			}
-			foreach ( $content_rules as $content_rule ) {
-				if ( $content_rule['slug'] === 'newsletters' ) {
-					$restricted_lists = array_merge( $restricted_lists, $content_rule['value'] );
+			$content_rules = array_filter(
+				Content_Rules::get_gate_content_rules( $gate['id'] ),
+				function ( $content_rule ) {
+					return $content_rule['slug'] === 'newsletters';
 				}
-			}
+			);
+			$restricted_lists = array_merge( $restricted_lists, array_merge( ...array_column( $content_rules, 'value' ) ) );
 		}
 
 		// Map list post IDs to public ESP IDs.
