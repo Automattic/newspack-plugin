@@ -139,14 +139,15 @@ class IP_Access_Rule {
 	/**
 	 * Handle the institutional access check.
 	 *
-	 * For `?institutional-access=1` on any URL: performs the IP check server-side,
-	 * then redirects back to the same URL with a result parameter.
+	 * For `?institutional-access=1` or `?institutional-access` on any URL:
+	 * performs the IP check server-side, then redirects back to the same URL
+	 * with a result parameter.
 	 *
 	 * For the dedicated `/institutional-access` endpoint: renders a loading page
 	 * that performs the check via the REST API and redirects on completion.
 	 */
 	public static function handle_redirect() {
-		if ( ! get_query_var( self::ENDPOINT ) ) {
+		if ( ! get_query_var( self::ENDPOINT ) && ! isset( $_GET[ self::ENDPOINT ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			return;
 		}
 
@@ -220,8 +221,8 @@ class IP_Access_Rule {
 			$institution = ! empty( $_GET['institution'] ) ? sanitize_text_field( wp_unslash( $_GET['institution'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			$message     = $institution
 				/* translators: %s: institution name */
-				? sprintf( __( 'Access granted via %s.', 'newspack-plugin' ), '<strong>' . esc_html( $institution ) . '</strong>' )
-				: __( 'Access confirmed.', 'newspack-plugin' );
+				? sprintf( __( 'Connected to %s.', 'newspack-plugin' ), '<strong>' . esc_html( $institution ) . '</strong>' )
+				: __( 'Connected to your organization.', 'newspack-plugin' );
 			Newspack_UI::add_notice(
 				$message,
 				[
@@ -380,8 +381,8 @@ class IP_Access_Rule {
 					clearTimeout( timer );
 					if ( data.valid ) {
 						messageEl.textContent = data.institution
-							? <?php echo wp_json_encode( __( 'Access granted via ', 'newspack-plugin' ) ); ?> + data.institution + '.'
-							: <?php echo wp_json_encode( __( 'Access confirmed.', 'newspack-plugin' ) ); ?>;
+							? <?php echo wp_json_encode( __( 'Connected to ', 'newspack-plugin' ) ); ?> + data.institution + '.'
+							: <?php echo wp_json_encode( __( 'Connected to your organization.', 'newspack-plugin' ) ); ?>;
 						detailEl.textContent = <?php echo wp_json_encode( __( 'Redirecting…', 'newspack-plugin' ) ); ?>;
 						setTimeout( function() {
 							var url = new URL( redirectUrl, location.origin );
