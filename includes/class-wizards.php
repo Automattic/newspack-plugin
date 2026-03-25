@@ -70,6 +70,7 @@ class Wizards {
 			'listings'                => new Listings_Wizard(),
 			'network'                 => new Network_Wizard(),
 			'newsletters'             => new Newsletters_Wizard(),
+			'premium-newsletters'     => new Premium_Newsletters(),
 		];
 		if ( Memberships::is_active() ) {
 			self::$wizards['audience-subscriptions'] = new Audience_Subscriptions();

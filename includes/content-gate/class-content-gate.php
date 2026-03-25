@@ -97,7 +97,9 @@ class Content_Gate {
 		add_filter( 'newspack_gate_content', 'wp_replace_insecure_home_url' );
 		add_filter( 'newspack_gate_content', 'do_shortcode', 11 ); // AFTER wpautop().
 
+		include __DIR__ . '/class-content-gate-api.php';
 		include __DIR__ . '/class-access-rules.php';
+		include __DIR__ . '/class-content-rules.php';
 		include __DIR__ . '/class-content-restriction-control.php';
 		include __DIR__ . '/class-block-patterns.php';
 		include __DIR__ . '/class-metering.php';
@@ -649,21 +651,26 @@ class Content_Gate {
 	 *
 	 * @param array  $gate Gate settings.
 	 * @param string $post_type Optional post type. Defaults to self::GATE_CPT.
+	 * @param bool   $is_newsletter Whether the gate is for a newsletter.
 	 *
 	 * @return int|\WP_Error The gate post ID or error if not created.
 	 */
-	public static function create_gate( $gate, $post_type = self::GATE_CPT ) {
+	public static function create_gate( $gate, $post_type = self::GATE_CPT, $is_newsletter = false ) {
 		$all_gates = self::get_gates();
-		$gate_id   = \wp_insert_post(
-			[
-				'post_title'   => $gate['title'],
-				'post_type'    => $post_type,
-				'post_status'  => 'publish',
-				'post_content' => '',
-				'meta_input'   => [
-					'gate_priority' => count( $all_gates ),
-				],
+		$args      = [
+			'post_title'   => $gate['title'],
+			'post_type'    => $post_type,
+			'post_status'  => 'publish',
+			'post_content' => '',
+			'meta_input'   => [
+				'gate_priority' => count( $all_gates ),
 			],
+		];
+		if ( $is_newsletter ) {
+			$args['meta_input']['is_newsletter'] = true;
+		}
+		$gate_id = \wp_insert_post(
+			$args,
 			true // Return WP_Error on failure.
 		);
 
@@ -673,7 +680,7 @@ class Content_Gate {
 
 		// Update content rules.
 		if ( isset( $gate['content_rules'] ) ) {
-			self::update_post_content_rules( $gate_id, $gate['content_rules'] );
+			Content_Rules::update_gate_content_rules( $gate_id, $gate['content_rules'] );
 		}
 
 		// Create default layouts for registration and custom_access modes.
@@ -1159,60 +1166,10 @@ class Content_Gate {
 			'status'        => $post->post_status,
 			'title'         => $post->post_title,
 			'priority'      => (int) get_post_meta( $post->ID, 'gate_priority', true ),
-			'content_rules' => self::get_post_content_rules( $post->ID ),
+			'content_rules' => Content_Rules::get_gate_content_rules( $post->ID ),
 			'registration'  => self::get_registration_settings( $post->ID ),
 			'custom_access' => self::get_custom_access_settings( $post->ID ),
 		];
-	}
-
-	/**
-	 * Get the content rules.
-	 *
-	 * @return array The content rules.
-	 */
-	public static function get_content_rules() {
-		$content_rules = [
-			'post_types' => [
-				'name'        => __( 'Post types', 'newspack-plugin' ),
-				'options'     => Content_Restriction_Control::get_available_post_types(),
-				'default'     => [ 'post' ],
-				'description' => __( 'Content types like posts, pages, or listings.', 'newspack-plugin' ),
-			],
-		];
-		$available_taxonomies = Content_Restriction_Control::get_available_taxonomies();
-		foreach ( $available_taxonomies as $taxonomy ) {
-			$content_rules[ $taxonomy['slug'] ] = [
-				'name'        => $taxonomy['label'],
-				'default'     => [],
-				'description' => $taxonomy['description'],
-			];
-		}
-
-		return $content_rules;
-	}
-
-	/**
-	 * Get the content rules for a post.
-	 *
-	 * @param int $post_id Post ID.
-	 *
-	 * @return array The content rules.
-	 */
-	public static function get_post_content_rules( $post_id ) {
-		$rules = \get_post_meta( $post_id, 'content_rules', true );
-		return $rules ? $rules : [];
-	}
-
-	/**
-	 * Update content rules for bypassing a content gate.
-	 *
-	 * @param int   $post_id Post ID.
-	 * @param array $rules   Array of post content rules.
-	 *
-	 * @return void
-	 */
-	public static function update_post_content_rules( $post_id, $rules ) {
-		\update_post_meta( $post_id, 'content_rules', $rules );
 	}
 
 	/**
@@ -1241,7 +1198,7 @@ class Content_Gate {
 				'gate_priority' => (int) $value,
 			];
 		} elseif ( 'content_rules' === $key ) {
-			self::update_post_content_rules( $id, $value );
+			Content_Rules::update_gate_content_rules( $id, $value );
 			return self::get_gate( $id );
 		} elseif ( 'registration' === $key ) {
 			self::update_registration_settings( $id, $value );
@@ -1294,7 +1251,7 @@ class Content_Gate {
 
 		// Update content rules.
 		if ( isset( $gate['content_rules'] ) ) {
-			self::update_post_content_rules( $id, $gate['content_rules'] );
+			Content_Rules::update_gate_content_rules( $id, $gate['content_rules'] );
 		}
 
 		// Update registration settings.
@@ -1329,15 +1286,22 @@ class Content_Gate {
 	 *
 	 * @param string          $post_type Post type.
 	 * @param string|string[] $post_status Post status or array of statuses to fetch.
+	 * @param bool            $is_newsletter Whether to fetch premium newsletter gates.
 	 *
 	 * @return array Array of content gates.
 	 */
-	public static function get_gates( $post_type = self::GATE_CPT, $post_status = null ) {
+	public static function get_gates( $post_type = self::GATE_CPT, $post_status = null, $is_newsletter = false ) {
 		$posts = get_posts(
 			[
 				'post_type'      => $post_type,
 				'post_status'    => $post_status ? $post_status : self::get_post_statuses(),
 				'posts_per_page' => -1,
+				'meta_query'     => [ // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
+					[
+						'key'     => 'is_newsletter',
+						'compare' => $is_newsletter ? 'EXISTS' : 'NOT EXISTS',
+					],
+				],
 			]
 		);
 		$gates = array_map( [ __CLASS__, 'get_gate' ], wp_list_pluck( $posts, 'ID' ) );

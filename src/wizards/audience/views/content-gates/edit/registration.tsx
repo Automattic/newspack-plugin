@@ -15,9 +15,10 @@ interface RegistrationProps {
 	registration: Registration;
 	onChange: ( registration: Partial< Registration > ) => void;
 	cardProps?: Partial< React.ComponentPropsWithoutRef< typeof ActionCard > >;
+	isNewsletter?: boolean;
 }
 
-export default function Registration( { registration, onChange }: RegistrationProps ) {
+export default function Registration( { registration, onChange, isNewsletter = false }: RegistrationProps ) {
 	const handleChange = useCallback(
 		( value: Partial< Registration > ) => {
 			onChange( {
@@ -39,14 +40,18 @@ export default function Registration( { registration, onChange }: RegistrationPr
 					onChange={ () => handleChange( { require_verification: ! registration.require_verification } ) }
 				/>
 			</CardBody>
-			<CardDivider />
-			<CardBody size="small">
-				<Metering
-					description={ __( 'Allow limited free views before requiring login.', 'newspack-plugin' ) }
-					metering={ registration.metering }
-					onChange={ ( metering: Metering ) => handleChange( { metering } ) }
-				/>
-			</CardBody>
+			{ ! isNewsletter && (
+				<>
+					<CardDivider />
+					<CardBody size="small">
+						<Metering
+							description={ __( 'Allow limited free views before requiring login.', 'newspack-plugin' ) }
+							metering={ registration.metering }
+							onChange={ ( metering: Metering ) => handleChange( { metering } ) }
+						/>
+					</CardBody>
+				</>
+			) }
 		</>
 	);
 }

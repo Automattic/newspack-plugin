@@ -23,7 +23,7 @@ import { useEffect, useMemo, useRef, useState } from '@wordpress/element';
 /**
  * Internal dependencies
  */
-import { Grid, Notice, Router, SectionHeader, SelectControl, TextControl, useConfirmDialog } from '../../../../../../packages/components/src';
+import { Grid, Router, SectionHeader, SelectControl, TextControl, useConfirmDialog } from '../../../../../../packages/components/src';
 import { useWizardData } from '../../../../../../packages/components/src/wizard/store/utils';
 import { WIZARD_STORE_NAMESPACE } from '../../../../../../packages/components/src/wizard/store';
 import { useWizardApiFetch } from '../../../../hooks/use-wizard-api-fetch';
@@ -123,10 +123,19 @@ const CountdownBannerSettings = () => {
 		setConfig( wizardData?.config || {} );
 	}, [ wizardData?.config ] );
 
+	useEffect( () => {
+		if ( errorMessage ) {
+			addNotice( {
+				message: errorMessage,
+				type: 'error',
+				id: 'countdown-banner-error',
+			} );
+		}
+	}, [ errorMessage ] );
+
 	return (
 		<div className="newspack-content-gate__edit">
 			{ confirmDialog }
-			{ errorMessage && <Notice isError noticeText={ errorMessage } /> }
 			<Grid columns={ 2 } gutter={ 32 }>
 				<SectionHeader heading={ 2 } title={ __( 'Countdown banner', 'newspack-plugin' ) } />
 				<VStack spacing={ 4 }>

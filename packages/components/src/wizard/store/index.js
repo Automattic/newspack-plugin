@@ -52,9 +52,9 @@ const reducer = ( state = DEFAULT_STATE, { type, payload = {} } ) => {
 		case 'FINISH_LOADING_DATA':
 			return { ...state, isLoading: false, isQuietLoading: false };
 		case 'SET_API_DATA':
-			return set( clone( state ), [ 'apiData', payload.slug ], payload.data );
+			return { ...state, apiData: set( clone( state.apiData ), [ payload.slug ], payload.data ) };
 		case 'UPDATE_WIZARD_SETTINGS':
-			return set( clone( state ), [ 'apiData', payload.slug, ...payload.path ], payload.value );
+			return { ...state, apiData: set( clone( state.apiData ), [ payload.slug, ...payload.path ], payload.value ) };
 		case 'ADD_NOTICE':
 			return { ...state, notices: [ ...state.notices, payload ] };
 		case 'REMOVE_NOTICE':

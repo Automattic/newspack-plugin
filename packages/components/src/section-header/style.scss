@@ -82,7 +82,7 @@
 	}
 
 	&__title-container {
-		align-items: baseline;
+		align-items: center;
 		display: flex;
 		gap: 8px;
 
@@ -92,8 +92,10 @@
 			line-height: wp.$font-line-height-x-large;
 		}
 
+		.newspack-section-header__menu,
+		.newspack-section-header__secondary-action,
 		.newspack-badge {
-			transform: translateY(-4px);
+			margin-top: 8px;
 		}
 	}
 
