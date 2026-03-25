@@ -102,14 +102,15 @@ class IP_Access_Rule {
 	/**
 	 * Handle the institutional access check.
 	 *
-	 * For `?institutional-access=1` on any URL: performs the IP check server-side,
-	 * then redirects back to the same URL with a result parameter.
+	 * For `?institutional-access=1` or `?institutional-access` on any URL:
+	 * performs the IP check server-side, then redirects back to the same URL
+	 * with a result parameter.
 	 *
 	 * For the dedicated `/institutional-access` endpoint: renders a loading page
 	 * that performs the check via the REST API and redirects on completion.
 	 */
 	public static function handle_redirect() {
-		if ( ! get_query_var( self::ENDPOINT ) ) {
+		if ( ! get_query_var( self::ENDPOINT ) && ! isset( $_GET[ self::ENDPOINT ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			return;
 		}
 
