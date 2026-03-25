@@ -32,10 +32,10 @@ class Premium_Newsletters {
 	 * Register Data Events handlers.
 	 */
 	public static function register_handlers() {
-		Data_Events::register_handler( [ __CLASS__, 'maybe_add_user_to_lists' ], 'subscription_payment_complete' );
-		Data_Events::register_handler( [ __CLASS__, 'maybe_remove_user_from_lists' ], 'subscription_renewal_payment_failed' );
-		Data_Events::register_handler( [ __CLASS__, 'maybe_remove_user_from_lists' ], 'product_subscription_changed' );
-		Data_Events::register_handler( [ __CLASS__, 'maybe_remove_user_from_lists' ], 'donation_subscription_changed' );
+		Data_Events::register_handler( [ __CLASS__, 'maybe_add_or_remove_lists' ], 'subscription_payment_complete' );
+		Data_Events::register_handler( [ __CLASS__, 'maybe_add_or_remove_lists' ], 'subscription_renewal_payment_failed' );
+		Data_Events::register_handler( [ __CLASS__, 'maybe_add_or_remove_lists' ], 'product_subscription_changed' );
+		Data_Events::register_handler( [ __CLASS__, 'maybe_add_or_remove_lists' ], 'donation_subscription_changed' );
 	}
 
 	/**
@@ -58,66 +58,6 @@ class Premium_Newsletters {
 	}
 
 	/**
-	 * Get the lists restricted, optionally filtered by particular products.
-	 *
-	 * @param array|int|null $product_ids The product ID or IDs, or null to get all restricted lists.
-	 *
-	 * @return array The lists.
-	 */
-	public static function get_restricted_lists_by_products( $product_ids = null ) {
-		if ( ! class_exists( 'Newspack\Newsletters\Subscription_List' ) ) {
-			return [];
-		}
-		if ( null !== $product_ids && ! is_array( $product_ids ) ) {
-			$product_ids = [ $product_ids ];
-		}
-		$gates             = Content_Gate::get_gates( Content_Gate::GATE_CPT, null, true );
-		$restricted_lists  = [];
-		foreach ( $gates as $gate ) {
-			$custom_access = $gate['custom_access'];
-			if ( empty( $custom_access['active'] ) ) {
-				continue;
-			}
-			$requires_subscription = false;
-			$access_rule_groups    = $custom_access['access_rules'];
-			foreach ( $access_rule_groups as $access_rule_group ) {
-				foreach ( $access_rule_group as $access_rule ) {
-					if ( $access_rule['slug'] === 'subscription' ) {
-						if ( ! empty( $product_ids ) && empty( array_intersect( $product_ids, $access_rule['value'] ) ) ) {
-							continue 2;
-						}
-						$requires_subscription = true;
-					}
-				}
-			}
-			if ( ! $requires_subscription ) {
-				continue;
-			}
-			$content_rules = array_filter(
-				Content_Rules::get_gate_content_rules( $gate['id'] ),
-				function ( $content_rule ) {
-					return $content_rule['slug'] === 'newsletters';
-				}
-			);
-			$restricted_lists = array_merge( $restricted_lists, array_merge( ...array_column( $content_rules, 'value' ) ) );
-		}
-
-		// Map list post IDs to public ESP IDs.
-		$restricted_lists = array_values( array_unique( $restricted_lists ) );
-		$restricted_lists = array_map(
-			function( $list_id ) {
-				$list = new Subscription_List( $list_id );
-				if ( ! $list ) {
-					return null;
-				}
-				return $list->get_public_id();
-			},
-			$restricted_lists
-		);
-		return $restricted_lists;
-	}
-
-	/**
 	 * Add a user to the given lists.
 	 *
 	 * @param string   $email The email address of the user.
@@ -127,16 +67,26 @@ class Premium_Newsletters {
 	 * @return void
 	 */
 	private static function add_user_to_lists( $email, $lists, $context = 'Adding user to premium newsletter lists' ) {
-		if ( ! class_exists( 'Newspack_Newsletters_Contacts' ) || ! class_exists( 'Newspack_Newsletters_Subscription' ) ) {
+		if ( ! class_exists( 'Newspack_Newsletters_Contacts' ) || ! class_exists( 'Newspack_Newsletters_Subscription' ) || ! class_exists( 'Newspack\Newsletters\Subscription_List' ) ) {
 			return;
 		}
 		if ( empty( $lists ) ) {
 			return;
 		}
+		$lists = array_map(
+			function( $list_id ) {
+				$list = new Subscription_List( $list_id );
+				if ( ! $list ) {
+					return null;
+				}
+				return $list->get_public_id();
+			},
+			$lists
+		);
 
 		// No need to add the user to lists they are already subscribed to.
 		$current_lists = Newspack_Newsletters_Subscription::get_contact_lists( $email );
-		$lists         = array_values( array_diff( $lists, $current_lists ) );
+		$lists = array_values( array_diff( $lists, $current_lists ) );
 		if ( empty( $lists ) ) {
 			return;
 		}
@@ -160,57 +110,80 @@ class Premium_Newsletters {
 		if ( empty( $lists ) ) {
 			return;
 		}
+		$lists = array_map(
+			function( $list_id ) {
+				$list = new Subscription_List( $list_id );
+				if ( ! $list ) {
+					return null;
+				}
+				return $list->get_public_id();
+			},
+			$lists
+		);
 		Newspack_Newsletters_Contacts::add_and_remove_lists( $email, [], $lists, $context );
 	}
 
 	/**
-	 * If the auto-signup option is enabled, add the user to the lists.
+	 * Maybe add or remove the user from restricted lists based on their access status.
 	 *
 	 * @param int   $timestamp Timestamp of the event.
 	 * @param array $data      Data associated with the event.
 	 * @param int   $client_id ID of the client that triggered the event.
 	 */
-	public static function maybe_add_user_to_lists( $timestamp, $data, $client_id ) {
-		if ( empty( $data['subscription_id'] ) || empty( $data['email'] ) ) {
+	public static function maybe_add_or_remove_lists( $timestamp, $data, $client_id ) {
+		if ( empty( $data['user_id'] ) || empty( $data['email'] ) ) {
 			return;
 		}
-		if ( ! (bool) get_option( 'newspack_premium_newsletters_auto_signup', 1 ) ) {
+		$gates = Content_Gate::get_gates( Content_Gate::GATE_CPT, 'publish', true );
+		if ( empty( $gates ) ) {
 			return;
 		}
-		$product_ids = $data['product_ids'] ?? WooCommerce_Subscriptions::get_subscription_product_id( $data['subscription_id'] );
-		self::add_user_to_lists(
-			$data['email'],
-			self::get_restricted_lists_by_products( $product_ids ),
-			sprintf(
-				'Adding user to premium newsletter lists after purchase or renewal of subscription with ID: %s',
-				$data['subscription_id']
-			)
-		);
-	}
+		$lists_to_add    = [];
+		$lists_to_remove = [];
+		foreach ( $gates as $gate ) {
+			$content_rules = array_values(
+				array_filter(
+					Content_Rules::get_gate_content_rules( $gate['id'] ),
+					function ( $content_rule ) {
+						return $content_rule['slug'] === 'newsletters';
+					}
+				)
+			);
+			if ( empty( $content_rules ) ) {
+				continue;
+			}
+			$restricted_lists = array_values(
+				array_unique(
+					array_merge(
+						...array_column( $content_rules, 'value' )
+					)
+				)
+			);
+			if ( empty( $restricted_lists ) ) {
+				continue;
+			}
+			$custom_access = Content_Gate::get_custom_access_settings( $gate['id'] );
+			if ( empty( $custom_access['active'] ) ) {
+				continue;
+			}
+			if ( empty( $custom_access['access_rules'] ) ) {
+				continue;
+			}
 
-	/**
-	 * Remove the user from the lists.
-	 *
-	 * @param int   $timestamp Timestamp of the event.
-	 * @param array $data      Data associated with the event.
-	 * @param int   $client_id ID of the client that triggered the event.
-	 */
-	public static function maybe_remove_user_from_lists( $timestamp, $data, $client_id ) {
-		if ( empty( $data['subscription_id'] ) || empty( $data['email'] ) ) {
-			return;
+			// If the user does not have access to restricted lists, remove them.
+			if ( ! Access_Rules::evaluate_rules( $custom_access['access_rules'], $data['user_id'] ) ) {
+				$lists_to_remove = array_values( array_unique( array_merge( $lists_to_remove, $restricted_lists ) ) );
+			} elseif ( (bool) get_option( 'newspack_premium_newsletters_auto_signup', 1 ) ) {
+				// If the user has access to restricted lists and auto signup is enabled, add them to the lists.
+				$lists_to_add = array_values( array_unique( array_merge( $lists_to_add, $restricted_lists ) ) );
+			}
 		}
-		if ( ! empty( $data['status_after'] ) && ! in_array( $data['status_after'], [ 'cancelled', 'expired' ], true ) ) {
-			return;
-		}
-		$product_ids = $data['product_ids'] ?? WooCommerce_Subscriptions::get_subscription_product_id( $data['subscription_id'] );
-		self::remove_user_from_lists(
-			$data['email'],
-			self::get_restricted_lists_by_products( $product_ids ),
-			sprintf(
-				'Removing user from premium newsletter lists after change to subscription with ID: %s',
-				$data['subscription_id']
-			)
-		);
+
+		// Don't remove the user from the lists they have access to from other gates.
+		$lists_to_remove = array_values( array_diff( $lists_to_remove, $lists_to_add ) );
+
+		self::add_user_to_lists( $data['email'], $lists_to_add );
+		self::remove_user_from_lists( $data['email'], $lists_to_remove );
 	}
 }
 

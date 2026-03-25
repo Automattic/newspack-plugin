@@ -66,6 +66,8 @@ class Newspack_Test_Premium_Newsletters extends \WP_UnitTestCase {
 			wp_delete_post( $id, true );
 		}
 		$this->post_ids = [];
+		global $subscriptions_database;
+		$subscriptions_database = [];
 		parent::tear_down();
 	}
 
@@ -110,242 +112,74 @@ class Newspack_Test_Premium_Newsletters extends \WP_UnitTestCase {
 	}
 
 	// =========================================================================
-	// Group A — get_restricted_lists_by_products()
+	// Group B — maybe_add_or_remove_lists() — adding behaviour
 	// =========================================================================
 
 	/**
-	 * Test that standard (non-newsletter) gates are ignored.
+	 * Test that lists are added when user has an active subscription matching the gate's access rule.
 	 */
-	public function test_get_restricted_lists_ignores_standard_gates() {
-		// Create a standard gate (not newsletter — third arg omitted / false).
-		$gate_id = Content_Gate::create_gate( [ 'title' => 'Standard Gate' ], Content_Gate::GATE_CPT, false );
-		$this->gate_ids[] = $gate_id;
-
-		update_post_meta(
-			$gate_id,
-			'custom_access',
-			[
-				'active'       => true,
-				'access_rules' => [
-					[
-						[
-							'slug'  => 'subscription',
-							'value' => [ 100 ],
-						],
-					],
-				],
-			]
-		);
-
-		$list_post_id = $this->factory->post->create();
-		$this->post_ids[] = $list_post_id;
-
-		Content_Rules::update_gate_content_rules(
-			$gate_id,
-			[
-				[
-					'slug'  => 'newsletters',
-					'value' => [ $list_post_id ],
-				],
-			]
-		);
-
-		$result = Premium_Newsletters::get_restricted_lists_by_products( null );
-		$this->assertEmpty( $result );
-	}
-
-	/**
-	 * Test that newsletter gates without active custom_access are skipped.
-	 */
-	public function test_get_restricted_lists_skips_inactive_custom_access() {
-		// Create newsletter gate but do NOT set custom_access meta (defaults to inactive).
-		$gate_id = Content_Gate::create_gate( [ 'title' => 'Newsletter Gate Inactive' ], Content_Gate::GATE_CPT, true );
-		$this->gate_ids[] = $gate_id;
-
-		$result = Premium_Newsletters::get_restricted_lists_by_products( null );
-		$this->assertEmpty( $result );
-	}
-
-	/**
-	 * Test that newsletter gates with no subscription rule are skipped.
-	 */
-	public function test_get_restricted_lists_skips_gate_with_no_subscription_rule() {
-		$gate_id = Content_Gate::create_gate( [ 'title' => 'Newsletter Gate No Sub' ], Content_Gate::GATE_CPT, true );
-		$this->gate_ids[] = $gate_id;
-
-		update_post_meta(
-			$gate_id,
-			'custom_access',
-			[
-				'active'       => true,
-				'access_rules' => [
-					[
-						[
-							'slug'  => 'email_domain',
-							'value' => 'example.com',
-						],
-					],
-				],
-			]
-		);
-
-		$list_post_id = $this->factory->post->create();
-		$this->post_ids[] = $list_post_id;
-
-		Content_Rules::update_gate_content_rules(
-			$gate_id,
-			[
-				[
-					'slug'  => 'newsletters',
-					'value' => [ $list_post_id ],
-				],
-			]
-		);
-
-		$result = Premium_Newsletters::get_restricted_lists_by_products( null );
-		$this->assertEmpty( $result );
-	}
-
-	/**
-	 * Test that no results returned when product does not match.
-	 */
-	public function test_get_restricted_lists_returns_empty_when_product_does_not_match() {
-		$list_post_id = $this->factory->post->create();
-		$this->post_ids[] = $list_post_id;
-
-		$this->create_newsletter_gate( [ 200 ], [ $list_post_id ] );
-
-		$result = Premium_Newsletters::get_restricted_lists_by_products( [ 999 ] );
-		$this->assertEmpty( $result );
-	}
-
-	/**
-	 * Test that the public list ID is returned for a matching product.
-	 */
-	public function test_get_restricted_lists_returns_public_id_for_matching_product() {
-		$list_post_id = $this->factory->post->create();
-		$this->post_ids[] = $list_post_id;
-
-		$this->create_newsletter_gate( [ 200 ], [ $list_post_id ] );
-
-		$result = Premium_Newsletters::get_restricted_lists_by_products( [ 200 ] );
-		$this->assertCount( 1, $result );
-		$this->assertContains( 'list-' . $list_post_id, $result );
-	}
-
-	/**
-	 * Test that results aggregate across multiple gates.
-	 */
-	public function test_get_restricted_lists_aggregates_across_multiple_gates() {
-		$list_post_id_1 = $this->factory->post->create();
-		$list_post_id_2 = $this->factory->post->create();
-		$this->post_ids[] = $list_post_id_1;
-		$this->post_ids[] = $list_post_id_2;
-
-		$this->create_newsletter_gate( [ 300 ], [ $list_post_id_1 ] );
-		$this->create_newsletter_gate( [ 300 ], [ $list_post_id_2 ] );
-
-		$result = Premium_Newsletters::get_restricted_lists_by_products( [ 300 ] );
-		$this->assertCount( 2, $result );
-		$this->assertContains( 'list-' . $list_post_id_1, $result );
-		$this->assertContains( 'list-' . $list_post_id_2, $result );
-	}
-
-	/**
-	 * Test that duplicate list IDs across gates are deduplicated.
-	 */
-	public function test_get_restricted_lists_deduplicates_list_ids() {
-		$list_post_id = $this->factory->post->create();
-		$this->post_ids[] = $list_post_id;
-
-		$this->create_newsletter_gate( [ 400 ], [ $list_post_id ] );
-		$this->create_newsletter_gate( [ 400 ], [ $list_post_id ] );
-
-		$result = Premium_Newsletters::get_restricted_lists_by_products( [ 400 ] );
-		$this->assertCount( 1, $result );
-	}
-
-	/**
-	 * Test that all lists are returned when product_ids is null.
-	 */
-	public function test_get_restricted_lists_returns_all_when_product_ids_is_null() {
-		$list_post_id_1 = $this->factory->post->create();
-		$list_post_id_2 = $this->factory->post->create();
-		$this->post_ids[] = $list_post_id_1;
-		$this->post_ids[] = $list_post_id_2;
-
-		$this->create_newsletter_gate( [ 100 ], [ $list_post_id_1 ] );
-		$this->create_newsletter_gate( [ 200 ], [ $list_post_id_2 ] );
-
-		$result = Premium_Newsletters::get_restricted_lists_by_products( null );
-		$this->assertCount( 2, $result );
-	}
-
-	/**
-	 * Test that a scalar product ID is accepted.
-	 */
-	public function test_get_restricted_lists_accepts_scalar_product_id() {
-		$list_post_id = $this->factory->post->create();
-		$this->post_ids[] = $list_post_id;
-
-		$this->create_newsletter_gate( [ 500 ], [ $list_post_id ] );
-
-		$result = Premium_Newsletters::get_restricted_lists_by_products( 500 );
-		$this->assertCount( 1, $result );
-	}
-
-	// =========================================================================
-	// Group B — maybe_add_user_to_lists()
-	// =========================================================================
-
-	/**
-	 * Test that lists are added on payment.
-	 */
-	public function test_maybe_add_user_to_lists_adds_lists_on_payment() {
+	public function test_maybe_add_or_remove_lists_adds_lists_when_user_has_access() {
 		update_option( 'newspack_premium_newsletters_auto_signup', 1 );
 
-		$list_post_id = $this->factory->post->create();
+		$user_id = $this->factory->user->create( [ 'role' => 'subscriber' ] );
+		$email   = get_userdata( $user_id )->user_email;
+
+		$list_post_id     = $this->factory->post->create();
 		$this->post_ids[] = $list_post_id;
 
 		$this->create_newsletter_gate( [ 100 ], [ $list_post_id ] );
 
-		Premium_Newsletters::maybe_add_user_to_lists(
+		wcs_create_subscription(
+			[
+				'customer_id' => $user_id,
+				'status'      => 'active',
+				'products'    => [ 100 ],
+			]
+		);
+
+		Premium_Newsletters::maybe_add_or_remove_lists(
 			time(),
 			[
-				'subscription_id' => 42,
-				'email'           => 'subscriber@example.com',
-				'product_ids'     => [ 100 ],
+				'user_id' => $user_id,
+				'email'   => $email,
 			],
 			null
 		);
 
 		$calls = \Newspack_Newsletters_Contacts::$add_and_remove_lists_calls;
 		$this->assertCount( 1, $calls );
-		$this->assertEquals( 'subscriber@example.com', $calls[0]['email'] );
+		$this->assertEquals( $email, $calls[0]['email'] );
 		$this->assertContains( 'list-' . $list_post_id, $calls[0]['lists_to_add'] );
 		$this->assertEmpty( $calls[0]['lists_to_remove'] );
 	}
 
 	/**
-	 * Test that already-subscribed lists are skipped.
+	 * Test that no call is made when auto-signup is disabled, even when user has access.
 	 */
-	public function test_maybe_add_user_to_lists_skips_already_subscribed_lists() {
-		update_option( 'newspack_premium_newsletters_auto_signup', 1 );
+	public function test_maybe_add_or_remove_lists_does_not_add_when_auto_signup_disabled() {
+		update_option( 'newspack_premium_newsletters_auto_signup', 0 );
 
-		$list_post_id = $this->factory->post->create();
+		$user_id = $this->factory->user->create( [ 'role' => 'subscriber' ] );
+		$email   = get_userdata( $user_id )->user_email;
+
+		$list_post_id     = $this->factory->post->create();
 		$this->post_ids[] = $list_post_id;
 
 		$this->create_newsletter_gate( [ 100 ], [ $list_post_id ] );
 
-		// Simulate user already subscribed.
-		\Newspack_Newsletters_Subscription::$contact_lists['subscriber@example.com'] = [ 'list-' . $list_post_id ];
+		wcs_create_subscription(
+			[
+				'customer_id' => $user_id,
+				'status'      => 'active',
+				'products'    => [ 100 ],
+			]
+		);
 
-		Premium_Newsletters::maybe_add_user_to_lists(
+		Premium_Newsletters::maybe_add_or_remove_lists(
 			time(),
 			[
-				'subscription_id' => 42,
-				'email'           => 'subscriber@example.com',
-				'product_ids'     => [ 100 ],
+				'user_id' => $user_id,
+				'email'   => $email,
 			],
 			null
 		);
@@ -354,52 +188,72 @@ class Newspack_Test_Premium_Newsletters extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * Test that product_ids from data are used to filter lists.
+	 * Test that no call is made when user has access and auto-signup is on but is already subscribed.
 	 */
-	public function test_maybe_add_user_to_lists_uses_product_ids_from_data() {
+	public function test_maybe_add_or_remove_lists_skips_already_subscribed_lists() {
 		update_option( 'newspack_premium_newsletters_auto_signup', 1 );
 
-		$list_post_id = $this->factory->post->create();
+		$user_id = $this->factory->user->create( [ 'role' => 'subscriber' ] );
+		$email   = get_userdata( $user_id )->user_email;
+
+		$list_post_id     = $this->factory->post->create();
+		$this->post_ids[] = $list_post_id;
+
+		$this->create_newsletter_gate( [ 100 ], [ $list_post_id ] );
+
+		wcs_create_subscription(
+			[
+				'customer_id' => $user_id,
+				'status'      => 'active',
+				'products'    => [ 100 ],
+			]
+		);
+
+		// Simulate user already subscribed to the list.
+		\Newspack_Newsletters_Subscription::$contact_lists[ $email ] = [ 'list-' . $list_post_id ];
+
+		Premium_Newsletters::maybe_add_or_remove_lists(
+			time(),
+			[
+				'user_id' => $user_id,
+				'email'   => $email,
+			],
+			null
+		);
+
+		// Production code calls get_contact_lists(), finds the list already present,
+		// and exits early before calling add_and_remove_lists.
+		$this->assertEmpty( \Newspack_Newsletters_Contacts::$add_and_remove_lists_calls );
+	}
+
+	// =========================================================================
+	// Group C — maybe_add_or_remove_lists() — removing behaviour
+	// =========================================================================
+
+	/**
+	 * Test that lists are removed when the user has no subscription matching the gate's access rule.
+	 */
+	public function test_maybe_add_or_remove_lists_removes_lists_when_user_lacks_access() {
+		$user_id = $this->factory->user->create( [ 'role' => 'subscriber' ] );
+		$email   = get_userdata( $user_id )->user_email;
+
+		$list_post_id     = $this->factory->post->create();
 		$this->post_ids[] = $list_post_id;
 
 		$this->create_newsletter_gate( [ 200 ], [ $list_post_id ] );
 
-		Premium_Newsletters::maybe_add_user_to_lists(
+		// No WC subscription created — user has no access.
+
+		Premium_Newsletters::maybe_add_or_remove_lists(
 			time(),
 			[
-				'subscription_id' => 42,
-				'email'           => 'subscriber@example.com',
-				'product_ids'     => [ 999 ],
+				'user_id' => $user_id,
+				'email'   => $email,
 			],
 			null
 		);
 
-		$this->assertEmpty( \Newspack_Newsletters_Contacts::$add_and_remove_lists_calls );
-	}
-
-	// =========================================================================
-	// Group C — maybe_remove_user_from_lists()
-	// =========================================================================
-
-	/**
-	 * Test that remove proceeds when status_after key is absent.
-	 */
-	public function test_maybe_remove_user_from_lists_proceeds_when_status_after_absent() {
-		$list_post_id = $this->factory->post->create();
-		$this->post_ids[] = $list_post_id;
-
-		$this->create_newsletter_gate( [ 100 ], [ $list_post_id ] );
-
-		Premium_Newsletters::maybe_remove_user_from_lists(
-			time(),
-			[
-				'subscription_id' => 42,
-				'email'           => 'subscriber@example.com',
-				'product_ids'     => [ 100 ],
-			],
-			null
-		);
-
+		// The remove path has no auto_signup guard — it fires regardless of that option.
 		$calls = \Newspack_Newsletters_Contacts::$add_and_remove_lists_calls;
 		$this->assertCount( 1, $calls );
 		$this->assertContains( 'list-' . $list_post_id, $calls[0]['lists_to_remove'] );
@@ -407,85 +261,48 @@ class Newspack_Test_Premium_Newsletters extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * Test that remove proceeds on cancelled status.
+	 * Test that a list is not removed when the user has access to the same list from another gate.
+	 *
+	 * Gate A (product 300) and Gate B (product 400) both cover the same list.
+	 * The user has a subscription for product 300 (Gate A) but not 400 (Gate B).
+	 * With auto-signup on, the list lands in lists_to_add (Gate A) and lists_to_remove (Gate B).
+	 * After array_diff the list is stripped from lists_to_remove, so only an add call is made.
 	 */
-	public function test_maybe_remove_user_from_lists_proceeds_on_cancelled() {
-		$list_post_id = $this->factory->post->create();
+	public function test_maybe_add_or_remove_lists_does_not_remove_lists_accessible_from_another_gate() {
+		update_option( 'newspack_premium_newsletters_auto_signup', 1 );
+
+		$user_id = $this->factory->user->create( [ 'role' => 'subscriber' ] );
+		$email   = get_userdata( $user_id )->user_email;
+
+		$list_post_id     = $this->factory->post->create();
 		$this->post_ids[] = $list_post_id;
 
-		$this->create_newsletter_gate( [ 100 ], [ $list_post_id ] );
+		// Gate A: user has access (subscription for product 300).
+		$this->create_newsletter_gate( [ 300 ], [ $list_post_id ] );
+		// Gate B: user lacks access (no subscription for product 400).
+		$this->create_newsletter_gate( [ 400 ], [ $list_post_id ] );
 
-		Premium_Newsletters::maybe_remove_user_from_lists(
+		wcs_create_subscription(
+			[
+				'customer_id' => $user_id,
+				'status'      => 'active',
+				'products'    => [ 300 ],
+			]
+		);
+
+		Premium_Newsletters::maybe_add_or_remove_lists(
 			time(),
 			[
-				'subscription_id' => 42,
-				'email'           => 'subscriber@example.com',
-				'product_ids'     => [ 100 ],
-				'status_after'    => 'cancelled',
+				'user_id' => $user_id,
+				'email'   => $email,
 			],
 			null
 		);
 
 		$calls = \Newspack_Newsletters_Contacts::$add_and_remove_lists_calls;
 		$this->assertCount( 1, $calls );
-		$this->assertContains( 'list-' . $list_post_id, $calls[0]['lists_to_remove'] );
-	}
-
-	/**
-	 * Test that remove proceeds on expired status.
-	 */
-	public function test_maybe_remove_user_from_lists_proceeds_on_expired() {
-		$list_post_id = $this->factory->post->create();
-		$this->post_ids[] = $list_post_id;
-
-		$this->create_newsletter_gate( [ 100 ], [ $list_post_id ] );
-
-		Premium_Newsletters::maybe_remove_user_from_lists(
-			time(),
-			[
-				'subscription_id' => 42,
-				'email'           => 'subscriber@example.com',
-				'product_ids'     => [ 100 ],
-				'status_after'    => 'expired',
-			],
-			null
-		);
-
-		$calls = \Newspack_Newsletters_Contacts::$add_and_remove_lists_calls;
-		$this->assertCount( 1, $calls );
-		$this->assertContains( 'list-' . $list_post_id, $calls[0]['lists_to_remove'] );
-	}
-
-	/**
-	 * Test that remove is skipped for non-terminal statuses.
-	 */
-	public function test_maybe_remove_user_from_lists_skips_non_terminal_status() {
-		$list_post_id = $this->factory->post->create();
-		$this->post_ids[] = $list_post_id;
-
-		$this->create_newsletter_gate( [ 100 ], [ $list_post_id ] );
-
-		$non_terminal_statuses = [ 'active', 'on-hold', 'pending', 'pending-cancel' ];
-
-		foreach ( $non_terminal_statuses as $status ) {
-			\Newspack_Newsletters_Contacts::reset_calls();
-
-			Premium_Newsletters::maybe_remove_user_from_lists(
-				time(),
-				[
-					'subscription_id' => 42,
-					'email'           => 'subscriber@example.com',
-					'product_ids'     => [ 100 ],
-					'status_after'    => $status,
-				],
-				null
-			);
-
-			$this->assertEmpty(
-				\Newspack_Newsletters_Contacts::$add_and_remove_lists_calls,
-				"Expected no call for status_after = '{$status}'"
-			);
-		}
+		$this->assertContains( 'list-' . $list_post_id, $calls[0]['lists_to_add'] );
+		$this->assertEmpty( $calls[0]['lists_to_remove'] );
 	}
 
 	// =========================================================================
@@ -563,19 +380,20 @@ class Newspack_Test_Premium_Newsletters extends \WP_UnitTestCase {
 	 * Test that all four handlers are wired to the correct actions.
 	 */
 	public function test_register_handlers_wires_all_four_handlers() {
-		$add_handler = [ 'Newspack\Premium_Newsletters', 'maybe_add_user_to_lists' ];
-		$remove_handler = [ 'Newspack\Premium_Newsletters', 'maybe_remove_user_from_lists' ];
+		$handler = [ 'Newspack\Premium_Newsletters', 'maybe_add_or_remove_lists' ];
 
-		$handlers = Data_Events::get_action_handlers( 'subscription_payment_complete' );
-		$this->assertContains( $add_handler, $handlers, 'maybe_add_user_to_lists should be registered for subscription_payment_complete' );
-
-		$handlers = Data_Events::get_action_handlers( 'subscription_renewal_payment_failed' );
-		$this->assertContains( $remove_handler, $handlers, 'maybe_remove_user_from_lists should be registered for subscription_renewal_payment_failed' );
-
-		$handlers = Data_Events::get_action_handlers( 'product_subscription_changed' );
-		$this->assertContains( $remove_handler, $handlers, 'maybe_remove_user_from_lists should be registered for product_subscription_changed' );
-
-		$handlers = Data_Events::get_action_handlers( 'donation_subscription_changed' );
-		$this->assertContains( $remove_handler, $handlers, 'maybe_remove_user_from_lists should be registered for donation_subscription_changed' );
+		foreach ( [
+			'subscription_payment_complete',
+			'subscription_renewal_payment_failed',
+			'product_subscription_changed',
+			'donation_subscription_changed',
+		] as $action ) {
+			$handlers = Data_Events::get_action_handlers( $action );
+			$this->assertContains(
+				$handler,
+				$handlers,
+				"maybe_add_or_remove_lists should be registered for {$action}"
+			);
+		}
 	}
 }
