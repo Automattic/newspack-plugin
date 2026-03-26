@@ -157,8 +157,13 @@ class Test_Post_Date extends \WP_UnitTestCase {
 			]
 		);
 
+		// Simulate being in the loop so the filter applies.
+		$GLOBALS['wp_query']->in_the_loop = true;
+
 		$date = get_the_date( '', $post_id );
 		$this->assertStringContainsString( 'ago', $date, 'get_the_date should return relative date when feature is on.' );
+
+		$GLOBALS['wp_query']->in_the_loop = false;
 	}
 
 	/**

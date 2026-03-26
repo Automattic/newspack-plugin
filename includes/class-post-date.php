@@ -52,7 +52,7 @@ class Post_Date {
 		add_filter( 'newspack_blocks_formatted_displayed_post_date', [ __CLASS__, 'filter_blocks_formatted_date' ], 10, 2 );
 		add_action( 'wp_enqueue_scripts', [ __CLASS__, 'enqueue_scripts' ] );
 		add_action( 'enqueue_block_editor_assets', [ __CLASS__, 'enqueue_editor_assets' ] );
-		add_action( 'newspack_theme_after_posted_on', [ __CLASS__, 'render_updated_date_classic' ] );
+		add_action( 'newspack_theme_posted_on', [ __CLASS__, 'render_updated_date_classic' ] );
 	}
 
 	/**
@@ -257,6 +257,12 @@ class Post_Date {
 			return $the_date;
 		}
 
+		// Only convert dates in the loop on singular views to avoid affecting
+		// archive titles (e.g. "Daily Archives: 2 days ago") and other contexts.
+		if ( ! in_the_loop() ) {
+			return $the_date;
+		}
+
 		$time_ago = self::convert_to_time_ago( $post->post_date_gmt, self::get_time_ago_cutoff_days() );
 
 		return null !== $time_ago ? $time_ago : $the_date;
@@ -281,7 +287,7 @@ class Post_Date {
 
 	/**
 	 * Render updated date for classic (non-block) themes.
-	 * Hooked to `newspack_theme_after_posted_on` which fires after `newspack_posted_on()`.
+	 * Hooked to `newspack_theme_posted_on` which fires inside `newspack_posted_on()`.
 	 */
 	public static function render_updated_date_classic() {
 		if ( wp_is_block_theme() || ! is_singular() ) {
@@ -306,13 +312,11 @@ class Post_Date {
 			}
 		}
 
-		/* translators: %s: Modified date. */
-		$label = sprintf( esc_html__( 'Updated %s', 'newspack-plugin' ), $modified_date );
-
 		printf(
-			'<span class="posted-on updated-date" data-newspack-modified><time class="entry-date updated" datetime="%1$s">%2$s</time></span>',
+			'<span class="updated-label">%1$s </span><time class="updated" datetime="%2$s">%3$s</time>',
+			esc_html__( 'Updated', 'newspack-plugin' ),
 			esc_attr( get_the_modified_date( DATE_W3C, $post ) ),
-			wp_kses_post( $label )
+			esc_html( $modified_date )
 		);
 	}
 
@@ -382,17 +386,9 @@ class Post_Date {
 	}
 
 	/**
-	 * Enqueue relative-time script and updated date styles on frontend.
+	 * Enqueue relative-time script on frontend.
 	 */
 	public static function enqueue_scripts() {
-		// Inline styles for the classic theme updated date.
-		// Always enqueue on classic themes since per-post overrides can show the date even when sitewide is off.
-		if ( ! wp_is_block_theme() ) {
-			wp_register_style( 'newspack-post-date', false, [], NEWSPACK_PLUGIN_VERSION );
-			wp_enqueue_style( 'newspack-post-date' );
-			wp_add_inline_style( 'newspack-post-date', '.entry-meta .updated-date { margin-inline-start: 1em; }' );
-		}
-
 		if ( ! get_theme_mod( 'post_time_ago', false ) ) {
 			return;
 		}

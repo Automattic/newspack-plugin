@@ -58,7 +58,9 @@
 			return; // No Intl support.
 		}
 
-		const elements = document.querySelectorAll( '.wp-block-post-date time[datetime], time.entry-date[datetime], .comment-meta time[datetime]' );
+		const elements = document.querySelectorAll(
+			'.wp-block-post-date time[datetime], time.entry-date[datetime], time.updated[datetime], .comment-meta time[datetime]'
+		);
 		const now = Date.now();
 
 		elements.forEach( function ( el ) {
