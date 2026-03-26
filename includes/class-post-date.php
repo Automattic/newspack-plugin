@@ -257,8 +257,8 @@ class Post_Date {
 			return $the_date;
 		}
 
-		// Only convert dates in the loop on singular views to avoid affecting
-		// archive titles (e.g. "Daily Archives: 2 days ago") and other contexts.
+		// Only convert dates in the loop to avoid affecting archive titles
+		// (e.g. "Daily Archives: 2 days ago") and other contexts.
 		if ( ! in_the_loop() ) {
 			return $the_date;
 		}

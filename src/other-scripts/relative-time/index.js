@@ -74,7 +74,7 @@
 				el.setAttribute( 'title', new Date( datetime ).toLocaleString( localeTag ) );
 			}
 
-			// Only replace text on publish dates, not modified date blocks.
+			// Skip block-theme modified dates (label is inside <time>). Classic-theme ones are fine.
 			if ( el.closest( '[data-newspack-modified]' ) || el.closest( '.wp-block-post-date__modified-date' ) ) {
 				return;
 			}
