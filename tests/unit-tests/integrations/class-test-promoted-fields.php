@@ -31,7 +31,7 @@ class Test_Promoted_Fields extends \WP_UnitTestCase {
 	public function set_up() {
 		parent::set_up();
 		$this->reset_integrations();
-		Promoted_Fields::reset();
+		Promoted_Fields::reset_cache();
 
 		$this->integration = new Sample_Integration( 'promoted-test', 'Test ESP' );
 		Integrations::register( $this->integration );
@@ -42,7 +42,7 @@ class Test_Promoted_Fields extends \WP_UnitTestCase {
 	 * Tear down test environment.
 	 */
 	public function tear_down() {
-		Promoted_Fields::reset();
+		Promoted_Fields::reset_cache();
 		$this->reset_integrations();
 		Integrations::register_integrations();
 		delete_option( 'newspack_integration_incoming_fields_promoted-test' );
@@ -74,7 +74,7 @@ class Test_Promoted_Fields extends \WP_UnitTestCase {
 	 */
 	public function test_incoming_fields_without_config_not_promoted() {
 		$this->integration->update_enabled_incoming_fields( [ 'some_field' ] );
-		Promoted_Fields::reset();
+		Promoted_Fields::reset_cache();
 
 		$fields = Promoted_Fields::get_promoted_fields();
 		$this->assertEmpty( $fields );
@@ -88,7 +88,7 @@ class Test_Promoted_Fields extends \WP_UnitTestCase {
 
 		// Override get_incoming_field_config via filter.
 		add_filter(
-			'newspack_promoted_fields',
+			'newspack_integration_promoted_fields',
 			function () {
 				return [
 					'organization' => [
@@ -102,14 +102,14 @@ class Test_Promoted_Fields extends \WP_UnitTestCase {
 				];
 			}
 		);
-		Promoted_Fields::reset();
+		Promoted_Fields::reset_cache();
 
 		$fields = Promoted_Fields::get_promoted_fields();
 		$this->assertArrayHasKey( 'organization', $fields );
 		$this->assertTrue( $fields['organization']['is_access_rule'] );
 		$this->assertTrue( $fields['organization']['is_segment_criteria'] );
 
-		remove_all_filters( 'newspack_promoted_fields' );
+		remove_all_filters( 'newspack_integration_promoted_fields' );
 	}
 
 	/**
@@ -140,7 +140,7 @@ class Test_Promoted_Fields extends \WP_UnitTestCase {
 		Integrations::register( $integration );
 		Integrations::enable( 'prefix-test' );
 		$integration->update_enabled_incoming_fields( [ 'org' ] );
-		Promoted_Fields::reset();
+		Promoted_Fields::reset_cache();
 
 		$fields = Promoted_Fields::get_promoted_fields();
 		$this->assertArrayHasKey( 'org', $fields );
@@ -172,7 +172,7 @@ class Test_Promoted_Fields extends \WP_UnitTestCase {
 		Integrations::register( $integration );
 		Integrations::enable( 'defaults-test' );
 		$integration->update_enabled_incoming_fields( [ 'role' ] );
-		Promoted_Fields::reset();
+		Promoted_Fields::reset_cache();
 
 		$fields = Promoted_Fields::get_promoted_fields();
 		$this->assertArrayHasKey( 'role', $fields );

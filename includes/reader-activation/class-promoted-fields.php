@@ -106,14 +106,14 @@ class Promoted_Fields {
 		 *
 		 * @param array $fields Promoted fields keyed by field key.
 		 */
-		self::$promoted_fields = apply_filters( 'newspack_promoted_fields', $fields );
+		self::$promoted_fields = apply_filters( 'newspack_integration_promoted_fields', $fields );
 		return self::$promoted_fields;
 	}
 
 	/**
 	 * Reset the cached promoted fields. Useful for testing.
 	 */
-	public static function reset() {
+	public static function reset_cache() {
 		self::$promoted_fields = null;
 	}
 
@@ -202,8 +202,7 @@ class Promoted_Fields {
 		$reader_data_key = $config['reader_data_key'] ?? $key;
 		$match           = $config['matching_function'] ?? 'default';
 		$value_type      = $config['value_type'] ?? '';
-		$data            = class_exists( '\Newspack\Reader_Data' ) ? Reader_Data::get_data( $user_id ) : [];
-		$value           = $data[ $reader_data_key ] ?? null;
+		$value           = Reader_Data::get_data( $user_id, $reader_data_key );
 
 		// Boolean fields: access rules pass no args (just check truthiness),
 		// segmentation passes 'yes'/'no'.
