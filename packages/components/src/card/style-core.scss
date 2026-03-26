@@ -146,6 +146,13 @@
 			font-weight: 500;
 			display: flex;
 			gap: 8px;
+			a {
+				color: inherit;
+				text-decoration: none;
+				&:hover {
+					text-decoration: underline;
+				}
+			}
 			.newspack-badge {
 				font-weight: 400;
 			}

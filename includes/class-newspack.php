@@ -140,6 +140,7 @@ final class Newspack {
 		include_once NEWSPACK_ABSPATH . 'includes/corrections/class-corrections.php';
 		include_once NEWSPACK_ABSPATH . 'includes/class-syndication.php';
 		include_once NEWSPACK_ABSPATH . 'includes/bylines/class-bylines.php';
+		include_once NEWSPACK_ABSPATH . 'includes/class-post-date.php';
 		include_once NEWSPACK_ABSPATH . 'includes/lite-site/class-lite-site.php';
 		include_once NEWSPACK_ABSPATH . 'includes/content-gate/trait-content-gate-layout.php';
 		include_once NEWSPACK_ABSPATH . 'includes/content-gate/class-content-gate.php';
@@ -189,7 +190,8 @@ final class Newspack {
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-network-wizard.php';
 
 		// Newsletters Wizard.
-		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-newsletters-wizard.php';
+		include_once NEWSPACK_ABSPATH . 'includes/wizards/newsletters/class-newsletters-wizard.php';
+		include_once NEWSPACK_ABSPATH . 'includes/wizards/newsletters/class-premium-newsletters.php';
 
 		/* Unified Wizards */
 		include_once NEWSPACK_ABSPATH . 'includes/class-wizards.php';

@@ -15,7 +15,16 @@ import apiFetch from '@wordpress/api-fetch';
 /**
  * Internal dependencies
  */
-import { CardSettingsGroup, Divider, Grid, Router, SectionHeader, TextControl, useConfirmDialog } from '../../../../../../packages/components/src';
+import {
+	CardSettingsGroup,
+	Divider,
+	Grid,
+	ImageUpload,
+	Router,
+	SectionHeader,
+	TextControl,
+	useConfirmDialog,
+} from '../../../../../../packages/components/src';
 import { WIZARD_STORE_NAMESPACE } from '../../../../../../packages/components/src/wizard/store';
 
 const { useHistory } = Router;
@@ -25,6 +34,8 @@ const API_PATH = '/wp/v2/np_institution';
 const EMPTY_INSTITUTION: Omit< Institution, 'id' > = {
 	title: { raw: '', rendered: '' },
 	excerpt: { raw: '', rendered: '' },
+	featured_media: 0,
+	slug: '',
 	status: 'publish',
 	meta: {
 		np_institution_email_domain: '',
@@ -49,6 +60,8 @@ export default function InstitutionEdit( { match }: { match: { params: { id?: st
 	const [ isLoading, setIsLoading ] = useState( ! isNew );
 	const [ isSaving, setIsSaving ] = useState( false );
 	const [ isDirty, setIsDirty ] = useState( false );
+	const [ imageData, setImageData ] = useState< { id: number; url: string } | null >( null );
+	const [ isLoadingImage, setIsLoadingImage ] = useState( false );
 
 	useEffect( () => {
 		if ( ! isNew ) {
@@ -65,6 +78,20 @@ export default function InstitutionEdit( { match }: { match: { params: { id?: st
 				.finally( () => setIsLoading( false ) );
 		}
 	}, [ id, isNew ] );
+
+	// Resolve featured_media ID to an image object for the ImageUpload component.
+	useEffect( () => {
+		const mediaId = institution.featured_media;
+		if ( mediaId ) {
+			setIsLoadingImage( true );
+			apiFetch< { id: number; source_url: string } >( { path: `/wp/v2/media/${ mediaId }` } )
+				.then( media => setImageData( { id: media.id, url: media.source_url } ) )
+				.catch( () => setImageData( null ) )
+				.finally( () => setIsLoadingImage( false ) );
+		} else {
+			setImageData( null );
+		}
+	}, [ institution.featured_media ] );
 
 	const updateField = useCallback( ( field: string, value: string ) => {
 		setIsDirty( true );
@@ -104,6 +131,7 @@ export default function InstitutionEdit( { match }: { match: { params: { id?: st
 		const payload = {
 			title: institution.title.raw,
 			excerpt: institution.excerpt.raw,
+			featured_media: institution.featured_media,
 			status: 'publish',
 			meta: institution.meta,
 		};
@@ -215,7 +243,7 @@ export default function InstitutionEdit( { match }: { match: { params: { id?: st
 				<SectionHeader
 					title={ __( 'Name and description', 'newspack-plugin' ) }
 					description={ __(
-						'Identify this institution for internal reference. The name and description are not shown to readers.',
+						'Identify this institution. The name and image are shown on the access verification page.',
 						'newspack-plugin'
 					) }
 				/>
@@ -231,6 +259,19 @@ export default function InstitutionEdit( { match }: { match: { params: { id?: st
 						value={ description }
 						onChange={ ( val: string ) => updateField( 'excerpt', val ) }
 					/>
+					{ isLoadingImage ? (
+						<Spinner />
+					) : (
+						<ImageUpload
+							label={ __( 'Logo', 'newspack-plugin' ) }
+							image={ imageData }
+							onChange={ ( attachment: { id: number; url: string } | null ) => {
+								setIsDirty( true );
+								setImageData( attachment ? { id: attachment.id, url: attachment.url } : null );
+								setInstitution( prev => ( { ...prev, featured_media: attachment?.id || 0 } ) );
+							} }
+						/>
+					) }
 				</VStack>
 			</Grid>
 

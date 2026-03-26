@@ -7,6 +7,8 @@
 
 namespace Newspack\Content_Gate;
 
+use Newspack\Newspack_UI;
+
 /**
  * IP Access Rule class.
  */
@@ -23,21 +25,41 @@ class IP_Access_Rule {
 	const ENDPOINT = 'institutional-access';
 
 	/**
+	 * The query parameter name for the IP check result.
+	 */
+	const RESULT_PARAM = 'institutional-access-result';
+
+	/**
+	 * The REST API route for the IP check.
+	 */
+	const REST_ROUTE = '/institutional-access/check';
+
+	/**
 	 * Initialize hooks.
 	 */
 	public static function init() {
 		add_action( 'init', [ __CLASS__, 'add_rewrite_rule' ] );
+		add_action( 'rest_api_init', [ __CLASS__, 'register_rest_route' ] );
 		add_action( 'template_redirect', [ __CLASS__, 'handle_redirect' ] );
+		add_action( 'template_redirect', [ __CLASS__, 'handle_result_notice' ] );
 	}
 
 	/**
 	 * Register the rewrite rule for the institutional access endpoint.
 	 */
 	public static function add_rewrite_rule() {
+		// Match /institutional-access/<slug>/ for institution-specific pages.
+		add_rewrite_rule(
+			'^' . self::ENDPOINT . '/([^/]+)/?$',
+			'index.php?' . self::ENDPOINT . '=1&' . self::ENDPOINT . '-slug=$matches[1]',
+			'top'
+		);
+		// Match /institutional-access/ for the generic page.
 		add_rewrite_rule( '^' . self::ENDPOINT . '/?$', 'index.php?' . self::ENDPOINT . '=1', 'top' );
 		add_rewrite_tag( '%' . self::ENDPOINT . '%', '1' );
+		add_rewrite_tag( '%' . self::ENDPOINT . '-slug%', '([^/]+)' );
 
-		$option_key = 'newspack_ip_access_rule_flushed';
+		$option_key = 'newspack_ip_access_rule_flushed_v2';
 		if ( ! get_option( $option_key ) ) {
 			flush_rewrite_rules(); // phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.flush_rewrite_rules_flush_rewrite_rules
 			update_option( $option_key, true );
@@ -45,10 +67,87 @@ class IP_Access_Rule {
 	}
 
 	/**
-	 * Handle the institutional access redirect.
+	 * Register the REST API route for IP checking.
+	 */
+	public static function register_rest_route() {
+		\register_rest_route(
+			NEWSPACK_API_NAMESPACE,
+			self::REST_ROUTE,
+			[
+				'methods'             => 'GET',
+				'callback'            => [ __CLASS__, 'check_ip_rest' ],
+				'permission_callback' => '__return_true',
+				'args'                => [
+					'institution_id' => [
+						'type'              => 'integer',
+						'sanitize_callback' => 'absint',
+					],
+				],
+			]
+		);
+	}
+
+	/**
+	 * REST API callback: check the visitor's IP and set the cookie if valid.
+	 *
+	 * When `institution_id` is provided, checks against that specific institution
+	 * using all its rules (IP, email domain, reader data). Otherwise, checks
+	 * against all institutions via the `newspack_content_gate_check_ip` filter.
+	 *
+	 * @param \WP_REST_Request $request The REST request.
+	 *
+	 * @return \WP_REST_Response
+	 */
+	public static function check_ip_rest( $request ) {
+		if ( function_exists( 'batcache_cancel' ) ) {
+			batcache_cancel();
+		}
+		nocache_headers();
+
+		$institution_id = $request->get_param( 'institution_id' );
+		$valid          = false;
+		$inst_name      = '';
+
+		if ( $institution_id ) {
+			$institutions = \Newspack\Institution::get_cached_institutions();
+			if ( isset( $institutions[ $institution_id ] ) ) {
+				$user_id  = get_current_user_id();
+				$valid    = \Newspack\Institution::user_matches_institution( $user_id, $institutions[ $institution_id ], true );
+				$inst_name = get_the_title( $institution_id );
+			}
+		} else {
+			/** This filter is documented in handle_redirect(). */
+			$result = apply_filters( 'newspack_content_gate_check_ip', false );
+			$valid  = (bool) $result;
+			if ( is_int( $result ) ) {
+				$inst_name = get_the_title( $result );
+			}
+		}
+
+		if ( $valid ) {
+			setcookie( self::COOKIE_NAME, '1', time() + MONTH_IN_SECONDS, COOKIEPATH, COOKIE_DOMAIN ); // phpcs:ignore
+		}
+
+		$data = [ 'valid' => $valid ];
+		if ( $inst_name ) {
+			$data['institution'] = $inst_name;
+		}
+
+		return new \WP_REST_Response( $data );
+	}
+
+	/**
+	 * Handle the institutional access check.
+	 *
+	 * For `?institutional-access=1` or `?institutional-access` on any URL:
+	 * performs the IP check server-side, then redirects back to the same URL
+	 * with a result parameter.
+	 *
+	 * For the dedicated `/institutional-access` endpoint: renders a loading page
+	 * that performs the check via the REST API and redirects on completion.
 	 */
 	public static function handle_redirect() {
-		if ( ! get_query_var( self::ENDPOINT ) ) {
+		if ( ! get_query_var( self::ENDPOINT ) && ! isset( $_GET[ self::ENDPOINT ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			return;
 		}
 
@@ -58,20 +157,269 @@ class IP_Access_Rule {
 		}
 		nocache_headers();
 
+		// Check if this is the dedicated endpoint or a query param on a regular URL.
+		$slug = get_query_var( self::ENDPOINT . '-slug' );
+		$request_path = wp_parse_url( $_SERVER['REQUEST_URI'], PHP_URL_PATH ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
+		$is_dedicated = $slug || (bool) preg_match( '#^/?' . preg_quote( self::ENDPOINT, '#' ) . '/?$#', trim( $request_path, '/' ) );
+
+		if ( $is_dedicated ) {
+			$institution_id = null;
+			if ( $slug ) {
+				$posts = get_posts(
+					[
+						'post_type'      => \Newspack\Institution::POST_TYPE,
+						'name'           => sanitize_title( $slug ),
+						'posts_per_page' => 1,
+						'post_status'    => 'publish',
+						'fields'         => 'ids',
+					]
+				);
+				$institution_id = ! empty( $posts ) ? $posts[0] : null;
+			}
+			self::render_loading_page( $institution_id );
+			exit;
+		}
+
+		// Query param on a regular URL: server-side check and redirect.
 		/**
 		 * Filter whether the current IP is valid for content gate access.
 		 *
-		 * @param bool $valid_ip Whether the IP is valid. Default false.
+		 * @param bool|int $valid_ip Whether the IP is valid, or institution post ID. Default false.
 		 */
-		$valid_ip = apply_filters( 'newspack_content_gate_check_ip', false );
+		$result = apply_filters( 'newspack_content_gate_check_ip', false );
 
-		if ( $valid_ip ) {
+		if ( $result ) {
 			setcookie( self::COOKIE_NAME, '1', time() + MONTH_IN_SECONDS, COOKIEPATH, COOKIE_DOMAIN ); // phpcs:ignore
 		}
 
-		wp_safe_redirect( home_url( '/' ) );
+		$redirect_url = self::get_redirect_url();
+		$redirect_url = add_query_arg( self::RESULT_PARAM, $result ? 'success' : 'failure', $redirect_url );
+		if ( is_int( $result ) ) {
+			$redirect_url = add_query_arg( 'institution', rawurlencode( get_the_title( $result ) ), $redirect_url );
+		}
+		wp_safe_redirect( $redirect_url );
 		exit;
 	}
+
+	/**
+	 * Display a snackbar notice based on the IP check result parameter.
+	 */
+	public static function handle_result_notice() {
+		if ( empty( $_GET[ self::RESULT_PARAM ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			return;
+		}
+
+		// Prevent this response from being cached so other users don't see the snackbar.
+		if ( function_exists( 'batcache_cancel' ) ) {
+			batcache_cancel();
+		}
+		nocache_headers();
+
+		$result = sanitize_text_field( wp_unslash( $_GET[ self::RESULT_PARAM ] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+
+		if ( 'success' === $result ) {
+			$institution = ! empty( $_GET['institution'] ) ? sanitize_text_field( wp_unslash( $_GET['institution'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			$message     = $institution
+				/* translators: %s: institution name */
+				? sprintf( __( 'Connected to %s.', 'newspack-plugin' ), '<strong>' . esc_html( $institution ) . '</strong>' )
+				: __( 'Connected to your organization.', 'newspack-plugin' );
+			Newspack_UI::add_notice(
+				$message,
+				[
+					'type'     => 'success',
+					'autohide' => true,
+				]
+			);
+		} elseif ( 'failure' === $result ) {
+			Newspack_UI::add_notice(
+				__( "We couldn't verify your location. Make sure you're on your organization's network and try again.", 'newspack-plugin' ),
+				[
+					'type'     => 'warning',
+					'autohide' => false,
+				]
+			);
+		}
+	}
+
+	/**
+	 * Get the URL to redirect to after the IP check (for query param usage).
+	 *
+	 * Rebuilds the current URL without the institutional-access parameter.
+	 *
+	 * @return string The redirect URL.
+	 */
+	private static function get_redirect_url() {
+		$request_path = wp_parse_url( $_SERVER['REQUEST_URI'], PHP_URL_PATH ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
+		$url          = home_url( $request_path );
+
+		// Rebuild query string without the institutional-access param.
+		$query = $_GET; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		unset( $query[ self::ENDPOINT ] );
+		if ( ! empty( $query ) ) {
+			$url = add_query_arg( $query, $url );
+		}
+
+		return $url;
+	}
+
+	/**
+	 * Get the URL to redirect to from the dedicated endpoint.
+	 *
+	 * Checks redirect_to param, then Referer header, then falls back to homepage.
+	 *
+	 * @return string The redirect URL.
+	 */
+	private static function get_dedicated_redirect_url() {
+		$home = home_url( '/' );
+
+		if ( ! empty( $_GET['redirect_to'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput
+			$url = esc_url_raw( wp_unslash( $_GET['redirect_to'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput
+			if ( wp_validate_redirect( $url, $home ) !== $home || $url === $home ) {
+				return $url;
+			}
+		}
+
+		$referer = wp_get_referer();
+		if ( $referer && wp_validate_redirect( $referer, $home ) !== $home ) {
+			return $referer;
+		}
+
+		return $home;
+	}
+
+	/**
+	 * Render the loading page for access verification.
+	 *
+	 * Outputs a standalone HTML page with a loading spinner that performs
+	 * the IP check via the REST API and redirects on completion.
+	 *
+	 * When an institution ID is provided, the page is personalized with
+	 * the institution's name and featured image.
+	 *
+	 * @param int|null $institution_id Optional. Institution post ID for personalized check.
+	 */
+	public static function render_loading_page( $institution_id = null ) {
+		$redirect_url = self::get_dedicated_redirect_url();
+		$rest_url     = rest_url( NEWSPACK_API_NAMESPACE . self::REST_ROUTE );
+		if ( $institution_id ) {
+			$rest_url = add_query_arg( 'institution_id', $institution_id, $rest_url );
+		}
+		$result_param = self::RESULT_PARAM;
+		$site_name    = get_bloginfo( 'name' );
+		$timeout_ms   = 10000;
+
+		// Institution personalization.
+		$inst_name  = $institution_id ? get_the_title( $institution_id ) : '';
+		$inst_image = $institution_id ? get_the_post_thumbnail_url( $institution_id, 'large' ) : '';
+		?>
+		<!DOCTYPE html>
+		<html <?php language_attributes(); ?>>
+		<head>
+			<meta charset="<?php bloginfo( 'charset' ); ?>">
+			<meta name="viewport" content="width=device-width, initial-scale=1">
+			<meta name="robots" content="noindex, nofollow">
+			<title><?php echo esc_html( $inst_name ? $inst_name . ' — ' . $site_name : $site_name ); ?> — <?php esc_html_e( 'Verifying access', 'newspack-plugin' ); ?></title>
+			<?php wp_head(); ?>
+			<style>
+				.newspack-ui__ip-check__actions { display: none; }
+				.newspack-ui__ip-check--error .newspack-ui__spinner > span { display: none; }
+				.newspack-ui__ip-check--error .newspack-ui__ip-check__actions { display: flex; gap: var(--newspack-ui-spacer-2); justify-content: center; }
+				.newspack-ui__ip-check__image { max-width: 400px; max-height: 200px; object-fit: contain; }
+			</style>
+		</head>
+		<body>
+			<div class="newspack-ui" id="ip-check">
+				<div class="newspack-ui__spinner">
+					<?php if ( $inst_image ) : ?>
+						<img class="newspack-ui__ip-check__image" src="<?php echo esc_url( $inst_image ); ?>" alt="<?php echo esc_attr( $inst_name ); ?>">
+					<?php endif; ?>
+					<span></span>
+					<p class="newspack-ui__font--m" id="ip-check-message">
+						<?php
+						if ( $inst_name ) {
+							/* translators: %s: institution name */
+							printf( esc_html__( 'Verifying your access to %s…', 'newspack-plugin' ), '<strong>' . esc_html( $inst_name ) . '</strong>' );
+						} else {
+							esc_html_e( 'Verifying your access…', 'newspack-plugin' );
+						}
+						?>
+					</p>
+					<p class="newspack-ui__font--xs" id="ip-check-detail" style="color: var(--newspack-ui-color-neutral-50);"><?php esc_html_e( "You'll be redirected in a few seconds.", 'newspack-plugin' ); ?></p>
+					<div class="newspack-ui__ip-check__actions" id="ip-check-actions">
+						<button class="newspack-ui__button newspack-ui__button--primary newspack-ui__button--small" onclick="location.reload()"><?php esc_html_e( 'Try again', 'newspack-plugin' ); ?></button>
+						<a class="newspack-ui__button newspack-ui__button--outline newspack-ui__button--small" href="<?php echo esc_url( $redirect_url ); ?>"><?php esc_html_e( 'Continue to site', 'newspack-plugin' ); ?></a>
+					</div>
+				</div>
+			</div>
+			<script>
+			(function() {
+				var container = document.getElementById( 'ip-check' );
+				var messageEl = document.getElementById( 'ip-check-message' );
+				var detailEl  = document.getElementById( 'ip-check-detail' );
+				var redirectUrl = <?php echo wp_json_encode( $redirect_url ); ?>;
+				var resultParam = <?php echo wp_json_encode( $result_param ); ?>;
+
+				var controller = new AbortController();
+				var timer = setTimeout( function() {
+					controller.abort();
+					showError(
+						<?php echo wp_json_encode( __( 'Verification timed out.', 'newspack-plugin' ) ); ?>,
+						<?php echo wp_json_encode( __( 'Please check your connection and try again.', 'newspack-plugin' ) ); ?>
+					);
+				}, <?php echo (int) $timeout_ms; ?> );
+
+				var minDelay = new Promise( function( resolve ) { setTimeout( resolve, 1000 ); } );
+
+				Promise.all( [
+					fetch( <?php echo wp_json_encode( $rest_url ); ?>, {
+						credentials: 'same-origin',
+						signal: controller.signal
+					} ).then( function( response ) { return response.json(); } ),
+					minDelay
+				] )
+				.then( function( results ) { var data = results[0];
+					clearTimeout( timer );
+					if ( data.valid ) {
+						messageEl.textContent = data.institution
+							? <?php echo wp_json_encode( __( 'Connected to ', 'newspack-plugin' ) ); ?> + data.institution + '.'
+							: <?php echo wp_json_encode( __( 'Connected to your organization.', 'newspack-plugin' ) ); ?>;
+						detailEl.textContent = <?php echo wp_json_encode( __( 'Redirecting…', 'newspack-plugin' ) ); ?>;
+						setTimeout( function() {
+							var url = new URL( redirectUrl, location.origin );
+							url.searchParams.set( resultParam, 'success' );
+							if ( data.institution ) {
+								url.searchParams.set( 'institution', data.institution );
+							}
+							location.href = url.toString();
+						}, 1500 );
+					} else {
+						showError(
+							<?php echo wp_json_encode( __( "We couldn't verify your location.", 'newspack-plugin' ) ); ?>,
+							<?php echo wp_json_encode( __( "Make sure you're on your organization's network and try again.", 'newspack-plugin' ) ); ?>
+						);
+					}
+				} )
+				.catch( function() {
+					clearTimeout( timer );
+					showError(
+						<?php echo wp_json_encode( __( 'Verification failed.', 'newspack-plugin' ) ); ?>,
+						<?php echo wp_json_encode( __( 'An error occurred. Please try again.', 'newspack-plugin' ) ); ?>
+					);
+				} );
+
+				function showError( message, detail ) {
+					container.classList.add( 'newspack-ui__ip-check--error' );
+					messageEl.textContent = message;
+					detailEl.textContent = detail;
+				}
+			})();
+			</script>
+			<?php wp_footer(); ?>
+		</body>
+		</html>
+		<?php
+	}
+
 	/**
 	 * Check if an IP address matches any of the given ranges.
 	 *

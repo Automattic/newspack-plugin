@@ -1,7 +1,7 @@
 /**
  * WordPress dependencies.
  */
-import { CardBody } from '@wordpress/components';
+import { CardBody, CardDivider } from '@wordpress/components';
 import { useCallback } from '@wordpress/element';
 
 /**
@@ -13,9 +13,10 @@ import AccessRules from './access-rules';
 interface CustomAccessProps {
 	customAccess: CustomAccess;
 	onChange: ( customAccess: Partial< CustomAccess > ) => void;
+	isNewsletter?: boolean;
 }
 
-export default function CustomAccess( { customAccess, onChange }: CustomAccessProps ) {
+export default function CustomAccess( { customAccess, onChange, isNewsletter = false }: CustomAccessProps ) {
 	// Flatten grouped rules for display (each group has one rule in OR mode).
 	const currentRules = customAccess.access_rules.map( group => group[ 0 ] ).filter( Boolean );
 
@@ -42,9 +43,14 @@ export default function CustomAccess( { customAccess, onChange }: CustomAccessPr
 	return (
 		<>
 			<AccessRules rules={ currentRules } onChange={ handleRulesChange } />
-			<CardBody size="small">
-				<Metering metering={ customAccess.metering } onChange={ ( metering: Metering ) => handleChange( { metering } ) } />
-			</CardBody>
+			{ ! isNewsletter && (
+				<>
+					<CardDivider />
+					<CardBody size="small">
+						<Metering metering={ customAccess.metering } onChange={ ( metering: Metering ) => handleChange( { metering } ) } />
+					</CardBody>
+				</>
+			) }
 		</>
 	);
 }

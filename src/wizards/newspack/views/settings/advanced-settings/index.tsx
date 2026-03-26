@@ -21,6 +21,7 @@ import AuthorBio from './author-bio';
 import FeaturedImagePostsAll from './featured-image-posts-all';
 import FeaturedImagePostsNew from './featured-image-posts-new';
 import MediaCredits from './media-credits';
+import PostDate from './post-date';
 import AccessibilityStatement from './accessibility-statement';
 import PwaDisplayMode from './pwa-display-mode';
 import PrimaryCategory from './primary-category';
@@ -169,6 +170,9 @@ export default function AdvancedSettings() {
 				) }
 			>
 				<FeaturedImagePostsAll data={ data } postCount={ etc.post_count } update={ setData } />
+			</WizardSection>
+			<WizardSection title={ __( 'Post Date', 'newspack-plugin' ) }>
+				<PostDate update={ setData } data={ data } isFetching={ isFetching } />
 			</WizardSection>
 			{ primaryCategoryData.yoast_active ? (
 				<WizardSection title={ __( 'Primary Category', 'newspack-plugin' ) }>
