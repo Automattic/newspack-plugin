@@ -74,7 +74,115 @@ class Newspack_Test_Premium_Newsletters extends \WP_UnitTestCase {
 		$this->post_ids = [];
 		global $subscriptions_database;
 		$subscriptions_database = [];
+		wp_clear_scheduled_hook( Premium_Newsletters::SCHEDULED_HOOK );
+		if ( function_exists( 'as_unschedule_all_actions' ) ) {
+			as_unschedule_all_actions( Premium_Newsletters::SCHEDULED_HOOK, [], 'newspack' );
+		}
+		// Clear alloptions cache after clearing scheduled events so that after the
+		// DB transaction rolls back, Memcached does not retain the now-stale cron entry.
+		wp_cache_delete( 'alloptions', 'options' );
+		delete_option( Premium_Newsletters::QUEUE_OPTION );
+		remove_all_filters( 'newspack_premium_newsletters_access_check_delay' );
 		parent::tear_down();
+	}
+
+	// =========================================================================
+	// Private test helpers
+	// =========================================================================
+
+	/**
+	 * Return just the user_ids array from the stored queue option.
+	 *
+	 * @return int[]
+	 */
+	private function get_queued_user_ids(): array {
+		$state = get_option( Premium_Newsletters::QUEUE_OPTION, [] );
+		return isset( $state['user_ids'] ) ? (array) $state['user_ids'] : [];
+	}
+
+	/**
+	 * Write a queue state option directly, bypassing schedule_access_check.
+	 *
+	 * @param int[] $user_ids   User IDs to place in the queue.
+	 * @param int   $created_at Unix timestamp for the batch. Defaults to now.
+	 *
+	 * @return void
+	 */
+	private function set_queue( array $user_ids, int $created_at = 0 ): void {
+		update_option(
+			Premium_Newsletters::QUEUE_OPTION,
+			[
+				'user_ids'   => $user_ids,
+				'created_at' => $created_at ?: time(), // phpcs:ignore Universal.Operators.DisallowShortTernary.Found
+			],
+			false
+		);
+	}
+
+	/**
+	 * Return all scheduled timestamps for SCHEDULED_HOOK from both WP cron and ActionScheduler.
+	 *
+	 * Queries both backends so tests remain backend-agnostic: production code uses
+	 * ActionScheduler when available, and WP cron otherwise.
+	 *
+	 * @return int[]
+	 */
+	private function get_scheduled_hook_timestamps(): array {
+		$timestamps = [];
+
+		// WP cron.
+		foreach ( _get_cron_array() as $timestamp => $cron ) {
+			if ( isset( $cron[ Premium_Newsletters::SCHEDULED_HOOK ] ) ) {
+				$timestamps[] = (int) $timestamp;
+			}
+		}
+
+		// ActionScheduler (WooCommerce).
+		if ( function_exists( 'as_get_scheduled_actions' ) ) {
+			$actions = as_get_scheduled_actions(
+				[
+					'hook'     => Premium_Newsletters::SCHEDULED_HOOK,
+					'group'    => 'newspack',
+					'status'   => 'pending',
+					'per_page' => -1,
+				]
+			);
+			foreach ( $actions as $action ) {
+				$schedule = $action->get_schedule();
+				if ( $schedule ) {
+					$date = $schedule->get_date();
+					if ( $date instanceof \DateTimeInterface ) {
+						$timestamps[] = $date->getTimestamp();
+					}
+				}
+			}
+		}
+
+		return $timestamps;
+	}
+
+	/**
+	 * Return the earliest scheduled timestamp for SCHEDULED_HOOK across all backends, or false.
+	 *
+	 * @return int|false
+	 */
+	private function get_next_hook_time() {
+		$timestamps = $this->get_scheduled_hook_timestamps();
+		return empty( $timestamps ) ? false : min( $timestamps );
+	}
+
+	/**
+	 * Schedule a single SCHEDULED_HOOK event using the same backend as production
+	 * (ActionScheduler when available, WP cron otherwise).
+	 *
+	 * @param int $timestamp Unix timestamp for the event.
+	 */
+	private function schedule_hook_for_test( int $timestamp ): void {
+		if ( function_exists( 'as_schedule_single_action' ) ) {
+			as_schedule_single_action( $timestamp, Premium_Newsletters::SCHEDULED_HOOK, [], 'newspack' );
+		} else {
+			wp_schedule_single_event( $timestamp, Premium_Newsletters::SCHEDULED_HOOK );
+		}
 	}
 
 	/**
@@ -151,6 +259,7 @@ class Newspack_Test_Premium_Newsletters extends \WP_UnitTestCase {
 			],
 			null
 		);
+		Premium_Newsletters::process_access_check_queue();
 
 		$calls = \Newspack_Newsletters_Contacts::$add_and_remove_lists_calls;
 		$this->assertCount( 1, $calls );
@@ -189,6 +298,7 @@ class Newspack_Test_Premium_Newsletters extends \WP_UnitTestCase {
 			],
 			null
 		);
+		Premium_Newsletters::process_access_check_queue();
 
 		$this->assertEmpty( \Newspack_Newsletters_Contacts::$add_and_remove_lists_calls );
 	}
@@ -226,6 +336,7 @@ class Newspack_Test_Premium_Newsletters extends \WP_UnitTestCase {
 			],
 			null
 		);
+		Premium_Newsletters::process_access_check_queue();
 
 		// Production code calls get_contact_lists(), finds the list already present,
 		// and exits early before calling add_and_remove_lists.
@@ -250,6 +361,10 @@ class Newspack_Test_Premium_Newsletters extends \WP_UnitTestCase {
 
 		// No WC subscription created — user has no access.
 
+		// Simulate the user currently subscribed to the list in the ESP so that the
+		// dedup check inside add_and_remove_lists() allows the removal to proceed.
+		\Newspack_Newsletters_Subscription::$contact_lists[ $email ] = [ 'list-' . $list_post_id ];
+
 		Premium_Newsletters::maybe_add_or_remove_lists(
 			time(),
 			[
@@ -258,6 +373,7 @@ class Newspack_Test_Premium_Newsletters extends \WP_UnitTestCase {
 			],
 			null
 		);
+		Premium_Newsletters::process_access_check_queue();
 
 		// The remove path has no auto_signup guard — it fires regardless of that option.
 		$calls = \Newspack_Newsletters_Contacts::$add_and_remove_lists_calls;
@@ -331,6 +447,209 @@ class Newspack_Test_Premium_Newsletters extends \WP_UnitTestCase {
 		$this->assertCount( 1, $result );
 		$this->assertArrayHasKey( 0, $result, 'Result must be re-indexed (array_values applied).' );
 		$this->assertSame( $unrestricted_list, $result[0] );
+	}
+
+	// =========================================================================
+	// Group F — schedule_access_check() / process_access_check_queue() / clear_queue()
+	// =========================================================================
+
+	/**
+	 * Test that calling maybe_add_or_remove_lists appends the user ID to the queue option.
+	 */
+	public function test_schedule_adds_user_to_queue() {
+		$user_id = $this->factory->user->create();
+
+		Premium_Newsletters::maybe_add_or_remove_lists( time(), [ 'user_id' => $user_id ], null );
+
+		$this->assertContains( $user_id, $this->get_queued_user_ids() );
+	}
+
+	/**
+	 * Test that the same user ID is only stored once even when enqueued multiple times.
+	 */
+	public function test_schedule_deduplicates_user_ids() {
+		$user_id = $this->factory->user->create();
+
+		Premium_Newsletters::maybe_add_or_remove_lists( time(), [ 'user_id' => $user_id ], null );
+		Premium_Newsletters::maybe_add_or_remove_lists( time(), [ 'user_id' => $user_id ], null );
+
+		$this->assertCount( 1, $this->get_queued_user_ids() );
+	}
+
+	/**
+	 * Test that a scheduled event is created when none exists.
+	 */
+	public function test_schedule_creates_cron_event_when_none_exists() {
+		$user_id = $this->factory->user->create();
+		$before  = time();
+
+		Premium_Newsletters::maybe_add_or_remove_lists( time(), [ 'user_id' => $user_id ], null );
+
+		$next = $this->get_next_hook_time();
+		$this->assertNotFalse( $next, 'A scheduled event should have been created.' );
+		$this->assertGreaterThanOrEqual( $before + Premium_Newsletters::DEFAULT_DELAY, $next );
+	}
+
+	/**
+	 * Test that no additional event is scheduled when a far-future one already exists.
+	 */
+	public function test_schedule_does_not_duplicate_when_far_future_event_exists() {
+		$user_id = $this->factory->user->create();
+		$far     = time() + 3600;
+
+		// Pre-schedule via the same backend production uses so it is visible to the
+		// debounce check inside schedule_access_check().
+		$this->schedule_hook_for_test( $far );
+
+		Premium_Newsletters::maybe_add_or_remove_lists( time(), [ 'user_id' => $user_id ], null );
+
+		$timestamps = $this->get_scheduled_hook_timestamps();
+		$this->assertCount( 1, $timestamps, 'Only the pre-existing far-future event should remain.' );
+		$this->assertEquals( $far, $timestamps[0], 'The far-future timestamp must not be changed.' );
+	}
+
+	/**
+	 * Test that a new event is scheduled AFTER an imminent (within-threshold) event.
+	 */
+	public function test_schedule_creates_new_event_after_imminent_event() {
+		$user_id  = $this->factory->user->create();
+		$imminent = time() + 5; // within FUTURE_EVENT_THRESHOLD (10s).
+
+		// Pre-schedule via the same backend production uses so the imminent-event path
+		// inside schedule_access_check() is triggered correctly.
+		$this->schedule_hook_for_test( $imminent );
+
+		Premium_Newsletters::maybe_add_or_remove_lists( time(), [ 'user_id' => $user_id ], null );
+
+		$timestamps = $this->get_scheduled_hook_timestamps();
+		$this->assertCount( 2, $timestamps, 'A second event should be scheduled after the imminent one.' );
+		$this->assertGreaterThanOrEqual(
+			$imminent + Premium_Newsletters::DEFAULT_DELAY,
+			max( $timestamps ),
+			'The new event must be scheduled at least DEFAULT_DELAY seconds after the imminent event.'
+		);
+	}
+
+	/**
+	 * Test that process_access_check_queue() runs check_access for each queued user.
+	 */
+	public function test_process_queue_calls_check_access_for_each_user() {
+		update_option( 'newspack_premium_newsletters_auto_signup', 1 );
+
+		$user1 = $this->factory->user->create( [ 'role' => 'subscriber' ] );
+		$user2 = $this->factory->user->create( [ 'role' => 'subscriber' ] );
+
+		$list_post_id     = $this->factory->post->create( [ 'post_type' => \Newspack\Newsletters\Subscription_Lists::CPT ] );
+		$this->post_ids[] = $list_post_id;
+		$this->create_newsletter_gate( [ 100 ], [ $list_post_id ] );
+
+		foreach ( [ $user1, $user2 ] as $uid ) {
+			wcs_create_subscription(
+				[
+					'customer_id' => $uid,
+					'status'      => 'active',
+					'products'    => [ 100 ],
+				]
+			);
+		}
+
+		$this->set_queue( [ $user1, $user2 ] );
+
+		Premium_Newsletters::process_access_check_queue();
+
+		$this->assertCount( 2, \Newspack_Newsletters_Contacts::$add_and_remove_lists_calls );
+	}
+
+	/**
+	 * Test that process_access_check_queue() clears the queue option before processing.
+	 */
+	public function test_process_queue_clears_option_before_running() {
+		$user_id = $this->factory->user->create();
+		$this->set_queue( [ $user_id ] );
+
+		Premium_Newsletters::process_access_check_queue();
+
+		$this->assertEmpty( get_option( Premium_Newsletters::QUEUE_OPTION ) );
+	}
+
+	/**
+	 * Test that process_access_check_queue() is a no-op when the queue is empty.
+	 */
+	public function test_process_queue_is_noop_when_empty() {
+		delete_option( Premium_Newsletters::QUEUE_OPTION );
+
+		Premium_Newsletters::process_access_check_queue();
+
+		$this->assertEmpty( \Newspack_Newsletters_Contacts::$add_and_remove_lists_calls );
+	}
+
+	/**
+	 * Test that the scheduling delay is filterable.
+	 */
+	public function test_delay_is_filterable() {
+		$custom = 999;
+		add_filter( 'newspack_premium_newsletters_access_check_delay', fn() => $custom );
+
+		$user_id = $this->factory->user->create();
+		$before  = time();
+
+		Premium_Newsletters::maybe_add_or_remove_lists( time(), [ 'user_id' => $user_id ], null );
+
+		$next = $this->get_next_hook_time();
+		$this->assertNotFalse( $next );
+		$this->assertGreaterThanOrEqual( $before + $custom, $next );
+	}
+
+	/**
+	 * Test that created_at is stamped on first enqueue and preserved on subsequent enqueues.
+	 */
+	public function test_queue_created_at_set_on_first_enqueue_and_preserved() {
+		$user1  = $this->factory->user->create();
+		$user2  = $this->factory->user->create();
+		$before = time();
+
+		Premium_Newsletters::maybe_add_or_remove_lists( time(), [ 'user_id' => $user1 ], null );
+		$state_after_first = get_option( Premium_Newsletters::QUEUE_OPTION );
+		$created_at        = $state_after_first['created_at'];
+
+		$this->assertGreaterThanOrEqual( $before, $created_at, 'created_at should be set to approximately now.' );
+
+		// A second enqueue must not reset created_at.
+		Premium_Newsletters::maybe_add_or_remove_lists( time(), [ 'user_id' => $user2 ], null );
+		$state_after_second = get_option( Premium_Newsletters::QUEUE_OPTION );
+
+		$this->assertSame( $created_at, $state_after_second['created_at'], 'created_at must not change on subsequent enqueues.' );
+	}
+
+	/**
+	 * Test that a stale queue (older than MAX_QUEUE_AGE) triggers a 0-delay event.
+	 */
+	public function test_stale_queue_schedules_with_zero_delay() {
+		$user1      = $this->factory->user->create();
+		$user2      = $this->factory->user->create();
+		$stale_time = time() - ( Premium_Newsletters::MAX_QUEUE_AGE + 60 );
+
+		// Seed a queue that is older than MAX_QUEUE_AGE so the next call detects staleness.
+		$this->set_queue( [ $user1 ], $stale_time );
+
+		$before = time();
+		Premium_Newsletters::maybe_add_or_remove_lists( time(), [ 'user_id' => $user2 ], null );
+
+		$next = $this->get_next_hook_time();
+		$this->assertNotFalse( $next, 'An event should be scheduled for the stale queue.' );
+		// With delay overridden to 0, the scheduled time must be at or before now + 1 s.
+		$this->assertLessThanOrEqual( $before + 1, $next, 'Stale queue must schedule with 0 delay.' );
+	}
+
+	/**
+	 * Test that clear_queue() deletes the queue option entirely.
+	 */
+	public function test_clear_queue_deletes_option() {
+		$this->set_queue( [ $this->factory->user->create() ] );
+
+		Premium_Newsletters::clear_queue();
+
+		$this->assertFalse( get_option( Premium_Newsletters::QUEUE_OPTION, false ), 'Queue option must not exist after clear_queue().' );
 	}
 
 	// =========================================================================
