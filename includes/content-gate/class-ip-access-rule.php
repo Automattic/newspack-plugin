@@ -321,9 +321,9 @@ class IP_Access_Rule {
 			<title><?php echo esc_html( $inst_name ? $inst_name . ' — ' . $site_name : $site_name ); ?> — <?php esc_html_e( 'Verifying access', 'newspack-plugin' ); ?></title>
 			<?php wp_head(); ?>
 			<style>
-				#ip-check-actions { display: none; }
+				#ip-check #ip-check-actions { display: none; }
 				.newspack-ui__ip-check--error .newspack-ui__spinner > span { display: none; }
-				.newspack-ui__ip-check--error #ip-check-actions { display: flex; }
+				#ip-check.newspack-ui__ip-check--error #ip-check-actions { display: flex; }
 				.newspack-ui__ip-check__image { max-width: 256px; max-height: 192px; object-fit: contain; }
 			</style>
 		</head>

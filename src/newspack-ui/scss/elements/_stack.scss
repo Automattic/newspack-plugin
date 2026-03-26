@@ -35,23 +35,21 @@ $stack-gaps: (
 		flex-direction: row;
 		gap: var(--newspack-ui-spacer-2);
 
-		> *:not([class*="newspack-ui__spacing-"]) {
-			margin-left: 0 !important;
-			margin-right: 0 !important;
-		}
-
 		&--horizontal {
 			flex-direction: row;
+
+			> :where(:not([class*="newspack-ui__spacing-"])) {
+				margin-left: 0;
+				margin-right: 0;
+			}
 		}
 
 		&--vertical {
 			flex-direction: column;
 
-			> *:not([class*="newspack-ui__spacing-"]) {
-				margin-bottom: 0 !important;
-				margin-left: revert !important;
-				margin-right: revert !important;
-				margin-top: 0 !important;
+			> :where(:not([class*="newspack-ui__spacing-"])) {
+				margin-bottom: 0;
+				margin-top: 0;
 			}
 		}
 
