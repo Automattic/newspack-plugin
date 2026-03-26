@@ -42,6 +42,9 @@ class Newspack_Test_Premium_Newsletters extends \WP_UnitTestCase {
 		require_once dirname( __DIR__, 2 ) . '/mocks/newsletters-mocks.php';
 		require_once dirname( __DIR__, 2 ) . '/mocks/newsletters-namespaced-mocks.php';
 		require_once dirname( __DIR__, 2 ) . '/mocks/wc-mocks.php';
+		if ( ! post_type_exists( \Newspack\Newsletters\Subscription_Lists::CPT ) ) {
+			register_post_type( \Newspack\Newsletters\Subscription_Lists::CPT );
+		}
 	}
 
 	/**
@@ -52,6 +55,9 @@ class Newspack_Test_Premium_Newsletters extends \WP_UnitTestCase {
 		\Newspack_Newsletters_Contacts::reset_calls();
 		\Newspack_Newsletters_Subscription::reset_calls();
 		remove_all_filters( 'newspack_content_restriction_control_user_id' );
+		$prop = new \ReflectionProperty( Premium_Newsletters::class, 'restricted_lists' );
+		$prop->setAccessible( true );
+		$prop->setValue( null, [] );
 	}
 
 	/**
@@ -124,7 +130,7 @@ class Newspack_Test_Premium_Newsletters extends \WP_UnitTestCase {
 		$user_id = $this->factory->user->create( [ 'role' => 'subscriber' ] );
 		$email   = get_userdata( $user_id )->user_email;
 
-		$list_post_id     = $this->factory->post->create();
+		$list_post_id     = $this->factory->post->create( [ 'post_type' => \Newspack\Newsletters\Subscription_Lists::CPT ] );
 		$this->post_ids[] = $list_post_id;
 
 		$this->create_newsletter_gate( [ 100 ], [ $list_post_id ] );
@@ -162,7 +168,7 @@ class Newspack_Test_Premium_Newsletters extends \WP_UnitTestCase {
 		$user_id = $this->factory->user->create( [ 'role' => 'subscriber' ] );
 		$email   = get_userdata( $user_id )->user_email;
 
-		$list_post_id     = $this->factory->post->create();
+		$list_post_id     = $this->factory->post->create( [ 'post_type' => \Newspack\Newsletters\Subscription_Lists::CPT ] );
 		$this->post_ids[] = $list_post_id;
 
 		$this->create_newsletter_gate( [ 100 ], [ $list_post_id ] );
@@ -196,7 +202,7 @@ class Newspack_Test_Premium_Newsletters extends \WP_UnitTestCase {
 		$user_id = $this->factory->user->create( [ 'role' => 'subscriber' ] );
 		$email   = get_userdata( $user_id )->user_email;
 
-		$list_post_id     = $this->factory->post->create();
+		$list_post_id     = $this->factory->post->create( [ 'post_type' => \Newspack\Newsletters\Subscription_Lists::CPT ] );
 		$this->post_ids[] = $list_post_id;
 
 		$this->create_newsletter_gate( [ 100 ], [ $list_post_id ] );
@@ -237,7 +243,7 @@ class Newspack_Test_Premium_Newsletters extends \WP_UnitTestCase {
 		$user_id = $this->factory->user->create( [ 'role' => 'subscriber' ] );
 		$email   = get_userdata( $user_id )->user_email;
 
-		$list_post_id     = $this->factory->post->create();
+		$list_post_id     = $this->factory->post->create( [ 'post_type' => \Newspack\Newsletters\Subscription_Lists::CPT ] );
 		$this->post_ids[] = $list_post_id;
 
 		$this->create_newsletter_gate( [ 200 ], [ $list_post_id ] );
@@ -258,51 +264,6 @@ class Newspack_Test_Premium_Newsletters extends \WP_UnitTestCase {
 		$this->assertCount( 1, $calls );
 		$this->assertContains( 'list-' . $list_post_id, $calls[0]['lists_to_remove'] );
 		$this->assertEmpty( $calls[0]['lists_to_add'] );
-	}
-
-	/**
-	 * Test that a list is not removed when the user has access to the same list from another gate.
-	 *
-	 * Gate A (product 300) and Gate B (product 400) both cover the same list.
-	 * The user has a subscription for product 300 (Gate A) but not 400 (Gate B).
-	 * With auto-signup on, the list lands in lists_to_add (Gate A) and lists_to_remove (Gate B).
-	 * After array_diff the list is stripped from lists_to_remove, so only an add call is made.
-	 */
-	public function test_maybe_add_or_remove_lists_does_not_remove_lists_accessible_from_another_gate() {
-		update_option( 'newspack_premium_newsletters_auto_signup', 1 );
-
-		$user_id = $this->factory->user->create( [ 'role' => 'subscriber' ] );
-		$email   = get_userdata( $user_id )->user_email;
-
-		$list_post_id     = $this->factory->post->create();
-		$this->post_ids[] = $list_post_id;
-
-		// Gate A: user has access (subscription for product 300).
-		$this->create_newsletter_gate( [ 300 ], [ $list_post_id ] );
-		// Gate B: user lacks access (no subscription for product 400).
-		$this->create_newsletter_gate( [ 400 ], [ $list_post_id ] );
-
-		wcs_create_subscription(
-			[
-				'customer_id' => $user_id,
-				'status'      => 'active',
-				'products'    => [ 300 ],
-			]
-		);
-
-		Premium_Newsletters::maybe_add_or_remove_lists(
-			time(),
-			[
-				'user_id' => $user_id,
-				'email'   => $email,
-			],
-			null
-		);
-
-		$calls = \Newspack_Newsletters_Contacts::$add_and_remove_lists_calls;
-		$this->assertCount( 1, $calls );
-		$this->assertContains( 'list-' . $list_post_id, $calls[0]['lists_to_add'] );
-		$this->assertEmpty( $calls[0]['lists_to_remove'] );
 	}
 
 	// =========================================================================

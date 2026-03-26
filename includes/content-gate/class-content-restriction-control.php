@@ -181,12 +181,13 @@ class Content_Restriction_Control {
 	/**
 	 * Whether the post is restricted for the current user.
 	 *
-	 * @param bool $is_post_restricted Whether the post is restricted for the current user.
-	 * @param int  $post_id            Post ID.
+	 * @param bool     $is_post_restricted Whether the post is restricted for the current or given user.
+	 * @param int      $post_id            Post ID.
+	 * @param int|null $user_id            Optional user ID to check access for.
 	 *
 	 * @return bool
 	 */
-	public static function is_post_restricted( $is_post_restricted, $post_id = null ) {
+	public static function is_post_restricted( $is_post_restricted, $post_id = null, $user_id = null ) {
 		// Don't apply our restriction strategy if Woo Memberships is active.
 		if ( Memberships::is_active() ) {
 			return $is_post_restricted;
@@ -209,7 +210,7 @@ class Content_Restriction_Control {
 		 *
 		 * @param int $user_id Current user ID.
 		 */
-		$user_id = apply_filters( 'newspack_content_restriction_control_user_id', get_current_user_id() );
+		$user_id = apply_filters( 'newspack_content_restriction_control_user_id', $user_id ?? get_current_user_id() );
 
 		// Don't restrict this post for users who can edit it.
 		if ( ! empty( $post_id ) && user_can( $user_id, 'edit_post', $post_id ) ) {

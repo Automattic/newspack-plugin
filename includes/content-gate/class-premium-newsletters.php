@@ -18,6 +18,13 @@ defined( 'ABSPATH' ) || exit;
  */
 class Premium_Newsletters {
 	/**
+	 * Cache of restricted lists.
+	 *
+	 * @var string[]
+	 */
+	private static $restricted_lists = [];
+
+	/**
 	 * Initialize.
 	 */
 	public static function init() {
@@ -124,22 +131,19 @@ class Premium_Newsletters {
 	}
 
 	/**
-	 * Maybe add or remove the user from restricted lists based on their access status.
+	 * Get all lists restricted by content gates.
 	 *
-	 * @param int   $timestamp Timestamp of the event.
-	 * @param array $data      Data associated with the event.
-	 * @param int   $client_id ID of the client that triggered the event.
+	 * @return string[] The restricted list IDs.
 	 */
-	public static function maybe_add_or_remove_lists( $timestamp, $data, $client_id ) {
-		if ( empty( $data['user_id'] ) || empty( $data['email'] ) ) {
-			return;
+	public static function get_restricted_lists() {
+		if ( ! empty( self::$restricted_lists ) ) {
+			return self::$restricted_lists;
 		}
 		$gates = Content_Gate::get_gates( Content_Gate::GATE_CPT, 'publish', true );
 		if ( empty( $gates ) ) {
 			return;
 		}
-		$lists_to_add    = [];
-		$lists_to_remove = [];
+		$restricted_lists = [];
 		foreach ( $gates as $gate ) {
 			$content_rules = array_values(
 				array_filter(
@@ -155,32 +159,44 @@ class Premium_Newsletters {
 			$restricted_lists = array_values(
 				array_unique(
 					array_merge(
-						...array_column( $content_rules, 'value' )
+						$restricted_lists,
+						array_merge(
+							...array_column( $content_rules, 'value' )
+						)
 					)
 				)
 			);
-			if ( empty( $restricted_lists ) ) {
-				continue;
-			}
-			$custom_access = Content_Gate::get_custom_access_settings( $gate['id'] );
-			if ( empty( $custom_access['active'] ) ) {
-				continue;
-			}
-			if ( empty( $custom_access['access_rules'] ) ) {
-				continue;
-			}
+		}
+		$restricted_lists = array_map( 'intval', $restricted_lists );
+		self::$restricted_lists = $restricted_lists;
+		return self::$restricted_lists;
+	}
 
-			// If the user does not have access to restricted lists, remove them.
-			if ( ! Access_Rules::evaluate_rules( $custom_access['access_rules'], $data['user_id'] ) ) {
-				$lists_to_remove = array_values( array_unique( array_merge( $lists_to_remove, $restricted_lists ) ) );
-			} elseif ( (bool) get_option( 'newspack_premium_newsletters_auto_signup', 1 ) ) {
-				// If the user has access to restricted lists and auto signup is enabled, add them to the lists.
-				$lists_to_add = array_values( array_unique( array_merge( $lists_to_add, $restricted_lists ) ) );
-			}
+	/**
+	 * Maybe add or remove the user from restricted lists based on their access status.
+	 *
+	 * @param int   $timestamp Timestamp of the event.
+	 * @param array $data      Data associated with the event.
+	 * @param int   $client_id ID of the client that triggered the event.
+	 */
+	public static function maybe_add_or_remove_lists( $timestamp, $data, $client_id ) {
+		if ( empty( $data['user_id'] ) || empty( $data['email'] ) ) {
+			return;
+		}
+		if ( isset( $data['status_after'] ) && ! in_array( $data['status_after'], [ 'cancelled', 'expired' ], true ) ) {
+			return;
 		}
 
-		// Don't remove the user from the lists they have access to from other gates.
-		$lists_to_remove = array_values( array_diff( $lists_to_remove, $lists_to_add ) );
+		$restricted_lists = self::get_restricted_lists();
+		$lists_to_add     = [];
+		$lists_to_remove  = [];
+		foreach ( $restricted_lists as $list_id ) {
+			if ( Content_Restriction_Control::is_post_restricted( false, $list_id, $data['user_id'] ) ) {
+				$lists_to_remove[] = $list_id;
+			} elseif ( (bool) get_option( 'newspack_premium_newsletters_auto_signup', 1 ) ) {
+				$lists_to_add[] = $list_id;
+			}
+		}
 
 		self::add_user_to_lists( $data['email'], $lists_to_add );
 		self::remove_user_from_lists( $data['email'], $lists_to_remove );
