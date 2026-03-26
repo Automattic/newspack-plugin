@@ -9,7 +9,6 @@ namespace Newspack\Reader_Activation\Integrations;
 
 use Newspack\Reader_Activation\Integration;
 use Newspack\Reader_Activation\Sync;
-use Newspack\Reader_Activation\Sync\Metadata;
 use Newspack\Reader_Activation\Integrations;
 use Newspack\Reader_Activation;
 use Newspack_Newsletters_Contacts;
@@ -256,7 +255,7 @@ class ESP extends Integration {
 	 *
 	 * @param bool $return_errors Optional. Whether to return a WP_Error object. Default false.
 	 *
-	 * @return bool|WP_Error True if contacts can be synced, false otherwise. WP_Error if return_errors is true.
+	 * @return bool|\WP_Error True if contacts can be synced, false otherwise. WP_Error if return_errors is true.
 	 */
 	public function can_sync( $return_errors = false ) {
 		$errors = new \WP_Error();

@@ -172,10 +172,11 @@ class Promoted_Fields {
 	/**
 	 * Evaluate a promoted field for a given user.
 	 *
-	 * @param string $key    Field key.
-	 * @param array  $config Field configuration.
+	 * @param string $key     Field key.
+	 * @param array  $config  Field configuration.
 	 * @param int    $user_id User ID.
-	 * @param mixed  $args   Rule arguments (value to match against).
+	 * @param mixed  $args    Rule arguments (value to match against).
+	 *
 	 * @return bool Whether the field matches.
 	 */
 	private static function evaluate_field( $key, $config, $user_id, $args ) {
