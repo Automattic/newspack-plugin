@@ -174,6 +174,17 @@ class Promoted_Fields {
 				];
 			}
 
+			// Prepend an empty "Any" option so the criterion can be left unset.
+			if ( ! empty( $options ) ) {
+				array_unshift(
+					$options,
+					[
+						'value' => '',
+						'label' => __( 'Any', 'newspack-plugin' ),
+					]
+				);
+			}
+
 			\Newspack_Popups_Criteria::register_criteria(
 				$key,
 				[
