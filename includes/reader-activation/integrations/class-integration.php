@@ -332,7 +332,8 @@ abstract class Integration {
 	 * - is_segment_criteria (bool)   Register as a popups segmentation criterion.
 	 * - value_type          (string) Value type: 'boolean', 'string' (default). Boolean fields
 	 *                                get Yes/No options in segmentation and is_boolean in access rules.
-	 * - matching_function   (string) One of 'default', 'range', 'list__in', 'list__not_in'.
+	 * - matching_function   (string) One of 'default', 'list__in', 'list__not_in'.
+	 *                                Note: 'range' is supported in evaluation but has no UI yet.
 	 * - options             (array)  Array of [ 'value' => ..., 'label' => ... ] options.
 	 * - description         (string) Help text for the UI.
 	 *
