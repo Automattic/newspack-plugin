@@ -330,12 +330,12 @@ abstract class Integration {
 	 * - name                (string)        Human-readable label.
 	 * - is_access_rule      (bool)          Register as a content gate access rule.
 	 * - is_segment_criteria (bool)          Register as a popups segmentation criterion.
-	 * - category            (string)        UI grouping key (default: 'integrations').
 	 * - matching_function   (string)        One of 'default', 'range', 'list__in', 'list__not_in'.
 	 * - options             (array|callable) Static options array or callable.
 	 * - description         (string)        Help text for the UI.
 	 *
 	 * @param string $key The incoming field key.
+	 *
 	 * @return array Field configuration, or empty array if not promoted.
 	 */
 	public function get_incoming_field_config( $key ) {

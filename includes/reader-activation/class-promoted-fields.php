@@ -162,7 +162,7 @@ class Promoted_Fields {
 				$key,
 				[
 					'name'               => $config['name'],
-					'category'           => $config['category'] ?? 'integrations',
+					'category'           => 'integrations',
 					'matching_function'  => $config['matching_function'] ?? 'default',
 					'matching_attribute' => $reader_data_key,
 					'options'            => $config['options'] ?? [],
