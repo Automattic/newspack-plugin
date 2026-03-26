@@ -94,6 +94,9 @@ class Promoted_Fields {
 					]
 				);
 
+				// Prefix the display name with the integration name.
+				$config['name'] = sprintf( '%s: %s', $integration->get_name(), $config['name'] );
+
 				$fields[ $field_key ] = $config;
 			}
 		}
