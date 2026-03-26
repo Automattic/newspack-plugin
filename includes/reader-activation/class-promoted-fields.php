@@ -219,10 +219,10 @@ class Promoted_Fields {
 		// segmentation passes 'yes'/'no'.
 		if ( 'boolean' === $value_type ) {
 			$is_truthy = ! empty( $value );
-			if ( 'yes' === $args ) {
+			if ( 'yes' === strtolower( $args ) ) {
 				return $is_truthy;
 			}
-			if ( 'no' === $args ) {
+			if ( 'no' === strtolower( $args ) ) {
 				return ! $is_truthy;
 			}
 			// Access rule with is_boolean: no args, just check truthiness.
