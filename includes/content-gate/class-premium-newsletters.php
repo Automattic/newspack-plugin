@@ -83,6 +83,8 @@ class Premium_Newsletters {
 		Data_Events::register_handler( [ __CLASS__, 'maybe_add_or_remove_lists' ], 'subscription_renewal_payment_failed' );
 		Data_Events::register_handler( [ __CLASS__, 'maybe_add_or_remove_lists' ], 'product_subscription_changed' );
 		Data_Events::register_handler( [ __CLASS__, 'maybe_add_or_remove_lists' ], 'donation_subscription_changed' );
+		Data_Events::register_handler( [ __CLASS__, 'maybe_add_or_remove_lists' ], 'reader_verified' );
+		Data_Events::register_handler( [ __CLASS__, 'maybe_add_or_remove_lists' ], 'reader_data_updated' );
 	}
 
 	/**

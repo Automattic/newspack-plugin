@@ -11,6 +11,7 @@ use Newspack\Data_Events;
 use Newspack\Reader_Activation;
 use Newspack\Donations;
 use Newspack\Memberships;
+use Newspack\Reader_Data;
 
 /**
  * For when a reader registers.
@@ -107,6 +108,21 @@ Data_Events::register_listener(
 		return [
 			'user_id' => $user->ID,
 			'email'   => $user->user_email,
+		];
+	}
+);
+
+/**
+ * When reader data is updated.
+ */
+Data_Events::register_listener(
+	'newspack_reader_data_updated',
+	'reader_data_updated',
+	function( $user_id, $key, $value ) {
+		return [
+			'user_id' => $user_id,
+			'key'     => $key,
+			'value'   => $value,
 		];
 	}
 );
