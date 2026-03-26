@@ -170,6 +170,11 @@ export default function AdvancedSettings() {
 			>
 				<FeaturedImagePostsAll data={ data } postCount={ etc.post_count } update={ setData } />
 			</WizardSection>
+			{ primaryCategoryData.yoast_active ? (
+				<WizardSection title={ __( 'Primary Category', 'newspack-plugin' ) }>
+					<PrimaryCategory data={ primaryCategoryData } update={ setPrimaryCategoryData } isFetching={ isFetchingPrimaryCategory } />
+				</WizardSection>
+			) : null }
 			<WizardSection title={ __( 'Media Credits', 'newspack-plugin' ) }>
 				<MediaCredits data={ data } update={ setData } />
 			</WizardSection>
@@ -191,11 +196,6 @@ export default function AdvancedSettings() {
 			{ etc.has_pwa_plugin ? (
 				<WizardSection title={ __( 'Progressive Web App', 'newspack-plugin' ) }>
 					<PwaDisplayMode data={ data } update={ setData } isFetching={ isFetching } />
-				</WizardSection>
-			) : null }
-			{ primaryCategoryData.yoast_active ? (
-				<WizardSection title={ __( 'Primary Category', 'newspack-plugin' ) }>
-					<PrimaryCategory data={ primaryCategoryData } update={ setPrimaryCategoryData } isFetching={ isFetchingPrimaryCategory } />
 				</WizardSection>
 			) : null }
 			{ errorMessage && <Notice /> }
