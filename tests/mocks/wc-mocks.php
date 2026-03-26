@@ -395,6 +395,10 @@ function wc_bool_to_string( $bool ) {
 }
 function wc_get_orders( $args ) {
 	global $orders_database;
+	// For simplicity, this mock will only return a single page of results.
+	if ( isset( $args['page'] ) && $args['page'] > 1 ) {
+		return [];
+	}
 	$orders = $orders_database;
 	if ( isset( $args['customer_id'] ) ) {
 		// Filter by customer.
