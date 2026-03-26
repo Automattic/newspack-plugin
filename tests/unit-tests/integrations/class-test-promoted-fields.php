@@ -205,4 +205,34 @@ class Test_Promoted_Fields extends \WP_UnitTestCase {
 		$this->assertTrue( $method->invoke( null, 'org', $config, $user_id, 'Newspack' ) );
 		$this->assertFalse( $method->invoke( null, 'org', $config, $user_id, 'Other' ) );
 	}
+
+	/**
+	 * Test that evaluate_field handles boolean value_type.
+	 */
+	public function test_evaluate_boolean_matching() {
+		$user_id = $this->factory->user->create();
+
+		$method = new \ReflectionMethod( Promoted_Fields::class, 'evaluate_field' );
+		$method->setAccessible( true );
+
+		$config = [
+			'value_type'      => 'boolean',
+			'reader_data_key' => 'is_vip',
+		];
+
+		// No data stored — falsy.
+		$this->assertTrue( $method->invoke( null, 'is_vip', $config, $user_id, 'no' ) );
+		$this->assertFalse( $method->invoke( null, 'is_vip', $config, $user_id, 'yes' ) );
+
+		// Store truthy value.
+		if ( class_exists( '\Newspack\Reader_Data' ) ) {
+			\Newspack\Reader_Data::update_item( $user_id, 'is_vip', '1' );
+		}
+
+		$this->assertTrue( $method->invoke( null, 'is_vip', $config, $user_id, 'yes' ) );
+		$this->assertFalse( $method->invoke( null, 'is_vip', $config, $user_id, 'no' ) );
+
+		// Access rule style — no specific args, just check truthiness.
+		$this->assertTrue( $method->invoke( null, 'is_vip', $config, $user_id, null ) );
+	}
 }

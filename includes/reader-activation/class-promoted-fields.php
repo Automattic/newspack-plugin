@@ -7,7 +7,7 @@
 
 namespace Newspack\Reader_Activation;
 
-use Newspack\Content_Gate\Access_Rules;
+use Newspack\Access_Rules;
 use Newspack\Reader_Data;
 
 defined( 'ABSPATH' ) || exit;
@@ -123,19 +123,18 @@ class Promoted_Fields {
 	 * @param array $fields Promoted fields.
 	 */
 	private static function register_access_rules( $fields ) {
-		if ( ! class_exists( '\Newspack\Content_Gate\Access_Rules' ) ) {
-			return;
-		}
 		foreach ( $fields as $key => $config ) {
 			if ( empty( $config['is_access_rule'] ) ) {
 				continue;
 			}
+			$is_boolean = 'boolean' === ( $config['value_type'] ?? '' );
 			Access_Rules::register_rule(
 				[
 					'id'          => $key,
 					'name'        => $config['name'],
 					'description' => $config['description'] ?? '',
 					'options'     => $config['options'] ?? [],
+					'is_boolean'  => $is_boolean,
 					'callback'    => function ( $user_id, $args ) use ( $key, $config ) {
 						return self::evaluate_field( $key, $config, $user_id, $args );
 					},
@@ -158,6 +157,23 @@ class Promoted_Fields {
 				continue;
 			}
 			$reader_data_key = $config['reader_data_key'] ?? $key;
+			$is_boolean      = 'boolean' === ( $config['value_type'] ?? '' );
+			$options          = $config['options'] ?? [];
+
+			// Boolean fields get Yes/No options for segmentation.
+			if ( $is_boolean && empty( $options ) ) {
+				$options = [
+					[
+						'value' => 'yes',
+						'label' => __( 'Yes', 'newspack-plugin' ),
+					],
+					[
+						'value' => 'no',
+						'label' => __( 'No', 'newspack-plugin' ),
+					],
+				];
+			}
+
 			\Newspack_Popups_Criteria::register_criteria(
 				$key,
 				[
@@ -165,7 +181,7 @@ class Promoted_Fields {
 					'category'           => 'integrations',
 					'matching_function'  => $config['matching_function'] ?? 'default',
 					'matching_attribute' => $reader_data_key,
-					'options'            => $config['options'] ?? [],
+					'options'            => $options,
 					'description'        => $config['description'] ?? '',
 				]
 			);
@@ -185,8 +201,23 @@ class Promoted_Fields {
 	private static function evaluate_field( $key, $config, $user_id, $args ) {
 		$reader_data_key = $config['reader_data_key'] ?? $key;
 		$match           = $config['matching_function'] ?? 'default';
+		$value_type      = $config['value_type'] ?? '';
 		$data            = class_exists( '\Newspack\Reader_Data' ) ? Reader_Data::get_data( $user_id ) : [];
 		$value           = $data[ $reader_data_key ] ?? null;
+
+		// Boolean fields: access rules pass no args (just check truthiness),
+		// segmentation passes 'yes'/'no'.
+		if ( 'boolean' === $value_type ) {
+			$is_truthy = ! empty( $value );
+			if ( 'yes' === $args ) {
+				return $is_truthy;
+			}
+			if ( 'no' === $args ) {
+				return ! $is_truthy;
+			}
+			// Access rule with is_boolean: no args, just check truthiness.
+			return $is_truthy;
+		}
 
 		switch ( $match ) {
 			case 'range':
