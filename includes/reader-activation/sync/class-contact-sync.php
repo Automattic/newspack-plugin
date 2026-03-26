@@ -11,6 +11,7 @@ use Newspack\Reader_Activation;
 use Newspack\Reader_Activation\Integrations;
 use Newspack\Data_Events;
 use Newspack\Logger;
+use Newspack\Reader_Activation\Sync\Metadata;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -132,8 +133,11 @@ class Contact_Sync extends Sync {
 			}
 		}
 
-		Logger::log( sprintf( 'Syncing contact %s for context "%s".', $contact['email'] ?? 'unknown', $context ) );
-		Logger::log( $contact );
+		// Added logging here to more easily monitor integration sync data. Can be removed once integrations are released.
+		if ( 'legacy' !== Metadata::get_version() ) {
+			Logger::log( sprintf( 'Syncing contact %s for context "%s".', $contact['email'] ?? 'unknown', $context ) );
+			Logger::log( $contact );
+		}
 
 		return self::push_to_integrations( $contact, $context, $existing_contact );
 	}

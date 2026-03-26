@@ -129,23 +129,27 @@ class Donation extends Subscription {
 			return null;
 		}
 
-		$orders = \wc_get_orders(
-			[
-				'customer_id' => $this->user->ID,
-				'status'      => [ 'wc-completed' ],
-				'limit'       => -1,
-				'order'       => 'DESC',
-				'orderby'     => 'date',
-				'return'      => 'objects',
-			]
-		);
+		$page = 1;
+		do {
+			$orders = \wc_get_orders(
+				[
+					'customer_id' => $this->user->ID,
+					'status'      => [ 'wc-completed' ],
+					'limit'       => 20,
+					'order'       => 'DESC',
+					'orderby'     => 'date',
+					'return'      => 'objects',
+					'page'        => $page++,
+				]
+			);
 
-		foreach ( $orders as $order ) {
-			if ( Donations::is_donation_order( $order ) ) {
-				$this->one_time_donation_order_cache = $order;
-				return $this->one_time_donation_order_cache;
+			foreach ( $orders as $order ) {
+				if ( Donations::is_donation_order( $order ) ) {
+					$this->one_time_donation_order_cache = $order;
+					return $this->one_time_donation_order_cache;
+				}
 			}
-		}
+		} while ( ! empty( $orders ) );
 
 		return null;
 	}

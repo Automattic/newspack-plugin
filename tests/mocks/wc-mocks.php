@@ -295,14 +295,14 @@ class WC_Subscription {
 			return false;
 		}
 		if ( ! empty( $exclude_statuses ) ) {
-			foreach ( array_reverse( $this->orders ) as $order ) {
+			foreach ( $this->orders as $order ) {
 				if ( ! $order->has_status( $exclude_statuses ) ) {
 					return $order;
 				}
 			}
 			return false;
 		}
-		return end( $this->orders );
+		return reset( $this->orders );
 	}
 	public function get_related_orders( $output = 'all', $type = '' ) {
 		return $this->data['related_orders'][ $type ] ?? [];
