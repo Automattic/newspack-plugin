@@ -68,21 +68,14 @@ class Promoted_Fields {
 		}
 
 		foreach ( $integrations as $integration ) {
-			$incoming = $integration->get_enabled_incoming_fields();
-			if ( ! is_array( $incoming ) ) {
-				continue;
-			}
-			foreach ( $incoming as $field_key ) {
-				if ( ! is_string( $field_key ) || empty( $field_key ) ) {
+			$incoming = $integration->get_incoming_fields();
+			foreach ( $incoming as $field ) {
+				if ( ! $field->is_promoted() ) {
 					continue;
 				}
-				$config = $integration->get_incoming_field_config( $field_key );
-				if ( empty( $config ) ) {
-					continue;
-				}
-				if ( empty( $config['is_access_rule'] ) && empty( $config['is_segment_criteria'] ) ) {
-					continue;
-				}
+				$field_key = $field->get_key();
+				$config    = $field->get_config();
+
 				// Ensure defaults.
 				$config = wp_parse_args(
 					$config,

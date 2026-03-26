@@ -345,6 +345,25 @@ abstract class Integration {
 	}
 
 	/**
+	 * Get enabled incoming fields as Incoming_Contact_Field objects, enriched
+	 * with any promotion config from get_incoming_field_config().
+	 *
+	 * This method does not hit external APIs — it combines locally-stored
+	 * enabled keys with the config from get_incoming_field_config().
+	 *
+	 * @return Integrations\Incoming_Contact_Field[] Array of field objects.
+	 */
+	public function get_incoming_fields() {
+		$enabled = $this->get_enabled_incoming_fields();
+		$fields  = [];
+		foreach ( $enabled as $key ) {
+			$config   = $this->get_incoming_field_config( $key );
+			$fields[] = new Integrations\Incoming_Contact_Field( $key, $config );
+		}
+		return $fields;
+	}
+
+	/**
 	 * Get the enabled outgoing metadata fields for this integration.
 	 *
 	 * @return string[] List of enabled field names.
