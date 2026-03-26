@@ -327,14 +327,14 @@ abstract class Integration {
 	 * empty array for fields that should not be promoted.
 	 *
 	 * Supported config keys:
-	 * - name                (string)        Human-readable label.
-	 * - is_access_rule      (bool)          Register as a content gate access rule.
-	 * - is_segment_criteria (bool)          Register as a popups segmentation criterion.
-	 * - value_type          (string)        Value type: 'boolean', 'string' (default). Boolean fields
-	 *                                       get Yes/No options in segmentation and is_boolean in access rules.
-	 * - matching_function   (string)        One of 'default', 'range', 'list__in', 'list__not_in'.
-	 * - options             (array|callable) Static options array or callable.
-	 * - description         (string)        Help text for the UI.
+	 * - name                (string) Human-readable label.
+	 * - is_access_rule      (bool)   Register as a content gate access rule.
+	 * - is_segment_criteria (bool)   Register as a popups segmentation criterion.
+	 * - value_type          (string) Value type: 'boolean', 'string' (default). Boolean fields
+	 *                                get Yes/No options in segmentation and is_boolean in access rules.
+	 * - matching_function   (string) One of 'default', 'range', 'list__in', 'list__not_in'.
+	 * - options             (array)  Array of [ 'value' => ..., 'label' => ... ] options.
+	 * - description         (string) Help text for the UI.
 	 *
 	 * @param string $key The incoming field key.
 	 *

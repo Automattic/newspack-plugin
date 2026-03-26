@@ -143,8 +143,8 @@ class Test_Promoted_Fields extends \WP_UnitTestCase {
 		Promoted_Fields::reset_cache();
 
 		$fields = Promoted_Fields::get_promoted_fields();
-		$this->assertArrayHasKey( 'org', $fields );
-		$this->assertSame( 'ActiveCampaign: Organization', $fields['org']['name'] );
+		$this->assertArrayHasKey( 'prefix-test__org', $fields );
+		$this->assertSame( 'ActiveCampaign: Organization', $fields['prefix-test__org']['name'] );
 	}
 
 	/**
@@ -175,12 +175,11 @@ class Test_Promoted_Fields extends \WP_UnitTestCase {
 		Promoted_Fields::reset_cache();
 
 		$fields = Promoted_Fields::get_promoted_fields();
-		$this->assertArrayHasKey( 'role', $fields );
-		$this->assertSame( 'integrations', $fields['role']['category'] );
-		$this->assertSame( 'default', $fields['role']['matching_function'] );
-		$this->assertSame( 'role', $fields['role']['reader_data_key'] );
+		$this->assertArrayHasKey( 'defaults-test__role', $fields );
+		$this->assertSame( 'default', $fields['defaults-test__role']['matching_function'] );
+		$this->assertSame( 'role', $fields['defaults-test__role']['reader_data_key'] );
 		// Name defaults to field key, prefixed with integration name.
-		$this->assertSame( 'TestInt: role', $fields['role']['name'] );
+		$this->assertSame( 'TestInt: role', $fields['defaults-test__role']['name'] );
 	}
 
 	/**
@@ -234,5 +233,36 @@ class Test_Promoted_Fields extends \WP_UnitTestCase {
 
 		// Access rule style — no specific args, just check truthiness.
 		$this->assertTrue( $method->invoke( null, 'is_vip', $config, $user_id, null ) );
+
+		// Access rule style — boolean true value, as used by content-gate rules.
+		$this->assertTrue( $method->invoke( null, 'is_vip', $config, $user_id, true ) );
+	}
+
+	/**
+	 * Test list__in matching with a plain scalar string (non-JSON).
+	 */
+	public function test_evaluate_list_in_plain_string() {
+		$user_id = $this->factory->user->create();
+
+		if ( class_exists( '\Newspack\Reader_Data' ) ) {
+			\Newspack\Reader_Data::update_item( $user_id, 'institution', 'University of Testing' );
+		}
+
+		$method = new \ReflectionMethod( Promoted_Fields::class, 'evaluate_field' );
+		$method->setAccessible( true );
+
+		$config = [
+			'matching_function' => 'list__in',
+			'reader_data_key'   => 'institution',
+		];
+
+		// Plain string should match when included in args.
+		$this->assertTrue( $method->invoke( null, 'institution', $config, $user_id, [ 'University of Testing' ] ) );
+		$this->assertFalse( $method->invoke( null, 'institution', $config, $user_id, [ 'Other University' ] ) );
+
+		// list__not_in should be the inverse.
+		$config['matching_function'] = 'list__not_in';
+		$this->assertFalse( $method->invoke( null, 'institution', $config, $user_id, [ 'University of Testing' ] ) );
+		$this->assertTrue( $method->invoke( null, 'institution', $config, $user_id, [ 'Other University' ] ) );
 	}
 }

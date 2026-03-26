@@ -88,7 +88,6 @@ class Promoted_Fields {
 					$config,
 					[
 						'name'              => $field_key,
-						'category'          => 'integrations',
 						'matching_function' => 'default',
 						'reader_data_key'   => $field_key,
 					]
@@ -97,7 +96,9 @@ class Promoted_Fields {
 				// Prefix the display name with the integration name.
 				$config['name'] = sprintf( '%s: %s', $integration->get_name(), $config['name'] );
 
-				$fields[ $field_key ] = $config;
+				// Namespace the key with the integration ID to avoid collisions.
+				$namespaced_key            = $integration->get_id() . '__' . $field_key;
+				$fields[ $namespaced_key ] = $config;
 			}
 		}
 
@@ -219,13 +220,19 @@ class Promoted_Fields {
 		// segmentation passes 'yes'/'no'.
 		if ( 'boolean' === $value_type ) {
 			$is_truthy = ! empty( $value );
-			if ( 'yes' === strtolower( $args ) ) {
-				return $is_truthy;
+
+			// Segmentation: expects 'yes'/'no' (case-insensitive) as string arguments.
+			if ( is_string( $args ) ) {
+				$normalized = strtolower( $args );
+				if ( 'yes' === $normalized ) {
+					return $is_truthy;
+				}
+				if ( 'no' === $normalized ) {
+					return ! $is_truthy;
+				}
 			}
-			if ( 'no' === strtolower( $args ) ) {
-				return ! $is_truthy;
-			}
-			// Access rule with is_boolean: no args, just check truthiness.
+
+			// Access rule with is_boolean or non-string args: just check truthiness.
 			return $is_truthy;
 		}
 
@@ -235,24 +242,36 @@ class Promoted_Fields {
 				$max = $args['max'] ?? PHP_INT_MAX;
 				return (float) $value >= (float) $min && (float) $value <= (float) $max;
 			case 'list__in':
-				$user_values = is_string( $value ) ? json_decode( $value, true ) : (array) $value;
-				if ( is_string( $user_values ) ) {
-					$user_values = [ $user_values ];
-				} elseif ( ! is_array( $user_values ) ) {
-					$user_values = [];
-				}
+				$user_values = self::parse_list_value( $value );
 				return ! empty( array_intersect( (array) $args, $user_values ) );
 			case 'list__not_in':
-				$user_values = is_string( $value ) ? json_decode( $value, true ) : (array) $value;
-				if ( is_string( $user_values ) ) {
-					$user_values = [ $user_values ];
-				} elseif ( ! is_array( $user_values ) ) {
-					$user_values = [];
-				}
+				$user_values = self::parse_list_value( $value );
 				return empty( array_intersect( (array) $args, $user_values ) );
 			default:
 				return $value === $args;
 		}
+	}
+	/**
+	 * Parse a stored value into an array for list matching.
+	 *
+	 * Handles JSON-encoded arrays, plain scalar strings, and null/empty values.
+	 *
+	 * @param mixed $value The stored value.
+	 * @return array
+	 */
+	private static function parse_list_value( $value ) {
+		if ( is_array( $value ) ) {
+			return $value;
+		}
+		if ( ! is_string( $value ) || '' === $value ) {
+			return [];
+		}
+		$decoded = json_decode( $value, true );
+		if ( is_array( $decoded ) ) {
+			return $decoded;
+		}
+		// Plain scalar string — treat as single-element list.
+		return [ $value ];
 	}
 }
 Promoted_Fields::init();
