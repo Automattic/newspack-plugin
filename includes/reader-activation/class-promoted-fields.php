@@ -236,13 +236,17 @@ class Promoted_Fields {
 				return (float) $value >= (float) $min && (float) $value <= (float) $max;
 			case 'list__in':
 				$user_values = is_string( $value ) ? json_decode( $value, true ) : (array) $value;
-				if ( ! is_array( $user_values ) ) {
+				if ( is_string( $user_values ) ) {
+					$user_values = [ $user_values ];
+				} elseif ( ! is_array( $user_values ) ) {
 					$user_values = [];
 				}
 				return ! empty( array_intersect( (array) $args, $user_values ) );
 			case 'list__not_in':
 				$user_values = is_string( $value ) ? json_decode( $value, true ) : (array) $value;
-				if ( ! is_array( $user_values ) ) {
+				if ( is_string( $user_values ) ) {
+					$user_values = [ $user_values ];
+				} elseif ( ! is_array( $user_values ) ) {
 					$user_values = [];
 				}
 				return empty( array_intersect( (array) $args, $user_values ) );
