@@ -19,6 +19,14 @@ class Sample_Integration extends Integration {
 	public static $handler_args = null;
 
 	/**
+	 * Register settings fields (test implementation).
+	 */
+	public function register_settings_fields() {
+		// No settings fields for this test implementation.
+		return [];
+	}
+
+	/**
 	 * Push contact data (test implementation).
 	 *
 	 * @param array      $contact The contact data.
@@ -91,7 +99,7 @@ class Sample_Integration extends Integration {
 	 *
 	 * @return Integrations\Incoming_Contact_Field[]|\WP_Error Array of incoming contact field objects or WP_Error on failure.
 	 */
-	public function get_incoming_available_contact_fields() {
+	public function get_available_incoming_contact_fields() {
 		return [];
 	}
 }

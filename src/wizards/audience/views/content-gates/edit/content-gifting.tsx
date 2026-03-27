@@ -38,7 +38,6 @@ import { useWizardData } from '../../../../../../packages/components/src/wizard/
 import { WIZARD_STORE_NAMESPACE } from '../../../../../../packages/components/src/wizard/store';
 import { useWizardApiFetch } from '../../../../hooks/use-wizard-api-fetch';
 import { AUDIENCE_CONTENT_GATES_WIZARD_SLUG } from '../consts';
-import './style.scss';
 
 const { useHistory } = Router;
 
@@ -136,10 +135,19 @@ const ContentGiftingSettings = () => {
 		setConfig( wizardData?.config || {} );
 	}, [ wizardData?.config ] );
 
+	useEffect( () => {
+		if ( errorMessage ) {
+			addNotice( {
+				message: errorMessage,
+				type: 'error',
+				id: 'content-gifting-error',
+			} );
+		}
+	}, [ errorMessage ] );
+
 	return (
 		<div className="newspack-content-gate__edit">
 			{ confirmDialog }
-			{ errorMessage && <Notice isError noticeText={ errorMessage } /> }
 			{ giftingErrors.length > 0 && <Notice noticeText={ giftingErrors.join( ', ' ) } isError /> }
 			<Grid columns={ 2 } gutter={ 32 }>
 				<SectionHeader heading={ 2 } title={ __( 'General settings', 'newspack-plugin' ) } />

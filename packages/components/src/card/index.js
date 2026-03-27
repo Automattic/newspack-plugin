@@ -43,6 +43,7 @@ class Card extends Component {
 				noMargin: false,
 				isDraggable: false,
 				dragIndex: null,
+				hasGreyHeader: false,
 				onDragCallback: () => {},
 			},
 			...otherProps

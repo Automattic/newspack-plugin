@@ -5,15 +5,16 @@ export { default as AutocompleteWithSuggestions } from './autocomplete-with-sugg
 export { default as AutocompleteWithLatestPosts } from './autocomplete-with-latest-posts';
 export { default as Badge } from './badge';
 export { default as Button } from './button';
-export { default as ButtonCard } from './button-card';
 export { default as BoxContrast } from './box-contrast';
 export { default as Card } from './card';
+export { default as CardFeature } from './card-feature';
 export { default as CardSettingsGroup } from './card-settings-group';
 export { default as CardSortableList } from './card-sortable-list';
 export { default as CategoryAutocomplete } from './category-autocomplete';
 export { default as ColorPicker } from './color-picker';
 export { default as ConfirmDialog } from './confirm-dialog';
 export { default as CustomSelectControl } from './custom-select-control';
+export { default as DataViews } from './dataviews';
 export { default as Divider } from './divider';
 export { default as FormTokenField } from './form-token-field';
 export { default as Footer } from './footer';

@@ -36,11 +36,45 @@ class Metadata {
 	const FIELDS_OPTION = '_newspack_metadata_fields';
 
 	/**
+	 * Get the metadata classes to be used for syncing contact metadata to the ESP.
+	 *
+	 * These are the metadata classes that will be used in case get_version is not legacy.
+	 *
+	 * @return array List of metadata classes.
+	 */
+	protected static function get_metadata_classes() {
+		if ( 'legacy' === self::get_version() ) {
+			$classes = [
+				'Legacy_Basic',
+				'Legacy_Payment',
+			];
+		} else {
+			$classes = [
+				'Profile',
+				'Subscription',
+				'Donation',
+				'Content_Gate',
+				'Financial',
+			];
+		}
+
+		$classnames = [];
+
+		foreach ( $classes as $class ) {
+			$classname = __NAMESPACE__ . '\\Contact_Metadata\\' . $class;
+			if ( class_exists( $classname ) ) {
+				$classnames[] = $classname;
+			}
+		}
+		return $classnames;
+	}
+
+	/**
 	 * Get the current metadata schema version.
 	 *
 	 * @return string
 	 */
-	protected static function get_version() {
+	public static function get_version() {
 		if ( defined( 'NEWSPACK_SYNC_METADATA_VERSION' ) ) {
 			return NEWSPACK_SYNC_METADATA_VERSION;
 		}
@@ -59,20 +93,31 @@ class Metadata {
 	 * @return array List of fields.
 	 */
 	public static function get_keys() {
-		if ( 'legacy' === self::get_version() ) {
-			return Legacy_Metadata::get_keys();
-		}
-
-		return self::get_all_fields();
+		return self::get_all_fields( true );
 	}
 
 	/**
 	 * Fetch the prefix for synced metadata fields.
 	 * Default is NP_ but it can be configured in the Reader Activation settings page.
 	 *
+	 * This method is deprecated. Now, each integration has its own metadata prefix, which can be retrieved with Integration::get_metadata_prefix().
+	 * As a fallback, this method returns the metadata prefix for the ESP Integration.
+	 *
+	 * @deprecated Use Integration::get_metadata_prefix() instead.
+	 *
 	 * @return string
 	 */
 	public static function get_prefix() {
+		$esp_integration = Integrations::get_integration( 'esp' );
+		if ( $esp_integration ) {
+			$prefix = $esp_integration->get_metadata_prefix();
+			if ( ! empty( $prefix ) ) {
+				/** This filter is documented below. */
+				return apply_filters( 'newspack_ras_metadata_prefix', $prefix );
+			}
+		}
+
+		// Fallback for edge case where integration isn't registered yet (before init priority 5).
 		$prefix = \get_option( self::PREFIX_OPTION, self::PREFIX );
 
 		// Guard against empty strings and falsy values.
@@ -96,11 +141,8 @@ class Metadata {
 	 * @return boolean True if updated, false otherwise.
 	 */
 	public static function update_prefix( $prefix ) {
-		if ( empty( $prefix ) ) {
-			$prefix = self::PREFIX;
-		}
-
-		return \update_option( self::PREFIX_OPTION, $prefix );
+		$esp_integration = Integrations::get_integration( 'esp' );
+		return $esp_integration ? $esp_integration->update_metadata_prefix( $prefix ) : false;
 	}
 
 	/**
@@ -174,12 +216,12 @@ class Metadata {
 	 * This method is deprecated. Now, each integration has its own set of enabled fields.
 	 * As a fallback, this method delegates to the ESP Integration.
 	 *
-	 * @deprecated Use Integration::get_enabled_outgoing_fields_raw_keys() instead.
+	 * @deprecated Use Integration::get_enabled_outgoing_fields_keys() instead.
 	 * @return string[] List of raw metadata keys.
 	 */
 	public static function get_raw_keys() {
 		$esp_integration = Integrations::get_integration( 'esp' );
-		return $esp_integration ? $esp_integration->get_enabled_outgoing_fields_raw_keys() : [];
+		return $esp_integration ? $esp_integration->get_enabled_outgoing_fields_keys() : [];
 	}
 
 	/**
@@ -188,12 +230,12 @@ class Metadata {
 	 * This method is deprecated. Now, each integration has its own set of enabled fields.
 	 * As a fallback, this method delegates to the ESP Integration.
 	 *
-	 * @deprecated Use Integration::get_enabled_outgoing_fields_prefixed_keys() instead.
+	 * @deprecated Use Integration::get_enabled_outgoing_fields_keys() instead.
 	 * @return string[] List of prefixed metadata keys.
 	 */
 	public static function get_prefixed_keys() {
 		$esp_integration = Integrations::get_integration( 'esp' );
-		return $esp_integration ? $esp_integration->get_enabled_outgoing_fields_prefixed_keys() : [];
+		return $esp_integration ? $esp_integration->get_enabled_outgoing_fields_keys( true ) : [];
 	}
 
 	/**
@@ -238,23 +280,56 @@ class Metadata {
 	}
 
 	/**
-	 * Get all metadata fields.
+	 * Get all metadata fields
 	 *
+	 * @param boolean $only_available Whether to return only available fields or all fields.
 	 * @return array List of fields.
 	 */
-	public static function get_all_fields() {
-		if ( 'legacy' === self::get_version() ) {
-			return Legacy_Metadata::get_all_fields();
+	public static function get_all_fields( $only_available = false ) {
+		$classes = self::get_metadata_classes();
+		$keys    = [];
+		foreach ( $classes as $class ) {
+			if ( ! $only_available || $class::is_available() ) {
+				$fields = $class::get_fields();
+				$keys = array_merge( $keys, $fields );
+			}
 		}
-
-		return [
-			'first_name' => 'First Name',
-			'last_name'  => 'Last Name',
-			'full_name'  => 'Full Name',
-		];
+		/**
+		 * Filters the list of key/value pairs for metadata fields to be synced to the connected ESP.
+		 *
+		 * @param array $keys The list of key/value pairs for metadata fields to be synced to the connected ESP.
+		 * @param boolean $only_available Whether the list of fields is filtered to only available fields or not.
+		 */
+		return \apply_filters( 'newspack_ras_metadata_keys', $keys, $only_available );
 	}
 
 
+
+	/**
+	 * Get a contact array with email and metadata for the given user, customer or order.
+	 *
+	 * @param \WP_User|\WC_Customer|\WC_Order|int $user_customer_or_order WP_User, WC_Customer, WC_Order object or ID.
+	 *
+	 * @return array Contact array with 'email' and 'metadata' keys.
+	 */
+	public static function get_contact_with_metadata( $user_customer_or_order ) {
+		$core_contact = new Contact_Metadata\Core_Contact( $user_customer_or_order );
+		$classes      = self::get_metadata_classes();
+		$metadata     = [];
+
+		foreach ( $classes as $class ) {
+			if ( $class::is_available() ) {
+				$instance = new $class( $user_customer_or_order );
+				$metadata = array_merge( $metadata, $instance->get_metadata() );
+			}
+		}
+
+		return [
+			'email'    => $core_contact->get_email(),
+			'name'     => $core_contact->get_full_name(),
+			'metadata' => $metadata,
+		];
+	}
 
 	/**
 	 * Check if a metadata key exists in the given metadata.

@@ -5,6 +5,7 @@
 /**
  * WordPress dependencies.
  */
+import { __experimentalVStack as VStack } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
 import { useContext, useEffect, useRef, useState, Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { ENTER } from '@wordpress/keycodes';
@@ -298,11 +299,13 @@ const Campaigns = props => {
 					) }
 				</div>
 			</Card>
-			{ groupBySegment( segments, prompts ).map( ( segment, index ) =>
-				DEFAULT_CAMPAIGNS_FILTER === campaignId && segment.configuration.is_disabled ? null : (
-					<SegmentGroup key={ index } segment={ segment } campaignId={ campaignId } campaignData={ campaignData } { ...props } />
-				)
-			) }
+			<VStack spacing={ 4 }>
+				{ groupBySegment( segments, prompts ).map( ( segment, index ) =>
+					DEFAULT_CAMPAIGNS_FILTER === campaignId && segment.configuration.is_disabled ? null : (
+						<SegmentGroup key={ index } segment={ segment } campaignId={ campaignId } campaignData={ campaignData } { ...props } />
+					)
+				) }
+			</VStack>
 		</Fragment>
 	);
 };

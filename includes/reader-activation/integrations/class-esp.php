@@ -9,6 +9,8 @@ namespace Newspack\Reader_Activation\Integrations;
 
 use Newspack\Reader_Activation\Integration;
 use Newspack\Reader_Activation\Sync;
+use Newspack\Reader_Activation\Sync\Metadata;
+use Newspack\Reader_Activation\Integrations;
 use Newspack\Reader_Activation;
 use Newspack_Newsletters_Contacts;
 use Newspack_Newsletters_Subscription;
@@ -25,7 +27,204 @@ class ESP extends Integration {
 	 * Constructor.
 	 */
 	public function __construct() {
-		parent::__construct( 'esp', __( 'ESPs Integration', 'newspack-plugin' ) );
+		parent::__construct(
+			'esp',
+			__( 'ESP', 'newspack-plugin' ),
+			__( 'Sync reader data and activity to the connected email service provider.', 'newspack-plugin' )
+		);
+	}
+
+	/**
+	 * Register the settings fields declared by this integration.
+	 *
+	 * Returns ALL possible ESP fields unconditionally as static
+	 * declarations. No provider check, no API calls. Provider options
+	 * are added in get_settings_config().
+	 *
+	 * @return array Array of settings field declarations.
+	 */
+	public function register_settings_fields() {
+		return [
+			[
+				'key'         => 'mailchimp_audience_id',
+				'type'        => 'select',
+				'default'     => '',
+				'label'       => __( 'Mailchimp Audience', 'newspack-plugin' ),
+				'description' => __( 'Choose an audience to receive reader activity data.', 'newspack-plugin' ),
+			],
+			[
+				'key'         => 'mailchimp_reader_default_status',
+				'type'        => 'select',
+				'default'     => 'transactional',
+				'label'       => __( 'Default reader status', 'newspack-plugin' ),
+				'description' => __( 'Choose which Mailchimp status readers should have by default if they are not subscribed to any newsletters.', 'newspack-plugin' ),
+				'options'     => [
+					[
+						'label' => __( 'Transactional/Non-Subscribed', 'newspack-plugin' ),
+						'value' => 'transactional',
+					],
+					[
+						'label' => __( 'Subscribed', 'newspack-plugin' ),
+						'value' => 'subscribed',
+					],
+				],
+			],
+			[
+				'key'         => 'active_campaign_master_list',
+				'type'        => 'select',
+				'default'     => '',
+				'label'       => __( 'ActiveCampaign Master List', 'newspack-plugin' ),
+				'description' => __( 'Choose a master list to which all registered readers will be added.', 'newspack-plugin' ),
+			],
+			[
+				'key'         => 'constant_contact_list_id',
+				'type'        => 'select',
+				'default'     => '',
+				'label'       => __( 'Constant Contact Master List', 'newspack-plugin' ),
+				'description' => __( 'Choose a master list to which all registered readers will be added.', 'newspack-plugin' ),
+			],
+			[
+				'key'         => 'sync_esp_delete',
+				'type'        => 'checkbox',
+				'default'     => true,
+				'label'       => __( 'Sync user account deletion', 'newspack-plugin' ),
+				'description' => __( 'When a reader account is deleted, also remove the contact from the ESP.', 'newspack-plugin' ),
+			],
+		];
+	}
+
+	/**
+	 * Get settings config with current values, labels, descriptions, and options.
+	 *
+	 * Filters fields to the active provider and enriches them with
+	 * expensive data (API-fetched list options).
+	 * Only called when serving the settings UI.
+	 *
+	 * @return array Array of field declarations with current values.
+	 */
+	public function get_settings_config() {
+		if ( ! Reader_Activation::is_esp_configured() ) {
+			return [];
+		}
+		$provider = $this->get_provider();
+		if ( ! $provider ) {
+			return [];
+		}
+
+		$enriched     = [];
+		$config       = parent::get_settings_config();
+		$config       = array_combine(
+			array_column( $config, 'key' ),
+			$config
+		);
+		$list_options = [
+			'options' => $this->get_list_options(),
+		];
+
+		switch ( $provider->service ) {
+			case 'mailchimp':
+				$enriched[] = array_merge(
+					$config['mailchimp_audience_id'],
+					$list_options
+				);
+				$enriched[] = $config['mailchimp_reader_default_status'];
+				break;
+			case 'active_campaign':
+				$enriched[] = array_merge(
+					$config['active_campaign_master_list'],
+					$list_options
+				);
+				break;
+			case 'constant_contact':
+				$enriched[] = array_merge(
+					$config['constant_contact_list_id'],
+					$list_options
+				);
+				break;
+		}
+		$enriched[]    = $config['sync_esp_delete'];
+		$metadata_keys = array_column( $this->get_metadata_fields(), 'key' );
+		foreach ( $config as $field ) {
+			if ( in_array( $field['key'], $metadata_keys ) ) {
+				$enriched[] = $config[ $field['key'] ];
+			}
+		}
+		return $enriched;
+	}
+
+	/**
+	 * Get the active ESP provider name.
+	 *
+	 * @return Newspack_Newsletters_Service_Provider|null The service provider object or null if not available.
+	 */
+	private function get_provider() {
+		if ( class_exists( 'Newspack_Newsletters' ) ) {
+			return \Newspack_Newsletters::get_service_provider();
+		}
+		return null;
+	}
+
+	/**
+	 * Get list options from the Newsletters API for select fields.
+	 *
+	 * @return array Array of options with label and value keys.
+	 */
+	private function get_list_options() {
+		if ( ! method_exists( 'Newspack_Newsletters_Subscription', 'get_lists' ) ) {
+			return [];
+		}
+
+		$lists = Newspack_Newsletters_Subscription::get_lists();
+		if ( is_wp_error( $lists ) || ! is_array( $lists ) ) {
+			return [];
+		}
+
+		$provider = $this->get_provider();
+
+		// For Mailchimp, filter out groups and tags, only include remote lists.
+		if ( 'mailchimp' === $provider->service ) {
+			$lists = $provider->get_lists( true );
+		}
+
+		$options = [
+			[
+				'label' => __( 'None', 'newspack-plugin' ),
+				'value' => '',
+			],
+		];
+		foreach ( $lists as $list ) {
+			$options[] = [
+				'label' => $list['name'] ?? $list['id'],
+				'value' => $list['id'],
+			];
+		}
+
+		return $options;
+	}
+
+	/**
+	 * Get the master list ID from integration settings.
+	 *
+	 * @return string|false The master list ID or false.
+	 */
+	public function get_master_list_id() {
+		$provider = $this->get_provider();
+		if ( ! $provider ) {
+			return false;
+		}
+		switch ( $provider->service ) {
+			case 'mailchimp':
+				$audience_id = $this->get_settings_field_value( 'mailchimp_audience_id' );
+				return ! empty( $audience_id ) ? $audience_id : false;
+			case 'active_campaign':
+				$list_id = $this->get_settings_field_value( 'active_campaign_master_list' );
+				return ! empty( $list_id ) ? $list_id : false;
+			case 'constant_contact':
+				$list_id = $this->get_settings_field_value( 'constant_contact_list_id' );
+				return ! empty( $list_id ) ? $list_id : false;
+			default:
+				return false;
+		}
 	}
 
 	/**
@@ -84,14 +283,13 @@ class ESP extends Integration {
 			);
 		}
 
-		if ( ! Reader_Activation::get_setting( 'sync_esp' ) ) {
+		if ( ! Integrations::is_enabled( $this->get_id() ) ) {
 			$errors->add(
 				'ras_esp_sync_not_enabled',
 				__( 'ESP sync is not enabled.', 'newspack-plugin' )
 			);
 		}
-
-		if ( ! Reader_Activation::get_esp_master_list_id() ) {
+		if ( ! $this->get_master_list_id() ) {
 			$errors->add(
 				'ras_esp_master_list_id_not_found',
 				__( 'ESP master list ID is not set.', 'newspack-plugin' )
@@ -119,13 +317,12 @@ class ESP extends Integration {
 	 * @return true|\WP_Error True on success or WP_Error on failure.
 	 */
 	public function push_contact_data( $contact, $context = '', $existing_contact = null ) {
-
 		$can_sync = $this->can_sync( true );
 		if ( $can_sync->has_errors() ) {
 			return $can_sync;
 		}
 
-		$master_list_id = Reader_Activation::get_esp_master_list_id();
+		$master_list_id = $this->get_master_list_id();
 
 		return Newspack_Newsletters_Contacts::upsert( $contact, $master_list_id, $context, $existing_contact );
 	}
@@ -181,8 +378,7 @@ class ESP extends Integration {
 	 *
 	 * @return Incoming_Contact_Field[]|\WP_Error Array of incoming contact field objects or WP_Error on failure.
 	 */
-	public function get_incoming_available_contact_fields() {
-
+	public function get_available_incoming_contact_fields() {
 		if ( ! class_exists( 'Newspack_Newsletters_Contacts' ) ) {
 			return new \WP_Error(
 				'newspack_newsletters_contacts_not_found',
@@ -190,7 +386,7 @@ class ESP extends Integration {
 			);
 		}
 
-		$master_list_id = Reader_Activation::get_esp_master_list_id();
+		$master_list_id = $this->get_master_list_id();
 
 		if ( empty( $master_list_id ) ) {
 			return new \WP_Error(

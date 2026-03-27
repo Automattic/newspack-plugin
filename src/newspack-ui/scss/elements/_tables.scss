@@ -6,6 +6,7 @@
 		line-height: var(--newspack-ui-line-height-xs);
 		margin: calc(var(--newspack-ui-spacer-base) / -2) 0; // Offset cell padding.
 		table-layout: fixed;
+		border-collapse: collapse;
 		th,
 		td {
 			background: transparent;

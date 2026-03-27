@@ -13,7 +13,7 @@ import { useEffect, useRef, useState } from '@wordpress/element';
 /**
  * Internal dependencies
  */
-import { Divider, Grid, Notice } from '../../../../../packages/components/src';
+import { Divider, Grid } from '../../../../../packages/components/src';
 import { useWizardData } from '../../../../../packages/components/src/wizard/store/utils';
 import { useWizardApiFetch } from '../../../hooks/use-wizard-api-fetch';
 import { WIZARD_STORE_NAMESPACE } from '../../../../../packages/components/src/wizard/store';
@@ -26,7 +26,7 @@ import './style.scss';
 
 const ContentGates = ( { updateGatesData }: { updateGatesData: ( gates: Gate[] ) => void } ) => {
 	const wizardData = useWizardData( AUDIENCE_CONTENT_GATES_WIZARD_SLUG ) as WizardData;
-	const { wizardApiFetch, isFetching, error, errorMessage, resetError } = useWizardApiFetch( AUDIENCE_CONTENT_GATES_WIZARD_SLUG );
+	const { wizardApiFetch, isFetching, errorMessage, resetError } = useWizardApiFetch( AUDIENCE_CONTENT_GATES_WIZARD_SLUG );
 	const { addNotice, resetNotices, resetHeaderData, setHeaderData, updateWizardSettings } = useDispatch( WIZARD_STORE_NAMESPACE );
 	const [ showPriorityModal, setShowPriorityModal ] = useState( false );
 	const ref = useRef( null );
@@ -42,23 +42,36 @@ const ContentGates = ( { updateGatesData }: { updateGatesData: ( gates: Gate[] )
 			resetHeaderData();
 			return;
 		}
+		const sectionMenu = [
+			{
+				label: __( 'Institutions', 'newspack-plugin' ),
+				href: '#/institutions',
+			},
+			{
+				label: __( 'Advanced settings', 'newspack-plugin' ),
+				disabled: true,
+			},
+		];
+		if ( gates.length > 1 ) {
+			sectionMenu.unshift( {
+				label: __( 'Gate priority', 'newspack-plugin' ),
+				action: () => setShowPriorityModal( true ),
+			} );
+		}
 		setHeaderData( {
+			actions: [
+				{
+					type: 'primary',
+					label: __( 'Add new content gate', 'newspack-plugin' ),
+					href: '#/edit/new/all',
+				},
+			],
 			sectionTitle: __( 'Access control', 'newspack-plugin' ),
 			sectionDescription: __(
 				'Set up gates to manage what content readers can access across your site. Start by selecting which content to restrict, then configure access through registered and/or paid options (including metered rules).',
 				'newspack-plugin'
 			),
-			sectionPrimaryAction: {
-				label: __( 'Add new content gate', 'newspack-plugin' ),
-				href: '#/edit/new/all',
-			},
-			sectionSecondaryAction:
-				gates.length > 1
-					? {
-							label: __( 'Gate priority', 'newspack-plugin' ),
-							action: () => setShowPriorityModal( true ),
-					  }
-					: undefined,
+			sectionMenu,
 		} );
 	}, [ isFetching, gates ] );
 
@@ -129,13 +142,22 @@ const ContentGates = ( { updateGatesData }: { updateGatesData: ( gates: Gate[] )
 	};
 	toggleContentGifting.current = handleToggleContentGifting;
 
+	useEffect( () => {
+		if ( errorMessage ) {
+			addNotice( {
+				message: errorMessage,
+				type: 'error',
+				id: 'content-gate-error',
+			} );
+		}
+	}, [ errorMessage ] );
+
 	if ( ! gates?.length ) {
 		return <ContentGatesOnboarding />;
 	}
 
 	return (
 		<>
-			{ error && <Notice isError noticeText={ errorMessage } /> }
 			<ContentGatesPriority
 				showModal={ showPriorityModal }
 				closeModal={ () => setShowPriorityModal( false ) }
@@ -155,7 +177,7 @@ const ContentGates = ( { updateGatesData }: { updateGatesData: ( gates: Gate[] )
 						'newspack-plugin'
 					) }
 					enabled={ !! config.countdown_banner?.enabled }
-					requirements={ ! hasMetering ? __( 'Requires gate with metering', 'newspack-plugin' ) : undefined }
+					requirements={ ! hasMetering ? __( 'Requires metering', 'newspack-plugin' ) : undefined }
 					toggleEnabled={ toggleCountdownBanner.current }
 					href={ '/settings/countdown-banner' }
 				/>

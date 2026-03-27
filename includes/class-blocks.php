@@ -53,17 +53,6 @@ final class Blocks {
 	public static function enqueue_block_editor_assets() {
 		Newspack::load_common_assets();
 
-		// Enqueue universal editor modifications.
-		$editor_asset = require_once dirname( NEWSPACK_PLUGIN_FILE ) . '/dist/editor.asset.php';
-		\wp_enqueue_script(
-			'newspack-editor',
-			Newspack::plugin_url() . '/dist/editor.js',
-			$editor_asset['dependencies'],
-			NEWSPACK_PLUGIN_VERSION,
-			true
-		);
-
-		// Blocks script depends on editor script to ensure filters run first.
 		\wp_enqueue_script(
 			'newspack-blocks',
 			Newspack::plugin_url() . '/dist/blocks.js',
@@ -129,11 +118,24 @@ final class Blocks {
 	 * @return bool Whether to load block assets.
 	 */
 	private static function should_load_block_assets() {
-		return Collections::is_module_active() && (
-			( is_singular() && has_block( \Newspack\Blocks\Collections\Collections_Block::BLOCK_NAME, get_the_ID() ) ) ||
-			is_post_type_archive( \Newspack\Collections\Post_Type::get_post_type() ) ||
-			is_singular( \Newspack\Collections\Post_Type::get_post_type() )
-		);
+		// Load the block styles if we're on a single or archive Collections page.
+		if (
+			Collections::is_module_active() &&
+			(
+				is_post_type_archive( \Newspack\Collections\Post_Type::get_post_type() ) ||
+				is_singular( \Newspack\Collections\Post_Type::get_post_type() )
+			)
+		) {
+			return true;
+		}
+
+		if ( ! is_singular() ) {
+			return false;
+		}
+
+		// Load the block styles if we're on a post or page with a block from this plugin.
+		$post = get_post( get_the_ID() );
+		return $post && false !== strpos( $post->post_content, 'wp:newspack/' );
 	}
 }
 Blocks::init();

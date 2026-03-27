@@ -21,13 +21,15 @@ const debounce = ( func: ( search?: string ) => void, wait: number ) => {
 	};
 };
 
-export default function ContentRuleControlTaxonomy( { slug, value, exclusion, onChange, isStatic = false }: GateRuleControlProps ) {
+export default function ContentRuleControlTokenField( { slug, value, exclusion, onChange, isStatic = false }: GateRuleControlProps ) {
 	const rule = useMemo( () => window.newspackAudienceContentGates.available_content_rules[ slug ], [ slug ] );
 
 	const [ savedItems, setSavedItems ] = useState< { value: string; label: string }[] >( [] );
 	const [ suggestions, setSuggestions ] = useState< { value: string; label: string }[] >( [] );
-
 	const endpoint = useMemo( () => {
+		if ( rule?.endpoint ) {
+			return rule.endpoint;
+		}
 		let _endpoint = '';
 		switch ( slug ) {
 			case 'post_tag':
@@ -39,16 +41,16 @@ export default function ContentRuleControlTaxonomy( { slug, value, exclusion, on
 			default:
 				_endpoint = slug;
 		}
-		return _endpoint;
+		return 'wp/v2/' + _endpoint;
 	}, [ slug ] );
 
 	const fetchSuggestions = useCallback(
 		( search: string = '' ) => {
-			apiFetch< { id: number; name: string }[] >( {
-				path: addQueryArgs( 'wp/v2/' + endpoint, {
+			apiFetch< { db_id?: number; id: number; name: string; type_label?: string }[] >( {
+				path: addQueryArgs( endpoint, {
 					search,
 					per_page: 10,
-					_fields: 'id,name',
+					_fields: 'db_id,id,name,type_label',
 				} ),
 			} )
 				.then( terms => {
@@ -58,8 +60,12 @@ export default function ContentRuleControlTaxonomy( { slug, value, exclusion, on
 					}
 					setSuggestions(
 						terms.map( term => ( {
-							value: term.id.toString(),
-							label: decodeEntities( term.name ) || __( '(no name)', 'newspack-plugin' ),
+							value: term.db_id ? term.db_id.toString() : term.id.toString(),
+							label: decodeEntities(
+								`${ term.db_id || term.id }: ${ term.name || __( '(no name)', 'newspack-plugin' ) }${
+									term.type_label ? ` (${ term.type_label })` : ''
+								}`
+							),
 						} ) )
 					);
 				} )
@@ -75,14 +81,22 @@ export default function ContentRuleControlTaxonomy( { slug, value, exclusion, on
 		if ( ! value || value.length === 0 ) {
 			return;
 		}
-		apiFetch< { id: number; name: string }[] >( {
-			path: addQueryArgs( 'wp/v2/' + endpoint, {
+		apiFetch< { db_id?: number; id: number; name: string; type_label?: string }[] >( {
+			path: addQueryArgs( endpoint, {
 				include: value.join( ',' ),
+				_fields: 'db_id,id,name,type_label',
 			} ),
 		} )
 			.then( terms => {
 				setSavedItems(
-					terms.map( term => ( { value: term.id.toString(), label: decodeEntities( term.name ) || __( '(no name)', 'newspack-plugin' ) } ) )
+					terms.map( term => ( {
+						value: term.db_id ? term.db_id.toString() : term.id.toString(),
+						label: decodeEntities(
+							`${ term.db_id || term.id }: ${ term.name || __( '(no name)', 'newspack-plugin' ) }${
+								term.type_label ? ` (${ term.type_label })` : ''
+							}`
+						),
+					} ) )
 				);
 			} )
 			.catch( error => {
@@ -103,7 +117,7 @@ export default function ContentRuleControlTaxonomy( { slug, value, exclusion, on
 
 	const tokens = useMemo( () => {
 		const items = [ ...savedItems, ...suggestions ];
-		const result = items.filter( i => value.includes( i.value ) ).map( i => `${ i.value }: ${ i.label }` );
+		const result = items.filter( i => value.includes( i.value ) ).map( i => i.label );
 		return [ ...new Set( result ) ];
 	}, [ value, savedItems, suggestions ] );
 
@@ -157,10 +171,11 @@ export default function ContentRuleControlTaxonomy( { slug, value, exclusion, on
 		<>
 			<FormTokenField
 				label={ '' }
-				suggestions={ suggestions.map( s => `${ s.value }: ${ s.label }` ) }
+				suggestions={ suggestions.map( s => s.label ) }
 				onInputChange={ handleInputChange }
 				value={ tokens }
 				onChange={ handleChange }
+				placeholder={ __( 'Click to select, type to search', 'newspack-plugin' ) }
 				__experimentalExpandOnFocus
 				__next40pxDefaultSize
 			/>

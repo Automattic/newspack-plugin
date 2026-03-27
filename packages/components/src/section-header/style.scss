@@ -3,6 +3,7 @@
  */
 
 @use "~@wordpress/base-styles/colors" as wp-colors;
+@use "~@wordpress/base-styles/variables" as wp;
 @use "../../../colors/colors.module" as colors;
 
 .newspack-section-header {
@@ -81,13 +82,25 @@
 	}
 
 	&__title-container {
-		align-items: baseline;
+		align-items: center;
 		display: flex;
 		gap: 8px;
 
-		.newspack-badge {
-			transform: translateY(-4px);
+		h2 {
+			font-size: wp.$font-size-x-large;
+			font-weight: wp.$font-weight-medium;
+			line-height: wp.$font-line-height-x-large;
 		}
+
+		.newspack-section-header__menu,
+		.newspack-section-header__secondary-action,
+		.newspack-badge {
+			margin-top: 8px;
+		}
+	}
+
+	&__menu {
+		align-self: center;
 	}
 
 	&__primary-action {
@@ -146,9 +159,9 @@
 			}
 		}
 		h1 {
-			font-size: 1.25rem;
-			font-weight: 500;
-			line-height: 1.5;
+			font-size: wp.$font-size-x-large;
+			font-weight: wp.$font-weight-medium;
+			line-height: wp.$font-line-height-x-large;
 		}
 	}
 }

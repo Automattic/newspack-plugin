@@ -11,5 +11,47 @@ if ( ! class_exists( 'Newspack_Newsletters' ) ) {
 		public static function service_provider() {
 			return get_option( 'newspack_newsletters_service_provider', false );
 		}
+
+		public static function get_service_provider() {
+			return new Newspack_Newsletters_Service_Provider();
+		}
+
+		public static function is_service_provider_configured() {
+			return true;
+		}
+	}
+}
+
+if ( ! class_exists( 'Newspack_Newsletters_Settings' ) ) {
+	class Newspack_Newsletters_Settings {}
+}
+
+if ( ! class_exists( 'Newspack_Newsletters_Subscription' ) ) {
+	class Newspack_Newsletters_Subscription {
+		public static function get_lists() {
+			return [
+				[
+					'active' => true,
+					'name'   => 'test',
+					'id'     => '123',
+				],
+			];
+		}
+	}
+}
+
+if ( ! class_exists( 'Newspack_Newsletters_Service_Provider' ) ) {
+	class Newspack_Newsletters_Service_Provider {
+		public $service = 'mailchimp';
+
+		public static function get_lists() {
+			return [
+				[
+					'active' => true,
+					'name'   => 'test',
+					'id'     => '123',
+				],
+			];
+		}
 	}
 }

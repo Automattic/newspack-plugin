@@ -1,7 +1,7 @@
 /**
  * WordPress dependencies.
  */
-import { CardBody } from '@wordpress/components';
+import { CardBody, CardDivider } from '@wordpress/components';
 import { useCallback } from '@wordpress/element';
 
 /**
@@ -13,11 +13,12 @@ import AccessRules from './access-rules';
 interface CustomAccessProps {
 	customAccess: CustomAccess;
 	onChange: ( customAccess: Partial< CustomAccess > ) => void;
+	isNewsletter?: boolean;
 }
 
-export default function CustomAccess( { customAccess, onChange }: CustomAccessProps ) {
-	// Get the first group of rules (UI currently only supports a single group).
-	const currentRules = customAccess.access_rules[ 0 ] || [];
+export default function CustomAccess( { customAccess, onChange, isNewsletter = false }: CustomAccessProps ) {
+	// Flatten grouped rules for display (each group has one rule in OR mode).
+	const currentRules = customAccess.access_rules.map( group => group[ 0 ] ).filter( Boolean );
 
 	const handleChange = useCallback(
 		( value: Partial< CustomAccess > ) => {
@@ -33,9 +34,8 @@ export default function CustomAccess( { customAccess, onChange }: CustomAccessPr
 
 	const handleRulesChange = useCallback(
 		( rules: GateAccessRule[] ) => {
-			// Wrap rules in a single group to maintain grouped format.
-			// If no rules, set empty array to avoid [ [] ] which would pass readiness checks.
-			handleChange( { access_rules: rules.length ? [ rules ] : [] } );
+			// Each rule is its own group for OR logic: [ [rule1], [rule2] ].
+			handleChange( { access_rules: rules.map( rule => [ rule ] ) } );
 		},
 		[ handleChange ]
 	);
@@ -43,9 +43,14 @@ export default function CustomAccess( { customAccess, onChange }: CustomAccessPr
 	return (
 		<>
 			<AccessRules rules={ currentRules } onChange={ handleRulesChange } />
-			<CardBody size="small">
-				<Metering metering={ customAccess.metering } onChange={ ( metering: Metering ) => handleChange( { metering } ) } />
-			</CardBody>
+			{ ! isNewsletter && (
+				<>
+					<CardDivider />
+					<CardBody size="small">
+						<Metering metering={ customAccess.metering } onChange={ ( metering: Metering ) => handleChange( { metering } ) } />
+					</CardBody>
+				</>
+			) }
 		</>
 	);
 }

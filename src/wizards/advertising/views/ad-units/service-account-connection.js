@@ -7,7 +7,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { ButtonCard, Grid, Notice, SectionHeader } from '../../../../../packages/components/src';
+import { Card, Grid, Notice, SectionHeader } from '../../../../../packages/components/src';
 import { handleJSONFile } from '../../components/utils';
 
 const ServiceAccountConnection = ( { updateWithAPI, isConnected } ) => {
@@ -41,29 +41,45 @@ const ServiceAccountConnection = ( { updateWithAPI, isConnected } ) => {
 			<SectionHeader title={ __( 'Service Account connection', 'newspack' ) } />
 			{ isConnected ? (
 				<Grid>
-					<ButtonCard
+					<Card
+						__experimentalCoreCard
 						isSmall
-						onClick={ () => credentialsInputFile.current.click() }
-						title={ __( 'Update Service Account credentials', 'newspack' ) }
-						chevron
+						__experimentalCoreProps={ {
+							header: <h3>{ __( 'Update Service Account credentials', 'newspack' ) }</h3>,
+							actionType: 'chevron',
+							onHeaderClick: () => credentialsInputFile.current.click(),
+						} }
 					/>
-					<ButtonCard
+					<Card
+						__experimentalCoreCard
 						isSmall
-						onClick={ removeGAMCredentials }
-						isDestructive
-						title={ __( 'Remove Service Account credentials', 'newspack' ) }
-						chevron
+						className="is-destructive"
+						__experimentalCoreProps={ {
+							header: <h3>{ __( 'Remove Service Account credentials', 'newspack' ) }</h3>,
+							actionType: 'chevron',
+							onHeaderClick: removeGAMCredentials,
+						} }
 					/>
 				</Grid>
 			) : (
-				<ButtonCard
-					onClick={ () => credentialsInputFile.current.click() }
-					title={ __( 'Connect your Google Ad Manager account', 'newspack' ) }
-					desc={ [
-						__( 'Upload your Service Account credentials file to connect your GAM account with Newspack Ads.', 'newspack' ),
-						fileError && <Notice noticeText={ fileError } isError />,
-					] }
-					chevron
+				<Card
+					__experimentalCoreCard
+					__experimentalCoreProps={ {
+						header: (
+							<>
+								<h3>{ __( 'Connect your Google Ad Manager account', 'newspack' ) }</h3>
+								<p>
+									{ __(
+										'Upload your Service Account credentials file to connect your GAM account with Newspack Ads.',
+										'newspack'
+									) }
+								</p>
+								{ fileError && <Notice noticeText={ fileError } isError /> }
+							</>
+						),
+						actionType: 'chevron',
+						onHeaderClick: () => credentialsInputFile.current.click(),
+					} }
 				/>
 			) }
 			<input type="file" accept=".json" ref={ credentialsInputFile } style={ { display: 'none' } } onChange={ handleCredentialsFile } />
