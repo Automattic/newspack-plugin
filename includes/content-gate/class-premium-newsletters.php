@@ -95,6 +95,9 @@ class Premium_Newsletters {
 	 * @return array The filtered lists.
 	 */
 	public static function filter_subscription_lists( $lists ) {
+		if ( is_admin() ) {
+			return $lists;
+		}
 		$lists = array_values(
 			array_filter(
 				$lists,
