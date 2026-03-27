@@ -83,7 +83,6 @@ class Newspack_Test_Premium_Newsletters extends \WP_UnitTestCase {
 		// DB transaction rolls back, Memcached does not retain the now-stale cron entry.
 		wp_cache_delete( 'alloptions', 'options' );
 		delete_option( Premium_Newsletters::QUEUE_OPTION );
-		remove_all_filters( 'newspack_premium_newsletters_access_check_delay' );
 		parent::tear_down();
 	}
 
@@ -92,102 +91,23 @@ class Newspack_Test_Premium_Newsletters extends \WP_UnitTestCase {
 	// =========================================================================
 
 	/**
-	 * Return just the user_ids array from the stored queue option.
+	 * Return the user IDs stored in the queue option.
 	 *
 	 * @return int[]
 	 */
 	private function get_queued_user_ids(): array {
-		$state = get_option( Premium_Newsletters::QUEUE_OPTION, [] );
-		return isset( $state['user_ids'] ) ? (array) $state['user_ids'] : [];
+		return (array) get_option( Premium_Newsletters::QUEUE_OPTION, [] );
 	}
 
 	/**
-	 * Write a queue state option directly, bypassing schedule_access_check.
+	 * Write a flat user-ID queue directly, bypassing add_user_to_queue().
 	 *
-	 * @param int[] $user_ids   User IDs to place in the queue.
-	 * @param int   $created_at Unix timestamp for the batch. Defaults to now.
+	 * @param int[] $user_ids User IDs to place in the queue.
 	 *
 	 * @return void
 	 */
-	private function set_queue( array $user_ids, int $created_at = 0 ): void {
-		update_option(
-			Premium_Newsletters::QUEUE_OPTION,
-			[
-				'user_ids'   => $user_ids,
-				'created_at' => $created_at ?: time(), // phpcs:ignore Universal.Operators.DisallowShortTernary.Found
-			],
-			false
-		);
-	}
-
-	/**
-	 * Return all scheduled timestamps for SCHEDULED_HOOK from both WP cron and ActionScheduler.
-	 *
-	 * Queries both backends so tests remain backend-agnostic: production code uses
-	 * ActionScheduler when available, and WP cron otherwise.
-	 *
-	 * @return int[]
-	 */
-	private function get_scheduled_hook_timestamps(): array {
-		$timestamps  = [];
-		$cron_events = _get_cron_array();
-		if ( ! $cron_events ) {
-			$cron_events = [];
-		}
-
-		// WP cron.
-		foreach ( $cron_events as $timestamp => $cron ) {
-			if ( isset( $cron[ Premium_Newsletters::SCHEDULED_HOOK ] ) ) {
-				$timestamps[] = (int) $timestamp;
-			}
-		}
-
-		// ActionScheduler (WooCommerce).
-		if ( function_exists( 'as_get_scheduled_actions' ) ) {
-			$actions = as_get_scheduled_actions(
-				[
-					'hook'     => Premium_Newsletters::SCHEDULED_HOOK,
-					'group'    => 'newspack',
-					'status'   => 'pending',
-					'per_page' => -1,
-				]
-			);
-			foreach ( $actions as $action ) {
-				$schedule = $action->get_schedule();
-				if ( $schedule ) {
-					$date = $schedule->get_date();
-					if ( $date instanceof \DateTimeInterface ) {
-						$timestamps[] = $date->getTimestamp();
-					}
-				}
-			}
-		}
-
-		return $timestamps;
-	}
-
-	/**
-	 * Return the earliest scheduled timestamp for SCHEDULED_HOOK across all backends, or false.
-	 *
-	 * @return int|false
-	 */
-	private function get_next_hook_time() {
-		$timestamps = $this->get_scheduled_hook_timestamps();
-		return empty( $timestamps ) ? false : min( $timestamps );
-	}
-
-	/**
-	 * Schedule a single SCHEDULED_HOOK event using the same backend as production
-	 * (ActionScheduler when available, WP cron otherwise).
-	 *
-	 * @param int $timestamp Unix timestamp for the event.
-	 */
-	private function schedule_hook_for_test( int $timestamp ): void {
-		if ( function_exists( 'as_schedule_single_action' ) ) {
-			as_schedule_single_action( $timestamp, Premium_Newsletters::SCHEDULED_HOOK, [], 'newspack' );
-		} else {
-			wp_schedule_single_event( $timestamp, Premium_Newsletters::SCHEDULED_HOOK );
-		}
+	private function set_queue( array $user_ids ): void {
+		update_option( Premium_Newsletters::QUEUE_OPTION, $user_ids, false );
 	}
 
 	/**
@@ -482,56 +402,16 @@ class Newspack_Test_Premium_Newsletters extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * Test that a scheduled event is created when none exists.
+	 * Test that register_access_check_event() schedules a recurring WP cron event when none exists.
 	 */
-	public function test_schedule_creates_cron_event_when_none_exists() {
-		$user_id = $this->factory->user->create();
-		$before  = time();
+	public function test_register_access_check_event_schedules_recurring_event() {
+		wp_clear_scheduled_hook( Premium_Newsletters::SCHEDULED_HOOK );
 
-		Premium_Newsletters::maybe_add_or_remove_lists( time(), [ 'user_id' => $user_id ], null );
+		Premium_Newsletters::register_access_check_event();
 
-		$next = $this->get_next_hook_time();
-		$this->assertNotFalse( $next, 'A scheduled event should have been created.' );
-		$this->assertGreaterThanOrEqual( $before + Premium_Newsletters::DEFAULT_DELAY, $next );
-	}
-
-	/**
-	 * Test that no additional event is scheduled when a far-future one already exists.
-	 */
-	public function test_schedule_does_not_duplicate_when_far_future_event_exists() {
-		$user_id = $this->factory->user->create();
-		$far     = time() + 3600;
-
-		// Pre-schedule via the same backend production uses so it is visible to the
-		// debounce check inside schedule_access_check().
-		$this->schedule_hook_for_test( $far );
-
-		Premium_Newsletters::maybe_add_or_remove_lists( time(), [ 'user_id' => $user_id ], null );
-
-		$timestamps = $this->get_scheduled_hook_timestamps();
-		$this->assertCount( 1, $timestamps, 'Only the pre-existing far-future event should remain.' );
-		$this->assertEquals( $far, $timestamps[0], 'The far-future timestamp must not be changed.' );
-	}
-
-	/**
-	 * Test that a new event is scheduled AFTER an imminent (within-threshold) event.
-	 */
-	public function test_schedule_creates_new_event_after_imminent_event() {
-		$user_id  = $this->factory->user->create();
-		$imminent = time() + 5; // within FUTURE_EVENT_THRESHOLD (10s).
-
-		// Pre-schedule via the same backend production uses so the imminent-event path
-		// inside schedule_access_check() is triggered correctly.
-		$this->schedule_hook_for_test( $imminent );
-
-		Premium_Newsletters::maybe_add_or_remove_lists( time(), [ 'user_id' => $user_id ], null );
-
-		$timestamps = $this->get_scheduled_hook_timestamps();
-		$this->assertCount( 2, $timestamps, 'A second event should be scheduled after the imminent one.' );
-		$this->assertGreaterThanOrEqual(
-			$imminent + Premium_Newsletters::DEFAULT_DELAY,
-			max( $timestamps ),
-			'The new event must be scheduled at least DEFAULT_DELAY seconds after the imminent event.'
+		$this->assertNotFalse(
+			wp_next_scheduled( Premium_Newsletters::SCHEDULED_HOOK ),
+			'A recurring WP cron event should be scheduled for SCHEDULED_HOOK.'
 		);
 	}
 
@@ -586,64 +466,6 @@ class Newspack_Test_Premium_Newsletters extends \WP_UnitTestCase {
 		Premium_Newsletters::process_access_check_queue();
 
 		$this->assertEmpty( \Newspack_Newsletters_Contacts::$add_and_remove_lists_calls );
-	}
-
-	/**
-	 * Test that the scheduling delay is filterable.
-	 */
-	public function test_delay_is_filterable() {
-		$custom = 999;
-		add_filter( 'newspack_premium_newsletters_access_check_delay', fn() => $custom );
-
-		$user_id = $this->factory->user->create();
-		$before  = time();
-
-		Premium_Newsletters::maybe_add_or_remove_lists( time(), [ 'user_id' => $user_id ], null );
-
-		$next = $this->get_next_hook_time();
-		$this->assertNotFalse( $next );
-		$this->assertGreaterThanOrEqual( $before + $custom, $next );
-	}
-
-	/**
-	 * Test that created_at is stamped on first enqueue and preserved on subsequent enqueues.
-	 */
-	public function test_queue_created_at_set_on_first_enqueue_and_preserved() {
-		$user1  = $this->factory->user->create();
-		$user2  = $this->factory->user->create();
-		$before = time();
-
-		Premium_Newsletters::maybe_add_or_remove_lists( time(), [ 'user_id' => $user1 ], null );
-		$state_after_first = get_option( Premium_Newsletters::QUEUE_OPTION );
-		$created_at        = $state_after_first['created_at'];
-
-		$this->assertGreaterThanOrEqual( $before, $created_at, 'created_at should be set to approximately now.' );
-
-		// A second enqueue must not reset created_at.
-		Premium_Newsletters::maybe_add_or_remove_lists( time(), [ 'user_id' => $user2 ], null );
-		$state_after_second = get_option( Premium_Newsletters::QUEUE_OPTION );
-
-		$this->assertSame( $created_at, $state_after_second['created_at'], 'created_at must not change on subsequent enqueues.' );
-	}
-
-	/**
-	 * Test that a stale queue (older than MAX_QUEUE_AGE) triggers a 0-delay event.
-	 */
-	public function test_stale_queue_schedules_with_zero_delay() {
-		$user1      = $this->factory->user->create();
-		$user2      = $this->factory->user->create();
-		$stale_time = time() - ( Premium_Newsletters::MAX_QUEUE_AGE + 60 );
-
-		// Seed a queue that is older than MAX_QUEUE_AGE so the next call detects staleness.
-		$this->set_queue( [ $user1 ], $stale_time );
-
-		$before = time();
-		Premium_Newsletters::maybe_add_or_remove_lists( time(), [ 'user_id' => $user2 ], null );
-
-		$next = $this->get_next_hook_time();
-		$this->assertNotFalse( $next, 'An event should be scheduled for the stale queue.' );
-		// With delay overridden to 0, the scheduled time must be at or before now + 1 s.
-		$this->assertLessThanOrEqual( $before + 1, $next, 'Stale queue must schedule with 0 delay.' );
 	}
 
 	/**

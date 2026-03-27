@@ -40,7 +40,7 @@ class Premium_Newsletters {
 	/**
 	 * Default scheduling delay in seconds.
 	 */
-	const DEFAULT_DELAY = HOUR_IN_SECONDS;
+	const DEFAULT_DELAY = 10 * MINUTE_IN_SECONDS;
 
 	/**
 	 * Log a warning once the queue exceeds this many unique user IDs.
@@ -268,11 +268,12 @@ class Premium_Newsletters {
 		if ( is_admin() && function_exists( 'as_schedule_recurring_action' ) ) {
 			self::register_access_check_as_event();
 
-			// If AS supports, it, also hook into ensure_recurring actions.
+			// If AS supports it, also hook into ensure_recurring actions.
 			if ( function_exists( 'as_supports' ) && as_supports( 'ensure_recurring_actions_hook' ) ) {
 				add_action( 'action_scheduler_ensure_recurring_actions', [ __CLASS__, 'register_check_expiry_as_event' ] );
 			}
 		} elseif ( ! wp_next_scheduled( self::SCHEDULED_HOOK ) ) {
+			// Fall back to hourly cron job if Action AS is not available.
 			wp_schedule_event( time(), 'hourly', self::SCHEDULED_HOOK );
 		}
 	}
