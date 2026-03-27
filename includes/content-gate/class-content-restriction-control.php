@@ -28,6 +28,13 @@ class Content_Restriction_Control {
 	private static $post_gate_layout_id_map = [];
 
 	/**
+	 * Cached user ID to check restrictions for.
+	 *
+	 * @var int
+	 */
+	private static $user_id = 0;
+
+	/**
 	 * Post meta key for exempting a post from access control restrictions.
 	 *
 	 * @var string
@@ -211,6 +218,9 @@ class Content_Restriction_Control {
 		 * @param int $user_id Current user ID.
 		 */
 		$user_id = apply_filters( 'newspack_content_restriction_control_user_id', $user_id ?? get_current_user_id() );
+		if ( ! self::$user_id ) {
+			self::$user_id = $user_id;
+		}
 
 		// Don't restrict this post for users who can edit it.
 		if ( ! empty( $post_id ) && user_can( $user_id, 'edit_post', $post_id ) ) {
@@ -223,7 +233,7 @@ class Content_Restriction_Control {
 		}
 
 		// Return if the post gate has already been determined.
-		if ( ! empty( self::$post_gate_id_map[ $post_id ] ) ) {
+		if ( ! empty( self::$post_gate_id_map[ $post_id . '_' . self::$user_id ] ) ) {
 			return true;
 		}
 
@@ -257,7 +267,7 @@ class Content_Restriction_Control {
 			}
 
 			if ( $is_restricted && $gate_layout_id ) {
-				self::$post_gate_id_map[ $post_id ] = $gate['id'];
+				self::$post_gate_id_map[ $post_id . '_' . self::$user_id ] = $gate['id'];
 				self::$post_gate_layout_id_map[ $post_id ] = $gate_layout_id;
 				return true;
 			}
@@ -282,8 +292,8 @@ class Content_Restriction_Control {
 		if ( ! $post_id ) {
 			return false;
 		}
-		if ( ! empty( self::$post_gate_id_map[ $post_id ] ) ) {
-			return self::$post_gate_id_map[ $post_id ];
+		if ( ! empty( self::$post_gate_id_map[ $post_id . '_' . self::$user_id ] ) ) {
+			return self::$post_gate_id_map[ $post_id . '_' . self::$user_id ];
 		}
 		return false;
 	}
