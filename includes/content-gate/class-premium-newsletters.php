@@ -40,25 +40,12 @@ class Premium_Newsletters {
 	/**
 	 * Default scheduling delay in seconds.
 	 */
-	const DEFAULT_DELAY = 10 * MINUTE_IN_SECONDS;
-
-	/**
-	 * A pending event must be scheduled at least this many seconds in the future
-	 * to be considered "far enough" to piggyback on rather than scheduling a new one.
-	 */
-	const FUTURE_EVENT_THRESHOLD = MINUTE_IN_SECONDS;
+	const DEFAULT_DELAY = HOUR_IN_SECONDS;
 
 	/**
 	 * Log a warning once the queue exceeds this many unique user IDs.
 	 */
 	const MAX_QUEUE_SIZE = 500;
-
-	/**
-	 * If the queue was created more than this many seconds ago and no event has
-	 * fired yet, override the delay to 0 so the next event is scheduled for the
-	 * earliest available cron/AS tick rather than waiting another full delay.
-	 */
-	const MAX_QUEUE_AGE = DAY_IN_SECONDS;
 
 	/**
 	 * Initialize.
@@ -71,10 +58,11 @@ class Premium_Newsletters {
 		add_action( 'init', [ __CLASS__, 'register_handlers' ] );
 
 		// Register the scheduled-event callback (works for both WP cron and ActionScheduler).
+		add_action( 'init', [ __CLASS__, 'register_access_check_event' ] );
 		add_action( self::SCHEDULED_HOOK, [ __CLASS__, 'process_access_check_queue' ] );
 
 		// Clean up the queue option on plugin deactivation.
-		add_action( 'newspack_deactivation', [ __CLASS__, 'clear_queue' ] );
+		add_action( 'newspack_deactivation', [ __CLASS__, 'unschedule_access_check_event' ] );
 	}
 
 	/**
@@ -239,52 +227,25 @@ class Premium_Newsletters {
 	}
 
 	/**
-	 * Return the Unix timestamp of the next pending access-check event, or false.
-	 *
-	 * Checks ActionScheduler first when available, otherwise falls back to WP cron.
-	 *
-	 * @return int|false
-	 */
-	private static function get_next_scheduled_event_time() {
-		if ( function_exists( 'as_next_scheduled_action' ) ) {
-			$next = as_next_scheduled_action( self::SCHEDULED_HOOK, [], 'newspack' );
-			return $next ? (int) $next : false;
-		}
-		$next = wp_next_scheduled( self::SCHEDULED_HOOK );
-		return $next ? (int) $next : false;
-	}
-
-	/**
-	 * Add the user to the access-check queue and schedule a future processing event
-	 * if one is not already pending far enough in the future.
-	 *
-	 * Scheduling is debounced: if a pending event already exists more than
-	 * FUTURE_EVENT_THRESHOLD seconds in the future, the user ID simply rides along
-	 * with that event and no new event is created. If the queue is stale (older than
-	 * MAX_QUEUE_AGE), the delay is overridden to 0 so the event fires on the earliest
-	 * available cron/AS tick.
+	 * Add the user to the access-check queue.
 	 *
 	 * @param int $user_id The ID of the user to schedule the access check for.
 	 *
 	 * @return void
 	 */
-	private static function schedule_access_check( $user_id ) {
-		// 1. Read current queue state.
-		$queue      = get_option( self::QUEUE_OPTION, [] );
-		$user_ids   = isset( $queue['user_ids'] ) ? (array) $queue['user_ids'] : [];
-		$created_at = isset( $queue['created_at'] ) ? (int) $queue['created_at'] : 0;
-		$is_new_batch = empty( $user_ids );
+	private static function add_user_to_queue( $user_id ) {
+		// 1. Read current queue.
+		$queue = get_option( self::QUEUE_OPTION, [] );
 
 		// 2. Append user ID (deduplicated).
-		$user_ids   = array_values( array_unique( array_merge( $user_ids, [ (int) $user_id ] ) ) );
-		$created_at = $is_new_batch ? time() : $created_at;
+		$queue = array_values( array_unique( array_merge( $queue, [ (int) $user_id ] ) ) );
 
 		// 3. Warn if the queue is growing unusually large — likely indicates a cron outage.
-		if ( count( $user_ids ) > self::MAX_QUEUE_SIZE ) {
+		if ( count( $queue ) > self::MAX_QUEUE_SIZE ) {
 			Logger::log(
 				sprintf(
 					'Access-check queue has grown to %d entries — WP-Cron or ActionScheduler may not be running.',
-					count( $user_ids )
+					count( $queue )
 				),
 				'PREMIUM-NEWSLETTERS'
 			);
@@ -293,42 +254,40 @@ class Premium_Newsletters {
 		// 4. Persist updated queue (autoload = false to avoid loading on every request).
 		update_option(
 			self::QUEUE_OPTION,
-			[
-				'user_ids'   => $user_ids,
-				'created_at' => $created_at,
-			],
+			$queue,
 			false
 		);
+	}
 
-		// 5. Resolve scheduling delay (filterable for production/testing environments).
-		$delay = (int) apply_filters(
-			'newspack_premium_newsletters_access_check_delay',
-			self::DEFAULT_DELAY
-		);
+	/**
+	 * Schedule a recurring event to check access for the users in the queue.
+	 *
+	 * @return void
+	 */
+	public static function register_access_check_event() {
+		if ( is_admin() && function_exists( 'as_schedule_recurring_action' ) ) {
+			self::register_access_check_as_event();
 
-		// 6. Stale-queue safeguard: if the queue is older than MAX_QUEUE_AGE, override
-		// the delay to 0 so the event fires on the next available cron/AS tick.
-		if ( ! $is_new_batch && ( time() - $created_at ) > self::MAX_QUEUE_AGE ) {
-			$delay = 0;
+			// If AS supports, it, also hook into ensure_recurring actions.
+			if ( function_exists( 'as_supports' ) && as_supports( 'ensure_recurring_actions_hook' ) ) {
+				add_action( 'action_scheduler_ensure_recurring_actions', [ __CLASS__, 'register_check_expiry_as_event' ] );
+			}
+		} elseif ( ! wp_next_scheduled( self::SCHEDULED_HOOK ) ) {
+			wp_schedule_event( time(), 'hourly', self::SCHEDULED_HOOK );
 		}
+	}
 
-		// 7. If a pending event is already far enough in the future, piggyback on it.
-		$next_event_time = self::get_next_scheduled_event_time();
-		if ( $next_event_time && $next_event_time > time() + self::FUTURE_EVENT_THRESHOLD ) {
-			return;
-		}
-
-		// 8. Determine the base time for the new event.
-		// If an imminent event exists (within the threshold), schedule after it so
-		// the two events do not race. Otherwise schedule relative to now.
-		$base_time      = $next_event_time ? $next_event_time : time();
-		$scheduled_time = $base_time + $delay;
-
-		// 9. Schedule via ActionScheduler when available, otherwise WP cron.
-		if ( function_exists( 'as_schedule_single_action' ) ) {
-			as_schedule_single_action( $scheduled_time, self::SCHEDULED_HOOK, [], 'newspack' );
-		} else {
-			wp_schedule_single_event( $scheduled_time, self::SCHEDULED_HOOK );
+	/**
+	 * Registers the Action Scheduler's recurring event.
+	 *
+	 * @return void
+	 */
+	public static function register_access_check_as_event() {
+		if ( false === wp_cache_get( 'newspack_premium_newsletters_recurring_action_scheduled' ) ) {
+			if ( ! as_has_scheduled_action( self::SCHEDULED_HOOK ) ) {
+				as_schedule_recurring_action( time(), self::DEFAULT_DELAY, self::SCHEDULED_HOOK, [], 'newspack' );
+			}
+			wp_cache_set( 'newspack_premium_newsletters_recurring_action_scheduled', true, self::DEFAULT_DELAY );
 		}
 	}
 
@@ -336,22 +295,20 @@ class Premium_Newsletters {
 	 * Process all pending access checks from the queue.
 	 *
 	 * Registered as the callback for SCHEDULED_HOOK, fired by either WP cron or
-	 * ActionScheduler. The queue is cleared before the loop begins so that any user
-	 * IDs enqueued while processing are written to the now-empty option and will be
-	 * picked up by the next scheduled event rather than being lost.
+	 * ActionScheduler. Clear the queue after processing so that if any errors
+	 * occur the unprocessed queue will be processed by the next scheduled event.
 	 *
 	 * @return void
 	 */
 	public static function process_access_check_queue() {
-		$queue    = get_option( self::QUEUE_OPTION, [] );
-		$user_ids = isset( $queue['user_ids'] ) ? (array) $queue['user_ids'] : [];
-		if ( empty( $user_ids ) ) {
+		$queue = get_option( self::QUEUE_OPTION, [] );
+		if ( empty( $queue ) ) {
 			return;
 		}
-		self::clear_queue();
-		foreach ( $user_ids as $user_id ) {
+		foreach ( $queue as $user_id ) {
 			self::check_access( (int) $user_id );
 		}
+		self::clear_queue();
 	}
 
 	/**
@@ -367,6 +324,22 @@ class Premium_Newsletters {
 	}
 
 	/**
+	 * Unschedule the recurring event.
+	 *
+	 * @return void
+	 */
+	public static function unschedule_access_check_event() {
+		// Remove any existing WP Cron events.
+		wp_clear_scheduled_hook( self::SCHEDULED_HOOK );
+
+		// Remove any existing Action Scheduler events.
+		if ( function_exists( 'as_unschedule_all_actions' ) ) {
+			as_unschedule_all_actions( self::SCHEDULED_HOOK );
+		}
+		self::clear_queue();
+	}
+
+	/**
 	 * Maybe add or remove the user from restricted lists based on their access status.
 	 *
 	 * @param int   $timestamp Timestamp of the event.
@@ -377,7 +350,7 @@ class Premium_Newsletters {
 		if ( empty( $data['user_id'] ) ) {
 			return;
 		}
-		self::schedule_access_check( $data['user_id'] );
+		self::add_user_to_queue( (int) $data['user_id'] );
 	}
 }
 
