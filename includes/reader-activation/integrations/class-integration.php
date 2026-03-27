@@ -313,6 +313,11 @@ abstract class Integration {
 	/**
 	 * Get the enabled incoming fields for this integration.
 	 *
+	 * Reads stored field data (key => raw_data map saved by
+	 * update_enabled_incoming_fields()) and constructs Incoming_Field objects
+	 * for each entry. Each field is passed through configure_incoming_field()
+	 * so the integration can enrich it with promotion configuration.
+	 *
 	 * @return Integrations\Incoming_Field[] Array of field objects.
 	 */
 	public function get_enabled_incoming_fields() {
@@ -336,6 +341,30 @@ abstract class Integration {
 
 	/**
 	 * Configure an Incoming_Field after construction.
+	 *
+	 * Override this method to enrich incoming fields with promotion configuration
+	 * so they can be registered as content gate access rules and/or popups
+	 * segmentation criteria. The field's raw data (from the integration API) is
+	 * available via $field->get_raw_data() and can inform the configuration.
+	 *
+	 * Example:
+	 *
+	 *     protected function configure_incoming_field( $field ) {
+	 *         $raw = $field->get_raw_data();
+	 *         if ( 'membership_level' === $field->get_key() ) {
+	 *             $field->set_name( 'Membership Level' )
+	 *                 ->set_is_access_rule( true )
+	 *                 ->set_is_segment_criteria( true )
+	 *                 ->set_matching_function( 'list__in' )
+	 *                 ->set_options( $raw['options'] ?? [] );
+	 *         }
+	 *         if ( 'is_vip' === $field->get_key() ) {
+	 *             $field->set_name( 'VIP' )
+	 *                 ->set_is_access_rule( true )
+	 *                 ->set_value_type( 'boolean' );
+	 *         }
+	 *         return $field;
+	 *     }
 	 *
 	 * @param Integrations\Incoming_Field $field The field to configure.
 	 *
