@@ -280,9 +280,9 @@ final class Reader_Data {
 		/**
 		 * Fires after a reader data item is deleted.
 		 *
-		 * @param int    $user_id User ID.
-		 * @param string $key     Key.
-		 * @param string $value   Value.
+		 * @param int         $user_id User ID.
+		 * @param string      $key     Key.
+		 * @param string|null $value   Value. Null when the item is deleted.
 		 */
 		do_action( 'newspack_reader_data_updated', $user_id, $key, null );
 		return true;

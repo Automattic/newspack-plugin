@@ -250,7 +250,7 @@ class Content_Restriction_Control {
 				} elseif ( ! empty( $gate['registration']['require_verification'] ) ) {
 					// Check if email verification is required.
 					$user = get_user_by( 'id', $user_id );
-					if ( ! \get_user_meta( $user->ID, Reader_Activation::EMAIL_VERIFIED, true ) ) {
+					if ( ! $user || ! \get_user_meta( $user->ID, Reader_Activation::EMAIL_VERIFIED, true ) ) {
 						$is_restricted  = true;
 						$gate_layout_id = $gate['registration']['gate_layout_id'] ?? $gate['id'];
 					}
