@@ -7,6 +7,7 @@ import { getPendingCheckout, setPendingCheckout } from './checkout.js';
 import { EVENTS, on, off, emit } from './events.js';
 import { getCookie, setCookie, generateID, debugLog } from './utils.js';
 import overlays from './overlays.js';
+import segments from './segments.js';
 import initAnalytics from './analytics.js';
 import setupArticleViewsAggregates from './article-view.js';
 import initSubscriptionTiersForm from './subscription-tiers-form.js';
@@ -430,6 +431,7 @@ function attachNewsletterFormListener() {
 const readerActivation = {
 	store,
 	overlays,
+	segments,
 	on,
 	off,
 	dispatchActivity,
