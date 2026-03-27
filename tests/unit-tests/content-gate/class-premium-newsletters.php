@@ -129,10 +129,14 @@ class Newspack_Test_Premium_Newsletters extends \WP_UnitTestCase {
 	 * @return int[]
 	 */
 	private function get_scheduled_hook_timestamps(): array {
-		$timestamps = [];
+		$timestamps  = [];
+		$cron_events = _get_cron_array();
+		if ( ! $cron_events ) {
+			$cron_events = [];
+		}
 
 		// WP cron.
-		foreach ( _get_cron_array() as $timestamp => $cron ) {
+		foreach ( $cron_events as $timestamp => $cron ) {
 			if ( isset( $cron[ Premium_Newsletters::SCHEDULED_HOOK ] ) ) {
 				$timestamps[] = (int) $timestamp;
 			}
