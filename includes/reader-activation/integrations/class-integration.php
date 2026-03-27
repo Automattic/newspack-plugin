@@ -224,19 +224,19 @@ abstract class Integration {
 	 *
 	 * Integrations that support pulling contact data should implement this method.
 	 *
-	 * @return Integrations\Incoming_Contact_Field[]|\WP_Error Array of incoming contact field objects or WP_Error on failure.
+	 * @return Integrations\Incoming_Field[]|\WP_Error Array of incoming contact field objects or WP_Error on failure.
 	 */
-	public function get_available_incoming_contact_fields() {
+	public function get_available_incoming_fields() {
 		return [];
 	}
 
 	/**
 	 * Get filtered incoming contact fields from the integration.
 	 *
-	 * @return Integrations\Incoming_Contact_Field[] Array of incoming contact field objects.
+	 * @return Integrations\Incoming_Field[] Array of incoming contact field objects.
 	 */
-	public function get_filtered_incoming_contact_fields() {
-		$fields = $this->get_available_incoming_contact_fields();
+	public function get_filtered_incoming_fields() {
+		$fields = $this->get_available_incoming_fields();
 		if ( is_wp_error( $fields ) ) {
 			return [];
 		}
@@ -313,7 +313,7 @@ abstract class Integration {
 	/**
 	 * Get the enabled incoming fields for this integration.
 	 *
-	 * @return Integrations\Incoming_Contact_Field[] Array of field objects.
+	 * @return Integrations\Incoming_Field[] Array of field objects.
 	 */
 	public function get_enabled_incoming_fields() {
 		$stored = \get_option( self::INCOMING_FIELDS_OPTION_PREFIX . $this->id, [] );
@@ -325,9 +325,9 @@ abstract class Integration {
 			if ( empty( $key ) || ! is_string( $key ) ) {
 				continue;
 			}
-			$field = new Integrations\Incoming_Contact_Field( $key, $raw_data );
+			$field = new Integrations\Incoming_Field( $key, $raw_data );
 			$field = $this->configure_incoming_field( $field );
-			if ( $field instanceof Integrations\Incoming_Contact_Field ) {
+			if ( $field instanceof Integrations\Incoming_Field ) {
 				$fields[] = $field;
 			}
 		}
@@ -335,11 +335,11 @@ abstract class Integration {
 	}
 
 	/**
-	 * Configure an Incoming_Contact_Field after construction.
+	 * Configure an Incoming_Field after construction.
 	 *
-	 * @param Integrations\Incoming_Contact_Field $field The field to configure.
+	 * @param Integrations\Incoming_Field $field The field to configure.
 	 *
-	 * @return Integrations\Incoming_Contact_Field The configured field.
+	 * @return Integrations\Incoming_Field The configured field.
 	 */
 	protected function configure_incoming_field( $field ) {
 		return $field;
@@ -365,7 +365,7 @@ abstract class Integration {
 	 * @return bool True if updated, false otherwise.
 	 */
 	public function update_enabled_incoming_fields( $keys ) {
-		$available = $this->get_available_incoming_contact_fields();
+		$available = $this->get_available_incoming_fields();
 		if ( is_wp_error( $available ) ) {
 			$available = [];
 		}
@@ -373,7 +373,7 @@ abstract class Integration {
 		// Build a lookup of available fields by key.
 		$available_by_key = [];
 		foreach ( $available as $field ) {
-			if ( $field instanceof Integrations\Incoming_Contact_Field ) {
+			if ( $field instanceof Integrations\Incoming_Field ) {
 				$available_by_key[ $field->get_key() ] = $field;
 			}
 		}
@@ -647,7 +647,7 @@ abstract class Integration {
 			$field['value'] = $this->get_settings_field_value( $field['key'] );
 			// Inject metadata options for metadata fields.
 			if ( 'incoming_metadata_fields' === $field['key'] ) {
-				$incoming_fields  = $this->get_filtered_incoming_contact_fields();
+				$incoming_fields  = $this->get_filtered_incoming_fields();
 				$field['options'] = array_map(
 					function ( $incoming_field ) {
 						return $incoming_field->get_key();

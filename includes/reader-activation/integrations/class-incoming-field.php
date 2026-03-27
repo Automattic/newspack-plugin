@@ -1,6 +1,6 @@
 <?php
 /**
- * Incoming Contact Field class
+ * Incoming Field class
  *
  * @package Newspack
  */
@@ -10,12 +10,12 @@ namespace Newspack\Reader_Activation\Integrations;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Incoming Contact Field Class.
+ * Incoming Field Class.
  *
- * Represents a contact field from an external integration, with optional
+ * Represents a field from an external integration, with optional
  * configuration for promotion as an access rule or segmentation criterion.
  */
-class Incoming_Contact_Field {
+class Incoming_Field {
 
 	/**
 	 * The key for this field.

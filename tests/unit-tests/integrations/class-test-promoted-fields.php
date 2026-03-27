@@ -8,7 +8,7 @@
 namespace Newspack\Tests\Unit\Integrations;
 
 use Newspack\Reader_Activation\Integrations;
-use Newspack\Reader_Activation\Integrations\Incoming_Contact_Field;
+use Newspack\Reader_Activation\Integrations\Incoming_Field;
 use Newspack\Reader_Activation\Promoted_Fields;
 use Sample_Integration;
 
@@ -122,8 +122,8 @@ class Test_Promoted_Fields extends \WP_UnitTestCase {
 			/**
 			 * Configure incoming field with promotion config.
 			 *
-			 * @param \Newspack\Reader_Activation\Integrations\Incoming_Contact_Field $field The field.
-			 * @return \Newspack\Reader_Activation\Integrations\Incoming_Contact_Field
+			 * @param \Newspack\Reader_Activation\Integrations\Incoming_Field $field The field.
+			 * @return \Newspack\Reader_Activation\Integrations\Incoming_Field
 			 */
 			protected function configure_incoming_field( $field ) {
 				if ( 'org' === $field->get_key() ) {
@@ -155,8 +155,8 @@ class Test_Promoted_Fields extends \WP_UnitTestCase {
 			/**
 			 * Configure incoming field with minimal promotion config.
 			 *
-			 * @param \Newspack\Reader_Activation\Integrations\Incoming_Contact_Field $field The field.
-			 * @return \Newspack\Reader_Activation\Integrations\Incoming_Contact_Field
+			 * @param \Newspack\Reader_Activation\Integrations\Incoming_Field $field The field.
+			 * @return \Newspack\Reader_Activation\Integrations\Incoming_Field
 			 */
 			protected function configure_incoming_field( $field ) {
 				if ( 'role' === $field->get_key() ) {
@@ -194,7 +194,7 @@ class Test_Promoted_Fields extends \WP_UnitTestCase {
 		$method = new \ReflectionMethod( Promoted_Fields::class, 'evaluate_field' );
 		$method->setAccessible( true );
 
-		$field = new Incoming_Contact_Field( 'org' );
+		$field = new Incoming_Field( 'org' );
 
 		$this->assertTrue( $method->invoke( null, $field, $user_id, 'Newspack' ) );
 		$this->assertFalse( $method->invoke( null, $field, $user_id, 'Other' ) );
@@ -209,7 +209,7 @@ class Test_Promoted_Fields extends \WP_UnitTestCase {
 		$method = new \ReflectionMethod( Promoted_Fields::class, 'evaluate_field' );
 		$method->setAccessible( true );
 
-		$field = ( new Incoming_Contact_Field( 'is_vip' ) )->set_value_type( 'boolean' );
+		$field = ( new Incoming_Field( 'is_vip' ) )->set_value_type( 'boolean' );
 
 		// No data stored — falsy.
 		$this->assertTrue( $method->invoke( null, $field, $user_id, 'no' ) );
@@ -243,7 +243,7 @@ class Test_Promoted_Fields extends \WP_UnitTestCase {
 		$method = new \ReflectionMethod( Promoted_Fields::class, 'evaluate_field' );
 		$method->setAccessible( true );
 
-		$field = ( new Incoming_Contact_Field( 'institution' ) )->set_matching_function( 'list__in' );
+		$field = ( new Incoming_Field( 'institution' ) )->set_matching_function( 'list__in' );
 
 		// Plain string should match when included in args.
 		$this->assertTrue( $method->invoke( null, $field, $user_id, [ 'University of Testing' ] ) );

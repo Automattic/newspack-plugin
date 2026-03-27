@@ -281,36 +281,36 @@ class Test_Integrations extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * Test get_available_incoming_contact_fields returns empty array when no fields available.
+	 * Test get_available_incoming_fields returns empty array when no fields available.
 	 */
-	public function test_get_available_incoming_contact_fields_empty() {
+	public function test_get_available_incoming_fields_empty() {
 		$integration = new Sample_Integration( 'test-id', 'Test Integration' );
 		Integrations::register( $integration );
 
-		$fields = $integration->get_available_incoming_contact_fields();
+		$fields = $integration->get_available_incoming_fields();
 
 		$this->assertIsArray( $fields );
 		$this->assertEmpty( $fields );
 	}
 
 	/**
-	 * Test get_available_incoming_contact_fields propagates WP_Error from get_available_incoming_contact_fields.
+	 * Test get_available_incoming_fields propagates WP_Error from get_available_incoming_fields.
 	 */
-	public function test_get_available_incoming_contact_fields_propagates_error() {
+	public function test_get_available_incoming_fields_propagates_error() {
 		$integration = new class( 'error-test', 'Error Test' ) extends Sample_Integration {
 			/**
 			 * Get incoming available contact fields (returns error for test).
 			 *
 			 * @return \WP_Error
 			 */
-			public function get_available_incoming_contact_fields() {
+			public function get_available_incoming_fields() {
 				return new \WP_Error( 'test_error', 'Test error message' );
 			}
 		};
 
 		Integrations::register( $integration );
 
-		$result = $integration->get_available_incoming_contact_fields();
+		$result = $integration->get_available_incoming_fields();
 
 		$this->assertWPError( $result );
 		$this->assertEquals( 'test_error', $result->get_error_code() );

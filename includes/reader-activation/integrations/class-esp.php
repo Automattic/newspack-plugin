@@ -375,9 +375,9 @@ class ESP extends Integration {
 	/**
 	 * Get incoming available contact fields from the integration.
 	 *
-	 * @return Incoming_Contact_Field[]|\WP_Error Array of incoming contact field objects or WP_Error on failure.
+	 * @return Incoming_Field[]|\WP_Error Array of incoming contact field objects or WP_Error on failure.
 	 */
-	public function get_available_incoming_contact_fields() {
+	public function get_available_incoming_fields() {
 		if ( ! class_exists( 'Newspack_Newsletters_Contacts' ) ) {
 			return new \WP_Error(
 				'newspack_newsletters_contacts_not_found',
@@ -402,7 +402,7 @@ class ESP extends Integration {
 
 		return array_map(
 			function( $field ) {
-				return new Incoming_Contact_Field( $field['key'], $field );
+				return new Incoming_Field( $field['key'], $field );
 			},
 			$fields
 		);

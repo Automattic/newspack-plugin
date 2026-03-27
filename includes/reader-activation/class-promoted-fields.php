@@ -9,7 +9,8 @@ namespace Newspack\Reader_Activation;
 
 use Newspack\Access_Rules;
 use Newspack\Reader_Data;
-use Newspack\Reader_Activation\Integrations\Incoming_Contact_Field;
+use Newspack\Reader_Activation\Integration;
+use Newspack\Reader_Activation\Integrations\Incoming_Field;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -44,7 +45,7 @@ class Promoted_Fields {
 	/**
 	 * Get all promoted fields from active integrations.
 	 *
-	 * @return array Promoted fields as [ namespaced_key => [ 'field' => Incoming_Contact_Field, 'integration' => Integration ] ].
+	 * @return array Promoted fields as [ namespaced_key => [ 'field' => Incoming_Field, 'integration' => Integration ] ].
 	 */
 	public static function get_promoted_fields() {
 		if ( null !== self::$promoted_fields ) {
@@ -97,8 +98,8 @@ class Promoted_Fields {
 	/**
 	 * Get the display name for a promoted field, prefixed with the integration name.
 	 *
-	 * @param Incoming_Contact_Field                  $field       The field.
-	 * @param \Newspack\Reader_Activation\Integration $integration The integration.
+	 * @param Incoming_Field $field       The field.
+	 * @param Integration    $integration The integration.
 	 * @return string
 	 */
 	private static function get_display_name( $field, $integration ) {
@@ -193,9 +194,9 @@ class Promoted_Fields {
 	/**
 	 * Evaluate a promoted field for a given user.
 	 *
-	 * @param Incoming_Contact_Field $field   The field.
-	 * @param int                    $user_id User ID.
-	 * @param mixed                  $args    Rule arguments (value to match against).
+	 * @param Incoming_Field $field   The field.
+	 * @param int            $user_id User ID.
+	 * @param mixed          $args    Rule arguments (value to match against).
 	 *
 	 * @return bool Whether the field matches.
 	 */
