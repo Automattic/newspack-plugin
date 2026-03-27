@@ -12,6 +12,7 @@ use Newspack\Content_Gate;
 use Newspack\Content_Rules;
 use Newspack\Data_Events;
 use Newspack\Premium_Newsletters;
+use Newspack\Reader_Activation;
 
 /**
  * Tests for the Premium_Newsletters class.
@@ -657,9 +658,9 @@ class Newspack_Test_Premium_Newsletters extends \WP_UnitTestCase {
 	// =========================================================================
 
 	/**
-	 * Test that all four handlers are wired to the correct actions.
+	 * Test that all handlers are wired to the correct actions.
 	 */
-	public function test_register_handlers_wires_all_four_handlers() {
+	public function test_register_handlers_wires_all_handlers() {
 		$handler = [ 'Newspack\Premium_Newsletters', 'maybe_add_or_remove_lists' ];
 
 		foreach ( [
@@ -667,6 +668,8 @@ class Newspack_Test_Premium_Newsletters extends \WP_UnitTestCase {
 			'subscription_renewal_payment_failed',
 			'product_subscription_changed',
 			'donation_subscription_changed',
+			'reader_verified',
+			'reader_data_updated',
 		] as $action ) {
 			$handlers = Data_Events::get_action_handlers( $action );
 			$this->assertContains(
@@ -675,5 +678,162 @@ class Newspack_Test_Premium_Newsletters extends \WP_UnitTestCase {
 				"maybe_add_or_remove_lists should be registered for {$action}"
 			);
 		}
+	}
+
+	// =========================================================================
+	// Group G — reader_verified / reader_data_updated event handlers
+	// =========================================================================
+
+	/**
+	 * Test that the reader_data_updated data shape — which carries no 'email' key —
+	 * is accepted by maybe_add_or_remove_lists without error and queues the user.
+	 */
+	public function test_reader_data_updated_data_shape_queues_user() {
+		$user_id = $this->factory->user->create();
+
+		Premium_Newsletters::maybe_add_or_remove_lists(
+			time(),
+			[
+				'user_id' => $user_id,
+				'key'     => 'article_views',
+				'value'   => '10',
+			],
+			null
+		);
+
+		$this->assertContains( $user_id, $this->get_queued_user_ids() );
+	}
+
+	/**
+	 * Test that after email verification, a user whose email domain is whitelisted
+	 * is added to the restricted newsletter lists.
+	 *
+	 * This is the primary motivation for hooking reader_verified: a user who just
+	 * verified their email should immediately be enrolled in any lists their domain
+	 * entitles them to, without having to trigger a subscription event.
+	 */
+	public function test_reader_verified_grants_list_access_for_whitelisted_domain() {
+		update_option( 'newspack_premium_newsletters_auto_signup', 1 );
+
+		$user_id = $this->factory->user->create(
+			[
+				'role'       => 'subscriber',
+				'user_email' => 'reader@example.com',
+			]
+		);
+		// Mark email as verified so the email_domain access rule passes.
+		update_user_meta( $user_id, Reader_Activation::EMAIL_VERIFIED, true );
+
+		$list_post_id     = $this->factory->post->create( [ 'post_type' => \Newspack\Newsletters\Subscription_Lists::CPT ] );
+		$this->post_ids[] = $list_post_id;
+
+		// Gate that restricts the list to readers with an @example.com address.
+		$gate_id          = Content_Gate::create_gate( [ 'title' => 'Domain Gate' ], Content_Gate::GATE_CPT, true );
+		$this->gate_ids[] = $gate_id;
+
+		Content_Gate::update_custom_access_settings(
+			$gate_id,
+			[
+				'active'       => true,
+				'access_rules' => [
+					[
+						[
+							'slug'  => 'email_domain',
+							'value' => 'example.com',
+						],
+					],
+				],
+			]
+		);
+
+		Content_Rules::update_gate_content_rules(
+			$gate_id,
+			[
+				[
+					'slug'  => 'newsletters',
+					'value' => [ $list_post_id ],
+				],
+			]
+		);
+
+		// Simulate the reader_verified Data Event firing for this user.
+		Premium_Newsletters::maybe_add_or_remove_lists(
+			time(),
+			[
+				'user_id' => $user_id,
+				'email'   => 'reader@example.com',
+			],
+			null
+		);
+		Premium_Newsletters::process_access_check_queue();
+
+		$calls = \Newspack_Newsletters_Contacts::$add_and_remove_lists_calls;
+		$this->assertCount( 1, $calls, 'One add_and_remove_lists call expected.' );
+		$this->assertEquals( 'reader@example.com', $calls[0]['email'] );
+		$this->assertContains( 'list-' . $list_post_id, $calls[0]['lists_to_add'] );
+		$this->assertEmpty( $calls[0]['lists_to_remove'] );
+	}
+
+	/**
+	 * Test that a user whose email is NOT yet verified is not added to lists
+	 * even when their domain is whitelisted — verification is a prerequisite.
+	 */
+	public function test_reader_verified_does_not_grant_access_when_email_unverified() {
+		update_option( 'newspack_premium_newsletters_auto_signup', 1 );
+
+		$user_id = $this->factory->user->create(
+			[
+				'role'       => 'subscriber',
+				'user_email' => 'reader@example.com',
+			]
+		);
+		// Explicitly mark as unverified.
+		update_user_meta( $user_id, Reader_Activation::EMAIL_VERIFIED, false );
+
+		$list_post_id     = $this->factory->post->create( [ 'post_type' => \Newspack\Newsletters\Subscription_Lists::CPT ] );
+		$this->post_ids[] = $list_post_id;
+
+		$gate_id          = Content_Gate::create_gate( [ 'title' => 'Domain Gate' ], Content_Gate::GATE_CPT, true );
+		$this->gate_ids[] = $gate_id;
+
+		Content_Gate::update_custom_access_settings(
+			$gate_id,
+			[
+				'active'       => true,
+				'access_rules' => [
+					[
+						[
+							'slug'  => 'email_domain',
+							'value' => 'example.com',
+						],
+					],
+				],
+			]
+		);
+
+		Content_Rules::update_gate_content_rules(
+			$gate_id,
+			[
+				[
+					'slug'  => 'newsletters',
+					'value' => [ $list_post_id ],
+				],
+			]
+		);
+
+		Premium_Newsletters::maybe_add_or_remove_lists(
+			time(),
+			[
+				'user_id' => $user_id,
+				'email'   => 'reader@example.com',
+			],
+			null
+		);
+		Premium_Newsletters::process_access_check_queue();
+
+		$this->assertEmpty(
+			\Newspack_Newsletters_Contacts::$add_and_remove_lists_calls,
+			'Unverified user must not be added to lists even with a matching domain.'
+		);
 	}
 }
