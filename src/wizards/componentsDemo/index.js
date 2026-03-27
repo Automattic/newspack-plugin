@@ -231,20 +231,18 @@ class ComponentsDemo extends Component {
 					<Card>
 						<h2>{ __( 'Handoff Buttons', 'newspack-plugin' ) }</h2>
 						<Card buttonsCard noBorder>
-							<Handoff
-								modalTitle={ __( 'Manage AMP', 'newspack-plugin' ) }
-								modalBody={ __(
-									'Click to go to the AMP dashboard. There will be a notification bar at the top with a link to return to Newspack.',
-									'newspack-plugin'
-								) }
-								plugin="amp"
-								isTertiary
-							/>
 							<Handoff plugin="jetpack" />
 							<Handoff plugin="google-site-kit" />
 							<Handoff plugin="woocommerce" />
 							<Handoff plugin="wordpress-seo" isPrimary editLink="/wp-admin/admin.php?page=wpseo_dashboard#top#features">
 								{ __( 'Specific Yoast Page', 'newspack-plugin' ) }
+							</Handoff>
+							<Handoff
+								url="/wp-admin/admin.php?page=newspack-dashboard"
+								bannerText={ __( "Return to Components Demo once you're done.", 'newspack-plugin' ) }
+								bannerButtonText={ __( 'Back to Components Demo', 'newspack-plugin' ) }
+							>
+								{ __( 'Go to Dashboard', 'newspack-plugin' ) }
 							</Handoff>
 						</Card>
 					</Card>
@@ -489,6 +487,14 @@ class ComponentsDemo extends Component {
 						actionText={ __( 'Configure', 'newspack-plugin' ) }
 						handoff="jetpack"
 						editLink="admin.php?page=jetpack#/settings"
+					/>
+					<ActionCard
+						title={ __( 'Handoff with URL', 'newspack-plugin' ) }
+						description={ __( 'An example of an action card with URL-based Handoff.', 'newspack-plugin' ) }
+						actionText={ __( 'Go to Dashboard', 'newspack-plugin' ) }
+						handoffUrl="/wp-admin/admin.php?page=newspack-dashboard"
+						bannerText={ __( "Return to Components Demo once you're done.", 'newspack-plugin' ) }
+						bannerButtonText={ __( 'Back to Components Demo', 'newspack-plugin' ) }
 					/>
 					<ActionCard
 						expandable
