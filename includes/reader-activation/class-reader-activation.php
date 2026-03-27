@@ -1706,22 +1706,16 @@ final class Reader_Activation {
 	public static function api_render_newsletters_signup_form( $request ) {
 		$email = $request['email_address'];
 
-		// Only derive a user context from the email address if the requester is authenticated
-		// and the provided email matches the current user's email. This avoids exposing
-		// an oracle for whether a given email maps to a premium user on a public endpoint.
-		if ( is_user_logged_in() ) {
-			$current_user = wp_get_current_user();
-			if ( $current_user && strcasecmp( $current_user->user_email, $email ) === 0 ) {
-				// Use the authenticated user's ID for evaluating content restrictions.
-				$user_id = $current_user;
-				$email   = $user_id->user_email;
-				add_filter(
-					'newspack_content_restriction_control_user_id',
-					function() use ( $user_id ) {
-						return $user_id->ID;
-					}
-				);
-			}
+		// If the email address is associated with a user, use that user's ID for evaluating content restrictions.
+		$user_id = get_user_by( 'email', $email );
+		if ( $user_id ) {
+			$email = $user_id->user_email;
+			add_filter(
+				'newspack_content_restriction_control_user_id',
+				function() use ( $user_id ) {
+					return $user_id->ID;
+				}
+			);
 		}
 		ob_start();
 		self::render_newsletters_signup_modal( $email );

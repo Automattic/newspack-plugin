@@ -177,7 +177,7 @@ class Premium_Newsletters {
 		}
 		$gates = Content_Gate::get_gates( Content_Gate::GATE_CPT, 'publish', true );
 		if ( empty( $gates ) ) {
-			return;
+			return [];
 		}
 		$restricted_lists = [];
 		foreach ( $gates as $gate ) {
