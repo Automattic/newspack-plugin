@@ -14,7 +14,9 @@ use Newspack\Newsletters\Subscription_List;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Premium Newsletters Wizard.
+ * Premium Newsletters integration and access control.
+ *
+ * Registers filters, data-event handlers, and scheduled hooks for premium newsletters.
  */
 class Premium_Newsletters {
 	/**
