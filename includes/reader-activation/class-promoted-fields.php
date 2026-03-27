@@ -201,6 +201,12 @@ class Promoted_Fields {
 	 * @return bool Whether the field matches.
 	 */
 	private static function evaluate_field( $field, $user_id, $args ) {
+		// Custom callback takes precedence.
+		$callback = $field->get_access_rule_callback();
+		if ( is_callable( $callback ) ) {
+			return (bool) call_user_func( $callback, $user_id, $args );
+		}
+
 		$value = Reader_Data::get_data( $user_id, $field->get_key() );
 
 		// Boolean fields: access rules pass no args (just check truthiness),

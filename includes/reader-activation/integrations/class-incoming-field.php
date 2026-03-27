@@ -74,6 +74,16 @@ class Incoming_Field {
 	protected $is_segment_criteria = false;
 
 	/**
+	 * Custom callback for access rule evaluation.
+	 *
+	 * If set, takes precedence over the matching_function for access rules.
+	 * Receives ( $user_id, $args ) and should return bool.
+	 *
+	 * @var callable|null
+	 */
+	protected $access_rule_callback = null;
+
+	/**
 	 * Raw field data from the integration API.
 	 *
 	 * @var array
@@ -239,6 +249,29 @@ class Incoming_Field {
 	 */
 	public function set_is_segment_criteria( $is_segment_criteria ) {
 		$this->is_segment_criteria = (bool) $is_segment_criteria;
+		return $this;
+	}
+
+	/**
+	 * Get the custom access rule callback.
+	 *
+	 * @return callable|null
+	 */
+	public function get_access_rule_callback() {
+		return $this->access_rule_callback;
+	}
+
+	/**
+	 * Set a custom callback for access rule evaluation.
+	 *
+	 * The callback receives ( $user_id, $args ) and should return bool.
+	 * When set, it takes precedence over the matching_function for access rules.
+	 *
+	 * @param callable $callback The callback.
+	 * @return self
+	 */
+	public function set_access_rule_callback( $callback ) {
+		$this->access_rule_callback = $callback;
 		return $this;
 	}
 

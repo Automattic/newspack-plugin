@@ -254,4 +254,61 @@ class Test_Promoted_Fields extends \WP_UnitTestCase {
 		$this->assertFalse( $method->invoke( null, $field, $user_id, [ 'University of Testing' ] ) );
 		$this->assertTrue( $method->invoke( null, $field, $user_id, [ 'Other University' ] ) );
 	}
+
+	/**
+	 * Test that access_rule_callback takes precedence over matching_function.
+	 */
+	public function test_access_rule_callback_takes_precedence() {
+		$user_id = $this->factory->user->create();
+
+		$method = new \ReflectionMethod( Promoted_Fields::class, 'evaluate_field' );
+		$method->setAccessible( true );
+
+		// Field with default matching that would return false.
+		$field = ( new Incoming_Field( 'custom' ) )
+			->set_access_rule_callback(
+				function ( $uid, $args ) {
+					// Always grant access regardless of stored data.
+					return true;
+				}
+			);
+
+		$this->assertTrue( $method->invoke( null, $field, $user_id, 'nonexistent_value' ) );
+
+		// Callback that denies access.
+		$field->set_access_rule_callback(
+			function ( $uid, $args ) {
+				return false;
+			}
+		);
+
+		$this->assertFalse( $method->invoke( null, $field, $user_id, 'anything' ) );
+	}
+
+	/**
+	 * Test that access_rule_callback receives correct arguments.
+	 */
+	public function test_access_rule_callback_receives_arguments() {
+		$user_id = $this->factory->user->create();
+
+		$method = new \ReflectionMethod( Promoted_Fields::class, 'evaluate_field' );
+		$method->setAccessible( true );
+
+		$captured = [];
+		$field    = ( new Incoming_Field( 'test_field' ) )
+			->set_access_rule_callback(
+				function ( $uid, $args ) use ( &$captured ) {
+					$captured = [
+						'user_id' => $uid,
+						'args'    => $args,
+					];
+					return true;
+				}
+			);
+
+		$method->invoke( null, $field, $user_id, 'test_value' );
+
+		$this->assertSame( $user_id, $captured['user_id'] );
+		$this->assertSame( 'test_value', $captured['args'] );
+	}
 }
