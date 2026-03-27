@@ -339,6 +339,15 @@ class Plugins_Controller extends WP_REST_Controller {
 			return new \WP_Error( 'newspack_handoff_missing_url', __( 'destinationUrl is required.', 'newspack-plugin' ), [ 'status' => 400 ] );
 		}
 
+		// Reject external URLs to prevent open-redirect attacks.
+		$parsed_destination = wp_parse_url( $destination_url );
+		if ( ! empty( $parsed_destination['host'] ) ) {
+			$site_host = wp_parse_url( admin_url(), PHP_URL_HOST );
+			if ( $parsed_destination['host'] !== $site_host ) {
+				return new \WP_Error( 'newspack_handoff_invalid_url', __( 'destinationUrl must be a same-site URL.', 'newspack-plugin' ), [ 'status' => 400 ] );
+			}
+		}
+
 		$handoff_return_url   = $request->get_param( 'handoffReturnUrl' );
 		$show_on_block_editor = $request->get_param( 'showOnBlockEditor' );
 		$banner_text          = (string) $request->get_param( 'bannerText' );

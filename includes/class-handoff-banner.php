@@ -43,6 +43,12 @@ class Handoff_Banner {
 			return;
 		}
 
+		// On Newspack wizard pages the static banner is rendered via newspack_before_wizard_content.
+		$screen = get_current_screen();
+		if ( $screen && stristr( $screen->id, 'newspack' ) ) {
+			return;
+		}
+
 		printf(
 			"<div id='newspack-handoff-banner' data-primary_button_url='%s' data-banner_text='%s' data-banner_button_text='%s'></div>",
 			esc_url( get_option( NEWSPACK_HANDOFF_RETURN_URL ) ),
@@ -152,11 +158,6 @@ class Handoff_Banner {
 		);
 		wp_enqueue_style( $handle );
 
-		$screen = get_current_screen();
-		if ( $screen && stristr( $screen->id, 'newspack' ) ) {
-			return;
-		}
-
 		Newspack::load_common_assets();
 
 		$asset = include NEWSPACK_ABSPATH . 'dist/handoff-banner.asset.php';
@@ -184,6 +185,7 @@ class Handoff_Banner {
 		update_option( NEWSPACK_HANDOFF_SHOW_ON_BLOCK_EDITOR, (bool) $show_on_block_editor );
 		update_option( NEWSPACK_HANDOFF_BANNER_TEXT, sanitize_text_field( $banner_text ) );
 		update_option( NEWSPACK_HANDOFF_BANNER_BUTTON_TEXT, sanitize_text_field( $banner_button_text ) );
+		update_option( NEWSPACK_HANDOFF_DESTINATION_PAGE, '' );
 	}
 
 	/**
@@ -205,23 +207,52 @@ class Handoff_Banner {
 	}
 
 	/**
-	 * If the current admin page is part of the Newspack dashboard, clear the handoff URL. This ensures the handoff banner won't be shown on Newspack admin pages.
+	 * Clear all handoff-related options.
+	 *
+	 * @return void
+	 */
+	private function clear_all_handoff_options() {
+		update_option( NEWSPACK_HANDOFF, null );
+		update_option( NEWSPACK_HANDOFF_SHOW_ON_BLOCK_EDITOR, false );
+		update_option( NEWSPACK_HANDOFF_BANNER_TEXT, '' );
+		update_option( NEWSPACK_HANDOFF_BANNER_BUTTON_TEXT, '' );
+		update_option( NEWSPACK_HANDOFF_DESTINATION_PAGE, '' );
+	}
+
+	/**
+	 * Clear the handoff state when navigating away from the destination page.
+	 * Clears on any Newspack screen that isn't the destination, and on any
+	 * non-Newspack screen when a destination page was registered (preventing
+	 * the banner from lingering on unrelated admin pages).
 	 *
 	 * @param WP_Screen $current_screen The current screen object.
 	 * @return void
 	 */
 	public function clear_handoff_url( $current_screen ) {
+		if ( ! self::needs_handoff_return_ui() ) {
+			return;
+		}
+
+		$destination_page = get_option( NEWSPACK_HANDOFF_DESTINATION_PAGE, '' );
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$current_page = isset( $_GET['page'] ) ? sanitize_text_field( wp_unslash( $_GET['page'] ) ) : '';
+
+		// Don't clear if we're on the intended destination page.
+		if ( $destination_page && $current_page === $destination_page ) {
+			return;
+		}
+
+		// Clear on any Newspack screen that isn't the destination.
 		if ( stristr( $current_screen->id, 'newspack' ) ) {
-			$destination_page = get_option( NEWSPACK_HANDOFF_DESTINATION_PAGE, '' );
-			// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			if ( $destination_page && isset( $_GET['page'] ) && sanitize_text_field( wp_unslash( $_GET['page'] ) ) === $destination_page ) {
-				return;
-			}
-			update_option( NEWSPACK_HANDOFF, null );
-			update_option( NEWSPACK_HANDOFF_SHOW_ON_BLOCK_EDITOR, false );
-			update_option( NEWSPACK_HANDOFF_BANNER_TEXT, '' );
-			update_option( NEWSPACK_HANDOFF_BANNER_BUTTON_TEXT, '' );
-			update_option( NEWSPACK_HANDOFF_DESTINATION_PAGE, '' );
+			$this->clear_all_handoff_options();
+			return;
+		}
+
+		// For URL-based handoffs with a known destination page, also clear on any
+		// non-Newspack page that isn't the destination, to prevent the banner from
+		// persisting across unrelated admin screens.
+		if ( $destination_page ) {
+			$this->clear_all_handoff_options();
 		}
 	}
 }

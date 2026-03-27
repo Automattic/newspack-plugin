@@ -135,7 +135,7 @@ class Handoff extends Component {
 						{ ...otherProps }
 						onClick={ () => ( useModal ? this.setState( { showModal: true } ) : goTo() ) }
 					>
-						{ children }
+						{ children ? children : primaryButton }
 					</Button>
 				) }
 				{ ! url && Name && 'active' === Status && (
