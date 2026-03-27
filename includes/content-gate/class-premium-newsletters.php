@@ -116,7 +116,7 @@ class Premium_Newsletters {
 	 *
 	 * @param string $list_id The local list ID.
 	 *
-	 * @return string The public list ID.
+	 * @return string|null The public list ID, or null if $list_id is not a valid local list ID.
 	 */
 	private static function get_public_id( $list_id ) {
 		if ( ! class_exists( 'Newspack\Newsletters\Subscription_List' ) ) {
