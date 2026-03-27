@@ -315,7 +315,7 @@ class Premium_Newsletters {
 	/**
 	 * Delete the queue option entirely.
 	 *
-	 * Called before each queue processing run and on plugin deactivation
+	 * Called after each queue processing run and on plugin deactivation
 	 * (via the newspack_deactivation hook registered in init()).
 	 *
 	 * @return void
