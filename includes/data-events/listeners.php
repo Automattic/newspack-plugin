@@ -114,11 +114,29 @@ Data_Events::register_listener(
 
 /**
  * When reader data is updated.
+ *
+ * Read-only keys (active_memberships, active_subscriptions, is_former_donor,
+ * is_donor, newsletter_subscribed_lists) are excluded: they are written by
+ * Data Event handlers themselves (e.g. update_newsletter_subscribed_lists,
+ * set_is_donor), so dispatching for them would create an infinite loop.
+ *
+ * The current-event guard provides a second layer of protection: if this WP
+ * action fires while a Data Event handler is already executing (e.g. because
+ * a handler calls Reader_Data::update_item() for a non-read-only key), we
+ * suppress the re-dispatch to avoid recursive chains.
  */
 Data_Events::register_listener(
 	'newspack_reader_data_updated',
 	'reader_data_updated',
 	function( $user_id, $key, $value ) {
+		// Don't dispatch for system-managed read-only keys.
+		if ( in_array( $key, Reader_Data::get_read_only_keys(), true ) ) {
+			return;
+		}
+		// Don't re-dispatch if we're already inside a Data Event handler.
+		if ( Data_Events::current_event() ) {
+			return;
+		}
 		return [
 			'user_id' => $user_id,
 			'key'     => $key,
