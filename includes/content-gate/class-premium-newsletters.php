@@ -33,7 +33,7 @@ class Premium_Newsletters {
 
 	/**
 	 * WP option key for the pending user ID queue.
-	 * Stores: [ 'user_ids' => int[], 'created_at' => int ]
+	 * Stores: int[]
 	 */
 	const QUEUE_OPTION = 'newspack_premium_newsletters_access_check_queue';
 
