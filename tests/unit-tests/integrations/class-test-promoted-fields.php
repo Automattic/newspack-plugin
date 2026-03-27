@@ -8,6 +8,7 @@
 namespace Newspack\Tests\Unit\Integrations;
 
 use Newspack\Reader_Activation\Integrations;
+use Newspack\Reader_Activation\Integrations\Incoming_Contact_Field;
 use Newspack\Reader_Activation\Promoted_Fields;
 use Sample_Integration;
 
@@ -116,23 +117,21 @@ class Test_Promoted_Fields extends \WP_UnitTestCase {
 	 * Test that promoted field names are prefixed with integration name.
 	 */
 	public function test_field_name_prefixed_with_integration_name() {
-		// Use a subclass that returns config.
+		// Use a subclass that enriches the field via build_incoming_field.
 		$integration = new class( 'prefix-test', 'ActiveCampaign' ) extends Sample_Integration {
 			/**
-			 * Return config for the org field.
+			 * Configure incoming field with promotion config.
 			 *
-			 * @param string $key Field key.
-			 * @return array
+			 * @param \Newspack\Reader_Activation\Integrations\Incoming_Contact_Field $field The field.
+			 * @return \Newspack\Reader_Activation\Integrations\Incoming_Contact_Field
 			 */
-			public function get_incoming_field_config( $key ) {
-				if ( 'org' === $key ) {
-					return [
-						'name'                => 'Organization',
-						'is_access_rule'      => true,
-						'is_segment_criteria' => true,
-					];
+			protected function configure_incoming_field( $field ) {
+				if ( 'org' === $field->get_key() ) {
+					$field->set_name( 'Organization' )
+						->set_is_access_rule( true )
+						->set_is_segment_criteria( true );
 				}
-				return [];
+				return $field;
 			}
 		};
 
@@ -144,7 +143,8 @@ class Test_Promoted_Fields extends \WP_UnitTestCase {
 
 		$fields = Promoted_Fields::get_promoted_fields();
 		$this->assertArrayHasKey( 'prefix-test__org', $fields );
-		$this->assertSame( 'ActiveCampaign: Organization', $fields['prefix-test__org']['name'] );
+		$this->assertSame( 'Organization', $fields['prefix-test__org']['field']->get_name() );
+		$this->assertSame( 'ActiveCampaign', $fields['prefix-test__org']['integration']->get_name() );
 	}
 
 	/**
@@ -153,18 +153,16 @@ class Test_Promoted_Fields extends \WP_UnitTestCase {
 	public function test_defaults_applied() {
 		$integration = new class( 'defaults-test', 'TestInt' ) extends Sample_Integration {
 			/**
-			 * Return minimal config.
+			 * Configure incoming field with minimal promotion config.
 			 *
-			 * @param string $key Field key.
-			 * @return array
+			 * @param \Newspack\Reader_Activation\Integrations\Incoming_Contact_Field $field The field.
+			 * @return \Newspack\Reader_Activation\Integrations\Incoming_Contact_Field
 			 */
-			public function get_incoming_field_config( $key ) {
-				if ( 'role' === $key ) {
-					return [
-						'is_segment_criteria' => true,
-					];
+			protected function configure_incoming_field( $field ) {
+				if ( 'role' === $field->get_key() ) {
+					$field->set_is_segment_criteria( true );
 				}
-				return [];
+				return $field;
 			}
 		};
 
@@ -176,10 +174,11 @@ class Test_Promoted_Fields extends \WP_UnitTestCase {
 
 		$fields = Promoted_Fields::get_promoted_fields();
 		$this->assertArrayHasKey( 'defaults-test__role', $fields );
-		$this->assertSame( 'default', $fields['defaults-test__role']['matching_function'] );
-		$this->assertSame( 'role', $fields['defaults-test__role']['reader_data_key'] );
-		// Name defaults to field key, prefixed with integration name.
-		$this->assertSame( 'TestInt: role', $fields['defaults-test__role']['name'] );
+		$field = $fields['defaults-test__role']['field'];
+		$this->assertSame( 'default', $field->get_matching_function() );
+		$this->assertSame( 'role', $field->get_key() );
+		// Name defaults to field key.
+		$this->assertSame( 'role', $field->get_name() );
 	}
 
 	/**
@@ -188,7 +187,6 @@ class Test_Promoted_Fields extends \WP_UnitTestCase {
 	public function test_evaluate_default_matching() {
 		$user_id = $this->factory->user->create();
 
-		// Store a reader data item.
 		if ( class_exists( '\Newspack\Reader_Data' ) ) {
 			\Newspack\Reader_Data::update_item( $user_id, 'org', 'Newspack' );
 		}
@@ -196,13 +194,10 @@ class Test_Promoted_Fields extends \WP_UnitTestCase {
 		$method = new \ReflectionMethod( Promoted_Fields::class, 'evaluate_field' );
 		$method->setAccessible( true );
 
-		$config = [
-			'matching_function' => 'default',
-			'reader_data_key'   => 'org',
-		];
+		$field = new Incoming_Contact_Field( 'org' );
 
-		$this->assertTrue( $method->invoke( null, 'org', $config, $user_id, 'Newspack' ) );
-		$this->assertFalse( $method->invoke( null, 'org', $config, $user_id, 'Other' ) );
+		$this->assertTrue( $method->invoke( null, $field, $user_id, 'Newspack' ) );
+		$this->assertFalse( $method->invoke( null, $field, $user_id, 'Other' ) );
 	}
 
 	/**
@@ -214,28 +209,25 @@ class Test_Promoted_Fields extends \WP_UnitTestCase {
 		$method = new \ReflectionMethod( Promoted_Fields::class, 'evaluate_field' );
 		$method->setAccessible( true );
 
-		$config = [
-			'value_type'      => 'boolean',
-			'reader_data_key' => 'is_vip',
-		];
+		$field = ( new Incoming_Contact_Field( 'is_vip' ) )->set_value_type( 'boolean' );
 
 		// No data stored — falsy.
-		$this->assertTrue( $method->invoke( null, 'is_vip', $config, $user_id, 'no' ) );
-		$this->assertFalse( $method->invoke( null, 'is_vip', $config, $user_id, 'yes' ) );
+		$this->assertTrue( $method->invoke( null, $field, $user_id, 'no' ) );
+		$this->assertFalse( $method->invoke( null, $field, $user_id, 'yes' ) );
 
 		// Store truthy value.
 		if ( class_exists( '\Newspack\Reader_Data' ) ) {
 			\Newspack\Reader_Data::update_item( $user_id, 'is_vip', '1' );
 		}
 
-		$this->assertTrue( $method->invoke( null, 'is_vip', $config, $user_id, 'yes' ) );
-		$this->assertFalse( $method->invoke( null, 'is_vip', $config, $user_id, 'no' ) );
+		$this->assertTrue( $method->invoke( null, $field, $user_id, 'yes' ) );
+		$this->assertFalse( $method->invoke( null, $field, $user_id, 'no' ) );
 
 		// Access rule style — no specific args, just check truthiness.
-		$this->assertTrue( $method->invoke( null, 'is_vip', $config, $user_id, null ) );
+		$this->assertTrue( $method->invoke( null, $field, $user_id, null ) );
 
 		// Access rule style — boolean true value, as used by content-gate rules.
-		$this->assertTrue( $method->invoke( null, 'is_vip', $config, $user_id, true ) );
+		$this->assertTrue( $method->invoke( null, $field, $user_id, true ) );
 	}
 
 	/**
@@ -251,18 +243,15 @@ class Test_Promoted_Fields extends \WP_UnitTestCase {
 		$method = new \ReflectionMethod( Promoted_Fields::class, 'evaluate_field' );
 		$method->setAccessible( true );
 
-		$config = [
-			'matching_function' => 'list__in',
-			'reader_data_key'   => 'institution',
-		];
+		$field = ( new Incoming_Contact_Field( 'institution' ) )->set_matching_function( 'list__in' );
 
 		// Plain string should match when included in args.
-		$this->assertTrue( $method->invoke( null, 'institution', $config, $user_id, [ 'University of Testing' ] ) );
-		$this->assertFalse( $method->invoke( null, 'institution', $config, $user_id, [ 'Other University' ] ) );
+		$this->assertTrue( $method->invoke( null, $field, $user_id, [ 'University of Testing' ] ) );
+		$this->assertFalse( $method->invoke( null, $field, $user_id, [ 'Other University' ] ) );
 
 		// list__not_in should be the inverse.
-		$config['matching_function'] = 'list__not_in';
-		$this->assertFalse( $method->invoke( null, 'institution', $config, $user_id, [ 'University of Testing' ] ) );
-		$this->assertTrue( $method->invoke( null, 'institution', $config, $user_id, [ 'Other University' ] ) );
+		$field->set_matching_function( 'list__not_in' );
+		$this->assertFalse( $method->invoke( null, $field, $user_id, [ 'University of Testing' ] ) );
+		$this->assertTrue( $method->invoke( null, $field, $user_id, [ 'Other University' ] ) );
 	}
 }

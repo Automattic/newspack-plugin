@@ -9,6 +9,7 @@ namespace Newspack\Reader_Activation;
 
 use Newspack\Access_Rules;
 use Newspack\Reader_Data;
+use Newspack\Reader_Activation\Integrations\Incoming_Contact_Field;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -43,11 +44,7 @@ class Promoted_Fields {
 	/**
 	 * Get all promoted fields from active integrations.
 	 *
-	 * Iterates each active integration's enabled incoming fields and calls
-	 * get_incoming_field_config() for each. Fields that return a non-empty
-	 * config with is_access_rule or is_segment_criteria are collected.
-	 *
-	 * @return array Promoted fields keyed by field key.
+	 * @return array Promoted fields as [ namespaced_key => [ 'field' => Incoming_Contact_Field, 'integration' => Integration ] ].
 	 */
 	public static function get_promoted_fields() {
 		if ( null !== self::$promoted_fields ) {
@@ -68,37 +65,23 @@ class Promoted_Fields {
 		}
 
 		foreach ( $integrations as $integration ) {
-			$incoming = $integration->get_incoming_fields();
-			foreach ( $incoming as $field ) {
-				if ( ! $field->is_promoted() ) {
+			foreach ( $integration->get_enabled_incoming_fields() as $field ) {
+				if ( ! $field->is_access_rule() && ! $field->is_segment_criteria() ) {
 					continue;
 				}
-				$field_key = $field->get_key();
-				$config    = $field->get_config();
-
-				// Ensure defaults.
-				$config = wp_parse_args(
-					$config,
-					[
-						'name'              => $field_key,
-						'matching_function' => 'default',
-						'reader_data_key'   => $field_key,
-					]
-				);
-
-				// Prefix the display name with the integration name.
-				$config['name'] = sprintf( '%s: %s', $integration->get_name(), $config['name'] );
-
 				// Namespace the key with the integration ID to avoid collisions.
-				$namespaced_key            = $integration->get_id() . '__' . $field_key;
-				$fields[ $namespaced_key ] = $config;
+				$namespaced_key            = $integration->get_id() . '__' . $field->get_key();
+				$fields[ $namespaced_key ] = [
+					'field'       => $field,
+					'integration' => $integration,
+				];
 			}
 		}
 
 		/**
 		 * Filters the promoted fields available as access rules and segmentation criteria.
 		 *
-		 * @param array $fields Promoted fields keyed by field key.
+		 * @param array $fields Promoted fields keyed by namespaced key.
 		 */
 		self::$promoted_fields = apply_filters( 'newspack_integration_promoted_fields', $fields );
 		return self::$promoted_fields;
@@ -112,25 +95,38 @@ class Promoted_Fields {
 	}
 
 	/**
+	 * Get the display name for a promoted field, prefixed with the integration name.
+	 *
+	 * @param Incoming_Contact_Field                  $field       The field.
+	 * @param \Newspack\Reader_Activation\Integration $integration The integration.
+	 * @return string
+	 */
+	private static function get_display_name( $field, $integration ) {
+		return sprintf( '%s: %s', $integration->get_name(), $field->get_name() );
+	}
+
+	/**
 	 * Register promoted fields as content gate access rules.
 	 *
 	 * @param array $fields Promoted fields.
 	 */
 	private static function register_access_rules( $fields ) {
-		foreach ( $fields as $key => $config ) {
-			if ( empty( $config['is_access_rule'] ) ) {
+		foreach ( $fields as $key => $entry ) {
+			$field       = $entry['field'];
+			$integration = $entry['integration'];
+
+			if ( ! $field->is_access_rule() ) {
 				continue;
 			}
-			$is_boolean = 'boolean' === ( $config['value_type'] ?? '' );
 			Access_Rules::register_rule(
 				[
 					'id'          => $key,
-					'name'        => $config['name'],
-					'description' => $config['description'] ?? '',
-					'options'     => $config['options'] ?? [],
-					'is_boolean'  => $is_boolean,
-					'callback'    => function ( $user_id, $args ) use ( $key, $config ) {
-						return self::evaluate_field( $key, $config, $user_id, $args );
+					'name'        => self::get_display_name( $field, $integration ),
+					'description' => $field->get_description(),
+					'options'     => $field->get_options(),
+					'is_boolean'  => 'boolean' === $field->get_value_type(),
+					'callback'    => function ( $user_id, $args ) use ( $field ) {
+						return self::evaluate_field( $field, $user_id, $args );
 					},
 				]
 			);
@@ -146,16 +142,17 @@ class Promoted_Fields {
 		if ( ! class_exists( '\Newspack_Popups_Criteria' ) ) {
 			return;
 		}
-		foreach ( $fields as $key => $config ) {
-			if ( empty( $config['is_segment_criteria'] ) ) {
+		foreach ( $fields as $key => $entry ) {
+			$field       = $entry['field'];
+			$integration = $entry['integration'];
+
+			if ( ! $field->is_segment_criteria() ) {
 				continue;
 			}
-			$reader_data_key = $config['reader_data_key'] ?? $key;
-			$is_boolean      = 'boolean' === ( $config['value_type'] ?? '' );
-			$options          = $config['options'] ?? [];
+			$options = $field->get_options();
 
 			// Boolean fields get Yes/No options for segmentation.
-			if ( $is_boolean && empty( $options ) ) {
+			if ( 'boolean' === $field->get_value_type() && empty( $options ) ) {
 				$options = [
 					[
 						'value' => 'yes',
@@ -182,12 +179,12 @@ class Promoted_Fields {
 			\Newspack_Popups_Criteria::register_criteria(
 				$key,
 				[
-					'name'               => $config['name'],
+					'name'               => self::get_display_name( $field, $integration ),
 					'category'           => 'integrations',
-					'matching_function'  => $config['matching_function'] ?? 'default',
-					'matching_attribute' => $reader_data_key,
+					'matching_function'  => $field->get_matching_function(),
+					'matching_attribute' => $field->get_key(),
 					'options'            => $options,
-					'description'        => $config['description'] ?? '',
+					'description'        => $field->get_description(),
 				]
 			);
 		}
@@ -196,22 +193,18 @@ class Promoted_Fields {
 	/**
 	 * Evaluate a promoted field for a given user.
 	 *
-	 * @param string $key     Field key.
-	 * @param array  $config  Field configuration.
-	 * @param int    $user_id User ID.
-	 * @param mixed  $args    Rule arguments (value to match against).
+	 * @param Incoming_Contact_Field $field   The field.
+	 * @param int                    $user_id User ID.
+	 * @param mixed                  $args    Rule arguments (value to match against).
 	 *
 	 * @return bool Whether the field matches.
 	 */
-	private static function evaluate_field( $key, $config, $user_id, $args ) {
-		$reader_data_key = $config['reader_data_key'] ?? $key;
-		$match           = $config['matching_function'] ?? 'default';
-		$value_type      = $config['value_type'] ?? '';
-		$value           = Reader_Data::get_data( $user_id, $reader_data_key );
+	private static function evaluate_field( $field, $user_id, $args ) {
+		$value = Reader_Data::get_data( $user_id, $field->get_key() );
 
 		// Boolean fields: access rules pass no args (just check truthiness),
 		// segmentation passes 'yes'/'no'.
-		if ( 'boolean' === $value_type ) {
+		if ( 'boolean' === $field->get_value_type() ) {
 			$is_truthy = ! empty( $value );
 
 			// Segmentation: expects 'yes'/'no' (case-insensitive) as string arguments.
@@ -229,7 +222,7 @@ class Promoted_Fields {
 			return $is_truthy;
 		}
 
-		switch ( $match ) {
+		switch ( $field->get_matching_function() ) {
 			case 'range':
 				$min = $args['min'] ?? 0;
 				$max = $args['max'] ?? PHP_INT_MAX;
@@ -244,6 +237,7 @@ class Promoted_Fields {
 				return $value === $args;
 		}
 	}
+
 	/**
 	 * Parse a stored value into an array for list matching.
 	 *

@@ -331,11 +331,13 @@ class Test_Integrations extends \WP_UnitTestCase {
 	 */
 	public function test_set_and_get_enabled_incoming_fields() {
 		$integration = new Sample_Integration( 'test-id', 'Test Integration' );
-		$fields      = [ 'first_name', 'last_name', 'phone' ];
+		$keys        = [ 'first_name', 'last_name', 'phone' ];
 
-		$integration->update_enabled_incoming_fields( $fields );
+		$integration->update_enabled_incoming_fields( $keys );
 
-		$this->assertSame( $fields, $integration->get_enabled_incoming_fields() );
+		$result     = $integration->get_enabled_incoming_fields();
+		$result_keys = array_map( fn( $f ) => $f->get_key(), $result );
+		$this->assertSame( $keys, $result_keys );
 	}
 
 	/**
@@ -343,11 +345,13 @@ class Test_Integrations extends \WP_UnitTestCase {
 	 */
 	public function test_update_incoming_fields_stores_any_keys() {
 		$integration = new Sample_Integration( 'test-id', 'Test Integration' );
-		$fields      = [ 'nonexistent_field', 'another_unknown' ];
+		$keys        = [ 'nonexistent_field', 'another_unknown' ];
 
-		$integration->update_enabled_incoming_fields( $fields );
+		$integration->update_enabled_incoming_fields( $keys );
 
-		$this->assertSame( $fields, $integration->get_enabled_incoming_fields() );
+		$result     = $integration->get_enabled_incoming_fields();
+		$result_keys = array_map( fn( $f ) => $f->get_key(), $result );
+		$this->assertSame( $keys, $result_keys );
 	}
 
 	/**

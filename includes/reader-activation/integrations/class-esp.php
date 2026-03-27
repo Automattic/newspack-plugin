@@ -402,7 +402,7 @@ class ESP extends Integration {
 
 		return array_map(
 			function( $field ) {
-				return new Incoming_Contact_Field( $field['key'] );
+				return new Incoming_Contact_Field( $field['key'], $field );
 			},
 			$fields
 		);
