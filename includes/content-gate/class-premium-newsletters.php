@@ -38,13 +38,13 @@ class Premium_Newsletters {
 	/**
 	 * Default scheduling delay in seconds.
 	 */
-	const DEFAULT_DELAY = MINUTE_IN_SECONDS;
+	const DEFAULT_DELAY = 10 * MINUTE_IN_SECONDS;
 
 	/**
 	 * A pending event must be scheduled at least this many seconds in the future
 	 * to be considered "far enough" to piggyback on rather than scheduling a new one.
 	 */
-	const FUTURE_EVENT_THRESHOLD = 10;
+	const FUTURE_EVENT_THRESHOLD = MINUTE_IN_SECONDS;
 
 	/**
 	 * Log a warning once the queue exceeds this many unique user IDs.
