@@ -85,32 +85,34 @@ class Test_Promoted_Fields extends \WP_UnitTestCase {
 	 * Test that incoming fields with config are promoted.
 	 */
 	public function test_incoming_fields_with_config_promoted() {
-		$this->integration->update_enabled_incoming_fields( [ 'organization' ] );
-
-		// Override get_incoming_field_config via filter.
-		add_filter(
-			'newspack_integration_promoted_fields',
-			function () {
-				return [
-					'organization' => [
-						'name'                => 'Organization',
-						'is_access_rule'      => true,
-						'is_segment_criteria' => true,
-						'category'            => 'integrations',
-						'matching_function'   => 'default',
-						'reader_data_key'     => 'organization',
-					],
-				];
+		$integration = new class( 'config-test', 'Config Test' ) extends Sample_Integration {
+			/**
+			 * Configure incoming field with promotion config.
+			 *
+			 * @param \Newspack\Reader_Activation\Integrations\Incoming_Field $field The field.
+			 * @return \Newspack\Reader_Activation\Integrations\Incoming_Field
+			 */
+			protected function configure_incoming_field( $field ) {
+				if ( 'organization' === $field->get_key() ) {
+					$field->set_name( 'Organization' )
+						->set_is_access_rule( true )
+						->set_is_segment_criteria( true );
+				}
+				return $field;
 			}
-		);
+		};
+
+		$this->reset_integrations();
+		Integrations::register( $integration );
+		Integrations::enable( 'config-test' );
+		$integration->update_enabled_incoming_fields( [ 'organization' ] );
 		Promoted_Fields::reset_cache();
 
 		$fields = Promoted_Fields::get_promoted_fields();
-		$this->assertArrayHasKey( 'organization', $fields );
-		$this->assertTrue( $fields['organization']['is_access_rule'] );
-		$this->assertTrue( $fields['organization']['is_segment_criteria'] );
-
-		remove_all_filters( 'newspack_integration_promoted_fields' );
+		$this->assertArrayHasKey( 'config-test__organization', $fields );
+		$field = $fields['config-test__organization']['field'];
+		$this->assertTrue( $field->is_access_rule() );
+		$this->assertTrue( $field->is_segment_criteria() );
 	}
 
 	/**
@@ -188,7 +190,7 @@ class Test_Promoted_Fields extends \WP_UnitTestCase {
 		$user_id = $this->factory->user->create();
 
 		if ( class_exists( '\Newspack\Reader_Data' ) ) {
-			\Newspack\Reader_Data::update_item( $user_id, 'org', 'Newspack' );
+			\Newspack\Reader_Data::update_item( $user_id, 'org', wp_json_encode( 'Newspack' ) );
 		}
 
 		$method = new \ReflectionMethod( Promoted_Fields::class, 'evaluate_field' );
@@ -217,7 +219,7 @@ class Test_Promoted_Fields extends \WP_UnitTestCase {
 
 		// Store truthy value.
 		if ( class_exists( '\Newspack\Reader_Data' ) ) {
-			\Newspack\Reader_Data::update_item( $user_id, 'is_vip', '1' );
+			\Newspack\Reader_Data::update_item( $user_id, 'is_vip', wp_json_encode( true ) );
 		}
 
 		$this->assertTrue( $method->invoke( null, $field, $user_id, 'yes' ) );
@@ -237,7 +239,7 @@ class Test_Promoted_Fields extends \WP_UnitTestCase {
 		$user_id = $this->factory->user->create();
 
 		if ( class_exists( '\Newspack\Reader_Data' ) ) {
-			\Newspack\Reader_Data::update_item( $user_id, 'institution', 'University of Testing' );
+			\Newspack\Reader_Data::update_item( $user_id, 'institution', wp_json_encode( 'University of Testing' ) );
 		}
 
 		$method = new \ReflectionMethod( Promoted_Fields::class, 'evaluate_field' );

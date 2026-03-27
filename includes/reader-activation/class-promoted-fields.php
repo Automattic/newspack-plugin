@@ -100,6 +100,7 @@ class Promoted_Fields {
 	 *
 	 * @param Incoming_Field $field       The field.
 	 * @param Integration    $integration The integration.
+	 *
 	 * @return string
 	 */
 	private static function get_display_name( $field, $integration ) {
@@ -207,7 +208,8 @@ class Promoted_Fields {
 			return (bool) call_user_func( $callback, $user_id, $args );
 		}
 
-		$value = Reader_Data::get_data( $user_id, $field->get_key() );
+		$raw_value = Reader_Data::get_data( $user_id, $field->get_key() );
+		$value     = self::decode_value( $raw_value );
 
 		// Boolean fields: access rules pass no args (just check truthiness),
 		// segmentation passes 'yes'/'no'.
@@ -246,26 +248,39 @@ class Promoted_Fields {
 	}
 
 	/**
-	 * Parse a stored value into an array for list matching.
+	 * Decode a stored value from Reader_Data.
 	 *
-	 * Handles JSON-encoded arrays, plain scalar strings, and null/empty values.
+	 * @param mixed $value The raw stored value.
 	 *
-	 * @param mixed $value The stored value.
+	 * @return mixed The decoded value.
+	 */
+	private static function decode_value( $value ) {
+		if ( ! is_string( $value ) ) {
+			return $value;
+		}
+		$decoded = json_decode( $value, true );
+		if ( null !== $decoded || 'null' === $value ) {
+			return $decoded;
+		}
+		// Not valid JSON — return as-is.
+		return $value;
+	}
+
+	/**
+	 * Parse a value into an array for list matching.
+	 *
+	 * @param mixed $value The decoded value.
+	 *
 	 * @return array
 	 */
 	private static function parse_list_value( $value ) {
 		if ( is_array( $value ) ) {
 			return $value;
 		}
-		if ( ! is_string( $value ) || '' === $value ) {
-			return [];
+		if ( is_string( $value ) && '' !== $value ) {
+			return [ $value ];
 		}
-		$decoded = json_decode( $value, true );
-		if ( is_array( $decoded ) ) {
-			return $decoded;
-		}
-		// Plain scalar string — treat as single-element list.
-		return [ $value ];
+		return [];
 	}
 }
 Promoted_Fields::init();
