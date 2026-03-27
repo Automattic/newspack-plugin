@@ -1,6 +1,6 @@
 <?php
 /**
- * Incoming Field class
+ * Integrations Incoming Field class
  *
  * @package Newspack
  */
@@ -12,8 +12,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Incoming Field Class.
  *
- * Represents a field from an external integration, with optional
- * configuration for promotion as an access rule or segmentation criterion.
+ * Represents a field from an external integration.
  */
 class Incoming_Field {
 
