@@ -85,7 +85,8 @@ final class Reader_Activation {
 	private static $reader_activation_labels = [];
 
 	/**
-	 * Email address of the current reader.
+	 * Current reader user ID.
+	 * Only used for evaluating content restrictions for the newsletter signup form.
 	 *
 	 * @var int
 	 */
