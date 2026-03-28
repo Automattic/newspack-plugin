@@ -208,21 +208,22 @@ class Premium_Newsletters {
 		if ( ! $user ) {
 			return;
 		}
-		$email            = $user->user_email;
 		$restricted_lists = self::get_restricted_lists() ?? [];
 		if ( empty( $restricted_lists ) ) {
 			return;
 		}
+		$auto_signup     = (bool) get_option( 'newspack_premium_newsletters_auto_signup', 1 );
 		$lists_to_add    = [];
 		$lists_to_remove = [];
 		foreach ( $restricted_lists as $list_id ) {
 			if ( Content_Restriction_Control::is_post_restricted( false, $list_id, $user_id ) ) {
 				$lists_to_remove[] = $list_id;
-			} elseif ( (bool) get_option( 'newspack_premium_newsletters_auto_signup', 1 ) ) {
+			} elseif ( $auto_signup ) {
 				$lists_to_add[] = $list_id;
 			}
 		}
 
+		$email = $user->user_email;
 		self::add_and_remove_lists( $email, $lists_to_add, $lists_to_remove );
 	}
 

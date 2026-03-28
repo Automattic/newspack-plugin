@@ -85,6 +85,13 @@ final class Reader_Activation {
 	private static $reader_activation_labels = [];
 
 	/**
+	 * Email address of the current reader.
+	 *
+	 * @var int
+	 */
+	private static $current_reader_user_id = 0;
+
+	/**
 	 * Initialize hooks.
 	 */
 	public static function init() {
@@ -1697,6 +1704,20 @@ final class Reader_Activation {
 	}
 
 	/**
+	 * Filter the user ID used for evaluating content restrictions.
+	 *
+	 * @param int $user_id User ID.
+	 *
+	 * @return int User ID.
+	 */
+	public static function get_user_id_for_content_restriction( $user_id ) {
+		if ( self::$current_reader_user_id ) {
+			return self::$current_reader_user_id;
+		}
+		return $user_id;
+	}
+
+	/**
 	 * Fetch HTML for the post-checkout newsletter signup modal.
 	 *
 	 * @param WP_REST_Request $request The REST request.
@@ -1706,20 +1727,22 @@ final class Reader_Activation {
 	public static function api_render_newsletters_signup_form( $request ) {
 		$email = $request['email_address'];
 
-		// If the email address is associated with a user, use that user's ID for evaluating content restrictions.
-		$user_id = get_user_by( 'email', $email );
-		if ( $user_id ) {
-			$email = $user_id->user_email;
-			add_filter(
-				'newspack_content_restriction_control_user_id',
-				function() use ( $user_id ) {
-					return $user_id->ID;
-				}
-			);
+		// If the email address is associated with a different user, use that user's ID for evaluating content restrictions for the signup form.
+		// TODO: Maybe check this against the result of self::set_current_reader()?
+		$user = get_user_by( 'email', $email );
+		if ( $user && $user->ID !== get_current_user_id() ) {
+			self::$current_reader_user_id = $user->ID;
+			add_filter( 'newspack_content_restriction_control_user_id', [ self::class, 'get_user_id_for_content_restriction' ] );
 		}
 		ob_start();
 		self::render_newsletters_signup_modal( $email );
 		$html = trim( ob_get_clean() );
+
+		// Reset the current reader user ID so it doesn't affect other operations in this session.
+		if ( $user && $user->ID !== get_current_user_id() ) {
+			self::$current_reader_user_id = 0;
+			remove_filter( 'newspack_content_restriction_control_user_id', [ self::class, 'get_user_id_for_content_restriction' ] );
+		}
 		return new \WP_REST_Response( [ 'html' => $html ] );
 	}
 
