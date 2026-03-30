@@ -1,7 +1,6 @@
 /**
  * External dependencies
  */
-import type { ComponentType } from 'react';
 import classnames from 'classnames';
 
 /**
@@ -39,7 +38,7 @@ type CardFeatureIcon = {
 type MoreControl = {
 	title: string;
 	onClick: () => void;
-	icon?: ComponentType< { size?: number } > | JSX.Element;
+	icon?: React.ReactNode;
 };
 
 type CardFeatureProps = {
