@@ -123,10 +123,13 @@ class Contact_Pull {
 	 * endpoint. If a request fails, the integration is scheduled for retry
 	 * via ActionScheduler.
 	 *
-	 * @param int                                       $user_id      WordPress user ID.
-	 * @param \Newspack\Reader_Activation\Integration[] $integrations Active integrations to pull from.
+	 * @param \Newspack\Reader_Activation\Integration[] $integrations Active integrations to pull from. Defaults to all active integrations.
 	 */
-	public static function pull_sync( $user_id, $integrations ) {
+	public static function pull_sync( $integrations = [] ) {
+		if ( empty( $integrations ) ) {
+			$integrations = Integrations::get_active_integrations();
+		}
+
 		foreach ( $integrations as $id => $integration ) {
 			$selected_fields = $integration->get_enabled_incoming_fields();
 			if ( empty( $selected_fields ) ) {
@@ -136,11 +139,8 @@ class Contact_Pull {
 			$response = self::fire_pull_request( $id );
 
 			if ( is_wp_error( $response ) || 200 !== wp_remote_retrieve_response_code( $response ) ) {
-				$error = is_wp_error( $response )
-					? $response
-					: new \WP_Error( 'unexpected_response', 'Unexpected response code: ' . wp_remote_retrieve_response_code( $response ) );
-				Logger::log( 'Loopback pull failed for ' . $id . '. Scheduling retry. Error: ' . $error->get_error_message(), self::LOGGER_HEADER );
-				self::schedule_integration_retry( $id, $user_id, 0, $error );
+				$error_message = is_wp_error( $response ) ? $response->get_error_message() : 'Unexpected response code: ' . wp_remote_retrieve_response_code( $response );
+				Logger::log( 'Loopback pull failed for ' . $id . '. Error: ' . $error_message, self::LOGGER_HEADER );
 			} else {
 				Logger::log( 'Loopback pull succeeded for ' . $id . '.', self::LOGGER_HEADER );
 			}

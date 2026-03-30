@@ -118,7 +118,7 @@ class Contact_Cron {
 		self::enqueue_for_pull( $user_id );
 
 		if ( Contact_Pull::is_stale( $last_enqueue ) ) {
-			Contact_Pull::pull_sync( $user_id, Integrations::get_active_integrations() );
+			Contact_Pull::pull_sync();
 		}
 	}
 
