@@ -33,13 +33,6 @@ class Contact_Sync extends Sync {
 	protected static $queued_syncs = [];
 
 	/**
-	 * The ID of the currently-executing ActionScheduler action.
-	 *
-	 * @var int|null
-	 */
-	private static $current_as_action_id = null;
-
-	/**
 	 * ActionScheduler hook for retrying a failed integration sync.
 	 */
 	const RETRY_HOOK = 'newspack_contact_sync_retry';
@@ -62,8 +55,6 @@ class Contact_Sync extends Sync {
 		add_action( 'newspack_scheduled_esp_sync', [ __CLASS__, 'scheduled_sync' ], 10, 2 );
 		add_action( 'shutdown', [ __CLASS__, 'run_queued_syncs' ] );
 		add_action( self::RETRY_HOOK, [ __CLASS__, 'execute_integration_retry' ] );
-		add_action( 'action_scheduler_begin_execute', [ __CLASS__, 'set_current_as_action_id' ] );
-		add_action( 'action_scheduler_after_execute', [ __CLASS__, 'clear_current_as_action_id' ] );
 		add_filter( 'newspack_action_scheduler_hook_labels', [ __CLASS__, 'register_hook_labels' ] );
 	}
 
@@ -78,21 +69,6 @@ class Contact_Sync extends Sync {
 		return $labels;
 	}
 
-	/**
-	 * Set the current ActionScheduler action ID.
-	 *
-	 * @param int $action_id The AS action ID.
-	 */
-	public static function set_current_as_action_id( $action_id ) {
-		self::$current_as_action_id = $action_id;
-	}
-
-	/**
-	 * Clear the current ActionScheduler action ID.
-	 */
-	public static function clear_current_as_action_id() {
-		self::$current_as_action_id = null;
-	}
 
 	/**
 	 * Sync contact to the ESP.
@@ -119,7 +95,7 @@ class Contact_Sync extends Sync {
 				self::$queued_syncs[ $contact['email'] ] = [
 					'contexts'     => [],
 					'contact'      => [],
-					'as_action_id' => self::$current_as_action_id,
+					'as_action_id' => Logger::get_current_as_action_id(),
 				];
 			}
 			if ( ! empty( self::$queued_syncs[ $contact['email'] ]['contact']['metadata'] ) ) {
@@ -198,17 +174,9 @@ class Contact_Sync extends Sync {
 				);
 				self::schedule_integration_retry( $integration_id, $user_id, $context, 0, $result, $previous_email );
 				$errors[] = sprintf( '[%s] %s', $integration_id, $result->get_error_message() );
-				if ( self::$current_as_action_id ) {
-					\ActionScheduler_Logger::instance()->log(
-						self::$current_as_action_id,
-						sprintf( 'Sync failed for integration "%s" of %s: %s', $integration_id, $contact['email'] ?? 'unknown', $result->get_error_message() )
-					);
-				}
-			} elseif ( self::$current_as_action_id ) {
-				\ActionScheduler_Logger::instance()->log(
-					self::$current_as_action_id,
-					sprintf( 'Sync succeeded for integration "%s" of %s.', $integration_id, $contact['email'] ?? 'unknown' )
-				);
+				static::log( sprintf( 'Sync failed for integration "%s" of %s: %s', $integration_id, $contact['email'] ?? 'unknown', $result->get_error_message() ) );
+			} else {
+				static::log( sprintf( 'Sync succeeded for integration "%s" of %s.', $integration_id, $contact['email'] ?? 'unknown' ) );
 			}
 		}
 
@@ -255,12 +223,6 @@ class Contact_Sync extends Sync {
 					$error_message
 				)
 			);
-			if ( self::$current_as_action_id ) {
-				\ActionScheduler_Logger::instance()->log(
-					self::$current_as_action_id,
-					'Max retries exhausted.'
-				);
-			}
 			/**
 			 * Fires when a contact sync integration has exhausted all retry attempts.
 			 *
@@ -402,12 +364,6 @@ class Contact_Sync extends Sync {
 				$contact['email'] ?? 'unknown',
 				$error_messages
 			);
-			if ( self::$current_as_action_id ) {
-				\ActionScheduler_Logger::instance()->log(
-					self::$current_as_action_id,
-					$error_message
-				);
-			}
 			// Only throw on the last retry so ActionScheduler marks it as "failed".
 			// Intermediate retries schedule the next attempt and complete normally.
 			if ( $retry_count >= self::MAX_RETRIES ) {
@@ -423,9 +379,6 @@ class Contact_Sync extends Sync {
 				$contact['email'] ?? 'unknown'
 			);
 			static::log( $success_message );
-			if ( self::$current_as_action_id ) {
-				\ActionScheduler_Logger::instance()->log( self::$current_as_action_id, $success_message );
-			}
 		}
 	}
 
@@ -571,11 +524,9 @@ class Contact_Sync extends Sync {
 			return;
 		}
 
-		// Restore the AS action ID so push_to_integrations() can log against it.
-		$saved_action_id = self::$current_as_action_id;
-
 		foreach ( self::$queued_syncs as $email => $queued_sync ) {
-			self::$current_as_action_id = $queued_sync['as_action_id'] ?? null;
+			// Set Logger's AS action ID so logs are attached to the originating action.
+			Logger::set_current_as_action_id( $queued_sync['as_action_id'] ?? null );
 
 			$user = get_user_by( 'email', $email );
 			$contact = null;
@@ -593,7 +544,7 @@ class Contact_Sync extends Sync {
 			self::sync( $contact, implode( '; ', $contexts ) );
 		}
 
-		self::$current_as_action_id = $saved_action_id;
+		Logger::clear_current_as_action_id();
 		self::$queued_syncs = [];
 	}
 }

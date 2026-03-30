@@ -38,6 +38,15 @@ class Logger {
 	}
 
 	/**
+	 * Get the current ActionScheduler action ID.
+	 *
+	 * @return int|null The current AS action ID, or null if not running inside an AS action.
+	 */
+	public static function get_current_as_action_id() {
+		return self::$current_as_action_id;
+	}
+
+	/**
 	 * Clear the current ActionScheduler action ID.
 	 */
 	public static function clear_current_as_action_id() {

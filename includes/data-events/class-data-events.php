@@ -82,13 +82,6 @@ final class Data_Events {
 	private static $current_event = null;
 
 	/**
-	 * The ID of the currently-executing ActionScheduler action.
-	 *
-	 * @var int|null
-	 */
-	private static $current_as_action_id = null;
-
-	/**
 	 * ActionScheduler hook for handling dispatched events.
 	 */
 	const DISPATCH_AS_HOOK = 'newspack_data_events_handle';
@@ -128,8 +121,6 @@ final class Data_Events {
 		\add_action( 'shutdown', [ __CLASS__, 'execute_queued_dispatches' ] );
 		\add_action( self::DISPATCH_AS_HOOK, [ __CLASS__, 'handle_from_scheduler' ] );
 		\add_action( self::HANDLER_RETRY_HOOK, [ __CLASS__, 'execute_handler_retry' ] );
-		\add_action( 'action_scheduler_begin_execute', [ __CLASS__, 'set_current_as_action_id' ] );
-		\add_action( 'action_scheduler_after_execute', [ __CLASS__, 'clear_current_as_action_id' ] );
 		\add_filter( 'newspack_action_scheduler_hook_labels', [ __CLASS__, 'register_hook_labels' ] );
 	}
 
@@ -389,21 +380,6 @@ final class Data_Events {
 		self::$current_event = $name;
 	}
 
-	/**
-	 * Set the current ActionScheduler action ID.
-	 *
-	 * @param int $action_id The AS action ID.
-	 */
-	public static function set_current_as_action_id( $action_id ) {
-		self::$current_as_action_id = $action_id;
-	}
-
-	/**
-	 * Clear the current ActionScheduler action ID.
-	 */
-	public static function clear_current_as_action_id() {
-		self::$current_as_action_id = null;
-	}
 
 	/**
 	 * Register a triggerable action.
@@ -799,12 +775,6 @@ final class Data_Events {
 				),
 				'error'
 			);
-			if ( self::$current_as_action_id ) {
-				\ActionScheduler_Logger::instance()->log(
-					self::$current_as_action_id,
-					sprintf( 'Max retries exhausted. Final error: %s', $error->getMessage() )
-				);
-			}
 			/**
 			 * Fires when a Data Events handler has exhausted all retry attempts.
 			 *
