@@ -430,6 +430,32 @@ class Contact_Sync extends Sync {
 	}
 
 	/**
+	 * Check if a user has any pending sync retries in ActionScheduler.
+	 *
+	 * @param int $user_id WordPress user ID.
+	 * @return bool True if there are pending retries.
+	 */
+	public static function has_pending_retries( $user_id ) {
+		if ( ! function_exists( 'as_get_scheduled_actions' ) ) {
+			return false;
+		}
+		$actions = \as_get_scheduled_actions(
+			[
+				'hook'     => self::RETRY_HOOK,
+				'status'   => \ActionScheduler_Store::STATUS_PENDING,
+				'per_page' => 1,
+			]
+		);
+		foreach ( $actions as $action ) {
+			$args = $action->get_args();
+			if ( ! empty( $args[0]['user_id'] ) && (int) $args[0]['user_id'] === $user_id ) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
 	 * Schedule a future sync.
 	 *
 	 * @param int    $user_id The user ID for the contact to sync.
