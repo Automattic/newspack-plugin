@@ -10,6 +10,7 @@ namespace Newspack\Blocks\Author_Profile_Social;
 use Newspack\Social_Icons;
 use Newspack_Blocks;
 use WP_Block;
+use WP_Theme_JSON_Data;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -24,6 +25,7 @@ final class Author_Profile_Social_Block {
 	 */
 	public static function init(): void {
 		add_action( 'init', [ __CLASS__, 'register_block' ] );
+		add_filter( 'wp_theme_json_data_blocks', [ __CLASS__, 'set_default_block_gap' ] );
 	}
 
 	/**
@@ -54,6 +56,35 @@ final class Author_Profile_Social_Block {
 		);
 
 		remove_filter( 'block_type_metadata', $set_inserter );
+	}
+
+	/**
+	 * Set a default blockGap for this block via the blocks theme.json layer.
+	 * This matches what newspack-block-theme does for core/social-links
+	 * but works with any block theme.
+	 *
+	 * @param WP_Theme_JSON_Data $theme_json Theme JSON data.
+	 * @return WP_Theme_JSON_Data
+	 */
+	public static function set_default_block_gap( WP_Theme_JSON_Data $theme_json ): WP_Theme_JSON_Data {
+		$theme_json->update_with(
+			[
+				'version' => 3,
+				'styles'  => [
+					'blocks' => [
+						'newspack/author-profile-social' => [
+							'spacing' => [
+								'blockGap' => [
+									'left' => 'var:preset|spacing|20',
+									'top'  => 'var:preset|spacing|20',
+								],
+							],
+						],
+					],
+				],
+			]
+		);
+		return $theme_json;
 	}
 
 	/**

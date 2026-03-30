@@ -2,7 +2,7 @@
  * WordPress dependencies
  */
 import { useContext, useEffect, useMemo, useRef, useState } from '@wordpress/element';
-import { BlockControls, useBlockProps, InnerBlocks, InspectorControls } from '@wordpress/block-editor';
+import { BlockControls, useBlockProps, useInnerBlocksProps, InspectorControls } from '@wordpress/block-editor';
 import { PanelBody, SelectControl, Button, ToolbarButton, ToolbarGroup, Tooltip } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
@@ -160,6 +160,12 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 		replaceInnerBlocks( clientId, [ ...innerBlocks, ...newBlocks ], false );
 	};
 
+	const innerBlocksProps = useInnerBlocksProps( blockProps, {
+		allowedBlocks: ALLOWED_BLOCKS,
+		orientation: 'horizontal',
+		renderAppender: false,
+	} );
+
 	if ( services.length === 0 && innerBlockCount === 0 ) {
 		return (
 			<ul { ...blockProps }>
@@ -195,9 +201,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 					) }
 				</PanelBody>
 			</InspectorControls>
-			<ul { ...blockProps }>
-				<InnerBlocks allowedBlocks={ ALLOWED_BLOCKS } orientation="horizontal" renderAppender={ false } />
-			</ul>
+			<ul { ...innerBlocksProps } />
 		</>
 	);
 }
