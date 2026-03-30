@@ -113,10 +113,11 @@ class Contact_Pull {
 	 * Run synchronous pull for the current user via per-integration loopback requests.
 	 *
 	 * Each integration is pulled via a blocking wp_remote_post to the AJAX
-	 * endpoint. If a request fails, the integration is scheduled for retry
-	 * via ActionScheduler.
+	 * endpoint. Returns WP_Error if any integration fails, so the caller
+	 * can enqueue the user for the next cron batch.
 	 *
 	 * @param \Newspack\Reader_Activation\Integration[] $integrations Active integrations to pull from. Defaults to all active integrations.
+	 * @return true|\WP_Error True if all succeeded, WP_Error with combined messages.
 	 */
 	public static function pull_sync( $integrations = [] ) {
 		if ( empty( $integrations ) ) {
@@ -124,6 +125,8 @@ class Contact_Pull {
 		}
 
 		Logger::log( 'Synchronous pull started for user "' . get_current_user_id() . '".', self::LOGGER_HEADER );
+		$errors = [];
+
 		foreach ( $integrations as $id => $integration ) {
 			$selected_fields = $integration->get_enabled_incoming_fields();
 			if ( empty( $selected_fields ) ) {
@@ -135,10 +138,17 @@ class Contact_Pull {
 			if ( is_wp_error( $response ) || 200 !== wp_remote_retrieve_response_code( $response ) ) {
 				$error_message = is_wp_error( $response ) ? $response->get_error_message() : 'Unexpected response code: ' . wp_remote_retrieve_response_code( $response );
 				Logger::log( 'Loopback pull failed for ' . $id . '. Error: ' . $error_message, self::LOGGER_HEADER );
+				$errors[] = sprintf( '[%s] %s', $id, $error_message );
 			} else {
 				Logger::log( 'Loopback pull succeeded for ' . $id . '.', self::LOGGER_HEADER );
 			}
 		}
+
+		if ( ! empty( $errors ) ) {
+			return new \WP_Error( 'newspack_sync_pull_failed', implode( '; ', $errors ) );
+		}
+
+		return true;
 	}
 
 	/**
@@ -276,7 +286,7 @@ class Contact_Pull {
 			[
 				'hook'     => self::RETRY_HOOK,
 				'status'   => \ActionScheduler_Store::STATUS_PENDING,
-				'per_page' => 1,
+				'per_page' => -1,
 			]
 		);
 		foreach ( $actions as $action ) {

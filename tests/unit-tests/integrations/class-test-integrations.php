@@ -630,9 +630,9 @@ class Test_Integrations extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * Test sync pull failure keeps user in pull queue for batch processing.
+	 * Test stale sync pull failure enqueues user for batch pull.
 	 */
-	public function test_sync_pull_timeout_keeps_user_in_queue() {
+	public function test_stale_sync_pull_failure_enqueues_for_batch() {
 		$user_id = $this->factory()->user->create();
 		wp_set_current_user( $user_id );
 
@@ -665,13 +665,13 @@ class Test_Integrations extends \WP_UnitTestCase {
 
 		Contact_Cron::maybe_enqueue_contact();
 
-		// Data should NOT have been stored synchronously.
-		$stored = get_user_meta( $user_id, 'newspack_reader_data_item_timeout_field', true );
-		$this->assertEmpty( $stored );
+		// Stale sync pull failed, user should be enqueued for batch pull.
+		$pull_queue = get_option( Contact_Cron::PULL_QUEUE_OPTION, [] );
+		$this->assertContains( $user_id, $pull_queue );
 
-		// User should still be in the pull queue for the batch handler to process.
-		$queue = get_option( Contact_Cron::PULL_QUEUE_OPTION, [] );
-		$this->assertContains( $user_id, $queue );
+		// User should still be enqueued for push.
+		$push_queue = get_option( Contact_Cron::PUSH_QUEUE_OPTION, [] );
+		$this->assertContains( $user_id, $push_queue );
 	}
 
 	/**

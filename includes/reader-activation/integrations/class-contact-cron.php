@@ -114,10 +114,14 @@ class Contact_Cron {
 		update_user_meta( $user_id, self::LAST_ENQUEUE_META, time() );
 
 		self::enqueue_for_push( $user_id );
-		self::enqueue_for_pull( $user_id );
 
 		if ( Contact_Pull::is_stale( $last_enqueue ) ) {
-			Contact_Pull::pull_sync();
+			$result = Contact_Pull::pull_sync();
+			if ( is_wp_error( $result ) ) {
+				self::enqueue_for_pull( $user_id );
+			}
+		} else {
+			self::enqueue_for_pull( $user_id );
 		}
 	}
 
@@ -155,11 +159,24 @@ class Contact_Cron {
 
 	/**
 	 * Ensure the recurring cron event is scheduled.
+	 *
+	 * Respects NEWSPACK_CRON_DISABLE to allow selective disabling.
 	 */
 	public static function schedule_cron() {
-		if ( ! wp_next_scheduled( self::CRON_HOOK ) ) {
+		register_deactivation_hook( NEWSPACK_PLUGIN_FILE, [ __CLASS__, 'deactivate_cron' ] );
+
+		if ( defined( 'NEWSPACK_CRON_DISABLE' ) && is_array( NEWSPACK_CRON_DISABLE ) && in_array( self::CRON_HOOK, NEWSPACK_CRON_DISABLE, true ) ) {
+			self::deactivate_cron();
+		} elseif ( ! wp_next_scheduled( self::CRON_HOOK ) ) {
 			wp_schedule_event( time(), self::CRON_SCHEDULE, self::CRON_HOOK );
 		}
+	}
+
+	/**
+	 * Deactivate the cron event.
+	 */
+	public static function deactivate_cron() {
+		wp_clear_scheduled_hook( self::CRON_HOOK );
 	}
 
 	/**

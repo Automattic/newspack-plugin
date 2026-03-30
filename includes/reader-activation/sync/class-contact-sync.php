@@ -443,7 +443,7 @@ class Contact_Sync extends Sync {
 			[
 				'hook'     => self::RETRY_HOOK,
 				'status'   => \ActionScheduler_Store::STATUS_PENDING,
-				'per_page' => 1,
+				'per_page' => -1,
 			]
 		);
 		foreach ( $actions as $action ) {
