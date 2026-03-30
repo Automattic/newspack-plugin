@@ -486,7 +486,6 @@ const Edit = ( { match, updateGatesData, slug = AUDIENCE_CONTENT_GATES_WIZARD_SL
 				/>
 				<VStack spacing={ 4 }>
 					<CardSettingsGroup
-						actionType="chevron"
 						title={ sprintf(
 							// translators: %s is the type of content to restrict.
 							__( 'Restrict all %s', 'newspack-plugin' ),
@@ -502,7 +501,6 @@ const Edit = ( { match, updateGatesData, slug = AUDIENCE_CONTENT_GATES_WIZARD_SL
 						onEnable={ () => setContentType( 'all' ) }
 					/>
 					<CardSettingsGroup
-						actionType="chevron"
 						title={ sprintf(
 							// translators: %s is the type of content to restrict.
 							__( 'Choose specific %s', 'newspack-plugin' ),
