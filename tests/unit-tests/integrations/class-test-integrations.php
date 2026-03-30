@@ -630,9 +630,9 @@ class Test_Integrations extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * Test sync pull schedules async when loopback request fails (simulated timeout).
+	 * Test sync pull failure keeps user in pull queue for batch processing.
 	 */
-	public function test_sync_pull_timeout_schedules_async() {
+	public function test_sync_pull_timeout_keeps_user_in_queue() {
 		$user_id = $this->factory()->user->create();
 		wp_set_current_user( $user_id );
 
@@ -669,14 +669,9 @@ class Test_Integrations extends \WP_UnitTestCase {
 		$stored = get_user_meta( $user_id, 'newspack_reader_data_item_timeout_field', true );
 		$this->assertEmpty( $stored );
 
-		// Verify a pull retry was scheduled via ActionScheduler.
-		$actions = as_get_scheduled_actions(
-			[
-				'hook'   => Contact_Pull::RETRY_HOOK,
-				'status' => \ActionScheduler_Store::STATUS_PENDING,
-			]
-		);
-		$this->assertNotEmpty( $actions );
+		// User should still be in the pull queue for the batch handler to process.
+		$queue = get_option( Contact_Cron::PULL_QUEUE_OPTION, [] );
+		$this->assertContains( $user_id, $queue );
 	}
 
 	/**
