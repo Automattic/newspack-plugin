@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import type { ComponentType } from 'react';
 import classnames from 'classnames';
 
 /**
@@ -38,7 +39,7 @@ type CardFeatureIcon = {
 type MoreControl = {
 	title: string;
 	onClick: () => void;
-	icon?: React.ReactNode;
+	icon?: ComponentType< { size?: number } > | JSX.Element;
 };
 
 type CardFeatureProps = {
@@ -149,7 +150,12 @@ const CardFeature = ( {
 						</HStack>
 						<HStack alignment="edge">
 							<HStack expanded={ false } spacing="8px">
-								<Button variant="secondary" disabled={ isMuted } onClick={ handleButtonClick }>
+								<Button
+									variant={ enabled && ! requirements ? 'tertiary' : 'secondary' }
+									disabled={ isMuted }
+									onClick={ handleButtonClick }
+									size="compact"
+								>
 									{ buttonLabel }
 								</Button>
 								{ enabled && ! requirements && !! moreControls?.length && (
