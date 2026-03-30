@@ -14,6 +14,37 @@ defined( 'ABSPATH' ) || exit;
  */
 class Logger {
 	/**
+	 * Current ActionScheduler action ID, if running inside an AS action.
+	 *
+	 * @var int|null
+	 */
+	private static $current_as_action_id = null;
+
+	/**
+	 * Initialize ActionScheduler logging hooks.
+	 */
+	public static function init() {
+		add_action( 'action_scheduler_begin_execute', [ __CLASS__, 'set_current_as_action_id' ] );
+		add_action( 'action_scheduler_after_execute', [ __CLASS__, 'clear_current_as_action_id' ] );
+	}
+
+	/**
+	 * Set the current ActionScheduler action ID.
+	 *
+	 * @param int $action_id The AS action ID.
+	 */
+	public static function set_current_as_action_id( $action_id ) {
+		self::$current_as_action_id = $action_id;
+	}
+
+	/**
+	 * Clear the current ActionScheduler action ID.
+	 */
+	public static function clear_current_as_action_id() {
+		self::$current_as_action_id = null;
+	}
+
+	/**
 	 * A logger.
 	 *
 	 * @param mixed  $payload The payload to log.
@@ -21,6 +52,10 @@ class Logger {
 	 * @param string $type Type of the message.
 	 */
 	public static function log( $payload, $header = 'NEWSPACK', $type = 'info' ) {
+		$message = 'string' === gettype( $payload ) ? $payload : wp_json_encode( $payload, JSON_PRETTY_PRINT );
+		if ( self::$current_as_action_id && class_exists( '\ActionScheduler_Logger' ) ) {
+			\ActionScheduler_Logger::instance()->log( self::$current_as_action_id, "[$header] $message" );
+		}
 		/**
 		 * Controls logging verbosity across Newspack plugins.
 		 *
@@ -45,7 +80,7 @@ class Logger {
 		// Add information about the caller function, if log level is > 1.
 		if ( 1 < NEWSPACK_LOG_LEVEL ) {
 			try {
-				$backtrace = debug_backtrace(); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_debug_backtrace
+				$backtrace = debug_backtrace(); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_debug_backtrace, PHPCompatibility.FunctionUse.ArgumentFunctionsReportCurrentValue.NeedsInspection
 				if ( 2 < count( $backtrace ) ) {
 					$caller_frame = $backtrace[1];
 					if ( stripos( $caller_frame['class'], 'Logger' ) !== false ) {
@@ -139,3 +174,4 @@ class Logger {
 		);
 	}
 }
+Logger::init();
