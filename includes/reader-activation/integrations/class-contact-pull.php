@@ -110,7 +110,7 @@ class Contact_Pull {
 	}
 
 	/**
-	 * Run synchronous pull via per-integration loopback requests.
+	 * Run synchronous pull for the current user via per-integration loopback requests.
 	 *
 	 * Each integration is pulled via a blocking wp_remote_post to the AJAX
 	 * endpoint. If a request fails, the integration is scheduled for retry
@@ -123,6 +123,7 @@ class Contact_Pull {
 			$integrations = Integrations::get_active_integrations();
 		}
 
+		Logger::log( 'Synchronous pull started for user "' . get_current_user_id() . '".', self::LOGGER_HEADER );
 		foreach ( $integrations as $id => $integration ) {
 			$selected_fields = $integration->get_enabled_incoming_fields();
 			if ( empty( $selected_fields ) ) {
