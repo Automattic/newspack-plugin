@@ -184,10 +184,9 @@ class Contact_Cron {
 		if ( empty( $queue ) ) {
 			return;
 		}
+		delete_option( self::PULL_QUEUE_OPTION );
 
 		Logger::log( 'Batch pull started for ' . count( $queue ) . ' user(s).', self::LOGGER_HEADER );
-
-		$failed_user_ids = [];
 
 		foreach ( $queue as $user_id ) {
 			if ( ! get_userdata( $user_id ) ) {
@@ -201,17 +200,10 @@ class Contact_Cron {
 			$result = Contact_Pull::pull_all( $user_id );
 			if ( is_wp_error( $result ) ) {
 				Logger::error( 'Batch pull failed for user ' . $user_id . ': ' . $result->get_error_message(), self::LOGGER_HEADER );
-				$failed_user_ids[] = $user_id;
 			}
 		}
 
-		self::update_queue_after_processing( self::PULL_QUEUE_OPTION, $queue, $failed_user_ids );
-
-		if ( ! empty( $failed_user_ids ) ) {
-			Logger::log( 'Batch pull completed with ' . count( $failed_user_ids ) . ' failed user(s) kept in queue.', self::LOGGER_HEADER );
-		} else {
-			Logger::log( 'Batch pull completed.', self::LOGGER_HEADER );
-		}
+		Logger::log( 'Batch pull completed.', self::LOGGER_HEADER );
 	}
 
 	/**
@@ -225,10 +217,9 @@ class Contact_Cron {
 		if ( empty( $queue ) ) {
 			return;
 		}
+		delete_option( self::PUSH_QUEUE_OPTION );
 
 		Logger::log( 'Batch push started for ' . count( $queue ) . ' user(s).', self::LOGGER_HEADER );
-
-		$failed_user_ids = [];
 
 		foreach ( $queue as $user_id ) {
 			if ( ! get_userdata( $user_id ) ) {
@@ -242,38 +233,9 @@ class Contact_Cron {
 			$result = Contact_Sync::sync_contact( $user_id, 'Recurring sync routine' );
 			if ( is_wp_error( $result ) ) {
 				Logger::error( 'Batch push failed for user ' . $user_id . ': ' . $result->get_error_message(), self::LOGGER_HEADER );
-				$failed_user_ids[] = $user_id;
 			}
 		}
 
-		self::update_queue_after_processing( self::PUSH_QUEUE_OPTION, $queue, $failed_user_ids );
-
-		if ( ! empty( $failed_user_ids ) ) {
-			Logger::log( 'Batch push completed with ' . count( $failed_user_ids ) . ' failed user(s) kept in queue.', self::LOGGER_HEADER );
-		} else {
-			Logger::log( 'Batch push completed.', self::LOGGER_HEADER );
-		}
-	}
-
-	/**
-	 * Update a queue option after batch processing.
-	 *
-	 * Keeps failed user IDs and any new entries added during processing.
-	 * Removes successfully processed entries.
-	 *
-	 * @param string $option          The option key.
-	 * @param array  $processed_queue The queue snapshot that was processed.
-	 * @param array  $failed_user_ids User IDs that failed processing.
-	 */
-	private static function update_queue_after_processing( $option, $processed_queue, $failed_user_ids ) {
-		$current_queue = get_option( $option, [] );
-		$new_entries   = array_diff( $current_queue, $processed_queue );
-		$remaining     = array_unique( array_merge( $failed_user_ids, $new_entries ) );
-
-		if ( ! empty( $remaining ) ) {
-			update_option( $option, array_values( $remaining ), false );
-		} else {
-			delete_option( $option );
-		}
+		Logger::log( 'Batch push completed.', self::LOGGER_HEADER );
 	}
 }
