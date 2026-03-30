@@ -174,7 +174,8 @@ class InDesign_Converter {
 	private function process_blocks( $content ) {
 		// Rich media blocks have no print equivalent. Exclude them entirely to
 		// prevent raw HTML (e.g. <object> tags, embed URLs) from leaking into
-		// the InDesign output.
+		// the InDesign output. Strip recursively so nested occurrences inside
+		// container blocks (core/group, core/columns, etc.) are also removed.
 		$excluded_block_types = [
 			'core/file',
 			'core/embed',
@@ -182,12 +183,9 @@ class InDesign_Converter {
 			'core/audio',
 		];
 
-		$blocks  = parse_blocks( $content );
+		$blocks  = $this->strip_excluded_blocks( parse_blocks( $content ), $excluded_block_types );
 		$content = '';
 		foreach ( $blocks as $block ) {
-			if ( in_array( $block['blockName'], $excluded_block_types, true ) ) {
-				continue;
-			}
 			$tag = $this->get_block_tag( $block );
 			if ( ! empty( $tag ) ) {
 				$content .= $tag . $this->get_transformed_text( preg_replace( '/^<[^>]+>(.*)<\/[^>]+>$/s', '$1', trim( $block['innerHTML'] ) ) );
@@ -196,6 +194,47 @@ class InDesign_Converter {
 			}
 		}
 		return $content;
+	}
+
+	/**
+	 * Recursively remove excluded block types from a block tree.
+	 *
+	 * Strips both the top-level block and any occurrences nested inside
+	 * container blocks (core/group, core/columns, etc.) by filtering
+	 * innerBlocks and the corresponding innerContent null placeholders.
+	 *
+	 * @param array $blocks               Block list to filter.
+	 * @param array $excluded_block_types Block type names to remove.
+	 *
+	 * @return array Filtered block list.
+	 */
+	private function strip_excluded_blocks( $blocks, $excluded_block_types ) {
+		$filtered = [];
+		foreach ( $blocks as $block ) {
+			if ( in_array( $block['blockName'], $excluded_block_types, true ) ) {
+				continue;
+			}
+			if ( ! empty( $block['innerBlocks'] ) ) {
+				$new_inner_blocks  = [];
+				$new_inner_content = [];
+				$inner_index       = 0;
+				foreach ( $block['innerContent'] as $chunk ) {
+					if ( is_string( $chunk ) ) {
+						$new_inner_content[] = $chunk;
+					} else {
+						$inner_block = $block['innerBlocks'][ $inner_index++ ];
+						if ( ! in_array( $inner_block['blockName'], $excluded_block_types, true ) ) {
+							$new_inner_blocks[]  = $inner_block;
+							$new_inner_content[] = null;
+						}
+					}
+				}
+				$block['innerBlocks']  = $this->strip_excluded_blocks( $new_inner_blocks, $excluded_block_types );
+				$block['innerContent'] = $new_inner_content;
+			}
+			$filtered[] = $block;
+		}
+		return $filtered;
 	}
 
 	/**

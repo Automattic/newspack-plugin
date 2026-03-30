@@ -326,6 +326,47 @@ class Newspack_Test_InDesign_Exporter extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Test that core/file blocks are excluded from export when nested inside a group block.
+	 */
+	public function test_file_block_excluded_when_nested_in_group() {
+		$post_id = $this->factory->post->create(
+			[
+				'post_title'   => 'Test Post',
+				'post_content' => '<!-- wp:paragraph --><p>Before the group.</p><!-- /wp:paragraph --><!-- wp:group --><div class="wp-block-group"><!-- wp:file {"id":1,"href":"https://example.com/document.pdf"} --><div class="wp-block-file"><object class="wp-block-file__embed" data="https://example.com/document.pdf" type="application/pdf" style="width:100%;height:600px"></object><a href="https://example.com/document.pdf" class="wp-block-file__button">Download</a></div><!-- /wp:file --></div><!-- /wp:group --><!-- wp:paragraph --><p>After the group.</p><!-- /wp:paragraph -->',
+			]
+		);
+
+		$converter = new InDesign_Converter();
+		$content   = $converter->convert_post( $post_id );
+
+		$this->assertStringContainsString( 'Before the group.', $content );
+		$this->assertStringContainsString( 'After the group.', $content );
+		$this->assertStringNotContainsString( '<object', $content );
+		$this->assertStringNotContainsString( 'document.pdf', $content );
+		$this->assertStringNotContainsString( 'Download', $content );
+	}
+
+	/**
+	 * Test that core/embed blocks are excluded from export when nested inside a group block.
+	 */
+	public function test_embed_block_excluded_when_nested_in_group() {
+		$post_id = $this->factory->post->create(
+			[
+				'post_title'   => 'Test Post',
+				'post_content' => '<!-- wp:paragraph --><p>Before the group.</p><!-- /wp:paragraph --><!-- wp:group --><div class="wp-block-group"><!-- wp:embed {"url":"https://www.youtube.com/watch?v=abc123","type":"video","providerNameSlug":"youtube"} --><figure class="wp-block-embed is-type-video is-provider-youtube"><div class="wp-block-embed__wrapper">' . "\n" . 'https://www.youtube.com/watch?v=abc123' . "\n" . '</div></figure><!-- /wp:embed --></div><!-- /wp:group --><!-- wp:paragraph --><p>After the group.</p><!-- /wp:paragraph -->',
+			]
+		);
+
+		$converter = new InDesign_Converter();
+		$content   = $converter->convert_post( $post_id );
+
+		$this->assertStringContainsString( 'Before the group.', $content );
+		$this->assertStringContainsString( 'After the group.', $content );
+		$this->assertStringNotContainsString( 'youtube.com', $content );
+		$this->assertStringNotContainsString( 'abc123', $content );
+	}
+
+	/**
 	 * Test image caption and credit special characters.
 	 */
 	public function test_image_caption_and_credit_special_characters() {
