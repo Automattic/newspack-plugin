@@ -199,7 +199,7 @@ export default function ContentGateSettings( {
 								) }
 								{ ! gate.registration?.active && <p>{ __( 'N/A', 'newspack-plugin' ) }</p> }
 								{ gate.registration?.active && gate.registration.gate_layout_id && (
-									<Button variant="secondary" href={ getEditGateLayoutUrl( gate.id, 'registration' ) }>
+									<Button variant="secondary" href={ getEditGateLayoutUrl( gate.id, 'registration' ) } size="compact">
 										{ __( 'Customize registered access layout', 'newspack-plugin' ) }
 									</Button>
 								) }
@@ -246,7 +246,7 @@ export default function ContentGateSettings( {
 								gate.custom_access.access_rules?.length > 0 &&
 								gate.custom_access.gate_layout_id &&
 								! isNewsletter && (
-									<Button variant="secondary" href={ getEditGateLayoutUrl( gate.id, 'custom_access' ) }>
+									<Button variant="secondary" href={ getEditGateLayoutUrl( gate.id, 'custom_access' ) } size="compact">
 										{ __( 'Customize paid access layout', 'newspack-plugin' ) }
 									</Button>
 								) }
