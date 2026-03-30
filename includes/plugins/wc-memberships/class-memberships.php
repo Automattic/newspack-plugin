@@ -48,6 +48,7 @@ class Memberships {
 
 		// WC Memberships hooks.
 		add_filter( 'wc_memberships_notice_html', [ __CLASS__, 'wc_memberships_notice_html' ], 100, 4 );
+		add_filter( 'wc_memberships_restricted_message', [ __CLASS__, 'wc_memberships_restricted_message' ], 100, 4 );
 		add_filter( 'wc_memberships_restricted_content_excerpt', [ __CLASS__, 'wc_memberships_excerpt' ], 100, 3 );
 		add_filter( 'wc_memberships_message_excerpt_apply_the_content_filter', '__return_false' );
 		add_filter( 'wc_memberships_admin_screen_ids', [ __CLASS__, 'admin_screens' ] );
@@ -532,6 +533,44 @@ class Memberships {
 		}
 		Content_Gate::mark_gate_as_rendered();
 		return Content_Gate::get_inline_gate_html();
+	}
+
+	/**
+	 * Filter WooCommerce Memberships' restricted message before it is rendered.
+	 *
+	 * When all WC Memberships message templates are set to empty strings, the
+	 * `get_message_html()` method skips `get_notice_html()` entirely — which
+	 * means `wc_memberships_notice_html` never fires and Newspack's gate is
+	 * never rendered.  We work around this by returning a non-empty placeholder
+	 * here so that `get_notice_html()` is always called when a Newspack gate is
+	 * configured for a content-restriction context.  The placeholder is then
+	 * replaced by the real gate HTML inside `wc_memberships_notice_html()`.
+	 *
+	 * @param string $message      Restriction message text (may be empty).
+	 * @param object $post         Post object.
+	 * @param string $message_code Message code (e.g. 'content_delayed', 'content_restricted').
+	 * @param array  $args         Additional arguments.
+	 *
+	 * @return string
+	 */
+	public static function wc_memberships_restricted_message( $message, $post, $message_code, $args ) {
+		// Only intervene when the message is empty — a non-empty message means
+		// the publisher configured their own copy and we should leave it alone.
+		if ( '' !== trim( $message ) ) {
+			return $message;
+		}
+		// Only replace for content-restriction contexts (not product discounts etc.).
+		if ( ! str_contains( $message_code, 'content_' ) ) {
+			return $message;
+		}
+		// Only replace when a Newspack gate is configured.
+		if ( ! Content_Gate::has_gate() ) {
+			return $message;
+		}
+		// Return a single non-breaking space so that get_message_html() proceeds
+		// to call get_notice_html() → wc_memberships_notice_html, where the
+		// real gate HTML will be substituted.
+		return '&nbsp;';
 	}
 
 	/**
