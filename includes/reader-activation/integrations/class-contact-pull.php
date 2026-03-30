@@ -107,35 +107,13 @@ class Contact_Pull {
 	}
 
 	/**
-	 * Determine if a user needs a pull based on the last pull timestamp.
+	 * Whether the timestamp is stale (older than PULL_SYNC_THRESHOLD).
 	 *
-	 * @param int $user_id WordPress user ID.
-	 * @param int $interval The minimum interval in seconds between pulls.
-	 * @return bool True if the user needs a pull.
+	 * @param int $timestamp Timestamp.
+	 * @return bool True if the timestamp is stale.
 	 */
-	public static function needs_pull( $user_id, $interval ) {
-		$last_pull = (int) get_user_meta( $user_id, self::LAST_PULL_META, true );
-		return ( time() - $last_pull ) >= $interval;
-	}
-
-	/**
-	 * Whether the last pull is stale (older than PULL_SYNC_THRESHOLD).
-	 *
-	 * @param int $user_id WordPress user ID.
-	 * @return bool
-	 */
-	public static function is_stale( $user_id ) {
-		$last_pull = (int) get_user_meta( $user_id, self::LAST_PULL_META, true );
-		return ( time() - $last_pull ) >= self::PULL_SYNC_THRESHOLD;
-	}
-
-	/**
-	 * Mark the user's pull timestamp as now.
-	 *
-	 * @param int $user_id WordPress user ID.
-	 */
-	public static function mark_pulled( $user_id ) {
-		update_user_meta( $user_id, self::LAST_PULL_META, time() );
+	public static function is_stale( $timestamp ) {
+		return ( time() - $timestamp ) >= self::PULL_SYNC_THRESHOLD;
 	}
 
 	/**

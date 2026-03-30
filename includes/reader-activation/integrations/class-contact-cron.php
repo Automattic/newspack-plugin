@@ -31,6 +31,13 @@ class Contact_Cron {
 	const CRON_INTERVAL = 300;
 
 	/**
+	 * Last cron run timestamp.
+	 *
+	 * @var int
+	 */
+	const LAST_CRON_RUN_META = 'newspack_contact_cron_last_run';
+
+	/**
 	 * WP-Cron hook for batch processing.
 	 *
 	 * @var string
@@ -70,7 +77,7 @@ class Contact_Cron {
 	 */
 	public static function init() {
 		add_filter( 'cron_schedules', [ __CLASS__, 'add_cron_schedule' ] ); // phpcs:ignore WordPress.WP.CronInterval.ChangeDetected
-		add_action( 'init', [ __CLASS__, 'maybe_pull_contact_data' ], 20 );
+		add_action( 'init', [ __CLASS__, 'maybe_enqueue_contact' ], 20 );
 		add_action( 'init', [ __CLASS__, 'schedule_cron' ] );
 		add_action( self::CRON_HOOK, [ __CLASS__, 'handle_batch' ] );
 	}
@@ -90,38 +97,29 @@ class Contact_Cron {
 	}
 
 	/**
-	 * Pull contact data from active integrations for the current logged-in user.
+	 * Enqueue contact data for pull and push for the current logged-in user.
 	 *
 	 * If the last pull is stale (> 24 h), the pull runs synchronously.
-	 * Otherwise the user is queued for both pull and push on the next cron run.
 	 */
-	public static function maybe_pull_contact_data() {
+	public static function maybe_enqueue_contact() {
 		if ( ! is_user_logged_in() ) {
 			return;
 		}
 
 		$user_id = get_current_user_id();
 
-		if ( ! Contact_Pull::needs_pull( $user_id, self::CRON_INTERVAL ) ) {
+		$last_cron_run = get_option( self::LAST_CRON_RUN_META, 0 );
+		if ( time() - $last_cron_run < self::CRON_INTERVAL ) {
 			return;
 		}
+		update_option( self::LAST_CRON_RUN_META, time() );
 
-		$is_stale = Contact_Pull::is_stale( $user_id );
-
-		// Set immediately to prevent concurrent pulls from overlapping page loads.
-		Contact_Pull::mark_pulled( $user_id );
-
-		// Always enqueue for push.
 		self::enqueue_for_push( $user_id );
-
-		// Data is stale (> 24 h) — pull synchronously, retries handle leftovers.
-		if ( $is_stale ) {
-			Contact_Pull::pull_sync( $user_id, Integrations::get_active_integrations() );
-			return;
-		}
-
-		// Data is relatively fresh — enqueue for batch pull.
 		self::enqueue_for_pull( $user_id );
+
+		if ( Contact_Pull::is_stale( $last_cron_run ) ) {
+			Contact_Pull::pull_sync( $user_id, Integrations::get_active_integrations() );
+		}
 	}
 
 	/**
