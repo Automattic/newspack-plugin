@@ -92,7 +92,12 @@ const SectionHeader = ( {
 	if ( typeof title === 'string' ) {
 		titleContent = (
 			<div className="newspack-section-header__title-container">
-				<HeadingTag>{ title }</HeadingTag>
+				<HeadingTag>
+					{ title }
+					{ badges?.length
+						? badges.map( ( badge, i ) => <Badge key={ i } text={ badge.label } level={ badge.level || 'default' } /> )
+						: null }
+				</HeadingTag>
 				{ menu?.length > 0 && (
 					<DropdownMenu className="newspack-section-header__menu" icon={ moreVertical } label={ __( 'More options', 'newspack-plugin' ) }>
 						{ () =>
@@ -111,7 +116,6 @@ const SectionHeader = ( {
 						}
 					</DropdownMenu>
 				) }
-				{ badges?.length ? badges.map( ( badge, i ) => <Badge key={ i } text={ badge.label } level={ badge.level || 'default' } /> ) : null }
 				{ secondaryAction && (
 					<div className="newspack-section-header__secondary-action">
 						<Button variant="link" href={ secondaryAction.href } onClick={ secondaryAction.action }>

@@ -34,6 +34,7 @@ const DEFAULT_VIEW: View = {
 	filters: [],
 	layout: {},
 	titleField: 'title',
+	mediaField: 'logo',
 	descriptionField: 'description',
 };
 
@@ -68,7 +69,7 @@ export default function Institutions() {
 
 	const fetchData = useCallback( () => {
 		setIsLoading( true );
-		apiFetch< Institution[] >( { path: `${ API_PATH }?per_page=100&context=edit` } )
+		apiFetch< Institution[] >( { path: `${ API_PATH }?per_page=100&context=edit&_embed=wp:featuredmedia` } )
 			.then( setData )
 			.catch( () => {
 				addNotice( {
@@ -86,6 +87,16 @@ export default function Institutions() {
 
 	const fields: Field< Institution >[] = useMemo(
 		() => [
+			{
+				id: 'logo',
+				label: __( 'Logo', 'newspack-plugin' ),
+				type: 'media',
+				render: ( { item }: { item: Institution } ) => {
+					const url = item._embedded?.[ 'wp:featuredmedia' ]?.[ 0 ]?.source_url;
+					return url ? <img src={ url } alt={ item.title.raw } /> : null;
+				},
+				enableSorting: false,
+			},
 			{
 				id: 'title',
 				label: __( 'Title', 'newspack-plugin' ),
@@ -147,6 +158,32 @@ export default function Institutions() {
 				},
 			},
 			{
+				id: 'copy-url',
+				label: __( 'Copy access page URL', 'newspack-plugin' ),
+				callback: ( items: Institution[] ) => {
+					const baseUrl = ( window as any ).newspackAudience?.institutional_access_url;
+					const url = baseUrl ? `${ baseUrl }/${ items[ 0 ].slug }/` : '';
+					if ( url ) {
+						navigator.clipboard.writeText( url ).then(
+							() => {
+								addNotice( {
+									message: __( 'URL copied to clipboard.', 'newspack-plugin' ),
+									type: 'success',
+									id: 'institution-url-copied',
+								} );
+							},
+							() => {
+								addNotice( {
+									message: __( 'Failed to copy URL. Please copy it manually.', 'newspack-plugin' ),
+									type: 'error',
+									id: 'institution-url-copy-error',
+								} );
+							}
+						);
+					}
+				},
+			},
+			{
 				id: 'delete',
 				label: __( 'Delete', 'newspack-plugin' ),
 				isDestructive: true,
@@ -191,7 +228,7 @@ export default function Institutions() {
 				},
 			},
 		],
-		[ fetchData, history ]
+		[ addNotice, fetchData, history ]
 	);
 
 	const { data: processedData, paginationInfo } = useMemo( () => filterSortAndPaginate( data, view, fields ), [ data, view, fields ] );

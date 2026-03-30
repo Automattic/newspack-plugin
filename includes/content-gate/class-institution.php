@@ -79,7 +79,7 @@ class Institution {
 				'show_ui'      => false,
 				'show_in_menu' => false,
 				'show_in_rest' => true,
-				'supports'     => [ 'title', 'excerpt', 'custom-fields' ],
+				'supports'     => [ 'title', 'excerpt', 'thumbnail', 'custom-fields' ],
 				/**
 				 * Institutions effectively grant access, so restrict all CRUD operations
 				 * (including via REST) to the `manage_options` user capability.
@@ -238,12 +238,14 @@ class Institution {
 	/**
 	 * Check if a user matches an institution's rules (OR logic).
 	 *
-	 * @param int   $user_id User ID.
-	 * @param array $rules   Institution rules with keys: email_domain, ip_range, reader_data.
+	 * @param int   $user_id  User ID.
+	 * @param array $rules    Institution rules with keys: email_domain, ip_range, reader_data.
+	 * @param bool  $uncached Whether the request is known to be uncached (e.g., REST endpoint).
+	 *                        When true, the IP check runs regardless of cookie/login state.
 	 *
 	 * @return bool Whether the user matches any rule.
 	 */
-	private static function user_matches_institution( $user_id, $rules ) {
+	public static function user_matches_institution( $user_id, $rules, $uncached = false ) {
 		if ( ! empty( $rules['email_domain'] ) ) {
 			if ( Access_Rules::is_email_domain_whitelisted( $user_id, $rules['email_domain'] ) ) {
 				return true;
@@ -251,7 +253,7 @@ class Institution {
 		}
 
 		if ( ! empty( $rules['ip_range'] ) ) {
-			$is_uncached = ! empty( $user_id ) || isset( $_COOKIE[ IP_Access_Rule::COOKIE_NAME ] ); // phpcs:ignore WordPressVIPMinimum.Variables.RestrictedVariables.cache_constraints___COOKIE
+			$is_uncached = $uncached || ! empty( $user_id ) || isset( $_COOKIE[ IP_Access_Rule::COOKIE_NAME ] ); // phpcs:ignore WordPressVIPMinimum.Variables.RestrictedVariables.cache_constraints___COOKIE
 			if ( $is_uncached && IP_Access_Rule::ip_matches_ranges( IP_Access_Rule::get_visitor_ip(), $rules['ip_range'] ) ) {
 				return true;
 			}
@@ -270,9 +272,9 @@ class Institution {
 	 * Check visitor's IP against all institutional IP ranges.
 	 * Hooked to newspack_content_gate_check_ip filter.
 	 *
-	 * @param bool $valid_ip Current validation result.
+	 * @param bool|int $valid_ip Current validation result.
 	 *
-	 * @return bool Whether the IP matches any institutional IP range.
+	 * @return bool|int The matching institution post ID, or the original value.
 	 */
 	public static function check_ip( $valid_ip ) {
 		if ( $valid_ip ) {
@@ -285,9 +287,9 @@ class Institution {
 		}
 
 		$institutions = self::get_cached_institutions();
-		foreach ( $institutions as $rules ) {
+		foreach ( $institutions as $inst_id => $rules ) {
 			if ( ! empty( $rules['ip_range'] ) && IP_Access_Rule::ip_matches_ranges( $visitor_ip, $rules['ip_range'] ) ) {
-				return true;
+				return $inst_id;
 			}
 		}
 

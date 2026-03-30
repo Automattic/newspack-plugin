@@ -392,7 +392,7 @@ class Newspack_Test_Institution extends WP_UnitTestCase {
 		delete_transient( Institution::TRANSIENT_KEY );
 
 		$_SERVER['REMOTE_ADDR'] = '192.168.1.50'; // phpcs:ignore WordPressVIPMinimum.Variables.ServerVariables.UserControlledHeaders, WordPressVIPMinimum.Variables.RestrictedVariables.cache_constraints___SERVER__REMOTE_ADDR__
-		$this->assertTrue( Institution::check_ip( false ) );
+		$this->assertSame( $inst_id, Institution::check_ip( false ) );
 
 		$_SERVER['REMOTE_ADDR'] = '10.0.0.1'; // phpcs:ignore WordPressVIPMinimum.Variables.ServerVariables.UserControlledHeaders, WordPressVIPMinimum.Variables.RestrictedVariables.cache_constraints___SERVER__REMOTE_ADDR__
 		delete_transient( Institution::TRANSIENT_KEY );

@@ -48,15 +48,16 @@ class Wizards {
 			'newspack-settings'       => new Newspack_Settings(
 				[
 					'sections' => [
-						'custom-events' => 'Newspack\Wizards\Newspack\Custom_Events_Section',
-						'emails'        => 'Newspack\Wizards\Newspack\Emails_Section',
-						'social-pixels' => 'Newspack\Wizards\Newspack\Pixels_Section',
-						'recirculation' => 'Newspack\Wizards\Newspack\Recirculation_Section',
-						'syndication'   => 'Newspack\Wizards\Newspack\Syndication_Section',
-						'seo'           => 'Newspack\Wizards\Newspack\Seo_Section',
-						'collections'   => 'Newspack\Wizards\Newspack\Collections_Section',
-						'print'         => 'Newspack\Wizards\Newspack\Print_Section',
-						'nextdoor'      => 'Newspack\Wizards\Newspack\Nextdoor_Section',
+						'custom-events'    => 'Newspack\Wizards\Newspack\Custom_Events_Section',
+						'emails'           => 'Newspack\Wizards\Newspack\Emails_Section',
+						'social-pixels'    => 'Newspack\Wizards\Newspack\Pixels_Section',
+						'recirculation'    => 'Newspack\Wizards\Newspack\Recirculation_Section',
+						'syndication'      => 'Newspack\Wizards\Newspack\Syndication_Section',
+						'seo'              => 'Newspack\Wizards\Newspack\Seo_Section',
+						'collections'      => 'Newspack\Wizards\Newspack\Collections_Section',
+						'print'            => 'Newspack\Wizards\Newspack\Print_Section',
+						'nextdoor'         => 'Newspack\Wizards\Newspack\Nextdoor_Section',
+						'primary-category' => 'Newspack\Wizards\Newspack\Primary_Category_Section',
 					],
 				]
 			),
@@ -71,6 +72,7 @@ class Wizards {
 			'listings'                => new Listings_Wizard(),
 			'network'                 => new Network_Wizard(),
 			'newsletters'             => new Newsletters_Wizard(),
+			'premium-newsletters'     => new Premium_Newsletters(),
 		];
 		if ( Memberships::is_active() ) {
 			self::$wizards['audience-subscriptions'] = new Audience_Subscriptions();

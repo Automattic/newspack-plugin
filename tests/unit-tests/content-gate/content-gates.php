@@ -9,6 +9,7 @@ namespace Newspack\Tests\Content_Gate;
 
 use Newspack\Reader_Activation;
 use Newspack\Access_Rules;
+use Newspack\Content_Rules;
 use Newspack\Content_Gate;
 use Newspack\Content_Restriction_Control;
 
@@ -210,7 +211,7 @@ class Test_Content_Gates extends \WP_UnitTestCase {
 		$this->post_ids[] = $post3;
 
 		// Update content rules to match posts in category 1.
-		Content_Gate::update_post_content_rules(
+		Content_Rules::update_gate_content_rules(
 			$this->gate_ids[2],
 			[
 				[
@@ -232,7 +233,7 @@ class Test_Content_Gates extends \WP_UnitTestCase {
 		$this->assertCount( 0, $gates, 'No gate for the post with no categories' );
 
 		// Make the content rule an exclusion rule.
-		Content_Gate::update_post_content_rules(
+		Content_Rules::update_gate_content_rules(
 			$this->gate_ids[2],
 			[
 				[
