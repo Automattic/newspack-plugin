@@ -143,9 +143,15 @@ type MeteringCountdownConfig = {
 	cta_product_id: number;
 };
 
+type AdvancedSettingsConfig = {
+	restrict_content_feeds: boolean;
+	restrict_everlit: boolean;
+};
+
 type GateSettings = {
 	content_gifting?: ContentGiftingConfig;
 	countdown_banner?: MeteringCountdownConfig;
+	advanced_settings?: AdvancedSettingsConfig;
 };
 
 type GateConfig = {
@@ -166,6 +172,6 @@ type Institution = {
 		np_institution_reader_data: string;
 	};
 	_embedded?: {
-		'wp:featuredmedia'?: Array< { source_url: string } >;
+		'wp:featuredmedia'?: Array<{ source_url: string }>;
 	};
 };
