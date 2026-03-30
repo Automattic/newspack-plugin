@@ -45,13 +45,6 @@ class Contact_Pull {
 	const NONCE_ACTION = 'newspack_pull_integration_nonce';
 
 	/**
-	 * User meta key for last pull timestamp.
-	 *
-	 * @var string
-	 */
-	const LAST_PULL_META = 'newspack_integrations_last_pull';
-
-	/**
 	 * ActionScheduler hook for retrying a failed integration pull.
 	 */
 	const RETRY_HOOK = 'newspack_contact_pull_retry';
