@@ -297,7 +297,6 @@ class Tag_Labels {
 			}
 		} else {
 			delete_term_meta( $term_id, self::TAG_LABEL_META_KEY );
-			delete_term_meta( $term_id, self::TAG_LABEL_FLAG_META_KEY );
 		}
 	}
 	// phpcs:enable WordPress.Security.NonceVerification.Missing
