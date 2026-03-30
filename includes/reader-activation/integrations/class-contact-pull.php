@@ -18,13 +18,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Contact Pull Class.
  */
-class Contact_Pull extends \Newspack\Reader_Activation\Sync {
-	/**
-	 * Context of the pull.
-	 *
-	 * @var string
-	 */
-	protected static $context = 'Contact Pull';
+class Contact_Pull {
 
 	/**
 	 * Threshold in seconds (24 hours) for synchronous vs async pull.
@@ -337,7 +331,7 @@ class Contact_Pull extends \Newspack\Reader_Activation\Sync {
 
 		$user = ! empty( $user_id ) ? get_userdata( $user_id ) : false;
 		if ( ! $user ) {
-			static::log( sprintf( 'Cannot schedule pull retry for integration "%s": user %d not found.', $integration_id, $user_id ) );
+			Logger::log( sprintf( 'Cannot schedule pull retry for integration "%s": user %d not found.', $integration_id, $user_id ), self::LOGGER_HEADER );
 			return;
 		}
 
@@ -345,14 +339,15 @@ class Contact_Pull extends \Newspack\Reader_Activation\Sync {
 
 		$next_retry = $retry_count + 1;
 		if ( $next_retry > self::MAX_RETRIES ) {
-			static::log(
+			Logger::log(
 				sprintf(
 					'Max pull retries (%d) reached for integration "%s" of user %d. Giving up. Last error: %s',
 					self::MAX_RETRIES,
 					$integration_id,
 					$user_id,
 					$error_message
-				)
+				),
+				self::LOGGER_HEADER
 			);
 			return;
 		}
@@ -375,7 +370,7 @@ class Contact_Pull extends \Newspack\Reader_Activation\Sync {
 			Integrations::get_action_group( $integration_id )
 		);
 
-		static::log(
+		Logger::log(
 			sprintf(
 				'Scheduled pull retry %d/%d for integration "%s" of user %d in %ds. Error: %s',
 				$next_retry,
@@ -384,7 +379,8 @@ class Contact_Pull extends \Newspack\Reader_Activation\Sync {
 				$user_id,
 				$backoff_seconds,
 				$error_message
-			)
+			),
+			self::LOGGER_HEADER
 		);
 	}
 
@@ -417,7 +413,7 @@ class Contact_Pull extends \Newspack\Reader_Activation\Sync {
 			return;
 		}
 
-		static::log( sprintf( 'Executing pull retry %d/%d for integration "%s" of user %d.', $retry_count, self::MAX_RETRIES, $integration_id, $user_id ) );
+		Logger::log( sprintf( 'Executing pull retry %d/%d for integration "%s" of user %d.', $retry_count, self::MAX_RETRIES, $integration_id, $user_id ), self::LOGGER_HEADER );
 
 		$result = self::pull_single_integration( $user_id, $integration );
 		if ( is_wp_error( $result ) ) {
@@ -429,21 +425,22 @@ class Contact_Pull extends \Newspack\Reader_Activation\Sync {
 				$user_id,
 				$result->get_error_message()
 			);
-			static::log( $error_message );
+			Logger::log( $error_message, self::LOGGER_HEADER );
 			self::schedule_integration_retry( $integration_id, $user_id, $retry_count, $result );
 
 			if ( $retry_count >= self::MAX_RETRIES ) {
 				throw new \Exception( esc_html( $error_message ) );
 			}
 		} else {
-			static::log(
+			Logger::log(
 				sprintf(
 					'Pull retry %d/%d succeeded for integration "%s" of user %d.',
 					$retry_count,
 					self::MAX_RETRIES,
 					$integration_id,
 					$user_id
-				)
+				),
+				self::LOGGER_HEADER
 			);
 		}
 	}
