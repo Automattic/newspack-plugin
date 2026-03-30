@@ -28,6 +28,7 @@ class Newspack_Test_Content_Gate_Metadata extends WP_UnitTestCase {
 	 */
 	public function set_up() {
 		parent::set_up();
+		Content_Gate_Metadata::reset_cache();
 		self::$user_id = $this->factory->user->create(
 			[
 				'role'       => 'subscriber',
@@ -199,6 +200,63 @@ class Newspack_Test_Content_Gate_Metadata extends WP_UnitTestCase {
 
 		$this->assertEquals( 'Yes', $result['Content_Access'] );
 		$this->assertEquals( 'domain', $result['Content_Access_Source'], 'Duplicate sources should be deduplicated.' );
+	}
+
+	/**
+	 * Test that an active gate with empty rules grants access with no source.
+	 */
+	public function test_gate_with_empty_rules_returns_yes() {
+		$gate_id = $this->factory->post->create(
+			[
+				'post_type'   => Content_Gate::GATE_CPT,
+				'post_status' => 'publish',
+				'post_title'  => 'Empty Rules Gate',
+			]
+		);
+		update_post_meta(
+			$gate_id,
+			'custom_access',
+			[
+				'active'       => true,
+				'access_rules' => [],
+			]
+		);
+
+		$result = $this->get_metadata_for_user( self::$user_id );
+
+		$this->assertEquals( 'Yes', $result['Content_Access'], 'Gate with empty rules should grant access.' );
+		$this->assertEmpty( $result['Content_Access_Source'], 'Gate with empty rules should have no source.' );
+	}
+
+	/**
+	 * Test institution rule produces "group" source label.
+	 */
+	public function test_institution_rule_source() {
+		$institution_id = $this->factory->post->create(
+			[
+				'post_type'   => 'np_institution',
+				'post_status' => 'publish',
+				'post_title'  => 'Test University',
+			]
+		);
+		update_post_meta( $institution_id, 'np_institution_email_domain', 'example.com' );
+		// Invalidate the institution cache so it picks up the new post.
+		\Newspack\Institution::invalidate_cache();
+
+		$rules = [
+			[
+				[
+					'slug'  => 'institution',
+					'value' => [ $institution_id ],
+				],
+			],
+		];
+		$this->create_gate_with_rules( 'Institution Gate', $rules );
+
+		$result = $this->get_metadata_for_user( self::$user_id );
+
+		$this->assertEquals( 'Yes', $result['Content_Access'], 'User matching institution should have access.' );
+		$this->assertEquals( 'group', $result['Content_Access_Source'], 'Source should be "group" for institution rule.' );
 	}
 
 	/**
