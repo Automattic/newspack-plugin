@@ -187,6 +187,7 @@ class Tag_Labels {
 			<input
 				aria-describedby="<?php echo esc_attr( self::TAG_LABEL_META_KEY ); ?>-description"
 				type="checkbox"
+				id="<?php echo esc_attr( $checkbox_id ); ?>"
 				name="<?php echo esc_attr( $checkbox_id ); ?>"
 				value="true"
 			>
@@ -199,6 +200,7 @@ class Tag_Labels {
 			<input
 				aria-describedby="<?php echo esc_attr( self::TAG_LABEL_FLAG_META_KEY ); ?>-description"
 				type="text"
+				id="<?php echo esc_attr( self::TAG_LABEL_FLAG_META_KEY ); ?>"
 				name="<?php echo esc_attr( self::TAG_LABEL_FLAG_META_KEY ); ?>"
 				placeholder="<?php echo esc_attr__( 'Enter custom label text', 'newspack-plugin' ); ?>"
 				value=""
@@ -234,6 +236,7 @@ class Tag_Labels {
 				<input
 					aria-describedby="<?php echo esc_attr( self::TAG_LABEL_META_KEY ); ?>-description"
 					type="checkbox"
+					id="<?php echo esc_attr( $checkbox_id ); ?>"
 					name="<?php echo esc_attr( $checkbox_id ); ?>"
 					value="true"
 					<?php
@@ -251,6 +254,7 @@ class Tag_Labels {
 				<input
 					aria-describedby="<?php echo esc_attr( self::TAG_LABEL_FLAG_META_KEY ); ?>-description"
 					type="text"
+					id="<?php echo esc_attr( self::TAG_LABEL_FLAG_META_KEY ); ?>"
 					name="<?php echo esc_attr( self::TAG_LABEL_FLAG_META_KEY ); ?>"
 					placeholder="<?php echo esc_attr( $term->name ); ?>"
 					value="<?php echo esc_attr( $input_label_flag ); ?>"
