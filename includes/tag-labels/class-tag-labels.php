@@ -59,6 +59,9 @@ class Tag_Labels {
 		}
 
 		$term_label_link = get_term_link( $term->term_id );
+		if ( is_wp_error( $term_label_link ) ) {
+			return null;
+		}
 
 		return [
 			'flag' => $term_label_flag,
@@ -81,7 +84,7 @@ class Tag_Labels {
 		$post_id = ( is_a( $post, 'WP_Post' ) ? $post->ID : (int) $post );
 		$post_terms = get_the_terms( $post_id, 'post_tag' );
 
-		if ( ! $post_terms ) {
+		if ( empty( $post_terms ) || is_wp_error( $post_terms ) ) {
 			return [];
 		}
 
