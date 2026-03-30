@@ -162,6 +162,10 @@ class Contact_Pull {
 		$errors              = [];
 
 		foreach ( $active_integrations as $integration ) {
+			$selected_fields = $integration->get_enabled_incoming_fields();
+			if ( empty( $selected_fields ) ) {
+				continue;
+			}
 			$result = self::pull_single_integration( $user_id, $integration );
 			if ( is_wp_error( $result ) ) {
 				self::schedule_integration_retry( $integration->get_id(), $user_id, 0, $result );

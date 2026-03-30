@@ -32,6 +32,8 @@ class Test_Integrations extends \WP_UnitTestCase {
 	public function set_up() {
 		parent::set_up();
 		delete_option( Integrations::OPTION_NAME );
+		delete_option( Contact_Cron::PULL_QUEUE_OPTION );
+		delete_option( Contact_Cron::PUSH_QUEUE_OPTION );
 		$this->reset_integrations();
 		$this->reset_handler_map();
 		Sample_Integration::reset();
