@@ -172,9 +172,22 @@ class InDesign_Converter {
 	 * @return string Content with processed blocks.
 	 */
 	private function process_blocks( $content ) {
-		$blocks = parse_blocks( $content );
+		// Rich media blocks have no print equivalent. Exclude them entirely to
+		// prevent raw HTML (e.g. <object> tags, embed URLs) from leaking into
+		// the InDesign output.
+		$excluded_block_types = [
+			'core/file',
+			'core/embed',
+			'core/video',
+			'core/audio',
+		];
+
+		$blocks  = parse_blocks( $content );
 		$content = '';
 		foreach ( $blocks as $block ) {
+			if ( in_array( $block['blockName'], $excluded_block_types, true ) ) {
+				continue;
+			}
 			$tag = $this->get_block_tag( $block );
 			if ( ! empty( $tag ) ) {
 				$content .= $tag . $this->get_transformed_text( preg_replace( '/^<[^>]+>(.*)<\/[^>]+>$/s', '$1', trim( $block['innerHTML'] ) ) );

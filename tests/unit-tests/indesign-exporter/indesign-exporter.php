@@ -279,6 +279,53 @@ class Newspack_Test_InDesign_Exporter extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Test that core/file blocks are excluded from export.
+	 *
+	 * PDF embeds have no print equivalent and their raw markup (<object> tags,
+	 * download links) must not appear in the InDesign output.
+	 */
+	public function test_file_block_excluded() {
+		$post_id = $this->factory->post->create(
+			[
+				'post_title'   => 'Test Post',
+				'post_content' => '<!-- wp:paragraph --><p>Before the file.</p><!-- /wp:paragraph --><!-- wp:file {"id":1,"href":"https://example.com/document.pdf"} --><div class="wp-block-file"><object class="wp-block-file__embed" data="https://example.com/document.pdf" type="application/pdf" style="width:100%;height:600px"></object><a href="https://example.com/document.pdf" class="wp-block-file__button">Download</a></div><!-- /wp:file --><!-- wp:paragraph --><p>After the file.</p><!-- /wp:paragraph -->',
+			]
+		);
+
+		$converter = new InDesign_Converter();
+		$content   = $converter->convert_post( $post_id );
+
+		$this->assertStringContainsString( 'Before the file.', $content );
+		$this->assertStringContainsString( 'After the file.', $content );
+		$this->assertStringNotContainsString( '<object', $content );
+		$this->assertStringNotContainsString( 'document.pdf', $content );
+		$this->assertStringNotContainsString( 'Download', $content );
+	}
+
+	/**
+	 * Test that core/embed blocks are excluded from export.
+	 *
+	 * Rich media embeds (YouTube, etc.) have no print equivalent and their
+	 * raw URLs must not appear in the InDesign output.
+	 */
+	public function test_embed_block_excluded() {
+		$post_id = $this->factory->post->create(
+			[
+				'post_title'   => 'Test Post',
+				'post_content' => '<!-- wp:paragraph --><p>Before the embed.</p><!-- /wp:paragraph --><!-- wp:embed {"url":"https://www.youtube.com/watch?v=abc123","type":"video","providerNameSlug":"youtube"} --><figure class="wp-block-embed is-type-video is-provider-youtube"><div class="wp-block-embed__wrapper">' . "\n" . 'https://www.youtube.com/watch?v=abc123' . "\n" . '</div></figure><!-- /wp:embed --><!-- wp:paragraph --><p>After the embed.</p><!-- /wp:paragraph -->',
+			]
+		);
+
+		$converter = new InDesign_Converter();
+		$content   = $converter->convert_post( $post_id );
+
+		$this->assertStringContainsString( 'Before the embed.', $content );
+		$this->assertStringContainsString( 'After the embed.', $content );
+		$this->assertStringNotContainsString( 'youtube.com', $content );
+		$this->assertStringNotContainsString( 'abc123', $content );
+	}
+
+	/**
 	 * Test image caption and credit special characters.
 	 */
 	public function test_image_caption_and_credit_special_characters() {
