@@ -68,7 +68,7 @@ class Integrations {
 	public static function init() {
 		// Include required files.
 		require_once __DIR__ . '/integrations/class-integration.php';
-		require_once __DIR__ . '/integrations/class-contact-pull.php';
+		require_once __DIR__ . '/integrations/class-contact-cron.php';
 
 		add_action( 'init', [ __CLASS__, 'register_integrations' ], 5 );
 		add_action( 'init', [ __CLASS__, 'schedule_health_check' ] );
@@ -76,7 +76,7 @@ class Integrations {
 		add_filter( 'newspack_data_events_handler_action_group', [ __CLASS__, 'filter_handler_action_group' ], 10, 3 );
 		add_filter( 'newspack_action_scheduler_group_labels', [ __CLASS__, 'register_group_labels' ] );
 
-		Integrations\Contact_Pull::init();
+		Integrations\Contact_Cron::init();
 	}
 
 	/**

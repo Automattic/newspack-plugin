@@ -10,7 +10,7 @@ namespace Newspack\Tests\Unit\Integrations;
 use Newspack\Data_Events;
 use Newspack\Reader_Activation\Integration;
 use Newspack\Reader_Activation\Integrations;
-use Newspack\Reader_Activation\Integrations\Contact_Pull;
+use Newspack\Reader_Activation\Integrations\Contact_Cron;
 use Sample_Integration;
 
 /**
@@ -78,7 +78,7 @@ class Test_Integrations extends \WP_UnitTestCase {
 	 */
 	private function mock_pull_loopback( $user_id ) {
 		$this->loopback_filter = function ( $preempt, $parsed_args, $url ) use ( $user_id ) {
-			if ( false === strpos( $url, 'action=' . Contact_Pull::AJAX_ACTION ) ) {
+			if ( false === strpos( $url, 'action=' . Contact_Cron::AJAX_ACTION ) ) {
 				return $preempt;
 			}
 
@@ -89,7 +89,7 @@ class Test_Integrations extends \WP_UnitTestCase {
 
 			$integration = Integrations::get_integration( $integration_id );
 			if ( $integration ) {
-				Contact_Pull::pull_single_integration( $user_id, $integration );
+				Contact_Cron::pull_single_integration( $user_id, $integration );
 			}
 
 			return [
@@ -356,10 +356,10 @@ class Test_Integrations extends \WP_UnitTestCase {
 	public function test_pull_skipped_when_not_logged_in() {
 		wp_set_current_user( 0 );
 
-		Contact_Pull::maybe_pull_contact_data();
+		Contact_Cron::maybe_pull_contact_data();
 
 		// No user meta should be written since no one is logged in.
-		$users = get_users( [ 'meta_key' => Contact_Pull::LAST_PULL_META ] );
+		$users = get_users( [ 'meta_key' => Contact_Cron::LAST_PULL_META ] );
 		$this->assertEmpty( $users );
 	}
 
@@ -371,12 +371,12 @@ class Test_Integrations extends \WP_UnitTestCase {
 		wp_set_current_user( $user_id );
 
 		$now = time();
-		update_user_meta( $user_id, Contact_Pull::LAST_PULL_META, $now );
+		update_user_meta( $user_id, Contact_Cron::LAST_PULL_META, $now );
 
-		Contact_Pull::maybe_pull_contact_data();
+		Contact_Cron::maybe_pull_contact_data();
 
 		// The meta should remain unchanged (not updated to a newer timestamp).
-		$last_pull = (int) get_user_meta( $user_id, Contact_Pull::LAST_PULL_META, true );
+		$last_pull = (int) get_user_meta( $user_id, Contact_Cron::LAST_PULL_META, true );
 		$this->assertSame( $now, $last_pull );
 	}
 
@@ -388,7 +388,7 @@ class Test_Integrations extends \WP_UnitTestCase {
 		wp_set_current_user( $user_id );
 
 		// Set last pull to beyond the 24h threshold.
-		update_user_meta( $user_id, Contact_Pull::LAST_PULL_META, time() - Contact_Pull::PULL_SYNC_THRESHOLD - 1 );
+		update_user_meta( $user_id, Contact_Cron::LAST_PULL_META, time() - Contact_Cron::PULL_SYNC_THRESHOLD - 1 );
 
 		// Create an integration that returns data from pull.
 		$integration = new class( 'pull-test', 'Pull Test' ) extends Sample_Integration {
@@ -408,14 +408,14 @@ class Test_Integrations extends \WP_UnitTestCase {
 		Integrations::enable( 'pull-test' );
 
 		$this->mock_pull_loopback( $user_id );
-		Contact_Pull::maybe_pull_contact_data();
+		Contact_Cron::maybe_pull_contact_data();
 
 		// Verify the data was stored synchronously.
 		$stored = get_user_meta( $user_id, 'newspack_reader_data_item_favorite_color', true );
 		$this->assertSame( wp_json_encode( 'blue' ), $stored );
 
 		// Verify last pull meta was updated.
-		$last_pull = (int) get_user_meta( $user_id, Contact_Pull::LAST_PULL_META, true );
+		$last_pull = (int) get_user_meta( $user_id, Contact_Cron::LAST_PULL_META, true );
 		$this->assertGreaterThanOrEqual( time() - 2, $last_pull );
 	}
 
@@ -426,7 +426,7 @@ class Test_Integrations extends \WP_UnitTestCase {
 		$user_id = $this->factory()->user->create();
 		wp_set_current_user( $user_id );
 
-		update_user_meta( $user_id, Contact_Pull::LAST_PULL_META, time() - Contact_Pull::PULL_SYNC_THRESHOLD - 1 );
+		update_user_meta( $user_id, Contact_Cron::LAST_PULL_META, time() - Contact_Cron::PULL_SYNC_THRESHOLD - 1 );
 
 		$integration = new class( 'filter-test', 'Filter Test' ) extends Sample_Integration {
 			/**
@@ -450,7 +450,7 @@ class Test_Integrations extends \WP_UnitTestCase {
 		Integrations::enable( 'filter-test' );
 
 		$this->mock_pull_loopback( $user_id );
-		Contact_Pull::maybe_pull_contact_data();
+		Contact_Cron::maybe_pull_contact_data();
 
 		// a and c should be stored.
 		$this->assertSame( wp_json_encode( 'value_a' ), get_user_meta( $user_id, 'newspack_reader_data_item_field_a', true ) );
@@ -467,7 +467,7 @@ class Test_Integrations extends \WP_UnitTestCase {
 		$user_id = $this->factory()->user->create();
 		wp_set_current_user( $user_id );
 
-		update_user_meta( $user_id, Contact_Pull::LAST_PULL_META, time() - Contact_Pull::PULL_SYNC_THRESHOLD - 1 );
+		update_user_meta( $user_id, Contact_Cron::LAST_PULL_META, time() - Contact_Cron::PULL_SYNC_THRESHOLD - 1 );
 
 		$integration = new class( 'throw-test', 'Throw Test' ) extends Sample_Integration {
 			/**
@@ -487,10 +487,10 @@ class Test_Integrations extends \WP_UnitTestCase {
 
 		// Should not throw — the routine catches Throwable.
 		$this->mock_pull_loopback( $user_id );
-		Contact_Pull::maybe_pull_contact_data();
+		Contact_Cron::maybe_pull_contact_data();
 
 		// Last pull meta should still have been set.
-		$last_pull = (int) get_user_meta( $user_id, Contact_Pull::LAST_PULL_META, true );
+		$last_pull = (int) get_user_meta( $user_id, Contact_Cron::LAST_PULL_META, true );
 		$this->assertGreaterThanOrEqual( time() - 2, $last_pull );
 	}
 
@@ -502,7 +502,7 @@ class Test_Integrations extends \WP_UnitTestCase {
 		wp_set_current_user( $user_id );
 
 		// Last pull 10 minutes ago — past interval but within 24h.
-		update_user_meta( $user_id, Contact_Pull::LAST_PULL_META, time() - 600 );
+		update_user_meta( $user_id, Contact_Cron::LAST_PULL_META, time() - 600 );
 
 		$integration = new class( 'async-test', 'Async Test' ) extends Sample_Integration {
 			/**
@@ -520,26 +520,21 @@ class Test_Integrations extends \WP_UnitTestCase {
 		Integrations::register( $integration );
 		Integrations::enable( 'async-test' );
 
-		Contact_Pull::maybe_pull_contact_data();
+		Contact_Cron::maybe_pull_contact_data();
 
 		// Data should NOT have been stored synchronously.
 		$stored = get_user_meta( $user_id, 'newspack_reader_data_item_city', true );
 		$this->assertEmpty( $stored );
 
-		// Verify an AS action was scheduled.
-		$actions = as_get_scheduled_actions(
-			[
-				'hook'   => Contact_Pull::ASYNC_PULL_HOOK,
-				'status' => \ActionScheduler_Store::STATUS_PENDING,
-			]
-		);
-		$this->assertNotEmpty( $actions );
+		// Verify user was added to the pull queue.
+		$queue = get_option( Contact_Cron::PULL_QUEUE_OPTION, [] );
+		$this->assertContains( $user_id, $queue );
 	}
 
 	/**
-	 * Test handle_async_pull processes data for a single integration.
+	 * Test handle_batch_pull processes data for queued users.
 	 */
-	public function test_handle_async_pull() {
+	public function test_handle_batch_pull() {
 		$user_id = $this->factory()->user->create();
 
 		$integration = new class( 'handle-test', 'Handle Test' ) extends Sample_Integration {
@@ -558,21 +553,22 @@ class Test_Integrations extends \WP_UnitTestCase {
 		Integrations::register( $integration );
 		Integrations::enable( 'handle-test' );
 
-		Contact_Pull::handle_async_pull(
-			[
-				'user_id'        => $user_id,
-				'integration_id' => 'handle-test',
-			]
-		);
+		// Simulate a queued user.
+		update_option( Contact_Cron::PULL_QUEUE_OPTION, [ $user_id ] );
+
+		Contact_Cron::handle_batch();
 
 		$stored = get_user_meta( $user_id, 'newspack_reader_data_item_language', true );
 		$this->assertSame( wp_json_encode( 'PHP' ), $stored );
+
+		// Queue should be cleared after processing.
+		$this->assertEmpty( get_option( Contact_Cron::PULL_QUEUE_OPTION, [] ) );
 	}
 
 	/**
-	 * Test handle_async_pull skips disabled integration.
+	 * Test handle_batch_pull skips disabled integration.
 	 */
-	public function test_handle_async_pull_skips_disabled() {
+	public function test_handle_batch_pull_skips_disabled() {
 		$user_id = $this->factory()->user->create();
 
 		$integration = new class( 'disabled-test', 'Disabled Test' ) extends Sample_Integration {
@@ -591,12 +587,9 @@ class Test_Integrations extends \WP_UnitTestCase {
 		Integrations::register( $integration );
 		// Not enabled.
 
-		Contact_Pull::handle_async_pull(
-			[
-				'user_id'        => $user_id,
-				'integration_id' => 'disabled-test',
-			]
-		);
+		update_option( Contact_Cron::PULL_QUEUE_OPTION, [ $user_id ] );
+
+		Contact_Cron::handle_batch();
 
 		$stored = get_user_meta( $user_id, 'newspack_reader_data_item_pet', true );
 		$this->assertEmpty( $stored );
@@ -628,7 +621,7 @@ class Test_Integrations extends \WP_UnitTestCase {
 		Integrations::enable( 'first-test' );
 
 		$this->mock_pull_loopback( $user_id );
-		Contact_Pull::maybe_pull_contact_data();
+		Contact_Cron::maybe_pull_contact_data();
 
 		// Should have run synchronously.
 		$stored = get_user_meta( $user_id, 'newspack_reader_data_item_first_field', true );
@@ -642,7 +635,7 @@ class Test_Integrations extends \WP_UnitTestCase {
 		$user_id = $this->factory()->user->create();
 		wp_set_current_user( $user_id );
 
-		update_user_meta( $user_id, Contact_Pull::LAST_PULL_META, time() - Contact_Pull::PULL_SYNC_THRESHOLD - 1 );
+		update_user_meta( $user_id, Contact_Cron::LAST_PULL_META, time() - Contact_Cron::PULL_SYNC_THRESHOLD - 1 );
 
 		$integration = new class( 'timeout-test', 'Timeout Test' ) extends Sample_Integration {
 			/**
@@ -662,27 +655,22 @@ class Test_Integrations extends \WP_UnitTestCase {
 
 		// Simulate a timeout by returning WP_Error from the loopback request.
 		$this->loopback_filter = function ( $preempt, $parsed_args, $url ) {
-			if ( false === strpos( $url, 'action=' . Contact_Pull::AJAX_ACTION ) ) {
+			if ( false === strpos( $url, 'action=' . Contact_Cron::AJAX_ACTION ) ) {
 				return $preempt;
 			}
 			return new \WP_Error( 'http_request_failed', 'Connection timed out' );
 		};
 		add_filter( 'pre_http_request', $this->loopback_filter, 10, 3 );
 
-		Contact_Pull::maybe_pull_contact_data();
+		Contact_Cron::maybe_pull_contact_data();
 
 		// Data should NOT have been stored synchronously.
 		$stored = get_user_meta( $user_id, 'newspack_reader_data_item_timeout_field', true );
 		$this->assertEmpty( $stored );
 
-		// Verify an AS action was scheduled as fallback.
-		$actions = as_get_scheduled_actions(
-			[
-				'hook'   => Contact_Pull::ASYNC_PULL_HOOK,
-				'status' => \ActionScheduler_Store::STATUS_PENDING,
-			]
-		);
-		$this->assertNotEmpty( $actions );
+		// Verify user was added to the pull queue as fallback.
+		$queue = get_option( Contact_Cron::PULL_QUEUE_OPTION, [] );
+		$this->assertContains( $user_id, $queue );
 	}
 
 	/**
@@ -941,7 +929,7 @@ class Test_Integrations extends \WP_UnitTestCase {
 		// Call pull_single_integration directly — the AJAX handler is thin glue
 		// (nonce + lookup + this call + wp_send_json) and calling it in tests
 		// produces unavoidable output from wp_send_json.
-		$result = Contact_Pull::pull_single_integration( $user_id, $integration );
+		$result = Contact_Cron::pull_single_integration( $user_id, $integration );
 
 		$this->assertTrue( $result );
 		$stored = get_user_meta( $user_id, 'newspack_reader_data_item_ajax_field', true );
