@@ -9,7 +9,6 @@
 
 namespace Newspack\Reader_Activation\Integrations;
 
-use Newspack\Reader_Activation\Integrations;
 use Newspack\Reader_Activation\Contact_Sync;
 use Newspack\Logger;
 
