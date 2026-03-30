@@ -31,11 +31,11 @@ class Contact_Cron {
 	const CRON_INTERVAL = 300;
 
 	/**
-	 * Last cron run timestamp.
+	 * User meta key for last enqueue timestamp.
 	 *
-	 * @var int
+	 * @var string
 	 */
-	const LAST_CRON_RUN_META = 'newspack_contact_cron_last_run';
+	const LAST_ENQUEUE_META = 'newspack_contact_cron_last_enqueue';
 
 	/**
 	 * WP-Cron hook for batch processing.
@@ -106,18 +106,18 @@ class Contact_Cron {
 			return;
 		}
 
-		$user_id = get_current_user_id();
+		$user_id      = get_current_user_id();
+		$last_enqueue = (int) get_user_meta( $user_id, self::LAST_ENQUEUE_META, true );
 
-		$last_cron_run = get_option( self::LAST_CRON_RUN_META, 0 );
-		if ( time() - $last_cron_run < self::CRON_INTERVAL ) {
+		if ( ( time() - $last_enqueue ) < self::CRON_INTERVAL ) {
 			return;
 		}
-		update_option( self::LAST_CRON_RUN_META, time() );
+		update_user_meta( $user_id, self::LAST_ENQUEUE_META, time() );
 
 		self::enqueue_for_push( $user_id );
 		self::enqueue_for_pull( $user_id );
 
-		if ( Contact_Pull::is_stale( $last_cron_run ) ) {
+		if ( Contact_Pull::is_stale( $last_enqueue ) ) {
 			Contact_Pull::pull_sync( $user_id, Integrations::get_active_integrations() );
 		}
 	}
