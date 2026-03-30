@@ -438,6 +438,30 @@ class Experimental_Tools {
 		}
 		return $total;
 	}
+
+	/**
+	 * Get usage count for a specific user within a number of recent days.
+	 *
+	 * @param string $slug    Tool slug.
+	 * @param int    $user_id User ID.
+	 * @param int    $days    Number of days to look back. Default 30.
+	 * @return int
+	 */
+	public static function get_user_usage_count( $slug, $user_id, $days = 30 ) {
+		$settings = self::get_tool_settings( $slug );
+		$user_key = (string) $user_id;
+		$total    = 0;
+		$cutoff   = gmdate( 'Y-m-d', time() - $days * DAY_IN_SECONDS );
+
+		if ( ! empty( $settings['users'][ $user_key ]['daily'] ) ) {
+			foreach ( $settings['users'][ $user_key ]['daily'] as $date => $count ) {
+				if ( $date >= $cutoff ) {
+					$total += (int) $count;
+				}
+			}
+		}
+		return $total;
+	}
 }
 
 Experimental_Tools::init();
