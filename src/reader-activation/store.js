@@ -2,6 +2,7 @@
 window.newspack_reader_data = window.newspack_reader_data || {};
 
 import { EVENTS, emit } from './events';
+import { getApiNonce } from './session';
 
 /**
  * Store configuration.
@@ -111,7 +112,8 @@ function syncItem( key ) {
 	if ( ! key ) {
 		return Promise.reject( 'Key is required.' );
 	}
-	if ( ! newspack_reader_data.api_url || ! newspack_reader_data.nonce ) {
+	const apiNonce = getApiNonce();
+	if ( ! newspack_reader_data.api_url || ! apiNonce ) {
 		return Promise.reject( 'API not available.' );
 	}
 
@@ -129,7 +131,7 @@ function syncItem( key ) {
 	const req = new XMLHttpRequest();
 	req.open( payload.value ? 'POST' : 'DELETE', newspack_reader_data.api_url, true );
 	req.setRequestHeader( 'Content-Type', 'application/json' );
-	req.setRequestHeader( 'X-WP-Nonce', newspack_reader_data.nonce );
+	req.setRequestHeader( 'X-WP-Nonce', apiNonce );
 
 	// Send request.
 	req.send( JSON.stringify( payload ) );
