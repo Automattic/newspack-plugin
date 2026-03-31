@@ -151,13 +151,13 @@ class Newspack_Test_Premium_Newsletters extends \WP_UnitTestCase {
 	}
 
 	// =========================================================================
-	// Group B — maybe_add_or_remove_lists() — adding behaviour
+	// Group B — maybe_enqueue_access_check() — adding behaviour
 	// =========================================================================
 
 	/**
 	 * Test that lists are added when user has an active subscription matching the gate's access rule.
 	 */
-	public function test_maybe_add_or_remove_lists_adds_lists_when_user_has_access() {
+	public function test_maybe_enqueue_access_check_adds_lists_when_user_has_access() {
 		update_option( 'newspack_premium_newsletters_auto_signup', 1 );
 
 		$user_id = $this->factory->user->create( [ 'role' => 'subscriber' ] );
@@ -176,7 +176,7 @@ class Newspack_Test_Premium_Newsletters extends \WP_UnitTestCase {
 			]
 		);
 
-		Premium_Newsletters::maybe_add_or_remove_lists(
+		Premium_Newsletters::maybe_enqueue_access_check(
 			time(),
 			[
 				'user_id' => $user_id,
@@ -196,7 +196,7 @@ class Newspack_Test_Premium_Newsletters extends \WP_UnitTestCase {
 	/**
 	 * Test that no call is made when auto-signup is disabled, even when user has access.
 	 */
-	public function test_maybe_add_or_remove_lists_does_not_add_when_auto_signup_disabled() {
+	public function test_maybe_enqueue_access_check_does_not_add_when_auto_signup_disabled() {
 		update_option( 'newspack_premium_newsletters_auto_signup', 0 );
 
 		$user_id = $this->factory->user->create( [ 'role' => 'subscriber' ] );
@@ -215,7 +215,7 @@ class Newspack_Test_Premium_Newsletters extends \WP_UnitTestCase {
 			]
 		);
 
-		Premium_Newsletters::maybe_add_or_remove_lists(
+		Premium_Newsletters::maybe_enqueue_access_check(
 			time(),
 			[
 				'user_id' => $user_id,
@@ -231,7 +231,7 @@ class Newspack_Test_Premium_Newsletters extends \WP_UnitTestCase {
 	/**
 	 * Test that no call is made when user has access and auto-signup is on but is already subscribed.
 	 */
-	public function test_maybe_add_or_remove_lists_skips_already_subscribed_lists() {
+	public function test_maybe_enqueue_access_check_skips_already_subscribed_lists() {
 		update_option( 'newspack_premium_newsletters_auto_signup', 1 );
 
 		$user_id = $this->factory->user->create( [ 'role' => 'subscriber' ] );
@@ -253,7 +253,7 @@ class Newspack_Test_Premium_Newsletters extends \WP_UnitTestCase {
 		// Simulate user already subscribed to the list.
 		\Newspack_Newsletters_Subscription::$contact_lists[ $email ] = [ 'list-' . $list_post_id ];
 
-		Premium_Newsletters::maybe_add_or_remove_lists(
+		Premium_Newsletters::maybe_enqueue_access_check(
 			time(),
 			[
 				'user_id' => $user_id,
@@ -269,13 +269,13 @@ class Newspack_Test_Premium_Newsletters extends \WP_UnitTestCase {
 	}
 
 	// =========================================================================
-	// Group C — maybe_add_or_remove_lists() — removing behaviour
+	// Group C — maybe_enqueue_access_check() — removing behaviour
 	// =========================================================================
 
 	/**
 	 * Test that lists are removed when the user has no subscription matching the gate's access rule.
 	 */
-	public function test_maybe_add_or_remove_lists_removes_lists_when_user_lacks_access() {
+	public function test_maybe_enqueue_access_check_removes_lists_when_user_lacks_access() {
 		$user_id = $this->factory->user->create( [ 'role' => 'subscriber' ] );
 		$email   = get_userdata( $user_id )->user_email;
 
@@ -290,7 +290,7 @@ class Newspack_Test_Premium_Newsletters extends \WP_UnitTestCase {
 		// dedup check inside add_and_remove_lists() allows the removal to proceed.
 		\Newspack_Newsletters_Subscription::$contact_lists[ $email ] = [ 'list-' . $list_post_id ];
 
-		Premium_Newsletters::maybe_add_or_remove_lists(
+		Premium_Newsletters::maybe_enqueue_access_check(
 			time(),
 			[
 				'user_id' => $user_id,
@@ -379,12 +379,12 @@ class Newspack_Test_Premium_Newsletters extends \WP_UnitTestCase {
 	// =========================================================================
 
 	/**
-	 * Test that calling maybe_add_or_remove_lists appends the user ID to the queue option.
+	 * Test that calling maybe_enqueue_access_check appends the user ID to the queue option.
 	 */
 	public function test_schedule_adds_user_to_queue() {
 		$user_id = $this->factory->user->create();
 
-		Premium_Newsletters::maybe_add_or_remove_lists( time(), [ 'user_id' => $user_id ], null );
+		Premium_Newsletters::maybe_enqueue_access_check( time(), [ 'user_id' => $user_id ], null );
 
 		$this->assertContains( $user_id, $this->get_queued_user_ids() );
 	}
@@ -395,8 +395,8 @@ class Newspack_Test_Premium_Newsletters extends \WP_UnitTestCase {
 	public function test_schedule_deduplicates_user_ids() {
 		$user_id = $this->factory->user->create();
 
-		Premium_Newsletters::maybe_add_or_remove_lists( time(), [ 'user_id' => $user_id ], null );
-		Premium_Newsletters::maybe_add_or_remove_lists( time(), [ 'user_id' => $user_id ], null );
+		Premium_Newsletters::maybe_enqueue_access_check( time(), [ 'user_id' => $user_id ], null );
+		Premium_Newsletters::maybe_enqueue_access_check( time(), [ 'user_id' => $user_id ], null );
 
 		$this->assertCount( 1, $this->get_queued_user_ids() );
 	}
@@ -487,7 +487,7 @@ class Newspack_Test_Premium_Newsletters extends \WP_UnitTestCase {
 	 * Test that all handlers are wired to the correct actions.
 	 */
 	public function test_register_handlers_wires_all_handlers() {
-		$handler = [ 'Newspack\Premium_Newsletters', 'maybe_add_or_remove_lists' ];
+		$handler = [ 'Newspack\Premium_Newsletters', 'maybe_enqueue_access_check' ];
 
 		foreach ( [
 			'subscription_payment_complete',
@@ -501,7 +501,7 @@ class Newspack_Test_Premium_Newsletters extends \WP_UnitTestCase {
 			$this->assertContains(
 				$handler,
 				$handlers,
-				"maybe_add_or_remove_lists should be registered for {$action}"
+				"maybe_enqueue_access_check should be registered for {$action}"
 			);
 		}
 	}
@@ -512,12 +512,12 @@ class Newspack_Test_Premium_Newsletters extends \WP_UnitTestCase {
 
 	/**
 	 * Test that the reader_data_updated data shape — which carries no 'email' key —
-	 * is accepted by maybe_add_or_remove_lists without error and queues the user.
+	 * is accepted by maybe_enqueue_access_check without error and queues the user.
 	 */
 	public function test_reader_data_updated_data_shape_queues_user() {
 		$user_id = $this->factory->user->create();
 
-		Premium_Newsletters::maybe_add_or_remove_lists(
+		Premium_Newsletters::maybe_enqueue_access_check(
 			time(),
 			[
 				'user_id' => $user_id,
@@ -583,7 +583,7 @@ class Newspack_Test_Premium_Newsletters extends \WP_UnitTestCase {
 		);
 
 		// Simulate the reader_verified Data Event firing for this user.
-		Premium_Newsletters::maybe_add_or_remove_lists(
+		Premium_Newsletters::maybe_enqueue_access_check(
 			time(),
 			[
 				'user_id' => $user_id,
@@ -647,7 +647,7 @@ class Newspack_Test_Premium_Newsletters extends \WP_UnitTestCase {
 			]
 		);
 
-		Premium_Newsletters::maybe_add_or_remove_lists(
+		Premium_Newsletters::maybe_enqueue_access_check(
 			time(),
 			[
 				'user_id' => $user_id,

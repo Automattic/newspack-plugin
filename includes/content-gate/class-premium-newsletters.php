@@ -38,11 +38,6 @@ class Premium_Newsletters {
 	const QUEUE_OPTION = 'newspack_premium_newsletters_access_check_queue';
 
 	/**
-	 * Default scheduling delay in seconds.
-	 */
-	const DEFAULT_DELAY = 10 * MINUTE_IN_SECONDS;
-
-	/**
 	 * Log a warning once the queue exceeds this many unique user IDs.
 	 */
 	const MAX_QUEUE_SIZE = 500;
@@ -266,39 +261,18 @@ class Premium_Newsletters {
 	 * @return void
 	 */
 	public static function register_access_check_event() {
-		if ( is_admin() && function_exists( 'as_schedule_recurring_action' ) ) {
-			self::register_access_check_as_event();
-
-			// If AS supports it, also hook into ensure_recurring actions.
-			if ( function_exists( 'as_supports' ) && as_supports( 'ensure_recurring_actions_hook' ) ) {
-				add_action( 'action_scheduler_ensure_recurring_actions', [ __CLASS__, 'register_check_expiry_as_event' ] );
-			}
-		} elseif ( ! wp_next_scheduled( self::SCHEDULED_HOOK ) ) {
-			// Fall back to hourly cron job if Action AS is not available.
+		if ( ! wp_next_scheduled( self::SCHEDULED_HOOK ) ) {
+			self::process_access_check_queue();
 			wp_schedule_event( time(), 'hourly', self::SCHEDULED_HOOK );
-		}
-	}
-
-	/**
-	 * Registers the Action Scheduler's recurring event.
-	 *
-	 * @return void
-	 */
-	public static function register_access_check_as_event() {
-		if ( false === wp_cache_get( 'newspack_premium_newsletters_recurring_action_scheduled' ) ) {
-			if ( ! as_has_scheduled_action( self::SCHEDULED_HOOK ) ) {
-				as_schedule_recurring_action( time(), self::DEFAULT_DELAY, self::SCHEDULED_HOOK, [], 'newspack' );
-			}
-			wp_cache_set( 'newspack_premium_newsletters_recurring_action_scheduled', true, self::DEFAULT_DELAY );
 		}
 	}
 
 	/**
 	 * Process all pending access checks from the queue.
 	 *
-	 * Registered as the callback for SCHEDULED_HOOK, fired by either WP cron or
-	 * ActionScheduler. Clear the queue after processing so that if any errors
-	 * occur the unprocessed queue will be processed by the next scheduled event.
+	 * Registered as the callback for the SCHEDULED_HOOK cron event.
+	 * Clear the queue after processing so that if any errors occur the
+	 * unprocessed queue will be processed by the next scheduled event.
 	 *
 	 * @return void
 	 */
@@ -334,10 +308,7 @@ class Premium_Newsletters {
 		// Remove any existing WP Cron events.
 		wp_clear_scheduled_hook( self::SCHEDULED_HOOK );
 
-		// Remove any existing Action Scheduler events.
-		if ( function_exists( 'as_unschedule_all_actions' ) ) {
-			as_unschedule_all_actions( self::SCHEDULED_HOOK );
-		}
+		// Delete the queue option.
 		self::clear_queue();
 	}
 
