@@ -92,16 +92,22 @@ final class Session_Hydration {
 	/**
 	 * Permission callback for the hydration endpoint.
 	 *
+	 * This endpoint cannot rely on X-WP-Nonce for authentication since
+	 * providing a nonce is its purpose. Instead, it validates the user
+	 * directly from auth cookies.
+	 *
 	 * @return true|\WP_Error
 	 */
 	public static function permission_callback() {
-		if ( ! \is_user_logged_in() ) {
+		$user_id = \wp_validate_auth_cookie( '', 'logged_in' );
+		if ( ! $user_id ) {
 			return new \WP_Error(
 				'rest_forbidden',
 				__( 'Authentication required.', 'newspack-plugin' ),
 				[ 'status' => 401 ]
 			);
 		}
+		\wp_set_current_user( $user_id );
 		return true;
 	}
 

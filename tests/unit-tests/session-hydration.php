@@ -20,6 +20,22 @@ class Newspack_Test_Session_Hydration extends WP_UnitTestCase {
 	private static $test_cid = 'testcid12345';
 
 	/**
+	 * Set the logged_in auth cookie for a user so wp_validate_auth_cookie() works.
+	 *
+	 * @param int $user_id User ID.
+	 */
+	private function set_auth_cookie( $user_id ) { // phpcs:ignore WordPressVIPMinimum.Variables.RestrictedVariables.cache_constraints___COOKIE
+		$_COOKIE[ LOGGED_IN_COOKIE ] = wp_generate_auth_cookie( $user_id, time() + DAY_IN_SECONDS, 'logged_in' ); // phpcs:ignore WordPressVIPMinimum.Variables.RestrictedVariables.cache_constraints___COOKIE
+	}
+
+	/**
+	 * Clear the logged_in auth cookie.
+	 */
+	private function clear_auth_cookie() { // phpcs:ignore WordPressVIPMinimum.Variables.RestrictedVariables.cache_constraints___COOKIE
+		unset( $_COOKIE[ LOGGED_IN_COOKIE ] ); // phpcs:ignore WordPressVIPMinimum.Variables.RestrictedVariables.cache_constraints___COOKIE
+	}
+
+	/**
 	 * Test that CID binding creates a transient mapping CID to user ID.
 	 */
 	public function test_bind_cid_to_user() {
@@ -60,8 +76,8 @@ class Newspack_Test_Session_Hydration extends WP_UnitTestCase {
 		// Bind the CID.
 		Session_Hydration::bind_cid( $user_id );
 
-		// Simulate logged-in user.
-		wp_set_current_user( $user_id );
+		// Simulate logged-in user via auth cookie.
+		$this->set_auth_cookie( $user_id );
 
 		$request  = new WP_REST_Request( 'GET', '/newspack/v1/reader/session' );
 		$response = rest_do_request( $request );
@@ -75,6 +91,7 @@ class Newspack_Test_Session_Hydration extends WP_UnitTestCase {
 		$this->assertFalse( get_transient( 'newspack_cid_' . self::$test_cid ) );
 
 		unset( $_COOKIE[ NEWSPACK_CLIENT_ID_COOKIE_NAME ] ); // phpcs:ignore WordPressVIPMinimum.Variables.RestrictedVariables.cache_constraints___COOKIE
+		$this->clear_auth_cookie();
 		wp_delete_user( $user_id );
 	}
 
@@ -91,7 +108,7 @@ class Newspack_Test_Session_Hydration extends WP_UnitTestCase {
 		// Now request with a different CID.
 		$_COOKIE[ NEWSPACK_CLIENT_ID_COOKIE_NAME ] = 'wrongcid12345'; // phpcs:ignore WordPressVIPMinimum.Variables.RestrictedVariables.cache_constraints___COOKIE
 
-		wp_set_current_user( $user_id );
+		$this->set_auth_cookie( $user_id );
 
 		$request  = new WP_REST_Request( 'GET', '/newspack/v1/reader/session' );
 		$response = rest_do_request( $request );
@@ -99,6 +116,7 @@ class Newspack_Test_Session_Hydration extends WP_UnitTestCase {
 		$this->assertEquals( 403, $response->get_status() );
 
 		unset( $_COOKIE[ NEWSPACK_CLIENT_ID_COOKIE_NAME ] ); // phpcs:ignore WordPressVIPMinimum.Variables.RestrictedVariables.cache_constraints___COOKIE
+		$this->clear_auth_cookie();
 		wp_delete_user( $user_id );
 	}
 
@@ -109,13 +127,14 @@ class Newspack_Test_Session_Hydration extends WP_UnitTestCase {
 		$user_id = $this->factory->user->create( [ 'user_email' => 'reader5@test.com' ] );
 		unset( $_COOKIE[ NEWSPACK_CLIENT_ID_COOKIE_NAME ] ); // phpcs:ignore WordPressVIPMinimum.Variables.RestrictedVariables.cache_constraints___COOKIE
 
-		wp_set_current_user( $user_id );
+		$this->set_auth_cookie( $user_id );
 
 		$request  = new WP_REST_Request( 'GET', '/newspack/v1/reader/session' );
 		$response = rest_do_request( $request );
 
 		$this->assertEquals( 403, $response->get_status() );
 
+		$this->clear_auth_cookie();
 		wp_delete_user( $user_id );
 	}
 
@@ -123,7 +142,7 @@ class Newspack_Test_Session_Hydration extends WP_UnitTestCase {
 	 * Test that unauthenticated requests get 401.
 	 */
 	public function test_hydration_endpoint_unauthenticated() {
-		wp_set_current_user( 0 );
+		$this->clear_auth_cookie();
 		$_COOKIE[ NEWSPACK_CLIENT_ID_COOKIE_NAME ] = self::$test_cid; // phpcs:ignore WordPressVIPMinimum.Variables.RestrictedVariables.cache_constraints___COOKIE
 
 		$request  = new WP_REST_Request( 'GET', '/newspack/v1/reader/session' );
