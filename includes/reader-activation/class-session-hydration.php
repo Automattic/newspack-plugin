@@ -34,6 +34,28 @@ final class Session_Hydration {
 	 */
 	public static function init() {
 		add_action( 'rest_api_init', [ __CLASS__, 'register_routes' ] );
+		add_action( 'wp_login', [ __CLASS__, 'on_wp_login' ], 10, 2 );
+		add_action( 'newspack_registered_reader_via_woo', [ __CLASS__, 'on_woo_customer_created' ], 10, 2 );
+	}
+
+	/**
+	 * Bind CID on login.
+	 *
+	 * @param string   $user_login Username.
+	 * @param \WP_User $user       Authenticated user object.
+	 */
+	public static function on_wp_login( $user_login, $user ) {
+		self::bind_cid( $user->ID );
+	}
+
+	/**
+	 * Bind CID on WooCommerce customer creation.
+	 *
+	 * @param string $email   Email address.
+	 * @param int    $user_id The created user id.
+	 */
+	public static function on_woo_customer_created( $email, $user_id ) {
+		self::bind_cid( $user_id );
 	}
 
 	/**
