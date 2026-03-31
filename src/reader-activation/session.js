@@ -3,6 +3,7 @@
  * Internal dependencies
  */
 import { getCookie } from './utils';
+import { EVENTS, emit } from './events';
 
 let pending = null;
 let nonce = newspack_reader_data?.nonce || null;
@@ -18,7 +19,10 @@ let nonce = newspack_reader_data?.nonce || null;
 export function hydrateSession() {
 	if ( ! pending ) {
 		pending = fetchNonce().then( result => {
-			nonce = result;
+			if ( result ) {
+				nonce = result;
+				emit( EVENTS.session, { nonce } );
+			}
 			return result;
 		} );
 	}

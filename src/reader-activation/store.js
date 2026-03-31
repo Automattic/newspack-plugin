@@ -1,7 +1,7 @@
 /* globals newspack_reader_data */
 window.newspack_reader_data = window.newspack_reader_data || {};
 
-import { EVENTS, emit } from './events';
+import { EVENTS, emit, on } from './events';
 import { getApiNonce } from './session';
 
 /**
@@ -257,6 +257,16 @@ export default function Store() {
 			syncQueue.push( key );
 		}
 	}
+
+	// When session hydration provides a nonce, re-queue any unsynced items.
+	on( EVENTS.session, () => {
+		const pending = _get( 'unsynced', true ) || [];
+		for ( const key of pending ) {
+			if ( ! syncQueue.includes( key ) ) {
+				syncQueue.push( key );
+			}
+		}
+	} );
 
 	// Rehydrate items from server. No need to rehydrate for temporary sessions.
 	if ( newspack_reader_data?.items && ! newspack_reader_data?.is_temporary ) {
