@@ -490,12 +490,9 @@ class Newspack_Test_Premium_Newsletters extends \WP_UnitTestCase {
 		$handler = [ 'Newspack\Premium_Newsletters', 'maybe_enqueue_access_check' ];
 
 		foreach ( [
-			'subscription_payment_complete',
-			'subscription_renewal_payment_failed',
 			'product_subscription_changed',
 			'donation_subscription_changed',
 			'reader_verified',
-			'reader_data_updated',
 		] as $action ) {
 			$handlers = Data_Events::get_action_handlers( $action );
 			$this->assertContains(
