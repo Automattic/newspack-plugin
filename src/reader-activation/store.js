@@ -258,12 +258,21 @@ export default function Store() {
 		}
 	}
 
-	// When session hydration provides a nonce, initialize server-side
-	// state tracking and re-queue any unsynced items.
-	on( EVENTS.session, () => {
-		if ( ! newspack_reader_data.items ) {
-			newspack_reader_data.items = {};
+	// When session hydration provides a nonce, rehydrate server items
+	// and re-queue any unsynced items.
+	on( EVENTS.session, ( { detail } ) => {
+		// Rehydrate items from server if provided.
+		const items = detail?.reader_data_items || {};
+		newspack_reader_data.items = items;
+		if ( ! newspack_reader_data?.is_temporary ) {
+			const unsyncedKeys = _get( 'unsynced', true ) || [];
+			for ( const key of Object.keys( items ) ) {
+				if ( ! unsyncedKeys.includes( key ) ) {
+					_set( key, JSON.parse( items[ key ] ) );
+				}
+			}
 		}
+		// Re-queue unsynced items.
 		const pending = _get( 'unsynced', true ) || [];
 		for ( const key of pending ) {
 			if ( ! syncQueue.includes( key ) ) {

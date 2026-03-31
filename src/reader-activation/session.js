@@ -18,12 +18,12 @@ let nonce = newspack_reader_data?.nonce || null;
  */
 export function hydrateSession() {
 	if ( ! pending ) {
-		pending = fetchNonce().then( result => {
-			if ( result ) {
-				nonce = result;
-				emit( EVENTS.session, { nonce } );
+		pending = fetchSession().then( data => {
+			if ( data?.nonce ) {
+				nonce = data.nonce;
+				emit( EVENTS.session, data );
 			}
-			return result;
+			return data?.nonce || null;
 		} );
 	}
 	return pending;
@@ -39,11 +39,11 @@ export function getApiNonce() {
 }
 
 /**
- * Fetch a fresh wp_rest nonce from the session hydration endpoint.
+ * Fetch session data from the hydration endpoint.
  *
- * @return {Promise<string|null>} The nonce string, or null on failure.
+ * @return {Promise<Object|null>} The response data, or null on failure.
  */
-async function fetchNonce() {
+async function fetchSession() {
 	const cid = getCookie( 'newspack-cid' );
 	if ( ! cid ) {
 		return null;
@@ -56,8 +56,7 @@ async function fetchNonce() {
 		if ( ! response.ok ) {
 			return null;
 		}
-		const data = await response.json();
-		return data.nonce || null;
+		return await response.json();
 	} catch {
 		return null;
 	}

@@ -137,7 +137,20 @@ final class Session_Hydration {
 		// One-time use: delete the transient.
 		delete_transient( $transient_key );
 
-		return new \WP_REST_Response( [ 'nonce' => \wp_create_nonce( 'wp_rest' ) ] );
+		$data = [ 'nonce' => \wp_create_nonce( 'wp_rest' ) ];
+
+		/**
+		 * Filters the session hydration response data.
+		 *
+		 * Allows other components to attach data to the hydration response
+		 * so the frontend can initialize state without additional requests.
+		 *
+		 * @param array $data    Response data containing 'nonce'.
+		 * @param int   $user_id The authenticated user's ID.
+		 */
+		$data = apply_filters( 'newspack_session_hydration_response', $data, \get_current_user_id() );
+
+		return new \WP_REST_Response( $data );
 	}
 }
 Session_Hydration::init();

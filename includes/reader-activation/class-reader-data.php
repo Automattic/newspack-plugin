@@ -36,6 +36,20 @@ final class Reader_Data {
 		add_action( 'wp', [ __CLASS__, 'setup_reader_activity' ] );
 		add_action( 'wp_enqueue_scripts', [ __CLASS__, 'config_script' ] );
 		add_action( 'init', [ __CLASS__, 'register_data_event_handlers' ] );
+		add_filter( 'newspack_session_hydration_response', [ __CLASS__, 'add_reader_data_to_hydration' ], 10, 2 );
+	}
+
+	/**
+	 * Add reader data items to the session hydration response.
+	 *
+	 * @param array $data    Hydration response data.
+	 * @param int   $user_id The authenticated user's ID.
+	 *
+	 * @return array Filtered response data.
+	 */
+	public static function add_reader_data_to_hydration( $data, $user_id ) {
+		$data['reader_data_items'] = self::get_data( $user_id );
+		return $data;
 	}
 
 	/**
