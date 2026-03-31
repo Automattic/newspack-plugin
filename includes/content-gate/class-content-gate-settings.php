@@ -31,7 +31,7 @@ class Content_Gate_Settings {
 	public static function init() {
 		add_filter( 'the_content_feed', [ __CLASS__, 'restrict_feed_content' ], PHP_INT_MAX );
 		add_filter( 'the_excerpt_rss', [ __CLASS__, 'restrict_feed_excerpt' ], PHP_INT_MAX );
-		add_filter( 'the_content', [ __CLASS__, 'restrict_everlit_content' ], PHP_INT_MAX );
+		add_filter( 'render_block', [ __CLASS__, 'restrict_everlit' ], 10, 2 );
 	}
 
 	/**
@@ -77,39 +77,6 @@ class Content_Gate_Settings {
 	}
 
 	/**
-	 * Strip Everlit audio iframes from the_content output for gated posts.
-	 *
-	 * Runs at PHP_INT_MAX (after Content_Gate::handle_restricted_content) so it
-	 * operates on the already-truncated excerpt. This ensures that audio players
-	 * appearing in the visible "preview" portion of gated content are also hidden,
-	 * matching the access control applied to the rest of the post.
-	 *
-	 * @param string $content Post content.
-	 *
-	 * @return string
-	 */
-	public static function restrict_everlit_content( $content ) {
-		$settings = self::get_settings();
-
-		/**
-		 * Filters whether to strip Everlit audio iframes from gated post content.
-		 *
-		 * Defaults to the restrict_everlit setting (only present when Everlit is
-		 * configured). Can be overridden — e.g. in tests — via this filter.
-		 *
-		 * @param bool $restrict Whether to restrict Everlit audio.
-		 */
-		if ( ! apply_filters( 'newspack_content_gate_restrict_everlit', ! empty( $settings['restrict_everlit'] ) ) ) {
-			return $content;
-		}
-		$post = get_post();
-		if ( ! $post || ! Content_Gate::is_post_restricted( $post->ID ) ) {
-			return $content;
-		}
-		return preg_replace( '/<iframe[^>]*src="[^"]*everlit[^"]*"[^>]*>.*?<\/iframe>/is', '', $content );
-	}
-
-	/**
 	 * Truncate post content in RSS feeds when restrict_feeds is enabled.
 	 *
 	 * Uses the gate's excerpt settings (<!--more--> tag or paragraph count) to
@@ -149,6 +116,38 @@ class Content_Gate_Settings {
 			return $excerpt;
 		}
 		return Content_Gate::get_restricted_post_excerpt_for_gate( $post, Content_Gate::get_gate_layout_id( $post->ID ) );
+	}
+
+	/**
+	 * Render block filter to strip Everlit audio iframes from the block content.
+	 *
+	 * @param string $block_content The block content.
+	 * @param array  $block         The block.
+	 *
+	 * @return string The block content.
+	 */
+	public static function restrict_everlit( $block_content, $block ) {
+		if ( ! in_array( $block['blockName'], [ 'custom/everlit-iframe-embed', 'custom/everlit-playlist-embed' ], true ) ) {
+			return $block_content;
+		}
+		$settings = self::get_settings();
+
+		/**
+		 * Filters whether to strip Everlit audio iframes from gated post content.
+		 *
+		 * Defaults to the restrict_everlit setting (only present when Everlit is
+		 * configured). Can be overridden — e.g. in tests — via this filter.
+		 *
+		 * @param bool $restrict Whether to restrict Everlit audio.
+		 */
+		if ( ! apply_filters( 'newspack_content_gate_restrict_everlit', ! empty( $settings['restrict_everlit'] ) ) ) {
+			return $block_content;
+		}
+		$post = get_post();
+		if ( ! $post || ! Content_Gate::is_post_restricted( $post->ID ) ) {
+			return $block_content;
+		}
+		return '';
 	}
 }
 Content_Gate_Settings::init();

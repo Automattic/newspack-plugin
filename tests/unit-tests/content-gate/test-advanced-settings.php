@@ -218,8 +218,7 @@ class Test_Advanced_Settings extends \WP_UnitTestCase {
 	private $everlit_iframe = '<iframe src="https://app.everlit.audio/mixable/abc123" width="100%" height="200px"></iframe>';
 
 	/**
-	 * When restrict_everlit is enabled, Everlit iframes are stripped from
-	 * the_content output for a gated post.
+	 * When restrict_everlit is enabled, the Everlit block is stripped for a gated post.
 	 */
 	public function test_everlit_iframe_is_removed_for_restricted_post() {
 		// Force restrict_everlit on via the filter hook (Everlit is not configured in tests).
@@ -229,8 +228,7 @@ class Test_Advanced_Settings extends \WP_UnitTestCase {
 		$post = get_post( $this->restricted_post_id ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 		setup_postdata( $post );
 
-		$content  = $this->long_content . $this->everlit_iframe;
-		$filtered = apply_filters( 'the_content', $content );
+		$filtered = Content_Gate_Settings::restrict_everlit( $this->everlit_iframe, [ 'blockName' => 'custom/everlit-iframe-embed' ] );
 
 		wp_reset_postdata();
 		remove_filter( 'newspack_content_gate_restrict_everlit', '__return_true' );
@@ -239,8 +237,7 @@ class Test_Advanced_Settings extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * When restrict_everlit is disabled, Everlit iframes are preserved in
-	 * the_content output for a gated post.
+	 * When restrict_everlit is disabled, the Everlit block is preserved for a gated post.
 	 */
 	public function test_everlit_iframe_is_not_removed_when_setting_is_off() {
 		add_filter( 'newspack_content_gate_restrict_everlit', '__return_false' );
@@ -249,8 +246,7 @@ class Test_Advanced_Settings extends \WP_UnitTestCase {
 		$post = get_post( $this->restricted_post_id ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 		setup_postdata( $post );
 
-		$content  = $this->long_content . $this->everlit_iframe;
-		$filtered = apply_filters( 'the_content', $content );
+		$filtered = Content_Gate_Settings::restrict_everlit( $this->everlit_iframe, [ 'blockName' => 'custom/everlit-iframe-embed' ] );
 
 		wp_reset_postdata();
 		remove_filter( 'newspack_content_gate_restrict_everlit', '__return_false' );
@@ -259,7 +255,7 @@ class Test_Advanced_Settings extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * Everlit iframes are never stripped from unrestricted post content.
+	 * Everlit blocks are never stripped from unrestricted post content.
 	 */
 	public function test_everlit_iframe_is_not_removed_for_unrestricted_post() {
 		add_filter( 'newspack_content_gate_restrict_everlit', '__return_true' );
@@ -268,8 +264,7 @@ class Test_Advanced_Settings extends \WP_UnitTestCase {
 		$post = get_post( $this->unrestricted_post_id ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 		setup_postdata( $post );
 
-		$content  = $this->long_content . $this->everlit_iframe;
-		$filtered = apply_filters( 'the_content', $content );
+		$filtered = Content_Gate_Settings::restrict_everlit( $this->everlit_iframe, [ 'blockName' => 'custom/everlit-iframe-embed' ] );
 
 		wp_reset_postdata();
 		remove_filter( 'newspack_content_gate_restrict_everlit', '__return_true' );

@@ -81,7 +81,7 @@ const AdvancedSettings = ( { closeModal, showModal }: { closeModal: () => void; 
 					{ config?.hasOwnProperty( 'restrict_everlit' ) && (
 						<ToggleControl
 							label={ __( 'Restrict content in Everlit', 'newspack-plugin' ) }
-							help={ __( 'Truncate restricted content in Everlit audio.', 'newspack-plugin' ) }
+							help={ __( 'Hide Everlit audio players for gated posts.', 'newspack-plugin' ) }
 							checked={ config?.restrict_everlit }
 							onChange={ value => setConfig( { ...config, restrict_everlit: value } ) }
 						/>
