@@ -115,7 +115,7 @@
 			}
 
 			&:disabled {
-				background: var(---newspack-ui-color-neutral-0) !important;
+				background: var(--newspack-ui-color-neutral-0) !important;
 				color: var(--newspack-ui-color-neutral-30) !important;
 			}
 		}
@@ -159,7 +159,7 @@
 		&--ghost-light,
 		&--outline {
 			background: transparent;
-			color: var(---newspack-ui-color-neutral-90);
+			color: var(--newspack-ui-color-neutral-90);
 
 			&:hover {
 				background: var(--newspack-ui-color-neutral-5);
