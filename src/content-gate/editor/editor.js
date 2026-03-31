@@ -14,6 +14,7 @@ import { registerPlugin } from '@wordpress/plugins';
  * Internal dependencies
  */
 import PositionControl from '../../../packages/components/src/position-control';
+import { addToolbarBackButton } from '../../admin/editor-toolbar-back-button';
 import './editor.scss';
 
 const styles = [
@@ -42,6 +43,9 @@ function GateEdit() {
 		};
 	} );
 	const { editPost } = useDispatch( 'core/editor' );
+	useEffect( () => {
+		addToolbarBackButton( '/wp-admin/admin.php?page=newspack-audience-access-control#/' );
+	}, [] );
 	useEffect( () => {
 		const wrapper = document.querySelector( '.editor-styles-wrapper' );
 		if ( ! wrapper ) {
