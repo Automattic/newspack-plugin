@@ -1,4 +1,5 @@
 import * as a11y from '../reader-activation-auth/accessibility.js';
+import { hydrateSession } from '../reader-activation/session';
 
 /**
  * Get the newsletters signup modal container.
@@ -12,35 +13,43 @@ export function getModalContainer() {
 /**
  * Refresh the newsletters signup modal content.
  *
- * @param {string} email The email address to populate in the modal.
  * @return {void}
  */
-export function refreshNewslettersSignupModal( email ) {
+export async function refreshNewslettersSignupModal() {
 	const container = getModalContainer();
 	if ( ! container ) {
 		return;
 	}
 
 	const modal = container.closest( '.newspack-newsletters-signup-modal' );
-	if ( modal ) {
-		fetch( `/wp-json/newspack/v1/reader-newsletter-signup-lists/${ email }` ).then( res => {
-			res.json().then( ( { html } ) => {
-				if ( html ) {
-					const parser = new DOMParser();
-					const doc = parser.parseFromString( html, 'text/html' );
-					const existingForm = container.querySelector( 'form' );
-					if ( existingForm ) {
-						existingForm.remove();
-					}
-					const newForm = doc.querySelector( '.newspack-newsletters-signup form' );
-					if ( newForm ) {
-						container.appendChild( newForm );
-					}
-					// Dispatch refresh event on the container.
-					container.dispatchEvent( new Event( 'newspack:refresh' ) );
-				}
-			} );
-		} );
+	if ( ! modal ) {
+		return;
+	}
+
+	const nonce = await hydrateSession();
+	if ( ! nonce ) {
+		return;
+	}
+
+	const res = await fetch( '/wp-json/newspack/v1/reader-newsletter-signup-lists', {
+		credentials: 'same-origin',
+		headers: {
+			'X-WP-Nonce': nonce,
+		},
+	} );
+	const { html } = await res.json();
+	if ( html ) {
+		const parser = new DOMParser();
+		const doc = parser.parseFromString( html, 'text/html' );
+		const existingForm = container.querySelector( 'form' );
+		if ( existingForm ) {
+			existingForm.remove();
+		}
+		const newForm = doc.querySelector( '.newspack-newsletters-signup form' );
+		if ( newForm ) {
+			container.appendChild( newForm );
+		}
+		container.dispatchEvent( new Event( 'newspack:refresh' ) );
 	}
 }
 
