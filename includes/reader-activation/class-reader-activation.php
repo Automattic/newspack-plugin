@@ -93,9 +93,9 @@ final class Reader_Activation {
 		\add_action( 'wp_footer', [ __CLASS__, 'render_newsletters_signup_modal' ] );
 		\add_action( 'wp_ajax_newspack_reader_activation_newsletters_signup', [ __CLASS__, 'newsletters_signup' ] );
 		\add_action( 'woocommerce_customer_reset_password', [ __CLASS__, 'login_after_password_reset' ] );
-		\add_action( 'rest_api_init', [ __CLASS__, 'register_routes' ] );
 
 		if ( self::is_enabled() ) {
+			\add_action( 'rest_api_init', [ __CLASS__, 'register_routes' ] );
 			\add_action( 'clear_auth_cookie', [ __CLASS__, 'clear_auth_intention_cookie' ] );
 			\add_action( 'clear_auth_cookie', [ __CLASS__, 'clear_auth_reader_cookie' ] );
 			\add_action( 'set_auth_cookie', [ __CLASS__, 'clear_auth_intention_cookie' ] );

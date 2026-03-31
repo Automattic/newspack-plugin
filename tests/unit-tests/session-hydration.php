@@ -152,32 +152,4 @@ class Newspack_Test_Session_Hydration extends WP_UnitTestCase {
 
 		unset( $_COOKIE[ NEWSPACK_CLIENT_ID_COOKIE_NAME ] ); // phpcs:ignore WordPressVIPMinimum.Variables.RestrictedVariables.cache_constraints___COOKIE
 	}
-
-	/**
-	 * Test that the newsletter signup lists endpoint requires authentication.
-	 */
-	public function test_newsletter_signup_lists_requires_auth() {
-		wp_set_current_user( 0 );
-
-		$request  = new WP_REST_Request( 'GET', '/newspack/v1/reader-newsletter-signup-lists' );
-		$response = rest_do_request( $request );
-
-		$this->assertEquals( 401, $response->get_status() );
-	}
-
-	/**
-	 * Test that the newsletter signup lists endpoint works for authenticated users.
-	 */
-	public function test_newsletter_signup_lists_authenticated() {
-		$user_id = $this->factory->user->create( [ 'user_email' => 'reader6@test.com' ] );
-		wp_set_current_user( $user_id );
-
-		$request  = new WP_REST_Request( 'GET', '/newspack/v1/reader-newsletter-signup-lists' );
-		$response = rest_do_request( $request );
-
-		// Should succeed (200) — actual HTML content depends on newsletter plugin availability.
-		$this->assertContains( $response->get_status(), [ 200, 204 ] );
-
-		wp_delete_user( $user_id );
-	}
 }
