@@ -1,5 +1,5 @@
 import * as a11y from '../reader-activation-auth/accessibility.js';
-import { hydrateSession } from '../reader-activation/session';
+import { getApiNonce } from '../reader-activation/session';
 
 /**
  * Get the newsletters signup modal container.
@@ -26,7 +26,7 @@ export async function refreshNewslettersSignupModal() {
 		return;
 	}
 
-	const nonce = await hydrateSession();
+	const nonce = getApiNonce();
 	if ( ! nonce ) {
 		return;
 	}
