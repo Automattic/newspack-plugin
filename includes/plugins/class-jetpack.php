@@ -162,8 +162,8 @@ class Jetpack {
 		// Modify the related posts timeframe.
 		add_filter( 'jetpack_relatedposts_filter_date_range', [ __CLASS__, 'restrict_age_of_related_posts' ] );
 
-		// Disable Jetpack Image Studio.
-		add_action( 'admin_enqueue_scripts', [ __CLASS__, 'disable_image_studio' ], 100 );
+		// Disable Jetpack Image Studio as late as possible so dequeues cannot be overridden.
+		add_action( 'admin_print_scripts', [ __CLASS__, 'disable_image_studio' ], 999 );
 	}
 
 	/**
@@ -353,8 +353,8 @@ class Jetpack {
 	 * Disable Jetpack Image Studio scripts and styles.
 	 *
 	 * Image Studio's full-screen AI editor replaces the Media Library attachment
-	 * view, hiding custom fields like photo credits. Dequeuing the assets is
-	 * version-independent and works across Jetpack 15.7+ gating changes.
+	 * view, hiding custom fields like photo credits. Dequeuing the assets using
+	 * the current handles has been tested with Jetpack 15.7+ (handles: image-studio / image-studio-style).
 	 */
 	public static function disable_image_studio() {
 		wp_dequeue_script( 'image-studio' );
