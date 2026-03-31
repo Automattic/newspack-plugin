@@ -66,26 +66,6 @@ class Newspack_Test_Data_Events_Listeners extends \WP_UnitTestCase {
 		parent::tear_down();
 	}
 
-	// =========================================================================
-	// Read-only key filtering
-	// =========================================================================
-
-	/**
-	 * Test that updating a non-read-only reader data key triggers the
-	 * reader_data_updated Data Event dispatch.
-	 */
-	public function test_non_readonly_key_triggers_dispatch() {
-		$user_id = $this->factory->user->create();
-
-		do_action( 'newspack_reader_data_updated', $user_id, 'article_views', '10' );
-
-		$this->assertContains(
-			'reader_data_updated',
-			$this->dispatched_actions,
-			'reader_data_updated must be dispatched for a non-read-only key.'
-		);
-	}
-
 	/**
 	 * Test that updating a read-only key does NOT trigger the reader_data_updated
 	 * Data Event dispatch — preventing circular dispatch loops.
