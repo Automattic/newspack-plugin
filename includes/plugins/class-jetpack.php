@@ -162,9 +162,8 @@ class Jetpack {
 		// Modify the related posts timeframe.
 		add_filter( 'jetpack_relatedposts_filter_date_range', [ __CLASS__, 'restrict_age_of_related_posts' ] );
 
-		// Disable Jetpack Image Studio — its full-screen AI editor replaces the
-		// Media Library attachment view, hiding custom fields like photo credits.
-		add_filter( 'jetpack_image_studio_enabled', '__return_false' );
+		// Disable Jetpack Image Studio.
+		add_action( 'admin_enqueue_scripts', [ __CLASS__, 'disable_image_studio' ], 100 );
 	}
 
 	/**
@@ -348,6 +347,18 @@ class Jetpack {
 		}
 
 		return $date_range;
+	}
+
+	/**
+	 * Disable Jetpack Image Studio scripts and styles.
+	 *
+	 * Image Studio's full-screen AI editor replaces the Media Library attachment
+	 * view, hiding custom fields like photo credits. Dequeuing the assets is
+	 * version-independent and works across Jetpack 15.7+ gating changes.
+	 */
+	public static function disable_image_studio() {
+		wp_dequeue_script( 'image-studio' );
+		wp_dequeue_style( 'image-studio-style' );
 	}
 }
 Jetpack::init();
