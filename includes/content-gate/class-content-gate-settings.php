@@ -51,7 +51,7 @@ class Content_Gate_Settings {
 
 		// Everlit.
 		$everlit = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'everlit' );
-		if ( $everlit->is_configured() ) {
+		if ( $everlit->is_active() ) {
 			$settings['restrict_everlit'] = get_option( self::OPTION_PREFIX . 'restrict_everlit', 1 );
 		}
 		return $settings;
