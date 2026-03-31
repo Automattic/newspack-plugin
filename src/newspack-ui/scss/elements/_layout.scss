@@ -66,17 +66,7 @@
 			}
 		}
 	}
-	&__vstack {
-		display: flex;
-		flex-direction: column;
-		gap: var(--newspack-ui-spacer-1);
-
-		> * {
-			margin-bottom: 0 !important;
-			margin-top: 0 !important;
-		}
-	}
-	&--loading::after {
+&--loading::after {
 		background-color: var(--newspack-ui-color-neutral-0);
 		content: "";
 		display: block;
