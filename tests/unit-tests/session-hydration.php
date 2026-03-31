@@ -49,4 +49,88 @@ class Newspack_Test_Session_Hydration extends WP_UnitTestCase {
 
 		wp_delete_user( $user_id );
 	}
+
+	/**
+	 * Test that the hydration endpoint returns a nonce when CID matches.
+	 */
+	public function test_hydration_endpoint_success() {
+		$user_id = $this->factory->user->create( [ 'user_email' => 'reader3@test.com' ] );
+		$_COOKIE[ NEWSPACK_CLIENT_ID_COOKIE_NAME ] = self::$test_cid; // phpcs:ignore WordPressVIPMinimum.Variables.RestrictedVariables.cache_constraints___COOKIE
+
+		// Bind the CID.
+		Session_Hydration::bind_cid( $user_id );
+
+		// Simulate logged-in user.
+		wp_set_current_user( $user_id );
+
+		$request  = new WP_REST_Request( 'GET', '/newspack/v1/reader/session' );
+		$response = rest_do_request( $request );
+
+		$this->assertEquals( 200, $response->get_status() );
+		$data = $response->get_data();
+		$this->assertArrayHasKey( 'nonce', $data );
+		$this->assertNotEmpty( $data['nonce'] );
+
+		// Transient should be deleted (one-time use).
+		$this->assertFalse( get_transient( 'newspack_cid_' . self::$test_cid ) );
+
+		unset( $_COOKIE[ NEWSPACK_CLIENT_ID_COOKIE_NAME ] ); // phpcs:ignore WordPressVIPMinimum.Variables.RestrictedVariables.cache_constraints___COOKIE
+		wp_delete_user( $user_id );
+	}
+
+	/**
+	 * Test that the hydration endpoint returns 403 when CID doesn't match.
+	 */
+	public function test_hydration_endpoint_cid_mismatch() {
+		$user_id = $this->factory->user->create( [ 'user_email' => 'reader4@test.com' ] );
+
+		// Bind the CID with correct value.
+		$_COOKIE[ NEWSPACK_CLIENT_ID_COOKIE_NAME ] = self::$test_cid; // phpcs:ignore WordPressVIPMinimum.Variables.RestrictedVariables.cache_constraints___COOKIE
+		Session_Hydration::bind_cid( $user_id );
+
+		// Now request with a different CID.
+		$_COOKIE[ NEWSPACK_CLIENT_ID_COOKIE_NAME ] = 'wrongcid12345'; // phpcs:ignore WordPressVIPMinimum.Variables.RestrictedVariables.cache_constraints___COOKIE
+
+		wp_set_current_user( $user_id );
+
+		$request  = new WP_REST_Request( 'GET', '/newspack/v1/reader/session' );
+		$response = rest_do_request( $request );
+
+		$this->assertEquals( 403, $response->get_status() );
+
+		unset( $_COOKIE[ NEWSPACK_CLIENT_ID_COOKIE_NAME ] ); // phpcs:ignore WordPressVIPMinimum.Variables.RestrictedVariables.cache_constraints___COOKIE
+		wp_delete_user( $user_id );
+	}
+
+	/**
+	 * Test that the hydration endpoint returns 403 when no CID cookie is present.
+	 */
+	public function test_hydration_endpoint_no_cookie() {
+		$user_id = $this->factory->user->create( [ 'user_email' => 'reader5@test.com' ] );
+		unset( $_COOKIE[ NEWSPACK_CLIENT_ID_COOKIE_NAME ] ); // phpcs:ignore WordPressVIPMinimum.Variables.RestrictedVariables.cache_constraints___COOKIE
+
+		wp_set_current_user( $user_id );
+
+		$request  = new WP_REST_Request( 'GET', '/newspack/v1/reader/session' );
+		$response = rest_do_request( $request );
+
+		$this->assertEquals( 403, $response->get_status() );
+
+		wp_delete_user( $user_id );
+	}
+
+	/**
+	 * Test that unauthenticated requests get 401.
+	 */
+	public function test_hydration_endpoint_unauthenticated() {
+		wp_set_current_user( 0 );
+		$_COOKIE[ NEWSPACK_CLIENT_ID_COOKIE_NAME ] = self::$test_cid; // phpcs:ignore WordPressVIPMinimum.Variables.RestrictedVariables.cache_constraints___COOKIE
+
+		$request  = new WP_REST_Request( 'GET', '/newspack/v1/reader/session' );
+		$response = rest_do_request( $request );
+
+		$this->assertEquals( 401, $response->get_status() );
+
+		unset( $_COOKIE[ NEWSPACK_CLIENT_ID_COOKIE_NAME ] ); // phpcs:ignore WordPressVIPMinimum.Variables.RestrictedVariables.cache_constraints___COOKIE
+	}
 }

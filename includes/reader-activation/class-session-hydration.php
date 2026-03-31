@@ -56,7 +56,66 @@ final class Session_Hydration {
 	 * Register REST routes.
 	 */
 	public static function register_routes() {
-		// Will be added in Task 2.
+		\register_rest_route(
+			NEWSPACK_API_NAMESPACE,
+			'/reader/session',
+			[
+				'methods'             => \WP_REST_Server::READABLE,
+				'callback'            => [ __CLASS__, 'handle_hydration' ],
+				'permission_callback' => [ __CLASS__, 'permission_callback' ],
+			]
+		);
+	}
+
+	/**
+	 * Permission callback for the hydration endpoint.
+	 *
+	 * @return true|\WP_Error
+	 */
+	public static function permission_callback() {
+		if ( ! \is_user_logged_in() ) {
+			return new \WP_Error(
+				'rest_forbidden',
+				__( 'Authentication required.', 'newspack-plugin' ),
+				[ 'status' => 401 ]
+			);
+		}
+		return true;
+	}
+
+	/**
+	 * Handle session hydration request.
+	 *
+	 * Validates the CID-to-user binding and returns a fresh wp_rest nonce.
+	 *
+	 * @return \WP_REST_Response|\WP_Error
+	 */
+	public static function handle_hydration() {
+		// phpcs:ignore WordPressVIPMinimum.Variables.RestrictedVariables.cache_constraints___COOKIE
+		$cid = isset( $_COOKIE[ NEWSPACK_CLIENT_ID_COOKIE_NAME ] ) ? sanitize_text_field( $_COOKIE[ NEWSPACK_CLIENT_ID_COOKIE_NAME ] ) : '';
+		if ( empty( $cid ) ) {
+			return new \WP_Error(
+				'newspack_session_invalid',
+				__( 'Invalid session.', 'newspack-plugin' ),
+				[ 'status' => 403 ]
+			);
+		}
+
+		$transient_key  = self::TRANSIENT_PREFIX . $cid;
+		$stored_user_id = get_transient( $transient_key );
+
+		if ( false === $stored_user_id || (int) $stored_user_id !== \get_current_user_id() ) {
+			return new \WP_Error(
+				'newspack_session_invalid',
+				__( 'Invalid session.', 'newspack-plugin' ),
+				[ 'status' => 403 ]
+			);
+		}
+
+		// One-time use: delete the transient.
+		delete_transient( $transient_key );
+
+		return new \WP_REST_Response( [ 'nonce' => \wp_create_nonce( 'wp_rest' ) ] );
 	}
 }
 Session_Hydration::init();
