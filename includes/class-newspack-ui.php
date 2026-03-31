@@ -1235,9 +1235,8 @@ class Newspack_UI {
 								}
 								const seeAllButton = container.querySelector( '.see-all-button' );
 								const newsletterContainer = container.querySelector( '.newsletter-list-container' );
-								const divider = newsletterContainer.querySelector( '.newspack-ui__gradient-divider' );
-
 								if ( seeAllButton && newsletterContainer ) {
+									const divider = newsletterContainer.querySelector( '.newspack-ui__gradient-divider' );
 									seeAllButton.addEventListener( 'click', function() {
 										newsletterContainer.querySelectorAll( '.hidden' ).forEach( function( item ) {
 											item.classList.remove( 'hidden' );

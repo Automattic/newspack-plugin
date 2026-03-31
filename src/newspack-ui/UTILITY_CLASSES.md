@@ -99,23 +99,23 @@ Sides: `top`, `bottom`, `left`, `right`.
 
 | Class | Size |
 |-------|------|
-| `--font--2xs` | 2x-small |
-| `--font--xs` | x-small |
-| `--font--s` | small (default) |
-| `--font--m` | medium |
-| `--font--l` | large |
-| `--font--xl` | x-large |
-| `--font--2xl` | 2x-large |
-| `--font--3xl` | 3x-large |
-| `--font--4xl` | 4x-large |
-| `--font--5xl` | 5x-large |
-| `--font--6xl` | 6x-large |
+| `newspack-ui__font--2xs` | 2x-small |
+| `newspack-ui__font--xs` | x-small |
+| `newspack-ui__font--s` | small (default) |
+| `newspack-ui__font--m` | medium |
+| `newspack-ui__font--l` | large |
+| `newspack-ui__font--xl` | x-large |
+| `newspack-ui__font--2xl` | 2x-large |
+| `newspack-ui__font--3xl` | 3x-large |
+| `newspack-ui__font--4xl` | 4x-large |
+| `newspack-ui__font--5xl` | 5x-large |
+| `newspack-ui__font--6xl` | 6x-large |
 
 Weight modifiers:
 
 | Class | Effect |
 |-------|--------|
-| `newspack-ui__font--bold` | `font-weight: strong` |
+| `newspack-ui__font--bold` | `font-weight: var(--newspack-ui-font-weight-strong)` |
 | `newspack-ui__font--normal` | `font-weight: normal` |
 
 ---

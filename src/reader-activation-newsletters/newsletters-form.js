@@ -24,7 +24,7 @@ window.newspackRAS.push( function ( readerActivation ) {
 			// Handle "See all" button logic.
 			const seeAllButton = container.querySelector( '.see-all-button' );
 			const newsletterContainer = container.querySelector( '.newsletter-list-container' );
-			const divider = newsletterContainer.querySelector( '.newspack-ui__gradient-divider' );
+			const divider = newsletterContainer?.querySelector( '.newspack-ui__gradient-divider' );
 
 			if ( seeAllButton && newsletterContainer ) {
 				// Remove the "hidden" class from all newsletter items.
