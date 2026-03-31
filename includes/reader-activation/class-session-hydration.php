@@ -20,9 +20,9 @@ defined( 'ABSPATH' ) || exit;
 final class Session_Hydration {
 
 	/**
-	 * Transient TTL in seconds (30 minutes).
+	 * Transient TTL in seconds (2 minutes).
 	 */
-	const TRANSIENT_TTL = 30 * MINUTE_IN_SECONDS;
+	const TRANSIENT_TTL = 2 * MINUTE_IN_SECONDS;
 
 	/**
 	 * Transient key prefix.
