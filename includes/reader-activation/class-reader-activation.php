@@ -93,9 +93,9 @@ final class Reader_Activation {
 		\add_action( 'wp_footer', [ __CLASS__, 'render_newsletters_signup_modal' ] );
 		\add_action( 'wp_ajax_newspack_reader_activation_newsletters_signup', [ __CLASS__, 'newsletters_signup' ] );
 		\add_action( 'woocommerce_customer_reset_password', [ __CLASS__, 'login_after_password_reset' ] );
+		\add_action( 'rest_api_init', [ __CLASS__, 'register_routes' ] );
 
 		if ( self::is_enabled() ) {
-			\add_action( 'rest_api_init', [ __CLASS__, 'register_routes' ] );
 			\add_action( 'clear_auth_cookie', [ __CLASS__, 'clear_auth_intention_cookie' ] );
 			\add_action( 'clear_auth_cookie', [ __CLASS__, 'clear_auth_reader_cookie' ] );
 			\add_action( 'set_auth_cookie', [ __CLASS__, 'clear_auth_intention_cookie' ] );
@@ -247,17 +247,20 @@ final class Reader_Activation {
 	public static function register_routes() {
 		\register_rest_route(
 			NEWSPACK_API_NAMESPACE,
-			'/reader-newsletter-signup-lists/(?P<email_address>[\a-z]+)',
+			'/reader-newsletter-signup-lists',
 			[
 				'methods'             => \WP_REST_Server::READABLE,
 				'callback'            => [ __CLASS__, 'api_render_newsletters_signup_form' ],
-				'permission_callback' => '__return_true',
-				'args'                => [
-					'email_address' => [
-						'type'              => 'string',
-						'sanitize_callback' => 'sanitize_email',
-					],
-				],
+				'permission_callback' => function () {
+					if ( ! \is_user_logged_in() ) {
+						return new \WP_Error(
+							'rest_forbidden',
+							__( 'Authentication required.', 'newspack-plugin' ),
+							[ 'status' => 401 ]
+						);
+					}
+					return true;
+				},
 			]
 		);
 	}
@@ -1704,8 +1707,9 @@ final class Reader_Activation {
 	 * @return WP_REST_Response
 	 */
 	public static function api_render_newsletters_signup_form( $request ) {
+		$user = \wp_get_current_user();
 		ob_start();
-		self::render_newsletters_signup_modal( $request['email_address'] );
+		self::render_newsletters_signup_modal( $user->user_email );
 		$html = trim( ob_get_clean() );
 		return new \WP_REST_Response( [ 'html' => $html ] );
 	}
