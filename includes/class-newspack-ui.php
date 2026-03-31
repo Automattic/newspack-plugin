@@ -1182,7 +1182,7 @@ class Newspack_UI {
 								<input type="hidden" name="reader-activation-newsletters-signup" value="1" />
 								<input type="hidden" name="email_address" value="<?php echo esc_attr( $demo_email_address ); ?>" />
 
-								<div class="newspack-ui__vstack newspack-ui__stack--gap-2 overflow-hidden position-relative newsletter-list-container" data-list-default-size="<?php echo esc_attr( $demo_default_list_size ); ?>">
+								<div class="newspack-ui__stack newspack-ui__stack--vertical newspack-ui__stack--gap-2 overflow-hidden position-relative newsletter-list-container" data-list-default-size="<?php echo esc_attr( $demo_default_list_size ); ?>">
 								<?php
 								foreach ( $demo_newsletters_lists as $list ) {
 									$checkbox_id = sprintf( 'newspack-plugin-list-%s', $list['id'] );
@@ -1216,7 +1216,7 @@ class Newspack_UI {
 								?>
 								</div>
 
-								<div class="newspack-ui__vstack newspack-ui__stack--gap-2 newspack-ui__spacing-top--5">
+								<div class="newspack-ui__stack newspack-ui__stack--vertical newspack-ui__stack--gap-2 newspack-ui__spacing-top--5">
 									<?php if ( count( $demo_newsletters_lists ) > $demo_default_list_size ) : ?>
 										<button type="button" class="newspack-ui__button newspack-ui__button--wide newspack-ui__button--secondary see-all-button" aria-label="<?php esc_attr_e( 'See all newsletters', 'newspack-plugin' ); ?>">
 											<span aria-hidden="true"><?php esc_html_e( 'See all', 'newspack-plugin' ); ?></span>
