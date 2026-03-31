@@ -112,12 +112,12 @@ final class Reader_Data {
 			'is_temporary'    => $is_temporary,
 			'reader_activity' => self::$reader_activity,
 			'read_only_keys'  => self::get_read_only_keys(),
+			'api_url'         => \get_rest_url( null, NEWSPACK_API_NAMESPACE . '/reader-data' ),
 		];
 
 		if ( \is_user_logged_in() ) {
-			$config['api_url'] = \get_rest_url( null, NEWSPACK_API_NAMESPACE . '/reader-data' );
-			$config['nonce']   = \wp_create_nonce( 'wp_rest' );
-			$config['items']   = self::get_data( \get_current_user_id() );
+			$config['nonce'] = \wp_create_nonce( 'wp_rest' );
+			$config['items'] = self::get_data( \get_current_user_id() );
 		}
 
 		wp_localize_script( Reader_Activation::SCRIPT_HANDLE, 'newspack_reader_data', $config );

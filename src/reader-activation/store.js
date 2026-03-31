@@ -258,8 +258,12 @@ export default function Store() {
 		}
 	}
 
-	// When session hydration provides a nonce, re-queue any unsynced items.
+	// When session hydration provides a nonce, initialize server-side
+	// state tracking and re-queue any unsynced items.
 	on( EVENTS.session, () => {
+		if ( ! newspack_reader_data.items ) {
+			newspack_reader_data.items = {};
+		}
 		const pending = _get( 'unsynced', true ) || [];
 		for ( const key of pending ) {
 			if ( ! syncQueue.includes( key ) ) {
