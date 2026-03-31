@@ -54,7 +54,8 @@ class Content_Gate_Settings {
 		if ( $everlit->is_active() ) {
 			$settings['restrict_everlit'] = get_option( self::OPTION_PREFIX . 'restrict_everlit', 1 );
 		}
-		return $settings;
+		self::$settings = $settings;
+		return self::$settings;
 	}
 
 	/**
@@ -63,8 +64,12 @@ class Content_Gate_Settings {
 	 * @param array $settings The advanced settings.
 	 */
 	public static function update_settings( $settings ) {
-		update_option( self::OPTION_PREFIX . 'restrict_feeds', boolval( $settings['restrict_feeds'] ) ? 1 : 0, false );
-		update_option( self::OPTION_PREFIX . 'restrict_everlit', boolval( $settings['restrict_everlit'] ) ? 1 : 0, false );
+		if ( isset( $settings['restrict_feeds'] ) ) {
+			update_option( self::OPTION_PREFIX . 'restrict_feeds', boolval( $settings['restrict_feeds'] ) ? 1 : 0, false );
+		}
+		if ( isset( $settings['restrict_everlit'] ) ) {
+			update_option( self::OPTION_PREFIX . 'restrict_everlit', boolval( $settings['restrict_everlit'] ) ? 1 : 0, false );
+		}
 		self::reset_cache();
 		return self::get_settings();
 	}

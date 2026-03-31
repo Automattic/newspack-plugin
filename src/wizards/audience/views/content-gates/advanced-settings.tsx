@@ -23,9 +23,7 @@ const AdvancedSettings = ( { closeModal, showModal }: { closeModal: () => void; 
 	const wizardData = useWizardData( AUDIENCE_CONTENT_GATES_WIZARD_SLUG ) as WizardData;
 	const { wizardApiFetch, isFetching, resetError, setError } = useWizardApiFetch( AUDIENCE_CONTENT_GATES_WIZARD_SLUG );
 	const { addNotice, resetNotices, updateWizardSettings } = useDispatch( WIZARD_STORE_NAMESPACE );
-	const [ config, setConfig ] = useState< AdvancedSettingsConfig >(
-		( wizardData?.config?.advanced_settings as AdvancedSettingsConfig ) || { auto_signup: true }
-	);
+	const [ config, setConfig ] = useState< AdvancedSettingsConfig >( ( wizardData?.config?.advanced_settings as AdvancedSettingsConfig ) || {} );
 
 	const updateConfig = useRef< ( _config: AdvancedSettingsConfig ) => void >();
 	const handleUpdateConfig = ( _config: AdvancedSettingsConfig ) => {
@@ -93,7 +91,7 @@ const AdvancedSettings = ( { closeModal, showModal }: { closeModal: () => void; 
 					</Button>
 					<Button
 						variant="primary"
-						disabled={ isFetching || JSON.stringify( wizardData?.config || {} ) === JSON.stringify( config ) }
+						disabled={ isFetching || JSON.stringify( wizardData?.config?.advanced_settings || {} ) === JSON.stringify( config ) }
 						loading={ isFetching }
 						onClick={ () => updateConfig.current?.( config ) }
 					>
