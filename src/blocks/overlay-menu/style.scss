@@ -88,7 +88,7 @@
 		bottom 250ms ease-in-out,
 		transform 250ms ease-in-out;
 	width: 100%;
-	z-index: 100;
+	z-index: 50;
 
 	@media ( min-width: 782px ) {
 		padding: var( --wp--preset--spacing--40, 1.5rem );
@@ -143,5 +143,10 @@
 	margin: 0 !important;
 	position: fixed;
 	transition: opacity 500ms ease-in-out;
-	z-index: 99;
+	z-index: 49;
+}
+
+// Lock document scrolling while any overlay menu instance is open.
+body:is( [class*=" menu-open--overlay-menu-"] ) {
+	overflow: hidden !important; // !important to temporarily override style from block theme's overlay approach.
 }
