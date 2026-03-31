@@ -62,14 +62,12 @@ class Premium_Newsletters {
 
 	/**
 	 * Register Data Events handlers.
+	 * To trigger an access check, add a handler for a Data Event that includes `user_id` in the data payload.
 	 */
 	public static function register_handlers() {
-		Data_Events::register_handler( [ __CLASS__, 'maybe_enqueue_access_check' ], 'subscription_payment_complete' );
-		Data_Events::register_handler( [ __CLASS__, 'maybe_enqueue_access_check' ], 'subscription_renewal_payment_failed' );
 		Data_Events::register_handler( [ __CLASS__, 'maybe_enqueue_access_check' ], 'product_subscription_changed' );
 		Data_Events::register_handler( [ __CLASS__, 'maybe_enqueue_access_check' ], 'donation_subscription_changed' );
 		Data_Events::register_handler( [ __CLASS__, 'maybe_enqueue_access_check' ], 'reader_verified' );
-		Data_Events::register_handler( [ __CLASS__, 'maybe_enqueue_access_check' ], 'reader_data_updated' );
 	}
 
 	/**

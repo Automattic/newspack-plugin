@@ -113,39 +113,6 @@ Data_Events::register_listener(
 );
 
 /**
- * When reader data is updated.
- *
- * Read-only keys (active_memberships, active_subscriptions, is_former_donor,
- * is_donor, newsletter_subscribed_lists) are excluded: they are written by
- * Data Event handlers themselves (e.g. update_newsletter_subscribed_lists,
- * set_is_donor), so dispatching for them would create an infinite loop.
- *
- * The current-event guard provides a second layer of protection: if this WP
- * action fires while a Data Event handler is already executing (e.g. because
- * a handler calls Reader_Data::update_item() for a non-read-only key), we
- * suppress the re-dispatch to avoid recursive chains.
- */
-Data_Events::register_listener(
-	'newspack_reader_data_updated',
-	'reader_data_updated',
-	function( $user_id, $key, $value ) {
-		// Don't dispatch for system-managed read-only keys.
-		if ( in_array( $key, Reader_Data::get_read_only_keys(), true ) ) {
-			return;
-		}
-		// Don't re-dispatch if we're already inside a Data Event handler.
-		if ( Data_Events::current_event() ) {
-			return;
-		}
-		return [
-			'user_id' => $user_id,
-			'key'     => $key,
-			'value'   => $value,
-		];
-	}
-);
-
-/**
  * For when a new contact is added to newsletter lists for the first time.
  */
 Data_Events::register_listener(
@@ -448,69 +415,6 @@ Data_Events::register_listener(
 			'recurrence'      => $subscription->get_billing_period(),
 			'status_before'   => $subscription->get_status(),
 			'status_after'    => $subscription->get_status(),
-		];
-	}
-);
-
-/**
- * When a WooCommerce Subscription successfully completes a payment.
- * This hook is fired for initial orders, renewals, and successful switch orders.
- *
- * See: https://woocommerce.com/document/subscriptions/develop/action-reference/#woocommerce_subscription_payment_complete
- */
-Data_Events::register_listener(
-	'woocommerce_subscription_payment_complete',
-	'subscription_payment_complete',
-	function( $subscription ) {
-		if ( ! $subscription instanceof \WC_Subscription ) {
-			return;
-		}
-		$product_ids = \Newspack\WooCommerce_Connection::get_products_for_order( $subscription->get_id(), true );
-		if ( empty( $product_ids ) ) {
-			return;
-		}
-
-		return [
-			'user_id'         => $subscription->get_customer_id(),
-			'email'           => $subscription->get_billing_email(),
-			'subscription_id' => $subscription->get_id(),
-			'product_ids'     => $product_ids,
-			'amount'          => (float) $subscription->get_total(),
-			'currency'        => $subscription->get_currency(),
-			'recurrence'      => $subscription->get_billing_period(),
-			'status'          => $subscription->get_status(),
-		];
-	}
-);
-
-/**
- * When a WooCommerce Subscription *renewal* fails to complete a payment.
- * This hook is only fired for failed renewals, not initial orders or switch orders.
- *
- * See: https://woocommerce.com/document/subscriptions/develop/action-reference/#woocommerce_subscription_renewal_payment_failed
- */
-Data_Events::register_listener(
-	'woocommerce_subscription_renewal_payment_failed',
-	'subscription_renewal_payment_failed',
-	function( $subscription ) {
-		if ( ! $subscription instanceof \WC_Subscription ) {
-			return;
-		}
-
-		$product_ids = \Newspack\WooCommerce_Connection::get_products_for_order( $subscription->get_id(), true );
-		if ( empty( $product_ids ) ) {
-			return;
-		}
-
-		return [
-			'user_id'         => $subscription->get_customer_id(),
-			'email'           => $subscription->get_billing_email(),
-			'subscription_id' => $subscription->get_id(),
-			'product_ids'     => $product_ids,
-			'amount'          => (float) $subscription->get_total(),
-			'currency'        => $subscription->get_currency(),
-			'recurrence'      => $subscription->get_billing_period(),
-			'status'          => $subscription->get_status(),
 		];
 	}
 );
