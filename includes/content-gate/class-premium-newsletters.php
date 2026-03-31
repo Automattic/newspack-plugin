@@ -69,12 +69,12 @@ class Premium_Newsletters {
 	 * Register Data Events handlers.
 	 */
 	public static function register_handlers() {
-		Data_Events::register_handler( [ __CLASS__, 'maybe_add_or_remove_lists' ], 'subscription_payment_complete' );
-		Data_Events::register_handler( [ __CLASS__, 'maybe_add_or_remove_lists' ], 'subscription_renewal_payment_failed' );
-		Data_Events::register_handler( [ __CLASS__, 'maybe_add_or_remove_lists' ], 'product_subscription_changed' );
-		Data_Events::register_handler( [ __CLASS__, 'maybe_add_or_remove_lists' ], 'donation_subscription_changed' );
-		Data_Events::register_handler( [ __CLASS__, 'maybe_add_or_remove_lists' ], 'reader_verified' );
-		Data_Events::register_handler( [ __CLASS__, 'maybe_add_or_remove_lists' ], 'reader_data_updated' );
+		Data_Events::register_handler( [ __CLASS__, 'maybe_enqueue_access_check' ], 'subscription_payment_complete' );
+		Data_Events::register_handler( [ __CLASS__, 'maybe_enqueue_access_check' ], 'subscription_renewal_payment_failed' );
+		Data_Events::register_handler( [ __CLASS__, 'maybe_enqueue_access_check' ], 'product_subscription_changed' );
+		Data_Events::register_handler( [ __CLASS__, 'maybe_enqueue_access_check' ], 'donation_subscription_changed' );
+		Data_Events::register_handler( [ __CLASS__, 'maybe_enqueue_access_check' ], 'reader_verified' );
+		Data_Events::register_handler( [ __CLASS__, 'maybe_enqueue_access_check' ], 'reader_data_updated' );
 	}
 
 	/**
@@ -348,7 +348,7 @@ class Premium_Newsletters {
 	 * @param array $data      Data associated with the event.
 	 * @param int   $client_id ID of the client that triggered the event.
 	 */
-	public static function maybe_add_or_remove_lists( $timestamp, $data, $client_id ) {
+	public static function maybe_enqueue_access_check( $timestamp, $data, $client_id ) {
 		if ( empty( $data['user_id'] ) ) {
 			return;
 		}

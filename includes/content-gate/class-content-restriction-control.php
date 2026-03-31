@@ -268,7 +268,7 @@ class Content_Restriction_Control {
 
 			if ( $is_restricted && $gate_layout_id ) {
 				self::$post_gate_id_map[ $post_id . '_' . self::$user_id ] = $gate['id'];
-				self::$post_gate_layout_id_map[ $post_id ] = $gate_layout_id;
+				self::$post_gate_layout_id_map[ $post_id . '_' . self::$user_id ] = $gate_layout_id;
 				return true;
 			}
 		}
@@ -315,8 +315,8 @@ class Content_Restriction_Control {
 		if ( ! $post_id ) {
 			return false;
 		}
-		if ( ! empty( self::$post_gate_layout_id_map[ $post_id ] ) ) {
-			return self::$post_gate_layout_id_map[ $post_id ];
+		if ( ! empty( self::$post_gate_layout_id_map[ $post_id . '_' . self::$user_id ] ) ) {
+			return self::$post_gate_layout_id_map[ $post_id . '_' . self::$user_id ];
 		}
 		return false;
 	}
