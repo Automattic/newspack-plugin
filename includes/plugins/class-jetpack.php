@@ -161,6 +161,10 @@ class Jetpack {
 
 		// Modify the related posts timeframe.
 		add_filter( 'jetpack_relatedposts_filter_date_range', [ __CLASS__, 'restrict_age_of_related_posts' ] );
+
+		// Disable Jetpack Image Studio — its full-screen AI editor replaces the
+		// Media Library attachment view, hiding custom fields like photo credits.
+		add_filter( 'jetpack_image_studio_enabled', '__return_false' );
 	}
 
 	/**
