@@ -251,16 +251,7 @@ final class Reader_Activation {
 			[
 				'methods'             => \WP_REST_Server::READABLE,
 				'callback'            => [ __CLASS__, 'api_render_newsletters_signup_form' ],
-				'permission_callback' => function () {
-					if ( ! \is_user_logged_in() ) {
-						return new \WP_Error(
-							'rest_forbidden',
-							__( 'Authentication required.', 'newspack-plugin' ),
-							[ 'status' => 401 ]
-						);
-					}
-					return true;
-				},
+				'permission_callback' => '__return_true',
 			]
 		);
 	}
@@ -1707,9 +1698,9 @@ final class Reader_Activation {
 	 * @return WP_REST_Response
 	 */
 	public static function api_render_newsletters_signup_form( $request ) {
-		$user = \wp_get_current_user();
+		$email = \is_user_logged_in() ? \wp_get_current_user()->user_email : '';
 		ob_start();
-		self::render_newsletters_signup_modal( $user->user_email );
+		self::render_newsletters_signup_modal( $email );
 		$html = trim( ob_get_clean() );
 		return new \WP_REST_Response( [ 'html' => $html ] );
 	}

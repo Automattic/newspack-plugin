@@ -27,15 +27,14 @@ export async function refreshNewslettersSignupModal() {
 	}
 
 	const nonce = getApiNonce();
-	if ( ! nonce ) {
-		return;
+	const headers = {};
+	if ( nonce ) {
+		headers[ 'X-WP-Nonce' ] = nonce;
 	}
 
 	const res = await fetch( '/wp-json/newspack/v1/reader-newsletter-signup-lists', {
 		credentials: 'same-origin',
-		headers: {
-			'X-WP-Nonce': nonce,
-		},
+		headers,
 	} );
 	const { html } = await res.json();
 	if ( html ) {
