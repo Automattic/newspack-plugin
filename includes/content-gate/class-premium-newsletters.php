@@ -355,7 +355,7 @@ class Premium_Newsletters {
 		if ( ! $user ) {
 			return;
 		}
-		$auto_signup = get_user_meta( $user->ID, 'newspack_premium_newsletters_auto_signup', true );
+		$auto_signup = (bool) get_option( 'newspack_premium_newsletters_auto_signup', 1 );
 		if ( ! $auto_signup ) {
 			return;
 		}

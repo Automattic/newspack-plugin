@@ -61,7 +61,7 @@ class Newspack_Test_Premium_Newsletters extends \WP_UnitTestCase {
 		$prop->setValue( null, [] );
 		$gates_prop = new \ReflectionProperty( Premium_Newsletters::class, 'gates' );
 		$gates_prop->setAccessible( true );
-		$gates_prop->setValue( null, [] );
+		$gates_prop->setValue( null, null );
 	}
 
 	/**
