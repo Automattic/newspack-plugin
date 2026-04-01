@@ -7,15 +7,108 @@
  * WordPress dependencies
  */
 import { __, sprintf } from '@wordpress/i18n';
-import { useState } from '@wordpress/element';
-import { TextareaControl, TextControl, SelectControl, ToggleControl } from '@wordpress/components';
-import { chevronLeft } from '@wordpress/icons';
+import { useState, useEffect } from '@wordpress/element';
+import { TextareaControl, TextControl, SelectControl, ToggleControl, Spinner } from '@wordpress/components';
+import { chevronLeft, chevronDown, chevronUp } from '@wordpress/icons';
+import apiFetch from '@wordpress/api-fetch';
 
 /**
  * Internal dependencies
  */
 import { Button } from '../../../../../../packages/components/src';
 import type { Tool, ToolField } from './types';
+
+interface LogEntry {
+	datetime: string;
+	response_time: number;
+	settings: {
+		model: string;
+		max_tokens: number;
+		temperature: number;
+	};
+	prompt: string;
+	response: string;
+}
+
+function LogsField( { field }: { field: ToolField } ) {
+	const [ logs, setLogs ] = useState< LogEntry[] >( [] );
+	const [ isLoading, setIsLoading ] = useState( true );
+	const [ expandedIndex, setExpandedIndex ] = useState< number | null >( null );
+
+	useEffect( () => {
+		if ( field.endpoint ) {
+			apiFetch< LogEntry[] >( { path: field.endpoint } )
+				.then( setLogs )
+				.catch( () => setLogs( [] ) )
+				.finally( () => setIsLoading( false ) );
+		}
+	}, [ field.endpoint ] );
+
+	if ( isLoading ) {
+		return (
+			<div className="experimental-tools__logs-field">
+				<strong>{ field.label }</strong>
+				<Spinner />
+			</div>
+		);
+	}
+
+	if ( logs.length === 0 ) {
+		return (
+			<div className="experimental-tools__logs-field">
+				<strong>{ field.label }</strong>
+				<p className="experimental-tools__logs-empty">{ __( 'No requests logged yet.', 'newspack-plugin' ) }</p>
+			</div>
+		);
+	}
+
+	return (
+		<div className="experimental-tools__logs-field">
+			<strong>{ field.label }</strong>
+			{ field.help && <p className="experimental-tools__logs-help">{ field.help }</p> }
+			<div className="experimental-tools__logs-list">
+				{ logs.map( ( log, index ) => {
+					const isExpanded = expandedIndex === index;
+					const date = new Date( log.datetime.replace( ' ', 'T' ) + 'Z' );
+					const formattedDate = date.toLocaleString();
+					return (
+						<div key={ index } className="experimental-tools__log-entry">
+							<button
+								type="button"
+								className="experimental-tools__log-header"
+								onClick={ () => setExpandedIndex( isExpanded ? null : index ) }
+								aria-expanded={ isExpanded }
+							>
+								<span className="experimental-tools__log-date">{ formattedDate }</span>
+								<span className="experimental-tools__log-meta">
+									{ sprintf(
+										/* translators: 1: model name, 2: response time in seconds. */
+										__( '%1$s · %2$ss', 'newspack-plugin' ),
+										log.settings?.model ?? 'unknown',
+										log.response_time
+									) }
+								</span>
+								<Button icon={ isExpanded ? chevronUp : chevronDown } label={ __( 'Toggle', 'newspack-plugin' ) } />
+							</button>
+							{ isExpanded && (
+								<div className="experimental-tools__log-details">
+									<div className="experimental-tools__log-section">
+										<strong>{ __( 'Prompt', 'newspack-plugin' ) }</strong>
+										<pre>{ log.prompt }</pre>
+									</div>
+									<div className="experimental-tools__log-section">
+										<strong>{ __( 'Response', 'newspack-plugin' ) }</strong>
+										<pre>{ log.response }</pre>
+									</div>
+								</div>
+							) }
+						</div>
+					);
+				} ) }
+			</div>
+		</div>
+	);
+}
 
 function FieldRenderer( {
 	field,
@@ -28,10 +121,44 @@ function FieldRenderer( {
 	onChange: ( val: string | boolean ) => void;
 	error?: string;
 } ) {
-	const help = error ? <span style={ { color: '#cc1818' } }>{ error }</span> : field.help;
+	const stringValue = String( value ?? '' );
+	const hasDefault = field.default !== undefined && field.default !== '';
+	const isModified = hasDefault && stringValue !== field.default;
+
+	const handleRestore = () => {
+		if (
+			// eslint-disable-next-line no-alert
+			window.confirm(
+				__( 'Are you sure you want to restore this field to its default value? Your current customizations will be lost.', 'newspack-plugin' )
+			)
+		) {
+			onChange( field.default ?? '' );
+		}
+	};
+
+	const restoreButton = hasDefault ? (
+		<Button variant="link" className="experimental-tools__restore-default" onClick={ handleRestore } disabled={ ! isModified }>
+			{ __( 'Restore to default', 'newspack-plugin' ) }
+		</Button>
+	) : null;
+
+	const getHelp = () => {
+		if ( error ) {
+			return <span style={ { color: '#cc1818' } }>{ error }</span>;
+		}
+		if ( restoreButton && field.help ) {
+			return (
+				<span className="experimental-tools__help-with-restore">
+					{ field.help } { restoreButton }
+				</span>
+			);
+		}
+		return field.help;
+	};
+
 	switch ( field.type ) {
 		case 'textarea':
-			return <TextareaControl label={ field.label } help={ help } value={ String( value ?? '' ) } onChange={ onChange } />;
+			return <TextareaControl label={ field.label } help={ getHelp() } value={ stringValue } onChange={ onChange } />;
 		case 'text':
 			return <TextControl label={ field.label } help={ help } value={ String( value ?? '' ) } onChange={ onChange } />;
 		case 'select':
@@ -69,8 +196,9 @@ export default function ConfigureView( {
 	onSave: ( fields: Record< string, string | boolean > ) => void;
 	onBack: () => void;
 } ) {
-	const editableFields = tool.fields.filter( ( f: ToolField ) => f.type !== 'display' );
+	const editableFields = tool.fields.filter( ( f: ToolField ) => f.type !== 'display' && f.type !== 'logs' );
 	const displayFields = tool.fields.filter( ( f: ToolField ) => f.type === 'display' );
+	const logsFields = tool.fields.filter( ( f: ToolField ) => f.type === 'logs' );
 
 	const initialValues: Record< string, string | boolean > = {};
 	editableFields.forEach( ( field: ToolField ) => {
@@ -151,6 +279,10 @@ export default function ConfigureView( {
 			<Button variant="primary" type="submit" disabled={ isFetching }>
 				{ __( 'Save', 'newspack-plugin' ) }
 			</Button>
+
+			{ logsFields.map( ( field: ToolField ) => (
+				<LogsField key={ field.key } field={ field } />
+			) ) }
 
 			<p className="experimental-tools__usage-note">
 				{

@@ -1,5 +1,5 @@
 export interface ToolField {
-	type: 'textarea' | 'text' | 'select' | 'toggle' | 'display';
+	type: 'textarea' | 'text' | 'select' | 'toggle' | 'display' | 'logs';
 	key: string;
 	label: string;
 	help?: string;
@@ -10,6 +10,7 @@ export interface ToolField {
 	validation?: 'float' | 'integer';
 	min?: number;
 	max?: number;
+	endpoint?: string;
 }
 
 export interface Tool {
