@@ -22,9 +22,9 @@ class Premium_Newsletters {
 	/**
 	 * Cache of premium newsletter gates.
 	 *
-	 * @var array
+	 * @var array|null
 	 */
-	private static $gates = [];
+	private static $gates = null;
 
 	/**
 	 * Cache of restricted lists.
@@ -79,7 +79,7 @@ class Premium_Newsletters {
 	 * @return array The premium newsletter gates.
 	 */
 	public static function get_gates() {
-		if ( ! empty( self::$gates ) ) {
+		if ( null !== self::$gates ) {
 			return self::$gates;
 		}
 		self::$gates = Content_Gate::get_gates( Content_Gate::GATE_CPT, 'publish', true );
