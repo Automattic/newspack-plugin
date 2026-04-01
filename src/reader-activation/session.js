@@ -5,8 +5,15 @@
 import { getCookie } from './utils';
 import { EVENTS, emit } from './events';
 
+/**
+ * Shared nonce storage. Uses newspack_reader_data as the shared state so that
+ * all webpack entry points read and write the same value.
+ */
+if ( typeof newspack_reader_data !== 'undefined' ) {
+	window.newspack_reader_data = window.newspack_reader_data || {};
+}
+
 let pending = null;
-let nonce = ( typeof newspack_reader_data !== 'undefined' && newspack_reader_data?.nonce ) || null;
 
 /**
  * Hydrate the current session by fetching a fresh wp_rest nonce.
@@ -20,7 +27,7 @@ export function hydrateSession() {
 	if ( ! pending ) {
 		pending = fetchSession().then( data => {
 			if ( data?.nonce ) {
-				nonce = data.nonce;
+				window.newspack_reader_data.nonce = data.nonce;
 				emit( EVENTS.session, data );
 			}
 			return data?.nonce || null;
@@ -35,7 +42,7 @@ export function hydrateSession() {
  * @return {string|null} The nonce string, or null if not yet hydrated.
  */
 export function getApiNonce() {
-	return nonce;
+	return window.newspack_reader_data?.nonce || null;
 }
 
 /**
