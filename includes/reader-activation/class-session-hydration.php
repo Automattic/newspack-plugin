@@ -108,6 +108,13 @@ final class Session_Hydration {
 			);
 		}
 		\wp_set_current_user( $user_id );
+		if ( ! Reader_Activation::is_user_reader( \wp_get_current_user() ) ) {
+			return new \WP_Error(
+				'rest_forbidden',
+				__( 'Reader account required.', 'newspack-plugin' ),
+				[ 'status' => 403 ]
+			);
+		}
 		return true;
 	}
 

@@ -152,4 +152,29 @@ class Newspack_Test_Session_Hydration extends WP_UnitTestCase {
 
 		unset( $_COOKIE[ NEWSPACK_CLIENT_ID_COOKIE_NAME ] ); // phpcs:ignore WordPressVIPMinimum.Variables.RestrictedVariables.cache_constraints___COOKIE
 	}
+
+	/**
+	 * Test that admin accounts are rejected.
+	 */
+	public function test_hydration_endpoint_rejects_admin() {
+		$user_id = $this->factory->user->create(
+			[
+				'user_email' => 'admin@test.com',
+				'role'       => 'administrator',
+			]
+		);
+		$_COOKIE[ NEWSPACK_CLIENT_ID_COOKIE_NAME ] = self::$test_cid; // phpcs:ignore WordPressVIPMinimum.Variables.RestrictedVariables.cache_constraints___COOKIE
+
+		Session_Hydration::bind_cid( $user_id );
+		$this->set_auth_cookie( $user_id );
+
+		$request  = new WP_REST_Request( 'GET', '/newspack/v1/reader/session' );
+		$response = rest_do_request( $request );
+
+		$this->assertEquals( 403, $response->get_status() );
+
+		unset( $_COOKIE[ NEWSPACK_CLIENT_ID_COOKIE_NAME ] ); // phpcs:ignore WordPressVIPMinimum.Variables.RestrictedVariables.cache_constraints___COOKIE
+		$this->clear_auth_cookie();
+		wp_delete_user( $user_id );
+	}
 }
