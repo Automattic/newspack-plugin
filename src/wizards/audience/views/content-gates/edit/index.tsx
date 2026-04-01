@@ -541,20 +541,22 @@ const Edit = ( { match, updateGatesData, slug = AUDIENCE_CONTENT_GATES_WIZARD_SL
 					) }
 				/>
 				<VStack spacing={ 4 }>
-					<CardSettingsGroup
-						actionType="toggle"
-						title={ __( 'Registered access', 'newspack-plugin' ) }
-						description={ sprintf(
-							// translators: %s is the type of content to restrict.
-							__( 'Readers must log in to view %s.', 'newspack-plugin' ),
-							isNewsletter ? __( 'these lists', 'newspack-plugin' ) : __( 'this content', 'newspack-plugin' )
-						) }
-						icon={ commentAuthorAvatar }
-						isActive={ registration?.active }
-						onEnable={ () => setRegistration( { ...registration, active: ! registration.active } ) }
-					>
-						<Registration registration={ registration } onChange={ setRegistration } isNewsletter={ isNewsletter } />
-					</CardSettingsGroup>
+					{ ! isNewsletter && (
+						<CardSettingsGroup
+							actionType="toggle"
+							title={ __( 'Registered access', 'newspack-plugin' ) }
+							description={ sprintf(
+								// translators: %s is the type of content to restrict.
+								__( 'Readers must log in to view %s.', 'newspack-plugin' ),
+								isNewsletter ? __( 'these lists', 'newspack-plugin' ) : __( 'this content', 'newspack-plugin' )
+							) }
+							icon={ commentAuthorAvatar }
+							isActive={ registration?.active }
+							onEnable={ () => setRegistration( { ...registration, active: ! registration.active } ) }
+						>
+							<Registration registration={ registration } onChange={ setRegistration } isNewsletter={ isNewsletter } />
+						</CardSettingsGroup>
+					) }
 					<CardSettingsGroup
 						actionType="toggle"
 						title={ __( 'Paid access', 'newspack-plugin' ) }

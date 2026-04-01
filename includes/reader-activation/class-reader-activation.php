@@ -85,6 +85,14 @@ final class Reader_Activation {
 	private static $reader_activation_labels = [];
 
 	/**
+	 * Current reader user ID.
+	 * Only used for evaluating content restrictions for the newsletter signup form.
+	 *
+	 * @var int
+	 */
+	private static $current_reader_user_id = 0;
+
+	/**
 	 * Initialize hooks.
 	 */
 	public static function init() {
@@ -1688,6 +1696,20 @@ final class Reader_Activation {
 			</div>
 		</div>
 		<?php
+	}
+
+	/**
+	 * Filter the user ID used for evaluating content restrictions.
+	 *
+	 * @param int $user_id User ID.
+	 *
+	 * @return int User ID.
+	 */
+	public static function get_user_id_for_content_restriction( $user_id ) {
+		if ( self::$current_reader_user_id ) {
+			return self::$current_reader_user_id;
+		}
+		return $user_id;
 	}
 
 	/**
