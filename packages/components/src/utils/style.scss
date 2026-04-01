@@ -1,0 +1,6 @@
+#newspack-editor-toolbar-wrapper {
+	margin-right: 24px;
+	.is-fullscreen-mode & {
+		display: none;
+	}
+}
