@@ -285,10 +285,20 @@ export default function ConfigureView( {
 			) ) }
 
 			<p className="experimental-tools__usage-note">
-				{
-					/* translators: 1: tool name, 2: usage count. */
-					sprintf( __( '%1$s was used %2$s times in the last 30 days.', 'newspack-plugin' ), tool.label, String( tool.usage_count ) )
-				}
+				{ tool.llm
+					? sprintf(
+							/* translators: 1: tool name, 2: usage count, 3: LLM model name. */
+							__( '%1$s was used %2$s times in the last 30 days. Powered by %3$s.', 'newspack-plugin' ),
+							tool.label,
+							String( tool.usage_count ),
+							tool.llm
+					  )
+					: sprintf(
+							/* translators: 1: tool name, 2: usage count. */
+							__( '%1$s was used %2$s times in the last 30 days.', 'newspack-plugin' ),
+							tool.label,
+							String( tool.usage_count )
+					  ) }
 			</p>
 		</form>
 	);
