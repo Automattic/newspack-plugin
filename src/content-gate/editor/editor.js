@@ -14,7 +14,7 @@ import { registerPlugin } from '@wordpress/plugins';
  * Internal dependencies
  */
 import PositionControl from '../../../packages/components/src/position-control';
-import { addToolbarBackButton } from '../../admin/editor-toolbar-back-button';
+import { addToolbarBackButton } from '../../../packages/components/src/utils/editor-toolbar-back-button';
 import './editor.scss';
 
 const styles = [
