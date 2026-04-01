@@ -244,6 +244,7 @@ class Experimental_Tools {
 				'label'           => $tool['label'] ?? $slug,
 				'description'     => $tool['description'] ?? '',
 				'disclosure'      => $tool['disclosure'] ?? '',
+				'llm'             => $tool['llm'] ?? null,
 				'constant'        => $tool['constant'] ?? null,
 				'constant_active' => $constant_active,
 				'enabled'         => $enabled,

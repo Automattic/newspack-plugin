@@ -156,6 +156,8 @@ function FieldRenderer( {
 		return field.help;
 	};
 
+	const help = error ? <span style={ { color: '#cc1818' } }>{ error }</span> : field.help;
+
 	switch ( field.type ) {
 		case 'textarea':
 			return <TextareaControl label={ field.label } help={ getHelp() } value={ stringValue } onChange={ onChange } />;
