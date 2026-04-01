@@ -6,7 +6,7 @@ import { getCookie } from './utils';
 import { EVENTS, emit } from './events';
 
 let pending = null;
-let nonce = newspack_reader_data?.nonce || null;
+let nonce = ( typeof newspack_reader_data !== 'undefined' && newspack_reader_data?.nonce ) || null;
 
 /**
  * Hydrate the current session by fetching a fresh wp_rest nonce.
