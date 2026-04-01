@@ -44,7 +44,14 @@ function GateEdit() {
 	} );
 	const { editPost } = useDispatch( 'core/editor' );
 	useEffect( () => {
-		addToolbarBackButton( '/wp-admin/admin.php?page=newspack-audience-access-control#/' );
+		const unsubscribe = addToolbarBackButton(
+			'/wp-admin/admin.php?page=newspack-audience-access-control#/'
+		);
+		return () => {
+			if ( typeof unsubscribe === 'function' ) {
+				unsubscribe();
+			}
+		};
 	}, [] );
 	useEffect( () => {
 		const wrapper = document.querySelector( '.editor-styles-wrapper' );
