@@ -12,11 +12,16 @@ import domReady from '@wordpress/dom-ready';
 import { createRoot } from '@wordpress/element';
 import { arrowUpLeft } from '@wordpress/icons';
 
+/**
+ * Internal dependencies
+ */
+import './style.scss';
+
 const WRAPPER_ID = 'newspack-editor-toolbar-wrapper';
 
 const ToolbarButton = ( { href }: { href: string } ) => (
 	<Tooltip text={ __( 'Go back', 'newspack-plugin' ) }>
-		<Button icon={ arrowUpLeft } label={ __( 'Go back', 'newspack-plugin' ) } href={ href } style={ { marginRight: '24px' } } />
+		<Button icon={ arrowUpLeft } label={ __( 'Go back', 'newspack-plugin' ) } href={ href } />
 	</Tooltip>
 );
 
