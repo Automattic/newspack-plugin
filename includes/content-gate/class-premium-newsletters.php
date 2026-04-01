@@ -355,6 +355,10 @@ class Premium_Newsletters {
 		if ( ! $user ) {
 			return;
 		}
+		$auto_signup = get_user_meta( $user->ID, 'newspack_premium_newsletters_auto_signup', true );
+		if ( ! $auto_signup ) {
+			return;
+		}
 		$email         = $user->user_email;
 		$current_lists = Newspack_Newsletters_Subscription::get_contact_lists( $email );
 		if ( is_array( $current_lists ) ) {
