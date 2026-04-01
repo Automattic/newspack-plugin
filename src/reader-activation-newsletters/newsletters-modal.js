@@ -14,7 +14,7 @@ export function getModalContainer() {
 /**
  * Refresh the newsletters signup modal content.
  */
-async function refreshNewslettersSignupModal() {
+export async function refreshNewslettersSignupModal() {
 	const container = getModalContainer();
 	if ( ! container ) {
 		return;
