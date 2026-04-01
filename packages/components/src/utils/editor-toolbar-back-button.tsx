@@ -16,17 +16,16 @@ const WRAPPER_ID = 'newspack-editor-toolbar-wrapper';
 
 const ToolbarButton = ( { href }: { href: string } ) => (
 	<Tooltip text={ __( 'Go back', 'newspack-plugin' ) }>
-		<Button icon={ arrowUpLeft } href={ href } style={ { marginRight: '24px' } } />
+		<Button icon={ arrowUpLeft } label={ __( 'Go back', 'newspack-plugin' ) } href={ href } style={ { marginRight: '24px' } } />
 	</Tooltip>
 );
 
-export const addToolbarBackButton = ( href: string = '' ) =>
-	subscribe( () => {
-		if ( document.getElementById( WRAPPER_ID ) ) {
-			return;
-		}
-
+export const addToolbarBackButton = ( href: string = '' ) => {
+	const unsubscribe = subscribe( () => {
 		domReady( () => {
+			if ( document.getElementById( WRAPPER_ID ) ) {
+				return;
+			}
 			const toolbar = document.querySelector( '.editor-header__toolbar' );
 			if ( ! toolbar ) {
 				return;
@@ -38,5 +37,7 @@ export const addToolbarBackButton = ( href: string = '' ) =>
 
 			const root = createRoot( wrapper );
 			root.render( <ToolbarButton href={ href } /> );
+			unsubscribe();
 		} );
 	} );
+};

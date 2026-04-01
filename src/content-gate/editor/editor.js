@@ -14,8 +14,10 @@ import { registerPlugin } from '@wordpress/plugins';
  * Internal dependencies
  */
 import PositionControl from '../../../packages/components/src/position-control';
-import { addToolbarBackButton } from '../../../packages/components/src/utils/editor-toolbar-back-button';
+import utils from '../../../packages/components/src/utils';
 import './editor.scss';
+
+const { addToolbarBackButton } = utils;
 
 const styles = [
 	{ value: 'inline', label: __( 'Inline', 'newspack-plugin' ) },
@@ -44,14 +46,7 @@ function GateEdit() {
 	} );
 	const { editPost } = useDispatch( 'core/editor' );
 	useEffect( () => {
-		const unsubscribe = addToolbarBackButton(
-			'/wp-admin/admin.php?page=newspack-audience-access-control#/'
-		);
-		return () => {
-			if ( typeof unsubscribe === 'function' ) {
-				unsubscribe();
-			}
-		};
+		addToolbarBackButton( 'admin.php?page=newspack-audience-access-control#/' );
 	}, [] );
 	useEffect( () => {
 		const wrapper = document.querySelector( '.editor-styles-wrapper' );
