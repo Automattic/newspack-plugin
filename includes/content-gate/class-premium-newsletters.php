@@ -91,7 +91,7 @@ class Premium_Newsletters {
 	 * To trigger an access check, add a handler for a Data Event that includes `user_id` in the data payload.
 	 */
 	public static function register_handlers() {
-		Data_Events::register_handler( [ __CLASS__, 'set_subscribed_lists_on_renewal' ], 'subscription_renewal_attempt' );
+		Data_Events::register_handler( [ __CLASS__, 'set_subscribed_lists' ], 'subscription_renewal_attempt' );
 		Data_Events::register_handler( [ __CLASS__, 'maybe_enqueue_access_check' ], 'product_subscription_changed' );
 		Data_Events::register_handler( [ __CLASS__, 'maybe_enqueue_access_check' ], 'donation_subscription_changed' );
 		Data_Events::register_handler( [ __CLASS__, 'maybe_enqueue_access_check' ], 'reader_verified' );
@@ -240,7 +240,7 @@ class Premium_Newsletters {
 			if ( Content_Restriction_Control::is_post_restricted( false, $list_id, $user_id ) ) {
 				$lists_to_remove[] = $list_id;
 			} elseif ( $auto_signup ) {
-				if ( ! is_array( $subscribed_lists ) || in_array( $list_id, $subscribed_lists, true ) ) {
+				if ( ! is_array( $subscribed_lists ) || in_array( self::get_public_id( $list_id ), $subscribed_lists, true ) ) {
 					$lists_to_add[] = $list_id;
 				}
 			}
@@ -341,13 +341,13 @@ class Premium_Newsletters {
 	}
 
 	/**
-	 * Set the user's subscribed lists when a renewal starts.
+	 * Set the user's subscribed lists so they can be checked before auto-signup.
 	 *
 	 * @param int   $timestamp Timestamp of the event.
 	 * @param array $data      Data associated with the event.
 	 * @param int   $client_id ID of the client that triggered the event.
 	 */
-	public static function set_subscribed_lists_on_renewal( $timestamp, $data, $client_id ) {
+	public static function set_subscribed_lists( $timestamp, $data, $client_id ) {
 		if ( empty( $data['user_id'] ) || ! class_exists( 'Newspack_Newsletters_Subscription' ) ) {
 			return;
 		}

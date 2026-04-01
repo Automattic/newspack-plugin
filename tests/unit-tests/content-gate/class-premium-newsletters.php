@@ -59,6 +59,9 @@ class Newspack_Test_Premium_Newsletters extends \WP_UnitTestCase {
 		$prop = new \ReflectionProperty( Premium_Newsletters::class, 'restricted_lists' );
 		$prop->setAccessible( true );
 		$prop->setValue( null, [] );
+		$gates_prop = new \ReflectionProperty( Premium_Newsletters::class, 'gates' );
+		$gates_prop->setAccessible( true );
+		$gates_prop->setValue( null, [] );
 	}
 
 	/**
@@ -501,6 +504,13 @@ class Newspack_Test_Premium_Newsletters extends \WP_UnitTestCase {
 				"maybe_enqueue_access_check should be registered for {$action}"
 			);
 		}
+
+		$renewal_handlers = Data_Events::get_action_handlers( 'subscription_renewal_attempt' );
+		$this->assertContains(
+			[ 'Newspack\Premium_Newsletters', 'set_subscribed_lists' ],
+			$renewal_handlers,
+			'set_subscribed_lists should be registered for subscription_renewal_attempt'
+		);
 	}
 
 	// =========================================================================
@@ -595,6 +605,189 @@ class Newspack_Test_Premium_Newsletters extends \WP_UnitTestCase {
 		$this->assertEquals( 'reader@example.com', $calls[0]['email'] );
 		$this->assertContains( 'list-' . $list_post_id, $calls[0]['lists_to_add'] );
 		$this->assertEmpty( $calls[0]['lists_to_remove'] );
+	}
+
+	// =========================================================================
+	// Group H — set_subscribed_lists() / renewal flow
+	// =========================================================================
+
+	/**
+	 * Test that set_subscribed_lists stores the user's current ESP list IDs in user meta.
+	 */
+	public function test_set_subscribed_lists_stores_subscribed_lists() {
+		$user_id = $this->factory->user->create( [ 'role' => 'subscriber' ] );
+		$email   = get_userdata( $user_id )->user_email;
+
+		\Newspack_Newsletters_Subscription::$contact_lists[ $email ] = [ 'list-100', 'list-200' ];
+
+		Premium_Newsletters::set_subscribed_lists( time(), [ 'user_id' => $user_id ], null );
+
+		$stored = get_user_meta( $user_id, Premium_Newsletters::SUBSCRIBED_LISTS_META_KEY, true );
+		$this->assertSame( [ 'list-100', 'list-200' ], $stored );
+	}
+
+	/**
+	 * Test that set_subscribed_lists returns early when user_id is absent.
+	 */
+	public function test_set_subscribed_lists_skips_missing_user_id() {
+		Premium_Newsletters::set_subscribed_lists( time(), [], null );
+		// No exception thrown and no meta written — an empty user_id should be silently ignored.
+		$this->assertTrue( true );
+	}
+
+	/**
+	 * Test that a contact who has unsubscribed from a premium newsletter list is NOT
+	 * re-added when their subscription renews.
+	 *
+	 * Flow:
+	 *  1. Renewal fires → set_subscribed_lists captures an empty contact list
+	 *     (the user unsubscribed from the ESP list after their initial signup).
+	 *  2. Access check runs → the empty snapshot signals that the user opted out;
+	 *     the list is not added back despite the active subscription and auto-signup being on.
+	 */
+	public function test_renewal_does_not_readd_user_who_unsubscribed_from_list() {
+		update_option( 'newspack_premium_newsletters_auto_signup', 1 );
+
+		$user_id = $this->factory->user->create( [ 'role' => 'subscriber' ] );
+		$email   = get_userdata( $user_id )->user_email;
+
+		$list_post_id     = $this->factory->post->create( [ 'post_type' => \Newspack\Newsletters\Subscription_Lists::CPT ] );
+		$this->post_ids[] = $list_post_id;
+
+		$this->create_newsletter_gate( [ 100 ], [ $list_post_id ] );
+
+		wcs_create_subscription(
+			[
+				'customer_id' => $user_id,
+				'status'      => 'active',
+				'products'    => [ 100 ],
+			]
+		);
+
+		// The user has no ESP subscriptions — they unsubscribed from the list.
+		\Newspack_Newsletters_Subscription::$contact_lists[ $email ] = [];
+
+		// Simulate the subscription_renewal_attempt Data Event.
+		Premium_Newsletters::set_subscribed_lists( time(), [ 'user_id' => $user_id ], null );
+
+		// Trigger the access check.
+		Premium_Newsletters::maybe_enqueue_access_check( time(), [ 'user_id' => $user_id ], null );
+		Premium_Newsletters::process_access_check_queue();
+
+		$this->assertEmpty(
+			\Newspack_Newsletters_Contacts::$add_and_remove_lists_calls,
+			'A contact who voluntarily unsubscribed from a list should not be re-added on renewal.'
+		);
+	}
+
+	/**
+	 * Test that a contact who is still subscribed to a premium newsletter list at the time
+	 * of renewal IS re-added if they happen to be missing from the list when the access
+	 * check runs.
+	 *
+	 * Flow:
+	 *  1. Renewal fires → set_subscribed_lists captures the active ESP subscription.
+	 *  2. Access check runs → the list appears in the renewal snapshot, so the user is
+	 *     eligible for re-subscription.
+	 */
+	public function test_renewal_readds_user_who_remained_subscribed() {
+		update_option( 'newspack_premium_newsletters_auto_signup', 1 );
+
+		$user_id = $this->factory->user->create( [ 'role' => 'subscriber' ] );
+		$email   = get_userdata( $user_id )->user_email;
+
+		$list_post_id     = $this->factory->post->create( [ 'post_type' => \Newspack\Newsletters\Subscription_Lists::CPT ] );
+		$this->post_ids[] = $list_post_id;
+
+		$this->create_newsletter_gate( [ 100 ], [ $list_post_id ] );
+
+		wcs_create_subscription(
+			[
+				'customer_id' => $user_id,
+				'status'      => 'active',
+				'products'    => [ 100 ],
+			]
+		);
+
+		// User is still subscribed to the list in the ESP.
+		\Newspack_Newsletters_Subscription::$contact_lists[ $email ] = [ 'list-' . $list_post_id ];
+
+		// Simulate the subscription_renewal_attempt Data Event.
+		Premium_Newsletters::set_subscribed_lists( time(), [ 'user_id' => $user_id ], null );
+
+		// Clear the contact list mock so the dedup check inside add_and_remove_lists()
+		// does not suppress the add call (simulates the user being dropped from the ESP
+		// between the renewal attempt and the access check running).
+		\Newspack_Newsletters_Subscription::$contact_lists[ $email ] = [];
+
+		Premium_Newsletters::maybe_enqueue_access_check( time(), [ 'user_id' => $user_id ], null );
+		Premium_Newsletters::process_access_check_queue();
+
+		$calls = \Newspack_Newsletters_Contacts::$add_and_remove_lists_calls;
+		$this->assertCount( 1, $calls, 'A contact who remained subscribed should be re-added on renewal.' );
+		$this->assertContains( 'list-' . $list_post_id, $calls[0]['lists_to_add'] );
+		$this->assertEmpty( $calls[0]['lists_to_remove'] );
+	}
+
+	/**
+	 * Test that the SUBSCRIBED_LISTS_META_KEY user meta is deleted once the access check runs,
+	 * so it cannot affect subsequent non-renewal access checks.
+	 */
+	public function test_subscribed_lists_meta_is_deleted_after_access_check() {
+		$user_id = $this->factory->user->create( [ 'role' => 'subscriber' ] );
+		$email   = get_userdata( $user_id )->user_email;
+
+		$list_post_id     = $this->factory->post->create( [ 'post_type' => \Newspack\Newsletters\Subscription_Lists::CPT ] );
+		$this->post_ids[] = $list_post_id;
+
+		$this->create_newsletter_gate( [ 100 ], [ $list_post_id ] );
+
+		\Newspack_Newsletters_Subscription::$contact_lists[ $email ] = [];
+		Premium_Newsletters::set_subscribed_lists( time(), [ 'user_id' => $user_id ], null );
+
+		// Confirm the meta was written.
+		$this->assertIsArray( get_user_meta( $user_id, Premium_Newsletters::SUBSCRIBED_LISTS_META_KEY, true ) );
+
+		Premium_Newsletters::maybe_enqueue_access_check( time(), [ 'user_id' => $user_id ], null );
+		Premium_Newsletters::process_access_check_queue();
+
+		$this->assertEmpty(
+			get_user_meta( $user_id, Premium_Newsletters::SUBSCRIBED_LISTS_META_KEY, true ),
+			'SUBSCRIBED_LISTS_META_KEY meta must be deleted after the access check runs.'
+		);
+	}
+
+	/**
+	 * Test that a non-renewal access check (no snapshot meta) still auto-subscribes the user,
+	 * confirming the meta guard does not interfere with ordinary events.
+	 */
+	public function test_non_renewal_access_check_adds_user_without_snapshot() {
+		update_option( 'newspack_premium_newsletters_auto_signup', 1 );
+
+		$user_id = $this->factory->user->create( [ 'role' => 'subscriber' ] );
+		$email   = get_userdata( $user_id )->user_email;
+
+		$list_post_id     = $this->factory->post->create( [ 'post_type' => \Newspack\Newsletters\Subscription_Lists::CPT ] );
+		$this->post_ids[] = $list_post_id;
+
+		$this->create_newsletter_gate( [ 100 ], [ $list_post_id ] );
+
+		wcs_create_subscription(
+			[
+				'customer_id' => $user_id,
+				'status'      => 'active',
+				'products'    => [ 100 ],
+			]
+		);
+
+		// No set_subscribed_lists call — no snapshot meta exists.
+		// The access check should add the user as it always did.
+		Premium_Newsletters::maybe_enqueue_access_check( time(), [ 'user_id' => $user_id ], null );
+		Premium_Newsletters::process_access_check_queue();
+
+		$calls = \Newspack_Newsletters_Contacts::$add_and_remove_lists_calls;
+		$this->assertCount( 1, $calls, 'Without a renewal snapshot, users should be auto-subscribed normally.' );
+		$this->assertContains( 'list-' . $list_post_id, $calls[0]['lists_to_add'] );
 	}
 
 	/**
