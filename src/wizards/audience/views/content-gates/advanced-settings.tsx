@@ -84,20 +84,20 @@ const AdvancedSettings = ( { closeModal, showModal }: { closeModal: () => void; 
 							onChange={ value => setConfig( { ...config, restrict_everlit: value } ) }
 						/>
 					) }
+					<HStack justify="end">
+						<Button variant="tertiary" disabled={ isFetching } onClick={ closeModal }>
+							{ __( 'Cancel', 'newspack-plugin' ) }
+						</Button>
+						<Button
+							variant="primary"
+							disabled={ isFetching || JSON.stringify( wizardData?.config?.advanced_settings || {} ) === JSON.stringify( config ) }
+							loading={ isFetching }
+							onClick={ () => updateConfig.current?.( config ) }
+						>
+							{ __( 'Save', 'newspack-plugin' ) }
+						</Button>
+					</HStack>
 				</VStack>
-				<HStack justify="end">
-					<Button variant="tertiary" disabled={ isFetching } onClick={ closeModal }>
-						{ __( 'Cancel', 'newspack-plugin' ) }
-					</Button>
-					<Button
-						variant="primary"
-						disabled={ isFetching || JSON.stringify( wizardData?.config?.advanced_settings || {} ) === JSON.stringify( config ) }
-						loading={ isFetching }
-						onClick={ () => updateConfig.current?.( config ) }
-					>
-						{ __( 'Save', 'newspack-plugin' ) }
-					</Button>
-				</HStack>
 			</Modal>
 		)
 	);

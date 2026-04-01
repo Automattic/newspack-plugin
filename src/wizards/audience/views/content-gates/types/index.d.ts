@@ -144,7 +144,7 @@ type MeteringCountdownConfig = {
 };
 
 type AdvancedSettingsConfig = {
-	restrict_content_feeds: boolean;
+	restrict_feeds: boolean;
 	restrict_everlit: boolean;
 };
 

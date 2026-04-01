@@ -13,6 +13,7 @@ import { useEffect, useRef, useState } from '@wordpress/element';
 /**
  * Internal dependencies
  */
+import Router from '../../../../../packages/components/src/proxied-imports/router';
 import { Divider, Grid } from '../../../../../packages/components/src';
 import { useWizardData } from '../../../../../packages/components/src/wizard/store/utils';
 import { useWizardApiFetch } from '../../../hooks/use-wizard-api-fetch';
@@ -25,7 +26,10 @@ import SettingsCard from './settings-card';
 import { AUDIENCE_CONTENT_GATES_WIZARD_SLUG } from './consts';
 import './style.scss';
 
+const { useHistory } = Router;
+
 const ContentGates = ( { updateGatesData }: { updateGatesData: ( gates: Gate[] ) => void } ) => {
+	const history = useHistory();
 	const wizardData = useWizardData( AUDIENCE_CONTENT_GATES_WIZARD_SLUG ) as WizardData;
 	const { wizardApiFetch, isFetching, errorMessage, resetError } = useWizardApiFetch( AUDIENCE_CONTENT_GATES_WIZARD_SLUG );
 	const { addNotice, resetNotices, resetHeaderData, setHeaderData, updateWizardSettings } = useDispatch( WIZARD_STORE_NAMESPACE );
@@ -47,7 +51,7 @@ const ContentGates = ( { updateGatesData }: { updateGatesData: ( gates: Gate[] )
 		const sectionMenu = [
 			{
 				label: __( 'Institutions', 'newspack-plugin' ),
-				href: '#/institutions',
+				action: () => history.push( '/institutions' ),
 			},
 			{
 				label: __( 'Advanced settings', 'newspack-plugin' ),
