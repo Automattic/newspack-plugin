@@ -1,5 +1,6 @@
 import * as a11y from '../reader-activation-auth/accessibility.js';
 import { getApiNonce } from '../reader-activation/session';
+import { EVENTS, on } from '../reader-activation/events';
 
 /**
  * Get the newsletters signup modal container.
@@ -12,10 +13,8 @@ export function getModalContainer() {
 
 /**
  * Refresh the newsletters signup modal content.
- *
- * @return {void}
  */
-export async function refreshNewslettersSignupModal() {
+async function refreshNewslettersSignupModal() {
 	const container = getModalContainer();
 	if ( ! container ) {
 		return;
@@ -51,6 +50,9 @@ export async function refreshNewslettersSignupModal() {
 		container.dispatchEvent( new Event( 'newspack:refresh' ) );
 	}
 }
+
+// Automatically refresh newsletter modal when session is hydrated.
+on( EVENTS.session, refreshNewslettersSignupModal );
 
 /**
  * Open the newsletters signup modal.

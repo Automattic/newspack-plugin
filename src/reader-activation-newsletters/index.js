@@ -1,7 +1,7 @@
 /**
  * Internal dependencies
  */
-import { openNewslettersSignupModal, refreshNewslettersSignupModal } from './newsletters-modal';
+import { openNewslettersSignupModal } from './newsletters-modal';
 
 import { domReady } from '../utils';
 
@@ -12,6 +12,5 @@ window.newspackRAS.push( readerActivation => {
 	domReady( function () {
 		/** Expose the openNewslettersSignupModal function to the RAS scope */
 		readerActivation._openNewslettersSignupModal = openNewslettersSignupModal;
-		readerActivation.refreshNewslettersSignupModal = refreshNewslettersSignupModal;
 	} );
 } );
