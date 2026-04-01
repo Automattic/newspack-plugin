@@ -20,6 +20,13 @@ defined( 'ABSPATH' ) || exit;
  */
 class Premium_Newsletters {
 	/**
+	 * Cache of premium newsletter gates.
+	 *
+	 * @var array
+	 */
+	private static $gates = [];
+
+	/**
 	 * Cache of restricted lists.
 	 *
 	 * @var string[]
@@ -43,6 +50,11 @@ class Premium_Newsletters {
 	const MAX_QUEUE_SIZE = 500;
 
 	/**
+	 * User meta key for the user's subscribed lists.
+	 */
+	const SUBSCRIBED_LISTS_META_KEY = '_newspack_newsletters_subscribed_lists';
+
+	/**
 	 * Initialize.
 	 */
 	public static function init() {
@@ -61,10 +73,25 @@ class Premium_Newsletters {
 	}
 
 	/**
+	 * Get all active premium newsletter gates.
+	 * If the results have been previously fetched, return the cached results.
+	 *
+	 * @return array The premium newsletter gates.
+	 */
+	public static function get_gates() {
+		if ( ! empty( self::$gates ) ) {
+			return self::$gates;
+		}
+		self::$gates = Content_Gate::get_gates( Content_Gate::GATE_CPT, 'publish', true );
+		return self::$gates;
+	}
+
+	/**
 	 * Register Data Events handlers.
 	 * To trigger an access check, add a handler for a Data Event that includes `user_id` in the data payload.
 	 */
 	public static function register_handlers() {
+		Data_Events::register_handler( [ __CLASS__, 'set_subscribed_lists_on_renewal' ], 'subscription_renewal_attempt' );
 		Data_Events::register_handler( [ __CLASS__, 'maybe_enqueue_access_check' ], 'product_subscription_changed' );
 		Data_Events::register_handler( [ __CLASS__, 'maybe_enqueue_access_check' ], 'donation_subscription_changed' );
 		Data_Events::register_handler( [ __CLASS__, 'maybe_enqueue_access_check' ], 'reader_verified' );
@@ -156,7 +183,7 @@ class Premium_Newsletters {
 		if ( ! empty( self::$restricted_lists ) ) {
 			return self::$restricted_lists;
 		}
-		$gates = Content_Gate::get_gates( Content_Gate::GATE_CPT, 'publish', true );
+		$gates = self::get_gates();
 		if ( empty( $gates ) ) {
 			return [];
 		}
@@ -205,17 +232,20 @@ class Premium_Newsletters {
 		if ( empty( $restricted_lists ) ) {
 			return;
 		}
-		$auto_signup     = (bool) get_option( 'newspack_premium_newsletters_auto_signup', 1 );
-		$lists_to_add    = [];
-		$lists_to_remove = [];
+		$subscribed_lists = get_user_meta( $user_id, self::SUBSCRIBED_LISTS_META_KEY, true );
+		$auto_signup      = (bool) get_option( 'newspack_premium_newsletters_auto_signup', 1 );
+		$lists_to_add     = [];
+		$lists_to_remove  = [];
 		foreach ( $restricted_lists as $list_id ) {
 			if ( Content_Restriction_Control::is_post_restricted( false, $list_id, $user_id ) ) {
 				$lists_to_remove[] = $list_id;
 			} elseif ( $auto_signup ) {
-				$lists_to_add[] = $list_id;
+				if ( ! is_array( $subscribed_lists ) || in_array( $list_id, $subscribed_lists, true ) ) {
+					$lists_to_add[] = $list_id;
+				}
 			}
 		}
-
+		delete_user_meta( $user_id, self::SUBSCRIBED_LISTS_META_KEY );
 		$email = $user->user_email;
 		self::add_and_remove_lists( $email, $lists_to_add, $lists_to_remove );
 	}
@@ -308,6 +338,28 @@ class Premium_Newsletters {
 
 		// Delete the queue option.
 		self::clear_queue();
+	}
+
+	/**
+	 * Set the user's subscribed lists when a renewal starts.
+	 *
+	 * @param int   $timestamp Timestamp of the event.
+	 * @param array $data      Data associated with the event.
+	 * @param int   $client_id ID of the client that triggered the event.
+	 */
+	public static function set_subscribed_lists_on_renewal( $timestamp, $data, $client_id ) {
+		if ( empty( $data['user_id'] ) || ! class_exists( 'Newspack_Newsletters_Subscription' ) ) {
+			return;
+		}
+		$user = get_user_by( 'id', (int) $data['user_id'] );
+		if ( ! $user ) {
+			return;
+		}
+		$email         = $user->user_email;
+		$current_lists = Newspack_Newsletters_Subscription::get_contact_lists( $email );
+		if ( is_array( $current_lists ) ) {
+			update_user_meta( $user->ID, self::SUBSCRIBED_LISTS_META_KEY, $current_lists );
+		}
 	}
 
 	/**
