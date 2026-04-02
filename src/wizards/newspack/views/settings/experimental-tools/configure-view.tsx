@@ -9,7 +9,7 @@
 import { __, sprintf } from '@wordpress/i18n';
 import { useState, useEffect } from '@wordpress/element';
 import { TextareaControl, TextControl, SelectControl, ToggleControl, Spinner } from '@wordpress/components';
-import { chevronLeft, chevronDown, chevronUp } from '@wordpress/icons';
+import { Icon, chevronLeft, chevronDown, chevronUp } from '@wordpress/icons';
 import apiFetch from '@wordpress/api-fetch';
 
 /**
@@ -88,7 +88,7 @@ function LogsField( { field }: { field: ToolField } ) {
 										log.response_time
 									) }
 								</span>
-								<Button icon={ isExpanded ? chevronUp : chevronDown } label={ __( 'Toggle', 'newspack-plugin' ) } />
+								<Icon icon={ isExpanded ? chevronUp : chevronDown } />
 							</button>
 							{ isExpanded && (
 								<div className="experimental-tools__log-details">
