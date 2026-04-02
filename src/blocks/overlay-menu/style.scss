@@ -116,12 +116,6 @@
 	right: -100%;
 }
 
-// Fade panel covers the full viewport; starts slightly offset so it slides in.
-.overlay-menu__panel--fade {
-	inset: 0;
-	max-width: 100%;
-	transform: translateY( -1rem );
-}
 
 // ─── Open state (shared by frontend JS and block editor preview) ──────────────
 
