@@ -28,10 +28,6 @@
 		"panelTextColor": {
 			"type": "string",
 			"default": ""
-		},
-		"isPreviewOpen": {
-			"type": "boolean",
-			"default": false
 		}
 	},
 	"supports": {

@@ -5,13 +5,15 @@ import { __ } from '@wordpress/i18n';
 import { menu as menuIcon } from '@wordpress/icons';
 // eslint-disable-next-line @wordpress/no-unsafe-wp-apis
 import { __unstableStripHTML as stripHTML } from '@wordpress/dom';
+import { useEffect, useState } from '@wordpress/element';
 import { RichText, useBlockProps } from '@wordpress/block-editor';
-import { useSelect, useDispatch } from '@wordpress/data';
+import { useSelect } from '@wordpress/data';
 
 /**
  * Internal dependencies
  */
 import PanelPreviewToggle from '../panel-preview-toggle';
+import { panelToggles, subscribeToPanel } from '../preview-refs';
 
 /**
  * Edit component for the Overlay Menu Trigger block.
@@ -33,17 +35,24 @@ export default function OverlayMenuTriggerEdit( { attributes, setAttributes, cli
 	const isTextOnly = classes.includes( 'is-style-text-only' );
 	const showTriggerIcon = ! isTextOnly;
 
-	// Find the panel sibling block so we can mirror and control its preview state.
-	const panelBlock = useSelect(
+	// Find the panel sibling block to key the preview state Maps.
+	const panelClientId = useSelect(
 		select => {
 			const { getBlockRootClientId, getBlocks } = select( 'core/block-editor' );
 			const parentClientId = getBlockRootClientId( clientId );
-			return getBlocks( parentClientId ).find( b => b.name === 'newspack/overlay-menu-panel' );
+			return getBlocks( parentClientId ).find( b => b.name === 'newspack/overlay-menu-panel' )?.clientId;
 		},
 		[ clientId ]
 	);
-	const { updateBlockAttributes } = useDispatch( 'core/block-editor' );
-	const isPanelOpen = panelBlock?.attributes?.isPreviewOpen ?? false;
+
+	// Mirror the panel's open state so the toolbar button label and isPressed stay correct.
+	const [ isPanelOpen, setIsPanelOpen ] = useState( false );
+	useEffect( () => {
+		if ( ! panelClientId ) {
+			return;
+		}
+		return subscribeToPanel( panelClientId, setIsPanelOpen );
+	}, [ panelClientId ] );
 
 	const blockProps = useBlockProps( {
 		className: 'overlay-menu__trigger wp-block-button__link wp-element-button',
@@ -51,15 +60,7 @@ export default function OverlayMenuTriggerEdit( { attributes, setAttributes, cli
 
 	return (
 		<>
-			<PanelPreviewToggle
-				isOpen={ isPanelOpen }
-				onToggle={ () =>
-					panelBlock &&
-					updateBlockAttributes( panelBlock.clientId, {
-						isPreviewOpen: ! isPanelOpen,
-					} )
-				}
-			/>
+			<PanelPreviewToggle isOpen={ isPanelOpen } onToggle={ () => panelToggles.get( panelClientId )?.() } />
 
 			<button
 				{ ...blockProps }

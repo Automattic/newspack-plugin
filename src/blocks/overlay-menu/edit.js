@@ -1,14 +1,15 @@
 /**
  * WordPress dependencies
  */
-import { useEffect } from '@wordpress/element';
-import { useSelect, useDispatch } from '@wordpress/data';
+import { useEffect, useState } from '@wordpress/element';
+import { useSelect } from '@wordpress/data';
 import { InnerBlocks, useBlockProps } from '@wordpress/block-editor';
 
 /**
  * Internal dependencies
  */
 import PanelPreviewToggle from './panel-preview-toggle';
+import { panelToggles, subscribeToPanel } from './preview-refs';
 
 const BLOCKS_TEMPLATE = [ [ 'newspack/overlay-menu-trigger' ], [ 'newspack/overlay-menu-panel' ] ];
 
@@ -36,21 +37,23 @@ export default function OverlayMenuEdit( { attributes, setAttributes, clientId }
 		}
 	}, [ clientId ] ); // eslint-disable-line react-hooks/exhaustive-deps
 
-	// Find the child panel block so we can read and toggle its isPreviewOpen attribute.
-	const panelBlock = useSelect( select => {
+	// Find the child panel block to key the preview state Maps.
+	const panelClientId = useSelect( select => {
 		const block = select( 'core/block-editor' ).getBlock( clientId );
-		return block?.innerBlocks?.find( b => b.name === 'newspack/overlay-menu-panel' );
+		return block?.innerBlocks?.find( b => b.name === 'newspack/overlay-menu-panel' )?.clientId;
 	} );
 
-	const { updateBlockAttributes } = useDispatch( 'core/block-editor' );
-
-	const isPreviewOpen = panelBlock?.attributes?.isPreviewOpen ?? false;
-
-	const togglePreview = () => {
-		if ( panelBlock ) {
-			updateBlockAttributes( panelBlock.clientId, { isPreviewOpen: ! isPreviewOpen } );
+	// Mirror the panel's open state so the toolbar button label and isPressed stay correct.
+	const [ isPreviewOpen, setIsPreviewOpen ] = useState( false );
+	useEffect( () => {
+		if ( ! panelClientId ) {
+			return;
 		}
-	};
+		return subscribeToPanel( panelClientId, setIsPreviewOpen );
+	}, [ panelClientId ] );
+
+	// Delegate the actual toggle to the panel via its registered ref function.
+	const togglePreview = () => panelToggles.get( panelClientId )?.();
 
 	const blockProps = useBlockProps( {
 		className: 'is-layout-flex',

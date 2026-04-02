@@ -24,6 +24,7 @@ import {
  * Internal dependencies
  */
 import PanelPreviewToggle from '../panel-preview-toggle';
+import { panelToggles, notifySubscribers } from '../preview-refs';
 
 const DIRECTION_CONFIG = {
 	left: { positionClass: 'overlay-menu__panel--left' },
@@ -43,34 +44,30 @@ const INNER_BLOCKS_TEMPLATE = [ [ 'core/navigation', { layout: { type: 'flex', o
  * @return {JSX.Element} The block editor UI.
  */
 export default function OverlayMenuPanelEdit( { attributes, clientId, setAttributes } ) {
-	const { slideDirection, overlayColor, panelBackgroundColor, panelTextColor, isPreviewOpen: attrPreviewOpen } = attributes;
+	const { slideDirection, overlayColor, panelBackgroundColor, panelTextColor } = attributes;
 
-	// Always start closed — isPreviewOpen is ephemeral editor UI, not content.
-	// Initialising from the attribute would re-open the panel on every editor
-	// load if the post was saved while the preview was open.
 	const [ isPreviewOpen, setIsPreviewOpen ] = useState( false );
 
-	// Track whether the initial render has passed so we can skip the first
-	// effect run and avoid restoring a stale saved value.
-	const isMounted = useRef( false );
+	// Keep a ref to the current open state so the toggle registered in panelToggles
+	// never has a stale closure over isPreviewOpen.
+	const isOpenRef = useRef( false );
+	isOpenRef.current = isPreviewOpen;
 
+	// Register a toggle function keyed by clientId so the parent toolbar button
+	// can open/close the panel without sharing block attributes.
 	useEffect( () => {
-		if ( ! isMounted.current ) {
-			isMounted.current = true;
-			// Clear any stale persisted value from the previous editor session.
-			if ( attrPreviewOpen ) {
-				setAttributes( { isPreviewOpen: false } );
-			}
-			return;
-		}
-		// Sync when toggled externally (e.g. from the trigger block's toolbar).
-		setIsPreviewOpen( attrPreviewOpen ?? false );
-	}, [ attrPreviewOpen ] ); // eslint-disable-line react-hooks/exhaustive-deps
+		panelToggles.set( clientId, () => {
+			const next = ! isOpenRef.current;
+			setIsPreviewOpen( next );
+			notifySubscribers( clientId, next );
+		} );
+		return () => panelToggles.delete( clientId );
+	}, [ clientId ] ); // eslint-disable-line react-hooks/exhaustive-deps
 
-	// Update both local state and the saved attribute together.
+	// Update local state and notify all subscribers (parent + trigger toolbar buttons).
 	const togglePreview = open => {
 		setIsPreviewOpen( open );
-		setAttributes( { isPreviewOpen: open } );
+		notifySubscribers( clientId, open );
 	};
 
 	const { positionClass } = DIRECTION_CONFIG[ slideDirection ] ?? DIRECTION_CONFIG.left;
