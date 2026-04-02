@@ -67,8 +67,8 @@
 		.woocommerce-Button {
 			@extend .newspack-ui__button--secondary;
 			@extend .newspack-ui__button--x-small;
-			margin-top: calc(var(--newspack-ui-spacer-base) / 2);
-			margin-bottom: calc(var(--newspack-ui-spacer-base) / 2);
+			margin-top: calc(var(--newspack-ui-spacer-1) / 2);
+			margin-bottom: calc(var(--newspack-ui-spacer-1) / 2);
 			&.newspack-ui__button--ghost {
 				@extend .newspack-ui__button--ghost;
 			}
@@ -76,8 +76,8 @@
 		* + button,
 		* + .button,
 		* + .woocommerce-Button {
-			margin-left: calc(var(--newspack-ui-spacer-base) / 2);
-			margin-top: calc(var(--newspack-ui-spacer-base) / 2);
+			margin-left: calc(var(--newspack-ui-spacer-1) / 2);
+			margin-top: calc(var(--newspack-ui-spacer-1) / 2);
 			@media only screen and ( min-width: breakpoints.$tablet_width ) {
 				margin-top: 0;
 			}
@@ -94,7 +94,7 @@
 			padding: 0;
 		}
 		.product-quantity {
-			margin-right: var(--newspack-ui-spacer-base);
+			margin-right: var(--newspack-ui-spacer-1);
 			+ .button {
 				margin-bottom: 0;
 				margin-top: 0;
@@ -176,10 +176,10 @@
 		display: inline-flex !important;
 		gap: 0;
 		> :first-child {
-			margin-right: var(--newspack-ui-spacer-base);
+			margin-right: var(--newspack-ui-spacer-1);
 		}
 		input {
-			margin-bottom: calc(var(--newspack-ui-spacer-base) / 2);
+			margin-bottom: calc(var(--newspack-ui-spacer-1) / 2);
 			vertical-align: middle;
 		}
 	}

@@ -20,7 +20,6 @@ import { Grid } from '../../../../../../packages/components/src';
 
 export default function ContentRuleControl( { slug, value, exclusion, onChange, onChangeExclusion, isStatic = false }: GateRuleControlProps ) {
 	const rule = window.newspackAudienceContentGates.available_content_rules[ slug ];
-
 	if ( ! rule || ! Array.isArray( value ) ) {
 		return null;
 	}

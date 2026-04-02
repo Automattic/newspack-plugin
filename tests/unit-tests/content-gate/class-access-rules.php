@@ -294,4 +294,68 @@ class Newspack_Test_Access_Rules extends WP_UnitTestCase {
 
 		$this->assertTrue( $has_access, 'Group member should have access with pending-cancel subscription.' );
 	}
+
+	// =========================================================================
+	// evaluate_rules() with explicit $user_id — via built-in subscription rule
+	// =========================================================================
+
+	/**
+	 * Test that evaluate_rules() routes to the correct user when an explicit
+	 * $user_id is passed, using the built-in subscription rule type.
+	 * (Complements the custom-callback variant in test_evaluate_rules_with_explicit_user_id.)
+	 */
+	public function test_evaluate_rules_respects_explicit_user_id() {
+		$this->create_subscription();
+
+		$access_rules = [
+			[
+				[
+					'slug'  => 'subscription',
+					'value' => [ self::$product_id ],
+				],
+			],
+		];
+
+		$this->assertTrue(
+			Access_Rules::evaluate_rules( $access_rules, self::$owner_user_id ),
+			'evaluate_rules should return true for the subscription owner when called with their user ID.'
+		);
+
+		$this->assertFalse(
+			Access_Rules::evaluate_rules( $access_rules, self::$non_member_user_id ),
+			'evaluate_rules should return false for a non-member when called with their user ID.'
+		);
+	}
+
+	/**
+	 * Test that evaluate_rules() falls back to the current user when $user_id
+	 * is null, using the built-in subscription rule type.
+	 * (Complements the custom-callback variant in test_evaluate_rules_defaults_to_current_user.)
+	 */
+	public function test_evaluate_rules_defaults_to_current_user_when_user_id_is_null() {
+		$this->create_subscription();
+
+		$access_rules = [
+			[
+				[
+					'slug'  => 'subscription',
+					'value' => [ self::$product_id ],
+				],
+			],
+		];
+
+		wp_set_current_user( self::$owner_user_id );
+		$this->assertTrue(
+			Access_Rules::evaluate_rules( $access_rules, null ),
+			'evaluate_rules should return true for the subscription owner when they are the current user.'
+		);
+
+		wp_set_current_user( self::$non_member_user_id );
+		$this->assertFalse(
+			Access_Rules::evaluate_rules( $access_rules, null ),
+			'evaluate_rules should return false for a non-member when they are the current user.'
+		);
+
+		wp_set_current_user( 0 );
+	}
 }

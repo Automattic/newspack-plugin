@@ -250,6 +250,21 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 						</SettingsSection>
 					) ) }
 			</SettingsCard>
+			{ allCriteria.some( criteria => criteria.category === 'integrations' ) && (
+				<SettingsCard
+					title={ __( 'Integrations', 'newspack-plugin' ) }
+					description={ __( 'Target readers based on data from connected integrations.', 'newspack-plugin' ) }
+					noBorder
+				>
+					{ allCriteria
+						.filter( criteria => criteria.category === 'integrations' )
+						.map( criteria => (
+							<SettingsSection key={ criteria.id } title={ criteria.name } description={ criteria.description }>
+								{ getCriteriaInput( criteria ) }
+							</SettingsSection>
+						) ) }
+				</SettingsCard>
+			) }
 			<div className="newspack-buttons-card">
 				<Button disabled={ ! isSegmentValid() || ( ! isNew && ! isDirty ) } isPrimary onClick={ saveSegment }>
 					{ __( 'Save', 'newspack-plugin' ) }

@@ -260,10 +260,16 @@ class Contact_Pull {
 				return $data;
 			}
 
-			$selected_fields = array_filter( $selected_fields, 'is_string' );
-			$selected_keys   = array_flip( $selected_fields );
-			$data            = array_intersect_key( $data, $selected_keys );
-			Logger::log( 'Pulled data from ' . $integration->get_id() . ': ' . wp_json_encode( $data ), self::LOGGER_HEADER );
+			$selected_keys = array_flip(
+				array_map(
+					function( $field ) {
+						return $field->get_key();
+					},
+					$selected_fields
+				)
+			);
+			$data          = array_intersect_key( $data, $selected_keys );
+			Logger::log( 'Pulled data from ' . $integration->get_id() . ': ' . wp_json_encode( $data ) );
 
 			foreach ( $data as $key => $value ) {
 				\Newspack\Reader_Data::update_item( $user_id, $key, wp_json_encode( $value ) );

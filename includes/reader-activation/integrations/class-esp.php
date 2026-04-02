@@ -9,7 +9,6 @@ namespace Newspack\Reader_Activation\Integrations;
 
 use Newspack\Reader_Activation\Integration;
 use Newspack\Reader_Activation\Sync;
-use Newspack\Reader_Activation\Sync\Metadata;
 use Newspack\Reader_Activation\Integrations;
 use Newspack\Reader_Activation;
 use Newspack_Newsletters_Contacts;
@@ -256,7 +255,7 @@ class ESP extends Integration {
 	 *
 	 * @param bool $return_errors Optional. Whether to return a WP_Error object. Default false.
 	 *
-	 * @return bool|WP_Error True if contacts can be synced, false otherwise. WP_Error if return_errors is true.
+	 * @return bool|\WP_Error True if contacts can be synced, false otherwise. WP_Error if return_errors is true.
 	 */
 	public function can_sync( $return_errors = false ) {
 		$errors = new \WP_Error();
@@ -376,9 +375,9 @@ class ESP extends Integration {
 	/**
 	 * Get incoming available contact fields from the integration.
 	 *
-	 * @return Incoming_Contact_Field[]|\WP_Error Array of incoming contact field objects or WP_Error on failure.
+	 * @return Incoming_Field[]|\WP_Error Array of incoming contact field objects or WP_Error on failure.
 	 */
-	public function get_available_incoming_contact_fields() {
+	public function get_available_incoming_fields() {
 		if ( ! class_exists( 'Newspack_Newsletters_Contacts' ) ) {
 			return new \WP_Error(
 				'newspack_newsletters_contacts_not_found',
@@ -403,7 +402,7 @@ class ESP extends Integration {
 
 		return array_map(
 			function( $field ) {
-				return new Incoming_Contact_Field( $field['key'] );
+				return new Incoming_Field( $field['key'], $field );
 			},
 			$fields
 		);

@@ -15,14 +15,21 @@
 // Used by: author-profile-social, author-social-link blocks
 // Hex fallbacks from newspack-block-theme theme.json defaults.
 @mixin socialButton {
-	background: var(--wp--preset--color--base-2, #f0f0f0);
 	border-radius: 50%; // Circular
-	color: var(--wp--preset--color--contrast, #1e1e1e);
 	display: grid;
 	place-items: center;
 	text-decoration: none;
-	transition: background 125ms ease-in-out, color 125ms ease-in-out;
 
+	// Use :not(.wp-element-button) to beat wp-elements parent link colour rules,
+	// which use :where() and therefore have lower specificity.
+	&:not(.wp-element-button) {
+		background: var(--icon-background, var(--wp--preset--color--base-2, #f0f0f0));
+		color: var(--icon-color, var(--wp--preset--color--contrast, #1e1e1e));
+	}
+
+	@media not (prefers-reduced-motion) {
+		transition: transform 100ms ease;
+	}
 	// Sizing - makes circular by using equal width/height
 	// --icon-size controls the circle diameter (e.g., 36px)
 	// Icon inside is 2/3 of circle size (e.g., 24px icon in 36px circle)
@@ -32,9 +39,10 @@
 	padding: 0;
 
 	&:hover {
-		background: var(--wp--preset--color--base-3, #ddd);
-		color: var(--wp--preset--color--contrast, #1e1e1e);
+		background: var(--icon-background, var(--wp--preset--color--base-2, #f0f0f0));
+		color: var(--icon-color, var(--wp--preset--color--contrast, #1e1e1e));
 		text-decoration: none;
+		transform: scale(1.1);
 	}
 
 	&:focus {

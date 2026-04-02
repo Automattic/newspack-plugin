@@ -1,3 +1,44 @@
+# [6.36.0](https://github.com/Automattic/newspack-plugin/compare/v6.35.2...v6.36.0) (2026-03-30)
+
+
+### Bug Fixes
+
+* **access-rules:** normalize rules to individual OR groups ([#4584](https://github.com/Automattic/newspack-plugin/issues/4584)) ([40a7259](https://github.com/Automattic/newspack-plugin/commit/40a7259db182e0cda777ce761ee6745491913324))
+* apply max-width to add payment method iframe ([#4575](https://github.com/Automattic/newspack-plugin/issues/4575)) ([de27bb5](https://github.com/Automattic/newspack-plugin/commit/de27bb5fb24b020e58718fc588e7ec0895d33353))
+* **block-theme:** ensure content gate contents inserted in time for styles to be rendered ([#4539](https://github.com/Automattic/newspack-plugin/issues/4539)) ([2be2f3b](https://github.com/Automattic/newspack-plugin/commit/2be2f3bb382a56f23dccadc23794f523b04862df))
+* **block-theme:** load block styles when needed ([#4555](https://github.com/Automattic/newspack-plugin/issues/4555)) ([ec4c70b](https://github.com/Automattic/newspack-plugin/commit/ec4c70b76e177992735b26b8a6f70f2efeec501e))
+* **block-theme:** migrate newspack-theme modal checkout fixes ([#4557](https://github.com/Automattic/newspack-plugin/issues/4557)) ([6eb5f48](https://github.com/Automattic/newspack-plugin/commit/6eb5f4816e366b7750ce1bc4de33796e4788f719))
+* **content-gating:** allow for metering with paid access only ([#4571](https://github.com/Automattic/newspack-plugin/issues/4571)) ([e2d8e01](https://github.com/Automattic/newspack-plugin/commit/e2d8e01a276ace26ab31a1b838e15f31200039fa))
+* exclude Jetpack Swiper CSS from perfmatters unused CSS feature ([#4538](https://github.com/Automattic/newspack-plugin/issues/4538)) ([0d64190](https://github.com/Automattic/newspack-plugin/commit/0d64190f8b686b102d3a96073f7751c8f9a5f506))
+* guard against null, but enumerated, storage keys ([adcec53](https://github.com/Automattic/newspack-plugin/commit/adcec53ff7106829a621d9d95102549cc916492b))
+* **integrations:** integrations settings registration ([#4573](https://github.com/Automattic/newspack-plugin/issues/4573)) ([a4d90c2](https://github.com/Automattic/newspack-plugin/commit/a4d90c2d1aa625c741b6721ac7dd5e0630ae3174))
+* json_decode and notice style fixes ([#4531](https://github.com/Automattic/newspack-plugin/issues/4531)) ([8fc6ada](https://github.com/Automattic/newspack-plugin/commit/8fc6ada4ae48211f8372a616ed029ce0e8d7a67c))
+* use correct is_enabled method ([#4564](https://github.com/Automattic/newspack-plugin/issues/4564)) ([6396e41](https://github.com/Automattic/newspack-plugin/commit/6396e4120e40fbce2e30427c4c5f87998a938178)), closes [#4541](https://github.com/Automattic/newspack-plugin/issues/4541)
+
+
+### Features
+
+* **alert-manager:** failure pattern detection ([#4527](https://github.com/Automattic/newspack-plugin/issues/4527)) ([9a0bb3d](https://github.com/Automattic/newspack-plugin/commit/9a0bb3def2012604c6182d6ae5f617c5a43e711f))
+* alerting system ([#4511](https://github.com/Automattic/newspack-plugin/issues/4511)) ([1df65a0](https://github.com/Automattic/newspack-plugin/commit/1df65a0cfa86b588581f9438cb47d09b0075a2eb))
+* **content-gate:** default block patterns ([#4540](https://github.com/Automattic/newspack-plugin/issues/4540)) ([4852a9a](https://github.com/Automattic/newspack-plugin/commit/4852a9a0ca53d48e9b92294dc729174ffbc084ac))
+* **content-gate:** display matching gates in post editor ([#4572](https://github.com/Automattic/newspack-plugin/issues/4572)) ([eb275eb](https://github.com/Automattic/newspack-plugin/commit/eb275eb6aadd9971bfbcba20893ba5014db4e3da))
+* **content-gating:** group subscriptions members in my account ([#4543](https://github.com/Automattic/newspack-plugin/issues/4543)) ([202781a](https://github.com/Automattic/newspack-plugin/commit/202781a9f188792431b5e920b4fc893e2817f28b))
+* **content-gating:** i3 designs for Metered Countdown + Content Gifting ([#4526](https://github.com/Automattic/newspack-plugin/issues/4526)) ([ba5b4ee](https://github.com/Automattic/newspack-plugin/commit/ba5b4eeda4df1c7447f4957a66581f16333ee26e))
+* **group-subscription:** invite email and acceptance flow ([#4546](https://github.com/Automattic/newspack-plugin/issues/4546)) ([ac50a98](https://github.com/Automattic/newspack-plugin/commit/ac50a98dccb301dfc9b7435ef11f6c7e6dc26789))
+* **integrations:** add integrations settings framework ([#4541](https://github.com/Automattic/newspack-plugin/issues/4541)) ([735e640](https://github.com/Automattic/newspack-plugin/commit/735e6403f66029ec7cd4f32e43f6a47750c3832c))
+* **integrations:** refactor metadata for integration specific selection ([#4544](https://github.com/Automattic/newspack-plugin/issues/4544)) ([eb747fc](https://github.com/Automattic/newspack-plugin/commit/eb747fc5d6e0d8b4fb71b6118214c0e71a678c8d))
+* new `getAll()` method to fetch all reader data from store at once ([fbe68db](https://github.com/Automattic/newspack-plugin/commit/fbe68db49ccd7083f17036ecd212c201fd2b2ab2))
+* new `getAll()` method to retrieve all items from the reader data store ([b7d6664](https://github.com/Automattic/newspack-plugin/commit/b7d6664f0fa50892ad91a1873184d079ead07d0b))
+* **reader-activation:** add integration health check system ([#4550](https://github.com/Automattic/newspack-plugin/issues/4550)) ([4993f21](https://github.com/Automattic/newspack-plugin/commit/4993f2142308d0fdd5013f9207047c30a66b0ab3))
+* **yoast:** add Bluesky contact method registration ([#4554](https://github.com/Automattic/newspack-plugin/issues/4554)) ([aa143d7](https://github.com/Automattic/newspack-plugin/commit/aa143d72356e11f1872a6ecdf27a3feaa847dde9))
+
+## [6.35.2](https://github.com/Automattic/newspack-plugin/compare/v6.35.1...v6.35.2) (2026-03-30)
+
+
+### Bug Fixes
+
+* **memberships:** force non-empty message to allow wc_memberships_notice_html to fire ([0e6f1c0](https://github.com/Automattic/newspack-plugin/commit/0e6f1c0d7600267f4524eec3411b1e2f15254d3e))
+
 ## [6.35.1](https://github.com/Automattic/newspack-plugin/compare/v6.35.0...v6.35.1) (2026-03-18)
 
 

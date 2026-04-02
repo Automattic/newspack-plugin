@@ -108,6 +108,7 @@ final class Newspack {
 		include_once NEWSPACK_ABSPATH . 'includes/class-action-scheduler.php';
 		include_once NEWSPACK_ABSPATH . 'includes/reader-activation/class-integrations.php';
 		\Newspack\Reader_Activation\Integrations::init();
+		include_once NEWSPACK_ABSPATH . 'includes/reader-activation/class-promoted-fields.php';
 		include_once NEWSPACK_ABSPATH . 'includes/data-events/class-utils.php';
 		include_once NEWSPACK_ABSPATH . 'includes/data-events/class-data-events.php';
 		include_once NEWSPACK_ABSPATH . 'includes/data-events/class-webhooks.php';
@@ -191,7 +192,7 @@ final class Newspack {
 
 		// Newsletters Wizard.
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/newsletters/class-newsletters-wizard.php';
-		include_once NEWSPACK_ABSPATH . 'includes/wizards/newsletters/class-premium-newsletters.php';
+		include_once NEWSPACK_ABSPATH . 'includes/wizards/newsletters/class-premium-newsletters-wizard.php';
 
 		/* Unified Wizards */
 		include_once NEWSPACK_ABSPATH . 'includes/class-wizards.php';
