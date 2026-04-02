@@ -1,5 +1,5 @@
 /**
- * Flyout Menu Block — Frontend Script
+ * Overlay Menu Block — Frontend Script
  *
  * Initializes a self-contained overlay menu for each block instance on the
  * page. Multiple instances work independently: each button opens only its own
