@@ -27,7 +27,7 @@ const AdvancedSettings = ( { closeModal, showModal }: { closeModal: () => void; 
 	const [ config, setConfig ] = useState< AdvancedSettingsConfig >( initialConfig );
 
 	useEffect( () => {
-		if ( ! showModal ) {
+		if ( showModal ) {
 			setConfig( initialConfig );
 		}
 	}, [ showModal ] );
