@@ -53,6 +53,8 @@ class Post_Date {
 		add_action( 'wp_enqueue_scripts', [ __CLASS__, 'enqueue_scripts' ] );
 		add_action( 'enqueue_block_editor_assets', [ __CLASS__, 'enqueue_editor_assets' ] );
 		add_action( 'newspack_theme_posted_on', [ __CLASS__, 'render_updated_date_classic' ] );
+		add_filter( 'body_class', [ __CLASS__, 'add_body_show_updated' ] );
+		add_filter( 'newspack_theme_include_hidden_updated_time', [ __CLASS__, 'suppress_theme_hidden_updated_time' ] );
 	}
 
 	/**
@@ -318,6 +320,38 @@ class Post_Date {
 			esc_attr( get_the_modified_date( DATE_W3C, $post ) ),
 			esc_html( $modified_date )
 		);
+	}
+
+	/**
+	 * Add 'show-updated' body class when the updated date should display on classic themes.
+	 *
+	 * @param string[] $classes Body CSS classes.
+	 * @return string[]
+	 */
+	public static function add_body_show_updated( $classes ) {
+		if ( wp_is_block_theme() || ! is_singular() ) {
+			return $classes;
+		}
+		if ( self::should_display_updated_date() ) {
+			$classes[] = 'show-updated';
+		}
+		return $classes;
+	}
+
+	/**
+	 * Suppress the theme's hidden <time class="updated"> when the plugin handles it.
+	 *
+	 * @param bool $include Whether to include the hidden updated time.
+	 * @return bool
+	 */
+	public static function suppress_theme_hidden_updated_time( $include ) {
+		if ( wp_is_block_theme() || ! is_singular() ) {
+			return $include;
+		}
+		if ( self::should_display_updated_date() ) {
+			return false;
+		}
+		return $include;
 	}
 
 	/**
