@@ -48,13 +48,22 @@ describe( 'setupArticleViewsAggregates', () => {
 			mock.addActivity( 'article_view', { post_id: 2, categories: [ 10 ] } );
 			mock.addActivity( 'article_view', { post_id: 3, categories: [ 20, 30 ] } );
 			simulateArticleView( { post_id: 3, categories: [ 20, 30 ] } );
-			// 10 appears 2x, 20 appears 2x, 30 appears 1x.
-			expect( mock.storeData.favorite_categories ).toEqual( [ 10, 20, 30 ] );
+			// 10 appears 2x, 20 appears 2x, 30 appears 1x (excluded — needs >= 2).
+			expect( mock.storeData.favorite_categories ).toEqual( [ 10, 20 ] );
+		} );
+
+		it( 'should exclude categories with only 1 view', () => {
+			mock.addActivity( 'article_view', { post_id: 1, categories: [ 10 ] } );
+			simulateArticleView( { post_id: 2, categories: [ 20 ] } );
+			// Each category has only 1 view.
+			expect( mock.storeData.favorite_categories ).toEqual( [] );
 		} );
 
 		it( 'should limit to top 5 categories', () => {
+			// Each category needs at least 2 views to be included.
 			mock.addActivity( 'article_view', { post_id: 1, categories: [ 1, 2, 3, 4, 5, 6, 7 ] } );
-			simulateArticleView( { post_id: 1, categories: [ 1, 2, 3, 4, 5, 6, 7 ] } );
+			mock.addActivity( 'article_view', { post_id: 2, categories: [ 1, 2, 3, 4, 5, 6, 7 ] } );
+			simulateArticleView( { post_id: 3, categories: [ 1, 2, 3, 4, 5, 6, 7 ] } );
 			expect( mock.storeData.favorite_categories ).toHaveLength( 5 );
 		} );
 

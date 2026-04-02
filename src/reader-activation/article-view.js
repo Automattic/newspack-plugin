@@ -51,6 +51,7 @@ export default function setupArticleViewsAggregates( ras ) {
 			}
 		}
 		const topCategories = Object.entries( catCounts )
+			.filter( ( [ , count ] ) => count >= 2 )
 			.sort( ( a, b ) => b[ 1 ] - a[ 1 ] )
 			.slice( 0, 5 )
 			.map( ( [ id ] ) => Number( id ) );
