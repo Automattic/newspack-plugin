@@ -164,7 +164,7 @@ class Test_Subscription_Metadata extends WP_UnitTestCase {
 			]
 		);
 		$metadata = ( new Subscription( self::$user_id ) )->get_metadata();
-		$this->assertSame( '03/10/2025', $metadata['Current_Subscription_Start_Date'] );
+		$this->assertSame( '2025-03-10 08:00:00', $metadata['Current_Subscription_Start_Date'] );
 	}
 
 	public function test_end_date_empty_when_zero() {
@@ -193,7 +193,7 @@ class Test_Subscription_Metadata extends WP_UnitTestCase {
 			]
 		);
 		$metadata = ( new Subscription( self::$user_id ) )->get_metadata();
-		$this->assertSame( '06/01/2025', $metadata['Current_Subscription_End_Date'] );
+		$this->assertSame( '2025-06-01 00:00:00', $metadata['Current_Subscription_End_Date'] );
 	}
 
 	public function test_billing_cycle() {
@@ -219,7 +219,7 @@ class Test_Subscription_Metadata extends WP_UnitTestCase {
 			]
 		);
 		$metadata = ( new Subscription( self::$user_id ) )->get_metadata();
-		$this->assertSame( '07/01/2025', $metadata['Current_Subscription_Next_Payment_Date'] );
+		$this->assertSame( '2025-07-01 00:00:00', $metadata['Current_Subscription_Next_Payment_Date'] );
 	}
 
 	public function test_next_payment_date_empty_when_zero() {
@@ -345,7 +345,7 @@ class Test_Subscription_Metadata extends WP_UnitTestCase {
 		$this->create_subscription( [ 'orders' => [ $order ] ] );
 		$metadata = ( new Subscription( self::$user_id ) )->get_metadata();
 		$this->assertSame( '15.00', $metadata['Last_Payment_Amount'] );
-		$this->assertSame( '05/20/2025', $metadata['Last_Payment_Date'] );
+		$this->assertSame( '2025-05-20 10:00:00', $metadata['Last_Payment_Date'] );
 	}
 
 	public function test_last_payment_excludes_failed_orders() {

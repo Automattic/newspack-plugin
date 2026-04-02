@@ -177,18 +177,41 @@ class Subscription extends Contact_Metadata {
 
 		$active = $this->get_active_subscriptions();
 		if ( ! empty( $active ) ) {
-			$this->current_subscription_cache = reset( $active );
+			$this->current_subscription_cache = $this->prefer_non_gift( $active );
 			return $this->current_subscription_cache;
 		}
 
-		foreach ( $this->get_user_subscriptions() as $subscription ) {
-			if ( $subscription->has_status( WooCommerce_Connection::FORMER_SUBSCRIBER_STATUSES ) ) {
-				$this->current_subscription_cache = $subscription;
-				return $this->current_subscription_cache;
+		$former = array_filter(
+			$this->get_user_subscriptions(),
+			function ( $subscription ) {
+				return $subscription->has_status( WooCommerce_Connection::FORMER_SUBSCRIBER_STATUSES );
 			}
+		);
+		if ( ! empty( $former ) ) {
+			$this->current_subscription_cache = $this->prefer_non_gift( $former );
+			return $this->current_subscription_cache;
 		}
 
 		return null;
+	}
+
+	/**
+	 * From a list of subscriptions, prefer non-gift subscriptions over gifts.
+	 *
+	 * Falls back to the first subscription if all are gifts or the gifting plugin is not active.
+	 *
+	 * @param \WC_Subscription[] $subscriptions Subscriptions to choose from.
+	 * @return \WC_Subscription
+	 */
+	private function prefer_non_gift( $subscriptions ) {
+		if ( class_exists( 'WCS_Gifting' ) ) {
+			foreach ( $subscriptions as $subscription ) {
+				if ( ! \WCS_Gifting::is_gifted_subscription( $subscription ) ) {
+					return $subscription;
+				}
+			}
+		}
+		return reset( $subscriptions );
 	}
 
 	/**

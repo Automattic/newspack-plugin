@@ -284,9 +284,9 @@ class Test_Donation_Metadata extends WP_UnitTestCase {
 		);
 
 		$metadata = ( new Donation( self::$user_id ) )->get_metadata();
-		$this->assertSame( '02/14/2025', $metadata['Current_Donation_Start_Date'] );
+		$this->assertSame( '2025-02-14 12:00:00', $metadata['Current_Donation_Start_Date'] );
 		$this->assertSame( '', $metadata['Current_Donation_End_Date'] );
-		$this->assertSame( '03/14/2025', $metadata['Next_Donation_Date'] );
+		$this->assertSame( '2025-03-14 12:00:00', $metadata['Next_Donation_Date'] );
 	}
 
 	public function test_donation_billing_cycle_and_amount() {
@@ -341,7 +341,7 @@ class Test_Donation_Metadata extends WP_UnitTestCase {
 
 		$metadata = ( new Donation( self::$user_id ) )->get_metadata();
 		$this->assertSame( '10.00', $metadata['Last_Donation_Amount'] );
-		$this->assertSame( '04/01/2025', $metadata['Last_Donation_Date'] );
+		$this->assertSame( '2025-04-01 10:00:00', $metadata['Last_Donation_Date'] );
 	}
 
 	public function test_previous_donation_amount_from_switch() {

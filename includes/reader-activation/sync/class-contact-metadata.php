@@ -14,9 +14,9 @@ defined( 'ABSPATH' ) || exit;
  */
 abstract class Contact_Metadata {
 	/**
-	 * The date format to use for all date fields, which is MM/DD/YYYY.
+	 * The date format to use for all date fields, which is YYYY-MM-DD HH:MM:SS.
 	 */
-	const DATE_FORMAT = 'm/d/Y';
+	const DATE_FORMAT = 'Y-m-d H:i:s';
 
 	/**
 	 * The WP_User object.
