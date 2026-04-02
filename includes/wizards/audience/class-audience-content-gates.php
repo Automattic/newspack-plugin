@@ -173,8 +173,7 @@ class Audience_Content_Gates extends Wizard {
 					'advanced_settings' => [
 						'type'       => 'object',
 						'properties' => [
-							'restrict_feeds'   => [ 'type' => 'boolean' ],
-							'restrict_everlit' => [ 'type' => 'boolean' ],
+							'restrict_feeds' => [ 'type' => 'boolean' ],
 						],
 					],
 				],

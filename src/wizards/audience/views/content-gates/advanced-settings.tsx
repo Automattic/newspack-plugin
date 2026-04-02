@@ -76,14 +76,6 @@ const AdvancedSettings = ( { closeModal, showModal }: { closeModal: () => void; 
 						checked={ config?.restrict_feeds }
 						onChange={ value => setConfig( { ...config, restrict_feeds: value } ) }
 					/>
-					{ config?.hasOwnProperty( 'restrict_everlit' ) && (
-						<ToggleControl
-							label={ __( 'Hide Everlit in restricted content', 'newspack-plugin' ) }
-							help={ __( "Don't show Everlit audio embeds for gated content.", 'newspack-plugin' ) }
-							checked={ config?.restrict_everlit }
-							onChange={ value => setConfig( { ...config, restrict_everlit: value } ) }
-						/>
-					) }
 					<HStack justify="end">
 						<Button variant="tertiary" disabled={ isFetching } onClick={ closeModal }>
 							{ __( 'Cancel', 'newspack-plugin' ) }
