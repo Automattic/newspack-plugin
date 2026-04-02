@@ -26,8 +26,6 @@
 
 		&__segment {
 			align-items: center;
-			background: rgba(black, 0.025);
-			border-bottom: 1px solid wp-colors.$gray-300;
 			display: flex;
 			justify-content: space-between;
 
@@ -35,7 +33,6 @@
 				display: grid;
 				flex: 1;
 				gap: 8px;
-				padding: 8px 16px;
 
 				h3 {
 					margin: 0;
@@ -54,7 +51,6 @@
 				flex-wrap: wrap;
 				gap: 8px;
 				justify-content: flex-end;
-				padding: 8px 16px;
 			}
 		}
 	}
@@ -77,6 +73,6 @@
 		}
 	}
 	&__empty-segment-text {
-		padding: 0 16px 16px;
+		margin: 0;
 	}
 }

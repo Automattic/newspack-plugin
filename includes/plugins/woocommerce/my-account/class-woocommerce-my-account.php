@@ -54,9 +54,12 @@ class WooCommerce_My_Account {
 		\add_filter( 'woocommerce_get_checkout_url', [ __CLASS__, 'get_checkout_url' ] );
 		\add_filter( 'woocommerce_get_checkout_payment_url', [ __CLASS__, 'get_checkout_url' ] );
 		\add_filter( 'wc_stripe_update_subs_payment_method_card_statuses', [ __CLASS__, 'update_payment_methods_for_all_subs' ] );
+		\add_filter( 'wc_subscriptions_allow_subscription_token_deletion', [ __CLASS__, 'allow_braintree_token_deletion' ], 10, 2 );
+		\add_filter( 'woocommerce_payment_methods_list_item', [ __CLASS__, 'remove_braintree_edit_actions' ], 20, 2 );
 
 		// Reader Activation mods.
 		if ( Reader_Activation::is_enabled() ) {
+			\add_action( 'wp_footer', [ __CLASS__, 'handle_messages' ] );
 			\add_action( 'wp_enqueue_scripts', [ __CLASS__, 'enqueue_scripts' ] );
 			\add_action( 'template_redirect', [ __CLASS__, 'handle_password_reset_request' ] );
 			\add_action( 'template_redirect', [ __CLASS__, 'handle_delete_account' ] );
@@ -142,6 +145,22 @@ class WooCommerce_My_Account {
 				'permission_callback' => '__return_true',
 			]
 		);
+	}
+
+	/**
+	 * Handle messages in 'message' query param.
+	 */
+	public static function handle_messages() {
+		if ( ! function_exists( 'is_account_page' ) || ! \is_account_page() ) {
+			return;
+		}
+		$message    = filter_input( INPUT_GET, 'message', FILTER_SANITIZE_FULL_SPECIAL_CHARS ) ?? false;
+		$is_success = filter_input( INPUT_GET, 'is_success', FILTER_VALIDATE_BOOLEAN ) ?? false;
+		$is_error   = filter_input( INPUT_GET, 'is_error', FILTER_VALIDATE_BOOLEAN ) ?? false;
+		if ( $message ) {
+			\wc_add_notice( $message, $is_success ? 'success' : ( $is_error ? 'error' : 'notice' ) );
+			\wc_print_notices();
+		}
 	}
 
 	/**
@@ -999,6 +1018,41 @@ class WooCommerce_My_Account {
 			'on-hold',
 			'pending-cancel',
 		];
+	}
+
+	/**
+	 * Permit 'Delete payment method' option for Braintree.
+	 * This is usually disabled when no alternative payment method is
+	 * available, but some gateways may not permit a new payment with
+	 * similar details (e.g., credit card with same number but updated
+	 * expiration) to one already in the system.
+	 *
+	 * @param bool              $allow_deletion Whether deletion is allowed.
+	 * @param \WC_Payment_Token $payment_token  The payment token.
+	 * @return bool
+	 */
+	public static function allow_braintree_token_deletion( $allow_deletion, $payment_token ) {
+		if ( str_starts_with( $payment_token->get_gateway_id(), 'braintree_' ) ) {
+			return true;
+		}
+		return $allow_deletion;
+	}
+
+	/**
+	 * Remove 'edit' and 'save' actions for Braintree.  This keeps parity
+	 * with existing Stripe integration.
+	 *
+	 * @param array             $item          Payment method list item data.
+	 * @param \WC_Payment_Token $payment_token The payment token.
+	 * @return array
+	 */
+	public static function remove_braintree_edit_actions( $item, $payment_token ) {
+		if ( str_starts_with( $payment_token->get_gateway_id(), 'braintree_' ) ) {
+			if ( ! empty( $item['actions']['edit'] ) || ! empty( $item['actions']['save'] ) ) {
+				unset( $item['actions']['edit'], $item['actions']['save'] );
+			}
+		}
+		return $item;
 	}
 
 	/**

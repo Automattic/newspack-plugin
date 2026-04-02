@@ -184,16 +184,7 @@ export const segmentDescription = segment => {
 		}
 	}
 
-	const render = () => (
-		<Fragment>
-			{ descriptionMessages.map( ( item, index ) => (
-				<Fragment key={ index }>
-					{ item } { descriptionMessages.length !== index + 1 ? ' | ' : null }
-				</Fragment>
-			) ) }
-		</Fragment>
-	);
-	return render;
+	return descriptionMessages.join( ' | ' );
 };
 
 const getFavoriteCategoryNamesFn = async favoriteCategories => {

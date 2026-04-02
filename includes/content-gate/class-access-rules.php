@@ -36,11 +36,12 @@ class Access_Rules {
 	 *     The rule configuration.
 	 *
 	 *     @type string   $id          The rule ID.
-	 *     @type string   $label       The rule label.
+	 *     @type string   $name        The rule name.
 	 *     @type string   $description The rule description.
-	 *     @type string   $default     The rule default value.
+	 *     @type mixed    $default     The rule default value.
 	 *     @type array    $options     The rule options.
 	 *     @type callable $callback    The rule callback.
+	 *     @type bool     $is_boolean  Whether the rule is a boolean rule.
 	 * }
 	 *
 	 * @return void|\WP_Error
@@ -102,6 +103,13 @@ class Access_Rules {
 				'description' => __( 'Set custom conditions based on reader data key/value pairs.', 'newspack-plugin' ),
 				'callback'    => [ __CLASS__, 'has_reader_data' ],
 			],
+			'institution'  => [
+				'name'               => __( 'Institutional access', 'newspack-plugin' ),
+				'description'        => __( 'Grant access to readers from selected institutions.', 'newspack-plugin' ),
+				'options'            => [ Institution::class, 'get_options' ],
+				'callback'           => [ Institution::class, 'evaluate' ],
+				'supports_anonymous' => true,
+			],
 		];
 
 		foreach ( $rules as $id => $rule ) {
@@ -154,9 +162,9 @@ class Access_Rules {
 			return true;
 		}
 
-		// If evaluating for the current user, they must be logged in.
+		// If evaluating for the current user, they must be logged in (unless the rule supports anonymous evaluation).
 		$user_id = $user_id ?? \get_current_user_id();
-		if ( ! $user_id ) {
+		if ( ! $user_id && empty( $rule['supports_anonymous'] ) ) {
 			return false;
 		}
 
@@ -176,10 +184,11 @@ class Access_Rules {
 	 * - Rules within a group use AND logic: reader must pass all rules in the group
 	 *
 	 * @param array $access_rules The access rules (array of groups, each group is an array of rules).
+	 * @param int   $user_id     Optional. User ID to evaluate rules for. Defaults to current user.
 	 *
 	 * @return bool True if access is granted, false if restricted.
 	 */
-	public static function evaluate_rules( $access_rules ) {
+	public static function evaluate_rules( $access_rules, $user_id = null ) {
 		if ( empty( $access_rules ) ) {
 			return true;
 		}
@@ -189,7 +198,7 @@ class Access_Rules {
 
 		// Evaluate each group with OR logic - if any group passes, grant access.
 		foreach ( $access_rules as $group ) {
-			if ( self::evaluate_rules_group( $group ) ) {
+			if ( self::evaluate_rules_group( $group, $user_id ) ) {
 				return true;
 			}
 		}
@@ -201,11 +210,12 @@ class Access_Rules {
 	/**
 	 * Evaluate a single group of access rules with AND logic.
 	 *
-	 * @param array $group Array of rules in the group.
+	 * @param array $group   Array of rules in the group.
+	 * @param int   $user_id Optional. User ID to evaluate rules for. Defaults to current user.
 	 *
 	 * @return bool True if all rules in the group pass, false otherwise.
 	 */
-	private static function evaluate_rules_group( $group ) {
+	private static function evaluate_rules_group( $group, $user_id = null ) {
 		if ( empty( $group ) || ! is_array( $group ) ) {
 			return true;
 		}
@@ -214,7 +224,7 @@ class Access_Rules {
 			if ( ! isset( $rule['slug'] ) ) {
 				continue;
 			}
-			if ( ! self::evaluate_rule( $rule['slug'], $rule['value'] ?? null ) ) {
+			if ( ! self::evaluate_rule( $rule['slug'], $rule['value'] ?? null, $user_id ) ) {
 				return false;
 			}
 		}
@@ -225,7 +235,8 @@ class Access_Rules {
 	/**
 	 * Normalize access rules to grouped format.
 	 *
-	 * Converts legacy flat rules [ rule1, rule2 ] to grouped format [ [ rule1, rule2 ] ].
+	 * Converts flat rules [ rule1, rule2 ] to grouped format [ [ rule1 ], [ rule2 ] ],
+	 * where each rule is its own group (OR logic). Already grouped rules are left as-is.
 	 *
 	 * @param array $access_rules The access rules.
 	 *
@@ -245,8 +256,13 @@ class Access_Rules {
 			return $access_rules;
 		}
 
-		// Convert flat format to single group.
-		return [ $access_rules ];
+		// Convert flat format to OR logic: each rule becomes its own group.
+		return array_map(
+			function ( $rule ) {
+				return [ $rule ];
+			},
+			$access_rules
+		);
 	}
 
 	/**
@@ -278,7 +294,7 @@ class Access_Rules {
 	 * Whether the user has an active subscription for one of the given products.
 	 * Also checks if the user is a member of a group subscription with the required products.
 	 *
-	 * @param int   $user_id User ID.
+	 * @param int   $user_id     User ID.
 	 * @param array $product_ids Required product IDs.
 	 * @return bool
 	 */
@@ -343,6 +359,9 @@ class Access_Rules {
 		}
 		$email = $user->data->user_email;
 		if ( ! $email ) {
+			return false;
+		}
+		if ( Reader_Activation::is_reader_verified( $user ) === false ) {
 			return false;
 		}
 		$email_domain = substr( $email, strrpos( $email, '@' ) + 1 );

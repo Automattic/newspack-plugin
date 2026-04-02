@@ -7,6 +7,8 @@
 
 namespace Newspack;
 
+use Newspack\Newsletters\Subscription_Lists;
+
 /**
  * Main class.
  */
@@ -26,9 +28,24 @@ class Content_Restriction_Control {
 	private static $post_gate_layout_id_map = [];
 
 	/**
+	 * Cached user ID to check restrictions for.
+	 *
+	 * @var int
+	 */
+	private static $user_id = 0;
+
+	/**
+	 * Post meta key for exempting a post from access control restrictions.
+	 *
+	 * @var string
+	 */
+	const IS_EXEMPT_META_KEY = 'newspack_content_restriction_is_exempt';
+
+	/**
 	 * Initialize hooks and filters.
 	 */
 	public static function init() {
+		add_action( 'init', [ __CLASS__, 'register_meta' ] );
 		add_filter( 'newspack_is_post_restricted', [ __CLASS__, 'is_post_restricted' ], 10, 2 );
 	}
 
@@ -111,8 +128,12 @@ class Content_Restriction_Control {
 		if ( ! $post_id ) {
 			return [];
 		}
+		$is_newsletter = false;
+		if ( class_exists( 'Newspack\Newsletters\Subscription_Lists' ) && Subscription_Lists::CPT && get_post_type( $post_id ) === Subscription_Lists::CPT ) {
+			$is_newsletter = true;
+		}
 
-		$gates = Content_Gate::get_gates( Content_Gate::GATE_CPT, 'publish' );
+		$gates = Content_Gate::get_gates( Content_Gate::GATE_CPT, 'publish', $is_newsletter );
 		if ( empty( $gates ) ) {
 			return [];
 		}
@@ -140,6 +161,11 @@ class Content_Restriction_Control {
 					if ( $is_exclusion ? in_array( $post_type, $content_rule['value'], true ) : ! in_array( $post_type, $content_rule['value'], true ) ) {
 						continue 2;
 					}
+				} elseif ( $content_rule['slug'] === 'newsletters' ) {
+					$newsletter_lists = array_map( 'intval', $content_rule['value'] );
+					if ( ! in_array( $post_id, $newsletter_lists, true ) ) {
+						continue 2;
+					}
 				} else {
 					$taxonomy = get_taxonomy( $content_rule['slug'] );
 					if ( ! $taxonomy ) {
@@ -162,20 +188,43 @@ class Content_Restriction_Control {
 	/**
 	 * Whether the post is restricted for the current user.
 	 *
-	 * @param bool $is_post_restricted Whether the post is restricted for the current user.
-	 * @param int  $post_id            Post ID.
+	 * @param bool     $is_post_restricted Whether the post is restricted for the current or given user.
+	 * @param int      $post_id            Post ID.
+	 * @param int|null $user_id            Optional user ID to check access for.
 	 *
 	 * @return bool
 	 */
-	public static function is_post_restricted( $is_post_restricted, $post_id = null ) {
+	public static function is_post_restricted( $is_post_restricted, $post_id = null, $user_id = null ) {
 		// Don't apply our restriction strategy if Woo Memberships is active.
 		if ( Memberships::is_active() ) {
 			return $is_post_restricted;
 		}
 
+		// Return early if this post is exempt from access control restrictions.
+		if ( $post_id && get_post_meta( $post_id, self::IS_EXEMPT_META_KEY, true ) ) {
+			return false;
+		}
+
 		// Return early if the post is already restricted for the current user.
 		if ( $is_post_restricted ) {
 			return $is_post_restricted;
+		}
+
+		/**
+		 * Filters the user ID to use for evaluating content restriction.
+		 * REST API callbacks may execute in a different context than the logged-in user session,
+		 * so this lets us get restriction status for a specific user ID.
+		 *
+		 * @param int $user_id Current user ID.
+		 */
+		$user_id = apply_filters( 'newspack_content_restriction_control_user_id', $user_id ?? get_current_user_id() );
+		if ( ! self::$user_id ) {
+			self::$user_id = $user_id;
+		}
+
+		// Don't restrict this post for users who can edit it.
+		if ( ! empty( $post_id ) && user_can( $user_id, 'edit_post', $post_id ) ) {
+			return false;
 		}
 
 		$post_gates = self::get_post_gates( $post_id );
@@ -184,7 +233,7 @@ class Content_Restriction_Control {
 		}
 
 		// Return if the post gate has already been determined.
-		if ( ! empty( self::$post_gate_id_map[ $post_id ] ) ) {
+		if ( ! empty( self::$post_gate_id_map[ $post_id . '_' . self::$user_id ] ) ) {
 			return true;
 		}
 
@@ -195,13 +244,13 @@ class Content_Restriction_Control {
 			// If registration mode is active.
 			if ( ! empty( $gate['registration']['active'] ) ) {
 				// Check if user is logged in.
-				if ( ! \is_user_logged_in() ) {
+				if ( $user_id === 0 ) {
 					$is_restricted  = true;
 					$gate_layout_id = $gate['registration']['gate_layout_id'] ?? $gate['id'];
 				} elseif ( ! empty( $gate['registration']['require_verification'] ) ) {
 					// Check if email verification is required.
-					$user = \wp_get_current_user();
-					if ( ! \get_user_meta( $user->ID, Reader_Activation::EMAIL_VERIFIED, true ) ) {
+					$user = get_user_by( 'id', $user_id );
+					if ( ! $user || ! \get_user_meta( $user->ID, Reader_Activation::EMAIL_VERIFIED, true ) ) {
 						$is_restricted  = true;
 						$gate_layout_id = $gate['registration']['gate_layout_id'] ?? $gate['id'];
 					}
@@ -211,15 +260,15 @@ class Content_Restriction_Control {
 			// If custom_access mode is active.
 			if ( ! $is_restricted && ! empty( $gate['custom_access']['active'] ) ) {
 				$access_rules = $gate['custom_access']['access_rules'] ?? [];
-				if ( ! empty( $access_rules ) && ! Access_Rules::evaluate_rules( $access_rules ) ) {
+				if ( ! empty( $access_rules ) && ! Access_Rules::evaluate_rules( $access_rules, $user_id ) ) {
 					$is_restricted  = true;
 					$gate_layout_id = $gate['custom_access']['gate_layout_id'] ?? $gate['id'];
 				}
 			}
 
 			if ( $is_restricted && $gate_layout_id ) {
-				self::$post_gate_id_map[ $post_id ] = $gate['id'];
-				self::$post_gate_layout_id_map[ $post_id ] = $gate_layout_id;
+				self::$post_gate_id_map[ $post_id . '_' . self::$user_id ] = $gate['id'];
+				self::$post_gate_layout_id_map[ $post_id . '_' . self::$user_id ] = $gate_layout_id;
 				return true;
 			}
 		}
@@ -243,8 +292,8 @@ class Content_Restriction_Control {
 		if ( ! $post_id ) {
 			return false;
 		}
-		if ( ! empty( self::$post_gate_id_map[ $post_id ] ) ) {
-			return self::$post_gate_id_map[ $post_id ];
+		if ( ! empty( self::$post_gate_id_map[ $post_id . '_' . self::$user_id ] ) ) {
+			return self::$post_gate_id_map[ $post_id . '_' . self::$user_id ];
 		}
 		return false;
 	}
@@ -266,10 +315,33 @@ class Content_Restriction_Control {
 		if ( ! $post_id ) {
 			return false;
 		}
-		if ( ! empty( self::$post_gate_layout_id_map[ $post_id ] ) ) {
-			return self::$post_gate_layout_id_map[ $post_id ];
+		if ( ! empty( self::$post_gate_layout_id_map[ $post_id . '_' . self::$user_id ] ) ) {
+			return self::$post_gate_layout_id_map[ $post_id . '_' . self::$user_id ];
 		}
 		return false;
+	}
+
+	/**
+	 * Register post meta for the exemption flag.
+	 */
+	public static function register_meta() {
+		$post_types = array_column( (array) self::get_available_post_types(), 'value' );
+		foreach ( $post_types as $post_type ) {
+			\register_meta(
+				'post',
+				self::IS_EXEMPT_META_KEY,
+				[
+					'object_subtype' => $post_type,
+					'show_in_rest'   => true,
+					'type'           => 'boolean',
+					'default'        => false,
+					'single'         => true,
+					'auth_callback'  => function() {
+						return current_user_can( 'edit_others_posts' );
+					},
+				]
+			);
+		}
 	}
 }
 Content_Restriction_Control::init();

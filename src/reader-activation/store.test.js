@@ -9,6 +9,7 @@ describe( 'Store', () => {
 		const store = Store();
 		expect( typeof store ).toBe( 'object' );
 		expect( typeof store.get ).toBe( 'function' );
+		expect( typeof store.getAll ).toBe( 'function' );
 		expect( typeof store.set ).toBe( 'function' );
 		expect( typeof store.add ).toBe( 'function' );
 		expect( typeof store.delete ).toBe( 'function' );
@@ -94,5 +95,92 @@ describe( 'Store', () => {
 		};
 		const store = Store();
 		expect( store.get( 'foo' ) ).toEqual( 'bar' );
+	} );
+	describe( 'getAll', () => {
+		beforeEach( () => {
+			window.newspack_reader_data = {};
+		} );
+		it( 'should return all store data as a plain object', () => {
+			const store = Store();
+			store.set( 'name', 'Leo' );
+			store.set( 'prefs', { theme: 'dark' } );
+			store.set( 'scores', [ 1, 2, 3 ] );
+			const all = store.getAll();
+			expect( all ).toEqual( {
+				name: 'Leo',
+				prefs: { theme: 'dark' },
+				scores: [ 1, 2, 3 ],
+			} );
+		} );
+		it( 'should not include internal keys in getAll', () => {
+			const store = Store();
+			store.set( 'visible', 'yes' );
+			const all = store.getAll();
+			expect( all.visible ).toEqual( 'yes' );
+			expect( all ).not.toHaveProperty( 'unsynced' );
+			// Verify internal key exists in storage but isn't surfaced.
+			expect( localStorage.getItem( 'np_reader__unsynced' ) ).not.toBeNull();
+		} );
+		it( 'should return an empty object when store is empty', () => {
+			const store = Store();
+			expect( store.getAll() ).toEqual( {} );
+		} );
+		it( 'should include rehydrated server items in getAll', () => {
+			window.newspack_reader_data = {
+				items: {
+					is_donor: 'true',
+					active_memberships: '[1,2]',
+				},
+			};
+			const store = Store();
+			const all = store.getAll();
+			expect( all.is_donor ).toEqual( true );
+			expect( all.active_memberships ).toEqual( [ 1, 2 ] );
+		} );
+	} );
+	describe( 'Read-only keys', () => {
+		beforeEach( () => {
+			window.newspack_reader_data = {
+				read_only_keys: [ 'is_donor', 'active_memberships' ],
+			};
+		} );
+		it( 'should throw when setting a read-only key', () => {
+			const store = Store();
+			expect( () => store.set( 'is_donor', true ) ).toThrow( "Key 'is_donor' is read-only." );
+		} );
+		it( 'should throw when deleting a read-only key', () => {
+			const store = Store();
+			expect( () => store.delete( 'active_memberships' ) ).toThrow( "Key 'active_memberships' is read-only." );
+		} );
+		it( 'should throw when adding to a read-only key', () => {
+			const store = Store();
+			expect( () => store.add( 'is_donor', { foo: 'bar' } ) ).toThrow( "Key 'is_donor' is read-only." );
+		} );
+		it( 'should allow getting read-only keys populated via rehydration', () => {
+			window.newspack_reader_data = {
+				read_only_keys: [ 'is_donor' ],
+				items: {
+					is_donor: true,
+				},
+			};
+			const store = Store();
+			expect( store.get( 'is_donor' ) ).toEqual( true );
+		} );
+		it( 'should not affect non-read-only keys', () => {
+			const store = Store();
+			store.set( 'custom_key', 'value' );
+			expect( store.get( 'custom_key' ) ).toEqual( 'value' );
+			store.delete( 'custom_key' );
+			expect( store.get( 'custom_key' ) ).toBeNull();
+		} );
+		it( 'should prune read-only keys from the unsynced queue on init', () => {
+			// Simulate a pre-upgrade state where a read-only key was queued for sync.
+			localStorage.setItem( 'np_reader__unsynced', JSON.stringify( [ 'is_donor', 'custom_key' ] ) );
+			localStorage.setItem( 'np_reader_is_donor', true );
+			localStorage.setItem( 'np_reader_custom_key', '"value"' );
+			Store();
+			const unsynced = JSON.parse( localStorage.getItem( 'np_reader__unsynced' ) );
+			expect( unsynced ).toEqual( [ 'custom_key' ] );
+		} );
 	} );
 } );

@@ -26,9 +26,8 @@ class Newspack_UI {
 	 * Initialize hooks.
 	 */
 	public static function init() {
-		\add_action( 'wp_enqueue_scripts', [ __CLASS__, 'enqueue_assets' ] );
 		\add_action( 'admin_enqueue_scripts', [ __CLASS__, 'enqueue_assets' ] );
-		\add_action( 'enqueue_block_editor_assets', [ __CLASS__, 'enqueue_assets' ] );
+		\add_action( 'enqueue_block_assets', [ __CLASS__, 'enqueue_assets' ] );
 		\add_filter( 'the_content', [ __CLASS__, 'load_demo' ] );
 		\add_action( 'admin_enqueue_scripts', [ __CLASS__, 'theme_colors_css' ] );
 		// Only run if the site is using a block theme.
@@ -775,7 +774,7 @@ class Newspack_UI {
 					</ul>
 				</div>
 			</div>
-			<div class="newspack-ui__spacing-top--16"></div>
+			<div class="newspack-ui__spacing-top--3"></div>
 			<div class="newspack-ui__dropdown">
 				<button class="newspack-ui__button newspack-ui__button--outline newspack-ui__button--small newspack-ui__dropdown__toggle">
 					<span>Actions</span>
@@ -850,7 +849,7 @@ class Newspack_UI {
 				</div>
 			</div>
 
-			<div class="newspack-ui__segmented-control__form-control newspack-ui__spacing-top--32">
+			<div class="newspack-ui__segmented-control__form-control newspack-ui__spacing-top--6">
 				<label>Segmented Control (Form) <abbr class="newspack-ui__required" title="required">*</abbr></label>
 				<div class="newspack-ui__segmented-control__tabs">
 					<button class="newspack-ui__button newspack-ui__button--small selected">True</button>

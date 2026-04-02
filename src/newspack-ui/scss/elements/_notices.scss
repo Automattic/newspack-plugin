@@ -30,7 +30,7 @@
 				display: block;
 				fill: var(--newspack-ui-color-neutral-90);
 				flex: 0 0 24px;
-				margin-right: var(--newspack-ui-spacer-base);
+				margin-right: var(--newspack-ui-spacer-1);
 			}
 
 			// Backgrounds & Borders
@@ -126,11 +126,6 @@
 				&:has([class*="=__close"]) {
 					grid-template-columns: auto var(--newspack-ui-spacer-9) auto;
 				}
-				&[data-autohide="true"] {
-					.newspack-ui__snackbar__content::after {
-						opacity: 0;
-					}
-				}
 				&.active {
 					max-height: 200px;
 					opacity: 1;
@@ -139,7 +134,7 @@
 					&[data-autohide="true"] {
 						.newspack-ui__snackbar__content::after {
 							opacity: 1;
-							transition: transform 8000ms linear;
+							transition: background-color 125ms ease-out, transform 8000ms linear;
 							transform: translateX(-100%);
 						}
 					}
@@ -176,8 +171,8 @@
 					left: 0;
 					height: 3px;
 					position: absolute;
-					transform: background-color 125ms ease-out;
-					transition: none;
+					transform: none;
+					transition: background-color 125ms ease-out;
 					width: 100%;
 				}
 			}

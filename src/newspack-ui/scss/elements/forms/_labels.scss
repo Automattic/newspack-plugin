@@ -6,13 +6,13 @@
 		font-size: var(--newspack-ui-font-size-s);
 		font-weight: 600;
 		line-height: var(--newspack-ui-line-height-s);
-		margin: 0 0 var(--newspack-ui-spacer-base);
+		margin: 0 0 var(--newspack-ui-spacer-1);
 
 		// For labels containing radio, checkbox inputs:
 		&:has(input[type="checkbox"]),
 		&:has(input[type="radio"]) {
 			display: grid !important;
-			gap: 0 var(--newspack-ui-spacer-base);
+			gap: 0 var(--newspack-ui-spacer-1);
 			grid-template-columns: var(--newspack-ui-spacer-4) 1fr;
 
 			> *:not(input) {

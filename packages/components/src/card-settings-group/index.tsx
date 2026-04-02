@@ -1,5 +1,5 @@
 /**
- * Content Gates edit - settings group component.
+ * Card - Settings group component.
  */
 
 /**
@@ -9,7 +9,7 @@ import { Card } from '../';
 import './style.scss';
 
 const CardSettingsGroup = ( {
-	actionType = 'chevron',
+	actionType = 'none',
 	children,
 	icon = null,
 	title = '',

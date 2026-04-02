@@ -7,7 +7,9 @@
 
 namespace Newspack\Tests\Content_Gate;
 
+use Newspack\Reader_Activation;
 use Newspack\Access_Rules;
+use Newspack\Content_Rules;
 use Newspack\Content_Gate;
 use Newspack\Content_Restriction_Control;
 
@@ -153,6 +155,7 @@ class Test_Content_Gates extends \WP_UnitTestCase {
 		foreach ( $this->post_ids as $post_id ) {
 			wp_delete_post( $post_id, true );
 		}
+		$this->reset_restriction_cache();
 	}
 
 	/**
@@ -209,7 +212,7 @@ class Test_Content_Gates extends \WP_UnitTestCase {
 		$this->post_ids[] = $post3;
 
 		// Update content rules to match posts in category 1.
-		Content_Gate::update_post_content_rules(
+		Content_Rules::update_gate_content_rules(
 			$this->gate_ids[2],
 			[
 				[
@@ -231,7 +234,7 @@ class Test_Content_Gates extends \WP_UnitTestCase {
 		$this->assertCount( 0, $gates, 'No gate for the post with no categories' );
 
 		// Make the content rule an exclusion rule.
-		Content_Gate::update_post_content_rules(
+		Content_Rules::update_gate_content_rules(
 			$this->gate_ids[2],
 			[
 				[
@@ -502,7 +505,7 @@ class Test_Content_Gates extends \WP_UnitTestCase {
 		$result = Access_Rules::normalize_rules( [] );
 		$this->assertEmpty( $result, 'Empty rules should return empty array' );
 
-		// Flat rules should be wrapped in a single group.
+		// Flat rules should each become their own group (OR logic).
 		$flat_rules = [
 			[
 				'slug'  => 'subscription',
@@ -514,8 +517,9 @@ class Test_Content_Gates extends \WP_UnitTestCase {
 			],
 		];
 		$result = Access_Rules::normalize_rules( $flat_rules );
-		$this->assertCount( 1, $result, 'Flat rules should be wrapped in single group' );
-		$this->assertEquals( $flat_rules, $result[0], 'Group should contain original rules' );
+		$this->assertCount( 2, $result, 'Each flat rule should become its own group' );
+		$this->assertEquals( [ $flat_rules[0] ], $result[0], 'First group should contain first rule' );
+		$this->assertEquals( [ $flat_rules[1] ], $result[1], 'Second group should contain second rule' );
 
 		// Already grouped rules should remain unchanged.
 		$grouped_rules = [
@@ -570,9 +574,14 @@ class Test_Content_Gates extends \WP_UnitTestCase {
 			],
 		];
 		$result = Access_Rules::evaluate_rules( $flat_rules_pass );
-		$this->assertTrue( $result, 'Flat rules with passing email_domain should grant access' );
+		$this->assertFalse( $result, 'Flat rules with passing email_domain should deny access for unverified reader' );
 
-		// Test 2: Flat legacy rules with failing rule.
+		// Test 2: Flat legacy rules with passing rule for verified reader.
+		Reader_Activation::set_reader_verified( $user_id );
+		$result = Access_Rules::evaluate_rules( $flat_rules_pass );
+		$this->assertTrue( $result, 'Flat rules with passing email_domain should grant access for verified reader' );
+
+		// Test 3: Flat legacy rules with failing rule.
 		$flat_rules_fail = [
 			[
 				'slug'  => 'email_domain',
@@ -582,7 +591,7 @@ class Test_Content_Gates extends \WP_UnitTestCase {
 		$result = Access_Rules::evaluate_rules( $flat_rules_fail );
 		$this->assertFalse( $result, 'Flat rules with non-matching email_domain should deny access' );
 
-		// Test 3: Flat rules with mixed pass/fail (AND logic - should fail).
+		// Test 4: Flat rules with mixed pass/fail (OR logic - should pass).
 		$flat_rules_mixed = [
 			[
 				'slug'  => 'email_domain',
@@ -594,9 +603,9 @@ class Test_Content_Gates extends \WP_UnitTestCase {
 			],
 		];
 		$result = Access_Rules::evaluate_rules( $flat_rules_mixed );
-		$this->assertFalse( $result, 'Flat rules with mixed results should deny access (AND logic)' );
+		$this->assertTrue( $result, 'Flat rules with mixed results should grant access (OR logic)' );
 
-		// Test 4: Multiple groups - first group fails, second passes (OR logic - should pass).
+		// Test 5: Multiple groups - first group fails, second passes (OR logic - should pass).
 		$grouped_rules_or_pass = [
 			// Group 1: Fails (non-matching domain).
 			[
@@ -616,7 +625,7 @@ class Test_Content_Gates extends \WP_UnitTestCase {
 		$result = Access_Rules::evaluate_rules( $grouped_rules_or_pass );
 		$this->assertTrue( $result, 'Multiple groups with at least one passing should grant access (OR logic)' );
 
-		// Test 5: Multiple groups - all groups fail (OR logic - should fail).
+		// Test 6: Multiple groups - all groups fail (OR logic - should fail).
 		$grouped_rules_all_fail = [
 			[
 				[
@@ -634,7 +643,7 @@ class Test_Content_Gates extends \WP_UnitTestCase {
 		$result = Access_Rules::evaluate_rules( $grouped_rules_all_fail );
 		$this->assertFalse( $result, 'Multiple groups with all failing should deny access' );
 
-		// Test 6: Group with AND logic - both rules must pass.
+		// Test 7: Group with AND logic - both rules must pass.
 		$grouped_and_logic = [
 			[
 				[
@@ -745,6 +754,24 @@ class Test_Content_Gates extends \WP_UnitTestCase {
 	}
 
 	/**
+	 * Test that a post marked as exempt bypasses the content gate restriction.
+	 */
+	public function test_exempt_post_is_not_restricted() {
+		$post_id = $this->post_ids[0];
+
+		// Without the exemption flag, the post should be restricted by the published gate.
+		$is_restricted = apply_filters( 'newspack_is_post_restricted', false, $post_id );
+		$this->assertTrue( $is_restricted, 'Post matched by a published gate should be restricted' );
+
+		// Set the exemption meta key on the post.
+		update_post_meta( $post_id, Content_Restriction_Control::IS_EXEMPT_META_KEY, true );
+
+		// With the exemption flag set, the post should not be restricted even though it matches a gate.
+		$is_restricted = apply_filters( 'newspack_is_post_restricted', false, $post_id );
+		$this->assertFalse( $is_restricted, 'Post with exemption flag should not be restricted' );
+	}
+
+	/**
 	 * Test that custom_access settings return grouped access_rules format.
 	 */
 	public function test_custom_access_returns_grouped_rules() {
@@ -779,6 +806,114 @@ class Test_Content_Gates extends \WP_UnitTestCase {
 		$this->assertIsArray( $settings['access_rules'][0], 'First element should be an array (group)' );
 		$this->assertCount( 1, $settings['access_rules'][0], 'Group should have one rule' );
 		$this->assertEquals( 'email_domain', $settings['access_rules'][0][0]['slug'], 'Rule slug should be preserved' );
+	}
+
+	/**
+	 * Helper to set a private static property on Content_Gate via reflection.
+	 *
+	 * @param string $property Property name.
+	 * @param mixed  $value    Value to set.
+	 */
+	private function set_content_gate_property( $property, $value ) {
+		$reflection = new \ReflectionProperty( Content_Gate::class, $property );
+		$reflection->setAccessible( true );
+		$reflection->setValue( null, $value );
+	}
+
+	/**
+	 * Reset the static per-post restriction cache on Content_Restriction_Control.
+	 * This cache is populated by is_post_restricted() and must be cleared between
+	 * tests to prevent cross-test contamination.
+	 */
+	private function reset_restriction_cache() {
+		foreach ( [ 'post_gate_id_map', 'post_gate_layout_id_map' ] as $prop ) {
+			$reflection = new \ReflectionProperty( Content_Restriction_Control::class, $prop );
+			$reflection->setAccessible( true );
+			$reflection->setValue( null, [] );
+		}
+	}
+
+	/**
+	 * Test comment filters on fully gated posts.
+	 */
+	public function test_comments_closed_on_gated_post() {
+		$post_id = $this->post_ids[0];
+
+		$this->set_content_gate_property( 'is_gated', true );
+		$this->set_content_gate_property( 'is_metered', false );
+
+		// Simulate queried object.
+		$this->go_to( get_permalink( $post_id ) );
+
+		$this->assertFalse( Content_Gate::filter_comments_open( true, $post_id ), 'Comments should be closed on gated post' );
+		$this->assertEmpty( Content_Gate::filter_comments_array( [ 'comment1', 'comment2' ], $post_id ), 'Comments array should be empty on gated post' );
+		$this->assertSame( 0, Content_Gate::filter_comments_number( 5, $post_id ), 'Comment count should be 0 on gated post' );
+
+		// Reset.
+		$this->set_content_gate_property( 'is_gated', false );
+	}
+
+	/**
+	 * Test comment filters on metered posts.
+	 */
+	public function test_comments_closed_but_visible_on_metered_post() {
+		$post_id = $this->post_ids[0];
+
+		$this->set_content_gate_property( 'is_gated', false );
+		$this->set_content_gate_property( 'is_metered', true );
+
+		// Simulate queried object.
+		$this->go_to( get_permalink( $post_id ) );
+
+		$this->assertFalse( Content_Gate::filter_comments_open( true, $post_id ), 'Comments should be closed on metered post' );
+
+		$comments = [ 'comment1', 'comment2' ];
+		$this->assertSame( $comments, Content_Gate::filter_comments_array( $comments, $post_id ), 'Existing comments should remain visible on metered post' );
+		$this->assertSame( 5, Content_Gate::filter_comments_number( 5, $post_id ), 'Comment count should be unchanged on metered post' );
+
+		// Reset.
+		$this->set_content_gate_property( 'is_metered', false );
+	}
+
+	/**
+	 * Test comment filters do not affect unrelated posts.
+	 */
+	public function test_comments_unaffected_on_other_posts() {
+		$post_id = $this->post_ids[0];
+		$other_post_id = $this->factory->post->create();
+		$this->post_ids[] = $other_post_id;
+
+		$this->set_content_gate_property( 'is_gated', true );
+		$this->set_content_gate_property( 'is_metered', false );
+
+		// Simulate queried object as the gated post.
+		$this->go_to( get_permalink( $post_id ) );
+
+		// Filters should not affect the other post.
+		$this->assertTrue( Content_Gate::filter_comments_open( true, $other_post_id ), 'Comments should remain open on non-gated post' );
+		$comments = [ 'comment1' ];
+		$this->assertSame( $comments, Content_Gate::filter_comments_array( $comments, $other_post_id ), 'Comments array should be unchanged on non-gated post' );
+		$this->assertSame( 3, Content_Gate::filter_comments_number( 3, $other_post_id ), 'Comment count should be unchanged on non-gated post' );
+
+		// Reset.
+		$this->set_content_gate_property( 'is_gated', false );
+	}
+
+	/**
+	 * Test comment filters pass through on unrestricted posts.
+	 */
+	public function test_comments_unaffected_on_unrestricted_post() {
+		$post_id = $this->post_ids[0];
+
+		$this->set_content_gate_property( 'is_gated', false );
+		$this->set_content_gate_property( 'is_metered', false );
+
+		$this->go_to( get_permalink( $post_id ) );
+
+		$this->assertTrue( Content_Gate::filter_comments_open( true, $post_id ), 'Comments should remain open on unrestricted post' );
+		$comments = [ 'comment1', 'comment2' ];
+		$this->assertSame( $comments, Content_Gate::filter_comments_array( $comments, $post_id ), 'Comments array should be unchanged on unrestricted post' );
+		$this->assertSame( 5, Content_Gate::filter_comments_number( 5, $post_id ), 'Comment count should be unchanged on unrestricted post' );
 	}
 
 	/**
@@ -818,5 +953,202 @@ class Test_Content_Gates extends \WP_UnitTestCase {
 		$settings = Content_Gate::get_custom_access_settings( $gate_id );
 		$this->assertCount( 2, $settings['access_rules'], 'Should have two groups' );
 		$this->assertEquals( $grouped_rules, $settings['access_rules'], 'Grouped rules should be preserved' );
+	}
+
+	// =========================================================================
+	// Newsletter content rule (added in feat/access-control-premium-newsletters)
+	// =========================================================================
+
+	/**
+	 * A gate with a `newsletters` content rule must NOT apply to a post whose
+	 * ID is not in the rule's value array.
+	 */
+	public function test_newsletter_content_rule_does_not_match_other_posts() {
+		$list_post_id     = $this->factory->post->create();
+		$other_post_id    = $this->factory->post->create();
+		$this->post_ids[] = $list_post_id;
+		$this->post_ids[] = $other_post_id;
+
+		Content_Rules::update_gate_content_rules(
+			$this->gate_ids[2], // Published gate from set_up().
+			[
+				[
+					'slug'  => 'newsletters',
+					'value' => [ $list_post_id ],
+				],
+			]
+		);
+
+		// $other_post_id is NOT in the newsletters rule value.
+		$gates = Content_Restriction_Control::get_post_gates( $other_post_id );
+		$this->assertEmpty( $gates, 'Newsletter content rule must not match posts not in its value array.' );
+	}
+
+	/**
+	 * A gate with a `newsletters` content rule MUST apply to a post whose
+	 * ID is in the rule's value array.
+	 */
+	public function test_newsletter_content_rule_matches_listed_post() {
+		$list_post_id     = $this->factory->post->create();
+		$this->post_ids[] = $list_post_id;
+
+		Content_Rules::update_gate_content_rules(
+			$this->gate_ids[2], // Published gate from set_up().
+			[
+				[
+					'slug'  => 'newsletters',
+					'value' => [ $list_post_id ],
+				],
+			]
+		);
+
+		$gates = Content_Restriction_Control::get_post_gates( $list_post_id );
+		$this->assertCount( 1, $gates, 'Newsletter content rule must match a post whose ID is in the value array.' );
+		$this->assertEquals( $this->gate_ids[2], $gates[0]['id'] );
+	}
+
+	// =========================================================================
+	// newspack_content_restriction_control_user_id filter
+	// =========================================================================
+
+	/**
+	 * Applying the `newspack_content_restriction_control_user_id` filter with a
+	 * specific user ID must evaluate restrictions for that user instead of the
+	 * currently logged-in user.
+	 *
+	 * Set-up: a published gate with a subscription access rule. The "override"
+	 * user has an active subscription (meta-mocked via the subscription database);
+	 * no other user is logged in. Without the filter the post is restricted;
+	 * with the filter pointing at the subscribed user it is not.
+	 */
+	public function test_user_id_filter_overrides_current_user_for_restriction_check() {
+		require_once dirname( __DIR__, 2 ) . '/mocks/wc-mocks.php';
+
+		global $subscriptions_database;
+		$subscriptions_database = [];
+
+		$product_id = 50;
+		$user_id    = $this->factory->user->create( [ 'role' => 'subscriber' ] );
+
+		// Give $user_id an active subscription to $product_id.
+		wcs_create_subscription(
+			[
+				'id'          => 200,
+				'customer_id' => $user_id,
+				'status'      => 'active',
+				'products'    => [ $product_id ],
+				'dates'       => [ 'start' => gmdate( 'Y-m-d H:i:s' ) ],
+			]
+		);
+
+		// The restriction cache is only populated when gate_layout_id is non-empty
+		// (Content_Restriction_Control::is_post_restricted only records the restriction
+		// when $gate_layout_id is truthy). Preserve the layout ID created during
+		// set_up so the restriction path runs to completion.
+		$gate           = Content_Gate::get_gate( $this->gate_ids[2] );
+		$gate_layout_id = $gate['custom_access']['gate_layout_id'];
+
+		// Configure the published gate for subscription-based access.
+		update_post_meta(
+			$this->gate_ids[2],
+			'custom_access',
+			[
+				'active'         => true,
+				'access_rules'   => [
+					[
+						[
+							'slug'  => 'subscription',
+							'value' => [ $product_id ],
+						],
+					],
+				],
+				'gate_layout_id' => $gate_layout_id,
+			]
+		);
+
+		// Assertion 1: without any filter, no user is logged in → restricted.
+		$post_id = $this->post_ids[0];
+		$this->assertTrue(
+			Content_Restriction_Control::is_post_restricted( false, $post_id ),
+			'Post should be restricted when no user is logged in.'
+		);
+
+		// Assertion 2: filter pointing at $user_id (who has the subscription) → not restricted.
+		$this->reset_restriction_cache();
+		add_filter(
+			'newspack_content_restriction_control_user_id',
+			function() use ( $user_id ) {
+				return $user_id;
+			}
+		);
+
+		$this->assertFalse(
+			Content_Restriction_Control::is_post_restricted( false, $post_id ),
+			'Post should not be restricted for a user with an active subscription.'
+		);
+
+		// Assertion 3: filter pointing at $other_user (no subscription) → restricted.
+		$other_user = $this->factory->user->create( [ 'role' => 'subscriber' ] );
+		$this->reset_restriction_cache();
+		remove_all_filters( 'newspack_content_restriction_control_user_id' );
+		add_filter(
+			'newspack_content_restriction_control_user_id',
+			function() use ( $other_user ) {
+				return $other_user;
+			}
+		);
+
+		$this->assertTrue(
+			Content_Restriction_Control::is_post_restricted( false, $post_id ),
+			'Post should be restricted for a user without a subscription.'
+		);
+
+		// Clean up.
+		remove_all_filters( 'newspack_content_restriction_control_user_id' );
+		$subscriptions_database = [];
+	}
+
+	/**
+	 * The check for user_can( $user_id, 'edit_post', $post_id ) must bypass restrictions
+	 * for any user who has the capability, even when that user is not currently
+	 * logged in as the session user.
+	 */
+	public function test_user_with_edit_capability_is_not_restricted_via_filter() {
+		$editor_id      = $this->factory->user->create( [ 'role' => 'editor' ] );
+		$post_id        = $this->post_ids[0];
+		$gate           = Content_Gate::get_gate( $this->gate_ids[2] );
+		$gate_layout_id = $gate['custom_access']['gate_layout_id'];
+
+		update_post_meta(
+			$this->gate_ids[2],
+			'custom_access',
+			[
+				'active'         => true,
+				'access_rules'   => [
+					[
+						[
+							'slug'  => 'subscription',
+							'value' => [ 999 ],
+						],
+					],
+				],
+				'gate_layout_id' => $gate_layout_id,
+			]
+		);
+
+		// Set the filter to return the editor user ID.
+		add_filter(
+			'newspack_content_restriction_control_user_id',
+			function() use ( $editor_id ) {
+				return $editor_id;
+			}
+		);
+
+		$this->assertFalse(
+			Content_Restriction_Control::is_post_restricted( false, $post_id ),
+			'An editor (who can edit_post) must never be restricted, even when evaluated via filter.'
+		);
+
+		remove_all_filters( 'newspack_content_restriction_control_user_id' );
 	}
 }

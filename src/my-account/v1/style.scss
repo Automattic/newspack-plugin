@@ -10,9 +10,12 @@
 @use "forms";
 @use "addresses";
 @use "subscriptions";
+@use "group-subscriptions";
 
 .newspack-my-account {
 	&--logged-in {
+		background-color: var(--newspack-ui-color-body-bg);
+
 		.site-content {
 			margin-top: 0;
 		}

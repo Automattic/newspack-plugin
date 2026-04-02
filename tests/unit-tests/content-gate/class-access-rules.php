@@ -211,6 +211,78 @@ class Newspack_Test_Access_Rules extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Test evaluate_rules passes user_id to rule callbacks.
+	 */
+	public function test_evaluate_rules_with_explicit_user_id() {
+		// Register a simple test rule that checks user meta.
+		Access_Rules::register_rule(
+			[
+				'id'       => 'test_meta_rule',
+				'name'     => 'Test meta rule',
+				'callback' => function( $user_id, $args ) {
+					return (bool) get_user_meta( $user_id, $args, true );
+				},
+			]
+		);
+
+		// Set meta on member but not on non-member.
+		update_user_meta( self::$member_user_id, 'test_gate_pass', '1' );
+
+		$rules = [
+			[
+				[
+					'slug'  => 'test_meta_rule',
+					'value' => 'test_gate_pass',
+				],
+			],
+		];
+
+		// Member should pass.
+		$this->assertTrue(
+			Access_Rules::evaluate_rules( $rules, self::$member_user_id ),
+			'User with matching meta should pass evaluate_rules.'
+		);
+
+		// Non-member should fail.
+		$this->assertFalse(
+			Access_Rules::evaluate_rules( $rules, self::$non_member_user_id ),
+			'User without matching meta should fail evaluate_rules.'
+		);
+	}
+
+	/**
+	 * Test evaluate_rules defaults to current user when no user_id is passed.
+	 */
+	public function test_evaluate_rules_defaults_to_current_user() {
+		Access_Rules::register_rule(
+			[
+				'id'       => 'test_current_user_rule',
+				'name'     => 'Test current user rule',
+				'callback' => function( $user_id, $args ) {
+					return $user_id === (int) $args;
+				},
+			]
+		);
+
+		wp_set_current_user( self::$member_user_id );
+
+		$rules = [
+			[
+				[
+					'slug'  => 'test_current_user_rule',
+					'value' => (string) self::$member_user_id,
+				],
+			],
+		];
+
+		// Should pass using current user (no user_id argument).
+		$this->assertTrue(
+			Access_Rules::evaluate_rules( $rules ),
+			'evaluate_rules should default to current user when no user_id is passed.'
+		);
+	}
+
+	/**
 	 * Test pending-cancel status still grants access.
 	 */
 	public function test_pending_cancel_status_grants_access() {
@@ -221,5 +293,69 @@ class Newspack_Test_Access_Rules extends WP_UnitTestCase {
 		$has_access = Access_Rules::has_active_subscription( self::$member_user_id, [ self::$product_id ] );
 
 		$this->assertTrue( $has_access, 'Group member should have access with pending-cancel subscription.' );
+	}
+
+	// =========================================================================
+	// evaluate_rules() with explicit $user_id — via built-in subscription rule
+	// =========================================================================
+
+	/**
+	 * Test that evaluate_rules() routes to the correct user when an explicit
+	 * $user_id is passed, using the built-in subscription rule type.
+	 * (Complements the custom-callback variant in test_evaluate_rules_with_explicit_user_id.)
+	 */
+	public function test_evaluate_rules_respects_explicit_user_id() {
+		$this->create_subscription();
+
+		$access_rules = [
+			[
+				[
+					'slug'  => 'subscription',
+					'value' => [ self::$product_id ],
+				],
+			],
+		];
+
+		$this->assertTrue(
+			Access_Rules::evaluate_rules( $access_rules, self::$owner_user_id ),
+			'evaluate_rules should return true for the subscription owner when called with their user ID.'
+		);
+
+		$this->assertFalse(
+			Access_Rules::evaluate_rules( $access_rules, self::$non_member_user_id ),
+			'evaluate_rules should return false for a non-member when called with their user ID.'
+		);
+	}
+
+	/**
+	 * Test that evaluate_rules() falls back to the current user when $user_id
+	 * is null, using the built-in subscription rule type.
+	 * (Complements the custom-callback variant in test_evaluate_rules_defaults_to_current_user.)
+	 */
+	public function test_evaluate_rules_defaults_to_current_user_when_user_id_is_null() {
+		$this->create_subscription();
+
+		$access_rules = [
+			[
+				[
+					'slug'  => 'subscription',
+					'value' => [ self::$product_id ],
+				],
+			],
+		];
+
+		wp_set_current_user( self::$owner_user_id );
+		$this->assertTrue(
+			Access_Rules::evaluate_rules( $access_rules, null ),
+			'evaluate_rules should return true for the subscription owner when they are the current user.'
+		);
+
+		wp_set_current_user( self::$non_member_user_id );
+		$this->assertFalse(
+			Access_Rules::evaluate_rules( $access_rules, null ),
+			'evaluate_rules should return false for a non-member when they are the current user.'
+		);
+
+		wp_set_current_user( 0 );
 	}
 }

@@ -26,6 +26,14 @@ class Failing_Sample_Integration extends Integration {
 	public static $push_count = 0;
 
 	/**
+	 * Register settings fields (test implementation).
+	 */
+	public function register_settings_fields() {
+		// No settings fields for this test implementation.
+		return [];
+	}
+
+	/**
 	 * Push contact data (test implementation).
 	 *
 	 * @param array      $contact The contact data.
@@ -42,6 +50,16 @@ class Failing_Sample_Integration extends Integration {
 	}
 
 	/**
+	 * Pull contact data (test implementation).
+	 *
+	 * @param int $user_id WordPress user ID.
+	 * @return array
+	 */
+	public function pull_contact_data( $user_id ) {
+		return [];
+	}
+
+	/**
 	 * Whether contacts can be synced.
 	 *
 	 * @param bool $return_errors Whether to return WP_Error.
@@ -49,6 +67,15 @@ class Failing_Sample_Integration extends Integration {
 	 */
 	public function can_sync( $return_errors = false ) {
 		return $return_errors ? new \WP_Error() : true;
+	}
+
+	/**
+	 * Get incoming available contact fields (test implementation).
+	 *
+	 * @return array
+	 */
+	public function get_available_incoming_fields() {
+		return [];
 	}
 
 	/**

@@ -180,6 +180,8 @@ class My_Account_UI_V1 {
 				return __DIR__ . '/templates/v1/related-orders.php';
 			case 'myaccount/related-subscriptions.php':
 				return __DIR__ . '/templates/v1/related-subscriptions.php';
+			case 'myaccount/group-subscription-members.php':
+				return __DIR__ . '/templates/v1/group-subscription-members.php';
 			case 'order/order-again.php':
 				return __DIR__ . '/templates/v1/order-again.php';
 			case 'notices/error.php':
@@ -238,6 +240,19 @@ class My_Account_UI_V1 {
 	}
 
 	/**
+	 * Check if the current page is a subscription page.
+	 *
+	 * @param string $endpoint The current My Account page endpoint.
+	 * @return bool Whether the current page is a subscription page.
+	 */
+	public static function is_subscription_page( $endpoint ) {
+		if ( 'subscriptions' !== $endpoint ) {
+			return false;
+		}
+		return function_exists( 'is_wc_endpoint_url' ) && ( is_wc_endpoint_url( 'view-subscription' ) || is_wc_endpoint_url( 'manage-members' ) );
+	}
+
+	/**
 	 * Remove required fields from the account settings form.
 	 *
 	 * @param array $required_fields The required fields.
@@ -265,9 +280,15 @@ class My_Account_UI_V1 {
 			return self::delete_account_confirmation_modal();
 		}
 
-		$active_subscriptions     = json_decode( Reader_Data::get_data( $user->ID, 'active_subscriptions' ) );
+		$active_subscriptions = Reader_Data::get_data( $user->ID, 'active_subscriptions' );
+		if ( is_string( $active_subscriptions ) ) {
+			$active_subscriptions = json_decode( $active_subscriptions );
+		}
 		$active_donations         = boolval( Reader_Data::get_data( $user->ID, 'is_donor' ) );
-		$newsletter_subscriptions = json_decode( Reader_Data::get_data( $user->ID, 'newsletter_subscribed_lists' ) );
+		$newsletter_subscriptions = Reader_Data::get_data( $user->ID, 'newsletter_subscribed_lists' );
+		if ( is_string( $newsletter_subscriptions ) ) {
+			$newsletter_subscriptions = json_decode( $newsletter_subscriptions );
+		}
 
 		ob_start();
 		?>
@@ -460,13 +481,15 @@ class My_Account_UI_V1 {
 	public static function add_after_delete_account_notice() {
 		$account_deleted = filter_input( INPUT_GET, WooCommerce_My_Account::AFTER_ACCOUNT_DELETION_PARAM, FILTER_VALIDATE_BOOLEAN );
 		if ( $account_deleted ) {
-			?>
-			<div class="newspack-ui">
-				<div class="newspack-ui__snackbar newspack-ui__snackbar--top-right newspack-ui__snackbar--success active-on-load">
-					<?php esc_html_e( 'Your account has been successfully deleted.', 'newspack-plugin' ); ?>
-				</div>
-			</div>
-			<?php
+			Newspack_UI::add_notice(
+				__( 'Your account has been deleted.', 'newspack-plugin' ),
+				[
+					'id'       => 'after-delete-account',
+					'type'     => 'success',
+					'corner'   => 'top-right',
+					'autohide' => true,
+				]
+			);
 		}
 	}
 

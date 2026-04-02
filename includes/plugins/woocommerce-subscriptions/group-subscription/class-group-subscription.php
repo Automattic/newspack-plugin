@@ -38,9 +38,7 @@ class Group_Subscription {
 	 * @return int[] The group manager user IDs.
 	 */
 	public static function get_managers( $subscription ) {
-		if ( ! is_a( $subscription, 'WC_Subscription' ) ) {
-			$subscription = \wcs_get_subscription( $subscription );
-		}
+		$subscription = WooCommerce_Subscriptions::sanitize_subscription( $subscription );
 
 		/**
 		 * Filter the managers of a group subscription.
@@ -60,9 +58,7 @@ class Group_Subscription {
 	 * @return int[] Array of user IDs for the group subscription members.
 	 */
 	public static function get_members( $subscription ) {
-		if ( ! is_a( $subscription, 'WC_Subscription' ) ) {
-			$subscription = \wcs_get_subscription( $subscription );
-		}
+		$subscription = WooCommerce_Subscriptions::sanitize_subscription( $subscription );
 		if ( ! $subscription ) {
 			return [];
 		}
@@ -103,12 +99,7 @@ class Group_Subscription {
 	 * @return array|\WP_Error Added/removed results.
 	 */
 	public static function update_members( $subscription, $members_to_add, $members_to_remove = [] ) {
-		if ( ! function_exists( 'wcs_get_subscription' ) ) {
-			return new \WP_Error( 'newspack_group_subscription_update_members', __( 'WooCommerce Subscriptions is not available.', 'newspack-plugin' ) );
-		}
-		if ( ! is_a( $subscription, 'WC_Subscription' ) ) {
-			$subscription = \wcs_get_subscription( $subscription );
-		}
+		$subscription = WooCommerce_Subscriptions::sanitize_subscription( $subscription );
 		if ( ! $subscription ) {
 			return new \WP_Error( 'newspack_group_subscription_update_members', __( 'Subscription not found.', 'newspack-plugin' ) );
 		}
@@ -166,33 +157,53 @@ class Group_Subscription {
 	}
 
 	/**
-	 * Check if a user is a member or manager of a group subscription.
+	 * Check if a user is a member (not manager) of a group subscription.
 	 *
 	 * @param int                  $user_id The user ID.
 	 * @param \WC_Subscription|int $subscription The subscription object or ID.
 	 *
-	 * @return bool|null Whether the user has access to the group subscription, or null if not a group subscription.
+	 * @return bool|null Whether the user is a member of the group subscription, or null if not a group subscription.
 	 */
 	public static function user_is_member( $user_id, $subscription ) {
+		$subscription = WooCommerce_Subscriptions::sanitize_subscription( $subscription );
 		if ( ! self::is_group_subscription( $subscription ) ) {
 			return null;
 		}
-		if ( ! is_a( $subscription, 'WC_Subscription' ) ) {
-			$subscription = \wcs_get_subscription( $subscription );
-		}
-		if ( ! $subscription ) {
-			return null;
-		}
-		$is_member = in_array( $subscription->get_id(), self::get_group_subscriptions_for_user( $user_id, true ), true ) || in_array( $user_id, self::get_managers( $subscription ), true );
+		$is_member = in_array( $subscription->get_id(), self::get_group_subscriptions_for_user( $user_id, true ), true );
 
 		/**
-		 * Filter whether a user is a member or manager of a group subscription.
+		 * Filter whether a user is a member (not manager) of a group subscription.
 		 *
-		 * @param bool|null $is_member Whether the user is a member or manager of the group subscription, or null if not a group subscription.
+		 * @param bool $is_member Whether the user is a member of the group subscription.
 		 * @param int $user_id The user ID.
 		 * @param \WC_Subscription|int $subscription The subscription object or ID.
 		 */
 		return apply_filters( 'newspack_group_subscription_user_is_member', $is_member, $user_id, $subscription );
+	}
+
+	/**
+	 * Check if a user is a manager of a group subscription.
+	 *
+	 * @param int                  $user_id The user ID.
+	 * @param \WC_Subscription|int $subscription The subscription object or ID.
+	 *
+	 * @return bool|null Whether the user is a manager of the group subscription, or null if not a group subscription.
+	 */
+	public static function user_is_manager( $user_id, $subscription ) {
+		$subscription = WooCommerce_Subscriptions::sanitize_subscription( $subscription );
+		if ( ! self::is_group_subscription( $subscription ) ) {
+			return null;
+		}
+		$is_manager = in_array( $user_id, self::get_managers( $subscription ), true );
+
+		/**
+		 * Filter whether a user is a manager of a group subscription.
+		 *
+		 * @param bool $is_manager Whether the user is a manager of the group subscription.
+		 * @param int $user_id The user ID.
+		 * @param \WC_Subscription|int $subscription The subscription object or ID.
+		 */
+		return apply_filters( 'newspack_group_subscription_user_is_manager', $is_manager, $user_id, $subscription );
 	}
 
 	/**
