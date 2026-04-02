@@ -75,6 +75,7 @@ final class Overlay_Menu_Panel_Block {
 			'data-direction'     => $direction,
 			'data-overlay-color' => $overlay_color,
 			'aria-hidden'        => 'true',
+			'inert'              => 'true',
 			'role'               => 'dialog',
 			'aria-modal'         => 'true',
 			'aria-label'         => __( 'Menu', 'newspack-plugin' ),
