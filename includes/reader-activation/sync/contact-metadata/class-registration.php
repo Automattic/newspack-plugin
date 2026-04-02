@@ -7,6 +7,7 @@
 
 namespace Newspack\Reader_Activation\Sync\Contact_Metadata;
 
+use Newspack\Reader_Activation;
 use Newspack\Reader_Activation\Sync\Contact_Metadata;
 
 defined( 'ABSPATH' ) || exit;
@@ -56,6 +57,37 @@ class Registration extends Contact_Metadata {
 	 * @return array
 	 */
 	public function get_metadata() {
-		return [];
+		if ( ! $this->user ) {
+			return [];
+		}
+
+		return [
+			'Registration_Date'         => $this->format_date( $this->user->user_registered ),
+			'Registration_Page'         => (string) \get_user_meta( $this->user->ID, Reader_Activation::REGISTRATION_PAGE, true ),
+			'Registration_Strategy'     => (string) \get_user_meta( $this->user->ID, Reader_Activation::REGISTRATION_METHOD, true ),
+			'Registration_UTM_Source'   => $this->get_registration_utm( 'utm_source' ),
+			'Registration_UTM_Medium'   => $this->get_registration_utm( 'utm_medium' ),
+			'Registration_UTM_Campaign' => $this->get_registration_utm( 'utm_campaign' ),
+		];
+	}
+
+	/**
+	 * Extract a UTM parameter from the registration page URL.
+	 *
+	 * @param string $param UTM parameter name (e.g. 'utm_source').
+	 * @return string UTM value or empty string.
+	 */
+	private function get_registration_utm( $param ) {
+		$page = \get_user_meta( $this->user->ID, Reader_Activation::REGISTRATION_PAGE, true );
+		if ( empty( $page ) ) {
+			return '';
+		}
+		$parsed = \wp_parse_url( $page );
+		if ( empty( $parsed['query'] ) ) {
+			return '';
+		}
+		$params = [];
+		\wp_parse_str( $parsed['query'], $params );
+		return isset( $params[ $param ] ) ? \sanitize_text_field( $params[ $param ] ) : '';
 	}
 }
