@@ -147,6 +147,9 @@
 }
 
 // Lock document scrolling while any overlay menu instance is open.
-body:is( [class*=" menu-open--overlay-menu-"] ) {
+body:is(
+	[class^="menu-open--overlay-menu-"],
+	[class*=" menu-open--overlay-menu-"]
+) {
 	overflow: hidden !important; // !important to temporarily override style from block theme's overlay approach.
 }
