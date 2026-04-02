@@ -85,8 +85,9 @@ const createFlyoutInstance = wrapper => {
 		const el = overlay;
 		overlay = null;
 		el.style.opacity = '0';
-		// Remove from DOM once the CSS opacity transition finishes.
-		el.addEventListener( 'transitionend', () => el.remove(), { once: true } );
+		const cleanup = () => el.remove();
+		el.addEventListener( 'transitionend', cleanup, { once: true } );
+		setTimeout( cleanup, 600 ); // Fallback if transition is skipped.
 	};
 
 	// Slide animation
