@@ -97,23 +97,6 @@ class Test_Engagement_Metadata extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test articles read count.
-	 */
-	public function test_articles_read() {
-		$this->set_reader_data( 'articles_read', 5 );
-		$metadata = ( new Engagement( self::$user_id ) )->get_metadata();
-		$this->assertSame( 5, $metadata['Articles_Read'] );
-	}
-
-	/**
-	 * Test articles read defaults to zero.
-	 */
-	public function test_articles_read_default_zero() {
-		$metadata = ( new Engagement( self::$user_id ) )->get_metadata();
-		$this->assertSame( 0, $metadata['Articles_Read'] );
-	}
-
-	/**
 	 * Test paywall hits count.
 	 */
 	public function test_paywall_hits() {
@@ -123,7 +106,7 @@ class Test_Engagement_Metadata extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test favorite categories converted to comma-separated names.
+	 * Test favorite categories converted to comma-separated names from PHP array.
 	 */
 	public function test_favorite_categories() {
 		$cat1 = self::factory()->category->create( [ 'name' => 'Politics' ] );
@@ -132,6 +115,18 @@ class Test_Engagement_Metadata extends WP_UnitTestCase {
 
 		$metadata = ( new Engagement( self::$user_id ) )->get_metadata();
 		$this->assertSame( 'Politics,Climate', $metadata['Favorite_Categories'] );
+	}
+
+	/**
+	 * Test favorite categories from JSON string (as stored by Reader_Data::update_item).
+	 */
+	public function test_favorite_categories_from_json_string() {
+		$cat1 = self::factory()->category->create( [ 'name' => 'Sports' ] );
+		$cat2 = self::factory()->category->create( [ 'name' => 'Tech' ] );
+		$this->set_reader_data( 'favorite_categories', wp_json_encode( [ $cat1, $cat2 ] ) );
+
+		$metadata = ( new Engagement( self::$user_id ) )->get_metadata();
+		$this->assertSame( 'Sports,Tech', $metadata['Favorite_Categories'] );
 	}
 
 	/**

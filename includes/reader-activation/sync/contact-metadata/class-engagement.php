@@ -51,7 +51,6 @@ class Engagement extends Contact_Metadata {
 		return [
 			'First_Visit_Date'     => 'First Visit Date',
 			'Last_Active'          => 'Last Active',
-			'Articles_Read'        => 'Articles Read',
 			'Paywall_Hits'         => 'Paywall Hits',
 			'Favorite_Categories'  => 'Favorite Categories',
 			'Payment_Page'         => 'Payment Page',
@@ -77,7 +76,6 @@ class Engagement extends Contact_Metadata {
 		return [
 			'First_Visit_Date'     => $this->format_reader_data_timestamp( 'first_visit_date' ),
 			'Last_Active'          => $this->format_reader_data_timestamp( 'last_active' ),
-			'Articles_Read'        => $this->get_reader_data_int( 'articles_read' ),
 			'Paywall_Hits'         => $this->get_reader_data_int( 'paywall_hits' ),
 			'Favorite_Categories'  => $this->get_favorite_categories(),
 			'Payment_Page'         => $this->get_payment_page( $order ),
@@ -121,6 +119,9 @@ class Engagement extends Contact_Metadata {
 	 */
 	private function get_favorite_categories() {
 		$category_ids = Reader_Data::get_data( $this->user->ID, 'favorite_categories' );
+		if ( is_string( $category_ids ) ) {
+			$category_ids = json_decode( $category_ids, true );
+		}
 		if ( empty( $category_ids ) || ! is_array( $category_ids ) ) {
 			return '';
 		}
