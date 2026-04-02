@@ -85,14 +85,6 @@ function lockContent( ras ) {
 	if ( countdownBanner ) {
 		countdownBanner.remove();
 	}
-
-	// Remove Everlit audio embeds, if option is enabled.
-	if ( settings.other_settings?.restrict_everlit ) {
-		const everlitEmbeds = document.querySelectorAll( '.entry-content .wp-block-custom-everlit-iframe-embed' );
-		everlitEmbeds.forEach( embed => {
-			embed.remove();
-		} );
-	}
 }
 
 function meter( ras ) {

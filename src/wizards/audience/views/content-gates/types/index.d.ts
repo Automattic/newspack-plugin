@@ -145,7 +145,6 @@ type MeteringCountdownConfig = {
 
 type AdvancedSettingsConfig = {
 	restrict_feeds: boolean;
-	restrict_everlit: boolean;
 };
 
 type GateSettings = {
