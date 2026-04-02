@@ -169,8 +169,13 @@ final class Session_Hydration {
 		/**
 		 * Filters the session hydration response data.
 		 *
-		 * Allows other components to attach data to the hydration response
-		 * so the frontend can initialize state without additional requests.
+		 * Allows other components to attach read-only data to the hydration
+		 * response so the frontend can initialize state without additional
+		 * requests.
+		 *
+		 * IMPORTANT: This endpoint authenticates via cookies without a CSRF
+		 * nonce (providing a nonce is its purpose). Callbacks MUST be
+		 * side-effect-free — only read data, never write or mutate state.
 		 *
 		 * @param array $data    Response data containing 'nonce'.
 		 * @param int   $user_id The authenticated user's ID.
