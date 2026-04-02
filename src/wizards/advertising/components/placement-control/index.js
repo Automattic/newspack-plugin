@@ -89,13 +89,15 @@ const PlacementControl = ( {
 	const [ biddersErrors, setBiddersErrors ] = useState( {} );
 
 	// Ensure incoming value is available otherwise reset to empty values.
+	const showProviderSelect = providers.length > 1;
 	const placementProvider = useMemo(
 		() => ( value.provider ? providers.find( provider => provider?.id === value.provider ) : null ),
 		[ providers, value.provider ]
 	);
+	const effectiveProvider = showProviderSelect ? placementProvider : providers[ 0 ];
 	const placementAdUnit = useMemo(
-		() => ( value.ad_unit ? ( placementProvider?.units || [] ).find( u => u.value === value.ad_unit ) : null ),
-		[ placementProvider, value.ad_unit ]
+		() => ( value.ad_unit ? ( effectiveProvider?.units || [] ).find( u => u.value === value.ad_unit ) : null ),
+		[ effectiveProvider, value.ad_unit ]
 	);
 
 	useEffect( () => {
@@ -120,9 +122,6 @@ const PlacementControl = ( {
 	if ( ! providers.length ) {
 		return <Notice isWarning noticeText={ __( 'There is no provider available.', 'newspack-plugin' ) } />;
 	}
-
-	const showProviderSelect = providers.length > 1;
-	const effectiveProvider = showProviderSelect ? placementProvider : providers[ 0 ];
 
 	return (
 		<Fragment>

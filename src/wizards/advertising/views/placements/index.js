@@ -47,14 +47,25 @@ const Placements = () => {
 		}
 	};
 	const handlePlacementToggle = placement => async value => {
-		await placementsApiFetch( {
-			path: `/newspack-ads/v1/placements/${ placement }`,
-			method: value ? 'POST' : 'DELETE',
-		} );
-		if ( value ) {
+		setInFlight( true );
+		let success = false;
+		try {
+			const data = await apiFetch( {
+				path: `/newspack-ads/v1/placements/${ placement }`,
+				method: value ? 'POST' : 'DELETE',
+			} );
+			setPlacements( data );
+			setError( null );
+			success = true;
+		} catch ( err ) {
+			setError( err );
+		}
+		setInFlight( false );
+		if ( success && value ) {
 			setIsEnabling( true );
 			setEditingPlacement( placement );
 		}
+		return success;
 	};
 	const handlePlacementChange = ( placementKey, hookKey ) => value => {
 		const placementData = placements[ placementKey ]?.data;
@@ -179,7 +190,7 @@ const Placements = () => {
 										<Button
 											variant="tertiary"
 											size="compact"
-											disabled={ inFlight }
+											disabled={ inFlight || ( !! editingPlacement && ! isEditing ) }
 											onClick={ () => {
 												if ( isEditing ) {
 													cancelEditing();
@@ -196,7 +207,7 @@ const Placements = () => {
 											variant="secondary"
 											size="compact"
 											isBusy={ inFlight }
-											disabled={ inFlight || ! providers.length }
+											disabled={ inFlight || ! providers.length || !! editingPlacement }
 											onClick={ () => handlePlacementToggle( key )( true ) }
 										>
 											{ __( 'Enable', 'newspack-plugin' ) }
@@ -296,7 +307,10 @@ const Placements = () => {
 												disabled={ inFlight }
 												onClick={ async () => {
 													const name = placement.name;
-													await handlePlacementToggle( key )( false );
+													const success = await handlePlacementToggle( key )( false );
+													if ( ! success ) {
+														return;
+													}
 													setEditingPlacement( null );
 													// translators: %s: placement name.
 													const disabledContent = sprintf( __( '%s disabled.', 'newspack-plugin' ), name );
