@@ -72,22 +72,20 @@ class Registration extends Contact_Metadata {
 	}
 
 	/**
-	 * Extract a UTM parameter from the registration page URL.
+	 * Get a registration UTM parameter from user meta.
 	 *
 	 * @param string $param UTM parameter name (e.g. 'utm_source').
 	 * @return string UTM value or empty string.
 	 */
 	private function get_registration_utm( $param ) {
-		$page = \get_user_meta( $this->user->ID, Reader_Activation::REGISTRATION_PAGE, true );
-		if ( empty( $page ) ) {
+		$meta_keys = [
+			'utm_source'   => Reader_Activation::REGISTRATION_UTM_SOURCE,
+			'utm_medium'   => Reader_Activation::REGISTRATION_UTM_MEDIUM,
+			'utm_campaign' => Reader_Activation::REGISTRATION_UTM_CAMPAIGN,
+		];
+		if ( ! isset( $meta_keys[ $param ] ) ) {
 			return '';
 		}
-		$parsed = \wp_parse_url( $page );
-		if ( empty( $parsed['query'] ) ) {
-			return '';
-		}
-		$params = [];
-		\wp_parse_str( $parsed['query'], $params );
-		return isset( $params[ $param ] ) ? \sanitize_text_field( $params[ $param ] ) : '';
+		return (string) \get_user_meta( $this->user->ID, $meta_keys[ $param ], true );
 	}
 }

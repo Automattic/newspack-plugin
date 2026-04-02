@@ -35,6 +35,9 @@ final class Reader_Activation {
 	const WITHOUT_PASSWORD                  = 'np_reader_without_password';
 	const REGISTRATION_METHOD               = 'np_reader_registration_method';
 	const REGISTRATION_PAGE                 = 'np_reader_registration_page';
+	const REGISTRATION_UTM_SOURCE           = 'np_reader_registration_utm_source';
+	const REGISTRATION_UTM_MEDIUM           = 'np_reader_registration_utm_medium';
+	const REGISTRATION_UTM_CAMPAIGN         = 'np_reader_registration_utm_campaign';
 	const CONNECTED_ACCOUNT                 = 'np_reader_connected_account';
 	const READER_SAVED_GENERIC_DISPLAY_NAME = 'np_reader_saved_generic_display_name';
 
@@ -2104,6 +2107,18 @@ final class Reader_Activation {
 		$redirect_url     = isset( $_POST['redirect_url'] ) ? \esc_url_raw( $_POST['redirect_url'] ) : '';
 		// phpcs:enable
 
+		// Capture UTM params before reconstructing the URL (which drops query params).
+		$registration_utm = [];
+		if ( ! empty( $current_page_url['query'] ) ) {
+			$query_params = [];
+			\wp_parse_str( $current_page_url['query'], $query_params );
+			foreach ( [ 'utm_source', 'utm_medium', 'utm_campaign' ] as $utm_param ) {
+				if ( ! empty( $query_params[ $utm_param ] ) ) {
+					$registration_utm[ $utm_param ] = \sanitize_text_field( $query_params[ $utm_param ] );
+				}
+			}
+		}
+
 		if ( ! empty( $current_page_url['path'] ) ) {
 			$current_page_url = \esc_url( \home_url( $current_page_url['path'] ) );
 		}
@@ -2209,6 +2224,9 @@ final class Reader_Activation {
 				}
 				if ( ! empty( $current_page_url ) ) {
 					$metadata['current_page_url'] = $current_page_url;
+				}
+				if ( ! empty( $registration_utm ) ) {
+					$metadata['registration_utm'] = $registration_utm;
 				}
 
 				$user_id = self::register_reader( $email, '', true, $metadata );
@@ -2419,6 +2437,8 @@ final class Reader_Activation {
 		 */
 		$metadata = apply_filters( 'newspack_register_reader_metadata', $metadata, $user_id, $existing_user );
 
+
+
 		// Note the user's login method for later use.
 		if ( isset( $metadata['registration_method'] ) ) {
 			\update_user_meta( $user_id, self::REGISTRATION_METHOD, $metadata['registration_method'] );
@@ -2429,6 +2449,33 @@ final class Reader_Activation {
 
 		if ( isset( $metadata['current_page_url'] ) ) {
 			\update_user_meta( $user_id, self::REGISTRATION_PAGE, $metadata['current_page_url'] );
+		}
+
+		// Save registration UTM params.
+		$utm_keys = [
+			'utm_source'   => self::REGISTRATION_UTM_SOURCE,
+			'utm_medium'   => self::REGISTRATION_UTM_MEDIUM,
+			'utm_campaign' => self::REGISTRATION_UTM_CAMPAIGN,
+		];
+		// Prefer explicitly passed UTM params (from process_auth_form).
+		$registration_utm = $metadata['registration_utm'] ?? [];
+		// Fallback: parse from the registration page URL if it has query params.
+		if ( empty( $registration_utm ) && ! empty( $metadata['current_page_url'] ) ) {
+			$parsed = \wp_parse_url( $metadata['current_page_url'] );
+			if ( ! empty( $parsed['query'] ) ) {
+				$query_params = [];
+				\wp_parse_str( $parsed['query'], $query_params );
+				foreach ( $utm_keys as $param => $meta_key ) {
+					if ( ! empty( $query_params[ $param ] ) ) {
+						$registration_utm[ $param ] = $query_params[ $param ];
+					}
+				}
+			}
+		}
+		foreach ( $utm_keys as $param => $meta_key ) {
+			if ( ! empty( $registration_utm[ $param ] ) ) {
+				\update_user_meta( $user_id, $meta_key, \sanitize_text_field( $registration_utm[ $param ] ) );
+			}
 		}
 
 		/**

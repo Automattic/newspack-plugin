@@ -41,6 +41,9 @@ class Test_Registration_Metadata extends WP_UnitTestCase {
 	public function tear_down() {
 		delete_user_meta( self::$user_id, Reader_Activation::REGISTRATION_PAGE );
 		delete_user_meta( self::$user_id, Reader_Activation::REGISTRATION_METHOD );
+		delete_user_meta( self::$user_id, Reader_Activation::REGISTRATION_UTM_SOURCE );
+		delete_user_meta( self::$user_id, Reader_Activation::REGISTRATION_UTM_MEDIUM );
+		delete_user_meta( self::$user_id, Reader_Activation::REGISTRATION_UTM_CAMPAIGN );
 		parent::tear_down();
 	}
 
@@ -73,14 +76,12 @@ class Test_Registration_Metadata extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test UTM extraction from registration page URL.
+	 * Test UTM values from user meta.
 	 */
-	public function test_utm_extraction_from_registration_page() {
-		update_user_meta(
-			self::$user_id,
-			Reader_Activation::REGISTRATION_PAGE,
-			'https://example.com/signup?utm_source=facebook&utm_medium=social&utm_campaign=spring2024'
-		);
+	public function test_utm_from_user_meta() {
+		update_user_meta( self::$user_id, Reader_Activation::REGISTRATION_UTM_SOURCE, 'facebook' );
+		update_user_meta( self::$user_id, Reader_Activation::REGISTRATION_UTM_MEDIUM, 'social' );
+		update_user_meta( self::$user_id, Reader_Activation::REGISTRATION_UTM_CAMPAIGN, 'spring2024' );
 		$metadata = ( new Registration( self::$user_id ) )->get_metadata();
 		$this->assertSame( 'facebook', $metadata['Registration_UTM_Source'] );
 		$this->assertSame( 'social', $metadata['Registration_UTM_Medium'] );
@@ -88,22 +89,13 @@ class Test_Registration_Metadata extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test UTM empty when no query params in URL.
+	 * Test UTM empty when not set.
 	 */
-	public function test_utm_empty_when_no_query_params() {
-		update_user_meta( self::$user_id, Reader_Activation::REGISTRATION_PAGE, 'https://example.com/signup' );
+	public function test_utm_empty_when_not_set() {
 		$metadata = ( new Registration( self::$user_id ) )->get_metadata();
 		$this->assertSame( '', $metadata['Registration_UTM_Source'] );
 		$this->assertSame( '', $metadata['Registration_UTM_Medium'] );
 		$this->assertSame( '', $metadata['Registration_UTM_Campaign'] );
-	}
-
-	/**
-	 * Test UTM empty when no registration page is set.
-	 */
-	public function test_utm_empty_when_no_registration_page() {
-		$metadata = ( new Registration( self::$user_id ) )->get_metadata();
-		$this->assertSame( '', $metadata['Registration_UTM_Source'] );
 	}
 
 	/**
