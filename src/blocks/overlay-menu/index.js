@@ -30,7 +30,6 @@ export const settings = {
 		__( 'overlay', 'newspack-plugin' ),
 		__( 'drawer', 'newspack-plugin' ),
 		__( 'navigation', 'newspack-plugin' ),
-		__( 'overlay', 'newspack-plugin' ),
 		__( 'hamburger', 'newspack-plugin' ),
 	],
 	description: __( 'A trigger button that opens an overlay drawer panel with customizable content.', 'newspack-plugin' ),
