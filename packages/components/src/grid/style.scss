@@ -99,6 +99,11 @@
 			grid-template-columns: repeat(3, 1fr);
 		}
 
+		// Columns 12
+		&__columns-12 {
+			grid-template-columns: repeat(12, 1fr);
+		}
+
 		// Columns 4
 		&__columns-4 {
 			grid-template-columns: repeat(4, 1fr);
