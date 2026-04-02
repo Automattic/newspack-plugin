@@ -31,23 +31,30 @@ export async function refreshNewslettersSignupModal() {
 		headers[ 'X-WP-Nonce' ] = nonce;
 	}
 
-	const res = await fetch( '/wp-json/newspack/v1/reader-newsletter-signup-lists', {
-		credentials: 'same-origin',
-		headers,
-	} );
-	const { html } = await res.json();
-	if ( html ) {
-		const parser = new DOMParser();
-		const doc = parser.parseFromString( html, 'text/html' );
-		const existingForm = container.querySelector( 'form' );
-		if ( existingForm ) {
-			existingForm.remove();
+	try {
+		const res = await fetch( '/wp-json/newspack/v1/reader-newsletter-signup-lists', {
+			credentials: 'same-origin',
+			headers,
+		} );
+		if ( ! res.ok ) {
+			return;
 		}
-		const newForm = doc.querySelector( '.newspack-newsletters-signup form' );
-		if ( newForm ) {
-			container.appendChild( newForm );
+		const { html } = await res.json();
+		if ( html ) {
+			const parser = new DOMParser();
+			const doc = parser.parseFromString( html, 'text/html' );
+			const existingForm = container.querySelector( 'form' );
+			if ( existingForm ) {
+				existingForm.remove();
+			}
+			const newForm = doc.querySelector( '.newspack-newsletters-signup form' );
+			if ( newForm ) {
+				container.appendChild( newForm );
+			}
+			container.dispatchEvent( new Event( 'newspack:refresh' ) );
 		}
-		container.dispatchEvent( new Event( 'newspack:refresh' ) );
+	} catch {
+		// Silently fail — modal stays as-is.
 	}
 }
 

@@ -59,6 +59,20 @@ final class Session_Hydration {
 	}
 
 	/**
+	 * Get the transient key for a CID value.
+	 *
+	 * Hashes the CID to prevent long or hostile cookie values from exceeding
+	 * WordPress transient name limits.
+	 *
+	 * @param string $cid Client ID value.
+	 *
+	 * @return string Transient key.
+	 */
+	public static function get_transient_key( $cid ) {
+		return self::TRANSIENT_PREFIX . md5( $cid );
+	}
+
+	/**
 	 * Bind a CID cookie to a user ID via a short-lived transient.
 	 *
 	 * Call this after a user authenticates or an account is created.
@@ -71,7 +85,7 @@ final class Session_Hydration {
 		if ( empty( $cid ) ) {
 			return;
 		}
-		set_transient( self::TRANSIENT_PREFIX . $cid, (int) $user_id, self::TRANSIENT_TTL );
+		set_transient( self::get_transient_key( $cid ), (int) $user_id, self::TRANSIENT_TTL );
 	}
 
 	/**
@@ -136,7 +150,7 @@ final class Session_Hydration {
 			);
 		}
 
-		$transient_key  = self::TRANSIENT_PREFIX . $cid;
+		$transient_key  = self::get_transient_key( $cid );
 		$stored_user_id = get_transient( $transient_key );
 
 		if ( false === $stored_user_id || (int) $stored_user_id !== \get_current_user_id() ) {

@@ -20,6 +20,16 @@ class Newspack_Test_Session_Hydration extends WP_UnitTestCase {
 	private static $test_cid = 'testcid12345';
 
 	/**
+	 * Clean up after each test.
+	 */
+	public function tear_down() {
+		parent::tear_down();
+		unset( $_COOKIE[ NEWSPACK_CLIENT_ID_COOKIE_NAME ] ); // phpcs:ignore WordPressVIPMinimum.Variables.RestrictedVariables.cache_constraints___COOKIE
+		unset( $_COOKIE[ LOGGED_IN_COOKIE ] ); // phpcs:ignore WordPressVIPMinimum.Variables.RestrictedVariables.cache_constraints___COOKIE
+		delete_transient( Session_Hydration::TRANSIENT_PREFIX . self::$test_cid );
+	}
+
+	/**
 	 * Set the logged_in auth cookie for a user so wp_validate_auth_cookie() works.
 	 *
 	 * @param int $user_id User ID.
@@ -44,7 +54,7 @@ class Newspack_Test_Session_Hydration extends WP_UnitTestCase {
 
 		Session_Hydration::bind_cid( $user_id );
 
-		$stored_user_id = get_transient( 'newspack_cid_' . self::$test_cid );
+		$stored_user_id = get_transient( Session_Hydration::get_transient_key( self::$test_cid ) );
 		$this->assertEquals( $user_id, $stored_user_id );
 
 		unset( $_COOKIE[ NEWSPACK_CLIENT_ID_COOKIE_NAME ] ); // phpcs:ignore WordPressVIPMinimum.Variables.RestrictedVariables.cache_constraints___COOKIE
@@ -60,7 +70,7 @@ class Newspack_Test_Session_Hydration extends WP_UnitTestCase {
 
 		Session_Hydration::bind_cid( $user_id );
 
-		$stored = get_transient( 'newspack_cid_' . self::$test_cid );
+		$stored = get_transient( Session_Hydration::get_transient_key( self::$test_cid ) );
 		$this->assertFalse( $stored );
 
 		wp_delete_user( $user_id );
@@ -88,7 +98,7 @@ class Newspack_Test_Session_Hydration extends WP_UnitTestCase {
 		$this->assertNotEmpty( $data['nonce'] );
 
 		// Transient should be deleted (one-time use).
-		$this->assertFalse( get_transient( 'newspack_cid_' . self::$test_cid ) );
+		$this->assertFalse( get_transient( Session_Hydration::get_transient_key( self::$test_cid ) ) );
 
 		unset( $_COOKIE[ NEWSPACK_CLIENT_ID_COOKIE_NAME ] ); // phpcs:ignore WordPressVIPMinimum.Variables.RestrictedVariables.cache_constraints___COOKIE
 		$this->clear_auth_cookie();
