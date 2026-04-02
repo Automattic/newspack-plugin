@@ -268,7 +268,7 @@ export default function Store() {
 			const unsyncedKeys = _get( 'unsynced', true ) || [];
 			for ( const key of Object.keys( items ) ) {
 				if ( ! unsyncedKeys.includes( key ) ) {
-					_set( key, JSON.parse( items[ key ] ) );
+					_set( key, decode( items[ key ] ) );
 				}
 			}
 		}
@@ -289,7 +289,7 @@ export default function Store() {
 			if ( unsynced.includes( key ) ) {
 				continue;
 			}
-			_set( key, JSON.parse( newspack_reader_data.items[ key ] ) );
+			_set( key, decode( newspack_reader_data.items[ key ] ) );
 		}
 	}
 

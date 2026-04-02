@@ -1,4 +1,3 @@
-/* globals newspack_reader_data */
 /**
  * Internal dependencies
  */
@@ -9,9 +8,7 @@ import { EVENTS, emit } from './events';
  * Shared nonce storage. Uses newspack_reader_data as the shared state so that
  * all webpack entry points read and write the same value.
  */
-if ( typeof newspack_reader_data !== 'undefined' ) {
-	window.newspack_reader_data = window.newspack_reader_data || {};
-}
+window.newspack_reader_data = window.newspack_reader_data || {};
 
 let pending = null;
 
@@ -20,18 +17,26 @@ let pending = null;
  *
  * Call this after authentication to enable authenticated REST API requests
  * without a full page refresh. Concurrent calls share the same in-flight request.
+ * If hydration fails, the promise is reset so future calls can retry.
  *
  * @return {Promise<string|null>} The nonce string, or null if hydration failed.
  */
 export function hydrateSession() {
 	if ( ! pending ) {
-		pending = fetchSession().then( data => {
-			if ( data?.nonce ) {
-				window.newspack_reader_data.nonce = data.nonce;
-				emit( EVENTS.session, data );
-			}
-			return data?.nonce || null;
-		} );
+		pending = fetchSession()
+			.then( data => {
+				if ( data?.nonce ) {
+					window.newspack_reader_data.nonce = data.nonce;
+					emit( EVENTS.session, data );
+				} else {
+					pending = null;
+				}
+				return data?.nonce || null;
+			} )
+			.catch( () => {
+				pending = null;
+				return null;
+			} );
 	}
 	return pending;
 }
