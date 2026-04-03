@@ -3,6 +3,12 @@
  * Complianz integration class.
  * https://complianz.io/
  *
+ * Provides more control for publishers over Complianz behavior with regards to blocking
+ * Newspack-software-added trackers (GAM, Meta, etc.) before consent is given.
+ * This is primarily intended for US-based publishers that want to block trackers until after
+ * consent is given but do not set up Complianz specifically for GDPR. It allows them to have
+ * a US-focused setup AND ability to block things until after consent is given.
+ *
  * @package Newspack
  */
 
