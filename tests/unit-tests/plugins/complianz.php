@@ -14,12 +14,27 @@ use Newspack\Wizards\Newspack\Privacy_Section;
 class Newspack_Test_Complianz extends WP_UnitTestCase {
 
 	/**
+	 * Mock controlling whether Complianz cookie blocker is active.
+	 *
+	 * @var bool
+	 */
+	public static $cookie_blocker_active = false;
+
+	/**
 	 * Reset privacy options before each test.
 	 */
 	public function setUp(): void {
 		parent::setUp();
 		update_option( Privacy_Section::OPTION_PREFIX . 'block_before_consent', false );
 		update_option( Privacy_Section::OPTION_PREFIX . 'block_ads_before_consent', false );
+
+		// Simulate Complianz cookie blocker settings.
+		if ( ! function_exists( 'cmplz_can_run_cookie_blocker' ) ) {
+			// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound 
+			function cmplz_can_run_cookie_blocker() { // phpcs:ignore Squiz.Commenting.FunctionComment.Missing
+				return Newspack_Test_Complianz::$cookie_blocker_active; // phpcs:ignore Squiz.Classes.SelfMemberReference.NotUsed
+			}
+		}
 	}
 
 	// -------------------------------------------------------------------------
@@ -190,20 +205,14 @@ class Newspack_Test_Complianz extends WP_UnitTestCase {
 	 * pixel <script> tags get type="text/plain" data-category="marketing".
 	 */
 	public function test_pixel_blocked_when_settings_and_complianz_active() {
+		self::$cookie_blocker_active = true;
 		update_option( Privacy_Section::OPTION_PREFIX . 'block_before_consent', true );
-
-		// Simulate Complianz being active with cookie blocker enabled.
-		if ( ! function_exists( 'cmplz_can_run_cookie_blocker' ) ) {
-			// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound 
-			function cmplz_can_run_cookie_blocker() { // phpcs:ignore Squiz.Commenting.FunctionComment.Missing
-				return true;
-			}
-		}
 
 		$markup = '<script>fbq("track","PageView");</script>';
 		$result = Complianz::pixel_handling_for_complianz( $markup );
 
 		$this->assertStringContainsString( 'type="text/plain"', $result );
 		$this->assertStringContainsString( 'data-category="marketing"', $result );
+		self::$cookie_blocker_active = false;
 	}
 }
