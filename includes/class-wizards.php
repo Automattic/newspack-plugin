@@ -58,6 +58,7 @@ class Wizards {
 						'print'            => 'Newspack\Wizards\Newspack\Print_Section',
 						'nextdoor'         => 'Newspack\Wizards\Newspack\Nextdoor_Section',
 						'primary-category' => 'Newspack\Wizards\Newspack\Primary_Category_Section',
+						'privacy'          => 'Newspack\Wizards\Newspack\Privacy_Section',
 					],
 				]
 			),

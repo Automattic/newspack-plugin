@@ -31,7 +31,7 @@ function Privacy() {
 		block_before_consent: false,
 	} );
 
-	useEffect( get, [] );
+	useEffect( () => get(), [] );
 
 	function get() {
 		wizardApiFetch< PrivacyData >( { path: PATH }, { onSuccess: res => setData( res ) } );

@@ -88,11 +88,18 @@ class Privacy_Section extends Wizard_Section {
 	 * @return \WP_REST_Response
 	 */
 	public function api_update( $request ) {
+		$update_block_ads_before_consent = null;
 		if ( isset( $request['block_ads_before_consent'] ) ) {
-			update_option( self::OPTION_PREFIX . 'block_ads_before_consent', (bool) $request['block_ads_before_consent'] );
+			$update_block_ads_before_consent = (bool) $request['block_ads_before_consent'];
 		}
 		if ( isset( $request['block_before_consent'] ) ) {
 			update_option( self::OPTION_PREFIX . 'block_before_consent', (bool) $request['block_before_consent'] );
+			if ( ! (bool) $request['block_before_consent'] ) {
+				$update_block_ads_before_consent = false;
+			}
+		}
+		if ( ! is_null( $update_block_ads_before_consent ) ) {
+			update_option( self::OPTION_PREFIX . 'block_ads_before_consent', $update_block_ads_before_consent );
 		}
 		return rest_ensure_response( self::get_settings() );
 	}
