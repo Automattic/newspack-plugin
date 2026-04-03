@@ -12,11 +12,22 @@ import { CardBody, ToggleControl } from '@wordpress/components';
  */
 import ContentRuleControl from './content-rule-control';
 
-export default function ContentRule( { config, enabled, onToggle = () => {}, rule, slug, onChange, onChangeExclusion }: GateContentRuleProps ) {
+export default function ContentRule( {
+	config,
+	enabled,
+	onToggle = () => {},
+	rule,
+	slug,
+	onChange,
+	onChangeExclusion,
+	isNewsletter = false,
+}: GateContentRuleProps ) {
 	return (
 		<CardBody size="small">
-			<ToggleControl label={ config.name } help={ config.description } checked={ enabled } onChange={ () => onToggle( slug ) } />
-			{ enabled && (
+			{ ! isNewsletter && (
+				<ToggleControl label={ config.name } help={ config.description } checked={ enabled } onChange={ () => onToggle( slug ) } />
+			) }
+			{ ( isNewsletter || enabled ) && (
 				<ContentRuleControl
 					slug={ slug }
 					exclusion={ rule?.exclusion ?? false }

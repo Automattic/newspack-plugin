@@ -958,6 +958,51 @@ class Newspack_Test_Data_Events extends WP_UnitTestCase {
 		as_unschedule_all_actions( 'newspack_dummy_action' );
 	}
 
+	/**
+	 * Test that retry exhaustion fires the alert hook.
+	 */
+	public function test_handler_retry_exhaustion_fires_hook() {
+		if ( ! function_exists( 'as_schedule_single_action' ) ) {
+			$this->markTestSkipped( 'ActionScheduler not available.' );
+		}
+
+		$hook_fired = false;
+		$hook_data  = null;
+		add_action(
+			'newspack_data_event_retry_exhausted',
+			function ( $data ) use ( &$hook_fired, &$hook_data ) {
+				$hook_fired = true;
+				$hook_data  = $data;
+			}
+		);
+
+		as_unschedule_all_actions( Data_Events::HANDLER_RETRY_HOOK );
+
+		$action_name = 'test_exhaustion_hook';
+		Data_Events::register_action( $action_name );
+
+		$handler = [ self::class, 'throwing_handler' ];
+		Data_Events::register_handler( $handler, $action_name );
+
+		// Execute at max retry count — triggers exhaustion.
+		Data_Events::execute_handler_retry(
+			[
+				'handler'     => $handler,
+				'action_name' => $action_name,
+				'timestamp'   => time(),
+				'data'        => [ 'test' => true ],
+				'client_id'   => 'test-client',
+				'is_global'   => false,
+				'retry_count' => Data_Events::MAX_HANDLER_RETRIES,
+			]
+		);
+
+		$this->assertTrue( $hook_fired, 'newspack_data_event_retry_exhausted should fire on max retries.' );
+		$this->assertEquals( $action_name, $hook_data['action_name'] );
+		$this->assertEquals( Data_Events::MAX_HANDLER_RETRIES, $hook_data['retry_count'] );
+		$this->assertArrayHasKey( 'reason', $hook_data );
+	}
+
 	// --- Helper methods for tests ---
 
 	/**

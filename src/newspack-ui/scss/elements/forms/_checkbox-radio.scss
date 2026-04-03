@@ -81,8 +81,8 @@
 		&::before {
 			background: var(--newspack-ui-color-neutral-0);
 			border-radius: 100%;
-			height: var(--newspack-ui-spacer-base);
-			width: var(--newspack-ui-spacer-base);
+			height: var(--newspack-ui-spacer-1);
+			width: var(--newspack-ui-spacer-1);
 		}
 
 		&:checked {

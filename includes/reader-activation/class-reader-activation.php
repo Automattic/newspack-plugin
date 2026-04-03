@@ -85,6 +85,14 @@ final class Reader_Activation {
 	private static $reader_activation_labels = [];
 
 	/**
+	 * Current reader user ID.
+	 * Only used for evaluating content restrictions for the newsletter signup form.
+	 *
+	 * @var int
+	 */
+	private static $current_reader_user_id = 0;
+
+	/**
 	 * Initialize hooks.
 	 */
 	public static function init() {
@@ -431,6 +439,13 @@ final class Reader_Activation {
 		if ( ! isset( $config[ $name ] ) ) {
 			return null;
 		}
+
+		// Route ESP settings to the integration.
+		$esp_setting = self::get_esp_integration_setting( $name );
+		if ( null !== $esp_setting ) {
+			return apply_filters( 'newspack_reader_activation_setting', $esp_setting, $name );
+		}
+
 		$value = \get_option( self::OPTIONS_PREFIX . $name, $config[ $name ] );
 
 		// Use default value type for casting bool option value.
@@ -438,6 +453,38 @@ final class Reader_Activation {
 			$value = (bool) $value;
 		}
 		return apply_filters( 'newspack_reader_activation_setting', $value, $name );
+	}
+
+	/**
+	 * Get an ESP setting value from the integration instance.
+	 *
+	 * @param string $name Setting name.
+	 * @return mixed|null The setting value, or null if this setting is not an ESP integration setting.
+	 */
+	private static function get_esp_integration_setting( $name ) {
+		static $esp_keys = [
+			'mailchimp_audience_id',
+			'mailchimp_reader_default_status',
+			'active_campaign_master_list',
+			'constant_contact_list_id',
+			'sync_esp_delete',
+			'sync_esp',
+		];
+
+		if ( ! in_array( $name, $esp_keys, true ) ) {
+			return null;
+		}
+
+		$esp = Reader_Activation\Integrations::get_integration( 'esp' );
+		if ( ! $esp ) {
+			return null;
+		}
+
+		if ( 'sync_esp' === $name ) {
+			return Reader_Activation\Integrations::is_enabled( 'esp' );
+		}
+
+		return $esp->get_settings_field_value( $name );
 	}
 
 	/**
@@ -470,6 +517,24 @@ final class Reader_Activation {
 		}
 		if ( 'metadata_fields' === $key ) {
 			return Sync\Metadata::update_fields( $value );
+		}
+
+		// Route sync_esp to the integration enabled state.
+		if ( 'sync_esp' === $key ) {
+			if ( $value ) {
+				Reader_Activation\Integrations::enable( 'esp' );
+			} else {
+				Reader_Activation\Integrations::disable( 'esp' );
+			}
+			// Also write to legacy option for backward compat with external hooks.
+			\update_option( self::OPTIONS_PREFIX . $key, $value );
+			return true;
+		}
+
+		// Route ESP settings to the integration.
+		$esp = Reader_Activation\Integrations::get_integration( 'esp' );
+		if ( $esp && null !== self::get_esp_integration_setting( $key ) ) {
+			return $esp->update_settings_field_value( $key, $value );
 		}
 
 		return \update_option( self::OPTIONS_PREFIX . $key, $value );
@@ -1640,6 +1705,20 @@ final class Reader_Activation {
 	}
 
 	/**
+	 * Filter the user ID used for evaluating content restrictions.
+	 *
+	 * @param int $user_id User ID.
+	 *
+	 * @return int User ID.
+	 */
+	public static function get_user_id_for_content_restriction( $user_id ) {
+		if ( self::$current_reader_user_id ) {
+			return self::$current_reader_user_id;
+		}
+		return $user_id;
+	}
+
+	/**
 	 * Fetch HTML for the post-checkout newsletter signup modal.
 	 *
 	 * @param WP_REST_Request $request The REST request.
@@ -1647,9 +1726,24 @@ final class Reader_Activation {
 	 * @return WP_REST_Response
 	 */
 	public static function api_render_newsletters_signup_form( $request ) {
+		$email = $request['email_address'];
+
+		// If the email address is associated with a different user, use that user's ID for evaluating content restrictions for the signup form.
+		// TODO: Maybe check this against the result of self::set_current_reader()?
+		$user = get_user_by( 'email', $email );
+		if ( $user && $user->ID !== get_current_user_id() ) {
+			self::$current_reader_user_id = $user->ID;
+			add_filter( 'newspack_content_restriction_control_user_id', [ self::class, 'get_user_id_for_content_restriction' ] );
+		}
 		ob_start();
-		self::render_newsletters_signup_modal( $request['email_address'] );
+		self::render_newsletters_signup_modal( $email );
 		$html = trim( ob_get_clean() );
+
+		// Reset the current reader user ID so it doesn't affect other operations in this session.
+		if ( $user && $user->ID !== get_current_user_id() ) {
+			self::$current_reader_user_id = 0;
+			remove_filter( 'newspack_content_restriction_control_user_id', [ self::class, 'get_user_id_for_content_restriction' ] );
+		}
 		return new \WP_REST_Response( [ 'html' => $html ] );
 	}
 

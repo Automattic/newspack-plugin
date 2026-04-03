@@ -130,6 +130,19 @@ final class Data_Events {
 		\add_action( self::HANDLER_RETRY_HOOK, [ __CLASS__, 'execute_handler_retry' ] );
 		\add_action( 'action_scheduler_begin_execute', [ __CLASS__, 'set_current_as_action_id' ] );
 		\add_action( 'action_scheduler_after_execute', [ __CLASS__, 'clear_current_as_action_id' ] );
+		\add_filter( 'newspack_action_scheduler_hook_labels', [ __CLASS__, 'register_hook_labels' ] );
+	}
+
+	/**
+	 * Register hook labels for Data Events actions.
+	 *
+	 * @param array $labels Existing labels.
+	 * @return array
+	 */
+	public static function register_hook_labels( $labels ) {
+		$labels[ self::DISPATCH_AS_HOOK ]   = __( 'Data Event Handler', 'newspack-plugin' );
+		$labels[ self::HANDLER_RETRY_HOOK ] = __( 'Data Event Retry', 'newspack-plugin' );
+		return $labels;
 	}
 
 	/**
@@ -314,6 +327,7 @@ final class Data_Events {
 				call_user_func( $handler, $action_name, $timestamp, $data, $client_id );
 			} catch ( \Throwable $e ) {
 				self::log( $e->getMessage(), 'error' );
+				self::fire_handler_failed( $handler, $action_name, $data, $e );
 				self::schedule_handler_retry( $handler, $action_name, $timestamp, $data, $client_id, true, 0, $e );
 			}
 		}
@@ -326,6 +340,7 @@ final class Data_Events {
 				call_user_func( $handler, $timestamp, $data, $client_id );
 			} catch ( \Throwable $e ) {
 				self::log( $e->getMessage(), 'error' );
+				self::fire_handler_failed( $handler, $action_name, $data, $e );
 				self::schedule_handler_retry( $handler, $action_name, $timestamp, $data, $client_id, false, 0, $e );
 			}
 		}
@@ -623,6 +638,28 @@ final class Data_Events {
 	}
 
 	/**
+	 * Get the ActionScheduler group for a handler.
+	 *
+	 * Returns a filterable default of 'newspack'. Integrations or other
+	 * systems can filter this to assign handlers to specific groups.
+	 *
+	 * @param string $class       The handler class name.
+	 * @param string $action_name The data event action name.
+	 *
+	 * @return string The ActionScheduler group name.
+	 */
+	public static function get_handler_action_group( $class, $action_name ) {
+		/**
+		 * Filters the ActionScheduler group for a data event handler.
+		 *
+		 * @param string $group       The group name. Default 'newspack'.
+		 * @param string $class       The handler class name.
+		 * @param string $action_name The data event action name.
+		 */
+		return \apply_filters( 'newspack_data_events_handler_action_group', Action_Scheduler::DEFAULT_GROUP, $class, $action_name );
+	}
+
+	/**
 	 * Dispatch queued events via Action Scheduler.
 	 *
 	 * Each dispatch is scheduled as an individual AS action for independent
@@ -632,7 +669,7 @@ final class Data_Events {
 		\as_enqueue_async_action(
 			self::DISPATCH_AS_HOOK,
 			[ self::$queued_dispatches ],
-			'newspack'
+			Action_Scheduler::DEFAULT_GROUP
 		);
 
 		self::log( sprintf( 'Scheduled %d dispatch(es) via Action Scheduler.', count( self::$queued_dispatches ) ) );
@@ -696,6 +733,40 @@ final class Data_Events {
 	}
 
 	/**
+	 * Fire the handler failed action for the original failure (before retries).
+	 *
+	 * @param callable   $handler     The handler that failed.
+	 * @param string     $action_name Action name.
+	 * @param array      $data        Event data.
+	 * @param \Throwable $error       The error that caused the failure.
+	 */
+	private static function fire_handler_failed( $handler, $action_name, $data, $error ) {
+		/**
+		 * Fires when a data event handler fails on the original attempt (before retries).
+		 *
+		 * Used by Alert_Manager to record failures for early pattern detection.
+		 *
+		 * @param array $failure_data {
+		 *     Failure data.
+		 *
+		 *     @type callable $handler     The handler that failed.
+		 *     @type string   $action_name The data event action name.
+		 *     @type array    $data        The event data.
+		 *     @type string   $reason      The error message.
+		 * }
+		 */
+		do_action(
+			'newspack_data_event_handler_failed',
+			[
+				'handler'     => $handler,
+				'action_name' => $action_name,
+				'data'        => $data,
+				'reason'      => $error->getMessage(),
+			]
+		);
+	}
+
+	/**
 	 * Schedule a retry for a failed handler via ActionScheduler.
 	 *
 	 * @param callable   $handler     The handler that failed.
@@ -734,6 +805,29 @@ final class Data_Events {
 					sprintf( 'Max retries exhausted. Final error: %s', $error->getMessage() )
 				);
 			}
+			/**
+			 * Fires when a Data Events handler has exhausted all retry attempts.
+			 *
+			 * @param array $alert_data {
+			 *     Alert data.
+			 *
+			 *     @type array  $handler       The handler callable.
+			 *     @type string $action_name   The data event action name.
+			 *     @type array  $data          The event data.
+			 *     @type int    $retry_count   Total retries attempted.
+			 *     @type string $reason        The final error message.
+			 * }
+			 */
+			do_action(
+				'newspack_data_event_retry_exhausted',
+				[
+					'handler'     => $handler,
+					'action_name' => $action_name,
+					'data'        => $data,
+					'retry_count' => self::MAX_HANDLER_RETRIES,
+					'reason'      => $error->getMessage(),
+				]
+			);
 			return;
 		}
 
@@ -751,11 +845,16 @@ final class Data_Events {
 			'reason'      => $error->getMessage(),
 		];
 
+		$group = self::get_handler_action_group(
+			is_array( $handler ) ? $handler[0] : '',
+			$action_name
+		);
+
 		$action_id = \as_schedule_single_action(
 			time() + $backoff_seconds,
 			self::HANDLER_RETRY_HOOK,
 			[ $retry_data ],
-			'newspack'
+			$group
 		);
 
 		if ( $action_id ) {

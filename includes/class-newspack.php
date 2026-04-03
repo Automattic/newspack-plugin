@@ -89,6 +89,7 @@ final class Newspack {
 	 */
 	private function includes() {
 		include_once NEWSPACK_ABSPATH . 'includes/class-logger.php';
+		include_once NEWSPACK_ABSPATH . 'includes/class-alert-manager.php';
 
 		include_once NEWSPACK_ABSPATH . 'includes/util.php';
 		include_once NEWSPACK_ABSPATH . 'includes/emails/class-emails.php';
@@ -100,11 +101,14 @@ final class Newspack {
 		include_once NEWSPACK_ABSPATH . 'includes/reader-activation/class-reader-data.php';
 		include_once NEWSPACK_ABSPATH . 'includes/reader-activation/sync/class-sync.php';
 		include_once NEWSPACK_ABSPATH . 'includes/reader-activation/sync/class-metadata.php';
+		include_once NEWSPACK_ABSPATH . 'includes/reader-activation/sync/class-legacy-metadata.php';
 		include_once NEWSPACK_ABSPATH . 'includes/reader-activation/sync/class-woocommerce.php';
 		include_once NEWSPACK_ABSPATH . 'includes/reader-activation/sync/class-contact-sync.php';
 		include_once NEWSPACK_ABSPATH . 'includes/reader-activation/sync/class-contact-sync-admin.php';
+		include_once NEWSPACK_ABSPATH . 'includes/class-action-scheduler.php';
 		include_once NEWSPACK_ABSPATH . 'includes/reader-activation/class-integrations.php';
 		\Newspack\Reader_Activation\Integrations::init();
+		include_once NEWSPACK_ABSPATH . 'includes/reader-activation/class-promoted-fields.php';
 		include_once NEWSPACK_ABSPATH . 'includes/data-events/class-utils.php';
 		include_once NEWSPACK_ABSPATH . 'includes/data-events/class-data-events.php';
 		include_once NEWSPACK_ABSPATH . 'includes/data-events/class-webhooks.php';
@@ -133,10 +137,13 @@ final class Newspack {
 		include_once NEWSPACK_ABSPATH . 'includes/tracking/class-meta-pixel.php';
 		include_once NEWSPACK_ABSPATH . 'includes/tracking/class-twitter-pixel.php';
 		include_once NEWSPACK_ABSPATH . 'includes/revisions-control/class-revisions-control.php';
+
+		include_once NEWSPACK_ABSPATH . 'includes/tags/class-private-tags.php';
 		include_once NEWSPACK_ABSPATH . 'includes/authors/class-authors-custom-fields.php';
 		include_once NEWSPACK_ABSPATH . 'includes/corrections/class-corrections.php';
 		include_once NEWSPACK_ABSPATH . 'includes/class-syndication.php';
 		include_once NEWSPACK_ABSPATH . 'includes/bylines/class-bylines.php';
+		include_once NEWSPACK_ABSPATH . 'includes/class-post-date.php';
 		include_once NEWSPACK_ABSPATH . 'includes/lite-site/class-lite-site.php';
 		include_once NEWSPACK_ABSPATH . 'includes/content-gate/trait-content-gate-layout.php';
 		include_once NEWSPACK_ABSPATH . 'includes/content-gate/class-content-gate.php';
@@ -181,12 +188,14 @@ final class Newspack {
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/audience/class-audience-content-gates.php';
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/audience/class-audience-donations.php';
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/audience/class-audience-subscriptions.php';
+		include_once NEWSPACK_ABSPATH . 'includes/wizards/audience/class-audience-integrations.php';
 
 		// Network Wizard.
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-network-wizard.php';
 
 		// Newsletters Wizard.
-		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-newsletters-wizard.php';
+		include_once NEWSPACK_ABSPATH . 'includes/wizards/newsletters/class-newsletters-wizard.php';
+		include_once NEWSPACK_ABSPATH . 'includes/wizards/newsletters/class-premium-newsletters-wizard.php';
 
 		/* Unified Wizards */
 		include_once NEWSPACK_ABSPATH . 'includes/class-wizards.php';
@@ -225,11 +234,13 @@ final class Newspack {
 		include_once NEWSPACK_ABSPATH . 'includes/plugins/woocommerce-subscriptions/group-subscription/class-group-subscription.php';
 		include_once NEWSPACK_ABSPATH . 'includes/plugins/woocommerce-subscriptions/group-subscription/class-group-subscription-api.php';
 		include_once NEWSPACK_ABSPATH . 'includes/plugins/woocommerce-subscriptions/group-subscription/class-group-subscription-invite.php';
+		include_once NEWSPACK_ABSPATH . 'includes/plugins/woocommerce-subscriptions/group-subscription/class-group-subscription-myaccount.php';
 		include_once NEWSPACK_ABSPATH . 'includes/plugins/woocommerce-subscriptions/group-subscription/class-group-subscription-settings.php';
 		include_once NEWSPACK_ABSPATH . 'includes/plugins/class-woocommerce-gateway-stripe.php';
 		include_once NEWSPACK_ABSPATH . 'includes/plugins/class-teams-for-memberships.php';
 		include_once NEWSPACK_ABSPATH . 'includes/plugins/class-newspack-elections.php';
 		include_once NEWSPACK_ABSPATH . 'includes/plugins/class-yoast.php';
+		include_once NEWSPACK_ABSPATH . 'includes/class-primary-category.php';
 
 		include_once NEWSPACK_ABSPATH . 'includes/class-patches.php';
 		include_once NEWSPACK_ABSPATH . 'includes/polyfills/class-amp-polyfills.php';

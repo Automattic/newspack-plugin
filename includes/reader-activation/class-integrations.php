@@ -25,6 +25,11 @@ class Integrations {
 	const LOGGER_HEADER = 'NEWSPACK-INTEGRATION';
 
 	/**
+	 * Cron hook name for integration health checks.
+	 */
+	const HEALTH_CHECK_CRON_HOOK = 'newspack_integration_health_check';
+
+	/**
 	 * Registered integrations.
 	 *
 	 * @var Integration[]
@@ -66,8 +71,119 @@ class Integrations {
 		require_once __DIR__ . '/integrations/class-contact-pull.php';
 
 		add_action( 'init', [ __CLASS__, 'register_integrations' ], 5 );
+		add_action( 'init', [ __CLASS__, 'schedule_health_check' ] );
+		add_action( self::HEALTH_CHECK_CRON_HOOK, [ __CLASS__, 'run_health_checks' ] );
+		add_filter( 'newspack_data_events_handler_action_group', [ __CLASS__, 'filter_handler_action_group' ], 10, 3 );
+		add_filter( 'newspack_action_scheduler_group_labels', [ __CLASS__, 'register_group_labels' ] );
 
 		Integrations\Contact_Pull::init();
+	}
+
+	/**
+	 * Register group labels for integration ActionScheduler groups.
+	 *
+	 * @param array $labels Existing labels.
+	 * @return array
+	 */
+	public static function register_group_labels( $labels ) {
+		foreach ( self::get_active_integrations() as $integration ) {
+			$labels[ self::get_action_group( $integration->get_id() ) ] = $integration->get_name();
+		}
+		return $labels;
+	}
+
+	/**
+	 * Get the ActionScheduler group name for a specific integration.
+	 *
+	 * @param string $integration_id The integration ID.
+	 *
+	 * @return string The group name (e.g., 'newspack-integration-esp').
+	 */
+	public static function get_action_group( $integration_id ) {
+		return \Newspack\Action_Scheduler::GROUP_PREFIX . 'integration-' . $integration_id;
+	}
+
+	/**
+	 * Resolve the ActionScheduler group for a data event handler.
+	 *
+	 * Looks up the handler in the internal handler map and returns the
+	 * per-integration group, or null if the handler is not registered
+	 * through an integration.
+	 *
+	 * @param string $class       The handler class name.
+	 * @param string $action_name The data event action name.
+	 *
+	 * @return string|null The group name or null if the handler is not registered through an integration.
+	 */
+	public static function get_action_group_for_handler( $class, $action_name ) {
+		$key = $class . '::' . $action_name;
+		if ( isset( self::$handler_map[ $key ] ) ) {
+			return self::get_action_group( self::$handler_map[ $key ]['integration_id'] );
+		}
+		return null;
+	}
+
+	/**
+	 * Filter the ActionScheduler group for a data event handler.
+	 *
+	 * Hooked to 'newspack_data_events_handler_action_group' to assign
+	 * integration-specific groups to handlers registered through integrations.
+	 *
+	 * @param string $group       The default group name.
+	 * @param string $class       The handler class name.
+	 * @param string $action_name The data event action name.
+	 *
+	 * @return string The filtered group name.
+	 */
+	public static function filter_handler_action_group( $group, $class, $action_name ) {
+		return self::get_action_group_for_handler( $class, $action_name ) ?? $group;
+	}
+
+	/**
+	 * Get all ActionScheduler group slugs for Newspack integrations.
+	 *
+	 * @return string[] Array of group slug strings.
+	 */
+	public static function get_all_action_groups() {
+		return \Newspack\Action_Scheduler::get_groups_by_prefix( \Newspack\Action_Scheduler::GROUP_PREFIX . 'integration-' );
+	}
+
+	/**
+	 * Get ActionScheduler actions for Newspack integrations.
+	 *
+	 * @param array $args {
+	 *     Optional. Query arguments.
+	 *
+	 *     @type string $integration_id Filter by a single integration ID.
+	 *     @type string $status         ActionScheduler status (pending, complete, failed, canceled).
+	 *     @type int    $per_page       Number of actions to return. Default 20.
+	 *     @type int    $offset         Offset for pagination. Default 0.
+	 *     @type string $orderby        Column to order by. Default 'scheduled_date_gmt'.
+	 *     @type string $order          ASC or DESC. Default 'DESC'.
+	 * }
+	 *
+	 * @return array Array of action row objects.
+	 */
+	public static function get_scheduled_actions( $args = [] ) {
+		$defaults = [
+			'integration_id' => '',
+		];
+		$args = wp_parse_args( $args, $defaults );
+
+		// Resolve integration_id to group slugs.
+		if ( ! empty( $args['integration_id'] ) ) {
+			$args['groups'] = [ self::get_action_group( $args['integration_id'] ) ];
+		} else {
+			$args['groups'] = self::get_all_action_groups();
+		}
+		unset( $args['integration_id'] );
+
+		// No groups to query, return empty array.
+		if ( empty( $args['groups'] ) ) {
+			return [];
+		}
+
+		return \Newspack\Action_Scheduler::get_scheduled_actions( $args );
 	}
 
 	/**
@@ -234,6 +350,47 @@ class Integrations {
 	}
 
 	/**
+	 * Get settings config for all integrations that have settings fields.
+	 *
+	 * @return array Keyed array of integration settings.
+	 */
+	public static function get_all_integration_settings() {
+		$result = [];
+		foreach ( self::$integrations as $id => $integration ) {
+			$fields = $integration->get_settings_fields();
+			if ( empty( $fields ) ) {
+				continue;
+			}
+			$result[ $id ] = [
+				'id'          => $id,
+				'name'        => $integration->get_name(),
+				'description' => $integration->get_description(),
+				'enabled'     => self::is_enabled( $id ),
+				'settings'    => $integration->get_settings_config(),
+			];
+		}
+		return $result;
+	}
+
+	/**
+	 * Update settings for a specific integration.
+	 *
+	 * @param string $integration_id The integration ID.
+	 * @param array  $settings       Key-value pairs of settings to update.
+	 * @return bool|null True if updated, null if integration not found.
+	 */
+	public static function update_integration_settings( $integration_id, $settings ) {
+		$integration = self::get_integration( $integration_id );
+		if ( ! $integration ) {
+			return null;
+		}
+		foreach ( $settings as $key => $value ) {
+			$integration->update_settings_field_value( $key, $value );
+		}
+		return true;
+	}
+
+	/**
 	 * Register a data event handler for an integration.
 	 *
 	 * Validates the method, stores the handler in the map, and registers
@@ -323,5 +480,69 @@ class Integrations {
 		}
 
 		$integration->{ $entry['method'] }( $timestamp, $data, $client_id );
+	}
+
+	/**
+	 * Schedule the hourly health check cron event.
+	 *
+	 * Respects NEWSPACK_CRON_DISABLE to allow selective disabling.
+	 */
+	public static function schedule_health_check() {
+		register_deactivation_hook( NEWSPACK_PLUGIN_FILE, [ __CLASS__, 'deactivate_health_check' ] );
+
+		if ( defined( 'NEWSPACK_CRON_DISABLE' ) && is_array( NEWSPACK_CRON_DISABLE ) && in_array( self::HEALTH_CHECK_CRON_HOOK, NEWSPACK_CRON_DISABLE, true ) ) {
+			self::deactivate_health_check();
+		} elseif ( ! \wp_next_scheduled( self::HEALTH_CHECK_CRON_HOOK ) ) {
+			\wp_schedule_event( time(), 'hourly', self::HEALTH_CHECK_CRON_HOOK );
+		}
+	}
+
+	/**
+	 * Deactivate the health check cron event.
+	 */
+	public static function deactivate_health_check() {
+		\wp_clear_scheduled_hook( self::HEALTH_CHECK_CRON_HOOK );
+	}
+
+	/**
+	 * Run health checks on all active integrations.
+	 *
+	 * Logs failures and fires an action for the Alert Manager.
+	 */
+	public static function run_health_checks() {
+		$active = self::get_active_integrations();
+		foreach ( $active as $integration ) {
+			$result = $integration->health_check();
+			if ( is_wp_error( $result ) ) {
+				Logger::error(
+					sprintf(
+						'Health check failed for integration "%s": %s',
+						$integration->get_name(),
+						implode( '; ', $result->get_error_messages() )
+					),
+					self::LOGGER_HEADER
+				);
+
+				/**
+				 * Fires when an integration health check fails.
+				 *
+				 * @param array $payload {
+				 *     Health check failure data.
+				 *
+				 *     @type string    $integration_id   The integration ID.
+				 *     @type string    $integration_name The integration display name.
+				 *     @type \WP_Error $error            The error object.
+				 * }
+				 */
+				do_action(
+					'newspack_integration_health_check_failed',
+					[
+						'integration_id'   => $integration->get_id(),
+						'integration_name' => $integration->get_name(),
+						'error'            => $result,
+					]
+				);
+			}
+		}
 	}
 }

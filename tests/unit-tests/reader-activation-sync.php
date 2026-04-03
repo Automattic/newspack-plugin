@@ -28,7 +28,7 @@ class Newspack_Test_Reader_Activation_Sync extends WP_UnitTestCase {
 			'name'     => 'Test Contact',
 			'metadata' => [],
 		];
-		foreach ( array_keys( Sync\Metadata::$keys ) as $key ) {
+		foreach ( array_keys( Sync\Metadata::get_keys() ) as $key ) {
 			$contact['metadata'][ Sync\Metadata::get_key( $key ) ] = 'value';
 		}
 		return $contact;
@@ -64,7 +64,6 @@ class Newspack_Test_Reader_Activation_Sync extends WP_UnitTestCase {
 	 * Test specific ESP integration checks.
 	 */
 	public function test_esp_integration_checks() {
-
 		$esp_integration = new Integrations\ESP();
 		$errors = $esp_integration->can_sync( true );
 		$this->assertInstanceOf( 'WP_Error', $errors );
@@ -74,12 +73,13 @@ class Newspack_Test_Reader_Activation_Sync extends WP_UnitTestCase {
 		$this->assertContains( 'ras_esp_master_list_id_not_found', $error_codes, 'Missing master list ID' );
 
 		// Disable ESP sync.
-		Reader_Activation::update_setting( 'sync_esp', false );
+		Integrations::disable( 'esp' );
+		$esp_integration->update_settings_field_value( 'sync_esp', false );
 		$errors = $esp_integration->can_sync( true );
 		$this->assertContains( 'ras_esp_sync_not_enabled', $errors->get_error_codes(), 'RAS ESP Sync is disabled' );
 
 		// Reenable ESP sync.
-		Reader_Activation::update_setting( 'sync_esp', true );
+		Integrations::enable( 'esp' );
 
 		// Allow ESP sync via constant. We're not testing `Newspack_Manager::is_connected_to_production_manager()` here.
 		define( 'NEWSPACK_ALLOW_READER_SYNC', true );
@@ -87,8 +87,7 @@ class Newspack_Test_Reader_Activation_Sync extends WP_UnitTestCase {
 		$this->assertNotContains( 'esp_sync_not_allowed', $errors->get_error_codes(), 'RAS ESP Sync is allowed via constant' );
 
 		// Set master list ID.
-		update_option( 'newspack_newsletters_service_provider', 'mailchimp' );
-		Reader_Activation::update_setting( 'mailchimp_audience_id', '123' );
+		$esp_integration->update_settings_field_value( 'mailchimp_audience_id', '123' );
 		$errors = $esp_integration->can_sync( true );
 		$this->assertNotContains( 'ras_esp_master_list_id_not_found', $errors->get_error_codes(), 'Master list ID is set' );
 
@@ -148,7 +147,7 @@ class Newspack_Test_Reader_Activation_Sync extends WP_UnitTestCase {
 		);
 
 		// Clear from last test.
-		\delete_option( Sync\Metadata::PREFIX_OPTION );
+		Sync\Metadata::update_prefix( '' );
 
 		$contact_data_with_prefixed_keys['metadata']['NP_Invalid_Key'] = 'Invalid data';
 		$this->assertEquals(
@@ -225,8 +224,8 @@ class Newspack_Test_Reader_Activation_Sync extends WP_UnitTestCase {
 	 */
 	public function test_with_all_valid_selected() {
 		$contact = $this->get_sample_contact();
-		$defaults = array_keys( Sync\Metadata::$keys );
-		$this->set_option( [ Sync\Metadata::$keys[ $defaults[0] ], Sync\Metadata::$keys[ $defaults[1] ] ] );
+		$defaults = array_keys( Sync\Metadata::get_keys() );
+		$this->set_option( [ Sync\Metadata::get_keys()[ $defaults[0] ], Sync\Metadata::get_keys()[ $defaults[1] ] ] );
 		$normalized = Sync\Metadata::normalize_contact_data( $contact );
 		$this->assertArrayHasKey( Sync\Metadata::get_key( $defaults[0] ), $normalized['metadata'] );
 		$this->assertArrayHasKey( Sync\Metadata::get_key( $defaults[1] ), $normalized['metadata'] );
@@ -239,8 +238,8 @@ class Newspack_Test_Reader_Activation_Sync extends WP_UnitTestCase {
 	 */
 	public function test_with_valid_and_invalid_selected() {
 		$contact  = $this->get_sample_contact();
-		$defaults = array_keys( Sync\Metadata::$keys );
-		$this->set_option( [ Sync\Metadata::$keys[ $defaults[0] ], Sync\Metadata::$keys[ $defaults[1] ], 'invalid' ] );
+		$defaults = array_keys( Sync\Metadata::get_keys() );
+		$this->set_option( [ Sync\Metadata::get_keys()[ $defaults[0] ], Sync\Metadata::get_keys()[ $defaults[1] ], 'invalid' ] );
 		$normalized = Sync\Metadata::normalize_contact_data( $contact );
 		$this->assertArrayHasKey( Sync\Metadata::get_key( $defaults[0] ), $normalized['metadata'] );
 		$this->assertArrayHasKey( Sync\Metadata::get_key( $defaults[1] ), $normalized['metadata'] );
@@ -255,8 +254,8 @@ class Newspack_Test_Reader_Activation_Sync extends WP_UnitTestCase {
 	 */
 	public function test_with_utm_fields() {
 		$contact  = $this->get_sample_contact();
-		$defaults = array_keys( Sync\Metadata::$keys );
-		$this->set_option( [ Sync\Metadata::$keys['signup_page_utm'], Sync\Metadata::$keys['payment_page_utm'] ] );
+		$defaults = array_keys( Sync\Metadata::get_keys() );
+		$this->set_option( [ Sync\Metadata::get_keys()['signup_page_utm'], Sync\Metadata::get_keys()['payment_page_utm'] ] );
 		$contact['metadata'][ Sync\Metadata::get_key( 'signup_page_utm' ) . 'foo' ] = 'bar';
 		$contact['metadata'][ Sync\Metadata::get_key( 'payment_page_utm' ) . 'yyy' ] = 'zzz';
 		$normalized = Sync\Metadata::normalize_contact_data( $contact );
@@ -271,8 +270,8 @@ class Newspack_Test_Reader_Activation_Sync extends WP_UnitTestCase {
 	 */
 	public function test_with_raw_utm_fields() {
 		$contact  = $this->get_sample_contact();
-		$defaults = array_keys( Sync\Metadata::$keys );
-		$this->set_option( [ Sync\Metadata::$keys['signup_page_utm'], Sync\Metadata::$keys['payment_page_utm'] ] );
+		$defaults = array_keys( Sync\Metadata::get_keys() );
+		$this->set_option( [ Sync\Metadata::get_keys()['signup_page_utm'], Sync\Metadata::get_keys()['payment_page_utm'] ] );
 		$contact['metadata']['signup_page_utm_foo'] = 'bar';
 		$contact['metadata']['payment_page_utm_yyy'] = 'zzz';
 		$normalized = Sync\Metadata::normalize_contact_data( $contact );
@@ -308,26 +307,21 @@ class Newspack_Test_Reader_Activation_Sync extends WP_UnitTestCase {
 		// Clear any pending retries.
 		as_unschedule_all_actions( Contact_Sync::RETRY_HOOK );
 
-		$contact = [
-			'email'    => 'retry@test.com',
-			'name'     => 'Retry Test',
-			'metadata' => [],
-		];
+		$user_id = $this->factory()->user->create( [ 'user_email' => 'retry@test.com' ] );
 
 		Contact_Sync::execute_integration_retry(
 			[
-				'integration_id'   => 'failing_mock',
-				'contact'          => $contact,
-				'context'          => 'Test',
-				'existing_contact' => null,
-				'retry_count'      => 1,
+				'integration_id' => 'failing_mock',
+				'user_id'        => $user_id,
+				'context'        => 'Test',
+				'retry_count'    => 1,
 			]
 		);
 
 		$pending = as_get_scheduled_actions(
 			[
 				'hook'   => Contact_Sync::RETRY_HOOK,
-				'group'  => 'newspack',
+				'group'  => Integrations::get_action_group( 'failing_mock' ),
 				'status' => \ActionScheduler_Store::STATUS_PENDING,
 			],
 			'ARRAY_A'
@@ -356,19 +350,14 @@ class Newspack_Test_Reader_Activation_Sync extends WP_UnitTestCase {
 		// Clear any pending retries.
 		as_unschedule_all_actions( Contact_Sync::RETRY_HOOK );
 
-		$contact = [
-			'email'    => 'success@test.com',
-			'name'     => 'Success Test',
-			'metadata' => [],
-		];
+		$user_id = $this->factory()->user->create( [ 'user_email' => 'success@test.com' ] );
 
 		Contact_Sync::execute_integration_retry(
 			[
-				'integration_id'   => 'success_mock',
-				'contact'          => $contact,
-				'context'          => 'Test',
-				'existing_contact' => null,
-				'retry_count'      => 1,
+				'integration_id' => 'success_mock',
+				'user_id'        => $user_id,
+				'context'        => 'Test',
+				'retry_count'    => 1,
 			]
 		);
 
@@ -377,7 +366,7 @@ class Newspack_Test_Reader_Activation_Sync extends WP_UnitTestCase {
 		$pending = as_get_scheduled_actions(
 			[
 				'hook'   => Contact_Sync::RETRY_HOOK,
-				'group'  => 'newspack',
+				'group'  => Integrations::get_action_group( 'success_mock' ),
 				'status' => \ActionScheduler_Store::STATUS_PENDING,
 			],
 			'ARRAY_A'
@@ -400,27 +389,29 @@ class Newspack_Test_Reader_Activation_Sync extends WP_UnitTestCase {
 		// Clear any pending retries.
 		as_unschedule_all_actions( Contact_Sync::RETRY_HOOK );
 
-		$contact = [
-			'email'    => 'max@test.com',
-			'name'     => 'Max Retry Test',
-			'metadata' => [],
-		];
+		$user_id = $this->factory()->user->create( [ 'user_email' => 'max@test.com' ] );
 
-		// Simulate a retry at the max count — should NOT schedule another.
-		Contact_Sync::execute_integration_retry(
-			[
-				'integration_id'   => 'max_mock',
-				'contact'          => $contact,
-				'context'          => 'Test',
-				'existing_contact' => null,
-				'retry_count'      => Contact_Sync::MAX_RETRIES,
-			]
-		);
+		// Simulate a retry at the max count — should NOT schedule another and should throw.
+		$threw = false;
+		try {
+			Contact_Sync::execute_integration_retry(
+				[
+					'integration_id' => 'max_mock',
+					'user_id'        => $user_id,
+					'context'        => 'Test',
+					'retry_count'    => Contact_Sync::MAX_RETRIES,
+				]
+			);
+		} catch ( \Exception $e ) {
+			$threw = true;
+		}
+
+		$this->assertTrue( $threw, 'Should throw an exception on the last retry.' );
 
 		$pending = as_get_scheduled_actions(
 			[
 				'hook'   => Contact_Sync::RETRY_HOOK,
-				'group'  => 'newspack',
+				'group'  => Integrations::get_action_group( 'max_mock' ),
 				'status' => \ActionScheduler_Store::STATUS_PENDING,
 			],
 			'ARRAY_A'
@@ -442,11 +433,7 @@ class Newspack_Test_Reader_Activation_Sync extends WP_UnitTestCase {
 
 		as_unschedule_all_actions( Contact_Sync::RETRY_HOOK );
 
-		$contact = [
-			'email'    => 'log@test.com',
-			'name'     => 'Log Test',
-			'metadata' => [],
-		];
+		$user_id = $this->factory()->user->create( [ 'user_email' => 'log@test.com' ] );
 
 		// Schedule a dummy AS action to simulate the currently-executing action.
 		$dummy_action_id = as_schedule_single_action( time() + 3600, 'newspack_dummy_log_action' );
@@ -454,17 +441,16 @@ class Newspack_Test_Reader_Activation_Sync extends WP_UnitTestCase {
 
 		Contact_Sync::execute_integration_retry(
 			[
-				'integration_id'   => 'log_mock',
-				'contact'          => $contact,
-				'context'          => 'Test',
-				'existing_contact' => null,
-				'retry_count'      => 1,
+				'integration_id' => 'log_mock',
+				'user_id'        => $user_id,
+				'context'        => 'Test',
+				'retry_count'    => 1,
 			]
 		);
 
 		Contact_Sync::clear_current_as_action_id();
 
-		// Verify AS log entry on the current action.
+		// Intermediate retries log a formatted failure message to the current AS action.
 		$logs     = \ActionScheduler_Logger::instance()->get_logs( $dummy_action_id );
 		$messages = array_map(
 			function ( $log ) {
@@ -472,9 +458,16 @@ class Newspack_Test_Reader_Activation_Sync extends WP_UnitTestCase {
 			},
 			$logs
 		);
+		$has_retry_log = false;
+		foreach ( $messages as $message ) {
+			if ( false !== strpos( $message, 'Retry 1/' . Contact_Sync::MAX_RETRIES . ' failed for integration "log_mock"' ) ) {
+				$has_retry_log = true;
+				break;
+			}
+		}
 		$this->assertTrue(
-			in_array( 'Mock push failed', $messages, true ),
-			'AS logs should contain the error message on the current action.'
+			$has_retry_log,
+			'Intermediate retries should log a formatted failure message to AS.'
 		);
 
 		// Clean up.
@@ -495,11 +488,7 @@ class Newspack_Test_Reader_Activation_Sync extends WP_UnitTestCase {
 
 		as_unschedule_all_actions( Contact_Sync::RETRY_HOOK );
 
-		$contact = [
-			'email'    => 'deadletter@test.com',
-			'name'     => 'Dead Letter Test',
-			'metadata' => [],
-		];
+		$user_id = $this->factory()->user->create( [ 'user_email' => 'deadletter@test.com' ] );
 
 		// Schedule a dummy AS action to simulate the currently-executing action.
 		$dummy_action_id = as_schedule_single_action( time() + 3600, 'newspack_dummy_sync_action' );
@@ -507,16 +496,19 @@ class Newspack_Test_Reader_Activation_Sync extends WP_UnitTestCase {
 		// Set the current AS action ID.
 		Contact_Sync::set_current_as_action_id( $dummy_action_id );
 
-		// Execute at max retry count — push fails, triggers max-retries guard.
-		Contact_Sync::execute_integration_retry(
-			[
-				'integration_id'   => 'deadletter_mock',
-				'contact'          => $contact,
-				'context'          => 'Test',
-				'existing_contact' => null,
-				'retry_count'      => Contact_Sync::MAX_RETRIES,
-			]
-		);
+		// Execute at max retry count — push fails, triggers max-retries guard and throws.
+		try {
+			Contact_Sync::execute_integration_retry(
+				[
+					'integration_id' => 'deadletter_mock',
+					'user_id'        => $user_id,
+					'context'        => 'Test',
+					'retry_count'    => Contact_Sync::MAX_RETRIES,
+				]
+			);
+		} catch ( \Exception $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
+			// Expected — final retry throws so AS marks the action as failed.
+		}
 
 		Contact_Sync::clear_current_as_action_id();
 
@@ -538,6 +530,53 @@ class Newspack_Test_Reader_Activation_Sync extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Test that sync retry exhaustion fires the alert hook.
+	 */
+	public function test_sync_retry_exhaustion_fires_hook() {
+		if ( ! function_exists( 'as_schedule_single_action' ) ) {
+			$this->markTestSkipped( 'ActionScheduler not available.' );
+		}
+
+		$hook_fired = false;
+		$hook_data  = null;
+		add_action(
+			'newspack_sync_retry_exhausted',
+			function ( $data ) use ( &$hook_fired, &$hook_data ) {
+				$hook_fired = true;
+				$hook_data  = $data;
+			}
+		);
+
+		Failing_Sample_Integration::reset();
+		Failing_Sample_Integration::$should_fail = true;
+		$this->register_failing_integration( 'exhaustion_mock' );
+
+		as_unschedule_all_actions( Contact_Sync::RETRY_HOOK );
+
+		$user_id = $this->factory()->user->create( [ 'user_email' => 'exhaustion@test.com' ] );
+
+		// Execute at max retry count — triggers exhaustion and throws.
+		try {
+			Contact_Sync::execute_integration_retry(
+				[
+					'integration_id' => 'exhaustion_mock',
+					'user_id'        => $user_id,
+					'context'        => 'Test',
+					'retry_count'    => Contact_Sync::MAX_RETRIES,
+				]
+			);
+		} catch ( \Exception $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
+			// Expected — final retry throws so AS marks the action as failed.
+		}
+
+		$this->assertTrue( $hook_fired, 'newspack_sync_retry_exhausted should fire on max retries.' );
+		$this->assertEquals( 'exhaustion_mock', $hook_data['integration_id'] );
+		$this->assertEquals( $user_id, $hook_data['user_id'] );
+		$this->assertEquals( Contact_Sync::MAX_RETRIES, $hook_data['retry_count'] );
+		$this->assertArrayHasKey( 'reason', $hook_data );
+	}
+
+	/**
 	 * Test that invalid retry data is handled gracefully.
 	 */
 	public function test_integration_retry_invalid_data() {
@@ -551,12 +590,12 @@ class Newspack_Test_Reader_Activation_Sync extends WP_UnitTestCase {
 		// Missing integration_id.
 		Contact_Sync::execute_integration_retry(
 			[
-				'contact'     => [ 'email' => 'test@test.com' ],
+				'user_id'     => 1,
 				'retry_count' => 1,
 			]
 		);
 
-		// Missing contact.
+		// Missing user_id.
 		Contact_Sync::execute_integration_retry(
 			[
 				'integration_id' => 'failing_mock',
@@ -567,7 +606,7 @@ class Newspack_Test_Reader_Activation_Sync extends WP_UnitTestCase {
 		$pending = as_get_scheduled_actions(
 			[
 				'hook'   => Contact_Sync::RETRY_HOOK,
-				'group'  => 'newspack',
+				'group'  => Integrations::get_action_group( 'failing_mock' ),
 				'status' => \ActionScheduler_Store::STATUS_PENDING,
 			],
 			'ARRAY_A'

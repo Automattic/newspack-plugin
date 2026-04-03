@@ -12,7 +12,7 @@ import '../../shared/js/public-path';
 import { CardBody, CardDivider, CardMedia, ExternalLink, ToggleControl, __experimentalVStack as VStack } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
 import { Component, Fragment, render, createInterpolateElement, createRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Icon, audio, category, plus, postList, reusableBlock, settings, typography } from '@wordpress/icons';
+import { Icon, category, plus, postList, settings } from '@wordpress/icons';
 
 /**
  * Internal dependencies.
@@ -23,8 +23,8 @@ import {
 	AutocompleteWithLatestPosts,
 	BoxContrast,
 	Button,
-	ButtonCard,
 	Card,
+	CardFeature,
 	CardSettingsGroup,
 	ColorPicker,
 	Footer,
@@ -72,6 +72,8 @@ class ComponentsDemo extends Component {
 				{ id: 5, title: 'Draggable Item 5' },
 			],
 			settingsGroupCardActive: false,
+			cardFeatureEnabled: false,
+			cardFeatureCustomEnabled: false,
 		};
 		this.dragWrapperRef = createRef();
 	}
@@ -657,51 +659,6 @@ class ComponentsDemo extends Component {
 						</Grid>
 					</Card>
 					<Card>
-						<h2>{ __( 'ButtonCard', 'newspack-plugin' ) }</h2>
-						<ButtonCard
-							href="admin.php?page=newspack-settings#/theme-and-brand"
-							title={ __( 'Theme and Brand', 'newspack-plugin' ) }
-							desc={ __( 'Customize the look and feel of your site', 'newspack-plugin' ) }
-							icon={ typography }
-							chevron
-						/>
-						<ButtonCard
-							href="#"
-							title={ __( 'Start a new site', 'newspack-plugin' ) }
-							desc={ __( "You don't have content to import", 'newspack-plugin' ) }
-							icon={ plus }
-							className="br--top"
-							grouped
-						/>
-						<ButtonCard
-							href="#"
-							title={ __( 'Migrate an existing site', 'newspack-plugin' ) }
-							desc={ __( 'You have content to import', 'newspack-plugin' ) }
-							icon={ reusableBlock }
-							className="br--bottom"
-							grouped
-						/>
-						<ButtonCard
-							href="#"
-							title={ __( 'Add a new Podcast', 'newspack-plugin' ) }
-							desc={ ( 'Small', 'newspack-plugin' ) }
-							icon={ audio }
-							className="br--top"
-							isSmall
-							grouped
-						/>
-						<ButtonCard
-							href="#"
-							title={ __( 'Add a new Font', 'newspack-plugin' ) }
-							desc={ ( 'Small + chevron', 'newspack-plugin' ) }
-							icon={ typography }
-							className="br--bottom"
-							chevron
-							isSmall
-							grouped
-						/>
-					</Card>
-					<Card>
 						<h2>{ __( 'Card (experimental Core component)', 'newspack-plugin' ) }</h2>
 						<p>
 							{ __(
@@ -721,7 +678,7 @@ class ComponentsDemo extends Component {
 									header: (
 										<>
 											<h3>{ __( 'Button card w/ icon', 'newspack-plugin' ) }</h3>
-											<p>{ __( 'Can be used in lieu of the Newspack ButtonCard component.', 'newspack-plugin' ) }</p>
+											<p>{ __( "Clickable card using Core's Card component.", 'newspack-plugin' ) }</p>
 										</>
 									),
 									href: '#',
@@ -737,7 +694,7 @@ class ComponentsDemo extends Component {
 									header: (
 										<>
 											<h3>{ __( 'Small button card w/ icon + background color + chevron', 'newspack-plugin' ) }</h3>
-											<p>{ __( 'Can be used in lieu of the Newspack ButtonCard component.', 'newspack-plugin' ) }</p>
+											<p>{ __( "Clickable card using Core's Card component.", 'newspack-plugin' ) }</p>
 										</>
 									),
 									href: '#',
@@ -918,6 +875,121 @@ class ComponentsDemo extends Component {
 						<BoxContrast hexColor="#51f1ff" isInverted>
 							#51f1ff / Inverted
 						</BoxContrast>
+					</Card>
+					<Card>
+						<h2>{ __( 'CardFeature', 'newspack-plugin' ) }</h2>
+						<p>
+							{ __(
+								'A state-driven feature card with a predictable action model. The button, dropdown, and badge are all derived from the enabled and requirements props.',
+								'newspack-plugin'
+							) }
+						</p>
+						<h3>{ __( 'States', 'newspack-plugin' ) }</h3>
+						<Grid columns={ 2 } gutter={ 16 }>
+							<CardFeature
+								title={ __( 'Metered countdown', 'newspack-plugin' ) }
+								description={ __(
+									'Show a countdown banner letting readers know how many free views they have left.',
+									'newspack-plugin'
+								) }
+								requirements={ __( 'Requires metering', 'newspack-plugin' ) }
+								onEnable={ () => {} }
+								onConfigure={ () => {} }
+							/>
+							<CardFeature
+								title={ __( 'Metered countdown', 'newspack-plugin' ) }
+								description={ __(
+									'Show a countdown banner letting readers know how many free views they have left.',
+									'newspack-plugin'
+								) }
+								enabled={ true }
+								onEnable={ () => {} }
+								onConfigure={ () => {} }
+								moreControls={ [ { title: __( 'Disable', 'newspack-plugin' ), onClick: () => {} } ] }
+							/>
+						</Grid>
+						<h3>{ __( 'Interactive toggle', 'newspack-plugin' ) }</h3>
+						<Grid columns={ 2 } gutter={ 16 }>
+							<CardFeature
+								title={ __( 'Metered countdown', 'newspack-plugin' ) }
+								description={ __(
+									'Show a countdown banner letting readers know how many free views they have left.',
+									'newspack-plugin'
+								) }
+								enabled={ this.state.cardFeatureEnabled }
+								onEnable={ () => this.setState( { cardFeatureEnabled: true } ) }
+								onConfigure={ () => {} }
+								moreControls={ [
+									{ title: __( 'Disable', 'newspack-plugin' ), onClick: () => this.setState( { cardFeatureEnabled: false } ) },
+								] }
+							/>
+						</Grid>
+						<h3>{ __( 'With a custom icon', 'newspack-plugin' ) }</h3>
+						<Grid columns={ 2 } gutter={ 16 }>
+							<CardFeature
+								title={ __( 'Content gifting', 'newspack-plugin' ) }
+								description={ __( 'Let subscribers share gated articles with non-subscribers.', 'newspack-plugin' ) }
+								icon={ { node: <Icon icon={ settings } />, fill: '#757575', backgroundColor: '#f0f0f0' } }
+								enabled={ false }
+								onEnable={ () => {} }
+								onConfigure={ () => {} }
+							/>
+							<CardFeature
+								title={ __( 'Content gifting', 'newspack-plugin' ) }
+								description={ __( 'Let subscribers share gated articles with non-subscribers.', 'newspack-plugin' ) }
+								icon={ { node: <Icon icon={ settings } />, fill: '#003da5', backgroundColor: '#dfe7f4', radius: 'full' } }
+								enabled={ true }
+								onEnable={ () => {} }
+								onConfigure={ () => {} }
+								moreControls={ [ { title: __( 'Disable', 'newspack-plugin' ), onClick: () => {} } ] }
+							/>
+						</Grid>
+						<h3>{ __( 'With custom button labels', 'newspack-plugin' ) }</h3>
+						<Grid columns={ 2 } gutter={ 16 }>
+							<CardFeature
+								title={ __( 'Apple News', 'newspack-plugin' ) }
+								description={ __( 'Automatically publish articles to Apple News.', 'newspack-plugin' ) }
+								enabled={ this.state.cardFeatureCustomEnabled }
+								enableLabel={ __( 'Connect', 'newspack-plugin' ) }
+								configureLabel={ __( 'Manage connection', 'newspack-plugin' ) }
+								onEnable={ () => this.setState( { cardFeatureCustomEnabled: true } ) }
+								onConfigure={ () => {} }
+								moreControls={ [
+									{
+										title: __( 'Disconnect', 'newspack-plugin' ),
+										onClick: () => this.setState( { cardFeatureCustomEnabled: false } ),
+									},
+								] }
+							/>
+						</Grid>
+						<h3>{ __( 'With a custom badge', 'newspack-plugin' ) }</h3>
+						<Grid columns={ 2 } gutter={ 16 }>
+							<CardFeature
+								title={ __( 'Stripe', 'newspack-plugin' ) }
+								description={ __( 'Accept payments via Stripe.', 'newspack-plugin' ) }
+								enabled={ true }
+								badgeText={ __( 'Live mode', 'newspack-plugin' ) }
+								badgeLevel="info"
+								onEnable={ () => {} }
+								onConfigure={ () => {} }
+								moreControls={ [ { title: __( 'Disable', 'newspack-plugin' ), onClick: () => {} } ] }
+							/>
+						</Grid>
+						<h3>{ __( 'With multiple dropdown controls', 'newspack-plugin' ) }</h3>
+						<Grid columns={ 2 } gutter={ 16 }>
+							<CardFeature
+								title={ __( 'Newsletters', 'newspack-plugin' ) }
+								description={ __( 'Send newsletters directly from the WordPress editor.', 'newspack-plugin' ) }
+								enabled={ true }
+								onEnable={ () => {} }
+								onConfigure={ () => {} }
+								moreControls={ [
+									{ title: __( 'Edit', 'newspack-plugin' ), onClick: () => {} },
+									{ title: __( 'Preview', 'newspack-plugin' ), onClick: () => {} },
+									{ title: __( 'Disable', 'newspack-plugin' ), onClick: () => {} },
+								] }
+							/>
+						</Grid>
 					</Card>
 					<Card>
 						<h2>{ __( 'Newspack Icons', 'newspack-plugin' ) }</h2>

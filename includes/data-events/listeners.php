@@ -11,6 +11,7 @@ use Newspack\Data_Events;
 use Newspack\Reader_Activation;
 use Newspack\Donations;
 use Newspack\Memberships;
+use Newspack\Reader_Data;
 
 /**
  * For when a reader registers.

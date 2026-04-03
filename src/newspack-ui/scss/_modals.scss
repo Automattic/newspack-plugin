@@ -82,7 +82,9 @@
 		}
 
 		&__close {
-			margin: -6px -6px -6px 0 !important; // Accounts for the header padding. TODO: Can this be improved to work w/variables?
+			.newspack-ui__modal__header & {
+				margin: -6px -6px -6px 0 !important; // Accounts for the header padding. TODO: Can this be improved to work w/variables?
+			}
 		}
 
 		&__content {

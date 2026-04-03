@@ -14,7 +14,7 @@
 		}
 		.legend {
 			display: block;
-			margin: var(--newspack-ui-spacer-base) 0;
+			margin: var(--newspack-ui-spacer-1) 0;
 		}
 		small {
 			font-size: inherit;
@@ -65,10 +65,10 @@
 	.woocommerce-password-strength {
 		display: block;
 		font-size: var(--newspack-ui-font-size-xs);
-		margin: var(--newspack-ui-spacer-base) 0;
+		margin: var(--newspack-ui-spacer-1) 0;
 		& + small {
 			display: block;
-			margin-top: calc(var(--newspack-ui-spacer-base) * -1);
+			margin-top: calc(var(--newspack-ui-spacer-1) * -1);
 		}
 		&.short,
 		&.bad {

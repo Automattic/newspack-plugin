@@ -9,6 +9,7 @@ describe( 'Store', () => {
 		const store = Store();
 		expect( typeof store ).toBe( 'object' );
 		expect( typeof store.get ).toBe( 'function' );
+		expect( typeof store.getAll ).toBe( 'function' );
 		expect( typeof store.set ).toBe( 'function' );
 		expect( typeof store.add ).toBe( 'function' );
 		expect( typeof store.delete ).toBe( 'function' );
@@ -94,6 +95,48 @@ describe( 'Store', () => {
 		};
 		const store = Store();
 		expect( store.get( 'foo' ) ).toEqual( 'bar' );
+	} );
+	describe( 'getAll', () => {
+		beforeEach( () => {
+			window.newspack_reader_data = {};
+		} );
+		it( 'should return all store data as a plain object', () => {
+			const store = Store();
+			store.set( 'name', 'Leo' );
+			store.set( 'prefs', { theme: 'dark' } );
+			store.set( 'scores', [ 1, 2, 3 ] );
+			const all = store.getAll();
+			expect( all ).toEqual( {
+				name: 'Leo',
+				prefs: { theme: 'dark' },
+				scores: [ 1, 2, 3 ],
+			} );
+		} );
+		it( 'should not include internal keys in getAll', () => {
+			const store = Store();
+			store.set( 'visible', 'yes' );
+			const all = store.getAll();
+			expect( all.visible ).toEqual( 'yes' );
+			expect( all ).not.toHaveProperty( 'unsynced' );
+			// Verify internal key exists in storage but isn't surfaced.
+			expect( localStorage.getItem( 'np_reader__unsynced' ) ).not.toBeNull();
+		} );
+		it( 'should return an empty object when store is empty', () => {
+			const store = Store();
+			expect( store.getAll() ).toEqual( {} );
+		} );
+		it( 'should include rehydrated server items in getAll', () => {
+			window.newspack_reader_data = {
+				items: {
+					is_donor: 'true',
+					active_memberships: '[1,2]',
+				},
+			};
+			const store = Store();
+			const all = store.getAll();
+			expect( all.is_donor ).toEqual( true );
+			expect( all.active_memberships ).toEqual( [ 1, 2 ] );
+		} );
 	} );
 	describe( 'Read-only keys', () => {
 		beforeEach( () => {

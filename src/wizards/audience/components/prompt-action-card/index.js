@@ -8,6 +8,7 @@
  */
 import apiFetch from '@wordpress/api-fetch';
 import { sprintf, __ } from '@wordpress/i18n';
+import { CardMedia } from '@wordpress/components';
 import { useEffect, useState, Fragment } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { moreVertical, settings } from '@wordpress/icons';
@@ -50,9 +51,10 @@ const PromptActionCard = props => {
 	};
 
 	return (
-		<>
+		<CardMedia>
 			<ActionCard
 				isSmall
+				noBorder
 				badge={ placementForPopup( prompt ) }
 				className={ className }
 				title={ title.length ? decodeEntities( title ) : __( '(no title)', 'newspack-plugin' ) }
@@ -179,7 +181,7 @@ const PromptActionCard = props => {
 					) }
 				</Modal>
 			) }
-		</>
+		</CardMedia>
 	);
 };
 export default PromptActionCard;

@@ -9,6 +9,7 @@ import { getCookie, setCookie, generateID, debugLog } from './utils.js';
 import overlays from './overlays.js';
 import initAnalytics from './analytics.js';
 import setupArticleViewsAggregates from './article-view.js';
+import setupEngagement from './engagement.js';
 import initSubscriptionTiersForm from './subscription-tiers-form.js';
 import { openAuthModal as _openAuthModal } from '../reader-activation-auth/auth-modal.js';
 
@@ -490,6 +491,7 @@ function init() {
 	initSubscriptionTiersForm( readerActivation );
 	fixClientID();
 	setupArticleViewsAggregates( readerActivation );
+	setupEngagement( readerActivation );
 	attachAuthCookiesListener();
 	attachNewsletterFormListener();
 	pushActivities();

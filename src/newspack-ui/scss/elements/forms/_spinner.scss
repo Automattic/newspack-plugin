@@ -1,7 +1,7 @@
 .newspack-ui {
 	&__spinner {
 		flex-direction: column;
-		gap: var(--newspack-ui-spacer-2);
+		gap: var(--newspack-ui-spacer-5);
 		align-items: center;
 		background: var(--newspack-ui-color-neutral-0);
 		border-radius: var(--newspack-ui-border-radius-m);
@@ -21,10 +21,10 @@
 				var(--newspack-ui-color-neutral-90) var(--newspack-ui-color-neutral-90)
 				var(--newspack-ui-color-body-bg) var(--newspack-ui-color-body-bg);
 			border-radius: 50%;
-			height: calc(var(--newspack-ui-spacer-base) * 2.25);
-			width: calc(var(--newspack-ui-spacer-base) * 2.25);
+			height: calc(var(--newspack-ui-spacer-1) * 2.25);
+			width: calc(var(--newspack-ui-spacer-1) * 2.25);
 		}
-		p {
+		p:not(.newspack-ui__font--normal) {
 			font-weight: 600;
 		}
 	}

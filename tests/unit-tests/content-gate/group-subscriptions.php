@@ -326,7 +326,7 @@ class Test_Group_Subscriptions extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * Test user_is_member() returns true for explicit members and for the manager.
+	 * Test user_is_member() returns true for explicit members and false for the manager.
 	 */
 	public function test_user_is_member() {
 		$owner_id   = $this->create_reader_user();
@@ -336,9 +336,9 @@ class Test_Group_Subscriptions extends \WP_UnitTestCase {
 
 		Group_Subscription::update_members( $group_sub, [ $member_id ] );
 
-		$this->assertTrue(
+		$this->assertFalse(
 			Group_Subscription::user_is_member( $owner_id, $group_sub ),
-			'Owner/manager should be considered a member'
+			'Owner/manager should not be considered a member'
 		);
 		$this->assertTrue(
 			Group_Subscription::user_is_member( $member_id, $group_sub ),
@@ -738,6 +738,76 @@ class Test_Group_Subscriptions extends \WP_UnitTestCase {
 	}
 
 	/**
+	 * Test generate_invite() stores the invite with a valid key.
+	 */
+	public function test_generate_invite_stores_key() {
+		$admin_id  = $this->create_admin_user();
+		$owner_id  = $this->create_reader_user();
+		$group_sub = $this->create_group_subscription( $owner_id );
+		wp_set_current_user( $admin_id );
+
+		$result = Group_Subscription_Invite::generate_invite( $group_sub->get_id(), 'key-test@example.com' );
+
+		$this->assertIsArray( $result );
+		$invites = Group_Subscription_Invite::get_invites( $group_sub );
+		$key     = array_key_first( $invites );
+		$this->assertEquals( 32, strlen( $key ), 'Key should be 32 characters' );
+	}
+
+	/**
+	 * Test get_invite_url() generates a valid URL with expected query params.
+	 */
+	public function test_get_invite_url() {
+		$admin_id  = $this->create_admin_user();
+		$owner_id  = $this->create_reader_user();
+		$group_sub = $this->create_group_subscription( $owner_id );
+		wp_set_current_user( $admin_id );
+
+		Group_Subscription_Invite::generate_invite( $group_sub->get_id(), 'url+test@example.com' );
+		$invites    = Group_Subscription_Invite::get_invites( $group_sub );
+		$invite_key = array_key_first( $invites );
+		$url        = Group_Subscription_Invite::get_invite_url( $group_sub->get_id(), $invite_key, 'url+test@example.com' );
+
+		$parsed = wp_parse_url( $url );
+		parse_str( $parsed['query'], $query );
+
+		$this->assertEquals( 'group_invite', $query['action'] );
+		$this->assertEquals( $invite_key, $query['key'] );
+		$this->assertEquals( 'url+test@example.com', $query['email'] );
+		$this->assertEquals( (string) $group_sub->get_id(), $query['subscription'] );
+	}
+
+	/**
+	 * Test get_invite_by_key() returns the invite data for a valid key.
+	 */
+	public function test_get_invite_by_key() {
+		$admin_id  = $this->create_admin_user();
+		$owner_id  = $this->create_reader_user();
+		$group_sub = $this->create_group_subscription( $owner_id );
+		wp_set_current_user( $admin_id );
+
+		Group_Subscription_Invite::generate_invite( $group_sub->get_id(), 'key-lookup@example.com' );
+		$invites    = Group_Subscription_Invite::get_invites( $group_sub );
+		$invite_key = array_key_first( $invites );
+		$found      = Group_Subscription_Invite::get_invite_by_key( $group_sub->get_id(), $invite_key );
+
+		$this->assertIsArray( $found );
+		$this->assertEquals( 'key-lookup@example.com', $found['email'] );
+	}
+
+	/**
+	 * Test get_invite_by_key() returns null for an invalid key.
+	 */
+	public function test_get_invite_by_key_invalid() {
+		$owner_id  = $this->create_reader_user();
+		$group_sub = $this->create_group_subscription( $owner_id );
+
+		$found = Group_Subscription_Invite::get_invite_by_key( $group_sub->get_id(), 'nonexistentkey' );
+
+		$this->assertNull( $found );
+	}
+
+	/**
 	 * Test cancel_invite() removes a pending invite.
 	 */
 	public function test_cancel_invite() {
@@ -756,5 +826,140 @@ class Test_Group_Subscriptions extends \WP_UnitTestCase {
 
 		$after = Group_Subscription_Invite::get_invites( $group_sub );
 		$this->assertEmpty( $after );
+	}
+
+	// -------------------------------------------------------------------------
+	// Group_Subscription_Invite::accept_invite() tests
+	// -------------------------------------------------------------------------
+
+	/**
+	 * Test accept_invite() adds the user to the group and deletes the invite.
+	 */
+	public function test_accept_invite() {
+		$admin_id  = $this->create_admin_user();
+		$owner_id  = $this->create_reader_user();
+		$email     = 'accept@example.com';
+		$member_id = $this->create_reader_user( $email );
+		$group_sub = $this->create_group_subscription( $owner_id );
+		wp_set_current_user( $admin_id );
+
+		Group_Subscription_Invite::generate_invite( $group_sub->get_id(), $email );
+		$invite_key = array_key_first( Group_Subscription_Invite::get_invites( $group_sub ) );
+		$result     = Group_Subscription_Invite::accept_invite( $group_sub->get_id(), $invite_key, $email );
+
+		$this->assertTrue( $result );
+		$this->assertTrue( Group_Subscription::user_is_member( $member_id, $group_sub ) );
+		$this->assertEmpty( Group_Subscription_Invite::get_invites( $group_sub ) );
+	}
+
+	/**
+	 * Test accept_invite() returns WP_Error for expired invite.
+	 */
+	public function test_accept_invite_expired() {
+		$owner_id  = $this->create_reader_user();
+		$email     = 'expired-accept@example.com';
+		$this->create_reader_user( $email );
+		$group_sub = $this->create_group_subscription( $owner_id );
+		wp_set_current_user( $owner_id );
+
+		// Generate an expired invite.
+		add_filter(
+			'newspack_group_subscription_invite_expiration_time',
+			function() {
+				return -1;
+			}
+		);
+		Group_Subscription_Invite::generate_invite( $group_sub->get_id(), $email );
+		remove_all_filters( 'newspack_group_subscription_invite_expiration_time' );
+
+		$invite_key = array_key_first( Group_Subscription_Invite::get_invites( $group_sub->get_id(), true ) );
+		$result     = Group_Subscription_Invite::accept_invite( $group_sub->get_id(), $invite_key, $email );
+
+		$this->assertWPError( $result );
+		$this->assertEquals( 'newspack_group_subscription_invite_expired', $result->get_error_code() );
+	}
+
+	/**
+	 * Test accept_invite() returns WP_Error for invalid key.
+	 */
+	public function test_accept_invite_invalid_key() {
+		$owner_id  = $this->create_reader_user();
+		$group_sub = $this->create_group_subscription( $owner_id );
+
+		$result = Group_Subscription_Invite::accept_invite( $group_sub->get_id(), 'badkey', 'nobody@example.com' );
+
+		$this->assertWPError( $result );
+		$this->assertEquals( 'newspack_group_subscription_invite_not_found', $result->get_error_code() );
+	}
+
+	/**
+	 * Test accept_invite() returns WP_Error when email doesn't match the invite.
+	 */
+	public function test_accept_invite_email_mismatch() {
+		$admin_id  = $this->create_admin_user();
+		$owner_id  = $this->create_reader_user();
+		$group_sub = $this->create_group_subscription( $owner_id );
+		wp_set_current_user( $admin_id );
+
+		Group_Subscription_Invite::generate_invite( $group_sub->get_id(), 'correct@example.com' );
+		$invite_key = array_key_first( Group_Subscription_Invite::get_invites( $group_sub ) );
+		$result     = Group_Subscription_Invite::accept_invite( $group_sub->get_id(), $invite_key, 'wrong@example.com' );
+
+		$this->assertWPError( $result );
+		$this->assertEquals( 'newspack_group_subscription_invite_not_found', $result->get_error_code() );
+	}
+
+	/**
+	 * Test accept_invite() with a newly created reader user.
+	 */
+	public function test_accept_invite_new_user() {
+		$admin_id  = $this->create_admin_user();
+		$owner_id  = $this->create_reader_user();
+		$email     = 'new-reader@example.com';
+		$group_sub = $this->create_group_subscription( $owner_id );
+		wp_set_current_user( $admin_id );
+
+		Group_Subscription_Invite::generate_invite( $group_sub->get_id(), $email );
+		$invite_key = array_key_first( Group_Subscription_Invite::get_invites( $group_sub ) );
+
+		// Simulate creating the user (as process_invite_request would).
+		$new_user_id = $this->create_reader_user( $email );
+
+		$result = Group_Subscription_Invite::accept_invite( $group_sub->get_id(), $invite_key, $email );
+
+		$this->assertTrue( $result );
+		$this->assertTrue( Group_Subscription::user_is_member( $new_user_id, $group_sub ) );
+	}
+
+	/**
+	 * Test accept_invite() respects member limit.
+	 */
+	public function test_accept_invite_respects_limit() {
+		$admin_id  = $this->create_admin_user();
+		$owner_id  = $this->create_reader_user();
+		$member1   = $this->create_reader_user( 'member1@example.com' );
+		$email2    = 'member2@example.com';
+		$this->create_reader_user( $email2 );
+		$group_sub = $this->create_group_subscription( $owner_id, [ 'limit' => 1 ] );
+		wp_set_current_user( $admin_id );
+
+		// Fill the single slot.
+		Group_Subscription::update_members( $group_sub, [ $member1 ] );
+
+		// Manually store an invite to bypass the limit check in generate_invite.
+		$key     = wp_generate_password( 32, false );
+		$invites = [
+			$key => [
+				'added_by'   => $admin_id,
+				'email'      => $email2,
+				'expiration' => time() + DAY_IN_SECONDS,
+			],
+		];
+		$group_sub->update_meta_data( Group_Subscription_Invite::META, $invites );
+		$group_sub->save();
+
+		$result = Group_Subscription_Invite::accept_invite( $group_sub->get_id(), $key, $email2 );
+
+		$this->assertWPError( $result, 'Should fail when member limit is reached' );
 	}
 }

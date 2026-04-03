@@ -144,7 +144,7 @@ class Contact_Pull {
 		$failed = [];
 
 		foreach ( $integrations as $id => $integration ) {
-			$selected_fields = $integration->get_selected_fields();
+			$selected_fields = $integration->get_enabled_incoming_fields();
 			if ( empty( $selected_fields ) ) {
 				continue;
 			}
@@ -235,9 +235,9 @@ class Contact_Pull {
 	 * @return true|\WP_Error True on success, WP_Error on failure.
 	 */
 	public static function pull_single_integration( $user_id, $integration ) {
-		$selected_fields = $integration->get_selected_fields();
+		$selected_fields = $integration->get_enabled_incoming_fields();
 		if ( empty( $selected_fields ) ) {
-			return new \WP_Error( 'no_selected_fields', 'No selected fields for ' . $integration->get_id() );
+			return new \WP_Error( 'no_selected_incoming_fields', 'No selected incoming fields for ' . $integration->get_id() );
 		}
 
 		try {
@@ -248,7 +248,14 @@ class Contact_Pull {
 				return $data;
 			}
 
-			$selected_keys = array_flip( $selected_fields );
+			$selected_keys = array_flip(
+				array_map(
+					function( $field ) {
+						return $field->get_key();
+					},
+					$selected_fields
+				)
+			);
 			$data          = array_intersect_key( $data, $selected_keys );
 			Logger::log( 'Pulled data from ' . $integration->get_id() . ': ' . wp_json_encode( $data ) );
 
@@ -275,7 +282,7 @@ class Contact_Pull {
 		}
 
 		foreach ( $integrations as $integration ) {
-			$selected_fields = $integration->get_selected_fields();
+			$selected_fields = $integration->get_enabled_incoming_fields();
 			if ( empty( $selected_fields ) ) {
 				continue;
 			}
@@ -287,14 +294,16 @@ class Contact_Pull {
 				],
 			];
 
-			if ( function_exists( 'as_has_scheduled_action' ) && \as_has_scheduled_action( self::ASYNC_PULL_HOOK, $args, 'newspack' ) ) {
+			$group = Integrations::get_action_group( $integration->get_id() );
+
+			if ( function_exists( 'as_has_scheduled_action' ) && \as_has_scheduled_action( self::ASYNC_PULL_HOOK, $args, $group ) ) {
 				continue;
 			}
 
 			\as_enqueue_async_action(
 				self::ASYNC_PULL_HOOK,
 				$args,
-				'newspack'
+				$group
 			);
 		}
 	}

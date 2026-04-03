@@ -1,167 +1,29 @@
+$spacing-steps: (
+	"0": 0,
+	"1": var(--newspack-ui-spacer-1),
+	"2": var(--newspack-ui-spacer-2),
+	"3": var(--newspack-ui-spacer-3),
+	"4": var(--newspack-ui-spacer-4),
+	"5": var(--newspack-ui-spacer-5),
+	"6": var(--newspack-ui-spacer-6),
+	"7": var(--newspack-ui-spacer-7),
+	"8": var(--newspack-ui-spacer-8),
+	"9": var(--newspack-ui-spacer-9),
+	"10": var(--newspack-ui-spacer-10),
+	"11": var(--newspack-ui-spacer-11),
+	"12": var(--newspack-ui-spacer-12),
+);
+
+$spacing-sides: "bottom", "left", "right", "top";
+
 .newspack-ui {
 	.newspack-ui {
-		// Bottom margin spacing
-		&__spacing-bottom--0 {
-			margin-bottom: 0;
-		}
-		&__spacing-bottom--8 {
-			margin-bottom: var(--newspack-ui-spacer-base);
-		}
-		&__spacing-bottom--12 {
-			margin-bottom: var(--newspack-ui-spacer-2);
-		}
-		&__spacing-bottom--16 {
-			margin-bottom: var(--newspack-ui-spacer-3);
-		}
-		&__spacing-bottom--20 {
-			margin-bottom: var(--newspack-ui-spacer-4);
-		}
-		&__spacing-bottom--24 {
-			margin-bottom: var(--newspack-ui-spacer-5);
-		}
-		&__spacing-bottom--32 {
-			margin-bottom: var(--newspack-ui-spacer-6);
-		}
-		&__spacing-bottom--36 {
-			margin-bottom: var(--newspack-ui-spacer-7);
-		}
-		&__spacing-bottom--40 {
-			margin-bottom: var(--newspack-ui-spacer-8);
-		}
-		&__spacing-bottom--48 {
-			margin-bottom: var(--newspack-ui-spacer-9);
-		}
-		&__spacing-bottom--56 {
-			margin-bottom: var(--newspack-ui-spacer-10);
-		}
-		&__spacing-bottom--64 {
-			margin-bottom: var(--newspack-ui-spacer-11);
-		}
-		&__spacing-bottom--72 {
-			margin-bottom: var(--newspack-ui-spacer-12);
-		}
-
-		// Left margin spacing
-		&__spacing-left--0 {
-			margin-left: 0;
-		}
-		&__spacing-left--8 {
-			margin-left: var(--newspack-ui-spacer-base);
-		}
-		&__spacing-left--12 {
-			margin-left: var(--newspack-ui-spacer-2);
-		}
-		&__spacing-left--16 {
-			margin-left: var(--newspack-ui-spacer-3);
-		}
-		&__spacing-left--20 {
-			margin-left: var(--newspack-ui-spacer-4);
-		}
-		&__spacing-left--24 {
-			margin-left: var(--newspack-ui-spacer-5);
-		}
-		&__spacing-left--32 {
-			margin-left: var(--newspack-ui-spacer-6);
-		}
-		&__spacing-left--36 {
-			margin-left: var(--newspack-ui-spacer-7);
-		}
-		&__spacing-left--40 {
-			margin-left: var(--newspack-ui-spacer-8);
-		}
-		&__spacing-left--48 {
-			margin-left: var(--newspack-ui-spacer-9);
-		}
-		&__spacing-left--56 {
-			margin-left: var(--newspack-ui-spacer-10);
-		}
-		&__spacing-left--64 {
-			margin-left: var(--newspack-ui-spacer-11);
-		}
-		&__spacing-left--72 {
-			margin-left: var(--newspack-ui-spacer-12);
-		}
-
-		// Right margin spacing
-		&__spacing-right--0 {
-			margin-right: 0;
-		}
-		&__spacing-right--8 {
-			margin-right: var(--newspack-ui-spacer-base);
-		}
-		&__spacing-right--12 {
-			margin-right: var(--newspack-ui-spacer-2);
-		}
-		&__spacing-right--16 {
-			margin-right: var(--newspack-ui-spacer-3);
-		}
-		&__spacing-right--20 {
-			margin-right: var(--newspack-ui-spacer-4);
-		}
-		&__spacing-right--24 {
-			margin-right: var(--newspack-ui-spacer-5);
-		}
-		&__spacing-right--32 {
-			margin-right: var(--newspack-ui-spacer-6);
-		}
-		&__spacing-right--36 {
-			margin-right: var(--newspack-ui-spacer-7);
-		}
-		&__spacing-right--40 {
-			margin-right: var(--newspack-ui-spacer-8);
-		}
-		&__spacing-right--48 {
-			margin-right: var(--newspack-ui-spacer-9);
-		}
-		&__spacing-right--56 {
-			margin-right: var(--newspack-ui-spacer-10);
-		}
-		&__spacing-right--64 {
-			margin-right: var(--newspack-ui-spacer-11);
-		}
-		&__spacing-right--72 {
-			margin-right: var(--newspack-ui-spacer-12);
-		}
-
-		// Top margin spacing
-		&__spacing-top--0 {
-			margin-top: 0;
-		}
-		&__spacing-top--8 {
-			margin-top: var(--newspack-ui-spacer-base);
-		}
-		&__spacing-top--12 {
-			margin-top: var(--newspack-ui-spacer-2);
-		}
-		&__spacing-top--16 {
-			margin-top: var(--newspack-ui-spacer-3);
-		}
-		&__spacing-top--20 {
-			margin-top: var(--newspack-ui-spacer-4);
-		}
-		&__spacing-top--24 {
-			margin-top: var(--newspack-ui-spacer-5);
-		}
-		&__spacing-top--32 {
-			margin-top: var(--newspack-ui-spacer-6);
-		}
-		&__spacing-top--36 {
-			margin-top: var(--newspack-ui-spacer-7);
-		}
-		&__spacing-top--40 {
-			margin-top: var(--newspack-ui-spacer-8);
-		}
-		&__spacing-top--48 {
-			margin-top: var(--newspack-ui-spacer-9);
-		}
-		&__spacing-top--56 {
-			margin-top: var(--newspack-ui-spacer-10);
-		}
-		&__spacing-top--64 {
-			margin-top: var(--newspack-ui-spacer-11);
-		}
-		&__spacing-top--72 {
-			margin-top: var(--newspack-ui-spacer-12);
+		@each $side in $spacing-sides {
+			@each $size, $value in $spacing-steps {
+				&__spacing-#{$side}--#{$size} {
+					margin-#{$side}: $value;
+				}
+			}
 		}
 	}
 }
