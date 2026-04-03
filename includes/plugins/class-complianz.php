@@ -27,9 +27,12 @@ class Complianz {
 	 */
 	public static function init() {
 		add_filter( 'cmplz_cookie_blocker_output', [ __CLASS__, 'extra_third_party_script_blocking' ] );
-		add_filter( 'newspack_pixel_script_markup', [ __CLASS__, 'pixel_handling_for_complianz' ] );
 		add_filter( 'cmplz_option_enable_cookie_blocker', [ __CLASS__, 'block_before_consent' ] );
 		add_filter( 'cmplz_consenttype', [ __CLASS__, 'force_optin_consenttype' ], 10, 2 );
+
+		if ( self::is_complianz_active() ) {
+			add_filter( 'newspack_pixel_script_markup', [ __CLASS__, 'pixel_handling_for_complianz' ] );
+		}
 	}
 
 	/**
