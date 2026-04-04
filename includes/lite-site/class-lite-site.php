@@ -374,6 +374,12 @@ class Lite_Site {
 	 * @return string The primary color.
 	 */
 	public static function get_primary_color() {
+		if ( function_exists( 'wp_is_block_theme' ) && wp_is_block_theme() ) {
+			$settings = wp_get_global_settings();
+			$palette  = $settings['color']['palette']['custom'] ?? $settings['color']['palette']['theme'] ?? $settings['color']['palette']['default'] ?? [];
+			return $palette[0]['color'] ?? 'currentcolor';
+		}
+
 		if ( ! function_exists( 'newspack_get_primary_color' ) ) {
 			return 'currentcolor';
 		}
