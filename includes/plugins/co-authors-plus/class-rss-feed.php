@@ -31,10 +31,18 @@ class RSS_Feed {
 	 * @return string The co-authors' display names, or the original author if not in a feed.
 	 */
 	public static function coauthors_in_rss( $the_author ) {
-		if ( ! is_feed() || ! function_exists( 'coauthors' ) ) {
+		if ( ! is_feed() || ! function_exists( 'get_coauthors' ) ) {
 			return $the_author;
 		}
-		return coauthors( null, null, null, null, false );
+		$post_id = get_the_ID();
+		if ( ! $post_id ) {
+			return $the_author;
+		}
+		$coauthors = get_coauthors( $post_id );
+		if ( empty( $coauthors ) ) {
+			return $the_author;
+		}
+		return implode( ', ', array_map( fn( $author ) => wp_strip_all_tags( html_entity_decode( $author->display_name ) ), $coauthors ) );
 	}
 }
 RSS_Feed::init();
