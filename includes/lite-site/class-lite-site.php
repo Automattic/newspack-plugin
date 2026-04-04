@@ -376,7 +376,8 @@ class Lite_Site {
 	public static function get_primary_color() {
 		if ( function_exists( 'wp_is_block_theme' ) && wp_is_block_theme() ) {
 			$settings = wp_get_global_settings();
-			$palette  = $settings['color']['palette']['custom'] ?? $settings['color']['palette']['theme'] ?? $settings['color']['palette']['default'] ?? [];
+			$palettes = $settings['color']['palette'] ?? [];
+			$palette  = ! empty( $palettes['custom'] ) ? $palettes['custom'] : ( ! empty( $palettes['theme'] ) ? $palettes['theme'] : ( $palettes['default'] ?? [] ) );
 			return $palette[0]['color'] ?? 'currentcolor';
 		}
 
