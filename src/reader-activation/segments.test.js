@@ -1,4 +1,4 @@
-import { on } from './events';
+import { on, off } from './events';
 import segments from './segments';
 
 const sampleSegments = {
@@ -7,6 +7,9 @@ const sampleSegments = {
 };
 
 describe( 'segments', () => {
+	beforeEach( () => {
+		segments.reset();
+	} );
 	it( 'should return empty object initially', () => {
 		expect( segments.getAll() ).toEqual( {} );
 	} );
@@ -22,19 +25,27 @@ describe( 'segments', () => {
 	it( 'should set match and emit segment event', () => {
 		const callback = jest.fn();
 		on( 'segment', callback );
+		segments.register( sampleSegments );
 		segments.setMatch( '42' );
 		expect( callback ).toHaveBeenCalled();
 		const detail = callback.mock.calls[ 0 ][ 0 ].detail;
 		expect( detail.segmentId ).toBe( '42' );
 		expect( detail.segment.name ).toBe( 'Loyal Readers' );
+		off( 'segment', callback );
 	} );
 	it( 'should not re-emit when setting same match', () => {
 		const callback = jest.fn();
 		on( 'segment', callback );
+		segments.register( sampleSegments );
+		segments.setMatch( '42' );
+		callback.mockClear();
 		segments.setMatch( '42' );
 		expect( callback ).not.toHaveBeenCalled();
+		off( 'segment', callback );
 	} );
 	it( 'should return matched segment via getMatch', () => {
+		segments.register( sampleSegments );
+		segments.setMatch( '42' );
 		const match = segments.getMatch();
 		expect( match.id ).toBe( '42' );
 		expect( match.name ).toBe( 'Loyal Readers' );
@@ -43,9 +54,13 @@ describe( 'segments', () => {
 	it( 'should clear match and emit event', () => {
 		const callback = jest.fn();
 		on( 'segment', callback );
+		segments.register( sampleSegments );
+		segments.setMatch( '42' );
+		callback.mockClear();
 		segments.setMatch( null );
 		expect( segments.getMatch() ).toBeNull();
 		expect( callback ).toHaveBeenCalled();
 		expect( callback.mock.calls[ 0 ][ 0 ].detail.segmentId ).toBeNull();
+		off( 'segment', callback );
 	} );
 } );

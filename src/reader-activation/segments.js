@@ -23,10 +23,11 @@ function register( segments ) {
  * @return {Object|null} Matched segment object or null.
  */
 function setMatch( segmentId = null ) {
-	if ( segmentId === matchedSegment ) {
+	const normalizedId = segmentId !== null && segmentId !== undefined ? String( segmentId ) : null;
+	if ( normalizedId === matchedSegment ) {
 		return getMatch();
 	}
-	matchedSegment = segmentId;
+	matchedSegment = normalizedId;
 	const segment = matchedSegment ? allSegments[ matchedSegment ] || null : null;
 	emit( EVENTS.segment, { segmentId: matchedSegment, segment, all: { ...allSegments } } );
 	return getMatch();
@@ -39,7 +40,7 @@ function setMatch( segmentId = null ) {
  */
 function getMatch() {
 	if ( ! matchedSegment || ! allSegments[ matchedSegment ] ) {
-		return matchedSegment ? { id: matchedSegment } : null;
+		return null;
 	}
 	return { id: matchedSegment, ...allSegments[ matchedSegment ] };
 }
@@ -53,9 +54,18 @@ function getAll() {
 	return { ...allSegments };
 }
 
+/**
+ * Reset module state. For testing only.
+ */
+function reset() {
+	allSegments = {};
+	matchedSegment = null;
+}
+
 export default {
 	register,
 	setMatch,
 	getMatch,
 	getAll,
+	reset,
 };
