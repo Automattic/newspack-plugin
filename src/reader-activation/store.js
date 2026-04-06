@@ -288,8 +288,8 @@ export default function Store() {
 		// Rehydrate items from server if provided.
 		const items = detail?.reader_data_items || {};
 		newspack_reader_data.items = items;
+		const unsyncedKeys = _get( 'unsynced', true ) || [];
 		if ( ! newspack_reader_data?.is_temporary ) {
-			const unsyncedKeys = _get( 'unsynced', true ) || [];
 			for ( const key of Object.keys( items ) ) {
 				if ( ! unsyncedKeys.includes( key ) ) {
 					rehydrateItem( key, decode( items[ key ] ) );
@@ -297,8 +297,7 @@ export default function Store() {
 			}
 		}
 		// Re-queue unsynced items.
-		const pending = _get( 'unsynced', true ) || [];
-		for ( const key of pending ) {
+		for ( const key of unsyncedKeys ) {
 			if ( ! syncQueue.includes( key ) ) {
 				syncQueue.push( key );
 			}
