@@ -3,6 +3,17 @@
  */
 
 export default function setupArticleViewsAggregates( ras ) {
+	// Merge strategies for rehydration.
+	ras.store.register( 'articles_read', {
+		merge: ( server, client ) => Math.max( server || 0, client || 0 ),
+	} );
+	ras.store.register( 'paywall_hits', {
+		merge: ( server, client ) => Math.max( server || 0, client || 0 ),
+	} );
+	ras.store.register( 'favorite_categories', {
+		merge: ( server, client ) => client || server || [],
+	} );
+
 	ras.on( 'activity', ( { detail: { action, data, timestamp } } ) => {
 		if ( action !== 'article_view' ) {
 			return;
