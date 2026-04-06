@@ -2,6 +2,8 @@
  * WordPress dependencies.
  */
 import { __, sprintf } from '@wordpress/i18n';
+import { useState } from '@wordpress/element';
+import apiFetch from '@wordpress/api-fetch';
 import { useDispatch } from '@wordpress/data';
 import { ToggleControl, ExternalLink } from '@wordpress/components';
 
@@ -9,7 +11,7 @@ import { ToggleControl, ExternalLink } from '@wordpress/components';
  * Internal dependencies.
  */
 import MoneyInput from '../../../components/money-input';
-import { Button, Card, Grid, Notice, SectionHeader, SelectControl, TextControl } from '../../../../../../packages/components/src';
+import { ActionCard, Button, Card, Grid, Notice, SectionHeader, SelectControl, TextControl } from '../../../../../../packages/components/src';
 import { useWizardData } from '../../../../../../packages/components/src/wizard/store/utils';
 import { WIZARD_STORE_NAMESPACE } from '../../../../../../packages/components/src/wizard/store';
 import WizardsTab from '../../../../wizards-tab';
@@ -243,8 +245,98 @@ export const DonationAmounts = () => {
 	);
 };
 
+type DonationProduct = {
+	id: number;
+	name: string;
+	type: string;
+	edit_link: string;
+	is_donation?: boolean;
+};
+
+function DonationProducts( { products }: { products: DonationProduct[] } ) {
+	const [ searchQuery, setSearchQuery ] = useState( '' );
+	const [ searchResults, setSearchResults ] = useState< DonationProduct[] >( [] );
+	const [ isSearching, setIsSearching ] = useState( false );
+	const { wizardApiFetch } = useDispatch( WIZARD_STORE_NAMESPACE );
+
+	const handleSearch = async () => {
+		if ( ! searchQuery.trim() ) {
+			return;
+		}
+		setIsSearching( true );
+		try {
+			const results = await apiFetch< DonationProduct[] >( {
+				path: `/newspack/v1/wizard/${ AUDIENCE_DONATIONS_WIZARD_SLUG }/products-search?search=${ encodeURIComponent( searchQuery ) }`,
+			} );
+			setSearchResults( results.filter( ( r: DonationProduct ) => ! r.is_donation ) );
+		} finally {
+			setIsSearching( false );
+		}
+	};
+
+	const toggleProduct = async ( productId: number, isDonation: boolean ) => {
+		await wizardApiFetch( {
+			path: `/newspack/v1/wizard/${ AUDIENCE_DONATIONS_WIZARD_SLUG }/donation-products/${ productId }`,
+			method: 'POST',
+			data: { is_donation: isDonation },
+			updateEncoder: ( data: { donation_products: DonationProduct[] } ) => ( {
+				wizardData: { donation_products: data },
+			} ),
+		} );
+		setSearchResults( prev => prev.filter( r => r.id !== productId ) );
+		setSearchQuery( '' );
+	};
+
+	return (
+		<Card headerActions noBorder>
+			<SectionHeader
+				title={ __( 'Additional Donation Products', 'newspack-plugin' ) }
+				description={ __(
+					'Flag existing WooCommerce products as donations. Flagged products inherit all donation behaviors: checkout UI, reporting, and reader activation.',
+					'newspack-plugin'
+				) }
+				noMargin
+			/>
+			{ products.map( ( product: DonationProduct ) => (
+				<ActionCard
+					key={ product.id }
+					title={ product.name }
+					description={ product.type }
+					actionText={ __( 'Remove', 'newspack-plugin' ) }
+					onClick={ () => toggleProduct( product.id, false ) }
+				>
+					<Button variant="secondary" isSmall href={ product.edit_link } onClick={ undefined }>
+						{ __( 'Edit in WooCommerce', 'newspack-plugin' ) }
+					</Button>
+				</ActionCard>
+			) ) }
+			<div style={ { display: 'flex', gap: '8px', alignItems: 'flex-end' } }>
+				<TextControl
+					label={ __( 'Search products', 'newspack-plugin' ) }
+					value={ searchQuery }
+					onChange={ setSearchQuery }
+					onKeyDown={ ( e: React.KeyboardEvent ) => e.key === 'Enter' && handleSearch() }
+				/>
+				<Button variant="primary" onClick={ handleSearch } disabled={ isSearching || ! searchQuery.trim() }>
+					{ isSearching ? __( 'Searching\u2026', 'newspack-plugin' ) : __( 'Search', 'newspack-plugin' ) }
+				</Button>
+			</div>
+			{ searchResults.map( ( product: DonationProduct ) => (
+				<ActionCard
+					key={ product.id }
+					title={ product.name }
+					description={ product.type }
+					actionText={ __( 'Flag as donation', 'newspack-plugin' ) }
+					onClick={ () => toggleProduct( product.id, true ) }
+				/>
+			) ) }
+		</Card>
+	);
+}
+
 const Donation = () => {
 	const wizardData = useWizardData( AUDIENCE_DONATIONS_WIZARD_SLUG ) as AudienceDonationsWizardData;
+	const { donation_products } = wizardData;
 	const { saveWizardSettings } = useDispatch( WIZARD_STORE_NAMESPACE );
 	const onSaveDonationSettings = () =>
 		saveWizardSettings( {
@@ -326,6 +418,7 @@ const Donation = () => {
 					{ __( 'Save Settings', 'newspack-plugin' ) }
 				</Button>
 			</div>
+			<DonationProducts products={ ( donation_products || [] ) as DonationProduct[] } />
 		</WizardsTab>
 	);
 };
