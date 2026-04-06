@@ -31,7 +31,7 @@ class WooCommerce_Products {
 		\add_filter( 'woocommerce_order_item_needs_processing', [ __CLASS__, 'require_order_processing' ], 10, 2 );
 		\add_filter( 'woocommerce_product_description_heading', '__return_false', 10, 2 );
 		\add_filter( 'woocommerce_product_additional_information_heading', '__return_false', 10, 2 );
-		\add_filter( 'manage_product_posts_columns', [ __CLASS__, 'add_donation_column' ] );
+		\add_filter( 'manage_product_posts_columns', [ __CLASS__, 'add_donation_column' ], 20 );
 		\add_action( 'manage_product_posts_custom_column', [ __CLASS__, 'render_donation_column' ], 10, 2 );
 		\add_action( 'restrict_manage_posts', [ __CLASS__, 'add_donation_filter' ] );
 		\add_action( 'pre_get_posts', [ __CLASS__, 'filter_by_donation' ] );
@@ -381,14 +381,14 @@ class WooCommerce_Products {
 	 * @return array Modified columns.
 	 */
 	public static function add_donation_column( $columns ) {
-		$new_columns = [];
-		foreach ( $columns as $key => $label ) {
-			if ( 'date' === $key ) {
-				$new_columns['newspack_donation'] = __( 'Donation', 'newspack-plugin' );
-			}
-			$new_columns[ $key ] = $label;
+		if ( empty( $columns ) ) {
+			return $columns;
 		}
-		return $new_columns;
+		return array_merge(
+			array_slice( $columns, 0, -2, true ),
+			[ 'newspack_donation' => __( 'Donation', 'newspack-plugin' ) ],
+			array_slice( $columns, -2, null, true )
+		);
 	}
 
 	/**
