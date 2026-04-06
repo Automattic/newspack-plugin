@@ -228,6 +228,7 @@ final class Reader_Activation {
 				'newspack_reader_activation_newsletters',
 				[
 					'newspack_ajax_url' => admin_url( 'admin-ajax.php' ),
+					'newsletters_url'   => \get_rest_url( null, NEWSPACK_API_NAMESPACE . '/reader-newsletter-signup-lists' ),
 				]
 			);
 

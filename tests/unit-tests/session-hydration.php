@@ -26,7 +26,7 @@ class Newspack_Test_Session_Hydration extends WP_UnitTestCase {
 		parent::tear_down();
 		unset( $_COOKIE[ NEWSPACK_CLIENT_ID_COOKIE_NAME ] ); // phpcs:ignore WordPressVIPMinimum.Variables.RestrictedVariables.cache_constraints___COOKIE
 		unset( $_COOKIE[ LOGGED_IN_COOKIE ] ); // phpcs:ignore WordPressVIPMinimum.Variables.RestrictedVariables.cache_constraints___COOKIE
-		delete_transient( Session_Hydration::TRANSIENT_PREFIX . self::$test_cid );
+		delete_transient( Session_Hydration::get_transient_key( self::$test_cid ) );
 	}
 
 	/**

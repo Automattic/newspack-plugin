@@ -62,7 +62,8 @@ async function fetchSession() {
 	}
 
 	try {
-		const response = await fetch( '/wp-json/newspack/v1/reader/session', {
+		const sessionUrl = window.newspack_reader_data?.session_url || '/wp-json/newspack/v1/reader/session';
+		const response = await fetch( sessionUrl, {
 			credentials: 'same-origin',
 		} );
 		if ( ! response.ok ) {

@@ -32,7 +32,9 @@ export async function refreshNewslettersSignupModal() {
 	}
 
 	try {
-		const res = await fetch( '/wp-json/newspack/v1/reader-newsletter-signup-lists', {
+		const newslettersUrl =
+			window.newspack_reader_activation_newsletters?.newsletters_url || '/wp-json/newspack/v1/reader-newsletter-signup-lists';
+		const res = await fetch( newslettersUrl, {
 			credentials: 'same-origin',
 			headers,
 		} );

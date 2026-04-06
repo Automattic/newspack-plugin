@@ -33,6 +33,9 @@ final class Session_Hydration {
 	 * Initialize hooks.
 	 */
 	public static function init() {
+		if ( ! Reader_Activation::is_enabled() ) {
+			return;
+		}
 		add_action( 'rest_api_init', [ __CLASS__, 'register_routes' ] );
 		add_action( 'wp_login', [ __CLASS__, 'on_wp_login' ], 10, 2 );
 		add_action( 'newspack_registered_reader_via_woo', [ __CLASS__, 'on_woo_customer_created' ], 10, 2 );
@@ -56,6 +59,13 @@ final class Session_Hydration {
 	 */
 	public static function on_woo_customer_created( $email, $user_id ) {
 		self::bind_cid( $user_id );
+		// Set the auth reader cookie so the frontend listener can detect authentication
+		// and trigger hydration. WooCommerce checkout bypasses wp_login, so this cookie
+		// would not otherwise be set.
+		$user = \get_userdata( $user_id );
+		if ( $user ) {
+			Reader_Activation::set_auth_reader_cookie( $user );
+		}
 	}
 
 	/**
@@ -161,9 +171,6 @@ final class Session_Hydration {
 			);
 		}
 
-		// One-time use: delete the transient.
-		delete_transient( $transient_key );
-
 		$data = [ 'nonce' => \wp_create_nonce( 'wp_rest' ) ];
 
 		/**
@@ -181,6 +188,10 @@ final class Session_Hydration {
 		 * @param int   $user_id The authenticated user's ID.
 		 */
 		$data = apply_filters( 'newspack_session_hydration_response', $data, \get_current_user_id() );
+
+		// One-time use: delete the transient after assembling the full response
+		// so it is not burned if a filter callback throws.
+		delete_transient( $transient_key );
 
 		return new \WP_REST_Response( $data );
 	}

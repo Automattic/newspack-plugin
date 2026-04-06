@@ -127,6 +127,7 @@ final class Reader_Data {
 			'reader_activity' => self::$reader_activity,
 			'read_only_keys'  => self::get_read_only_keys(),
 			'api_url'         => \get_rest_url( null, NEWSPACK_API_NAMESPACE . '/reader-data' ),
+			'session_url'     => \get_rest_url( null, NEWSPACK_API_NAMESPACE . '/reader/session' ),
 		];
 
 		if ( \is_user_logged_in() ) {
