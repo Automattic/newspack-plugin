@@ -269,6 +269,8 @@ function DonationProducts( { products }: { products: DonationProduct[] } ) {
 				path: `/newspack/v1/wizard/${ AUDIENCE_DONATIONS_WIZARD_SLUG }/products-search?search=${ encodeURIComponent( searchQuery ) }`,
 			} );
 			setSearchResults( results.filter( ( r: DonationProduct ) => ! r.is_donation ) );
+		} catch {
+			setSearchResults( [] );
 		} finally {
 			setIsSearching( false );
 		}
@@ -418,7 +420,7 @@ const Donation = () => {
 					{ __( 'Save Settings', 'newspack-plugin' ) }
 				</Button>
 			</div>
-			<DonationProducts products={ ( donation_products || [] ) as DonationProduct[] } />
+			<DonationProducts products={ donation_products || [] } />
 		</WizardsTab>
 	);
 };

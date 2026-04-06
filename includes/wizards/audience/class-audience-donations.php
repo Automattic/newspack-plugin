@@ -308,20 +308,7 @@ class Audience_Donations extends Wizard {
 	 * @return \WP_REST_Response
 	 */
 	public function api_get_donation_products() {
-		$flagged_ids = Donations::get_flagged_donation_product_ids();
-		$products    = [];
-		foreach ( $flagged_ids as $product_id ) {
-			$product = \wc_get_product( $product_id );
-			if ( $product ) {
-				$products[] = [
-					'id'        => $product->get_id(),
-					'name'      => $product->get_name(),
-					'type'      => $product->get_type(),
-					'edit_link' => get_edit_post_link( $product->get_id(), 'raw' ),
-				];
-			}
-		}
-		return rest_ensure_response( $products );
+		return rest_ensure_response( $this->get_donation_products_data() );
 	}
 
 	/**
