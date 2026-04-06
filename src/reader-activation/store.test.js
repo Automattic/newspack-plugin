@@ -94,6 +94,7 @@ describe( 'Store', () => {
 			},
 		};
 		const store = Store();
+		store.rehydrate();
 		expect( store.get( 'foo' ) ).toEqual( 'bar' );
 	} );
 	describe( 'getAll', () => {
@@ -133,6 +134,7 @@ describe( 'Store', () => {
 				},
 			};
 			const store = Store();
+			store.rehydrate();
 			const all = store.getAll();
 			expect( all.is_donor ).toEqual( true );
 			expect( all.active_memberships ).toEqual( [ 1, 2 ] );
@@ -164,6 +166,7 @@ describe( 'Store', () => {
 				},
 			};
 			const store = Store();
+			store.rehydrate();
 			expect( store.get( 'is_donor' ) ).toEqual( true );
 		} );
 		it( 'should not affect non-read-only keys', () => {
