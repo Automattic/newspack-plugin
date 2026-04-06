@@ -133,6 +133,51 @@ class Audience_Donations extends Wizard {
 				'permission_callback' => [ $this, 'api_permissions_check' ],
 			]
 		);
+
+		// Get flagged donation products.
+		register_rest_route(
+			NEWSPACK_API_NAMESPACE,
+			'/wizard/' . $this->slug . '/donation-products',
+			[
+				'methods'             => \WP_REST_Server::READABLE,
+				'callback'            => [ $this, 'api_get_donation_products' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+			]
+		);
+
+		// Flag or unflag a product as donation.
+		register_rest_route(
+			NEWSPACK_API_NAMESPACE,
+			'/wizard/' . $this->slug . '/donation-products/(?P<id>\d+)',
+			[
+				'methods'             => \WP_REST_Server::EDITABLE,
+				'callback'            => [ $this, 'api_toggle_donation_product' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+				'args'                => [
+					'is_donation' => [
+						'required'          => true,
+						'sanitize_callback' => 'Newspack\newspack_string_to_bool',
+					],
+				],
+			]
+		);
+
+		// Search WooCommerce products for the product picker.
+		register_rest_route(
+			NEWSPACK_API_NAMESPACE,
+			'/wizard/' . $this->slug . '/products-search',
+			[
+				'methods'             => \WP_REST_Server::READABLE,
+				'callback'            => [ $this, 'api_search_products' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+				'args'                => [
+					'search' => [
+						'required'          => true,
+						'sanitize_callback' => 'sanitize_text_field',
+					],
+				],
+			]
+		);
 	}
 
 	/**
@@ -174,6 +219,7 @@ class Audience_Donations extends Wizard {
 			'donation_data'      => Donations::get_donation_settings(),
 			'donation_page'      => Donations::get_donation_page_info(),
 			'product_validation' => $this->validate_donation_products(),
+			'donation_products'  => $this->get_donation_products_data(),
 		];
 		if ( 'wc' === $platform ) {
 			$plugin_status    = true;
@@ -254,6 +300,108 @@ class Audience_Donations extends Wizard {
 		return rest_ensure_response(
 			Emails::get_emails( Reader_Activation::is_enabled() ? [] : array_values( Reader_Revenue_Emails::EMAIL_TYPES ), false )
 		);
+	}
+
+	/**
+	 * Get all products flagged as donations.
+	 *
+	 * @return \WP_REST_Response
+	 */
+	public function api_get_donation_products() {
+		$flagged_ids = Donations::get_flagged_donation_product_ids();
+		$products    = [];
+		foreach ( $flagged_ids as $product_id ) {
+			$product = \wc_get_product( $product_id );
+			if ( $product ) {
+				$products[] = [
+					'id'        => $product->get_id(),
+					'name'      => $product->get_name(),
+					'type'      => $product->get_type(),
+					'edit_link' => get_edit_post_link( $product->get_id(), 'raw' ),
+				];
+			}
+		}
+		return rest_ensure_response( $products );
+	}
+
+	/**
+	 * Flag or unflag a product as donation.
+	 *
+	 * @param \WP_REST_Request $request Request object.
+	 * @return \WP_REST_Response|\WP_Error
+	 */
+	public function api_toggle_donation_product( $request ) {
+		$product_id  = absint( $request->get_param( 'id' ) );
+		$is_donation = $request->get_param( 'is_donation' );
+		$product     = \wc_get_product( $product_id );
+
+		if ( ! $product ) {
+			return new \WP_Error( 'invalid_product', __( 'Product not found.', 'newspack-plugin' ), [ 'status' => 404 ] );
+		}
+
+		if ( $is_donation ) {
+			$product->update_meta_data( '_newspack_is_donation', '1' );
+		} else {
+			$product->delete_meta_data( '_newspack_is_donation' );
+		}
+		$product->save();
+
+		return $this->api_get_donation_products();
+	}
+
+	/**
+	 * Search WooCommerce products by name.
+	 *
+	 * @param \WP_REST_Request $request Request object.
+	 * @return \WP_REST_Response
+	 */
+	public function api_search_products( $request ) {
+		$search  = $request->get_param( 'search' );
+		$results = [];
+
+		$products = \wc_get_products(
+			[
+				'limit'  => 10,
+				'status' => 'publish',
+				's'      => $search,
+			]
+		);
+
+		foreach ( $products as $product ) {
+			$results[] = [
+				'id'          => $product->get_id(),
+				'name'        => $product->get_name(),
+				'type'        => $product->get_type(),
+				'is_donation' => get_post_meta( $product->get_id(), '_newspack_is_donation', true ) === '1',
+			];
+		}
+
+		return rest_ensure_response( $results );
+	}
+
+	/**
+	 * Get flagged donation products data for the wizard.
+	 *
+	 * @return array
+	 */
+	private function get_donation_products_data() {
+		if ( ! function_exists( 'wc_get_product' ) ) {
+			return [];
+		}
+		$flagged_ids = Donations::get_flagged_donation_product_ids();
+		$products    = [];
+		foreach ( $flagged_ids as $product_id ) {
+			$product = \wc_get_product( $product_id );
+			if ( $product ) {
+				$products[] = [
+					'id'        => $product->get_id(),
+					'name'      => $product->get_name(),
+					'type'      => $product->get_type(),
+					'edit_link' => get_edit_post_link( $product->get_id(), 'raw' ),
+				];
+			}
+		}
+		return $products;
 	}
 
 	/**
