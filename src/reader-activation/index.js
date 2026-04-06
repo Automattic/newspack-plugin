@@ -494,6 +494,7 @@ function init() {
 	fixClientID();
 	setupArticleViewsAggregates( readerActivation );
 	setupEngagement( readerActivation );
+	store.rehydrate();
 	attachAuthCookiesListener();
 	attachNewsletterFormListener();
 	pushActivities();
