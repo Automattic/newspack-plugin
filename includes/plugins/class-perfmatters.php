@@ -224,16 +224,16 @@ class Perfmatters {
 		$options['lazyload']['image_dimensions']           = true;
 
 		// Add our customizations to the front of the array to avoid confusion when editing the setting in the UI.
-		$lazy_loading_exclusions = empty( $options['lazyload']['lazy_loading_exclusions'] ) ? [] : $options['lazyload']['lazy_loading_exclusions'];
+		$lazy_loading_exclusions = isset( $options['lazyload']['lazy_loading_exclusions'] ) && is_array( $options['lazyload']['lazy_loading_exclusions'] ) ? $options['lazyload']['lazy_loading_exclusions'] : [];
 		$options['lazyload']['lazy_loading_exclusions'] = array_unique(
 			array_merge(
 				[
-					'attachment-woocommerce_thumbnail', // If WC product images are within a pagination, the pages loaded after pageload will not not have images handled otherwise.
+					'attachment-woocommerce_thumbnail', // If WC product images are within a pagination, the pages loaded after pageload will not have images handled otherwise.
 				],
 				$lazy_loading_exclusions
 			)
 		);
-		$parent_exclusions = empty( $options['lazyload']['lazy_loading_parent_exclusions'] ) ? [] : $options['lazyload']['lazy_loading_parent_exclusions'];
+		$parent_exclusions = isset( $options['lazyload']['lazy_loading_parent_exclusions'] ) && is_array( $options['lazyload']['lazy_loading_parent_exclusions'] ) ? $options['lazyload']['lazy_loading_parent_exclusions'] : [];
 		$options['lazyload']['lazy_loading_parent_exclusions'] = array_unique(
 			array_merge(
 				[ 'wp-block-jetpack-image-compare' ],
