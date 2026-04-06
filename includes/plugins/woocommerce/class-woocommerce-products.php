@@ -70,6 +70,15 @@ class WooCommerce_Products {
 				'product_types' => [ 'simple', 'variation', 'subscription', 'subscription_variation' ],
 				'type'          => 'boolean',
 			],
+			'newspack_is_donation'         => [
+				'id'            => '_newspack_is_donation',
+				'wrapper_class' => '',
+				'label'         => __( 'Donation product', 'newspack-plugin' ),
+				'description'   => __( 'Flag this product as a donation. Donation products use donation-specific checkout, reporting, and reader activation behaviors.', 'newspack-plugin' ),
+				'default'       => 'no',
+				'product_types' => [ 'simple', 'subscription', 'grouped', 'variable', 'variation', 'subscription_variation', 'variable-subscription' ],
+				'type'          => 'boolean',
+			],
 		];
 
 		/**
