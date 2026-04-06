@@ -353,3 +353,6 @@ function wc_get_orders( $args ) {
 function wc_customer_bought_product( $customer_email, $user_id, $product_id ) {
 	return false;
 }
+function wc_get_product( $product_id ) {
+	return false;
+}
