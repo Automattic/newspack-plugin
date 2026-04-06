@@ -278,12 +278,41 @@ class Donations {
 	 * @return boolean True if a donation product, false if not.
 	 */
 	public static function is_donation_product( $product_id ) {
+		// Check the meta flag first (fast path).
+		if ( get_post_meta( $product_id, '_newspack_is_donation', true ) === '1' ) {
+			return true;
+		}
+
+		// Fall back to the legacy parent/child donation product check.
 		$parent_product = self::get_parent_donation_product();
 		if ( ! $parent_product ) {
 			return false;
 		}
 		$donation_product_ids = array_values( self::get_donation_product_child_products_ids() );
 		return in_array( $product_id, $donation_product_ids, true ) || $product_id === $parent_product->get_id();
+	}
+
+	/**
+	 * Get IDs of all products flagged as donations via the _newspack_is_donation meta.
+	 *
+	 * @return int[] Array of product IDs.
+	 */
+	public static function get_flagged_donation_product_ids() {
+		$flagged_products = get_posts(
+			[
+				'post_type'      => 'product',
+				'post_status'    => 'publish',
+				'posts_per_page' => -1,
+				'fields'         => 'ids',
+				'meta_query'     => [ // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
+					[
+						'key'   => '_newspack_is_donation',
+						'value' => '1',
+					],
+				],
+			]
+		);
+		return array_map( 'intval', $flagged_products );
 	}
 
 	/**
