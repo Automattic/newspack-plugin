@@ -24,6 +24,30 @@ const config = {
 };
 
 /**
+ * Registry of merge strategies for rehydration.
+ *
+ * @type {Map<string, Function>}
+ */
+const mergeStrategies = new Map();
+
+/**
+ * Rehydrate a single item from server data, using the registered merge
+ * strategy if one exists. Falls back to a direct overwrite.
+ *
+ * @param {string} key         Store key.
+ * @param {any}    serverValue Decoded value from the server.
+ */
+function rehydrateItem( key, serverValue ) {
+	const merge = mergeStrategies.get( key );
+	if ( merge ) {
+		const clientValue = _get( key );
+		_set( key, merge( serverValue, clientValue ) );
+	} else {
+		_set( key, serverValue );
+	}
+}
+
+/**
  * Initialize sync interval.
  *
  * @param {string[]} queue Store items keys to sync.
@@ -268,7 +292,7 @@ export default function Store() {
 			const unsyncedKeys = _get( 'unsynced', true ) || [];
 			for ( const key of Object.keys( items ) ) {
 				if ( ! unsyncedKeys.includes( key ) ) {
-					_set( key, decode( items[ key ] ) );
+					rehydrateItem( key, decode( items[ key ] ) );
 				}
 			}
 		}
@@ -281,15 +305,19 @@ export default function Store() {
 		}
 	} );
 
-	// Rehydrate items from server. No need to rehydrate for temporary sessions.
-	if ( newspack_reader_data?.items && ! newspack_reader_data?.is_temporary ) {
-		const keys = Object.keys( newspack_reader_data.items );
-		for ( const key of keys ) {
-			// Do not overwrite items that were pending sync.
-			if ( unsynced.includes( key ) ) {
-				continue;
+	/**
+	 * Rehydrate items from server data. Called explicitly after merge
+	 * strategies have been registered via store.register().
+	 */
+	function rehydrate() {
+		if ( ! newspack_reader_data?.items || newspack_reader_data?.is_temporary ) {
+			return;
+		}
+		const unsyncedKeys = _get( 'unsynced', true ) || [];
+		for ( const key of Object.keys( newspack_reader_data.items ) ) {
+			if ( ! unsyncedKeys.includes( key ) ) {
+				rehydrateItem( key, decode( newspack_reader_data.items[ key ] ) );
 			}
-			_set( key, decode( newspack_reader_data.items[ key ] ) );
 		}
 	}
 
@@ -394,5 +422,24 @@ export default function Store() {
 
 			_set( key, collection );
 		},
+		/**
+		 * Register a merge strategy for a store key. The merge function is
+		 * called during rehydration to reconcile server and client values.
+		 *
+		 * @param {string}   key           Store key.
+		 * @param {Object}   options       Options.
+		 * @param {Function} options.merge Merge function: (serverValue, clientValue) => resolvedValue.
+		 */
+		register: ( key, { merge } ) => {
+			if ( typeof merge !== 'function' ) {
+				throw new Error( 'merge must be a function.' );
+			}
+			mergeStrategies.set( key, merge );
+		},
+		/**
+		 * Rehydrate items from server data. Must be called after all merge
+		 * strategies have been registered.
+		 */
+		rehydrate,
 	};
 }
