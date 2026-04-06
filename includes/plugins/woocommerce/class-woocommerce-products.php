@@ -31,8 +31,6 @@ class WooCommerce_Products {
 		\add_filter( 'woocommerce_order_item_needs_processing', [ __CLASS__, 'require_order_processing' ], 10, 2 );
 		\add_filter( 'woocommerce_product_description_heading', '__return_false', 10, 2 );
 		\add_filter( 'woocommerce_product_additional_information_heading', '__return_false', 10, 2 );
-		\add_filter( 'manage_product_posts_columns', [ __CLASS__, 'add_donation_column' ], 20 );
-		\add_action( 'manage_product_posts_custom_column', [ __CLASS__, 'render_donation_column' ], 10, 2 );
 		\add_action( 'restrict_manage_posts', [ __CLASS__, 'add_donation_filter' ] );
 		\add_action( 'pre_get_posts', [ __CLASS__, 'filter_by_donation' ] );
 	}
@@ -372,38 +370,6 @@ class WooCommerce_Products {
 			return $needs_proccessing;
 		}
 		return self::get_custom_option_value( $product, 'newspack_autocomplete_orders' ) ? false : $needs_proccessing;
-	}
-
-	/**
-	 * Add "Donation" column to the products list table.
-	 *
-	 * @param array $columns Existing columns.
-	 * @return array Modified columns.
-	 */
-	public static function add_donation_column( $columns ) {
-		if ( empty( $columns ) ) {
-			return $columns;
-		}
-		return array_merge(
-			array_slice( $columns, 0, -2, true ),
-			[ 'newspack_donation' => __( 'Donation', 'newspack-plugin' ) ],
-			array_slice( $columns, -2, null, true )
-		);
-	}
-
-	/**
-	 * Render the "Donation" column content.
-	 *
-	 * @param string $column  Column name.
-	 * @param int    $post_id Post ID.
-	 */
-	public static function render_donation_column( $column, $post_id ) {
-		if ( 'newspack_donation' !== $column ) {
-			return;
-		}
-		if ( Donations::is_donation_product( $post_id ) ) {
-			echo '<span class="dashicons dashicons-yes-alt" style="color: #46b450;" title="' . esc_attr__( 'Donation product', 'newspack-plugin' ) . '"></span>';
-		}
 	}
 
 	/**
