@@ -20,10 +20,21 @@ class Newspack_Test_Session_Hydration extends WP_UnitTestCase {
 	private static $test_cid = 'testcid12345';
 
 	/**
+	 * Set up before each test.
+	 */
+	public function set_up() {
+		parent::set_up();
+		add_filter( 'newspack_reader_activation_enabled', '__return_true' );
+		// Re-register routes since rest_api_init may have already fired.
+		Session_Hydration::register_routes();
+	}
+
+	/**
 	 * Clean up after each test.
 	 */
 	public function tear_down() {
 		parent::tear_down();
+		remove_filter( 'newspack_reader_activation_enabled', '__return_true' );
 		unset( $_COOKIE[ NEWSPACK_CLIENT_ID_COOKIE_NAME ] ); // phpcs:ignore WordPressVIPMinimum.Variables.RestrictedVariables.cache_constraints___COOKIE
 		unset( $_COOKIE[ LOGGED_IN_COOKIE ] ); // phpcs:ignore WordPressVIPMinimum.Variables.RestrictedVariables.cache_constraints___COOKIE
 		delete_transient( Session_Hydration::get_transient_key( self::$test_cid ) );

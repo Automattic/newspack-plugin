@@ -33,9 +33,6 @@ final class Session_Hydration {
 	 * Initialize hooks.
 	 */
 	public static function init() {
-		if ( ! Reader_Activation::is_enabled() ) {
-			return;
-		}
 		add_action( 'rest_api_init', [ __CLASS__, 'register_routes' ] );
 		add_action( 'wp_login', [ __CLASS__, 'on_wp_login' ], 10, 2 );
 		add_action( 'newspack_registered_reader_via_woo', [ __CLASS__, 'on_woo_customer_created' ], 10, 2 );
@@ -102,6 +99,9 @@ final class Session_Hydration {
 	 * Register REST routes.
 	 */
 	public static function register_routes() {
+		if ( ! Reader_Activation::is_enabled() ) {
+			return;
+		}
 		\register_rest_route(
 			NEWSPACK_API_NAMESPACE,
 			'/reader/session',
