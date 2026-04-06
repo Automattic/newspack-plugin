@@ -157,8 +157,34 @@ class Test_Post_Date extends \WP_UnitTestCase {
 			]
 		);
 
+		// Simulate being in the loop so the filter applies.
+		$original_in_the_loop = $GLOBALS['wp_query']->in_the_loop ?? null;
+
+		try {
+			$GLOBALS['wp_query']->in_the_loop = true;
+
+			$date = get_the_date( '', $post_id );
+			$this->assertStringContainsString( 'ago', $date, 'get_the_date should return relative date when feature is on.' );
+		} finally {
+			$GLOBALS['wp_query']->in_the_loop = $original_in_the_loop;
+		}
+	}
+
+	/**
+	 * Test get_the_date filter skips conversion outside the loop (e.g. archive titles).
+	 */
+	public function test_get_the_date_filter_skips_outside_loop() {
+		set_theme_mod( 'post_time_ago', true );
+		set_theme_mod( 'post_time_ago_cut_off', 14 );
+
+		$post_id = static::factory()->post->create(
+			[
+				'post_date' => gmdate( 'Y-m-d H:i:s', time() - 2 * HOUR_IN_SECONDS ),
+			]
+		);
+
 		$date = get_the_date( '', $post_id );
-		$this->assertStringContainsString( 'ago', $date, 'get_the_date should return relative date when feature is on.' );
+		$this->assertStringNotContainsString( 'ago', $date, 'get_the_date should not convert to time-ago outside the loop.' );
 	}
 
 	/**

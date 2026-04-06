@@ -158,7 +158,7 @@ export default function ContentGateSettings( {
 				} }
 			>
 				<CardBody>
-					<Grid className="newspack-content-gates__gate__settings" columns={ 3 } gutter={ 16 } borders noMargin>
+					<Grid className="newspack-content-gates__gate__settings" columns={ isNewsletter ? 2 : 3 } gutter={ 16 } borders noMargin>
 						<div>
 							<h4>{ __( 'Content rules', 'newspack-plugin' ) }</h4>
 							{ gate.content_rules.length > 0 ? (
@@ -177,32 +177,34 @@ export default function ContentGateSettings( {
 								<p>{ __( 'N/A', 'newspack-plugin' ) }</p>
 							) }
 						</div>
-						<div>
-							<h4>{ __( 'Registered access', 'newspack-plugin' ) }</h4>
-							{ gate.registration?.active && (
-								<p>
-									<strong>{ __( 'Require verification:', 'newspack-plugin' ) } </strong>{ ' ' }
-									{ gate.registration.require_verification ? __( 'Yes', 'newspack-plugin' ) : __( 'No', 'newspack-plugin' ) }
-								</p>
-							) }
-							{ gate.registration?.active && gate.registration.metering.enabled && (
-								<p>
-									<strong>{ __( 'Metered:', 'newspack-plugin' ) } </strong>{ ' ' }
-									{ sprintf(
-										// translators: 1: metering count, 2: metering period
-										__( '%1$d free views per %2$s', 'newspack-plugin' ),
-										gate.registration.metering.count,
-										gate.registration.metering.period
-									) }
-								</p>
-							) }
-							{ ! gate.registration?.active && <p>{ __( 'N/A', 'newspack-plugin' ) }</p> }
-							{ gate.registration?.active && gate.registration.gate_layout_id && ! isNewsletter && (
-								<Button variant="secondary" href={ getEditGateLayoutUrl( gate.id, 'registration' ) }>
-									{ __( 'Customize registered access layout', 'newspack-plugin' ) }
-								</Button>
-							) }
-						</div>
+						{ ! isNewsletter && (
+							<div>
+								<h4>{ __( 'Registered access', 'newspack-plugin' ) }</h4>
+								{ gate.registration?.active && (
+									<p>
+										<strong>{ __( 'Require verification:', 'newspack-plugin' ) } </strong>{ ' ' }
+										{ gate.registration.require_verification ? __( 'Yes', 'newspack-plugin' ) : __( 'No', 'newspack-plugin' ) }
+									</p>
+								) }
+								{ gate.registration?.active && gate.registration.metering.enabled && (
+									<p>
+										<strong>{ __( 'Metered:', 'newspack-plugin' ) } </strong>{ ' ' }
+										{ sprintf(
+											// translators: 1: metering count, 2: metering period
+											__( '%1$d free views per %2$s', 'newspack-plugin' ),
+											gate.registration.metering.count,
+											gate.registration.metering.period
+										) }
+									</p>
+								) }
+								{ ! gate.registration?.active && <p>{ __( 'N/A', 'newspack-plugin' ) }</p> }
+								{ gate.registration?.active && gate.registration.gate_layout_id && (
+									<Button variant="secondary" href={ getEditGateLayoutUrl( gate.id, 'registration' ) }>
+										{ __( 'Customize registered access layout', 'newspack-plugin' ) }
+									</Button>
+								) }
+							</div>
+						) }
 						<div>
 							<h4>{ __( 'Paid access', 'newspack-plugin' ) }</h4>
 							{ gate.custom_access?.active &&

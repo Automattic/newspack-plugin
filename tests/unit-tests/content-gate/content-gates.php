@@ -155,6 +155,7 @@ class Test_Content_Gates extends \WP_UnitTestCase {
 		foreach ( $this->post_ids as $post_id ) {
 			wp_delete_post( $post_id, true );
 		}
+		$this->reset_restriction_cache();
 	}
 
 	/**
@@ -820,6 +821,19 @@ class Test_Content_Gates extends \WP_UnitTestCase {
 	}
 
 	/**
+	 * Reset the static per-post restriction cache on Content_Restriction_Control.
+	 * This cache is populated by is_post_restricted() and must be cleared between
+	 * tests to prevent cross-test contamination.
+	 */
+	private function reset_restriction_cache() {
+		foreach ( [ 'post_gate_id_map', 'post_gate_layout_id_map' ] as $prop ) {
+			$reflection = new \ReflectionProperty( Content_Restriction_Control::class, $prop );
+			$reflection->setAccessible( true );
+			$reflection->setValue( null, [] );
+		}
+	}
+
+	/**
 	 * Test comment filters on fully gated posts.
 	 */
 	public function test_comments_closed_on_gated_post() {
@@ -939,5 +953,57 @@ class Test_Content_Gates extends \WP_UnitTestCase {
 		$settings = Content_Gate::get_custom_access_settings( $gate_id );
 		$this->assertCount( 2, $settings['access_rules'], 'Should have two groups' );
 		$this->assertEquals( $grouped_rules, $settings['access_rules'], 'Grouped rules should be preserved' );
+	}
+
+	// =========================================================================
+	// Newsletter content rule (added in feat/access-control-premium-newsletters)
+	// =========================================================================
+
+	/**
+	 * A gate with a `newsletters` content rule must NOT apply to a post whose
+	 * ID is not in the rule's value array.
+	 */
+	public function test_newsletter_content_rule_does_not_match_other_posts() {
+		$list_post_id     = $this->factory->post->create();
+		$other_post_id    = $this->factory->post->create();
+		$this->post_ids[] = $list_post_id;
+		$this->post_ids[] = $other_post_id;
+
+		Content_Rules::update_gate_content_rules(
+			$this->gate_ids[2], // Published gate from set_up().
+			[
+				[
+					'slug'  => 'newsletters',
+					'value' => [ $list_post_id ],
+				],
+			]
+		);
+
+		// $other_post_id is NOT in the newsletters rule value.
+		$gates = Content_Restriction_Control::get_post_gates( $other_post_id );
+		$this->assertEmpty( $gates, 'Newsletter content rule must not match posts not in its value array.' );
+	}
+
+	/**
+	 * A gate with a `newsletters` content rule MUST apply to a post whose
+	 * ID is in the rule's value array.
+	 */
+	public function test_newsletter_content_rule_matches_listed_post() {
+		$list_post_id     = $this->factory->post->create();
+		$this->post_ids[] = $list_post_id;
+
+		Content_Rules::update_gate_content_rules(
+			$this->gate_ids[2], // Published gate from set_up().
+			[
+				[
+					'slug'  => 'newsletters',
+					'value' => [ $list_post_id ],
+				],
+			]
+		);
+
+		$gates = Content_Restriction_Control::get_post_gates( $list_post_id );
+		$this->assertCount( 1, $gates, 'Newsletter content rule must match a post whose ID is in the value array.' );
+		$this->assertEquals( $this->gate_ids[2], $gates[0]['id'] );
 	}
 }

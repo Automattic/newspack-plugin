@@ -281,36 +281,36 @@ class Test_Integrations extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * Test get_available_incoming_contact_fields returns empty array when no fields available.
+	 * Test get_available_incoming_fields returns empty array when no fields available.
 	 */
-	public function test_get_available_incoming_contact_fields_empty() {
+	public function test_get_available_incoming_fields_empty() {
 		$integration = new Sample_Integration( 'test-id', 'Test Integration' );
 		Integrations::register( $integration );
 
-		$fields = $integration->get_available_incoming_contact_fields();
+		$fields = $integration->get_available_incoming_fields();
 
 		$this->assertIsArray( $fields );
 		$this->assertEmpty( $fields );
 	}
 
 	/**
-	 * Test get_available_incoming_contact_fields propagates WP_Error from get_available_incoming_contact_fields.
+	 * Test get_available_incoming_fields propagates WP_Error from get_available_incoming_fields.
 	 */
-	public function test_get_available_incoming_contact_fields_propagates_error() {
+	public function test_get_available_incoming_fields_propagates_error() {
 		$integration = new class( 'error-test', 'Error Test' ) extends Sample_Integration {
 			/**
 			 * Get incoming available contact fields (returns error for test).
 			 *
 			 * @return \WP_Error
 			 */
-			public function get_available_incoming_contact_fields() {
+			public function get_available_incoming_fields() {
 				return new \WP_Error( 'test_error', 'Test error message' );
 			}
 		};
 
 		Integrations::register( $integration );
 
-		$result = $integration->get_available_incoming_contact_fields();
+		$result = $integration->get_available_incoming_fields();
 
 		$this->assertWPError( $result );
 		$this->assertEquals( 'test_error', $result->get_error_code() );
@@ -331,11 +331,13 @@ class Test_Integrations extends \WP_UnitTestCase {
 	 */
 	public function test_set_and_get_enabled_incoming_fields() {
 		$integration = new Sample_Integration( 'test-id', 'Test Integration' );
-		$fields      = [ 'first_name', 'last_name', 'phone' ];
+		$keys        = [ 'first_name', 'last_name', 'phone' ];
 
-		$integration->update_enabled_incoming_fields( $fields );
+		$integration->update_enabled_incoming_fields( $keys );
 
-		$this->assertSame( $fields, $integration->get_enabled_incoming_fields() );
+		$result     = $integration->get_enabled_incoming_fields();
+		$result_keys = array_map( fn( $f ) => $f->get_key(), $result );
+		$this->assertSame( $keys, $result_keys );
 	}
 
 	/**
@@ -343,11 +345,13 @@ class Test_Integrations extends \WP_UnitTestCase {
 	 */
 	public function test_update_incoming_fields_stores_any_keys() {
 		$integration = new Sample_Integration( 'test-id', 'Test Integration' );
-		$fields      = [ 'nonexistent_field', 'another_unknown' ];
+		$keys        = [ 'nonexistent_field', 'another_unknown' ];
 
-		$integration->update_enabled_incoming_fields( $fields );
+		$integration->update_enabled_incoming_fields( $keys );
 
-		$this->assertSame( $fields, $integration->get_enabled_incoming_fields() );
+		$result     = $integration->get_enabled_incoming_fields();
+		$result_keys = array_map( fn( $f ) => $f->get_key(), $result );
+		$this->assertSame( $keys, $result_keys );
 	}
 
 	/**

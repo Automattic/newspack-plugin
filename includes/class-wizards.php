@@ -58,6 +58,7 @@ class Wizards {
 						'print'            => 'Newspack\Wizards\Newspack\Print_Section',
 						'nextdoor'         => 'Newspack\Wizards\Newspack\Nextdoor_Section',
 						'primary-category' => 'Newspack\Wizards\Newspack\Primary_Category_Section',
+						'privacy'          => 'Newspack\Wizards\Newspack\Privacy_Section',
 					],
 				]
 			),
@@ -71,7 +72,7 @@ class Wizards {
 			'listings'                => new Listings_Wizard(),
 			'network'                 => new Network_Wizard(),
 			'newsletters'             => new Newsletters_Wizard(),
-			'premium-newsletters'     => new Premium_Newsletters(),
+			'premium-newsletters'     => new Premium_Newsletters_Wizard(),
 		];
 		if ( Memberships::is_active() ) {
 			self::$wizards['audience-subscriptions'] = new Audience_Subscriptions();

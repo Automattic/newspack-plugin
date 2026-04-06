@@ -17,6 +17,7 @@ import AdvancedSettings from './advanced-settings';
 import ThemeAndBrand from './theme-and-brand';
 import Collections from './collections';
 import Print from './print';
+import Privacy from './privacy';
 
 type SectionKeys = keyof typeof settingsTabs;
 
@@ -30,6 +31,7 @@ const sectionComponents: Partial< Record< SectionKeys | 'default', ( props: { is
 	'advanced-settings': AdvancedSettings,
 	collections: Collections,
 	print: Print,
+	privacy: Privacy,
 	default: () => <h2>🚫 { __( 'Not found' ) }</h2>,
 };
 

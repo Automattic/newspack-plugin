@@ -29,6 +29,7 @@ export default function AuthorSocialLinkEdit( { attributes, context } ) {
 
 	const blockProps = useBlockProps( {
 		className: 'wp-block-newspack-author-social-link',
+		'data-service': service,
 	} );
 
 	const url = getServiceUrl( author, service );

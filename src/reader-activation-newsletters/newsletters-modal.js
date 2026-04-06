@@ -1,4 +1,6 @@
 import * as a11y from '../reader-activation-auth/accessibility.js';
+import { getApiNonce } from '../reader-activation/session';
+import { EVENTS, on } from '../reader-activation/events';
 
 /**
  * Get the newsletters signup modal container.
@@ -11,38 +13,55 @@ export function getModalContainer() {
 
 /**
  * Refresh the newsletters signup modal content.
- *
- * @param {string} email The email address to populate in the modal.
- * @return {void}
  */
-export function refreshNewslettersSignupModal( email ) {
+export async function refreshNewslettersSignupModal() {
 	const container = getModalContainer();
 	if ( ! container ) {
 		return;
 	}
 
 	const modal = container.closest( '.newspack-newsletters-signup-modal' );
-	if ( modal ) {
-		fetch( `/wp-json/newspack/v1/reader-newsletter-signup-lists/${ email }` ).then( res => {
-			res.json().then( ( { html } ) => {
-				if ( html ) {
-					const parser = new DOMParser();
-					const doc = parser.parseFromString( html, 'text/html' );
-					const existingForm = container.querySelector( 'form' );
-					if ( existingForm ) {
-						existingForm.remove();
-					}
-					const newForm = doc.querySelector( '.newspack-newsletters-signup form' );
-					if ( newForm ) {
-						container.appendChild( newForm );
-					}
-					// Dispatch refresh event on the container.
-					container.dispatchEvent( new Event( 'newspack:refresh' ) );
-				}
-			} );
+	if ( ! modal ) {
+		return;
+	}
+
+	const nonce = getApiNonce();
+	const headers = {};
+	if ( nonce ) {
+		headers[ 'X-WP-Nonce' ] = nonce;
+	}
+
+	try {
+		const newslettersUrl =
+			window.newspack_reader_activation_newsletters?.newsletters_url || '/wp-json/newspack/v1/reader-newsletter-signup-lists';
+		const res = await fetch( newslettersUrl, {
+			credentials: 'same-origin',
+			headers,
 		} );
+		if ( ! res.ok ) {
+			return;
+		}
+		const { html } = await res.json();
+		if ( html ) {
+			const parser = new DOMParser();
+			const doc = parser.parseFromString( html, 'text/html' );
+			const existingForm = container.querySelector( 'form' );
+			if ( existingForm ) {
+				existingForm.remove();
+			}
+			const newForm = doc.querySelector( '.newspack-newsletters-signup form' );
+			if ( newForm ) {
+				container.appendChild( newForm );
+			}
+			container.dispatchEvent( new Event( 'newspack:refresh' ) );
+		}
+	} catch {
+		// Silently fail — modal stays as-is.
 	}
 }
+
+// Automatically refresh newsletter modal when session is hydrated.
+on( EVENTS.session, refreshNewslettersSignupModal );
 
 /**
  * Open the newsletters signup modal.

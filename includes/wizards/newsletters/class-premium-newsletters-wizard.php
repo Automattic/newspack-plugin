@@ -12,7 +12,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Premium Newsletters Wizard.
  */
-class Premium_Newsletters extends Wizard {
+class Premium_Newsletters_Wizard extends Wizard {
 
 	/**
 	 * Admin page slug.

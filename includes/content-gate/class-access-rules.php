@@ -36,11 +36,12 @@ class Access_Rules {
 	 *     The rule configuration.
 	 *
 	 *     @type string   $id          The rule ID.
-	 *     @type string   $label       The rule label.
+	 *     @type string   $name        The rule name.
 	 *     @type string   $description The rule description.
-	 *     @type string   $default     The rule default value.
+	 *     @type mixed    $default     The rule default value.
 	 *     @type array    $options     The rule options.
 	 *     @type callable $callback    The rule callback.
+	 *     @type bool     $is_boolean  Whether the rule is a boolean rule.
 	 * }
 	 *
 	 * @return void|\WP_Error

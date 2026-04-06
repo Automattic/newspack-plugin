@@ -17,9 +17,9 @@
 				position: absolute;
 				left: 0;
 				min-width: 160px;
-				padding: var(--newspack-ui-spacer-base) 0;
+				padding: var(--newspack-ui-spacer-1) 0;
 				pointer-events: none;
-				top: calc(100% + var(--newspack-ui-spacer-base));
+				top: calc(100% + var(--newspack-ui-spacer-1));
 				transform: scaleY(0);
 				transition: opacity 125ms ease-in-out;
 				z-index: 1;

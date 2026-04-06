@@ -6,6 +6,7 @@ export const EVENTS = {
 	activity: 'activity',
 	overlay: 'overlay',
 	segment: 'segment',
+	session: 'session',
 };
 
 const eventList = Object.values( EVENTS );

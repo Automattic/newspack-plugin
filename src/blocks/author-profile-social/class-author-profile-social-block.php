@@ -10,6 +10,7 @@ namespace Newspack\Blocks\Author_Profile_Social;
 use Newspack\Social_Icons;
 use Newspack_Blocks;
 use WP_Block;
+use WP_Theme_JSON_Data;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -24,6 +25,7 @@ final class Author_Profile_Social_Block {
 	 */
 	public static function init(): void {
 		add_action( 'init', [ __CLASS__, 'register_block' ] );
+		add_filter( 'wp_theme_json_data_blocks', [ __CLASS__, 'set_default_block_gap' ] );
 	}
 
 	/**
@@ -33,18 +35,56 @@ final class Author_Profile_Social_Block {
 	 */
 	public static function register_block(): void {
 		// Enable inserter only in block themes where nested layout is supported.
+		// Use block_type_metadata filter rather than passing supports in $args to avoid
+		// shallow-overwriting all supports from block.json (array_merge is not deep).
 		$is_nested_mode = wp_is_block_theme();
+		$set_inserter   = static function ( array $metadata ) use ( $is_nested_mode ): array {
+			if ( ( $metadata['name'] ?? '' ) === 'newspack/author-profile-social' ) {
+				$metadata['supports']['inserter'] = $is_nested_mode;
+			}
+			return $metadata;
+		};
+
+		add_filter( 'block_type_metadata', $set_inserter );
 
 		register_block_type_from_metadata(
 			__DIR__ . '/block.json',
 			[
 				'render_callback' => [ __CLASS__, 'render_block' ],
 				'uses_context'    => [ 'newspack-blocks/author' ],
-				'supports'        => [
-					'inserter' => $is_nested_mode,
+			]
+		);
+
+		remove_filter( 'block_type_metadata', $set_inserter );
+	}
+
+	/**
+	 * Set a default blockGap for this block via the blocks theme.json layer.
+	 * This matches what newspack-block-theme does for core/social-links
+	 * but works with any block theme.
+	 *
+	 * @param WP_Theme_JSON_Data $theme_json Theme JSON data.
+	 * @return WP_Theme_JSON_Data
+	 */
+	public static function set_default_block_gap( WP_Theme_JSON_Data $theme_json ): WP_Theme_JSON_Data {
+		$theme_json->update_with(
+			[
+				'version' => 3,
+				'styles'  => [
+					'blocks' => [
+						'newspack/author-profile-social' => [
+							'spacing' => [
+								'blockGap' => [
+									'left' => 'var:preset|spacing|20',
+									'top'  => 'var:preset|spacing|20',
+								],
+							],
+						],
+					],
 				],
 			]
 		);
+		return $theme_json;
 	}
 
 	/**
@@ -110,7 +150,7 @@ final class Author_Profile_Social_Block {
 		$wrapper_attributes = self::get_block_wrapper_attributes( $block, $attributes, $icon_size );
 
 		return sprintf(
-			'<div %s><ul class="author-profile-social__list">%s</ul></div>',
+			'<ul %s>%s</ul>',
 			$wrapper_attributes,
 			$inner_content
 		);
@@ -153,11 +193,11 @@ final class Author_Profile_Social_Block {
 
 		$wrapper_attributes = self::get_block_wrapper_attributes( $block, $attributes, $icon_size );
 
-		$output = '<ul class="author-profile-social__list">';
+		$output = '';
 
 		foreach ( $social_links as $service => $social_data ) {
 			$service_label = ucfirst( $service );
-			$output       .= '<li>';
+			$output       .= '<li data-service="' . esc_attr( $service ) . '">';
 			$output       .= sprintf( '<a href="%s" aria-label="%s">', esc_url( $social_data['url'] ), esc_attr( $service_label ) );
 
 			$svg = ! empty( $social_data['svg'] ) ? $social_data['svg'] : Social_Icons::get_svg( $service );
@@ -176,20 +216,18 @@ final class Author_Profile_Social_Block {
 			$output .= '</a></li>';
 		}
 
-		$output .= '</ul>';
-
-		return sprintf( '<div %s>%s</div>', $wrapper_attributes, $output );
+		return sprintf( '<ul %s>%s</ul>', $wrapper_attributes, $output );
 	}
 
 	/**
 	 * Get wrapper attributes (class, style, etc.) for the block.
 	 * Sets block context so core includes default class, custom className, and other supports.
-	 * Style is built from full attributes.style (spacing, color, border, etc.) plus block-specific --icon-size.
+	 * Color serialization is skipped via block.json so colors are applied only as CSS vars.
 	 *
 	 * @param WP_Block $block      Block instance.
 	 * @param array    $attributes Block attributes.
 	 * @param int      $icon_size  Icon size in pixels.
-	 * @return string HTML attributes for the wrapper div.
+	 * @return string HTML attributes for the wrapper element.
 	 */
 	private static function get_block_wrapper_attributes( WP_Block $block, array $attributes, int $icon_size ): string {
 		$previous = \WP_Block_Supports::$block_to_render ?? null;
@@ -197,35 +235,76 @@ final class Author_Profile_Social_Block {
 
 		$wrapper_attributes = get_block_wrapper_attributes(
 			[
+				'class' => 'author-profile-social__list',
 				'style' => self::get_wrapper_style( $attributes, $icon_size ),
 			]
 		);
 
 		\WP_Block_Supports::$block_to_render = $previous;
+
 		return $wrapper_attributes;
 	}
 
 	/**
-	 * Build wrapper style from block attributes.style (spacing, color, border, etc.) and block-specific vars.
-	 * Uses the style engine so presets (e.g. var:preset|spacing|20) are converted to CSS.
+	 * Convert a preset token (var:preset|type|slug) to a CSS variable reference.
+	 *
+	 * @param string $value Raw value, e.g. "var:preset|color|primary" or "#fff".
+	 * @return string CSS value, e.g. "var(--wp--preset--color--primary)" or "#fff".
+	 */
+	private static function preset_to_css( string $value ): string {
+		if ( preg_match( '/^var:preset\|([^|]+)\|(.+)$/', $value, $matches ) ) {
+			return sprintf( 'var(--wp--preset--%s--%s)', $matches[1], $matches[2] );
+		}
+		return $value;
+	}
+
+	/**
+	 * Resolve a color value from attributes (preset slug or custom style token).
+	 *
+	 * @param array  $attributes Block attributes.
+	 * @param string $preset_key Top-level preset attribute key (e.g. "textColor").
+	 * @param string $style_key  Key under style.color (e.g. "text").
+	 * @return string|null CSS color value or null.
+	 */
+	private static function resolve_color( array $attributes, string $preset_key, string $style_key ): ?string {
+		if ( ! empty( $attributes[ $preset_key ] ) && is_string( $attributes[ $preset_key ] ) ) {
+			return sprintf( 'var(--wp--preset--color--%s)', $attributes[ $preset_key ] );
+		}
+		$custom = $attributes['style']['color'][ $style_key ] ?? null;
+		if ( ! empty( $custom ) && is_string( $custom ) ) {
+			return self::preset_to_css( $custom );
+		}
+		return null;
+	}
+
+	/**
+	 * Build wrapper inline style with CSS variables for icon sizing and color.
+	 * Margin is handled natively by get_block_wrapper_attributes().
+	 * Gap is handled by WP layout support (outputs scoped <style> tag per block).
+	 * Color classes/inline styles are skipped via __experimentalSkipSerialization in block.json.
 	 *
 	 * @param array $attributes Block attributes.
 	 * @param int   $icon_size  Icon size in pixels.
-	 * @return string Inline style string.
+	 * @return string Inline style string for the block wrapper.
 	 */
 	private static function get_wrapper_style( array $attributes, int $icon_size ): string {
-		$parts = [];
-		$style = $attributes['style'] ?? null;
-		if ( ! empty( $style ) && is_array( $style ) ) {
-			$styles = wp_style_engine_get_styles(
-				$style,
-				[ 'context' => 'block-supports' ]
-			);
-			if ( ! empty( $styles['css'] ) ) {
-				$parts[] = $styles['css'];
+		$parts    = [];
+		$is_brand = ! empty( $attributes['className'] ) && str_contains( $attributes['className'], 'is-style-brand' );
+
+		if ( ! $is_brand ) {
+			$icon_color      = self::resolve_color( $attributes, 'textColor', 'text' );
+			$icon_background = self::resolve_color( $attributes, 'backgroundColor', 'background' );
+
+			if ( null !== $icon_color ) {
+				$parts[] = sprintf( '--icon-color: %s;', $icon_color );
+			}
+			if ( null !== $icon_background ) {
+				$parts[] = sprintf( '--icon-background: %s;', $icon_background );
 			}
 		}
+
 		$parts[] = sprintf( '--icon-size: %dpx;', absint( $icon_size ) );
+
 		return implode( ' ', $parts );
 	}
 }

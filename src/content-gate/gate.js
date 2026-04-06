@@ -160,9 +160,19 @@ function getGateEventPayload( payload, gate ) {
 /**
  * Handle when the gate is seen.
  *
- * @param {HTMLElement} gate The gate element.
+ * @param {HTMLElement} gate            The gate element.
+ * @param {boolean}     shouldRecordHit Whether to record a hit in RAS for this seen event. Defaults to false.
  */
-function handleSeen( gate ) {
+function handleSeen( gate, shouldRecordHit = false ) {
+	if ( shouldRecordHit ) {
+		// paywall_hits - Number of times reader has reached a paywall.
+		window.newspackRAS = window.newspackRAS || [];
+		window.newspackRAS.push( function ( ras ) {
+			const currentHits = ras.store.get( 'paywall_hits' ) || 0;
+			ras.store.set( 'paywall_hits', currentHits + 1 );
+		} );
+	}
+
 	if ( 'function' !== typeof window.gtag ) {
 		return;
 	}
@@ -314,14 +324,16 @@ domReady( function () {
 	} else {
 		window.addEventListener( 'resize', handleFloatingElements );
 		handleFloatingElements();
+		let seen = false;
 		// Seen event for inline gate.
 		const detectSeen = () => {
 			const delta = ( gate?.getBoundingClientRect().top || 0 ) - window.innerHeight / 2;
 			if ( delta < 0 ) {
+				handleSeen( gate, ! seen );
 				if ( 'function' === typeof window.gtag ) {
-					handleSeen( gate );
 					document.removeEventListener( 'scroll', detectSeen );
 				}
+				seen = true;
 			}
 		};
 		document.addEventListener( 'scroll', detectSeen );

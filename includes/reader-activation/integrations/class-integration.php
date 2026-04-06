@@ -224,19 +224,19 @@ abstract class Integration {
 	 *
 	 * Integrations that support pulling contact data should implement this method.
 	 *
-	 * @return Integrations\Incoming_Contact_Field[]|\WP_Error Array of incoming contact field objects or WP_Error on failure.
+	 * @return Integrations\Incoming_Field[]|\WP_Error Array of incoming contact field objects or WP_Error on failure.
 	 */
-	public function get_available_incoming_contact_fields() {
+	public function get_available_incoming_fields() {
 		return [];
 	}
 
 	/**
 	 * Get filtered incoming contact fields from the integration.
 	 *
-	 * @return Integrations\Incoming_Contact_Field[] Array of incoming contact field objects.
+	 * @return Integrations\Incoming_Field[] Array of incoming contact field objects.
 	 */
-	public function get_filtered_incoming_contact_fields() {
-		$fields = $this->get_available_incoming_contact_fields();
+	public function get_filtered_incoming_fields() {
+		$fields = $this->get_available_incoming_fields();
 		if ( is_wp_error( $fields ) ) {
 			return [];
 		}
@@ -311,12 +311,67 @@ abstract class Integration {
 	}
 
 	/**
-	 * Get the enabled incoming metadata fields for this integration.
+	 * Get the enabled incoming fields for this integration.
 	 *
-	 * @return string[] List of enabled field names.
+	 * Reads stored field data (key => raw_data map saved by
+	 * update_enabled_incoming_fields()) and constructs Incoming_Field objects
+	 * for each entry. Each field is passed through configure_incoming_field()
+	 * so the integration can enrich it with promotion configuration.
+	 *
+	 * @return Integrations\Incoming_Field[] Array of field objects.
 	 */
 	public function get_enabled_incoming_fields() {
-		return \get_option( self::INCOMING_FIELDS_OPTION_PREFIX . $this->id, [] );
+		$stored = \get_option( self::INCOMING_FIELDS_OPTION_PREFIX . $this->id, [] );
+		if ( ! is_array( $stored ) ) {
+			return [];
+		}
+		$fields = [];
+		foreach ( $stored as $key => $raw_data ) {
+			if ( empty( $key ) || ! is_string( $key ) ) {
+				continue;
+			}
+			$field = new Integrations\Incoming_Field( $key, $raw_data );
+			$field = $this->configure_incoming_field( $field );
+			if ( $field instanceof Integrations\Incoming_Field ) {
+				$fields[] = $field;
+			}
+		}
+		return $fields;
+	}
+
+	/**
+	 * Configure an Incoming_Field after construction.
+	 *
+	 * Override this method to enrich incoming fields with promotion configuration
+	 * so they can be registered as content gate access rules and/or popups
+	 * segmentation criteria. The field's raw data (from the integration API) is
+	 * available via $field->get_raw_data() and can inform the configuration.
+	 *
+	 * Example:
+	 *
+	 *     protected function configure_incoming_field( $field ) {
+	 *         $raw = $field->get_raw_data();
+	 *         if ( 'membership_level' === $field->get_key() ) {
+	 *             $field->set_name( 'Membership Level' )
+	 *                 ->set_is_access_rule( true )
+	 *                 ->set_is_segment_criteria( true )
+	 *                 ->set_matching_function( 'list__in' )
+	 *                 ->set_options( $raw['options'] ?? [] );
+	 *         }
+	 *         if ( 'is_vip' === $field->get_key() ) {
+	 *             $field->set_name( 'VIP' )
+	 *                 ->set_is_access_rule( true )
+	 *                 ->set_value_type( 'boolean' );
+	 *         }
+	 *         return $field;
+	 *     }
+	 *
+	 * @param Integrations\Incoming_Field $field The field to configure.
+	 *
+	 * @return Integrations\Incoming_Field The configured field.
+	 */
+	protected function configure_incoming_field( $field ) {
+		return $field;
 	}
 
 	/**
@@ -329,14 +384,40 @@ abstract class Integration {
 	}
 
 	/**
-	 * Update the enabled incoming metadata fields for this integration.
+	 * Update the enabled incoming fields for this integration.
 	 *
-	 * @param array $fields List of field names to enable.
+	 * Accepts an array of field keys (as sent by the UI), fetches the full
+	 * field data from the integration, and stores the matching raw field arrays.
+	 *
+	 * @param string[] $keys Array of field keys to enable.
 	 *
 	 * @return bool True if updated, false otherwise.
 	 */
-	public function update_enabled_incoming_fields( $fields ) {
-		return \update_option( self::INCOMING_FIELDS_OPTION_PREFIX . $this->id, $fields );
+	public function update_enabled_incoming_fields( $keys ) {
+		$available = $this->get_available_incoming_fields();
+		if ( is_wp_error( $available ) ) {
+			$available = [];
+		}
+
+		// Build a lookup of available fields by key.
+		$available_by_key = [];
+		foreach ( $available as $field ) {
+			if ( $field instanceof Integrations\Incoming_Field ) {
+				$available_by_key[ $field->get_key() ] = $field;
+			}
+		}
+
+		// Store as key => raw_data map.
+		$fields_to_store = [];
+		foreach ( $keys as $key ) {
+			$raw_data = [];
+			if ( isset( $available_by_key[ $key ] ) ) {
+				$raw_data = $available_by_key[ $key ]->get_raw_data();
+			}
+			$fields_to_store[ $key ] = $raw_data;
+		}
+
+		return \update_option( self::INCOMING_FIELDS_OPTION_PREFIX . $this->id, $fields_to_store );
 	}
 
 	/**
@@ -521,7 +602,12 @@ abstract class Integration {
 			return $this->get_enabled_outgoing_fields();
 		}
 		if ( 'incoming_metadata_fields' === $key ) {
-			return $this->get_enabled_incoming_fields();
+			return array_map(
+				function( $field ) {
+					return $field->get_key();
+				},
+				$this->get_enabled_incoming_fields()
+			);
 		}
 
 		$field = $this->get_settings_field_by_key( $key );
@@ -590,7 +676,7 @@ abstract class Integration {
 			$field['value'] = $this->get_settings_field_value( $field['key'] );
 			// Inject metadata options for metadata fields.
 			if ( 'incoming_metadata_fields' === $field['key'] ) {
-				$incoming_fields  = $this->get_filtered_incoming_contact_fields();
+				$incoming_fields  = $this->get_filtered_incoming_fields();
 				$field['options'] = array_map(
 					function ( $incoming_field ) {
 						return $incoming_field->get_key();

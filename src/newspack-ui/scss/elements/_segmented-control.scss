@@ -7,7 +7,7 @@
 
 		&__form-control {
 			display: grid;
-			gap: var(--newspack-ui-spacer-base);
+			gap: var(--newspack-ui-spacer-1);
 			width: 100%;
 
 			label {
@@ -28,18 +28,18 @@
 			border-radius: var(--newspack-ui-border-radius-m);
 			display: flex;
 			flex-wrap: wrap;
-			gap: var(--newspack-ui-spacer-base);
+			gap: var(--newspack-ui-spacer-1);
 			justify-content: center;
-			padding: var(--newspack-ui-spacer-base);
+			padding: var(--newspack-ui-spacer-1);
 
 			&:has([class*="--x-small"]) {
-				gap: calc(var(--newspack-ui-spacer-base) * 0.75);
-				padding: calc(var(--newspack-ui-spacer-base) * 0.75);
+				gap: calc(var(--newspack-ui-spacer-1) * 0.75);
+				padding: calc(var(--newspack-ui-spacer-1) * 0.75);
 			}
 
 			&:has([class*="--small"]) {
-				gap: calc(var(--newspack-ui-spacer-base) / 2);
-				padding: calc(var(--newspack-ui-spacer-base) / 2);
+				gap: calc(var(--newspack-ui-spacer-1) / 2);
+				padding: calc(var(--newspack-ui-spacer-1) / 2);
 			}
 
 			.newspack-ui__button {
@@ -54,13 +54,13 @@
 
 				&[class*="--x-small"] {
 					padding:
-						calc(var(--newspack-ui-spacer-base) * 0.75 - 1px)
+						calc(var(--newspack-ui-spacer-1) * 0.75 - 1px)
 						calc(var(--newspack-ui-spacer-2) - 1px);
 				}
 
 				&[class*="--small"] {
 					padding:
-						calc(var(--newspack-ui-spacer-base) - 1px)
+						calc(var(--newspack-ui-spacer-1) - 1px)
 						calc(var(--newspack-ui-spacer-3) - 1px);
 				}
 

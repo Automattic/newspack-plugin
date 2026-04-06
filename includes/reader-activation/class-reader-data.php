@@ -36,6 +36,20 @@ final class Reader_Data {
 		add_action( 'wp', [ __CLASS__, 'setup_reader_activity' ] );
 		add_action( 'wp_enqueue_scripts', [ __CLASS__, 'config_script' ] );
 		add_action( 'init', [ __CLASS__, 'register_data_event_handlers' ] );
+		add_filter( 'newspack_session_hydration_response', [ __CLASS__, 'add_reader_data_to_hydration' ], 10, 2 );
+	}
+
+	/**
+	 * Add reader data items to the session hydration response.
+	 *
+	 * @param array $data    Hydration response data.
+	 * @param int   $user_id The authenticated user's ID.
+	 *
+	 * @return array Filtered response data.
+	 */
+	public static function add_reader_data_to_hydration( $data, $user_id ) {
+		$data['reader_data_items'] = self::get_data( $user_id );
+		return $data;
 	}
 
 	/**
@@ -112,12 +126,13 @@ final class Reader_Data {
 			'is_temporary'    => $is_temporary,
 			'reader_activity' => self::$reader_activity,
 			'read_only_keys'  => self::get_read_only_keys(),
+			'api_url'         => \get_rest_url( null, NEWSPACK_API_NAMESPACE . '/reader-data' ),
+			'session_url'     => \get_rest_url( null, NEWSPACK_API_NAMESPACE . '/reader/session' ),
 		];
 
 		if ( \is_user_logged_in() ) {
-			$config['api_url'] = \get_rest_url( null, NEWSPACK_API_NAMESPACE . '/reader-data' );
-			$config['nonce']   = \wp_create_nonce( 'wp_rest' );
-			$config['items']   = self::get_data( \get_current_user_id() );
+			$config['nonce'] = \wp_create_nonce( 'wp_rest' );
+			$config['items'] = self::get_data( \get_current_user_id() );
 		}
 
 		wp_localize_script( Reader_Activation::SCRIPT_HANDLE, 'newspack_reader_data', $config );
@@ -248,6 +263,15 @@ final class Reader_Data {
 		}
 
 		\update_user_meta( $user_id, self::get_meta_key_name( $key ), $value );
+
+		/**
+		 * Fires after a reader data item is updated.
+		 *
+		 * @param int    $user_id User ID.
+		 * @param string $key     Key.
+		 * @param string $value   Value.
+		 */
+		do_action( 'newspack_reader_data_updated', $user_id, $key, $value );
 		return true;
 	}
 
@@ -267,6 +291,15 @@ final class Reader_Data {
 			\update_user_meta( $user_id, 'newspack_reader_data_keys', $user_keys );
 		}
 		\delete_user_meta( $user_id, self::get_meta_key_name( $key ) );
+
+		/**
+		 * Fires after a reader data item is deleted.
+		 *
+		 * @param int         $user_id User ID.
+		 * @param string      $key     Key.
+		 * @param string|null $value   Value. Null when the item is deleted.
+		 */
+		do_action( 'newspack_reader_data_updated', $user_id, $key, null );
 		return true;
 	}
 

@@ -58,7 +58,9 @@
 			return; // No Intl support.
 		}
 
-		const elements = document.querySelectorAll( '.wp-block-post-date time[datetime], time.entry-date[datetime], .comment-meta time[datetime]' );
+		const elements = document.querySelectorAll(
+			'.wp-block-post-date time[datetime], time.entry-date[datetime], time.updated[datetime], .comment-meta time[datetime]'
+		);
 		const now = Date.now();
 
 		elements.forEach( function ( el ) {
@@ -72,7 +74,7 @@
 				el.setAttribute( 'title', new Date( datetime ).toLocaleString( localeTag ) );
 			}
 
-			// Only replace text on publish dates, not modified date blocks.
+			// Skip block-theme modified dates (label is inside <time>). Classic-theme ones are fine.
 			if ( el.closest( '[data-newspack-modified]' ) || el.closest( '.wp-block-post-date__modified-date' ) ) {
 				return;
 			}

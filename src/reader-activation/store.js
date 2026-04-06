@@ -1,7 +1,8 @@
 /* globals newspack_reader_data */
 window.newspack_reader_data = window.newspack_reader_data || {};
 
-import { EVENTS, emit } from './events';
+import { EVENTS, emit, on } from './events';
+import { getApiNonce } from './session';
 
 /**
  * Store configuration.
@@ -111,7 +112,8 @@ function syncItem( key ) {
 	if ( ! key ) {
 		return Promise.reject( 'Key is required.' );
 	}
-	if ( ! newspack_reader_data.api_url || ! newspack_reader_data.nonce ) {
+	const apiNonce = getApiNonce();
+	if ( ! newspack_reader_data.api_url || ! apiNonce ) {
 		return Promise.reject( 'API not available.' );
 	}
 
@@ -129,7 +131,7 @@ function syncItem( key ) {
 	const req = new XMLHttpRequest();
 	req.open( payload.value ? 'POST' : 'DELETE', newspack_reader_data.api_url, true );
 	req.setRequestHeader( 'Content-Type', 'application/json' );
-	req.setRequestHeader( 'X-WP-Nonce', newspack_reader_data.nonce );
+	req.setRequestHeader( 'X-WP-Nonce', apiNonce );
 
 	// Send request.
 	req.send( JSON.stringify( payload ) );
@@ -256,6 +258,29 @@ export default function Store() {
 		}
 	}
 
+	// When session hydration provides a nonce, rehydrate server items
+	// and re-queue any unsynced items.
+	on( EVENTS.session, ( { detail } ) => {
+		// Rehydrate items from server if provided.
+		const items = detail?.reader_data_items || {};
+		newspack_reader_data.items = items;
+		if ( ! newspack_reader_data?.is_temporary ) {
+			const unsyncedKeys = _get( 'unsynced', true ) || [];
+			for ( const key of Object.keys( items ) ) {
+				if ( ! unsyncedKeys.includes( key ) ) {
+					_set( key, decode( items[ key ] ) );
+				}
+			}
+		}
+		// Re-queue unsynced items.
+		const pending = _get( 'unsynced', true ) || [];
+		for ( const key of pending ) {
+			if ( ! syncQueue.includes( key ) ) {
+				syncQueue.push( key );
+			}
+		}
+	} );
+
 	// Rehydrate items from server. No need to rehydrate for temporary sessions.
 	if ( newspack_reader_data?.items && ! newspack_reader_data?.is_temporary ) {
 		const keys = Object.keys( newspack_reader_data.items );
@@ -264,7 +289,7 @@ export default function Store() {
 			if ( unsynced.includes( key ) ) {
 				continue;
 			}
-			_set( key, JSON.parse( newspack_reader_data.items[ key ] ) );
+			_set( key, decode( newspack_reader_data.items[ key ] ) );
 		}
 	}
 
