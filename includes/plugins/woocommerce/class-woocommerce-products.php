@@ -381,8 +381,14 @@ class WooCommerce_Products {
 	 * @return array Modified columns.
 	 */
 	public static function add_donation_column( $columns ) {
-		$columns['newspack_donation'] = __( 'Donation', 'newspack-plugin' );
-		return $columns;
+		$new_columns = [];
+		foreach ( $columns as $key => $label ) {
+			if ( 'date' === $key ) {
+				$new_columns['newspack_donation'] = __( 'Donation', 'newspack-plugin' );
+			}
+			$new_columns[ $key ] = $label;
+		}
+		return $new_columns;
 	}
 
 	/**
