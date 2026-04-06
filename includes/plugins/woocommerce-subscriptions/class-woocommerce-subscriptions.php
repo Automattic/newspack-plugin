@@ -144,7 +144,7 @@ class WooCommerce_Subscriptions {
 	}
 
 	/**
-	 * Get the user's active subscription for a product (simple, grouped, or variable).
+	 * Get the user's subscription within a grouped or variable subscription product.
 	 *
 	 * @param \WC_Product $product Product.
 	 * @param int|null    $user_id User ID. Defaults to the current user.
@@ -161,19 +161,16 @@ class WooCommerce_Subscriptions {
 			return null;
 		}
 
-		$children           = $product->get_children();
+		$products           = $product->get_children();
 		$user_subscriptions = wcs_get_users_subscriptions( $user_id );
 
-		// Simple products have no children; check their status directly.
-		$product_ids = ! empty( $children ) ? $children : [ $product->get_id() ];
-
-		foreach ( $product_ids as $product_id ) {
-			$product_to_check = wc_get_product( $product_id );
-			if ( ! $product_to_check ) {
+		foreach ( $products as $product ) {
+			$product = wc_get_product( $product );
+			if ( ! $product ) {
 				continue;
 			}
 			foreach ( $user_subscriptions as $subscription ) {
-				if ( $subscription->has_product( $product_to_check->get_id() ) && $subscription->has_status( WooCommerce_Connection::ACTIVE_SUBSCRIPTION_STATUSES ) ) {
+				if ( $subscription->has_product( $product->get_id() ) && $subscription->has_status( 'active' ) ) {
 					return $subscription;
 				}
 			}

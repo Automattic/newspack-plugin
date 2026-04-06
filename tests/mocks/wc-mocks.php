@@ -119,50 +119,6 @@ class WC_Customer {
 
 $orders_database = [];
 $subscriptions_database = [];
-$products_database = [];
-
-class WC_Product {
-	protected $data = [];
-	public function __construct( $data = [] ) {
-		$this->data = $data;
-	}
-	public function get_id() {
-		return $this->data['id'] ?? 0;
-	}
-	public function get_children() {
-		return $this->data['children'] ?? [];
-	}
-	public function get_type() {
-		return $this->data['type'] ?? 'simple';
-	}
-	public function get_name() {
-		return $this->data['name'] ?? '';
-	}
-	public function get_price() {
-		return $this->data['price'] ?? '0';
-	}
-}
-
-/**
- * Register a mock product in the global products database.
- *
- * @param array $data Product data including 'id', 'children', 'type', 'name', 'price'.
- * @return WC_Product
- */
-function wc_create_mock_product( $data = [] ) {
-	global $products_database;
-	$product = new WC_Product( $data );
-	$products_database[ $product->get_id() ] = $product;
-	return $product;
-}
-
-function wc_get_product( $product_id ) {
-	global $products_database;
-	if ( $product_id instanceof WC_Product ) {
-		return $product_id;
-	}
-	return $products_database[ $product_id ] ?? null;
-}
 
 class WC_Order_Item_Product {
 	private $data = [];
