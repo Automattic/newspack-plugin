@@ -494,7 +494,6 @@ function init() {
 	fixClientID();
 	setupArticleViewsAggregates( readerActivation );
 	setupEngagement( readerActivation );
-	store.rehydrate();
 	attachAuthCookiesListener();
 	attachNewsletterFormListener();
 	pushActivities();
@@ -505,6 +504,10 @@ function init() {
 	window.newspackRAS = window.newspackRAS || [];
 	window.newspackRAS.forEach( arg => handlePush( arg ) );
 	window.newspackRAS.push = handlePush;
+
+	// Rehydrate after all synchronous strategy registrations, including
+	// those from third parties via newspackRAS.push().
+	store.rehydrate();
 
 	window.newspackRASInitialized = true;
 }

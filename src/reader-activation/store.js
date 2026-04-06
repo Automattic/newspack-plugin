@@ -298,8 +298,11 @@ export default function Store() {
 	} );
 
 	/**
-	 * Rehydrate items from server data. Called explicitly after merge
+	 * Rehydrate items from server data. Must be called after all merge
 	 * strategies have been registered via store.register().
+	 *
+	 * Merge strategies must be registered synchronously before this
+	 * method runs — async registration is not supported.
 	 *
 	 * @param {Object} items Items to rehydrate. Defaults to newspack_reader_data.items.
 	 */
