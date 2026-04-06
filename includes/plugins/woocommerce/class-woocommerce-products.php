@@ -31,6 +31,10 @@ class WooCommerce_Products {
 		\add_filter( 'woocommerce_order_item_needs_processing', [ __CLASS__, 'require_order_processing' ], 10, 2 );
 		\add_filter( 'woocommerce_product_description_heading', '__return_false', 10, 2 );
 		\add_filter( 'woocommerce_product_additional_information_heading', '__return_false', 10, 2 );
+		\add_filter( 'manage_product_posts_columns', [ __CLASS__, 'add_donation_column' ] );
+		\add_action( 'manage_product_posts_custom_column', [ __CLASS__, 'render_donation_column' ], 10, 2 );
+		\add_action( 'restrict_manage_posts', [ __CLASS__, 'add_donation_filter' ] );
+		\add_action( 'pre_get_posts', [ __CLASS__, 'filter_by_donation' ] );
 	}
 
 	/**
@@ -368,6 +372,90 @@ class WooCommerce_Products {
 			return $needs_proccessing;
 		}
 		return self::get_custom_option_value( $product, 'newspack_autocomplete_orders' ) ? false : $needs_proccessing;
+	}
+
+	/**
+	 * Add "Donation" column to the products list table.
+	 *
+	 * @param array $columns Existing columns.
+	 * @return array Modified columns.
+	 */
+	public static function add_donation_column( $columns ) {
+		$columns['newspack_donation'] = __( 'Donation', 'newspack-plugin' );
+		return $columns;
+	}
+
+	/**
+	 * Render the "Donation" column content.
+	 *
+	 * @param string $column  Column name.
+	 * @param int    $post_id Post ID.
+	 */
+	public static function render_donation_column( $column, $post_id ) {
+		if ( 'newspack_donation' !== $column ) {
+			return;
+		}
+		if ( Donations::is_donation_product( $post_id ) ) {
+			echo '<span class="dashicons dashicons-yes-alt" style="color: #46b450;" title="' . esc_attr__( 'Donation product', 'newspack-plugin' ) . '"></span>';
+		}
+	}
+
+	/**
+	 * Add a dropdown filter for donation products on the products list screen.
+	 *
+	 * @param string $post_type The current post type.
+	 */
+	public static function add_donation_filter( $post_type ) {
+		if ( 'product' !== $post_type ) {
+			return;
+		}
+		$selected = isset( $_GET['newspack_donation_filter'] ) ? sanitize_text_field( $_GET['newspack_donation_filter'] ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		?>
+		<select name="newspack_donation_filter">
+			<option value=""><?php esc_html_e( 'All products', 'newspack-plugin' ); ?></option>
+			<option value="donation" <?php selected( $selected, 'donation' ); ?>><?php esc_html_e( 'Donation products', 'newspack-plugin' ); ?></option>
+			<option value="non-donation" <?php selected( $selected, 'non-donation' ); ?>><?php esc_html_e( 'Non-donation products', 'newspack-plugin' ); ?></option>
+		</select>
+		<?php
+	}
+
+	/**
+	 * Filter the products query by donation status.
+	 *
+	 * @param \WP_Query $query The query object.
+	 */
+	public static function filter_by_donation( $query ) {
+		if ( ! is_admin() || ! $query->is_main_query() || 'product' !== $query->get( 'post_type' ) ) {
+			return;
+		}
+		if ( empty( $_GET['newspack_donation_filter'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			return;
+		}
+		$filter = sanitize_text_field( $_GET['newspack_donation_filter'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+
+		$meta_query = $query->get( 'meta_query' ) ?: [];
+
+		if ( 'donation' === $filter ) {
+			$meta_query[] = [
+				'key'   => '_newspack_is_donation',
+				'value' => '1',
+			];
+		} elseif ( 'non-donation' === $filter ) {
+			$meta_query[] = [
+				'relation' => 'OR',
+				[
+					'key'     => '_newspack_is_donation',
+					'compare' => 'NOT EXISTS',
+				],
+				[
+					'key'     => '_newspack_is_donation',
+					'value'   => '1',
+					'compare' => '!=',
+				],
+			];
+		}
+
+		$query->set( 'meta_query', $meta_query ); // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
 	}
 }
 
