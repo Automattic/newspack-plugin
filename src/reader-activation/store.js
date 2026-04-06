@@ -291,9 +291,12 @@ export default function Store() {
 		const unsyncedKeys = _get( 'unsynced', true ) || [];
 		if ( ! newspack_reader_data?.is_temporary ) {
 			for ( const key of Object.keys( items ) ) {
-				if ( ! unsyncedKeys.includes( key ) ) {
-					rehydrateItem( key, decode( items[ key ] ) );
+				// Skip unsynced items unless they have a merge strategy,
+				// which is the authority on how to reconcile values.
+				if ( unsyncedKeys.includes( key ) && ! mergeStrategies.has( key ) ) {
+					continue;
 				}
+				rehydrateItem( key, decode( items[ key ] ) );
 			}
 		}
 		// Re-queue unsynced items.
@@ -314,9 +317,12 @@ export default function Store() {
 		}
 		const unsyncedKeys = _get( 'unsynced', true ) || [];
 		for ( const key of Object.keys( newspack_reader_data.items ) ) {
-			if ( ! unsyncedKeys.includes( key ) ) {
-				rehydrateItem( key, decode( newspack_reader_data.items[ key ] ) );
+			// Skip unsynced items unless they have a merge strategy,
+			// which is the authority on how to reconcile values.
+			if ( unsyncedKeys.includes( key ) && ! mergeStrategies.has( key ) ) {
+				continue;
 			}
+			rehydrateItem( key, decode( newspack_reader_data.items[ key ] ) );
 		}
 	}
 
