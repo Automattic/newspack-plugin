@@ -25,8 +25,7 @@ class Newspack_Test_Session_Hydration extends WP_UnitTestCase {
 	public function set_up() {
 		parent::set_up();
 		add_filter( 'newspack_reader_activation_enabled', '__return_true' );
-		// Re-register routes since rest_api_init may have already fired.
-		Session_Hydration::register_routes();
+		do_action( 'rest_api_init' );
 	}
 
 	/**
