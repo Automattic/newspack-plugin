@@ -108,4 +108,10 @@ type AudienceDonationsWizardData = {
 	product_validation: {
 		[key: string]: ProductValidation;
 	};
+	donation_products?: Array<{
+		id: number;
+		name: string;
+		type: string;
+		edit_link: string;
+	}>;
 };
