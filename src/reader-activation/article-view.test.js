@@ -13,6 +13,50 @@ describe( 'setupArticleViewsAggregates', () => {
 		mock.reset();
 	} );
 
+	describe( 'merge strategies', () => {
+		it( 'should register a merge strategy for articles_read', () => {
+			expect( mock.ras.store.register ).toHaveBeenCalledWith( 'articles_read', {
+				merge: expect.any( Function ),
+			} );
+		} );
+
+		it( 'should register a merge strategy for paywall_hits', () => {
+			expect( mock.ras.store.register ).toHaveBeenCalledWith( 'paywall_hits', {
+				merge: expect.any( Function ),
+			} );
+		} );
+
+		it( 'should register a merge strategy for favorite_categories', () => {
+			expect( mock.ras.store.register ).toHaveBeenCalledWith( 'favorite_categories', {
+				merge: expect.any( Function ),
+			} );
+		} );
+
+		it( 'articles_read merge should take the max', () => {
+			const call = mock.ras.store.register.mock.calls.find( ( [ key ] ) => key === 'articles_read' );
+			const merge = call[ 1 ].merge;
+			expect( merge( 5, 10 ) ).toBe( 10 );
+			expect( merge( 10, 5 ) ).toBe( 10 );
+			expect( merge( 0, 5 ) ).toBe( 5 );
+			expect( merge( null, 5 ) ).toBe( 5 );
+		} );
+
+		it( 'paywall_hits merge should take the max', () => {
+			const call = mock.ras.store.register.mock.calls.find( ( [ key ] ) => key === 'paywall_hits' );
+			const merge = call[ 1 ].merge;
+			expect( merge( 3, 7 ) ).toBe( 7 );
+			expect( merge( 7, 3 ) ).toBe( 7 );
+		} );
+
+		it( 'favorite_categories merge should prefer client', () => {
+			const call = mock.ras.store.register.mock.calls.find( ( [ key ] ) => key === 'favorite_categories' );
+			const merge = call[ 1 ].merge;
+			expect( merge( [ 1, 2 ], [ 3, 4 ] ) ).toEqual( [ 3, 4 ] );
+			expect( merge( [ 1, 2 ], null ) ).toEqual( [ 1, 2 ] );
+			expect( merge( null, null ) ).toEqual( [] );
+		} );
+	} );
+
 	function simulateArticleView( data, timestamp = Date.now() ) {
 		mock.trigger( 'activity', { action: 'article_view', data, timestamp } );
 	}
