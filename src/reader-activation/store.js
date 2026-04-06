@@ -430,9 +430,9 @@ export default function Store() {
 		 * @param {Object}   options       Options.
 		 * @param {Function} options.merge Merge function: (serverValue, clientValue) => resolvedValue.
 		 */
-		register: ( key, { merge } ) => {
+		register: ( key, { merge } = {} ) => {
 			if ( typeof merge !== 'function' ) {
-				throw new Error( 'merge must be a function.' );
+				throw new Error( `Store key '${ key }' requires a merge function.` );
 			}
 			mergeStrategies.set( key, merge );
 		},

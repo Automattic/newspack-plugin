@@ -28,7 +28,7 @@ export default function setupArticleViewsAggregates( ras ) {
 	 */
 	ras.store.register( 'article_view_per_week', {
 		merge: ( server, client ) => {
-			const merged = { ...server };
+			const merged = { ...( server || {} ) };
 			for ( const period of Object.keys( client || {} ) ) {
 				merged[ period ] = { ...merged[ period ], ...client[ period ] };
 			}
@@ -42,7 +42,7 @@ export default function setupArticleViewsAggregates( ras ) {
 	 */
 	ras.store.register( 'article_view_per_month', {
 		merge: ( server, client ) => {
-			const merged = { ...server };
+			const merged = { ...( server || {} ) };
 			for ( const period of Object.keys( client || {} ) ) {
 				merged[ period ] = { ...merged[ period ], ...client[ period ] };
 			}
