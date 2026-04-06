@@ -2437,8 +2437,6 @@ final class Reader_Activation {
 		 */
 		$metadata = apply_filters( 'newspack_register_reader_metadata', $metadata, $user_id, $existing_user );
 
-
-
 		// Note the user's login method for later use.
 		if ( isset( $metadata['registration_method'] ) ) {
 			\update_user_meta( $user_id, self::REGISTRATION_METHOD, $metadata['registration_method'] );
