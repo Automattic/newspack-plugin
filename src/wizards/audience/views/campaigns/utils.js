@@ -118,17 +118,20 @@ export const getCardClassName = ( status, forceDisabled = false ) => {
 export const promptDescription = prompt => {
 	const { categories, tags, campaign_groups: campaigns, status } = prompt;
 	const descriptionMessages = [];
-	if ( campaigns.length > 0 ) {
-		const campaignsList = campaigns.map( ( { name } ) => name ).join( ', ' );
+	const validCampaigns = Array.isArray( campaigns ) ? campaigns.filter( Boolean ) : [];
+	const validCategories = Array.isArray( categories ) ? categories.filter( Boolean ) : [];
+	const validTags = Array.isArray( tags ) ? tags.filter( Boolean ) : [];
+	if ( validCampaigns.length > 0 ) {
+		const campaignsList = validCampaigns.map( ( { name } ) => name ).join( ', ' );
 		descriptionMessages.push(
-			( campaigns.length === 1 ? __( 'Campaign: ', 'newspack-plugin' ) : __( 'Campaigns: ', 'newspack-plugin' ) ) + campaignsList
+			( validCampaigns.length === 1 ? __( 'Campaign: ', 'newspack-plugin' ) : __( 'Campaigns: ', 'newspack-plugin' ) ) + campaignsList
 		);
 	}
-	if ( categories.length > 0 ) {
-		descriptionMessages.push( __( 'Categories: ', 'newspack-plugin' ) + categories.map( category => category.name ).join( ', ' ) );
+	if ( validCategories.length > 0 ) {
+		descriptionMessages.push( __( 'Categories: ', 'newspack-plugin' ) + validCategories.map( category => category.name ).join( ', ' ) );
 	}
-	if ( tags.length > 0 ) {
-		descriptionMessages.push( __( 'Tags: ', 'newspack-plugin' ) + tags.map( tag => tag.name ).join( ', ' ) );
+	if ( validTags.length > 0 ) {
+		descriptionMessages.push( __( 'Tags: ', 'newspack-plugin' ) + validTags.map( tag => tag.name ).join( ', ' ) );
 	}
 	if ( 'pending' === status ) {
 		descriptionMessages.push( __( 'Pending review', 'newspack-plugin' ) );
