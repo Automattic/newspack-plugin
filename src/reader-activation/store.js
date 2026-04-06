@@ -285,21 +285,11 @@ export default function Store() {
 	// When session hydration provides a nonce, rehydrate server items
 	// and re-queue any unsynced items.
 	on( EVENTS.session, ( { detail } ) => {
-		// Rehydrate items from server if provided.
 		const items = detail?.reader_data_items || {};
 		newspack_reader_data.items = items;
-		const unsyncedKeys = _get( 'unsynced', true ) || [];
-		if ( ! newspack_reader_data?.is_temporary ) {
-			for ( const key of Object.keys( items ) ) {
-				// Skip unsynced items unless they have a merge strategy,
-				// which is the authority on how to reconcile values.
-				if ( unsyncedKeys.includes( key ) && ! mergeStrategies.has( key ) ) {
-					continue;
-				}
-				rehydrateItem( key, decode( items[ key ] ) );
-			}
-		}
+		rehydrate( items );
 		// Re-queue unsynced items.
+		const unsyncedKeys = _get( 'unsynced', true ) || [];
 		for ( const key of unsyncedKeys ) {
 			if ( ! syncQueue.includes( key ) ) {
 				syncQueue.push( key );
@@ -310,19 +300,21 @@ export default function Store() {
 	/**
 	 * Rehydrate items from server data. Called explicitly after merge
 	 * strategies have been registered via store.register().
+	 *
+	 * @param {Object} items Items to rehydrate. Defaults to newspack_reader_data.items.
 	 */
-	function rehydrate() {
-		if ( ! newspack_reader_data?.items || newspack_reader_data?.is_temporary ) {
+	function rehydrate( items = newspack_reader_data?.items ) {
+		if ( ! items || newspack_reader_data?.is_temporary ) {
 			return;
 		}
 		const unsyncedKeys = _get( 'unsynced', true ) || [];
-		for ( const key of Object.keys( newspack_reader_data.items ) ) {
+		for ( const key of Object.keys( items ) ) {
 			// Skip unsynced items unless they have a merge strategy,
 			// which is the authority on how to reconcile values.
 			if ( unsyncedKeys.includes( key ) && ! mergeStrategies.has( key ) ) {
 				continue;
 			}
-			rehydrateItem( key, decode( newspack_reader_data.items[ key ] ) );
+			rehydrateItem( key, decode( items[ key ] ) );
 		}
 	}
 
