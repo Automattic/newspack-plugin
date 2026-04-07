@@ -12,7 +12,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Main class.
  */
-class Content_Gate_Global_Settings {
+class Content_Gate_Advanced_Settings {
 	/**
 	 * Option prefix for content gate options.
 	 */
@@ -114,4 +114,4 @@ class Content_Gate_Global_Settings {
 		return Content_Gate::get_restricted_post_excerpt_for_gate( $post, Content_Gate::get_gate_layout_id( $post->ID ) );
 	}
 }
-Content_Gate_Global_Settings::init();
+Content_Gate_Advanced_Settings::init();

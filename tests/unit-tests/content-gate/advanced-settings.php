@@ -8,12 +8,12 @@
 namespace Newspack\Tests\Content_Gate;
 
 use Newspack\Content_Gate;
-use Newspack\Content_Gate_Global_Settings;
+use Newspack\Content_Gate_Advanced_Settings;
 
 /**
  * Tests for RSS feed content restriction.
  */
-class Test_Global_Settings extends \WP_UnitTestCase {
+class Test_Advanced_Settings extends \WP_UnitTestCase {
 
 	/**
 	 * Gate ID.
@@ -85,10 +85,10 @@ class Test_Global_Settings extends \WP_UnitTestCase {
 		);
 
 		// Ensure restrict_feeds is on (default is 1).
-		update_option( Content_Gate_Global_Settings::OPTION_PREFIX . 'restrict_feeds', 1 );
+		update_option( Content_Gate_Advanced_Settings::OPTION_PREFIX . 'restrict_feeds', 1 );
 
 		// Reset cached settings so the option change takes effect.
-		Content_Gate_Global_Settings::reset_cache();
+		Content_Gate_Advanced_Settings::reset_cache();
 	}
 
 	/**
@@ -101,8 +101,8 @@ class Test_Global_Settings extends \WP_UnitTestCase {
 		wp_delete_post( $this->restricted_post_id, true );
 		wp_delete_post( $this->unrestricted_post_id, true );
 
-		delete_option( Content_Gate_Global_Settings::OPTION_PREFIX . 'restrict_feeds' );
-		Content_Gate_Global_Settings::reset_cache();
+		delete_option( Content_Gate_Advanced_Settings::OPTION_PREFIX . 'restrict_feeds' );
+		Content_Gate_Advanced_Settings::reset_cache();
 
 		parent::tear_down();
 	}
@@ -143,8 +143,8 @@ class Test_Global_Settings extends \WP_UnitTestCase {
 	 * When restrict_feeds is disabled, the_content_feed is unmodified.
 	 */
 	public function test_feed_content_is_not_truncated_when_restrict_feeds_is_off() {
-		update_option( Content_Gate_Global_Settings::OPTION_PREFIX . 'restrict_feeds', 0 );
-		Content_Gate_Global_Settings::reset_cache();
+		update_option( Content_Gate_Advanced_Settings::OPTION_PREFIX . 'restrict_feeds', 0 );
+		Content_Gate_Advanced_Settings::reset_cache();
 
 		global $post;
 		$post = get_post( $this->restricted_post_id ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
@@ -161,8 +161,8 @@ class Test_Global_Settings extends \WP_UnitTestCase {
 	 * When restrict_feeds is disabled, the_excerpt_rss is unmodified.
 	 */
 	public function test_feed_excerpt_is_not_truncated_when_restrict_feeds_is_off() {
-		update_option( Content_Gate_Global_Settings::OPTION_PREFIX . 'restrict_feeds', 0 );
-		Content_Gate_Global_Settings::reset_cache();
+		update_option( Content_Gate_Advanced_Settings::OPTION_PREFIX . 'restrict_feeds', 0 );
+		Content_Gate_Advanced_Settings::reset_cache();
 
 		global $post;
 		$post = get_post( $this->restricted_post_id ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited

@@ -342,7 +342,7 @@ class Audience_Content_Gates extends Wizard {
 			'config' => [
 				'countdown_banner'  => Metering_Countdown::get_settings(),
 				'content_gifting'   => Content_Gifting::get_settings(),
-				'advanced_settings' => Content_Gate_Global_Settings::get_settings(),
+				'advanced_settings' => Content_Gate_Advanced_Settings::get_settings(),
 			],
 		];
 		return rest_ensure_response( $config );
@@ -357,7 +357,7 @@ class Audience_Content_Gates extends Wizard {
 	 */
 	public function update_settings( $request ) {
 		$settings = $request->get_param( 'advanced_settings' );
-		$updated = Content_Gate_Global_Settings::update_settings( $settings );
+		$updated = Content_Gate_Advanced_Settings::update_settings( $settings );
 		return rest_ensure_response( $updated );
 	}
 
