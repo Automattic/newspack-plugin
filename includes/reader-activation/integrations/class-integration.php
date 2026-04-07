@@ -910,6 +910,9 @@ abstract class Integration {
 	protected function sanitize_settings_field_value( $field, $value ) {
 		$type = $field['type'] ?? 'text';
 		switch ( $type ) {
+			case 'hidden':
+			case 'oauth':
+				return $value; // Read-only or managed programmatically.
 			case 'checkbox':
 				return (bool) $value;
 			case 'number':
