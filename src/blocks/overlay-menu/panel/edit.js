@@ -4,6 +4,7 @@
 import { __ } from '@wordpress/i18n';
 import { close as closeIcon } from '@wordpress/icons';
 import { useEffect, useRef, useState } from '@wordpress/element';
+import { useSelect } from '@wordpress/data';
 import {
 	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
 	__experimentalColorGradientSettingsDropdown as ColorGradientSettingsDropdown,
@@ -48,26 +49,41 @@ export default function OverlayMenuPanelEdit( { attributes, clientId, setAttribu
 
 	const [ isPreviewOpen, setIsPreviewOpen ] = useState( false );
 
-	// Keep a ref to the current open state so the toggle registered in panelToggles
-	// never has a stale closure over isPreviewOpen.
+	// Keep a ref to the current open state so the toggle never has a stale closure.
 	const isOpenRef = useRef( false );
 	isOpenRef.current = isPreviewOpen;
 
-	// Register a toggle function keyed by clientId so the parent toolbar button
-	// can open/close the panel without sharing block attributes.
+	// Key everything by the parent's clientId so the parent/trigger can look up the toggle using their own clientId or getBlockRootClientId.
+	const parentClientId = useSelect( select => select( 'core/block-editor' ).getBlockRootClientId( clientId ), [ clientId ] );
+
+	// Keep a stable ref to the toggle function so the Map entry is always current.
+	const toggleFnRef = useRef( null );
+	toggleFnRef.current = () => {
+		const next = ! isOpenRef.current;
+		setIsPreviewOpen( next );
+		notifySubscribers( parentClientId, next );
+	};
+
+	// Register during render, not in an effect. This makes the Map
+	// is populated by the time anything can call the toggle.
+	if ( parentClientId ) {
+		panelToggles.set( parentClientId, () => toggleFnRef.current?.() );
+	}
+
+	// Cleanup on unmount. useEffect is fine here — it only needs to run eventually,
+	// not before the first interaction.
 	useEffect( () => {
-		panelToggles.set( clientId, () => {
-			const next = ! isOpenRef.current;
-			setIsPreviewOpen( next );
-			notifySubscribers( clientId, next );
-		} );
-		return () => panelToggles.delete( clientId );
-	}, [ clientId ] ); // eslint-disable-line react-hooks/exhaustive-deps
+		return () => {
+			if ( parentClientId ) {
+				panelToggles.delete( parentClientId );
+			}
+		};
+	}, [ parentClientId ] );
 
 	// Update local state and notify all subscribers (parent + trigger toolbar buttons).
 	const togglePreview = open => {
 		setIsPreviewOpen( open );
-		notifySubscribers( clientId, open );
+		notifySubscribers( parentClientId, open );
 	};
 
 	const { positionClass } = DIRECTION_CONFIG[ slideDirection ] ?? DIRECTION_CONFIG.left;
