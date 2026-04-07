@@ -45,6 +45,11 @@ class Contact_Sync extends Sync {
 	const RETRY_HOOK = 'newspack_contact_sync_retry';
 
 	/**
+	 * ActionScheduler hook for retrying a failed bulk integration sync.
+	 */
+	const BULK_RETRY_HOOK = 'newspack_bulk_contact_sync_retry';
+
+	/**
 	 * Maximum number of retries for a failed integration sync.
 	 */
 	const MAX_RETRIES = 5;
@@ -62,6 +67,7 @@ class Contact_Sync extends Sync {
 		add_action( 'newspack_scheduled_esp_sync', [ __CLASS__, 'scheduled_sync' ], 10, 2 );
 		add_action( 'shutdown', [ __CLASS__, 'run_queued_syncs' ] );
 		add_action( self::RETRY_HOOK, [ __CLASS__, 'execute_integration_retry' ] );
+		add_action( self::BULK_RETRY_HOOK, [ __CLASS__, 'execute_bulk_retry' ] );
 		add_action( 'action_scheduler_begin_execute', [ __CLASS__, 'set_current_as_action_id' ] );
 		add_action( 'action_scheduler_after_execute', [ __CLASS__, 'clear_current_as_action_id' ] );
 		add_filter( 'newspack_action_scheduler_hook_labels', [ __CLASS__, 'register_hook_labels' ] );
@@ -74,7 +80,8 @@ class Contact_Sync extends Sync {
 	 * @return array
 	 */
 	public static function register_hook_labels( $labels ) {
-		$labels[ self::RETRY_HOOK ] = __( 'Contact Sync Retry', 'newspack-plugin' );
+		$labels[ self::RETRY_HOOK ]      = __( 'Contact Sync Retry', 'newspack-plugin' );
+		$labels[ self::BULK_RETRY_HOOK ] = __( 'Bulk Contact Sync Retry', 'newspack-plugin' );
 		return $labels;
 	}
 
@@ -339,7 +346,164 @@ class Contact_Sync extends Sync {
 	 * @param \WP_Error $error          The error from the failure.
 	 */
 	private static function schedule_bulk_retry( $integration_id, $user_ids, $context, $retry_count, $error ) {
-		// Implemented in Task 3.
+		if ( ! function_exists( 'as_schedule_single_action' ) ) {
+			return;
+		}
+
+		$error_message = $error->get_error_message();
+		$next_retry    = $retry_count + 1;
+
+		if ( $next_retry > self::MAX_RETRIES ) {
+			static::log(
+				sprintf(
+					'Max retries (%d) reached for bulk sync of integration "%s" (%d users). Giving up. Last error: %s',
+					self::MAX_RETRIES,
+					$integration_id,
+					count( $user_ids ),
+					$error_message
+				)
+			);
+			/**
+			 * Fires when a bulk contact sync has exhausted all retry attempts.
+			 *
+			 * @param string $integration_id The integration that failed.
+			 * @param int[]  $user_ids       The user IDs that failed to sync.
+			 * @param string $context        The sync context.
+			 * @param string $reason         The final error message.
+			 */
+			do_action( 'newspack_bulk_sync_retry_exhausted', $integration_id, $user_ids, $context, $error_message );
+			return;
+		}
+
+		$backoff_index   = min( $retry_count, count( self::RETRY_BACKOFF ) - 1 );
+		$backoff_seconds = self::RETRY_BACKOFF[ $backoff_index ];
+
+		$retry_data = [
+			'integration_id' => $integration_id,
+			'user_ids'       => $user_ids,
+			'context'        => $context,
+			'retry_count'    => $next_retry,
+			'reason'         => $error_message,
+		];
+
+		\as_schedule_single_action(
+			time() + $backoff_seconds,
+			self::BULK_RETRY_HOOK,
+			[ $retry_data ],
+			Integrations::get_action_group( $integration_id )
+		);
+
+		static::log(
+			sprintf(
+				'Scheduled bulk retry %d/%d for integration "%s" (%d users) in %ds. Error: %s',
+				$next_retry,
+				self::MAX_RETRIES,
+				$integration_id,
+				count( $user_ids ),
+				$backoff_seconds,
+				$error_message
+			)
+		);
+	}
+
+	/**
+	 * Execute a bulk integration sync retry from ActionScheduler.
+	 *
+	 * Rebuilds contact data from user IDs and calls push_contacts_data().
+	 * Filters out non-existent users. On total failure, reschedules the bulk retry.
+	 * On per-contact results, schedules individual retries for failures.
+	 *
+	 * @param array $retry_data The retry data containing integration_id, user_ids, context, and retry_count.
+	 *
+	 * @throws \Exception When the final retry fails, so ActionScheduler marks the action as "failed".
+	 */
+	public static function execute_bulk_retry( $retry_data ) {
+		if ( ! is_array( $retry_data ) || empty( $retry_data['integration_id'] ) || empty( $retry_data['user_ids'] ) ) {
+			Logger::log( 'Invalid bulk retry data received from Action Scheduler.', 'NEWSPACK-SYNC', 'error' );
+			return;
+		}
+
+		$integration_id = $retry_data['integration_id'];
+		$user_ids       = $retry_data['user_ids'];
+		$context        = $retry_data['context'] ?? static::$context;
+		$retry_count    = $retry_data['retry_count'] ?? 1;
+
+		$integration = Integrations::get_integration( $integration_id );
+		if ( ! $integration ) {
+			Logger::log( sprintf( 'Integration "%s" not found on bulk retry %d.', $integration_id, $retry_count ), 'NEWSPACK-SYNC', 'error' );
+			return;
+		}
+
+		// Build contacts, filtering out stale user IDs.
+		$contacts    = [];
+		$user_id_map = [];
+
+		foreach ( $user_ids as $user_id ) {
+			$user = \get_userdata( $user_id );
+			if ( ! $user ) {
+				continue;
+			}
+
+			$contact_data = self::get_contact_data( $user_id );
+			if ( \is_wp_error( $contact_data ) || empty( $contact_data['email'] ) ) {
+				continue;
+			}
+
+			/** This filter is documented in includes/reader-activation/sync/class-contact-sync.php */
+			$contact_data = \apply_filters( 'newspack_esp_sync_contact', $contact_data, $context );
+
+			$email                 = $contact_data['email'];
+			$user_id_map[ $email ] = $user_id;
+			$contacts[]            = [
+				'contact'          => $integration->prepare_contact( $contact_data ),
+				'existing_contact' => null,
+			];
+		}
+
+		if ( empty( $contacts ) ) {
+			static::log( sprintf( 'Bulk retry %d for integration "%s": no valid users remaining.', $retry_count, $integration_id ) );
+			return;
+		}
+
+		static::log( sprintf( 'Executing bulk retry %d/%d for integration "%s" (%d contacts).', $retry_count, self::MAX_RETRIES, $integration_id, count( $contacts ) ) );
+
+		$results = $integration->push_contacts_data( $contacts, $context );
+
+		if ( \is_wp_error( $results ) ) {
+			// Total failure again — reschedule bulk retry.
+			static::log( sprintf( 'Bulk retry %d failed for integration "%s": %s', $retry_count, $integration_id, $results->get_error_message() ) );
+			self::schedule_bulk_retry( $integration_id, array_values( $user_id_map ), $context, $retry_count, $results );
+
+			if ( $retry_count >= self::MAX_RETRIES ) {
+				throw new \Exception(
+					esc_html(
+						sprintf(
+							'Bulk retry %d/%d failed for integration "%s" (%d contacts): %s',
+							$retry_count,
+							self::MAX_RETRIES,
+							$integration_id,
+							count( $contacts ),
+							$results->get_error_message()
+						)
+					)
+				);
+			}
+		} else {
+			// Per-contact results — schedule individual retries for any failures.
+			$failures = 0;
+			foreach ( $results as $email => $result ) {
+				if ( \is_wp_error( $result ) ) {
+					$failed_user_id = $user_id_map[ $email ] ?? 0;
+					self::schedule_integration_retry( $integration_id, $failed_user_id, $context, 0, $result );
+					$failures++;
+				}
+			}
+			if ( $failures > 0 ) {
+				static::log( sprintf( 'Bulk retry %d for integration "%s": %d/%d contacts failed, scheduled individual retries.', $retry_count, $integration_id, $failures, count( $contacts ) ) );
+			} else {
+				static::log( sprintf( 'Bulk retry %d for integration "%s": all %d contacts succeeded.', $retry_count, $integration_id, count( $contacts ) ) );
+			}
+		}
 	}
 
 	/**

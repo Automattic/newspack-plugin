@@ -615,6 +615,215 @@ class Newspack_Test_Reader_Activation_Sync extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Test that a total batch failure schedules a bulk retry.
+	 */
+	public function test_bulk_retry_scheduling() {
+		if ( ! function_exists( 'as_schedule_single_action' ) ) {
+			$this->markTestSkipped( 'ActionScheduler not available.' );
+		}
+
+		require_once __DIR__ . '/integrations/class-failing-sample-integration.php';
+		$integration = new class( 'batch_fail', 'Batch Fail' ) extends Failing_Sample_Integration {
+			/**
+			 * Always return a batch error.
+			 *
+			 * @param array  $contacts Contacts to push.
+			 * @param string $context  Sync context.
+			 * @return \WP_Error
+			 */
+			public function push_contacts_data( $contacts, $context = '' ) {
+				return new \WP_Error( 'batch_error', 'Batch API failed' );
+			}
+		};
+		Integrations::register( $integration );
+		Integrations::enable( 'batch_fail' );
+
+		// Disable ESP so only our mock runs.
+		Integrations::disable( 'esp' );
+
+		as_unschedule_all_actions( Contact_Sync::BULK_RETRY_HOOK );
+
+		$user1 = $this->factory()->user->create( [ 'user_email' => 'br1@test.com' ] );
+		$user2 = $this->factory()->user->create( [ 'user_email' => 'br2@test.com' ] );
+
+		$result = Contact_Sync::bulk_push_to_integrations( [ $user1, $user2 ], 'Batch fail test' );
+
+		$this->assertWPError( $result );
+
+		$pending = as_get_scheduled_actions(
+			[
+				'hook'   => Contact_Sync::BULK_RETRY_HOOK,
+				'group'  => Integrations::get_action_group( 'batch_fail' ),
+				'status' => \ActionScheduler_Store::STATUS_PENDING,
+			],
+			'ARRAY_A'
+		);
+		$this->assertCount( 1, $pending, 'A bulk retry should be scheduled for total batch failure.' );
+
+		$action_id = array_key_first( $pending );
+		$action    = \ActionScheduler::store()->fetch_action( $action_id );
+		$args      = $action->get_args()[0];
+		$this->assertEquals( 'batch_fail', $args['integration_id'] );
+		$this->assertCount( 2, $args['user_ids'] );
+		$this->assertEquals( 1, $args['retry_count'] );
+	}
+
+	/**
+	 * Test execute_bulk_retry re-pushes contacts and succeeds.
+	 */
+	public function test_bulk_retry_execution_success() {
+		if ( ! function_exists( 'as_schedule_single_action' ) ) {
+			$this->markTestSkipped( 'ActionScheduler not available.' );
+		}
+
+		Failing_Sample_Integration::reset();
+		$this->register_failing_integration( 'bulk_retry_exec' );
+
+		$user1 = $this->factory()->user->create( [ 'user_email' => 'bre1@test.com' ] );
+		$user2 = $this->factory()->user->create( [ 'user_email' => 'bre2@test.com' ] );
+
+		as_unschedule_all_actions( Contact_Sync::BULK_RETRY_HOOK );
+
+		Contact_Sync::execute_bulk_retry(
+			[
+				'integration_id' => 'bulk_retry_exec',
+				'user_ids'       => [ $user1, $user2 ],
+				'context'        => 'Retry test',
+				'retry_count'    => 1,
+			]
+		);
+
+		$this->assertEquals( 2, Failing_Sample_Integration::$push_count, 'Both contacts should be pushed on retry.' );
+
+		$pending = as_get_scheduled_actions(
+			[
+				'hook'   => Contact_Sync::BULK_RETRY_HOOK,
+				'group'  => Integrations::get_action_group( 'bulk_retry_exec' ),
+				'status' => \ActionScheduler_Store::STATUS_PENDING,
+			],
+			'ARRAY_A'
+		);
+		$this->assertEmpty( $pending, 'No retry should be scheduled on success.' );
+	}
+
+	/**
+	 * Test execute_bulk_retry reschedules on repeated total failure.
+	 */
+	public function test_bulk_retry_reschedules_on_failure() {
+		if ( ! function_exists( 'as_schedule_single_action' ) ) {
+			$this->markTestSkipped( 'ActionScheduler not available.' );
+		}
+
+		require_once __DIR__ . '/integrations/class-failing-sample-integration.php';
+		$integration = new class( 'bulk_refail', 'Bulk Refail' ) extends Failing_Sample_Integration {
+			/**
+			 * Always return a batch error.
+			 *
+			 * @param array  $contacts Contacts to push.
+			 * @param string $context  Sync context.
+			 * @return \WP_Error
+			 */
+			public function push_contacts_data( $contacts, $context = '' ) {
+				return new \WP_Error( 'batch_error', 'Still failing' );
+			}
+		};
+		Integrations::register( $integration );
+		Integrations::enable( 'bulk_refail' );
+
+		as_unschedule_all_actions( Contact_Sync::BULK_RETRY_HOOK );
+
+		$user1 = $this->factory()->user->create( [ 'user_email' => 'rf1@test.com' ] );
+
+		Contact_Sync::execute_bulk_retry(
+			[
+				'integration_id' => 'bulk_refail',
+				'user_ids'       => [ $user1 ],
+				'context'        => 'Refail test',
+				'retry_count'    => 2,
+			]
+		);
+
+		$pending = as_get_scheduled_actions(
+			[
+				'hook'   => Contact_Sync::BULK_RETRY_HOOK,
+				'group'  => Integrations::get_action_group( 'bulk_refail' ),
+				'status' => \ActionScheduler_Store::STATUS_PENDING,
+			],
+			'ARRAY_A'
+		);
+		$this->assertCount( 1, $pending, 'Another bulk retry should be scheduled.' );
+
+		$action_id = array_key_first( $pending );
+		$action    = \ActionScheduler::store()->fetch_action( $action_id );
+		$args      = $action->get_args()[0];
+		$this->assertEquals( 3, $args['retry_count'], 'Retry count should be incremented.' );
+	}
+
+	/**
+	 * Test bulk retry fires exhaustion hook at max retries.
+	 */
+	public function test_bulk_retry_max_retries_exhaustion() {
+		if ( ! function_exists( 'as_schedule_single_action' ) ) {
+			$this->markTestSkipped( 'ActionScheduler not available.' );
+		}
+
+		require_once __DIR__ . '/integrations/class-failing-sample-integration.php';
+		$integration = new class( 'bulk_max', 'Bulk Max' ) extends Failing_Sample_Integration {
+			/**
+			 * Always return a batch error.
+			 *
+			 * @param array  $contacts Contacts to push.
+			 * @param string $context  Sync context.
+			 * @return \WP_Error
+			 */
+			public function push_contacts_data( $contacts, $context = '' ) {
+				return new \WP_Error( 'batch_error', 'Permanent failure' );
+			}
+		};
+		Integrations::register( $integration );
+		Integrations::enable( 'bulk_max' );
+
+		as_unschedule_all_actions( Contact_Sync::BULK_RETRY_HOOK );
+
+		$user1 = $this->factory()->user->create( [ 'user_email' => 'max1@test.com' ] );
+
+		$exhausted_fired = false;
+		$hook_callback   = function () use ( &$exhausted_fired ) {
+			$exhausted_fired = true;
+		};
+		add_action( 'newspack_bulk_sync_retry_exhausted', $hook_callback );
+
+		$threw = false;
+		try {
+			Contact_Sync::execute_bulk_retry(
+				[
+					'integration_id' => 'bulk_max',
+					'user_ids'       => [ $user1 ],
+					'context'        => 'Max test',
+					'retry_count'    => Contact_Sync::MAX_RETRIES,
+				]
+			);
+		} catch ( \Exception $e ) {
+			$threw = true;
+		}
+
+		$this->assertTrue( $threw, 'Should throw on final retry failure.' );
+		$this->assertTrue( $exhausted_fired, 'Exhaustion hook should fire.' );
+
+		$pending = as_get_scheduled_actions(
+			[
+				'hook'   => Contact_Sync::BULK_RETRY_HOOK,
+				'group'  => Integrations::get_action_group( 'bulk_max' ),
+				'status' => \ActionScheduler_Store::STATUS_PENDING,
+			],
+			'ARRAY_A'
+		);
+		$this->assertEmpty( $pending, 'No further retries should be scheduled.' );
+
+		remove_action( 'newspack_bulk_sync_retry_exhausted', $hook_callback );
+	}
+
+	/**
 	 * Test bulk_push_to_integrations pushes all users to integration.
 	 */
 	public function test_bulk_push_to_integrations_success() {
