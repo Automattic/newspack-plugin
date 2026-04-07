@@ -104,4 +104,19 @@ class Newspack_Test_Block_Visibility extends WP_UnitTestCase {
 		);
 		$this->assertSame( '<div>hi</div>', $result );
 	}
+
+	/**
+	 * Test that a target block with active rules passes through unchanged when is_admin() is true.
+	 */
+	public function test_target_block_with_rules_passes_through_in_admin() {
+		set_current_screen( 'dashboard' );
+		$block  = $this->make_block( 'core/group', [
+			'newspackAccessControlRules' => [
+				'registration' => [ 'active' => true ],
+			],
+		] );
+		$result = Block_Visibility::filter_render_block( '<div>admin view</div>', $block );
+		$this->assertSame( '<div>admin view</div>', $result );
+		unset( $GLOBALS['current_screen'] );
+	}
 }
