@@ -346,7 +346,7 @@ class Donations {
 	 * @return int|false The donation product ID or false.
 	 */
 	public static function get_order_donation_product_id( $order_id ) {
-		$donation_products = self::get_donation_product_child_products_ids();
+		$donation_products = array_merge( self::get_donation_product_child_products_ids(), self::get_flagged_donation_product_ids() );
 		if ( empty( array_filter( $donation_products ) ) ) {
 			return;
 		}
