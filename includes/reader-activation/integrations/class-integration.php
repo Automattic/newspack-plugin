@@ -161,6 +161,30 @@ abstract class Integration {
 	abstract public function push_contact_data( $contact, $context = '', $existing_contact = null );
 
 	/**
+	 * Push multiple contacts to the integration destination.
+	 *
+	 * Default implementation iterates push_contact_data() for each contact.
+	 * Integrations with native batch APIs should override this method.
+	 *
+	 * @param array  $contacts Array of contact entries, each with 'contact' and optional 'existing_contact' keys.
+	 * @param string $context  Optional. The context of the sync.
+	 *
+	 * @return array|\WP_Error Per-contact results keyed by email (each true|\WP_Error), or WP_Error for total batch failure.
+	 */
+	public function push_contacts_data( $contacts, $context = '' ) {
+		$results = [];
+		foreach ( $contacts as $contact_data ) {
+			$email             = $contact_data['contact']['email'] ?? '';
+			$results[ $email ] = $this->push_contact_data(
+				$contact_data['contact'],
+				$context,
+				$contact_data['existing_contact'] ?? null
+			);
+		}
+		return $results;
+	}
+
+	/**
 	 * Register data event handlers for this integration.
 	 *
 	 * Called by Integrations after all integrations have been registered.

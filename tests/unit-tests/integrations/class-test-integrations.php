@@ -944,6 +944,98 @@ class Test_Integrations extends \WP_UnitTestCase {
 	}
 
 	/**
+	 * Test push_contacts_data default implementation iterates push_contact_data.
+	 */
+	public function test_push_contacts_data_default_loops() {
+		require_once __DIR__ . '/class-failing-sample-integration.php';
+		\Failing_Sample_Integration::reset();
+		$integration = new \Failing_Sample_Integration( 'bulk_test', 'Bulk Test' );
+
+		$contacts = [
+			[
+				'contact'          => [
+					'email'    => 'a@test.com',
+					'metadata' => [],
+				],
+				'existing_contact' => null,
+			],
+			[
+				'contact'          => [
+					'email'    => 'b@test.com',
+					'metadata' => [],
+				],
+				'existing_contact' => null,
+			],
+			[
+				'contact'          => [
+					'email'    => 'c@test.com',
+					'metadata' => [],
+				],
+				'existing_contact' => null,
+			],
+		];
+
+		$results = $integration->push_contacts_data( $contacts, 'Test' );
+
+		$this->assertIsArray( $results );
+		$this->assertCount( 3, $results );
+		$this->assertTrue( $results['a@test.com'] );
+		$this->assertTrue( $results['b@test.com'] );
+		$this->assertTrue( $results['c@test.com'] );
+		$this->assertEquals( 3, \Failing_Sample_Integration::$push_count );
+	}
+
+	/**
+	 * Test push_contacts_data returns per-contact errors on partial failure.
+	 */
+	public function test_push_contacts_data_partial_failure() {
+		require_once __DIR__ . '/class-failing-sample-integration.php';
+		\Failing_Sample_Integration::reset();
+
+		// Create a subclass that fails only for specific emails.
+		$integration = new class( 'partial_fail', 'Partial Fail' ) extends \Failing_Sample_Integration {
+			/**
+			 * Push contact data, failing for specific emails.
+			 *
+			 * @param array      $contact          The contact data.
+			 * @param string     $context          The sync context.
+			 * @param array|null $existing_contact  Existing contact data.
+			 * @return true|\WP_Error
+			 */
+			public function push_contact_data( $contact, $context = '', $existing_contact = null ) {
+				self::$push_count++;
+				if ( 'fail@test.com' === ( $contact['email'] ?? '' ) ) {
+					return new \WP_Error( 'mock_error', 'Mock push failed' );
+				}
+				return true;
+			}
+		};
+
+		$contacts = [
+			[
+				'contact'          => [
+					'email'    => 'ok@test.com',
+					'metadata' => [],
+				],
+				'existing_contact' => null,
+			],
+			[
+				'contact'          => [
+					'email'    => 'fail@test.com',
+					'metadata' => [],
+				],
+				'existing_contact' => null,
+			],
+		];
+
+		$results = $integration->push_contacts_data( $contacts, 'Test' );
+
+		$this->assertIsArray( $results );
+		$this->assertTrue( $results['ok@test.com'] );
+		$this->assertWPError( $results['fail@test.com'] );
+	}
+
+	/**
 	 * Test get_action_group returns prefixed integration ID.
 	 */
 	public function test_get_action_group() {
