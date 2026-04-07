@@ -613,4 +613,87 @@ class Newspack_Test_Reader_Activation_Sync extends WP_UnitTestCase {
 		);
 		$this->assertEmpty( $pending, 'No retry should be scheduled for invalid data.' );
 	}
+
+	/**
+	 * Test bulk_push_to_integrations pushes all users to integration.
+	 */
+	public function test_bulk_push_to_integrations_success() {
+		if ( ! defined( 'NEWSPACK_ALLOW_READER_SYNC' ) ) {
+			define( 'NEWSPACK_ALLOW_READER_SYNC', true );
+		}
+
+		Integrations::disable( 'esp' );
+		Failing_Sample_Integration::reset();
+		$this->register_failing_integration( 'bulk_mock' );
+
+		$user1 = $this->factory()->user->create( [ 'user_email' => 'bulk1@test.com' ] );
+		$user2 = $this->factory()->user->create( [ 'user_email' => 'bulk2@test.com' ] );
+
+		$result = Contact_Sync::bulk_push_to_integrations( [ $user1, $user2 ], 'Bulk test' );
+
+		$this->assertTrue( $result );
+		$this->assertEquals( 2, Failing_Sample_Integration::$push_count );
+
+		Integrations::enable( 'esp' );
+	}
+
+	/**
+	 * Test bulk_push_to_integrations schedules individual retries for per-contact failures.
+	 */
+	public function test_bulk_push_per_contact_failure_retries() {
+		if ( ! function_exists( 'as_schedule_single_action' ) ) {
+			$this->markTestSkipped( 'ActionScheduler not available.' );
+		}
+		if ( ! defined( 'NEWSPACK_ALLOW_READER_SYNC' ) ) {
+			define( 'NEWSPACK_ALLOW_READER_SYNC', true );
+		}
+
+		Integrations::disable( 'esp' );
+		Failing_Sample_Integration::reset();
+		Failing_Sample_Integration::$should_fail = true;
+		$this->register_failing_integration( 'bulk_fail' );
+
+		as_unschedule_all_actions( Contact_Sync::RETRY_HOOK );
+
+		$user1 = $this->factory()->user->create( [ 'user_email' => 'bfail1@test.com' ] );
+		$user2 = $this->factory()->user->create( [ 'user_email' => 'bfail2@test.com' ] );
+
+		$result = Contact_Sync::bulk_push_to_integrations( [ $user1, $user2 ], 'Bulk fail test' );
+
+		$this->assertWPError( $result );
+
+		$pending = as_get_scheduled_actions(
+			[
+				'hook'   => Contact_Sync::RETRY_HOOK,
+				'group'  => Integrations::get_action_group( 'bulk_fail' ),
+				'status' => \ActionScheduler_Store::STATUS_PENDING,
+			],
+			'ARRAY_A'
+		);
+		$this->assertCount( 2, $pending, 'Individual retries should be scheduled for each failed contact.' );
+
+		Integrations::enable( 'esp' );
+	}
+
+	/**
+	 * Test bulk_push_to_integrations skips non-existent users.
+	 */
+	public function test_bulk_push_skips_invalid_users() {
+		if ( ! defined( 'NEWSPACK_ALLOW_READER_SYNC' ) ) {
+			define( 'NEWSPACK_ALLOW_READER_SYNC', true );
+		}
+
+		Integrations::disable( 'esp' );
+		Failing_Sample_Integration::reset();
+		$this->register_failing_integration( 'bulk_skip' );
+
+		$valid_user = $this->factory()->user->create( [ 'user_email' => 'valid@test.com' ] );
+
+		$result = Contact_Sync::bulk_push_to_integrations( [ $valid_user, 99999 ], 'Skip test' );
+
+		$this->assertTrue( $result );
+		$this->assertEquals( 1, Failing_Sample_Integration::$push_count, 'Only valid users should be pushed.' );
+
+		Integrations::enable( 'esp' );
+	}
 }

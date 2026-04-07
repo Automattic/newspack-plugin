@@ -220,6 +220,123 @@ class Contact_Sync extends Sync {
 	}
 
 	/**
+	 * Push contact data for multiple users to all active integrations in bulk.
+	 *
+	 * Each integration receives all contacts at once via push_contacts_data(),
+	 * allowing integrations with native batch APIs to handle them efficiently.
+	 *
+	 * @param int[]  $user_ids Array of WordPress user IDs.
+	 * @param string $context  The context of the sync.
+	 *
+	 * @return true|\WP_Error True if all succeeded, or WP_Error with combined messages.
+	 */
+	public static function bulk_push_to_integrations( $user_ids, $context = '' ) {
+		$can_sync = static::can_sync( true );
+		if ( $can_sync->has_errors() ) {
+			return $can_sync;
+		}
+
+		if ( empty( $context ) ) {
+			$context = static::$context;
+		}
+
+		$integrations = Integrations::get_active_integrations();
+		$errors       = [];
+
+		foreach ( $integrations as $integration_id => $integration ) {
+			// Build per-integration contact list.
+			$contacts    = [];
+			$user_id_map = []; // Maps email => user_id for retry scheduling.
+
+			foreach ( $user_ids as $user_id ) {
+				$user = \get_userdata( $user_id );
+				if ( ! $user ) {
+					static::log( sprintf( 'Bulk push skipping non-existent user %d.', $user_id ) );
+					continue;
+				}
+
+				$contact_data = self::get_contact_data( $user_id );
+				if ( \is_wp_error( $contact_data ) || empty( $contact_data['email'] ) ) {
+					static::log( sprintf( 'Bulk push skipping user %d: %s', $user_id, \is_wp_error( $contact_data ) ? $contact_data->get_error_message() : 'empty email' ) );
+					continue;
+				}
+
+				/** This filter is documented in includes/reader-activation/sync/class-contact-sync.php */
+				$contact_data = \apply_filters( 'newspack_esp_sync_contact', $contact_data, $context );
+
+				$email                 = $contact_data['email'];
+				$user_id_map[ $email ] = $user_id;
+				$contacts[]            = [
+					'contact'          => $integration->prepare_contact( $contact_data ),
+					'existing_contact' => null,
+				];
+			}
+
+			if ( empty( $contacts ) ) {
+				continue;
+			}
+
+			static::log( sprintf( 'Bulk pushing %d contact(s) to integration "%s".', count( $contacts ), $integration_id ) );
+
+			$results = $integration->push_contacts_data( $contacts, $context );
+
+			if ( \is_wp_error( $results ) ) {
+				// Total batch failure — schedule bulk retry.
+				do_action(
+					'newspack_sync_contact_failed',
+					[
+						'integration_id' => $integration_id,
+						'contact'        => null,
+						'context'        => $context,
+						'reason'         => $results->get_error_message(),
+						'bulk'           => true,
+						'user_count'     => count( $contacts ),
+					]
+				);
+				self::schedule_bulk_retry( $integration_id, array_values( $user_id_map ), $context, 0, $results );
+				$errors[] = sprintf( '[%s] Batch failed: %s', $integration_id, $results->get_error_message() );
+			} else {
+				// Per-contact results — schedule individual retries for failures.
+				foreach ( $results as $email => $result ) {
+					if ( \is_wp_error( $result ) ) {
+						$failed_user_id = $user_id_map[ $email ] ?? 0;
+						do_action(
+							'newspack_sync_contact_failed',
+							[
+								'integration_id' => $integration_id,
+								'contact'        => [ 'email' => $email ],
+								'context'        => $context,
+								'reason'         => $result->get_error_message(),
+							]
+						);
+						self::schedule_integration_retry( $integration_id, $failed_user_id, $context, 0, $result );
+						$errors[] = sprintf( '[%s] %s: %s', $integration_id, $email, $result->get_error_message() );
+					}
+				}
+			}
+		}
+
+		if ( ! empty( $errors ) ) {
+			return new \WP_Error( 'newspack_bulk_sync_failed', implode( '; ', $errors ) );
+		}
+
+		return true;
+	}
+
+	/**
+	 * Schedule a retry for a failed bulk integration sync via ActionScheduler.
+	 *
+	 * @param string    $integration_id The integration ID.
+	 * @param int[]     $user_ids       The WordPress user IDs.
+	 * @param string    $context        The sync context.
+	 * @param int       $retry_count    Current retry count (0 = first failure).
+	 * @param \WP_Error $error          The error from the failure.
+	 */
+	private static function schedule_bulk_retry( $integration_id, $user_ids, $context, $retry_count, $error ) {
+		// Implemented in Task 3.
+	}
+
+	/**
 	 * Schedule a retry for a failed integration sync via ActionScheduler.
 	 *
 	 * @param string           $integration_id The integration ID.
