@@ -3,7 +3,7 @@
  */
 import { __ } from '@wordpress/i18n';
 import { close as closeIcon } from '@wordpress/icons';
-import { useEffect, useRef, useState } from '@wordpress/element';
+import { useEffect, useLayoutEffect, useRef, useState } from '@wordpress/element';
 import { useSelect } from '@wordpress/data';
 import {
 	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
@@ -64,13 +64,26 @@ export default function OverlayMenuPanelEdit( { attributes, clientId, setAttribu
 		notifySubscribers( parentClientId, next );
 	};
 
-	// Register during render, not in an effect. This ensures the Map is populated by the time anything can call the toggle.
+	// Render-phase registration: runs even when the component renders inside a
+	// React transition that hasn't committed yet (e.g. the site editor wrapping a
+	// template-part switch in startTransition). This is the fallback that makes the
+	// toggle available before the commit phase fires.
 	if ( parentClientId ) {
 		panelToggles.set( parentClientId, () => toggleFnRef.current?.() );
 	}
 
-	// Cleanup on unmount. useEffect is fine here — it only needs to run eventually,
-	// not before the first interaction.
+	// Authoritative registration and cleanup in the commit phase. useLayoutEffect
+	// overwrites the render-phase entry once the component commits, and its cleanup
+	// reliably removes the entry on unmount or parentClientId change — preventing
+	// stale Map entries from aborted renders lingering after the component unmounts.
+	useLayoutEffect( () => {
+		if ( ! parentClientId ) {
+			return;
+		}
+		panelToggles.set( parentClientId, () => toggleFnRef.current?.() );
+		return () => panelToggles.delete( parentClientId );
+	}, [ parentClientId ] ); // eslint-disable-line react-hooks/exhaustive-deps
+
 	useEffect( () => {
 		return () => {
 			if ( parentClientId ) {
