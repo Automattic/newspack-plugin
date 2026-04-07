@@ -33,6 +33,26 @@ class Block_Visibility {
 	 * @return string
 	 */
 	public static function filter_render_block( $block_content, $block ) {
+		$target_blocks = [ 'core/group', 'core/stack', 'core/row' ];
+		if ( ! in_array( $block['blockName'] ?? '', $target_blocks, true ) ) {
+			return $block_content;
+		}
+
+		if ( is_admin() ) {
+			return $block_content;
+		}
+
+		$rules = $block['attrs']['newspackAccessControlRules'] ?? [];
+
+		$has_registration = ! empty( $rules['registration']['active'] );
+		$has_access_rules = ! empty( $rules['custom_access']['active'] )
+							&& ! empty( $rules['custom_access']['access_rules'] );
+
+		if ( ! $has_registration && ! $has_access_rules ) {
+			return $block_content;
+		}
+
+		// Full evaluation handled in Task 5.
 		return $block_content;
 	}
 

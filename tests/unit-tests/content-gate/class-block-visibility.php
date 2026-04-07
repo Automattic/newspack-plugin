@@ -46,4 +46,62 @@ class Newspack_Test_Block_Visibility extends WP_UnitTestCase {
 			has_filter( 'register_block_type_args', [ 'Newspack\Block_Visibility', 'register_block_type_args' ] )
 		);
 	}
+
+	/**
+	 * Helper to build a mock block array.
+	 *
+	 * @param string $name  Block name.
+	 * @param array  $attrs Block attributes.
+	 * @return array
+	 */
+	private function make_block( $name, $attrs = [] ) {
+		return [
+			'blockName' => $name,
+			'attrs'     => $attrs,
+			'innerHTML' => '<div>content</div>',
+		];
+	}
+
+	/**
+	 * Test that non-target blocks pass through unchanged.
+	 */
+	public function test_non_target_block_passes_through() {
+		$result = Block_Visibility::filter_render_block( '<p>hello</p>', $this->make_block( 'core/paragraph' ) );
+		$this->assertSame( '<p>hello</p>', $result );
+	}
+
+	/**
+	 * Test that a target block with no attrs passes through unchanged.
+	 */
+	public function test_target_block_with_no_rules_passes_through() {
+		$result = Block_Visibility::filter_render_block( '<div>hi</div>', $this->make_block( 'core/group', [] ) );
+		$this->assertSame( '<div>hi</div>', $result );
+	}
+
+	/**
+	 * Test that a target block with an empty rules object passes through unchanged.
+	 */
+	public function test_target_block_with_empty_rules_object_passes_through() {
+		$result = Block_Visibility::filter_render_block(
+			'<div>hi</div>',
+			$this->make_block( 'core/group', [ 'newspackAccessControlRules' => [] ] )
+		);
+		$this->assertSame( '<div>hi</div>', $result );
+	}
+
+	/**
+	 * Test that a target block with only inactive rules passes through unchanged.
+	 */
+	public function test_target_block_with_inactive_rules_passes_through() {
+		$result = Block_Visibility::filter_render_block(
+			'<div>hi</div>',
+			$this->make_block( 'core/group', [
+				'newspackAccessControlRules' => [
+					'registration'  => [ 'active' => false ],
+					'custom_access' => [ 'active' => false, 'access_rules' => [] ],
+				],
+			] )
+		);
+		$this->assertSame( '<div>hi</div>', $result );
+	}
 }
