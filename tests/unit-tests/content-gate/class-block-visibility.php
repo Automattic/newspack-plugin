@@ -14,6 +14,30 @@ use Newspack\Block_Visibility;
 class Newspack_Test_Block_Visibility extends WP_UnitTestCase {
 
 	/**
+	 * Test user ID.
+	 *
+	 * @var int
+	 */
+	private $test_user_id;
+
+	/**
+	 * Set up test environment.
+	 */
+	public function set_up() {
+		parent::set_up();
+		$this->test_user_id = $this->factory->user->create( [ 'role' => 'subscriber' ] );
+	}
+
+	/**
+	 * Tear down test environment.
+	 */
+	public function tear_down() {
+		Block_Visibility::reset_cache_for_tests();
+		wp_set_current_user( 0 );
+		parent::tear_down();
+	}
+
+	/**
 	 * Test that the Block_Visibility class exists.
 	 */
 	public function test_class_exists() {
@@ -95,12 +119,18 @@ class Newspack_Test_Block_Visibility extends WP_UnitTestCase {
 	public function test_target_block_with_inactive_rules_passes_through() {
 		$result = Block_Visibility::filter_render_block(
 			'<div>hi</div>',
-			$this->make_block( 'core/group', [
-				'newspackAccessControlRules' => [
-					'registration'  => [ 'active' => false ],
-					'custom_access' => [ 'active' => false, 'access_rules' => [] ],
-				],
-			] )
+			$this->make_block(
+				'core/group',
+				[
+					'newspackAccessControlRules' => [
+						'registration'  => [ 'active' => false ],
+						'custom_access' => [
+							'active'       => false,
+							'access_rules' => [],
+						],
+					],
+				] 
+			)
 		);
 		$this->assertSame( '<div>hi</div>', $result );
 	}
@@ -110,13 +140,60 @@ class Newspack_Test_Block_Visibility extends WP_UnitTestCase {
 	 */
 	public function test_target_block_with_rules_passes_through_in_admin() {
 		set_current_screen( 'dashboard' );
-		$block  = $this->make_block( 'core/group', [
-			'newspackAccessControlRules' => [
-				'registration' => [ 'active' => true ],
-			],
-		] );
+		$block  = $this->make_block(
+			'core/group',
+			[
+				'newspackAccessControlRules' => [
+					'registration' => [ 'active' => true ],
+				],
+			] 
+		);
 		$result = Block_Visibility::filter_render_block( '<div>admin view</div>', $block );
 		$this->assertSame( '<div>admin view</div>', $result );
 		unset( $GLOBALS['current_screen'] );
+	}
+
+	/**
+	 * Registration: logged-out user does not match.
+	 */
+	public function test_registration_logged_out_does_not_match() {
+		wp_set_current_user( 0 );
+		$rules = [ 'registration' => [ 'active' => true ] ];
+		$this->assertFalse( Block_Visibility::evaluate_rules_for_user_public( $rules, 0 ) );
+	}
+
+	/**
+	 * Registration: logged-in user matches.
+	 */
+	public function test_registration_logged_in_matches() {
+		$rules = [ 'registration' => [ 'active' => true ] ];
+		$this->assertTrue( Block_Visibility::evaluate_rules_for_user_public( $rules, $this->test_user_id ) );
+	}
+
+	/**
+	 * Registration + require_verification: unverified user does not match.
+	 */
+	public function test_registration_unverified_does_not_match() {
+		$rules = [
+			'registration' => [
+				'active'               => true,
+				'require_verification' => true,
+			],
+		];
+		$this->assertFalse( Block_Visibility::evaluate_rules_for_user_public( $rules, $this->test_user_id ) );
+	}
+
+	/**
+	 * Registration + require_verification: verified user matches.
+	 */
+	public function test_registration_verified_matches() {
+		update_user_meta( $this->test_user_id, \Newspack\Reader_Activation::EMAIL_VERIFIED, true );
+		$rules = [
+			'registration' => [
+				'active'               => true,
+				'require_verification' => true,
+			],
+		];
+		$this->assertTrue( Block_Visibility::evaluate_rules_for_user_public( $rules, $this->test_user_id ) );
 	}
 }
