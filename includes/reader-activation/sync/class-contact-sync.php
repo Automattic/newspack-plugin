@@ -243,37 +243,43 @@ class Contact_Sync extends Sync {
 		$integrations = Integrations::get_active_integrations();
 		$errors       = [];
 
+		// Build contact data once (integration-agnostic).
+		$contact_map = []; // Maps email => contact data.
+		$user_id_map = []; // Maps email => user_id for retry scheduling.
+
+		foreach ( $user_ids as $user_id ) {
+			$user = \get_userdata( $user_id );
+			if ( ! $user ) {
+				static::log( sprintf( 'Bulk push skipping non-existent user %d.', $user_id ) );
+				continue;
+			}
+
+			$contact_data = self::get_contact_data( $user_id );
+			if ( \is_wp_error( $contact_data ) || empty( $contact_data['email'] ) ) {
+				static::log( sprintf( 'Bulk push skipping user %d: %s', $user_id, \is_wp_error( $contact_data ) ? $contact_data->get_error_message() : 'empty email' ) );
+				continue;
+			}
+
+			/** This filter is documented in includes/reader-activation/sync/class-contact-sync.php */
+			$contact_data = \apply_filters( 'newspack_esp_sync_contact', $contact_data, $context );
+
+			$email                 = $contact_data['email'];
+			$contact_map[ $email ] = $contact_data;
+			$user_id_map[ $email ] = $user_id;
+		}
+
+		if ( empty( $contact_map ) ) {
+			return true;
+		}
+
 		foreach ( $integrations as $integration_id => $integration ) {
-			// Build per-integration contact list.
-			$contacts    = [];
-			$user_id_map = []; // Maps email => user_id for retry scheduling.
-
-			foreach ( $user_ids as $user_id ) {
-				$user = \get_userdata( $user_id );
-				if ( ! $user ) {
-					static::log( sprintf( 'Bulk push skipping non-existent user %d.', $user_id ) );
-					continue;
-				}
-
-				$contact_data = self::get_contact_data( $user_id );
-				if ( \is_wp_error( $contact_data ) || empty( $contact_data['email'] ) ) {
-					static::log( sprintf( 'Bulk push skipping user %d: %s', $user_id, \is_wp_error( $contact_data ) ? $contact_data->get_error_message() : 'empty email' ) );
-					continue;
-				}
-
-				/** This filter is documented in includes/reader-activation/sync/class-contact-sync.php */
-				$contact_data = \apply_filters( 'newspack_esp_sync_contact', $contact_data, $context );
-
-				$email                 = $contact_data['email'];
-				$user_id_map[ $email ] = $user_id;
-				$contacts[]            = [
+			// Build per-integration contact list (only prepare_contact is integration-specific).
+			$contacts = [];
+			foreach ( $contact_map as $email => $contact_data ) {
+				$contacts[] = [
 					'contact'          => $integration->prepare_contact( $contact_data ),
 					'existing_contact' => null,
 				];
-			}
-
-			if ( empty( $contacts ) ) {
-				continue;
 			}
 
 			static::log( sprintf( 'Bulk pushing %d contact(s) to integration "%s".', count( $contacts ), $integration_id ) );
@@ -304,7 +310,7 @@ class Contact_Sync extends Sync {
 							'newspack_sync_contact_failed',
 							[
 								'integration_id' => $integration_id,
-								'contact'        => [ 'email' => $email ],
+								'contact'        => $contact_map[ $email ] ?? [ 'email' => $email ],
 								'context'        => $context,
 								'reason'         => $result->get_error_message(),
 							]
