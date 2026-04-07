@@ -61,7 +61,9 @@ export default function OverlayMenuPanelEdit( { attributes, clientId, setAttribu
 	toggleFnRef.current = () => {
 		const next = ! isOpenRef.current;
 		setIsPreviewOpen( next );
-		notifySubscribers( parentClientId, next );
+		if ( parentClientId ) {
+			notifySubscribers( parentClientId, next );
+		}
 	};
 
 	// Render-phase registration: runs even when the component renders inside a
@@ -95,7 +97,9 @@ export default function OverlayMenuPanelEdit( { attributes, clientId, setAttribu
 	// Update local state and notify all subscribers (parent + trigger toolbar buttons).
 	const togglePreview = open => {
 		setIsPreviewOpen( open );
-		notifySubscribers( parentClientId, open );
+		if ( parentClientId ) {
+			notifySubscribers( parentClientId, open );
+		}
 	};
 
 	const { positionClass } = DIRECTION_CONFIG[ slideDirection ] ?? DIRECTION_CONFIG.left;
