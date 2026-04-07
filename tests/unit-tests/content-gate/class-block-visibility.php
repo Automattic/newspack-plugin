@@ -129,7 +129,7 @@ class Newspack_Test_Block_Visibility extends WP_UnitTestCase {
 							'access_rules' => [],
 						],
 					],
-				] 
+				]
 			)
 		);
 		$this->assertSame( '<div>hi</div>', $result );
@@ -146,7 +146,7 @@ class Newspack_Test_Block_Visibility extends WP_UnitTestCase {
 				'newspackAccessControlRules' => [
 					'registration' => [ 'active' => true ],
 				],
-			] 
+			]
 		);
 		$result = Block_Visibility::filter_render_block( '<div>admin view</div>', $block );
 		$this->assertSame( '<div>admin view</div>', $result );
