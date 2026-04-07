@@ -35,7 +35,7 @@ export default function OverlayMenuTriggerEdit( { attributes, setAttributes, cli
 	const isTextOnly = classes.includes( 'is-style-text-only' );
 	const showTriggerIcon = ! isTextOnly;
 
-	// The panel registers its toggle under the parents's clientId.
+	// The panel registers its toggle under the parent's clientId.
 	const parentClientId = useSelect( select => select( 'core/block-editor' ).getBlockRootClientId( clientId ), [ clientId ] );
 
 	// Mirror the panel's open state so the toolbar button label and isPressed stay correct.

@@ -64,8 +64,7 @@ export default function OverlayMenuPanelEdit( { attributes, clientId, setAttribu
 		notifySubscribers( parentClientId, next );
 	};
 
-	// Register during render, not in an effect. This makes the Map
-	// is populated by the time anything can call the toggle.
+	// Register during render, not in an effect. This ensures the Map is populated by the time anything can call the toggle.
 	if ( parentClientId ) {
 		panelToggles.set( parentClientId, () => toggleFnRef.current?.() );
 	}
