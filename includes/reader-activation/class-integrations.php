@@ -517,6 +517,9 @@ class Integrations {
 				continue;
 			}
 			$slug = sanitize_key( $item['slug'] );
+			if ( '' === $slug ) {
+				continue;
+			}
 			if ( isset( self::$my_account_endpoints[ $slug ] ) ) {
 				// First registration wins; skip collisions.
 				continue;
@@ -571,6 +574,11 @@ class Integrations {
 		// Collect items with positions so we can insert in order.
 		$to_insert = [];
 		foreach ( self::$my_account_endpoints as $slug => $integration_id ) {
+			// Skip if an item with this slug already exists (e.g., a core
+			// WooCommerce endpoint) to avoid overwriting or dropping entries.
+			if ( isset( $items[ $slug ] ) ) {
+				continue;
+			}
 			$integration = self::get_integration( $integration_id );
 			if ( ! $integration ) {
 				continue;
