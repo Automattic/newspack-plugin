@@ -298,6 +298,10 @@ class Donations {
 	 * @return int[] Array of product IDs.
 	 */
 	public static function get_flagged_donation_product_ids() {
+		static $memo = null;
+		if ( null !== $memo ) {
+			return $memo;
+		}
 		if ( ! function_exists( 'wc_bool_to_string' ) ) {
 			return [];
 		}
@@ -315,7 +319,8 @@ class Donations {
 				],
 			]
 		);
-		return array_map( 'intval', $flagged_products );
+		$memo = array_map( 'intval', $flagged_products );
+		return $memo;
 	}
 
 	/**
