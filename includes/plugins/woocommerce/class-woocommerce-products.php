@@ -15,6 +15,8 @@ defined( 'ABSPATH' ) || exit;
  * Connection with WooCommerce's features.
  */
 class WooCommerce_Products {
+
+	const DONATION_FLAG_META_KEY = '_newspack_is_donation';
 	/**
 	 * Initialize.
 	 *
@@ -71,7 +73,7 @@ class WooCommerce_Products {
 				'type'          => 'boolean',
 			],
 			'newspack_is_donation'         => [
-				'id'            => '_newspack_is_donation',
+				'id'            => self::DONATION_FLAG_META_KEY,
 				'wrapper_class' => '',
 				'label'         => __( 'Donation product', 'newspack-plugin' ),
 				'description'   => __( 'Flag this product as a donation. Donation products use donation-specific checkout, reporting, and reader activation behaviors.', 'newspack-plugin' ),
@@ -369,7 +371,6 @@ class WooCommerce_Products {
 		}
 		return self::get_custom_option_value( $product, 'newspack_autocomplete_orders' ) ? false : $needs_proccessing;
 	}
-
 }
 
 WooCommerce_Products::init();

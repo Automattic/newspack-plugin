@@ -279,7 +279,7 @@ class Donations {
 	 */
 	public static function is_donation_product( $product_id ) {
 		// Check the meta flag first (fast path).
-		if ( get_post_meta( $product_id, '_newspack_is_donation', true ) === '1' ) {
+		if ( function_exists( 'wc_bool_to_string' ) && get_post_meta( $product_id, WooCommerce_Products::DONATION_FLAG_META_KEY, true ) === wc_bool_to_string( true ) ) {
 			return true;
 		}
 
@@ -298,6 +298,9 @@ class Donations {
 	 * @return int[] Array of product IDs.
 	 */
 	public static function get_flagged_donation_product_ids() {
+		if ( ! function_exists( 'wc_bool_to_string' ) ) {
+			return [];
+		}
 		$flagged_products = get_posts(
 			[
 				'post_type'      => 'product',
@@ -306,8 +309,8 @@ class Donations {
 				'fields'         => 'ids',
 				'meta_query'     => [ // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
 					[
-						'key'   => '_newspack_is_donation',
-						'value' => '1',
+						'key'   => WooCommerce_Products::DONATION_FLAG_META_KEY,
+						'value' => wc_bool_to_string( true ),
 					],
 				],
 			]

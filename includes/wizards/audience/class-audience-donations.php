@@ -133,7 +133,6 @@ class Audience_Donations extends Wizard {
 				'permission_callback' => [ $this, 'api_permissions_check' ],
 			]
 		);
-
 	}
 
 	/**
@@ -175,7 +174,7 @@ class Audience_Donations extends Wizard {
 			'donation_data'      => Donations::get_donation_settings(),
 			'donation_page'      => Donations::get_donation_page_info(),
 			'product_validation' => $this->validate_donation_products(),
-			];
+		];
 		if ( 'wc' === $platform ) {
 			$plugin_status    = true;
 			$managed_plugins  = Plugin_Manager::get_managed_plugins();

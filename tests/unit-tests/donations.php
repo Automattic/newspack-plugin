@@ -6,6 +6,7 @@
  */
 
 use Newspack\Donations;
+use Newspack\WooCommerce_Products;
 
 require_once __DIR__ . '/../mocks/wc-mocks.php';
 
@@ -49,7 +50,7 @@ class Newspack_Test_Donations extends WP_UnitTestCase {
 	 */
 	public function test_is_donation_product_flagged() {
 		$product_id = self::factory()->post->create( [ 'post_type' => 'product' ] );
-		update_post_meta( $product_id, '_newspack_is_donation', '1' );
+		update_post_meta( $product_id, WooCommerce_Products::DONATION_FLAG_META_KEY, wc_bool_to_string( true ) );
 		self::assertTrue(
 			Donations::is_donation_product( $product_id ),
 			'Flagged product should be a donation product.'
@@ -63,8 +64,8 @@ class Newspack_Test_Donations extends WP_UnitTestCase {
 	 */
 	public function test_is_donation_product_unflagged_after_removal() {
 		$product_id = self::factory()->post->create( [ 'post_type' => 'product' ] );
-		update_post_meta( $product_id, '_newspack_is_donation', '1' );
-		delete_post_meta( $product_id, '_newspack_is_donation' );
+		update_post_meta( $product_id, WooCommerce_Products::DONATION_FLAG_META_KEY, wc_bool_to_string( true ) );
+		delete_post_meta( $product_id, WooCommerce_Products::DONATION_FLAG_META_KEY );
 		self::assertFalse(
 			Donations::is_donation_product( $product_id ),
 			'Product should not be a donation product after meta removal.'
@@ -80,8 +81,8 @@ class Newspack_Test_Donations extends WP_UnitTestCase {
 		$product_1 = self::factory()->post->create( [ 'post_type' => 'product' ] );
 		$product_2 = self::factory()->post->create( [ 'post_type' => 'product' ] );
 		$product_3 = self::factory()->post->create( [ 'post_type' => 'product' ] );
-		update_post_meta( $product_1, '_newspack_is_donation', '1' );
-		update_post_meta( $product_3, '_newspack_is_donation', '1' );
+		update_post_meta( $product_1, WooCommerce_Products::DONATION_FLAG_META_KEY, wc_bool_to_string( true ) );
+		update_post_meta( $product_3, WooCommerce_Products::DONATION_FLAG_META_KEY, wc_bool_to_string( true ) );
 
 		$flagged_ids = Donations::get_flagged_donation_product_ids();
 		self::assertContains( $product_1, $flagged_ids, 'Flagged product 1 should be in the list.' );
