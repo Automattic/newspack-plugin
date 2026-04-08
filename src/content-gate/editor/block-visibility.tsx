@@ -18,7 +18,7 @@ import {
 } from '@wordpress/components';
 import { useState, useEffect } from '@wordpress/element';
 import apiFetch from '@wordpress/api-fetch';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
@@ -105,8 +105,8 @@ const VisibilityControl = ( {
 			isBlock
 			__next40pxDefaultSize
 		>
-			<ToggleGroupControlOption disabled={ disabled } value="visible" label={ __( 'Visible to', 'newspack-plugin' ) } />
-			<ToggleGroupControlOption disabled={ disabled } value="hidden" label={ __( 'Hidden to', 'newspack-plugin' ) } />
+			<ToggleGroupControlOption disabled={ disabled } value="visible" label={ __( 'Visible', 'newspack-plugin' ) } />
+			<ToggleGroupControlOption disabled={ disabled } value="hidden" label={ __( 'Hidden', 'newspack-plugin' ) } />
 		</ToggleGroupControl>
 	</PanelRow>
 );
@@ -122,7 +122,6 @@ const GateControls = ( { gateIds, onChange }: { gateIds: number[]; onChange: ( i
 		<PanelRow>
 			<FormTokenField
 				label={ __( 'Gates', 'newspack-plugin' ) }
-				help={ __( 'Readers with access to any selected gate will match.', 'newspack-plugin' ) }
 				value={ selectedLabels }
 				suggestions={ availableGates.map( g => g.title ) }
 				onChange={ ( tokens: ( string | { value: string } )[] ) => {
@@ -190,7 +189,6 @@ const AccessRuleValueControl = ( {
 
 		return (
 			<FormTokenField
-				hideLabelFromVision
 				label={ config.name }
 				value={ selectedLabels }
 				suggestions={ options.map( o => o.label ) }
@@ -340,13 +338,15 @@ const BlockVisibilityPanel = ( { attributes, setAttributes }: BlockEditProps ) =
 		<InspectorControls>
 			<PanelBody
 				className="newspack-access-control-block-visibility-panel"
-				title={ __( 'Access Control', 'newspack-plugin' ) }
+				title={ __( 'Access control', 'newspack-plugin' ) }
 				initialOpen={ rulesActive }
 			>
+				<p>{ __( 'Control visibility of this block using gates or custom rules.', 'newspack-plugin' ) }</p>
+
 				{ /* Mode toggle: Gate (default) or Custom */ }
 				<PanelRow>
 					<ToggleGroupControl
-						label={ __( 'Mode', 'newspack-plugin' ) }
+						label={ __( 'Access mode', 'newspack-plugin' ) }
 						value={ mode }
 						onChange={ v => setAttributes( { newspackAccessControlMode: String( v ?? 'gate' ) } ) }
 						isBlock
@@ -381,8 +381,12 @@ const BlockVisibilityPanel = ( { attributes, setAttributes }: BlockEditProps ) =
 				) }
 
 				<VisibilityControl
-					label={ __( 'Block visibility', 'newspack-plugin' ) }
-					help={ __( 'Visibility of the content for readers who match the selected access rules.', 'newspack-plugin' ) }
+					label={ __( 'Visibility', 'newspack-plugin' ) }
+					help={ sprintf(
+						// translators: %s is either 'gates' or 'rules'.
+						__( 'Content visibility for readers who match any of the selected %s.', 'newspack-plugin' ),
+						mode === 'gate' ? __( 'gates', 'newspack-plugin' ) : __( 'rules', 'newspack-plugin' )
+					) }
 					value={ visibility }
 					onChange={ ( v: string ) => setAttributes( { newspackAccessControlVisibility: v } ) }
 					disabled={ ! rulesActive }

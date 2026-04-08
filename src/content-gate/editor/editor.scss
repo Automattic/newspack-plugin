@@ -61,6 +61,10 @@
  * Access control block visibility panel.
  */
 .newspack-access-control-block-visibility-panel {
+	.components-base-control,
+	.components-form-token-field {
+		width: 100%;
+	}
 	.components-toggle-control {
 		margin-top: 8px;
 		width: 100%;
