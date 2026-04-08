@@ -26,13 +26,11 @@ class Block_Visibility {
 	}
 
 	/**
-	 * Filter rendered block output based on access control attributes.
+	 * Get the list of blocks that can be configured for access control visibility.
 	 *
-	 * @param string $block_content Rendered block HTML.
-	 * @param array  $block         Block data.
-	 * @return string
+	 * @return array
 	 */
-	public static function filter_render_block( $block_content, $block ) {
+	private static function get_target_blocks() {
 		/**
 		 * Filters the list of blocks that can be configured for access control visibility.
 		 *
@@ -40,6 +38,18 @@ class Block_Visibility {
 		 * @return array
 		 */
 		$target_blocks = apply_filters( 'newspack_content_gate_block_visibility_blocks', [ 'core/group', 'core/stack', 'core/row' ] );
+		return $target_blocks;
+	}
+
+	/**
+	 * Filter rendered block output based on access control attributes.
+	 *
+	 * @param string $block_content Rendered block HTML.
+	 * @param array  $block         Block data.
+	 * @return string
+	 */
+	public static function filter_render_block( $block_content, $block ) {
+		$target_blocks = self::get_target_blocks();
 		if ( ! in_array( $block['blockName'] ?? '', $target_blocks, true ) ) {
 			return $block_content;
 		}
@@ -94,7 +104,7 @@ class Block_Visibility {
 	 * @return array
 	 */
 	public static function register_block_type_args( $args, $block_type ) {
-		$target_blocks = [ 'core/group', 'core/stack', 'core/row' ];
+		$target_blocks = self::get_target_blocks();
 		if ( ! in_array( $block_type, $target_blocks, true ) ) {
 			return $args;
 		}
