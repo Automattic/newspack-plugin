@@ -228,6 +228,10 @@ class Corrections {
 			return rest_ensure_response( new WP_Error( 'invalid_post_id', 'Invalid post ID.', [ 'status' => 400 ] ) );
 		}
 
+		if ( ! current_user_can( 'edit_post', $post_id ) ) {
+			return rest_ensure_response( new WP_Error( 'unauthorized', 'You do not have permission to edit this post.', [ 'status' => 403 ] ) );
+		}
+
 		$existing_corrections = self::get_corrections( $post_id );
 		$existing_ids         = wp_list_pluck( $existing_corrections, 'ID' );
 
