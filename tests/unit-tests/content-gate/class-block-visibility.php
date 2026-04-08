@@ -380,6 +380,45 @@ class Newspack_Test_Block_Visibility extends WP_UnitTestCase {
 	}
 
 	/**
+	 * A user who can edit the post sees restricted blocks on the front end.
+	 */
+	public function test_editor_bypasses_access_rules_on_front_end() {
+		$editor_id       = $this->factory->user->create( [ 'role' => 'editor' ] );
+		$post_id         = $this->factory->post->create();
+		$GLOBALS['post'] = get_post( $post_id );
+
+		wp_set_current_user( $editor_id );
+		Block_Visibility::reset_cache_for_tests();
+
+		$rules  = [ 'registration' => [ 'active' => true ] ];
+		$block  = $this->make_block_with_rules( 'core/group', $rules, 'visible' );
+		$result = Block_Visibility::filter_render_block( '<div>restricted</div>', $block );
+
+		$this->assertSame( '<div>restricted</div>', $result );
+
+		unset( $GLOBALS['post'] );
+	}
+
+	/**
+	 * A user who cannot edit the post is still subject to access rules.
+	 */
+	public function test_non_editor_still_restricted_on_front_end() {
+		$post_id         = $this->factory->post->create();
+		$GLOBALS['post'] = get_post( $post_id );
+
+		wp_set_current_user( 0 );
+		Block_Visibility::reset_cache_for_tests();
+
+		$rules  = [ 'registration' => [ 'active' => true ] ];
+		$block  = $this->make_block_with_rules( 'core/group', $rules, 'visible' );
+		$result = Block_Visibility::filter_render_block( '<div>restricted</div>', $block );
+
+		$this->assertSame( '', $result );
+
+		unset( $GLOBALS['post'] );
+	}
+
+	/**
 	 * Core/group block has both visibility attributes registered server-side.
 	 */
 	public function test_group_block_has_visibility_attribute_registered() {
