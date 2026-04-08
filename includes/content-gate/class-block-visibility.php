@@ -63,8 +63,14 @@ class Block_Visibility {
 			return $block_content;
 		}
 
+		// Don't restrict content for users who can edit the post it's in.
+		$post_id = get_the_ID();
+		$user_id = get_current_user_id();
+		if ( ! empty( $post_id ) && user_can( $user_id, 'edit_post', $post_id ) ) {
+			return $block_content;
+		}
+
 		$visibility   = $block['attrs']['newspackAccessControlVisibility'] ?? 'visible';
-		$user_id      = get_current_user_id();
 		$user_matches = self::evaluate_rules_for_user( $rules, $user_id );
 
 		if ( 'visible' === $visibility ) {
