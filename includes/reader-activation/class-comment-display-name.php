@@ -110,7 +110,7 @@ final class Comment_Display_Name {
 
 		$field = '<p class="comment-form-display-name">'
 			. '<label for="comment_display_name">'
-			. esc_html__( 'Display name (shown publicly)', 'newspack-plugin' )
+			. esc_html__( 'Name', 'newspack-plugin' )
 			. ' <span class="required" aria-hidden="true">*</span>'
 			. '</label>'
 			. '<input id="comment_display_name" name="comment_display_name" type="text" required="required" style="display:block;width:100%" />'
