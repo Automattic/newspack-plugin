@@ -80,7 +80,14 @@ const VisibilityControl = ( {
 	disabled: boolean;
 } ) => (
 	<PanelRow>
-		<ToggleGroupControl label={ label } help={ help } value={ value } onChange={ v => onChange( String( v ?? 'visible' ) ) } isBlock __next40pxDefaultSize>
+		<ToggleGroupControl
+			label={ label }
+			help={ help }
+			value={ value }
+			onChange={ v => onChange( String( v ?? 'visible' ) ) }
+			isBlock
+			__next40pxDefaultSize
+		>
 			<ToggleGroupControlOption disabled={ disabled } value="visible" label={ __( 'Visible to', 'newspack-plugin' ) } />
 			<ToggleGroupControlOption disabled={ disabled } value="hidden" label={ __( 'Hidden to', 'newspack-plugin' ) } />
 		</ToggleGroupControl>
@@ -137,9 +144,7 @@ const AccessRuleValueControl = ( {
 	if ( options.length > 0 ) {
 		// Map stored IDs to labels for display; silently drop IDs with no matching option.
 		const valueArr = Array.isArray( value ) ? value : [];
-		const selectedLabels = options
-			.filter( o => valueArr.some( v => String( v ) === String( o.value ) ) )
-			.map( o => o.label );
+		const selectedLabels = options.filter( o => valueArr.some( v => String( v ) === String( o.value ) ) ).map( o => o.label );
 
 		return (
 			<FormTokenField
@@ -170,13 +175,7 @@ const AccessRuleValueControl = ( {
 };
 
 /** One toggle + value control per available access rule. */
-const AccessRulesControls = ( {
-	activeRules,
-	onChange,
-}: {
-	activeRules: ActiveRule[];
-	onChange: ( rules: ActiveRule[] ) => void;
-} ) => {
+const AccessRulesControls = ( { activeRules, onChange }: { activeRules: ActiveRule[]; onChange: ( rules: ActiveRule[] ) => void } ) => {
 	const handleToggle = ( slug: string, defaultValue: ActiveRule[ 'value' ] ) => {
 		const has = activeRules.some( r => r.slug === slug );
 		if ( has ) {
