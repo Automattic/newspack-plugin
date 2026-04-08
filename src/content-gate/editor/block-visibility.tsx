@@ -153,6 +153,7 @@ const AccessRuleValueControl = ( { slug, config, value, onChange }: any ) => {
 		<TextControl
 			hideLabelFromVision
 			label={ config.name }
+			placeholder={ config.placeholder ?? '' }
 			help={ __( 'Separate with commas.', 'newspack-plugin' ) }
 			value={ typeof value === 'string' ? value : '' }
 			onChange={ onChange }
@@ -189,7 +190,7 @@ const AccessRulesControls = ( { activeRules, onChange }: any ) => {
 							onChange={ () => handleToggle( slug, config.default ) }
 							__nextHasNoMarginBottom
 						/>
-						{ activeRule && (
+						{ activeRule && ! config.is_boolean && (
 							<AccessRuleValueControl
 								slug={ slug }
 								config={ config }
@@ -253,9 +254,8 @@ const BlockVisibilityPanel = ( { attributes, setAttributes }: any ) => {
 		} );
 	};
 
-	const setRegistration = ( updates: Record< string, any > ) => {
-		const newRegistration = { ...registration, ...updates };
-		// Remove requireVerification when registration is turned off.
+	const setRegistration = ( newRegistration: Record< string, any > ) => {
+		// Ensure require_verification is cleared when registration is turned off.
 		if ( ! newRegistration.active ) {
 			newRegistration.require_verification = false;
 		}
