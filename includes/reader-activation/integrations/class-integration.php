@@ -241,6 +241,24 @@ abstract class Integration {
 	}
 
 	/**
+	 * Pull contact data from the integration for multiple users.
+	 *
+	 * Default implementation iterates pull_contact_data() for each user.
+	 * Integrations with native batch read APIs should override this method.
+	 *
+	 * @param int[] $user_ids Array of WordPress user IDs.
+	 *
+	 * @return array|\WP_Error Per-user results keyed by user ID (each array|\WP_Error), or WP_Error for total batch failure.
+	 */
+	public function pull_contacts_data( $user_ids ) {
+		$results = [];
+		foreach ( $user_ids as $user_id ) {
+			$results[ $user_id ] = $this->pull_contact_data( $user_id );
+		}
+		return $results;
+	}
+
+	/**
 	 * Get incoming available contact fields from the integration.
 	 *
 	 * This method should be implemented by child classes to return

@@ -1088,4 +1088,62 @@ class Test_Integrations extends \WP_UnitTestCase {
 		$group = Data_Events::get_handler_action_group( Sample_Integration::class, $action_name );
 		$this->assertSame( 'newspack-integration-filtered-id', $group );
 	}
+
+	/**
+	 * Test pull_contacts_data default implementation iterates pull_contact_data.
+	 */
+	public function test_pull_contacts_data_default_loops() {
+		$integration = new class( 'bulk_pull_test', 'Bulk Pull Test' ) extends Sample_Integration {
+			/**
+			 * Pull contact data for a user.
+			 *
+			 * @param int $user_id User ID.
+			 * @return array Contact data.
+			 */
+			public function pull_contact_data( $user_id ) {
+				return [ 'org' => 'Newspack-' . $user_id ];
+			}
+		};
+
+		$user1 = $this->factory()->user->create();
+		$user2 = $this->factory()->user->create();
+		$user3 = $this->factory()->user->create();
+
+		$results = $integration->pull_contacts_data( [ $user1, $user2, $user3 ] );
+
+		$this->assertIsArray( $results );
+		$this->assertCount( 3, $results );
+		$this->assertEquals( [ 'org' => 'Newspack-' . $user1 ], $results[ $user1 ] );
+		$this->assertEquals( [ 'org' => 'Newspack-' . $user2 ], $results[ $user2 ] );
+		$this->assertEquals( [ 'org' => 'Newspack-' . $user3 ], $results[ $user3 ] );
+	}
+
+	/**
+	 * Test pull_contacts_data returns per-user errors on partial failure.
+	 */
+	public function test_pull_contacts_data_partial_failure() {
+		$bad_user_id = 99999;
+		$integration = new class( 'pull_partial', 'Pull Partial' ) extends Sample_Integration {
+			/**
+			 * Pull contact data for a user.
+			 *
+			 * @param int $user_id User ID.
+			 * @return array|\WP_Error Contact data or error.
+			 */
+			public function pull_contact_data( $user_id ) {
+				if ( ! get_userdata( $user_id ) ) {
+					return new \WP_Error( 'not_found', 'User not found' );
+				}
+				return [ 'org' => 'Test' ];
+			}
+		};
+
+		$valid_user = $this->factory()->user->create();
+
+		$results = $integration->pull_contacts_data( [ $valid_user, $bad_user_id ] );
+
+		$this->assertIsArray( $results );
+		$this->assertEquals( [ 'org' => 'Test' ], $results[ $valid_user ] );
+		$this->assertWPError( $results[ $bad_user_id ] );
+	}
 }
