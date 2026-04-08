@@ -96,7 +96,39 @@ class Block_Visibility {
 	 * Enqueue block editor assets.
 	 */
 	public static function enqueue_block_editor_assets() {
-		// No-op until implemented.
+		if ( ! current_user_can( 'edit_posts' ) ) {
+			return;
+		}
+
+		$available_post_types = array_column(
+			Content_Restriction_Control::get_available_post_types(),
+			'value'
+		);
+		if ( ! in_array( get_post_type(), $available_post_types, true ) ) {
+			return;
+		}
+
+		$asset_file = dirname( NEWSPACK_PLUGIN_FILE ) . '/dist/content-gate-block-visibility.asset.php';
+		if ( ! file_exists( $asset_file ) ) {
+			return;
+		}
+		$asset = require $asset_file;
+
+		wp_enqueue_script(
+			'newspack-content-gate-block-visibility',
+			Newspack::plugin_url() . '/dist/content-gate-block-visibility.js',
+			$asset['dependencies'],
+			$asset['version'],
+			true
+		);
+
+		wp_localize_script(
+			'newspack-content-gate-block-visibility',
+			'newspackBlockVisibility',
+			[
+				'available_access_rules' => Access_Rules::get_access_rules(),
+			]
+		);
 	}
 
 	/**
