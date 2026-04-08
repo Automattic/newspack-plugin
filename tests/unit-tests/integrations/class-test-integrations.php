@@ -12,6 +12,7 @@ use Newspack\Reader_Activation\Integration;
 use Newspack\Reader_Activation\Integrations;
 use Newspack\Reader_Activation\Integrations\Contact_Cron;
 use Newspack\Reader_Activation\Integrations\Contact_Pull;
+use Newspack\Reader_Activation\Integrations\Incoming_Field;
 use Sample_Integration;
 
 /**
@@ -1116,6 +1117,249 @@ class Test_Integrations extends \WP_UnitTestCase {
 		$this->assertEquals( [ 'org' => 'Newspack-' . $user1 ], $results[ $user1 ] );
 		$this->assertEquals( [ 'org' => 'Newspack-' . $user2 ], $results[ $user2 ] );
 		$this->assertEquals( [ 'org' => 'Newspack-' . $user3 ], $results[ $user3 ] );
+	}
+
+	/**
+	 * Test bulk_pull_from_integrations pulls and stores data for all users.
+	 */
+	public function test_bulk_pull_from_integrations_success() {
+		$integration = new class( 'bulk_pull', 'Bulk Pull' ) extends Sample_Integration {
+			/**
+			 * Pull contact data for a user.
+			 *
+			 * @param int $user_id User ID.
+			 * @return array
+			 */
+			public function pull_contact_data( $user_id ) {
+				return [ 'org' => 'Newspack-' . $user_id ];
+			}
+
+			/**
+			 * Get available incoming fields.
+			 *
+			 * @return array
+			 */
+			public function get_available_incoming_fields() {
+				return [
+					new Incoming_Field( 'org', 'Organization', 'text' ),
+				];
+			}
+		};
+		Integrations::register( $integration );
+		Integrations::enable( 'bulk_pull' );
+		$integration->update_enabled_incoming_fields( [ 'org' ] );
+		Integrations::disable( 'esp' );
+
+		$user1 = $this->factory()->user->create();
+		$user2 = $this->factory()->user->create();
+
+		$result = Contact_Pull::bulk_pull_from_integrations( [ $user1, $user2 ] );
+
+		$this->assertTrue( $result );
+		$this->assertSame( wp_json_encode( 'Newspack-' . $user1 ), get_user_meta( $user1, 'newspack_reader_data_item_org', true ) );
+		$this->assertSame( wp_json_encode( 'Newspack-' . $user2 ), get_user_meta( $user2, 'newspack_reader_data_item_org', true ) );
+	}
+
+	/**
+	 * Test bulk_pull_from_integrations schedules individual retries for per-user failures.
+	 */
+	public function test_bulk_pull_per_user_failure_retries() {
+		if ( ! function_exists( 'as_schedule_single_action' ) ) {
+			$this->markTestSkipped( 'ActionScheduler not available.' );
+		}
+
+		$integration = new class( 'bulk_pull_fail', 'Bulk Pull Fail' ) extends Sample_Integration {
+			/**
+			 * Pull contact data returning error.
+			 *
+			 * @param int $user_id User ID.
+			 * @return \WP_Error
+			 */
+			public function pull_contact_data( $user_id ) {
+				return new \WP_Error( 'pull_error', 'Pull failed for ' . $user_id );
+			}
+
+			/**
+			 * Get available incoming fields.
+			 *
+			 * @return array
+			 */
+			public function get_available_incoming_fields() {
+				return [
+					new Incoming_Field( 'org', 'Organization', 'text' ),
+				];
+			}
+		};
+		Integrations::register( $integration );
+		Integrations::enable( 'bulk_pull_fail' );
+		$integration->update_enabled_incoming_fields( [ 'org' ] );
+		Integrations::disable( 'esp' );
+
+		as_unschedule_all_actions( Contact_Pull::RETRY_HOOK );
+
+		$user1 = $this->factory()->user->create( [ 'user_email' => 'bpf1@test.com' ] );
+		$user2 = $this->factory()->user->create( [ 'user_email' => 'bpf2@test.com' ] );
+
+		$result = Contact_Pull::bulk_pull_from_integrations( [ $user1, $user2 ] );
+
+		$this->assertWPError( $result );
+
+		$pending = as_get_scheduled_actions(
+			[
+				'hook'   => Contact_Pull::RETRY_HOOK,
+				'group'  => Integrations::get_action_group( 'bulk_pull_fail' ),
+				'status' => \ActionScheduler_Store::STATUS_PENDING,
+			],
+			'ARRAY_A'
+		);
+		$this->assertCount( 2, $pending, 'Individual retries should be scheduled for each failed user.' );
+	}
+
+	/**
+	 * Test that a total batch failure schedules a bulk pull retry.
+	 */
+	public function test_bulk_pull_retry_scheduling() {
+		if ( ! function_exists( 'as_schedule_single_action' ) ) {
+			$this->markTestSkipped( 'ActionScheduler not available.' );
+		}
+
+		$integration = new class( 'batch_pull_fail', 'Batch Pull Fail' ) extends Sample_Integration {
+			/**
+			 * Pull contacts data returning batch error.
+			 *
+			 * @param int[] $user_ids User IDs.
+			 * @return \WP_Error
+			 */
+			public function pull_contacts_data( $user_ids ) {
+				return new \WP_Error( 'batch_error', 'Batch pull API failed' );
+			}
+
+			/**
+			 * Get available incoming fields.
+			 *
+			 * @return array
+			 */
+			public function get_available_incoming_fields() {
+				return [
+					new Incoming_Field( 'org', 'Organization', 'text' ),
+				];
+			}
+		};
+		Integrations::register( $integration );
+		Integrations::enable( 'batch_pull_fail' );
+		$integration->update_enabled_incoming_fields( [ 'org' ] );
+		Integrations::disable( 'esp' );
+
+		as_unschedule_all_actions( Contact_Pull::BULK_RETRY_HOOK );
+
+		$user1 = $this->factory()->user->create( [ 'user_email' => 'bpr1@test.com' ] );
+		$user2 = $this->factory()->user->create( [ 'user_email' => 'bpr2@test.com' ] );
+
+		$result = Contact_Pull::bulk_pull_from_integrations( [ $user1, $user2 ] );
+
+		$this->assertWPError( $result );
+
+		$pending = as_get_scheduled_actions(
+			[
+				'hook'   => Contact_Pull::BULK_RETRY_HOOK,
+				'group'  => Integrations::get_action_group( 'batch_pull_fail' ),
+				'status' => \ActionScheduler_Store::STATUS_PENDING,
+			],
+			'ARRAY_A'
+		);
+		$this->assertCount( 1, $pending, 'A bulk retry should be scheduled for total batch failure.' );
+
+		$action_id = array_key_first( $pending );
+		$action    = \ActionScheduler::store()->fetch_action( $action_id );
+		$args      = $action->get_args()[0];
+		$this->assertEquals( 'batch_pull_fail', $args['integration_id'] );
+		$this->assertCount( 2, $args['user_ids'] );
+		$this->assertEquals( 1, $args['retry_count'] );
+	}
+
+	/**
+	 * Test execute_bulk_retry re-pulls and stores data on success.
+	 */
+	public function test_bulk_pull_retry_execution_success() {
+		if ( ! function_exists( 'as_schedule_single_action' ) ) {
+			$this->markTestSkipped( 'ActionScheduler not available.' );
+		}
+
+		$integration = new class( 'bulk_pull_retry_ok', 'Bulk Pull Retry OK' ) extends Sample_Integration {
+			/**
+			 * Number of pull calls.
+			 *
+			 * @var int
+			 */
+			public static $pull_count = 0;
+
+			/**
+			 * Pull contact data for a user.
+			 *
+			 * @param int $user_id User ID.
+			 * @return array
+			 */
+			public function pull_contact_data( $user_id ) {
+				self::$pull_count++;
+				return [ 'org' => 'Retry-' . $user_id ];
+			}
+
+			/**
+			 * Get available incoming fields.
+			 *
+			 * @return array
+			 */
+			public function get_available_incoming_fields() {
+				return [
+					new Incoming_Field( 'org', 'Organization', 'text' ),
+				];
+			}
+		};
+		Integrations::register( $integration );
+		Integrations::enable( 'bulk_pull_retry_ok' );
+		$integration->update_enabled_incoming_fields( [ 'org' ] );
+
+		$user1 = $this->factory()->user->create();
+		$user2 = $this->factory()->user->create();
+
+		as_unschedule_all_actions( Contact_Pull::BULK_RETRY_HOOK );
+
+		Contact_Pull::execute_bulk_retry(
+			[
+				'integration_id' => 'bulk_pull_retry_ok',
+				'user_ids'       => [ $user1, $user2 ],
+				'retry_count'    => 1,
+			]
+		);
+
+		$this->assertEquals( 2, $integration::$pull_count, 'Both users should be pulled on retry.' );
+		$this->assertSame( wp_json_encode( 'Retry-' . $user1 ), get_user_meta( $user1, 'newspack_reader_data_item_org', true ) );
+
+		$pending = as_get_scheduled_actions(
+			[
+				'hook'   => Contact_Pull::BULK_RETRY_HOOK,
+				'group'  => Integrations::get_action_group( 'bulk_pull_retry_ok' ),
+				'status' => \ActionScheduler_Store::STATUS_PENDING,
+			],
+			'ARRAY_A'
+		);
+		$this->assertEmpty( $pending, 'No retry should be scheduled on success.' );
+	}
+
+	/**
+	 * Test bulk_pull_from_integrations skips integrations with no enabled incoming fields.
+	 */
+	public function test_bulk_pull_skips_no_incoming_fields() {
+		$integration = new Sample_Integration( 'bulk_pull_skip', 'Bulk Pull Skip' );
+		Integrations::register( $integration );
+		Integrations::enable( 'bulk_pull_skip' );
+		Integrations::disable( 'esp' );
+
+		$user = $this->factory()->user->create();
+
+		$result = Contact_Pull::bulk_pull_from_integrations( [ $user ] );
+
+		$this->assertTrue( $result, 'Should return true when all integrations are skipped.' );
 	}
 
 	/**

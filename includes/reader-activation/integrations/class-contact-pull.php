@@ -50,6 +50,11 @@ class Contact_Pull {
 	const RETRY_HOOK = 'newspack_contact_pull_retry';
 
 	/**
+	 * ActionScheduler hook for retrying a failed bulk integration pull.
+	 */
+	const BULK_RETRY_HOOK = 'newspack_bulk_contact_pull_retry';
+
+	/**
 	 * Maximum number of retries for a failed integration pull.
 	 */
 	const MAX_RETRIES = 5;
@@ -73,6 +78,7 @@ class Contact_Pull {
 	public static function init_hooks() {
 		add_action( 'wp_ajax_' . self::AJAX_ACTION, [ __CLASS__, 'handle_ajax_pull' ] );
 		add_action( self::RETRY_HOOK, [ __CLASS__, 'execute_integration_retry' ] );
+		add_action( self::BULK_RETRY_HOOK, [ __CLASS__, 'execute_bulk_retry' ] );
 		add_filter( 'newspack_action_scheduler_hook_labels', [ __CLASS__, 'register_hook_labels' ] );
 	}
 
@@ -83,7 +89,8 @@ class Contact_Pull {
 	 * @return array
 	 */
 	public static function register_hook_labels( $labels ) {
-		$labels[ self::RETRY_HOOK ] = __( 'Contact Pull Retry', 'newspack-plugin' );
+		$labels[ self::RETRY_HOOK ]      = __( 'Contact Pull Retry', 'newspack-plugin' );
+		$labels[ self::BULK_RETRY_HOOK ] = __( 'Bulk Contact Pull Retry', 'newspack-plugin' );
 		return $labels;
 	}
 
@@ -175,6 +182,55 @@ class Contact_Pull {
 
 		if ( ! empty( $errors ) ) {
 			return new \WP_Error( 'newspack_contact_pull_failed', implode( '; ', $errors ) );
+		}
+
+		return true;
+	}
+
+	/**
+	 * Pull contact data for multiple users from all active integrations in bulk.
+	 *
+	 * Each integration receives all user IDs at once via pull_contacts_data(),
+	 * allowing integrations with native batch read APIs to handle them efficiently.
+	 * Pulled data is filtered by enabled incoming fields and stored via Reader_Data.
+	 *
+	 * @param int[] $user_ids Array of WordPress user IDs.
+	 *
+	 * @return true|\WP_Error True if all succeeded, or WP_Error with combined messages.
+	 */
+	public static function bulk_pull_from_integrations( $user_ids ) {
+		$integrations = Integrations::get_active_integrations();
+		$errors       = [];
+
+		foreach ( $integrations as $integration_id => $integration ) {
+			$selected_fields = $integration->get_enabled_incoming_fields();
+			if ( empty( $selected_fields ) ) {
+				continue;
+			}
+
+			Logger::log( sprintf( 'Bulk pulling %d user(s) from integration "%s".', count( $user_ids ), $integration_id ), self::LOGGER_HEADER );
+
+			$results = $integration->pull_contacts_data( $user_ids );
+
+			if ( \is_wp_error( $results ) ) {
+				Logger::log( sprintf( 'Bulk pull failed for integration "%s": %s', $integration_id, $results->get_error_message() ), self::LOGGER_HEADER );
+				self::schedule_bulk_retry( $integration_id, $user_ids, 0, $results );
+				$errors[] = sprintf( '[%s] Batch failed: %s', $integration_id, $results->get_error_message() );
+			} else {
+				foreach ( $results as $user_id => $result ) {
+					if ( \is_wp_error( $result ) ) {
+						Logger::log( sprintf( 'Pull failed for user %d from integration "%s": %s', $user_id, $integration_id, $result->get_error_message() ), self::LOGGER_HEADER );
+						self::schedule_integration_retry( $integration_id, $user_id, 0, $result );
+						$errors[] = sprintf( '[%s] User %d: %s', $integration_id, $user_id, $result->get_error_message() );
+					} elseif ( is_array( $result ) ) {
+						self::store_pulled_data( $user_id, $result, $integration );
+					}
+				}
+			}
+		}
+
+		if ( ! empty( $errors ) ) {
+			return new \WP_Error( 'newspack_bulk_pull_failed', implode( '; ', $errors ) );
 		}
 
 		return true;
@@ -386,6 +442,157 @@ class Contact_Pull {
 			),
 			self::LOGGER_HEADER
 		);
+	}
+
+	/**
+	 * Schedule a retry for a failed bulk integration pull via ActionScheduler.
+	 *
+	 * @param string    $integration_id The integration ID.
+	 * @param int[]     $user_ids       The WordPress user IDs.
+	 * @param int       $retry_count    Current retry count (0 = first failure).
+	 * @param \WP_Error $error          The error from the failure.
+	 */
+	private static function schedule_bulk_retry( $integration_id, $user_ids, $retry_count, $error ) {
+		if ( ! function_exists( 'as_schedule_single_action' ) ) {
+			return;
+		}
+
+		$error_message = $error->get_error_message();
+		$next_retry    = $retry_count + 1;
+
+		if ( $next_retry > self::MAX_RETRIES ) {
+			Logger::log(
+				sprintf(
+					'Max retries (%d) reached for bulk pull of integration "%s" (%d users). Giving up. Last error: %s',
+					self::MAX_RETRIES,
+					$integration_id,
+					count( $user_ids ),
+					$error_message
+				),
+				self::LOGGER_HEADER
+			);
+			do_action(
+				'newspack_bulk_pull_retry_exhausted',
+				[
+					'integration_id' => $integration_id,
+					'user_ids'       => $user_ids,
+					'reason'         => $error_message,
+				]
+			);
+			return;
+		}
+
+		$backoff_index   = min( $retry_count, count( self::RETRY_BACKOFF ) - 1 );
+		$backoff_seconds = self::RETRY_BACKOFF[ $backoff_index ];
+
+		$retry_data = [
+			'integration_id' => $integration_id,
+			'user_ids'       => $user_ids,
+			'retry_count'    => $next_retry,
+			'reason'         => $error_message,
+		];
+
+		\as_schedule_single_action(
+			time() + $backoff_seconds,
+			self::BULK_RETRY_HOOK,
+			[ $retry_data ],
+			Integrations::get_action_group( $integration_id )
+		);
+
+		Logger::log(
+			sprintf(
+				'Scheduled bulk pull retry %d/%d for integration "%s" (%d users) in %ds. Error: %s',
+				$next_retry,
+				self::MAX_RETRIES,
+				$integration_id,
+				count( $user_ids ),
+				$backoff_seconds,
+				$error_message
+			),
+			self::LOGGER_HEADER
+		);
+	}
+
+	/**
+	 * Execute a bulk integration pull retry from ActionScheduler.
+	 *
+	 * @param array $retry_data The retry data containing integration_id, user_ids, and retry_count.
+	 *
+	 * @throws \Exception When the final retry fails, so ActionScheduler marks the action as "failed".
+	 */
+	public static function execute_bulk_retry( $retry_data ) {
+		if ( ! is_array( $retry_data ) || empty( $retry_data['integration_id'] ) || empty( $retry_data['user_ids'] ) ) {
+			Logger::log( 'Invalid bulk pull retry data received from Action Scheduler.', self::LOGGER_HEADER, 'error' );
+			return;
+		}
+
+		$integration_id = $retry_data['integration_id'];
+		$user_ids       = $retry_data['user_ids'];
+		$retry_count    = $retry_data['retry_count'] ?? 1;
+
+		$integration = Integrations::get_integration( $integration_id );
+		if ( ! $integration || ! Integrations::is_enabled( $integration_id ) ) {
+			Logger::log( sprintf( 'Integration "%s" not found or not enabled on bulk pull retry %d.', $integration_id, $retry_count ), self::LOGGER_HEADER, 'error' );
+			return;
+		}
+
+		$selected_fields = $integration->get_enabled_incoming_fields();
+		if ( empty( $selected_fields ) ) {
+			Logger::log( sprintf( 'No incoming fields enabled for integration "%s" on bulk pull retry %d.', $integration_id, $retry_count ), self::LOGGER_HEADER );
+			return;
+		}
+
+		// Filter out stale user IDs.
+		$valid_user_ids = array_filter(
+			$user_ids,
+			function ( $user_id ) {
+				return (bool) \get_userdata( $user_id );
+			}
+		);
+
+		if ( empty( $valid_user_ids ) ) {
+			Logger::log( sprintf( 'Bulk pull retry %d for integration "%s": no valid users remaining.', $retry_count, $integration_id ), self::LOGGER_HEADER );
+			return;
+		}
+
+		Logger::log( sprintf( 'Executing bulk pull retry %d/%d for integration "%s" (%d users).', $retry_count, self::MAX_RETRIES, $integration_id, count( $valid_user_ids ) ), self::LOGGER_HEADER );
+
+		$results = $integration->pull_contacts_data( $valid_user_ids );
+
+		if ( \is_wp_error( $results ) ) {
+			Logger::log( sprintf( 'Bulk pull retry %d failed for integration "%s": %s', $retry_count, $integration_id, $results->get_error_message() ), self::LOGGER_HEADER );
+			self::schedule_bulk_retry( $integration_id, $valid_user_ids, $retry_count, $results );
+
+			if ( $retry_count >= self::MAX_RETRIES ) {
+				throw new \Exception(
+					esc_html(
+						sprintf(
+							'Bulk pull retry %d/%d failed for integration "%s" (%d users): %s',
+							$retry_count,
+							self::MAX_RETRIES,
+							$integration_id,
+							count( $valid_user_ids ),
+							$results->get_error_message()
+						)
+					)
+				);
+			}
+		} else {
+			$failures = 0;
+			foreach ( $results as $user_id => $result ) {
+				if ( \is_wp_error( $result ) ) {
+					self::schedule_integration_retry( $integration_id, $user_id, 0, $result );
+					$failures++;
+				} elseif ( is_array( $result ) ) {
+					self::store_pulled_data( $user_id, $result, $integration );
+				}
+			}
+			if ( $failures > 0 ) {
+				Logger::log( sprintf( 'Bulk pull retry %d for integration "%s": %d/%d users failed, scheduled individual retries.', $retry_count, $integration_id, $failures, count( $valid_user_ids ) ), self::LOGGER_HEADER );
+			} else {
+				Logger::log( sprintf( 'Bulk pull retry %d for integration "%s": all %d users succeeded.', $retry_count, $integration_id, count( $valid_user_ids ) ), self::LOGGER_HEADER );
+			}
+		}
 	}
 
 	/**
