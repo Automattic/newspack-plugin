@@ -99,4 +99,86 @@ class Newspack_Test_Comment_Display_Name extends WP_UnitTestCase {
 
 		$this->assertEmpty( $output );
 	}
+
+	/**
+	 * Test that validation rejects an empty display name.
+	 */
+	public function test_validate_rejects_empty_display_name() {
+		$user_id = $this->create_generic_reader();
+		$_POST['comment_display_name'] = '';
+
+		$commentdata = [
+			'comment_post_ID' => $this->factory->post->create(),
+			'user_id'         => $user_id,
+		];
+
+		$this->expectException( WPDieException::class );
+		Comment_Display_Name::validate_display_name( $commentdata );
+
+		wp_delete_user( $user_id );
+		unset( $_POST['comment_display_name'] );
+	}
+
+	/**
+	 * Test that validation rejects a display name that matches the generic pattern.
+	 */
+	public function test_validate_rejects_generic_display_name() {
+		$user_id = $this->create_generic_reader( 'john.smith@example.com' );
+		$_POST['comment_display_name'] = 'john.smith';
+
+		$commentdata = [
+			'comment_post_ID' => $this->factory->post->create(),
+			'user_id'         => $user_id,
+		];
+
+		$this->expectException( WPDieException::class );
+		Comment_Display_Name::validate_display_name( $commentdata );
+
+		wp_delete_user( $user_id );
+		unset( $_POST['comment_display_name'] );
+	}
+
+	/**
+	 * Test that validation passes with a valid display name.
+	 */
+	public function test_validate_accepts_valid_display_name() {
+		$user_id = $this->create_generic_reader();
+		$_POST['comment_display_name'] = 'Jane Doe';
+
+		$commentdata = [
+			'comment_post_ID' => $this->factory->post->create(),
+			'user_id'         => $user_id,
+		];
+
+		$result = Comment_Display_Name::validate_display_name( $commentdata );
+		$this->assertEquals( $commentdata, $result );
+
+		wp_delete_user( $user_id );
+		unset( $_POST['comment_display_name'] );
+	}
+
+	/**
+	 * Test that validation passes for non-reader users without the field.
+	 */
+	public function test_validate_skips_non_reader() {
+		$admin_id = wp_insert_user(
+			[
+				'user_login' => 'test-admin-2',
+				'user_pass'  => wp_generate_password(),
+				'user_email' => 'admin2@example.com',
+				'role'       => 'administrator',
+			]
+		);
+		wp_set_current_user( $admin_id );
+
+		$commentdata = [
+			'comment_post_ID' => $this->factory->post->create(),
+			'user_id'         => $admin_id,
+		];
+
+		$result = Comment_Display_Name::validate_display_name( $commentdata );
+		$this->assertEquals( $commentdata, $result );
+
+		wp_delete_user( $admin_id );
+	}
 }
