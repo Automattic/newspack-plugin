@@ -148,7 +148,8 @@ const AccessRuleValueControl = ( {
 
 		return (
 			<FormTokenField
-				label=""
+				hideLabelFromVision
+				label={ config.name }
 				value={ selectedLabels }
 				suggestions={ options.map( o => o.label ) }
 				onChange={ ( tokens: ( string | { value: string } )[] ) => {

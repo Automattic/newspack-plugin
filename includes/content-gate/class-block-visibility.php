@@ -38,11 +38,22 @@ class Block_Visibility {
 			return $block_content;
 		}
 
-		if ( is_admin() ) {
+		// Bypass access control in admin screens and REST requests (block renderer,
+		// preview, query-loop rendering inside the editor) so blocks are never hidden
+		// from editors during content authoring.
+		if ( is_admin() || ( defined( 'REST_REQUEST' ) && REST_REQUEST ) ) {
 			return $block_content;
 		}
 
 		$rules = $block['attrs']['newspackAccessControlRules'] ?? [];
+
+		// Defensive cast: the block parser can occasionally yield a stdClass for
+		// object-typed attributes (e.g. after JSON round-trips).
+		if ( is_object( $rules ) ) {
+			$rules = (array) $rules;
+		} elseif ( ! is_array( $rules ) ) {
+			$rules = [];
+		}
 
 		$has_registration = ! empty( $rules['registration']['active'] );
 		$has_access_rules = ! empty( $rules['custom_access']['active'] )
