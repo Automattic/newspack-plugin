@@ -52,6 +52,10 @@
 		"listsCheckboxes": {
 			"type": "object",
 			"default": {}
+		},
+		"hideOauth": {
+			"type": "boolean",
+			"default": false
 		}
 	},
 	"supports": {

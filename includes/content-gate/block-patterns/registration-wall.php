@@ -26,7 +26,7 @@
 
 	<!-- wp:group {"metadata":{"name":"<?php esc_html_e( 'Form', 'newspack-plugin' ); ?>"},"layout":{"type":"constrained","contentSize":"410px"}} -->
 	<div class="wp-block-group">
-		<!-- wp:newspack/reader-registration -->
+		<!-- wp:newspack/reader-registration {"newsletterSubscription":false} -->
 		<div class="wp-block-newspack-reader-registration"></div>
 		<!-- /wp:newspack/reader-registration -->
 	</div>
