@@ -33,7 +33,13 @@ class Block_Visibility {
 	 * @return string
 	 */
 	public static function filter_render_block( $block_content, $block ) {
-		$target_blocks = [ 'core/group', 'core/stack', 'core/row' ];
+		/**
+		 * Filters the list of blocks that are subject to content gate access control.
+		 *
+		 * @param array $target_blocks List of block names.
+		 * @return array
+		 */
+		$target_blocks = apply_filters( 'newspack_content_gate_block_visibility_blocks', [ 'core/group', 'core/stack', 'core/row' ] );
 		if ( ! in_array( $block['blockName'] ?? '', $target_blocks, true ) ) {
 			return $block_content;
 		}
