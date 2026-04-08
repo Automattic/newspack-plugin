@@ -8,11 +8,9 @@
 const registeredFilters: Record< string, ( settings: any, name: string ) => any > = {};
 
 jest.mock( '@wordpress/hooks', () => ( {
-	addFilter: jest.fn(
-		( _hook: string, namespace: string, callback: ( settings: any, name: string ) => any ) => {
-			registeredFilters[ namespace ] = callback;
-		}
-	),
+	addFilter: jest.fn( ( _hook: string, namespace: string, callback: ( settings: any, name: string ) => any ) => {
+		registeredFilters[ namespace ] = callback;
+	} ),
 } ) );
 
 jest.mock( '@wordpress/compose', () => ( {
@@ -30,8 +28,7 @@ jest.mock( '@wordpress/api-fetch', () => jest.fn() );
 // Importing the module triggers the addFilter side effects.
 require( './block-visibility' );
 
-const attributeFilter =
-	registeredFilters[ 'newspack-plugin/block-visibility/attributes' ];
+const attributeFilter = registeredFilters[ 'newspack-plugin/block-visibility/attributes' ];
 
 describe( 'block-visibility attribute registration', () => {
 	it( 'adds attributes to core/group', () => {
@@ -69,10 +66,7 @@ describe( 'block-visibility attribute registration', () => {
 	} );
 
 	it( 'preserves existing attributes on target blocks', () => {
-		const result = attributeFilter(
-			{ attributes: { align: { type: 'string' } } },
-			'core/group'
-		);
+		const result = attributeFilter( { attributes: { align: { type: 'string' } } }, 'core/group' );
 		expect( result.attributes ).toHaveProperty( 'align' );
 		expect( result.attributes ).toHaveProperty( 'newspackAccessControlVisibility' );
 	} );

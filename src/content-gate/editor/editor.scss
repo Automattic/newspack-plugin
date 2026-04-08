@@ -56,3 +56,25 @@
 .post-type-np_gate_layout .editor-post-title {
 	display: none;
 }
+
+/**
+ * Access control block visibility panel.
+ */
+.newspack-access-control-block-visibility-panel {
+	.components-toggle-control {
+		margin-top: 8px;
+		width: 100%;
+		.components-base-control__field {
+			margin-bottom: 4px;
+		}
+		.components-form-toggle {
+			order: 2;
+		}
+		.components-base-control__help {
+			margin-top: 0;
+		}
+		.components-toggle-control__help {
+			margin-inline-start: auto;
+		}
+	}
+}
