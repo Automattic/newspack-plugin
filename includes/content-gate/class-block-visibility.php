@@ -34,7 +34,7 @@ class Block_Visibility {
 	 */
 	public static function filter_render_block( $block_content, $block ) {
 		/**
-		 * Filters the list of blocks that are subject to content gate access control.
+		 * Filters the list of blocks that can be configured for access control visibility.
 		 *
 		 * @param array $target_blocks List of block names.
 		 * @return array
