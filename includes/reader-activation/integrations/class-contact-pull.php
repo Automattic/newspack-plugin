@@ -240,6 +240,31 @@ class Contact_Pull {
 	}
 
 	/**
+	 * Filter pulled data by enabled incoming fields and store via Reader_Data.
+	 *
+	 * @param int                                     $user_id     WordPress user ID.
+	 * @param array                                   $data        Raw pulled data (field_key => value).
+	 * @param \Newspack\Reader_Activation\Integration $integration The integration instance.
+	 */
+	private static function store_pulled_data( $user_id, $data, $integration ) {
+		$selected_fields = $integration->get_enabled_incoming_fields();
+		$selected_keys   = array_flip(
+			array_map(
+				function( $field ) {
+					return $field->get_key();
+				},
+				$selected_fields
+			)
+		);
+		$data = array_intersect_key( $data, $selected_keys );
+		Logger::log( 'Pulled data from ' . $integration->get_id() . ' for user ' . $user_id . ': ' . wp_json_encode( $data ) );
+
+		foreach ( $data as $key => $value ) {
+			\Newspack\Reader_Data::update_item( $user_id, $key, wp_json_encode( $value ) );
+		}
+	}
+
+	/**
 	 * Pull data from a single integration and store selected fields.
 	 *
 	 * @param int                                     $user_id     WordPress user ID.
@@ -260,20 +285,7 @@ class Contact_Pull {
 				return $data;
 			}
 
-			$selected_keys = array_flip(
-				array_map(
-					function( $field ) {
-						return $field->get_key();
-					},
-					$selected_fields
-				)
-			);
-			$data          = array_intersect_key( $data, $selected_keys );
-			Logger::log( 'Pulled data from ' . $integration->get_id() . ': ' . wp_json_encode( $data ) );
-
-			foreach ( $data as $key => $value ) {
-				\Newspack\Reader_Data::update_item( $user_id, $key, wp_json_encode( $value ) );
-			}
+			self::store_pulled_data( $user_id, $data, $integration );
 
 			return true;
 		} catch ( \Throwable $e ) {
