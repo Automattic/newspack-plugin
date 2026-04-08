@@ -85,7 +85,7 @@ class Block_Visibility {
 				],
 				'newspackAccessControlRules'      => [
 					'type'    => 'object',
-					'default' => new \stdClass(),
+					'default' => [],
 				],
 			]
 		);
@@ -104,6 +104,9 @@ class Block_Visibility {
 			Content_Restriction_Control::get_available_post_types(),
 			'value'
 		);
+		// get_post_type() returns false in the Site Editor / widget screens where
+		// no post is in context — in_array( false, [...], true ) is false, so the
+		// asset is correctly suppressed. This mirrors the guard in Content_Gate.
 		if ( ! in_array( get_post_type(), $available_post_types, true ) ) {
 			return;
 		}

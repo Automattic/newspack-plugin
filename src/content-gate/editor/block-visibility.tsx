@@ -271,11 +271,13 @@ const BlockVisibilityPanel = ( { attributes, setAttributes }: BlockEditProps ) =
 	};
 
 	const setRegistration = ( newRegistration: RegistrationRule ) => {
-		// Ensure require_verification is cleared when registration is turned off.
-		if ( ! newRegistration.active ) {
-			newRegistration.require_verification = false;
-		}
-		updateRules( { registration: newRegistration } );
+		updateRules( {
+			registration: {
+				...newRegistration,
+				// Ensure require_verification is cleared when registration is turned off.
+				require_verification: newRegistration.active ? newRegistration.require_verification : false,
+			},
+		} );
 	};
 
 	const setAccessRules = ( flatRules: ActiveRule[] ) => {
@@ -298,7 +300,7 @@ const BlockVisibilityPanel = ( { attributes, setAttributes }: BlockEditProps ) =
 			>
 				<VisibilityControl
 					label={ __( 'Block visibility', 'newspack-plugin' ) }
-					help={ __( 'Visiblity of the content for readers who match the selected access rules.', 'newspack-plugin' ) }
+					help={ __( 'Visibility of the content for readers who match the selected access rules.', 'newspack-plugin' ) }
 					value={ visibility }
 					onChange={ ( v: string ) => setAttributes( { newspackAccessControlVisibility: v } ) }
 					disabled={ ! rulesActive }

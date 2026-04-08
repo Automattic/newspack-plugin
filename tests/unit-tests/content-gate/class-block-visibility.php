@@ -28,15 +28,20 @@ class Newspack_Test_Block_Visibility extends WP_UnitTestCase {
 		$this->test_user_id = $this->factory->user->create( [ 'role' => 'subscriber' ] );
 
 		// Register a simple test rule: passes only for our test user.
-		\Newspack\Access_Rules::register_rule(
-			[
-				'id'       => 'test_rule',
-				'name'     => 'Test Rule',
-				'callback' => function( $user_id, $value ) {
-					return intval( $user_id ) === intval( $value );
-				},
-			]
-		);
+		// Guard against duplicate registration: Access_Rules::$rules is static and
+		// persists across test methods within the same PHP process.
+		$registered = \Newspack\Access_Rules::get_registered_rules();
+		if ( ! isset( $registered['test_rule'] ) ) {
+			\Newspack\Access_Rules::register_rule(
+				[
+					'id'       => 'test_rule',
+					'name'     => 'Test Rule',
+					'callback' => function( $user_id, $value ) {
+						return intval( $user_id ) === intval( $value );
+					},
+				]
+			);
+		}
 	}
 
 	/**
@@ -215,7 +220,14 @@ class Newspack_Test_Block_Visibility extends WP_UnitTestCase {
 		$rules = [
 			'custom_access' => [
 				'active'       => true,
-				'access_rules' => [ [ [ 'slug' => 'test_rule', 'value' => $this->test_user_id ] ] ],
+				'access_rules' => [
+					[
+						[
+							'slug'  => 'test_rule',
+							'value' => $this->test_user_id,
+						],
+					],
+				],
 			],
 		];
 		$this->assertTrue( Block_Visibility::evaluate_rules_for_user_public( $rules, $this->test_user_id ) );
@@ -229,7 +241,14 @@ class Newspack_Test_Block_Visibility extends WP_UnitTestCase {
 		$rules      = [
 			'custom_access' => [
 				'active'       => true,
-				'access_rules' => [ [ [ 'slug' => 'test_rule', 'value' => $this->test_user_id ] ] ],
+				'access_rules' => [
+					[
+						[
+							'slug'  => 'test_rule',
+							'value' => $this->test_user_id,
+						],
+					],
+				],
 			],
 		];
 		$this->assertFalse( Block_Visibility::evaluate_rules_for_user_public( $rules, $other_user ) );
@@ -243,7 +262,14 @@ class Newspack_Test_Block_Visibility extends WP_UnitTestCase {
 			'registration'  => [ 'active' => true ],
 			'custom_access' => [
 				'active'       => true,
-				'access_rules' => [ [ [ 'slug' => 'test_rule', 'value' => $this->test_user_id ] ] ],
+				'access_rules' => [
+					[
+						[
+							'slug'  => 'test_rule',
+							'value' => $this->test_user_id,
+						],
+					],
+				],
 			],
 		];
 		// Logged-in user who matches the access rule: passes.
@@ -341,20 +367,20 @@ class Newspack_Test_Block_Visibility extends WP_UnitTestCase {
 	public function test_missing_visibility_attribute_defaults_to_visible() {
 		wp_set_current_user( 0 );
 		Block_Visibility::reset_cache_for_tests();
-		$block  = $this->make_block(
+		$block = $this->make_block(
 			'core/group',
 			[
 				'newspackAccessControlRules' => [ 'registration' => [ 'active' => true ] ],
-				// newspackAccessControlVisibility intentionally omitted
+				// newspackAccessControlVisibility intentionally omitted.
 			]
 		);
 		$result = Block_Visibility::filter_render_block( '<div>x</div>', $block );
-		// logged-out user: rules don't match, so hidden under default "visible" mode
+		// Logged-out user: rules don't match, so hidden under default "visible" mode.
 		$this->assertSame( '', $result );
 	}
 
 	/**
-	 * core/group block has both visibility attributes registered server-side.
+	 * Core/group block has both visibility attributes registered server-side.
 	 */
 	public function test_group_block_has_visibility_attribute_registered() {
 		$block_type = \WP_Block_Type_Registry::get_instance()->get_registered( 'core/group' );
@@ -366,10 +392,11 @@ class Newspack_Test_Block_Visibility extends WP_UnitTestCase {
 	 * Caching: second call returns cached result without re-evaluation.
 	 */
 	public function test_result_is_cached() {
-		$call_count = 0;
+		$call_count      = 0;
+		$counting_rule_id = 'counting_rule_' . uniqid();
 		\Newspack\Access_Rules::register_rule(
 			[
-				'id'       => 'counting_rule',
+				'id'       => $counting_rule_id,
 				'name'     => 'Counting Rule',
 				'callback' => function( $user_id, $value ) use ( &$call_count ) {
 					$call_count++;
@@ -380,7 +407,14 @@ class Newspack_Test_Block_Visibility extends WP_UnitTestCase {
 		$rules = [
 			'custom_access' => [
 				'active'       => true,
-				'access_rules' => [ [ [ 'slug' => 'counting_rule', 'value' => null ] ] ],
+				'access_rules' => [
+					[
+						[
+							'slug'  => $counting_rule_id,
+							'value' => null,
+						],
+					],
+				],
 			],
 		];
 		Block_Visibility::evaluate_rules_for_user_public( $rules, $this->test_user_id );
