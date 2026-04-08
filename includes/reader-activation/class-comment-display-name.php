@@ -21,9 +21,8 @@ final class Comment_Display_Name {
 	 * Initialize hooks.
 	 */
 	public static function init() {
-		\add_action( 'comment_form_logged_in_after', [ __CLASS__, 'render_display_name_field' ] );
+		\add_filter( 'comment_form_submit_field', [ __CLASS__, 'render_display_name_field' ] );
 		\add_filter( 'preprocess_comment', [ __CLASS__, 'validate_display_name' ] );
-		\add_action( 'comment_post', [ __CLASS__, 'save_display_name' ] );
 	}
 
 	/**
@@ -43,10 +42,14 @@ final class Comment_Display_Name {
 	}
 
 	/**
-	 * Validate the display name field before a comment is saved.
+	 * Validate and save the display name before a comment is inserted.
+	 *
+	 * Runs on `preprocess_comment` so the updated display name is used as the
+	 * comment author, rather than the stale email-derived name WordPress read
+	 * from the user profile earlier in the request.
 	 *
 	 * @param array $commentdata Comment data.
-	 * @return array Comment data, unchanged.
+	 * @return array Comment data with updated comment_author.
 	 */
 	public static function validate_display_name( $commentdata ) {
 		if ( ! self::should_prompt() ) {
@@ -76,52 +79,43 @@ final class Comment_Display_Name {
 			);
 		}
 
-		return $commentdata;
-	}
-
-	/**
-	 * Save the display name to the user profile after a comment is posted.
-	 *
-	 * @param int $comment_id Comment ID.
-	 */
-	public static function save_display_name( $comment_id ) {
-		if ( ! self::should_prompt() ) {
-			return;
-		}
-
-		$display_name = isset( $_POST['comment_display_name'] ) ? \sanitize_text_field( \wp_unslash( $_POST['comment_display_name'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Missing
-		if ( empty( $display_name ) ) {
-			return;
-		}
-
-		$user_id   = \get_current_user_id();
+		// Update the user profile.
 		$user_data = [
-			'ID'           => $user_id,
+			'ID'           => $user->ID,
 			'display_name' => $display_name,
 		];
 
-		$name_parts = explode( ' ', $display_name, 2 );
+		$name_parts              = explode( ' ', $display_name, 2 );
 		$user_data['first_name'] = $name_parts[0];
 		$user_data['last_name']  = $name_parts[1] ?? '';
 
 		\wp_update_user( $user_data );
+
+		// Override the comment author so this comment uses the new name.
+		$commentdata['comment_author'] = $display_name;
+
+		return $commentdata;
 	}
 
 	/**
-	 * Render the display name field in the comment form.
+	 * Render the display name field before the comment form submit button.
+	 *
+	 * @param string $submit_field The submit field HTML.
+	 * @return string The submit field HTML, with display name field prepended if needed.
 	 */
-	public static function render_display_name_field() {
+	public static function render_display_name_field( $submit_field ) {
 		if ( ! self::should_prompt() ) {
-			return;
+			return $submit_field;
 		}
-		?>
-		<p class="comment-form-display-name">
-			<label for="comment_display_name">
-				<?php esc_html_e( 'Display name (shown publicly)', 'newspack-plugin' ); ?>
-				<span class="required" aria-hidden="true">*</span>
-			</label>
-			<input id="comment_display_name" name="comment_display_name" type="text" required="required" />
-		</p>
-		<?php
+
+		$field = '<p class="comment-form-display-name">'
+			. '<label for="comment_display_name">'
+			. esc_html__( 'Display name (shown publicly)', 'newspack-plugin' )
+			. ' <span class="required" aria-hidden="true">*</span>'
+			. '</label>'
+			. '<input id="comment_display_name" name="comment_display_name" type="text" required="required" style="display:block;width:100%" />'
+			. '</p>';
+
+		return $field . $submit_field;
 	}
 }

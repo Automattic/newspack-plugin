@@ -33,12 +33,11 @@ class Newspack_Test_Comment_Display_Name extends WP_UnitTestCase {
 	public function test_renders_field_for_generic_display_name() {
 		$user_id = $this->create_generic_reader();
 
-		ob_start();
-		Comment_Display_Name::render_display_name_field();
-		$output = ob_get_clean();
+		$output = Comment_Display_Name::render_display_name_field( '<submit />' );
 
 		$this->assertStringContainsString( 'name="comment_display_name"', $output );
 		$this->assertStringContainsString( 'required', $output );
+		$this->assertStringContainsString( '<submit />', $output );
 
 		wp_delete_user( $user_id );
 	}
@@ -52,14 +51,12 @@ class Newspack_Test_Comment_Display_Name extends WP_UnitTestCase {
 			[
 				'ID'           => $user_id,
 				'display_name' => 'Jane Doe',
-			] 
+			]
 		);
 
-		ob_start();
-		Comment_Display_Name::render_display_name_field();
-		$output = ob_get_clean();
+		$output = Comment_Display_Name::render_display_name_field( '<submit />' );
 
-		$this->assertEmpty( $output );
+		$this->assertEquals( '<submit />', $output );
 
 		wp_delete_user( $user_id );
 	}
@@ -74,15 +71,13 @@ class Newspack_Test_Comment_Display_Name extends WP_UnitTestCase {
 				'user_pass'  => wp_generate_password(),
 				'user_email' => 'admin@example.com',
 				'role'       => 'administrator',
-			] 
+			]
 		);
 		wp_set_current_user( $admin_id );
 
-		ob_start();
-		Comment_Display_Name::render_display_name_field();
-		$output = ob_get_clean();
+		$output = Comment_Display_Name::render_display_name_field( '<submit />' );
 
-		$this->assertEmpty( $output );
+		$this->assertEquals( '<submit />', $output );
 
 		wp_delete_user( $admin_id );
 	}
@@ -93,11 +88,9 @@ class Newspack_Test_Comment_Display_Name extends WP_UnitTestCase {
 	public function test_does_not_render_for_logged_out() {
 		wp_set_current_user( 0 );
 
-		ob_start();
-		Comment_Display_Name::render_display_name_field();
-		$output = ob_get_clean();
+		$output = Comment_Display_Name::render_display_name_field( '<submit />' );
 
-		$this->assertEmpty( $output );
+		$this->assertEquals( '<submit />', $output );
 	}
 
 	/**
@@ -139,7 +132,7 @@ class Newspack_Test_Comment_Display_Name extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test that validation passes with a valid display name.
+	 * Test that validation passes with a valid display name and sets comment_author.
 	 */
 	public function test_validate_accepts_valid_display_name() {
 		$user_id = $this->create_generic_reader();
@@ -151,7 +144,7 @@ class Newspack_Test_Comment_Display_Name extends WP_UnitTestCase {
 		];
 
 		$result = Comment_Display_Name::validate_display_name( $commentdata );
-		$this->assertEquals( $commentdata, $result );
+		$this->assertEquals( 'Jane Doe', $result['comment_author'] );
 
 		wp_delete_user( $user_id );
 		unset( $_POST['comment_display_name'] );
@@ -183,22 +176,24 @@ class Newspack_Test_Comment_Display_Name extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test that save_display_name updates the user profile.
+	 * Test that validation saves the display name to the user profile and updates comment_author.
 	 */
-	public function test_save_updates_display_name() {
+	public function test_validate_saves_display_name() {
 		$user_id = $this->create_generic_reader();
 		$_POST['comment_display_name'] = 'Jane Doe';
 
-		$post_id    = $this->factory->post->create();
-		$comment_id = $this->factory->comment->create(
-			[
-				'comment_post_ID' => $post_id,
-				'user_id'         => $user_id,
-			]
-		);
+		$commentdata = [
+			'comment_post_ID' => $this->factory->post->create(),
+			'user_id'         => $user_id,
+			'comment_author'  => 'jane-doe', // Generic name set by WP before preprocess_comment.
+		];
 
-		Comment_Display_Name::save_display_name( $comment_id );
+		$result = Comment_Display_Name::validate_display_name( $commentdata );
 
+		// Comment author should be updated.
+		$this->assertEquals( 'Jane Doe', $result['comment_author'] );
+
+		// User profile should be updated.
 		$user = get_userdata( $user_id );
 		$this->assertEquals( 'Jane Doe', $user->display_name );
 		$this->assertEquals( 'Jane', $user->first_name );
@@ -206,67 +201,31 @@ class Newspack_Test_Comment_Display_Name extends WP_UnitTestCase {
 		$this->assertFalse( Reader_Activation::reader_has_generic_display_name( $user_id ) );
 
 		wp_delete_user( $user_id );
-		wp_delete_comment( $comment_id, true );
 		unset( $_POST['comment_display_name'] );
 	}
 
 	/**
-	 * Test that save_display_name handles single-word names.
+	 * Test that validation handles single-word display names.
 	 */
-	public function test_save_handles_single_word_name() {
+	public function test_validate_saves_single_word_name() {
 		$user_id = $this->create_generic_reader();
 		$_POST['comment_display_name'] = 'Madonna';
 
-		$post_id    = $this->factory->post->create();
-		$comment_id = $this->factory->comment->create(
-			[
-				'comment_post_ID' => $post_id,
-				'user_id'         => $user_id,
-			]
-		);
+		$commentdata = [
+			'comment_post_ID' => $this->factory->post->create(),
+			'user_id'         => $user_id,
+			'comment_author'  => 'jane-doe',
+		];
 
-		Comment_Display_Name::save_display_name( $comment_id );
+		$result = Comment_Display_Name::validate_display_name( $commentdata );
+
+		$this->assertEquals( 'Madonna', $result['comment_author'] );
 
 		$user = get_userdata( $user_id );
 		$this->assertEquals( 'Madonna', $user->display_name );
 		$this->assertFalse( Reader_Activation::reader_has_generic_display_name( $user_id ) );
 
 		wp_delete_user( $user_id );
-		wp_delete_comment( $comment_id, true );
-		unset( $_POST['comment_display_name'] );
-	}
-
-	/**
-	 * Test that save_display_name does nothing for non-reader users.
-	 */
-	public function test_save_skips_non_reader() {
-		$admin_id = wp_insert_user(
-			[
-				'user_login'   => 'test-admin-3',
-				'user_pass'    => wp_generate_password(),
-				'user_email'   => 'admin3@example.com',
-				'display_name' => 'admin3',
-				'role'         => 'administrator',
-			]
-		);
-		wp_set_current_user( $admin_id );
-		$_POST['comment_display_name'] = 'New Name';
-
-		$post_id    = $this->factory->post->create();
-		$comment_id = $this->factory->comment->create(
-			[
-				'comment_post_ID' => $post_id,
-				'user_id'         => $admin_id,
-			]
-		);
-
-		Comment_Display_Name::save_display_name( $comment_id );
-
-		$user = get_userdata( $admin_id );
-		$this->assertEquals( 'admin3', $user->display_name );
-
-		wp_delete_user( $admin_id );
-		wp_delete_comment( $comment_id, true );
 		unset( $_POST['comment_display_name'] );
 	}
 }
