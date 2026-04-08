@@ -96,7 +96,7 @@ class Block_Visibility {
 	 * Enqueue block editor assets.
 	 */
 	public static function enqueue_block_editor_assets() {
-		if ( ! current_user_can( 'edit_posts' ) ) {
+		if ( ! current_user_can( 'edit_others_posts' ) ) {
 			return;
 		}
 
@@ -126,7 +126,13 @@ class Block_Visibility {
 			'newspack-content-gate-block-visibility',
 			'newspackBlockVisibility',
 			[
-				'available_access_rules' => Access_Rules::get_access_rules(),
+				'available_access_rules' => array_map(
+					function( $rule ) {
+						unset( $rule['callback'] );
+						return $rule;
+					},
+					Access_Rules::get_access_rules()
+				),
 			]
 		);
 	}
