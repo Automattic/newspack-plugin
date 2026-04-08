@@ -52,8 +52,15 @@ class Block_Visibility {
 			return $block_content;
 		}
 
-		// Full evaluation handled in Task 5.
-		return $block_content;
+		$visibility   = $block['attrs']['newspackAccessControlVisibility'] ?? 'visible';
+		$user_id      = get_current_user_id();
+		$user_matches = self::evaluate_rules_for_user( $rules, $user_id );
+
+		if ( 'visible' === $visibility ) {
+			return $user_matches ? $block_content : '';
+		}
+		// 'hidden'
+		return $user_matches ? '' : $block_content;
 	}
 
 	/**

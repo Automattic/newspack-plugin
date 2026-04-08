@@ -255,6 +255,105 @@ class Newspack_Test_Block_Visibility extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Helper: build a block with both control attributes.
+	 *
+	 * @param string $block_name Block type name.
+	 * @param array  $rules      newspackAccessControlRules value.
+	 * @param string $visibility 'visible' or 'hidden'.
+	 * @return array
+	 */
+	private function make_block_with_rules( $block_name, $rules, $visibility = 'visible' ) {
+		return $this->make_block(
+			$block_name,
+			[
+				'newspackAccessControlRules'      => $rules,
+				'newspackAccessControlVisibility' => $visibility,
+			]
+		);
+	}
+
+	/**
+	 * "visible" mode: matching user sees the block.
+	 */
+	public function test_visible_mode_matching_user_sees_block() {
+		wp_set_current_user( $this->test_user_id );
+		Block_Visibility::reset_cache_for_tests();
+		$rules  = [ 'registration' => [ 'active' => true ] ];
+		$block  = $this->make_block_with_rules( 'core/group', $rules, 'visible' );
+		$result = Block_Visibility::filter_render_block( '<div>secret</div>', $block );
+		$this->assertSame( '<div>secret</div>', $result );
+	}
+
+	/**
+	 * "visible" mode: non-matching user does not see the block.
+	 */
+	public function test_visible_mode_non_matching_user_hidden() {
+		wp_set_current_user( 0 );
+		Block_Visibility::reset_cache_for_tests();
+		$rules  = [ 'registration' => [ 'active' => true ] ];
+		$block  = $this->make_block_with_rules( 'core/group', $rules, 'visible' );
+		$result = Block_Visibility::filter_render_block( '<div>secret</div>', $block );
+		$this->assertSame( '', $result );
+	}
+
+	/**
+	 * "hidden" mode: matching user does not see the block.
+	 */
+	public function test_hidden_mode_matching_user_hidden() {
+		wp_set_current_user( $this->test_user_id );
+		Block_Visibility::reset_cache_for_tests();
+		$rules  = [ 'registration' => [ 'active' => true ] ];
+		$block  = $this->make_block_with_rules( 'core/group', $rules, 'hidden' );
+		$result = Block_Visibility::filter_render_block( '<div>members only</div>', $block );
+		$this->assertSame( '', $result );
+	}
+
+	/**
+	 * "hidden" mode: non-matching user sees the block.
+	 */
+	public function test_hidden_mode_non_matching_user_sees_block() {
+		wp_set_current_user( 0 );
+		Block_Visibility::reset_cache_for_tests();
+		$rules  = [ 'registration' => [ 'active' => true ] ];
+		$block  = $this->make_block_with_rules( 'core/group', $rules, 'hidden' );
+		$result = Block_Visibility::filter_render_block( '<div>non-member content</div>', $block );
+		$this->assertSame( '<div>non-member content</div>', $result );
+	}
+
+	/**
+	 * All three target block types are evaluated.
+	 */
+	public function test_all_target_block_types_evaluated() {
+		wp_set_current_user( 0 );
+		Block_Visibility::reset_cache_for_tests();
+		$rules = [ 'registration' => [ 'active' => true ] ];
+		foreach ( [ 'core/group', 'core/stack', 'core/row' ] as $block_name ) {
+			Block_Visibility::reset_cache_for_tests();
+			$block  = $this->make_block_with_rules( $block_name, $rules, 'visible' );
+			$result = Block_Visibility::filter_render_block( '<div>x</div>', $block );
+			$this->assertSame( '', $result, "Expected empty for $block_name" );
+		}
+	}
+
+	/**
+	 * Missing visibility attribute defaults to "visible".
+	 */
+	public function test_missing_visibility_attribute_defaults_to_visible() {
+		wp_set_current_user( 0 );
+		Block_Visibility::reset_cache_for_tests();
+		$block  = $this->make_block(
+			'core/group',
+			[
+				'newspackAccessControlRules' => [ 'registration' => [ 'active' => true ] ],
+				// newspackAccessControlVisibility intentionally omitted
+			]
+		);
+		$result = Block_Visibility::filter_render_block( '<div>x</div>', $block );
+		// logged-out user: rules don't match, so hidden under default "visible" mode
+		$this->assertSame( '', $result );
+	}
+
+	/**
 	 * Caching: second call returns cached result without re-evaluation.
 	 */
 	public function test_result_is_cached() {
