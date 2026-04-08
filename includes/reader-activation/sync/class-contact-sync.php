@@ -366,12 +366,24 @@ class Contact_Sync extends Sync {
 			/**
 			 * Fires when a bulk contact sync has exhausted all retry attempts.
 			 *
-			 * @param string $integration_id The integration that failed.
-			 * @param int[]  $user_ids       The user IDs that failed to sync.
-			 * @param string $context        The sync context.
-			 * @param string $reason         The final error message.
+			 * @param array $alert_data {
+			 *     Alert data.
+			 *
+			 *     @type string $integration_id The integration that failed.
+			 *     @type int[]  $user_ids       The user IDs that failed to sync.
+			 *     @type string $context        The sync context.
+			 *     @type string $reason         The final error message.
+			 * }
 			 */
-			do_action( 'newspack_bulk_sync_retry_exhausted', $integration_id, $user_ids, $context, $error_message );
+			do_action(
+				'newspack_bulk_sync_retry_exhausted',
+				[
+					'integration_id' => $integration_id,
+					'user_ids'       => $user_ids,
+					'context'        => $context,
+					'reason'         => $error_message,
+				]
+			);
 			return;
 		}
 
