@@ -247,6 +247,10 @@ class Corrections {
 
 			// ID will be null if it's a new correction.
 			if ( ! empty( $correction_id ) ) {
+				// Verify the correction belongs to this post.
+				if ( ! in_array( $correction_id, $existing_ids, true ) ) {
+					return rest_ensure_response( new WP_Error( 'invalid_correction', 'The correction does not belong to this post.', [ 'status' => 400 ] ) );
+				}
 				// Update existing correction.
 				self::update_correction( $post_id, $correction_id, $correction );
 				$processed_ids[] = $correction_id;
