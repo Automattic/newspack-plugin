@@ -11,7 +11,11 @@ import {
 	__experimentalToggleGroupControl as ToggleGroupControl,
 	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
 	__experimentalToggleGroupControlOption as ToggleGroupControlOption,
+	FormTokenField,
+	TextControl,
 } from '@wordpress/components';
+import { useState, useEffect } from '@wordpress/element';
+import apiFetch from '@wordpress/api-fetch';
 import { __ } from '@wordpress/i18n';
 
 /**
@@ -81,9 +85,81 @@ const ToggleGroupControlCompat = ( { label, value, onChange }: any ) => (
 );
 
 /**
- * Value control for a single access rule — stub, full implementation in Task 10.
+ * Rules whose options must be fetched dynamically.
  */
-const AccessRuleValueControl = ( _props: any ) => null;
+const DYNAMIC_OPTION_RULES: Record<
+	string,
+	{ path: string; mapItem: ( item: any ) => { value: string | number; label: string } }
+> = {
+	institution: {
+		path: '/wp/v2/np_institution?per_page=100&context=edit',
+		mapItem: ( item: any ) => ( { value: item.id, label: item.title.raw } ),
+	},
+};
+
+/**
+ * Value control for a single access rule.
+ * Renders FormTokenField for rules with options, TextControl for free-text rules.
+ */
+const AccessRuleValueControl = ( { slug, config, value, onChange }: any ) => {
+	const dynamicConfig = DYNAMIC_OPTION_RULES[ slug ];
+	const staticOptions: Array< { value: string | number; label: string } > =
+		config.options ?? [];
+
+	const [ options, setOptions ] = useState( staticOptions );
+
+	useEffect( () => {
+		if ( ! dynamicConfig ) return;
+		let cancelled = false;
+		apiFetch< any[] >( { path: dynamicConfig.path } )
+			.then( items => {
+				if ( ! cancelled ) setOptions( items.map( dynamicConfig.mapItem ) );
+			} )
+			.catch( () => {} );
+		return () => {
+			cancelled = true;
+		};
+	}, [ slug ] ); // eslint-disable-line react-hooks/exhaustive-deps
+
+	if ( options.length > 0 ) {
+		// Map stored IDs to labels for display; silently drop IDs with no matching option.
+		const selectedLabels = options
+			.filter( o =>
+				( Array.isArray( value ) ? value : [] ).some(
+					v => String( v ) === String( o.value )
+				)
+			)
+			.map( o => o.label );
+
+		return (
+			<FormTokenField
+				label=""
+				value={ selectedLabels }
+				suggestions={ options.map( o => o.label ) }
+				onChange={ ( labels: string[] ) =>
+					onChange(
+						options
+							.filter( o => labels.includes( o.label ) )
+							.map( o => o.value )
+					)
+				}
+				__experimentalExpandOnFocus
+				__next40pxDefaultSize
+			/>
+		);
+	}
+
+	return (
+		<TextControl
+			hideLabelFromVision
+			label={ config.name }
+			help={ __( 'Separate with commas.', 'newspack-plugin' ) }
+			value={ typeof value === 'string' ? value : '' }
+			onChange={ onChange }
+			__next40pxDefaultSize
+		/>
+	);
+};
 
 /** One toggle + value control per available access rule. */
 const AccessRulesControls = ( { activeRules, onChange }: any ) => {
