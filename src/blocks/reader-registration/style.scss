@@ -280,6 +280,14 @@
 	}
 }
 
+.newspack-registration.is-style-inline,
+.wp-block-newspack-reader-registration.is-style-inline .newspack-registration {
+	.newspack-registration__inputs {
+		gap: var(--newspack-ui-spacer-2);
+		grid-template-columns: 1fr auto;
+	}
+}
+
 /* Sepcific styles to apply to Reader Registration when part of a Prompt */
 .newspack-popup__content {
 	.newspack-registration__header {

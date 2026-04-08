@@ -51,15 +51,16 @@ class Block_Patterns {
 	 */
 	public static function get_block_patterns() {
 		return [
-			'registration-banner'        => __( 'Registration Banner', 'newspack' ),
-			'registration-wall'          => __( 'Registration Wall', 'newspack' ),
-			'donation-wall'              => __( 'Donation Wall', 'newspack' ),
-			'pay-wall-one-tier'          => __( 'Paywall with One Tier', 'newspack' ),
-			'pay-wall-one-tier-metering' => __( 'Paywall with One Tier and Metering', 'newspack' ),
-			'pay-wall-two-tiers'         => __( 'Paywall with Two Tiers', 'newspack' ),
-			'pay-wall-two-tiers-alt'     => __( 'Paywall with Two Tiers (Alt)', 'newspack' ),
-			'pay-wall-three-tiers'       => __( 'Paywall with Three Tiers', 'newspack' ),
-			'pay-wall-three-tiers-alt'   => __( 'Paywall with Three Tiers (Alt)', 'newspack' ),
+			'registration-banner'             => __( 'Registration Banner', 'newspack' ),
+			'registration-wall'               => __( 'Registration Wall', 'newspack' ),
+			'donation-wall'                   => __( 'Donation Wall', 'newspack' ),
+			'pay-wall-one-tier'               => __( 'Paywall with One Tier', 'newspack' ),
+			'pay-wall-one-tier-metering'      => __( 'Paywall with One Tier and Metering', 'newspack' ),
+			'pay-wall-one-tier-metering-wide' => __( 'Paywall with One Tier and Metering (Wide)', 'newspack' ),
+			'pay-wall-two-tiers'              => __( 'Paywall with Two Tiers', 'newspack' ),
+			'pay-wall-two-tiers-alt'          => __( 'Paywall with Two Tiers (Alt)', 'newspack' ),
+			'pay-wall-three-tiers'            => __( 'Paywall with Three Tiers', 'newspack' ),
+			'pay-wall-three-tiers-alt'        => __( 'Paywall with Three Tiers (Alt)', 'newspack' ),
 		];
 	}
 

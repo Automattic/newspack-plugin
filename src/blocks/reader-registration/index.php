@@ -32,6 +32,14 @@ function register_block() {
 	if ( ! Reader_Activation::is_enabled() ) {
 		return;
 	}
+
+	\register_block_style(
+		'newspack/reader-registration',
+		[
+			'name'  => 'inline',
+			'label' => __( 'Inline', 'newspack-plugin' ),
+		]
+	);
 }
 add_action( 'init', __NAMESPACE__ . '\\register_block' );
 
@@ -364,7 +372,9 @@ function render_block( $attrs, $content ) {
 					?>
 					<div class="newspack-registration__main">
 						<div>
-							<?php Reader_Activation::render_third_party_auth(); ?>
+							<?php if ( empty( $attrs['hideOauth'] ) ) : ?>
+								<?php Reader_Activation::render_third_party_auth(); ?>
+							<?php endif; ?>
 							<div class="newspack-registration__inputs">
 								<input
 								<?php
