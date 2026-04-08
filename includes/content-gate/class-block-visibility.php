@@ -49,8 +49,7 @@ class Block_Visibility {
 	 * @return string
 	 */
 	public static function filter_render_block( $block_content, $block ) {
-		$target_blocks = self::get_target_blocks();
-		if ( ! in_array( $block['blockName'] ?? '', $target_blocks, true ) ) {
+		if ( ! in_array( $block['blockName'] ?? '', self::get_target_blocks(), true ) ) {
 			return $block_content;
 		}
 
@@ -61,22 +60,33 @@ class Block_Visibility {
 			return $block_content;
 		}
 
-		$rules = $block['attrs']['newspackAccessControlRules'] ?? [];
+		$mode       = $block['attrs']['newspackAccessControlMode'] ?? 'gate';
+		$visibility = $block['attrs']['newspackAccessControlVisibility'] ?? 'visible';
 
-		// Defensive cast: the block parser can occasionally yield a stdClass for
-		// object-typed attributes (e.g. after JSON round-trips).
-		if ( is_object( $rules ) ) {
-			$rules = (array) $rules;
-		} elseif ( ! is_array( $rules ) ) {
-			$rules = [];
-		}
+		if ( 'gate' === $mode ) {
+			$gate_ids = array_filter( array_map( 'intval', $block['attrs']['newspackAccessControlGateIds'] ?? [] ) );
+			if ( empty( $gate_ids ) ) {
+				return $block_content; // No gates selected → pass-through.
+			}
+		} else {
+			// Custom mode: check whether any rules are active before going further.
+			$rules = $block['attrs']['newspackAccessControlRules'] ?? [];
 
-		$has_registration = ! empty( $rules['registration']['active'] );
-		$has_access_rules = ! empty( $rules['custom_access']['active'] )
-							&& ! empty( $rules['custom_access']['access_rules'] );
+			// Defensive cast: the block parser can occasionally yield a stdClass for
+			// object-typed attributes (e.g. after JSON round-trips).
+			if ( is_object( $rules ) ) {
+				$rules = (array) $rules;
+			} elseif ( ! is_array( $rules ) ) {
+				$rules = [];
+			}
 
-		if ( ! $has_registration && ! $has_access_rules ) {
-			return $block_content;
+			$has_registration = ! empty( $rules['registration']['active'] );
+			$has_access_rules = ! empty( $rules['custom_access']['active'] )
+								&& ! empty( $rules['custom_access']['access_rules'] );
+
+			if ( ! $has_registration && ! $has_access_rules ) {
+				return $block_content; // No active rules → pass-through.
+			}
 		}
 
 		// Don't restrict content for users who can edit the post it's in.
@@ -86,8 +96,9 @@ class Block_Visibility {
 			return $block_content;
 		}
 
-		$visibility   = $block['attrs']['newspackAccessControlVisibility'] ?? 'visible';
-		$user_matches = self::evaluate_rules_for_user( $rules, $user_id );
+		$user_matches = ( 'gate' === $mode )
+			? self::evaluate_gate_rules_for_user( $gate_ids, $user_id )
+			: self::evaluate_rules_for_user( $rules, $user_id );
 
 		if ( 'visible' === $visibility ) {
 			return $user_matches ? $block_content : '';
@@ -97,15 +108,14 @@ class Block_Visibility {
 	}
 
 	/**
-	 * Register block attributes server-side for the three target block types.
+	 * Register block attributes server-side for target block types.
 	 *
 	 * @param array  $args       Block type arguments.
 	 * @param string $block_type Block type name.
 	 * @return array
 	 */
 	public static function register_block_type_args( $args, $block_type ) {
-		$target_blocks = self::get_target_blocks();
-		if ( ! in_array( $block_type, $target_blocks, true ) ) {
+		if ( ! in_array( $block_type, self::get_target_blocks(), true ) ) {
 			return $args;
 		}
 
@@ -115,6 +125,17 @@ class Block_Visibility {
 				'newspackAccessControlVisibility' => [
 					'type'    => 'string',
 					'default' => 'visible',
+				],
+				'newspackAccessControlMode'       => [
+					'type'    => 'string',
+					'default' => 'gate',
+				],
+				'newspackAccessControlGateIds'    => [
+					'type'    => 'array',
+					'default' => [],
+					'items'   => [
+						'type' => 'integer',
+					],
 				],
 				'newspackAccessControlRules'      => [
 					'type'    => 'object',
@@ -169,12 +190,23 @@ class Block_Visibility {
 					},
 					Access_Rules::get_access_rules()
 				),
+				'available_gates'        => array_values(
+					array_map(
+						function( $gate ) {
+							return [
+								'id'    => $gate['id'],
+								'title' => $gate['title'],
+							];
+						},
+						Content_Gate::get_gates( Content_Gate::GATE_CPT, 'publish' )
+					)
+				),
 			]
 		);
 	}
 
 	/**
-	 * Per-request cache: keyed by "{user_id}:{md5(rules)}".
+	 * Per-request cache: keyed by "{user_id}:{md5(rules)}" or "gate:{user_id}:{md5(gate_ids)}".
 	 *
 	 * @var bool[]
 	 */
@@ -199,7 +231,7 @@ class Block_Visibility {
 	}
 
 	/**
-	 * Evaluate whether a user matches the block's access rules.
+	 * Evaluate whether a user matches the block's custom access rules (with caching).
 	 *
 	 * @param array $rules   Parsed newspackAccessControlRules attribute.
 	 * @param int   $user_id User ID (0 for logged-out).
@@ -211,9 +243,67 @@ class Block_Visibility {
 			return self::$rules_match_cache[ $cache_key ];
 		}
 
-		$result = self::compute_rules_match( $rules, $user_id );
+		$result                            = self::compute_rules_match( $rules, $user_id );
 		self::$rules_match_cache[ $cache_key ] = $result;
 		return $result;
+	}
+
+	/**
+	 * Evaluate whether a user matches any of the given gate's access rules (with caching).
+	 *
+	 * Deleted or unpublished gates are silently skipped. If every gate in the list
+	 * is deleted/unpublished the result is true (pass-through — no active restriction).
+	 *
+	 * @param int[] $gate_ids Array of np_content_gate post IDs.
+	 * @param int   $user_id  User ID (0 for logged-out).
+	 * @return bool
+	 */
+	private static function evaluate_gate_rules_for_user( $gate_ids, $user_id ) {
+		$cache_key = 'gate:' . $user_id . ':' . md5( wp_json_encode( $gate_ids ) );
+		if ( isset( self::$rules_match_cache[ $cache_key ] ) ) {
+			return self::$rules_match_cache[ $cache_key ];
+		}
+
+		$result                            = self::compute_gate_rules_match( $gate_ids, $user_id );
+		self::$rules_match_cache[ $cache_key ] = $result;
+		return $result;
+	}
+
+	/**
+	 * Compute whether a user matches the access rules of any of the given gates (uncached).
+	 *
+	 * @param int[] $gate_ids Array of np_content_gate post IDs.
+	 * @param int   $user_id  User ID (0 for logged-out).
+	 * @return bool
+	 */
+	private static function compute_gate_rules_match( $gate_ids, $user_id ) {
+		$has_active_gate = false;
+
+		foreach ( $gate_ids as $gate_id ) {
+			$gate = Content_Gate::get_gate( $gate_id );
+
+			// Deleted gate: Content_Gate::get_gate() returns WP_Error when the post
+			// doesn't exist. Unpublished gates have status !== 'publish'. Both are
+			// skipped so only currently-active gates impose restrictions.
+			if ( \is_wp_error( $gate ) || 'publish' !== $gate['status'] ) {
+				continue;
+			}
+
+			$has_active_gate = true;
+
+			$rules = [
+				'registration'  => $gate['registration'],
+				'custom_access' => $gate['custom_access'],
+			];
+
+			// OR logic: the user passes if they satisfy any single active gate's rules.
+			if ( self::compute_rules_match( $rules, $user_id ) ) {
+				return true;
+			}
+		}
+
+		// All gates were deleted or unpublished → no active restriction → pass-through.
+		return ! $has_active_gate;
 	}
 
 	/**

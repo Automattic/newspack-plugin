@@ -292,6 +292,7 @@ class Newspack_Test_Block_Visibility extends WP_UnitTestCase {
 		return $this->make_block(
 			$block_name,
 			[
+				'newspackAccessControlMode'       => 'custom',
 				'newspackAccessControlRules'      => $rules,
 				'newspackAccessControlVisibility' => $visibility,
 			]
@@ -370,6 +371,7 @@ class Newspack_Test_Block_Visibility extends WP_UnitTestCase {
 		$block = $this->make_block(
 			'core/group',
 			[
+				'newspackAccessControlMode'  => 'custom',
 				'newspackAccessControlRules' => [ 'registration' => [ 'active' => true ] ],
 				// newspackAccessControlVisibility intentionally omitted.
 			]
@@ -460,5 +462,193 @@ class Newspack_Test_Block_Visibility extends WP_UnitTestCase {
 		Block_Visibility::evaluate_rules_for_user_public( $rules, $this->test_user_id );
 		// Callback fired only once despite two calls with identical rules + user.
 		$this->assertSame( 1, $call_count );
+	}
+
+	// -----------------------------------------------------------------------
+	// Gate mode tests
+	// -----------------------------------------------------------------------
+
+	/**
+	 * Helper: create a published gate post and optionally set its registration meta.
+	 *
+	 * @param bool   $registration_active Whether to activate the registration rule.
+	 * @param string $status            Post status. Default 'publish'.
+	 * @return int Gate post ID.
+	 */
+	private function make_gate( $registration_active = true, $status = 'publish' ) {
+		$gate_id = $this->factory->post->create(
+			[
+				'post_type'   => \Newspack\Content_Gate::GATE_CPT,
+				'post_status' => $status,
+			]
+		);
+		if ( $registration_active ) {
+			update_post_meta( $gate_id, 'registration', [ 'active' => true ] );
+		}
+		return $gate_id;
+	}
+
+	/**
+	 * Gate mode with no gates selected passes through regardless of user.
+	 */
+	public function test_gate_mode_no_gates_passes_through() {
+		wp_set_current_user( 0 );
+		Block_Visibility::reset_cache_for_tests();
+		$block  = $this->make_block(
+			'core/group',
+			[
+				'newspackAccessControlMode'    => 'gate',
+				'newspackAccessControlGateIds' => [],
+			]
+		);
+		$result = Block_Visibility::filter_render_block( '<div>x</div>', $block );
+		$this->assertSame( '<div>x</div>', $result );
+	}
+
+	/**
+	 * Gate mode: user matching an active gate's rules sees the block.
+	 */
+	public function test_gate_mode_matching_user_sees_block() {
+		$gate_id = $this->make_gate();
+
+		wp_set_current_user( $this->test_user_id );
+		Block_Visibility::reset_cache_for_tests();
+
+		$block  = $this->make_block(
+			'core/group',
+			[
+				'newspackAccessControlMode'    => 'gate',
+				'newspackAccessControlGateIds' => [ $gate_id ],
+			]
+		);
+		$result = Block_Visibility::filter_render_block( '<div>members</div>', $block );
+		$this->assertSame( '<div>members</div>', $result );
+	}
+
+	/**
+	 * Gate mode: user not matching an active gate's rules does not see the block.
+	 */
+	public function test_gate_mode_non_matching_user_hidden() {
+		$gate_id = $this->make_gate();
+
+		wp_set_current_user( 0 );
+		Block_Visibility::reset_cache_for_tests();
+
+		$block  = $this->make_block(
+			'core/group',
+			[
+				'newspackAccessControlMode'    => 'gate',
+				'newspackAccessControlGateIds' => [ $gate_id ],
+			]
+		);
+		$result = Block_Visibility::filter_render_block( '<div>members</div>', $block );
+		$this->assertSame( '', $result );
+	}
+
+	/**
+	 * Gate mode: an unpublished (draft) gate is skipped — results in pass-through.
+	 */
+	public function test_gate_mode_unpublished_gate_passes_through() {
+		$gate_id = $this->make_gate( true, 'draft' );
+
+		wp_set_current_user( 0 );
+		Block_Visibility::reset_cache_for_tests();
+
+		$block  = $this->make_block(
+			'core/group',
+			[
+				'newspackAccessControlMode'    => 'gate',
+				'newspackAccessControlGateIds' => [ $gate_id ],
+			]
+		);
+		$result = Block_Visibility::filter_render_block( '<div>x</div>', $block );
+		$this->assertSame( '<div>x</div>', $result );
+	}
+
+	/**
+	 * Gate mode: a permanently deleted gate is skipped — results in pass-through.
+	 */
+	public function test_gate_mode_deleted_gate_passes_through() {
+		$gate_id = $this->make_gate();
+		wp_delete_post( $gate_id, true ); // Force-delete.
+
+		wp_set_current_user( 0 );
+		Block_Visibility::reset_cache_for_tests();
+
+		$block  = $this->make_block(
+			'core/group',
+			[
+				'newspackAccessControlMode'    => 'gate',
+				'newspackAccessControlGateIds' => [ $gate_id ],
+			]
+		);
+		$result = Block_Visibility::filter_render_block( '<div>x</div>', $block );
+		$this->assertSame( '<div>x</div>', $result );
+	}
+
+	/**
+	 * Gate mode: a deleted gate alongside an active gate; only the active gate is evaluated.
+	 */
+	public function test_gate_mode_deleted_gate_does_not_affect_active_gate() {
+		$active_gate_id  = $this->make_gate();
+		$deleted_gate_id = $this->make_gate();
+		wp_delete_post( $deleted_gate_id, true );
+
+		// Logged-out user does not satisfy the active gate's registration rule.
+		wp_set_current_user( 0 );
+		Block_Visibility::reset_cache_for_tests();
+
+		$block  = $this->make_block(
+			'core/group',
+			[
+				'newspackAccessControlMode'    => 'gate',
+				'newspackAccessControlGateIds' => [ $active_gate_id, $deleted_gate_id ],
+			]
+		);
+		$result = Block_Visibility::filter_render_block( '<div>x</div>', $block );
+		$this->assertSame( '', $result );
+	}
+
+	/**
+	 * Gate mode: OR logic — user matching any one of multiple active gates sees the block.
+	 */
+	public function test_gate_mode_or_logic_any_matching_gate_passes() {
+		// Gate A: requires custom access rule that only matches test_user_id.
+		$gate_a = $this->make_gate( false ); // No registration rule.
+		update_post_meta(
+			$gate_a,
+			'custom_access',
+			[
+				'active'       => true,
+				'access_rules' => [
+					[
+						[
+							'slug'  => 'test_rule',
+							'value' => $this->test_user_id,
+						],
+					],
+				],
+			]
+		);
+
+		// Gate B: requires registration (logged-in only).
+		$gate_b = $this->make_gate( true );
+
+		// A logged-out user matches neither gate.
+		wp_set_current_user( 0 );
+		Block_Visibility::reset_cache_for_tests();
+		$block = $this->make_block(
+			'core/group',
+			[
+				'newspackAccessControlMode'    => 'gate',
+				'newspackAccessControlGateIds' => [ $gate_a, $gate_b ],
+			]
+		);
+		$this->assertSame( '', Block_Visibility::filter_render_block( '<div>x</div>', $block ) );
+
+		// The test user matches Gate A (custom rule), so they see the block.
+		wp_set_current_user( $this->test_user_id );
+		Block_Visibility::reset_cache_for_tests();
+		$this->assertSame( '<div>x</div>', Block_Visibility::filter_render_block( '<div>x</div>', $block ) );
 	}
 }

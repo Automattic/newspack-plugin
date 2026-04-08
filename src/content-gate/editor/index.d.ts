@@ -41,9 +41,15 @@ type BlockVisibilityRules = {
 	registration?: RegistrationRule;
 	custom_access?: CustomAccessRule;
 };
+type GateOption = {
+	id: number;
+	title: string;
+};
 type BlockVisibilityAttributes = {
 	newspackAccessControlRules: BlockVisibilityRules;
 	newspackAccessControlVisibility: string;
+	newspackAccessControlMode: string;
+	newspackAccessControlGateIds: number[];
 	[ key: string ]: unknown;
 };
 type BlockEditProps = {
@@ -56,5 +62,6 @@ type BlockEditProps = {
 interface Window {
 	newspackBlockVisibility: {
 		available_access_rules: Record< string, AccessRuleConfig >;
+		available_gates: GateOption[];
 	};
 }

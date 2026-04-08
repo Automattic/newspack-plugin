@@ -45,6 +45,15 @@ addFilter( 'blocks.registerBlockType', 'newspack-plugin/block-visibility/attribu
 				type: 'string',
 				default: 'visible',
 			},
+			newspackAccessControlMode: {
+				type: 'string',
+				default: 'gate',
+			},
+			newspackAccessControlGateIds: {
+				type: 'array',
+				default: [],
+				items: { type: 'integer' },
+			},
 			newspackAccessControlRules: {
 				type: 'object',
 				default: {},
@@ -59,9 +68,17 @@ addFilter( 'blocks.registerBlockType', 'newspack-plugin/block-visibility/attribu
 const availableAccessRules: Record< string, AccessRuleConfig > = window.newspackBlockVisibility?.available_access_rules ?? {};
 
 /**
+ * Available gates from localized data.
+ */
+const availableGates: GateOption[] = window.newspackBlockVisibility?.available_gates ?? [];
+
+/**
  * Whether any rules are currently active on the block.
  */
-function hasActiveRules( rules: BlockVisibilityRules ): boolean {
+function hasActiveRules( rules: BlockVisibilityRules, mode: string, gateIds: number[] ): boolean {
+	if ( 'gate' === mode ) {
+		return gateIds.length > 0;
+	}
 	return !! rules?.registration?.active || !! rules?.custom_access?.active;
 }
 
@@ -93,6 +110,31 @@ const VisibilityControl = ( {
 		</ToggleGroupControl>
 	</PanelRow>
 );
+
+/**
+ * Gate selector: a FormTokenField that lets the editor link one or more gates.
+ * A reader needs to satisfy any one of the selected gates' rules to match.
+ */
+const GateControls = ( { gateIds, onChange }: { gateIds: number[]; onChange: ( ids: number[] ) => void } ) => {
+	const selectedLabels = availableGates.filter( g => gateIds.includes( g.id ) ).map( g => g.title );
+
+	return (
+		<PanelRow>
+			<FormTokenField
+				label={ __( 'Gates', 'newspack-plugin' ) }
+				help={ __( 'Readers with access to any selected gate will match.', 'newspack-plugin' ) }
+				value={ selectedLabels }
+				suggestions={ availableGates.map( g => g.title ) }
+				onChange={ ( tokens: ( string | { value: string } )[] ) => {
+					const labels = tokens.map( t => ( typeof t === 'string' ? t : t.value ) );
+					onChange( availableGates.filter( g => labels.includes( g.title ) ).map( g => g.id ) );
+				} }
+				__experimentalExpandOnFocus
+				__next40pxDefaultSize
+			/>
+		</PanelRow>
+	);
+};
 
 /**
  * Rules whose options must be fetched dynamically.
@@ -253,20 +295,22 @@ const RegistrationControls = ( {
 const BlockVisibilityPanel = ( { attributes, setAttributes }: BlockEditProps ) => {
 	const rules: BlockVisibilityRules = attributes.newspackAccessControlRules ?? {};
 	const visibility: string = attributes.newspackAccessControlVisibility ?? 'visible';
+	const mode: string = attributes.newspackAccessControlMode ?? 'gate';
+	const gateIds: number[] = attributes.newspackAccessControlGateIds ?? [];
 
 	const registration: RegistrationRule = rules.registration ?? { active: false };
 	const customAccess: CustomAccessRule = rules.custom_access ?? { active: false, access_rules: [] };
 	// Flatten grouped OR rules for display: [[rule]] → [rule]
 	const activeRules: ActiveRule[] = customAccess.access_rules.map( group => group[ 0 ] ).filter( Boolean );
 
-	const rulesActive = hasActiveRules( rules );
+	const rulesActive = hasActiveRules( rules, mode, gateIds );
 
 	const updateRules = ( updates: Partial< BlockVisibilityRules > ) => {
 		const newRules: BlockVisibilityRules = { ...rules, ...updates };
-		const stillActive = hasActiveRules( newRules );
+		const stillActive = hasActiveRules( newRules, mode, gateIds );
 		setAttributes( {
 			newspackAccessControlRules: newRules,
-			// Reset visibility to 'visible' when all rules are cleared.
+			// Reset visibility to 'visible' when all custom rules are cleared.
 			...( ! stillActive ? { newspackAccessControlVisibility: 'visible' } : {} ),
 		} );
 	};
@@ -299,6 +343,43 @@ const BlockVisibilityPanel = ( { attributes, setAttributes }: BlockEditProps ) =
 				title={ __( 'Access Control', 'newspack-plugin' ) }
 				initialOpen={ rulesActive }
 			>
+				{ /* Mode toggle: Gate (default) or Custom */ }
+				<PanelRow>
+					<ToggleGroupControl
+						label={ __( 'Mode', 'newspack-plugin' ) }
+						value={ mode }
+						onChange={ v => setAttributes( { newspackAccessControlMode: String( v ?? 'gate' ) } ) }
+						isBlock
+						__next40pxDefaultSize
+					>
+						<ToggleGroupControlOption value="gate" label={ __( 'Gate', 'newspack-plugin' ) } />
+						<ToggleGroupControlOption value="custom" label={ __( 'Custom', 'newspack-plugin' ) } />
+					</ToggleGroupControl>
+				</PanelRow>
+
+				{ 'gate' === mode && (
+					<GateControls
+						gateIds={ gateIds }
+						onChange={ ids => {
+							setAttributes( {
+								newspackAccessControlGateIds: ids,
+								// Reset visibility when the last gate is removed.
+								...( ids.length === 0 ? { newspackAccessControlVisibility: 'visible' } : {} ),
+							} );
+						} }
+					/>
+				) }
+
+				{ 'custom' === mode && (
+					<>
+						{ /* Registration toggle */ }
+						<RegistrationControls registration={ registration } onChange={ setRegistration } />
+
+						{ /* Access rule toggles */ }
+						<AccessRulesControls activeRules={ activeRules } onChange={ setAccessRules } />
+					</>
+				) }
+
 				<VisibilityControl
 					label={ __( 'Block visibility', 'newspack-plugin' ) }
 					help={ __( 'Visibility of the content for readers who match the selected access rules.', 'newspack-plugin' ) }
@@ -306,12 +387,6 @@ const BlockVisibilityPanel = ( { attributes, setAttributes }: BlockEditProps ) =
 					onChange={ ( v: string ) => setAttributes( { newspackAccessControlVisibility: v } ) }
 					disabled={ ! rulesActive }
 				/>
-
-				{ /* Registration toggle */ }
-				<RegistrationControls registration={ registration } onChange={ setRegistration } />
-
-				{ /* Access rule toggles */ }
-				<AccessRulesControls activeRules={ activeRules } onChange={ setAccessRules } />
 			</PanelBody>
 		</InspectorControls>
 	);
