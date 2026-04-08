@@ -354,6 +354,15 @@ class Newspack_Test_Block_Visibility extends WP_UnitTestCase {
 	}
 
 	/**
+	 * core/group block has both visibility attributes registered server-side.
+	 */
+	public function test_group_block_has_visibility_attribute_registered() {
+		$block_type = \WP_Block_Type_Registry::get_instance()->get_registered( 'core/group' );
+		$this->assertArrayHasKey( 'newspackAccessControlVisibility', $block_type->attributes );
+		$this->assertArrayHasKey( 'newspackAccessControlRules', $block_type->attributes );
+	}
+
+	/**
 	 * Caching: second call returns cached result without re-evaluation.
 	 */
 	public function test_result_is_cached() {

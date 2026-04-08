@@ -71,6 +71,24 @@ class Block_Visibility {
 	 * @return array
 	 */
 	public static function register_block_type_args( $args, $block_type ) {
+		$target_blocks = [ 'core/group', 'core/stack', 'core/row' ];
+		if ( ! in_array( $block_type, $target_blocks, true ) ) {
+			return $args;
+		}
+
+		$args['attributes'] = array_merge(
+			$args['attributes'] ?? [],
+			[
+				'newspackAccessControlVisibility' => [
+					'type'    => 'string',
+					'default' => 'visible',
+				],
+				'newspackAccessControlRules'      => [
+					'type'    => 'object',
+					'default' => new \stdClass(),
+				],
+			]
+		);
 		return $args;
 	}
 
