@@ -59,8 +59,8 @@ if ( $product_id ) {
 	</p>
 	<!-- /wp:paragraph -->
 
-	<!-- wp:columns {"metadata":{"name":"<?php esc_html_e( 'Content', 'newspack-plugin' ); ?>"},"className":"is-style-borders","style":{"spacing":{"margin":{"top":"var:preset|spacing|80","bottom":"var:preset|spacing|80"}}}} -->
-	<div class="wp-block-columns is-style-borders" style="margin-top:var(--wp--preset--spacing--80);margin-bottom:var(--wp--preset--spacing--80)">
+	<!-- wp:columns {"metadata":{"name":"<?php esc_html_e( 'Content', 'newspack-plugin' ); ?>"},"className":"is-style-borders","style":{"spacing":{"margin":{"top":"var:preset|spacing|80","bottom":"0"}}}} -->
+	<div class="wp-block-columns is-style-borders" style="margin-top:var(--wp--preset--spacing--80);margin-bottom:0">
 		<!-- wp:column -->
 		<div class="wp-block-column">
 			<!-- wp:paragraph {"align":"center"} -->
