@@ -26,9 +26,6 @@ import { __ } from '@wordpress/i18n';
 import './editor.scss';
 
 /**
- */
-
-/**
  * Target block types that receive access control attributes.
  */
 const TARGET_BLOCKS = [ 'core/group', 'core/stack', 'core/row' ];
@@ -64,7 +61,7 @@ const availableAccessRules: Record< string, AccessRuleConfig > = window.newspack
 /**
  * Whether any rules are currently active on the block.
  */
-function hasActiveRules( rules: Record< string, any > ): boolean {
+function hasActiveRules( rules: BlockVisibilityRules ): boolean {
 	return !! rules?.registration?.active || !! rules?.custom_access?.active;
 }
 
@@ -83,7 +80,7 @@ const VisibilityControl = ( {
 	disabled: boolean;
 } ) => (
 	<PanelRow>
-		<ToggleGroupControl label={ label } help={ help } value={ value } onChange={ onChange } isBlock __next40pxDefaultSize>
+		<ToggleGroupControl label={ label } help={ help } value={ value } onChange={ v => onChange( String( v ?? 'visible' ) ) } isBlock __next40pxDefaultSize>
 			<ToggleGroupControlOption disabled={ disabled } value="visible" label={ __( 'Visible to', 'newspack-plugin' ) } />
 			<ToggleGroupControlOption disabled={ disabled } value="hidden" label={ __( 'Hidden to', 'newspack-plugin' ) } />
 		</ToggleGroupControl>
@@ -93,7 +90,7 @@ const VisibilityControl = ( {
 /**
  * Rules whose options must be fetched dynamically.
  */
-const DYNAMIC_OPTION_RULES: Record< string, { path: string; mapItem: ( item: DynamicOptionItem ) => { value: string | number; label: string } } > = {
+const DYNAMIC_OPTION_RULES: Record< string, { path: string; mapItem: ( item: DynamicOptionItem ) => AccessRuleOption } > = {
 	institution: {
 		path: '/wp/v2/np_institution?per_page=100&context=edit',
 		mapItem: ( item: DynamicOptionItem ) => ( { value: item.id, label: item.title.raw } ),
@@ -104,18 +101,28 @@ const DYNAMIC_OPTION_RULES: Record< string, { path: string; mapItem: ( item: Dyn
  * Value control for a single access rule.
  * Renders FormTokenField for rules with options, TextControl for free-text rules.
  */
-const AccessRuleValueControl = ( { slug, config, value, onChange }: any ) => {
+const AccessRuleValueControl = ( {
+	slug,
+	config,
+	value,
+	onChange,
+}: {
+	slug: string;
+	config: AccessRuleConfig;
+	value: ActiveRule[ 'value' ];
+	onChange: ( value: ActiveRule[ 'value' ] ) => void;
+} ) => {
 	const dynamicConfig = DYNAMIC_OPTION_RULES[ slug ];
-	const staticOptions: Array< { value: string | number; label: string } > = config.options ?? [];
+	const staticOptions: AccessRuleOption[] = config.options ?? [];
 
-	const [ options, setOptions ] = useState( staticOptions );
+	const [ options, setOptions ] = useState< AccessRuleOption[] >( staticOptions );
 
 	useEffect( () => {
 		if ( ! dynamicConfig ) {
 			return;
 		}
 		let cancelled = false;
-		apiFetch< any[] >( { path: dynamicConfig.path } )
+		apiFetch< DynamicOptionItem[] >( { path: dynamicConfig.path } )
 			.then( items => {
 				if ( ! cancelled ) {
 					setOptions( items.map( dynamicConfig.mapItem ) );
@@ -129,8 +136,9 @@ const AccessRuleValueControl = ( { slug, config, value, onChange }: any ) => {
 
 	if ( options.length > 0 ) {
 		// Map stored IDs to labels for display; silently drop IDs with no matching option.
+		const valueArr = Array.isArray( value ) ? value : [];
 		const selectedLabels = options
-			.filter( o => ( Array.isArray( value ) ? value : [] ).some( v => String( v ) === String( o.value ) ) )
+			.filter( o => valueArr.some( v => String( v ) === String( o.value ) ) )
 			.map( o => o.label );
 
 		return (
@@ -138,7 +146,10 @@ const AccessRuleValueControl = ( { slug, config, value, onChange }: any ) => {
 				label=""
 				value={ selectedLabels }
 				suggestions={ options.map( o => o.label ) }
-				onChange={ ( labels: string[] ) => onChange( options.filter( o => labels.includes( o.label ) ).map( o => o.value ) ) }
+				onChange={ ( tokens: ( string | { value: string } )[] ) => {
+					const labels = tokens.map( t => ( typeof t === 'string' ? t : t.value ) );
+					onChange( options.filter( o => labels.includes( o.label ) ).map( o => o.value ) );
+				} }
 				__experimentalExpandOnFocus
 				__next40pxDefaultSize
 			/>
@@ -152,31 +163,37 @@ const AccessRuleValueControl = ( { slug, config, value, onChange }: any ) => {
 			placeholder={ config.placeholder ?? '' }
 			help={ __( 'Separate with commas.', 'newspack-plugin' ) }
 			value={ typeof value === 'string' ? value : '' }
-			onChange={ onChange }
+			onChange={ onChange as ( value: string ) => void }
 			__next40pxDefaultSize
 		/>
 	);
 };
 
 /** One toggle + value control per available access rule. */
-const AccessRulesControls = ( { activeRules, onChange }: any ) => {
-	const handleToggle = ( slug: string, defaultValue: any ) => {
-		const has = activeRules.some( ( r: any ) => r.slug === slug );
+const AccessRulesControls = ( {
+	activeRules,
+	onChange,
+}: {
+	activeRules: ActiveRule[];
+	onChange: ( rules: ActiveRule[] ) => void;
+} ) => {
+	const handleToggle = ( slug: string, defaultValue: ActiveRule[ 'value' ] ) => {
+		const has = activeRules.some( r => r.slug === slug );
 		if ( has ) {
-			onChange( activeRules.filter( ( r: any ) => r.slug !== slug ) );
+			onChange( activeRules.filter( r => r.slug !== slug ) );
 		} else {
 			onChange( [ ...activeRules, { slug, value: defaultValue } ] );
 		}
 	};
 
-	const handleValueChange = ( slug: string, value: any ) => {
-		onChange( activeRules.map( ( r: any ) => ( r.slug === slug ? { ...r, value } : r ) ) );
+	const handleValueChange = ( slug: string, value: ActiveRule[ 'value' ] ) => {
+		onChange( activeRules.map( r => ( r.slug === slug ? { ...r, value } : r ) ) );
 	};
 
 	return (
 		<>
-			{ Object.entries( availableAccessRules ).map( ( [ slug, config ]: [ string, any ] ) => {
-				const activeRule = activeRules.find( ( r: any ) => r.slug === slug );
+			{ Object.entries( availableAccessRules ).map( ( [ slug, config ] ) => {
+				const activeRule = activeRules.find( r => r.slug === slug );
 				return (
 					<PanelRow key={ slug }>
 						<div>
@@ -191,7 +208,7 @@ const AccessRulesControls = ( { activeRules, onChange }: any ) => {
 									slug={ slug }
 									config={ config }
 									value={ activeRule.value }
-									onChange={ ( v: any ) => handleValueChange( slug, v ) }
+									onChange={ v => handleValueChange( slug, v ) }
 								/>
 							) }
 						</div>
@@ -203,7 +220,13 @@ const AccessRulesControls = ( { activeRules, onChange }: any ) => {
 };
 
 /** Registration section: logged-in toggle + optional verification sub-toggle. */
-const RegistrationControls = ( { registration, onChange }: any ) => (
+const RegistrationControls = ( {
+	registration,
+	onChange,
+}: {
+	registration: RegistrationRule;
+	onChange: ( registration: RegistrationRule ) => void;
+} ) => (
 	<PanelRow>
 		<div style={ { width: '100%' } }>
 			<ToggleControl
@@ -227,19 +250,19 @@ const RegistrationControls = ( { registration, onChange }: any ) => (
 /**
  * Inspector panel for block access control.
  */
-const BlockVisibilityPanel = ( { attributes, setAttributes }: any ) => {
-	const rules: Record< string, any > = attributes.newspackAccessControlRules ?? {};
+const BlockVisibilityPanel = ( { attributes, setAttributes }: BlockEditProps ) => {
+	const rules: BlockVisibilityRules = attributes.newspackAccessControlRules ?? {};
 	const visibility: string = attributes.newspackAccessControlVisibility ?? 'visible';
 
-	const registration = rules.registration ?? {};
-	const customAccess = rules.custom_access ?? {};
+	const registration: RegistrationRule = rules.registration ?? { active: false };
+	const customAccess: CustomAccessRule = rules.custom_access ?? { active: false, access_rules: [] };
 	// Flatten grouped OR rules for display: [[rule]] → [rule]
-	const activeRules: any[] = ( customAccess.access_rules ?? [] ).map( ( group: any[] ) => group[ 0 ] ).filter( Boolean );
+	const activeRules: ActiveRule[] = customAccess.access_rules.map( group => group[ 0 ] ).filter( Boolean );
 
 	const rulesActive = hasActiveRules( rules );
 
-	const updateRules = ( updates: Record< string, any > ) => {
-		const newRules = { ...rules, ...updates };
+	const updateRules = ( updates: Partial< BlockVisibilityRules > ) => {
+		const newRules: BlockVisibilityRules = { ...rules, ...updates };
 		const stillActive = hasActiveRules( newRules );
 		setAttributes( {
 			newspackAccessControlRules: newRules,
@@ -248,7 +271,7 @@ const BlockVisibilityPanel = ( { attributes, setAttributes }: any ) => {
 		} );
 	};
 
-	const setRegistration = ( newRegistration: Record< string, any > ) => {
+	const setRegistration = ( newRegistration: RegistrationRule ) => {
 		// Ensure require_verification is cleared when registration is turned off.
 		if ( ! newRegistration.active ) {
 			newRegistration.require_verification = false;
@@ -256,8 +279,8 @@ const BlockVisibilityPanel = ( { attributes, setAttributes }: any ) => {
 		updateRules( { registration: newRegistration } );
 	};
 
-	const setAccessRules = ( flatRules: any[] ) => {
-		const grouped = flatRules.map( ( rule: any ) => [ rule ] );
+	const setAccessRules = ( flatRules: ActiveRule[] ) => {
+		const grouped: ActiveRule[][] = flatRules.map( rule => [ rule ] );
 		updateRules( {
 			custom_access: {
 				...customAccess,
@@ -299,7 +322,7 @@ addFilter(
 	'editor.BlockEdit',
 	'newspack-plugin/block-visibility/inspector',
 	createHigherOrderComponent( BlockEdit => {
-		const WithBlockVisibilityPanel = ( props: any ) => {
+		const WithBlockVisibilityPanel = ( props: BlockEditProps ) => {
 			if ( ! TARGET_BLOCKS.includes( props.name ) ) {
 				return <BlockEdit { ...props } />;
 			}
