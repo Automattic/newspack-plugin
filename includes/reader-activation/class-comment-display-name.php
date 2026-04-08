@@ -23,6 +23,7 @@ final class Comment_Display_Name {
 	public static function init() {
 		\add_action( 'comment_form_logged_in_after', [ __CLASS__, 'render_display_name_field' ] );
 		\add_filter( 'preprocess_comment', [ __CLASS__, 'validate_display_name' ] );
+		\add_action( 'comment_post', [ __CLASS__, 'save_display_name' ] );
 	}
 
 	/**
@@ -76,6 +77,34 @@ final class Comment_Display_Name {
 		}
 
 		return $commentdata;
+	}
+
+	/**
+	 * Save the display name to the user profile after a comment is posted.
+	 *
+	 * @param int $comment_id Comment ID.
+	 */
+	public static function save_display_name( $comment_id ) {
+		if ( ! self::should_prompt() ) {
+			return;
+		}
+
+		$display_name = isset( $_POST['comment_display_name'] ) ? \sanitize_text_field( \wp_unslash( $_POST['comment_display_name'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Missing
+		if ( empty( $display_name ) ) {
+			return;
+		}
+
+		$user_id   = \get_current_user_id();
+		$user_data = [
+			'ID'           => $user_id,
+			'display_name' => $display_name,
+		];
+
+		$name_parts = explode( ' ', $display_name, 2 );
+		$user_data['first_name'] = $name_parts[0];
+		$user_data['last_name']  = $name_parts[1] ?? '';
+
+		\wp_update_user( $user_data );
 	}
 
 	/**

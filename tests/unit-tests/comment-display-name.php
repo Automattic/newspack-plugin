@@ -181,4 +181,92 @@ class Newspack_Test_Comment_Display_Name extends WP_UnitTestCase {
 
 		wp_delete_user( $admin_id );
 	}
+
+	/**
+	 * Test that save_display_name updates the user profile.
+	 */
+	public function test_save_updates_display_name() {
+		$user_id = $this->create_generic_reader();
+		$_POST['comment_display_name'] = 'Jane Doe';
+
+		$post_id    = $this->factory->post->create();
+		$comment_id = $this->factory->comment->create(
+			[
+				'comment_post_ID' => $post_id,
+				'user_id'         => $user_id,
+			]
+		);
+
+		Comment_Display_Name::save_display_name( $comment_id );
+
+		$user = get_userdata( $user_id );
+		$this->assertEquals( 'Jane Doe', $user->display_name );
+		$this->assertEquals( 'Jane', $user->first_name );
+		$this->assertEquals( 'Doe', $user->last_name );
+		$this->assertFalse( Reader_Activation::reader_has_generic_display_name( $user_id ) );
+
+		wp_delete_user( $user_id );
+		wp_delete_comment( $comment_id, true );
+		unset( $_POST['comment_display_name'] );
+	}
+
+	/**
+	 * Test that save_display_name handles single-word names.
+	 */
+	public function test_save_handles_single_word_name() {
+		$user_id = $this->create_generic_reader();
+		$_POST['comment_display_name'] = 'Madonna';
+
+		$post_id    = $this->factory->post->create();
+		$comment_id = $this->factory->comment->create(
+			[
+				'comment_post_ID' => $post_id,
+				'user_id'         => $user_id,
+			]
+		);
+
+		Comment_Display_Name::save_display_name( $comment_id );
+
+		$user = get_userdata( $user_id );
+		$this->assertEquals( 'Madonna', $user->display_name );
+		$this->assertFalse( Reader_Activation::reader_has_generic_display_name( $user_id ) );
+
+		wp_delete_user( $user_id );
+		wp_delete_comment( $comment_id, true );
+		unset( $_POST['comment_display_name'] );
+	}
+
+	/**
+	 * Test that save_display_name does nothing for non-reader users.
+	 */
+	public function test_save_skips_non_reader() {
+		$admin_id = wp_insert_user(
+			[
+				'user_login'   => 'test-admin-3',
+				'user_pass'    => wp_generate_password(),
+				'user_email'   => 'admin3@example.com',
+				'display_name' => 'admin3',
+				'role'         => 'administrator',
+			]
+		);
+		wp_set_current_user( $admin_id );
+		$_POST['comment_display_name'] = 'New Name';
+
+		$post_id    = $this->factory->post->create();
+		$comment_id = $this->factory->comment->create(
+			[
+				'comment_post_ID' => $post_id,
+				'user_id'         => $admin_id,
+			]
+		);
+
+		Comment_Display_Name::save_display_name( $comment_id );
+
+		$user = get_userdata( $admin_id );
+		$this->assertEquals( 'admin3', $user->display_name );
+
+		wp_delete_user( $admin_id );
+		wp_delete_comment( $comment_id, true );
+		unset( $_POST['comment_display_name'] );
+	}
 }
