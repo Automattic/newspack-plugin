@@ -1,5 +1,5 @@
 import { on, off } from './events';
-import segments from './segments';
+import segments, { reset } from './segments';
 
 const sampleSegments = {
 	42: { name: 'Loyal Readers', criteria: [ { criteria_id: 'articles_read', value: { min: 5 } } ], priority: 0 },
@@ -8,7 +8,7 @@ const sampleSegments = {
 
 describe( 'segments', () => {
 	beforeEach( () => {
-		segments.reset();
+		reset();
 	} );
 	it( 'should return empty object initially', () => {
 		expect( segments.getAll() ).toEqual( {} );
@@ -31,6 +31,7 @@ describe( 'segments', () => {
 		const detail = callback.mock.calls[ 0 ][ 0 ].detail;
 		expect( detail.segmentId ).toBe( '42' );
 		expect( detail.segment.name ).toBe( 'Loyal Readers' );
+		expect( detail.all ).toEqual( expect.objectContaining( { 42: expect.any( Object ) } ) );
 		off( 'segment', callback );
 	} );
 	it( 'should not re-emit when setting same match', () => {
@@ -61,6 +62,20 @@ describe( 'segments', () => {
 		expect( segments.getMatch() ).toBeNull();
 		expect( callback ).toHaveBeenCalled();
 		expect( callback.mock.calls[ 0 ][ 0 ].detail.segmentId ).toBeNull();
+		off( 'segment', callback );
+	} );
+	it( 'should re-emit when register resolves a pending match', () => {
+		const callback = jest.fn();
+		on( 'segment', callback );
+		segments.setMatch( '42' );
+		expect( segments.getMatch() ).toBeNull();
+		callback.mockClear();
+		segments.register( sampleSegments );
+		expect( callback ).toHaveBeenCalled();
+		const detail = callback.mock.calls[ 0 ][ 0 ].detail;
+		expect( detail.segmentId ).toBe( '42' );
+		expect( detail.segment.name ).toBe( 'Loyal Readers' );
+		expect( segments.getMatch().id ).toBe( '42' );
 		off( 'segment', callback );
 	} );
 } );
