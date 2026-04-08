@@ -26,6 +26,17 @@ class Newspack_Test_Block_Visibility extends WP_UnitTestCase {
 	public function set_up() {
 		parent::set_up();
 		$this->test_user_id = $this->factory->user->create( [ 'role' => 'subscriber' ] );
+
+		// Register a simple test rule: passes only for our test user.
+		\Newspack\Access_Rules::register_rule(
+			[
+				'id'       => 'test_rule',
+				'name'     => 'Test Rule',
+				'callback' => function( $user_id, $value ) {
+					return intval( $user_id ) === intval( $value );
+				},
+			]
+		);
 	}
 
 	/**
@@ -195,5 +206,78 @@ class Newspack_Test_Block_Visibility extends WP_UnitTestCase {
 			],
 		];
 		$this->assertTrue( Block_Visibility::evaluate_rules_for_user_public( $rules, $this->test_user_id ) );
+	}
+
+	/**
+	 * Custom access rule: matching user passes.
+	 */
+	public function test_access_rule_matching_user_passes() {
+		$rules = [
+			'custom_access' => [
+				'active'       => true,
+				'access_rules' => [ [ [ 'slug' => 'test_rule', 'value' => $this->test_user_id ] ] ],
+			],
+		];
+		$this->assertTrue( Block_Visibility::evaluate_rules_for_user_public( $rules, $this->test_user_id ) );
+	}
+
+	/**
+	 * Custom access rule: non-matching user fails.
+	 */
+	public function test_access_rule_non_matching_user_fails() {
+		$other_user = $this->factory->user->create( [ 'role' => 'subscriber' ] );
+		$rules      = [
+			'custom_access' => [
+				'active'       => true,
+				'access_rules' => [ [ [ 'slug' => 'test_rule', 'value' => $this->test_user_id ] ] ],
+			],
+		];
+		$this->assertFalse( Block_Visibility::evaluate_rules_for_user_public( $rules, $other_user ) );
+	}
+
+	/**
+	 * AND logic: registration + access rules — both must pass.
+	 */
+	public function test_and_logic_both_must_pass() {
+		$rules = [
+			'registration'  => [ 'active' => true ],
+			'custom_access' => [
+				'active'       => true,
+				'access_rules' => [ [ [ 'slug' => 'test_rule', 'value' => $this->test_user_id ] ] ],
+			],
+		];
+		// Logged-in user who matches the access rule: passes.
+		$this->assertTrue( Block_Visibility::evaluate_rules_for_user_public( $rules, $this->test_user_id ) );
+
+		// Logged-out user: fails (registration not met).
+		Block_Visibility::reset_cache_for_tests();
+		$this->assertFalse( Block_Visibility::evaluate_rules_for_user_public( $rules, 0 ) );
+	}
+
+	/**
+	 * Caching: second call returns cached result without re-evaluation.
+	 */
+	public function test_result_is_cached() {
+		$call_count = 0;
+		\Newspack\Access_Rules::register_rule(
+			[
+				'id'       => 'counting_rule',
+				'name'     => 'Counting Rule',
+				'callback' => function( $user_id, $value ) use ( &$call_count ) {
+					$call_count++;
+					return true;
+				},
+			]
+		);
+		$rules = [
+			'custom_access' => [
+				'active'       => true,
+				'access_rules' => [ [ [ 'slug' => 'counting_rule', 'value' => null ] ] ],
+			],
+		];
+		Block_Visibility::evaluate_rules_for_user_public( $rules, $this->test_user_id );
+		Block_Visibility::evaluate_rules_for_user_public( $rules, $this->test_user_id );
+		// Callback fired only once despite two calls with identical rules + user.
+		$this->assertSame( 1, $call_count );
 	}
 }
