@@ -26,6 +26,15 @@
 }
 
 .newspack-subscribers-demo__profile {
+	.components-notice__actions {
+		margin-top: 12px;
+
+		.components-button {
+			margin-left: 0;
+			margin-right: 0;
+		}
+	}
+
 	.components-card__header,
 	.newspack-card--core__header {
 		padding: 16px;
