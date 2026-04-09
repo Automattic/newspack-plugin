@@ -19,4 +19,63 @@ jobs:
     uses: Automattic/newspack-scripts/.github/workflows/reusable-lint-php.yml@trunk
 
   test-php:
-    uses: Automattic/newspack-scripts/.github/workflows/reusable-test-php.yml@trunk
+    name: Run PHP tests
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:5.7
+        env:
+          MYSQL_ALLOW_EMPTY_PASSWORD: yes
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=3
+    env:
+      WP_TESTS_DIR: /tmp/wordpress-tests-lib
+      WP_CORE_DIR: /tmp/wordpress/
+      WP_VERSION: latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          tools: composer
+          extensions: mysqli
+          coverage: pcov
+
+      - name: Install system dependencies
+        run: sudo apt-get update && sudo apt-get install -y default-mysql-client
+
+      - name: Install Composer dependencies
+        run: composer update
+
+      - name: Cache WordPress test suite and core
+        id: cache-wp-tests
+        uses: actions/cache@v4
+        with:
+          path: |
+            /tmp/wordpress-tests-lib
+            /tmp/wordpress
+          key: wp-tests-${{ env.WP_VERSION }}-${{ hashFiles('bin/install-wp-tests.sh') }}
+
+      - name: Setup WordPress test environment
+        run: bash bin/install-wp-tests.sh wordpress_test root '' 127.0.0.1 ${{ env.WP_VERSION }}
+
+      - name: Run tests with coverage
+        run: vendor/bin/phpunit --coverage-clover coverage.xml
+
+      - name: Upload coverage to Codecov
+        if: ${{ env.CODECOV_TOKEN != '' }}
+        uses: codecov/codecov-action@v4
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: coverage.xml
+          fail_ci_if_error: false

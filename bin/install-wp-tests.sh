@@ -105,14 +105,32 @@ install_test_suite() {
 
 	# set up testing suite if it doesn't yet exist
 	if [ ! -d $WP_TESTS_DIR ]; then
-		# set up testing suite
+		# Download the WordPress PHPUnit test suite from the GitHub mirror instead of SVN.
+		# develop.svn.wordpress.org is flaky; the GitHub mirror at WordPress/wordpress-develop
+		# is orders of magnitude more reliable.
+		local GH_REF
+		case "$WP_TESTS_TAG" in
+			trunk) GH_REF="refs/heads/trunk" ;;
+			tags/*) GH_REF="refs/tags/${WP_TESTS_TAG#tags/}" ;;
+			branches/*) GH_REF="refs/heads/${WP_TESTS_TAG#branches/}-branch" ;;
+			*) echo "Unexpected WP_TESTS_TAG: $WP_TESTS_TAG"; exit 1 ;;
+		esac
+
 		mkdir -p $WP_TESTS_DIR
-		svn co --ignore-externals --quiet https://develop.svn.wordpress.org/${WP_TESTS_TAG}/tests/phpunit/includes/ $WP_TESTS_DIR/includes
-		svn co --ignore-externals --quiet https://develop.svn.wordpress.org/${WP_TESTS_TAG}/tests/phpunit/data/ $WP_TESTS_DIR/data
+		local WPD_TARBALL="$TMPDIR/wordpress-develop.tar.gz"
+		local WPD_EXTRACT="$TMPDIR/wordpress-develop-extract"
+		rm -rf "$WPD_EXTRACT"
+		mkdir -p "$WPD_EXTRACT"
+		download "https://github.com/WordPress/wordpress-develop/archive/${GH_REF}.tar.gz" "$WPD_TARBALL"
+		tar --strip-components=1 -xzmf "$WPD_TARBALL" -C "$WPD_EXTRACT"
+		cp -R "$WPD_EXTRACT/tests/phpunit/includes" "$WP_TESTS_DIR/includes"
+		cp -R "$WPD_EXTRACT/tests/phpunit/data" "$WP_TESTS_DIR/data"
+		cp "$WPD_EXTRACT/wp-tests-config-sample.php" "$WP_TESTS_DIR/wp-tests-config-sample.php"
+		rm -rf "$WPD_EXTRACT" "$WPD_TARBALL"
 	fi
 
 	if [ ! -f wp-tests-config.php ]; then
-		download https://develop.svn.wordpress.org/${WP_TESTS_TAG}/wp-tests-config-sample.php "$WP_TESTS_DIR"/wp-tests-config.php
+		cp "$WP_TESTS_DIR/wp-tests-config-sample.php" "$WP_TESTS_DIR/wp-tests-config.php"
 		# remove all forward slashes in the end
 		WP_CORE_DIR=$(echo $WP_CORE_DIR | sed "s:/\+$::")
 		sed $ioption "s:dirname( __FILE__ ) . '/src/':'$WP_CORE_DIR/':" "$WP_TESTS_DIR"/wp-tests-config.php
