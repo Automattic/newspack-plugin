@@ -70,7 +70,7 @@ class Identity extends Contact_Metadata {
 			'email'             => $this->user->user_email,
 			'Account'           => (string) $this->user->ID,
 			'User_Role'         => ! empty( $roles ) ? reset( $roles ) : '',
-			'verified'          => (bool) \get_user_meta( $this->user->ID, Reader_Activation::EMAIL_VERIFIED, true ),
+			'verified'          => (bool) Reader_Activation::is_reader_verified( $this->user ),
 			'Connected_Account' => (string) \get_user_meta( $this->user->ID, Reader_Activation::CONNECTED_ACCOUNT, true ),
 		];
 	}

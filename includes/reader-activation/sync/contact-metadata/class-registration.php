@@ -86,6 +86,22 @@ class Registration extends Contact_Metadata {
 		if ( ! isset( $meta_keys[ $param ] ) ) {
 			return '';
 		}
-		return (string) \get_user_meta( $this->user->ID, $meta_keys[ $param ], true );
+		$value = (string) \get_user_meta( $this->user->ID, $meta_keys[ $param ], true );
+		if ( ! empty( $value ) ) {
+			return $value;
+		}
+		// Fallback: parse UTM from the stored registration page URL for readers registered before UTM meta was saved.
+		$registration_page = (string) \get_user_meta( $this->user->ID, Reader_Activation::REGISTRATION_PAGE, true );
+		if ( ! empty( $registration_page ) ) {
+			$parsed = \wp_parse_url( $registration_page );
+			if ( ! empty( $parsed['query'] ) ) {
+				$query_params = [];
+				\wp_parse_str( $parsed['query'], $query_params );
+				if ( ! empty( $query_params[ $param ] ) ) {
+					return \sanitize_text_field( $query_params[ $param ] );
+				}
+			}
+		}
+		return '';
 	}
 }
