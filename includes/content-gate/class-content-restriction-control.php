@@ -210,14 +210,7 @@ class Content_Restriction_Control {
 			return $is_post_restricted;
 		}
 
-		/**
-		 * Filters the user ID to use for evaluating content restriction.
-		 * REST API callbacks may execute in a different context than the logged-in user session,
-		 * so this lets us get restriction status for a specific user ID.
-		 *
-		 * @param int $user_id Current user ID.
-		 */
-		$user_id = apply_filters( 'newspack_content_restriction_control_user_id', $user_id ?? get_current_user_id() );
+		$user_id = $user_id ?? get_current_user_id();
 		if ( ! self::$user_id ) {
 			self::$user_id = $user_id;
 		}

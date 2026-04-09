@@ -13,6 +13,7 @@ import { useEffect, useRef, useState } from '@wordpress/element';
 /**
  * Internal dependencies
  */
+import Router from '../../../../../packages/components/src/proxied-imports/router';
 import { Divider, Grid } from '../../../../../packages/components/src';
 import { useWizardData } from '../../../../../packages/components/src/wizard/store/utils';
 import { useWizardApiFetch } from '../../../hooks/use-wizard-api-fetch';
@@ -20,15 +21,20 @@ import { WIZARD_STORE_NAMESPACE } from '../../../../../packages/components/src/w
 import ContentGatesOnboarding from './content-gates-onboarding';
 import ContentGatesPriority from './content-gates-priority';
 import ContentGateSettings from './content-gate-settings';
+import AdvancedSettings from './advanced-settings';
 import SettingsCard from './settings-card';
 import { AUDIENCE_CONTENT_GATES_WIZARD_SLUG } from './consts';
 import './style.scss';
 
+const { useHistory } = Router;
+
 const ContentGates = ( { updateGatesData }: { updateGatesData: ( gates: Gate[] ) => void } ) => {
+	const history = useHistory();
 	const wizardData = useWizardData( AUDIENCE_CONTENT_GATES_WIZARD_SLUG ) as WizardData;
 	const { wizardApiFetch, isFetching, errorMessage, resetError } = useWizardApiFetch( AUDIENCE_CONTENT_GATES_WIZARD_SLUG );
 	const { addNotice, resetNotices, resetHeaderData, setHeaderData, updateWizardSettings } = useDispatch( WIZARD_STORE_NAMESPACE );
 	const [ showPriorityModal, setShowPriorityModal ] = useState( false );
+	const [ showAdvancedSettings, setShowAdvancedSettings ] = useState( false );
 	const ref = useRef( null );
 	const gates = ( wizardData?.gates || [] ) as Gate[];
 	const config = ( wizardData?.config || {} ) as GateSettings;
@@ -45,11 +51,11 @@ const ContentGates = ( { updateGatesData }: { updateGatesData: ( gates: Gate[] )
 		const sectionMenu = [
 			{
 				label: __( 'Institutions', 'newspack-plugin' ),
-				href: '#/institutions',
+				action: () => history.push( '/institutions' ),
 			},
 			{
 				label: __( 'Advanced settings', 'newspack-plugin' ),
-				disabled: true,
+				action: () => setShowAdvancedSettings( true ),
 			},
 		];
 		if ( gates.length > 1 ) {
@@ -163,6 +169,7 @@ const ContentGates = ( { updateGatesData }: { updateGatesData: ( gates: Gate[] )
 				closeModal={ () => setShowPriorityModal( false ) }
 				updateGatesData={ updateGatesData }
 			/>
+			<AdvancedSettings showModal={ showAdvancedSettings } closeModal={ () => setShowAdvancedSettings( false ) } />
 			<VStack className="newspack-content-gates__gates" spacing="16px" ref={ ref }>
 				{ gates.map( gate => {
 					return <ContentGateSettings key={ gate.id } gate={ gate } updateGatesData={ updateGatesData } />;

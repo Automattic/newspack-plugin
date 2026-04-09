@@ -55,7 +55,6 @@ class Newspack_Test_Premium_Newsletters extends \WP_UnitTestCase {
 		parent::set_up();
 		\Newspack_Newsletters_Contacts::reset_calls();
 		\Newspack_Newsletters_Subscription::reset_calls();
-		remove_all_filters( 'newspack_content_restriction_control_user_id' );
 		$prop = new \ReflectionProperty( Premium_Newsletters::class, 'restricted_lists' );
 		$prop->setAccessible( true );
 		$prop->setValue( null, [] );

@@ -119,9 +119,62 @@ class WC_Customer {
 
 $orders_database = [];
 $subscriptions_database = [];
+$products_database = [];
+
+class WC_Order_Item_Product {
+	private $data = [];
+	public function __construct( $data = [] ) {
+		$this->data = $data;
+	}
+	public function get_name() {
+		return $this->data['name'] ?? '';
+	}
+	public function get_product_id() {
+		return $this->data['product_id'] ?? 0;
+	}
+}
+
+class WC_Product {
+	private $data = [];
+	private $meta = [];
+	public function __construct( $data = [] ) {
+		$this->data = $data;
+		if ( isset( $data['meta'] ) ) {
+			$this->meta = $data['meta'];
+		}
+	}
+	public function get_id() {
+		return $this->data['id'] ?? 0;
+	}
+	public function get_name() {
+		return $this->data['name'] ?? '';
+	}
+	public function get_type() {
+		return $this->data['type'] ?? 'simple';
+	}
+	public function get_children() {
+		return $this->data['children'] ?? [];
+	}
+	public function get_meta( $key, $single = true ) {
+		return $this->meta[ $key ] ?? '';
+	}
+}
+
+/**
+ * Register a mock product in the global products database.
+ *
+ * @param array $data Product data including 'id', 'children', 'type', 'name', 'price'.
+ * @return WC_Product
+ */
+function wc_create_mock_product( $data = [] ) {
+	global $products_database;
+	$product = new WC_Product( $data );
+	$products_database[ $product->get_id() ] = $product;
+	return $product;
+}
 
 class WC_Order {
-	public $data = [ 'items' => [] ];
+	public $data = [];
 	public $meta = [];
 	public function __construct( $data ) {
 		global $orders_database;
@@ -129,11 +182,14 @@ class WC_Order {
 		if ( ! isset( $data['date_paid'] ) ) {
 			$data['date_paid'] = gmdate( 'Y-m-d H:i:s' );
 		}
-		$this->data = array_merge( $data, $this->data );
+		if ( ! isset( $data['items'] ) ) {
+			$data['items'] = [];
+		}
+		$this->data = $data;
 		if ( $data['status'] === 'completed' ) {
 			// Update customer's total spent.
 			$customer = new WC_Customer( $this->get_customer_id() );
-			$total_spent = $customer->get_total_spent() + $this->get_total();
+			$total_spent = (float) $customer->get_total_spent() + (float) $this->get_total();
 			update_user_meta( $customer->get_id(), 'wc_total_spent', $total_spent );
 			// Add the order to the mock DB.
 		}
@@ -161,6 +217,9 @@ class WC_Order {
 		return $this->data['items'];
 	}
 	public function get_date_paid() {
+		if ( empty( $this->data['date_paid'] ) ) {
+			return null;
+		}
 		return new WC_DateTime( $this->data['date_paid'] );
 	}
 	public function get_date_completed() {
@@ -171,6 +230,9 @@ class WC_Order {
 	}
 	public function get_status() {
 		return $this->data['status'];
+	}
+	public function get_coupon_codes() {
+		return $this->data['coupon_codes'] ?? [];
 	}
 }
 
@@ -239,11 +301,28 @@ class WC_Subscription {
 	public function get_billing_interval() {
 		return $this->data['billing_interval'];
 	}
-	public function get_last_order() {
-		if ( ! empty( $this->orders ) ) {
-			return end( $this->orders );
+	public function get_last_order( $output = 'all', $types = [], $exclude_statuses = [] ) {
+		if ( empty( $this->orders ) ) {
+			return false;
 		}
-		return false;
+		if ( ! empty( $exclude_statuses ) ) {
+			foreach ( $this->orders as $order ) {
+				if ( ! $order->has_status( $exclude_statuses ) ) {
+					return $order;
+				}
+			}
+			return false;
+		}
+		return reset( $this->orders );
+	}
+	public function get_related_orders( $output = 'all', $type = '' ) {
+		return $this->data['related_orders'][ $type ] ?? [];
+	}
+	public function get_coupon_codes() {
+		return $this->data['coupon_codes'] ?? [];
+	}
+	public function get_parent() {
+		return $this->data['parent_order'] ?? null;
 	}
 	public function get_date( $type ) {
 		return $this->data['dates'][ $type ] ?? 0;
@@ -273,6 +352,11 @@ class WC_Subscription {
 }
 
 class WC_Subscriptions {
+}
+
+if ( ! class_exists( 'WC_Subscriptions_Product' ) ) {
+	class WC_Subscriptions_Product {
+	}
 }
 
 function wc_create_order( $data ) {
@@ -322,6 +406,10 @@ function wc_bool_to_string( $bool ) {
 }
 function wc_get_orders( $args ) {
 	global $orders_database;
+	// For simplicity, this mock will only return a single page of results.
+	if ( isset( $args['page'] ) && $args['page'] > 1 ) {
+		return [];
+	}
 	$orders = $orders_database;
 	if ( isset( $args['customer_id'] ) ) {
 		// Filter by customer.
@@ -351,5 +439,29 @@ function wc_get_orders( $args ) {
 }
 
 function wc_customer_bought_product( $customer_email, $user_id, $product_id ) {
+	global $orders_database;
+	foreach ( $orders_database as $order ) {
+		if ( $order->get_customer_id() !== $user_id ) {
+			continue;
+		}
+		foreach ( $order->get_items() as $item ) {
+			if ( $item->get_product_id() === $product_id ) {
+				return true;
+			}
+		}
+	}
 	return false;
+}
+function wc_get_order( $order_id ) {
+	global $orders_database;
+	foreach ( $orders_database as $order ) {
+		if ( $order->get_id() === $order_id ) {
+			return $order;
+		}
+	}
+	return false;
+}
+function wc_get_product( $product_id ) {
+	global $products_database;
+	return $products_database[ $product_id ] ?? false;
 }

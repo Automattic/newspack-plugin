@@ -1,0 +1,149 @@
+.wp-block-newspack-overlay-menu {
+	.overlay-menu__trigger {
+		align-items: center;
+		cursor: pointer;
+		display: inline-flex;
+		gap: var( --wp--preset--spacing--20 );
+		justify-content: center;
+	}
+
+	// ─── Block editor only ────────────────────────────────────────────────────
+
+	// Hidden panel state — keeps InnerBlocks in the DOM without being visible.
+	.overlay-menu__editor-panel-hidden {
+		display: none;
+	}
+}
+
+// ─── Panel & panel contents ───────────────────────────────────────────────────
+// These must live at root scope because view.js moves the panel to document.body
+// when the menu opens, removing it from the .wp-block-newspack-overlay-menu
+// ancestor. Styles nested inside the block wrapper would stop matching.
+
+// Icon used in trigger + close buttons.
+.overlay-menu__icon {
+	align-items: center;
+	display: inline-flex;
+	flex-shrink: 0;
+	height: 1.25em;
+	width: 1.25em;
+
+	svg {
+		fill: currentcolor;
+		height: 100%;
+		width: 100%;
+	}
+}
+
+// Close button wrapper — sits at the top of the panel, flush right.
+.overlay-menu__close-wrapper {
+	align-items: center;
+	display: flex;
+	height: var( --wp--custom--spacing--85, 3rem );
+	justify-content: flex-end;
+	margin-right: calc( -1 * var( --wp--preset--spacing--30 ) );
+
+	@media ( min-width: 782px ) {
+		margin-right: calc( -1 * var( --wp--preset--spacing--40 ) );
+	}
+}
+
+// Close button: bare reset so theme/global button styles don't interfere.
+.overlay-menu__close {
+	align-items: center;
+	background: none;
+	border: none;
+	color: inherit;
+	cursor: pointer;
+	display: inline-flex;
+	font-family: inherit;
+	font-size: inherit;
+	gap: var( --wp--preset--spacing--10, 0.25rem );
+	padding: var( --wp--preset--spacing--20 );
+}
+
+// Panel content area.
+.overlay-menu__content {
+	padding-top: var( --wp--preset--spacing--30 );
+}
+
+// ─── Panel ────────────────────────────────────────────────────────────────────
+// Base styles and per-direction hidden states. The block owns all of this;
+// no dependency on the theme's overlay-contents classes.
+
+.overlay-menu__panel {
+	background: var( --wp--preset--color--base, #fff );
+	bottom: 0;
+	opacity: 0;
+	overflow-y: auto;
+	padding: var( --wp--preset--spacing--30, 1rem );
+	position: fixed;
+	top: 0;
+	// Transition driven by CSS; JS only toggles the --open class.
+	transition:
+		opacity 125ms ease-in-out,
+		left 250ms ease-in-out,
+		right 250ms ease-in-out,
+		top 250ms ease-in-out,
+		bottom 250ms ease-in-out,
+		transform 250ms ease-in-out;
+	width: 100%;
+	z-index: 50;
+
+	@media ( min-width: 782px ) {
+		padding: var( --wp--preset--spacing--40, 1.5rem );
+	}
+
+	.admin-bar & {
+		top: 46px;
+
+		@media ( min-width: 782px ) {
+			top: 32px;
+		}
+	}
+}
+
+// Side panels slide in from left or right.
+.overlay-menu__panel--left {
+	left: -100%;
+	max-width: min( 400px, 90vw );
+	right: auto;
+}
+
+.overlay-menu__panel--right {
+	left: auto;
+	max-width: min( 400px, 90vw );
+	right: -100%;
+}
+
+
+// ─── Open state (shared by frontend JS and block editor preview) ──────────────
+
+.overlay-menu__panel--open {
+	opacity: 1;
+
+	&.overlay-menu__panel--left   { left: 0; }
+	&.overlay-menu__panel--right  { right: 0; }
+}
+
+// ─── Scrim ────────────────────────────────────────────────────────────────────
+// Shared by both the frontend (created dynamically by view.js) and the block
+// editor preview (rendered as a React fragment sibling in edit.js).
+
+.overlay-menu__scrim {
+	background: rgba( 0, 0, 0, 0.5 );
+	cursor: pointer;
+	inset: 0;
+	margin: 0 !important;
+	position: fixed;
+	transition: opacity 500ms ease-in-out;
+	z-index: 49;
+}
+
+// Lock document scrolling while any overlay menu instance is open.
+body:is(
+	[class^="menu-open--overlay-menu-"],
+	[class*=" menu-open--overlay-menu-"]
+) {
+	overflow: hidden !important; // !important to temporarily override style from block theme's overlay approach.
+}

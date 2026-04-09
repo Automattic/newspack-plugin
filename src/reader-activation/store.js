@@ -1,7 +1,8 @@
 /* globals newspack_reader_data */
 window.newspack_reader_data = window.newspack_reader_data || {};
 
-import { EVENTS, emit } from './events';
+import { EVENTS, emit, on } from './events';
+import { getApiNonce } from './session';
 
 /**
  * Store configuration.
@@ -21,6 +22,30 @@ const config = {
 		maxAge: 1000 * 60 * 60 * 24 * 30, // 30 days.
 	},
 };
+
+/**
+ * Registry of merge strategies for rehydration.
+ *
+ * @type {Map<string, Function>}
+ */
+const mergeStrategies = new Map();
+
+/**
+ * Rehydrate a single item from server data, using the registered merge
+ * strategy if one exists. Falls back to a direct overwrite.
+ *
+ * @param {string} key         Store key.
+ * @param {any}    serverValue Decoded value from the server.
+ */
+function rehydrateItem( key, serverValue ) {
+	const merge = mergeStrategies.get( key );
+	if ( merge ) {
+		const clientValue = _get( key );
+		_set( key, merge( serverValue, clientValue ) );
+	} else {
+		_set( key, serverValue );
+	}
+}
 
 /**
  * Initialize sync interval.
@@ -111,7 +136,8 @@ function syncItem( key ) {
 	if ( ! key ) {
 		return Promise.reject( 'Key is required.' );
 	}
-	if ( ! newspack_reader_data.api_url || ! newspack_reader_data.nonce ) {
+	const apiNonce = getApiNonce();
+	if ( ! newspack_reader_data.api_url || ! apiNonce ) {
 		return Promise.reject( 'API not available.' );
 	}
 
@@ -129,7 +155,7 @@ function syncItem( key ) {
 	const req = new XMLHttpRequest();
 	req.open( payload.value ? 'POST' : 'DELETE', newspack_reader_data.api_url, true );
 	req.setRequestHeader( 'Content-Type', 'application/json' );
-	req.setRequestHeader( 'X-WP-Nonce', newspack_reader_data.nonce );
+	req.setRequestHeader( 'X-WP-Nonce', apiNonce );
 
 	// Send request.
 	req.send( JSON.stringify( payload ) );
@@ -256,15 +282,42 @@ export default function Store() {
 		}
 	}
 
-	// Rehydrate items from server. No need to rehydrate for temporary sessions.
-	if ( newspack_reader_data?.items && ! newspack_reader_data?.is_temporary ) {
-		const keys = Object.keys( newspack_reader_data.items );
-		for ( const key of keys ) {
-			// Do not overwrite items that were pending sync.
-			if ( unsynced.includes( key ) ) {
+	// When session hydration provides a nonce, rehydrate server items
+	// and re-queue any unsynced items.
+	on( EVENTS.session, ( { detail } ) => {
+		const items = detail?.reader_data_items || {};
+		newspack_reader_data.items = items;
+		rehydrate( items );
+		// Re-queue unsynced items.
+		const unsyncedKeys = _get( 'unsynced', true ) || [];
+		for ( const key of unsyncedKeys ) {
+			if ( ! syncQueue.includes( key ) ) {
+				syncQueue.push( key );
+			}
+		}
+	} );
+
+	/**
+	 * Rehydrate items from server data. Must be called after all merge
+	 * strategies have been registered via store.register().
+	 *
+	 * Merge strategies must be registered synchronously before this
+	 * method runs — async registration is not supported.
+	 *
+	 * @param {Object} items Items to rehydrate. Defaults to newspack_reader_data.items.
+	 */
+	function rehydrate( items = newspack_reader_data?.items ) {
+		if ( ! items || newspack_reader_data?.is_temporary ) {
+			return;
+		}
+		const unsyncedKeys = _get( 'unsynced', true ) || [];
+		for ( const key of Object.keys( items ) ) {
+			// Skip unsynced items unless they have a merge strategy,
+			// which is the authority on how to reconcile values.
+			if ( unsyncedKeys.includes( key ) && ! mergeStrategies.has( key ) ) {
 				continue;
 			}
-			_set( key, JSON.parse( newspack_reader_data.items[ key ] ) );
+			rehydrateItem( key, decode( items[ key ] ) );
 		}
 	}
 
@@ -369,5 +422,28 @@ export default function Store() {
 
 			_set( key, collection );
 		},
+		/**
+		 * Register a merge strategy for a store key. The merge function is
+		 * called during rehydration to reconcile server and client values.
+		 *
+		 * @param {string}   key           Store key.
+		 * @param {Object}   options       Options.
+		 * @param {Function} options.merge Merge function: (serverValue, clientValue) => resolvedValue.
+		 */
+		register: ( key, { merge } = {} ) => {
+			if ( typeof merge !== 'function' ) {
+				throw new Error( `Store key '${ key }' requires a merge function.` );
+			}
+			if ( mergeStrategies.has( key ) ) {
+				// eslint-disable-next-line no-console
+				console.warn( `Store key '${ key }' already has a merge strategy registered. Overwriting.` );
+			}
+			mergeStrategies.set( key, merge );
+		},
+		/**
+		 * Rehydrate items from server data. Must be called after all merge
+		 * strategies have been registered.
+		 */
+		rehydrate,
 	};
 }

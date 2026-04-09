@@ -22,12 +22,22 @@ class Test_Corrections extends WP_UnitTestCase {
 	protected static $post_id;
 
 	/**
+	 * Holds an editor user ID.
+	 *
+	 * @var int
+	 */
+	protected static $editor_id;
+
+	/**
 	 * Set up test fixtures.
 	 */
 	public function set_up() {
 		parent::set_up();
 
 		Corrections::init();
+
+		self::$editor_id = $this->factory()->user->create( [ 'role' => 'editor' ] );
+		wp_set_current_user( self::$editor_id );
 
 		self::$post_id = $this->factory()->post->create( [ 'post_type' => 'post' ] );
 	}
@@ -695,5 +705,83 @@ class Test_Corrections extends WP_UnitTestCase {
 
 		$filtered_types = Corrections::get_supported_post_types();
 		$this->assertContains( 'test_post_type', $filtered_types );
+	}
+
+	/**
+	 * Test that an author cannot save corrections for another user's post.
+	 *
+	 * @covers \Newspack\Corrections::rest_save_corrections
+	 */
+	public function test_cannot_save_corrections_for_other_users_post() {
+		$author_id = $this->factory()->user->create( [ 'role' => 'author' ] );
+		wp_set_current_user( $author_id );
+
+		$corrections = [
+			[
+				'id'       => null,
+				'content'  => 'IDOR injected correction',
+				'type'     => 'correction',
+				'date'     => current_time( 'mysql' ),
+				'priority' => 'high',
+			],
+		];
+
+		$request = new WP_REST_Request( WP_REST_Server::CREATABLE, '/' . NEWSPACK_API_NAMESPACE . '/corrections/' );
+		$request->set_param( 'post_id', self::$post_id );
+		$request->set_param( 'corrections', $corrections );
+
+		$response = Corrections::rest_save_corrections( $request );
+
+		$this->assertInstanceOf( 'WP_Error', $response, 'Authors should not be able to save corrections for posts they do not own.' );
+		$this->assertEquals( 'unauthorized', $response->get_error_code() );
+		$this->assertEquals( 403, $response->get_error_data()['status'] );
+	}
+
+	/**
+	 * Test that a correction ID belonging to a different post cannot be updated via another post.
+	 *
+	 * @covers \Newspack\Corrections::rest_save_corrections
+	 */
+	public function test_cannot_update_correction_belonging_to_different_post() {
+		wp_set_current_user( self::$editor_id );
+
+		// Create a correction on the default post.
+		$correction_id = Corrections::add_correction(
+			self::$post_id,
+			[
+				'content'  => 'Original correction',
+				'type'     => 'correction',
+				'date'     => current_time( 'mysql' ),
+				'priority' => 'low',
+			]
+		);
+
+		// Create a second post that the editor also owns.
+		$other_post_id = $this->factory()->post->create( [ 'post_author' => self::$editor_id ] );
+
+		// Attempt to update the first post's correction via the second post's endpoint.
+		$corrections = [
+			[
+				'id'       => $correction_id,
+				'content'  => 'Hijacked correction',
+				'type'     => 'correction',
+				'date'     => current_time( 'mysql' ),
+				'priority' => 'high',
+			],
+		];
+
+		$request = new WP_REST_Request( WP_REST_Server::CREATABLE, '/' . NEWSPACK_API_NAMESPACE . '/corrections/' );
+		$request->set_param( 'post_id', $other_post_id );
+		$request->set_param( 'corrections', $corrections );
+
+		$response = Corrections::rest_save_corrections( $request );
+
+		$this->assertInstanceOf( 'WP_Error', $response, 'Should not allow updating a correction that belongs to a different post.' );
+		$this->assertEquals( 'invalid_correction', $response->get_error_code() );
+		$this->assertEquals( 400, $response->get_error_data()['status'] );
+
+		// Verify the original correction was not modified.
+		$original = get_post( $correction_id );
+		$this->assertEquals( 'Original correction', $original->post_content );
 	}
 }

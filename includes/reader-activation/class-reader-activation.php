@@ -85,14 +85,6 @@ final class Reader_Activation {
 	private static $reader_activation_labels = [];
 
 	/**
-	 * Current reader user ID.
-	 * Only used for evaluating content restrictions for the newsletter signup form.
-	 *
-	 * @var int
-	 */
-	private static $current_reader_user_id = 0;
-
-	/**
 	 * Initialize hooks.
 	 */
 	public static function init() {
@@ -141,7 +133,7 @@ final class Reader_Activation {
 	 * Enqueue front-end scripts.
 	 */
 	public static function enqueue_scripts() {
-		$authenticated_email = self::get_logged_in_reader_email_address();
+		$authenticated_email = \is_user_logged_in() && self::is_user_reader( \wp_get_current_user() ) ? \wp_get_current_user()->user_email : '';
 		$script_dependencies = [];
 		$script_data         = [
 			'auth_intention_cookie' => self::AUTH_INTENTION_COOKIE,
@@ -236,6 +228,7 @@ final class Reader_Activation {
 				'newspack_reader_activation_newsletters',
 				[
 					'newspack_ajax_url' => admin_url( 'admin-ajax.php' ),
+					'newsletters_url'   => \get_rest_url( null, NEWSPACK_API_NAMESPACE . '/reader-newsletter-signup-lists' ),
 				]
 			);
 
@@ -255,17 +248,11 @@ final class Reader_Activation {
 	public static function register_routes() {
 		\register_rest_route(
 			NEWSPACK_API_NAMESPACE,
-			'/reader-newsletter-signup-lists/(?P<email_address>[\a-z]+)',
+			'/reader-newsletter-signup-lists',
 			[
 				'methods'             => \WP_REST_Server::READABLE,
 				'callback'            => [ __CLASS__, 'api_render_newsletters_signup_form' ],
 				'permission_callback' => '__return_true',
-				'args'                => [
-					'email_address' => [
-						'type'              => 'string',
-						'sanitize_callback' => 'sanitize_email',
-					],
-				],
 			]
 		);
 	}
@@ -1705,20 +1692,6 @@ final class Reader_Activation {
 	}
 
 	/**
-	 * Filter the user ID used for evaluating content restrictions.
-	 *
-	 * @param int $user_id User ID.
-	 *
-	 * @return int User ID.
-	 */
-	public static function get_user_id_for_content_restriction( $user_id ) {
-		if ( self::$current_reader_user_id ) {
-			return self::$current_reader_user_id;
-		}
-		return $user_id;
-	}
-
-	/**
 	 * Fetch HTML for the post-checkout newsletter signup modal.
 	 *
 	 * @param WP_REST_Request $request The REST request.
@@ -1726,24 +1699,10 @@ final class Reader_Activation {
 	 * @return WP_REST_Response
 	 */
 	public static function api_render_newsletters_signup_form( $request ) {
-		$email = $request['email_address'];
-
-		// If the email address is associated with a different user, use that user's ID for evaluating content restrictions for the signup form.
-		// TODO: Maybe check this against the result of self::set_current_reader()?
-		$user = get_user_by( 'email', $email );
-		if ( $user && $user->ID !== get_current_user_id() ) {
-			self::$current_reader_user_id = $user->ID;
-			add_filter( 'newspack_content_restriction_control_user_id', [ self::class, 'get_user_id_for_content_restriction' ] );
-		}
+		$email = \is_user_logged_in() ? \wp_get_current_user()->user_email : '';
 		ob_start();
 		self::render_newsletters_signup_modal( $email );
 		$html = trim( ob_get_clean() );
-
-		// Reset the current reader user ID so it doesn't affect other operations in this session.
-		if ( $user && $user->ID !== get_current_user_id() ) {
-			self::$current_reader_user_id = 0;
-			remove_filter( 'newspack_content_restriction_control_user_id', [ self::class, 'get_user_id_for_content_restriction' ] );
-		}
 		return new \WP_REST_Response( [ 'html' => $html ] );
 	}
 
@@ -1814,8 +1773,8 @@ final class Reader_Activation {
 		if ( ! self::is_newsletters_signup_available() ) {
 			return;
 		}
-		if ( ! is_email( $email_address ) ) {
-			$email_address = self::get_logged_in_reader_email_address();
+		if ( ! is_email( $email_address ) && \is_user_logged_in() && self::is_user_reader( \wp_get_current_user() ) ) {
+			$email_address = \wp_get_current_user()->user_email;
 		}
 		$newsletters_lists = self::get_post_checkout_newsletter_lists( $email_address );
 		if ( empty( $newsletters_lists ) ) {
@@ -2801,21 +2760,6 @@ final class Reader_Activation {
 			\update_user_meta( $user_data->ID, self::LAST_EMAIL_DATE, time() );
 		}
 		return $errors;
-	}
-
-	/**
-	 * Gets the logged in reader's email address.
-	 *
-	 * @return string The reader's email address. Empty string if user is not logged in.
-	 */
-	private static function get_logged_in_reader_email_address() {
-		$email_address = '';
-
-		if ( \is_user_logged_in() && self::is_user_reader( \wp_get_current_user() ) ) {
-			$email_address = \wp_get_current_user()->user_email;
-		}
-
-		return $email_address;
 	}
 
 	/**

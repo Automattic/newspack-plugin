@@ -98,6 +98,7 @@ class Content_Gate {
 		add_filter( 'newspack_gate_content', 'do_shortcode', 11 ); // AFTER wpautop().
 
 		include __DIR__ . '/class-content-gate-api.php';
+		include __DIR__ . '/class-content-gate-advanced-settings.php';
 		include __DIR__ . '/class-access-rules.php';
 		include __DIR__ . '/class-content-rules.php';
 		include __DIR__ . '/class-content-restriction-control.php';
@@ -182,6 +183,7 @@ class Content_Gate {
 		if ( $post->ID === get_theme_mod( 'accessibility_statement_page_id' ) ) {
 			return;
 		}
+
 		// If no other restrictions apply.
 		if ( ! self::is_post_restricted( $post->ID ) ) {
 			return;
