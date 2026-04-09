@@ -1,3 +1,5 @@
+// @jest-environment jsdom
+
 import setupArticleViewsAggregates from './article-view';
 import { createMockRAS } from './mocks/ras';
 

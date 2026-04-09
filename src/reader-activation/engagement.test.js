@@ -1,3 +1,5 @@
+// @jest-environment jsdom
+
 import setupEngagement from './engagement';
 import { createMockRAS } from './mocks/ras';
 

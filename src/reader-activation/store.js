@@ -434,6 +434,10 @@ export default function Store() {
 			if ( typeof merge !== 'function' ) {
 				throw new Error( `Store key '${ key }' requires a merge function.` );
 			}
+			if ( mergeStrategies.has( key ) ) {
+				// eslint-disable-next-line no-console
+				console.warn( `Store key '${ key }' already has a merge strategy registered. Overwriting.` );
+			}
 			mergeStrategies.set( key, merge );
 		},
 		/**

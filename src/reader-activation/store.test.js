@@ -1,3 +1,5 @@
+// @jest-environment jsdom
+
 import Store from './store';
 
 describe( 'Store', () => {

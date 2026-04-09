@@ -7,7 +7,7 @@ export default function setupEngagement( ras ) {
 	// first_visit_date — preserve the oldest known value (server or client).
 	ras.store.register( 'first_visit_date', {
 		merge: ( server, client ) => {
-			const candidates = [ server, client ].filter( Boolean );
+			const candidates = [ server, client ].filter( v => v !== null && v !== undefined );
 			return candidates.length ? Math.min( ...candidates ) : Date.now();
 		},
 	} );
