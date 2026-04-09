@@ -1,3 +1,17 @@
+## [6.36.2](https://github.com/Automattic/newspack-plugin/compare/v6.36.1...v6.36.2) (2026-04-06)
+
+
+### Bug Fixes
+
+* **reader-activation:** gate password reset email override on AM enabled ([#4622](https://github.com/Automattic/newspack-plugin/issues/4622)) ([ff761f9](https://github.com/Automattic/newspack-plugin/commit/ff761f9634dc6c6b5bcdc749ca67f57e15d36591))
+
+## [6.36.1](https://github.com/Automattic/newspack-plugin/compare/v6.36.0...v6.36.1) (2026-04-02)
+
+
+### Bug Fixes
+
+* **jetpack:** disable Image Studio to restore Media Library custom fields ([#4616](https://github.com/Automattic/newspack-plugin/issues/4616)) ([3861d1f](https://github.com/Automattic/newspack-plugin/commit/3861d1faca270367712132b35537c019d3d9ef98))
+
 # [6.36.0](https://github.com/Automattic/newspack-plugin/compare/v6.35.2...v6.36.0) (2026-03-30)
 
 

@@ -44,18 +44,18 @@ class Contact_Cron {
 	const CRON_HOOK = 'newspack_contact_cron_batch';
 
 	/**
-	 * WP option key for the pull queue.
+	 * User meta key to stage a user for pull.
 	 *
 	 * @var string
 	 */
-	const PULL_QUEUE_OPTION = 'newspack_pull_contact_data_queue';
+	const PULL_PENDING_META = 'newspack_contact_cron_pull_pending';
 
 	/**
-	 * WP option key for the push queue.
+	 * User meta key to stage a user for push.
 	 *
 	 * @var string
 	 */
-	const PUSH_QUEUE_OPTION = 'newspack_push_contact_data_queue';
+	const PUSH_PENDING_META = 'newspack_contact_cron_push_pending';
 
 	/**
 	 * WP-Cron schedule name.
@@ -126,35 +126,41 @@ class Contact_Cron {
 	}
 
 	/**
-	 * Add a user to the pull queue.
+	 * Stage a user for pull.
 	 *
 	 * @param int $user_id WordPress user ID.
 	 */
 	public static function enqueue_for_pull( $user_id ) {
-		self::enqueue( self::PULL_QUEUE_OPTION, $user_id );
+		update_user_meta( $user_id, self::PULL_PENDING_META, time() );
 	}
 
 	/**
-	 * Add a user to the push queue.
+	 * Stage a user for push.
 	 *
 	 * @param int $user_id WordPress user ID.
 	 */
 	public static function enqueue_for_push( $user_id ) {
-		self::enqueue( self::PUSH_QUEUE_OPTION, $user_id );
+		update_user_meta( $user_id, self::PUSH_PENDING_META, time() );
 	}
 
 	/**
-	 * Add a user ID to a queue option.
+	 * Get user IDs staged for a given meta key.
 	 *
-	 * @param string $option  The option key.
-	 * @param int    $user_id WordPress user ID.
+	 * Queries wp_usermeta directly to avoid the JOIN overhead of WP_User_Query.
+	 *
+	 * @param string $meta_key The user meta key.
+	 * @return int[] User IDs.
 	 */
-	private static function enqueue( $option, $user_id ) {
-		$queue = get_option( $option, [] );
-		if ( ! in_array( $user_id, $queue, true ) ) {
-			$queue[] = $user_id;
-			update_option( $option, $queue, false );
-		}
+	private static function get_pending_users( $meta_key ) {
+		global $wpdb;
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$user_ids = $wpdb->get_col(
+			$wpdb->prepare(
+				"SELECT user_id FROM {$wpdb->usermeta} WHERE meta_key = %s",
+				$meta_key
+			)
+		);
+		return array_map( 'intval', $user_ids );
 	}
 
 	/**
@@ -192,23 +198,19 @@ class Contact_Cron {
 	/**
 	 * Process the pull queue.
 	 *
-	 * Reads the queue, pulls all active integrations for each user,
-	 * and removes successfully processed users.
+	 * Queries users staged for pull, processes each one,
+	 * and removes the flag per-user after processing.
 	 */
 	private static function handle_batch_pull() {
-		$queue = get_option( self::PULL_QUEUE_OPTION, [] );
+		$queue = self::get_pending_users( self::PULL_PENDING_META );
 		if ( empty( $queue ) ) {
 			return;
 		}
-		delete_option( self::PULL_QUEUE_OPTION );
 
 		Logger::log( 'Batch pull started for ' . count( $queue ) . ' user(s).', self::LOGGER_HEADER );
 
 		foreach ( $queue as $user_id ) {
-			if ( ! get_userdata( $user_id ) ) {
-				Logger::log( 'Batch pull skipping non-existent user ' . $user_id . '.', self::LOGGER_HEADER );
-				continue;
-			}
+			delete_user_meta( $user_id, self::PULL_PENDING_META );
 			if ( Contact_Pull::has_pending_retries( $user_id ) ) {
 				Logger::log( 'Batch pull skipping user ' . $user_id . ': pending pull retries.', self::LOGGER_HEADER );
 				continue;
@@ -225,23 +227,19 @@ class Contact_Cron {
 	/**
 	 * Process the push queue.
 	 *
-	 * Reads the queue, fetches fresh contact data for each user,
-	 * and pushes to all active integrations.
+	 * Queries users staged for push, processes each one,
+	 * and removes the flag per-user after processing.
 	 */
 	private static function handle_batch_push() {
-		$queue = get_option( self::PUSH_QUEUE_OPTION, [] );
+		$queue = self::get_pending_users( self::PUSH_PENDING_META );
 		if ( empty( $queue ) ) {
 			return;
 		}
-		delete_option( self::PUSH_QUEUE_OPTION );
 
 		Logger::log( 'Batch push started for ' . count( $queue ) . ' user(s).', self::LOGGER_HEADER );
 
 		foreach ( $queue as $user_id ) {
-			if ( ! get_userdata( $user_id ) ) {
-				Logger::log( 'Batch push skipping non-existent user ' . $user_id . '.', self::LOGGER_HEADER );
-				continue;
-			}
+			delete_user_meta( $user_id, self::PUSH_PENDING_META );
 			if ( Contact_Sync::has_pending_retries( $user_id ) ) {
 				Logger::log( 'Batch push skipping user ' . $user_id . ': pending sync retries.', self::LOGGER_HEADER );
 				continue;

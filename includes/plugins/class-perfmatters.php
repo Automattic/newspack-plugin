@@ -233,11 +233,22 @@ class Perfmatters {
 		$options['lazyload']['youtube_preview_thumbnails'] = false;
 		$options['lazyload']['image_dimensions']           = true;
 
-		$parent_exclusions = empty( $options['lazyload']['lazy_loading_parent_exclusions'] ) ? [] : $options['lazyload']['lazy_loading_parent_exclusions'];
 		// Add our customizations to the front of the array to avoid confusion when editing the setting in the UI.
-		$options['lazyload']['lazy_loading_parent_exclusions'] = array_merge(
-			[ 'wp-block-jetpack-image-compare' ],
-			$parent_exclusions
+		$lazy_loading_exclusions = isset( $options['lazyload']['lazy_loading_exclusions'] ) && is_array( $options['lazyload']['lazy_loading_exclusions'] ) ? $options['lazyload']['lazy_loading_exclusions'] : [];
+		$options['lazyload']['lazy_loading_exclusions'] = array_unique(
+			array_merge(
+				[
+					'attachment-woocommerce_thumbnail', // If WC product images are within a pagination, the pages loaded after pageload will not have images handled otherwise.
+				],
+				$lazy_loading_exclusions
+			)
+		);
+		$parent_exclusions = isset( $options['lazyload']['lazy_loading_parent_exclusions'] ) && is_array( $options['lazyload']['lazy_loading_parent_exclusions'] ) ? $options['lazyload']['lazy_loading_parent_exclusions'] : [];
+		$options['lazyload']['lazy_loading_parent_exclusions'] = array_unique(
+			array_merge(
+				[ 'wp-block-jetpack-image-compare' ],
+				$parent_exclusions
+			)
 		);
 
 		// Fonts.
