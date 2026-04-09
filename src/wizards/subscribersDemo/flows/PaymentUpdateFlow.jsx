@@ -5,8 +5,8 @@
 
 import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { __experimentalHStack as HStack, __experimentalVStack as VStack } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
-import { Button, Grid, Modal, Notice, TextControl, Waiting } from '../../../../packages/components/src';
+import { Notice, __experimentalHStack as HStack, __experimentalVStack as VStack } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
+import { Button, Grid, Modal, TextControl, Waiting } from '../../../../packages/components/src';
 
 export default function PaymentUpdateFlow( { onClose, onComplete, paymentMethod } ) {
 	const isEdit = !! paymentMethod;
@@ -70,7 +70,9 @@ export default function PaymentUpdateFlow( { onClose, onComplete, paymentMethod 
 						<TextControl label={ __( 'CVC', 'newspack-plugin' ) } value={ cvc } onChange={ setCvc } placeholder="123" />
 					</Grid>
 					{ ! valid && number.length > 0 && (
-						<Notice noMargin isWarning noticeText={ __( 'Check the card details.', 'newspack-plugin' ) } />
+						<Notice status="warning" isDismissible={ false }>
+							{ __( 'Check the card details.', 'newspack-plugin' ) }
+						</Notice>
 					) }
 					<HStack spacing={ 2 } justify="flex-end">
 						<Button variant="secondary" size="compact" onClick={ onClose }>

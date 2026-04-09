@@ -16,12 +16,12 @@ import { useEffect, useMemo, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { useDispatch } from '@wordpress/data';
 import { dateI18n, getSettings } from '@wordpress/date';
-import { __experimentalVStack as VStack, __experimentalHStack as HStack } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
+import { __experimentalVStack as VStack, __experimentalHStack as HStack, Notice } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
 
 /**
  * Internal dependencies.
  */
-import { Badge, Button, Card, Divider, Grid, Notice, Router, SectionHeader } from '../../../../packages/components/src';
+import { Badge, Button, Card, Divider, Grid, Router, SectionHeader } from '../../../../packages/components/src';
 import './style.scss';
 import { WIZARD_STORE_NAMESPACE } from '../../../../packages/components/src/wizard/store';
 import { getSubscriberById } from '../data/mock-subscribers';
@@ -147,7 +147,11 @@ export default function PersonProfile() {
 	}, [ subscriber, setHeaderData ] );
 
 	if ( ! subscriber ) {
-		return <Notice isError noticeText={ __( 'Subscriber not found.', 'newspack-plugin' ) } />;
+		return (
+			<Notice status="error" isDismissible={ false }>
+				{ __( 'Subscriber not found.', 'newspack-plugin' ) }
+			</Notice>
+		);
 	}
 
 	const closeModal = () => setModal( null );
@@ -163,19 +167,27 @@ export default function PersonProfile() {
 
 	return (
 		<div className="newspack-subscribers-demo__profile">
-			{ flash && <Notice isSuccess={ flash.type === 'success' } isError={ flash.type === 'error' } noticeText={ flash.message } /> }
+			{ flash && (
+				<Notice status={ flash.type === 'success' ? 'success' : 'error' } isDismissible={ false }>
+					{ flash.message }
+				</Notice>
+			) }
 
 			{ hasAlerts &&
 				subscriber.alerts.map( alert => (
 					<Notice
 						key={ alert.id }
-						isError={ alert.level === 'error' }
-						isWarning={ alert.level === 'warning' }
-						noticeText={ `${ alert.title }. ${ alert.message }` }
+						status={ alert.level === 'error' ? 'error' : 'warning' }
+						isDismissible={ false }
+						actions={ [
+							{
+								label: __( 'Fix this', 'newspack-plugin' ),
+								onClick: () => setModal( { kind: 'guided', alert } ),
+								variant: 'link',
+							},
+						] }
 					>
-						<Button isLink onClick={ () => setModal( { kind: 'guided', alert } ) }>
-							{ __( 'Fix this', 'newspack-plugin' ) }
-						</Button>
+						{ `${ alert.title }. ${ alert.message }` }
 					</Notice>
 				) ) }
 

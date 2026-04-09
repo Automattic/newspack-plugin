@@ -5,8 +5,8 @@
 
 import { useState, createRoot } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { __experimentalHStack as HStack, __experimentalVStack as VStack, Snackbar } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
-import { Button, Modal, Notice, Waiting } from '../../../../packages/components/src';
+import { Notice, Snackbar, __experimentalHStack as HStack, __experimentalVStack as VStack } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
+import { Button, Modal, Waiting } from '../../../../packages/components/src';
 
 function showSnackbar( message ) {
 	const target = document.getElementById( 'wpbody' ) || document.body;
@@ -39,7 +39,9 @@ export default function GuidedFixFlow( { alert, onClose, onOpenPaymentUpdate } )
 				<Waiting />
 			) : (
 				<VStack spacing={ 4 }>
-					<Notice noMargin isError={ alert.level === 'error' } isWarning={ alert.level === 'warning' } noticeText={ alert.message } />
+					<Notice status={ alert.level === 'error' ? 'error' : 'warning' } isDismissible={ false }>
+						{ alert.message }
+					</Notice>
 					<span>
 						{ __(
 							'Choose how to resolve this. Sending a payment link lets the subscriber update their own card. You can also update the card on their behalf.',

@@ -5,8 +5,8 @@
 
 import { useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { RadioControl, __experimentalHStack as HStack, __experimentalVStack as VStack } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
-import { Button, Modal, Notice, Waiting } from '../../../../packages/components/src';
+import { Notice, RadioControl, __experimentalHStack as HStack, __experimentalVStack as VStack } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
+import { Button, Modal, Waiting } from '../../../../packages/components/src';
 
 export default function RefundFlow( { subscription, onClose, onComplete } ) {
 	const [ choice, setChoice ] = useState( 'refund-only' );
@@ -49,7 +49,11 @@ export default function RefundFlow( { subscription, onClose, onComplete } ) {
 	return (
 		<Modal title={ __( 'Refund or cancel', 'newspack-plugin' ) } onRequestClose={ onClose }>
 			{ state === 'loading' && <Waiting /> }
-			{ state === 'error' && <Notice noMargin isError noticeText={ __( 'Refund failed. Please try again.', 'newspack-plugin' ) } /> }
+			{ state === 'error' && (
+				<Notice status="error" isDismissible={ false }>
+					{ __( 'Refund failed. Please try again.', 'newspack-plugin' ) }
+				</Notice>
+			) }
 			{ state === 'choose' && (
 				<VStack spacing={ 4 }>
 					<p>{ sprintf( __( '%1$s — $%2$s %3$s', 'newspack-plugin' ), subscription.plan, amount, subscription.cadence.toLowerCase() ) }</p>
@@ -62,23 +66,17 @@ export default function RefundFlow( { subscription, onClose, onComplete } ) {
 						] }
 						onChange={ setChoice }
 					/>
-					<Notice
-						noMargin
-						noticeText={
-							choice === 'refund-only'
-								? sprintf(
-										__(
-											"The subscriber will be refunded $%s. Their access will continue and they'll renew normally.",
-											'newspack-plugin'
-										),
-										amount
-								  )
-								: sprintf(
-										__( 'The subscriber will be refunded $%s. Their access will end immediately.', 'newspack-plugin' ),
-										amount
-								  )
-						}
-					/>
+					<Notice status="info" isDismissible={ false }>
+						{ choice === 'refund-only'
+							? sprintf(
+									__(
+										"The subscriber will be refunded $%s. Their access will continue and they'll renew normally.",
+										'newspack-plugin'
+									),
+									amount
+							  )
+							: sprintf( __( 'The subscriber will be refunded $%s. Their access will end immediately.', 'newspack-plugin' ), amount ) }
+					</Notice>
 					<HStack spacing={ 2 } justify="flex-end">
 						<Button variant="secondary" size="compact" onClick={ onClose }>
 							{ __( 'Cancel', 'newspack-plugin' ) }
