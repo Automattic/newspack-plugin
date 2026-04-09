@@ -77,12 +77,12 @@ class Newspack_Test_Content_Gate_Metadata extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test that no gates configured returns access with empty source.
+	 * Test that no gates configured returns empty metadata.
 	 */
-	public function test_no_gates_returns_yes() {
+	public function test_no_gates_returns_empty() {
 		$result = $this->get_metadata_for_user( self::$user_id );
 
-		$this->assertEquals( 'Yes', $result['Content_Access'], 'No gates means unrestricted access.' );
+		$this->assertEmpty( $result['Content_Access'], 'No gates means empty Content_Access.' );
 		$this->assertEmpty( $result['Content_Access_Source'], 'No gates means no source.' );
 	}
 

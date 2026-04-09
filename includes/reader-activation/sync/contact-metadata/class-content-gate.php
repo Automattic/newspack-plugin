@@ -75,10 +75,10 @@ class Content_Gate extends Contact_Metadata {
 
 		$custom_access_gates = self::get_custom_access_gates();
 
-		// No custom access gates configured — user is not restricted.
+		// No custom access gates configured — nothing to evaluate.
 		if ( empty( $custom_access_gates ) ) {
 			return [
-				'Content_Access'        => 'Yes',
+				'Content_Access'        => '',
 				'Content_Access_Source' => '',
 			];
 		}
