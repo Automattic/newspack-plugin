@@ -1,0 +1,62 @@
+@use "~@wordpress/base-styles/variables" as wp-vars;
+@use "~@wordpress/base-styles/colors" as wp-colors;
+
+.newspack-wizard__header .newspack-section-header p {
+	white-space: pre-line !important;
+}
+
+.newspack-subscribers-demo__snackbar {
+	bottom: 24px;
+	left: 24px;
+	position: fixed;
+	z-index: 100000;
+}
+
+.newspack-subscribers-demo__card-icon {
+	width: 32px;
+	height: auto;
+	display: block;
+}
+
+.newspack-subscribers-demo__email {
+	color: wp-colors.$gray-700;
+	font-size: wp-vars.$helptext-font-size;
+	line-height: wp-vars.$default-line-height;
+	font-weight: normal;
+}
+
+.newspack-subscribers-demo__profile {
+	.newspack-notice__content .components-button {
+		margin-left: 8px;
+	}
+
+	.components-card__header,
+	.newspack-card--core__header {
+		padding: 16px;
+	}
+	.components-card__body,
+	.newspack-card--core__body {
+		padding: 16px;
+
+		> * {
+			margin: 0 !important;
+			padding: 0 !important;
+		}
+	}
+}
+
+.newspack-subscribers-demo__orders-wrapper {
+	.dataviews-view-table {
+		tr td:first-child,
+		tr th:first-child {
+			padding-left: 12px !important;
+		}
+		tr td:last-child,
+		tr th:last-child {
+			padding-right: 12px !important;
+		}
+		tr:hover {
+			background: #f8f8f8;
+		}
+	}
+}
