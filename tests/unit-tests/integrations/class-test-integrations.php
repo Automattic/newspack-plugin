@@ -32,8 +32,8 @@ class Test_Integrations extends \WP_UnitTestCase {
 	public function set_up() {
 		parent::set_up();
 		delete_option( Integrations::OPTION_NAME );
-		delete_option( Contact_Cron::PULL_QUEUE_OPTION );
-		delete_option( Contact_Cron::PUSH_QUEUE_OPTION );
+		delete_metadata( 'user', 0, Contact_Cron::PULL_PENDING_META, '', true );
+		delete_metadata( 'user', 0, Contact_Cron::PUSH_PENDING_META, '', true );
 		$this->reset_integrations();
 		$this->reset_handler_map();
 		Sample_Integration::reset();
@@ -365,9 +365,23 @@ class Test_Integrations extends \WP_UnitTestCase {
 
 		Contact_Cron::maybe_enqueue_contact();
 
-		// No queues should have entries since no one is logged in.
-		$this->assertEmpty( get_option( Contact_Cron::PULL_QUEUE_OPTION, [] ) );
-		$this->assertEmpty( get_option( Contact_Cron::PUSH_QUEUE_OPTION, [] ) );
+		// No users should be staged since no one is logged in.
+		$this->assertEmpty(
+			get_users(
+				[
+					'meta_key' => Contact_Cron::PULL_PENDING_META,
+					'fields'   => 'ID',
+				]
+			)
+		); // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
+		$this->assertEmpty(
+			get_users(
+				[
+					'meta_key' => Contact_Cron::PUSH_PENDING_META,
+					'fields'   => 'ID',
+				]
+			)
+		); // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
 	}
 
 	/**
@@ -382,9 +396,9 @@ class Test_Integrations extends \WP_UnitTestCase {
 
 		Contact_Cron::maybe_enqueue_contact();
 
-		// Queues should remain empty because the interval hasn't elapsed.
-		$this->assertEmpty( get_option( Contact_Cron::PULL_QUEUE_OPTION, [] ) );
-		$this->assertEmpty( get_option( Contact_Cron::PUSH_QUEUE_OPTION, [] ) );
+		// User should not be staged because the interval hasn't elapsed.
+		$this->assertEmpty( get_user_meta( $user_id, Contact_Cron::PULL_PENDING_META, true ) );
+		$this->assertEmpty( get_user_meta( $user_id, Contact_Cron::PUSH_PENDING_META, true ) );
 	}
 
 	/**
@@ -533,9 +547,8 @@ class Test_Integrations extends \WP_UnitTestCase {
 		$stored = get_user_meta( $user_id, 'newspack_reader_data_item_city', true );
 		$this->assertEmpty( $stored );
 
-		// Verify user was added to the pull queue.
-		$queue = get_option( Contact_Cron::PULL_QUEUE_OPTION, [] );
-		$this->assertContains( $user_id, $queue );
+		// Verify user was staged for pull.
+		$this->assertNotEmpty( get_user_meta( $user_id, Contact_Cron::PULL_PENDING_META, true ) );
 	}
 
 	/**
@@ -560,16 +573,16 @@ class Test_Integrations extends \WP_UnitTestCase {
 		Integrations::register( $integration );
 		Integrations::enable( 'handle-test' );
 
-		// Simulate a queued user.
-		update_option( Contact_Cron::PULL_QUEUE_OPTION, [ $user_id ] );
+		// Stage the user for pull.
+		Contact_Cron::enqueue_for_pull( $user_id );
 
 		Contact_Cron::handle_batch();
 
 		$stored = get_user_meta( $user_id, 'newspack_reader_data_item_language', true );
 		$this->assertSame( wp_json_encode( 'PHP' ), $stored );
 
-		// Queue should be cleared after processing.
-		$this->assertEmpty( get_option( Contact_Cron::PULL_QUEUE_OPTION, [] ) );
+		// User meta flag should be cleared after processing.
+		$this->assertEmpty( get_user_meta( $user_id, Contact_Cron::PULL_PENDING_META, true ) );
 	}
 
 	/**
@@ -594,7 +607,7 @@ class Test_Integrations extends \WP_UnitTestCase {
 		Integrations::register( $integration );
 		// Not enabled.
 
-		update_option( Contact_Cron::PULL_QUEUE_OPTION, [ $user_id ] );
+		Contact_Cron::enqueue_for_pull( $user_id );
 
 		Contact_Cron::handle_batch();
 
@@ -671,13 +684,11 @@ class Test_Integrations extends \WP_UnitTestCase {
 
 		Contact_Cron::maybe_enqueue_contact();
 
-		// Stale sync pull failed, user should be enqueued for batch pull.
-		$pull_queue = get_option( Contact_Cron::PULL_QUEUE_OPTION, [] );
-		$this->assertContains( $user_id, $pull_queue );
+		// Stale sync pull failed, user should be staged for batch pull.
+		$this->assertNotEmpty( get_user_meta( $user_id, Contact_Cron::PULL_PENDING_META, true ) );
 
-		// User should still be enqueued for push.
-		$push_queue = get_option( Contact_Cron::PUSH_QUEUE_OPTION, [] );
-		$this->assertContains( $user_id, $push_queue );
+		// User should still be staged for push.
+		$this->assertNotEmpty( get_user_meta( $user_id, Contact_Cron::PUSH_PENDING_META, true ) );
 	}
 
 	/**
