@@ -16,7 +16,8 @@ export default function PaymentUpdateFlow( { onClose, onComplete, paymentMethod 
 	const [ cvc, setCvc ] = useState( '' );
 	const [ state, setState ] = useState( 'form' );
 
-	const valid = number.replace( /\s/g, '' ).length >= 12 && /^\d{2}\/\d{2}$/.test( expiry ) && cvc.length >= 3;
+	const digits = number.replace( /\D/g, '' );
+	const valid = digits.length >= 12 && /^\d{2}\/\d{2}$/.test( expiry ) && cvc.length >= 3;
 
 	const submit = () => {
 		if ( ! valid ) {
@@ -24,8 +25,8 @@ export default function PaymentUpdateFlow( { onClose, onComplete, paymentMethod 
 		}
 		setState( 'loading' );
 		setTimeout( () => {
-			const last4 = number.replace( /\s/g, '' ).slice( -4 );
-			const type = number.replace( /\D/g, '' ).startsWith( '4' ) ? 'Visa' : 'Mastercard';
+			const last4 = digits.slice( -4 );
+			const type = digits.startsWith( '4' ) ? 'Visa' : 'Mastercard';
 			onComplete( {
 				type: 'success',
 				message: isEdit ? __( 'Payment method updated.', 'newspack-plugin' ) : __( 'Payment method added.', 'newspack-plugin' ),

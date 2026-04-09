@@ -29,14 +29,15 @@ export default function RefundFlow( { subscription, onClose, onComplete } ) {
 							: sprintf( __( 'Refund of $%s processed and subscription cancelled.', 'newspack-plugin' ), amount ),
 					mutate: subscriber => {
 						if ( choice !== 'refund-only' ) {
-							const updated = {
+							const subscriptions = subscriber.subscriptions.map( s =>
+								s.id === subscription.id ? { ...s, status: 'cancelled', nextBillingDate: null } : s
+							);
+							const hasActive = subscriptions.some( s => s.status === 'active' );
+							return {
 								...subscriber,
-								status: 'cancelled',
-								subscriptions: subscriber.subscriptions.map( s =>
-									s.id === subscription.id ? { ...s, status: 'cancelled', nextBillingDate: null } : s
-								),
+								status: hasActive ? subscriber.status : 'cancelled',
+								subscriptions,
 							};
-							return updated;
 						}
 						return subscriber;
 					},

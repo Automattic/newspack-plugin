@@ -113,6 +113,12 @@ export default function PersonProfile() {
 	const [ flash, setFlash ] = useState( null );
 	const [ modal, setModal ] = useState( null );
 
+	useEffect( () => {
+		setSubscriber( initial );
+		setFlash( null );
+		setModal( null );
+	}, [ id, initial ] );
+
 	const { setHeaderData } = useDispatch( WIZARD_STORE_NAMESPACE );
 
 	useEffect( () => {
