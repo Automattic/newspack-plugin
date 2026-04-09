@@ -119,3 +119,4 @@ final class Comment_Display_Name {
 		return $field . $submit_field;
 	}
 }
+Comment_Display_Name::init();

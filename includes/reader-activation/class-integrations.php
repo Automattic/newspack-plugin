@@ -546,3 +546,4 @@ class Integrations {
 		}
 	}
 }
+Integrations::init();
