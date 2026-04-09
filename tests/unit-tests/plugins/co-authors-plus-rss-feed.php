@@ -1,18 +1,18 @@
 <?php
 /**
- * Tests for the RSS_Feed Co-Authors Plus integration.
+ * Tests for the Co_Authors_Plus_RSS_Feed integration.
  *
  * @package Newspack\Tests
  */
 
 // Mock get_coauthors() to simulate Co-Authors Plus being active.
 // Uses a global so individual tests can control the return value.
-// The `function_exists( 'get_coauthors' )` guard in RSS_Feed cannot be
+// The `function_exists( 'get_coauthors' )` guard in Co_Authors_Plus_RSS_Feed cannot be
 // exercised once this mock is defined, but that branch is trivially correct.
 require_once __DIR__ . '/../../mocks/co-authors-plus-mocks.php';
 
 /**
- * Tests the RSS_Feed co-authors integration.
+ * Tests the Co_Authors_Plus_RSS_Feed integration.
  */
 class Newspack_Test_CAP_RSS_Feed extends WP_UnitTestCase {
 

@@ -12,7 +12,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Adds co-author support to RSS and other feeds.
  */
-class RSS_Feed {
+class Co_Authors_Plus_RSS_Feed {
 
 	/**
 	 * Initialize hooks.
@@ -45,4 +45,4 @@ class RSS_Feed {
 		return implode( ', ', array_map( fn( $author ) => wp_strip_all_tags( html_entity_decode( $author->display_name ) ), $coauthors ) );
 	}
 }
-RSS_Feed::init();
+Co_Authors_Plus_RSS_Feed::init();
