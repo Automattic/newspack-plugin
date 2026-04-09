@@ -19,7 +19,9 @@ WP_CORE_DIR=${WP_CORE_DIR-$TMPDIR/wordpress/}
 
 download() {
     if [ `which curl` ]; then
-        curl -s "$1" > "$2";
+        # -f: fail on HTTP errors, -s: silent, -S: still show errors, -L: follow redirects
+        # (GitHub archive URLs 302 to codeload.github.com, so -L is required).
+        curl -fsSL "$1" -o "$2";
     elif [ `which wget` ]; then
         wget -nv -O "$2" "$1"
     fi
