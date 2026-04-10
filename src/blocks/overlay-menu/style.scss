@@ -87,6 +87,7 @@
 		top 250ms ease-in-out,
 		bottom 250ms ease-in-out,
 		transform 250ms ease-in-out;
+	max-width: 90vw;
 	width: 100%;
 	z-index: 50;
 
@@ -130,45 +131,47 @@
 	}
 
 	// ─── Panel width ──────────────────────────────────────────────────────────
-	// Pixel fallbacks cover sites where the theme's custom properties aren't defined.
+	// Sets the panel to a specific width; the 90vw cap on --left/--right takes
+	// over on narrow screens. Pixel fallbacks cover sites without the theme's
+	// custom properties.
 
 	&--width--x-small {
-		max-width: calc( var( --wp--preset--spacing--30, 1rem ) + var( --wp--custom--width--x-small, 300px ) + var( --wp--preset--spacing--30, 1rem ) );
+		width: calc( var( --wp--preset--spacing--30, 1rem ) + var( --wp--custom--width--x-small, 300px ) + var( --wp--preset--spacing--30, 1rem ) );
 
 		@media ( min-width: 782px ) {
-			max-width: calc( var( --wp--preset--spacing--40, 1.5rem ) + var( --wp--custom--width--x-small, 300px ) + var( --wp--preset--spacing--40, 1.5rem ) );
+			width: calc( var( --wp--preset--spacing--40, 1.5rem ) + var( --wp--custom--width--x-small, 300px ) + var( --wp--preset--spacing--40, 1.5rem ) );
 		}
 	}
 
 	&--width--small {
-		max-width: calc( var( --wp--preset--spacing--30, 1rem ) + var( --wp--custom--width--small, 410px ) + var( --wp--preset--spacing--30, 1rem ) );
+		width: calc( var( --wp--preset--spacing--30, 1rem ) + var( --wp--custom--width--small, 410px ) + var( --wp--preset--spacing--30, 1rem ) );
 
 		@media ( min-width: 782px ) {
-			max-width: calc( var( --wp--preset--spacing--40, 1.5rem ) + var( --wp--custom--width--small, 410px ) + var( --wp--preset--spacing--40, 1.5rem ) );
+			width: calc( var( --wp--preset--spacing--40, 1.5rem ) + var( --wp--custom--width--small, 410px ) + var( --wp--preset--spacing--40, 1.5rem ) );
 		}
 	}
 
 	&--width--medium {
-		max-width: calc( var( --wp--preset--spacing--30, 1rem ) + var( --wp--style--global--content-size, 632px ) + var( --wp--preset--spacing--30, 1rem ) );
+		width: calc( var( --wp--preset--spacing--30, 1rem ) + var( --wp--style--global--content-size, 632px ) + var( --wp--preset--spacing--30, 1rem ) );
 
 		@media ( min-width: 782px ) {
-			max-width: calc( var( --wp--preset--spacing--40, 1.5rem ) + var( --wp--style--global--content-size, 632px ) + var( --wp--preset--spacing--40, 1.5rem ) );
+			width: calc( var( --wp--preset--spacing--40, 1.5rem ) + var( --wp--style--global--content-size, 632px ) + var( --wp--preset--spacing--40, 1.5rem ) );
 		}
 	}
 
 	&--width--large {
-		max-width: calc( var( --wp--preset--spacing--30, 1rem ) + var( --wp--custom--width--large, 964px ) + var( --wp--preset--spacing--30, 1rem ) );
+		width: calc( var( --wp--preset--spacing--30, 1rem ) + var( --wp--custom--width--large, 964px ) + var( --wp--preset--spacing--30, 1rem ) );
 
 		@media ( min-width: 782px ) {
-			max-width: calc( var( --wp--preset--spacing--40, 1.5rem ) + var( --wp--custom--width--large, 964px ) + var( --wp--preset--spacing--40, 1.5rem ) );
+			width: calc( var( --wp--preset--spacing--40, 1.5rem ) + var( --wp--custom--width--large, 964px ) + var( --wp--preset--spacing--40, 1.5rem ) );
 		}
 	}
 
 	&--width--x-large {
-		max-width: calc( var( --wp--preset--spacing--30, 1rem ) + var( --wp--custom--width--x-large, 1296px ) + var( --wp--preset--spacing--30, 1rem ) );
+		width: calc( var( --wp--preset--spacing--30, 1rem ) + var( --wp--custom--width--x-large, 1296px ) + var( --wp--preset--spacing--30, 1rem ) );
 
 		@media ( min-width: 782px ) {
-			max-width: calc( var( --wp--preset--spacing--40, 1.5rem ) + var( --wp--custom--width--x-large, 1296px ) + var( --wp--preset--spacing--40, 1.5rem ) );
+			width: calc( var( --wp--preset--spacing--40, 1.5rem ) + var( --wp--custom--width--x-large, 1296px ) + var( --wp--preset--spacing--40, 1.5rem ) );
 		}
 	}
 }
