@@ -101,29 +101,76 @@
 			top: 32px;
 		}
 	}
-}
 
-// Side panels slide in from left or right.
-.overlay-menu__panel--left {
-	left: -100%;
-	max-width: min( 400px, 90vw );
-	right: auto;
-}
+	// Side panels slide in from left or right.
+	&--left {
+		left: -100%;
+		right: auto;
+	}
 
-.overlay-menu__panel--right {
-	left: auto;
-	max-width: min( 400px, 90vw );
-	right: -100%;
-}
+	&--right {
+		left: auto;
+		right: -100%;
+	}
 
+	// Full-screen panel fades in without a directional slide.
+	&--full-screen {
+		left: 0;
+		max-width: 100%;
+		right: 0;
+	}
 
-// ─── Open state (shared by frontend JS and block editor preview) ──────────────
+	// ─── Open state (shared by frontend JS and block editor preview) ──────────
 
-.overlay-menu__panel--open {
-	opacity: 1;
+	&--open {
+		opacity: 1;
 
-	&.overlay-menu__panel--left   { left: 0; }
-	&.overlay-menu__panel--right  { right: 0; }
+		&.overlay-menu__panel--left  { left: 0; }
+		&.overlay-menu__panel--right { right: 0; }
+	}
+
+	// ─── Panel width ──────────────────────────────────────────────────────────
+	// Pixel fallbacks cover sites where the theme's custom properties aren't defined.
+
+	&--width--x-small {
+		max-width: calc( var( --wp--preset--spacing--30, 1rem ) + var( --wp--custom--width--x-small, 300px ) + var( --wp--preset--spacing--30, 1rem ) );
+
+		@media ( min-width: 782px ) {
+			max-width: calc( var( --wp--preset--spacing--40, 1.5rem ) + var( --wp--custom--width--x-small, 300px ) + var( --wp--preset--spacing--40, 1.5rem ) );
+		}
+	}
+
+	&--width--small {
+		max-width: calc( var( --wp--preset--spacing--30, 1rem ) + var( --wp--custom--width--small, 410px ) + var( --wp--preset--spacing--30, 1rem ) );
+
+		@media ( min-width: 782px ) {
+			max-width: calc( var( --wp--preset--spacing--40, 1.5rem ) + var( --wp--custom--width--small, 410px ) + var( --wp--preset--spacing--40, 1.5rem ) );
+		}
+	}
+
+	&--width--medium {
+		max-width: calc( var( --wp--preset--spacing--30, 1rem ) + var( --wp--style--global--content-size, 632px ) + var( --wp--preset--spacing--30, 1rem ) );
+
+		@media ( min-width: 782px ) {
+			max-width: calc( var( --wp--preset--spacing--40, 1.5rem ) + var( --wp--style--global--content-size, 632px ) + var( --wp--preset--spacing--40, 1.5rem ) );
+		}
+	}
+
+	&--width--large {
+		max-width: calc( var( --wp--preset--spacing--30, 1rem ) + var( --wp--custom--width--large, 964px ) + var( --wp--preset--spacing--30, 1rem ) );
+
+		@media ( min-width: 782px ) {
+			max-width: calc( var( --wp--preset--spacing--40, 1.5rem ) + var( --wp--custom--width--large, 964px ) + var( --wp--preset--spacing--40, 1.5rem ) );
+		}
+	}
+
+	&--width--x-large {
+		max-width: calc( var( --wp--preset--spacing--30, 1rem ) + var( --wp--custom--width--x-large, 1296px ) + var( --wp--preset--spacing--30, 1rem ) );
+
+		@media ( min-width: 782px ) {
+			max-width: calc( var( --wp--preset--spacing--40, 1.5rem ) + var( --wp--custom--width--x-large, 1296px ) + var( --wp--preset--spacing--40, 1.5rem ) );
+		}
+	}
 }
 
 // ─── Scrim ────────────────────────────────────────────────────────────────────

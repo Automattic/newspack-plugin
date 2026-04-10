@@ -17,6 +17,14 @@
 			"type": "string",
 			"default": "left"
 		},
+		"isFullScreen": {
+			"type": "boolean",
+			"default": false
+		},
+		"panelWidth": {
+			"type": "string",
+			"default": "small"
+		},
 		"overlayColor": {
 			"type": "string",
 			"default": ""
