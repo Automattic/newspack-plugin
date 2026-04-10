@@ -25,7 +25,7 @@ export const settings = {
 		foreground: colors[ 'primary-400' ],
 	},
 	edit: Edit,
-	// Dynamic block — PHP renders the wrapper. Save only persists InnerBlocks content.
+	// Dynamic block — PHP renders the panel wrapper. Save persists a minimal wrapper div with InnerBlocks content.
 	save: () => (
 		<div { ...useBlockProps.save() }>
 			<InnerBlocks.Content />
