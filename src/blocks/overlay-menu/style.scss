@@ -119,6 +119,8 @@
 		left: 0;
 		max-width: 100%;
 		right: 0;
+		transition: opacity 125ms ease-in-out, visibility 0s 125ms;
+		visibility: hidden;
 	}
 
 	// ─── Open state (shared by frontend JS and block editor preview) ──────────
@@ -128,6 +130,11 @@
 
 		&.overlay-menu__panel--left  { left: 0; }
 		&.overlay-menu__panel--right { right: 0; }
+
+		&.overlay-menu__panel--full-screen {
+			transition: opacity 125ms ease-in-out, visibility 0s;
+			visibility: visible;
+		}
 	}
 
 	// ─── Panel width ──────────────────────────────────────────────────────────
