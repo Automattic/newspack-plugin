@@ -40,7 +40,9 @@ Multiple instances on the same page are fully independent.
 
 | Attribute | Type | Default | Description |
 |-----------|------|---------|-------------|
-| `slideDirection` | string | `"left"` | Which side the panel slides in from. Accepted values: `"left"`, `"right"`. |
+| `slideDirection` | string | `"left"` | Which side the panel slides in from. Accepted values: `"left"`, `"right"`. Hidden in the editor when `isFullScreen` is `true`. |
+| `isFullScreen` | boolean | `false` | When `true`, the panel expands to fill the entire viewport. Hides the `slideDirection` and `panelWidth` controls. |
+| `panelWidth` | string | `"small"` | Panel width when not full screen. Accepted values: `"x-small"`, `"small"`, `"medium"`, `"large"`, `"x-large"`. Hidden in the editor when `isFullScreen` is `true`. |
 | `overlayColor` | string | `""` | Color of the overlay backdrop. Supports RGBA for transparency. Read by `view.js` from a `data-overlay-color` attribute on the panel element. |
 | `panelBackgroundColor` | string | `""` | Panel background color. Applied as an inline style. |
 | `panelTextColor` | string | `""` | Panel text color. Applied as an inline style. |
