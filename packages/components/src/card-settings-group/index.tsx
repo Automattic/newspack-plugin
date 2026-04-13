@@ -12,6 +12,7 @@ const CardSettingsGroup = ( {
 	actionType = 'none',
 	children,
 	icon = null,
+	headerAction,
 	title = '',
 	description = '',
 	isActive = false,
@@ -21,6 +22,16 @@ const CardSettingsGroup = ( {
 	children?: React.ReactNode;
 	icon?: React.ReactNode;
 	title: string;
+	headerAction?: {
+		label: string;
+		icon?: React.ReactNode;
+		href?: string;
+		onClick?: () => void;
+		disabled?: boolean;
+		destructive?: boolean;
+		tone?: 'primary' | 'secondary' | 'tertiary' | 'link';
+		variant?: 'primary' | 'secondary' | 'tertiary' | 'link';
+	};
 	description?: string;
 	isActive?: boolean;
 	onEnable?: () => void;
@@ -38,7 +49,8 @@ const CardSettingsGroup = ( {
 						{ description && <p>{ description }</p> }
 					</>
 				),
-				onHeaderClick: onEnable,
+				headerAction,
+				onToggle: onEnable,
 				icon,
 				iconBackgroundColor: true,
 				isActive,

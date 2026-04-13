@@ -28,6 +28,7 @@ const CoreCard = ( {
 	className,
 	footer,
 	header,
+	headerAction,
 	headerStyle,
 	childrenStyle,
 	footerStyle,
@@ -177,6 +178,20 @@ const CoreCard = ( {
 								} )
 							}
 						</DropdownMenu>
+					) }
+					{ headerAction && (
+						<Button
+							className="newspack-card--core__header__action"
+							icon={ headerAction.icon }
+							href={ headerAction.href }
+							disabled={ headerAction.disabled || false }
+							destructive={ headerAction.destructive || false }
+							onClick={ headerAction.onClick }
+							tone={ headerAction.tone || 'primary' }
+							variant={ headerAction.variant || 'secondary' }
+						>
+							{ headerAction.label }
+						</Button>
 					) }
 				</CardHeader>
 			) }

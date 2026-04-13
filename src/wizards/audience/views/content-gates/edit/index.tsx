@@ -9,7 +9,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import { __experimentalVStack as VStack } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
 import { useDispatch } from '@wordpress/data';
 import { createInterpolateElement, useCallback, useEffect, useRef, useState } from '@wordpress/element';
-import { commentAuthorAvatar, currencyDollar, envelope, postList, settings } from '@wordpress/icons';
+import { commentAuthorAvatar, currencyDollar, envelope, pencil, postList, settings } from '@wordpress/icons';
 
 /**
  * Internal dependencies
@@ -22,7 +22,7 @@ import { useWizardApiFetch } from '../../../../hooks/use-wizard-api-fetch';
 import ContentRules from './content-rules';
 import Registration from './registration';
 import CustomAccess from './custom-access';
-import { getGateStatus, getGateStatusBadgeLevel } from '../utils';
+import { getEditGateLayoutUrl, getGateStatus, getGateStatusBadgeLevel } from '../utils';
 
 const { useHistory } = Router;
 
@@ -550,6 +550,15 @@ const Edit = ( { match, updateGatesData, slug = AUDIENCE_CONTENT_GATES_WIZARD_SL
 								__( 'Readers must log in to view %s.', 'newspack-plugin' ),
 								isNewsletter ? __( 'these lists', 'newspack-plugin' ) : __( 'this content', 'newspack-plugin' )
 							) }
+							headerAction={
+								registration?.active && registration.gate_layout_id
+									? {
+											label: __( 'Edit layout', 'newspack-plugin' ),
+											href: getEditGateLayoutUrl( gate.id, 'registration' ),
+											icon: pencil,
+									  }
+									: undefined
+							}
 							icon={ commentAuthorAvatar }
 							isActive={ registration?.active }
 							onEnable={ () => setRegistration( { ...registration, active: ! registration.active } ) }
@@ -564,6 +573,15 @@ const Edit = ( { match, updateGatesData, slug = AUDIENCE_CONTENT_GATES_WIZARD_SL
 							'Set conditions like subscriptions, domain, and more. Readers must meet at least one condition to gain access.',
 							'newspack-plugin'
 						) }
+						headerAction={
+							customAccess?.active && customAccess.access_rules?.length > 0
+								? {
+										label: __( 'Edit layout', 'newspack-plugin' ),
+										href: getEditGateLayoutUrl( gate.id, 'custom_access' ),
+										icon: pencil,
+								  }
+								: undefined
+						}
 						icon={ currencyDollar }
 						isActive={ customAccess?.active }
 						onEnable={ () => setCustomAccess( { ...customAccess, active: ! customAccess.active } ) }
