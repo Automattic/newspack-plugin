@@ -795,7 +795,7 @@ class Content_Gate {
 
 		ob_start();
 		require $path;
-		return ob_get_clean();
+		return Content_Gate\Block_Patterns::strip_pattern_whitespace( ob_get_clean() );
 	}
 
 	/**

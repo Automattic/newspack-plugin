@@ -5,38 +5,13 @@
  * @package Newspack
  */
 
-// Extract metering settings from custom access context, with defaults.
-// Custom access metering applies to registered readers without an active subscription.
-$metering_count  = 4;
-$metering_period = __( 'month', 'newspack' );
-if ( ! empty( $pattern_context['custom_access_settings']['metering'] ) ) {
-	$metering = $pattern_context['custom_access_settings']['metering'];
-	if ( ! empty( $metering['count'] ) ) {
-		$metering_count = absint( $metering['count'] );
-	}
-	if ( ! empty( $metering['period'] ) ) {
-		$metering_period = esc_html( $metering['period'] );
-	}
-}
-
-// Get the first purchasable subscription product from custom access rules, if available.
-$product_id = 0;
-if ( ! empty( $pattern_context['custom_access_settings']['access_rules'] ) && function_exists( 'wc_get_product' ) ) {
-	foreach ( $pattern_context['custom_access_settings']['access_rules'] as $group ) {
-		foreach ( $group as $rule ) {
-			if ( 'subscription' === ( $rule['slug'] ?? '' ) && ! empty( $rule['value'] ) ) {
-				$product = \wc_get_product( absint( is_array( $rule['value'] ) ? reset( $rule['value'] ) : $rule['value'] ) );
-				if ( $product && $product->is_purchasable() ) {
-					$product_id = $product->get_id();
-					break 2;
-				}
-			}
-		}
-	}
-}
+$metering        = \Newspack\Content_Gate\Block_Patterns::get_metering_settings( $pattern_context );
+$metering_count  = $metering['count'];
+$metering_period = $metering['period'];
+$product_id      = \Newspack\Content_Gate\Block_Patterns::get_subscription_product_id( $pattern_context );
 
 $checkout_attrs = [
-	'text'  => esc_html__( 'Become a member', 'newspack' ),
+	'text'  => esc_html__( 'Become a member', 'newspack-plugin' ),
 	'width' => 100,
 	'align' => 'center',
 ];
@@ -49,13 +24,13 @@ if ( $product_id ) {
 <div class="wp-block-group alignwide has-border-color has-base-3-border-color" style="border-width:1px;border-top-left-radius:8px;border-top-right-radius:8px;border-bottom-left-radius:8px;border-bottom-right-radius:8px;padding-top:var(--wp--preset--spacing--80);padding-right:var(--wp--preset--spacing--80);padding-bottom:var(--wp--preset--spacing--80);padding-left:var(--wp--preset--spacing--80)">
 	<!-- wp:heading {"textAlign":"center","level":3,"metadata":{"name":"<?php esc_html_e( 'Title', 'newspack-plugin' ); ?>"}} -->
 	<h3 class="wp-block-heading has-text-align-center">
-		<?php esc_html_e( 'Unlock the full article', 'newspack' ); ?>
+		<?php esc_html_e( 'Unlock the full article', 'newspack-plugin' ); ?>
 	</h3>
 	<!-- /wp:heading -->
 
 	<!-- wp:paragraph {"align":"center"} -->
 	<p class="has-text-align-center">
-		<?php esc_html_e( 'Join a community of passionate readers and never miss a story.', 'newspack' ); ?>
+		<?php esc_html_e( 'Join a community of passionate readers and never miss a story.', 'newspack-plugin' ); ?>
 	</p>
 	<!-- /wp:paragraph -->
 
@@ -73,7 +48,7 @@ if ( $product_id ) {
 							'Get %1$s free article every %2$s with a free account.',
 							'Get %1$s free articles every %2$s with a free account.',
 							$metering_count,
-							'newspack'
+							'newspack-plugin'
 						)
 					),
 					'<strong>' . esc_html( $metering_count ) . '</strong>',
@@ -93,7 +68,7 @@ if ( $product_id ) {
 		<div class="wp-block-column">
 			<!-- wp:paragraph {"align":"center"} -->
 			<p class="has-text-align-center">
-				<?php esc_html_e( 'Support our journalism and get unlimited access to our full archive.', 'newspack' ); ?>
+				<?php esc_html_e( 'Support our journalism and get unlimited access to our full archive.', 'newspack-plugin' ); ?>
 			</p>
 			<!-- /wp:paragraph -->
 

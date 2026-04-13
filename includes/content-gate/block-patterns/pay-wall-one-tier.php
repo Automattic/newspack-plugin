@@ -5,24 +5,10 @@
  * @package Newspack
  */
 
-// Get the first purchasable subscription product from custom access rules, if available.
-$product_id = 0;
-if ( ! empty( $pattern_context['custom_access_settings']['access_rules'] ) && function_exists( 'wc_get_product' ) ) {
-	foreach ( $pattern_context['custom_access_settings']['access_rules'] as $group ) {
-		foreach ( $group as $rule ) {
-			if ( 'subscription' === ( $rule['slug'] ?? '' ) && ! empty( $rule['value'] ) ) {
-				$product = \wc_get_product( absint( is_array( $rule['value'] ) ? reset( $rule['value'] ) : $rule['value'] ) );
-				if ( $product && $product->is_purchasable() ) {
-					$product_id = $product->get_id();
-					break 2;
-				}
-			}
-		}
-	}
-}
+$product_id = \Newspack\Content_Gate\Block_Patterns::get_subscription_product_id( $pattern_context );
 
 $checkout_attrs = [
-	'text'  => esc_html__( 'Become a member', 'newspack' ),
+	'text'  => esc_html__( 'Become a member', 'newspack-plugin' ),
 	'width' => 100,
 	'align' => 'center',
 ];
@@ -35,7 +21,7 @@ if ( $product_id ) {
 <div class="wp-block-group alignwide has-border-color has-base-3-border-color" style="border-width:1px;border-top-left-radius:8px;border-top-right-radius:8px;border-bottom-left-radius:8px;border-bottom-right-radius:8px;padding-top:var(--wp--preset--spacing--80);padding-right:var(--wp--preset--spacing--80);padding-bottom:var(--wp--preset--spacing--80);padding-left:var(--wp--preset--spacing--80)">
 	<!-- wp:heading {"textAlign":"center","level":3,"metadata":{"name":"<?php esc_html_e( 'Title', 'newspack-plugin' ); ?>"}} -->
 	<h3 class="wp-block-heading has-text-align-center">
-		<?php esc_html_e( 'This article is for paid members only', 'newspack' ); ?>
+		<?php esc_html_e( 'This article is for paid members only', 'newspack-plugin' ); ?>
 	</h3>
 	<!-- /wp:heading -->
 
@@ -43,7 +29,7 @@ if ( $product_id ) {
 	<div class="wp-block-group">
 		<!-- wp:paragraph {"align":"center"} -->
 		<p class="has-text-align-center">
-			<?php esc_html_e( 'Support our journalism and get unlimited access to this article and our full archive.', 'newspack' ); ?>
+			<?php esc_html_e( 'Support our journalism and get unlimited access to this article and our full archive.', 'newspack-plugin' ); ?>
 		</p>
 		<!-- /wp:paragraph -->
 	</div>
@@ -58,7 +44,7 @@ if ( $product_id ) {
 			<!-- wp:button {"backgroundColor":"base","textColor":"contrast","width":100,"style":{"elements":{"link":{"color":{"text":"var:preset|color|contrast"}}}}} -->
 			<div class="wp-block-button has-custom-width wp-block-button__width-100">
 				<a class="wp-block-button__link has-contrast-color has-base-background-color has-text-color has-background has-link-color wp-element-button" href="#signin_modal">
-					<?php esc_html_e( 'Sign in to an existing account', 'newspack' ); ?>
+					<?php esc_html_e( 'Sign in to an existing account', 'newspack-plugin' ); ?>
 				</a>
 			</div>
 			<!-- /wp:button -->
