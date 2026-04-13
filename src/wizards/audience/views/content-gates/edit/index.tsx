@@ -574,7 +574,7 @@ const Edit = ( { match, updateGatesData, slug = AUDIENCE_CONTENT_GATES_WIZARD_SL
 							'newspack-plugin'
 						) }
 						headerAction={
-							customAccess?.active && customAccess.access_rules?.length > 0
+							customAccess?.active
 								? {
 										label: __( 'Edit layout', 'newspack-plugin' ),
 										href: getEditGateLayoutUrl( gate.id, 'custom_access' ),
