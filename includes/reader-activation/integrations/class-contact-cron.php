@@ -209,9 +209,11 @@ class Contact_Cron {
 
 		Logger::log( 'Batch pull started for ' . count( $queue ) . ' user(s).', self::LOGGER_HEADER );
 
+		$pending_retries = Contact_Pull::get_pending_retry_user_ids();
+
 		foreach ( $queue as $user_id ) {
 			delete_user_meta( $user_id, self::PULL_PENDING_META );
-			if ( Contact_Pull::has_pending_retries( $user_id ) ) {
+			if ( isset( $pending_retries[ $user_id ] ) ) {
 				Logger::log( 'Batch pull skipping user ' . $user_id . ': pending pull retries.', self::LOGGER_HEADER );
 				continue;
 			}
@@ -238,9 +240,11 @@ class Contact_Cron {
 
 		Logger::log( 'Batch push started for ' . count( $queue ) . ' user(s).', self::LOGGER_HEADER );
 
+		$pending_retries = Contact_Sync::get_pending_retry_user_ids();
+
 		foreach ( $queue as $user_id ) {
 			delete_user_meta( $user_id, self::PUSH_PENDING_META );
-			if ( Contact_Sync::has_pending_retries( $user_id ) ) {
+			if ( isset( $pending_retries[ $user_id ] ) ) {
 				Logger::log( 'Batch push skipping user ' . $user_id . ': pending sync retries.', self::LOGGER_HEADER );
 				continue;
 			}
