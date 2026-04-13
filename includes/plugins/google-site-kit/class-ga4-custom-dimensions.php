@@ -44,9 +44,11 @@ final class GA4_Custom_Dimensions {
 	 * @param mixed  $value  New option value.
 	 */
 	public static function on_sitekit_settings_added( $option, $value ) {
-		if ( ! empty( $value['propertyID'] ) ) {
-			self::schedule_provisioning( (string) $value['propertyID'] );
+		$property_id = is_array( $value ) && ! empty( $value['propertyID'] ) ? (string) $value['propertyID'] : '';
+		if ( '' === $property_id ) {
+			return;
 		}
+		self::schedule_provisioning( $property_id );
 	}
 
 	/**
@@ -140,34 +142,49 @@ final class GA4_Custom_Dimensions {
 	}
 
 	/**
-	 * Instantiate Newspack's Site Kit Analytics module wrapper, ensuring an
-	 * authenticated user context so Site Kit's client can resolve OAuth
-	 * tokens from user meta.
+	 * Run a callable within an authenticated-user context so Site Kit's
+	 * client can resolve OAuth tokens from user meta, and restore the
+	 * previous user when done.
 	 *
 	 * Site Kit stores tokens keyed on user ID (User_Options). In WP-Cron,
 	 * WP-CLI, or anywhere without a logged-in user, `get_current_user_id()`
 	 * returns 0 and Site Kit can't find credentials. We fall back to the
-	 * Analytics module owner stored in Site Kit's own settings.
+	 * Analytics module owner stored in Site Kit's own settings and restore
+	 * the previous user after the callback runs so we don't leak an
+	 * unexpected identity into subsequent operations in the same process.
 	 *
-	 * @return GoogleSiteKitAnalytics|\WP_Error
+	 * @param callable $callback Called with a GoogleSiteKitAnalytics instance.
+	 * @return mixed|\WP_Error The callback's return value, or WP_Error.
 	 */
-	private static function get_analytics_module() {
+	private static function with_analytics_module( callable $callback ) {
 		if ( ! defined( 'GOOGLESITEKIT_PLUGIN_MAIN_FILE' ) ) {
 			return new \WP_Error( 'newspack_ga4_dimensions', 'Google Site Kit is not active.' );
 		}
 		if ( ! class_exists( __NAMESPACE__ . '\\GoogleSiteKitAnalytics' ) ) {
 			return new \WP_Error( 'newspack_ga4_dimensions', 'GoogleSiteKitAnalytics class not available.' );
 		}
-		if ( ! get_current_user_id() ) {
+
+		$previous_user_id = get_current_user_id();
+		$switched_user    = false;
+
+		if ( ! $previous_user_id ) {
 			$settings = get_option( 'googlesitekit_analytics-4_settings', [] );
 			$owner_id = isset( $settings['ownerID'] ) ? (int) $settings['ownerID'] : 0;
-			if ( $owner_id > 0 ) {
-				wp_set_current_user( $owner_id );
-			} else {
+			if ( $owner_id <= 0 ) {
 				return new \WP_Error( 'newspack_ga4_dimensions', 'No Site Kit module owner found to authenticate as.' );
 			}
+			wp_set_current_user( $owner_id );
+			$switched_user = true;
 		}
-		return new GoogleSiteKitAnalytics( new Context( GOOGLESITEKIT_PLUGIN_MAIN_FILE ) );
+
+		try {
+			$module = new GoogleSiteKitAnalytics( new Context( GOOGLESITEKIT_PLUGIN_MAIN_FILE ) );
+			return $callback( $module );
+		} finally {
+			if ( $switched_user ) {
+				wp_set_current_user( $previous_user_id );
+			}
+		}
 	}
 
 	/**
@@ -182,14 +199,18 @@ final class GA4_Custom_Dimensions {
 		if ( ! $property_id ) {
 			return new \WP_Error( 'newspack_ga4_dimensions', 'No GA4 property ID configured in Site Kit.' );
 		}
-		$module = self::get_analytics_module();
-		if ( is_wp_error( $module ) ) {
-			return $module;
-		}
-		try {
-			$existing = $module->list_custom_dimensions( $property_id );
-		} catch ( \Throwable $e ) {
-			return new \WP_Error( 'newspack_ga4_dimensions', 'Failed listing custom dimensions: ' . $e->getMessage() );
+
+		$existing = self::with_analytics_module(
+			function ( GoogleSiteKitAnalytics $module ) use ( $property_id ) {
+				try {
+					return $module->list_custom_dimensions( $property_id );
+				} catch ( \Throwable $e ) {
+					return new \WP_Error( 'newspack_ga4_dimensions', 'Failed listing custom dimensions: ' . $e->getMessage() );
+				}
+			}
+		);
+		if ( is_wp_error( $existing ) ) {
+			return $existing;
 		}
 
 		$event_scoped = [];
@@ -218,9 +239,9 @@ final class GA4_Custom_Dimensions {
 	/**
 	 * Provision Newspack's standard GA4 custom dimensions.
 	 *
-	 * Idempotent: existing dimensions are detected and skipped. Creates
-	 * missing dimensions in priority order, stopping if the property's 50
-	 * event-scoped dimension limit would be exceeded.
+	 * Idempotent: existing dimensions on the property are detected by
+	 * parameter name and skipped. Per-dimension create failures are logged
+	 * and recorded in the summary but do not abort the run.
 	 *
 	 * @return array|\WP_Error Summary of what was created and skipped, or error.
 	 */
@@ -231,44 +252,51 @@ final class GA4_Custom_Dimensions {
 			return new \WP_Error( 'newspack_ga4_dimensions', 'No GA4 property ID configured.' );
 		}
 
-		$module = self::get_analytics_module();
-		if ( is_wp_error( $module ) ) {
-			Logger::log( 'Skipping provisioning: ' . $module->get_error_message(), self::LOGGER_HEADER );
-			return $module;
-		}
+		$result = self::with_analytics_module(
+			function ( GoogleSiteKitAnalytics $module ) use ( $property_id ) {
+				try {
+					$existing = $module->list_custom_dimensions( $property_id );
+				} catch ( \Throwable $e ) {
+					Logger::log( 'Failed listing GA4 custom dimensions: ' . $e->getMessage(), self::LOGGER_HEADER );
+					return new \WP_Error( 'newspack_ga4_dimensions', 'Failed listing custom dimensions: ' . $e->getMessage() );
+				}
 
-		try {
-			$existing = $module->list_custom_dimensions( $property_id );
-		} catch ( \Throwable $e ) {
-			Logger::log( 'Failed listing GA4 custom dimensions: ' . $e->getMessage(), self::LOGGER_HEADER );
-			return new \WP_Error( 'newspack_ga4_dimensions', 'Failed listing custom dimensions: ' . $e->getMessage() );
-		}
+				$existing_params = [];
+				foreach ( $existing as $dimension ) {
+					if ( isset( $dimension['parameterName'] ) ) {
+						$existing_params[ $dimension['parameterName'] ] = true;
+					}
+				}
 
-		$existing_params = [];
-		foreach ( $existing as $dimension ) {
-			if ( isset( $dimension['parameterName'] ) ) {
-				$existing_params[ $dimension['parameterName'] ] = true;
+				$created        = [];
+				$skipped_exists = [];
+				$errors         = [];
+
+				foreach ( self::get_dimensions() as $parameter_name => $display_name ) {
+					if ( isset( $existing_params[ $parameter_name ] ) ) {
+						$skipped_exists[] = $parameter_name;
+						continue;
+					}
+					try {
+						$module->create_custom_dimension( $property_id, $parameter_name, $display_name );
+						$created[] = $parameter_name;
+						Logger::log( "Created GA4 dimension '$parameter_name' on property $property_id.", self::LOGGER_HEADER );
+					} catch ( \Throwable $e ) {
+						$errors[ $parameter_name ] = $e->getMessage();
+						Logger::log( "Failed to create GA4 dimension '$parameter_name': " . $e->getMessage(), self::LOGGER_HEADER );
+					}
+				}
+
+				return [ $created, $skipped_exists, $errors ];
 			}
+		);
+
+		if ( is_wp_error( $result ) ) {
+			Logger::log( 'Skipping provisioning: ' . $result->get_error_message(), self::LOGGER_HEADER );
+			return $result;
 		}
 
-		$created        = [];
-		$skipped_exists = [];
-		$errors         = [];
-
-		foreach ( self::get_dimensions() as $parameter_name => $display_name ) {
-			if ( isset( $existing_params[ $parameter_name ] ) ) {
-				$skipped_exists[] = $parameter_name;
-				continue;
-			}
-			try {
-				$module->create_custom_dimension( $property_id, $parameter_name, $display_name );
-				$created[] = $parameter_name;
-				Logger::log( "Created GA4 dimension '$parameter_name' on property $property_id.", self::LOGGER_HEADER );
-			} catch ( \Throwable $e ) {
-				$errors[ $parameter_name ] = $e->getMessage();
-				Logger::log( "Failed to create GA4 dimension '$parameter_name': " . $e->getMessage(), self::LOGGER_HEADER );
-			}
-		}
+		list( $created, $skipped_exists, $errors ) = $result;
 
 		$summary = [
 			'property_id'    => $property_id,
@@ -278,8 +306,15 @@ final class GA4_Custom_Dimensions {
 			'errors'         => $errors,
 		];
 
+		// Merge created lists across runs only when the previous run targeted
+		// the same property, so a property switch starts fresh.
 		$previous = get_option( self::PROVISIONED_OPTION, [] );
-		if ( is_array( $previous ) && isset( $previous['created'] ) && is_array( $previous['created'] ) ) {
+		if (
+			is_array( $previous )
+			&& isset( $previous['property_id'], $previous['created'] )
+			&& (string) $previous['property_id'] === $property_id
+			&& is_array( $previous['created'] )
+		) {
 			$summary['created'] = array_values( array_unique( array_merge( $previous['created'], $created ) ) );
 		}
 

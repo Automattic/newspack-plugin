@@ -101,7 +101,8 @@ class GoogleSiteKitAnalytics extends Module {
 			$response = $analyticsadmin
 				->properties_customDimensions // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 				->listPropertiesCustomDimensions( 'properties/' . $property_id, $params );
-			foreach ( $response['customDimensions'] as $dimension ) {
+			$items    = isset( $response['customDimensions'] ) && is_array( $response['customDimensions'] ) ? $response['customDimensions'] : [];
+			foreach ( $items as $dimension ) {
 				$dimensions[] = [
 					'name'          => $dimension['name'],
 					'parameterName' => $dimension['parameterName'],
