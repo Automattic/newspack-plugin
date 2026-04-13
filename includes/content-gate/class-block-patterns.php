@@ -121,7 +121,7 @@ class Block_Patterns {
 				$count = absint( $metering['count'] );
 			}
 			if ( ! empty( $metering['period'] ) ) {
-				$period = esc_html( $metering['period'] );
+				$period = sanitize_text_field( $metering['period'] );
 			}
 		}
 		return [

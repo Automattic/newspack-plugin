@@ -15,7 +15,7 @@ $patron_features = [
 	__( 'Everything Members get', 'newspack-plugin' ),
 	__( 'Exclusive podcasts and newsletters', 'newspack-plugin' ),
 	__( 'Our appreciation and love', 'newspack-plugin' ),
-]
+];
 
 ?>
 <!-- wp:group {"metadata":{"name":"<?php esc_html_e( 'Subscription', 'newspack-plugin' ); ?>"},"align":"wide","style":{"spacing":{"padding":{"top":"var:preset|spacing|80","bottom":"var:preset|spacing|80","left":"var:preset|spacing|80","right":"var:preset|spacing|80"}},"border":{"radius":"8px","width":"1px"}},"borderColor":"base-3","layout":{"type":"constrained"}} -->
