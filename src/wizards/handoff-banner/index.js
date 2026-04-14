@@ -62,8 +62,10 @@ if ( el ) {
 			return false;
 		};
 		if ( ! applyWooCommerceOffset() ) {
+			const timeoutId = setTimeout( () => observer.disconnect(), 5000 );
 			const observer = new MutationObserver( () => {
 				if ( applyWooCommerceOffset() ) {
+					clearTimeout( timeoutId );
 					observer.disconnect();
 				}
 			} );

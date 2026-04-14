@@ -86,7 +86,7 @@ class Handoff_Banner {
 					<button
 						type="button"
 						class="components-button is-tertiary is-small"
-						onclick="this.closest('#newspack-handoff-banner').remove()"
+						data-dismiss
 					>
 						<?php esc_html_e( 'Dismiss', 'newspack-plugin' ); ?>
 					</button>
@@ -99,13 +99,22 @@ class Handoff_Banner {
 		<script>
 		( function() {
 			var el = document.getElementById( 'newspack-handoff-banner' );
+			if ( ! el ) {
+				return;
+			}
 			var wpcontent = document.getElementById( 'wpcontent' );
-			if ( el && wpcontent ) {
+			if ( wpcontent ) {
 				var paddingLeft = parseInt( window.getComputedStyle( wpcontent ).paddingLeft, 10 );
 				if ( paddingLeft ) {
 					el.style.marginLeft = '-' + paddingLeft + 'px';
 					el.style.width = 'calc(100% + ' + paddingLeft + 'px)';
 				}
+			}
+			var dismissBtn = el.querySelector( '[data-dismiss]' );
+			if ( dismissBtn ) {
+				dismissBtn.addEventListener( 'click', function() {
+					el.remove();
+				} );
 			}
 		} )();
 		</script>

@@ -133,7 +133,7 @@ class Handoff extends Component {
 						className={ classes }
 						isSecondary={ ! otherProps.isPrimary && ! otherProps.isTertiary && ! otherProps.isLink }
 						{ ...otherProps }
-						onClick={ () => ( useModal ? this.setState( { showModal: true } ) : goTo() ) }
+						onClick={ () => ( useModal && children ? this.setState( { showModal: true } ) : goTo() ) }
 					>
 						{ children ? children : primaryButton }
 					</Button>

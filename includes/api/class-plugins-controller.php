@@ -359,11 +359,7 @@ class Plugins_Controller extends WP_REST_Controller {
 	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
 	 */
 	public function handoff_to_url( $request ) {
-		$destination_url = $request->get_param( 'destinationUrl' );
-		if ( empty( $destination_url ) ) {
-			return new \WP_Error( 'newspack_handoff_missing_url', __( 'destinationUrl is required.', 'newspack-plugin' ), [ 'status' => 400 ] );
-		}
-
+		$destination_url      = $request->get_param( 'destinationUrl' );
 		$handoff_return_url   = $request->get_param( 'handoffReturnUrl' );
 		$show_on_block_editor = $request->get_param( 'showOnBlockEditor' );
 		$banner_text          = (string) $request->get_param( 'bannerText' );
