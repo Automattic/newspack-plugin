@@ -251,7 +251,6 @@ class Teams_For_Memberships_Diagnostics {
 		}
 
 		// Finally delete the now-empty duplicate.
-		$remaining = get_post_meta( $duplicate->ID, '_member_id', true );
 		$remaining_members = $duplicate_team->get_member_ids();
 		if ( empty( $remaining_members ) ) {
 			WP_CLI::line( sprintf( '    DELETE duplicate team #%d', $duplicate->ID ) );
@@ -315,11 +314,17 @@ class Teams_For_Memberships_Diagnostics {
 		}
 
 		// Candidate 2: an active subscription owned by the team owner that includes the team's product.
-		$member_id  = (int) get_post_meta( $team->ID, '_member_id', true );
-		$product_id = (int) get_post_meta( $team->ID, '_product_id', true );
+		// `wcs_get_users_subscriptions` returns every status, so filter to live subscriptions – cancelled or
+		// expired subs would give us a wrong link and either mis-repair or block fix via the "multiple candidates" branch.
+		$active_statuses = [ 'active', 'pending-cancel' ];
+		$member_id       = (int) get_post_meta( $team->ID, '_member_id', true );
+		$product_id      = (int) get_post_meta( $team->ID, '_product_id', true );
 		if ( $member_id && $product_id && function_exists( 'wcs_get_users_subscriptions' ) ) {
 			$user_subs = wcs_get_users_subscriptions( $member_id );
 			foreach ( $user_subs as $sub ) {
+				if ( ! in_array( $sub->get_status(), $active_statuses, true ) ) {
+					continue;
+				}
 				foreach ( $sub->get_items() as $sub_item ) {
 					if ( (int) $sub_item->get_product_id() === $product_id ) {
 						$candidate_sub_ids[ (int) $sub->get_id() ] = true;
@@ -350,12 +355,17 @@ class Teams_For_Memberships_Diagnostics {
 		WP_CLI::line( 'Check 3: memberships missing _subscription_id but recoverable via team' );
 		global $wpdb;
 
-		$base_sql = "SELECT p.ID AS membership_id, pm_team.meta_value AS team_id
+		// Pull `team._subscription_id` via a join in the same query so we don't issue per-row
+		// get_post_meta() calls for every flagged membership. The inner join on pm_team_sub
+		// also naturally filters out Check 2 cases (teams that have no _subscription_id either).
+		$base_sql = "SELECT p.ID AS membership_id, pm_team.meta_value AS team_id, pm_team_sub.meta_value AS team_sub_id
 			FROM $wpdb->posts p
 			JOIN $wpdb->postmeta pm_team ON pm_team.post_id = p.ID AND pm_team.meta_key = '_team_id'
 			LEFT JOIN $wpdb->postmeta pm_sub ON pm_sub.post_id = p.ID AND pm_sub.meta_key = '_subscription_id'
+			JOIN $wpdb->postmeta pm_team_sub ON pm_team_sub.post_id = pm_team.meta_value AND pm_team_sub.meta_key = '_subscription_id'
 			WHERE p.post_type = 'wc_user_membership'
-			AND ( pm_sub.meta_value IS NULL OR pm_sub.meta_value = '' )";
+			AND ( pm_sub.meta_value IS NULL OR pm_sub.meta_value = '' )
+			AND pm_team_sub.meta_value <> ''";
 
 		if ( self::$team_id ) {
 			$rows = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
@@ -367,23 +377,18 @@ class Teams_For_Memberships_Diagnostics {
 
 		$issue_count = 0;
 		foreach ( $rows as $row ) {
-			$team_sub_id = get_post_meta( (int) $row->team_id, '_subscription_id', true );
-			if ( empty( $team_sub_id ) ) {
-				// The team has no subscription either. This is a Check 2 problem, not a Check 3 fix.
-				continue;
-			}
 			$issue_count++;
 			WP_CLI::line(
 				sprintf(
 					'  ISSUE: membership #%d has no _subscription_id (team #%d has #%s)',
 					$row->membership_id,
 					$row->team_id,
-					$team_sub_id
+					$row->team_sub_id
 				)
 			);
 			if ( self::$fix ) {
-				WP_CLI::line( sprintf( '    SET membership #%d _subscription_id = %s', $row->membership_id, $team_sub_id ) );
-				update_post_meta( (int) $row->membership_id, '_subscription_id', $team_sub_id );
+				WP_CLI::line( sprintf( '    SET membership #%d _subscription_id = %s', $row->membership_id, $row->team_sub_id ) );
+				update_post_meta( (int) $row->membership_id, '_subscription_id', $row->team_sub_id );
 			}
 		}
 
@@ -515,15 +520,15 @@ class Teams_For_Memberships_Diagnostics {
 	}
 
 	/**
-	 * Load all team posts (optionally scoped to --team-id). Cached per-run.
+	 * Load all team posts, optionally scoped to --team-id.
+	 *
+	 * Re-queried on every call because earlier checks can mutate or delete
+	 * teams in `--fix` mode (e.g. Check 1 removes duplicates), so a cached
+	 * list would go stale.
 	 *
 	 * @return \WP_Post[]
 	 */
 	private static function get_all_teams() {
-		static $cache = null;
-		if ( null !== $cache ) {
-			return $cache;
-		}
 		$query_args = [
 			'post_type'      => 'wc_memberships_team',
 			'post_status'    => 'any',
@@ -532,7 +537,6 @@ class Teams_For_Memberships_Diagnostics {
 		if ( self::$team_id ) {
 			$query_args['p'] = self::$team_id;
 		}
-		$cache = get_posts( $query_args );
-		return $cache;
+		return get_posts( $query_args );
 	}
 }
