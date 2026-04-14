@@ -158,6 +158,14 @@ class Handoff_Banner {
 		);
 		wp_enqueue_style( $handle );
 
+		// On Newspack screens the banner is rendered server-side via
+		// insert_handoff_banner_static(); enqueuing the JS would find the same
+		// element id and clobber the server-rendered markup.
+		$screen = get_current_screen();
+		if ( $screen && stristr( $screen->id, 'newspack' ) ) {
+			return;
+		}
+
 		Newspack::load_common_assets();
 
 		$asset = include NEWSPACK_ABSPATH . 'dist/handoff-banner.asset.php';
