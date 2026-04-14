@@ -336,9 +336,6 @@ class Content_Restriction_Control {
 					'type'           => 'boolean',
 					'default'        => false,
 					'single'         => true,
-					'auth_callback'  => function() {
-						return current_user_can( 'edit_others_posts' );
-					},
 				]
 			);
 		}
