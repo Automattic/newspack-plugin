@@ -12,7 +12,7 @@ import '../../shared/js/public-path';
 import { CardBody, CardDivider, CardMedia, ExternalLink, ToggleControl, __experimentalVStack as VStack } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
 import { Component, Fragment, render, createInterpolateElement, createRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Icon, category, plus, postList, settings } from '@wordpress/icons';
+import { Icon, category, cloud, envelope, plus, postList, settings } from '@wordpress/icons';
 
 /**
  * Internal dependencies.
@@ -74,6 +74,9 @@ class ComponentsDemo extends Component {
 			settingsGroupCardActive: false,
 			cardFeatureEnabled: false,
 			cardFeatureCustomEnabled: false,
+			integrationEspEnabled: false,
+			integrationFundraiseUpEnabled: true,
+			integrationSalesforceEnabled: true,
 		};
 		this.dragWrapperRef = createRef();
 	}
@@ -994,6 +997,123 @@ class ComponentsDemo extends Component {
 									{ title: __( 'Preview', 'newspack-plugin' ), onClick: () => {} },
 									{ title: __( 'Disable', 'newspack-plugin' ), onClick: () => {} },
 								] }
+							/>
+						</Grid>
+					</Card>
+					<Card>
+						<h2>{ __( 'Integrations Dashboard', 'newspack-plugin' ) }</h2>
+						<p>
+							{ __(
+								'Demonstrates how CardFeature cards compose into an integrations admin screen. Click Connect/Disable to cycle card states interactively.',
+								'newspack-plugin'
+							) }
+						</p>
+						<Grid columns={ 2 } gutter={ 16 }>
+							<CardFeature
+								title={ __( 'Newsletter ESP', 'newspack-plugin' ) }
+								description={ __( 'Sync reader data and activity to the connected email service provider.', 'newspack-plugin' ) }
+								icon={ {
+									node: <Icon icon={ envelope } />,
+									fill: '#757575',
+									backgroundColor: '#f0f0f0',
+								} }
+								enabled={ this.state.integrationEspEnabled }
+								enableLabel={ __( 'Connect', 'newspack-plugin' ) }
+								onEnable={ () => this.setState( { integrationEspEnabled: true } ) }
+								onConfigure={ () => {} }
+								moreControls={
+									this.state.integrationEspEnabled
+										? [
+												{
+													title: __( 'Logs', 'newspack-plugin' ),
+													onClick: () => {},
+												},
+												{
+													title: __( 'Disable', 'newspack-plugin' ),
+													onClick: () =>
+														this.setState( {
+															integrationEspEnabled: false,
+														} ),
+												},
+										  ]
+										: undefined
+								}
+							/>
+							<CardFeature
+								title={ __( 'Fundraise Up', 'newspack-plugin' ) }
+								description={ __( 'Sync donation and supporter data from Fundraise Up campaigns.', 'newspack-plugin' ) }
+								icon={ {
+									node: <Icon icon={ postList } />,
+									fill: '#003da5',
+									backgroundColor: '#dfe7f4',
+									radius: 'full',
+								} }
+								enabled={ this.state.integrationFundraiseUpEnabled }
+								enableLabel={ __( 'Connect', 'newspack-plugin' ) }
+								onEnable={ () => this.setState( { integrationFundraiseUpEnabled: true } ) }
+								onConfigure={ () => {} }
+								moreControls={
+									this.state.integrationFundraiseUpEnabled
+										? [
+												{
+													title: __( 'Logs', 'newspack-plugin' ),
+													onClick: () => {},
+												},
+												{
+													title: __( 'Disable', 'newspack-plugin' ),
+													onClick: () =>
+														this.setState( {
+															integrationFundraiseUpEnabled: false,
+														} ),
+												},
+										  ]
+										: undefined
+								}
+							/>
+							<CardFeature
+								title={ __( 'WisePops', 'newspack-plugin' ) }
+								description={ __( 'Import popup interaction data for reader segmentation.', 'newspack-plugin' ) }
+								icon={ {
+									node: <Icon icon={ category } />,
+									fill: '#757575',
+									backgroundColor: '#f0f0f0',
+								} }
+								requirements={ __( 'Requires WisePops plugin', 'newspack-plugin' ) }
+								onEnable={ () => {} }
+								onConfigure={ () => {} }
+							/>
+							<CardFeature
+								title={ __( 'Salesforce', 'newspack-plugin' ) }
+								description={ __( 'Bi-directional sync of reader and contact data with Salesforce CRM.', 'newspack-plugin' ) }
+								icon={ {
+									node: <Icon icon={ cloud } />,
+									fill: '#003da5',
+									backgroundColor: '#dfe7f4',
+									radius: 'full',
+								} }
+								enabled={ this.state.integrationSalesforceEnabled }
+								enableLabel={ __( 'Connect', 'newspack-plugin' ) }
+								badgeText={ __( 'Sandbox mode', 'newspack-plugin' ) }
+								badgeLevel="info"
+								onEnable={ () => this.setState( { integrationSalesforceEnabled: true } ) }
+								onConfigure={ () => {} }
+								moreControls={
+									this.state.integrationSalesforceEnabled
+										? [
+												{
+													title: __( 'Logs', 'newspack-plugin' ),
+													onClick: () => {},
+												},
+												{
+													title: __( 'Disable', 'newspack-plugin' ),
+													onClick: () =>
+														this.setState( {
+															integrationSalesforceEnabled: false,
+														} ),
+												},
+										  ]
+										: undefined
+								}
 							/>
 						</Grid>
 					</Card>
