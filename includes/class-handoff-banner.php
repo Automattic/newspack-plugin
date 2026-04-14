@@ -228,10 +228,15 @@ class Handoff_Banner {
 	}
 
 	/**
-	 * Clear the handoff state when navigating away from the destination page.
-	 * Clears on any Newspack screen that isn't the destination, and on any
-	 * non-Newspack screen when a destination page was registered (preventing
-	 * the banner from lingering on unrelated admin pages).
+	 * Clear the handoff state when the user explicitly returns.
+	 *
+	 * The banner is sticky throughout the detour: it survives login redirects
+	 * and sub-page navigation within the destination plugin so the user never
+	 * loses their way back. Two trigger points end the handoff:
+	 *   1. The user reaches the stored return URL (typically via the banner's
+	 *      "Back" button), when one is set.
+	 *   2. The user reaches any Newspack admin screen — fallback for plugin
+	 *      handoffs that don't supply a return URL.
 	 *
 	 * @param WP_Screen $current_screen The current screen object.
 	 * @return void
@@ -241,27 +246,55 @@ class Handoff_Banner {
 			return;
 		}
 
-		$destination_page = get_option( NEWSPACK_HANDOFF_DESTINATION_PAGE, '' );
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		$current_page = isset( $_GET['page'] ) ? sanitize_text_field( wp_unslash( $_GET['page'] ) ) : '';
+		$return_url = get_option( NEWSPACK_HANDOFF_RETURN_URL, '' );
 
-		// Don't clear if we're on the intended destination page.
-		if ( $destination_page && $current_page === $destination_page ) {
+		if ( $return_url ) {
+			if ( $this->is_on_return_url( $return_url ) ) {
+				$this->clear_all_handoff_options();
+			}
 			return;
 		}
 
-		// Clear on any Newspack screen that isn't the destination.
-		if ( stristr( $current_screen->id, 'newspack' ) ) {
+		if ( $current_screen && stristr( $current_screen->id, 'newspack' ) ) {
 			$this->clear_all_handoff_options();
-			return;
+		}
+	}
+
+	/**
+	 * Check whether the current admin request matches a stored return URL.
+	 *
+	 * Compares the script filename (e.g. `admin.php`) and every query parameter
+	 * declared in the return URL. Same-site validation is enforced upstream at
+	 * the REST layer, so host is not compared here.
+	 *
+	 * @param string $return_url Stored handoff return URL.
+	 * @return bool
+	 */
+	private function is_on_return_url( $return_url ) {
+		$parsed = wp_parse_url( $return_url );
+		if ( empty( $parsed ) ) {
+			return false;
 		}
 
-		// For URL-based handoffs with a known destination page, also clear on any
-		// non-Newspack page that isn't the destination, to prevent the banner from
-		// persisting across unrelated admin screens.
-		if ( $destination_page ) {
-			$this->clear_all_handoff_options();
+		if ( ! empty( $parsed['path'] ) ) {
+			$current_path = isset( $_SERVER['SCRIPT_NAME'] ) ? sanitize_text_field( wp_unslash( $_SERVER['SCRIPT_NAME'] ) ) : '';
+			if ( basename( $parsed['path'] ) !== basename( $current_path ) ) {
+				return false;
+			}
 		}
+
+		if ( ! empty( $parsed['query'] ) ) {
+			wp_parse_str( $parsed['query'], $return_query );
+			foreach ( $return_query as $key => $value ) {
+				// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+				$current_value = isset( $_GET[ $key ] ) ? sanitize_text_field( wp_unslash( $_GET[ $key ] ) ) : '';
+				if ( (string) $current_value !== (string) $value ) {
+					return false;
+				}
+			}
+		}
+
+		return true;
 	}
 }
 new Handoff_Banner();
