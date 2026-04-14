@@ -64,10 +64,6 @@ export const SettingsSection = ( { integrations, loading, onToggleEnabled, onCon
 										isEnabled && ! canSyncError
 											? [
 													{
-														title: __( 'Logs', 'newspack-plugin' ),
-														onClick: () => {},
-													},
-													{
 														title: __( 'Disable', 'newspack-plugin' ),
 														onClick: () => onToggleEnabled( id, false ),
 													},
