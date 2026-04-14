@@ -385,6 +385,14 @@ class Integrations {
 				continue;
 			}
 			$can_sync = $integration->can_sync( true );
+			// Filter out the "not enabled" error — that's a user-controlled state,
+			// not a requirement. The frontend uses can_sync for unmet prerequisites only.
+			if ( is_wp_error( $can_sync ) ) {
+				$can_sync->remove( 'ras_esp_sync_not_enabled' );
+			}
+			$can_sync_value = is_wp_error( $can_sync ) && $can_sync->has_errors()
+				? $can_sync->get_error_message()
+				: true;
 			$result[ $id ] = [
 				'id'          => $id,
 				'name'        => $integration->get_name(),
