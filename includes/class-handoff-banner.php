@@ -134,8 +134,8 @@ class Handoff_Banner {
 		$banner_text        = get_option( NEWSPACK_HANDOFF_BANNER_TEXT, '' );
 		$banner_button_text = get_option( NEWSPACK_HANDOFF_BANNER_BUTTON_TEXT, '' );
 		$script_info        = [
-			'text'       => $banner_text ? $banner_text : __( 'Return to Newspack after completing configuration', 'newspack' ),
-			'buttonText' => $banner_button_text ? $banner_button_text : __( 'Back to Newspack', 'newspack' ),
+			'text'       => $banner_text ? $banner_text : __( 'Return to Newspack after completing configuration', 'newspack-plugin' ),
+			'buttonText' => $banner_button_text ? $banner_button_text : __( 'Back to Newspack', 'newspack-plugin' ),
 			'returnURL'  => esc_url( get_option( NEWSPACK_HANDOFF_RETURN_URL, '' ) ),
 		];
 		wp_localize_script( $handle, 'newspack_handoff', $script_info );
@@ -220,11 +220,12 @@ class Handoff_Banner {
 	 * @return void
 	 */
 	private function clear_all_handoff_options() {
-		update_option( NEWSPACK_HANDOFF, null );
-		update_option( NEWSPACK_HANDOFF_SHOW_ON_BLOCK_EDITOR, false );
-		update_option( NEWSPACK_HANDOFF_BANNER_TEXT, '' );
-		update_option( NEWSPACK_HANDOFF_BANNER_BUTTON_TEXT, '' );
-		update_option( NEWSPACK_HANDOFF_DESTINATION_PAGE, '' );
+		delete_option( NEWSPACK_HANDOFF );
+		delete_option( NEWSPACK_HANDOFF_SHOW_ON_BLOCK_EDITOR );
+		delete_option( NEWSPACK_HANDOFF_BANNER_TEXT );
+		delete_option( NEWSPACK_HANDOFF_BANNER_BUTTON_TEXT );
+		delete_option( NEWSPACK_HANDOFF_DESTINATION_PAGE );
+		delete_option( NEWSPACK_HANDOFF_RETURN_URL );
 	}
 
 	/**
