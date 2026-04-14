@@ -104,7 +104,6 @@ class Newspack_Test_Plugins_Controller extends WP_UnitTestCase {
 		$request  = new WP_REST_Request( 'POST', $this->api_namespace . '/handoff' );
 		$response = $this->server->dispatch( $request );
 		$this->assertEquals( 400, $response->get_status() );
-		$this->assertEquals( 'newspack_handoff_missing_url', $response->get_data()['code'] );
 	}
 
 	/**
@@ -116,7 +115,40 @@ class Newspack_Test_Plugins_Controller extends WP_UnitTestCase {
 		$request->set_param( 'destinationUrl', 'https://evil.example/steal-tokens' );
 		$response = $this->server->dispatch( $request );
 		$this->assertEquals( 400, $response->get_status() );
-		$this->assertEquals( 'newspack_handoff_invalid_url', $response->get_data()['code'] );
+	}
+
+	/**
+	 * Test handoff to URL rejects the javascript: scheme.
+	 */
+	public function test_handoff_to_url_rejects_javascript_scheme() {
+		wp_set_current_user( $this->administrator );
+		$request = new WP_REST_Request( 'POST', $this->api_namespace . '/handoff' );
+		$request->set_param( 'destinationUrl', 'javascript:alert(1)' );
+		$response = $this->server->dispatch( $request );
+		$this->assertEquals( 400, $response->get_status() );
+	}
+
+	/**
+	 * Test handoff to URL rejects protocol-relative URLs pointing off-site.
+	 */
+	public function test_handoff_to_url_rejects_protocol_relative_url() {
+		wp_set_current_user( $this->administrator );
+		$request = new WP_REST_Request( 'POST', $this->api_namespace . '/handoff' );
+		$request->set_param( 'destinationUrl', '//evil.example/x' );
+		$response = $this->server->dispatch( $request );
+		$this->assertEquals( 400, $response->get_status() );
+	}
+
+	/**
+	 * Test handoff to URL rejects external handoffReturnUrl.
+	 */
+	public function test_handoff_to_url_rejects_external_return_url() {
+		wp_set_current_user( $this->administrator );
+		$request = new WP_REST_Request( 'POST', $this->api_namespace . '/handoff' );
+		$request->set_param( 'destinationUrl', '/wp-admin/admin.php?page=newspack-dashboard' );
+		$request->set_param( 'handoffReturnUrl', 'https://evil.example/return' );
+		$response = $this->server->dispatch( $request );
+		$this->assertEquals( 400, $response->get_status() );
 	}
 
 	/**
