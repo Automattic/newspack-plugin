@@ -156,6 +156,31 @@ class Plugins_Controller extends WP_REST_Controller {
 					'methods'             => 'POST',
 					'callback'            => [ $this, 'handoff_to_url' ],
 					'permission_callback' => [ $this, 'handoff_item_permissions_check' ],
+					'args'                => [
+						'destinationUrl'    => [
+							'required'          => true,
+							'type'              => 'string',
+							'sanitize_callback' => 'esc_url_raw',
+							'validate_callback' => [ $this, 'validate_same_site_url' ],
+						],
+						'handoffReturnUrl'  => [
+							'type'              => 'string',
+							'sanitize_callback' => 'esc_url_raw',
+							'validate_callback' => [ $this, 'validate_same_site_url' ],
+						],
+						'bannerText'        => [
+							'type'              => 'string',
+							'sanitize_callback' => 'sanitize_text_field',
+						],
+						'bannerButtonText'  => [
+							'type'              => 'string',
+							'sanitize_callback' => 'sanitize_text_field',
+						],
+						'showOnBlockEditor' => [
+							'type'    => 'boolean',
+							'default' => false,
+						],
+					],
 				],
 			]
 		);
@@ -339,15 +364,6 @@ class Plugins_Controller extends WP_REST_Controller {
 			return new \WP_Error( 'newspack_handoff_missing_url', __( 'destinationUrl is required.', 'newspack-plugin' ), [ 'status' => 400 ] );
 		}
 
-		// Reject external URLs to prevent open-redirect attacks.
-		$parsed_destination = wp_parse_url( $destination_url );
-		if ( ! empty( $parsed_destination['host'] ) ) {
-			$site_host = wp_parse_url( admin_url(), PHP_URL_HOST );
-			if ( $parsed_destination['host'] !== $site_host ) {
-				return new \WP_Error( 'newspack_handoff_invalid_url', __( 'destinationUrl must be a same-site URL.', 'newspack-plugin' ), [ 'status' => 400 ] );
-			}
-		}
-
 		$handoff_return_url   = $request->get_param( 'handoffReturnUrl' );
 		$show_on_block_editor = $request->get_param( 'showOnBlockEditor' );
 		$banner_text          = (string) $request->get_param( 'bannerText' );
@@ -355,10 +371,10 @@ class Plugins_Controller extends WP_REST_Controller {
 
 		update_option( NEWSPACK_HANDOFF, 'url' );
 		update_option( NEWSPACK_HANDOFF_SHOW_ON_BLOCK_EDITOR, (bool) $show_on_block_editor );
-		update_option( NEWSPACK_HANDOFF_BANNER_TEXT, sanitize_text_field( $banner_text ) );
-		update_option( NEWSPACK_HANDOFF_BANNER_BUTTON_TEXT, sanitize_text_field( $banner_button_text ) );
+		update_option( NEWSPACK_HANDOFF_BANNER_TEXT, $banner_text );
+		update_option( NEWSPACK_HANDOFF_BANNER_BUTTON_TEXT, $banner_button_text );
 		if ( ! empty( $handoff_return_url ) ) {
-			update_option( NEWSPACK_HANDOFF_RETURN_URL, esc_url( $handoff_return_url ) );
+			update_option( NEWSPACK_HANDOFF_RETURN_URL, $handoff_return_url );
 		}
 
 		$parsed_url = wp_parse_url( $destination_url );
@@ -369,7 +385,42 @@ class Plugins_Controller extends WP_REST_Controller {
 			}
 		}
 
-		return rest_ensure_response( [ 'HandoffLink' => esc_url_raw( $destination_url ) ] );
+		return rest_ensure_response( [ 'HandoffLink' => $destination_url ] );
+	}
+
+	/**
+	 * Validate that a URL is empty, relative, or a same-site http(s) URL.
+	 *
+	 * Runs before sanitize_callback, so the raw input is checked (e.g. `javascript:` is
+	 * caught here before `esc_url_raw` would silently strip the scheme).
+	 *
+	 * @param mixed            $value   Value being validated.
+	 * @param \WP_REST_Request $request Request object.
+	 * @param string           $param   Parameter name.
+	 * @return true|WP_Error True if valid, WP_Error otherwise.
+	 */
+	public function validate_same_site_url( $value, $request, $param ) {
+		if ( empty( $value ) ) {
+			return true;
+		}
+		$parsed = wp_parse_url( $value );
+		if ( false === $parsed ) {
+			// translators: %s is the parameter name.
+			return new WP_Error( 'rest_invalid_param', sprintf( __( '%s must be a valid URL.', 'newspack-plugin' ), $param ), [ 'status' => 400 ] );
+		}
+		$scheme = isset( $parsed['scheme'] ) ? strtolower( $parsed['scheme'] ) : '';
+		if ( $scheme && ! in_array( $scheme, [ 'http', 'https' ], true ) ) {
+			// translators: %s is the parameter name.
+			return new WP_Error( 'rest_invalid_param', sprintf( __( '%s must be an http(s) URL.', 'newspack-plugin' ), $param ), [ 'status' => 400 ] );
+		}
+		if ( ! empty( $parsed['host'] ) ) {
+			$site_host = wp_parse_url( admin_url(), PHP_URL_HOST );
+			if ( $parsed['host'] !== $site_host ) {
+				// translators: %s is the parameter name.
+				return new WP_Error( 'rest_invalid_param', sprintf( __( '%s must be a same-site URL.', 'newspack-plugin' ), $param ), [ 'status' => 400 ] );
+			}
+		}
+		return true;
 	}
 
 	/**
