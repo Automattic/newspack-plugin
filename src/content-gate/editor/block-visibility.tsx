@@ -5,7 +5,6 @@ import { addFilter } from '@wordpress/hooks';
 import { createHigherOrderComponent } from '@wordpress/compose';
 import { InspectorControls } from '@wordpress/block-editor';
 import {
-	CheckboxControl,
 	FormTokenField,
 	PanelBody,
 	PanelRow,
@@ -104,6 +103,7 @@ const VisibilityControl = ( {
 			onChange={ v => onChange( String( v ?? 'visible' ) ) }
 			isBlock
 			__next40pxDefaultSize
+			__nextHasNoMarginBottom
 		>
 			<ToggleGroupControlOption disabled={ disabled } value="visible" label={ __( 'Visible', 'newspack-plugin' ) } />
 			<ToggleGroupControlOption disabled={ disabled } value="hidden" label={ __( 'Hidden', 'newspack-plugin' ) } />
@@ -130,6 +130,7 @@ const GateControls = ( { gateIds, onChange }: { gateIds: number[]; onChange: ( i
 				} }
 				__experimentalExpandOnFocus
 				__next40pxDefaultSize
+				__nextHasNoMarginBottom
 			/>
 		</PanelRow>
 	);
@@ -198,6 +199,7 @@ const AccessRuleValueControl = ( {
 				} }
 				__experimentalExpandOnFocus
 				__next40pxDefaultSize
+				__nextHasNoMarginBottom
 			/>
 		);
 	}
@@ -211,6 +213,7 @@ const AccessRuleValueControl = ( {
 			value={ typeof value === 'string' ? value : '' }
 			onChange={ onChange as ( value: string ) => void }
 			__next40pxDefaultSize
+			__nextHasNoMarginBottom
 		/>
 	);
 };
@@ -259,7 +262,7 @@ const AccessRulesControls = ( { activeRules, onChange }: { activeRules: ActiveRu
 	);
 };
 
-/** Registration section: logged-in toggle + optional verification sub-toggle. */
+/** Registration section: logged-in toggle + verification sub-toggle. */
 const RegistrationControls = ( {
 	registration,
 	onChange,
@@ -267,24 +270,25 @@ const RegistrationControls = ( {
 	registration: RegistrationRule;
 	onChange: ( registration: RegistrationRule ) => void;
 } ) => (
-	<PanelRow>
-		<div style={ { width: '100%' } }>
+	<>
+		<PanelRow>
 			<ToggleControl
 				label={ __( 'Registered readers', 'newspack-plugin' ) }
 				help={ __( 'Restrict to logged-in readers.', 'newspack-plugin' ) }
 				checked={ !! registration.active }
 				onChange={ active => onChange( { ...registration, active } ) }
 			/>
-			{ registration.active && (
-				<CheckboxControl
-					label={ __( 'Require verification', 'newspack-plugin' ) }
-					help={ __( 'Readers must verify their account to access.', 'newspack-plugin' ) }
-					checked={ !! registration.require_verification }
-					onChange={ require_verification => onChange( { ...registration, require_verification } ) }
-				/>
-			) }
-		</div>
-	</PanelRow>
+		</PanelRow>
+		<PanelRow>
+			<ToggleControl
+				label={ __( 'Require verification', 'newspack-plugin' ) }
+				help={ __( 'Readers must verify their account to access.', 'newspack-plugin' ) }
+				checked={ !! registration.require_verification }
+				disabled={ ! registration.active }
+				onChange={ require_verification => onChange( { ...registration, require_verification } ) }
+			/>
+		</PanelRow>
+	</>
 );
 
 /**
@@ -341,16 +345,16 @@ const BlockVisibilityPanel = ( { attributes, setAttributes }: BlockEditProps ) =
 				title={ __( 'Access control', 'newspack-plugin' ) }
 				initialOpen={ rulesActive }
 			>
-				<p>{ __( 'Control visibility of this block using gates or custom rules.', 'newspack-plugin' ) }</p>
-
 				{ /* Mode toggle: Gate (default) or Custom */ }
 				<PanelRow>
 					<ToggleGroupControl
 						label={ __( 'Access mode', 'newspack-plugin' ) }
+						help={ __( 'Control visibility of this block using gates or custom rules.', 'newspack-plugin' ) }
 						value={ mode }
 						onChange={ v => setAttributes( { newspackAccessControlMode: String( v ?? 'gate' ) } ) }
 						isBlock
 						__next40pxDefaultSize
+						__nextHasNoMarginBottom
 					>
 						<ToggleGroupControlOption value="gate" label={ __( 'Gate', 'newspack-plugin' ) } />
 						<ToggleGroupControlOption value="custom" label={ __( 'Custom', 'newspack-plugin' ) } />
