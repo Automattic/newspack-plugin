@@ -380,11 +380,13 @@ class Integrations {
 			if ( empty( $fields ) ) {
 				continue;
 			}
+			$can_sync = $integration->can_sync( true );
 			$result[ $id ] = [
 				'id'          => $id,
 				'name'        => $integration->get_name(),
 				'description' => $integration->get_description(),
 				'enabled'     => self::is_enabled( $id ),
+				'can_sync'    => is_wp_error( $can_sync ) ? $can_sync->get_error_message() : true,
 				'settings'    => $integration->get_settings_config(),
 			];
 		}
