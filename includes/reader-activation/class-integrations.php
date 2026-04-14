@@ -384,6 +384,7 @@ class Integrations {
 			if ( empty( $fields ) ) {
 				continue;
 			}
+			$can_sync = $integration->can_sync( true );
 			$result[ $id ] = [
 				'id'          => $id,
 				'name'        => $integration->get_name(),
