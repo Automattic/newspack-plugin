@@ -34,6 +34,14 @@ const DIRECTION_CONFIG = {
 
 const INNER_BLOCKS_TEMPLATE = [ [ 'core/navigation', { layout: { type: 'flex', orientation: 'vertical' } } ] ];
 
+const PANEL_WIDTH_OPTIONS = [
+	{ value: 'x-small', label: __( 'XS', 'newspack-plugin' ), ariaLabel: __( 'Extra small', 'newspack-plugin' ) },
+	{ value: 'small', label: __( 'S', 'newspack-plugin' ), ariaLabel: __( 'Small', 'newspack-plugin' ) },
+	{ value: 'medium', label: __( 'M', 'newspack-plugin' ), ariaLabel: __( 'Medium', 'newspack-plugin' ) },
+	{ value: 'large', label: __( 'L', 'newspack-plugin' ), ariaLabel: __( 'Large', 'newspack-plugin' ) },
+	{ value: 'x-large', label: __( 'XL', 'newspack-plugin' ), ariaLabel: __( 'Extra large', 'newspack-plugin' ) },
+];
+
 /**
  * Edit component for the Overlay Menu Panel block.
  *
@@ -128,11 +136,9 @@ export default function OverlayMenuPanelEdit( { attributes, clientId, setAttribu
 								onChange={ val => setAttributes( { panelWidth: val } ) }
 								isBlock
 							>
-								<ToggleGroupControlOption value="x-small" label={ __( 'XS', 'newspack-plugin' ) } />
-								<ToggleGroupControlOption value="small" label={ __( 'S', 'newspack-plugin' ) } />
-								<ToggleGroupControlOption value="medium" label={ __( 'M', 'newspack-plugin' ) } />
-								<ToggleGroupControlOption value="large" label={ __( 'L', 'newspack-plugin' ) } />
-								<ToggleGroupControlOption value="x-large" label={ __( 'XL', 'newspack-plugin' ) } />
+								{ PANEL_WIDTH_OPTIONS.map( ( { value, label, ariaLabel } ) => (
+									<ToggleGroupControlOption key={ value } value={ value } label={ label } aria-label={ ariaLabel } />
+								) ) }
 							</ToggleGroupControl>
 						</>
 					) }
