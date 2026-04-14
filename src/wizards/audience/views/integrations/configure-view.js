@@ -2,8 +2,11 @@
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
+<<<<<<< HEAD
 import { useDispatch } from '@wordpress/data';
 import { useEffect } from '@wordpress/element';
+=======
+>>>>>>> 224e0cfda (feat(integrations): add configure view scaffold)
 
 /**
  * Internal dependencies
@@ -12,6 +15,7 @@ import { Button, Grid } from '../../../../../packages/components/src';
 import WizardsTab from '../../../wizards-tab';
 import WizardSection from '../../../wizards-section';
 import { SettingsField } from './settings-field';
+<<<<<<< HEAD
 import { WIZARD_STORE_NAMESPACE } from '../../../../../packages/components/src/wizard/store';
 
 export const ConfigureView = ( { integrations, loading, pendingChanges, saving, onFieldChange, onSave, match } ) => {
@@ -30,6 +34,14 @@ export const ConfigureView = ( { integrations, loading, pendingChanges, saving, 
 	}, [ integration, setHeaderData ] );
 
 	if ( ! loading && ! integration ) {
+=======
+
+export const ConfigureView = ( { integrations, pendingChanges, saving, onFieldChange, onSave, match } ) => {
+	const integrationId = match?.params?.integrationId;
+	const integration = integrations[ integrationId ];
+
+	if ( ! integration ) {
+>>>>>>> 224e0cfda (feat(integrations): add configure view scaffold)
 		return (
 			<WizardsTab title={ __( 'Integration not found', 'newspack-plugin' ) }>
 				<WizardSection>
@@ -49,7 +61,11 @@ export const ConfigureView = ( { integrations, loading, pendingChanges, saving, 
 	const hasPending = pendingChanges[ integrationId ] && Object.keys( pendingChanges[ integrationId ] ).length > 0;
 
 	return (
+<<<<<<< HEAD
 		<WizardsTab isFetching={ loading }>
+=======
+		<WizardsTab title={ integration.name }>
+>>>>>>> 224e0cfda (feat(integrations): add configure view scaffold)
 			<WizardSection>
 				<Grid columns={ 1 } rowGap={ 16 }>
 					{ integration.settings.map( field => (
