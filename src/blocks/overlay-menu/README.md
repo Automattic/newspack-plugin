@@ -51,9 +51,10 @@ Multiple instances on the same page are fully independent.
 
 **Preview toggle**: All three blocks — parent, trigger, and panel — include a `PanelPreviewToggle` button (shared component at `panel-preview-toggle.js`). Activating it opens the panel in the editor for design purposes without navigating to the frontend.
 
-Preview open/close state is managed as local React state inside `panel/edit.js` and coordinated across blocks via `preview-refs.js`, a module-level pub/sub system. `preview-refs.js` exports two Maps keyed by panel `clientId`:
+Preview open/close state is managed as local React state inside `panel/edit.js` and coordinated across blocks via `preview-refs.js`, a module-level pub/sub system. `preview-refs.js` exports one Map keyed by panel `clientId`:
 - `panelToggles` — the panel registers a toggle function here so sibling/parent blocks can call it without shared reactive store or block attributes.
-- `subscribers` — any block that needs to mirror the panel's open state registers a React state setter via `subscribeToPanel()`. Multiple blocks can subscribe to the same panel.
+
+Subscriber state is kept in a module-private `subscribers` Map. External code interacts with it only through the exported `subscribeToPanel()` (to register a React state setter) and `notifySubscribers()` (to broadcast state changes). Multiple blocks can subscribe to the same panel.
 
 The preview state is entirely ephemeral and is never persisted to block attributes or saved markup.
 
