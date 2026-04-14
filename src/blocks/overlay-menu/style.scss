@@ -1,3 +1,5 @@
+@use "../../newspack-ui/scss/variables/breakpoints";
+
 .wp-block-newspack-overlay-menu {
 	.overlay-menu__trigger {
 		align-items: center;
@@ -43,7 +45,7 @@
 	justify-content: flex-end;
 	margin-right: calc( -1 * var( --wp--preset--spacing--30 ) );
 
-	@media ( min-width: 782px ) {
+	@media ( min-width: breakpoints.$tablet_width ) {
 		margin-right: calc( -1 * var( --wp--preset--spacing--40 ) );
 	}
 }
@@ -91,14 +93,14 @@
 	width: 100%;
 	z-index: 50;
 
-	@media ( min-width: 782px ) {
+	@media ( min-width: breakpoints.$tablet_width ) {
 		padding: var( --wp--preset--spacing--40, 1.5rem );
 	}
 
 	.admin-bar & {
 		top: 46px;
 
-		@media ( min-width: 782px ) {
+		@media ( min-width: breakpoints.$tablet_width ) {
 			top: 32px;
 		}
 	}
@@ -144,46 +146,21 @@
 
 	// ─── Panel width ──────────────────────────────────────────────────────────
 	// Sets the panel to a specific width; the 90vw cap on --left/--right takes over on narrow screens.
+	// Each size adds horizontal padding to the content-size variable so the inner content area matches.
 
-	&--width--x-small {
-		width: calc( var( --wp--preset--spacing--30, 1rem ) + var( --wp--custom--width--x-small, 300px ) + var( --wp--preset--spacing--30, 1rem ) );
+	@mixin panel-width( $var, $fallback ) {
+		width: calc( var( --wp--preset--spacing--30, 1rem ) + var( #{$var}, #{$fallback} ) + var( --wp--preset--spacing--30, 1rem ) );
 
-		@media ( min-width: 782px ) {
-			width: calc( var( --wp--preset--spacing--40, 1.5rem ) + var( --wp--custom--width--x-small, 300px ) + var( --wp--preset--spacing--40, 1.5rem ) );
+		@media ( min-width: breakpoints.$tablet_width ) {
+			width: calc( var( --wp--preset--spacing--40, 1.5rem ) + var( #{$var}, #{$fallback} ) + var( --wp--preset--spacing--40, 1.5rem ) );
 		}
 	}
 
-	&--width--small {
-		width: calc( var( --wp--preset--spacing--30, 1rem ) + var( --wp--custom--width--small, 410px ) + var( --wp--preset--spacing--30, 1rem ) );
-
-		@media ( min-width: 782px ) {
-			width: calc( var( --wp--preset--spacing--40, 1.5rem ) + var( --wp--custom--width--small, 410px ) + var( --wp--preset--spacing--40, 1.5rem ) );
-		}
-	}
-
-	&--width--medium {
-		width: calc( var( --wp--preset--spacing--30, 1rem ) + var( --wp--style--global--content-size, 632px ) + var( --wp--preset--spacing--30, 1rem ) );
-
-		@media ( min-width: 782px ) {
-			width: calc( var( --wp--preset--spacing--40, 1.5rem ) + var( --wp--style--global--content-size, 632px ) + var( --wp--preset--spacing--40, 1.5rem ) );
-		}
-	}
-
-	&--width--large {
-		width: calc( var( --wp--preset--spacing--30, 1rem ) + var( --wp--custom--width--large, 964px ) + var( --wp--preset--spacing--30, 1rem ) );
-
-		@media ( min-width: 782px ) {
-			width: calc( var( --wp--preset--spacing--40, 1.5rem ) + var( --wp--custom--width--large, 964px ) + var( --wp--preset--spacing--40, 1.5rem ) );
-		}
-	}
-
-	&--width--x-large {
-		width: calc( var( --wp--preset--spacing--30, 1rem ) + var( --wp--custom--width--x-large, 1296px ) + var( --wp--preset--spacing--30, 1rem ) );
-
-		@media ( min-width: 782px ) {
-			width: calc( var( --wp--preset--spacing--40, 1.5rem ) + var( --wp--custom--width--x-large, 1296px ) + var( --wp--preset--spacing--40, 1.5rem ) );
-		}
-	}
+	&--width--x-small { @include panel-width( --wp--custom--width--x-small, 300px ); }
+	&--width--small   { @include panel-width( --wp--custom--width--small, 410px ); }
+	&--width--medium  { @include panel-width( --wp--style--global--content-size, 632px ); }
+	&--width--large   { @include panel-width( --wp--custom--width--large, 964px ); }
+	&--width--x-large { @include panel-width( --wp--custom--width--x-large, 1296px ); }
 }
 
 // ─── Scrim ────────────────────────────────────────────────────────────────────
