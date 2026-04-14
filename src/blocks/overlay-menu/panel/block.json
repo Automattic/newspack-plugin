@@ -39,7 +39,8 @@
 		}
 	},
 	"supports": {
-		"html": false
+		"html": false,
+		"lock": false
 	},
 	"editorStyle": "file:../../../../dist/blocks.css",
 	"style": "file:../../../../dist/blocks.css"
