@@ -41,6 +41,9 @@ class ESP extends Integration {
 	 */
 	public function is_set_up() {
 		$newsletters_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-newsletters' );
+		if ( is_wp_error( $newsletters_configuration_manager ) ) {
+			return false;
+		}
 		return (bool) $newsletters_configuration_manager->is_esp_set_up();
 	}
 

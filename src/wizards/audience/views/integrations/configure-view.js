@@ -14,7 +14,7 @@ import WizardSection from '../../../wizards-section';
 import { SettingsField } from './settings-field';
 import { WIZARD_STORE_NAMESPACE } from '../../../../../packages/components/src/wizard/store';
 
-export const ConfigureView = ( { integrations, pendingChanges, saving, onFieldChange, onSave, match } ) => {
+export const ConfigureView = ( { integrations, loading, pendingChanges, saving, onFieldChange, onSave, match } ) => {
 	const { setHeaderData } = useDispatch( WIZARD_STORE_NAMESPACE );
 
 	const integrationId = match?.params?.integrationId;
@@ -24,12 +24,12 @@ export const ConfigureView = ( { integrations, pendingChanges, saving, onFieldCh
 	useEffect( () => {
 		if ( integration ) {
 			setHeaderData( {
-				title: integration.name,
+				sectionTitle: integration.name,
 			} );
 		}
 	}, [ integration, setHeaderData ] );
 
-	if ( ! integration ) {
+	if ( ! loading && ! integration ) {
 		return (
 			<WizardsTab title={ __( 'Integration not found', 'newspack-plugin' ) }>
 				<WizardSection>
@@ -49,7 +49,7 @@ export const ConfigureView = ( { integrations, pendingChanges, saving, onFieldCh
 	const hasPending = pendingChanges[ integrationId ] && Object.keys( pendingChanges[ integrationId ] ).length > 0;
 
 	return (
-		<WizardsTab title={ integration.name }>
+		<WizardsTab isFetching={ loading }>
 			<WizardSection>
 				<Grid columns={ 1 } rowGap={ 16 }>
 					{ integration.settings.map( field => (
