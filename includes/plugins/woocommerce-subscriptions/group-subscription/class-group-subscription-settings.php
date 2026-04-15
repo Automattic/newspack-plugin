@@ -19,6 +19,7 @@ class Group_Subscription_Settings {
 	const DEFAULT_SETTINGS = [
 		'enabled' => false,
 		'limit'   => 0,
+		'name'    => '',
 	];
 
 	/**
@@ -185,6 +186,13 @@ class Group_Subscription_Settings {
 		$settings            = self::get_product_settings( $product_id );
 		$settings['enabled'] = $subscription->get_meta( self::GROUP_SUBSCRIPTION_META_PREFIX . 'enabled', true ) ? \wc_string_to_bool( $subscription->get_meta( self::GROUP_SUBSCRIPTION_META_PREFIX . 'enabled', true ) ) : $settings['enabled'];
 		$settings['limit']   = (int) $subscription->get_meta( self::GROUP_SUBSCRIPTION_META_PREFIX . 'limit', true ) ?: $settings['limit']; // phpcs:ignore Universal.Operators.DisallowShortTernary.Found
+		$settings['name']    = $subscription->get_meta( self::GROUP_SUBSCRIPTION_META_PREFIX . 'name', true ) ?
+								$subscription->get_meta( self::GROUP_SUBSCRIPTION_META_PREFIX . 'name', true ) :
+								sprintf(
+									/* translators: %s: The subscription owner's name. */
+									__( '%s’s Group', 'newspack-plugin' ),
+									$subscription->get_formatted_billing_full_name()
+								);
 
 		/**
 		 * Filter the group subscription settings for a subscription.
@@ -292,6 +300,22 @@ class Group_Subscription_Settings {
 				</p>
 				<div class="form-row">
 					<?php
+					echo wp_kses_post(
+						\woocommerce_wp_text_input(
+							[
+								'id'            => self::GROUP_SUBSCRIPTION_META_PREFIX . 'name',
+								'name'          => self::GROUP_SUBSCRIPTION_META_PREFIX . 'name',
+								'label'         => __( 'Group subscription name', 'newspack-plugin' ),
+								'value'         => $settings['name'],
+								'type'          => 'text',
+								'wrapper_class' => 'show_if_newspack_group_subscription_enabled',
+							]
+						)
+					);
+					?>
+				</div>
+				<div class="form-row">
+					<?php
 					$pricing_options = self::add_custom_product_pricing_options( [] );
 					foreach ( $pricing_options as $option_key => $option_config ) {
 						if ( $option_key === 'newspack_group_subscription_limit' ) {
@@ -386,11 +410,15 @@ class Group_Subscription_Settings {
 		$limit        = isset( $_POST[ self::GROUP_SUBSCRIPTION_META_PREFIX . 'limit' ] )
 			? absint( wp_unslash( $_POST[ self::GROUP_SUBSCRIPTION_META_PREFIX . 'limit' ] ) )
 			: 0;
+		$name         = isset( $_POST[ self::GROUP_SUBSCRIPTION_META_PREFIX . 'name' ] )
+			? sanitize_text_field( wp_unslash( $_POST[ self::GROUP_SUBSCRIPTION_META_PREFIX . 'name' ] ) )
+			: '';
 		self::update_subscription_settings(
 			$subscription,
 			[
 				'enabled' => $is_enabled,
 				'limit'   => $limit,
+				'name'    => $name,
 			]
 		);
 	}
