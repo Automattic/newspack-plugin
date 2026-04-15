@@ -54,6 +54,7 @@ class Group_Subscription_Settings {
 
 		// Include group name in subscription search.
 		\add_filter( 'woocommerce_shop_subscription_search_fields', [ __CLASS__, 'add_group_name_search_field' ] );
+		\add_filter( 'woocommerce_order_table_search_query_meta_keys', [ __CLASS__, 'add_group_name_hpos_search_field' ] );
 		\add_filter( 'posts_join', [ __CLASS__, 'search_group_name_join' ], 10, 2 );
 		\add_filter( 'posts_search', [ __CLASS__, 'search_group_name_where' ], 10, 2 );
 	}
@@ -515,6 +516,29 @@ class Group_Subscription_Settings {
 	public static function add_group_name_search_field( $search_fields ) {
 		$search_fields[] = self::GROUP_SUBSCRIPTION_META_PREFIX . 'name';
 		return $search_fields;
+	}
+
+	/**
+	 * Add the group subscription name meta key to the HPOS order search meta keys.
+	 *
+	 * This filter fires for all order types, so we guard it to only apply
+	 * on the subscription admin list table screen.
+	 *
+	 * @param array $meta_keys The meta keys to search.
+	 *
+	 * @return array The meta keys with the group name meta key added.
+	 */
+	public static function add_group_name_hpos_search_field( $meta_keys ) {
+		if ( ! is_admin() ) {
+			return $meta_keys;
+		}
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$page = isset( $_GET['page'] ) ? \sanitize_text_field( \wp_unslash( $_GET['page'] ) ) : '';
+		if ( 'wc-orders--shop_subscription' !== $page ) {
+			return $meta_keys;
+		}
+		$meta_keys[] = self::GROUP_SUBSCRIPTION_META_PREFIX . 'name';
+		return $meta_keys;
 	}
 
 	/**
