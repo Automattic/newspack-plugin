@@ -83,10 +83,14 @@ export const ConfigureView = ( { integrations, loading, pendingChanges, saving, 
 		const isMissing = ! loading && ! integration;
 		if ( isMissing && ! wasIntegrationMissing.current ) {
 			setHeaderData( {
+<<<<<<< HEAD
 				sectionName: '',
 				sectionTitle: '',
 				sectionDescription: '',
 				actions: [],
+=======
+				sectionTitle: integration.name,
+>>>>>>> 5c2f2553a (fix: copilot feedback)
 			} );
 		}
 		wasIntegrationMissing.current = isMissing;
@@ -115,6 +119,7 @@ export const ConfigureView = ( { integrations, loading, pendingChanges, saving, 
 
 	return (
 		<WizardsTab isFetching={ loading }>
+<<<<<<< HEAD
 			<div className="newspack-configure-view">
 				{ /* Section 1: Settings */ }
 				{ settingsFields.length > 0 && (
@@ -191,6 +196,30 @@ export const ConfigureView = ( { integrations, loading, pendingChanges, saving, 
 					</>
 				) }
 			</div>
+=======
+			<WizardSection>
+				<Grid columns={ 1 } rowGap={ 16 }>
+					{ integration.settings.map( field => (
+						<SettingsField
+							key={ field.key }
+							field={ field }
+							value={ getFieldValue( field ) }
+							onChange={ val => onFieldChange( integrationId, field.key, val ) }
+						/>
+					) ) }
+				</Grid>
+				<div style={ { marginTop: 16 } }>
+					<Button
+						variant="primary"
+						onClick={ () => onSave( integrationId ) }
+						disabled={ ! hasPending || saving[ integrationId ] }
+						isBusy={ saving[ integrationId ] }
+					>
+						{ __( 'Save Settings', 'newspack-plugin' ) }
+					</Button>
+				</div>
+			</WizardSection>
+>>>>>>> 5c2f2553a (fix: copilot feedback)
 		</WizardsTab>
 	);
 };
