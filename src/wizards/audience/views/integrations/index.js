@@ -112,9 +112,10 @@ const AudienceIntegrations = ( props, ref ) => {
 				{
 					path: '/settings/:integrationId',
 					render: ConfigureView,
+					props: sharedProps,
 					backNav: '#/settings',
 					title: __( 'Configure Integration', 'newspack-plugin' ),
-					props: sharedProps,
+					description: __( 'Syncs reader data with your Newspack Newsletters email service provider.', 'newspack-plugin' ),
 				},
 			] }
 			ref={ ref }

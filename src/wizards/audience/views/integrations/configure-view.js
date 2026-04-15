@@ -2,6 +2,8 @@
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
+import { useDispatch } from '@wordpress/data';
+import { useEffect } from '@wordpress/element';
 
 /**
  * Internal dependencies
@@ -10,10 +12,22 @@ import { Button, Grid } from '../../../../../packages/components/src';
 import WizardsTab from '../../../wizards-tab';
 import WizardSection from '../../../wizards-section';
 import { SettingsField } from './settings-field';
+import { WIZARD_STORE_NAMESPACE } from '../../../../../packages/components/src/wizard/store';
 
 export const ConfigureView = ( { integrations, pendingChanges, saving, onFieldChange, onSave, match } ) => {
+	const { setHeaderData } = useDispatch( WIZARD_STORE_NAMESPACE );
+
 	const integrationId = match?.params?.integrationId;
 	const integration = integrations[ integrationId ];
+
+	// Set header navigation and actions.
+	useEffect( () => {
+		if ( integration ) {
+			setHeaderData( {
+				title: integration.name,
+			} );
+		}
+	}, [ integration, setHeaderData ] );
 
 	if ( ! integration ) {
 		return (

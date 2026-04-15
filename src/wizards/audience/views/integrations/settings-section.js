@@ -46,22 +46,29 @@ export const SettingsSection = ( { integrations, loading, onToggleEnabled, onCon
 				{ ! loading && integrationIds.length > 0 && (
 					<Grid columns={ 2 } gutter={ 16 }>
 						{ integrationIds.map( id => {
-							const integration = integrations[ id ];
-							const isEnabled = integration.enabled;
-							const canSyncError = integration.can_sync !== true ? integration.can_sync : undefined;
+							const { enabled, can_sync: canSync, setup_url, name, description } = integrations[ id ];
+							const isEnabled = enabled && canSync;
+							const needsSetup = ! canSync && !! setup_url;
+							const goToSetup = () => {
+								window.location.href = setup_url;
+							};
 							return (
 								<CardFeature
 									key={ id }
-									title={ integration.name }
-									description={ integration.description }
+									title={ name }
+									description={ description }
 									icon={ INTEGRATION_ICONS[ id ] || DEFAULT_ICON }
 									enabled={ isEnabled }
-									requirements={ canSyncError }
 									enableLabel={ __( 'Connect', 'newspack-plugin' ) }
-									onEnable={ () => onToggleEnabled( id, true ) }
-									onConfigure={ () => ( onConfigure ? onConfigure( id ) : history?.push( `/settings/${ id }` ) ) }
+									configureLabel={ needsSetup ? __( 'Configure', 'newspack-plugin' ) : undefined }
+									onEnable={ needsSetup ? goToSetup : () => onToggleEnabled( id, true ) }
+									onConfigure={
+										needsSetup ? goToSetup : () => ( onConfigure ? onConfigure( id ) : history?.push( `/settings/${ id }` ) )
+									}
+									badgeText={ undefined }
+									badgeLevel={ undefined }
 									moreControls={
-										isEnabled && ! canSyncError
+										isEnabled && canSync
 											? [
 													{
 														title: __( 'Disable', 'newspack-plugin' ),

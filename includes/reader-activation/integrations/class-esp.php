@@ -13,6 +13,7 @@ use Newspack\Reader_Activation\Integrations;
 use Newspack\Reader_Activation;
 use Newspack_Newsletters_Contacts;
 use Newspack_Newsletters_Subscription;
+use Newspack\Configuration_Managers;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -28,9 +29,18 @@ class ESP extends Integration {
 	public function __construct() {
 		parent::__construct(
 			'esp',
-			__( 'ESP', 'newspack-plugin' ),
-			__( 'Sync reader data and activity to the connected email service provider.', 'newspack-plugin' )
+			__( 'Newsletter ESP', 'newspack-plugin' ),
+			__( 'Syncs reader data with your Newspack Newsletters email service provider.', 'newspack-plugin' )
 		);
+	}
+
+	/**
+	 * Get the URL where the user can set up the ESP.
+	 *
+	 * @return string The Newspack Newsletters settings page URL.
+	 */
+	public function get_setup_url() {
+		return admin_url( 'edit.php?post_type=newspack_nl_cpt&page=newspack-newsletters' );
 	}
 
 	/**
@@ -279,6 +289,14 @@ class ESP extends Integration {
 			$errors->add(
 				'newspack_newsletters_contacts_not_found',
 				__( 'Newspack Newsletters is not available.', 'newspack-plugin' )
+			);
+		}
+
+		$newsletters_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-newsletters' );
+		if ( $newsletters_configuration_manager->is_esp_set_up() === false ) {
+			$errors->add(
+				'ras_esp_sync_not_set_up',
+				__( 'ESP sync is not set up.', 'newspack-plugin' )
 			);
 		}
 

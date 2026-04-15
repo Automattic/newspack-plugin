@@ -215,8 +215,10 @@ class Integrations {
 		// Hook for other plugins/code to register their integrations.
 		do_action( 'newspack_reader_activation_register_integrations' );
 
-		// hardcode ESP integration as enabled for now.
-		self::enable( 'esp' );
+		// Auto-enable ESP on first registration only.
+		if ( false === get_option( self::OPTION_NAME ) ) {
+			self::enable( 'esp' );
+		}
 
 		// Let each integration register its data event handlers.
 		foreach ( self::$integrations as $integration ) {
@@ -386,15 +388,14 @@ class Integrations {
 			if ( is_wp_error( $can_sync ) ) {
 				$can_sync->remove( 'ras_esp_sync_not_enabled' );
 			}
-			$can_sync_value = is_wp_error( $can_sync ) && $can_sync->has_errors()
-				? $can_sync->get_error_message()
-				: true;
-			$result[ $id ] = [
+			$can_sync_value = ! ( is_wp_error( $can_sync ) && $can_sync->has_errors() );
+			$result[ $id ]  = [
 				'id'          => $id,
 				'name'        => $integration->get_name(),
 				'description' => $integration->get_description(),
 				'enabled'     => self::is_enabled( $id ),
 				'can_sync'    => $can_sync_value,
+				'setup_url'   => $integration->get_setup_url(),
 				'settings'    => $integration->get_settings_config(),
 			];
 		}
