@@ -43,6 +43,14 @@ class Group_Subscription_Settings {
 
 		// Customize subscription column in admin list table for group subscriptions.
 		\add_filter( 'woocommerce_subscription_list_table_column_content', [ __CLASS__, 'filter_subscription_column_content' ], 10, 3 );
+
+		// Group subscription filter dropdown on subscription list table.
+		\add_action( 'woocommerce_order_list_table_restrict_manage_orders', [ __CLASS__, 'add_group_subscription_filter' ] );
+		\add_action( 'restrict_manage_posts', [ __CLASS__, 'add_group_subscription_filter' ] );
+
+		// Filter subscription list table query by group status.
+		\add_filter( 'woocommerce_shop_subscription_list_table_prepare_items_query_args', [ __CLASS__, 'filter_subscriptions_by_group' ] );
+		\add_filter( 'pre_get_posts', [ __CLASS__, 'filter_subscriptions_by_group_legacy' ] );
 	}
 
 	/**
@@ -461,6 +469,153 @@ class Group_Subscription_Settings {
 				'name'    => $name,
 			]
 		);
+	}
+
+	/**
+	 * Add a group subscription filter dropdown to the subscription list table.
+	 *
+	 * @param string $order_type The order type (post type or HPOS order type).
+	 */
+	public static function add_group_subscription_filter( $order_type = '' ) {
+		if ( '' === $order_type ) {
+			$order_type = isset( $GLOBALS['typenow'] ) ? $GLOBALS['typenow'] : '';
+		}
+
+		if ( 'shop_subscription' !== $order_type ) {
+			return;
+		}
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$selected = isset( $_GET['_newspack_group_subscription'] ) ? \sanitize_text_field( \wp_unslash( $_GET['_newspack_group_subscription'] ) ) : '';
+
+		?>
+		<select name="_newspack_group_subscription" id="_newspack_group_subscription">
+			<option value=""><?php \esc_html_e( 'All subscriptions', 'newspack-plugin' ); ?></option>
+			<option value="group" <?php selected( $selected, 'group' ); ?>><?php \esc_html_e( 'Group subscriptions', 'newspack-plugin' ); ?></option>
+			<option value="non-group" <?php selected( $selected, 'non-group' ); ?>><?php \esc_html_e( 'Non-group subscriptions', 'newspack-plugin' ); ?></option>
+		</select>
+		<?php
+	}
+
+	/**
+	 * Get all subscription IDs that are group subscriptions.
+	 *
+	 * Collects IDs from two sources:
+	 * 1. Subscriptions with the group enabled meta set to 'yes'.
+	 * 2. Subscriptions that have at least one group member (via user meta).
+	 *
+	 * @return int[] Array of subscription IDs.
+	 */
+	public static function get_group_subscription_ids() {
+		global $wpdb;
+
+		// 1. Subscription IDs with group enabled meta.
+		$enabled_ids = [];
+		if ( function_exists( 'wc_get_orders' ) ) {
+			$enabled_ids = \wc_get_orders(
+				[
+					'type'       => 'shop_subscription',
+					'status'     => 'any',
+					'limit'      => -1,
+					'return'     => 'ids',
+					'meta_query' => [ // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
+						[
+							'key'   => self::GROUP_SUBSCRIPTION_META_PREFIX . 'enabled',
+							'value' => 'yes',
+						],
+					],
+				]
+			);
+		}
+
+		// 2. Subscription IDs that have at least one group member.
+		$member_sub_ids = array_map(
+			'absint',
+			$wpdb->get_col( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+				$wpdb->prepare(
+					"SELECT DISTINCT meta_value FROM {$wpdb->usermeta} WHERE meta_key = %s",
+					Group_Subscription::GROUP_SUBSCRIPTION_USER_META_KEY
+				)
+			)
+		);
+
+		return array_values( array_unique( array_merge( $enabled_ids, $member_sub_ids ) ) );
+	}
+
+	/**
+	 * Filter the subscription list table query by group subscription status (HPOS).
+	 *
+	 * @param array $query_args The query args for the list table.
+	 *
+	 * @return array The filtered query args.
+	 */
+	public static function filter_subscriptions_by_group( $query_args ) {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( empty( $_GET['_newspack_group_subscription'] ) ) {
+			return $query_args;
+		}
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$filter = \sanitize_text_field( \wp_unslash( $_GET['_newspack_group_subscription'] ) );
+		if ( ! in_array( $filter, [ 'group', 'non-group' ], true ) ) {
+			return $query_args;
+		}
+
+		$group_ids = self::get_group_subscription_ids();
+
+		if ( 'group' === $filter ) {
+			if ( empty( $group_ids ) ) {
+				$query_args['post__in'] = [ 0 ];
+			} elseif ( ! isset( $query_args['post__in'] ) ) {
+				$query_args['post__in'] = $group_ids;
+			} else {
+				$intersected            = array_intersect( $query_args['post__in'], $group_ids );
+				$query_args['post__in'] = empty( $intersected ) ? [ 0 ] : array_values( $intersected );
+			}
+		} elseif ( 'non-group' === $filter ) {
+			if ( ! empty( $group_ids ) ) {
+				$query_args['post__not_in'] = isset( $query_args['post__not_in'] ) // phpcs:ignore WordPressVIPMinimum.Performance.WPQueryParams.PostNotIn_post__not_in
+					? array_merge( $query_args['post__not_in'], $group_ids )
+					: $group_ids;
+			}
+		}
+
+		return $query_args;
+	}
+
+	/**
+	 * Filter the subscription list by group subscription status (legacy CPT).
+	 *
+	 * @param \WP_Query $query The WP_Query instance.
+	 */
+	public static function filter_subscriptions_by_group_legacy( $query ) { // phpcs:ignore WordPressVIPMinimum.Hooks.AlwaysReturnInFilter.VoidReturn, WordPressVIPMinimum.Hooks.AlwaysReturnInFilter.MissingReturnStatement
+		if ( ! is_admin() || ! $query->is_main_query() ) {
+			return;
+		}
+
+		if ( 'shop_subscription' !== $query->get( 'post_type' ) ) {
+			return;
+		}
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( empty( $_GET['_newspack_group_subscription'] ) ) {
+			return;
+		}
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$filter = \sanitize_text_field( \wp_unslash( $_GET['_newspack_group_subscription'] ) );
+		if ( ! in_array( $filter, [ 'group', 'non-group' ], true ) ) {
+			return;
+		}
+
+		$group_ids = self::get_group_subscription_ids();
+
+		if ( 'group' === $filter ) {
+			$query->set( 'post__in', empty( $group_ids ) ? [ 0 ] : $group_ids );
+		} elseif ( 'non-group' === $filter && ! empty( $group_ids ) ) {
+			$existing_not_in = $query->get( 'post__not_in' );
+			$query->set( 'post__not_in', array_merge( ! empty( $existing_not_in ) ? $existing_not_in : [], $group_ids ) );
+		}
 	}
 }
 Group_Subscription_Settings::init();
