@@ -121,44 +121,51 @@ const Edit = ( { match, updateGatesData, slug = AUDIENCE_CONTENT_GATES_WIZARD_SL
 		),
 	} );
 
-	const handleCreate = useCallback( () => {
-		if ( isFetching ) {
-			return;
-		}
-		isSaving.current = true;
-		resetNotices();
-		resetError();
-		const _gate = {
-			...gate,
-			title,
-			content_rules: contentRules,
-			registration,
-			custom_access: customAccess,
-		};
-		wizardApiFetch< Gate >(
-			{
-				path: `/newspack/v1/wizard/${ slug }`,
-				method: 'POST',
-				data: { gate: _gate },
-			},
-			{
-				onSuccess( data ) {
-					updateGatesData( [ ...gatesRef.current, { ...data } ] );
-					history.push( `/content-gates` );
-					addNotice( {
-						// translators: %s is the gate title.
-						message: sprintf( __( '"%s" gate created.', 'newspack-plugin' ), title ),
-						type: 'success',
-						id: 'content-gate-created',
-						actions: [ { label: __( 'Edit', 'newspack-plugin' ), url: `#/edit/${ data.id }` } ],
-					} );
-				},
-				onFinally: () => {
-					isSaving.current = false;
-				},
+	const handleCreate = useCallback(
+		( redirectToLayout: '' | 'registration' | 'custom_access' = '' ) => {
+			if ( isFetching ) {
+				return;
 			}
-		);
-	}, [ gate, contentRules, registration, customAccess, status, title ] );
+			isSaving.current = true;
+			resetNotices();
+			resetError();
+			const _gate = {
+				...gate,
+				title,
+				content_rules: contentRules,
+				registration,
+				custom_access: customAccess,
+			};
+			wizardApiFetch< Gate >(
+				{
+					path: `/newspack/v1/wizard/${ slug }`,
+					method: 'POST',
+					data: { gate: _gate },
+				},
+				{
+					onSuccess( data ) {
+						updateGatesData( [ ...gatesRef.current, { ...data } ] );
+						if ( redirectToLayout !== '' ) {
+							window.location.assign( getEditGateLayoutUrl( data.id, redirectToLayout ) );
+						} else {
+							history.push( '/content-gates' );
+						}
+						addNotice( {
+							// translators: %s is the gate title.
+							message: sprintf( __( '"%s" gate created.', 'newspack-plugin' ), title ),
+							type: 'success',
+							id: 'content-gate-created',
+							actions: [ { label: __( 'Edit', 'newspack-plugin' ), url: `#/edit/${ data.id }` } ],
+						} );
+					},
+					onFinally: () => {
+						isSaving.current = false;
+					},
+				}
+			);
+		},
+		[ gate, contentRules, registration, customAccess, status, title ]
+	);
 
 	const handleSave = useCallback( () => {
 		if ( isFetching ) {
@@ -551,10 +558,12 @@ const Edit = ( { match, updateGatesData, slug = AUDIENCE_CONTENT_GATES_WIZARD_SL
 								isNewsletter ? __( 'these lists', 'newspack-plugin' ) : __( 'this content', 'newspack-plugin' )
 							) }
 							headerAction={
-								registration?.active && registration.gate_layout_id
+								registration?.active
 									? {
 											label: __( 'Edit layout', 'newspack-plugin' ),
-											href: getEditGateLayoutUrl( gate.id, 'registration' ),
+											href:
+												! isNew && registration.gate_layout_id ? getEditGateLayoutUrl( gate.id, 'registration' ) : undefined,
+											onClick: ! isNew && registration.gate_layout_id ? undefined : () => handleCreate( 'registration' ),
 											icon: pencil,
 									  }
 									: undefined
@@ -577,7 +586,8 @@ const Edit = ( { match, updateGatesData, slug = AUDIENCE_CONTENT_GATES_WIZARD_SL
 							customAccess?.active
 								? {
 										label: __( 'Edit layout', 'newspack-plugin' ),
-										href: getEditGateLayoutUrl( gate.id, 'custom_access' ),
+										href: ! isNew && customAccess.gate_layout_id ? getEditGateLayoutUrl( gate.id, 'custom_access' ) : undefined,
+										onClick: ! isNew && customAccess.gate_layout_id ? undefined : () => handleCreate( 'custom_access' ),
 										icon: pencil,
 								  }
 								: undefined
