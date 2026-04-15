@@ -179,11 +179,13 @@ class Group_Subscription_Settings {
 			'<a href="%s"><strong>%s</strong></a> (%s)',
 			\esc_url( $subscription->get_edit_order_url() ),
 			\esc_html( $settings['name'] ),
-			sprintf(
-				/* translators: 1: member count, 2: member limit or "unlimited" */
-				__( '%1$s of %2$s members', 'newspack-plugin' ),
-				$member_count,
-				$limit
+			\esc_html(
+				sprintf(
+					/* translators: 1: member count, 2: member limit or "unlimited" */
+					__( '%1$s of %2$s members', 'newspack-plugin' ),
+					$member_count,
+					$limit
+				)
 			)
 		);
 	}
