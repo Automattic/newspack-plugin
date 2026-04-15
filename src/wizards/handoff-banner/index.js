@@ -28,7 +28,7 @@ const HandoffBanner = ( {
 			<div className="newspack-handoff-banner">
 				<div className="newspack-handoff-banner__text">{ bodyText }</div>
 				<div className="newspack-handoff-banner__buttons">
-					<Button variant="secondary" isSmall onClick={ () => setVisibility( false ) }>
+					<Button variant="tertiary" isSmall onClick={ () => setVisibility( false ) }>
 						{ dismissButtonText }
 					</Button>
 					<Button variant="primary" isSmall href={ primaryButtonURL }>
@@ -41,10 +41,45 @@ const HandoffBanner = ( {
 };
 
 const el = document.getElementById( 'newspack-handoff-banner' );
-const { primary_button_url: primaryButtonURL } = el.dataset;
-render(
-	createElement( HandoffBanner, {
-		primaryButtonURL,
-	} ),
-	el
-);
+if ( el ) {
+	const wpcontent = document.getElementById( 'wpcontent' );
+	if ( wpcontent ) {
+		const paddingLeft = parseInt( window.getComputedStyle( wpcontent ).paddingLeft, 10 );
+		if ( paddingLeft ) {
+			el.style.marginLeft = `-${ paddingLeft }px`;
+			el.style.width = `calc(100% + ${ paddingLeft }px)`;
+		}
+	}
+
+	const wpbody = document.getElementById( 'wpbody' );
+	if ( wpbody ) {
+		const applyWooCommerceOffset = () => {
+			const wooHeader = document.querySelector( '.woocommerce-layout__header' );
+			if ( wooHeader && wpbody.style.marginTop ) {
+				el.style.marginTop = wpbody.style.marginTop;
+				return true;
+			}
+			return false;
+		};
+		if ( ! applyWooCommerceOffset() ) {
+			const timeoutId = setTimeout( () => observer.disconnect(), 5000 );
+			const observer = new MutationObserver( () => {
+				if ( applyWooCommerceOffset() ) {
+					clearTimeout( timeoutId );
+					observer.disconnect();
+				}
+			} );
+			observer.observe( wpbody, { attributes: true, attributeFilter: [ 'style' ] } );
+		}
+	}
+
+	const { primary_button_url: primaryButtonURL, banner_text: bodyText, banner_button_text: primaryButtonText } = el.dataset;
+	render(
+		createElement( HandoffBanner, {
+			primaryButtonURL,
+			...( bodyText && { bodyText } ),
+			...( primaryButtonText && { primaryButtonText } ),
+		} ),
+		el
+	);
+}

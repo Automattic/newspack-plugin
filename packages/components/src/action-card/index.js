@@ -39,6 +39,9 @@ const ActionCard = ( {
 	heading = 2,
 	description,
 	handoff,
+	handoffUrl,
+	bannerText,
+	bannerButtonText,
 	editLink,
 	href,
 	notification,
@@ -187,7 +190,18 @@ const ActionCard = ( {
 						{ actionContent && actionContent }
 						{ actionText &&
 							( handoff ? (
-								<Handoff plugin={ handoff } editLink={ editLink } compact isLink>
+								<Handoff
+									plugin={ handoff }
+									editLink={ editLink }
+									bannerText={ bannerText }
+									bannerButtonText={ bannerButtonText }
+									compact
+									isLink
+								>
+									{ actionText }
+								</Handoff>
+							) : handoffUrl ? (
+								<Handoff url={ handoffUrl } bannerText={ bannerText } bannerButtonText={ bannerButtonText } compact isLink>
 									{ actionText }
 								</Handoff>
 							) : onClick || hasInternalLink ? (

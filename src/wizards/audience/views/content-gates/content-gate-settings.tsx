@@ -138,8 +138,9 @@ export default function ContentGateSettings( {
 			},
 		],
 	];
-	const hasRegistrationLayout = gate.registration?.active && gate.registration.gate_layout_id;
-	const hasCustomAccessLayout = gate.custom_access?.active && gate.custom_access.access_rules?.length > 0 && gate.custom_access.gate_layout_id;
+	const hasRegistrationLayout = ! isNewsletter && gate.registration?.active && gate.registration.gate_layout_id;
+	const hasCustomAccessLayout =
+		! isNewsletter && gate.custom_access?.active && gate.custom_access.access_rules?.length > 0 && gate.custom_access.gate_layout_id;
 	const layoutOptions: { label: string; action?: () => void; href?: string }[] = [];
 	if ( hasRegistrationLayout ) {
 		layoutOptions.push( {

@@ -56,6 +56,22 @@ class Integrations {
 	private static $handler_map = [];
 
 	/**
+	 * Map of My Account endpoint slug to integration ID.
+	 *
+	 * Populated during `register_my_account_endpoints()` for integrations
+	 * whose `get_my_account_menu_item()` returns a menu item declaration.
+	 *
+	 * @var array<string, string>
+	 */
+	private static $my_account_endpoints = [];
+
+	/**
+	 * Option storing the last set of registered My Account endpoint slugs,
+	 * used to trigger a rewrite rules flush when the set changes.
+	 */
+	const MY_ACCOUNT_ENDPOINTS_OPTION = 'newspack_integration_my_account_endpoints';
+
+	/**
 	 * Option name for storing enabled integrations.
 	 *
 	 * @var string
@@ -71,6 +87,9 @@ class Integrations {
 		require_once __DIR__ . '/integrations/class-contact-pull.php';
 
 		add_action( 'init', [ __CLASS__, 'register_integrations' ], 5 );
+		add_action( 'init', [ __CLASS__, 'register_my_account_endpoints' ], 6 );
+		add_filter( 'woocommerce_account_menu_items', [ __CLASS__, 'filter_my_account_menu_items' ] );
+		add_filter( 'query_vars', [ __CLASS__, 'filter_my_account_query_vars' ] );
 		add_action( 'init', [ __CLASS__, 'schedule_health_check' ] );
 		add_action( self::HEALTH_CHECK_CRON_HOOK, [ __CLASS__, 'run_health_checks' ] );
 		add_filter( 'newspack_data_events_handler_action_group', [ __CLASS__, 'filter_handler_action_group' ], 10, 3 );
@@ -480,6 +499,161 @@ class Integrations {
 		}
 
 		$integration->{ $entry['method'] }( $timestamp, $data, $client_id );
+	}
+
+	/**
+	 * Register WooCommerce My Account endpoints for active integrations.
+	 *
+	 * Iterates active integrations, collects their declared menu items,
+	 * registers rewrite endpoints and per-slug render hooks, and flushes
+	 * rewrite rules when the set of registered slugs changes.
+	 */
+	public static function register_my_account_endpoints() {
+		self::$my_account_endpoints = [];
+
+		foreach ( self::get_active_integrations() as $integration ) {
+			$item = $integration->get_my_account_menu_item();
+			if ( ! is_array( $item ) || empty( $item['slug'] ) || empty( $item['label'] ) ) {
+				continue;
+			}
+			$slug = sanitize_key( $item['slug'] );
+			if ( '' === $slug ) {
+				continue;
+			}
+			if ( isset( self::$my_account_endpoints[ $slug ] ) ) {
+				// First registration wins; skip collisions.
+				continue;
+			}
+			self::$my_account_endpoints[ $slug ] = $integration->get_id();
+
+			add_rewrite_endpoint( $slug, EP_PAGES );
+
+			add_action(
+				'woocommerce_account_' . $slug . '_endpoint',
+				function( $value ) use ( $slug ) {
+					$integration_id = self::$my_account_endpoints[ $slug ] ?? null;
+					if ( ! $integration_id ) {
+						return;
+					}
+					$integration = self::get_integration( $integration_id );
+					if ( ! $integration ) {
+						return;
+					}
+					$integration->render_my_account_page( $value );
+				}
+			);
+		}
+
+		// Flush rewrite rules only when the set of slugs changes.
+		$current = array_keys( self::$my_account_endpoints );
+		sort( $current );
+		$previous = get_option( self::MY_ACCOUNT_ENDPOINTS_OPTION, [] );
+		if ( ! is_array( $previous ) ) {
+			$previous = [];
+		}
+		sort( $previous );
+		if ( $current !== $previous ) {
+			// Intentional: only fires when the set of integration-declared
+			// endpoints changes, which is rare (enable/disable/install).
+			flush_rewrite_rules( false ); // phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.flush_rewrite_rules_flush_rewrite_rules
+			update_option( self::MY_ACCOUNT_ENDPOINTS_OPTION, $current );
+		}
+	}
+
+	/**
+	 * Inject integration menu items into the WooCommerce My Account menu.
+	 *
+	 * @param array $items Existing menu items.
+	 * @return array
+	 */
+	public static function filter_my_account_menu_items( $items ) {
+		if ( empty( self::$my_account_endpoints ) ) {
+			return $items;
+		}
+
+		// Collect items with positions so we can insert in order.
+		$to_insert = [];
+		foreach ( self::$my_account_endpoints as $slug => $integration_id ) {
+			// Skip if an item with this slug already exists (e.g., a core
+			// WooCommerce endpoint) to avoid overwriting or dropping entries.
+			if ( isset( $items[ $slug ] ) ) {
+				continue;
+			}
+			$integration = self::get_integration( $integration_id );
+			if ( ! $integration ) {
+				continue;
+			}
+			$item = $integration->get_my_account_menu_item();
+			if ( ! is_array( $item ) || empty( $item['label'] ) ) {
+				continue;
+			}
+			$to_insert[] = [
+				'slug'     => $slug,
+				'label'    => $item['label'],
+				'position' => isset( $item['position'] ) ? (int) $item['position'] : null,
+			];
+		}
+
+		if ( empty( $to_insert ) ) {
+			return $items;
+		}
+
+		// Separate positioned vs. appended.
+		$positioned = [];
+		$appended   = [];
+		foreach ( $to_insert as $entry ) {
+			if ( null !== $entry['position'] ) {
+				$positioned[] = $entry;
+			} else {
+				$appended[ $entry['slug'] ] = $entry['label'];
+			}
+		}
+
+		// Sort positioned by position ascending for stable inserts.
+		usort(
+			$positioned,
+			function( $a, $b ) {
+				return $a['position'] <=> $b['position'];
+			}
+		);
+
+		// Insert positioned entries by converting to an indexed sequence.
+		if ( ! empty( $positioned ) ) {
+			$keys   = array_keys( $items );
+			$values = array_values( $items );
+			foreach ( $positioned as $entry ) {
+				$pos = max( 0, min( count( $keys ), $entry['position'] ) );
+				array_splice( $keys, $pos, 0, [ $entry['slug'] ] );
+				array_splice( $values, $pos, 0, [ $entry['label'] ] );
+			}
+			$items = array_combine( $keys, $values );
+		}
+
+		// Append the rest, preserving customer-logout at the bottom if present.
+		if ( ! empty( $appended ) ) {
+			if ( isset( $items['customer-logout'] ) ) {
+				$logout = $items['customer-logout'];
+				unset( $items['customer-logout'] );
+				$items = array_merge( $items, $appended, [ 'customer-logout' => $logout ] );
+			} else {
+				$items = array_merge( $items, $appended );
+			}
+		}
+
+		return $items;
+	}
+
+	/**
+	 * Register query vars for integration My Account endpoints.
+	 *
+	 * @param array $vars Existing query vars.
+	 * @return array
+	 */
+	public static function filter_my_account_query_vars( $vars ) {
+		foreach ( array_keys( self::$my_account_endpoints ) as $slug ) {
+			$vars[] = $slug;
+		}
+		return $vars;
 	}
 
 	/**

@@ -217,6 +217,33 @@ abstract class Integration {
 	}
 
 	/**
+	 * Declare a WooCommerce My Account menu item for this integration.
+	 *
+	 * Return null (default) to opt out. Otherwise return:
+	 *   [
+	 *     'slug'     => 'newsletters',          // endpoint slug, unique across integrations.
+	 *     'label'    => __( 'Newsletters', 'newspack-plugin' ),
+	 *     'position' => 25,                     // optional, menu sort order.
+	 *   ]
+	 *
+	 * @return array|null
+	 */
+	public function get_my_account_menu_item() {
+		return null;
+	}
+
+	/**
+	 * Render the My Account page body for this integration.
+	 *
+	 * Called inside the WooCommerce account template when the endpoint
+	 * declared by get_my_account_menu_item() is the current view. Echo
+	 * markup directly. Default is a no-op.
+	 *
+	 * @param mixed $value The endpoint query var value (usually empty).
+	 */
+	public function render_my_account_page( $value ) {}
+
+	/**
 	 * Get incoming available contact fields from the integration.
 	 *
 	 * This method should be implemented by child classes to return

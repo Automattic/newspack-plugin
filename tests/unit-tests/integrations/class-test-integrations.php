@@ -1005,4 +1005,196 @@ class Test_Integrations extends \WP_UnitTestCase {
 		$group = Data_Events::get_handler_action_group( Sample_Integration::class, $action_name );
 		$this->assertSame( 'newspack-integration-filtered-id', $group );
 	}
+
+	/**
+	 * Register an active Sample_Integration with the given ID and menu item.
+	 *
+	 * @param string     $id   Integration ID.
+	 * @param array|null $item Menu item declaration or null.
+	 * @return Sample_Integration
+	 */
+	private function register_active_integration_with_menu( $id, $item ) {
+		$integration                       = new Sample_Integration( $id, ucfirst( $id ) );
+		$integration->my_account_menu_item = $item;
+		Integrations::register( $integration );
+		Integrations::enable( $id );
+		return $integration;
+	}
+
+	/**
+	 * Reset the private $my_account_endpoints map between tests.
+	 */
+	private function reset_my_account_endpoints() {
+		$reflection = new \ReflectionClass( Integrations::class );
+		$property   = $reflection->getProperty( 'my_account_endpoints' );
+		$property->setAccessible( true );
+		$property->setValue( null, [] );
+	}
+
+	/**
+	 * Test that register_my_account_endpoints() collects declared menu items
+	 * only from integrations that opt in, ignoring invalid and opted-out ones.
+	 */
+	public function test_my_account_collects_declared_menu_items() {
+		delete_option( Integrations::MY_ACCOUNT_ENDPOINTS_OPTION );
+		$this->reset_my_account_endpoints();
+
+		$this->register_active_integration_with_menu(
+			'alpha',
+			[
+				'slug'  => 'alpha-page',
+				'label' => 'Alpha',
+			]
+		);
+		$this->register_active_integration_with_menu( 'beta', null ); // opted out.
+		$this->register_active_integration_with_menu(
+			'gamma',
+			[
+				'slug'  => '',
+				'label' => 'Gamma',
+			] // invalid slug.
+		);
+		$this->register_active_integration_with_menu(
+			'delta',
+			[
+				'slug'  => 'delta-page',
+				'label' => '',
+			] // invalid label.
+		);
+
+		Integrations::register_my_account_endpoints();
+
+		$reflection = new \ReflectionClass( Integrations::class );
+		$property   = $reflection->getProperty( 'my_account_endpoints' );
+		$property->setAccessible( true );
+		$map = $property->getValue();
+
+		$this->assertSame( [ 'alpha-page' => 'alpha' ], $map );
+	}
+
+	/**
+	 * Test that duplicate slugs across integrations keep the first registration.
+	 */
+	public function test_my_account_collision_first_registration_wins() {
+		delete_option( Integrations::MY_ACCOUNT_ENDPOINTS_OPTION );
+		$this->reset_my_account_endpoints();
+
+		$this->register_active_integration_with_menu(
+			'first',
+			[
+				'slug'  => 'shared',
+				'label' => 'First',
+			]
+		);
+		$this->register_active_integration_with_menu(
+			'second',
+			[
+				'slug'  => 'shared',
+				'label' => 'Second',
+			]
+		);
+
+		Integrations::register_my_account_endpoints();
+
+		$reflection = new \ReflectionClass( Integrations::class );
+		$property   = $reflection->getProperty( 'my_account_endpoints' );
+		$property->setAccessible( true );
+		$map = $property->getValue();
+
+		$this->assertSame( [ 'shared' => 'first' ], $map );
+	}
+
+	/**
+	 * Test menu insertion: positioned items sort by position, unpositioned
+	 * items append above customer-logout, and existing slugs are not overwritten.
+	 */
+	public function test_my_account_menu_insertion_ordering_and_logout_handling() {
+		delete_option( Integrations::MY_ACCOUNT_ENDPOINTS_OPTION );
+		$this->reset_my_account_endpoints();
+
+		$this->register_active_integration_with_menu(
+			'positioned',
+			[
+				'slug'     => 'newsletters',
+				'label'    => 'Newsletters',
+				'position' => 1,
+			]
+		);
+		$this->register_active_integration_with_menu(
+			'appended',
+			[
+				'slug'  => 'preferences',
+				'label' => 'Preferences',
+			]
+		);
+		$this->register_active_integration_with_menu(
+			'collides',
+			[
+				'slug'  => 'orders',
+				'label' => 'Should Not Overwrite',
+			]
+		);
+
+		Integrations::register_my_account_endpoints();
+
+		$initial = [
+			'dashboard'       => 'Dashboard',
+			'orders'          => 'Orders',
+			'customer-logout' => 'Logout',
+		];
+
+		$result = Integrations::filter_my_account_menu_items( $initial );
+		$keys   = array_keys( $result );
+
+		// "orders" must keep its original label (collision skipped).
+		$this->assertSame( 'Orders', $result['orders'] );
+		// Positioned "newsletters" inserted at index 1.
+		$this->assertSame( 'newsletters', $keys[1] );
+		// "preferences" appended above logout.
+		$this->assertSame( 'customer-logout', end( $keys ) );
+		$this->assertContains( 'preferences', $keys );
+		$logout_index      = array_search( 'customer-logout', $keys, true );
+		$preferences_index = array_search( 'preferences', $keys, true );
+		$this->assertLessThan( $logout_index, $preferences_index );
+	}
+
+	/**
+	 * Test that the flush-change-detection option is updated only when the
+	 * set of endpoint slugs actually changes.
+	 */
+	public function test_my_account_endpoints_option_tracks_changes() {
+		delete_option( Integrations::MY_ACCOUNT_ENDPOINTS_OPTION );
+		$this->reset_my_account_endpoints();
+
+		$this->register_active_integration_with_menu(
+			'one',
+			[
+				'slug'  => 'one-page',
+				'label' => 'One',
+			]
+		);
+
+		Integrations::register_my_account_endpoints();
+		$this->assertSame( [ 'one-page' ], get_option( Integrations::MY_ACCOUNT_ENDPOINTS_OPTION ) );
+
+		// No change: running again must keep the option stable.
+		Integrations::register_my_account_endpoints();
+		$this->assertSame( [ 'one-page' ], get_option( Integrations::MY_ACCOUNT_ENDPOINTS_OPTION ) );
+
+		// Add a second integration: option must now include both, sorted.
+		$this->register_active_integration_with_menu(
+			'two',
+			[
+				'slug'  => 'two-page',
+				'label' => 'Two',
+			]
+		);
+		Integrations::register_my_account_endpoints();
+		$this->assertSame( [ 'one-page', 'two-page' ], get_option( Integrations::MY_ACCOUNT_ENDPOINTS_OPTION ) );
+
+		// Disable 'one': option must shrink back to just 'two-page'.
+		Integrations::disable( 'one' );
+		Integrations::register_my_account_endpoints();
+		$this->assertSame( [ 'two-page' ], get_option( Integrations::MY_ACCOUNT_ENDPOINTS_OPTION ) );
+	}
 }
