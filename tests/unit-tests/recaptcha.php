@@ -2,7 +2,7 @@
 /**
  * Tests for the Recaptcha class.
  *
- * @package Newspack
+ * @package Newspack\Tests
  */
 
 use Newspack\Recaptcha;
@@ -25,6 +25,8 @@ class Test_Recaptcha extends WP_UnitTestCase {
 		wp_dequeue_script( 'newspack-recaptcha-api' );
 		wp_deregister_script( 'newspack-recaptcha' );
 		wp_deregister_script( 'newspack-recaptcha-api' );
+		wp_dequeue_style( 'newspack-recaptcha' );
+		wp_deregister_style( 'newspack-recaptcha' );
 		$GLOBALS['newspack_test_is_tec_community_page'] = false;
 	}
 
@@ -59,8 +61,8 @@ class Test_Recaptcha extends WP_UnitTestCase {
 		Recaptcha::register_scripts();
 
 		$this->assertTrue(
-			wp_script_is( 'newspack-recaptcha-api', 'registered' ),
-			'reCAPTCHA api.js should be registered on a normal page when reCAPTCHA is enabled.'
+			wp_script_is( 'newspack-recaptcha-api', 'enqueued' ),
+			'reCAPTCHA api.js should be enqueued on a normal page when reCAPTCHA is enabled.'
 		);
 	}
 
@@ -74,8 +76,8 @@ class Test_Recaptcha extends WP_UnitTestCase {
 		Recaptcha::register_scripts();
 
 		$this->assertFalse(
-			wp_script_is( 'newspack-recaptcha-api', 'registered' ),
-			'reCAPTCHA api.js should NOT be registered on TEC Community Events submission pages.'
+			wp_script_is( 'newspack-recaptcha-api', 'enqueued' ),
+			'reCAPTCHA api.js should NOT be enqueued on TEC Community Events submission pages.'
 		);
 	}
 
@@ -89,8 +91,8 @@ class Test_Recaptcha extends WP_UnitTestCase {
 		Recaptcha::register_scripts();
 
 		$this->assertFalse(
-			wp_script_is( 'newspack-recaptcha-api', 'registered' ),
-			'reCAPTCHA api.js should not be registered when reCAPTCHA is disabled.'
+			wp_script_is( 'newspack-recaptcha-api', 'enqueued' ),
+			'reCAPTCHA api.js should not be enqueued when reCAPTCHA is disabled.'
 		);
 	}
 }
