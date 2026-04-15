@@ -305,6 +305,14 @@ class ESP extends Integration {
 			);
 		}
 
+		$newsletters_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-newsletters' );
+		if ( $newsletters_configuration_manager->is_esp_set_up() === false ) {
+			$errors->add(
+				'ras_esp_sync_not_set_up',
+				__( 'ESP sync is not set up.', 'newspack-plugin' )
+			);
+		}
+
 		if ( ! Integrations::is_enabled( $this->get_id() ) ) {
 			$errors->add(
 				'ras_esp_sync_not_enabled',
