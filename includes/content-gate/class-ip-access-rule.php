@@ -88,7 +88,7 @@ class IP_Access_Rule {
 				[
 					'methods'             => 'POST',
 					'callback'            => [ __CLASS__, 'check_external_ip_rest' ],
-					'permission_callback' => '__return_true',
+					'permission_callback' => [ __CLASS__, 'check_external_ip_permission' ],
 					'args'                => [
 						'ip' => [
 							'type'              => 'string',
@@ -186,6 +186,15 @@ class IP_Access_Rule {
 		remove_filter( 'newspack_visitor_ip', $override );
 
 		return new \WP_REST_Response( [ 'show_paywall' => ! (bool) $result ] );
+	}
+
+	/**
+	 * Permission check for the external IP query endpoint.
+	 *
+	 * @return bool
+	 */
+	public static function check_external_ip_permission() {
+		return current_user_can( 'manage_options' );
 	}
 
 	/**

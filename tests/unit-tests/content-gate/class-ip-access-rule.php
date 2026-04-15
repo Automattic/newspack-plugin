@@ -273,9 +273,31 @@ class Newspack_Test_IP_Access_Rule extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Test POST requires manage_options capability.
+	 */
+	public function test_post_requires_authentication() {
+		$route = '/' . NEWSPACK_API_NAMESPACE . IP_Access_Rule::REST_ROUTE;
+
+		// Unauthenticated request should be forbidden.
+		$request = new WP_REST_Request( 'POST', $route );
+		$request->set_param( 'ip', '10.0.0.1' );
+		$response = rest_do_request( $request );
+		$this->assertSame( 401, $response->get_status() );
+
+		// Non-admin user should be forbidden.
+		wp_set_current_user( self::factory()->user->create( [ 'role' => 'subscriber' ] ) );
+		$request = new WP_REST_Request( 'POST', $route );
+		$request->set_param( 'ip', '10.0.0.1' );
+		$response = rest_do_request( $request );
+		$this->assertSame( 403, $response->get_status() );
+	}
+
+	/**
 	 * Test POST returns 400 for missing or invalid ip param.
 	 */
 	public function test_post_requires_valid_ip_param() {
+		wp_set_current_user( self::factory()->user->create( [ 'role' => 'administrator' ] ) );
+
 		$route = '/' . NEWSPACK_API_NAMESPACE . IP_Access_Rule::REST_ROUTE;
 
 		// Missing param (handled by WP REST required arg validation).
@@ -300,6 +322,8 @@ class Newspack_Test_IP_Access_Rule extends WP_UnitTestCase {
 	 * Test POST returns correct show_paywall value.
 	 */
 	public function test_post_show_paywall_response() {
+		wp_set_current_user( self::factory()->user->create( [ 'role' => 'administrator' ] ) );
+
 		$route = '/' . NEWSPACK_API_NAMESPACE . IP_Access_Rule::REST_ROUTE;
 
 		// No match: show paywall.
