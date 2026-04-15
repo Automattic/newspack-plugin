@@ -52,6 +52,9 @@ class Group_Subscription_Settings {
 		\add_filter( 'woocommerce_shop_subscription_list_table_prepare_items_query_args', [ __CLASS__, 'filter_subscriptions_by_group' ] );
 		\add_filter( 'pre_get_posts', [ __CLASS__, 'filter_subscriptions_by_group_legacy' ] );
 
+		// Clear group subscription IDs cache when product group settings change.
+		\add_action( 'woocommerce_process_product_meta', [ __CLASS__, 'maybe_clear_cache_on_product_save' ] );
+
 		// Include group name in subscription search.
 		\add_filter( 'woocommerce_shop_subscription_search_fields', [ __CLASS__, 'add_group_name_search_field' ] );
 		\add_filter( 'woocommerce_order_table_search_query_meta_keys', [ __CLASS__, 'add_group_name_hpos_search_field' ] );
@@ -290,6 +293,11 @@ class Group_Subscription_Settings {
 		}
 		if ( $should_save ) {
 			$subscription->save();
+
+			// Clear the cached group subscription IDs if the enabled setting changed.
+			if ( isset( $settings['enabled'] ) ) {
+				self::clear_group_subscription_ids_cache();
+			}
 		}
 	}
 
@@ -575,11 +583,16 @@ class Group_Subscription_Settings {
 		if ( empty( $term ) ) {
 			return $search;
 		}
-		$like    = '%' . $wpdb->esc_like( $term ) . '%';
+		$like      = '%' . $wpdb->esc_like( $term ) . '%';
 		$or_clause = $wpdb->prepare( ' OR ( np_group_name.meta_value LIKE %s )', $like );
 
-		// Insert the OR clause before the closing parenthesis of the search condition.
-		$search = preg_replace( '/\)\s*$/', $or_clause . ' )', $search );
+		// Insert the OR clause inside the existing grouped search condition.
+		// WP's search clause can end with )) or ) depending on search terms.
+		if ( preg_match( '/\)\)\s*$/', $search ) ) {
+			$search = preg_replace( '/\)\)\s*$/', $or_clause . ' ))', $search, 1 );
+		} else {
+			$search = preg_replace( '/\)\s*$/', $or_clause . ' )', $search, 1 );
+		}
 		return $search;
 	}
 
@@ -595,15 +608,27 @@ class Group_Subscription_Settings {
 	}
 
 	/**
+	 * Transient key for caching group subscription IDs.
+	 */
+	const GROUP_SUBSCRIPTION_IDS_TRANSIENT = 'newspack_group_subscription_ids';
+
+	/**
 	 * Get all subscription IDs that are group subscriptions.
 	 *
 	 * Collects IDs from two sources:
 	 * 1. Subscriptions with the group enabled meta set directly.
 	 * 2. Subscriptions whose product has group subscriptions enabled (inheritance).
 	 *
+	 * Results are cached in a transient for 5 minutes.
+	 *
 	 * @return int[] Array of subscription IDs.
 	 */
 	public static function get_group_subscription_ids() {
+		$cached = \get_transient( self::GROUP_SUBSCRIPTION_IDS_TRANSIENT );
+		if ( false !== $cached ) {
+			return $cached;
+		}
+
 		global $wpdb;
 
 		// 1. Subscription IDs with group enabled meta set directly.
@@ -637,9 +662,10 @@ class Group_Subscription_Settings {
 		);
 
 		$product_sub_ids = [];
-		if ( ! empty( $product_ids ) ) {
-			$placeholders    = implode( ',', array_fill( 0, count( $product_ids ), '%d' ) );
-			$product_sub_ids = array_map(
+		if ( ! empty( $product_ids ) && function_exists( 'wc_get_orders' ) ) {
+			// Get order IDs containing these products via order items tables.
+			$placeholders   = implode( ',', array_fill( 0, count( $product_ids ), '%d' ) );
+			$candidate_ids  = array_map(
 				'absint',
 				$wpdb->get_col( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 					$wpdb->prepare(
@@ -653,9 +679,49 @@ class Group_Subscription_Settings {
 					)
 				)
 			);
+
+			// Filter to only include shop_subscription order types.
+			if ( ! empty( $candidate_ids ) ) {
+				$product_sub_ids = \wc_get_orders(
+					[
+						'type'     => 'shop_subscription',
+						'status'   => 'any',
+						'limit'    => -1,
+						'return'   => 'ids',
+						'post__in' => $candidate_ids,
+					]
+				);
+			}
 		}
 
-		return array_values( array_unique( array_merge( $enabled_ids, $product_sub_ids ) ) );
+		$result = array_values( array_unique( array_merge( $enabled_ids, $product_sub_ids ) ) );
+
+		\set_transient( self::GROUP_SUBSCRIPTION_IDS_TRANSIENT, $result, 5 * MINUTE_IN_SECONDS );
+
+		return $result;
+	}
+
+	/**
+	 * Clear the group subscription IDs transient cache.
+	 *
+	 * Called when group subscription settings change to ensure the filter
+	 * reflects current state.
+	 */
+	public static function clear_group_subscription_ids_cache() {
+		\delete_transient( self::GROUP_SUBSCRIPTION_IDS_TRANSIENT );
+	}
+
+	/**
+	 * Clear the group subscription IDs cache when a product's group settings
+	 * may have changed.
+	 *
+	 * @param int $product_id The product ID being saved.
+	 */
+	public static function maybe_clear_cache_on_product_save( $product_id ) {
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing
+		if ( isset( $_POST[ self::GROUP_SUBSCRIPTION_META_PREFIX . 'enabled' ] ) || \get_post_meta( $product_id, self::GROUP_SUBSCRIPTION_META_PREFIX . 'enabled', true ) ) {
+			self::clear_group_subscription_ids_cache();
+		}
 	}
 
 	/**
