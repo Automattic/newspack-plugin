@@ -35,7 +35,13 @@ export const SettingsSection = ( { integrations, loading, onToggleEnabled, onCon
 	const integrationIds = Object.keys( integrations );
 
 	return (
-		<WizardsTab title={ __( 'Integrations', 'newspack-plugin' ) }>
+		<WizardsTab
+			title={ __( 'Integrations', 'newspack-plugin' ) }
+			description={ __(
+				'Manage how Newspack syncs reader data with your tools. Connect an integration to start syncing reader activity across your stack.',
+				'newspack-plugin'
+			) }
+		>
 			<WizardSection>
 				{ loading && <p>{ __( 'Loading…', 'newspack-plugin' ) }</p> }
 				{ ! loading && integrationIds.length === 0 && (
