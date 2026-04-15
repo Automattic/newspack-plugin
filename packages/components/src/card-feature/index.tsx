@@ -102,8 +102,6 @@ const CardFeature = ( {
 		badge = { text: requirements, level: 'error' };
 	} else if ( enabled ) {
 		badge = { text: badgeText ?? __( 'Enabled', 'newspack-plugin' ), level: badgeLevel };
-	} else if ( badgeText ) {
-		badge = { text: badgeText, level: badgeLevel };
 	}
 
 	const isConfigureState = enabled && ! requirements;
