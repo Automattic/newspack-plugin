@@ -502,36 +502,15 @@ class Group_Subscription_Settings {
 	/**
 	 * Get all subscription IDs that are group subscriptions.
 	 *
-	 * Collects IDs from two sources:
-	 * 1. Subscriptions with the group enabled meta set to 'yes'.
-	 * 2. Subscriptions that have at least one group member (via user meta).
+	 * Returns subscription IDs that have at least one group member,
+	 * based on user meta associations.
 	 *
 	 * @return int[] Array of subscription IDs.
 	 */
 	public static function get_group_subscription_ids() {
 		global $wpdb;
 
-		// 1. Subscription IDs with group enabled meta.
-		$enabled_ids = [];
-		if ( function_exists( 'wc_get_orders' ) ) {
-			$enabled_ids = \wc_get_orders(
-				[
-					'type'       => 'shop_subscription',
-					'status'     => 'any',
-					'limit'      => -1,
-					'return'     => 'ids',
-					'meta_query' => [ // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
-						[
-							'key'   => self::GROUP_SUBSCRIPTION_META_PREFIX . 'enabled',
-							'value' => 'yes',
-						],
-					],
-				]
-			);
-		}
-
-		// 2. Subscription IDs that have at least one group member.
-		$member_sub_ids = array_map(
+		return array_map(
 			'absint',
 			$wpdb->get_col( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 				$wpdb->prepare(
@@ -540,8 +519,6 @@ class Group_Subscription_Settings {
 				)
 			)
 		);
-
-		return array_values( array_unique( array_merge( $enabled_ids, $member_sub_ids ) ) );
 	}
 
 	/**
