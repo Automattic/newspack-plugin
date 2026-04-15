@@ -54,6 +54,8 @@ class Group_Subscription_Settings {
 
 		// Include group name in subscription search.
 		\add_filter( 'woocommerce_shop_subscription_search_fields', [ __CLASS__, 'add_group_name_search_field' ] );
+		\add_filter( 'posts_join', [ __CLASS__, 'search_group_name_join' ], 10, 2 );
+		\add_filter( 'posts_search', [ __CLASS__, 'search_group_name_where' ], 10, 2 );
 	}
 
 	/**
@@ -513,6 +515,59 @@ class Group_Subscription_Settings {
 	public static function add_group_name_search_field( $search_fields ) {
 		$search_fields[] = self::GROUP_SUBSCRIPTION_META_PREFIX . 'name';
 		return $search_fields;
+	}
+
+	/**
+	 * Join the postmeta table for group name search in WP_Query.
+	 *
+	 * @param string    $join  The JOIN clause.
+	 * @param \WP_Query $query The WP_Query instance.
+	 *
+	 * @return string The modified JOIN clause.
+	 */
+	public static function search_group_name_join( $join, $query ) {
+		global $wpdb;
+		if ( ! self::is_subscription_search_query( $query ) ) {
+			return $join;
+		}
+		$join .= " LEFT JOIN {$wpdb->postmeta} AS np_group_name ON ( {$wpdb->posts}.ID = np_group_name.post_id AND np_group_name.meta_key = '" . esc_sql( self::GROUP_SUBSCRIPTION_META_PREFIX . 'name' ) . "' ) ";
+		return $join;
+	}
+
+	/**
+	 * Extend the search WHERE clause to include group name meta in WP_Query.
+	 *
+	 * @param string    $search The search WHERE clause.
+	 * @param \WP_Query $query  The WP_Query instance.
+	 *
+	 * @return string The modified search WHERE clause.
+	 */
+	public static function search_group_name_where( $search, $query ) {
+		global $wpdb;
+		if ( ! self::is_subscription_search_query( $query ) || empty( $search ) ) {
+			return $search;
+		}
+		$term = $query->get( 's' );
+		if ( empty( $term ) ) {
+			return $search;
+		}
+		$like    = '%' . $wpdb->esc_like( $term ) . '%';
+		$or_clause = $wpdb->prepare( ' OR ( np_group_name.meta_value LIKE %s )', $like );
+
+		// Insert the OR clause before the closing parenthesis of the search condition.
+		$search = preg_replace( '/\)\s*$/', $or_clause . ' )', $search );
+		return $search;
+	}
+
+	/**
+	 * Check if a WP_Query is a search query for shop_subscription post type.
+	 *
+	 * @param \WP_Query $query The WP_Query instance.
+	 *
+	 * @return bool Whether this is a subscription search query.
+	 */
+	private static function is_subscription_search_query( $query ) {
+		return $query->is_search() && 'shop_subscription' === $query->get( 'post_type' );
 	}
 
 	/**
