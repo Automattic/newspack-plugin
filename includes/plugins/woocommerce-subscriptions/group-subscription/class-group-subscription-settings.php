@@ -51,6 +51,9 @@ class Group_Subscription_Settings {
 		// Filter subscription list table query by group status.
 		\add_filter( 'woocommerce_shop_subscription_list_table_prepare_items_query_args', [ __CLASS__, 'filter_subscriptions_by_group' ] );
 		\add_filter( 'pre_get_posts', [ __CLASS__, 'filter_subscriptions_by_group_legacy' ] );
+
+		// Include group name in subscription search.
+		\add_filter( 'woocommerce_shop_subscription_search_fields', [ __CLASS__, 'add_group_name_search_field' ] );
 	}
 
 	/**
@@ -498,6 +501,18 @@ class Group_Subscription_Settings {
 			<option value="non-group" <?php selected( $selected, 'non-group' ); ?>><?php \esc_html_e( 'Non-group subscriptions', 'newspack-plugin' ); ?></option>
 		</select>
 		<?php
+	}
+
+	/**
+	 * Add the group subscription name meta key to the subscription search fields.
+	 *
+	 * @param array $search_fields The search fields.
+	 *
+	 * @return array The search fields with the group name meta key added.
+	 */
+	public static function add_group_name_search_field( $search_fields ) {
+		$search_fields[] = self::GROUP_SUBSCRIPTION_META_PREFIX . 'name';
+		return $search_fields;
 	}
 
 	/**
