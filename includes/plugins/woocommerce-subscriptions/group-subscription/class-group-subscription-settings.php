@@ -40,6 +40,9 @@ class Group_Subscription_Settings {
 		\add_action( 'add_meta_boxes', [ __CLASS__, 'add_group_subscription_meta_box' ], 26, 2 );
 		\add_action( 'woocommerce_process_shop_order_meta', [ __CLASS__, 'save_group_subscription_meta' ], 10, 2 );
 		\add_action( 'wp_ajax_newspack_group_subscription_search_users', [ __CLASS__, 'ajax_search_users' ] );
+
+		// Customize subscription column in admin list table for group subscriptions.
+		\add_filter( 'woocommerce_subscription_list_table_column_content', [ __CLASS__, 'filter_subscription_column_content' ], 10, 3 );
 	}
 
 	/**
@@ -138,6 +141,43 @@ class Group_Subscription_Settings {
 			],
 		];
 		return $custom_product_pricing_options;
+	}
+
+	/**
+	 * Filter the subscription list table column content to show group name
+	 * and member count for group subscriptions.
+	 *
+	 * @param string           $column_content The column content HTML.
+	 * @param \WC_Subscription $subscription   The subscription object.
+	 * @param string           $column         The column name.
+	 *
+	 * @return string The filtered column content.
+	 */
+	public static function filter_subscription_column_content( $column_content, $subscription, $column ) {
+		if ( 'order_title' !== $column ) {
+			return $column_content;
+		}
+		if ( ! Group_Subscription::is_group_subscription( $subscription ) ) {
+			return $column_content;
+		}
+		$settings     = self::get_subscription_settings( $subscription );
+		$members      = Group_Subscription::get_members( $subscription );
+		$member_count = count( $members );
+		$limit        = $settings['limit'] > 0
+			? $settings['limit']
+			: __( 'unlimited', 'newspack-plugin' );
+
+		return sprintf(
+			'<a href="%s"><strong>%s</strong></a> (%s)',
+			\esc_url( $subscription->get_edit_order_url() ),
+			\esc_html( $settings['name'] ),
+			sprintf(
+				/* translators: 1: member count, 2: member limit or "unlimited" */
+				__( '%1$s of %2$s members', 'newspack-plugin' ),
+				$member_count,
+				$limit
+			)
+		);
 	}
 
 	/**
