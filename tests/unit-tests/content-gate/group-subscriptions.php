@@ -49,7 +49,7 @@ class Test_Group_Subscriptions extends \WP_UnitTestCase {
 	 *
 	 * @param int   $customer_id Customer/owner user ID.
 	 * @param array $settings    Optional group-subscription settings to apply.
-	 *                           Supported keys: 'enabled' (bool), 'limit' (int).
+	 *                           Supported keys: 'enabled' (bool), 'limit' (int), 'name' (string).
 	 * @return \WC_Subscription
 	 */
 	private function create_group_subscription( $customer_id, $settings = [] ) {
@@ -57,6 +57,7 @@ class Test_Group_Subscriptions extends \WP_UnitTestCase {
 			[
 				'enabled' => true,
 				'limit'   => 0,
+				'name'    => '',
 			],
 			$settings
 		);
@@ -74,6 +75,9 @@ class Test_Group_Subscriptions extends \WP_UnitTestCase {
 		}
 		if ( $settings['limit'] > 0 ) {
 			$sub->update_meta_data( Group_Subscription_Settings::GROUP_SUBSCRIPTION_META_PREFIX . 'limit', $settings['limit'] );
+		}
+		if ( ! empty( $settings['name'] ) ) {
+			$sub->update_meta_data( Group_Subscription_Settings::GROUP_SUBSCRIPTION_META_PREFIX . 'name', $settings['name'] );
 		}
 		return $sub;
 	}
@@ -423,6 +427,101 @@ class Test_Group_Subscriptions extends \WP_UnitTestCase {
 		$result = Group_Subscription::get_group_subscriptions_for_user( $reader_id, true );
 		$this->assertIsArray( $result );
 		$this->assertEmpty( $result );
+	}
+
+	// -------------------------------------------------------------------------
+	// Group_Subscription_Settings name tests
+	// -------------------------------------------------------------------------
+
+	/**
+	 * Test get_subscription_settings() returns a default name based on the
+	 * subscription owner's billing name when no custom name is set.
+	 */
+	public function test_group_name_defaults_to_owner_name() {
+		$owner_id  = $this->create_reader_user();
+		$group_sub = $this->create_group_subscription( $owner_id );
+
+		// Set billing name on the subscription so get_formatted_billing_full_name() returns a real name.
+		$group_sub->data['billing_first_name'] = 'Jane';
+		$group_sub->data['billing_last_name']  = 'Doe';
+
+		$settings = Group_Subscription_Settings::get_subscription_settings( $group_sub );
+
+		$this->assertNotEmpty( $settings['name'], 'Default name should not be empty' );
+		$this->assertStringContainsString(
+			'Jane',
+			$settings['name'],
+			'Default name should contain the owner first name'
+		);
+		$this->assertStringContainsString(
+			"\u{2019}s Group",
+			$settings['name'],
+			'Default name should end with the possessive Group suffix'
+		);
+	}
+
+	/**
+	 * Test get_subscription_settings() returns a custom name when one is stored
+	 * in subscription meta.
+	 */
+	public function test_group_name_custom_override() {
+		$owner_id  = $this->create_reader_user();
+		$group_sub = $this->create_group_subscription( $owner_id, [ 'name' => 'Acme Newsroom' ] );
+
+		$settings = Group_Subscription_Settings::get_subscription_settings( $group_sub );
+
+		$this->assertEquals( 'Acme Newsroom', $settings['name'] );
+	}
+
+	/**
+	 * Test update_subscription_settings() persists a name change that is
+	 * reflected in subsequent get_subscription_settings() calls.
+	 */
+	public function test_group_name_update_and_read_back() {
+		$owner_id  = $this->create_reader_user();
+		$group_sub = $this->create_group_subscription( $owner_id );
+
+		Group_Subscription_Settings::update_subscription_settings(
+			$group_sub,
+			[ 'name' => 'Daily Planet' ]
+		);
+
+		$settings = Group_Subscription_Settings::get_subscription_settings( $group_sub );
+
+		$this->assertEquals( 'Daily Planet', $settings['name'] );
+	}
+
+	/**
+	 * Test that an empty name in update_subscription_settings() stores an
+	 * empty string, which causes get_subscription_settings() to fall back
+	 * to the default owner-based name.
+	 */
+	public function test_group_name_empty_falls_back_to_default() {
+		$owner_id  = $this->create_reader_user();
+		$group_sub = $this->create_group_subscription( $owner_id, [ 'name' => 'Temp Name' ] );
+
+		// Set billing name on the subscription so the fallback name is based on the actual owner name.
+		$group_sub->data['billing_first_name'] = 'Jane';
+		$group_sub->data['billing_last_name']  = 'Doe';
+
+		Group_Subscription_Settings::update_subscription_settings(
+			$group_sub,
+			[ 'name' => '' ]
+		);
+
+		$settings = Group_Subscription_Settings::get_subscription_settings( $group_sub );
+
+		// After clearing the custom name, it should revert to the default.
+		$this->assertStringContainsString(
+			'Jane',
+			$settings['name'],
+			'Clearing the name should revert to the default owner-based name'
+		);
+		$this->assertStringContainsString(
+			"\u{2019}s Group",
+			$settings['name'],
+			'Default name should end with the possessive Group suffix'
+		);
 	}
 
 	// -------------------------------------------------------------------------
