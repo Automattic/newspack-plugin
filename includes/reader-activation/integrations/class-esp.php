@@ -35,6 +35,16 @@ class ESP extends Integration {
 	}
 
 	/**
+	 * Whether the ESP service provider is configured.
+	 *
+	 * @return bool True if an ESP provider is selected and configured.
+	 */
+	public function is_set_up() {
+		$newsletters_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-newsletters' );
+		return (bool) $newsletters_configuration_manager->is_esp_set_up();
+	}
+
+	/**
 	 * Get the URL where the user can set up the ESP.
 	 *
 	 * @return string The Newspack Newsletters settings page URL.
@@ -289,14 +299,6 @@ class ESP extends Integration {
 			$errors->add(
 				'newspack_newsletters_contacts_not_found',
 				__( 'Newspack Newsletters is not available.', 'newspack-plugin' )
-			);
-		}
-
-		$newsletters_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-newsletters' );
-		if ( $newsletters_configuration_manager->is_esp_set_up() === false ) {
-			$errors->add(
-				'ras_esp_sync_not_set_up',
-				__( 'ESP sync is not set up.', 'newspack-plugin' )
 			);
 		}
 

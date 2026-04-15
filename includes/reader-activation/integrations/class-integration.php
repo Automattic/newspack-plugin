@@ -127,6 +127,19 @@ abstract class Integration {
 	}
 
 	/**
+	 * Whether this integration's external prerequisites are configured.
+	 *
+	 * Child classes should override this to check whether the third-party
+	 * service or plugin the integration depends on is set up (e.g., API
+	 * key entered, provider selected). Returns true by default.
+	 *
+	 * @return bool True if set up, false otherwise.
+	 */
+	public function is_set_up() {
+		return true;
+	}
+
+	/**
 	 * Get the URL where the user can set up this integration.
 	 *
 	 * Child classes should override this to return the admin page where

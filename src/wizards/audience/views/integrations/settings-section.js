@@ -46,9 +46,9 @@ export const SettingsSection = ( { integrations, loading, onToggleEnabled, onCon
 				{ ! loading && integrationIds.length > 0 && (
 					<Grid columns={ 2 } gutter={ 16 }>
 						{ integrationIds.map( id => {
-							const { enabled, can_sync: canSync, setup_url, name, description } = integrations[ id ];
-							const isEnabled = enabled && canSync;
-							const needsSetup = ! canSync && !! setup_url;
+							const { enabled, is_set_up: isSetUp, setup_url, name, description } = integrations[ id ];
+							const isEnabled = enabled;
+							const needsSetup = ! isSetUp && !! setup_url;
 							const goToSetup = () => {
 								window.location.href = setup_url;
 							};
@@ -58,8 +58,8 @@ export const SettingsSection = ( { integrations, loading, onToggleEnabled, onCon
 									title={ name }
 									description={ description }
 									icon={ INTEGRATION_ICONS[ id ] || DEFAULT_ICON }
-									enabled={ isEnabled }
-									enableLabel={ __( 'Connect', 'newspack-plugin' ) }
+									enabled={ isEnabled && isSetUp }
+									enableLabel={ isSetUp ? __( 'Enable', 'newspack-plugin' ) : __( 'Connect', 'newspack-plugin' ) }
 									configureLabel={ needsSetup ? __( 'Configure', 'newspack-plugin' ) : undefined }
 									onEnable={ needsSetup ? goToSetup : () => onToggleEnabled( id, true ) }
 									onConfigure={
@@ -68,7 +68,7 @@ export const SettingsSection = ( { integrations, loading, onToggleEnabled, onCon
 									badgeText={ undefined }
 									badgeLevel={ undefined }
 									moreControls={
-										isEnabled && canSync
+										isEnabled
 											? [
 													{
 														title: __( 'Disable', 'newspack-plugin' ),
