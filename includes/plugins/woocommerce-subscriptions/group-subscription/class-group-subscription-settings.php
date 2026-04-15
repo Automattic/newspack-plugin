@@ -233,6 +233,7 @@ class Group_Subscription_Settings {
 			return self::DEFAULT_SETTINGS;
 		}
 		$product_id          = WooCommerce_Subscriptions::get_subscription_product_id( $subscription );
+		$owner_name          = trim( $subscription->get_formatted_billing_full_name() );
 		$settings            = self::get_product_settings( $product_id );
 		$settings['enabled'] = $subscription->get_meta( self::GROUP_SUBSCRIPTION_META_PREFIX . 'enabled', true ) ? \wc_string_to_bool( $subscription->get_meta( self::GROUP_SUBSCRIPTION_META_PREFIX . 'enabled', true ) ) : $settings['enabled'];
 		$settings['limit']   = (int) $subscription->get_meta( self::GROUP_SUBSCRIPTION_META_PREFIX . 'limit', true ) ?: $settings['limit']; // phpcs:ignore Universal.Operators.DisallowShortTernary.Found
@@ -240,8 +241,8 @@ class Group_Subscription_Settings {
 								$subscription->get_meta( self::GROUP_SUBSCRIPTION_META_PREFIX . 'name', true ) :
 								sprintf(
 									/* translators: %s: The subscription owner's name. */
-									__( '%s’s Group', 'newspack-plugin' ),
-									$subscription->get_formatted_billing_full_name()
+									__( '%s Group', 'newspack-plugin' ),
+									$owner_name ? $owner_name . '’s' : __( 'Unnamed', 'newspack-plugin' )
 								);
 
 		/**
@@ -502,23 +503,65 @@ class Group_Subscription_Settings {
 	/**
 	 * Get all subscription IDs that are group subscriptions.
 	 *
-	 * Returns subscription IDs that have at least one group member,
-	 * based on user meta associations.
+	 * Collects IDs from two sources:
+	 * 1. Subscriptions with the group enabled meta set directly.
+	 * 2. Subscriptions whose product has group subscriptions enabled (inheritance).
 	 *
 	 * @return int[] Array of subscription IDs.
 	 */
 	public static function get_group_subscription_ids() {
 		global $wpdb;
 
-		return array_map(
-			'absint',
-			$wpdb->get_col( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-				$wpdb->prepare(
-					"SELECT DISTINCT meta_value FROM {$wpdb->usermeta} WHERE meta_key = %s",
-					Group_Subscription::GROUP_SUBSCRIPTION_USER_META_KEY
-				)
-			)
+		// 1. Subscription IDs with group enabled meta set directly.
+		$enabled_ids = [];
+		if ( function_exists( 'wc_get_orders' ) ) {
+			$enabled_ids = \wc_get_orders(
+				[
+					'type'       => 'shop_subscription',
+					'status'     => 'any',
+					'limit'      => -1,
+					'return'     => 'ids',
+					'meta_query' => [ // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
+						[
+							'key'   => self::GROUP_SUBSCRIPTION_META_PREFIX . 'enabled',
+							'value' => 'yes',
+						],
+					],
+				]
+			);
+		}
+
+		// 2. Subscription IDs whose product has group subscriptions enabled.
+		$product_ids = \get_posts( // phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.get_posts_get_posts
+			[
+				'post_type'      => [ 'product', 'product_variation' ],
+				'posts_per_page' => -1, // phpcs:ignore WordPress.WP.PostsPerPage.posts_per_page_posts_per_page
+				'fields'         => 'ids',
+				'meta_key'       => self::GROUP_SUBSCRIPTION_META_PREFIX . 'enabled', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
+				'meta_value'     => 'yes', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
+			]
 		);
+
+		$product_sub_ids = [];
+		if ( ! empty( $product_ids ) ) {
+			$placeholders    = implode( ',', array_fill( 0, count( $product_ids ), '%d' ) );
+			$product_sub_ids = array_map(
+				'absint',
+				$wpdb->get_col( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+					$wpdb->prepare(
+						"SELECT DISTINCT oi.order_id
+						FROM {$wpdb->prefix}woocommerce_order_items oi
+						INNER JOIN {$wpdb->prefix}woocommerce_order_itemmeta oim
+							ON oi.order_item_id = oim.order_item_id
+							AND oim.meta_key = '_product_id'
+						WHERE oim.meta_value IN ($placeholders)", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, WordPress.DB.PreparedSQL.NotPrepared
+						...$product_ids
+					)
+				)
+			);
+		}
+
+		return array_values( array_unique( array_merge( $enabled_ids, $product_sub_ids ) ) );
 	}
 
 	/**
