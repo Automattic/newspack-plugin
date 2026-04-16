@@ -682,6 +682,28 @@ class Group_Subscription_Settings {
 			}
 		}
 
+		// 3. Remove subscriptions that explicitly opted out via an 'enabled = no' override.
+		// A subscription's own meta takes precedence over product inheritance.
+		$opted_out_ids = [];
+		if ( ! empty( $product_sub_ids ) && function_exists( 'wcs_get_subscriptions' ) ) {
+			$opted_out_ids = array_keys(
+				\wcs_get_subscriptions(
+					[
+						'subscriptions_per_page' => -1,
+						'subscription_status'    => 'any',
+						'meta_query'             => [ // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
+							[
+								'key'   => $meta_key,
+								'value' => 'no',
+							],
+						],
+					]
+				)
+			);
+		}
+
+		$product_sub_ids = array_diff( $product_sub_ids, $opted_out_ids );
+
 		$result = array_values( array_unique( array_merge( $enabled_ids, $product_sub_ids ) ) );
 
 		\set_transient( self::GROUP_SUBSCRIPTION_IDS_TRANSIENT, $result, 5 * MINUTE_IN_SECONDS );
