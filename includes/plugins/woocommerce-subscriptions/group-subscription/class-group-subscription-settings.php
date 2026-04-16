@@ -629,24 +629,26 @@ class Group_Subscription_Settings {
 			return $cached;
 		}
 
-		global $wpdb;
+		$meta_key = self::GROUP_SUBSCRIPTION_META_PREFIX . 'enabled';
 
 		// 1. Subscription IDs with group enabled meta set directly.
+		// Uses wcs_get_subscriptions which properly handles meta_query in both
+		// CPT and HPOS modes (via wcs_get_orders_with_meta_query internally).
 		$enabled_ids = [];
-		if ( function_exists( 'wc_get_orders' ) ) {
-			$enabled_ids = \wc_get_orders(
-				[
-					'type'       => 'shop_subscription',
-					'status'     => 'any',
-					'limit'      => -1,
-					'return'     => 'ids',
-					'meta_query' => [ // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
-						[
-							'key'   => self::GROUP_SUBSCRIPTION_META_PREFIX . 'enabled',
-							'value' => 'yes',
+		if ( function_exists( 'wcs_get_subscriptions' ) ) {
+			$enabled_ids = array_keys(
+				\wcs_get_subscriptions(
+					[
+						'subscriptions_per_page' => -1,
+						'subscription_status'    => 'any',
+						'meta_query'             => [ // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
+							[
+								'key'   => $meta_key,
+								'value' => 'yes',
+							],
 						],
-					],
-				]
+					]
+				)
 			);
 		}
 
@@ -656,40 +658,17 @@ class Group_Subscription_Settings {
 				'post_type'      => [ 'product', 'product_variation' ],
 				'posts_per_page' => -1, // phpcs:ignore WordPress.WP.PostsPerPage.posts_per_page_posts_per_page
 				'fields'         => 'ids',
-				'meta_key'       => self::GROUP_SUBSCRIPTION_META_PREFIX . 'enabled', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
+				'meta_key'       => $meta_key, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
 				'meta_value'     => 'yes', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
 			]
 		);
 
 		$product_sub_ids = [];
-		if ( ! empty( $product_ids ) && function_exists( 'wc_get_orders' ) ) {
-			// Get order IDs containing these products via order items tables.
-			$placeholders   = implode( ',', array_fill( 0, count( $product_ids ), '%d' ) );
-			$candidate_ids  = array_map(
-				'absint',
-				$wpdb->get_col( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-					$wpdb->prepare(
-						"SELECT DISTINCT oi.order_id
-						FROM {$wpdb->prefix}woocommerce_order_items oi
-						INNER JOIN {$wpdb->prefix}woocommerce_order_itemmeta oim
-							ON oi.order_item_id = oim.order_item_id
-							AND oim.meta_key = '_product_id'
-						WHERE oim.meta_value IN ($placeholders)", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, WordPress.DB.PreparedSQL.NotPrepared
-						...$product_ids
-					)
-				)
-			);
-
-			// Filter to only include shop_subscription order types.
-			if ( ! empty( $candidate_ids ) ) {
-				$product_sub_ids = \wc_get_orders(
-					[
-						'type'     => 'shop_subscription',
-						'status'   => 'any',
-						'limit'    => -1,
-						'return'   => 'ids',
-						'post__in' => $candidate_ids,
-					]
+		if ( ! empty( $product_ids ) && function_exists( 'wcs_get_subscriptions_for_product' ) ) {
+			foreach ( $product_ids as $product_id ) {
+				$product_sub_ids = array_merge(
+					$product_sub_ids,
+					array_keys( \wcs_get_subscriptions_for_product( $product_id ) )
 				);
 			}
 		}
