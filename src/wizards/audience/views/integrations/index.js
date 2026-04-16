@@ -103,7 +103,6 @@ const AudienceIntegrations = ( props, ref ) => {
 			headerText={ __( 'Audience Management / Integrations', 'newspack-plugin' ) }
 			sections={ [
 				{
-					label: __( 'Settings', 'newspack-plugin' ),
 					path: '/settings',
 					exact: true,
 					render: SettingsSection,
