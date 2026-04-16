@@ -119,31 +119,17 @@ const VisibilityControl = ( {
  * A reader needs to satisfy any one of the selected gates' rules to match.
  */
 const GateControls = ( { gateIds, onChange }: { gateIds: number[]; onChange: ( ids: number[] ) => void } ) => {
-	// Use token objects so removal is keyed by gate ID, not title string.
-	// This means two gates with the same title can coexist as tokens without
-	// one removal accidentally removing both.
-	const selectedTokens: TokenItem[] = availableGates
-		.filter( g => gateIds.includes( g.id ) )
-		.map( g => ( { value: String( g.id ), title: g.title } ) );
+	const selectedLabels = availableGates.filter( g => gateIds.includes( g.id ) ).map( g => g.title );
 
 	return (
 		<PanelRow>
 			<FormTokenField
 				label={ __( 'Gates', 'newspack-plugin' ) }
-				value={ selectedTokens }
+				value={ selectedLabels }
 				suggestions={ availableGates.map( g => g.title ) }
-				onChange={ ( tokens: ( string | TokenItem )[] ) => {
-					const newIds = tokens.flatMap( t => {
-						if ( typeof t !== 'string' ) {
-							// Existing token — value is the stringified gate ID.
-							const id = parseInt( t.value, 10 );
-							return isNaN( id ) ? [] : [ id ];
-						}
-						// New token from suggestions — look up by title.
-						const gate = availableGates.find( g => g.title === t );
-						return gate ? [ gate.id ] : [];
-					} );
-					onChange( newIds );
+				onChange={ ( tokens: ( string | { value: string } )[] ) => {
+					const labels = tokens.map( t => ( typeof t === 'string' ? t : t.value ) );
+					onChange( availableGates.filter( g => labels.includes( g.title ) ).map( g => g.id ) );
 				} }
 				__experimentalExpandOnFocus
 				__next40pxDefaultSize
@@ -201,28 +187,18 @@ const AccessRuleValueControl = ( {
 	}, [ slug ] ); // eslint-disable-line react-hooks/exhaustive-deps
 
 	if ( options.length > 0 ) {
+		// Map stored IDs to labels for display; silently drop IDs with no matching option.
 		const valueArr = Array.isArray( value ) ? value : [];
-		// Use token objects so removal is keyed by option value, not label string.
-		const selectedTokens: TokenItem[] = options
-			.filter( o => valueArr.some( v => String( v ) === String( o.value ) ) )
-			.map( o => ( { value: String( o.value ), title: o.label } ) );
+		const selectedLabels = options.filter( o => valueArr.some( v => String( v ) === String( o.value ) ) ).map( o => o.label );
 
 		return (
 			<FormTokenField
 				label={ config.name }
-				value={ selectedTokens }
+				value={ selectedLabels }
 				suggestions={ options.map( o => o.label ) }
-				onChange={ ( tokens: ( string | TokenItem )[] ) => {
-					const newValues = tokens.flatMap( t => {
-						if ( typeof t !== 'string' ) {
-							// Existing token — value is String(option.value).
-							return [ t.value ];
-						}
-						// New token from suggestions — look up by label.
-						const opt = options.find( o => o.label === t );
-						return opt ? [ String( opt.value ) ] : [];
-					} );
-					onChange( newValues );
+				onChange={ ( tokens: ( string | { value: string } )[] ) => {
+					const labels = tokens.map( t => ( typeof t === 'string' ? t : t.value ) );
+					onChange( options.filter( o => labels.includes( o.label ) ).map( o => o.value ) );
 				} }
 				__experimentalExpandOnFocus
 				__next40pxDefaultSize
