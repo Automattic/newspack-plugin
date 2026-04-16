@@ -664,8 +664,17 @@ class Group_Subscription_Settings {
 		);
 
 		$product_sub_ids = [];
-		if ( ! empty( $product_ids ) && function_exists( 'wcs_get_subscriptions_for_product' ) ) {
+		if ( ! empty( $product_ids ) && function_exists( 'wcs_get_subscriptions_for_product' ) && function_exists( 'wc_get_product' ) ) {
 			foreach ( $product_ids as $product_id ) {
+				$product = \wc_get_product( $product_id );
+				if ( ! $product ) {
+					continue;
+				}
+				// Skip variable parent products: variations have their own group settings
+				// and do not inherit from the parent.
+				if ( $product->is_type( [ 'variable', 'variable-subscription' ] ) ) {
+					continue;
+				}
 				$product_sub_ids = array_merge(
 					$product_sub_ids,
 					array_keys( \wcs_get_subscriptions_for_product( $product_id ) )
