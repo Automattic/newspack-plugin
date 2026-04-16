@@ -115,12 +115,14 @@
 			}
 		}
 	}
-	&__header--no-border {
-		border-bottom: none !important;
+	// Two classes beat the single-class .components-card__header border-bottom
+	// rule from WP Core without needing !important.
+	&__header.newspack-card--core__header--no-border {
+		border-bottom: none;
 	}
-	&__body--no-header-border {
+	&__body.newspack-card--core__body--no-header-border {
 		> div:not(.components-card__body):not(.components-card__media):not(.components-card__divider) {
-			padding-top: 0 !important;
+			padding-top: 0;
 		}
 	}
 	&__header--has-actions {
@@ -158,7 +160,7 @@
 		h6 {
 			align-items: center;
 			color: wp-colors.$gray-900;
-			font-weight: 600;
+			font-weight: 500;
 			display: flex;
 			gap: 8px;
 			a {
