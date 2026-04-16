@@ -50,7 +50,7 @@ class Group_Subscription_Settings {
 
 		// Filter subscription list table query by group status.
 		\add_filter( 'woocommerce_shop_subscription_list_table_prepare_items_query_args', [ __CLASS__, 'filter_subscriptions_by_group' ] );
-		\add_filter( 'pre_get_posts', [ __CLASS__, 'filter_subscriptions_by_group_legacy' ] );
+		\add_filter( 'request', [ __CLASS__, 'filter_subscriptions_by_group_cpt' ] );
 
 		// Clear group subscription IDs cache when product group settings change.
 		\add_action( 'woocommerce_process_product_meta', [ __CLASS__, 'maybe_clear_cache_on_product_save' ] );
@@ -766,38 +766,53 @@ class Group_Subscription_Settings {
 	}
 
 	/**
-	 * Filter the subscription list by group subscription status (legacy CPT).
+	 * Filter the subscription list by group subscription status (CPT mode).
 	 *
-	 * @param \WP_Query $query The WP_Query instance.
+	 * Uses the 'request' filter, which is the same approach WCS uses for its
+	 * own product/customer/payment method filters on edit.php.
+	 *
+	 * @param array $query_vars The query vars for the admin list table request.
+	 *
+	 * @return array The filtered query vars.
 	 */
-	public static function filter_subscriptions_by_group_legacy( $query ) { // phpcs:ignore WordPressVIPMinimum.Hooks.AlwaysReturnInFilter.VoidReturn, WordPressVIPMinimum.Hooks.AlwaysReturnInFilter.MissingReturnStatement
-		if ( ! is_admin() || ! $query->is_main_query() ) {
-			return;
-		}
+	public static function filter_subscriptions_by_group_cpt( $query_vars ) {
+		global $typenow;
 
-		if ( 'shop_subscription' !== $query->get( 'post_type' ) ) {
-			return;
+		if ( ! is_admin() || 'shop_subscription' !== $typenow ) {
+			return $query_vars;
 		}
 
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		if ( empty( $_GET['_newspack_group_subscription'] ) ) {
-			return;
+			return $query_vars;
 		}
 
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$filter = \sanitize_text_field( \wp_unslash( $_GET['_newspack_group_subscription'] ) );
 		if ( ! in_array( $filter, [ 'group', 'non-group' ], true ) ) {
-			return;
+			return $query_vars;
 		}
 
 		$group_ids = self::get_group_subscription_ids();
 
 		if ( 'group' === $filter ) {
-			$query->set( 'post__in', empty( $group_ids ) ? [ 0 ] : $group_ids );
-		} elseif ( 'non-group' === $filter && ! empty( $group_ids ) ) {
-			$existing_not_in = $query->get( 'post__not_in' );
-			$query->set( 'post__not_in', array_merge( ! empty( $existing_not_in ) ? $existing_not_in : [], $group_ids ) );
+			if ( empty( $group_ids ) ) {
+				$query_vars['post__in'] = [ 0 ];
+			} elseif ( ! isset( $query_vars['post__in'] ) ) {
+				$query_vars['post__in'] = $group_ids;
+			} else {
+				$intersected            = array_intersect( $query_vars['post__in'], $group_ids );
+				$query_vars['post__in'] = empty( $intersected ) ? [ 0 ] : array_values( $intersected );
+			}
+		} elseif ( 'non-group' === $filter ) {
+			if ( ! empty( $group_ids ) ) {
+				$query_vars['post__not_in'] = isset( $query_vars['post__not_in'] ) // phpcs:ignore WordPressVIPMinimum.Performance.WPQueryParams.PostNotIn_post__not_in
+					? array_merge( $query_vars['post__not_in'], $group_ids )
+					: $group_ids;
+			}
 		}
+
+		return $query_vars;
 	}
 }
 Group_Subscription_Settings::init();
