@@ -49,7 +49,7 @@ export default function ContentRuleControlTokenField( { slug, value, exclusion, 
 			apiFetch< { db_id?: number; id: number; name: string; type_label?: string }[] >( {
 				path: addQueryArgs( endpoint, {
 					search,
-					per_page: 10,
+					per_page: 100,
 					_fields: 'db_id,id,name,type_label',
 				} ),
 			} )
