@@ -374,10 +374,16 @@ class Lite_Site {
 	 * @return string The primary color.
 	 */
 	public static function get_primary_color() {
-		if ( function_exists( 'wp_is_block_theme' ) && wp_is_block_theme() ) {
+		if ( wp_is_block_theme() ) {
 			$settings = wp_get_global_settings();
 			$palettes = $settings['color']['palette'] ?? [];
-			$palette  = ! empty( $palettes['custom'] ) ? $palettes['custom'] : ( ! empty( $palettes['theme'] ) ? $palettes['theme'] : ( $palettes['default'] ?? [] ) );
+			$palette  = [];
+			foreach ( [ 'custom', 'theme', 'default' ] as $origin ) {
+				if ( ! empty( $palettes[ $origin ] ) ) {
+					$palette = $palettes[ $origin ];
+					break;
+				}
+			}
 			return $palette[0]['color'] ?? 'currentcolor';
 		}
 
