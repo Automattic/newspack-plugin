@@ -75,9 +75,8 @@ export const SettingsSection = ( { integrations, loading, onToggleEnabled, histo
 										isEnabled
 											? [
 													{
-													{
 														title: __( 'Logs', 'newspack-plugin' ),
-														onClick: () => {},
+														onClick: () => history?.push( `/settings/${ id }/logs` ),
 													},
 													{
 														title: __( 'Disable', 'newspack-plugin' ),

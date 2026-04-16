@@ -208,6 +208,40 @@ class Integrations {
 	}
 
 	/**
+	 * Count ActionScheduler actions for Newspack integrations.
+	 *
+	 * @param array $args {
+	 *     Optional. Query arguments. Same as get_scheduled_actions() but
+	 *     per_page/offset/orderby/order are ignored.
+	 *
+	 *     @type string $integration_id Filter by a single integration ID.
+	 *     @type string $status         ActionScheduler status (pending, complete, failed, canceled).
+	 *     @type string $search         Search term.
+	 * }
+	 *
+	 * @return int Total count.
+	 */
+	public static function count_scheduled_actions( $args = [] ) {
+		$defaults = [
+			'integration_id' => '',
+		];
+		$args = wp_parse_args( $args, $defaults );
+
+		if ( ! empty( $args['integration_id'] ) ) {
+			$args['groups'] = [ self::get_action_group( $args['integration_id'] ) ];
+		} else {
+			$args['groups'] = self::get_all_action_groups();
+		}
+		unset( $args['integration_id'] );
+
+		if ( empty( $args['groups'] ) ) {
+			return 0;
+		}
+
+		return \Newspack\Action_Scheduler::count_scheduled_actions( $args );
+	}
+
+	/**
 	 * Register integrations.
 	 */
 	public static function register_integrations() {
