@@ -1,5 +1,11 @@
 @use "~@wordpress/base-styles/colors" as wp-colors;
 
+// Match the top spacing of .newspack-wizard__sections (48px) for the
+// Wizard-rendered SectionHeader that sits above the configure view.
+.newspack-wizard__content:has(.newspack-configure-view) > .newspack-wizard__section-header {
+	margin-top: 48px;
+}
+
 .newspack-configure-view {
 	// Align section headers to the top of the grid row.
 	.newspack-grid .newspack-section-header {
@@ -12,8 +18,12 @@
 		border: none;
 		border-top: 1px solid wp-colors.$gray-300;
 
+		&:first-child {
+			border-top: none;
+		}
+
 		&:last-child {
-			border-bottom: 1px solid wp-colors.$gray-300;
+			border-bottom: none;
 		}
 	}
 }
