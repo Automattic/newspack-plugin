@@ -13,6 +13,7 @@ import { Accordion, Divider, Grid, SectionHeader } from '../../../../../packages
 import { WIZARD_STORE_NAMESPACE } from '../../../../../packages/components/src/wizard/store';
 import WizardsTab from '../../../wizards-tab';
 import { SettingsField } from './settings-field';
+import './configure-view.scss';
 
 export const ConfigureView = ( { integrations, loading, pendingChanges, saving, onFieldChange, onSave, match } ) => {
 	const { setHeaderData } = useDispatch( WIZARD_STORE_NAMESPACE );
@@ -105,58 +106,78 @@ export const ConfigureView = ( { integrations, loading, pendingChanges, saving, 
 				<>
 					<Divider alignment="full-width" variant="tertiary" />
 					<Grid columns={ 2 } gutter={ 32 }>
-						<SectionHeader heading={ 2 } title={ __( 'Inbound', 'newspack-plugin' ) } />
-						<Grid columns={ 1 } rowGap={ 8 }>
-							{ ( inboundField.options || [] ).map( optionName => {
-								const currentValue = getFieldValue( inboundField );
-								const selected = Array.isArray( currentValue ) ? currentValue : [];
-								return (
-									<CheckboxControl
-										className="newspack-checkbox-control"
-										key={ optionName }
-										label={ optionName }
-										checked={ selected.includes( optionName ) }
-										onChange={ checked => handleCheckboxListChange( inboundField.key, currentValue, optionName, checked ) }
-									/>
-								);
-							} ) }
+						<SectionHeader heading={ 2 } title={ __( 'Settings', 'newspack-plugin' ) } noMargin />
+						<Grid columns={ 1 } rowGap={ 16 } noMargin>
+							{ settingsFields.map( field => (
+								<SettingsField
+									key={ field.key }
+									field={ field }
+									value={ getFieldValue( field ) }
+									onChange={ val => onFieldChange( integrationId, field.key, val ) }
+								/>
+							) ) }
 						</Grid>
 					</Grid>
-				</>
-			) }
+				) }
 
-			{ /* Section 3: Outbound */ }
-			{ outboundField && (
-				<>
-					<Divider alignment="full-width" variant="tertiary" />
-					<Grid columns={ 2 } gutter={ 32 }>
-						<SectionHeader heading={ 2 } title={ __( 'Outbound', 'newspack-plugin' ) } />
-						<div>
-							{ ( outboundField.grouped_options || [] ).map( ( group, index ) => {
-								const currentValue = getFieldValue( outboundField );
-								const selected = Array.isArray( currentValue ) ? currentValue : [];
-								return (
-									<Accordion key={ group.section } title={ group.section } defaultOpen={ index === 0 }>
-										<Grid columns={ 1 } rowGap={ 8 }>
-											{ group.fields.map( fieldName => (
-												<CheckboxControl
-													className="newspack-checkbox-control"
-													key={ fieldName }
-													label={ fieldName }
-													checked={ selected.includes( fieldName ) }
-													onChange={ checked =>
-														handleCheckboxListChange( outboundField.key, currentValue, fieldName, checked )
-													}
-												/>
-											) ) }
-										</Grid>
-									</Accordion>
-								);
-							} ) }
-						</div>
-					</Grid>
-				</>
-			) }
+				{ /* Section 2: Inbound */ }
+				{ inboundField && (
+					<>
+						<Divider alignment="full-width" variant="tertiary" marginTop={ 32 } marginBottom={ 32 } />
+						<Grid columns={ 2 } gutter={ 32 } noMargin>
+							<SectionHeader heading={ 2 } title={ __( 'Inbound', 'newspack-plugin' ) } noMargin />
+							<Grid columns={ 1 } rowGap={ 8 } noMargin>
+								{ ( inboundField.options || [] ).map( optionName => {
+									const currentValue = getFieldValue( inboundField );
+									const selected = Array.isArray( currentValue ) ? currentValue : [];
+									return (
+										<CheckboxControl
+											className="newspack-checkbox-control"
+											key={ optionName }
+											label={ optionName }
+											checked={ selected.includes( optionName ) }
+											onChange={ checked => handleCheckboxListChange( inboundField.key, currentValue, optionName, checked ) }
+										/>
+									);
+								} ) }
+							</Grid>
+						</Grid>
+					</>
+				) }
+
+				{ /* Section 3: Outbound */ }
+				{ outboundField && (
+					<>
+						<Divider alignment="full-width" variant="tertiary" marginTop={ 32 } marginBottom={ 32 } />
+						<Grid columns={ 2 } gutter={ 32 } noMargin>
+							<SectionHeader heading={ 2 } title={ __( 'Outbound', 'newspack-plugin' ) } noMargin />
+							<div>
+								{ ( outboundField.grouped_options || [] ).map( ( group, index ) => {
+									const currentValue = getFieldValue( outboundField );
+									const selected = Array.isArray( currentValue ) ? currentValue : [];
+									return (
+										<Accordion key={ group.section } title={ group.section } defaultOpen={ index === 0 }>
+											<Grid columns={ 1 } rowGap={ 8 } noMargin>
+												{ group.fields.map( fieldName => (
+													<CheckboxControl
+														className="newspack-checkbox-control"
+														key={ fieldName }
+														label={ fieldName }
+														checked={ selected.includes( fieldName ) }
+														onChange={ checked =>
+															handleCheckboxListChange( outboundField.key, currentValue, fieldName, checked )
+														}
+													/>
+												) ) }
+											</Grid>
+										</Accordion>
+									);
+								} ) }
+							</div>
+						</Grid>
+					</>
+				) }
+			</div>
 		</WizardsTab>
 	);
 };
