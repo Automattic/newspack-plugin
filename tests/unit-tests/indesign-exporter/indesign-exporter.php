@@ -415,7 +415,7 @@ class Newspack_Test_InDesign_Exporter extends WP_UnitTestCase {
 	/**
 	 * Test that core/embed blocks are excluded from export when nested inside a columns block.
 	 *
-	 * core/columns has a different innerContent shape from core/group (it contains
+	 * The core/columns block has a different innerContent shape from core/group (it contains
 	 * core/column children which in turn contain the embed), exercising the recursive
 	 * strip logic through two container levels.
 	 */
