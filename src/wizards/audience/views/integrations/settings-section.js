@@ -42,6 +42,7 @@ export const SettingsSection = ( { integrations, loading, onToggleEnabled, onCon
 				'Manage how Newspack syncs reader data with your tools. Connect an integration to start syncing reader activity across your stack.',
 				'newspack-plugin'
 			) }
+			className="newspack-integrations-settings"
 		>
 			<WizardSection>
 				{ loading && <p>{ __( 'Loading…', 'newspack-plugin' ) }</p> }

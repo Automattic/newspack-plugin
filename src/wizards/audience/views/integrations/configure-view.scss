@@ -1,5 +1,17 @@
 @use "~@wordpress/base-styles/colors" as wp-colors;
 
+// Settings section: tighten title-to-description spacing and constrain description width.
+.newspack-wizard__content:has(.newspack-integrations-settings) {
+	.newspack-wizard__sections > h1 {
+		margin-bottom: 8px;
+	}
+
+	.newspack-wizard__sections__description {
+		color: wp-colors.$gray-700;
+		max-width: 680px;
+	}
+}
+
 // Match the top spacing of .newspack-wizard__sections (48px) for the
 // Wizard-rendered SectionHeader that sits above the configure view.
 .newspack-wizard__content:has(.newspack-configure-view) > .newspack-wizard__section-header {
