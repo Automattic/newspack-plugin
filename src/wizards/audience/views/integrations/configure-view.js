@@ -47,6 +47,7 @@ export const ConfigureView = ( { integrations, loading, pendingChanges, saving, 
 	useEffect( () => {
 		if ( integration ) {
 			setHeaderData( {
+				sectionName: integration.name,
 				sectionTitle: integration.name,
 				sectionDescription: integration.description,
 				actions: [
