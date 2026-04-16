@@ -1,7 +1,7 @@
 @use "~@wordpress/base-styles/colors" as wp-colors;
 
 // Settings section: tighten title-to-description spacing and constrain description width.
-.newspack-wizard__content:has(.newspack-integrations-settings) {
+.newspack-wizard__content:has(.newspack-audience-integrations) {
 	.newspack-wizard__sections > h1 {
 		margin-bottom: 8px;
 	}

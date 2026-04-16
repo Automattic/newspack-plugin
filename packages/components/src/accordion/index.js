@@ -1,6 +1,3 @@
-/* eslint-disable jsx-a11y/click-events-have-key-events */
-/* eslint-disable jsx-a11y/no-static-element-interactions */
-
 /**
  * WordPress dependencies
  */
@@ -20,13 +17,12 @@ import './style.scss';
 const Accordion = ( { children, title, defaultOpen = false } ) => {
 	const [ isOpen, setIsOpen ] = useState( defaultOpen );
 	return (
-		<details className={ classNames( 'newspack-accordion', { 'newspack-accordion--is-open': isOpen } ) } open={ isOpen }>
-			<summary
-				onClick={ e => {
-					e.preventDefault();
-					setIsOpen( ! isOpen );
-				} }
-			>
+		<details
+			className={ classNames( 'newspack-accordion', { 'newspack-accordion--is-open': isOpen } ) }
+			open={ isOpen }
+			onToggle={ e => setIsOpen( e.currentTarget.open ) }
+		>
+			<summary>
 				{ title }
 				<Icon className="newspack-accordion__icon" icon={ chevronRight } size={ 24 } />
 			</summary>

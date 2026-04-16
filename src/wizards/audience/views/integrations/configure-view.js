@@ -85,30 +85,12 @@ export const ConfigureView = ( { integrations, loading, pendingChanges, saving, 
 
 	return (
 		<WizardsTab isFetching={ loading } title={ integration.name }>
-			{ /* Section 1: Settings */ }
-			{ settingsFields.length > 0 && (
-				<Grid columns={ 2 } gutter={ 32 }>
-					<SectionHeader heading={ 2 } title={ __( 'Settings', 'newspack-plugin' ) } />
-					<Grid columns={ 1 } rowGap={ 16 }>
-						{ settingsFields.map( field => (
-							<SettingsField
-								key={ field.key }
-								field={ field }
-								value={ getFieldValue( field ) }
-								onChange={ val => onFieldChange( integrationId, field.key, val ) }
-							/>
-						) ) }
-					</Grid>
-				</Grid>
-			) }
-
-			{ /* Section 2: Inbound */ }
-			{ inboundField && (
-				<>
-					<Divider alignment="full-width" variant="tertiary" />
+			<div className="newspack-configure-view">
+				{ /* Section 1: Settings */ }
+				{ settingsFields.length > 0 && (
 					<Grid columns={ 2 } gutter={ 32 }>
-						<SectionHeader heading={ 2 } title={ __( 'Settings', 'newspack-plugin' ) } noMargin />
-						<Grid columns={ 1 } rowGap={ 16 } noMargin>
+						<SectionHeader heading={ 2 } title={ __( 'Settings', 'newspack-plugin' ) } />
+						<Grid columns={ 1 } rowGap={ 16 }>
 							{ settingsFields.map( field => (
 								<SettingsField
 									key={ field.key }
@@ -119,6 +101,26 @@ export const ConfigureView = ( { integrations, loading, pendingChanges, saving, 
 							) ) }
 						</Grid>
 					</Grid>
+				) }
+
+				{ /* Section 2: Inbound */ }
+				{ inboundField && (
+					<>
+						<Divider alignment="full-width" variant="tertiary" />
+						<Grid columns={ 2 } gutter={ 32 }>
+							<SectionHeader heading={ 2 } title={ __( 'Settings', 'newspack-plugin' ) } noMargin />
+							<Grid columns={ 1 } rowGap={ 16 } noMargin>
+								{ settingsFields.map( field => (
+									<SettingsField
+										key={ field.key }
+										field={ field }
+										value={ getFieldValue( field ) }
+										onChange={ val => onFieldChange( integrationId, field.key, val ) }
+									/>
+								) ) }
+							</Grid>
+						</Grid>
+					</>
 				) }
 
 				{ /* Section 2: Inbound */ }
