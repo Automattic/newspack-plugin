@@ -117,7 +117,7 @@ const PlacementControl = ( {
 					  );
 		} );
 		setBiddersErrors( errors );
-	}, [ placementProvider, placementAdUnit ] );
+	}, [ placementProvider, placementAdUnit, bidders ] );
 
 	if ( ! providers.length ) {
 		return <Notice isWarning noticeText={ __( 'There is no provider available.', 'newspack-plugin' ) } />;

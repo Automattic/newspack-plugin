@@ -6,6 +6,7 @@
  * External dependencies
  */
 import classnames from 'classnames';
+import isEqual from 'lodash/isEqual';
 
 /**
  * WordPress dependencies
@@ -35,7 +36,7 @@ const Placements = () => {
 	const [ placements, setPlacements ] = useState( {} );
 	const [ bidders, setBidders ] = useState( {} );
 	const [ biddersError, setBiddersError ] = useState( null );
-	const [ notices, setNotices ] = useState( [] );
+	const [ notice, setNotice ] = useState( null );
 
 	const placementsApiFetch = async options => {
 		try {
@@ -136,7 +137,20 @@ const Placements = () => {
 
 	const cancelEditing = async () => {
 		if ( isEnabling && editingPlacement ) {
-			await handlePlacementToggle( editingPlacement )( false );
+			const success = await handlePlacementToggle( editingPlacement )( false );
+			if ( ! success ) {
+				return;
+			}
+		} else if ( editingPlacement && originalData ) {
+			// Revert dirty edits so other cards' hasChanges doesn't see them
+			// before the silent refetch completes.
+			setPlacements( {
+				...placements,
+				[ editingPlacement ]: {
+					...placements[ editingPlacement ],
+					data: originalData,
+				},
+			} );
 		}
 		setIsEnabling( false );
 		setOriginalData( null );
@@ -167,7 +181,7 @@ const Placements = () => {
 						const placement = placements[ key ];
 						const enabled = isEnabled( key );
 						const isEditing = editingPlacement === key;
-						const hasChanges = JSON.stringify( placement.data ) !== JSON.stringify( originalData );
+						const hasChanges = isEditing && ! isEqual( placement.data, originalData );
 						let hasAdUnit = true;
 						if ( placement.hook_name ) {
 							hasAdUnit = !! placement.data?.ad_unit;
@@ -288,12 +302,7 @@ const Placements = () => {
 												// translators: %s: placement name.
 												const updatedContent = sprintf( __( '%s updated.', 'newspack-plugin' ), name );
 												const savedContent = isEnabling ? enabledContent : updatedContent;
-												setNotices( [
-													{
-														id: 'placement-saved',
-														content: savedContent,
-													},
-												] );
+												setNotice( { id: Date.now(), content: savedContent } );
 											} }
 										>
 											{ isEnabling ? __( 'Enable', 'newspack-plugin' ) : __( 'Update', 'newspack-plugin' ) }
@@ -314,12 +323,7 @@ const Placements = () => {
 													setEditingPlacement( null );
 													// translators: %s: placement name.
 													const disabledContent = sprintf( __( '%s disabled.', 'newspack-plugin' ), name );
-													setNotices( [
-														{
-															id: 'placement-disabled',
-															content: disabledContent,
-														},
-													] );
+													setNotice( { id: Date.now(), content: disabledContent } );
 												} }
 											>
 												{ __( 'Disable', 'newspack-plugin' ) }
@@ -332,14 +336,12 @@ const Placements = () => {
 					} ) }
 				</VStack>
 			</Grid>
-			{ notices.length > 0 &&
+			{ notice &&
 				createPortal(
 					<div className="newspack-wizard-ads-placements__snackbar">
-						{ notices.map( notice => (
-							<Snackbar key={ notice.id } onRemove={ () => setNotices( prev => prev.filter( n => n.id !== notice.id ) ) }>
-								{ notice.content }
-							</Snackbar>
-						) ) }
+						<Snackbar key={ notice.id } onRemove={ () => setNotice( null ) }>
+							{ notice.content }
+						</Snackbar>
 					</div>,
 					document.getElementById( 'wpbody' ) ?? document.body
 				) }
