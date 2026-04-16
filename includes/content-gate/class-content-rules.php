@@ -35,6 +35,14 @@ class Content_Rules {
 			];
 		}
 
+		$content_rules['specific_posts'] = [
+			'name'         => __( 'Specific posts', 'newspack-plugin' ),
+			'default'      => [],
+			'description'  => __( 'Also restrict specific posts, even if not covered by other rules above.', 'newspack-plugin' ),
+			'endpoint'     => '/' . NEWSPACK_API_NAMESPACE . '/wizard/audience-content-gates/posts-search',
+			'include_only' => true,
+		];
+
 		return $content_rules;
 	}
 

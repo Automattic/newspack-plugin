@@ -1006,4 +1006,23 @@ class Test_Content_Gates extends \WP_UnitTestCase {
 		$this->assertCount( 1, $gates, 'Newsletter content rule must match a post whose ID is in the value array.' );
 		$this->assertEquals( $this->gate_ids[2], $gates[0]['id'] );
 	}
+
+	/**
+	 * Test that the specific_posts content rule is registered.
+	 */
+	public function test_specific_posts_rule_is_registered() {
+		$rules = \Newspack\Content_Rules::get_content_rules();
+		$this->assertArrayHasKey( 'specific_posts', $rules, 'specific_posts rule is registered' );
+
+		$rule = $rules['specific_posts'];
+		$this->assertSame( 'Specific posts', $rule['name'] );
+		$this->assertSame( [], $rule['default'] );
+		$this->assertTrue( $rule['include_only'], 'specific_posts is include-only (no exclusion mode)' );
+		$this->assertNotEmpty( $rule['endpoint'], 'specific_posts has a REST endpoint' );
+		$this->assertStringContainsString( 'restrict specific posts', $rule['description'], 'description signals override behavior' );
+
+		// Must be the LAST rule in the list.
+		$keys = array_keys( $rules );
+		$this->assertSame( 'specific_posts', end( $keys ), 'specific_posts appears last' );
+	}
 }
