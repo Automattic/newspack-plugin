@@ -45,6 +45,14 @@ type GateOption = {
 	id: number;
 	title: string;
 };
+/**
+ * FormTokenField token object — value is used for identity/removal,
+ * title is displayed in the chip. Matches the WordPress TokenItem shape.
+ */
+type TokenItem = {
+	value: string;
+	title: string;
+};
 type BlockVisibilityAttributes = {
 	newspackAccessControlRules: BlockVisibilityRules;
 	newspackAccessControlVisibility: string;
