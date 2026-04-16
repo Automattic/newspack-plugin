@@ -94,9 +94,17 @@ Omit `badge` (or pass `undefined`) to show no badge at all.
 | `badge` | `{ text: string; level?: BadgeLevel }` | — | Badge shown next to the actions slot. Omit or pass `undefined` to hide. |
 | `actions` | `React.ReactNode` | — | JSX rendered in the header action area (buttons, dropdowns, etc.) |
 | `isOpen` | `boolean` | `false` | When `true`, renders `children` in the card body and removes the header border |
-| `onRequestClose` | `() => void` | — | Called when the user presses Escape while the form is open |
+| `onRequestClose` | `() => void` | — | Called when the user presses Escape while focus is inside the open form |
+| `titleLevel` | `1 \| 2 \| 3 \| 4 \| 5 \| 6` | `3` | Heading level rendered for `title`. Pick the level that fits the surrounding document outline. |
 | `className` | `string` | — | Additional class name applied to the card element |
 | `children` | `React.ReactNode` | — | Form content rendered inside the card body when `isOpen` is `true` |
+
+## Accessibility
+
+- The body is rendered as a `role="region"` labelled by the title, so assistive tech announces it as a named region when focus enters.
+- On open, focus moves to the first focusable element in the body (or to the region itself if none exist). On close, focus is restored to whatever was focused before opening — typically the trigger button.
+- The Escape listener is scoped to the open form's body, so multiple open cards do not all close on a single keypress. If an inner control needs to consume Escape (for example, to close its own menu), call `event.preventDefault()` and CardForm will ignore it.
+
 
 ### `BadgeLevel`
 
