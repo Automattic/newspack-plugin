@@ -85,7 +85,7 @@ class Newspack_Test_CAP_RSS_Feed extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Returns a comma-separated list of co-author display names in a feed.
+	 * Joins two co-authors with "and" in a feed.
 	 */
 	public function test_returns_combined_coauthor_names_in_feed() {
 		$post_id = $this->factory->post->create();
@@ -94,7 +94,21 @@ class Newspack_Test_CAP_RSS_Feed extends WP_UnitTestCase {
 			$this->make_coauthor( 'John Doe' ),
 		];
 
-		$this->assertSame( 'Jane Smith, John Doe', $this->filter_author( true, $post_id ) );
+		$this->assertSame( 'Jane Smith and John Doe', $this->filter_author( true, $post_id ) );
+	}
+
+	/**
+	 * Joins three or more co-authors with commas and an Oxford comma before "and".
+	 */
+	public function test_returns_oxford_comma_separated_coauthor_names_in_feed() {
+		$post_id = $this->factory->post->create();
+		$GLOBALS['_test_cap_coauthors'] = [
+			$this->make_coauthor( 'Alice' ),
+			$this->make_coauthor( 'Bob' ),
+			$this->make_coauthor( 'Carol' ),
+		];
+
+		$this->assertSame( 'Alice, Bob, and Carol', $this->filter_author( true, $post_id ) );
 	}
 
 	/**
