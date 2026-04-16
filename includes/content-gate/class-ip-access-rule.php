@@ -67,20 +67,34 @@ class IP_Access_Rule {
 	}
 
 	/**
-	 * Register the REST API route for IP checking.
+	 * Register the REST API routes for IP checking.
 	 */
 	public static function register_rest_route() {
 		\register_rest_route(
 			NEWSPACK_API_NAMESPACE,
 			self::REST_ROUTE,
 			[
-				'methods'             => 'GET',
-				'callback'            => [ __CLASS__, 'check_ip_rest' ],
-				'permission_callback' => '__return_true',
-				'args'                => [
-					'institution_id' => [
-						'type'              => 'integer',
-						'sanitize_callback' => 'absint',
+				[
+					'methods'             => 'GET',
+					'callback'            => [ __CLASS__, 'check_ip_rest' ],
+					'permission_callback' => '__return_true',
+					'args'                => [
+						'institution_id' => [
+							'type'              => 'integer',
+							'sanitize_callback' => 'absint',
+						],
+					],
+				],
+				[
+					'methods'             => 'POST',
+					'callback'            => [ __CLASS__, 'check_external_ip_rest' ],
+					'permission_callback' => [ __CLASS__, 'check_external_ip_permission' ],
+					'args'                => [
+						'ip' => [
+							'type'              => 'string',
+							'required'          => true,
+							'sanitize_callback' => 'sanitize_text_field',
+						],
 					],
 				],
 			]
@@ -134,6 +148,53 @@ class IP_Access_Rule {
 		}
 
 		return new \WP_REST_Response( $data );
+	}
+
+	/**
+	 * REST API callback for external IP queries via POST.
+	 *
+	 * Accepts a JSON body with an `ip` field and checks it against all
+	 * institutional IP ranges. Designed for server-to-server calls from
+	 * external platforms.
+	 *
+	 * Example request:
+	 *
+	 *     POST /wp-json/newspack/v1/institutional-access/check
+	 *     Content-Type: application/json
+	 *
+	 *     {"ip": "127.0.0.1"}
+	 *
+	 * @param \WP_REST_Request $request The REST request.
+	 * @return \WP_REST_Response|\WP_Error
+	 */
+	public static function check_external_ip_rest( $request ) {
+		$ip = $request->get_param( 'ip' );
+		if ( ! filter_var( $ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 ) ) {
+			return new \WP_Error(
+				'rest_invalid_param',
+				'Only IPv4 addresses are supported.',
+				[ 'status' => 400 ]
+			);
+		}
+
+		$override = fn() => $ip;
+		add_filter( 'newspack_visitor_ip', $override );
+
+		/** This filter is documented in self::handle_redirect(). */
+		$result = apply_filters( 'newspack_content_gate_check_ip', false );
+
+		remove_filter( 'newspack_visitor_ip', $override );
+
+		return new \WP_REST_Response( [ 'show_paywall' => ! (bool) $result ] );
+	}
+
+	/**
+	 * Permission check for the external IP query endpoint.
+	 *
+	 * @return bool
+	 */
+	public static function check_external_ip_permission() {
+		return current_user_can( 'manage_options' );
 	}
 
 	/**
