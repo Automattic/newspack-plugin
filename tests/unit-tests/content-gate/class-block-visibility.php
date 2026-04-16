@@ -568,7 +568,7 @@ class Newspack_Test_Block_Visibility extends WP_UnitTestCase {
 	/**
 	 * Gate mode: a permanently deleted gate is skipped — results in pass-through.
 	 */
-	public function test_gate_mode_deleted_gate_passes_through() {
+	public function test_gate_mode_deleted_gate_passes_through_in_visible_mode() {
 		$gate_id = $this->make_gate();
 		wp_delete_post( $gate_id, true ); // Force-delete.
 
@@ -580,6 +580,31 @@ class Newspack_Test_Block_Visibility extends WP_UnitTestCase {
 			[
 				'newspackAccessControlMode'    => 'gate',
 				'newspackAccessControlGateIds' => [ $gate_id ],
+			]
+		);
+		$result = Block_Visibility::filter_render_block( '<div>x</div>', $block );
+		$this->assertSame( '<div>x</div>', $result );
+	}
+
+	/**
+	 * Gate mode: deleted gate in 'hidden' mode still passes through — no gate = no restriction.
+	 *
+	 * Regression: previously $user_matches = true (pass-through sentinel) combined with
+	 * visibility = 'hidden' would hide the block from everyone instead of showing it.
+	 */
+	public function test_gate_mode_deleted_gate_passes_through_in_hidden_mode() {
+		$gate_id = $this->make_gate();
+		wp_delete_post( $gate_id, true ); // Force-delete.
+
+		wp_set_current_user( 0 );
+		Block_Visibility::reset_cache_for_tests();
+
+		$block  = $this->make_block(
+			'core/group',
+			[
+				'newspackAccessControlMode'       => 'gate',
+				'newspackAccessControlGateIds'    => [ $gate_id ],
+				'newspackAccessControlVisibility' => 'hidden',
 			]
 		);
 		$result = Block_Visibility::filter_render_block( '<div>x</div>', $block );

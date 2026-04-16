@@ -68,6 +68,13 @@ class Block_Visibility {
 			if ( empty( $gate_ids ) ) {
 				return $block_content; // No gates selected → pass-through.
 			}
+			// If every referenced gate has been deleted or unpublished, treat as
+			// pass-through regardless of the visibility setting. This mirrors the
+			// "no gates selected" case and prevents 'hidden' mode from permanently
+			// hiding the block after a gate is removed.
+			if ( ! self::has_active_gates( $gate_ids ) ) {
+				return $block_content;
+			}
 		} else {
 			// Custom mode: check whether any rules are active before going further.
 			$rules = $block['attrs']['newspackAccessControlRules'] ?? [];
@@ -139,7 +146,7 @@ class Block_Visibility {
 				],
 				'newspackAccessControlRules'      => [
 					'type'    => 'object',
-					'default' => [],
+					'default' => (object) [],
 				],
 			]
 		);
@@ -183,6 +190,7 @@ class Block_Visibility {
 			'newspack-content-gate-block-visibility',
 			'newspackBlockVisibility',
 			[
+				'target_blocks'          => self::get_target_blocks(),
 				'available_access_rules' => array_map(
 					function( $rule ) {
 						unset( $rule['callback'] );
@@ -249,10 +257,30 @@ class Block_Visibility {
 	}
 
 	/**
+	 * Return true if at least one gate in the list is published and accessible.
+	 *
+	 * Used as an early-exit guard in filter_render_block() so that a block whose
+	 * only gates have all been deleted or unpublished is treated as unrestricted,
+	 * regardless of the block's visibility setting.
+	 *
+	 * @param int[] $gate_ids Array of np_content_gate post IDs.
+	 * @return bool
+	 */
+	private static function has_active_gates( $gate_ids ) {
+		foreach ( $gate_ids as $gate_id ) {
+			$gate = Content_Gate::get_gate( $gate_id );
+			if ( ! \is_wp_error( $gate ) && 'publish' === $gate['status'] ) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
 	 * Evaluate whether a user matches any of the given gate's access rules (with caching).
 	 *
-	 * Deleted or unpublished gates are silently skipped. If every gate in the list
-	 * is deleted/unpublished the result is true (pass-through — no active restriction).
+	 * Assumes at least one gate in $gate_ids is active; call has_active_gates() first
+	 * when a pass-through fallback is needed for fully-inactive gate lists.
 	 *
 	 * @param int[] $gate_ids Array of np_content_gate post IDs.
 	 * @param int   $user_id  User ID (0 for logged-out).

@@ -26,8 +26,11 @@ import './editor.scss';
 
 /**
  * Target block types that receive access control attributes.
+ * Sourced from PHP (respects the newspack_content_gate_block_visibility_blocks filter)
+ * with the default list as a fallback for environments where the script is loaded
+ * before localisation runs.
  */
-const TARGET_BLOCKS = [ 'core/group', 'core/stack', 'core/row' ];
+const TARGET_BLOCKS: string[] = window.newspackBlockVisibility?.target_blocks ?? [ 'core/group', 'core/stack', 'core/row' ];
 
 /**
  * Register custom attributes on target block types.

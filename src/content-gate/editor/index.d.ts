@@ -61,6 +61,7 @@ type BlockEditProps = {
 
 interface Window {
 	newspackBlockVisibility: {
+		target_blocks: string[];
 		available_access_rules: Record< string, AccessRuleConfig >;
 		available_gates: GateOption[];
 	};
