@@ -190,10 +190,13 @@ class InDesign_Converter {
 		// the InDesign output. Strip recursively so nested occurrences inside
 		// container blocks (core/group, core/columns, etc.) are also removed.
 		// Publishers can extend this list via the filter for custom block types.
-		$excluded_block_types = apply_filters(
+		// Normalize the filter result to an array of strings in case a callback
+		// returns a non-array or mixed-type value.
+		$excluded_block_types = (array) apply_filters(
 			'newspack_indesign_export_excluded_blocks',
 			self::EXCLUDED_BLOCK_TYPES
 		);
+		$excluded_block_types = array_values( array_filter( $excluded_block_types, 'is_string' ) );
 
 		$blocks  = $this->strip_excluded_blocks( parse_blocks( $content ), $excluded_block_types );
 		$content = '';
@@ -256,11 +259,12 @@ class InDesign_Converter {
 	/**
 	 * Check whether a block name should be excluded from export.
 	 *
-	 * Handles both the explicit exclusion list and legacy core-embed/* block
-	 * names used in content created before WordPress 5.6.
+	 * Legacy core-embed/* block names (pre-WP 5.6) follow the same exclusion
+	 * state as core/embed — if core/embed is in the filtered list, its legacy
+	 * variants are excluded too.
 	 *
 	 * @param string   $block_name           Block type name.
-	 * @param string[] $excluded_block_types Explicit list of excluded block types.
+	 * @param string[] $excluded_block_types Filtered list of excluded block types.
 	 *
 	 * @return bool True if the block should be excluded.
 	 */
@@ -272,8 +276,11 @@ class InDesign_Converter {
 		if ( in_array( $block_name, $excluded_block_types, true ) ) {
 			return true;
 		}
-		// Legacy embed block names (pre-WP 5.6) use the core-embed/* namespace.
-		if ( 0 === strpos( $block_name, 'core-embed/' ) ) {
+		// Legacy core-embed/* variants follow core/embed's exclusion state.
+		if (
+			in_array( 'core/embed', $excluded_block_types, true )
+			&& 0 === strpos( $block_name, 'core-embed/' )
+		) {
 			return true;
 		}
 		return false;

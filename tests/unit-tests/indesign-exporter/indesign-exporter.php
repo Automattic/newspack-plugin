@@ -485,6 +485,92 @@ class Newspack_Test_InDesign_Exporter extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Test that a custom block type added via the filter is excluded from export.
+	 *
+	 * Verifies the `newspack_indesign_export_excluded_blocks` filter is an effective
+	 * extension point for publishers with custom rich-media blocks.
+	 */
+	public function test_custom_block_excluded_via_filter() {
+		$callback = function ( $types ) {
+			$types[] = 'my-plugin/custom-embed';
+			return $types;
+		};
+		add_filter( 'newspack_indesign_export_excluded_blocks', $callback );
+
+		$post_id = $this->factory->post->create(
+			[
+				'post_title'   => 'Test Post',
+				'post_content' => '<!-- wp:paragraph --><p>Before the custom block.</p><!-- /wp:paragraph --><!-- wp:my-plugin/custom-embed --><div>CUSTOM_EMBED_MARKER</div><!-- /wp:my-plugin/custom-embed --><!-- wp:paragraph --><p>After the custom block.</p><!-- /wp:paragraph -->',
+			]
+		);
+
+		$converter = new InDesign_Converter();
+		$content   = $converter->convert_post( $post_id );
+
+		remove_filter( 'newspack_indesign_export_excluded_blocks', $callback );
+
+		$this->assertStringContainsString( 'Before the custom block.', $content );
+		$this->assertStringContainsString( 'After the custom block.', $content );
+		$this->assertStringNotContainsString( 'CUSTOM_EMBED_MARKER', $content );
+	}
+
+	/**
+	 * Test that a misbehaving filter callback does not break the export.
+	 *
+	 * The filter result is normalized to an array of strings, so a callback
+	 * returning null, a string, or any non-array type must not cause a TypeError.
+	 */
+	public function test_filter_returning_non_array_does_not_break_export() {
+		$callback = function () {
+			return null;
+		};
+		add_filter( 'newspack_indesign_export_excluded_blocks', $callback );
+
+		$post_id = $this->factory->post->create(
+			[
+				'post_title'   => 'Test Post',
+				'post_content' => '<!-- wp:paragraph --><p>Content survives a bad filter.</p><!-- /wp:paragraph -->',
+			]
+		);
+
+		$converter = new InDesign_Converter();
+		$content   = $converter->convert_post( $post_id );
+
+		remove_filter( 'newspack_indesign_export_excluded_blocks', $callback );
+
+		$this->assertStringContainsString( 'Content survives a bad filter.', $content );
+	}
+
+	/**
+	 * Test that legacy core-embed/* blocks follow the core/embed filter state.
+	 *
+	 * When a publisher removes core/embed from the filter to allow embed content
+	 * in exports, legacy core-embed/* blocks should also be allowed for consistency.
+	 */
+	public function test_legacy_core_embed_follows_core_embed_filter() {
+		$callback = function ( $types ) {
+			return array_values( array_diff( $types, [ 'core/embed' ] ) );
+		};
+		add_filter( 'newspack_indesign_export_excluded_blocks', $callback );
+
+		$post_id = $this->factory->post->create(
+			[
+				'post_title'   => 'Test Post',
+				'post_content' => '<!-- wp:paragraph --><p>Before the embed.</p><!-- /wp:paragraph --><!-- wp:core-embed/youtube {"url":"https://www.youtube.com/watch?v=legacy123"} --><figure class="wp-block-embed-youtube"><div class="wp-block-embed__wrapper">' . "\n" . 'https://www.youtube.com/watch?v=legacy123' . "\n" . '</div></figure><!-- /wp:core-embed/youtube --><!-- wp:paragraph --><p>After the embed.</p><!-- /wp:paragraph -->',
+			]
+		);
+
+		$converter = new InDesign_Converter();
+		$content   = $converter->convert_post( $post_id );
+
+		remove_filter( 'newspack_indesign_export_excluded_blocks', $callback );
+
+		$this->assertStringContainsString( 'Before the embed.', $content );
+		$this->assertStringContainsString( 'After the embed.', $content );
+		$this->assertStringContainsString( 'legacy123', $content );
+	}
+
+	/**
 	 * Test image caption and credit special characters.
 	 */
 	public function test_image_caption_and_credit_special_characters() {
