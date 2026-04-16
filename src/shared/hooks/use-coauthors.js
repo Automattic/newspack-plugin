@@ -71,8 +71,8 @@ function fetchCoauthorsByTermIds( termIds ) {
 		} )
 		.catch( error => {
 			// Do not poison the cache on transient errors (network, 5xx). Concurrent calls are
-			// already deduped via `inflightTermResolves`, and leaving the cache untouched lets
-			// the next render retry once the issue clears.
+			// already deduped via `inflightTermResolves`, and leaving the cache untouched allows
+			// a later call to `fetchCoauthorsByTermIds` to retry after this in-flight request clears.
 			// eslint-disable-next-line no-console
 			console.warn( '[Newspack] Failed to resolve coauthor term IDs:', error );
 		} )
