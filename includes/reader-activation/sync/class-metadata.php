@@ -281,6 +281,33 @@ class Metadata {
 	}
 
 	/**
+	 * Get the list of possible fields to be synced, grouped by section.
+	 *
+	 * Returns an array of groups, each with a 'section' label and 'fields' array.
+	 * Only includes non-legacy classes with a section name.
+	 *
+	 * @return array[] Array of [ 'section' => string, 'fields' => string[] ].
+	 */
+	public static function get_grouped_default_fields() {
+		$classes = self::get_metadata_classes();
+		$groups  = [];
+		foreach ( $classes as $class ) {
+			if ( $class::is_available() ) {
+				$section = $class::get_section_name();
+				if ( empty( $section ) ) {
+					continue;
+				}
+				$fields   = array_values( array_unique( array_values( $class::get_fields() ) ) );
+				$groups[] = [
+					'section' => $section,
+					'fields'  => $fields,
+				];
+			}
+		}
+		return $groups;
+	}
+
+	/**
 	 * Get all metadata fields
 	 *
 	 * @param boolean $only_available Whether to return only available fields or all fields.

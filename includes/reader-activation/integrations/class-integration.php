@@ -809,7 +809,8 @@ abstract class Integration {
 				);
 			}
 			if ( 'outgoing_metadata_fields' === $field['key'] ) {
-				$field['options'] = Sync\Metadata::get_default_fields();
+				$field['options']         = Sync\Metadata::get_default_fields();
+				$field['grouped_options'] = Sync\Metadata::get_grouped_default_fields();
 			}
 			$config[] = $field;
 		}

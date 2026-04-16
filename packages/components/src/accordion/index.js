@@ -17,11 +17,16 @@ import classNames from 'classnames';
  */
 import './style.scss';
 
-const Accordion = ( { children, title } ) => {
-	const [ isOpen, setIsOpen ] = useState( false );
+const Accordion = ( { children, title, defaultOpen = false } ) => {
+	const [ isOpen, setIsOpen ] = useState( defaultOpen );
 	return (
-		<details className={ classNames( 'newspack-accordion', { 'newspack-accordion--is-open': isOpen } ) }>
-			<summary onClick={ () => setIsOpen( ! isOpen ) }>
+		<details className={ classNames( 'newspack-accordion', { 'newspack-accordion--is-open': isOpen } ) } open={ isOpen }>
+			<summary
+				onClick={ e => {
+					e.preventDefault();
+					setIsOpen( ! isOpen );
+				} }
+			>
 				{ title }
 				<Icon className="newspack-accordion__icon" icon={ chevronRight } size={ 24 } />
 			</summary>
