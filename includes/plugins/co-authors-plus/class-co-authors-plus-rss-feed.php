@@ -42,7 +42,8 @@ class Co_Authors_Plus_RSS_Feed {
 		if ( empty( $coauthors ) ) {
 			return $the_author;
 		}
-		return implode( ', ', array_map( fn( $author ) => wp_strip_all_tags( html_entity_decode( $author->display_name ) ), $coauthors ) );
+		$names = array_map( fn( $author ) => wp_strip_all_tags( html_entity_decode( $author->display_name ) ), $coauthors );
+		return wp_sprintf_l( '%l', $names );
 	}
 }
 Co_Authors_Plus_RSS_Feed::init();
