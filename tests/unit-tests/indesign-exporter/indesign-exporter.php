@@ -367,6 +367,124 @@ class Newspack_Test_InDesign_Exporter extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Test that core/video blocks are excluded from export.
+	 *
+	 * Video embeds have no print equivalent and their raw markup must not
+	 * appear in the InDesign output.
+	 */
+	public function test_video_block_excluded() {
+		$post_id = $this->factory->post->create(
+			[
+				'post_title'   => 'Test Post',
+				'post_content' => '<!-- wp:paragraph --><p>Before the video.</p><!-- /wp:paragraph --><!-- wp:video {"id":1} --><figure class="wp-block-video"><video controls src="https://example.com/video.mp4"></video></figure><!-- /wp:video --><!-- wp:paragraph --><p>After the video.</p><!-- /wp:paragraph -->',
+			]
+		);
+
+		$converter = new InDesign_Converter();
+		$content   = $converter->convert_post( $post_id );
+
+		$this->assertStringContainsString( 'Before the video.', $content );
+		$this->assertStringContainsString( 'After the video.', $content );
+		$this->assertStringNotContainsString( 'video.mp4', $content );
+		$this->assertStringNotContainsString( '<video', $content );
+	}
+
+	/**
+	 * Test that core/audio blocks are excluded from export.
+	 *
+	 * Audio embeds have no print equivalent and their raw markup must not
+	 * appear in the InDesign output.
+	 */
+	public function test_audio_block_excluded() {
+		$post_id = $this->factory->post->create(
+			[
+				'post_title'   => 'Test Post',
+				'post_content' => '<!-- wp:paragraph --><p>Before the audio.</p><!-- /wp:paragraph --><!-- wp:audio {"id":1} --><figure class="wp-block-audio"><audio controls src="https://example.com/audio.mp3"></audio></figure><!-- /wp:audio --><!-- wp:paragraph --><p>After the audio.</p><!-- /wp:paragraph -->',
+			]
+		);
+
+		$converter = new InDesign_Converter();
+		$content   = $converter->convert_post( $post_id );
+
+		$this->assertStringContainsString( 'Before the audio.', $content );
+		$this->assertStringContainsString( 'After the audio.', $content );
+		$this->assertStringNotContainsString( 'audio.mp3', $content );
+		$this->assertStringNotContainsString( '<audio', $content );
+	}
+
+	/**
+	 * Test that core/embed blocks are excluded from export when nested inside a columns block.
+	 *
+	 * core/columns has a different innerContent shape from core/group (it contains
+	 * core/column children which in turn contain the embed), exercising the recursive
+	 * strip logic through two container levels.
+	 */
+	public function test_embed_block_excluded_when_nested_in_columns() {
+		$post_id = $this->factory->post->create(
+			[
+				'post_title'   => 'Test Post',
+				'post_content' => '<!-- wp:paragraph --><p>Before the columns.</p><!-- /wp:paragraph --><!-- wp:columns --><div class="wp-block-columns"><!-- wp:column --><div class="wp-block-column"><!-- wp:embed {"url":"https://www.youtube.com/watch?v=xyz789","type":"video","providerNameSlug":"youtube"} --><figure class="wp-block-embed is-type-video is-provider-youtube"><div class="wp-block-embed__wrapper">' . "\n" . 'https://www.youtube.com/watch?v=xyz789' . "\n" . '</div></figure><!-- /wp:embed --></div><!-- /wp:column --><!-- wp:column --><div class="wp-block-column"><!-- wp:paragraph --><p>Text in second column.</p><!-- /wp:paragraph --></div><!-- /wp:column --></div><!-- /wp:columns --><!-- wp:paragraph --><p>After the columns.</p><!-- /wp:paragraph -->',
+			]
+		);
+
+		$converter = new InDesign_Converter();
+		$content   = $converter->convert_post( $post_id );
+
+		$this->assertStringContainsString( 'Before the columns.', $content );
+		$this->assertStringContainsString( 'After the columns.', $content );
+		$this->assertStringNotContainsString( 'youtube.com', $content );
+		$this->assertStringNotContainsString( 'xyz789', $content );
+	}
+
+	/**
+	 * Test that two consecutive excluded blocks inside a container are both removed.
+	 *
+	 * This exercises the $inner_index increment path in strip_excluded_blocks() where
+	 * two null placeholders in innerContent map to two consecutive excluded innerBlocks
+	 * entries — ensuring the index stays in sync after the first block is skipped.
+	 */
+	public function test_two_excluded_siblings_in_container() {
+		$post_id = $this->factory->post->create(
+			[
+				'post_title'   => 'Test Post',
+				'post_content' => '<!-- wp:paragraph --><p>Before the group.</p><!-- /wp:paragraph --><!-- wp:group --><div class="wp-block-group"><!-- wp:embed {"url":"https://www.youtube.com/watch?v=first","type":"video","providerNameSlug":"youtube"} --><figure class="wp-block-embed is-type-video is-provider-youtube"><div class="wp-block-embed__wrapper">' . "\n" . 'https://www.youtube.com/watch?v=first' . "\n" . '</div></figure><!-- /wp:embed --><!-- wp:embed {"url":"https://www.youtube.com/watch?v=second","type":"video","providerNameSlug":"youtube"} --><figure class="wp-block-embed is-type-video is-provider-youtube"><div class="wp-block-embed__wrapper">' . "\n" . 'https://www.youtube.com/watch?v=second' . "\n" . '</div></figure><!-- /wp:embed --><!-- wp:paragraph --><p>After both embeds.</p><!-- /wp:paragraph --></div><!-- /wp:group --><!-- wp:paragraph --><p>After the group.</p><!-- /wp:paragraph -->',
+			]
+		);
+
+		$converter = new InDesign_Converter();
+		$content   = $converter->convert_post( $post_id );
+
+		$this->assertStringContainsString( 'Before the group.', $content );
+		$this->assertStringContainsString( 'After both embeds.', $content );
+		$this->assertStringContainsString( 'After the group.', $content );
+		$this->assertStringNotContainsString( 'first', $content );
+		$this->assertStringNotContainsString( 'second', $content );
+	}
+
+	/**
+	 * Test that legacy core-embed/* blocks (pre-WP 5.6) are excluded from export.
+	 *
+	 * WordPress 5.6 unified embed blocks under core/embed. Older content may still
+	 * contain core-embed/youtube, core-embed/vimeo, etc. These must also be excluded.
+	 */
+	public function test_legacy_core_embed_block_excluded() {
+		$post_id = $this->factory->post->create(
+			[
+				'post_title'   => 'Test Post',
+				'post_content' => '<!-- wp:paragraph --><p>Before the embed.</p><!-- /wp:paragraph --><!-- wp:core-embed/youtube {"url":"https://www.youtube.com/watch?v=legacy123"} --><figure class="wp-block-embed-youtube"><div class="wp-block-embed__wrapper">' . "\n" . 'https://www.youtube.com/watch?v=legacy123' . "\n" . '</div></figure><!-- /wp:core-embed/youtube --><!-- wp:paragraph --><p>After the embed.</p><!-- /wp:paragraph -->',
+			]
+		);
+
+		$converter = new InDesign_Converter();
+		$content   = $converter->convert_post( $post_id );
+
+		$this->assertStringContainsString( 'Before the embed.', $content );
+		$this->assertStringContainsString( 'After the embed.', $content );
+		$this->assertStringNotContainsString( 'youtube.com', $content );
+		$this->assertStringNotContainsString( 'legacy123', $content );
+	}
+
+	/**
 	 * Test image caption and credit special characters.
 	 */
 	public function test_image_caption_and_credit_special_characters() {
