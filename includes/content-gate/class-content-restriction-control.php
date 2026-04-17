@@ -150,19 +150,19 @@ class Content_Restriction_Control {
 			}
 
 			$content_rules = $gate['content_rules'];
-			if ( empty( $content_rules ) ) {
-				continue;
-			}
 
 			// Filter out rules with empty values.
-			$content_rules = array_values(
+			$content_rules = is_array( $content_rules ) ? array_values(
 				array_filter(
 					$content_rules,
 					function( $content_rule ) {
 						return ! empty( $content_rule['value'] );
 					}
 				)
-			);
+			) : [];
+			if ( empty( $content_rules ) ) {
+				continue;
+			}
 
 			foreach ( $content_rules as $content_rule ) {
 				$is_exclusion = isset( $content_rule['exclusion'] ) && $content_rule['exclusion'];
