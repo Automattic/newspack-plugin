@@ -1025,4 +1025,108 @@ class Test_Content_Gates extends \WP_UnitTestCase {
 		$keys = array_keys( $rules );
 		$this->assertSame( 'specific_posts', end( $keys ), 'specific_posts appears last' );
 	}
+
+	/**
+	 * Test the posts-search REST endpoint returns published posts of supported post types.
+	 */
+	public function test_posts_search_endpoint_returns_published_posts() {
+		if ( ! defined( 'NEWSPACK_CONTENT_GATES' ) ) {
+			define( 'NEWSPACK_CONTENT_GATES', true );
+		}
+		wp_set_current_user( $this->factory->user->create( [ 'role' => 'administrator' ] ) );
+
+		$published_post = $this->factory->post->create(
+			[
+				'post_status' => 'publish',
+				'post_title'  => 'Searchable Post',
+			] 
+		);
+		$draft_post     = $this->factory->post->create(
+			[
+				'post_status' => 'draft',
+				'post_title'  => 'Searchable Draft',
+			] 
+		);
+		$published_page = $this->factory->post->create(
+			[
+				'post_status' => 'publish',
+				'post_type'   => 'page',
+				'post_title'  => 'Searchable Page',
+			] 
+		);
+		$this->post_ids[] = $published_post;
+		$this->post_ids[] = $draft_post;
+		$this->post_ids[] = $published_page;
+
+		$request = new \WP_REST_Request( 'GET', '/' . NEWSPACK_API_NAMESPACE . '/wizard/audience-content-gates/posts-search' );
+		$request->set_param( 'search', 'Searchable' );
+		$response = rest_get_server()->dispatch( $request );
+
+		$this->assertSame( 200, $response->get_status() );
+		$data = $response->get_data();
+		$ids  = wp_list_pluck( $data, 'id' );
+
+		$this->assertContains( $published_post, $ids, 'Includes published post' );
+		$this->assertContains( $published_page, $ids, 'Includes published page (other supported post type)' );
+		$this->assertNotContains( $draft_post, $ids, 'Excludes non-published post' );
+
+		foreach ( $data as $item ) {
+			$this->assertArrayHasKey( 'id', $item );
+			$this->assertArrayHasKey( 'name', $item );
+			$this->assertArrayHasKey( 'type_label', $item );
+		}
+	}
+
+	/**
+	 * Test the posts-search endpoint can hydrate saved tokens via include.
+	 */
+	public function test_posts_search_endpoint_supports_include() {
+		if ( ! defined( 'NEWSPACK_CONTENT_GATES' ) ) {
+			define( 'NEWSPACK_CONTENT_GATES', true );
+		}
+		wp_set_current_user( $this->factory->user->create( [ 'role' => 'administrator' ] ) );
+
+		$post_a = $this->factory->post->create(
+			[
+				'post_status' => 'publish',
+				'post_title'  => 'A',
+			] 
+		);
+		$post_b = $this->factory->post->create(
+			[
+				'post_status' => 'publish',
+				'post_title'  => 'B',
+			] 
+		);
+		$this->post_ids[] = $post_a;
+		$this->post_ids[] = $post_b;
+
+		$request = new \WP_REST_Request( 'GET', '/' . NEWSPACK_API_NAMESPACE . '/wizard/audience-content-gates/posts-search' );
+		$request->set_param( 'include', $post_a . ',' . $post_b );
+		$response = rest_get_server()->dispatch( $request );
+
+		$this->assertSame( 200, $response->get_status() );
+		$ids = wp_list_pluck( $response->get_data(), 'id' );
+		$this->assertEqualsCanonicalizing( [ $post_a, $post_b ], $ids );
+	}
+
+	/**
+	 * Test the posts-search endpoint requires admin permissions.
+	 *
+	 * The shared `api_permissions_check` helper used by all wizard routes returns a
+	 * WP_Error with status 403 when `current_user_can( $this->capability )` fails.
+	 * That error code is preserved by WP_REST_Server (it only re-maps to 401 when the
+	 * permission callback returns boolean false / null).
+	 */
+	public function test_posts_search_endpoint_requires_permissions() {
+		if ( ! defined( 'NEWSPACK_CONTENT_GATES' ) ) {
+			define( 'NEWSPACK_CONTENT_GATES', true );
+		}
+		wp_set_current_user( 0 );
+
+		$request  = new \WP_REST_Request( 'GET', '/' . NEWSPACK_API_NAMESPACE . '/wizard/audience-content-gates/posts-search' );
+		$response = rest_get_server()->dispatch( $request );
+
+		$this->assertSame( 403, $response->get_status() );
+	}
 }

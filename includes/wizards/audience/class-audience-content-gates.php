@@ -329,6 +329,30 @@ class Audience_Content_Gates extends Wizard {
 				],
 			]
 		);
+
+		register_rest_route(
+			NEWSPACK_API_NAMESPACE,
+			'/wizard/audience-content-gates/posts-search',
+			[
+				'methods'             => 'GET',
+				'callback'            => [ $this, 'posts_search' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+				'args'                => [
+					'search'   => [
+						'type'              => 'string',
+						'sanitize_callback' => 'sanitize_text_field',
+					],
+					'include'  => [
+						'type'              => 'string',
+						'sanitize_callback' => 'sanitize_text_field',
+					],
+					'per_page' => [
+						'type'    => 'integer',
+						'default' => 10,
+					],
+				],
+			]
+		);
 	}
 
 	/**
@@ -487,5 +511,70 @@ class Audience_Content_Gates extends Wizard {
 			$updated_gates[] = $updated_gate;
 		}
 		return rest_ensure_response( $updated_gates );
+	}
+
+	/**
+	 * REST callback: search published posts across all post types supported by content gates.
+	 *
+	 * Returns items in the shape consumed by ContentRuleControlTokenField:
+	 * `[{ id, name, type_label }]`. Supports `search` (by title/content) and `include`
+	 * (comma-separated IDs to hydrate saved tokens regardless of search match).
+	 *
+	 * @param \WP_REST_Request $request The request object.
+	 * @return \WP_REST_Response
+	 */
+	public function posts_search( $request ) {
+		$post_types = array_column( Content_Restriction_Control::get_available_post_types(), 'value' );
+
+		$args = [
+			'post_type'      => $post_types,
+			'post_status'    => 'publish',
+			'posts_per_page' => max( 1, min( 50, (int) $request->get_param( 'per_page' ) ) ),
+			'orderby'        => 'title',
+			'order'          => 'ASC',
+			'no_found_rows'  => true,
+		];
+
+		$include = $request->get_param( 'include' );
+		if ( ! empty( $include ) ) {
+			$ids = array_filter( array_map( 'absint', explode( ',', $include ) ) );
+			if ( empty( $ids ) ) {
+				return rest_ensure_response( [] );
+			}
+			$args['post__in']       = $ids;
+			$args['posts_per_page'] = count( $ids );
+			$args['orderby']        = 'post__in';
+		}
+
+		$search = $request->get_param( 'search' );
+		if ( ! empty( $search ) ) {
+			// Numeric search: treat as a post ID lookup.
+			if ( is_numeric( $search ) ) {
+				$args['p'] = absint( $search );
+			} else {
+				$args['s'] = $search;
+			}
+		}
+
+		$query = new \WP_Query( $args );
+
+		$labels = [];
+		foreach ( $post_types as $pt ) {
+			$obj = get_post_type_object( $pt );
+			$labels[ $pt ] = $obj && isset( $obj->labels->singular_name ) ? $obj->labels->singular_name : $pt;
+		}
+
+		$data = array_map(
+			function( $post ) use ( $labels ) {
+				return [
+					'id'         => (int) $post->ID,
+					'name'       => $post->post_title !== '' ? $post->post_title : sprintf( '#%d', $post->ID ),
+					'type_label' => $labels[ $post->post_type ] ?? $post->post_type,
+				];
+			},
+			$query->posts
+		);
+
+		return rest_ensure_response( $data );
 	}
 }
