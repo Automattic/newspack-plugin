@@ -95,4 +95,18 @@ class Test_Recaptcha extends WP_UnitTestCase {
 			'reCAPTCHA api.js should not be enqueued when reCAPTCHA is disabled.'
 		);
 	}
+
+	/**
+	 * can_use_captcha() should treat reCAPTCHA as unavailable on TEC Community Events pages,
+	 * so all callers (register_scripts, verify_captcha, Woo helpers) skip it consistently.
+	 */
+	public function test_can_use_captcha_returns_false_on_tec_community_page() {
+		$this->enable_recaptcha();
+		$GLOBALS['newspack_test_is_tec_community_page'] = true;
+
+		$this->assertFalse(
+			Recaptcha::can_use_captcha(),
+			'can_use_captcha() should return false on TEC Community Events submission pages.'
+		);
+	}
 }
