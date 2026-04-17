@@ -36,6 +36,7 @@ export const SettingsSection = ( { integrations, loading, onToggleEnabled, onCon
 
 	return (
 		<WizardsTab
+			className="newspack-audience-integrations"
 			title={ __( 'Integrations', 'newspack-plugin' ) }
 			description={ __(
 				'Manage how Newspack syncs reader data with your tools. Connect an integration to start syncing reader activity across your stack.',
