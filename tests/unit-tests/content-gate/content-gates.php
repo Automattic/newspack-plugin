@@ -33,6 +33,18 @@ class Test_Content_Gates extends \WP_UnitTestCase {
 	protected $gate_ids = [];
 
 	/**
+	 * Ensure the Content Gates feature flag is defined before any test runs.
+	 * `Audience_Content_Gates::register_api_endpoints()` early-returns on
+	 * `! $this->is_feature_enabled()`, so REST-dispatch tests need the flag on.
+	 */
+	public static function setUpBeforeClass(): void {
+		parent::setUpBeforeClass();
+		if ( ! defined( 'NEWSPACK_CONTENT_GATES' ) ) {
+			define( 'NEWSPACK_CONTENT_GATES', true );
+		}
+	}
+
+	/**
 	 * Test set up.
 	 */
 	public function set_up() {
@@ -1030,9 +1042,6 @@ class Test_Content_Gates extends \WP_UnitTestCase {
 	 * Test the posts-search REST endpoint returns published posts of supported post types.
 	 */
 	public function test_posts_search_endpoint_returns_published_posts() {
-		if ( ! defined( 'NEWSPACK_CONTENT_GATES' ) ) {
-			define( 'NEWSPACK_CONTENT_GATES', true );
-		}
 		wp_set_current_user( $this->factory->user->create( [ 'role' => 'administrator' ] ) );
 
 		$published_post = $this->factory->post->create(
@@ -1081,9 +1090,6 @@ class Test_Content_Gates extends \WP_UnitTestCase {
 	 * Test the posts-search endpoint can hydrate saved tokens via include.
 	 */
 	public function test_posts_search_endpoint_supports_include() {
-		if ( ! defined( 'NEWSPACK_CONTENT_GATES' ) ) {
-			define( 'NEWSPACK_CONTENT_GATES', true );
-		}
 		wp_set_current_user( $this->factory->user->create( [ 'role' => 'administrator' ] ) );
 
 		$post_a = $this->factory->post->create(
@@ -1119,9 +1125,6 @@ class Test_Content_Gates extends \WP_UnitTestCase {
 	 * permission callback returns boolean false / null).
 	 */
 	public function test_posts_search_endpoint_requires_permissions() {
-		if ( ! defined( 'NEWSPACK_CONTENT_GATES' ) ) {
-			define( 'NEWSPACK_CONTENT_GATES', true );
-		}
 		wp_set_current_user( 0 );
 
 		$request  = new \WP_REST_Request( 'GET', '/' . NEWSPACK_API_NAMESPACE . '/wizard/newspack-audience-access-control/posts-search' );
@@ -1211,5 +1214,89 @@ class Test_Content_Gates extends \WP_UnitTestCase {
 
 		$this->assertCount( 1, Content_Restriction_Control::get_post_gates( $gated_id ) );
 		$this->assertCount( 0, Content_Restriction_Control::get_post_gates( $ungated_id ) );
+	}
+
+	/**
+	 * Test specific_posts override wins against a category rule, too.
+	 */
+	public function test_specific_posts_overrides_taxonomy_rule() {
+		$cat_id = $this->factory->term->create(
+			[
+				'taxonomy' => 'category',
+				'name'     => 'Restricted Only',
+			]
+		);
+
+		// Post with NO category — would fail the taxonomy rule normally.
+		$post_id          = $this->factory->post->create( [ 'post_status' => 'publish' ] );
+		$this->post_ids[] = $post_id;
+
+		Content_Rules::update_gate_content_rules(
+			$this->gate_ids[2],
+			[
+				[
+					'slug'  => 'category',
+					'value' => [ $cat_id ],
+				],
+				[
+					'slug'  => 'specific_posts',
+					'value' => [ (string) $post_id ],
+				],
+			]
+		);
+
+		$gates = Content_Restriction_Control::get_post_gates( $post_id );
+		$this->assertCount( 1, $gates, 'Post is gated via specific_posts override despite not matching the category rule' );
+	}
+
+	/**
+	 * Test empty specific_posts value does NOT trigger the override and — when it's
+	 * the gate's only rule — does NOT accidentally include the gate.
+	 */
+	public function test_specific_posts_empty_value_does_not_match() {
+		$post_id          = $this->factory->post->create( [ 'post_status' => 'publish' ] );
+		$this->post_ids[] = $post_id;
+
+		Content_Rules::update_gate_content_rules(
+			$this->gate_ids[2],
+			[
+				[
+					'slug'  => 'specific_posts',
+					'value' => [],
+				],
+			]
+		);
+
+		$this->assertCount( 0, Content_Restriction_Control::get_post_gates( $post_id ), 'Empty specific_posts does not include any gate' );
+	}
+
+	/**
+	 * Test the posts-search endpoint treats a numeric search as a post ID lookup.
+	 */
+	public function test_posts_search_endpoint_numeric_search_is_id_lookup() {
+		wp_set_current_user( $this->factory->user->create( [ 'role' => 'administrator' ] ) );
+
+		$target           = $this->factory->post->create(
+			[
+				'post_status' => 'publish',
+				'post_title'  => 'Findable',
+			]
+		);
+		$other            = $this->factory->post->create(
+			[
+				'post_status' => 'publish',
+				'post_title'  => 'Decoy',
+			]
+		);
+		$this->post_ids[] = $target;
+		$this->post_ids[] = $other;
+
+		$request = new \WP_REST_Request( 'GET', '/' . NEWSPACK_API_NAMESPACE . '/wizard/newspack-audience-access-control/posts-search' );
+		$request->set_param( 'search', (string) $target );
+		$response = rest_get_server()->dispatch( $request );
+
+		$this->assertSame( 200, $response->get_status() );
+		$ids = wp_list_pluck( $response->get_data(), 'id' );
+		$this->assertSame( [ $target ], $ids, 'Numeric search returns only the post with that ID' );
 	}
 }
