@@ -113,8 +113,7 @@ const AudienceIntegrations = ( props, ref ) => {
 					path: '/settings/:integrationId/logs',
 					render: LogsView,
 					props: sharedProps,
-					backNav: '#/settings',
-					title: __( 'Integration Logs', 'newspack-plugin' ),
+					isHidden: true,
 				},
 				{
 					path: '/settings/:integrationId',

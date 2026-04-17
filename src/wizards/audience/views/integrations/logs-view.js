@@ -62,12 +62,28 @@ const DEFAULT_VIEW = {
 export const LogsView = ( { integrations, match } ) => {
 	const integrationId = match?.params?.integrationId;
 	const integration = integrationId ? integrations[ integrationId ] : null;
-	const { addNotice } = useDispatch( WIZARD_STORE_NAMESPACE );
+	const { addNotice, setHeaderData } = useDispatch( WIZARD_STORE_NAMESPACE );
 
 	const [ data, setData ] = useState( [] );
 	const [ total, setTotal ] = useState( 0 );
 	const [ isLoading, setIsLoading ] = useState( true );
 	const [ view, setView ] = useState( DEFAULT_VIEW );
+
+	useEffect( () => {
+		if ( integration ) {
+			setHeaderData( {
+				sectionName: `${ integration.name } / ${ __( 'Logs', 'newspack-plugin' ) }`,
+				actions: [
+					{
+						type: 'secondary',
+						label: __( 'Back to Integrations', 'newspack-plugin' ),
+						icon: 'chevronLeft',
+						href: '#/settings',
+					},
+				],
+			} );
+		}
+	}, [ integration, setHeaderData ] );
 
 	const statusFilter = view.filters?.find( f => f.field === 'status' )?.value;
 
