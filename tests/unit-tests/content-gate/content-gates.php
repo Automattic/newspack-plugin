@@ -241,6 +241,10 @@ class Test_Content_Gates extends \WP_UnitTestCase {
 					'slug'  => 'post_types',
 					'value' => [],
 				],
+				[
+					'slug'  => 'category',
+					'value' => [ $cat1 ],
+				],
 			]
 		);
 		$gates = Content_Restriction_Control::get_post_gates( $post1 );
