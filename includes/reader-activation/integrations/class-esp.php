@@ -425,9 +425,49 @@ class ESP extends Integration {
 
 		return array_map(
 			function( $field ) {
-				return new Incoming_Field( $field['key'], $field );
+				$incoming_field = new Incoming_Field( $field['key'], $field );
+				return $this->configure_incoming_field( $incoming_field );
 			},
 			$fields
 		);
+	}
+
+	/**
+	 * Apply defaults from the provider schema to the Incoming_Field.
+	 *
+	 * The raw data comes from Newspack_Newsletters_Contacts::get_fields(), which delegates to the
+	 * provider's get_contact_fields_for_integrations() method. That method returns a schema whose
+	 * keys mirror Incoming_Field setters, letting us configure each field mechanically.
+	 *
+	 * @param Incoming_Field $field The field to configure.
+	 * @return Incoming_Field
+	 */
+	protected function configure_incoming_field( $field ) {
+		$raw = $field->get_raw_data();
+		if ( ! is_array( $raw ) ) {
+			return $field;
+		}
+		if ( ! empty( $raw['name'] ) ) {
+			$field->set_name( $raw['name'] );
+		}
+		if ( ! empty( $raw['value_type'] ) ) {
+			$field->set_value_type( $raw['value_type'] );
+		}
+		if ( ! empty( $raw['matching_function'] ) ) {
+			$field->set_matching_function( $raw['matching_function'] );
+		}
+		if ( ! empty( $raw['options'] ) ) {
+			$field->set_options( $raw['options'] );
+		}
+		if ( isset( $raw['description'] ) ) {
+			$field->set_description( $raw['description'] );
+		}
+		if ( ! empty( $raw['is_access_rule'] ) ) {
+			$field->set_is_access_rule( true );
+		}
+		if ( ! empty( $raw['is_segment_criteria'] ) ) {
+			$field->set_is_segment_criteria( true );
+		}
+		return $field;
 	}
 }
