@@ -97,8 +97,8 @@ class Test_Recaptcha extends WP_UnitTestCase {
 	}
 
 	/**
-	 * can_use_captcha() should treat reCAPTCHA as unavailable on TEC Community Events pages,
-	 * so all callers (register_scripts, verify_captcha, Woo helpers) skip it consistently.
+	 * Verify can_use_captcha() returns false on TEC Community Events pages so all
+	 * callers (register_scripts, verify_captcha, Woo helpers) skip it consistently.
 	 */
 	public function test_can_use_captcha_returns_false_on_tec_community_page() {
 		$this->enable_recaptcha();
