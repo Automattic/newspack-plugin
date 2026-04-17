@@ -1036,20 +1036,20 @@ class Test_Content_Gates extends \WP_UnitTestCase {
 			[
 				'post_status' => 'publish',
 				'post_title'  => 'Searchable Post',
-			] 
+			]
 		);
 		$draft_post     = $this->factory->post->create(
 			[
 				'post_status' => 'draft',
 				'post_title'  => 'Searchable Draft',
-			] 
+			]
 		);
 		$published_page = $this->factory->post->create(
 			[
 				'post_status' => 'publish',
 				'post_type'   => 'page',
 				'post_title'  => 'Searchable Page',
-			] 
+			]
 		);
 		$this->post_ids[] = $published_post;
 		$this->post_ids[] = $draft_post;
@@ -1084,13 +1084,13 @@ class Test_Content_Gates extends \WP_UnitTestCase {
 			[
 				'post_status' => 'publish',
 				'post_title'  => 'A',
-			] 
+			]
 		);
 		$post_b = $this->factory->post->create(
 			[
 				'post_status' => 'publish',
 				'post_title'  => 'B',
-			] 
+			]
 		);
 		$this->post_ids[] = $post_a;
 		$this->post_ids[] = $post_b;
