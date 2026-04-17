@@ -447,25 +447,25 @@ class ESP extends Integration {
 		if ( ! is_array( $raw ) ) {
 			return $field;
 		}
-		if ( ! empty( $raw['name'] ) ) {
-			$field->set_name( $raw['name'] );
+		if ( ! empty( $raw['name'] ) && is_scalar( $raw['name'] ) ) {
+			$field->set_name( (string) $raw['name'] );
 		}
-		if ( ! empty( $raw['value_type'] ) ) {
-			$field->set_value_type( $raw['value_type'] );
+		if ( ! empty( $raw['value_type'] ) && is_scalar( $raw['value_type'] ) ) {
+			$field->set_value_type( (string) $raw['value_type'] );
 		}
-		if ( ! empty( $raw['matching_function'] ) ) {
-			$field->set_matching_function( $raw['matching_function'] );
+		if ( ! empty( $raw['matching_function'] ) && is_scalar( $raw['matching_function'] ) ) {
+			$field->set_matching_function( (string) $raw['matching_function'] );
 		}
-		if ( ! empty( $raw['options'] ) ) {
+		if ( ! empty( $raw['options'] ) && is_array( $raw['options'] ) ) {
 			$field->set_options( $raw['options'] );
 		}
-		if ( isset( $raw['description'] ) ) {
-			$field->set_description( $raw['description'] );
+		if ( isset( $raw['description'] ) && is_scalar( $raw['description'] ) ) {
+			$field->set_description( (string) $raw['description'] );
 		}
-		if ( ! empty( $raw['is_access_rule'] ) ) {
+		if ( isset( $raw['is_access_rule'] ) && \wp_validate_boolean( $raw['is_access_rule'] ) ) {
 			$field->set_is_access_rule( true );
 		}
-		if ( ! empty( $raw['is_segment_criteria'] ) ) {
+		if ( isset( $raw['is_segment_criteria'] ) && \wp_validate_boolean( $raw['is_segment_criteria'] ) ) {
 			$field->set_is_segment_criteria( true );
 		}
 		return $field;
