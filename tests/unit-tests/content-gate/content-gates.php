@@ -1011,14 +1011,14 @@ class Test_Content_Gates extends \WP_UnitTestCase {
 	 * Test that the specific_posts content rule is registered.
 	 */
 	public function test_specific_posts_rule_is_registered() {
-		$rules = \Newspack\Content_Rules::get_content_rules();
+		$rules = Content_Rules::get_content_rules();
 		$this->assertArrayHasKey( 'specific_posts', $rules, 'specific_posts rule is registered' );
 
 		$rule = $rules['specific_posts'];
 		$this->assertSame( 'Specific posts', $rule['name'] );
 		$this->assertSame( [], $rule['default'] );
 		$this->assertTrue( $rule['include_only'], 'specific_posts is include-only (no exclusion mode)' );
-		$this->assertNotEmpty( $rule['endpoint'], 'specific_posts has a REST endpoint' );
+		$this->assertSame( '/' . NEWSPACK_API_NAMESPACE . '/wizard/audience-content-gates/posts-search', $rule['endpoint'], 'endpoint matches the route Task 2 must register' );
 		$this->assertStringContainsString( 'restrict specific posts', $rule['description'], 'description signals override behavior' );
 
 		// Must be the LAST rule in the list.
