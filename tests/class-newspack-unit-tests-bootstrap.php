@@ -84,6 +84,10 @@ class Newspack_Unit_Tests_Bootstrap {
 	 * Load Newspack.
 	 */
 	public function load_newspack() {
+		// Enable the Content Gates feature so its wizard and REST endpoints register under test.
+		if ( ! defined( 'NEWSPACK_CONTENT_GATES' ) ) {
+			define( 'NEWSPACK_CONTENT_GATES', true );
+		}
 		require_once $this->plugin_dir . '/newspack.php';
 	}
 

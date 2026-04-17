@@ -33,18 +33,6 @@ class Test_Content_Gates extends \WP_UnitTestCase {
 	protected $gate_ids = [];
 
 	/**
-	 * Ensure the Content Gates feature flag is defined before any test runs.
-	 * `Audience_Content_Gates::register_api_endpoints()` early-returns on
-	 * `! $this->is_feature_enabled()`, so REST-dispatch tests need the flag on.
-	 */
-	public static function setUpBeforeClass(): void {
-		parent::setUpBeforeClass();
-		if ( ! defined( 'NEWSPACK_CONTENT_GATES' ) ) {
-			define( 'NEWSPACK_CONTENT_GATES', true );
-		}
-	}
-
-	/**
 	 * Test set up.
 	 */
 	public function set_up() {
