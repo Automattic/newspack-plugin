@@ -1015,11 +1015,11 @@ class Test_Content_Gates extends \WP_UnitTestCase {
 		$this->assertArrayHasKey( 'specific_posts', $rules, 'specific_posts rule is registered' );
 
 		$rule = $rules['specific_posts'];
-		$this->assertSame( 'Specific posts', $rule['name'] );
+		$this->assertSame( __( 'Specific posts', 'newspack-plugin' ), $rule['name'] );
 		$this->assertSame( [], $rule['default'] );
 		$this->assertTrue( $rule['include_only'], 'specific_posts is include-only (no exclusion mode)' );
 		$this->assertSame( '/' . NEWSPACK_API_NAMESPACE . '/wizard/newspack-audience-access-control/posts-search', $rule['endpoint'], 'endpoint matches the route Task 2 must register' );
-		$this->assertStringContainsString( 'restrict specific posts', $rule['description'], 'description signals override behavior' );
+		$this->assertStringContainsString( __( 'restrict specific posts', 'newspack-plugin' ), $rule['description'], 'description signals override behavior' );
 
 		// Must be the LAST rule in the list.
 		$keys = array_keys( $rules );
