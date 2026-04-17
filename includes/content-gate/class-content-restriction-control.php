@@ -155,6 +155,10 @@ class Content_Restriction_Control {
 			}
 
 			foreach ( $content_rules as $content_rule ) {
+				// Rule with an empty value should pass through.
+				if ( empty( $content_rule['value'] ) ) {
+					continue;
+				}
 				$is_exclusion = isset( $content_rule['exclusion'] ) && $content_rule['exclusion'];
 				if ( $content_rule['slug'] === 'post_types' ) {
 					$post_type = get_post_type( $post_id );
