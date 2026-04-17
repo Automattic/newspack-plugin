@@ -146,11 +146,14 @@ class Audience_Integrations extends Wizard {
 					'per_page' => [
 						'type'              => 'integer',
 						'default'           => 25,
+						'minimum'           => 1,
+						'maximum'           => 100,
 						'sanitize_callback' => 'absint',
 					],
 					'page'     => [
 						'type'              => 'integer',
 						'default'           => 1,
+						'minimum'           => 1,
 						'sanitize_callback' => 'absint',
 					],
 					'orderby'  => [
@@ -263,8 +266,8 @@ class Audience_Integrations extends Wizard {
 			);
 		}
 
-		$per_page = $request->get_param( 'per_page' );
-		$page     = $request->get_param( 'page' );
+		$per_page = max( 1, (int) $request->get_param( 'per_page' ) );
+		$page     = max( 1, (int) $request->get_param( 'page' ) );
 
 		$query_args = [
 			'integration_id' => $integration_id,

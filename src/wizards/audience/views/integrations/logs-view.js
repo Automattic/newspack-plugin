@@ -8,6 +8,7 @@ import apiFetch from '@wordpress/api-fetch';
 import { addQueryArgs } from '@wordpress/url';
 import { Spinner } from '@wordpress/components';
 import { DataViews as WPDataViews } from '@wordpress/dataviews';
+import { dateI18n, getSettings } from '@wordpress/date';
 
 /**
  * Internal dependencies
@@ -26,20 +27,11 @@ const STATUS_MAP = {
 };
 
 function formatTimestamp( gmt ) {
-	const date = new Date( gmt + 'Z' );
-	const datePart = date.toLocaleDateString( 'en-US', {
-		month: 'long',
-		day: 'numeric',
-		year: 'numeric',
-	} );
-	const timePart = date
-		.toLocaleTimeString( 'en-US', {
-			hour: 'numeric',
-			minute: '2-digit',
-			hour12: true,
-		} )
-		.toLowerCase();
-	return `${ datePart }, ${ timePart }`;
+	if ( ! gmt ) {
+		return '';
+	}
+	const dateFormat = getSettings().formats.datetime || 'F j, Y, g:i a';
+	return dateI18n( dateFormat, `${ gmt }+00:00` );
 }
 
 const DEFAULT_VIEW = {
