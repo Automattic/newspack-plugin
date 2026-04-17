@@ -350,9 +350,9 @@ final class Recaptcha {
 	 */
 	public static function can_use_captcha( $version = null ) {
 		// The Events Calendar Community Events loads its own reCAPTCHA api.js on its
-		// submission page. Two api.js loads with different site keys break reCAPTCHA,
-		// and Newspack's client does not protect TEC forms, so treat captcha as
-		// unavailable here rather than breaking TEC's own reCAPTCHA.
+		// submission/edit pages. Two api.js loads with different site keys break
+		// reCAPTCHA, and Newspack's client does not protect TEC forms, so treat
+		// captcha as unavailable here rather than breaking TEC's own reCAPTCHA.
 		if ( \function_exists( 'tribe_is_community_edit_event_page' ) && \tribe_is_community_edit_event_page() ) {
 			return false;
 		}
