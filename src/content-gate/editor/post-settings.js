@@ -20,7 +20,8 @@ const { gates = [], taxonomyMap = {}, canEditGates = false } = window.newspackCo
  * @return {boolean} Whether all rules match.
  */
 function gateMatchesPost( contentRules, postType, termsByTax ) {
-	return contentRules.every( rule => {
+	const filteredRules = contentRules.filter( rule => rule.value?.length > 0 );
+	return filteredRules.every( rule => {
 		const isExclusion = rule.exclusion;
 		if ( rule.slug === 'post_types' ) {
 			return isExclusion ? ! rule.value.includes( postType ) : rule.value.includes( postType );
