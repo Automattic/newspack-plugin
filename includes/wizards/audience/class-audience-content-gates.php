@@ -332,7 +332,7 @@ class Audience_Content_Gates extends Wizard {
 
 		register_rest_route(
 			NEWSPACK_API_NAMESPACE,
-			'/wizard/audience-content-gates/posts-search',
+			'/wizard/' . $this->slug . '/posts-search',
 			[
 				'methods'             => 'GET',
 				'callback'            => [ $this, 'posts_search' ],

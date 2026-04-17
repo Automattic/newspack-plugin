@@ -39,7 +39,7 @@ class Content_Rules {
 			'name'         => __( 'Specific posts', 'newspack-plugin' ),
 			'default'      => [],
 			'description'  => __( 'Also restrict specific posts, even if not covered by other rules above.', 'newspack-plugin' ),
-			'endpoint'     => '/' . NEWSPACK_API_NAMESPACE . '/wizard/audience-content-gates/posts-search',
+			'endpoint'     => '/' . NEWSPACK_API_NAMESPACE . '/wizard/newspack-audience-access-control/posts-search',
 			'include_only' => true,
 		];
 

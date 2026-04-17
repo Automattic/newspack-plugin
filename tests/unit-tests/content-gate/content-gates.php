@@ -1018,7 +1018,7 @@ class Test_Content_Gates extends \WP_UnitTestCase {
 		$this->assertSame( 'Specific posts', $rule['name'] );
 		$this->assertSame( [], $rule['default'] );
 		$this->assertTrue( $rule['include_only'], 'specific_posts is include-only (no exclusion mode)' );
-		$this->assertSame( '/' . NEWSPACK_API_NAMESPACE . '/wizard/audience-content-gates/posts-search', $rule['endpoint'], 'endpoint matches the route Task 2 must register' );
+		$this->assertSame( '/' . NEWSPACK_API_NAMESPACE . '/wizard/newspack-audience-access-control/posts-search', $rule['endpoint'], 'endpoint matches the route Task 2 must register' );
 		$this->assertStringContainsString( 'restrict specific posts', $rule['description'], 'description signals override behavior' );
 
 		// Must be the LAST rule in the list.
@@ -1058,7 +1058,7 @@ class Test_Content_Gates extends \WP_UnitTestCase {
 		$this->post_ids[] = $draft_post;
 		$this->post_ids[] = $published_page;
 
-		$request = new \WP_REST_Request( 'GET', '/' . NEWSPACK_API_NAMESPACE . '/wizard/audience-content-gates/posts-search' );
+		$request = new \WP_REST_Request( 'GET', '/' . NEWSPACK_API_NAMESPACE . '/wizard/newspack-audience-access-control/posts-search' );
 		$request->set_param( 'search', 'Searchable' );
 		$response = rest_get_server()->dispatch( $request );
 
@@ -1101,7 +1101,7 @@ class Test_Content_Gates extends \WP_UnitTestCase {
 		$this->post_ids[] = $post_a;
 		$this->post_ids[] = $post_b;
 
-		$request = new \WP_REST_Request( 'GET', '/' . NEWSPACK_API_NAMESPACE . '/wizard/audience-content-gates/posts-search' );
+		$request = new \WP_REST_Request( 'GET', '/' . NEWSPACK_API_NAMESPACE . '/wizard/newspack-audience-access-control/posts-search' );
 		$request->set_param( 'include', $post_a . ',' . $post_b );
 		$response = rest_get_server()->dispatch( $request );
 
@@ -1124,7 +1124,7 @@ class Test_Content_Gates extends \WP_UnitTestCase {
 		}
 		wp_set_current_user( 0 );
 
-		$request  = new \WP_REST_Request( 'GET', '/' . NEWSPACK_API_NAMESPACE . '/wizard/audience-content-gates/posts-search' );
+		$request  = new \WP_REST_Request( 'GET', '/' . NEWSPACK_API_NAMESPACE . '/wizard/newspack-audience-access-control/posts-search' );
 		$response = rest_get_server()->dispatch( $request );
 
 		$this->assertSame( 403, $response->get_status() );
