@@ -154,8 +154,32 @@ class Content_Restriction_Control {
 				continue;
 			}
 
+			// Inclusion override: if this post ID is listed in any specific_posts rule
+			// for this gate, the gate applies regardless of other rules.
+			$specific_match = false;
 			foreach ( $content_rules as $content_rule ) {
-				$is_exclusion = isset( $content_rule['exclusion'] ) && $content_rule['exclusion'];
+				if ( 'specific_posts' === $content_rule['slug']
+					&& ! empty( $content_rule['value'] )
+					&& in_array( (int) $post_id, array_map( 'intval', (array) $content_rule['value'] ), true )
+				) {
+					$specific_match = true;
+					break;
+				}
+			}
+			if ( $specific_match ) {
+				$post_gates[] = $gate;
+				continue;
+			}
+
+			// Standard AND evaluation across remaining rules.
+			$has_non_specific_rule = false;
+			foreach ( $content_rules as $content_rule ) {
+				if ( 'specific_posts' === $content_rule['slug'] ) {
+					// Skip — already evaluated above as an override-only rule.
+					continue;
+				}
+				$has_non_specific_rule = true;
+				$is_exclusion          = isset( $content_rule['exclusion'] ) && $content_rule['exclusion'];
 				if ( $content_rule['slug'] === 'post_types' ) {
 					$post_type = get_post_type( $post_id );
 					if ( $is_exclusion ? in_array( $post_type, $content_rule['value'], true ) : ! in_array( $post_type, $content_rule['value'], true ) ) {
@@ -180,6 +204,13 @@ class Content_Restriction_Control {
 					}
 				}
 			}
+
+			// If the gate ONLY had a specific_posts rule and we got here, it means the
+			// override didn't match — don't include this gate.
+			if ( ! $has_non_specific_rule ) {
+				continue;
+			}
+
 			$post_gates[] = $gate;
 		}
 		return $post_gates;

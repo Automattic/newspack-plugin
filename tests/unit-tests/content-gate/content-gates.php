@@ -1129,4 +1129,87 @@ class Test_Content_Gates extends \WP_UnitTestCase {
 
 		$this->assertSame( 403, $response->get_status() );
 	}
+
+	/**
+	 * Test specific_posts overrides post_types: a page in specific_posts is restricted
+	 * even when the gate's post_types rule only allows posts.
+	 */
+	public function test_specific_posts_overrides_post_types_rule() {
+		$page_id = $this->factory->post->create(
+			[
+				'post_type'   => 'page',
+				'post_status' => 'publish',
+			]
+		);
+		$this->post_ids[] = $page_id;
+
+		// Reuse the published gate (gate_ids[2]) — currently restricts post_types=['post'].
+		Content_Rules::update_gate_content_rules(
+			$this->gate_ids[2],
+			[
+				[
+					'slug'  => 'post_types',
+					'value' => [ 'post' ],
+				],
+				[
+					'slug'  => 'specific_posts',
+					'value' => [ (string) $page_id ],
+				],
+			]
+		);
+
+		$gates = Content_Restriction_Control::get_post_gates( $page_id );
+		$this->assertCount( 1, $gates, 'Page is gated because it is listed in specific_posts, despite post_types=post' );
+		$this->assertSame( $this->gate_ids[2], $gates[0]['id'] );
+	}
+
+	/**
+	 * Test specific_posts with no match: gate falls back to AND evaluation of other rules.
+	 */
+	public function test_specific_posts_no_match_falls_through_to_other_rules() {
+		$post_id          = $this->factory->post->create( [ 'post_status' => 'publish' ] );
+		$other_id         = $this->factory->post->create( [ 'post_status' => 'publish' ] );
+		$this->post_ids[] = $post_id;
+		$this->post_ids[] = $other_id;
+
+		Content_Rules::update_gate_content_rules(
+			$this->gate_ids[2],
+			[
+				[
+					'slug'  => 'post_types',
+					'value' => [ 'post' ],
+				],
+				[
+					'slug'  => 'specific_posts',
+					'value' => [ (string) $other_id ],
+				],
+			]
+		);
+
+		$gates = Content_Restriction_Control::get_post_gates( $post_id );
+		$this->assertCount( 1, $gates, 'Post is gated by post_types AND-chain (specific_posts did not match it)' );
+	}
+
+	/**
+	 * Test specific_posts alone (no post_types rule) restricts only the listed posts.
+	 */
+	public function test_specific_posts_alone_restricts_only_listed_posts() {
+		$gated_id         = $this->factory->post->create( [ 'post_status' => 'publish' ] );
+		$ungated_id       = $this->factory->post->create( [ 'post_status' => 'publish' ] );
+		$this->post_ids[] = $gated_id;
+		$this->post_ids[] = $ungated_id;
+
+		Content_Rules::update_gate_content_rules(
+			$this->gate_ids[2],
+			[
+				[
+					'slug'  => 'specific_posts',
+					'value' => [ (string) $gated_id ],
+				],
+			]
+		);
+
+		$this->assertCount( 1, Content_Restriction_Control::get_post_gates( $gated_id ) );
+		$this->assertCount( 0, Content_Restriction_Control::get_post_gates( $ungated_id ) );
+	}
 }
