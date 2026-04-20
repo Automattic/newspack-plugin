@@ -10,8 +10,17 @@ if ( ! class_exists( 'Newspack_Newsletters_Contacts' ) ) {
 		 */
 		public static $add_and_remove_lists_calls = [];
 
+		/**
+		 * If set, add_and_remove_lists() returns this value instead of true.
+		 * Use a WP_Error to simulate provider failure.
+		 *
+		 * @var mixed
+		 */
+		public static $next_return = null;
+
 		public static function reset_calls() {
 			self::$add_and_remove_lists_calls = [];
+			self::$next_return                = null;
 		}
 
 		public static function add_and_remove_lists( $email, $lists_to_add, $lists_to_remove, $context = '' ) {
@@ -21,6 +30,7 @@ if ( ! class_exists( 'Newspack_Newsletters_Contacts' ) ) {
 				'lists_to_remove' => $lists_to_remove,
 				'context'         => $context,
 			];
+			return null === self::$next_return ? true : self::$next_return;
 		}
 	}
 }

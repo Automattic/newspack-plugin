@@ -50,7 +50,15 @@ class Premium_Newsletters {
 	const MAX_QUEUE_SIZE = 500;
 
 	/**
-	 * User meta key for the user's subscribed lists.
+	 * User meta key for the renewal-time snapshot of the contact's full ESP list
+	 * membership. Captured by set_subscribed_lists() when a renewal fires; consulted
+	 * by check_access() to suppress auto-signup of any restricted list the contact
+	 * had unsubscribed from before the renewal. Cleared after a successful access
+	 * check. Note: this stores the contact's complete ESP list set, not only the
+	 * restricted lists — the auto-signup branch filters down to restricted lists
+	 * at check time.
+	 *
+	 * Stores: string[] of public list IDs.
 	 */
 	const SUBSCRIBED_LISTS_META_KEY = '_newspack_newsletters_subscribed_lists';
 
@@ -145,14 +153,15 @@ class Premium_Newsletters {
 	 * @param string[] $lists_to_remove The list IDs to remove the user from.
 	 * @param string   $context The context of the action.
 	 *
-	 * @return void
+	 * @return bool|\WP_Error True when there was nothing to do or the contacts API
+	 *                       reported success, WP_Error from the contacts API on failure.
 	 */
 	private static function add_and_remove_lists( $email, $lists_to_add, $lists_to_remove, $context = 'Updating premium newsletter lists' ) {
 		if ( ! class_exists( 'Newspack_Newsletters_Contacts' ) || ! class_exists( 'Newspack_Newsletters_Subscription' ) ) {
-			return;
+			return true;
 		}
 		if ( empty( $lists_to_add ) && empty( $lists_to_remove ) ) {
-			return;
+			return true;
 		}
 		$lists_to_add    = array_map( [ __CLASS__, 'get_public_id' ], $lists_to_add );
 		$lists_to_remove = array_map( [ __CLASS__, 'get_public_id' ], $lists_to_remove );
@@ -168,10 +177,10 @@ class Premium_Newsletters {
 		$lists_to_remove = array_values( array_intersect( array_filter( $lists_to_remove ), $current_lists ) );
 
 		if ( empty( $lists_to_add ) && empty( $lists_to_remove ) ) {
-			return;
+			return true;
 		}
 
-		Newspack_Newsletters_Contacts::add_and_remove_lists( $email, $lists_to_add, $lists_to_remove, $context );
+		return Newspack_Newsletters_Contacts::add_and_remove_lists( $email, $lists_to_add, $lists_to_remove, $context );
 	}
 
 	/**
@@ -236,18 +245,48 @@ class Premium_Newsletters {
 		$auto_signup      = (bool) get_option( 'newspack_premium_newsletters_auto_signup', 1 );
 		$lists_to_add     = [];
 		$lists_to_remove  = [];
+
+		// When a renewal snapshot is present we need to compare each restricted list's
+		// public ID against the snapshot. Build the local→public map once per run so
+		// we don't instantiate a Subscription_List per list per user per cron tick.
+		// Lists whose public ID can't be resolved are intentionally skipped from
+		// auto-signup — they can't be matched against the snapshot, and silently
+		// adding them would defeat the unsubscribe-respecting behavior.
+		$restricted_public_ids = [];
+		if ( is_array( $subscribed_lists ) ) {
+			foreach ( $restricted_lists as $list_id ) {
+				$public_id = self::get_public_id( $list_id );
+				if ( null !== $public_id ) {
+					$restricted_public_ids[ $list_id ] = $public_id;
+				}
+			}
+		}
+
 		foreach ( $restricted_lists as $list_id ) {
 			if ( Content_Restriction_Control::is_post_restricted( false, $list_id, $user_id ) ) {
 				$lists_to_remove[] = $list_id;
 			} elseif ( $auto_signup ) {
-				if ( ! is_array( $subscribed_lists ) || in_array( self::get_public_id( $list_id ), $subscribed_lists, true ) ) {
+				if ( ! is_array( $subscribed_lists ) ) {
+					$lists_to_add[] = $list_id;
+				} elseif (
+					isset( $restricted_public_ids[ $list_id ] )
+					&& in_array( $restricted_public_ids[ $list_id ], $subscribed_lists, true )
+				) {
 					$lists_to_add[] = $list_id;
 				}
 			}
 		}
-		delete_user_meta( $user_id, self::SUBSCRIBED_LISTS_META_KEY );
-		$email = $user->user_email;
-		self::add_and_remove_lists( $email, $lists_to_add, $lists_to_remove );
+
+		$email  = $user->user_email;
+		$result = self::add_and_remove_lists( $email, $lists_to_add, $lists_to_remove );
+
+		// Only clear the renewal snapshot once the ESP call has succeeded. If the
+		// provider errored (network, auth, partial response), leave the meta in
+		// place so the next queue tick sees the same snapshot and the unsubscribe
+		// is still respected on retry.
+		if ( ! is_wp_error( $result ) ) {
+			delete_user_meta( $user_id, self::SUBSCRIBED_LISTS_META_KEY );
+		}
 	}
 
 	/**

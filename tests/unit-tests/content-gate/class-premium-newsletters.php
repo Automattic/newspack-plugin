@@ -680,16 +680,17 @@ class Newspack_Test_Premium_Newsletters extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * Test that a contact who is still subscribed to a premium newsletter list at the time
-	 * of renewal IS re-added if they happen to be missing from the list when the access
-	 * check runs.
+	 * Test that a contact who is still subscribed to a premium newsletter list at the
+	 * time of renewal but is dropped from the ESP list before the cron processes the
+	 * access check IS re-added by the auto-signup branch.
 	 *
 	 * Flow:
 	 *  1. Renewal fires → set_subscribed_lists captures the active ESP subscription.
-	 *  2. Access check runs → the list appears in the renewal snapshot, so the user is
-	 *     eligible for re-subscription.
+	 *  2. ESP drops the user (simulated by zeroing out $contact_lists below).
+	 *  3. Access check runs → the list appears in the renewal snapshot, so the user
+	 *     is eligible for re-subscription and add_and_remove_lists is called.
 	 */
-	public function test_renewal_readds_user_who_remained_subscribed() {
+	public function test_esp_drops_user_between_renewal_and_cron() {
 		update_option( 'newspack_premium_newsletters_auto_signup', 1 );
 
 		$user_id = $this->factory->user->create( [ 'role' => 'subscriber' ] );
@@ -787,6 +788,71 @@ class Newspack_Test_Premium_Newsletters extends \WP_UnitTestCase {
 		$calls = \Newspack_Newsletters_Contacts::$add_and_remove_lists_calls;
 		$this->assertCount( 1, $calls, 'Without a renewal snapshot, users should be auto-subscribed normally.' );
 		$this->assertContains( 'list-' . $list_post_id, $calls[0]['lists_to_add'] );
+	}
+
+	/**
+	 * Test that the renewal snapshot meta survives when the ESP call fails, so the
+	 * next cron tick retries with the same snapshot rather than silently re-adding
+	 * lists the reader unsubscribed from.
+	 */
+	public function test_subscribed_lists_meta_survives_provider_failure() {
+		update_option( 'newspack_premium_newsletters_auto_signup', 1 );
+
+		$user_id = $this->factory->user->create( [ 'role' => 'subscriber' ] );
+		$email   = get_userdata( $user_id )->user_email;
+
+		$list_post_id     = $this->factory->post->create( [ 'post_type' => \Newspack\Newsletters\Subscription_Lists::CPT ] );
+		$this->post_ids[] = $list_post_id;
+
+		$this->create_newsletter_gate( [ 100 ], [ $list_post_id ] );
+
+		wcs_create_subscription(
+			[
+				'customer_id' => $user_id,
+				'status'      => 'active',
+				'products'    => [ 100 ],
+			]
+		);
+
+		// Snapshot the user as still subscribed in the ESP at renewal time.
+		\Newspack_Newsletters_Subscription::$contact_lists[ $email ] = [ 'list-' . $list_post_id ];
+		Premium_Newsletters::set_subscribed_lists( time(), [ 'user_id' => $user_id ], null );
+
+		// Confirm the snapshot was written.
+		$this->assertIsArray( get_user_meta( $user_id, Premium_Newsletters::SUBSCRIBED_LISTS_META_KEY, true ) );
+
+		// Drop the user from the ESP so the dedup filter doesn't suppress the call,
+		// then make the provider return a WP_Error to simulate a failed sync.
+		\Newspack_Newsletters_Subscription::$contact_lists[ $email ] = [];
+		\Newspack_Newsletters_Contacts::$next_return                 = new \WP_Error( 'esp_failure', 'Simulated ESP failure.' );
+
+		Premium_Newsletters::maybe_enqueue_access_check( time(), [ 'user_id' => $user_id ], null );
+		Premium_Newsletters::process_access_check_queue();
+
+		$this->assertNotEmpty(
+			get_user_meta( $user_id, Premium_Newsletters::SUBSCRIBED_LISTS_META_KEY, true ),
+			'Snapshot meta must survive provider failure so retries respect the unsubscribe.'
+		);
+	}
+
+	/**
+	 * Test that set_subscribed_lists writes nothing when the auto_signup option is off,
+	 * since the snapshot is only consulted by the auto-signup branch.
+	 */
+	public function test_set_subscribed_lists_skips_when_auto_signup_disabled() {
+		update_option( 'newspack_premium_newsletters_auto_signup', 0 );
+
+		$user_id = $this->factory->user->create( [ 'role' => 'subscriber' ] );
+		$email   = get_userdata( $user_id )->user_email;
+
+		\Newspack_Newsletters_Subscription::$contact_lists[ $email ] = [ 'list-100' ];
+
+		Premium_Newsletters::set_subscribed_lists( time(), [ 'user_id' => $user_id ], null );
+
+		$this->assertEmpty(
+			get_user_meta( $user_id, Premium_Newsletters::SUBSCRIBED_LISTS_META_KEY, true ),
+			'No snapshot should be written when auto-signup is disabled.'
+		);
 	}
 
 	/**
