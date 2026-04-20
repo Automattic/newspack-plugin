@@ -50,6 +50,17 @@ class Premium_Newsletters {
 	const MAX_QUEUE_SIZE = 500;
 
 	/**
+	 * Queue-entry source tags. Each access-check queue entry records which event
+	 * enqueued it so that downstream logic (e.g. consulting the renewal snapshot)
+	 * can be scoped to the originating event instead of leaking into unrelated
+	 * flows that happen to dequeue the same user.
+	 */
+	const SOURCE_RENEWAL              = 'renewal';
+	const SOURCE_SUBSCRIPTION_CHANGED = 'subscription_changed';
+	const SOURCE_DONATION_CHANGED     = 'donation_changed';
+	const SOURCE_READER_VERIFIED      = 'reader_verified';
+
+	/**
 	 * User meta key for the renewal-time snapshot of the contact's full ESP list
 	 * membership. Captured by set_subscribed_lists() when a renewal fires; consulted
 	 * by check_access() to suppress auto-signup of any restricted list the contact
@@ -100,9 +111,42 @@ class Premium_Newsletters {
 	 */
 	public static function register_handlers() {
 		Data_Events::register_handler( [ __CLASS__, 'set_subscribed_lists' ], 'subscription_renewal_attempt' );
-		Data_Events::register_handler( [ __CLASS__, 'maybe_enqueue_access_check' ], 'product_subscription_changed' );
-		Data_Events::register_handler( [ __CLASS__, 'maybe_enqueue_access_check' ], 'donation_subscription_changed' );
-		Data_Events::register_handler( [ __CLASS__, 'maybe_enqueue_access_check' ], 'reader_verified' );
+		Data_Events::register_handler( [ __CLASS__, 'handle_product_subscription_changed' ], 'product_subscription_changed' );
+		Data_Events::register_handler( [ __CLASS__, 'handle_donation_subscription_changed' ], 'donation_subscription_changed' );
+		Data_Events::register_handler( [ __CLASS__, 'handle_reader_verified' ], 'reader_verified' );
+	}
+
+	/**
+	 * Data Events handler for `product_subscription_changed`.
+	 *
+	 * @param int   $timestamp Timestamp of the event.
+	 * @param array $data      Data associated with the event.
+	 * @param int   $client_id ID of the client that triggered the event.
+	 */
+	public static function handle_product_subscription_changed( $timestamp, $data, $client_id ) {
+		self::maybe_enqueue_access_check( $timestamp, $data, $client_id, self::SOURCE_SUBSCRIPTION_CHANGED );
+	}
+
+	/**
+	 * Data Events handler for `donation_subscription_changed`.
+	 *
+	 * @param int   $timestamp Timestamp of the event.
+	 * @param array $data      Data associated with the event.
+	 * @param int   $client_id ID of the client that triggered the event.
+	 */
+	public static function handle_donation_subscription_changed( $timestamp, $data, $client_id ) {
+		self::maybe_enqueue_access_check( $timestamp, $data, $client_id, self::SOURCE_DONATION_CHANGED );
+	}
+
+	/**
+	 * Data Events handler for `reader_verified`.
+	 *
+	 * @param int   $timestamp Timestamp of the event.
+	 * @param array $data      Data associated with the event.
+	 * @param int   $client_id ID of the client that triggered the event.
+	 */
+	public static function handle_reader_verified( $timestamp, $data, $client_id ) {
+		self::maybe_enqueue_access_check( $timestamp, $data, $client_id, self::SOURCE_READER_VERIFIED );
 	}
 
 	/**
@@ -228,11 +272,19 @@ class Premium_Newsletters {
 	/**
 	 * Check list access for the user.
 	 *
-	 * @param int $user_id The ID of the user to check access for.
+	 * The renewal snapshot is only consulted when this access check was enqueued
+	 * by a renewal event (source === SOURCE_RENEWAL). Other event flows that
+	 * happen to dequeue the same user must not be silently filtered by a snapshot
+	 * that was captured for a different reason.
+	 *
+	 * @param int    $user_id The ID of the user to check access for.
+	 * @param string $source  The originating event source for this queue entry.
+	 *                        One of the SOURCE_* constants, or empty string for
+	 *                        legacy/untagged entries.
 	 *
 	 * @return void
 	 */
-	private static function check_access( $user_id ) {
+	private static function check_access( $user_id, $source = '' ) {
 		$user = get_user_by( 'id', $user_id );
 		if ( ! $user ) {
 			return;
@@ -241,7 +293,10 @@ class Premium_Newsletters {
 		if ( empty( $restricted_lists ) ) {
 			return;
 		}
-		$subscribed_lists = get_user_meta( $user_id, self::SUBSCRIBED_LISTS_META_KEY, true );
+		$is_renewal_check = self::SOURCE_RENEWAL === $source;
+		$subscribed_lists = $is_renewal_check
+			? get_user_meta( $user_id, self::SUBSCRIBED_LISTS_META_KEY, true )
+			: '';
 		$auto_signup      = (bool) get_option( 'newspack_premium_newsletters_auto_signup', 1 );
 		$lists_to_add     = [];
 		$lists_to_remove  = [];
@@ -280,30 +335,83 @@ class Premium_Newsletters {
 		$email  = $user->user_email;
 		$result = self::add_and_remove_lists( $email, $lists_to_add, $lists_to_remove );
 
-		// Only clear the renewal snapshot once the ESP call has succeeded. If the
-		// provider errored (network, auth, partial response), leave the meta in
-		// place so the next queue tick sees the same snapshot and the unsubscribe
-		// is still respected on retry.
-		if ( ! is_wp_error( $result ) ) {
+		// Only clear the renewal snapshot when this was a renewal-source check AND
+		// the ESP call succeeded. Non-renewal sources never touch the snapshot, so
+		// they can't accidentally consume it; provider failures leave the snapshot
+		// in place so the next renewal-source enqueue still respects the unsubscribe.
+		if ( $is_renewal_check && ! is_wp_error( $result ) ) {
 			delete_user_meta( $user_id, self::SUBSCRIBED_LISTS_META_KEY );
 		}
 	}
 
 	/**
-	 * Add the user to the access-check queue.
+	 * Normalize a queue entry into a [ user_id, source ] pair.
 	 *
-	 * @param int $user_id The ID of the user to schedule the access check for.
+	 * Entries persisted by older versions of this class were bare integers; current
+	 * entries are arrays carrying the originating event source. This helper hides
+	 * the difference so callers don't have to.
+	 *
+	 * @param mixed $entry Queue entry.
+	 *
+	 * @return array{0:int,1:string} [ user_id, source ]. user_id is 0 for invalid entries.
+	 */
+	private static function normalize_queue_entry( $entry ) {
+		if ( is_array( $entry ) ) {
+			return [ (int) ( $entry['user_id'] ?? 0 ), (string) ( $entry['source'] ?? '' ) ];
+		}
+		return [ (int) $entry, '' ];
+	}
+
+	/**
+	 * Add the user to the access-check queue, tagged with the source event.
+	 *
+	 * Entries are deduplicated by user_id. When an entry already exists for the
+	 * user, a renewal-source enqueue overrides any non-renewal source, but a
+	 * non-renewal source never downgrades an existing renewal entry. This keeps
+	 * the renewal-snapshot semantics intact when multiple events fire for the
+	 * same user within a single cron window.
+	 *
+	 * @param int    $user_id The ID of the user to schedule the access check for.
+	 * @param string $source  Source event tag (one of the SOURCE_* constants, or
+	 *                        empty string for an untagged enqueue).
 	 *
 	 * @return void
 	 */
-	private static function add_user_to_queue( $user_id ) {
-		// 1. Read current queue.
+	private static function add_user_to_queue( $user_id, $source = '' ) {
+		$user_id = (int) $user_id;
+		if ( ! $user_id ) {
+			return;
+		}
+
 		$queue = get_option( self::QUEUE_OPTION, [] );
 
-		// 2. Append user ID (deduplicated).
-		$queue = array_values( array_unique( array_merge( $queue, [ (int) $user_id ] ) ) );
+		// Find an existing entry for this user (handles legacy int entries too).
+		$existing_index  = null;
+		$existing_source = '';
+		foreach ( $queue as $i => $entry ) {
+			[ $entry_user_id, $entry_source ] = self::normalize_queue_entry( $entry );
+			if ( $entry_user_id === $user_id ) {
+				$existing_index  = $i;
+				$existing_source = $entry_source;
+				break;
+			}
+		}
 
-		// 3. Warn if the queue is growing unusually large — likely indicates a cron outage.
+		$new_entry = [
+			'user_id' => $user_id,
+			'source'  => $source,
+		];
+
+		if ( null === $existing_index ) {
+			$queue[] = $new_entry;
+		} elseif ( self::SOURCE_RENEWAL !== $existing_source ) {
+			// Never downgrade an existing renewal entry.
+			$queue[ $existing_index ] = $new_entry;
+		}
+
+		$queue = array_values( $queue );
+
+		// Warn if the queue is growing unusually large — likely indicates a cron outage.
 		if ( count( $queue ) > self::MAX_QUEUE_SIZE ) {
 			Logger::log(
 				sprintf(
@@ -314,7 +422,7 @@ class Premium_Newsletters {
 			);
 		}
 
-		// 4. Persist updated queue (autoload = false to avoid loading on every request).
+		// Persist updated queue (autoload = false to avoid loading on every request).
 		update_option(
 			self::QUEUE_OPTION,
 			$queue,
@@ -337,9 +445,12 @@ class Premium_Newsletters {
 	/**
 	 * Process all pending access checks from the queue.
 	 *
-	 * Registered as the callback for the SCHEDULED_HOOK cron event.
-	 * Clear the queue after processing so that if any errors occur the
-	 * unprocessed queue will be processed by the next scheduled event.
+	 * Registered as the callback for the SCHEDULED_HOOK cron event. Each entry is
+	 * processed in its own try/catch so a single bad entry (e.g. a deleted list
+	 * post referenced from the restriction rules) cannot abort the rest of the
+	 * batch. The queue is cleared after the loop completes; if a transient ESP
+	 * failure occurs check_access() leaves the renewal snapshot in place so the
+	 * next enqueue for that user still respects it.
 	 *
 	 * @return void
 	 */
@@ -348,8 +459,23 @@ class Premium_Newsletters {
 		if ( empty( $queue ) ) {
 			return;
 		}
-		foreach ( $queue as $user_id ) {
-			self::check_access( (int) $user_id );
+		foreach ( $queue as $entry ) {
+			[ $user_id, $source ] = self::normalize_queue_entry( $entry );
+			if ( ! $user_id ) {
+				continue;
+			}
+			try {
+				self::check_access( $user_id, $source );
+			} catch ( \Throwable $e ) {
+				Logger::log(
+					sprintf(
+						'Access check for user %d failed: %s',
+						$user_id,
+						$e->getMessage()
+					),
+					'PREMIUM-NEWSLETTERS'
+				);
+			}
 		}
 		self::clear_queue();
 	}
@@ -387,36 +513,49 @@ class Premium_Newsletters {
 	 * @param int   $client_id ID of the client that triggered the event.
 	 */
 	public static function set_subscribed_lists( $timestamp, $data, $client_id ) {
-		if ( empty( $data['user_id'] ) || ! class_exists( 'Newspack_Newsletters_Subscription' ) ) {
+		if ( empty( $data['user_id'] ) ) {
 			return;
 		}
 		$user = get_user_by( 'id', (int) $data['user_id'] );
 		if ( ! $user ) {
 			return;
 		}
+
+		// Capture the renewal-time snapshot when auto-signup is enabled. Without
+		// auto-signup the snapshot has no effect (check_access only consults it
+		// inside the auto-signup branch), so skip the ESP fetch in that case.
 		$auto_signup = (bool) get_option( 'newspack_premium_newsletters_auto_signup', 1 );
-		if ( ! $auto_signup ) {
-			return;
+		if ( $auto_signup && class_exists( 'Newspack_Newsletters_Subscription' ) ) {
+			$email         = $user->user_email;
+			$current_lists = Newspack_Newsletters_Subscription::get_contact_lists( $email );
+			if ( is_array( $current_lists ) ) {
+				update_user_meta( $user->ID, self::SUBSCRIBED_LISTS_META_KEY, $current_lists );
+			}
 		}
-		$email         = $user->user_email;
-		$current_lists = Newspack_Newsletters_Subscription::get_contact_lists( $email );
-		if ( is_array( $current_lists ) ) {
-			update_user_meta( $user->ID, self::SUBSCRIBED_LISTS_META_KEY, $current_lists );
-		}
+
+		// Always enqueue the renewal-source check so the snapshot governs THIS
+		// access check (and only this one). If product_subscription_changed also
+		// fires for the same user, the dedup logic in add_user_to_queue() keeps
+		// the renewal source.
+		self::add_user_to_queue( (int) $user->ID, self::SOURCE_RENEWAL );
 	}
 
 	/**
 	 * Maybe add or remove the user from restricted lists based on their access status.
 	 *
-	 * @param int   $timestamp Timestamp of the event.
-	 * @param array $data      Data associated with the event.
-	 * @param int   $client_id ID of the client that triggered the event.
+	 * @param int    $timestamp Timestamp of the event.
+	 * @param array  $data      Data associated with the event.
+	 * @param int    $client_id ID of the client that triggered the event.
+	 * @param string $source    Optional source tag for the queue entry. The
+	 *                          per-event handle_*() wrappers pass the matching
+	 *                          SOURCE_* constant; direct callers (including tests)
+	 *                          may omit this for an untagged enqueue.
 	 */
-	public static function maybe_enqueue_access_check( $timestamp, $data, $client_id ) {
+	public static function maybe_enqueue_access_check( $timestamp, $data, $client_id, $source = '' ) {
 		if ( empty( $data['user_id'] ) ) {
 			return;
 		}
-		self::add_user_to_queue( (int) $data['user_id'] );
+		self::add_user_to_queue( (int) $data['user_id'], $source );
 	}
 }
 

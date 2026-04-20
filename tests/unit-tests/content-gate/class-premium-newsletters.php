@@ -95,10 +95,20 @@ class Newspack_Test_Premium_Newsletters extends \WP_UnitTestCase {
 	/**
 	 * Return the user IDs stored in the queue option.
 	 *
+	 * Queue entries are arrays of [ 'user_id' => int, 'source' => string ] but
+	 * the option may also contain bare ints written by older code (or by the
+	 * set_queue() helper below). Normalize both shapes down to a flat int[].
+	 *
 	 * @return int[]
 	 */
 	private function get_queued_user_ids(): array {
-		return (array) get_option( Premium_Newsletters::QUEUE_OPTION, [] );
+		$queue = (array) get_option( Premium_Newsletters::QUEUE_OPTION, [] );
+		return array_map(
+			function ( $entry ) {
+				return is_array( $entry ) ? (int) ( $entry['user_id'] ?? 0 ) : (int) $entry;
+			},
+			$queue
+		);
 	}
 
 	/**
@@ -487,20 +497,25 @@ class Newspack_Test_Premium_Newsletters extends \WP_UnitTestCase {
 
 	/**
 	 * Test that all handlers are wired to the correct actions.
+	 *
+	 * Each non-renewal event uses its own thin wrapper so the queue entry can be
+	 * tagged with a source — that source-tagging is what scopes the renewal
+	 * snapshot to renewal-triggered checks. Asserting the wrapper-per-event wiring
+	 * keeps that contract under test.
 	 */
 	public function test_register_handlers_wires_all_handlers() {
-		$handler = [ 'Newspack\Premium_Newsletters', 'maybe_enqueue_access_check' ];
+		$expected = [
+			'product_subscription_changed'  => 'handle_product_subscription_changed',
+			'donation_subscription_changed' => 'handle_donation_subscription_changed',
+			'reader_verified'               => 'handle_reader_verified',
+		];
 
-		foreach ( [
-			'product_subscription_changed',
-			'donation_subscription_changed',
-			'reader_verified',
-		] as $action ) {
+		foreach ( $expected as $action => $method ) {
 			$handlers = Data_Events::get_action_handlers( $action );
 			$this->assertContains(
-				$handler,
+				[ 'Newspack\Premium_Newsletters', $method ],
 				$handlers,
-				"maybe_enqueue_access_check should be registered for {$action}"
+				"{$method} should be registered for {$action}"
 			);
 		}
 
@@ -853,6 +868,90 @@ class Newspack_Test_Premium_Newsletters extends \WP_UnitTestCase {
 			get_user_meta( $user_id, Premium_Newsletters::SUBSCRIBED_LISTS_META_KEY, true ),
 			'No snapshot should be written when auto-signup is disabled.'
 		);
+	}
+
+	/**
+	 * Test that a non-renewal event (e.g. reader_verified) does NOT consult the
+	 * renewal snapshot, so a stale snapshot from a prior renewal cannot silently
+	 * suppress auto-signup for unrelated event flows.
+	 */
+	public function test_non_renewal_event_does_not_consult_snapshot() {
+		update_option( 'newspack_premium_newsletters_auto_signup', 1 );
+
+		$user_id = $this->factory->user->create( [ 'role' => 'subscriber' ] );
+
+		$list_post_id     = $this->factory->post->create( [ 'post_type' => \Newspack\Newsletters\Subscription_Lists::CPT ] );
+		$this->post_ids[] = $list_post_id;
+
+		$this->create_newsletter_gate( [ 100 ], [ $list_post_id ] );
+
+		wcs_create_subscription(
+			[
+				'customer_id' => $user_id,
+				'status'      => 'active',
+				'products'    => [ 100 ],
+			]
+		);
+
+		// Plant a stale snapshot that, if consulted, would suppress auto-signup
+		// for the restricted list (the snapshot says the user wasn't subscribed).
+		update_user_meta( $user_id, Premium_Newsletters::SUBSCRIBED_LISTS_META_KEY, [] );
+
+		// Enqueue via reader_verified (non-renewal source).
+		Premium_Newsletters::handle_reader_verified( time(), [ 'user_id' => $user_id ], null );
+		Premium_Newsletters::process_access_check_queue();
+
+		$calls = \Newspack_Newsletters_Contacts::$add_and_remove_lists_calls;
+		$this->assertCount( 1, $calls, 'A non-renewal event must auto-subscribe regardless of any snapshot.' );
+		$this->assertContains( 'list-' . $list_post_id, $calls[0]['lists_to_add'] );
+
+		// The snapshot must remain intact for any subsequent renewal-source check.
+		$this->assertIsArray(
+			get_user_meta( $user_id, Premium_Newsletters::SUBSCRIBED_LISTS_META_KEY, true ),
+			'A non-renewal access check must not clear the renewal snapshot.'
+		);
+	}
+
+	/**
+	 * Test that a thrown exception from one user's access check does not abort the
+	 * rest of the queue — each entry is processed in its own try/catch.
+	 */
+	public function test_process_queue_continues_after_per_user_exception() {
+		update_option( 'newspack_premium_newsletters_auto_signup', 1 );
+
+		$user_a = $this->factory->user->create( [ 'role' => 'subscriber' ] );
+		$user_b = $this->factory->user->create( [ 'role' => 'subscriber' ] );
+
+		$list_post_id     = $this->factory->post->create( [ 'post_type' => \Newspack\Newsletters\Subscription_Lists::CPT ] );
+		$this->post_ids[] = $list_post_id;
+
+		$this->create_newsletter_gate( [ 100 ], [ $list_post_id ] );
+
+		foreach ( [ $user_a, $user_b ] as $uid ) {
+			wcs_create_subscription(
+				[
+					'customer_id' => $uid,
+					'status'      => 'active',
+					'products'    => [ 100 ],
+				]
+			);
+		}
+
+		Premium_Newsletters::maybe_enqueue_access_check( time(), [ 'user_id' => $user_a ], null );
+		Premium_Newsletters::maybe_enqueue_access_check( time(), [ 'user_id' => $user_b ], null );
+
+		// First call into the contacts API throws; the second must still run.
+		\Newspack_Newsletters_Contacts::$next_throw = new \RuntimeException( 'simulated provider explosion' );
+
+		Premium_Newsletters::process_access_check_queue();
+
+		$emails = array_column( \Newspack_Newsletters_Contacts::$add_and_remove_lists_calls, 'email' );
+		$this->assertCount( 2, $emails, 'Both users should have been attempted.' );
+		$this->assertContains( get_userdata( $user_a )->user_email, $emails );
+		$this->assertContains( get_userdata( $user_b )->user_email, $emails );
+
+		// Queue is cleared after the loop so we don't loop forever on a permanently-bad user.
+		$this->assertEmpty( $this->get_queued_user_ids(), 'Queue must be cleared after processing, even when an entry throws.' );
 	}
 
 	/**
