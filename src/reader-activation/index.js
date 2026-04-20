@@ -7,10 +7,13 @@ import { getPendingCheckout, setPendingCheckout } from './checkout.js';
 import { EVENTS, on, off, emit } from './events.js';
 import { getCookie, setCookie, generateID, debugLog } from './utils.js';
 import overlays from './overlays.js';
+import segments from './segments.js';
 import initAnalytics from './analytics.js';
 import setupArticleViewsAggregates from './article-view.js';
+import setupEngagement from './engagement.js';
 import initSubscriptionTiersForm from './subscription-tiers-form.js';
 import { openAuthModal as _openAuthModal } from '../reader-activation-auth/auth-modal.js';
+import { getApiNonce, hydrateSession } from './session.js';
 
 /**
  * Reader Activation Library.
@@ -350,9 +353,16 @@ function pushActivities() {
  * Store the referrer.
  */
 function setReferrer() {
-	const referrer = document.referrer ? new URL( document.referrer ).hostname : '';
-	if ( referrer && referrer !== window.location.hostname ) {
-		store.set( 'referrer', referrer.replace( 'www.', '' ).trim().toLowerCase() );
+	const normalize = hostname =>
+		hostname
+			.trim()
+			.toLowerCase()
+			.replace( /^www\./, '' );
+	const referrer = document.referrer ? normalize( new URL( document.referrer ).hostname ) : '';
+	if ( referrer && referrer !== normalize( window.location.hostname ) ) {
+		store.set( 'referrer', referrer );
+	} else {
+		store.set( 'referrer', '' );
 	}
 }
 
@@ -374,6 +384,7 @@ function attachAuthCookiesListener() {
 			if ( authCookie ) {
 				setReaderEmail( authCookie );
 				setAuthenticated( true );
+				hydrateSession();
 				clearInterval( interval );
 			}
 		}
@@ -427,9 +438,190 @@ function attachNewsletterFormListener() {
 	} );
 }
 
+/**
+ * Acquire a reCAPTCHA v2 invisible token.
+ *
+ * Renders a temporary invisible widget, executes it, and resolves
+ * with the token. Cleans up the widget container after completion.
+ *
+ * @todo Consider adding an in-flight guard to coalesce concurrent calls,
+ * since each invocation renders a separate widget and the reCAPTCHA API
+ * may not handle multiple simultaneous invisible widgets well.
+ *
+ * @param {string} siteKey reCAPTCHA site key.
+ * @return {Promise<string>} Resolves with the reCAPTCHA token.
+ */
+function acquireV2InvisibleToken( siteKey ) {
+	return new Promise( function ( resolve, reject ) {
+		const container = document.createElement( 'div' );
+		container.style.display = 'none';
+		document.body.appendChild( container );
+
+		let settled = false;
+		const timeout = setTimeout( function () {
+			if ( ! settled ) {
+				settled = true;
+				container.remove();
+				reject( new Error( 'reCAPTCHA timed out.' ) );
+			}
+		}, 30000 );
+
+		function settle( fn, value ) {
+			if ( settled ) {
+				return;
+			}
+			settled = true;
+			clearTimeout( timeout );
+			container.remove();
+			fn( value );
+		}
+
+		try {
+			const widgetId = window.grecaptcha.render( container, {
+				sitekey: siteKey,
+				size: 'invisible',
+				isolated: true,
+				callback( token ) {
+					settle( resolve, token );
+				},
+				'error-callback'() {
+					settle( reject, new Error( 'reCAPTCHA challenge failed.' ) );
+				},
+				'expired-callback'() {
+					settle( reject, new Error( 'reCAPTCHA token expired.' ) );
+				},
+			} );
+			window.grecaptcha.execute( widgetId );
+		} catch ( err ) {
+			settle( reject, err );
+		}
+	} );
+}
+
+/**
+ * Register a reader via a frontend integration.
+ *
+ * @param {string} email                  Reader email address.
+ * @param {string} integrationId          Registered integration ID.
+ * @param {Object} profileFields          Optional profile fields: { first_name, last_name, metadata }.
+ * @param {Object} profileFields.metadata Optional arbitrary key-value pairs to store as user meta.
+ * @return {Promise} Resolves with reader data on success, rejects with error on failure.
+ */
+function register( email, integrationId, profileFields = {} ) {
+	const config = newspack_ras_config?.frontend_registration_integrations || {};
+	const integration = config[ integrationId ];
+
+	if ( ! integration ) {
+		return Promise.reject( new Error( 'Unknown integration: ' + integrationId ) );
+	}
+
+	if ( ! email || ! /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test( email ) ) {
+		return Promise.reject( new Error( 'Invalid email address.' ) );
+	}
+
+	if ( ! newspack_ras_config?.frontend_registration_url ) {
+		return Promise.reject( new Error( 'Registration is not available.' ) );
+	}
+
+	const body = {
+		npe: email,
+		integration_id: integrationId,
+		integration_key: integration.key,
+		first_name: profileFields.first_name || '',
+		last_name: profileFields.last_name || '',
+		metadata: profileFields.metadata || {},
+	};
+
+	// Acquire reCAPTCHA token if configured, using the appropriate version flow.
+	const captchaSiteKey = newspack_ras_config?.captcha_site_key;
+	const captchaVersion = newspack_ras_config?.captcha_version;
+	let captchaPromise;
+
+	if ( captchaSiteKey ) {
+		if ( ! window.grecaptcha ) {
+			return Promise.reject( new Error( 'reCAPTCHA is configured but not loaded.' ) );
+		}
+		if ( captchaVersion === 'v3' ) {
+			captchaPromise = new Promise( function ( resolve, reject ) {
+				window.grecaptcha.ready( function () {
+					window.grecaptcha
+						.execute( captchaSiteKey, {
+							action: 'integration_registration',
+						} )
+						.then( resolve )
+						.catch( reject );
+				} );
+			} );
+		} else if ( captchaVersion && captchaVersion.substring( 0, 2 ) === 'v2' ) {
+			captchaPromise = new Promise( function ( resolve, reject ) {
+				window.grecaptcha.ready( function () {
+					acquireV2InvisibleToken( captchaSiteKey ).then( resolve ).catch( reject );
+				} );
+			} );
+		} else {
+			captchaPromise = Promise.resolve( '' );
+		}
+	} else {
+		captchaPromise = Promise.resolve( '' );
+	}
+
+	return captchaPromise
+		.then( function ( token ) {
+			if ( token ) {
+				body[ 'g-recaptcha-response' ] = token;
+			}
+			const headers = { 'Content-Type': 'application/json' };
+			const nonce = getApiNonce();
+			if ( nonce ) {
+				headers[ 'X-WP-Nonce' ] = nonce;
+			}
+			return fetch( newspack_ras_config.frontend_registration_url, {
+				method: 'POST',
+				headers,
+				credentials: 'same-origin',
+				body: JSON.stringify( body ),
+			} );
+		} )
+		.then( function ( response ) {
+			return response.json().then( function ( data ) {
+				if ( ! response.ok ) {
+					const error = new Error( data.message || 'Registration failed.' );
+					error.code = data.code;
+					throw error;
+				}
+				return data;
+			} );
+		} )
+		.then( function ( data ) {
+			const readerEmail = data.email || email;
+			const reader = {
+				...( store.get( 'reader' ) || {} ),
+				email: readerEmail,
+				authenticated: true,
+			};
+			store.set( 'reader', reader, false );
+			emit( EVENTS.reader, reader );
+			dispatchActivity( 'reader_registered', {
+				email: readerEmail,
+				integration_id: integrationId,
+				status: data.status || 'created',
+			} );
+			return data;
+		} )
+		.catch( function ( error ) {
+			dispatchActivity( 'reader_registration_failed', {
+				email,
+				integration_id: integrationId,
+				error: error.code || 'network_error',
+			} );
+			throw error;
+		} );
+}
+
 const readerActivation = {
 	store,
 	overlays,
+	segments,
 	on,
 	off,
 	dispatchActivity,
@@ -451,6 +643,7 @@ const readerActivation = {
 	setPendingCheckout,
 	getPendingCheckout,
 	debugLog,
+	register,
 	...( newspack_ras_config.is_ras_enabled && { openAuthModal } ),
 };
 
@@ -490,6 +683,7 @@ function init() {
 	initSubscriptionTiersForm( readerActivation );
 	fixClientID();
 	setupArticleViewsAggregates( readerActivation );
+	setupEngagement( readerActivation );
 	attachAuthCookiesListener();
 	attachNewsletterFormListener();
 	pushActivities();
@@ -500,6 +694,10 @@ function init() {
 	window.newspackRAS = window.newspackRAS || [];
 	window.newspackRAS.forEach( arg => handlePush( arg ) );
 	window.newspackRAS.push = handlePush;
+
+	// Rehydrate after all synchronous strategy registrations, including
+	// those from third parties via newspackRAS.push().
+	store.rehydrate();
 
 	window.newspackRASInitialized = true;
 }

@@ -13,6 +13,10 @@ defined( 'ABSPATH' ) || exit;
  * Reader Activation Class.
  */
 abstract class Contact_Metadata {
+	/**
+	 * The date format to use for all date fields, which is YYYY-MM-DD HH:MM:SS.
+	 */
+	const DATE_FORMAT = 'Y-m-d H:i:s';
 
 	/**
 	 * The WP_User object.
@@ -121,5 +125,22 @@ abstract class Contact_Metadata {
 			return trim( $this->customer->get_billing_first_name() . ' ' . $this->customer->get_billing_last_name() );
 		}
 		return '';
+	}
+
+	/**
+	 * Format a date string.
+	 *
+	 * @param string $date_string Date string.
+	 * @return string Formatted date or empty string.
+	 */
+	protected function format_date( $date_string ) {
+		if ( empty( $date_string ) || '0' === $date_string ) {
+			return '';
+		}
+		$timestamp = strtotime( $date_string );
+		if ( ! $timestamp ) {
+			return '';
+		}
+		return gmdate( self::DATE_FORMAT, $timestamp );
 	}
 }

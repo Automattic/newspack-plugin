@@ -98,6 +98,7 @@ class Content_Gate {
 		add_filter( 'newspack_gate_content', 'do_shortcode', 11 ); // AFTER wpautop().
 
 		include __DIR__ . '/class-content-gate-api.php';
+		include __DIR__ . '/class-content-gate-advanced-settings.php';
 		include __DIR__ . '/class-access-rules.php';
 		include __DIR__ . '/class-content-rules.php';
 		include __DIR__ . '/class-content-restriction-control.php';
@@ -109,6 +110,7 @@ class Content_Gate {
 		include __DIR__ . '/class-institution.php';
 		include __DIR__ . '/class-user-gate-access.php';
 		include __DIR__ . '/class-premium-newsletters.php';
+		include __DIR__ . '/class-block-visibility.php';
 	}
 
 	/**
@@ -182,6 +184,7 @@ class Content_Gate {
 		if ( $post->ID === get_theme_mod( 'accessibility_statement_page_id' ) ) {
 			return;
 		}
+
 		// If no other restrictions apply.
 		if ( ! self::is_post_restricted( $post->ID ) ) {
 			return;
@@ -396,8 +399,8 @@ class Content_Gate {
 			return;
 		}
 		global $pagenow;
-		if ( 'edit.php' === $pagenow && isset( $_GET['post_type'] ) && self::GATE_CPT === $_GET['post_type'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			$redirect = \admin_url( 'admin.php?page=newspack-audience#/content-gating' );
+		if ( 'edit.php' === $pagenow && isset( $_GET['post_type'] ) && in_array( $_GET['post_type'], [ self::GATE_CPT, self::GATE_LAYOUT_CPT ], true ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			$redirect = Memberships::is_active() ? \admin_url( 'admin.php?page=newspack-audience#/content-gating' ) : \admin_url( 'admin.php?page=newspack-audience-access-control#/' );
 			\wp_safe_redirect( $redirect );
 			exit;
 		}
@@ -774,10 +777,11 @@ class Content_Gate {
 	 * Get block pattern content by slug.
 	 *
 	 * @param string $pattern_slug The pattern slug (e.g., 'registration-wall').
+	 * @param array  $pattern_context Optional context available to pattern files as $pattern_context.
 	 *
 	 * @return string The pattern content, or empty string if not found.
 	 */
-	private static function get_block_pattern_content( $pattern_slug ) {
+	private static function get_block_pattern_content( $pattern_slug, $pattern_context = [] ) {
 		$patterns_dir = realpath( __DIR__ . '/block-patterns' );
 		if ( ! $patterns_dir ) {
 			return '';
@@ -792,7 +796,7 @@ class Content_Gate {
 
 		ob_start();
 		require $path;
-		return ob_get_clean();
+		return Content_Gate\Block_Patterns::strip_pattern_whitespace( ob_get_clean() );
 	}
 
 	/**
@@ -826,7 +830,13 @@ class Content_Gate {
 		if ( empty( $pattern_slug ) ) {
 			return '<p>' . esc_html( __( 'This article is only available to members.', 'newspack-plugin' ) ) . '</p>';
 		}
-		return self::get_block_pattern_content( $pattern_slug );
+		return self::get_block_pattern_content(
+			$pattern_slug,
+			[
+				'registration_settings'  => $registration_settings,
+				'custom_access_settings' => $custom_access_settings,
+			]
+		);
 	}
 
 	/**

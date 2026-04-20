@@ -195,6 +195,23 @@ h1 {
 	}
 }
 
+.newspack-wizard__sections.newspack-audience-integrations {
+	> h1 {
+		margin-bottom: 0;
+	}
+
+	.newspack-wizard__sections__description {
+		color: wp-colors.$gray-700;
+		margin-top: 8px;
+
+		// Match the width of a single card in the 2-column CardFeature grid
+		// (grid has 16px gutter; falls back to 1 column below 744px viewport).
+		@media screen and ( min-width: 744px ) {
+			max-width: calc((100% - 16px) / 2);
+		}
+	}
+}
+
 .newspack-wizard__section {
 	margin-block-end: 4rem;
 

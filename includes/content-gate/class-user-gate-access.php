@@ -53,7 +53,7 @@ class User_Gate_Access {
 	 *         @type array $rules  Array of rule results with slug, name, value, and passes.
 	 * }
 	 */
-	private static function evaluate_gate_for_user( $gate, $user_id ) {
+	public static function evaluate_gate_for_user( $gate, $user_id ) {
 		$access_rules = Access_Rules::normalize_rules( $gate['custom_access']['access_rules'] ?? [] );
 
 		// Empty rules means the gate does not restrict — matches Content_Restriction_Control behavior.

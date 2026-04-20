@@ -67,7 +67,7 @@ final class Author_Social_Link_Block {
 		$svg           = self::get_social_service_svg( $author, $service );
 		$service_label = ucfirst( $service );
 
-		$output  = '<li class="wp-block-newspack-author-social-link">';
+		$output  = '<li class="wp-block-newspack-author-social-link" data-service="' . esc_attr( $service ) . '">';
 		$output .= sprintf( '<a href="%s" aria-label="%s">', esc_url( $url ), esc_attr( $service_label ) );
 
 		if ( $svg ) {

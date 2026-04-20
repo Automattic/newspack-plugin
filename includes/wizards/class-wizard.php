@@ -118,6 +118,7 @@ abstract class Wizard {
 	 * Render the container for the wizard.
 	 */
 	public function render_wizard() {
+		do_action( 'newspack_before_wizard_content' );
 		?>
 		<div class="newspack-wizard <?php echo esc_attr( $this->slug ); ?>" id="<?php echo esc_attr( $this->slug ); ?>">
 		</div>

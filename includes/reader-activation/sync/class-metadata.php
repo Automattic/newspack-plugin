@@ -50,11 +50,12 @@ class Metadata {
 			];
 		} else {
 			$classes = [
-				'Profile',
+				'Identity',
+				'Registration',
+				'Engagement',
 				'Subscription',
 				'Donation',
 				'Content_Gate',
-				'Financial',
 			];
 		}
 

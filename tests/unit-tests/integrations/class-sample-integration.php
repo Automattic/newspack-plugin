@@ -19,6 +19,20 @@ class Sample_Integration extends Integration {
 	public static $handler_args = null;
 
 	/**
+	 * Menu item declaration returned by get_my_account_menu_item().
+	 *
+	 * @var array|null
+	 */
+	public $my_account_menu_item = null;
+
+	/**
+	 * Captured render_my_account_page() calls.
+	 *
+	 * @var array
+	 */
+	public $my_account_render_calls = [];
+
+	/**
 	 * Register settings fields (test implementation).
 	 */
 	public function register_settings_fields() {
@@ -98,5 +112,23 @@ class Sample_Integration extends Integration {
 	 */
 	public function get_available_incoming_fields() {
 		return [];
+	}
+
+	/**
+	 * Return the configured My Account menu item (test override).
+	 *
+	 * @return array|null
+	 */
+	public function get_my_account_menu_item() {
+		return $this->my_account_menu_item;
+	}
+
+	/**
+	 * Capture render_my_account_page() calls (test override).
+	 *
+	 * @param mixed $value Endpoint query var value.
+	 */
+	public function render_my_account_page( $value ) {
+		$this->my_account_render_calls[] = $value;
 	}
 }

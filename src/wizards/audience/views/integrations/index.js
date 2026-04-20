@@ -10,6 +10,7 @@ import { forwardRef, useState, useEffect, useCallback } from '@wordpress/element
  */
 import { Wizard, withWizard } from '../../../../../packages/components/src';
 import { SettingsSection } from './settings-section';
+import { ConfigureView } from './configure-view';
 
 const API_PATH = '/newspack/v1/wizard/newspack-audience-integrations/settings';
 
@@ -86,6 +87,17 @@ const AudienceIntegrations = ( props, ref ) => {
 			} );
 	}, [] );
 
+	const sharedProps = {
+		integrations,
+		pendingChanges,
+		saving,
+		toggling,
+		loading,
+		onFieldChange: handleFieldChange,
+		onSave: handleSave,
+		onToggleEnabled: handleToggleEnabled,
+	};
+
 	return (
 		<Wizard
 			headerText={ __( 'Audience Management / Integrations', 'newspack-plugin' ) }
@@ -93,17 +105,18 @@ const AudienceIntegrations = ( props, ref ) => {
 				{
 					label: __( 'Settings', 'newspack-plugin' ),
 					path: '/settings',
+					exact: true,
 					render: SettingsSection,
-					props: {
-						integrations,
-						pendingChanges,
-						saving,
-						toggling,
-						loading,
-						onFieldChange: handleFieldChange,
-						onSave: handleSave,
-						onToggleEnabled: handleToggleEnabled,
-					},
+					props: sharedProps,
+				},
+				{
+					path: '/settings/:integrationId',
+					render: ConfigureView,
+					props: sharedProps,
+					backNav: '#/settings',
+					isHidden: true,
+					title: __( 'Configure Integration', 'newspack-plugin' ),
+					description: __( 'Syncs reader data with your Newspack Newsletters email service provider.', 'newspack-plugin' ),
 				},
 			] }
 			ref={ ref }

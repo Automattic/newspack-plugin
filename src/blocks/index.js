@@ -21,6 +21,9 @@ import * as collections from './collections';
 import * as contentGateCountdown from './content-gate/countdown';
 import * as contentGateCountdownBox from './content-gate/countdown-box';
 import * as copyrightDate from './copyright-date';
+import * as overlayMenu from './overlay-menu';
+import * as overlayMenuTrigger from './overlay-menu/trigger';
+import * as overlayMenuPanel from './overlay-menu/panel';
 
 /**
  * Block Scripts
@@ -41,6 +44,9 @@ export const blocks = [
 	contentGateCountdown,
 	contentGateCountdownBox,
 	copyrightDate,
+	overlayMenu,
+	overlayMenuTrigger,
+	overlayMenuPanel,
 ];
 
 const readerActivationBlocks = [ 'newspack/reader-registration', 'newspack/my-account-button' ];
@@ -54,6 +60,9 @@ const blockThemeBlocks = [
 	'newspack/byline',
 	'newspack/copyright-date',
 	'newspack/featured-image-caption',
+	'newspack/overlay-menu',
+	'newspack/overlay-menu-trigger',
+	'newspack/overlay-menu-panel',
 	'newspack/my-account-button',
 ];
 

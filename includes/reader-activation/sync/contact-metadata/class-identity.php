@@ -7,6 +7,7 @@
 
 namespace Newspack\Reader_Activation\Sync\Contact_Metadata;
 
+use Newspack\Reader_Activation;
 use Newspack\Reader_Activation\Sync\Contact_Metadata;
 
 defined( 'ABSPATH' ) || exit;
@@ -57,6 +58,20 @@ class Identity extends Contact_Metadata {
 	 * @return array
 	 */
 	public function get_metadata() {
-		return [];
+		if ( ! $this->user ) {
+			return [];
+		}
+
+		$roles = $this->user->roles;
+
+		return [
+			'first_name'        => $this->user->first_name,
+			'last_name'         => $this->user->last_name,
+			'email'             => $this->user->user_email,
+			'Account'           => (string) $this->user->ID,
+			'User_Role'         => ! empty( $roles ) ? reset( $roles ) : '',
+			'verified'          => (bool) Reader_Activation::is_reader_verified( $this->user ),
+			'Connected_Account' => (string) \get_user_meta( $this->user->ID, Reader_Activation::CONNECTED_ACCOUNT, true ),
+		];
 	}
 }
