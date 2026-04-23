@@ -44,6 +44,7 @@ class GA4_Dimensions {
 			WP_CLI::log( 'GA4 dimension provisioning status:' );
 			WP_CLI::log( sprintf( '  Property ID:               %s', $status['property_id'] ) );
 			WP_CLI::log( sprintf( '  Site Kit connected:        %s', $status['site_kit_connected'] ? 'yes' : 'no' ) );
+			WP_CLI::log( sprintf( '  Auth source:               %s', $status['auth_source'] ?? 'unknown' ) );
 			WP_CLI::log( sprintf( '  Event-scoped existing:     %d', $status['event_scoped_existing'] ) );
 			WP_CLI::log( sprintf( '  Newspack dimensions:       %d total, %d present, %d missing', $status['newspack_total'], count( $status['newspack_present'] ), count( $status['newspack_missing'] ) ) );
 			if ( $status['newspack_missing'] ) {
@@ -57,6 +58,7 @@ class GA4_Dimensions {
 			WP_CLI::error( $result->get_error_message() );
 		}
 		WP_CLI::log( sprintf( 'Property ID:      %s', $result['property_id'] ) );
+		WP_CLI::log( sprintf( 'Auth source:      %s', $result['auth_source'] ?? 'unknown' ) );
 		WP_CLI::log( sprintf( 'Created:          %d (%s)', count( $result['created'] ), implode( ', ', $result['created'] ) ) );
 		WP_CLI::log( sprintf( 'Already existed:  %d', count( $result['skipped_exists'] ) ) );
 		if ( ! empty( $result['errors'] ) ) {

@@ -3,10 +3,9 @@
  * Provisions Newspack's standard GA4 custom dimensions on the publisher's
  * connected GA4 property.
  *
- * Delegates API calls to Site Kit's authenticated client via
- * GoogleSiteKitAnalytics, so the call is made against Site Kit's Google Cloud
- * project (which already has analyticsadmin.googleapis.com enabled) and uses
- * Site Kit's stored credentials.
+ * Prefers Newspack's own Google OAuth credentials (which already include
+ * `analytics.edit` for all authenticated users) and falls back to Site Kit's
+ * authenticated client when Newspack OAuth is not configured or fails.
  *
  * @package Newspack
  */
@@ -142,28 +141,30 @@ final class GA4_Custom_Dimensions {
 	}
 
 	/**
-	 * Run a callable within an authenticated-user context so Site Kit's
-	 * client can resolve OAuth tokens from user meta, and restore the
-	 * previous user when done.
+	 * Run a callable with an authenticated GA4 Admin API client.
 	 *
-	 * Site Kit stores tokens keyed on user ID (User_Options). In WP-Cron,
-	 * WP-CLI, or anywhere without a logged-in user, `get_current_user_id()`
-	 * returns 0 and Site Kit can't find credentials. We fall back to the
-	 * Analytics module owner stored in Site Kit's own settings and restore
-	 * the previous user after the callback runs so we don't leak an
-	 * unexpected identity into subsequent operations in the same process.
+	 * Tries Newspack's own Google OAuth first. Its tokens already carry
+	 * `analytics.edit` and the call hits the proxy's GCP project, which has
+	 * the Admin API enabled. If Newspack OAuth is not configured or the
+	 * callback throws/returns a WP_Error, falls back to Site Kit's client
+	 * (which stores tokens keyed on user ID and requires `analytics.edit`
+	 * to have been granted — which many publishers have not done).
 	 *
-	 * @param callable $callback Called with a GoogleSiteKitAnalytics instance.
+	 * Switches the current user to a capable one if none is set (e.g. in
+	 * WP-Cron) so permission checks in `Google_OAuth::get_oauth2_credentials()`
+	 * and Site Kit's `User_Options` can resolve credentials. Restores the
+	 * previous user before returning so we don't leak an unexpected identity
+	 * into subsequent operations in the same process.
+	 *
+	 * The callback is invoked as `$callback( $client, $source )` where
+	 * `$source` is either 'newspack' or 'sitekit'. Both client types expose
+	 * `list_custom_dimensions()` and `create_custom_dimension()` with
+	 * matching signatures.
+	 *
+	 * @param callable $callback Called with `( $client, string $source )`.
 	 * @return mixed|\WP_Error The callback's return value, or WP_Error.
 	 */
-	private static function with_analytics_module( callable $callback ) {
-		if ( ! defined( 'GOOGLESITEKIT_PLUGIN_MAIN_FILE' ) ) {
-			return new \WP_Error( 'newspack_ga4_dimensions', 'Google Site Kit is not active.' );
-		}
-		if ( ! class_exists( __NAMESPACE__ . '\\GoogleSiteKitAnalytics' ) ) {
-			return new \WP_Error( 'newspack_ga4_dimensions', 'GoogleSiteKitAnalytics class not available.' );
-		}
-
+	private static function with_admin_client( callable $callback ) {
 		$previous_user_id = get_current_user_id();
 		$switched_user    = false;
 
@@ -171,15 +172,39 @@ final class GA4_Custom_Dimensions {
 			$settings = get_option( 'googlesitekit_analytics-4_settings', [] );
 			$owner_id = isset( $settings['ownerID'] ) ? (int) $settings['ownerID'] : 0;
 			if ( $owner_id <= 0 ) {
-				return new \WP_Error( 'newspack_ga4_dimensions', 'No Site Kit module owner found to authenticate as.' );
+				return new \WP_Error( 'newspack_ga4_dimensions', 'No user context available to authenticate GA4 Admin API calls.' );
 			}
 			wp_set_current_user( $owner_id );
 			$switched_user = true;
 		}
 
 		try {
+			// Prefer Newspack's own OAuth. Returns null if not configured or
+			// no credentials are saved.
+			$np_client = Google_OAuth_GA4_Client::build();
+			if ( $np_client ) {
+				try {
+					$result = $callback( $np_client, 'newspack' );
+					if ( ! is_wp_error( $result ) ) {
+						return $result;
+					}
+					Logger::log( 'Newspack OAuth path returned WP_Error (' . $result->get_error_message() . '); falling back to Site Kit.', self::LOGGER_HEADER );
+				} catch ( \Throwable $e ) {
+					Logger::log( 'Newspack OAuth path threw (' . $e->getMessage() . '); falling back to Site Kit.', self::LOGGER_HEADER );
+				}
+			} else {
+				Logger::log( 'Newspack OAuth not available; using Site Kit.', self::LOGGER_HEADER );
+			}
+
+			// Fall back to Site Kit.
+			if ( ! defined( 'GOOGLESITEKIT_PLUGIN_MAIN_FILE' ) ) {
+				return new \WP_Error( 'newspack_ga4_dimensions', 'Neither Newspack OAuth nor Google Site Kit is available.' );
+			}
+			if ( ! class_exists( __NAMESPACE__ . '\\GoogleSiteKitAnalytics' ) ) {
+				return new \WP_Error( 'newspack_ga4_dimensions', 'GoogleSiteKitAnalytics class not available.' );
+			}
 			$module = new GoogleSiteKitAnalytics( new Context( GOOGLESITEKIT_PLUGIN_MAIN_FILE ) );
-			return $callback( $module );
+			return $callback( $module, 'sitekit' );
 		} finally {
 			if ( $switched_user ) {
 				wp_set_current_user( $previous_user_id );
@@ -188,9 +213,9 @@ final class GA4_Custom_Dimensions {
 	}
 
 	/**
-	 * Report the current state without making any changes: whether Site Kit
-	 * and its GA4 property are connected, whether we can list the property's
-	 * existing dimensions, and how many slots remain out of the 50-dim cap.
+	 * Report the current state without making any changes: which auth route
+	 * is in use, whether the GA4 property is connected, and how many of our
+	 * standard dimensions are already present.
 	 *
 	 * @return array|\WP_Error
 	 */
@@ -200,10 +225,12 @@ final class GA4_Custom_Dimensions {
 			return new \WP_Error( 'newspack_ga4_dimensions', 'No GA4 property ID configured in Site Kit.' );
 		}
 
-		$existing = self::with_analytics_module(
-			function ( GoogleSiteKitAnalytics $module ) use ( $property_id ) {
+		$used_source = null;
+		$existing    = self::with_admin_client(
+			function ( $client, $source ) use ( $property_id, &$used_source ) {
+				$used_source = $source;
 				try {
-					return $module->list_custom_dimensions( $property_id );
+					return $client->list_custom_dimensions( $property_id );
 				} catch ( \Throwable $e ) {
 					return new \WP_Error( 'newspack_ga4_dimensions', 'Failed listing custom dimensions: ' . $e->getMessage() );
 				}
@@ -227,6 +254,7 @@ final class GA4_Custom_Dimensions {
 
 		return [
 			'property_id'           => $property_id,
+			'auth_source'           => $used_source,
 			'site_kit_connected'    => true,
 			'event_scoped_existing' => count( $event_scoped ),
 			'newspack_total'        => count( $desired ),
@@ -252,10 +280,12 @@ final class GA4_Custom_Dimensions {
 			return new \WP_Error( 'newspack_ga4_dimensions', 'No GA4 property ID configured.' );
 		}
 
-		$result = self::with_analytics_module(
-			function ( GoogleSiteKitAnalytics $module ) use ( $property_id ) {
+		$used_source = null;
+		$result      = self::with_admin_client(
+			function ( $client, $source ) use ( $property_id, &$used_source ) {
+				$used_source = $source;
 				try {
-					$existing = $module->list_custom_dimensions( $property_id );
+					$existing = $client->list_custom_dimensions( $property_id );
 				} catch ( \Throwable $e ) {
 					Logger::log( 'Failed listing GA4 custom dimensions: ' . $e->getMessage(), self::LOGGER_HEADER );
 					return new \WP_Error( 'newspack_ga4_dimensions', 'Failed listing custom dimensions: ' . $e->getMessage() );
@@ -278,7 +308,7 @@ final class GA4_Custom_Dimensions {
 						continue;
 					}
 					try {
-						$module->create_custom_dimension( $property_id, $parameter_name, $display_name );
+						$client->create_custom_dimension( $property_id, $parameter_name, $display_name );
 						$created[] = $parameter_name;
 						Logger::log( "Created GA4 dimension '$parameter_name' on property $property_id.", self::LOGGER_HEADER );
 					} catch ( \Throwable $e ) {
@@ -300,6 +330,7 @@ final class GA4_Custom_Dimensions {
 
 		$summary = [
 			'property_id'    => $property_id,
+			'auth_source'    => $used_source,
 			'timestamp'      => time(),
 			'created'        => $created,
 			'skipped_exists' => $skipped_exists,
