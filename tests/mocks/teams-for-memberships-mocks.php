@@ -9,7 +9,8 @@
  *   $GLOBALS['teams_mock_is_renewal']      bool, returned by wcs_order_contains_renewal
  *   $GLOBALS['teams_mock_subscriptions']   WC_Subscription[] returned by wcs_get_subscriptions_for_renewal_order
  *   $GLOBALS['teams_mock_teams_for_sub']   [ sub_id => Team[] ] returned by the fake Subscriptions integration
- *   $GLOBALS['teams_mock_item_meta']       [ item_id => [ key => value ] ] spy populated by wc_update_order_item_meta
+ *   $GLOBALS['teams_mock_item_meta']       [ item_id => [ key => value|__deleted__ ] ] spy populated
+ *                                          by the mock order item's CRUD methods on save()
  *
  * Reset them per-test.
  *
@@ -33,15 +34,10 @@ if ( ! function_exists( 'wcs_get_subscriptions_for_renewal_order' ) ) {
 	}
 }
 
-if ( ! function_exists( 'wc_update_order_item_meta' ) ) {
-	function wc_update_order_item_meta( $item_id, $key, $value ) {
-		$GLOBALS['teams_mock_item_meta'][ $item_id ][ $key ] = $value;
-	}
-}
-
 if ( ! function_exists( 'wc_get_order_item_meta' ) ) {
 	function wc_get_order_item_meta( $item_id, $key, $single = true ) {
-		return $GLOBALS['teams_mock_item_meta'][ $item_id ][ $key ] ?? '';
+		$value = $GLOBALS['teams_mock_item_meta'][ $item_id ][ $key ] ?? '';
+		return '__deleted__' === $value ? '' : $value;
 	}
 }
 
@@ -52,17 +48,25 @@ if ( ! function_exists( 'wc_get_order_item_meta' ) ) {
  *
  * Subclasses the wc-mocks.php WC_Order_Item_Product (which has a truncated
  * API) so tests pass the `instanceof WC_Order_Item_Product` guard while
- * still answering get_id() / get_order().
+ * still answering the CRUD methods the fix uses.
+ *
+ * Meta writes are held in-memory by the item and mirrored to
+ * $GLOBALS['teams_mock_item_meta'] on save(), so tests can assert against
+ * either surface. Deletions record the literal sentinel '__deleted__' so
+ * tests can distinguish "never set" from "explicitly cleared".
  */
 class Teams_Mock_Order_Item extends WC_Order_Item_Product {
-	public $id         = 0;
-	public $product_id = 0;
+	public $id           = 0;
+	public $product_id   = 0;
+	public $variation_id = 0;
 	public $order;
-	public function __construct( $id, $product_id, $order ) {
+	public $meta_data = [];
+	public function __construct( $id, $product_id, $order, $variation_id = 0 ) {
 		parent::__construct( [ 'product_id' => $product_id ] );
-		$this->id         = $id;
-		$this->product_id = $product_id;
-		$this->order      = $order;
+		$this->id           = $id;
+		$this->product_id   = $product_id;
+		$this->variation_id = $variation_id;
+		$this->order        = $order;
 	}
 	public function get_id() {
 		return $this->id;
@@ -70,8 +74,22 @@ class Teams_Mock_Order_Item extends WC_Order_Item_Product {
 	public function get_product_id() {
 		return $this->product_id;
 	}
+	public function get_variation_id() {
+		return $this->variation_id;
+	}
 	public function get_order() {
 		return $this->order;
+	}
+	public function update_meta_data( $key, $value ) {
+		$this->meta_data[ $key ] = $value;
+	}
+	public function delete_meta_data( $key ) {
+		$this->meta_data[ $key ] = '__deleted__';
+	}
+	public function save() {
+		foreach ( $this->meta_data as $key => $value ) {
+			$GLOBALS['teams_mock_item_meta'][ $this->id ][ $key ] = $value;
+		}
 	}
 }
 

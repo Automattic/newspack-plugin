@@ -355,7 +355,11 @@ class Teams_For_Memberships {
 
 		$subscriptions      = wcs_get_subscriptions_for_renewal_order( $order );
 		$team_subscriptions = new \SkyVerge\WooCommerce\Memberships\Teams\Integrations\Subscriptions();
-		$item_product_id    = (int) $item->get_product_id();
+		// Variation line items expose the parent product id via get_product_id() and the variation
+		// id via get_variation_id(). Teams may have stored either on the team, so match against both.
+		$item_product_ids = array_filter(
+			[ (int) $item->get_product_id(), (int) $item->get_variation_id() ]
+		);
 
 		foreach ( $subscriptions as $subscription ) {
 			$teams = $team_subscriptions->get_teams_from_subscription( $subscription->get_id() );
@@ -363,11 +367,14 @@ class Teams_For_Memberships {
 				continue;
 			}
 			foreach ( $teams as $team ) {
-				if ( (int) $team->get_product_id() !== $item_product_id ) {
+				if ( ! in_array( (int) $team->get_product_id(), $item_product_ids, true ) ) {
 					continue;
 				}
-				wc_update_order_item_meta( $item->get_id(), '_wc_memberships_for_teams_team_id', $team->get_id() );
-				wc_update_order_item_meta( $item->get_id(), '_wc_memberships_for_teams_team_renewal', true );
+				$item->update_meta_data( '_wc_memberships_for_teams_team_id', $team->get_id() );
+				$item->update_meta_data( '_wc_memberships_for_teams_team_renewal', true );
+				// Clear any stale seat-change flag so the dispatcher unambiguously treats this as a renewal.
+				$item->delete_meta_data( '_wc_memberships_for_teams_team_seat_change' );
+				$item->save();
 				return 'renew';
 			}
 		}

@@ -91,6 +91,43 @@ class Test_Teams_For_Memberships extends WP_UnitTestCase {
 			$GLOBALS['teams_mock_item_meta'][ $item_id ]['_wc_memberships_for_teams_team_renewal'] ?? null,
 			'The renewal flag should be set on the order item.'
 		);
+		$this->assertSame(
+			'__deleted__',
+			$GLOBALS['teams_mock_item_meta'][ $item_id ]['_wc_memberships_for_teams_team_seat_change'] ?? null,
+			'The seat-change flag should be explicitly cleared so the dispatcher treats this as a renewal.'
+		);
+	}
+
+	/**
+	 * Variable-subscription case: the team may be linked to a specific variation,
+	 * in which case `$team->get_product_id()` equals the item's variation id (not
+	 * its parent product id). The filter must match either.
+	 */
+	public function test_restore_team_meta_on_renewal_matches_variation_id() {
+		$team_id          = 1001;
+		$parent_product   = 2002;
+		$variation_id     = 2003;
+		$subscription_id  = 3003;
+		$item_id          = 4004;
+
+		$subscription = new Teams_Mock_Subscription( $subscription_id );
+		// Team is linked to the variation id, not the parent product id.
+		$team  = new Teams_Mock_Team( $team_id, $variation_id );
+		$order = new WC_Order( [ 'status' => 'pending' ] );
+		$item  = new Teams_Mock_Order_Item( $item_id, $parent_product, $order, $variation_id );
+
+		$GLOBALS['teams_mock_is_renewal']    = true;
+		$GLOBALS['teams_mock_subscriptions'] = [ $subscription ];
+		$GLOBALS['teams_mock_teams_for_sub'] = [ $subscription_id => [ $team ] ];
+
+		$result = Teams_For_Memberships::restore_team_meta_on_renewal( 'create', $item );
+
+		$this->assertSame( 'renew', $result, 'Variation-linked teams should still match and be rewritten to renew.' );
+		$this->assertSame(
+			$team_id,
+			$GLOBALS['teams_mock_item_meta'][ $item_id ]['_wc_memberships_for_teams_team_id'] ?? null,
+			'The existing team id should be restored even when the team is linked to a variation.'
+		);
 	}
 
 	/**
