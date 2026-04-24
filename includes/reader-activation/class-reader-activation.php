@@ -150,12 +150,13 @@ final class Reader_Activation {
 			'is_ras_enabled'        => self::is_enabled(),
 		];
 
+		$script_data = array_merge( $script_data, Reader_Registration::get_script_data() );
+
 		if ( Recaptcha::can_use_captcha() ) {
 			$recaptcha_version                = Recaptcha::get_setting( 'version' );
 			$script_dependencies[]            = Recaptcha::SCRIPT_HANDLE;
-			if ( 'v3' === $recaptcha_version ) {
-				$script_data['captcha_site_key'] = Recaptcha::get_site_key();
-			}
+			$script_data['captcha_site_key']  = Recaptcha::get_site_key();
+			$script_data['captcha_version']   = $recaptcha_version;
 		}
 
 		Newspack::load_common_assets();
