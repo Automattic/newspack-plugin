@@ -583,11 +583,11 @@ const Edit = ( { match, updateGatesData, slug = AUDIENCE_CONTENT_GATES_WIZARD_SL
 							'newspack-plugin'
 						) }
 						headerAction={
-							customAccess?.active
+							customAccess?.active && ! isNewsletter
 								? {
 										label: __( 'Edit layout', 'newspack-plugin' ),
-										href: ! isNew && customAccess.gate_layout_id ? getEditGateLayoutUrl( gate.id, 'custom_access' ) : undefined,
-										onClick: ! isNew && customAccess.gate_layout_id ? undefined : () => handleCreate( 'custom_access' ),
+										href: ! isNew ? getEditGateLayoutUrl( gate.id, 'custom_access' ) : undefined,
+										onClick: isNew ? () => handleCreate( 'custom_access' ) : undefined,
 										icon: pencil,
 								  }
 								: undefined
