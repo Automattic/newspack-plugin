@@ -506,6 +506,7 @@ const Edit = ( { match, updateGatesData, slug = AUDIENCE_CONTENT_GATES_WIZARD_SL
 						icon={ isNewsletter ? envelope : postList }
 						isActive={ contentType === 'all' }
 						onEnable={ () => setContentType( 'all' ) }
+						onHeaderClick={ () => setContentType( 'all' ) }
 					/>
 					<CardSettingsGroup
 						title={ sprintf(
@@ -521,6 +522,7 @@ const Edit = ( { match, updateGatesData, slug = AUDIENCE_CONTENT_GATES_WIZARD_SL
 						icon={ settings }
 						isActive={ contentType === 'custom' }
 						onEnable={ () => setContentType( 'custom' ) }
+						onHeaderClick={ () => setContentType( 'custom' ) }
 					>
 						<ContentRules rules={ contentRules } onChange={ setContentRules } isNewsletter={ isNewsletter } />
 					</CardSettingsGroup>
@@ -577,10 +579,7 @@ const Edit = ( { match, updateGatesData, slug = AUDIENCE_CONTENT_GATES_WIZARD_SL
 					<CardSettingsGroup
 						actionType="toggle"
 						title={ __( 'Paid access', 'newspack-plugin' ) }
-						description={ __(
-							'Set conditions like subscriptions, domain, and more. Readers must meet at least one condition to gain access.',
-							'newspack-plugin'
-						) }
+						description={ __( 'Readers must meet at least one condition to gain access.', 'newspack-plugin' ) }
 						headerAction={
 							customAccess?.active && ! isNewsletter
 								? {
