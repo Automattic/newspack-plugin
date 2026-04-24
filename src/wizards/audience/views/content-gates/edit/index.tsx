@@ -561,9 +561,8 @@ const Edit = ( { match, updateGatesData, slug = AUDIENCE_CONTENT_GATES_WIZARD_SL
 								registration?.active
 									? {
 											label: __( 'Edit layout', 'newspack-plugin' ),
-											href:
-												! isNew && registration.gate_layout_id ? getEditGateLayoutUrl( gate.id, 'registration' ) : undefined,
-											onClick: ! isNew && registration.gate_layout_id ? undefined : () => handleCreate( 'registration' ),
+											href: ! isNew ? getEditGateLayoutUrl( gate.id, 'registration' ) : undefined,
+											onClick: isNew ? () => handleCreate( 'registration' ) : undefined,
 											icon: pencil,
 									  }
 									: undefined
