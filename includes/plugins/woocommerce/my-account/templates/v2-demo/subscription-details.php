@@ -69,18 +69,7 @@ $format_date   = static function ( $iso ) {
 	}
 	return date_i18n( 'F j, Y', $ts );
 };
-$status_dot    = static function ( $s ) {
-	$class = 'newspack-ui__color--neutral-50';
-	if ( 'paid' === $s ) {
-		$class = 'newspack-ui__color--success-50';
-	} elseif ( 'cancelled' === $s || 'expired' === $s || 'failed' === $s ) {
-		$class = 'newspack-ui__color--error-50';
-	} elseif ( 'processing' === $s ) {
-		$class = 'newspack-ui__color--warning-50';
-	}
-	return '<span aria-hidden="true" class="' . esc_attr( $class ) . '">●</span>';
-};
-$status_label  = static function ( $s ) {
+$status_label = static function ( $s ) {
 	switch ( $s ) {
 		case 'paid':
 			return __( 'Paid', 'newspack-plugin' );
@@ -396,8 +385,9 @@ if ( $is_active && ! empty( $tiers ) ) {
 		__DIR__ . '/partials/change-subscription-modal.php',
 		false,
 		[
-			'tiers'        => $tiers,
-			'subscription' => $subscription,
+			'tiers'           => $tiers,
+			'subscription'    => $subscription,
+			'currency_symbol' => $currency_symbol,
 		]
 	);
 }

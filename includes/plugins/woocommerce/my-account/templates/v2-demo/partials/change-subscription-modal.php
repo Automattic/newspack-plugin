@@ -22,15 +22,20 @@
  *
  * @package Newspack
  * @var array $args Template args; expected keys:
- *                  - `tiers`        => tiers slice from get_fake_subscriptions()
- *                  - `subscription` => the subscription row this modal is for
- *                                      (used for `current_tier`, `frequency`)
+ *                  - `tiers`           => tiers slice from get_fake_subscriptions()
+ *                  - `subscription`    => the subscription row this modal is for
+ *                                         (used for `current_tier`, `frequency`)
+ *                  - `currency_symbol` => currency symbol from the fake-data
+ *                                         payload (e.g. '$', '£') so the modal
+ *                                         stays in lockstep with the list and
+ *                                         detail templates instead of hard-coding.
  */
 
 defined( 'ABSPATH' ) || exit;
 
-$tiers        = isset( $args['tiers'] ) ? $args['tiers'] : [];
-$subscription = isset( $args['subscription'] ) ? $args['subscription'] : [];
+$tiers           = isset( $args['tiers'] ) ? $args['tiers'] : [];
+$subscription    = isset( $args['subscription'] ) ? $args['subscription'] : [];
+$currency_symbol = isset( $args['currency_symbol'] ) ? (string) $args['currency_symbol'] : '$';
 
 $frequencies = isset( $tiers['frequencies'] ) ? $tiers['frequencies'] : [];
 $billing     = isset( $tiers['billing'] ) ? $tiers['billing'] : [];
@@ -43,8 +48,7 @@ if ( empty( $frequencies ) ) {
 	return;
 }
 
-$currency_symbol = '$';
-$format_amount   = static function ( $amount ) use ( &$currency_symbol ) {
+$format_amount = static function ( $amount ) use ( $currency_symbol ) {
 	return $currency_symbol . number_format_i18n( (float) $amount, 2 );
 };
 ?>

@@ -69,11 +69,11 @@ $frequency_unit = static function ( $row ) {
 };
 
 /**
- * Right-side meta string for a Previous-section card. Status drives the
- * default; an explicit `list_meta` override on the row wins.
+ * Right-side meta string for a Previous-section card. Derived from the row's
+ * `status` (cancelled / expired). The date formatter is captured via `use`
+ * from the enclosing scope.
  *
- * @param array    $row         Subscription row.
- * @param callable $format_date Date formatter.
+ * @param array $row Subscription row.
  * @return string
  */
 $previous_meta = static function ( $row ) use ( $format_date ) {
