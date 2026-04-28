@@ -395,6 +395,48 @@ The reserved-globals trap didn't bite this phase — by phase 7 the muscle memor
 
 ---
 
+## Phase 8 — Documentation pass
+
+> See [brief §10 → Phase 8](my-account-v2-prototype-brief.md#phase-8--documentation-pass-05-day).
+
+**Date:** 2026-04-28
+**By:** thomas@a8c.com
+**PR:** [#4684](https://github.com/Automattic/newspack-plugin/pull/4684) — phase branch `prototype/my-account-demo-phase-8`, draft PR targets `prototype/my-account-demo` (umbrella tracker is [#4679](https://github.com/Automattic/newspack-plugin/pull/4679))
+**Commit:** `d240a3fa4` — `docs(my-account): add v2 prototype guide (Phase 8)`
+
+**What I built**
+
+A single deliverable: [`docs/my-account-v2-prototype-guide.md`](my-account-v2-prototype-guide.md), the three-section map called out in brief §10. (1) **Reader's guide** — the entry URL, the canonical scenario index assembled from the `SCENARIOS` constant (with each scenario linked to its Figma frame node-id), and per-flow walkthroughs of newsletters / donations / subscriptions / payment methods that say what is clickable, what surfaces a snackbar, and where the multi-variant template branches live. (2) **Architectural map for agents** — file layout, the `get_fake_data()` slice index, a hooks-and-priorities table covering the two takeover handlers (priority 8) plus the redirect-non-demo guard (priority 9) plus the menu and endpoint-URL filters, the modal-router pattern (slug map → `tryOpenModal` → `newspack-my-account__<slug>-<id>` ids → `data-state="open"`), the v1-class-names-first reflex distilled into a one-screen table, the reserved-globals trap (the running list: `$id`, `$status`, `$title`, `$type`, `$frequency`, `$action`), the auto-flush plumbing including the dev-only opcache caveat, and the scenario merge flow (`get_scenario` allow-list → `apply_scenario` switch dispatcher → pluck-from-pool / flag-flip / empty-helper). (3) **Productionisation playbook** — the to-do list for when the prototype rolls into v1: real data sources to swap into each fake slice, real Stripe wiring on the renew/restart/modify/change forms, scrubbing the `remove_all_actions` sledgehammers down to handler-name-keyed removals, dropping the demo gate + body-class scope + auto-flush plumbing + menu-item conditional, and the deferred design-system work (CANCELLED badge saturation, detail-page gap tightening) that's better delivered as separate sign-off PRs.
+
+No code touched. The brief was the spec; the devlog (this file) is the history; the guide is the map.
+
+**What I learned**
+
+The synthesis itself was load-bearing — the brief and devlog are exhaustive but not navigable. Walking the cross-phase decision log from top to bottom, every plumbing choice the prototype makes shows up in at least three places (the row in the log, the relevant phase entry, and the comment above the relevant `class-my-account-ui-v2-demo.php` method). The guide's job is to give a returning agent or new dev one click-through per concept instead of three. The exercise also exposed which decisions were *pattern-shaped* versus *one-off*: the modal id convention, the takeover priority pairing (8 / 9 / 1100), the auto-flush guard, the reserved-globals list, and the scenario switch all generalise; the per-template variant branching is too template-specific to compress further. That lets the guide stay short — the patterns are extracted; specifics stay in the templates and the brief.
+
+The other thing the docs pass surfaced: the productionisation playbook is shorter than I expected because every "thing to clean up" already had its rationale captured in the cross-phase decision log row that introduced it. The playbook ends up being mostly *links into the log* with a one-line "remove this when …" framing. Future-self benefit: when somebody productionises the prototype, they won't have to re-derive the *why* of any sledgehammer — they'll find the row that says "tightened to handler-name-keyed removal during productionisation" and have the seam ready.
+
+The guide deliberately *doesn't* duplicate brief §2.1.1's full reflex order. The brief's table is canonical for "what v1 markup to copy" and lives in the brief because it predates Phase 4. The guide's table is a one-screen subset focused on "I'm rebuilding a v2 surface right now and need a finger-pointing reference." Cross-linking once is enough.
+
+**Decisions and why**
+
+- **Three sections, not five or seven.** The brief's §10 entry already specifies the three deliverables; resisted breaking them into smaller chapters because the result would be more index than content. Each section is a few hundred words; the guide as a whole reads in ~10 minutes. That's the right granularity for the audience (somebody returning after time away or picking it up cold).
+- **File-paths first, code-snippets second, prose last** for the agent map. Lifted verbatim from the brief instructions. The reader's guide leads with copy-pasteable URLs; the architectural map leads with file paths and a hook-priority table; only the modal-router section drops into a code snippet, and only because the slug-map indirection is the seam future agents will ask about. Prose is reserved for "why this priority" / "why this name" callouts that grep won't surface.
+- **Productionisation playbook references the cross-phase decision log rows, not the phase entries.** The decision-log rows are the *terse* statement of each call; the phase entries are the long-form. A productionising engineer wants the terse version with a click-through if they want context — pointing at log rows gives them that. Pointing at phase entries would have buried the call inside a scrollwall.
+- **No "checklist of items to verify" section.** The brief §12 already owns definition-of-done; the guide doesn't repeat it. The single end-of-document checklist is the *productionisation* removal list (what gets deleted), not a verification checklist.
+- **Guide lives in `docs/` next to the brief and devlog.** Brief instructed this explicitly; reaffirms the "intent / history / map" trio as a single discoverable bundle. Filename `my-account-v2-prototype-guide.md` matches the existing prefix convention so directory listings sort the three together.
+- **No new code, no new patterns, no `ENDPOINTS_VERSION` bump.** Phase 8 is doc-only by design — the prototype is feature-complete after Phase 7.
+- **Reading-time labelling on the front matter.** Skipped. The companion docs don't carry estimates and adding one to the guide would be the only one in the bundle. Section headers serve the same wayfinding purpose.
+
+**Open questions**
+
+- **Will the guide drift?** The Phase 7 devlog called out the productionisation playbook as "the place future-you reads first when ripping the prototype out." If the prototype stays in `prototype/my-account-demo` for months without productionisation, the playbook will accrue stale references (e.g. file paths if anything moves). Mitigations considered: a CI doc-lint that greps the guide for `[…](../includes/…)` paths and fails when one breaks. Out of scope for Phase 8; flagging here so it's findable when somebody productionises.
+- **Does the guide replace or supplement `class-my-account-ui-v2-demo.php`'s docblock?** The class-file docblock currently captures phase-by-phase scope; the guide is the architectural read. Both have value but there's some overlap on the takeover and auto-flush descriptions. Resolving (collapse one into the other vs. keep both) is a call for productionisation rather than a doc-pass concern.
+- **Should the scenario index in §1 be auto-generated from `SCENARIOS`?** Tempted — the constant is the source of truth and a generator would prevent drift. Rejected for now because the index has per-row Figma node-ids and "what it does" copy that doesn't live in the constant; a generator would have to merge two sources anyway. Worth revisiting if scenarios start to churn.
+- **Multi-sub scenario carry-over from Phase 7.** Still open. The guide flags the scenario shape supports it trivially; whether to ship is a stakeholder-review call rather than an engineering one.
+
+---
+
 ---
 
 ## Decision log (cross-phase)
