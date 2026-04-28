@@ -2,45 +2,22 @@
  * Subscriptions screens — client-side wiring.
  *
  * Responsibilities:
- *  - Detail page: stub snackbars for the modal-trigger buttons (Change /
- *    Cancel / Renew / Update payment method). Phase 5 swaps these for real
- *    modals.
- *  - List page: no row-click table here (the previous-subscriptions cards
- *    are themselves <a> elements), but the inline "renew now" anchor inside
- *    the expiring active card needs the same stub snackbar treatment so it
- *    doesn't appear inert.
+ *  - Detail page: open the Change / Cancel / Renew subscription modals when
+ *    their trigger buttons fire. Each modal lives at the bottom of the
+ *    detail template (one per subscription, keyed by id); init / success
+ *    steps transition inline. Update payment method stays a stub snackbar
+ *    — the brief lumps it with the v1 checkout flow, not a Phase 5 modal.
+ *  - List page: the inline "renew now" anchor inside the expiring active
+ *    card opens the Renew subscription modal too (when the modal is
+ *    rendered there, e.g. once Phase 6 fixtures put an expiring sub into
+ *    the active bucket). When no modal is found we fall back to a stub
+ *    snackbar so the click never feels inert.
  *  - Dropdown for "More" auto-wires via newspack-ui's own js/dropdowns.js.
- *
- * Snackbar helper is shared with newsletters.js / donations.js via
- * `./util/snackbar` (factored out at the rule-of-three threshold ahead of
- * the Phase 5 modals).
  */
 
 import { __ } from '@wordpress/i18n';
 
 import { snackbar } from './util/snackbar';
-
-/**
- * Map a `data-action` value to its stub snackbar message. `change-subscription`
- * is intentionally absent — that one opens the real Figma modal flow (see
- * wireChangeSubscriptionModal) and only the modal's terminal "Pay now" surfaces
- * a snackbar. Phase 5 swaps the rest for real modals.
- *
- * @param {string} action Data-action attribute value.
- * @return {string|null}  Snackbar message, or null if the action is unknown.
- */
-function snackbarMessageForAction( action ) {
-	switch ( action ) {
-		case 'cancel-subscription':
-			return __( 'Subscription cancelled.', 'newspack-plugin' );
-		case 'renew-subscription':
-			return __( 'Subscription renewed.', 'newspack-plugin' );
-		case 'update-payment-method':
-			return __( 'Payment method updated.', 'newspack-plugin' );
-		default:
-			return null;
-	}
-}
 
 /**
  * Wire a Change subscription modal. The modal lives at the bottom of the
@@ -210,10 +187,183 @@ function wireChangeSubscriptionModal( modal ) {
 }
 
 /**
- * Wire the list-page inline "renew now" anchor inside the expiring active
- * card. The anchor points at `#renew` (and would navigate), so we
- * preventDefault and surface the same stub snackbar Phase 5 modals will
- * eventually trigger. Idempotent.
+ * Wire a confirmation modal that flips between an `init` step (the "Are you
+ * sure?" body) and a `success` step (green check + email-sent line). The
+ * Cancel subscription modal uses this; donations.js mirrors it for Cancel
+ * donation. Tied to the action-router below which opens the modal — this
+ * function only owns the inside-the-modal step transitions.
+ *
+ * Confirm button → success step. Modal close (any close-button or overlay)
+ * → state resets to init the next time it opens, via the closeModal event
+ * dispatched by newspack-ui's modals.js mutation observer.
+ *
+ * @param {HTMLElement} modal The modal container element.
+ */
+function wireConfirmModal( modal ) {
+	if ( modal.dataset.newspackMyAccountV2DemoWired === 'true' ) {
+		return;
+	}
+	modal.dataset.newspackMyAccountV2DemoWired = 'true';
+
+	const initStep = modal.querySelector( '[data-step="init"]' );
+	const successStep = modal.querySelector( '[data-step="success"]' );
+	const confirmBtn = modal.querySelector( '[data-action="confirm"]' );
+
+	const goToStep = step => {
+		if ( ! initStep || ! successStep ) {
+			return;
+		}
+		initStep.hidden = step !== 'init';
+		successStep.hidden = step !== 'success';
+	};
+
+	if ( confirmBtn ) {
+		confirmBtn.addEventListener( 'click', () => goToStep( 'success' ) );
+	}
+
+	// Reset to the init step every time the modal closes so re-opening
+	// presents a fresh confirmation rather than the lingering success state.
+	modal.addEventListener( 'closeModal', () => goToStep( 'init' ) );
+}
+
+/**
+ * Wire a transaction modal — single-screen flow with a billing readout +
+ * payment form, terminating on a success step. Used by Renew subscription
+ * (and the donations equivalent for Restart donation). The structure
+ * mirrors the Change subscription modal's transaction step but skips the
+ * preceding tier-picker.
+ *
+ * @param {HTMLElement} modal The modal container element.
+ */
+function wireTransactionModal( modal ) {
+	if ( modal.dataset.newspackMyAccountV2DemoWired === 'true' ) {
+		return;
+	}
+	modal.dataset.newspackMyAccountV2DemoWired = 'true';
+
+	const initStep = modal.querySelector( '[data-step="init"]' );
+	const successStep = modal.querySelector( '[data-step="success"]' );
+	const confirmBtn = modal.querySelector( '[data-action="confirm"]' );
+
+	const goToStep = step => {
+		if ( ! initStep || ! successStep ) {
+			return;
+		}
+		initStep.hidden = step !== 'init';
+		successStep.hidden = step !== 'success';
+	};
+
+	if ( confirmBtn ) {
+		confirmBtn.addEventListener( 'click', () => goToStep( 'success' ) );
+	}
+
+	modal.addEventListener( 'closeModal', () => goToStep( 'init' ) );
+}
+
+/**
+ * Look up the modal for a given `data-action` + resource id, opening it if
+ * it exists. Closes any open dropdown the click came from so the menu
+ * doesn't hover above the modal. Returns true if a modal was opened.
+ *
+ * Update-payment-method has no Phase 5 modal (the brief lumps it with the
+ * v1 checkout flow), so its action returns null here and the caller falls
+ * back to a stub snackbar.
+ *
+ * @param {string}      action         Data-action value of the trigger.
+ * @param {string}      subscriptionId Resource id from the trigger.
+ * @param {HTMLElement} root           Container the click came from (for
+ *                                     dropdown close-on-open).
+ * @return {boolean} Whether a modal was opened.
+ */
+function tryOpenModal( action, subscriptionId, root ) {
+	const slug = {
+		'change-subscription': 'change-subscription',
+		'cancel-subscription': 'cancel-subscription',
+		'renew-subscription': 'renew-subscription',
+	}[ action ];
+	if ( ! slug || ! subscriptionId ) {
+		return false;
+	}
+	const modal = document.getElementById( `newspack-my-account__${ slug }-${ subscriptionId }` );
+	if ( ! modal ) {
+		return false;
+	}
+	const openDropdown = root.querySelector( '.newspack-ui__dropdown.active' );
+	if ( openDropdown ) {
+		openDropdown.classList.remove( 'active' );
+	}
+	modal.setAttribute( 'data-state', 'open' );
+	return true;
+}
+
+/**
+ * Map a `data-action` to the stub-snackbar copy used when no modal exists
+ * for the action (today: only `update-payment-method`). The other actions
+ * either resolve through `tryOpenModal` or fall through silently.
+ *
+ * @param {string} action Data-action value.
+ * @return {string|null}  Snackbar copy, or null if there's nothing to say.
+ */
+function fallbackSnackbar( action ) {
+	switch ( action ) {
+		case 'update-payment-method':
+			return __( 'Payment method updated.', 'newspack-plugin' );
+		default:
+			return null;
+	}
+}
+
+/**
+ * Click handler shared by the list and detail roots. Routes any
+ * `data-action` trigger through `tryOpenModal` first; falls back to a
+ * snackbar for actions that don't (yet) have a modal.
+ *
+ * @param {HTMLElement} root  Container element.
+ * @param {Event}       event Click event.
+ */
+function handleActionClick( root, event ) {
+	const trigger = event.target.closest( '[data-action]' );
+	if ( ! trigger || ! root.contains( trigger ) ) {
+		return;
+	}
+	// Let the dropdown toggle keep its own behaviour — newspack-ui's
+	// dropdowns.js owns it.
+	if ( trigger.classList.contains( 'newspack-ui__dropdown__toggle' ) ) {
+		return;
+	}
+	const action = trigger.dataset.action;
+	const subscriptionId = trigger.dataset.subscriptionId || '';
+
+	// Suppress hash navigation on `<a href="#cancel-subscription">` etc. so
+	// the modal opens in place rather than scrolling the page.
+	if ( trigger.tagName === 'A' ) {
+		event.preventDefault();
+	}
+
+	if ( tryOpenModal( action, subscriptionId, root ) ) {
+		return;
+	}
+
+	const message = fallbackSnackbar( action );
+	if ( ! message ) {
+		return;
+	}
+	const openDropdown = root.querySelector( '.newspack-ui__dropdown.active' );
+	if ( openDropdown && openDropdown.contains( trigger ) ) {
+		openDropdown.classList.remove( 'active' );
+	}
+	snackbar( message );
+}
+
+/**
+ * Wire the list root. The only triggerable action on the list page is the
+ * inline "renew now" anchor inside the expiring active card's notice, but
+ * `handleActionClick` covers it: when the renew modal isn't on the page
+ * (today: never, since sub-expiring lives in `extras` rather than
+ * `active`), `tryOpenModal` returns false and there's no snackbar copy
+ * for renew-subscription either, so the click falls through silently.
+ * Phase 6 fixtures will swap an expiring sub into `active` and render the
+ * modal alongside, at which point this same handler picks it up.
  *
  * @param {HTMLElement} root List container element.
  */
@@ -222,26 +372,12 @@ function wireListRoot( root ) {
 		return;
 	}
 	root.dataset.newspackMyAccountV2DemoWired = 'true';
-
-	root.addEventListener( 'click', event => {
-		const trigger = event.target.closest( '[data-action="renew-subscription"]' );
-		if ( ! trigger || ! root.contains( trigger ) ) {
-			return;
-		}
-		// `<a href="...">` triggers also navigate; anchor-form triggers
-		// (the inline notice) get the snackbar but skip navigation. Button
-		// triggers don't navigate to begin with.
-		if ( trigger.tagName === 'A' ) {
-			event.preventDefault();
-		}
-		snackbar( __( 'Subscription renewed.', 'newspack-plugin' ) );
-	} );
+	root.addEventListener( 'click', event => handleActionClick( root, event ) );
 }
 
 /**
- * Wire the detail-page modal-trigger buttons. Each surfaces a stub snackbar
- * with the eventual success copy from Figma so the click feels real before
- * Phase 5 hooks up real modals.
+ * Wire the detail-page action triggers (header buttons, dropdown menu items,
+ * and the inline `renew now` anchor on the expiring variant's notice).
  *
  * @param {HTMLElement} root Detail container element.
  */
@@ -250,62 +386,13 @@ function wireDetailRoot( root ) {
 		return;
 	}
 	root.dataset.newspackMyAccountV2DemoWired = 'true';
-
-	root.addEventListener( 'click', event => {
-		const trigger = event.target.closest( '[data-action]' );
-		if ( ! trigger || ! root.contains( trigger ) ) {
-			return;
-		}
-		// Let the dropdown toggle keep its own behaviour — newspack-ui's
-		// dropdowns.js owns it.
-		if ( trigger.classList.contains( 'newspack-ui__dropdown__toggle' ) ) {
-			return;
-		}
-
-		// Change subscription opens the multi-step modal flow rendered into
-		// the page by partials/change-subscription-modal.php. Other actions
-		// keep the stub-snackbar treatment until Phase 5 wires their modals.
-		if ( 'change-subscription' === trigger.dataset.action ) {
-			const subscriptionId = trigger.dataset.subscriptionId || '';
-			const modal = document.getElementById( `newspack-my-account__change-subscription-${ subscriptionId }` );
-			if ( modal ) {
-				event.preventDefault();
-				const openDropdown = root.querySelector( '.newspack-ui__dropdown.active' );
-				if ( openDropdown ) {
-					openDropdown.classList.remove( 'active' );
-				}
-				modal.setAttribute( 'data-state', 'open' );
-			}
-			return;
-		}
-
-		const message = snackbarMessageForAction( trigger.dataset.action );
-		if ( ! message ) {
-			return;
-		}
-
-		// Header action links (`<a class="wcs-switch-link" href="#...">`) and
-		// the inline "renew now" anchor in the expiring notice are anchors
-		// that would otherwise navigate to a hash. Suppress the navigation
-		// so the page stays put while we surface the snackbar / open the
-		// modal.
-		if ( trigger.tagName === 'A' ) {
-			event.preventDefault();
-		}
-
-		// Close any open dropdown the click came from so the menu doesn't
-		// linger above the snackbar.
-		const openDropdown = root.querySelector( '.newspack-ui__dropdown.active' );
-		if ( openDropdown && openDropdown.contains( trigger ) ) {
-			openDropdown.classList.remove( 'active' );
-		}
-
-		snackbar( message );
-	} );
+	root.addEventListener( 'click', event => handleActionClick( root, event ) );
 }
 
 document.addEventListener( 'DOMContentLoaded', () => {
 	document.querySelectorAll( '[data-newspack-my-account-v2-demo="subscriptions"]' ).forEach( wireListRoot );
 	document.querySelectorAll( '[data-newspack-my-account-v2-demo="subscription-details"]' ).forEach( wireDetailRoot );
 	document.querySelectorAll( '[data-newspack-my-account-v2-demo="change-subscription-modal"]' ).forEach( wireChangeSubscriptionModal );
+	document.querySelectorAll( '[data-newspack-my-account-v2-demo="cancel-subscription-modal"]' ).forEach( wireConfirmModal );
+	document.querySelectorAll( '[data-newspack-my-account-v2-demo="renew-subscription-modal"]' ).forEach( wireTransactionModal );
 } );
