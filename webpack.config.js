@@ -54,6 +54,7 @@ const entry = {
 	'my-account': path.join( __dirname, 'src', 'my-account', 'index.js' ),
 	'my-account-v0': path.join( __dirname, 'src', 'my-account', 'v0', 'index.js' ),
 	'my-account-v1': path.join( __dirname, 'src', 'my-account', 'v1', 'index.js' ),
+	'my-account-v2-demo': path.join( __dirname, 'src', 'my-account', 'v2-demo', 'index.js' ),
 	'account-frontend': path.join( __dirname, 'src', 'my-account', 'v1', 'frontend.js' ),
 	admin: path.join( __dirname, 'src', 'admin', 'index.js' ),
 	'content-gate': path.join( __dirname, 'src', 'content-gate', 'gate.js' ),

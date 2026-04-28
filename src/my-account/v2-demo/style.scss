@@ -1,0 +1,7 @@
+// All v2-demo styles live under this scope so they cannot leak outside
+// the prototype. Per brief §2.1: rules in here are a smell — newspack-ui
+// utility classes and components should cover everything. If you find
+// yourself adding a rule, log it in the devlog before committing.
+.newspack-my-account--v2-demo {
+	// Phase 1: nothing yet.
+}
