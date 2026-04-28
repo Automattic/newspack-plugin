@@ -152,6 +152,64 @@ abstract class Integration {
 	}
 
 	/**
+	 * Whether this integration supports frontend reader registration.
+	 *
+	 * Integrations that return true will have their key output to the page
+	 * and will be accepted by the frontend registration endpoint.
+	 *
+	 * @return bool
+	 */
+	public function supports_frontend_registration(): bool {
+		return false;
+	}
+
+	/**
+	 * Generate the registration key for this integration.
+	 *
+	 * The default implementation uses HMAC-SHA256 with the site's auth salt.
+	 * Subclasses can override this to implement custom key schemes
+	 * (e.g., asymmetric key pairs, time-bounded tokens).
+	 *
+	 * @return string The registration key.
+	 */
+	public function get_registration_key(): string {
+		return hash_hmac( 'sha256', $this->id, \wp_salt( 'auth' ) );
+	}
+
+	/**
+	 * Validate a submitted registration key for this integration.
+	 *
+	 * The default implementation uses timing-safe comparison against
+	 * the HMAC key. Subclasses can override this to implement custom
+	 * validation (e.g., signature verification, token decryption).
+	 *
+	 * Note: The built-in JS client (newspackReaderActivation.register())
+	 * always sends the value from get_registration_key(). Integrations
+	 * that override this method to accept a different value must provide
+	 * their own client-side code to compute and submit the correct key.
+	 *
+	 * The default implementation validates the HMAC key. Subclasses can override
+	 * this method to perform additional checks on the request (e.g. verifying
+	 * custom headers, validating metadata, or enforcing integration-specific rules).
+	 *
+	 * @param string           $key     The submitted key to validate.
+	 * @param \WP_REST_Request $request The full registration request.
+	 * @return bool Whether the registration request is valid.
+	 */
+	public function validate_registration_request( string $key, $request ): bool {
+		return hash_equals( $this->get_registration_key(), $key );
+	}
+
+	/**
+	 * Initialize the integration, performing any necessary setup or validation.
+	 *
+	 * Currently only initializes settings fields, but can be extended by child classes for additional setup.
+	 */
+	public function init() {
+		$this->settings_fields = $this->register_settings_fields();
+	}
+
+	/**
 	 * Register settings fields for this integration.
 	 *
 	 * Child classes should override this method to return static field
@@ -184,6 +242,20 @@ abstract class Integration {
 	 * @return true|\WP_Error True on success or WP_Error on failure.
 	 */
 	abstract public function push_contact_data( $contact, $context = '', $existing_contact = null );
+
+	/**
+	 * Handle a logged-in user attempting to register again via the frontend registration flow.
+	 *
+	 * Integrations can override this method to update user data or perform other actions when an existing user attempts to register again via the frontend registration flow. For example, an integration might want to link the existing user account to the integration, record a new donation for a returning donor, or log this event for analytics purposes.
+	 *
+	 * The default implementation is a no-op.
+	 *
+	 * @param \WP_User         $user    The currently logged-in user attempting to register again.
+	 * @param \WP_REST_Request $request The original registration request.
+	 */
+	public function handle_logged_in_user_registration( $user, $request ) {
+		// By default, do nothing. Integrations can override this to handle cases where a logged-in user attempts to register again via the frontend registration flow.
+	}
 
 	/**
 	 * Register data event handlers for this integration.
@@ -766,7 +838,7 @@ abstract class Integration {
 	 * @param mixed $value The value to sanitize.
 	 * @return mixed The sanitized value.
 	 */
-	private function sanitize_settings_field_value( $field, $value ) {
+	protected function sanitize_settings_field_value( $field, $value ) {
 		$type = $field['type'] ?? 'text';
 		switch ( $type ) {
 			case 'checkbox':

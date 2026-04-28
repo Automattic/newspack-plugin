@@ -19,9 +19,27 @@ if ( ! class_exists( 'Newspack_Newsletters_Contacts' ) ) {
 		 */
 		public static $fields_fixture = [];
 
+		/**
+		 * If set, add_and_remove_lists() returns this value instead of true.
+		 * Use a WP_Error to simulate provider failure.
+		 *
+		 * @var mixed
+		 */
+		public static $next_return = null;
+
+		/**
+		 * If set, the next add_and_remove_lists() call will throw this Throwable.
+		 * Single-shot: the property is reset to null after firing.
+		 *
+		 * @var \Throwable|null
+		 */
+		public static $next_throw = null;
+
 		public static function reset_calls() {
 			self::$add_and_remove_lists_calls = [];
 			self::$fields_fixture             = [];
+			self::$next_return                = null;
+			self::$next_throw                 = null;
 		}
 
 		public static function add_and_remove_lists( $email, $lists_to_add, $lists_to_remove, $context = '' ) {
@@ -31,6 +49,12 @@ if ( ! class_exists( 'Newspack_Newsletters_Contacts' ) ) {
 				'lists_to_remove' => $lists_to_remove,
 				'context'         => $context,
 			];
+			if ( null !== self::$next_throw ) {
+				$exception        = self::$next_throw;
+				self::$next_throw = null;
+				throw $exception;
+			}
+			return null === self::$next_return ? true : self::$next_return;
 		}
 
 		public static function get_fields( $list_id = null ) {

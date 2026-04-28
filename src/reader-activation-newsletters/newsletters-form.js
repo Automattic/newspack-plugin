@@ -24,6 +24,7 @@ window.newspackRAS.push( function ( readerActivation ) {
 			// Handle "See all" button logic.
 			const seeAllButton = container.querySelector( '.see-all-button' );
 			const newsletterContainer = container.querySelector( '.newsletter-list-container' );
+			const divider = newsletterContainer?.querySelector( '.newspack-ui__gradient-divider' );
 
 			if ( seeAllButton && newsletterContainer ) {
 				// Remove the "hidden" class from all newsletter items.
@@ -31,9 +32,11 @@ window.newspackRAS.push( function ( readerActivation ) {
 					newsletterContainer.querySelectorAll( '.hidden' ).forEach( item => {
 						item.classList.remove( 'hidden' );
 					} );
-
 					newsletterContainer.style.maxHeight = 'none';
-					seeAllButton.remove();
+					if ( divider ) {
+						divider.classList.add( 'hidden' );
+					}
+					seeAllButton.classList.add( 'hidden' );
 				} );
 
 				// Set the initial height to show partially visible.

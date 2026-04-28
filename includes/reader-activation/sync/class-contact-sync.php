@@ -444,6 +444,45 @@ class Contact_Sync extends Sync {
 	}
 
 	/**
+	 * Get the set of user IDs with pending sync retries in ActionScheduler.
+	 *
+	 * Useful for batch processing: fetch once, then check membership with isset()
+	 * instead of calling has_pending_retries() per user.
+	 *
+	 * @return array<int, bool> Map keyed by user ID for O(1) lookup.
+	 */
+	public static function get_pending_retry_user_ids() {
+		if ( ! function_exists( 'as_get_scheduled_actions' ) ) {
+			return [];
+		}
+		$actions = \as_get_scheduled_actions(
+			[
+				'hook'     => self::RETRY_HOOK,
+				'status'   => \ActionScheduler_Store::STATUS_PENDING,
+				'per_page' => -1,
+			]
+		);
+		$user_ids = [];
+		foreach ( $actions as $action ) {
+			$args = $action->get_args();
+			if ( ! empty( $args[0]['user_id'] ) ) {
+				$user_ids[ (int) $args[0]['user_id'] ] = true;
+			}
+		}
+		return $user_ids;
+	}
+
+	/**
+	 * Check if a user has any pending sync retries in ActionScheduler.
+	 *
+	 * @param int $user_id WordPress user ID.
+	 * @return bool True if there are pending retries.
+	 */
+	public static function has_pending_retries( $user_id ) {
+		return isset( self::get_pending_retry_user_ids()[ (int) $user_id ] );
+	}
+
+	/**
 	 * Schedule a future sync.
 	 *
 	 * @param int    $user_id The user ID for the contact to sync.
