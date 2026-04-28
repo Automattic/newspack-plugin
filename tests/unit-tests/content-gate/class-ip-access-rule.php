@@ -62,6 +62,21 @@ class Newspack_Test_IP_Access_Rule extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Test that malformed CIDR prefixes do not match.
+	 *
+	 * Previously `(int) $bits` silently coerced non-numeric strings to 0,
+	 * letting "10.0.0.0/foo" and "10.0.0.0/" match every IP.
+	 */
+	public function test_malformed_cidr_prefix_does_not_match() {
+		$this->assertFalse( IP_Access_Rule::ip_matches_ranges( '10.0.0.5', '10.0.0.0/foo' ) );
+		$this->assertFalse( IP_Access_Rule::ip_matches_ranges( '10.0.0.5', '10.0.0.0/' ) );
+		$this->assertFalse( IP_Access_Rule::ip_matches_ranges( '10.0.0.5', '10.0.0.0/24junk' ) );
+		$this->assertFalse( IP_Access_Rule::ip_matches_ranges( '10.0.0.5', '10.0.0.0/-1' ) );
+		// Valid CIDR continues to match.
+		$this->assertTrue( IP_Access_Rule::ip_matches_ranges( '10.0.0.5', '10.0.0.0/24' ) );
+	}
+
+	/**
 	 * Test that the REST route is registered.
 	 */
 	public function test_rest_route_registered() {

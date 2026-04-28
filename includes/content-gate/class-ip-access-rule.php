@@ -502,8 +502,11 @@ class IP_Access_Rule {
 		foreach ( $ranges as $range ) {
 			if ( strpos( $range, '/' ) !== false ) {
 				list( $subnet, $bits ) = explode( '/', $range, 2 );
+				if ( ! ctype_digit( $bits ) ) {
+					continue;
+				}
 				$bits = (int) $bits;
-				if ( $bits < 0 || $bits > 32 || ! filter_var( $subnet, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 ) ) {
+				if ( $bits > 32 || ! filter_var( $subnet, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 ) ) {
 					continue;
 				}
 				$subnet_long = ip2long( $subnet );
