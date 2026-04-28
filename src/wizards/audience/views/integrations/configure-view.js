@@ -4,7 +4,7 @@
 import { __ } from '@wordpress/i18n';
 import { CheckboxControl } from '@wordpress/components';
 import { useDispatch } from '@wordpress/data';
-import { useEffect, useMemo } from '@wordpress/element';
+import { useEffect, useMemo, useRef } from '@wordpress/element';
 
 /**
  * Internal dependencies
@@ -43,24 +43,53 @@ export const ConfigureView = ( { integrations, loading, pendingChanges, saving, 
 		return { settingsFields: settings, inboundField: inbound, outboundField: outbound };
 	}, [ integration?.settings ] );
 
-	// Set header title, description, and actions.
+	// Set the static header data (name/title/description) only when the
+	// integration identity changes. Avoids per-keystroke churn from
+	// hasPending/saving updates feeding through SET_HEADER_DATA.
 	useEffect( () => {
-		if ( integration ) {
+		if ( ! integration ) {
+			return;
+		}
+		setHeaderData( {
+			sectionName: integration.name,
+			sectionTitle: integration.name,
+			sectionDescription: integration.description,
+		} );
+	}, [ integration?.id, integration?.name, integration?.description, setHeaderData ] );
+
+	// Update only the header actions when save state changes.
+	const integrationSaving = saving[ integrationId ];
+	useEffect( () => {
+		if ( ! integration ) {
+			return;
+		}
+		setHeaderData( {
+			actions: [
+				{
+					type: 'primary',
+					label: __( 'Save', 'newspack-plugin' ),
+					action: () => onSave( integrationId ),
+					disabled: ! hasPending || integrationSaving,
+				},
+			],
+		} );
+	}, [ integration?.id, hasPending, integrationSaving, integrationId, onSave, setHeaderData ] );
+
+	// Reset header data when navigating to a missing integration so the
+	// previous integration's name/actions don't linger in the breadcrumb.
+	const wasIntegrationMissing = useRef( false );
+	useEffect( () => {
+		const isMissing = ! loading && ! integration;
+		if ( isMissing && ! wasIntegrationMissing.current ) {
 			setHeaderData( {
-				sectionName: integration.name,
-				sectionTitle: integration.name,
-				sectionDescription: integration.description,
-				actions: [
-					{
-						type: 'primary',
-						label: __( 'Save', 'newspack-plugin' ),
-						action: () => onSave( integrationId ),
-						disabled: ! hasPending || saving[ integrationId ],
-					},
-				],
+				sectionName: '',
+				sectionTitle: '',
+				sectionDescription: '',
+				actions: [],
 			} );
 		}
-	}, [ integration, hasPending, saving, integrationId, onSave, setHeaderData ] );
+		wasIntegrationMissing.current = isMissing;
+	}, [ loading, integration, setHeaderData ] );
 
 	if ( ! loading && ! integration ) {
 		return (
@@ -84,7 +113,7 @@ export const ConfigureView = ( { integrations, loading, pendingChanges, saving, 
 	};
 
 	return (
-		<WizardsTab isFetching={ loading } title={ integration.name }>
+		<WizardsTab isFetching={ loading }>
 			<div className="newspack-configure-view">
 				{ /* Section 1: Settings */ }
 				{ settingsFields.length > 0 && (
@@ -101,26 +130,6 @@ export const ConfigureView = ( { integrations, loading, pendingChanges, saving, 
 							) ) }
 						</Grid>
 					</Grid>
-				) }
-
-				{ /* Section 2: Inbound */ }
-				{ inboundField && (
-					<>
-						<Divider alignment="full-width" variant="tertiary" />
-						<Grid columns={ 2 } gutter={ 32 }>
-							<SectionHeader heading={ 2 } title={ __( 'Settings', 'newspack-plugin' ) } noMargin />
-							<Grid columns={ 1 } rowGap={ 16 } noMargin>
-								{ settingsFields.map( field => (
-									<SettingsField
-										key={ field.key }
-										field={ field }
-										value={ getFieldValue( field ) }
-										onChange={ val => onFieldChange( integrationId, field.key, val ) }
-									/>
-								) ) }
-							</Grid>
-						</Grid>
-					</>
 				) }
 
 				{ /* Section 2: Inbound */ }

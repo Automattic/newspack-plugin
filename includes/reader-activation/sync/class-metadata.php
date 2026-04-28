@@ -289,9 +289,11 @@ class Metadata {
 	 * `newspack_ras_metadata_keys` filter are respected. Fields added by the filter
 	 * that don't belong to any class are collected in an "Additional" group.
 	 *
-	 * @return array[] Array of [ 'section' => string, 'fields' => string[] ].
+	 * @return array<int, array{section: string, fields: list<string>}> List of
+	 *   groups, each with a non-empty section label and an ordered list of field
+	 *   names. May be filtered by `newspack_ras_grouped_metadata_fields`.
 	 */
-	public static function get_grouped_default_fields() {
+	public static function get_grouped_default_fields(): array {
 		$classes          = self::get_metadata_classes();
 		$available_fields = array_values( array_unique( array_values( self::get_all_fields( true ) ) ) );
 		$groups           = [];

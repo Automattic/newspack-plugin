@@ -13,7 +13,6 @@ use Newspack\Reader_Activation\Integrations;
 use Newspack\Reader_Activation;
 use Newspack_Newsletters_Contacts;
 use Newspack_Newsletters_Subscription;
-use Newspack\Configuration_Managers;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -35,16 +34,16 @@ class ESP extends Integration {
 	}
 
 	/**
-	 * Whether the ESP service provider is configured.
+	 * Whether the ESP integration is ready to sync.
 	 *
-	 * @return bool True if an ESP provider is selected and configured.
+	 * Mirrors the readiness gate used by get_settings_config() so the configure
+	 * UI never advertises a card as set up while the underlying settings call
+	 * short-circuits to an empty config.
+	 *
+	 * @return bool True if an ESP provider is selected and at least one list is active.
 	 */
 	public function is_set_up() {
-		$newsletters_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-newsletters' );
-		if ( is_wp_error( $newsletters_configuration_manager ) ) {
-			return false;
-		}
-		return (bool) $newsletters_configuration_manager->is_esp_set_up();
+		return Reader_Activation::is_esp_configured();
 	}
 
 	/**

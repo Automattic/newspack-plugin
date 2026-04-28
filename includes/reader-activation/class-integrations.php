@@ -391,8 +391,6 @@ class Integrations {
 				'enabled'     => self::is_enabled( $id ),
 				'is_set_up'   => $integration->is_set_up(),
 				'setup_url'   => $integration->get_setup_url(),
-				'can_sync'    => $can_sync_value,
-				'setup_url'   => $integration->get_setup_url(),
 				'settings'    => $integration->get_settings_config(),
 			];
 		}

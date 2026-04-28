@@ -8,6 +8,7 @@ import { Icon, envelope } from '@wordpress/icons';
  * Internal dependencies
  */
 import { Card, CardFeature, Grid } from '../../../../../packages/components/src';
+import colors from '../../../../../packages/colors/colors.module.scss';
 import WizardsTab from '../../../wizards-tab';
 import WizardSection from '../../../wizards-section';
 
@@ -19,19 +20,19 @@ import WizardSection from '../../../wizards-section';
 const INTEGRATION_ICONS = {
 	esp: {
 		node: <Icon icon={ envelope } />,
-		fill: '#003da5',
-		backgroundColor: '#dfe7f4',
+		fill: colors[ 'primary-600' ],
+		backgroundColor: colors[ 'primary-000' ],
 		radius: 'full',
 	},
 };
 
 const DEFAULT_ICON = {
 	node: <Icon icon={ envelope } />,
-	fill: '#757575',
-	backgroundColor: '#f0f0f0',
+	fill: colors[ 'neutral-600' ],
+	backgroundColor: colors[ 'neutral-100' ],
 };
 
-export const SettingsSection = ( { integrations, loading, onToggleEnabled, onConfigure, history } ) => {
+export const SettingsSection = ( { integrations, loading, onToggleEnabled, history } ) => {
 	const integrationIds = Object.keys( integrations );
 
 	return (
@@ -65,15 +66,11 @@ export const SettingsSection = ( { integrations, loading, onToggleEnabled, onCon
 									title={ name }
 									description={ description }
 									icon={ INTEGRATION_ICONS[ id ] || DEFAULT_ICON }
-									enabled={ isEnabled && isSetUp }
+									enabled={ isEnabled }
 									enableLabel={ isSetUp ? __( 'Enable', 'newspack-plugin' ) : __( 'Connect', 'newspack-plugin' ) }
 									configureLabel={ needsSetup ? __( 'Configure', 'newspack-plugin' ) : undefined }
 									onEnable={ needsSetup ? goToSetup : () => onToggleEnabled( id, true ) }
-									onConfigure={
-										needsSetup ? goToSetup : () => ( onConfigure ? onConfigure( id ) : history?.push( `/settings/${ id }` ) )
-									}
-									badgeText={ undefined }
-									badgeLevel={ undefined }
+									onConfigure={ needsSetup ? goToSetup : () => history?.push( `/settings/${ id }` ) }
 									moreControls={
 										isEnabled
 											? [
