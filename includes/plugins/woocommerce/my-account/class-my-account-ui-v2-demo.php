@@ -6,7 +6,9 @@
  * docs/my-account-v2-prototype-brief.md for the full spec. Phase 2 swaps in
  * real templates for newsletters, registers the `newsletters` endpoint, and
  * adds the v2 menu item. Phase 3 adds the `donations` endpoint plus list and
- * detail templates. Subscriptions templates land in later phases.
+ * detail templates. Phase 4 adds the `subscriptions` endpoint with list +
+ * detail templates and takes over WC Subscriptions' default rendering when
+ * the demo flag is active.
  *
  * @package Newspack
  */
@@ -25,7 +27,11 @@ final class My_Account_UI_V2_Demo {
 	// Bump when the set of registered endpoints changes so the auto-flush
 	// guard re-runs. See devlog Decision log "Endpoint flush strategy".
 	// 2 = newsletters (Phase 2). 3 = + donations (Phase 3).
-	const ENDPOINTS_VERSION = 3;
+	// 4 = + subscriptions (Phase 4). The `subscriptions` endpoint may already
+	// exist on sites with WC Subscriptions; add_rewrite_endpoint is idempotent
+	// so re-registering is harmless, and the auto-flush only fires once per
+	// admin visit after the bump.
+	const ENDPOINTS_VERSION = 4;
 
 	/**
 	 * Initialize hooks.
@@ -48,10 +54,23 @@ final class My_Account_UI_V2_Demo {
 		// list view; `/my-account/donations/<id>/` is the detail view (the
 		// id is read inside the render function via get_query_var).
 		\add_action( 'woocommerce_account_donations_endpoint', [ __CLASS__, 'render_donations_endpoint' ] );
-		// The `newsletters` and `donations` endpoints are registered globally
-		// (rewrite rules can't be conditional on caps), so a non-demo visitor
-		// guessing either URL would land on an empty account body. Redirect
-		// them away.
+		// Render the subscriptions endpoint body. WC Subscriptions also hooks
+		// here when installed (see WCS_Query::endpoint_content); when the demo
+		// is active we suppress all other handlers via takeover_subscriptions
+		// so this is the only renderer.
+		\add_action( 'woocommerce_account_subscriptions_endpoint', [ __CLASS__, 'render_subscriptions_endpoint' ] );
+		// On sites with WC Subscriptions, WCS owns `woocommerce_account_subscriptions_endpoint`
+		// at priority 10 and Newspack appends a memberships table at 11 (see
+		// WooCommerce_My_Account::append_membership_table). Both must be
+		// suppressed when the demo is active so our template is the sole
+		// renderer. Runs at priority 8, before redirect_non_demo at 9.
+		\add_action( 'template_redirect', [ __CLASS__, 'takeover_subscriptions_endpoint' ], 8 );
+		// The `newsletters`, `donations`, and `subscriptions` endpoints are
+		// registered globally (rewrite rules can't be conditional on caps),
+		// so a non-demo visitor guessing those URLs would land on an empty
+		// account body. Redirect them away. Subscriptions is special-cased:
+		// when WC Subscriptions is installed, it owns the endpoint for non-
+		// demo users, so we don't bounce them off `/my-account/subscriptions/`.
 		\add_action( 'template_redirect', [ __CLASS__, 'redirect_non_demo_v2_endpoints' ], 9 );
 		// Preserve `?v2-demo` on every internal nav link (sidebar, post-login
 		// redirect, etc.) so a single click can't drop you back into v1.
@@ -97,6 +116,10 @@ final class My_Account_UI_V2_Demo {
 		$vars[] = self::DEMO_FLAG;
 		$vars[] = 'newsletters';
 		$vars[] = 'donations';
+		// `subscriptions` may already be registered as a query var by WC
+		// Subscriptions; pushing again is harmless (WP de-dupes when parsing)
+		// but ensures the var exists even on sites without WCS.
+		$vars[] = 'subscriptions';
 		return $vars;
 	}
 
@@ -156,6 +179,13 @@ final class My_Account_UI_V2_Demo {
 		// list view and `/my-account/donations/<id>/` is the detail view.
 		// EP_PAGES already preserves the trailing value segment.
 		\add_rewrite_endpoint( 'donations', EP_PAGES );
+		// `subscriptions` follows the same shape — bare URL is the list,
+		// `/my-account/subscriptions/<id>/` is the detail. add_rewrite_endpoint
+		// is idempotent: on sites where WC Subscriptions has already
+		// registered the same slug, this is a no-op. The takeover at
+		// template_redirect is what wins control of the rendering when the
+		// demo flag is active.
+		\add_rewrite_endpoint( 'subscriptions', EP_PAGES );
 
 		// Auto-flush the rewrite rules once per ENDPOINTS_VERSION bump, but
 		// only when an admin is logged in — flush_rewrite_rules() is
@@ -185,24 +215,33 @@ final class My_Account_UI_V2_Demo {
 		if ( ! self::is_demo_active() ) {
 			return $items;
 		}
+		// Pluck `subscriptions` if it exists (WC Subscriptions adds it, and
+		// the wrapper class moves it to the top via `wc_subscriptions_at_top`).
+		// We always re-insert it in our preferred position with our preferred
+		// label so the menu order is consistent on sites with and without WCS.
+		unset( $items['subscriptions'] );
+
 		// v1 already removed `customer-logout` and `edit-address`. Insert v2
 		// items between `edit-account` and the rest, in the order they appear
-		// in the Figma sidebar: Newsletters → Donations → (Subscriptions,
-		// already present from WC Subscriptions if installed).
+		// in the Figma sidebar: Newsletters → Donations → Subscriptions.
 		$ordered = [];
 		foreach ( $items as $slug => $label ) {
 			$ordered[ $slug ] = $label;
 			if ( 'edit-account' === $slug ) {
-				$ordered['newsletters'] = __( 'Newsletters', 'newspack-plugin' );
-				$ordered['donations']   = __( 'Donations', 'newspack-plugin' );
+				$ordered['newsletters']   = __( 'Newsletters', 'newspack-plugin' );
+				$ordered['donations']     = __( 'Donations', 'newspack-plugin' );
+				$ordered['subscriptions'] = __( 'Subscriptions', 'newspack-plugin' );
 			}
 		}
-		// Fallback: if `edit-account` was removed upstream, append.
+		// Fallbacks: if `edit-account` was removed upstream, append.
 		if ( ! isset( $ordered['newsletters'] ) ) {
 			$ordered['newsletters'] = __( 'Newsletters', 'newspack-plugin' );
 		}
 		if ( ! isset( $ordered['donations'] ) ) {
 			$ordered['donations'] = __( 'Donations', 'newspack-plugin' );
+		}
+		if ( ! isset( $ordered['subscriptions'] ) ) {
+			$ordered['subscriptions'] = __( 'Subscriptions', 'newspack-plugin' );
 		}
 		return $ordered;
 	}
@@ -224,6 +263,15 @@ final class My_Account_UI_V2_Demo {
 		// comes through as empty string; detail URL as the value (e.g. an id).
 		$is_v2_endpoint = false !== \get_query_var( 'newsletters', false )
 			|| false !== \get_query_var( 'donations', false );
+		// Subscriptions: only bounce if WC Subscriptions ISN'T installed.
+		// When it is installed, WCS owns the endpoint for non-demo readers
+		// and we must not redirect them. wcs_get_subscription is WCS' own
+		// helper — its existence is the established sentinel for WCS being
+		// active (used elsewhere in the plugin and brief §8).
+		$has_wc_subscriptions = function_exists( 'wcs_get_subscription' );
+		if ( ! $has_wc_subscriptions && false !== \get_query_var( 'subscriptions', false ) ) {
+			$is_v2_endpoint = true;
+		}
 		if ( ! $is_v2_endpoint ) {
 			return;
 		}
@@ -232,6 +280,31 @@ final class My_Account_UI_V2_Demo {
 		}
 		\wp_safe_redirect( \wc_get_account_endpoint_url( 'edit-account' ) );
 		exit;
+	}
+
+	/**
+	 * Take over the subscriptions endpoint when the demo is active. WC
+	 * Subscriptions hooks `WCS_Query::endpoint_content` at priority 10 and
+	 * Newspack hooks `WooCommerce_My_Account::append_membership_table` at
+	 * 11; both must be suppressed so our v2 template is the sole renderer.
+	 *
+	 * Runs at template_redirect priority 8 — before the action is fired by
+	 * the [woocommerce_my_account] shortcode and before redirect_non_demo at
+	 * priority 9 (so a non-demo guesser is bounced, never takes over).
+	 */
+	public static function takeover_subscriptions_endpoint() {
+		if ( ! self::is_demo_active() ) {
+			return;
+		}
+		if ( false === \get_query_var( 'subscriptions', false ) ) {
+			return;
+		}
+		// Drop every existing handler (WCS, memberships, anything else a
+		// site might have attached). Our render_subscriptions_endpoint
+		// callback was registered in init() and is re-added here so it
+		// remains the only handler.
+		\remove_all_actions( 'woocommerce_account_subscriptions_endpoint' );
+		\add_action( 'woocommerce_account_subscriptions_endpoint', [ __CLASS__, 'render_subscriptions_endpoint' ] );
 	}
 
 	/**
@@ -302,6 +375,83 @@ final class My_Account_UI_V2_Demo {
 	}
 
 	/**
+	 * Render the subscriptions endpoint. Loaded by WooCommerce when the user
+	 * visits `/my-account/subscriptions/` (list) or
+	 * `/my-account/subscriptions/<id>/` (detail). The endpoint value is the
+	 * subscription id; empty string = list.
+	 *
+	 * If the id doesn't match any fake subscription, fall back to the list
+	 * view (silent fallback — Phase 6 polish can add a notice).
+	 */
+	public static function render_subscriptions_endpoint() {
+		if ( ! self::is_demo_active() ) {
+			return;
+		}
+		$data = self::get_fake_data();
+		$id   = (string) \get_query_var( 'subscriptions', '' );
+
+		if ( '' !== $id ) {
+			$subscription = self::find_subscription_by_id( $data, $id );
+			if ( $subscription ) {
+				\load_template(
+					__DIR__ . '/templates/v2-demo/subscription-details.php',
+					false,
+					[
+						'data'         => $data,
+						'subscription' => $subscription,
+					]
+				);
+				return;
+			}
+		}
+
+		\load_template(
+			__DIR__ . '/templates/v2-demo/subscriptions.php',
+			false,
+			[ 'data' => $data ]
+		);
+	}
+
+	/**
+	 * Build a v2-demo subscriptions URL — bare endpoint when $id is empty,
+	 * detail URL otherwise. Same plumbing as donations_url(); the
+	 * woocommerce_get_endpoint_url filter re-appends ?v2-demo automatically.
+	 *
+	 * @param string $id Subscription id, or '' for the list URL.
+	 * @return string
+	 */
+	public static function subscriptions_url( $id = '' ) {
+		$myaccount = \wc_get_page_permalink( 'myaccount' );
+		return \wc_get_endpoint_url( 'subscriptions', (string) $id, $myaccount );
+	}
+
+	/**
+	 * Look up a single subscription in the fake-data array by id, across all
+	 * three buckets (`active`, `previous`, `extras`). The `extras` bucket
+	 * holds detail-page-only fixtures that are reachable by direct URL but
+	 * don't appear on the list — see get_fake_subscriptions().
+	 *
+	 * @param array  $data Full fake-data payload.
+	 * @param string $id   Subscription id to find.
+	 * @return array|null  Subscription row + a `bucket` key set to one of
+	 *                     'active', 'previous', or 'extras', or null if not
+	 *                     found.
+	 */
+	private static function find_subscription_by_id( $data, $id ) {
+		$subscriptions = isset( $data['subscriptions'] ) ? $data['subscriptions'] : [];
+		foreach ( [ 'active', 'previous', 'extras' ] as $bucket ) {
+			$rows = isset( $subscriptions[ $bucket ] ) ? $subscriptions[ $bucket ] : [];
+			foreach ( $rows as $row ) {
+				if ( isset( $row['id'] ) && (string) $row['id'] === $id ) {
+					$row['bucket'] = $bucket;
+					return $row;
+				}
+			}
+		}
+		return null;
+	}
+
+	/**
 	 * Look up a single donation in the fake-data array by id, across the
 	 * `recurring` and `one_time` sections.
 	 *
@@ -356,8 +506,8 @@ final class My_Account_UI_V2_Demo {
 	/**
 	 * Fake data shared by PHP templates and JS. Single source of truth.
 	 *
-	 * Phase 2 ships only the `newsletters` slice; Phase 3 adds `donations`.
-	 * Subscriptions land in Phase 4. Scenario overrides via
+	 * Phase 2 ships only the `newsletters` slice; Phase 3 adds `donations`;
+	 * Phase 4 adds `subscriptions`. Scenario overrides via
 	 * `?v2-demo=<scenario>` will be wired in Phase 6.
 	 *
 	 * @return array
@@ -365,12 +515,13 @@ final class My_Account_UI_V2_Demo {
 	public static function get_fake_data() {
 		$user = \wp_get_current_user();
 		return [
-			'reader'      => [
+			'reader'        => [
 				'display_name' => $user && $user->ID ? $user->display_name : __( 'Casey Reader', 'newspack-plugin' ),
 				'email'        => $user && $user->ID ? $user->user_email : 'casey@example.com',
 			],
-			'donations'   => self::get_fake_donations(),
-			'newsletters' => [
+			'donations'     => self::get_fake_donations(),
+			'subscriptions' => self::get_fake_subscriptions(),
+			'newsletters'   => [
 				'sections'             => [
 					[
 						'id'          => 'featured',
@@ -663,6 +814,367 @@ final class My_Account_UI_V2_Demo {
 				'enabled'     => true,
 				'title'       => __( 'Billing history', 'newspack-plugin' ),
 				'description' => __( 'View, download, and print your receipts.', 'newspack-plugin' ),
+			],
+		];
+	}
+
+	/**
+	 * Subscriptions slice of the fake-data payload. Mirrors the structural
+	 * shape of get_fake_donations() so the v2 detail template can branch on
+	 * the same primitives — `status`, `fees_covered`, billing-history rows.
+	 *
+	 * Five status flavours map to the Figma detail variants:
+	 *  - active   (Figma 2636:46149)  — Change subscription + More
+	 *  - active   + fees_covered=true (Figma 4351:66807) — Amount collapses
+	 *  - cancelled(Figma 2636:46177)  — CANCELLED badge + Renew subscription
+	 *  - expiring (Figma 2636:46232)  — inline notice + Renew subscription
+	 *  - renewed  (Figma 2636:46204)  — visually identical to active
+	 *
+	 * The list page renders `active` + `previous` only, matching Figma init 1
+	 * (one active card + one previous card). The `extras` bucket holds detail-
+	 * page-only fixtures that are reachable by direct URL but don't appear on
+	 * the list — Phase 6 scenario fixtures will swap which fixture renders in
+	 * the active/previous slots so the list-side variants (init 2 expiring,
+	 * etc.) become reachable. Currency is USD per brief §7; Figma renders in £.
+	 *
+	 * @return array
+	 */
+	private static function get_fake_subscriptions() {
+		return [
+			'currency_symbol' => '$',
+			'currency_code'   => 'USD',
+			// Tier catalogue + billing details powering the Change subscription
+			// modal (Figma 2636:46318 / 46331 / 46344 / 46297). Each tier has
+			// a stable `id` we can flag as `current_tier` on a subscription
+			// row; the modal pre-selects that tier on its matching frequency
+			// tab and renders a CURRENT badge next to it.
+			'tiers'           => [
+				'frequencies' => [
+					[
+						'id'       => 'year',
+						'label'    => __( 'Annually', 'newspack-plugin' ),
+						'unit'     => __( 'year', 'newspack-plugin' ),
+						'products' => [
+							[
+								'id'    => 'tier-member-yearly',
+								'name'  => __( 'Member', 'newspack-plugin' ),
+								'price' => 70.00,
+							],
+							[
+								'id'    => 'tier-patron-yearly',
+								'name'  => __( 'Patron', 'newspack-plugin' ),
+								'price' => 100.00,
+							],
+						],
+					],
+					[
+						'id'       => 'month',
+						'label'    => __( 'Monthly', 'newspack-plugin' ),
+						'unit'     => __( 'month', 'newspack-plugin' ),
+						'products' => [
+							[
+								'id'    => 'tier-member-monthly',
+								'name'  => __( 'Member', 'newspack-plugin' ),
+								'price' => 6.99,
+							],
+							[
+								'id'    => 'tier-patron-monthly',
+								'name'  => __( 'Patron', 'newspack-plugin' ),
+								'price' => 9.99,
+							],
+						],
+					],
+				],
+				// Static billing fixture surfaced on the transaction step
+				// (Figma 2636:46297). Match Figma copy verbatim for review.
+				'billing'     => [
+					'name'  => __( 'John Lewis', 'newspack-plugin' ),
+					'lines' => [
+						__( '10 Downing Street', 'newspack-plugin' ),
+						__( 'London, SW1A 2AA', 'newspack-plugin' ),
+						__( 'United Kingdom', 'newspack-plugin' ),
+					],
+					'email' => 'johnny.lewis@email.com',
+				],
+			],
+			'active'          => [
+				[
+					'id'                    => 'sub-001',
+					'status'                => 'active',
+					'current_tier'          => 'tier-member-yearly',
+					'product'               => __( 'Member', 'newspack-plugin' ),
+					'amount'                => 71.16,
+					'frequency'             => 'year',
+					'frequency_label'       => __( 'Annually', 'newspack-plugin' ),
+					'started'               => '2025-03-16',
+					'latest_payment'        => '2026-03-16',
+					'next_payment'          => '2027-03-16',
+					'subtotal'              => 58.33,
+					'vat'                   => 11.67,
+					'transaction_fee'       => 1.16,
+					'transaction_fee_label' => __( 'Transaction fee (2%)', 'newspack-plugin' ),
+					'total'                 => 71.16,
+					'fees_covered'          => false,
+					'payment_method'        => [
+						'brand' => __( 'Visa', 'newspack-plugin' ),
+						'last4' => '4242',
+						'exp'   => '02/27',
+					],
+					'billing_history'       => [
+						[
+							'order'  => '#854',
+							'date'   => '2026-03-16',
+							'status' => 'paid',
+							'amount' => 71.16,
+						],
+						[
+							'order'  => '#853',
+							'date'   => '2025-03-16',
+							'status' => 'failed',
+							'amount' => 71.16,
+						],
+						[
+							'order'  => '#852',
+							'date'   => '2025-03-16',
+							'status' => 'processing',
+							'amount' => 71.16,
+						],
+					],
+				],
+			],
+			'previous'        => [
+				[
+					'id'                    => 'sub-cancelled',
+					'status'                => 'cancelled',
+					'product'               => __( 'Patron', 'newspack-plugin' ),
+					'amount'                => 101.70,
+					'frequency'             => 'year',
+					'frequency_label'       => __( 'Annually', 'newspack-plugin' ),
+					'started'               => '2021-02-19',
+					'latest_payment'        => '2022-02-19',
+					'next_payment'          => null,
+					'cancelled'             => '2023-01-17',
+					'subtotal'              => 83.33,
+					'vat'                   => 16.67,
+					'transaction_fee'       => 1.70,
+					'transaction_fee_label' => __( 'Transaction fee (2%)', 'newspack-plugin' ),
+					'total'                 => 101.70,
+					'fees_covered'          => false,
+					'payment_method'        => [
+						'brand' => __( 'Visa', 'newspack-plugin' ),
+						'last4' => '4242',
+						'exp'   => '02/24',
+					],
+					'billing_history'       => [
+						[
+							'order'  => '#721',
+							'date'   => '2023-01-17',
+							'status' => 'cancelled',
+							'amount' => null,
+						],
+						[
+							'order'  => '#680',
+							'date'   => '2022-02-19',
+							'status' => 'paid',
+							'amount' => 101.70,
+						],
+						[
+							'order'  => '#102',
+							'date'   => '2021-02-19',
+							'status' => 'paid',
+							'amount' => 101.70,
+						],
+					],
+				],
+				[
+					'id'              => 'sub-expired',
+					'status'          => 'expired',
+					'product'         => __( 'Supporter', 'newspack-plugin' ),
+					'amount'          => 5.00,
+					'frequency'       => 'month',
+					'frequency_label' => __( 'Monthly', 'newspack-plugin' ),
+					'started'         => '2022-06-01',
+					'latest_payment'  => '2023-05-01',
+					'next_payment'    => null,
+					'expires_on'      => '2023-06-01',
+					'subtotal'        => 4.17,
+					'vat'             => 0.83,
+					'transaction_fee' => null,
+					'total'           => 5.00,
+					'fees_covered'    => false,
+					'payment_method'  => [
+						'brand' => __( 'Mastercard', 'newspack-plugin' ),
+						'last4' => '5454',
+						'exp'   => '05/23',
+					],
+					'billing_history' => [
+						[
+							'order'  => '#480',
+							'date'   => '2023-06-01',
+							'status' => 'failed',
+							'amount' => null,
+						],
+						[
+							'order'  => '#445',
+							'date'   => '2023-05-01',
+							'status' => 'paid',
+							'amount' => 5.00,
+						],
+						[
+							'order'  => '#410',
+							'date'   => '2023-04-01',
+							'status' => 'paid',
+							'amount' => 5.00,
+						],
+					],
+				],
+			],
+			// Detail-page-only fixtures, reachable by direct URL but not
+			// rendered on the list. The list matches Figma init 1 (one
+			// active card + one previous card) — these extra status flavours
+			// are accessed via /my-account/subscriptions/<id>/?v2-demo=1
+			// until Phase 6 scenario fixtures swap which row appears in the
+			// active/previous slot (e.g. ?v2-demo=expiring).
+			'extras'          => [
+				[
+					'id'                    => 'sub-expiring',
+					'status'                => 'expiring',
+					'product'               => __( 'Member', 'newspack-plugin' ),
+					'amount'                => 71.16,
+					'frequency'             => 'year',
+					'frequency_label'       => __( 'Annually', 'newspack-plugin' ),
+					'expires_on'            => '2026-09-16',
+					'started'               => '2024-03-16',
+					'latest_payment'        => '2025-03-16',
+					'next_payment'          => null,
+					'subtotal'              => 58.33,
+					'vat'                   => 11.67,
+					'transaction_fee'       => 1.16,
+					'transaction_fee_label' => __( 'Transaction fee (2%)', 'newspack-plugin' ),
+					'total'                 => 71.16,
+					'fees_covered'          => false,
+					'payment_method'        => [
+						'brand' => __( 'Visa', 'newspack-plugin' ),
+						'last4' => '4242',
+						'exp'   => '02/27',
+					],
+					'billing_history'       => [
+						[
+							'order'  => '#1200',
+							'date'   => '2025-09-04',
+							'status' => 'cancelled',
+							'amount' => null,
+						],
+						[
+							'order'  => '#854',
+							'date'   => '2025-03-16',
+							'status' => 'paid',
+							'amount' => 71.16,
+						],
+						[
+							'order'  => '#853',
+							'date'   => '2024-09-16',
+							'status' => 'failed',
+							'amount' => 71.16,
+						],
+						[
+							'order'  => '#852',
+							'date'   => '2024-03-16',
+							'status' => 'processing',
+							'amount' => 71.16,
+						],
+					],
+				],
+				[
+					'id'                    => 'sub-renewed',
+					'status'                => 'renewed',
+					'current_tier'          => 'tier-patron-yearly',
+					'product'               => __( 'Patron', 'newspack-plugin' ),
+					'amount'                => 101.70,
+					'frequency'             => 'year',
+					'frequency_label'       => __( 'Annually', 'newspack-plugin' ),
+					'started'               => '2021-02-19',
+					'latest_payment'        => '2023-11-02',
+					'next_payment'          => '2024-11-02',
+					'subtotal'              => 83.33,
+					'vat'                   => 16.67,
+					'transaction_fee'       => 1.70,
+					'transaction_fee_label' => __( 'Transaction fee (2%)', 'newspack-plugin' ),
+					'total'                 => 101.70,
+					'fees_covered'          => false,
+					'payment_method'        => [
+						'brand' => __( 'Visa', 'newspack-plugin' ),
+						'last4' => '4242',
+						'exp'   => '02/24',
+					],
+					'billing_history'       => [
+						[
+							'order'  => '#955',
+							'date'   => '2023-11-02',
+							'status' => 'paid',
+							'amount' => 101.70,
+						],
+						[
+							'order'  => '#721',
+							'date'   => '2023-01-17',
+							'status' => 'cancelled',
+							'amount' => null,
+						],
+						[
+							'order'  => '#680',
+							'date'   => '2022-02-19',
+							'status' => 'paid',
+							'amount' => 101.70,
+						],
+						[
+							'order'  => '#102',
+							'date'   => '2021-02-19',
+							'status' => 'paid',
+							'amount' => 101.70,
+						],
+					],
+				],
+				[
+					'id'              => 'sub-active-no-fees',
+					'status'          => 'active',
+					'current_tier'    => 'tier-member-yearly',
+					'product'         => __( 'Member', 'newspack-plugin' ),
+					'amount'          => 71.16,
+					'frequency'       => 'year',
+					'frequency_label' => __( 'Annually', 'newspack-plugin' ),
+					'started'         => '2025-03-16',
+					'latest_payment'  => '2026-03-16',
+					'next_payment'    => '2027-03-16',
+					// fees_covered = true collapses the Amount breakdown to a
+					// single row (Figma 4351:66807). Same flag pattern as the
+					// donation no-fees variant (Phase 3 decision log).
+					'fees_covered'    => true,
+					'payment_method'  => [
+						'brand' => __( 'Visa', 'newspack-plugin' ),
+						'last4' => '4242',
+						'exp'   => '02/27',
+					],
+					'billing_history' => [
+						[
+							'order'  => '#854',
+							'date'   => '2026-03-16',
+							'status' => 'paid',
+							'amount' => 71.16,
+						],
+						[
+							'order'  => '#853',
+							'date'   => '2025-03-16',
+							'status' => 'failed',
+							'amount' => 71.16,
+						],
+						[
+							'order'  => '#852',
+							'date'   => '2025-03-16',
+							'status' => 'processing',
+							'amount' => 71.16,
+						],
+					],
+				],
 			],
 		];
 	}
