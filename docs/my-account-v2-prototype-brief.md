@@ -627,7 +627,17 @@ Reproduce v1's `/my-account/payment-methods/` surface byte-for-byte under the v2
 
 `?v2-demo=<scenario>` overrides for cancelled / expired / empty / no-fees states (see §7). Final screenshot pass against Figma.
 
-**Total estimate:** ~8–8.5 dev-days for one engineer, end-to-end clickable on any Newspack site.
+### Phase 8 — Documentation pass (~0.5 day)
+
+The prototype lands as ~10 PHP templates + ~7 JS modules + a single class with a fake-data layer; the next person to touch it (human or agent) needs a single document that explains "what flow lives where, how does the scenario flag work, what's clickable vs. stubbed, and how does this productionise into v1?". Phase 8 produces that document — three sections, each a few hundred words:
+
+1. **Reader's guide** — entry URLs, scenario index (canonicalised from the `SCENARIOS` constant), per-flow walkthroughs (what's clickable, what surfaces a snackbar, what's a real form), and links to the matching Figma frames.
+2. **Architectural map for agents** — fake-data shape, the takeover/redirect/menu plumbing, the modal-router pattern, the v1-class-names-first reflex (already in §2.1.1 but worth a one-screen index), reserved-globals trap, the auto-flush plumbing, the scenario merge flow.
+3. **Productionisation playbook** — the to-do list for when the prototype rolls into v1: real WC/WCS data sources to swap in, real Stripe wiring on the renew/restart/modify forms, scrubbing the takeover sledgehammers (subscriptions, payment-methods), dropping the `?v2-demo` gate, removing the auto-flush option, and the menu-item filter cleanup.
+
+The doc lives at `docs/my-account-v2-prototype-guide.md` (sibling to this brief and the devlog). No new code.
+
+**Total estimate:** ~8.5–9 dev-days for one engineer, end-to-end clickable on any Newspack site.
 
 ## 11. Working in the open — dev log practice
 
@@ -668,6 +678,7 @@ Add links to PRs, commits, and Figma frames. Keep it scannable.
 - `npm run lint` and `npm run lint:php` pass.
 - The devlog has at least one entry per shipped phase.
 - A short PR description documents the flag, the scenarios, and known limitations.
+- Phase 8 ships `docs/my-account-v2-prototype-guide.md` covering reader's guide / architectural map / productionisation playbook.
 
 ---
 

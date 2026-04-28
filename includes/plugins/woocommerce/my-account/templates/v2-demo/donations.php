@@ -146,6 +146,12 @@ $status_label = static function ( $status ) {
 	class="newspack-my-account__v2-demo-donations newspack-ui__stack newspack-ui__stack--vertical newspack-ui__stack--gap-9"
 	data-newspack-my-account-v2-demo="donations"
 >
+	<?php if ( empty( $active_recurring ) && empty( $previous ) ) : ?>
+		<div class="newspack-ui__notice">
+			<?php esc_html_e( 'You have no donations yet.', 'newspack-plugin' ); ?>
+		</div>
+	<?php endif; ?>
+
 	<?php if ( ! empty( $active_recurring ) ) : ?>
 		<section class="newspack-ui__stack newspack-ui__stack--vertical newspack-ui__stack--gap-5" data-section-id="recurring">
 			<h2 class="newspack-ui__font--l newspack-ui__font--bold newspack-ui__spacing-top--0 newspack-ui__spacing-bottom--0">
@@ -305,7 +311,7 @@ $status_label = static function ( $status ) {
 		</section>
 	<?php elseif ( ! empty( $billing_history_button['enabled'] ) ) : ?>
 		<a
-			href="#billing-history"
+			href="#"
 			class="newspack-ui__box newspack-ui__stack newspack-ui__stack--horizontal newspack-ui__stack--gap-5 newspack-ui__stack--align-center newspack-ui__stack--justify-between"
 			data-action="open-billing-history"
 		>

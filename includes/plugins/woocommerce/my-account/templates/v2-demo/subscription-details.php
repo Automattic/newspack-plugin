@@ -132,7 +132,7 @@ if ( $frequency ) {
 			<div class="newspack-my-account__subscription--actions-container">
 				<?php if ( $is_active ) : ?>
 					<a
-						href="#change-subscription"
+						href="#"
 						class="wcs-switch-link newspack-ui__button newspack-ui__button--secondary newspack-my-account__subscription--change-subscription-item"
 						data-action="change-subscription"
 						data-subscription-id="<?php echo esc_attr( $subscription_id ); ?>"
@@ -140,7 +140,7 @@ if ( $frequency ) {
 						<?php esc_html_e( 'Change subscription', 'newspack-plugin' ); ?>
 					</a>
 					<a
-						href="#update-payment-method"
+						href="#"
 						class="newspack-ui__button newspack-my-account__subscription--action-link change_payment_method newspack-ui__button--secondary"
 						data-action="update-payment-method"
 						data-subscription-id="<?php echo esc_attr( $subscription_id ); ?>"
@@ -148,7 +148,7 @@ if ( $frequency ) {
 						<?php esc_html_e( 'Update payment method', 'newspack-plugin' ); ?>
 					</a>
 					<a
-						href="#cancel-subscription"
+						href="#"
 						class="newspack-ui__button newspack-my-account__subscription--action-link cancel newspack-ui__button--outline newspack-ui__button--destructive"
 						data-action="cancel-subscription"
 						data-subscription-id="<?php echo esc_attr( $subscription_id ); ?>"
@@ -157,7 +157,7 @@ if ( $frequency ) {
 					</a>
 				<?php elseif ( $is_cancelled || $is_expiring ) : ?>
 					<a
-						href="#renew-subscription"
+						href="#"
 						class="newspack-ui__button newspack-my-account__subscription--action-link resubscribe newspack-ui__button--secondary"
 						data-action="renew-subscription"
 						data-subscription-id="<?php echo esc_attr( $subscription_id ); ?>"
@@ -176,7 +176,7 @@ if ( $frequency ) {
 						<ul>
 							<li>
 								<a
-									href="#update-payment-method"
+									href="#"
 									class="newspack-ui__button newspack-ui__button--ghost change_payment_method"
 									data-action="update-payment-method"
 									data-subscription-id="<?php echo esc_attr( $subscription_id ); ?>"
@@ -186,7 +186,7 @@ if ( $frequency ) {
 							</li>
 							<li>
 								<a
-									href="#cancel-subscription"
+									href="#"
 									class="newspack-ui__button newspack-ui__button--ghost cancel newspack-ui__button--destructive"
 									data-action="cancel-subscription"
 									data-subscription-id="<?php echo esc_attr( $subscription_id ); ?>"
@@ -211,7 +211,7 @@ if ( $frequency ) {
 						/* translators: 1: subscription expiry date in <strong>; 2: opening "renew now" anchor; 3: closing anchor. */
 						__( 'Your subscription has been cancelled. Subscription remains active until %1$s. For uninterrupted service, %2$srenew now%3$s.', 'newspack-plugin' ),
 						'<strong>' . esc_html( $expiry_date ) . '</strong>',
-						'<a href="#renew" data-action="renew-subscription" data-subscription-id="' . esc_attr( $subscription_id ) . '">',
+						'<a href="#" data-action="renew-subscription" data-subscription-id="' . esc_attr( $subscription_id ) . '">',
 						'</a>'
 					),
 					[

@@ -363,13 +363,12 @@ function handleActionClick( root, event ) {
 
 /**
  * Wire the list root. The only triggerable action on the list page is the
- * inline "renew now" anchor inside the expiring active card's notice, but
- * `handleActionClick` covers it: when the renew modal isn't on the page
- * (today: never, since sub-expiring lives in `extras` rather than
- * `active`), `tryOpenModal` returns false and there's no snackbar copy
- * for renew-subscription either, so the click falls through silently.
- * Phase 6 fixtures will swap an expiring sub into `active` and render the
- * modal alongside, at which point this same handler picks it up.
+ * inline "renew now" anchor inside the expiring active card's notice. With
+ * Phase 7 scenario fixtures, `?v2-demo=expiring` swaps an expiring sub
+ * into `active` and the renew modal renders alongside, so the same
+ * `handleActionClick` handler used on the detail page picks it up. Without
+ * the scenario, the active bucket holds sub-001 (status=active) and the
+ * inline anchor isn't rendered in the first place.
  *
  * @param {HTMLElement} root List container element.
  */
