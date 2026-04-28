@@ -73,7 +73,44 @@ The other small gotcha was the `wp_enqueue_scripts` priority: v1 enqueues at 11;
 
 > See [brief §10 → Phase 2](my-account-v2-prototype-brief.md#phase-2--newsletters-1-day). Pull design context from Figma frames `2636:46704`, `4645:19732`, `2636:46736` per brief §2.7.
 
-_(empty — fill in when you start Phase 2)_
+**Date:** 2026-04-28
+**By:** thomas@a8c.com
+**PR:** [#4679](https://github.com/Automattic/newspack-plugin/pull/4679) (stacked)
+**Commits:** _pending — code is staged on `prototype/my-account-demo`_
+**Figma:** [`2636:46704`](https://www.figma.com/design/mkvHE3qozmmGrytPt9RGrV/My-Account?node-id=2636-46704), [`4645:19732`](https://www.figma.com/design/mkvHE3qozmmGrytPt9RGrV/My-Account?node-id=4645-19732), [`2636:46736`](https://www.figma.com/design/mkvHE3qozmmGrytPt9RGrV/My-Account?node-id=2636-46736)
+
+**What I built**
+
+The Newsletters list, end-to-end. Replaced the Phase 1 stub action with: (a) a `newsletters` rewrite endpoint registered with the option-keyed auto-flush guard from the cross-phase decision log, (b) a `woocommerce_account_newsletters_endpoint` action that loads `templates/v2-demo/newsletters.php`, (c) a v2-only menu-item filter at priority 1100 that injects the "Newsletters" link only when the demo flag is set, and (d) a `woocommerce_get_endpoint_url` filter that re-appends `?v2-demo=1` to every internal account URL — sidebar nav, post-login redirect, and the WC redirect-to-account-details bounce. The Phase 1 login-redirect open question (entry above) is closed by that filter. PHP fake data lives on the class as `get_fake_data()`, shipped to the JS layer via `wp_localize_script` and to PHP templates by passing the array into `load_template`.
+
+The list itself is composed entirely from newspack-ui primitives — vertical `__stack`s for sections, horizontal `__stack`s for rows, `__badge--outline` for frequency, `__badge--secondary` for SUBSCRIBER-ONLY, `__button--primary` / `--secondary` for the row CTAs. Section grouping is a flat label + list (not an accordion — that decision was settled pre-Phase 2 and is in the cross-phase decision log). The "Unsubscribed" frame (`2636:46736`) is realised as the bulk-unsubscribe end state: clicking "Unsubscribe from all" flips every subscribed row to "Sign up" and disables the bottom button, exactly mirroring Figma. The optimistic UI lives in `src/my-account/v2-demo/newsletters.js` — a single delegated click listener per root, no fetch, snackbar via `newspackUI.notices.openNotice`. Removed the Phase 1 placeholder `console.log` from `index.js` per the Phase 1 cleanup note.
+
+Verified server-side: 11 rows (5 featured + 3 tech + 3 premium), 6 sign-up / 5 unsubscribe buttons, 4 SUBSCRIBER-ONLY badges, 1 bulk-unsubscribe button. Anon `/my-account/?v2-demo=1` does not enqueue the demo bundle and does not get the body class — gate stays closed.
+
+**What I learned**
+
+The big surprise: my `add_action('init', 'register_endpoints')` registration never fired. The class file is included _inside_ an `init` callback in `class-woocommerce-my-account.php` (line 84), so by the time my class' `init()` method runs, the `init` action is already mid-flight at priority 10+. Registering another `init` action at default priority is too late — WP only re-fires actions on the next request, and on the next request the class file is once again loaded inside an `init` callback. So the endpoint registration would never run, and `/my-account/newsletters/` would 404 forever.
+
+Fix: call `self::register_endpoints()` directly from `init()` instead of registering it as an action. The class is loaded during the `init` action, so a direct call _is_ effectively running on `init` at priority 10. WC core registers its own endpoints at the same moment, so timing lines up. Confirmed by hitting `/my-account/` once and watching the `newspack_my_account_v2_demo_endpoints_version` option flip from absent to `2`.
+
+The other small lesson: PHPCS treats `$id` as a WordPress reserved global and rejects template variable assignments to it. Renamed to `$list_id` in the row partial. Worth knowing for future templates.
+
+I almost reached for the newspack-ui escape-hatch. The horizontal newsletter row "needs" a middle column that grows to fill width and a hairline separator between rows, both of which felt like genuine `__stack` gaps. First pass added three small scoped rules under `.newspack-my-account--v2-demo` and I drafted a devlog entry to back it up — but Thomas pushed back ("you could use a mix of stacks") and on a second look every rule was unnecessary. The corrected layout: outer `__stack--horizontal --justify-between` pushes the button to the right edge while a left-side `__stack--horizontal` groups image + details. Image dimensions go on the `<img>` width/height attrs (the picsum source is already 128×128 square, so no `object-fit` is needed). Hairlines between rows are an `<hr>` between siblings — newspack-ui's `_dividers.scss` styles `<hr>` as a 1px line, and `__stack--vertical` zeroes child margins so `--gap-5` alone controls spacing. style.scss went back to the wrapper-only state it should be in per brief §2.1. The right escape-hatch reflex isn't "log a gap, write a rule" — it's "ask whether nested stacks already cover it."
+
+**Decisions and why**
+
+- **Direct `register_endpoints()` call instead of `add_action('init', …)`** — see "What I learned". Comment in the code explains why so future readers don't "fix" it.
+- **Endpoint version bumped to 2** — auto-flush guard from the cross-phase decision log. Phase 1 didn't write any version (option absent); Phase 2 sets it to 2 so the flush runs exactly once per environment when this lands. Will be bumped again in Phase 3 when `donations` is added.
+- **Skipped the `wc_get_template` filter for newsletters** — the brief listed it as a swap target, but `myaccount/newsletters.php` isn't a real WC template (there's no core file, no `wc_get_template` call). Hooked `woocommerce_account_newsletters_endpoint` directly and `load_template`'d the v2 file instead. Same end result, cleaner control flow, no accidental override of a non-existent path.
+- **Image as a real `<img>` tag (not `background-image`)** — brief §3 specifies a "full image, not an icon" using `picsum.photos/seed/{slug}/128/128`. `<img>` gets `loading="lazy"` and `alt=""` (decorative) for free; CSS background-image would lose that. The tradeoff is a third scoped rule for `object-fit: cover` — fine, it's logged as part of the candidate gap.
+- **JS ships translations via `@wordpress/i18n` directly** — no fallback shim. The dep is already on the page (newspack-ui depends on `wp-util`/`wp-i18n`); a shim would just be untested code.
+- **Translatable fake data strings** — every newsletter name and description is wrapped in `__()`. Brief §9 risk #6 calls this out: the prototype lives in the plugin and is scanned by translation tooling. Names like "The Morning" sound silly translated, but consistency beats a one-off carve-out.
+
+**Open questions**
+
+- **`include_once` ordering inside the wrapper's init callback.** v2-demo is loaded at default priority alongside v1 in the same closure. If a future change needs v2-demo registered _before_ v1's filters (vs. its current after-v1 stance), that closure will need restructuring. Not blocking Phase 2; flagging for Phase 3+.
+- **No newspack-ui gap after all.** Initial impulse was to file three additions (stack `--grow`, sized-image primitive, stack hairline). Stack composition handles all three: outer `__stack--justify-between` for left/right pinning, `<img width height>` HTML attrs for size, and a styled `<hr>` between children of a `__stack--vertical`. The takeaway is process: when the brief's escape-hatch reflex fires, first try _more_ stacks before reaching for SCSS. Resolved without leaving the demo.
+- **No-categories scenario.** Figma `4645:19732` is the flat variant. Phase 2 implements only the sectioned variant; the flat variant should land via `?v2-demo=no-categories` in Phase 6 (scenario fixtures). Not a blocker — every section already renders independently, so a flatten in `get_fake_data()` is trivial.
 
 ---
 
@@ -122,3 +159,6 @@ A flat list of decisions that span phases or that future-you will want to find w
 | 2026-04-28 | All phases stack on the single draft PR #4679 (`prototype/my-account-demo`). Title and description updated on each push. Whole prototype lands as one merge once Phase 6 wraps. | Phase 1 sync |
 | 2026-04-28 | When the prototype is ripped out (post-Phase 6 / when productionised into v1), cleanup must include: deleting the `newspack_my_account_v2_demo_endpoints_version` option, re-flushing rewrite rules so `/my-account/newsletters/` etc. stop resolving, and removing the body class scope. Tracked as a Phase 6 task. | Phase 1 sync |
 | 2026-04-28 | Login-redirect query-string strip (logging in with `redirect_to=/my-account/?v2-demo=1` lands on `/edit-account/` without the flag) is **deferred to Phase 2**. Workaround in the meantime: bookmark a sub-endpoint URL like `/my-account/edit-account/?v2-demo=1`. Phase 2 will wrap `wc_get_account_endpoint_url()` to re-append the flag on every internal nav link, which absorbs the post-login case too. | Phase 1 sync (resolves brief §9 risk #4 timing) |
+| 2026-04-28 | Endpoint registration must call `self::register_endpoints()` directly from the class' `init()` — _not_ `add_action('init', …)`. The class is itself loaded inside an `init` callback, so a deferred action registers too late and never fires. Direct call is effectively running on `init` priority 10, same moment WC core registers its endpoints. Code comment in `class-my-account-ui-v2-demo.php` explains the trap. | Phase 2 |
+| 2026-04-28 | `ENDPOINTS_VERSION` constant bumped to `2` for Phase 2 (registers `newsletters`). Bump again in each subsequent phase that adds an endpoint (`donations` in Phase 3) so the auto-flush guard re-runs exactly once per change. | Phase 2 |
+| 2026-04-28 | No newspack-ui additions needed for the newsletter row layout. Nested `__stack` (horizontal/vertical), `__stack--justify-between` for left/right pinning, `<img width height>` for image size, and `<hr>` (already styled by `_dividers.scss`) between vertical-stack children cover everything. Reinforces the brief §2.1 reflex: try more stacks before reaching for scoped SCSS. | Phase 2 |
