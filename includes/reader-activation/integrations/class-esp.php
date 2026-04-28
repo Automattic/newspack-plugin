@@ -423,13 +423,14 @@ class ESP extends Integration {
 			return $fields;
 		}
 
-		return array_map(
-			function( $field ) {
-				$incoming_field = new Incoming_Field( $field['key'], $field );
-				return $this->configure_incoming_field( $incoming_field );
-			},
-			$fields
-		);
+		$incoming_fields = [];
+		foreach ( $fields as $field ) {
+			if ( ! is_array( $field ) || empty( $field['key'] ) || ! is_string( $field['key'] ) ) {
+				continue;
+			}
+			$incoming_fields[] = $this->configure_incoming_field( new Incoming_Field( $field['key'], $field ) );
+		}
+		return $incoming_fields;
 	}
 
 	/**
@@ -437,7 +438,10 @@ class ESP extends Integration {
 	 *
 	 * The raw data comes from Newspack_Newsletters_Contacts::get_fields(), which delegates to the
 	 * provider's get_contact_fields_for_integrations() method. That method returns a schema whose
-	 * keys mirror Incoming_Field setters, letting us configure each field mechanically.
+	 * `key` is the provider's stable machine identifier (e.g. Mailchimp merge-field `tag`,
+	 * ActiveCampaign `perstag`) — used as the Reader_Data attribute and segmentation matching key —
+	 * and whose remaining keys mirror Incoming_Field setters so we can configure each field
+	 * mechanically.
 	 *
 	 * @param Incoming_Field $field The field to configure.
 	 * @return Incoming_Field

@@ -162,4 +162,46 @@ class Test_ESP extends \WP_UnitTestCase {
 
 		\Newspack_Newsletters_Contacts::reset_calls();
 	}
+
+	/**
+	 * Entries without a usable string `key` are skipped rather than producing malformed fields.
+	 */
+	public function test_get_available_incoming_fields_skips_entries_without_usable_key() {
+		\Newspack_Newsletters_Contacts::$fields_fixture = [
+			[
+				'key'  => 'good',
+				'name' => 'Good',
+			],
+			[
+				'name' => 'Missing key',
+			],
+			[
+				'key'  => '',
+				'name' => 'Empty key',
+			],
+			[
+				'key'  => [ 'not', 'a', 'string' ],
+				'name' => 'Non-string key',
+			],
+			'not-an-array',
+		];
+
+		$esp = new class() extends ESP {
+			/**
+			 * Bypass master-list-id resolution for the test.
+			 *
+			 * @return string
+			 */
+			public function get_master_list_id() {
+				return 'test-list';
+			}
+		};
+
+		$result = $esp->get_available_incoming_fields();
+		$this->assertIsArray( $result );
+		$this->assertCount( 1, $result );
+		$this->assertSame( 'good', $result[0]->get_key() );
+
+		\Newspack_Newsletters_Contacts::reset_calls();
+	}
 }
