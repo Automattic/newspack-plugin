@@ -164,6 +164,66 @@ class Test_ESP extends \WP_UnitTestCase {
 	}
 
 	/**
+	 * Filtered incoming fields are matched against the field `name` (the ESP-side
+	 * label) so outgoing-sync fields are filtered out even though incoming `key` is
+	 * now a stable machine identifier (Mailchimp `tag`, ActiveCampaign `perstag`).
+	 */
+	public function test_get_filtered_incoming_fields_excludes_outgoing_by_name() {
+		\Newspack_Newsletters_Contacts::$fields_fixture = [
+			[
+				'key'  => 'MMERGE7',
+				'name' => 'NP_Account',
+			],
+			[
+				'key'  => 'MMERGE8',
+				'name' => 'NP_First Name',
+			],
+			[
+				'key'  => 'CUSTOM1',
+				'name' => 'Custom Field',
+			],
+		];
+
+		$esp = new class() extends ESP {
+			/**
+			 * Bypass master-list-id resolution for the test.
+			 *
+			 * @return string
+			 */
+			public function get_master_list_id() {
+				return 'test-list';
+			}
+		};
+
+		add_filter(
+			'newspack_ras_metadata_keys',
+			function () {
+				return [
+					'account'    => 'Account',
+					'first_name' => 'First Name',
+				];
+			}
+		);
+		add_filter(
+			'newspack_ras_metadata_prefix',
+			function () {
+				return 'NP_';
+			}
+		);
+
+		$result = $esp->get_filtered_incoming_fields();
+
+		remove_all_filters( 'newspack_ras_metadata_keys' );
+		remove_all_filters( 'newspack_ras_metadata_prefix' );
+
+		$this->assertCount( 1, $result );
+		$this->assertSame( 'CUSTOM1', $result[0]->get_key() );
+		$this->assertSame( 'Custom Field', $result[0]->get_name() );
+
+		\Newspack_Newsletters_Contacts::reset_calls();
+	}
+
+	/**
 	 * Entries without a usable string `key` are skipped rather than producing malformed fields.
 	 */
 	public function test_get_available_incoming_fields_skips_entries_without_usable_key() {

@@ -357,6 +357,14 @@ abstract class Integration {
 	/**
 	 * Get filtered incoming contact fields from the integration.
 	 *
+	 * Filters out fields whose human-readable name matches one of the
+	 * outgoing-sync prefixed keys, so admins don't re-select fields they
+	 * are already pushing to the ESP. Comparison is against `name` (not
+	 * `key`) because outgoing custom fields are created on the ESP under
+	 * their prefixed *label*, which the ESP returns as the incoming
+	 * field's `name` — while `key` is the ESP-assigned machine identifier
+	 * (e.g. Mailchimp `tag`, ActiveCampaign `perstag`).
+	 *
 	 * @return Integrations\Incoming_Field[] Array of incoming contact field objects.
 	 */
 	public function get_filtered_incoming_fields() {
@@ -364,13 +372,13 @@ abstract class Integration {
 		if ( is_wp_error( $fields ) ) {
 			return [];
 		}
-		$keys_to_filter = Sync\Metadata::get_all_prefixed_keys();
+		$names_to_filter = Sync\Metadata::get_all_prefixed_keys();
 		return array_values(
 			array_filter(
 				$fields,
-				function( $field ) use ( $keys_to_filter ) {
-					foreach ( $keys_to_filter as $key_to_filter ) {
-						if ( strpos( $field->get_key(), $key_to_filter ) === 0 ) {
+				function( $field ) use ( $names_to_filter ) {
+					foreach ( $names_to_filter as $name_to_filter ) {
+						if ( strpos( $field->get_name(), $name_to_filter ) === 0 ) {
 							return false;
 						}
 					}
@@ -803,7 +811,12 @@ abstract class Integration {
 				$incoming_fields  = $this->get_filtered_incoming_fields();
 				$field['options'] = array_map(
 					function ( $incoming_field ) {
-						return $incoming_field->get_key();
+						$key  = $incoming_field->get_key();
+						$name = $incoming_field->get_name();
+						return [
+							'value' => $key,
+							'label' => '' !== $name ? $name : $key,
+						];
 					},
 					is_wp_error( $incoming_fields ) ? [] : $incoming_fields
 				);
