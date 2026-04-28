@@ -42,6 +42,10 @@ final class My_Account_UI_V2_Demo {
 		\add_filter( 'woocommerce_account_menu_items', [ __CLASS__, 'menu_items' ], 1100 );
 		// Render the newsletters endpoint body.
 		\add_action( 'woocommerce_account_newsletters_endpoint', [ __CLASS__, 'render_newsletters_endpoint' ] );
+		// The `newsletters` endpoint is registered globally (rewrite rules
+		// can't be conditional on caps), so a non-demo visitor guessing the
+		// URL would land on an empty account body. Redirect them away.
+		\add_action( 'template_redirect', [ __CLASS__, 'redirect_non_demo_newsletters_endpoint' ], 9 );
 		// Preserve `?v2-demo` on every internal nav link (sidebar, post-login
 		// redirect, etc.) so a single click can't drop you back into v1.
 		\add_filter( 'woocommerce_get_endpoint_url', [ __CLASS__, 'preserve_demo_flag_on_endpoint_url' ], 10, 4 );
@@ -108,17 +112,21 @@ final class My_Account_UI_V2_Demo {
 		if ( ! self::is_demo_active() ) {
 			return;
 		}
+		// Use the webpack-emitted asset.php for the JS deps so anything the
+		// bundle imports (e.g. @wordpress/i18n) is enqueued automatically.
+		// Canonical pattern in this repo — see e.g. trait-content-gate-layout.
+		$asset = require NEWSPACK_ABSPATH . 'dist/my-account-v2-demo.asset.php';
 		\wp_enqueue_style(
 			'newspack-my-account-v2-demo',
 			Newspack::plugin_url() . '/dist/my-account-v2-demo.css',
 			[ 'newspack-ui' ],
-			NEWSPACK_PLUGIN_VERSION
+			$asset['version']
 		);
 		\wp_enqueue_script(
 			'newspack-my-account-v2-demo',
 			Newspack::plugin_url() . '/dist/my-account-v2-demo.js',
-			[ 'newspack-ui' ],
-			NEWSPACK_PLUGIN_VERSION,
+			$asset['dependencies'],
+			$asset['version'],
 			true
 		);
 		\wp_localize_script(
@@ -170,6 +178,29 @@ final class My_Account_UI_V2_Demo {
 			$ordered['newsletters'] = __( 'Newsletters', 'newspack-plugin' );
 		}
 		return $ordered;
+	}
+
+	/**
+	 * Bounce non-demo visitors away from `/my-account/newsletters/` so they
+	 * never see an empty My Account body. Runs before WC writes the response;
+	 * complements the render-side gate in `render_newsletters_endpoint()` and
+	 * makes Copilot's "guessable URL" concern moot for production users.
+	 */
+	public static function redirect_non_demo_newsletters_endpoint() {
+		if ( ! function_exists( 'is_account_page' ) || ! \is_account_page() ) {
+			return;
+		}
+		// Use get_query_var, not is_wc_endpoint_url — the latter only
+		// matches WC's hardcoded endpoint list, not custom endpoints we
+		// register via add_rewrite_endpoint().
+		if ( false === \get_query_var( 'newsletters', false ) ) {
+			return;
+		}
+		if ( self::is_demo_active() ) {
+			return;
+		}
+		\wp_safe_redirect( \wc_get_account_endpoint_url( 'edit-account' ) );
+		exit;
 	}
 
 	/**

@@ -37,8 +37,12 @@ $reader_email         = isset( $reader['email'] ) ? (string) $reader['email'] : 
 					</p>
 				<?php endif; ?>
 			</header>
-			<div class="newspack-ui__stack newspack-ui__stack--vertical newspack-ui__stack--gap-5" role="list">
+			<div class="newspack-ui__stack newspack-ui__stack--vertical newspack-ui__stack--gap-5">
 				<?php
+				// Bare divs (no role="list") because the <hr> separators
+				// would break ARIA list semantics — list children must all
+				// be listitems. We're not conveying list semantics here;
+				// the visual grouping is enough.
 				$total = count( $section['lists'] );
 				foreach ( $section['lists'] as $index => $list ) {
 					\load_template(

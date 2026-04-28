@@ -37,7 +37,6 @@ $button_action  = $subscribed ? 'unsubscribe' : 'subscribe';
 ?>
 <div
 	class="newspack-ui__stack newspack-ui__stack--horizontal newspack-ui__stack--gap-5 newspack-ui__stack--align-center newspack-ui__stack--justify-between"
-	role="listitem"
 	data-list-id="<?php echo esc_attr( $list_id ); ?>"
 	data-subscribed="<?php echo $subscribed ? 'true' : 'false'; ?>"
 >

@@ -11,36 +11,48 @@ import { __, sprintf } from '@wordpress/i18n';
 const SUBSCRIBE = 'subscribe';
 const UNSUBSCRIBE = 'unsubscribe';
 const UNSUBSCRIBE_FROM_ALL = 'unsubscribe-from-all';
+const SNACKBAR_LIFETIME_MS = 5000;
 
 /**
- * Show a transient snackbar via newspack-ui's notices module. Falls back to
- * a no-op if the global helper isn't on the page yet — the optimistic UI
- * mutation still runs, so the user sees a result either way.
+ * Show a transient snackbar for this demo screen.
+ *
+ * Renders newspack-ui's snackbar markup directly and removes the node after
+ * a short delay. We intentionally do _not_ go through
+ * `newspackUI.notices.openNotice` because its close path always sends an
+ * AJAX dismissal carrying a server-issued nonce — the demo has neither, so
+ * routing through it would fire a 403 admin-ajax request on every toast.
  *
  * @param {string} message Pre-translated message.
  * @param {string} type    'success' | 'error' (default 'success').
  */
 function snackbar( message, type = 'success' ) {
-	const api = window.newspackUI && window.newspackUI.notices;
-	if ( ! api || typeof api.openNotice !== 'function' ) {
-		return;
-	}
 	const container = ensureSnackbarContainer();
 	const item = document.createElement( 'div' );
-	item.className = `newspack-ui__snackbar__item newspack-ui__snackbar__item--${ type }`;
+	item.className = `newspack-ui__snackbar__item newspack-ui__snackbar__item--${ type } active`;
 	item.dataset.autohide = 'true';
+	item.setAttribute( 'role', 'status' );
+	item.setAttribute( 'aria-live', 'polite' );
 	const content = document.createElement( 'div' );
 	content.className = 'newspack-ui__snackbar__content';
 	content.textContent = message;
 	item.appendChild( content );
 	container.appendChild( item );
-	api.openNotice( item, true );
+
+	window.setTimeout( () => {
+		item.classList.remove( 'active' );
+		// Give the CSS transition (~250ms) time to finish before detaching.
+		window.setTimeout( () => {
+			if ( item.parentNode ) {
+				item.parentNode.removeChild( item );
+			}
+		}, 300 );
+	}, SNACKBAR_LIFETIME_MS );
 }
 
 /**
  * Lazily create a top-right snackbar container if the page has none yet.
  * On a fresh request with no PHP-rendered notices, the .newspack-ui__snackbar
- * markup is absent and openNotice() needs somewhere to live.
+ * markup is absent and the toast needs somewhere to live.
  *
  * @return {HTMLElement} Snackbar container element.
  */

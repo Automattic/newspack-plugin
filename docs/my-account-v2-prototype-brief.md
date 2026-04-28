@@ -131,7 +131,7 @@ The v1 surface today is a thin form repurposed from the WooCommerce edit-account
 - `Newsletters list w/o categories` — flat list variant for sites without categories.
 - `Newsletters list w/ sections — Unsubscribed` — confirmation toast state after unsubscribing from one newsletter.
 
-**Row anatomy.** Each newsletter row has a square *thumbnail* (a full image, not an icon — fake data should use `https://picsum.photos/seed/{slug}/128/128` so every row gets a stable but distinct image), a name, a *frequency badge* (display labels: `Daily`, `Weekly`, `Monthly`, `Twice weekly`, `As needed`, plus free-text fallbacks like "3 times a week"), an optional `SUBSCRIBER-ONLY` badge, a one-line description, and a `Sign up` or `Unsubscribe` button. Categories in the w/sections variant are *always-expanded visual labels, not collapsible accordions*. The bottom of the list has a separate "Unsubscribe from all" row with its own button.
+**Row anatomy.** Each newsletter row has a square *thumbnail* (a full image, not an icon — fake data should use `https://picsum.photos/seed/{slug}/144/144` so every row gets a stable but distinct image; request 144×144 so the thumbnail renders at 72px sharply on retina/high-density displays), a name, a *frequency badge* (display labels: `Daily`, `Weekly`, `Monthly`, `Twice weekly`, `As needed`, plus free-text fallbacks like "3 times a week"), an optional `SUBSCRIBER-ONLY` badge, a one-line description, and a `Sign up` or `Unsubscribe` button. Categories in the w/sections variant are *always-expanded visual labels, not collapsible accordions*. The bottom of the list has a separate "Unsubscribe from all" row with its own button.
 
 **Donations** (Figma section `2636:46466`)
 
@@ -267,7 +267,7 @@ Every Figma element maps to an existing newspack-ui primitive. There are no genu
 | `[DEPRECATED] Newspack / Button` | **Replace** with `.newspack-ui__button` family (`--primary`, `--secondary`, `--ghost`, `--destructive`) | `_buttons.scss` |
 | Newsletter "categories" sections | Always-expanded visual labels — **not** collapsible accordions. A vertical stack of `section-title` + a `.newspack-ui__box` containing the rows. | utilities |
 | Newsletter row thumbnail | A square `<img>` (request 128×128, render at design size) inside a sized container. For fake data, `https://picsum.photos/seed/{slug}/128/128` gives a stable but distinct image per newsletter. | composition |
-| Frequency badge / `SUBSCRIBER-ONLY` badge | `.newspack-ui__badge` (frequency) and `.newspack-ui__badge--outline` (subscriber-only). Both render side-by-side in a horizontal stack. | `_badge.scss` |
+| Frequency badge / `SUBSCRIBER-ONLY` badge | `.newspack-ui__badge--outline` (frequency: white background, 1px border) and `.newspack-ui__badge--secondary` (subscriber-only: filled neutral grey). Both render side-by-side in a horizontal stack; `_badge.scss` applies `text-transform: uppercase` so the displayed casing comes from CSS, not source strings. | `_badge.scss` |
 | "Unsubscribe from all" row | A `.newspack-ui__box` at the bottom of the newsletters list with title + supporting copy on the left and a `.newspack-ui__button--secondary` on the right. | composition |
 | "active" vs "previous" / "cancelled" splits | Vertical stack with two section-titles and two stacks of `Plan Card`s | utilities |
 
