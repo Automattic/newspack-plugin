@@ -11,9 +11,9 @@
  *    the `previous` bucket — the whole card is an anchor to the detail page.
  *    Right-side meta text is derived from status (Cancelled / Expired).
  *
- * Detail-page-only fixtures (renewed / no-fees / expiring detail) live in the
- * `extras` bucket and are reachable by direct URL only — they don't render
- * here. See get_fake_subscriptions().
+ * Detail-page-only variants (renewed / no-fees / expiring detail) are
+ * surfaced via Phase 7 scenario fixtures (`?v2-demo=renewed` etc.) which
+ * swap which fixture appears in the active slot. See apply_scenario().
  *
  * Pure newspack-ui composition — see brief §6.
  *
@@ -115,6 +115,11 @@ $previous_meta_color = static function ( $row ) {
 	class="newspack-my-account__v2-demo-subscriptions newspack-ui__stack newspack-ui__stack--vertical newspack-ui__stack--gap-9"
 	data-newspack-my-account-v2-demo="subscriptions"
 >
+	<?php if ( empty( $active ) && empty( $previous ) ) : ?>
+		<div class="newspack-ui__notice">
+			<?php esc_html_e( 'You have no subscriptions yet.', 'newspack-plugin' ); ?>
+		</div>
+	<?php endif; ?>
 	<?php if ( ! empty( $active ) ) : ?>
 		<section class="newspack-ui__stack newspack-ui__stack--vertical newspack-ui__stack--gap-5" data-section-id="active">
 			<h2 class="newspack-ui__font--l newspack-ui__font--bold newspack-ui__spacing-top--0 newspack-ui__spacing-bottom--0">
@@ -170,7 +175,7 @@ $previous_meta_color = static function ( $row ) {
 											/* translators: 1: subscription expiry date in <strong>; 2: opening "renew now" anchor; 3: closing anchor. */
 											__( 'Your subscription has been cancelled. Subscription remains active until %1$s. For uninterrupted service, %2$srenew now%3$s.', 'newspack-plugin' ),
 											'<strong>' . esc_html( $expiry_date ) . '</strong>',
-											'<a href="' . esc_url( $detail_url ) . '#renew" data-action="renew-subscription" data-subscription-id="' . esc_attr( $subscription_id ) . '">',
+											'<a href="#" data-action="renew-subscription" data-subscription-id="' . esc_attr( $subscription_id ) . '">',
 											'</a>'
 										),
 										[

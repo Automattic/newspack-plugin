@@ -63,6 +63,23 @@ $columns         = \wc_get_account_payment_methods_columns();
 				$payment_method_last4 = isset( $method['method']['last4'] ) ? (string) $method['method']['last4'] : '';
 				$payment_method_exp   = isset( $method['expires'] ) ? (string) $method['expires'] : '';
 				$payment_method_actions = isset( $method['actions'] ) && is_array( $method['actions'] ) ? $method['actions'] : [];
+				// Mirror v1's payment-information badge logic: parse `MM/YY`
+				// and compare against the current month so an out-of-date
+				// card surfaces an Expired badge inline. Drives the visual
+				// for `?v2-demo=expired-payment`.
+				$is_expired = false;
+				if ( '' !== $payment_method_exp ) {
+					$exp_parts = explode( '/', $payment_method_exp );
+					if ( 2 === count( $exp_parts ) ) {
+						$exp_month = (int) trim( $exp_parts[0] );
+						$exp_year  = (int) ( '20' . trim( $exp_parts[1] ) );
+						$now_year  = (int) gmdate( 'Y' );
+						$now_month = (int) gmdate( 'm' );
+						if ( $exp_year < $now_year || ( $exp_year === $now_year && $exp_month < $now_month ) ) {
+							$is_expired = true;
+						}
+					}
+				}
 				?>
 				<tr class="payment-method<?php echo $is_default ? ' default-payment-method' : ''; ?>" data-payment-method-id="<?php echo \esc_attr( $payment_method_id ); ?>">
 					<?php foreach ( $columns as $column_id => $column_name ) : ?>
@@ -78,6 +95,13 @@ $columns         = \wc_get_account_payment_methods_columns();
 									);
 								} else {
 									echo \esc_html( \wc_get_credit_card_type_label( $payment_method_brand ) );
+								}
+								if ( $is_expired ) {
+									// Inline Expired badge — mirrors v1's
+									// `payment-information.php` pattern (same
+									// `__badge--secondary` variant). Surfaces
+									// under `?v2-demo=expired-payment`.
+									echo ' <span class="newspack-ui__badge newspack-ui__badge--secondary">' . \esc_html__( 'Expired', 'newspack-plugin' ) . '</span>';
 								}
 								if ( $is_default ) {
 									// Inline default indicator. WC core relies on

@@ -181,7 +181,13 @@ $initial_confirm_label = sprintf( __( '%1$s / %2$s', 'newspack-plugin' ), $forma
 					<?php esc_html_e( 'Cover transaction fees?', 'newspack-plugin' ); ?>
 				</label>
 				<span class="newspack-ui__helper-text">
-					<?php esc_html_e( 'Cover Stripe’s 2% transaction fee, so that The News Paper receives 100% of your payment.', 'newspack-plugin' ); ?>
+					<?php
+					printf(
+						/* translators: %s: site name. */
+						esc_html__( 'Cover Stripe’s 2%% transaction fee, so that %s receives 100%% of your payment.', 'newspack-plugin' ),
+						esc_html( get_bloginfo( 'name' ) )
+					);
+					?>
 				</span>
 			</p>
 

@@ -138,7 +138,13 @@ $summary_label = $product_name
 									<?php esc_html_e( 'Cover transaction fees?', 'newspack-plugin' ); ?>
 								</label>
 								<span class="newspack-ui__helper-text">
-									<?php esc_html_e( 'Cover Stripe’s 2% transaction fee, so that The News Paper receives 100% of your payment.', 'newspack-plugin' ); ?>
+									<?php
+									printf(
+										/* translators: %s: site name. */
+										esc_html__( 'Cover Stripe’s 2%% transaction fee, so that %s receives 100%% of your payment.', 'newspack-plugin' ),
+										esc_html( get_bloginfo( 'name' ) )
+									);
+									?>
 								</span>
 							</p>
 						</div>
@@ -153,7 +159,15 @@ $summary_label = $product_name
 					<?php \Newspack\Newspack_UI_Icons::print_svg( 'check' ); ?>
 				</span>
 				<p>
-					<strong><?php esc_html_e( 'Thank you for supporting The News Paper! Your transaction was successful.', 'newspack-plugin' ); ?></strong>
+					<strong>
+					<?php
+						printf(
+							/* translators: %s: site name. */
+							esc_html__( 'Thank you for supporting %s! Your transaction was successful.', 'newspack-plugin' ),
+							esc_html( get_bloginfo( 'name' ) )
+						);
+						?>
+						</strong>
 				</p>
 				<?php if ( '' !== $reader_email ) : ?>
 					<p>

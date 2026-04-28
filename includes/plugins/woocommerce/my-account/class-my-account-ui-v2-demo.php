@@ -28,6 +28,31 @@ final class My_Account_UI_V2_Demo {
 	const DEMO_FLAG        = 'v2-demo';
 	const BODY_CLASS       = 'newspack-my-account--v2-demo';
 	const ENDPOINTS_OPTION = 'newspack_my_account_v2_demo_endpoints_version';
+	/**
+	 * Recognised scenario names. The query parameter `?v2-demo=<scenario>`
+	 * triggers a deterministic merge into the base fake-data fixture so each
+	 * variant frame in Figma is reachable from a stable URL. The default
+	 * `?v2-demo=1` (or any other value) yields the happy path with no
+	 * overrides — see apply_scenario() and brief §7.
+	 */
+	const SCENARIOS = [
+		// Subscription state swaps — replace whatever's in the active slot.
+		'cancelled-sub',
+		'expiring',
+		'renewed',
+		'no-fees',
+		// Donations.
+		'billing-history',
+		// Newsletters.
+		'no-categories',
+		// Payment methods.
+		'expired-payment',
+		// Empty states.
+		'empty',
+		'no-donations',
+		'no-subscriptions',
+		'no-payment-methods',
+	];
 	// Bump when the set of registered endpoints changes so the auto-flush
 	// guard re-runs. See devlog Decision log "Endpoint flush strategy".
 	// 2 = newsletters (Phase 2). 3 = + donations (Phase 3).
@@ -124,6 +149,25 @@ final class My_Account_UI_V2_Demo {
 			return false;
 		}
 		return \current_user_can( 'manage_options' );
+	}
+
+	/**
+	 * Read the current scenario name from `?v2-demo=<scenario>`. Returns the
+	 * empty string when the flag is `1` / unset / not in the SCENARIOS list,
+	 * so callers can short-circuit the happy path with a single is-empty
+	 * check. Sanitised because it's read from $_GET; gating happens upstream
+	 * via is_demo_active().
+	 *
+	 * @return string Scenario name (one of self::SCENARIOS) or ''.
+	 */
+	public static function get_scenario() {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( ! isset( $_GET[ self::DEMO_FLAG ] ) ) {
+			return '';
+		}
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$value = \sanitize_text_field( \wp_unslash( $_GET[ self::DEMO_FLAG ] ) );
+		return \in_array( $value, self::SCENARIOS, true ) ? $value : '';
 	}
 
 	/**
@@ -501,24 +545,23 @@ final class My_Account_UI_V2_Demo {
 	}
 
 	/**
-	 * Look up a single subscription in the fake-data array by id, across all
-	 * three buckets (`active`, `previous`, `extras`). The `extras` bucket
-	 * holds detail-page-only fixtures that are reachable by direct URL but
-	 * don't appear on the list — see get_fake_subscriptions().
+	 * Look up a single subscription in the fake-data array by id, across the
+	 * `active` and `previous` buckets. Phase 7 retired the prior `extras`
+	 * pool: scenarios (`?v2-demo=expiring` / `=renewed` / `=no-fees` /
+	 * `=cancelled-sub`) now swap each variant fixture into the `active` slot,
+	 * so every detail variant is reachable through its scenario URL without
+	 * a separate detail-only bucket.
 	 *
 	 * @param array  $data Full fake-data payload.
 	 * @param string $id   Subscription id to find.
-	 * @return array|null  Subscription row + a `bucket` key set to one of
-	 *                     'active', 'previous', or 'extras', or null if not
-	 *                     found.
+	 * @return array|null  Subscription row, or null if not found.
 	 */
 	private static function find_subscription_by_id( $data, $id ) {
 		$subscriptions = isset( $data['subscriptions'] ) ? $data['subscriptions'] : [];
-		foreach ( [ 'active', 'previous', 'extras' ] as $bucket ) {
+		foreach ( [ 'active', 'previous' ] as $bucket ) {
 			$rows = isset( $subscriptions[ $bucket ] ) ? $subscriptions[ $bucket ] : [];
 			foreach ( $rows as $row ) {
 				if ( isset( $row['id'] ) && (string) $row['id'] === $id ) {
-					$row['bucket'] = $bucket;
 					return $row;
 				}
 			}
@@ -581,15 +624,16 @@ final class My_Account_UI_V2_Demo {
 	/**
 	 * Fake data shared by PHP templates and JS. Single source of truth.
 	 *
-	 * Phase 2 ships only the `newsletters` slice; Phase 3 adds `donations`;
-	 * Phase 4 adds `subscriptions`; Phase 6 adds `payment_methods`. Scenario
-	 * overrides via `?v2-demo=<scenario>` will be wired in Phase 7.
+	 * The base fixture is the happy path (one active recurring donation,
+	 * one active subscription, one cancelled + one expired previous, two
+	 * saved cards). Scenario overrides via `?v2-demo=<scenario>` (Phase 7)
+	 * are merged on top — see apply_scenario() and brief §7.
 	 *
 	 * @return array
 	 */
 	public static function get_fake_data() {
 		$user = \wp_get_current_user();
-		return [
+		$base = [
 			'reader'          => [
 				'display_name' => $user && $user->ID ? $user->display_name : __( 'Casey Reader', 'newspack-plugin' ),
 				'email'        => $user && $user->ID ? $user->user_email : 'casey@example.com',
@@ -716,6 +760,171 @@ final class My_Account_UI_V2_Demo {
 					'label'       => __( 'Unsubscribe from all', 'newspack-plugin' ),
 				],
 			],
+		];
+
+		$scenario = self::get_scenario();
+		if ( '' === $scenario ) {
+			return $base;
+		}
+		return self::apply_scenario( $base, $scenario );
+	}
+
+	/**
+	 * Apply a scenario override to the base fake-data fixture. Each scenario
+	 * is a small deterministic merge — swap a fixture into the active slot,
+	 * flip a flag, empty a slice — that closes a Figma variant frame the
+	 * happy-path fixture doesn't reach. Unrecognised names fall through to
+	 * the base (defensive: get_scenario already enforces the allow-list).
+	 *
+	 * Scenario inventory (brief §7, Phase 7 devlog):
+	 *  - cancelled-sub / expiring / renewed / no-fees — swap which subscription
+	 *    fixture renders in the active slot, so the list view picks up the
+	 *    same status badge / inline notice / collapsed Amount section as the
+	 *    matching detail variant.
+	 *  - billing-history — flip donations.billing_history_inline true so the
+	 *    embedded billing-history table replaces the bottom Button Card
+	 *    (Figma 3619:292407).
+	 *  - no-categories — flatten newsletters.sections to a single ungrouped
+	 *    list (Figma 4645:19732).
+	 *  - expired-payment — replace one saved card with one whose `expires`
+	 *    is in the past, surfacing the Expired badge.
+	 *  - empty / no-donations / no-subscriptions / no-payment-methods —
+	 *    empty-state variants for the relevant slice(s).
+	 *
+	 * @param array  $data     Base fake-data payload.
+	 * @param string $scenario Scenario name; one of self::SCENARIOS.
+	 * @return array
+	 */
+	private static function apply_scenario( $data, $scenario ) {
+		switch ( $scenario ) {
+			case 'cancelled-sub':
+				$pool                              = self::get_subscription_fixtures();
+				$data['subscriptions']['active']   = [ $pool['sub-cancelled'] ];
+				// Drop the now-duplicated cancelled card from previous so the
+				// reader doesn't see the same row twice.
+				$data['subscriptions']['previous'] = [ $pool['sub-expired'] ];
+				break;
+
+			case 'expiring':
+				$pool                            = self::get_subscription_fixtures();
+				$data['subscriptions']['active'] = [ $pool['sub-expiring'] ];
+				break;
+
+			case 'renewed':
+				$pool                            = self::get_subscription_fixtures();
+				$data['subscriptions']['active'] = [ $pool['sub-renewed'] ];
+				break;
+
+			case 'no-fees':
+				$pool                            = self::get_subscription_fixtures();
+				$data['subscriptions']['active'] = [ $pool['sub-active-no-fees'] ];
+				break;
+
+			case 'billing-history':
+				if ( isset( $data['donations'] ) ) {
+					$data['donations']['billing_history_inline'] = true;
+				}
+				break;
+
+			case 'no-categories':
+				if ( isset( $data['newsletters']['sections'] ) ) {
+					$flat_lists = [];
+					foreach ( $data['newsletters']['sections'] as $section ) {
+						if ( ! empty( $section['lists'] ) && is_array( $section['lists'] ) ) {
+							$flat_lists = array_merge( $flat_lists, $section['lists'] );
+						}
+					}
+					$data['newsletters']['sections'] = [
+						[
+							'id'          => 'all',
+							'label'       => '',
+							'description' => '',
+							'lists'       => $flat_lists,
+						],
+					];
+				}
+				break;
+
+			case 'expired-payment':
+				if ( isset( $data['payment_methods']['cc'] ) && is_array( $data['payment_methods']['cc'] ) ) {
+					// Mark the non-default card as expired (or the only card if
+					// there's just one). Swapping `expires` to a past month is
+					// what surfaces v1's Expired indicator in the cell template
+					// — the row class stays the same, the value column carries
+					// the past date.
+					foreach ( $data['payment_methods']['cc'] as $idx => $row ) {
+						if ( empty( $row['is_default'] ) ) {
+							$data['payment_methods']['cc'][ $idx ]['expires'] = '03/24';
+							break;
+						}
+					}
+				}
+				break;
+
+			case 'empty':
+				$data['donations']       = self::empty_donations();
+				$data['subscriptions']   = self::empty_subscriptions();
+				$data['payment_methods'] = self::empty_payment_methods();
+				break;
+
+			case 'no-donations':
+				$data['donations'] = self::empty_donations();
+				break;
+
+			case 'no-subscriptions':
+				$data['subscriptions'] = self::empty_subscriptions();
+				break;
+
+			case 'no-payment-methods':
+				$data['payment_methods'] = self::empty_payment_methods();
+				break;
+		}
+		return $data;
+	}
+
+	/**
+	 * Empty-state shape for the donations slice. Preserves currency + the
+	 * billing-history button slot so the list template still renders the
+	 * "no recurring / no previous" copy without erroring on missing keys.
+	 *
+	 * @return array
+	 */
+	private static function empty_donations() {
+		return [
+			'currency_symbol'        => '$',
+			'currency_code'          => 'USD',
+			'recurring'              => [],
+			'one_time'               => [],
+			'billing_history_inline' => false,
+			'billing_history_button' => [ 'enabled' => false ],
+		];
+	}
+
+	/**
+	 * Empty-state shape for the subscriptions slice. Keeps the tiers
+	 * catalogue so the modal lookup path stays valid even on empty lists.
+	 *
+	 * @return array
+	 */
+	private static function empty_subscriptions() {
+		$base = self::get_fake_subscriptions();
+		return [
+			'currency_symbol' => $base['currency_symbol'],
+			'currency_code'   => $base['currency_code'],
+			'tiers'           => $base['tiers'],
+			'active'          => [],
+			'previous'        => [],
+		];
+	}
+
+	/**
+	 * Empty-state shape for the payment-methods slice.
+	 *
+	 * @return array
+	 */
+	private static function empty_payment_methods() {
+		return [
+			'cc' => [],
 		];
 	}
 
@@ -883,8 +1092,9 @@ final class My_Account_UI_V2_Demo {
 				],
 			],
 			// Bottom of the list page: render the Button Card by default
-			// (Figma 2636:46467). Phase 6 will flip `billing_history_inline`
-			// for the embedded-table variant (Figma 3619:292407).
+			// (Figma 2636:46467). Phase 7 scenario `?v2-demo=billing-history`
+			// flips this to true for the embedded-table variant
+			// (Figma 3619:292407).
 			'billing_history_inline' => false,
 			'billing_history_button' => [
 				'enabled'     => true,
@@ -895,27 +1105,313 @@ final class My_Account_UI_V2_Demo {
 	}
 
 	/**
+	 * Canonical subscription fixtures, keyed by id. Phase 7 lifted these out
+	 * of the prior `active` / `previous` / `extras` arrays so scenarios can
+	 * swap any fixture into the `active` slot without duplicating row
+	 * literals — `?v2-demo=expiring` plucks `sub-expiring`, `=renewed`
+	 * plucks `sub-renewed`, etc.
+	 *
+	 * Each row's `status` + `fees_covered` flags drive the detail template
+	 * branch (header buttons, Amount breakdown, CANCELLED badge, inline
+	 * expiring notice). Currency is USD per brief §7; Figma renders in £.
+	 *
+	 * @return array<string,array>
+	 */
+	private static function get_subscription_fixtures() {
+		return [
+			// active (Figma 2636:46149) — happy-path live subscription.
+			'sub-001'            => [
+				'id'                    => 'sub-001',
+				'status'                => 'active',
+				'current_tier'          => 'tier-member-yearly',
+				'product'               => __( 'Member', 'newspack-plugin' ),
+				'amount'                => 71.16,
+				'frequency'             => 'year',
+				'frequency_label'       => __( 'Annually', 'newspack-plugin' ),
+				'started'               => '2025-03-16',
+				'latest_payment'        => '2026-03-16',
+				'next_payment'          => '2027-03-16',
+				'subtotal'              => 58.33,
+				'vat'                   => 11.67,
+				'transaction_fee'       => 1.16,
+				'transaction_fee_label' => __( 'Transaction fee (2%)', 'newspack-plugin' ),
+				'total'                 => 71.16,
+				'fees_covered'          => false,
+				'payment_method'        => [
+					'brand' => __( 'Visa', 'newspack-plugin' ),
+					'last4' => '4242',
+					'exp'   => '02/27',
+				],
+				'billing_history'       => [
+					[
+						'order'  => '#854',
+						'date'   => '2026-03-16',
+						'status' => 'paid',
+						'amount' => 71.16,
+					],
+					[
+						'order'  => '#853',
+						'date'   => '2025-03-16',
+						'status' => 'failed',
+						'amount' => 71.16,
+					],
+					[
+						'order'  => '#852',
+						'date'   => '2025-03-16',
+						'status' => 'processing',
+						'amount' => 71.16,
+					],
+				],
+			],
+			// cancelled (Figma 2636:46177) — CANCELLED badge + Renew subscription.
+			'sub-cancelled'      => [
+				'id'                    => 'sub-cancelled',
+				'status'                => 'cancelled',
+				'product'               => __( 'Patron', 'newspack-plugin' ),
+				'amount'                => 101.70,
+				'frequency'             => 'year',
+				'frequency_label'       => __( 'Annually', 'newspack-plugin' ),
+				'started'               => '2021-02-19',
+				'latest_payment'        => '2022-02-19',
+				'next_payment'          => null,
+				'cancelled'             => '2023-01-17',
+				'subtotal'              => 83.33,
+				'vat'                   => 16.67,
+				'transaction_fee'       => 1.70,
+				'transaction_fee_label' => __( 'Transaction fee (2%)', 'newspack-plugin' ),
+				'total'                 => 101.70,
+				'fees_covered'          => false,
+				'payment_method'        => [
+					'brand' => __( 'Visa', 'newspack-plugin' ),
+					'last4' => '4242',
+					'exp'   => '02/24',
+				],
+				'billing_history'       => [
+					[
+						'order'  => '#721',
+						'date'   => '2023-01-17',
+						'status' => 'cancelled',
+						'amount' => null,
+					],
+					[
+						'order'  => '#680',
+						'date'   => '2022-02-19',
+						'status' => 'paid',
+						'amount' => 101.70,
+					],
+					[
+						'order'  => '#102',
+						'date'   => '2021-02-19',
+						'status' => 'paid',
+						'amount' => 101.70,
+					],
+				],
+			],
+			// expired — variant of cancelled used as the second `previous`
+			// card on the list (Figma init 1 second card row).
+			'sub-expired'        => [
+				'id'              => 'sub-expired',
+				'status'          => 'expired',
+				'product'         => __( 'Supporter', 'newspack-plugin' ),
+				'amount'          => 5.00,
+				'frequency'       => 'month',
+				'frequency_label' => __( 'Monthly', 'newspack-plugin' ),
+				'started'         => '2022-06-01',
+				'latest_payment'  => '2023-05-01',
+				'next_payment'    => null,
+				'expires_on'      => '2023-06-01',
+				'subtotal'        => 4.17,
+				'vat'             => 0.83,
+				'transaction_fee' => null,
+				'total'           => 5.00,
+				'fees_covered'    => false,
+				'payment_method'  => [
+					'brand' => __( 'Mastercard', 'newspack-plugin' ),
+					'last4' => '5454',
+					'exp'   => '05/23',
+				],
+				'billing_history' => [
+					[
+						'order'  => '#480',
+						'date'   => '2023-06-01',
+						'status' => 'failed',
+						'amount' => null,
+					],
+					[
+						'order'  => '#445',
+						'date'   => '2023-05-01',
+						'status' => 'paid',
+						'amount' => 5.00,
+					],
+					[
+						'order'  => '#410',
+						'date'   => '2023-04-01',
+						'status' => 'paid',
+						'amount' => 5.00,
+					],
+				],
+			],
+			// expiring (Figma 2636:46232) — inline error notice + Renew on
+			// the active card. Surfaced via `?v2-demo=expiring`.
+			'sub-expiring'       => [
+				'id'                    => 'sub-expiring',
+				'status'                => 'expiring',
+				'product'               => __( 'Member', 'newspack-plugin' ),
+				'amount'                => 71.16,
+				'frequency'             => 'year',
+				'frequency_label'       => __( 'Annually', 'newspack-plugin' ),
+				'expires_on'            => '2026-09-16',
+				'started'               => '2024-03-16',
+				'latest_payment'        => '2025-03-16',
+				'next_payment'          => null,
+				'subtotal'              => 58.33,
+				'vat'                   => 11.67,
+				'transaction_fee'       => 1.16,
+				'transaction_fee_label' => __( 'Transaction fee (2%)', 'newspack-plugin' ),
+				'total'                 => 71.16,
+				'fees_covered'          => false,
+				'payment_method'        => [
+					'brand' => __( 'Visa', 'newspack-plugin' ),
+					'last4' => '4242',
+					'exp'   => '02/27',
+				],
+				'billing_history'       => [
+					[
+						'order'  => '#1200',
+						'date'   => '2025-09-04',
+						'status' => 'cancelled',
+						'amount' => null,
+					],
+					[
+						'order'  => '#854',
+						'date'   => '2025-03-16',
+						'status' => 'paid',
+						'amount' => 71.16,
+					],
+					[
+						'order'  => '#853',
+						'date'   => '2024-09-16',
+						'status' => 'failed',
+						'amount' => 71.16,
+					],
+					[
+						'order'  => '#852',
+						'date'   => '2024-03-16',
+						'status' => 'processing',
+						'amount' => 71.16,
+					],
+				],
+			],
+			// renewed (Figma 2636:46204) — visually identical to active.
+			// Surfaced via `?v2-demo=renewed`.
+			'sub-renewed'        => [
+				'id'                    => 'sub-renewed',
+				'status'                => 'renewed',
+				'current_tier'          => 'tier-patron-yearly',
+				'product'               => __( 'Patron', 'newspack-plugin' ),
+				'amount'                => 101.70,
+				'frequency'             => 'year',
+				'frequency_label'       => __( 'Annually', 'newspack-plugin' ),
+				'started'               => '2021-02-19',
+				'latest_payment'        => '2023-11-02',
+				'next_payment'          => '2024-11-02',
+				'subtotal'              => 83.33,
+				'vat'                   => 16.67,
+				'transaction_fee'       => 1.70,
+				'transaction_fee_label' => __( 'Transaction fee (2%)', 'newspack-plugin' ),
+				'total'                 => 101.70,
+				'fees_covered'          => false,
+				'payment_method'        => [
+					'brand' => __( 'Visa', 'newspack-plugin' ),
+					'last4' => '4242',
+					'exp'   => '02/24',
+				],
+				'billing_history'       => [
+					[
+						'order'  => '#955',
+						'date'   => '2023-11-02',
+						'status' => 'paid',
+						'amount' => 101.70,
+					],
+					[
+						'order'  => '#721',
+						'date'   => '2023-01-17',
+						'status' => 'cancelled',
+						'amount' => null,
+					],
+					[
+						'order'  => '#680',
+						'date'   => '2022-02-19',
+						'status' => 'paid',
+						'amount' => 101.70,
+					],
+					[
+						'order'  => '#102',
+						'date'   => '2021-02-19',
+						'status' => 'paid',
+						'amount' => 101.70,
+					],
+				],
+			],
+			// active no-fees (Figma 4351:66807) — fees_covered=true collapses
+			// the Amount breakdown to a single Total row. Surfaced via
+			// `?v2-demo=no-fees`.
+			'sub-active-no-fees' => [
+				'id'              => 'sub-active-no-fees',
+				'status'          => 'active',
+				'current_tier'    => 'tier-member-yearly',
+				'product'         => __( 'Member', 'newspack-plugin' ),
+				'amount'          => 71.16,
+				'frequency'       => 'year',
+				'frequency_label' => __( 'Annually', 'newspack-plugin' ),
+				'started'         => '2025-03-16',
+				'latest_payment'  => '2026-03-16',
+				'next_payment'    => '2027-03-16',
+				'fees_covered'    => true,
+				'payment_method'  => [
+					'brand' => __( 'Visa', 'newspack-plugin' ),
+					'last4' => '4242',
+					'exp'   => '02/27',
+				],
+				'billing_history' => [
+					[
+						'order'  => '#854',
+						'date'   => '2026-03-16',
+						'status' => 'paid',
+						'amount' => 71.16,
+					],
+					[
+						'order'  => '#853',
+						'date'   => '2025-03-16',
+						'status' => 'failed',
+						'amount' => 71.16,
+					],
+					[
+						'order'  => '#852',
+						'date'   => '2025-03-16',
+						'status' => 'processing',
+						'amount' => 71.16,
+					],
+				],
+			],
+		];
+	}
+
+	/**
 	 * Subscriptions slice of the fake-data payload. Mirrors the structural
 	 * shape of get_fake_donations() so the v2 detail template can branch on
 	 * the same primitives — `status`, `fees_covered`, billing-history rows.
 	 *
-	 * Five status flavours map to the Figma detail variants:
-	 *  - active   (Figma 2636:46149)  — Change subscription + More
-	 *  - active   + fees_covered=true (Figma 4351:66807) — Amount collapses
-	 *  - cancelled(Figma 2636:46177)  — CANCELLED badge + Renew subscription
-	 *  - expiring (Figma 2636:46232)  — inline notice + Renew subscription
-	 *  - renewed  (Figma 2636:46204)  — visually identical to active
-	 *
-	 * The list page renders `active` + `previous` only, matching Figma init 1
-	 * (one active card + one previous card). The `extras` bucket holds detail-
-	 * page-only fixtures that are reachable by direct URL but don't appear on
-	 * the list — Phase 6 scenario fixtures will swap which fixture renders in
-	 * the active/previous slots so the list-side variants (init 2 expiring,
-	 * etc.) become reachable. Currency is USD per brief §7; Figma renders in £.
+	 * The default arrangement matches Figma init 1 (one active card + one
+	 * previous card). Phase 7 scenarios swap which fixture appears in the
+	 * `active` slot via `?v2-demo=expiring` / `=renewed` / `=no-fees` /
+	 * `=cancelled-sub` (see apply_scenario). All canonical fixtures live in
+	 * get_subscription_fixtures().
 	 *
 	 * @return array
 	 */
 	private static function get_fake_subscriptions() {
+		$pool = self::get_subscription_fixtures();
 		return [
 			'currency_symbol' => '$',
 			'currency_code'   => 'USD',
@@ -974,283 +1470,11 @@ final class My_Account_UI_V2_Demo {
 				],
 			],
 			'active'          => [
-				[
-					'id'                    => 'sub-001',
-					'status'                => 'active',
-					'current_tier'          => 'tier-member-yearly',
-					'product'               => __( 'Member', 'newspack-plugin' ),
-					'amount'                => 71.16,
-					'frequency'             => 'year',
-					'frequency_label'       => __( 'Annually', 'newspack-plugin' ),
-					'started'               => '2025-03-16',
-					'latest_payment'        => '2026-03-16',
-					'next_payment'          => '2027-03-16',
-					'subtotal'              => 58.33,
-					'vat'                   => 11.67,
-					'transaction_fee'       => 1.16,
-					'transaction_fee_label' => __( 'Transaction fee (2%)', 'newspack-plugin' ),
-					'total'                 => 71.16,
-					'fees_covered'          => false,
-					'payment_method'        => [
-						'brand' => __( 'Visa', 'newspack-plugin' ),
-						'last4' => '4242',
-						'exp'   => '02/27',
-					],
-					'billing_history'       => [
-						[
-							'order'  => '#854',
-							'date'   => '2026-03-16',
-							'status' => 'paid',
-							'amount' => 71.16,
-						],
-						[
-							'order'  => '#853',
-							'date'   => '2025-03-16',
-							'status' => 'failed',
-							'amount' => 71.16,
-						],
-						[
-							'order'  => '#852',
-							'date'   => '2025-03-16',
-							'status' => 'processing',
-							'amount' => 71.16,
-						],
-					],
-				],
+				$pool['sub-001'],
 			],
 			'previous'        => [
-				[
-					'id'                    => 'sub-cancelled',
-					'status'                => 'cancelled',
-					'product'               => __( 'Patron', 'newspack-plugin' ),
-					'amount'                => 101.70,
-					'frequency'             => 'year',
-					'frequency_label'       => __( 'Annually', 'newspack-plugin' ),
-					'started'               => '2021-02-19',
-					'latest_payment'        => '2022-02-19',
-					'next_payment'          => null,
-					'cancelled'             => '2023-01-17',
-					'subtotal'              => 83.33,
-					'vat'                   => 16.67,
-					'transaction_fee'       => 1.70,
-					'transaction_fee_label' => __( 'Transaction fee (2%)', 'newspack-plugin' ),
-					'total'                 => 101.70,
-					'fees_covered'          => false,
-					'payment_method'        => [
-						'brand' => __( 'Visa', 'newspack-plugin' ),
-						'last4' => '4242',
-						'exp'   => '02/24',
-					],
-					'billing_history'       => [
-						[
-							'order'  => '#721',
-							'date'   => '2023-01-17',
-							'status' => 'cancelled',
-							'amount' => null,
-						],
-						[
-							'order'  => '#680',
-							'date'   => '2022-02-19',
-							'status' => 'paid',
-							'amount' => 101.70,
-						],
-						[
-							'order'  => '#102',
-							'date'   => '2021-02-19',
-							'status' => 'paid',
-							'amount' => 101.70,
-						],
-					],
-				],
-				[
-					'id'              => 'sub-expired',
-					'status'          => 'expired',
-					'product'         => __( 'Supporter', 'newspack-plugin' ),
-					'amount'          => 5.00,
-					'frequency'       => 'month',
-					'frequency_label' => __( 'Monthly', 'newspack-plugin' ),
-					'started'         => '2022-06-01',
-					'latest_payment'  => '2023-05-01',
-					'next_payment'    => null,
-					'expires_on'      => '2023-06-01',
-					'subtotal'        => 4.17,
-					'vat'             => 0.83,
-					'transaction_fee' => null,
-					'total'           => 5.00,
-					'fees_covered'    => false,
-					'payment_method'  => [
-						'brand' => __( 'Mastercard', 'newspack-plugin' ),
-						'last4' => '5454',
-						'exp'   => '05/23',
-					],
-					'billing_history' => [
-						[
-							'order'  => '#480',
-							'date'   => '2023-06-01',
-							'status' => 'failed',
-							'amount' => null,
-						],
-						[
-							'order'  => '#445',
-							'date'   => '2023-05-01',
-							'status' => 'paid',
-							'amount' => 5.00,
-						],
-						[
-							'order'  => '#410',
-							'date'   => '2023-04-01',
-							'status' => 'paid',
-							'amount' => 5.00,
-						],
-					],
-				],
-			],
-			// Detail-page-only fixtures, reachable by direct URL but not
-			// rendered on the list. The list matches Figma init 1 (one
-			// active card + one previous card) — these extra status flavours
-			// are accessed via /my-account/subscriptions/<id>/?v2-demo=1
-			// until Phase 6 scenario fixtures swap which row appears in the
-			// active/previous slot (e.g. ?v2-demo=expiring).
-			'extras'          => [
-				[
-					'id'                    => 'sub-expiring',
-					'status'                => 'expiring',
-					'product'               => __( 'Member', 'newspack-plugin' ),
-					'amount'                => 71.16,
-					'frequency'             => 'year',
-					'frequency_label'       => __( 'Annually', 'newspack-plugin' ),
-					'expires_on'            => '2026-09-16',
-					'started'               => '2024-03-16',
-					'latest_payment'        => '2025-03-16',
-					'next_payment'          => null,
-					'subtotal'              => 58.33,
-					'vat'                   => 11.67,
-					'transaction_fee'       => 1.16,
-					'transaction_fee_label' => __( 'Transaction fee (2%)', 'newspack-plugin' ),
-					'total'                 => 71.16,
-					'fees_covered'          => false,
-					'payment_method'        => [
-						'brand' => __( 'Visa', 'newspack-plugin' ),
-						'last4' => '4242',
-						'exp'   => '02/27',
-					],
-					'billing_history'       => [
-						[
-							'order'  => '#1200',
-							'date'   => '2025-09-04',
-							'status' => 'cancelled',
-							'amount' => null,
-						],
-						[
-							'order'  => '#854',
-							'date'   => '2025-03-16',
-							'status' => 'paid',
-							'amount' => 71.16,
-						],
-						[
-							'order'  => '#853',
-							'date'   => '2024-09-16',
-							'status' => 'failed',
-							'amount' => 71.16,
-						],
-						[
-							'order'  => '#852',
-							'date'   => '2024-03-16',
-							'status' => 'processing',
-							'amount' => 71.16,
-						],
-					],
-				],
-				[
-					'id'                    => 'sub-renewed',
-					'status'                => 'renewed',
-					'current_tier'          => 'tier-patron-yearly',
-					'product'               => __( 'Patron', 'newspack-plugin' ),
-					'amount'                => 101.70,
-					'frequency'             => 'year',
-					'frequency_label'       => __( 'Annually', 'newspack-plugin' ),
-					'started'               => '2021-02-19',
-					'latest_payment'        => '2023-11-02',
-					'next_payment'          => '2024-11-02',
-					'subtotal'              => 83.33,
-					'vat'                   => 16.67,
-					'transaction_fee'       => 1.70,
-					'transaction_fee_label' => __( 'Transaction fee (2%)', 'newspack-plugin' ),
-					'total'                 => 101.70,
-					'fees_covered'          => false,
-					'payment_method'        => [
-						'brand' => __( 'Visa', 'newspack-plugin' ),
-						'last4' => '4242',
-						'exp'   => '02/24',
-					],
-					'billing_history'       => [
-						[
-							'order'  => '#955',
-							'date'   => '2023-11-02',
-							'status' => 'paid',
-							'amount' => 101.70,
-						],
-						[
-							'order'  => '#721',
-							'date'   => '2023-01-17',
-							'status' => 'cancelled',
-							'amount' => null,
-						],
-						[
-							'order'  => '#680',
-							'date'   => '2022-02-19',
-							'status' => 'paid',
-							'amount' => 101.70,
-						],
-						[
-							'order'  => '#102',
-							'date'   => '2021-02-19',
-							'status' => 'paid',
-							'amount' => 101.70,
-						],
-					],
-				],
-				[
-					'id'              => 'sub-active-no-fees',
-					'status'          => 'active',
-					'current_tier'    => 'tier-member-yearly',
-					'product'         => __( 'Member', 'newspack-plugin' ),
-					'amount'          => 71.16,
-					'frequency'       => 'year',
-					'frequency_label' => __( 'Annually', 'newspack-plugin' ),
-					'started'         => '2025-03-16',
-					'latest_payment'  => '2026-03-16',
-					'next_payment'    => '2027-03-16',
-					// fees_covered = true collapses the Amount breakdown to a
-					// single row (Figma 4351:66807). Same flag pattern as the
-					// donation no-fees variant (Phase 3 decision log).
-					'fees_covered'    => true,
-					'payment_method'  => [
-						'brand' => __( 'Visa', 'newspack-plugin' ),
-						'last4' => '4242',
-						'exp'   => '02/27',
-					],
-					'billing_history' => [
-						[
-							'order'  => '#854',
-							'date'   => '2026-03-16',
-							'status' => 'paid',
-							'amount' => 71.16,
-						],
-						[
-							'order'  => '#853',
-							'date'   => '2025-03-16',
-							'status' => 'failed',
-							'amount' => 71.16,
-						],
-						[
-							'order'  => '#852',
-							'date'   => '2025-03-16',
-							'status' => 'processing',
-							'amount' => 71.16,
-						],
-					],
-				],
+				$pool['sub-cancelled'],
+				$pool['sub-expired'],
 			],
 		];
 	}
