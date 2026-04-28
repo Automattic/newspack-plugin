@@ -377,6 +377,10 @@ if ( $frequency ) {
 </div>
 
 <?php
+$reader        = isset( $data['reader'] ) ? $data['reader'] : [];
+$reader_email  = isset( $reader['email'] ) ? (string) $reader['email'] : '';
+$tiers_billing = isset( $tiers['billing'] ) ? $tiers['billing'] : [];
+
 // Change subscription modal — rendered only for the active/renewed states
 // that show the Change subscription button. Cancelled/expiring subs offer
 // Renew instead, and don't need the tier picker.
@@ -388,6 +392,36 @@ if ( $is_active && ! empty( $tiers ) ) {
 			'tiers'           => $tiers,
 			'subscription'    => $subscription,
 			'currency_symbol' => $currency_symbol,
+		]
+	);
+}
+
+// Cancel subscription modal — rendered for any sub that exposes a Cancel
+// trigger (active / renewed via the More dropdown; expiring inherits the
+// header link too). Cancelled subs already terminated; no Cancel for them.
+if ( $is_active || $is_expiring ) {
+	load_template(
+		__DIR__ . '/partials/cancel-subscription-modal.php',
+		false,
+		[
+			'subscription' => $subscription,
+			'reader_email' => $reader_email,
+		]
+	);
+}
+
+// Renew subscription modal — rendered for cancelled / expiring subs (the
+// header Renew button) and reused by the expiring variant's inline
+// "renew now" anchor inside the error notice.
+if ( $is_cancelled || $is_expiring ) {
+	load_template(
+		__DIR__ . '/partials/renew-subscription-modal.php',
+		false,
+		[
+			'subscription'    => $subscription,
+			'billing'         => $tiers_billing,
+			'currency_symbol' => $currency_symbol,
+			'reader_email'    => $reader_email,
 		]
 	);
 }

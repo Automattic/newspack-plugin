@@ -150,7 +150,7 @@ Before writing any code: clone the repo via `n`, install deps (`npm install` and
 
 ## 3. Scope of screens
 
-Three priority surfaces, each with several variant states. Everything else (account settings, delete account, signed-out, email-unverified) is **reused from v1 as-is** for the prototype.
+Four priority surfaces, each with several variant states. Everything else (account settings, delete account, signed-out, email-unverified) is **reused from v1 as-is** for the prototype.
 
 **Newsletters** (Figma section `2636:46703`)
 
@@ -181,6 +181,10 @@ v1 already extends the WooCommerce Subscriptions endpoint, but the design is bei
 - `Subscriptions (init)` and `Subscriptions (init 2)` — list with active and previous sections.
 - Detail variants: `active`, `active (no fees)`, `cancelled`, `expiring`, `renewed`.
 - Modals: `Cancel subscription – Init/Success`, `Renew subscription` and its `Success`, `Change subscription – Init / Monthly selected / Plan selected / Transaction modal`.
+
+**Payment methods** (no Figma — reproduce v1 as-is)
+
+v1 already renders `/my-account/payment-methods/` as a `<table class="shop_table account-payment-methods-table">` of saved cards with action buttons (Make default / Delete) plus an "Add payment method" CTA. The v2 prototype reproduces the exact v1 DOM under the `?v2-demo` flag, fed by fake data instead of real `wc_get_customer_saved_methods_list()` — no new design, no new components. This means v2-demo readers can see and click through the payment-methods experience without needing real WC payment tokens on the demo site. Phase 6 ships this; details in §10 → Phase 6.
 
 Reused from v1 unchanged: account-page page template, sidebar/menu, account settings, delete-account flow, signed-out state.
 
@@ -615,11 +619,15 @@ All 5 detail variants. Figma section `2636:46116`. v1 already has a subscription
 
 All six modal flows (cancel donation, modify donation, restart donation, cancel subscription, renew subscription, change subscription) wired to client-side handlers + toast confirmations. All use `Newspack / Modal` → `.newspack-ui__modal*` (see §6).
 
-### Phase 6 — Polish + scenario fixtures (~0.5 day)
+### Phase 6 — Payment methods (~1–1.5 days)
+
+Reproduce v1's `/my-account/payment-methods/` surface byte-for-byte under the v2-demo flag, fed entirely by fake data (no real WooCommerce payment-token storage). The v1 page is a saved-cards table backed by `wc_get_account_payment_methods_columns()` + `wc_get_account_payment_methods_types()` plus an "Add payment method" CTA; the v2 prototype renders the same DOM (`<table class="shop_table account-payment-methods-table">` headers, per-row method/expiry/actions cells, default-card badge) so v1's existing styling carries through verbatim. Fake data adds a `payment_methods` slice on `My_Account_UI_V2_Demo::get_fake_data()` (an array of saved cards with brand / last4 / expiry / is_default / actions). Action buttons (Make default / Delete / Add new) wire to client-side stubs that surface snackbars, mirroring the Phase 5 modal-trigger pattern. Sidebar item is added at the same priority as the Phase 1–4 endpoints. No new modals.
+
+### Phase 7 — Polish + scenario fixtures (~0.5 day)
 
 `?v2-demo=<scenario>` overrides for cancelled / expired / empty / no-fees states (see §7). Final screenshot pass against Figma.
 
-**Total estimate:** ~7 dev-days for one engineer, end-to-end clickable on any Newspack site.
+**Total estimate:** ~8–8.5 dev-days for one engineer, end-to-end clickable on any Newspack site.
 
 ## 11. Working in the open — dev log practice
 
@@ -655,7 +663,7 @@ Add links to PRs, commits, and Figma frames. Keep it scannable.
 - An admin can append `?v2-demo` (or `?v2-demo=<scenario>`) to any `/my-account/...` URL on any Newspack site and see the prototype rendered.
 - A non-admin appending the same URL sees v1 unchanged.
 - All visible markup uses `.newspack-ui*` classes. The v2-demo `style.scss` contains the `.newspack-my-account--v2-demo` scoping wrapper and effectively nothing else — open it in PR review and check.
-- All four primary screens (dashboard, newsletters, donations, subscriptions) plus all six modals are reachable.
+- All five primary screens (dashboard, newsletters, donations, subscriptions, payment methods) plus all six modals are reachable.
 - Scenario flag toggles produce visibly different fixtures.
 - `npm run lint` and `npm run lint:php` pass.
 - The devlog has at least one entry per shipped phase.

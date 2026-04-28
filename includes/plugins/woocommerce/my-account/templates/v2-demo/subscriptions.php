@@ -282,3 +282,33 @@ $previous_meta_color = static function ( $row ) {
 		</section>
 	<?php endif; ?>
 </div>
+
+<?php
+/*
+ * Renew subscription modal — rendered only for `expiring` rows in the
+ * active bucket so the inline "renew now" anchor inside the expiring
+ * card's notice opens the Phase 5 modal in place. Today the active
+ * bucket holds only sub-001 (status = active), so this loop is a no-op
+ * — but Phase 6 scenario fixtures will swap an expiring sub into
+ * `active`, at which point the anchor + modal both materialise without
+ * any further code change.
+ */
+$reader        = isset( $data['reader'] ) ? $data['reader'] : [];
+$reader_email  = isset( $reader['email'] ) ? (string) $reader['email'] : '';
+$tiers_billing = isset( $subscriptions['tiers']['billing'] ) ? $subscriptions['tiers']['billing'] : [];
+foreach ( $active as $list_sub ) {
+	if ( 'expiring' !== ( isset( $list_sub['status'] ) ? $list_sub['status'] : '' ) ) {
+		continue;
+	}
+	load_template(
+		__DIR__ . '/partials/renew-subscription-modal.php',
+		false,
+		[
+			'subscription'    => $list_sub,
+			'billing'         => $tiers_billing,
+			'currency_symbol' => $currency_symbol,
+			'reader_email'    => $reader_email,
+		]
+	);
+}
+?>

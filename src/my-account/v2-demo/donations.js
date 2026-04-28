@@ -6,73 +6,18 @@
  *    donations table is clicked. Provides the row-as-link affordance that
  *    pure HTML doesn't give us inside <table> markup. (Hover/cursor styling
  *    is intentionally deferred — Phase 6 polish, not a Phase 3 blocker.)
- *  - Detail page: stub snackbars for the modal-trigger buttons (Modify /
- *    Cancel / Restart / Update payment method). Phase 5 swaps these for
- *    real modals; for now we surface the would-be confirmation copy so the
- *    end-state is clickable in the prototype.
+ *  - Detail page: open the Modify / Cancel / Restart donation modals when
+ *    their trigger buttons fire. Each modal lives at the bottom of the
+ *    detail template (one per donation, keyed by id); init / success steps
+ *    transition inline. Update payment method stays a stub snackbar — the
+ *    brief lumps it with the v1 checkout flow, not a Phase 5 modal.
  *  - Dropdown for the "More" menu auto-wires via newspack-ui's own
  *    `js/dropdowns.js` — no work needed here.
- *
- * Snackbar helpers are duplicated from `newsletters.js` for now; we'll
- * factor them into a shared util when the third caller lands (Phase 5
- * modals). See devlog for the rationale.
  */
 
 import { __ } from '@wordpress/i18n';
 
-const SNACKBAR_LIFETIME_MS = 5000;
-
-/**
- * Lazily create a top-right snackbar container if the page has none yet.
- * Mirrors the helper in newsletters.js — same justification (page may have
- * no PHP-rendered notice mount on first paint).
- *
- * @return {HTMLElement} Snackbar container element.
- */
-function ensureSnackbarContainer() {
-	let container = document.querySelector( '.newspack-ui__snackbar--top-right' );
-	if ( container ) {
-		return container;
-	}
-	const wrap = document.createElement( 'div' );
-	wrap.className = 'newspack-ui';
-	container = document.createElement( 'div' );
-	container.className = 'newspack-ui__snackbar newspack-ui__snackbar--top-right';
-	wrap.appendChild( container );
-	document.body.appendChild( wrap );
-	return container;
-}
-
-/**
- * Show a transient snackbar. Uses newspack-ui markup directly rather than
- * `newspackUI.notices.openNotice`, which posts an AJAX dismissal nonce we
- * don't have in the demo (matches the same call in newsletters.js).
- *
- * @param {string} message Pre-translated copy.
- * @param {string} type    'success' | 'error' (default 'success').
- */
-function snackbar( message, type = 'success' ) {
-	const container = ensureSnackbarContainer();
-	const item = document.createElement( 'div' );
-	item.className = `newspack-ui__snackbar__item newspack-ui__snackbar__item--${ type } active`;
-	item.dataset.autohide = 'true';
-	item.setAttribute( 'role', 'status' );
-	item.setAttribute( 'aria-live', 'polite' );
-	const content = document.createElement( 'div' );
-	content.className = 'newspack-ui__snackbar__content';
-	content.textContent = message;
-	item.appendChild( content );
-	container.appendChild( item );
-
-	window.setTimeout( () => {
-		item.classList.remove( 'active' );
-		window.setTimeout( () => {
-			if ( item.parentNode ) {
-				item.parentNode.removeChild( item );
-			}
-		}, 300 );
-	}, SNACKBAR_LIFETIME_MS );
-}
+import { snackbar } from './util/snackbar';
 
 /**
  * Wire row-click + keyboard navigation for the previous-donations table on
@@ -140,9 +85,242 @@ function wireListRoot( root ) {
 }
 
 /**
- * Wire the detail-page modal-trigger buttons. Each surfaces a snackbar with
- * the eventual success copy from Figma so the click feels real even before
- * Phase 5 hooks up real modals.
+ * Wire the Cancel donation modal — confirmation pattern (init step → success
+ * step inline). Mirrors the subscriptions.js wireConfirmModal helper; kept
+ * local rather than shared because the donation/subscription packages stay
+ * independent at the wiring layer.
+ *
+ * @param {HTMLElement} modal The modal container element.
+ */
+function wireCancelDonationModal( modal ) {
+	if ( modal.dataset.newspackMyAccountV2DemoWired === 'true' ) {
+		return;
+	}
+	modal.dataset.newspackMyAccountV2DemoWired = 'true';
+
+	const initStep = modal.querySelector( '[data-step="init"]' );
+	const successStep = modal.querySelector( '[data-step="success"]' );
+	const confirmBtn = modal.querySelector( '[data-action="confirm"]' );
+
+	const goToStep = step => {
+		if ( ! initStep || ! successStep ) {
+			return;
+		}
+		initStep.hidden = step !== 'init';
+		successStep.hidden = step !== 'success';
+	};
+
+	if ( confirmBtn ) {
+		confirmBtn.addEventListener( 'click', () => goToStep( 'success' ) );
+	}
+
+	modal.addEventListener( 'closeModal', () => goToStep( 'init' ) );
+}
+
+/**
+ * Wire the Restart donation modal — single-screen transaction (billing +
+ * payment form), terminating on a snackbar (no Figma success state). The
+ * Confirm button just closes the modal and surfaces "Donation restarted."
+ *
+ * @param {HTMLElement} modal The modal container element.
+ */
+function wireRestartDonationModal( modal ) {
+	if ( modal.dataset.newspackMyAccountV2DemoWired === 'true' ) {
+		return;
+	}
+	modal.dataset.newspackMyAccountV2DemoWired = 'true';
+
+	const confirmBtn = modal.querySelector( '[data-action="confirm"]' );
+	if ( confirmBtn ) {
+		confirmBtn.addEventListener( 'click', () => {
+			modal.setAttribute( 'data-state', 'closed' );
+			snackbar( __( 'Donation restarted.', 'newspack-plugin' ) );
+		} );
+	}
+}
+
+/**
+ * Wire the Modify donation modal — frequency segmented control + amount
+ * editor + recurring totals readout that recomputes as the amount changes.
+ * Confirm → snackbar (no Figma success state for modify).
+ *
+ * Math model: amount in the input is the gross "Recurring total" the reader
+ * pays. Subtotal is amount / (1 + vatRate); vat is amount - subtotal;
+ * transaction fee defaults to null but flips on when "Cover transaction
+ * fees?" is checked (2% of amount, rounded to 2dp). All numbers update
+ * declaratively whenever the amount, frequency, or fee toggle changes.
+ *
+ * @param {HTMLElement} modal The modal container element.
+ */
+function wireModifyDonationModal( modal ) {
+	if ( modal.dataset.newspackMyAccountV2DemoWired === 'true' ) {
+		return;
+	}
+	modal.dataset.newspackMyAccountV2DemoWired = 'true';
+
+	const tabs = [ ...modal.querySelectorAll( '[data-frequency][role="tab"]' ) ];
+	const amountInput = modal.querySelector( '[data-modify-amount]' );
+	const feeToggle = modal.querySelector( '[data-modify-cover-fees]' );
+	const amountUnitLabel = modal.querySelector( '[data-modify-amount-unit]' );
+	const totalsHeading = modal.querySelector( '[data-modify-totals-heading]' );
+	const subtotalEl = modal.querySelector( '[data-modify-subtotal]' );
+	const vatEl = modal.querySelector( '[data-modify-vat]' );
+	const feeEl = modal.querySelector( '[data-modify-fee]' );
+	const totalEl = modal.querySelector( '[data-modify-total]' );
+	const nextDateEl = modal.querySelector( '[data-modify-next]' );
+	const confirmBtn = modal.querySelector( '[data-action="confirm"]' );
+	const confirmLabel = modal.querySelector( '[data-modify-confirm-label]' );
+
+	const symbol = modal.dataset.currencySymbol || '$';
+	const vatRate = Number.parseFloat( modal.dataset.vatRate || '0.2' );
+	const feeRate = Number.parseFloat( modal.dataset.feeRate || '0.02' );
+	const initialFrequency = modal.dataset.initialFrequency || 'month';
+	const nextDates = ( () => {
+		try {
+			return JSON.parse( modal.dataset.nextDates || '{}' );
+		} catch ( _e ) {
+			return {};
+		}
+	} )();
+	const unitLabels = ( () => {
+		try {
+			return JSON.parse( modal.dataset.unitLabels || '{}' );
+		} catch ( _e ) {
+			return {};
+		}
+	} )();
+	const recurringTotalLabels = ( () => {
+		try {
+			return JSON.parse( modal.dataset.recurringTotalLabels || '{}' );
+		} catch ( _e ) {
+			return {};
+		}
+	} )();
+
+	let activeFrequency = initialFrequency;
+
+	const formatAmount = n => `${ symbol }${ Number.isFinite( n ) ? n.toFixed( 2 ) : '0.00' }`;
+
+	const recompute = () => {
+		const amount = Math.max( 0, Number.parseFloat( amountInput?.value || '0' ) || 0 );
+		const subtotal = amount / ( 1 + vatRate );
+		const vat = amount - subtotal;
+		const fee = feeToggle?.checked ? amount * feeRate : null;
+		const unit = unitLabels[ activeFrequency ] || activeFrequency;
+
+		if ( amountUnitLabel ) {
+			amountUnitLabel.textContent = unit;
+		}
+		if ( totalsHeading ) {
+			totalsHeading.textContent = recurringTotalLabels.heading || totalsHeading.textContent;
+		}
+		if ( subtotalEl ) {
+			subtotalEl.textContent = `${ formatAmount( subtotal ) } / ${ unit }`;
+		}
+		if ( vatEl ) {
+			vatEl.textContent = formatAmount( vat );
+		}
+		if ( feeEl ) {
+			feeEl.textContent = null === fee ? '—' : formatAmount( fee );
+		}
+		if ( totalEl ) {
+			const grandTotal = null === fee ? amount : amount + fee;
+			totalEl.textContent = `${ formatAmount( grandTotal ) } / ${ unit }`;
+		}
+		if ( nextDateEl ) {
+			nextDateEl.textContent = nextDates[ activeFrequency ] || '';
+		}
+		if ( confirmLabel ) {
+			confirmLabel.textContent = `${ formatAmount( amount ) } / ${ unit }`;
+		}
+		if ( confirmBtn ) {
+			confirmBtn.disabled = amount <= 0;
+		}
+	};
+
+	const setActiveFrequency = freq => {
+		if ( ! freq || freq === activeFrequency ) {
+			return;
+		}
+		activeFrequency = freq;
+		tabs.forEach( tab => {
+			const isActive = tab.dataset.frequency === freq;
+			tab.classList.toggle( 'selected', isActive );
+			tab.setAttribute( 'aria-selected', isActive ? 'true' : 'false' );
+		} );
+		recompute();
+	};
+
+	tabs.forEach( tab => {
+		tab.addEventListener( 'click', () => setActiveFrequency( tab.dataset.frequency ) );
+	} );
+	if ( amountInput ) {
+		amountInput.addEventListener( 'input', recompute );
+	}
+	if ( feeToggle ) {
+		feeToggle.addEventListener( 'change', recompute );
+	}
+	if ( confirmBtn ) {
+		confirmBtn.addEventListener( 'click', () => {
+			if ( confirmBtn.disabled ) {
+				return;
+			}
+			modal.setAttribute( 'data-state', 'closed' );
+			snackbar( __( 'Donation modified.', 'newspack-plugin' ) );
+		} );
+	}
+
+	// Reset to the initial state on close so re-opening shows the donation's
+	// current values rather than the previous edit.
+	modal.addEventListener( 'closeModal', () => {
+		if ( amountInput ) {
+			amountInput.value = amountInput.dataset.initialAmount || amountInput.value;
+		}
+		if ( feeToggle ) {
+			feeToggle.checked = feeToggle.dataset.initialChecked === 'true';
+		}
+		setActiveFrequency( initialFrequency );
+		recompute();
+	} );
+
+	recompute();
+}
+
+/**
+ * Look up the modal for a given `data-action` + donation id, opening it if
+ * it exists. Closes any open dropdown first. Returns true if a modal was
+ * opened.
+ *
+ * @param {string}      action     Trigger's data-action.
+ * @param {string}      donationId Trigger's data-donation-id.
+ * @param {HTMLElement} root       Container element (for dropdown close).
+ * @return {boolean} Whether a modal was opened.
+ */
+function tryOpenDonationModal( action, donationId, root ) {
+	const slug = {
+		'modify-donation': 'modify-donation',
+		'cancel-donation': 'cancel-donation',
+		'restart-donation': 'restart-donation',
+	}[ action ];
+	if ( ! slug || ! donationId ) {
+		return false;
+	}
+	const modal = document.getElementById( `newspack-my-account__${ slug }-${ donationId }` );
+	if ( ! modal ) {
+		return false;
+	}
+	const openDropdown = root.querySelector( '.newspack-ui__dropdown.active' );
+	if ( openDropdown ) {
+		openDropdown.classList.remove( 'active' );
+	}
+	modal.setAttribute( 'data-state', 'open' );
+	return true;
+}
+
+/**
+ * Wire the detail-page modal-trigger buttons. Routes each `data-action`
+ * through the modal lookup; falls back to a snackbar for actions without a
+ * Phase 5 modal (today: only `update-payment-method`).
  *
  * @param {HTMLElement} root Detail container element.
  */
@@ -153,40 +331,28 @@ function wireDetailRoot( root ) {
 	root.dataset.newspackMyAccountV2DemoWired = 'true';
 
 	root.addEventListener( 'click', event => {
-		const button = event.target.closest( 'button[data-action]' );
-		if ( ! button || ! root.contains( button ) ) {
+		const trigger = event.target.closest( '[data-action]' );
+		if ( ! trigger || ! root.contains( trigger ) ) {
 			return;
 		}
-		// Let the dropdown toggle keep its own behaviour — newspack-ui's
-		// dropdowns.js owns it.
-		if ( button.classList.contains( 'newspack-ui__dropdown__toggle' ) ) {
+		if ( trigger.classList.contains( 'newspack-ui__dropdown__toggle' ) ) {
 			return;
 		}
 
-		// If a dropdown menu is open and the click was inside it, close it
-		// before showing the snackbar so the menu doesn't linger.
+		const action = trigger.dataset.action;
+		const donationId = trigger.dataset.donationId || '';
+
+		if ( tryOpenDonationModal( action, donationId, root ) ) {
+			return;
+		}
+
 		const openDropdown = root.querySelector( '.newspack-ui__dropdown.active' );
-		if ( openDropdown && openDropdown.contains( button ) ) {
+		if ( openDropdown && openDropdown.contains( trigger ) ) {
 			openDropdown.classList.remove( 'active' );
 		}
 
-		const action = button.dataset.action;
-		switch ( action ) {
-			case 'modify-donation':
-				snackbar( __( 'Donation modified.', 'newspack-plugin' ) );
-				break;
-			case 'cancel-donation':
-				snackbar( __( 'Donation cancelled.', 'newspack-plugin' ) );
-				break;
-			case 'restart-donation':
-				snackbar( __( 'Donation restarted.', 'newspack-plugin' ) );
-				break;
-			case 'update-payment-method':
-				snackbar( __( 'Payment method updated.', 'newspack-plugin' ) );
-				break;
-			default:
-				// Unknown action — let it fall through.
-				break;
+		if ( action === 'update-payment-method' ) {
+			snackbar( __( 'Payment method updated.', 'newspack-plugin' ) );
 		}
 	} );
 }
@@ -194,6 +360,9 @@ function wireDetailRoot( root ) {
 document.addEventListener( 'DOMContentLoaded', () => {
 	document.querySelectorAll( '[data-newspack-my-account-v2-demo="donations"]' ).forEach( wireListRoot );
 	document.querySelectorAll( '[data-newspack-my-account-v2-demo="donation-details"]' ).forEach( wireDetailRoot );
+	document.querySelectorAll( '[data-newspack-my-account-v2-demo="modify-donation-modal"]' ).forEach( wireModifyDonationModal );
+	document.querySelectorAll( '[data-newspack-my-account-v2-demo="cancel-donation-modal"]' ).forEach( wireCancelDonationModal );
+	document.querySelectorAll( '[data-newspack-my-account-v2-demo="restart-donation-modal"]' ).forEach( wireRestartDonationModal );
 
 	// If the user just landed via a Phase 5–style update flow that includes
 	// a `payment-updated` query param (Figma 2636:46500 "new payment method"

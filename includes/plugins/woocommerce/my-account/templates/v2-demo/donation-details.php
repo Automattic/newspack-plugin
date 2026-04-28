@@ -332,3 +332,50 @@ if ( $is_recurring && $frequency ) {
 		</section>
 	<?php endif; ?>
 </div>
+
+<?php
+/*
+ * Phase 5 modal partials — rendered outside the detail-page wrap so the
+ * dispatcher's click listener (registered on the wrap) doesn't see modal-
+ * internal clicks. Modify + Cancel render for the active recurring
+ * variant; Restart for the cancelled recurring variant. Donation reuses
+ * the shared `tiers.billing` fixture for the Restart transaction step's
+ * billing readout, since donations don't carry their own billing fixture
+ * in the fake data and the demo address is the same one the Renew /
+ * Change subscription modals already render.
+ */
+$reader             = isset( $data['reader'] ) ? $data['reader'] : [];
+$reader_email       = isset( $reader['email'] ) ? (string) $reader['email'] : '';
+$subscriptions_data = isset( $data['subscriptions'] ) ? $data['subscriptions'] : [];
+$shared_billing     = isset( $subscriptions_data['tiers']['billing'] ) ? $subscriptions_data['tiers']['billing'] : [];
+
+if ( $is_recurring && $is_active ) {
+	load_template(
+		__DIR__ . '/partials/modify-donation-modal.php',
+		false,
+		[
+			'donation'        => $donation,
+			'currency_symbol' => $currency_symbol,
+		]
+	);
+	load_template(
+		__DIR__ . '/partials/cancel-donation-modal.php',
+		false,
+		[
+			'donation'     => $donation,
+			'reader_email' => $reader_email,
+		]
+	);
+}
+if ( $is_recurring && $is_cancelled ) {
+	load_template(
+		__DIR__ . '/partials/restart-donation-modal.php',
+		false,
+		[
+			'donation'        => $donation,
+			'billing'         => $shared_billing,
+			'currency_symbol' => $currency_symbol,
+		]
+	);
+}
+?>
