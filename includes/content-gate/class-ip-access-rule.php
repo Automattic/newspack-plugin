@@ -35,6 +35,11 @@ class IP_Access_Rule {
 	const REST_ROUTE = '/institutional-access/check';
 
 	/**
+	 * The REST API route for the institutional IP allowlist.
+	 */
+	const REST_ROUTE_IP_ALLOWLIST = '/institutional-access/ip-allowlist';
+
+	/**
 	 * Initialize hooks.
 	 */
 	public static function init() {
@@ -88,7 +93,7 @@ class IP_Access_Rule {
 				[
 					'methods'             => 'POST',
 					'callback'            => [ __CLASS__, 'check_external_ip_rest' ],
-					'permission_callback' => [ __CLASS__, 'check_external_ip_permission' ],
+					'permission_callback' => [ __CLASS__, 'api_permissions_check' ],
 					'args'                => [
 						'ip' => [
 							'type'              => 'string',
@@ -97,6 +102,19 @@ class IP_Access_Rule {
 						],
 					],
 				],
+			]
+		);
+
+		\register_rest_route(
+			NEWSPACK_API_NAMESPACE,
+			self::REST_ROUTE_IP_ALLOWLIST,
+			[
+				[
+					'methods'             => 'GET',
+					'callback'            => [ __CLASS__, 'get_ip_allowlist_rest' ],
+					'permission_callback' => [ __CLASS__, 'api_permissions_check' ],
+				],
+				'schema' => [ __CLASS__, 'get_ip_allowlist_schema' ],
 			]
 		);
 	}
@@ -189,12 +207,83 @@ class IP_Access_Rule {
 	}
 
 	/**
-	 * Permission check for the external IP query endpoint.
+	 * Permission check for admin-gated REST routes in this class.
 	 *
 	 * @return bool
 	 */
-	public static function check_external_ip_permission() {
+	public static function api_permissions_check() {
 		return current_user_can( 'manage_options' );
+	}
+
+	/**
+	 * REST API callback for the institutional IP allowlist.
+	 *
+	 * Returns one entry per institution that has at least one valid IPv4 or
+	 * CIDR range. Malformed entries are dropped silently. Email-domain and
+	 * reader-data rules are not exposed.
+	 *
+	 * @return \WP_REST_Response
+	 */
+	public static function get_ip_allowlist_rest() {
+		if ( function_exists( 'batcache_cancel' ) ) {
+			batcache_cancel();
+		}
+		nocache_headers();
+
+		$cached = \Newspack\Institution::get_cached_institutions();
+		ksort( $cached );
+		$institutions = [];
+		foreach ( $cached as $post_id => $rules ) {
+			$ip_ranges = self::parse_ip_ranges( $rules['ip_range'] );
+			if ( empty( $ip_ranges ) ) {
+				continue;
+			}
+			$institutions[] = [
+				'id'        => (int) $post_id,
+				'name'      => get_the_title( $post_id ),
+				'ip_ranges' => $ip_ranges,
+			];
+		}
+
+		/**
+		 * Filter the institutional IP allowlist response.
+		 *
+		 * @param array[] $institutions List of entries: `[ 'id' => int, 'name' => string, 'ip_ranges' => string[] ]`.
+		 */
+		$institutions = apply_filters( 'newspack_content_gate_ip_allowlist', $institutions );
+
+		return new \WP_REST_Response( $institutions );
+	}
+
+	/**
+	 * Schema for a single IP allowlist entry.
+	 *
+	 * @return array
+	 */
+	public static function get_ip_allowlist_schema() {
+		return [
+			'$schema'    => 'http://json-schema.org/draft-04/schema#',
+			'title'      => 'institutional-ip-allowlist-entry',
+			'type'       => 'object',
+			'properties' => [
+				'id'        => [
+					'description' => __( 'Institution post ID.', 'newspack-plugin' ),
+					'type'        => 'integer',
+					'readonly'    => true,
+				],
+				'name'      => [
+					'description' => __( 'Institution name.', 'newspack-plugin' ),
+					'type'        => 'string',
+					'readonly'    => true,
+				],
+				'ip_ranges' => [
+					'description' => __( 'Validated IPv4 addresses or CIDR blocks granting access.', 'newspack-plugin' ),
+					'type'        => 'array',
+					'items'       => [ 'type' => 'string' ],
+					'readonly'    => true,
+				],
+			],
+		];
 	}
 
 	/**
@@ -484,6 +573,40 @@ class IP_Access_Rule {
 	}
 
 	/**
+	 * Parse a comma-separated list of IPs and CIDR blocks.
+	 *
+	 * Trims whitespace, drops empty tokens, and discards anything that isn't a
+	 * valid IPv4 address or CIDR block (`<ipv4>/<0-32>`).
+	 *
+	 * @param string $raw Comma-separated list (e.g. `"192.168.1.0/24,10.0.0.5"`).
+	 *
+	 * @return string[] Validated entries.
+	 */
+	private static function parse_ip_ranges( $raw ) {
+		if ( empty( $raw ) ) {
+			return [];
+		}
+		$tokens = array_filter( array_map( 'trim', explode( ',', $raw ) ) );
+		$valid  = [];
+		foreach ( $tokens as $token ) {
+			if ( strpos( $token, '/' ) !== false ) {
+				list( $subnet, $bits ) = explode( '/', $token, 2 );
+				if ( ! ctype_digit( $bits ) ) {
+					continue;
+				}
+				$bits = (int) $bits;
+				if ( $bits > 32 || ! filter_var( $subnet, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 ) ) {
+					continue;
+				}
+				$valid[] = $token;
+			} elseif ( filter_var( $token, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 ) ) {
+				$valid[] = $token;
+			}
+		}
+		return array_values( $valid );
+	}
+
+	/**
 	 * Check if an IP address matches any of the given ranges.
 	 *
 	 * @param string $ip     The IP address to check.
@@ -492,32 +615,21 @@ class IP_Access_Rule {
 	 * @return bool Whether the IP matches any range.
 	 */
 	public static function ip_matches_ranges( $ip, $ranges ) {
-		if ( empty( $ranges ) || ! filter_var( $ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 ) ) {
+		if ( ! filter_var( $ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 ) ) {
 			return false;
 		}
-		$ranges  = array_map( 'trim', explode( ',', $ranges ) );
-		$ranges  = array_filter( $ranges );
 		$ip_long = ip2long( $ip );
 
-		foreach ( $ranges as $range ) {
+		foreach ( self::parse_ip_ranges( $ranges ) as $range ) {
 			if ( strpos( $range, '/' ) !== false ) {
 				list( $subnet, $bits ) = explode( '/', $range, 2 );
-				if ( ! ctype_digit( $bits ) ) {
-					continue;
-				}
-				$bits = (int) $bits;
-				if ( $bits > 32 || ! filter_var( $subnet, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 ) ) {
-					continue;
-				}
 				$subnet_long = ip2long( $subnet );
-				$mask        = -1 << ( 32 - $bits );
+				$mask        = -1 << ( 32 - (int) $bits );
 				if ( ( $ip_long & $mask ) === ( $subnet_long & $mask ) ) {
 					return true;
 				}
-			} elseif ( filter_var( $range, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 ) ) {
-				if ( $ip_long === ip2long( $range ) ) {
-					return true;
-				}
+			} elseif ( $ip_long === ip2long( $range ) ) {
+				return true;
 			}
 		}
 		return false;
