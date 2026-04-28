@@ -11,65 +11,14 @@
  *    doesn't appear inert.
  *  - Dropdown for "More" auto-wires via newspack-ui's own js/dropdowns.js.
  *
- * Snackbar helpers are duplicated from `donations.js` for now; once the
- * Phase 5 modals add a third caller we'll factor them into a shared util
- * (per the cross-phase devlog decision — rule of three threshold reached
- * then, not now).
+ * Snackbar helper is shared with newsletters.js / donations.js via
+ * `./util/snackbar` (factored out at the rule-of-three threshold ahead of
+ * the Phase 5 modals).
  */
 
 import { __ } from '@wordpress/i18n';
 
-const SNACKBAR_LIFETIME_MS = 5000;
-
-/**
- * Lazily create a top-right snackbar container if the page has none yet.
- *
- * @return {HTMLElement} Snackbar container element.
- */
-function ensureSnackbarContainer() {
-	let container = document.querySelector( '.newspack-ui__snackbar--top-right' );
-	if ( container ) {
-		return container;
-	}
-	const wrap = document.createElement( 'div' );
-	wrap.className = 'newspack-ui';
-	container = document.createElement( 'div' );
-	container.className = 'newspack-ui__snackbar newspack-ui__snackbar--top-right';
-	wrap.appendChild( container );
-	document.body.appendChild( wrap );
-	return container;
-}
-
-/**
- * Show a transient snackbar. Uses newspack-ui markup directly rather than
- * `newspackUI.notices.openNotice`, which posts an AJAX dismissal nonce we
- * don't have in the demo (matches donations.js / newsletters.js).
- *
- * @param {string} message Pre-translated copy.
- * @param {string} type    'success' | 'error' (default 'success').
- */
-function snackbar( message, type = 'success' ) {
-	const container = ensureSnackbarContainer();
-	const item = document.createElement( 'div' );
-	item.className = `newspack-ui__snackbar__item newspack-ui__snackbar__item--${ type } active`;
-	item.dataset.autohide = 'true';
-	item.setAttribute( 'role', 'status' );
-	item.setAttribute( 'aria-live', 'polite' );
-	const content = document.createElement( 'div' );
-	content.className = 'newspack-ui__snackbar__content';
-	content.textContent = message;
-	item.appendChild( content );
-	container.appendChild( item );
-
-	window.setTimeout( () => {
-		item.classList.remove( 'active' );
-		window.setTimeout( () => {
-			if ( item.parentNode ) {
-				item.parentNode.removeChild( item );
-			}
-		}, 300 );
-	}, SNACKBAR_LIFETIME_MS );
-}
+import { snackbar } from './util/snackbar';
 
 /**
  * Map a `data-action` value to its stub snackbar message. `change-subscription`
