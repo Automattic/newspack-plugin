@@ -2,19 +2,25 @@
 /**
  * My Account v2 prototype — Payment methods endpoint.
  *
- * Mirrors WC core's `myaccount/payment-methods.php` byte-for-byte: same
- * `<table class="woocommerce-MyAccount-paymentMethods shop_table
+ * Matches WC core's `myaccount/payment-methods.php` structure and class
+ * names: same `<table class="woocommerce-MyAccount-paymentMethods shop_table
  * shop_table_responsive account-payment-methods-table">` wrapper, same
  * column / row classes, same per-cell `data-title` for responsive collapse.
  * Saved cards are pulled from the fake-data slice instead of
  * `wc_get_customer_saved_methods_list()`.
  *
- * Action buttons (Make default / Delete / Add payment method) carry
- * `data-action` + `data-payment-method-id` so the v2-demo JS dispatcher
- * (src/my-account/v2-demo/payment-methods.js) can intercept clicks and
- * surface a snackbar — no real mutations, no AJAX. Per brief §3 / §10
- * Phase 6: this is a byte-for-byte reproduction with fake data, no new
- * design.
+ * Two intentional deviations from WC core's exact output:
+ *  - Action buttons (Make default / Delete / Add payment method) carry
+ *    `data-action` + `data-payment-method-id` so the v2-demo JS dispatcher
+ *    (src/my-account/v2-demo/payment-methods.js) can intercept clicks and
+ *    surface a snackbar — no real mutations, no AJAX.
+ *  - The default row gets an inline `__badge--secondary "Default"` span
+ *    next to the brand name. WC core relies on the `default-payment-method`
+ *    row class alone (invisible without theme CSS); the inline indicator
+ *    keeps the demo readable on any theme.
+ *
+ * Per brief §3 / §10 Phase 6: preserve WC core's layout / behaviour with
+ * fake data; no new design.
  *
  * @package Newspack
  * @var array $args Template args; expected to contain `data` => fake-data array.

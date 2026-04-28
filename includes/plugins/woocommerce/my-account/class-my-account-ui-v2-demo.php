@@ -8,10 +8,11 @@
  * adds the v2 menu item. Phase 3 adds the `donations` endpoint plus list and
  * detail templates. Phase 4 adds the `subscriptions` endpoint with list +
  * detail templates and takes over WC Subscriptions' default rendering when
- * the demo flag is active. Phase 6 reproduces WC core's `payment-methods`
- * page byte-for-byte under the demo flag, fed by fake data, and bypasses
- * v1's `wc_get_template` swap via the same takeover pattern Phase 4 uses
- * for subscriptions.
+ * the demo flag is active. Phase 6 mirrors WC core's `payment-methods`
+ * page under the demo flag, fed by fake data, and bypasses v1's
+ * `wc_get_template` swap via the same takeover pattern Phase 4 uses for
+ * subscriptions. See the v2-demo template for the small intentional
+ * deviations from WC core's exact output.
  *
  * @package Newspack
  */
