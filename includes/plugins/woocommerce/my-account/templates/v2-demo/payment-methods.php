@@ -64,15 +64,21 @@ $columns         = \wc_get_account_payment_methods_columns();
 				$payment_method_exp   = isset( $method['expires'] ) ? (string) $method['expires'] : '';
 				$payment_method_actions = isset( $method['actions'] ) && is_array( $method['actions'] ) ? $method['actions'] : [];
 				// Mirror v1's payment-information badge logic: parse `MM/YY`
-				// and compare against the current month so an out-of-date
-				// card surfaces an Expired badge inline. Drives the visual
-				// for `?v2-demo=expired-payment`.
+				// via `date_parse_from_format` so malformed values (e.g.
+				// `02/ab`) report parse errors instead of silently casting to
+				// year 20 and tripping the comparison. Only mark expired when
+				// the parse succeeded and the month is in the past.
 				$is_expired = false;
 				if ( '' !== $payment_method_exp ) {
-					$exp_parts = explode( '/', $payment_method_exp );
-					if ( 2 === count( $exp_parts ) ) {
-						$exp_month = (int) trim( $exp_parts[0] );
-						$exp_year  = (int) ( '20' . trim( $exp_parts[1] ) );
+					$parsed_exp = date_parse_from_format( 'n/y', $payment_method_exp );
+					if (
+						is_array( $parsed_exp )
+						&& empty( $parsed_exp['errors'] )
+						&& ! empty( $parsed_exp['year'] )
+						&& ! empty( $parsed_exp['month'] )
+					) {
+						$exp_year  = (int) $parsed_exp['year'];
+						$exp_month = (int) $parsed_exp['month'];
 						$now_year  = (int) gmdate( 'Y' );
 						$now_month = (int) gmdate( 'm' );
 						if ( $exp_year < $now_year || ( $exp_year === $now_year && $exp_month < $now_month ) ) {

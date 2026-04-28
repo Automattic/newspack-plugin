@@ -847,16 +847,22 @@ final class My_Account_UI_V2_Demo {
 
 			case 'expired-payment':
 				if ( isset( $data['payment_methods']['cc'] ) && is_array( $data['payment_methods']['cc'] ) ) {
-					// Mark the non-default card as expired (or the only card if
-					// there's just one). Swapping `expires` to a past month is
-					// what surfaces v1's Expired indicator in the cell template
-					// — the row class stays the same, the value column carries
-					// the past date.
+					// Prefer marking a non-default card as expired so the
+					// reader sees an Expired badge alongside a still-valid
+					// Default card. If every card is default (or there's only
+					// one card and it's the default), fall back to index 0 so
+					// the scenario is deterministic. The past `expires` value
+					// is what drives the badge — the row class stays the same.
+					$expired_card_updated = false;
 					foreach ( $data['payment_methods']['cc'] as $idx => $row ) {
 						if ( empty( $row['is_default'] ) ) {
 							$data['payment_methods']['cc'][ $idx ]['expires'] = '03/24';
+							$expired_card_updated                             = true;
 							break;
 						}
+					}
+					if ( ! $expired_card_updated && ! empty( $data['payment_methods']['cc'] ) ) {
+						$data['payment_methods']['cc'][0]['expires'] = '03/24';
 					}
 				}
 				break;
@@ -918,14 +924,16 @@ final class My_Account_UI_V2_Demo {
 	}
 
 	/**
-	 * Empty-state shape for the payment-methods slice.
+	 * Empty-state shape for the payment-methods slice. Returns a flat empty
+	 * array (not `[ 'cc' => [] ]`) so the template's `! empty( $payment_methods )`
+	 * check resolves false and surfaces WC core's "No saved methods found."
+	 * notice. With the `cc => []` shape `$has_methods` would be true and the
+	 * template would render an empty `<tbody>`-less table.
 	 *
 	 * @return array
 	 */
 	private static function empty_payment_methods() {
-		return [
-			'cc' => [],
-		];
+		return [];
 	}
 
 	/**
