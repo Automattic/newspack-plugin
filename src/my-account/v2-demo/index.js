@@ -11,3 +11,4 @@ import './style.scss';
 import './newsletters';
 import './donations';
 import './subscriptions';
+import './payment-methods';
