@@ -809,6 +809,7 @@ abstract class Integration {
 				);
 			}
 			if ( 'outgoing_metadata_fields' === $field['key'] ) {
+				// TODO: Drop $field['options'] for outgoing_metadata_fields once consumers have migrated to grouped_options.
 				$field['options']         = Sync\Metadata::get_default_fields();
 				$field['grouped_options'] = Sync\Metadata::get_grouped_default_fields();
 			}

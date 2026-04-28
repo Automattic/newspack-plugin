@@ -190,9 +190,17 @@ h1 {
 	margin: 0 auto;
 	padding: calc(var(--newspack-wizard-section-space) * 2) var(--newspack-wizard-section-space) 0;
 	max-width: calc(calc(var(--newspack-wizard-section-space) * 2) + var(--newspack-wizard-section-width));
+	> h1 {
+		margin-bottom: 8px;
+	}
 	&__description {
+		color: wp-colors.$gray-700;
 		margin-bottom: 2rem;
 	}
+}
+
+.newspack-wizard__content > .newspack-wizard__section-header {
+	margin-top: 48px;
 }
 
 .newspack-wizard__sections.newspack-audience-integrations {
@@ -201,7 +209,6 @@ h1 {
 	}
 
 	.newspack-wizard__sections__description {
-		color: wp-colors.$gray-700;
 		margin-top: 8px;
 
 		// Match the width of a single card in the 2-column CardFeature grid

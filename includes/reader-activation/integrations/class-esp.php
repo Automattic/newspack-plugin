@@ -13,6 +13,7 @@ use Newspack\Reader_Activation\Integrations;
 use Newspack\Reader_Activation;
 use Newspack_Newsletters_Contacts;
 use Newspack_Newsletters_Subscription;
+use Newspack\Configuration_Managers;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -49,10 +50,18 @@ class ESP extends Integration {
 	/**
 	 * Get the URL where the user can set up the ESP.
 	 *
+	 * Delegates to the Newsletters configuration manager so the page slug
+	 * lives in one place. Falls back to the same hardcoded URL when the
+	 * configuration manager isn't resolvable yet.
+	 *
 	 * @return string The Newspack Newsletters settings page URL.
 	 */
 	public function get_setup_url() {
-		return admin_url( 'edit.php?post_type=newspack_nl_cpt&page=newspack-newsletters' );
+		$newsletters_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-newsletters' );
+		if ( is_wp_error( $newsletters_configuration_manager ) ) {
+			return admin_url( 'edit.php?post_type=newspack_nl_cpt&page=newspack-newsletters' );
+		}
+		return $newsletters_configuration_manager->get_settings_url();
 	}
 
 	/**
