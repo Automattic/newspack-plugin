@@ -282,9 +282,17 @@ The `closeModal` event newspack-ui's `modals.js` dispatches on every state→clo
 
 ---
 
-## Phase 6 — Polish + scenario fixtures
+## Phase 6 — Payment methods
 
-> See [brief §10 → Phase 6](my-account-v2-prototype-brief.md#phase-6--polish--scenario-fixtures-05-day).
+> See [brief §10 → Phase 6](my-account-v2-prototype-brief.md#phase-6--payment-methods-115-days). Reproduce v1's `/my-account/payment-methods/` byte-for-byte under the v2-demo flag, fed by fake data.
+
+_(empty)_
+
+---
+
+## Phase 7 — Polish + scenario fixtures
+
+> See [brief §10 → Phase 7](my-account-v2-prototype-brief.md#phase-7--polish--scenario-fixtures-05-day).
 
 _(empty)_
 
@@ -328,3 +336,4 @@ A flat list of decisions that span phases or that future-you will want to find w
 | 2026-04-28 | `update-payment-method` stays a snackbar in Phase 5. Brief §10 lumps it with the v1 checkout flow (real Stripe form, real billing readout from WC); a fake modal would either duplicate renew/restart's payment form or pretend to mutate state. Phase 6 / productisation decides how to wire it. | Phase 5 |
 | 2026-04-28 | Renew + Restart modals reuse the `subscriptions.tiers.billing` fixture from the Phase 4 fake-data slice for the billing readout. Donations don't carry their own billing block; the demo address is shared across all transactional modals so reusing keeps the prototype's fictional reader consistent without proliferating fixtures. | Phase 5 |
 | 2026-04-28 | Modal data-attribute payloads (`data-unit-labels`, `data-next-dates`, `data-recurring-total-labels`, `data-vat-rate`, `data-fee-rate`, `data-currency-symbol`) replace `wp_localize_script` for per-modal config. Each modal partial JSON-encodes its own params on the container element; the JS reads them once on wire-up. Cheaper than a separate localization pass when each payload is bound to a specific resource id and lives next to the markup that consumes it. | Phase 5 |
+| 2026-04-28 | Roadmap renumbering: insert a new **Phase 6 — Payment methods** (reproduce v1's `/my-account/payment-methods/` page byte-for-byte under the demo flag, fake data only — no new design). The previous Phase 6 (polish + scenario fixtures) becomes **Phase 7**. Brief §3 grows from three to four primary surfaces (newsletters / donations / subscriptions / payment methods); §10 gets a new Phase 6 entry; §12 definition-of-done updated to "five primary screens" (dashboard counts as a screen). Reason: the prototype currently has no story for the payment-methods page, but v1 has a real surface there that readers see today. Reproducing the existing v1 surface keeps the prototype credible without expanding the design footprint. | Phase 5 (mid-phase scope addition) |
