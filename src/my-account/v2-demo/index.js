@@ -9,3 +9,4 @@
 import '../../shared/js/public-path';
 import './style.scss';
 import './newsletters';
+import './donations';

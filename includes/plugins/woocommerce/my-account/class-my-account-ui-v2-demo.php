@@ -5,8 +5,8 @@
  * Admin-only, gated by the `?v2-demo` query parameter on /my-account/. See
  * docs/my-account-v2-prototype-brief.md for the full spec. Phase 2 swaps in
  * real templates for newsletters, registers the `newsletters` endpoint, and
- * adds the v2 menu item. Donations/subscriptions templates land in later
- * phases.
+ * adds the v2 menu item. Phase 3 adds the `donations` endpoint plus list and
+ * detail templates. Subscriptions templates land in later phases.
  *
  * @package Newspack
  */
@@ -24,7 +24,8 @@ final class My_Account_UI_V2_Demo {
 	const ENDPOINTS_OPTION = 'newspack_my_account_v2_demo_endpoints_version';
 	// Bump when the set of registered endpoints changes so the auto-flush
 	// guard re-runs. See devlog Decision log "Endpoint flush strategy".
-	const ENDPOINTS_VERSION = 2;
+	// 2 = newsletters (Phase 2). 3 = + donations (Phase 3).
+	const ENDPOINTS_VERSION = 3;
 
 	/**
 	 * Initialize hooks.
@@ -42,10 +43,16 @@ final class My_Account_UI_V2_Demo {
 		\add_filter( 'woocommerce_account_menu_items', [ __CLASS__, 'menu_items' ], 1100 );
 		// Render the newsletters endpoint body.
 		\add_action( 'woocommerce_account_newsletters_endpoint', [ __CLASS__, 'render_newsletters_endpoint' ] );
-		// The `newsletters` endpoint is registered globally (rewrite rules
-		// can't be conditional on caps), so a non-demo visitor guessing the
-		// URL would land on an empty account body. Redirect them away.
-		\add_action( 'template_redirect', [ __CLASS__, 'redirect_non_demo_newsletters_endpoint' ], 9 );
+		// Render the donations endpoint body. Same hook shape as newsletters.
+		// The endpoint accepts a value: bare `/my-account/donations/` is the
+		// list view; `/my-account/donations/<id>/` is the detail view (the
+		// id is read inside the render function via get_query_var).
+		\add_action( 'woocommerce_account_donations_endpoint', [ __CLASS__, 'render_donations_endpoint' ] );
+		// The `newsletters` and `donations` endpoints are registered globally
+		// (rewrite rules can't be conditional on caps), so a non-demo visitor
+		// guessing either URL would land on an empty account body. Redirect
+		// them away.
+		\add_action( 'template_redirect', [ __CLASS__, 'redirect_non_demo_v2_endpoints' ], 9 );
 		// Preserve `?v2-demo` on every internal nav link (sidebar, post-login
 		// redirect, etc.) so a single click can't drop you back into v1.
 		\add_filter( 'woocommerce_get_endpoint_url', [ __CLASS__, 'preserve_demo_flag_on_endpoint_url' ], 10, 4 );
@@ -89,6 +96,7 @@ final class My_Account_UI_V2_Demo {
 	public static function query_vars( $vars ) {
 		$vars[] = self::DEMO_FLAG;
 		$vars[] = 'newsletters';
+		$vars[] = 'donations';
 		return $vars;
 	}
 
@@ -144,6 +152,10 @@ final class My_Account_UI_V2_Demo {
 	 */
 	public static function register_endpoints() {
 		\add_rewrite_endpoint( 'newsletters', EP_PAGES );
+		// `donations` accepts a value, so `/my-account/donations/` is the
+		// list view and `/my-account/donations/<id>/` is the detail view.
+		// EP_PAGES already preserves the trailing value segment.
+		\add_rewrite_endpoint( 'donations', EP_PAGES );
 
 		$current = (int) \get_option( self::ENDPOINTS_OPTION, 0 );
 		if ( $current !== self::ENDPOINTS_VERSION ) {
@@ -163,37 +175,46 @@ final class My_Account_UI_V2_Demo {
 		if ( ! self::is_demo_active() ) {
 			return $items;
 		}
-		// v1 already removed `customer-logout` and `edit-address`. Insert
-		// `newsletters` right after `edit-account` so it lines up with the
-		// design, and `donations` is reserved for Phase 3.
+		// v1 already removed `customer-logout` and `edit-address`. Insert v2
+		// items between `edit-account` and the rest, in the order they appear
+		// in the Figma sidebar: Newsletters → Donations → (Subscriptions,
+		// already present from WC Subscriptions if installed).
 		$ordered = [];
 		foreach ( $items as $slug => $label ) {
 			$ordered[ $slug ] = $label;
 			if ( 'edit-account' === $slug ) {
 				$ordered['newsletters'] = __( 'Newsletters', 'newspack-plugin' );
+				$ordered['donations']   = __( 'Donations', 'newspack-plugin' );
 			}
 		}
 		// Fallback: if `edit-account` was removed upstream, append.
 		if ( ! isset( $ordered['newsletters'] ) ) {
 			$ordered['newsletters'] = __( 'Newsletters', 'newspack-plugin' );
 		}
+		if ( ! isset( $ordered['donations'] ) ) {
+			$ordered['donations'] = __( 'Donations', 'newspack-plugin' );
+		}
 		return $ordered;
 	}
 
 	/**
-	 * Bounce non-demo visitors away from `/my-account/newsletters/` so they
-	 * never see an empty My Account body. Runs before WC writes the response;
-	 * complements the render-side gate in `render_newsletters_endpoint()` and
-	 * makes Copilot's "guessable URL" concern moot for production users.
+	 * Bounce non-demo visitors away from `/my-account/newsletters/` and
+	 * `/my-account/donations/` (incl. detail URLs) so they never see an
+	 * empty My Account body. Runs before WC writes the response; complements
+	 * the render-side gates and makes Copilot's "guessable URL" concern moot
+	 * for production users.
 	 */
-	public static function redirect_non_demo_newsletters_endpoint() {
+	public static function redirect_non_demo_v2_endpoints() {
 		if ( ! function_exists( 'is_account_page' ) || ! \is_account_page() ) {
 			return;
 		}
 		// Use get_query_var, not is_wc_endpoint_url — the latter only
 		// matches WC's hardcoded endpoint list, not custom endpoints we
-		// register via add_rewrite_endpoint().
-		if ( false === \get_query_var( 'newsletters', false ) ) {
+		// register via add_rewrite_endpoint(). False === unset; bare endpoint
+		// comes through as empty string; detail URL as the value (e.g. an id).
+		$is_v2_endpoint = false !== \get_query_var( 'newsletters', false )
+			|| false !== \get_query_var( 'donations', false );
+		if ( ! $is_v2_endpoint ) {
 			return;
 		}
 		if ( self::is_demo_active() ) {
@@ -220,6 +241,80 @@ final class My_Account_UI_V2_Demo {
 	}
 
 	/**
+	 * Render the donations endpoint. Loaded by WooCommerce when the user
+	 * visits `/my-account/donations/` (list) or `/my-account/donations/<id>/`
+	 * (detail). The endpoint value is the donation id; empty string = list.
+	 *
+	 * If the id doesn't match any fake donation, fall back to the list view
+	 * (silent fallback is fine for a demo — Phase 6 polish can add a notice).
+	 */
+	public static function render_donations_endpoint() {
+		if ( ! self::is_demo_active() ) {
+			return;
+		}
+		$data = self::get_fake_data();
+		$id   = (string) \get_query_var( 'donations', '' );
+
+		if ( '' !== $id ) {
+			$donation = self::find_donation_by_id( $data, $id );
+			if ( $donation ) {
+				\load_template(
+					__DIR__ . '/templates/v2-demo/donation-details.php',
+					false,
+					[
+						'data'     => $data,
+						'donation' => $donation,
+					]
+				);
+				return;
+			}
+		}
+
+		\load_template(
+			__DIR__ . '/templates/v2-demo/donations.php',
+			false,
+			[ 'data' => $data ]
+		);
+	}
+
+	/**
+	 * Build a v2-demo donations URL — bare endpoint when $id is empty, detail
+	 * URL otherwise. Goes through `wc_get_endpoint_url`, which fires the
+	 * `woocommerce_get_endpoint_url` filter so our `?v2-demo=1` preservation
+	 * kicks in automatically — list/detail/sidebar links all stay in the demo.
+	 *
+	 * @param string $id Donation id, or '' for the list URL.
+	 * @return string
+	 */
+	public static function donations_url( $id = '' ) {
+		$myaccount = \wc_get_page_permalink( 'myaccount' );
+		return \wc_get_endpoint_url( 'donations', (string) $id, $myaccount );
+	}
+
+	/**
+	 * Look up a single donation in the fake-data array by id, across the
+	 * `recurring` and `one_time` sections.
+	 *
+	 * @param array  $data Full fake-data payload.
+	 * @param string $id   Donation id to find.
+	 * @return array|null  Donation row + a `kind` key set to 'recurring' or
+	 *                     'one_time', or null if not found.
+	 */
+	private static function find_donation_by_id( $data, $id ) {
+		$donations = isset( $data['donations'] ) ? $data['donations'] : [];
+		foreach ( [ 'recurring', 'one_time' ] as $kind ) {
+			$rows = isset( $donations[ $kind ] ) ? $donations[ $kind ] : [];
+			foreach ( $rows as $row ) {
+				if ( isset( $row['id'] ) && (string) $row['id'] === $id ) {
+					$row['kind'] = $kind;
+					return $row;
+				}
+			}
+		}
+		return null;
+	}
+
+	/**
 	 * Append `?v2-demo` to every account endpoint URL so internal nav, the
 	 * post-login redirect, and the WC redirect-to-account-details bounce all
 	 * keep the demo active. Filter only runs on demo requests, so non-demo
@@ -242,8 +337,8 @@ final class My_Account_UI_V2_Demo {
 	/**
 	 * Fake data shared by PHP templates and JS. Single source of truth.
 	 *
-	 * Phase 2 ships only the `newsletters` slice; Phase 3+ will add donations
-	 * / subscriptions slices alongside it. Scenario overrides via
+	 * Phase 2 ships only the `newsletters` slice; Phase 3 adds `donations`.
+	 * Subscriptions land in Phase 4. Scenario overrides via
 	 * `?v2-demo=<scenario>` will be wired in Phase 6.
 	 *
 	 * @return array
@@ -255,6 +350,7 @@ final class My_Account_UI_V2_Demo {
 				'display_name' => $user && $user->ID ? $user->display_name : __( 'Casey Reader', 'newspack-plugin' ),
 				'email'        => $user && $user->ID ? $user->user_email : 'casey@example.com',
 			],
+			'donations'   => self::get_fake_donations(),
 			'newsletters' => [
 				'sections'             => [
 					[
@@ -373,6 +469,181 @@ final class My_Account_UI_V2_Demo {
 					'description' => __( 'Don’t want any newsletters from us?', 'newspack-plugin' ),
 					'label'       => __( 'Unsubscribe from all', 'newspack-plugin' ),
 				],
+			],
+		];
+	}
+
+	/**
+	 * Donations slice of the fake-data payload. One active recurring + one
+	 * cancelled recurring + two one-time entries + a billing-history button
+	 * (the list page renders an inline billing-history table when
+	 * `billing_history_inline` is true; Phase 6 wires that as a scenario).
+	 *
+	 * Currency is USD per brief §7. The Figma frames render in £ — substance
+	 * is the same. Each donation carries its own `billing_history` array
+	 * (the per-donation table on the detail page); the recurring without-fees
+	 * variant is expressed via `fees_covered = true`, which suppresses the
+	 * Amount breakdown on the detail page.
+	 *
+	 * @return array
+	 */
+	private static function get_fake_donations() {
+		return [
+			'currency_symbol'        => '$',
+			'currency_code'          => 'USD',
+			'recurring'              => [
+				[
+					'id'              => 'don-001',
+					'status'          => 'active',
+					'amount'          => 10.00,
+					'frequency'       => 'month',
+					'frequency_label' => __( 'Monthly', 'newspack-plugin' ),
+					'started'         => '2025-03-14',
+					'latest_payment'  => '2026-04-14',
+					'next_payment'    => '2026-05-14',
+					'subtotal'        => 8.33,
+					'vat'             => 1.67,
+					'transaction_fee' => null,
+					'total'           => 10.00,
+					'fees_covered'    => false,
+					'payment_method'  => [
+						'brand' => __( 'Visa', 'newspack-plugin' ),
+						'last4' => '4242',
+						'exp'   => '02/27',
+					],
+					'billing_history' => [
+						[
+							'order'  => '#890',
+							'date'   => '2026-04-14',
+							'status' => 'paid',
+							'amount' => 10.00,
+						],
+						[
+							'order'  => '#731',
+							'date'   => '2026-03-14',
+							'status' => 'paid',
+							'amount' => 10.00,
+						],
+						[
+							'order'  => '#684',
+							'date'   => '2026-02-14',
+							'status' => 'paid',
+							'amount' => 10.00,
+						],
+						[
+							'order'  => '#603',
+							'date'   => '2026-01-14',
+							'status' => 'paid',
+							'amount' => 10.00,
+						],
+						[
+							'order'  => '#562',
+							'date'   => '2025-12-14',
+							'status' => 'paid',
+							'amount' => 10.00,
+						],
+					],
+				],
+				[
+					'id'              => 'don-cancelled',
+					'status'          => 'cancelled',
+					'amount'          => 153.00,
+					'frequency'       => 'year',
+					'frequency_label' => __( 'Annually', 'newspack-plugin' ),
+					'started'         => '2024-02-14',
+					'latest_payment'  => '2025-08-01',
+					'next_payment'    => null,
+					'cancelled'       => '2025-08-15',
+					'subtotal'        => 125.00,
+					'vat'             => 25.00,
+					'transaction_fee' => 3.00,
+					'total'           => 153.00,
+					'fees_covered'    => false,
+					'payment_method'  => [
+						'brand' => __( 'Amex', 'newspack-plugin' ),
+						'last4' => '9001',
+						'exp'   => '07/29',
+					],
+					'billing_history' => [
+						[
+							'order'  => '#899',
+							'date'   => '2025-08-15',
+							'status' => 'cancelled',
+							'amount' => null,
+						],
+						[
+							'order'  => '#820',
+							'date'   => '2025-02-14',
+							'status' => 'paid',
+							'amount' => 153.00,
+						],
+						[
+							'order'  => '#640',
+							'date'   => '2024-02-14',
+							'status' => 'paid',
+							'amount' => 153.00,
+						],
+					],
+				],
+			],
+			'one_time'               => [
+				[
+					'id'              => 'don-onetime-1',
+					'status'          => 'paid',
+					'amount'          => 25.00,
+					'subtotal'        => 20.83,
+					'vat'             => 4.17,
+					'transaction_fee' => null,
+					'total'           => 25.00,
+					'fees_covered'    => false,
+					'date'            => '2025-11-30',
+					'payment_method'  => [
+						'brand' => __( 'Visa', 'newspack-plugin' ),
+						'last4' => '4242',
+						'exp'   => '02/27',
+					],
+					'billing_history' => [
+						[
+							'order'  => '#946',
+							'date'   => '2025-11-30',
+							'status' => 'paid',
+							'amount' => 25.00,
+						],
+					],
+				],
+				[
+					'id'              => 'don-onetime-2',
+					'status'          => 'paid',
+					'amount'          => 40.00,
+					'subtotal'        => 33.33,
+					'vat'             => 6.67,
+					'transaction_fee' => null,
+					'total'           => 40.00,
+					'fees_covered'    => true,
+					'date'            => '2024-01-01',
+					'payment_method'  => [
+						'brand' => __( 'Mastercard', 'newspack-plugin' ),
+						'last4' => '5454',
+						'exp'   => '08/28',
+					],
+					'billing_history' => [
+						[
+							'order'  => '#312',
+							'date'   => '2024-01-01',
+							'status' => 'paid',
+							'amount' => 40.00,
+						],
+					],
+				],
+			],
+			// Bottom of the list page: render the Button Card by default
+			// (Figma 2636:46467). Phase 6 will flip `billing_history_inline`
+			// for the embedded-table variant (Figma 3619:292407).
+			'billing_history_inline' => false,
+			'billing_history_button' => [
+				'enabled'     => true,
+				'title'       => __( 'Billing history', 'newspack-plugin' ),
+				'description' => __( 'View, download, and print your receipts.', 'newspack-plugin' ),
 			],
 		];
 	}
