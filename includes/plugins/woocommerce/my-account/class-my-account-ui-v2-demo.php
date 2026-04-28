@@ -157,8 +157,18 @@ final class My_Account_UI_V2_Demo {
 		// EP_PAGES already preserves the trailing value segment.
 		\add_rewrite_endpoint( 'donations', EP_PAGES );
 
+		// Auto-flush the rewrite rules once per ENDPOINTS_VERSION bump, but
+		// only when an admin is logged in — flush_rewrite_rules() is
+		// expensive (~50ms) and shouldn't fire on anonymous frontend
+		// traffic. Demo audience is admins anyway, so deferring is harmless;
+		// the first admin to visit any /my-account/ page after a deploy
+		// triggers the flush, and subsequent requests for everyone resolve
+		// the new endpoints.
 		$current = (int) \get_option( self::ENDPOINTS_OPTION, 0 );
-		if ( $current !== self::ENDPOINTS_VERSION ) {
+		if ( $current !== self::ENDPOINTS_VERSION
+			&& \is_user_logged_in()
+			&& \current_user_can( 'manage_options' )
+		) {
 			\flush_rewrite_rules( false ); // phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.flush_rewrite_rules_flush_rewrite_rules
 			\update_option( self::ENDPOINTS_OPTION, self::ENDPOINTS_VERSION );
 		}
@@ -331,7 +341,16 @@ final class My_Account_UI_V2_Demo {
 		if ( ! self::is_demo_active() ) {
 			return $url;
 		}
-		return \add_query_arg( self::DEMO_FLAG, '1', $url );
+		// Preserve the original flag value (e.g. `?v2-demo=cancelled-sub` per
+		// brief §7 scenario fixtures), not just `'1'`. Falls back to `'1'`
+		// for the happy path. is_demo_active() above already gated on
+		// admin caps + endpoint URL, so reading $_GET here is safe.
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$demo_flag_value = isset( $_GET[ self::DEMO_FLAG ] ) ? \sanitize_text_field( \wp_unslash( $_GET[ self::DEMO_FLAG ] ) ) : '1'; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( '' === $demo_flag_value ) {
+			$demo_flag_value = '1';
+		}
+		return \add_query_arg( self::DEMO_FLAG, $demo_flag_value, $url );
 	}
 
 	/**

@@ -259,20 +259,20 @@ if ( $is_recurring && $frequency ) {
 	}
 	?>
 	<?php foreach ( $date_rows as $row ) : ?>
-		<section class="newspack-ui__stack newspack-ui__stack--horizontal newspack-ui__stack--gap-3 newspack-ui__stack--align-start">
-			<h2 class="newspack-ui__font--s newspack-ui__font--bold newspack-ui__spacing-top--0 newspack-ui__spacing-bottom--0" style="flex:1">
+		<section class="newspack-ui__stack newspack-ui__stack--horizontal newspack-ui__stack--justify-between newspack-ui__stack--gap-3 newspack-ui__stack--align-start">
+			<h2 class="newspack-ui__font--s newspack-ui__font--bold newspack-ui__spacing-top--0 newspack-ui__spacing-bottom--0">
 				<?php echo esc_html( $row['label'] ); ?>
 			</h2>
-			<div style="flex:1"><?php echo esc_html( $row['value'] ); ?></div>
+			<div><?php echo esc_html( $row['value'] ); ?></div>
 		</section>
 	<?php endforeach; ?>
 
 	<?php if ( ! empty( $payment ) ) : ?>
-		<section class="newspack-ui__stack newspack-ui__stack--horizontal newspack-ui__stack--gap-3 newspack-ui__stack--align-start" data-section-id="payment-method">
-			<h2 class="newspack-ui__font--s newspack-ui__font--bold newspack-ui__spacing-top--0 newspack-ui__spacing-bottom--0" style="flex:1">
+		<section class="newspack-ui__stack newspack-ui__stack--horizontal newspack-ui__stack--justify-between newspack-ui__stack--gap-3 newspack-ui__stack--align-start" data-section-id="payment-method">
+			<h2 class="newspack-ui__font--s newspack-ui__font--bold newspack-ui__spacing-top--0 newspack-ui__spacing-bottom--0">
 				<?php esc_html_e( 'Payment method', 'newspack-plugin' ); ?>
 			</h2>
-			<div class="newspack-ui__stack newspack-ui__stack--vertical newspack-ui__stack--gap-0" style="flex:1">
+			<div class="newspack-ui__stack newspack-ui__stack--vertical newspack-ui__stack--gap-0">
 				<div class="newspack-ui__font--bold">
 					<?php
 					/* translators: %1$s: card brand, %2$s: last four digits of card number. */

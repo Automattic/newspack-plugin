@@ -75,8 +75,10 @@ function snackbar( message, type = 'success' ) {
 }
 
 /**
- * Wire row-click navigation for the previous-donations table on the list
- * page. Idempotent.
+ * Wire row-click + keyboard navigation for the previous-donations table on
+ * the list page. The template marks each `<tr>` with `tabindex="0"` and
+ * `role="link"`; this handler activates them on click, Enter, or Space so
+ * keyboard and screen-reader users can navigate too. Idempotent.
  *
  * @param {HTMLElement} root List container element.
  */
@@ -86,13 +88,16 @@ function wireListRoot( root ) {
 	}
 	root.dataset.newspackMyAccountV2DemoWired = 'true';
 
+	const navigateToRow = row => {
+		const url = row.dataset.href;
+		if ( url ) {
+			window.location.href = url;
+		}
+	};
+
 	root.addEventListener( 'click', event => {
 		const row = event.target.closest( 'tr[data-href]' );
 		if ( ! row || ! root.contains( row ) ) {
-			return;
-		}
-		const url = row.dataset.href;
-		if ( ! url ) {
 			return;
 		}
 		// Don't hijack clicks on actual links/buttons inside cells (none
@@ -100,7 +105,37 @@ function wireListRoot( root ) {
 		if ( event.target.closest( 'a, button' ) ) {
 			return;
 		}
-		window.location.href = url;
+		navigateToRow( row );
+	} );
+
+	root.addEventListener( 'keydown', event => {
+		if ( event.key !== 'Enter' && event.key !== ' ' ) {
+			return;
+		}
+		const row = event.target.closest( 'tr[data-href]' );
+		if ( ! row || ! root.contains( row ) ) {
+			return;
+		}
+		// Same insurance as the click handler — let nested controls own
+		// their own keyboard semantics.
+		if ( event.target.closest( 'a, button, input, select, textarea' ) ) {
+			return;
+		}
+		event.preventDefault();
+		navigateToRow( row );
+	} );
+
+	// "Billing history" Button Card has no Phase 3 destination — wire a
+	// stub snackbar so the card actually does something when clicked.
+	// Phase 6 scenario fixtures will flip `billing_history_inline` and
+	// replace the card with the embedded table.
+	root.addEventListener( 'click', event => {
+		const trigger = event.target.closest( '[data-action="open-billing-history"]' );
+		if ( ! trigger || ! root.contains( trigger ) ) {
+			return;
+		}
+		event.preventDefault();
+		snackbar( __( 'Billing history will be available in a future update.', 'newspack-plugin' ) );
 	} );
 }
 

@@ -213,8 +213,22 @@ $status_label = static function ( $status ) {
 				</thead>
 				<tbody>
 					<?php foreach ( $previous as $row ) : ?>
-						<?php $row_url = \Newspack\My_Account_UI_V2_Demo::donations_url( $row['id'] ); ?>
-						<tr data-href="<?php echo esc_url( $row_url ); ?>" data-donation-id="<?php echo esc_attr( $row['id'] ); ?>">
+						<?php
+						$row_url   = \Newspack\My_Account_UI_V2_Demo::donations_url( $row['id'] );
+						$row_label = sprintf(
+							/* translators: %1$s: donation date, %2$s: amount with currency. */
+							__( 'View donation from %1$s, %2$s', 'newspack-plugin' ),
+							$format_date( $row['date'] ),
+							$format_amount( $row['amount'] )
+						);
+						?>
+						<tr
+							data-href="<?php echo esc_url( $row_url ); ?>"
+							data-donation-id="<?php echo esc_attr( $row['id'] ); ?>"
+							tabindex="0"
+							role="link"
+							aria-label="<?php echo esc_attr( $row_label ); ?>"
+						>
 							<td><?php echo esc_html( $format_date( $row['date'] ) ); ?></td>
 							<td><?php echo esc_html( $row['frequency'] ); ?></td>
 							<td>
