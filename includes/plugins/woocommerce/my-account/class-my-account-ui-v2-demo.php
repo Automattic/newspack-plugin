@@ -8,7 +8,11 @@
  * adds the v2 menu item. Phase 3 adds the `donations` endpoint plus list and
  * detail templates. Phase 4 adds the `subscriptions` endpoint with list +
  * detail templates and takes over WC Subscriptions' default rendering when
- * the demo flag is active.
+ * the demo flag is active. Phase 6 mirrors WC core's `payment-methods`
+ * page under the demo flag, fed by fake data, and bypasses v1's
+ * `wc_get_template` swap via the same takeover pattern Phase 4 uses for
+ * subscriptions. See the v2-demo template for the small intentional
+ * deviations from WC core's exact output.
  *
  * @package Newspack
  */
@@ -27,11 +31,16 @@ final class My_Account_UI_V2_Demo {
 	// Bump when the set of registered endpoints changes so the auto-flush
 	// guard re-runs. See devlog Decision log "Endpoint flush strategy".
 	// 2 = newsletters (Phase 2). 3 = + donations (Phase 3).
-	// 4 = + subscriptions (Phase 4). The `subscriptions` endpoint may already
-	// exist on sites with WC Subscriptions; add_rewrite_endpoint is idempotent
-	// so re-registering is harmless, and the auto-flush only fires once per
-	// admin visit after the bump.
-	const ENDPOINTS_VERSION = 4;
+	// 4 = + subscriptions (Phase 4). 5 = Phase 6 payment-methods takeover —
+	// the `payment-methods` endpoint is already registered by WC core, so we
+	// don't add_rewrite_endpoint for it; the bump still fires the flush once
+	// per environment so any rewrite-rule drift from earlier phases lands on
+	// a clean slate alongside the takeover hook.
+	// The `subscriptions` endpoint may already exist on sites with WC
+	// Subscriptions; add_rewrite_endpoint is idempotent so re-registering is
+	// harmless, and the auto-flush only fires once per admin visit after the
+	// bump.
+	const ENDPOINTS_VERSION = 5;
 
 	/**
 	 * Initialize hooks.
@@ -59,12 +68,24 @@ final class My_Account_UI_V2_Demo {
 		// is active we suppress all other handlers via takeover_subscriptions
 		// so this is the only renderer.
 		\add_action( 'woocommerce_account_subscriptions_endpoint', [ __CLASS__, 'render_subscriptions_endpoint' ] );
+		// Render the payment-methods endpoint body. WC core hooks
+		// `woocommerce_account_payment_methods` at priority 10; v1 also swaps
+		// the underlying template via wc_get_template. Our takeover (below)
+		// drops both so this callback is the sole renderer when the demo flag
+		// is active.
+		\add_action( 'woocommerce_account_payment-methods_endpoint', [ __CLASS__, 'render_payment_methods_endpoint' ] );
 		// On sites with WC Subscriptions, WCS owns `woocommerce_account_subscriptions_endpoint`
 		// at priority 10 and Newspack appends a memberships table at 11 (see
 		// WooCommerce_My_Account::append_membership_table). Both must be
 		// suppressed when the demo is active so our template is the sole
 		// renderer. Runs at priority 8, before redirect_non_demo at 9.
 		\add_action( 'template_redirect', [ __CLASS__, 'takeover_subscriptions_endpoint' ], 8 );
+		// Mirror the subscriptions takeover for `payment-methods` — WC core
+		// hooks `woocommerce_account_payment_methods` (-> wc_get_template
+		// 'myaccount/payment-methods.php', which v1 swaps for its own custom
+		// `payment-information.php`). Drop both handlers and re-add our
+		// renderer so the v2 prototype shows fake-data cards instead.
+		\add_action( 'template_redirect', [ __CLASS__, 'takeover_payment_methods_endpoint' ], 8 );
 		// The `newsletters`, `donations`, and `subscriptions` endpoints are
 		// registered globally (rewrite rules can't be conditional on caps),
 		// so a non-demo visitor guessing those URLs would land on an empty
@@ -221,16 +242,24 @@ final class My_Account_UI_V2_Demo {
 		// label so the menu order is consistent on sites with and without WCS.
 		unset( $items['subscriptions'] );
 
+		// v1 relabels `payment-methods` to "Payment information" — pluck it
+		// here too so we can reinsert with the v2 label "Payment methods" in
+		// our preferred slot, regardless of what v1 (or anything else) named
+		// it. WC core registers the slug for any logged-in customer.
+		unset( $items['payment-methods'] );
+
 		// v1 already removed `customer-logout` and `edit-address`. Insert v2
 		// items between `edit-account` and the rest, in the order they appear
-		// in the Figma sidebar: Newsletters → Donations → Subscriptions.
+		// in the Figma sidebar: Newsletters → Donations → Subscriptions →
+		// Payment methods.
 		$ordered = [];
 		foreach ( $items as $slug => $label ) {
 			$ordered[ $slug ] = $label;
 			if ( 'edit-account' === $slug ) {
-				$ordered['newsletters']   = __( 'Newsletters', 'newspack-plugin' );
-				$ordered['donations']     = __( 'Donations', 'newspack-plugin' );
-				$ordered['subscriptions'] = __( 'Subscriptions', 'newspack-plugin' );
+				$ordered['newsletters']     = __( 'Newsletters', 'newspack-plugin' );
+				$ordered['donations']       = __( 'Donations', 'newspack-plugin' );
+				$ordered['subscriptions']   = __( 'Subscriptions', 'newspack-plugin' );
+				$ordered['payment-methods'] = __( 'Payment methods', 'newspack-plugin' );
 			}
 		}
 		// Fallbacks: if `edit-account` was removed upstream, append.
@@ -242,6 +271,9 @@ final class My_Account_UI_V2_Demo {
 		}
 		if ( ! isset( $ordered['subscriptions'] ) ) {
 			$ordered['subscriptions'] = __( 'Subscriptions', 'newspack-plugin' );
+		}
+		if ( ! isset( $ordered['payment-methods'] ) ) {
+			$ordered['payment-methods'] = __( 'Payment methods', 'newspack-plugin' );
 		}
 		return $ordered;
 	}
@@ -305,6 +337,31 @@ final class My_Account_UI_V2_Demo {
 		// remains the only handler.
 		\remove_all_actions( 'woocommerce_account_subscriptions_endpoint' );
 		\add_action( 'woocommerce_account_subscriptions_endpoint', [ __CLASS__, 'render_subscriptions_endpoint' ] );
+	}
+
+	/**
+	 * Take over the payment-methods endpoint when the demo is active. WC core
+	 * hooks `woocommerce_account_payment_methods` at priority 10 (which calls
+	 * `wc_get_template( 'myaccount/payment-methods.php' )`); v1 also filters
+	 * `wc_get_template` to swap in its own `payment-information.php`. Drop
+	 * every existing handler so our v2 template is the sole renderer.
+	 *
+	 * Same shape as takeover_subscriptions_endpoint — see Phase 4 devlog.
+	 * Runs at template_redirect priority 8, before the action is fired by
+	 * the [woocommerce_my_account] shortcode.
+	 */
+	public static function takeover_payment_methods_endpoint() {
+		if ( ! self::is_demo_active() ) {
+			return;
+		}
+		// `payment-methods` is a registered WC core endpoint; the query var
+		// is set whenever the URL matches, even though we don't consume the
+		// value here.
+		if ( false === \get_query_var( 'payment-methods', false ) ) {
+			return;
+		}
+		\remove_all_actions( 'woocommerce_account_payment-methods_endpoint' );
+		\add_action( 'woocommerce_account_payment-methods_endpoint', [ __CLASS__, 'render_payment_methods_endpoint' ] );
 	}
 
 	/**
@@ -413,6 +470,24 @@ final class My_Account_UI_V2_Demo {
 	}
 
 	/**
+	 * Render the payment-methods endpoint. Loaded by WooCommerce when the
+	 * user visits `/my-account/payment-methods/`, after the takeover above
+	 * has dropped WC core / v1 / Stripe handlers. The template mirrors WC
+	 * core's `myaccount/payment-methods.php` DOM byte-for-byte, fed by the
+	 * fake `payment_methods` slice from get_fake_data().
+	 */
+	public static function render_payment_methods_endpoint() {
+		if ( ! self::is_demo_active() ) {
+			return;
+		}
+		\load_template(
+			__DIR__ . '/templates/v2-demo/payment-methods.php',
+			false,
+			[ 'data' => self::get_fake_data() ]
+		);
+	}
+
+	/**
 	 * Build a v2-demo subscriptions URL — bare endpoint when $id is empty,
 	 * detail URL otherwise. Same plumbing as donations_url(); the
 	 * woocommerce_get_endpoint_url filter re-appends ?v2-demo automatically.
@@ -507,21 +582,22 @@ final class My_Account_UI_V2_Demo {
 	 * Fake data shared by PHP templates and JS. Single source of truth.
 	 *
 	 * Phase 2 ships only the `newsletters` slice; Phase 3 adds `donations`;
-	 * Phase 4 adds `subscriptions`. Scenario overrides via
-	 * `?v2-demo=<scenario>` will be wired in Phase 6.
+	 * Phase 4 adds `subscriptions`; Phase 6 adds `payment_methods`. Scenario
+	 * overrides via `?v2-demo=<scenario>` will be wired in Phase 7.
 	 *
 	 * @return array
 	 */
 	public static function get_fake_data() {
 		$user = \wp_get_current_user();
 		return [
-			'reader'        => [
+			'reader'          => [
 				'display_name' => $user && $user->ID ? $user->display_name : __( 'Casey Reader', 'newspack-plugin' ),
 				'email'        => $user && $user->ID ? $user->user_email : 'casey@example.com',
 			],
-			'donations'     => self::get_fake_donations(),
-			'subscriptions' => self::get_fake_subscriptions(),
-			'newsletters'   => [
+			'donations'       => self::get_fake_donations(),
+			'subscriptions'   => self::get_fake_subscriptions(),
+			'payment_methods' => self::get_fake_payment_methods(),
+			'newsletters'     => [
 				'sections'             => [
 					[
 						'id'          => 'featured',
@@ -1172,6 +1248,63 @@ final class My_Account_UI_V2_Demo {
 							'date'   => '2025-03-16',
 							'status' => 'processing',
 							'amount' => 71.16,
+						],
+					],
+				],
+			],
+		];
+	}
+
+	/**
+	 * Payment methods slice of the fake-data payload. Two saved cards: one
+	 * default Visa (no "Make default" action; mirrors WC core's pattern of
+	 * only emitting that action for non-default rows) and one Mastercard.
+	 *
+	 * Shape mirrors `wc_get_customer_saved_methods_list()`: each row carries
+	 * `method.brand` + `method.last4`, an `expires` string in the
+	 * Stripe-conventional `MM/YY` format, an `is_default` flag, and an
+	 * `actions` map of `key => [name, url]` consumed by the template. The v2
+	 * template renders these into the same `<table class="shop_table
+	 * account-payment-methods-table">` DOM WC core ships, so any future
+	 * stylesheet that targets WC's payment-methods table styles us for free.
+	 *
+	 * @return array
+	 */
+	private static function get_fake_payment_methods() {
+		return [
+			'cc' => [
+				[
+					'method'     => [
+						'brand' => 'Visa',
+						'last4' => '4242',
+					],
+					'expires'    => '02/27',
+					'is_default' => true,
+					'actions'    => [
+						// Order matters: WC core renders actions in array
+						// order. `delete` last keeps the destructive action
+						// rightmost, matching WC's default rendering.
+						'delete' => [
+							'name' => __( 'Delete', 'newspack-plugin' ),
+							'url'  => '#',
+						],
+					],
+				],
+				[
+					'method'     => [
+						'brand' => 'Mastercard',
+						'last4' => '5454',
+					],
+					'expires'    => '08/28',
+					'is_default' => false,
+					'actions'    => [
+						'default' => [
+							'name' => __( 'Make default', 'newspack-plugin' ),
+							'url'  => '#',
+						],
+						'delete'  => [
+							'name' => __( 'Delete', 'newspack-plugin' ),
+							'url'  => '#',
 						],
 					],
 				],
