@@ -334,19 +334,25 @@ function handleActionClick( root, event ) {
 	const action = trigger.dataset.action;
 	const subscriptionId = trigger.dataset.subscriptionId || '';
 
-	// Suppress hash navigation on `<a href="#cancel-subscription">` etc. so
-	// the modal opens in place rather than scrolling the page.
-	if ( trigger.tagName === 'A' ) {
-		event.preventDefault();
-	}
-
 	if ( tryOpenModal( action, subscriptionId, root ) ) {
+		// Only suppress navigation when we actually opened a modal — leaves
+		// real anchors like the list page's "Manage subscription" link
+		// (`<a data-action="manage-subscription" href="…/subscriptions/<id>/">`)
+		// free to navigate normally when no modal handler exists for them.
+		if ( trigger.tagName === 'A' ) {
+			event.preventDefault();
+		}
 		return;
 	}
 
 	const message = fallbackSnackbar( action );
 	if ( ! message ) {
+		// Unhandled action — let the trigger behave naturally (e.g. real
+		// link navigation, button no-op).
 		return;
+	}
+	if ( trigger.tagName === 'A' ) {
+		event.preventDefault();
 	}
 	const openDropdown = root.querySelector( '.newspack-ui__dropdown.active' );
 	if ( openDropdown && openDropdown.contains( trigger ) ) {

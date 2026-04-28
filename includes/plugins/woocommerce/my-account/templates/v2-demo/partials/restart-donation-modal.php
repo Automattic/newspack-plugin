@@ -87,7 +87,7 @@ if ( $frequency_label ) {
 				</section>
 			<?php endif; ?>
 
-			<div id="payment" class="woocommerce-checkout-payment">
+			<div id="payment-restart-<?php echo esc_attr( $donation_id ); ?>" class="woocommerce-checkout-payment">
 				<h3><?php esc_html_e( 'Payment info', 'newspack-plugin' ); ?></h3>
 				<ul class="wc_payment_methods payment_methods methods">
 					<li class="wc_payment_method payment_method_stripe">

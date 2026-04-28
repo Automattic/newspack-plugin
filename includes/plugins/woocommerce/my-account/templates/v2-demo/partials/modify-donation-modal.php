@@ -147,15 +147,23 @@ $initial_confirm_label = sprintf( __( '%1$s / %2$s', 'newspack-plugin' ), $forma
 					?>
 					<span data-modify-amount-unit><?php echo esc_html( $initial_unit ); ?></span>
 				</h3>
+				<?php
+				// `<input type="number">` requires a dot-decimal value regardless
+				// of locale; the JS `parseFloat()` in donations.js can't handle
+				// `9,99` from a comma-decimal locale. Use plain `number_format`
+				// with explicit `.` decimal sep + no thousands separator for both
+				// the input value and the data-initial-amount attribute.
+				$amount_machine = number_format( $initial_amount, 2, '.', '' );
+				?>
 				<div class="newspack-ui__currency-input">
 					<span class="newspack-ui__currency-input__currency"><?php echo esc_html( $currency_symbol ); ?></span>
 					<input
 						type="number"
 						min="0"
 						step="0.01"
-						value="<?php echo esc_attr( number_format_i18n( $initial_amount, 2 ) ); ?>"
+						value="<?php echo esc_attr( $amount_machine ); ?>"
 						data-modify-amount
-						data-initial-amount="<?php echo esc_attr( number_format_i18n( $initial_amount, 2 ) ); ?>"
+						data-initial-amount="<?php echo esc_attr( $amount_machine ); ?>"
 						aria-label="<?php esc_attr_e( 'Amount', 'newspack-plugin' ); ?>"
 					>
 				</div>
