@@ -169,7 +169,7 @@ A new class `Newspack\My_Account_UI_V2_Demo` lives at `includes/plugins/woocomme
 6. **Registers a fake-data provider** keyed by the WP user id (so the demo state is per-admin and per-session, not global). Fake data is exposed to JS via `wp_localize_script( 'newspack-my-account-v2-demo', 'newspackMyAccountV2Demo', [...] )` and to PHP templates via a shared `My_Account_UI_V2_Demo::get_fake_data()` static method.
 7. **Registers a query var** `v2-demo` via the `query_vars` filter so WordPress doesn't strip it.
 
-The class follows the static `init()` pattern (per `AGENTS.md`), is `include_once`d from `includes/class-newspack.php` after the v1 class, and `composer dump-autoload` is run after creation.
+The class follows the static `init()` pattern (per `AGENTS.md`), is `include_once`d from `includes/plugins/woocommerce/my-account/class-woocommerce-my-account.php` after the v1 class, and `composer dump-autoload` is run after creation.
 
 ```php
 namespace Newspack;
