@@ -401,8 +401,8 @@ The reserved-globals trap didn't bite this phase — by phase 7 the muscle memor
 
 **Date:** 2026-04-28
 **By:** thomas@a8c.com
-**PR:** _pending — phase branch `prototype/my-account-demo-phase-8`, draft PR targets `prototype/my-account-demo` (umbrella tracker is #4679)_
-**Commits:** _pending — code is staged on `prototype/my-account-demo-phase-8`_
+**PR:** [#4684](https://github.com/Automattic/newspack-plugin/pull/4684) — phase branch `prototype/my-account-demo-phase-8`, draft PR targets `prototype/my-account-demo` (umbrella tracker is [#4679](https://github.com/Automattic/newspack-plugin/pull/4679))
+**Commit:** `d240a3fa4` — `docs(my-account): add v2 prototype guide (Phase 8)`
 
 **What I built**
 
@@ -414,7 +414,7 @@ No code touched. The brief was the spec; the devlog (this file) is the history; 
 
 The synthesis itself was load-bearing — the brief and devlog are exhaustive but not navigable. Walking the cross-phase decision log from top to bottom, every plumbing choice the prototype makes shows up in at least three places (the row in the log, the relevant phase entry, and the comment above the relevant `class-my-account-ui-v2-demo.php` method). The guide's job is to give a returning agent or new dev one click-through per concept instead of three. The exercise also exposed which decisions were *pattern-shaped* versus *one-off*: the modal id convention, the takeover priority pairing (8 / 9 / 1100), the auto-flush guard, the reserved-globals list, and the scenario switch all generalise; the per-template variant branching is too template-specific to compress further. That lets the guide stay short — the patterns are extracted; specifics stay in the templates and the brief.
 
-The other thing the docs pass surfaced: the productionisation playbook is shorter than I expected because every "thing to clean up" already had its rationale captured in the cross-phase decision log row that introduced it. The playbook ends up being mostly *links into the log* with a one-line "remove this when …" framing. Future-self benefit: when somebody productionises the prototype, they won't have to re-derive the *why* of any sledgehammer — they'll find the row that says "tightened to handler-name-keyed removal during productisation" and have the seam ready.
+The other thing the docs pass surfaced: the productionisation playbook is shorter than I expected because every "thing to clean up" already had its rationale captured in the cross-phase decision log row that introduced it. The playbook ends up being mostly *links into the log* with a one-line "remove this when …" framing. Future-self benefit: when somebody productionises the prototype, they won't have to re-derive the *why* of any sledgehammer — they'll find the row that says "tightened to handler-name-keyed removal during productionisation" and have the seam ready.
 
 The guide deliberately *doesn't* duplicate brief §2.1.1's full reflex order. The brief's table is canonical for "what v1 markup to copy" and lives in the brief because it predates Phase 4. The guide's table is a one-screen subset focused on "I'm rebuilding a v2 surface right now and need a finger-pointing reference." Cross-linking once is enough.
 

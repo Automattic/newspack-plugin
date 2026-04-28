@@ -135,7 +135,7 @@ function tryOpenModal( action, id, root ) {
 }
 ```
 
-Modal id convention: `newspack-my-account__<flow-slug>-<resource-id>` (e.g. `#newspack-my-account__cancel-donation-don-001`). One modal instance per resource, rendered after the detail-page wrap closes so internal clicks don't bubble through. Two-step modals (cancel-*, renew, change) put `data-step="init"` and `data-step="success"` divs in the same container and toggle `hidden` between them; the `closeModal` event newspack-ui's [`modals.js`](../src/newspack-ui/js/modals.js) dispatches resets state. Per-modal config rides on `data-*` attributes on the container (`data-unit-labels`, `data-vat-rate`, `data-currency-symbol`, …) — cheaper than a separate `wp_localize_script` pass.
+Modal id convention: `newspack-my-account__<flow-slug>-<resource-id>` (e.g. `#newspack-my-account__cancel-donation-don-001`). One modal instance per resource, rendered after the detail-page wrap closes so internal clicks don't bubble through. Two-step confirm/renew-style modals (`cancel-donation`, `cancel-subscription`, `renew-subscription`) keep `data-step="init"` and `data-step="success"` divs in the same container and toggle `hidden` between them; the **Change subscription** modal instead uses `data-step="select"` and `data-step="transaction"`. The `closeModal` event newspack-ui's [`modals.js`](../src/newspack-ui/js/modals.js) dispatches resets each modal back to its own initial step. Per-modal config rides on `data-*` attributes on the container (`data-unit-labels`, `data-vat-rate`, `data-currency-symbol`, …) — cheaper than a separate `wp_localize_script` pass.
 
 Actions with no modal fall through to `fallbackSnackbar(action)` — today only `update-payment-method` (subs) and the payment-methods action set.
 
