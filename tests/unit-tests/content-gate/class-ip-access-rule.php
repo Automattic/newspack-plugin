@@ -77,6 +77,18 @@ class Newspack_Test_IP_Access_Rule extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Test that whitespace around the CIDR separator is tolerated.
+	 *
+	 * Common admin typos like "192.168.1.0 / 24" should not silently
+	 * disable the rule.
+	 */
+	public function test_cidr_tolerates_whitespace_around_slash() {
+		$this->assertTrue( IP_Access_Rule::ip_matches_ranges( '192.168.1.50', '192.168.1.0/ 24' ) );
+		$this->assertTrue( IP_Access_Rule::ip_matches_ranges( '192.168.1.50', '192.168.1.0 /24' ) );
+		$this->assertTrue( IP_Access_Rule::ip_matches_ranges( '192.168.1.50', '192.168.1.0 / 24' ) );
+	}
+
+	/**
 	 * Test that the REST route is registered.
 	 */
 	public function test_rest_route_registered() {
@@ -566,6 +578,35 @@ class Newspack_Test_IP_Access_Rule extends WP_UnitTestCase {
 		}
 		$this->assertNotNull( $entry );
 		$this->assertSame( [ '10.0.0.1', '192.168.1.0/24' ], $entry['ip_ranges'] );
+	}
+
+	/**
+	 * Test the endpoint normalizes whitespace around the CIDR separator.
+	 */
+	public function test_ip_allowlist_normalizes_whitespace_around_cidr_slash() {
+		wp_set_current_user( self::factory()->user->create( [ 'role' => 'administrator' ] ) );
+
+		$inst_id = \Newspack\Institution::create(
+			'Whitespace CIDR',
+			'',
+			[ 'ip_range' => '192.168.1.0 / 24, 10.0.0.0/ 8' ]
+		);
+		$this->assertIsInt( $inst_id );
+		delete_transient( \Newspack\Institution::TRANSIENT_KEY );
+
+		$route    = '/' . NEWSPACK_API_NAMESPACE . IP_Access_Rule::REST_ROUTE_IP_ALLOWLIST;
+		$request  = new WP_REST_Request( 'GET', $route );
+		$response = rest_do_request( $request );
+
+		$entry = null;
+		foreach ( $response->get_data() as $item ) {
+			if ( $item['id'] === $inst_id ) {
+				$entry = $item;
+				break;
+			}
+		}
+		$this->assertNotNull( $entry );
+		$this->assertSame( [ '192.168.1.0/24', '10.0.0.0/8' ], $entry['ip_ranges'] );
 	}
 
 	/**

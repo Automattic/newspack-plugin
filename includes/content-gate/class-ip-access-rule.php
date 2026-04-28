@@ -575,8 +575,10 @@ class IP_Access_Rule {
 	/**
 	 * Parse a comma-separated list of IPs and CIDR blocks.
 	 *
-	 * Trims whitespace, drops empty tokens, and discards anything that isn't a
-	 * valid IPv4 address or CIDR block (`<ipv4>/<0-32>`).
+	 * Trims whitespace (around tokens and around the `/` separator), drops
+	 * empty tokens, and discards anything that isn't a valid IPv4 address or
+	 * CIDR block (`<ipv4>/<0-32>`). Returned CIDR entries are emitted in their
+	 * trimmed form.
 	 *
 	 * @param string $raw Comma-separated list (e.g. `"192.168.1.0/24,10.0.0.5"`).
 	 *
@@ -591,14 +593,15 @@ class IP_Access_Rule {
 		foreach ( $tokens as $token ) {
 			if ( strpos( $token, '/' ) !== false ) {
 				list( $subnet, $bits ) = explode( '/', $token, 2 );
+				$subnet = trim( $subnet );
+				$bits   = trim( $bits );
 				if ( ! ctype_digit( $bits ) ) {
 					continue;
 				}
-				$bits = (int) $bits;
-				if ( $bits > 32 || ! filter_var( $subnet, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 ) ) {
+				if ( (int) $bits > 32 || ! filter_var( $subnet, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 ) ) {
 					continue;
 				}
-				$valid[] = $token;
+				$valid[] = $subnet . '/' . $bits;
 			} elseif ( filter_var( $token, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 ) ) {
 				$valid[] = $token;
 			}
