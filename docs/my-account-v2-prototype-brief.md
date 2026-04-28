@@ -38,6 +38,35 @@ The demo's SCSS file (`src/my-account/v2-demo/style.scss`) should stay nearly em
 
 If at any point your `style.scss` has more than a handful of lines, treat that as a smell and ask in PR review.
 
+### 2.1.1 — The other non-negotiable rule: reuse v1's class names
+
+**If v1 already renders the surface you're rebuilding in v2, copy v1's DOM and class names verbatim and feed them with fake data. Do not invent fresh markup or compose from utility classes when v1 has done this work already.**
+
+The v2-demo body class chain (`.woocommerce-account.newspack-my-account.newspack-ui` plus `.newspack-my-account--v2-demo`) means **every v1 SCSS rule already paints v2-demo pages**. Reusing v1's classes gets free design fidelity, free responsive behaviour (mobile vs desktop breakpoints, action-link / actions-dropdown swaps), and consistency with the rest of the site. Reinventing the markup forces you to hand-rebuild all of that — and you'll get the gaps wrong, the chevron wrong, the dropdown wrong, and weird grey backgrounds you don't expect.
+
+The reflex order when building any v2 surface:
+
+1. **Look at v1 first.** Does `templates/v1/<thing>.php`, `class-my-account-ui-v1.php`, `class-subscriptions-tiers.php`, or `templates/v1/_subscriptions.scss` (or any Newspack-Blocks `modal-checkout/templates/*.php`) already render this surface? Copy the DOM verbatim. If you need an icon, use `Newspack_UI_Icons::print_svg( 'name' )` rather than inlining SVG.
+2. **Look at WooCommerce / WC Subscriptions next.** Do `<table class="shop_table subscription_details">`, `<table class="shop_table order_details">`, `<ul class="wc_payment_methods payment_methods methods">`, `<div class="payment_box payment_method_stripe">`, `<p class="form-row form-row-first|last|wide">` or `<section class="woocommerce-customer-details">` apply? These are styled by Newspack's `checkout.scss` and `_subscriptions.scss` and look right out of the box.
+3. **Then newspack-ui composition** (per §2.1).
+4. **Custom SCSS only after a devlog entry** — and only after you've confirmed steps 1–3 don't already cover it.
+
+A non-exhaustive index of "v1 already has this":
+
+| If you're building... | Look at... |
+|---|---|
+| Subscription detail page header (back chevron, title, badge, action buttons, More dropdown) | `templates/v1/subscription-header.php` — `.newspack-my-account__subscription--header / --title / --back-link / --actions / --actions-container / --actions-dropdown` |
+| Subscription kv pairs (Status / dates / Payment) | WCS `templates/myaccount/subscription-details.php` — `<table class="shop_table subscription_details">` with simple `<tr><td><td>` |
+| Subscription totals / Amount breakdown | WCS `templates/myaccount/subscription-totals.php` — `<table class="shop_table order_details">` with `tr.order-total` for the Total row |
+| Billing history / related orders table | WCS `templates/myaccount/related-orders.php` — `<table class="shop_table shop_table_responsive my_account_orders woocommerce-orders-table woocommerce-MyAccount-orders woocommerce-orders-table--orders">` with `<tr class="order woocommerce-orders-table__row woocommerce-orders-table__row--status-<status>">` |
+| Status dot in a table | `.newspack-my-account__subscription--order-status-label.<status>` (already styled in `_subscriptions.scss` for paid/cancelled/failed/processing/refunded/completed/pending/on-hold) |
+| Subscription tier picker (segmented control + tier cards + Current badge) | `class-subscriptions-tiers.php::render_form` and `render_product_card` — `<div class="newspack-ui__segmented-control">` with `__tabs` + `__content` + `__panel.selected`, `<label class="newspack-ui__input-card current">` + `<input type="radio">` + `<strong>` + `<span class="newspack-ui__helper-text">` |
+| Modal frame + header + close button | `class-newspack-ui.php` `Newspack_UI::generate_modal()` and `class-subscriptions-tiers.php::render_modal` — `.newspack-ui__modal-container` (with `data-state="closed|open"`), `.newspack-ui__modal--small`, `.newspack-ui__modal__header > h2 + .newspack-ui__modal__close`, `.newspack-ui__modal__content`. **Do NOT use `.newspack-ui__modal__footer` for action buttons** — it has a grey neutral-5 background that looks wrong; render buttons directly inside `.newspack-ui__modal__content` like `render_form` does. |
+| Checkout flow (billing readout + payment radio + card inputs) | `newspack-blocks` `src/modal-checkout/templates/form-checkout.php` and `form-change-payment-method.php` — `<form class="checkout woocommerce-checkout">`, `<section class="woocommerce-customer-details">` for billing, `<div id="payment" class="woocommerce-checkout-payment">`, `<ul class="wc_payment_methods payment_methods methods">` with `<li class="wc_payment_method payment_method_stripe">`, `<div class="payment_box payment_method_stripe">` for the card-fields panel, `<p class="form-row form-row-first|last|wide">` for input rows, `<input class="input-radio">` / `class="input-text"` / `class="input-checkbox">` |
+| Plan card / box / button card | `.newspack-ui__box` (grey bg, `--text-center` for centered, `--border` for transparent + 1px border) — see `_boxes.scss` |
+
+When in doubt: rebuild the v2 surface as fake-data PHP that emits the same DOM v1 emits. The fake-data slice on `My_Account_UI_V2_Demo::get_fake_data()` is the only place values come from; everything else mirrors v1.
+
 ### 2.2 — WordPress hooks in 30 seconds
 
 WordPress runs hundreds of named events ("hooks") during every request. Code subscribes to a hook and runs at that moment. Two flavours: *actions* (do something — e.g., `wp_enqueue_scripts`) and *filters* (transform a value — e.g., `body_class` filter takes the array of CSS classes for the `<body>` element and returns a modified array). You attach with `add_action( 'hook_name', $callback )` or `add_filter( 'hook_name', $callback )`. That's the whole model.
