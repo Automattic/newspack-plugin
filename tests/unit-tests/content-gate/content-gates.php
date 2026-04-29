@@ -1289,6 +1289,38 @@ class Test_Content_Gates extends \WP_UnitTestCase {
 	}
 
 	/**
+	 * Test that include hydrates non-published tokens so the editor keeps
+	 * showing items whose status changed after the gate was saved.
+	 */
+	public function test_posts_search_endpoint_include_hydrates_non_published() {
+		wp_set_current_user( $this->factory->user->create( [ 'role' => 'administrator' ] ) );
+
+		$draft = $this->factory->post->create(
+			[
+				'post_status' => 'draft',
+				'post_title'  => 'Was Published, Now Draft',
+			]
+		);
+		$this->post_ids[] = $draft;
+
+		// `include` should return the draft.
+		$request = new \WP_REST_Request( 'GET', '/' . NEWSPACK_API_NAMESPACE . '/wizard/newspack-audience-access-control/posts-search' );
+		$request->set_param( 'include', (string) $draft );
+		$response = rest_get_server()->dispatch( $request );
+		$this->assertSame( 200, $response->get_status() );
+		$ids = wp_list_pluck( $response->get_data(), 'id' );
+		$this->assertContains( $draft, $ids, 'include hydrates non-published tokens' );
+
+		// `search` should NOT return the draft (search-mode stays publish-only).
+		$request2 = new \WP_REST_Request( 'GET', '/' . NEWSPACK_API_NAMESPACE . '/wizard/newspack-audience-access-control/posts-search' );
+		$request2->set_param( 'search', 'Was Published' );
+		$response2 = rest_get_server()->dispatch( $request2 );
+		$this->assertSame( 200, $response2->get_status() );
+		$ids2 = wp_list_pluck( $response2->get_data(), 'id' );
+		$this->assertNotContains( $draft, $ids2, 'search-mode does not surface non-published posts' );
+	}
+
+	/**
 	 * Test that per_page=0 is rejected at the schema boundary with a 400 status.
 	 */
 	public function test_posts_search_endpoint_per_page_below_minimum() {

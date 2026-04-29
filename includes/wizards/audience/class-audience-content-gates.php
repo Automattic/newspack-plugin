@@ -545,6 +545,9 @@ class Audience_Content_Gates extends Wizard {
 			if ( empty( $ids ) ) {
 				return rest_ensure_response( [] );
 			}
+			// Broader status filter when hydrating saved tokens so the editor
+			// keeps showing items whose status changed since the gate was saved.
+			$args['post_status']    = [ 'publish', 'draft', 'pending', 'private', 'future' ];
 			$args['post__in']       = $ids;
 			$args['posts_per_page'] = min( count( $ids ), 100 );
 			$args['orderby']        = 'post__in';
