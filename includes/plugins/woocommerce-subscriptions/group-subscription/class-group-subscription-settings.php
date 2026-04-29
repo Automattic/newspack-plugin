@@ -405,7 +405,7 @@ class Group_Subscription_Settings {
 					foreach ( $pricing_options as $option_key => $option_config ) {
 						if ( $option_key === 'newspack_group_subscription_limit' ) {
 							$option_config['value'] = $settings['limit'];
-							echo wp_kses_post( \woocommerce_wp_text_input( $option_config ) );
+							\woocommerce_wp_text_input( $option_config );
 							break;
 						}
 					}
