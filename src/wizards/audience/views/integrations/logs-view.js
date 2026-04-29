@@ -59,6 +59,7 @@ export const LogsView = ( { integrations, match } ) => {
 	const [ data, setData ] = useState( [] );
 	const [ total, setTotal ] = useState( 0 );
 	const [ isLoading, setIsLoading ] = useState( true );
+	const [ hasLoadedOnce, setHasLoadedOnce ] = useState( false );
 	const [ view, setView ] = useState( DEFAULT_VIEW );
 
 	useEffect( () => {
@@ -111,7 +112,10 @@ export const LogsView = ( { integrations, match } ) => {
 					id: 'integration-logs-fetch-error',
 				} );
 			} )
-			.finally( () => setIsLoading( false ) );
+			.finally( () => {
+				setIsLoading( false );
+				setHasLoadedOnce( true );
+			} );
 	}, [ integrationId, view.page, view.perPage, view.sort?.field, view.sort?.direction, view.search, statusFilter, addNotice ] );
 
 	useEffect( () => {
@@ -166,7 +170,7 @@ export const LogsView = ( { integrations, match } ) => {
 		return null;
 	}
 
-	if ( isLoading && data.length === 0 ) {
+	if ( ! hasLoadedOnce ) {
 		return (
 			<div style={ { display: 'flex', justifyContent: 'center', alignItems: 'center' } }>
 				<Spinner />
