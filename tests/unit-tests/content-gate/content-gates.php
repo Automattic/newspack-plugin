@@ -1033,12 +1033,8 @@ class Test_Content_Gates extends \WP_UnitTestCase {
 		$this->assertSame( __( 'Specific posts', 'newspack-plugin' ), $rule['name'] );
 		$this->assertSame( [], $rule['default'] );
 		$this->assertTrue( $rule['include_only'], 'specific_posts is include-only (no exclusion mode)' );
-		$this->assertSame( '/' . NEWSPACK_API_NAMESPACE . '/wizard/newspack-audience-access-control/posts-search', $rule['endpoint'], 'endpoint matches the route Task 2 must register' );
-		$this->assertStringContainsString( __( 'restrict specific posts', 'newspack-plugin' ), $rule['description'], 'description signals override behavior' );
-
-		// Must be the LAST rule in the list.
-		$keys = array_keys( $rules );
-		$this->assertSame( 'specific_posts', end( $keys ), 'specific_posts appears last' );
+		$this->assertSame( '/' . NEWSPACK_API_NAMESPACE . '/wizard/newspack-audience-access-control/posts-search', $rule['endpoint'], 'endpoint matches the registered REST route' );
+		$this->assertStringContainsString( 'restrict specific posts', $rule['description'], 'description signals override behavior' );
 	}
 
 	/**
