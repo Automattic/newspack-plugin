@@ -1371,6 +1371,7 @@ class Newspack_Test_Data_Events extends WP_UnitTestCase {
 
 		$subscription = $this->create_test_subscription(
 			[
+				'customer_id'   => 42,
 				'billing_email' => 'sub@example.com',
 				'currency'      => 'USD',
 				'total'         => 30.00,
@@ -1392,6 +1393,7 @@ class Newspack_Test_Data_Events extends WP_UnitTestCase {
 		$payload = $payloads[0];
 		$this->assertSame( (int) $subscription->get_id(), $payload['subscription_id'] );
 		$this->assertSame( 'active', $payload['status'] );
+		$this->assertSame( 42, $payload['user_id'] );
 		$this->assertSame( 'sub@example.com', $payload['email'] );
 		$this->assertSame( 'USD', $payload['currency'] );
 		$this->assertSame( 'month', $payload['recurrence'] );
