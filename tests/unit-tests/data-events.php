@@ -1259,4 +1259,30 @@ class Newspack_Test_Data_Events extends WP_UnitTestCase {
 		$this->assertSame( 100, $by_product['Donation']['product_id'] );
 		$this->assertSame( 200, $by_product['T-shirt']['product_id'] );
 	}
+
+	/**
+	 * Newspack referer/popup_id meta on the order is forwarded to the payload.
+	 */
+	public function test_woo_order_updated_payload_referer_and_popup() {
+		$order = $this->create_order_with_items(
+			[
+				[
+					'product_id' => 6000,
+					'name'       => 'Generic',
+					'subtotal'   => 5.00,
+				],
+			],
+			[
+				'meta' => [
+					'_newspack_referer'  => 'https://example.com/landing',
+					'_newspack_popup_id' => '12345',
+				],
+			]
+		);
+
+		$payloads = \Newspack\Data_Events\Utils::get_woo_order_updated_payloads( $order, 'completed' );
+
+		$this->assertSame( 'https://example.com/landing', $payloads[0]['referer'] );
+		$this->assertSame( '12345', $payloads[0]['popup_id'] );
+	}
 }
