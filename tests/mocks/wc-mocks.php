@@ -397,6 +397,19 @@ function wcs_get_subscription( $subscription_id ) {
 	global $subscriptions_database;
 	return $subscriptions_database[ $subscription_id ] ?? null;
 }
+function wcs_get_objects_property( $object, $property ) {
+	if ( ! is_object( $object ) ) {
+		return null;
+	}
+	if ( method_exists( $object, 'get_meta' ) ) {
+		// Real WC convention: _subscription_switch_data => 'subscription_switch_data'.
+		$meta = $object->get_meta( '_' . $property );
+		if ( ! empty( $meta ) ) {
+			return $meta;
+		}
+	}
+	return null;
+}
 function wcs_get_subscriptions_for_order( $order, $args = [] ) {
 	global $subscriptions_database;
 	if ( ! $order instanceof \WC_Order ) {

@@ -547,3 +547,35 @@ add_action(
 	10,
 	3
 );
+
+/**
+ * For WC Subscription switches (recurrence/amount changes without a status change).
+ * Fires woo_subscription_updated with the post-switch status for each affected subscription.
+ *
+ * Uses raw add_action because each switch order can affect multiple subscriptions and
+ * each subscription can have multiple line items — N events per hook fire.
+ * The action is registered at the top of this file.
+ */
+add_action(
+	'woocommerce_subscriptions_switch_completed',
+	function ( $order ) {
+		if ( ! function_exists( 'wcs_get_objects_property' ) || ! function_exists( 'wcs_get_subscription' ) ) {
+			return;
+		}
+		$switch_data = \wcs_get_objects_property( $order, 'subscription_switch_data' );
+		if ( empty( $switch_data ) || ! is_array( $switch_data ) ) {
+			return;
+		}
+		foreach ( array_keys( $switch_data ) as $subscription_id ) {
+			$subscription = \wcs_get_subscription( $subscription_id );
+			if ( ! $subscription instanceof \WC_Subscription ) {
+				continue;
+			}
+			foreach ( \Newspack\Data_Events\Utils::get_woo_subscription_updated_payloads( $subscription, $subscription->get_status() ) as $payload ) {
+				Data_Events::dispatch( 'woo_subscription_updated', $payload );
+			}
+		}
+	},
+	10,
+	1
+);

@@ -1523,4 +1523,54 @@ class Newspack_Test_Data_Events extends WP_UnitTestCase {
 		$this->assertSame( 'on-hold', $captured[0]['status'] );
 		$this->assertSame( (int) $subscription->get_id(), $captured[0]['subscription_id'] );
 	}
+
+	/**
+	 * `woocommerce_subscriptions_switch_completed` triggers woo_subscription_updated with the post-switch status.
+	 */
+	public function test_woo_subscription_updated_listener_dispatches_on_switch() {
+		$captured = [];
+		add_action(
+			'newspack_data_event_dispatch_woo_subscription_updated',
+			function ( $timestamp, $data, $client_id ) use ( &$captured ) {
+				$captured[] = $data;
+			},
+			10,
+			3
+		);
+
+		$subscription = $this->create_test_subscription(
+			[
+				'status' => 'active',
+				'items'  => [
+					$this->build_order_item(
+						[
+							'product_id' => 13000,
+							'name'       => 'Switched Plan',
+							'subtotal'   => 30.00,
+						]
+					),
+				],
+			]
+		);
+
+		// Build a switch order whose `_subscription_switch_data` meta references the subscription.
+		$switch_order = \wc_create_order(
+			[
+				'status'      => 'completed',
+				'customer_id' => 0,
+				'total'       => 30.00,
+				'meta'        => [
+					'_subscription_switch_data' => [
+						(int) $subscription->get_id() => [ 'switches' => [] ],
+					],
+				],
+			]
+		);
+
+		do_action( 'woocommerce_subscriptions_switch_completed', $switch_order );
+
+		$this->assertCount( 1, $captured );
+		$this->assertSame( (int) $subscription->get_id(), $captured[0]['subscription_id'] );
+		$this->assertSame( 'active', $captured[0]['status'] );
+	}
 }
