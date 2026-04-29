@@ -281,6 +281,64 @@ class Metadata {
 	}
 
 	/**
+	 * Get the list of possible fields to be synced, grouped by section.
+	 *
+	 * Returns an array of groups, each with a 'section' label and 'fields' array.
+	 * Only includes non-legacy classes with a section name. Fields are intersected
+	 * with the filtered available fields list so extensions using the
+	 * `newspack_ras_metadata_keys` filter are respected. Fields added by the filter
+	 * that don't belong to any class are collected in an "Additional" group.
+	 *
+	 * @return array<int, array{section: string, fields: list<string>}> List of
+	 *   groups, each with a non-empty section label and an ordered list of field
+	 *   names. May be filtered by `newspack_ras_grouped_metadata_fields`.
+	 */
+	public static function get_grouped_default_fields(): array {
+		$classes          = self::get_metadata_classes();
+		$available_fields = array_values( array_unique( array_values( self::get_all_fields( true ) ) ) );
+		$groups           = [];
+		$grouped_fields   = [];
+
+		foreach ( $classes as $class ) {
+			if ( $class::is_available() ) {
+				$section = $class::get_section_name();
+				if ( empty( $section ) ) {
+					continue;
+				}
+
+				$fields = array_values( array_unique( array_values( $class::get_fields() ) ) );
+				$fields = array_values( array_intersect( $fields, $available_fields ) );
+
+				if ( empty( $fields ) ) {
+					continue;
+				}
+
+				$groups[]       = [
+					'section' => $section,
+					'fields'  => $fields,
+				];
+				$grouped_fields = array_merge( $grouped_fields, $fields );
+			}
+		}
+
+		$ungrouped_fields = array_values( array_diff( $available_fields, array_unique( $grouped_fields ) ) );
+		if ( ! empty( $ungrouped_fields ) ) {
+			$groups[] = [
+				'section' => __( 'Additional', 'newspack-plugin' ),
+				'fields'  => $ungrouped_fields,
+			];
+		}
+
+		/**
+		 * Filters the list of possible metadata fields to be synced, grouped by section.
+		 *
+		 * @param array[]  $groups           Array of [ 'section' => string, 'fields' => string[] ].
+		 * @param string[] $available_fields Flat list of filtered available metadata field names.
+		 */
+		return \apply_filters( 'newspack_ras_grouped_metadata_fields', $groups, $available_fields );
+	}
+
+	/**
 	 * Get all metadata fields
 	 *
 	 * @param boolean $only_available Whether to return only available fields or all fields.

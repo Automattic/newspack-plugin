@@ -2,7 +2,7 @@
  * WordPress dependencies.
  */
 import { __ } from '@wordpress/i18n';
-import { CheckboxControl, ExternalLink } from '@wordpress/components';
+import { CheckboxControl, ExternalLink, TextareaControl } from '@wordpress/components';
 
 /**
  * Internal dependencies.
@@ -72,15 +72,7 @@ export const SettingsField = ( { field, value, onChange } ) => {
 			);
 		case 'textarea':
 			return (
-				<TextControl
-					key={ key }
-					label={ label }
-					help={ help }
-					value={ value || '' }
-					placeholder={ placeholder }
-					onChange={ onChange }
-					isTextarea
-				/>
+				<TextareaControl key={ key } label={ label } help={ help } value={ value || '' } placeholder={ placeholder } onChange={ onChange } />
 			);
 		case 'number':
 			return (

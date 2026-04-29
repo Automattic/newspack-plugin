@@ -42,6 +42,13 @@ if ( 'additional-brands' in settingsTabs ) {
 	sectionComponents[ 'additional-brands' ] = lazy( () => import( /* webpackChunkName: "newspack-wizards" */ './additional-brands' ) );
 }
 
+/**
+ * Load experimental tools section if tools are registered.
+ */
+if ( 'experimental-tools' in settingsTabs ) {
+	sectionComponents[ 'experimental-tools' ] = lazy( () => import( /* webpackChunkName: "newspack-wizards" */ './experimental-tools' ) );
+}
+
 const settingsSectionKeys = Object.keys( settingsTabs ) as SectionKeys[];
 
 export default settingsSectionKeys.reduce( ( acc: any[], sectionPath ) => {
