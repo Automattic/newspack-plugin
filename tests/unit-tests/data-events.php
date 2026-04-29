@@ -1119,4 +1119,37 @@ class Newspack_Test_Data_Events extends WP_UnitTestCase {
 		$this->assertSame( 42, $payload['product_id'] );
 		$this->assertSame( 'Mug', $payload['product_name'] );
 	}
+
+	/**
+	 * A multi-product order produces one payload per product line item.
+	 */
+	public function test_woo_order_updated_payload_multi_product() {
+		$order = $this->create_order_with_items(
+			[
+				[
+					'product_id' => 100,
+					'name'       => 'Donation',
+					'subtotal'   => 50.00,
+				],
+				[
+					'product_id' => 200,
+					'name'       => 'T-shirt',
+					'subtotal'   => 20.00,
+				],
+			]
+		);
+
+		$payloads = \Newspack\Data_Events\Utils::get_woo_order_updated_payloads( $order, 'completed' );
+
+		$this->assertCount( 2, $payloads );
+
+		$by_product = [];
+		foreach ( $payloads as $payload ) {
+			$by_product[ $payload['product_name'] ] = $payload;
+		}
+		$this->assertSame( 50.00, $by_product['Donation']['amount'] );
+		$this->assertSame( 20.00, $by_product['T-shirt']['amount'] );
+		$this->assertSame( 100, $by_product['Donation']['product_id'] );
+		$this->assertSame( 200, $by_product['T-shirt']['product_id'] );
+	}
 }
