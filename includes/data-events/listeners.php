@@ -505,6 +505,10 @@ Data_Events::register_listener(
 
 /**
  * For every WC order status transition. Fires one woo_order_updated event per product line item.
+ *
+ * Uses raw add_action (not Data_Events::register_listener) because register_listener only supports
+ * a single dispatch per hook fire — multi-line orders need one event per line item.
+ * The action is registered at the top of this file.
  */
 add_action(
 	'woocommerce_order_status_changed',
