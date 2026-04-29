@@ -283,6 +283,17 @@ class Donations {
 			return true;
 		}
 
+		// Variations inherit the donation flag from their parent (variable / variable-subscription).
+		if ( function_exists( 'wc_get_product' ) ) {
+			$product = \wc_get_product( $product_id );
+			if ( $product && $product->is_type( [ 'variation', 'subscription_variation' ] ) ) {
+				$parent_id = $product->get_parent_id();
+				if ( $parent_id && get_post_meta( $parent_id, WooCommerce_Products::DONATION_FLAG_META_KEY, true ) === wc_bool_to_string( true ) ) {
+					return true;
+				}
+			}
+		}
+
 		// Fall back to the legacy parent/child donation product check.
 		$parent_product = self::get_parent_donation_product();
 		if ( ! $parent_product ) {

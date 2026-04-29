@@ -73,6 +73,71 @@ class Newspack_Test_Donations extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Test that a variation inherits the donation flag from its variable parent.
+	 *
+	 * @group donations
+	 */
+	public function test_is_donation_product_variation_inherits_from_parent() {
+		$parent_id    = self::factory()->post->create( [ 'post_type' => 'product' ] );
+		$variation_id = self::factory()->post->create( [ 'post_type' => 'product_variation' ] );
+		update_post_meta( $parent_id, WooCommerce_Products::DONATION_FLAG_META_KEY, wc_bool_to_string( true ) );
+		wc_create_mock_product(
+			[
+				'id'        => $variation_id,
+				'type'      => 'variation',
+				'parent_id' => $parent_id,
+			]
+		);
+		self::assertTrue(
+			Donations::is_donation_product( $variation_id ),
+			'Variation should inherit the donation flag from its flagged parent.'
+		);
+	}
+
+	/**
+	 * Test that a subscription_variation inherits the donation flag from its variable-subscription parent.
+	 *
+	 * @group donations
+	 */
+	public function test_is_donation_product_subscription_variation_inherits_from_parent() {
+		$parent_id    = self::factory()->post->create( [ 'post_type' => 'product' ] );
+		$variation_id = self::factory()->post->create( [ 'post_type' => 'product_variation' ] );
+		update_post_meta( $parent_id, WooCommerce_Products::DONATION_FLAG_META_KEY, wc_bool_to_string( true ) );
+		wc_create_mock_product(
+			[
+				'id'        => $variation_id,
+				'type'      => 'subscription_variation',
+				'parent_id' => $parent_id,
+			]
+		);
+		self::assertTrue(
+			Donations::is_donation_product( $variation_id ),
+			'Subscription variation should inherit the donation flag from its flagged parent.'
+		);
+	}
+
+	/**
+	 * Test that a variation does not resolve as a donation when its parent is unflagged.
+	 *
+	 * @group donations
+	 */
+	public function test_is_donation_product_variation_unflagged_parent() {
+		$parent_id    = self::factory()->post->create( [ 'post_type' => 'product' ] );
+		$variation_id = self::factory()->post->create( [ 'post_type' => 'product_variation' ] );
+		wc_create_mock_product(
+			[
+				'id'        => $variation_id,
+				'type'      => 'variation',
+				'parent_id' => $parent_id,
+			]
+		);
+		self::assertFalse(
+			Donations::is_donation_product( $variation_id ),
+			'Variation with an unflagged parent should not be a donation product.'
+		);
+	}
+
+	/**
 	 * Test get_flagged_donation_product_ids returns flagged product IDs.
 	 *
 	 * @group donations

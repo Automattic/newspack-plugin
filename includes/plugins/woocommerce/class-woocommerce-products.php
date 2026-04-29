@@ -76,9 +76,9 @@ class WooCommerce_Products {
 				'id'            => self::DONATION_FLAG_META_KEY,
 				'wrapper_class' => '',
 				'label'         => __( 'Donation product', 'newspack-plugin' ),
-				'description'   => __( 'Flag this product as a donation. Donation products use donation-specific checkout, reporting, and reader activation behaviors.', 'newspack-plugin' ),
+				'description'   => __( 'Flag this product as a donation. Donation products use donation-specific checkout, reporting, and reader activation behaviors. For variable products, set on the parent and all variations inherit.', 'newspack-plugin' ),
 				'default'       => 'no',
-				'product_types' => [ 'simple', 'subscription', 'grouped', 'variable', 'variation', 'subscription_variation', 'variable-subscription' ],
+				'product_types' => [ 'simple', 'subscription', 'grouped', 'variable', 'variable-subscription' ],
 				'type'          => 'boolean',
 			],
 		];
