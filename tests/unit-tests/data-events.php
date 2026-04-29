@@ -1487,4 +1487,40 @@ class Newspack_Test_Data_Events extends WP_UnitTestCase {
 			$this->assertSame( $order->get_id(), $payload['order_id'] );
 		}
 	}
+
+	/**
+	 * `woocommerce_subscription_status_updated` triggers one woo_subscription_updated dispatch per line item.
+	 */
+	public function test_woo_subscription_updated_listener_dispatches_per_line_item() {
+		$captured = [];
+		add_action(
+			'newspack_data_event_dispatch_woo_subscription_updated',
+			function ( $timestamp, $data, $client_id ) use ( &$captured ) {
+				$captured[] = $data;
+			},
+			10,
+			3
+		);
+
+		$subscription = $this->create_test_subscription(
+			[
+				'items' => [
+					$this->build_order_item(
+						[
+							'product_id' => 12000,
+							'name'       => 'Monthly Plan',
+							'subtotal'   => 30.00,
+						]
+					),
+				],
+			]
+		);
+
+		// Trigger transition: active -> on-hold.
+		do_action( 'woocommerce_subscription_status_updated', $subscription, 'on-hold', 'active' );
+
+		$this->assertCount( 1, $captured );
+		$this->assertSame( 'on-hold', $captured[0]['status'] );
+		$this->assertSame( (int) $subscription->get_id(), $captured[0]['subscription_id'] );
+	}
 }

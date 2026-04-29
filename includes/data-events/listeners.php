@@ -526,3 +526,24 @@ add_action(
 	10,
 	4
 );
+
+/**
+ * For every WC Subscription status transition. Fires one woo_subscription_updated event per line item.
+ *
+ * Uses raw add_action (not Data_Events::register_listener) because register_listener only supports
+ * a single dispatch per hook fire — multi-line subscriptions need one event per line item.
+ * The action is registered at the top of this file.
+ */
+add_action(
+	'woocommerce_subscription_status_updated',
+	function ( $subscription, $status_to, $status_from ) {
+		if ( ! $subscription instanceof \WC_Subscription ) {
+			return;
+		}
+		foreach ( \Newspack\Data_Events\Utils::get_woo_subscription_updated_payloads( $subscription, $status_to ) as $payload ) {
+			Data_Events::dispatch( 'woo_subscription_updated', $payload );
+		}
+	},
+	10,
+	3
+);
