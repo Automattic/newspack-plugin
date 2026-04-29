@@ -1061,4 +1061,99 @@ class Test_Group_Subscriptions extends \WP_UnitTestCase {
 
 		$this->assertWPError( $result, 'Should fail when member limit is reached' );
 	}
+
+	// -------------------------------------------------------------------------
+	// search_group_name_where() tests
+	// -------------------------------------------------------------------------
+
+	/**
+	 * Build a stub WP_Query object representing a subscription search.
+	 *
+	 * @param string $term Search term.
+	 * @return \WP_Query
+	 */
+	private function build_subscription_search_query( $term ) {
+		$query = new \WP_Query();
+		$query->set( 's', $term );
+		$query->set( 'post_type', 'shop_subscription' );
+		$query->is_search = true;
+		return $query;
+	}
+
+	/**
+	 * Test that search_group_name_where() returns the search clause unchanged
+	 * when the query is not a subscription search.
+	 */
+	public function test_search_group_name_where_skips_non_subscription_query() {
+		$query = new \WP_Query();
+		$query->set( 's', 'foo' );
+		$query->set( 'post_type', 'post' );
+		$query->is_search = true;
+
+		$original = " AND ( ( wp_posts.post_title LIKE '%foo%' ) ) ";
+		$result   = Group_Subscription_Settings::search_group_name_where( $original, $query );
+
+		$this->assertEquals( $original, $result, 'Non-subscription queries should be untouched' );
+	}
+
+	/**
+	 * Test that search_group_name_where() returns the search clause unchanged
+	 * when the search clause is empty (no search performed).
+	 */
+	public function test_search_group_name_where_skips_empty_search() {
+		$query  = $this->build_subscription_search_query( 'foo' );
+		$result = Group_Subscription_Settings::search_group_name_where( '', $query );
+
+		$this->assertEquals( '', $result, 'Empty search clause should be returned as-is' );
+	}
+
+	/**
+	 * Test that search_group_name_where() wraps a simple search clause with
+	 * an OR for the group name meta.
+	 */
+	public function test_search_group_name_where_wraps_simple_clause() {
+		$query    = $this->build_subscription_search_query( 'acme' );
+		$original = " AND ( ( wp_posts.post_title LIKE '%acme%' ) ) ";
+		$result   = Group_Subscription_Settings::search_group_name_where( $original, $query );
+
+		// The original search clause should still be present.
+		$this->assertStringContainsString( "wp_posts.post_title LIKE '%acme%'", $result );
+		// Our group name meta should be added with an OR.
+		$this->assertStringContainsString( 'np_group_name.meta_value LIKE', $result );
+		$this->assertStringContainsString( ' OR ', $result );
+		// The clause should still start with " AND ".
+		$this->assertStringStartsWith( ' AND ', $result );
+	}
+
+	/**
+	 * Test that search_group_name_where() handles a multi-term search clause
+	 * (where WP produces a more complex inner shape).
+	 */
+	public function test_search_group_name_where_handles_multi_term() {
+		$query    = $this->build_subscription_search_query( 'foo bar' );
+		$original = " AND ( ( ( wp_posts.post_title LIKE '%foo%' ) ) AND ( ( wp_posts.post_title LIKE '%bar%' ) ) ) ";
+		$result   = Group_Subscription_Settings::search_group_name_where( $original, $query );
+
+		// All original sub-clauses should still appear.
+		$this->assertStringContainsString( "LIKE '%foo%'", $result );
+		$this->assertStringContainsString( "LIKE '%bar%'", $result );
+		// Our OR clause should be present.
+		$this->assertStringContainsString( 'np_group_name.meta_value LIKE', $result );
+		$this->assertStringContainsString( ' OR ', $result );
+	}
+
+	/**
+	 * Test that search_group_name_where() escapes special characters in the
+	 * search term so they don't break out of the SQL string.
+	 */
+	public function test_search_group_name_where_escapes_special_chars() {
+		$query    = $this->build_subscription_search_query( "foo'bar" );
+		$original = " AND ( ( wp_posts.post_title LIKE '%foo%' ) ) ";
+		$result   = Group_Subscription_Settings::search_group_name_where( $original, $query );
+
+		// The single quote should be escaped (doubled or backslash-escaped) — not appear raw.
+		$this->assertStringNotContainsString( "foo'bar'", $result, 'Single quote in term must be escaped' );
+		// Our OR clause should still be added.
+		$this->assertStringContainsString( 'np_group_name.meta_value LIKE', $result );
+	}
 }

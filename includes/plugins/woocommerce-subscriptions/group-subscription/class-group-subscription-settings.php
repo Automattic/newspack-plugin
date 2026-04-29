@@ -55,6 +55,12 @@ class Group_Subscription_Settings {
 		// Clear group subscription IDs cache when product group settings change.
 		\add_action( 'woocommerce_process_product_meta', [ __CLASS__, 'maybe_clear_cache_on_product_save' ] );
 
+		// Clear group subscription IDs cache when a subscription is trashed or deleted.
+		\add_action( 'wp_trash_post', [ __CLASS__, 'maybe_clear_cache_on_subscription_delete' ] );
+		\add_action( 'before_delete_post', [ __CLASS__, 'maybe_clear_cache_on_subscription_delete' ] );
+		\add_action( 'woocommerce_trash_subscription', [ __CLASS__, 'clear_group_subscription_ids_cache' ] );
+		\add_action( 'woocommerce_delete_subscription', [ __CLASS__, 'clear_group_subscription_ids_cache' ] );
+
 		// Include group name in subscription search.
 		\add_filter( 'woocommerce_shop_subscription_search_fields', [ __CLASS__, 'add_group_name_search_field' ] );
 		\add_filter( 'woocommerce_order_table_search_query_meta_keys', [ __CLASS__, 'add_group_name_hpos_search_field' ] );
@@ -184,8 +190,8 @@ class Group_Subscription_Settings {
 			? $settings['limit']
 			: __( 'unlimited', 'newspack-plugin' );
 
-		return sprintf(
-			'<a href="%s"><strong>%s</strong></a> (%s)',
+		$group_markup = sprintf(
+			'<div class="newspack-group-subscription__column-info"><a href="%s"><strong>%s</strong></a> (%s)</div>',
 			\esc_url( $subscription->get_edit_order_url() ),
 			\esc_html( $settings['name'] ),
 			\esc_html(
@@ -197,6 +203,10 @@ class Group_Subscription_Settings {
 				)
 			)
 		);
+
+		// Prepend the group info before the standard WCS column markup so any
+		// status pills, preview affordances, or future additions from WCS are preserved.
+		return $group_markup . $column_content;
 	}
 
 	/**
@@ -244,15 +254,22 @@ class Group_Subscription_Settings {
 		$product_id          = WooCommerce_Subscriptions::get_subscription_product_id( $subscription );
 		$owner_name          = trim( $subscription->get_formatted_billing_full_name() );
 		$settings            = self::get_product_settings( $product_id );
-		$settings['enabled'] = $subscription->get_meta( self::GROUP_SUBSCRIPTION_META_PREFIX . 'enabled', true ) ? \wc_string_to_bool( $subscription->get_meta( self::GROUP_SUBSCRIPTION_META_PREFIX . 'enabled', true ) ) : $settings['enabled'];
-		$settings['limit']   = (int) $subscription->get_meta( self::GROUP_SUBSCRIPTION_META_PREFIX . 'limit', true ) ?: $settings['limit']; // phpcs:ignore Universal.Operators.DisallowShortTernary.Found
-		$settings['name']    = $subscription->get_meta( self::GROUP_SUBSCRIPTION_META_PREFIX . 'name', true ) ?
-								$subscription->get_meta( self::GROUP_SUBSCRIPTION_META_PREFIX . 'name', true ) :
-								sprintf(
-									/* translators: %s: The subscription owner's name. */
-									__( '%s Group', 'newspack-plugin' ),
-									$owner_name ? $owner_name . '’s' : __( 'Unnamed', 'newspack-plugin' )
-								);
+		$enabled_meta        = $subscription->get_meta( self::GROUP_SUBSCRIPTION_META_PREFIX . 'enabled', true );
+		$limit_meta          = $subscription->get_meta( self::GROUP_SUBSCRIPTION_META_PREFIX . 'limit', true );
+		$name_meta           = $subscription->get_meta( self::GROUP_SUBSCRIPTION_META_PREFIX . 'name', true );
+		$settings['enabled'] = $enabled_meta ? \wc_string_to_bool( $enabled_meta ) : $settings['enabled'];
+		$settings['limit']   = (int) $limit_meta ?: $settings['limit']; // phpcs:ignore Universal.Operators.DisallowShortTernary.Found
+		if ( $name_meta ) {
+			$settings['name'] = $name_meta;
+		} elseif ( $owner_name ) {
+			$settings['name'] = sprintf(
+				/* translators: %s: The subscription owner's name. */
+				__( '%s’s Group', 'newspack-plugin' ),
+				$owner_name
+			);
+		} else {
+			$settings['name'] = __( 'Unnamed group', 'newspack-plugin' );
+		}
 
 		/**
 		 * Filter the group subscription settings for a subscription.
@@ -276,26 +293,31 @@ class Group_Subscription_Settings {
 		}
 		$previous_settings = self::get_subscription_settings( $subscription );
 		$should_save       = false;
+		$changed_keys      = [];
 		foreach ( $settings as $key => $value ) {
 			if ( ! isset( self::DEFAULT_SETTINGS[ $key ] ) ) {
 				continue;
 			}
+			// Normalize both values to the same type before comparing to avoid
+			// false-positive changes (e.g. comparing 'yes' string to bool true).
+			$previous_value = $previous_settings[ $key ];
 			if ( is_bool( self::DEFAULT_SETTINGS[ $key ] ) ) {
-				$value = \wc_bool_to_string( $value );
-			}
-			if ( is_int( self::DEFAULT_SETTINGS[ $key ] ) ) {
+				$value          = \wc_bool_to_string( $value );
+				$previous_value = \wc_bool_to_string( $previous_value );
+			} elseif ( is_int( self::DEFAULT_SETTINGS[ $key ] ) ) {
 				$value = absint( $value );
 			}
-			if ( $value !== $previous_settings[ $key ] ) {
+			if ( $value !== $previous_value ) {
 				$subscription->update_meta_data( self::GROUP_SUBSCRIPTION_META_PREFIX . $key, $value );
-				$should_save = true;
+				$should_save    = true;
+				$changed_keys[] = $key;
 			}
 		}
 		if ( $should_save ) {
 			$subscription->save();
 
-			// Clear the cached group subscription IDs if the enabled setting changed.
-			if ( isset( $settings['enabled'] ) ) {
+			// Clear the cached group subscription IDs only when the enabled value actually changed.
+			if ( in_array( 'enabled', $changed_keys, true ) ) {
 				self::clear_group_subscription_ids_cache();
 			}
 		}
@@ -365,17 +387,15 @@ class Group_Subscription_Settings {
 				</p>
 				<div class="form-row">
 					<?php
-					echo wp_kses_post(
-						\woocommerce_wp_text_input(
-							[
-								'id'            => self::GROUP_SUBSCRIPTION_META_PREFIX . 'name',
-								'name'          => self::GROUP_SUBSCRIPTION_META_PREFIX . 'name',
-								'label'         => __( 'Group subscription name', 'newspack-plugin' ),
-								'value'         => $settings['name'],
-								'type'          => 'text',
-								'wrapper_class' => 'show_if_newspack_group_subscription_enabled',
-							]
-						)
+					\woocommerce_wp_text_input(
+						[
+							'id'            => self::GROUP_SUBSCRIPTION_META_PREFIX . 'name',
+							'name'          => self::GROUP_SUBSCRIPTION_META_PREFIX . 'name',
+							'label'         => __( 'Group subscription name', 'newspack-plugin' ),
+							'value'         => $settings['name'],
+							'type'          => 'text',
+							'wrapper_class' => 'show_if_newspack_group_subscription_enabled',
+						]
 					);
 					?>
 				</div>
@@ -584,15 +604,16 @@ class Group_Subscription_Settings {
 			return $search;
 		}
 		$like      = '%' . $wpdb->esc_like( $term ) . '%';
-		$or_clause = $wpdb->prepare( ' OR ( np_group_name.meta_value LIKE %s )', $like );
+		$or_clause = $wpdb->prepare( '( np_group_name.meta_value LIKE %s )', $like );
 
-		// Insert the OR clause inside the existing grouped search condition.
-		// WP's search clause can end with )) or ) depending on search terms.
-		if ( preg_match( '/\)\)\s*$/', $search ) ) {
-			$search = preg_replace( '/\)\)\s*$/', $or_clause . ' ))', $search, 1 );
-		} else {
-			$search = preg_replace( '/\)\s*$/', $or_clause . ' )', $search, 1 );
-		}
+		// Wrap the existing search clause in an outer OR with our group name match.
+		// $search is in the form " AND (...)" — preserve the leading " AND " and
+		// wrap whatever inner clause WP_Query produced. Robust against `exact`,
+		// `sentence`, multi-term, and other plugins' posts_search filters that
+		// may have already modified the inner shape.
+		$inner  = preg_replace( '/^\s*AND\s+/', '', $search );
+		$search = " AND ( {$inner} OR {$or_clause} ) ";
+
 		return $search;
 	}
 
@@ -730,6 +751,18 @@ class Group_Subscription_Settings {
 	public static function maybe_clear_cache_on_product_save( $product_id ) {
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing
 		if ( isset( $_POST[ self::GROUP_SUBSCRIPTION_META_PREFIX . 'enabled' ] ) || \get_post_meta( $product_id, self::GROUP_SUBSCRIPTION_META_PREFIX . 'enabled', true ) ) {
+			self::clear_group_subscription_ids_cache();
+		}
+	}
+
+	/**
+	 * Clear the group subscription IDs cache when a subscription is trashed
+	 * or permanently deleted (CPT mode).
+	 *
+	 * @param int $post_id The post ID being trashed/deleted.
+	 */
+	public static function maybe_clear_cache_on_subscription_delete( $post_id ) {
+		if ( 'shop_subscription' === \get_post_type( $post_id ) ) {
 			self::clear_group_subscription_ids_cache();
 		}
 	}
