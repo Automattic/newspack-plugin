@@ -1121,6 +1121,107 @@ class Newspack_Test_Data_Events extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Register mock donation products and configure the donation product option.
+	 *
+	 * Returns an associative array of product IDs: parent (grouped), once (simple),
+	 * month/year (subscription children with the appropriate `_subscription_period` meta).
+	 *
+	 * Also calls `update_post_meta()` so production code's `get_post_meta()` recurrence
+	 * lookups resolve to the same period values.
+	 *
+	 * @return array{parent: int, once: int, month: int, year: int}
+	 */
+	private function setup_donation_products() {
+		$ids = [
+			'parent' => 999,
+			'once'   => 1001,
+			'month'  => 1002,
+			'year'   => 1003,
+		];
+
+		\wc_create_mock_product(
+			[
+				'id'   => $ids['once'],
+				'type' => 'simple',
+			]
+		);
+		\wc_create_mock_product(
+			[
+				'id'   => $ids['month'],
+				'type' => 'subscription',
+				'meta' => [ '_subscription_period' => 'month' ],
+			]
+		);
+		\wc_create_mock_product(
+			[
+				'id'   => $ids['year'],
+				'type' => 'subscription',
+				'meta' => [ '_subscription_period' => 'year' ],
+			]
+		);
+		\wc_create_mock_product(
+			[
+				'id'       => $ids['parent'],
+				'type'     => 'grouped',
+				'children' => [ $ids['once'], $ids['month'], $ids['year'] ],
+			]
+		);
+		\update_option( 'newspack_donation_product_id', $ids['parent'] );
+
+		// Also set WP post meta so production-code `get_post_meta` resolves recurrence.
+		\update_post_meta( $ids['month'], '_subscription_period', 'month' );
+		\update_post_meta( $ids['year'], '_subscription_period', 'year' );
+
+		return $ids;
+	}
+
+	/**
+	 * Reset the WC mock products and donation option between tests.
+	 */
+	private function reset_donation_products() {
+		global $products_database;
+		$products_database = [];
+		\delete_option( 'newspack_donation_product_id' );
+	}
+
+	/**
+	 * Donation product is flagged via is_donation; recurrence comes from product meta.
+	 */
+	public function test_woo_order_updated_payload_recurrence_and_is_donation() {
+		$this->reset_donation_products();
+		$donation_ids = $this->setup_donation_products();
+
+		$order = $this->create_order_with_items(
+			[
+				[
+					'product_id' => $donation_ids['month'],
+					'name'       => 'Monthly Donation',
+					'subtotal'   => 10.00,
+				],
+				[
+					'product_id' => 5000,
+					'name'       => 'T-shirt',
+					'subtotal'   => 20.00,
+				],
+			]
+		);
+
+		$payloads = \Newspack\Data_Events\Utils::get_woo_order_updated_payloads( $order, 'completed' );
+
+		$by_product = [];
+		foreach ( $payloads as $payload ) {
+			$by_product[ $payload['product_name'] ] = $payload;
+		}
+		$this->assertTrue( $by_product['Monthly Donation']['is_donation'] );
+		$this->assertSame( 'month', $by_product['Monthly Donation']['recurrence'] );
+
+		$this->assertFalse( $by_product['T-shirt']['is_donation'] );
+		$this->assertSame( 'once', $by_product['T-shirt']['recurrence'] );
+
+		$this->reset_donation_products();
+	}
+
+	/**
 	 * A multi-product order produces one payload per product line item.
 	 */
 	public function test_woo_order_updated_payload_multi_product() {

@@ -110,6 +110,7 @@ final class Utils {
 			if ( ! $product_id ) {
 				continue;
 			}
+			$recurrence = \get_post_meta( $product_id, '_subscription_period', true );
 			$payloads[] = [
 				'order_id'        => (int) $order->get_id(),
 				'status'          => $status,
@@ -117,14 +118,14 @@ final class Utils {
 				'email'           => $order->get_billing_email(),
 				'amount'          => (float) $item->get_subtotal(),
 				'currency'        => $order->get_currency(),
-				'recurrence'      => 'once',
+				'recurrence'      => empty( $recurrence ) ? 'once' : $recurrence,
 				'referer'         => '',
 				'popup_id'        => '',
 				'is_renewal'      => false,
 				'subscription_id' => null,
 				'product_id'      => (int) $product_id,
 				'product_name'    => $item->get_name(),
-				'is_donation'     => false,
+				'is_donation'     => (bool) \Newspack\Donations::is_donation_product( $product_id ),
 			];
 		}
 		return $payloads;
