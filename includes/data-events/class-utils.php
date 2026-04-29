@@ -101,7 +101,33 @@ final class Utils {
 	 * @return array<int, array<string, mixed>> Array of payloads, possibly empty.
 	 */
 	public static function get_woo_order_updated_payloads( $order, $status ) {
-		return [];
+		if ( ! $order instanceof \WC_Order ) {
+			return [];
+		}
+		$payloads = [];
+		foreach ( $order->get_items() as $item ) {
+			$product_id = $item->get_product_id();
+			if ( ! $product_id ) {
+				continue;
+			}
+			$payloads[] = [
+				'order_id'        => (int) $order->get_id(),
+				'status'          => $status,
+				'user_id'         => (int) $order->get_customer_id(),
+				'email'           => $order->get_billing_email(),
+				'amount'          => (float) $item->get_subtotal(),
+				'currency'        => $order->get_currency(),
+				'recurrence'      => 'once',
+				'referer'         => '',
+				'popup_id'        => '',
+				'is_renewal'      => false,
+				'subscription_id' => null,
+				'product_id'      => (int) $product_id,
+				'product_name'    => $item->get_name(),
+				'is_donation'     => false,
+			];
+		}
+		return $payloads;
 	}
 
 	/**

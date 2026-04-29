@@ -132,6 +132,9 @@ class WC_Order_Item_Product {
 	public function get_product_id() {
 		return $this->data['product_id'] ?? 0;
 	}
+	public function get_subtotal() {
+		return $this->data['subtotal'] ?? 0;
+	}
 }
 
 class WC_Product {
@@ -233,6 +236,12 @@ class WC_Order {
 	}
 	public function get_coupon_codes() {
 		return $this->data['coupon_codes'] ?? [];
+	}
+	public function get_billing_email() {
+		return $this->data['billing_email'] ?? '';
+	}
+	public function get_currency() {
+		return $this->data['currency'] ?? '';
 	}
 }
 

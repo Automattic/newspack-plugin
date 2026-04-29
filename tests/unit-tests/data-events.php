@@ -7,6 +7,8 @@
 
 use Newspack\Data_Events;
 
+require_once __DIR__ . '/../mocks/wc-mocks.php';
+
 /**
  * Tests the Data Events functionality.
  */
@@ -1049,5 +1051,72 @@ class Newspack_Test_Data_Events extends WP_UnitTestCase {
 		$registered = Data_Events::get_actions();
 		$this->assertContains( 'woo_order_updated', $registered );
 		$this->assertContains( 'woo_subscription_updated', $registered );
+	}
+
+	/**
+	 * Build a WC_Order_Item_Product mock with inline product info.
+	 *
+	 * @param array $args { product_id, name, subtotal }.
+	 * @return \WC_Order_Item_Product
+	 */
+	private function build_order_item( $args ) {
+		$defaults = [
+			'product_id' => 0,
+			'name'       => 'Test Product',
+			'subtotal'   => 0,
+		];
+		return new \WC_Order_Item_Product( array_merge( $defaults, $args ) );
+	}
+
+	/**
+	 * Create a WC order via the wc-mocks data-array shape.
+	 *
+	 * @param array $line_items Each item: [ 'product_id' => int, 'name' => string, 'subtotal' => float ].
+	 * @param array $order_args Override: status, billing_email, currency, customer_id, meta, total.
+	 * @return \WC_Order
+	 */
+	private function create_order_with_items( $line_items, $order_args = [] ) {
+		$defaults = [
+			'status'        => 'pending',
+			'billing_email' => 'reader@example.com',
+			'currency'      => 'USD',
+			'customer_id'   => 0,
+			'meta'          => [],
+			'total'         => array_sum( array_map( fn( $li ) => (float) ( $li['subtotal'] ?? 0 ), $line_items ) ),
+		];
+		$data = array_merge( $defaults, $order_args );
+		$data['items'] = array_map( [ $this, 'build_order_item' ], $line_items );
+		return \wc_create_order( $data );
+	}
+
+	/**
+	 * Single-product order produces one payload with the basic fields.
+	 */
+	public function test_woo_order_updated_payload_basic_fields() {
+		$order = $this->create_order_with_items(
+			[
+				[
+					'product_id' => 42,
+					'name'       => 'Mug',
+					'subtotal'   => 12.50,
+				],
+			],
+			[
+				'billing_email' => 'a@b.com',
+				'currency'      => 'USD',
+			]
+		);
+
+		$payloads = \Newspack\Data_Events\Utils::get_woo_order_updated_payloads( $order, 'completed' );
+
+		$this->assertCount( 1, $payloads );
+		$payload = $payloads[0];
+		$this->assertSame( $order->get_id(), $payload['order_id'] );
+		$this->assertSame( 'completed', $payload['status'] );
+		$this->assertSame( 'a@b.com', $payload['email'] );
+		$this->assertSame( 'USD', $payload['currency'] );
+		$this->assertSame( 12.50, $payload['amount'] );
+		$this->assertSame( 42, $payload['product_id'] );
+		$this->assertSame( 'Mug', $payload['product_name'] );
 	}
 }
