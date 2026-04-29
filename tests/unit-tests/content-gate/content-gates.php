@@ -1287,4 +1287,37 @@ class Test_Content_Gates extends \WP_UnitTestCase {
 		$ids = wp_list_pluck( $response->get_data(), 'id' );
 		$this->assertSame( [ $target ], $ids, 'Numeric search returns only the post with that ID' );
 	}
+
+	/**
+	 * Test that per_page=0 is rejected at the schema boundary with a 400 status.
+	 */
+	public function test_posts_search_endpoint_per_page_below_minimum() {
+		wp_set_current_user( $this->factory->user->create( [ 'role' => 'administrator' ] ) );
+
+		$request = new \WP_REST_Request( 'GET', '/' . NEWSPACK_API_NAMESPACE . '/wizard/newspack-audience-access-control/posts-search' );
+		$request->set_param( 'per_page', 0 );
+		$response = rest_get_server()->dispatch( $request );
+
+		$this->assertSame( 400, $response->get_status(), 'per_page=0 fails schema validation' );
+	}
+
+	/**
+	 * Test that include with many IDs is capped at 100 results.
+	 */
+	public function test_posts_search_endpoint_caps_include_results() {
+		wp_set_current_user( $this->factory->user->create( [ 'role' => 'administrator' ] ) );
+
+		$ids = [];
+		for ( $i = 0; $i < 105; $i++ ) {
+			$ids[] = $this->factory->post->create( [ 'post_status' => 'publish' ] );
+		}
+		$this->post_ids = array_merge( $this->post_ids, $ids );
+
+		$request = new \WP_REST_Request( 'GET', '/' . NEWSPACK_API_NAMESPACE . '/wizard/newspack-audience-access-control/posts-search' );
+		$request->set_param( 'include', implode( ',', $ids ) );
+		$response = rest_get_server()->dispatch( $request );
+
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertLessThanOrEqual( 100, count( $response->get_data() ), 'Include result set is capped at 100' );
+	}
 }

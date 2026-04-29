@@ -347,8 +347,12 @@ class Audience_Content_Gates extends Wizard {
 						'sanitize_callback' => 'sanitize_text_field',
 					],
 					'per_page' => [
-						'type'    => 'integer',
-						'default' => 10,
+						'type'              => 'integer',
+						'default'           => 10,
+						'minimum'           => 1,
+						'maximum'           => 50,
+						'sanitize_callback' => 'absint',
+						'validate_callback' => 'rest_validate_request_arg',
 					],
 				],
 			]
@@ -529,7 +533,7 @@ class Audience_Content_Gates extends Wizard {
 		$args = [
 			'post_type'      => $post_types,
 			'post_status'    => 'publish',
-			'posts_per_page' => max( 1, min( 50, (int) $request->get_param( 'per_page' ) ) ),
+			'posts_per_page' => (int) $request->get_param( 'per_page' ),
 			'orderby'        => 'title',
 			'order'          => 'ASC',
 			'no_found_rows'  => true,
@@ -542,7 +546,7 @@ class Audience_Content_Gates extends Wizard {
 				return rest_ensure_response( [] );
 			}
 			$args['post__in']       = $ids;
-			$args['posts_per_page'] = count( $ids );
+			$args['posts_per_page'] = min( count( $ids ), 100 );
 			$args['orderby']        = 'post__in';
 		}
 
