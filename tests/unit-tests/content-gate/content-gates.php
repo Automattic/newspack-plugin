@@ -33,6 +33,21 @@ class Test_Content_Gates extends \WP_UnitTestCase {
 	protected $gate_ids = [];
 
 	/**
+	 * Define the Content Gates feature flag for this test class only and force
+	 * the REST server to re-init so audience-content-gates routes register with
+	 * the flag on. Defining in bootstrap would flip the flag for every test in
+	 * the suite — including any future test that asserts feature-off behavior.
+	 */
+	public static function setUpBeforeClass(): void {
+		parent::setUpBeforeClass();
+		if ( ! defined( 'NEWSPACK_CONTENT_GATES' ) ) {
+			define( 'NEWSPACK_CONTENT_GATES', true );
+		}
+		$GLOBALS['wp_rest_server'] = null;
+		do_action( 'rest_api_init', rest_get_server() );
+	}
+
+	/**
 	 * Test set up.
 	 */
 	public function set_up() {
