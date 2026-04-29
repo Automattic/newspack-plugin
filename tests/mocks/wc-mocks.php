@@ -404,7 +404,9 @@ function wcs_get_subscriptions_for_order( $order, $args = [] ) {
 }
 
 function wcs_order_contains_renewal( $order ) {
-	// Backward-compat with teams-for-memberships mocks that drive this via a global.
+	// @todo Migrate `teams-for-memberships-mocks.php` to set `_subscription_renewal` meta on its
+	// fixture orders, then drop this $GLOBALS shim. Until then, honor the legacy global so
+	// existing teams tests keep passing.
 	if ( isset( $GLOBALS['teams_mock_is_renewal'] ) ) {
 		return ! empty( $GLOBALS['teams_mock_is_renewal'] );
 	}
