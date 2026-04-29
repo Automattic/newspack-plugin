@@ -1440,4 +1440,51 @@ class Newspack_Test_Data_Events extends WP_UnitTestCase {
 		$this->assertSame( 9001, $by_product['Monthly Plan']['product_id'] );
 		$this->assertSame( 9002, $by_product['Second Tier']['product_id'] );
 	}
+
+	/**
+	 * `woocommerce_order_status_changed` triggers one woo_order_updated dispatch per line item.
+	 */
+	public function test_woo_order_updated_listener_dispatches_per_line_item() {
+		$captured = [];
+		add_action(
+			'newspack_data_event_dispatch_woo_order_updated',
+			function ( $timestamp, $data, $client_id ) use ( &$captured ) {
+				$captured[] = $data;
+			},
+			10,
+			3
+		);
+
+		$order = $this->create_order_with_items(
+			[
+				[
+					'product_id' => 11000,
+					'name'       => 'Donation',
+					'subtotal'   => 50.00,
+				],
+				[
+					'product_id' => 11001,
+					'name'       => 'T-shirt',
+					'subtotal'   => 20.00,
+				],
+			]
+		);
+
+		// Trigger the listener directly by firing the hook.
+		do_action( 'woocommerce_order_status_changed', $order->get_id(), 'pending', 'completed', $order );
+
+		$this->assertCount( 2, $captured );
+		$names = array_map(
+			static function ( $d ) {
+				return $d['product_name'];
+			},
+			$captured
+		);
+		$this->assertContains( 'Donation', $names );
+		$this->assertContains( 'T-shirt', $names );
+		foreach ( $captured as $payload ) {
+			$this->assertSame( 'completed', $payload['status'] );
+			$this->assertSame( $order->get_id(), $payload['order_id'] );
+		}
+	}
 }

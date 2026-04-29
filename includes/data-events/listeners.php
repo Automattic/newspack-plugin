@@ -502,3 +502,23 @@ Data_Events::register_listener(
 		];
 	}
 );
+
+/**
+ * For every WC order status transition. Fires one woo_order_updated event per product line item.
+ */
+add_action(
+	'woocommerce_order_status_changed',
+	function ( $order_id, $status_from, $status_to, $order = null ) {
+		if ( ! $order instanceof \WC_Order ) {
+			$order = \wc_get_order( $order_id );
+		}
+		if ( ! $order ) {
+			return;
+		}
+		foreach ( \Newspack\Data_Events\Utils::get_woo_order_updated_payloads( $order, $status_to ) as $payload ) {
+			Data_Events::dispatch( 'woo_order_updated', $payload );
+		}
+	},
+	10,
+	4
+);
