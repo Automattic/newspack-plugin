@@ -14,6 +14,13 @@ use Newspack\Memberships;
 use Newspack\Reader_Data;
 
 /**
+ * Register the v2 transactional Woo actions. These are dispatched by the listeners below
+ * (one event per line item per status change). See the README for payload schema.
+ */
+Data_Events::register_action( 'woo_order_updated' );
+Data_Events::register_action( 'woo_subscription_updated' );
+
+/**
  * For when a reader registers.
  */
 Data_Events::register_listener(

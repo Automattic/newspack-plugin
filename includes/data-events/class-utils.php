@@ -91,4 +91,28 @@ final class Utils {
 			'user_last_name'  => $subscription->get_billing_last_name(),
 		];
 	}
+
+	/**
+	 * Build payloads for the `woo_order_updated` event — one per product line item.
+	 *
+	 * @param \WC_Order $order  Order whose status just changed.
+	 * @param string    $status The new status (WC slug, e.g. 'completed', 'failed').
+	 *
+	 * @return array<int, array<string, mixed>> Array of payloads, possibly empty.
+	 */
+	public static function get_woo_order_updated_payloads( $order, $status ) {
+		return [];
+	}
+
+	/**
+	 * Build payloads for the `woo_subscription_updated` event — one per product line item.
+	 *
+	 * @param \WC_Subscription $subscription Subscription whose status changed (or which was switched).
+	 * @param string           $status       The new status (WC slug).
+	 *
+	 * @return array<int, array<string, mixed>> Array of payloads, possibly empty.
+	 */
+	public static function get_woo_subscription_updated_payloads( $subscription, $status ) {
+		return [];
+	}
 }

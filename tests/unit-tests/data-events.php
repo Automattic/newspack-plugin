@@ -1041,4 +1041,13 @@ class Newspack_Test_Data_Events extends WP_UnitTestCase {
 	public static function current_event_capturing_handler() {
 		self::$captured_current_event = Data_Events::current_event();
 	}
+
+	/**
+	 * The new transactional Woo events should be registered as actions.
+	 */
+	public function test_woo_transactional_actions_registered() {
+		$registered = Data_Events::get_actions();
+		$this->assertContains( 'woo_order_updated', $registered );
+		$this->assertContains( 'woo_subscription_updated', $registered );
+	}
 }
