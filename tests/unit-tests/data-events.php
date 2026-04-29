@@ -1261,6 +1261,83 @@ class Newspack_Test_Data_Events extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Build a subscription via the wc-mocks shape.
+	 *
+	 * @param array $args id, customer_id, status, billing_period, total.
+	 * @return \WC_Subscription
+	 */
+	private function create_test_subscription( $args = [] ) {
+		$defaults = [
+			'customer_id'    => 0,
+			'status'         => 'active',
+			'billing_period' => 'month',
+			'billing_email'  => 'sub@example.com',
+			'currency'       => 'USD',
+			'total'          => 30.00,
+			'items'          => [],
+		];
+		return \wcs_create_subscription( array_merge( $defaults, $args ) );
+	}
+
+	/**
+	 * Create a renewal order linked to the given subscription via the
+	 * `_subscription_renewal` meta the mocks recognise.
+	 *
+	 * @param \WC_Subscription $subscription Subscription to renew.
+	 * @param array            $line_items   Line items array (same shape as create_order_with_items).
+	 * @param array            $order_args   Optional order overrides.
+	 * @return \WC_Order
+	 */
+	private function create_renewal_order( $subscription, $line_items, $order_args = [] ) {
+		$order_args['meta']                          = $order_args['meta'] ?? [];
+		$order_args['meta']['_subscription_renewal'] = (int) $subscription->get_id();
+		return $this->create_order_with_items( $line_items, $order_args );
+	}
+
+	/**
+	 * A renewal order has is_renewal=true and subscription_id resolved.
+	 */
+	public function test_woo_order_updated_payload_renewal() {
+		$subscription = $this->create_test_subscription();
+		$renewal      = $this->create_renewal_order(
+			$subscription,
+			[
+				[
+					'product_id' => 7000,
+					'name'       => 'Monthly Plan',
+					'subtotal'   => 30.00,
+				],
+			]
+		);
+
+		$payloads = \Newspack\Data_Events\Utils::get_woo_order_updated_payloads( $renewal, 'completed' );
+
+		$this->assertCount( 1, $payloads );
+		$this->assertTrue( $payloads[0]['is_renewal'] );
+		$this->assertSame( (int) $subscription->get_id(), $payloads[0]['subscription_id'] );
+	}
+
+	/**
+	 * A non-renewal order has is_renewal=false and subscription_id=null.
+	 */
+	public function test_woo_order_updated_payload_non_renewal() {
+		$order = $this->create_order_with_items(
+			[
+				[
+					'product_id' => 8000,
+					'name'       => 'Standalone',
+					'subtotal'   => 5.00,
+				],
+			]
+		);
+
+		$payloads = \Newspack\Data_Events\Utils::get_woo_order_updated_payloads( $order, 'completed' );
+
+		$this->assertFalse( $payloads[0]['is_renewal'] );
+		$this->assertNull( $payloads[0]['subscription_id'] );
+	}
+
+	/**
 	 * Newspack referer/popup_id meta on the order is forwarded to the payload.
 	 */
 	public function test_woo_order_updated_payload_referer_and_popup() {

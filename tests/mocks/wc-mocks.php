@@ -391,8 +391,27 @@ function wcs_get_subscription( $subscription_id ) {
 	global $subscriptions_database;
 	return $subscriptions_database[ $subscription_id ] ?? null;
 }
-function wcs_get_subscriptions_for_order( $order ) {
-	return [];
+function wcs_get_subscriptions_for_order( $order, $args = [] ) {
+	global $subscriptions_database;
+	if ( ! $order instanceof \WC_Order ) {
+		return [];
+	}
+	$subscription_id = (int) $order->get_meta( '_subscription_renewal' );
+	if ( $subscription_id <= 0 || ! isset( $subscriptions_database[ $subscription_id ] ) ) {
+		return [];
+	}
+	return [ $subscriptions_database[ $subscription_id ] ];
+}
+
+function wcs_order_contains_renewal( $order ) {
+	// Backward-compat with teams-for-memberships mocks that drive this via a global.
+	if ( isset( $GLOBALS['teams_mock_is_renewal'] ) ) {
+		return ! empty( $GLOBALS['teams_mock_is_renewal'] );
+	}
+	if ( ! $order instanceof \WC_Order ) {
+		return false;
+	}
+	return (int) $order->get_meta( '_subscription_renewal' ) > 0;
 }
 function wcs_get_users_subscriptions( $user_id ) {
 	global $subscriptions_database;

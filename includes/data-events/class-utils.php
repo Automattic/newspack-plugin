@@ -104,7 +104,15 @@ final class Utils {
 		if ( ! $order instanceof \WC_Order ) {
 			return [];
 		}
-		$payloads = [];
+		$payloads        = [];
+		$is_renewal      = function_exists( 'wcs_order_contains_renewal' ) && \wcs_order_contains_renewal( $order );
+		$subscription_id = null;
+		if ( function_exists( 'wcs_get_subscriptions_for_order' ) ) {
+			$subscriptions = array_values( \wcs_get_subscriptions_for_order( $order, [ 'order_type' => [ 'parent', 'renewal' ] ] ) );
+			if ( ! empty( $subscriptions ) && $subscriptions[0] instanceof \WC_Subscription ) {
+				$subscription_id = (int) $subscriptions[0]->get_id();
+			}
+		}
 		foreach ( $order->get_items() as $item ) {
 			$product_id = $item->get_product_id();
 			if ( ! $product_id ) {
@@ -121,8 +129,8 @@ final class Utils {
 				'recurrence'      => empty( $recurrence ) ? 'once' : $recurrence,
 				'referer'         => $order->get_meta( '_newspack_referer' ),
 				'popup_id'        => $order->get_meta( '_newspack_popup_id' ),
-				'is_renewal'      => false,
-				'subscription_id' => null,
+				'is_renewal'      => $is_renewal,
+				'subscription_id' => $subscription_id,
 				'product_id'      => (int) $product_id,
 				'product_name'    => $item->get_name(),
 				'is_donation'     => (bool) \Newspack\Donations::is_donation_product( $product_id ),
