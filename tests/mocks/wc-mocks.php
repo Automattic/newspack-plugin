@@ -310,6 +310,12 @@ class WC_Subscription {
 	public function get_billing_interval() {
 		return $this->data['billing_interval'];
 	}
+	public function get_billing_email() {
+		return $this->data['billing_email'] ?? '';
+	}
+	public function get_currency() {
+		return $this->data['currency'] ?? '';
+	}
 	public function get_last_order( $output = 'all', $types = [], $exclude_statuses = [] ) {
 		if ( empty( $this->orders ) ) {
 			return false;

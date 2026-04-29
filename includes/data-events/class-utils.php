@@ -148,6 +148,28 @@ final class Utils {
 	 * @return array<int, array<string, mixed>> Array of payloads, possibly empty.
 	 */
 	public static function get_woo_subscription_updated_payloads( $subscription, $status ) {
-		return [];
+		if ( ! $subscription instanceof \WC_Subscription ) {
+			return [];
+		}
+		$payloads = [];
+		foreach ( $subscription->get_items() as $item ) {
+			$product_id = $item->get_product_id();
+			if ( ! $product_id ) {
+				continue;
+			}
+			$payloads[] = [
+				'subscription_id' => (int) $subscription->get_id(),
+				'status'          => $status,
+				'user_id'         => (int) $subscription->get_customer_id(),
+				'email'           => $subscription->get_billing_email(),
+				'amount'          => (float) $item->get_subtotal(),
+				'currency'        => $subscription->get_currency(),
+				'recurrence'      => $subscription->get_billing_period(),
+				'product_id'      => (int) $product_id,
+				'product_name'    => $item->get_name(),
+				'is_donation'     => (bool) \Newspack\Donations::is_donation_product( $product_id ),
+			];
+		}
+		return $payloads;
 	}
 }

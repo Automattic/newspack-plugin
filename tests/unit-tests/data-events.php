@@ -1362,4 +1362,42 @@ class Newspack_Test_Data_Events extends WP_UnitTestCase {
 		$this->assertSame( 'https://example.com/landing', $payloads[0]['referer'] );
 		$this->assertSame( '12345', $payloads[0]['popup_id'] );
 	}
+
+	/**
+	 * Single-product subscription emits one payload with the expected fields.
+	 */
+	public function test_woo_subscription_updated_payload_basic() {
+		$donation_ids = $this->setup_donation_products();
+
+		$subscription = $this->create_test_subscription(
+			[
+				'billing_email' => 'sub@example.com',
+				'currency'      => 'USD',
+				'total'         => 30.00,
+				'items'         => [
+					$this->build_order_item(
+						[
+							'product_id' => $donation_ids['month'],
+							'name'       => 'Monthly Donation',
+							'subtotal'   => 30.00,
+						]
+					),
+				],
+			]
+		);
+
+		$payloads = \Newspack\Data_Events\Utils::get_woo_subscription_updated_payloads( $subscription, 'active' );
+
+		$this->assertCount( 1, $payloads );
+		$payload = $payloads[0];
+		$this->assertSame( (int) $subscription->get_id(), $payload['subscription_id'] );
+		$this->assertSame( 'active', $payload['status'] );
+		$this->assertSame( 'sub@example.com', $payload['email'] );
+		$this->assertSame( 'USD', $payload['currency'] );
+		$this->assertSame( 'month', $payload['recurrence'] );
+		$this->assertSame( $donation_ids['month'], $payload['product_id'] );
+		$this->assertSame( 'Monthly Donation', $payload['product_name'] );
+		$this->assertTrue( $payload['is_donation'] );
+		$this->assertSame( 30.00, $payload['amount'] );
+	}
 }
