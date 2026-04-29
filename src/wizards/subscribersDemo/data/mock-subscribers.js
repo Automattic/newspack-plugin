@@ -268,3 +268,35 @@ export const SUBSCRIBERS = [ ...FIXTURES, ...EXTRAS ];
 export function getSubscriberById( id ) {
 	return SUBSCRIBERS.find( s => s.id === id );
 }
+
+// PROTOTYPE ONLY: notes are persisted to the current admin's localStorage so
+// they survive a refresh during a demo. In production these need to live
+// server-side (REST endpoint + user/post meta or an option) so they're
+// shared across every admin viewing the same subscriber.
+const NOTES_STORAGE_KEY = 'newspack-subscribers-demo:notes';
+
+function readNotesStore() {
+	try {
+		return JSON.parse( window.localStorage.getItem( NOTES_STORAGE_KEY ) ) || {};
+	} catch ( e ) {
+		return {};
+	}
+}
+
+export function getStoredNotes( id ) {
+	return readNotesStore()[ id ] || [];
+}
+
+export function setStoredNotes( id, notes ) {
+	try {
+		const store = readNotesStore();
+		if ( notes && notes.length ) {
+			store[ id ] = notes;
+		} else {
+			delete store[ id ];
+		}
+		window.localStorage.setItem( NOTES_STORAGE_KEY, JSON.stringify( store ) );
+	} catch ( e ) {
+		// Storage quota or disabled — fail silently in the prototype.
+	}
+}

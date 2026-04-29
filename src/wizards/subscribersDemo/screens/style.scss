@@ -25,6 +25,16 @@
 	font-weight: normal;
 }
 
+.newspack-subscribers-demo__note-card.newspack-card--core {
+	background-color: wp-colors.$gray-100;
+	overflow: hidden;
+
+	.components-card__body,
+	.newspack-card--core__body {
+		background-color: transparent;
+	}
+}
+
 .newspack-subscribers-demo__profile {
 	.components-notice__actions {
 		margin-top: 12px;

@@ -16,7 +16,7 @@ import { useEffect, useMemo, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { useDispatch } from '@wordpress/data';
 import { dateI18n, getSettings } from '@wordpress/date';
-import { __experimentalVStack as VStack, __experimentalHStack as HStack, Notice } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
+import { __experimentalVStack as VStack, __experimentalHStack as HStack, Notice, Snackbar } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
 
 /**
  * Internal dependencies.
@@ -24,7 +24,7 @@ import { __experimentalVStack as VStack, __experimentalHStack as HStack, Notice 
 import { Badge, Button, Card, Divider, Grid, Router, SectionHeader } from '../../../../packages/components/src';
 import './style.scss';
 import { WIZARD_STORE_NAMESPACE } from '../../../../packages/components/src/wizard/store';
-import { getSubscriberById } from '../data/mock-subscribers';
+import { getSubscriberById, getStoredNotes, setStoredNotes } from '../data/mock-subscribers';
 
 import visaIcon from '../assets/cards/visa.svg';
 import mastercardIcon from '../assets/cards/mastercard.svg';
@@ -45,6 +45,7 @@ import ResubscribeFlow from '../flows/ResubscribeFlow';
 import PlanChangeFlow from '../flows/PlanChangeFlow';
 import PaymentUpdateFlow from '../flows/PaymentUpdateFlow';
 import GuidedFixFlow from '../flows/GuidedFixFlow';
+import NoteFlow from '../flows/NoteFlow';
 
 const { useParams } = Router;
 
@@ -108,14 +109,28 @@ function Row( { title, description, children, showDivider = true } ) {
 
 export default function PersonProfile() {
 	const { id } = useParams();
-	const initial = useMemo( () => getSubscriberById( id ), [ id ] );
+	const initial = useMemo( () => {
+		const found = getSubscriberById( id );
+		if ( ! found ) {
+			return found;
+		}
+		return { ...found, notes: getStoredNotes( id ) };
+	}, [ id ] );
 	const [ subscriber, setSubscriber ] = useState( initial );
+
+	useEffect( () => {
+		if ( subscriber ) {
+			setStoredNotes( subscriber.id, subscriber.notes || [] );
+		}
+	}, [ subscriber ] );
 	const [ flash, setFlash ] = useState( null );
+	const [ snackbar, setSnackbar ] = useState( null );
 	const [ modal, setModal ] = useState( null );
 
 	useEffect( () => {
 		setSubscriber( initial );
 		setFlash( null );
+		setSnackbar( null );
 		setModal( null );
 	}, [ id, initial ] );
 
@@ -141,6 +156,7 @@ export default function PersonProfile() {
 			actions: [
 				{ type: 'more', label: __( 'View in WooCommerce', 'newspack-plugin' ), action: () => {} },
 				{ type: 'more', label: __( 'Edit WordPress user', 'newspack-plugin' ), action: () => {} },
+				{ type: 'more', label: __( 'Add private note', 'newspack-plugin' ), action: () => setModal( { kind: 'note' } ) },
 				{ type: 'more', label: __( 'View raw subscription data', 'newspack-plugin' ), action: () => {} },
 			],
 		} );
@@ -155,11 +171,15 @@ export default function PersonProfile() {
 	}
 
 	const closeModal = () => setModal( null );
-	const completeFlow = ( { type, message, mutate } ) => {
+	const completeFlow = ( { type, message, mutate, transient } ) => {
 		if ( mutate ) {
 			setSubscriber( prev => mutate( prev ) );
 		}
-		setFlash( { type, message } );
+		if ( transient ) {
+			setSnackbar( { message } );
+		} else {
+			setFlash( { type, message } );
+		}
 		setModal( null );
 	};
 
@@ -190,6 +210,37 @@ export default function PersonProfile() {
 						{ `${ alert.title }. ${ alert.message }` }
 					</Notice>
 				) ) }
+
+			{ ( subscriber.notes || [] ).length > 0 && (
+				<VStack spacing={ 2 }>
+					{ subscriber.notes.map( note => (
+						<Card key={ note.id } __experimentalCoreCard className="newspack-subscribers-demo__note-card">
+							<VStack spacing={ 4 }>
+								<div>{ note.text }</div>
+								<HStack spacing={ 2 } justify="flex-start">
+									<Button variant="tertiary" size="compact" onClick={ () => setModal( { kind: 'note', note } ) }>
+										{ __( 'Edit', 'newspack-plugin' ) }
+									</Button>
+									<Button
+										variant="tertiary"
+										size="compact"
+										isDestructive
+										onClick={ () => {
+											setSubscriber( prev => ( {
+												...prev,
+												notes: ( prev.notes || [] ).filter( n => n.id !== note.id ),
+											} ) );
+											setSnackbar( { message: __( 'Private note deleted.', 'newspack-plugin' ) } );
+										} }
+									>
+										{ __( 'Delete', 'newspack-plugin' ) }
+									</Button>
+								</HStack>
+							</VStack>
+						</Card>
+					) ) }
+				</VStack>
+			) }
 
 			<Row title={ __( 'Subscriptions', 'newspack-plugin' ) }>
 				<VStack spacing={ 4 }>
@@ -380,6 +431,13 @@ export default function PersonProfile() {
 			{ modal?.kind === 'plan' && <PlanChangeFlow subscription={ modal.subscription } onClose={ closeModal } onComplete={ completeFlow } /> }
 			{ modal?.kind === 'resubscribe' && <ResubscribeFlow subscriber={ subscriber } onClose={ closeModal } onComplete={ completeFlow } /> }
 			{ modal?.kind === 'payment' && <PaymentUpdateFlow onClose={ closeModal } onComplete={ completeFlow } /> }
+			{ snackbar && (
+				<div className="newspack-subscribers-demo__snackbar">
+					<Snackbar onRemove={ () => setSnackbar( null ) }>{ snackbar.message }</Snackbar>
+				</div>
+			) }
+
+			{ modal?.kind === 'note' && <NoteFlow note={ modal.note } onClose={ closeModal } onComplete={ completeFlow } /> }
 			{ modal?.kind === 'guided' && (
 				<GuidedFixFlow
 					alert={ modal.alert }
