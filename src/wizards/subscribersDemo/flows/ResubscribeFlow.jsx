@@ -60,15 +60,19 @@ function PlanPicker( { subscriber, onComplete, onCancel, comped = false } ) {
 				} ) ) }
 				onChange={ setPlanName }
 			/>
-			<Notice status={ comped ? 'warning' : 'info' } isDismissible={ false }>
-				{ comped
-					? sprintf( __( 'This will grant %s free access with no billing. Use sparingly.', 'newspack-plugin' ), plan.name )
-					: sprintf(
-							__( 'Billing will start today. First charge: $%1$s. Next renewal in %2$s.', 'newspack-plugin' ),
-							plan.amount.toFixed( 2 ),
-							plan.cadence === 'Monthly' ? '30 days' : '1 year'
-					  ) }
-			</Notice>
+			{ comped ? (
+				<Notice status="warning" isDismissible={ false }>
+					{ sprintf( __( 'This will grant %s free access with no billing. Use sparingly.', 'newspack-plugin' ), plan.name ) }
+				</Notice>
+			) : (
+				<p>
+					{ sprintf(
+						__( 'Billing will start today. First charge: $%1$s. Next renewal in %2$s.', 'newspack-plugin' ),
+						plan.amount.toFixed( 2 ),
+						plan.cadence === 'Monthly' ? '30 days' : '1 year'
+					) }
+				</p>
+			) }
 			<HStack spacing={ 2 } justify="flex-end">
 				<Button variant="secondary" size="compact" onClick={ onCancel }>
 					{ __( 'Cancel', 'newspack-plugin' ) }
@@ -102,9 +106,7 @@ export default function ResubscribeFlow( { subscriber, onClose, onComplete } ) {
 	} else if ( step === 'choose' ) {
 		body = (
 			<VStack spacing={ 4 }>
-				<Notice status="info" isDismissible={ false }>
-					{ __( 'No payment method on file. Choose how to collect payment before resubscribing.', 'newspack-plugin' ) }
-				</Notice>
+				<p>{ __( 'No payment method on file. Choose how to collect payment before resubscribing.', 'newspack-plugin' ) }</p>
 				<HStack spacing={ 2 } justify="flex-end">
 					<Button variant="tertiary" size="compact" onClick={ () => setStep( 'comp' ) }>
 						{ __( 'Grant free access', 'newspack-plugin' ) }

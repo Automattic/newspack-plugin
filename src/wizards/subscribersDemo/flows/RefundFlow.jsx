@@ -66,7 +66,7 @@ export default function RefundFlow( { subscription, onClose, onComplete } ) {
 						] }
 						onChange={ setChoice }
 					/>
-					<Notice status="info" isDismissible={ false }>
+					<p>
 						{ choice === 'refund-only'
 							? sprintf(
 									__(
@@ -76,7 +76,7 @@ export default function RefundFlow( { subscription, onClose, onComplete } ) {
 									amount
 							  )
 							: sprintf( __( 'The subscriber will be refunded $%s. Their access will end immediately.', 'newspack-plugin' ), amount ) }
-					</Notice>
+					</p>
 					<HStack spacing={ 2 } justify="flex-end">
 						<Button variant="secondary" size="compact" onClick={ onClose }>
 							{ __( 'Cancel', 'newspack-plugin' ) }

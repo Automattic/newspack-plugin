@@ -60,7 +60,7 @@ export default function PlanChangeFlow( { subscription, onClose, onComplete } ) 
 						} ) ) }
 						onChange={ setPlanName }
 					/>
-					<Notice status="info" isDismissible={ false }>
+					<p>
 						{ sprintf(
 							__(
 								'Change takes effect at the next billing cycle on %1$s. New charge: $%2$s. Proration will be applied to the first invoice.',
@@ -69,7 +69,7 @@ export default function PlanChangeFlow( { subscription, onClose, onComplete } ) 
 							subscription.nextBillingDate || __( 'next renewal', 'newspack-plugin' ),
 							plan.amount.toFixed( 2 )
 						) }
-					</Notice>
+					</p>
 					<HStack spacing={ 2 } justify="flex-end">
 						<Button variant="secondary" size="compact" onClick={ onClose }>
 							{ __( 'Cancel', 'newspack-plugin' ) }
