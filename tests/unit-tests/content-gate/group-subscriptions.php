@@ -1156,4 +1156,52 @@ class Test_Group_Subscriptions extends \WP_UnitTestCase {
 		// Our OR clause should still be added.
 		$this->assertStringContainsString( 'np_group_name.meta_value LIKE', $result );
 	}
+
+	// -------------------------------------------------------------------------
+	// get_group_subscription_ids() cache tests
+	// -------------------------------------------------------------------------
+
+	/**
+	 * Test that get_group_subscription_ids() reads from the transient cache
+	 * when present, bypassing the underlying queries.
+	 */
+	public function test_get_group_subscription_ids_uses_transient_cache() {
+		// Pre-seed the transient with a known set of IDs.
+		$cached_ids = [ 101, 202, 303 ];
+		set_transient(
+			Group_Subscription_Settings::GROUP_SUBSCRIPTION_IDS_TRANSIENT,
+			$cached_ids,
+			5 * MINUTE_IN_SECONDS
+		);
+
+		$result = Group_Subscription_Settings::get_group_subscription_ids();
+
+		$this->assertEquals( $cached_ids, $result, 'Should return the cached IDs verbatim' );
+
+		// Cleanup.
+		delete_transient( Group_Subscription_Settings::GROUP_SUBSCRIPTION_IDS_TRANSIENT );
+	}
+
+	/**
+	 * Test that clear_group_subscription_ids_cache() deletes the transient.
+	 */
+	public function test_clear_group_subscription_ids_cache_deletes_transient() {
+		set_transient(
+			Group_Subscription_Settings::GROUP_SUBSCRIPTION_IDS_TRANSIENT,
+			[ 1, 2, 3 ],
+			5 * MINUTE_IN_SECONDS
+		);
+
+		$this->assertNotFalse(
+			get_transient( Group_Subscription_Settings::GROUP_SUBSCRIPTION_IDS_TRANSIENT ),
+			'Transient should exist before clearing'
+		);
+
+		Group_Subscription_Settings::clear_group_subscription_ids_cache();
+
+		$this->assertFalse(
+			get_transient( Group_Subscription_Settings::GROUP_SUBSCRIPTION_IDS_TRANSIENT ),
+			'Transient should be deleted after clearing'
+		);
+	}
 }

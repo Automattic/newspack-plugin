@@ -558,12 +558,11 @@ class Group_Subscription_Settings {
 	 * @return array The meta keys with the group name meta key added.
 	 */
 	public static function add_group_name_hpos_search_field( $meta_keys ) {
-		if ( ! is_admin() ) {
+		if ( ! function_exists( 'get_current_screen' ) || ! function_exists( 'wcs_get_page_screen_id' ) ) {
 			return $meta_keys;
 		}
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		$page = isset( $_GET['page'] ) ? \sanitize_text_field( \wp_unslash( $_GET['page'] ) ) : '';
-		if ( 'wc-orders--shop_subscription' !== $page ) {
+		$screen = \get_current_screen();
+		if ( ! $screen || $screen->id !== \wcs_get_page_screen_id( 'shop_subscription' ) ) {
 			return $meta_keys;
 		}
 		$meta_keys[] = self::GROUP_SUBSCRIPTION_META_PREFIX . 'name';
@@ -787,26 +786,7 @@ class Group_Subscription_Settings {
 			return $query_args;
 		}
 
-		$group_ids = self::get_group_subscription_ids();
-
-		if ( 'group' === $filter ) {
-			if ( empty( $group_ids ) ) {
-				$query_args['post__in'] = [ 0 ];
-			} elseif ( ! isset( $query_args['post__in'] ) ) {
-				$query_args['post__in'] = $group_ids;
-			} else {
-				$intersected            = array_intersect( $query_args['post__in'], $group_ids );
-				$query_args['post__in'] = empty( $intersected ) ? [ 0 ] : array_values( $intersected );
-			}
-		} elseif ( 'non-group' === $filter ) {
-			if ( ! empty( $group_ids ) ) {
-				$query_args['post__not_in'] = isset( $query_args['post__not_in'] ) // phpcs:ignore WordPressVIPMinimum.Performance.WPQueryParams.PostNotIn_post__not_in
-					? array_merge( $query_args['post__not_in'], $group_ids )
-					: $group_ids;
-			}
-		}
-
-		return $query_args;
+		return self::apply_group_filter( $query_args, $filter, self::get_group_subscription_ids() );
 	}
 
 	/**
@@ -837,26 +817,38 @@ class Group_Subscription_Settings {
 			return $query_vars;
 		}
 
-		$group_ids = self::get_group_subscription_ids();
+		return self::apply_group_filter( $query_vars, $filter, self::get_group_subscription_ids() );
+	}
 
+	/**
+	 * Apply the group subscription filter to a set of query args by mutating
+	 * post__in / post__not_in. Shared by the HPOS and CPT filter callbacks.
+	 *
+	 * @param array  $args      The query args (HPOS) or query vars (CPT).
+	 * @param string $filter    Either 'group' or 'non-group'.
+	 * @param int[]  $group_ids The pre-collected group subscription IDs.
+	 *
+	 * @return array The mutated args.
+	 */
+	private static function apply_group_filter( $args, $filter, $group_ids ) {
 		if ( 'group' === $filter ) {
 			if ( empty( $group_ids ) ) {
-				$query_vars['post__in'] = [ 0 ];
-			} elseif ( ! isset( $query_vars['post__in'] ) ) {
-				$query_vars['post__in'] = $group_ids;
+				$args['post__in'] = [ 0 ];
+			} elseif ( ! isset( $args['post__in'] ) ) {
+				$args['post__in'] = $group_ids;
 			} else {
-				$intersected            = array_intersect( $query_vars['post__in'], $group_ids );
-				$query_vars['post__in'] = empty( $intersected ) ? [ 0 ] : array_values( $intersected );
+				$intersected      = array_intersect( $args['post__in'], $group_ids );
+				$args['post__in'] = empty( $intersected ) ? [ 0 ] : array_values( $intersected );
 			}
 		} elseif ( 'non-group' === $filter ) {
 			if ( ! empty( $group_ids ) ) {
-				$query_vars['post__not_in'] = isset( $query_vars['post__not_in'] ) // phpcs:ignore WordPressVIPMinimum.Performance.WPQueryParams.PostNotIn_post__not_in
-					? array_merge( $query_vars['post__not_in'], $group_ids )
+				$args['post__not_in'] = isset( $args['post__not_in'] ) // phpcs:ignore WordPressVIPMinimum.Performance.WPQueryParams.PostNotIn_post__not_in
+					? array_merge( $args['post__not_in'], $group_ids )
 					: $group_ids;
 			}
 		}
 
-		return $query_vars;
+		return $args;
 	}
 }
 Group_Subscription_Settings::init();
