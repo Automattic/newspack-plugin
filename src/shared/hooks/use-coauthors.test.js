@@ -216,7 +216,7 @@ describe( 'useCoAuthors', () => {
 				path: '/coauthors/v1/authors-by-term-ids?ids=471,488,483',
 			} );
 			expect( result.current.authors[ 0 ] ).toMatchObject( {
-				id: '1',
+				id: 1,
 				termId: 471,
 				display_name: 'Jane Doe',
 				user_nicename: 'jane-doe',
@@ -224,6 +224,7 @@ describe( 'useCoAuthors', () => {
 			} );
 			expect( result.current.authors[ 2 ].isGuest ).toBe( true );
 			expect( result.current.isCapAvailable ).toBe( true );
+			expect( result.current.hasCoauthorTermIds ).toBe( true );
 		} );
 
 		it( 'should return empty authors when coauthors attribute is an empty array', async () => {
@@ -342,8 +343,6 @@ describe( 'useCoAuthors', () => {
 
 		it( 'should handle REST errors without blocking the component', async () => {
 			apiFetch.mockRejectedValueOnce( new Error( 'Server error' ) );
-			// Silence the expected console.warn from the fetcher's catch handler.
-			const warnSpy = jest.spyOn( console, 'warn' ).mockImplementation( () => {} );
 
 			useSelect.mockImplementation( callback =>
 				callback(
@@ -362,15 +361,15 @@ describe( 'useCoAuthors', () => {
 
 			expect( result.current.authors ).toEqual( [] );
 			expect( result.current.isCapAvailable ).toBe( true );
-			expect( warnSpy ).toHaveBeenCalled();
-			warnSpy.mockRestore();
+			// Term IDs are assigned but resolution returned empty — surface this so consumers
+			// don't silently fall back to `post_author` and credit the wrong person.
+			expect( result.current.hasCoauthorTermIds ).toBe( true );
 		} );
 
 		it( 'should allow retry after a transient REST error (no negative caching on catch)', async () => {
 			const RETRY_RESPONSE = [
 				{ id: '1', termId: 471, displayName: 'Jane', userNicename: 'jane', userType: 'wpuser', login: 'jane', email: '' },
 			];
-			const warnSpy = jest.spyOn( console, 'warn' ).mockImplementation( () => {} );
 
 			useSelect.mockImplementation( callback =>
 				callback(
@@ -405,8 +404,6 @@ describe( 'useCoAuthors', () => {
 
 			expect( apiFetch ).toHaveBeenCalledTimes( 2 );
 			expect( result2.current.authors[ 0 ].display_name ).toBe( 'Jane' );
-
-			warnSpy.mockRestore();
 		} );
 	} );
 

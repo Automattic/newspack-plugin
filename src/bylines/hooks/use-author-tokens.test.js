@@ -26,8 +26,8 @@ jest.mock( '../../shared/hooks/use-coauthors', () => ( {
 	useCoAuthors: jest.fn(),
 } ) );
 
-const mockUseCoAuthors = ( { authors = [], isCapAvailable = false, isLoading = false } = {} ) => {
-	useCoAuthors.mockReturnValue( { authors, isCapAvailable, isLoading } );
+const mockUseCoAuthors = ( { authors = [], isCapAvailable = false, isLoading = false, hasCoauthorTermIds = false } = {} ) => {
+	useCoAuthors.mockReturnValue( { authors, isCapAvailable, isLoading, hasCoauthorTermIds } );
 };
 
 /**
@@ -123,7 +123,19 @@ describe( 'useAuthorTokens', () => {
 	it( 'should return empty while coauthor data is still loading (new-CAP async window)', () => {
 		// During the term-ID resolution window, fall back to post_author would write a
 		// truncated byline. Return empty so `insertDefaultByline` is a no-op.
-		mockUseCoAuthors( { authors: [], isCapAvailable: true, isLoading: true } );
+		mockUseCoAuthors( { authors: [], isCapAvailable: true, isLoading: true, hasCoauthorTermIds: true } );
+		mockPostAuthorSelect( { authorId: 5, user: { id: 5, name: 'Post Author' } } );
+
+		const { result } = renderHook( () => useAuthorTokens( 123 ) );
+
+		expect( result.current ).toEqual( [] );
+	} );
+
+	it( 'should return empty when CAP has term IDs assigned but resolution returned no authors', () => {
+		// Mirrors the 403 / transient-error path: the `authors-by-term-ids` REST endpoint
+		// requires `edit_others_posts`, so an author editing their own post sees an empty
+		// resolved list. Falling back to `post_author` would credit the wrong person.
+		mockUseCoAuthors( { authors: [], isCapAvailable: true, isLoading: false, hasCoauthorTermIds: true } );
 		mockPostAuthorSelect( { authorId: 5, user: { id: 5, name: 'Post Author' } } );
 
 		const { result } = renderHook( () => useAuthorTokens( 123 ) );

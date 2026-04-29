@@ -6,7 +6,8 @@ import { useState, useEffect, useMemo } from '@wordpress/element';
 import { store as coreStore } from '@wordpress/core-data';
 import apiFetch from '@wordpress/api-fetch';
 
-// CAP_STORE is the legacy Redux store, removed in CAP 3.8+. Its absence triggers the new-CAP path.
+// Detection key for the optional Redux store published by CAP <4.0. When present and exposing
+// `getAuthors`, prefer the synchronous path; otherwise fall back to term-ID resolution via REST.
 const CAP_STORE = 'cap/authors';
 const COAUTHORS_ENDPOINT = '/coauthors/v1/coauthors';
 const COAUTHORS_BY_TERM_IDS_ENDPOINT = '/coauthors/v1/authors-by-term-ids';
@@ -69,12 +70,12 @@ function fetchCoauthorsByTermIds( termIds ) {
 				}
 			} );
 		} )
-		.catch( error => {
-			// Do not poison the cache on transient errors (network, 5xx). Concurrent calls are
-			// already deduped via `inflightTermResolves`, and leaving the cache untouched allows
-			// a later call to `fetchCoauthorsByTermIds` to retry after this in-flight request clears.
-			// eslint-disable-next-line no-console
-			console.warn( '[Newspack] Failed to resolve coauthor term IDs:', error );
+		.catch( () => {
+			// Do not poison the cache on transient errors (network, 5xx) or permission errors (403).
+			// Concurrent calls are already deduped via `inflightTermResolves`, and leaving the cache
+			// untouched allows a later call to `fetchCoauthorsByTermIds` to retry after this
+			// in-flight request clears. Failure is signalled to consumers via `hasCoauthorTermIds`
+			// remaining true while `authors` stays empty.
 		} )
 		.finally( () => {
 			delete inflightTermResolves[ key ];
@@ -150,27 +151,32 @@ function extractNicenameFromLink( link ) {
 /**
  * Hook to get CoAuthors Plus authors from the CAP store or REST API.
  *
- * For the currently-edited post, uses one of two sources depending on which
- * CAP version is active:
- *   - Legacy CAP (<3.8): reads from the `cap/authors` Redux store for real-time updates.
- *   - New CAP (3.8+): reads taxonomy term IDs from `getEditedPostAttribute('coauthors')`
- *     and resolves them to rich author data via the `authors-by-term-ids` REST endpoint.
+ * For the currently-edited post, uses one of two sources depending on which CAP version is active:
+ *   - Legacy CAP (Redux store published by CAP <4.0): reads from `cap/authors` for real-time updates.
+ *   - New CAP (no Redux store, CAP 4.0+): reads taxonomy term IDs from
+ *     `getEditedPostAttribute('coauthors')` and resolves them to rich author data via the
+ *     `authors-by-term-ids` REST endpoint.
  * For Query Loop posts, it uses REST data from `newspack_author_info` (unaffected by CAP version).
  *
  * @param {number}  postId   Post ID to get authors for.
  * @param {string}  postType Post type (default: 'post').
  * @param {boolean} skip     Skip fetching (default: false).
- * @return {Object} `{ authors, isCapAvailable, isLoading }`. `isLoading` is true only while
- *                  the new-CAP term-ID resolution is in flight. Legacy CAP is synchronous.
+ * @return {Object} `{ authors, isCapAvailable, isLoading, hasCoauthorTermIds }`.
+ *                  `isLoading` is true during the new-CAP term-ID resolution window (including the
+ *                  pre-flight render before the effect fires); legacy CAP is synchronous.
+ *                  `hasCoauthorTermIds` is true when the new-CAP path is in use AND term IDs are
+ *                  assigned — consumers should treat `authors.length === 0` while this flag is true
+ *                  as "resolution unavailable" (e.g. permission-denied REST) rather than "no coauthors",
+ *                  to avoid silently falling back to default state.
  */
 export function useCoAuthors( postId, postType = 'post', skip = false ) {
 	// Return raw store references from useSelect to avoid creating new objects
 	// on every render (which triggers useSelect memoization warnings).
 	// The .map() transformations happen in useMemo below.
-	const { legacyCapAuthors, coauthorTermIds, restAuthors, isCapAvailable } = useSelect(
+	const { legacyCapAuthors, coauthorTermIdsKey, restAuthors, isCapAvailable } = useSelect(
 		select => {
 			if ( skip ) {
-				return { legacyCapAuthors: null, coauthorTermIds: null, restAuthors: null, isCapAvailable: false };
+				return { legacyCapAuthors: null, coauthorTermIdsKey: null, restAuthors: null, isCapAvailable: false };
 			}
 
 			const capStore = select( CAP_STORE );
@@ -188,7 +194,7 @@ export function useCoAuthors( postId, postType = 'post', skip = false ) {
 				const restData = post?.newspack_author_info || null;
 				return {
 					legacyCapAuthors: null,
-					coauthorTermIds: null,
+					coauthorTermIdsKey: null,
 					restAuthors: restData,
 					isCapAvailable: restData ? true : isLegacyCapStoreAvailable,
 				};
@@ -197,19 +203,26 @@ export function useCoAuthors( postId, postType = 'post', skip = false ) {
 			// Legacy CAP: read from cap/authors store for real-time updates.
 			if ( isLegacyCapStoreAvailable ) {
 				const rawCapAuthors = postId ? capStore.getAuthors( postId ) : null;
-				return { legacyCapAuthors: rawCapAuthors, coauthorTermIds: null, restAuthors: null, isCapAvailable: true };
+				return { legacyCapAuthors: rawCapAuthors, coauthorTermIdsKey: null, restAuthors: null, isCapAvailable: true };
 			}
 
-			// New CAP: read taxonomy term IDs from the post entity.
-			// Returns null when the post hasn't loaded yet; an empty array when it has loaded
-			// but there are no coauthors; an array of term IDs when coauthors are set.
+			// New CAP: read taxonomy term IDs from the post entity. Serialize to a stable string
+			// inside the selector so a fresh array reference from `getEditedPostAttribute` doesn't
+			// trigger spurious re-renders. `null` = attribute not loaded; `''` = loaded but empty;
+			// CSV (e.g. `'471,488'`) = term IDs assigned.
 			const termIds = editorStore?.getEditedPostAttribute?.( 'coauthors' );
 			if ( Array.isArray( termIds ) ) {
-				return { legacyCapAuthors: null, coauthorTermIds: termIds, restAuthors: null, isCapAvailable: true };
+				const validIds = termIds.map( Number ).filter( Number.isInteger );
+				return {
+					legacyCapAuthors: null,
+					coauthorTermIdsKey: validIds.length === 0 ? '' : validIds.join( ',' ),
+					restAuthors: null,
+					isCapAvailable: true,
+				};
 			}
 
 			// No CAP detected (plugin inactive).
-			return { legacyCapAuthors: null, coauthorTermIds: null, restAuthors: null, isCapAvailable: false };
+			return { legacyCapAuthors: null, coauthorTermIdsKey: null, restAuthors: null, isCapAvailable: false };
 		},
 		[ postId, postType, skip ]
 	);
@@ -217,21 +230,30 @@ export function useCoAuthors( postId, postType = 'post', skip = false ) {
 	// Resolve coauthor term IDs to author data via REST (new CAP path only).
 	// Uses a module-level cache + in-flight dedup so concurrent mounts share a single fetch.
 	const [ resolvedTermAuthors, setResolvedTermAuthors ] = useState( EMPTY_AUTHORS );
-	const [ isLoading, setIsLoading ] = useState( false );
-	const termIdsKey = coauthorTermIds ? coauthorTermIds.join( ',' ) : null;
+	const [ asyncIsLoading, setAsyncIsLoading ] = useState( false );
+	// Tracks the last `coauthorTermIdsKey` the effect has processed. Used to derive a synchronous
+	// pre-flight loading state during the render between key change and effect firing — without
+	// it, consumers briefly see "term IDs assigned but isLoading false" and may pick wrong defaults.
+	const [ processedKey, setProcessedKey ] = useState( null );
+
+	const hasCoauthorTermIds = coauthorTermIdsKey !== null && coauthorTermIdsKey !== '';
+	const isPreFlight = hasCoauthorTermIds && processedKey !== coauthorTermIdsKey;
+	const isLoading = isPreFlight || asyncIsLoading;
 
 	useEffect( () => {
-		if ( skip || termIdsKey === null ) {
+		if ( skip || coauthorTermIdsKey === null ) {
 			// Use the module-level frozen empty array so the identity is stable
 			// and setState is a no-op when already empty.
 			setResolvedTermAuthors( EMPTY_AUTHORS );
-			setIsLoading( false );
+			setAsyncIsLoading( false );
+			setProcessedKey( coauthorTermIdsKey );
 			return;
 		}
-		const ids = termIdsKey === '' ? [] : termIdsKey.split( ',' ).map( Number ).filter( Number.isInteger );
+		const ids = coauthorTermIdsKey === '' ? [] : coauthorTermIdsKey.split( ',' ).map( Number ).filter( Number.isInteger );
 		if ( ids.length === 0 ) {
 			setResolvedTermAuthors( EMPTY_AUTHORS );
-			setIsLoading( false );
+			setAsyncIsLoading( false );
+			setProcessedKey( coauthorTermIdsKey );
 			return;
 		}
 
@@ -240,25 +262,27 @@ export function useCoAuthors( postId, postType = 'post', skip = false ) {
 		if ( allCached ) {
 			const resolved = ids.map( id => coauthorDetailsCache[ id ] ).filter( author => author && typeof author === 'object' );
 			setResolvedTermAuthors( resolved.length === 0 ? EMPTY_AUTHORS : resolved );
-			setIsLoading( false );
+			setAsyncIsLoading( false );
+			setProcessedKey( coauthorTermIdsKey );
 			return;
 		}
 
 		let cancelled = false;
-		setIsLoading( true );
+		setAsyncIsLoading( true );
 		fetchCoauthorsByTermIds( ids ).then( () => {
 			if ( cancelled ) {
 				return;
 			}
 			const resolved = ids.map( id => coauthorDetailsCache[ id ] ).filter( author => author && typeof author === 'object' );
 			setResolvedTermAuthors( resolved.length === 0 ? EMPTY_AUTHORS : resolved );
-			setIsLoading( false );
+			setAsyncIsLoading( false );
+			setProcessedKey( coauthorTermIdsKey );
 		} );
 
 		return () => {
 			cancelled = true;
 		};
-	}, [ termIdsKey, skip ] );
+	}, [ coauthorTermIdsKey, skip ] );
 
 	// Map raw store data to our normalized author format.
 	const authors = useMemo( () => {
@@ -272,10 +296,13 @@ export function useCoAuthors( postId, postType = 'post', skip = false ) {
 			} ) );
 		}
 
-		// New CAP authors resolved from term IDs: { id, termId, displayName, userNicename, userType, ... }
+		// New CAP authors resolved from term IDs.
+		// REST shape: { id (string), termId, displayName, userNicename, userType, ... }
+		// Coerce `id` to Number at the source so consumers and the in-file dedupe (`other.id === author.id`)
+		// see a consistent shape across legacy CAP (numeric id) and new CAP (string id).
 		if ( resolvedTermAuthors && resolvedTermAuthors.length > 0 ) {
 			return resolvedTermAuthors.map( author => ( {
-				id: author.id,
+				id: Number( author.id ),
 				termId: author.termId,
 				display_name: author.displayName,
 				user_nicename: author.userNicename,
@@ -357,5 +384,5 @@ export function useCoAuthors( postId, postType = 'post', skip = false ) {
 		return { ...author, avatar_urls: urls };
 	} );
 
-	return { authors: authorsWithAvatars, isCapAvailable, isLoading };
+	return { authors: authorsWithAvatars, isCapAvailable, isLoading, hasCoauthorTermIds };
 }

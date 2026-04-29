@@ -15,14 +15,15 @@ const BASE_QUERY = {
 };
 
 /**
- * WP user coauthors (or post_author fallback) as `{ id, name }` byline tokens.
- * Guests are excluded since the `[Author id=N]` shortcode requires a WP user ID.
+ * WP user coauthors as `{ id, name }` byline tokens. Falls back to the `post_author` only when
+ * no coauthors are present and CAP is inactive (or has no term IDs assigned). Guests are excluded
+ * since the `[Author id=N]` shortcode requires a WP user ID.
  *
  * @param {number} postId The post ID.
  * @return {Object[]} Array of `{ id, name }` tokens.
  */
 export function useAuthorTokens( postId ) {
-	const { authors: coAuthors, isCapAvailable, isLoading } = useCoAuthors( postId );
+	const { authors: coAuthors, isCapAvailable, isLoading, hasCoauthorTermIds } = useCoAuthors( postId );
 
 	const postAuthor = useSelect( select => {
 		const editorStore = select( 'core/editor' );
@@ -35,6 +36,14 @@ export function useAuthorTokens( postId ) {
 
 	// Prevent `insertDefaultByline()` from seeding a truncated byline during new-CAP async resolve.
 	if ( isLoading ) {
+		return [];
+	}
+
+	// New CAP has term IDs assigned but resolution returned no authors — likely a permission-denied
+	// REST response (the `authors-by-term-ids` endpoint requires `edit_others_posts`) or a transient
+	// error. Returning `[]` instead of falling back to `post_author` avoids silently crediting the
+	// wrong person on a post where coauthors are explicitly set.
+	if ( hasCoauthorTermIds && ( ! coAuthors || coAuthors.length === 0 ) ) {
 		return [];
 	}
 
