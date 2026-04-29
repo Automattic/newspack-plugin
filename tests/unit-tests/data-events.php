@@ -1402,4 +1402,42 @@ class Newspack_Test_Data_Events extends WP_UnitTestCase {
 		$this->assertTrue( $payload['is_donation'] );
 		$this->assertSame( 30.00, $payload['amount'] );
 	}
+
+	/**
+	 * Multi-product subscription produces one payload per line item.
+	 */
+	public function test_woo_subscription_updated_payload_multi_product() {
+		$subscription = $this->create_test_subscription(
+			[
+				'items' => [
+					$this->build_order_item(
+						[
+							'product_id' => 9001,
+							'name'       => 'Monthly Plan',
+							'subtotal'   => 30.00,
+						]
+					),
+					$this->build_order_item(
+						[
+							'product_id' => 9002,
+							'name'       => 'Second Tier',
+							'subtotal'   => 5.00,
+						]
+					),
+				],
+			]
+		);
+
+		$payloads = \Newspack\Data_Events\Utils::get_woo_subscription_updated_payloads( $subscription, 'active' );
+
+		$this->assertCount( 2, $payloads );
+		$names = array_map(
+			static function ( $p ) {
+				return $p['product_name'];
+			},
+			$payloads
+		);
+		$this->assertContains( 'Monthly Plan', $names );
+		$this->assertContains( 'Second Tier', $names );
+	}
 }
