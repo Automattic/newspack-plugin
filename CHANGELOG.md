@@ -1,3 +1,41 @@
+# [6.37.0](https://github.com/Automattic/newspack-plugin/compare/v6.36.3...v6.37.0) (2026-04-13)
+
+
+### Bug Fixes
+
+* **card-settings-group:** change default actionType from chevron to none ([#4610](https://github.com/Automattic/newspack-plugin/issues/4610)) ([00505ed](https://github.com/Automattic/newspack-plugin/commit/00505ed73e470d496561717e75ce7523d632ce2d))
+* **post-date:** preserve classic theme markup and fix archive titles ([#4602](https://github.com/Automattic/newspack-plugin/issues/4602)) ([c5fb825](https://github.com/Automattic/newspack-plugin/commit/c5fb8254d88b57436a5e6061bc5837faf0dd5feb))
+* remove removal of block visibility ([#4595](https://github.com/Automattic/newspack-plugin/issues/4595)) ([9396379](https://github.com/Automattic/newspack-plugin/commit/9396379eeeff64439b73692467a1d7c929bcd91c))
+
+
+### Features
+
+* **access-control:** filter available lists by content restrictions ([#4589](https://github.com/Automattic/newspack-plugin/issues/4589)) ([959127f](https://github.com/Automattic/newspack-plugin/commit/959127f56729dd60da5ec7f0df7e5a357a872135)), closes [#4581](https://github.com/Automattic/newspack-plugin/issues/4581) [#4583](https://github.com/Automattic/newspack-plugin/issues/4583) [#4590](https://github.com/Automattic/newspack-plugin/issues/4590)
+* **access-control:** premium newsletters UI ([#4577](https://github.com/Automattic/newspack-plugin/issues/4577)) ([6f8c891](https://github.com/Automattic/newspack-plugin/commit/6f8c8915a66bacc743a57196e719762a1b15b877)), closes [#4581](https://github.com/Automattic/newspack-plugin/issues/4581) [#4583](https://github.com/Automattic/newspack-plugin/issues/4583) [#4590](https://github.com/Automattic/newspack-plugin/issues/4590)
+* **author-profile-social:** add support for colors, block spacing, brand style ([#4509](https://github.com/Automattic/newspack-plugin/issues/4509)) ([21cf4c9](https://github.com/Automattic/newspack-plugin/commit/21cf4c94e31bb053506c213865a55c4dd8949be8))
+* campaigns wizard light UI refresh ([#4588](https://github.com/Automattic/newspack-plugin/issues/4588)) ([6078c4b](https://github.com/Automattic/newspack-plugin/commit/6078c4ba5153c046071840d8bbcf2d73607fd1b0))
+* **color-picker:** simplify component to use basecontrol ([#4581](https://github.com/Automattic/newspack-plugin/issues/4581)) ([ff677ea](https://github.com/Automattic/newspack-plugin/commit/ff677ea1b6f740f9b8d3559bdc635afce31f9a1a))
+* **components:** add CardFeature component ([#4583](https://github.com/Automattic/newspack-plugin/issues/4583)) ([5aabb18](https://github.com/Automattic/newspack-plugin/commit/5aabb184e918b59b42eb75a761e15168e99272cd))
+* **content-gate:** institution management ui ([#4582](https://github.com/Automattic/newspack-plugin/issues/4582)) ([ae88750](https://github.com/Automattic/newspack-plugin/commit/ae887509819cf7ac8d41ca4470a83fc9b5dca0f2))
+* **content-gate:** institutional access redirect and loading UX ([#4593](https://github.com/Automattic/newspack-plugin/issues/4593)) ([548d236](https://github.com/Automattic/newspack-plugin/commit/548d236aa30366511048bc787e8cef77941e2a2e))
+* **content-gate:** institutions ([#4574](https://github.com/Automattic/newspack-plugin/issues/4574)) ([49b0c05](https://github.com/Automattic/newspack-plugin/commit/49b0c05f74e4936ae4f425084f9fb6d1fabb78c8))
+* **content-gate:** personalized institutional access verification page ([#4596](https://github.com/Automattic/newspack-plugin/issues/4596)) ([0eed591](https://github.com/Automattic/newspack-plugin/commit/0eed5916835882e9dc7f973234e2aa12322fafe1))
+* **image-upload:** simplify component to use basecontrol; remove info prop ([#4580](https://github.com/Automattic/newspack-plugin/issues/4580)) ([d51eb54](https://github.com/Automattic/newspack-plugin/commit/d51eb541e9af3cc22f8a15d10b270ed9a4e06a4f))
+* **integrations:** add ActionScheduler group handling ([#4559](https://github.com/Automattic/newspack-plugin/issues/4559)) ([411732a](https://github.com/Automattic/newspack-plugin/commit/411732a102e38cc4de05124a8e2ab7889162ff53))
+* **integrations:** promoted fields for content gate and campaign segmentation ([#4601](https://github.com/Automattic/newspack-plugin/issues/4601)) ([f943df2](https://github.com/Automattic/newspack-plugin/commit/f943df2bd6d80429302951634a09cb721c3720ba))
+* **newspack-ui:** add stack layout and color utility classes ([#4600](https://github.com/Automattic/newspack-plugin/issues/4600)) ([1934067](https://github.com/Automattic/newspack-plugin/commit/1934067f655bfa8f6d6af6648aeb376df2f411ff))
+* **post-date:** centralize date features from theme into plugin ([#4579](https://github.com/Automattic/newspack-plugin/issues/4579)) ([19f15eb](https://github.com/Automattic/newspack-plugin/commit/19f15eb49511617d03cb2dab44fb9422667859ff))
+* **sync:** prevent stale data on retry, improve logging and error handling ([#4562](https://github.com/Automattic/newspack-plugin/issues/4562)) ([5467f34](https://github.com/Automattic/newspack-plugin/commit/5467f34a0733c0495588da36e9b2c4b50fbd293d))
+* **tags:** add private tags feature ([#4507](https://github.com/Automattic/newspack-plugin/issues/4507)) ([06d7711](https://github.com/Automattic/newspack-plugin/commit/06d771105ae8030d5f5f33fe6c6a21de269453f1))
+* **yoast:** add primary category utility and settings toggle ([#4563](https://github.com/Automattic/newspack-plugin/issues/4563)) ([4b396c3](https://github.com/Automattic/newspack-plugin/commit/4b396c35c8019574082fd250aefaa23d377b2669))
+
+## [6.36.3](https://github.com/Automattic/newspack-plugin/compare/v6.36.2...v6.36.3) (2026-04-13)
+
+
+### Bug Fixes
+
+* hotfix release of privacy features ([#4653](https://github.com/Automattic/newspack-plugin/issues/4653)) ([22cc5d3](https://github.com/Automattic/newspack-plugin/commit/22cc5d3011782975f97df391d0baba40e46c9196))
+
 ## [6.36.2](https://github.com/Automattic/newspack-plugin/compare/v6.36.1...v6.36.2) (2026-04-06)
 
 

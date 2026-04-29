@@ -26,6 +26,10 @@ class Group_Subscription {
 	 * @return bool Whether the subscription is a group subscription.
 	 */
 	public static function is_group_subscription( $subscription ) {
+		// Don't show Group Subscription features in My Account if Woo Memberships is active. TODO: Remove this once Access Control is fully released.
+		if ( Memberships::is_active() && function_exists( 'is_account_page' ) && is_account_page() ) {
+			return false;
+		}
 		$settings = Group_Subscription_Settings::get_subscription_settings( $subscription );
 		return $settings['enabled'];
 	}

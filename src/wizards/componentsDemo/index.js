@@ -25,6 +25,7 @@ import {
 	Button,
 	Card,
 	CardFeature,
+	CardForm,
 	CardSettingsGroup,
 	ColorPicker,
 	Footer,
@@ -74,6 +75,8 @@ class ComponentsDemo extends Component {
 			settingsGroupCardActive: false,
 			cardFeatureEnabled: false,
 			cardFeatureCustomEnabled: false,
+			cardFormEnabled: false,
+			cardFormOpen: false,
 		};
 		this.dragWrapperRef = createRef();
 	}
@@ -231,20 +234,18 @@ class ComponentsDemo extends Component {
 					<Card>
 						<h2>{ __( 'Handoff Buttons', 'newspack-plugin' ) }</h2>
 						<Card buttonsCard noBorder>
-							<Handoff
-								modalTitle={ __( 'Manage AMP', 'newspack-plugin' ) }
-								modalBody={ __(
-									'Click to go to the AMP dashboard. There will be a notification bar at the top with a link to return to Newspack.',
-									'newspack-plugin'
-								) }
-								plugin="amp"
-								isTertiary
-							/>
 							<Handoff plugin="jetpack" />
 							<Handoff plugin="google-site-kit" />
 							<Handoff plugin="woocommerce" />
 							<Handoff plugin="wordpress-seo" isPrimary editLink="/wp-admin/admin.php?page=wpseo_dashboard#top#features">
 								{ __( 'Specific Yoast Page', 'newspack-plugin' ) }
+							</Handoff>
+							<Handoff
+								url="/wp-admin/admin.php?page=newspack-dashboard"
+								bannerText={ __( "Return to Components Demo once you're done.", 'newspack-plugin' ) }
+								bannerButtonText={ __( 'Back to Components Demo', 'newspack-plugin' ) }
+							>
+								{ __( 'Go to Dashboard', 'newspack-plugin' ) }
 							</Handoff>
 						</Card>
 					</Card>
@@ -489,6 +490,14 @@ class ComponentsDemo extends Component {
 						actionText={ __( 'Configure', 'newspack-plugin' ) }
 						handoff="jetpack"
 						editLink="admin.php?page=jetpack#/settings"
+					/>
+					<ActionCard
+						title={ __( 'Handoff with URL', 'newspack-plugin' ) }
+						description={ __( 'An example of an action card with URL-based Handoff.', 'newspack-plugin' ) }
+						actionText={ __( 'Go to Dashboard', 'newspack-plugin' ) }
+						handoffUrl="/wp-admin/admin.php?page=newspack-dashboard"
+						bannerText={ __( "Return to Components Demo once you're done.", 'newspack-plugin' ) }
+						bannerButtonText={ __( 'Back to Components Demo', 'newspack-plugin' ) }
 					/>
 					<ActionCard
 						expandable
@@ -990,6 +999,82 @@ class ComponentsDemo extends Component {
 								] }
 							/>
 						</Grid>
+					</Card>
+					<Card>
+						<h2>{ __( 'CardForm', 'newspack-plugin' ) }</h2>
+						<p>
+							{ __(
+								'An expandable inline form card with title, description, optional badge, and an actions slot. Handles ESC key via onRequestClose.',
+								'newspack-plugin'
+							) }
+						</p>
+						<h3>{ __( 'Enable / Edit flow', 'newspack-plugin' ) }</h3>
+						<VStack spacing={ 2 }>
+							<CardForm
+								title={ __( 'Above Header', 'newspack-plugin' ) }
+								description={ __( 'Displays an ad above the site header.', 'newspack-plugin' ) }
+								badge={ this.state.cardFormEnabled ? { level: 'success', text: __( 'Enabled', 'newspack-plugin' ) } : undefined }
+								actions={
+									this.state.cardFormEnabled ? (
+										<Button
+											variant="tertiary"
+											size="compact"
+											onClick={ () =>
+												this.setState( s => ( {
+													cardFormOpen: ! s.cardFormOpen,
+												} ) )
+											}
+										>
+											{ this.state.cardFormOpen ? __( 'Cancel', 'newspack-plugin' ) : __( 'Edit', 'newspack-plugin' ) }
+										</Button>
+									) : (
+										<Button
+											variant="secondary"
+											size="compact"
+											onClick={ () => this.setState( { cardFormEnabled: true, cardFormOpen: true } ) }
+										>
+											{ __( 'Enable', 'newspack-plugin' ) }
+										</Button>
+									)
+								}
+								isOpen={ this.state.cardFormOpen }
+								onRequestClose={ () => this.setState( { cardFormOpen: false } ) }
+							>
+								<VStack spacing={ 4 }>
+									<TextControl label={ __( 'Ad Unit ID', 'newspack-plugin' ) } value="" onChange={ () => {} } />
+									<Button variant="primary" size="compact" onClick={ () => this.setState( { cardFormOpen: false } ) }>
+										{ this.state.cardFormEnabled ? __( 'Update', 'newspack-plugin' ) : __( 'Enable', 'newspack-plugin' ) }
+									</Button>
+								</VStack>
+							</CardForm>
+							<CardForm
+								title={ __( 'Below Footer', 'newspack-plugin' ) }
+								description={ __( 'Displays an ad below the site footer.', 'newspack-plugin' ) }
+								actions={
+									<Button variant="secondary" size="compact" disabled={ !! this.state.cardFormOpen }>
+										{ __( 'Enable', 'newspack-plugin' ) }
+									</Button>
+								}
+								isOpen={ false }
+							/>
+						</VStack>
+						<h3>{ __( 'Badge levels', 'newspack-plugin' ) }</h3>
+						<VStack spacing={ 2 }>
+							{ [ 'success', 'info', 'warning', 'error' ].map( level => (
+								<CardForm
+									key={ level }
+									title={ __( 'Example placement', 'newspack-plugin' ) }
+									description={ __( 'Badge level: ', 'newspack-plugin' ) + level }
+									badge={ { level, text: level.charAt( 0 ).toUpperCase() + level.slice( 1 ) } }
+									actions={
+										<Button variant="tertiary" size="compact">
+											{ __( 'Edit', 'newspack-plugin' ) }
+										</Button>
+									}
+									isOpen={ false }
+								/>
+							) ) }
+						</VStack>
 					</Card>
 					<Card>
 						<h2>{ __( 'Newspack Icons', 'newspack-plugin' ) }</h2>

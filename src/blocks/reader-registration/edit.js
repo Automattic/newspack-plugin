@@ -29,6 +29,7 @@ const editedStateOptions = [
 	{ label: __( 'Registration Success', 'newspack-plugin' ), value: 'registration' },
 ];
 export default function ReaderRegistrationEdit( {
+	isSelected,
 	setAttributes,
 	attributes: {
 		title,
@@ -42,6 +43,7 @@ export default function ReaderRegistrationEdit( {
 		newsletterLabel,
 		lists,
 		listsCheckboxes,
+		hideOauth,
 	},
 } ) {
 	const blockProps = useBlockProps();
@@ -116,6 +118,13 @@ export default function ReaderRegistrationEdit( {
 						disabled={ inFlight }
 						onChange={ value => setAttributes( { placeholder: value } ) }
 					/>
+					{ newspack_blocks.has_google_oauth && (
+						<ToggleControl
+							label={ __( 'Show Google sign-in button', 'newspack-plugin' ) }
+							checked={ ! hideOauth }
+							onChange={ () => setAttributes( { hideOauth: ! hideOauth } ) }
+						/>
+					) }
 				</PanelBody>
 				{ newspack_blocks.has_newsletters && (
 					<PanelBody title={ __( 'Newsletter Subscription', 'newspack-plugin' ) }>
@@ -231,23 +240,27 @@ export default function ReaderRegistrationEdit( {
 				{ editedState === 'initial' && (
 					<div className="newspack-registration newspack-ui">
 						<form onSubmit={ ev => ev.preventDefault() }>
-							<div className="newspack-registration__header">
+							{ ( isSelected || title ) && (
+								<div className="newspack-registration__header">
+									<RichText
+										onChange={ value => setAttributes( { title: value } ) }
+										placeholder={ __( 'Add title', 'newspack-plugin' ) }
+										value={ title }
+										allowedFormats={ [] }
+										tagName="h3"
+										className="newspack-registration__title"
+									/>
+								</div>
+							) }
+							{ ( isSelected || description ) && (
 								<RichText
-									onChange={ value => setAttributes( { title: value } ) }
-									placeholder={ __( 'Add title', 'newspack-plugin' ) }
-									value={ title }
-									allowedFormats={ [] }
-									tagName="h3"
-									className="newspack-registration__title"
+									onChange={ value => setAttributes( { description: value } ) }
+									placeholder={ __( 'Add description', 'newspack-plugin' ) }
+									value={ description }
+									tagName="p"
+									className="newspack-registration__description"
 								/>
-							</div>
-							<RichText
-								onChange={ value => setAttributes( { description: value } ) }
-								placeholder={ __( 'Add description', 'newspack-plugin' ) }
-								value={ description }
-								tagName="p"
-								className="newspack-registration__description"
-							/>
+							) }
 							<div className="newspack-registration__form-content">
 								{ ! shouldHideSubscribeInput() && newsletterSubscription && lists.length ? (
 									<>
@@ -280,7 +293,7 @@ export default function ReaderRegistrationEdit( {
 									</>
 								) : null }
 								<div className="newspack-registration__main">
-									{ newspack_blocks.has_google_oauth && (
+									{ newspack_blocks.has_google_oauth && ! hideOauth && (
 										<div className="newspack-ui">
 											<button className="newspack-ui__button newspack-ui__button--wide newspack-ui__button--secondary newspack-ui__button--google-oauth">
 												<span

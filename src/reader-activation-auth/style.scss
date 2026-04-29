@@ -128,4 +128,9 @@ body.logged-in {
 	a[href="#register_modal"] {
 		display: none;
 	}
+
+	.wp-block-buttons:has(> .wp-block-button:only-child > a[href="#signin_modal"]),
+	.wp-block-buttons:has(> .wp-block-button:only-child > a[href="#register_modal"]) {
+		display: none;
+	}
 }

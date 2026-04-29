@@ -1,3 +1,5 @@
+// @jest-environment jsdom
+
 import setupArticleViewsAggregates from './article-view';
 import { createMockRAS } from './mocks/ras';
 
@@ -11,6 +13,80 @@ describe( 'setupArticleViewsAggregates', () => {
 
 	afterEach( () => {
 		mock.reset();
+	} );
+
+	describe( 'merge strategies', () => {
+		function getMerge( key ) {
+			const call = mock.ras.store.register.mock.calls.find( ( [ k ] ) => k === key );
+			return call[ 1 ].merge;
+		}
+
+		it( 'should register merge strategies for all tracked keys', () => {
+			const keys = [ 'articles_read', 'paywall_hits', 'article_view_per_week', 'article_view_per_month', 'favorite_categories' ];
+			for ( const key of keys ) {
+				expect( mock.ras.store.register ).toHaveBeenCalledWith( key, { merge: expect.any( Function ) } );
+			}
+		} );
+
+		it( 'articles_read merge should take the max', () => {
+			const merge = getMerge( 'articles_read' );
+			expect( merge( 5, 10 ) ).toBe( 10 );
+			expect( merge( 10, 5 ) ).toBe( 10 );
+			expect( merge( 0, 5 ) ).toBe( 5 );
+			expect( merge( null, 5 ) ).toBe( 5 );
+		} );
+
+		it( 'paywall_hits merge should take the max', () => {
+			const merge = getMerge( 'paywall_hits' );
+			expect( merge( 3, 7 ) ).toBe( 7 );
+			expect( merge( 7, 3 ) ).toBe( 7 );
+		} );
+
+		it( 'article_view_per_week merge should deep-union periods and post IDs', () => {
+			const merge = getMerge( 'article_view_per_week' );
+			const server = { 100: { 1: true, 2: true }, 200: { 3: true } };
+			const client = { 100: { 2: true, 4: true }, 300: { 5: true } };
+			expect( merge( server, client ) ).toEqual( {
+				100: { 1: true, 2: true, 4: true },
+				200: { 3: true },
+				300: { 5: true },
+			} );
+		} );
+
+		it( 'article_view_per_month merge should deep-union periods and post IDs', () => {
+			const merge = getMerge( 'article_view_per_month' );
+			const server = { 100: { 1: true } };
+			const client = { 100: { 2: true } };
+			expect( merge( server, client ) ).toEqual( { 100: { 1: true, 2: true } } );
+		} );
+
+		it( 'article_view_per_week merge should handle null values', () => {
+			const merge = getMerge( 'article_view_per_week' );
+			const data = { 100: { 1: true } };
+			expect( merge( data, null ) ).toEqual( data );
+			expect( merge( null, data ) ).toEqual( data );
+		} );
+
+		it( 'favorite_categories merge should union with client-first ordering', () => {
+			const merge = getMerge( 'favorite_categories' );
+			expect( merge( [ 1, 2, 3 ], [ 4, 5 ] ) ).toEqual( [ 4, 5, 1, 2, 3 ] );
+		} );
+
+		it( 'favorite_categories merge should deduplicate', () => {
+			const merge = getMerge( 'favorite_categories' );
+			expect( merge( [ 1, 2, 3 ], [ 2, 3, 4 ] ) ).toEqual( [ 2, 3, 4, 1 ] );
+		} );
+
+		it( 'favorite_categories merge should cap at 5', () => {
+			const merge = getMerge( 'favorite_categories' );
+			expect( merge( [ 1, 2, 3 ], [ 4, 5, 6, 7 ] ) ).toHaveLength( 5 );
+		} );
+
+		it( 'favorite_categories merge should handle null values', () => {
+			const merge = getMerge( 'favorite_categories' );
+			expect( merge( [ 1, 2 ], null ) ).toEqual( [ 1, 2 ] );
+			expect( merge( null, null ) ).toEqual( [] );
+		} );
 	} );
 
 	function simulateArticleView( data, timestamp = Date.now() ) {

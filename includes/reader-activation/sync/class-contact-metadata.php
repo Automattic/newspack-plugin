@@ -128,9 +128,9 @@ abstract class Contact_Metadata {
 	}
 
 	/**
-	 * Format a date string to MM/DD/YYYY.
+	 * Format a date string.
 	 *
-	 * @param string $date_string Date string from WooCommerce.
+	 * @param string $date_string Date string.
 	 * @return string Formatted date or empty string.
 	 */
 	protected function format_date( $date_string ) {

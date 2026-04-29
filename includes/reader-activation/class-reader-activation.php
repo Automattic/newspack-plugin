@@ -35,6 +35,9 @@ final class Reader_Activation {
 	const WITHOUT_PASSWORD                  = 'np_reader_without_password';
 	const REGISTRATION_METHOD               = 'np_reader_registration_method';
 	const REGISTRATION_PAGE                 = 'np_reader_registration_page';
+	const REGISTRATION_UTM_SOURCE           = 'np_reader_registration_utm_source';
+	const REGISTRATION_UTM_MEDIUM           = 'np_reader_registration_utm_medium';
+	const REGISTRATION_UTM_CAMPAIGN         = 'np_reader_registration_utm_campaign';
 	const CONNECTED_ACCOUNT                 = 'np_reader_connected_account';
 	const READER_SAVED_GENERIC_DISPLAY_NAME = 'np_reader_saved_generic_display_name';
 
@@ -147,12 +150,13 @@ final class Reader_Activation {
 			'is_ras_enabled'        => self::is_enabled(),
 		];
 
+		$script_data = array_merge( $script_data, Reader_Registration::get_script_data() );
+
 		if ( Recaptcha::can_use_captcha() ) {
 			$recaptcha_version                = Recaptcha::get_setting( 'version' );
 			$script_dependencies[]            = Recaptcha::SCRIPT_HANDLE;
-			if ( 'v3' === $recaptcha_version ) {
-				$script_data['captcha_site_key'] = Recaptcha::get_site_key();
-			}
+			$script_data['captcha_site_key']  = Recaptcha::get_site_key();
+			$script_data['captcha_version']   = $recaptcha_version;
 		}
 
 		Newspack::load_common_assets();
@@ -1723,11 +1727,11 @@ final class Reader_Activation {
 					<input type="hidden" name="<?php echo \esc_attr( self::NEWSLETTERS_SIGNUP_FORM_ACTION ); ?>" value="1" />
 					<input type="hidden" name="email_address" value="<?php echo esc_attr( $email_address ); ?>" />
 
-					<div class="newsletter-list-container" data-list-default-size="<?php echo esc_attr( $default_list_size ); ?>">
+					<div class="newspack-ui__stack newspack-ui__stack--vertical newspack-ui__stack--gap-2 overflow-hidden position-relative newsletter-list-container" data-list-default-size="<?php echo esc_attr( $default_list_size ); ?>">
 					<?php
 					foreach ( $newsletters_lists as $list ) {
 						$checkbox_id = sprintf( 'newspack-plugin-list-%s', $list['id'] );
-						$is_hidden = $loop_index <= $default_list_size ? '' : 'hidden';
+						$is_hidden   = $loop_index <= $default_list_size ? '' : 'hidden';
 						$loop_index++;
 						?>
 						<label class="newspack-ui__input-card <?php echo esc_attr( $is_hidden ); ?>" for="<?php echo \esc_attr( $checkbox_id ); ?>">
@@ -1748,17 +1752,24 @@ final class Reader_Activation {
 							<?php endif; ?>
 						</label>
 						<?php
+						if ( $loop_index === (int) $default_list_size && count( $newsletters_lists ) > $default_list_size ) :
+							?>
+							<div class="newspack-ui__gradient-divider"></div>
+							<?php
+						endif;
 					}
 					?>
 					</div>
 
-					<?php if ( count( $newsletters_lists ) > $default_list_size ) : ?>
-						<button type="button" class="newspack-ui__button newspack-ui__button--wide newspack-ui__button--secondary see-all-button">
-							<span><?php esc_html_e( 'See all', 'newspack-plugin' ); ?></span>
-							<?php Newspack_UI_Icons::print_svg( 'arrowRight' ); ?>
-						</button>
-					<?php endif; ?>
-					<button type="submit" class="newspack-ui__button newspack-ui__button--wide newspack-ui__button--primary"><?php echo \esc_html( self::get_reader_activation_labels( 'newsletters_continue' ) ); ?></button>
+					<div class="newspack-ui__stack newspack-ui__stack--vertical newspack-ui__stack--gap-2 newspack-ui__spacing-top--5">
+						<?php if ( count( $newsletters_lists ) > $default_list_size ) : ?>
+							<button type="button" class="newspack-ui__button newspack-ui__button--wide newspack-ui__button--secondary see-all-button" aria-label="<?php esc_attr_e( 'See all newsletters', 'newspack-plugin' ); ?>">
+								<span aria-hidden="true"><?php esc_html_e( 'See all', 'newspack-plugin' ); ?></span>
+								<?php Newspack_UI_Icons::print_svg( 'chevronDownSmall' ); ?>
+							</button>
+						<?php endif; ?>
+						<button type="submit" class="newspack-ui__button newspack-ui__button--wide newspack-ui__button--primary"><?php echo \esc_html( self::get_reader_activation_labels( 'newsletters_continue' ) ); ?></button>
+					</div>
 				</form>
 			</div>
 		<?php
@@ -1793,15 +1804,17 @@ final class Reader_Activation {
 					</button>
 				</div>
 				<div class="newspack-ui__modal__content">
-					<p class="newspack-ui__font--xs details">
-						<?php echo \esc_html( self::get_reader_activation_labels( 'newsletters_details' ) ); ?>
-					</p>
-					<p class="newspack-ui__font--xs newspack-ui__color-text-gray recipient">
-						<?php echo esc_html( __( 'Sending to: ', 'newspack-plugin' ) ); ?>
-						<span class="email">
-							<?php echo esc_html( $email_address ); ?>
-						</span>
-					</p>
+					<div class="newspack-ui__stack newspack-ui__stack--vertical newspack-ui__stack--gap-0">
+						<p>
+							<?php echo \esc_html( self::get_reader_activation_labels( 'newsletters_details' ) ); ?>
+						</p>
+						<p class="newspack-ui__color-text-gray">
+							<?php echo esc_html( __( 'Sending to: ', 'newspack-plugin' ) ); ?>
+							<strong class="email">
+								<?php echo esc_html( $email_address ); ?>
+							</strong>
+						</p>
+					</div>
 					<?php self::render_newsletters_signup_form( $email_address, $newsletters_lists, $newsletter_list_initial_size ); ?>
 				</div>
 			</div>
@@ -2063,6 +2076,18 @@ final class Reader_Activation {
 		$redirect_url     = isset( $_POST['redirect_url'] ) ? \esc_url_raw( $_POST['redirect_url'] ) : '';
 		// phpcs:enable
 
+		// Capture UTM params before reconstructing the URL (which drops query params).
+		$registration_utm = [];
+		if ( ! empty( $current_page_url['query'] ) ) {
+			$query_params = [];
+			\wp_parse_str( $current_page_url['query'], $query_params );
+			foreach ( [ 'utm_source', 'utm_medium', 'utm_campaign' ] as $utm_param ) {
+				if ( ! empty( $query_params[ $utm_param ] ) ) {
+					$registration_utm[ $utm_param ] = \sanitize_text_field( $query_params[ $utm_param ] );
+				}
+			}
+		}
+
 		if ( ! empty( $current_page_url['path'] ) ) {
 			$current_page_url = \esc_url( \home_url( $current_page_url['path'] ) );
 		}
@@ -2168,6 +2193,9 @@ final class Reader_Activation {
 				}
 				if ( ! empty( $current_page_url ) ) {
 					$metadata['current_page_url'] = $current_page_url;
+				}
+				if ( ! empty( $registration_utm ) ) {
+					$metadata['registration_utm'] = $registration_utm;
 				}
 
 				$user_id = self::register_reader( $email, '', true, $metadata );
@@ -2388,6 +2416,33 @@ final class Reader_Activation {
 
 		if ( isset( $metadata['current_page_url'] ) ) {
 			\update_user_meta( $user_id, self::REGISTRATION_PAGE, $metadata['current_page_url'] );
+		}
+
+		// Save registration UTM params.
+		$utm_keys = [
+			'utm_source'   => self::REGISTRATION_UTM_SOURCE,
+			'utm_medium'   => self::REGISTRATION_UTM_MEDIUM,
+			'utm_campaign' => self::REGISTRATION_UTM_CAMPAIGN,
+		];
+		// Prefer explicitly passed UTM params (from process_auth_form).
+		$registration_utm = $metadata['registration_utm'] ?? [];
+		// Fallback: parse from the registration page URL if it has query params.
+		if ( empty( $registration_utm ) && ! empty( $metadata['current_page_url'] ) ) {
+			$parsed = \wp_parse_url( $metadata['current_page_url'] );
+			if ( ! empty( $parsed['query'] ) ) {
+				$query_params = [];
+				\wp_parse_str( $parsed['query'], $query_params );
+				foreach ( $utm_keys as $param => $meta_key ) {
+					if ( ! empty( $query_params[ $param ] ) ) {
+						$registration_utm[ $param ] = $query_params[ $param ];
+					}
+				}
+			}
+		}
+		foreach ( $utm_keys as $param => $meta_key ) {
+			if ( ! empty( $registration_utm[ $param ] ) ) {
+				\update_user_meta( $user_id, $meta_key, \sanitize_text_field( $registration_utm[ $param ] ) );
+			}
 		}
 
 		/**

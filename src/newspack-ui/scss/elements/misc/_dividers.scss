@@ -16,6 +16,15 @@
 		}
 	}
 
+	&__gradient-divider {
+		background: linear-gradient(to top, var(--newspack-ui-color-divider-start), var(--newspack-ui-color-divider-end));
+		bottom: 0;
+		height: var(--newspack-ui-spacer-6);
+		left: 0;
+		position: absolute;
+		right: 0;
+	}
+
 	hr {
 		background: var(--newspack-ui-color-border);
 		border: 0;

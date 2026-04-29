@@ -7,11 +7,12 @@
  */
 import { Fragment, useState, useEffect, useMemo } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
+import { __experimentalVStack as VStack } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
 
 /**
  * Internal dependencies
  */
-import { Grid, Notice, SelectControl, TextControl } from '../../../../../packages/components/src';
+import { Notice, SelectControl, TextControl } from '../../../../../packages/components/src';
 
 /**
  * Get select options from object of ad units.
@@ -88,13 +89,15 @@ const PlacementControl = ( {
 	const [ biddersErrors, setBiddersErrors ] = useState( {} );
 
 	// Ensure incoming value is available otherwise reset to empty values.
+	const showProviderSelect = providers.length > 1;
 	const placementProvider = useMemo(
 		() => ( value.provider ? providers.find( provider => provider?.id === value.provider ) : null ),
 		[ providers, value.provider ]
 	);
+	const effectiveProvider = showProviderSelect ? placementProvider : providers[ 0 ];
 	const placementAdUnit = useMemo(
-		() => ( value.ad_unit ? ( placementProvider?.units || [] ).find( u => u.value === value.ad_unit ) : null ),
-		[ placementProvider, value.ad_unit ]
+		() => ( value.ad_unit ? ( effectiveProvider?.units || [] ).find( u => u.value === value.ad_unit ) : null ),
+		[ effectiveProvider, value.ad_unit ]
 	);
 
 	useEffect( () => {
@@ -114,7 +117,7 @@ const PlacementControl = ( {
 					  );
 		} );
 		setBiddersErrors( errors );
-	}, [ placementProvider, placementAdUnit ] );
+	}, [ placementProvider, placementAdUnit, bidders ] );
 
 	if ( ! providers.length ) {
 		return <Notice isWarning noticeText={ __( 'There is no provider available.', 'newspack-plugin' ) } />;
@@ -122,63 +125,66 @@ const PlacementControl = ( {
 
 	return (
 		<Fragment>
-			<Grid columns={ 2 } gutter={ 32 }>
-				<SelectControl
-					label={ __( 'Provider', 'newspack-plugin' ) }
-					value={ placementProvider ? placementProvider.id : '' }
-					options={ getProvidersForSelect( providers ) }
-					onChange={ provider => onChange( { ...value, provider } ) }
-					disabled={ disabled }
-				/>
+			<VStack spacing={ 4 }>
+				{ showProviderSelect && (
+					<SelectControl
+						label={ __( 'Provider', 'newspack-plugin' ) }
+						value={ placementProvider ? placementProvider.id : '' }
+						options={ getProvidersForSelect( providers ) }
+						onChange={ provider => onChange( { ...value, provider } ) }
+						disabled={ disabled }
+					/>
+				) }
 				<SelectControl
 					label={ label }
 					value={ placementAdUnit ? placementAdUnit.value : '' }
-					options={ getProviderUnitsForSelect( placementProvider ) }
+					options={ getProviderUnitsForSelect( effectiveProvider ) }
 					onChange={ data => {
 						onChange( {
 							...value,
 							ad_unit: data,
+							...( ! showProviderSelect && { provider: effectiveProvider?.id } ),
 						} );
 					} }
 					disabled={ disabled }
 					{ ...props }
 				/>
-			</Grid>
-			{ placementProvider?.id === 'gam' &&
-				Object.keys( bidders ).map( bidderKey => {
-					const bidder = bidders[ bidderKey ];
-					// translators: %s: bidder name.
-					const bidderLabel = sprintf( __( '%s Placement ID', 'newspack-plugin' ), bidder.name );
-					return (
-						<TextControl
-							key={ bidderKey }
-							value={ value.bidders_ids ? value.bidders_ids[ bidderKey ] : null }
-							label={ bidderLabel }
-							disabled={ biddersErrors[ bidderKey ] || disabled }
-							onChange={ data => {
-								onChange( {
-									...value,
-									bidders_ids: {
-										...value.bidders_ids,
-										[ bidderKey ]: data,
-									},
-								} );
-							} }
-							{ ...props }
-						/>
-					);
-				} ) }
-			{ placementProvider?.id === 'gam' &&
-				Object.keys( biddersErrors ).map( bidderKey => {
-					if ( biddersErrors[ bidderKey ] ) {
+				{ effectiveProvider?.id === 'gam' &&
+					Object.keys( bidders ).map( bidderKey => {
+						const bidder = bidders[ bidderKey ];
+						// translators: %s: bidder name.
+						const bidderLabel = sprintf( __( '%s Placement ID', 'newspack-plugin' ), bidder.name );
 						return (
-							<Notice key={ bidderKey } isWarning>
-								{ biddersErrors[ bidderKey ] }
-							</Notice>
+							<TextControl
+								key={ bidderKey }
+								value={ value.bidders_ids ? value.bidders_ids[ bidderKey ] : null }
+								label={ bidderLabel }
+								disabled={ biddersErrors[ bidderKey ] || disabled }
+								onChange={ data => {
+									onChange( {
+										...value,
+										bidders_ids: {
+											...value.bidders_ids,
+											[ bidderKey ]: data,
+										},
+									} );
+								} }
+								{ ...props }
+							/>
 						);
-					}
-					return null;
-				} ) }
+					} ) }
+				{ effectiveProvider?.id === 'gam' &&
+					Object.keys( biddersErrors ).map( bidderKey => {
+						if ( biddersErrors[ bidderKey ] ) {
+							return (
+								<Notice key={ bidderKey } isWarning>
+									{ biddersErrors[ bidderKey ] }
+								</Notice>
+							);
+						}
+						return null;
+					} ) }
+			</VStack>
 		</Fragment>
 	);
 };

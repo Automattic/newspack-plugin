@@ -8,7 +8,7 @@
 import { __ } from '@wordpress/i18n';
 import { ToggleControl, __experimentalHStack as HStack, __experimentalVStack as VStack } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
 import { useDispatch } from '@wordpress/data';
-import { useRef, useState } from '@wordpress/element';
+import { useEffect, useRef, useState } from '@wordpress/element';
 
 /**
  * Internal dependencies
@@ -25,16 +25,22 @@ type PremiumNewslettersConfig = {
 
 const AdvancedSettings = ( { closeModal, showModal }: { closeModal: () => void; showModal: boolean } ) => {
 	const wizardData = useWizardData( PREMIUM_NEWSLETTERS_WIZARD_SLUG ) as WizardData;
+	const initialConfig = { ...( ( wizardData?.config as PremiumNewslettersConfig ) || { auto_signup: true } ) };
 	const { wizardApiFetch, isFetching, resetError, setError } = useWizardApiFetch( PREMIUM_NEWSLETTERS_WIZARD_SLUG );
 	const { addNotice, resetNotices, updateWizardSettings } = useDispatch( WIZARD_STORE_NAMESPACE );
-	const [ config, setConfig ] = useState< PremiumNewslettersConfig >( ( wizardData?.config as PremiumNewslettersConfig ) || { auto_signup: true } );
+	const [ config, setConfig ] = useState< PremiumNewslettersConfig >( initialConfig );
+
+	useEffect( () => {
+		if ( showModal ) {
+			setConfig( initialConfig );
+		}
+	}, [ showModal ] );
 
 	const updateConfig = useRef< ( _config: PremiumNewslettersConfig ) => void >();
 	const handleUpdateConfig = ( _config: PremiumNewslettersConfig ) => {
 		if ( isFetching ) {
 			return;
 		}
-		const oldConfig = { ...( wizardData?.config as PremiumNewslettersConfig ) };
 		resetError();
 		resetNotices();
 		wizardApiFetch< Gate >(
@@ -57,7 +63,7 @@ const AdvancedSettings = ( { closeModal, showModal }: { closeModal: () => void; 
 						message: __( 'Settings updated.', 'newspack-plugin' ),
 						type: 'success',
 						id: 'premium-newsletters-advanced-settings-updated',
-						actions: [ { label: __( 'Undo', 'newspack-plugin' ), onClick: () => updateConfig.current?.( oldConfig ) } ],
+						actions: [ { label: __( 'Undo', 'newspack-plugin' ), onClick: () => updateConfig.current?.( initialConfig ) } ],
 					} );
 				},
 				onError: ( fetchError: WpFetchError ) => {

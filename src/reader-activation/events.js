@@ -5,6 +5,7 @@ export const EVENTS = {
 	data: 'data',
 	activity: 'activity',
 	overlay: 'overlay',
+	segment: 'segment',
 	session: 'session',
 };
 

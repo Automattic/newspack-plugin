@@ -3,7 +3,7 @@
  */
 
 @use "~@wordpress/base-styles/colors" as wp-colors;
-@use "~@wordpress/base-styles/variables" as wp;
+@use "~@wordpress/base-styles/variables" as wp-vars;
 
 .audience_page_newspack-audience-access-control,
 .newspack-premium-newsletters {
@@ -26,9 +26,9 @@
 			}
 			&__settings {
 				h4 {
-					font-size: wp.$font-size-small;
-					font-weight: wp.$font-weight-medium;
-					line-height: wp.$font-line-height-small;
+					font-size: wp-vars.$font-size-small;
+					font-weight: wp-vars.$font-weight-medium;
+					line-height: wp-vars.$font-line-height-small;
 					margin-bottom: 8px;
 					text-transform: uppercase;
 				}

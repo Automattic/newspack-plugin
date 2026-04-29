@@ -14,6 +14,7 @@ export function createMockRAS() {
 			set: jest.fn( ( key, value ) => {
 				storeData[ key ] = value;
 			} ),
+			register: jest.fn(),
 		},
 		on: jest.fn( ( event, callback ) => {
 			handlers[ event ] = callback;

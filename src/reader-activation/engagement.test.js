@@ -1,3 +1,5 @@
+// @jest-environment jsdom
+
 import setupEngagement from './engagement';
 import { createMockRAS } from './mocks/ras';
 
@@ -6,50 +8,79 @@ describe( 'setupEngagement', () => {
 
 	beforeEach( () => {
 		mock = createMockRAS();
-		window.newspack_reader_data = {};
 	} );
 
 	afterEach( () => {
 		mock.reset();
-		delete window.newspack_reader_data;
 	} );
 
-	it( 'should set first_visit_date on first call', () => {
+	it( 'should register a merge strategy for first_visit_date', () => {
 		setupEngagement( mock.ras );
-		expect( mock.ras.store.set ).toHaveBeenCalledWith( 'first_visit_date', expect.any( Number ) );
+		expect( mock.ras.store.register ).toHaveBeenCalledWith( 'first_visit_date', {
+			merge: expect.any( Function ),
+		} );
 	} );
 
-	it( 'should preserve existing client first_visit_date when no server value', () => {
+	it( 'should register a merge strategy for last_active', () => {
+		setupEngagement( mock.ras );
+		expect( mock.ras.store.register ).toHaveBeenCalledWith( 'last_active', {
+			merge: expect.any( Function ),
+		} );
+	} );
+
+	describe( 'first_visit_date merge', () => {
+		function getFirstVisitMerge() {
+			setupEngagement( mock.ras );
+			const call = mock.ras.store.register.mock.calls.find( ( [ key ] ) => key === 'first_visit_date' );
+			return call[ 1 ].merge;
+		}
+
+		it( 'should return the older of two values', () => {
+			const merge = getFirstVisitMerge();
+			expect( merge( 1000, 9999 ) ).toBe( 1000 );
+			expect( merge( 9999, 1000 ) ).toBe( 1000 );
+		} );
+
+		it( 'should return the existing value when only one is present', () => {
+			const merge = getFirstVisitMerge();
+			expect( merge( 1000, null ) ).toBe( 1000 );
+			expect( merge( null, 1000 ) ).toBe( 1000 );
+		} );
+
+		it( 'should return Date.now() when neither value exists', () => {
+			const merge = getFirstVisitMerge();
+			const before = Date.now();
+			const result = merge( null, null );
+			const after = Date.now();
+			expect( result ).toBeGreaterThanOrEqual( before );
+			expect( result ).toBeLessThanOrEqual( after );
+		} );
+	} );
+
+	describe( 'last_active merge', () => {
+		function getLastActiveMerge() {
+			setupEngagement( mock.ras );
+			const call = mock.ras.store.register.mock.calls.find( ( [ key ] ) => key === 'last_active' );
+			return call[ 1 ].merge;
+		}
+
+		it( 'should return the newer of two values', () => {
+			const merge = getLastActiveMerge();
+			expect( merge( 1000, 9999 ) ).toBe( 9999 );
+			expect( merge( 9999, 1000 ) ).toBe( 9999 );
+		} );
+	} );
+
+	it( 'should set first_visit_date default on first visit', () => {
+		setupEngagement( mock.ras );
+		const before = Date.now();
+		expect( mock.storeData.first_visit_date ).toBeGreaterThanOrEqual( before - 10 );
+	} );
+
+	it( 'should not overwrite existing client first_visit_date', () => {
 		mock.storeData.first_visit_date = 1000;
 		setupEngagement( mock.ras );
 		expect( mock.storeData.first_visit_date ).toBe( 1000 );
-	} );
-
-	it( 'should prefer older server value over newer client value', () => {
-		const oldServerValue = 1000;
-		const newClientValue = 9999;
-		mock.storeData.first_visit_date = newClientValue;
-		window.newspack_reader_data = {
-			items: { first_visit_date: JSON.stringify( oldServerValue ) },
-		};
-		setupEngagement( mock.ras );
-		expect( mock.storeData.first_visit_date ).toBe( oldServerValue );
-	} );
-
-	it( 'should prefer older client value over newer server value', () => {
-		const oldClientValue = 1000;
-		const newServerValue = 9999;
-		mock.storeData.first_visit_date = oldClientValue;
-		window.newspack_reader_data = {
-			items: { first_visit_date: JSON.stringify( newServerValue ) },
-		};
-		setupEngagement( mock.ras );
-		expect( mock.storeData.first_visit_date ).toBe( oldClientValue );
-	} );
-
-	it( 'should always set last_active', () => {
-		setupEngagement( mock.ras );
-		expect( mock.ras.store.set ).toHaveBeenCalledWith( 'last_active', expect.any( Number ) );
 	} );
 
 	it( 'should set last_active to a recent timestamp', () => {

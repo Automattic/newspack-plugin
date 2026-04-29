@@ -164,6 +164,24 @@ class Audience_Content_Gates extends Wizard {
 
 		register_rest_route(
 			NEWSPACK_API_NAMESPACE,
+			'/wizard/' . $this->slug . '/settings',
+			[
+				'methods'             => 'POST',
+				'callback'            => [ $this, 'update_settings' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+				'args'                => [
+					'advanced_settings' => [
+						'type'       => 'object',
+						'properties' => [
+							'restrict_feeds' => [ 'type' => 'boolean' ],
+						],
+					],
+				],
+			]
+		);
+
+		register_rest_route(
+			NEWSPACK_API_NAMESPACE,
 			'/wizard/' . $this->slug . '/content-gifting',
 			[
 				'methods'             => 'POST',
@@ -322,11 +340,25 @@ class Audience_Content_Gates extends Wizard {
 		$config = [
 			'gates'  => Content_Gate::get_gates(),
 			'config' => [
-				'countdown_banner' => Metering_Countdown::get_settings(),
-				'content_gifting'  => Content_Gifting::get_settings(),
+				'countdown_banner'  => Metering_Countdown::get_settings(),
+				'content_gifting'   => Content_Gifting::get_settings(),
+				'advanced_settings' => Content_Gate_Advanced_Settings::get_settings(),
 			],
 		];
 		return rest_ensure_response( $config );
+	}
+
+	/**
+	 * Update advanced settings.
+	 *
+	 * @param \WP_REST_Request $request The request object.
+	 *
+	 * @return \WP_REST_Response|\WP_Error
+	 */
+	public function update_settings( $request ) {
+		$settings = $request->get_param( 'advanced_settings' );
+		$updated = Content_Gate_Advanced_Settings::update_settings( $settings );
+		return rest_ensure_response( $updated );
 	}
 
 	/**

@@ -119,6 +119,7 @@ class WC_Customer {
 
 $orders_database = [];
 $subscriptions_database = [];
+$products_database = [];
 
 class WC_Order_Item_Product {
 	private $data = [];
@@ -159,8 +160,18 @@ class WC_Product {
 	}
 }
 
-
-$products_database = [];
+/**
+ * Register a mock product in the global products database.
+ *
+ * @param array $data Product data including 'id', 'children', 'type', 'name', 'price'.
+ * @return WC_Product
+ */
+function wc_create_mock_product( $data = [] ) {
+	global $products_database;
+	$product = new WC_Product( $data );
+	$products_database[ $product->get_id() ] = $product;
+	return $product;
+}
 
 class WC_Order {
 	public $data = [];
