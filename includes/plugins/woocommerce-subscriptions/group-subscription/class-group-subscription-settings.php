@@ -526,6 +526,7 @@ class Group_Subscription_Settings {
 		$selected = isset( $_GET['_newspack_group_subscription'] ) ? \sanitize_text_field( \wp_unslash( $_GET['_newspack_group_subscription'] ) ) : '';
 
 		?>
+		<label class="screen-reader-text" for="_newspack_group_subscription"><?php \esc_html_e( 'Filter by group subscription status', 'newspack-plugin' ); ?></label>
 		<select name="_newspack_group_subscription" id="_newspack_group_subscription">
 			<option value=""><?php \esc_html_e( 'All subscriptions', 'newspack-plugin' ); ?></option>
 			<option value="group" <?php selected( $selected, 'group' ); ?>><?php \esc_html_e( 'Group subscriptions', 'newspack-plugin' ); ?></option>
