@@ -14,6 +14,15 @@ require_once __DIR__ . '/../mocks/wc-mocks.php';
  */
 class Newspack_Test_Data_Events extends WP_UnitTestCase {
 	/**
+	 * Always reset any global product state mutated by tests, even if
+	 * an assertion fails partway through.
+	 */
+	public function tear_down() {
+		$this->reset_donation_products();
+		parent::tear_down();
+	}
+
+	/**
 	 * Test registering an action.
 	 */
 	public function test_register_action() {
@@ -1188,7 +1197,6 @@ class Newspack_Test_Data_Events extends WP_UnitTestCase {
 	 * Donation product is flagged via is_donation; recurrence comes from product meta.
 	 */
 	public function test_woo_order_updated_payload_recurrence_and_is_donation() {
-		$this->reset_donation_products();
 		$donation_ids = $this->setup_donation_products();
 
 		$order = $this->create_order_with_items(
@@ -1217,8 +1225,6 @@ class Newspack_Test_Data_Events extends WP_UnitTestCase {
 
 		$this->assertFalse( $by_product['T-shirt']['is_donation'] );
 		$this->assertSame( 'once', $by_product['T-shirt']['recurrence'] );
-
-		$this->reset_donation_products();
 	}
 
 	/**
