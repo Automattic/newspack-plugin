@@ -1431,13 +1431,13 @@ class Newspack_Test_Data_Events extends WP_UnitTestCase {
 		$payloads = \Newspack\Data_Events\Utils::get_woo_subscription_updated_payloads( $subscription, 'active' );
 
 		$this->assertCount( 2, $payloads );
-		$names = array_map(
-			static function ( $p ) {
-				return $p['product_name'];
-			},
-			$payloads
-		);
-		$this->assertContains( 'Monthly Plan', $names );
-		$this->assertContains( 'Second Tier', $names );
+		$by_product = [];
+		foreach ( $payloads as $payload ) {
+			$by_product[ $payload['product_name'] ] = $payload;
+		}
+		$this->assertSame( 30.00, $by_product['Monthly Plan']['amount'] );
+		$this->assertSame( 5.00, $by_product['Second Tier']['amount'] );
+		$this->assertSame( 9001, $by_product['Monthly Plan']['product_id'] );
+		$this->assertSame( 9002, $by_product['Second Tier']['product_id'] );
 	}
 }
