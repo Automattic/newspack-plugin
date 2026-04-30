@@ -14,24 +14,25 @@ The brief is the spec. The devlog is the history. **This guide is the map** — 
 ### Entry URL
 
 ```
-/my-account/?v2-demo=1
+/my-account/?my-account-v2-demo=1
 ```
 
 Logged in as an administrator (`manage_options`). Any other user — non-admin, anonymous, even an admin without the query parameter — sees v1 unchanged. The flag is preserved on every internal nav click, so once you're in the demo you stay in it.
 
-The same flag works on every account-page URL:
+The same flag works on every account-page URL plus the site homepage:
 
-- `/my-account/?v2-demo=1` — Dashboard (v1 — the demo doesn't customise this)
-- `/my-account/newsletters/?v2-demo=1`
-- `/my-account/donations/?v2-demo=1`
-- `/my-account/donations/<id>/?v2-demo=1` (e.g. `don-001`, `don-cancelled`, `don-onetime-1`)
-- `/my-account/subscriptions/?v2-demo=1`
-- `/my-account/subscriptions/<id>/?v2-demo=1` (e.g. `sub-001`)
-- `/my-account/payment-methods/?v2-demo=1`
+- `/?my-account-v2-demo=1` — Homepage drawer overlay (greeting + sidebar mirror)
+- `/my-account/?my-account-v2-demo=1` — Dashboard (v1 — the demo doesn't customise this)
+- `/my-account/newsletters/?my-account-v2-demo=1`
+- `/my-account/donations/?my-account-v2-demo=1`
+- `/my-account/donations/<id>/?my-account-v2-demo=1` (e.g. `don-001`, `don-cancelled`, `don-onetime-1`)
+- `/my-account/subscriptions/?my-account-v2-demo=1`
+- `/my-account/subscriptions/<id>/?my-account-v2-demo=1` (e.g. `sub-001`)
+- `/my-account/payment-methods/?my-account-v2-demo=1`
 
 ### Scenario index
 
-`?v2-demo=<scenario>` switches the fake-data fixture. Anything outside the allow-list (typos, `?v2-demo=1`, no value at all) falls through to the happy path.
+`?my-account-v2-demo=<scenario>` switches the fake-data fixture. Anything outside the allow-list (typos, `?my-account-v2-demo=1`, no value at all) falls through to the happy path.
 
 | Scenario | What it does | Figma frame |
 |---|---|---|
@@ -52,13 +53,13 @@ The full Figma node-id index for non-scenario screens is in [brief Appendix A](m
 
 ### Per-flow walkthroughs
 
-**Newsletters** ([`templates/v2-demo/newsletters.php`](../includes/plugins/woocommerce/my-account/templates/v2-demo/newsletters.php) · [`src/my-account/v2-demo/newsletters.js`](../src/my-account/v2-demo/newsletters.js)). Sectioned list (Featured / Technology / Subscriber-only) of newsletter rows. Each row's *Sign up* / *Unsubscribe* button toggles the row's subscribed state in the DOM and fires a snackbar — no fetch, state resets on reload. The bottom *Unsubscribe from all* button cascades the toggle and disables itself once nothing is subscribed. `?v2-demo=no-categories` flattens the sections.
+**Newsletters** ([`templates/v2-demo/newsletters.php`](../includes/plugins/woocommerce/my-account/templates/v2-demo/newsletters.php) · [`src/my-account/v2-demo/newsletters.js`](../src/my-account/v2-demo/newsletters.js)). Sectioned list (Featured / Technology / Subscriber-only) of newsletter rows. Each row's *Sign up* / *Unsubscribe* button toggles the row's subscribed state in the DOM and fires a snackbar — no fetch, state resets on reload. The bottom *Unsubscribe from all* button cascades the toggle and disables itself once nothing is subscribed. `?my-account-v2-demo=no-categories` flattens the sections.
 
 **Donations** ([`donations.php`](../includes/plugins/woocommerce/my-account/templates/v2-demo/donations.php) · [`donation-details.php`](../includes/plugins/woocommerce/my-account/templates/v2-demo/donation-details.php) · [`donations.js`](../src/my-account/v2-demo/donations.js)). List has *Active recurring* + *Previous donations* sections. Click a donation card → detail page. Detail page branches on `kind` (`recurring` / `one_time`) + `status` (`active` / `cancelled`) + `fees_covered` — one template, four visual variants. Header buttons / dropdown items open client-side modals: **Modify donation** (recomputes totals as the amount changes — Phase 5 math is approximate; submit fires a snackbar), **Cancel donation** (two-step: confirm → success), **Restart donation** (single-screen, submit fires a snackbar — no success state in Figma).
 
 **Subscriptions** ([`subscriptions.php`](../includes/plugins/woocommerce/my-account/templates/v2-demo/subscriptions.php) · [`subscription-details.php`](../includes/plugins/woocommerce/my-account/templates/v2-demo/subscription-details.php) · [`subscriptions.js`](../src/my-account/v2-demo/subscriptions.js)). List has one Active card and two Previous cards. Detail template branches on `status` (`active` / `cancelled` / `expiring` / `renewed`) + `fees_covered`. Header offers **Change subscription** (segmented control: frequency tabs + tier cards → transaction step with billing readout + payment form; *Pay now* fires a snackbar and closes), **Cancel subscription** (two-step: confirm → success), and **Renew subscription** on cancelled / expiring (init → success). The expiring variant adds an inline notice with a `renew now` link. **Update payment method** is a snackbar stub — productionisation hooks it to the v1 checkout flow.
 
-**Payment methods** ([`payment-methods.php`](../includes/plugins/woocommerce/my-account/templates/v2-demo/payment-methods.php) · [`payment-methods.js`](../src/my-account/v2-demo/payment-methods.js)). WC core's `<table class="account-payment-methods-table">` DOM rebuilt on the fake `payment_methods` slice. *Make default* / *Delete* / *Add payment method* are all stub snackbars. Inline Default badge sits next to the brand on the default row; under `?v2-demo=expired-payment` an inline `Expired` badge sits next to the non-default row.
+**Payment methods** ([`payment-methods.php`](../includes/plugins/woocommerce/my-account/templates/v2-demo/payment-methods.php) · [`payment-methods.js`](../src/my-account/v2-demo/payment-methods.js)). WC core's `<table class="account-payment-methods-table">` DOM rebuilt on the fake `payment_methods` slice. *Make default* / *Delete* / *Add payment method* are all stub snackbars. Inline Default badge sits next to the brand on the default row; under `?my-account-v2-demo=expired-payment` an inline `Expired` badge sits next to the non-default row.
 
 ---
 
@@ -116,7 +117,7 @@ Top-level slices:
 | `template_redirect` | 8 | `takeover_payment_methods_endpoint` | Same shape — drops WC core's `woocommerce_account_payment_methods` callback + v1's `wc_get_template` swap to `payment-information.php` |
 | `template_redirect` | 9 | `redirect_non_demo_v2_endpoints` | Bounces non-demo guessers off `/newsletters/`, `/donations/`, and `/subscriptions/` (the last only when WCS isn't installed). Runs *after* takeovers so a non-demo user can't take over anything they then redirect away from |
 | `woocommerce_account_menu_items` | 1100 | `menu_items` | Inserts Newsletters / Donations / Subscriptions / Payment methods after `edit-account`. v1 runs at 1001, so this layers on top |
-| `woocommerce_get_endpoint_url` | 10 | `preserve_demo_flag_on_endpoint_url` | Re-appends the *original* flag value (e.g. `?v2-demo=cancelled-sub`) to every internal endpoint URL — sidebar, post-login redirect, the WC redirect-to-account-details bounce |
+| `woocommerce_get_endpoint_url` | 10 | `preserve_demo_flag_on_endpoint_url` | Re-appends the *original* flag value (e.g. `?my-account-v2-demo=cancelled-sub`) to every internal endpoint URL — sidebar, post-login redirect, the WC redirect-to-account-details bounce |
 
 Endpoint registration (`add_rewrite_endpoint` for `newsletters`, `donations`, `subscriptions`, all `EP_PAGES`) is called **directly from `init()`**, not through `add_action('init', …)`. The class is itself loaded inside an `init` callback, so a deferred action would register too late. `add_rewrite_endpoint` is idempotent — re-registering `subscriptions` on a WCS-installed site is a no-op.
 
@@ -172,7 +173,7 @@ Production deploys clear opcache, so this only bites in dev.
 
 ### Scenario merge flow
 
-1. `get_scenario()` reads `$_GET['v2-demo']`, sanitises, returns the value iff it's in `SCENARIOS` — anything else (typos, malicious values, `1`) returns `''`.
+1. `get_scenario()` reads `$_GET['my-account-v2-demo']`, sanitises, returns the value iff it's in `SCENARIOS` — anything else (typos, malicious values, `1`) returns `''`.
 2. `get_fake_data()` builds the base fixture, then short-circuits if the scenario is empty or hands off to `apply_scenario($base, $scenario)`.
 3. `apply_scenario()` is a single switch dispatcher. Each case is a small mutation:
    - **Pluck-from-pool** (subscription state swaps) — `$pool = self::get_subscription_fixtures(); $data['subscriptions']['active'] = [ $pool['sub-expiring'] ];`
@@ -218,7 +219,7 @@ remove_action( 'woocommerce_account_subscriptions_endpoint', [ \Newspack\WooComm
 
 See cross-phase decision log rows for [Phase 4](my-account-v2-prototype-devlog.md#decision-log-cross-phase) (subscriptions takeover) and Phase 6 (payment-methods takeover).
 
-### Drop the `?v2-demo` gate
+### Drop the `?my-account-v2-demo` gate
 
 - Remove `is_demo_active()` short-circuits across every callback in the class.
 - Remove the `query_vars` filter entry for `v2-demo`.

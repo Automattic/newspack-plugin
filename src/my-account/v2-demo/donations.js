@@ -72,7 +72,7 @@ function wireListRoot( root ) {
 
 	// "Billing history" Button Card has no Phase 3 destination — wire a
 	// stub snackbar so the card actually does something when clicked.
-	// `?v2-demo=billing-history` (Phase 7) flips `billing_history_inline`
+	// `?my-account-v2-demo=billing-history` (Phase 7) flips `billing_history_inline`
 	// to true and replaces the card with the embedded table, so this
 	// listener only fires for the default Button Card variant.
 	root.addEventListener( 'click', event => {

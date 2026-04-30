@@ -106,7 +106,7 @@ $columns         = \wc_get_account_payment_methods_columns();
 									// Inline Expired badge — mirrors v1's
 									// `payment-information.php` pattern (same
 									// `__badge--secondary` variant). Surfaces
-									// under `?v2-demo=expired-payment`.
+									// under `?my-account-v2-demo=expired-payment`.
 									echo ' <span class="newspack-ui__badge newspack-ui__badge--secondary">' . \esc_html__( 'Expired', 'newspack-plugin' ) . '</span>';
 								}
 								if ( $is_default ) {

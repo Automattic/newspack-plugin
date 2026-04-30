@@ -12,7 +12,7 @@
  *    Right-side meta text is derived from status (Cancelled / Expired).
  *
  * Detail-page-only variants (renewed / no-fees / expiring detail) are
- * surfaced via Phase 7 scenario fixtures (`?v2-demo=renewed` etc.) which
+ * surfaced via Phase 7 scenario fixtures (`?my-account-v2-demo=renewed` etc.) which
  * swap which fixture appears in the active slot. See apply_scenario().
  *
  * Pure newspack-ui composition — see brief §6.

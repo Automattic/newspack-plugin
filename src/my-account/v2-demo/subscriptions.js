@@ -364,7 +364,7 @@ function handleActionClick( root, event ) {
 /**
  * Wire the list root. The only triggerable action on the list page is the
  * inline "renew now" anchor inside the expiring active card's notice. With
- * Phase 7 scenario fixtures, `?v2-demo=expiring` swaps an expiring sub
+ * Phase 7 scenario fixtures, `?my-account-v2-demo=expiring` swaps an expiring sub
  * into `active` and the renew modal renders alongside, so the same
  * `handleActionClick` handler used on the detail page picks it up. Without
  * the scenario, the active bucket holds sub-001 (status=active) and the

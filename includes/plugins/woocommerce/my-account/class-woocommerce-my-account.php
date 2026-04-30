@@ -87,7 +87,7 @@ class WooCommerce_My_Account {
 					} else {
 						include_once __DIR__ . '/class-my-account-ui-v1.php';
 						include_once __DIR__ . '/class-my-account-ui-v1-passwords.php';
-						// v2 prototype demo. Admin-only, gated by ?v2-demo on
+						// v2 prototype demo. Admin-only, gated by ?my-account-v2-demo on
 						// /my-account/. Loaded after v1 so v1's filters register
 						// first; later phases re-filter selected v1 hooks at
 						// higher priorities to override only when the demo is

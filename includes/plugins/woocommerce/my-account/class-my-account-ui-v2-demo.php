@@ -2,7 +2,7 @@
 /**
  * Newspack "My Account" v2 prototype demo.
  *
- * Admin-only, gated by the `?v2-demo` query parameter on /my-account/. See
+ * Admin-only, gated by the `?my-account-v2-demo` query parameter on /my-account/. See
  * docs/my-account-v2-prototype-brief.md for the full spec. Phase 2 swaps in
  * real templates for newsletters, registers the `newsletters` endpoint, and
  * adds the v2 menu item. Phase 3 adds the `donations` endpoint plus list and
@@ -25,16 +25,15 @@ defined( 'ABSPATH' ) || exit;
  * Newspack "My Account" v2 prototype demo gate.
  */
 final class My_Account_UI_V2_Demo {
-	const DEMO_FLAG          = 'v2-demo';
-	const HOMEPAGE_DEMO_FLAG = 'my-account-v2-demo';
-	const BODY_CLASS         = 'newspack-my-account--v2-demo';
+	const DEMO_FLAG           = 'my-account-v2-demo';
+	const BODY_CLASS          = 'newspack-my-account--v2-demo';
 	const HOMEPAGE_BODY_CLASS = 'newspack-my-account--v2-demo-homepage';
-	const ENDPOINTS_OPTION   = 'newspack_my_account_v2_demo_endpoints_version';
+	const ENDPOINTS_OPTION    = 'newspack_my_account_v2_demo_endpoints_version';
 	/**
-	 * Recognised scenario names. The query parameter `?v2-demo=<scenario>`
+	 * Recognised scenario names. The query parameter `?my-account-v2-demo=<scenario>`
 	 * triggers a deterministic merge into the base fake-data fixture so each
 	 * variant frame in Figma is reachable from a stable URL. The default
-	 * `?v2-demo=1` (or any other value) yields the happy path with no
+	 * `?my-account-v2-demo=1` (or any other value) yields the happy path with no
 	 * overrides — see apply_scenario() and brief §7.
 	 */
 	const SCENARIOS = [
@@ -132,7 +131,7 @@ final class My_Account_UI_V2_Demo {
 		// when WC Subscriptions is installed, it owns the endpoint for non-
 		// demo users, so we don't bounce them off `/my-account/subscriptions/`.
 		\add_action( 'template_redirect', [ __CLASS__, 'redirect_non_demo_v2_endpoints' ], 9 );
-		// Preserve `?v2-demo` on every internal nav link (sidebar, post-login
+		// Preserve `?my-account-v2-demo` on every internal nav link (sidebar, post-login
 		// redirect, etc.) so a single click can't drop you back into v1.
 		\add_filter( 'woocommerce_get_endpoint_url', [ __CLASS__, 'preserve_demo_flag_on_endpoint_url' ], 10, 4 );
 		// Register custom endpoints + auto-flush rewrite rules once per
@@ -183,7 +182,7 @@ final class My_Account_UI_V2_Demo {
 	}
 
 	/**
-	 * Read the current scenario name from `?v2-demo=<scenario>`. Returns the
+	 * Read the current scenario name from `?my-account-v2-demo=<scenario>`. Returns the
 	 * empty string when the flag is `1` / unset / not in the SCENARIOS list,
 	 * so callers can short-circuit the happy path with a single is-empty
 	 * check. Sanitised because it's read from $_GET; gating happens upstream
@@ -210,7 +209,6 @@ final class My_Account_UI_V2_Demo {
 	 */
 	public static function query_vars( $vars ) {
 		$vars[] = self::DEMO_FLAG;
-		$vars[] = self::HOMEPAGE_DEMO_FLAG;
 		$vars[] = 'newsletters';
 		$vars[] = 'donations';
 		// `subscriptions` may already be registered as a query var by WC
@@ -229,7 +227,7 @@ final class My_Account_UI_V2_Demo {
 	 */
 	public static function is_homepage_demo_active() {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		if ( ! isset( $_GET[ self::HOMEPAGE_DEMO_FLAG ] ) ) {
+		if ( ! isset( $_GET[ self::DEMO_FLAG ] ) ) {
 			return false;
 		}
 		// Sites with `show_on_front=page` route `/` to a static page, so
@@ -375,7 +373,7 @@ final class My_Account_UI_V2_Demo {
 	/**
 	 * Filter the v1 sidebar's "Back to Homepage" URL so it carries the
 	 * homepage demo flag when the my-account demo is active. Clicking the
-	 * back link from a /my-account/?v2-demo page now reopens the homepage
+	 * back link from a /my-account/?my-account-v2-demo page now reopens the homepage
 	 * overlay instead of dropping into the bare site.
 	 *
 	 * @param string $url Default home URL.
@@ -385,7 +383,7 @@ final class My_Account_UI_V2_Demo {
 		if ( ! self::is_demo_active() ) {
 			return $url;
 		}
-		return \add_query_arg( self::HOMEPAGE_DEMO_FLAG, '1', $url );
+		return \add_query_arg( self::DEMO_FLAG, '1', $url );
 	}
 
 	/**
@@ -672,7 +670,7 @@ final class My_Account_UI_V2_Demo {
 	/**
 	 * Build a v2-demo donations URL — bare endpoint when $id is empty, detail
 	 * URL otherwise. Goes through `wc_get_endpoint_url`, which fires the
-	 * `woocommerce_get_endpoint_url` filter so our `?v2-demo=1` preservation
+	 * `woocommerce_get_endpoint_url` filter so our `?my-account-v2-demo=1` preservation
 	 * kicks in automatically — list/detail/sidebar links all stay in the demo.
 	 *
 	 * @param string $id Donation id, or '' for the list URL.
@@ -742,7 +740,7 @@ final class My_Account_UI_V2_Demo {
 	/**
 	 * Build a v2-demo subscriptions URL — bare endpoint when $id is empty,
 	 * detail URL otherwise. Same plumbing as donations_url(); the
-	 * woocommerce_get_endpoint_url filter re-appends ?v2-demo automatically.
+	 * woocommerce_get_endpoint_url filter re-appends ?my-account-v2-demo automatically.
 	 *
 	 * @param string $id Subscription id, or '' for the list URL.
 	 * @return string
@@ -755,7 +753,7 @@ final class My_Account_UI_V2_Demo {
 	/**
 	 * Look up a single subscription in the fake-data array by id, across the
 	 * `active` and `previous` buckets. Phase 7 retired the prior `extras`
-	 * pool: scenarios (`?v2-demo=expiring` / `=renewed` / `=no-fees` /
+	 * pool: scenarios (`?my-account-v2-demo=expiring` / `=renewed` / `=no-fees` /
 	 * `=cancelled-sub`) now swap each variant fixture into the `active` slot,
 	 * so every detail variant is reachable through its scenario URL without
 	 * a separate detail-only bucket.
@@ -801,7 +799,7 @@ final class My_Account_UI_V2_Demo {
 	}
 
 	/**
-	 * Append `?v2-demo` to every account endpoint URL so internal nav, the
+	 * Append `?my-account-v2-demo` to every account endpoint URL so internal nav, the
 	 * post-login redirect, and the WC redirect-to-account-details bounce all
 	 * keep the demo active. Filter only runs on demo requests, so non-demo
 	 * users see unchanged URLs.
@@ -817,7 +815,7 @@ final class My_Account_UI_V2_Demo {
 		if ( ! self::is_demo_active() && ! self::is_homepage_demo_active() ) {
 			return $url;
 		}
-		// Preserve the original flag value (e.g. `?v2-demo=cancelled-sub` per
+		// Preserve the original flag value (e.g. `?my-account-v2-demo=cancelled-sub` per
 		// brief §7 scenario fixtures), not just `'1'`. Falls back to `'1'`
 		// for the happy path. The two gates above already restrict to admin
 		// caps + the demo URL surfaces, so reading $_GET here is safe.
@@ -834,7 +832,7 @@ final class My_Account_UI_V2_Demo {
 	 *
 	 * The base fixture is the happy path (one active recurring donation,
 	 * one active subscription, one cancelled + one expired previous, two
-	 * saved cards). Scenario overrides via `?v2-demo=<scenario>` (Phase 7)
+	 * saved cards). Scenario overrides via `?my-account-v2-demo=<scenario>` (Phase 7)
 	 * are merged on top — see apply_scenario() and brief §7.
 	 *
 	 * @return array
@@ -1308,7 +1306,7 @@ final class My_Account_UI_V2_Demo {
 				],
 			],
 			// Bottom of the list page: render the Button Card by default
-			// (Figma 2636:46467). Phase 7 scenario `?v2-demo=billing-history`
+			// (Figma 2636:46467). Phase 7 scenario `?my-account-v2-demo=billing-history`
 			// flips this to true for the embedded-table variant
 			// (Figma 3619:292407).
 			'billing_history_inline' => false,
@@ -1324,7 +1322,7 @@ final class My_Account_UI_V2_Demo {
 	 * Canonical subscription fixtures, keyed by id. Phase 7 lifted these out
 	 * of the prior `active` / `previous` / `extras` arrays so scenarios can
 	 * swap any fixture into the `active` slot without duplicating row
-	 * literals — `?v2-demo=expiring` plucks `sub-expiring`, `=renewed`
+	 * literals — `?my-account-v2-demo=expiring` plucks `sub-expiring`, `=renewed`
 	 * plucks `sub-renewed`, etc.
 	 *
 	 * Each row's `status` + `fees_covered` flags drive the detail template
@@ -1468,7 +1466,7 @@ final class My_Account_UI_V2_Demo {
 				],
 			],
 			// expiring (Figma 2636:46232) — inline error notice + Renew on
-			// the active card. Surfaced via `?v2-demo=expiring`.
+			// the active card. Surfaced via `?my-account-v2-demo=expiring`.
 			'sub-expiring'       => [
 				'id'                    => 'sub-expiring',
 				'status'                => 'expiring',
@@ -1519,7 +1517,7 @@ final class My_Account_UI_V2_Demo {
 				],
 			],
 			// renewed (Figma 2636:46204) — visually identical to active.
-			// Surfaced via `?v2-demo=renewed`.
+			// Surfaced via `?my-account-v2-demo=renewed`.
 			'sub-renewed'        => [
 				'id'                    => 'sub-renewed',
 				'status'                => 'renewed',
@@ -1571,7 +1569,7 @@ final class My_Account_UI_V2_Demo {
 			],
 			// active no-fees (Figma 4351:66807) — fees_covered=true collapses
 			// the Amount breakdown to a single Total row. Surfaced via
-			// `?v2-demo=no-fees`.
+			// `?my-account-v2-demo=no-fees`.
 			'sub-active-no-fees' => [
 				'id'              => 'sub-active-no-fees',
 				'status'          => 'active',
@@ -1620,7 +1618,7 @@ final class My_Account_UI_V2_Demo {
 	 *
 	 * The default arrangement matches Figma init 1 (one active card + one
 	 * previous card). Phase 7 scenarios swap which fixture appears in the
-	 * `active` slot via `?v2-demo=expiring` / `=renewed` / `=no-fees` /
+	 * `active` slot via `?my-account-v2-demo=expiring` / `=renewed` / `=no-fees` /
 	 * `=cancelled-sub` (see apply_scenario). All canonical fixtures live in
 	 * get_subscription_fixtures().
 	 *
