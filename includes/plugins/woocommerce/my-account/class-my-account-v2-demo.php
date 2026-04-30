@@ -134,6 +134,13 @@ final class My_Account_V2_Demo {
 		// Preserve `?my-account-v2-demo` on every internal nav link (sidebar, post-login
 		// redirect, etc.) so a single click can't drop you back into v1.
 		\add_filter( 'woocommerce_get_endpoint_url', [ __CLASS__, 'preserve_demo_flag_on_endpoint_url' ], 10, 4 );
+		// Swap WC core's edit-account form for the v2-demo Account settings
+		// template when the demo flag is active. v1 hooks the same filter at
+		// priority 1; we run at 2 so we fire after v1's swap and get the
+		// last word on the demo flag's specific surface. accepted_args=5
+		// mirrors v0 / v1 so any future need for `$args`, `$template_path`,
+		// or `$default_path` is already wired.
+		\add_filter( 'wc_get_template', [ __CLASS__, 'wc_get_template' ], 2, 5 );
 		// Register custom endpoints + auto-flush rewrite rules once per
 		// version bump. Called directly because this class is itself loaded
 		// inside an `init` callback (see class-woocommerce-my-account.php),
@@ -384,6 +391,29 @@ final class My_Account_V2_Demo {
 			return $url;
 		}
 		return \add_query_arg( self::DEMO_FLAG, '1', $url );
+	}
+
+	/**
+	 * Filter `wc_get_template` to swap WC core's edit-account form for the
+	 * v2-demo Account settings template when the demo flag is active.
+	 * Mirrors the v1 wc_get_template swap pattern (see class-my-account-ui-v1.php).
+	 *
+	 * @param string $template      Resolved template path.
+	 * @param string $template_name Template slug (e.g. `myaccount/form-edit-account.php`).
+	 * @param array  $args          Template args (unused — kept to match the filter shape v0/v1 use).
+	 * @param string $template_path Template directory (unused — same).
+	 * @param string $default_path  Default template directory (unused — same).
+	 * @return string
+	 */
+	public static function wc_get_template( $template, $template_name, $args = [], $template_path = '', $default_path = '' ) {
+		unset( $args, $template_path, $default_path );
+		if ( ! self::is_demo_active() ) {
+			return $template;
+		}
+		if ( 'myaccount/form-edit-account.php' === $template_name ) {
+			return __DIR__ . '/templates/my-account-v2-demo/account-settings.php';
+		}
+		return $template;
 	}
 
 	/**

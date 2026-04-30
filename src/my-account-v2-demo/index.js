@@ -8,6 +8,7 @@
 
 import '../shared/js/public-path';
 import './style.scss';
+import './account-settings';
 import './newsletters';
 import './donations';
 import './subscriptions';
