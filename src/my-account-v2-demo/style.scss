@@ -39,13 +39,21 @@
 	}
 
 	// Donations list anchors the billing-history block to the bottom of
-	// the available height (Figma 2636:46467). Parent
-	// .woocommerce-MyAccount-content auto-sizes to its content, so we
-	// give the wrapper a viewport-based min-height for justify-between
-	// to have room to distribute. Conservative offset accounts for the
-	// admin bar; longer pages still scroll naturally.
+	// the visible viewport (Figma 2636:46467). Sidebar is position:fixed
+	// 100vh, so our content has no parent to inherit height from — we
+	// pin a viewport-based min-height for justify-between to distribute.
+	// Subtract the WP admin bar offset and the .woocommerce wrapper's
+	// spacer-11 vertical padding (top + bottom = 128px) so the page
+	// doesn't overflow. Desktop only; below 768px the sidebar is an
+	// overlay and there's nothing to match.
 	.newspack-my-account-v2-demo-donations {
-		min-height: calc(100vh - var(--newspack-ui-spacer-9));
+		@media ( min-width: 768px ) {
+			min-height: calc(
+				100vh
+				- var(--wp-admin--admin-bar--height, 0px)
+				- var(--newspack-ui-spacer-11) * 2
+			);
+		}
 	}
 
 	// Section title font-size pin. The newspack-ui font-m utility
