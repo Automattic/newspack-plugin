@@ -59,9 +59,21 @@
 	// Section title font-size pin. The newspack-ui font-m utility
 	// compiles to a two-class selector and gets out-specificed by some
 	// theme rules on entry-content headings. Same fix as newsletters.
+	// Also zero margins so the parent stack's gap is the only spacing
+	// between sections (themes often ship h2 margin-top/bottom that
+	// stacks on top of __stack--gap-11).
 	.newspack-my-account-v2-demo-donations h2 {
 		font-size: var(--newspack-ui-font-size-m);
 		line-height: var(--newspack-ui-line-height-m);
+		margin: 0;
+	}
+
+	// __box ships with margin-bottom: spacer-5; inside a __stack the
+	// margin gets added on top of the gap, inflating the visible space
+	// between sections. Zero it inside donations so the stack gap is
+	// the single source of inter-section spacing.
+	.newspack-my-account-v2-demo-donations .newspack-ui__box {
+		margin-bottom: 0;
 	}
 
 	// Billing history Button Card sits compact in Figma (4007:732289):

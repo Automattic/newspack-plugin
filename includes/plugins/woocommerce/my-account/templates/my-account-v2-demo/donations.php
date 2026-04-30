@@ -146,7 +146,7 @@ $status_label = static function ( $status ) {
 	class="newspack-my-account-v2-demo-donations newspack-ui__stack newspack-ui__stack--vertical newspack-ui__stack--justify-between"
 	data-newspack-my-account-v2-demo="donations"
 >
-	<div class="newspack-ui__stack newspack-ui__stack--vertical newspack-ui__stack--gap-9">
+	<div class="newspack-ui__stack newspack-ui__stack--vertical newspack-ui__stack--gap-11">
 		<?php if ( empty( $active_recurring ) && empty( $previous ) ) : ?>
 			<div class="newspack-ui__notice">
 				<?php esc_html_e( 'You have no donations yet.', 'newspack-plugin' ); ?>
