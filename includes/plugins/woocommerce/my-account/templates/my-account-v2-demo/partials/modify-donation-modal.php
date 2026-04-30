@@ -75,12 +75,20 @@ $format_amount = static function ( $value ) use ( $currency_symbol ) {
 	return $currency_symbol . number_format_i18n( (float) $value, 2 );
 };
 
-// Per-frequency next-donation dates. The detail page only ships a single
-// next_payment for the donation's current frequency; for the other tab we
-// suppress the date so we don't lie to the reader. JSON-encoded for JS.
+// Per-frequency next-donation dates. The donation only carries a single
+// `next_payment` for its current frequency; for the alternative tab we
+// project a "today + 1 month|year" date so the readout still reads as a
+// real value when the reader flips frequencies. JSON-encoded for JS.
 $next_dates = [];
 if ( '' !== $next_payment_date ) {
 	$next_dates[ $initial_frequency ] = $next_payment_date;
+}
+foreach ( $frequencies as $freq ) {
+	if ( isset( $next_dates[ $freq['id'] ] ) ) {
+		continue;
+	}
+	$ts                       = strtotime( '+1 ' . $freq['id'] );
+	$next_dates[ $freq['id'] ] = $ts ? date_i18n( 'F j, Y', $ts ) : '';
 }
 
 // Confirm button label is always "Confirm donation: $X / unit". Initial render
@@ -258,17 +266,19 @@ $initial_confirm_label = sprintf( __( '%1$s / %2$s', 'newspack-plugin' ), $forma
 				</table>
 			</div>
 
-			<button
-				type="button"
-				class="newspack-ui__button newspack-ui__button--primary newspack-ui__button--wide"
-				data-action="confirm"
-			>
-				<?php esc_html_e( 'Confirm donation:', 'newspack-plugin' ); ?>
-				<span data-modify-confirm-label><?php echo esc_html( $initial_confirm_label ); ?></span>
-			</button>
-			<button type="button" class="newspack-ui__button newspack-ui__button--ghost newspack-ui__button--wide newspack-ui__modal__close">
-				<?php esc_html_e( 'Cancel', 'newspack-plugin' ); ?>
-			</button>
+			<div class="newspack-my-account-v2-demo-modify-donation__actions">
+				<button
+					type="button"
+					class="newspack-ui__button newspack-ui__button--primary newspack-ui__button--wide"
+					data-action="confirm"
+				>
+					<?php esc_html_e( 'Confirm donation:', 'newspack-plugin' ); ?>
+					<span data-modify-confirm-label><?php echo esc_html( $initial_confirm_label ); ?></span>
+				</button>
+				<button type="button" class="newspack-ui__button newspack-ui__button--ghost newspack-ui__button--wide newspack-ui__modal__close">
+					<?php esc_html_e( 'Cancel', 'newspack-plugin' ); ?>
+				</button>
+			</div>
 		</div>
 	</div>
 </div>
