@@ -139,7 +139,7 @@ $countries = [
 						autocomplete="off"
 					>
 				</p>
-				<p class="form-row form-row-first">
+				<p class="form-row form-row-last">
 					<label for="<?php echo esc_attr( $id_prefix ); ?>-state"><?php esc_html_e( 'County', 'newspack-plugin' ); ?></label>
 					<input
 						type="text"
@@ -149,7 +149,7 @@ $countries = [
 						autocomplete="off"
 					>
 				</p>
-				<p class="form-row form-row-last">
+				<p class="form-row form-row-wide">
 					<label for="<?php echo esc_attr( $id_prefix ); ?>-postcode"><?php esc_html_e( 'Post code', 'newspack-plugin' ); ?></label>
 					<input
 						type="text"

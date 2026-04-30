@@ -143,8 +143,7 @@ foreach ( $saved_methods as $method_index => $method ) {
 							<div class="newspack-ui__dropdown__content">
 								<ul>
 									<?php
-									$action_keys = array_keys( $method_row['actions'] );
-									ksort( $action_keys );
+									ksort( $method_row['actions'] );
 									foreach ( $method_row['actions'] as $action_key => $action_data ) :
 										$action_label = isset( $action_data['name'] ) ? (string) $action_data['name'] : '';
 										if ( '' === $action_label ) {

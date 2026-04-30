@@ -48,6 +48,7 @@ function wireRoot( root ) {
 
 	const close = () => {
 		root.setAttribute( STATE_ATTR, STATE_CLOSED );
+		root.setAttribute( 'aria-hidden', 'true' );
 	};
 
 	root.addEventListener( 'click', event => {

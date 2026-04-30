@@ -19,6 +19,7 @@
 		&[data-state="closed"] {
 			opacity: 0;
 			pointer-events: none;
+			visibility: hidden;
 		}
 
 		&__drawer {
