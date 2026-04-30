@@ -314,7 +314,7 @@ $status_label = static function ( $status ) {
 	<?php elseif ( ! empty( $billing_history_button['enabled'] ) ) : ?>
 		<a
 			href="#"
-			class="newspack-ui__box newspack-ui__stack newspack-ui__stack--horizontal newspack-ui__stack--gap-5 newspack-ui__stack--align-center newspack-ui__stack--justify-between"
+			class="newspack-ui__box newspack-ui__spacing-bottom--0 newspack-ui__stack newspack-ui__stack--horizontal newspack-ui__stack--gap-5 newspack-ui__stack--align-center newspack-ui__stack--justify-between"
 			data-action="open-billing-history"
 		>
 			<div class="newspack-ui__stack newspack-ui__stack--vertical newspack-ui__stack--gap-1">
