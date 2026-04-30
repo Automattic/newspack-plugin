@@ -29,6 +29,97 @@
 		line-height: var(--newspack-ui-line-height-m);
 	}
 
+	// Sign up / Unsubscribe row buttons share the same width so the right
+	// edge stays steady as rows toggle between subscribed states (and so
+	// the loading-state spinner doesn't reveal a wider label after the
+	// flip). Targets only per-row buttons, not the bottom "Unsubscribe
+	// from all" CTA which sits in a different context.
+	.newspack-my-account-v2-demo-newsletters [data-list-id] > .newspack-ui__button {
+		min-width: 8rem;
+	}
+
+	// Donations list anchors the billing-history block to the bottom of
+	// the visible viewport (Figma 2636:46467). Sidebar is position:fixed
+	// 100vh, so our content has no parent to inherit height from — we
+	// pin a viewport-based min-height for justify-between to distribute.
+	// Subtract the WP admin bar offset and the .woocommerce wrapper's
+	// spacer-11 vertical padding (top + bottom = 128px) so the page
+	// doesn't overflow. Desktop only; below 768px the sidebar is an
+	// overlay and there's nothing to match.
+	.newspack-my-account-v2-demo-donations {
+		@media ( min-width: 768px ) {
+			min-height: calc(
+				100vh
+				- var(--wp-admin--admin-bar--height, 0px)
+				- var(--newspack-ui-spacer-11) * 2
+			);
+		}
+	}
+
+	// Section title font-size pin. The newspack-ui font-m utility
+	// compiles to a two-class selector and gets out-specificed by some
+	// theme rules on entry-content headings. Same fix as newsletters.
+	// Also zero margins so the parent stack's gap is the only spacing
+	// between sections (themes often ship h2 margin-top/bottom that
+	// stacks on top of __stack--gap-11).
+	.newspack-my-account-v2-demo-donations h2 {
+		font-size: var(--newspack-ui-font-size-m);
+		line-height: var(--newspack-ui-line-height-m);
+		margin: 0;
+	}
+
+	// __box ships with margin-bottom: spacer-5; inside a __stack the
+	// margin gets added on top of the gap, inflating the visible space
+	// between sections. Zero it inside donations so the stack gap is
+	// the single source of inter-section spacing.
+	.newspack-my-account-v2-demo-donations .newspack-ui__box {
+		margin-bottom: 0;
+	}
+
+	// Billing history Button Card label block fills the remaining width
+	// so the title/description stretch across the button instead of
+	// sitting at content width while justify-between leaves a wide gap
+	// before the icon. Mirrors Figma's `flex-[1_0_0]` on the label.
+	// newspack-ui has no flex-grow utility, so this stays as a scoped
+	// rule for the single instance.
+	.newspack-my-account-v2-demo-donations [data-action="open-billing-history"] > .newspack-ui__stack--vertical {
+		flex: 1;
+		min-width: 0;
+	}
+
+	// v1 ships a `.newspack-my-account .woocommerce-MyAccount-content
+	// :not(.__stack--gap-11) section + section { margin-top: spacer-11 }`
+	// rule that fires on our consecutive <section> elements because the
+	// outer wrapper isn't __stack--gap-11 (only the inner one is) — so
+	// it stacks an extra spacer-11 on top of __stack--gap-11. The v1
+	// selector has 3 classes; this override compounds the section's own
+	// __stack class to land at 4 classes and win the specificity battle.
+	.newspack-my-account-v2-demo-donations section.newspack-ui__stack + section.newspack-ui__stack {
+		margin-top: 0;
+	}
+
+	// Previous donations table polish (Figma 2636:46479). Header gets a
+	// stronger bottom border (--color-border, #ddd); rows get a lighter
+	// divider (neutral-5, #f0f0f0); rows are clickable so cursor flips
+	// to pointer; cell padding bumps row height closer to Figma's 48px.
+	.newspack-my-account-v2-demo-donations__previous-table {
+		thead th {
+			border-bottom: 1px solid var(--newspack-ui-color-border);
+			padding: var(--newspack-ui-spacer-2) 0;
+		}
+
+		tbody {
+			td {
+				border-bottom: 1px solid var(--newspack-ui-color-neutral-5);
+				padding: var(--newspack-ui-spacer-3) 0;
+			}
+
+			tr {
+				cursor: pointer;
+			}
+		}
+	}
+
 	// Phase 9 — Delete account modal action list. Three rows of
 	// label and description on the left, Manage button on the right,
 	// separated by hairlines. No newspack-ui primitive matches this
@@ -83,6 +174,16 @@
 			font-size: var(--newspack-ui-font-size-xs);
 			line-height: var(--newspack-ui-line-height-xs);
 		}
+	}
+
+	// Sidebar nav footer (secondary links + Sign out) renders as a stack
+	// with spacer-1 between items. v1's `_navigation.scss` controls the
+	// outer footer block but doesn't gap the children, so the v2-demo
+	// secondary links sit too tight against the Sign out row.
+	.newspack-my-account__navigation-footer ul {
+		display: flex;
+		flex-direction: column;
+		gap: var(--newspack-ui-spacer-1);
 	}
 
 	// Email-send icon at the top of the success step. Black filled

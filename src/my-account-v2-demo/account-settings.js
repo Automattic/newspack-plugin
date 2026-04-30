@@ -28,7 +28,9 @@ function openModal( modal ) {
 }
 
 /**
- * Switch the modal to its success ("check inbox") step.
+ * Switch the modal to its success ("check inbox") step. The success step
+ * narrows the inner modal to --small; init keeps the default width because
+ * its alternatives list needs the room.
  *
  * @param {HTMLElement} modal Modal container element.
  */
@@ -36,6 +38,7 @@ function showSuccessStep( modal ) {
 	modal.querySelectorAll( '[data-step]' ).forEach( step => {
 		step.hidden = step.dataset.step !== 'success';
 	} );
+	modal.querySelector( '.newspack-ui__modal' )?.classList.add( 'newspack-ui__modal--small' );
 }
 
 /**
@@ -49,6 +52,7 @@ function resetModal( modal ) {
 	modal.querySelectorAll( '[data-step]' ).forEach( step => {
 		step.hidden = step.dataset.step !== 'init';
 	} );
+	modal.querySelector( '.newspack-ui__modal' )?.classList.remove( 'newspack-ui__modal--small' );
 }
 
 /**

@@ -143,18 +143,19 @@ $status_label = static function ( $status ) {
 };
 ?>
 <div
-	class="newspack-my-account-v2-demo-donations newspack-ui__stack newspack-ui__stack--vertical newspack-ui__stack--gap-9"
+	class="newspack-my-account-v2-demo-donations newspack-ui__stack newspack-ui__stack--vertical newspack-ui__stack--justify-between"
 	data-newspack-my-account-v2-demo="donations"
 >
-	<?php if ( empty( $active_recurring ) && empty( $previous ) ) : ?>
-		<div class="newspack-ui__notice">
-			<?php esc_html_e( 'You have no donations yet.', 'newspack-plugin' ); ?>
-		</div>
-	<?php endif; ?>
+	<div class="newspack-ui__stack newspack-ui__stack--vertical newspack-ui__stack--gap-11">
+		<?php if ( empty( $active_recurring ) && empty( $previous ) ) : ?>
+			<div class="newspack-ui__notice">
+				<?php esc_html_e( 'You have no donations yet.', 'newspack-plugin' ); ?>
+			</div>
+		<?php endif; ?>
 
-	<?php if ( ! empty( $active_recurring ) ) : ?>
-		<section class="newspack-ui__stack newspack-ui__stack--vertical newspack-ui__stack--gap-5" data-section-id="recurring">
-			<h2 class="newspack-ui__font--l newspack-ui__font--bold newspack-ui__spacing-top--0 newspack-ui__spacing-bottom--0">
+		<?php if ( ! empty( $active_recurring ) ) : ?>
+			<section class="newspack-ui__stack newspack-ui__stack--vertical newspack-ui__stack--gap-5" data-section-id="recurring">
+			<h2 class="newspack-ui__font--m newspack-ui__font--bold newspack-ui__spacing-top--0 newspack-ui__spacing-bottom--0">
 				<?php
 				echo esc_html(
 					_n(
@@ -179,7 +180,7 @@ $status_label = static function ( $status ) {
 					?>
 					<div class="newspack-ui__box newspack-ui__box--border newspack-ui__stack newspack-ui__stack--horizontal newspack-ui__stack--gap-5 newspack-ui__stack--align-center newspack-ui__stack--justify-between">
 						<div class="newspack-ui__stack newspack-ui__stack--vertical newspack-ui__stack--gap-1">
-							<span class="newspack-ui__font--m newspack-ui__font--bold"><?php echo esc_html( $amount_per ); ?></span>
+							<span class="newspack-ui__font--s newspack-ui__font--bold"><?php echo esc_html( $amount_per ); ?></span>
 							<?php if ( $next_payment ) : ?>
 								<span class="newspack-ui__font--xs newspack-ui__color--neutral-60">
 									<?php
@@ -205,7 +206,7 @@ $status_label = static function ( $status ) {
 
 	<?php if ( ! empty( $previous ) ) : ?>
 		<section class="newspack-ui__stack newspack-ui__stack--vertical newspack-ui__stack--gap-3" data-section-id="previous">
-			<h2 class="newspack-ui__font--l newspack-ui__font--bold newspack-ui__spacing-top--0 newspack-ui__spacing-bottom--0">
+			<h2 class="newspack-ui__font--m newspack-ui__font--bold newspack-ui__spacing-top--0 newspack-ui__spacing-bottom--0">
 				<?php esc_html_e( 'Previous donations', 'newspack-plugin' ); ?>
 			</h2>
 			<table class="newspack-my-account-v2-demo-donations__previous-table">
@@ -250,11 +251,12 @@ $status_label = static function ( $status ) {
 				</tbody>
 			</table>
 		</section>
-	<?php endif; ?>
+		<?php endif; ?>
+	</div>
 
 	<?php if ( $billing_history_inline ) : ?>
 		<section class="newspack-ui__stack newspack-ui__stack--vertical newspack-ui__stack--gap-3" data-section-id="billing-history">
-			<h2 class="newspack-ui__font--l newspack-ui__font--bold newspack-ui__spacing-top--0 newspack-ui__spacing-bottom--0">
+			<h2 class="newspack-ui__font--m newspack-ui__font--bold newspack-ui__spacing-top--0 newspack-ui__spacing-bottom--0">
 				<?php esc_html_e( 'Billing history', 'newspack-plugin' ); ?>
 			</h2>
 			<?php
@@ -310,22 +312,22 @@ $status_label = static function ( $status ) {
 			</table>
 		</section>
 	<?php elseif ( ! empty( $billing_history_button['enabled'] ) ) : ?>
-		<a
-			href="#"
-			class="newspack-ui__box newspack-ui__stack newspack-ui__stack--horizontal newspack-ui__stack--gap-5 newspack-ui__stack--align-center newspack-ui__stack--justify-between"
+		<button
+			type="button"
+			class="newspack-ui__button newspack-ui__button--secondary newspack-ui__button--wide newspack-ui__stack newspack-ui__stack--horizontal newspack-ui__stack--gap-5 newspack-ui__stack--align-center newspack-ui__stack--justify-between"
 			data-action="open-billing-history"
 		>
-			<div class="newspack-ui__stack newspack-ui__stack--vertical newspack-ui__stack--gap-1">
-				<span class="newspack-ui__font--m newspack-ui__font--bold">
+			<span class="newspack-ui__stack newspack-ui__stack--vertical newspack-ui__stack--gap-1">
+				<span class="newspack-ui__font--s newspack-ui__font--bold">
 					<?php echo esc_html( isset( $billing_history_button['title'] ) ? $billing_history_button['title'] : __( 'Billing history', 'newspack-plugin' ) ); ?>
 				</span>
-				<span class="newspack-ui__font--xs newspack-ui__color--neutral-60">
+				<span class="newspack-ui__font--xs newspack-ui__font--normal newspack-ui__color--neutral-60">
 					<?php echo esc_html( isset( $billing_history_button['description'] ) ? $billing_history_button['description'] : '' ); ?>
 				</span>
-			</div>
-			<svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false">
-				<path d="M19 3H5C3.9 3 3 3.9 3 5v16l3-2 3 2 3-2 3 2 3-2 3 2V5c0-1.1-.9-2-2-2zm-1 14.5L17 17l-3 2-3-2-3 2-3-2-1 .5V5h14v12.5zM6 7h12v2H6V7zm0 4h12v2H6v-2zm0 4h7v2H6v-2z" fill="currentColor"/>
+			</span>
+			<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" focusable="false">
+				<path fill-rule="evenodd" clip-rule="evenodd" fill="currentColor" d="M16.83 6.342l.602.3.625-.25.443-.176v12.569l-.443-.178-.625-.25-.603.301-1.444.723-2.41-.804-.475-.158-.474.158-2.41.803-1.445-.722-.603-.3-.625.25-.443.177V6.215l.443.178.625.25.603-.301 1.444-.722 2.41.803.475.158.474-.158 2.41-.803 1.445.722zM20 4l-1.5.6-1 .4-2-1-3 1-3-1-2 1-1-.4L5 4v17l1.5-.6 1-.4 2 1 3-1 3 1 2-1 1 .4 1.5.6V4zm-3.5 6.25v-1.5h-8v1.5h8zm0 3v-1.5h-8v1.5h8zm-8 3v-1.5h8v1.5h-8z"/>
 			</svg>
-		</a>
+		</button>
 	<?php endif; ?>
 </div>
