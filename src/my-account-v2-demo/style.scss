@@ -60,9 +60,13 @@
 		}
 
 		// Stretch each button to fill the auto-sized column so widths align
-		// across rows.
+		// across rows. `.newspack-ui__button` ships with
+		// `margin-bottom: spacer-2` (12px) which extends the grid row and
+		// creates phantom whitespace above each next row — zero it out so
+		// the row's padding fully controls vertical rhythm.
 		.newspack-ui__button {
 			justify-content: center;
+			margin: 0;
 			width: 100%;
 		}
 	}
