@@ -557,8 +557,15 @@ final class My_Account_V2_Demo {
 		// matches WC's hardcoded endpoint list, not custom endpoints we
 		// register via add_rewrite_endpoint(). False === unset; bare endpoint
 		// comes through as empty string; detail URL as the value (e.g. an id).
-		$is_v2_endpoint = false !== \get_query_var( 'newsletters', false )
-			|| false !== \get_query_var( 'donations', false );
+		$is_v2_endpoint = false !== \get_query_var( 'donations', false );
+		// Newsletters: only bounce if newspack-newsletters ISN'T providing
+		// the endpoint. When it is, its Subscription class owns
+		// `woocommerce_account_newsletters_endpoint` for non-demo readers
+		// and we must not redirect them. Mirrors the WCS guard below.
+		$has_real_newsletters = class_exists( 'Newspack_Newsletters_Subscription' );
+		if ( ! $has_real_newsletters && false !== \get_query_var( 'newsletters', false ) ) {
+			$is_v2_endpoint = true;
+		}
 		// Subscriptions: only bounce if WC Subscriptions ISN'T installed.
 		// When it is installed, WCS owns the endpoint for non-demo readers
 		// and we must not redirect them. wcs_get_subscription is WCS' own
