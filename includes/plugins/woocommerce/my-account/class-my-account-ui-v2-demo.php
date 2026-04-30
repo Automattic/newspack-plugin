@@ -793,13 +793,13 @@ final class My_Account_UI_V2_Demo {
 	 */
 	public static function preserve_demo_flag_on_endpoint_url( $url, $endpoint, $value, $permalink ) {
 		unset( $endpoint, $value, $permalink );
-		if ( ! self::is_demo_active() ) {
+		if ( ! self::is_demo_active() && ! self::is_homepage_demo_active() ) {
 			return $url;
 		}
 		// Preserve the original flag value (e.g. `?v2-demo=cancelled-sub` per
 		// brief §7 scenario fixtures), not just `'1'`. Falls back to `'1'`
-		// for the happy path. is_demo_active() above already gated on
-		// admin caps + endpoint URL, so reading $_GET here is safe.
+		// for the happy path. The two gates above already restrict to admin
+		// caps + the demo URL surfaces, so reading $_GET here is safe.
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$demo_flag_value = isset( $_GET[ self::DEMO_FLAG ] ) ? \sanitize_text_field( \wp_unslash( $_GET[ self::DEMO_FLAG ] ) ) : '1'; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		if ( '' === $demo_flag_value ) {
