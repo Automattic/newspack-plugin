@@ -76,6 +76,17 @@
 		margin-bottom: 0;
 	}
 
+	// Billing history Button Card label block fills the remaining width
+	// so the title/description stretch across the button instead of
+	// sitting at content width while justify-between leaves a wide gap
+	// before the icon. Mirrors Figma's `flex-[1_0_0]` on the label.
+	// newspack-ui has no flex-grow utility, so this stays as a scoped
+	// rule for the single instance.
+	.newspack-my-account-v2-demo-donations [data-action="open-billing-history"] > .newspack-ui__stack--vertical {
+		flex: 1;
+		min-width: 0;
+	}
+
 	// v1 ships a `:not(.__stack--gap-11) section + section { margin-top:
 	// spacer-11 }` rule that fires on our consecutive <section> elements
 	// because the body and .woocommerce-MyAccount-content match the :not
