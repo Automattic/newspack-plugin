@@ -29,6 +29,15 @@
 		line-height: var(--newspack-ui-line-height-m);
 	}
 
+	// Sign up / Unsubscribe row buttons share the same width so the right
+	// edge stays steady as rows toggle between subscribed states (and so
+	// the loading-state spinner doesn't reveal a wider label after the
+	// flip). Targets only per-row buttons, not the bottom "Unsubscribe
+	// from all" CTA which sits in a different context.
+	.newspack-my-account-v2-demo-newsletters [data-list-id] > .newspack-ui__button {
+		min-width: 8rem;
+	}
+
 	// Phase 9 — Delete account modal action list. Three rows of
 	// label and description on the left, Manage button on the right,
 	// separated by hairlines. No newspack-ui primitive matches this
