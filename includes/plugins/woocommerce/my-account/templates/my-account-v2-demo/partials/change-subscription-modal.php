@@ -54,7 +54,7 @@ $format_amount = static function ( $amount ) use ( $currency_symbol ) {
 ?>
 <div
 	id="newspack-my-account__change-subscription-<?php echo esc_attr( $subscription_id ); ?>"
-	class="newspack-ui newspack-ui__modal-container newspack-my-account__v2-demo-change-subscription"
+	class="newspack-ui newspack-ui__modal-container newspack-my-account-v2-demo-change-subscription"
 	data-state="closed"
 	data-newspack-my-account-v2-demo="change-subscription-modal"
 	data-subscription-id="<?php echo esc_attr( $subscription_id ); ?>"

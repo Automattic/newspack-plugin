@@ -2,9 +2,9 @@
 // pattern (fixed full-viewport overlay + right-aligned panel + slide-in
 // transition) has no newspack-ui primitive equivalent. Scoped under the
 // homepage body class so styles cannot leak to the rest of the site.
-.newspack-my-account--v2-demo-homepage {
+.newspack-my-account-v2-demo-homepage {
 
-	.newspack-my-account__v2-demo-homepage-overlay {
+	.newspack-my-account-v2-demo-homepage-overlay {
 		background-color: rgba(0, 0, 0, 0.7);
 		bottom: 0;
 		display: flex;

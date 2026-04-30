@@ -21,7 +21,7 @@ $unsubscribe_from_all = isset( $payload['unsubscribe_from_all'] ) ? $payload['un
 $reader_email         = isset( $reader['email'] ) ? (string) $reader['email'] : '';
 ?>
 <div
-	class="newspack-my-account__v2-demo-newsletters newspack-ui__stack newspack-ui__stack--vertical newspack-ui__stack--gap-11"
+	class="newspack-my-account-v2-demo-newsletters newspack-ui__stack newspack-ui__stack--vertical newspack-ui__stack--gap-11"
 	data-newspack-my-account-v2-demo="newsletters"
 	data-reader-email="<?php echo esc_attr( $reader_email ); ?>"
 >
@@ -65,7 +65,7 @@ $reader_email         = isset( $reader['email'] ) ? (string) $reader['email'] : 
 
 	<?php if ( ! empty( $unsubscribe_from_all['enabled'] ) ) : ?>
 		<section
-			class="newspack-my-account__v2-demo-newsletters__unsubscribe-all newspack-ui__stack newspack-ui__stack--horizontal newspack-ui__stack--gap-5 newspack-ui__stack--align-center newspack-ui__stack--justify-between"
+			class="newspack-my-account-v2-demo-newsletters__unsubscribe-all newspack-ui__stack newspack-ui__stack--horizontal newspack-ui__stack--gap-5 newspack-ui__stack--align-center newspack-ui__stack--justify-between"
 			data-section-id="unsubscribe-all"
 		>
 			<div class="newspack-ui__stack newspack-ui__stack--vertical newspack-ui__stack--gap-1">

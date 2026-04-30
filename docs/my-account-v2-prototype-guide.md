@@ -53,13 +53,13 @@ The full Figma node-id index for non-scenario screens is in [brief Appendix A](m
 
 ### Per-flow walkthroughs
 
-**Newsletters** ([`templates/v2-demo/newsletters.php`](../includes/plugins/woocommerce/my-account/templates/v2-demo/newsletters.php) · [`src/my-account/v2-demo/newsletters.js`](../src/my-account/v2-demo/newsletters.js)). Sectioned list (Featured / Technology / Subscriber-only) of newsletter rows. Each row's *Sign up* / *Unsubscribe* button toggles the row's subscribed state in the DOM and fires a snackbar — no fetch, state resets on reload. The bottom *Unsubscribe from all* button cascades the toggle and disables itself once nothing is subscribed. `?my-account-v2-demo=no-categories` flattens the sections.
+**Newsletters** ([`templates/my-account-v2-demo/newsletters.php`](../includes/plugins/woocommerce/my-account/templates/my-account-v2-demo/newsletters.php) · [`src/my-account-v2-demo/newsletters.js`](../src/my-account-v2-demo/newsletters.js)). Sectioned list (Featured / Technology / Subscriber-only) of newsletter rows. Each row's *Sign up* / *Unsubscribe* button toggles the row's subscribed state in the DOM and fires a snackbar — no fetch, state resets on reload. The bottom *Unsubscribe from all* button cascades the toggle and disables itself once nothing is subscribed. `?my-account-v2-demo=no-categories` flattens the sections.
 
-**Donations** ([`donations.php`](../includes/plugins/woocommerce/my-account/templates/v2-demo/donations.php) · [`donation-details.php`](../includes/plugins/woocommerce/my-account/templates/v2-demo/donation-details.php) · [`donations.js`](../src/my-account/v2-demo/donations.js)). List has *Active recurring* + *Previous donations* sections. Click a donation card → detail page. Detail page branches on `kind` (`recurring` / `one_time`) + `status` (`active` / `cancelled`) + `fees_covered` — one template, four visual variants. Header buttons / dropdown items open client-side modals: **Modify donation** (recomputes totals as the amount changes — Phase 5 math is approximate; submit fires a snackbar), **Cancel donation** (two-step: confirm → success), **Restart donation** (single-screen, submit fires a snackbar — no success state in Figma).
+**Donations** ([`donations.php`](../includes/plugins/woocommerce/my-account/templates/my-account-v2-demo/donations.php) · [`donation-details.php`](../includes/plugins/woocommerce/my-account/templates/my-account-v2-demo/donation-details.php) · [`donations.js`](../src/my-account-v2-demo/donations.js)). List has *Active recurring* + *Previous donations* sections. Click a donation card → detail page. Detail page branches on `kind` (`recurring` / `one_time`) + `status` (`active` / `cancelled`) + `fees_covered` — one template, four visual variants. Header buttons / dropdown items open client-side modals: **Modify donation** (recomputes totals as the amount changes — Phase 5 math is approximate; submit fires a snackbar), **Cancel donation** (two-step: confirm → success), **Restart donation** (single-screen, submit fires a snackbar — no success state in Figma).
 
-**Subscriptions** ([`subscriptions.php`](../includes/plugins/woocommerce/my-account/templates/v2-demo/subscriptions.php) · [`subscription-details.php`](../includes/plugins/woocommerce/my-account/templates/v2-demo/subscription-details.php) · [`subscriptions.js`](../src/my-account/v2-demo/subscriptions.js)). List has one Active card and two Previous cards. Detail template branches on `status` (`active` / `cancelled` / `expiring` / `renewed`) + `fees_covered`. Header offers **Change subscription** (segmented control: frequency tabs + tier cards → transaction step with billing readout + payment form; *Pay now* fires a snackbar and closes), **Cancel subscription** (two-step: confirm → success), and **Renew subscription** on cancelled / expiring (init → success). The expiring variant adds an inline notice with a `renew now` link. **Update payment method** is a snackbar stub — productionisation hooks it to the v1 checkout flow.
+**Subscriptions** ([`subscriptions.php`](../includes/plugins/woocommerce/my-account/templates/my-account-v2-demo/subscriptions.php) · [`subscription-details.php`](../includes/plugins/woocommerce/my-account/templates/my-account-v2-demo/subscription-details.php) · [`subscriptions.js`](../src/my-account-v2-demo/subscriptions.js)). List has one Active card and two Previous cards. Detail template branches on `status` (`active` / `cancelled` / `expiring` / `renewed`) + `fees_covered`. Header offers **Change subscription** (segmented control: frequency tabs + tier cards → transaction step with billing readout + payment form; *Pay now* fires a snackbar and closes), **Cancel subscription** (two-step: confirm → success), and **Renew subscription** on cancelled / expiring (init → success). The expiring variant adds an inline notice with a `renew now` link. **Update payment method** is a snackbar stub — productionisation hooks it to the v1 checkout flow.
 
-**Payment methods** ([`payment-methods.php`](../includes/plugins/woocommerce/my-account/templates/v2-demo/payment-methods.php) · [`payment-methods.js`](../src/my-account/v2-demo/payment-methods.js)). WC core's `<table class="account-payment-methods-table">` DOM rebuilt on the fake `payment_methods` slice. *Make default* / *Delete* / *Add payment method* are all stub snackbars. Inline Default badge sits next to the brand on the default row; under `?my-account-v2-demo=expired-payment` an inline `Expired` badge sits next to the non-default row.
+**Payment methods** ([`payment-methods.php`](../includes/plugins/woocommerce/my-account/templates/my-account-v2-demo/payment-methods.php) · [`payment-methods.js`](../src/my-account-v2-demo/payment-methods.js)). WC core's `<table class="account-payment-methods-table">` DOM rebuilt on the fake `payment_methods` slice. *Make default* / *Delete* / *Add payment method* are all stub snackbars. Inline Default badge sits next to the brand on the default row; under `?my-account-v2-demo=expired-payment` an inline `Expired` badge sits next to the non-default row.
 
 ---
 
@@ -71,8 +71,8 @@ The full Figma node-id index for non-scenario screens is in [brief Appendix A](m
 
 ```
 includes/plugins/woocommerce/my-account/
-├── class-my-account-ui-v2-demo.php          # ~1,547 lines — the whole demo lives here
-└── templates/v2-demo/
+├── class-my-account-v2-demo.php          # ~1,547 lines — the whole demo lives here
+└── templates/my-account-v2-demo/
     ├── newsletters.php                       # list + bulk unsubscribe
     ├── donations.php                         # list (recurring + one-time + Button Card | inline billing history)
     ├── donation-details.php                  # 4-variant branching: kind × status × fees_covered
@@ -88,9 +88,9 @@ includes/plugins/woocommerce/my-account/
         ├── change-subscription-modal.php     # two-step: select → transaction
         └── renew-subscription-modal.php      # two-step: init → success
 
-src/my-account/v2-demo/
+src/my-account-v2-demo/
 ├── index.js                                  # webpack entry — public-path + style + per-screen modules
-├── style.scss                                # intentionally near-empty wrapper (.newspack-my-account--v2-demo)
+├── style.scss                                # intentionally near-empty wrapper (.newspack-my-account--my-account-v2-demo)
 ├── newsletters.js / donations.js / subscriptions.js / payment-methods.js
 └── util/snackbar.js                          # shared transient-toast helper (extracted Phase 5 rule-of-three)
 ```
@@ -99,7 +99,7 @@ Webpack entry: `'my-account-v2-demo'` in [`webpack.config.js`](../webpack.config
 
 ### Fake-data shape (single source of truth)
 
-`My_Account_UI_V2_Demo::get_fake_data()` returns an associative array; `wp_localize_script` ships it to `window.newspackMyAccountV2Demo` and templates receive it via `load_template(..., [ 'data' => self::get_fake_data() ])`.
+`My_Account_V2_Demo::get_fake_data()` returns an associative array; `wp_localize_script` ships it to `window.newspackMyAccountV2Demo` and templates receive it via `load_template(..., [ 'data' => self::get_fake_data() ])`.
 
 Top-level slices:
 
@@ -142,7 +142,7 @@ Actions with no modal fall through to `fallbackSnackbar(action)` — today only 
 
 ### v1-class-names-first reflex (one-screen index)
 
-This is brief [§2.1.1](my-account-v2-prototype-brief.md#211--the-other-non-negotiable-rule-reuse-v1s-class-names), restated for finger-pointing. When rebuilding a v2 surface, **copy v1's DOM verbatim before reaching for utility classes** — the v2-demo body class chain inherits every v1 SCSS rule for free.
+This is brief [§2.1.1](my-account-v2-prototype-brief.md#211--the-other-non-negotiable-rule-reuse-v1s-class-names), restated for finger-pointing. When rebuilding a v2 surface, **copy v1's DOM verbatim before reaching for utility classes** — the my-account-v2-demo body class chain inherits every v1 SCSS rule for free.
 
 | Surface | Reuse from |
 |---|---|
@@ -222,9 +222,9 @@ See cross-phase decision log rows for [Phase 4](my-account-v2-prototype-devlog.m
 ### Drop the `?my-account-v2-demo` gate
 
 - Remove `is_demo_active()` short-circuits across every callback in the class.
-- Remove the `query_vars` filter entry for `v2-demo`.
+- Remove the `query_vars` filter entry for `my-account-v2-demo`.
 - Remove `preserve_demo_flag_on_endpoint_url`.
-- Remove the `newspack-my-account--v2-demo` body-class scope in [`style.scss`](../src/my-account/v2-demo/style.scss). The wrapper is currently load-bearing — it scopes future SCSS additions — but if the prototype's styles fold cleanly into v1's `_my-account.scss`, the wrapper goes too.
+- Remove the `newspack-my-account--my-account-v2-demo` body-class scope in [`style.scss`](../src/my-account-v2-demo/style.scss). The wrapper is currently load-bearing — it scopes future SCSS additions — but if the prototype's styles fold cleanly into v1's `_my-account.scss`, the wrapper goes too.
 
 ### Remove the auto-flush plumbing
 

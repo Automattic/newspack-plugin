@@ -11,8 +11,8 @@
  *
  * Two intentional deviations from WC core's exact output:
  *  - Action buttons (Make default / Delete / Add payment method) carry
- *    `data-action` + `data-payment-method-id` so the v2-demo JS dispatcher
- *    (src/my-account/v2-demo/payment-methods.js) can intercept clicks and
+ *    `data-action` + `data-payment-method-id` so the my-account-v2-demo JS dispatcher
+ *    (src/my-account-v2-demo/payment-methods.js) can intercept clicks and
  *    surface a snackbar — no real mutations, no AJAX.
  *  - The default row gets an inline `__badge--secondary "Default"` span
  *    next to the brand name. WC core relies on the `default-payment-method`

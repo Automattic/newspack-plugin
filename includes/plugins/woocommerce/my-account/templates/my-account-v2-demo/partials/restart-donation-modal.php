@@ -9,7 +9,7 @@
  *
  * Same shape as the Renew subscription modal's init step, with donation-
  * specific copy: "Donate Annually: £153.00" instead of "Patron: £101.70 /
- * year". Reuses the v2-demo billing fixture passed through from the parent
+ * year". Reuses the my-account-v2-demo billing fixture passed through from the parent
  * detail template.
  *
  * @package Newspack
@@ -39,7 +39,7 @@ if ( $frequency_label ) {
 ?>
 <div
 	id="newspack-my-account__restart-donation-<?php echo esc_attr( $donation_id ); ?>"
-	class="newspack-ui newspack-ui__modal-container newspack-my-account__v2-demo-restart-donation"
+	class="newspack-ui newspack-ui__modal-container newspack-my-account-v2-demo-restart-donation"
 	data-state="closed"
 	data-newspack-my-account-v2-demo="restart-donation-modal"
 	data-donation-id="<?php echo esc_attr( $donation_id ); ?>"

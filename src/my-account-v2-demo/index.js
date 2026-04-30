@@ -6,7 +6,7 @@
  * the per-screen interaction modules.
  */
 
-import '../../shared/js/public-path';
+import '../shared/js/public-path';
 import './style.scss';
 import './newsletters';
 import './donations';

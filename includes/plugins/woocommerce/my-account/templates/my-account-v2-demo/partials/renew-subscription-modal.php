@@ -55,7 +55,7 @@ $summary_label = $product_name
 ?>
 <div
 	id="newspack-my-account__renew-subscription-<?php echo esc_attr( $subscription_id ); ?>"
-	class="newspack-ui newspack-ui__modal-container newspack-my-account__v2-demo-renew-subscription"
+	class="newspack-ui newspack-ui__modal-container newspack-my-account-v2-demo-renew-subscription"
 	data-state="closed"
 	data-newspack-my-account-v2-demo="renew-subscription-modal"
 	data-subscription-id="<?php echo esc_attr( $subscription_id ); ?>"

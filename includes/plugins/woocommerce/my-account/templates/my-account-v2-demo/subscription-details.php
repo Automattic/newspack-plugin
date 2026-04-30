@@ -54,7 +54,7 @@ $total                 = isset( $subscription['total'] ) ? (float) $subscription
 $payment               = isset( $subscription['payment_method'] ) ? $subscription['payment_method'] : [];
 $history               = isset( $subscription['billing_history'] ) ? $subscription['billing_history'] : [];
 
-$list_url = \Newspack\My_Account_UI_V2_Demo::subscriptions_url();
+$list_url = \Newspack\My_Account_V2_Demo::subscriptions_url();
 
 $format_amount = static function ( $a ) use ( $currency_symbol ) {
 	return $currency_symbol . number_format_i18n( (float) $a, 2 );
@@ -105,7 +105,7 @@ if ( $frequency ) {
 }
 ?>
 <div
-	class="newspack-my-account__v2-demo-subscription-details"
+	class="newspack-my-account-v2-demo-subscription-details"
 	data-newspack-my-account-v2-demo="subscription-details"
 	data-subscription-id="<?php echo esc_attr( $subscription_id ); ?>"
 	data-subscription-status="<?php echo esc_attr( $subscription_status ); ?>"

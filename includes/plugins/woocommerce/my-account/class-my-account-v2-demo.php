@@ -11,7 +11,7 @@
  * the demo flag is active. Phase 6 mirrors WC core's `payment-methods`
  * page under the demo flag, fed by fake data, and bypasses v1's
  * `wc_get_template` swap via the same takeover pattern Phase 4 uses for
- * subscriptions. See the v2-demo template for the small intentional
+ * subscriptions. See the my-account-v2-demo template for the small intentional
  * deviations from WC core's exact output.
  *
  * @package Newspack
@@ -24,10 +24,10 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Newspack "My Account" v2 prototype demo gate.
  */
-final class My_Account_UI_V2_Demo {
+final class My_Account_V2_Demo {
 	const DEMO_FLAG           = 'my-account-v2-demo';
-	const BODY_CLASS          = 'newspack-my-account--v2-demo';
-	const HOMEPAGE_BODY_CLASS = 'newspack-my-account--v2-demo-homepage';
+	const BODY_CLASS          = 'newspack-my-account-v2-demo';
+	const HOMEPAGE_BODY_CLASS = 'newspack-my-account-v2-demo-homepage';
 	const ENDPOINTS_OPTION    = 'newspack_my_account_v2_demo_endpoints_version';
 	/**
 	 * Recognised scenario names. The query parameter `?my-account-v2-demo=<scenario>`
@@ -246,7 +246,7 @@ final class My_Account_UI_V2_Demo {
 	}
 
 	/**
-	 * Add the v2-demo body class so SCSS scoping works.
+	 * Add the my-account-v2-demo body class so SCSS scoping works.
 	 *
 	 * @param array $classes Body classes.
 	 * @return array
@@ -343,7 +343,7 @@ final class My_Account_UI_V2_Demo {
 		}
 
 		\load_template(
-			__DIR__ . '/templates/v2-demo/homepage-overlay.php',
+			__DIR__ . '/templates/my-account-v2-demo/homepage-overlay.php',
 			false,
 			[
 				'first_name'      => $first_name,
@@ -624,7 +624,7 @@ final class My_Account_UI_V2_Demo {
 			return;
 		}
 		\load_template(
-			__DIR__ . '/templates/v2-demo/newsletters.php',
+			__DIR__ . '/templates/my-account-v2-demo/newsletters.php',
 			false,
 			[ 'data' => self::get_fake_data() ]
 		);
@@ -649,7 +649,7 @@ final class My_Account_UI_V2_Demo {
 			$donation = self::find_donation_by_id( $data, $id );
 			if ( $donation ) {
 				\load_template(
-					__DIR__ . '/templates/v2-demo/donation-details.php',
+					__DIR__ . '/templates/my-account-v2-demo/donation-details.php',
 					false,
 					[
 						'data'     => $data,
@@ -661,14 +661,14 @@ final class My_Account_UI_V2_Demo {
 		}
 
 		\load_template(
-			__DIR__ . '/templates/v2-demo/donations.php',
+			__DIR__ . '/templates/my-account-v2-demo/donations.php',
 			false,
 			[ 'data' => $data ]
 		);
 	}
 
 	/**
-	 * Build a v2-demo donations URL — bare endpoint when $id is empty, detail
+	 * Build a my-account-v2-demo donations URL — bare endpoint when $id is empty, detail
 	 * URL otherwise. Goes through `wc_get_endpoint_url`, which fires the
 	 * `woocommerce_get_endpoint_url` filter so our `?my-account-v2-demo=1` preservation
 	 * kicks in automatically — list/detail/sidebar links all stay in the demo.
@@ -701,7 +701,7 @@ final class My_Account_UI_V2_Demo {
 			$subscription = self::find_subscription_by_id( $data, $id );
 			if ( $subscription ) {
 				\load_template(
-					__DIR__ . '/templates/v2-demo/subscription-details.php',
+					__DIR__ . '/templates/my-account-v2-demo/subscription-details.php',
 					false,
 					[
 						'data'         => $data,
@@ -713,7 +713,7 @@ final class My_Account_UI_V2_Demo {
 		}
 
 		\load_template(
-			__DIR__ . '/templates/v2-demo/subscriptions.php',
+			__DIR__ . '/templates/my-account-v2-demo/subscriptions.php',
 			false,
 			[ 'data' => $data ]
 		);
@@ -731,14 +731,14 @@ final class My_Account_UI_V2_Demo {
 			return;
 		}
 		\load_template(
-			__DIR__ . '/templates/v2-demo/payment-methods.php',
+			__DIR__ . '/templates/my-account-v2-demo/payment-methods.php',
 			false,
 			[ 'data' => self::get_fake_data() ]
 		);
 	}
 
 	/**
-	 * Build a v2-demo subscriptions URL — bare endpoint when $id is empty,
+	 * Build a my-account-v2-demo subscriptions URL — bare endpoint when $id is empty,
 	 * detail URL otherwise. Same plumbing as donations_url(); the
 	 * woocommerce_get_endpoint_url filter re-appends ?my-account-v2-demo automatically.
 	 *
@@ -1750,4 +1750,4 @@ final class My_Account_UI_V2_Demo {
 		];
 	}
 }
-My_Account_UI_V2_Demo::init();
+My_Account_V2_Demo::init();

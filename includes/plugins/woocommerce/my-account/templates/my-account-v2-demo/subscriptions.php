@@ -112,7 +112,7 @@ $previous_meta_color = static function ( $row ) {
 };
 ?>
 <div
-	class="newspack-my-account__v2-demo-subscriptions newspack-ui__stack newspack-ui__stack--vertical newspack-ui__stack--gap-9"
+	class="newspack-my-account-v2-demo-subscriptions newspack-ui__stack newspack-ui__stack--vertical newspack-ui__stack--gap-9"
 	data-newspack-my-account-v2-demo="subscriptions"
 >
 	<?php if ( empty( $active ) && empty( $previous ) ) : ?>
@@ -144,7 +144,7 @@ $previous_meta_color = static function ( $row ) {
 					$amount_label        = $format_amount( isset( $sub['amount'] ) ? $sub['amount'] : 0 );
 					/* translators: %1$s: amount with currency, %2$s: frequency unit (year, month). */
 					$amount_per          = sprintf( __( '%1$s / %2$s', 'newspack-plugin' ), $amount_label, $frequency_unit( $sub ) );
-					$detail_url          = \Newspack\My_Account_UI_V2_Demo::subscriptions_url( $subscription_id );
+					$detail_url          = \Newspack\My_Account_V2_Demo::subscriptions_url( $subscription_id );
 
 					if ( $is_expiring ) {
 						$expires_on = ! empty( $sub['expires_on'] ) ? $format_date( $sub['expires_on'] ) : '';
@@ -246,7 +246,7 @@ $previous_meta_color = static function ( $row ) {
 					$amount_label        = $format_amount( isset( $sub['amount'] ) ? $sub['amount'] : 0 );
 					/* translators: %1$s: amount with currency, %2$s: frequency unit. */
 					$amount_per          = sprintf( __( '%1$s / %2$s', 'newspack-plugin' ), $amount_label, $frequency_unit( $sub ) );
-					$detail_url          = \Newspack\My_Account_UI_V2_Demo::subscriptions_url( $subscription_id );
+					$detail_url          = \Newspack\My_Account_V2_Demo::subscriptions_url( $subscription_id );
 					$meta_text           = $previous_meta( $sub );
 					$meta_color          = $previous_meta_color( $sub );
 					$row_label           = $product

@@ -49,7 +49,7 @@ $total         = isset( $donation['total'] ) ? (float) $donation['total'] : $amo
 $payment       = isset( $donation['payment_method'] ) ? $donation['payment_method'] : [];
 $history       = isset( $donation['billing_history'] ) ? $donation['billing_history'] : [];
 
-$list_url = \Newspack\My_Account_UI_V2_Demo::donations_url();
+$list_url = \Newspack\My_Account_V2_Demo::donations_url();
 
 $format_amount = static function ( $a ) use ( $currency_symbol ) {
 	return $currency_symbol . number_format_i18n( (float) $a, 2 );
@@ -97,7 +97,7 @@ if ( $is_recurring && $frequency ) {
 }
 ?>
 <div
-	class="newspack-my-account__v2-demo-donation-details newspack-ui__stack newspack-ui__stack--vertical newspack-ui__stack--gap-6"
+	class="newspack-my-account-v2-demo-donation-details newspack-ui__stack newspack-ui__stack--vertical newspack-ui__stack--gap-6"
 	data-newspack-my-account-v2-demo="donation-details"
 	data-donation-id="<?php echo esc_attr( $donation_id ); ?>"
 	data-donation-kind="<?php echo esc_attr( $kind ); ?>"
@@ -296,7 +296,7 @@ if ( $is_recurring && $frequency ) {
 			<h2 class="newspack-ui__font--s newspack-ui__font--bold newspack-ui__spacing-top--0 newspack-ui__spacing-bottom--0">
 				<?php esc_html_e( 'Billing history', 'newspack-plugin' ); ?>
 			</h2>
-			<table class="newspack-my-account__v2-demo-donation-details__billing-table">
+			<table class="newspack-my-account-v2-demo-donation-details__billing-table">
 				<thead>
 					<tr>
 						<th scope="col" class="newspack-ui__color--neutral-60"><?php esc_html_e( 'Order', 'newspack-plugin' ); ?></th>

@@ -50,7 +50,7 @@ function wireRoot( root ) {
 }
 
 document.addEventListener( 'DOMContentLoaded', () => {
-	// The endpoint body is not wrapped in a v2-demo data attribute (the
+	// The endpoint body is not wrapped in a my-account-v2-demo data attribute (the
 	// template is a faithful copy of WC core's, no hand-rolled wrapper). Wire
 	// directly off the table + the trailing "Add payment method" anchor —
 	// each is a small, scoped delegation root rather than the whole document.

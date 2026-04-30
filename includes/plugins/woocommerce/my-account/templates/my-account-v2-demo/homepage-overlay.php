@@ -4,7 +4,7 @@
  *
  * Right-side drawer rendered on the homepage when `?my-account-v2-demo` is
  * active. Greeting line is filled in client-side from the browser's local
- * time (see src/my-account/v2-demo-homepage/overlay.js); the first name is
+ * time (see src/my-account-v2-demo-homepage/overlay.js); the first name is
  * server-rendered.
  *
  * @package Newspack
@@ -22,15 +22,15 @@ $secondary_links = isset( $args['secondary_links'] ) && is_array( $args['seconda
 $logout_url      = isset( $args['logout_url'] ) ? (string) $args['logout_url'] : '';
 ?>
 <div
-	class="newspack-my-account__v2-demo-homepage-overlay newspack-ui"
+	class="newspack-my-account-v2-demo-homepage-overlay newspack-ui"
 	data-newspack-my-account-v2-demo-homepage
 	data-state="open"
 	role="dialog"
 	aria-modal="true"
 	aria-label="<?php esc_attr_e( 'My account menu', 'newspack-plugin' ); ?>"
 >
-	<div class="newspack-my-account__v2-demo-homepage-overlay__drawer">
-		<div class="newspack-my-account__v2-demo-homepage-overlay__header">
+	<div class="newspack-my-account-v2-demo-homepage-overlay__drawer">
+		<div class="newspack-my-account-v2-demo-homepage-overlay__header">
 			<button
 				type="button"
 				class="newspack-ui__button newspack-ui__button--ghost newspack-ui__button--icon"
@@ -41,7 +41,7 @@ $logout_url      = isset( $args['logout_url'] ) ? (string) $args['logout_url'] :
 			</button>
 		</div>
 
-		<div class="newspack-my-account__v2-demo-homepage-overlay__welcome">
+		<div class="newspack-my-account-v2-demo-homepage-overlay__welcome">
 			<?php if ( '' !== $first_name ) : ?>
 				<p class="newspack-ui__font--l newspack-ui__font--bold newspack-ui__spacing-top--0 newspack-ui__spacing-bottom--0">
 					<?php
@@ -67,7 +67,7 @@ $logout_url      = isset( $args['logout_url'] ) ? (string) $args['logout_url'] :
 			<?php endif; ?>
 		</div>
 
-		<nav class="newspack-my-account__v2-demo-homepage-overlay__menu" aria-label="<?php esc_attr_e( 'Account pages', 'newspack-plugin' ); ?>">
+		<nav class="newspack-my-account-v2-demo-homepage-overlay__menu" aria-label="<?php esc_attr_e( 'Account pages', 'newspack-plugin' ); ?>">
 			<ul>
 				<?php foreach ( $menu_items as $endpoint => $label ) : ?>
 					<?php
@@ -90,7 +90,7 @@ $logout_url      = isset( $args['logout_url'] ) ? (string) $args['logout_url'] :
 		</nav>
 
 		<?php if ( ! empty( $secondary_links ) ) : ?>
-			<nav class="newspack-my-account__v2-demo-homepage-overlay__secondary" aria-label="<?php esc_attr_e( 'Site information', 'newspack-plugin' ); ?>">
+			<nav class="newspack-my-account-v2-demo-homepage-overlay__secondary" aria-label="<?php esc_attr_e( 'Site information', 'newspack-plugin' ); ?>">
 				<ul>
 					<?php foreach ( $secondary_links as $item ) : ?>
 						<li class="newspack-my-account__navigation-footer-item">
@@ -101,7 +101,7 @@ $logout_url      = isset( $args['logout_url'] ) ? (string) $args['logout_url'] :
 			</nav>
 		<?php endif; ?>
 
-		<div class="newspack-my-account__v2-demo-homepage-overlay__footer">
+		<div class="newspack-my-account-v2-demo-homepage-overlay__footer">
 			<a
 				href="<?php echo esc_url( $logout_url ); ?>"
 				class="newspack-ui__button newspack-ui__button--small newspack-ui__button--ghost"

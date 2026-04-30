@@ -90,7 +90,7 @@ $initial_confirm_label = sprintf( __( '%1$s / %2$s', 'newspack-plugin' ), $forma
 ?>
 <div
 	id="newspack-my-account__modify-donation-<?php echo esc_attr( $donation_id ); ?>"
-	class="newspack-ui newspack-ui__modal-container newspack-my-account__v2-demo-modify-donation"
+	class="newspack-ui newspack-ui__modal-container newspack-my-account-v2-demo-modify-donation"
 	data-state="closed"
 	data-newspack-my-account-v2-demo="modify-donation-modal"
 	data-donation-id="<?php echo esc_attr( $donation_id ); ?>"

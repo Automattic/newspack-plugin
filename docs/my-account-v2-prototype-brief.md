@@ -28,10 +28,10 @@ This section exists for devs new to WordPress, WooCommerce, or the Newspack code
 
 If you find yourself about to write a fresh CSS rule, stop and check three places first: the [Newspack UI utility class reference](../src/newspack-ui/UTILITY_CLASSES.md), the existing class names in `src/newspack-ui/scss/elements/`, and the live demo at any URL with `?ui-demo` appended (an admin-only gallery of every component on display). If a genuine gap exists, raise it as an addition to `src/newspack-ui/` itself — not a one-off rule inside the prototype's SCSS. Document the gap in the devlog (see §11) before you write the workaround.
 
-The demo's SCSS file (`src/my-account/v2-demo/style.scss`) should stay nearly empty. Most of it is just the scoping wrapper:
+The demo's SCSS file (`src/my-account-v2-demo/style.scss`) should stay nearly empty. Most of it is just the scoping wrapper:
 
 ```scss
-.newspack-my-account--v2-demo {
+.newspack-my-account--my-account-v2-demo {
     // If you're writing rules in here, pause and re-read §2.1.
 }
 ```
@@ -42,7 +42,7 @@ If at any point your `style.scss` has more than a handful of lines, treat that a
 
 **If v1 already renders the surface you're rebuilding in v2, copy v1's DOM and class names verbatim and feed them with fake data. Do not invent fresh markup or compose from utility classes when v1 has done this work already.**
 
-The v2-demo body class chain (`.woocommerce-account.newspack-my-account.newspack-ui` plus `.newspack-my-account--v2-demo`) means **every v1 SCSS rule already paints v2-demo pages**. Reusing v1's classes gets free design fidelity, free responsive behaviour (mobile vs desktop breakpoints, action-link / actions-dropdown swaps), and consistency with the rest of the site. Reinventing the markup forces you to hand-rebuild all of that — and you'll get the gaps wrong, the chevron wrong, the dropdown wrong, and weird grey backgrounds you don't expect.
+The my-account-v2-demo body class chain (`.woocommerce-account.newspack-my-account.newspack-ui` plus `.newspack-my-account--my-account-v2-demo`) means **every v1 SCSS rule already paints my-account-v2-demo pages**. Reusing v1's classes gets free design fidelity, free responsive behaviour (mobile vs desktop breakpoints, action-link / actions-dropdown swaps), and consistency with the rest of the site. Reinventing the markup forces you to hand-rebuild all of that — and you'll get the gaps wrong, the chevron wrong, the dropdown wrong, and weird grey backgrounds you don't expect.
 
 The reflex order when building any v2 surface:
 
@@ -65,7 +65,7 @@ A non-exhaustive index of "v1 already has this":
 | Checkout flow (billing readout + payment radio + card inputs) | `newspack-blocks` `src/modal-checkout/templates/form-checkout.php` and `form-change-payment-method.php` — `<form class="checkout woocommerce-checkout">`, `<section class="woocommerce-customer-details">` for billing, `<div id="payment" class="woocommerce-checkout-payment">`, `<ul class="wc_payment_methods payment_methods methods">` with `<li class="wc_payment_method payment_method_stripe">`, `<div class="payment_box payment_method_stripe">` for the card-fields panel, `<p class="form-row form-row-first|last|wide">` for input rows, `<input class="input-radio">` / `class="input-text"` / `class="input-checkbox">` |
 | Plan card / box / button card | `.newspack-ui__box` (grey bg, `--text-center` for centered, `--border` for transparent + 1px border) — see `_boxes.scss` |
 
-When in doubt: rebuild the v2 surface as fake-data PHP that emits the same DOM v1 emits. The fake-data slice on `My_Account_UI_V2_Demo::get_fake_data()` is the only place values come from; everything else mirrors v1.
+When in doubt: rebuild the v2 surface as fake-data PHP that emits the same DOM v1 emits. The fake-data slice on `My_Account_V2_Demo::get_fake_data()` is the only place values come from; everything else mirrors v1.
 
 ### 2.2 — WordPress hooks in 30 seconds
 
@@ -75,9 +75,9 @@ WordPress runs hundreds of named events ("hooks") during every request. Code sub
 
 - `wc_get_template` (filter) — WooCommerce's template-override hook. When WC asks for `myaccount/dashboard.php`, our filter can return a different file path. This is how v1 swaps in its own templates and how v2 will too.
 - `woocommerce_account_content` (action) — fires inside the `[woocommerce_my_account]` shortcode body. Use this (not `the_content`) for any "inject content into the My Account page" trick. v1's custom page template renders the account area via the shortcode and never calls `the_content()`, so the `the_content` filter doesn't fire here.
-- `body_class` (filter) — modify the `<body class>` array. We add `newspack-my-account--v2-demo` so SCSS scoping works.
+- `body_class` (filter) — modify the `<body class>` array. We add `newspack-my-account--my-account-v2-demo` so SCSS scoping works.
 - `woocommerce_account_menu_items` (filter) — modify the sidebar nav items. v1 already filters this at priority 1001; we run later (1100) so we can rename items only when the demo flag is set.
-- `query_vars` (filter) — tell WordPress that `v2-demo` is a recognized URL parameter so it isn't stripped during URL parsing.
+- `query_vars` (filter) — tell WordPress that `my-account-v2-demo` is a recognized URL parameter so it isn't stripped during URL parsing.
 - `wp_enqueue_scripts` (action) — register a CSS/JS bundle for a page.
 - `wp_localize_script` (function) — pass a PHP array to the browser as a JS global like `window.newspackMyAccountV2Demo = {...}`. This is how the fake data reaches the JS layer.
 - `add_rewrite_endpoint` + `flush_rewrite_rules` — register `/my-account/donations/` as a real URL. Endpoints have to be flushed once after registration; otherwise WordPress returns 404 for the new URL.
@@ -184,7 +184,7 @@ v1 already extends the WooCommerce Subscriptions endpoint, but the design is bei
 
 **Payment methods** (no Figma — reproduce v1 as-is)
 
-v1 already renders `/my-account/payment-methods/` as a `<table class="shop_table account-payment-methods-table">` of saved cards with action buttons (Make default / Delete) plus an "Add payment method" CTA. The v2 prototype reproduces the exact v1 DOM under the `?my-account-v2-demo` flag, fed by fake data instead of real `wc_get_customer_saved_methods_list()` — no new design, no new components. This means v2-demo readers can see and click through the payment-methods experience without needing real WC payment tokens on the demo site. Phase 6 ships this; details in §10 → Phase 6.
+v1 already renders `/my-account/payment-methods/` as a `<table class="shop_table account-payment-methods-table">` of saved cards with action buttons (Make default / Delete) plus an "Add payment method" CTA. The v2 prototype reproduces the exact v1 DOM under the `?my-account-v2-demo` flag, fed by fake data instead of real `wc_get_customer_saved_methods_list()` — no new design, no new components. This means my-account-v2-demo readers can see and click through the payment-methods experience without needing real WC payment tokens on the demo site. Phase 6 ships this; details in §10 → Phase 6.
 
 Reused from v1 unchanged: account-page page template, sidebar/menu, account settings, delete-account flow, signed-out state.
 
@@ -192,22 +192,22 @@ Reused from v1 unchanged: account-page page template, sidebar/menu, account sett
 
 The model is **`?ui-demo`** as implemented in `includes/class-newspack-ui.php`. That class hooks `the_content` and, if `isset( $_REQUEST['ui-demo'] )` and `current_user_can( 'manage_options' )`, appends a long inline demo to the rendered content. v2 follows the same shape but operates earlier in the pipeline because My Account uses a custom page template, not `the_content`.
 
-A new class `Newspack\My_Account_UI_V2_Demo` lives at `includes/plugins/woocommerce/my-account/class-my-account-ui-v2-demo.php`. It:
+A new class `Newspack\My_Account_V2_Demo` lives at `includes/plugins/woocommerce/my-account/class-my-account-v2-demo.php`. It:
 
 1. **Gates everything on `is_account_page() && is_user_logged_in() && current_user_can( 'manage_options' ) && isset( $_GET['my-account-v2-demo'] )`.** A single private static helper `is_demo_active()` returns the boolean; every other hook short-circuits when it returns false. No-op for everyone else.
-2. **Adds a body class `newspack-my-account--v2-demo`** via `body_class`. All v2 SCSS is nested under this selector so demo styles cannot leak.
-3. **Swaps templates** via `wc_get_template` (the same hook v1 uses) for the dashboard, newsletters, donations, and subscriptions endpoints — pointing them at v2 templates under `includes/plugins/woocommerce/my-account/templates/v2-demo/`.
+2. **Adds a body class `newspack-my-account--my-account-v2-demo`** via `body_class`. All v2 SCSS is nested under this selector so demo styles cannot leak.
+3. **Swaps templates** via `wc_get_template` (the same hook v1 uses) for the dashboard, newsletters, donations, and subscriptions endpoints — pointing them at v2 templates under `includes/plugins/woocommerce/my-account/templates/my-account-v2-demo/`.
 4. **Forces v1's account-page page template** to remain in effect (no header/footer chrome) — v1's `My_Account_UI_V1::page_template()` already does this for any logged-in account page, so we inherit it for free.
 5. **Enqueues a single new bundle** `newspack-my-account-v2-demo` (CSS + JS, see §6). Existing `newspack-ui` script + style is already enqueued globally by `Newspack_UI`, so we get all of newspack-ui for free without touching the enqueue list.
-6. **Registers a fake-data provider** keyed by the WP user id (so the demo state is per-admin and per-session, not global). Fake data is exposed to JS via `wp_localize_script( 'newspack-my-account-v2-demo', 'newspackMyAccountV2Demo', [...] )` and to PHP templates via a shared `My_Account_UI_V2_Demo::get_fake_data()` static method.
-7. **Registers a query var** `v2-demo` via the `query_vars` filter so WordPress doesn't strip it.
+6. **Registers a fake-data provider** keyed by the WP user id (so the demo state is per-admin and per-session, not global). Fake data is exposed to JS via `wp_localize_script( 'newspack-my-account-v2-demo', 'newspackMyAccountV2Demo', [...] )` and to PHP templates via a shared `My_Account_V2_Demo::get_fake_data()` static method.
+7. **Registers a query var** `my-account-v2-demo` via the `query_vars` filter so WordPress doesn't strip it.
 
 The class follows the static `init()` pattern (per `AGENTS.md`), is `include_once`d from `includes/plugins/woocommerce/my-account/class-woocommerce-my-account.php` after the v1 class, and `composer dump-autoload` is run after creation.
 
 ```php
 namespace Newspack;
 
-final class My_Account_UI_V2_Demo {
+final class My_Account_V2_Demo {
     const DEMO_FLAG = 'my-account-v2-demo';
 
     public static function init() {
@@ -228,7 +228,7 @@ final class My_Account_UI_V2_Demo {
     }
     // ...
 }
-My_Account_UI_V2_Demo::init();
+My_Account_V2_Demo::init();
 ```
 
 The demo flag is preserved across navigation by appending `?my-account-v2-demo=1` to every internal nav link generated for the v2 menu items (a small filter on `woocommerce_get_account_menu_item_classes` / a `wc_get_account_endpoint_url` wrapper).
@@ -237,8 +237,8 @@ The demo flag is preserved across navigation by appending `?my-account-v2-demo=1
 
 ```
 includes/plugins/woocommerce/my-account/
-├── class-my-account-ui-v2-demo.php           # NEW — demo gate + fake data
-└── templates/v2-demo/                        # NEW — v2 templates
+├── class-my-account-v2-demo.php           # NEW — demo gate + fake data
+└── templates/my-account-v2-demo/                        # NEW — v2 templates
     ├── dashboard.php                         # entry, optional welcome
     ├── newsletters.php                       # priority screen
     ├── newsletters-row.php                   # partial
@@ -259,9 +259,9 @@ includes/plugins/woocommerce/my-account/
         ├── renew-subscription.php
         └── change-subscription.php
 
-src/my-account/v2-demo/
+src/my-account-v2-demo/
 ├── index.js                                  # webpack entry, imports public-path then style + JS
-├── style.scss                                # all styles scoped under .newspack-my-account--v2-demo
+├── style.scss                                # all styles scoped under .newspack-my-account--my-account-v2-demo
 ├── newsletters.js                            # wires up unsubscribe toast, optimistic UI
 ├── donations.js                              # cancel/modify modal triggers
 ├── subscriptions.js                          # cancel/renew/change modal triggers
@@ -271,7 +271,7 @@ src/my-account/v2-demo/
 A new webpack entry is added to `webpack.config.js` (alongside the existing `my-account`, `my-account-v0`, `my-account-v1` entries):
 
 ```js
-'my-account-v2-demo': path.join( __dirname, 'src', 'my-account', 'v2-demo', 'index.js' ),
+'my-account-v2-demo': path.join( __dirname, 'src', 'my-account', 'my-account-v2-demo', 'index.js' ),
 ```
 
 Per `AGENTS.md`, `index.js` must `import 'src/shared/js/public-path.js'` first.
@@ -304,13 +304,13 @@ Every Figma element maps to an existing newspack-ui primitive. There are no genu
 | "Unsubscribe from all" row | A `.newspack-ui__box` at the bottom of the newsletters list with title + supporting copy on the left and a `.newspack-ui__button--secondary` on the right. | composition |
 | "active" vs "previous" / "cancelled" splits | Vertical stack with two section-titles and two stacks of `Plan Card`s | utilities |
 
-**Layout primitives.** Page chrome on every screen is the same: `container` (max-width content area, ~768px) → vertical `newspack-ui__stack --gap-6` for top-level sections. Inside each section, a vertical stack of `.newspack-ui__box` cards. Margins are controlled by stack `gap`, never per-element margins (per `UTILITY_CLASSES.md`). The whole page sits inside `<body class="newspack-ui newspack-my-account newspack-my-account--v1 newspack-my-account--v2-demo">` — `newspack-ui` is the wrapper newspack-ui CSS scopes itself to.
+**Layout primitives.** Page chrome on every screen is the same: `container` (max-width content area, ~768px) → vertical `newspack-ui__stack --gap-6` for top-level sections. Inside each section, a vertical stack of `.newspack-ui__box` cards. Margins are controlled by stack `gap`, never per-element margins (per `UTILITY_CLASSES.md`). The whole page sits inside `<body class="newspack-ui newspack-my-account newspack-my-account--v1 newspack-my-account--my-account-v2-demo">` — `newspack-ui` is the wrapper newspack-ui CSS scopes itself to.
 
 **Things to verify in newspack-ui before final implementation.** Whether a "Plan Card" pattern already has a documented compositional recipe; whether `.newspack-ui__accordion` supports the section grouping we want for newsletters; whether tables are styled within `.newspack-ui__box` or stand alone. Spot-checks of the `?ui-demo` page on a local site will confirm.
 
 ## 7. Fake data
 
-Fake data lives in **PHP** (single source of truth) inside `class-my-account-ui-v2-demo.php` as a static method `get_fake_data()` returning an associative array, optionally filtered through a small filter for the demo to be reshaped per scenario. It is shipped to the browser via `wp_localize_script`. JS consumers read from `window.newspackMyAccountV2Demo`.
+Fake data lives in **PHP** (single source of truth) inside `class-my-account-v2-demo.php` as a static method `get_fake_data()` returning an associative array, optionally filtered through a small filter for the demo to be reshaped per scenario. It is shipped to the browser via `wp_localize_script`. JS consumers read from `window.newspackMyAccountV2Demo`.
 
 **Data shape (informed by Figma, kept minimal):**
 
@@ -387,7 +387,7 @@ return [
 ];
 ```
 
-**Variant switching for screenshot/test scenarios.** A second query parameter, `?my-account-v2-demo=<scenario>`, picks a fixture variant: `?my-account-v2-demo=cancelled-sub`, `?my-account-v2-demo=expired-payment`, `?my-account-v2-demo=no-donations`, etc. `My_Account_UI_V2_Demo::get_fake_data()` merges the scenario overrides into the base fixture. The default `?my-account-v2-demo=1` is the "happy path" (one active recurring donation, one active sub, one one-time donation, billing history populated).
+**Variant switching for screenshot/test scenarios.** A second query parameter, `?my-account-v2-demo=<scenario>`, picks a fixture variant: `?my-account-v2-demo=cancelled-sub`, `?my-account-v2-demo=expired-payment`, `?my-account-v2-demo=no-donations`, etc. `My_Account_V2_Demo::get_fake_data()` merges the scenario overrides into the base fixture. The default `?my-account-v2-demo=1` is the "happy path" (one active recurring donation, one active sub, one one-time donation, billing history populated).
 
 **Mutations.** All "Cancel", "Modify", "Renew", "Change", "Unsubscribe" actions are **client-side only** in JS — they trigger the appropriate modal, then on submit show a toast via `newspackUI` (already exposed by `js/modals.js`) and optimistically update the DOM. No POST, no AJAX. This keeps the prototype stateless and risk-free.
 
@@ -410,7 +410,7 @@ Add menu items via `woocommerce_account_menu_items` filter on the demo class onl
 - "Donations" (slug `donations`)
 - "Subscriptions" (slug `subscriptions`) — already exists from WC Subscriptions, just relabel/reorder.
 
-Custom endpoints (`add_rewrite_endpoint`) are registered conditionally in `My_Account_UI_V2_Demo::register_endpoints()`. After registration, a flush-rewrite-rules step is needed once per site (CLI: `wp rewrite flush`). Note this in onboarding.
+Custom endpoints (`add_rewrite_endpoint`) are registered conditionally in `My_Account_V2_Demo::register_endpoints()`. After registration, a flush-rewrite-rules step is needed once per site (CLI: `wp rewrite flush`). Note this in onboarding.
 
 ## 9. Risks & open questions
 
@@ -427,11 +427,11 @@ Custom endpoints (`add_rewrite_endpoint`) are registered conditionally in `My_Ac
 
 ### Phase 1 — Plumbing (~half a day)
 
-**Goal:** an admin who appends `?my-account-v2-demo=1` to `/my-account/` sees a "Hello v2 demo" stub *and* the body class `newspack-my-account--v2-demo`. A non-admin appending the same URL sees v1 unchanged.
+**Goal:** an admin who appends `?my-account-v2-demo=1` to `/my-account/` sees a "Hello v2 demo" stub *and* the body class `newspack-my-account--my-account-v2-demo`. A non-admin appending the same URL sees v1 unchanged.
 
 **Step 1 — Read first.** Spend 30–60 minutes on the files listed in §2.8. Don't skip this.
 
-**Step 2 — Create the PHP class.** New file `includes/plugins/woocommerce/my-account/class-my-account-ui-v2-demo.php`:
+**Step 2 — Create the PHP class.** New file `includes/plugins/woocommerce/my-account/class-my-account-v2-demo.php`:
 
 ```php
 <?php
@@ -445,9 +445,9 @@ namespace Newspack;
 
 defined( 'ABSPATH' ) || exit;
 
-final class My_Account_UI_V2_Demo {
+final class My_Account_V2_Demo {
     const DEMO_FLAG  = 'my-account-v2-demo';
-    const BODY_CLASS = 'newspack-my-account--v2-demo';
+    const BODY_CLASS = 'newspack-my-account--my-account-v2-demo';
 
     public static function init() {
         add_filter( 'query_vars',                  [ __CLASS__, 'query_vars' ] );
@@ -511,18 +511,18 @@ final class My_Account_UI_V2_Demo {
         echo '<div class="newspack-ui"><p>' . esc_html__( 'Hello v2 demo. Phase 1 stub is working.', 'newspack-plugin' ) . '</p></div>';
     }
 }
-My_Account_UI_V2_Demo::init();
+My_Account_V2_Demo::init();
 ```
 
 This is intentionally smaller than the final shape sketched in §5 — Phase 1 just proves the gate works. Later phases swap in `wc_get_template` for real templates, register endpoints, and add menu items.
 
-**Step 3 — Wire it into the bootstrap.** The v1 class isn't included from `includes/class-newspack.php`; it's loaded from `includes/plugins/woocommerce/my-account/class-woocommerce-my-account.php` inside an `init`-time `else` branch (the v0/v1 version switch, gated on `Reader_Activation::is_enabled()`). Add the v2-demo `include_once` immediately after the v1 includes there, so v1's filters register first and v2-demo inherits the same Reader Activation + version gating for free:
+**Step 3 — Wire it into the bootstrap.** The v1 class isn't included from `includes/class-newspack.php`; it's loaded from `includes/plugins/woocommerce/my-account/class-woocommerce-my-account.php` inside an `init`-time `else` branch (the v0/v1 version switch, gated on `Reader_Activation::is_enabled()`). Add the my-account-v2-demo `include_once` immediately after the v1 includes there, so v1's filters register first and my-account-v2-demo inherits the same Reader Activation + version gating for free:
 
 ```php
 // inside class-woocommerce-my-account.php, the v1 branch of the version switch
 include_once __DIR__ . '/class-my-account-ui-v1.php';
 include_once __DIR__ . '/class-my-account-ui-v1-passwords.php';
-include_once __DIR__ . '/class-my-account-ui-v2-demo.php'; // v2 prototype demo, admin-only behind ?my-account-v2-demo.
+include_once __DIR__ . '/class-my-account-v2-demo.php'; // v2 prototype demo, admin-only behind ?my-account-v2-demo.
 ```
 
 **Step 4 — Refresh the autoloader.**
@@ -535,7 +535,7 @@ Don't skip this even if your class loads "by accident" via `include_once` (see �
 
 **Step 5 — Scaffold the SCSS + JS bundle.** Even though Phase 1 doesn't render any v2 markup yet, set up the bundle so later phases just add to it.
 
-`src/my-account/v2-demo/index.js`:
+`src/my-account-v2-demo/index.js`:
 
 ```js
 import '../../shared/js/public-path';
@@ -544,11 +544,11 @@ import './style.scss';
 console.log( 'Newspack My Account v2 demo bundle loaded.' );
 ```
 
-`src/my-account/v2-demo/style.scss`:
+`src/my-account-v2-demo/style.scss`:
 
 ```scss
-.newspack-my-account--v2-demo {
-    // All v2-demo styles live under this scope.
+.newspack-my-account--my-account-v2-demo {
+    // All my-account-v2-demo styles live under this scope.
     // Phase 1: nothing yet — newspack-ui handles the rest.
 }
 ```
@@ -558,7 +558,7 @@ console.log( 'Newspack My Account v2 demo bundle loaded.' );
 **Step 6 — Register the webpack entry.** Open `webpack.config.js` and add this entry beside the existing my-account entries (around line 56):
 
 ```js
-'my-account-v2-demo': path.join( __dirname, 'src', 'my-account', 'v2-demo', 'index.js' ),
+'my-account-v2-demo': path.join( __dirname, 'src', 'my-account', 'my-account-v2-demo', 'index.js' ),
 ```
 
 **Step 7 — Build assets.**
@@ -580,14 +580,14 @@ npm start
 Expected:
 - The page renders with the v1 layout shell.
 - Inside the My Account content area (near the bottom of the shortcode body) you see "Hello v2 demo. Phase 1 stub is working."
-- DevTools: `<body>` has the `newspack-my-account--v2-demo` class.
+- DevTools: `<body>` has the `newspack-my-account--my-account-v2-demo` class.
 - Console: "Newspack My Account v2 demo bundle loaded."
 - Network: `my-account-v2-demo.css` and `.js` are fetched.
 
 **Step 9 — Test gating.** Log out (or switch to a non-admin user). Visit the same URL. Expected:
 - v1 renders unchanged.
 - No "Hello v2 demo" anywhere.
-- No `newspack-my-account--v2-demo` body class.
+- No `newspack-my-account--my-account-v2-demo` body class.
 - The bundle is *not* enqueued (check the Network tab).
 
 If any of these fail, debug *now* before adding more code.
@@ -621,7 +621,7 @@ All six modal flows (cancel donation, modify donation, restart donation, cancel 
 
 ### Phase 6 — Payment methods (~1–1.5 days)
 
-Reproduce v1's `/my-account/payment-methods/` surface byte-for-byte under the v2-demo flag, fed entirely by fake data (no real WooCommerce payment-token storage). The v1 page is a saved-cards table backed by `wc_get_account_payment_methods_columns()` + `wc_get_account_payment_methods_types()` plus an "Add payment method" CTA; the v2 prototype renders the same DOM (`<table class="shop_table account-payment-methods-table">` headers, per-row method/expiry/actions cells, default-card badge) so v1's existing styling carries through verbatim. Fake data adds a `payment_methods` slice on `My_Account_UI_V2_Demo::get_fake_data()` (an array of saved cards with brand / last4 / expiry / is_default / actions). Action buttons (Make default / Delete / Add new) wire to client-side stubs that surface snackbars, mirroring the Phase 5 modal-trigger pattern. Sidebar item is added at the same priority as the Phase 1–4 endpoints. No new modals.
+Reproduce v1's `/my-account/payment-methods/` surface byte-for-byte under the my-account-v2-demo flag, fed entirely by fake data (no real WooCommerce payment-token storage). The v1 page is a saved-cards table backed by `wc_get_account_payment_methods_columns()` + `wc_get_account_payment_methods_types()` plus an "Add payment method" CTA; the v2 prototype renders the same DOM (`<table class="shop_table account-payment-methods-table">` headers, per-row method/expiry/actions cells, default-card badge) so v1's existing styling carries through verbatim. Fake data adds a `payment_methods` slice on `My_Account_V2_Demo::get_fake_data()` (an array of saved cards with brand / last4 / expiry / is_default / actions). Action buttons (Make default / Delete / Add new) wire to client-side stubs that surface snackbars, mirroring the Phase 5 modal-trigger pattern. Sidebar item is added at the same priority as the Phase 1–4 endpoints. No new modals.
 
 ### Phase 7 — Polish + scenario fixtures (~0.5 day)
 
@@ -664,7 +664,7 @@ Add links to PRs, commits, and Figma frames. Keep it scannable.
 - Guards against future regressions ("this short-circuit must run before the body_class filter; otherwise admin sees the demo class on every account page even without the flag").
 - Pointers back to the brief or devlog when a decision is documented elsewhere.
 
-**The newspack-ui escape-hatch rule.** If you ever catch yourself writing a fresh CSS rule outside `.newspack-my-account--v2-demo { }` (or, worse, a custom React component to fill a perceived gap), write a devlog entry *before* committing the workaround. Describe what you tried with newspack-ui and why it didn't fit. That entry is the trigger for raising the gap as a `newspack-ui` addition rather than letting it ossify in the prototype.
+**The newspack-ui escape-hatch rule.** If you ever catch yourself writing a fresh CSS rule outside `.newspack-my-account--my-account-v2-demo { }` (or, worse, a custom React component to fill a perceived gap), write a devlog entry *before* committing the workaround. Describe what you tried with newspack-ui and why it didn't fit. That entry is the trigger for raising the gap as a `newspack-ui` addition rather than letting it ossify in the prototype.
 
 ---
 
@@ -672,7 +672,7 @@ Add links to PRs, commits, and Figma frames. Keep it scannable.
 
 - An admin can append `?my-account-v2-demo` (or `?my-account-v2-demo=<scenario>`) to any `/my-account/...` URL on any Newspack site and see the prototype rendered.
 - A non-admin appending the same URL sees v1 unchanged.
-- All visible markup uses `.newspack-ui*` classes. The v2-demo `style.scss` contains the `.newspack-my-account--v2-demo` scoping wrapper and effectively nothing else — open it in PR review and check.
+- All visible markup uses `.newspack-ui*` classes. The my-account-v2-demo `style.scss` contains the `.newspack-my-account--my-account-v2-demo` scoping wrapper and effectively nothing else — open it in PR review and check.
 - All five primary screens (dashboard, newsletters, donations, subscriptions, payment methods) plus all six modals are reachable.
 - Scenario flag toggles produce visibly different fixtures.
 - `npm run lint` and `npm run lint:php` pass.

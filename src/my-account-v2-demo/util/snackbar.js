@@ -1,5 +1,5 @@
 /**
- * Shared snackbar helper for the v2-demo prototype screens.
+ * Shared snackbar helper for the my-account-v2-demo prototype screens.
  *
  * Extracted on the third caller (Phase 5 modals) per the cross-phase devlog
  * rule-of-three. Newsletters / donations / subscriptions used to each carry

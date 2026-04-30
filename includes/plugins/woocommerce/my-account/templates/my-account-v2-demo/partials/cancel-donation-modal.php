@@ -25,7 +25,7 @@ $donation_id  = isset( $donation['id'] ) ? (string) $donation['id'] : '';
 ?>
 <div
 	id="newspack-my-account__cancel-donation-<?php echo esc_attr( $donation_id ); ?>"
-	class="newspack-ui newspack-ui__modal-container newspack-my-account__v2-demo-cancel-donation"
+	class="newspack-ui newspack-ui__modal-container newspack-my-account-v2-demo-cancel-donation"
 	data-state="closed"
 	data-newspack-my-account-v2-demo="cancel-donation-modal"
 	data-donation-id="<?php echo esc_attr( $donation_id ); ?>"

@@ -143,7 +143,7 @@ $status_label = static function ( $status ) {
 };
 ?>
 <div
-	class="newspack-my-account__v2-demo-donations newspack-ui__stack newspack-ui__stack--vertical newspack-ui__stack--gap-9"
+	class="newspack-my-account-v2-demo-donations newspack-ui__stack newspack-ui__stack--vertical newspack-ui__stack--gap-9"
 	data-newspack-my-account-v2-demo="donations"
 >
 	<?php if ( empty( $active_recurring ) && empty( $previous ) ) : ?>
@@ -175,7 +175,7 @@ $status_label = static function ( $status ) {
 					/* translators: %1$s: amount with currency, %2$s: frequency unit (month, year). */
 					$amount_per      = sprintf( __( '%1$s / %2$s', 'newspack-plugin' ), $amount_label, $frequency_unit );
 					$next_payment    = isset( $don['next_payment'] ) ? $format_date( $don['next_payment'] ) : '';
-					$detail_url      = \Newspack\My_Account_UI_V2_Demo::donations_url( $donation_id );
+					$detail_url      = \Newspack\My_Account_V2_Demo::donations_url( $donation_id );
 					?>
 					<div class="newspack-ui__box newspack-ui__box--border newspack-ui__stack newspack-ui__stack--horizontal newspack-ui__stack--gap-5 newspack-ui__stack--align-center newspack-ui__stack--justify-between">
 						<div class="newspack-ui__stack newspack-ui__stack--vertical newspack-ui__stack--gap-1">
@@ -208,7 +208,7 @@ $status_label = static function ( $status ) {
 			<h2 class="newspack-ui__font--l newspack-ui__font--bold newspack-ui__spacing-top--0 newspack-ui__spacing-bottom--0">
 				<?php esc_html_e( 'Previous donations', 'newspack-plugin' ); ?>
 			</h2>
-			<table class="newspack-my-account__v2-demo-donations__previous-table">
+			<table class="newspack-my-account-v2-demo-donations__previous-table">
 				<thead>
 					<tr>
 						<th scope="col" class="newspack-ui__color--neutral-60"><?php esc_html_e( 'Date', 'newspack-plugin' ); ?></th>
@@ -220,7 +220,7 @@ $status_label = static function ( $status ) {
 				<tbody>
 					<?php foreach ( $previous as $row ) : ?>
 						<?php
-						$row_url   = \Newspack\My_Account_UI_V2_Demo::donations_url( $row['id'] );
+						$row_url   = \Newspack\My_Account_V2_Demo::donations_url( $row['id'] );
 						$row_label = sprintf(
 							/* translators: %1$s: donation date, %2$s: amount with currency. */
 							__( 'View donation from %1$s, %2$s', 'newspack-plugin' ),
@@ -275,7 +275,7 @@ $status_label = static function ( $status ) {
 				}
 			);
 			?>
-			<table class="newspack-my-account__v2-demo-donations__billing-table">
+			<table class="newspack-my-account-v2-demo-donations__billing-table">
 				<thead>
 					<tr>
 						<th scope="col" class="newspack-ui__color--neutral-60"><?php esc_html_e( 'Order', 'newspack-plugin' ); ?></th>

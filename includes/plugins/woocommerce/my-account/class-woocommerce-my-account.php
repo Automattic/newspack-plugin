@@ -92,7 +92,7 @@ class WooCommerce_My_Account {
 						// first; later phases re-filter selected v1 hooks at
 						// higher priorities to override only when the demo is
 						// active. See docs/my-account-v2-prototype-brief.md.
-						include_once __DIR__ . '/class-my-account-ui-v2-demo.php';
+						include_once __DIR__ . '/class-my-account-v2-demo.php';
 					}
 				}
 			);
