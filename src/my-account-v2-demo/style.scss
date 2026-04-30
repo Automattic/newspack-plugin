@@ -76,6 +76,15 @@
 		margin-bottom: 0;
 	}
 
+	// v1 ships a `:not(.__stack--gap-11) section + section { margin-top:
+	// spacer-11 }` rule that fires on our consecutive <section> elements
+	// because the body and .woocommerce-MyAccount-content match the :not
+	// — so it stacks an extra spacer-11 on top of __stack--gap-11. Zero
+	// it inside donations so the parent gap controls spacing.
+	.newspack-my-account-v2-demo-donations section + section {
+		margin-top: 0;
+	}
+
 	// Billing history Button Card sits compact in Figma (4007:732289):
 	// padding 12px / 24px (spacer-2 / spacer-5), against the default
 	// __box's 24px all-sides. Override scoped to this single instance
