@@ -33,7 +33,13 @@
 	// label and description on the left, Manage button on the right,
 	// separated by hairlines. No newspack-ui primitive matches this
 	// layout so it lives here as a small scoped block.
+	// Two-column subgrid so all three Manage * buttons share the same
+	// auto-sized column track — grid sizes the column to fit the widest
+	// button across rows, so every button matches the longest one without
+	// hardcoded widths or JS measuring.
 	.newspack-my-account-v2-demo-account-settings__alternatives {
+		display: grid;
+		grid-template-columns: minmax(0, 1fr) auto;
 		list-style: none;
 		margin: 0 0 var(--newspack-ui-spacer-3);
 		padding: 0;
@@ -42,21 +48,30 @@
 	.newspack-my-account-v2-demo-account-settings__alternatives-item {
 		align-items: center;
 		border-bottom: 1px solid var(--newspack-ui-color-border, #ddd);
-		display: flex;
+		display: grid;
 		gap: var(--newspack-ui-spacer-5);
+		grid-column: 1 / -1;
+		grid-template-columns: subgrid;
 		padding-bottom: var(--newspack-ui-spacer-5);
 		padding-top: var(--newspack-ui-spacer-5);
 
 		&:first-child {
 			padding-top: 0;
 		}
+
+		// Stretch each button to fill the auto-sized column so widths align
+		// across rows.
+		.newspack-ui__button {
+			justify-content: center;
+			width: 100%;
+		}
 	}
 
+	// Layout comes from `newspack-ui__stack newspack-ui__stack--vertical` on
+	// the markup; the only thing this override carries is a 4px gap (half of
+	// spacer-1, no utility for it) and the description's muted typography.
 	.newspack-my-account-v2-demo-account-settings__alternatives-details {
-		display: flex;
-		flex: 1 1 auto;
-		flex-direction: column;
-		gap: var(--newspack-ui-spacer-1);
+		gap: calc(var(--newspack-ui-spacer-1) / 2);
 		min-width: 0;
 
 		span {

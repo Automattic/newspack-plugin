@@ -74,7 +74,7 @@ $alternatives = [
 			<ul class="newspack-my-account-v2-demo-account-settings__alternatives">
 				<?php foreach ( $alternatives as $alternative ) : ?>
 					<li class="newspack-my-account-v2-demo-account-settings__alternatives-item">
-						<div class="newspack-my-account-v2-demo-account-settings__alternatives-details">
+						<div class="newspack-my-account-v2-demo-account-settings__alternatives-details newspack-ui__stack newspack-ui__stack--vertical">
 							<strong><?php echo esc_html( $alternative['title'] ); ?></strong>
 							<span><?php echo esc_html( $alternative['description'] ); ?></span>
 						</div>
