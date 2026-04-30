@@ -35,6 +35,14 @@ class Content_Rules {
 			];
 		}
 
+		$content_rules['specific_posts'] = [
+			'name'         => __( 'Specific posts', 'newspack-plugin' ),
+			'default'      => [],
+			'description'  => __( 'Also restrict specific posts, even if not covered by other rules above.', 'newspack-plugin' ),
+			'endpoint'     => '/' . NEWSPACK_API_NAMESPACE . '/wizard/newspack-audience-access-control/posts-search',
+			'include_only' => true,
+		];
+
 		return $content_rules;
 	}
 
@@ -71,7 +79,19 @@ class Content_Rules {
 	 */
 	public static function get_gate_content_rules( $post_id ) {
 		$rules = \get_post_meta( $post_id, 'content_rules', true );
-		return $rules ? $rules : [];
+
+		// Filter out rules with empty array-like values.
+		return is_array( $rules ) ? array_values(
+			array_filter(
+				$rules,
+				function( $rule ) {
+					if ( ! isset( $rule['value'] ) || ! is_array( $rule['value'] ) ) {
+						return true;
+					}
+					return count( $rule['value'] ) > 0;
+				}
+			)
+		) : [];
 	}
 
 	/**

@@ -85,17 +85,19 @@ class Integrations {
 		// Include required files.
 		require_once __DIR__ . '/integrations/class-integration.php';
 		require_once __DIR__ . '/integrations/class-contact-pull.php';
+		require_once __DIR__ . '/integrations/class-contact-cron.php';
 
 		add_action( 'init', [ __CLASS__, 'register_integrations' ], 5 );
 		add_action( 'init', [ __CLASS__, 'register_my_account_endpoints' ], 6 );
 		add_filter( 'woocommerce_account_menu_items', [ __CLASS__, 'filter_my_account_menu_items' ] );
 		add_filter( 'query_vars', [ __CLASS__, 'filter_my_account_query_vars' ] );
+		add_action( 'newspack_frontend_registration_existing_user', [ __CLASS__, 'handle_existing_user_registration' ], 10, 3 );
 		add_action( 'init', [ __CLASS__, 'schedule_health_check' ] );
 		add_action( self::HEALTH_CHECK_CRON_HOOK, [ __CLASS__, 'run_health_checks' ] );
 		add_filter( 'newspack_data_events_handler_action_group', [ __CLASS__, 'filter_handler_action_group' ], 10, 3 );
 		add_filter( 'newspack_action_scheduler_group_labels', [ __CLASS__, 'register_group_labels' ] );
 
-		Integrations\Contact_Pull::init();
+		Integrations\Contact_Cron::init();
 	}
 
 	/**
@@ -215,8 +217,10 @@ class Integrations {
 		// Hook for other plugins/code to register their integrations.
 		do_action( 'newspack_reader_activation_register_integrations' );
 
-		// hardcode ESP integration as enabled for now.
-		self::enable( 'esp' );
+		// Auto-enable ESP on first registration only.
+		if ( false === get_option( self::OPTION_NAME ) ) {
+			self::enable( 'esp' );
+		}
 
 		// Let each integration register its data event handlers.
 		foreach ( self::$integrations as $integration ) {
@@ -385,6 +389,8 @@ class Integrations {
 				'name'        => $integration->get_name(),
 				'description' => $integration->get_description(),
 				'enabled'     => self::is_enabled( $id ),
+				'is_set_up'   => $integration->is_set_up(),
+				'setup_url'   => $integration->get_setup_url(),
 				'settings'    => $integration->get_settings_config(),
 			];
 		}
@@ -654,6 +660,24 @@ class Integrations {
 			$vars[] = $slug;
 		}
 		return $vars;
+	}
+
+	/**
+	 * Handle an existing user attempting to register via a frontend integration.
+	 *
+	 * Delegates to the integration's handle_logged_in_user_registration() method if it exists,
+	 * allowing integrations to update user data on repeated registration attempts
+	 * (e.g. recording a new donation for a returning donor).
+	 *
+	 * @param \WP_User                                     $user                The logged-in user.
+	 * @param \WP_REST_Request                             $request             The registration request.
+	 * @param \Newspack\Reader_Activation\Integration|null $integration_instance The integration instance, or null for filter-only registrations.
+	 */
+	public static function handle_existing_user_registration( $user, $request, $integration_instance ) {
+		if ( ! $integration_instance instanceof Integration ) {
+			return;
+		}
+		$integration_instance->handle_logged_in_user_registration( $user, $request );
 	}
 
 	/**

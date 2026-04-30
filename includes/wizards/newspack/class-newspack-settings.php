@@ -153,6 +153,17 @@ class Newspack_Settings extends Wizard {
 				],
 			];
 		}
+		$experimental_tools = \Newspack\Experimental_Tools::get_tools();
+		if ( ! empty( $experimental_tools ) ) {
+			$newspack_settings['experimental-tools'] = [
+				'label'          => __( 'Experimental tools', 'newspack-plugin' ),
+				'activeTabPaths' => [ '/experimental-tools/*' ],
+				'sections'       => [
+					'tools' => $experimental_tools,
+				],
+			];
+		}
+
 		return $newspack_settings;
 	}
 

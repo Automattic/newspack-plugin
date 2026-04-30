@@ -97,6 +97,7 @@ final class Newspack {
 		include_once NEWSPACK_ABSPATH . 'includes/class-theme-manager.php';
 		include_once NEWSPACK_ABSPATH . 'includes/class-admin-plugins-screen.php';
 		include_once NEWSPACK_ABSPATH . 'includes/reader-activation/class-reader-activation.php';
+		include_once NEWSPACK_ABSPATH . 'includes/reader-activation/class-reader-registration.php';
 		include_once NEWSPACK_ABSPATH . 'includes/reader-activation/class-reader-activation-emails.php';
 		include_once NEWSPACK_ABSPATH . 'includes/reader-activation/class-reader-data.php';
 		include_once NEWSPACK_ABSPATH . 'includes/reader-activation/sync/class-sync.php';
@@ -256,6 +257,8 @@ final class Newspack {
 		include_once NEWSPACK_ABSPATH . 'includes/optional-modules/class-collections.php';
 		include_once NEWSPACK_ABSPATH . 'includes/optional-modules/class-indesign-exporter.php';
 		include_once NEWSPACK_ABSPATH . 'includes/optional-modules/class-nextdoor.php';
+
+		include_once NEWSPACK_ABSPATH . 'includes/experimental-tools/class-experimental-tools.php';
 
 		if ( Donations::is_platform_nrh() ) {
 			include_once NEWSPACK_ABSPATH . 'includes/class-nrh.php';

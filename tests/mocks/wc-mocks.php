@@ -343,6 +343,11 @@ class WC_Subscription {
 			$this->data['dates'][ $type ] = $date;
 		}
 	}
+	public function get_formatted_billing_full_name() {
+		$first = $this->data['billing_first_name'] ?? '';
+		$last  = $this->data['billing_last_name'] ?? '';
+		return trim( "$first $last" );
+	}
 	public function get_items() {
 		return $this->data['items'] ?? [];
 	}
