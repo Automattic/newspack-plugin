@@ -85,6 +85,7 @@
 	.newspack-my-account-v2-demo-donations [data-action="open-billing-history"] > .newspack-ui__stack--vertical {
 		flex: 1;
 		min-width: 0;
+		text-align: initial;
 	}
 
 	// v1 ships a `.newspack-my-account .woocommerce-MyAccount-content
@@ -96,6 +97,15 @@
 	// __stack class to land at 4 classes and win the specificity battle.
 	.newspack-my-account-v2-demo-donations section.newspack-ui__stack + section.newspack-ui__stack {
 		margin-top: 0;
+	}
+
+	// Payment information page (Figma 2636:45349). Pin the gap between
+	// the Payment methods and Addresses sections to spacer-11 explicitly —
+	// v1's `:not(.__stack--gap-11) section + section` rule wins on the
+	// rest of the page, but the per-section <h4> top margin compounds
+	// here and reads as a tighter gap than spec.
+	#payment-methods + #addresses {
+		margin-top: var(--newspack-ui-spacer-11);
 	}
 
 	// Previous donations table polish (Figma 2636:46479). Header gets a
