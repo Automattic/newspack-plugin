@@ -21,14 +21,14 @@ $unsubscribe_from_all = isset( $payload['unsubscribe_from_all'] ) ? $payload['un
 $reader_email         = isset( $reader['email'] ) ? (string) $reader['email'] : '';
 ?>
 <div
-	class="newspack-my-account__v2-demo-newsletters newspack-ui__stack newspack-ui__stack--vertical newspack-ui__stack--gap-9"
+	class="newspack-my-account__v2-demo-newsletters newspack-ui__stack newspack-ui__stack--vertical newspack-ui__stack--gap-11"
 	data-newspack-my-account-v2-demo="newsletters"
 	data-reader-email="<?php echo esc_attr( $reader_email ); ?>"
 >
 	<?php foreach ( $sections as $section ) : ?>
 		<section class="newspack-ui__stack newspack-ui__stack--vertical newspack-ui__stack--gap-5" data-section-id="<?php echo esc_attr( $section['id'] ); ?>">
 			<header class="newspack-ui__stack newspack-ui__stack--vertical newspack-ui__stack--gap-1">
-				<h2 class="newspack-ui__font--l newspack-ui__font--bold newspack-ui__spacing-top--0 newspack-ui__spacing-bottom--0">
+				<h2 class="newspack-ui__font--m newspack-ui__font--bold newspack-ui__spacing-top--0 newspack-ui__spacing-bottom--0">
 					<?php echo esc_html( $section['label'] ); ?>
 				</h2>
 				<?php if ( ! empty( $section['description'] ) ) : ?>
@@ -69,7 +69,7 @@ $reader_email         = isset( $reader['email'] ) ? (string) $reader['email'] : 
 			data-section-id="unsubscribe-all"
 		>
 			<div class="newspack-ui__stack newspack-ui__stack--vertical newspack-ui__stack--gap-1">
-				<h2 class="newspack-ui__font--l newspack-ui__font--bold newspack-ui__spacing-top--0 newspack-ui__spacing-bottom--0">
+				<h2 class="newspack-ui__font--m newspack-ui__font--bold newspack-ui__spacing-top--0 newspack-ui__spacing-bottom--0">
 					<?php echo esc_html( $unsubscribe_from_all['title'] ); ?>
 				</h2>
 				<p class="newspack-ui__color--neutral-60 newspack-ui__spacing-top--0 newspack-ui__spacing-bottom--0">

@@ -61,11 +61,15 @@ final class My_Account_UI_V2_Demo {
 	// don't add_rewrite_endpoint for it; the bump still fires the flush once
 	// per environment so any rewrite-rule drift from earlier phases lands on
 	// a clean slate alongside the takeover hook.
+	// 6 = newsletters takeover — newspack-newsletters'
+	// `endpoint_content` ran alongside our renderer and surfaced its own
+	// "verify your email" warning above our v2 list; the takeover drops
+	// every other handler on the same hook.
 	// The `subscriptions` endpoint may already exist on sites with WC
 	// Subscriptions; add_rewrite_endpoint is idempotent so re-registering is
 	// harmless, and the auto-flush only fires once per admin visit after the
 	// bump.
-	const ENDPOINTS_VERSION = 5;
+	const ENDPOINTS_VERSION = 6;
 
 	/**
 	 * Initialize hooks.
@@ -99,6 +103,14 @@ final class My_Account_UI_V2_Demo {
 		// drops both so this callback is the sole renderer when the demo flag
 		// is active.
 		\add_action( 'woocommerce_account_payment-methods_endpoint', [ __CLASS__, 'render_payment_methods_endpoint' ] );
+		// On sites with newspack-newsletters, the subscription class hooks
+		// `woocommerce_account_newsletters_endpoint` at priority 10 to render
+		// the v1 list (and prepends an email-verification warning when the
+		// reader isn't verified). When the demo is active that warning + list
+		// stack on top of our v2 template; drop every handler so our renderer
+		// is the sole one. Same shape as the subscriptions / payment-methods
+		// takeovers; runs at template_redirect priority 8.
+		\add_action( 'template_redirect', [ __CLASS__, 'takeover_newsletters_endpoint' ], 8 );
 		// On sites with WC Subscriptions, WCS owns `woocommerce_account_subscriptions_endpoint`
 		// at priority 10 and Newspack appends a memberships table at 11 (see
 		// WooCommerce_My_Account::append_membership_table). Both must be
@@ -381,6 +393,27 @@ final class My_Account_UI_V2_Demo {
 		// remains the only handler.
 		\remove_all_actions( 'woocommerce_account_subscriptions_endpoint' );
 		\add_action( 'woocommerce_account_subscriptions_endpoint', [ __CLASS__, 'render_subscriptions_endpoint' ] );
+	}
+
+	/**
+	 * Take over the newsletters endpoint when the demo is active.
+	 * newspack-newsletters' subscription class hooks
+	 * `woocommerce_account_newsletters_endpoint` at priority 10 to render the
+	 * v1 form (which also surfaces an email-verification warning above the
+	 * list when the reader isn't verified). Drop every existing handler so
+	 * our v2 template is the sole renderer.
+	 *
+	 * Same shape as takeover_subscriptions_endpoint / takeover_payment_methods_endpoint.
+	 */
+	public static function takeover_newsletters_endpoint() {
+		if ( ! self::is_demo_active() ) {
+			return;
+		}
+		if ( false === \get_query_var( 'newsletters', false ) ) {
+			return;
+		}
+		\remove_all_actions( 'woocommerce_account_newsletters_endpoint' );
+		\add_action( 'woocommerce_account_newsletters_endpoint', [ __CLASS__, 'render_newsletters_endpoint' ] );
 	}
 
 	/**

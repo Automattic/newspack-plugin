@@ -1,9 +1,31 @@
 // All v2-demo styles live under this scope so they cannot leak outside
-// the prototype. Per brief §2.1: rules in here are a smell — newspack-ui
+// the prototype. Per brief 2.1: rules in here are a smell. Newspack UI
 // utility classes and components should cover everything. If you find
 // yourself adding a rule, log it in the devlog before committing.
 .newspack-my-account--v2-demo {
 	// Phase 1: nothing yet.
-	// Phase 2: still nothing — newsletters list composes from __stack /
-	// __badge / __button / <hr> alone.
+	// Phase 2: still nothing. Newsletters list composes from stack,
+	// badge, button, and hr primitives alone.
+
+	// Newsletters polish: inter-row hairlines must span the row container
+	// edge-to-edge. Two overrides win against existing rules.
+	// 1. The newspack-ui hr rule ships margin spacer-6 zero; the parent
+	//    stack gap should control spacing, not per-element margins.
+	// 2. Newspack themes cap hr at roughly 8em via max-width; force the
+	//    cap back to none so the hairline reads edge to edge.
+	// See devlog cross-phase log entry "First scoped SCSS rule".
+	.newspack-my-account__v2-demo-newsletters hr {
+		margin: 0;
+		max-width: none;
+		width: 100%;
+	}
+
+	// Section titles render at medium font size. The newspack-ui font-m
+	// utility compiles to a two-class selector and gets beaten by some
+	// theme-level rules on entry-content headings. Pin it explicitly so
+	// the section heading reads consistently regardless of theme.
+	.newspack-my-account__v2-demo-newsletters h2 {
+		font-size: var(--newspack-ui-font-size-m);
+		line-height: var(--newspack-ui-line-height-m);
+	}
 }

@@ -51,7 +51,7 @@ $button_action  = $subscribed ? 'unsubscribe' : 'subscribe';
 		/>
 		<div class="newspack-ui__stack newspack-ui__stack--vertical newspack-ui__stack--gap-1">
 			<div class="newspack-ui__stack newspack-ui__stack--horizontal newspack-ui__stack--gap-1 newspack-ui__stack--align-center newspack-ui__stack--wrap">
-				<span class="newspack-ui__font--m newspack-ui__font--bold"><?php echo esc_html( $name ); ?></span>
+				<span class="newspack-ui__font--s newspack-ui__font--bold"><?php echo esc_html( $name ); ?></span>
 				<?php if ( $frequency ) : ?>
 					<span class="newspack-ui__badge newspack-ui__badge--outline" data-role="frequency">
 						<?php echo esc_html( $frequency ); ?>
@@ -63,7 +63,7 @@ $button_action  = $subscribed ? 'unsubscribe' : 'subscribe';
 					</span>
 				<?php endif; ?>
 			</div>
-			<p class="newspack-ui__color--neutral-60 newspack-ui__spacing-top--0 newspack-ui__spacing-bottom--0">
+			<p class="newspack-ui__font--xs newspack-ui__color--neutral-60 newspack-ui__spacing-top--0 newspack-ui__spacing-bottom--0">
 				<?php echo esc_html( $description ); ?>
 			</p>
 		</div>
@@ -72,11 +72,10 @@ $button_action  = $subscribed ? 'unsubscribe' : 'subscribe';
 		type="button"
 		class="<?php echo esc_attr( $button_classes ); ?>"
 		data-action="<?php echo esc_attr( $button_action ); ?>"
-		data-list-id="<?php echo esc_attr( $list_id ); ?>"
 		data-list-name="<?php echo esc_attr( $name ); ?>"
 		data-label-subscribe="<?php esc_attr_e( 'Sign up', 'newspack-plugin' ); ?>"
 		data-label-unsubscribe="<?php esc_attr_e( 'Unsubscribe', 'newspack-plugin' ); ?>"
 	>
-		<?php echo esc_html( $button_label ); ?>
+		<span><?php echo esc_html( $button_label ); ?></span>
 	</button>
 </div>
