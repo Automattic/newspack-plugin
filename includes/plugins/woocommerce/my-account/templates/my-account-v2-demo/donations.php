@@ -155,7 +155,7 @@ $status_label = static function ( $status ) {
 
 		<?php if ( ! empty( $active_recurring ) ) : ?>
 			<section class="newspack-ui__stack newspack-ui__stack--vertical newspack-ui__stack--gap-5" data-section-id="recurring">
-			<h2 class="newspack-ui__font--l newspack-ui__font--bold newspack-ui__spacing-top--0 newspack-ui__spacing-bottom--0">
+			<h2 class="newspack-ui__font--m newspack-ui__font--bold newspack-ui__spacing-top--0 newspack-ui__spacing-bottom--0">
 				<?php
 				echo esc_html(
 					_n(
@@ -206,7 +206,7 @@ $status_label = static function ( $status ) {
 
 	<?php if ( ! empty( $previous ) ) : ?>
 		<section class="newspack-ui__stack newspack-ui__stack--vertical newspack-ui__stack--gap-3" data-section-id="previous">
-			<h2 class="newspack-ui__font--l newspack-ui__font--bold newspack-ui__spacing-top--0 newspack-ui__spacing-bottom--0">
+			<h2 class="newspack-ui__font--m newspack-ui__font--bold newspack-ui__spacing-top--0 newspack-ui__spacing-bottom--0">
 				<?php esc_html_e( 'Previous donations', 'newspack-plugin' ); ?>
 			</h2>
 			<table class="newspack-my-account-v2-demo-donations__previous-table">
@@ -256,7 +256,7 @@ $status_label = static function ( $status ) {
 
 	<?php if ( $billing_history_inline ) : ?>
 		<section class="newspack-ui__stack newspack-ui__stack--vertical newspack-ui__stack--gap-3" data-section-id="billing-history">
-			<h2 class="newspack-ui__font--l newspack-ui__font--bold newspack-ui__spacing-top--0 newspack-ui__spacing-bottom--0">
+			<h2 class="newspack-ui__font--m newspack-ui__font--bold newspack-ui__spacing-top--0 newspack-ui__spacing-bottom--0">
 				<?php esc_html_e( 'Billing history', 'newspack-plugin' ); ?>
 			</h2>
 			<?php

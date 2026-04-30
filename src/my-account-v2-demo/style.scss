@@ -48,6 +48,36 @@
 		min-height: calc(100vh - var(--newspack-ui-spacer-9));
 	}
 
+	// Section title font-size pin. The newspack-ui font-m utility
+	// compiles to a two-class selector and gets out-specificed by some
+	// theme rules on entry-content headings. Same fix as newsletters.
+	.newspack-my-account-v2-demo-donations h2 {
+		font-size: var(--newspack-ui-font-size-m);
+		line-height: var(--newspack-ui-line-height-m);
+	}
+
+	// Previous donations table polish (Figma 2636:46479). Header gets a
+	// stronger bottom border (--color-border, #ddd); rows get a lighter
+	// divider (neutral-5, #f0f0f0); rows are clickable so cursor flips
+	// to pointer; cell padding bumps row height closer to Figma's 48px.
+	.newspack-my-account-v2-demo-donations__previous-table {
+		thead th {
+			border-bottom: 1px solid var(--newspack-ui-color-border);
+			padding: var(--newspack-ui-spacer-2) 0;
+		}
+
+		tbody {
+			td {
+				border-bottom: 1px solid var(--newspack-ui-color-neutral-5);
+				padding: var(--newspack-ui-spacer-3) 0;
+			}
+
+			tr {
+				cursor: pointer;
+			}
+		}
+	}
+
 	// Phase 9 — Delete account modal action list. Three rows of
 	// label and description on the left, Manage button on the right,
 	// separated by hairlines. No newspack-ui primitive matches this
