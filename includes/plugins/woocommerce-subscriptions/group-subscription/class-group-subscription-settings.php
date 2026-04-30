@@ -227,8 +227,10 @@ class Group_Subscription_Settings {
 		if ( ! $product ) {
 			return $settings;
 		}
-		$settings['enabled'] = $product->get_meta( self::GROUP_SUBSCRIPTION_META_PREFIX . 'enabled', true ) ? \wc_string_to_bool( $product->get_meta( self::GROUP_SUBSCRIPTION_META_PREFIX . 'enabled', true ) ) : self::DEFAULT_SETTINGS['enabled'];
-		$settings['limit']   = (int) $product->get_meta( self::GROUP_SUBSCRIPTION_META_PREFIX . 'limit', true ) ?: self::DEFAULT_SETTINGS['limit']; // phpcs:ignore Universal.Operators.DisallowShortTernary.Found
+		$enabled_meta        = $product->get_meta( self::GROUP_SUBSCRIPTION_META_PREFIX . 'enabled', true );
+		$limit_meta          = $product->get_meta( self::GROUP_SUBSCRIPTION_META_PREFIX . 'limit', true );
+		$settings['enabled'] = '' !== $enabled_meta ? \wc_string_to_bool( $enabled_meta ) : $settings['enabled']; // Empty string means the meta is unset; any other value, including 'no' or false, is a real override.
+		$settings['limit']   = '' !== $limit_meta ? (int) $limit_meta : $settings['limit']; // Empty string means the meta is unset; any other value, including '0', is a real override.
 
 		/**
 		 * Filter the group subscription settings for a product.
@@ -257,8 +259,8 @@ class Group_Subscription_Settings {
 		$enabled_meta        = $subscription->get_meta( self::GROUP_SUBSCRIPTION_META_PREFIX . 'enabled', true );
 		$limit_meta          = $subscription->get_meta( self::GROUP_SUBSCRIPTION_META_PREFIX . 'limit', true );
 		$name_meta           = $subscription->get_meta( self::GROUP_SUBSCRIPTION_META_PREFIX . 'name', true );
-		$settings['enabled'] = $enabled_meta ? \wc_string_to_bool( $enabled_meta ) : $settings['enabled'];
-		$settings['limit']   = (int) $limit_meta ?: $settings['limit']; // phpcs:ignore Universal.Operators.DisallowShortTernary.Found
+		$settings['enabled'] = '' !== $enabled_meta ? \wc_string_to_bool( $enabled_meta ) : $settings['enabled']; // Empty string means the meta is unset; any other value, including 'no' or false, is a real override.
+		$settings['limit']   = '' !== $limit_meta ? (int) $limit_meta : $settings['limit']; // Empty string means the meta is unset; any other value, including '0', is a real override.
 		if ( $name_meta ) {
 			$settings['name'] = $name_meta;
 		} elseif ( $owner_name ) {
