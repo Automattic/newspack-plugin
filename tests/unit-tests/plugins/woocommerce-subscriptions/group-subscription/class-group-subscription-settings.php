@@ -44,52 +44,70 @@ class Test_Group_Subscription_Settings extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Build a subscription linked to a product with a non-zero group subscription limit.
+	 * Build a subscription linked to a product, optionally setting group subscription
+	 * meta on either side and arbitrary subscription data.
 	 *
-	 * @param int        $product_limit         The product's group subscription limit.
-	 * @param mixed|null $subscription_override If not null, set as the subscription's limit meta override.
+	 * Meta keys are passed without the GROUP_SUBSCRIPTION_META_PREFIX; the helper
+	 * applies the prefix.
+	 *
+	 * @param array $product_meta      Map of meta key => value to set on the product.
+	 * @param array $subscription_meta Map of meta key => value to set on the subscription.
+	 * @param array $subscription_args Extra arguments merged into the subscription data
+	 *                                 (e.g. billing_first_name, billing_last_name).
 	 *
 	 * @return WC_Subscription
 	 */
-	private function make_subscription_with_product_limit( $product_limit, $subscription_override = null ) {
-		$product_id = 123;
+	private function make_subscription_with_product( $product_meta = [], $subscription_meta = [], $subscription_args = [] ) {
+		$product_id            = 123;
+		$prefixed_product_meta = [];
+		foreach ( $product_meta as $key => $value ) {
+			$prefixed_product_meta[ Group_Subscription_Settings::GROUP_SUBSCRIPTION_META_PREFIX . $key ] = $value;
+		}
 		wc_create_mock_product(
 			[
 				'id'   => $product_id,
-				'meta' => [
-					Group_Subscription_Settings::GROUP_SUBSCRIPTION_META_PREFIX . 'enabled' => 'yes',
-					Group_Subscription_Settings::GROUP_SUBSCRIPTION_META_PREFIX . 'limit'   => (string) $product_limit,
-				],
+				'meta' => $prefixed_product_meta,
 			]
 		);
 
 		$subscription = wcs_create_subscription(
-			[
-				'customer_id'    => 1,
-				'status'         => 'active',
-				'billing_period' => 'month',
-				'items'          => [
-					new WC_Order_Item_Product( [ 'product_id' => $product_id ] ),
+			array_merge(
+				[
+					'customer_id'    => 1,
+					'status'         => 'active',
+					'billing_period' => 'month',
+					'items'          => [
+						new WC_Order_Item_Product( [ 'product_id' => $product_id ] ),
+					],
 				],
-			]
+				$subscription_args
+			)
 		);
 
-		if ( null !== $subscription_override ) {
-			$subscription->update_meta_data( Group_Subscription_Settings::GROUP_SUBSCRIPTION_META_PREFIX . 'limit', $subscription_override );
+		foreach ( $subscription_meta as $key => $value ) {
+			$subscription->update_meta_data( Group_Subscription_Settings::GROUP_SUBSCRIPTION_META_PREFIX . $key, $value );
 		}
 
 		return $subscription;
 	}
 
+	/*
+	 * --- 'limit' setting ---
+	 */
+
 	/**
 	 * When a subscription has no limit override, the inherited product limit applies.
 	 */
 	public function test_inherits_product_limit_when_subscription_override_unset() {
-		$subscription = $this->make_subscription_with_product_limit( 10 );
+		$subscription = $this->make_subscription_with_product(
+			[
+				'enabled' => 'yes',
+				'limit'   => '10',
+			]
+		);
 
 		$settings = Group_Subscription_Settings::get_subscription_settings( $subscription );
 
-		$this->assertTrue( $settings['enabled'], 'Enabled should be inherited from the product.' );
 		$this->assertSame( 10, $settings['limit'], 'Limit should be inherited from the product when no subscription override is set.' );
 	}
 
@@ -97,8 +115,13 @@ class Test_Group_Subscription_Settings extends WP_UnitTestCase {
 	 * A subscription limit override of 0 takes precedence over a non-zero product limit.
 	 */
 	public function test_zero_subscription_limit_overrides_product_limit() {
-		// '0' as string, matching how WooCommerce stores meta.
-		$subscription = $this->make_subscription_with_product_limit( 10, '0' );
+		$subscription = $this->make_subscription_with_product(
+			[
+				'enabled' => 'yes',
+				'limit'   => '10',
+			],
+			[ 'limit' => '0' ] // String, as stored by WooCommerce meta.
+		);
 
 		$settings = Group_Subscription_Settings::get_subscription_settings( $subscription );
 
@@ -109,10 +132,110 @@ class Test_Group_Subscription_Settings extends WP_UnitTestCase {
 	 * A non-zero subscription limit override takes precedence over the product limit.
 	 */
 	public function test_nonzero_subscription_limit_overrides_product_limit() {
-		$subscription = $this->make_subscription_with_product_limit( 10, '5' );
+		$subscription = $this->make_subscription_with_product(
+			[
+				'enabled' => 'yes',
+				'limit'   => '10',
+			],
+			[ 'limit' => '5' ]
+		);
 
 		$settings = Group_Subscription_Settings::get_subscription_settings( $subscription );
 
 		$this->assertSame( 5, $settings['limit'], 'A subscription limit of 5 should override the product limit of 10.' );
+	}
+
+	/*
+	 * --- 'enabled' setting ---
+	 */
+
+	/**
+	 * When a subscription has no enabled override, the inherited product value applies.
+	 */
+	public function test_inherits_product_enabled_when_subscription_override_unset() {
+		$subscription = $this->make_subscription_with_product( [ 'enabled' => 'yes' ] );
+
+		$settings = Group_Subscription_Settings::get_subscription_settings( $subscription );
+
+		$this->assertTrue( $settings['enabled'], 'Enabled should be inherited from the product when no subscription override is set.' );
+	}
+
+	/**
+	 * A subscription enabled override of 'no' takes precedence over a product 'yes'.
+	 */
+	public function test_no_subscription_enabled_overrides_product_yes() {
+		$subscription = $this->make_subscription_with_product(
+			[ 'enabled' => 'yes' ],
+			[ 'enabled' => 'no' ]
+		);
+
+		$settings = Group_Subscription_Settings::get_subscription_settings( $subscription );
+
+		$this->assertFalse( $settings['enabled'], 'A subscription enabled value of "no" should override the product value of "yes".' );
+	}
+
+	/**
+	 * A subscription enabled override of 'yes' takes effect when the product has no value set.
+	 */
+	public function test_yes_subscription_enabled_overrides_product_unset() {
+		$subscription = $this->make_subscription_with_product(
+			[],
+			[ 'enabled' => 'yes' ]
+		);
+
+		$settings = Group_Subscription_Settings::get_subscription_settings( $subscription );
+
+		$this->assertTrue( $settings['enabled'], 'A subscription enabled value of "yes" should take effect when the product has no value set.' );
+	}
+
+	/*
+	 * --- 'name' setting ---
+	 */
+
+	/**
+	 * An explicit subscription name meta value is used as the group name.
+	 */
+	public function test_explicit_subscription_name_meta_wins() {
+		$subscription = $this->make_subscription_with_product(
+			[ 'enabled' => 'yes' ],
+			[ 'name' => 'My Custom Group' ],
+			[
+				'billing_first_name' => 'Jane',
+				'billing_last_name'  => 'Doe',
+			]
+		);
+
+		$settings = Group_Subscription_Settings::get_subscription_settings( $subscription );
+
+		$this->assertSame( 'My Custom Group', $settings['name'], 'Explicit subscription name meta should be used as the group name even when an owner name is available.' );
+	}
+
+	/**
+	 * Without an explicit name, the group name falls back to the billing owner's name.
+	 */
+	public function test_name_falls_back_to_owner_billing_name() {
+		$subscription = $this->make_subscription_with_product(
+			[ 'enabled' => 'yes' ],
+			[],
+			[
+				'billing_first_name' => 'Jane',
+				'billing_last_name'  => 'Doe',
+			]
+		);
+
+		$settings = Group_Subscription_Settings::get_subscription_settings( $subscription );
+
+		$this->assertStringContainsString( 'Jane Doe', $settings['name'], 'When no name meta is set, the group name should derive from the billing owner.' );
+	}
+
+	/**
+	 * Without an explicit name or billing owner, the group name falls back to the "Unnamed group" label.
+	 */
+	public function test_name_falls_back_to_unnamed_group() {
+		$subscription = $this->make_subscription_with_product( [ 'enabled' => 'yes' ] );
+
+		$settings = Group_Subscription_Settings::get_subscription_settings( $subscription );
+
+		$this->assertSame( 'Unnamed group', $settings['name'], 'When neither name meta nor a billing owner is set, the group name should default to "Unnamed group".' );
 	}
 }
