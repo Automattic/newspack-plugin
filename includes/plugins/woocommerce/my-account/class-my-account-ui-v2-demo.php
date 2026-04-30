@@ -227,7 +227,13 @@ final class My_Account_UI_V2_Demo {
 		if ( ! isset( $_GET[ self::HOMEPAGE_DEMO_FLAG ] ) ) {
 			return false;
 		}
-		if ( ! \is_front_page() ) {
+		// Sites with `show_on_front=page` route `/` to a static page, so
+		// `is_front_page()` is true. Adding any query parameter (including
+		// our own flag) makes WP fall back to the blog index — `is_home()`
+		// becomes true and `is_front_page()` becomes false. Accept either
+		// so the overlay opens regardless of which content type the site
+		// uses for `/`.
+		if ( ! \is_front_page() && ! \is_home() ) {
 			return false;
 		}
 		if ( ! \is_user_logged_in() ) {
