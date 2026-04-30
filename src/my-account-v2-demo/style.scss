@@ -38,6 +38,16 @@
 		min-width: 8rem;
 	}
 
+	// Donations list anchors the billing-history block to the bottom of
+	// the available height (Figma 2636:46467). Parent
+	// .woocommerce-MyAccount-content auto-sizes to its content, so we
+	// give the wrapper a viewport-based min-height for justify-between
+	// to have room to distribute. Conservative offset accounts for the
+	// admin bar; longer pages still scroll naturally.
+	.newspack-my-account-v2-demo-donations {
+		min-height: calc(100vh - var(--newspack-ui-spacer-9));
+	}
+
 	// Phase 9 — Delete account modal action list. Three rows of
 	// label and description on the left, Manage button on the right,
 	// separated by hairlines. No newspack-ui primitive matches this

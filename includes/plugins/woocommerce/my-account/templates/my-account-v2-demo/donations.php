@@ -143,17 +143,18 @@ $status_label = static function ( $status ) {
 };
 ?>
 <div
-	class="newspack-my-account-v2-demo-donations newspack-ui__stack newspack-ui__stack--vertical newspack-ui__stack--gap-9"
+	class="newspack-my-account-v2-demo-donations newspack-ui__stack newspack-ui__stack--vertical newspack-ui__stack--justify-between"
 	data-newspack-my-account-v2-demo="donations"
 >
-	<?php if ( empty( $active_recurring ) && empty( $previous ) ) : ?>
-		<div class="newspack-ui__notice">
-			<?php esc_html_e( 'You have no donations yet.', 'newspack-plugin' ); ?>
-		</div>
-	<?php endif; ?>
+	<div class="newspack-ui__stack newspack-ui__stack--vertical newspack-ui__stack--gap-9">
+		<?php if ( empty( $active_recurring ) && empty( $previous ) ) : ?>
+			<div class="newspack-ui__notice">
+				<?php esc_html_e( 'You have no donations yet.', 'newspack-plugin' ); ?>
+			</div>
+		<?php endif; ?>
 
-	<?php if ( ! empty( $active_recurring ) ) : ?>
-		<section class="newspack-ui__stack newspack-ui__stack--vertical newspack-ui__stack--gap-5" data-section-id="recurring">
+		<?php if ( ! empty( $active_recurring ) ) : ?>
+			<section class="newspack-ui__stack newspack-ui__stack--vertical newspack-ui__stack--gap-5" data-section-id="recurring">
 			<h2 class="newspack-ui__font--l newspack-ui__font--bold newspack-ui__spacing-top--0 newspack-ui__spacing-bottom--0">
 				<?php
 				echo esc_html(
@@ -250,7 +251,8 @@ $status_label = static function ( $status ) {
 				</tbody>
 			</table>
 		</section>
-	<?php endif; ?>
+		<?php endif; ?>
+	</div>
 
 	<?php if ( $billing_history_inline ) : ?>
 		<section class="newspack-ui__stack newspack-ui__stack--vertical newspack-ui__stack--gap-3" data-section-id="billing-history">
