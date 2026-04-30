@@ -247,7 +247,7 @@ class Content_Restriction_Control {
 		}
 
 		// Don't restrict this post for users who can edit it.
-		if ( ! empty( $post_id ) && user_can( $user_id, 'edit_post', $post_id ) ) {
+		if ( ! empty( $post_id ) && user_can( self::$user_id, 'edit_post', $post_id ) ) {
 			return false;
 		}
 
@@ -268,12 +268,15 @@ class Content_Restriction_Control {
 			// If registration mode is active.
 			if ( ! empty( $gate['registration']['active'] ) ) {
 				// Check if user is logged in.
-				if ( $user_id === 0 ) {
-					$is_restricted  = true;
+				if ( self::$user_id === 0 ) {
+					// Anonymous visitors can still pass via the gate's custom_access rules if they
+					// match a rule with `supports_anonymous` (currently only `institution`).
+					$is_restricted  = empty( $gate['custom_access']['active'] ) || empty( $gate['custom_access']['access_rules'] )
+						|| ! Access_Rules::evaluate_rules( $gate['custom_access']['access_rules'], 0 );
 					$gate_layout_id = $gate['registration']['gate_layout_id'] ?? $gate['id'];
 				} elseif ( ! empty( $gate['registration']['require_verification'] ) ) {
 					// Check if email verification is required.
-					$user = get_user_by( 'id', $user_id );
+					$user = get_user_by( 'id', self::$user_id );
 					if ( ! $user || ! \get_user_meta( $user->ID, Reader_Activation::EMAIL_VERIFIED, true ) ) {
 						$is_restricted  = true;
 						$gate_layout_id = $gate['registration']['gate_layout_id'] ?? $gate['id'];
@@ -284,7 +287,7 @@ class Content_Restriction_Control {
 			// If custom_access mode is active.
 			if ( ! $is_restricted && ! empty( $gate['custom_access']['active'] ) ) {
 				$access_rules = $gate['custom_access']['access_rules'] ?? [];
-				if ( ! empty( $access_rules ) && ! Access_Rules::evaluate_rules( $access_rules, $user_id ) ) {
+				if ( ! empty( $access_rules ) && ! Access_Rules::evaluate_rules( $access_rules, self::$user_id ) ) {
 					$is_restricted  = true;
 					$gate_layout_id = $gate['custom_access']['gate_layout_id'] ?? $gate['id'];
 				}

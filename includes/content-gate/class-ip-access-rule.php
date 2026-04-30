@@ -571,5 +571,14 @@ class IP_Access_Rule {
 		}
 		return '';
 	}
+
+	/**
+	 * Check if the IP access cookie is set.
+	 *
+	 * @return bool Whether the cookie is set.
+	 */
+	public static function is_cookie_set() {
+		return isset( $_COOKIE[ self::COOKIE_NAME ] ); // phpcs:ignore WordPressVIPMinimum.Variables.RestrictedVariables.cache_constraints___COOKIE
+	}
 }
 IP_Access_Rule::init();
