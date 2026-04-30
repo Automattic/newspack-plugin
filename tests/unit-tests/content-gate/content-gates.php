@@ -272,6 +272,24 @@ class Test_Content_Gates extends \WP_UnitTestCase {
 		$gates = Content_Restriction_Control::get_post_gates( $post3 );
 		$this->assertCount( 0, $gates, 'No gate for the post with no categories' );
 
+		// Update content rules to add an empty post_type value.
+		Content_Rules::update_gate_content_rules(
+			$this->gate_ids[2],
+			[
+				[
+					'slug'  => 'post_types',
+					'value' => [],
+				],
+				[
+					'slug'  => 'category',
+					'value' => [ $cat1 ],
+				],
+			]
+		);
+		$gates = Content_Restriction_Control::get_post_gates( $post1 );
+		$this->assertCount( 1, $gates, 'One gate for the post in category 1' );
+		$this->assertEquals( $this->gate_ids[2], $gates[0]['id'], 'Rule with an empty array-like value is ignored; category rule still matches' );
+
 		// Make the content rule an exclusion rule.
 		Content_Rules::update_gate_content_rules(
 			$this->gate_ids[2],
@@ -1360,7 +1378,7 @@ class Test_Content_Gates extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * Test that per_page=0 is rejected at the schema boundary with a 400 status.
+	 * Test that per_page=0 or per_page=500 are rejected at the schema boundary with a 400 status.
 	 */
 	public function test_posts_search_endpoint_per_page_below_minimum() {
 		wp_set_current_user( $this->factory->user->create( [ 'role' => 'administrator' ] ) );
@@ -1370,6 +1388,10 @@ class Test_Content_Gates extends \WP_UnitTestCase {
 		$response = rest_get_server()->dispatch( $request );
 
 		$this->assertSame( 400, $response->get_status(), 'per_page=0 fails schema validation' );
+
+		$request->set_param( 'per_page', 500 );
+		$response = rest_get_server()->dispatch( $request );
+		$this->assertSame( 400, $response->get_status(), 'per_page=500 fails schema validation' );
 	}
 
 	/**

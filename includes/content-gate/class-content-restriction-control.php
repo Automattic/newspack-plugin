@@ -150,9 +150,6 @@ class Content_Restriction_Control {
 			}
 
 			$content_rules = $gate['content_rules'];
-			if ( empty( $content_rules ) ) {
-				continue;
-			}
 
 			// Inclusion override: if this post ID is listed in any specific_posts rule
 			// for this gate, the gate applies regardless of other rules.
