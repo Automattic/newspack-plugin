@@ -20,6 +20,7 @@ import { withWizard } from '../../../../../packages/components/src';
 import Router from '../../../../../packages/components/src/proxied-imports/router';
 import ContentGating from './content-gating';
 import Payment from './payment';
+import ReaderAccountCustomization from './reader-account-customization';
 
 const { HashRouter, Redirect, Route, Switch } = Router;
 
@@ -107,6 +108,10 @@ function AudienceWizard( { confirmAction, pluginRequirements, wizardApiFetch }, 
 				path: '/content-gating',
 			},
 		{
+			label: __( 'Reader Account Customization', 'newspack-plugin' ),
+			path: '/reader-account-customization',
+		},
+		{
 			label: __( 'Checkout & Payment', 'newspack-plugin' ),
 			path: '/payment',
 		},
@@ -157,6 +162,7 @@ function AudienceWizard( { confirmAction, pluginRequirements, wizardApiFetch }, 
 					{ pluginRequirements }
 					<Route path="/" exact render={ () => <Setup { ...props } /> } />
 					<Route path="/content-gating" render={ () => <ContentGating { ...props } /> } />
+					<Route path="/reader-account-customization" render={ () => <ReaderAccountCustomization { ...props } /> } />
 					<Route path="/payment" render={ () => <Payment { ...props } /> } />
 					<Route path="/campaign" render={ () => <Campaign { ...props } /> } />
 					<Route path="/complete" render={ () => <Complete { ...props } /> } />

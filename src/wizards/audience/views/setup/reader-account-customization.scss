@@ -1,0 +1,17 @@
+/**
+ * Reader Account Customization (My Account v2 prototype demo).
+ *
+ * Single rhythm rule: zero out intrinsic top/bottom margins on every
+ * `.components-base-control` inside the view so each section's `<VStack
+ * spacing={ 8 }>` (32px) becomes the only source of vertical rhythm.
+ * `__nextHasNoMarginBottom` is supposed to do this in `@wordpress/components`
+ * but lands inconsistently across control types and Emotion-generated classes;
+ * this scoped override is the safety net.
+ */
+
+.newspack-audience__reader-account-customization {
+	.components-base-control {
+		margin-top: 0;
+		margin-bottom: 0;
+	}
+}
