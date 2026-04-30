@@ -277,13 +277,13 @@ class WooCommerce_Configuration_Manager extends Configuration_Manager {
 				} catch ( \Throwable $th ) {
 					// Container shape changed unexpectedly; degrade to gateway-derived values
 					// so the wizard keeps rendering, and surface the cause for debugging.
-					error_log( // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+					Logger::log(
 						sprintf(
-							'[Newspack] PayPal container access failed in gateway_data(): %s in %s on line %d',
+							'PayPal container access failed in gateway_data(): %s on line %d',
 							$th->getMessage(),
-							$th->getFile(),
 							$th->getLine()
-						)
+						),
+						'error'
 					);
 				}
 			}
