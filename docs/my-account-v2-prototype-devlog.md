@@ -444,7 +444,7 @@ The guide deliberately *doesn't* duplicate brief §2.1.1's full reflex order. Th
 **Date:** 2026-04-30
 **By:** thomas@a8c.com
 **Branch:** `prototype/my-account-demo-phase-9`
-**PR:** _pending — own draft PR for Copilot review per Thomas's request_
+**PR:** [#4688](https://github.com/Automattic/newspack-plugin/pull/4688) — phase branch targets `prototype/my-account-demo` (umbrella tracker [#4679](https://github.com/Automattic/newspack-plugin/pull/4679))
 
 **What I built**
 

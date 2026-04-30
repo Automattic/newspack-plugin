@@ -23,10 +23,11 @@ $reader = isset( $data['reader'] ) ? $data['reader'] : [];
 $user   = wp_get_current_user();
 $email  = isset( $reader['email'] ) ? (string) $reader['email'] : (string) $user->user_email;
 
-// Pull real values from the current user so reviewers can see their own data
-// rendered in the template — matches how the homepage greeting picks up the
-// admin's first name. Fake names fall back to the slug so the template never
-// renders an empty input.
+// Pull real values from the current user so reviewers see their own data
+// rendered in the template — matches how the homepage greeting picks up
+// the admin's first name. First / last name fall back to empty (mirrors v1
+// behaviour and what WC core does); display name falls back to user_login
+// so the field always renders something visible.
 $first_name   = ! empty( $user->first_name ) ? $user->first_name : '';
 $last_name    = ! empty( $user->last_name ) ? $user->last_name : '';
 $display_name = ! empty( $user->display_name ) ? $user->display_name : $user->user_login;

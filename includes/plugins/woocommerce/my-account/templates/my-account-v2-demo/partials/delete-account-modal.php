@@ -44,12 +44,13 @@ $alternatives = [
 ];
 ?>
 <div
-	class="newspack-ui__modal-container"
+	class="newspack-ui newspack-ui__modal-container"
 	id="newspack-my-account__delete-account"
 	data-state="closed"
 	data-newspack-my-account-v2-demo="delete-account-modal"
 >
-	<div class="newspack-ui__modal newspack-ui__modal--small">
+	<div class="newspack-ui__modal-container__overlay"></div>
+	<div class="newspack-ui__modal">
 		<div class="newspack-ui__modal__header">
 			<h2><?php esc_html_e( 'Delete account', 'newspack-plugin' ); ?></h2>
 			<button
@@ -114,10 +115,12 @@ $alternatives = [
 				</p>
 				<p>
 					<?php
-					printf(
-						/* translators: %s is the reader's email address. */
-						esc_html__( 'We have just sent instructions on how to delete your account to %s.', 'newspack-plugin' ),
-						'<strong>' . esc_html( $email ) . '</strong>' // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+					echo wp_kses_post(
+						sprintf(
+							/* translators: %s is the reader's email address. */
+							__( 'We have just sent instructions on how to delete your account to %s.', 'newspack-plugin' ),
+							'<strong>' . esc_html( $email ) . '</strong>'
+						)
 					);
 					?>
 				</p>
