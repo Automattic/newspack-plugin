@@ -14,6 +14,16 @@ use Newspack\Group_Subscription_Settings;
 class Test_Group_Subscription_Settings extends WP_UnitTestCase {
 
 	/**
+	 * Set up test fixtures.
+	 */
+	public static function set_up_before_class() {
+		parent::set_up_before_class();
+
+		// Include WC mocks.
+		require_once dirname( __DIR__, 4 ) . '/mocks/wc-mocks.php';
+	}
+
+	/**
 	 * Tear down: reset subscriptions and products databases.
 	 */
 	public function tear_down() {
