@@ -87,12 +87,14 @@
 		min-width: 0;
 	}
 
-	// v1 ships a `:not(.__stack--gap-11) section + section { margin-top:
-	// spacer-11 }` rule that fires on our consecutive <section> elements
-	// because the body and .woocommerce-MyAccount-content match the :not
-	// — so it stacks an extra spacer-11 on top of __stack--gap-11. Zero
-	// it inside donations so the parent gap controls spacing.
-	.newspack-my-account-v2-demo-donations section + section {
+	// v1 ships a `.newspack-my-account .woocommerce-MyAccount-content
+	// :not(.__stack--gap-11) section + section { margin-top: spacer-11 }`
+	// rule that fires on our consecutive <section> elements because the
+	// outer wrapper isn't __stack--gap-11 (only the inner one is) — so
+	// it stacks an extra spacer-11 on top of __stack--gap-11. The v1
+	// selector has 3 classes; this override compounds the section's own
+	// __stack class to land at 4 classes and win the specificity battle.
+	.newspack-my-account-v2-demo-donations section.newspack-ui__stack + section.newspack-ui__stack {
 		margin-top: 0;
 	}
 
