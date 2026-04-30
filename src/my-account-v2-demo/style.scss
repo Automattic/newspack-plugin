@@ -94,6 +94,16 @@
 		}
 	}
 
+	// Sidebar nav footer (secondary links + Sign out) renders as a stack
+	// with spacer-1 between items. v1's `_navigation.scss` controls the
+	// outer footer block but doesn't gap the children, so the v2-demo
+	// secondary links sit too tight against the Sign out row.
+	.newspack-my-account__navigation-footer ul {
+		display: flex;
+		flex-direction: column;
+		gap: var(--newspack-ui-spacer-1);
+	}
+
 	// Email-send icon at the top of the success step. Black filled
 	// circle, white icon — matches Figma frame 4865:92398.
 	.newspack-my-account-v2-demo-account-settings__success-icon {
