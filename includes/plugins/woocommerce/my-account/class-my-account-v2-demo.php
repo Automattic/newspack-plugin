@@ -506,16 +506,16 @@ final class My_Account_V2_Demo {
 		// label so the menu order is consistent on sites with and without WCS.
 		unset( $items['subscriptions'] );
 
-		// v1 relabels `payment-methods` to "Payment information" — pluck it
-		// here too so we can reinsert with the v2 label "Payment methods" in
-		// our preferred slot, regardless of what v1 (or anything else) named
-		// it. WC core registers the slug for any logged-in customer.
+		// Pluck `payment-methods` (WC core registers the slug for any logged-in
+		// customer) so we can reinsert with our preferred label and slot
+		// regardless of what v1 (or anything else) named it. The v2 label
+		// follows Figma 2636:46117 + v1's `payment-information.php` shell.
 		unset( $items['payment-methods'] );
 
 		// v1 already removed `customer-logout` and `edit-address`. Insert v2
 		// items between `edit-account` and the rest, in the order they appear
 		// in the Figma sidebar: Newsletters → Donations → Subscriptions →
-		// Payment methods.
+		// Payment information.
 		$ordered = [];
 		foreach ( $items as $slug => $label ) {
 			$ordered[ $slug ] = $label;
@@ -523,7 +523,7 @@ final class My_Account_V2_Demo {
 				$ordered['newsletters']     = __( 'Newsletters', 'newspack-plugin' );
 				$ordered['donations']       = __( 'Donations', 'newspack-plugin' );
 				$ordered['subscriptions']   = __( 'Subscriptions', 'newspack-plugin' );
-				$ordered['payment-methods'] = __( 'Payment methods', 'newspack-plugin' );
+				$ordered['payment-methods'] = __( 'Payment information', 'newspack-plugin' );
 			}
 		}
 		// Fallbacks: if `edit-account` was removed upstream, append.
@@ -537,7 +537,7 @@ final class My_Account_V2_Demo {
 			$ordered['subscriptions'] = __( 'Subscriptions', 'newspack-plugin' );
 		}
 		if ( ! isset( $ordered['payment-methods'] ) ) {
-			$ordered['payment-methods'] = __( 'Payment methods', 'newspack-plugin' );
+			$ordered['payment-methods'] = __( 'Payment information', 'newspack-plugin' );
 		}
 		return $ordered;
 	}

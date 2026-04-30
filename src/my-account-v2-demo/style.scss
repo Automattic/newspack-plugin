@@ -38,6 +38,21 @@
 		min-width: 8rem;
 	}
 
+	// Vertical hairline separator used between the plan name and price
+	// on subscription / donation cards (Figma 2636:46117 renders a
+	// `1px × 16px` #ddd line, not a literal "|" glyph). newspack-ui has no
+	// vertical-divider primitive — `<hr>` is horizontal — so the rule
+	// lives here. Sized in `em` so detail-page header contexts at larger
+	// font sizes scale the line proportionally without per-page overrides.
+	&__separator {
+		background: var(--newspack-ui-color-border, #ddd);
+		display: inline-block;
+		height: 1em;
+		margin: 0 var(--newspack-ui-spacer-1);
+		vertical-align: middle;
+		width: 1px;
+	}
+
 	// Donations list anchors the billing-history block to the bottom of
 	// the visible viewport (Figma 2636:46467). Sidebar is position:fixed
 	// 100vh, so our content has no parent to inherit height from — we
@@ -62,7 +77,8 @@
 	// Also zero margins so the parent stack's gap is the only spacing
 	// between sections (themes often ship h2 margin-top/bottom that
 	// stacks on top of __stack--gap-11).
-	.newspack-my-account-v2-demo-donations h2 {
+	.newspack-my-account-v2-demo-donations h2,
+	.newspack-my-account-v2-demo-subscriptions h2 {
 		font-size: var(--newspack-ui-font-size-m);
 		line-height: var(--newspack-ui-line-height-m);
 		margin: 0;
@@ -70,9 +86,10 @@
 
 	// __box ships with margin-bottom: spacer-5; inside a __stack the
 	// margin gets added on top of the gap, inflating the visible space
-	// between sections. Zero it inside donations so the stack gap is
-	// the single source of inter-section spacing.
-	.newspack-my-account-v2-demo-donations .newspack-ui__box {
+	// between sections. Zero it inside donations + subscriptions so the
+	// stack gap is the single source of inter-section spacing.
+	.newspack-my-account-v2-demo-donations .newspack-ui__box,
+	.newspack-my-account-v2-demo-subscriptions .newspack-ui__box {
 		margin-bottom: 0;
 	}
 
