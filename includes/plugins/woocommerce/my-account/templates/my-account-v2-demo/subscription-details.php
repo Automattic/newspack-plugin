@@ -2,7 +2,7 @@
 /**
  * My Account v2 prototype — single subscription detail page.
  *
- * One template, five functional variants driven by the data:
+ * One template, six functional variants driven by the data:
  *  - active            (Figma 2636:46149) — Title = product name. Change
  *                       subscription + More dropdown (Update payment /
  *                       Cancel subscription).
@@ -11,6 +11,10 @@
  *  - cancelled         (Figma 2636:46177) — CANCELLED badge next to title.
  *                       Only "Renew subscription" button. Next payment row
  *                       is em-dash.
+ *  - expired           — EXPIRED badge next to title. Only "Renew subscription"
+ *                       button. Next payment row em-dash. (No dedicated Figma
+ *                       frame; mirrors the cancelled treatment since both are
+ *                       terminal states reachable from the Previous list.)
  *  - expiring          (Figma 2636:46232) — inline error notice above Amount.
  *                       Only "Renew subscription" button. Next payment em-dash.
  *  - renewed           (Figma 2636:46204) — visually identical to active.
@@ -40,6 +44,7 @@ $subscription_id     = isset( $subscription['id'] ) ? (string) $subscription['id
 $subscription_status = isset( $subscription['status'] ) ? (string) $subscription['status'] : '';
 $is_active           = 'active' === $subscription_status || 'renewed' === $subscription_status;
 $is_cancelled        = 'cancelled' === $subscription_status;
+$is_expired          = 'expired' === $subscription_status;
 $is_expiring         = 'expiring' === $subscription_status;
 $fees_covered        = ! empty( $subscription['fees_covered'] );
 
@@ -130,6 +135,10 @@ if ( $frequency ) {
 				<span class="newspack-ui__badge newspack-ui__badge--error">
 					<?php esc_html_e( 'Cancelled', 'newspack-plugin' ); ?>
 				</span>
+			<?php elseif ( $is_expired ) : ?>
+				<span class="newspack-ui__badge newspack-ui__badge--error">
+					<?php esc_html_e( 'Expired', 'newspack-plugin' ); ?>
+				</span>
 			<?php endif; ?>
 		</div>
 		<div class="newspack-my-account__subscription--actions">
@@ -159,7 +168,7 @@ if ( $frequency ) {
 					>
 						<?php esc_html_e( 'Cancel subscription', 'newspack-plugin' ); ?>
 					</a>
-				<?php elseif ( $is_cancelled || $is_expiring ) : ?>
+				<?php elseif ( $is_cancelled || $is_expired || $is_expiring ) : ?>
 					<?php // Renew subscription stays flat-visible — no `--action-link` class so v1's desktop hide rule doesn't fire. Mirrors donation's Restart. ?>
 					<a
 						href="#"
@@ -413,10 +422,10 @@ if ( $is_active || $is_expiring ) {
 	);
 }
 
-// Renew subscription modal — rendered for cancelled / expiring subs (the
-// header Renew button) and reused by the expiring variant's inline
+// Renew subscription modal — rendered for cancelled / expired / expiring subs
+// (the header Renew button) and reused by the expiring variant's inline
 // "renew now" anchor inside the error notice.
-if ( $is_cancelled || $is_expiring ) {
+if ( $is_cancelled || $is_expired || $is_expiring ) {
 	load_template(
 		__DIR__ . '/partials/renew-subscription-modal.php',
 		false,

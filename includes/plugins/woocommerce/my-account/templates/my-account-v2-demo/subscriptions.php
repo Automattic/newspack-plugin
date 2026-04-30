@@ -112,7 +112,7 @@ $previous_meta_color = static function ( $row ) {
 };
 ?>
 <div
-	class="newspack-my-account-v2-demo-subscriptions newspack-ui__stack newspack-ui__stack--vertical newspack-ui__stack--gap-9"
+	class="newspack-my-account-v2-demo-subscriptions newspack-ui__stack newspack-ui__stack--vertical newspack-ui__stack--gap-11"
 	data-newspack-my-account-v2-demo="subscriptions"
 >
 	<?php if ( empty( $active ) && empty( $previous ) ) : ?>
@@ -122,7 +122,7 @@ $previous_meta_color = static function ( $row ) {
 	<?php endif; ?>
 	<?php if ( ! empty( $active ) ) : ?>
 		<section class="newspack-ui__stack newspack-ui__stack--vertical newspack-ui__stack--gap-5" data-section-id="active">
-			<h2 class="newspack-ui__font--l newspack-ui__font--bold newspack-ui__spacing-top--0 newspack-ui__spacing-bottom--0">
+			<h2 class="newspack-ui__font--m newspack-ui__font--bold newspack-ui__spacing-top--0 newspack-ui__spacing-bottom--0">
 				<?php
 				echo esc_html(
 					_n(
@@ -195,15 +195,15 @@ $previous_meta_color = static function ( $row ) {
 						<?php endif; ?>
 						<div class="newspack-ui__stack newspack-ui__stack--horizontal newspack-ui__stack--gap-5 newspack-ui__stack--align-center newspack-ui__stack--justify-between">
 							<div class="newspack-ui__stack newspack-ui__stack--vertical newspack-ui__stack--gap-1">
-								<div class="newspack-ui__font--m newspack-ui__font--bold">
+								<div class="newspack-ui__font--s newspack-ui__font--bold">
 									<?php if ( $product ) : ?>
 										<span><?php echo esc_html( $product ); ?></span>
-										<span aria-hidden="true" class="newspack-ui__color--neutral-30"> | </span>
+										<span aria-hidden="true" class="newspack-my-account-v2-demo__separator"></span>
 									<?php endif; ?>
 									<span><?php echo esc_html( $amount_per ); ?></span>
 								</div>
 								<?php if ( $subtext ) : ?>
-									<span class="newspack-ui__font--xs <?php echo esc_attr( $subtext_cls ); ?>">
+									<span class="newspack-ui__font--xs newspack-ui__font--normal <?php echo esc_attr( $subtext_cls ); ?>">
 										<?php echo esc_html( $subtext ); ?>
 									</span>
 								<?php endif; ?>
@@ -225,7 +225,7 @@ $previous_meta_color = static function ( $row ) {
 
 	<?php if ( ! empty( $previous ) ) : ?>
 		<section class="newspack-ui__stack newspack-ui__stack--vertical newspack-ui__stack--gap-5" data-section-id="previous">
-			<h2 class="newspack-ui__font--l newspack-ui__font--bold newspack-ui__spacing-top--0 newspack-ui__spacing-bottom--0">
+			<h2 class="newspack-ui__font--m newspack-ui__font--bold newspack-ui__spacing-top--0 newspack-ui__spacing-bottom--0">
 				<?php
 				echo esc_html(
 					_n(
@@ -269,15 +269,15 @@ $previous_meta_color = static function ( $row ) {
 						data-subscription-status="<?php echo esc_attr( $subscription_status ); ?>"
 						aria-label="<?php echo esc_attr( $row_label ); ?>"
 					>
-						<div class="newspack-ui__font--m newspack-ui__font--bold">
+						<div class="newspack-ui__font--s newspack-ui__font--bold">
 							<?php if ( $product ) : ?>
 								<span><?php echo esc_html( $product ); ?></span>
-								<span aria-hidden="true" class="newspack-ui__color--neutral-30"> | </span>
+								<span aria-hidden="true" class="newspack-my-account-v2-demo__separator"></span>
 							<?php endif; ?>
 							<span><?php echo esc_html( $amount_per ); ?></span>
 						</div>
 						<?php if ( $meta_text ) : ?>
-							<span class="newspack-ui__font--xs <?php echo esc_attr( $meta_color ); ?>">
+							<span class="newspack-ui__font--xs newspack-ui__font--normal <?php echo esc_attr( $meta_color ); ?>">
 								<?php echo esc_html( $meta_text ); ?>
 							</span>
 						<?php endif; ?>
