@@ -325,8 +325,8 @@ $status_label = static function ( $status ) {
 					<?php echo esc_html( isset( $billing_history_button['description'] ) ? $billing_history_button['description'] : '' ); ?>
 				</span>
 			</div>
-			<svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false">
-				<path d="M19 3H5C3.9 3 3 3.9 3 5v16l3-2 3 2 3-2 3 2 3-2 3 2V5c0-1.1-.9-2-2-2zm-1 14.5L17 17l-3 2-3-2-3 2-3-2-1 .5V5h14v12.5zM6 7h12v2H6V7zm0 4h12v2H6v-2zm0 4h7v2H6v-2z" fill="currentColor"/>
+			<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" focusable="false">
+				<path fill-rule="evenodd" clip-rule="evenodd" fill="currentColor" d="M16.83 6.342l.602.3.625-.25.443-.176v12.569l-.443-.178-.625-.25-.603.301-1.444.723-2.41-.804-.475-.158-.474.158-2.41.803-1.445-.722-.603-.3-.625.25-.443.177V6.215l.443.178.625.25.603-.301 1.444-.722 2.41.803.475.158.474-.158 2.41-.803 1.445.722zM20 4l-1.5.6-1 .4-2-1-3 1-3-1-2 1-1-.4L5 4v17l1.5-.6 1-.4 2 1 3-1 3 1 2-1 1 .4 1.5.6V4zm-3.5 6.25v-1.5h-8v1.5h8zm0 3v-1.5h-8v1.5h8zm-8 3v-1.5h8v1.5h-8z"/>
 			</svg>
 		</a>
 	<?php endif; ?>
