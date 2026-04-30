@@ -25,9 +25,11 @@ defined( 'ABSPATH' ) || exit;
  * Newspack "My Account" v2 prototype demo gate.
  */
 final class My_Account_UI_V2_Demo {
-	const DEMO_FLAG        = 'v2-demo';
-	const BODY_CLASS       = 'newspack-my-account--v2-demo';
-	const ENDPOINTS_OPTION = 'newspack_my_account_v2_demo_endpoints_version';
+	const DEMO_FLAG          = 'v2-demo';
+	const HOMEPAGE_DEMO_FLAG = 'my-account-v2-demo';
+	const BODY_CLASS         = 'newspack-my-account--v2-demo';
+	const HOMEPAGE_BODY_CLASS = 'newspack-my-account--v2-demo-homepage';
+	const ENDPOINTS_OPTION   = 'newspack_my_account_v2_demo_endpoints_version';
 	/**
 	 * Recognised scenario names. The query parameter `?v2-demo=<scenario>`
 	 * triggers a deterministic merge into the base fake-data fixture so each
@@ -139,6 +141,18 @@ final class My_Account_UI_V2_Demo {
 		// so add_action('init', ...) would register too late to fire — init
 		// has already started by the time we get here.
 		self::register_endpoints();
+
+		// Homepage overlay demo (separate flag `?my-account-v2-demo`). Same
+		// admin gate as the my-account demo, but renders a right-side drawer
+		// over the homepage instead of swapping templates inside /my-account/.
+		// See plan: docs/my-account-v2-prototype-devlog.md cross-phase log.
+		\add_action( 'wp_enqueue_scripts', [ __CLASS__, 'enqueue_homepage_assets' ], 12 );
+		\add_action( 'wp_footer', [ __CLASS__, 'render_homepage_overlay' ], 100 );
+
+		// The v1 navigation template exposes a filter for footer links — gate
+		// inside the callback on `is_demo_active()` so v1 pages without the
+		// flag stay unchanged. Same data source as the homepage overlay.
+		\add_filter( 'newspack_my_account_navigation_footer_items', [ __CLASS__, 'navigation_footer_items' ] );
 	}
 
 	/**
@@ -191,6 +205,7 @@ final class My_Account_UI_V2_Demo {
 	 */
 	public static function query_vars( $vars ) {
 		$vars[] = self::DEMO_FLAG;
+		$vars[] = self::HOMEPAGE_DEMO_FLAG;
 		$vars[] = 'newsletters';
 		$vars[] = 'donations';
 		// `subscriptions` may already be registered as a query var by WC
@@ -198,6 +213,27 @@ final class My_Account_UI_V2_Demo {
 		// but ensures the var exists even on sites without WCS.
 		$vars[] = 'subscriptions';
 		return $vars;
+	}
+
+	/**
+	 * Whether the homepage overlay demo is active for the current request.
+	 * Separate gate from `is_demo_active()` because the surface (homepage)
+	 * and flag (`?my-account-v2-demo`) are different.
+	 *
+	 * @return bool
+	 */
+	public static function is_homepage_demo_active() {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( ! isset( $_GET[ self::HOMEPAGE_DEMO_FLAG ] ) ) {
+			return false;
+		}
+		if ( ! \is_front_page() ) {
+			return false;
+		}
+		if ( ! \is_user_logged_in() ) {
+			return false;
+		}
+		return \current_user_can( 'manage_options' );
 	}
 
 	/**
@@ -209,6 +245,9 @@ final class My_Account_UI_V2_Demo {
 	public static function body_class( $classes ) {
 		if ( self::is_demo_active() ) {
 			$classes[] = self::BODY_CLASS;
+		}
+		if ( self::is_homepage_demo_active() ) {
+			$classes[] = self::HOMEPAGE_BODY_CLASS;
 		}
 		return $classes;
 	}
@@ -242,6 +281,113 @@ final class My_Account_UI_V2_Demo {
 			'newspackMyAccountV2Demo',
 			self::get_fake_data()
 		);
+	}
+
+	/**
+	 * Enqueue the homepage overlay bundle when the homepage demo is active.
+	 * Separate handle from the my-account demo so each surface only loads
+	 * what it needs.
+	 */
+	public static function enqueue_homepage_assets() {
+		if ( ! self::is_homepage_demo_active() ) {
+			return;
+		}
+		$asset_path = NEWSPACK_ABSPATH . 'dist/my-account-v2-demo-homepage.asset.php';
+		if ( ! file_exists( $asset_path ) ) {
+			return;
+		}
+		$asset = require $asset_path;
+		\wp_enqueue_style(
+			'newspack-my-account-v2-demo-homepage',
+			Newspack::plugin_url() . '/dist/my-account-v2-demo-homepage.css',
+			[ 'newspack-ui' ],
+			$asset['version']
+		);
+		\wp_enqueue_script(
+			'newspack-my-account-v2-demo-homepage',
+			Newspack::plugin_url() . '/dist/my-account-v2-demo-homepage.js',
+			$asset['dependencies'],
+			$asset['version'],
+			true
+		);
+	}
+
+	/**
+	 * Render the homepage overlay markup. Hooked to `wp_footer` (priority 100)
+	 * so it lands at the end of <body>, after every other plugin / theme
+	 * markup. Mirrors the `?ui-demo` injection pattern in class-newspack-ui.php.
+	 */
+	public static function render_homepage_overlay() {
+		if ( ! self::is_homepage_demo_active() ) {
+			return;
+		}
+		$user       = \wp_get_current_user();
+		$first_name = '';
+		if ( ! empty( $user->first_name ) ) {
+			$first_name = $user->first_name;
+		} elseif ( ! empty( $user->display_name ) ) {
+			// Take the first whitespace-separated token of display_name as the
+			// best-effort first name. Matches how the codebase derives
+			// short-form names elsewhere (see class-comment-display-name.php).
+			$tokens     = preg_split( '/\s+/', trim( $user->display_name ) );
+			$first_name = is_array( $tokens ) && ! empty( $tokens[0] ) ? $tokens[0] : '';
+		}
+
+		\load_template(
+			__DIR__ . '/templates/v2-demo/homepage-overlay.php',
+			false,
+			[
+				'first_name'      => $first_name,
+				'menu_items'      => \wc_get_account_menu_items(),
+				'secondary_links' => self::get_secondary_links(),
+				'logout_url'      => \wc_logout_url( \home_url( '/' ) ),
+			]
+		);
+	}
+
+	/**
+	 * Inject the same secondary nav block (FAQ / Contact us / Privacy Policy
+	 * / Terms of Service) into the v1 navigation footer when the my-account
+	 * demo flag is active. Filter is registered unconditionally so the gate
+	 * lives in the callback — keeps init() lean.
+	 *
+	 * @param array $items Filter input — items previously contributed.
+	 * @return array
+	 */
+	public static function navigation_footer_items( $items ) {
+		if ( ! self::is_demo_active() ) {
+			return $items;
+		}
+		return array_merge( $items, self::get_secondary_links() );
+	}
+
+	/**
+	 * Static placeholder list of secondary nav items. Same shape as the
+	 * `newspack_my_account_navigation_footer_items` filter expects
+	 * (`{ url, label }`) so the homepage overlay template and the v1 sidebar
+	 * footer share a single source.
+	 *
+	 * @return array<int, array{url:string,label:string}>
+	 */
+	private static function get_secondary_links() {
+		return [
+			[
+				'url'   => '#',
+				'label' => __( 'FAQ', 'newspack-plugin' ),
+			],
+			[
+				'url'   => '#',
+				'label' => __( 'Contact us', 'newspack-plugin' ),
+			],
+			[
+				'url'   => '#',
+				'label' => __( 'Privacy Policy', 'newspack-plugin' ),
+			],
+			[
+				'url'   => '#',
+				'label' => __( 'Terms of Service', 'newspack-plugin' ),
+			],
+		];
 	}
 
 	/**
@@ -289,7 +435,9 @@ final class My_Account_UI_V2_Demo {
 	 * @return array
 	 */
 	public static function menu_items( $items ) {
-		if ( ! self::is_demo_active() ) {
+		// Homepage overlay also calls wc_get_account_menu_items() to mirror
+		// the v2 sidebar; let that surface see the same shaped menu.
+		if ( ! self::is_demo_active() && ! self::is_homepage_demo_active() ) {
 			return $items;
 		}
 		// Pluck `subscriptions` if it exists (WC Subscriptions adds it, and
