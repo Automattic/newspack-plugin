@@ -53,6 +53,7 @@ final class My_Account_V2_Demo {
 		'no-donations',
 		'no-subscriptions',
 		'no-payment-methods',
+		'no-addresses',
 	];
 	// Bump when the set of registered endpoints changes so the auto-flush
 	// guard re-runs. See devlog Decision log "Endpoint flush strategy".
@@ -66,11 +67,15 @@ final class My_Account_V2_Demo {
 	// `endpoint_content` ran alongside our renderer and surfaced its own
 	// "verify your email" warning above our v2 list; the takeover drops
 	// every other handler on the same hook.
+	// 7 = payment-information rebuild — payment-methods now renders v1's
+	// `payment-information.php` card DOM (methods + addresses sections).
+	// No new endpoint registered; bump keeps the audit trail consistent and
+	// re-flushes any drift since the last admin visit.
 	// The `subscriptions` endpoint may already exist on sites with WC
 	// Subscriptions; add_rewrite_endpoint is idempotent so re-registering is
 	// harmless, and the auto-flush only fires once per admin visit after the
 	// bump.
-	const ENDPOINTS_VERSION = 6;
+	const ENDPOINTS_VERSION = 7;
 
 	/**
 	 * Initialize hooks.
@@ -877,6 +882,7 @@ final class My_Account_V2_Demo {
 			'donations'       => self::get_fake_donations(),
 			'subscriptions'   => self::get_fake_subscriptions(),
 			'payment_methods' => self::get_fake_payment_methods(),
+			'addresses'       => self::get_fake_addresses(),
 			'newsletters'     => [
 				'sections'             => [
 					[
@@ -1107,6 +1113,7 @@ final class My_Account_V2_Demo {
 				$data['donations']       = self::empty_donations();
 				$data['subscriptions']   = self::empty_subscriptions();
 				$data['payment_methods'] = self::empty_payment_methods();
+				$data['addresses']       = self::empty_addresses();
 				break;
 
 			case 'no-donations':
@@ -1119,6 +1126,10 @@ final class My_Account_V2_Demo {
 
 			case 'no-payment-methods':
 				$data['payment_methods'] = self::empty_payment_methods();
+				break;
+
+			case 'no-addresses':
+				$data['addresses'] = self::empty_addresses();
 				break;
 		}
 		return $data;
@@ -1731,10 +1742,11 @@ final class My_Account_V2_Demo {
 	 * Shape mirrors `wc_get_customer_saved_methods_list()`: each row carries
 	 * `method.brand` + `method.last4`, an `expires` string in the
 	 * Stripe-conventional `MM/YY` format, an `is_default` flag, and an
-	 * `actions` map of `key => [name, url]` consumed by the template. The v2
-	 * template renders these into the same `<table class="shop_table
-	 * account-payment-methods-table">` DOM WC core ships, so any future
-	 * stylesheet that targets WC's payment-methods table styles us for free.
+	 * `actions` map of `key => [name, url]` consumed by the template. The
+	 * v2 template renders these into v1's `payment-information.php` card
+	 * DOM (`.newspack-ui__box.--border.payment-method` grid), so existing
+	 * v1 SCSS for `.payment-method` / `#payment-methods` paints the layout
+	 * for free — see Figma 2636:45349 and the post-Phase-6 devlog entry.
 	 *
 	 * @return array
 	 */
@@ -1753,7 +1765,7 @@ final class My_Account_V2_Demo {
 						// order. `delete` last keeps the destructive action
 						// rightmost, matching WC's default rendering.
 						'delete' => [
-							'name' => __( 'Delete', 'newspack-plugin' ),
+							'name' => __( 'Delete payment method', 'newspack-plugin' ),
 							'url'  => '#',
 						],
 					],
@@ -1771,10 +1783,102 @@ final class My_Account_V2_Demo {
 							'url'  => '#',
 						],
 						'delete'  => [
-							'name' => __( 'Delete', 'newspack-plugin' ),
+							'name' => __( 'Delete payment method', 'newspack-plugin' ),
 							'url'  => '#',
 						],
 					],
+				],
+			],
+		];
+	}
+
+	/**
+	 * Empty-state shape for the addresses slice. Keeps the `billing` /
+	 * `shipping` keys present with `null` values so the template's
+	 * presence-check stays uniform across the populated and empty cases
+	 * (loop the keys, render either the card or the per-type empty row).
+	 *
+	 * @return array
+	 */
+	private static function empty_addresses() {
+		return [
+			'billing'  => null,
+			'shipping' => null,
+		];
+	}
+
+	/**
+	 * Addresses slice of the fake-data payload. Mirrors the shape v1's
+	 * `wc_get_account_formatted_address()` projects into the
+	 * `payment-information.php` template — `lines` is the pre-formatted
+	 * multi-line address used in the card body and the Delete-address
+	 * confirmation modal; the per-field keys feed the Edit-address modal
+	 * form. Two slots (billing / shipping) match Figma 2636:45370 — only
+	 * the billing slot carries `is_default`; the Default badge sits on the
+	 * billing card alone, matching v1's behaviour.
+	 *
+	 * @return array
+	 */
+	private static function get_fake_addresses() {
+		// Pull first / last name from the logged-in user — same pattern the
+		// `reader` slice uses for display_name + email. Prefer the explicit
+		// first_name / last_name user-meta keys; fall back to splitting
+		// display_name on whitespace; final fallback is the same "Casey
+		// Reader" stand-in the reader slice ships with.
+		$user       = \wp_get_current_user();
+		$first_name = '';
+		$last_name  = '';
+		if ( $user && $user->ID ) {
+			$first_name = (string) $user->first_name;
+			$last_name  = (string) $user->last_name;
+			if ( '' === $first_name && '' === $last_name && ! empty( $user->display_name ) ) {
+				$parts      = preg_split( '/\s+/', trim( $user->display_name ), 2 );
+				$first_name = isset( $parts[0] ) ? (string) $parts[0] : '';
+				$last_name  = isset( $parts[1] ) ? (string) $parts[1] : '';
+			}
+		}
+		if ( '' === $first_name ) {
+			$first_name = 'Casey';
+		}
+		if ( '' === $last_name ) {
+			$last_name = 'Reader';
+		}
+
+		return [
+			'billing'  => [
+				'type'       => 'billing',
+				'label'      => __( 'Billing', 'newspack-plugin' ),
+				'first_name' => $first_name,
+				'last_name'  => $last_name,
+				'address_1'  => '10 Downing Street',
+				'address_2'  => '',
+				'city'       => 'London',
+				'state'      => '',
+				'postcode'   => 'SW1A 2AA',
+				'country'    => 'GB',
+				'is_default' => true,
+				'lines'      => [
+					'10 Downing Street',
+					'London, SW1A 2AA',
+					__( 'United Kingdom', 'newspack-plugin' ),
+				],
+			],
+			'shipping' => [
+				'type'       => 'shipping',
+				'label'      => __( 'Shipping', 'newspack-plugin' ),
+				'first_name' => $first_name,
+				'last_name'  => $last_name,
+				'address_1'  => '2 Castle Hill',
+				'address_2'  => '',
+				'city'       => 'Windsor',
+				'state'      => 'Berkshire',
+				'postcode'   => 'SL4 1PD',
+				'country'    => 'GB',
+				'is_default' => false,
+				'lines'      => [
+					'2 Castle Hill',
+					'Windsor, SL4 1PD',
+					__( 'United Kingdom', 'newspack-plugin' ),
 				],
 			],
 		];

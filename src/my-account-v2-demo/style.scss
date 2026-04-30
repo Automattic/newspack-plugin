@@ -85,6 +85,7 @@
 	.newspack-my-account-v2-demo-donations [data-action="open-billing-history"] > .newspack-ui__stack--vertical {
 		flex: 1;
 		min-width: 0;
+		text-align: initial;
 	}
 
 	// v1 ships a `.newspack-my-account .woocommerce-MyAccount-content
