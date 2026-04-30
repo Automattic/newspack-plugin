@@ -150,7 +150,7 @@ Before writing any code: clone the repo via `n`, install deps (`npm install` and
 
 ## 3. Scope of screens
 
-Four priority surfaces, each with several variant states. Everything else (account settings, delete account, signed-out, email-unverified) is **reused from v1 as-is** for the prototype.
+Four priority reader-facing surfaces, each with several variant states, plus an **Account settings** rebuild added mid-build (Phase 9) and a single **WP-admin** companion (Phase 10). Everything else (delete-account-via-nonce-bounce, signed-out, email-unverified) is **reused from v1 as-is** for the prototype.
 
 **Newsletters** (Figma section `2636:46703`)
 
@@ -182,11 +182,19 @@ v1 already extends the WooCommerce Subscriptions endpoint, but the design is bei
 - Detail variants: `active`, `active (no fees)`, `cancelled`, `expiring`, `renewed`.
 - Modals: `Cancel subscription – Init/Success`, `Renew subscription` and its `Success`, `Change subscription – Init / Monthly selected / Plan selected / Transaction modal`.
 
-**Payment methods** (no Figma — reproduce v1 as-is)
+**Payment methods → Payment information** (Figma `2636:45349`, post-Phase-8 rebuild)
 
-v1 already renders `/my-account/payment-methods/` as a `<table class="shop_table account-payment-methods-table">` of saved cards with action buttons (Make default / Delete) plus an "Add payment method" CTA. The v2 prototype reproduces the exact v1 DOM under the `?my-account-v2-demo` flag, fed by fake data instead of real `wc_get_customer_saved_methods_list()` — no new design, no new components. This means my-account-v2-demo readers can see and click through the payment-methods experience without needing real WC payment tokens on the demo site. Phase 6 ships this; details in §10 → Phase 6.
+Phase 6 originally reproduced WC core's `<table class="shop_table account-payment-methods-table">` of saved cards under the demo flag. Mid-prototype the call reversed: Figma shows a card-based **Payment information** surface (methods + addresses) that already lives in v1 as `payment-information.php`, so Phase 6's table got rebuilt onto v1's card DOM with five new modals (Add / Edit / Delete payment method, Edit/Add / Delete address). Sidebar label is "Payment information" (not "Payment methods"); URL slug stays `payment-methods` because WC core owns it.
 
-Reused from v1 unchanged: account-page page template, sidebar/menu, account settings, delete-account flow, signed-out state.
+**Account settings** (Figma `2636:46773`, Phase 9)
+
+v1 today is the standard WooCommerce edit-account form. v2 keeps the same DOM (so v1's SCSS does the styling work for free) but layers on stateless form submits (Save → snackbar) and a redesigned **Delete account** flow: a two-step modal with a "Manage my…" alternative-actions row (Donations / Subscriptions / Newsletters) on step 1, and a "check inbox" success state on step 2. Triggers `wc_get_template` swap of `myaccount/form-edit-account.php` at priority 2 (so the demo lands after v1's priority-1 swap).
+
+**WP-admin: Reader Account Customization** (Figma `4510:261706`, Phase 10)
+
+A pure-demo admin tab inside the **Audience** wizard, between *Configuration* and *Checkout & Payment*. First v2 surface that lives in WP-admin rather than `/my-account/`. Three two-column sections (title + description left, controls right): Branding (logo upload), Newsletters (page title + description), Account & Billing (Terminology toggle with a *Custom* option that reveals stacked singular/plural inputs, plus cancel-recurring-donation message and billing/invoice footer). Local React `useState` only — no REST roundtrip, Save button is a no-op. Lets stakeholders see how the admin would surface the v2 customisation controls without anything actually persisting.
+
+Reused from v1 unchanged: account-page page template, sidebar/menu, signed-out state.
 
 ## 4. The `?my-account-v2-demo` mechanism
 
@@ -637,7 +645,25 @@ The prototype lands as ~10 PHP templates + ~7 JS modules + a single class with a
 
 The doc lives at `docs/my-account-v2-prototype-guide.md` (sibling to this brief and the devlog). No new code.
 
-**Total estimate:** ~8.5–9 dev-days for one engineer, end-to-end clickable on any Newspack site.
+### Phase 9 — Account settings (~0.5 day)
+
+> Out-of-roadmap addition after Phase 8. Targets Figma frames `2636:46773` (Account settings), `2636:46785` (Delete account modal), `4865:92398` (Check inbox success), and `4863:20067` (variant section).
+
+Hook `wc_get_template` at priority 2 (so the demo lands after v1's priority-1 swap) and point `myaccount/form-edit-account.php` at a new v2-demo template that reuses v1's DOM (`<form class="woocommerce-EditAccountForm">`, the section ids, the input + button classes) — so v1's existing SCSS does all the styling work. Forms are stateless: client-side `submit` listeners surface snackbars (`Profile updated.` / `Password updated.`) and return. The **Delete account** button opens a two-step modal partial (`partials/delete-account-modal.php`): step 1 is the "Are you sure?" prose plus a three-row "Manage my…" alternative-actions list (Donations / Subscriptions / Newsletters, each with a Manage button linking to the corresponding endpoint with the demo flag preserved); step 2 flips to a "We have just sent instructions on how to delete your account…" success state with the reader's email echoed back. Modal close (X / Cancel / ESC / backdrop) resets via the `closeModal` event. The three "soft alternatives" rows are the **first scoped SCSS rule on the my-account/ surface** (~25 lines under `.newspack-my-account-v2-demo-account-settings__alternatives*`) — newspack-ui has no compositional primitive that pairs a label+description vertical block with a right-aligned button.
+
+### Phase 10 — Reader Account Customization admin (~0.5 day)
+
+> Out-of-roadmap addition after Phase 9. **First v2 surface that lives in WP-admin rather than `/my-account/`.** Targets Figma frame `4510:261706` (marked outdated by Thomas — used as a layout reference, not a 1:1 spec).
+
+Add a new tab to the Audience wizard at `/wp-admin/admin.php?page=newspack-audience#/reader-account-customization`, between Configuration and Checkout & Payment. Pure-demo: local React `useState`, no REST roundtrip, no persistence — Save button is a no-op. Three sections in a two-column layout copied from the Access control edit page (`<Grid columns={2} gutter={32} noMargin>` + `<SectionHeader heading={2} noMargin>` left, `<VStack spacing={8}>` of controls right, `<Divider alignment="full-width" variant="tertiary">` between sections):
+
+1. **Branding** — `<ImageUpload>` for the sidebar logo + helper paragraph.
+2. **Newsletters** — `<TextControl>` page title + `<TextareaControl>` page description.
+3. **Account & Billing** — `<ToggleGroupControl>` for Terminology with three options (`Subscription` / `Membership` / `Custom`); selecting Custom reveals stacked singular + plural `<TextControl>`s. Below the toggle, two `<TextareaControl>`s for the cancel-recurring-donation message and the billing/invoice footer.
+
+Two new files: `src/wizards/audience/views/setup/reader-account-customization.{js,scss}`, plus a 3-line edit to the same folder's `index.js` to register the tab + route. No PHP class — pure-frontend tabs have precedent in the same wizard (the `/complete` route is purely state-driven). The brief's §2.1 ("no custom CSS") and §2.1.1 ("reuse v1 class names") **don't apply on this surface** — Audience wizard pages compose from `@wordpress/components` + `packages/components/src` (`Grid`, `SectionHeader`, `Divider`, `ImageUpload`, `Button`); the reflex order is `@wordpress/components` first → `packages/components/src` second → custom SCSS last. The single scoped SCSS rule that ships zeroes the legacy `.components-base-control` margins so `<VStack spacing={8}>` is the only source of vertical rhythm.
+
+**Total estimate:** ~9.5–10 dev-days for one engineer, end-to-end clickable on any Newspack site, including the two out-of-roadmap admin and account-settings additions.
 
 ## 11. Working in the open — dev log practice
 
@@ -672,8 +698,9 @@ Add links to PRs, commits, and Figma frames. Keep it scannable.
 
 - An admin can append `?my-account-v2-demo` (or `?my-account-v2-demo=<scenario>`) to any `/my-account/...` URL on any Newspack site and see the prototype rendered.
 - A non-admin appending the same URL sees v1 unchanged.
-- All visible markup uses `.newspack-ui*` classes. The my-account-v2-demo `style.scss` contains the `.newspack-my-account--my-account-v2-demo` scoping wrapper and effectively nothing else — open it in PR review and check.
-- All five primary screens (dashboard, newsletters, donations, subscriptions, payment methods) plus all six modals are reachable.
+- All visible markup on the `/my-account/` surface uses `.newspack-ui*` classes or v1 class names. The my-account-v2-demo `style.scss` contains the `.newspack-my-account--my-account-v2-demo` scoping wrapper plus the small handful of scoped rules each documented in the devlog — open it in PR review and check.
+- All five primary `/my-account/` screens (dashboard, newsletters, donations, subscriptions, payment information), the Account settings rebuild (Phase 9), the homepage drawer, and the WP-admin Reader Account Customization tab (Phase 10) are reachable.
+- All twelve modals (six original + Change subscription pulled forward in Phase 4, Add / Edit / Delete payment method, Edit/Add / Delete address from the Phase 6 rebuild, Delete account from Phase 9) are reachable.
 - Scenario flag toggles produce visibly different fixtures.
 - `npm run lint` and `npm run lint:php` pass.
 - The devlog has at least one entry per shipped phase.
