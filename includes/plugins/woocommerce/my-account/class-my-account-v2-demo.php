@@ -134,6 +134,11 @@ final class My_Account_V2_Demo {
 		// Preserve `?my-account-v2-demo` on every internal nav link (sidebar, post-login
 		// redirect, etc.) so a single click can't drop you back into v1.
 		\add_filter( 'woocommerce_get_endpoint_url', [ __CLASS__, 'preserve_demo_flag_on_endpoint_url' ], 10, 4 );
+		// Swap WC core's edit-account form for the v2-demo Account settings
+		// template when the demo flag is active. v1 hooks the same filter at
+		// priority 1; we run at 2 so we fire after v1's swap and get the
+		// last word on the demo flag's specific surface.
+		\add_filter( 'wc_get_template', [ __CLASS__, 'wc_get_template' ], 2, 2 );
 		// Register custom endpoints + auto-flush rewrite rules once per
 		// version bump. Called directly because this class is itself loaded
 		// inside an `init` callback (see class-woocommerce-my-account.php),
@@ -384,6 +389,25 @@ final class My_Account_V2_Demo {
 			return $url;
 		}
 		return \add_query_arg( self::DEMO_FLAG, '1', $url );
+	}
+
+	/**
+	 * Filter `wc_get_template` to swap WC core's edit-account form for the
+	 * v2-demo Account settings template when the demo flag is active.
+	 * Mirrors the v1 wc_get_template swap pattern (see class-my-account-ui-v1.php).
+	 *
+	 * @param string $template      Resolved template path.
+	 * @param string $template_name Template slug (e.g. `myaccount/form-edit-account.php`).
+	 * @return string
+	 */
+	public static function wc_get_template( $template, $template_name ) {
+		if ( ! self::is_demo_active() ) {
+			return $template;
+		}
+		if ( 'myaccount/form-edit-account.php' === $template_name ) {
+			return __DIR__ . '/templates/my-account-v2-demo/account-settings.php';
+		}
+		return $template;
 	}
 
 	/**

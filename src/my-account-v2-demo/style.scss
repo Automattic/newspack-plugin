@@ -28,4 +28,59 @@
 		font-size: var(--newspack-ui-font-size-m);
 		line-height: var(--newspack-ui-line-height-m);
 	}
+
+	// Phase 9 — Delete account modal action list. Three rows of
+	// label and description on the left, Manage button on the right,
+	// separated by hairlines. No newspack-ui primitive matches this
+	// layout so it lives here as a small scoped block.
+	.newspack-my-account-v2-demo-account-settings__alternatives {
+		list-style: none;
+		margin: 0 0 var(--newspack-ui-spacer-3);
+		padding: 0;
+	}
+
+	.newspack-my-account-v2-demo-account-settings__alternatives-item {
+		align-items: center;
+		border-bottom: 1px solid var(--newspack-ui-color-border, #ddd);
+		display: flex;
+		gap: var(--newspack-ui-spacer-5);
+		padding-bottom: var(--newspack-ui-spacer-5);
+		padding-top: var(--newspack-ui-spacer-5);
+
+		&:first-child {
+			padding-top: 0;
+		}
+	}
+
+	.newspack-my-account-v2-demo-account-settings__alternatives-details {
+		display: flex;
+		flex: 1 1 auto;
+		flex-direction: column;
+		gap: var(--newspack-ui-spacer-1);
+		min-width: 0;
+
+		span {
+			color: var(--newspack-ui-color-neutral-60, #6c6c6c);
+			font-size: var(--newspack-ui-font-size-xs);
+			line-height: var(--newspack-ui-line-height-xs);
+		}
+	}
+
+	// Email-send icon at the top of the success step. Black filled
+	// circle, white icon — matches Figma frame 4865:92398.
+	.newspack-my-account-v2-demo-account-settings__success-icon {
+		align-items: center;
+		background: var(--newspack-ui-color-neutral-90, #1e1e1e);
+		border-radius: 999px;
+		color: var(--newspack-ui-color-bg-base, #fff);
+		display: inline-flex;
+		height: 40px;
+		justify-content: center;
+		margin: 0 auto var(--newspack-ui-spacer-3);
+		width: 40px;
+
+		svg {
+			fill: currentcolor;
+		}
+	}
 }

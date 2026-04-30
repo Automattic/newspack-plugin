@@ -437,6 +437,41 @@ The guide deliberately *doesn't* duplicate brief §2.1.1's full reflex order. Th
 
 ---
 
+## Phase 9 — Account settings
+
+> Out-of-roadmap addition after Phase 8. Targets Figma frames `2636:46773` (Account settings), `2636:46785` (Delete account modal), `4865:92398` (Check inbox success), and `4863:20067` (variant section).
+
+**Date:** 2026-04-30
+**By:** thomas@a8c.com
+**Branch:** `prototype/my-account-demo-phase-9`
+**PR:** _pending — own draft PR for Copilot review per Thomas's request_
+
+**What I built**
+
+The Account settings surface end-to-end. Hooked `wc_get_template` at priority 2 (so we land after v1's priority-1 swap) and pointed `myaccount/form-edit-account.php` at a new v2-demo template. Reused v1's DOM verbatim — `<form class="woocommerce-EditAccountForm">`, `<p class="form-row form-row-first">`, the section ids `account-profile` / `account-password` / `delete-account`, and the v1 input + button classes — so the existing v1 SCSS does the heavy lifting (per brief §2.1.1). Form submits are stateless: client-side `submit` event handlers fire snackbars (`Profile updated.` / `Password updated.`) and return. Forgot-password link fires a `Password reset email sent.` snackbar.
+
+The Delete account button opens a two-step modal partial (`templates/my-account-v2-demo/partials/delete-account-modal.php`). Step 1 is the "Are you sure?" prose plus an action list of three rows — Donations / Subscriptions / Newsletters — each with a brief description and a Manage button that links to the corresponding endpoint with the demo flag preserved (the existing `preserve_demo_flag_on_endpoint_url` filter handles that). Confirm flips `data-step` from `init` to `success`, which renders the "check inbox" state from frame `4865:92398` — small black circular icon (`emailSend`), bold title, and a paragraph reading `We have just sent instructions on how to delete your account to <strong>{email}</strong>.` Modal close (X / Cancel / ESC / backdrop) resets via the `closeModal` event newspack-ui's `modals.js` dispatches when `data-state` flips back to `closed`.
+
+**What I learned**
+
+Two patterns from the prior phases ported cleanly: (a) the Phase 5 two-step modal pattern (`data-step="init"` and `data-step="success"` divs with `hidden` toggling, reset-on-close listening for the `closeModal` event), and (b) the Phase 6 wc_get_template swap. The only judgement call was whether to use `wc_get_template` filter (template-level swap) or take over `woocommerce_account_edit-account_endpoint` action (action-level removal). Filter approach won because v1 already establishes that pattern for the same template; action removal would have orphaned the existing wc_print_notices output WC core wraps around the form.
+
+The fake-data plumbing surprised me. WC core calls `wc_get_template( 'myaccount/form-edit-account.php' )` without passing the `data` arg the demo's other templates expect, so the new template self-fetches via `\Newspack\My_Account_V2_Demo::get_fake_data()` when `$args['data']` is absent. Both code paths converge on the same shape.
+
+**Decisions and why**
+
+- **Reused v1's DOM, not Figma's.** Brief §2.1.1 reflex order. The Figma input pattern (rounded button-shaped fields with internal padding) is what `.newspack-ui input.input-text` already paints when you wrap the input in a v1 `.form-row` paragraph — no new SCSS needed for the input chrome.
+- **Stateless forms.** Brief §7. No nonces, no real `wc_save_account_details` action; just snackbars. Productionisation re-attaches the WC handlers and removes the JS submit listener.
+- **Single Delete account button, not the v1 query-string-and-nonce bounce.** v1's Delete account button generates a one-shot nonce URL and bounces through a confirmation page; v2-demo opens an in-page modal. Closer to Figma and easier for design review.
+- **Three "soft alternatives" rows are a small scoped block.** The action-list layout (label + description on the left, Manage button on the right, hairline between rows) has no newspack-ui primitive — `__stack--horizontal --justify-between` would have lost the description+title vertical grouping. Added ~25 lines of scoped SCSS under `.newspack-my-account-v2-demo-account-settings__alternatives*`. Logged here because brief §2.1 wants the SCSS-add to be declared before the commit.
+- **`wc_get_template` priority 2.** v1 hooks at priority 1; running at 2 means we see v1's swap and can override it for the demo flag. v1 stays untouched on non-demo /my-account/?…/edit-account/.
+
+**Open questions**
+
+- **Real Stripe / WC wiring on productionisation.** All form submits, the password "Forgot password" link, and the modal's Confirm button will need real handlers when this folds into v1. Same shape as the modal handlers across Phases 4–6.
+- **Email-change flow.** The Figma shows the email field as disabled with a "contact us" helper. v1 has a separate code path for `is_email_change_enabled` that lets readers actually change their email. Phase 9 keeps it disabled — productionisation should decide whether to surface the change flow.
+- **Reset-vs-update password parity.** v1 has a "Create a password" / "Reset password" branch when the reader is password-less or arriving via reset link. Phase 9 collapses both into the basic Current/New form. If the v2 design actually wants the magic-link parity, that's a follow-up.
+
 ---
 
 ## Decision log (cross-phase)
