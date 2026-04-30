@@ -153,6 +153,11 @@ final class My_Account_UI_V2_Demo {
 		// inside the callback on `is_demo_active()` so v1 pages without the
 		// flag stay unchanged. Same data source as the homepage overlay.
 		\add_filter( 'newspack_my_account_navigation_footer_items', [ __CLASS__, 'navigation_footer_items' ] );
+
+		// Append `?my-account-v2-demo=1` to the v1 sidebar's "Back to
+		// Homepage" / site-logo link when the my-account demo is active so
+		// clicking it relands you in the homepage drawer demo.
+		\add_filter( 'newspack_my_account_back_to_homepage_url', [ __CLASS__, 'back_to_homepage_url' ] );
 	}
 
 	/**
@@ -365,6 +370,22 @@ final class My_Account_UI_V2_Demo {
 			return $items;
 		}
 		return array_merge( $items, self::get_secondary_links() );
+	}
+
+	/**
+	 * Filter the v1 sidebar's "Back to Homepage" URL so it carries the
+	 * homepage demo flag when the my-account demo is active. Clicking the
+	 * back link from a /my-account/?v2-demo page now reopens the homepage
+	 * overlay instead of dropping into the bare site.
+	 *
+	 * @param string $url Default home URL.
+	 * @return string
+	 */
+	public static function back_to_homepage_url( $url ) {
+		if ( ! self::is_demo_active() ) {
+			return $url;
+		}
+		return \add_query_arg( self::HOMEPAGE_DEMO_FLAG, '1', $url );
 	}
 
 	/**

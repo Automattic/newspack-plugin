@@ -53,7 +53,7 @@ if ( function_exists( 'wc_memberships_for_teams' ) ) {
 <nav class="woocommerce-MyAccount-navigation newspack-ui" aria-label="<?php esc_attr_e( 'Account pages', 'newspack-plugin' ); ?>">
 	<div class="newspack-my-account__navigation-header">
 		<?php if ( ! empty( $site_icon_url ) ) : ?>
-		<a class="newspack-my-account__site-logo" href="<?php echo esc_url( home_url( '/' ) ); ?>" title="<?php esc_attr_e( 'Back to Homepage', 'newspack-plugin' ); ?>">
+		<a class="newspack-my-account__site-logo" href="<?php echo esc_url( apply_filters( 'newspack_my_account_back_to_homepage_url', home_url( '/' ) ) ); ?>" title="<?php esc_attr_e( 'Back to Homepage', 'newspack-plugin' ); ?>">
 			<img src="<?php echo esc_url( $site_icon_url ); ?>" />
 		</a>
 		<?php endif; ?>
@@ -80,7 +80,7 @@ if ( function_exists( 'wc_memberships_for_teams' ) ) {
 				<?php endforeach; ?>
 			</ul>
 		<?php else : ?>
-			<a href="<?php echo esc_url( home_url( '/' ) ); ?>" class="newspack-my-account__home-link newspack-ui__button newspack-ui__button--small newspack-ui__button--ghost-light">
+			<a href="<?php echo esc_url( apply_filters( 'newspack_my_account_back_to_homepage_url', home_url( '/' ) ) ); ?>" class="newspack-my-account__home-link newspack-ui__button newspack-ui__button--small newspack-ui__button--ghost-light">
 				<?php Newspack_UI_Icons::print_svg( 'chevronLeft' ); ?>
 				<?php _e( 'Back to Homepage', 'newspack-plugin' ); ?>
 			</a>
