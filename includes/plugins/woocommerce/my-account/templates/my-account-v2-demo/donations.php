@@ -180,7 +180,7 @@ $status_label = static function ( $status ) {
 					?>
 					<div class="newspack-ui__box newspack-ui__box--border newspack-ui__stack newspack-ui__stack--horizontal newspack-ui__stack--gap-5 newspack-ui__stack--align-center newspack-ui__stack--justify-between">
 						<div class="newspack-ui__stack newspack-ui__stack--vertical newspack-ui__stack--gap-1">
-							<span class="newspack-ui__font--m newspack-ui__font--bold"><?php echo esc_html( $amount_per ); ?></span>
+							<span class="newspack-ui__font--s newspack-ui__font--bold"><?php echo esc_html( $amount_per ); ?></span>
 							<?php if ( $next_payment ) : ?>
 								<span class="newspack-ui__font--xs newspack-ui__color--neutral-60">
 									<?php
@@ -318,7 +318,7 @@ $status_label = static function ( $status ) {
 			data-action="open-billing-history"
 		>
 			<div class="newspack-ui__stack newspack-ui__stack--vertical newspack-ui__stack--gap-1">
-				<span class="newspack-ui__font--m newspack-ui__font--bold">
+				<span class="newspack-ui__font--s newspack-ui__font--bold">
 					<?php echo esc_html( isset( $billing_history_button['title'] ) ? $billing_history_button['title'] : __( 'Billing history', 'newspack-plugin' ) ); ?>
 				</span>
 				<span class="newspack-ui__font--xs newspack-ui__color--neutral-60">
