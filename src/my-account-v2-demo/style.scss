@@ -64,6 +64,15 @@
 		line-height: var(--newspack-ui-line-height-m);
 	}
 
+	// Billing history Button Card sits compact in Figma (4007:732289):
+	// padding 12px / 24px (spacer-2 / spacer-5), against the default
+	// __box's 24px all-sides. Override scoped to this single instance
+	// via the `data-action` selector so the rest of the __box family
+	// stays untouched.
+	.newspack-my-account-v2-demo-donations [data-action="open-billing-history"] {
+		padding: var(--newspack-ui-spacer-2) var(--newspack-ui-spacer-5);
+	}
+
 	// Previous donations table polish (Figma 2636:46479). Header gets a
 	// stronger bottom border (--color-border, #ddd); rows get a lighter
 	// divider (neutral-5, #f0f0f0); rows are clickable so cursor flips
