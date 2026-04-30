@@ -1225,31 +1225,31 @@ final class My_Account_V2_Demo {
 						[
 							'order'  => '#890',
 							'date'   => '2026-04-14',
-							'status' => 'paid',
+							'status' => 'completed',
 							'amount' => 10.00,
 						],
 						[
 							'order'  => '#731',
 							'date'   => '2026-03-14',
-							'status' => 'paid',
+							'status' => 'completed',
 							'amount' => 10.00,
 						],
 						[
 							'order'  => '#684',
 							'date'   => '2026-02-14',
-							'status' => 'paid',
+							'status' => 'completed',
 							'amount' => 10.00,
 						],
 						[
 							'order'  => '#603',
 							'date'   => '2026-01-14',
-							'status' => 'paid',
+							'status' => 'completed',
 							'amount' => 10.00,
 						],
 						[
 							'order'  => '#562',
 							'date'   => '2025-12-14',
-							'status' => 'paid',
+							'status' => 'completed',
 							'amount' => 10.00,
 						],
 					],
@@ -1284,13 +1284,13 @@ final class My_Account_V2_Demo {
 						[
 							'order'  => '#820',
 							'date'   => '2025-02-14',
-							'status' => 'paid',
+							'status' => 'completed',
 							'amount' => 153.00,
 						],
 						[
 							'order'  => '#640',
 							'date'   => '2024-02-14',
-							'status' => 'paid',
+							'status' => 'completed',
 							'amount' => 153.00,
 						],
 					],
@@ -1299,7 +1299,7 @@ final class My_Account_V2_Demo {
 			'one_time'               => [
 				[
 					'id'              => 'don-onetime-1',
-					'status'          => 'paid',
+					'status'          => 'completed',
 					'amount'          => 25.00,
 					'subtotal'        => 20.83,
 					'vat'             => 4.17,
@@ -1316,14 +1316,14 @@ final class My_Account_V2_Demo {
 						[
 							'order'  => '#946',
 							'date'   => '2025-11-30',
-							'status' => 'paid',
+							'status' => 'completed',
 							'amount' => 25.00,
 						],
 					],
 				],
 				[
 					'id'              => 'don-onetime-2',
-					'status'          => 'paid',
+					'status'          => 'completed',
 					'amount'          => 40.00,
 					'subtotal'        => 33.33,
 					'vat'             => 6.67,
@@ -1340,7 +1340,7 @@ final class My_Account_V2_Demo {
 						[
 							'order'  => '#312',
 							'date'   => '2024-01-01',
-							'status' => 'paid',
+							'status' => 'completed',
 							'amount' => 40.00,
 						],
 					],
@@ -1401,7 +1401,7 @@ final class My_Account_V2_Demo {
 					[
 						'order'  => '#854',
 						'date'   => '2026-03-16',
-						'status' => 'paid',
+						'status' => 'completed',
 						'amount' => 71.16,
 					],
 					[
@@ -1451,13 +1451,13 @@ final class My_Account_V2_Demo {
 					[
 						'order'  => '#680',
 						'date'   => '2022-02-19',
-						'status' => 'paid',
+						'status' => 'completed',
 						'amount' => 101.70,
 					],
 					[
 						'order'  => '#102',
 						'date'   => '2021-02-19',
-						'status' => 'paid',
+						'status' => 'completed',
 						'amount' => 101.70,
 					],
 				],
@@ -1495,13 +1495,13 @@ final class My_Account_V2_Demo {
 					[
 						'order'  => '#445',
 						'date'   => '2023-05-01',
-						'status' => 'paid',
+						'status' => 'completed',
 						'amount' => 5.00,
 					],
 					[
 						'order'  => '#410',
 						'date'   => '2023-04-01',
-						'status' => 'paid',
+						'status' => 'completed',
 						'amount' => 5.00,
 					],
 				],
@@ -1540,7 +1540,7 @@ final class My_Account_V2_Demo {
 					[
 						'order'  => '#854',
 						'date'   => '2025-03-16',
-						'status' => 'paid',
+						'status' => 'completed',
 						'amount' => 71.16,
 					],
 					[
@@ -1585,7 +1585,7 @@ final class My_Account_V2_Demo {
 					[
 						'order'  => '#955',
 						'date'   => '2023-11-02',
-						'status' => 'paid',
+						'status' => 'completed',
 						'amount' => 101.70,
 					],
 					[
@@ -1597,13 +1597,13 @@ final class My_Account_V2_Demo {
 					[
 						'order'  => '#680',
 						'date'   => '2022-02-19',
-						'status' => 'paid',
+						'status' => 'completed',
 						'amount' => 101.70,
 					],
 					[
 						'order'  => '#102',
 						'date'   => '2021-02-19',
-						'status' => 'paid',
+						'status' => 'completed',
 						'amount' => 101.70,
 					],
 				],
@@ -1632,7 +1632,7 @@ final class My_Account_V2_Demo {
 					[
 						'order'  => '#854',
 						'date'   => '2026-03-16',
-						'status' => 'paid',
+						'status' => 'completed',
 						'amount' => 71.16,
 					],
 					[

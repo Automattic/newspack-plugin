@@ -108,6 +108,176 @@
 		margin-top: var(--newspack-ui-spacer-11);
 	}
 
+	// Donation + subscription detail pages share the same three-table
+	// layout (Amount breakdown · dates+payment · billing history). v1's
+	// _subscriptions.scss already paints them via `shop_table.order_details`,
+	// `.subscription_details`, and `woocommerce-orders-table--orders`,
+	// but the inherited density (4px order_details rows; uniform #ddd
+	// dividers on every billing-history row) reads tighter and busier
+	// than Figma `2636:46488` / `2636:46512`. Re-paint per-page with
+	// the same thead-heavy / tbody-light pattern as the donations list
+	// previous-table.
+	.newspack-my-account-v2-demo-donation-details,
+	.newspack-my-account-v2-demo-subscription-details {
+		// Page-title h2 is `<h2 class="newspack-ui__font--m">` which
+		// compiles to `.newspack-ui .newspack-ui__font--m` (0,2,0) —
+		// out-specificed by some themes' `.entry-content h2` rules.
+		// Same fix shape as the newsletters / donations list h2 pins.
+		.newspack-my-account__subscription--title h2 {
+			font-size: var(--newspack-ui-font-size-m);
+			line-height: var(--newspack-ui-line-height-m);
+			margin: 0;
+		}
+
+		// Amount + dates+payment tables: drop the inherited tr divider,
+		// even row spacing across the breakdown, body-small type so the
+		// tabular content reads denser than the page-level paragraph
+		// size (Figma).
+		table.shop_table.order_details,
+		table.shop_table.subscription_details {
+			tr {
+				border-bottom: none;
+			}
+
+			th,
+			td {
+				font-size: var(--newspack-ui-font-size-s);
+				line-height: var(--newspack-ui-line-height-s);
+				padding: var(--newspack-ui-spacer-3) 0;
+				// `_my-account.scss` ships `vertical-align: middle` on
+				// shop_table cells. The Payment method row in
+				// subscription_details is the only multi-line cell on
+				// the page (brand + Exp. on a `<br>`); middle alignment
+				// pulls the "Payment method" label off the brand line.
+				// Top-align across both tables — single-line rows are
+				// visually unaffected.
+				vertical-align: top;
+			}
+		}
+
+		// "Billing history" section heading reads at the small type-scale
+		// step (Figma) — themes typically ship h2 at the doc-level
+		// `--newspack-ui-font-size-l` and the inherited size dwarfs the
+		// table beneath. Pin to font-size-s and zero the theme's stacked
+		// h2 margin so the spacer-2 bottom margin is the only gap to the
+		// table.
+		[data-section-id="billing-history"] h2 {
+			font-size: var(--newspack-ui-font-size-s);
+			line-height: var(--newspack-ui-line-height-s);
+			margin: 0 0 var(--newspack-ui-spacer-2);
+		}
+
+		// Billing history table: heavier divider under thead, lighter
+		// hairline between tbody rows. Cell padding bumps row height
+		// closer to Figma. Mirrors `__previous-table` on the list page.
+		table.woocommerce-orders-table--orders {
+			thead tr {
+				border-bottom: 1px solid var(--newspack-ui-color-border);
+			}
+
+			tbody tr {
+				border-bottom: 1px solid var(--newspack-ui-color-neutral-5);
+			}
+
+			thead th {
+				padding: var(--newspack-ui-spacer-2) 0;
+			}
+
+			tbody td {
+				padding: var(--newspack-ui-spacer-3) 0;
+			}
+		}
+	}
+
+	// Modify donation modal (Figma 2636:46578 / 2983:16128).
+	// newspack-ui's `__segmented-control` defaults to `align-items: center`
+	// — the `__tabs` block stays content-width, sitting centered with
+	// whitespace either side. Stretch it to fill the modal column and
+	// make each button flex to equal width. Theme h3 margin also inflates
+	// the spacer-2 gap newspack-ui ships between label + control to
+	// spacer-2 + theme-margin; zero the h3 margin so 8px is the visible
+	// gap on both Frequency + Amount blocks. The Amount wrapper is a
+	// plain `<div>`, so re-stack it as a flex column to inherit the same
+	// spacer-2 rhythm.
+	.newspack-my-account-v2-demo-modify-donation {
+		// Modal content: 24px gap between top-level sections (Frequency,
+		// Amount, Cover transaction, Recurring totals, Action buttons).
+		// newspack-ui's default leaves children to stack via theme h3 / p /
+		// box margins plus a first-button `margin-top: spacer-5` rule —
+		// re-paint as a flex column with explicit gap so the rhythm is
+		// uniform. Zero direct-child margins so the gap is the only space.
+		.newspack-ui__modal__content {
+			display: flex;
+			flex-direction: column;
+			gap: var(--newspack-ui-spacer-5);
+
+			> * {
+				margin: 0;
+			}
+
+			h3 {
+				margin: 0;
+			}
+		}
+
+		// Frequency: full-width tabs, 8px label-to-control gap.
+		.newspack-ui__segmented-control {
+			align-items: stretch;
+			gap: var(--newspack-ui-spacer-1);
+
+			&__tabs {
+				flex-wrap: nowrap;
+
+				.newspack-ui__button {
+					flex: 1 1 100%;
+				}
+			}
+		}
+
+		// Amount block (h3 + currency input) — 8px label-to-input gap.
+		.newspack-ui__modal__content > div:has(> .newspack-ui__currency-input) {
+			display: flex;
+			flex-direction: column;
+			gap: var(--newspack-ui-spacer-1);
+		}
+
+		// Recurring totals box: `_my-account.scss .shop_table` ships
+		// `padding-top: spacer-2` (12px) on every cell. v1's
+		// `tr:not(:only-child)` 4px override only matches tbody rows
+		// (thead has one row), so the heading th keeps the 12px and
+		// stacks against the box's spacer-5 (24px) padding — heading
+		// sits ~36px from the box top instead of Figma's 24px. Pull
+		// the table up by spacer-2 so the th's padding-top consumes
+		// the box's padding zone cleanly.
+		.newspack-ui__box > table {
+			margin-top: calc(var(--newspack-ui-spacer-2) * -1);
+		}
+
+		// Cover transaction fees: collapse the stacked label
+		// `margin-bottom: spacer-1` + helper-text `margin-top: spacer-1`
+		// so the helper text reads tight against the checkbox row.
+		// Figma sets gap-0 between the Input + Helper text containers and
+		// lets line-height handle the visual rhythm.
+		.form-row-wide {
+			label.checkbox {
+				margin-bottom: 0;
+			}
+
+			.newspack-ui__helper-text {
+				margin-top: 0;
+			}
+		}
+
+		// Action buttons group — Confirm + Cancel sit 12px apart per
+		// Figma's `_Base / Modal Buttons` group, while sitting 24px
+		// below the Recurring totals box (the parent gap on `__modal__content`).
+		&__actions {
+			display: flex;
+			flex-direction: column;
+			gap: var(--newspack-ui-spacer-2);
+		}
+	}
+
 	// Previous donations table polish (Figma 2636:46479). Header gets a
 	// stronger bottom border (--color-border, #ddd); rows get a lighter
 	// divider (neutral-5, #f0f0f0); rows are clickable so cursor flips
@@ -212,5 +382,23 @@
 		svg {
 			fill: currentcolor;
 		}
+	}
+}
+
+// `processing` status dot — v1 `_subscriptions.scss` writes
+// `background: var(--newspack-ui-color-warning-50)` to the
+// `.woocommerce-account.newspack-my-account.newspack-ui ...
+// --order-status-label.processing` chain (specificity 0,5,0), but that
+// CSS var doesn't exist (`_colors.scss` ships warning 0/5/30/40 only), so
+// production v1 silently falls through to the default neutral-60. Latent
+// v1 bug. To override under the demo flag we need a 5-class chain too:
+// `.newspack-my-account` + `.newspack-my-account-v2-demo` (both on body)
+// plus the detail wrapper, status-label class and `.processing`. Same
+// specificity as v1 means cascade order decides — v2-demo CSS enqueues
+// at priority 12 vs v1's 11, so this rule wins.
+.newspack-my-account.newspack-my-account-v2-demo {
+	.newspack-my-account-v2-demo-donation-details .newspack-my-account__subscription--order-status-label.processing,
+	.newspack-my-account-v2-demo-subscription-details .newspack-my-account__subscription--order-status-label.processing {
+		background: var(--newspack-ui-color-warning-30);
 	}
 }

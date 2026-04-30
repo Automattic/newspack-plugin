@@ -62,7 +62,7 @@ foreach ( $one_time as $row ) {
 		'id'        => isset( $row['id'] ) ? (string) $row['id'] : '',
 		'date'      => isset( $row['date'] ) ? (string) $row['date'] : '',
 		'frequency' => __( 'One-time', 'newspack-plugin' ),
-		'status'    => isset( $row['status'] ) ? (string) $row['status'] : 'paid',
+		'status'    => isset( $row['status'] ) ? (string) $row['status'] : 'completed',
 		'amount'    => isset( $row['amount'] ) ? (float) $row['amount'] : 0.0,
 	];
 }
@@ -86,8 +86,10 @@ $billing_history_button = isset( $donations['billing_history_button'] ) ? $donat
  */
 $status_dot = static function ( $status ) {
 	$class = 'newspack-ui__color--neutral-50';
-	if ( 'paid' === $status ) {
+	if ( 'completed' === $status ) {
 		$class = 'newspack-ui__color--success-50';
+	} elseif ( 'processing' === $status ) {
+		$class = 'newspack-ui__color--warning-30';
 	} elseif ( 'cancelled' === $status || 'expired' === $status ) {
 		$class = 'newspack-ui__color--error-50';
 	}
@@ -129,7 +131,7 @@ $format_amount = static function ( $amount ) use ( $currency_symbol ) {
  */
 $status_label = static function ( $status ) {
 	switch ( $status ) {
-		case 'paid':
+		case 'completed':
 			return __( 'Paid', 'newspack-plugin' );
 		case 'cancelled':
 			return __( 'Cancelled', 'newspack-plugin' );

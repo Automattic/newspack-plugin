@@ -69,9 +69,13 @@ $format_date   = static function ( $iso ) {
 	}
 	return date_i18n( 'F j, Y', $ts );
 };
+// Maps WC canonical order statuses to the Figma-side display label. v1's
+// `_subscriptions.scss` colours `--order-status-label.<wc-status>` for
+// completed/refunded/processing/etc., so the data layer stays on real WC
+// status names and the label switch translates to "Paid" / etc.
 $status_label = static function ( $s ) {
 	switch ( $s ) {
-		case 'paid':
+		case 'completed':
 			return __( 'Paid', 'newspack-plugin' );
 		case 'cancelled':
 			return __( 'Cancelled', 'newspack-plugin' );
@@ -156,9 +160,10 @@ if ( $frequency ) {
 						<?php esc_html_e( 'Cancel subscription', 'newspack-plugin' ); ?>
 					</a>
 				<?php elseif ( $is_cancelled || $is_expiring ) : ?>
+					<?php // Renew subscription stays flat-visible — no `--action-link` class so v1's desktop hide rule doesn't fire. Mirrors donation's Restart. ?>
 					<a
 						href="#"
-						class="newspack-ui__button newspack-my-account__subscription--action-link resubscribe newspack-ui__button--secondary"
+						class="newspack-ui__button newspack-ui__button--secondary resubscribe"
 						data-action="renew-subscription"
 						data-subscription-id="<?php echo esc_attr( $subscription_id ); ?>"
 					>
@@ -318,12 +323,10 @@ if ( $frequency ) {
 						</span>
 						<?php if ( ! empty( $payment['exp'] ) ) : ?>
 							<br>
-							<small>
-								<?php
-								/* translators: %s: card expiry, e.g. 02/27. */
-								echo esc_html( sprintf( __( 'Exp. %s', 'newspack-plugin' ), $payment['exp'] ) );
-								?>
-							</small>
+							<?php
+							/* translators: %s: card expiry, e.g. 02/27. */
+							echo esc_html( sprintf( __( 'Exp. %s', 'newspack-plugin' ), $payment['exp'] ) );
+							?>
 						<?php endif; ?>
 					</td>
 				</tr>
