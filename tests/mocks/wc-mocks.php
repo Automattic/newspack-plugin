@@ -401,6 +401,9 @@ function wcs_get_users_subscriptions( $user_id ) {
 	return $user_subscriptions;
 }
 function wcs_get_canonical_product_id( $item ) {
+	if ( is_object( $item ) && method_exists( $item, 'get_product_id' ) ) {
+		return $item->get_product_id();
+	}
 	return null;
 }
 function wc_string_to_bool( $string ) {
