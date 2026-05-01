@@ -512,17 +512,19 @@ final class My_Account_V2_Demo {
 		// follows Figma 2636:46117 + v1's `payment-information.php` shell.
 		unset( $items['payment-methods'] );
 
+		// Drop `orders` — the v2 sidebar does not surface a top-level Orders
+		// entry. WC core registers the slug for any logged-in customer.
+		unset( $items['orders'] );
+
 		// v1 already removed `customer-logout` and `edit-address`. Insert v2
 		// items between `edit-account` and the rest, in the order they appear
-		// in the Figma sidebar: Newsletters → Donations → Subscriptions →
-		// Payment information.
+		// in the Figma sidebar: Newsletters → Memberships → Payment information.
 		$ordered = [];
 		foreach ( $items as $slug => $label ) {
 			$ordered[ $slug ] = $label;
 			if ( 'edit-account' === $slug ) {
 				$ordered['newsletters']     = __( 'Newsletters', 'newspack-plugin' );
-				$ordered['donations']       = __( 'Donations', 'newspack-plugin' );
-				$ordered['subscriptions']   = __( 'Subscriptions', 'newspack-plugin' );
+				$ordered['subscriptions']   = __( 'Memberships', 'newspack-plugin' );
 				$ordered['payment-methods'] = __( 'Payment information', 'newspack-plugin' );
 			}
 		}
@@ -530,11 +532,8 @@ final class My_Account_V2_Demo {
 		if ( ! isset( $ordered['newsletters'] ) ) {
 			$ordered['newsletters'] = __( 'Newsletters', 'newspack-plugin' );
 		}
-		if ( ! isset( $ordered['donations'] ) ) {
-			$ordered['donations'] = __( 'Donations', 'newspack-plugin' );
-		}
 		if ( ! isset( $ordered['subscriptions'] ) ) {
-			$ordered['subscriptions'] = __( 'Subscriptions', 'newspack-plugin' );
+			$ordered['subscriptions'] = __( 'Memberships', 'newspack-plugin' );
 		}
 		if ( ! isset( $ordered['payment-methods'] ) ) {
 			$ordered['payment-methods'] = __( 'Payment information', 'newspack-plugin' );
@@ -1386,14 +1385,14 @@ final class My_Account_V2_Demo {
 				'id'                    => 'sub-001',
 				'status'                => 'active',
 				'current_tier'          => 'tier-member-yearly',
-				'product'               => __( 'Member', 'newspack-plugin' ),
-				'amount'                => 71.16,
-				'frequency'             => 'year',
-				'frequency_label'       => __( 'Annually', 'newspack-plugin' ),
-				'started'               => '2025-03-16',
-				'latest_payment'        => '2026-03-16',
-				'next_payment'          => '2027-03-16',
-				'subtotal'              => 58.33,
+				'product'               => __( "Editor's Circle", 'newspack-plugin' ),
+				'amount'                => 84.00,
+				'frequency'             => 'month',
+				'frequency_label'       => __( 'Monthly', 'newspack-plugin' ),
+				'started'               => '2026-03-16',
+				'latest_payment'        => '2026-04-16',
+				'next_payment'          => '2026-05-16',
+				'subtotal'              => 84.00,
 				'vat'                   => 11.67,
 				'transaction_fee'       => 1.16,
 				'transaction_fee_label' => __( 'Transaction fee (2%)', 'newspack-plugin' ),
