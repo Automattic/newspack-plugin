@@ -36,7 +36,6 @@ export default function TagsFlow( { tags = [], onClose, onComplete } ) {
 					__next40pxDefaultSize
 					__nextHasNoMarginBottom
 				/>
-				<p>{ __( 'Tags are visible only to admins. Press Enter or comma to add.', 'newspack-plugin' ) }</p>
 				<HStack spacing={ 2 } justify="flex-end">
 					<Button variant="secondary" size="compact" onClick={ onClose }>
 						{ __( 'Cancel', 'newspack-plugin' ) }
