@@ -113,7 +113,7 @@ export default function SubscriberList() {
 				render: ( { item } ) => (
 					<HStack spacing={ 1 } justify="flex-start" wrap>
 						{ ( item.tags || [] ).map( t => (
-							<Badge key={ t } level="info" text={ t } />
+							<Badge key={ t } text={ t } />
 						) ) }
 					</HStack>
 				),

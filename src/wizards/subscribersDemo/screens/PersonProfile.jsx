@@ -183,7 +183,7 @@ export default function PersonProfile() {
 					{ ( subscriber.tags || [] ).length > 0 && (
 						<HStack spacing={ 1 } justify="flex-start" wrap>
 							{ subscriber.tags.map( t => (
-								<Badge key={ t } level="info" text={ t } />
+								<Badge key={ t } text={ t } />
 							) ) }
 						</HStack>
 					) }
