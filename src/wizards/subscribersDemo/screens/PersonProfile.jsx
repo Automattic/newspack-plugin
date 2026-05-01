@@ -347,7 +347,7 @@ export default function PersonProfile() {
 				</VStack>
 			</Row>
 
-			<Row title={ __( 'Newsletters', 'newspack-plugin' ) } description={ __( 'Email lists this subscriber receives.', 'newspack-plugin' ) }>
+			<Row title={ __( 'Newsletters', 'newspack-plugin' ) }>
 				<Card __experimentalCoreCard>
 					<VStack spacing={ 4 }>
 						{ NEWSLETTERS.map( newsletter => {
