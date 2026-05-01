@@ -109,7 +109,7 @@ export default function SubscriberList() {
 				label: __( 'Tags', 'newspack-plugin' ),
 				elements: ALL_TAGS.map( t => ( { value: t, label: t } ) ),
 				filterBy: { operators: [ 'isAny' ] },
-				getValue: ( { item } ) => ( item.tags || [] ).join( ', ' ),
+				getValue: ( { item } ) => item.tags || [],
 				render: ( { item } ) => (
 					<HStack spacing={ 1 } justify="flex-start" wrap>
 						{ ( item.tags || [] ).map( t => (
@@ -124,11 +124,7 @@ export default function SubscriberList() {
 				label: __( 'Newsletters', 'newspack-plugin' ),
 				elements: NEWSLETTERS.map( n => ( { value: n.id, label: n.name } ) ),
 				filterBy: { operators: [ 'isAny' ] },
-				getValue: ( { item } ) =>
-					( item.newsletters || [] )
-						.map( id => NEWSLETTERS.find( n => n.id === id )?.name )
-						.filter( Boolean )
-						.join( ', ' ),
+				getValue: ( { item } ) => item.newsletters || [],
 				render: ( { item } ) => (
 					<div>
 						{ ( item.newsletters || [] )
