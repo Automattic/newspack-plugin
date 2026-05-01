@@ -63,6 +63,17 @@
 	}
 }
 
+// DataViews ships its search input and footer page-select as `.components-base-control`,
+// which adds `margin-bottom: 16px`. That throws their parent HStacks out of vertical
+// alignment with the buttons next to them. Drop the bottom margin so the toolbar and
+// footer collapse to a single line.
+.dataviews-wrapper {
+	.dataviews__search .components-base-control,
+	.dataviews-pagination .components-base-control {
+		margin-bottom: 0;
+	}
+}
+
 .newspack-subscribers-demo__orders-wrapper {
 	.dataviews-view-table {
 		tr td:first-child,
