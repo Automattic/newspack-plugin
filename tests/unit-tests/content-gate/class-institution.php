@@ -222,6 +222,10 @@ class Newspack_Test_Institution extends WP_UnitTestCase {
 		$this->assertIsInt( $inst_id );
 		$this->post_ids[] = $inst_id;
 		$reader_id = $this->create_reader( 'reader@test.com' );
+		// Log the reader in: user_matches_institution only treats requests as
+		// uncached when $user_id matches the current user (or a cache-bypass
+		// cookie is present). Without this, the IP check is skipped.
+		wp_set_current_user( $reader_id );
 
 		delete_transient( Institution::TRANSIENT_KEY );
 
@@ -240,6 +244,8 @@ class Newspack_Test_Institution extends WP_UnitTestCase {
 		// No IP set.
 		unset( $_SERVER['REMOTE_ADDR'] );
 		$this->assertFalse( Institution::evaluate( $reader_id, [ $inst_id ] ) );
+
+		wp_set_current_user( 0 );
 
 		// phpcs:enable
 	}

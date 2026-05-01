@@ -10,7 +10,11 @@ namespace Newspack\Reader_Activation\Sync\Contact_Metadata;
 use Newspack\Reader_Activation\Sync\Contact_Metadata;
 use Newspack\Access_Rules;
 use Newspack\Content_Gate as Content_Gate_CPT;
+use Newspack\Group_Subscription;
+use Newspack\Group_Subscription_Settings;
+use Newspack\Institution;
 use Newspack\User_Gate_Access;
+use Newspack\WooCommerce_Connection;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -60,6 +64,7 @@ class Content_Gate extends Contact_Metadata {
 		return [
 			'Content_Access'        => 'Content Access',
 			'Content_Access_Source' => 'Content Access Source',
+			'Content_Access_Group'  => 'Content Access Group',
 		];
 	}
 
@@ -80,6 +85,7 @@ class Content_Gate extends Contact_Metadata {
 			return [
 				'Content_Access'        => '',
 				'Content_Access_Source' => '',
+				'Content_Access_Group'  => '',
 			];
 		}
 
@@ -88,9 +94,11 @@ class Content_Gate extends Contact_Metadata {
 			$evaluations[] = User_Gate_Access::evaluate_gate_for_user( $gate, $this->user->ID );
 		}
 
+		$user_id = $this->user->ID;
 		return [
 			'Content_Access'        => self::has_content_access( $evaluations ) ? 'Yes' : 'No',
-			'Content_Access_Source' => implode( ', ', self::get_access_source_labels( $evaluations, $this->user->ID ) ),
+			'Content_Access_Source' => implode( ', ', self::collect_labels( $evaluations, $user_id, [ self::class, 'get_source_labels' ] ) ),
+			'Content_Access_Group'  => implode( ', ', self::collect_labels( $evaluations, $user_id, [ self::class, 'get_group_labels' ] ) ),
 		];
 	}
 
@@ -129,14 +137,15 @@ class Content_Gate extends Contact_Metadata {
 	}
 
 	/**
-	 * Get deduplicated, sorted source labels from gate evaluations.
+	 * Walk gate evaluations and collect labels via a per-rule resolver.
 	 *
-	 * @param array $evaluations Results from User_Gate_Access::evaluate_gate_for_user().
-	 * @param int   $user_id     User ID.
-	 * @return array Sorted source label strings.
+	 * @param array    $evaluations Results from User_Gate_Access::evaluate_gate_for_user().
+	 * @param int      $user_id     User ID.
+	 * @param callable $resolver    Receives ($slug, $value, $user_id) and returns string[] of labels.
+	 * @return array Sorted, deduplicated labels.
 	 */
-	private static function get_access_source_labels( $evaluations, $user_id ) {
-		$sources = [];
+	private static function collect_labels( $evaluations, $user_id, $resolver ) {
+		$labels_set = [];
 
 		foreach ( $evaluations as $result ) {
 			if ( ! $result['can_bypass'] ) {
@@ -150,14 +159,14 @@ class Content_Gate extends Contact_Metadata {
 					if ( ! $rule['passes'] ) {
 						continue;
 					}
-					foreach ( self::get_source_labels( $rule['slug'], $rule['value'], $user_id ) as $label ) {
-						$sources[ $label ] = true;
+					foreach ( $resolver( $rule['slug'], $rule['value'], $user_id ) as $label ) {
+						$labels_set[ $label ] = true;
 					}
 				}
 			}
 		}
 
-		$labels = array_keys( $sources );
+		$labels = array_keys( $labels_set );
 		sort( $labels, SORT_NATURAL | SORT_FLAG_CASE );
 		return $labels;
 	}
@@ -176,24 +185,72 @@ class Content_Gate extends Contact_Metadata {
 				if ( is_array( $value ) && function_exists( 'wc_get_product' ) ) {
 					$names = [];
 					foreach ( $value as $product_id ) {
-						if ( Access_Rules::has_active_subscription( $user_id, [ $product_id ] ) ) {
+						// Check if the user owns an active subscription for the product (not just a group subscription member).
+						if ( Access_Rules::has_active_subscription( $user_id, [ $product_id ], true ) ) {
 							$product = wc_get_product( $product_id );
 							if ( $product ) {
-								$names[] = $product->get_name();
+								$names[] = wp_specialchars_decode( $product->get_name() );
 							}
 						}
 					}
 					if ( ! empty( $names ) ) {
 						return $names;
 					}
+					// If they don't have an active subscription, check if they're a member of a group subscription.
+					if ( Access_Rules::has_active_subscription( $user_id, $value ) ) {
+						return [ 'group' ];
+					}
 				}
-				return [ 'Subscription' ];
+				// If they don't have an active subscription and they're not a group member, they might still have access via the `newspack_access_rules_has_active_subscription` filter hook.
+				return [ 'subscription' ];
 
 			case 'email_domain':
 				return [ 'domain' ];
 
 			case 'institution':
-				return [ 'group' ];
+				return [ 'institution' ];
+
+			default:
+				return [];
+		}
+	}
+
+	/**
+	 * Map an access rule slug and value to group labels.
+	 *
+	 * @param string $slug    Rule slug.
+	 * @param mixed  $value   Rule value.
+	 * @param int    $user_id User ID.
+	 * @return array Group labels.
+	 */
+	private static function get_group_labels( $slug, $value, $user_id ) {
+		switch ( $slug ) {
+			case 'subscription':
+				$group_subscriptions = Group_Subscription::get_group_subscriptions_for_user( $user_id );
+				$group_names         = [];
+				foreach ( $group_subscriptions as $subscription ) {
+					if ( ! $subscription->has_status( WooCommerce_Connection::ACTIVE_SUBSCRIPTION_STATUSES ) ) {
+						continue;
+					}
+					foreach ( $value as $product_id ) {
+						if ( $subscription->has_product( $product_id ) ) {
+							$group_settings = Group_Subscription_Settings::get_subscription_settings( $subscription );
+							$group_names[]  = wp_specialchars_decode( $group_settings['name'] );
+							break;
+						}
+					}
+				}
+				return $group_names;
+
+			case 'institution':
+				$institutions      = Institution::get_cached_institutions();
+				$institution_names = [];
+				foreach ( $value as $institution_id ) {
+					if ( isset( $institutions[ $institution_id ] ) && Institution::user_matches_institution( $user_id, $institutions[ $institution_id ] ) ) {
+						$institution_names[] = wp_specialchars_decode( get_the_title( $institution_id ) );
+					}
+				}
+				return $institution_names;
 
 			default:
 				return [];

@@ -296,9 +296,10 @@ class Access_Rules {
 	 *
 	 * @param int   $user_id     User ID.
 	 * @param array $product_ids Required product IDs.
+	 * @param bool  $strict      If true, only consider active subscriptions owned by $user_id (ignore group subscription memberships).
 	 * @return bool
 	 */
-	public static function has_active_subscription( $user_id, $product_ids ) {
+	public static function has_active_subscription( $user_id, $product_ids, $strict = false ) {
 		$has_subscription = false;
 
 		// Check user's own subscriptions.
@@ -307,7 +308,7 @@ class Access_Rules {
 		}
 
 		// Check group subscriptions the user is a member of.
-		if ( ! $has_subscription && function_exists( 'wcs_get_subscription' ) ) {
+		if ( ! $strict && ! $has_subscription && function_exists( 'wcs_get_subscription' ) ) {
 			$group_subscriptions = Group_Subscription::get_group_subscriptions_for_user( $user_id );
 			foreach ( $group_subscriptions as $subscription ) {
 				if ( ! $subscription || ! $subscription->has_status( WooCommerce_Connection::ACTIVE_SUBSCRIPTION_STATUSES ) ) {
@@ -334,8 +335,9 @@ class Access_Rules {
 		 * @param bool  $has_subscription Whether the user has an active subscription.
 		 * @param int   $user_id          User ID.
 		 * @param array $product_ids      Required product IDs.
+		 * @param bool  $strict           If true, only consider active subscriptions owned by $user_id (ignore group subscription memberships).
 		 */
-		return apply_filters( 'newspack_access_rules_has_active_subscription', $has_subscription, $user_id, $product_ids );
+		return apply_filters( 'newspack_access_rules_has_active_subscription', $has_subscription, $user_id, $product_ids, $strict );
 	}
 
 	/**

@@ -253,7 +253,7 @@ class Institution {
 		}
 
 		if ( ! empty( $rules['ip_range'] ) ) {
-			$is_uncached = $uncached || ! empty( $user_id ) || isset( $_COOKIE[ IP_Access_Rule::COOKIE_NAME ] ); // phpcs:ignore WordPressVIPMinimum.Variables.RestrictedVariables.cache_constraints___COOKIE
+			$is_uncached = $uncached || ( ! empty( $user_id ) && $user_id === get_current_user_id() ) || isset( $_COOKIE[ IP_Access_Rule::COOKIE_NAME ] ); // phpcs:ignore WordPressVIPMinimum.Variables.RestrictedVariables.cache_constraints___COOKIE
 			if ( $is_uncached && IP_Access_Rule::ip_matches_ranges( IP_Access_Rule::get_visitor_ip(), $rules['ip_range'] ) ) {
 				return true;
 			}
