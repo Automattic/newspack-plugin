@@ -260,12 +260,72 @@ class GoogleSiteKit {
 		// If reader has any currently active non-donation subscriptions.
 		$params['is_subscriber'] = empty( $reader_data['active_subscriptions'] ) ? 'no' : 'yes';
 
+		// Content access groups: group subscriptions (owned or member) and matching institutions.
+		if ( Content_Gate::is_newspack_feature_enabled() ) {
+			$group_names     = self::get_user_group_names( $current_user );
+			$params['group'] = empty( $group_names ) ? 'none' : implode( ', ', $group_names );
+		}
+
 		/**
 		 * Filters the custom parameters passed to GA4.
 		 *
 		 * @param array $params Custom parameters sent to GA4.
 		 */
 		return apply_filters( 'newspack_ga4_custom_parameters', $params );
+	}
+
+	/**
+	 * Get the sorted list of group names a user is associated with.
+	 *
+	 * Includes active group subscriptions the user owns or is a member of, and
+	 * institutions whose rules the user matches via any means.
+	 *
+	 * @param \WP_User $user The user to inspect.
+	 * @return string[] Sorted, deduplicated group names.
+	 */
+	private static function get_user_group_names( $user ) {
+		$names = [];
+		if ( ! $user || ! $user->ID ) {
+			return $names;
+		}
+		$user_id = (int) $user->ID;
+
+		// Group subscriptions: owned + member.
+		$candidates = [];
+		if ( class_exists( __NAMESPACE__ . '\Group_Subscription' ) ) {
+			$candidates = Group_Subscription::get_group_subscriptions_for_user( $user_id );
+		}
+		if ( function_exists( 'wcs_get_users_subscriptions' ) ) {
+			$candidates = array_merge( $candidates, array_values( wcs_get_users_subscriptions( $user_id ) ) );
+		}
+		$seen = [];
+		foreach ( $candidates as $subscription ) {
+			if ( ! $subscription || ! Group_Subscription::is_group_subscription( $subscription ) ) {
+				continue;
+			}
+			$sub_id = $subscription->get_id();
+			if ( isset( $seen[ $sub_id ] ) ) {
+				continue;
+			}
+			if ( ! $subscription->has_status( WooCommerce_Connection::ACTIVE_SUBSCRIPTION_STATUSES ) ) {
+				continue;
+			}
+			$settings        = Group_Subscription_Settings::get_subscription_settings( $subscription );
+			$names[]         = wp_specialchars_decode( $settings['name'] );
+			$seen[ $sub_id ] = true;
+		}
+
+		// Institutions: any matching institution contributes its name.
+		if ( class_exists( __NAMESPACE__ . '\Institution' ) ) {
+			foreach ( Institution::get_cached_institutions() as $inst_id => $rules ) {
+				if ( Institution::user_matches_institution( $user_id, $rules ) ) {
+					$names[] = wp_specialchars_decode( get_the_title( $inst_id ) );
+				}
+			}
+		}
+
+		sort( $names, SORT_NATURAL | SORT_FLAG_CASE );
+		return $names;
 	}
 
 	/**
