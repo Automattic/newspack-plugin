@@ -81,20 +81,8 @@ $display_name = ! empty( $user->display_name ) ? $user->display_name : $user->us
 					name="account_email_display"
 					id="account_email_display"
 					autocomplete="email"
-					disabled
 					value="<?php echo esc_attr( $email ); ?>"
 				/>
-				<span class="legend">
-					<?php
-					echo wp_kses_post(
-						sprintf(
-							// translators: %s is the contact-us URL.
-							__( 'To update your email address, please <a href="%s">contact us</a>.', 'newspack-plugin' ),
-							'#'
-						)
-					);
-					?>
-				</span>
 			</p>
 
 			<p class="woocommerce-buttons-card">
