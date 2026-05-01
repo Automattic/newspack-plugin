@@ -229,7 +229,10 @@ class Group_Subscription {
 		$subscription_ids = array_map( 'absint', \get_user_meta( $user_id, self::GROUP_SUBSCRIPTION_USER_META_KEY, false ) );
 		$subscriptions    = [];
 		foreach ( $subscription_ids as $subscription_id ) {
-			$subscriptions[] = $ids_only ? $subscription_id : \wcs_get_subscription( $subscription_id );
+			$subscription = \wcs_get_subscription( $subscription_id );
+			if ( $subscription && self::is_group_subscription( $subscription ) ) {
+				$subscriptions[] = $ids_only ? $subscription_id : $subscription;
+			}
 		}
 
 		/**
