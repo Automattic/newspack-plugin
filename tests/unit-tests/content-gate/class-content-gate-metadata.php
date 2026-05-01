@@ -583,7 +583,7 @@ class Newspack_Test_Content_Gate_Metadata extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test that an owned subscription does NOT produce a group label.
+	 * Test that an owned regular (non-group) subscription does NOT produce a group label.
 	 */
 	public function test_group_label_empty_for_owned_subscription() {
 		$product_id = $this->create_mock_product( 514, 'Solo Plan' );
@@ -602,7 +602,87 @@ class Newspack_Test_Content_Gate_Metadata extends WP_UnitTestCase {
 		$result = $this->get_metadata_for_user( self::$user_id );
 
 		$this->assertEquals( 'Yes', $result['Content_Access'] );
-		$this->assertEmpty( $result['Content_Access_Group'], 'Owned subscriptions should not contribute a group label.' );
+		$this->assertEmpty( $result['Content_Access_Group'], 'Owned non-group subscriptions should not contribute a group label.' );
+	}
+
+	/**
+	 * Test that an owned group subscription contributes its group name.
+	 */
+	public function test_group_label_for_owned_group_subscription() {
+		$product_id = $this->create_mock_product( 517, 'Owner Plan' );
+		$sub        = $this->create_subscription( self::$user_id, [ $product_id ] );
+		$sub->update_meta_data( Group_Subscription_Settings::GROUP_SUBSCRIPTION_META_PREFIX . 'enabled', 'yes' );
+		$sub->update_meta_data( Group_Subscription_Settings::GROUP_SUBSCRIPTION_META_PREFIX . 'name', 'Owner Group' );
+
+		$rules = [
+			[
+				[
+					'slug'  => 'subscription',
+					'value' => [ $product_id ],
+				],
+			],
+		];
+		$this->create_gate_with_rules( 'Owner Group Gate', $rules );
+
+		$result = $this->get_metadata_for_user( self::$user_id );
+
+		$this->assertEquals( 'Yes', $result['Content_Access'], 'Owner should have access via their own subscription.' );
+		$this->assertEquals( 'Owner Plan', $result['Content_Access_Source'], 'Owner should see the product name as source.' );
+		$this->assertEquals( 'Owner Group', $result['Content_Access_Group'], 'Owner should see the group name in Content_Access_Group.' );
+	}
+
+	/**
+	 * Test that the same group subscription is not double-counted when the user is both owner and member.
+	 */
+	public function test_group_label_dedupes_owner_who_is_also_member() {
+		$product_id = $this->create_mock_product( 518, 'Dual Role Plan' );
+		$sub        = $this->create_subscription( self::$user_id, [ $product_id ] );
+		$sub->update_meta_data( Group_Subscription_Settings::GROUP_SUBSCRIPTION_META_PREFIX . 'enabled', 'yes' );
+		$sub->update_meta_data( Group_Subscription_Settings::GROUP_SUBSCRIPTION_META_PREFIX . 'name', 'Dual Role Group' );
+		// Also list the owner as a member (edge case: should not produce a duplicate name).
+		add_user_meta( self::$user_id, Group_Subscription::GROUP_SUBSCRIPTION_USER_META_KEY, $sub->get_id() );
+
+		$rules = [
+			[
+				[
+					'slug'  => 'subscription',
+					'value' => [ $product_id ],
+				],
+			],
+		];
+		$this->create_gate_with_rules( 'Dual Role Gate', $rules );
+
+		$result = $this->get_metadata_for_user( self::$user_id );
+
+		$this->assertEquals( 'Dual Role Group', $result['Content_Access_Group'], 'Group name should appear once even when the user is both owner and member.' );
+	}
+
+	/**
+	 * Test that owned and member group subscriptions both surface, sorted.
+	 */
+	public function test_group_label_combines_owned_and_member_groups() {
+		$pid_owned  = $this->create_mock_product( 519, 'Owner Plan' );
+		$pid_member = $this->create_mock_product( 520, 'Member Plan' );
+
+		$owned_sub = $this->create_subscription( self::$user_id, [ $pid_owned ] );
+		$owned_sub->update_meta_data( Group_Subscription_Settings::GROUP_SUBSCRIPTION_META_PREFIX . 'enabled', 'yes' );
+		$owned_sub->update_meta_data( Group_Subscription_Settings::GROUP_SUBSCRIPTION_META_PREFIX . 'name', 'Owned Group' );
+
+		$this->create_group_subscription_with_member( self::$owner_id, self::$user_id, [ $pid_member ], 'Member Group' );
+
+		$rules = [
+			[
+				[
+					'slug'  => 'subscription',
+					'value' => [ $pid_owned, $pid_member ],
+				],
+			],
+		];
+		$this->create_gate_with_rules( 'Combined Group Gate', $rules );
+
+		$result = $this->get_metadata_for_user( self::$user_id );
+
+		$this->assertEquals( 'Member Group, Owned Group', $result['Content_Access_Group'], 'Both owned and member group names should appear, sorted naturally.' );
 	}
 
 	/**

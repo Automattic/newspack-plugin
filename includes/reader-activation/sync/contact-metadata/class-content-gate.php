@@ -226,16 +226,29 @@ class Content_Gate extends Contact_Metadata {
 	private static function get_group_labels( $slug, $value, $user_id ) {
 		switch ( $slug ) {
 			case 'subscription':
-				$group_subscriptions = Group_Subscription::get_group_subscriptions_for_user( $user_id );
-				$group_names         = [];
-				foreach ( $group_subscriptions as $subscription ) {
+				// Consider both group subscriptions the user is a member of and those they own.
+				$candidates = Group_Subscription::get_group_subscriptions_for_user( $user_id );
+				if ( function_exists( 'wcs_get_users_subscriptions' ) ) {
+					$candidates = array_merge( $candidates, array_values( wcs_get_users_subscriptions( $user_id ) ) );
+				}
+				$group_names = [];
+				$seen        = [];
+				foreach ( $candidates as $subscription ) {
+					if ( ! $subscription || ! Group_Subscription::is_group_subscription( $subscription ) ) {
+						continue;
+					}
+					$sub_id = $subscription->get_id();
+					if ( isset( $seen[ $sub_id ] ) ) {
+						continue;
+					}
 					if ( ! $subscription->has_status( WooCommerce_Connection::ACTIVE_SUBSCRIPTION_STATUSES ) ) {
 						continue;
 					}
 					foreach ( $value as $product_id ) {
 						if ( $subscription->has_product( $product_id ) ) {
-							$group_settings = Group_Subscription_Settings::get_subscription_settings( $subscription );
-							$group_names[]  = wp_specialchars_decode( $group_settings['name'] );
+							$group_settings  = Group_Subscription_Settings::get_subscription_settings( $subscription );
+							$group_names[]   = wp_specialchars_decode( $group_settings['name'] );
+							$seen[ $sub_id ] = true;
 							break;
 						}
 					}
