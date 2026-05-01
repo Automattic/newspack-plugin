@@ -26,6 +26,15 @@ export const PRINT_PLANS = [
 
 export const ALL_PLANS = [ ...DIGITAL_PLANS, ...PRINT_PLANS ];
 
+export const KNOWN_TAGS = [ 'vip', 'valued-reader', 'met-in-person' ];
+
+export const NEWSLETTERS = [
+	{ id: 'daily', name: 'Daily Brief', description: 'Top stories every weekday morning.' },
+	{ id: 'weekly', name: 'Weekend Read', description: 'Long reads delivered Saturday.' },
+	{ id: 'arts', name: 'Arts & Culture', description: 'Reviews and what’s on, monthly.' },
+	{ id: 'breaking', name: 'Breaking News', description: 'Real-time alerts on major stories.' },
+];
+
 // Tiny deterministic PRNG so the list is stable between reloads.
 function mulberry32( seed ) {
 	return function () {
@@ -127,6 +136,8 @@ const FIXTURES = [
 		subscriptions: [ makeSub( DIGITAL_PLANS[ 0 ] ) ],
 		paymentMethods: [ { id: 'pm_1', type: 'Visa', last4: '4242', expiry: '08/27', isDefault: true } ],
 		alerts: [],
+		tags: [ 'valued-reader' ],
+		newsletters: [ 'daily', 'weekly' ],
 		orders: [
 			{ id: 'ord_1', date: iso( 10 ), amount: 12.0, type: 'Subscription payment' },
 			{ id: 'ord_2', date: iso( 40 ), amount: 12.0, type: 'Subscription payment' },
@@ -150,6 +161,8 @@ const FIXTURES = [
 				message: 'The last renewal payment was declined and no payment method is on file.',
 			},
 		],
+		tags: [],
+		newsletters: [ 'daily' ],
 		orders: [
 			{ id: 'ord_21', date: iso( 45 ), amount: 0, type: 'Failed renewal' },
 			{ id: 'ord_22', date: iso( 410 ), amount: 120.0, type: 'Subscription payment' },
@@ -168,6 +181,8 @@ const FIXTURES = [
 			{ id: 'pm_3b', type: 'Visa', last4: '9933', expiry: '06/27', isDefault: false },
 		],
 		alerts: [],
+		tags: [ 'vip', 'valued-reader' ],
+		newsletters: [ 'daily', 'weekly', 'arts' ],
 		orders: [
 			{ id: 'ord_31', date: iso( 3 ), amount: 15.0, type: 'Subscription payment' },
 			{ id: 'ord_32', date: iso( 20 ), amount: 120.0, type: 'Subscription payment' },
@@ -183,6 +198,8 @@ const FIXTURES = [
 		subscriptions: [ makeSub( DIGITAL_PLANS[ 0 ] ), { ...makeSub( PRINT_PLANS[ 1 ] ), status: 'cancelled', nextBillingDate: null } ],
 		paymentMethods: [ { id: 'pm_5', type: 'Visa', last4: '0007', expiry: '11/26', isDefault: true } ],
 		alerts: [],
+		tags: [ 'met-in-person' ],
+		newsletters: [ 'daily', 'breaking' ],
 		orders: [
 			{ id: 'ord_51', date: iso( 7 ), amount: 12.0, type: 'Subscription payment' },
 			{ id: 'ord_52', date: iso( 60 ), amount: 150.0, type: 'Subscription payment' },
@@ -199,6 +216,8 @@ const FIXTURES = [
 		subscriptions: [ { ...makeSub( DIGITAL_PLANS[ 0 ] ), status: 'cancelled', nextBillingDate: null } ],
 		paymentMethods: [],
 		alerts: [],
+		tags: [],
+		newsletters: [],
 		orders: [ { id: 'ord_41', date: iso( 220 ), amount: 12.0, type: 'Subscription payment' } ],
 	},
 ];
@@ -229,6 +248,27 @@ function makeRandom( i ) {
 					},
 			  ]
 			: [];
+	const tags = [];
+	if ( rand() < 0.4 ) {
+		const firstTag = KNOWN_TAGS[ Math.floor( rand() * KNOWN_TAGS.length ) ];
+		tags.push( firstTag );
+		if ( rand() < 0.3 ) {
+			const secondTag = KNOWN_TAGS[ Math.floor( rand() * KNOWN_TAGS.length ) ];
+			if ( secondTag !== firstTag ) {
+				tags.push( secondTag );
+			}
+		}
+	}
+	const newsletters = [];
+	if ( rand() < 0.7 ) {
+		const count = Math.floor( rand() * 3 ) + 1;
+		while ( newsletters.length < count ) {
+			const candidate = NEWSLETTERS[ Math.floor( rand() * NEWSLETTERS.length ) ].id;
+			if ( ! newsletters.includes( candidate ) ) {
+				newsletters.push( candidate );
+			}
+		}
+	}
 	return {
 		id: String( 100 + i ),
 		name,
@@ -250,6 +290,8 @@ function makeRandom( i ) {
 						},
 				  ],
 		alerts,
+		tags,
+		newsletters,
 		orders: [
 			{
 				id: 'ord_r' + i + '_1',
@@ -265,38 +307,74 @@ const EXTRAS = Array.from( { length: 42 }, ( _, i ) => makeRandom( i ) );
 
 export const SUBSCRIBERS = [ ...FIXTURES, ...EXTRAS ];
 
+// PROTOTYPE ONLY: tag/newsletter changes made in L1 are persisted to localStorage but the
+// in-memory SUBSCRIBERS array isn't mutated. As a result the L0 list and the ALL_TAGS
+// filter elements only reflect the seeded values. Acceptable for a prototype.
+export const ALL_TAGS = [ ...new Set( SUBSCRIBERS.flatMap( s => s.tags || [] ) ) ].sort();
+
 export function getSubscriberById( id ) {
 	return SUBSCRIBERS.find( s => s.id === id );
 }
 
-// PROTOTYPE ONLY: notes are persisted to the current admin's localStorage so
-// they survive a refresh during a demo. In production these need to live
-// server-side (REST endpoint + user/post meta or an option) so they're
-// shared across every admin viewing the same subscriber.
+// PROTOTYPE ONLY: notes/tags/newsletters are persisted to the current admin's localStorage
+// so they survive a refresh during a demo. In production these need to live server-side
+// (REST endpoint + user/post meta or an option) so they're shared across every admin
+// viewing the same subscriber.
 const NOTES_STORAGE_KEY = 'newspack-subscribers-demo:notes';
+const TAGS_STORAGE_KEY = 'newspack-subscribers-demo:tags';
+const NEWSLETTERS_STORAGE_KEY = 'newspack-subscribers-demo:newsletters';
 
-function readNotesStore() {
+function readStore( key ) {
 	try {
-		return JSON.parse( window.localStorage.getItem( NOTES_STORAGE_KEY ) ) || {};
+		return JSON.parse( window.localStorage.getItem( key ) ) || {};
 	} catch ( e ) {
 		return {};
 	}
 }
 
-export function getStoredNotes( id ) {
-	return readNotesStore()[ id ] || [];
-}
-
-export function setStoredNotes( id, notes ) {
+function writeStore( key, store ) {
 	try {
-		const store = readNotesStore();
-		if ( notes && notes.length ) {
-			store[ id ] = notes;
-		} else {
-			delete store[ id ];
-		}
-		window.localStorage.setItem( NOTES_STORAGE_KEY, JSON.stringify( store ) );
+		window.localStorage.setItem( key, JSON.stringify( store ) );
 	} catch ( e ) {
 		// Storage quota or disabled — fail silently in the prototype.
 	}
+}
+
+export function getStoredNotes( id ) {
+	return readStore( NOTES_STORAGE_KEY )[ id ] || [];
+}
+
+export function setStoredNotes( id, notes ) {
+	const store = readStore( NOTES_STORAGE_KEY );
+	if ( notes && notes.length ) {
+		store[ id ] = notes;
+	} else {
+		delete store[ id ];
+	}
+	writeStore( NOTES_STORAGE_KEY, store );
+}
+
+// Returns the stored array if an entry exists, or null when there's no entry yet
+// (so callers can fall back to the seeded fixture value). An empty array still counts
+// as a real entry — the user may have intentionally cleared all tags/newsletters.
+export function getStoredTags( id ) {
+	const store = readStore( TAGS_STORAGE_KEY );
+	return Object.prototype.hasOwnProperty.call( store, id ) ? store[ id ] : null;
+}
+
+export function setStoredTags( id, tags ) {
+	const store = readStore( TAGS_STORAGE_KEY );
+	store[ id ] = tags || [];
+	writeStore( TAGS_STORAGE_KEY, store );
+}
+
+export function getStoredNewsletters( id ) {
+	const store = readStore( NEWSLETTERS_STORAGE_KEY );
+	return Object.prototype.hasOwnProperty.call( store, id ) ? store[ id ] : null;
+}
+
+export function setStoredNewsletters( id, ids ) {
+	const store = readStore( NEWSLETTERS_STORAGE_KEY );
+	store[ id ] = ids || [];
+	writeStore( NEWSLETTERS_STORAGE_KEY, store );
 }

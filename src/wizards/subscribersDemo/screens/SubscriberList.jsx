@@ -10,6 +10,7 @@ import { useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { filterSortAndPaginate } from '@wordpress/dataviews';
 import { dateI18n, getSettings } from '@wordpress/date';
+import { __experimentalHStack as HStack } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
 
 const fmtDate = date => ( date ? dateI18n( getSettings().formats.date, date ) : '' );
 
@@ -18,7 +19,7 @@ const fmtDate = date => ( date ? dateI18n( getSettings().formats.date, date ) : 
  */
 import { Badge, DataViews, Router } from '../../../../packages/components/src';
 import './style.scss';
-import { SUBSCRIBERS, DIGITAL_PLANS, PRINT_PLANS } from '../data/mock-subscribers';
+import { SUBSCRIBERS, DIGITAL_PLANS, PRINT_PLANS, ALL_TAGS, NEWSLETTERS } from '../data/mock-subscribers';
 
 const { useHistory } = Router;
 
@@ -102,6 +103,41 @@ export default function SubscriberList() {
 				label: __( 'Member since', 'newspack-plugin' ),
 				getValue: ( { item } ) => item.memberSince,
 				render: ( { item } ) => <span>{ fmtDate( item.memberSince ) }</span>,
+			},
+			{
+				id: 'tags',
+				label: __( 'Tags', 'newspack-plugin' ),
+				elements: ALL_TAGS.map( t => ( { value: t, label: t } ) ),
+				filterBy: { operators: [ 'isAny' ] },
+				getValue: ( { item } ) => ( item.tags || [] ).join( ', ' ),
+				render: ( { item } ) => (
+					<HStack spacing={ 1 } justify="flex-start" wrap>
+						{ ( item.tags || [] ).map( t => (
+							<Badge key={ t } level="info" text={ t } />
+						) ) }
+					</HStack>
+				),
+				enableSorting: false,
+			},
+			{
+				id: 'newsletters',
+				label: __( 'Newsletters', 'newspack-plugin' ),
+				elements: NEWSLETTERS.map( n => ( { value: n.id, label: n.name } ) ),
+				filterBy: { operators: [ 'isAny' ] },
+				getValue: ( { item } ) =>
+					( item.newsletters || [] )
+						.map( id => NEWSLETTERS.find( n => n.id === id )?.name )
+						.filter( Boolean )
+						.join( ', ' ),
+				render: ( { item } ) => (
+					<div>
+						{ ( item.newsletters || [] )
+							.map( id => NEWSLETTERS.find( n => n.id === id )?.name )
+							.filter( Boolean )
+							.join( ', ' ) }
+					</div>
+				),
+				enableSorting: false,
 			},
 		],
 		[]

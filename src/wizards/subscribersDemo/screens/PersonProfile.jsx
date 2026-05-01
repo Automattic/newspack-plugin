@@ -16,7 +16,7 @@ import { useEffect, useMemo, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { useDispatch } from '@wordpress/data';
 import { dateI18n, getSettings } from '@wordpress/date';
-import { __experimentalVStack as VStack, __experimentalHStack as HStack, Notice, Snackbar } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
+import { __experimentalVStack as VStack, __experimentalHStack as HStack, Notice, Snackbar, ToggleControl } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
 
 /**
  * Internal dependencies.
@@ -24,7 +24,16 @@ import { __experimentalVStack as VStack, __experimentalHStack as HStack, Notice,
 import { Badge, Button, Card, Divider, Grid, Router, SectionHeader } from '../../../../packages/components/src';
 import './style.scss';
 import { WIZARD_STORE_NAMESPACE } from '../../../../packages/components/src/wizard/store';
-import { getSubscriberById, getStoredNotes, setStoredNotes } from '../data/mock-subscribers';
+import {
+	getSubscriberById,
+	getStoredNotes,
+	setStoredNotes,
+	getStoredTags,
+	setStoredTags,
+	getStoredNewsletters,
+	setStoredNewsletters,
+	NEWSLETTERS,
+} from '../data/mock-subscribers';
 
 import visaIcon from '../assets/cards/visa.svg';
 import mastercardIcon from '../assets/cards/mastercard.svg';
@@ -46,6 +55,7 @@ import PlanChangeFlow from '../flows/PlanChangeFlow';
 import PaymentUpdateFlow from '../flows/PaymentUpdateFlow';
 import GuidedFixFlow from '../flows/GuidedFixFlow';
 import NoteFlow from '../flows/NoteFlow';
+import TagsFlow from '../flows/TagsFlow';
 
 const { useParams } = Router;
 
@@ -114,13 +124,32 @@ export default function PersonProfile() {
 		if ( ! found ) {
 			return found;
 		}
-		return { ...found, notes: getStoredNotes( id ) };
+		const storedTags = getStoredTags( id );
+		const storedNewsletters = getStoredNewsletters( id );
+		return {
+			...found,
+			notes: getStoredNotes( id ),
+			tags: storedTags !== null ? storedTags : found.tags || [],
+			newsletters: storedNewsletters !== null ? storedNewsletters : found.newsletters || [],
+		};
 	}, [ id ] );
 	const [ subscriber, setSubscriber ] = useState( initial );
 
 	useEffect( () => {
 		if ( subscriber ) {
 			setStoredNotes( subscriber.id, subscriber.notes || [] );
+		}
+	}, [ subscriber ] );
+
+	useEffect( () => {
+		if ( subscriber ) {
+			setStoredTags( subscriber.id, subscriber.tags || [] );
+		}
+	}, [ subscriber ] );
+
+	useEffect( () => {
+		if ( subscriber ) {
+			setStoredNewsletters( subscriber.id, subscriber.newsletters || [] );
 		}
 	}, [ subscriber ] );
 	const [ flash, setFlash ] = useState( null );
@@ -151,11 +180,19 @@ export default function PersonProfile() {
 					{ getStatusSummary( subscriber ).map( ( line, i ) => (
 						<span key={ i }>{ line }</span>
 					) ) }
+					{ ( subscriber.tags || [] ).length > 0 && (
+						<HStack spacing={ 1 } justify="flex-start" wrap>
+							{ subscriber.tags.map( t => (
+								<Badge key={ t } level="info" text={ t } />
+							) ) }
+						</HStack>
+					) }
 				</VStack>
 			),
 			actions: [
 				{ type: 'more', label: __( 'View in WooCommerce', 'newspack-plugin' ), action: () => {} },
 				{ type: 'more', label: __( 'Edit WordPress user', 'newspack-plugin' ), action: () => {} },
+				{ type: 'more', label: __( 'Manage tags', 'newspack-plugin' ), action: () => setModal( { kind: 'tags' } ) },
 				{ type: 'more', label: __( 'Add private note', 'newspack-plugin' ), action: () => setModal( { kind: 'note' } ) },
 				{ type: 'more', label: __( 'View raw subscription data', 'newspack-plugin' ), action: () => {} },
 			],
@@ -310,6 +347,39 @@ export default function PersonProfile() {
 				</VStack>
 			</Row>
 
+			<Row title={ __( 'Newsletters', 'newspack-plugin' ) } description={ __( 'Email lists this subscriber receives.', 'newspack-plugin' ) }>
+				<Card __experimentalCoreCard>
+					<VStack spacing={ 4 }>
+						{ NEWSLETTERS.map( newsletter => {
+							const isSubscribed = ( subscriber.newsletters || [] ).includes( newsletter.id );
+							return (
+								<HStack key={ newsletter.id } justify="space-between" alignment="center">
+									<VStack spacing={ 1 }>
+										<strong>{ newsletter.name }</strong>
+										<span>{ newsletter.description }</span>
+									</VStack>
+									<ToggleControl
+										checked={ isSubscribed }
+										onChange={ () => {
+											const nextList = isSubscribed
+												? ( subscriber.newsletters || [] ).filter( i => i !== newsletter.id )
+												: [ ...( subscriber.newsletters || [] ), newsletter.id ];
+											setSubscriber( prev => ( { ...prev, newsletters: nextList } ) );
+											setSnackbar( {
+												message: isSubscribed
+													? sprintf( __( 'Unsubscribed from %s.', 'newspack-plugin' ), newsletter.name )
+													: sprintf( __( 'Subscribed to %s.', 'newspack-plugin' ), newsletter.name ),
+											} );
+										} }
+										__nextHasNoMarginBottom
+									/>
+								</HStack>
+							);
+						} ) }
+					</VStack>
+				</Card>
+			</Row>
+
 			<Row title={ __( 'Payment methods', 'newspack-plugin' ) }>
 				<VStack spacing={ 4 }>
 					{ subscriber.paymentMethods.length === 0 ? (
@@ -438,6 +508,7 @@ export default function PersonProfile() {
 			) }
 
 			{ modal?.kind === 'note' && <NoteFlow note={ modal.note } onClose={ closeModal } onComplete={ completeFlow } /> }
+			{ modal?.kind === 'tags' && <TagsFlow tags={ subscriber.tags || [] } onClose={ closeModal } onComplete={ completeFlow } /> }
 			{ modal?.kind === 'guided' && (
 				<GuidedFixFlow
 					alert={ modal.alert }
