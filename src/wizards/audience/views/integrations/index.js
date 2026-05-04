@@ -114,6 +114,7 @@ const AudienceIntegrations = ( props, ref ) => {
 					render: LogsView,
 					props: sharedProps,
 					isHidden: true,
+					fullWidth: true,
 				},
 				{
 					path: '/settings/:integrationId',
