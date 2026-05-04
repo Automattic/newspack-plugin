@@ -84,7 +84,6 @@ final class Overlay_Menu_Panel_Block {
 		$extra_attributes = [
 			'id'                 => 'newspack-overlay-panel-' . $instance_id,
 			'class'              => $panel_class,
-			'data-direction'     => $is_full_screen ? 'full-screen' : $direction,
 			'data-overlay-color' => $overlay_color,
 			'aria-hidden'        => 'true',
 			'inert'              => 'true',
