@@ -471,6 +471,30 @@ class Newspack_Test_Content_Gate_Metadata extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Empty-value subscription rule ("any subscription") with an owned (non-group) sub.
+	 * Source should fall back to "subscription" — never `group`, since the user owns it.
+	 */
+	public function test_subscription_owned_source_for_empty_rule_value() {
+		$product_id = $this->create_mock_product( 530, 'Any Plan' );
+		$this->create_subscription( self::$user_id, [ $product_id ] );
+
+		$rules = [
+			[
+				[
+					'slug'  => 'subscription',
+					'value' => [],
+				],
+			],
+		];
+		$this->create_gate_with_rules( 'Any Subscription Gate', $rules );
+
+		$result = $this->get_metadata_for_user( self::$user_id );
+
+		$this->assertEquals( 'Yes', $result['Content_Access'] );
+		$this->assertEquals( 'subscription', $result['Content_Access_Source'], 'Owners should be labeled "subscription", not "group", when the rule value is empty.' );
+	}
+
+	/**
 	 * Test the 'subscription' fallback when access is granted only via the
 	 * `newspack_access_rules_has_active_subscription` filter (no real product or group match).
 	 */
@@ -747,6 +771,30 @@ class Newspack_Test_Content_Gate_Metadata extends WP_UnitTestCase {
 
 		$this->assertEquals( 'Yes', $result['Content_Access'] );
 		$this->assertEmpty( $result['Content_Access_Group'], 'Email domain rule should not contribute a group label.' );
+	}
+
+	/**
+	 * Empty-value subscription rule ("any subscription") with a group-membership user.
+	 * The group name should still surface in Content_Access_Group.
+	 */
+	public function test_group_label_for_empty_rule_value_with_group_member() {
+		$product_id = $this->create_mock_product( 531, 'Any Group Plan' );
+		$this->create_group_subscription_with_member( self::$owner_id, self::$user_id, [ $product_id ], 'Any Group' );
+
+		$rules = [
+			[
+				[
+					'slug'  => 'subscription',
+					'value' => [],
+				],
+			],
+		];
+		$this->create_gate_with_rules( 'Any Group Gate', $rules );
+
+		$result = $this->get_metadata_for_user( self::$user_id );
+
+		$this->assertEquals( 'Yes', $result['Content_Access'] );
+		$this->assertEquals( 'Any Group', $result['Content_Access_Group'], 'Group name should surface even when the rule value is empty.' );
 	}
 
 	/**

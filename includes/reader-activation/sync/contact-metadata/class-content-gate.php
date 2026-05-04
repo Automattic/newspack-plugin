@@ -182,10 +182,15 @@ class Content_Gate extends Contact_Metadata {
 	private static function get_source_labels( $slug, $value, $user_id ) {
 		switch ( $slug ) {
 			case 'subscription':
-				if ( is_array( $value ) && function_exists( 'wc_get_product' ) ) {
+				if ( ! is_array( $value ) || ! function_exists( 'wc_get_product' ) ) {
+					return [ 'subscription' ];
+				}
+				// Determine ownership first so an owner of a sub matching an
+				// "any subscription" rule (empty $value) isn't mislabeled as
+				// `group` by the non-strict check below.
+				if ( Access_Rules::has_active_subscription( $user_id, $value, true ) ) {
 					$names = [];
 					foreach ( $value as $product_id ) {
-						// Check if the user owns an active subscription for the product (not just a group subscription member).
 						if ( Access_Rules::has_active_subscription( $user_id, [ $product_id ], true ) ) {
 							$product = wc_get_product( $product_id );
 							if ( $product ) {
@@ -193,15 +198,14 @@ class Content_Gate extends Contact_Metadata {
 							}
 						}
 					}
-					if ( ! empty( $names ) ) {
-						return $names;
-					}
-					// If they don't have an active subscription, check if they're a member of a group subscription.
-					if ( Access_Rules::has_active_subscription( $user_id, $value ) ) {
-						return [ 'group' ];
-					}
+					return ! empty( $names ) ? $names : [ 'subscription' ];
 				}
-				// If they don't have an active subscription and they're not a group member, they might still have access via the `newspack_access_rules_has_active_subscription` filter hook.
+				// Not an owner — check group subscription membership.
+				if ( Access_Rules::has_active_subscription( $user_id, $value ) ) {
+					return [ 'group' ];
+				}
+				// They might still have access via the
+				// `newspack_access_rules_has_active_subscription` filter hook.
 				return [ 'subscription' ];
 
 			case 'email_domain':
@@ -231,6 +235,9 @@ class Content_Gate extends Contact_Metadata {
 				if ( function_exists( 'wcs_get_users_subscriptions' ) ) {
 					$candidates = array_merge( $candidates, array_values( wcs_get_users_subscriptions( $user_id ) ) );
 				}
+				// An empty/non-array $value mirrors Access_Rules::has_active_subscription's
+				// "any active subscription" semantics — every active group sub matches.
+				$match_any   = ! is_array( $value ) || empty( $value );
 				$group_names = [];
 				$seen        = [];
 				foreach ( $candidates as $subscription ) {
@@ -244,13 +251,19 @@ class Content_Gate extends Contact_Metadata {
 					if ( ! $subscription->has_status( WooCommerce_Connection::ACTIVE_SUBSCRIPTION_STATUSES ) ) {
 						continue;
 					}
-					foreach ( $value as $product_id ) {
-						if ( $subscription->has_product( $product_id ) ) {
-							$group_settings  = Group_Subscription_Settings::get_subscription_settings( $subscription );
-							$group_names[]   = wp_specialchars_decode( $group_settings['name'] );
-							$seen[ $sub_id ] = true;
-							break;
+					$matches = $match_any;
+					if ( ! $matches ) {
+						foreach ( $value as $product_id ) {
+							if ( $subscription->has_product( $product_id ) ) {
+								$matches = true;
+								break;
+							}
 						}
+					}
+					if ( $matches ) {
+						$group_settings  = Group_Subscription_Settings::get_subscription_settings( $subscription );
+						$group_names[]   = wp_specialchars_decode( $group_settings['name'] );
+						$seen[ $sub_id ] = true;
 					}
 				}
 				return $group_names;

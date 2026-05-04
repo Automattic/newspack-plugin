@@ -214,4 +214,18 @@ class Newspack_Test_GoogleSiteKit_Group_Param extends WP_UnitTestCase {
 
 		$this->assertEquals( 'Self Group', $params['group'] );
 	}
+
+	/**
+	 * Two distinct group subscriptions sharing the same display name are deduped
+	 * in the GA4 `group` parameter.
+	 */
+	public function test_group_dedupes_distinct_subs_with_same_name() {
+		// Two distinct group subs (different products / IDs) but with the same display name.
+		$this->create_group_subscription( self::$user_id, null, 607, 'Shared Name' );
+		$this->create_group_subscription( self::$owner_id, self::$user_id, 608, 'Shared Name' );
+
+		$params = GoogleSiteKit::get_custom_event_parameters();
+
+		$this->assertEquals( 'Shared Name', $params['group'], 'Same-named groups should appear only once in the GA4 group parameter.' );
+	}
 }

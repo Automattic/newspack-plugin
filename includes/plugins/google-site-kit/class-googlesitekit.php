@@ -324,6 +324,9 @@ class GoogleSiteKit {
 			}
 		}
 
+		// Dedupe by name — two subscriptions can share a display name, and a
+		// group name can collide with an institution title.
+		$names = array_values( array_unique( $names ) );
 		sort( $names, SORT_NATURAL | SORT_FLAG_CASE );
 		return $names;
 	}
