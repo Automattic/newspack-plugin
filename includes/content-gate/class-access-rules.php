@@ -35,13 +35,20 @@ class Access_Rules {
 	 * @param array $config {
 	 *     The rule configuration.
 	 *
-	 *     @type string   $id          The rule ID.
-	 *     @type string   $name        The rule name.
-	 *     @type string   $description The rule description.
-	 *     @type mixed    $default     The rule default value.
-	 *     @type array    $options     The rule options.
-	 *     @type callable $callback    The rule callback.
-	 *     @type bool     $is_boolean  Whether the rule is a boolean rule.
+	 *     @type string   $id                 The rule ID.
+	 *     @type string   $name               The rule name.
+	 *     @type string   $description        The rule description.
+	 *     @type mixed    $default            The rule default value.
+	 *     @type array    $options            The rule options.
+	 *     @type callable $callback           The rule callback.
+	 *     @type bool     $is_boolean         Whether the rule is a boolean rule.
+	 *     @type bool     $supports_anonymous Whether the rule's callback can evaluate access for
+	 *                                        a logged-out visitor (`user_id = 0`). Defaults to
+	 *                                        false — `evaluate_rule` short-circuits to false for
+	 *                                        anonymous users on rules that don't opt in. Rules
+	 *                                        that opt in are responsible for cache-safety
+	 *                                        (e.g. only running per-IP logic when the page is
+	 *                                        already uncached).
 	 * }
 	 *
 	 * @return void|\WP_Error

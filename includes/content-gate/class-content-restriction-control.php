@@ -239,11 +239,11 @@ class Content_Restriction_Control {
 		}
 
 		$user_id = $user_id ?? get_current_user_id();
-		// Cache the user ID for the current request. Used only for self::$post_gate_layout_id_map,
-		// so the page-render's user's layout is the one templates retrieve via get_gate_layout_id.
-		// Other instances of $user_id below are intentional so that this method can be called
-		// repeatedly with different user IDs in the same execution context.
-		// See: Newspack_Premium_Newsletters::check_access, called for each user in the queue.
+		// Each call evaluates restriction for its own $user_id; only self::$user_id — used by
+		// get_gate_layout_id() to surface the page-render viewer's layout to templates — is
+		// cached across calls. This lets the same request evaluate multiple users (e.g.
+		// Newspack_Premium_Newsletters::check_access iterating over a queue) without the
+		// first caller's user ID hijacking subsequent evaluations.
 		if ( ! self::$user_id ) {
 			self::$user_id = $user_id;
 		}
