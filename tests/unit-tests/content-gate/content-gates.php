@@ -1646,11 +1646,6 @@ class Test_Content_Gates extends \WP_UnitTestCase {
 			'Anonymous visitor with non-matching IP must be restricted.'
 		);
 		$this->assertSame(
-			0,
-			$this->get_cached_user_id(),
-			'self::$user_id must be seeded to 0 on the first anonymous evaluation, so the layout accessors return the anonymous lookup.'
-		);
-		$this->assertSame(
 			$layouts['registration_layout_id'],
 			Content_Restriction_Control::get_gate_layout_id( $this->post_ids[0] ),
 			'Anonymous visitor must see the registration layout, not the custom_access one.'
@@ -2025,6 +2020,63 @@ class Test_Content_Gates extends \WP_UnitTestCase {
 
 		wp_delete_user( $matching_user );
 		wp_delete_user( $other_user );
+		$this->reset_visitor_state();
+	}
+
+	/**
+	 * Pin the seeding contract for self::$user_id directly: the static is
+	 * seeded by the *first* caller and is not overwritten by subsequent
+	 * callers in the same request. This is what get_gate_post_id() and
+	 * get_gate_layout_id() rely on to surface the page-render viewer's
+	 * gate to templates regardless of any later evaluations (e.g. queue
+	 * workers, REST callbacks) that pass a different user ID.
+	 *
+	 * Catches seeding regressions directly via reflection rather than
+	 * through downstream layout behavior.
+	 */
+	public function test_is_post_restricted_seeds_user_id_from_first_caller_only() {
+		$first_user = $this->factory->user->create( [ 'role' => 'subscriber' ] );
+		update_user_meta( $first_user, Reader_Activation::EMAIL_VERIFIED, true );
+		$second_user = $this->factory->user->create( [ 'role' => 'subscriber' ] );
+		update_user_meta( $second_user, Reader_Activation::EMAIL_VERIFIED, true );
+
+		$this->configure_published_gate(
+			[ 'active' => true ],
+			[
+				'active'       => false,
+				'access_rules' => [],
+			]
+		);
+
+		$this->reset_restriction_cache();
+		$this->assertSame( 0, $this->get_cached_user_id(), 'Sanity: cache is reset before first call.' );
+
+		// First call seeds self::$user_id from the caller's $user_id.
+		Content_Restriction_Control::is_post_restricted( false, $this->post_ids[0], $first_user );
+		$this->assertSame(
+			$first_user,
+			$this->get_cached_user_id(),
+			'self::$user_id must be seeded from the first caller.'
+		);
+
+		// Subsequent call with a different user must not overwrite the seed.
+		Content_Restriction_Control::is_post_restricted( false, $this->post_ids[0], $second_user );
+		$this->assertSame(
+			$first_user,
+			$this->get_cached_user_id(),
+			'self::$user_id must NOT be overwritten by a subsequent caller — first caller wins.'
+		);
+
+		// Anonymous call after seeding must also leave the seed alone.
+		Content_Restriction_Control::is_post_restricted( false, $this->post_ids[0], 0 );
+		$this->assertSame(
+			$first_user,
+			$this->get_cached_user_id(),
+			'Anonymous call after seeding must not zero out self::$user_id.'
+		);
+
+		wp_delete_user( $first_user );
+		wp_delete_user( $second_user );
 		$this->reset_visitor_state();
 	}
 }
