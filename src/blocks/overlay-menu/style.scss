@@ -158,6 +158,7 @@
 
 	&--width--x-small { @include panel-width( --wp--custom--width--x-small, 300px ); }
 	&--width--small   { @include panel-width( --wp--custom--width--small, 410px ); }
+	// Medium intentionally maps to the theme's content size (from theme.json), not the --wp--custom--width-- family used by the other sizes.
 	&--width--medium  { @include panel-width( --wp--style--global--content-size, 632px ); }
 	&--width--large   { @include panel-width( --wp--custom--width--large, 964px ); }
 	&--width--x-large { @include panel-width( --wp--custom--width--x-large, 1296px ); }
