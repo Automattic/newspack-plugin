@@ -13,6 +13,7 @@ import { Accordion, Divider, Grid, SectionHeader } from '../../../../../packages
 import { WIZARD_STORE_NAMESPACE } from '../../../../../packages/components/src/wizard/store';
 import WizardsTab from '../../../wizards-tab';
 import { SettingsField } from './settings-field';
+
 import './configure-view.scss';
 
 export const ConfigureView = ( { integrations, loading, pendingChanges, saving, onFieldChange, onSave, match } ) => {

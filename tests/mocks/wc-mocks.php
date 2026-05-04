@@ -358,6 +358,11 @@ class WC_Subscription {
 			$this->data['dates'][ $type ] = $date;
 		}
 	}
+	public function get_formatted_billing_full_name() {
+		$first = $this->data['billing_first_name'] ?? '';
+		$last  = $this->data['billing_last_name'] ?? '';
+		return trim( "$first $last" );
+	}
 	public function get_items() {
 		return $this->data['items'] ?? [];
 	}
@@ -445,6 +450,9 @@ function wcs_get_users_subscriptions( $user_id ) {
 	return $user_subscriptions;
 }
 function wcs_get_canonical_product_id( $item ) {
+	if ( is_object( $item ) && method_exists( $item, 'get_product_id' ) ) {
+		return $item->get_product_id();
+	}
 	return null;
 }
 function wc_string_to_bool( $string ) {

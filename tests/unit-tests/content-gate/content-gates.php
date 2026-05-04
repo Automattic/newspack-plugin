@@ -33,6 +33,21 @@ class Test_Content_Gates extends \WP_UnitTestCase {
 	protected $gate_ids = [];
 
 	/**
+	 * Define the Content Gates feature flag for this test class only and force
+	 * the REST server to re-init so audience-content-gates routes register with
+	 * the flag on. Defining in bootstrap would flip the flag for every test in
+	 * the suite — including any future test that asserts feature-off behavior.
+	 */
+	public static function setUpBeforeClass(): void {
+		parent::setUpBeforeClass();
+		if ( ! defined( 'NEWSPACK_CONTENT_GATES' ) ) {
+			define( 'NEWSPACK_CONTENT_GATES', true );
+		}
+		$GLOBALS['wp_rest_server'] = null;
+		do_action( 'rest_api_init', rest_get_server() );
+	}
+
+	/**
 	 * Test set up.
 	 */
 	public function set_up() {
@@ -232,6 +247,24 @@ class Test_Content_Gates extends \WP_UnitTestCase {
 
 		$gates = Content_Restriction_Control::get_post_gates( $post3 );
 		$this->assertCount( 0, $gates, 'No gate for the post with no categories' );
+
+		// Update content rules to add an empty post_type value.
+		Content_Rules::update_gate_content_rules(
+			$this->gate_ids[2],
+			[
+				[
+					'slug'  => 'post_types',
+					'value' => [],
+				],
+				[
+					'slug'  => 'category',
+					'value' => [ $cat1 ],
+				],
+			]
+		);
+		$gates = Content_Restriction_Control::get_post_gates( $post1 );
+		$this->assertCount( 1, $gates, 'One gate for the post in category 1' );
+		$this->assertEquals( $this->gate_ids[2], $gates[0]['id'], 'Rule with an empty array-like value is ignored; category rule still matches' );
 
 		// Make the content rule an exclusion rule.
 		Content_Rules::update_gate_content_rules(
@@ -1005,5 +1038,351 @@ class Test_Content_Gates extends \WP_UnitTestCase {
 		$gates = Content_Restriction_Control::get_post_gates( $list_post_id );
 		$this->assertCount( 1, $gates, 'Newsletter content rule must match a post whose ID is in the value array.' );
 		$this->assertEquals( $this->gate_ids[2], $gates[0]['id'] );
+	}
+
+	/**
+	 * Test that the specific_posts content rule is registered.
+	 */
+	public function test_specific_posts_rule_is_registered() {
+		$rules = Content_Rules::get_content_rules();
+		$this->assertArrayHasKey( 'specific_posts', $rules, 'specific_posts rule is registered' );
+
+		$rule = $rules['specific_posts'];
+		$this->assertSame( __( 'Specific posts', 'newspack-plugin' ), $rule['name'] );
+		$this->assertSame( [], $rule['default'] );
+		$this->assertTrue( $rule['include_only'], 'specific_posts is include-only (no exclusion mode)' );
+		$this->assertSame( '/' . NEWSPACK_API_NAMESPACE . '/wizard/newspack-audience-access-control/posts-search', $rule['endpoint'], 'endpoint matches the registered REST route' );
+		$this->assertStringContainsString( 'restrict specific posts', $rule['description'], 'description signals override behavior' );
+	}
+
+	/**
+	 * Test the posts-search REST endpoint returns published posts of supported post types.
+	 */
+	public function test_posts_search_endpoint_returns_published_posts() {
+		wp_set_current_user( $this->factory->user->create( [ 'role' => 'administrator' ] ) );
+
+		$published_post = $this->factory->post->create(
+			[
+				'post_status' => 'publish',
+				'post_title'  => 'Searchable Post',
+			]
+		);
+		$draft_post     = $this->factory->post->create(
+			[
+				'post_status' => 'draft',
+				'post_title'  => 'Searchable Draft',
+			]
+		);
+		$published_page = $this->factory->post->create(
+			[
+				'post_status' => 'publish',
+				'post_type'   => 'page',
+				'post_title'  => 'Searchable Page',
+			]
+		);
+		$this->post_ids[] = $published_post;
+		$this->post_ids[] = $draft_post;
+		$this->post_ids[] = $published_page;
+
+		$request = new \WP_REST_Request( 'GET', '/' . NEWSPACK_API_NAMESPACE . '/wizard/newspack-audience-access-control/posts-search' );
+		$request->set_param( 'search', 'Searchable' );
+		$response = rest_get_server()->dispatch( $request );
+
+		$this->assertSame( 200, $response->get_status() );
+		$data = $response->get_data();
+		$ids  = wp_list_pluck( $data, 'id' );
+
+		$this->assertContains( $published_post, $ids, 'Includes published post' );
+		$this->assertContains( $published_page, $ids, 'Includes published page (other supported post type)' );
+		$this->assertNotContains( $draft_post, $ids, 'Excludes non-published post' );
+
+		foreach ( $data as $item ) {
+			$this->assertArrayHasKey( 'id', $item );
+			$this->assertArrayHasKey( 'name', $item );
+			$this->assertArrayHasKey( 'type_label', $item );
+		}
+	}
+
+	/**
+	 * Test the posts-search endpoint can hydrate saved tokens via include.
+	 */
+	public function test_posts_search_endpoint_supports_include() {
+		wp_set_current_user( $this->factory->user->create( [ 'role' => 'administrator' ] ) );
+
+		$post_a = $this->factory->post->create(
+			[
+				'post_status' => 'publish',
+				'post_title'  => 'A',
+			]
+		);
+		$post_b = $this->factory->post->create(
+			[
+				'post_status' => 'publish',
+				'post_title'  => 'B',
+			]
+		);
+		$this->post_ids[] = $post_a;
+		$this->post_ids[] = $post_b;
+
+		$request = new \WP_REST_Request( 'GET', '/' . NEWSPACK_API_NAMESPACE . '/wizard/newspack-audience-access-control/posts-search' );
+		$request->set_param( 'include', $post_a . ',' . $post_b );
+		$response = rest_get_server()->dispatch( $request );
+
+		$this->assertSame( 200, $response->get_status() );
+		$ids = wp_list_pluck( $response->get_data(), 'id' );
+		$this->assertEqualsCanonicalizing( [ $post_a, $post_b ], $ids );
+	}
+
+	/**
+	 * Test the posts-search endpoint requires admin permissions.
+	 *
+	 * The shared `api_permissions_check` helper used by all wizard routes returns a
+	 * WP_Error with status 403 when `current_user_can( $this->capability )` fails.
+	 * That error code is preserved by WP_REST_Server (it only re-maps to 401 when the
+	 * permission callback returns boolean false / null).
+	 */
+	public function test_posts_search_endpoint_requires_permissions() {
+		wp_set_current_user( 0 );
+
+		$request  = new \WP_REST_Request( 'GET', '/' . NEWSPACK_API_NAMESPACE . '/wizard/newspack-audience-access-control/posts-search' );
+		$response = rest_get_server()->dispatch( $request );
+
+		$this->assertSame( 403, $response->get_status() );
+	}
+
+	/**
+	 * Test specific_posts overrides post_types: a page in specific_posts is restricted
+	 * even when the gate's post_types rule only allows posts.
+	 */
+	public function test_specific_posts_overrides_post_types_rule() {
+		$page_id = $this->factory->post->create(
+			[
+				'post_type'   => 'page',
+				'post_status' => 'publish',
+			]
+		);
+		$this->post_ids[] = $page_id;
+
+		// Reuse the published gate (gate_ids[2]) — currently restricts post_types=['post'].
+		Content_Rules::update_gate_content_rules(
+			$this->gate_ids[2],
+			[
+				[
+					'slug'  => 'post_types',
+					'value' => [ 'post' ],
+				],
+				[
+					'slug'  => 'specific_posts',
+					'value' => [ (string) $page_id ],
+				],
+			]
+		);
+
+		$gates = Content_Restriction_Control::get_post_gates( $page_id );
+		$this->assertCount( 1, $gates, 'Page is gated because it is listed in specific_posts, despite post_types=post' );
+		$this->assertSame( $this->gate_ids[2], $gates[0]['id'] );
+	}
+
+	/**
+	 * Test specific_posts with no match: gate falls back to AND evaluation of other rules.
+	 */
+	public function test_specific_posts_no_match_falls_through_to_other_rules() {
+		$post_id          = $this->factory->post->create( [ 'post_status' => 'publish' ] );
+		$other_id         = $this->factory->post->create( [ 'post_status' => 'publish' ] );
+		$this->post_ids[] = $post_id;
+		$this->post_ids[] = $other_id;
+
+		Content_Rules::update_gate_content_rules(
+			$this->gate_ids[2],
+			[
+				[
+					'slug'  => 'post_types',
+					'value' => [ 'post' ],
+				],
+				[
+					'slug'  => 'specific_posts',
+					'value' => [ (string) $other_id ],
+				],
+			]
+		);
+
+		$gates = Content_Restriction_Control::get_post_gates( $post_id );
+		$this->assertCount( 1, $gates, 'Post is gated by post_types AND-chain (specific_posts did not match it)' );
+	}
+
+	/**
+	 * Test specific_posts alone (no post_types rule) restricts only the listed posts.
+	 */
+	public function test_specific_posts_alone_restricts_only_listed_posts() {
+		$gated_id         = $this->factory->post->create( [ 'post_status' => 'publish' ] );
+		$ungated_id       = $this->factory->post->create( [ 'post_status' => 'publish' ] );
+		$this->post_ids[] = $gated_id;
+		$this->post_ids[] = $ungated_id;
+
+		Content_Rules::update_gate_content_rules(
+			$this->gate_ids[2],
+			[
+				[
+					'slug'  => 'specific_posts',
+					'value' => [ (string) $gated_id ],
+				],
+			]
+		);
+
+		$this->assertCount( 1, Content_Restriction_Control::get_post_gates( $gated_id ) );
+		$this->assertCount( 0, Content_Restriction_Control::get_post_gates( $ungated_id ) );
+	}
+
+	/**
+	 * Test specific_posts override wins against a category rule, too.
+	 */
+	public function test_specific_posts_overrides_taxonomy_rule() {
+		$cat_id = $this->factory->term->create(
+			[
+				'taxonomy' => 'category',
+				'name'     => 'Restricted Only',
+			]
+		);
+
+		// Post with NO category — would fail the taxonomy rule normally.
+		$post_id          = $this->factory->post->create( [ 'post_status' => 'publish' ] );
+		$this->post_ids[] = $post_id;
+
+		Content_Rules::update_gate_content_rules(
+			$this->gate_ids[2],
+			[
+				[
+					'slug'  => 'category',
+					'value' => [ $cat_id ],
+				],
+				[
+					'slug'  => 'specific_posts',
+					'value' => [ (string) $post_id ],
+				],
+			]
+		);
+
+		$gates = Content_Restriction_Control::get_post_gates( $post_id );
+		$this->assertCount( 1, $gates, 'Post is gated via specific_posts override despite not matching the category rule' );
+	}
+
+	/**
+	 * Test empty specific_posts value does NOT trigger the override and — when it's
+	 * the gate's only rule — does NOT accidentally include the gate.
+	 */
+	public function test_specific_posts_empty_value_does_not_match() {
+		$post_id          = $this->factory->post->create( [ 'post_status' => 'publish' ] );
+		$this->post_ids[] = $post_id;
+
+		Content_Rules::update_gate_content_rules(
+			$this->gate_ids[2],
+			[
+				[
+					'slug'  => 'specific_posts',
+					'value' => [],
+				],
+			]
+		);
+
+		$this->assertCount( 0, Content_Restriction_Control::get_post_gates( $post_id ), 'Empty specific_posts does not include any gate' );
+	}
+
+	/**
+	 * Test the posts-search endpoint treats a numeric search as a post ID lookup.
+	 */
+	public function test_posts_search_endpoint_numeric_search_is_id_lookup() {
+		wp_set_current_user( $this->factory->user->create( [ 'role' => 'administrator' ] ) );
+
+		$target           = $this->factory->post->create(
+			[
+				'post_status' => 'publish',
+				'post_title'  => 'Findable',
+			]
+		);
+		$other            = $this->factory->post->create(
+			[
+				'post_status' => 'publish',
+				'post_title'  => 'Decoy',
+			]
+		);
+		$this->post_ids[] = $target;
+		$this->post_ids[] = $other;
+
+		$request = new \WP_REST_Request( 'GET', '/' . NEWSPACK_API_NAMESPACE . '/wizard/newspack-audience-access-control/posts-search' );
+		$request->set_param( 'search', (string) $target );
+		$response = rest_get_server()->dispatch( $request );
+
+		$this->assertSame( 200, $response->get_status() );
+		$ids = wp_list_pluck( $response->get_data(), 'id' );
+		$this->assertSame( [ $target ], $ids, 'Numeric search returns only the post with that ID' );
+	}
+
+	/**
+	 * Test that include hydrates non-published tokens so the editor keeps
+	 * showing items whose status changed after the gate was saved.
+	 */
+	public function test_posts_search_endpoint_include_hydrates_non_published() {
+		wp_set_current_user( $this->factory->user->create( [ 'role' => 'administrator' ] ) );
+
+		$draft = $this->factory->post->create(
+			[
+				'post_status' => 'draft',
+				'post_title'  => 'Was Published, Now Draft',
+			]
+		);
+		$this->post_ids[] = $draft;
+
+		// `include` should return the draft.
+		$request = new \WP_REST_Request( 'GET', '/' . NEWSPACK_API_NAMESPACE . '/wizard/newspack-audience-access-control/posts-search' );
+		$request->set_param( 'include', (string) $draft );
+		$response = rest_get_server()->dispatch( $request );
+		$this->assertSame( 200, $response->get_status() );
+		$ids = wp_list_pluck( $response->get_data(), 'id' );
+		$this->assertContains( $draft, $ids, 'include hydrates non-published tokens' );
+
+		// `search` should NOT return the draft (search-mode stays publish-only).
+		$request2 = new \WP_REST_Request( 'GET', '/' . NEWSPACK_API_NAMESPACE . '/wizard/newspack-audience-access-control/posts-search' );
+		$request2->set_param( 'search', 'Was Published' );
+		$response2 = rest_get_server()->dispatch( $request2 );
+		$this->assertSame( 200, $response2->get_status() );
+		$ids2 = wp_list_pluck( $response2->get_data(), 'id' );
+		$this->assertNotContains( $draft, $ids2, 'search-mode does not surface non-published posts' );
+	}
+
+	/**
+	 * Test that per_page=0 or per_page=500 are rejected at the schema boundary with a 400 status.
+	 */
+	public function test_posts_search_endpoint_per_page_below_minimum() {
+		wp_set_current_user( $this->factory->user->create( [ 'role' => 'administrator' ] ) );
+
+		$request = new \WP_REST_Request( 'GET', '/' . NEWSPACK_API_NAMESPACE . '/wizard/newspack-audience-access-control/posts-search' );
+		$request->set_param( 'per_page', 0 );
+		$response = rest_get_server()->dispatch( $request );
+
+		$this->assertSame( 400, $response->get_status(), 'per_page=0 fails schema validation' );
+
+		$request->set_param( 'per_page', 500 );
+		$response = rest_get_server()->dispatch( $request );
+		$this->assertSame( 400, $response->get_status(), 'per_page=500 fails schema validation' );
+	}
+
+	/**
+	 * Test that include with many IDs is capped at 100 results.
+	 */
+	public function test_posts_search_endpoint_caps_include_results() {
+		wp_set_current_user( $this->factory->user->create( [ 'role' => 'administrator' ] ) );
+
+		$ids = [];
+		for ( $i = 0; $i < 105; $i++ ) {
+			$ids[] = $this->factory->post->create( [ 'post_status' => 'publish' ] );
+		}
+		$this->post_ids = array_merge( $this->post_ids, $ids );
+
+		$request = new \WP_REST_Request( 'GET', '/' . NEWSPACK_API_NAMESPACE . '/wizard/newspack-audience-access-control/posts-search' );
+		$request->set_param( 'include', implode( ',', $ids ) );
+		$response = rest_get_server()->dispatch( $request );
+
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertLessThanOrEqual( 100, count( $response->get_data() ), 'Include result set is capped at 100' );
 	}
 }

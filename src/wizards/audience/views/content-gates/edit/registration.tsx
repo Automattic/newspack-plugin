@@ -32,6 +32,18 @@ export default function Registration( { registration, onChange, isNewsletter = f
 	);
 	return (
 		<>
+			{ ! isNewsletter && (
+				<>
+					<CardBody size="small">
+						<Metering
+							description={ __( 'Allow limited free views before requiring login.', 'newspack-plugin' ) }
+							metering={ registration.metering }
+							onChange={ ( metering: Metering ) => handleChange( { metering } ) }
+						/>
+					</CardBody>
+					<CardDivider />
+				</>
+			) }
 			<CardBody size="small">
 				<ToggleControl
 					label={ __( 'Require verification', 'newspack-plugin' ) }
@@ -40,18 +52,6 @@ export default function Registration( { registration, onChange, isNewsletter = f
 					onChange={ () => handleChange( { require_verification: ! registration.require_verification } ) }
 				/>
 			</CardBody>
-			{ ! isNewsletter && (
-				<>
-					<CardDivider />
-					<CardBody size="small">
-						<Metering
-							description={ __( 'Allow limited free views before requiring login.', 'newspack-plugin' ) }
-							metering={ registration.metering }
-							onChange={ ( metering: Metering ) => handleChange( { metering } ) }
-						/>
-					</CardBody>
-				</>
-			) }
 		</>
 	);
 }

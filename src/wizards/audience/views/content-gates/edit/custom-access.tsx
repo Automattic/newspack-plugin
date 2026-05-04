@@ -42,15 +42,15 @@ export default function CustomAccess( { customAccess, onChange, isNewsletter = f
 
 	return (
 		<>
-			<AccessRules rules={ currentRules } onChange={ handleRulesChange } />
 			{ ! isNewsletter && (
 				<>
-					<CardDivider />
 					<CardBody size="small">
 						<Metering metering={ customAccess.metering } onChange={ ( metering: Metering ) => handleChange( { metering } ) } />
 					</CardBody>
+					<CardDivider />
 				</>
 			) }
+			<AccessRules rules={ currentRules } onChange={ handleRulesChange } />
 		</>
 	);
 }

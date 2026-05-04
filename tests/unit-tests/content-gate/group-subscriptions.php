@@ -49,7 +49,7 @@ class Test_Group_Subscriptions extends \WP_UnitTestCase {
 	 *
 	 * @param int   $customer_id Customer/owner user ID.
 	 * @param array $settings    Optional group-subscription settings to apply.
-	 *                           Supported keys: 'enabled' (bool), 'limit' (int).
+	 *                           Supported keys: 'enabled' (bool), 'limit' (int), 'name' (string).
 	 * @return \WC_Subscription
 	 */
 	private function create_group_subscription( $customer_id, $settings = [] ) {
@@ -57,6 +57,7 @@ class Test_Group_Subscriptions extends \WP_UnitTestCase {
 			[
 				'enabled' => true,
 				'limit'   => 0,
+				'name'    => '',
 			],
 			$settings
 		);
@@ -74,6 +75,9 @@ class Test_Group_Subscriptions extends \WP_UnitTestCase {
 		}
 		if ( $settings['limit'] > 0 ) {
 			$sub->update_meta_data( Group_Subscription_Settings::GROUP_SUBSCRIPTION_META_PREFIX . 'limit', $settings['limit'] );
+		}
+		if ( ! empty( $settings['name'] ) ) {
+			$sub->update_meta_data( Group_Subscription_Settings::GROUP_SUBSCRIPTION_META_PREFIX . 'name', $settings['name'] );
 		}
 		return $sub;
 	}
@@ -423,6 +427,101 @@ class Test_Group_Subscriptions extends \WP_UnitTestCase {
 		$result = Group_Subscription::get_group_subscriptions_for_user( $reader_id, true );
 		$this->assertIsArray( $result );
 		$this->assertEmpty( $result );
+	}
+
+	// -------------------------------------------------------------------------
+	// Group_Subscription_Settings name tests
+	// -------------------------------------------------------------------------
+
+	/**
+	 * Test get_subscription_settings() returns a default name based on the
+	 * subscription owner's billing name when no custom name is set.
+	 */
+	public function test_group_name_defaults_to_owner_name() {
+		$owner_id  = $this->create_reader_user();
+		$group_sub = $this->create_group_subscription( $owner_id );
+
+		// Set billing name on the subscription so get_formatted_billing_full_name() returns a real name.
+		$group_sub->data['billing_first_name'] = 'Jane';
+		$group_sub->data['billing_last_name']  = 'Doe';
+
+		$settings = Group_Subscription_Settings::get_subscription_settings( $group_sub );
+
+		$this->assertNotEmpty( $settings['name'], 'Default name should not be empty' );
+		$this->assertStringContainsString(
+			'Jane',
+			$settings['name'],
+			'Default name should contain the owner first name'
+		);
+		$this->assertStringContainsString(
+			"\u{2019}s Group",
+			$settings['name'],
+			'Default name should end with the possessive Group suffix'
+		);
+	}
+
+	/**
+	 * Test get_subscription_settings() returns a custom name when one is stored
+	 * in subscription meta.
+	 */
+	public function test_group_name_custom_override() {
+		$owner_id  = $this->create_reader_user();
+		$group_sub = $this->create_group_subscription( $owner_id, [ 'name' => 'Acme Newsroom' ] );
+
+		$settings = Group_Subscription_Settings::get_subscription_settings( $group_sub );
+
+		$this->assertEquals( 'Acme Newsroom', $settings['name'] );
+	}
+
+	/**
+	 * Test update_subscription_settings() persists a name change that is
+	 * reflected in subsequent get_subscription_settings() calls.
+	 */
+	public function test_group_name_update_and_read_back() {
+		$owner_id  = $this->create_reader_user();
+		$group_sub = $this->create_group_subscription( $owner_id );
+
+		Group_Subscription_Settings::update_subscription_settings(
+			$group_sub,
+			[ 'name' => 'Daily Planet' ]
+		);
+
+		$settings = Group_Subscription_Settings::get_subscription_settings( $group_sub );
+
+		$this->assertEquals( 'Daily Planet', $settings['name'] );
+	}
+
+	/**
+	 * Test that an empty name in update_subscription_settings() stores an
+	 * empty string, which causes get_subscription_settings() to fall back
+	 * to the default owner-based name.
+	 */
+	public function test_group_name_empty_falls_back_to_default() {
+		$owner_id  = $this->create_reader_user();
+		$group_sub = $this->create_group_subscription( $owner_id, [ 'name' => 'Temp Name' ] );
+
+		// Set billing name on the subscription so the fallback name is based on the actual owner name.
+		$group_sub->data['billing_first_name'] = 'Jane';
+		$group_sub->data['billing_last_name']  = 'Doe';
+
+		Group_Subscription_Settings::update_subscription_settings(
+			$group_sub,
+			[ 'name' => '' ]
+		);
+
+		$settings = Group_Subscription_Settings::get_subscription_settings( $group_sub );
+
+		// After clearing the custom name, it should revert to the default.
+		$this->assertStringContainsString(
+			'Jane',
+			$settings['name'],
+			'Clearing the name should revert to the default owner-based name'
+		);
+		$this->assertStringContainsString(
+			"\u{2019}s Group",
+			$settings['name'],
+			'Default name should end with the possessive Group suffix'
+		);
 	}
 
 	// -------------------------------------------------------------------------
@@ -961,5 +1060,148 @@ class Test_Group_Subscriptions extends \WP_UnitTestCase {
 		$result = Group_Subscription_Invite::accept_invite( $group_sub->get_id(), $key, $email2 );
 
 		$this->assertWPError( $result, 'Should fail when member limit is reached' );
+	}
+
+	// -------------------------------------------------------------------------
+	// search_group_name_where() tests
+	// -------------------------------------------------------------------------
+
+	/**
+	 * Build a stub WP_Query object representing a subscription search.
+	 *
+	 * @param string $term Search term.
+	 * @return \WP_Query
+	 */
+	private function build_subscription_search_query( $term ) {
+		$query = new \WP_Query();
+		$query->set( 's', $term );
+		$query->set( 'post_type', 'shop_subscription' );
+		$query->is_search = true;
+		return $query;
+	}
+
+	/**
+	 * Test that search_group_name_where() returns the search clause unchanged
+	 * when the query is not a subscription search.
+	 */
+	public function test_search_group_name_where_skips_non_subscription_query() {
+		$query = new \WP_Query();
+		$query->set( 's', 'foo' );
+		$query->set( 'post_type', 'post' );
+		$query->is_search = true;
+
+		$original = " AND ( ( wp_posts.post_title LIKE '%foo%' ) ) ";
+		$result   = Group_Subscription_Settings::search_group_name_where( $original, $query );
+
+		$this->assertEquals( $original, $result, 'Non-subscription queries should be untouched' );
+	}
+
+	/**
+	 * Test that search_group_name_where() returns the search clause unchanged
+	 * when the search clause is empty (no search performed).
+	 */
+	public function test_search_group_name_where_skips_empty_search() {
+		$query  = $this->build_subscription_search_query( 'foo' );
+		$result = Group_Subscription_Settings::search_group_name_where( '', $query );
+
+		$this->assertEquals( '', $result, 'Empty search clause should be returned as-is' );
+	}
+
+	/**
+	 * Test that search_group_name_where() wraps a simple search clause with
+	 * an OR for the group name meta.
+	 */
+	public function test_search_group_name_where_wraps_simple_clause() {
+		$query    = $this->build_subscription_search_query( 'acme' );
+		$original = " AND ( ( wp_posts.post_title LIKE '%acme%' ) ) ";
+		$result   = Group_Subscription_Settings::search_group_name_where( $original, $query );
+
+		// The original search clause should still be present.
+		$this->assertStringContainsString( "wp_posts.post_title LIKE '%acme%'", $result );
+		// Our group name meta should be added with an OR.
+		$this->assertStringContainsString( 'np_group_name.meta_value LIKE', $result );
+		$this->assertStringContainsString( ' OR ', $result );
+		// The clause should still start with " AND ".
+		$this->assertStringStartsWith( ' AND ', $result );
+	}
+
+	/**
+	 * Test that search_group_name_where() handles a multi-term search clause
+	 * (where WP produces a more complex inner shape).
+	 */
+	public function test_search_group_name_where_handles_multi_term() {
+		$query    = $this->build_subscription_search_query( 'foo bar' );
+		$original = " AND ( ( ( wp_posts.post_title LIKE '%foo%' ) ) AND ( ( wp_posts.post_title LIKE '%bar%' ) ) ) ";
+		$result   = Group_Subscription_Settings::search_group_name_where( $original, $query );
+
+		// All original sub-clauses should still appear.
+		$this->assertStringContainsString( "LIKE '%foo%'", $result );
+		$this->assertStringContainsString( "LIKE '%bar%'", $result );
+		// Our OR clause should be present.
+		$this->assertStringContainsString( 'np_group_name.meta_value LIKE', $result );
+		$this->assertStringContainsString( ' OR ', $result );
+	}
+
+	/**
+	 * Test that search_group_name_where() escapes special characters in the
+	 * search term so they don't break out of the SQL string.
+	 */
+	public function test_search_group_name_where_escapes_special_chars() {
+		$query    = $this->build_subscription_search_query( "foo'bar" );
+		$original = " AND ( ( wp_posts.post_title LIKE '%foo%' ) ) ";
+		$result   = Group_Subscription_Settings::search_group_name_where( $original, $query );
+
+		// The single quote should be escaped (doubled or backslash-escaped) — not appear raw.
+		$this->assertStringNotContainsString( "foo'bar'", $result, 'Single quote in term must be escaped' );
+		// Our OR clause should still be added.
+		$this->assertStringContainsString( 'np_group_name.meta_value LIKE', $result );
+	}
+
+	// -------------------------------------------------------------------------
+	// get_group_subscription_ids() cache tests
+	// -------------------------------------------------------------------------
+
+	/**
+	 * Test that get_group_subscription_ids() reads from the transient cache
+	 * when present, bypassing the underlying queries.
+	 */
+	public function test_get_group_subscription_ids_uses_transient_cache() {
+		// Pre-seed the transient with a known set of IDs.
+		$cached_ids = [ 101, 202, 303 ];
+		set_transient(
+			Group_Subscription_Settings::GROUP_SUBSCRIPTION_IDS_TRANSIENT,
+			$cached_ids,
+			5 * MINUTE_IN_SECONDS
+		);
+
+		$result = Group_Subscription_Settings::get_group_subscription_ids();
+
+		$this->assertEquals( $cached_ids, $result, 'Should return the cached IDs verbatim' );
+
+		// Cleanup.
+		delete_transient( Group_Subscription_Settings::GROUP_SUBSCRIPTION_IDS_TRANSIENT );
+	}
+
+	/**
+	 * Test that clear_group_subscription_ids_cache() deletes the transient.
+	 */
+	public function test_clear_group_subscription_ids_cache_deletes_transient() {
+		set_transient(
+			Group_Subscription_Settings::GROUP_SUBSCRIPTION_IDS_TRANSIENT,
+			[ 1, 2, 3 ],
+			5 * MINUTE_IN_SECONDS
+		);
+
+		$this->assertNotFalse(
+			get_transient( Group_Subscription_Settings::GROUP_SUBSCRIPTION_IDS_TRANSIENT ),
+			'Transient should exist before clearing'
+		);
+
+		Group_Subscription_Settings::clear_group_subscription_ids_cache();
+
+		$this->assertFalse(
+			get_transient( Group_Subscription_Settings::GROUP_SUBSCRIPTION_IDS_TRANSIENT ),
+			'Transient should be deleted after clearing'
+		);
 	}
 }

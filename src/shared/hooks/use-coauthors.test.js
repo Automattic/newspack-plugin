@@ -12,7 +12,7 @@ import apiFetch from '@wordpress/api-fetch';
 /**
  * Internal dependencies
  */
-import { useCoAuthors, resetGuestAvatarCacheForTests } from './use-coauthors';
+import { useCoAuthors, resetGuestAvatarCacheForTests, resetCoauthorDetailsCacheForTests } from './use-coauthors';
 
 jest.mock( '@wordpress/data', () => ( {
 	useSelect: jest.fn(),
@@ -27,13 +27,16 @@ jest.mock( '@wordpress/api-fetch', () => jest.fn() );
 /**
  * Helper to create a mock select function for multiple stores.
  *
- * @param {Object} options               Mock options.
- * @param {Object} options.capStore      CAP store mock (null if unavailable).
- * @param {number} options.currentPostId Currently-edited post ID.
- * @param {Object} options.entityRecords Map of postId -> post entity record.
+ * @param {Object}   options                 Mock options.
+ * @param {Object}   options.capStore        Legacy CAP store mock (null if unavailable — i.e., new CAP).
+ * @param {number}   options.currentPostId   Currently-edited post ID.
+ * @param {Object}   options.entityRecords   Map of postId -> post entity record (used for Query Loop).
+ * @param {number[]} options.coauthorTermIds `coauthors` post attribute (new CAP).
+ *                                           `undefined` means attribute not set (legacy CAP / plugin missing);
+ *                                           `[]` means the attribute is present but empty.
  * @return {Function} Mock select function.
  */
-const createMockSelect = ( { capStore = null, currentPostId = 123, entityRecords = {} } = {} ) => {
+const createMockSelect = ( { capStore = null, currentPostId = 123, entityRecords = {}, coauthorTermIds } = {} ) => {
 	return storeName => {
 		if ( storeName === 'cap/authors' ) {
 			return capStore;
@@ -41,6 +44,7 @@ const createMockSelect = ( { capStore = null, currentPostId = 123, entityRecords
 		if ( storeName === 'core/editor' ) {
 			return {
 				getCurrentPostId: () => currentPostId,
+				getEditedPostAttribute: attr => ( attr === 'coauthors' ? coauthorTermIds : undefined ),
 			};
 		}
 		if ( storeName === 'core' ) {
@@ -56,6 +60,7 @@ describe( 'useCoAuthors', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
 		resetGuestAvatarCacheForTests();
+		resetCoauthorDetailsCacheForTests();
 		// Default: apiFetch resolves with empty object (no avatar_urls).
 		apiFetch.mockResolvedValue( {} );
 	} );
@@ -178,6 +183,227 @@ describe( 'useCoAuthors', () => {
 
 			expect( result.current.authors[ 0 ].display_name ).toBe( 'from-value' );
 			expect( result.current.authors[ 1 ].display_name ).toBe( 'Only Label' );
+		} );
+	} );
+
+	describe( 'currently-edited post (new CAP, term ID resolution)', () => {
+		const NEW_CAP_RESPONSE = [
+			{ id: '1', termId: 471, displayName: 'Jane Doe', userNicename: 'jane-doe', userType: 'wpuser', login: 'jane', email: 'jane@x.com' },
+			{ id: '2', termId: 488, displayName: 'John Smith', userNicename: 'john-smith', userType: 'wpuser', login: 'john', email: 'john@x.com' },
+			{ id: '1591', termId: 483, displayName: 'External', userNicename: 'external', userType: 'guest-author', login: 'external', email: '' },
+		];
+
+		it( 'should resolve term IDs via REST when legacy CAP store is absent', async () => {
+			apiFetch.mockResolvedValueOnce( NEW_CAP_RESPONSE );
+
+			useSelect.mockImplementation( callback =>
+				callback(
+					createMockSelect( {
+						capStore: null, // legacy CAP not registered
+						currentPostId: 123,
+						coauthorTermIds: [ 471, 488, 483 ],
+					} )
+				)
+			);
+
+			const { result } = renderHook( () => useCoAuthors( 123 ) );
+
+			await waitFor( () => {
+				expect( result.current.authors ).toHaveLength( 3 );
+			} );
+
+			expect( apiFetch ).toHaveBeenCalledWith( {
+				path: '/coauthors/v1/authors-by-term-ids?ids=471,488,483',
+			} );
+			expect( result.current.authors[ 0 ] ).toMatchObject( {
+				id: 1,
+				termId: 471,
+				display_name: 'Jane Doe',
+				user_nicename: 'jane-doe',
+				isGuest: false,
+			} );
+			expect( result.current.authors[ 2 ].isGuest ).toBe( true );
+			expect( result.current.isCapAvailable ).toBe( true );
+			expect( result.current.hasCoauthorTermIds ).toBe( true );
+		} );
+
+		it( 'should return empty authors when coauthors attribute is an empty array', async () => {
+			useSelect.mockImplementation( callback =>
+				callback(
+					createMockSelect( {
+						capStore: null,
+						currentPostId: 123,
+						coauthorTermIds: [],
+					} )
+				)
+			);
+
+			const { result } = renderHook( () => useCoAuthors( 123 ) );
+
+			await act( () => Promise.resolve() );
+
+			expect( result.current.authors ).toEqual( [] );
+			expect( result.current.isCapAvailable ).toBe( true );
+			expect( apiFetch ).not.toHaveBeenCalled();
+		} );
+
+		it( 'should mark isCapAvailable false when neither legacy store nor coauthors attribute are present', () => {
+			useSelect.mockImplementation( callback =>
+				callback(
+					createMockSelect( {
+						capStore: null,
+						currentPostId: 123,
+						// coauthorTermIds undefined
+					} )
+				)
+			);
+
+			const { result } = renderHook( () => useCoAuthors( 123 ) );
+
+			expect( result.current.isCapAvailable ).toBe( false );
+			expect( result.current.authors ).toEqual( [] );
+		} );
+
+		it( 'should prefer legacy CAP store when both legacy store and coauthors attribute are present', async () => {
+			// This simulates an in-flight upgrade scenario where old JS is still loaded.
+			// Legacy path should win to keep behavior consistent.
+			useSelect.mockImplementation( callback =>
+				callback(
+					createMockSelect( {
+						capStore: {
+							getAuthors: () => [ { id: 99, display: 'Legacy', value: 'legacy', userType: 'wpuser' } ],
+						},
+						currentPostId: 123,
+						coauthorTermIds: [ 471 ],
+					} )
+				)
+			);
+
+			const { result } = renderHook( () => useCoAuthors( 123 ) );
+
+			await act( () => Promise.resolve() );
+
+			expect( apiFetch ).not.toHaveBeenCalled();
+			expect( result.current.authors ).toEqual( [ { id: 99, display_name: 'Legacy', user_nicename: 'legacy', isGuest: false } ] );
+		} );
+
+		it( 'should cache results so subsequent mounts skip the REST call', async () => {
+			apiFetch.mockResolvedValue( NEW_CAP_RESPONSE );
+
+			useSelect.mockImplementation( callback =>
+				callback(
+					createMockSelect( {
+						capStore: null,
+						currentPostId: 123,
+						coauthorTermIds: [ 471, 488, 483 ],
+					} )
+				)
+			);
+
+			const { result: result1 } = renderHook( () => useCoAuthors( 123 ) );
+
+			await waitFor( () => {
+				expect( result1.current.authors ).toHaveLength( 3 );
+			} );
+
+			const callsAfterFirstMount = apiFetch.mock.calls.length;
+
+			// A later mount re-uses the cache and makes no additional calls.
+			const { result: result2 } = renderHook( () => useCoAuthors( 123 ) );
+
+			await waitFor( () => {
+				expect( result2.current.authors ).toHaveLength( 3 );
+			} );
+
+			expect( apiFetch ).toHaveBeenCalledTimes( callsAfterFirstMount );
+		} );
+
+		it( 'should silently drop term IDs that do not resolve', async () => {
+			// REST returns only 2 of 3 requested IDs (the third was deleted).
+			apiFetch.mockResolvedValueOnce( [ NEW_CAP_RESPONSE[ 0 ], NEW_CAP_RESPONSE[ 1 ] ] );
+
+			useSelect.mockImplementation( callback =>
+				callback(
+					createMockSelect( {
+						capStore: null,
+						currentPostId: 123,
+						coauthorTermIds: [ 471, 488, 99999 ],
+					} )
+				)
+			);
+
+			const { result } = renderHook( () => useCoAuthors( 123 ) );
+
+			await waitFor( () => {
+				expect( result.current.authors ).toHaveLength( 2 );
+			} );
+
+			expect( result.current.authors.map( a => a.termId ) ).toEqual( [ 471, 488 ] );
+		} );
+
+		it( 'should handle REST errors without blocking the component', async () => {
+			apiFetch.mockRejectedValueOnce( new Error( 'Server error' ) );
+
+			useSelect.mockImplementation( callback =>
+				callback(
+					createMockSelect( {
+						capStore: null,
+						currentPostId: 123,
+						coauthorTermIds: [ 471 ],
+					} )
+				)
+			);
+
+			const { result } = renderHook( () => useCoAuthors( 123 ) );
+
+			// Allow the failed promise to settle.
+			await act( () => Promise.resolve().then( () => Promise.resolve() ) );
+
+			expect( result.current.authors ).toEqual( [] );
+			expect( result.current.isCapAvailable ).toBe( true );
+			// Term IDs are assigned but resolution returned empty — surface this so consumers
+			// don't silently fall back to `post_author` and credit the wrong person.
+			expect( result.current.hasCoauthorTermIds ).toBe( true );
+		} );
+
+		it( 'should allow retry after a transient REST error (no negative caching on catch)', async () => {
+			const RETRY_RESPONSE = [
+				{ id: '1', termId: 471, displayName: 'Jane', userNicename: 'jane', userType: 'wpuser', login: 'jane', email: '' },
+			];
+
+			useSelect.mockImplementation( callback =>
+				callback(
+					createMockSelect( {
+						capStore: null,
+						currentPostId: 123,
+						coauthorTermIds: [ 471 ],
+					} )
+				)
+			);
+
+			// First attempt fails with a transient error; cache should NOT be poisoned.
+			apiFetch.mockRejectedValueOnce( new Error( 'Transient 500' ) );
+
+			const { result: result1, unmount: unmount1 } = renderHook( () => useCoAuthors( 123 ) );
+
+			await act( () => Promise.resolve().then( () => Promise.resolve() ) );
+
+			expect( result1.current.authors ).toEqual( [] );
+			expect( apiFetch ).toHaveBeenCalledTimes( 1 );
+
+			unmount1();
+
+			// Second attempt succeeds — we should actually re-fetch (not a cached failure).
+			apiFetch.mockResolvedValueOnce( RETRY_RESPONSE );
+
+			const { result: result2 } = renderHook( () => useCoAuthors( 123 ) );
+
+			await waitFor( () => {
+				expect( result2.current.authors ).toHaveLength( 1 );
+			} );
+
+			expect( apiFetch ).toHaveBeenCalledTimes( 2 );
+			expect( result2.current.authors[ 0 ].display_name ).toBe( 'Jane' );
 		} );
 	} );
 
