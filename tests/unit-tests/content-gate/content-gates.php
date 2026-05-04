@@ -193,7 +193,6 @@ class Test_Content_Gates extends \WP_UnitTestCase {
 		unset( $_COOKIE[ IP_Access_Rule::COOKIE_NAME ] );
 		// phpcs:enable
 		delete_transient( Institution::TRANSIENT_KEY );
-		wp_set_current_user( 0 );
 		parent::tear_down();
 	}
 
@@ -1995,14 +1994,14 @@ class Test_Content_Gates extends \WP_UnitTestCase {
 			[
 				'role'       => 'subscriber',
 				'user_email' => 'a@university.edu',
-			] 
+			]
 		);
 		update_user_meta( $matching_user, Reader_Activation::EMAIL_VERIFIED, true );
 		$other_user = $this->factory->user->create(
 			[
 				'role'       => 'subscriber',
 				'user_email' => 'b@other.com',
-			] 
+			]
 		);
 		update_user_meta( $other_user, Reader_Activation::EMAIL_VERIFIED, true );
 
