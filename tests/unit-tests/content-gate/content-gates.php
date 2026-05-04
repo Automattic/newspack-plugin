@@ -1947,11 +1947,10 @@ class Test_Content_Gates extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * Regression: is_post_restricted must evaluate each call's $user_id
-	 * independently. Previously, a static-cached `self::$user_id` made every
-	 * call after the first reuse the first user's restriction state — broke
-	 * Newspack_Premium_Newsletters::process_queue, which loops over multiple
-	 * user IDs.
+	 * Each is_post_restricted() call must evaluate restrictions for its own
+	 * $user_id, both for the bool return and for the cache slot it writes.
+	 * Regression coverage for Newspack_Premium_Newsletters::process_queue,
+	 * which loops over multiple user IDs in a single request.
 	 */
 	public function test_is_post_restricted_evaluates_each_user_independently() {
 		$inst_id = Institution::create( 'University', '', [ 'email_domain' => 'university.edu' ] );
