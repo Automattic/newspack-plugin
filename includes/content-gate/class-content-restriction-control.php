@@ -387,6 +387,10 @@ class Content_Restriction_Control {
 			}
 			$group_eligible = true;
 			foreach ( $group as $rule ) {
+				// `empty()` is acceptable for `value` while the only `supports_anonymous` rule
+				// (`institution`) stores an array of post IDs — empty array means "no institutions
+				// selected." If a future anonymous-capable rule uses a falsy-but-valid scalar (e.g.
+				// `0`, `'0'`, `false`), tighten this check accordingly.
 				if ( ! isset( $rule['slug'] ) || empty( $rule['value'] ) ) {
 					$group_eligible = false;
 					break;
