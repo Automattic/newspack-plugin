@@ -159,7 +159,7 @@ class Content_Gate extends Contact_Metadata {
 					if ( ! $rule['passes'] ) {
 						continue;
 					}
-					foreach ( $resolver( $rule['slug'], $rule['value'], $user_id ) as $label ) {
+					foreach ( call_user_func( $resolver, $rule['slug'], $rule['value'], $user_id ) as $label ) {
 						$labels_set[ $label ] = true;
 					}
 				}
