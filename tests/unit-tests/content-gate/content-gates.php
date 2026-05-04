@@ -895,6 +895,19 @@ class Test_Content_Gates extends \WP_UnitTestCase {
 	}
 
 	/**
+	 * Read the cached user ID on Content_Restriction_Control via reflection.
+	 * Used to assert the seeding logic directly rather than through downstream
+	 * layout behavior.
+	 *
+	 * @return int Cached user ID (0 when not yet seeded or last seeded as anonymous).
+	 */
+	private function get_cached_user_id() {
+		$reflection = new \ReflectionProperty( Content_Restriction_Control::class, 'user_id' );
+		$reflection->setAccessible( true );
+		return (int) $reflection->getValue();
+	}
+
+	/**
 	 * Test comment filters on fully gated posts.
 	 */
 	public function test_comments_closed_on_gated_post() {
@@ -1557,6 +1570,48 @@ class Test_Content_Gates extends \WP_UnitTestCase {
 	}
 
 	/**
+	 * Anonymous visitor on a matching IP but without the IP-access bypass
+	 * cookie must still be restricted. The cookie is the page-cache-safety
+	 * signal that lets Institution::user_matches_institution evaluate the
+	 * IP server-side. First-time on-campus visitors have to complete the
+	 * institutional-access check (which sets the cookie) before subsequent
+	 * gated requests can grant access via IP — landing directly on a gated
+	 * post does not.
+	 */
+	public function test_anonymous_with_matching_ip_without_cookie_is_restricted() {
+		$inst_id = Institution::create( 'University', '', [ 'ip_range' => '10.0.0.0/8' ] );
+		$this->post_ids[] = $inst_id;
+		delete_transient( Institution::TRANSIENT_KEY );
+
+		$this->configure_published_gate(
+			[ 'active' => true ],
+			[
+				'active'       => true,
+				'access_rules' => [
+					[
+						[
+							'slug'  => 'institution',
+							'value' => [ $inst_id ],
+						],
+					],
+				],
+			]
+		);
+
+		wp_set_current_user( 0 );
+		// Matching IP, but no cookie — institution rule won't run server-side.
+		$this->set_visitor_ip( '10.1.2.3', false );
+		$this->reset_restriction_cache();
+
+		$this->assertTrue(
+			apply_filters( 'newspack_is_post_restricted', false, $this->post_ids[0] ),
+			'Anonymous visitor on matching IP without the IP-access cookie must be restricted.'
+		);
+
+		$this->reset_visitor_state();
+	}
+
+	/**
 	 * Anonymous visitor without a matching IP must be restricted, and the
 	 * gate layout shown must be the registration layout (not the
 	 * custom_access one), since registration is the relevant prompt for an
@@ -1589,6 +1644,11 @@ class Test_Content_Gates extends \WP_UnitTestCase {
 		$this->assertTrue(
 			apply_filters( 'newspack_is_post_restricted', false, $this->post_ids[0] ),
 			'Anonymous visitor with non-matching IP must be restricted.'
+		);
+		$this->assertSame(
+			0,
+			$this->get_cached_user_id(),
+			'self::$user_id must be seeded to 0 on the first anonymous evaluation, so the layout accessors return the anonymous lookup.'
 		);
 		$this->assertSame(
 			$layouts['registration_layout_id'],
@@ -1751,6 +1811,49 @@ class Test_Content_Gates extends \WP_UnitTestCase {
 		$this->assertTrue(
 			apply_filters( 'newspack_is_post_restricted', false, $this->post_ids[0] ),
 			'An institution rule with no institutions selected must not grant anonymous access.'
+		);
+
+		$this->reset_visitor_state();
+	}
+
+	/**
+	 * Anonymous visitor with a matching IP must remain restricted when the
+	 * institution rule is AND-grouped with a non-anonymous-capable rule
+	 * (e.g. email_domain). AND-within-group means the group can only pass
+	 * if every rule passes; email_domain returns false for `user_id = 0`,
+	 * so the group fails even with a matching institutional IP.
+	 */
+	public function test_anonymous_with_matching_ip_and_grouped_with_email_domain_is_restricted() {
+		$inst_id = Institution::create( 'University', '', [ 'ip_range' => '10.0.0.0/8' ] );
+		$this->post_ids[] = $inst_id;
+		delete_transient( Institution::TRANSIENT_KEY );
+
+		$this->configure_published_gate(
+			[ 'active' => true ],
+			[
+				'active'       => true,
+				'access_rules' => [
+					[
+						[
+							'slug'  => 'institution',
+							'value' => [ $inst_id ],
+						],
+						[
+							'slug'  => 'email_domain',
+							'value' => 'example.com',
+						],
+					],
+				],
+			]
+		);
+
+		wp_set_current_user( 0 );
+		$this->set_visitor_ip( '10.1.2.3' );
+		$this->reset_restriction_cache();
+
+		$this->assertTrue(
+			apply_filters( 'newspack_is_post_restricted', false, $this->post_ids[0] ),
+			'Anonymous visitor must be restricted when institution is AND-grouped with email_domain (which requires login).'
 		);
 
 		$this->reset_visitor_state();
