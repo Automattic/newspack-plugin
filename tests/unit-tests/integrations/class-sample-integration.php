@@ -19,6 +19,20 @@ class Sample_Integration extends Integration {
 	public static $handler_args = null;
 
 	/**
+	 * Menu item declaration returned by get_my_account_menu_item().
+	 *
+	 * @var array|null
+	 */
+	public $my_account_menu_item = null;
+
+	/**
+	 * Captured render_my_account_page() calls.
+	 *
+	 * @var array
+	 */
+	public $my_account_render_calls = [];
+
+	/**
 	 * Register settings fields (test implementation).
 	 */
 	public function register_settings_fields() {
@@ -94,12 +108,27 @@ class Sample_Integration extends Integration {
 	/**
 	 * Get incoming available contact fields from the integration.
 	 *
-	 * This method should be implemented by child classes to return
-	 * an array of available contact fields from their integration.
-	 *
-	 * @return Integrations\Incoming_Contact_Field[]|\WP_Error Array of incoming contact field objects or WP_Error on failure.
+	 * @return Integrations\Incoming_Field[]|\WP_Error Array of incoming contact field objects or WP_Error on failure.
 	 */
-	public function get_available_incoming_contact_fields() {
+	public function get_available_incoming_fields() {
 		return [];
+	}
+
+	/**
+	 * Return the configured My Account menu item (test override).
+	 *
+	 * @return array|null
+	 */
+	public function get_my_account_menu_item() {
+		return $this->my_account_menu_item;
+	}
+
+	/**
+	 * Capture render_my_account_page() calls (test override).
+	 *
+	 * @param mixed $value Endpoint query var value.
+	 */
+	public function render_my_account_page( $value ) {
+		$this->my_account_render_calls[] = $value;
 	}
 }

@@ -10,17 +10,12 @@ import { PluginDocumentSettingPanel } from '@wordpress/edit-post';
 import { __ } from '@wordpress/i18n';
 import { registerPlugin } from '@wordpress/plugins';
 import { plus } from '@wordpress/icons';
-import { store as coreStore } from '@wordpress/core-data';
 
 /**
  * Internal dependencies
  */
+import { useAuthorTokens } from './hooks/use-author-tokens';
 import './style.scss';
-
-const BASE_QUERY = {
-	_fields: 'id,name',
-	context: 'view', // Allows non-admins to perform requests.
-};
 
 /** Close icon copied from @wordpress/icons/src/library/close.js to be used as markup */
 const close = `
@@ -90,33 +85,6 @@ const transformByline = element => {
 };
 
 /**
- * Get the author tokens for a post.
- *
- * @param {number} postId The post ID.
- *
- * @return {Object[]} The author tokens.
- */
-function useAuthorTokens( postId ) {
-	const { postAuthor, coAuthors } = useSelect( select => {
-		return {
-			postAuthor: select( coreStore ).getUser( select( 'core/editor' ).getEditedPostAttribute( 'author' ), BASE_QUERY ),
-			coAuthors: postId && select( 'cap/authors' ) ? select( 'cap/authors' ).getAuthors( postId ) : [],
-		};
-	} );
-
-	if ( coAuthors.length ) {
-		return coAuthors
-			.filter( author => author.userType === 'wpuser' )
-			.map( author => ( {
-				id: parseInt( author.id ),
-				name: author.display,
-			} ) );
-	}
-
-	return [ postAuthor ];
-}
-
-/**
  * An author "token" button, to add an author to the byline.
  *
  * @param {Object}   props          Component props.
@@ -179,15 +147,19 @@ const BylinesSettingsPanel = () => {
 
 	const tokens = useAuthorTokens( postId );
 
-	const { getEditedPostAttribute } = useSelect( select => select( 'core/editor' ) );
+	const { customByline, isActiveMeta } = useSelect( select => {
+		const meta = select( 'core/editor' ).getEditedPostAttribute( 'meta' );
+		return {
+			customByline: meta?.[ newspackBylines.metaKeyByline ] || '',
+			isActiveMeta: !! meta?.[ newspackBylines.metaKeyActive ],
+		};
+	}, [] );
 
 	/** Toggle if custom byline is enabled */
-	const [ isEnabled, setIsEnabled ] = useState( !! getEditedPostAttribute( 'meta' )[ newspackBylines.metaKeyActive ] );
+	const [ isEnabled, setIsEnabled ] = useState( isActiveMeta );
 
 	/** Toggle if custom byline modal is open */
 	const [ isModalOpen, setModalOpen ] = useState( false );
-
-	const customByline = getEditedPostAttribute( 'meta' )[ newspackBylines.metaKeyByline ];
 
 	const [ editedByline, setEditedByline ] = useState( customByline );
 

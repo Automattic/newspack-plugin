@@ -74,7 +74,7 @@ class Failing_Sample_Integration extends Integration {
 	 *
 	 * @return array
 	 */
-	public function get_available_incoming_contact_fields() {
+	public function get_available_incoming_fields() {
 		return [];
 	}
 

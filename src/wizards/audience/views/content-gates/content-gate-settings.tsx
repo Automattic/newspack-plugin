@@ -9,7 +9,7 @@ import { createInterpolateElement, useRef } from '@wordpress/element';
 /**
  * Internal dependencies
  */
-import { Badge, Button, Card, Grid, Router, useConfirmDialog } from '../../../../../packages/components/src';
+import { Badge, Card, Grid, Router, useConfirmDialog } from '../../../../../packages/components/src';
 import { useWizardData } from '../../../../../packages/components/src/wizard/store/utils';
 import { useWizardApiFetch } from '../../../hooks/use-wizard-api-fetch';
 import { WIZARD_STORE_NAMESPACE } from '../../../../../packages/components/src/wizard/store';
@@ -118,6 +118,46 @@ export default function ContentGateSettings( {
 		);
 	};
 
+	const actions = [
+		[
+			{
+				label: __( 'Edit', 'newspack-plugin' ),
+				action: () => history.push( `/edit/${ gate.id }` ),
+				disabled: isFetching,
+			},
+			{
+				label: gate.status !== 'publish' ? __( 'Activate', 'newspack-plugin' ) : __( 'Deactivate', 'newspack-plugin' ),
+				action: () => updateStatus.current?.( gate.status === 'publish' ? 'draft' : 'publish' ),
+				disabled: isFetching,
+			},
+			{
+				label: __( 'Delete', 'newspack-plugin' ),
+				action: () => requestDelete( handleDelete ),
+				disabled: isFetching,
+				destructive: true,
+			},
+		],
+	];
+	const hasRegistrationLayout = ! isNewsletter && gate.registration?.active && gate.registration.gate_layout_id;
+	const hasCustomAccessLayout =
+		! isNewsletter && gate.custom_access?.active && gate.custom_access.access_rules?.length > 0 && gate.custom_access.gate_layout_id;
+	const layoutOptions: { label: string; action?: () => void; href?: string }[] = [];
+	if ( hasRegistrationLayout ) {
+		layoutOptions.push( {
+			label: __( 'Edit registered access layout', 'newspack-plugin' ),
+			href: getEditGateLayoutUrl( gate.id, 'registration' ),
+		} );
+	}
+	if ( hasCustomAccessLayout ) {
+		layoutOptions.push( {
+			label: __( 'Edit paid access layout', 'newspack-plugin' ),
+			href: getEditGateLayoutUrl( gate.id, 'custom_access' ),
+		} );
+	}
+	if ( layoutOptions.length > 0 ) {
+		actions.push( layoutOptions );
+	}
+
 	return (
 		<>
 			{ deleteDialog }
@@ -137,28 +177,11 @@ export default function ContentGateSettings( {
 							</h3>
 						</>
 					),
-					actions: [
-						{
-							label: __( 'Edit', 'newspack-plugin' ),
-							action: () => history.push( `/edit/${ gate.id }` ),
-							disabled: isFetching,
-						},
-						{
-							label: gate.status !== 'publish' ? __( 'Activate', 'newspack-plugin' ) : __( 'Deactivate', 'newspack-plugin' ),
-							action: () => updateStatus.current?.( gate.status === 'publish' ? 'draft' : 'publish' ),
-							disabled: isFetching,
-						},
-						{
-							label: __( 'Delete', 'newspack-plugin' ),
-							action: () => requestDelete( handleDelete ),
-							disabled: isFetching,
-							destructive: true,
-						},
-					],
+					actions,
 				} }
 			>
 				<CardBody>
-					<Grid className="newspack-content-gates__gate__settings" columns={ 3 } gutter={ 16 } borders noMargin>
+					<Grid className="newspack-content-gates__gate__settings" columns={ isNewsletter ? 2 : 3 } gutter={ 16 } borders noMargin>
 						<div>
 							<h4>{ __( 'Content rules', 'newspack-plugin' ) }</h4>
 							{ gate.content_rules.length > 0 ? (
@@ -177,32 +200,29 @@ export default function ContentGateSettings( {
 								<p>{ __( 'N/A', 'newspack-plugin' ) }</p>
 							) }
 						</div>
-						<div>
-							<h4>{ __( 'Registered access', 'newspack-plugin' ) }</h4>
-							{ gate.registration?.active && (
-								<p>
-									<strong>{ __( 'Require verification:', 'newspack-plugin' ) } </strong>{ ' ' }
-									{ gate.registration.require_verification ? __( 'Yes', 'newspack-plugin' ) : __( 'No', 'newspack-plugin' ) }
-								</p>
-							) }
-							{ gate.registration?.active && gate.registration.metering.enabled && (
-								<p>
-									<strong>{ __( 'Metered:', 'newspack-plugin' ) } </strong>{ ' ' }
-									{ sprintf(
-										// translators: 1: metering count, 2: metering period
-										__( '%1$d free views per %2$s', 'newspack-plugin' ),
-										gate.registration.metering.count,
-										gate.registration.metering.period
-									) }
-								</p>
-							) }
-							{ ! gate.registration?.active && <p>{ __( 'N/A', 'newspack-plugin' ) }</p> }
-							{ gate.registration?.active && gate.registration.gate_layout_id && ! isNewsletter && (
-								<Button variant="secondary" href={ getEditGateLayoutUrl( gate.id, 'registration' ) }>
-									{ __( 'Customize registered access layout', 'newspack-plugin' ) }
-								</Button>
-							) }
-						</div>
+						{ ! isNewsletter && (
+							<div>
+								<h4>{ __( 'Registered access', 'newspack-plugin' ) }</h4>
+								{ gate.registration?.active && (
+									<p>
+										<strong>{ __( 'Require verification:', 'newspack-plugin' ) } </strong>{ ' ' }
+										{ gate.registration.require_verification ? __( 'Yes', 'newspack-plugin' ) : __( 'No', 'newspack-plugin' ) }
+									</p>
+								) }
+								{ gate.registration?.active && gate.registration.metering.enabled && (
+									<p>
+										<strong>{ __( 'Metered:', 'newspack-plugin' ) } </strong>{ ' ' }
+										{ sprintf(
+											// translators: 1: metering count, 2: metering period
+											__( '%1$d free views per %2$s', 'newspack-plugin' ),
+											gate.registration.metering.count,
+											gate.registration.metering.period
+										) }
+									</p>
+								) }
+								{ ! gate.registration?.active && <p>{ __( 'N/A', 'newspack-plugin' ) }</p> }
+							</div>
+						) }
 						<div>
 							<h4>{ __( 'Paid access', 'newspack-plugin' ) }</h4>
 							{ gate.custom_access?.active &&
@@ -240,14 +260,6 @@ export default function ContentGateSettings( {
 							{ ( ! gate.custom_access?.active || gate.custom_access.access_rules?.length === 0 ) && (
 								<p>{ __( 'N/A', 'newspack-plugin' ) }</p>
 							) }
-							{ gate.custom_access?.active &&
-								gate.custom_access.access_rules?.length > 0 &&
-								gate.custom_access.gate_layout_id &&
-								! isNewsletter && (
-									<Button variant="secondary" href={ getEditGateLayoutUrl( gate.id, 'custom_access' ) }>
-										{ __( 'Customize paid access layout', 'newspack-plugin' ) }
-									</Button>
-								) }
 						</div>
 					</Grid>
 				</CardBody>

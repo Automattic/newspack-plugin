@@ -152,7 +152,7 @@
 			display: none;
 			height: var(--newspack-ui-spacer-9);
 			margin: var(--newspack-ui-spacer-6) var(--newspack-ui-spacer-3) 0;
-			padding: calc(var(--newspack-ui-spacer-base) * 0.5);
+			padding: calc(var(--newspack-ui-spacer-1) * 0.5);
 			place-items: center;
 			transition: border-color 125ms ease-in-out;
 			width: var(--newspack-ui-spacer-9);
@@ -207,7 +207,7 @@
 					font-size: var(--newspack-ui-font-size-xs);
 					font-weight: 400;
 					margin: 0;
-					padding: calc(var(--newspack-ui-spacer-base) * 0.75) 0;
+					padding: calc(var(--newspack-ui-spacer-1) * 0.75) 0;
 					text-decoration: underline;
 					&:hover {
 						background: none;

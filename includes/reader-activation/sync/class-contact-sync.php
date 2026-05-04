@@ -11,6 +11,7 @@ use Newspack\Reader_Activation;
 use Newspack\Reader_Activation\Integrations;
 use Newspack\Data_Events;
 use Newspack\Logger;
+use Newspack\Reader_Activation\Sync\Metadata;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -132,6 +133,12 @@ class Contact_Sync extends Sync {
 			}
 		}
 
+		// Added logging here to more easily monitor integration sync data. Can be removed once integrations are released.
+		if ( 'legacy' !== Metadata::get_version() ) {
+			Logger::log( sprintf( 'Syncing contact %s for context "%s".', $contact['email'] ?? 'unknown', $context ) );
+			Logger::log( $contact );
+		}
+
 		return self::push_to_integrations( $contact, $context, $existing_contact );
 	}
 
@@ -171,7 +178,14 @@ class Contact_Sync extends Sync {
 
 		foreach ( $integrations as $integration_id => $integration ) {
 			$integration_contact = $integration->prepare_contact( $contact );
-			$result              = $integration->push_contact_data( $integration_contact, $context, $existing_contact );
+
+			// Added logging here to more easily monitor integration sync data. Can be removed once integrations are released.
+			if ( 'legacy' !== Metadata::get_version() ) {
+				Logger::log( sprintf( 'Syncing contact %s for integration %s with context "%s".', $integration_contact['email'] ?? 'unknown', $integration_id, $context ) );
+				Logger::log( $integration_contact );
+			}
+
+			$result = $integration->push_contact_data( $integration_contact, $context, $existing_contact );
 			if ( \is_wp_error( $result ) ) {
 				/**
 				 * Fires when a contact sync fails on the original attempt (before retries).
@@ -444,6 +458,45 @@ class Contact_Sync extends Sync {
 	 */
 	public static function get_retries_by_retry_id( $retry_id ) {
 		return \Newspack\Action_Scheduler::get_actions_by_retry_id( $retry_id, self::RETRY_HOOK );
+	}
+
+	/**
+	 * Get the set of user IDs with pending sync retries in ActionScheduler.
+	 *
+	 * Useful for batch processing: fetch once, then check membership with isset()
+	 * instead of calling has_pending_retries() per user.
+	 *
+	 * @return array<int, bool> Map keyed by user ID for O(1) lookup.
+	 */
+	public static function get_pending_retry_user_ids() {
+		if ( ! function_exists( 'as_get_scheduled_actions' ) ) {
+			return [];
+		}
+		$actions = \as_get_scheduled_actions(
+			[
+				'hook'     => self::RETRY_HOOK,
+				'status'   => \ActionScheduler_Store::STATUS_PENDING,
+				'per_page' => -1,
+			]
+		);
+		$user_ids = [];
+		foreach ( $actions as $action ) {
+			$args = $action->get_args();
+			if ( ! empty( $args[0]['user_id'] ) ) {
+				$user_ids[ (int) $args[0]['user_id'] ] = true;
+			}
+		}
+		return $user_ids;
+	}
+
+	/**
+	 * Check if a user has any pending sync retries in ActionScheduler.
+	 *
+	 * @param int $user_id WordPress user ID.
+	 * @return bool True if there are pending retries.
+	 */
+	public static function has_pending_retries( $user_id ) {
+		return isset( self::get_pending_retry_user_ids()[ (int) $user_id ] );
 	}
 
 	/**

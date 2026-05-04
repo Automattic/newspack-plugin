@@ -228,6 +228,10 @@ class Corrections {
 			return rest_ensure_response( new WP_Error( 'invalid_post_id', 'Invalid post ID.', [ 'status' => 400 ] ) );
 		}
 
+		if ( ! current_user_can( 'edit_post', $post_id ) ) {
+			return rest_ensure_response( new WP_Error( 'unauthorized', 'You do not have permission to edit this post.', [ 'status' => 403 ] ) );
+		}
+
 		$existing_corrections = self::get_corrections( $post_id );
 		$existing_ids         = wp_list_pluck( $existing_corrections, 'ID' );
 
@@ -243,6 +247,10 @@ class Corrections {
 
 			// ID will be null if it's a new correction.
 			if ( ! empty( $correction_id ) ) {
+				// Verify the correction belongs to this post.
+				if ( ! in_array( $correction_id, $existing_ids, true ) ) {
+					return rest_ensure_response( new WP_Error( 'invalid_correction', 'The correction does not belong to this post.', [ 'status' => 400 ] ) );
+				}
 				// Update existing correction.
 				self::update_correction( $post_id, $correction_id, $correction );
 				$processed_ids[] = $correction_id;

@@ -67,20 +67,34 @@ class IP_Access_Rule {
 	}
 
 	/**
-	 * Register the REST API route for IP checking.
+	 * Register the REST API routes for IP checking.
 	 */
 	public static function register_rest_route() {
 		\register_rest_route(
 			NEWSPACK_API_NAMESPACE,
 			self::REST_ROUTE,
 			[
-				'methods'             => 'GET',
-				'callback'            => [ __CLASS__, 'check_ip_rest' ],
-				'permission_callback' => '__return_true',
-				'args'                => [
-					'institution_id' => [
-						'type'              => 'integer',
-						'sanitize_callback' => 'absint',
+				[
+					'methods'             => 'GET',
+					'callback'            => [ __CLASS__, 'check_ip_rest' ],
+					'permission_callback' => '__return_true',
+					'args'                => [
+						'institution_id' => [
+							'type'              => 'integer',
+							'sanitize_callback' => 'absint',
+						],
+					],
+				],
+				[
+					'methods'             => 'POST',
+					'callback'            => [ __CLASS__, 'check_external_ip_rest' ],
+					'permission_callback' => [ __CLASS__, 'check_external_ip_permission' ],
+					'args'                => [
+						'ip' => [
+							'type'              => 'string',
+							'required'          => true,
+							'sanitize_callback' => 'sanitize_text_field',
+						],
 					],
 				],
 			]
@@ -134,6 +148,53 @@ class IP_Access_Rule {
 		}
 
 		return new \WP_REST_Response( $data );
+	}
+
+	/**
+	 * REST API callback for external IP queries via POST.
+	 *
+	 * Accepts a JSON body with an `ip` field and checks it against all
+	 * institutional IP ranges. Designed for server-to-server calls from
+	 * external platforms.
+	 *
+	 * Example request:
+	 *
+	 *     POST /wp-json/newspack/v1/institutional-access/check
+	 *     Content-Type: application/json
+	 *
+	 *     {"ip": "127.0.0.1"}
+	 *
+	 * @param \WP_REST_Request $request The REST request.
+	 * @return \WP_REST_Response|\WP_Error
+	 */
+	public static function check_external_ip_rest( $request ) {
+		$ip = $request->get_param( 'ip' );
+		if ( ! filter_var( $ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 ) ) {
+			return new \WP_Error(
+				'rest_invalid_param',
+				'Only IPv4 addresses are supported.',
+				[ 'status' => 400 ]
+			);
+		}
+
+		$override = fn() => $ip;
+		add_filter( 'newspack_visitor_ip', $override );
+
+		/** This filter is documented in self::handle_redirect(). */
+		$result = apply_filters( 'newspack_content_gate_check_ip', false );
+
+		remove_filter( 'newspack_visitor_ip', $override );
+
+		return new \WP_REST_Response( [ 'show_paywall' => ! (bool) $result ] );
+	}
+
+	/**
+	 * Permission check for the external IP query endpoint.
+	 *
+	 * @return bool
+	 */
+	public static function check_external_ip_permission() {
+		return current_user_can( 'manage_options' );
 	}
 
 	/**
@@ -321,10 +382,10 @@ class IP_Access_Rule {
 			<title><?php echo esc_html( $inst_name ? $inst_name . ' — ' . $site_name : $site_name ); ?> — <?php esc_html_e( 'Verifying access', 'newspack-plugin' ); ?></title>
 			<?php wp_head(); ?>
 			<style>
-				.newspack-ui__ip-check__actions { display: none; }
+				#ip-check #ip-check-actions { display: none; }
 				.newspack-ui__ip-check--error .newspack-ui__spinner > span { display: none; }
-				.newspack-ui__ip-check--error .newspack-ui__ip-check__actions { display: flex; gap: var(--newspack-ui-spacer-2); justify-content: center; }
-				.newspack-ui__ip-check__image { max-width: 400px; max-height: 200px; object-fit: contain; }
+				#ip-check.newspack-ui__ip-check--error #ip-check-actions { display: flex; }
+				.newspack-ui__ip-check__image { max-width: 256px; max-height: 192px; object-fit: contain; }
 			</style>
 		</head>
 		<body>
@@ -334,18 +395,20 @@ class IP_Access_Rule {
 						<img class="newspack-ui__ip-check__image" src="<?php echo esc_url( $inst_image ); ?>" alt="<?php echo esc_attr( $inst_name ); ?>">
 					<?php endif; ?>
 					<span></span>
-					<p class="newspack-ui__font--m" id="ip-check-message">
-						<?php
-						if ( $inst_name ) {
-							/* translators: %s: institution name */
-							printf( esc_html__( 'Verifying your access to %s…', 'newspack-plugin' ), '<strong>' . esc_html( $inst_name ) . '</strong>' );
-						} else {
-							esc_html_e( 'Verifying your access…', 'newspack-plugin' );
-						}
-						?>
-					</p>
-					<p class="newspack-ui__font--xs" id="ip-check-detail" style="color: var(--newspack-ui-color-neutral-50);"><?php esc_html_e( "You'll be redirected in a few seconds.", 'newspack-plugin' ); ?></p>
-					<div class="newspack-ui__ip-check__actions" id="ip-check-actions">
+					<div class="newspack-ui__stack newspack-ui__stack--vertical newspack-ui__stack--align-center newspack-ui__font--s">
+						<p id="ip-check-message">
+							<?php
+							if ( $inst_name ) {
+								/* translators: %s: institution name */
+								printf( esc_html__( 'Verifying your access to %s…', 'newspack-plugin' ), '<strong>' . esc_html( $inst_name ) . '</strong>' );
+							} else {
+								esc_html_e( 'Verifying your access…', 'newspack-plugin' );
+							}
+							?>
+						</p>
+						<p class="newspack-ui__font--normal newspack-ui__color--neutral-60" id="ip-check-detail"><?php esc_html_e( "You'll be redirected in a few seconds.", 'newspack-plugin' ); ?></p>
+					</div>
+					<div class="newspack-ui__stack newspack-ui__stack--justify-center" id="ip-check-actions">
 						<button class="newspack-ui__button newspack-ui__button--primary newspack-ui__button--small" onclick="location.reload()"><?php esc_html_e( 'Try again', 'newspack-plugin' ); ?></button>
 						<a class="newspack-ui__button newspack-ui__button--outline newspack-ui__button--small" href="<?php echo esc_url( $redirect_url ); ?>"><?php esc_html_e( 'Continue to site', 'newspack-plugin' ); ?></a>
 					</div>

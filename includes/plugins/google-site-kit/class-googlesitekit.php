@@ -278,18 +278,16 @@ class GoogleSiteKit {
 		$gtag_opt['transport_type'] = 'beacon';
 
 		/**
-		 * Enables custom Google Analytics parameters on the frontend.
-		 * Adds enhanced tracking parameters to GA events.
+		 * Disables custom Google Analytics parameters on the frontend.
+		 * Custom tracking parameters are enabled by default.
 		 *
-		 * @constant NEWSPACK_GA_ENABLE_CUSTOM_FE_PARAMS
+		 * @constant NEWSPACK_GA_DISABLE_CUSTOM_FE_PARAMS
 		 * @type     bool
-		 * @default  Custom frontend GA parameters disabled
-		 * @status   draft
+		 * @default  Custom frontend GA parameters enabled
 		 *
-		 * @example define( 'NEWSPACK_GA_ENABLE_CUSTOM_FE_PARAMS', true );
+		 * @example define( 'NEWSPACK_GA_DISABLE_CUSTOM_FE_PARAMS', true );
 		 */
-		$enable_fe_custom_params = defined( 'NEWSPACK_GA_ENABLE_CUSTOM_FE_PARAMS' ) && NEWSPACK_GA_ENABLE_CUSTOM_FE_PARAMS;
-		if ( ! $enable_fe_custom_params ) {
+		if ( defined( 'NEWSPACK_GA_DISABLE_CUSTOM_FE_PARAMS' ) && NEWSPACK_GA_DISABLE_CUSTOM_FE_PARAMS ) {
 			return $gtag_opt;
 		}
 		$custom_params = self::get_custom_event_parameters();

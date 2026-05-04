@@ -127,6 +127,89 @@ abstract class Integration {
 	}
 
 	/**
+	 * Whether this integration's external prerequisites are configured.
+	 *
+	 * Child classes should override this to check whether the third-party
+	 * service or plugin the integration depends on is set up (e.g., API
+	 * key entered, provider selected). Returns true by default.
+	 *
+	 * @return bool True if set up, false otherwise.
+	 */
+	public function is_set_up() {
+		return true;
+	}
+
+	/**
+	 * Get the URL where the user can set up this integration.
+	 *
+	 * Child classes should override this to return the admin page where
+	 * the integration's prerequisites can be configured.
+	 *
+	 * @return string The setup URL, or empty string if not applicable.
+	 */
+	public function get_setup_url() {
+		return '';
+	}
+
+	/**
+	 * Whether this integration supports frontend reader registration.
+	 *
+	 * Integrations that return true will have their key output to the page
+	 * and will be accepted by the frontend registration endpoint.
+	 *
+	 * @return bool
+	 */
+	public function supports_frontend_registration(): bool {
+		return false;
+	}
+
+	/**
+	 * Generate the registration key for this integration.
+	 *
+	 * The default implementation uses HMAC-SHA256 with the site's auth salt.
+	 * Subclasses can override this to implement custom key schemes
+	 * (e.g., asymmetric key pairs, time-bounded tokens).
+	 *
+	 * @return string The registration key.
+	 */
+	public function get_registration_key(): string {
+		return hash_hmac( 'sha256', $this->id, \wp_salt( 'auth' ) );
+	}
+
+	/**
+	 * Validate a submitted registration key for this integration.
+	 *
+	 * The default implementation uses timing-safe comparison against
+	 * the HMAC key. Subclasses can override this to implement custom
+	 * validation (e.g., signature verification, token decryption).
+	 *
+	 * Note: The built-in JS client (newspackReaderActivation.register())
+	 * always sends the value from get_registration_key(). Integrations
+	 * that override this method to accept a different value must provide
+	 * their own client-side code to compute and submit the correct key.
+	 *
+	 * The default implementation validates the HMAC key. Subclasses can override
+	 * this method to perform additional checks on the request (e.g. verifying
+	 * custom headers, validating metadata, or enforcing integration-specific rules).
+	 *
+	 * @param string           $key     The submitted key to validate.
+	 * @param \WP_REST_Request $request The full registration request.
+	 * @return bool Whether the registration request is valid.
+	 */
+	public function validate_registration_request( string $key, $request ): bool {
+		return hash_equals( $this->get_registration_key(), $key );
+	}
+
+	/**
+	 * Initialize the integration, performing any necessary setup or validation.
+	 *
+	 * Currently only initializes settings fields, but can be extended by child classes for additional setup.
+	 */
+	public function init() {
+		$this->settings_fields = $this->register_settings_fields();
+	}
+
+	/**
 	 * Register settings fields for this integration.
 	 *
 	 * Child classes should override this method to return static field
@@ -159,6 +242,20 @@ abstract class Integration {
 	 * @return true|\WP_Error True on success or WP_Error on failure.
 	 */
 	abstract public function push_contact_data( $contact, $context = '', $existing_contact = null );
+
+	/**
+	 * Handle a logged-in user attempting to register again via the frontend registration flow.
+	 *
+	 * Integrations can override this method to update user data or perform other actions when an existing user attempts to register again via the frontend registration flow. For example, an integration might want to link the existing user account to the integration, record a new donation for a returning donor, or log this event for analytics purposes.
+	 *
+	 * The default implementation is a no-op.
+	 *
+	 * @param \WP_User         $user    The currently logged-in user attempting to register again.
+	 * @param \WP_REST_Request $request The original registration request.
+	 */
+	public function handle_logged_in_user_registration( $user, $request ) {
+		// By default, do nothing. Integrations can override this to handle cases where a logged-in user attempts to register again via the frontend registration flow.
+	}
 
 	/**
 	 * Register data event handlers for this integration.
@@ -217,6 +314,33 @@ abstract class Integration {
 	}
 
 	/**
+	 * Declare a WooCommerce My Account menu item for this integration.
+	 *
+	 * Return null (default) to opt out. Otherwise return:
+	 *   [
+	 *     'slug'     => 'newsletters',          // endpoint slug, unique across integrations.
+	 *     'label'    => __( 'Newsletters', 'newspack-plugin' ),
+	 *     'position' => 25,                     // optional, menu sort order.
+	 *   ]
+	 *
+	 * @return array|null
+	 */
+	public function get_my_account_menu_item() {
+		return null;
+	}
+
+	/**
+	 * Render the My Account page body for this integration.
+	 *
+	 * Called inside the WooCommerce account template when the endpoint
+	 * declared by get_my_account_menu_item() is the current view. Echo
+	 * markup directly. Default is a no-op.
+	 *
+	 * @param mixed $value The endpoint query var value (usually empty).
+	 */
+	public function render_my_account_page( $value ) {}
+
+	/**
 	 * Get incoming available contact fields from the integration.
 	 *
 	 * This method should be implemented by child classes to return
@@ -224,19 +348,19 @@ abstract class Integration {
 	 *
 	 * Integrations that support pulling contact data should implement this method.
 	 *
-	 * @return Integrations\Incoming_Contact_Field[]|\WP_Error Array of incoming contact field objects or WP_Error on failure.
+	 * @return Integrations\Incoming_Field[]|\WP_Error Array of incoming contact field objects or WP_Error on failure.
 	 */
-	public function get_available_incoming_contact_fields() {
+	public function get_available_incoming_fields() {
 		return [];
 	}
 
 	/**
 	 * Get filtered incoming contact fields from the integration.
 	 *
-	 * @return Integrations\Incoming_Contact_Field[] Array of incoming contact field objects.
+	 * @return Integrations\Incoming_Field[] Array of incoming contact field objects.
 	 */
-	public function get_filtered_incoming_contact_fields() {
-		$fields = $this->get_available_incoming_contact_fields();
+	public function get_filtered_incoming_fields() {
+		$fields = $this->get_available_incoming_fields();
 		if ( is_wp_error( $fields ) ) {
 			return [];
 		}
@@ -311,12 +435,67 @@ abstract class Integration {
 	}
 
 	/**
-	 * Get the enabled incoming metadata fields for this integration.
+	 * Get the enabled incoming fields for this integration.
 	 *
-	 * @return string[] List of enabled field names.
+	 * Reads stored field data (key => raw_data map saved by
+	 * update_enabled_incoming_fields()) and constructs Incoming_Field objects
+	 * for each entry. Each field is passed through configure_incoming_field()
+	 * so the integration can enrich it with promotion configuration.
+	 *
+	 * @return Integrations\Incoming_Field[] Array of field objects.
 	 */
 	public function get_enabled_incoming_fields() {
-		return \get_option( self::INCOMING_FIELDS_OPTION_PREFIX . $this->id, [] );
+		$stored = \get_option( self::INCOMING_FIELDS_OPTION_PREFIX . $this->id, [] );
+		if ( ! is_array( $stored ) ) {
+			return [];
+		}
+		$fields = [];
+		foreach ( $stored as $key => $raw_data ) {
+			if ( empty( $key ) || ! is_string( $key ) ) {
+				continue;
+			}
+			$field = new Integrations\Incoming_Field( $key, $raw_data );
+			$field = $this->configure_incoming_field( $field );
+			if ( $field instanceof Integrations\Incoming_Field ) {
+				$fields[] = $field;
+			}
+		}
+		return $fields;
+	}
+
+	/**
+	 * Configure an Incoming_Field after construction.
+	 *
+	 * Override this method to enrich incoming fields with promotion configuration
+	 * so they can be registered as content gate access rules and/or popups
+	 * segmentation criteria. The field's raw data (from the integration API) is
+	 * available via $field->get_raw_data() and can inform the configuration.
+	 *
+	 * Example:
+	 *
+	 *     protected function configure_incoming_field( $field ) {
+	 *         $raw = $field->get_raw_data();
+	 *         if ( 'membership_level' === $field->get_key() ) {
+	 *             $field->set_name( 'Membership Level' )
+	 *                 ->set_is_access_rule( true )
+	 *                 ->set_is_segment_criteria( true )
+	 *                 ->set_matching_function( 'list__in' )
+	 *                 ->set_options( $raw['options'] ?? [] );
+	 *         }
+	 *         if ( 'is_vip' === $field->get_key() ) {
+	 *             $field->set_name( 'VIP' )
+	 *                 ->set_is_access_rule( true )
+	 *                 ->set_value_type( 'boolean' );
+	 *         }
+	 *         return $field;
+	 *     }
+	 *
+	 * @param Integrations\Incoming_Field $field The field to configure.
+	 *
+	 * @return Integrations\Incoming_Field The configured field.
+	 */
+	protected function configure_incoming_field( $field ) {
+		return $field;
 	}
 
 	/**
@@ -329,14 +508,40 @@ abstract class Integration {
 	}
 
 	/**
-	 * Update the enabled incoming metadata fields for this integration.
+	 * Update the enabled incoming fields for this integration.
 	 *
-	 * @param array $fields List of field names to enable.
+	 * Accepts an array of field keys (as sent by the UI), fetches the full
+	 * field data from the integration, and stores the matching raw field arrays.
+	 *
+	 * @param string[] $keys Array of field keys to enable.
 	 *
 	 * @return bool True if updated, false otherwise.
 	 */
-	public function update_enabled_incoming_fields( $fields ) {
-		return \update_option( self::INCOMING_FIELDS_OPTION_PREFIX . $this->id, $fields );
+	public function update_enabled_incoming_fields( $keys ) {
+		$available = $this->get_available_incoming_fields();
+		if ( is_wp_error( $available ) ) {
+			$available = [];
+		}
+
+		// Build a lookup of available fields by key.
+		$available_by_key = [];
+		foreach ( $available as $field ) {
+			if ( $field instanceof Integrations\Incoming_Field ) {
+				$available_by_key[ $field->get_key() ] = $field;
+			}
+		}
+
+		// Store as key => raw_data map.
+		$fields_to_store = [];
+		foreach ( $keys as $key ) {
+			$raw_data = [];
+			if ( isset( $available_by_key[ $key ] ) ) {
+				$raw_data = $available_by_key[ $key ]->get_raw_data();
+			}
+			$fields_to_store[ $key ] = $raw_data;
+		}
+
+		return \update_option( self::INCOMING_FIELDS_OPTION_PREFIX . $this->id, $fields_to_store );
 	}
 
 	/**
@@ -521,7 +726,12 @@ abstract class Integration {
 			return $this->get_enabled_outgoing_fields();
 		}
 		if ( 'incoming_metadata_fields' === $key ) {
-			return $this->get_enabled_incoming_fields();
+			return array_map(
+				function( $field ) {
+					return $field->get_key();
+				},
+				$this->get_enabled_incoming_fields()
+			);
 		}
 
 		$field = $this->get_settings_field_by_key( $key );
@@ -590,7 +800,7 @@ abstract class Integration {
 			$field['value'] = $this->get_settings_field_value( $field['key'] );
 			// Inject metadata options for metadata fields.
 			if ( 'incoming_metadata_fields' === $field['key'] ) {
-				$incoming_fields  = $this->get_filtered_incoming_contact_fields();
+				$incoming_fields  = $this->get_filtered_incoming_fields();
 				$field['options'] = array_map(
 					function ( $incoming_field ) {
 						return $incoming_field->get_key();
@@ -599,7 +809,9 @@ abstract class Integration {
 				);
 			}
 			if ( 'outgoing_metadata_fields' === $field['key'] ) {
-				$field['options'] = Sync\Metadata::get_default_fields();
+				// TODO: Drop $field['options'] for outgoing_metadata_fields once consumers have migrated to grouped_options.
+				$field['options']         = Sync\Metadata::get_default_fields();
+				$field['grouped_options'] = Sync\Metadata::get_grouped_default_fields();
 			}
 			$config[] = $field;
 		}
@@ -628,7 +840,7 @@ abstract class Integration {
 	 * @param mixed $value The value to sanitize.
 	 * @return mixed The sanitized value.
 	 */
-	private function sanitize_settings_field_value( $field, $value ) {
+	protected function sanitize_settings_field_value( $field, $value ) {
 		$type = $field['type'] ?? 'text';
 		switch ( $type ) {
 			case 'checkbox':

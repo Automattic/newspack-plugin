@@ -22,8 +22,8 @@
 		flex-wrap: wrap;
 		gap: var(--newspack-ui-spacer-3);
 		justify-content: space-between;
-		margin-bottom: var(--newspack-ui-spacer-base);
-		row-gap: calc(var(--newspack-ui-spacer-base) / 2);
+		margin-bottom: var(--newspack-ui-spacer-1);
+		row-gap: calc(var(--newspack-ui-spacer-1) / 2);
 
 		> span {
 			display: inline-block;
@@ -95,7 +95,7 @@
 		align-items: center;
 		display: flex;
 		flex-direction: column;
-		gap: var(--newspack-ui-spacer-base);
+		gap: var(--newspack-ui-spacer-1);
 
 		@media (min-width: 600px) {
 			flex-direction: row;

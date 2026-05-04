@@ -1,7 +1,52 @@
 <?php // phpcs:disable WordPress.Files.FileName.InvalidClassFileName, Squiz.Commenting.FunctionComment.Missing, Squiz.Commenting.ClassComment.Missing, Squiz.Commenting.VariableComment.Missing, Squiz.Commenting.FileComment.Missing, Generic.Files.OneObjectStructurePerFile.MultipleFound, Universal.Files.SeparateFunctionsFromOO.Mixed
 
 if ( ! class_exists( 'Newspack_Newsletters_Contacts' ) ) {
-	class Newspack_Newsletters_Contacts {}
+	class Newspack_Newsletters_Contacts {
+		/**
+		 * All calls made to add_and_remove_lists() during this test run.
+		 * Reset this in each test's set_up() via reset_calls().
+		 *
+		 * @var array[] Each entry: [ 'email', 'lists_to_add', 'lists_to_remove', 'context' ]
+		 */
+		public static $add_and_remove_lists_calls = [];
+
+		/**
+		 * If set, add_and_remove_lists() returns this value instead of true.
+		 * Use a WP_Error to simulate provider failure.
+		 *
+		 * @var mixed
+		 */
+		public static $next_return = null;
+
+		/**
+		 * If set, the next add_and_remove_lists() call will throw this Throwable.
+		 * Single-shot: the property is reset to null after firing.
+		 *
+		 * @var \Throwable|null
+		 */
+		public static $next_throw = null;
+
+		public static function reset_calls() {
+			self::$add_and_remove_lists_calls = [];
+			self::$next_return                = null;
+			self::$next_throw                 = null;
+		}
+
+		public static function add_and_remove_lists( $email, $lists_to_add, $lists_to_remove, $context = '' ) {
+			self::$add_and_remove_lists_calls[] = [
+				'email'           => $email,
+				'lists_to_add'    => $lists_to_add,
+				'lists_to_remove' => $lists_to_remove,
+				'context'         => $context,
+			];
+			if ( null !== self::$next_throw ) {
+				$exception        = self::$next_throw;
+				self::$next_throw = null;
+				throw $exception;
+			}
+			return null === self::$next_return ? true : self::$next_return;
+		}
+	}
 }
 
 if ( ! class_exists( 'Newspack_Newsletters' ) ) {
@@ -28,6 +73,23 @@ if ( ! class_exists( 'Newspack_Newsletters_Settings' ) ) {
 
 if ( ! class_exists( 'Newspack_Newsletters_Subscription' ) ) {
 	class Newspack_Newsletters_Subscription {
+		/**
+		 * Configurable per-email contact list state. Keys are email addresses.
+		 * Set this in tests to simulate a contact already subscribed to certain lists.
+		 * Example: self::$contact_lists['user@example.com'] = ['list-123'];
+		 *
+		 * @var array[]
+		 */
+		public static $contact_lists = [];
+
+		public static function reset_calls() {
+			self::$contact_lists = [];
+		}
+
+		public static function get_contact_lists( $email ) {
+			return self::$contact_lists[ $email ] ?? [];
+		}
+
 		public static function get_lists() {
 			return [
 				[

@@ -24,6 +24,7 @@ import MediaCredits from './media-credits';
 import PostDate from './post-date';
 import AccessibilityStatement from './accessibility-statement';
 import PwaDisplayMode from './pwa-display-mode';
+import PrivateTags from './private-tags';
 import PrimaryCategory from './primary-category';
 
 export default function AdvancedSettings() {
@@ -200,6 +201,11 @@ export default function AdvancedSettings() {
 			{ etc.has_pwa_plugin ? (
 				<WizardSection title={ __( 'Progressive Web App', 'newspack-plugin' ) }>
 					<PwaDisplayMode data={ data } update={ setData } isFetching={ isFetching } />
+				</WizardSection>
+			) : null }
+			{ data.newspack_private_tags_settings ? (
+				<WizardSection title={ __( 'Private Tags', 'newspack-plugin' ) }>
+					<PrivateTags data={ data } update={ setData } isFetching={ isFetching } />
 				</WizardSection>
 			) : null }
 			{ errorMessage && <Notice /> }

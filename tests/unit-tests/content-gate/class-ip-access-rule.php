@@ -259,4 +259,95 @@ class Newspack_Test_IP_Access_Rule extends WP_UnitTestCase {
 		$this->assertFalse( $data['valid'] );
 		$this->assertArrayNotHasKey( 'institution', $data );
 	}
+
+	/**
+	 * Test the POST route is registered.
+	 */
+	public function test_post_route_registered() {
+		do_action( 'rest_api_init' );
+
+		$routes         = rest_get_server()->get_routes( NEWSPACK_API_NAMESPACE );
+		$expected_route = '/' . NEWSPACK_API_NAMESPACE . IP_Access_Rule::REST_ROUTE;
+		$endpoint       = $routes[ $expected_route ][1];
+		$this->assertArrayHasKey( 'POST', $endpoint['methods'], 'The route should accept POST requests.' );
+	}
+
+	/**
+	 * Test POST requires manage_options capability.
+	 */
+	public function test_post_requires_authentication() {
+		$route = '/' . NEWSPACK_API_NAMESPACE . IP_Access_Rule::REST_ROUTE;
+
+		// Unauthenticated request should be forbidden.
+		$request = new WP_REST_Request( 'POST', $route );
+		$request->set_param( 'ip', '10.0.0.1' );
+		$response = rest_do_request( $request );
+		$this->assertSame( 401, $response->get_status() );
+
+		// Non-admin user should be forbidden.
+		wp_set_current_user( self::factory()->user->create( [ 'role' => 'subscriber' ] ) );
+		$request = new WP_REST_Request( 'POST', $route );
+		$request->set_param( 'ip', '10.0.0.1' );
+		$response = rest_do_request( $request );
+		$this->assertSame( 403, $response->get_status() );
+	}
+
+	/**
+	 * Test POST returns 400 for missing or invalid ip param.
+	 */
+	public function test_post_requires_valid_ip_param() {
+		wp_set_current_user( self::factory()->user->create( [ 'role' => 'administrator' ] ) );
+
+		$route = '/' . NEWSPACK_API_NAMESPACE . IP_Access_Rule::REST_ROUTE;
+
+		// Missing param (handled by WP REST required arg validation).
+		$request  = new WP_REST_Request( 'POST', $route );
+		$response = rest_do_request( $request );
+		$this->assertSame( 400, $response->get_status() );
+
+		// Invalid IP.
+		$request = new WP_REST_Request( 'POST', $route );
+		$request->set_param( 'ip', 'not-an-ip' );
+		$response = rest_do_request( $request );
+		$this->assertSame( 400, $response->get_status() );
+
+		// IPv6 not supported.
+		$request = new WP_REST_Request( 'POST', $route );
+		$request->set_param( 'ip', '2001:db8::1' );
+		$response = rest_do_request( $request );
+		$this->assertSame( 400, $response->get_status() );
+	}
+
+	/**
+	 * Test POST returns correct show_paywall value.
+	 */
+	public function test_post_show_paywall_response() {
+		wp_set_current_user( self::factory()->user->create( [ 'role' => 'administrator' ] ) );
+
+		$route = '/' . NEWSPACK_API_NAMESPACE . IP_Access_Rule::REST_ROUTE;
+
+		// No match: show paywall.
+		$request = new WP_REST_Request( 'POST', $route );
+		$request->set_param( 'ip', '203.0.113.50' );
+		$response = rest_do_request( $request );
+		$data     = $response->get_data();
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertTrue( $data['show_paywall'] );
+
+		// Match: hide paywall.
+		add_filter(
+			'newspack_content_gate_check_ip',
+			function () {
+				return 123;
+			}
+		);
+		$request = new WP_REST_Request( 'POST', $route );
+		$request->set_param( 'ip', '10.0.0.1' );
+		$response = rest_do_request( $request );
+		$data     = $response->get_data();
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertFalse( $data['show_paywall'] );
+
+		remove_all_filters( 'newspack_content_gate_check_ip' );
+	}
 }

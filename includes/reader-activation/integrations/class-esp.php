@@ -9,11 +9,11 @@ namespace Newspack\Reader_Activation\Integrations;
 
 use Newspack\Reader_Activation\Integration;
 use Newspack\Reader_Activation\Sync;
-use Newspack\Reader_Activation\Sync\Metadata;
 use Newspack\Reader_Activation\Integrations;
 use Newspack\Reader_Activation;
 use Newspack_Newsletters_Contacts;
 use Newspack_Newsletters_Subscription;
+use Newspack\Configuration_Managers;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -29,9 +29,39 @@ class ESP extends Integration {
 	public function __construct() {
 		parent::__construct(
 			'esp',
-			__( 'ESP', 'newspack-plugin' ),
-			__( 'Sync reader data and activity to the connected email service provider.', 'newspack-plugin' )
+			__( 'Newsletter ESP', 'newspack-plugin' ),
+			__( 'Syncs reader data with your Newspack Newsletters email service provider.', 'newspack-plugin' )
 		);
+	}
+
+	/**
+	 * Whether the ESP integration is ready to sync.
+	 *
+	 * Mirrors the readiness gate used by get_settings_config() so the configure
+	 * UI never advertises a card as set up while the underlying settings call
+	 * short-circuits to an empty config.
+	 *
+	 * @return bool True if an ESP provider is selected and at least one list is active.
+	 */
+	public function is_set_up() {
+		return Reader_Activation::is_esp_configured();
+	}
+
+	/**
+	 * Get the URL where the user can set up the ESP.
+	 *
+	 * Delegates to the Newsletters configuration manager so the page slug
+	 * lives in one place. Falls back to the same hardcoded URL when the
+	 * configuration manager isn't resolvable yet.
+	 *
+	 * @return string The Newspack Newsletters settings page URL.
+	 */
+	public function get_setup_url() {
+		$newsletters_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-newsletters' );
+		if ( is_wp_error( $newsletters_configuration_manager ) ) {
+			return admin_url( 'edit.php?post_type=newspack_nl_cpt&page=newspack-newsletters' );
+		}
+		return $newsletters_configuration_manager->get_settings_url();
 	}
 
 	/**
@@ -256,7 +286,7 @@ class ESP extends Integration {
 	 *
 	 * @param bool $return_errors Optional. Whether to return a WP_Error object. Default false.
 	 *
-	 * @return bool|WP_Error True if contacts can be synced, false otherwise. WP_Error if return_errors is true.
+	 * @return bool|\WP_Error True if contacts can be synced, false otherwise. WP_Error if return_errors is true.
 	 */
 	public function can_sync( $return_errors = false ) {
 		$errors = new \WP_Error();
@@ -376,9 +406,9 @@ class ESP extends Integration {
 	/**
 	 * Get incoming available contact fields from the integration.
 	 *
-	 * @return Incoming_Contact_Field[]|\WP_Error Array of incoming contact field objects or WP_Error on failure.
+	 * @return Incoming_Field[]|\WP_Error Array of incoming contact field objects or WP_Error on failure.
 	 */
-	public function get_available_incoming_contact_fields() {
+	public function get_available_incoming_fields() {
 		if ( ! class_exists( 'Newspack_Newsletters_Contacts' ) ) {
 			return new \WP_Error(
 				'newspack_newsletters_contacts_not_found',
@@ -403,7 +433,7 @@ class ESP extends Integration {
 
 		return array_map(
 			function( $field ) {
-				return new Incoming_Contact_Field( $field['key'] );
+				return new Incoming_Field( $field['key'], $field );
 			},
 			$fields
 		);
