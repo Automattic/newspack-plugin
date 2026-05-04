@@ -15,6 +15,7 @@
 	"attributes": {
 		"slideDirection": {
 			"type": "string",
+			"enum": [ "left", "right" ],
 			"default": "left"
 		},
 		"isFullScreen": {
@@ -23,6 +24,7 @@
 		},
 		"panelWidth": {
 			"type": "string",
+			"enum": [ "x-small", "small", "medium", "large", "x-large" ],
 			"default": "small"
 		},
 		"overlayColor": {
