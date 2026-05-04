@@ -266,15 +266,22 @@ class Content_Restriction_Control {
 		foreach ( $post_gates as $gate ) {
 			$gate_layout_id = null;
 			$is_restricted  = false;
+			// Tracks the anonymous-bypass result so the same custom_access rules don't get
+			// evaluated twice in the second pass below. Stays null for non-anonymous calls.
+			$anonymous_bypass_passed = null;
 
 			// If registration mode is active.
 			if ( ! empty( $gate['registration']['active'] ) ) {
 				// Check if user is logged in.
 				if ( $user_id === 0 ) {
 					// Anonymous visitors can still pass via the gate's custom_access rules if they
-					// match a rule with `supports_anonymous` (currently only `institution`).
-					$is_restricted  = empty( $gate['custom_access']['active'] ) || empty( $gate['custom_access']['access_rules'] )
-						|| ! Access_Rules::evaluate_rules( $gate['custom_access']['access_rules'], 0 );
+					// match a populated rule with `supports_anonymous` (currently only `institution`).
+					// An unpopulated rule (e.g., institution rule with no institutions selected) must
+					// not grant access — Access_Rules treats an empty value as "no constraint" and
+					// returns true, which would silently bypass registration here.
+					$anonymous_bypass_passed = ! empty( $gate['custom_access']['active'] )
+						&& self::custom_access_passes_for_anonymous( $gate['custom_access']['access_rules'] ?? [] );
+					$is_restricted  = ! $anonymous_bypass_passed;
 					$gate_layout_id = $gate['registration']['gate_layout_id'] ?? $gate['id'];
 				} elseif ( ! empty( $gate['registration']['require_verification'] ) ) {
 					// Check if email verification is required.
@@ -286,8 +293,8 @@ class Content_Restriction_Control {
 				}
 			}
 
-			// If custom_access mode is active.
-			if ( ! $is_restricted && ! empty( $gate['custom_access']['active'] ) ) {
+			// If custom_access mode is active and we didn't already evaluate it above for an anonymous bypass.
+			if ( ! $is_restricted && null === $anonymous_bypass_passed && ! empty( $gate['custom_access']['active'] ) ) {
 				$access_rules = $gate['custom_access']['access_rules'] ?? [];
 				if ( ! empty( $access_rules ) && ! Access_Rules::evaluate_rules( $access_rules, $user_id ) ) {
 					$is_restricted  = true;
@@ -348,6 +355,56 @@ class Content_Restriction_Control {
 			return self::$post_gate_layout_id_map[ $post_id . '_' . self::$user_id ];
 		}
 		return false;
+	}
+
+	/**
+	 * Determine whether the gate's custom_access rules grant access to an
+	 * anonymous (logged-out) visitor.
+	 *
+	 * Only rules that (a) declare `supports_anonymous` and (b) have a populated
+	 * `value` are considered. An unpopulated rule is treated as "not configured"
+	 * rather than "matches everyone" — Access_Rules's underlying evaluators
+	 * return true for empty values as the rule's own no-constraint semantics,
+	 * which is correct for the rule in isolation but must not silently bypass
+	 * registration here.
+	 *
+	 * Groups containing any non-eligible rule are dropped (the AND-within-group
+	 * semantics would force the group to fail for an anonymous visitor anyway,
+	 * since non-anonymous rules return false for `user_id = 0`).
+	 *
+	 * @param array $access_rules Custom access rules in grouped or flat format.
+	 *
+	 * @return bool True if a populated, anonymous-capable rule grants access.
+	 */
+	private static function custom_access_passes_for_anonymous( $access_rules ) {
+		if ( empty( $access_rules ) ) {
+			return false;
+		}
+		$eligible_groups = [];
+		foreach ( Access_Rules::normalize_rules( $access_rules ) as $group ) {
+			if ( empty( $group ) || ! is_array( $group ) ) {
+				continue;
+			}
+			$group_eligible = true;
+			foreach ( $group as $rule ) {
+				if ( ! isset( $rule['slug'] ) || empty( $rule['value'] ) ) {
+					$group_eligible = false;
+					break;
+				}
+				$rule_def = Access_Rules::get_rule( $rule['slug'] );
+				if ( empty( $rule_def['supports_anonymous'] ) ) {
+					$group_eligible = false;
+					break;
+				}
+			}
+			if ( $group_eligible ) {
+				$eligible_groups[] = $group;
+			}
+		}
+		if ( empty( $eligible_groups ) ) {
+			return false;
+		}
+		return Access_Rules::evaluate_rules( $eligible_groups, 0 );
 	}
 
 	/**

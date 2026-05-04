@@ -1721,6 +1721,42 @@ class Test_Content_Gates extends \WP_UnitTestCase {
 	}
 
 	/**
+	 * Blocker: an institution rule saved with no institutions selected
+	 * (`value => []`) must not silently grant anonymous access. Without a
+	 * value, the rule is "not configured" — Institution::evaluate(0, [])
+	 * returns true as the rule's own no-constraint semantics, but for the
+	 * registration bypass we require a populated rule that actually matches.
+	 */
+	public function test_anonymous_with_unpopulated_institution_rule_is_restricted() {
+		$this->configure_published_gate(
+			[ 'active' => true ],
+			[
+				'active'       => true,
+				'access_rules' => [
+					[
+						[
+							'slug'  => 'institution',
+							'value' => [],
+						],
+					],
+				],
+			]
+		);
+
+		wp_set_current_user( 0 );
+		// Even with a matching IP and the cookie set, an unpopulated rule must not bypass.
+		$this->set_visitor_ip( '10.1.2.3' );
+		$this->reset_restriction_cache();
+
+		$this->assertTrue(
+			apply_filters( 'newspack_is_post_restricted', false, $this->post_ids[0] ),
+			'An institution rule with no institutions selected must not grant anonymous access.'
+		);
+
+		$this->reset_visitor_state();
+	}
+
+	/**
 	 * On a custom_access-only gate (no registration), an anonymous visitor
 	 * with a non-matching IP must be restricted, and the gate layout shown
 	 * must be the custom_access layout.
