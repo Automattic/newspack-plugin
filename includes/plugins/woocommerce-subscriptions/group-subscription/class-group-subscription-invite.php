@@ -711,12 +711,8 @@ class Group_Subscription_Invite {
 		];
 
 		if ( isset( $link_messages[ $result ] ) ) {
-			Newspack_UI::add_notice( $link_messages[ $result ]['message'], $link_messages[ $result ]['type'] );
-			return;
-		}
-
-		// Legacy email-invite branch uses WC notices since it always redirects to My Account.
-		if ( ! function_exists( 'wc_add_notice' ) ) {
+			wc_add_notice( $link_messages[ $result ]['message'], $link_messages[ $result ]['type'] );
+			Newspack_UI::add_notice( $link_messages[ $result ]['message'], $link_messages[ $result ]['type'] ); // Ensure notice appears if redirected to non-WC pages.
 			return;
 		}
 
@@ -737,6 +733,7 @@ class Group_Subscription_Invite {
 		}
 
 		wc_add_notice( $message, $type );
+		Newspack_UI::add_notice( $message, $type );
 	}
 
 	/**
