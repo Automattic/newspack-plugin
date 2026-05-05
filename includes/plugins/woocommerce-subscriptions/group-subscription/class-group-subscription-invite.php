@@ -56,6 +56,28 @@ class Group_Subscription_Invite {
 	const RESULT_QUERY_ARG = 'group_invite_result';
 
 	/**
+	 * The query arg used by invite-link URLs.
+	 *
+	 * @var string
+	 */
+	const LINK_QUERY_ARG = 'group_invite_link';
+
+	/**
+	 * The subscription meta key for invite-link entries.
+	 * Stored as: [ $manager_user_id => [ 'key' => string, 'expiration' => int, 'created_at' => int ] ].
+	 *
+	 * @var string
+	 */
+	const LINK_META = 'newspack_group_subscription_link_invites';
+
+	/**
+	 * Invite-link validity in seconds (14 days).
+	 *
+	 * @var int
+	 */
+	const LINK_EXPIRATION = 14 * DAY_IN_SECONDS;
+
+	/**
 	 * Initialize hooks.
 	 */
 	public static function init() {
