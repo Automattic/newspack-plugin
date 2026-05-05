@@ -10,12 +10,60 @@ namespace Newspack\Tests\Unit\Integrations;
 use Newspack\Reader_Activation\Integrations\ESP;
 use Newspack\Reader_Activation\Integrations\Incoming_Field;
 
+require_once dirname( __DIR__, 2 ) . '/mocks/newsletters-mocks.php';
+
 /**
  * Tests for the ESP integration.
  *
  * @group esp_integration
  */
 class Test_ESP extends \WP_UnitTestCase {
+
+	/**
+	 * Cleanup state set up by individual tests so failures don't leak across cases.
+	 */
+	public function tear_down() {
+		\Newspack_Newsletters_Contacts::reset_calls();
+		remove_all_filters( 'newspack_ras_metadata_keys' );
+		remove_all_filters( 'newspack_ras_metadata_prefix' );
+		parent::tear_down();
+	}
+
+	/**
+	 * Build an ESP instance with `get_master_list_id()` stubbed to return the given list id,
+	 * so the test can exercise field-fetching paths without staging full newsletter settings.
+	 *
+	 * @param string $list_id The master list id to return from the stub.
+	 * @return ESP
+	 */
+	private function make_esp_with_master_list( $list_id = 'test-list' ) {
+		return new class( $list_id ) extends ESP {
+			/**
+			 * Stubbed master list id returned by get_master_list_id().
+			 *
+			 * @var string
+			 */
+			private $stub_list_id;
+
+			/**
+			 * Capture the list id supplied by the test.
+			 *
+			 * @param string $list_id The id to return.
+			 */
+			public function __construct( $list_id ) {
+				$this->stub_list_id = $list_id;
+			}
+
+			/**
+			 * Bypass real master-list-id resolution.
+			 *
+			 * @return string
+			 */
+			public function get_master_list_id() {
+				return $this->stub_list_id;
+			}
+		};
+	}
 
 	/**
 	 * Invoke the protected configure_incoming_field() method on an ESP instance.
@@ -99,7 +147,7 @@ class Test_ESP extends \WP_UnitTestCase {
 	 * The promotion flags are parsed with wp_validate_boolean() so the string "false" stays false.
 	 */
 	public function test_configure_uses_strict_boolean_parsing() {
-		$false_raw = [
+		$false_raw   = [
 			'is_access_rule'      => 'false',
 			'is_segment_criteria' => 'false',
 		];
@@ -107,13 +155,42 @@ class Test_ESP extends \WP_UnitTestCase {
 		$this->assertFalse( $false_field->is_access_rule() );
 		$this->assertFalse( $false_field->is_segment_criteria() );
 
-		$truthy_raw = [
+		$truthy_raw   = [
 			'is_access_rule'      => 'yes',
 			'is_segment_criteria' => '1',
 		];
 		$truthy_field = $this->invoke_configure( new ESP(), new Incoming_Field( 't', $truthy_raw ) );
 		$this->assertTrue( $truthy_field->is_access_rule() );
 		$this->assertTrue( $truthy_field->is_segment_criteria() );
+	}
+
+	/**
+	 * Boolean flags can be reset to false by the schema, not just set to true.
+	 *
+	 * Pre-set the field to true via the constructor, then run configure with the
+	 * schema explicitly setting the flags to false. Symmetric assignment means the
+	 * setter fires regardless of truthiness, so the field ends up false.
+	 */
+	public function test_configure_can_reset_boolean_flags_to_false() {
+		// Construct with raw_data carrying explicit-false, then flip the flags on so
+		// configure_incoming_field() has work to do. Same proof as a reflection-based
+		// raw_data injection, no protected-property coupling.
+		$pre_set = ( new Incoming_Field(
+			'flagged',
+			[
+				'is_access_rule'      => false,
+				'is_segment_criteria' => false,
+			]
+		) )
+			->set_is_access_rule( true )
+			->set_is_segment_criteria( true );
+		$this->assertTrue( $pre_set->is_access_rule(), 'Sanity: field starts with the flag on.' );
+		$this->assertTrue( $pre_set->is_segment_criteria() );
+
+		$configured = $this->invoke_configure( new ESP(), $pre_set );
+
+		$this->assertFalse( $configured->is_access_rule() );
+		$this->assertFalse( $configured->is_segment_criteria() );
 	}
 
 	/**
@@ -136,19 +213,9 @@ class Test_ESP extends \WP_UnitTestCase {
 			],
 		];
 
-		$esp = new class() extends ESP {
-			/**
-			 * Bypass master-list-id resolution, which walks through newsletter settings
-			 * we don't stage in this test.
-			 *
-			 * @return string
-			 */
-			public function get_master_list_id() {
-				return 'test-list';
-			}
-		};
-
+		$esp    = $this->make_esp_with_master_list();
 		$result = $esp->get_available_incoming_fields();
+
 		$this->assertIsArray( $result );
 		$this->assertCount( 2, $result );
 
@@ -159,8 +226,6 @@ class Test_ESP extends \WP_UnitTestCase {
 		$this->assertSame( 'VIP', $result[1]->get_name() );
 		$this->assertSame( 'boolean', $result[1]->get_value_type() );
 		$this->assertFalse( $result[1]->is_access_rule() );
-
-		\Newspack_Newsletters_Contacts::reset_calls();
 	}
 
 	/**
@@ -184,16 +249,7 @@ class Test_ESP extends \WP_UnitTestCase {
 			],
 		];
 
-		$esp = new class() extends ESP {
-			/**
-			 * Bypass master-list-id resolution for the test.
-			 *
-			 * @return string
-			 */
-			public function get_master_list_id() {
-				return 'test-list';
-			}
-		};
+		$esp = $this->make_esp_with_master_list();
 
 		add_filter(
 			'newspack_ras_metadata_keys',
@@ -213,14 +269,9 @@ class Test_ESP extends \WP_UnitTestCase {
 
 		$result = $esp->get_filtered_incoming_fields();
 
-		remove_all_filters( 'newspack_ras_metadata_keys' );
-		remove_all_filters( 'newspack_ras_metadata_prefix' );
-
 		$this->assertCount( 1, $result );
 		$this->assertSame( 'CUSTOM1', $result[0]->get_key() );
 		$this->assertSame( 'Custom Field', $result[0]->get_name() );
-
-		\Newspack_Newsletters_Contacts::reset_calls();
 	}
 
 	/**
@@ -246,22 +297,11 @@ class Test_ESP extends \WP_UnitTestCase {
 			'not-an-array',
 		];
 
-		$esp = new class() extends ESP {
-			/**
-			 * Bypass master-list-id resolution for the test.
-			 *
-			 * @return string
-			 */
-			public function get_master_list_id() {
-				return 'test-list';
-			}
-		};
-
+		$esp    = $this->make_esp_with_master_list();
 		$result = $esp->get_available_incoming_fields();
+
 		$this->assertIsArray( $result );
 		$this->assertCount( 1, $result );
 		$this->assertSame( 'good', $result[0]->get_key() );
-
-		\Newspack_Newsletters_Contacts::reset_calls();
 	}
 }

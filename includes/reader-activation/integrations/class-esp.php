@@ -451,26 +451,30 @@ class ESP extends Integration {
 		if ( ! is_array( $raw ) ) {
 			return $field;
 		}
-		if ( ! empty( $raw['name'] ) && is_scalar( $raw['name'] ) ) {
+		if ( isset( $raw['name'] ) && is_scalar( $raw['name'] ) && '' !== (string) $raw['name'] ) {
 			$field->set_name( (string) $raw['name'] );
 		}
-		if ( ! empty( $raw['value_type'] ) && is_scalar( $raw['value_type'] ) ) {
+		if ( isset( $raw['value_type'] ) && is_scalar( $raw['value_type'] ) && '' !== (string) $raw['value_type'] ) {
 			$field->set_value_type( (string) $raw['value_type'] );
 		}
-		if ( ! empty( $raw['matching_function'] ) && is_scalar( $raw['matching_function'] ) ) {
+		if ( isset( $raw['matching_function'] ) && is_scalar( $raw['matching_function'] ) && '' !== (string) $raw['matching_function'] ) {
 			$field->set_matching_function( (string) $raw['matching_function'] );
 		}
-		if ( ! empty( $raw['options'] ) && is_array( $raw['options'] ) ) {
+		if ( isset( $raw['options'] ) && is_array( $raw['options'] ) ) {
 			$field->set_options( $raw['options'] );
 		}
+		// Description is the only optional-and-clearable scalar field — allow `''` to overwrite
+		// (so a provider can drop a previously-set description), unlike name / value_type /
+		// matching_function where an empty value would be a malformed schema.
 		if ( isset( $raw['description'] ) && is_scalar( $raw['description'] ) ) {
 			$field->set_description( (string) $raw['description'] );
 		}
-		if ( isset( $raw['is_access_rule'] ) && \wp_validate_boolean( $raw['is_access_rule'] ) ) {
-			$field->set_is_access_rule( true );
+		// Symmetric assignment: present-but-falsy can reset the flag, not just present-and-truthy.
+		if ( isset( $raw['is_access_rule'] ) ) {
+			$field->set_is_access_rule( \wp_validate_boolean( $raw['is_access_rule'] ) );
 		}
-		if ( isset( $raw['is_segment_criteria'] ) && \wp_validate_boolean( $raw['is_segment_criteria'] ) ) {
-			$field->set_is_segment_criteria( true );
+		if ( isset( $raw['is_segment_criteria'] ) ) {
+			$field->set_is_segment_criteria( \wp_validate_boolean( $raw['is_segment_criteria'] ) );
 		}
 		return $field;
 	}

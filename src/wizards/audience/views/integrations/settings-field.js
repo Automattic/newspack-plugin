@@ -35,7 +35,7 @@ export const SettingsField = ( { field, value, onChange } ) => {
 		case 'metadata': {
 			const selectedFields = Array.isArray( value ) ? value : [];
 			const normalizedOptions = ( options || [] ).map( option =>
-				typeof option === 'string' ? { value: option, label: option } : { value: option.value, label: option.label ?? option.value }
+				typeof option === 'string' ? { value: option, label: option } : { value: option.value, label: option.label || option.value }
 			);
 			return (
 				<div key={ key }>
@@ -45,7 +45,7 @@ export const SettingsField = ( { field, value, onChange } ) => {
 							<CheckboxControl
 								className="newspack-checkbox-control"
 								key={ optionValue }
-								label={ optionLabel.replace( ': ', '' ) }
+								label={ optionLabel.replace( /:\s*$/, '' ) }
 								checked={ selectedFields.includes( optionValue ) }
 								onChange={ checked => {
 									const newFields = checked ? [ ...selectedFields, optionValue ] : selectedFields.filter( f => f !== optionValue );
