@@ -599,6 +599,35 @@ class Group_Subscription_Invite {
 			return;
 		}
 
+		// Link-invite result codes have their own message + type.
+		$link_messages = [
+			'link_success' => [
+				'message' => __( 'You have successfully joined the group!', 'newspack-plugin' ),
+				'type'    => 'success',
+			],
+			'link_invalid' => [
+				'message' => __( 'This link is no longer valid. Please contact the group manager.', 'newspack-plugin' ),
+				'type'    => 'error',
+			],
+			'link_full'    => [
+				'message' => __( 'This group already has the maximum number of members. Please contact the group manager.', 'newspack-plugin' ),
+				'type'    => 'error',
+			],
+			'link_failed'  => [
+				'message' => __( "We couldn't add you to the group. Please contact the group manager.", 'newspack-plugin' ),
+				'type'    => 'error',
+			],
+			'link_login'   => [
+				'message' => __( 'Please log in or register an account to join the group.', 'newspack-plugin' ),
+				'type'    => 'notice',
+			],
+		];
+
+		if ( isset( $link_messages[ $result ] ) ) {
+			wc_add_notice( $link_messages[ $result ]['message'], $link_messages[ $result ]['type'] );
+			return;
+		}
+
 		if ( 'success' === $result ) {
 			$message = __( 'You have successfully joined the group!', 'newspack-plugin' );
 			$type    = 'success';
