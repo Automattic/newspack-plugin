@@ -52,9 +52,10 @@ const resolveColor = ( presetSlug, customValue ) => {
  * @param {Object}   props.attributes    Block attributes.
  * @param {Function} props.setAttributes Function to update attributes.
  * @param {string}   props.clientId      Block client ID.
+ * @param {boolean}  props.isSelected    Whether the block is currently selected.
  * @return {JSX.Element} The edit component.
  */
-export default function Edit( { attributes, setAttributes, clientId } ) {
+export default function Edit( { attributes, setAttributes, clientId, isSelected } ) {
 	const AuthorContext = getSharedAuthorContext();
 	const author = useContext( AuthorContext );
 	const { iconSize, style: styleAttr, textColor, backgroundColor, className } = attributes;
@@ -67,7 +68,12 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 	const iconBackground = ! isBrand ? resolveColor( backgroundColor, styleAttr?.color?.background ) : undefined;
 
 	// Hide color panel when "Brand" is active; rename labels when "Default".
+	// Only run while this block is selected — otherwise the global sidebar
+	// query leaks the relabel/hide into every other block's color panel.
 	useEffect( () => {
+		if ( ! isSelected ) {
+			return;
+		}
 		const sidebar = document.querySelector( '.interface-complementary-area' );
 		if ( ! sidebar ) {
 			return;
@@ -105,7 +111,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 		observer.observe( sidebar, { childList: true, subtree: true } );
 
 		return () => observer.disconnect();
-	}, [ isBrand ] );
+	}, [ isBrand, isSelected ] );
 
 	const blockProps = useBlockProps( {
 		className: 'author-profile-social__list',
