@@ -130,13 +130,17 @@ function showSnackbar( message, type = 'success' ) {
 	`;
 	wrapper.querySelector( '.newspack-ui__snackbar__content' ).textContent = message;
 	document.body.appendChild( wrapper );
+
 	const item = wrapper.querySelector( '.newspack-ui__snackbar__item' );
-	if ( window.newspackUI && window.newspackUI.notices && typeof window.newspackUI.notices.openNotice === 'function' ) {
-		window.newspackUI.notices.openNotice( item, true );
-		// The openNotice helper auto-removes the item after 8s; clean up the wrapper too.
-		setTimeout( () => wrapper.remove(), 8500 );
-	} else {
-		// Fallback: just remove after 8s without animation.
-		setTimeout( () => wrapper.remove(), 8000 );
-	}
+	// Use a microtask gap so the browser registers the initial unanimated state
+	// before we add `.active`; this lets the slide-in transition play.
+	requestAnimationFrame( () => item.classList.add( 'active' ) );
+
+	// Mirror the 8s autohide window from Newspack UI's CSS, then remove the
+	// `.active` class to fade out, then drop the wrapper after the fade
+	// (matches the 250ms transition in _notices.scss).
+	setTimeout( () => {
+		item.classList.remove( 'active' );
+		setTimeout( () => wrapper.remove(), 300 );
+	}, 8000 );
 }
