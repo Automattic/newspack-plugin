@@ -1204,4 +1204,56 @@ class Test_Group_Subscriptions extends \WP_UnitTestCase {
 			'Transient should be deleted after clearing'
 		);
 	}
+
+	/**
+	 * Test get_link_invite() returns null when none exists.
+	 */
+	public function test_get_link_invite_returns_null_when_missing() {
+		$owner_id  = $this->create_reader_user();
+		$group_sub = $this->create_group_subscription( $owner_id );
+
+		$this->assertNull( Group_Subscription_Invite::get_link_invite( $group_sub, $owner_id ) );
+	}
+
+	/**
+	 * Test get_link_invite() returns the stored entry for a user.
+	 */
+	public function test_get_link_invite_returns_stored_entry() {
+		$owner_id  = $this->create_reader_user();
+		$group_sub = $this->create_group_subscription( $owner_id );
+
+		$entry = [
+			'key'        => 'abc123',
+			'expiration' => time() + DAY_IN_SECONDS,
+			'created_at' => time(),
+		];
+		$group_sub->update_meta_data( Group_Subscription_Invite::LINK_META, [ $owner_id => $entry ] );
+		$group_sub->save();
+
+		$result = Group_Subscription_Invite::get_link_invite( $group_sub, $owner_id );
+		$this->assertEquals( $entry, $result );
+	}
+
+	/**
+	 * Test get_link_invite() returns null for a different user.
+	 */
+	public function test_get_link_invite_returns_null_for_other_user() {
+		$owner_id  = $this->create_reader_user();
+		$other_id  = $this->create_reader_user();
+		$group_sub = $this->create_group_subscription( $owner_id );
+
+		$group_sub->update_meta_data(
+			Group_Subscription_Invite::LINK_META,
+			[
+				$owner_id => [
+					'key'        => 'k',
+					'expiration' => time() + 100,
+					'created_at' => time(),
+				],
+			]
+		);
+		$group_sub->save();
+
+		$this->assertNull( Group_Subscription_Invite::get_link_invite( $group_sub, $other_id ) );
+	}
 }

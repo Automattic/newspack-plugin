@@ -181,6 +181,27 @@ class Group_Subscription_Invite {
 	}
 
 	/**
+	 * Get the invite-link entry for a given subscription/manager user pair.
+	 *
+	 * @param \WC_Subscription|int $subscription The subscription object or ID.
+	 * @param int                  $user_id      The manager user ID.
+	 *
+	 * @return array|null The link-invite entry, or null if missing or subscription invalid.
+	 */
+	public static function get_link_invite( $subscription, $user_id ) {
+		$subscription = WooCommerce_Subscriptions::sanitize_subscription( $subscription );
+		if ( ! $subscription ) {
+			return null;
+		}
+		$all = $subscription->get_meta( self::LINK_META, true );
+		if ( ! is_array( $all ) ) {
+			return null;
+		}
+		$user_id = (int) $user_id;
+		return $all[ $user_id ] ?? null;
+	}
+
+	/**
 	 * Generate a group subscription invite key.
 	 *
 	 * @param \WC_Subscription|int $subscription The subscription object or ID.
