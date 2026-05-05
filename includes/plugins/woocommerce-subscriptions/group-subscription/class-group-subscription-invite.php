@@ -587,7 +587,7 @@ class Group_Subscription_Invite {
 			$redirect_target = add_query_arg(
 				[
 					self::RESULT_QUERY_ARG => 'link_login',
-					'redirect'             => rawurlencode( $link_url ),
+					'redirect'             => $link_url,
 				],
 				$myaccount_url
 			);
