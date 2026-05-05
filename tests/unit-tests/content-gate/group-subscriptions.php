@@ -1268,4 +1268,69 @@ class Test_Group_Subscriptions extends \WP_UnitTestCase {
 		$this->assertStringContainsString( 'm=7', $url );
 		$this->assertStringContainsString( 'k=thekey', $url );
 	}
+
+	/**
+	 * Test generate_link_invite() succeeds for a valid manager.
+	 */
+	public function test_generate_link_invite_success() {
+		$owner_id  = $this->create_reader_user();
+		$group_sub = $this->create_group_subscription( $owner_id );
+
+		wp_set_current_user( $owner_id );
+
+		$result = Group_Subscription_Invite::generate_link_invite( $group_sub, $owner_id );
+
+		$this->assertIsArray( $result );
+		$this->assertArrayHasKey( 'url', $result );
+		$this->assertArrayHasKey( 'key', $result );
+		$this->assertArrayHasKey( 'expiration', $result );
+		$this->assertGreaterThan( time() + ( 13 * DAY_IN_SECONDS ), $result['expiration'] );
+
+		// Verify it's persisted.
+		$stored = Group_Subscription_Invite::get_link_invite( $group_sub, $owner_id );
+		$this->assertEquals( $result['key'], $stored['key'] );
+	}
+
+	/**
+	 * Test generate_link_invite() rejects a non-group subscription.
+	 */
+	public function test_generate_link_invite_rejects_non_group_subscription() {
+		$owner_id   = $this->create_reader_user();
+		$regular    = $this->create_regular_subscription( $owner_id );
+
+		$result = Group_Subscription_Invite::generate_link_invite( $regular, $owner_id );
+		$this->assertWPError( $result );
+		$this->assertEquals( 'newspack_group_subscription_link_invite_invalid_subscription', $result->get_error_code() );
+	}
+
+	/**
+	 * Test generate_link_invite() rejects a user who is not a manager.
+	 */
+	public function test_generate_link_invite_rejects_non_manager() {
+		$owner_id     = $this->create_reader_user();
+		$non_manager  = $this->create_reader_user();
+		$group_sub    = $this->create_group_subscription( $owner_id );
+
+		$result = Group_Subscription_Invite::generate_link_invite( $group_sub, $non_manager );
+		$this->assertWPError( $result );
+		$this->assertEquals( 'newspack_group_subscription_link_invite_not_manager', $result->get_error_code() );
+	}
+
+	/**
+	 * Test generate_link_invite() replaces an existing entry for the same user.
+	 */
+	public function test_generate_link_invite_replaces_existing() {
+		$owner_id  = $this->create_reader_user();
+		$group_sub = $this->create_group_subscription( $owner_id );
+
+		wp_set_current_user( $owner_id );
+
+		$first  = Group_Subscription_Invite::generate_link_invite( $group_sub, $owner_id );
+		$second = Group_Subscription_Invite::generate_link_invite( $group_sub, $owner_id );
+
+		$this->assertNotEquals( $first['key'], $second['key'] );
+
+		$stored = Group_Subscription_Invite::get_link_invite( $group_sub, $owner_id );
+		$this->assertEquals( $second['key'], $stored['key'] );
+	}
 }

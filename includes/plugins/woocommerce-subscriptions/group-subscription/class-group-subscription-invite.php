@@ -223,6 +223,52 @@ class Group_Subscription_Invite {
 	}
 
 	/**
+	 * Generate (or replace) an invite-link for a manager + subscription pair.
+	 *
+	 * @param \WC_Subscription|int $subscription The subscription object or ID.
+	 * @param int                  $user_id      The manager user ID.
+	 *
+	 * @return array|\WP_Error On success: [ 'url' => string, 'key' => string, 'expiration' => int, 'created_at' => int ].
+	 */
+	public static function generate_link_invite( $subscription, $user_id ) {
+		$subscription = WooCommerce_Subscriptions::sanitize_subscription( $subscription );
+		if ( ! $subscription || ! Group_Subscription::is_group_subscription( $subscription ) ) {
+			return new \WP_Error(
+				'newspack_group_subscription_link_invite_invalid_subscription',
+				__( 'Invalid subscription.', 'newspack-plugin' )
+			);
+		}
+		$user_id = (int) $user_id;
+		if ( ! Group_Subscription::user_is_manager( $user_id, $subscription ) ) {
+			return new \WP_Error(
+				'newspack_group_subscription_link_invite_not_manager',
+				__( 'You do not have permission to manage this group subscription.', 'newspack-plugin' )
+			);
+		}
+
+		$all = $subscription->get_meta( self::LINK_META, true );
+		if ( ! is_array( $all ) ) {
+			$all = [];
+		}
+
+		$now   = time();
+		$entry = [
+			'key'        => wp_generate_password( 32, false ),
+			'expiration' => $now + self::LINK_EXPIRATION,
+			'created_at' => $now,
+		];
+		$all[ $user_id ] = $entry;
+
+		$subscription->update_meta_data( self::LINK_META, $all );
+		$subscription->save();
+
+		return array_merge(
+			$entry,
+			[ 'url' => self::get_link_invite_url( $subscription->get_id(), $user_id, $entry['key'] ) ]
+		);
+	}
+
+	/**
 	 * Generate a group subscription invite key.
 	 *
 	 * @param \WC_Subscription|int $subscription The subscription object or ID.
