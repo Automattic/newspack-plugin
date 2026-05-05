@@ -1452,4 +1452,43 @@ class Test_Group_Subscriptions extends \WP_UnitTestCase {
 		// If wc_add_notice is not defined in this env, the early return will skip.
 		$this->assertNull( Group_Subscription_Invite::render_invite_notice() );
 	}
+
+	/**
+	 * Test the REST /invite-link endpoint succeeds for a manager.
+	 */
+	public function test_rest_invite_link_success() {
+		$owner_id  = $this->create_reader_user();
+		$group_sub = $this->create_group_subscription( $owner_id );
+
+		wp_set_current_user( $owner_id );
+		do_action( 'rest_api_init' );
+
+		$request = new \WP_REST_Request( 'POST', '/newspack-group-subscription/v1/invite-link' );
+		$request->set_param( 'subscription_id', $group_sub->get_id() );
+
+		$response = rest_get_server()->dispatch( $request );
+		$this->assertEquals( 200, $response->get_status() );
+
+		$data = $response->get_data();
+		$this->assertArrayHasKey( 'url', $data );
+		$this->assertArrayHasKey( 'key', $data );
+	}
+
+	/**
+	 * Test the REST /invite-link endpoint denies non-managers.
+	 */
+	public function test_rest_invite_link_permission_denied() {
+		$owner_id     = $this->create_reader_user();
+		$non_manager  = $this->create_reader_user();
+		$group_sub    = $this->create_group_subscription( $owner_id );
+
+		wp_set_current_user( $non_manager );
+		do_action( 'rest_api_init' );
+
+		$request = new \WP_REST_Request( 'POST', '/newspack-group-subscription/v1/invite-link' );
+		$request->set_param( 'subscription_id', $group_sub->get_id() );
+
+		$response = rest_get_server()->dispatch( $request );
+		$this->assertEquals( 403, $response->get_status() );
+	}
 }
