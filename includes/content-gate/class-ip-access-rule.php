@@ -225,11 +225,6 @@ class IP_Access_Rule {
 	 * @return \WP_REST_Response
 	 */
 	public static function get_ip_allowlist_rest() {
-		if ( function_exists( 'batcache_cancel' ) ) {
-			batcache_cancel();
-		}
-		nocache_headers();
-
 		$cached = \Newspack\Institution::get_cached_institutions();
 		ksort( $cached );
 		$institutions = [];
