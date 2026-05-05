@@ -100,6 +100,10 @@ export const ConfigureView = ( { integrations, loading, pendingChanges, saving, 
 		);
 	}
 
+	if ( ! integration ) {
+		return <WizardsTab isFetching={ loading } />;
+	}
+
 	const getFieldValue = field => {
 		if ( pendingChanges[ integrationId ] && field.key in pendingChanges[ integrationId ] ) {
 			return pendingChanges[ integrationId ][ field.key ];
