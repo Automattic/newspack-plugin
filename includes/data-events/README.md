@@ -296,6 +296,7 @@ Fires for every WC Subscription status transition AND for switches (recurrence/a
 | `product_id`      | `int`    | Product ID for this line item                                                        |
 | `product_name`    | `string` | Product name for this line item                                                      |
 | `is_donation`     | `bool`   | True if `product_id` is a Newspack donation product                                  |
+| `is_switch`       | `bool`   | True if the event originates from a subscription switch (recurrence/amount change) rather than a status transition |
 
 ## Registering a new action
 

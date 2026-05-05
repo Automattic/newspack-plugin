@@ -144,10 +144,13 @@ final class Utils {
 	 *
 	 * @param \WC_Subscription $subscription Subscription whose status changed (or which was switched).
 	 * @param string           $status       The new status (WC slug).
+	 * @param bool             $is_switch    Whether the event originates from a subscription switch
+	 *                                       (recurrence/amount change) rather than a status transition.
+	 *                                       Defaults to false.
 	 *
 	 * @return array<int, array<string, mixed>> Array of payloads, possibly empty.
 	 */
-	public static function get_woo_subscription_updated_payloads( $subscription, $status ) {
+	public static function get_woo_subscription_updated_payloads( $subscription, $status, $is_switch = false ) {
 		if ( ! $subscription instanceof \WC_Subscription ) {
 			return [];
 		}
@@ -168,6 +171,7 @@ final class Utils {
 				'product_id'      => (int) $product_id,
 				'product_name'    => $item->get_name(),
 				'is_donation'     => (bool) \Newspack\Donations::is_donation_product( $product_id ),
+				'is_switch'       => (bool) $is_switch,
 			];
 		}
 		return $payloads;

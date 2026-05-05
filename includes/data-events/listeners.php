@@ -577,7 +577,7 @@ add_action(
 			if ( ! $subscription instanceof \WC_Subscription ) {
 				continue;
 			}
-			foreach ( \Newspack\Data_Events\Utils::get_woo_subscription_updated_payloads( $subscription, $subscription->get_status() ) as $payload ) {
+			foreach ( \Newspack\Data_Events\Utils::get_woo_subscription_updated_payloads( $subscription, $subscription->get_status(), true ) as $payload ) {
 				Data_Events::dispatch( 'woo_subscription_updated', $payload );
 			}
 		}

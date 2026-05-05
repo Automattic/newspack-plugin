@@ -1398,6 +1398,7 @@ class Newspack_Test_Data_Events extends WP_UnitTestCase {
 		$this->assertSame( 'Monthly Donation', $payload['product_name'] );
 		$this->assertTrue( $payload['is_donation'] );
 		$this->assertSame( 30.00, $payload['amount'] );
+		$this->assertFalse( $payload['is_switch'] );
 	}
 
 	/**
@@ -1519,6 +1520,7 @@ class Newspack_Test_Data_Events extends WP_UnitTestCase {
 		$this->assertCount( 1, $captured );
 		$this->assertSame( 'on-hold', $captured[0]['status'] );
 		$this->assertSame( (int) $subscription->get_id(), $captured[0]['subscription_id'] );
+		$this->assertFalse( $captured[0]['is_switch'] );
 	}
 
 	/**
@@ -1569,5 +1571,6 @@ class Newspack_Test_Data_Events extends WP_UnitTestCase {
 		$this->assertCount( 1, $captured );
 		$this->assertSame( (int) $subscription->get_id(), $captured[0]['subscription_id'] );
 		$this->assertSame( 'active', $captured[0]['status'] );
+		$this->assertTrue( $captured[0]['is_switch'] );
 	}
 }
