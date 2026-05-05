@@ -1491,4 +1491,25 @@ class Test_Group_Subscriptions extends \WP_UnitTestCase {
 		$response = rest_get_server()->dispatch( $request );
 		$this->assertEquals( 403, $response->get_status() );
 	}
+
+	/**
+	 * Test validate_link_invite() rejects when the subscription is no longer active.
+	 */
+	public function test_validate_link_invite_rejects_inactive_subscription() {
+		$owner_id  = $this->create_reader_user();
+		$group_sub = $this->create_group_subscription( $owner_id );
+
+		wp_set_current_user( $owner_id );
+		$invite = Group_Subscription_Invite::generate_link_invite( $group_sub, $owner_id );
+
+		// Cancel the subscription after the invite was generated.
+		$group_sub->data['status'] = 'cancelled';
+
+		$result = Group_Subscription_Invite::validate_link_invite( $group_sub, $owner_id, $invite['key'] );
+		$this->assertWPError( $result );
+		$this->assertEquals(
+			'newspack_group_subscription_link_invite_invalid_subscription',
+			$result->get_error_code()
+		);
+	}
 }

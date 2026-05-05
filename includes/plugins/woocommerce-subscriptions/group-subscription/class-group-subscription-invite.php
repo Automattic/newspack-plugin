@@ -286,6 +286,12 @@ class Group_Subscription_Invite {
 				__( 'Invalid subscription.', 'newspack-plugin' )
 			);
 		}
+		if ( ! $subscription->has_status( 'active' ) ) {
+			return new \WP_Error(
+				'newspack_group_subscription_link_invite_invalid_subscription',
+				__( 'Subscription is not active.', 'newspack-plugin' )
+			);
+		}
 		$user_id = (int) $user_id;
 		if ( ! Group_Subscription::user_is_manager( $user_id, $subscription ) ) {
 			return new \WP_Error(
@@ -587,12 +593,24 @@ class Group_Subscription_Invite {
 			$redirect_target = add_query_arg(
 				[
 					self::RESULT_QUERY_ARG => 'link_login',
-					'redirect'             => $link_url,
+					'redirect_to'          => $link_url,
 				],
 				$myaccount_url
 			);
 			wp_safe_redirect( $redirect_target );
 			exit;
+		}
+
+		// User is already in the group? Just send them to the subscription view.
+		if (
+			Group_Subscription::user_is_manager( $current_user->ID, $subscription )
+			|| Group_Subscription::user_is_member( $current_user->ID, $subscription )
+		) {
+			$success_url = function_exists( 'wc_get_endpoint_url' )
+				? wc_get_endpoint_url( 'view-subscription', $subscription->get_id(), $myaccount_url )
+				: $myaccount_url;
+			self::redirect_with_result( 'link_already_member', '', $success_url );
+			return;
 		}
 
 		// Member-limit check.
@@ -668,23 +686,27 @@ class Group_Subscription_Invite {
 
 		// Link-invite result codes have their own message + type.
 		$link_messages = [
-			'link_success' => [
+			'link_already_member' => [
+				'message' => __( 'You are already a member of this group.', 'newspack-plugin' ),
+				'type'    => 'notice',
+			],
+			'link_success'        => [
 				'message' => __( 'You have successfully joined the group!', 'newspack-plugin' ),
 				'type'    => 'success',
 			],
-			'link_invalid' => [
+			'link_invalid'        => [
 				'message' => __( 'This link is no longer valid. Please contact the group manager.', 'newspack-plugin' ),
 				'type'    => 'error',
 			],
-			'link_full'    => [
+			'link_full'           => [
 				'message' => __( 'This group already has the maximum number of members. Please contact the group manager.', 'newspack-plugin' ),
 				'type'    => 'error',
 			],
-			'link_failed'  => [
+			'link_failed'         => [
 				'message' => __( "We couldn't add you to the group. Please contact the group manager.", 'newspack-plugin' ),
 				'type'    => 'error',
 			],
-			'link_login'   => [
+			'link_login'          => [
 				'message' => __( 'Please log in or register an account to join the group.', 'newspack-plugin' ),
 				'type'    => 'notice',
 			],
