@@ -202,6 +202,27 @@ class Group_Subscription_Invite {
 	}
 
 	/**
+	 * Build the public invite-link URL.
+	 *
+	 * @param int    $subscription_id Subscription ID.
+	 * @param int    $user_id         Manager user ID.
+	 * @param string $key             Invite key.
+	 *
+	 * @return string The invite-link URL.
+	 */
+	public static function get_link_invite_url( $subscription_id, $user_id, $key ) {
+		return add_query_arg(
+			[
+				'action' => self::LINK_QUERY_ARG,
+				's'      => (int) $subscription_id,
+				'm'      => (int) $user_id,
+				'k'      => rawurlencode( $key ),
+			],
+			home_url()
+		);
+	}
+
+	/**
 	 * Generate a group subscription invite key.
 	 *
 	 * @param \WC_Subscription|int $subscription The subscription object or ID.

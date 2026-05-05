@@ -1256,4 +1256,16 @@ class Test_Group_Subscriptions extends \WP_UnitTestCase {
 
 		$this->assertNull( Group_Subscription_Invite::get_link_invite( $group_sub, $other_id ) );
 	}
+
+	/**
+	 * Test get_link_invite_url() builds the expected URL.
+	 */
+	public function test_get_link_invite_url_format() {
+		$url = Group_Subscription_Invite::get_link_invite_url( 42, 7, 'thekey' );
+
+		$this->assertStringContainsString( 'action=' . Group_Subscription_Invite::LINK_QUERY_ARG, $url );
+		$this->assertStringContainsString( 's=42', $url );
+		$this->assertStringContainsString( 'm=7', $url );
+		$this->assertStringContainsString( 'k=thekey', $url );
+	}
 }
