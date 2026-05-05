@@ -26,6 +26,7 @@ class Test_ESP extends \WP_UnitTestCase {
 		\Newspack_Newsletters_Contacts::reset_calls();
 		remove_all_filters( 'newspack_ras_metadata_keys' );
 		remove_all_filters( 'newspack_ras_metadata_prefix' );
+		\delete_option( 'newspack_integration_incoming_fields_esp' );
 		parent::tear_down();
 	}
 
@@ -46,12 +47,14 @@ class Test_ESP extends \WP_UnitTestCase {
 			private $stub_list_id;
 
 			/**
-			 * Capture the list id supplied by the test.
+			 * Capture the list id supplied by the test, then run the parent constructor
+			 * so $this->id (and the option-key prefix that depends on it) is set up.
 			 *
 			 * @param string $list_id The id to return.
 			 */
 			public function __construct( $list_id ) {
 				$this->stub_list_id = $list_id;
+				parent::__construct();
 			}
 
 			/**
@@ -272,6 +275,107 @@ class Test_ESP extends \WP_UnitTestCase {
 		$this->assertCount( 1, $result );
 		$this->assertSame( 'CUSTOM1', $result[0]->get_key() );
 		$this->assertSame( 'Custom Field', $result[0]->get_name() );
+	}
+
+	/**
+	 * Legacy stored entries (saved before the schema expansion) are rebuilt on
+	 * read by overlaying the live provider schema, so admins don't have to
+	 * re-save the integrations page after upgrade for the field to render with
+	 * correct promotion / options / value_type.
+	 */
+	public function test_get_enabled_incoming_fields_rebuilds_legacy_entries_from_live_schema() {
+		// Pre-rename storage shape: raw_data is empty (or only contains the bare key).
+		\update_option(
+			'newspack_integration_incoming_fields_esp',
+			[
+				'membership_level' => [],
+			]
+		);
+
+		// Live provider returns the new schema for the same key.
+		\Newspack_Newsletters_Contacts::$fields_fixture = [
+			[
+				'key'                 => 'membership_level',
+				'name'                => 'Membership Level',
+				'value_type'          => 'string',
+				'matching_function'   => 'list__in',
+				'options'             => [
+					[
+						'value' => 'gold',
+						'label' => 'Gold',
+					],
+				],
+				'is_access_rule'      => true,
+				'is_segment_criteria' => true,
+			],
+		];
+
+		$result = $this->make_esp_with_master_list()->get_enabled_incoming_fields();
+
+		$this->assertCount( 1, $result );
+		$this->assertSame( 'membership_level', $result[0]->get_key() );
+		$this->assertSame( 'Membership Level', $result[0]->get_name(), 'name should come from live schema' );
+		$this->assertSame( 'list__in', $result[0]->get_matching_function() );
+		$this->assertTrue( $result[0]->is_access_rule() );
+		$this->assertTrue( $result[0]->is_segment_criteria() );
+		$this->assertNotEmpty( $result[0]->get_options() );
+	}
+
+	/**
+	 * Stored entries already carrying schema keys are passed through without
+	 * triggering the live-schema rebuild (which would issue an unnecessary API
+	 * call).
+	 */
+	public function test_get_enabled_incoming_fields_does_not_rebuild_post_rename_entries() {
+		\update_option(
+			'newspack_integration_incoming_fields_esp',
+			[
+				'membership_level' => [
+					'name'           => 'Stored Name',
+					'value_type'     => 'string',
+					'is_access_rule' => true,
+				],
+			]
+		);
+
+		// Populate the live fixture with a different name; if the rebuild path runs
+		// it would overlay the live schema and the stored name would lose.
+		\Newspack_Newsletters_Contacts::$fields_fixture = [
+			[
+				'key'            => 'membership_level',
+				'name'           => 'Live Name (should not appear)',
+				'is_access_rule' => false,
+			],
+		];
+
+		$result = $this->make_esp_with_master_list()->get_enabled_incoming_fields();
+
+		$this->assertCount( 1, $result );
+		$this->assertSame( 'Stored Name', $result[0]->get_name(), 'stored schema should be preserved (rebuild not invoked)' );
+		$this->assertTrue( $result[0]->is_access_rule(), 'stored is_access_rule should be preserved (rebuild not invoked)' );
+	}
+
+	/**
+	 * If the live fetch fails (network error / WP_Error), fall back to stored
+	 * raw_data unchanged rather than dropping the field or duplicating the
+	 * failure to every callsite.
+	 */
+	public function test_get_enabled_incoming_fields_falls_back_when_live_fetch_fails() {
+		\update_option(
+			'newspack_integration_incoming_fields_esp',
+			[
+				'legacy_field' => [],
+			]
+		);
+
+		\Newspack_Newsletters_Contacts::$fields_fixture = new \WP_Error( 'fetch_failed', 'API down' );
+
+		$result = $this->make_esp_with_master_list()->get_enabled_incoming_fields();
+
+		$this->assertCount( 1, $result );
+		$this->assertSame( 'legacy_field', $result[0]->get_key() );
+		$this->assertSame( 'legacy_field', $result[0]->get_name(), 'falls back to key when live fetch fails' );
+		$this->assertFalse( $result[0]->is_access_rule() );
 	}
 
 	/**
