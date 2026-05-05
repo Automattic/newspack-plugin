@@ -24,7 +24,7 @@ $pending_invites      = Group_Subscription_Invite::get_invites( $subscription, f
 $is_at_limit          = $member_limit > 0 && ( count( $members ) + count( $pending_invites ) ) >= $member_limit;
 
 $current_user_id     = get_current_user_id();
-$link_invite         = Group_Subscription_Invite::get_link_invite( $subscription, $current_user_id );
+$link_invite         = Group_Subscription_Invite::get_link_invite( $subscription, $current_user_id, true );
 $link_invite_url     = $link_invite ? Group_Subscription_Invite::get_link_invite_url( $subscription->get_id(), $current_user_id, $link_invite['key'] ) : '';
 $link_invite_expired = $link_invite ? Group_Subscription_Invite::is_invite_expired( $link_invite ) : false;
 $link_state          = ! $link_invite ? 'none' : ( $link_invite_expired ? 'expired' : 'valid' );
@@ -244,54 +244,15 @@ $link_state          = ! $link_invite ? 'none' : ( $link_invite_expired ? 'expir
 				</header>
 
 				<section class="newspack-ui__modal__content">
-					<div
-						class="newspack-my-account__group_subscription__invite-link"
-						data-link-state="<?php echo esc_attr( $link_state ); ?>"
-						data-subscription-id="<?php echo esc_attr( $subscription->get_id() ); ?>"
-						data-rest-url="<?php echo esc_url( rest_url( Group_Subscription_API::NAMESPACE . '/invite-link' ) ); ?>"
-						data-rest-nonce="<?php echo esc_attr( wp_create_nonce( 'wp_rest' ) ); ?>"
-					>
+					<?php if ( $is_at_limit ) : ?>
 						<p>
-							<?php esc_html_e( 'Invite members by link: share a unique link to allow users to join this group. Invite links are valid for 14 days after being created.', 'newspack-plugin' ); ?>
+							<?php esc_html_e( 'You have reached the member limit for this group subscription. Please remove some members or cancel pending invitations before inviting more group members.', 'newspack-plugin' ); ?>
 						</p>
-						<div class="newspack-my-account__group_subscription__invite-link__field">
-							<input
-								type="text"
-								readonly
-								class="newspack-my-account__group_subscription__invite-link__input"
-								value="<?php echo esc_attr( $link_invite_url ); ?>"
-							>
-							<?php if ( 'expired' === $link_state ) : ?>
-								<span class="newspack-ui__badge newspack-ui__badge--warning">
-									<?php esc_html_e( 'Expired', 'newspack-plugin' ); ?>
-								</span>
-							<?php endif; ?>
-							<button
-								type="button"
-								class="newspack-my-account__group_subscription__invite-link__copy newspack-ui__button newspack-ui__button--ghost newspack-ui__button--icon"
-								aria-label="<?php esc_attr_e( 'Copy link to clipboard', 'newspack-plugin' ); ?>"
-								<?php echo 'valid' === $link_state ? '' : 'hidden'; ?>
-							>
-								<?php Newspack_UI_Icons::print_svg( 'copy' ); ?>
-							</button>
-						</div>
-						<button
-							type="button"
-							class="newspack-my-account__group_subscription__invite-link__create newspack-ui__button newspack-ui__button--secondary"
-						>
-							<?php esc_html_e( 'Create link', 'newspack-plugin' ); ?>
-						</button>
-					</div>
-					<hr>
-					<form name="newspack-group-subscription-invite-member" method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
-						<input type="hidden" name="action" value="newspack_group_subscription_invite">
-						<input type="hidden" name="subscription_id" value="<?php echo esc_attr( $subscription->get_id() ); ?>">
-						<?php wp_nonce_field( Group_Subscription_MyAccount::INVITE_NONCE_ACTION ); ?>
-						<?php if ( $is_at_limit ) : ?>
-							<p>
-								<?php esc_html_e( 'You have reached the member limit for this group subscription. Please remove some members or cancel pending invitations before inviting more group members.', 'newspack-plugin' ); ?>
-							</p>
-						<?php else : ?>
+					<?php else : ?>
+						<form name="newspack-group-subscription-invite-member" method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
+							<input type="hidden" name="action" value="newspack_group_subscription_invite">
+							<input type="hidden" name="subscription_id" value="<?php echo esc_attr( $subscription->get_id() ); ?>">
+							<?php wp_nonce_field( Group_Subscription_MyAccount::INVITE_NONCE_ACTION ); ?>
 							<p><?php esc_html_e( 'Enter an email address to invite a new member to this group subscription.', 'newspack-plugin' ); ?></p>
 							<p>
 								<input type="email" placeholder="<?php esc_attr_e( 'Recipient’s email address', 'newspack-plugin' ); ?>" name="newspack-group-subscription-invite-email" id="newspack-group-subscription-invite-email" required>
@@ -299,8 +260,61 @@ $link_state          = ! $link_invite ? 'none' : ( $link_invite_expired ? 'expir
 
 							<button class="newspack-ui__button newspack-ui__button--primary newspack-ui__button--wide"><?php esc_html_e( 'Invite', 'newspack-plugin' ); ?></button>
 							<button type="button" class="newspack-ui__button newspack-ui__button--ghost newspack-ui__button--wide newspack-ui__modal__close"><?php esc_html_e( 'Cancel', 'newspack-plugin' ); ?></button>
-						<?php endif; ?>
-					</form>
+						</form>
+						<div class="newspack-ui__word-divider">
+							Or
+						</div>
+						<div
+							class="newspack-my-account__group_subscription__invite-link"
+							data-link-state="<?php echo esc_attr( $link_state ); ?>"
+							data-subscription-id="<?php echo esc_attr( $subscription->get_id() ); ?>"
+							data-rest-url="<?php echo esc_url( rest_url( Group_Subscription_API::NAMESPACE . '/invite-link' ) ); ?>"
+							data-rest-nonce="<?php echo esc_attr( wp_create_nonce( 'wp_rest' ) ); ?>"
+						>
+							<p>
+								<?php
+								echo esc_html(
+									sprintf(
+										// translators: %d is the number of days before an invite link expires after being generated.
+										__( 'Share a unique link to allow anyone to join this group. Invite links are valid for %d days after being created.', 'newspack-plugin' ),
+										absint( Group_Subscription_Invite::get_expiration_time() / DAY_IN_SECONDS )
+									)
+								);
+								?>
+								<?php if ( 'expired' === $link_state ) : ?>
+									<span class="newspack-ui__badge newspack-ui__badge--warning">
+										<?php esc_html_e( 'Link expired', 'newspack-plugin' ); ?>
+									</span>
+								<?php endif; ?>
+							</p>
+							<div class="newspack-my-account__group_subscription__invite-link__field">
+								<input
+									type="text"
+									readonly
+									class="newspack-my-account__group_subscription__invite-link__input"
+									value="<?php echo esc_attr( $link_invite_url ); ?>"
+								>
+								<?php if ( $link_invite_url && $link_state !== 'expired' ) : ?>
+								<button
+									type="button"
+									class="newspack-my-account__group_subscription__invite-link__copy newspack-ui__button newspack-ui__button--ghost newspack-ui__button--icon"
+									aria-label="<?php esc_attr_e( 'Copy link to clipboard', 'newspack-plugin' ); ?>"
+									<?php echo 'valid' === $link_state ? '' : 'hidden'; ?>
+								>
+									<?php Newspack_UI_Icons::print_svg( 'copy' ); ?>
+								</button>
+								<?php endif; ?>
+								<button
+									type="button"
+									aria-label="<?php echo esc_attr( $link_invite_url ? __( 'Recreate link', 'newspack-plugin' ) : __( 'Create link', 'newspack-plugin' ) ); ?>"
+									class="newspack-my-account__group_subscription__invite-link__create newspack-ui__button newspack-ui__button--ghost newspack-ui__button--icon"
+								>
+									<?php Newspack_UI_Icons::print_svg( $link_invite_url ? 'update' : 'create' ); ?>
+								</button>
+							</div>
+						</div>
+					</div>
+					<?php endif; ?>
 				</section>
 			</div><!-- .newspack-ui__modal__small -->
 	</div> <!-- .newspack-ui__modal-container -->

@@ -71,13 +71,6 @@ class Group_Subscription_Invite {
 	const LINK_META = 'newspack_group_subscription_link_invites';
 
 	/**
-	 * Invite-link validity in seconds (14 days).
-	 *
-	 * @var int
-	 */
-	const LINK_EXPIRATION = 14 * DAY_IN_SECONDS;
-
-	/**
 	 * Initialize hooks.
 	 */
 	public static function init() {
@@ -186,16 +179,20 @@ class Group_Subscription_Invite {
 	 *
 	 * @param \WC_Subscription|int $subscription The subscription object or ID.
 	 * @param int                  $user_id      The manager user ID.
+	 * @param boolean              $create       When true, generate an invite for the subscription and user if none exists.
 	 *
 	 * @return array|null The link-invite entry, or null if missing or subscription invalid.
 	 */
-	public static function get_link_invite( $subscription, $user_id ) {
+	public static function get_link_invite( $subscription, $user_id, $create = false ) {
 		$subscription = WooCommerce_Subscriptions::sanitize_subscription( $subscription );
 		if ( ! $subscription ) {
 			return null;
 		}
 		$all = $subscription->get_meta( self::LINK_META, true );
 		if ( ! is_array( $all ) ) {
+			if ( $create ) {
+				return self::generate_link_invite( $subscription, $user_id );
+			}
 			return null;
 		}
 		$user_id = (int) $user_id;
@@ -257,7 +254,7 @@ class Group_Subscription_Invite {
 		$now   = time();
 		$entry = [
 			'key'        => wp_generate_password( 32, false ),
-			'expiration' => $now + self::LINK_EXPIRATION,
+			'expiration' => $now + self::get_expiration_time(),
 			'created_at' => $now,
 		];
 		$all[ $user_id ] = $entry;

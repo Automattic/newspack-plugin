@@ -129,7 +129,11 @@ class Newspack_UI_Icons {
 			</svg>',
 		'copy'             =>
 			'<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false" class="newspack-ui__svg-icon--copy">
-				<path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z" />
+				<path fill-rule="evenodd" clip-rule="evenodd" d="M5.625 5.5h9.75c.069 0 .125.056.125.125v9.75a.125.125 0 0 1-.125.125h-9.75a.125.125 0 0 1-.125-.125v-9.75c0-.069.056-.125.125-.125ZM4 5.625C4 4.728 4.728 4 5.625 4h9.75C16.273 4 17 4.728 17 5.625v9.75c0 .898-.727 1.625-1.625 1.625h-9.75A1.625 1.625 0 0 1 4 15.375v-9.75Zm14.5 11.656v-9H20v9C20 18.8 18.77 20 17.251 20H6.25v-1.5h11.001c.69 0 1.249-.528 1.249-1.219Z" />
+			</svg>',
+		'create'           =>
+			'<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false" class="newspack-ui__svg-icon--create">
+				<path d="M16 11.2h-3.2V8h-1.6v3.2H8v1.6h3.2V16h1.6v-3.2H16z" />
 			</svg>',
 		'curatedList'      =>
 			'<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false" class="newspack-ui__svg-icon--curated-list">
@@ -150,6 +154,10 @@ class Newspack_UI_Icons {
 		'error'            =>
 			'<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false" class="newspack-ui__svg-icon--error">
 				<path fill-rule="evenodd" clip-rule="evenodd" d="M12.218 5.377a.25.25 0 0 0-.436 0l-7.29 12.96a.25.25 0 0 0 .218.373h14.58a.25.25 0 0 0 .218-.372l-7.29-12.96Zm-1.743-.735c.669-1.19 2.381-1.19 3.05 0l7.29 12.96a1.75 1.75 0 0 1-1.525 2.608H4.71a1.75 1.75 0 0 1-1.525-2.608l7.29-12.96ZM12.75 17.46h-1.5v-1.5h1.5v1.5Zm-1.5-3h1.5v-5h-1.5v5Z" />
+			</svg>',
+		'gift'             =>
+			'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" class="newspack-ui__svg-icon--gift">
+				<path d="M17.25 6.5C17.25 5.83696 16.9866 5.20107 16.5178 4.73223C16.0489 4.26339 15.413 4 14.75 4C14.087 4 13.4511 4.26339 12.9822 4.73223C12.5134 5.20107 12.25 5.83696 12.25 6.5C12.25 5.83696 11.9866 5.20107 11.5178 4.73223C11.0489 4.26339 10.413 4 9.75 4C9.08696 4 8.45107 4.26339 7.98223 4.73223C7.51339 5.20107 7.25 5.83696 7.25 6.5C7.25 7.16304 7.51339 7.79893 7.98223 8.26777C8.45107 8.73661 9.08696 9 9.75 9H4V20H20V9H14.75C15.413 9 16.0489 8.73661 16.5178 8.26777C16.9866 7.79893 17.25 7.16304 17.25 6.5ZM8.75 6.5C8.75 5.95 9.2 5.5 9.75 5.5C10.3 5.5 10.75 5.95 10.75 6.5V7.5H9.75C9.2 7.5 8.75 7.05 8.75 6.5ZM11.5 18.5H5.5V10.5H11.5V18.5ZM13.75 6.5C13.75 5.95 14.2 5.5 14.75 5.5C15.3 5.5 15.75 5.95 15.75 6.5C15.75 7.05 15.3 7.5 14.75 7.5H13.75V6.5ZM18.5 10.5V18.5H13V10.5H18.5Z" fill="#1E1E1E"/>
 			</svg>',
 		'globe'            =>
 			'<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false" class="newspack-ui__svg-icon--globe">
@@ -198,9 +206,9 @@ class Newspack_UI_Icons {
 			'<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false" class="newspack-ui__svg-icon--trash">
 				<path fill-rule="evenodd" clip-rule="evenodd" d="M12 5.5A2.25 2.25 0 0 0 9.878 7h4.244A2.251 2.251 0 0 0 12 5.5ZM12 4a3.751 3.751 0 0 0-3.675 3H5v1.5h1.27l.818 8.997a2.75 2.75 0 0 0 2.739 2.501h4.347a2.75 2.75 0 0 0 2.738-2.5L17.73 8.5H19V7h-3.325A3.751 3.751 0 0 0 12 4Zm4.224 4.5H7.776l.806 8.861a1.25 1.25 0 0 0 1.245 1.137h4.347a1.25 1.25 0 0 0 1.245-1.137l.805-8.861Z" />
 			</svg>',
-		'gift'             =>
-			'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" class="newspack-ui__svg-icon--gift">
-				<path d="M17.25 6.5C17.25 5.83696 16.9866 5.20107 16.5178 4.73223C16.0489 4.26339 15.413 4 14.75 4C14.087 4 13.4511 4.26339 12.9822 4.73223C12.5134 5.20107 12.25 5.83696 12.25 6.5C12.25 5.83696 11.9866 5.20107 11.5178 4.73223C11.0489 4.26339 10.413 4 9.75 4C9.08696 4 8.45107 4.26339 7.98223 4.73223C7.51339 5.20107 7.25 5.83696 7.25 6.5C7.25 7.16304 7.51339 7.79893 7.98223 8.26777C8.45107 8.73661 9.08696 9 9.75 9H4V20H20V9H14.75C15.413 9 16.0489 8.73661 16.5178 8.26777C16.9866 7.79893 17.25 7.16304 17.25 6.5ZM8.75 6.5C8.75 5.95 9.2 5.5 9.75 5.5C10.3 5.5 10.75 5.95 10.75 6.5V7.5H9.75C9.2 7.5 8.75 7.05 8.75 6.5ZM11.5 18.5H5.5V10.5H11.5V18.5ZM13.75 6.5C13.75 5.95 14.2 5.5 14.75 5.5C15.3 5.5 15.75 5.95 15.75 6.5C15.75 7.05 15.3 7.5 14.75 7.5H13.75V6.5ZM18.5 10.5V18.5H13V10.5H18.5Z" fill="#1E1E1E"/>
+		'update'           =>
+			'<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false" class="newspack-ui__svg-icon--update">
+				<path d="m11.3 17.2-5-5c-.1-.1-.1-.3 0-.4l2.3-2.3-1.1-1-2.3 2.3c-.7.7-.7 1.8 0 2.5l5 5H7.5v1.5h5.3v-5.2h-1.5v2.6zm7.5-6.4-5-5h2.7V4.2h-5.2v5.2h1.5V6.8l5 5c.1.1.1.3 0 .4l-2.3 2.3 1.1 1.1 2.3-2.3c.6-.7.6-1.9-.1-2.5z" />
 			</svg>',
 	);
 }

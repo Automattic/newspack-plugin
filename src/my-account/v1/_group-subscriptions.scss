@@ -45,4 +45,14 @@
 			}
 		}
 	}
+	&__invite-link__field {
+		align-items: center;
+		display: flex;
+		input {
+			margin-right: 8px;
+		}
+		.newspack-ui__button--icon {
+			margin: 0 !important;
+		}
+	}
 }
