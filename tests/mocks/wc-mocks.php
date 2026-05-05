@@ -510,11 +510,15 @@ function wc_customer_bought_product( $customer_email, $user_id, $product_id ) {
 	return false;
 }
 function wc_get_order( $order_id ) {
-	global $orders_database;
+	global $orders_database, $subscriptions_database;
 	foreach ( $orders_database as $order ) {
 		if ( $order->get_id() === $order_id ) {
 			return $order;
 		}
+	}
+	// Real WC: WC_Subscription extends WC_Order, so wc_get_order resolves a subscription ID too.
+	if ( isset( $subscriptions_database[ $order_id ] ) ) {
+		return $subscriptions_database[ $order_id ];
 	}
 	return false;
 }

@@ -508,6 +508,8 @@ Data_Events::register_listener(
  *
  * Uses raw add_action (not Data_Events::register_listener) because register_listener only supports
  * a single dispatch per hook fire — multi-line orders need one event per line item.
+ * Runs at PHP_INT_MAX so any earlier handlers that mutate the order are reflected in the payload,
+ * matching the convention in Data_Events::register_listener.
  * The action is registered at the top of this file.
  */
 add_action(
@@ -523,7 +525,7 @@ add_action(
 			Data_Events::dispatch( 'woo_order_updated', $payload );
 		}
 	},
-	10,
+	PHP_INT_MAX,
 	4
 );
 
@@ -532,6 +534,8 @@ add_action(
  *
  * Uses raw add_action (not Data_Events::register_listener) because register_listener only supports
  * a single dispatch per hook fire — multi-line subscriptions need one event per line item.
+ * Runs at PHP_INT_MAX so any earlier handlers that mutate the subscription are reflected in the payload,
+ * matching the convention in Data_Events::register_listener.
  * The action is registered at the top of this file.
  */
 add_action(
@@ -544,7 +548,7 @@ add_action(
 			Data_Events::dispatch( 'woo_subscription_updated', $payload );
 		}
 	},
-	10,
+	PHP_INT_MAX,
 	3
 );
 
@@ -554,6 +558,8 @@ add_action(
  *
  * Uses raw add_action because each switch order can affect multiple subscriptions and
  * each subscription can have multiple line items — N events per hook fire.
+ * Runs at PHP_INT_MAX so the dispatched status reflects post-switch adjustments made by other
+ * callbacks on the same hook, matching the convention in Data_Events::register_listener.
  * The action is registered at the top of this file.
  */
 add_action(
@@ -576,6 +582,6 @@ add_action(
 			}
 		}
 	},
-	10,
+	PHP_INT_MAX,
 	1
 );

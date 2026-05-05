@@ -14,11 +14,17 @@ require_once __DIR__ . '/../mocks/wc-mocks.php';
  */
 class Newspack_Test_Data_Events extends WP_UnitTestCase {
 	/**
-	 * Always reset any global product state mutated by tests, even if
-	 * an assertion fails partway through.
+	 * Always reset the wc-mocks PHP globals mutated by tests in this class, even if
+	 * an assertion fails partway through. The mocks back orders, subscriptions, and
+	 * products with PHP globals (not DB), so they don't get rolled back by
+	 * WP_UnitTestCase's transaction handling.
 	 */
 	public function tear_down() {
-		$this->reset_donation_products();
+		global $orders_database, $subscriptions_database, $products_database;
+		$orders_database        = [];
+		$subscriptions_database = [];
+		$products_database      = [];
+		\delete_option( 'newspack_donation_product_id' );
 		parent::tear_down();
 	}
 
@@ -1182,15 +1188,6 @@ class Newspack_Test_Data_Events extends WP_UnitTestCase {
 		\update_post_meta( $ids['year'], '_subscription_period', 'year' );
 
 		return $ids;
-	}
-
-	/**
-	 * Reset the WC mock products and donation option between tests.
-	 */
-	private function reset_donation_products() {
-		global $products_database;
-		$products_database = [];
-		\delete_option( 'newspack_donation_product_id' );
 	}
 
 	/**
