@@ -236,14 +236,16 @@ class Group_Subscription_Invite {
 		if ( ! $subscription || ! Group_Subscription::is_group_subscription( $subscription ) ) {
 			return new \WP_Error(
 				'newspack_group_subscription_link_invite_invalid_subscription',
-				__( 'Invalid subscription.', 'newspack-plugin' )
+				__( 'Invalid subscription.', 'newspack-plugin' ),
+				[ 'status' => 404 ]
 			);
 		}
 		$user_id = (int) $user_id;
 		if ( ! Group_Subscription::user_is_manager( $user_id, $subscription ) ) {
 			return new \WP_Error(
 				'newspack_group_subscription_link_invite_not_manager',
-				__( 'You do not have permission to manage this group subscription.', 'newspack-plugin' )
+				__( 'You do not have permission to manage this group subscription.', 'newspack-plugin' ),
+				[ 'status' => 403 ]
 			);
 		}
 

@@ -1493,6 +1493,60 @@ class Test_Group_Subscriptions extends \WP_UnitTestCase {
 	}
 
 	/**
+	 * Test the REST /invite-link endpoint returns 404 when the subscription
+	 * exists but is not a group subscription. The caller is a WooCommerce
+	 * admin so the permission callback passes; the WP_Error from
+	 * generate_link_invite() must surface as a 404 status.
+	 */
+	public function test_rest_invite_link_invalid_subscription_returns_404() {
+		$admin_id   = $this->create_admin_user();
+		$reader_id  = $this->create_reader_user();
+		$regular    = $this->create_regular_subscription( $reader_id );
+
+		wp_set_current_user( $admin_id );
+		do_action( 'rest_api_init' );
+
+		$request = new \WP_REST_Request( 'POST', '/newspack-group-subscription/v1/invite-link' );
+		$request->set_param( 'subscription_id', $regular->get_id() );
+
+		$response = rest_get_server()->dispatch( $request );
+		$this->assertEquals( 404, $response->get_status() );
+
+		$data = $response->get_data();
+		$this->assertEquals(
+			'newspack_group_subscription_link_invite_invalid_subscription',
+			is_array( $data ) ? ( $data['code'] ?? null ) : null
+		);
+	}
+
+	/**
+	 * Test the REST /invite-link endpoint returns 403 when the caller passes
+	 * the permission callback (manage_woocommerce admin) but is not the
+	 * manager of the target subscription. The WP_Error from generate_link_invite()
+	 * must surface as a 403 status.
+	 */
+	public function test_rest_invite_link_not_manager_returns_403() {
+		$admin_id  = $this->create_admin_user();
+		$owner_id  = $this->create_reader_user();
+		$group_sub = $this->create_group_subscription( $owner_id );
+
+		wp_set_current_user( $admin_id );
+		do_action( 'rest_api_init' );
+
+		$request = new \WP_REST_Request( 'POST', '/newspack-group-subscription/v1/invite-link' );
+		$request->set_param( 'subscription_id', $group_sub->get_id() );
+
+		$response = rest_get_server()->dispatch( $request );
+		$this->assertEquals( 403, $response->get_status() );
+
+		$data = $response->get_data();
+		$this->assertEquals(
+			'newspack_group_subscription_link_invite_not_manager',
+			is_array( $data ) ? ( $data['code'] ?? null ) : null
+		);
+	}
+
+	/**
 	 * Test validate_link_invite() rejects when the subscription is no longer active.
 	 */
 	public function test_validate_link_invite_rejects_inactive_subscription() {
