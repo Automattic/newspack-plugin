@@ -83,6 +83,7 @@ class Group_Subscription_Invite {
 	public static function init() {
 		add_filter( 'newspack_email_configs', [ __CLASS__, 'add_email_config' ] );
 		add_action( 'template_redirect', [ __CLASS__, 'process_invite_request' ] );
+		add_action( 'template_redirect', [ __CLASS__, 'process_link_invite_request' ] );
 		add_action( 'wp_login', [ __CLASS__, 'process_deferred_invite' ], 10, 2 );
 		add_action( 'init', [ __CLASS__, 'render_invite_notice' ] );
 	}
@@ -547,6 +548,72 @@ class Group_Subscription_Invite {
 			return;
 		}
 		self::redirect_with_result( 'success' );
+	}
+
+	/**
+	 * Process an invite-link click.
+	 * Handles the ?action=group_invite_link URL.
+	 */
+	public static function process_link_invite_request() {
+		if ( ! function_exists( 'wcs_get_subscription' ) ) {
+			return;
+		}
+		if ( ! isset( $_GET['action'] ) || self::LINK_QUERY_ARG !== $_GET['action'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			return;
+		}
+
+		$subscription_id = isset( $_GET['s'] ) ? absint( $_GET['s'] ) : 0; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$user_id         = isset( $_GET['m'] ) ? absint( $_GET['m'] ) : 0; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$key             = isset( $_GET['k'] ) ? sanitize_text_field( wp_unslash( $_GET['k'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+
+		$subscription = WooCommerce_Subscriptions::sanitize_subscription( $subscription_id );
+
+		// Compute "where do we send them on errors" for both auth states.
+		$current_user      = wp_get_current_user();
+		$is_logged_in      = (bool) $current_user->ID;
+		$myaccount_url     = function_exists( 'wc_get_page_permalink' ) ? wc_get_page_permalink( 'myaccount' ) : home_url();
+		$error_target_url  = $is_logged_in ? $myaccount_url : home_url();
+
+		// Validate the link.
+		$validation = self::validate_link_invite( $subscription, $user_id, $key );
+		if ( is_wp_error( $validation ) ) {
+			self::redirect_with_result( 'link_invalid', '', $error_target_url );
+			return;
+		}
+
+		// Not logged in → bounce to My Account with redirect=back-to-link, banner via 'link_login'.
+		if ( ! $is_logged_in ) {
+			$link_url = self::get_link_invite_url( $subscription_id, $user_id, $key );
+			$redirect_target = add_query_arg(
+				[
+					self::RESULT_QUERY_ARG => 'link_login',
+					'redirect'             => rawurlencode( $link_url ),
+				],
+				$myaccount_url
+			);
+			wp_safe_redirect( $redirect_target );
+			exit;
+		}
+
+		// Member-limit check.
+		$settings = Group_Subscription_Settings::get_subscription_settings( $subscription );
+		if ( $settings['limit'] > 0 && count( Group_Subscription::get_members( $subscription ) ) >= $settings['limit'] ) {
+			self::redirect_with_result( 'link_full', '', $error_target_url );
+			return;
+		}
+
+		// Attempt to add the current user as a member.
+		$result = Group_Subscription::update_members( $subscription, [ $current_user->ID ] );
+		if ( is_wp_error( $result ) || empty( $result['members_added'][ $current_user->ID ] ) ) {
+			self::redirect_with_result( 'link_failed', '', $error_target_url );
+			return;
+		}
+
+		// Success → subscription view URL.
+		$success_url = function_exists( 'wc_get_endpoint_url' )
+			? wc_get_endpoint_url( 'view-subscription', $subscription->get_id(), $myaccount_url )
+			: $myaccount_url;
+		self::redirect_with_result( 'link_success', '', $success_url );
 	}
 
 	/**
