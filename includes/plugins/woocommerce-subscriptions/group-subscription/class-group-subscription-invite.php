@@ -269,6 +269,46 @@ class Group_Subscription_Invite {
 	}
 
 	/**
+	 * Validate an invite-link at click-time.
+	 *
+	 * @param \WC_Subscription|int $subscription Subscription object or ID.
+	 * @param int                  $user_id      Manager user ID.
+	 * @param string               $key          Invite key from the URL.
+	 *
+	 * @return true|\WP_Error True if valid; otherwise an error code.
+	 */
+	public static function validate_link_invite( $subscription, $user_id, $key ) {
+		$subscription = WooCommerce_Subscriptions::sanitize_subscription( $subscription );
+		if ( ! $subscription || ! Group_Subscription::is_group_subscription( $subscription ) ) {
+			return new \WP_Error(
+				'newspack_group_subscription_link_invite_invalid_subscription',
+				__( 'Invalid subscription.', 'newspack-plugin' )
+			);
+		}
+		$user_id = (int) $user_id;
+		if ( ! Group_Subscription::user_is_manager( $user_id, $subscription ) ) {
+			return new \WP_Error(
+				'newspack_group_subscription_link_invite_not_manager',
+				__( 'The link manager is no longer a manager of this subscription.', 'newspack-plugin' )
+			);
+		}
+		$entry = self::get_link_invite( $subscription, $user_id );
+		if ( ! $entry || empty( $entry['key'] ) || ! hash_equals( (string) $entry['key'], (string) $key ) ) {
+			return new \WP_Error(
+				'newspack_group_subscription_link_invite_not_found',
+				__( 'Invite link not found.', 'newspack-plugin' )
+			);
+		}
+		if ( self::is_invite_expired( $entry ) ) {
+			return new \WP_Error(
+				'newspack_group_subscription_link_invite_expired',
+				__( 'Invite link has expired.', 'newspack-plugin' )
+			);
+		}
+		return true;
+	}
+
+	/**
 	 * Generate a group subscription invite key.
 	 *
 	 * @param \WC_Subscription|int $subscription The subscription object or ID.

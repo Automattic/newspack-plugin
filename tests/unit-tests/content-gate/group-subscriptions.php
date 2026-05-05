@@ -1333,4 +1333,114 @@ class Test_Group_Subscriptions extends \WP_UnitTestCase {
 		$stored = Group_Subscription_Invite::get_link_invite( $group_sub, $owner_id );
 		$this->assertEquals( $second['key'], $stored['key'] );
 	}
+
+	/**
+	 * Test validate_link_invite() returns true for a valid link.
+	 */
+	public function test_validate_link_invite_valid() {
+		$owner_id  = $this->create_reader_user();
+		$group_sub = $this->create_group_subscription( $owner_id );
+
+		wp_set_current_user( $owner_id );
+		$invite = Group_Subscription_Invite::generate_link_invite( $group_sub, $owner_id );
+
+		$result = Group_Subscription_Invite::validate_link_invite( $group_sub, $owner_id, $invite['key'] );
+		$this->assertTrue( $result );
+	}
+
+	/**
+	 * Test validate_link_invite() rejects an unknown subscription.
+	 */
+	public function test_validate_link_invite_unknown_subscription() {
+		$result = Group_Subscription_Invite::validate_link_invite( 99999, 1, 'k' );
+		$this->assertWPError( $result );
+	}
+
+	/**
+	 * Test validate_link_invite() rejects a non-group subscription.
+	 */
+	public function test_validate_link_invite_non_group() {
+		$owner_id = $this->create_reader_user();
+		$regular  = $this->create_regular_subscription( $owner_id );
+
+		$result = Group_Subscription_Invite::validate_link_invite( $regular, $owner_id, 'k' );
+		$this->assertWPError( $result );
+	}
+
+	/**
+	 * Test validate_link_invite() rejects when no entry exists for the user.
+	 */
+	public function test_validate_link_invite_no_entry() {
+		$owner_id  = $this->create_reader_user();
+		$group_sub = $this->create_group_subscription( $owner_id );
+
+		$result = Group_Subscription_Invite::validate_link_invite( $group_sub, $owner_id, 'k' );
+		$this->assertWPError( $result );
+	}
+
+	/**
+	 * Test validate_link_invite() rejects a key mismatch.
+	 */
+	public function test_validate_link_invite_key_mismatch() {
+		$owner_id  = $this->create_reader_user();
+		$group_sub = $this->create_group_subscription( $owner_id );
+
+		wp_set_current_user( $owner_id );
+		Group_Subscription_Invite::generate_link_invite( $group_sub, $owner_id );
+
+		$result = Group_Subscription_Invite::validate_link_invite( $group_sub, $owner_id, 'wrong-key' );
+		$this->assertWPError( $result );
+	}
+
+	/**
+	 * Test validate_link_invite() rejects an expired invite.
+	 */
+	public function test_validate_link_invite_expired() {
+		$owner_id  = $this->create_reader_user();
+		$group_sub = $this->create_group_subscription( $owner_id );
+
+		// Manually write an expired entry so we don't need to wait or mock time().
+		$group_sub->update_meta_data(
+			Group_Subscription_Invite::LINK_META,
+			[
+				$owner_id => [
+					'key'        => 'expired-key',
+					'expiration' => time() - 100,
+					'created_at' => time() - 1000,
+				],
+			]
+		);
+		$group_sub->save();
+
+		$result = Group_Subscription_Invite::validate_link_invite( $group_sub, $owner_id, 'expired-key' );
+		$this->assertWPError( $result );
+		$this->assertEquals( 'newspack_group_subscription_link_invite_expired', $result->get_error_code() );
+	}
+
+	/**
+	 * Test validate_link_invite() rejects when the manager is no longer a manager.
+	 */
+	public function test_validate_link_invite_manager_no_longer_manager() {
+		$owner_id  = $this->create_reader_user();
+		$group_sub = $this->create_group_subscription( $owner_id );
+
+		wp_set_current_user( $owner_id );
+		$invite = Group_Subscription_Invite::generate_link_invite( $group_sub, $owner_id );
+
+		// Use a filter to simulate the user no longer being a manager.
+		$callback = function ( $is_manager, $user_id ) use ( $owner_id ) {
+			if ( (int) $user_id === (int) $owner_id ) {
+				return false;
+			}
+			return $is_manager;
+		};
+		add_filter( 'newspack_group_subscription_user_is_manager', $callback, 10, 2 );
+
+		$result = Group_Subscription_Invite::validate_link_invite( $group_sub, $owner_id, $invite['key'] );
+
+		remove_filter( 'newspack_group_subscription_user_is_manager', $callback, 10 );
+
+		$this->assertWPError( $result );
+		$this->assertEquals( 'newspack_group_subscription_link_invite_not_manager', $result->get_error_code() );
+	}
 }
