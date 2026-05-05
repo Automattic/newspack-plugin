@@ -221,8 +221,6 @@ final class Author_Profile_Social_Block {
 
 	/**
 	 * Get wrapper attributes (class, style, etc.) for the block.
-	 * Sets block context so core includes default class, custom className, and other supports.
-	 * Color serialization is skipped via block.json so colors are applied only as CSS vars.
 	 *
 	 * @param WP_Block $block      Block instance.
 	 * @param array    $attributes Block attributes.
@@ -230,49 +228,30 @@ final class Author_Profile_Social_Block {
 	 * @return string HTML attributes for the wrapper element.
 	 */
 	private static function get_block_wrapper_attributes( WP_Block $block, array $attributes, int $icon_size ): string {
-		$previous = \WP_Block_Supports::$block_to_render ?? null;
-		\WP_Block_Supports::$block_to_render = $block->parsed_block;
-
-		$wrapper_attributes = get_block_wrapper_attributes(
+		return get_block_wrapper_attributes(
 			[
 				'class' => 'author-profile-social__list',
 				'style' => self::get_wrapper_style( $attributes, $icon_size ),
 			]
 		);
-
-		\WP_Block_Supports::$block_to_render = $previous;
-
-		return $wrapper_attributes;
 	}
 
 	/**
-	 * Convert a preset token (var:preset|type|slug) to a CSS variable reference.
-	 *
-	 * @param string $value Raw value, e.g. "var:preset|color|primary" or "#fff".
-	 * @return string CSS value, e.g. "var(--wp--preset--color--primary)" or "#fff".
-	 */
-	private static function preset_to_css( string $value ): string {
-		if ( preg_match( '/^var:preset\|([^|]+)\|(.+)$/', $value, $matches ) ) {
-			return sprintf( 'var(--wp--preset--%s--%s)', $matches[1], $matches[2] );
-		}
-		return $value;
-	}
-
-	/**
-	 * Resolve a color value from attributes (preset slug or custom style token).
+	 * Resolve a color value from the block's icon color attributes.
+	 * Prefers the preset slug (so theme switches reflect new palette values)
+	 * and falls back to the saved hex/CSS value when no preset is set.
 	 *
 	 * @param array  $attributes Block attributes.
-	 * @param string $preset_key Top-level preset attribute key (e.g. "textColor").
-	 * @param string $style_key  Key under style.color (e.g. "text").
+	 * @param string $preset_key Preset slug attribute key (e.g. "iconColor").
+	 * @param string $value_key  Resolved CSS value attribute key (e.g. "iconColorValue").
 	 * @return string|null CSS color value or null.
 	 */
-	private static function resolve_color( array $attributes, string $preset_key, string $style_key ): ?string {
+	private static function resolve_color( array $attributes, string $preset_key, string $value_key ): ?string {
 		if ( ! empty( $attributes[ $preset_key ] ) && is_string( $attributes[ $preset_key ] ) ) {
 			return sprintf( 'var(--wp--preset--color--%s)', $attributes[ $preset_key ] );
 		}
-		$custom = $attributes['style']['color'][ $style_key ] ?? null;
-		if ( ! empty( $custom ) && is_string( $custom ) ) {
-			return self::preset_to_css( $custom );
+		if ( ! empty( $attributes[ $value_key ] ) && is_string( $attributes[ $value_key ] ) ) {
+			return $attributes[ $value_key ];
 		}
 		return null;
 	}
@@ -281,7 +260,6 @@ final class Author_Profile_Social_Block {
 	 * Build wrapper inline style with CSS variables for icon sizing and color.
 	 * Margin is handled natively by get_block_wrapper_attributes().
 	 * Gap is handled by WP layout support (outputs scoped <style> tag per block).
-	 * Color classes/inline styles are skipped via __experimentalSkipSerialization in block.json.
 	 *
 	 * @param array $attributes Block attributes.
 	 * @param int   $icon_size  Icon size in pixels.
@@ -292,8 +270,8 @@ final class Author_Profile_Social_Block {
 		$is_brand = ! empty( $attributes['className'] ) && str_contains( $attributes['className'], 'is-style-brand' );
 
 		if ( ! $is_brand ) {
-			$icon_color      = self::resolve_color( $attributes, 'textColor', 'text' );
-			$icon_background = self::resolve_color( $attributes, 'backgroundColor', 'background' );
+			$icon_color      = self::resolve_color( $attributes, 'iconColor', 'iconColorValue' );
+			$icon_background = self::resolve_color( $attributes, 'iconBackgroundColor', 'iconBackgroundColorValue' );
 
 			if ( null !== $icon_color ) {
 				$parts[] = sprintf( '--icon-color: %s;', $icon_color );
