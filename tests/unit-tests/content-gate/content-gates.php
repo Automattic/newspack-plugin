@@ -879,8 +879,7 @@ class Test_Content_Gates extends \WP_UnitTestCase {
 	/**
 	 * Reset the static per-post restriction cache on Content_Restriction_Control.
 	 * This cache is populated by is_post_restricted() and must be cleared between
-	 * tests to prevent cross-test contamination. Also resets the cached user ID,
-	 * which is seeded on the first call and used by get_gate_layout_id().
+	 * tests to prevent cross-test contamination.
 	 */
 	private function reset_restriction_cache() {
 		foreach ( [ 'post_gate_id_map', 'post_gate_layout_id_map' ] as $prop ) {
@@ -888,22 +887,6 @@ class Test_Content_Gates extends \WP_UnitTestCase {
 			$reflection->setAccessible( true );
 			$reflection->setValue( null, [] );
 		}
-		$user_id_reflection = new \ReflectionProperty( Content_Restriction_Control::class, 'user_id' );
-		$user_id_reflection->setAccessible( true );
-		$user_id_reflection->setValue( null, 0 );
-	}
-
-	/**
-	 * Read the cached user ID on Content_Restriction_Control via reflection.
-	 * Used to assert the seeding logic directly rather than through downstream
-	 * layout behavior.
-	 *
-	 * @return int Cached user ID (0 when not yet seeded or last seeded as anonymous).
-	 */
-	private function get_cached_user_id() {
-		$reflection = new \ReflectionProperty( Content_Restriction_Control::class, 'user_id' );
-		$reflection->setAccessible( true );
-		return (int) $reflection->getValue();
 	}
 
 	/**
@@ -1964,11 +1947,10 @@ class Test_Content_Gates extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * Regression: is_post_restricted must evaluate each call's $user_id
-	 * independently. Previously, a static-cached `self::$user_id` made every
-	 * call after the first reuse the first user's restriction state — broke
-	 * Newspack_Premium_Newsletters::process_queue, which loops over multiple
-	 * user IDs.
+	 * Each is_post_restricted() call must evaluate restrictions for its own
+	 * $user_id, both for the bool return and for the cache slot it writes.
+	 * Regression coverage for Newspack_Premium_Newsletters::process_queue,
+	 * which loops over multiple user IDs in a single request.
 	 */
 	public function test_is_post_restricted_evaluates_each_user_independently() {
 		$inst_id = Institution::create( 'University', '', [ 'email_domain' => 'university.edu' ] );
@@ -2023,24 +2005,23 @@ class Test_Content_Gates extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * Pin the seeding contract for self::$user_id directly: the static is
-	 * seeded by the *first* caller and is not overwritten by subsequent
-	 * callers in the same request. This is what get_gate_post_id() and
-	 * get_gate_layout_id() rely on to surface the page-render viewer's
-	 * gate to templates regardless of any later evaluations (e.g. queue
-	 * workers, REST callbacks) that pass a different user ID.
-	 *
-	 * Catches seeding regressions directly via reflection rather than
-	 * through downstream layout behavior.
+	 * Pin the gate-layout cache contract: get_gate_layout_id() must read for
+	 * the *current* user (via get_current_user_id()), not for whichever user
+	 * happened to populate the cache via an earlier is_post_restricted()
+	 * call. This protects the page-render viewer from seeing a queue
+	 * worker's or REST callback's cached layout.
 	 */
-	public function test_is_post_restricted_seeds_user_id_from_first_caller_only() {
-		$first_user = $this->factory->user->create( [ 'role' => 'subscriber' ] );
-		update_user_meta( $first_user, Reader_Activation::EMAIL_VERIFIED, true );
-		$second_user = $this->factory->user->create( [ 'role' => 'subscriber' ] );
-		update_user_meta( $second_user, Reader_Activation::EMAIL_VERIFIED, true );
+	public function test_get_gate_layout_id_does_not_return_other_users_cached_layout() {
+		$queue_user = $this->factory->user->create( [ 'role' => 'subscriber' ] );
+		// $queue_user is intentionally unverified — gate's require_verification will restrict it.
+		$page_user = $this->factory->user->create( [ 'role' => 'subscriber' ] );
+		update_user_meta( $page_user, Reader_Activation::EMAIL_VERIFIED, true );
 
 		$this->configure_published_gate(
-			[ 'active' => true ],
+			[
+				'active'               => true,
+				'require_verification' => true,
+			],
 			[
 				'active'       => false,
 				'access_rules' => [],
@@ -2048,34 +2029,28 @@ class Test_Content_Gates extends \WP_UnitTestCase {
 		);
 
 		$this->reset_restriction_cache();
-		$this->assertSame( 0, $this->get_cached_user_id(), 'Sanity: cache is reset before first call.' );
 
-		// First call seeds self::$user_id from the caller's $user_id.
-		Content_Restriction_Control::is_post_restricted( false, $this->post_ids[0], $first_user );
-		$this->assertSame(
-			$first_user,
-			$this->get_cached_user_id(),
-			'self::$user_id must be seeded from the first caller.'
+		// Queue-worker pattern: is_post_restricted called with an explicit, non-current user.
+		// This must populate the cache under $queue_user only.
+		$this->assertTrue(
+			Content_Restriction_Control::is_post_restricted( false, $this->post_ids[0], $queue_user ),
+			'Unverified queue user must be restricted by the require_verification gate.'
 		);
 
-		// Subsequent call with a different user must not overwrite the seed.
-		Content_Restriction_Control::is_post_restricted( false, $this->post_ids[0], $second_user );
-		$this->assertSame(
-			$first_user,
-			$this->get_cached_user_id(),
-			'self::$user_id must NOT be overwritten by a subsequent caller — first caller wins.'
+		// Switch to the page-render viewer.
+		wp_set_current_user( $page_user );
+
+		$this->assertFalse(
+			Content_Restriction_Control::get_gate_layout_id( $this->post_ids[0] ),
+			'get_gate_layout_id must not surface a cache entry written for a different user.'
+		);
+		$this->assertFalse(
+			Content_Restriction_Control::get_gate_post_id( $this->post_ids[0] ),
+			'get_gate_post_id must not surface a cache entry written for a different user.'
 		);
 
-		// Anonymous call after seeding must also leave the seed alone.
-		Content_Restriction_Control::is_post_restricted( false, $this->post_ids[0], 0 );
-		$this->assertSame(
-			$first_user,
-			$this->get_cached_user_id(),
-			'Anonymous call after seeding must not zero out self::$user_id.'
-		);
-
-		wp_delete_user( $first_user );
-		wp_delete_user( $second_user );
+		wp_delete_user( $queue_user );
+		wp_delete_user( $page_user );
 		$this->reset_visitor_state();
 	}
 }
