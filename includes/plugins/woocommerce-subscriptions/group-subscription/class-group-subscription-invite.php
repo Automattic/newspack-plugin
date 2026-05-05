@@ -619,20 +619,23 @@ class Group_Subscription_Invite {
 	}
 
 	/**
-	 * Redirect to home with a result query parameter.
+	 * Redirect to a target URL with a result query parameter.
 	 *
-	 * @param string $status 'success' or 'error'.
-	 * @param string $message Optional error message.
+	 * @param string      $status     'success', 'error', or a specific result code (e.g. 'link_invalid').
+	 * @param string      $message    Optional error message stored in a transient.
+	 * @param string|null $target_url Optional redirect base. Defaults to My Account or home_url().
 	 */
-	private static function redirect_with_result( $status, $message = '' ) {
+	private static function redirect_with_result( $status, $message = '', $target_url = null ) {
 		$args = [ self::RESULT_QUERY_ARG => $status ];
 		if ( 'error' === $status && $message ) {
-			// Store message in a transient since it can be too long for a query param.
 			$transient_key = wp_generate_password( 8, false );
 			set_transient( 'np_group_invite_msg_' . $transient_key, $message, 60 );
 			$args['message_key'] = $transient_key;
 		}
-		wp_safe_redirect( add_query_arg( $args, function_exists( 'wc_get_page_permalink' ) ? wc_get_page_permalink( 'myaccount' ) : home_url() ) );
+		if ( null === $target_url ) {
+			$target_url = function_exists( 'wc_get_page_permalink' ) ? wc_get_page_permalink( 'myaccount' ) : home_url();
+		}
+		wp_safe_redirect( add_query_arg( $args, $target_url ) );
 		exit;
 	}
 

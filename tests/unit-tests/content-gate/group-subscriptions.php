@@ -1443,4 +1443,13 @@ class Test_Group_Subscriptions extends \WP_UnitTestCase {
 		$this->assertWPError( $result );
 		$this->assertEquals( 'newspack_group_subscription_link_invite_not_manager', $result->get_error_code() );
 	}
+
+	/**
+	 * Smoke test: render_invite_notice() handles a missing result query arg without errors.
+	 */
+	public function test_render_invite_notice_no_result_does_nothing() {
+		// Just verify the function is callable without exploding when nothing is set.
+		// If wc_add_notice is not defined in this env, the early return will skip.
+		$this->assertNull( Group_Subscription_Invite::render_invite_notice() );
+	}
 }
