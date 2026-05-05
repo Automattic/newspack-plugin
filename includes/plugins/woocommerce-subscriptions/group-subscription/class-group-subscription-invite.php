@@ -669,10 +669,6 @@ class Group_Subscription_Invite {
 	 * Render invite result notice.
 	 */
 	public static function render_invite_notice() {
-		if ( ! function_exists( 'wc_add_notice' ) ) {
-			return;
-		}
-
 		$result = isset( $_GET[ self::RESULT_QUERY_ARG ] ) ? sanitize_text_field( wp_unslash( $_GET[ self::RESULT_QUERY_ARG ] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		if ( ! $result ) {
 			// Check for deferred acceptance notice.
@@ -715,7 +711,12 @@ class Group_Subscription_Invite {
 		];
 
 		if ( isset( $link_messages[ $result ] ) ) {
-			wc_add_notice( $link_messages[ $result ]['message'], $link_messages[ $result ]['type'] );
+			Newspack_UI::add_notice( $link_messages[ $result ]['message'], $link_messages[ $result ]['type'] );
+			return;
+		}
+
+		// Legacy email-invite branch uses WC notices since it always redirects to My Account.
+		if ( ! function_exists( 'wc_add_notice' ) ) {
 			return;
 		}
 
