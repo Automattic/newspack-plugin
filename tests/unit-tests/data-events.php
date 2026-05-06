@@ -1481,6 +1481,7 @@ class Newspack_Test_Data_Events extends WP_UnitTestCase {
 		$this->assertContains( 'Donation', $names );
 		$this->assertContains( 'T-shirt', $names );
 		foreach ( $captured as $payload ) {
+			$this->assertSame( 'pending', $payload['status_from'] );
 			$this->assertSame( 'completed', $payload['status'] );
 			$this->assertSame( $order->get_id(), $payload['order_id'] );
 		}
@@ -1518,6 +1519,7 @@ class Newspack_Test_Data_Events extends WP_UnitTestCase {
 		do_action( 'woocommerce_subscription_status_updated', $subscription, 'on-hold', 'active' );
 
 		$this->assertCount( 1, $captured );
+		$this->assertSame( 'active', $captured[0]['status_from'] );
 		$this->assertSame( 'on-hold', $captured[0]['status'] );
 		$this->assertSame( (int) $subscription->get_id(), $captured[0]['subscription_id'] );
 		$this->assertFalse( $captured[0]['is_switch'] );
@@ -1570,6 +1572,8 @@ class Newspack_Test_Data_Events extends WP_UnitTestCase {
 
 		$this->assertCount( 1, $captured );
 		$this->assertSame( (int) $subscription->get_id(), $captured[0]['subscription_id'] );
+		// For switches, status_from equals status (no status transition occurred).
+		$this->assertSame( 'active', $captured[0]['status_from'] );
 		$this->assertSame( 'active', $captured[0]['status'] );
 		$this->assertTrue( $captured[0]['is_switch'] );
 	}

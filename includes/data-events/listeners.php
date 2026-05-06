@@ -521,7 +521,7 @@ add_action(
 		if ( ! $order ) {
 			return;
 		}
-		foreach ( \Newspack\Data_Events\Utils::get_woo_order_updated_payloads( $order, $status_to ) as $payload ) {
+		foreach ( \Newspack\Data_Events\Utils::get_woo_order_updated_payloads( $order, $status_to, $status_from ) as $payload ) {
 			Data_Events::dispatch( 'woo_order_updated', $payload );
 		}
 	},
@@ -544,7 +544,7 @@ add_action(
 		if ( ! $subscription instanceof \WC_Subscription ) {
 			return;
 		}
-		foreach ( \Newspack\Data_Events\Utils::get_woo_subscription_updated_payloads( $subscription, $status_to ) as $payload ) {
+		foreach ( \Newspack\Data_Events\Utils::get_woo_subscription_updated_payloads( $subscription, $status_to, $status_from ) as $payload ) {
 			Data_Events::dispatch( 'woo_subscription_updated', $payload );
 		}
 	},
@@ -577,7 +577,9 @@ add_action(
 			if ( ! $subscription instanceof \WC_Subscription ) {
 				continue;
 			}
-			foreach ( \Newspack\Data_Events\Utils::get_woo_subscription_updated_payloads( $subscription, $subscription->get_status(), true ) as $payload ) {
+			$current_status = $subscription->get_status();
+			// For switches, no status transition occurs — pass the current status as both from/to.
+			foreach ( \Newspack\Data_Events\Utils::get_woo_subscription_updated_payloads( $subscription, $current_status, $current_status, true ) as $payload ) {
 				Data_Events::dispatch( 'woo_subscription_updated', $payload );
 			}
 		}

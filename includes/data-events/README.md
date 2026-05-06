@@ -266,7 +266,8 @@ Fires for every WooCommerce order status transition (any status → any status).
 | Name              | Type            | Obs                                                              |
 | ----------------- | --------------- | ---------------------------------------------------------------- |
 | `order_id`        | `int`           |                                                                  |
-| `status`          | `string`        | WC slug, e.g. `completed`, `failed`, `processing`, `on-hold`     |
+| `status_from`     | `string\|null`  | Previous status (WC slug). `null` if not provided by the dispatcher. |
+| `status`          | `string`        | New status (WC slug, e.g. `completed`, `failed`, `processing`, `on-hold`) |
 | `user_id`         | `int`           |                                                                  |
 | `email`           | `string`        |                                                                  |
 | `amount`          | `float`         | Line item subtotal                                               |
@@ -287,7 +288,8 @@ Fires for every WC Subscription status transition AND for switches (recurrence/a
 | Name              | Type     | Obs                                                                                  |
 | ----------------- | -------- | ------------------------------------------------------------------------------------ |
 | `subscription_id` | `int`    |                                                                                      |
-| `status`          | `string` | WC slug: `active`, `cancelled`, `pending-cancel`, `on-hold`, `paused`, `pending`, `expired` |
+| `status_from`     | `string\|null` | Previous status (WC slug). For switches, equals `status` since no transition occurs. `null` if not provided. |
+| `status`          | `string` | New status (WC slug: `active`, `cancelled`, `pending-cancel`, `on-hold`, `paused`, `pending`, `expired`) |
 | `user_id`         | `int`    |                                                                                      |
 | `email`           | `string` |                                                                                      |
 | `amount`          | `float`  | Line item subtotal                                                                   |

@@ -95,12 +95,14 @@ final class Utils {
 	/**
 	 * Build payloads for the `woo_order_updated` event — one per product line item.
 	 *
-	 * @param \WC_Order $order  Order whose status just changed.
-	 * @param string    $status The new status (WC slug, e.g. 'completed', 'failed').
+	 * @param \WC_Order   $order       Order whose status just changed.
+	 * @param string      $status      The new status (WC slug, e.g. 'completed', 'failed').
+	 * @param string|null $status_from The previous status (WC slug). Optional; pass `null`
+	 *                                 when no transition is known (e.g. direct programmatic dispatch).
 	 *
 	 * @return array<int, array<string, mixed>> Array of payloads, possibly empty.
 	 */
-	public static function get_woo_order_updated_payloads( $order, $status ) {
+	public static function get_woo_order_updated_payloads( $order, $status, $status_from = null ) {
 		if ( ! $order instanceof \WC_Order ) {
 			return [];
 		}
@@ -121,6 +123,7 @@ final class Utils {
 			$recurrence = \get_post_meta( $product_id, '_subscription_period', true );
 			$payloads[] = [
 				'order_id'        => (int) $order->get_id(),
+				'status_from'     => $status_from,
 				'status'          => $status,
 				'user_id'         => (int) $order->get_customer_id(),
 				'email'           => $order->get_billing_email(),
@@ -144,13 +147,16 @@ final class Utils {
 	 *
 	 * @param \WC_Subscription $subscription Subscription whose status changed (or which was switched).
 	 * @param string           $status       The new status (WC slug).
+	 * @param string|null      $status_from  The previous status (WC slug). For switches, pass the
+	 *                                       current status (status_from === status, no transition).
+	 *                                       Optional; pass `null` when no transition is known.
 	 * @param bool             $is_switch    Whether the event originates from a subscription switch
 	 *                                       (recurrence/amount change) rather than a status transition.
 	 *                                       Defaults to false.
 	 *
 	 * @return array<int, array<string, mixed>> Array of payloads, possibly empty.
 	 */
-	public static function get_woo_subscription_updated_payloads( $subscription, $status, $is_switch = false ) {
+	public static function get_woo_subscription_updated_payloads( $subscription, $status, $status_from = null, $is_switch = false ) {
 		if ( ! $subscription instanceof \WC_Subscription ) {
 			return [];
 		}
@@ -162,6 +168,7 @@ final class Utils {
 			}
 			$payloads[] = [
 				'subscription_id' => (int) $subscription->get_id(),
+				'status_from'     => $status_from,
 				'status'          => $status,
 				'user_id'         => (int) $subscription->get_customer_id(),
 				'email'           => $subscription->get_billing_email(),
