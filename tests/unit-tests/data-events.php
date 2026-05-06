@@ -1141,9 +1141,6 @@ class Newspack_Test_Data_Events extends WP_UnitTestCase {
 	 * Returns an associative array of product IDs: parent (grouped), once (simple),
 	 * month/year (subscription children with the appropriate `_subscription_period` meta).
 	 *
-	 * Also calls `update_post_meta()` so production code's `get_post_meta()` recurrence
-	 * lookups resolve to the same period values.
-	 *
 	 * @return array{parent: int, once: int, month: int, year: int}
 	 */
 	private function setup_donation_products() {
@@ -1182,10 +1179,6 @@ class Newspack_Test_Data_Events extends WP_UnitTestCase {
 			]
 		);
 		\update_option( 'newspack_donation_product_id', $ids['parent'] );
-
-		// Also set WP post meta so production-code `get_post_meta` resolves recurrence.
-		\update_post_meta( $ids['month'], '_subscription_period', 'month' );
-		\update_post_meta( $ids['year'], '_subscription_period', 'year' );
 
 		return $ids;
 	}

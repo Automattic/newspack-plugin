@@ -120,7 +120,8 @@ final class Utils {
 			if ( ! $product_id ) {
 				continue;
 			}
-			$recurrence = \get_post_meta( $product_id, '_subscription_period', true );
+			$product    = $item->get_product();
+			$recurrence = $product instanceof \WC_Product ? $product->get_meta( '_subscription_period', true ) : '';
 			$payloads[] = [
 				'order_id'        => (int) $order->get_id(),
 				'status_from'     => $status_from,

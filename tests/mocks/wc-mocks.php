@@ -135,6 +135,11 @@ class WC_Order_Item_Product {
 	public function get_subtotal() {
 		return $this->data['subtotal'] ?? 0;
 	}
+	public function get_product() {
+		global $products_database;
+		$product_id = $this->data['product_id'] ?? 0;
+		return $products_database[ $product_id ] ?? false;
+	}
 }
 
 class WC_Product {
