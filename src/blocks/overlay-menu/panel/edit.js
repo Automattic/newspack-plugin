@@ -3,7 +3,7 @@
  */
 import { __ } from '@wordpress/i18n';
 import { close as closeIcon } from '@wordpress/icons';
-import { useEffect, useLayoutEffect, useRef, useState } from '@wordpress/element';
+import { useLayoutEffect, useRef, useState } from '@wordpress/element';
 import { useSelect } from '@wordpress/data';
 import {
 	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
@@ -85,14 +85,6 @@ export default function OverlayMenuPanelEdit( { attributes, clientId, setAttribu
 		panelToggles.set( parentClientId, () => toggleFnRef.current?.() );
 		return () => panelToggles.delete( parentClientId );
 	}, [ parentClientId ] ); // eslint-disable-line react-hooks/exhaustive-deps
-
-	useEffect( () => {
-		return () => {
-			if ( parentClientId ) {
-				panelToggles.delete( parentClientId );
-			}
-		};
-	}, [ parentClientId ] );
 
 	// Update local state and notify all subscribers (parent + trigger toolbar buttons).
 	const togglePreview = open => {
