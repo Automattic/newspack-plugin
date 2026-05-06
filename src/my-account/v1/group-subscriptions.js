@@ -132,15 +132,12 @@ function showSnackbar( message, type = 'success' ) {
 	document.body.appendChild( wrapper );
 
 	const item = wrapper.querySelector( '.newspack-ui__snackbar__item' );
-	// Use a microtask gap so the browser registers the initial unanimated state
-	// before we add `.active`; this lets the slide-in transition play.
-	requestAnimationFrame( () => item.classList.add( 'active' ) );
-
-	// Mirror the 8s autohide window from Newspack UI's CSS, then remove the
-	// `.active` class to fade out, then drop the wrapper after the fade
-	// (matches the 250ms transition in _notices.scss).
-	setTimeout( () => {
-		item.classList.remove( 'active' );
-		setTimeout( () => wrapper.remove(), 300 );
-	}, 8000 );
+	if ( window.newspackUI && window.newspackUI.notices && typeof window.newspackUI.notices.openNotice === 'function' ) {
+		// Delegate timing/transition handling to the Newspack UI notices module.
+		// The `true` flag tells it to remove the element on close.
+		window.newspackUI.notices.openNotice( item, true );
+	} else {
+		// Minimal fallback if Newspack UI's notices module isn't loaded.
+		setTimeout( () => wrapper.remove(), 8000 );
+	}
 }

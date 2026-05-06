@@ -43,12 +43,14 @@ function closeNotice( element, remove = true ) {
 			element.remove();
 		}, 250 );
 	}
-	wp.ajax.send( 'newspack_ui_notice_dismissed', {
-		data: {
-			id: element.dataset.noticeId,
-			nonce: element.dataset.nonce,
-		},
-	} );
+	if ( element.dataset.noticeId ) {
+		wp.ajax.send( 'newspack_ui_notice_dismissed', {
+			data: {
+				id: element.dataset.noticeId,
+				nonce: element.dataset.nonce,
+			},
+		} );
+	}
 }
 
 // Expose notice functions to the global API.
