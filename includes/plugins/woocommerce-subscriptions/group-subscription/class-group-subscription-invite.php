@@ -598,6 +598,15 @@ class Group_Subscription_Invite {
 			$redirect_target = add_query_arg(
 				[
 					self::RESULT_QUERY_ARG => 'link_login',
+
+					/*
+					 * rawurlencode( $link_url ) is required: WP's add_query_arg() does NOT
+					 * encode NEW arg values (only existing query args via urlencode_deep).
+					 * Without pre-encoding, the link URL's inner `&s=…&m=…&k=…` would leak
+					 * into the outer query string. PHP's $_GET parser decodes URL-encoded
+					 * values once on receipt, so downstream consumers (e.g. Reader Activation
+					 * reading $_GET['redirect']) see the exact original $link_url.
+					 */
 					'redirect'             => rawurlencode( $link_url ),
 				],
 				$myaccount_url
