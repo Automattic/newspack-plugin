@@ -371,7 +371,7 @@ class WooCommerce_Subscriptions {
 		if (
 			empty( $subscription ) ||
 			! user_can( $user_id, 'subscribe_again', $subscription->get_id() ) || // phpcs:ignore WordPress.WP.Capabilities.Unknown
-			! $subscription->has_status( array( 'pending-cancel', 'cancelled', 'expired', 'trash' ) ) ||
+			! $subscription->has_status( [ 'pending-cancel', 'cancelled', 'expired', 'trash' ] ) ||
 			$subscription->get_total() <= 0 ||
 			$subscription->contains_unavailable_product()
 		) {
