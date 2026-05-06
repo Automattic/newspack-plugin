@@ -620,7 +620,25 @@ class Group_Subscription_Invite {
 
 		// Member-limit check.
 		$settings = Group_Subscription_Settings::get_subscription_settings( $subscription );
-		if ( $settings['limit'] > 0 && count( Group_Subscription::get_members( $subscription ) ) >= $settings['limit'] ) {
+		$member_count = count( Group_Subscription::get_members( $subscription ) );
+		$pending_invite_count = 0;
+		$invites = $subscription->get_meta( self::META, true );
+
+		if ( is_array( $invites ) ) {
+			$now = time();
+			foreach ( $invites as $invite ) {
+				if ( ! is_array( $invite ) ) {
+					continue;
+				}
+
+				$expires = isset( $invite['expires'] ) ? absint( $invite['expires'] ) : 0;
+				if ( $expires > $now ) {
+					$pending_invite_count++;
+				}
+			}
+		}
+
+		if ( $settings['limit'] > 0 && ( $member_count + $pending_invite_count ) >= $settings['limit'] ) {
 			self::redirect_with_result( 'link_full', '', $error_target_url );
 			return;
 		}
