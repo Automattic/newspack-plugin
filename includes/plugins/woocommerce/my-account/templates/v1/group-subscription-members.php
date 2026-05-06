@@ -294,16 +294,14 @@ $link_state          = ! $link_invite ? 'none' : ( $link_invite_expired ? 'expir
 									class="newspack-my-account__group_subscription__invite-link__input"
 									value="<?php echo esc_attr( $link_invite_url ); ?>"
 								>
-								<?php if ( $link_invite_url && $link_state !== 'expired' ) : ?>
 								<button
 									type="button"
 									class="newspack-my-account__group_subscription__invite-link__copy newspack-ui__button newspack-ui__button--ghost newspack-ui__button--icon"
 									aria-label="<?php esc_attr_e( 'Copy link to clipboard', 'newspack-plugin' ); ?>"
-									<?php echo 'valid' === $link_state ? '' : 'hidden'; ?>
+									<?php echo $link_invite_url && 'valid' === $link_state ? '' : 'hidden'; ?>
 								>
 									<?php Newspack_UI_Icons::print_svg( 'copy' ); ?>
 								</button>
-								<?php endif; ?>
 								<button
 									type="button"
 									aria-label="<?php echo esc_attr( $link_invite_url ? __( 'Recreate link', 'newspack-plugin' ) : __( 'Create link', 'newspack-plugin' ) ); ?>"
@@ -313,7 +311,6 @@ $link_state          = ! $link_invite ? 'none' : ( $link_invite_expired ? 'expir
 								</button>
 							</div>
 						</div>
-					</div>
 					<?php endif; ?>
 				</section>
 			</div><!-- .newspack-ui__modal__small -->

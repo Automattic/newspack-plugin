@@ -708,7 +708,9 @@ class Group_Subscription_Invite {
 		];
 
 		if ( isset( $link_messages[ $result ] ) ) {
-			wc_add_notice( $link_messages[ $result ]['message'], $link_messages[ $result ]['type'] );
+			if ( function_exists( 'wc_add_notice' ) ) {
+				wc_add_notice( $link_messages[ $result ]['message'], $link_messages[ $result ]['type'] );
+			}
 			Newspack_UI::add_notice( $link_messages[ $result ]['message'], $link_messages[ $result ]['type'] ); // Ensure notice appears if redirected to non-WC pages.
 			return;
 		}
@@ -729,7 +731,9 @@ class Group_Subscription_Invite {
 			$type = 'error';
 		}
 
-		wc_add_notice( $message, $type );
+		if ( function_exists( 'wc_add_notice' ) ) {
+			wc_add_notice( $link_messages[ $result ]['message'], $link_messages[ $result ]['type'] );
+		}
 		Newspack_UI::add_notice( $message, $type );
 	}
 
