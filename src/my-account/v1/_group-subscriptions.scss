@@ -49,7 +49,7 @@
 		align-items: center;
 		display: flex;
 		input {
-			margin-right: 8px;
+			margin-right: var(--newspack-ui-spacer-base);
 		}
 		.newspack-ui__button--icon {
 			margin: 0 !important;
