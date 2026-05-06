@@ -181,22 +181,28 @@ class Group_Subscription_Invite {
 	 * @param int                  $user_id      The manager user ID.
 	 * @param boolean              $create       When true, generate an invite for the subscription and user if none exists.
 	 *
-	 * @return array|null The link-invite entry, or null if missing or subscription invalid.
+	 * @return array|\WP_Error|null The link-invite entry, a WP_Error when generation fails, or null if missing or subscription invalid.
 	 */
 	public static function get_link_invite( $subscription, $user_id, $create = false ) {
 		$subscription = WooCommerce_Subscriptions::sanitize_subscription( $subscription );
 		if ( ! $subscription ) {
 			return null;
 		}
-		$all = $subscription->get_meta( self::LINK_META, true );
+		$user_id = (int) $user_id;
+		$all     = $subscription->get_meta( self::LINK_META, true );
 		if ( ! is_array( $all ) ) {
 			if ( $create ) {
 				return self::generate_link_invite( $subscription, $user_id );
 			}
 			return null;
 		}
-		$user_id = (int) $user_id;
-		return $all[ $user_id ] ?? null;
+		if ( isset( $all[ $user_id ] ) ) {
+			return $all[ $user_id ];
+		}
+		if ( $create ) {
+			return self::generate_link_invite( $subscription, $user_id );
+		}
+		return null;
 	}
 
 	/**
