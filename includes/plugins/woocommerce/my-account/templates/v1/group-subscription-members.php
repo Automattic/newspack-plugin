@@ -262,7 +262,7 @@ $link_state          = ! $link_invite ? 'none' : ( $link_invite_expired ? 'expir
 							<button type="button" class="newspack-ui__button newspack-ui__button--ghost newspack-ui__button--wide newspack-ui__modal__close"><?php esc_html_e( 'Cancel', 'newspack-plugin' ); ?></button>
 						</form>
 						<div class="newspack-ui__word-divider">
-							Or
+							<?php esc_html_e( 'Or', 'newspack-plugin' ); ?>
 						</div>
 						<div
 							class="newspack-my-account__group_subscription__invite-link"
