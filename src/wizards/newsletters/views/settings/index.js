@@ -11,10 +11,35 @@ import once from 'lodash/once';
 /**
  * WordPress dependencies
  */
-import { useEffect, useState, Fragment } from '@wordpress/element';
+import { useEffect, useRef, useState, Fragment } from '@wordpress/element';
 import apiFetch from '@wordpress/api-fetch';
 import { sprintf, __ } from '@wordpress/i18n';
-import { CheckboxControl, TextareaControl, ExternalLink, Notice } from '@wordpress/components';
+import {
+	CheckboxControl,
+	TextareaControl,
+	ExternalLink,
+	Notice,
+	__experimentalHStack as HStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
+} from '@wordpress/components';
+
+// Wizard-bridge events. Mirror of `newspack-newsletters/src/wizard-bridge/events.js`
+// — kept locally so this file is self-contained without a cross-repo import.
+const NN_EVENT_NAMESPACE = 'newspack-newsletters';
+const NN_EVENTS = {
+	BRIDGE_MOUNTED: `${ NN_EVENT_NAMESPACE }:bridge-mounted`,
+	OPEN_MODAL: `${ NN_EVENT_NAMESPACE }:open-local-list-modal`,
+	OPEN_CONFIRM_DELETE: `${ NN_EVENT_NAMESPACE }:open-local-list-confirm-delete`,
+	LOCAL_LIST_SAVED: `${ NN_EVENT_NAMESPACE }:local-list-saved`,
+	LOCAL_LIST_DELETED: `${ NN_EVENT_NAMESPACE }:local-list-deleted`,
+};
+const NN_FALLBACK_TIMEOUT_MS = 500;
+
+let bridgeMounted = false;
+if ( typeof document !== 'undefined' ) {
+	document.addEventListener( NN_EVENTS.BRIDGE_MOUNTED, () => {
+		bridgeMounted = true;
+	} );
+}
 
 /**
  * Internal dependencies
@@ -252,6 +277,8 @@ export const SubscriptionLists = ( { lockedLists, onUpdate, provider } ) => {
 	const [ error, setError ] = useState( false );
 	const [ inFlight, setInFlight ] = useState( false );
 	const [ lists, setLists ] = useState( [] );
+	const fallbackTimerRef = useRef( null );
+
 	const updateConfig = data => {
 		setLists( data );
 		if ( typeof onUpdate === 'function' ) {
@@ -285,20 +312,53 @@ export const SubscriptionLists = ( { lockedLists, onUpdate, provider } ) => {
 		newLists[ index ][ name ] = value;
 		updateConfig( newLists );
 	};
-	// Handle provider updates.
+
 	useEffect( () => {
 		setError( false );
 		if ( provider && ! lockedLists ) {
-			// Empty lists before fetching to prevent previous list from appearing while fetching.
 			setLists( [] );
 			fetchLists();
 		}
 	}, [ provider, lockedLists ] );
 
+	useEffect( () => {
+		const reload = () => fetchLists();
+		document.addEventListener( NN_EVENTS.LOCAL_LIST_SAVED, reload );
+		document.addEventListener( NN_EVENTS.LOCAL_LIST_DELETED, reload );
+		return () => {
+			document.removeEventListener( NN_EVENTS.LOCAL_LIST_SAVED, reload );
+			document.removeEventListener( NN_EVENTS.LOCAL_LIST_DELETED, reload );
+		};
+	}, [] );
+
+	const startFallbackTimer = fallbackUrl => {
+		if ( bridgeMounted || ! fallbackUrl ) {
+			return;
+		}
+		clearTimeout( fallbackTimerRef.current );
+		fallbackTimerRef.current = setTimeout( () => {
+			if ( ! bridgeMounted ) {
+				window.location.href = fallbackUrl;
+			}
+		}, NN_FALLBACK_TIMEOUT_MS );
+	};
+
+	const dispatchOpenAdd = () => {
+		document.dispatchEvent( new CustomEvent( NN_EVENTS.OPEN_MODAL, { detail: { mode: 'add' } } ) );
+		startFallbackTimer( newspack_newsletters_wizard.new_subscription_lists_url );
+	};
+	const dispatchOpenEdit = list => {
+		document.dispatchEvent( new CustomEvent( NN_EVENTS.OPEN_MODAL, { detail: { mode: 'edit', list } } ) );
+		startFallbackTimer( list?.edit_link );
+	};
+	const dispatchConfirmDelete = list => {
+		document.dispatchEvent( new CustomEvent( NN_EVENTS.OPEN_CONFIRM_DELETE, { detail: { list } } ) );
+		startFallbackTimer( list?.edit_link );
+	};
+
 	if ( ! inFlight && ! lists?.length && ! error ) {
 		return null;
 	}
-
 	if ( inFlight && ! lists?.length && ! error ) {
 		return (
 			<div className="flex justify-around mt4">
@@ -325,11 +385,7 @@ export const SubscriptionLists = ( { lockedLists, onUpdate, provider } ) => {
 			actionContent={
 				<>
 					{ newspack_newsletters_wizard.new_subscription_lists_url && (
-						<Button
-							variant="secondary"
-							disabled={ inFlight || lockedLists }
-							href={ newspack_newsletters_wizard.new_subscription_lists_url }
-						>
+						<Button variant="secondary" disabled={ inFlight || lockedLists } onClick={ dispatchOpenAdd }>
 							{ __( 'Add New', 'newspack-plugin' ) }
 						</Button>
 					) }
@@ -342,42 +398,58 @@ export const SubscriptionLists = ( { lockedLists, onUpdate, provider } ) => {
 		>
 			{ ! lockedLists &&
 				! error &&
-				lists.map( ( list, index ) => (
-					<ActionCard
-						key={ index }
-						isSmall
-						simple
-						hasWhiteHeader
-						title={ list.name }
-						description={ list?.type_label ? list.type_label : null }
-						disabled={ inFlight }
-						toggleOnChange={ handleChange( index, 'active' ) }
-						toggleChecked={ list.active }
-						className={
-							list?.id && ( list.id.startsWith( 'group' ) || list.id.startsWith( 'tag' ) ) ? 'newspack-newsletters-sub-list-item' : ''
-						}
-						actionText={
-							list?.edit_link ? <ExternalLink href={ list.edit_link }>{ __( 'Edit', 'newspack-plugin' ) }</ExternalLink> : null
-						}
-					>
-						{ list.active && 'local' !== list?.type && (
-							<>
-								<TextControl
-									label={ __( 'List title', 'newspack-plugin' ) }
-									value={ list.title }
-									disabled={ inFlight || 'local' === list?.type }
-									onChange={ handleChange( index, 'title' ) }
-								/>
-								<TextareaControl
-									label={ __( 'List description', 'newspack-plugin' ) }
-									value={ list.description }
-									disabled={ inFlight || 'local' === list?.type }
-									onChange={ handleChange( index, 'description' ) }
-								/>
-							</>
-						) }
-					</ActionCard>
-				) ) }
+				lists.map( ( list, index ) => {
+					const isLocal = 'local' === list?.type;
+					return (
+						<ActionCard
+							key={ index }
+							isSmall
+							simple
+							hasWhiteHeader
+							title={ list.name }
+							description={ list?.type_label ? list.type_label : null }
+							disabled={ inFlight }
+							toggleOnChange={ handleChange( index, 'active' ) }
+							toggleChecked={ list.active }
+							className={
+								list?.id && ( list.id.startsWith( 'group' ) || list.id.startsWith( 'tag' ) )
+									? 'newspack-newsletters-sub-list-item'
+									: ''
+							}
+							actionText={
+								isLocal ? (
+									<HStack spacing={ 2 } justify="flex-end" expanded={ false }>
+										<Button variant="link" onClick={ () => dispatchOpenEdit( list ) } disabled={ inFlight }>
+											{ __( 'Edit', 'newspack-plugin' ) }
+										</Button>
+										<Button variant="link" isDestructive onClick={ () => dispatchConfirmDelete( list ) } disabled={ inFlight }>
+											{ __( 'Delete', 'newspack-plugin' ) }
+										</Button>
+									</HStack>
+								) : list?.edit_link ? (
+									<ExternalLink href={ list.edit_link }>{ __( 'Edit', 'newspack-plugin' ) }</ExternalLink>
+								) : null
+							}
+						>
+							{ list.active && ! isLocal && (
+								<>
+									<TextControl
+										label={ __( 'List title', 'newspack-plugin' ) }
+										value={ list.title }
+										disabled={ inFlight || isLocal }
+										onChange={ handleChange( index, 'title' ) }
+									/>
+									<TextareaControl
+										label={ __( 'List description', 'newspack-plugin' ) }
+										value={ list.description }
+										disabled={ inFlight || isLocal }
+										onChange={ handleChange( index, 'description' ) }
+									/>
+								</>
+							) }
+						</ActionCard>
+					);
+				} ) }
 		</ActionCard>
 	);
 };
