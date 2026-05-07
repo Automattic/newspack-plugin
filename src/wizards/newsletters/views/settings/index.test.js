@@ -23,7 +23,7 @@ beforeEach( () => {
 	apiFetch.mockReset();
 	apiFetch.mockResolvedValue( [
 		{ id: 'tag-1', name: 'Local A', type: 'local', active: false, db_id: 1, edit_link: 'https://example.test/edit-local-a' },
-		{ id: 'group-1', name: 'Remote group', type: 'group', active: true },
+		{ id: 'group-1', name: 'Remote group', type: 'group', active: true, db_id: 2, edit_link: 'https://example.test/edit-remote' },
 	] );
 	// Mark the bridge ready so the fallback timer doesn't navigate the test window.
 	window.newspackNewslettersBridgeReady = true;
@@ -45,16 +45,57 @@ describe( 'SubscriptionLists — wizard-bridge wiring', () => {
 		document.removeEventListener( NN_EVENTS.OPEN_MODAL, listener );
 	} );
 
-	it( 'dispatches OPEN_MODAL with mode=edit + list when Edit is clicked on a local row', async () => {
+	it( 'dispatches OPEN_MODAL with mode=edit + kind=local when Edit is clicked on a local row', async () => {
 		const listener = jest.fn();
 		document.addEventListener( NN_EVENTS.OPEN_MODAL, listener );
 		render( <SubscriptionLists lockedLists={ false } provider="mailchimp" /> );
 		await waitFor( () => expect( screen.getByText( 'Local A' ) ).toBeInTheDocument() );
 		fireEvent.click( screen.getAllByRole( 'button', { name: /^Edit$/ } )[ 0 ] );
 		expect( listener.mock.calls[ 0 ][ 0 ].detail ).toEqual(
-			expect.objectContaining( { mode: 'edit', list: expect.objectContaining( { db_id: 1 } ) } )
+			expect.objectContaining( { mode: 'edit', kind: 'local', list: expect.objectContaining( { db_id: 1 } ) } )
 		);
 		document.removeEventListener( NN_EVENTS.OPEN_MODAL, listener );
+	} );
+
+	it( 'dispatches OPEN_MODAL with mode=edit + kind=esp when Edit is clicked on a remote row', async () => {
+		const listener = jest.fn();
+		document.addEventListener( NN_EVENTS.OPEN_MODAL, listener );
+		render( <SubscriptionLists lockedLists={ false } provider="mailchimp" /> );
+		await waitFor( () => expect( screen.getByText( 'Remote group' ) ).toBeInTheDocument() );
+		// Remote rows now have an Edit button too — second one in the list.
+		fireEvent.click( screen.getAllByRole( 'button', { name: /^Edit$/ } )[ 1 ] );
+		expect( listener.mock.calls[ 0 ][ 0 ].detail ).toEqual(
+			expect.objectContaining( { mode: 'edit', kind: 'esp', list: expect.objectContaining( { db_id: 2 } ) } )
+		);
+		document.removeEventListener( NN_EVENTS.OPEN_MODAL, listener );
+	} );
+
+	it( 'commits the active toggle immediately via PATCH /lists/{db_id}', async () => {
+		render( <SubscriptionLists lockedLists={ false } provider="mailchimp" /> );
+		await waitFor( () => expect( screen.getByText( 'Local A' ) ).toBeInTheDocument() );
+		// Configure the next response (a successful PATCH echoing the row).
+		apiFetch.mockResolvedValueOnce( { id: 'tag-1', db_id: 1, active: true } );
+		fireEvent.click( screen.getAllByRole( 'checkbox' )[ 0 ] );
+		await waitFor( () =>
+			expect( apiFetch ).toHaveBeenLastCalledWith( {
+				path: '/newspack-newsletters/v1/lists/1',
+				method: 'PATCH',
+				data: { active: true },
+			} )
+		);
+	} );
+
+	it( 'does not render the bulk Save Subscription Lists button', async () => {
+		render( <SubscriptionLists lockedLists={ false } provider="mailchimp" /> );
+		await waitFor( () => expect( screen.getByText( 'Local A' ) ).toBeInTheDocument() );
+		expect( screen.queryByRole( 'button', { name: /Save Subscription Lists/ } ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'does not render inline title/description fields on remote rows', async () => {
+		render( <SubscriptionLists lockedLists={ false } provider="mailchimp" /> );
+		await waitFor( () => expect( screen.getByText( 'Remote group' ) ).toBeInTheDocument() );
+		expect( screen.queryByLabelText( /List title/ ) ).not.toBeInTheDocument();
+		expect( screen.queryByLabelText( /List description/ ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'dispatches OPEN_CONFIRM_DELETE when Delete is clicked on a local row', async () => {

@@ -16,7 +16,6 @@ import apiFetch from '@wordpress/api-fetch';
 import { sprintf, __ } from '@wordpress/i18n';
 import {
 	CheckboxControl,
-	TextareaControl,
 	ExternalLink,
 	Notice,
 	__experimentalHStack as HStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
@@ -275,6 +274,7 @@ export const Settings = ( {
 export const SubscriptionLists = ( { lockedLists, onUpdate, provider } ) => {
 	const [ error, setError ] = useState( false );
 	const [ inFlight, setInFlight ] = useState( false );
+	const [ togglingId, setTogglingId ] = useState( null );
 	const [ lists, setLists ] = useState( [] );
 	const fallbackTimerRef = useRef( null );
 
@@ -294,22 +294,27 @@ export const SubscriptionLists = ( { lockedLists, onUpdate, provider } ) => {
 			.catch( setError )
 			.finally( () => setInFlight( false ) );
 	};
-	const saveLists = () => {
+	const handleToggleActive = async ( list, next ) => {
+		if ( ! list?.db_id ) {
+			return;
+		}
+		const snapshot = lists;
+		updateConfig( lists.map( row => ( row.db_id === list.db_id ? { ...row, active: next } : row ) ) );
+		setTogglingId( list.db_id );
 		setError( false );
-		setInFlight( true );
-		apiFetch( {
-			path: '/newspack-newsletters/v1/lists',
-			method: 'post',
-			data: { lists },
-		} )
-			.then( updateConfig )
-			.catch( setError )
-			.finally( () => setInFlight( false ) );
-	};
-	const handleChange = ( index, name ) => value => {
-		const newLists = [ ...lists ];
-		newLists[ index ][ name ] = value;
-		updateConfig( newLists );
+		try {
+			const response = await apiFetch( {
+				path: `/newspack-newsletters/v1/lists/${ list.db_id }`,
+				method: 'PATCH',
+				data: { active: next },
+			} );
+			updateConfig( lists.map( row => ( row.db_id === list.db_id ? { ...row, ...response } : row ) ) );
+		} catch ( err ) {
+			updateConfig( snapshot );
+			setError( err );
+		} finally {
+			setTogglingId( null );
+		}
 	};
 
 	useEffect( () => {
@@ -346,8 +351,8 @@ export const SubscriptionLists = ( { lockedLists, onUpdate, provider } ) => {
 		document.dispatchEvent( new CustomEvent( NN_EVENTS.OPEN_MODAL, { detail: { mode: 'add' } } ) );
 		startFallbackTimer( newspack_newsletters_wizard.new_subscription_lists_url );
 	};
-	const dispatchOpenEdit = list => {
-		document.dispatchEvent( new CustomEvent( NN_EVENTS.OPEN_MODAL, { detail: { mode: 'edit', list } } ) );
+	const dispatchOpenEdit = ( list, kind ) => {
+		document.dispatchEvent( new CustomEvent( NN_EVENTS.OPEN_MODAL, { detail: { mode: 'edit', kind, list } } ) );
 		startFallbackTimer( list?.edit_link );
 	};
 	const dispatchConfirmDelete = list => {
@@ -382,16 +387,11 @@ export const SubscriptionLists = ( { lockedLists, onUpdate, provider } ) => {
 			notificationLevel={ error ? 'error' : 'warning' }
 			hasGreyHeader
 			actionContent={
-				<>
-					{ newspack_newsletters_wizard.new_subscription_lists_url && (
-						<Button variant="secondary" disabled={ inFlight || lockedLists } onClick={ dispatchOpenAdd }>
-							{ __( 'Add New', 'newspack-plugin' ) }
-						</Button>
-					) }
-					<Button isPrimary onClick={ saveLists } disabled={ inFlight || lockedLists }>
-						{ __( 'Save Subscription Lists', 'newspack-plugin' ) }
+				newspack_newsletters_wizard.new_subscription_lists_url && (
+					<Button variant="secondary" disabled={ inFlight || lockedLists } onClick={ dispatchOpenAdd }>
+						{ __( 'Add New', 'newspack-plugin' ) }
 					</Button>
-				</>
+				)
 			}
 			disabled={ inFlight || lockedLists }
 		>
@@ -399,6 +399,7 @@ export const SubscriptionLists = ( { lockedLists, onUpdate, provider } ) => {
 				! error &&
 				lists.map( ( list, index ) => {
 					const isLocal = 'local' === list?.type;
+					const rowDisabled = inFlight || togglingId === list?.db_id;
 					return (
 						<ActionCard
 							key={ index }
@@ -406,9 +407,17 @@ export const SubscriptionLists = ( { lockedLists, onUpdate, provider } ) => {
 							simple
 							hasWhiteHeader
 							title={ list.name }
-							description={ list?.type_label ? list.type_label : null }
-							disabled={ inFlight }
-							toggleOnChange={ handleChange( index, 'active' ) }
+							description={ () => (
+								<>
+									{ list.description }
+									{ list.description && list?.type_label && <br /> }
+									{ list?.type_label && (
+										<small className="newspack-newsletters-sub-list-item__type-label">{ list.type_label }</small>
+									) }
+								</>
+							) }
+							disabled={ rowDisabled }
+							toggleOnChange={ next => handleToggleActive( list, next ) }
 							toggleChecked={ list.active }
 							className={
 								list?.id && ( list.id.startsWith( 'group' ) || list.id.startsWith( 'tag' ) )
@@ -416,37 +425,22 @@ export const SubscriptionLists = ( { lockedLists, onUpdate, provider } ) => {
 									: ''
 							}
 							actionText={
-								isLocal ? (
-									<HStack spacing={ 2 } justify="flex-end" expanded={ false }>
-										<Button variant="link" onClick={ () => dispatchOpenEdit( list ) } disabled={ inFlight }>
-											{ __( 'Edit', 'newspack-plugin' ) }
-										</Button>
-										<Button variant="link" isDestructive onClick={ () => dispatchConfirmDelete( list ) } disabled={ inFlight }>
+								<HStack spacing={ 2 } justify="flex-end" expanded={ false }>
+									<Button
+										variant="link"
+										onClick={ () => dispatchOpenEdit( list, isLocal ? 'local' : 'esp' ) }
+										disabled={ rowDisabled }
+									>
+										{ __( 'Edit', 'newspack-plugin' ) }
+									</Button>
+									{ isLocal && (
+										<Button variant="link" isDestructive onClick={ () => dispatchConfirmDelete( list ) } disabled={ rowDisabled }>
 											{ __( 'Delete', 'newspack-plugin' ) }
 										</Button>
-									</HStack>
-								) : list?.edit_link ? (
-									<ExternalLink href={ list.edit_link }>{ __( 'Edit', 'newspack-plugin' ) }</ExternalLink>
-								) : null
+									) }
+								</HStack>
 							}
-						>
-							{ list.active && ! isLocal && (
-								<>
-									<TextControl
-										label={ __( 'List title', 'newspack-plugin' ) }
-										value={ list.title }
-										disabled={ inFlight || isLocal }
-										onChange={ handleChange( index, 'title' ) }
-									/>
-									<TextareaControl
-										label={ __( 'List description', 'newspack-plugin' ) }
-										value={ list.description }
-										disabled={ inFlight || isLocal }
-										onChange={ handleChange( index, 'description' ) }
-									/>
-								</>
-							) }
-						</ActionCard>
+						/>
 					);
 				} ) }
 		</ActionCard>
