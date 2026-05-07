@@ -34,12 +34,11 @@ const NN_EVENTS = {
 };
 const NN_FALLBACK_TIMEOUT_MS = 500;
 
-let bridgeMounted = false;
-if ( typeof document !== 'undefined' ) {
-	document.addEventListener( NN_EVENTS.BRIDGE_MOUNTED, () => {
-		bridgeMounted = true;
-	} );
-}
+// Read the bridge-readiness flag synchronously rather than relying on a
+// one-shot `BRIDGE_MOUNTED` event. The bridge sets the flag before
+// dispatching, so listeners that register late still observe a ready
+// bridge — avoiding a spurious fallback redirect.
+const isBridgeReady = () => typeof window !== 'undefined' && window.newspackNewslettersBridgeReady === true;
 
 /**
  * Internal dependencies
@@ -332,12 +331,12 @@ export const SubscriptionLists = ( { lockedLists, onUpdate, provider } ) => {
 	}, [] );
 
 	const startFallbackTimer = fallbackUrl => {
-		if ( bridgeMounted || ! fallbackUrl ) {
+		if ( isBridgeReady() || ! fallbackUrl ) {
 			return;
 		}
 		clearTimeout( fallbackTimerRef.current );
 		fallbackTimerRef.current = setTimeout( () => {
-			if ( ! bridgeMounted ) {
+			if ( ! isBridgeReady() ) {
 				window.location.href = fallbackUrl;
 			}
 		}, NN_FALLBACK_TIMEOUT_MS );

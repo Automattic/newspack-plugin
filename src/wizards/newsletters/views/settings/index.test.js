@@ -25,8 +25,12 @@ beforeEach( () => {
 		{ id: 'tag-1', name: 'Local A', type: 'local', active: false, db_id: 1, edit_link: 'https://example.test/edit-local-a' },
 		{ id: 'group-1', name: 'Remote group', type: 'group', active: true },
 	] );
-	// Pretend the bridge bundle is loaded so the fallback timer doesn't navigate the test window.
-	document.dispatchEvent( new CustomEvent( NN_EVENTS.BRIDGE_MOUNTED ) );
+	// Mark the bridge ready so the fallback timer doesn't navigate the test window.
+	window.newspackNewslettersBridgeReady = true;
+} );
+
+afterEach( () => {
+	delete window.newspackNewslettersBridgeReady;
 } );
 
 describe( 'SubscriptionLists — wizard-bridge wiring', () => {
@@ -75,5 +79,19 @@ describe( 'SubscriptionLists — wizard-bridge wiring', () => {
 		await waitFor( () => expect( apiFetch ).toHaveBeenCalledTimes( 1 ) );
 		document.dispatchEvent( new CustomEvent( NN_EVENTS.LOCAL_LIST_DELETED, { detail: { listId: 1 } } ) );
 		await waitFor( () => expect( apiFetch ).toHaveBeenCalledTimes( 2 ) );
+	} );
+
+	it( 'does not redirect when the bridge mounted before the wizard listener registered', async () => {
+		// The flag is already set in beforeEach, simulating the bridge having
+		// completed boot before this component mounted. The fallback timer
+		// must NOT navigate.
+		jest.useFakeTimers();
+		const originalHref = window.location.href;
+		render( <SubscriptionLists lockedLists={ false } provider="mailchimp" /> );
+		await waitFor( () => expect( screen.getByRole( 'button', { name: /^Add New$/ } ) ).toBeEnabled() );
+		fireEvent.click( screen.getByRole( 'button', { name: /^Add New$/ } ) );
+		jest.advanceTimersByTime( 600 );
+		expect( window.location.href ).toBe( originalHref );
+		jest.useRealTimers();
 	} );
 } );
