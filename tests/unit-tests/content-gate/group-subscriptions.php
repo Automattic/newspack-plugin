@@ -1537,4 +1537,136 @@ class Test_Group_Subscriptions extends \WP_UnitTestCase {
 			$result->get_error_code()
 		);
 	}
+
+	// -------------------------------------------------------------------------
+	// process_link_invite_request() tests
+	// -------------------------------------------------------------------------
+
+	/**
+	 * Test process_link_invite_request() happy path: a logged-in non-member
+	 * with a valid link is added to the group and redirected to the
+	 * view-subscription URL with link_success.
+	 */
+	public function test_process_link_invite_request_happy_path() {
+		$owner_id      = $this->create_reader_user();
+		$non_member_id = $this->create_reader_user();
+		$group_sub     = $this->create_group_subscription( $owner_id );
+
+		// Generate the link as the manager.
+		wp_set_current_user( $owner_id );
+		$invite = Group_Subscription_Invite::generate_link_invite( $group_sub, $owner_id );
+		$this->assertIsArray( $invite );
+
+		// Switch to the visitor clicking the link.
+		wp_set_current_user( $non_member_id );
+
+		$_GET = [
+			'action' => Group_Subscription_Invite::LINK_QUERY_ARG,
+			's'      => $group_sub->get_id(),
+			'm'      => $owner_id,
+			'k'      => $invite['key'],
+		];
+
+		// Hook wp_redirect to capture the URL and abort before exit.
+		$captured_url = null;
+		$capture      = function ( $location ) use ( &$captured_url ) {
+			$captured_url = $location;
+			throw new \Exception( 'redirect_intercepted' );
+		};
+		add_filter( 'wp_redirect', $capture, 1 );
+		// Allow the test wc_get_*_url() host through wp_safe_redirect()'s validation.
+		// The WC stubs return https://example.com/... which differs from the WP test
+		// suite's example.org host, so wp_safe_redirect() would otherwise fall back.
+		$allow_host = function ( $hosts ) {
+			$hosts[] = 'example.com';
+			return $hosts;
+		};
+		add_filter( 'allowed_redirect_hosts', $allow_host );
+
+		try {
+			try {
+				Group_Subscription_Invite::process_link_invite_request();
+				$this->fail( 'Expected redirect exception' );
+			} catch ( \Exception $e ) {
+				$this->assertStringContainsString( 'redirect_intercepted', $e->getMessage() );
+			}
+
+			$this->assertNotNull( $captured_url, 'A redirect URL should have been captured' );
+			$this->assertStringContainsString( 'view-subscription', $captured_url, 'Success redirect should target view-subscription' );
+			$this->assertStringContainsString(
+				Group_Subscription_Invite::RESULT_QUERY_ARG . '=link_success',
+				$captured_url,
+				'Success redirect should carry the link_success result'
+			);
+			$this->assertTrue(
+				Group_Subscription::user_is_member( $non_member_id, $group_sub ),
+				'Visitor should be added as a member'
+			);
+		} finally {
+			remove_filter( 'wp_redirect', $capture, 1 );
+			remove_filter( 'allowed_redirect_hosts', $allow_host );
+			$_GET = [];
+			wp_set_current_user( 0 );
+		}
+	}
+
+	/**
+	 * Test process_link_invite_request() error path: an invalid key for a
+	 * logged-in visitor redirects with link_invalid and does NOT add them.
+	 */
+	public function test_process_link_invite_request_invalid_key() {
+		$owner_id      = $this->create_reader_user();
+		$non_member_id = $this->create_reader_user();
+		$group_sub     = $this->create_group_subscription( $owner_id );
+
+		// Visitor is logged in (so we hit link_invalid, not link_login).
+		wp_set_current_user( $non_member_id );
+
+		$_GET = [
+			'action' => Group_Subscription_Invite::LINK_QUERY_ARG,
+			's'      => $group_sub->get_id(),
+			'm'      => $owner_id,
+			'k'      => 'bogus-key',
+		];
+
+		$captured_url = null;
+		$capture      = function ( $location ) use ( &$captured_url ) {
+			$captured_url = $location;
+			throw new \Exception( 'redirect_intercepted' );
+		};
+		add_filter( 'wp_redirect', $capture, 1 );
+		// Allow the test wc_get_*_url() host through wp_safe_redirect()'s validation.
+		// The WC stubs return https://example.com/... which differs from the WP test
+		// suite's example.org host, so wp_safe_redirect() would otherwise fall back.
+		$allow_host = function ( $hosts ) {
+			$hosts[] = 'example.com';
+			return $hosts;
+		};
+		add_filter( 'allowed_redirect_hosts', $allow_host );
+
+		try {
+			try {
+				Group_Subscription_Invite::process_link_invite_request();
+				$this->fail( 'Expected redirect exception' );
+			} catch ( \Exception $e ) {
+				$this->assertStringContainsString( 'redirect_intercepted', $e->getMessage() );
+			}
+
+			$this->assertNotNull( $captured_url, 'A redirect URL should have been captured' );
+			$this->assertStringContainsString(
+				Group_Subscription_Invite::RESULT_QUERY_ARG . '=link_invalid',
+				$captured_url,
+				'Invalid link should redirect with link_invalid result'
+			);
+			$this->assertFalse(
+				Group_Subscription::user_is_member( $non_member_id, $group_sub ),
+				'Visitor must NOT be added when the link is invalid'
+			);
+		} finally {
+			remove_filter( 'wp_redirect', $capture, 1 );
+			remove_filter( 'allowed_redirect_hosts', $allow_host );
+			$_GET = [];
+			wp_set_current_user( 0 );
+		}
+	}
 }
