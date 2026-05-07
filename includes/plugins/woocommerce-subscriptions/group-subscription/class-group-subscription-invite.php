@@ -728,19 +728,11 @@ class Group_Subscription_Invite {
 			],
 		];
 
-		if ( isset( $link_messages[ $result ] ) ) {
-			if ( function_exists( 'wc_add_notice' ) ) {
-				wc_add_notice( $link_messages[ $result ]['message'], $link_messages[ $result ]['type'] );
-			}
-			Newspack_UI::add_notice( $link_messages[ $result ]['message'], $link_messages[ $result ]['type'] ); // Ensure notice appears if redirected to non-WC pages.
-			return;
-		}
-
 		if ( 'success' === $result ) {
 			$message = __( 'You have successfully joined the group!', 'newspack-plugin' );
 			$type    = 'success';
 		} else {
-			$message = __( 'There was a problem with your invitation.', 'newspack-plugin' );
+			$message = ! empty( $link_messages[ $result ]['message'] ) ? $link_messages[ $result ]['message'] : __( 'There was a problem with your invitation.', 'newspack-plugin' );
 			if ( isset( $_GET['message_key'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 				$transient_key  = sanitize_text_field( wp_unslash( $_GET['message_key'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 				$stored_message = get_transient( 'np_group_invite_msg_' . $transient_key );
@@ -749,11 +741,12 @@ class Group_Subscription_Invite {
 					delete_transient( $transient_key );
 				}
 			}
-			$type = 'error';
+			$type = ! empty( $link_messages[ $result ]['type'] ) ? $link_messages[ $result ]['type'] : 'error';
 		}
 
+		// Ensure snackbar message appears in both My Account and non-account pages.
 		if ( function_exists( 'wc_add_notice' ) ) {
-			wc_add_notice( $link_messages[ $result ]['message'], $link_messages[ $result ]['type'] );
+			wc_add_notice( $message, $type );
 		}
 		Newspack_UI::add_notice( $message, $type );
 	}
