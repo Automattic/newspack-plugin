@@ -278,12 +278,60 @@ class Donations {
 	 * @return boolean True if a donation product, false if not.
 	 */
 	public static function is_donation_product( $product_id ) {
+		// Check the meta flag first (fast path).
+		if ( function_exists( 'wc_bool_to_string' ) && get_post_meta( $product_id, WooCommerce_Products::DONATION_FLAG_META_KEY, true ) === wc_bool_to_string( true ) ) {
+			return true;
+		}
+
+		// Variations inherit the donation flag from their parent (variable / variable-subscription).
+		if ( function_exists( 'wc_get_product' ) ) {
+			$product = \wc_get_product( $product_id );
+			if ( $product && $product->is_type( [ 'variation', 'subscription_variation' ] ) ) {
+				$parent_id = $product->get_parent_id();
+				if ( $parent_id && get_post_meta( $parent_id, WooCommerce_Products::DONATION_FLAG_META_KEY, true ) === wc_bool_to_string( true ) ) {
+					return true;
+				}
+			}
+		}
+
+		// Fall back to the legacy parent/child donation product check.
 		$parent_product = self::get_parent_donation_product();
 		if ( ! $parent_product ) {
 			return false;
 		}
 		$donation_product_ids = array_values( self::get_donation_product_child_products_ids() );
 		return in_array( $product_id, $donation_product_ids, true ) || $product_id === $parent_product->get_id();
+	}
+
+	/**
+	 * Get IDs of all products flagged as donations via the _newspack_is_donation meta.
+	 *
+	 * @return int[] Array of product IDs.
+	 */
+	public static function get_flagged_donation_product_ids() {
+		static $memo = null;
+		if ( null !== $memo ) {
+			return $memo;
+		}
+		if ( ! function_exists( 'wc_bool_to_string' ) ) {
+			return [];
+		}
+		$flagged_products = get_posts(
+			[
+				'post_type'      => 'product',
+				'post_status'    => 'any',
+				'posts_per_page' => -1,
+				'fields'         => 'ids',
+				'meta_query'     => [ // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
+					[
+						'key'   => WooCommerce_Products::DONATION_FLAG_META_KEY,
+						'value' => wc_bool_to_string( true ),
+					],
+				],
+			]
+		);
+		$memo = array_map( 'intval', $flagged_products );
+		return $memo;
 	}
 
 	/**
@@ -309,7 +357,7 @@ class Donations {
 	 * @return int|false The donation product ID or false.
 	 */
 	public static function get_order_donation_product_id( $order_id ) {
-		$donation_products = self::get_donation_product_child_products_ids();
+		$donation_products = array_merge( self::get_donation_product_child_products_ids(), self::get_flagged_donation_product_ids() );
 		if ( empty( array_filter( $donation_products ) ) ) {
 			return;
 		}
@@ -1072,15 +1120,11 @@ class Donations {
 		if ( ! self::is_platform_wc() ) {
 			return false;
 		}
-		$donation_products_ids = array_values( self::get_donation_product_child_products_ids() );
-		if ( empty( $donation_products_ids ) ) {
-			return false;
-		}
 		if ( ! WC()->cart || ! WC()->cart->cart_contents || ! is_array( WC()->cart->cart_contents ) ) {
 			return false;
 		}
 		foreach ( WC()->cart->cart_contents as $prod_in_cart ) {
-			if ( isset( $prod_in_cart['product_id'] ) && in_array( $prod_in_cart['product_id'], $donation_products_ids ) ) {
+			if ( isset( $prod_in_cart['product_id'] ) && self::is_donation_product( $prod_in_cart['product_id'] ) ) {
 				return true;
 			}
 		}

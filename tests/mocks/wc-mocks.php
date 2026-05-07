@@ -160,6 +160,13 @@ class WC_Product {
 	public function get_type() {
 		return $this->data['type'] ?? 'simple';
 	}
+	public function is_type( $types ) {
+		$types = (array) $types;
+		return in_array( $this->get_type(), $types, true );
+	}
+	public function get_parent_id() {
+		return $this->data['parent_id'] ?? 0;
+	}
 	public function get_children() {
 		return $this->data['children'] ?? [];
 	}
