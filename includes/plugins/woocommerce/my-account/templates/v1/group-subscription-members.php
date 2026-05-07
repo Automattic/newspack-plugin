@@ -263,6 +263,7 @@ $is_at_limit          = $member_limit > 0 && ( count( $members ) + count( $pendi
 								data-rest-nonce="<?php echo esc_attr( wp_create_nonce( 'wp_rest' ) ); ?>"
 								data-idle-text="<?php echo esc_attr( __( 'Copy invite link', 'newspack-plugin' ) ); ?>"
 								data-success-text="<?php echo esc_attr( __( 'Invite link copied!', 'newspack-plugin' ) ); ?>"
+								data-error-text="<?php echo esc_attr( __( 'Could not copy. Please copy manually.', 'newspack-plugin' ) ); ?>"
 								>
 									<?php esc_html_e( 'Copy invite link', 'newspack-plugin' ); ?>
 							</button>

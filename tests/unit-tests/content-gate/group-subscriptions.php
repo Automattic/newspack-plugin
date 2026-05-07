@@ -1224,7 +1224,6 @@ class Test_Group_Subscriptions extends \WP_UnitTestCase {
 
 		$entry = [
 			'key'        => 'abc123',
-			'expiration' => time() + DAY_IN_SECONDS,
 			'created_at' => time(),
 		];
 		$group_sub->update_meta_data( Group_Subscription_Invite::LINK_META, [ $owner_id => $entry ] );
@@ -1247,7 +1246,6 @@ class Test_Group_Subscriptions extends \WP_UnitTestCase {
 			[
 				$owner_id => [
 					'key'        => 'k',
-					'expiration' => time() + 100,
 					'created_at' => time(),
 				],
 			]

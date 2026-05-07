@@ -45,14 +45,4 @@
 			}
 		}
 	}
-	&__invite-link__field {
-		align-items: center;
-		display: flex;
-		input {
-			margin-right: var(--newspack-ui-spacer-base);
-		}
-		.newspack-ui__button--icon {
-			margin: 0 !important;
-		}
-	}
 }

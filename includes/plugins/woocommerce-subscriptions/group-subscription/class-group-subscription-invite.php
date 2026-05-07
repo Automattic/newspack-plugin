@@ -64,7 +64,7 @@ class Group_Subscription_Invite {
 
 	/**
 	 * The subscription meta key for invite-link entries.
-	 * Stored as: [ $manager_user_id => [ 'key' => string, 'expiration' => int, 'created_at' => int ] ].
+	 * Stored as: [ $manager_user_id => [ 'key' => string, 'created_at' => int ] ].
 	 *
 	 * @var string
 	 */
@@ -179,11 +179,10 @@ class Group_Subscription_Invite {
 	 *
 	 * @param \WC_Subscription|int $subscription The subscription object or ID.
 	 * @param int                  $user_id      The manager user ID.
-	 * @param boolean              $create       When true, generate an invite for the subscription and user if none exists.
 	 *
-	 * @return array|\WP_Error|null The link-invite entry, a WP_Error when generation fails, or null if missing or subscription invalid.
+	 * @return array|null The link-invite entry, or null if missing or subscription invalid.
 	 */
-	public static function get_link_invite( $subscription, $user_id, $create = false ) {
+	public static function get_link_invite( $subscription, $user_id ) {
 		$subscription = WooCommerce_Subscriptions::sanitize_subscription( $subscription );
 		if ( ! $subscription ) {
 			return null;
@@ -191,16 +190,10 @@ class Group_Subscription_Invite {
 		$user_id = (int) $user_id;
 		$all     = $subscription->get_meta( self::LINK_META, true );
 		if ( ! is_array( $all ) ) {
-			if ( $create ) {
-				return self::generate_link_invite( $subscription, $user_id );
-			}
 			return null;
 		}
 		if ( isset( $all[ $user_id ] ) ) {
 			return $all[ $user_id ];
-		}
-		if ( $create ) {
-			return self::generate_link_invite( $subscription, $user_id );
 		}
 		return null;
 	}
@@ -232,7 +225,7 @@ class Group_Subscription_Invite {
 	 * @param \WC_Subscription|int $subscription The subscription object or ID.
 	 * @param int                  $user_id      The manager user ID.
 	 *
-	 * @return array|\WP_Error On success: [ 'url' => string, 'key' => string, 'expiration' => int, 'created_at' => int ].
+	 * @return array|\WP_Error On success: [ 'url' => string, 'key' => string, 'created_at' => int ].
 	 */
 	public static function generate_link_invite( $subscription, $user_id ) {
 		$subscription = WooCommerce_Subscriptions::sanitize_subscription( $subscription );
@@ -734,8 +727,10 @@ class Group_Subscription_Invite {
 			$type = ! empty( $link_messages[ $result ]['type'] ) ? $link_messages[ $result ]['type'] : 'error';
 		}
 
-		// Ensure snackbar message appears in both My Account and non-account pages.
-		if ( function_exists( 'wc_add_notice' ) ) {
+		// Link-invite results: use Newspack_UI only (works on all front-end pages, including WC).
+		// Legacy email-invite results ('success' / generic 'error'): also use wc_add_notice for WC pages.
+		$is_link_result = isset( $link_messages[ $result ] );
+		if ( ! $is_link_result && function_exists( 'wc_add_notice' ) ) {
 			wc_add_notice( $message, $type );
 		}
 		Newspack_UI::add_notice( $message, $type );

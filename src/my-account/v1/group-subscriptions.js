@@ -53,13 +53,15 @@ domReady( function () {
 	if ( copyButton ) {
 		const restUrl = copyButton.getAttribute( 'data-rest-url' );
 		const nonce = copyButton.getAttribute( 'data-rest-nonce' );
-		const subId = parseInt( copyButton.getAttribute( 'data-subscription-id' ) );
+		const subId = parseInt( copyButton.getAttribute( 'data-subscription-id' ), 10 );
 		const idleText = copyButton.getAttribute( 'data-idle-text' );
 		const successText = copyButton.getAttribute( 'data-success-text' );
+		const errorText = copyButton.getAttribute( 'data-error-text' );
 		copyButton.addEventListener( 'click', async e => {
 			e.preventDefault();
 			copyButton.classList.add( 'newspack-ui__button--loading' );
 			copyButton.setAttribute( 'disabled', '' );
+			copyButton.setAttribute( 'aria-busy', 'true' );
 			copyButton.textContent = '';
 			try {
 				const response = await fetch( restUrl, {
@@ -73,22 +75,28 @@ domReady( function () {
 				} );
 				const data = await response.json();
 				if ( ! response.ok || ! data || ! data.url ) {
-					const message = ( data && data.message ) || 'Could not create the invite link.';
+					const message = ( data && data.message ) || errorText;
 					showSnackbar( message, 'error' );
+					copyButton.textContent = idleText;
 					return;
 				}
-				await copyToClipboard( data.url );
-				copyButton.textContent = successText;
-				const resetButtonText = setTimeout( () => {
+				const copied = await copyToClipboard( data.url );
+				if ( ! copied ) {
+					showSnackbar( errorText, 'error' );
 					copyButton.textContent = idleText;
-					clearTimeout( resetButtonText );
+					return;
+				}
+				copyButton.textContent = successText;
+				setTimeout( () => {
+					copyButton.textContent = idleText;
 				}, 2000 );
 			} catch ( error ) {
-				showSnackbar( 'Could not create the invite link.', 'error' );
+				showSnackbar( errorText, 'error' );
 				copyButton.textContent = idleText;
 			} finally {
 				copyButton.classList.remove( 'newspack-ui__button--loading' );
 				copyButton.removeAttribute( 'disabled' );
+				copyButton.removeAttribute( 'aria-busy' );
 			}
 		} );
 	}
@@ -96,18 +104,24 @@ domReady( function () {
 
 function showSnackbar( message, type = 'success' ) {
 	const wrapper = document.createElement( 'div' );
-	wrapper.className = 'newspack-ui';
-	wrapper.innerHTML = `
-		<div class="newspack-ui__snackbar newspack-ui__snackbar--top-right">
-			<div class="newspack-ui__snackbar__item newspack-ui__snackbar__item--${ type }" data-autohide="true">
-				<div class="newspack-ui__snackbar__content"></div>
-			</div>
-		</div>
-	`;
-	wrapper.querySelector( '.newspack-ui__snackbar__content' ).textContent = message;
+	wrapper.classList.add( 'newspack-ui' );
+
+	const snackbar = document.createElement( 'div' );
+	snackbar.classList.add( 'newspack-ui__snackbar', 'newspack-ui__snackbar--top-right' );
+
+	const item = document.createElement( 'div' );
+	item.classList.add( 'newspack-ui__snackbar__item', `newspack-ui__snackbar__item--${ type }` );
+	item.setAttribute( 'data-autohide', 'true' );
+
+	const content = document.createElement( 'div' );
+	content.classList.add( 'newspack-ui__snackbar__content' );
+	content.textContent = message;
+
+	item.appendChild( content );
+	snackbar.appendChild( item );
+	wrapper.appendChild( snackbar );
 	document.body.appendChild( wrapper );
 
-	const item = wrapper.querySelector( '.newspack-ui__snackbar__item' );
 	if ( window.newspackUI && window.newspackUI.notices && typeof window.newspackUI.notices.openNotice === 'function' ) {
 		// Delegate timing/transition handling to the Newspack UI notices module.
 		// The `true` flag tells it to remove the element on close.
