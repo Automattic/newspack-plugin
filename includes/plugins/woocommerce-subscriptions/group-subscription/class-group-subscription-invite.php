@@ -621,19 +621,9 @@ class Group_Subscription_Invite {
 		}
 
 		// Member-limit check.
-		$settings = Group_Subscription_Settings::get_subscription_settings( $subscription );
-		$member_count = count( Group_Subscription::get_members( $subscription ) );
-		$pending_invite_count = 0;
-		$invites = $subscription->get_meta( self::META, true );
-
-		if ( is_array( $invites ) ) {
-			foreach ( $invites as $invite ) {
-				if ( ! is_array( $invite ) ) {
-					continue;
-				}
-				$pending_invite_count++;
-			}
-		}
+		$settings             = Group_Subscription_Settings::get_subscription_settings( $subscription );
+		$member_count         = count( Group_Subscription::get_members( $subscription ) );
+		$pending_invite_count = count( self::get_invites( $subscription, false ) );
 
 		if ( $settings['limit'] > 0 && ( $member_count + $pending_invite_count ) >= $settings['limit'] ) {
 			self::redirect_with_result( 'link_full', '', $error_target_url );

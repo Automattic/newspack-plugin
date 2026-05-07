@@ -22,12 +22,6 @@ $member_limit         = Group_Subscription_Settings::get_subscription_settings( 
 $all_invites          = Group_Subscription_Invite::get_invites( $subscription );
 $pending_invites      = Group_Subscription_Invite::get_invites( $subscription, false );
 $is_at_limit          = $member_limit > 0 && ( count( $members ) + count( $pending_invites ) ) >= $member_limit;
-
-$current_user_id     = get_current_user_id();
-$link_invite         = Group_Subscription_Invite::get_link_invite( $subscription, $current_user_id );
-$link_invite_url     = $link_invite ? Group_Subscription_Invite::get_link_invite_url( $subscription->get_id(), $current_user_id, $link_invite['key'] ) : '';
-$link_invite_expired = $link_invite ? Group_Subscription_Invite::is_invite_expired( $link_invite ) : false;
-$link_state          = ! $link_invite ? 'none' : ( $link_invite_expired ? 'expired' : 'valid' );
 ?>
 <header class="newspack-my-account__subscription--header">
 	<?php
@@ -260,8 +254,9 @@ $link_state          = ! $link_invite ? 'none' : ( $link_invite_expired ? 'expir
 								<input type="email" placeholder="<?php esc_attr_e( 'Recipient’s email address', 'newspack-plugin' ); ?>" name="newspack-group-subscription-invite-email" id="newspack-group-subscription-invite-email" required>
 							</p>
 
-							<button class="newspack-ui__button newspack-ui__button--primary newspack-ui__button--wide"><?php esc_html_e( 'Invite', 'newspack-plugin' ); ?></button>
+							<button type="submit" class="newspack-ui__button newspack-ui__button--primary newspack-ui__button--wide"><?php esc_html_e( 'Invite', 'newspack-plugin' ); ?></button>
 							<button
+								type="button"
 								class="newspack-ui__button newspack-ui__button--outline newspack-ui__button--wide newspack-my-account__group_subscription__invite-link__copy"
 								data-subscription-id="<?php echo esc_attr( $subscription->get_id() ); ?>"
 								data-rest-url="<?php echo esc_url( rest_url( Group_Subscription_API::NAMESPACE . '/invite-link' ) ); ?>"
