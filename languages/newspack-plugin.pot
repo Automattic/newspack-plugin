@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-05-06T23:04:45+00:00\n"
+"POT-Creation-Date: 2026-05-07T19:55:51+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: newspack-plugin\n"
@@ -77,11 +77,11 @@ msgstr ""
 msgid "%s must be a same-site URL."
 msgstr ""
 
-#: includes/class-donations.php:537
+#: includes/class-donations.php:585
 msgid "Donate"
 msgstr ""
 
-#: includes/class-donations.php:1187
+#: includes/class-donations.php:1231
 msgid "Donate now"
 msgstr ""
 
@@ -2529,7 +2529,7 @@ msgstr ""
 msgid "WooCommerce is not active."
 msgstr ""
 
-#: includes/contribution-meter/class-contribution-meter.php:268
+#: includes/contribution-meter/class-contribution-meter.php:270
 msgid "No donation products found."
 msgstr ""
 
@@ -4339,12 +4339,20 @@ msgstr ""
 msgid "Restricted by membership plans: %s"
 msgstr ""
 
-#: includes/plugins/woocommerce/class-woocommerce-products.php:67
+#: includes/plugins/woocommerce/class-woocommerce-products.php:69
 msgid "Auto-complete orders"
 msgstr ""
 
-#: includes/plugins/woocommerce/class-woocommerce-products.php:68
+#: includes/plugins/woocommerce/class-woocommerce-products.php:70
 msgid "Allow orders containing this product to automatically complete upon successful payment."
+msgstr ""
+
+#: includes/plugins/woocommerce/class-woocommerce-products.php:78
+msgid "Donation product"
+msgstr ""
+
+#: includes/plugins/woocommerce/class-woocommerce-products.php:79
+msgid "Flag this product as a donation. Donation products use donation-specific checkout, reporting, and reader activation behaviors. For variable products, set on the parent and all variations inherit."
 msgstr ""
 
 #. translators: %1$s: action URL, %2$s: link attributes
