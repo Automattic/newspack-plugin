@@ -22,6 +22,7 @@ class WooCommerce_Subscriptions {
 		add_filter( 'woocommerce_subscriptions_product_trial_length', [ __CLASS__, 'limit_free_trials_to_one_per_user' ], 10, 2 );
 		add_filter( 'wcs_get_users_subscriptions', [ __CLASS__, 'filter_subscriptions_for_account_page' ], 10, 1 );
 		add_filter( 'woocommerce_subscriptions_can_item_be_switched', [ __CLASS__, 'allow_migrated_subscription_switch' ], 10, 3 );
+		add_filter( 'wcs_can_user_resubscribe_to_subscription', [ __CLASS__, 'allow_migrated_subscription_to_resubscribe' ], 10, 3 );
 	}
 
 	/**
@@ -343,6 +344,48 @@ class WooCommerce_Subscriptions {
 			}
 		}
 		return $product_id;
+	}
+
+	/**
+	 * Allow migrated subscription to resubscribe.
+	 *
+	 * The original function only allows resubscriptions if there are payments
+	 * associated with the subscription to avoid circumventing the sign-up fees.
+	 * This filter allows resubscriptions for migrated subscriptions, which don't
+	 * have any payments associated with them.
+	 *
+	 * @param bool             $can_resubscribe Whether the user can resubscribe to the subscription.
+	 * @param \WC_Subscription $subscription    The subscription.
+	 * @param int              $user_id         The user ID.
+	 *
+	 * @return bool Whether the user can resubscribe to the subscription.
+	 */
+	public static function allow_migrated_subscription_to_resubscribe( $can_resubscribe, $subscription, $user_id ) {
+		if ( $can_resubscribe ) {
+			return $can_resubscribe;
+		}
+
+		/**
+		 * Replicate the original checks.
+		 */
+		if (
+			empty( $subscription ) ||
+			! user_can( $user_id, 'subscribe_again', $subscription->get_id() ) || // phpcs:ignore WordPress.WP.Capabilities.Unknown
+			! $subscription->has_status( [ 'pending-cancel', 'cancelled', 'expired', 'trash' ] ) ||
+			$subscription->get_total() <= 0 ||
+			$subscription->contains_unavailable_product()
+		) {
+			return false;
+		}
+
+		$migrated_meta = [ '_piano_subscription_id', '_stripe_subscription_id' ];
+		foreach ( $migrated_meta as $meta ) {
+			if ( $subscription->get_meta( $meta ) ) {
+				$can_resubscribe = true;
+				break;
+			}
+		}
+		return $can_resubscribe;
 	}
 }
 WooCommerce_Subscriptions::init();
