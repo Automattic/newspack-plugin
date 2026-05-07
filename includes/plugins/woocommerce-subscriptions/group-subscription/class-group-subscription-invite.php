@@ -260,7 +260,6 @@ class Group_Subscription_Invite {
 		$now   = time();
 		$entry = [
 			'key'        => wp_generate_password( 32, false ),
-			'expiration' => $now + self::get_expiration_time(),
 			'created_at' => $now,
 		];
 		$all[ $user_id ] = $entry;
@@ -309,12 +308,6 @@ class Group_Subscription_Invite {
 			return new \WP_Error(
 				'newspack_group_subscription_link_invite_not_found',
 				__( 'Invite link not found.', 'newspack-plugin' )
-			);
-		}
-		if ( self::is_invite_expired( $entry ) ) {
-			return new \WP_Error(
-				'newspack_group_subscription_link_invite_expired',
-				__( 'Invite link has expired.', 'newspack-plugin' )
 			);
 		}
 		return true;
@@ -634,16 +627,11 @@ class Group_Subscription_Invite {
 		$invites = $subscription->get_meta( self::META, true );
 
 		if ( is_array( $invites ) ) {
-			$now = time();
 			foreach ( $invites as $invite ) {
 				if ( ! is_array( $invite ) ) {
 					continue;
 				}
-
-				$expires = isset( $invite['expires'] ) ? absint( $invite['expires'] ) : 0;
-				if ( $expires > $now ) {
-					$pending_invite_count++;
-				}
+				$pending_invite_count++;
 			}
 		}
 

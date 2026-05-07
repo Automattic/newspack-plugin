@@ -1283,8 +1283,6 @@ class Test_Group_Subscriptions extends \WP_UnitTestCase {
 		$this->assertIsArray( $result );
 		$this->assertArrayHasKey( 'url', $result );
 		$this->assertArrayHasKey( 'key', $result );
-		$this->assertArrayHasKey( 'expiration', $result );
-		$this->assertGreaterThan( time() + ( 13 * DAY_IN_SECONDS ), $result['expiration'] );
 
 		// Verify it's persisted.
 		$stored = Group_Subscription_Invite::get_link_invite( $group_sub, $owner_id );
@@ -1390,31 +1388,6 @@ class Test_Group_Subscriptions extends \WP_UnitTestCase {
 
 		$result = Group_Subscription_Invite::validate_link_invite( $group_sub, $owner_id, 'wrong-key' );
 		$this->assertWPError( $result );
-	}
-
-	/**
-	 * Test validate_link_invite() rejects an expired invite.
-	 */
-	public function test_validate_link_invite_expired() {
-		$owner_id  = $this->create_reader_user();
-		$group_sub = $this->create_group_subscription( $owner_id );
-
-		// Manually write an expired entry so we don't need to wait or mock time().
-		$group_sub->update_meta_data(
-			Group_Subscription_Invite::LINK_META,
-			[
-				$owner_id => [
-					'key'        => 'expired-key',
-					'expiration' => time() - 100,
-					'created_at' => time() - 1000,
-				],
-			]
-		);
-		$group_sub->save();
-
-		$result = Group_Subscription_Invite::validate_link_invite( $group_sub, $owner_id, 'expired-key' );
-		$this->assertWPError( $result );
-		$this->assertEquals( 'newspack_group_subscription_link_invite_expired', $result->get_error_code() );
 	}
 
 	/**
