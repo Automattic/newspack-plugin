@@ -131,10 +131,6 @@ class Newspack_UI_Icons {
 			'<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false" class="newspack-ui__svg-icon--copy">
 				<path fill-rule="evenodd" clip-rule="evenodd" d="M5.625 5.5h9.75c.069 0 .125.056.125.125v9.75a.125.125 0 0 1-.125.125h-9.75a.125.125 0 0 1-.125-.125v-9.75c0-.069.056-.125.125-.125ZM4 5.625C4 4.728 4.728 4 5.625 4h9.75C16.273 4 17 4.728 17 5.625v9.75c0 .898-.727 1.625-1.625 1.625h-9.75A1.625 1.625 0 0 1 4 15.375v-9.75Zm14.5 11.656v-9H20v9C20 18.8 18.77 20 17.251 20H6.25v-1.5h11.001c.69 0 1.249-.528 1.249-1.219Z" />
 			</svg>',
-		'create'           =>
-			'<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false" class="newspack-ui__svg-icon--create">
-				<path d="M16 11.2h-3.2V8h-1.6v3.2H8v1.6h3.2V16h1.6v-3.2H16z" />
-			</svg>',
 		'curatedList'      =>
 			'<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false" class="newspack-ui__svg-icon--curated-list">
 				<path d="M5.5 7.5H7.5V9.5H5.5V7.5ZM5.5 13.5H7.5V11.5H5.5V13.5ZM8.5 9.5H15.5V7.5H8.5V9.5ZM8.5 13.5H15.5V11.5H8.5V13.5ZM16.375 18H4.625C4.19402 18 3.7807 17.8288 3.47595 17.524C3.1712 17.2193 3 16.806 3 16.375V4.625C3 3.728 3.728 3 4.625 3H16.375C17.273 3 18 3.728 18 4.625V16.375C18 17.273 17.273 18 16.375 18ZM4.625 16.5H16.375C16.4082 16.5 16.4399 16.4868 16.4634 16.4634C16.4868 16.4399 16.5 16.4082 16.5 16.375V4.625C16.5 4.59185 16.4868 4.56005 16.4634 4.53661C16.4399 4.51317 16.4082 4.5 16.375 4.5H4.625C4.59185 4.5 4.56005 4.51317 4.53661 4.53661C4.51317 4.56005 4.5 4.59185 4.5 4.625V16.375C4.5 16.444 4.556 16.5 4.625 16.5ZM20.25 19C20.25 19.69 19.69 20.25 19.001 20.25H6V21.75H19.001C19.3621 21.75 19.7196 21.6789 20.0532 21.5406C20.3868 21.4024 20.6899 21.1999 20.9452 20.9445C21.2005 20.6891 21.4029 20.3859 21.541 20.0523C21.6791 19.7187 21.7501 19.3611 21.75 19V8H20.25V19Z" />
@@ -205,10 +201,6 @@ class Newspack_UI_Icons {
 		'trash'            =>
 			'<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false" class="newspack-ui__svg-icon--trash">
 				<path fill-rule="evenodd" clip-rule="evenodd" d="M12 5.5A2.25 2.25 0 0 0 9.878 7h4.244A2.251 2.251 0 0 0 12 5.5ZM12 4a3.751 3.751 0 0 0-3.675 3H5v1.5h1.27l.818 8.997a2.75 2.75 0 0 0 2.739 2.501h4.347a2.75 2.75 0 0 0 2.738-2.5L17.73 8.5H19V7h-3.325A3.751 3.751 0 0 0 12 4Zm4.224 4.5H7.776l.806 8.861a1.25 1.25 0 0 0 1.245 1.137h4.347a1.25 1.25 0 0 0 1.245-1.137l.805-8.861Z" />
-			</svg>',
-		'update'           =>
-			'<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false" class="newspack-ui__svg-icon--update">
-				<path d="m11.3 17.2-5-5c-.1-.1-.1-.3 0-.4l2.3-2.3-1.1-1-2.3 2.3c-.7.7-.7 1.8 0 2.5l5 5H7.5v1.5h5.3v-5.2h-1.5v2.6zm7.5-6.4-5-5h2.7V4.2h-5.2v5.2h1.5V6.8l5 5c.1.1.1.3 0 .4l-2.3 2.3 1.1 1.1 2.3-2.3c.6-.7.6-1.9-.1-2.5z" />
 			</svg>',
 	);
 }

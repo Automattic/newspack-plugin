@@ -36,85 +36,61 @@ domReady( function () {
 		} );
 	}
 
-	// Invite-link section: copy / create flows.
-	const linkSection = document.querySelector( '.newspack-my-account__group_subscription__invite-link' );
-	if ( linkSection ) {
-		const linkInput = linkSection.querySelector( '.newspack-my-account__group_subscription__invite-link__input' );
-		const copyButton = linkSection.querySelector( '.newspack-my-account__group_subscription__invite-link__copy' );
-		const createButton = linkSection.querySelector( '.newspack-my-account__group_subscription__invite-link__create' );
-		const expiredBadge = linkSection.querySelector( '.newspack-ui__badge--warning' );
+	// Invite-link: copy / create flow.
+	const copyButton = document.querySelector( '.newspack-my-account__group_subscription__invite-link__copy' );
+	const copyToClipboard = async text => {
+		if ( ! text ) {
+			return false;
+		}
+		try {
+			await navigator.clipboard.writeText( text );
+			return true;
+		} catch ( e ) {
+			return false;
+		}
+	};
 
-		const setLinkState = state => {
-			linkSection.setAttribute( 'data-link-state', state );
-			if ( copyButton ) {
-				copyButton.toggleAttribute( 'hidden', state !== 'valid' );
-			}
-			if ( expiredBadge ) {
-				expiredBadge.toggleAttribute( 'hidden', state !== 'expired' );
-			}
-		};
-
-		const copyToClipboard = async text => {
-			if ( ! text ) {
-				return false;
-			}
+	if ( copyButton ) {
+		const restUrl = copyButton.getAttribute( 'data-rest-url' );
+		const nonce = copyButton.getAttribute( 'data-rest-nonce' );
+		const subId = parseInt( copyButton.getAttribute( 'data-subscription-id' ) );
+		const idleText = copyButton.getAttribute( 'data-idle-text' );
+		const successText = copyButton.getAttribute( 'data-success-text' );
+		copyButton.addEventListener( 'click', async e => {
+			e.preventDefault();
+			copyButton.classList.add( 'newspack-ui__button--loading' );
+			copyButton.setAttribute( 'disabled', '' );
+			copyButton.textContent = '';
 			try {
-				await navigator.clipboard.writeText( text );
-				return true;
-			} catch ( e ) {
-				return false;
+				const response = await fetch( restUrl, {
+					method: 'POST',
+					credentials: 'same-origin',
+					headers: {
+						'Content-Type': 'application/json',
+						'X-WP-Nonce': nonce,
+					},
+					body: JSON.stringify( { subscription_id: subId } ),
+				} );
+				const data = await response.json();
+				if ( ! response.ok || ! data || ! data.url ) {
+					const message = ( data && data.message ) || 'Could not create the invite link.';
+					showSnackbar( message, 'error' );
+					return;
+				}
+				await copyToClipboard( data.url );
+				copyButton.textContent = successText;
+				const resetButtonText = setTimeout( () => {
+					copyButton.textContent = idleText;
+					clearTimeout( resetButtonText );
+				}, 2000 );
+			} catch ( error ) {
+				showSnackbar( 'Could not create the invite link.', 'error' );
+				copyButton.textContent = idleText;
+			} finally {
+				copyButton.classList.remove( 'newspack-ui__button--loading' );
+				copyButton.removeAttribute( 'disabled' );
 			}
-		};
-
-		if ( copyButton ) {
-			copyButton.addEventListener( 'click', async () => {
-				const ok = await copyToClipboard( linkInput.value );
-				if ( ok ) {
-					showSnackbar( 'Link copied to clipboard!' );
-				}
-			} );
-		}
-
-		if ( createButton ) {
-			createButton.addEventListener( 'click', async () => {
-				if ( linkSection.getAttribute( 'data-link-state' ) === 'valid' ) {
-					// eslint-disable-next-line no-alert
-					if ( ! window.confirm( 'The existing link will no longer allow users to join the group. Create a new link?' ) ) {
-						return;
-					}
-				}
-				const restUrl = linkSection.getAttribute( 'data-rest-url' );
-				const nonce = linkSection.getAttribute( 'data-rest-nonce' );
-				const subId = parseInt( linkSection.getAttribute( 'data-subscription-id' ), 10 );
-
-				createButton.disabled = true;
-				try {
-					const response = await fetch( restUrl, {
-						method: 'POST',
-						credentials: 'same-origin',
-						headers: {
-							'Content-Type': 'application/json',
-							'X-WP-Nonce': nonce,
-						},
-						body: JSON.stringify( { subscription_id: subId } ),
-					} );
-					const data = await response.json();
-					if ( ! response.ok || ! data || ! data.url ) {
-						const message = ( data && data.message ) || 'Could not create the invite link.';
-						showSnackbar( message, 'error' );
-						return;
-					}
-					linkInput.value = data.url;
-					setLinkState( 'valid' );
-					await copyToClipboard( data.url );
-					showSnackbar( 'Link copied to clipboard!' );
-				} catch ( e ) {
-					showSnackbar( 'Could not create the invite link.', 'error' );
-				} finally {
-					createButton.disabled = false;
-				}
-			} );
-		}
+		} );
 	}
 } );
 
