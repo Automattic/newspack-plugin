@@ -78,7 +78,7 @@ class Group_Subscription_Invite {
 		add_action( 'template_redirect', [ __CLASS__, 'process_invite_request' ] );
 		add_action( 'template_redirect', [ __CLASS__, 'process_link_invite_request' ] );
 		add_action( 'wp_login', [ __CLASS__, 'process_deferred_invite' ], 10, 2 );
-		add_action( 'init', [ __CLASS__, 'render_invite_notice' ] );
+		add_action( 'template_redirect', [ __CLASS__, 'render_invite_notice' ] );
 	}
 
 	/**
@@ -633,6 +633,15 @@ class Group_Subscription_Invite {
 				],
 				$myaccount_url
 			);
+			// Clear any stale email-invite cookie so process_deferred_invite
+			// doesn't add the user via the email-invite path during the
+			// imminent auth — they've explicitly chosen the link-invite flow.
+			if ( isset( $_COOKIE[ self::COOKIE_NAME ] ) ) {
+				unset( $_COOKIE[ self::COOKIE_NAME ] ); // phpcs:ignore WordPressVIPMinimum.Variables.RestrictedVariables.cache_constraints___COOKIE
+				if ( ! headers_sent() ) {
+					setcookie( self::COOKIE_NAME, '', time() - 3600, COOKIEPATH, COOKIE_DOMAIN, is_ssl(), true ); // phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.cookies_setcookie
+				}
+			}
 			wp_safe_redirect( $redirect_target );
 			exit;
 		}

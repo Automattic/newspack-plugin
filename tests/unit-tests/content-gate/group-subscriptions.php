@@ -2020,4 +2020,74 @@ class Test_Group_Subscriptions extends \WP_UnitTestCase {
 			wp_set_current_user( 0 );
 		}
 	}
+
+	/**
+	 * Test that process_link_invite_request() clears any stale email-invite
+	 * cookie on the logged-out bounce, so that process_deferred_invite
+	 * (which fires on the imminent wp_login) doesn't add the user via the
+	 * email-invite path.
+	 */
+	public function test_process_link_invite_request_clears_email_invite_cookie() {
+		$owner_id  = $this->create_reader_user();
+		$group_sub = $this->create_group_subscription( $owner_id );
+
+		wp_set_current_user( $owner_id );
+		$invite = Group_Subscription_Invite::generate_link_invite( $group_sub, $owner_id );
+
+		// Visitor is logged out.
+		wp_set_current_user( 0 );
+
+		// Pre-set a stale email-invite cookie (the kind set by process_invite_request Case 2).
+		$_COOKIE[ Group_Subscription_Invite::COOKIE_NAME ] = wp_json_encode( // phpcs:ignore WordPressVIPMinimum.Variables.RestrictedVariables.cache_constraints___COOKIE
+			[
+				'subscription' => $group_sub->get_id(),
+				'key'          => 'stale-key',
+				'email'        => 'stale@example.com',
+			]
+		);
+
+		$_GET = [
+			'action' => Group_Subscription_Invite::LINK_QUERY_ARG,
+			's'      => $group_sub->get_id(),
+			'm'      => $owner_id,
+			'k'      => $invite['key'],
+		];
+
+		$captured_url      = null;
+		$capture_redirect  = function ( $location ) use ( &$captured_url ) {
+			$captured_url = $location;
+			throw new \Exception( 'redirect_intercepted' );
+		};
+		$allow_example_com = function ( $hosts ) {
+			$hosts[] = 'example.com';
+			return $hosts;
+		};
+
+		add_filter( 'wp_redirect', $capture_redirect, 1 );
+		add_filter( 'allowed_redirect_hosts', $allow_example_com );
+
+		try {
+			Group_Subscription_Invite::process_link_invite_request();
+			$this->fail( 'Expected redirect exception was not thrown.' );
+		} catch ( \Exception $e ) {
+			$this->assertStringContainsString( 'redirect_intercepted', $e->getMessage() );
+		} finally {
+			remove_filter( 'wp_redirect', $capture_redirect, 1 );
+			remove_filter( 'allowed_redirect_hosts', $allow_example_com );
+			$_GET = [];
+		}
+
+		// The stale email-invite cookie should be cleared in-process so that
+		// any subsequent code in this request (e.g. process_deferred_invite
+		// firing on wp_login) sees no cookie.
+		$this->assertArrayNotHasKey(
+			Group_Subscription_Invite::COOKIE_NAME,
+			$_COOKIE, // phpcs:ignore WordPressVIPMinimum.Variables.RestrictedVariables.cache_constraints___COOKIE
+			'Stale email-invite cookie should be cleared on link-invite logged-out bounce.'
+		);
+
+		// The captured URL is still the link_login bounce target.
+		$this->assertNotNull( $captured_url );
+		$this->assertStringContainsString( 'group_invite_result=link_login', $captured_url );
+	}
 }
