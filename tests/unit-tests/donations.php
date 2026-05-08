@@ -149,6 +149,7 @@ class Newspack_Test_Donations extends WP_UnitTestCase {
 		update_post_meta( $product_1, WooCommerce_Products::DONATION_FLAG_META_KEY, wc_bool_to_string( true ) );
 		update_post_meta( $product_3, WooCommerce_Products::DONATION_FLAG_META_KEY, wc_bool_to_string( true ) );
 
+		Donations::reset_flagged_donation_product_ids_cache();
 		$flagged_ids = Donations::get_flagged_donation_product_ids();
 		self::assertContains( $product_1, $flagged_ids, 'Flagged product 1 should be in the list.' );
 		self::assertNotContains( $product_2, $flagged_ids, 'Unflagged product 2 should not be in the list.' );
