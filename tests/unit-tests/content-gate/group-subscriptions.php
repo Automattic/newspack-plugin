@@ -1792,4 +1792,232 @@ class Test_Group_Subscriptions extends \WP_UnitTestCase {
 			wp_set_current_user( 0 );
 		}
 	}
+
+	/**
+	 * Test process_link_invite_request() logged-out branch: a logged-out
+	 * visitor with a valid link is bounced to My Account with link_login and
+	 * a redirect= query arg containing the rawurlencoded link URL.
+	 */
+	public function test_process_link_invite_request_logged_out_bounce() {
+		$owner_id  = $this->create_reader_user();
+		$group_sub = $this->create_group_subscription( $owner_id );
+
+		// Generate the link as the manager.
+		wp_set_current_user( $owner_id );
+		$invite = Group_Subscription_Invite::generate_link_invite( $group_sub, $owner_id );
+		$this->assertIsArray( $invite );
+
+		// Visitor is logged out.
+		wp_set_current_user( 0 );
+
+		$_GET = [
+			'action' => Group_Subscription_Invite::LINK_QUERY_ARG,
+			's'      => $group_sub->get_id(),
+			'm'      => $owner_id,
+			'k'      => $invite['key'],
+		];
+
+		$captured_url = null;
+		$capture      = function ( $location ) use ( &$captured_url ) {
+			$captured_url = $location;
+			throw new \Exception( 'redirect_intercepted' );
+		};
+		add_filter( 'wp_redirect', $capture, 1 );
+		// Allow the test wc_get_*_url() host through wp_safe_redirect()'s validation.
+		// The WC stubs return https://example.com/... which differs from the WP test
+		// suite's example.org host, so wp_safe_redirect() would otherwise fall back.
+		$allow_host = function ( $hosts ) {
+			$hosts[] = 'example.com';
+			return $hosts;
+		};
+		add_filter( 'allowed_redirect_hosts', $allow_host );
+
+		try {
+			try {
+				Group_Subscription_Invite::process_link_invite_request();
+				$this->fail( 'Expected redirect exception' );
+			} catch ( \Exception $e ) {
+				$this->assertStringContainsString( 'redirect_intercepted', $e->getMessage() );
+			}
+
+			$this->assertNotNull( $captured_url, 'A redirect URL should have been captured' );
+			$this->assertStringContainsString(
+				Group_Subscription_Invite::RESULT_QUERY_ARG . '=link_login',
+				$captured_url,
+				'Logged-out branch should redirect with link_login result'
+			);
+			$this->assertStringContainsString(
+				'redirect=',
+				$captured_url,
+				'Logged-out redirect should carry a redirect= query arg'
+			);
+			// The inner link URL's `&s=` must appear rawurlencoded as `%26s%3D` so the
+			// link URL is preserved as a single value rather than leaking into outer args.
+			$this->assertStringContainsString(
+				'%26s%3D',
+				$captured_url,
+				'Logged-out redirect should rawurlencode the inner link URL'
+			);
+		} finally {
+			remove_filter( 'wp_redirect', $capture, 1 );
+			remove_filter( 'allowed_redirect_hosts', $allow_host );
+			$_GET = [];
+			wp_set_current_user( 0 );
+		}
+	}
+
+	/**
+	 * Test process_link_invite_request() already-member branch: a visitor who
+	 * is already a member of the group is sent to the subscription view URL
+	 * with link_already_member, and is NOT removed from the group.
+	 */
+	public function test_process_link_invite_request_already_member() {
+		$owner_id  = $this->create_reader_user();
+		$member_id = $this->create_reader_user();
+		$group_sub = $this->create_group_subscription( $owner_id );
+
+		// Generate the link as the manager.
+		wp_set_current_user( $owner_id );
+		$invite = Group_Subscription_Invite::generate_link_invite( $group_sub, $owner_id );
+		$this->assertIsArray( $invite );
+
+		// Add the visitor as an existing member before they click the link.
+		$add_result = Group_Subscription::update_members( $group_sub, [ $member_id ] );
+		$this->assertNotInstanceOf( \WP_Error::class, $add_result, 'Pre-test setup should succeed in adding the member' );
+		$this->assertTrue(
+			Group_Subscription::user_is_member( $member_id, $group_sub ),
+			'Pre-test setup: visitor should already be a member'
+		);
+
+		// Visitor (already a member) clicks the link.
+		wp_set_current_user( $member_id );
+
+		$_GET = [
+			'action' => Group_Subscription_Invite::LINK_QUERY_ARG,
+			's'      => $group_sub->get_id(),
+			'm'      => $owner_id,
+			'k'      => $invite['key'],
+		];
+
+		$captured_url = null;
+		$capture      = function ( $location ) use ( &$captured_url ) {
+			$captured_url = $location;
+			throw new \Exception( 'redirect_intercepted' );
+		};
+		add_filter( 'wp_redirect', $capture, 1 );
+		// Allow the test wc_get_*_url() host through wp_safe_redirect()'s validation.
+		// The WC stubs return https://example.com/... which differs from the WP test
+		// suite's example.org host, so wp_safe_redirect() would otherwise fall back.
+		$allow_host = function ( $hosts ) {
+			$hosts[] = 'example.com';
+			return $hosts;
+		};
+		add_filter( 'allowed_redirect_hosts', $allow_host );
+
+		try {
+			try {
+				Group_Subscription_Invite::process_link_invite_request();
+				$this->fail( 'Expected redirect exception' );
+			} catch ( \Exception $e ) {
+				$this->assertStringContainsString( 'redirect_intercepted', $e->getMessage() );
+			}
+
+			$this->assertNotNull( $captured_url, 'A redirect URL should have been captured' );
+			$this->assertStringContainsString(
+				Group_Subscription_Invite::RESULT_QUERY_ARG . '=link_already_member',
+				$captured_url,
+				'Already-member branch should redirect with link_already_member result'
+			);
+			$this->assertStringContainsString(
+				'view-subscription',
+				$captured_url,
+				'Already-member redirect should target view-subscription'
+			);
+			$this->assertTrue(
+				Group_Subscription::user_is_member( $member_id, $group_sub ),
+				'Already-existing member must remain a member after clicking the link'
+			);
+		} finally {
+			remove_filter( 'wp_redirect', $capture, 1 );
+			remove_filter( 'allowed_redirect_hosts', $allow_host );
+			$_GET = [];
+			wp_set_current_user( 0 );
+		}
+	}
+
+	/**
+	 * Test process_link_invite_request() at-limit branch: when the group has
+	 * reached its member limit, a non-member visitor clicking the link is
+	 * redirected with link_full and is NOT added to the group.
+	 */
+	public function test_process_link_invite_request_at_member_limit() {
+		$owner_id   = $this->create_reader_user();
+		$existing   = $this->create_reader_user();
+		$visitor_id = $this->create_reader_user();
+		// Limit is 1 — adding $existing fills the group.
+		$group_sub = $this->create_group_subscription( $owner_id, [ 'limit' => 1 ] );
+
+		// Generate the link as the manager.
+		wp_set_current_user( $owner_id );
+		$invite = Group_Subscription_Invite::generate_link_invite( $group_sub, $owner_id );
+		$this->assertIsArray( $invite );
+
+		// Fill the group to its limit.
+		$add_result = Group_Subscription::update_members( $group_sub, [ $existing ] );
+		$this->assertNotInstanceOf( \WP_Error::class, $add_result, 'Pre-test setup should succeed in adding the limit-filling member' );
+		$this->assertTrue(
+			Group_Subscription::user_is_member( $existing, $group_sub ),
+			'Pre-test setup: limit-filling member should be a member'
+		);
+
+		// A fresh visitor (not yet a member) clicks the link.
+		wp_set_current_user( $visitor_id );
+
+		$_GET = [
+			'action' => Group_Subscription_Invite::LINK_QUERY_ARG,
+			's'      => $group_sub->get_id(),
+			'm'      => $owner_id,
+			'k'      => $invite['key'],
+		];
+
+		$captured_url = null;
+		$capture      = function ( $location ) use ( &$captured_url ) {
+			$captured_url = $location;
+			throw new \Exception( 'redirect_intercepted' );
+		};
+		add_filter( 'wp_redirect', $capture, 1 );
+		// Allow the test wc_get_*_url() host through wp_safe_redirect()'s validation.
+		// The WC stubs return https://example.com/... which differs from the WP test
+		// suite's example.org host, so wp_safe_redirect() would otherwise fall back.
+		$allow_host = function ( $hosts ) {
+			$hosts[] = 'example.com';
+			return $hosts;
+		};
+		add_filter( 'allowed_redirect_hosts', $allow_host );
+
+		try {
+			try {
+				Group_Subscription_Invite::process_link_invite_request();
+				$this->fail( 'Expected redirect exception' );
+			} catch ( \Exception $e ) {
+				$this->assertStringContainsString( 'redirect_intercepted', $e->getMessage() );
+			}
+
+			$this->assertNotNull( $captured_url, 'A redirect URL should have been captured' );
+			$this->assertStringContainsString(
+				Group_Subscription_Invite::RESULT_QUERY_ARG . '=link_full',
+				$captured_url,
+				'At-limit branch should redirect with link_full result'
+			);
+			$this->assertFalse(
+				Group_Subscription::user_is_member( $visitor_id, $group_sub ),
+				'Visitor must NOT be added when the group is at its member limit'
+			);
+		} finally {
+			remove_filter( 'wp_redirect', $capture, 1 );
+			remove_filter( 'allowed_redirect_hosts', $allow_host );
+			$_GET = [];
+			wp_set_current_user( 0 );
+		}
+	}
 }
