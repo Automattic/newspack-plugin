@@ -304,14 +304,20 @@ class Donations {
 	}
 
 	/**
+	 * Cached list of product IDs flagged as donations.
+	 *
+	 * @var int[]|null
+	 */
+	private static $flagged_donation_product_ids = null;
+
+	/**
 	 * Get IDs of all products flagged as donations via the _newspack_is_donation meta.
 	 *
 	 * @return int[] Array of product IDs.
 	 */
 	public static function get_flagged_donation_product_ids() {
-		static $memo = null;
-		if ( null !== $memo ) {
-			return $memo;
+		if ( null !== self::$flagged_donation_product_ids ) {
+			return self::$flagged_donation_product_ids;
 		}
 		if ( ! function_exists( 'wc_bool_to_string' ) ) {
 			return [];
@@ -330,8 +336,19 @@ class Donations {
 				],
 			]
 		);
-		$memo = array_map( 'intval', $flagged_products );
-		return $memo;
+		self::$flagged_donation_product_ids = array_map( 'intval', $flagged_products );
+		return self::$flagged_donation_product_ids;
+	}
+
+	/**
+	 * Reset the cached list of flagged donation product IDs.
+	 *
+	 * Call this after updating donation-flag product meta in the same request
+	 * or other long-lived process so subsequent lookups reload the current set
+	 * of flagged donation products.
+	 */
+	public static function reset_flagged_donation_product_ids_cache() {
+		self::$flagged_donation_product_ids = null;
 	}
 
 	/**
