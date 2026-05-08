@@ -757,18 +757,15 @@ class Group_Subscription_Invite {
 				$stored_message = get_transient( 'np_group_invite_msg_' . $transient_key );
 				if ( $stored_message ) {
 					$message = $stored_message;
-					delete_transient( $transient_key );
+					delete_transient( 'np_group_invite_msg_' . $transient_key );
 				}
 			}
 			$type = ! empty( $link_messages[ $result ]['type'] ) ? $link_messages[ $result ]['type'] : 'error';
 		}
 
-		// Link-invite results: use Newspack_UI only (works on all front-end pages, including WC).
-		// Legacy email-invite results ('success' / generic 'error'): also use wc_add_notice for WC pages.
-		$is_link_result = isset( $link_messages[ $result ] );
-		if ( ! $is_link_result && function_exists( 'wc_add_notice' ) ) {
-			wc_add_notice( $message, $type );
-		}
+		// Newspack_UI is hooked on wp_footer and renders snackbars on all front-end pages,
+		// including WC. The WC notice templates also forward wc_add_notice() output to
+		// Newspack_UI::add_notice, so calling both would render duplicates.
 		Newspack_UI::add_notice( $message, $type );
 	}
 
