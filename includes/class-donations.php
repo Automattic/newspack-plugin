@@ -343,8 +343,9 @@ class Donations {
 	/**
 	 * Reset the cached list of flagged donation product IDs.
 	 *
-	 * Tests must call this when seeding flagged products mid-process, since
-	 * the static cache survives WP_UnitTestCase's database rollback.
+	 * Call this after updating donation-flag product meta in the same request
+	 * or other long-lived process so subsequent lookups reload the current set
+	 * of flagged donation products.
 	 */
 	public static function reset_flagged_donation_product_ids_cache() {
 		self::$flagged_donation_product_ids = null;
