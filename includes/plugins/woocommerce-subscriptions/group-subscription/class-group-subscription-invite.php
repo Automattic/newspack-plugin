@@ -267,6 +267,42 @@ class Group_Subscription_Invite {
 	}
 
 	/**
+	 * Delete an invite link for a given subscription/manager user pair.
+	 *
+	 * @param \WC_Subscription|int $subscription The subscription object or ID.
+	 * @param int                  $user_id      The manager user ID.
+	 *
+	 * @return array|null The link-invite entry, or null if missing or subscription invalid.
+	 */
+	public static function delete_link_invite( $subscription, $user_id ) {
+		$subscription = WooCommerce_Subscriptions::sanitize_subscription( $subscription );
+		if ( ! $subscription || ! Group_Subscription::is_group_subscription( $subscription ) ) {
+			return new \WP_Error(
+				'newspack_group_subscription_link_invite_invalid_subscription',
+				__( 'Invalid subscription.', 'newspack-plugin' ),
+				[ 'status' => 404 ]
+			);
+		}
+		$user_id = (int) $user_id;
+		if ( ! Group_Subscription::user_is_manager( $user_id, $subscription ) ) {
+			return new \WP_Error(
+				'newspack_group_subscription_link_invite_not_manager',
+				__( 'You do not have permission to manage this group subscription.', 'newspack-plugin' ),
+				[ 'status' => 403 ]
+			);
+		}
+
+		$all = $subscription->get_meta( self::LINK_META, true );
+		if ( ! is_array( $all ) ) {
+			$all = [];
+		}
+		unset( $all[ $user_id ] );
+		$subscription->update_meta_data( self::LINK_META, $all );
+		$subscription->save();
+		return true;
+	}
+
+	/**
 	 * Validate an invite-link at click-time.
 	 *
 	 * @param \WC_Subscription|int $subscription Subscription object or ID.

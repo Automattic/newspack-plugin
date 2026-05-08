@@ -1,3 +1,5 @@
+/* globals newspackMyAccountV1, newspackUI */
+
 /**
  * Initialize functions for the Subscriptions page.
  */
@@ -9,12 +11,17 @@ domReady( function () {
 	const params = new URLSearchParams( window.location.search );
 	const activeTab = params.get( 'activeTab' ) === 'invites' ? 'invites' : 'members';
 	const content = document.querySelector( '.newspack-my-account__group_subscription__content' );
+	const subId = parseInt( content.getAttribute( 'data-subscription-id' ) );
+	const baseUrl = newspackMyAccountV1?.rest?.base_url;
+	const namespace = newspackMyAccountV1?.rest?.namespaces?.group;
+	const nonce = newspackMyAccountV1?.rest?.nonce;
+	const showSnackbar = typeof newspackUI?.notices?.createNotice === 'function' ? newspackUI.notices.createNotice : () => {};
 	if ( content ) {
 		content.setAttribute( 'data-active-tab', activeTab );
 	}
 
 	// Handle tab switching.
-	const tabs = document.querySelectorAll( '.newspack-my-account__group_subscription__tabs a' );
+	const tabs = [ ...document.querySelectorAll( '.newspack-my-account__group_subscription__tabs a' ) ];
 	tabs.forEach( tab => {
 		tab.addEventListener( 'click', event => {
 			event.preventDefault();
@@ -27,17 +34,57 @@ domReady( function () {
 	} );
 
 	// Handle invite modal.
-	const newspackModal = document.getElementById( 'newspack-my-account__group_subscription--invite-member' );
-	const openModal = document.querySelector( '.newspack-my-account__subscription--invite-member' );
-	if ( newspackModal && openModal ) {
-		openModal.addEventListener( 'click', event => {
-			event.preventDefault();
-			newspackModal.setAttribute( 'data-state', 'open' );
+	const inviteModal = document.getElementById( 'newspack-my-account__group_subscription--invite-member' );
+	const openInviteModal = [ ...document.querySelectorAll( '.newspack-my-account__subscription--invite-member' ) ];
+	if ( openInviteModal && inviteModal ) {
+		openInviteModal.forEach( open => {
+			open.addEventListener( 'click', event => {
+				event.preventDefault();
+				inviteModal.setAttribute( 'data-state', 'open' );
+			} );
 		} );
 	}
 
-	// Invite-link: copy / create flow.
-	const copyButton = document.querySelector( '.newspack-my-account__group_subscription__invite-link__copy' );
+	// Invite-link: copy / create / regenerate / disable flow.
+	const restUrl = `${ baseUrl }${ namespace }/invite-link`;
+	const copyButtons = [ ...document.querySelectorAll( '.newspack-my-account__group_subscription__invite-link__copy' ) ];
+	const regenerateButtons = [ ...document.querySelectorAll( '.newspack-my-account__group_subscription__invite-link__regenerate' ) ];
+	const disableButtons = [ ...document.querySelectorAll( '.newspack-my-account__group_subscription__invite-link__disable' ) ];
+	const regenerateModal = document.getElementById( 'newspack-my-account__group_subscription--confirm-regenerate-link' );
+	const disableModal = document.getElementById( 'newspack-my-account__group_subscription--confirm-disable-link' );
+	const openRegenrateModal = [ ...document.querySelectorAll( '.newspack-my-account__group_subscription__invite-link__confirm-regenerate' ) ];
+	const openDisableModal = [ ...document.querySelectorAll( '.newspack-my-account__group_subscription__invite-link__confirm-disable' ) ];
+	if ( regenerateModal ) {
+		openRegenrateModal.forEach( open => {
+			open.addEventListener( 'click', event => {
+				event.preventDefault();
+				regenerateModal.setAttribute( 'data-state', 'open' );
+			} );
+		} );
+	}
+	if ( disableModal ) {
+		openDisableModal.forEach( open => {
+			open.addEventListener( 'click', event => {
+				event.preventDefault();
+				disableModal.setAttribute( 'data-state', 'open' );
+			} );
+		} );
+	}
+
+	const toggleButtons = ( show = true ) => {
+		[ ...openRegenrateModal, ...openDisableModal ].forEach( button => {
+			const parent = button.closest( 'li' );
+			const el = parent || button;
+			if ( show ) {
+				el.classList.remove( 'hidden' );
+			} else {
+				el.classList.add( 'hidden' );
+			}
+		} );
+		[ ...document.querySelectorAll( '.newspack-ui__modal-container[data-state="open"]' ) ].forEach( modal =>
+			modal.setAttribute( 'data-state', 'closed' )
+		);
+	};
 	const copyToClipboard = async text => {
 		if ( ! text ) {
 			return false;
@@ -49,85 +96,98 @@ domReady( function () {
 			return false;
 		}
 	};
+	const generateLink = async e => {
+		const el = e.currentTarget;
+		el.classList.add( 'newspack-ui__button--loading' );
+		el.setAttribute( 'aria-busy', 'true' );
+		const errorText = e.currentTarget.getAttribute( 'data-error-text' );
+		try {
+			const response = await fetch( restUrl, {
+				method: 'POST',
+				credentials: 'same-origin',
+				headers: {
+					'Content-Type': 'application/json',
+					'X-WP-Nonce': nonce,
+				},
+				body: JSON.stringify( { subscription_id: subId } ),
+			} );
+			const data = await response.json();
+			if ( ! response.ok || ! data || ! data.url ) {
+				const message = ( data && data.message ) || errorText;
+				showSnackbar( message, 'error' );
+				return;
+			}
+			if ( await copyToClipboard( data.url ) ) {
+				const message = !! content.getAttribute( 'data-invite-link' )
+					? newspackMyAccountV1?.labels?.invite_link_regenerated || 'New invite link copied. Previous link is no longer valid.'
+					: newspackMyAccountV1?.labels?.invite_link_copied || 'Invite link copied.';
+				showSnackbar( message );
+			}
+			content.setAttribute( 'data-invite-link', data.url );
+			toggleButtons( true );
+		} catch ( error ) {
+			showSnackbar( errorText, 'error' );
+		} finally {
+			el.classList.remove( 'newspack-ui__button--loading' );
+			el.removeAttribute( 'aria-busy' );
+		}
+	};
 
-	if ( copyButton ) {
-		const restUrl = copyButton.getAttribute( 'data-rest-url' );
-		const nonce = copyButton.getAttribute( 'data-rest-nonce' );
-		const subId = parseInt( copyButton.getAttribute( 'data-subscription-id' ), 10 );
-		const idleText = copyButton.getAttribute( 'data-idle-text' );
-		const successText = copyButton.getAttribute( 'data-success-text' );
-		const errorText = copyButton.getAttribute( 'data-error-text' );
-		copyButton.addEventListener( 'click', async e => {
+	const deleteLink = async e => {
+		const el = e.currentTarget;
+		el.classList.add( 'newspack-ui__button--loading' );
+		el.setAttribute( 'aria-busy', 'true' );
+		const errorText = e.currentTarget.getAttribute( 'data-error-text' );
+		try {
+			const response = await fetch( restUrl, {
+				method: 'DELETE',
+				credentials: 'same-origin',
+				headers: {
+					'Content-Type': 'application/json',
+					'X-WP-Nonce': nonce,
+				},
+				body: JSON.stringify( { subscription_id: subId } ),
+			} );
+			const data = await response.json();
+			if ( ! response.ok ) {
+				const message = ( data && data.message ) || errorText;
+				showSnackbar( message, 'error' );
+				return;
+			}
+			showSnackbar( newspackMyAccountV1?.labels?.invite_link_disabled || 'Invite link disabled.' );
+			content.removeAttribute( 'data-invite-link' );
+			toggleButtons( false );
+		} catch ( error ) {
+			showSnackbar( errorText, 'error' );
+		} finally {
+			el.classList.remove( 'newspack-ui__button--loading' );
+			el.removeAttribute( 'aria-busy' );
+		}
+	};
+
+	copyButtons.forEach( button => {
+		button.addEventListener( 'click', async e => {
 			e.preventDefault();
-			copyButton.classList.add( 'newspack-ui__button--loading' );
-			copyButton.setAttribute( 'disabled', '' );
-			copyButton.setAttribute( 'aria-busy', 'true' );
-			copyButton.textContent = '';
-			try {
-				const response = await fetch( restUrl, {
-					method: 'POST',
-					credentials: 'same-origin',
-					headers: {
-						'Content-Type': 'application/json',
-						'X-WP-Nonce': nonce,
-					},
-					body: JSON.stringify( { subscription_id: subId } ),
-				} );
-				const data = await response.json();
-				if ( ! response.ok || ! data || ! data.url ) {
-					const message = ( data && data.message ) || errorText;
-					showSnackbar( message, 'error' );
-					copyButton.textContent = idleText;
-					return;
+			const inviteLink = content.getAttribute( 'data-invite-link' );
+			if ( inviteLink ) {
+				if ( await copyToClipboard( inviteLink ) ) {
+					showSnackbar( newspackMyAccountV1?.labels?.invite_link_copied || 'Invite link copied.' );
 				}
-				const copied = await copyToClipboard( data.url );
-				if ( ! copied ) {
-					showSnackbar( errorText, 'error' );
-					copyButton.textContent = idleText;
-					return;
-				}
-				copyButton.textContent = successText;
-				setTimeout( () => {
-					copyButton.textContent = idleText;
-				}, 2000 );
-			} catch ( error ) {
-				showSnackbar( errorText, 'error' );
-				copyButton.textContent = idleText;
-			} finally {
-				copyButton.classList.remove( 'newspack-ui__button--loading' );
-				copyButton.removeAttribute( 'disabled' );
-				copyButton.removeAttribute( 'aria-busy' );
+			} else {
+				generateLink( e );
 			}
 		} );
-	}
+	} );
+	regenerateButtons.forEach( button => {
+		button.addEventListener( 'click', async e => {
+			e.preventDefault();
+			generateLink( e );
+		} );
+	} );
+	disableButtons.forEach( button => {
+		button.addEventListener( 'click', async e => {
+			e.preventDefault();
+			deleteLink( e );
+		} );
+	} );
 } );
-
-function showSnackbar( message, type = 'success' ) {
-	const wrapper = document.createElement( 'div' );
-	wrapper.classList.add( 'newspack-ui' );
-
-	const snackbar = document.createElement( 'div' );
-	snackbar.classList.add( 'newspack-ui__snackbar', 'newspack-ui__snackbar--top-right' );
-
-	const item = document.createElement( 'div' );
-	item.classList.add( 'newspack-ui__snackbar__item', `newspack-ui__snackbar__item--${ type }` );
-	item.setAttribute( 'data-autohide', 'true' );
-
-	const content = document.createElement( 'div' );
-	content.classList.add( 'newspack-ui__snackbar__content' );
-	content.textContent = message;
-
-	item.appendChild( content );
-	snackbar.appendChild( item );
-	wrapper.appendChild( snackbar );
-	document.body.appendChild( wrapper );
-
-	if ( window.newspackUI && window.newspackUI.notices && typeof window.newspackUI.notices.openNotice === 'function' ) {
-		// Delegate timing/transition handling to the Newspack UI notices module.
-		// The `true` flag tells it to remove the element on close.
-		window.newspackUI.notices.openNotice( item, true );
-	} else {
-		// Minimal fallback if Newspack UI's notices module isn't loaded.
-		setTimeout( () => wrapper.remove(), 8000 );
-	}
-}

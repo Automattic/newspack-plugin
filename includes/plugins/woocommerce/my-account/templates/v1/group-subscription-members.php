@@ -21,7 +21,10 @@ $managers_and_members = array_merge( Group_Subscription::get_managers( $subscrip
 $member_limit         = Group_Subscription_Settings::get_subscription_settings( $subscription )['limit'];
 $all_invites          = Group_Subscription_Invite::get_invites( $subscription );
 $pending_invites      = Group_Subscription_Invite::get_invites( $subscription, false );
-$is_at_limit          = $member_limit > 0 && ( count( $members ) + count( $pending_invites ) ) >= $member_limit;
+$current_user_id      = get_current_user_id();
+$invite_link          = Group_Subscription_Invite::get_link_invite( $subscription, $current_user_id );
+$invite_link_url      = $invite_link ? Group_Subscription_Invite::get_link_invite_url( $subscription->get_id(), $current_user_id, $invite_link['key'] ) : '';
+$is_at_limit = $member_limit > 0 && ( count( $members ) + count( $pending_invites ) ) >= $member_limit;
 ?>
 <header class="newspack-my-account__subscription--header">
 	<?php
@@ -68,16 +71,58 @@ $is_at_limit          = $member_limit > 0 && ( count( $members ) + count( $pendi
 	?>
 	<div class="newspack-my-account__subscription--actions">
 		<div class="newspack-my-account__subscription--actions-container">
-			<button class="newspack-ui__button newspack-ui__button--secondary newspack-my-account__subscription--invite-member">
-				<?php Newspack_UI_Icons::print_svg( 'plus' ); ?>
-				<?php esc_html_e( 'Invite member', 'newspack-plugin' ); ?>
-			</button>
+			<button type="button" class="newspack-my-account__subscription--action-link newspack-ui__button newspack-ui__button--secondary newspack-ui__button--wide newspack-my-account__subscription--invite-member"><?php \esc_html_e( 'Invite by email', 'newspack-plugin' ); ?></button>
+			<button type="button" class="newspack-my-account__subscription--action-link newspack-ui__button newspack-ui__button--secondary newspack-ui__button--wide newspack-my-account__group_subscription__invite-link__copy" data-error-text="<?php echo esc_attr( __( 'Could not copy. Please try again.', 'newspack-plugin' ) ); ?>"><span><?php \esc_html_e( 'Copy invite link', 'newspack-plugin' ); ?></span></button>
+			<button type="button" class="newspack-my-account__subscription--action-link newspack-ui__button newspack-ui__button--secondary newspack-ui__button--wide newspack-my-account__group_subscription__invite-link__confirm-regenerate
+			<?php
+			if ( ! $invite_link ) {
+				echo esc_attr( 'hidden' ); }
+			?>
+			"><?php \esc_html_e( 'Regenerate invite link', 'newspack-plugin' ); ?></button>
+			<button type="button" class="newspack-my-account__subscription--action-link newspack-ui__button newspack-ui__button--outline newspack-ui__button--wide newspack-ui__button--destructive newspack-my-account__group_subscription__invite-link__confirm-disable
+			<?php
+			if ( ! $invite_link ) {
+				echo esc_attr( 'hidden' ); }
+			?>
+			"><?php \esc_html_e( 'Disable invite link', 'newspack-plugin' ); ?></button>
+			<div class="newspack-ui__dropdown newspack-my-account__subscription--actions-dropdown">
+				<button class="newspack-ui__button newspack-ui__button--secondary newspack-ui__dropdown__toggle">
+					<?php esc_html_e( 'Invite members', 'newspack-plugin' ); ?>
+					<?php Newspack_UI_Icons::print_svg( 'more' ); ?>
+				</button>
+				<div class="newspack-ui__dropdown__content">
+					<ul>
+						<li>
+							<button type="button" class="newspack-ui__button newspack-ui__button--ghost newspack-ui__button--wide newspack-my-account__subscription--invite-member"><?php \esc_html_e( 'Invite by email', 'newspack-plugin' ); ?></button>
+						</li>
+						<li>
+							<button type="button" class="newspack-ui__button newspack-ui__button--ghost newspack-ui__button--wide newspack-my-account__group_subscription__invite-link__copy" data-error-text="<?php echo esc_attr( __( 'Could not copy. Please try again.', 'newspack-plugin' ) ); ?>"><span><?php \esc_html_e( 'Copy invite link', 'newspack-plugin' ); ?></span></button>
+						</li>
+						<li class="
+							<?php
+							if ( ! $invite_link ) {
+								echo esc_attr( 'hidden' ); }
+							?>
+						">
+							<button type="button" class="newspack-ui__button newspack-ui__button--ghost newspack-ui__button--wide newspack-my-account__group_subscription__invite-link__confirm-regenerate"><?php \esc_html_e( 'Regenerate invite link', 'newspack-plugin' ); ?></button>
+						</li>
+						<li class="
+							<?php
+							if ( ! $invite_link ) {
+								echo esc_attr( 'hidden' ); }
+							?>
+						">
+							<button type="button" class="newspack-ui__button newspack-ui__button--ghost newspack-ui__button--wide newspack-ui__button--destructive newspack-my-account__group_subscription__invite-link__confirm-disable"><?php \esc_html_e( 'Disable invite link', 'newspack-plugin' ); ?></button>
+						</li>
+					</ul>
+				</div>
+			</div>
 		</div>
 		<?php \do_action( 'newspack_woocommerce_after_subscription_actions', $subscription, $actions ); ?>
 	</div>
 </header>
 
-<div class="newspack-my-account__group_subscription__content" data-active-tab="members">
+<div class="newspack-my-account__group_subscription__content" data-active-tab="members" data-subscription-id="<?php echo esc_attr( $subscription->get_id() ); ?>" data-invite-link="<?php echo esc_attr( $invite_link_url ); ?>">
 	<p class="newspack-my-account__group_subscription__tabs">
 		<a href="#" data-tab="members" class="newspack-my-account__group_subscription__tabs--members">
 			<?php
@@ -224,7 +269,7 @@ $is_at_limit          = $member_limit > 0 && ( count( $members ) + count( $pendi
 		</tbody>
 	</table>
 
-	<!-- .newspack-ui__modal -->
+	<!-- .newspack-ui__modal: invite by email -->
 	<div id="newspack-my-account__group_subscription--invite-member" class="newspack-ui__modal-container">
 		<div class="newspack-ui__modal-container__overlay"></div>
 		<div class="newspack-ui__modal newspack-ui__modal--small">
@@ -255,21 +300,57 @@ $is_at_limit          = $member_limit > 0 && ( count( $members ) + count( $pendi
 							</p>
 
 							<button type="submit" class="newspack-ui__button newspack-ui__button--primary newspack-ui__button--wide"><?php esc_html_e( 'Invite', 'newspack-plugin' ); ?></button>
-							<button
-								type="button"
-								class="newspack-ui__button newspack-ui__button--outline newspack-ui__button--wide newspack-my-account__group_subscription__invite-link__copy"
-								data-subscription-id="<?php echo esc_attr( $subscription->get_id() ); ?>"
-								data-rest-url="<?php echo esc_url( rest_url( Group_Subscription_API::NAMESPACE . '/invite-link' ) ); ?>"
-								data-rest-nonce="<?php echo esc_attr( wp_create_nonce( 'wp_rest' ) ); ?>"
-								data-idle-text="<?php echo esc_attr( __( 'Copy invite link', 'newspack-plugin' ) ); ?>"
-								data-success-text="<?php echo esc_attr( __( 'Invite link copied!', 'newspack-plugin' ) ); ?>"
-								data-error-text="<?php echo esc_attr( __( 'Could not copy. Please copy manually.', 'newspack-plugin' ) ); ?>"
-								>
-									<?php esc_html_e( 'Copy invite link', 'newspack-plugin' ); ?>
-							</button>
 							<button type="button" class="newspack-ui__button newspack-ui__button--ghost newspack-ui__button--wide newspack-ui__modal__close"><?php esc_html_e( 'Cancel', 'newspack-plugin' ); ?></button>
 						</form>
 					<?php endif; ?>
+				</section>
+			</div><!-- .newspack-ui__modal__small -->
+	</div> <!-- .newspack-ui__modal-container -->
+
+	<!-- .newspack-ui__modal: regenerate invite link -->
+	<div id="newspack-my-account__group_subscription--confirm-regenerate-link" class="newspack-ui__modal-container">
+		<div class="newspack-ui__modal-container__overlay"></div>
+		<div class="newspack-ui__modal newspack-ui__modal--small">
+				<header class="newspack-ui__modal__header">
+					<h2><?php esc_html_e( 'Regenerate invite link', 'newspack-plugin' ); ?></h2>
+
+					<button class="newspack-ui__button newspack-ui__button--icon newspack-ui__button--ghost newspack-ui__modal__close">
+						<span class="screen-reader-text"><?php esc_html_e( 'Close', 'newspack-plugin' ); ?></span>
+						<?php Newspack_UI_Icons::print_svg( 'close' ); ?>
+					</button>
+				</header>
+
+				<section class="newspack-ui__modal__content">
+						<p>
+							<?php esc_html_e( 'The existing link will no longer allow users to join the group. Create a new link?', 'newspack-plugin' ); ?>
+						</p>
+
+						<button type="submit" class="newspack-ui__button newspack-ui__button--primary newspack-ui__button--wide newspack-ui__button--destructive newspack-my-account__group_subscription__invite-link__regenerate" data-error-text="<?php echo esc_attr( __( 'Could not regenerate. Please try again.', 'newspack-plugin' ) ); ?>"><span><?php esc_html_e( 'OK', 'newspack-plugin' ); ?></span></button>
+						<button type="button" class="newspack-ui__button newspack-ui__button--ghost newspack-ui__button--wide newspack-ui__modal__close"><?php esc_html_e( 'Cancel', 'newspack-plugin' ); ?></button>
+				</section>
+			</div><!-- .newspack-ui__modal__small -->
+	</div> <!-- .newspack-ui__modal-container -->
+
+	<!-- .newspack-ui__modal: disable invite link -->
+	<div id="newspack-my-account__group_subscription--confirm-disable-link" class="newspack-ui__modal-container">
+		<div class="newspack-ui__modal-container__overlay"></div>
+		<div class="newspack-ui__modal newspack-ui__modal--small">
+				<header class="newspack-ui__modal__header">
+					<h2><?php esc_html_e( 'Disable invite link', 'newspack-plugin' ); ?></h2>
+
+					<button class="newspack-ui__button newspack-ui__button--icon newspack-ui__button--ghost newspack-ui__modal__close">
+						<span class="screen-reader-text"><?php esc_html_e( 'Close', 'newspack-plugin' ); ?></span>
+						<?php Newspack_UI_Icons::print_svg( 'close' ); ?>
+					</button>
+				</header>
+
+				<section class="newspack-ui__modal__content">
+						<p>
+							<?php esc_html_e( 'The existing link will no longer allow users to join the group. Disable the link?', 'newspack-plugin' ); ?>
+						</p>
+
+						<button type="submit" class="newspack-ui__button newspack-ui__button--primary newspack-ui__button--wide newspack-ui__button--destructive newspack-my-account__group_subscription__invite-link__disable" data-error-text="<?php echo esc_attr( __( 'Could not disable. Please try again.', 'newspack-plugin' ) ); ?>"><span><?php esc_html_e( 'OK', 'newspack-plugin' ); ?></span></button>
+						<button type="button" class="newspack-ui__button newspack-ui__button--ghost newspack-ui__button--wide newspack-ui__modal__close"><?php esc_html_e( 'Cancel', 'newspack-plugin' ); ?></button>
 				</section>
 			</div><!-- .newspack-ui__modal__small -->
 	</div> <!-- .newspack-ui__modal-container -->
