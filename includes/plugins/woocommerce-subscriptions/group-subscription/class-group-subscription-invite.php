@@ -293,8 +293,8 @@ class Group_Subscription_Invite {
 		}
 
 		$all = $subscription->get_meta( self::LINK_META, true );
-		if ( ! is_array( $all ) ) {
-			$all = [];
+		if ( ! is_array( $all ) || ! isset( $all[ $user_id ] ) ) {
+			return true;
 		}
 		unset( $all[ $user_id ] );
 		$subscription->update_meta_data( self::LINK_META, $all );
