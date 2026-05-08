@@ -1331,6 +1331,64 @@ class Test_Group_Subscriptions extends \WP_UnitTestCase {
 	}
 
 	/**
+	 * Test delete_link_invite() removes an existing entry and returns true.
+	 */
+	public function test_delete_link_invite_success() {
+		$owner_id  = $this->create_reader_user();
+		$group_sub = $this->create_group_subscription( $owner_id );
+
+		wp_set_current_user( $owner_id );
+		Group_Subscription_Invite::generate_link_invite( $group_sub, $owner_id );
+
+		$result = Group_Subscription_Invite::delete_link_invite( $group_sub, $owner_id );
+		$this->assertTrue( $result );
+
+		$stored = Group_Subscription_Invite::get_link_invite( $group_sub, $owner_id );
+		$this->assertNull( $stored );
+	}
+
+	/**
+	 * Test delete_link_invite() rejects a non-group subscription.
+	 */
+	public function test_delete_link_invite_rejects_non_group_subscription() {
+		$owner_id = $this->create_reader_user();
+		$regular  = $this->create_regular_subscription( $owner_id );
+
+		$result = Group_Subscription_Invite::delete_link_invite( $regular, $owner_id );
+		$this->assertWPError( $result );
+		$this->assertEquals( 'newspack_group_subscription_link_invite_invalid_subscription', $result->get_error_code() );
+	}
+
+	/**
+	 * Test delete_link_invite() rejects a user who is not a manager.
+	 */
+	public function test_delete_link_invite_rejects_non_manager() {
+		$owner_id    = $this->create_reader_user();
+		$non_manager = $this->create_reader_user();
+		$group_sub   = $this->create_group_subscription( $owner_id );
+
+		$result = Group_Subscription_Invite::delete_link_invite( $group_sub, $non_manager );
+		$this->assertWPError( $result );
+		$this->assertEquals( 'newspack_group_subscription_link_invite_not_manager', $result->get_error_code() );
+	}
+
+	/**
+	 * Test delete_link_invite() short-circuits to true without writing meta when
+	 * no entry exists for the user.
+	 */
+	public function test_delete_link_invite_no_op_for_missing_entry() {
+		$owner_id  = $this->create_reader_user();
+		$group_sub = $this->create_group_subscription( $owner_id );
+
+		$result = Group_Subscription_Invite::delete_link_invite( $group_sub, $owner_id );
+		$this->assertTrue( $result );
+
+		// Meta should not have been written by the no-op path.
+		$meta = $group_sub->get_meta( Group_Subscription_Invite::LINK_META, true );
+		$this->assertTrue( '' === $meta || ( is_array( $meta ) && empty( $meta ) ) );
+	}
+
+	/**
 	 * Test validate_link_invite() returns true for a valid link.
 	 */
 	public function test_validate_link_invite_valid() {
@@ -1513,6 +1571,71 @@ class Test_Group_Subscriptions extends \WP_UnitTestCase {
 		$data = $response->get_data();
 		$this->assertEquals(
 			'newspack_group_subscription_link_invite_not_manager',
+			is_array( $data ) ? ( $data['code'] ?? null ) : null
+		);
+	}
+
+	/**
+	 * Test the REST DELETE /invite-link endpoint succeeds for a manager.
+	 */
+	public function test_rest_invite_link_delete_success() {
+		$owner_id  = $this->create_reader_user();
+		$group_sub = $this->create_group_subscription( $owner_id );
+
+		wp_set_current_user( $owner_id );
+		do_action( 'rest_api_init' );
+
+		// First generate a link to delete.
+		Group_Subscription_Invite::generate_link_invite( $group_sub, $owner_id );
+
+		$request = new \WP_REST_Request( 'DELETE', '/newspack-group-subscription/v1/invite-link' );
+		$request->set_param( 'subscription_id', $group_sub->get_id() );
+
+		$response = rest_get_server()->dispatch( $request );
+		$this->assertEquals( 200, $response->get_status() );
+	}
+
+	/**
+	 * Test the REST DELETE /invite-link endpoint denies non-managers.
+	 */
+	public function test_rest_invite_link_delete_returns_403_for_non_manager() {
+		$owner_id    = $this->create_reader_user();
+		$non_manager = $this->create_reader_user();
+		$group_sub   = $this->create_group_subscription( $owner_id );
+
+		wp_set_current_user( $non_manager );
+		do_action( 'rest_api_init' );
+
+		$request = new \WP_REST_Request( 'DELETE', '/newspack-group-subscription/v1/invite-link' );
+		$request->set_param( 'subscription_id', $group_sub->get_id() );
+
+		$response = rest_get_server()->dispatch( $request );
+		$this->assertEquals( 403, $response->get_status() );
+	}
+
+	/**
+	 * Test the REST DELETE /invite-link endpoint returns 404 when the subscription
+	 * exists but is not a group subscription. The caller is a WooCommerce admin so
+	 * the permission callback passes; the WP_Error from delete_link_invite() must
+	 * surface as a 404 status.
+	 */
+	public function test_rest_invite_link_delete_returns_404_for_invalid_subscription() {
+		$admin_id  = $this->create_admin_user();
+		$reader_id = $this->create_reader_user();
+		$regular   = $this->create_regular_subscription( $reader_id );
+
+		wp_set_current_user( $admin_id );
+		do_action( 'rest_api_init' );
+
+		$request = new \WP_REST_Request( 'DELETE', '/newspack-group-subscription/v1/invite-link' );
+		$request->set_param( 'subscription_id', $regular->get_id() );
+
+		$response = rest_get_server()->dispatch( $request );
+		$this->assertEquals( 404, $response->get_status() );
+
+		$data = $response->get_data();
+		$this->assertEquals(
+			'newspack_group_subscription_link_invite_invalid_subscription',
 			is_array( $data ) ? ( $data['code'] ?? null ) : null
 		);
 	}
