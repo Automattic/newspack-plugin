@@ -62,8 +62,9 @@ function closeNotice( element, remove = true ) {
 function createNotice( message, type = 'success' ) {
 	let snackbar = document.querySelector( '.newspack-ui__snackbar--top-right' );
 	if ( ! snackbar ) {
-		const wrapper = document.querySelector( '.newspack-ui' );
+		let wrapper = document.querySelector( '.newspack-ui' );
 		if ( ! wrapper ) {
+			wrapper = document.createElement( 'div' );
 			wrapper.classList.add( 'newspack-ui' );
 			document.body.appendChild( wrapper );
 		}

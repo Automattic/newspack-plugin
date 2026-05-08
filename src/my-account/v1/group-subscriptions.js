@@ -7,11 +7,15 @@
 import { domReady } from '../../utils';
 
 domReady( function () {
+	const content = document.querySelector( '.newspack-my-account__group_subscription__content' );
+	if ( ! content ) {
+		return;
+	}
+
 	// Look for the activeTab parameter in the URL and set the active tab accordingly.
 	const params = new URLSearchParams( window.location.search );
 	const activeTab = params.get( 'activeTab' ) === 'invites' ? 'invites' : 'members';
-	const content = document.querySelector( '.newspack-my-account__group_subscription__content' );
-	const subId = parseInt( content.getAttribute( 'data-subscription-id' ) );
+	const subId = parseInt( content.getAttribute( 'data-subscription-id' ), 10 );
 	const baseUrl = newspackMyAccountV1?.rest?.base_url;
 	const namespace = newspackMyAccountV1?.rest?.namespaces?.group;
 	const nonce = newspackMyAccountV1?.rest?.nonce;
