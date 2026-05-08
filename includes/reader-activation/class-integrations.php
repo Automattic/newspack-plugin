@@ -251,9 +251,14 @@ class Integrations {
 		// Hook for other plugins/code to register their integrations.
 		do_action( 'newspack_reader_activation_register_integrations' );
 
-		// Auto-enable ESP on first registration only.
-		if ( false === get_option( self::OPTION_NAME ) ) {
-			self::enable( 'esp' );
+		// Auto-enable ESP on first registration only, while preserving the legacy sync setting on upgraded sites.
+		$enabled_integrations = get_option( self::OPTION_NAME, null );
+		if ( null === $enabled_integrations ) {
+			$legacy_sync_esp = get_option( 'newspack_reader_activation_sync_esp', null );
+
+			if ( null === $legacy_sync_esp || rest_sanitize_boolean( $legacy_sync_esp ) ) {
+				self::enable( 'esp' );
+			}
 		}
 
 		// Let each integration register its data event handlers.

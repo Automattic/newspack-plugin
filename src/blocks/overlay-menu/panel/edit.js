@@ -3,7 +3,8 @@
  */
 import { __ } from '@wordpress/i18n';
 import { close as closeIcon } from '@wordpress/icons';
-import { useEffect, useRef, useState } from '@wordpress/element';
+import { useLayoutEffect, useRef, useState } from '@wordpress/element';
+import { useSelect } from '@wordpress/data';
 import {
 	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
 	__experimentalColorGradientSettingsDropdown as ColorGradientSettingsDropdown,
@@ -57,26 +58,49 @@ export default function OverlayMenuPanelEdit( { attributes, clientId, setAttribu
 
 	const [ isPreviewOpen, setIsPreviewOpen ] = useState( false );
 
-	// Keep a ref to the current open state so the toggle registered in panelToggles
-	// never has a stale closure over isPreviewOpen.
+	// Keep a ref to the current open state so the toggle never has a stale closure.
 	const isOpenRef = useRef( false );
 	isOpenRef.current = isPreviewOpen;
 
-	// Register a toggle function keyed by clientId so the parent toolbar button
-	// can open/close the panel without sharing block attributes.
-	useEffect( () => {
-		panelToggles.set( clientId, () => {
-			const next = ! isOpenRef.current;
-			setIsPreviewOpen( next );
-			notifySubscribers( clientId, next );
-		} );
-		return () => panelToggles.delete( clientId );
-	}, [ clientId ] ); // eslint-disable-line react-hooks/exhaustive-deps
+	// Key everything by the parent's clientId so the parent/trigger can look up the toggle using their own clientId or getBlockRootClientId.
+	const parentClientId = useSelect( select => select( 'core/block-editor' ).getBlockRootClientId( clientId ), [ clientId ] );
+
+	// Keep a stable ref to the toggle function so the Map entry is always current.
+	const toggleFnRef = useRef( null );
+	toggleFnRef.current = () => {
+		const next = ! isOpenRef.current;
+		setIsPreviewOpen( next );
+		if ( parentClientId ) {
+			notifySubscribers( parentClientId, next );
+		}
+	};
+
+	// Render-phase registration: runs even when the component renders inside a
+	// React transition that hasn't committed yet (e.g. the site editor wrapping a
+	// template-part switch in startTransition). This is the fallback that makes the
+	// toggle available before the commit phase fires.
+	if ( parentClientId ) {
+		panelToggles.set( parentClientId, () => toggleFnRef.current?.() );
+	}
+
+	// Authoritative registration and cleanup in the commit phase. useLayoutEffect
+	// overwrites the render-phase entry once the component commits, and its cleanup
+	// reliably removes the entry on unmount or parentClientId change — preventing
+	// stale Map entries from aborted renders lingering after the component unmounts.
+	useLayoutEffect( () => {
+		if ( ! parentClientId ) {
+			return;
+		}
+		panelToggles.set( parentClientId, () => toggleFnRef.current?.() );
+		return () => panelToggles.delete( parentClientId );
+	}, [ parentClientId ] ); // eslint-disable-line react-hooks/exhaustive-deps
 
 	// Update local state and notify all subscribers (parent + trigger toolbar buttons).
 	const togglePreview = open => {
 		setIsPreviewOpen( open );
-		notifySubscribers( clientId, open );
+		if ( parentClientId ) {
+			notifySubscribers( parentClientId, open );
+		}
 	};
 
 	const { positionClass } = DIRECTION_CONFIG[ slideDirection ] ?? DIRECTION_CONFIG.left;

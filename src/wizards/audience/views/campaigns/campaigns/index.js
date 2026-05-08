@@ -6,7 +6,7 @@
  * WordPress dependencies.
  */
 import { __experimentalVStack as VStack } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
-import { useContext, useEffect, useRef, useState, Fragment } from '@wordpress/element';
+import { useContext, useEffect, useState, Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { ENTER } from '@wordpress/keycodes';
 import { moreVertical } from '@wordpress/icons';
@@ -111,8 +111,6 @@ const Campaigns = props => {
 		renameCampaignGroup,
 	} = props;
 
-	const modalTextRef = useRef( null );
-
 	const [ popoverVisible, setPopoverVisible ] = useState();
 	const [ modalVisible, setModalVisible ] = useState();
 	const [ modalType, setModalType ] = useState();
@@ -124,7 +122,7 @@ const Campaigns = props => {
 
 	useEffect( () => {
 		if ( modalVisible ) {
-			modalTextRef.current.querySelector( 'input' ).focus();
+			document.getElementById( 'newspack-add-campaigns-modal-input' )?.focus();
 		}
 	}, [ modalVisible ] );
 
@@ -267,21 +265,20 @@ const Campaigns = props => {
 								setModalVisible( false );
 							} }
 						>
-							<div ref={ modalTextRef }>
-								<TextControl
-									placeholder={ __( 'Campaign Name', 'newspack-plugin' ) }
-									onChange={ setCampaignName }
-									label={ __( 'Campaign Name', 'newspack-plugin' ) }
-									hideLabelFromVision={ true }
-									value={ campaignName }
-									onKeyDown={ event => {
-										if ( ENTER === event.keyCode && '' !== campaignName ) {
-											event.preventDefault();
-											submitModal( campaignName );
-										}
-									} }
-								/>
-							</div>
+							<TextControl
+								id="newspack-add-campaigns-modal-input"
+								placeholder={ __( 'Campaign Name', 'newspack-plugin' ) }
+								onChange={ setCampaignName }
+								label={ __( 'Campaign Name', 'newspack-plugin' ) }
+								hideLabelFromVision={ true }
+								value={ campaignName }
+								onKeyDown={ event => {
+									if ( ENTER === event.keyCode && '' !== campaignName ) {
+										event.preventDefault();
+										submitModal( campaignName );
+									}
+								} }
+							/>
 							<Card buttonsCard noBorder className="justify-end">
 								<Button
 									variant="secondary"

@@ -1,3 +1,31 @@
+## [6.39.2](https://github.com/Automattic/newspack-plugin/compare/v6.39.1...v6.39.2) (2026-05-07)
+
+
+### Bug Fixes
+
+* **subscriptions:** allow migrated subs to resubscribe ([#4706](https://github.com/Automattic/newspack-plugin/issues/4706)) ([05095d4](https://github.com/Automattic/newspack-plugin/commit/05095d434d55d9784b3eb071310fec77fbf0c5c0))
+
+## [6.39.1](https://github.com/Automattic/newspack-plugin/compare/v6.39.0...v6.39.1) (2026-05-05)
+
+
+### Bug Fixes
+
+* **my-account:** remove v1 script dependency ([#4696](https://github.com/Automattic/newspack-plugin/issues/4696)) ([8820e98](https://github.com/Automattic/newspack-plugin/commit/8820e98307a4ff47550450bbfeced4d235799304))
+
+# [6.39.0](https://github.com/Automattic/newspack-plugin/compare/v6.38.2...v6.39.0) (2026-05-05)
+
+
+### Features
+
+* **co-authors:** support CAP core entity store alongside legacy store ([#4673](https://github.com/Automattic/newspack-plugin/issues/4673)) ([d5d77ca](https://github.com/Automattic/newspack-plugin/commit/d5d77ca7a698639bbb65c3cf333198851da24e98))
+
+## [6.38.2](https://github.com/Automattic/newspack-plugin/compare/v6.38.1...v6.38.2) (2026-05-04)
+
+
+### Bug Fixes
+
+* **integrations:** conditionally enable ESP on first registration ([#4699](https://github.com/Automattic/newspack-plugin/issues/4699)) ([5605699](https://github.com/Automattic/newspack-plugin/commit/5605699bc63d8d18967d8e2eea2ae28487262409))
+
 ## [6.38.1](https://github.com/Automattic/newspack-plugin/compare/v6.38.0...v6.38.1) (2026-05-04)
 
 
