@@ -131,7 +131,7 @@ const AdUnits = ( { adUnits, parentAdUnits, onDelete, wizardApiFetch, updateWith
 							onChange={ setParentAdUnitId }
 						/>
 					) }
-					<Card headerActions noBorder>
+					<Card headerActions noBorder className="mt16">
 						<div className="flex justify-end w-100">
 							<Button variant="primary" onClick={ updateGAMConfiguration }>
 								{ __( 'Save', 'newspack-plugin' ) }
