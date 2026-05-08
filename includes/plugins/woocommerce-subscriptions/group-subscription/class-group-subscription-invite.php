@@ -272,7 +272,7 @@ class Group_Subscription_Invite {
 	 * @param \WC_Subscription|int $subscription The subscription object or ID.
 	 * @param int                  $user_id      The manager user ID.
 	 *
-	 * @return array|null The link-invite entry, or null if missing or subscription invalid.
+	 * @return true|\WP_Error True if deleted, or WP_Error.
 	 */
 	public static function delete_link_invite( $subscription, $user_id ) {
 		$subscription = WooCommerce_Subscriptions::sanitize_subscription( $subscription );

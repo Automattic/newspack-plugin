@@ -19,7 +19,10 @@ domReady( function () {
 	const baseUrl = newspackMyAccountV1?.rest?.base_url;
 	const namespace = newspackMyAccountV1?.rest?.namespaces?.group;
 	const nonce = newspackMyAccountV1?.rest?.nonce;
-	const showSnackbar = typeof newspackUI?.notices?.createNotice === 'function' ? newspackUI.notices.createNotice : () => {};
+	const showSnackbar =
+		typeof newspackUI?.notices?.createNotice === 'function'
+			? newspackUI.notices.createNotice
+			: ( msg, type ) => console.warn( '[group-subscriptions]', type, msg ); // eslint-disable-line no-console
 	if ( content ) {
 		content.setAttribute( 'data-active-tab', activeTab );
 	}
@@ -56,10 +59,10 @@ domReady( function () {
 	const disableButtons = [ ...document.querySelectorAll( '.newspack-my-account__group_subscription__invite-link__disable' ) ];
 	const regenerateModal = document.getElementById( 'newspack-my-account__group_subscription--confirm-regenerate-link' );
 	const disableModal = document.getElementById( 'newspack-my-account__group_subscription--confirm-disable-link' );
-	const openRegenrateModal = [ ...document.querySelectorAll( '.newspack-my-account__group_subscription__invite-link__confirm-regenerate' ) ];
+	const openRegenerateModal = [ ...document.querySelectorAll( '.newspack-my-account__group_subscription__invite-link__confirm-regenerate' ) ];
 	const openDisableModal = [ ...document.querySelectorAll( '.newspack-my-account__group_subscription__invite-link__confirm-disable' ) ];
 	if ( regenerateModal ) {
-		openRegenrateModal.forEach( open => {
+		openRegenerateModal.forEach( open => {
 			open.addEventListener( 'click', event => {
 				event.preventDefault();
 				regenerateModal.setAttribute( 'data-state', 'open' );
@@ -75,8 +78,9 @@ domReady( function () {
 		} );
 	}
 
-	const toggleButtons = ( show = true ) => {
-		[ ...openRegenrateModal, ...openDisableModal ].forEach( button => {
+	// After an invite link is created or deleted, close open modals and show or hide invite link controls.
+	const afterInviteLink = ( show = true ) => {
+		[ ...openRegenerateModal, ...openDisableModal ].forEach( button => {
 			const parent = button.closest( 'li' );
 			const el = parent || button;
 			if ( show ) {
@@ -104,6 +108,7 @@ domReady( function () {
 		const el = e.currentTarget;
 		el.classList.add( 'newspack-ui__button--loading' );
 		el.setAttribute( 'aria-busy', 'true' );
+		el.setAttribute( 'disabled', '' );
 		const errorText = e.currentTarget.getAttribute( 'data-error-text' );
 		try {
 			const response = await fetch( restUrl, {
@@ -128,12 +133,13 @@ domReady( function () {
 				showSnackbar( message );
 			}
 			content.setAttribute( 'data-invite-link', data.url );
-			toggleButtons( true );
+			afterInviteLink( true );
 		} catch ( error ) {
 			showSnackbar( errorText, 'error' );
 		} finally {
 			el.classList.remove( 'newspack-ui__button--loading' );
 			el.removeAttribute( 'aria-busy' );
+			el.removeAttribute( 'disabled' );
 		}
 	};
 
@@ -141,6 +147,7 @@ domReady( function () {
 		const el = e.currentTarget;
 		el.classList.add( 'newspack-ui__button--loading' );
 		el.setAttribute( 'aria-busy', 'true' );
+		el.setAttribute( 'disabled', '' );
 		const errorText = e.currentTarget.getAttribute( 'data-error-text' );
 		try {
 			const response = await fetch( restUrl, {
@@ -160,12 +167,13 @@ domReady( function () {
 			}
 			showSnackbar( newspackMyAccountV1?.labels?.invite_link_disabled || 'Invite link disabled.' );
 			content.removeAttribute( 'data-invite-link' );
-			toggleButtons( false );
+			afterInviteLink( false );
 		} catch ( error ) {
 			showSnackbar( errorText, 'error' );
 		} finally {
 			el.classList.remove( 'newspack-ui__button--loading' );
 			el.removeAttribute( 'aria-busy' );
+			el.removeAttribute( 'disabled' );
 		}
 	};
 
