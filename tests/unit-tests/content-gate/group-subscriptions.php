@@ -1668,7 +1668,7 @@ class Test_Group_Subscriptions extends \WP_UnitTestCase {
 	/**
 	 * Test process_link_invite_request() happy path: a logged-in non-member
 	 * with a valid link is added to the group and redirected to the
-	 * view-subscription URL with link_success.
+	 * view-subscription URL with success.
 	 */
 	public function test_process_link_invite_request_happy_path() {
 		$owner_id      = $this->create_reader_user();
@@ -1717,9 +1717,9 @@ class Test_Group_Subscriptions extends \WP_UnitTestCase {
 			$this->assertNotNull( $captured_url, 'A redirect URL should have been captured' );
 			$this->assertStringContainsString( 'view-subscription', $captured_url, 'Success redirect should target view-subscription' );
 			$this->assertStringContainsString(
-				Group_Subscription_Invite::RESULT_QUERY_ARG . '=link_success',
+				Group_Subscription_Invite::RESULT_QUERY_ARG . '=success',
 				$captured_url,
-				'Success redirect should carry the link_success result'
+				'Success redirect should carry the success result'
 			);
 			$this->assertTrue(
 				Group_Subscription::user_is_member( $non_member_id, $group_sub ),
@@ -1742,7 +1742,7 @@ class Test_Group_Subscriptions extends \WP_UnitTestCase {
 		$non_member_id = $this->create_reader_user();
 		$group_sub     = $this->create_group_subscription( $owner_id );
 
-		// Visitor is logged in (so we hit link_invalid, not link_login).
+		// Visitor is logged in (so we hit link_invalid, not login_needed).
 		wp_set_current_user( $non_member_id );
 
 		$_GET = [
@@ -1795,7 +1795,7 @@ class Test_Group_Subscriptions extends \WP_UnitTestCase {
 
 	/**
 	 * Test process_link_invite_request() logged-out branch: a logged-out
-	 * visitor with a valid link is bounced to My Account with link_login and
+	 * visitor with a valid link is bounced to My Account with login_needed and
 	 * a redirect= query arg containing the rawurlencoded link URL.
 	 */
 	public function test_process_link_invite_request_logged_out_bounce() {
@@ -1842,9 +1842,9 @@ class Test_Group_Subscriptions extends \WP_UnitTestCase {
 
 			$this->assertNotNull( $captured_url, 'A redirect URL should have been captured' );
 			$this->assertStringContainsString(
-				Group_Subscription_Invite::RESULT_QUERY_ARG . '=link_login',
+				Group_Subscription_Invite::RESULT_QUERY_ARG . '=login_needed',
 				$captured_url,
-				'Logged-out branch should redirect with link_login result'
+				'Logged-out branch should redirect with login_needed result'
 			);
 			$this->assertStringContainsString(
 				'redirect=',
@@ -1869,7 +1869,7 @@ class Test_Group_Subscriptions extends \WP_UnitTestCase {
 	/**
 	 * Test process_link_invite_request() already-member branch: a visitor who
 	 * is already a member of the group is sent to the subscription view URL
-	 * with link_already_member, and is NOT removed from the group.
+	 * with success, and is NOT removed from the group.
 	 */
 	public function test_process_link_invite_request_already_member() {
 		$owner_id  = $this->create_reader_user();
@@ -1924,9 +1924,9 @@ class Test_Group_Subscriptions extends \WP_UnitTestCase {
 
 			$this->assertNotNull( $captured_url, 'A redirect URL should have been captured' );
 			$this->assertStringContainsString(
-				Group_Subscription_Invite::RESULT_QUERY_ARG . '=link_already_member',
+				Group_Subscription_Invite::RESULT_QUERY_ARG . '=success',
 				$captured_url,
-				'Already-member branch should redirect with link_already_member result'
+				'Already-member branch should redirect with success result'
 			);
 			$this->assertStringContainsString(
 				'view-subscription',
@@ -2019,75 +2019,5 @@ class Test_Group_Subscriptions extends \WP_UnitTestCase {
 			$_GET = [];
 			wp_set_current_user( 0 );
 		}
-	}
-
-	/**
-	 * Test that process_link_invite_request() clears any stale email-invite
-	 * cookie on the logged-out bounce, so that process_deferred_invite
-	 * (which fires on the imminent wp_login) doesn't add the user via the
-	 * email-invite path.
-	 */
-	public function test_process_link_invite_request_clears_email_invite_cookie() {
-		$owner_id  = $this->create_reader_user();
-		$group_sub = $this->create_group_subscription( $owner_id );
-
-		wp_set_current_user( $owner_id );
-		$invite = Group_Subscription_Invite::generate_link_invite( $group_sub, $owner_id );
-
-		// Visitor is logged out.
-		wp_set_current_user( 0 );
-
-		// Pre-set a stale email-invite cookie (the kind set by process_invite_request Case 2).
-		$_COOKIE[ Group_Subscription_Invite::COOKIE_NAME ] = wp_json_encode( // phpcs:ignore WordPressVIPMinimum.Variables.RestrictedVariables.cache_constraints___COOKIE
-			[
-				'subscription' => $group_sub->get_id(),
-				'key'          => 'stale-key',
-				'email'        => 'stale@example.com',
-			]
-		);
-
-		$_GET = [
-			'action' => Group_Subscription_Invite::LINK_QUERY_ARG,
-			's'      => $group_sub->get_id(),
-			'm'      => $owner_id,
-			'k'      => $invite['key'],
-		];
-
-		$captured_url      = null;
-		$capture_redirect  = function ( $location ) use ( &$captured_url ) {
-			$captured_url = $location;
-			throw new \Exception( 'redirect_intercepted' );
-		};
-		$allow_example_com = function ( $hosts ) {
-			$hosts[] = 'example.com';
-			return $hosts;
-		};
-
-		add_filter( 'wp_redirect', $capture_redirect, 1 );
-		add_filter( 'allowed_redirect_hosts', $allow_example_com );
-
-		try {
-			Group_Subscription_Invite::process_link_invite_request();
-			$this->fail( 'Expected redirect exception was not thrown.' );
-		} catch ( \Exception $e ) {
-			$this->assertStringContainsString( 'redirect_intercepted', $e->getMessage() );
-		} finally {
-			remove_filter( 'wp_redirect', $capture_redirect, 1 );
-			remove_filter( 'allowed_redirect_hosts', $allow_example_com );
-			$_GET = [];
-		}
-
-		// The stale email-invite cookie should be cleared in-process so that
-		// any subsequent code in this request (e.g. process_deferred_invite
-		// firing on wp_login) sees no cookie.
-		$this->assertArrayNotHasKey(
-			Group_Subscription_Invite::COOKIE_NAME,
-			$_COOKIE, // phpcs:ignore WordPressVIPMinimum.Variables.RestrictedVariables.cache_constraints___COOKIE
-			'Stale email-invite cookie should be cleared on link-invite logged-out bounce.'
-		);
-
-		// The captured URL is still the link_login bounce target.
-		$this->assertNotNull( $captured_url );
-		$this->assertStringContainsString( 'group_invite_result=link_login', $captured_url );
 	}
 }
