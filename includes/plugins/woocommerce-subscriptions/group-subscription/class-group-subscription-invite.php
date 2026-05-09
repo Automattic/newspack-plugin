@@ -529,7 +529,7 @@ class Group_Subscription_Invite {
 		$subscription_id = isset( $_GET['subscription'] ) ? absint( $_GET['subscription'] ) : 0; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
 		if ( ! $key || ! $email || ! $subscription_id ) {
-			self::redirect_with_result( 'error', __( 'Invalid invitation link.', 'newspack-plugin' ) );
+			self::redirect_with_result( 'error_invalid_link' );
 			return;
 		}
 
@@ -550,7 +550,7 @@ class Group_Subscription_Invite {
 				self::redirect_with_result( 'error_invite_invalid' );
 				return;
 			}
-			self::redirect_with_result( 'success', '', $success_url );
+			self::redirect_with_result( 'success', $success_url );
 			return;
 		}
 
@@ -559,7 +559,6 @@ class Group_Subscription_Invite {
 		if ( $existing_user ) {
 			self::redirect_with_result(
 				'login_needed',
-				'',
 				add_query_arg(
 					[
 
@@ -593,7 +592,7 @@ class Group_Subscription_Invite {
 			self::redirect_with_result( 'error_invite_invalid' );
 			return;
 		}
-		self::redirect_with_result( 'success', '', $success_url );
+		self::redirect_with_result( 'success', $success_url );
 	}
 
 	/**
@@ -626,7 +625,7 @@ class Group_Subscription_Invite {
 		// Validate the link.
 		$validation = self::validate_link_invite( $subscription, $user_id, $key );
 		if ( is_wp_error( $validation ) ) {
-			self::redirect_with_result( 'link_invalid', '', $error_target_url );
+			self::redirect_with_result( 'link_invalid', $error_target_url );
 			return;
 		}
 
@@ -658,7 +657,7 @@ class Group_Subscription_Invite {
 			Group_Subscription::user_is_manager( $current_user->ID, $subscription )
 			|| Group_Subscription::user_is_member( $current_user->ID, $subscription )
 		) {
-			self::redirect_with_result( 'success', '', $success_url );
+			self::redirect_with_result( 'success', $success_url );
 			return;
 		}
 
@@ -668,19 +667,19 @@ class Group_Subscription_Invite {
 		$pending_invite_count = count( self::get_invites( $subscription, false ) );
 
 		if ( $settings['limit'] > 0 && ( $member_count + $pending_invite_count ) >= $settings['limit'] ) {
-			self::redirect_with_result( 'link_full', '', $error_target_url );
+			self::redirect_with_result( 'link_full', $error_target_url );
 			return;
 		}
 
 		// Attempt to add the current user as a member.
 		$result = Group_Subscription::update_members( $subscription, [ $current_user->ID ] );
 		if ( is_wp_error( $result ) || empty( $result['members_added'][ $current_user->ID ] ) ) {
-			self::redirect_with_result( 'link_failed', '', $error_target_url );
+			self::redirect_with_result( 'link_failed', $error_target_url );
 			return;
 		}
 
 		// Success → subscription view URL.
-		self::redirect_with_result( 'success', '', $success_url );
+		self::redirect_with_result( 'success', $success_url );
 	}
 
 	/**
@@ -709,6 +708,10 @@ class Group_Subscription_Invite {
 			'login_needed'              => [
 				'message' => __( 'Please log in or register an account to join the group.', 'newspack-plugin' ),
 				'type'    => 'notice',
+			],
+			'error_invalid_link'        => [
+				'message' => __( 'Invalid invitation link.', 'newspack-plugin' ),
+				'type'    => 'error',
 			],
 			'error_email_mismatch'      => [
 				'message' => __( 'This invitation is for a different email address.', 'newspack-plugin' ),
@@ -745,11 +748,9 @@ class Group_Subscription_Invite {
 	 * @param string      $status     A discrete result code (e.g. 'success', 'login_needed',
 	 *                                'error_email_mismatch', 'link_invalid'). The receiving
 	 *                                render_invite_notice() maps the code to a localized message.
-	 * @param string      $message    Reserved for future structured-message support. Currently unused.
 	 * @param string|null $target_url Optional redirect base. Defaults to My Account or home_url().
 	 */
-	private static function redirect_with_result( $status, $message = '', $target_url = null ) {
-		unset( $message ); // Reserved for future structured-message support.
+	private static function redirect_with_result( $status, $target_url = null ) {
 		$args = [ self::RESULT_QUERY_ARG => $status ];
 		if ( null === $target_url ) {
 			$target_url = function_exists( 'wc_get_page_permalink' ) ? wc_get_page_permalink( 'myaccount' ) : home_url();
