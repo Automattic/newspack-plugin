@@ -196,6 +196,9 @@ class WooCommerce_Gateway_Stripe {
 	 * @return mixed Null to allow, true to block.
 	 */
 	public static function maybe_block_stripe_customer_id_post_meta_update( $check, $object_id, $meta_key ) {
+		if ( null !== $check ) {
+			return $check; // Respect earlier filter short-circuits.
+		}
 		if ( '_stripe_customer_id' !== $meta_key ) {
 			return $check;
 		}
