@@ -544,6 +544,19 @@ class Group_Subscription_Invite {
 			}
 			$result = self::accept_invite( $subscription_id, $key, $email );
 			if ( is_wp_error( $result ) ) {
+				do_action(
+					'newspack_log',
+					'newspack_group_subscription_invite_failed',
+					$result->get_error_message(),
+					[
+						'type'       => 'error',
+						'data'       => [
+							'subscription_id' => $subscription_id,
+							'member_id'       => $current_user->ID,
+						],
+						'user_email' => $email,
+					]
+				);
 				self::redirect_with_result( 'error_invite_invalid' );
 				return;
 			}
@@ -581,6 +594,18 @@ class Group_Subscription_Invite {
 		// Case 3: New user — auto-create account, verify email, and accept.
 		$user_id = Reader_Activation::register_reader( $email, false );
 		if ( is_wp_error( $user_id ) || ! $user_id ) {
+			do_action(
+				'newspack_log',
+				'newspack_group_subscription_invite_registration_failed',
+				$user_id ? $user_id->get_error_message() : __( 'New user registration failed.', 'newspack-plugin' ),
+				[
+					'type'       => 'error',
+					'data'       => [
+						'subscription_id' => $subscription_id,
+					],
+					'user_email' => $email,
+				]
+			);
 			self::redirect_with_result( 'error_registration_failed' );
 			return;
 		}
@@ -589,6 +614,19 @@ class Group_Subscription_Invite {
 
 		$result = self::accept_invite( $subscription_id, $key, $email );
 		if ( is_wp_error( $result ) ) {
+			do_action(
+				'newspack_log',
+				'newspack_group_subscription_invite_failed',
+				$result->get_error_message(),
+				[
+					'type'       => 'error',
+					'data'       => [
+						'subscription_id' => $subscription_id,
+						'member_id'       => $user_id,
+					],
+					'user_email' => $email,
+				]
+			);
 			self::redirect_with_result( 'error_invite_invalid' );
 			return;
 		}
@@ -625,6 +663,19 @@ class Group_Subscription_Invite {
 		// Validate the link.
 		$validation = self::validate_link_invite( $subscription, $user_id, $key );
 		if ( is_wp_error( $validation ) ) {
+			do_action(
+				'newspack_log',
+				'newspack_group_subscription_invite_link_invalid',
+				$validation->get_error_message(),
+				[
+					'type' => 'error',
+					'data' => [
+						'subscription_id' => $subscription_id,
+						'manager_id'      => $user_id,
+						'member_id'       => $current_user->ID,
+					],
+				]
+			);
 			self::redirect_with_result( 'link_invalid', $error_target_url );
 			return;
 		}
@@ -632,24 +683,8 @@ class Group_Subscription_Invite {
 		// Not logged in → bounce to My Account with redirect=back-to-link, banner via 'login_needed'.
 		if ( ! $is_logged_in ) {
 			$link_url = self::get_link_invite_url( $subscription_id, $user_id, $key );
-			$redirect_target = add_query_arg(
-				[
-					self::RESULT_QUERY_ARG => 'login_needed',
-
-					/*
-					 * rawurlencode( $link_url ) is required: WP's add_query_arg() does NOT
-					 * encode NEW arg values (only existing query args via urlencode_deep).
-					 * Without pre-encoding, the link URL's inner `&s=…&m=…&k=…` would leak
-					 * into the outer query string. PHP's $_GET parser decodes URL-encoded
-					 * values once on receipt, so downstream consumers (e.g. Reader Activation
-					 * reading $_GET['redirect']) see the exact original $link_url.
-					 */
-					'redirect'             => rawurlencode( $link_url ),
-				],
-				$myaccount_url
-			);
-			wp_safe_redirect( $redirect_target );
-			exit;
+			self::redirect_with_result( 'login_needed', add_query_arg( [ 'redirect' => rawurlencode( $link_url ) ], $myaccount_url ) );
+			return;
 		}
 
 		// User is already in the group? Just send them to the subscription view.
@@ -677,6 +712,19 @@ class Group_Subscription_Invite {
 		// Attempt to add the current user as a member.
 		$result = Group_Subscription::update_members( $subscription, [ $current_user->ID ] );
 		if ( is_wp_error( $result ) || empty( $result['members_added'][ $current_user->ID ] ) ) {
+			do_action(
+				'newspack_log',
+				'newspack_group_subscription_invite_link_failed',
+				$result->get_error_message(),
+				[
+					'type' => 'error',
+					'data' => [
+						'subscription_id' => $subscription_id,
+						'manager_id'      => $user_id,
+						'member_id'       => $current_user->ID,
+					],
+				]
+			);
 			self::redirect_with_result( 'link_failed', $error_target_url );
 			return;
 		}
@@ -754,7 +802,7 @@ class Group_Subscription_Invite {
 	private static function redirect_with_result( $status, $target_url = null ) {
 		$args = [ self::RESULT_QUERY_ARG => $status ];
 		if ( null === $target_url ) {
-			$target_url = function_exists( 'wc_get_account_endpoint_url' ) ? \wc_get_account_endpoint_url( 'edit-account' ) : home_url();
+			$target_url = is_user_logged_in() && function_exists( 'wc_get_account_endpoint_url' ) ? \wc_get_account_endpoint_url( 'edit-account' ) : home_url();
 		}
 		wp_safe_redirect( add_query_arg( $args, $target_url ) );
 		exit;
