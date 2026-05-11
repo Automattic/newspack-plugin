@@ -8,6 +8,7 @@
 
 .components-base-control {
 	margin-bottom: 16px;
+	.components-datetime__time-wrapper &,
 	&:last-child {
 		margin-bottom: 0;
 	}
