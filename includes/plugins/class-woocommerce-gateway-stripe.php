@@ -23,6 +23,11 @@ class WooCommerce_Gateway_Stripe {
 
 		add_filter( 'wc_stripe_generate_payment_request', [ __CLASS__, 'add_payment_request_metadata' ], 10, 2 );
 		add_filter( 'wc_stripe_intent_metadata', [ __CLASS__, 'add_intent_metadata' ], 10, 2 );
+
+		// NPPM-2761: Prevent Stripe plugin from re-stamping _stripe_customer_id on
+		// subscriptions whose payment method is not a Stripe gateway.
+		add_filter( 'update_post_metadata', [ __CLASS__, 'maybe_block_stripe_customer_id_post_meta_update' ], 10, 3 );
+		add_action( 'woocommerce_before_subscription_object_save', [ __CLASS__, 'maybe_strip_stripe_customer_id_before_save' ] );
 	}
 
 	/**
@@ -172,6 +177,59 @@ class WooCommerce_Gateway_Stripe {
 			$settings['upe_checkout_experience_accepted_payments'] = array_diff( $settings['upe_checkout_experience_accepted_payments'], [ 'link' ] );
 		}
 		return $settings;
+	}
+
+	/**
+	 * Block raw update_post_meta() calls that would re-stamp _stripe_customer_id
+	 * onto a subscription whose payment method is not a Stripe gateway.
+	 *
+	 * This covers the legacy path in abstract-wc-stripe-payment-gateway.php that
+	 * calls update_post_meta( $subscription_id, '_stripe_customer_id', ... )
+	 * unconditionally, without checking the subscription's payment method.
+	 *
+	 * Returning a non-null value from the update_{meta_type}_metadata filter
+	 * short-circuits the write.
+	 *
+	 * @param mixed  $check     The value to return. Null allows the write; true blocks it.
+	 * @param int    $object_id Post ID being written to.
+	 * @param string $meta_key  Meta key being written.
+	 * @return mixed Null to allow, true to block.
+	 */
+	public static function maybe_block_stripe_customer_id_post_meta_update( $check, $object_id, $meta_key ) {
+		if ( '_stripe_customer_id' !== $meta_key ) {
+			return $check;
+		}
+		if ( ! function_exists( 'wcs_is_subscription' ) || ! function_exists( 'wcs_get_subscription' ) || ! \wcs_is_subscription( $object_id ) ) {
+			return $check;
+		}
+		$subscription = \wcs_get_subscription( $object_id );
+		if ( $subscription && ! str_starts_with( $subscription->get_payment_method(), 'stripe' ) ) {
+			return true; // Short-circuit: prevent the write.
+		}
+		return $check;
+	}
+
+	/**
+	 * Strip _stripe_customer_id from a subscription's in-memory meta before it is
+	 * saved via WC CRUD, when the payment method is not a Stripe gateway.
+	 *
+	 * This covers the three WC CRUD paths in the Stripe plugin that call
+	 * $subscription->update_meta_data( '_stripe_customer_id', ... ) + save()
+	 * without checking the subscription's payment method:
+	 *  - maybe_update_source_on_subscription_order() (trait:628)
+	 *  - update_failing_payment_method() (trait:693)
+	 *  - set_customer_id_for_subscription() (upe-gateway:3021)
+	 *
+	 * Fires on the woocommerce_before_subscription_object_save action, which is
+	 * dispatched by WC_Abstract_Order::save() before the data store write.
+	 *
+	 * @param \WC_Subscription $subscription The subscription about to be saved.
+	 */
+	public static function maybe_strip_stripe_customer_id_before_save( $subscription ) {
+		if ( str_starts_with( $subscription->get_payment_method(), 'stripe' ) ) {
+			return;
+		}
+		$subscription->delete_meta_data( '_stripe_customer_id' );
 	}
 }
 WooCommerce_Gateway_Stripe::init();

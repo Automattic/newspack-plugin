@@ -268,6 +268,9 @@ class WC_Subscription {
 	public function get_user_id() {
 		return $this->data['customer_id'] ?? null;
 	}
+	public function get_payment_method() {
+		return $this->data['payment_method'] ?? '';
+	}
 	public function has_product( $product_id ) {
 		return in_array( $product_id, $this->products, true );
 	}
@@ -366,7 +369,9 @@ function wc_get_checkout_url() {
 	return 'https://example.com/checkout';
 }
 function wcs_is_subscription( $order ) {
-	return false;
+	global $subscriptions_database;
+	$id = is_object( $order ) ? $order->get_id() : (int) $order;
+	return isset( $subscriptions_database[ $id ] );
 }
 function wcs_create_subscription( $data = [] ) {
 	global $subscriptions_database;
