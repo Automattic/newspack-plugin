@@ -284,9 +284,15 @@ class WooCommerce_Products {
 			return;
 		}
 
+		// When saving a new product whose type is changing, WC core's
+		// WC_Meta_Box_Product_Data::save runs at the same priority as this handler
+		// and may not have updated the product-type term yet. Use the POSTed
+		// product-type as the source of truth, matching WC core's own pattern.
+		$product_type = isset( $_POST['product-type'] ) ? sanitize_title( wp_unslash( $_POST['product-type'] ) ) : $product->get_type(); // phpcs:ignore WordPress.Security.NonceVerification.Missing
+
 		$custom_options = array_merge( self::get_custom_options(), self::get_custom_product_pricing_options() );
 		foreach ( $custom_options as $option_key => $option_config ) {
-			if ( isset( $option_config['product_types'] ) && ! in_array( $product->get_type(), $option_config['product_types'], true ) ) {
+			if ( isset( $option_config['product_types'] ) && ! in_array( $product_type, $option_config['product_types'], true ) ) {
 				continue;
 			}
 			$meta_key   = $option_config['id'];
