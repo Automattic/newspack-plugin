@@ -1,3 +1,10 @@
+## [6.39.3](https://github.com/Automattic/newspack-plugin/compare/v6.39.2...v6.39.3) (2026-05-11)
+
+
+### Bug Fixes
+
+* add spce above 'save' button in ad settings ([#4710](https://github.com/Automattic/newspack-plugin/issues/4710)) ([01bcd34](https://github.com/Automattic/newspack-plugin/commit/01bcd343fe2e828d2b992ab94cd017ae780b9694))
+
 ## [6.39.2](https://github.com/Automattic/newspack-plugin/compare/v6.39.1...v6.39.2) (2026-05-07)
 
 
