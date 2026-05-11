@@ -3,9 +3,10 @@
  * Provisions Newspack's standard GA4 custom dimensions on the publisher's
  * connected GA4 property.
  *
- * Prefers Newspack's own Google OAuth credentials (which already include
- * `analytics.edit` for all authenticated users) and falls back to Site Kit's
- * authenticated client when Newspack OAuth is not configured or fails.
+ * Prefers Newspack's own Google OAuth credentials (whose tokens carry the
+ * `analytics.edit` scope) and falls back to Site Kit's authenticated client
+ * when Newspack OAuth is not configured, its token lacks that scope, or a call
+ * through it fails.
  *
  * @package Newspack
  */
@@ -24,6 +25,8 @@ final class GA4_Custom_Dimensions {
 	const PROVISIONED_OPTION = 'newspack_ga4_dimensions_provisioned';
 	const LOGGER_HEADER      = 'NEWSPACK-GA4-DIMENSIONS';
 	const PROVISION_ACTION   = 'newspack_ga4_provision_dimensions';
+	const RECHECK_ACTION     = 'newspack_ga4_recheck_dimensions';
+	const RECHECK_GROUP      = 'newspack';
 
 	/**
 	 * Register hooks.
@@ -33,6 +36,9 @@ final class GA4_Custom_Dimensions {
 		add_action( 'add_option_googlesitekit_analytics-4_settings', [ __CLASS__, 'on_sitekit_settings_added' ], 10, 2 );
 		add_action( 'update_option_googlesitekit_analytics-4_settings', [ __CLASS__, 'on_sitekit_settings_updated' ], 10, 2 );
 		add_action( self::PROVISION_ACTION, [ __CLASS__, 'provision' ] );
+		add_action( self::RECHECK_ACTION, [ __CLASS__, 'provision' ] );
+		// Catch sites that were already connected before this code shipped.
+		add_action( 'admin_init', [ __CLASS__, 'maybe_schedule_recheck' ] );
 	}
 
 	/**
@@ -48,6 +54,7 @@ final class GA4_Custom_Dimensions {
 			return;
 		}
 		self::schedule_provisioning( $property_id );
+		self::maybe_schedule_recheck();
 	}
 
 	/**
@@ -60,18 +67,28 @@ final class GA4_Custom_Dimensions {
 	public static function on_sitekit_settings_updated( $old_value, $new_value ) {
 		$new_property_id = is_array( $new_value ) && ! empty( $new_value['propertyID'] ) ? (string) $new_value['propertyID'] : '';
 		$old_property_id = is_array( $old_value ) && ! empty( $old_value['propertyID'] ) ? (string) $old_value['propertyID'] : '';
-		if ( '' === $new_property_id ) {
-			return;
-		}
 		if ( $old_property_id === $new_property_id ) {
 			return;
 		}
+		if ( '' === $new_property_id ) {
+			// Property disconnected – drop the recurring recheck.
+			self::maybe_schedule_recheck();
+			return;
+		}
 		self::schedule_provisioning( $new_property_id );
+		self::maybe_schedule_recheck();
 	}
 
 	/**
 	 * Schedule an immediate single-shot WP-Cron event to run provisioning in
 	 * the background. Skips if the property has already been provisioned.
+	 *
+	 * The event is keyed only on the action name, not the property. If the
+	 * connected property changes again before a pending event fires, no second
+	 * event is queued; the handler reads the current property at run time, so
+	 * the latest value wins (the intended outcome). Any dimensions partially
+	 * created against a superseded property are simply left in place – harmless,
+	 * they just won't show up in the summary for the new property.
 	 *
 	 * @param string $property_id The GA4 property ID that will be provisioned.
 	 */
@@ -89,6 +106,33 @@ final class GA4_Custom_Dimensions {
 		}
 		wp_schedule_single_event( time() + 10, self::PROVISION_ACTION );
 		Logger::log( "Scheduled GA4 dimension provisioning for property $property_id.", self::LOGGER_HEADER );
+	}
+
+	/**
+	 * Keep a recurring monthly recheck scheduled while a GA4 property is
+	 * connected, and drop it when none is. The recheck re-runs provisioning so
+	 * additions to Newspack's dimension list, or dimensions deleted in GA4,
+	 * self-heal without a manual CLI run. When everything is already in place it
+	 * is a no-op: one list call, zero writes.
+	 *
+	 * Idempotent and safe to call repeatedly (e.g. on every admin page load).
+	 */
+	public static function maybe_schedule_recheck() {
+		if ( ! function_exists( 'as_schedule_recurring_action' ) || ! function_exists( 'as_has_scheduled_action' ) ) {
+			return;
+		}
+		$is_scheduled = as_has_scheduled_action( self::RECHECK_ACTION, [], self::RECHECK_GROUP );
+		if ( ! self::get_property_id() ) {
+			if ( $is_scheduled && function_exists( 'as_unschedule_all_actions' ) ) {
+				as_unschedule_all_actions( self::RECHECK_ACTION, [], self::RECHECK_GROUP );
+			}
+			return;
+		}
+		if ( $is_scheduled ) {
+			return;
+		}
+		as_schedule_recurring_action( time() + MONTH_IN_SECONDS, MONTH_IN_SECONDS, self::RECHECK_ACTION, [], self::RECHECK_GROUP );
+		Logger::log( 'Scheduled monthly GA4 dimension recheck.', self::LOGGER_HEADER );
 	}
 
 	/**
@@ -161,6 +205,11 @@ final class GA4_Custom_Dimensions {
 	 * `list_custom_dimensions()` and `create_custom_dimension()` with
 	 * matching signatures.
 	 *
+	 * If every route fails, the returned WP_Error names each route that was
+	 * tried and why it failed, so a 403 on writes (the common "publisher never
+	 * granted analytics.edit to Site Kit" case) is self-explanatory rather than
+	 * buried in the log.
+	 *
 	 * @param callable $callback Called with `( $client, string $source )`.
 	 * @return mixed|\WP_Error The callback's return value, or WP_Error.
 	 */
@@ -178,38 +227,70 @@ final class GA4_Custom_Dimensions {
 			$switched_user = true;
 		}
 
+		// Route name => why it was skipped or failed, used to compose the error
+		// if nothing works.
+		$attempts = [];
+
 		try {
-			// Prefer Newspack's own OAuth. Returns null if not configured or
-			// no credentials are saved.
+			// Prefer Newspack's own OAuth. Returns null if not configured or no
+			// credentials are saved; skip it outright if its token predates the
+			// analytics.edit scope, since writes would just 403.
 			$np_client = Google_OAuth_GA4_Client::build();
-			if ( $np_client ) {
+			if ( ! $np_client ) {
+				$attempts['Newspack OAuth'] = 'not configured';
+				Logger::log( 'Newspack OAuth not available; trying Site Kit.', self::LOGGER_HEADER );
+			} elseif ( ! Google_OAuth_GA4_Client::has_edit_scope() ) {
+				$attempts['Newspack OAuth'] = 'stored token lacks the analytics.edit scope (reconnect Google in the Newspack settings to grant it)';
+				Logger::log( 'Newspack OAuth token lacks analytics.edit; trying Site Kit.', self::LOGGER_HEADER );
+			} else {
 				try {
 					$result = $callback( $np_client, 'newspack' );
 					if ( ! is_wp_error( $result ) ) {
 						return $result;
 					}
-					Logger::log( 'Newspack OAuth path returned WP_Error (' . $result->get_error_message() . '); falling back to Site Kit.', self::LOGGER_HEADER );
+					$attempts['Newspack OAuth'] = $result->get_error_message();
 				} catch ( \Throwable $e ) {
-					Logger::log( 'Newspack OAuth path threw (' . $e->getMessage() . '); falling back to Site Kit.', self::LOGGER_HEADER );
+					$attempts['Newspack OAuth'] = $e->getMessage();
 				}
-			} else {
-				Logger::log( 'Newspack OAuth not available; using Site Kit.', self::LOGGER_HEADER );
+				Logger::log( 'Newspack OAuth path failed (' . $attempts['Newspack OAuth'] . '); trying Site Kit.', self::LOGGER_HEADER );
 			}
 
 			// Fall back to Site Kit.
-			if ( ! defined( 'GOOGLESITEKIT_PLUGIN_MAIN_FILE' ) ) {
-				return new \WP_Error( 'newspack_ga4_dimensions', 'Neither Newspack OAuth nor Google Site Kit is available.' );
+			if ( ! defined( 'GOOGLESITEKIT_PLUGIN_MAIN_FILE' ) || ! class_exists( __NAMESPACE__ . '\\GoogleSiteKitAnalytics' ) ) {
+				$attempts['Site Kit'] = 'not available';
+				return new \WP_Error( 'newspack_ga4_dimensions', self::describe_auth_failure( $attempts ) );
 			}
-			if ( ! class_exists( __NAMESPACE__ . '\\GoogleSiteKitAnalytics' ) ) {
-				return new \WP_Error( 'newspack_ga4_dimensions', 'GoogleSiteKitAnalytics class not available.' );
+			try {
+				$module = new GoogleSiteKitAnalytics( new Context( GOOGLESITEKIT_PLUGIN_MAIN_FILE ) );
+				$result = $callback( $module, 'sitekit' );
+				if ( ! is_wp_error( $result ) ) {
+					return $result;
+				}
+				$attempts['Site Kit'] = $result->get_error_message();
+			} catch ( \Throwable $e ) {
+				$attempts['Site Kit'] = $e->getMessage();
 			}
-			$module = new GoogleSiteKitAnalytics( new Context( GOOGLESITEKIT_PLUGIN_MAIN_FILE ) );
-			return $callback( $module, 'sitekit' );
+			return new \WP_Error( 'newspack_ga4_dimensions', self::describe_auth_failure( $attempts ) );
 		} finally {
 			if ( $switched_user ) {
 				wp_set_current_user( $previous_user_id );
 			}
 		}
+	}
+
+	/**
+	 * Compose a human-readable failure message from a map of auth route =>
+	 * failure reason.
+	 *
+	 * @param array<string,string> $attempts Route name => reason.
+	 * @return string
+	 */
+	private static function describe_auth_failure( array $attempts ) {
+		$parts = [];
+		foreach ( $attempts as $route => $reason ) {
+			$parts[] = "$route – $reason";
+		}
+		return 'Could not reach the GA4 Admin API. Tried: ' . implode( '; ', $parts ) . '.';
 	}
 
 	/**
@@ -271,9 +352,21 @@ final class GA4_Custom_Dimensions {
 	 * parameter name and skipped. Per-dimension create failures are logged
 	 * and recorded in the summary but do not abort the run.
 	 *
+	 * Cron and Action Scheduler run handlers synchronously inside a request
+	 * whose time limit is often 30–60s, while creating ~27 dimensions each
+	 * behind a 15s HTTP timeout can run longer in a pathological case. We lift
+	 * the limit where the host allows it (CLI already runs unlimited). On hosts
+	 * that disable `set_time_limit`, a very slow run may still be cut short
+	 * before the summary is written; that's safe – the next scheduled run lists
+	 * what already exists and only creates the remainder.
+	 *
 	 * @return array|\WP_Error Summary of what was created and skipped, or error.
 	 */
 	public static function provision() {
+		if ( function_exists( 'set_time_limit' ) ) {
+			set_time_limit( 0 );
+		}
+
 		$property_id = self::get_property_id();
 		if ( ! $property_id ) {
 			Logger::log( 'No GA4 property ID found; skipping custom dimension provisioning.', self::LOGGER_HEADER );
@@ -349,7 +442,7 @@ final class GA4_Custom_Dimensions {
 			$summary['created'] = array_values( array_unique( array_merge( $previous['created'], $created ) ) );
 		}
 
-		update_option( self::PROVISIONED_OPTION, $summary );
+		update_option( self::PROVISIONED_OPTION, $summary, false );
 
 		Logger::log(
 			sprintf(

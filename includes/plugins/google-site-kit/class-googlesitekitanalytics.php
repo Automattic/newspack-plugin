@@ -104,10 +104,10 @@ class GoogleSiteKitAnalytics extends Module {
 			$items    = isset( $response['customDimensions'] ) && is_array( $response['customDimensions'] ) ? $response['customDimensions'] : [];
 			foreach ( $items as $dimension ) {
 				$dimensions[] = [
-					'name'          => $dimension['name'],
-					'parameterName' => $dimension['parameterName'],
-					'displayName'   => $dimension['displayName'],
-					'scope'         => $dimension['scope'],
+					'name'          => isset( $dimension['name'] ) ? $dimension['name'] : '',
+					'parameterName' => isset( $dimension['parameterName'] ) ? $dimension['parameterName'] : '',
+					'displayName'   => isset( $dimension['displayName'] ) ? $dimension['displayName'] : '',
+					'scope'         => isset( $dimension['scope'] ) ? $dimension['scope'] : '',
 				];
 			}
 			$page_token = isset( $response['nextPageToken'] ) ? $response['nextPageToken'] : null;

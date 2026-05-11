@@ -21,6 +21,11 @@ final class Google_OAuth_GA4_Client {
 	const BASE_URL = 'https://analyticsadmin.googleapis.com/v1beta';
 
 	/**
+	 * OAuth scope required to create GA4 custom dimensions via the Admin API.
+	 */
+	const EDIT_SCOPE = 'https://www.googleapis.com/auth/analytics.edit';
+
+	/**
 	 * OAuth access token.
 	 *
 	 * @var string
@@ -61,6 +66,20 @@ final class Google_OAuth_GA4_Client {
 			return null;
 		}
 		return new self( $token );
+	}
+
+	/**
+	 * Whether Newspack's stored Google OAuth token currently carries the
+	 * `analytics.edit` scope. Tokens issued before that scope was added to
+	 * Google_OAuth::REQUIRED_SCOPES, or after a publisher revoked it, will not –
+	 * in which case the Admin API rejects writes with a 403 and callers should
+	 * fall back to another auth route rather than this client.
+	 *
+	 * @return bool
+	 */
+	public static function has_edit_scope() {
+		return class_exists( __NAMESPACE__ . '\\Google_OAuth' )
+			&& Google_OAuth::token_has_scope( self::EDIT_SCOPE );
 	}
 
 	/**
