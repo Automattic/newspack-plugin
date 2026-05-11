@@ -370,7 +370,19 @@ function wc_get_checkout_url() {
 }
 function wcs_is_subscription( $order ) {
 	global $subscriptions_database;
-	$id = is_object( $order ) ? $order->get_id() : (int) $order;
+	if ( is_object( $order ) ) {
+		if ( method_exists( $order, 'get_id' ) ) {
+			$id = $order->get_id();
+		} elseif ( isset( $order->ID ) ) {
+			$id = (int) $order->ID;
+		} elseif ( isset( $order->id ) ) {
+			$id = (int) $order->id;
+		} else {
+			$id = 0;
+		}
+	} else {
+		$id = (int) $order;
+	}
 	return isset( $subscriptions_database[ $id ] );
 }
 function wcs_create_subscription( $data = [] ) {
