@@ -395,7 +395,13 @@ export const warningForPopup = ( prompts, prompt ) => {
 						{ filteredConflictingPrompts.map( conflictingPrompt => (
 							<li key={ conflictingPrompt.id }>
 								<p data-testid={ `conflict-warning-${ prompt.id }` }>
-									<strong>{ sprintf( '%s: ', decodeEntities( conflictingPrompt.title ) ) }</strong>
+									<strong>
+										{ sprintf(
+											// Translators: %s: title of the conflicting prompt.
+											__( '%s:', 'newspack-plugin' ),
+											decodeEntities( conflictingPrompt.title )
+										) }{ ' ' }
+									</strong>
 									<span>{ buildWarning( prompt, promptCategories ) }</span>
 								</p>
 							</li>
