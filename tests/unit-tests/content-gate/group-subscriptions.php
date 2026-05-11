@@ -2020,4 +2020,414 @@ class Test_Group_Subscriptions extends \WP_UnitTestCase {
 			wp_set_current_user( 0 );
 		}
 	}
+
+	/**
+	 * Test process_link_invite_request() rejects an unknown subscription ID with
+	 * link_invalid. (Same validation as test_validate_link_invite_unknown_subscription,
+	 * but verified through the full request flow.)
+	 */
+	public function test_process_link_invite_request_invalid_subscription_id() {
+		$visitor_id = $this->create_reader_user();
+		wp_set_current_user( $visitor_id );
+
+		$_GET = [
+			'action' => Group_Subscription_Invite::LINK_QUERY_ARG,
+			's'      => 999999, // Non-existent.
+			'm'      => $visitor_id,
+			'k'      => 'whatever',
+		];
+
+		$captured_url = null;
+		$capture      = function ( $location ) use ( &$captured_url ) {
+			$captured_url = $location;
+			throw new \Exception( 'redirect_intercepted' );
+		};
+		add_filter( 'wp_redirect', $capture, 1 );
+		$allow_host = function ( $hosts ) {
+			$hosts[] = 'example.com';
+			return $hosts;
+		};
+		add_filter( 'allowed_redirect_hosts', $allow_host );
+
+		try {
+			try {
+				Group_Subscription_Invite::process_link_invite_request();
+				$this->fail( 'Expected redirect exception' );
+			} catch ( \Exception $e ) {
+				$this->assertStringContainsString( 'redirect_intercepted', $e->getMessage() );
+			}
+
+			$this->assertNotNull( $captured_url, 'A redirect URL should have been captured' );
+			$this->assertStringContainsString(
+				Group_Subscription_Invite::RESULT_QUERY_ARG . '=link_invalid',
+				$captured_url,
+				'Unknown subscription should redirect with link_invalid result'
+			);
+		} finally {
+			remove_filter( 'wp_redirect', $capture, 1 );
+			remove_filter( 'allowed_redirect_hosts', $allow_host );
+			$_GET = [];
+			wp_set_current_user( 0 );
+		}
+	}
+
+	// -------------------------------------------------------------------------
+	// process_invite_request() tests (email-invite path)
+	// -------------------------------------------------------------------------
+
+	/**
+	 * Test process_invite_request() with a missing key/email/subscription triggers
+	 * error_invalid_link.
+	 */
+	public function test_process_invite_request_invalid_link() {
+		// Missing key, email, and subscription should trigger the invalid-link branch.
+		$_GET = [
+			'action' => Group_Subscription_Invite::QUERY_ARG,
+		];
+
+		$captured_url = null;
+		$capture      = function ( $location ) use ( &$captured_url ) {
+			$captured_url = $location;
+			throw new \Exception( 'redirect_intercepted' );
+		};
+		add_filter( 'wp_redirect', $capture, 1 );
+		$allow_host = function ( $hosts ) {
+			$hosts[] = 'example.com';
+			return $hosts;
+		};
+		add_filter( 'allowed_redirect_hosts', $allow_host );
+
+		try {
+			try {
+				Group_Subscription_Invite::process_invite_request();
+				$this->fail( 'Expected redirect exception' );
+			} catch ( \Exception $e ) {
+				$this->assertStringContainsString( 'redirect_intercepted', $e->getMessage() );
+			}
+
+			$this->assertNotNull( $captured_url, 'A redirect URL should have been captured' );
+			$this->assertStringContainsString(
+				Group_Subscription_Invite::RESULT_QUERY_ARG . '=error_invalid_link',
+				$captured_url,
+				'Missing query params should redirect with error_invalid_link result'
+			);
+		} finally {
+			remove_filter( 'wp_redirect', $capture, 1 );
+			remove_filter( 'allowed_redirect_hosts', $allow_host );
+			$_GET = [];
+			wp_set_current_user( 0 );
+		}
+	}
+
+	/**
+	 * Test process_invite_request() Case 1 happy path: a logged-in user whose
+	 * email matches the invite is added to the group and redirected to the
+	 * view-subscription URL with success.
+	 */
+	public function test_process_invite_request_case1_happy_path() {
+		$admin_id  = $this->create_admin_user();
+		$owner_id  = $this->create_reader_user();
+		$email     = 'case1-happy@example.com';
+		$member_id = $this->create_reader_user( $email );
+		$group_sub = $this->create_group_subscription( $owner_id );
+
+		wp_set_current_user( $admin_id );
+		Group_Subscription_Invite::generate_invite( $group_sub->get_id(), $email );
+		$invite_key = array_key_first( Group_Subscription_Invite::get_invites( $group_sub ) );
+
+		// Switch to the invitee clicking the link.
+		wp_set_current_user( $member_id );
+
+		$_GET = [
+			'action'       => Group_Subscription_Invite::QUERY_ARG,
+			'key'          => $invite_key,
+			'email'        => $email,
+			'subscription' => $group_sub->get_id(),
+		];
+
+		$captured_url = null;
+		$capture      = function ( $location ) use ( &$captured_url ) {
+			$captured_url = $location;
+			throw new \Exception( 'redirect_intercepted' );
+		};
+		add_filter( 'wp_redirect', $capture, 1 );
+		$allow_host = function ( $hosts ) {
+			$hosts[] = 'example.com';
+			return $hosts;
+		};
+		add_filter( 'allowed_redirect_hosts', $allow_host );
+
+		try {
+			try {
+				Group_Subscription_Invite::process_invite_request();
+				$this->fail( 'Expected redirect exception' );
+			} catch ( \Exception $e ) {
+				$this->assertStringContainsString( 'redirect_intercepted', $e->getMessage() );
+			}
+
+			$this->assertNotNull( $captured_url, 'A redirect URL should have been captured' );
+			$this->assertStringContainsString(
+				Group_Subscription_Invite::RESULT_QUERY_ARG . '=success',
+				$captured_url,
+				'Case 1 happy path should redirect with success result'
+			);
+			$this->assertStringContainsString(
+				'view-subscription',
+				$captured_url,
+				'Case 1 happy path should target view-subscription URL'
+			);
+			$this->assertTrue(
+				Group_Subscription::user_is_member( $member_id, $group_sub ),
+				'Invitee should be added as a member'
+			);
+		} finally {
+			remove_filter( 'wp_redirect', $capture, 1 );
+			remove_filter( 'allowed_redirect_hosts', $allow_host );
+			$_GET = [];
+			wp_set_current_user( 0 );
+		}
+	}
+
+	/**
+	 * Test process_invite_request() Case 1 email mismatch: a logged-in user
+	 * whose email does NOT match the invite is redirected with
+	 * error_email_mismatch and is NOT added to the group.
+	 */
+	public function test_process_invite_request_case1_email_mismatch() {
+		$admin_id      = $this->create_admin_user();
+		$owner_id      = $this->create_reader_user();
+		$invitee_email = 'correct-email@example.com';
+		$logged_in_id  = $this->create_reader_user( 'different-email@example.com' );
+		$group_sub     = $this->create_group_subscription( $owner_id );
+
+		wp_set_current_user( $admin_id );
+		Group_Subscription_Invite::generate_invite( $group_sub->get_id(), $invitee_email );
+		$invite_key = array_key_first( Group_Subscription_Invite::get_invites( $group_sub ) );
+
+		// A different user (wrong email) is logged in.
+		wp_set_current_user( $logged_in_id );
+
+		$_GET = [
+			'action'       => Group_Subscription_Invite::QUERY_ARG,
+			'key'          => $invite_key,
+			'email'        => $invitee_email,
+			'subscription' => $group_sub->get_id(),
+		];
+
+		$captured_url = null;
+		$capture      = function ( $location ) use ( &$captured_url ) {
+			$captured_url = $location;
+			throw new \Exception( 'redirect_intercepted' );
+		};
+		add_filter( 'wp_redirect', $capture, 1 );
+		$allow_host = function ( $hosts ) {
+			$hosts[] = 'example.com';
+			return $hosts;
+		};
+		add_filter( 'allowed_redirect_hosts', $allow_host );
+
+		try {
+			try {
+				Group_Subscription_Invite::process_invite_request();
+				$this->fail( 'Expected redirect exception' );
+			} catch ( \Exception $e ) {
+				$this->assertStringContainsString( 'redirect_intercepted', $e->getMessage() );
+			}
+
+			$this->assertNotNull( $captured_url, 'A redirect URL should have been captured' );
+			$this->assertStringContainsString(
+				Group_Subscription_Invite::RESULT_QUERY_ARG . '=error_email_mismatch',
+				$captured_url,
+				'Email mismatch should redirect with error_email_mismatch result'
+			);
+			$this->assertFalse(
+				Group_Subscription::user_is_member( $logged_in_id, $group_sub ),
+				'Mismatched-email visitor must NOT be added'
+			);
+		} finally {
+			remove_filter( 'wp_redirect', $capture, 1 );
+			remove_filter( 'allowed_redirect_hosts', $allow_host );
+			$_GET = [];
+			wp_set_current_user( 0 );
+		}
+	}
+
+	/**
+	 * Test process_invite_request() Case 2: a logged-out visitor whose email
+	 * matches an existing user is bounced to My Account with login_needed and
+	 * a redirect= query arg containing the rawurlencoded invite URL.
+	 */
+	public function test_process_invite_request_case2_existing_user_bounce() {
+		$admin_id  = $this->create_admin_user();
+		$owner_id  = $this->create_reader_user();
+		$email     = 'case2-existing@example.com';
+		$this->create_reader_user( $email ); // Existing user.
+		$group_sub = $this->create_group_subscription( $owner_id );
+
+		wp_set_current_user( $admin_id );
+		Group_Subscription_Invite::generate_invite( $group_sub->get_id(), $email );
+		$invite_key = array_key_first( Group_Subscription_Invite::get_invites( $group_sub ) );
+
+		// Visitor is logged out.
+		wp_set_current_user( 0 );
+
+		$_GET = [
+			'action'       => Group_Subscription_Invite::QUERY_ARG,
+			'key'          => $invite_key,
+			'email'        => $email,
+			'subscription' => $group_sub->get_id(),
+		];
+
+		$captured_url = null;
+		$capture      = function ( $location ) use ( &$captured_url ) {
+			$captured_url = $location;
+			throw new \Exception( 'redirect_intercepted' );
+		};
+		add_filter( 'wp_redirect', $capture, 1 );
+		$allow_host = function ( $hosts ) {
+			$hosts[] = 'example.com';
+			return $hosts;
+		};
+		add_filter( 'allowed_redirect_hosts', $allow_host );
+
+		try {
+			try {
+				Group_Subscription_Invite::process_invite_request();
+				$this->fail( 'Expected redirect exception' );
+			} catch ( \Exception $e ) {
+				$this->assertStringContainsString( 'redirect_intercepted', $e->getMessage() );
+			}
+
+			$this->assertNotNull( $captured_url, 'A redirect URL should have been captured' );
+			$this->assertStringContainsString(
+				Group_Subscription_Invite::RESULT_QUERY_ARG . '=login_needed',
+				$captured_url,
+				'Case 2 should redirect with login_needed result'
+			);
+			$this->assertStringContainsString(
+				'redirect=',
+				$captured_url,
+				'Case 2 redirect should carry a redirect= query arg'
+			);
+			// The inner invite URL's `&key=` must appear rawurlencoded as `%26key%3D`.
+			$this->assertStringContainsString(
+				'%26key%3D',
+				$captured_url,
+				'Case 2 should rawurlencode the inner invite URL'
+			);
+		} finally {
+			remove_filter( 'wp_redirect', $capture, 1 );
+			remove_filter( 'allowed_redirect_hosts', $allow_host );
+			$_GET = [];
+			wp_set_current_user( 0 );
+		}
+	}
+
+	/**
+	 * Test process_invite_request() Case 3: a logged-out visitor with no
+	 * existing account triggers auto-registration and is added to the group on
+	 * success.
+	 *
+	 * Note: this test exercises Reader_Activation::register_reader(), which
+	 * authenticates the new user via cookies. In the test environment those
+	 * cookie-setting side effects are harmless but produce a "headers already
+	 * sent" warning on some PHP versions when wp_safe_redirect() runs — hence
+	 * the redirect filter is hooked at priority 1 to intercept before those
+	 * warnings can short-circuit the test.
+	 */
+	public function test_process_invite_request_case3_new_user_registration() {
+		$admin_id  = $this->create_admin_user();
+		$owner_id  = $this->create_reader_user();
+		$email     = 'case3-new-' . wp_generate_password( 6, false ) . '@example.com';
+		$group_sub = $this->create_group_subscription( $owner_id );
+
+		wp_set_current_user( $admin_id );
+		Group_Subscription_Invite::generate_invite( $group_sub->get_id(), $email );
+		$invite_key = array_key_first( Group_Subscription_Invite::get_invites( $group_sub ) );
+
+		// Visitor is logged out and has no existing account.
+		wp_set_current_user( 0 );
+		$this->assertFalse( get_user_by( 'email', $email ), 'Pre-test: target email should have no existing account' );
+
+		$_GET = [
+			'action'       => Group_Subscription_Invite::QUERY_ARG,
+			'key'          => $invite_key,
+			'email'        => $email,
+			'subscription' => $group_sub->get_id(),
+		];
+
+		$captured_url = null;
+		$capture      = function ( $location ) use ( &$captured_url ) {
+			$captured_url = $location;
+			throw new \Exception( 'redirect_intercepted' );
+		};
+		add_filter( 'wp_redirect', $capture, 1 );
+		$allow_host = function ( $hosts ) {
+			$hosts[] = 'example.com';
+			return $hosts;
+		};
+		add_filter( 'allowed_redirect_hosts', $allow_host );
+
+		try {
+			try {
+				Group_Subscription_Invite::process_invite_request();
+				$this->fail( 'Expected redirect exception' );
+			} catch ( \Exception $e ) {
+				$this->assertStringContainsString( 'redirect_intercepted', $e->getMessage() );
+			}
+
+			$this->assertNotNull( $captured_url, 'A redirect URL should have been captured' );
+			$this->assertStringContainsString(
+				Group_Subscription_Invite::RESULT_QUERY_ARG . '=success',
+				$captured_url,
+				'Case 3 happy path should redirect with success result'
+			);
+			$new_user = get_user_by( 'email', $email );
+			$this->assertInstanceOf( \WP_User::class, $new_user, 'A new reader user should have been created' );
+			$this->user_ids[] = $new_user->ID;
+			$this->assertTrue(
+				Group_Subscription::user_is_member( $new_user->ID, $group_sub ),
+				'Newly registered user should be added as a member'
+			);
+		} finally {
+			remove_filter( 'wp_redirect', $capture, 1 );
+			remove_filter( 'allowed_redirect_hosts', $allow_host );
+			$_GET = [];
+			wp_set_current_user( 0 );
+		}
+	}
+
+	/**
+	 * Test accept_invite() short-circuits to true when the visitor is already a
+	 * member of the group, even if the supplied key is invalid. (Prevents
+	 * "invalid invitation" errors when an already-joined user re-clicks an old
+	 * invite URL.)
+	 */
+	public function test_accept_invite_returns_true_for_existing_member_even_with_bogus_key() {
+		$owner_id  = $this->create_reader_user();
+		$member_id = $this->create_reader_user();
+		$group_sub = $this->create_group_subscription( $owner_id );
+
+		// Add the visitor as a member up-front.
+		$add_result = Group_Subscription::update_members( $group_sub, [ $member_id ] );
+		$this->assertNotInstanceOf( \WP_Error::class, $add_result, 'Pre-test: existing member should be added' );
+		$this->assertTrue(
+			Group_Subscription::user_is_member( $member_id, $group_sub ),
+			'Pre-test: visitor should already be a member'
+		);
+
+		// Re-click the (now invalid) invite URL as that member.
+		wp_set_current_user( $member_id );
+		$result = Group_Subscription_Invite::accept_invite(
+			$group_sub->get_id(),
+			'bogus-or-stale-key',
+			'whatever@example.com'
+		);
+
+		$this->assertTrue( $result, 'accept_invite() should short-circuit to true for an already-member visitor' );
+		$this->assertTrue(
+			Group_Subscription::user_is_member( $member_id, $group_sub ),
+			'Existing member must remain a member after re-clicking an invalid invite'
+		);
+	}
 }
