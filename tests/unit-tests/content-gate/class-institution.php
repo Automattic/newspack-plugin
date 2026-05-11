@@ -251,6 +251,54 @@ class Newspack_Test_Institution extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Test that the IP check does not leak the current visitor's IP to a
+	 * different user (e.g., when ESP sync evaluates an institution rule for
+	 * user A while admin/cron/webhook user B is the active request).
+	 *
+	 * Regression test: prior to the tightening of $is_uncached, any non-zero
+	 * $user_id was treated as "uncached," so the visitor's IP was checked
+	 * against the rule regardless of which user was being evaluated.
+	 */
+	public function test_ip_range_does_not_leak_across_users() {
+		$inst_id = Institution::create(
+			'Cross-User IP Institution',
+			'',
+			[ 'ip_range' => '10.0.0.0/8' ]
+		);
+		$this->assertIsInt( $inst_id );
+		$this->post_ids[] = $inst_id;
+		$evaluated_reader = $this->create_reader( 'evaluated@test.com' );
+		$current_visitor  = $this->create_reader( 'visitor@test.com' );
+
+		delete_transient( Institution::TRANSIENT_KEY );
+
+		// phpcs:disable WordPressVIPMinimum.Variables.ServerVariables.UserControlledHeaders, WordPressVIPMinimum.Variables.RestrictedVariables.cache_constraints___SERVER__REMOTE_ADDR__, WordPressVIPMinimum.Variables.RestrictedVariables.cache_constraints___COOKIE
+
+		// The current visitor (user B) is logged in, with a matching IP. We
+		// then ask whether user A (a different user) matches the institution —
+		// the IP check must NOT run for user A.
+		wp_set_current_user( $current_visitor );
+		$_SERVER['REMOTE_ADDR'] = '10.1.2.3';
+		unset( $_COOKIE[ \Newspack\Content_Gate\IP_Access_Rule::COOKIE_NAME ] );
+
+		$this->assertFalse(
+			Institution::evaluate( $evaluated_reader, [ $inst_id ] ),
+			'IP-based institution match should not transfer the current visitor\'s IP to a different user.'
+		);
+
+		// Sanity check: the current visitor themselves *does* match (same IP, same user).
+		$this->assertTrue(
+			Institution::evaluate( $current_visitor, [ $inst_id ] ),
+			'The current visitor with a matching IP should still match.'
+		);
+
+		wp_set_current_user( 0 );
+		unset( $_SERVER['REMOTE_ADDR'] );
+
+		// phpcs:enable
+	}
+
+	/**
 	 * Test anonymous user can match via IP range on uncached request.
 	 */
 	public function test_anonymous_ip_range_match() {

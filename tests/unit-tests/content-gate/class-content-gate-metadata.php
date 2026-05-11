@@ -497,28 +497,23 @@ class Newspack_Test_Content_Gate_Metadata extends WP_UnitTestCase {
 	/**
 	 * Test the 'subscription' fallback when access is granted only via the
 	 * `newspack_access_rules_has_active_subscription` filter (no real product or group match).
+	 *
+	 * Uses an *unregistered* product ID so that wc_get_product() returns false
+	 * during the strict per-product name lookup — the function then naturally
+	 * falls through to `[ 'subscription' ]` regardless of the filter being called
+	 * once or many times. This avoids relying on internal evaluation ordering.
 	 */
 	public function test_subscription_filter_source() {
 		$product_id = 505; // Intentionally unregistered — wc_get_product() will return false.
-		$rule_value = [ $product_id ];
 
-		// One-shot filter: pass the rule evaluation, then return $has unchanged
-		// for the strict per-product and outer non-strict checks during labeling.
-		$called   = false;
-		$callback = function ( $has, $user_id, $product_ids, $strict ) use ( &$called ) {
-			if ( ! $called && ! $strict ) {
-				$called = true;
-				return true;
-			}
-			return $has;
-		};
-		add_filter( 'newspack_access_rules_has_active_subscription', $callback, 10, 4 );
+		$callback = '__return_true';
+		add_filter( 'newspack_access_rules_has_active_subscription', $callback );
 
 		$rules = [
 			[
 				[
 					'slug'  => 'subscription',
-					'value' => $rule_value,
+					'value' => [ $product_id ],
 				],
 			],
 		];
@@ -526,10 +521,10 @@ class Newspack_Test_Content_Gate_Metadata extends WP_UnitTestCase {
 
 		$result = $this->get_metadata_for_user( self::$user_id );
 
-		remove_filter( 'newspack_access_rules_has_active_subscription', $callback, 10 );
+		remove_filter( 'newspack_access_rules_has_active_subscription', $callback );
 
 		$this->assertEquals( 'Yes', $result['Content_Access'], 'Filter should grant access.' );
-		$this->assertEquals( 'subscription', $result['Content_Access_Source'], 'Source should fall back to "subscription" when filter grants access without a product or group match.' );
+		$this->assertEquals( 'subscription', $result['Content_Access_Source'], 'Source should fall back to "subscription" when filter grants access without a registered product.' );
 	}
 
 	// -------------------------------------------------------------------------
@@ -824,6 +819,52 @@ class Newspack_Test_Content_Gate_Metadata extends WP_UnitTestCase {
 
 		$this->assertEquals( 'Yes', $result['Content_Access'], 'User passing both rules should have access.' );
 		$this->assertEquals( 'ACME Corp, State University', $result['Content_Access_Group'], 'Both group subscription and institution names should appear, sorted.' );
+	}
+
+	/**
+	 * Test that a malformed institution rule value (non-array) does not fatal
+	 * and contributes no group label.
+	 *
+	 * Institution::evaluate() treats a non-array $value as "matches everyone,"
+	 * so the rule passes — but there's no specific institution to attribute, so
+	 * Content_Access_Group must come back empty (and crucially: no TypeError on
+	 * a `foreach` over a non-iterable).
+	 *
+	 * @dataProvider malformed_institution_value_provider
+	 *
+	 * @param mixed $value Malformed rule value.
+	 */
+	public function test_group_label_empty_for_malformed_institution_rule( $value ) {
+		// An institution must exist so the rule evaluation has something to consider.
+		$this->create_institution( 'Test University', [ 'email_domain' => 'example.com' ] );
+
+		$rules = [
+			[
+				[
+					'slug'  => 'institution',
+					'value' => $value,
+				],
+			],
+		];
+		$this->create_gate_with_rules( 'Malformed Institution Gate', $rules );
+
+		$result = $this->get_metadata_for_user( self::$user_id );
+
+		$this->assertEquals( 'Yes', $result['Content_Access'], 'Malformed institution rule matches everyone per Institution::evaluate().' );
+		$this->assertEmpty( $result['Content_Access_Group'], 'Malformed institution rule should yield no group label.' );
+	}
+
+	/**
+	 * Data provider for malformed institution rule values.
+	 */
+	public function malformed_institution_value_provider() {
+		return [
+			'empty string' => [ '' ],
+			'empty array'  => [ [] ],
+			'null'         => [ null ],
+			'scalar int'   => [ 5 ],
+			'scalar str'   => [ '5' ],
+		];
 	}
 
 	/**

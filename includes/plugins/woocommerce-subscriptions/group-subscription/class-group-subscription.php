@@ -230,9 +230,17 @@ class Group_Subscription {
 		$subscriptions    = [];
 		foreach ( $subscription_ids as $subscription_id ) {
 			$subscription = \wcs_get_subscription( $subscription_id );
-			if ( $subscription && self::is_group_subscription( $subscription ) ) {
-				$subscriptions[] = $ids_only ? $subscription_id : $subscription;
+			if ( ! $subscription ) {
+				continue;
 			}
+			// Check the group-enabled meta directly rather than calling self::is_group_subscription(),
+			// which has a context-dependent side effect on the My Account page when WC Memberships
+			// is active. Data-layer callers must always see the canonical state.
+			$settings = Group_Subscription_Settings::get_subscription_settings( $subscription );
+			if ( empty( $settings['enabled'] ) ) {
+				continue;
+			}
+			$subscriptions[] = $ids_only ? $subscription_id : $subscription;
 		}
 
 		/**
@@ -242,5 +250,96 @@ class Group_Subscription {
 		 * @param int $user_id The user ID.
 		 */
 		return apply_filters( 'newspack_group_subscriptions_for_user', $subscriptions, $user_id );
+	}
+
+	/**
+	 * Get the sorted, deduplicated names of active group subscriptions a user owns or is a member of.
+	 *
+	 * Result is memoized per request, keyed by user ID and the optional product filter.
+	 *
+	 * @param int        $user_id        User ID.
+	 * @param array|null $product_filter Optional list of product IDs. If non-empty, only subscriptions
+	 *                                   containing at least one of these products contribute a name.
+	 *                                   Pass null or an empty array to include every active group sub.
+	 *
+	 * @return string[] Sorted, deduplicated group names.
+	 */
+	public static function get_group_names_for_user( $user_id, $product_filter = null ) {
+		static $cache = [];
+
+		$user_id = (int) $user_id;
+		if ( ! $user_id || ! function_exists( 'wcs_get_subscription' ) ) {
+			return [];
+		}
+		if ( ! Reader_Activation::is_user_reader( \get_user_by( 'id', $user_id ) ) ) {
+			return [];
+		}
+
+		// Normalize the filter so [], null, and unsorted/duplicate inputs share a cache key.
+		$normalized_filter = is_array( $product_filter ) && ! empty( $product_filter )
+			? array_values( array_unique( array_map( 'absint', $product_filter ) ) )
+			: null;
+		if ( null !== $normalized_filter ) {
+			sort( $normalized_filter, SORT_NUMERIC );
+		}
+		$cache_key = $user_id . '|' . ( null === $normalized_filter ? '' : implode( ',', $normalized_filter ) );
+		if ( isset( $cache[ $cache_key ] ) ) {
+			return $cache[ $cache_key ];
+		}
+
+		$candidates = [];
+
+		// Owned active subscriptions, already filtered by status (and product, if provided) and gifting.
+		$owned_ids = WooCommerce_Connection::get_active_subscriptions_for_user(
+			$user_id,
+			null === $normalized_filter ? [] : $normalized_filter
+		);
+		foreach ( $owned_ids as $sub_id ) {
+			$sub = \wcs_get_subscription( $sub_id );
+			if ( $sub ) {
+				$candidates[ $sub->get_id() ] = $sub;
+			}
+		}
+
+		// Member subscriptions (via user meta). Apply status + product filters manually.
+		foreach ( self::get_group_subscriptions_for_user( $user_id ) as $sub ) {
+			$sub_id = $sub->get_id();
+			if ( isset( $candidates[ $sub_id ] ) ) {
+				continue;
+			}
+			if ( ! $sub->has_status( WooCommerce_Connection::ACTIVE_SUBSCRIPTION_STATUSES ) ) {
+				continue;
+			}
+			if ( null !== $normalized_filter ) {
+				$matches = false;
+				foreach ( $normalized_filter as $product_id ) {
+					if ( $sub->has_product( $product_id ) ) {
+						$matches = true;
+						break;
+					}
+				}
+				if ( ! $matches ) {
+					continue;
+				}
+			}
+			$candidates[ $sub_id ] = $sub;
+		}
+
+		$names = [];
+		foreach ( $candidates as $sub ) {
+			// Read settings once: it's the authoritative source for `enabled` and `name`,
+			// and is_group_subscription() would call this internally anyway.
+			$settings = Group_Subscription_Settings::get_subscription_settings( $sub );
+			if ( empty( $settings['enabled'] ) ) {
+				continue;
+			}
+			$names[] = html_entity_decode( (string) $settings['name'], ENT_QUOTES | ENT_HTML5, 'UTF-8' );
+		}
+
+		$names = array_values( array_unique( $names ) );
+		sort( $names, SORT_NATURAL | SORT_FLAG_CASE );
+
+		$cache[ $cache_key ] = $names;
+		return $names;
 	}
 }

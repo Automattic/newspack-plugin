@@ -236,6 +236,52 @@ class Institution {
 	}
 
 	/**
+	 * Get the sorted, deduplicated names of institutions whose rules a user matches.
+	 *
+	 * Result is memoized per request, keyed by user ID and the optional institution filter.
+	 *
+	 * @param int        $user_id            User ID.
+	 * @param array|null $institution_filter Optional list of institution post IDs. If non-empty, only
+	 *                                       institutions whose ID is in the list are considered.
+	 *                                       Pass null or an empty array to scan every cached institution.
+	 *
+	 * @return string[] Sorted, deduplicated institution names.
+	 */
+	public static function get_matching_names_for_user( $user_id, $institution_filter = null ) {
+		static $cache = [];
+
+		$user_id = (int) $user_id;
+
+		// Normalize the filter so [], null, and unsorted/duplicate inputs share a cache key.
+		$normalized_filter = is_array( $institution_filter ) && ! empty( $institution_filter )
+			? array_values( array_unique( array_map( 'absint', $institution_filter ) ) )
+			: null;
+		if ( null !== $normalized_filter ) {
+			sort( $normalized_filter, SORT_NUMERIC );
+		}
+		$cache_key = $user_id . '|' . ( null === $normalized_filter ? '' : implode( ',', $normalized_filter ) );
+		if ( isset( $cache[ $cache_key ] ) ) {
+			return $cache[ $cache_key ];
+		}
+
+		$names = [];
+		foreach ( self::get_cached_institutions() as $inst_id => $rules ) {
+			if ( null !== $normalized_filter && ! in_array( (int) $inst_id, $normalized_filter, true ) ) {
+				continue;
+			}
+			if ( self::user_matches_institution( $user_id, $rules ) ) {
+				$names[] = html_entity_decode( (string) get_the_title( $inst_id ), ENT_QUOTES | ENT_HTML5, 'UTF-8' );
+			}
+		}
+
+		$names = array_values( array_unique( $names ) );
+		sort( $names, SORT_NATURAL | SORT_FLAG_CASE );
+
+		$cache[ $cache_key ] = $names;
+		return $names;
+	}
+
+	/**
 	 * Check if a user matches an institution's rules (OR logic).
 	 *
 	 * @param int   $user_id  User ID.
@@ -254,12 +300,15 @@ class Institution {
 
 		if ( ! empty( $rules['ip_range'] ) ) {
 			// IP evaluation is page-cache-safe only when the response would be uncached anyway:
-			// the caller flagged it as such, the visitor is logged in, or the visitor carries
-			// the IP-access bypass cookie. A first-time anonymous on-campus visitor landing
-			// directly on a gated post matches none of these and will see the gate — they must
-			// first complete the IP check at /institutional-access (or ?institutional-access=1)
-			// to set the cookie before subsequent gated requests can evaluate their IP.
-			$is_uncached = $uncached || ! empty( $user_id ) || IP_Access_Rule::is_cookie_set();
+			// the caller flagged it as such, the *current visitor* is logged in (so the IP we
+			// would read is theirs), or the visitor carries the IP-access bypass cookie. We
+			// require $user_id === get_current_user_id() to avoid attributing the requestor's
+			// IP to a different user during background metadata sync (admin/cron/webhook). A
+			// first-time anonymous on-campus visitor landing directly on a gated post matches
+			// none of these and will see the gate — they must first complete the IP check at
+			// /institutional-access (or ?institutional-access=1) to set the cookie before
+			// subsequent gated requests can evaluate their IP.
+			$is_uncached = $uncached || ( ! empty( $user_id ) && (int) $user_id === get_current_user_id() ) || IP_Access_Rule::is_cookie_set();
 			if ( $is_uncached && IP_Access_Rule::ip_matches_ranges( IP_Access_Rule::get_visitor_ip(), $rules['ip_range'] ) ) {
 				return true;
 			}

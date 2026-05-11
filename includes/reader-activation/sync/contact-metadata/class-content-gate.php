@@ -11,10 +11,8 @@ use Newspack\Reader_Activation\Sync\Contact_Metadata;
 use Newspack\Access_Rules;
 use Newspack\Content_Gate as Content_Gate_CPT;
 use Newspack\Group_Subscription;
-use Newspack\Group_Subscription_Settings;
 use Newspack\Institution;
 use Newspack\User_Gate_Access;
-use Newspack\WooCommerce_Connection;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -194,7 +192,7 @@ class Content_Gate extends Contact_Metadata {
 						if ( Access_Rules::has_active_subscription( $user_id, [ $product_id ], true ) ) {
 							$product = wc_get_product( $product_id );
 							if ( $product ) {
-								$names[] = wp_specialchars_decode( $product->get_name() );
+								$names[] = html_entity_decode( (string) $product->get_name(), ENT_QUOTES | ENT_HTML5, 'UTF-8' );
 							}
 						}
 					}
@@ -222,6 +220,10 @@ class Content_Gate extends Contact_Metadata {
 	/**
 	 * Map an access rule slug and value to group labels.
 	 *
+	 * Delegates name resolution to `Group_Subscription::get_group_names_for_user()` and
+	 * `Institution::get_matching_names_for_user()` so the GA4 helper and other callers
+	 * share the same logic (memoization, status filters, name decoding).
+	 *
 	 * @param string $slug    Rule slug.
 	 * @param mixed  $value   Rule value.
 	 * @param int    $user_id User ID.
@@ -230,53 +232,18 @@ class Content_Gate extends Contact_Metadata {
 	private static function get_group_labels( $slug, $value, $user_id ) {
 		switch ( $slug ) {
 			case 'subscription':
-				// Consider both group subscriptions the user is a member of and those they own.
-				$candidates = Group_Subscription::get_group_subscriptions_for_user( $user_id );
-				if ( function_exists( 'wcs_get_users_subscriptions' ) ) {
-					$candidates = array_merge( $candidates, array_values( wcs_get_users_subscriptions( $user_id ) ) );
-				}
 				// An empty/non-array $value mirrors Access_Rules::has_active_subscription's
 				// "any active subscription" semantics — every active group sub matches.
-				$match_any   = ! is_array( $value ) || empty( $value );
-				$group_names = [];
-				$seen        = [];
-				foreach ( $candidates as $subscription ) {
-					if ( ! $subscription || ! Group_Subscription::is_group_subscription( $subscription ) ) {
-						continue;
-					}
-					$sub_id = $subscription->get_id();
-					if ( isset( $seen[ $sub_id ] ) ) {
-						continue;
-					}
-					if ( ! $subscription->has_status( WooCommerce_Connection::ACTIVE_SUBSCRIPTION_STATUSES ) ) {
-						continue;
-					}
-					$matches = $match_any;
-					if ( ! $matches ) {
-						foreach ( $value as $product_id ) {
-							if ( $subscription->has_product( $product_id ) ) {
-								$matches = true;
-								break;
-							}
-						}
-					}
-					if ( $matches ) {
-						$group_settings  = Group_Subscription_Settings::get_subscription_settings( $subscription );
-						$group_names[]   = wp_specialchars_decode( $group_settings['name'] );
-						$seen[ $sub_id ] = true;
-					}
-				}
-				return $group_names;
+				$product_filter = is_array( $value ) && ! empty( $value ) ? $value : null;
+				return Group_Subscription::get_group_names_for_user( $user_id, $product_filter );
 
 			case 'institution':
-				$institutions      = Institution::get_cached_institutions();
-				$institution_names = [];
-				foreach ( $value as $institution_id ) {
-					if ( isset( $institutions[ $institution_id ] ) && Institution::user_matches_institution( $user_id, $institutions[ $institution_id ] ) ) {
-						$institution_names[] = wp_specialchars_decode( get_the_title( $institution_id ) );
-					}
+				// A malformed institution rule (missing/empty/scalar value) matches everyone
+				// per Institution::evaluate(), but there's no specific institution to attribute.
+				if ( ! is_array( $value ) || empty( $value ) ) {
+					return [];
 				}
-				return $institution_names;
+				return Institution::get_matching_names_for_user( $user_id, $value );
 
 			default:
 				return [];
