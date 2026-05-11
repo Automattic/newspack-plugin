@@ -534,9 +534,6 @@ class Group_Subscription_Invite {
 		}
 
 		$myaccount_url = function_exists( 'wc_get_page_permalink' ) ? wc_get_page_permalink( 'myaccount' ) : home_url();
-		$success_url   = function_exists( 'wc_get_endpoint_url' )
-				? wc_get_endpoint_url( 'view-subscription', $subscription_id, $myaccount_url )
-				: $myaccount_url;
 
 		// Case 1: User is logged in.
 		$current_user = wp_get_current_user();
@@ -550,6 +547,9 @@ class Group_Subscription_Invite {
 				self::redirect_with_result( 'error_invite_invalid' );
 				return;
 			}
+			$success_url = function_exists( 'wc_get_endpoint_url' )
+					? wc_get_endpoint_url( 'view-subscription', $subscription_id, $myaccount_url )
+					: $myaccount_url;
 			self::redirect_with_result( 'success', $success_url );
 			return;
 		}
@@ -592,6 +592,9 @@ class Group_Subscription_Invite {
 			self::redirect_with_result( 'error_invite_invalid' );
 			return;
 		}
+		$success_url = function_exists( 'wc_get_endpoint_url' )
+				? wc_get_endpoint_url( 'view-subscription', $subscription_id, $myaccount_url )
+				: $myaccount_url;
 		self::redirect_with_result( 'success', $success_url );
 	}
 
@@ -618,9 +621,6 @@ class Group_Subscription_Invite {
 		$is_logged_in      = (bool) $current_user->ID;
 		$myaccount_url     = function_exists( 'wc_get_page_permalink' ) ? wc_get_page_permalink( 'myaccount' ) : home_url();
 		$error_target_url  = $is_logged_in ? $myaccount_url : home_url();
-		$success_url       = function_exists( 'wc_get_endpoint_url' )
-				? wc_get_endpoint_url( 'view-subscription', $subscription->get_id(), $myaccount_url )
-				: $myaccount_url;
 
 		// Validate the link.
 		$validation = self::validate_link_invite( $subscription, $user_id, $key );
@@ -657,6 +657,9 @@ class Group_Subscription_Invite {
 			Group_Subscription::user_is_manager( $current_user->ID, $subscription )
 			|| Group_Subscription::user_is_member( $current_user->ID, $subscription )
 		) {
+			$success_url = function_exists( 'wc_get_endpoint_url' )
+					? wc_get_endpoint_url( 'view-subscription', $subscription->get_id(), $myaccount_url )
+					: $myaccount_url;
 			self::redirect_with_result( 'success', $success_url );
 			return;
 		}
@@ -679,6 +682,9 @@ class Group_Subscription_Invite {
 		}
 
 		// Success → subscription view URL.
+		$success_url = function_exists( 'wc_get_endpoint_url' )
+		? wc_get_endpoint_url( 'view-subscription', $subscription->get_id(), $myaccount_url )
+		: $myaccount_url;
 		self::redirect_with_result( 'success', $success_url );
 	}
 
@@ -691,8 +697,7 @@ class Group_Subscription_Invite {
 			return;
 		}
 
-		// Link-invite result codes have their own message + type.
-		$link_messages = [
+		$messages = [
 			'link_invalid'              => [
 				'message' => __( 'This link is no longer valid. Please contact the group manager.', 'newspack-plugin' ),
 				'type'    => 'error',
@@ -731,15 +736,11 @@ class Group_Subscription_Invite {
 			$message = __( 'You have successfully joined the group!', 'newspack-plugin' );
 			$type    = 'success';
 		} else {
-			$message = ! empty( $link_messages[ $result ]['message'] ) ? $link_messages[ $result ]['message'] : __( 'There was a problem with your invitation.', 'newspack-plugin' );
-			$type = ! empty( $link_messages[ $result ]['type'] ) ? $link_messages[ $result ]['type'] : 'error';
+			$message = ! empty( $messages[ $result ]['message'] ) ? $messages[ $result ]['message'] : __( 'There was a problem with your invitation.', 'newspack-plugin' );
+			$type = ! empty( $messages[ $result ]['type'] ) ? $messages[ $result ]['type'] : 'error';
 		}
 
-		if ( function_exists( 'is_account_page' ) && is_account_page() && function_exists( 'wc_add_notice' ) ) {
-			wc_add_notice( $message, $type );
-		} else {
-			Newspack_UI::add_notice( $message, $type );
-		}
+		Newspack_UI::add_notice( $message, $type );
 	}
 
 	/**
@@ -753,7 +754,7 @@ class Group_Subscription_Invite {
 	private static function redirect_with_result( $status, $target_url = null ) {
 		$args = [ self::RESULT_QUERY_ARG => $status ];
 		if ( null === $target_url ) {
-			$target_url = function_exists( 'wc_get_page_permalink' ) ? wc_get_page_permalink( 'myaccount' ) : home_url();
+			$target_url = function_exists( 'wc_get_account_endpoint_url' ) ? \wc_get_account_endpoint_url( 'edit-account' ) : home_url();
 		}
 		wp_safe_redirect( add_query_arg( $args, $target_url ) );
 		exit;
