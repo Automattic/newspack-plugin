@@ -34,6 +34,14 @@ class Newspack_Test_Content_Gate_Metadata extends WP_UnitTestCase {
 	private static $owner_id;
 
 	/**
+	 * Institution post IDs to delete during tear_down. Institution::create() inserts
+	 * real posts that aren't tracked by $this->factory, so we manage cleanup explicitly.
+	 *
+	 * @var int[]
+	 */
+	private $institution_ids = [];
+
+	/**
 	 * Set up the WC mocks once for the class.
 	 */
 	public static function set_up_before_class() {
@@ -47,6 +55,8 @@ class Newspack_Test_Content_Gate_Metadata extends WP_UnitTestCase {
 	public function set_up() {
 		parent::set_up();
 		Content_Gate_Metadata::reset_cache();
+		Group_Subscription::reset_cache();
+		Institution::reset_matching_cache();
 
 		// Reset mock WC databases.
 		global $subscriptions_database, $products_database;
@@ -73,7 +83,16 @@ class Newspack_Test_Content_Gate_Metadata extends WP_UnitTestCase {
 	 */
 	public function tear_down() {
 		delete_user_meta( self::$user_id, Group_Subscription::GROUP_SUBSCRIPTION_USER_META_KEY );
-		Institution::invalidate_cache();
+
+		// Delete institution posts created during the test so they don't leak into later tests.
+		foreach ( $this->institution_ids as $post_id ) {
+			wp_delete_post( $post_id, true );
+		}
+		$this->institution_ids = [];
+		delete_transient( Institution::TRANSIENT_KEY );
+
+		Group_Subscription::reset_cache();
+		Institution::reset_matching_cache();
 		parent::tear_down();
 	}
 
@@ -143,6 +162,7 @@ class Newspack_Test_Content_Gate_Metadata extends WP_UnitTestCase {
 	 */
 	private function create_institution( $title, $rules ) {
 		$id = Institution::create( $title, '', $rules );
+		$this->institution_ids[] = $id;
 		Institution::invalidate_cache();
 		return $id;
 	}

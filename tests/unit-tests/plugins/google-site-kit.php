@@ -33,6 +33,13 @@ class Newspack_Test_GoogleSiteKit_Group_Param extends WP_UnitTestCase {
 	private static $owner_id;
 
 	/**
+	 * Institution post IDs to delete during tear_down.
+	 *
+	 * @var int[]
+	 */
+	private $institution_ids = [];
+
+	/**
 	 * Enable the content gating feature flag and load WC mocks.
 	 */
 	public static function set_up_before_class() {
@@ -53,6 +60,10 @@ class Newspack_Test_GoogleSiteKit_Group_Param extends WP_UnitTestCase {
 		global $subscriptions_database, $products_database;
 		$subscriptions_database = [];
 		$products_database      = [];
+
+		// Reset the per-request name/match caches so tests are order-independent.
+		Group_Subscription::reset_cache();
+		Institution::reset_matching_cache();
 
 		self::$user_id = $this->factory->user->create(
 			[
@@ -78,7 +89,17 @@ class Newspack_Test_GoogleSiteKit_Group_Param extends WP_UnitTestCase {
 	 */
 	public function tear_down() {
 		delete_user_meta( self::$user_id, Group_Subscription::GROUP_SUBSCRIPTION_USER_META_KEY );
-		Institution::invalidate_cache();
+
+		// Delete any institution posts created during the test so they don't leak
+		// into later tests (Institution::create() inserts real posts not tracked by $this->factory).
+		foreach ( $this->institution_ids as $post_id ) {
+			wp_delete_post( $post_id, true );
+		}
+		$this->institution_ids = [];
+		delete_transient( Institution::TRANSIENT_KEY );
+
+		Group_Subscription::reset_cache();
+		Institution::reset_matching_cache();
 		wp_set_current_user( 0 );
 		parent::tear_down();
 	}
@@ -119,6 +140,7 @@ class Newspack_Test_GoogleSiteKit_Group_Param extends WP_UnitTestCase {
 	 */
 	private function create_institution( $title, $rules ) {
 		$id = Institution::create( $title, '', $rules );
+		$this->institution_ids[] = $id;
 		Institution::invalidate_cache();
 		return $id;
 	}
@@ -134,61 +156,84 @@ class Newspack_Test_GoogleSiteKit_Group_Param extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Owned group subscription contributes its name.
+	 * Owned group subscription contributes its anonymized ID label.
 	 */
 	public function test_group_includes_owned_group_subscription() {
-		$this->create_group_subscription( self::$user_id, null, 600, 'Owner Group' );
+		$sub = $this->create_group_subscription( self::$user_id, null, 600, 'Owner Group' );
 
 		$params = GoogleSiteKit::get_custom_event_parameters();
 
-		$this->assertEquals( 'Owner Group', $params['group'] );
+		$this->assertEquals( 'Group ' . $sub->get_id(), $params['group'] );
 	}
 
 	/**
-	 * Group membership (non-owner) contributes the group name.
+	 * Group membership (non-owner) contributes the anonymized ID label.
 	 */
 	public function test_group_includes_member_group_subscription() {
-		$this->create_group_subscription( self::$owner_id, self::$user_id, 601, 'Member Group' );
+		$sub = $this->create_group_subscription( self::$owner_id, self::$user_id, 601, 'Member Group' );
 
 		$params = GoogleSiteKit::get_custom_event_parameters();
 
-		$this->assertEquals( 'Member Group', $params['group'] );
+		$this->assertEquals( 'Group ' . $sub->get_id(), $params['group'] );
 	}
 
 	/**
-	 * Matching institution (via verified email domain) contributes its name.
+	 * Matching institution (via verified email domain) contributes the anonymized ID label.
 	 */
 	public function test_group_includes_matching_institution() {
-		$this->create_institution( 'Test University', [ 'email_domain' => 'example.com' ] );
+		$inst_id = $this->create_institution( 'Test University', [ 'email_domain' => 'example.com' ] );
 
 		$params = GoogleSiteKit::get_custom_event_parameters();
 
-		$this->assertEquals( 'Test University', $params['group'] );
+		$this->assertEquals( 'Institution ' . $inst_id, $params['group'] );
+	}
+
+	/**
+	 * Group sub names / institution titles never appear in the GA4 `group` value —
+	 * confirms the anonymized-ID contract that exists to keep PII out of GA4.
+	 */
+	public function test_group_never_emits_publisher_facing_names() {
+		$this->create_group_subscription( self::$user_id, null, 610, 'Acme Corp Engineering Team' );
+		$this->create_group_subscription( self::$owner_id, self::$user_id, 611, "John Doe's Group" );
+		$this->create_institution( 'State University', [ 'email_domain' => 'example.com' ] );
+
+		$params = GoogleSiteKit::get_custom_event_parameters();
+
+		$this->assertStringNotContainsString( 'Acme Corp', $params['group'] );
+		$this->assertStringNotContainsString( 'John Doe', $params['group'] );
+		$this->assertStringNotContainsString( 'State University', $params['group'] );
 	}
 
 	/**
 	 * Multiple group subscriptions and an institution all surface, sorted naturally.
 	 */
 	public function test_group_combines_owned_member_and_institution_sorted() {
-		$this->create_group_subscription( self::$user_id, null, 602, 'Zeta Group' );
-		$this->create_group_subscription( self::$owner_id, self::$user_id, 603, 'Beta Group' );
-		$this->create_institution( 'Alpha University', [ 'email_domain' => 'example.com' ] );
+		$owned    = $this->create_group_subscription( self::$user_id, null, 602, 'Zeta Group' );
+		$member   = $this->create_group_subscription( self::$owner_id, self::$user_id, 603, 'Beta Group' );
+		$inst_id  = $this->create_institution( 'Alpha University', [ 'email_domain' => 'example.com' ] );
+		$expected = [
+			'Group ' . $owned->get_id(),
+			'Group ' . $member->get_id(),
+			'Institution ' . $inst_id,
+		];
+		sort( $expected, SORT_NATURAL | SORT_FLAG_CASE );
 
 		$params = GoogleSiteKit::get_custom_event_parameters();
 
-		$this->assertEquals( 'Alpha University, Beta Group, Zeta Group', $params['group'] );
+		$this->assertEquals( implode( ', ', $expected ), $params['group'] );
 	}
 
 	/**
-	 * Inactive group subscriptions do not contribute a name.
+	 * Inactive group subscriptions do not contribute a label.
 	 */
 	public function test_group_excludes_cancelled_group_subscription() {
-		$this->create_group_subscription( self::$user_id, null, 604, 'Active Owned', 'active' );
-		$this->create_group_subscription( self::$owner_id, self::$user_id, 605, 'Cancelled Member', 'cancelled' );
+		$active    = $this->create_group_subscription( self::$user_id, null, 604, 'Active Owned', 'active' );
+		$cancelled = $this->create_group_subscription( self::$owner_id, self::$user_id, 605, 'Cancelled Member', 'cancelled' );
 
 		$params = GoogleSiteKit::get_custom_event_parameters();
 
-		$this->assertEquals( 'Active Owned', $params['group'] );
+		$this->assertEquals( 'Group ' . $active->get_id(), $params['group'] );
+		$this->assertStringNotContainsString( (string) $cancelled->get_id(), $params['group'] );
 	}
 
 	/**
@@ -212,20 +257,22 @@ class Newspack_Test_GoogleSiteKit_Group_Param extends WP_UnitTestCase {
 
 		$params = GoogleSiteKit::get_custom_event_parameters();
 
-		$this->assertEquals( 'Self Group', $params['group'] );
+		$this->assertEquals( 'Group ' . $sub->get_id(), $params['group'] );
 	}
 
 	/**
-	 * Two distinct group subscriptions sharing the same display name are deduped
-	 * in the GA4 `group` parameter.
+	 * Two distinct group subscriptions sharing the same display name appear as two
+	 * distinct anonymized labels — confirms each subscription has its own identity
+	 * in the GA4 payload, regardless of name collisions.
 	 */
-	public function test_group_dedupes_distinct_subs_with_same_name() {
-		// Two distinct group subs (different products / IDs) but with the same display name.
-		$this->create_group_subscription( self::$user_id, null, 607, 'Shared Name' );
-		$this->create_group_subscription( self::$owner_id, self::$user_id, 608, 'Shared Name' );
+	public function test_group_distinct_subs_with_same_name_get_distinct_ids() {
+		$sub_a    = $this->create_group_subscription( self::$user_id, null, 607, 'Shared Name' );
+		$sub_b    = $this->create_group_subscription( self::$owner_id, self::$user_id, 608, 'Shared Name' );
+		$expected = [ 'Group ' . $sub_a->get_id(), 'Group ' . $sub_b->get_id() ];
+		sort( $expected, SORT_NATURAL | SORT_FLAG_CASE );
 
 		$params = GoogleSiteKit::get_custom_event_parameters();
 
-		$this->assertEquals( 'Shared Name', $params['group'], 'Same-named groups should appear only once in the GA4 group parameter.' );
+		$this->assertEquals( implode( ', ', $expected ), $params['group'] );
 	}
 }

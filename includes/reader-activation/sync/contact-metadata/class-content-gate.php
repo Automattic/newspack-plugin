@@ -157,7 +157,7 @@ class Content_Gate extends Contact_Metadata {
 					if ( ! $rule['passes'] ) {
 						continue;
 					}
-					foreach ( call_user_func( $resolver, $rule['slug'], $rule['value'], $user_id ) as $label ) {
+					foreach ( $resolver( $rule['slug'], $rule['value'], $user_id ) as $label ) {
 						$labels_set[ $label ] = true;
 					}
 				}
@@ -211,6 +211,9 @@ class Content_Gate extends Contact_Metadata {
 
 			case 'institution':
 				return [ 'institution' ];
+
+			case 'reader_data':
+				return [ 'reader_data' ];
 
 			default:
 				return [];

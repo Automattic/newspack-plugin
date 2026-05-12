@@ -236,9 +236,28 @@ class Institution {
 	}
 
 	/**
+	 * Per-request cache of [inst_id => decoded_name] maps.
+	 *
+	 * @var array<string,array<int,string>>
+	 */
+	private static $names_cache = [];
+
+	/**
+	 * Reset the per-request matching-names cache.
+	 *
+	 * Tests, CLI workers, and invalidation hooks call this to bust the memoization in
+	 * `get_matching_names_for_user()` / `get_matching_ids_for_user()`. Distinct from
+	 * `invalidate_cache()`, which clears the underlying institutions transient.
+	 */
+	public static function reset_matching_cache() {
+		self::$names_cache = [];
+	}
+
+	/**
 	 * Get the sorted, deduplicated names of institutions whose rules a user matches.
 	 *
-	 * Result is memoized per request, keyed by user ID and the optional institution filter.
+	 * Memoized per request via {@see self::get_matching_map_for_user()} — see that helper
+	 * for cache scope, the IP/cookie context dependency, and invalidation.
 	 *
 	 * @param int        $user_id            User ID.
 	 * @param array|null $institution_filter Optional list of institution post IDs. If non-empty, only
@@ -248,8 +267,50 @@ class Institution {
 	 * @return string[] Sorted, deduplicated institution names.
 	 */
 	public static function get_matching_names_for_user( $user_id, $institution_filter = null ) {
-		static $cache = [];
+		$map   = self::get_matching_map_for_user( $user_id, $institution_filter );
+		$names = array_values( array_unique( array_values( $map ) ) );
+		sort( $names, SORT_NATURAL | SORT_FLAG_CASE );
+		return $names;
+	}
 
+	/**
+	 * Get the IDs of institutions whose rules a user matches.
+	 *
+	 * Returns institution post IDs. Shares the per-request cache with
+	 * {@see self::get_matching_names_for_user()}. Suitable for callers that want a stable,
+	 * non-PII identifier (e.g., GA4 anonymized labels) and don't need the display name.
+	 *
+	 * @param int        $user_id            User ID.
+	 * @param array|null $institution_filter Optional list of institution post IDs (same semantics
+	 *                                       as {@see self::get_matching_names_for_user()}).
+	 *
+	 * @return int[] Sorted institution post IDs.
+	 */
+	public static function get_matching_ids_for_user( $user_id, $institution_filter = null ) {
+		$ids = array_keys( self::get_matching_map_for_user( $user_id, $institution_filter ) );
+		sort( $ids, SORT_NUMERIC );
+		return $ids;
+	}
+
+	/**
+	 * Build the [inst_id => decoded_name] map for the user, memoized per request.
+	 *
+	 * Cache key includes `get_current_user_id()` because `user_matches_institution()`'s IP
+	 * branch is context-dependent on the current visitor (see the comment in that method).
+	 * Without that the same `$user_id` could legitimately resolve to different sets across
+	 * requests in a long-running worker that swaps the current user.
+	 *
+	 * IDs are read with `get_post_field( 'post_title', ... )` rather than `get_the_title( ... )`
+	 * so the value going to GA4/ESP is a raw post title, not one that's been through
+	 * `the_title` filters (texturization, third-party plugins) that can introduce entities
+	 * or markup.
+	 *
+	 * @param int        $user_id            User ID.
+	 * @param array|null $institution_filter Optional list of institution post IDs.
+	 *
+	 * @return array<int,string> Map of institution post ID to decoded post title.
+	 */
+	private static function get_matching_map_for_user( $user_id, $institution_filter = null ) {
 		$user_id = (int) $user_id;
 
 		// Normalize the filter so [], null, and unsorted/duplicate inputs share a cache key.
@@ -259,26 +320,26 @@ class Institution {
 		if ( null !== $normalized_filter ) {
 			sort( $normalized_filter, SORT_NUMERIC );
 		}
-		$cache_key = $user_id . '|' . ( null === $normalized_filter ? '' : implode( ',', $normalized_filter ) );
-		if ( isset( $cache[ $cache_key ] ) ) {
-			return $cache[ $cache_key ];
+		// Include the current user in the cache key because the IP-rule branch of
+		// user_matches_institution() short-circuits when $user_id !== get_current_user_id().
+		$cache_key = $user_id . '|' . get_current_user_id() . '|' . ( null === $normalized_filter ? '' : implode( ',', $normalized_filter ) );
+		if ( isset( self::$names_cache[ $cache_key ] ) ) {
+			return self::$names_cache[ $cache_key ];
 		}
 
-		$names = [];
+		$map = [];
 		foreach ( self::get_cached_institutions() as $inst_id => $rules ) {
-			if ( null !== $normalized_filter && ! in_array( (int) $inst_id, $normalized_filter, true ) ) {
+			$inst_id = (int) $inst_id;
+			if ( null !== $normalized_filter && ! in_array( $inst_id, $normalized_filter, true ) ) {
 				continue;
 			}
 			if ( self::user_matches_institution( $user_id, $rules ) ) {
-				$names[] = html_entity_decode( (string) get_the_title( $inst_id ), ENT_QUOTES | ENT_HTML5, 'UTF-8' );
+				$map[ $inst_id ] = html_entity_decode( (string) \get_post_field( 'post_title', $inst_id ), ENT_QUOTES | ENT_HTML5, 'UTF-8' );
 			}
 		}
 
-		$names = array_values( array_unique( $names ) );
-		sort( $names, SORT_NATURAL | SORT_FLAG_CASE );
-
-		$cache[ $cache_key ] = $names;
-		return $names;
+		self::$names_cache[ $cache_key ] = $map;
+		return $map;
 	}
 
 	/**
@@ -308,6 +369,13 @@ class Institution {
 			// none of these and will see the gate — they must first complete the IP check at
 			// /institutional-access (or ?institutional-access=1) to set the cookie before
 			// subsequent gated requests can evaluate their IP.
+			//
+			// Caveat: the IP_Access_Rule::is_cookie_set() disjunct accepts any non-current
+			// $user_id when the *current visitor* carries the cache-bypass cookie, so a
+			// cookie-bearing on-campus visitor can still cause the current request's IP to
+			// be matched against another user's institution range. This is a narrow,
+			// pre-existing edge case (the cookie is only set after the visitor has already
+			// passed an institutional-access check on this site).
 			$is_uncached = $uncached || ( ! empty( $user_id ) && (int) $user_id === get_current_user_id() ) || IP_Access_Rule::is_cookie_set();
 			if ( $is_uncached && IP_Access_Rule::ip_matches_ranges( IP_Access_Rule::get_visitor_ip(), $rules['ip_range'] ) ) {
 				return true;

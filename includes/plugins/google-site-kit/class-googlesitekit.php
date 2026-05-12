@@ -260,10 +260,12 @@ class GoogleSiteKit {
 		// If reader has any currently active non-donation subscriptions.
 		$params['is_subscriber'] = empty( $reader_data['active_subscriptions'] ) ? 'no' : 'yes';
 
-		// Content access groups: group subscriptions (owned or member) and matching institutions.
+		// Content access groups: anonymized identifiers for the user's active group
+		// subscriptions and matching institutions. See get_user_group_labels() for
+		// why we send IDs to GA4 rather than the human-readable names.
 		if ( Content_Gate::is_newspack_feature_enabled() ) {
-			$group_names     = self::get_user_group_names( $current_user );
-			$params['group'] = empty( $group_names ) ? 'none' : implode( ', ', $group_names );
+			$group_labels    = self::get_user_group_labels( $current_user );
+			$params['group'] = empty( $group_labels ) ? 'none' : implode( ', ', $group_labels );
 		}
 
 		/**
@@ -275,17 +277,25 @@ class GoogleSiteKit {
 	}
 
 	/**
-	 * Get the sorted list of group names a user is associated with.
+	 * Build the GA4 `group` parameter value for a user.
 	 *
-	 * Includes active group subscriptions the user owns or is a member of, and
-	 * institutions whose rules the user matches via any means. Both lookups are
-	 * delegated to per-request-memoized helpers in `Group_Subscription` and
-	 * `Institution`, so repeat calls within the same request are cheap.
+	 * The value is a sorted, comma-delimited list of anonymized identifiers for
+	 * active group subscriptions the user owns or is a member of, plus institutions
+	 * whose rules the user matches via any means.
+	 *
+	 * We emit anonymized IDs (`Group {sub_id}`, `Institution {inst_id}`) rather than
+	 * publisher-facing display names because the unnamed-group fallback in
+	 * `Group_Subscription_Settings` synthesizes a name from the owner's billing full
+	 * name — sending that to GA4 would leak PII for every member of an unnamed group.
+	 * The ESP path keeps the human-readable names; only the GA4 surface is anonymized.
+	 *
+	 * Both lookups are delegated to per-request-memoized helpers in `Group_Subscription`
+	 * and `Institution`, so repeat calls within the same request are cheap.
 	 *
 	 * @param \WP_User $user The user to inspect.
-	 * @return string[] Sorted, deduplicated group names.
+	 * @return string[] Sorted, deduplicated anonymized labels.
 	 */
-	private static function get_user_group_names( $user ) {
+	private static function get_user_group_labels( $user ) {
 		if ( ! $user || ! $user->ID ) {
 			return [];
 		}
@@ -296,15 +306,15 @@ class GoogleSiteKit {
 		}
 		$user_id = (int) $user->ID;
 
-		$names = array_merge(
-			Group_Subscription::get_group_names_for_user( $user_id ),
-			Institution::get_matching_names_for_user( $user_id )
-		);
-
-		// Dedupe by name — a group name can collide with an institution title.
-		$names = array_values( array_unique( $names ) );
-		sort( $names, SORT_NATURAL | SORT_FLAG_CASE );
-		return $names;
+		$labels = [];
+		foreach ( Group_Subscription::get_group_ids_for_user( $user_id ) as $sub_id ) {
+			$labels[] = 'Group ' . $sub_id;
+		}
+		foreach ( Institution::get_matching_ids_for_user( $user_id ) as $inst_id ) {
+			$labels[] = 'Institution ' . $inst_id;
+		}
+		sort( $labels, SORT_NATURAL | SORT_FLAG_CASE );
+		return $labels;
 	}
 
 	/**

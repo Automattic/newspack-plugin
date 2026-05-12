@@ -19,6 +19,49 @@ class Group_Subscription {
 	const GROUP_SUBSCRIPTION_USER_META_KEY = '_newspack_group_subscription';
 
 	/**
+	 * Per-request cache of [sub_id => decoded_name] maps, keyed by user_id + product filter.
+	 *
+	 * @var array<string,array<int,string>>
+	 */
+	private static $names_cache = [];
+
+	/**
+	 * Reset the per-request names cache.
+	 *
+	 * Tests, CLI workers, and invalidation hooks call this to bust the static
+	 * memoization in `get_group_names_for_user()` / `get_group_ids_for_user()`.
+	 * No-op if nothing is cached.
+	 */
+	public static function reset_cache() {
+		self::$names_cache = [];
+	}
+
+	/**
+	 * Register cache invalidation hooks. Called once at plugin load.
+	 */
+	public static function init() {
+		// Subscription status changes (WCS hook fires for any active <-> non-active transition).
+		\add_action( 'woocommerce_subscription_status_updated', [ __CLASS__, 'reset_cache' ] );
+		// Group member meta add / remove.
+		\add_action( 'added_user_meta', [ __CLASS__, 'maybe_reset_cache_on_user_meta' ], 10, 3 );
+		\add_action( 'updated_user_meta', [ __CLASS__, 'maybe_reset_cache_on_user_meta' ], 10, 3 );
+		\add_action( 'deleted_user_meta', [ __CLASS__, 'maybe_reset_cache_on_user_meta' ], 10, 3 );
+	}
+
+	/**
+	 * Reset the names cache only when a user-meta change touches our group key.
+	 *
+	 * @param int|int[] $meta_ids  Meta ID(s).
+	 * @param int       $object_id Object ID.
+	 * @param string    $meta_key  Meta key.
+	 */
+	public static function maybe_reset_cache_on_user_meta( $meta_ids, $object_id, $meta_key ) {
+		if ( self::GROUP_SUBSCRIPTION_USER_META_KEY === $meta_key ) {
+			self::reset_cache();
+		}
+	}
+
+	/**
 	 * Check if a subscription is a group subscription.
 	 *
 	 * @param \WC_Subscription|int $subscription The subscription object or ID.
@@ -255,7 +298,8 @@ class Group_Subscription {
 	/**
 	 * Get the sorted, deduplicated names of active group subscriptions a user owns or is a member of.
 	 *
-	 * Result is memoized per request, keyed by user ID and the optional product filter.
+	 * Memoized per request via {@see self::get_settings_map_for_user()} — see that helper for
+	 * cache scope, invalidation hooks, and `reset_cache()`.
 	 *
 	 * @param int        $user_id        User ID.
 	 * @param array|null $product_filter Optional list of product IDs. If non-empty, only subscriptions
@@ -265,8 +309,53 @@ class Group_Subscription {
 	 * @return string[] Sorted, deduplicated group names.
 	 */
 	public static function get_group_names_for_user( $user_id, $product_filter = null ) {
-		static $cache = [];
+		$map   = self::get_settings_map_for_user( $user_id, $product_filter );
+		$names = array_values( array_unique( array_values( $map ) ) );
+		sort( $names, SORT_NATURAL | SORT_FLAG_CASE );
+		return $names;
+	}
 
+	/**
+	 * Get the IDs of active group subscriptions a user owns or is a member of.
+	 *
+	 * Returns subscription post IDs (not product IDs). Shares the per-request cache with
+	 * {@see self::get_group_names_for_user()}, so calling both for the same user is cheap.
+	 * Suitable for downstream consumers that need an anonymous identifier (e.g., GA4) and
+	 * want to avoid serializing publisher-facing group names.
+	 *
+	 * @param int        $user_id        User ID.
+	 * @param array|null $product_filter Optional list of product IDs. Same semantics as
+	 *                                   {@see self::get_group_names_for_user()}.
+	 *
+	 * @return int[] Sorted subscription IDs.
+	 */
+	public static function get_group_ids_for_user( $user_id, $product_filter = null ) {
+		$ids = array_keys( self::get_settings_map_for_user( $user_id, $product_filter ) );
+		sort( $ids, SORT_NUMERIC );
+		return $ids;
+	}
+
+	/**
+	 * Build the [sub_id => decoded_name] map for the user, memoized per request.
+	 *
+	 * Cache scope: function-local static, keyed by user ID + normalized product filter.
+	 * The cache lives for the duration of the PHP request. Hooks registered in {@see self::init()}
+	 * call {@see self::reset_cache()} when subscriptions or group-member meta change so a
+	 * long-running CLI worker doesn't serve stale data across jobs. Tests can call
+	 * `reset_cache()` directly between cases.
+	 *
+	 * Gifting note: `WooCommerce_Connection::get_active_subscriptions_for_user()` excludes
+	 * gifted subscriptions where the user isn't the recipient. The member branch
+	 * (`get_group_subscriptions_for_user()`) doesn't apply that filter — so a gifted group
+	 * subscription could be present via membership even when ownership would exclude it.
+	 * This mirrors the existing asymmetry in `Access_Rules::has_active_subscription()`.
+	 *
+	 * @param int        $user_id        User ID.
+	 * @param array|null $product_filter Optional list of product IDs (same semantics as the public APIs).
+	 *
+	 * @return array<int,string> Map of subscription post ID to decoded group name.
+	 */
+	private static function get_settings_map_for_user( $user_id, $product_filter = null ) {
 		$user_id = (int) $user_id;
 		if ( ! $user_id || ! function_exists( 'wcs_get_subscription' ) ) {
 			return [];
@@ -283,8 +372,8 @@ class Group_Subscription {
 			sort( $normalized_filter, SORT_NUMERIC );
 		}
 		$cache_key = $user_id . '|' . ( null === $normalized_filter ? '' : implode( ',', $normalized_filter ) );
-		if ( isset( $cache[ $cache_key ] ) ) {
-			return $cache[ $cache_key ];
+		if ( isset( self::$names_cache[ $cache_key ] ) ) {
+			return self::$names_cache[ $cache_key ];
 		}
 
 		$candidates = [];
@@ -325,21 +414,19 @@ class Group_Subscription {
 			$candidates[ $sub_id ] = $sub;
 		}
 
-		$names = [];
-		foreach ( $candidates as $sub ) {
+		$map = [];
+		foreach ( $candidates as $sub_id => $sub ) {
 			// Read settings once: it's the authoritative source for `enabled` and `name`,
 			// and is_group_subscription() would call this internally anyway.
 			$settings = Group_Subscription_Settings::get_subscription_settings( $sub );
 			if ( empty( $settings['enabled'] ) ) {
 				continue;
 			}
-			$names[] = html_entity_decode( (string) $settings['name'], ENT_QUOTES | ENT_HTML5, 'UTF-8' );
+			$map[ $sub_id ] = html_entity_decode( (string) $settings['name'], ENT_QUOTES | ENT_HTML5, 'UTF-8' );
 		}
 
-		$names = array_values( array_unique( $names ) );
-		sort( $names, SORT_NATURAL | SORT_FLAG_CASE );
-
-		$cache[ $cache_key ] = $names;
-		return $names;
+		self::$names_cache[ $cache_key ] = $map;
+		return $map;
 	}
 }
+Group_Subscription::init();
