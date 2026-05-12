@@ -29,6 +29,7 @@ class Initializer {
 		include_once NEWSPACK_ABSPATH . 'includes/cli/class-mailchimp.php';
 		include_once NEWSPACK_ABSPATH . 'includes/cli/class-optional-modules.php';
 		include_once NEWSPACK_ABSPATH . 'includes/cli/class-woocommerce-subscriptions.php';
+		include_once NEWSPACK_ABSPATH . 'includes/cli/class-ga4-dimensions.php';
 	}
 
 	/**
@@ -78,6 +79,7 @@ class Initializer {
 		WP_CLI::add_command( 'newspack migrate-co-authors-guest-authors', [ 'Newspack\CLI\Co_Authors_Plus', 'migrate_guest_authors' ] );
 		WP_CLI::add_command( 'newspack backfill-non-editing-contributors', [ 'Newspack\CLI\Co_Authors_Plus', 'backfill_non_editing_contributor' ] );
 		WP_CLI::add_command( 'newspack migrate-expired-subscriptions', [ 'Newspack\CLI\WooCommerce_Subscriptions', 'migrate_expired_subscriptions' ] );
+		WP_CLI::add_command( 'newspack ga4-dimensions', 'Newspack\CLI\GA4_Dimensions' );
 
 		Optional_Modules::register_commands();
 	}

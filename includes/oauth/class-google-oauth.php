@@ -368,6 +368,38 @@ class Google_OAuth {
 	}
 
 	/**
+	 * Whether the saved Newspack Google OAuth token currently carries a given scope.
+	 *
+	 * Queries Google's tokeninfo endpoint. Returns false on any failure – no saved
+	 * credentials, network error, or the scope simply being absent – so callers can
+	 * treat a false result as "do not rely on this scope".
+	 *
+	 * @param string $scope Full scope URL, e.g. 'https://www.googleapis.com/auth/analytics.edit'.
+	 * @return bool
+	 */
+	public static function token_has_scope( $scope ) {
+		$credentials = self::get_oauth2_credentials();
+		if ( false === $credentials ) {
+			return false;
+		}
+		$token_info_response = wp_safe_remote_get(
+			add_query_arg(
+				'access_token',
+				$credentials->getAccessToken(),
+				'https://www.googleapis.com/oauth2/v1/tokeninfo'
+			)
+		);
+		if ( 200 !== wp_remote_retrieve_response_code( $token_info_response ) ) {
+			return false;
+		}
+		$token_info = json_decode( wp_remote_retrieve_body( $token_info_response ) );
+		if ( ! isset( $token_info->scope ) ) {
+			return false;
+		}
+		return in_array( $scope, explode( ' ', $token_info->scope ), true );
+	}
+
+	/**
 	 * Authenticated user's basic information.
 	 *
 	 * @return array|WP_Error Basic information, or error.
