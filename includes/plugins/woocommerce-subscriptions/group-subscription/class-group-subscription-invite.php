@@ -35,20 +35,6 @@ class Group_Subscription_Invite {
 	const EMAIL_TYPE = 'group-subscription-invite';
 
 	/**
-	 * Cookie name for deferred invite acceptance.
-	 *
-	 * @var string
-	 */
-	const COOKIE_NAME = 'newspack_group_invite';
-
-	/**
-	 * Cookie expiry in seconds (1 hour).
-	 *
-	 * @var int
-	 */
-	const COOKIE_EXPIRY = 3600;
-
-	/**
 	 * Query arg for invite result notices.
 	 *
 	 * @var string
@@ -56,13 +42,28 @@ class Group_Subscription_Invite {
 	const RESULT_QUERY_ARG = 'group_invite_result';
 
 	/**
+	 * The query arg used by invite-link URLs.
+	 *
+	 * @var string
+	 */
+	const LINK_QUERY_ARG = 'group_invite_link';
+
+	/**
+	 * The subscription meta key for invite-link entries.
+	 * Stored as: [ $manager_user_id => [ 'key' => string, 'created_at' => int ] ].
+	 *
+	 * @var string
+	 */
+	const LINK_META = 'newspack_group_subscription_link_invites';
+
+	/**
 	 * Initialize hooks.
 	 */
 	public static function init() {
 		add_filter( 'newspack_email_configs', [ __CLASS__, 'add_email_config' ] );
 		add_action( 'template_redirect', [ __CLASS__, 'process_invite_request' ] );
-		add_action( 'wp_login', [ __CLASS__, 'process_deferred_invite' ], 10, 2 );
-		add_action( 'init', [ __CLASS__, 'render_invite_notice' ] );
+		add_action( 'template_redirect', [ __CLASS__, 'process_link_invite_request' ] );
+		add_action( 'template_redirect', [ __CLASS__, 'render_invite_notice' ] );
 	}
 
 	/**
@@ -159,12 +160,180 @@ class Group_Subscription_Invite {
 	}
 
 	/**
+	 * Get the invite-link entry for a given subscription/manager user pair.
+	 *
+	 * @param \WC_Subscription|int $subscription The subscription object or ID.
+	 * @param int                  $user_id      The manager user ID.
+	 *
+	 * @return array|null The link-invite entry, or null if missing or subscription invalid.
+	 */
+	public static function get_link_invite( $subscription, $user_id ) {
+		$subscription = WooCommerce_Subscriptions::sanitize_subscription( $subscription );
+		if ( ! $subscription ) {
+			return null;
+		}
+		$user_id = (int) $user_id;
+		$all     = $subscription->get_meta( self::LINK_META, true );
+		if ( ! is_array( $all ) ) {
+			return null;
+		}
+		if ( isset( $all[ $user_id ] ) ) {
+			return $all[ $user_id ];
+		}
+		return null;
+	}
+
+	/**
+	 * Build the public invite-link URL.
+	 *
+	 * @param int    $subscription_id Subscription ID.
+	 * @param int    $user_id         Manager user ID.
+	 * @param string $key             Invite key.
+	 *
+	 * @return string The invite-link URL.
+	 */
+	public static function get_link_invite_url( $subscription_id, $user_id, $key ) {
+		return add_query_arg(
+			[
+				'action' => self::LINK_QUERY_ARG,
+				's'      => (int) $subscription_id,
+				'm'      => (int) $user_id,
+				'k'      => rawurlencode( $key ),
+			],
+			home_url()
+		);
+	}
+
+	/**
+	 * Generate (or replace) an invite-link for a manager + subscription pair.
+	 *
+	 * @param \WC_Subscription|int $subscription The subscription object or ID.
+	 * @param int                  $user_id      The manager user ID.
+	 *
+	 * @return array|\WP_Error On success: [ 'url' => string, 'key' => string, 'created_at' => int ].
+	 */
+	public static function generate_link_invite( $subscription, $user_id ) {
+		$subscription = WooCommerce_Subscriptions::sanitize_subscription( $subscription );
+		if ( ! $subscription || ! Group_Subscription::is_group_subscription( $subscription ) ) {
+			return new \WP_Error(
+				'newspack_group_subscription_link_invite_invalid_subscription',
+				__( 'Invalid subscription.', 'newspack-plugin' ),
+				[ 'status' => 404 ]
+			);
+		}
+		$user_id = (int) $user_id;
+		if ( ! Group_Subscription::user_is_manager( $user_id, $subscription ) ) {
+			return new \WP_Error(
+				'newspack_group_subscription_link_invite_not_manager',
+				__( 'You do not have permission to manage this group subscription.', 'newspack-plugin' ),
+				[ 'status' => 403 ]
+			);
+		}
+
+		$all = $subscription->get_meta( self::LINK_META, true );
+		if ( ! is_array( $all ) ) {
+			$all = [];
+		}
+
+		$now   = time();
+		$entry = [
+			'key'        => wp_generate_password( 32, false ),
+			'created_at' => $now,
+		];
+		$all[ $user_id ] = $entry;
+
+		$subscription->update_meta_data( self::LINK_META, $all );
+		$subscription->save();
+
+		return array_merge(
+			$entry,
+			[ 'url' => self::get_link_invite_url( $subscription->get_id(), $user_id, $entry['key'] ) ]
+		);
+	}
+
+	/**
+	 * Delete an invite link for a given subscription/manager user pair.
+	 *
+	 * @param \WC_Subscription|int $subscription The subscription object or ID.
+	 * @param int                  $user_id      The manager user ID.
+	 *
+	 * @return true|\WP_Error True if deleted, or WP_Error.
+	 */
+	public static function delete_link_invite( $subscription, $user_id ) {
+		$subscription = WooCommerce_Subscriptions::sanitize_subscription( $subscription );
+		if ( ! $subscription || ! Group_Subscription::is_group_subscription( $subscription ) ) {
+			return new \WP_Error(
+				'newspack_group_subscription_link_invite_invalid_subscription',
+				__( 'Invalid subscription.', 'newspack-plugin' ),
+				[ 'status' => 404 ]
+			);
+		}
+		$user_id = (int) $user_id;
+		if ( ! Group_Subscription::user_is_manager( $user_id, $subscription ) ) {
+			return new \WP_Error(
+				'newspack_group_subscription_link_invite_not_manager',
+				__( 'You do not have permission to manage this group subscription.', 'newspack-plugin' ),
+				[ 'status' => 403 ]
+			);
+		}
+
+		$all = $subscription->get_meta( self::LINK_META, true );
+		if ( ! is_array( $all ) || ! isset( $all[ $user_id ] ) ) {
+			return true;
+		}
+		unset( $all[ $user_id ] );
+		$subscription->update_meta_data( self::LINK_META, $all );
+		$subscription->save();
+		return true;
+	}
+
+	/**
+	 * Validate an invite-link at click-time.
+	 *
+	 * @param \WC_Subscription|int $subscription Subscription object or ID.
+	 * @param int                  $user_id      Manager user ID.
+	 * @param string               $key          Invite key from the URL.
+	 *
+	 * @return true|\WP_Error True if valid; otherwise an error code.
+	 */
+	public static function validate_link_invite( $subscription, $user_id, $key ) {
+		$subscription = WooCommerce_Subscriptions::sanitize_subscription( $subscription );
+		if ( ! $subscription || ! Group_Subscription::is_group_subscription( $subscription ) ) {
+			return new \WP_Error(
+				'newspack_group_subscription_link_invite_invalid_subscription',
+				__( 'Invalid subscription.', 'newspack-plugin' )
+			);
+		}
+		if ( ! $subscription->has_status( 'active' ) ) {
+			return new \WP_Error(
+				'newspack_group_subscription_link_invite_invalid_subscription',
+				__( 'Subscription is not active.', 'newspack-plugin' )
+			);
+		}
+		$user_id = (int) $user_id;
+		if ( ! Group_Subscription::user_is_manager( $user_id, $subscription ) ) {
+			return new \WP_Error(
+				'newspack_group_subscription_link_invite_not_manager',
+				__( 'The link manager is no longer a manager of this subscription.', 'newspack-plugin' )
+			);
+		}
+		$entry = self::get_link_invite( $subscription, $user_id );
+		if ( ! $entry || empty( $entry['key'] ) || ! hash_equals( (string) $entry['key'], (string) $key ) ) {
+			return new \WP_Error(
+				'newspack_group_subscription_link_invite_not_found',
+				__( 'Invite link not found.', 'newspack-plugin' )
+			);
+		}
+		return true;
+	}
+
+	/**
 	 * Generate a group subscription invite key.
 	 *
 	 * @param \WC_Subscription|int $subscription The subscription object or ID.
 	 * @param string               $email The email address receiving the invitation.
 	 *
-	 * @return array|WP_Error The invite data, or a WP_Error if the key cannot be generated.
+	 * @return array|\WP_Error The invite data, or a WP_Error if the key cannot be generated.
 	 */
 	public static function generate_invite( $subscription, $email ) {
 		$subscription = WooCommerce_Subscriptions::sanitize_subscription( $subscription );
@@ -281,6 +450,14 @@ class Group_Subscription_Invite {
 	public static function accept_invite( $subscription, $key, $email ) {
 		$invite = self::get_invite_by_key( $subscription, $key );
 		if ( ! $invite || $invite['email'] !== $email ) {
+			// No need to display an error if the user is already a member: just give a success message.
+			$current_user_id = get_current_user_id();
+			if (
+				Group_Subscription::user_is_manager( $current_user_id, $subscription )
+				|| Group_Subscription::user_is_member( $current_user_id, $subscription )
+			) {
+				return true;
+			}
 			return new \WP_Error( 'newspack_group_subscription_invite_not_found', __( 'Invalid or expired invitation.', 'newspack-plugin' ) );
 		}
 		if ( self::is_invite_expired( $invite ) ) {
@@ -352,40 +529,84 @@ class Group_Subscription_Invite {
 		$subscription_id = isset( $_GET['subscription'] ) ? absint( $_GET['subscription'] ) : 0; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
 		if ( ! $key || ! $email || ! $subscription_id ) {
-			self::redirect_with_result( 'error', __( 'Invalid invitation link.', 'newspack-plugin' ) );
+			self::redirect_with_result( 'error_invalid_link' );
 			return;
 		}
 
-		$current_user = wp_get_current_user();
+		$myaccount_url = function_exists( 'wc_get_page_permalink' ) ? wc_get_page_permalink( 'myaccount' ) : home_url();
 
 		// Case 1: User is logged in.
+		$current_user = wp_get_current_user();
 		if ( $current_user->ID ) {
 			if ( $current_user->user_email !== $email ) {
-				self::redirect_with_result( 'error', __( 'This invitation is for a different email address.', 'newspack-plugin' ) );
+				self::redirect_with_result( 'error_email_mismatch' );
 				return;
 			}
 			$result = self::accept_invite( $subscription_id, $key, $email );
 			if ( is_wp_error( $result ) ) {
-				self::redirect_with_result( 'error', $result->get_error_message() );
+				do_action(
+					'newspack_log',
+					'newspack_group_subscription_invite_failed',
+					$result->get_error_message(),
+					[
+						'type'       => 'error',
+						'data'       => [
+							'subscription_id' => $subscription_id,
+							'member_id'       => $current_user->ID,
+						],
+						'user_email' => $email,
+					]
+				);
+				self::redirect_with_result( 'error_invite_invalid' );
 				return;
 			}
-			self::redirect_with_result( 'success' );
+			$success_url = function_exists( 'wc_get_endpoint_url' )
+					? wc_get_endpoint_url( 'view-subscription', $subscription_id, $myaccount_url )
+					: $myaccount_url;
+			self::redirect_with_result( 'success', $success_url );
 			return;
 		}
 
-		// Case 2: User is not logged in but has an existing account — store invite in cookie and redirect to login.
+		// Case 2: User is not logged in but has an existing account — redirect to login.
 		$existing_user = get_user_by( 'email', $email );
 		if ( $existing_user ) {
-			self::set_invite_cookie( $subscription_id, $key, $email );
-			$login_url = function_exists( 'wc_get_page_permalink' ) ? wc_get_page_permalink( 'myaccount' ) : wp_login_url();
-			wp_safe_redirect( $login_url );
-			exit;
+			self::redirect_with_result(
+				'login_needed',
+				add_query_arg(
+					[
+
+						/*
+						 * rawurlencode( $link_url ) is required: WP's add_query_arg() does NOT
+						 * encode NEW arg values (only existing query args via urlencode_deep).
+						 * Without pre-encoding, the link URL's inner `&s=…&m=…&k=…` would leak
+						 * into the outer query string. PHP's $_GET parser decodes URL-encoded
+						 * values once on receipt, so downstream consumers (e.g. Reader Activation
+						 * reading $_GET['redirect']) see the exact original $link_url.
+						 */
+						'redirect' => rawurlencode( self::get_invite_url( $subscription_id, $key, $email ) ),
+					],
+					$myaccount_url
+				)
+			);
+			return;
 		}
 
 		// Case 3: New user — auto-create account, verify email, and accept.
 		$user_id = Reader_Activation::register_reader( $email, false );
 		if ( is_wp_error( $user_id ) || ! $user_id ) {
-			self::redirect_with_result( 'error', __( 'Could not create your account. Please try again.', 'newspack-plugin' ) );
+			do_action(
+				'newspack_log',
+				'newspack_group_subscription_invite_registration_failed',
+				$user_id ? $user_id->get_error_message() : __( 'New user registration failed.', 'newspack-plugin' ),
+				[
+					'type'       => 'error',
+					'data'       => [
+						'subscription_id' => $subscription_id,
+					],
+					'user_email' => $email,
+				]
+			);
+			self::redirect_with_result( 'error_registration_failed' );
 			return;
 		}
 		Reader_Activation::set_reader_verified( $user_id );
@@ -393,130 +614,198 @@ class Group_Subscription_Invite {
 
 		$result = self::accept_invite( $subscription_id, $key, $email );
 		if ( is_wp_error( $result ) ) {
-			self::redirect_with_result( 'error', $result->get_error_message() );
+			do_action(
+				'newspack_log',
+				'newspack_group_subscription_invite_failed',
+				$result->get_error_message(),
+				[
+					'type'       => 'error',
+					'data'       => [
+						'subscription_id' => $subscription_id,
+						'member_id'       => $user_id,
+					],
+					'user_email' => $email,
+				]
+			);
+			self::redirect_with_result( 'error_invite_invalid' );
 			return;
 		}
-		self::redirect_with_result( 'success' );
+		$success_url = function_exists( 'wc_get_endpoint_url' )
+				? wc_get_endpoint_url( 'view-subscription', $subscription_id, $myaccount_url )
+				: $myaccount_url;
+		self::redirect_with_result( 'success', $success_url );
 	}
 
 	/**
-	 * Process a deferred invite after login.
-	 * Fires on the wp_login action.
-	 *
-	 * @param string   $user_login The user login.
-	 * @param \WP_User $user The user object.
+	 * Process an invite-link click.
+	 * Handles the ?action=group_invite_link URL.
 	 */
-	public static function process_deferred_invite( $user_login, $user ) {
-		$invite_data = self::get_and_clear_invite_cookie();
-		if ( ! $invite_data ) {
+	public static function process_link_invite_request() {
+		if ( ! function_exists( 'wcs_get_subscription' ) ) {
+			return;
+		}
+		if ( ! isset( $_GET['action'] ) || self::LINK_QUERY_ARG !== $_GET['action'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			return;
 		}
 
-		$email = $invite_data['email'] ?? '';
-		if ( $user->user_email !== $email ) {
+		$subscription_id = isset( $_GET['s'] ) ? absint( $_GET['s'] ) : 0; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$user_id         = isset( $_GET['m'] ) ? absint( $_GET['m'] ) : 0; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$key             = isset( $_GET['k'] ) ? sanitize_text_field( wp_unslash( $_GET['k'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+
+		$subscription = WooCommerce_Subscriptions::sanitize_subscription( $subscription_id );
+
+		// Compute "where do we send them on errors" for both auth states.
+		$current_user      = wp_get_current_user();
+		$is_logged_in      = (bool) $current_user->ID;
+		$myaccount_url     = function_exists( 'wc_get_page_permalink' ) ? wc_get_page_permalink( 'myaccount' ) : home_url();
+		$error_target_url  = $is_logged_in ? $myaccount_url : home_url();
+
+		// Validate the link.
+		$validation = self::validate_link_invite( $subscription, $user_id, $key );
+		if ( is_wp_error( $validation ) ) {
+			do_action(
+				'newspack_log',
+				'newspack_group_subscription_invite_link_invalid',
+				$validation->get_error_message(),
+				[
+					'type' => 'error',
+					'data' => [
+						'subscription_id' => $subscription_id,
+						'manager_id'      => $user_id,
+						'member_id'       => $current_user->ID,
+					],
+				]
+			);
+			self::redirect_with_result( 'link_invalid', $error_target_url );
 			return;
 		}
 
-		$result = self::accept_invite(
-			$invite_data['subscription'] ?? 0,
-			$invite_data['key'] ?? '',
-			$email
-		);
-
-		if ( ! is_wp_error( $result ) ) {
-			set_transient( 'np_group_invite_accepted_' . $user->ID, true, 60 );
+		// Not logged in → bounce to My Account with redirect=back-to-link, banner via 'login_needed'.
+		if ( ! $is_logged_in ) {
+			$link_url = self::get_link_invite_url( $subscription_id, $user_id, $key );
+			self::redirect_with_result( 'login_needed', add_query_arg( [ 'redirect' => rawurlencode( $link_url ) ], $myaccount_url ) );
+			return;
 		}
+
+		// User is already in the group? Just send them to the subscription view.
+		if (
+			Group_Subscription::user_is_manager( $current_user->ID, $subscription )
+			|| Group_Subscription::user_is_member( $current_user->ID, $subscription )
+		) {
+			$success_url = function_exists( 'wc_get_endpoint_url' )
+					? wc_get_endpoint_url( 'view-subscription', $subscription->get_id(), $myaccount_url )
+					: $myaccount_url;
+			self::redirect_with_result( 'success', $success_url );
+			return;
+		}
+
+		// Member-limit check.
+		$settings             = Group_Subscription_Settings::get_subscription_settings( $subscription );
+		$member_count         = count( Group_Subscription::get_members( $subscription ) );
+		$pending_invite_count = count( self::get_invites( $subscription, false ) );
+
+		if ( $settings['limit'] > 0 && ( $member_count + $pending_invite_count ) >= $settings['limit'] ) {
+			self::redirect_with_result( 'link_full', $error_target_url );
+			return;
+		}
+
+		// Attempt to add the current user as a member.
+		$result = Group_Subscription::update_members( $subscription, [ $current_user->ID ] );
+		if ( is_wp_error( $result ) || empty( $result['members_added'][ $current_user->ID ] ) ) {
+			do_action(
+				'newspack_log',
+				'newspack_group_subscription_invite_link_failed',
+				$result->get_error_message(),
+				[
+					'type' => 'error',
+					'data' => [
+						'subscription_id' => $subscription_id,
+						'manager_id'      => $user_id,
+						'member_id'       => $current_user->ID,
+					],
+				]
+			);
+			self::redirect_with_result( 'link_failed', $error_target_url );
+			return;
+		}
+
+		// Success → subscription view URL.
+		$success_url = function_exists( 'wc_get_endpoint_url' )
+		? wc_get_endpoint_url( 'view-subscription', $subscription->get_id(), $myaccount_url )
+		: $myaccount_url;
+		self::redirect_with_result( 'success', $success_url );
 	}
 
 	/**
 	 * Render invite result notice.
 	 */
 	public static function render_invite_notice() {
-		if ( ! function_exists( 'wc_add_notice' ) ) {
+		$result = isset( $_GET[ self::RESULT_QUERY_ARG ] ) ? sanitize_text_field( wp_unslash( $_GET[ self::RESULT_QUERY_ARG ] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( ! $result ) {
 			return;
 		}
 
-		$result = isset( $_GET[ self::RESULT_QUERY_ARG ] ) ? sanitize_text_field( wp_unslash( $_GET[ self::RESULT_QUERY_ARG ] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		if ( ! $result ) {
-			// Check for deferred acceptance notice.
-			$user_id = get_current_user_id();
-			if ( $user_id && get_transient( 'np_group_invite_accepted_' . $user_id ) ) {
-				delete_transient( 'np_group_invite_accepted_' . $user_id );
-				$result = 'success';
-			}
-		}
-		if ( ! $result ) {
-			return;
-		}
+		$messages = [
+			'link_invalid'              => [
+				'message' => __( 'This link is no longer valid. Please contact the group manager.', 'newspack-plugin' ),
+				'type'    => 'error',
+			],
+			'link_full'                 => [
+				'message' => __( 'This group already has the maximum number of members. Please contact the group manager.', 'newspack-plugin' ),
+				'type'    => 'error',
+			],
+			'link_failed'               => [
+				'message' => __( "We couldn't add you to the group. Please contact the group manager.", 'newspack-plugin' ),
+				'type'    => 'error',
+			],
+			'login_needed'              => [
+				'message' => __( 'Please log in or register an account to join the group.', 'newspack-plugin' ),
+				'type'    => 'notice',
+			],
+			'error_invalid_link'        => [
+				'message' => __( 'Invalid invitation link.', 'newspack-plugin' ),
+				'type'    => 'error',
+			],
+			'error_email_mismatch'      => [
+				'message' => __( 'This invitation is for a different email address.', 'newspack-plugin' ),
+				'type'    => 'error',
+			],
+			'error_invite_invalid'      => [
+				'message' => __( 'Invalid or expired invitation.', 'newspack-plugin' ),
+				'type'    => 'error',
+			],
+			'error_registration_failed' => [
+				'message' => __( 'Could not create your account. Please try again.', 'newspack-plugin' ),
+				'type'    => 'error',
+			],
+		];
 
 		if ( 'success' === $result ) {
 			$message = __( 'You have successfully joined the group!', 'newspack-plugin' );
 			$type    = 'success';
 		} else {
-			$message = __( 'There was a problem with your invitation.', 'newspack-plugin' );
-			if ( isset( $_GET['message_key'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-				$transient_key  = sanitize_text_field( wp_unslash( $_GET['message_key'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-				$stored_message = get_transient( 'np_group_invite_msg_' . $transient_key );
-				if ( $stored_message ) {
-					$message = $stored_message;
-					delete_transient( $transient_key );
-				}
-			}
-			$type = 'error';
+			$message = ! empty( $messages[ $result ]['message'] ) ? $messages[ $result ]['message'] : __( 'There was a problem with your invitation.', 'newspack-plugin' );
+			$type = ! empty( $messages[ $result ]['type'] ) ? $messages[ $result ]['type'] : 'error';
 		}
 
-		wc_add_notice( $message, $type );
+		Newspack_UI::add_notice( $message, $type );
 	}
 
 	/**
-	 * Redirect to home with a result query parameter.
+	 * Redirect to a target URL with a result query parameter.
 	 *
-	 * @param string $status 'success' or 'error'.
-	 * @param string $message Optional error message.
+	 * @param string      $status     A discrete result code (e.g. 'success', 'login_needed',
+	 *                                'error_email_mismatch', 'link_invalid'). The receiving
+	 *                                render_invite_notice() maps the code to a localized message.
+	 * @param string|null $target_url Optional redirect base. Defaults to My Account or home_url().
 	 */
-	private static function redirect_with_result( $status, $message = '' ) {
+	private static function redirect_with_result( $status, $target_url = null ) {
 		$args = [ self::RESULT_QUERY_ARG => $status ];
-		if ( 'error' === $status && $message ) {
-			// Store message in a transient since it can be too long for a query param.
-			$transient_key = wp_generate_password( 8, false );
-			set_transient( 'np_group_invite_msg_' . $transient_key, $message, 60 );
-			$args['message_key'] = $transient_key;
+		if ( null === $target_url ) {
+			$target_url = is_user_logged_in() && function_exists( 'wc_get_account_endpoint_url' ) ? \wc_get_account_endpoint_url( 'edit-account' ) : home_url();
 		}
-		wp_safe_redirect( add_query_arg( $args, function_exists( 'wc_get_page_permalink' ) ? wc_get_page_permalink( 'myaccount' ) : home_url() ) );
+		wp_safe_redirect( add_query_arg( $args, $target_url ) );
 		exit;
-	}
-
-	/**
-	 * Set a cookie with invite params for deferred acceptance after login.
-	 *
-	 * @param int    $subscription_id The subscription ID.
-	 * @param string $key The invite key.
-	 * @param string $email The invited email address.
-	 */
-	private static function set_invite_cookie( $subscription_id, $key, $email ) {
-		$value = wp_json_encode(
-			[
-				'subscription' => $subscription_id,
-				'key'          => $key,
-				'email'        => $email,
-			]
-		);
-		setcookie( self::COOKIE_NAME, $value, time() + self::COOKIE_EXPIRY, COOKIEPATH, COOKIE_DOMAIN, is_ssl(), true ); // phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.cookies_setcookie
-	}
-
-	/**
-	 * Get and clear the invite cookie.
-	 *
-	 * @return array|null The invite params or null.
-	 */
-	private static function get_and_clear_invite_cookie() {
-		if ( ! isset( $_COOKIE[ self::COOKIE_NAME ] ) ) { // phpcs:ignore WordPressVIPMinimum.Variables.RestrictedVariables.cache_constraints___COOKIE
-			return null;
-		}
-		$data = json_decode( sanitize_text_field( wp_unslash( $_COOKIE[ self::COOKIE_NAME ] ) ), true ); // phpcs:ignore WordPressVIPMinimum.Variables.RestrictedVariables.cache_constraints___COOKIE
-		// Clear the cookie.
-		setcookie( self::COOKIE_NAME, '', time() - 3600, COOKIEPATH, COOKIE_DOMAIN, is_ssl(), true ); // phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.cookies_setcookie
-		return is_array( $data ) ? $data : null;
 	}
 
 	/**
