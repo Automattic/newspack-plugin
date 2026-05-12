@@ -608,14 +608,8 @@
             "version": "2.1.0",
             "source": {
                 "type": "git",
-                "url": "https://github.com/joshtronic/php-loremipsum.git",
+                "url": "https://git.sherver.org/joshtronic/php-loremipsum",
                 "reference": "6d7f8cff6a092a53d66b5237edbe97d398b14f88"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/joshtronic/php-loremipsum/zipball/6d7f8cff6a092a53d66b5237edbe97d398b14f88",
-                "reference": "6d7f8cff6a092a53d66b5237edbe97d398b14f88",
-                "shasum": ""
             },
             "require": {
                 "php": ">=5.3"
@@ -647,10 +641,6 @@
                 "ipsum",
                 "lorem"
             ],
-            "support": {
-                "issues": "https://github.com/joshtronic/php-loremipsum/issues",
-                "source": "https://github.com/joshtronic/php-loremipsum/tree/2.1.0"
-            },
             "time": "2022-01-23T23:27:44+00:00"
         },
         {
