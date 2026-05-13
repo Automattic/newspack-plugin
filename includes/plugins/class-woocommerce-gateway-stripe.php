@@ -28,6 +28,7 @@ class WooCommerce_Gateway_Stripe {
 		// subscriptions whose payment method is not a Stripe gateway.
 		add_filter( 'update_post_metadata', [ __CLASS__, 'maybe_block_stripe_customer_id_post_meta_update' ], 10, 3 );
 		add_action( 'woocommerce_before_subscription_object_save', [ __CLASS__, 'maybe_strip_stripe_customer_id_before_save' ] );
+		add_action( 'wcs_renewal_order_created', [ __CLASS__, 'clear_stripe_customer_id_on_renewal' ], 10, 2 );
 	}
 
 	/**
@@ -233,6 +234,41 @@ class WooCommerce_Gateway_Stripe {
 			return;
 		}
 		$subscription->delete_meta_data( '_stripe_customer_id' );
+	}
+
+	/**
+	 * Clear stale _stripe_customer_id from a renewal order and its parent
+	 * subscription when the subscription uses a non-Stripe payment method.
+	 *
+	 * Fires after the renewal order is created but before payment processing
+	 * begins, intercepting the window where WooPayments reads _stripe_customer_id
+	 * from the renewal order and would encounter an invalid Stripe customer.
+	 *
+	 * On HPOS sites with data sync disabled, meta is purged from both the HPOS
+	 * store (via WC CRUD save()) and wp_postmeta (via delete_post_meta()) to
+	 * ensure all read paths see a clean state.
+	 *
+	 * @param \WC_Order        $renewal_order The renewal order just created.
+	 * @param \WC_Subscription $subscription  The parent subscription.
+	 */
+	public static function clear_stripe_customer_id_on_renewal( $renewal_order, $subscription ) {
+		if ( str_starts_with( $subscription->get_payment_method(), 'stripe' ) ) {
+			return;
+		}
+
+		// Clear from the renewal order — this is what WooPayments reads during payment processing.
+		if ( $renewal_order->get_meta( '_stripe_customer_id' ) ) {
+			$renewal_order->delete_meta_data( '_stripe_customer_id' );
+			$renewal_order->save();
+			delete_post_meta( $renewal_order->get_id(), '_stripe_customer_id' );
+		}
+
+		// Also clean the subscription (root source of the stale value).
+		if ( $subscription->get_meta( '_stripe_customer_id' ) ) {
+			$subscription->delete_meta_data( '_stripe_customer_id' );
+			$subscription->save();
+			delete_post_meta( $subscription->get_id(), '_stripe_customer_id' );
+		}
 	}
 }
 WooCommerce_Gateway_Stripe::init();

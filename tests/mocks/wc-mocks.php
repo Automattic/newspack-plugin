@@ -234,6 +234,12 @@ class WC_Order {
 	public function get_coupon_codes() {
 		return $this->data['coupon_codes'] ?? [];
 	}
+	public function delete_meta_data( $field_name ) {
+		unset( $this->meta[ $field_name ] );
+	}
+	public function save() {
+		return true;
+	}
 }
 
 class WC_Subscription {
