@@ -121,6 +121,46 @@ class Group_Subscription_Invite {
 	}
 
 	/**
+	 * Get the expiration window as a human-readable label (e.g. "30 days", "1 hour").
+	 *
+	 * Unlike core's human_time_diff(), this keeps the natural unit instead of rolling
+	 * 30 days up to "1 month".
+	 *
+	 * @return string Localized label.
+	 */
+	public static function get_expiration_label() {
+		$seconds = (int) self::get_expiration_time();
+
+		if ( $seconds < HOUR_IN_SECONDS ) {
+			$minutes = max( 1, (int) round( $seconds / MINUTE_IN_SECONDS ) );
+			/* translators: %d: number of minutes. */
+			return sprintf( _n( '%d minute', '%d minutes', $minutes, 'newspack-plugin' ), $minutes );
+		}
+
+		if ( $seconds < DAY_IN_SECONDS ) {
+			$hours = max( 1, (int) round( $seconds / HOUR_IN_SECONDS ) );
+			/* translators: %d: number of hours. */
+			return sprintf( _n( '%d hour', '%d hours', $hours, 'newspack-plugin' ), $hours );
+		}
+
+		if ( $seconds < WEEK_IN_SECONDS ) {
+			$days = max( 1, (int) round( $seconds / DAY_IN_SECONDS ) );
+			/* translators: %d: number of days. */
+			return sprintf( _n( '%d day', '%d days', $days, 'newspack-plugin' ), $days );
+		}
+
+		if ( $seconds < MONTH_IN_SECONDS ) {
+			$weeks = max( 1, (int) round( $seconds / WEEK_IN_SECONDS ) );
+			/* translators: %d: number of weeks. */
+			return sprintf( _n( '%d week', '%d weeks', $weeks, 'newspack-plugin' ), $weeks );
+		}
+
+		$days = max( 1, (int) round( $seconds / DAY_IN_SECONDS ) );
+		/* translators: %d: number of days. */
+		return sprintf( _n( '%d day', '%d days', $days, 'newspack-plugin' ), $days );
+	}
+
+	/**
 	 * Check if a group subscription invitation has expired.
 	 * Expiration timestamps are stored as an array map keyed by invite key.
 	 *
