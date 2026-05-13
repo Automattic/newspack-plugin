@@ -60,7 +60,8 @@ class Rolling_Content_Demo extends Wizard {
 	 * @return bool
 	 */
 	public function is_wizard_page() {
-		$page = filter_input( INPUT_GET, 'page', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$page = isset( $_GET['page'] ) ? sanitize_key( wp_unslash( $_GET['page'] ) ) : '';
 		return in_array( $page, [ $this->slug, self::SLUG_ADD ], true );
 	}
 
@@ -69,7 +70,8 @@ class Rolling_Content_Demo extends Wizard {
 	 * not `$this->slug`. Required because React mounts into `getElementById(pageParam)`.
 	 */
 	public function render_wizard() {
-		$page = filter_input( INPUT_GET, 'page', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$page = isset( $_GET['page'] ) ? sanitize_key( wp_unslash( $_GET['page'] ) ) : '';
 		$id   = in_array( $page, [ $this->slug, self::SLUG_ADD ], true ) ? $page : $this->slug;
 		?>
 		<div class="newspack-wizard <?php echo esc_attr( $id ); ?>" id="<?php echo esc_attr( $id ); ?>"></div>
@@ -124,27 +126,53 @@ class Rolling_Content_Demo extends Wizard {
 	/**
 	 * Enqueue scripts and styles.
 	 *
-	 * Delegate to the parent class so the standard wizard chrome (newspack_urls,
-	 * newspack_aux_data, newspack-wizards registration, etc.) gets set up.
-	 * The parent's enqueue function checks `$_GET['page'] === $this->slug` and
-	 * bails otherwise; for the SLUG_ADD page we temporarily spoof `page` so the
-	 * parent runs, then restore it.
+	 * Replicates the relevant parts of the parent class's enqueue logic. We can't
+	 * just call `parent::enqueue_scripts_and_styles()` because its slug check uses
+	 * `filter_input(INPUT_GET, 'page')`, which reads from the frozen request state
+	 * and ignores any local `$_GET` mutations — so it would bail on the SLUG_ADD
+	 * page.
 	 */
 	public function enqueue_scripts_and_styles() {
 		if ( ! $this->is_wizard_page() ) {
 			return;
 		}
 
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- $_GET['page'] is only stored briefly and restored verbatim.
-		$original_page = isset( $_GET['page'] ) ? $_GET['page'] : null;
-		$_GET['page']  = $this->slug;
-		parent::enqueue_scripts_and_styles();
-		if ( null === $original_page ) {
-			unset( $_GET['page'] );
-		} else {
-			$_GET['page'] = $original_page;
-		}
+		Newspack::load_common_assets();
 
+		// Data carrier (no source script).
+		wp_register_script( 'newspack_data', '', [], '1.0', false );
+
+		$plugin_data = get_plugin_data( NEWSPACK_PLUGIN_FILE );
+		$urls        = [
+			'dashboard'      => Wizards::get_url( 'newspack-dashboard' ),
+			'public_path'    => Newspack::plugin_url() . '/dist/',
+			'bloginfo'       => [ 'name' => get_bloginfo( 'name' ) ],
+			'plugin_version' => [ 'label' => $plugin_data['Name'] . ' ' . $plugin_data['Version'] ],
+			'homepage'       => get_edit_post_link( get_option( 'page_on_front', false ) ),
+			'site'           => get_site_url(),
+			'support'        => esc_url( 'https://help.newspack.com/' ),
+			'support_email'  => false,
+		];
+
+		$aux_data = [
+			'is_e2e'              => Starter_Content::is_e2e(),
+			'is_debug_mode'       => Newspack::is_debug_mode(),
+			'has_completed_setup' => get_option( NEWSPACK_SETUP_COMPLETE ),
+			'site_title'          => get_option( 'blogname' ),
+			'is_managed'          => method_exists( 'Newspack_Manager', 'is_connected_to_manager' ) && \Newspack_Manager::is_connected_to_manager(),
+		];
+
+		wp_localize_script( 'newspack_data', 'newspack_urls', $urls );
+		wp_localize_script( 'newspack_data', 'newspack_aux_data', $aux_data );
+		wp_enqueue_script( 'newspack_data' );
+
+		wp_register_script(
+			'newspack-wizards',
+			Newspack::plugin_url() . '/dist/wizards.js',
+			$this->get_script_dependencies(),
+			NEWSPACK_PLUGIN_VERSION,
+			true
+		);
 		wp_enqueue_script( 'newspack-wizards' );
 	}
 }

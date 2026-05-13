@@ -46,10 +46,5 @@ function AddRollingContent() {
 }
 
 export default function Add() {
-	return (
-		<Wizard
-			headerText={ __( 'Newspack / Rolling Content', 'newspack-plugin' ) }
-			sections={ [ { path: '/', render: () => <AddRollingContent /> } ] }
-		/>
-	);
+	return <Wizard headerText={ __( 'Newspack', 'newspack-plugin' ) } sections={ [ { path: '/', render: () => <AddRollingContent /> } ] } />;
 }

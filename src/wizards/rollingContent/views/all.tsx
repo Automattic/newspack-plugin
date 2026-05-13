@@ -210,7 +210,7 @@ function AllRollingContent() {
 export default function All() {
 	return (
 		<Wizard
-			headerText={ __( 'Newspack / Rolling Content', 'newspack-plugin' ) }
+			headerText={ __( 'Newspack', 'newspack-plugin' ) }
 			sections={ [ { path: '/', render: () => <AllRollingContent />, fullWidth: true } ] }
 		/>
 	);
