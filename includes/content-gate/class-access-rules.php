@@ -355,11 +355,22 @@ class Access_Rules {
 	 * Whether the user has an active subscription for one of the given products.
 	 * Also checks if the user is a member of a group subscription with the required products.
 	 *
+	 * Note: `$strict` only constrains the built-in ownership / group-membership checks.
+	 * The `newspack_access_rules_has_active_subscription` filter is always applied and
+	 * its return value is the final result, so a third-party filter callback can grant
+	 * access even when `$strict` is true. Filter authors should opt in to the 4th `$strict`
+	 * arg (`accepted_args` >= 4) and respect it — e.g., short-circuit and return
+	 * `$has_subscription` unchanged when `$strict` is true and the access claim isn't
+	 * strictly an owned subscription. Otherwise callers using `$strict` to distinguish
+	 * owner-vs-member access (e.g., `Content_Gate` source labels) may misclassify
+	 * filter-granted access as local ownership.
+	 *
 	 * @param int   $user_id     User ID.
 	 * @param array $product_ids Required product IDs.
+	 * @param bool  $strict      If true, only consider active subscriptions owned by $user_id (ignore group subscription memberships).
 	 * @return bool
 	 */
-	public static function has_active_subscription( $user_id, $product_ids ) {
+	public static function has_active_subscription( $user_id, $product_ids, $strict = false ) {
 		$has_subscription = false;
 
 		// Check user's own subscriptions.
@@ -368,7 +379,7 @@ class Access_Rules {
 		}
 
 		// Check group subscriptions the user is a member of.
-		if ( ! $has_subscription && function_exists( 'wcs_get_subscription' ) ) {
+		if ( ! $strict && ! $has_subscription && function_exists( 'wcs_get_subscription' ) ) {
 			$group_subscriptions = Group_Subscription::get_group_subscriptions_for_user( $user_id );
 			foreach ( $group_subscriptions as $subscription ) {
 				if ( ! $subscription || ! $subscription->has_status( WooCommerce_Connection::ACTIVE_SUBSCRIPTION_STATUSES ) ) {
@@ -395,8 +406,9 @@ class Access_Rules {
 		 * @param bool  $has_subscription Whether the user has an active subscription.
 		 * @param int   $user_id          User ID.
 		 * @param array $product_ids      Required product IDs.
+		 * @param bool  $strict           If true, only consider active subscriptions owned by $user_id (ignore group subscription memberships).
 		 */
-		return apply_filters( 'newspack_access_rules_has_active_subscription', $has_subscription, $user_id, $product_ids );
+		return apply_filters( 'newspack_access_rules_has_active_subscription', $has_subscription, $user_id, $product_ids, $strict );
 	}
 
 	/**

@@ -10,6 +10,8 @@ namespace Newspack\Reader_Activation\Sync\Contact_Metadata;
 use Newspack\Reader_Activation\Sync\Contact_Metadata;
 use Newspack\Access_Rules;
 use Newspack\Content_Gate as Content_Gate_CPT;
+use Newspack\Group_Subscription;
+use Newspack\Institution;
 use Newspack\User_Gate_Access;
 
 defined( 'ABSPATH' ) || exit;
@@ -60,6 +62,7 @@ class Content_Gate extends Contact_Metadata {
 		return [
 			'Content_Access'        => 'Content Access',
 			'Content_Access_Source' => 'Content Access Source',
+			'Content_Access_Group'  => 'Content Access Group',
 		];
 	}
 
@@ -80,6 +83,7 @@ class Content_Gate extends Contact_Metadata {
 			return [
 				'Content_Access'        => '',
 				'Content_Access_Source' => '',
+				'Content_Access_Group'  => '',
 			];
 		}
 
@@ -88,9 +92,11 @@ class Content_Gate extends Contact_Metadata {
 			$evaluations[] = User_Gate_Access::evaluate_gate_for_user( $gate, $this->user->ID );
 		}
 
+		$user_id = $this->user->ID;
 		return [
 			'Content_Access'        => self::has_content_access( $evaluations ) ? 'Yes' : 'No',
-			'Content_Access_Source' => implode( ', ', self::get_access_source_labels( $evaluations, $this->user->ID ) ),
+			'Content_Access_Source' => implode( ', ', self::collect_labels( $evaluations, $user_id, [ self::class, 'get_source_labels' ] ) ),
+			'Content_Access_Group'  => implode( ', ', self::collect_labels( $evaluations, $user_id, [ self::class, 'get_group_labels' ] ) ),
 		];
 	}
 
@@ -129,14 +135,15 @@ class Content_Gate extends Contact_Metadata {
 	}
 
 	/**
-	 * Get deduplicated, sorted source labels from gate evaluations.
+	 * Walk gate evaluations and collect labels via a per-rule resolver.
 	 *
-	 * @param array $evaluations Results from User_Gate_Access::evaluate_gate_for_user().
-	 * @param int   $user_id     User ID.
-	 * @return array Sorted source label strings.
+	 * @param array    $evaluations Results from User_Gate_Access::evaluate_gate_for_user().
+	 * @param int      $user_id     User ID.
+	 * @param callable $resolver    Receives ($slug, $value, $user_id) and returns string[] of labels.
+	 * @return array Sorted, deduplicated labels.
 	 */
-	private static function get_access_source_labels( $evaluations, $user_id ) {
-		$sources = [];
+	private static function collect_labels( $evaluations, $user_id, $resolver ) {
+		$labels_set = [];
 
 		foreach ( $evaluations as $result ) {
 			if ( ! $result['can_bypass'] ) {
@@ -150,14 +157,14 @@ class Content_Gate extends Contact_Metadata {
 					if ( ! $rule['passes'] ) {
 						continue;
 					}
-					foreach ( self::get_source_labels( $rule['slug'], $rule['value'], $user_id ) as $label ) {
-						$sources[ $label ] = true;
+					foreach ( $resolver( $rule['slug'], $rule['value'], $user_id ) as $label ) {
+						$labels_set[ $label ] = true;
 					}
 				}
 			}
 		}
 
-		$labels = array_keys( $sources );
+		$labels = array_keys( $labels_set );
 		sort( $labels, SORT_NATURAL | SORT_FLAG_CASE );
 		return $labels;
 	}
@@ -173,27 +180,73 @@ class Content_Gate extends Contact_Metadata {
 	private static function get_source_labels( $slug, $value, $user_id ) {
 		switch ( $slug ) {
 			case 'subscription':
-				if ( is_array( $value ) && function_exists( 'wc_get_product' ) ) {
+				if ( ! is_array( $value ) || ! function_exists( 'wc_get_product' ) ) {
+					return [ 'subscription' ];
+				}
+				// Determine ownership first so an owner of a sub matching an
+				// "any subscription" rule (empty $value) isn't mislabeled as
+				// `group` by the non-strict check below.
+				if ( Access_Rules::has_active_subscription( $user_id, $value, true ) ) {
 					$names = [];
 					foreach ( $value as $product_id ) {
-						if ( Access_Rules::has_active_subscription( $user_id, [ $product_id ] ) ) {
+						if ( Access_Rules::has_active_subscription( $user_id, [ $product_id ], true ) ) {
 							$product = wc_get_product( $product_id );
 							if ( $product ) {
-								$names[] = $product->get_name();
+								$names[] = html_entity_decode( (string) $product->get_name(), ENT_QUOTES | ENT_HTML5, 'UTF-8' );
 							}
 						}
 					}
-					if ( ! empty( $names ) ) {
-						return $names;
-					}
+					return ! empty( $names ) ? $names : [ 'subscription' ];
 				}
-				return [ 'Subscription' ];
+				// Not an owner — check group subscription membership.
+				if ( Access_Rules::has_active_subscription( $user_id, $value ) ) {
+					return [ 'group' ];
+				}
+				// They might still have access via the
+				// `newspack_access_rules_has_active_subscription` filter hook.
+				return [ 'subscription' ];
 
 			case 'email_domain':
 				return [ 'domain' ];
 
 			case 'institution':
-				return [ 'group' ];
+				return [ 'institution' ];
+
+			case 'reader_data':
+				return [ 'reader_data' ];
+
+			default:
+				return [];
+		}
+	}
+
+	/**
+	 * Map an access rule slug and value to group labels.
+	 *
+	 * Delegates name resolution to `Group_Subscription::get_group_names_for_user()` and
+	 * `Institution::get_matching_names_for_user()` so the GA4 helper and other callers
+	 * share the same logic (memoization, status filters, name decoding).
+	 *
+	 * @param string $slug    Rule slug.
+	 * @param mixed  $value   Rule value.
+	 * @param int    $user_id User ID.
+	 * @return array Group labels.
+	 */
+	private static function get_group_labels( $slug, $value, $user_id ) {
+		switch ( $slug ) {
+			case 'subscription':
+				// An empty/non-array $value mirrors Access_Rules::has_active_subscription's
+				// "any active subscription" semantics — every active group sub matches.
+				$product_filter = is_array( $value ) && ! empty( $value ) ? $value : null;
+				return Group_Subscription::get_group_names_for_user( $user_id, $product_filter );
+
+			case 'institution':
+				// A malformed institution rule (missing/empty/scalar value) matches everyone
+				// per Institution::evaluate(), but there's no specific institution to attribute.
+				if ( ! is_array( $value ) || empty( $value ) ) {
+					return [];
+				}
+				return Institution::get_matching_names_for_user( $user_id, $value );
 
 			default:
 				return [];
