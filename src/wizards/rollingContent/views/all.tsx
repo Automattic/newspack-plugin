@@ -20,6 +20,7 @@ import { ROLLING_CONTENTS } from '../data';
 import EditInfoModal from '../modals/edit-info';
 import DeleteConfirmModal from '../modals/delete-confirm';
 import AddEntryInfoModal from '../modals/add-entry-info';
+import ManageEntriesModal from '../modals/manage-entries';
 
 const STATUS_LABELS: Record< RollingContentStatus, string > = {
 	active: __( 'Active', 'newspack-plugin' ),
@@ -134,6 +135,24 @@ export default function All() {
 				RenderModal: ( { items, closeModal } ) => (
 					<EditInfoModal itemType="rolling-content" title={ items[ 0 ].title } onClose={ closeModal } />
 				),
+			},
+			{
+				id: 'manage-entries',
+				label: __( 'Manage Entries', 'newspack-plugin' ),
+				supportsBulk: false,
+				RenderModal: ( { items, closeModal } ) => {
+					const parent = items[ 0 ];
+					return (
+						<ManageEntriesModal
+							parent={ parent }
+							entries={ parent.entries }
+							onEntriesChange={ nextEntries =>
+								setData( prev => prev.map( r => ( r.id === parent.id ? { ...r, entries: nextEntries } : r ) ) )
+							}
+							onClose={ closeModal }
+						/>
+					);
+				},
 			},
 			{
 				id: 'add-entry',
