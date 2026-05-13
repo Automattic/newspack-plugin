@@ -24,9 +24,6 @@ final class Search_Overlay_Block {
 	 * Register the block type.
 	 */
 	public static function register_block() {
-		if ( ! \wp_is_block_theme() ) {
-			return;
-		}
 		\register_block_type_from_metadata(
 			__DIR__ . '/block.json',
 			[
