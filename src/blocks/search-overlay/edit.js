@@ -35,7 +35,13 @@ export default function SearchOverlayEdit( { attributes, setAttributes } ) {
 	const isIconVisible = ! isTextOnly;
 
 	const blockProps = useBlockProps( {
-		className: classnames( 'wp-block-button__link', 'newspack-search-overlay__trigger', colorProps.className, borderProps.className ),
+		className: classnames(
+			blockClassName,
+			'wp-block-button__link',
+			'newspack-search-overlay__trigger',
+			colorProps.className,
+			borderProps.className
+		),
 		style: {
 			...borderProps.style,
 			...colorProps.style,
@@ -44,7 +50,7 @@ export default function SearchOverlayEdit( { attributes, setAttributes } ) {
 	} );
 
 	return (
-		<div className="wp-block-buttons is-layout-flex">
+		<div className={ classnames( 'wp-block-buttons', 'is-layout-flex', blockClassName ) }>
 			<div className="wp-block-button">
 				<button { ...blockProps } type="button" onClick={ e => e.preventDefault() }>
 					{ isIconVisible && (
