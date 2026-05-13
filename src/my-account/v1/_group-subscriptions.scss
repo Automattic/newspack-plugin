@@ -13,6 +13,10 @@
 	// Enter animation for invite-link controls revealed after the link is created.
 	&__entering {
 		animation: newspack-group-subscription-enter 125ms ease both;
+
+		@media (prefers-reduced-motion: reduce) {
+			animation: none;
+		}
 	}
 
 	&__members,

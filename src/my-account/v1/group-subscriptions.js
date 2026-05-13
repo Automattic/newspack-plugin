@@ -113,8 +113,9 @@ domReady( function () {
 	};
 	// Minimum loading duration so the spinner reads as "system thinking" even when the API is instant.
 	const MIN_LOADING_MS = 500;
+	const now = () => ( typeof performance !== 'undefined' && performance.now ? performance.now() : Date.now() );
 	const waitForMinLoading = start => {
-		const elapsed = performance.now() - start;
+		const elapsed = now() - start;
 		return elapsed < MIN_LOADING_MS ? new Promise( resolve => setTimeout( resolve, MIN_LOADING_MS - elapsed ) ) : Promise.resolve();
 	};
 
@@ -124,7 +125,7 @@ domReady( function () {
 		el.setAttribute( 'aria-busy', 'true' );
 		el.setAttribute( 'disabled', '' );
 		const errorText = e.currentTarget.getAttribute( 'data-error-text' );
-		const loadingStart = performance.now();
+		const loadingStart = now();
 		try {
 			const response = await fetch( restUrl, {
 				method: 'POST',
@@ -166,7 +167,7 @@ domReady( function () {
 		el.setAttribute( 'aria-busy', 'true' );
 		el.setAttribute( 'disabled', '' );
 		const errorText = e.currentTarget.getAttribute( 'data-error-text' );
-		const loadingStart = performance.now();
+		const loadingStart = now();
 		try {
 			const response = await fetch( restUrl, {
 				method: 'DELETE',
