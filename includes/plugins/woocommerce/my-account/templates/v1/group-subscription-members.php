@@ -25,7 +25,7 @@ $current_user_id      = get_current_user_id();
 $invite_link          = Group_Subscription_Invite::get_link_invite( $subscription, $current_user_id );
 $invite_link_url      = $invite_link ? Group_Subscription_Invite::get_link_invite_url( $subscription->get_id(), $current_user_id, $invite_link['key'] ) : '';
 $is_at_limit = $member_limit > 0 && ( count( $members ) + count( $pending_invites ) ) >= $member_limit;
-$active_tab  = ( isset( $_GET['activeTab'] ) && 'invites' === $_GET['activeTab'] ) ? 'invites' : 'members'; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+$active_tab  = ( isset( $_GET['activeTab'] ) && 'invites' === sanitize_key( wp_unslash( $_GET['activeTab'] ) ) ) ? 'invites' : 'members'; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 ?>
 <header class="newspack-my-account__subscription--header">
 	<?php

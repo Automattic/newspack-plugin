@@ -36,9 +36,8 @@ domReady( function () {
 			} );
 		};
 		syncBadgeVariants();
-		segmentedControl.querySelectorAll( '.newspack-ui__segmented-control__tabs > .newspack-ui__button' ).forEach( button => {
-			button.addEventListener( 'click', syncBadgeVariants );
-		} );
+		// `content-selected` fires after `.selected` is toggled, avoiding a click-handler ordering race.
+		segmentedControl.addEventListener( 'content-selected', syncBadgeVariants );
 	}
 
 	// Handle invite modal.
