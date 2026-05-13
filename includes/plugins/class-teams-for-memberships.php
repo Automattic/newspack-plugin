@@ -13,6 +13,7 @@ use Newspack\Donations;
 use Newspack\Reader_Activation\Sync\Woocommerce as Sync_WooCommerce;
 use Newspack\Reader_Activation\Sync\Metadata as Sync_Metadata;
 use Newspack\Reader_Activation\Contact_Sync;
+use Newspack\Reader_Activation\Integrations;
 
 /**
  * Main class.
@@ -187,7 +188,11 @@ class Teams_For_Memberships {
 			return $contact;
 		}
 
-		$filtered_enabled_fields = Sync_Metadata::filter_enabled_fields( [ 'woo_team' ] );
+		$esp = Integrations::get_integration( 'esp' );
+		if ( ! $esp ) {
+			return $contact;
+		}
+		$filtered_enabled_fields = $esp->filter_enabled_outgoing_fields( [ 'woo_team' ] );
 
 		if ( empty( $contact['email'] ) ) {
 			return $contact;
