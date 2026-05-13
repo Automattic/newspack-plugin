@@ -96,8 +96,38 @@ class Alert_Manager {
 		add_action( 'newspack_sync_retry_exhausted', [ __CLASS__, 'handle_sync_retry_exhausted' ] );
 		add_action( 'newspack_data_event_retry_exhausted', [ __CLASS__, 'handle_data_event_retry_exhausted' ] );
 		add_action( 'newspack_integration_health_check_failed', [ __CLASS__, 'handle_health_check_failed' ] );
+		add_action( 'newspack_alert', [ __CLASS__, 'forward_alert_to_log' ] );
 		add_action( self::PATTERN_SCAN_HOOK, [ __CLASS__, 'scan_failure_patterns' ] );
 		add_action( 'init', [ __CLASS__, 'schedule_pattern_scan' ] );
+	}
+
+	/**
+	 * Forward a `newspack_alert` to the `newspack_log` action so Newspack
+	 * Manager's Logger routes it to Slack (log_level 3 = Alert channel).
+	 *
+	 * When Newspack Manager isn't active, `newspack_log` is a no-op.
+	 *
+	 * @param mixed $alert The alert payload fired by this class.
+	 */
+	public static function forward_alert_to_log( $alert ) {
+		if ( ! is_array( $alert ) || ! isset( $alert['message'] ) || ! is_scalar( $alert['message'] ) || '' === (string) $alert['message'] ) {
+			return;
+		}
+
+		$code = is_scalar( $alert['type'] ?? null ) && '' !== (string) $alert['type']
+			? (string) $alert['type']
+			: 'newspack_alert';
+
+		do_action(
+			'newspack_log',
+			$code,
+			(string) $alert['message'],
+			[
+				'type'      => 'error',
+				'log_level' => 3,
+				'data'      => $alert['context'] ?? [],
+			]
+		);
 	}
 
 	/**

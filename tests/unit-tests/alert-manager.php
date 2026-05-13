@@ -18,6 +18,7 @@ class Newspack_Test_Alert_Manager extends WP_UnitTestCase {
 	public function tear_down() {
 		parent::tear_down();
 		remove_all_actions( 'newspack_alert' );
+		remove_all_actions( 'newspack_log' );
 		remove_all_filters( 'newspack_alert_pattern_rules' );
 		remove_all_filters( 'newspack_alert_failure_record' );
 		delete_option( Alert_Manager::FAILURE_LOG_OPTION );
@@ -355,6 +356,73 @@ class Newspack_Test_Alert_Manager extends WP_UnitTestCase {
 		// Second scan should NOT fire (dedup transient active).
 		Alert_Manager::scan_failure_patterns();
 		$this->assertEquals( 1, $fire_count, 'Second scan should be deduplicated.' );
+	}
+
+	/**
+	 * Test that `forward_alert_to_log` fires `newspack_log` with log_level 3
+	 * so Newspack Manager routes the alert to Slack.
+	 */
+	public function test_forward_alert_to_log_emits_newspack_log() {
+		$captured = null;
+		add_action(
+			'newspack_log',
+			function ( $code, $message, $params ) use ( &$captured ) {
+				$captured = compact( 'code', 'message', 'params' );
+			},
+			10,
+			3
+		);
+
+		Alert_Manager::forward_alert_to_log(
+			[
+				'type'      => 'sync_retry_exhausted',
+				'severity'  => 'error',
+				'message'   => 'Boom',
+				'context'   => [ 'integration_id' => 'mailchimp' ],
+				'timestamp' => time(),
+			]
+		);
+
+		$this->assertNotNull( $captured, 'newspack_log should fire.' );
+		$this->assertSame( 'sync_retry_exhausted', $captured['code'] );
+		$this->assertSame( 'Boom', $captured['message'] );
+		$this->assertSame( 'error', $captured['params']['type'] );
+		$this->assertSame( 3, $captured['params']['log_level'] );
+		$this->assertSame( [ 'integration_id' => 'mailchimp' ], $captured['params']['data'] );
+	}
+
+	/**
+	 * Test that malformed alerts (non-array, missing or non-scalar message)
+	 * do not fire `newspack_log`.
+	 *
+	 * @dataProvider data_malformed_alerts
+	 *
+	 * @param mixed $alert The alert payload to forward.
+	 */
+	public function test_forward_alert_to_log_ignores_malformed( $alert ) {
+		$fired = false;
+		add_action(
+			'newspack_log',
+			function () use ( &$fired ) {
+				$fired = true;
+			}
+		);
+
+		Alert_Manager::forward_alert_to_log( $alert );
+
+		$this->assertFalse( $fired, 'newspack_log should not fire for malformed alerts.' );
+	}
+
+	/**
+	 * Malformed alert payloads.
+	 */
+	public function data_malformed_alerts() {
+		return [
+			'non-array'            => [ 'string' ],
+			'missing message'      => [ [ 'type' => 'x' ] ],
+			'non-scalar message'   => [ [ 'message' => [ 'not', 'a', 'string' ] ] ],
+			'empty string message' => [ [ 'message' => '' ] ],
+		];
 	}
 
 	/**
