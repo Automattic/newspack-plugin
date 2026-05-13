@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-05-13T17:15:56+00:00\n"
+"POT-Creation-Date: 2026-05-13T17:32:56+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: newspack-plugin\n"
@@ -1074,7 +1074,7 @@ msgid "New Collection Category Name"
 msgstr ""
 
 #: includes/collections/class-collection-category-taxonomy.php:99
-#: includes/lite-site/class-lite-site.php:131
+#: includes/lite-site/class-lite-site.php:136
 #: dist/billboard.js:15
 #: src/wizards/advertising/components/suppression/index.js:126
 msgid "Categories"
@@ -2850,7 +2850,7 @@ msgstr ""
 msgid "This tool is controlled by the %s constant and cannot be toggled."
 msgstr ""
 
-#: includes/lite-site/class-lite-site.php:100
+#: includes/lite-site/class-lite-site.php:105
 #: includes/plugins/woocommerce-subscriptions/group-subscription/class-group-subscription-settings.php:364
 #: includes/wizards/advertising/class-advertising-sponsors.php:94
 #: includes/wizards/class-listings-wizard.php:135
@@ -2889,63 +2889,63 @@ msgstr ""
 msgid "Settings"
 msgstr ""
 
-#: includes/lite-site/class-lite-site.php:107
+#: includes/lite-site/class-lite-site.php:112
 msgid "Enable Lite Site"
 msgstr ""
 
-#: includes/lite-site/class-lite-site.php:115
+#: includes/lite-site/class-lite-site.php:120
 #: dist/newspack-wizards.e386313f64136198a71d.js:1
 msgid "URL Base"
 msgstr ""
 
-#: includes/lite-site/class-lite-site.php:123
+#: includes/lite-site/class-lite-site.php:128
 msgid "Number of posts to display"
 msgstr ""
 
-#: includes/lite-site/class-lite-site.php:139
+#: includes/lite-site/class-lite-site.php:144
 msgid "Footer HTML"
 msgstr ""
 
-#: includes/lite-site/class-lite-site.php:151
-#: includes/lite-site/class-lite-site.php:152
-#: includes/lite-site/class-lite-site.php:165
+#: includes/lite-site/class-lite-site.php:156
+#: includes/lite-site/class-lite-site.php:157
+#: includes/lite-site/class-lite-site.php:170
 msgid "Lite Site"
 msgstr ""
 
-#: includes/lite-site/class-lite-site.php:166
+#: includes/lite-site/class-lite-site.php:171
 msgid "Lite Site is a text-only version of this website that loads faster and uses less data."
 msgstr ""
 
-#: includes/lite-site/class-lite-site.php:167
+#: includes/lite-site/class-lite-site.php:172
 msgid "It’s designed to allow your readers to still be able to access your content despite connectivity issues, poor network coverage, or in the event of natural disasters and emergencies."
 msgstr ""
 
-#: includes/lite-site/class-lite-site.php:192
+#: includes/lite-site/class-lite-site.php:197
 msgid "Enable lite site feature"
 msgstr ""
 
 #. translators: %s: is the site URL without a trailing slash, ex: https://example.com
-#: includes/lite-site/class-lite-site.php:214
+#: includes/lite-site/class-lite-site.php:219
 #, php-format
 msgid "The URL base for the lite site (e.g. \"text\" for %s/text)"
 msgstr ""
 
-#: includes/lite-site/class-lite-site.php:267
+#: includes/lite-site/class-lite-site.php:272
 msgid "Select categories to include."
 msgstr ""
 
-#: includes/lite-site/class-lite-site.php:285
+#: includes/lite-site/class-lite-site.php:290
 msgid "HTML to be displayed in the footer of lite site pages."
 msgstr ""
 
 #. translators: %1$s: a comma separated list of authors names with links and, after the "and" %2$s: one last author link
-#: includes/lite-site/class-lite-site.php:432
+#: includes/lite-site/class-lite-site.php:437
 #, php-format
 msgid "%1$s and %2$s"
 msgstr ""
 
 #. translators: %s: author name(s)
-#: includes/lite-site/class-lite-site.php:450
+#: includes/lite-site/class-lite-site.php:455
 #, php-format
 msgid "By %s"
 msgstr ""
