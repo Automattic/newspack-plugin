@@ -203,6 +203,9 @@ class WooCommerce_Gateway_Stripe {
 		if ( '_stripe_customer_id' !== $meta_key ) {
 			return $check;
 		}
+		// Use wcs_is_subscription() rather than get_post_type() here: on HPOS sites with
+		// data sync disabled, subscriptions are not stored in wp_posts and get_post_type()
+		// would return false, silently bypassing this guard.
 		if ( ! function_exists( 'wcs_is_subscription' ) || ! function_exists( 'wcs_get_subscription' ) || ! \wcs_is_subscription( $object_id ) ) {
 			return $check;
 		}
@@ -230,6 +233,8 @@ class WooCommerce_Gateway_Stripe {
 	 * @param \WC_Subscription $subscription The subscription about to be saved.
 	 */
 	public static function maybe_strip_stripe_customer_id_before_save( $subscription ) {
+		// An empty payment method is treated as non-Stripe: str_starts_with('', 'stripe') === false.
+		// This is intentional — a subscription with no payment method set should not carry Stripe metadata.
 		if ( str_starts_with( $subscription->get_payment_method(), 'stripe' ) ) {
 			return;
 		}
@@ -264,6 +269,9 @@ class WooCommerce_Gateway_Stripe {
 		}
 
 		// Also clean the subscription (root source of the stale value).
+		// Note: $subscription->save() re-fires woocommerce_before_subscription_object_save, which
+		// calls maybe_strip_stripe_customer_id_before_save() again — this is intentional and
+		// idempotent (delete_meta_data on an already-absent key is a no-op).
 		if ( $subscription->get_meta( '_stripe_customer_id' ) ) {
 			$subscription->delete_meta_data( '_stripe_customer_id' );
 			$subscription->save();

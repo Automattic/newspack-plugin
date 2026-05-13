@@ -384,7 +384,8 @@ function wcs_is_subscription( $order ) {
 		} elseif ( isset( $order->id ) ) {
 			$id = (int) $order->id;
 		} else {
-			$id = 0;
+			// Object has no recognisable ID property — treat as not-a-subscription.
+			return false;
 		}
 	} else {
 		$id = (int) $order;

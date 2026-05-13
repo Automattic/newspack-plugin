@@ -27,7 +27,7 @@ class Newspack_Test_WooCommerce_Gateway_Stripe extends WP_UnitTestCase {
 	}
 
 	// -------------------------------------------------------------------------
-	// Part 2: woocommerce_before_subscription_object_save guard
+	// Part 1: woocommerce_before_subscription_object_save guard
 	// -------------------------------------------------------------------------
 
 	/**
@@ -94,7 +94,7 @@ class Newspack_Test_WooCommerce_Gateway_Stripe extends WP_UnitTestCase {
 	}
 
 	// -------------------------------------------------------------------------
-	// Part 1: update_post_metadata filter guard
+	// Part 2: update_post_metadata filter guard
 	// -------------------------------------------------------------------------
 
 	/**
@@ -185,6 +185,50 @@ class Newspack_Test_WooCommerce_Gateway_Stripe extends WP_UnitTestCase {
 		$this->assertNull(
 			$result,
 			'Filter should return null for meta keys other than _stripe_customer_id.'
+		);
+	}
+
+	/**
+	 * The post meta filter should pass through when $check is already non-null
+	 * (a previous filter already short-circuited the write).
+	 */
+	public function test_post_meta_filter_respects_earlier_short_circuit() {
+		$subscription = wcs_create_subscription( [ 'payment_method' => 'woocommerce_payments' ] );
+
+		// Simulate a previous filter returning true (blocking) or false (allowing with override).
+		foreach ( [ true, false ] as $prior_check ) {
+			$result = WooCommerce_Gateway_Stripe::maybe_block_stripe_customer_id_post_meta_update(
+				$prior_check,
+				$subscription->get_id(),
+				'_stripe_customer_id'
+			);
+
+			$this->assertSame(
+				$prior_check,
+				$result,
+				'Filter should pass through a non-null $check unchanged, regardless of subscription type.'
+			);
+		}
+	}
+
+	/**
+	 * Subscriptions with an empty payment method should be treated as non-Stripe
+	 * and have _stripe_customer_id stripped.
+	 */
+	public function test_stripe_customer_id_stripped_for_empty_payment_method() {
+		$subscription = wcs_create_subscription(
+			[
+				'payment_method' => '',
+				'meta'           => [ '_stripe_customer_id' => 'cus_orphan' ],
+			]
+		);
+
+		WooCommerce_Gateway_Stripe::maybe_strip_stripe_customer_id_before_save( $subscription );
+
+		$this->assertSame(
+			'',
+			$subscription->get_meta( '_stripe_customer_id' ),
+			'_stripe_customer_id should be stripped when payment_method is empty (treated as non-Stripe).'
 		);
 	}
 
