@@ -2487,4 +2487,36 @@ class Test_Group_Subscriptions extends \WP_UnitTestCase {
 			remove_filter( 'newspack_group_subscription_invite_expiration_time', $callback );
 		}
 	}
+
+	/**
+	 * Negative expiration times are coerced to the "1 minute" floor.
+	 */
+	public function test_get_expiration_label_floors_negative_values() {
+		$callback = function () {
+			return -100;
+		};
+		add_filter( 'newspack_group_subscription_invite_expiration_time', $callback );
+
+		try {
+			$this->assertSame( '1 minute', Group_Subscription_Invite::get_expiration_label() );
+		} finally {
+			remove_filter( 'newspack_group_subscription_invite_expiration_time', $callback );
+		}
+	}
+
+	/**
+	 * Large counts are formatted via number_format_i18n() (thousands separator under the active locale).
+	 */
+	public function test_get_expiration_label_uses_number_format_i18n() {
+		$callback = function () {
+			return 1000 * DAY_IN_SECONDS;
+		};
+		add_filter( 'newspack_group_subscription_invite_expiration_time', $callback );
+
+		try {
+			$this->assertSame( '1,000 days', Group_Subscription_Invite::get_expiration_label() );
+		} finally {
+			remove_filter( 'newspack_group_subscription_invite_expiration_time', $callback );
+		}
+	}
 }
