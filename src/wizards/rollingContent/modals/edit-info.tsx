@@ -13,18 +13,15 @@ import { Button, Modal } from '@wordpress/components';
 
 type ItemType = 'rolling-content' | 'entry';
 
-const ITEM_NOUN: Record< ItemType, string > = {
-	'rolling-content': __( 'rolling content', 'newspack-plugin' ),
-	entry: __( 'entry', 'newspack-plugin' ),
-};
-
 export default function EditInfoModal( { itemType, title, onClose }: { itemType: ItemType; title: string; onClose: () => void } ) {
+	const itemNoun = itemType === 'entry' ? __( 'entry', 'newspack-plugin' ) : __( 'rolling content', 'newspack-plugin' );
+
 	return (
 		<Modal
 			title={ sprintf(
 				/* translators: %s: item type, e.g. "rolling content" or "entry". */
 				__( 'Edit %s', 'newspack-plugin' ),
-				ITEM_NOUN[ itemType ]
+				itemNoun
 			) }
 			onRequestClose={ onClose }
 			size="medium"

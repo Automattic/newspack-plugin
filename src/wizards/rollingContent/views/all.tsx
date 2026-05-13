@@ -129,6 +129,7 @@ export default function All() {
 				id: 'edit',
 				label: __( 'Edit', 'newspack-plugin' ),
 				isPrimary: true,
+				supportsBulk: false,
 				RenderModal: ( { items, closeModal } ) => (
 					<EditInfoModal itemType="rolling-content" title={ items[ 0 ].title } onClose={ closeModal } />
 				),
@@ -137,6 +138,7 @@ export default function All() {
 				id: 'delete',
 				label: __( 'Delete', 'newspack-plugin' ),
 				isDestructive: true,
+				supportsBulk: false,
 				RenderModal: ( { items, closeModal } ) => (
 					<DeleteConfirmModal
 						itemType="rolling-content"

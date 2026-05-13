@@ -13,11 +13,6 @@ import { Button, Modal } from '@wordpress/components';
 
 type ItemType = 'rolling-content' | 'entry';
 
-const ITEM_NOUN: Record< ItemType, string > = {
-	'rolling-content': __( 'rolling content', 'newspack-plugin' ),
-	entry: __( 'entry', 'newspack-plugin' ),
-};
-
 export default function DeleteConfirmModal( {
 	itemType,
 	title,
@@ -29,6 +24,8 @@ export default function DeleteConfirmModal( {
 	onConfirm: () => void;
 	onClose: () => void;
 } ) {
+	const itemNoun = itemType === 'entry' ? __( 'entry', 'newspack-plugin' ) : __( 'rolling content', 'newspack-plugin' );
+
 	return (
 		<Modal
 			title={ sprintf(
@@ -43,7 +40,7 @@ export default function DeleteConfirmModal( {
 				{ sprintf(
 					/* translators: %s: item type. */
 					__( 'This will permanently delete this %s. This action cannot be undone.', 'newspack-plugin' ),
-					ITEM_NOUN[ itemType ]
+					itemNoun
 				) }
 			</p>
 			<div style={ { display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 16 } }>
