@@ -525,5 +525,7 @@ class Lite_Site {
 	}
 }
 
-// Initialize the class.
-Lite_Site::init();
+// Initialize the class unless the Newspack Lite Site plugin is active.
+if ( ! defined( 'NEWSPACK_LITE_SITE_PLUGIN_FILE' ) ) {
+	Lite_Site::init();
+}
