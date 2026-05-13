@@ -279,6 +279,29 @@ class Test_Content_Inserter extends \WP_UnitTestCase {
 	}
 
 	/**
+	 * Test insert_after_nth_block preserves inner blocks (e.g., list items).
+	 *
+	 * Regression: a `core/list` block stores its `<li>` items as `core/list-item`
+	 * inner blocks, not in `innerHTML`. The same applies to columns, groups,
+	 * buttons, etc. Reassembling parsed blocks must use `render_block()` so
+	 * inner-block content (and dynamic blocks) are emitted.
+	 *
+	 * @covers \Newspack\Collections\Content_Inserter::insert_after_nth_block
+	 */
+	public function test_insert_after_nth_block_preserves_inner_blocks() {
+		$insert_html = '<div>Inserted content</div>';
+
+		$block_content = "<!-- wp:paragraph -->\n<p>First paragraph.</p>\n<!-- /wp:paragraph -->\n\n"
+			. "<!-- wp:paragraph -->\n<p>Second paragraph.</p>\n<!-- /wp:paragraph -->\n\n"
+			. "<!-- wp:list -->\n<ul class=\"wp-block-list\"><!-- wp:list-item -->\n<li>Item one</li>\n<!-- /wp:list-item -->\n\n<!-- wp:list-item -->\n<li>Item two</li>\n<!-- /wp:list-item --></ul>\n<!-- /wp:list -->";
+
+		$result = Content_Inserter::insert_after_nth_block( $block_content, $insert_html, 2 );
+
+		$this->assertStringContainsString( '<li>Item one</li>', $result, 'First list item should be preserved.' );
+		$this->assertStringContainsString( '<li>Item two</li>', $result, 'Second list item should be preserved.' );
+	}
+
+	/**
 	 * Test check_if_post_is_in_collection excludes draft collections.
 	 *
 	 * @covers \Newspack\Collections\Content_Inserter::check_if_post_is_in_collection

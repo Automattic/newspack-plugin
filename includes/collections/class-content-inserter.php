@@ -264,7 +264,8 @@ class Content_Inserter {
 		// Insert after the nth block.
 		$rendered_content = '';
 		foreach ( $parsed_blocks as $index => $block ) {
-			$rendered_content .= $block['innerHTML'];
+			// Use render_block() so inner blocks (e.g. core/list-item children of core/list) and dynamic blocks are emitted.
+			$rendered_content .= render_block( $block );
 
 			// Insert after the nth block (index is 0-based).
 			if ( $index === $nth_block - 1 ) {
