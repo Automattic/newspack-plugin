@@ -122,7 +122,6 @@ export default function All() {
 				id: 'manage-entries',
 				label: __( 'Manage Entries', 'newspack-plugin' ),
 				supportsBulk: false,
-				hideModalHeader: true,
 				modalSize: 'fill',
 				RenderModal: ( { items, closeModal } ) => {
 					const parent = items[ 0 ];
