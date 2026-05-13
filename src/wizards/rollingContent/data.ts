@@ -96,7 +96,7 @@ function makeEntries( parentId: number, count: number ): Entry[] {
 		const id = parentId * 1000 + i;
 		const status: EntryStatus = entryStatusFor( id );
 
-		const tagCount = 1 + ( ( id * 3 ) % 3 );
+		const tagCount = 1 + ( id % 3 );
 		const tags: string[] = [];
 		for ( let t = 0; t < tagCount; t++ ) {
 			tags.push( TAGS[ ( id * 7 + t * 11 ) % TAGS.length ] );
@@ -104,7 +104,7 @@ function makeEntries( parentId: number, count: number ): Entry[] {
 
 		entries.push( {
 			id,
-			title: ENTRY_TITLES[ ( id * 5 ) % ENTRY_TITLES.length ],
+			title: ENTRY_TITLES[ ( id * 7 ) % ENTRY_TITLES.length ],
 			date: makeDate( id ),
 			author: AUTHORS[ id % AUTHORS.length ],
 			featuredImage: `https://picsum.photos/seed/entry-${ id }/200/120`,
@@ -118,7 +118,7 @@ function makeEntries( parentId: number, count: number ): Entry[] {
 export const ROLLING_CONTENTS: RollingContent[] = ROLLING_TITLES.map( ( title, idx ) => {
 	const id = idx + 1;
 	const status: RollingContentStatus = rollingStatusFor( idx );
-	const entryCount = 5 + ( ( id * 7 ) % 21 );
+	const entryCount = 5 + ( ( id * 11 ) % 21 );
 	return {
 		id,
 		title,
