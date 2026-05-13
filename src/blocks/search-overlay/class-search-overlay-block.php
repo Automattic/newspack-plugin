@@ -73,9 +73,7 @@ final class Search_Overlay_Block {
 		// `wp_unique_id()` returns a per-request counter ("1", "2", ...); prefix once for a clean DOM id.
 		$panel_id = 'newspack-search-overlay-panel-' . \wp_unique_id();
 
-		ob_start();
-		echo self::render_trigger_button( $trigger_text, $panel_id, $is_icon_only, $is_text_only ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-		return ob_get_clean();
+		return self::render_trigger_button( $trigger_text, $panel_id, $is_icon_only, $is_text_only );
 	}
 
 	/**
