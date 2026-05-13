@@ -11,7 +11,7 @@
  */
 import { __, sprintf } from '@wordpress/i18n';
 import { useState, useMemo } from '@wordpress/element';
-import { Button } from '@wordpress/components';
+import { Button, Modal } from '@wordpress/components';
 import { filterSortAndPaginate } from '@wordpress/dataviews';
 import type { Action, Field, View } from '@wordpress/dataviews';
 import { published, drafts, scheduled } from '@wordpress/icons';
@@ -54,7 +54,6 @@ export default function ManageEntriesModal( {
 	parent,
 	entries,
 	onEntriesChange,
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	onClose,
 }: {
 	parent: RollingContent;
@@ -166,7 +165,15 @@ export default function ManageEntriesModal( {
 	const { data: processedData, paginationInfo } = useMemo( () => filterSortAndPaginate( entries, view, fields ), [ entries, view, fields ] );
 
 	return (
-		<>
+		<Modal
+			title={ sprintf(
+				/* translators: %s: parent rolling content title. */
+				__( 'Manage entries — %s', 'newspack-plugin' ),
+				parent.title
+			) }
+			isFullScreen
+			onRequestClose={ onClose }
+		>
 			<div
 				style={ {
 					display: 'flex',
@@ -200,6 +207,6 @@ export default function ManageEntriesModal( {
 			/>
 
 			{ isAddingEntry && <AddEntryInfoModal parentTitle={ parent.title } onClose={ () => setIsAddingEntry( false ) } /> }
-		</>
+		</Modal>
 	);
 }

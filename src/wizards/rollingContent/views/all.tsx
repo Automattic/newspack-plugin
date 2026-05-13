@@ -6,8 +6,9 @@
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { useState, useMemo } from '@wordpress/element';
+import { useState, useMemo, useEffect } from '@wordpress/element';
 import { Button } from '@wordpress/components';
+import { useDispatch } from '@wordpress/data';
 import { filterSortAndPaginate } from '@wordpress/dataviews';
 import type { Action, Field, View } from '@wordpress/dataviews';
 import { published, scheduled, archive } from '@wordpress/icons';
@@ -15,7 +16,8 @@ import { published, scheduled, archive } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
-import { DataViews } from '../../../../packages/components/src';
+import { DataViews, Wizard } from '../../../../packages/components/src';
+import { WIZARD_STORE_NAMESPACE } from '../../../../packages/components/src/wizard/store';
 import { ROLLING_CONTENTS } from '../data';
 import StatusPill from '../components/status-pill';
 import EditInfoModal from '../modals/edit-info';
@@ -41,16 +43,32 @@ const DEFAULT_VIEW: View = {
 	perPage: 20,
 	sort: { field: 'date', direction: 'desc' },
 	search: '',
-	fields: [ 'date', 'status' ],
+	fields: [ 'date', 'entries_count', 'last_updated', 'status', 'inline_actions' ],
 	filters: [],
 	layout: {},
 	titleField: 'title',
 	mediaField: 'featured_image',
 };
 
-export default function All() {
+function AllRollingContent() {
+	const { setHeaderData } = useDispatch( WIZARD_STORE_NAMESPACE );
 	const [ data, setData ] = useState< RollingContent[] >( ROLLING_CONTENTS );
 	const [ view, setView ] = useState< View >( DEFAULT_VIEW );
+	const [ managingEntriesFor, setManagingEntriesFor ] = useState< RollingContent | null >( null );
+	const [ addingEntryFor, setAddingEntryFor ] = useState< RollingContent | null >( null );
+
+	useEffect( () => {
+		setHeaderData( {
+			sectionName: __( 'Rolling Content', 'newspack-plugin' ),
+			actions: [
+				{
+					type: 'primary',
+					label: __( 'Add Rolling Content', 'newspack-plugin' ),
+					href: 'admin.php?page=newspack-rolling-content-add',
+				},
+			],
+		} );
+	}, [ setHeaderData ] );
 
 	const fields: Field< RollingContent >[] = useMemo(
 		() => [
@@ -80,6 +98,33 @@ export default function All() {
 					} ),
 			},
 			{
+				id: 'entries_count',
+				label: __( 'Entries', 'newspack-plugin' ),
+				getValue: ( { item } ) => item.entries.length,
+				render: ( { item } ) => item.entries.length,
+			},
+			{
+				id: 'last_updated',
+				label: __( 'Last updated', 'newspack-plugin' ),
+				getValue: ( { item } ) => {
+					if ( item.entries.length === 0 ) {
+						return '';
+					}
+					return Math.max( ...item.entries.map( e => new Date( e.date ).getTime() ) );
+				},
+				render: ( { item } ) => {
+					if ( item.entries.length === 0 ) {
+						return '—';
+					}
+					const ms = Math.max( ...item.entries.map( e => new Date( e.date ).getTime() ) );
+					return new Date( ms ).toLocaleDateString( undefined, {
+						year: 'numeric',
+						month: 'short',
+						day: 'numeric',
+					} );
+				},
+			},
+			{
 				id: 'status',
 				label: __( 'Status', 'newspack-plugin' ),
 				getValue: ( { item } ) => item.status,
@@ -88,6 +133,22 @@ export default function All() {
 					value,
 					label: STATUS_LABELS[ value ],
 				} ) ),
+			},
+			{
+				id: 'inline_actions',
+				label: '',
+				enableSorting: false,
+				enableHiding: false,
+				render: ( { item } ) => (
+					<div style={ { display: 'flex', gap: 4 } }>
+						<Button variant="secondary" size="small" onClick={ () => setManagingEntriesFor( item ) }>
+							{ __( 'Manage', 'newspack-plugin' ) }
+						</Button>
+						<Button variant="secondary" size="small" onClick={ () => setAddingEntryFor( item ) }>
+							{ __( 'Add', 'newspack-plugin' ) }
+						</Button>
+					</div>
+				),
 			},
 		],
 		[]
@@ -102,33 +163,6 @@ export default function All() {
 				supportsBulk: false,
 				RenderModal: ( { items, closeModal }: { items: RollingContent[]; closeModal: () => void } ) => (
 					<EditInfoModal itemType="rolling-content" title={ items[ 0 ].title } onClose={ closeModal } />
-				),
-			},
-			{
-				id: 'manage-entries',
-				label: __( 'Manage Entries', 'newspack-plugin' ),
-				supportsBulk: false,
-				modalSize: 'fill',
-				RenderModal: ( { items, closeModal }: { items: RollingContent[]; closeModal: () => void } ) => {
-					const parent = items[ 0 ];
-					return (
-						<ManageEntriesModal
-							parent={ parent }
-							entries={ parent.entries }
-							onEntriesChange={ nextEntries =>
-								setData( prev => prev.map( r => ( r.id === parent.id ? { ...r, entries: nextEntries } : r ) ) )
-							}
-							onClose={ closeModal }
-						/>
-					);
-				},
-			},
-			{
-				id: 'add-entry',
-				label: __( 'Add New Entry', 'newspack-plugin' ),
-				supportsBulk: false,
-				RenderModal: ( { items, closeModal }: { items: RollingContent[]; closeModal: () => void } ) => (
-					<AddEntryInfoModal parentTitle={ items[ 0 ].title } onClose={ closeModal } />
 				),
 			},
 			{
@@ -153,19 +187,6 @@ export default function All() {
 
 	return (
 		<>
-			<div
-				style={ {
-					display: 'flex',
-					alignItems: 'center',
-					justifyContent: 'space-between',
-					marginBottom: 16,
-				} }
-			>
-				<h2 style={ { margin: 0 } }>{ __( 'Rolling Content', 'newspack-plugin' ) }</h2>
-				<Button variant="primary" href="admin.php?page=newspack-rolling-content-add">
-					{ __( 'Add Rolling Content', 'newspack-plugin' ) }
-				</Button>
-			</div>
 			<DataViews
 				data={ processedData }
 				fields={ fields }
@@ -177,6 +198,26 @@ export default function All() {
 				getItemId={ ( item: RollingContent ) => String( item.id ) }
 				search
 			/>
+			{ managingEntriesFor && (
+				<ManageEntriesModal
+					parent={ managingEntriesFor }
+					entries={ managingEntriesFor.entries }
+					onEntriesChange={ nextEntries =>
+						setData( prev => prev.map( r => ( r.id === managingEntriesFor.id ? { ...r, entries: nextEntries } : r ) ) )
+					}
+					onClose={ () => setManagingEntriesFor( null ) }
+				/>
+			) }
+			{ addingEntryFor && <AddEntryInfoModal parentTitle={ addingEntryFor.title } onClose={ () => setAddingEntryFor( null ) } /> }
 		</>
+	);
+}
+
+export default function All() {
+	return (
+		<Wizard
+			headerText={ __( 'Newspack / Rolling Content', 'newspack-plugin' ) }
+			sections={ [ { path: '/', render: () => <AllRollingContent /> } ] }
+		/>
 	);
 }

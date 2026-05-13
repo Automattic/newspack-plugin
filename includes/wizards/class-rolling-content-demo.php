@@ -79,29 +79,13 @@ class Rolling_Content_Demo extends Wizard {
 	/**
 	 * Register admin pages.
 	 *
-	 * Both pages are ALWAYS registered as hidden so direct URL navigation works.
-	 * When the user is on either page, a visible top-level menu with sub-items is
-	 * also registered so the demo's IA can be observed in the sidebar.
+	 * The visible top-level menu and its sub-items are only registered when the
+	 * user is actually on one of the demo pages. URL access still works because
+	 * `admin_menu` fires before WP validates the slug — `$_GET['page']` is set
+	 * by the time `is_wizard_page()` runs, the menu registers, and WP accepts
+	 * the page.
 	 */
 	public function add_page() {
-		// Always register both slugs as hidden so direct URL access works.
-		add_submenu_page(
-			'hidden',
-			$this->get_name(),
-			$this->get_name(),
-			$this->capability,
-			$this->slug,
-			[ $this, 'render_wizard' ]
-		);
-		add_submenu_page(
-			'hidden',
-			__( 'Add Rolling Content', 'newspack-plugin' ),
-			__( 'Add Rolling Content', 'newspack-plugin' ),
-			$this->capability,
-			self::SLUG_ADD,
-			[ $this, 'render_wizard' ]
-		);
-
 		if ( ! $this->is_wizard_page() ) {
 			return;
 		}
@@ -140,36 +124,27 @@ class Rolling_Content_Demo extends Wizard {
 	/**
 	 * Enqueue scripts and styles.
 	 *
-	 * The parent class's slug check is too strict (single slug). We replicate the
-	 * parts we need so both demo pages get the shared `newspack-wizards` chrome.
+	 * Delegate to the parent class so the standard wizard chrome (newspack_urls,
+	 * newspack_aux_data, newspack-wizards registration, etc.) gets set up.
+	 * The parent's enqueue function checks `$_GET['page'] === $this->slug` and
+	 * bails otherwise; for the SLUG_ADD page we temporarily spoof `page` so the
+	 * parent runs, then restore it.
 	 */
 	public function enqueue_scripts_and_styles() {
 		if ( ! $this->is_wizard_page() ) {
 			return;
 		}
 
-		Newspack::load_common_assets();
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- $_GET['page'] is only stored briefly and restored verbatim.
+		$original_page = isset( $_GET['page'] ) ? $_GET['page'] : null;
+		$_GET['page']  = $this->slug;
+		parent::enqueue_scripts_and_styles();
+		if ( null === $original_page ) {
+			unset( $_GET['page'] );
+		} else {
+			$_GET['page'] = $original_page;
+		}
 
-		// Data carrier script (no source).
-		wp_register_script( 'newspack_data', '', [], '1.0', false );
-		wp_localize_script(
-			'newspack_data',
-			'newspack_urls',
-			[
-				'public_path' => Newspack::plugin_url() . '/dist/',
-				'site'        => get_site_url(),
-			]
-		);
-		wp_enqueue_script( 'newspack_data' );
-
-		// Shared wizards bundle (contains the components map our routes are added to).
-		wp_register_script(
-			'newspack-wizards',
-			Newspack::plugin_url() . '/dist/wizards.js',
-			$this->get_script_dependencies(),
-			NEWSPACK_PLUGIN_VERSION,
-			true
-		);
 		wp_enqueue_script( 'newspack-wizards' );
 	}
 }

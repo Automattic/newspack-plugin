@@ -6,38 +6,50 @@
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { Button } from '@wordpress/components';
+import { useEffect } from '@wordpress/element';
+import { useDispatch } from '@wordpress/data';
 
 /**
  * Internal dependencies
  */
+import { Wizard } from '../../../../packages/components/src';
+import { WIZARD_STORE_NAMESPACE } from '../../../../packages/components/src/wizard/store';
 import WizardSection from '../../wizards-section';
+
+function AddRollingContent() {
+	const { setHeaderData } = useDispatch( WIZARD_STORE_NAMESPACE );
+
+	useEffect( () => {
+		setHeaderData( {
+			sectionName: __( 'Add Rolling Content', 'newspack-plugin' ),
+			actions: [
+				{
+					type: 'secondary',
+					label: __( 'Back to All Rolling Content', 'newspack-plugin' ),
+					href: 'admin.php?page=newspack-rolling-content',
+				},
+			],
+		} );
+	}, [ setHeaderData ] );
+
+	return (
+		<WizardSection
+			title={ __( 'Add Rolling Content', 'newspack-plugin' ) }
+			description={ __(
+				'This is where the block editor would open to create a new Rolling Content. For this demo, no editor is wired up.',
+				'newspack-plugin'
+			) }
+		>
+			<></>
+		</WizardSection>
+	);
+}
 
 export default function Add() {
 	return (
-		<>
-			<div
-				style={ {
-					display: 'flex',
-					alignItems: 'center',
-					justifyContent: 'space-between',
-					marginBottom: 16,
-				} }
-			>
-				<h2 style={ { margin: 0 } }>{ __( 'Add Rolling Content', 'newspack-plugin' ) }</h2>
-				<Button variant="secondary" href="admin.php?page=newspack-rolling-content">
-					{ __( 'Back to All Rolling Content', 'newspack-plugin' ) }
-				</Button>
-			</div>
-			<WizardSection
-				title={ __( 'Add Rolling Content', 'newspack-plugin' ) }
-				description={ __(
-					'This is where the block editor would open to create a new Rolling Content. For this demo, no editor is wired up.',
-					'newspack-plugin'
-				) }
-			>
-				<></>
-			</WizardSection>
-		</>
+		<Wizard
+			headerText={ __( 'Newspack / Rolling Content', 'newspack-plugin' ) }
+			sections={ [ { path: '/', render: () => <AddRollingContent /> } ] }
+		/>
 	);
 }
