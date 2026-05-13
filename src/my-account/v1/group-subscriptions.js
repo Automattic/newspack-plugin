@@ -88,9 +88,13 @@ domReady( function () {
 				el.classList.remove( 'hidden' );
 				if ( wasHidden ) {
 					el.classList.add( 'newspack-my-account__group_subscription__entering' );
-					el.addEventListener( 'animationend', () => el.classList.remove( 'newspack-my-account__group_subscription__entering' ), {
-						once: true,
-					} );
+					if ( parseFloat( getComputedStyle( el ).animationDuration ) > 0 ) {
+						el.addEventListener( 'animationend', () => el.classList.remove( 'newspack-my-account__group_subscription__entering' ), {
+							once: true,
+						} );
+					} else {
+						el.classList.remove( 'newspack-my-account__group_subscription__entering' );
+					}
 				}
 			} else {
 				el.classList.add( 'hidden' );
@@ -108,8 +112,71 @@ domReady( function () {
 			await navigator.clipboard.writeText( text );
 			return true;
 		} catch ( e ) {
-			return false;
+			// Legacy fallback for insecure contexts / blocked clipboard permission.
+			try {
+				const textarea = document.createElement( 'textarea' );
+				textarea.value = text;
+				textarea.setAttribute( 'readonly', '' );
+				textarea.style.position = 'fixed';
+				textarea.style.opacity = '0';
+				document.body.appendChild( textarea );
+				textarea.select();
+				const ok = document.execCommand( 'copy' );
+				document.body.removeChild( textarea );
+				return ok;
+			} catch ( e2 ) {
+				return false;
+			}
 		}
+	};
+
+	const showCopyFailureNotice = url => {
+		let wrapper = document.querySelector( '.newspack-ui' );
+		if ( ! wrapper ) {
+			wrapper = document.createElement( 'div' );
+			wrapper.classList.add( 'newspack-ui' );
+			document.body.appendChild( wrapper );
+		}
+		let snackbar = wrapper.querySelector( '.newspack-ui__snackbar--top-right' );
+		if ( ! snackbar ) {
+			snackbar = document.createElement( 'div' );
+			snackbar.classList.add( 'newspack-ui__snackbar', 'newspack-ui__snackbar--top-right' );
+			wrapper.appendChild( snackbar );
+		}
+		const item = document.createElement( 'div' );
+		item.classList.add( 'newspack-ui__snackbar__item', 'newspack-ui__snackbar__item--error' );
+		item.setAttribute( 'data-autohide', 'false' );
+
+		const itemContent = document.createElement( 'div' );
+		itemContent.classList.add( 'newspack-ui__snackbar__content' );
+
+		const msg = document.createElement( 'div' );
+		msg.textContent =
+			newspackMyAccountV1?.labels?.invite_link_copy_failed || "Couldn't copy the invite link to your clipboard. Copy it manually:";
+		itemContent.appendChild( msg );
+
+		const linkField = document.createElement( 'input' );
+		linkField.type = 'text';
+		linkField.readOnly = true;
+		linkField.value = url;
+		linkField.classList.add( 'newspack-my-account__group_subscription__invite-link__manual-copy' );
+		linkField.addEventListener( 'focus', () => linkField.select() );
+		itemContent.appendChild( linkField );
+
+		const close = document.createElement( 'button' );
+		close.type = 'button';
+		close.classList.add( 'newspack-ui__button', 'newspack-ui__button--ghost', 'newspack-ui__button--small' );
+		close.textContent = newspackMyAccountV1?.labels?.dismiss || 'Dismiss';
+		close.addEventListener( 'click', () => {
+			item.classList.remove( 'active' );
+			setTimeout( () => item.remove(), 250 );
+		} );
+		itemContent.appendChild( close );
+
+		item.appendChild( itemContent );
+		snackbar.appendChild( item );
+		requestAnimationFrame( () => item.classList.add( 'active' ) );
+		linkField.focus();
 	};
 	// Minimum loading duration so the spinner reads as "system thinking" even when the API is instant.
 	const MIN_LOADING_MS = 500;
@@ -143,14 +210,17 @@ domReady( function () {
 				showSnackbar( message, 'error' );
 				return;
 			}
+			const isRegenerate = !! content.getAttribute( 'data-invite-link' );
+			content.setAttribute( 'data-invite-link', data.url );
+			afterInviteLink( true );
 			if ( await copyToClipboard( data.url ) ) {
-				const message = !! content.getAttribute( 'data-invite-link' )
+				const message = isRegenerate
 					? newspackMyAccountV1?.labels?.invite_link_regenerated || 'New invite link copied. The old one no longer works.'
 					: newspackMyAccountV1?.labels?.invite_link_copied || 'Invite link copied.';
 				showSnackbar( message );
+			} else {
+				showCopyFailureNotice( data.url );
 			}
-			content.setAttribute( 'data-invite-link', data.url );
-			afterInviteLink( true );
 		} catch ( error ) {
 			await waitForMinLoading( loadingStart );
 			showSnackbar( errorText, 'error' );
@@ -205,6 +275,8 @@ domReady( function () {
 			if ( inviteLink ) {
 				if ( await copyToClipboard( inviteLink ) ) {
 					showSnackbar( newspackMyAccountV1?.labels?.invite_link_copied || 'Invite link copied.' );
+				} else {
+					showCopyFailureNotice( inviteLink );
 				}
 			} else {
 				generateLink( e );
