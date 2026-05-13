@@ -17,6 +17,8 @@ import type { Action, Field, View } from '@wordpress/dataviews';
 import { DataViews } from '../../../../packages/components/src';
 import { WIZARD_STORE_NAMESPACE } from '../../../../packages/components/src/wizard/store';
 import { ROLLING_CONTENTS } from '../data';
+import EditInfoModal from '../modals/edit-info';
+import DeleteConfirmModal from '../modals/delete-confirm';
 
 const STATUS_LABELS: Record< RollingContentStatus, string > = {
 	active: __( 'Active', 'newspack-plugin' ),
@@ -64,7 +66,6 @@ const DEFAULT_VIEW: View = {
 
 export default function All() {
 	const { setHeaderData } = useDispatch( WIZARD_STORE_NAMESPACE );
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const [ data, setData ] = useState< RollingContent[] >( ROLLING_CONTENTS );
 	const [ view, setView ] = useState< View >( DEFAULT_VIEW );
 
@@ -122,7 +123,32 @@ export default function All() {
 		[]
 	);
 
-	const actions: Action< RollingContent >[] = useMemo( () => [], [] );
+	const actions: Action< RollingContent >[] = useMemo(
+		() => [
+			{
+				id: 'edit',
+				label: __( 'Edit', 'newspack-plugin' ),
+				isPrimary: true,
+				RenderModal: ( { items, closeModal } ) => (
+					<EditInfoModal itemType="rolling-content" title={ items[ 0 ].title } onClose={ closeModal } />
+				),
+			},
+			{
+				id: 'delete',
+				label: __( 'Delete', 'newspack-plugin' ),
+				isDestructive: true,
+				RenderModal: ( { items, closeModal } ) => (
+					<DeleteConfirmModal
+						itemType="rolling-content"
+						title={ items[ 0 ].title }
+						onConfirm={ () => setData( prev => prev.filter( r => r.id !== items[ 0 ].id ) ) }
+						onClose={ closeModal }
+					/>
+				),
+			},
+		],
+		[]
+	);
 
 	const { data: processedData, paginationInfo } = useMemo( () => filterSortAndPaginate( data, view, fields ), [ data, view, fields ] );
 
