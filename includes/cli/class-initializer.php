@@ -30,6 +30,7 @@ class Initializer {
 		include_once NEWSPACK_ABSPATH . 'includes/cli/class-optional-modules.php';
 		include_once NEWSPACK_ABSPATH . 'includes/cli/class-woocommerce-subscriptions.php';
 		include_once NEWSPACK_ABSPATH . 'includes/cli/class-ga4-dimensions.php';
+		include_once NEWSPACK_ABSPATH . 'includes/cli/class-teams-for-memberships-diagnostics.php';
 	}
 
 	/**
@@ -80,6 +81,15 @@ class Initializer {
 		WP_CLI::add_command( 'newspack backfill-non-editing-contributors', [ 'Newspack\CLI\Co_Authors_Plus', 'backfill_non_editing_contributor' ] );
 		WP_CLI::add_command( 'newspack migrate-expired-subscriptions', [ 'Newspack\CLI\WooCommerce_Subscriptions', 'migrate_expired_subscriptions' ] );
 		WP_CLI::add_command( 'newspack ga4-dimensions', 'Newspack\CLI\GA4_Dimensions' );
+
+		// Only register the Teams for Memberships diagnostics command on sites where the
+		// SkyVerge plugin is active. No reason to surface it in `wp help` otherwise.
+		if ( class_exists( 'WC_Memberships_For_Teams_Loader' ) ) {
+			WP_CLI::add_command(
+				'newspack teams-for-memberships diagnostics',
+				[ 'Newspack\CLI\Teams_For_Memberships_Diagnostics', 'diagnostics' ]
+			);
+		}
 
 		Optional_Modules::register_commands();
 	}
