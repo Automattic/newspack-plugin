@@ -42,6 +42,34 @@ class Teams_For_Memberships_Diagnostics {
 	private static $counts = [];
 
 	/**
+	 * Whether the user has explicitly suppressed the fix confirmation prompt.
+	 *
+	 * @var bool
+	 */
+	private static $skip_confirm = false;
+
+	/**
+	 * Whether the fix confirmation prompt still needs to fire on the next fix.
+	 *
+	 * @var bool
+	 */
+	private static $needs_fix_confirmation = false;
+
+	/**
+	 * Cached list of team posts. Invalidated after any destructive check.
+	 *
+	 * @var \WP_Post[]|null
+	 */
+	private static $all_teams_cache = null;
+
+	/**
+	 * Cached map of team_id => [ [ membership_id, sub_id ], ... ].
+	 *
+	 * @var array<int,array<int,array{membership_id:int,sub_id:?int}>>|null
+	 */
+	private static $team_memberships_map = null;
+
+	/**
 	 * Scans for WC Memberships for Teams data inconsistencies and (with --fix) repairs them.
 	 *
 	 * ## OPTIONS
@@ -70,16 +98,13 @@ class Teams_For_Memberships_Diagnostics {
 			WP_CLI::error( 'WC Memberships for Teams is not active on this site.' );
 		}
 
-		self::$fix     = isset( $assoc_args['fix'] );
-		self::$team_id = isset( $assoc_args['team-id'] ) ? (int) $assoc_args['team-id'] : null;
-		self::$counts  = [];
-
-		if ( self::$fix ) {
-			$skip_confirm = isset( $assoc_args['yes'] );
-			if ( ! $skip_confirm ) {
-				WP_CLI::confirm( 'Apply fixes to the database? This will modify team, membership, subscription and order-item records.' );
-			}
-		}
+		self::$fix                    = isset( $assoc_args['fix'] );
+		self::$team_id                = isset( $assoc_args['team-id'] ) ? (int) $assoc_args['team-id'] : null;
+		self::$counts                 = [];
+		self::$skip_confirm           = isset( $assoc_args['yes'] );
+		self::$needs_fix_confirmation = self::$fix;
+		self::$all_teams_cache        = null;
+		self::$team_memberships_map   = null;
 
 		$mode = self::$fix ? 'FIX' : 'read-only';
 		WP_CLI::line( sprintf( 'Running WC Memberships for Teams diagnostics (%s mode).', $mode ) );
@@ -88,11 +113,23 @@ class Teams_For_Memberships_Diagnostics {
 		}
 		WP_CLI::line( '' );
 
-		self::check_duplicate_teams();
-		self::check_teams_missing_subscription_id();
-		self::check_memberships_missing_subscription_id();
-		self::check_team_owner_subscription_mismatch();
-		self::check_subscription_line_items_missing_team_meta();
+		// Run each check in isolation so a failure in one does not hide results from the others
+		// or skip the summary footer.
+		foreach (
+			[
+				'check_duplicate_teams',
+				'check_teams_missing_subscription_id',
+				'check_memberships_missing_subscription_id',
+				'check_team_owner_subscription_mismatch',
+				'check_subscription_line_items_missing_team_meta',
+			] as $check
+		) {
+			try {
+				self::$check();
+			} catch ( \Throwable $e ) {
+				WP_CLI::warning( sprintf( '%s threw: %s', $check, $e->getMessage() ) );
+			}
+		}
 
 		$total = array_sum( self::$counts );
 		WP_CLI::line( '' );
@@ -120,7 +157,29 @@ class Teams_For_Memberships_Diagnostics {
 	 */
 	private static function check_duplicate_teams() {
 		WP_CLI::line( 'Check 1: duplicate teams (same title + same post_author)' );
-		$teams = self::get_all_teams();
+
+		if ( self::$team_id ) {
+			// A naive `get_all_teams()` here returns the single requested row and Check 1
+			// becomes a no-op. Widen the search to every team sharing the target team's
+			// title + author so `--team-id` can still surface a known-duplicated team.
+			$target = get_post( self::$team_id );
+			if ( ! $target || 'wc_memberships_team' !== $target->post_type ) {
+				WP_CLI::warning( '  SKIP: --team-id does not point to a wc_memberships_team post.' );
+				self::$counts['Duplicate teams'] = 0;
+				return;
+			}
+			$teams = get_posts(
+				[
+					'post_type'      => 'wc_memberships_team',
+					'post_status'    => 'any',
+					'posts_per_page' => -1,
+					'author'         => $target->post_author,
+					'title'          => $target->post_title,
+				]
+			);
+		} else {
+			$teams = self::get_all_teams();
+		}
 
 		$buckets = [];
 		foreach ( $teams as $team ) {
@@ -199,6 +258,7 @@ class Teams_For_Memberships_Diagnostics {
 			WP_CLI::warning( '    SKIP: wc_memberships_for_teams_get_team() unavailable.' );
 			return;
 		}
+		self::ensure_fix_confirmed();
 		$original_team  = wc_memberships_for_teams_get_team( $original->ID );
 		$duplicate_team = wc_memberships_for_teams_get_team( $duplicate->ID );
 		if ( ! $original_team || ! $duplicate_team ) {
@@ -227,19 +287,10 @@ class Teams_For_Memberships_Diagnostics {
 		}
 
 		// Point any remaining user_memberships still referencing the duplicate back at the original.
-		$orphaned_memberships = get_posts(
-			[
-				'post_type'      => 'wc_user_membership',
-				'post_status'    => 'any',
-				'meta_key'       => '_team_id', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
-				'meta_value'     => $duplicate->ID, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
-				'posts_per_page' => -1,
-				'fields'         => 'ids',
-			]
-		);
-		foreach ( $orphaned_memberships as $membership_id ) {
-			WP_CLI::line( sprintf( '    RELINK membership #%d to team #%d', $membership_id, $original->ID ) );
-			update_post_meta( $membership_id, '_team_id', $original->ID );
+		$map = self::get_team_memberships_map();
+		foreach ( $map[ $duplicate->ID ] ?? [] as $row ) {
+			WP_CLI::line( sprintf( '    RELINK membership #%d to team #%d', $row['membership_id'], $original->ID ) );
+			update_post_meta( $row['membership_id'], '_team_id', $original->ID );
 		}
 
 		// Bring over the newer _order_id if needed.
@@ -258,6 +309,9 @@ class Teams_For_Memberships_Diagnostics {
 		} else {
 			WP_CLI::warning( sprintf( '    KEEP duplicate team #%d: %d members could not be migrated.', $duplicate->ID, count( $remaining_members ) ) );
 		}
+
+		// Team list and membership->team map are stale after this fix; force a fresh read for later checks.
+		self::invalidate_caches();
 	}
 
 	/**
@@ -294,22 +348,15 @@ class Teams_For_Memberships_Diagnostics {
 	 * @return void
 	 */
 	private static function fix_team_missing_subscription_id( $team ) {
+		self::ensure_fix_confirmed();
 		// Candidate 1: any user_membership on this team that carries its own _subscription_id.
-		$memberships = get_posts(
-			[
-				'post_type'      => 'wc_user_membership',
-				'post_status'    => 'any',
-				'meta_key'       => '_team_id', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
-				'meta_value'     => $team->ID, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
-				'posts_per_page' => -1,
-				'fields'         => 'ids',
-			]
-		);
+		// Reads come from a single pre-built map so this loop is O(1) per team instead of
+		// doing an unbounded get_posts() + per-row get_post_meta() for each flagged team.
+		$map               = self::get_team_memberships_map();
 		$candidate_sub_ids = [];
-		foreach ( $memberships as $membership_id ) {
-			$sub_id = get_post_meta( $membership_id, '_subscription_id', true );
-			if ( ! empty( $sub_id ) ) {
-				$candidate_sub_ids[ (int) $sub_id ] = true;
+		foreach ( $map[ $team->ID ] ?? [] as $row ) {
+			if ( null !== $row['sub_id'] ) {
+				$candidate_sub_ids[ $row['sub_id'] ] = true;
 			}
 		}
 
@@ -387,6 +434,7 @@ class Teams_For_Memberships_Diagnostics {
 				)
 			);
 			if ( self::$fix ) {
+				self::ensure_fix_confirmed();
 				WP_CLI::line( sprintf( '    SET membership #%d _subscription_id = %s', $row->membership_id, $row->team_sub_id ) );
 				update_post_meta( (int) $row->membership_id, '_subscription_id', $row->team_sub_id );
 			}
@@ -506,6 +554,7 @@ class Teams_For_Memberships_Diagnostics {
 					)
 				);
 				if ( self::$fix ) {
+					self::ensure_fix_confirmed();
 					WP_CLI::line( sprintf( '    SET item #%d _wc_memberships_for_teams_team_id = %d', $item->get_id(), $team_id ) );
 					wc_update_order_item_meta( $item->get_id(), '_wc_memberships_for_teams_team_id', $team_id );
 					wc_update_order_item_meta( $item->get_id(), '_wc_memberships_for_teams_team_renewal', true );
@@ -522,13 +571,16 @@ class Teams_For_Memberships_Diagnostics {
 	/**
 	 * Load all team posts, optionally scoped to --team-id.
 	 *
-	 * Re-queried on every call because earlier checks can mutate or delete
-	 * teams in `--fix` mode (e.g. Check 1 removes duplicates), so a cached
-	 * list would go stale.
+	 * Cached per run – every check needs the same list, so re-querying five
+	 * times is wasteful. Destructive fixes that mutate the team set call
+	 * `invalidate_caches()` to force the next read to hit the DB.
 	 *
 	 * @return \WP_Post[]
 	 */
 	private static function get_all_teams() {
+		if ( null !== self::$all_teams_cache ) {
+			return self::$all_teams_cache;
+		}
 		$query_args = [
 			'post_type'      => 'wc_memberships_team',
 			'post_status'    => 'any',
@@ -537,6 +589,70 @@ class Teams_For_Memberships_Diagnostics {
 		if ( self::$team_id ) {
 			$query_args['p'] = self::$team_id;
 		}
-		return get_posts( $query_args );
+		self::$all_teams_cache = get_posts( $query_args );
+		return self::$all_teams_cache;
+	}
+
+	/**
+	 * Build (and cache) a map of team_id => list of memberships pointing at it.
+	 *
+	 * Single $wpdb query, run once per execution. Replaces N × unbounded
+	 * `get_posts( meta_query=_team_id )` lookups in Check 1's relink path and
+	 * Check 2's Candidate-1 lookup.
+	 *
+	 * @return array<int,array<int,array{membership_id:int,sub_id:?int}>>
+	 */
+	private static function get_team_memberships_map() {
+		if ( null !== self::$team_memberships_map ) {
+			return self::$team_memberships_map;
+		}
+		global $wpdb;
+		$rows = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+			"SELECT pm_team.meta_value AS team_id, p.ID AS membership_id, pm_sub.meta_value AS sub_id
+			FROM $wpdb->posts p
+			JOIN $wpdb->postmeta pm_team ON pm_team.post_id = p.ID AND pm_team.meta_key = '_team_id'
+			LEFT JOIN $wpdb->postmeta pm_sub ON pm_sub.post_id = p.ID AND pm_sub.meta_key = '_subscription_id'
+			WHERE p.post_type = 'wc_user_membership'"
+		);
+		$map = [];
+		foreach ( $rows as $row ) {
+			$team_id = (int) $row->team_id;
+			if ( ! isset( $map[ $team_id ] ) ) {
+				$map[ $team_id ] = [];
+			}
+			$map[ $team_id ][] = [
+				'membership_id' => (int) $row->membership_id,
+				'sub_id'        => empty( $row->sub_id ) ? null : (int) $row->sub_id,
+			];
+		}
+		self::$team_memberships_map = $map;
+		return $map;
+	}
+
+	/**
+	 * Drop cached lookups that may have been invalidated by a destructive fix.
+	 *
+	 * @return void
+	 */
+	private static function invalidate_caches() {
+		self::$all_teams_cache      = null;
+		self::$team_memberships_map = null;
+	}
+
+	/**
+	 * Prompt for confirmation the first time a fix is about to be applied.
+	 *
+	 * Deferred (rather than upfront in `diagnostics()`) so that a `--fix` run
+	 * which turns up zero issues exits cleanly without prompting.
+	 *
+	 * @return void
+	 */
+	private static function ensure_fix_confirmed() {
+		if ( ! self::$needs_fix_confirmation || self::$skip_confirm ) {
+			self::$needs_fix_confirmation = false;
+			return;
+		}
+		WP_CLI::confirm( 'Apply fixes to the database? This will modify team, membership, subscription and order-item records.' );
+		self::$needs_fix_confirmation = false;
 	}
 }
