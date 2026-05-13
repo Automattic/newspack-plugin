@@ -97,13 +97,17 @@ class Rolling_Content_Demo extends Wizard {
 			base64_encode( Newspack_UI_Icons::get_svg( 'collections' ) )
 		);
 
+		// Anchor the menu near the top of the sidebar (just after Dashboard at pos 2)
+		// so the demo is easy to find — `add_menu_page` defaults to appending, which
+		// pushes the demo below every other plugin's menu.
 		add_menu_page(
 			$this->get_name(),
 			$this->get_name(),
 			$this->capability,
 			$this->slug,
 			[ $this, 'render_wizard' ],
-			$icon
+			$icon,
+			'2.5'
 		);
 		add_submenu_page(
 			$this->slug,
