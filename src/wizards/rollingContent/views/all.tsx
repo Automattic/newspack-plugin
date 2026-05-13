@@ -17,6 +17,7 @@ import type { Action, Field, View } from '@wordpress/dataviews';
 import { DataViews } from '../../../../packages/components/src';
 import { WIZARD_STORE_NAMESPACE } from '../../../../packages/components/src/wizard/store';
 import { ROLLING_CONTENTS } from '../data';
+import StatusPill from '../components/status-pill';
 import EditInfoModal from '../modals/edit-info';
 import DeleteConfirmModal from '../modals/delete-confirm';
 import AddEntryInfoModal from '../modals/add-entry-info';
@@ -33,25 +34,6 @@ const STATUS_COLORS: Record< RollingContentStatus, { bg: string; fg: string } > 
 	archived: { bg: '#e5e7eb', fg: '#374151' },
 	scheduled: { bg: '#dbeafe', fg: '#1e40af' },
 };
-
-function StatusPill( { status }: { status: RollingContentStatus } ) {
-	const c = STATUS_COLORS[ status ];
-	return (
-		<span
-			style={ {
-				background: c.bg,
-				color: c.fg,
-				padding: '2px 10px',
-				borderRadius: 999,
-				fontSize: 12,
-				fontWeight: 500,
-				textTransform: 'capitalize',
-			} }
-		>
-			{ STATUS_LABELS[ status ] }
-		</span>
-	);
-}
 
 const DEFAULT_VIEW: View = {
 	type: 'table',
@@ -115,7 +97,7 @@ export default function All() {
 				id: 'status',
 				label: __( 'Status', 'newspack-plugin' ),
 				getValue: ( { item } ) => item.status,
-				render: ( { item } ) => <StatusPill status={ item.status } />,
+				render: ( { item } ) => <StatusPill status={ item.status } labels={ STATUS_LABELS } colors={ STATUS_COLORS } />,
 				elements: ( Object.keys( STATUS_LABELS ) as RollingContentStatus[] ).map( value => ( {
 					value,
 					label: STATUS_LABELS[ value ],
@@ -140,6 +122,8 @@ export default function All() {
 				id: 'manage-entries',
 				label: __( 'Manage Entries', 'newspack-plugin' ),
 				supportsBulk: false,
+				hideModalHeader: true,
+				modalSize: 'fill',
 				RenderModal: ( { items, closeModal } ) => {
 					const parent = items[ 0 ];
 					return (

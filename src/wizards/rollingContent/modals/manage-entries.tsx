@@ -19,6 +19,7 @@ import type { Action, Field, View } from '@wordpress/dataviews';
  * Internal dependencies
  */
 import { DataViews } from '../../../../packages/components/src';
+import StatusPill from '../components/status-pill';
 import EditInfoModal from './edit-info';
 import DeleteConfirmModal from './delete-confirm';
 import AddEntryInfoModal from './add-entry-info';
@@ -34,24 +35,6 @@ const STATUS_COLORS: Record< EntryStatus, { bg: string; fg: string } > = {
 	draft: { bg: '#e5e7eb', fg: '#374151' },
 	scheduled: { bg: '#dbeafe', fg: '#1e40af' },
 };
-
-function StatusPill( { status }: { status: EntryStatus } ) {
-	const c = STATUS_COLORS[ status ];
-	return (
-		<span
-			style={ {
-				background: c.bg,
-				color: c.fg,
-				padding: '2px 10px',
-				borderRadius: 999,
-				fontSize: 12,
-				fontWeight: 500,
-			} }
-		>
-			{ STATUS_LABELS[ status ] }
-		</span>
-	);
-}
 
 const DEFAULT_VIEW: View = {
 	type: 'table',
@@ -116,7 +99,7 @@ export default function ManageEntriesModal( {
 				id: 'status',
 				label: __( 'Status', 'newspack-plugin' ),
 				getValue: ( { item } ) => item.status,
-				render: ( { item } ) => <StatusPill status={ item.status } />,
+				render: ( { item } ) => <StatusPill status={ item.status } labels={ STATUS_LABELS } colors={ STATUS_COLORS } />,
 				elements: ( Object.keys( STATUS_LABELS ) as EntryStatus[] ).map( value => ( {
 					value,
 					label: STATUS_LABELS[ value ],
