@@ -245,20 +245,24 @@ class WooCommerce_Gateway_Stripe {
 	 * Clear stale _stripe_customer_id from a renewal order and its parent
 	 * subscription when the subscription uses a non-Stripe payment method.
 	 *
+	 * Hooked on wcs_renewal_order_created, which is an apply_filters hook in WCS.
 	 * Fires after the renewal order is created but before payment processing
 	 * begins, intercepting the window where WooPayments reads _stripe_customer_id
 	 * from the renewal order and would encounter an invalid Stripe customer.
 	 *
-	 * On HPOS sites with data sync disabled, meta is purged from both the HPOS
-	 * store (via WC CRUD save()) and wp_postmeta (via delete_post_meta()) to
-	 * ensure all read paths see a clean state.
+	 * On HPOS sites with data sync disabled, the renewal order is purged from both
+	 * the HPOS store (via WC CRUD save()) and wp_postmeta (via delete_post_meta()).
+	 * The subscription's HPOS store is cleaned at its next natural save via the
+	 * woocommerce_before_subscription_object_save guard; we do not save it here to
+	 * avoid triggering WCS side-effects mid-filter.
 	 *
 	 * @param \WC_Order        $renewal_order The renewal order just created.
 	 * @param \WC_Subscription $subscription  The parent subscription.
+	 * @return \WC_Order The renewal order, passed through for the filter chain.
 	 */
 	public static function clear_stripe_customer_id_on_renewal( $renewal_order, $subscription ) {
 		if ( str_starts_with( $subscription->get_payment_method(), 'stripe' ) ) {
-			return;
+			return $renewal_order;
 		}
 
 		// Clear from the renewal order — this is what WooPayments reads during payment processing.
@@ -268,15 +272,17 @@ class WooCommerce_Gateway_Stripe {
 			delete_post_meta( $renewal_order->get_id(), '_stripe_customer_id' );
 		}
 
-		// Also clean the subscription (root source of the stale value).
-		// Note: $subscription->save() re-fires woocommerce_before_subscription_object_save, which
-		// calls maybe_strip_stripe_customer_id_before_save() again — this is intentional and
-		// idempotent (delete_meta_data on an already-absent key is a no-op).
+		// Also clean the subscription's in-memory meta and wp_postmeta (root source of the stale value).
+		// We intentionally do NOT call $subscription->save() here: wcs_renewal_order_created is an
+		// apply_filters hook, and triggering a full WC CRUD save on the subscription mid-filter can
+		// cause unexpected side-effects. The woocommerce_before_subscription_object_save guard will
+		// strip _stripe_customer_id from HPOS when the subscription is next saved naturally by WCS.
 		if ( $subscription->get_meta( '_stripe_customer_id' ) ) {
 			$subscription->delete_meta_data( '_stripe_customer_id' );
-			$subscription->save();
 			delete_post_meta( $subscription->get_id(), '_stripe_customer_id' );
 		}
+
+		return $renewal_order;
 	}
 }
 WooCommerce_Gateway_Stripe::init();

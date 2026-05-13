@@ -264,7 +264,29 @@ class Newspack_Test_WooCommerce_Gateway_Stripe extends WP_UnitTestCase {
 		$this->assertSame(
 			'',
 			$subscription->get_meta( '_stripe_customer_id' ),
-			'_stripe_customer_id should also be cleared from the subscription itself on renewal.'
+			'_stripe_customer_id should be cleared from subscription in-memory meta on renewal (HPOS cleaned on next natural save).'
+		);
+	}
+
+	/**
+	 * Filter callback must return the renewal order to pass through the
+	 * wcs_renewal_order_created apply_filters chain without nulling it out.
+	 */
+	public function test_renewal_filter_returns_renewal_order() {
+		$renewal_order = new WC_Order(
+			[
+				'status' => 'pending',
+				'meta'   => [ '_stripe_customer_id' => 'cus_stale123' ],
+			]
+		);
+		$subscription  = wcs_create_subscription( [ 'payment_method' => 'woocommerce_payments' ] );
+
+		$result = WooCommerce_Gateway_Stripe::clear_stripe_customer_id_on_renewal( $renewal_order, $subscription );
+
+		$this->assertSame(
+			$renewal_order,
+			$result,
+			'Filter callback must return $renewal_order to avoid nulling it out for subsequent apply_filters listeners.'
 		);
 	}
 
