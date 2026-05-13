@@ -150,7 +150,7 @@ class Group_Subscription_Invite {
 			return sprintf( _n( '%d hour', '%d hours', $hours, 'newspack-plugin' ), $hours );
 		}
 
-		$minutes = max( 1, (int) ceil( $seconds / MINUTE_IN_SECONDS ) );
+		$minutes = max( 1, (int) floor( $seconds / MINUTE_IN_SECONDS ) );
 		/* translators: %d: number of minutes. */
 		return sprintf( _n( '%d minute', '%d minutes', $minutes, 'newspack-plugin' ), $minutes );
 	}

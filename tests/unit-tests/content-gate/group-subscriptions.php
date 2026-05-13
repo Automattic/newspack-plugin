@@ -2449,6 +2449,8 @@ class Test_Group_Subscriptions extends \WP_UnitTestCase {
 			'2 hours'           => [ 2 * HOUR_IN_SECONDS, '2 hours' ],
 			'90 minutes'        => [ 90 * MINUTE_IN_SECONDS, '90 minutes' ],
 			'15 minutes'        => [ 15 * MINUTE_IN_SECONDS, '15 minutes' ],
+			'61 seconds'        => [ 61, '1 minute' ],
+			'90 seconds'        => [ 90, '1 minute' ],
 		];
 
 		foreach ( $cases as $label => $case ) {
