@@ -290,7 +290,8 @@ class GoogleSiteKit {
 	 * The ESP path keeps the human-readable names; only the GA4 surface is anonymized.
 	 *
 	 * Both lookups are delegated to per-request-memoized helpers in `Group_Subscription`
-	 * and `Institution`, so repeat calls within the same request are cheap.
+	 * and `Institution`, so repeat calls within the same request are cheap. Memoization
+	 * is deliberately request-scoped because the institution branch is per-visitor.
 	 *
 	 * @param \WP_User $user The user to inspect.
 	 * @return string[] Sorted, deduplicated anonymized labels.
