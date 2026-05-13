@@ -14,6 +14,7 @@ import { useState, useMemo } from '@wordpress/element';
 import { Button } from '@wordpress/components';
 import { filterSortAndPaginate } from '@wordpress/dataviews';
 import type { Action, Field, View } from '@wordpress/dataviews';
+import { published, drafts, scheduled } from '@wordpress/icons';
 
 /**
  * Internal dependencies
@@ -30,10 +31,10 @@ const STATUS_LABELS: Record< EntryStatus, string > = {
 	scheduled: __( 'Scheduled', 'newspack-plugin' ),
 };
 
-const STATUS_COLORS: Record< EntryStatus, { bg: string; fg: string } > = {
-	published: { bg: '#d1fae5', fg: '#065f46' },
-	draft: { bg: '#e5e7eb', fg: '#374151' },
-	scheduled: { bg: '#dbeafe', fg: '#1e40af' },
+const STATUS_ICONS: Record< EntryStatus, JSX.Element > = {
+	published,
+	draft: drafts,
+	scheduled,
 };
 
 const DEFAULT_VIEW: View = {
@@ -100,7 +101,7 @@ export default function ManageEntriesModal( {
 				id: 'status',
 				label: __( 'Status', 'newspack-plugin' ),
 				getValue: ( { item } ) => item.status,
-				render: ( { item } ) => <StatusPill status={ item.status } labels={ STATUS_LABELS } colors={ STATUS_COLORS } />,
+				render: ( { item } ) => <StatusPill status={ item.status } labels={ STATUS_LABELS } icons={ STATUS_ICONS } />,
 				elements: ( Object.keys( STATUS_LABELS ) as EntryStatus[] ).map( value => ( {
 					value,
 					label: STATUS_LABELS[ value ],

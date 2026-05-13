@@ -10,6 +10,7 @@ import { useState, useMemo } from '@wordpress/element';
 import { Button } from '@wordpress/components';
 import { filterSortAndPaginate } from '@wordpress/dataviews';
 import type { Action, Field, View } from '@wordpress/dataviews';
+import { published, scheduled, archive } from '@wordpress/icons';
 
 /**
  * Internal dependencies
@@ -28,10 +29,10 @@ const STATUS_LABELS: Record< RollingContentStatus, string > = {
 	scheduled: __( 'Scheduled', 'newspack-plugin' ),
 };
 
-const STATUS_COLORS: Record< RollingContentStatus, { bg: string; fg: string } > = {
-	active: { bg: '#d1fae5', fg: '#065f46' },
-	archived: { bg: '#e5e7eb', fg: '#374151' },
-	scheduled: { bg: '#dbeafe', fg: '#1e40af' },
+const STATUS_ICONS: Record< RollingContentStatus, JSX.Element > = {
+	active: published,
+	archived: archive,
+	scheduled,
 };
 
 const DEFAULT_VIEW: View = {
@@ -82,7 +83,7 @@ export default function All() {
 				id: 'status',
 				label: __( 'Status', 'newspack-plugin' ),
 				getValue: ( { item } ) => item.status,
-				render: ( { item } ) => <StatusPill status={ item.status } labels={ STATUS_LABELS } colors={ STATUS_COLORS } />,
+				render: ( { item } ) => <StatusPill status={ item.status } labels={ STATUS_LABELS } icons={ STATUS_ICONS } />,
 				elements: ( Object.keys( STATUS_LABELS ) as RollingContentStatus[] ).map( value => ( {
 					value,
 					label: STATUS_LABELS[ value ],

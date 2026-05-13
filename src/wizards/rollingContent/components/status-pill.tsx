@@ -1,34 +1,28 @@
 /**
- * Rolling Content demo — shared status pill.
+ * Rolling Content demo — shared status indicator.
  *
- * Used by both the All Rolling Content view and the Manage Entries modal.
- * Generic over the status union so each caller passes its own labels and colors.
+ * Renders a small icon + label for an item's status. Each caller passes its
+ * own labels and icons keyed by its status union.
  */
 
-type Palette = { bg: string; fg: string };
+/**
+ * WordPress dependencies
+ */
+import { Icon } from '@wordpress/components';
 
 export default function StatusPill< S extends string >( {
 	status,
 	labels,
-	colors,
+	icons,
 }: {
 	status: S;
 	labels: Record< S, string >;
-	colors: Record< S, Palette >;
+	icons: Record< S, JSX.Element >;
 } ) {
-	const c = colors[ status ];
 	return (
-		<span
-			style={ {
-				background: c.bg,
-				color: c.fg,
-				padding: '2px 10px',
-				borderRadius: 999,
-				fontSize: 12,
-				fontWeight: 500,
-			} }
-		>
-			{ labels[ status ] }
+		<span style={ { display: 'inline-flex', alignItems: 'center', gap: 4 } }>
+			<Icon icon={ icons[ status ] } size={ 18 } />
+			<span>{ labels[ status ] }</span>
 		</span>
 	);
 }
