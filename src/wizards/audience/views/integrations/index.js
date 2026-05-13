@@ -88,6 +88,15 @@ const AudienceIntegrations = ( props, ref ) => {
 			} );
 	}, [] );
 
+	const handleActivatePlugin = useCallback(
+		pluginSlug =>
+			apiFetch( {
+				path: `/newspack/v1/plugins/${ pluginSlug }/activate`,
+				method: 'POST',
+			} ).then( () => fetchSettings() ),
+		[ fetchSettings ]
+	);
+
 	const sharedProps = {
 		integrations,
 		pendingChanges,
@@ -97,6 +106,7 @@ const AudienceIntegrations = ( props, ref ) => {
 		onFieldChange: handleFieldChange,
 		onSave: handleSave,
 		onToggleEnabled: handleToggleEnabled,
+		onActivatePlugin: handleActivatePlugin,
 	};
 
 	return (
