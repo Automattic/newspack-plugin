@@ -20,6 +20,11 @@ class Lite_Site {
 	 * Initialize the lite site functionality
 	 */
 	public static function init() {
+		// The standalone Newspack Lite Site plugin supersedes this module, so skip initialization to avoid conflicts.
+		if ( defined( 'NEWSPACK_LITE_SITE_PLUGIN_FILE' ) ) {
+			return;
+		}
+
 		// Only register rewrite rules if the feature is enabled.
 		if ( self::is_enabled() ) {
 			add_action( 'init', [ __CLASS__, 'register_rewrite_rules' ] );
@@ -525,5 +530,4 @@ class Lite_Site {
 	}
 }
 
-// Initialize the class.
-Lite_Site::init();
+add_action( 'plugins_loaded', [ Lite_Site::class, 'init' ] );
