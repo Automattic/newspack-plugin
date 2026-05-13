@@ -43,7 +43,7 @@ const DEFAULT_VIEW: View = {
 	perPage: 20,
 	sort: { field: 'date', direction: 'desc' },
 	search: '',
-	fields: [ 'date', 'entries_count', 'last_updated', 'status', 'inline_actions' ],
+	fields: [ 'date', 'entries_count', 'last_updated', 'status' ],
 	filters: [],
 	layout: {},
 	titleField: 'title',
@@ -101,7 +101,17 @@ function AllRollingContent() {
 				id: 'entries_count',
 				label: __( 'Entries', 'newspack-plugin' ),
 				getValue: ( { item } ) => item.entries.length,
-				render: ( { item } ) => item.entries.length,
+				render: ( { item } ) => (
+					<div style={ { display: 'flex', alignItems: 'center', gap: 8 } }>
+						<span>{ item.entries.length }</span>
+						<Button variant="secondary" size="small" onClick={ () => setManagingEntriesFor( item ) }>
+							{ __( 'Manage', 'newspack-plugin' ) }
+						</Button>
+						<Button variant="secondary" size="small" onClick={ () => setAddingEntryFor( item ) }>
+							{ __( 'Add', 'newspack-plugin' ) }
+						</Button>
+					</div>
+				),
 			},
 			{
 				id: 'last_updated',
@@ -133,22 +143,6 @@ function AllRollingContent() {
 					value,
 					label: STATUS_LABELS[ value ],
 				} ) ),
-			},
-			{
-				id: 'inline_actions',
-				label: '',
-				enableSorting: false,
-				enableHiding: false,
-				render: ( { item } ) => (
-					<div style={ { display: 'flex', gap: 4 } }>
-						<Button variant="secondary" size="small" onClick={ () => setManagingEntriesFor( item ) }>
-							{ __( 'Manage', 'newspack-plugin' ) }
-						</Button>
-						<Button variant="secondary" size="small" onClick={ () => setAddingEntryFor( item ) }>
-							{ __( 'Add', 'newspack-plugin' ) }
-						</Button>
-					</div>
-				),
 			},
 		],
 		[]
