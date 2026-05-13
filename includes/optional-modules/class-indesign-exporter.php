@@ -211,6 +211,7 @@ class InDesign_Exporter {
 	 */
 	private static function export_posts( $post_ids ) {
 		$converter      = new InDesign_Converter();
+		$platform       = self::detect_platform();
 		$exported_files = [];
 
 		foreach ( $post_ids as $post_id ) {
@@ -219,7 +220,7 @@ class InDesign_Exporter {
 				continue;
 			}
 
-			$content          = $converter->convert_post( $post );
+			$content          = $converter->convert_post( $post, [ 'platform' => $platform ] );
 			$filename         = self::generate_filename( $post );
 			$exported_files[] = [
 				'filename' => $filename,
@@ -235,6 +236,30 @@ class InDesign_Exporter {
 			// Multiple files export as zip.
 			self::download_zip_file( $exported_files );
 		}
+	}
+
+	/**
+	 * Detect the platform (mac/win) of the requesting browser.
+	 *
+	 * The InDesign Tagged Text header must match the host OS — Mac users
+	 * receiving a Windows-headed file see markup rendered literally instead
+	 * of interpreted.
+	 *
+	 * @return string Either 'mac' or 'win'.
+	 */
+	private static function detect_platform() {
+		// The export runs from an authenticated admin-post.php request that is never cached.
+		// phpcs:ignore WordPressVIPMinimum.Variables.RestrictedVariables.cache_constraints___SERVER__HTTP_USER_AGENT__
+		$user_agent = isset( $_SERVER['HTTP_USER_AGENT'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) : '';
+		$platform   = ( false !== stripos( $user_agent, 'Mac' ) || false !== stripos( $user_agent, 'iPad' ) || false !== stripos( $user_agent, 'iPhone' ) ) ? 'mac' : 'win';
+
+		/**
+		 * Filters the detected platform for InDesign export.
+		 *
+		 * @param string $platform   'mac' or 'win'.
+		 * @param string $user_agent The raw User-Agent header from the request.
+		 */
+		return apply_filters( 'newspack_indesign_export_platform', $platform, $user_agent );
 	}
 
 	/**

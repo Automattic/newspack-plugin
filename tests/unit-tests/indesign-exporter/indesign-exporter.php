@@ -30,6 +30,63 @@ class Newspack_Test_InDesign_Exporter extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Test that the Mac platform option emits the <ASCII-MAC> header.
+	 *
+	 * InDesign on macOS requires the file to begin with <ASCII-MAC> for the
+	 * tagged text to be interpreted as markup rather than literal content.
+	 */
+	public function test_convert_post_mac_platform() {
+		$post_id = $this->factory->post->create(
+			[
+				'post_title'   => 'Test Post',
+				'post_content' => '<p>This is a test post.</p>',
+			]
+		);
+
+		$converter = new InDesign_Converter();
+		$content   = $converter->convert_post( $post_id, [ 'platform' => 'mac' ] );
+		$this->assertStringContainsString( '<ASCII-MAC>', $content );
+		$this->assertStringNotContainsString( '<ASCII-WIN>', $content );
+	}
+
+	/**
+	 * Test that the Win platform option emits the <ASCII-WIN> header.
+	 */
+	public function test_convert_post_win_platform() {
+		$post_id = $this->factory->post->create(
+			[
+				'post_title'   => 'Test Post',
+				'post_content' => '<p>This is a test post.</p>',
+			]
+		);
+
+		$converter = new InDesign_Converter();
+		$content   = $converter->convert_post( $post_id, [ 'platform' => 'win' ] );
+		$this->assertStringContainsString( '<ASCII-WIN>', $content );
+		$this->assertStringNotContainsString( '<ASCII-MAC>', $content );
+	}
+
+	/**
+	 * Test that en-dashes and em-dashes map to their own Unicode code points.
+	 *
+	 * Previously '–' (en-dash, U+2013) was incorrectly mapped to <0x2014> (em-dash).
+	 */
+	public function test_convert_dashes() {
+		$post_id = $this->factory->post->create(
+			[
+				'post_title'   => 'Test Post',
+				'post_content' => '<p>en–dash and em—dash and double--hyphen.</p>',
+			]
+		);
+
+		$converter = new InDesign_Converter();
+		$content   = $converter->convert_post( $post_id );
+		$this->assertStringContainsString( 'en<0x2013>dash', $content );
+		$this->assertStringContainsString( 'em<0x2014>dash', $content );
+		$this->assertStringContainsString( 'double<0x2014>hyphen', $content );
+	}
+
+	/**
 	 * Test converting pullquotes.
 	 */
 	public function test_convert_pullquote() {
