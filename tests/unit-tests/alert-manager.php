@@ -359,10 +359,12 @@ class Newspack_Test_Alert_Manager extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test that `forward_alert_to_log` fires `newspack_log` with log_level 3
-	 * so Newspack Manager routes the alert to Slack.
+	 * Test that firing `newspack_alert` reaches `newspack_log` via the
+	 * registered listener with log_level 3 (Alert → Slack) for error severity.
 	 */
-	public function test_forward_alert_to_log_emits_newspack_log() {
+	public function test_newspack_alert_emits_newspack_log_via_listener() {
+		add_action( 'newspack_alert', [ Alert_Manager::class, 'forward_alert_to_log' ] );
+
 		$captured = null;
 		add_action(
 			'newspack_log',
@@ -373,7 +375,8 @@ class Newspack_Test_Alert_Manager extends WP_UnitTestCase {
 			3
 		);
 
-		Alert_Manager::forward_alert_to_log(
+		do_action(
+			'newspack_alert',
 			[
 				'type'      => 'sync_retry_exhausted',
 				'severity'  => 'error',
@@ -383,12 +386,43 @@ class Newspack_Test_Alert_Manager extends WP_UnitTestCase {
 			]
 		);
 
-		$this->assertNotNull( $captured, 'newspack_log should fire.' );
+		$this->assertNotNull( $captured, 'newspack_log should fire via the newspack_alert listener.' );
 		$this->assertSame( 'sync_retry_exhausted', $captured['code'] );
 		$this->assertSame( 'Boom', $captured['message'] );
 		$this->assertSame( 'error', $captured['params']['type'] );
 		$this->assertSame( 3, $captured['params']['log_level'] );
-		$this->assertSame( [ 'integration_id' => 'mailchimp' ], $captured['params']['data'] );
+		$this->assertArrayNotHasKey( 'data', $captured['params'], 'Context should not be forwarded as data.' );
+	}
+
+	/**
+	 * Test that warning-severity alerts go to Watch (log_level 2) with
+	 * debug type, so they land in logstash without paging Slack.
+	 */
+	public function test_warning_severity_alert_uses_watch_level() {
+		add_action( 'newspack_alert', [ Alert_Manager::class, 'forward_alert_to_log' ] );
+
+		$captured = null;
+		add_action(
+			'newspack_log',
+			function ( $code, $message, $params ) use ( &$captured ) {
+				$captured = compact( 'code', 'message', 'params' );
+			},
+			10,
+			3
+		);
+
+		do_action(
+			'newspack_alert',
+			[
+				'type'     => 'some_warning',
+				'severity' => 'warning',
+				'message'  => 'Heads up',
+			]
+		);
+
+		$this->assertNotNull( $captured );
+		$this->assertSame( 'debug', $captured['params']['type'] );
+		$this->assertSame( 2, $captured['params']['log_level'] );
 	}
 
 	/**
@@ -399,7 +433,9 @@ class Newspack_Test_Alert_Manager extends WP_UnitTestCase {
 	 *
 	 * @param mixed $alert The alert payload to forward.
 	 */
-	public function test_forward_alert_to_log_ignores_malformed( $alert ) {
+	public function test_malformed_alert_does_not_emit_log( $alert ) {
+		add_action( 'newspack_alert', [ Alert_Manager::class, 'forward_alert_to_log' ] );
+
 		$fired = false;
 		add_action(
 			'newspack_log',
@@ -408,7 +444,7 @@ class Newspack_Test_Alert_Manager extends WP_UnitTestCase {
 			}
 		);
 
-		Alert_Manager::forward_alert_to_log( $alert );
+		do_action( 'newspack_alert', $alert );
 
 		$this->assertFalse( $fired, 'newspack_log should not fire for malformed alerts.' );
 	}

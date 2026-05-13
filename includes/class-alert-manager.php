@@ -103,7 +103,14 @@ class Alert_Manager {
 
 	/**
 	 * Forward a `newspack_alert` to the `newspack_log` action so Newspack
-	 * Manager's Logger routes it to Slack (log_level 3 = Alert channel).
+	 * Manager's Logger routes it. Severity drives the destination:
+	 *
+	 *   - severity = 'warning' → type 'debug', log_level 2 (Watch — logstash only)
+	 *   - anything else        → type 'error', log_level 3 (Alert — Slack)
+	 *
+	 * Only the human-readable `message` is forwarded; the full alert
+	 * `context` is intentionally dropped to avoid leaking source payloads
+	 * (which may include reader identifiers) into downstream logs.
 	 *
 	 * When Newspack Manager isn't active, `newspack_log` is a no-op.
 	 *
@@ -118,14 +125,16 @@ class Alert_Manager {
 			? (string) $alert['type']
 			: 'newspack_alert';
 
+		$severity   = is_scalar( $alert['severity'] ?? null ) ? (string) $alert['severity'] : '';
+		$is_warning = 'warning' === $severity;
+
 		do_action(
 			'newspack_log',
 			$code,
 			(string) $alert['message'],
 			[
-				'type'      => 'error',
-				'log_level' => 3,
-				'data'      => $alert['context'] ?? [],
+				'type'      => $is_warning ? 'debug' : 'error',
+				'log_level' => $is_warning ? 2 : 3,
 			]
 		);
 	}
