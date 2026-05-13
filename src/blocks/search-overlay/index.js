@@ -1,6 +1,8 @@
 /**
  * WordPress dependencies
  */
+import { registerBlockStyle } from '@wordpress/blocks';
+import { __ } from '@wordpress/i18n';
 import { search as icon } from '@wordpress/icons';
 
 /**
@@ -14,6 +16,22 @@ import './style.scss';
 const { name } = metadata;
 
 export { metadata, name };
+
+registerBlockStyle( name, {
+	name: 'default',
+	label: __( 'Default', 'newspack-plugin' ),
+	isDefault: true,
+} );
+
+registerBlockStyle( name, {
+	name: 'icon-only',
+	label: __( 'Icon only', 'newspack-plugin' ),
+} );
+
+registerBlockStyle( name, {
+	name: 'text-only',
+	label: __( 'Text only', 'newspack-plugin' ),
+} );
 
 export const settings = {
 	title: metadata.title,
