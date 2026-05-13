@@ -60,6 +60,14 @@ const components: Record< string, any > = {
 		label: __( 'Premium newsletters', 'newspack-plugin' ),
 		component: lazy( () => import( /* webpackChunkName: "newsletters-wizards" */ './newsletters/views/premium-newsletters' ) ),
 	},
+	'newspack-rolling-content': {
+		label: __( 'Rolling Content', 'newspack-plugin' ),
+		component: lazy( () => import( /* webpackChunkName: "rolling-content-wizards" */ './rollingContent/views/all' ) ),
+	},
+	'newspack-rolling-content-add': {
+		label: __( 'Add Rolling Content', 'newspack-plugin' ),
+		component: lazy( () => import( /* webpackChunkName: "rolling-content-wizards" */ './rollingContent/views/add' ) ),
+	},
 } as const;
 
 // Conditionally add the Audience Integrations page if the feature is enabled.
