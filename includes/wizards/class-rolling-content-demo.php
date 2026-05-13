@@ -92,6 +92,9 @@ class Rolling_Content_Demo extends Wizard {
 			return;
 		}
 
+		add_filter( 'parent_file', [ $this, 'set_parent_file' ] );
+		add_filter( 'submenu_file', [ $this, 'set_submenu_file' ] );
+
 		$icon = sprintf(
 			'data:image/svg+xml;base64,%s',
 			base64_encode( Newspack_UI_Icons::get_svg( 'collections' ) )
@@ -125,6 +128,30 @@ class Rolling_Content_Demo extends Wizard {
 			self::SLUG_ADD,
 			[ $this, 'render_wizard' ]
 		);
+	}
+
+	/**
+	 * Force-highlight the top-level menu when on any rolling-content page.
+	 * Required because WP's automatic highlighting can lose the trail through
+	 * the conditional menu registration.
+	 *
+	 * @param string $parent_file The current parent file.
+	 * @return string
+	 */
+	public function set_parent_file( $parent_file ) {
+		return $this->slug;
+	}
+
+	/**
+	 * Highlight the correct submenu item for the current page.
+	 *
+	 * @param string $submenu_file The current submenu file.
+	 * @return string
+	 */
+	public function set_submenu_file( $submenu_file ) {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$page = isset( $_GET['page'] ) ? sanitize_key( wp_unslash( $_GET['page'] ) ) : '';
+		return in_array( $page, [ $this->slug, self::SLUG_ADD ], true ) ? $page : $submenu_file;
 	}
 
 	/**
