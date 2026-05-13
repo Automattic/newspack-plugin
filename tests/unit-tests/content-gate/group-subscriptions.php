@@ -2460,13 +2460,15 @@ class Test_Group_Subscriptions extends \WP_UnitTestCase {
 			};
 			add_filter( 'newspack_group_subscription_invite_expiration_time', $callback );
 
-			$this->assertSame(
-				$expected,
-				Group_Subscription_Invite::get_expiration_label(),
-				"Expected '{$expected}' for case: {$label}"
-			);
-
-			remove_filter( 'newspack_group_subscription_invite_expiration_time', $callback );
+			try {
+				$this->assertSame(
+					$expected,
+					Group_Subscription_Invite::get_expiration_label(),
+					"Expected '{$expected}' for case: {$label}"
+				);
+			} finally {
+				remove_filter( 'newspack_group_subscription_invite_expiration_time', $callback );
+			}
 		}
 	}
 
@@ -2479,8 +2481,10 @@ class Test_Group_Subscriptions extends \WP_UnitTestCase {
 		};
 		add_filter( 'newspack_group_subscription_invite_expiration_time', $callback );
 
-		$this->assertSame( '1 minute', Group_Subscription_Invite::get_expiration_label() );
-
-		remove_filter( 'newspack_group_subscription_invite_expiration_time', $callback );
+		try {
+			$this->assertSame( '1 minute', Group_Subscription_Invite::get_expiration_label() );
+		} finally {
+			remove_filter( 'newspack_group_subscription_invite_expiration_time', $callback );
+		}
 	}
 }
