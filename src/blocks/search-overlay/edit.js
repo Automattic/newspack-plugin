@@ -30,6 +30,7 @@ export default function SearchOverlayEdit( { attributes, setAttributes } ) {
 	const borderProps = useBorderProps( attributes );
 	const colorProps = useColorProps( attributes );
 	const spacingProps = useSpacingProps( attributes );
+	const colorGradientSettings = useMultipleOriginColorsAndGradients();
 
 	const classes = ( blockClassName || '' ).split( ' ' );
 	const isIconOnly = classes.includes( 'is-style-icon-only' );
@@ -65,7 +66,7 @@ export default function SearchOverlayEdit( { attributes, setAttributes } ) {
 						},
 					] }
 					panelId={ 'newspack-search-overlay-colors' }
-					{ ...useMultipleOriginColorsAndGradients() }
+					{ ...colorGradientSettings }
 				/>
 			</InspectorControls>
 			<div className={ classnames( 'wp-block-buttons', 'is-layout-flex', blockClassName ) }>
