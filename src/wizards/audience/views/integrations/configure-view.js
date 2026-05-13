@@ -145,8 +145,9 @@ export const ConfigureView = ( { integrations, loading, pendingChanges, saving, 
 							<SectionHeader heading={ 2 } title={ __( 'Inbound', 'newspack-plugin' ) } noMargin />
 							<Grid columns={ 1 } rowGap={ 8 } noMargin>
 								{ ( inboundField.options || [] ).map( option => {
-									// Framework injects options as { value, label } objects (see class-integration.php
-									// get_settings_config) but accept bare strings for backward compatibility.
+									// Framework injects options as { value, label } objects
+									// (see class-integration.php:get_settings_config()), but accepts bare strings
+									// for backward compatibility.
 									const optionValue = typeof option === 'string' ? option : option.value;
 									const optionLabel = typeof option === 'string' ? option : option.label || option.value;
 									const currentValue = getFieldValue( inboundField );
