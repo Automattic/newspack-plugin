@@ -150,7 +150,7 @@ $active_tab  = ( isset( $_GET['activeTab'] ) && 'invites' === sanitize_key( wp_u
 			</button>
 		</div>
 		<div class="newspack-ui__segmented-control__content">
-			<div class="newspack-ui__segmented-control__panel">
+			<div class="newspack-ui__segmented-control__panel<?php echo 'members' === $active_tab ? ' selected' : ''; ?>">
 	<table class="shop_table shop_table_responsive newspack-my-account__group_subscription__members">
 		<thead>
 			<tr>
@@ -215,7 +215,7 @@ $active_tab  = ( isset( $_GET['activeTab'] ) && 'invites' === sanitize_key( wp_u
 		</tbody>
 	</table>
 			</div><!-- .newspack-ui__segmented-control__panel (members) -->
-			<div class="newspack-ui__segmented-control__panel">
+			<div class="newspack-ui__segmented-control__panel<?php echo 'invites' === $active_tab ? ' selected' : ''; ?>">
 	<table class="shop_table shop_table_responsive newspack-my-account__group_subscription__invites">
 		<thead>
 			<tr>
