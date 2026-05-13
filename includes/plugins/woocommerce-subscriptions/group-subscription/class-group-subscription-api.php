@@ -120,6 +120,38 @@ class Group_Subscription_API {
 				],
 			]
 		);
+		\register_rest_route(
+			self::NAMESPACE,
+			'/invite-link',
+			[
+				'methods'             => \WP_REST_Server::CREATABLE,
+				'callback'            => [ __CLASS__, 'api_generate_invite_link' ],
+				'permission_callback' => [ __CLASS__, 'permission_callback' ],
+				'args'                => [
+					'subscription_id' => [
+						'type'              => 'integer',
+						'required'          => true,
+						'sanitize_callback' => 'absint',
+					],
+				],
+			]
+		);
+		\register_rest_route(
+			self::NAMESPACE,
+			'/invite-link',
+			[
+				'methods'             => \WP_REST_Server::DELETABLE,
+				'callback'            => [ __CLASS__, 'api_delete_invite_link' ],
+				'permission_callback' => [ __CLASS__, 'permission_callback' ],
+				'args'                => [
+					'subscription_id' => [
+						'type'              => 'integer',
+						'required'          => true,
+						'sanitize_callback' => 'absint',
+					],
+				],
+			]
+		);
 	}
 
 	/**
@@ -266,6 +298,32 @@ class Group_Subscription_API {
 		$subscription_id = $request->get_param( 'subscription_id' );
 		$email           = $request->get_param( 'email' );
 		$result = Group_Subscription_Invite::cancel_invite( $subscription_id, $email );
+		return \rest_ensure_response( $result );
+	}
+
+	/**
+	 * Generate an invite-link for a group subscription.
+	 *
+	 * @param \WP_REST_Request $request The request object.
+	 *
+	 * @return \WP_REST_Response The response object.
+	 */
+	public static function api_generate_invite_link( $request ) {
+		$subscription_id = $request->get_param( 'subscription_id' );
+		$result = Group_Subscription_Invite::generate_link_invite( $subscription_id, get_current_user_id() );
+		return \rest_ensure_response( $result );
+	}
+
+	/**
+	 * Delete an invite-link for a group subscription.
+	 *
+	 * @param \WP_REST_Request $request The request object.
+	 *
+	 * @return \WP_REST_Response The response object.
+	 */
+	public static function api_delete_invite_link( $request ) {
+		$subscription_id = $request->get_param( 'subscription_id' );
+		$result = Group_Subscription_Invite::delete_link_invite( $subscription_id, get_current_user_id() );
 		return \rest_ensure_response( $result );
 	}
 }
