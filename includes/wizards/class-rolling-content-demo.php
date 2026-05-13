@@ -65,6 +65,18 @@ class Rolling_Content_Demo extends Wizard {
 	}
 
 	/**
+	 * Render the container div. Override the parent so the id matches the current page slug,
+	 * not `$this->slug`. Required because React mounts into `getElementById(pageParam)`.
+	 */
+	public function render_wizard() {
+		$page = filter_input( INPUT_GET, 'page', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
+		$id   = in_array( $page, [ $this->slug, self::SLUG_ADD ], true ) ? $page : $this->slug;
+		?>
+		<div class="newspack-wizard <?php echo esc_attr( $id ); ?>" id="<?php echo esc_attr( $id ); ?>"></div>
+		<?php
+	}
+
+	/**
 	 * Register admin pages.
 	 *
 	 * Both pages are ALWAYS registered as hidden so direct URL navigation works.

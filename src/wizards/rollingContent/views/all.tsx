@@ -6,8 +6,8 @@
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { useState, useEffect, useMemo } from '@wordpress/element';
-import { useDispatch } from '@wordpress/data';
+import { useState, useMemo } from '@wordpress/element';
+import { Button } from '@wordpress/components';
 import { filterSortAndPaginate } from '@wordpress/dataviews';
 import type { Action, Field, View } from '@wordpress/dataviews';
 
@@ -15,7 +15,6 @@ import type { Action, Field, View } from '@wordpress/dataviews';
  * Internal dependencies
  */
 import { DataViews } from '../../../../packages/components/src';
-import { WIZARD_STORE_NAMESPACE } from '../../../../packages/components/src/wizard/store';
 import { ROLLING_CONTENTS } from '../data';
 import StatusPill from '../components/status-pill';
 import EditInfoModal from '../modals/edit-info';
@@ -49,22 +48,8 @@ const DEFAULT_VIEW: View = {
 };
 
 export default function All() {
-	const { setHeaderData } = useDispatch( WIZARD_STORE_NAMESPACE );
 	const [ data, setData ] = useState< RollingContent[] >( ROLLING_CONTENTS );
 	const [ view, setView ] = useState< View >( DEFAULT_VIEW );
-
-	useEffect( () => {
-		setHeaderData( {
-			sectionName: __( 'Rolling Content', 'newspack-plugin' ),
-			actions: [
-				{
-					type: 'primary',
-					label: __( 'Add Rolling Content', 'newspack-plugin' ),
-					href: 'admin.php?page=newspack-rolling-content-add',
-				},
-			],
-		} );
-	}, [ setHeaderData ] );
 
 	const fields: Field< RollingContent >[] = useMemo(
 		() => [
@@ -114,7 +99,7 @@ export default function All() {
 				label: __( 'Edit', 'newspack-plugin' ),
 				isPrimary: true,
 				supportsBulk: false,
-				RenderModal: ( { items, closeModal } ) => (
+				RenderModal: ( { items, closeModal }: { items: RollingContent[]; closeModal: () => void } ) => (
 					<EditInfoModal itemType="rolling-content" title={ items[ 0 ].title } onClose={ closeModal } />
 				),
 			},
@@ -123,7 +108,7 @@ export default function All() {
 				label: __( 'Manage Entries', 'newspack-plugin' ),
 				supportsBulk: false,
 				modalSize: 'fill',
-				RenderModal: ( { items, closeModal } ) => {
+				RenderModal: ( { items, closeModal }: { items: RollingContent[]; closeModal: () => void } ) => {
 					const parent = items[ 0 ];
 					return (
 						<ManageEntriesModal
@@ -141,14 +126,16 @@ export default function All() {
 				id: 'add-entry',
 				label: __( 'Add New Entry', 'newspack-plugin' ),
 				supportsBulk: false,
-				RenderModal: ( { items, closeModal } ) => <AddEntryInfoModal parentTitle={ items[ 0 ].title } onClose={ closeModal } />,
+				RenderModal: ( { items, closeModal }: { items: RollingContent[]; closeModal: () => void } ) => (
+					<AddEntryInfoModal parentTitle={ items[ 0 ].title } onClose={ closeModal } />
+				),
 			},
 			{
 				id: 'delete',
 				label: __( 'Delete', 'newspack-plugin' ),
 				isDestructive: true,
 				supportsBulk: false,
-				RenderModal: ( { items, closeModal } ) => (
+				RenderModal: ( { items, closeModal }: { items: RollingContent[]; closeModal: () => void } ) => (
 					<DeleteConfirmModal
 						itemType="rolling-content"
 						title={ items[ 0 ].title }
@@ -164,16 +151,31 @@ export default function All() {
 	const { data: processedData, paginationInfo } = useMemo( () => filterSortAndPaginate( data, view, fields ), [ data, view, fields ] );
 
 	return (
-		<DataViews
-			data={ processedData }
-			fields={ fields }
-			view={ view }
-			onChangeView={ setView }
-			actions={ actions }
-			paginationInfo={ paginationInfo }
-			defaultLayouts={ { table: {} } }
-			getItemId={ ( item: RollingContent ) => String( item.id ) }
-			search
-		/>
+		<>
+			<div
+				style={ {
+					display: 'flex',
+					alignItems: 'center',
+					justifyContent: 'space-between',
+					marginBottom: 16,
+				} }
+			>
+				<h2 style={ { margin: 0 } }>{ __( 'Rolling Content', 'newspack-plugin' ) }</h2>
+				<Button variant="primary" href="admin.php?page=newspack-rolling-content-add">
+					{ __( 'Add Rolling Content', 'newspack-plugin' ) }
+				</Button>
+			</div>
+			<DataViews
+				data={ processedData }
+				fields={ fields }
+				view={ view }
+				onChangeView={ setView }
+				actions={ actions }
+				paginationInfo={ paginationInfo }
+				defaultLayouts={ { table: {} } }
+				getItemId={ ( item: RollingContent ) => String( item.id ) }
+				search
+			/>
+		</>
 	);
 }

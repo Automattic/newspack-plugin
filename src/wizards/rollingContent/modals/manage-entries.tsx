@@ -140,14 +140,16 @@ export default function ManageEntriesModal( {
 				label: __( 'Edit', 'newspack-plugin' ),
 				isPrimary: true,
 				supportsBulk: false,
-				RenderModal: ( { items, closeModal } ) => <EditInfoModal itemType="entry" title={ items[ 0 ].title } onClose={ closeModal } />,
+				RenderModal: ( { items, closeModal }: { items: Entry[]; closeModal: () => void } ) => (
+					<EditInfoModal itemType="entry" title={ items[ 0 ].title } onClose={ closeModal } />
+				),
 			},
 			{
 				id: 'delete',
 				label: __( 'Delete', 'newspack-plugin' ),
 				isDestructive: true,
 				supportsBulk: false,
-				RenderModal: ( { items, closeModal } ) => (
+				RenderModal: ( { items, closeModal }: { items: Entry[]; closeModal: () => void } ) => (
 					<DeleteConfirmModal
 						itemType="entry"
 						title={ items[ 0 ].title }
