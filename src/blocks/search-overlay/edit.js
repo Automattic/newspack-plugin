@@ -11,9 +11,12 @@ import { search as searchIcon } from '@wordpress/icons';
 // eslint-disable-next-line @wordpress/no-unsafe-wp-apis
 import { __unstableStripHTML as stripHTML } from '@wordpress/dom';
 import {
+	InspectorControls,
 	RichText,
 	useBlockProps,
 	/* eslint-disable @wordpress/no-unsafe-wp-apis */
+	__experimentalColorGradientSettingsDropdown as ColorGradientSettingsDropdown,
+	__experimentalUseMultipleOriginColorsAndGradients as useMultipleOriginColorsAndGradients,
 	__experimentalUseBorderProps as useBorderProps,
 	__experimentalUseColorProps as useColorProps,
 	__experimentalGetSpacingClassesAndStyles as useSpacingProps,
@@ -22,7 +25,7 @@ import {
 import { Icon } from '@wordpress/components';
 
 export default function SearchOverlayEdit( { attributes, setAttributes } ) {
-	const { triggerText, className: blockClassName } = attributes;
+	const { triggerText, className: blockClassName, overlayColor } = attributes;
 
 	const borderProps = useBorderProps( attributes );
 	const colorProps = useColorProps( attributes );
@@ -50,25 +53,41 @@ export default function SearchOverlayEdit( { attributes, setAttributes } ) {
 	} );
 
 	return (
-		<div className={ classnames( 'wp-block-buttons', 'is-layout-flex', blockClassName ) }>
-			<div className="wp-block-button">
-				<button { ...blockProps } type="button" onClick={ e => e.preventDefault() }>
-					{ isIconVisible && (
-						<span className="newspack-search-overlay__icon" aria-hidden="true">
-							<Icon icon={ searchIcon } />
-						</span>
-					) }
-					<RichText
-						tagName="span"
-						className={ ! isLabelVisible ? 'screen-reader-text' : undefined }
-						aria-label={ __( 'Button text', 'newspack-plugin' ) }
-						placeholder={ __( 'Search', 'newspack-plugin' ) }
-						value={ triggerText || '' }
-						onChange={ val => setAttributes( { triggerText: stripHTML( val ) } ) }
-						withoutInteractiveFormatting
-					/>
-				</button>
+		<>
+			<InspectorControls>
+				<ColorGradientSettingsDropdown
+					settings={ [
+						{
+							colorValue: overlayColor,
+							label: __( 'Overlay color', 'newspack-plugin' ),
+							onColorChange: value => setAttributes( { overlayColor: value || '' } ),
+							enableAlpha: true,
+						},
+					] }
+					panelId={ 'newspack-search-overlay-colors' }
+					{ ...useMultipleOriginColorsAndGradients() }
+				/>
+			</InspectorControls>
+			<div className={ classnames( 'wp-block-buttons', 'is-layout-flex', blockClassName ) }>
+				<div className="wp-block-button">
+					<button { ...blockProps } type="button" onClick={ e => e.preventDefault() }>
+						{ isIconVisible && (
+							<span className="newspack-search-overlay__icon" aria-hidden="true">
+								<Icon icon={ searchIcon } />
+							</span>
+						) }
+						<RichText
+							tagName="span"
+							className={ ! isLabelVisible ? 'screen-reader-text' : undefined }
+							aria-label={ __( 'Button text', 'newspack-plugin' ) }
+							placeholder={ __( 'Search', 'newspack-plugin' ) }
+							value={ triggerText || '' }
+							onChange={ val => setAttributes( { triggerText: stripHTML( val ) } ) }
+							withoutInteractiveFormatting
+						/>
+					</button>
+				</div>
 			</div>
-		</div>
+		</>
 	);
 }
