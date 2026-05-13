@@ -19,6 +19,7 @@ import { WIZARD_STORE_NAMESPACE } from '../../../../packages/components/src/wiza
 import { ROLLING_CONTENTS } from '../data';
 import EditInfoModal from '../modals/edit-info';
 import DeleteConfirmModal from '../modals/delete-confirm';
+import AddEntryInfoModal from '../modals/add-entry-info';
 
 const STATUS_LABELS: Record< RollingContentStatus, string > = {
 	active: __( 'Active', 'newspack-plugin' ),
@@ -133,6 +134,12 @@ export default function All() {
 				RenderModal: ( { items, closeModal } ) => (
 					<EditInfoModal itemType="rolling-content" title={ items[ 0 ].title } onClose={ closeModal } />
 				),
+			},
+			{
+				id: 'add-entry',
+				label: __( 'Add New Entry', 'newspack-plugin' ),
+				supportsBulk: false,
+				RenderModal: ( { items, closeModal } ) => <AddEntryInfoModal parentTitle={ items[ 0 ].title } onClose={ closeModal } />,
 			},
 			{
 				id: 'delete',
