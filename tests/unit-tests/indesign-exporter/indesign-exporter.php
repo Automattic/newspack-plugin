@@ -6,6 +6,7 @@
  */
 
 use Newspack\Optional_Modules\InDesign_Export\InDesign_Converter;
+use Newspack\Optional_Modules\InDesign_Exporter;
 
 /**
  * Tests the InDesign Exporter functionality.
@@ -64,6 +65,43 @@ class Newspack_Test_InDesign_Exporter extends WP_UnitTestCase {
 		$content   = $converter->convert_post( $post_id, [ 'platform' => 'win' ] );
 		$this->assertStringContainsString( '<ASCII-WIN>', $content );
 		$this->assertStringNotContainsString( '<ASCII-MAC>', $content );
+	}
+
+	/**
+	 * Test that the platform setting defaults to 'auto' when unset.
+	 */
+	public function test_platform_setting_default() {
+		delete_option( InDesign_Exporter::PLATFORM_OPTION );
+		$this->assertSame( 'auto', InDesign_Exporter::get_platform_setting() );
+	}
+
+	/**
+	 * Test that the platform setting returns the stored value when valid.
+	 */
+	public function test_platform_setting_valid_values() {
+		update_option( InDesign_Exporter::PLATFORM_OPTION, 'mac' );
+		$this->assertSame( 'mac', InDesign_Exporter::get_platform_setting() );
+
+		update_option( InDesign_Exporter::PLATFORM_OPTION, 'win' );
+		$this->assertSame( 'win', InDesign_Exporter::get_platform_setting() );
+
+		update_option( InDesign_Exporter::PLATFORM_OPTION, 'auto' );
+		$this->assertSame( 'auto', InDesign_Exporter::get_platform_setting() );
+
+		delete_option( InDesign_Exporter::PLATFORM_OPTION );
+	}
+
+	/**
+	 * Test that the platform setting sanitizes invalid stored values.
+	 */
+	public function test_platform_setting_rejects_invalid_value() {
+		update_option( InDesign_Exporter::PLATFORM_OPTION, 'linux' );
+		$this->assertSame( 'auto', InDesign_Exporter::get_platform_setting() );
+
+		update_option( InDesign_Exporter::PLATFORM_OPTION, '' );
+		$this->assertSame( 'auto', InDesign_Exporter::get_platform_setting() );
+
+		delete_option( InDesign_Exporter::PLATFORM_OPTION );
 	}
 
 	/**

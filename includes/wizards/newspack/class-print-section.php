@@ -69,6 +69,7 @@ class Print_Section extends Wizard_Section {
 	public function api_get_print_settings() {
 		return [
 			'module_enabled_print' => Optional_Modules::is_optional_module_active( InDesign_Exporter::MODULE_NAME ),
+			'indesign_platform'    => InDesign_Exporter::get_platform_setting(),
 		];
 	}
 
@@ -90,8 +91,17 @@ class Print_Section extends Wizard_Section {
 			Optional_Modules::deactivate_optional_module( InDesign_Exporter::MODULE_NAME );
 		}
 
+		if ( $request->has_param( 'indesign_platform' ) ) {
+			$platform = $request->get_param( 'indesign_platform' );
+			if ( ! in_array( $platform, InDesign_Exporter::ALLOWED_PLATFORMS, true ) ) {
+				return new \WP_Error( 'invalid_param', __( 'Invalid parameter for indesign_platform.', 'newspack' ), [ 'status' => 400 ] );
+			}
+			update_option( InDesign_Exporter::PLATFORM_OPTION, $platform );
+		}
+
 		return [
 			'module_enabled_print' => $module_enabled_print,
+			'indesign_platform'    => InDesign_Exporter::get_platform_setting(),
 		];
 	}
 }

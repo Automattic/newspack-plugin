@@ -101,9 +101,12 @@ type JetpackSSOSettings = Partial< {
 } >;
 
 /** Print */
+type IndesignPlatform = 'auto' | 'mac' | 'win';
+
 /**
  * Print API data
  */
 type PrintData = {
 	module_enabled_print: boolean;
+	indesign_platform: IndesignPlatform;
 };
