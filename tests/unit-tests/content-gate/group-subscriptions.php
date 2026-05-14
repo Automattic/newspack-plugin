@@ -2490,4 +2490,93 @@ class Test_Group_Subscriptions extends \WP_UnitTestCase {
 			'Existing member must remain a member after re-clicking an invalid invite'
 		);
 	}
+
+	// -------------------------------------------------------------------------
+	// get_expiration_label()
+	// -------------------------------------------------------------------------
+
+	/**
+	 * Promote to the largest unit that divides exactly; never round.
+	 */
+	public function test_get_expiration_label_uses_largest_exact_unit() {
+		$cases = [
+			'default (30 days)' => [ 30 * DAY_IN_SECONDS, '30 days' ],
+			'1 week'            => [ WEEK_IN_SECONDS, '1 week' ],
+			'2 weeks (14 days)' => [ 14 * DAY_IN_SECONDS, '2 weeks' ],
+			'10 days'           => [ 10 * DAY_IN_SECONDS, '10 days' ],
+			'1 day'             => [ DAY_IN_SECONDS, '1 day' ],
+			'1 hour'            => [ HOUR_IN_SECONDS, '1 hour' ],
+			'2 hours'           => [ 2 * HOUR_IN_SECONDS, '2 hours' ],
+			'90 minutes'        => [ 90 * MINUTE_IN_SECONDS, '90 minutes' ],
+			'15 minutes'        => [ 15 * MINUTE_IN_SECONDS, '15 minutes' ],
+			'61 seconds'        => [ 61, '1 minute' ],
+			'90 seconds'        => [ 90, '1 minute' ],
+		];
+
+		foreach ( $cases as $label => $case ) {
+			[ $seconds, $expected ] = $case;
+			$callback               = function () use ( $seconds ) {
+				return $seconds;
+			};
+			add_filter( 'newspack_group_subscription_invite_expiration_time', $callback );
+
+			try {
+				$this->assertSame(
+					$expected,
+					Group_Subscription_Invite::get_expiration_label(),
+					"Expected '{$expected}' for case: {$label}"
+				);
+			} finally {
+				remove_filter( 'newspack_group_subscription_invite_expiration_time', $callback );
+			}
+		}
+	}
+
+	/**
+	 * Sub-minute values are floored at "1 minute".
+	 */
+	public function test_get_expiration_label_floor_is_one_minute() {
+		$callback = function () {
+			return 0;
+		};
+		add_filter( 'newspack_group_subscription_invite_expiration_time', $callback );
+
+		try {
+			$this->assertSame( '1 minute', Group_Subscription_Invite::get_expiration_label() );
+		} finally {
+			remove_filter( 'newspack_group_subscription_invite_expiration_time', $callback );
+		}
+	}
+
+	/**
+	 * Negative expiration times are coerced to the "1 minute" floor.
+	 */
+	public function test_get_expiration_label_floors_negative_values() {
+		$callback = function () {
+			return -100;
+		};
+		add_filter( 'newspack_group_subscription_invite_expiration_time', $callback );
+
+		try {
+			$this->assertSame( '1 minute', Group_Subscription_Invite::get_expiration_label() );
+		} finally {
+			remove_filter( 'newspack_group_subscription_invite_expiration_time', $callback );
+		}
+	}
+
+	/**
+	 * Large counts are formatted via number_format_i18n() (thousands separator under the active locale).
+	 */
+	public function test_get_expiration_label_uses_number_format_i18n() {
+		$callback = function () {
+			return 1000 * DAY_IN_SECONDS;
+		};
+		add_filter( 'newspack_group_subscription_invite_expiration_time', $callback );
+
+		try {
+			$this->assertSame( '1,000 days', Group_Subscription_Invite::get_expiration_label() );
+		} finally {
+			remove_filter( 'newspack_group_subscription_invite_expiration_time', $callback );
+		}
+	}
 }
