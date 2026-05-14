@@ -29,12 +29,12 @@
 .newspack-search-overlay__panel {
 	position: fixed;
 	inset: 0;
-	z-index: 9999;
+	z-index: 99999;
 	display: none; // Toggled to flex by view.js via aria-hidden.
 	flex-direction: column;
 	justify-content: center;
 	padding: 2rem;
-	background: #fff; // Fallback if overlayColor is unset.
+	background: var(--wp--preset--color--base, #fff); // Fallback if overlayColor is unset.
 
 	&[aria-hidden="false"] {
 		display: flex;
@@ -42,7 +42,7 @@
 
 	.newspack-search-overlay__content {
 		width: 100%;
-		max-width: 720px;
+		max-width: var(--wp--style--global--content-size, 720px);
 		margin: 0 auto;
 	}
 
