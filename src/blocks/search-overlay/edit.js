@@ -62,6 +62,10 @@ export default function SearchOverlayEdit( { attributes, setAttributes, clientId
 							colorValue: overlayColor,
 							label: __( 'Overlay', 'newspack-plugin' ),
 							onColorChange: value => setAttributes( { overlayColor: value || '' } ),
+							hasValue: () => !! overlayColor,
+							onDeselect: () => setAttributes( { overlayColor: '' } ),
+							isShownByDefault: true,
+							resetAllFilter: () => ( { overlayColor: '' } ),
 						},
 					] }
 					panelId={ clientId }

@@ -34,22 +34,30 @@
 	z-index: 99999;
 	display: flex;
 	flex-direction: column;
-	justify-content: center;
-	padding: var(--wp--preset--spacing--30, 1rem);
-	background: rgba(0, 0, 0, 0.5); // Default scrim — semi-transparent dark backdrop. Overridden by inline style when overlayColor is set.
+	// Anchor content near the top, matching newspack-block-theme's search overlay.
+	padding:
+		calc(10vh + var(--wp--custom--spacing--75, 4rem))
+		var(--wp--preset--spacing--30, 1rem)
+		var(--wp--preset--spacing--30, 1rem);
+	background: var(--wp--custom--color--neutral-70, rgba(0, 0, 0, 0.85)); // Default scrim — dark backdrop. Overridden by inline style when overlayColor is set.
 	overflow-y: auto;
 	opacity: 0;
 	visibility: hidden;
 	transition: opacity 250ms ease-in-out, visibility 0s linear 250ms;
 
 	@media (min-width: breakpoints.$tablet_width) {
-		padding: var(--wp--preset--spacing--40, 1.5rem);
+		padding-right: var(--wp--preset--spacing--40, 1.5rem);
+		padding-left: var(--wp--preset--spacing--40, 1.5rem);
 	}
 
 	&[aria-hidden="false"] {
 		opacity: 1;
 		visibility: visible;
 		transition: opacity 250ms ease-in-out, visibility 0s linear 0s;
+
+		.newspack-search-overlay__content {
+			animation: newspack-search-overlay__fade-in 250ms ease-in-out;
+		}
 	}
 
 	.newspack-search-overlay__content {
@@ -87,4 +95,18 @@ body:is(
 	[class*=" menu-open--search-overlay-"]
 ) {
 	overflow: hidden !important; // !important to temporarily override style from block theme's overlay approach.
+}
+
+// Slide-down + fade-in on the content as the panel opens — mirrors the
+// `search-contents__fade-in-animation` in newspack-block-theme.
+@keyframes newspack-search-overlay__fade-in { /* stylelint-disable-line keyframes-name-pattern */
+	0% {
+		opacity: 0;
+		transform: translateY(calc(-1 * var(--wp--preset--spacing--30, 1rem)));
+	}
+
+	100% {
+		opacity: 1;
+		transform: translateY(0);
+	}
 }
