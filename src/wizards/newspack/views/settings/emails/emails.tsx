@@ -9,13 +9,13 @@ import { __ } from '@wordpress/i18n';
 import { useState, useEffect, useCallback, useMemo, Fragment } from '@wordpress/element';
 import apiFetch from '@wordpress/api-fetch';
 import { filterSortAndPaginate } from '@wordpress/dataviews';
-import { Button, ToggleControl } from '@wordpress/components';
+import { Button } from '@wordpress/components';
 import type { Action, Field, View } from '@wordpress/dataviews';
 
 /**
  * Internal dependencies.
  */
-import { DataViews, Notice, utils } from '../../../../../../packages/components/src';
+import { Card, DataViews, Notice, utils } from '../../../../../../packages/components/src';
 import WizardsPluginCard from '../../../../wizards-plugin-card';
 
 interface EmailItem {
@@ -33,6 +33,7 @@ interface EmailItem {
 	default_shown: boolean;
 	trigger_description: string;
 	registry_slug: string;
+	recipient: 'reader' | 'admin';
 }
 
 interface EmailSettings {
@@ -42,30 +43,21 @@ interface EmailSettings {
 	enable_woocommerce_email_editor?: boolean;
 }
 
+const CATEGORY_ORDER: Record< string, number > = {
+	'reader-revenue': 0,
+	'reader-activation': 1,
+};
+
 const DEFAULT_VIEW: View = {
 	type: 'table',
 	page: 1,
 	perPage: 25,
-	sort: { field: 'name', direction: 'asc' },
 	search: '',
-	fields: [ 'trigger_description', 'status', 'note' ],
+	fields: [ 'recipient', 'status' ],
 	filters: [],
 	layout: {},
 	titleField: 'name',
 };
-
-function getInactiveNote( item: EmailItem ): string {
-	if ( item.status === 'publish' ) {
-		return '';
-	}
-	if ( item.type === 'receipt' ) {
-		return __( 'This email is not active. The default receipt will be used.', 'newspack-plugin' );
-	}
-	if ( item.type === 'welcome' ) {
-		return __( 'This email is not active. The receipt template will be used if active.', 'newspack-plugin' );
-	}
-	return __( 'This email is not active.', 'newspack-plugin' );
-}
 
 const Emails = () => {
 	const emailSections = window.newspackSettings.emails.sections;
@@ -85,7 +77,14 @@ const Emails = () => {
 			path: '/newspack/v1/wizard/newspack-settings/emails',
 		} )
 			.then( result => {
-				setData( result.newspack_emails || [] );
+				const emails = result.newspack_emails || [];
+				// Sort by category: reader-revenue first, reader-activation second, everything else last.
+				emails.sort( ( a, b ) => {
+					const orderA = CATEGORY_ORDER[ a.category ] ?? 2;
+					const orderB = CATEGORY_ORDER[ b.category ] ?? 2;
+					return orderA - orderB;
+				} );
+				setData( emails );
 				if ( result.post_type ) {
 					setPostType( result.post_type );
 				}
@@ -164,48 +163,30 @@ const Emails = () => {
 				render: ( { item }: { item: EmailItem } ) => (
 					<div>
 						<strong>{ item.label }</strong>
-						{ item.description && <div className="newspack-emails__description">{ item.description }</div> }
+						{ item.trigger_description && (
+							<div style={ { color: '#757575', fontSize: '12px', marginTop: '4px' } }>{ item.trigger_description }</div>
+						) }
 					</div>
 				),
 			},
 			{
-				id: 'trigger_description',
-				label: __( 'Trigger', 'newspack-plugin' ),
-				getValue: ( { item }: { item: EmailItem } ) => item.trigger_description || '',
-				render: ( { item }: { item: EmailItem } ) => <span>{ item.trigger_description }</span>,
-				enableSorting: false,
+				id: 'recipient',
+				label: __( 'Recipient', 'newspack-plugin' ),
+				getValue: ( { item }: { item: EmailItem } ) => item.recipient,
+				render: ( { item }: { item: EmailItem } ) => (
+					<span>{ item.recipient === 'admin' ? __( 'Admin', 'newspack-plugin' ) : __( 'Reader', 'newspack-plugin' ) }</span>
+				),
 			},
 			{
 				id: 'status',
 				label: __( 'Status', 'newspack-plugin' ),
 				getValue: ( { item }: { item: EmailItem } ) => item.status,
-				render: ( { item }: { item: EmailItem } ) => {
-					if ( item.category === 'reader-activation' ) {
-						return <span>{ item.status === 'publish' ? __( 'Active', 'newspack-plugin' ) : __( 'Inactive', 'newspack-plugin' ) }</span>;
-					}
-					return (
-						<ToggleControl
-							__nextHasNoMarginBottom
-							checked={ item.status === 'publish' }
-							onChange={ ( checked: boolean ) => updateStatus( item.post_id, checked ? 'publish' : 'draft' ) }
-							label={ item.status === 'publish' ? __( 'Active', 'newspack-plugin' ) : __( 'Inactive', 'newspack-plugin' ) }
-						/>
-					);
-				},
-				enableSorting: false,
-			},
-			{
-				id: 'note',
-				label: __( 'Note', 'newspack-plugin' ),
-				getValue: ( { item }: { item: EmailItem } ) => getInactiveNote( item ),
-				render: ( { item }: { item: EmailItem } ) => {
-					const note = getInactiveNote( item );
-					return note ? <em>{ note }</em> : null;
-				},
-				enableSorting: false,
+				render: ( { item }: { item: EmailItem } ) => (
+					<span>{ item.status === 'publish' ? __( 'Enabled', 'newspack-plugin' ) : __( 'Disabled', 'newspack-plugin' ) }</span>
+				),
 			},
 		],
-		[ updateStatus ]
+		[]
 	);
 
 	const actions: Action< EmailItem >[] = useMemo(
@@ -213,9 +194,24 @@ const Emails = () => {
 			{
 				id: 'edit',
 				label: __( 'Edit', 'newspack-plugin' ),
-				isPrimary: true,
 				callback: ( items: EmailItem[] ) => {
 					window.location.href = items[ 0 ].edit_link;
+				},
+			},
+			{
+				id: 'deactivate',
+				label: __( 'Deactivate', 'newspack-plugin' ),
+				isEligible: ( item: EmailItem ) => item.category !== 'reader-activation' && item.status === 'publish',
+				callback: ( items: EmailItem[] ) => {
+					updateStatus( items[ 0 ].post_id, 'draft' );
+				},
+			},
+			{
+				id: 'activate',
+				label: __( 'Activate', 'newspack-plugin' ),
+				isEligible: ( item: EmailItem ) => item.category !== 'reader-activation' && item.status !== 'publish',
+				callback: ( items: EmailItem[] ) => {
+					updateStatus( items[ 0 ].post_id, 'publish' );
 				},
 			},
 			{
@@ -230,7 +226,7 @@ const Emails = () => {
 				},
 			},
 		],
-		[ resetEmail ]
+		[ resetEmail, updateStatus ]
 	);
 
 	const { data: processedData, paginationInfo } = useMemo(
@@ -265,6 +261,19 @@ const Emails = () => {
 
 	return (
 		<Fragment>
+			<Card headerActions noBorder>
+				<div>
+					<p style={ { color: '#757575', margin: 0 } }>
+						{ __(
+							"Manage the transactional emails your readers receive. Use 'Edit template' to customize the design that wraps every email.",
+							'newspack-plugin'
+						) }
+					</p>
+				</div>
+				<Button variant="secondary" href={ `/wp-admin/edit.php?post_type=${ postType }` }>
+					{ __( 'Edit template', 'newspack-plugin' ) }
+				</Button>
+			</Card>
 			{ error && <Notice isError noticeText={ error } /> }
 			<DataViews
 				className="newspack-emails"

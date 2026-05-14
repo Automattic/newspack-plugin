@@ -48,6 +48,16 @@ class Newspack_Test_Emails_Section extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Test all registry entries have a valid recipient value.
+	 */
+	public function test_registry_entries_have_recipient() {
+		$registry = Emails_Section::get_email_registry();
+		foreach ( $registry as $slug => $entry ) {
+			$this->assertContains( $entry['recipient'], [ 'reader', 'admin' ], "Entry '$slug' has an invalid recipient value." );
+		}
+	}
+
+	/**
 	 * Test all registry entries have non-empty labels and trigger descriptions.
 	 */
 	public function test_registry_entries_have_labels_and_triggers() {

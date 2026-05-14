@@ -35,6 +35,7 @@ jest.mock( '../../../../../../packages/components/src', () => {
 				</tbody>
 			</table>
 		),
+		Card: ( { children } ) => <div data-testid="card">{ children }</div>,
 		Notice: ( { noticeText } ) => <div data-testid="notice">{ noticeText }</div>,
 		utils: {
 			confirmAction: jest.fn( () => true ),
@@ -66,6 +67,7 @@ const mockEmails = [
 		default_shown: true,
 		trigger_description: 'Sent when a reader needs to verify their email address.',
 		registry_slug: 'verification',
+		recipient: 'reader',
 	},
 	{
 		label: 'Payment receipt',
@@ -82,6 +84,7 @@ const mockEmails = [
 		default_shown: true,
 		trigger_description: 'Sent after a successful payment.',
 		registry_slug: 'receipt',
+		recipient: 'reader',
 	},
 	{
 		label: 'Account deletion',
@@ -98,6 +101,7 @@ const mockEmails = [
 		default_shown: false,
 		trigger_description: 'Sent when a reader requests to delete their account.',
 		registry_slug: 'delete-account',
+		recipient: 'reader',
 	},
 ];
 
@@ -134,6 +138,32 @@ describe( 'Emails', () => {
 
 		expect( screen.getByText( 'Reader verification' ) ).toBeInTheDocument();
 		expect( screen.getByText( 'Payment receipt' ) ).toBeInTheDocument();
+	} );
+
+	it( 'renders Recipient column with correct values', async () => {
+		const Emails = require( './emails' ).default;
+		render( <Emails /> );
+
+		await waitFor( () => {
+			expect( screen.getByTestId( 'dataviews' ) ).toBeInTheDocument();
+		} );
+
+		// All mock emails have recipient: 'reader'.
+		const readerCells = screen.getAllByText( 'Reader' );
+		expect( readerCells.length ).toBeGreaterThanOrEqual( 2 );
+	} );
+
+	it( 'renders status as Enabled / Disabled', async () => {
+		const Emails = require( './emails' ).default;
+		render( <Emails /> );
+
+		await waitFor( () => {
+			expect( screen.getByTestId( 'dataviews' ) ).toBeInTheDocument();
+		} );
+
+		// All mock emails have status: 'publish'.
+		const enabledCells = screen.getAllByText( 'Enabled' );
+		expect( enabledCells.length ).toBeGreaterThanOrEqual( 2 );
 	} );
 
 	it( '"Show all" toggle changes filter', async () => {
