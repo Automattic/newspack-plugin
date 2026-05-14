@@ -113,7 +113,6 @@ class My_Account_UI_V1 {
 				'invite_link_copied'          => __( 'Invite link copied.', 'newspack-plugin' ),
 				'invite_link_regenerated'     => __( 'New invite link copied. The old one no longer works.', 'newspack-plugin' ),
 				'invite_link_copy_failed'     => __( 'Couldn\'t copy the invite link to your clipboard. Copy it manually:', 'newspack-plugin' ),
-				'dismiss'                     => __( 'Dismiss', 'newspack-plugin' ),
 				'invite_link_disabled'        => __( 'Invite link disabled. You can create a new link any time.', 'newspack-plugin' ),
 			],
 			'rest'         => [

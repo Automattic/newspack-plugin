@@ -130,53 +130,9 @@ domReady( function () {
 		}
 	};
 
-	const showCopyFailureNotice = url => {
-		let wrapper = document.querySelector( '.newspack-ui' );
-		if ( ! wrapper ) {
-			wrapper = document.createElement( 'div' );
-			wrapper.classList.add( 'newspack-ui' );
-			document.body.appendChild( wrapper );
-		}
-		let snackbar = wrapper.querySelector( '.newspack-ui__snackbar--top-right' );
-		if ( ! snackbar ) {
-			snackbar = document.createElement( 'div' );
-			snackbar.classList.add( 'newspack-ui__snackbar', 'newspack-ui__snackbar--top-right' );
-			wrapper.appendChild( snackbar );
-		}
-		const item = document.createElement( 'div' );
-		item.classList.add( 'newspack-ui__snackbar__item', 'newspack-ui__snackbar__item--error' );
-		item.setAttribute( 'data-autohide', 'false' );
-
-		const itemContent = document.createElement( 'div' );
-		itemContent.classList.add( 'newspack-ui__snackbar__content' );
-
-		const msg = document.createElement( 'div' );
-		msg.textContent =
-			newspackMyAccountV1?.labels?.invite_link_copy_failed || "Couldn't copy the invite link to your clipboard. Copy it manually:";
-		itemContent.appendChild( msg );
-
-		const linkField = document.createElement( 'input' );
-		linkField.type = 'text';
-		linkField.readOnly = true;
-		linkField.value = url;
-		linkField.classList.add( 'newspack-my-account__group_subscription__invite-link__manual-copy' );
-		linkField.addEventListener( 'focus', () => linkField.select() );
-		itemContent.appendChild( linkField );
-
-		const close = document.createElement( 'button' );
-		close.type = 'button';
-		close.classList.add( 'newspack-ui__button', 'newspack-ui__button--ghost', 'newspack-ui__button--small' );
-		close.textContent = newspackMyAccountV1?.labels?.dismiss || 'Dismiss';
-		close.addEventListener( 'click', () => {
-			item.classList.remove( 'active' );
-			setTimeout( () => item.remove(), 250 );
-		} );
-		itemContent.appendChild( close );
-
-		item.appendChild( itemContent );
-		snackbar.appendChild( item );
-		requestAnimationFrame( () => item.classList.add( 'active' ) );
-		linkField.focus();
+	const copyFailedMessage = url => {
+		const text = newspackMyAccountV1?.labels?.invite_link_copy_failed || "Couldn't copy the invite link to your clipboard. Copy it manually:";
+		return `${ text } ${ url }`;
 	};
 	// Minimum loading duration so the spinner reads as "system thinking" even when the API is instant.
 	const MIN_LOADING_MS = 500;
@@ -219,7 +175,7 @@ domReady( function () {
 					: newspackMyAccountV1?.labels?.invite_link_copied || 'Invite link copied.';
 				showSnackbar( message );
 			} else {
-				showCopyFailureNotice( data.url );
+				showSnackbar( copyFailedMessage( data.url ), 'error' );
 			}
 		} catch ( error ) {
 			await waitForMinLoading( loadingStart );
@@ -276,7 +232,7 @@ domReady( function () {
 				if ( await copyToClipboard( inviteLink ) ) {
 					showSnackbar( newspackMyAccountV1?.labels?.invite_link_copied || 'Invite link copied.' );
 				} else {
-					showCopyFailureNotice( inviteLink );
+					showSnackbar( copyFailedMessage( inviteLink ), 'error' );
 				}
 			} else {
 				generateLink( e );
