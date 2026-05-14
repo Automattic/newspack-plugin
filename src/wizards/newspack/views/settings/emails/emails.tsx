@@ -274,9 +274,7 @@ const Emails = () => {
 
 	return (
 		<Fragment>
-			<h1 className="screen-reader-text">
-				{ __( 'Emails', 'newspack-plugin' ) }
-			</h1>
+			<h1 className="screen-reader-text">{ __( 'Emails', 'newspack-plugin' ) }</h1>
 			{ error && <Notice isError noticeText={ error } /> }
 			<DataViews
 				className="newspack-emails"
