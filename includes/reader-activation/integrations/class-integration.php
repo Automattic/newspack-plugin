@@ -158,7 +158,11 @@ abstract class Integration {
 	 * active for the integration to function. The integrations UI uses this
 	 * to surface a "requirements" affordance on the integration card.
 	 *
-	 * @return array List of associative arrays with keys `slug`, `name`, `is_active`.
+	 * Each entry must include all of `slug`, `name`, `is_active`, and `is_installed` —
+	 * the integrations UI treats a missing `is_installed` as uninstalled and renders
+	 * a disabled "Requires …" card instead of the Activate action.
+	 *
+	 * @return array List of associative arrays with keys `slug`, `name`, `is_active`, `is_installed`.
 	 */
 	public function get_required_plugins() {
 		return [];
