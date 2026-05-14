@@ -273,6 +273,26 @@ class Newspack_Test_InDesign_Exporter extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Test that is_post_supported gates posts by the configured post types setting.
+	 */
+	public function test_is_post_supported() {
+		update_option( InDesign_Exporter::POST_TYPES_OPTION, [ 'post' ] );
+
+		$post_id = $this->factory->post->create();
+		$page_id = $this->factory->post->create( [ 'post_type' => 'page' ] );
+
+		$this->assertTrue( InDesign_Exporter::is_post_supported( $post_id ) );
+		$this->assertFalse( InDesign_Exporter::is_post_supported( $page_id ) );
+		$this->assertFalse( InDesign_Exporter::is_post_supported( 0 ) );
+		$this->assertFalse( InDesign_Exporter::is_post_supported( 99999999 ) );
+
+		update_option( InDesign_Exporter::POST_TYPES_OPTION, [ 'post', 'page' ] );
+		$this->assertTrue( InDesign_Exporter::is_post_supported( $page_id ) );
+
+		delete_option( InDesign_Exporter::POST_TYPES_OPTION );
+	}
+
+	/**
 	 * Test that en-dashes and em-dashes map to their own Unicode code points.
 	 *
 	 * Previously '–' (en-dash, U+2013) was incorrectly mapped to <0x2014> (em-dash).

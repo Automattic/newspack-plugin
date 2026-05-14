@@ -265,6 +265,11 @@ class InDesign_Exporter {
 			return add_query_arg( 'indesign_export_error', 'no_posts', $redirect_to );
 		}
 
+		$post_ids = array_values( array_filter( $post_ids, [ __CLASS__, 'is_post_supported' ] ) );
+		if ( empty( $post_ids ) ) {
+			return add_query_arg( 'indesign_export_error', 'unsupported_post_type', $redirect_to );
+		}
+
 		self::export_posts( $post_ids );
 		exit;
 	}
@@ -330,8 +335,35 @@ class InDesign_Exporter {
 			exit;
 		}
 
+		if ( ! self::is_post_supported( $post_id ) ) {
+			wp_safe_redirect(
+				add_query_arg( 'indesign_export_error', 'unsupported_post_type', admin_url( 'edit.php' ) )
+			);
+			exit;
+		}
+
 		self::export_posts( [ $post_id ] );
 		exit;
+	}
+
+	/**
+	 * Whether the given post may be exported under the current settings.
+	 *
+	 * Defense in depth — the bulk and row UI actions only appear for
+	 * post types in get_supported_post_types(), but the underlying
+	 * `admin_post_export_indesign_single` action and bulk handler could
+	 * otherwise be invoked with a post of a disabled type by anyone who can
+	 * edit that post.
+	 *
+	 * @param int|\WP_Post $post Post ID or object.
+	 * @return bool True when the post type is enabled for export.
+	 */
+	public static function is_post_supported( $post ) {
+		$post = get_post( $post );
+		if ( ! $post ) {
+			return false;
+		}
+		return in_array( $post->post_type, self::get_supported_post_types(), true );
 	}
 
 	/**
@@ -508,6 +540,9 @@ class InDesign_Exporter {
 					break;
 				case 'no_posts':
 					$message = __( 'No posts were selected for export.', 'newspack' );
+					break;
+				case 'unsupported_post_type':
+					$message = __( 'The selected post type is not enabled for InDesign export.', 'newspack' );
 					break;
 				case 'zip_error':
 					$message = __( 'Could not create ZIP file for export.', 'newspack' );
