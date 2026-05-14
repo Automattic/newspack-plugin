@@ -212,10 +212,10 @@ class Newspack_Test_WooCommerce_Gateway_Stripe extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Subscriptions with an empty payment method should be treated as non-Stripe
-	 * and have _stripe_customer_id stripped.
+	 * Subscriptions with an empty payment method are not a WooPayments subscription
+	 * and should NOT have _stripe_customer_id touched by any of the three guards.
 	 */
-	public function test_stripe_customer_id_stripped_for_empty_payment_method() {
+	public function test_stripe_customer_id_preserved_for_empty_payment_method() {
 		$subscription = wcs_create_subscription(
 			[
 				'payment_method' => '',
@@ -226,9 +226,60 @@ class Newspack_Test_WooCommerce_Gateway_Stripe extends WP_UnitTestCase {
 		WooCommerce_Gateway_Stripe::maybe_strip_stripe_customer_id_before_save( $subscription );
 
 		$this->assertSame(
-			'',
+			'cus_orphan',
 			$subscription->get_meta( '_stripe_customer_id' ),
-			'_stripe_customer_id should be stripped when payment_method is empty (treated as non-Stripe).'
+			'_stripe_customer_id should be preserved when payment_method is empty (not a WooPayments subscription).'
+		);
+	}
+
+	/**
+	 * The post meta filter should return null (allow write) for a subscription with
+	 * an empty payment method — empty string does not start with woocommerce_payments.
+	 */
+	public function test_post_meta_filter_allows_empty_payment_method_subscription() {
+		$subscription = wcs_create_subscription( [ 'payment_method' => '' ] );
+
+		$result = WooCommerce_Gateway_Stripe::maybe_block_stripe_customer_id_post_meta_update(
+			null,
+			$subscription->get_id(),
+			'_stripe_customer_id'
+		);
+
+		$this->assertNull(
+			$result,
+			'Filter should return null (allow write) for a subscription with an empty payment method.'
+		);
+	}
+
+	/**
+	 * On renewal for a subscription with an empty payment method, _stripe_customer_id
+	 * should not be cleared — empty string does not start with woocommerce_payments.
+	 */
+	public function test_renewal_preserves_customer_id_for_empty_payment_method() {
+		$renewal_order = new WC_Order(
+			[
+				'status' => 'pending',
+				'meta'   => [ '_stripe_customer_id' => 'cus_orphan' ],
+			]
+		);
+		$subscription  = wcs_create_subscription(
+			[
+				'payment_method' => '',
+				'meta'           => [ '_stripe_customer_id' => 'cus_orphan' ],
+			]
+		);
+
+		WooCommerce_Gateway_Stripe::clear_stripe_customer_id_on_renewal( $renewal_order, $subscription );
+
+		$this->assertSame(
+			'cus_orphan',
+			$renewal_order->get_meta( '_stripe_customer_id' ),
+			'_stripe_customer_id should be preserved on the renewal order when payment_method is empty.'
+		);
+		$this->assertSame(
+			'cus_orphan',
+			$subscription->get_meta( '_stripe_customer_id' ),
+			'_stripe_customer_id should be preserved on the subscription when payment_method is empty.'
 		);
 	}
 

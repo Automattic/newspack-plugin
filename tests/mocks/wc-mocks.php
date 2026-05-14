@@ -237,6 +237,9 @@ class WC_Order {
 	public function delete_meta_data( $field_name ) {
 		unset( $this->meta[ $field_name ] );
 	}
+	public function meta_exists( $field_name ) {
+		return isset( $this->meta[ $field_name ] );
+	}
 	public function save() {
 		return true;
 	}
@@ -288,6 +291,9 @@ class WC_Subscription {
 	}
 	public function delete_meta_data( $field_name ) {
 		unset( $this->meta[ $field_name ] );
+	}
+	public function meta_exists( $field_name ) {
+		return isset( $this->meta[ $field_name ] );
 	}
 	public function has_status( $statuses ) {
 		if ( ! is_array( $statuses ) ) {
