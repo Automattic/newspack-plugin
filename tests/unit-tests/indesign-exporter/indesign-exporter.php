@@ -105,6 +105,39 @@ class Newspack_Test_InDesign_Exporter extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Test User-Agent → platform mapping for representative strings.
+	 */
+	public function test_sniff_user_agent_platform() {
+		// macOS Safari / Chrome.
+		$this->assertSame(
+			'mac',
+			InDesign_Exporter::sniff_user_agent_platform( 'Mozilla/5.0 (Macintosh; Intel Mac OS X 14_5) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.5 Safari/605.1.15' )
+		);
+		// iPad.
+		$this->assertSame(
+			'mac',
+			InDesign_Exporter::sniff_user_agent_platform( 'Mozilla/5.0 (iPad; CPU OS 17_5 like Mac OS X) AppleWebKit/605.1.15' )
+		);
+		// iPhone.
+		$this->assertSame(
+			'mac',
+			InDesign_Exporter::sniff_user_agent_platform( 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_5 like Mac OS X) AppleWebKit/605.1.15' )
+		);
+		// Windows Chrome.
+		$this->assertSame(
+			'win',
+			InDesign_Exporter::sniff_user_agent_platform( 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36' )
+		);
+		// Linux (treated as Windows-compatible by InDesign Tagged Text — there is no Linux variant).
+		$this->assertSame(
+			'win',
+			InDesign_Exporter::sniff_user_agent_platform( 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36' )
+		);
+		// Empty.
+		$this->assertSame( 'win', InDesign_Exporter::sniff_user_agent_platform( '' ) );
+	}
+
+	/**
 	 * Test that en-dashes and em-dashes map to their own Unicode code points.
 	 *
 	 * Previously '–' (en-dash, U+2013) was incorrectly mapped to <0x2014> (em-dash).

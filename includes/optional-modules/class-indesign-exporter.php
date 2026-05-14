@@ -273,6 +273,19 @@ class InDesign_Exporter {
 	}
 
 	/**
+	 * Map a User-Agent string to a platform.
+	 *
+	 * Pure helper extracted so the auto-detect branch of resolve_platform()
+	 * is testable without spoofing $_SERVER globals.
+	 *
+	 * @param string $user_agent User-Agent string to inspect.
+	 * @return string Either 'mac' or 'win'. Empty/non-Mac strings yield 'win'.
+	 */
+	public static function sniff_user_agent_platform( $user_agent ) {
+		return ( false !== stripos( $user_agent, 'Mac' ) || false !== stripos( $user_agent, 'iPad' ) || false !== stripos( $user_agent, 'iPhone' ) ) ? 'mac' : 'win';
+	}
+
+	/**
 	 * Resolve the InDesign Tagged Text header platform for the current export.
 	 *
 	 * Honors the site setting first. When the setting is 'auto', the platform
@@ -291,7 +304,7 @@ class InDesign_Exporter {
 			// The export runs from an authenticated admin-post.php request that is never cached.
 			// phpcs:ignore WordPressVIPMinimum.Variables.RestrictedVariables.cache_constraints___SERVER__HTTP_USER_AGENT__
 			$user_agent = isset( $_SERVER['HTTP_USER_AGENT'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) : '';
-			$platform   = ( false !== stripos( $user_agent, 'Mac' ) || false !== stripos( $user_agent, 'iPad' ) || false !== stripos( $user_agent, 'iPhone' ) ) ? 'mac' : 'win';
+			$platform   = self::sniff_user_agent_platform( $user_agent );
 		}
 
 		/**
@@ -299,7 +312,9 @@ class InDesign_Exporter {
 		 *
 		 * @param string $platform   'mac' or 'win'.
 		 * @param string $setting    The stored platform setting ('auto', 'mac', or 'win').
-		 * @param string $user_agent The raw User-Agent header from the request, or '' when not consulted.
+		 * @param string $user_agent The User-Agent header from the request after
+		 *                           sanitize_text_field() + wp_unslash(), or '' when
+		 *                           not consulted (i.e. setting is not 'auto').
 		 */
 		return apply_filters( 'newspack_indesign_export_platform', $platform, $setting, $user_agent );
 	}

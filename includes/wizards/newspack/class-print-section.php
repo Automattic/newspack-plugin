@@ -85,17 +85,19 @@ class Print_Section extends Wizard_Section {
 			return new \WP_Error( 'invalid_param', __( 'Invalid parameter for module_enabled_print.', 'newspack' ), [ 'status' => 400 ] );
 		}
 
+		$has_platform_param = $request->has_param( 'indesign_platform' );
+		$platform           = $has_platform_param ? $request->get_param( 'indesign_platform' ) : null;
+		if ( $has_platform_param && ! in_array( $platform, InDesign_Exporter::ALLOWED_PLATFORMS, true ) ) {
+			return new \WP_Error( 'invalid_param', __( 'Invalid parameter for indesign_platform.', 'newspack' ), [ 'status' => 400 ] );
+		}
+
 		if ( $module_enabled_print ) {
 			Optional_Modules::activate_optional_module( InDesign_Exporter::MODULE_NAME );
 		} else {
 			Optional_Modules::deactivate_optional_module( InDesign_Exporter::MODULE_NAME );
 		}
 
-		if ( $request->has_param( 'indesign_platform' ) ) {
-			$platform = $request->get_param( 'indesign_platform' );
-			if ( ! in_array( $platform, InDesign_Exporter::ALLOWED_PLATFORMS, true ) ) {
-				return new \WP_Error( 'invalid_param', __( 'Invalid parameter for indesign_platform.', 'newspack' ), [ 'status' => 400 ] );
-			}
+		if ( $has_platform_param ) {
 			update_option( InDesign_Exporter::PLATFORM_OPTION, $platform );
 		}
 
