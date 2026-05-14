@@ -76,8 +76,52 @@ final class Search_Overlay_Block {
 		// `wp_unique_id()` returns a per-request counter ("1", "2", ...); prefix once for a clean DOM id.
 		$panel_id = 'newspack-search-overlay-panel-' . \wp_unique_id();
 
+		$is_jetpack_search = \wp_script_is( 'jetpack-instant-search', 'enqueued' );
+
+		if ( $is_jetpack_search ) {
+			return self::render_jetpack_trigger( $trigger_text, $is_icon_only, $is_text_only );
+		}
+
 		return self::render_trigger_button( $trigger_text, $panel_id, $is_icon_only, $is_text_only )
 			. self::render_panel( $panel_id, $attributes['overlayColor'] );
+	}
+
+	/**
+	 * Render the trigger as a Jetpack Instant Search anchor.
+	 *
+	 * Jetpack's instant-search script binds its own overlay to elements
+	 * matching `.jetpack-search-filter__link`.
+	 *
+	 * @param string $trigger_text Visible/SR label.
+	 * @param bool   $is_icon_only Whether the active style hides the label.
+	 * @param bool   $is_text_only Whether the active style hides the icon.
+	 * @return string Trigger anchor HTML.
+	 */
+	private static function render_jetpack_trigger( $trigger_text, $is_icon_only, $is_text_only ) {
+		$extra_attributes = [
+			'class'      => 'wp-element-button wp-block-button__link newspack-search-overlay__trigger jetpack-search-filter__link',
+			'href'       => \esc_url( \add_query_arg( 's', '', \home_url( '/' ) ) ),
+			'aria-label' => $trigger_text,
+		];
+		$wrapper_attributes = \get_block_wrapper_attributes( $extra_attributes );
+
+		$label_classes = [ 'newspack-search-overlay__label' ];
+		if ( $is_icon_only ) {
+			$label_classes[] = 'screen-reader-text';
+		}
+
+		$html  = '<div class="wp-block-buttons is-layout-flex">';
+		$html .= '<div class="wp-block-button">';
+		$html .= '<a ' . $wrapper_attributes . '>';
+		if ( ! $is_text_only ) {
+			$html .= '<span class="newspack-search-overlay__icon" aria-hidden="true">' . self::ICON_SEARCH . '</span>';
+		}
+		$html .= '<span class="' . \esc_attr( implode( ' ', $label_classes ) ) . '">' . \esc_html( $trigger_text ) . '</span>';
+		$html .= '</a>';
+		$html .= '</div>';
+		$html .= '</div>';
+
+		return $html;
 	}
 
 	/**
