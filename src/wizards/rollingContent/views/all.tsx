@@ -54,8 +54,11 @@ function AllRollingContent() {
 	const { setHeaderData } = useDispatch( WIZARD_STORE_NAMESPACE );
 	const [ data, setData ] = useState< RollingContent[] >( ROLLING_CONTENTS );
 	const [ view, setView ] = useState< View >( DEFAULT_VIEW );
-	const [ managingEntriesFor, setManagingEntriesFor ] = useState< RollingContent | null >( null );
-	const [ addingEntryFor, setAddingEntryFor ] = useState< RollingContent | null >( null );
+	const [ managingEntriesForId, setManagingEntriesForId ] = useState< number | null >( null );
+	const [ addingEntryForId, setAddingEntryForId ] = useState< number | null >( null );
+
+	const managingEntriesFor = managingEntriesForId === null ? null : data.find( r => r.id === managingEntriesForId ) ?? null;
+	const addingEntryFor = addingEntryForId === null ? null : data.find( r => r.id === addingEntryForId ) ?? null;
 
 	useEffect( () => {
 		setHeaderData( {
@@ -104,10 +107,10 @@ function AllRollingContent() {
 				render: ( { item } ) => (
 					<div style={ { display: 'flex', alignItems: 'center', gap: 8 } }>
 						<span>{ item.entries.length }</span>
-						<Button variant="secondary" size="small" onClick={ () => setManagingEntriesFor( item ) }>
+						<Button variant="secondary" size="small" onClick={ () => setManagingEntriesForId( item.id ) }>
 							{ __( 'Manage', 'newspack-plugin' ) }
 						</Button>
-						<Button variant="secondary" size="small" onClick={ () => setAddingEntryFor( item ) }>
+						<Button variant="secondary" size="small" onClick={ () => setAddingEntryForId( item.id ) }>
 							{ __( 'Add', 'newspack-plugin' ) }
 						</Button>
 					</div>
@@ -118,7 +121,7 @@ function AllRollingContent() {
 				label: __( 'Last updated', 'newspack-plugin' ),
 				getValue: ( { item } ) => {
 					if ( item.entries.length === 0 ) {
-						return '';
+						return 0;
 					}
 					return Math.max( ...item.entries.map( e => new Date( e.date ).getTime() ) );
 				},
@@ -199,10 +202,10 @@ function AllRollingContent() {
 					onEntriesChange={ nextEntries =>
 						setData( prev => prev.map( r => ( r.id === managingEntriesFor.id ? { ...r, entries: nextEntries } : r ) ) )
 					}
-					onClose={ () => setManagingEntriesFor( null ) }
+					onClose={ () => setManagingEntriesForId( null ) }
 				/>
 			) }
-			{ addingEntryFor && <AddEntryInfoModal parentTitle={ addingEntryFor.title } onClose={ () => setAddingEntryFor( null ) } /> }
+			{ addingEntryFor && <AddEntryInfoModal parentTitle={ addingEntryFor.title } onClose={ () => setAddingEntryForId( null ) } /> }
 		</>
 	);
 }
