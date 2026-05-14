@@ -61,7 +61,7 @@ export const SettingsSection = ( { integrations, loading, onToggleEnabled, onAct
 							const missingPlugins = getMissingPlugins( integration );
 							const uninstalledPlugin = missingPlugins.find( plugin => ! plugin.is_installed );
 							const activatablePlugin = missingPlugins.length && ! uninstalledPlugin ? missingPlugins[ 0 ] : null;
-							const requirements = uninstalledPlugin
+							const requirements = missingPlugins.length
 								? sprintf(
 										/* translators: %s: comma-separated list of required plugin names. */
 										__( 'Requires %s', 'newspack-plugin' ),
@@ -87,6 +87,7 @@ export const SettingsSection = ( { integrations, loading, onToggleEnabled, onAct
 									icon={ INTEGRATION_ICONS[ id ] || DEFAULT_ICON }
 									enabled={ isEnabled }
 									requirements={ requirements }
+									requirementsActionable={ !! activatablePlugin }
 									enableLabel={ enableLabel }
 									configureLabel={ needsSetup ? __( 'Configure', 'newspack-plugin' ) : undefined }
 									onEnable={ onEnable }
