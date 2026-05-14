@@ -260,12 +260,62 @@ class GoogleSiteKit {
 		// If reader has any currently active non-donation subscriptions.
 		$params['is_subscriber'] = empty( $reader_data['active_subscriptions'] ) ? 'no' : 'yes';
 
+		// Content access groups: anonymized identifiers for the user's active group
+		// subscriptions and matching institutions. See get_user_group_labels() for
+		// why we send IDs to GA4 rather than the human-readable names.
+		if ( Content_Gate::is_newspack_feature_enabled() ) {
+			$group_labels    = self::get_user_group_labels( $current_user );
+			$params['group'] = empty( $group_labels ) ? 'none' : implode( ', ', $group_labels );
+		}
+
 		/**
 		 * Filters the custom parameters passed to GA4.
 		 *
 		 * @param array $params Custom parameters sent to GA4.
 		 */
 		return apply_filters( 'newspack_ga4_custom_parameters', $params );
+	}
+
+	/**
+	 * Build the GA4 `group` parameter value for a user.
+	 *
+	 * The value is a sorted, comma-delimited list of anonymized identifiers for
+	 * active group subscriptions the user owns or is a member of, plus institutions
+	 * whose rules the user matches via any means.
+	 *
+	 * We emit anonymized IDs (`Group {sub_id}`, `Institution {inst_id}`) rather than
+	 * publisher-facing display names because the unnamed-group fallback in
+	 * `Group_Subscription_Settings` synthesizes a name from the owner's billing full
+	 * name — sending that to GA4 would leak PII for every member of an unnamed group.
+	 * The ESP path keeps the human-readable names; only the GA4 surface is anonymized.
+	 *
+	 * Both lookups are delegated to per-request-memoized helpers in `Group_Subscription`
+	 * and `Institution`, so repeat calls within the same request are cheap. Memoization
+	 * is deliberately request-scoped because the institution branch is per-visitor.
+	 *
+	 * @param \WP_User $user The user to inspect.
+	 * @return string[] Sorted, deduplicated anonymized labels.
+	 */
+	private static function get_user_group_labels( $user ) {
+		if ( ! $user || ! $user->ID ) {
+			return [];
+		}
+		// Match the framing of the surrounding params (`is_reader`, `is_subscriber`):
+		// only attribute groups to actual readers, not admins/editors.
+		if ( ! Reader_Activation::is_user_reader( $user ) ) {
+			return [];
+		}
+		$user_id = (int) $user->ID;
+
+		$labels = [];
+		foreach ( Group_Subscription::get_group_ids_for_user( $user_id ) as $sub_id ) {
+			$labels[] = 'Group ' . $sub_id;
+		}
+		foreach ( Institution::get_matching_ids_for_user( $user_id ) as $inst_id ) {
+			$labels[] = 'Institution ' . $inst_id;
+		}
+		sort( $labels, SORT_NATURAL | SORT_FLAG_CASE );
+		return $labels;
 	}
 
 	/**

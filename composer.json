@@ -9,7 +9,6 @@
 	},
 	"require": {
 		"composer/installers": "~2.0",
-		"joshtronic/php-loremipsum": "^2.1",
 		"google/auth": "^1.15",
 		"woocommerce/action-scheduler": "^3.9"
 	},
