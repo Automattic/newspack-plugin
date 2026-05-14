@@ -22,15 +22,15 @@ class Newspack_Test_Emails_Section extends WP_UnitTestCase {
 	/**
 	 * Test the registry has 13 default-shown entries.
 	 */
-	public function test_registry_has_13_default_shown() {
+	public function test_registry_has_13_recommended() {
 		$registry      = Emails_Section::get_email_registry();
-		$default_shown = array_filter(
+		$recommended = array_filter(
 			$registry,
 			function ( $entry ) {
-				return true === $entry['default_shown'];
+				return true === $entry['recommended'];
 			}
 		);
-		$this->assertCount( 13, $default_shown );
+		$this->assertCount( 13, $recommended );
 	}
 
 	/**
