@@ -48,6 +48,20 @@ class InDesign_Exporter {
 	public const ALLOWED_PLATFORMS = [ 'auto', 'mac', 'win' ];
 
 	/**
+	 * Option name storing the list of post types whose admin screens get the export action.
+	 *
+	 * @var string
+	 */
+	public const POST_TYPES_OPTION = 'newspack_indesign_export_post_types';
+
+	/**
+	 * Default value for the post types option.
+	 *
+	 * @var string[]
+	 */
+	public const POST_TYPES_DEFAULT = [ 'post' ];
+
+	/**
 	 * Initialize the module.
 	 */
 	public static function init() {
@@ -91,10 +105,14 @@ class InDesign_Exporter {
 	/**
 	 * Get supported post types for InDesign export.
 	 *
-	 * @return array Array of supported post types.
+	 * Reads from the site setting (defaulting to the built-in post type) and
+	 * then runs the `newspack_indesign_export_supported_post_types` filter so
+	 * code-level extension points still work alongside the admin setting.
+	 *
+	 * @return array Array of supported post type slugs.
 	 */
 	public static function get_supported_post_types() {
-		$supported_post_types = [ 'post' ];
+		$supported_post_types = self::get_post_types_setting();
 
 		/**
 		 * Filters the post types that support InDesign export.
@@ -102,6 +120,62 @@ class InDesign_Exporter {
 		 * @param array $supported_post_types Array of post type names that support InDesign export.
 		 */
 		return apply_filters( 'newspack_indesign_export_supported_post_types', $supported_post_types );
+	}
+
+	/**
+	 * Get the stored post types setting, sanitized.
+	 *
+	 * Filters out slugs whose post type is no longer registered (e.g. a CPT
+	 * plugin was deactivated). Returns the default when the option is unset
+	 * or contains a non-array value.
+	 *
+	 * @return string[] Sanitized array of post type slugs.
+	 */
+	public static function get_post_types_setting() {
+		$value = get_option( self::POST_TYPES_OPTION, self::POST_TYPES_DEFAULT );
+		if ( ! is_array( $value ) ) {
+			return self::POST_TYPES_DEFAULT;
+		}
+
+		return array_values(
+			array_filter(
+				$value,
+				static function ( $slug ) {
+					return is_string( $slug ) && post_type_exists( $slug );
+				}
+			)
+		);
+	}
+
+	/**
+	 * Get the list of post types eligible to appear in the admin picker.
+	 *
+	 * Returns post types registered as public and with an admin UI, excluding
+	 * attachments (no edit screen) and anything not visible in the menu.
+	 *
+	 * @return array<int, array{value:string, label:string}> Picker options.
+	 */
+	public static function get_available_post_types() {
+		$post_types = get_post_types(
+			[
+				'public'  => true,
+				'show_ui' => true,
+			],
+			'objects'
+		);
+
+		$options = [];
+		foreach ( $post_types as $post_type ) {
+			if ( 'attachment' === $post_type->name ) {
+				continue;
+			}
+			$options[] = [
+				'value' => $post_type->name,
+				'label' => $post_type->labels->name ?? $post_type->name,
+			];
+		}
+
+		return $options;
 	}
 
 	/**

@@ -105,6 +105,66 @@ class Newspack_Test_InDesign_Exporter extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Test that the post types setting defaults to ['post'] when unset.
+	 */
+	public function test_post_types_setting_default() {
+		delete_option( InDesign_Exporter::POST_TYPES_OPTION );
+		$this->assertSame( [ 'post' ], InDesign_Exporter::get_post_types_setting() );
+	}
+
+	/**
+	 * Test that valid stored post types are returned.
+	 */
+	public function test_post_types_setting_valid_values() {
+		update_option( InDesign_Exporter::POST_TYPES_OPTION, [ 'post', 'page' ] );
+		$this->assertSame( [ 'post', 'page' ], InDesign_Exporter::get_post_types_setting() );
+
+		delete_option( InDesign_Exporter::POST_TYPES_OPTION );
+	}
+
+	/**
+	 * Test that slugs whose post type is no longer registered get filtered out.
+	 */
+	public function test_post_types_setting_drops_stale_slugs() {
+		update_option( InDesign_Exporter::POST_TYPES_OPTION, [ 'post', 'no_such_cpt', 42, '' ] );
+		$this->assertSame( [ 'post' ], InDesign_Exporter::get_post_types_setting() );
+
+		delete_option( InDesign_Exporter::POST_TYPES_OPTION );
+	}
+
+	/**
+	 * Test that a non-array stored value falls back to the default.
+	 */
+	public function test_post_types_setting_rejects_non_array() {
+		update_option( InDesign_Exporter::POST_TYPES_OPTION, 'post' );
+		$this->assertSame( [ 'post' ], InDesign_Exporter::get_post_types_setting() );
+
+		delete_option( InDesign_Exporter::POST_TYPES_OPTION );
+	}
+
+	/**
+	 * Test that get_supported_post_types() honors the stored setting.
+	 */
+	public function test_get_supported_post_types_uses_setting() {
+		update_option( InDesign_Exporter::POST_TYPES_OPTION, [ 'page' ] );
+		$this->assertSame( [ 'page' ], InDesign_Exporter::get_supported_post_types() );
+
+		delete_option( InDesign_Exporter::POST_TYPES_OPTION );
+	}
+
+	/**
+	 * Test that available_post_types excludes attachments and includes built-ins.
+	 */
+	public function test_get_available_post_types_excludes_attachments() {
+		$available = InDesign_Exporter::get_available_post_types();
+		$slugs     = array_column( $available, 'value' );
+
+		$this->assertContains( 'post', $slugs );
+		$this->assertContains( 'page', $slugs );
+		$this->assertNotContains( 'attachment', $slugs );
+	}
+
+	/**
 	 * Test User-Agent → platform mapping for representative strings.
 	 */
 	public function test_sniff_user_agent_platform() {

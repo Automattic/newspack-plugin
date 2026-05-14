@@ -70,6 +70,8 @@ class Print_Section extends Wizard_Section {
 		return [
 			'module_enabled_print' => Optional_Modules::is_optional_module_active( InDesign_Exporter::MODULE_NAME ),
 			'indesign_platform'    => InDesign_Exporter::get_platform_setting(),
+			'indesign_post_types'  => InDesign_Exporter::get_post_types_setting(),
+			'available_post_types' => InDesign_Exporter::get_available_post_types(),
 		];
 	}
 
@@ -91,6 +93,24 @@ class Print_Section extends Wizard_Section {
 			return new \WP_Error( 'invalid_param', __( 'Invalid parameter for indesign_platform.', 'newspack' ), [ 'status' => 400 ] );
 		}
 
+		$has_post_types_param = $request->has_param( 'indesign_post_types' );
+		$post_types           = $has_post_types_param ? $request->get_param( 'indesign_post_types' ) : null;
+		if ( $has_post_types_param ) {
+			if ( ! is_array( $post_types ) ) {
+				return new \WP_Error( 'invalid_param', __( 'Invalid parameter for indesign_post_types.', 'newspack' ), [ 'status' => 400 ] );
+			}
+			$post_types = array_values(
+				array_unique(
+					array_filter(
+						$post_types,
+						static function ( $slug ) {
+							return is_string( $slug ) && post_type_exists( $slug );
+						}
+					)
+				)
+			);
+		}
+
 		if ( $module_enabled_print ) {
 			Optional_Modules::activate_optional_module( InDesign_Exporter::MODULE_NAME );
 		} else {
@@ -101,9 +121,15 @@ class Print_Section extends Wizard_Section {
 			update_option( InDesign_Exporter::PLATFORM_OPTION, $platform );
 		}
 
+		if ( $has_post_types_param ) {
+			update_option( InDesign_Exporter::POST_TYPES_OPTION, $post_types );
+		}
+
 		return [
 			'module_enabled_print' => $module_enabled_print,
 			'indesign_platform'    => InDesign_Exporter::get_platform_setting(),
+			'indesign_post_types'  => InDesign_Exporter::get_post_types_setting(),
+			'available_post_types' => InDesign_Exporter::get_available_post_types(),
 		];
 	}
 }
