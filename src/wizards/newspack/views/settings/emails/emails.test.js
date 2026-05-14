@@ -3,14 +3,23 @@
 /**
  * External dependencies
  */
-import { render, screen, waitFor, fireEvent } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 
 /**
  * WordPress dependencies
  */
 import apiFetch from '@wordpress/api-fetch';
 
-jest.mock( '@wordpress/api-fetch', () => jest.fn() );
+jest.mock( './emails.scss', () => ( {} ) );
+jest.mock( '@wordpress/api-fetch', () => ( {
+	__esModule: true,
+	default: jest.fn(),
+} ) );
+
+jest.mock( '@wordpress/icons', () => ( {
+	Icon: ( { icon } ) => <span data-testid="icon">{ icon }</span>,
+	envelope: 'envelope',
+} ) );
 
 jest.mock( '@wordpress/dataviews', () => ( {
 	filterSortAndPaginate: data => ( {
@@ -20,7 +29,15 @@ jest.mock( '@wordpress/dataviews', () => ( {
 } ) );
 
 jest.mock( '../../../../../../packages/components/src', () => {
-	const React = require( 'react' );
+	function renderField( field, item ) {
+		if ( field.render ) {
+			return field.render( { item } );
+		}
+		if ( field.getValue ) {
+			return field.getValue( { item } );
+		}
+		return null;
+	}
 	return {
 		DataViews: ( { data, fields } ) => (
 			<table data-testid="dataviews">
@@ -28,7 +45,7 @@ jest.mock( '../../../../../../packages/components/src', () => {
 					{ data.map( ( item, i ) => (
 						<tr key={ i }>
 							{ fields.map( field => (
-								<td key={ field.id }>{ field.render( { item } ) }</td>
+								<td key={ field.id }>{ renderField( field, item ) }</td>
 							) ) }
 						</tr>
 					) ) }
@@ -53,27 +70,10 @@ jest.mock(
 
 const mockEmails = [
 	{
-		label: 'Reader verification',
-		description: 'Verification email',
-		post_id: 1,
-		edit_link: '/edit/1',
-		subject: 'Verify your email',
-		from_name: 'Test',
-		from_email: 'test@example.com',
-		reply_to_email: 'test@example.com',
-		status: 'publish',
-		type: 'reader-activation-verification',
-		category: 'reader-activation',
-		default_shown: true,
-		trigger_description: 'Sent when a reader needs to verify their email address.',
-		registry_slug: 'verification',
-		recipient: 'reader',
-	},
-	{
 		label: 'Payment receipt',
 		description: 'Receipt email',
-		post_id: 2,
-		edit_link: '/edit/2',
+		post_id: 1,
+		edit_link: '/edit/1',
 		subject: 'Your receipt',
 		from_name: 'Test',
 		from_email: 'test@example.com',
@@ -81,27 +81,78 @@ const mockEmails = [
 		status: 'publish',
 		type: 'receipt',
 		category: 'reader-revenue',
-		default_shown: true,
+		recommended: true,
 		trigger_description: 'Sent after a successful payment.',
 		registry_slug: 'receipt',
 		recipient: 'reader',
 	},
 	{
-		label: 'Account deletion',
-		description: 'Delete account email',
-		post_id: 3,
-		edit_link: '/edit/3',
-		subject: 'Account deleted',
+		label: 'Cancellation confirmation',
+		description: 'Cancellation email',
+		post_id: 2,
+		edit_link: '/edit/2',
+		subject: 'Subscription cancelled',
 		from_name: 'Test',
 		from_email: 'test@example.com',
 		reply_to_email: 'test@example.com',
 		status: 'publish',
+		type: 'cancellation',
+		category: 'reader-revenue',
+		recommended: true,
+		trigger_description: 'Sent when a reader cancels their subscription.',
+		registry_slug: 'cancellation',
+		recipient: 'reader',
+	},
+	{
+		label: 'Reader verification',
+		description: 'Verification email',
+		post_id: 3,
+		edit_link: '/edit/3',
+		subject: 'Verify your email',
+		from_name: 'Test',
+		from_email: 'test@example.com',
+		reply_to_email: 'test@example.com',
+		status: 'publish',
+		type: 'reader-activation-verification',
+		category: 'reader-activation',
+		recommended: true,
+		trigger_description: 'Sent when a reader needs to verify their email address.',
+		registry_slug: 'verification',
+		recipient: 'reader',
+	},
+	{
+		label: 'Account deletion',
+		description: 'Delete account email',
+		post_id: 4,
+		edit_link: '/edit/4',
+		subject: 'Account deleted',
+		from_name: 'Test',
+		from_email: 'test@example.com',
+		reply_to_email: 'test@example.com',
+		status: 'draft',
 		type: 'reader-activation-delete-account',
 		category: 'reader-activation',
-		default_shown: false,
+		recommended: false,
 		trigger_description: 'Sent when a reader requests to delete their account.',
 		registry_slug: 'delete-account',
 		recipient: 'reader',
+	},
+	{
+		label: 'New order (admin)',
+		description: 'New order admin notification',
+		post_id: 5,
+		edit_link: '/edit/5',
+		subject: 'New order',
+		from_name: 'Test',
+		from_email: 'test@example.com',
+		reply_to_email: 'test@example.com',
+		status: 'publish',
+		type: 'new_order',
+		category: 'woocommerce',
+		recommended: false,
+		trigger_description: 'Sent to the admin when a new order is placed.',
+		registry_slug: 'woo-new-order',
+		recipient: 'admin',
 	},
 ];
 
@@ -128,7 +179,21 @@ describe( 'Emails', () => {
 		} );
 	} );
 
-	it( 'renders DataViews with email data', async () => {
+	it( 'renders all emails in a single view', async () => {
+		const Emails = require( './emails' ).default;
+		render( <Emails /> );
+
+		await waitFor( () => {
+			// Emails from across the spectrum are all visible.
+			expect( screen.getByText( 'Payment receipt' ) ).toBeInTheDocument();
+			expect( screen.getByText( 'Cancellation confirmation' ) ).toBeInTheDocument();
+			expect( screen.getByText( 'Reader verification' ) ).toBeInTheDocument();
+			expect( screen.getByText( 'Account deletion' ) ).toBeInTheDocument();
+			expect( screen.getByText( 'New order (admin)' ) ).toBeInTheDocument();
+		} );
+	} );
+
+	it( 'does not render tabs, show-all toggle, or subtitle', async () => {
 		const Emails = require( './emails' ).default;
 		render( <Emails /> );
 
@@ -136,8 +201,10 @@ describe( 'Emails', () => {
 			expect( screen.getByTestId( 'dataviews' ) ).toBeInTheDocument();
 		} );
 
-		expect( screen.getByText( 'Reader verification' ) ).toBeInTheDocument();
-		expect( screen.getByText( 'Payment receipt' ) ).toBeInTheDocument();
+		expect( screen.queryByText( 'Essentials' ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( 'All enabled' ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( 'Show all emails' ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( 'Manage the transactional emails your readers receive.' ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'renders Recipient column with correct values', async () => {
@@ -145,12 +212,11 @@ describe( 'Emails', () => {
 		render( <Emails /> );
 
 		await waitFor( () => {
-			expect( screen.getByTestId( 'dataviews' ) ).toBeInTheDocument();
+			const readerCells = screen.getAllByText( 'Reader' );
+			expect( readerCells.length ).toBeGreaterThanOrEqual( 4 );
+			// Admin recipient.
+			expect( screen.getByText( 'Admin' ) ).toBeInTheDocument();
 		} );
-
-		// All mock emails have recipient: 'reader'.
-		const readerCells = screen.getAllByText( 'Reader' );
-		expect( readerCells.length ).toBeGreaterThanOrEqual( 2 );
 	} );
 
 	it( 'renders status as Enabled / Disabled', async () => {
@@ -158,36 +224,10 @@ describe( 'Emails', () => {
 		render( <Emails /> );
 
 		await waitFor( () => {
-			expect( screen.getByTestId( 'dataviews' ) ).toBeInTheDocument();
+			const enabledCells = screen.getAllByText( 'Enabled' );
+			expect( enabledCells.length ).toBeGreaterThanOrEqual( 4 );
+			// Account deletion is draft.
+			expect( screen.getByText( 'Disabled' ) ).toBeInTheDocument();
 		} );
-
-		// All mock emails have status: 'publish'.
-		const enabledCells = screen.getAllByText( 'Enabled' );
-		expect( enabledCells.length ).toBeGreaterThanOrEqual( 2 );
-	} );
-
-	it( '"Show all" toggle changes filter', async () => {
-		const Emails = require( './emails' ).default;
-		render( <Emails /> );
-
-		await waitFor( () => {
-			expect( screen.getByTestId( 'dataviews' ) ).toBeInTheDocument();
-		} );
-
-		// Default: only default_shown emails.
-		expect( screen.getByText( 'Reader verification' ) ).toBeInTheDocument();
-		expect( screen.getByText( 'Payment receipt' ) ).toBeInTheDocument();
-		expect( screen.queryByText( 'Account deletion' ) ).not.toBeInTheDocument();
-
-		// Click "Show all emails".
-		fireEvent.click( screen.getByText( 'Show all emails' ) );
-
-		// Now all emails should be visible.
-		expect( screen.getByText( 'Reader verification' ) ).toBeInTheDocument();
-		expect( screen.getByText( 'Payment receipt' ) ).toBeInTheDocument();
-		expect( screen.getByText( 'Account deletion' ) ).toBeInTheDocument();
-
-		// Toggle text should change.
-		expect( screen.getByText( 'Show default emails' ) ).toBeInTheDocument();
 	} );
 } );

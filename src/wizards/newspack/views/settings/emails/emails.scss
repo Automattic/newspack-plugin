@@ -1,0 +1,67 @@
+@use "~@wordpress/base-styles/colors" as wp-colors;
+
+// Full-width override for the emails tab.
+// The parent `.newspack-wizard__sections` constrains width via max-width.
+// Break out of that for the DataViews table.
+.newspack-emails-tab.newspack-wizard__sections {
+	max-width: 100%;
+}
+
+// DataViews search/filter/icon alignment.
+.newspack-emails-tab {
+	.dataviews__view-actions {
+		display: flex;
+		align-items: center;
+		margin-bottom: 16px;
+	}
+
+	.dataviews__search {
+		display: flex;
+		align-items: flex-start;
+		gap: 8px;
+	}
+}
+
+// Preview placeholder (grid view media field).
+.newspack-emails__preview-placeholder {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	aspect-ratio: 1;
+	width: 100%;
+	background: var(--wp-admin-theme-color-darker-10, #ddd);
+	border-radius: 4px;
+	color: var(--wp-admin-theme-color, #3858e9);
+	opacity: 0.4;
+}
+
+// Trigger description sub-text under the title.
+.newspack-emails__trigger-description {
+	color: wp-colors.$gray-900;
+	font-size: 12px;
+	margin-top: 4px;
+}
+
+// Status indicator dot + text.
+.newspack-emails__status {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+}
+
+.newspack-emails__status-dot {
+	display: inline-block;
+	width: 8px;
+	height: 8px;
+	border-radius: 50%;
+	flex-shrink: 0;
+
+	&--enabled {
+		background: #1a7e5a;
+	}
+
+	&--disabled {
+		background: transparent;
+		border: 1.5px solid #949494;
+	}
+}

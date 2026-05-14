@@ -73,7 +73,7 @@ class Emails_Section extends Wizard_Section {
 			'verification'                  => [
 				'source'              => 'newspack',
 				'newspack_type'       => 'reader-activation-verification',
-				'default_shown'       => true,
+				'recommended'         => true,
 				'plugin_dependency'   => null,
 				'recipient'           => 'reader',
 				'label'               => __( 'Reader verification', 'newspack-plugin' ),
@@ -82,7 +82,7 @@ class Emails_Section extends Wizard_Section {
 			'login-link'                    => [
 				'source'              => 'newspack',
 				'newspack_type'       => 'reader-activation-magic-link',
-				'default_shown'       => true,
+				'recommended'         => true,
 				'plugin_dependency'   => null,
 				'recipient'           => 'reader',
 				'label'               => __( 'Magic login link', 'newspack-plugin' ),
@@ -91,7 +91,7 @@ class Emails_Section extends Wizard_Section {
 			'login-otp'                     => [
 				'source'              => 'newspack',
 				'newspack_type'       => 'reader-activation-otp-authentication',
-				'default_shown'       => true,
+				'recommended'         => true,
 				'plugin_dependency'   => null,
 				'recipient'           => 'reader',
 				'label'               => __( 'Login one-time password', 'newspack-plugin' ),
@@ -100,7 +100,7 @@ class Emails_Section extends Wizard_Section {
 			'set-new-password'              => [
 				'source'              => 'newspack',
 				'newspack_type'       => 'reader-activation-reset-password',
-				'default_shown'       => true,
+				'recommended'         => true,
 				'plugin_dependency'   => null,
 				'recipient'           => 'reader',
 				'label'               => __( 'Password reset', 'newspack-plugin' ),
@@ -109,7 +109,7 @@ class Emails_Section extends Wizard_Section {
 			'receipt'                       => [
 				'source'              => 'newspack',
 				'newspack_type'       => 'receipt',
-				'default_shown'       => true,
+				'recommended'         => true,
 				'plugin_dependency'   => null,
 				'recipient'           => 'reader',
 				'label'               => __( 'Payment receipt', 'newspack-plugin' ),
@@ -118,7 +118,7 @@ class Emails_Section extends Wizard_Section {
 			'welcome'                       => [
 				'source'              => 'newspack',
 				'newspack_type'       => 'welcome',
-				'default_shown'       => true,
+				'recommended'         => true,
 				'plugin_dependency'   => null,
 				'recipient'           => 'reader',
 				'label'               => __( 'Welcome email', 'newspack-plugin' ),
@@ -127,7 +127,7 @@ class Emails_Section extends Wizard_Section {
 			'cancellation'                  => [
 				'source'              => 'newspack',
 				'newspack_type'       => 'cancellation',
-				'default_shown'       => true,
+				'recommended'         => true,
 				'plugin_dependency'   => null,
 				'recipient'           => 'reader',
 				'label'               => __( 'Cancellation confirmation', 'newspack-plugin' ),
@@ -136,7 +136,7 @@ class Emails_Section extends Wizard_Section {
 			'woo-renewal-reminder'          => [
 				'source'              => 'woocommerce',
 				'woo_email_id'        => 'customer_renewal_invoice',
-				'default_shown'       => true,
+				'recommended'         => true,
 				'plugin_dependency'   => 'woocommerce-subscriptions',
 				'recipient'           => 'reader',
 				'label'               => __( 'Subscription renewal invoice', 'newspack-plugin' ),
@@ -145,7 +145,7 @@ class Emails_Section extends Wizard_Section {
 			'woo-payment-retry'             => [
 				'source'              => 'woocommerce',
 				'woo_email_id'        => 'customer_payment_retry',
-				'default_shown'       => true,
+				'recommended'         => true,
 				'plugin_dependency'   => 'woocommerce-subscriptions',
 				'recipient'           => 'reader',
 				'label'               => __( 'Subscription payment retry', 'newspack-plugin' ),
@@ -154,7 +154,7 @@ class Emails_Section extends Wizard_Section {
 			'woo-subscription-cancelled'    => [
 				'source'              => 'woocommerce',
 				'woo_email_id'        => 'cancelled_subscription',
-				'default_shown'       => true,
+				'recommended'         => true,
 				'plugin_dependency'   => 'woocommerce-subscriptions',
 				'recipient'           => 'reader',
 				'label'               => __( 'Subscription cancelled', 'newspack-plugin' ),
@@ -163,7 +163,7 @@ class Emails_Section extends Wizard_Section {
 			'woo-expired-subscription'      => [
 				'source'              => 'woocommerce',
 				'woo_email_id'        => 'expired_subscription',
-				'default_shown'       => true,
+				'recommended'         => true,
 				'plugin_dependency'   => 'woocommerce-subscriptions',
 				'recipient'           => 'reader',
 				'label'               => __( 'Subscription expired', 'newspack-plugin' ),
@@ -172,7 +172,7 @@ class Emails_Section extends Wizard_Section {
 			'woo-customer-new-account'      => [
 				'source'              => 'woocommerce',
 				'woo_email_id'        => 'customer_new_account',
-				'default_shown'       => true,
+				'recommended'         => true,
 				'plugin_dependency'   => null,
 				'recipient'           => 'reader',
 				'label'               => __( 'New account', 'newspack-plugin' ),
@@ -181,7 +181,7 @@ class Emails_Section extends Wizard_Section {
 			'woo-password-reset'            => [
 				'source'              => 'woocommerce',
 				'woo_email_id'        => 'customer_reset_password',
-				'default_shown'       => true,
+				'recommended'         => true,
 				'plugin_dependency'   => null,
 				'recipient'           => 'reader',
 				'label'               => __( 'Password reset (WooCommerce)', 'newspack-plugin' ),
@@ -190,7 +190,7 @@ class Emails_Section extends Wizard_Section {
 			'delete-account'                => [
 				'source'              => 'newspack',
 				'newspack_type'       => 'reader-activation-delete-account',
-				'default_shown'       => false,
+				'recommended'         => false,
 				'plugin_dependency'   => null,
 				'recipient'           => 'reader',
 				'label'               => __( 'Account deletion', 'newspack-plugin' ),
@@ -199,7 +199,7 @@ class Emails_Section extends Wizard_Section {
 			'change-email-notification'     => [
 				'source'              => 'newspack',
 				'newspack_type'       => 'reader-activation-change-email-cancel',
-				'default_shown'       => false,
+				'recommended'         => false,
 				'plugin_dependency'   => null,
 				'recipient'           => 'reader',
 				'label'               => __( 'Email change notification', 'newspack-plugin' ),
@@ -208,7 +208,7 @@ class Emails_Section extends Wizard_Section {
 			'change-email-confirmation'     => [
 				'source'              => 'newspack',
 				'newspack_type'       => 'reader-activation-change-email',
-				'default_shown'       => false,
+				'recommended'         => false,
 				'plugin_dependency'   => null,
 				'recipient'           => 'reader',
 				'label'               => __( 'Email change confirmation', 'newspack-plugin' ),
@@ -217,7 +217,7 @@ class Emails_Section extends Wizard_Section {
 			'non-reader-login-reminder'     => [
 				'source'              => 'newspack',
 				'newspack_type'       => 'reader-activation-non-reader-user',
-				'default_shown'       => false,
+				'recommended'         => false,
 				'plugin_dependency'   => null,
 				'recipient'           => 'reader',
 				'label'               => __( 'Non-reader login reminder', 'newspack-plugin' ),
@@ -226,7 +226,7 @@ class Emails_Section extends Wizard_Section {
 			'group-subscription-invitation' => [
 				'source'              => 'newspack',
 				'newspack_type'       => 'group-subscription-invite',
-				'default_shown'       => false,
+				'recommended'         => false,
 				'plugin_dependency'   => null,
 				'recipient'           => 'reader',
 				'label'               => __( 'Group subscription invitation', 'newspack-plugin' ),
@@ -235,7 +235,7 @@ class Emails_Section extends Wizard_Section {
 			'woo-refund'                    => [
 				'source'              => 'woocommerce',
 				'woo_email_id'        => 'customer_refunded_order',
-				'default_shown'       => false,
+				'recommended'         => false,
 				'plugin_dependency'   => null,
 				'recipient'           => 'reader',
 				'label'               => __( 'Order refund', 'newspack-plugin' ),
@@ -245,7 +245,7 @@ class Emails_Section extends Wizard_Section {
 			'woo-processing-order'          => [
 				'source'              => 'woocommerce',
 				'woo_email_id'        => 'customer_processing_order',
-				'default_shown'       => false,
+				'recommended'         => false,
 				'plugin_dependency'   => null,
 				'recipient'           => 'reader',
 				'label'               => __( 'Order processing', 'newspack-plugin' ),
@@ -255,7 +255,7 @@ class Emails_Section extends Wizard_Section {
 			'woo-completed-order'           => [
 				'source'              => 'woocommerce',
 				'woo_email_id'        => 'customer_completed_order',
-				'default_shown'       => false,
+				'recommended'         => false,
 				'plugin_dependency'   => null,
 				'recipient'           => 'reader',
 				'label'               => __( 'Order complete', 'newspack-plugin' ),
@@ -265,7 +265,7 @@ class Emails_Section extends Wizard_Section {
 			'woo-on-hold-order'             => [
 				'source'              => 'woocommerce',
 				'woo_email_id'        => 'customer_on_hold_order',
-				'default_shown'       => false,
+				'recommended'         => false,
 				'plugin_dependency'   => null,
 				'recipient'           => 'reader',
 				'label'               => __( 'Order on hold', 'newspack-plugin' ),
@@ -274,7 +274,7 @@ class Emails_Section extends Wizard_Section {
 			'woo-new-order'                 => [
 				'source'              => 'woocommerce',
 				'woo_email_id'        => 'new_order',
-				'default_shown'       => false,
+				'recommended'         => false,
 				'plugin_dependency'   => null,
 				'recipient'           => 'admin',
 				'label'               => __( 'New order (admin)', 'newspack-plugin' ),
@@ -315,18 +315,35 @@ class Emails_Section extends Wizard_Section {
 		foreach ( $emails as $type => $email ) {
 			if ( isset( $registry_lookup[ $type ] ) ) {
 				$match                        = $registry_lookup[ $type ];
-				$email['default_shown']       = $match['default_shown'];
+				$email['recommended']         = $match['recommended'];
+				$email['view_category']       = $match['recommended'] ? 'essentials' : 'all-enabled';
 				$email['trigger_description'] = $match['trigger_description'];
 				$email['registry_slug']       = $match['registry_slug'];
 				$email['recipient']           = $match['recipient'];
 			} else {
-				$email['default_shown']       = false;
+				$email['recommended']         = false;
+				$email['view_category']       = 'available';
 				$email['trigger_description'] = '';
 				$email['registry_slug']       = '';
 				$email['recipient']           = 'reader';
 			}
 			$newspack_emails[] = $email;
 		}
+
+		// Sort: reader-revenue first, reader-activation second, woocommerce last.
+		// Within each group, preserve registry insertion order.
+		$category_order = [
+			'reader-revenue'    => 0,
+			'reader-activation' => 1,
+		];
+		usort(
+			$newspack_emails,
+			function ( $a, $b ) use ( $category_order ) {
+				$order_a = $category_order[ $a['category'] ?? '' ] ?? 2;
+				$order_b = $category_order[ $b['category'] ?? '' ] ?? 2;
+				return $order_a - $order_b;
+			}
+		);
 
 		$settings['newspack_emails'] = $newspack_emails;
 		$settings['post_type']       = Emails::POST_TYPE;

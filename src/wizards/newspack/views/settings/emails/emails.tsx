@@ -9,14 +9,15 @@ import { __ } from '@wordpress/i18n';
 import { useState, useEffect, useCallback, useMemo, Fragment } from '@wordpress/element';
 import apiFetch from '@wordpress/api-fetch';
 import { filterSortAndPaginate } from '@wordpress/dataviews';
-import { Button } from '@wordpress/components';
 import type { Action, Field, View } from '@wordpress/dataviews';
+import { Icon, envelope } from '@wordpress/icons';
 
 /**
  * Internal dependencies.
  */
-import { Card, DataViews, Notice, utils } from '../../../../../../packages/components/src';
+import { DataViews, Notice, utils } from '../../../../../../packages/components/src';
 import WizardsPluginCard from '../../../../wizards-plugin-card';
+import './emails.scss';
 
 interface EmailItem {
 	label: string;
@@ -30,7 +31,7 @@ interface EmailItem {
 	status: string;
 	type: string;
 	category: string;
-	default_shown: boolean;
+	recommended: boolean;
 	trigger_description: string;
 	registry_slug: string;
 	recipient: 'reader' | 'admin';
@@ -43,20 +44,17 @@ interface EmailSettings {
 	enable_woocommerce_email_editor?: boolean;
 }
 
-const CATEGORY_ORDER: Record< string, number > = {
-	'reader-revenue': 0,
-	'reader-activation': 1,
-};
-
 const DEFAULT_VIEW: View = {
-	type: 'table',
+	type: 'grid',
 	page: 1,
-	perPage: 25,
+	perPage: 50,
 	search: '',
 	fields: [ 'recipient', 'status' ],
 	filters: [],
 	layout: {},
 	titleField: 'name',
+	descriptionField: 'trigger_description',
+	mediaField: 'preview',
 };
 
 const Emails = () => {
@@ -66,7 +64,6 @@ const Emails = () => {
 	const [ data, setData ] = useState< EmailItem[] >( [] );
 	const [ postType, setPostType ] = useState< string >( emailSections.emails.postType );
 	const [ isLoading, setIsLoading ] = useState( true );
-	const [ showAll, setShowAll ] = useState( false );
 	const [ view, setView ] = useState< View >( DEFAULT_VIEW );
 	const [ error, setError ] = useState< string | null >( null );
 
@@ -77,14 +74,7 @@ const Emails = () => {
 			path: '/newspack/v1/wizard/newspack-settings/emails',
 		} )
 			.then( result => {
-				const emails = result.newspack_emails || [];
-				// Sort by category: reader-revenue first, reader-activation second, everything else last.
-				emails.sort( ( a, b ) => {
-					const orderA = CATEGORY_ORDER[ a.category ] ?? 2;
-					const orderB = CATEGORY_ORDER[ b.category ] ?? 2;
-					return orderA - orderB;
-				} );
-				setData( emails );
+				setData( result.newspack_emails || [] );
 				if ( result.post_type ) {
 					setPostType( result.post_type );
 				}
@@ -98,8 +88,6 @@ const Emails = () => {
 	useEffect( () => {
 		fetchData();
 	}, [ fetchData ] );
-
-	const filteredData = useMemo( () => ( showAll ? data : data.filter( email => email.default_shown ) ), [ data, showAll ] );
 
 	const updateStatus = useCallback(
 		( postId: number, status: string ) => {
@@ -156,18 +144,34 @@ const Emails = () => {
 	const fields: Field< EmailItem >[] = useMemo(
 		() => [
 			{
+				id: 'preview',
+				label: __( 'Preview', 'newspack-plugin' ),
+				type: 'media',
+				enableSorting: false,
+				enableHiding: true,
+				// TODO: Replace with <EmailPreview> component when built.
+				render: () => (
+					<div className="newspack-emails__preview-placeholder">
+						<Icon icon={ envelope } size={ 32 } />
+					</div>
+				),
+			},
+			{
 				id: 'name',
 				label: __( 'Email', 'newspack-plugin' ),
 				enableGlobalSearch: true,
 				getValue: ( { item }: { item: EmailItem } ) => item.label,
+				render: ( { item }: { item: EmailItem } ) => <strong>{ item.label }</strong>,
+			},
+			{
+				id: 'trigger_description',
+				label: __( 'Description', 'newspack-plugin' ),
+				getValue: ( { item }: { item: EmailItem } ) => item.trigger_description,
 				render: ( { item }: { item: EmailItem } ) => (
-					<div>
-						<strong>{ item.label }</strong>
-						{ item.trigger_description && (
-							<div style={ { color: '#757575', fontSize: '12px', marginTop: '4px' } }>{ item.trigger_description }</div>
-						) }
-					</div>
+					<span className="newspack-emails__trigger-description">{ item.trigger_description }</span>
 				),
+				enableHiding: false,
+				enableSorting: false,
 			},
 			{
 				id: 'recipient',
@@ -182,8 +186,20 @@ const Emails = () => {
 				label: __( 'Status', 'newspack-plugin' ),
 				getValue: ( { item }: { item: EmailItem } ) => item.status,
 				render: ( { item }: { item: EmailItem } ) => (
-					<span>{ item.status === 'publish' ? __( 'Enabled', 'newspack-plugin' ) : __( 'Disabled', 'newspack-plugin' ) }</span>
+					<span className="newspack-emails__status">
+						<span
+							className={ `newspack-emails__status-dot newspack-emails__status-dot--${
+								item.status === 'publish' ? 'enabled' : 'disabled'
+							}` }
+						/>
+						{ item.status === 'publish' ? __( 'Enabled', 'newspack-plugin' ) : __( 'Disabled', 'newspack-plugin' ) }
+					</span>
 				),
+				elements: [
+					{ value: 'publish', label: __( 'Enabled', 'newspack-plugin' ) },
+					{ value: 'draft', label: __( 'Disabled', 'newspack-plugin' ) },
+				],
+				filterBy: { isPrimary: false, operators: [ 'is' ] },
 			},
 		],
 		[]
@@ -229,10 +245,7 @@ const Emails = () => {
 		[ resetEmail, updateStatus ]
 	);
 
-	const { data: processedData, paginationInfo } = useMemo(
-		() => filterSortAndPaginate( filteredData, view, fields ),
-		[ filteredData, view, fields ]
-	);
+	const { data: processedData, paginationInfo } = useMemo( () => filterSortAndPaginate( data, view, fields ), [ data, view, fields ] );
 
 	if ( false === pluginsReady ) {
 		return (
@@ -261,19 +274,6 @@ const Emails = () => {
 
 	return (
 		<Fragment>
-			<Card headerActions noBorder>
-				<div>
-					<p style={ { color: '#757575', margin: 0 } }>
-						{ __(
-							"Manage the transactional emails your readers receive. Use 'Edit template' to customize the design that wraps every email.",
-							'newspack-plugin'
-						) }
-					</p>
-				</div>
-				<Button variant="secondary" href={ `/wp-admin/edit.php?post_type=${ postType }` }>
-					{ __( 'Edit template', 'newspack-plugin' ) }
-				</Button>
-			</Card>
 			{ error && <Notice isError noticeText={ error } /> }
 			<DataViews
 				className="newspack-emails"
@@ -283,16 +283,11 @@ const Emails = () => {
 				onChangeView={ setView }
 				actions={ actions }
 				paginationInfo={ paginationInfo }
-				defaultLayouts={ { table: {} } }
+				defaultLayouts={ { table: {}, grid: {} } }
 				isLoading={ isLoading }
 				getItemId={ ( item: EmailItem ) => String( item.post_id ) }
 				search
 			/>
-			<p>
-				<Button variant="link" onClick={ () => setShowAll( ! showAll ) }>
-					{ showAll ? __( 'Show default emails', 'newspack-plugin' ) : __( 'Show all emails', 'newspack-plugin' ) }
-				</Button>
-			</p>
 		</Fragment>
 	);
 };

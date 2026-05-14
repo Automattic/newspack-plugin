@@ -3,11 +3,6 @@
  */
 
 /**
- * WordPress dependencies.
- */
-import { __ } from '@wordpress/i18n';
-
-/**
  * Internal dependencies.
  */
 import WizardsTab from '../../../../wizards-tab';
@@ -19,7 +14,7 @@ const { emails } = window.newspackSettings;
 
 function Emails() {
 	return (
-		<WizardsTab title={ __( 'Emails', 'newspack-plugin' ) }>
+		<WizardsTab className="newspack-emails-tab">
 			<WizardSection>
 				<EmailsSection />
 			</WizardSection>
