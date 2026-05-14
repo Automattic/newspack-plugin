@@ -14,9 +14,9 @@ import {
 	InspectorControls,
 	RichText,
 	useBlockProps,
+	useSettings,
 	/* eslint-disable @wordpress/no-unsafe-wp-apis */
 	__experimentalColorGradientSettingsDropdown as ColorGradientSettingsDropdown,
-	__experimentalUseMultipleOriginColorsAndGradients as useMultipleOriginColorsAndGradients,
 	__experimentalUseBorderProps as useBorderProps,
 	__experimentalUseColorProps as useColorProps,
 	__experimentalGetSpacingClassesAndStyles as useSpacingProps,
@@ -24,13 +24,13 @@ import {
 } from '@wordpress/block-editor';
 import { Icon } from '@wordpress/components';
 
-export default function SearchOverlayEdit( { attributes, setAttributes } ) {
+export default function SearchOverlayEdit( { attributes, setAttributes, clientId } ) {
 	const { triggerText, className: blockClassName, overlayColor } = attributes;
 
 	const borderProps = useBorderProps( attributes );
 	const colorProps = useColorProps( attributes );
 	const spacingProps = useSpacingProps( attributes );
-	const colorGradientSettings = useMultipleOriginColorsAndGradients();
+	const [ colorSettings ] = useSettings( 'color.palette' );
 
 	const classes = ( blockClassName || '' ).split( ' ' );
 	const isIconOnly = classes.includes( 'is-style-icon-only' );
@@ -55,18 +55,21 @@ export default function SearchOverlayEdit( { attributes, setAttributes } ) {
 
 	return (
 		<>
-			<InspectorControls>
+			<InspectorControls group="color">
 				<ColorGradientSettingsDropdown
 					settings={ [
 						{
 							colorValue: overlayColor,
-							label: __( 'Overlay color', 'newspack-plugin' ),
+							label: __( 'Overlay', 'newspack-plugin' ),
 							onColorChange: value => setAttributes( { overlayColor: value || '' } ),
-							enableAlpha: true,
 						},
 					] }
-					panelId={ 'newspack-search-overlay-colors' }
-					{ ...colorGradientSettings }
+					panelId={ clientId }
+					colors={ colorSettings }
+					gradients={ [] }
+					enableAlpha
+					disableCustomGradients
+					__experimentalIsRenderedInSidebar
 				/>
 			</InspectorControls>
 			<div className={ classnames( 'wp-block-buttons', 'is-layout-flex', blockClassName ) }>
