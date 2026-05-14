@@ -205,7 +205,7 @@ final class Search_Overlay_Block {
 		$html .= $style;
 		$html .= '>';
 
-		$html .= '<button type="button" class="newspack-search-overlay__close newspack-icon-close">';
+		$html .= '<button type="button" class="newspack-search-overlay__close">';
 		$html .= '<span class="newspack-search-overlay__icon" aria-hidden="true">' . self::ICON_CLOSE . '</span>';
 		$html .= '<span class="screen-reader-text">' . \esc_html__( 'Close search', 'newspack-plugin' ) . '</span>';
 		$html .= '</button>';
