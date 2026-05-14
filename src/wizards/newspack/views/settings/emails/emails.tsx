@@ -10,13 +10,13 @@ import { useState, useEffect, useCallback, useMemo, Fragment } from '@wordpress/
 import apiFetch from '@wordpress/api-fetch';
 import { filterSortAndPaginate } from '@wordpress/dataviews';
 import type { Action, Field, View } from '@wordpress/dataviews';
-import { Icon, envelope } from '@wordpress/icons';
 
 /**
  * Internal dependencies.
  */
 import { Badge, DataViews, Notice, utils } from '../../../../../../packages/components/src';
 import WizardsPluginCard from '../../../../wizards-plugin-card';
+import EmailPreview from './email-preview';
 import './emails.scss';
 
 interface EmailItem {
@@ -130,10 +130,9 @@ const Emails = () => {
 				type: 'media',
 				enableSorting: false,
 				enableHiding: true,
-				// @todo NPPD-1525 Replace with <EmailPreview> component.
 				render: ( { item }: { item: EmailItem } ) => (
-					<a href={ item.edit_link } className="newspack-emails__preview-placeholder">
-						<Icon icon={ envelope } size={ 32 } />
+					<a href={ item.edit_link } className="newspack-emails__preview-link">
+						<EmailPreview postId={ item.post_id } />
 					</a>
 				),
 			},

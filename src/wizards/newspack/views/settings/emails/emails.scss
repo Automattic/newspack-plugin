@@ -34,6 +34,12 @@
 	color: wp-colors.$gray-700;
 }
 
+// Clickable preview link in grid view.
+.newspack-emails__preview-link {
+	display: block;
+	text-decoration: none;
+}
+
 // Clickable name link in grid/table view.
 .newspack-emails__name-link {
 	color: inherit;
