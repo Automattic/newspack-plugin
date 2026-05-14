@@ -83,7 +83,10 @@ class InDesign_Exporter {
 			add_filter( "handle_bulk_actions-edit-{$post_type}", [ __CLASS__, 'handle_bulk_action' ], 100, 3 );
 		}
 
+		// WordPress dispatches to `page_row_actions` for hierarchical post types
+		// (pages, hierarchical CPTs) and `post_row_actions` for the rest, so hook both.
 		add_filter( 'post_row_actions', [ __CLASS__, 'add_row_action' ], 10, 2 );
+		add_filter( 'page_row_actions', [ __CLASS__, 'add_row_action' ], 10, 2 );
 		add_action( 'admin_post_export_indesign_single', [ __CLASS__, 'handle_single_export' ] );
 		add_action( 'admin_notices', [ __CLASS__, 'admin_notices' ] );
 	}
