@@ -30,14 +30,19 @@
 	position: fixed;
 	inset: 0;
 	z-index: 99999;
-	display: none; // Toggled to flex by view.js via aria-hidden.
+	display: flex;
 	flex-direction: column;
 	justify-content: center;
 	padding: 2rem;
 	background: var(--wp--preset--color--base, #fff); // Fallback if overlayColor is unset.
+	opacity: 0;
+	visibility: hidden;
+	transition: opacity 250ms ease-in-out, visibility 0s linear 250ms;
 
 	&[aria-hidden="false"] {
-		display: flex;
+		opacity: 1;
+		visibility: visible;
+		transition: opacity 250ms ease-in-out, visibility 0s linear 0s;
 	}
 
 	.newspack-search-overlay__content {
