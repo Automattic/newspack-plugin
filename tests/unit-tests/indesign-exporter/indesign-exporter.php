@@ -153,15 +153,90 @@ class Newspack_Test_InDesign_Exporter extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test that available_post_types excludes attachments and includes built-ins.
+	 * Test that available_post_types excludes attachments, RSS feeds,
+	 * subscription lists, collections, and WooCommerce products.
 	 */
-	public function test_get_available_post_types_excludes_attachments() {
+	public function test_get_available_post_types_excludes_non_editorial_types() {
+		register_post_type(
+			'partner_rss_feed',
+			[
+				'public'  => true,
+				'show_ui' => true,
+			]
+		);
+		register_post_type(
+			'newspack_nl_list',
+			[
+				'public'  => true,
+				'show_ui' => true,
+			]
+		);
+		register_post_type(
+			'newspack_collection',
+			[
+				'public'  => true,
+				'show_ui' => true,
+			]
+		);
+		register_post_type(
+			'product',
+			[
+				'public'  => true,
+				'show_ui' => true,
+			]
+		);
+		register_post_type(
+			'event',
+			[
+				'public'  => true,
+				'show_ui' => true,
+			]
+		);
+
 		$available = InDesign_Exporter::get_available_post_types();
 		$slugs     = array_column( $available, 'value' );
 
 		$this->assertContains( 'post', $slugs );
 		$this->assertContains( 'page', $slugs );
+		$this->assertContains( 'event', $slugs, 'Editorial CPTs should remain available.' );
 		$this->assertNotContains( 'attachment', $slugs );
+		$this->assertNotContains( 'partner_rss_feed', $slugs );
+		$this->assertNotContains( 'newspack_nl_list', $slugs );
+		$this->assertNotContains( 'newspack_collection', $slugs );
+		$this->assertNotContains( 'product', $slugs );
+
+		unregister_post_type( 'partner_rss_feed' );
+		unregister_post_type( 'newspack_nl_list' );
+		unregister_post_type( 'newspack_collection' );
+		unregister_post_type( 'product' );
+		unregister_post_type( 'event' );
+	}
+
+	/**
+	 * Test that the excluded-types filter can add or remove exclusions.
+	 */
+	public function test_get_available_post_types_filter() {
+		register_post_type(
+			'flyer',
+			[
+				'public'  => true,
+				'show_ui' => true,
+			]
+		);
+
+		$callback = static function ( $excluded ) {
+			$excluded[] = 'flyer';
+			return $excluded;
+		};
+		add_filter( 'newspack_indesign_export_excluded_post_types', $callback );
+
+		$available = InDesign_Exporter::get_available_post_types();
+		$slugs     = array_column( $available, 'value' );
+
+		$this->assertNotContains( 'flyer', $slugs );
+
+		remove_filter( 'newspack_indesign_export_excluded_post_types', $callback );
+		unregister_post_type( 'flyer' );
 	}
 
 	/**

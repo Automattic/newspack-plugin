@@ -62,6 +62,20 @@ class InDesign_Exporter {
 	public const POST_TYPES_DEFAULT = [ 'post' ];
 
 	/**
+	 * Post types hidden from the admin setting because they have no editorial
+	 * "article content" to export (lists, feeds, store products, etc.).
+	 *
+	 * @var string[]
+	 */
+	private const EXCLUDED_POST_TYPES = [
+		'attachment',
+		'partner_rss_feed',  // Newspack RSS feeds.
+		'newspack_nl_list',  // Newspack Newsletters subscription lists.
+		'newspack_collection', // Newspack Collections.
+		'product',           // WooCommerce products.
+	];
+
+	/**
 	 * Initialize the module.
 	 */
 	public static function init() {
@@ -151,12 +165,13 @@ class InDesign_Exporter {
 	}
 
 	/**
-	 * Get the list of post types eligible to appear in the admin picker.
+	 * Get the list of post types eligible to appear in the admin setting.
 	 *
 	 * Returns post types registered as public and with an admin UI, excluding
-	 * attachments (no edit screen) and anything not visible in the menu.
+	 * attachments and any post type listed in EXCLUDED_POST_TYPES (lists, feeds,
+	 * products, etc. — types with no editorial article content).
 	 *
-	 * @return array<int, array{value:string, label:string}> Picker options.
+	 * @return array<int, array{value:string, label:string}> Available options.
 	 */
 	public static function get_available_post_types() {
 		$post_types = get_post_types(
@@ -167,9 +182,23 @@ class InDesign_Exporter {
 			'objects'
 		);
 
+		/**
+		 * Filters the list of post type slugs hidden from the InDesign export
+		 * setting. Lets sites add or remove exclusions for custom post types
+		 * that aren't editorial content.
+		 *
+		 * @param string[] $excluded Default exclusions: attachments, RSS feeds,
+		 *                           subscription lists, collections, WooCommerce
+		 *                           products.
+		 */
+		$excluded = (array) apply_filters(
+			'newspack_indesign_export_excluded_post_types',
+			self::EXCLUDED_POST_TYPES
+		);
+
 		$options = [];
 		foreach ( $post_types as $post_type ) {
-			if ( 'attachment' === $post_type->name ) {
+			if ( in_array( $post_type->name, $excluded, true ) ) {
 				continue;
 			}
 			$options[] = [
