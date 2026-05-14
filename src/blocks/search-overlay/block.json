@@ -52,5 +52,6 @@
 		"shadow": true
 	},
 	"editorStyle": "file:../../../dist/blocks.css",
-	"style": "file:../../../dist/blocks.css"
+	"style": "file:../../../dist/blocks.css",
+	"viewScript": "file:../../../dist/search-overlay-block.js"
 }
