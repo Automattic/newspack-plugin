@@ -67,4 +67,32 @@ class Newspack_Test_Emails_Section extends WP_UnitTestCase {
 			$this->assertNotEmpty( $entry['trigger_description'], "Entry '$slug' is missing a trigger_description." );
 		}
 	}
+
+	/**
+	 * Test api_get_email_settings returns the expected response shape.
+	 */
+	public function test_api_get_email_settings_response_shape() {
+		$result = Emails_Section::api_get_email_settings();
+
+		$this->assertIsArray( $result );
+		$this->assertArrayHasKey( 'newspack_emails', $result );
+		$this->assertArrayHasKey( 'post_type', $result );
+		$this->assertIsArray( $result['newspack_emails'] );
+
+		if ( class_exists( 'WooCommerce' ) ) {
+			$this->assertArrayHasKey( 'admin_url', $result );
+			$this->assertArrayHasKey( 'enable_woocommerce_email_editor', $result );
+		}
+
+		// Verify enriched fields on each Newspack email that has a registry_slug.
+		$enriched_keys = [ 'recommended', 'view_category', 'trigger_description', 'registry_slug', 'recipient' ];
+		foreach ( $result['newspack_emails'] as $email ) {
+			if ( empty( $email['registry_slug'] ) ) {
+				continue;
+			}
+			foreach ( $enriched_keys as $key ) {
+				$this->assertArrayHasKey( $key, $email, "Email '{$email['label']}' is missing enriched field '$key'." );
+			}
+		}
+	}
 }
