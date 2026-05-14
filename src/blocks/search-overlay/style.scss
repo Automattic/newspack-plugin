@@ -1,5 +1,70 @@
-// Search Overlay block styles. Populated in later tasks.
-.wp-block-newspack-search-overlay {
-	// Placeholder so the block has a style chunk.
-	display: inline-block;
+/**
+ * Search Overlay Block
+ *
+ * Panel styles are written at root scope (not nested under the block wrapper
+ * selector) because `view.js` moves the panel to `document.body` on open and
+ * loses its ancestor context. Same constraint applies to `overlay-menu`.
+ */
+
+// Trigger button — icon + label layout.
+.newspack-search-overlay__trigger {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.5em;
+
+	.newspack-search-overlay__icon {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+
+		svg {
+			width: 1em;
+			height: 1em;
+			fill: currentcolor;
+		}
+	}
+}
+
+// Panel — root scope.
+.newspack-search-overlay__panel {
+	position: fixed;
+	inset: 0;
+	z-index: 9999;
+	display: none; // Toggled to flex by view.js via aria-hidden.
+	flex-direction: column;
+	justify-content: center;
+	padding: 2rem;
+	background: #fff; // Fallback if overlayColor is unset.
+
+	&[aria-hidden="false"] {
+		display: flex;
+	}
+
+	.newspack-search-overlay__content {
+		width: 100%;
+		max-width: 720px;
+		margin: 0 auto;
+	}
+
+	.newspack-search-overlay__close {
+		position: absolute;
+		top: 1rem;
+		right: 1rem;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		width: 2.5rem;
+		height: 2.5rem;
+		padding: 0;
+		background: transparent;
+		border: 0;
+		cursor: pointer;
+		color: inherit;
+
+		svg {
+			width: 1.25rem;
+			height: 1.25rem;
+			fill: currentcolor;
+		}
+	}
 }
