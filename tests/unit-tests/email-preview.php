@@ -90,7 +90,7 @@ class Newspack_Test_Email_Preview extends WP_UnitTestCase {
 	}
 
 	/**
-	 * get_preview_html() substitutes tokens in stored EMAIL_HTML_META.
+	 * Tests that get_preview_html() substitutes tokens in stored EMAIL_HTML_META.
 	 */
 	public function test_get_preview_html_with_stored_meta() {
 		$source_html = '<html><body>Hello *BILLING_NAME*, your total is *AMOUNT*.</body></html>';
@@ -106,7 +106,7 @@ class Newspack_Test_Email_Preview extends WP_UnitTestCase {
 	}
 
 	/**
-	 * get_preview_html() falls back to template HTML when no stored meta exists.
+	 * Tests that get_preview_html() falls back to template HTML when no stored meta exists.
 	 */
 	public function test_get_preview_html_fallback_to_template() {
 		$post_id = $this->create_email_post();
@@ -120,7 +120,7 @@ class Newspack_Test_Email_Preview extends WP_UnitTestCase {
 	}
 
 	/**
-	 * get_preview_html() returns false for a nonexistent post.
+	 * Tests that get_preview_html() returns false for a nonexistent post.
 	 */
 	public function test_get_preview_html_returns_false_for_nonexistent() {
 		$result = Email_Preview::get_preview_html( 999999 );

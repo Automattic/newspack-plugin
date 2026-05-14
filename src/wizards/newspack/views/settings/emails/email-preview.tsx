@@ -35,16 +35,18 @@ const EmailPreview: React.FC< EmailPreviewProps > = ( { postId } ) => {
 
 	// Observe visibility — fetch only when the thumbnail enters the viewport.
 	useEffect( () => {
+		if ( isVisible ) {
+			return;
+		}
 		const node = containerRef.current;
 		if ( ! node ) {
 			return;
 		}
 
 		const observer = new IntersectionObserver(
-			( [ entry ] ) => {
-				if ( entry.isIntersecting ) {
+			( entries ) => {
+				if ( entries[ 0 ]?.isIntersecting ) {
 					setIsVisible( true );
-					observer.disconnect();
 				}
 			},
 			{ rootMargin: '200px' }
@@ -52,7 +54,7 @@ const EmailPreview: React.FC< EmailPreviewProps > = ( { postId } ) => {
 
 		observer.observe( node );
 		return () => observer.disconnect();
-	}, [] );
+	}, [ isVisible ] );
 
 	// Measure container width and compute iframe scale.
 	useEffect( () => {

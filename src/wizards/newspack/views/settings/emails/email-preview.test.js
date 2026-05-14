@@ -39,6 +39,17 @@ function createObserverMock( triggerImmediately = true ) {
 	};
 }
 
+// ResizeObserver mock: immediately reports a 300px-wide container.
+global.ResizeObserver = class {
+	constructor( callback ) {
+		this.callback = callback;
+	}
+	observe() {
+		this.callback( [ { contentRect: { width: 300 } } ] );
+	}
+	disconnect() {}
+};
+
 describe( 'EmailPreview', () => {
 	beforeEach( () => {
 		apiFetch.mockReset();

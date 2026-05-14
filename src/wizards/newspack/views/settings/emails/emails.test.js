@@ -10,6 +10,17 @@ import { render, screen, waitFor } from '@testing-library/react';
  */
 import apiFetch from '@wordpress/api-fetch';
 
+// ResizeObserver mock (needed by EmailPreview rendered inside Emails).
+global.ResizeObserver = class {
+	constructor( callback ) {
+		this.callback = callback;
+	}
+	observe() {
+		this.callback( [ { contentRect: { width: 300 } } ] );
+	}
+	disconnect() {}
+};
+
 jest.mock( './emails.scss', () => ( {} ) );
 jest.mock( '@wordpress/api-fetch', () => ( {
 	__esModule: true,

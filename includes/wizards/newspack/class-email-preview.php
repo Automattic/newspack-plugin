@@ -136,7 +136,7 @@ class Email_Preview {
 			'*PAYMENT_METHOD*'         => 'Visa ending in 4242',
 			'*PRODUCT_NAME*'           => 'Monthly Membership',
 			'*BILLING_FREQUENCY*'      => 'monthly',
-			'*DATE*'                  => gmdate( get_option( 'date_format', 'F j, Y' ) ),
+			'*DATE*'                   => gmdate( get_option( 'date_format', 'F j, Y' ) ),
 			'*CANCELLATION_TITLE*'     => __( 'Subscription Cancelled', 'newspack-plugin' ),
 			'*CANCELLATION_TYPE*'      => __( 'subscription', 'newspack-plugin' ),
 
