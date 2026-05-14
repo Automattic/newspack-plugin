@@ -44,7 +44,7 @@ const EmailPreview: React.FC< EmailPreviewProps > = ( { postId } ) => {
 		}
 
 		const observer = new IntersectionObserver(
-			( entries ) => {
+			entries => {
 				if ( entries[ 0 ]?.isIntersecting ) {
 					setIsVisible( true );
 				}

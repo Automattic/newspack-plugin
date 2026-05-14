@@ -86,6 +86,11 @@ jest.mock(
 		}
 );
 
+jest.mock( './email-preview', () => ( {
+	__esModule: true,
+	default: () => null,
+} ) );
+
 const mockEmails = [
 	{
 		label: 'Payment receipt',
