@@ -33,7 +33,10 @@ class WooCommerce_Gateway_Stripe {
 		 *   1. update_post_metadata filter — intercepts raw update_post_meta() calls to
 		 *      wp_postmeta (the legacy and data-sync storage paths). Only registered when
 		 *      both WCS and the Stripe plugin are active to avoid hook overhead on sites
-		 *      where neither dependency is present.
+		 *      where neither dependency is present. The class_exists/function_exists check
+		 *      is deferred to plugins_loaded because WordPress loads plugins alphabetically:
+		 *      newspack-plugin loads before woocommerce-gateway-stripe and woocommerce-
+		 *      subscriptions, so the symbols are not yet defined at Newspack include time.
 		 *      NOTE: this filter fires only for wp_postmeta writes; it does NOT intercept
 		 *      HPOS-only writes to wc_orders_meta, which is why guard #2 is also required.
 		 *
@@ -45,11 +48,22 @@ class WooCommerce_Gateway_Stripe {
 		 *      renewal order (and the parent subscription in-memory) before payment
 		 *      processing begins, self-healing stale values that pre-date the fix.
 		 */
+		// Priority 20 ensures this runs after WC_Stripe and woocommerce-subscriptions
+		// have completed their own plugins_loaded callbacks (both register at default priority 10).
+		add_action( 'plugins_loaded', [ __CLASS__, 'maybe_register_post_meta_guard' ], 20 );
+		add_action( 'woocommerce_before_subscription_object_save', [ __CLASS__, 'maybe_strip_stripe_customer_id_before_save' ] );
+		add_filter( 'wcs_renewal_order_created', [ __CLASS__, 'clear_stripe_customer_id_on_renewal' ], 10, 2 );
+	}
+
+	/**
+	 * Conditionally register the update_post_metadata filter once all plugins
+	 * have loaded their main files. See NPPM-2761 init() comment block for the
+	 * load-order rationale.
+	 */
+	public static function maybe_register_post_meta_guard() {
 		if ( class_exists( 'WC_Stripe' ) && function_exists( 'wcs_is_subscription' ) ) {
 			add_filter( 'update_post_metadata', [ __CLASS__, 'maybe_block_stripe_customer_id_post_meta_update' ], 10, 3 );
 		}
-		add_action( 'woocommerce_before_subscription_object_save', [ __CLASS__, 'maybe_strip_stripe_customer_id_before_save' ] );
-		add_filter( 'wcs_renewal_order_created', [ __CLASS__, 'clear_stripe_customer_id_on_renewal' ], 10, 2 );
 	}
 
 	/**
