@@ -36,7 +36,7 @@
 	flex-direction: column;
 	justify-content: center;
 	padding: var(--wp--preset--spacing--30, 1rem);
-	background: var(--wp--preset--color--base, #fff); // Fallback if overlayColor is unset.
+	background: rgba(0, 0, 0, 0.5); // Default scrim — semi-transparent dark backdrop. Overridden by inline style when overlayColor is set.
 	overflow-y: auto;
 	opacity: 0;
 	visibility: hidden;
