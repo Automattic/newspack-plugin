@@ -98,30 +98,35 @@ final class Search_Overlay_Block {
 	 * @return string Trigger anchor HTML.
 	 */
 	private static function render_jetpack_trigger( $trigger_text, $is_icon_only, $is_text_only ) {
-		$extra_attributes = [
-			'class'      => 'wp-element-button wp-block-button__link newspack-search-overlay__trigger jetpack-search-filter__link',
-			'href'       => \esc_url( \add_query_arg( 's', '', \home_url( '/' ) ) ),
-			'aria-label' => $trigger_text,
-		];
-		$wrapper_attributes = \get_block_wrapper_attributes( $extra_attributes );
+		$wrapper_attributes = \get_block_wrapper_attributes(
+			[
+				'class'      => 'wp-element-button wp-block-button__link newspack-search-overlay__trigger jetpack-search-filter__link',
+				'href'       => \esc_url( \add_query_arg( 's', '', \home_url( '/' ) ) ),
+				'aria-label' => $trigger_text,
+			]
+		);
+		$label_classes = $is_icon_only
+			? 'newspack-search-overlay__label screen-reader-text'
+			: 'newspack-search-overlay__label';
 
-		$label_classes = [ 'newspack-search-overlay__label' ];
-		if ( $is_icon_only ) {
-			$label_classes[] = 'screen-reader-text';
-		}
-
-		$html  = '<div class="wp-block-buttons is-layout-flex">';
-		$html .= '<div class="wp-block-button">';
-		$html .= '<a ' . $wrapper_attributes . '>';
-		if ( ! $is_text_only ) {
-			$html .= '<span class="newspack-search-overlay__icon" aria-hidden="true">' . self::ICON_SEARCH . '</span>';
-		}
-		$html .= '<span class="' . \esc_attr( implode( ' ', $label_classes ) ) . '">' . \esc_html( $trigger_text ) . '</span>';
-		$html .= '</a>';
-		$html .= '</div>';
-		$html .= '</div>';
-
-		return $html;
+		ob_start();
+		?>
+		<div class="wp-block-buttons is-layout-flex">
+			<div class="wp-block-button">
+				<a <?php echo $wrapper_attributes; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+					<?php if ( ! $is_text_only ) : ?>
+						<span class="newspack-search-overlay__icon" aria-hidden="true">
+							<?php echo self::ICON_SEARCH; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+						</span>
+					<?php endif; ?>
+					<span class="<?php echo \esc_attr( $label_classes ); ?>">
+						<?php echo \esc_html( $trigger_text ); ?>
+					</span>
+				</a>
+			</div>
+		</div>
+		<?php
+		return ob_get_clean();
 	}
 
 	/**
@@ -134,33 +139,38 @@ final class Search_Overlay_Block {
 	 * @return string Trigger button HTML.
 	 */
 	private static function render_trigger_button( $trigger_text, $panel_id, $is_icon_only, $is_text_only ) {
-		$extra_attributes = [
-			'class'           => 'wp-element-button wp-block-button__link newspack-search-overlay__trigger',
-			'type'            => 'button',
-			'aria-expanded'   => 'false',
-			'aria-controls'   => $panel_id,
-			'aria-label'      => $trigger_text,
-			'data-overlay-id' => $panel_id,
-		];
-		$wrapper_attributes = \get_block_wrapper_attributes( $extra_attributes );
+		$wrapper_attributes = \get_block_wrapper_attributes(
+			[
+				'class'           => 'wp-element-button wp-block-button__link newspack-search-overlay__trigger',
+				'type'            => 'button',
+				'aria-expanded'   => 'false',
+				'aria-controls'   => $panel_id,
+				'aria-label'      => $trigger_text,
+				'data-overlay-id' => $panel_id,
+			]
+		);
+		$label_classes = $is_icon_only
+			? 'newspack-search-overlay__label screen-reader-text'
+			: 'newspack-search-overlay__label';
 
-		$label_classes = [ 'newspack-search-overlay__label' ];
-		if ( $is_icon_only ) {
-			$label_classes[] = 'screen-reader-text';
-		}
-
-		$html  = '<div class="wp-block-buttons is-layout-flex">';
-		$html .= '<div class="wp-block-button">';
-		$html .= '<button ' . $wrapper_attributes . '>';
-		if ( ! $is_text_only ) {
-			$html .= '<span class="newspack-search-overlay__icon" aria-hidden="true">' . self::ICON_SEARCH . '</span>';
-		}
-		$html .= '<span class="' . \esc_attr( implode( ' ', $label_classes ) ) . '">' . \esc_html( $trigger_text ) . '</span>';
-		$html .= '</button>';
-		$html .= '</div>';
-		$html .= '</div>';
-
-		return $html;
+		ob_start();
+		?>
+		<div class="wp-block-buttons is-layout-flex">
+			<div class="wp-block-button">
+				<button <?php echo $wrapper_attributes; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+					<?php if ( ! $is_text_only ) : ?>
+						<span class="newspack-search-overlay__icon" aria-hidden="true">
+							<?php echo self::ICON_SEARCH; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+						</span>
+					<?php endif; ?>
+					<span class="<?php echo \esc_attr( $label_classes ); ?>">
+						<?php echo \esc_html( $trigger_text ); ?>
+					</span>
+				</button>
+			</div>
+		</div>
+		<?php
+		return ob_get_clean();
 	}
 
 	/**
@@ -171,15 +181,10 @@ final class Search_Overlay_Block {
 	 * @return string Panel HTML.
 	 */
 	private static function render_panel( $panel_id, $overlay_color ) {
-		$style = '';
-		if ( '' !== $overlay_color ) {
-			$style = ' style="background:' . \esc_attr( $overlay_color ) . '"';
-		}
-
-		// Render core/search via its own render callback (it's a dynamic block). Wrap
-		// in a constrained-width group as plain HTML — building a synthetic core/group
-		// parsed-block array is fragile because `core/group` relies on `innerContent`
-		// to interleave inner HTML.
+		// Render core/search via its own render callback (it's a dynamic block).
+		// Wrap in a constrained-width group as plain HTML — building a synthetic
+		// core/group parsed-block array is fragile because `core/group` relies on
+		// `innerContent` to interleave inner HTML.
 		$search_html = \render_block(
 			[
 				'blockName'    => 'core/search',
@@ -192,31 +197,38 @@ final class Search_Overlay_Block {
 				'innerContent' => [],
 			]
 		);
-		$group_html = '<div class="wp-block-group is-layout-constrained">' . $search_html . '</div>';
 
-		$html  = '<div';
-		$html .= ' id="' . \esc_attr( $panel_id ) . '"';
-		$html .= ' class="newspack-search-overlay__panel"';
-		$html .= ' role="dialog"';
-		$html .= ' aria-modal="true"';
-		$html .= ' aria-hidden="true"';
-		$html .= ' inert="true"';
-		$html .= ' aria-label="' . \esc_attr__( 'Search', 'newspack-plugin' ) . '"';
-		$html .= $style;
-		$html .= '>';
+		ob_start();
+		?>
+		<div
+			id="<?php echo \esc_attr( $panel_id ); ?>"
+			class="newspack-search-overlay__panel"
+			role="dialog"
+			aria-modal="true"
+			aria-hidden="true"
+			inert="true"
+			aria-label="<?php \esc_attr_e( 'Search', 'newspack-plugin' ); ?>"
+			<?php if ( '' !== $overlay_color ) : ?>
+				style="background:<?php echo \esc_attr( $overlay_color ); ?>"
+			<?php endif; ?>
+		>
+			<button type="button" class="newspack-search-overlay__close">
+				<span class="newspack-search-overlay__icon" aria-hidden="true">
+					<?php echo self::ICON_CLOSE; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+				</span>
+				<span class="screen-reader-text">
+					<?php \esc_html_e( 'Close search', 'newspack-plugin' ); ?>
+				</span>
+			</button>
 
-		$html .= '<button type="button" class="newspack-search-overlay__close">';
-		$html .= '<span class="newspack-search-overlay__icon" aria-hidden="true">' . self::ICON_CLOSE . '</span>';
-		$html .= '<span class="screen-reader-text">' . \esc_html__( 'Close search', 'newspack-plugin' ) . '</span>';
-		$html .= '</button>';
-
-		$html .= '<div class="newspack-search-overlay__content">';
-		$html .= $group_html;
-		$html .= '</div>';
-
-		$html .= '</div>';
-
-		return $html;
+			<div class="newspack-search-overlay__content">
+				<div class="wp-block-group is-layout-constrained">
+					<?php echo $search_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+				</div>
+			</div>
+		</div>
+		<?php
+		return ob_get_clean();
 	}
 }
 
