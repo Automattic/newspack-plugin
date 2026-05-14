@@ -28,6 +28,8 @@ jest.mock( '@wordpress/dataviews', () => ( {
 	} ),
 } ) );
 
+let capturedActions = [];
+
 jest.mock( '../../../../../../packages/components/src', () => {
 	function renderField( field, item ) {
 		if ( field.render ) {
@@ -39,19 +41,22 @@ jest.mock( '../../../../../../packages/components/src', () => {
 		return null;
 	}
 	return {
-		DataViews: ( { data, fields } ) => (
-			<table data-testid="dataviews">
-				<tbody>
-					{ data.map( ( item, i ) => (
-						<tr key={ i }>
-							{ fields.map( field => (
-								<td key={ field.id }>{ renderField( field, item ) }</td>
-							) ) }
-						</tr>
-					) ) }
-				</tbody>
-			</table>
-		),
+		DataViews: ( { data, fields, actions } ) => {
+			capturedActions = actions || [];
+			return (
+				<table data-testid="dataviews">
+					<tbody>
+						{ data.map( ( item, i ) => (
+							<tr key={ i }>
+								{ fields.map( field => (
+									<td key={ field.id }>{ renderField( field, item ) }</td>
+								) ) }
+							</tr>
+						) ) }
+					</tbody>
+				</table>
+			);
+		},
 		Card: ( { children } ) => <div data-testid="card">{ children }</div>,
 		Notice: ( { noticeText } ) => <div data-testid="notice">{ noticeText }</div>,
 		utils: {
@@ -228,6 +233,70 @@ describe( 'Emails', () => {
 			expect( enabledCells.length ).toBeGreaterThanOrEqual( 4 );
 			// Account deletion is draft.
 			expect( screen.getByText( 'Disabled' ) ).toBeInTheDocument();
+		} );
+	} );
+
+	it( 'deactivate action calls apiFetch with draft status', async () => {
+		const Emails = require( './emails' ).default;
+		render( <Emails /> );
+
+		await waitFor( () => {
+			expect( screen.getByTestId( 'dataviews' ) ).toBeInTheDocument();
+		} );
+
+		const deactivate = capturedActions.find( a => a.id === 'deactivate' );
+		deactivate.callback( [ mockEmails[ 0 ] ] );
+
+		await waitFor( () => {
+			expect( apiFetch ).toHaveBeenCalledWith( {
+				path: '/wp/v2/newspack_rr_email/1',
+				method: 'POST',
+				data: { status: 'draft' },
+			} );
+		} );
+	} );
+
+	it( 'activate action calls apiFetch with publish status', async () => {
+		const Emails = require( './emails' ).default;
+		render( <Emails /> );
+
+		await waitFor( () => {
+			expect( screen.getByTestId( 'dataviews' ) ).toBeInTheDocument();
+		} );
+
+		const activate = capturedActions.find( a => a.id === 'activate' );
+		// mockEmails[3] (Account deletion) is draft, so eligible for activate.
+		activate.callback( [ mockEmails[ 3 ] ] );
+
+		await waitFor( () => {
+			expect( apiFetch ).toHaveBeenCalledWith( {
+				path: '/wp/v2/newspack_rr_email/4',
+				method: 'POST',
+				data: { status: 'publish' },
+			} );
+		} );
+	} );
+
+	it( 'reset action calls apiFetch with DELETE after confirmation', async () => {
+		const { utils } = require( '../../../../../../packages/components/src' );
+		const Emails = require( './emails' ).default;
+		render( <Emails /> );
+
+		await waitFor( () => {
+			expect( screen.getByTestId( 'dataviews' ) ).toBeInTheDocument();
+		} );
+
+		const reset = capturedActions.find( a => a.id === 'reset' );
+		// mockEmails[0] (Payment receipt) has type 'receipt', so eligible for reset.
+		reset.callback( [ mockEmails[ 0 ] ] );
+
+		expect( utils.confirmAction ).toHaveBeenCalled();
+
+		await waitFor( () => {
+			expect( apiFetch ).toHaveBeenCalledWith( {
+				path: '/newspack/v1/wizard/newspack-audience-donations/emails/1',
+				method: 'DELETE',
+			} );
 		} );
 	} );
 } );
