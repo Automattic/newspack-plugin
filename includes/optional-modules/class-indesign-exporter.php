@@ -125,12 +125,9 @@ class InDesign_Exporter {
 	/**
 	 * Get the stored post types setting, sanitized.
 	 *
-	 * Returns the default when the option is unset or contains a non-array
-	 * value. Strips non-string entries but does NOT validate against
-	 * post_type_exists() because this method runs during plugin file-load
-	 * (before WP's `init` action), at which point even built-in post types
-	 * like 'post' and 'page' are not yet registered. The REST endpoint
-	 * validates incoming values via post_type_exists() at save time.
+	 * Filters out slugs whose post type is no longer registered (e.g. a CPT
+	 * plugin was deactivated). Returns the default when the option is unset
+	 * or contains a non-array value.
 	 *
 	 * @return string[] Sanitized array of post type slugs.
 	 */
@@ -144,7 +141,7 @@ class InDesign_Exporter {
 			array_filter(
 				$value,
 				static function ( $slug ) {
-					return is_string( $slug ) && '' !== $slug;
+					return is_string( $slug ) && post_type_exists( $slug );
 				}
 			)
 		);

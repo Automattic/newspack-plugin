@@ -123,17 +123,11 @@ class Newspack_Test_InDesign_Exporter extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test that non-string entries are stripped from the stored option.
-	 *
-	 * Slugs of post types that are no longer registered are NOT filtered out
-	 * here — that check would falsely strip everything because this method
-	 * runs at plugin file-load time, before WP's `init` action registers
-	 * built-in post types. The REST endpoint enforces post_type_exists() at
-	 * save time, so the stored option is trustworthy.
+	 * Test that slugs whose post type is no longer registered get filtered out.
 	 */
-	public function test_post_types_setting_strips_non_strings() {
-		update_option( InDesign_Exporter::POST_TYPES_OPTION, [ 'post', 'no_such_cpt', 42, '', null ] );
-		$this->assertSame( [ 'post', 'no_such_cpt' ], InDesign_Exporter::get_post_types_setting() );
+	public function test_post_types_setting_drops_stale_slugs() {
+		update_option( InDesign_Exporter::POST_TYPES_OPTION, [ 'post', 'no_such_cpt', 42, '' ] );
+		$this->assertSame( [ 'post' ], InDesign_Exporter::get_post_types_setting() );
 
 		delete_option( InDesign_Exporter::POST_TYPES_OPTION );
 	}
