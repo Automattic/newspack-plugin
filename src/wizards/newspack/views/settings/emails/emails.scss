@@ -22,18 +22,6 @@
 	}
 }
 
-// Preview placeholder (grid view media field).
-.newspack-emails__preview-placeholder {
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	aspect-ratio: 1;
-	width: 100%;
-	background: wp-colors.$gray-100;
-	border-radius: 4px;
-	color: wp-colors.$gray-700;
-}
-
 // Clickable preview link in grid view.
 .newspack-emails__preview-link {
 	display: block;
@@ -50,6 +38,7 @@
 		text-decoration: underline;
 	}
 }
+
 
 // Trigger description sub-text under the title.
 // Two-line clamp keeps grid cards uniform while still showing enough context.
