@@ -331,17 +331,23 @@ class Emails_Section extends Wizard_Section {
 		}
 
 		// Sort: reader-revenue first, reader-activation second, woocommerce last.
-		// Within each group, preserve registry insertion order.
+		// Within each group, preserve registry insertion order via a stable tiebreaker.
 		$category_order = [
 			'reader-revenue'    => 0,
 			'reader-activation' => 1,
 		];
+		$slug_order = array_flip( array_keys( $registry ) );
 		usort(
 			$newspack_emails,
-			function ( $a, $b ) use ( $category_order ) {
+			function ( $a, $b ) use ( $category_order, $slug_order ) {
 				$order_a = $category_order[ $a['category'] ?? '' ] ?? 2;
 				$order_b = $category_order[ $b['category'] ?? '' ] ?? 2;
-				return $order_a - $order_b;
+				if ( $order_a !== $order_b ) {
+					return $order_a - $order_b;
+				}
+				$idx_a = $slug_order[ $a['registry_slug'] ?? '' ] ?? PHP_INT_MAX;
+				$idx_b = $slug_order[ $b['registry_slug'] ?? '' ] ?? PHP_INT_MAX;
+				return $idx_a - $idx_b;
 			}
 		);
 
