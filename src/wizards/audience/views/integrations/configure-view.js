@@ -125,7 +125,14 @@ export const ConfigureView = ( { integrations, loading, pendingChanges, saving, 
 		if ( ! ref ) {
 			return true;
 		}
-		return getFieldValue( ref ) === field.condition.equals;
+		const refValue = getFieldValue( ref );
+		// For boolean conditions, coerce both sides — values can arrive from WP options
+		// as scalar strings (`'1'`/`'0'`/`''`) after migration or from the REST layer,
+		// so strict equality would hide dependent fields until the parent is re-saved.
+		if ( typeof field.condition.equals === 'boolean' ) {
+			return Boolean( refValue ) === field.condition.equals;
+		}
+		return refValue === field.condition.equals;
 	};
 
 	return (

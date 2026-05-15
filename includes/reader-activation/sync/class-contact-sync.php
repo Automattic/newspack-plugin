@@ -274,6 +274,16 @@ class Contact_Sync extends Sync {
 		$flag_contact['metadata'] = isset( $flag_contact['metadata'] ) ? $flag_contact['metadata'] : [];
 		$flag_contact['metadata']['account_deleted'] = gmdate( 'Y-m-d H:i:s' );
 
+		/**
+		 * Apply the same contact-data filter used by the regular sync path
+		 * (push_to_integrations) so publishers' existing `newspack_esp_sync_contact`
+		 * filters (e.g. Mailchimp `status_if_new`, custom metadata enrichment) keep
+		 * running during deletion flag-mode upserts.
+		 *
+		 * This filter is documented in includes/reader-activation/sync/class-contact-sync.php.
+		 */
+		$flag_contact = \apply_filters( 'newspack_esp_sync_contact', $flag_contact, $context );
+
 		foreach ( $integrations as $integration_id => $integration ) {
 			if ( ! $integration->get_settings_field_value( 'sync_account_deletion' ) ) {
 				continue;
