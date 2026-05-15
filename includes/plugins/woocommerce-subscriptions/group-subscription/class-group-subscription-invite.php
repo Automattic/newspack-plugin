@@ -121,6 +121,41 @@ class Group_Subscription_Invite {
 	}
 
 	/**
+	 * Get the expiration window as a human-readable label (e.g. "30 days", "1 hour").
+	 *
+	 * @return string Localized label.
+	 */
+	public static function get_expiration_label() {
+		$seconds = (int) self::get_expiration_time();
+
+		if ( $seconds <= 0 ) {
+			$seconds = 1;
+		}
+
+		if ( $seconds >= WEEK_IN_SECONDS && 0 === $seconds % WEEK_IN_SECONDS ) {
+			$weeks = (int) ( $seconds / WEEK_IN_SECONDS );
+			/* translators: %s: number of weeks. */
+			return sprintf( _n( '%s week', '%s weeks', $weeks, 'newspack-plugin' ), number_format_i18n( $weeks ) );
+		}
+
+		if ( $seconds >= DAY_IN_SECONDS && 0 === $seconds % DAY_IN_SECONDS ) {
+			$days = (int) ( $seconds / DAY_IN_SECONDS );
+			/* translators: %s: number of days. */
+			return sprintf( _n( '%s day', '%s days', $days, 'newspack-plugin' ), number_format_i18n( $days ) );
+		}
+
+		if ( $seconds >= HOUR_IN_SECONDS && 0 === $seconds % HOUR_IN_SECONDS ) {
+			$hours = (int) ( $seconds / HOUR_IN_SECONDS );
+			/* translators: %s: number of hours. */
+			return sprintf( _n( '%s hour', '%s hours', $hours, 'newspack-plugin' ), number_format_i18n( $hours ) );
+		}
+
+		$minutes = max( 1, (int) floor( $seconds / MINUTE_IN_SECONDS ) );
+		/* translators: %s: number of minutes. */
+		return sprintf( _n( '%s minute', '%s minutes', $minutes, 'newspack-plugin' ), number_format_i18n( $minutes ) );
+	}
+
+	/**
 	 * Check if a group subscription invitation has expired.
 	 * Expiration timestamps are stored as an array map keyed by invite key.
 	 *
