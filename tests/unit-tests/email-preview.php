@@ -23,24 +23,37 @@ class Newspack_Test_Email_Preview extends WP_UnitTestCase {
 	private static $test_config_name = 'test-preview-config';
 
 	/**
+	 * Filter callback reference so it can be removed in tear_down().
+	 *
+	 * @var callable
+	 */
+	private $config_filter_callback;
+
+	/**
 	 * Setup.
 	 */
 	public function set_up() {
 		parent::set_up();
 
-		add_filter(
-			'newspack_email_configs',
-			function ( $types ) {
-				$types[ self::$test_config_name ] = [
-					'name'        => self::$test_config_name,
-					'label'       => __( 'Test preview config', 'newspack' ),
-					'description' => __( 'Email for testing preview.', 'newspack' ),
-					'template'    => dirname( NEWSPACK_PLUGIN_FILE ) . '/includes/templates/reader-revenue-emails/receipt.php',
-					'category'    => 'test',
-				];
-				return $types;
-			}
-		);
+		$this->config_filter_callback = function ( $types ) {
+			$types[ self::$test_config_name ] = [
+				'name'        => self::$test_config_name,
+				'label'       => __( 'Test preview config', 'newspack' ),
+				'description' => __( 'Email for testing preview.', 'newspack' ),
+				'template'    => dirname( NEWSPACK_PLUGIN_FILE ) . '/includes/templates/reader-revenue-emails/receipt.php',
+				'category'    => 'test',
+			];
+			return $types;
+		};
+		add_filter( 'newspack_email_configs', $this->config_filter_callback );
+	}
+
+	/**
+	 * Teardown.
+	 */
+	public function tear_down() {
+		remove_filter( 'newspack_email_configs', $this->config_filter_callback );
+		parent::tear_down();
 	}
 
 	/**
