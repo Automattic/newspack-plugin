@@ -1,23 +1,29 @@
 // Email preview thumbnail container.
 .newspack-email-preview {
 	width: 100%;
-	aspect-ratio: 4 / 3;
+	aspect-ratio: 1;
 	overflow: hidden;
 	position: relative;
-	background: #f6f7f7;
+	background: transparent;
 	display: flex;
 	align-items: center;
 	justify-content: center;
 
 	&__iframe {
-		width: 600px;
-		height: 1800px;
+		width: 848px;
+		height: auto;
 		border: 0;
 		position: absolute;
 		top: 0;
 		left: 0;
 		transform-origin: top left;
 		pointer-events: none;
+		opacity: 0;
+		transition: opacity 200ms ease-out;
+	}
+
+	&.is-ready &__iframe {
+		opacity: 1;
 	}
 
 	// Loading / error placeholder overlay.

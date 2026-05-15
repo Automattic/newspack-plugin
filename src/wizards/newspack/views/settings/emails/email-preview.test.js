@@ -50,6 +50,21 @@ global.ResizeObserver = class {
 	disconnect() {}
 };
 
+/**
+ * Helper: simulate iframe onLoad and stub contentDocument so
+ * handleIframeLoad resolves immediately (no pending assets).
+ */
+function simulateIframeLoad( iframe ) {
+	Object.defineProperty( iframe, 'contentDocument', {
+		value: {
+			querySelectorAll: () => [],
+			body: { scrollHeight: 900 },
+		},
+		configurable: true,
+	} );
+	iframe.dispatchEvent( new Event( 'load' ) );
+}
+
 describe( 'EmailPreview', () => {
 	beforeEach( () => {
 		apiFetch.mockReset();
@@ -65,7 +80,7 @@ describe( 'EmailPreview', () => {
 		expect( screen.getByRole( 'presentation' ) ).toBeTruthy();
 	} );
 
-	it( 'renders iframe on successful fetch', async () => {
+	it( 'renders iframe on successful fetch and gains is-ready after load', async () => {
 		apiFetch.mockResolvedValue( {
 			html: '<html><body><p>Hello Sample Reader</p></body></html>',
 			post_id: 123,
@@ -77,6 +92,18 @@ describe( 'EmailPreview', () => {
 			const iframe = document.querySelector( '.newspack-email-preview__iframe' );
 			expect( iframe ).toBeTruthy();
 			expect( iframe.getAttribute( 'srcdoc' ) ).toContain( 'Sample Reader' );
+		} );
+
+		// Before onLoad the container should NOT have is-ready.
+		const container = document.querySelector( '.newspack-email-preview' );
+		expect( container.classList.contains( 'is-ready' ) ).toBe( false );
+
+		// Simulate iframe load.
+		const iframe = document.querySelector( '.newspack-email-preview__iframe' );
+		simulateIframeLoad( iframe );
+
+		await waitFor( () => {
+			expect( container.classList.contains( 'is-ready' ) ).toBe( true );
 		} );
 	} );
 
@@ -111,6 +138,47 @@ describe( 'EmailPreview', () => {
 			expect( apiFetch ).toHaveBeenCalledWith( {
 				path: '/newspack/v1/wizard/newspack-settings/emails/42/preview',
 			} );
+		} );
+	} );
+
+	it( 'resets state when postId changes', async () => {
+		apiFetch.mockResolvedValue( {
+			html: '<html><body><p>First email</p></body></html>',
+			post_id: 1,
+		} );
+
+		const { rerender } = render( <EmailPreview postId={ 1 } /> );
+
+		// Wait for first render to complete.
+		await waitFor( () => {
+			const iframe = document.querySelector( '.newspack-email-preview__iframe' );
+			expect( iframe ).toBeTruthy();
+		} );
+
+		// Simulate onLoad for first email.
+		simulateIframeLoad( document.querySelector( '.newspack-email-preview__iframe' ) );
+		await waitFor( () => {
+			expect( document.querySelector( '.newspack-email-preview' ).classList.contains( 'is-ready' ) ).toBe( true );
+		} );
+
+		// Change postId — should reset and re-fetch.
+		apiFetch.mockResolvedValue( {
+			html: '<html><body><p>Second email</p></body></html>',
+			post_id: 2,
+		} );
+
+		rerender( <EmailPreview postId={ 2 } /> );
+
+		// is-ready should be removed during re-fetch.
+		await waitFor( () => {
+			expect( document.querySelector( '.newspack-email-preview' ).classList.contains( 'is-ready' ) ).toBe( false );
+		} );
+
+		// New iframe should appear with updated content.
+		await waitFor( () => {
+			const iframe = document.querySelector( '.newspack-email-preview__iframe' );
+			expect( iframe ).toBeTruthy();
+			expect( iframe.getAttribute( 'srcdoc' ) ).toContain( 'Second email' );
 		} );
 	} );
 } );
