@@ -245,11 +245,27 @@ abstract class Integration {
 	abstract public function push_contact_data( $contact, $context = '', $existing_contact = null );
 
 	/**
+	 * Whether this integration can hard-delete a contact from its external system.
+	 *
+	 * When false, the account-deletion settings UI hides the "delete immediately"
+	 * option and falls back to `flag` mode by default — so third-party integrations
+	 * that only implement `push_contact_data()` aren't exposed as a delete-mode
+	 * option that would just return `not_implemented` on every deletion.
+	 *
+	 * Override and return true alongside a `delete_contact()` implementation.
+	 *
+	 * @return bool True if the integration implements delete_contact().
+	 */
+	public function supports_hard_delete() {
+		return false;
+	}
+
+	/**
 	 * Delete a contact from the integration's external system.
 	 *
-	 * Integrations that support hard deletion should override this to remove
-	 * the contact identified by $email from their backing service. The default
-	 * returns a "not implemented" WP_Error so the dispatcher can log and skip.
+	 * Integrations that support hard deletion should override this AND
+	 * `supports_hard_delete()`. The default returns a "not implemented" WP_Error
+	 * so the dispatcher can log and skip.
 	 *
 	 * @param string $email Email address of the contact to delete.
 	 * @return true|\WP_Error True on success, WP_Error otherwise.
@@ -680,6 +696,28 @@ abstract class Integration {
 	 * @return array Array of settings field declarations.
 	 */
 	public function get_account_deletion_fields() {
+		$supports_hard_delete = $this->supports_hard_delete();
+
+		// When the integration supports hard delete, expose both options and default
+		// to `delete` (matches the historical sync_esp_delete=true default for ESP).
+		// Otherwise expose only `flag` and default to it — no point letting publishers
+		// pick a mode that will just return `not_implemented` on every deletion.
+		$handling_options = [
+			[
+				'value' => 'flag',
+				'label' => __( 'Sync deletion metadata', 'newspack-plugin' ),
+			],
+		];
+		if ( $supports_hard_delete ) {
+			array_unshift(
+				$handling_options,
+				[
+					'value' => 'delete',
+					'label' => __( 'Delete contact immediately', 'newspack-plugin' ),
+				]
+			);
+		}
+
 		return [
 			[
 				'key'         => 'sync_account_deletion',
@@ -692,18 +730,9 @@ abstract class Integration {
 				'key'         => 'account_deletion_handling',
 				'type'        => 'select',
 				'label'       => __( 'How to sync deletion', 'newspack-plugin' ),
-				'description' => __( 'Choose whether to remove the contact from the integration immediately, or to upsert it with an account-deleted flag so the integration can decide what to do.', 'newspack-plugin' ),
-				'default'     => 'delete',
-				'options'     => [
-					[
-						'value' => 'delete',
-						'label' => __( 'Delete contact immediately', 'newspack-plugin' ),
-					],
-					[
-						'value' => 'flag',
-						'label' => __( 'Flag with metadata; integration decides', 'newspack-plugin' ),
-					],
-				],
+				'description' => __( 'Choose whether to delete the contact from the integration immediately, or sync reader data with deletion metadata to be handled at the integration level.', 'newspack-plugin' ),
+				'default'     => $supports_hard_delete ? 'delete' : 'flag',
+				'options'     => $handling_options,
 				'condition'   => [
 					'field'  => 'sync_account_deletion',
 					'equals' => true,
@@ -903,6 +932,15 @@ abstract class Integration {
 		}
 
 		$option_name = self::SETTINGS_OPTION_PREFIX . $this->id . '_' . $key;
+		// WP's update_option() short-circuits when the new value equals the implicit
+		// missing-option default of false. For a checkbox like sync_account_deletion
+		// (default `true`), that means unchecking it on a fresh site never persists —
+		// the option is never created, and the next read falls through to the
+		// declared `true` default. Detect a missing option via a null sentinel and
+		// create it with add_option in that case.
+		if ( null === \get_option( $option_name, null ) ) {
+			return \add_option( $option_name, $sanitized );
+		}
 		return \update_option( $option_name, $sanitized );
 	}
 

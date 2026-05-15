@@ -353,6 +353,15 @@ class ESP extends Integration {
 	}
 
 	/**
+	 * ESP supports hard-deleting contacts via Newspack_Newsletters_Contacts::delete().
+	 *
+	 * @return bool
+	 */
+	public function supports_hard_delete() {
+		return true;
+	}
+
+	/**
 	 * Delete a contact from the connected ESP.
 	 *
 	 * @param string $email Email address.
