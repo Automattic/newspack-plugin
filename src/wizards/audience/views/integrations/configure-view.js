@@ -117,6 +117,17 @@ export const ConfigureView = ( { integrations, loading, pendingChanges, saving, 
 		onFieldChange( integrationId, fieldKey, newValue );
 	};
 
+	const fieldIsVisible = field => {
+		if ( ! field.condition || typeof field.condition !== 'object' ) {
+			return true;
+		}
+		const ref = settingsFields.find( f => f.key === field.condition.field );
+		if ( ! ref ) {
+			return true;
+		}
+		return getFieldValue( ref ) === field.condition.equals;
+	};
+
 	return (
 		<WizardsTab isFetching={ loading }>
 			<div className="newspack-configure-view">
@@ -125,7 +136,7 @@ export const ConfigureView = ( { integrations, loading, pendingChanges, saving, 
 					<Grid columns={ 2 } gutter={ 32 }>
 						<SectionHeader heading={ 2 } title={ __( 'Settings', 'newspack-plugin' ) } />
 						<Grid columns={ 1 } rowGap={ 16 }>
-							{ settingsFields.map( field => (
+							{ settingsFields.filter( fieldIsVisible ).map( field => (
 								<SettingsField
 									key={ field.key }
 									field={ field }
