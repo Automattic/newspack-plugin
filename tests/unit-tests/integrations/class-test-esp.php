@@ -379,6 +379,36 @@ class Test_ESP extends \WP_UnitTestCase {
 	}
 
 	/**
+	 * Delete_contact() should delegate to Newspack_Newsletters_Contacts::delete()
+	 * once can_sync() passes (ESP integration enabled + master list id present).
+	 */
+	public function test_esp_delete_contact_calls_newsletters_delete() {
+		\Newspack_Newsletters_Contacts::reset_calls();
+		\update_option( \Newspack\Reader_Activation\Integrations::OPTION_NAME, [ 'esp' ] );
+		\update_option( 'newspack_integration_settings_esp_mailchimp_audience_id', 'list-abc' );
+
+		$esp    = new \Newspack\Reader_Activation\Integrations\ESP();
+		$result = $esp->delete_contact( 'reader@example.com' );
+
+		$this->assertTrue( $result );
+		$this->assertCount( 1, \Newspack_Newsletters_Contacts::$delete_calls );
+		$this->assertSame( 'reader@example.com', \Newspack_Newsletters_Contacts::$delete_calls[0]['email'] );
+
+		\delete_option( \Newspack\Reader_Activation\Integrations::OPTION_NAME );
+		\delete_option( 'newspack_integration_settings_esp_mailchimp_audience_id' );
+	}
+
+	/**
+	 * The legacy sync_esp_delete field should no longer be declared by the ESP
+	 * integration — replaced by the base-class sync_account_deletion field.
+	 */
+	public function test_esp_register_settings_does_not_include_sync_esp_delete() {
+		$esp  = new \Newspack\Reader_Activation\Integrations\ESP();
+		$keys = array_column( $esp->register_settings_fields(), 'key' );
+		$this->assertNotContains( 'sync_esp_delete', $keys );
+	}
+
+	/**
 	 * Entries without a usable string `key` are skipped rather than producing malformed fields.
 	 */
 	public function test_get_available_incoming_fields_skips_entries_without_usable_key() {

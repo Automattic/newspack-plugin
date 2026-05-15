@@ -113,13 +113,6 @@ class ESP extends Integration {
 				'label'       => __( 'Constant Contact Master List', 'newspack-plugin' ),
 				'description' => __( 'Choose a master list to which all registered readers will be added.', 'newspack-plugin' ),
 			],
-			[
-				'key'         => 'sync_esp_delete',
-				'type'        => 'checkbox',
-				'default'     => true,
-				'label'       => __( 'Sync user account deletion', 'newspack-plugin' ),
-				'description' => __( 'When a reader account is deleted, also remove the contact from the ESP.', 'newspack-plugin' ),
-			],
 		];
 	}
 
@@ -172,7 +165,6 @@ class ESP extends Integration {
 				);
 				break;
 		}
-		$enriched[]    = $config['sync_esp_delete'];
 		$metadata_keys = array_column( $this->get_metadata_fields(), 'key' );
 		foreach ( $config as $field ) {
 			if ( in_array( $field['key'], $metadata_keys ) ) {
@@ -355,6 +347,20 @@ class ESP extends Integration {
 		$master_list_id = $this->get_master_list_id();
 
 		return Newspack_Newsletters_Contacts::upsert( $contact, $master_list_id, $context, $existing_contact );
+	}
+
+	/**
+	 * Delete a contact from the connected ESP.
+	 *
+	 * @param string $email Email address.
+	 * @return true|\WP_Error
+	 */
+	public function delete_contact( $email ) {
+		$can_sync = $this->can_sync( true );
+		if ( $can_sync->has_errors() ) {
+			return $can_sync;
+		}
+		return \Newspack_Newsletters_Contacts::delete( $email, 'RAS Reader deleted' );
 	}
 
 	/**
