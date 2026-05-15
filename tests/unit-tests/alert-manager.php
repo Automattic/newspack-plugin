@@ -395,10 +395,91 @@ class Newspack_Test_Alert_Manager extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test that warning-severity alerts go to Watch (log_level 2) with
-	 * debug type, so they land in logstash without paging Slack.
+	 * Test severity-to-destination routing. Only known error severities
+	 * escalate to Slack (log_level 3); everything else — including
+	 * 'warning', unknown values, and a missing severity — lands in Watch
+	 * (log_level 2) so unanticipated alert shapes do not page on-call.
+	 *
+	 * @dataProvider data_severity_routing
+	 *
+	 * @param array  $alert         Alert payload to forward.
+	 * @param string $expected_type Expected forwarded log `type`.
+	 * @param int    $expected_lvl  Expected forwarded `log_level`.
 	 */
-	public function test_warning_severity_alert_uses_watch_level() {
+	public function test_severity_routing( $alert, $expected_type, $expected_lvl ) {
+		add_action( 'newspack_alert', [ Alert_Manager::class, 'forward_alert_to_log' ] );
+
+		$captured = null;
+		add_action(
+			'newspack_log',
+			function ( $code, $message, $params ) use ( &$captured ) {
+				$captured = compact( 'code', 'message', 'params' );
+			},
+			10,
+			3
+		);
+
+		do_action( 'newspack_alert', $alert );
+
+		$this->assertNotNull( $captured );
+		$this->assertSame( $expected_type, $captured['params']['type'] );
+		$this->assertSame( $expected_lvl, $captured['params']['log_level'] );
+	}
+
+	/**
+	 * Severity routing scenarios.
+	 */
+	public function data_severity_routing() {
+		return [
+			'error → Alert/Slack'      => [
+				[
+					'severity' => 'error',
+					'message'  => 'x',
+				],
+				'error',
+				3,
+			],
+			'critical → Alert/Slack'   => [
+				[
+					'severity' => 'critical',
+					'message'  => 'x',
+				],
+				'error',
+				3,
+			],
+			'warning → Watch'          => [
+				[
+					'severity' => 'warning',
+					'message'  => 'x',
+				],
+				'debug',
+				2,
+			],
+			'info → Watch'             => [
+				[
+					'severity' => 'info',
+					'message'  => 'x',
+				],
+				'debug',
+				2,
+			],
+			'empty severity → Watch'   => [
+				[
+					'severity' => '',
+					'message'  => 'x',
+				],
+				'debug',
+				2,
+			],
+			'missing severity → Watch' => [ [ 'message' => 'x' ], 'debug', 2 ],
+		];
+	}
+
+	/**
+	 * Test that an alert without a `type` falls back to the default
+	 * `newspack_alert` log code.
+	 */
+	public function test_alert_without_type_uses_default_code() {
 		add_action( 'newspack_alert', [ Alert_Manager::class, 'forward_alert_to_log' ] );
 
 		$captured = null;
@@ -414,15 +495,115 @@ class Newspack_Test_Alert_Manager extends WP_UnitTestCase {
 		do_action(
 			'newspack_alert',
 			[
-				'type'     => 'some_warning',
-				'severity' => 'warning',
-				'message'  => 'Heads up',
+				'severity' => 'error',
+				'message'  => 'No type here',
+			] 
+		);
+
+		$this->assertNotNull( $captured );
+		$this->assertSame( 'newspack_alert', $captured['code'] );
+	}
+
+	/**
+	 * Test that a numeric-zero message is still forwarded (it casts to the
+	 * non-empty string '0'), unlike (bool) false which casts to ''.
+	 */
+	public function test_numeric_zero_message_is_forwarded() {
+		add_action( 'newspack_alert', [ Alert_Manager::class, 'forward_alert_to_log' ] );
+
+		$captured = null;
+		add_action(
+			'newspack_log',
+			function ( $code, $message, $params ) use ( &$captured ) {
+				$captured = compact( 'code', 'message', 'params' );
+			},
+			10,
+			3
+		);
+
+		do_action(
+			'newspack_alert',
+			[
+				'severity' => 'error',
+				'message'  => 0,
+			] 
+		);
+
+		$this->assertNotNull( $captured, 'A numeric 0 message should still be forwarded.' );
+		$this->assertSame( '0', $captured['message'] );
+	}
+
+	/**
+	 * Test that a contact email in the alert context is forwarded via
+	 * Logger's structured `user_email` param and is NOT interpolated into
+	 * the human-readable message that reaches Slack.
+	 */
+	public function test_contact_email_forwarded_via_user_email_param() {
+		add_action( 'newspack_alert', [ Alert_Manager::class, 'forward_alert_to_log' ] );
+
+		$captured = null;
+		add_action(
+			'newspack_log',
+			function ( $code, $message, $params ) use ( &$captured ) {
+				$captured = compact( 'code', 'message', 'params' );
+			},
+			10,
+			3
+		);
+
+		// Sync/handler exhaustion payload: contact under context.contact.email.
+		do_action(
+			'newspack_sync_retry_exhausted',
+			[
+				'integration_id' => 'mailchimp',
+				'contact'        => [ 'email' => 'reader@example.com' ],
+				'retry_count'    => 5,
+				'reason'         => 'Invalid API key',
 			]
 		);
 
 		$this->assertNotNull( $captured );
-		$this->assertSame( 'debug', $captured['params']['type'] );
-		$this->assertSame( 2, $captured['params']['log_level'] );
+		$this->assertSame( 'reader@example.com', $captured['params']['user_email'] );
+		$this->assertStringNotContainsString( 'reader@example.com', $captured['message'], 'Email must not leak into the message.' );
+	}
+
+	/**
+	 * Test that a `same_user` failure pattern (grouped by contact email)
+	 * forwards the email via `user_email` and keeps it out of the message.
+	 */
+	public function test_same_user_pattern_email_forwarded_via_user_email_param() {
+		add_action( 'newspack_alert', [ Alert_Manager::class, 'forward_alert_to_log' ] );
+
+		$captured = null;
+		add_action(
+			'newspack_log',
+			function ( $code, $message, $params ) use ( &$captured ) {
+				if ( 'failure_pattern' === $code || str_contains( (string) $message, 'Pattern detected' ) ) {
+					$captured = compact( 'code', 'message', 'params' );
+				}
+			},
+			10,
+			3
+		);
+
+		// Five failures for the same contact email (same_user threshold is 5).
+		$log = [];
+		for ( $i = 0; $i < 5; $i++ ) {
+			$log[] = [
+				'timestamp'      => time() - 60,
+				'integration_id' => "esp{$i}",
+				'contact_email'  => 'reader@example.com',
+				'action_name'    => "action_{$i}",
+				'reason'         => "reason {$i}",
+			];
+		}
+		update_option( Alert_Manager::FAILURE_LOG_OPTION, $log, false );
+
+		Alert_Manager::scan_failure_patterns();
+
+		$this->assertNotNull( $captured, 'A same_user pattern alert should be forwarded.' );
+		$this->assertSame( 'reader@example.com', $captured['params']['user_email'] );
+		$this->assertStringNotContainsString( 'reader@example.com', $captured['message'], 'Email must not leak into the message.' );
 	}
 
 	/**
@@ -458,6 +639,8 @@ class Newspack_Test_Alert_Manager extends WP_UnitTestCase {
 			'missing message'      => [ [ 'type' => 'x' ] ],
 			'non-scalar message'   => [ [ 'message' => [ 'not', 'a', 'string' ] ] ],
 			'empty string message' => [ [ 'message' => '' ] ],
+			// (bool) false casts to '' so it is skipped like an empty string.
+			'false message'        => [ [ 'message' => false ] ],
 		];
 	}
 

@@ -105,12 +105,21 @@ class Alert_Manager {
 	 * Forward a `newspack_alert` to the `newspack_log` action so Newspack
 	 * Manager's Logger routes it. Severity drives the destination:
 	 *
-	 *   - severity = 'warning' → type 'debug', log_level 2 (Watch — logstash only)
-	 *   - anything else        → type 'error', log_level 3 (Alert — Slack)
+	 *   - severity = 'error' or 'critical' → type 'error', log_level 3
+	 *     (Alert — Slack)
+	 *   - anything else (incl. 'warning', unknown, or missing severity) →
+	 *     type 'debug', log_level 2 (Watch — logstash only)
 	 *
-	 * Only the human-readable `message` is forwarded; the full alert
-	 * `context` is intentionally dropped to avoid leaking source payloads
-	 * (which may include reader identifiers) into downstream logs.
+	 * Only known error severities escalate to Slack so an unanticipated
+	 * alert shape (e.g. a third-party `newspack_alert` with no severity)
+	 * lands in Watch rather than paging on-call.
+	 *
+	 * Only the human-readable `message` is forwarded as free text. Any
+	 * contact email carried in the alert `context` is passed through
+	 * Logger's first-class `user_email` param — a structured field that is
+	 * not part of the Slack message body — instead of being interpolated
+	 * into `message`. The rest of the `context` is intentionally dropped to
+	 * avoid leaking source payloads into downstream logs.
 	 *
 	 * When Newspack Manager isn't active, `newspack_log` is a no-op.
 	 *
@@ -125,18 +134,45 @@ class Alert_Manager {
 			? (string) $alert['type']
 			: 'newspack_alert';
 
-		$severity   = is_scalar( $alert['severity'] ?? null ) ? (string) $alert['severity'] : '';
-		$is_warning = 'warning' === $severity;
+		$severity = is_scalar( $alert['severity'] ?? null ) ? (string) $alert['severity'] : '';
+		$is_error = in_array( $severity, [ 'error', 'critical' ], true );
 
-		do_action(
-			'newspack_log',
-			$code,
-			(string) $alert['message'],
-			[
-				'type'      => $is_warning ? 'debug' : 'error',
-				'log_level' => $is_warning ? 2 : 3,
-			]
-		);
+		$params = [
+			'type'      => $is_error ? 'error' : 'debug',
+			'log_level' => $is_error ? 3 : 2,
+		];
+
+		$user_email = self::get_alert_user_email( $alert );
+		if ( '' !== $user_email ) {
+			$params['user_email'] = $user_email;
+		}
+
+		do_action( 'newspack_log', $code, (string) $alert['message'], $params );
+	}
+
+	/**
+	 * Extract the contact email (if any) carried in an alert's `context` so
+	 * it can be forwarded via Logger's structured `user_email` param rather
+	 * than interpolated into the human-readable message.
+	 *
+	 * @param array $alert The alert payload.
+	 *
+	 * @return string The contact email, or '' when none is present.
+	 */
+	private static function get_alert_user_email( $alert ) {
+		$context = is_array( $alert['context'] ?? null ) ? $alert['context'] : [];
+
+		// Failure-pattern alerts grouped by contact email carry it as the group value.
+		if ( 'contact_email' === ( $context['group_by'] ?? '' ) && is_scalar( $context['group_value'] ?? null ) ) {
+			return (string) $context['group_value'];
+		}
+
+		// Sync/handler exhaustion payloads carry the contact under `contact.email`.
+		if ( is_array( $context['contact'] ?? null ) && is_scalar( $context['contact']['email'] ?? null ) ) {
+			return (string) $context['contact']['email'];
+		}
+
+		return '';
 	}
 
 	/**
@@ -198,11 +234,13 @@ class Alert_Manager {
 	 * @param array $payload Alert data from Contact_Sync.
 	 */
 	public static function handle_sync_retry_exhausted( $payload ) {
+		// The contact email is intentionally left out of the message; it is
+		// forwarded to the log via Logger's structured `user_email` param
+		// (see forward_alert_to_log) and remains available in `context`.
 		$message = sprintf(
-			'Max retries (%d) reached for integration "%s" sync of %s. Last error: %s',
+			'Max retries (%d) reached for integration "%s" contact sync. Last error: %s',
 			$payload['retry_count'] ?? 0,
 			$payload['integration_id'] ?? 'unknown',
-			$payload['contact']['email'] ?? 'unknown',
 			$payload['reason'] ?? 'unknown'
 		);
 
@@ -326,11 +364,15 @@ class Alert_Manager {
 					continue;
 				}
 
-				$message = sprintf(
-					'Pattern detected: %d failures with %s "%s" in the last %s.',
+				// When grouping by contact email, keep the email out of the
+				// message; it is forwarded via Logger's `user_email` param
+				// (see forward_alert_to_log) and stays in `context`.
+				$is_email_group = 'contact_email' === $rule['group_by'];
+				$message        = sprintf(
+					'Pattern detected: %d failures with %s%s in the last %s.',
 					count( $entries ),
 					$rule['label'],
-					$group_value,
+					$is_email_group ? '' : sprintf( ' "%s"', $group_value ),
 					self::format_interval( $rule['interval'] )
 				);
 
