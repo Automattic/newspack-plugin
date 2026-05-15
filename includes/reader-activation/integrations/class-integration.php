@@ -26,6 +26,7 @@ abstract class Integration {
 		'active_campaign_master_list'     => 'newspack_reader_activation_active_campaign_master_list',
 		'constant_contact_list_id'        => 'newspack_reader_activation_constant_contact_list_id',
 		'sync_esp_delete'                 => 'newspack_reader_activation_sync_esp_delete',
+		'sync_account_deletion'           => 'newspack_reader_activation_sync_esp_delete',
 	];
 
 	/**
@@ -670,6 +671,48 @@ abstract class Integration {
 	}
 
 	/**
+	 * Get the account-deletion fields declared by this integration.
+	 *
+	 * Auto-appended to every integration's settings. The first field is a top-level
+	 * toggle; the second field is gated by the first via the `condition` predicate
+	 * honored by the frontend renderer.
+	 *
+	 * @return array Array of settings field declarations.
+	 */
+	public function get_account_deletion_fields() {
+		return [
+			[
+				'key'         => 'sync_account_deletion',
+				'type'        => 'checkbox',
+				'label'       => __( 'Sync user account deletion', 'newspack-plugin' ),
+				'description' => __( 'When a reader account is deleted, propagate the deletion to this integration.', 'newspack-plugin' ),
+				'default'     => true,
+			],
+			[
+				'key'         => 'account_deletion_handling',
+				'type'        => 'select',
+				'label'       => __( 'How to sync deletion', 'newspack-plugin' ),
+				'description' => __( 'Choose whether to remove the contact from the integration immediately, or to upsert it with an account-deleted flag so the integration can decide what to do.', 'newspack-plugin' ),
+				'default'     => 'delete',
+				'options'     => [
+					[
+						'value' => 'delete',
+						'label' => __( 'Delete contact immediately', 'newspack-plugin' ),
+					],
+					[
+						'value' => 'flag',
+						'label' => __( 'Flag with metadata; integration decides', 'newspack-plugin' ),
+					],
+				],
+				'condition'   => [
+					'field'  => 'sync_account_deletion',
+					'equals' => true,
+				],
+			],
+		];
+	}
+
+	/**
 	 * Get the metadata fields declared by this integration.
 	 *
 	 * @return array Array of settings field declarations.
@@ -783,6 +826,7 @@ abstract class Integration {
 	public function get_settings_fields() {
 		return array_merge(
 			$this->settings_fields,
+			$this->get_account_deletion_fields(),
 			$this->get_metadata_fields()
 		);
 	}
