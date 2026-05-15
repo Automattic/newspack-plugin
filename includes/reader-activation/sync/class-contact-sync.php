@@ -326,9 +326,18 @@ class Contact_Sync extends Sync {
 					}
 				}
 			} elseif ( 'flag' === $mode ) {
-				// 'flag' — push through the integration's normal pipeline so prepare_contact applies.
+				// Push through the integration's normal pipeline so prepare_contact applies metadata
+				// prefixing and outgoing-field filtering to publisher-configured metadata. Then
+				// re-inject the account_deleted signal: it's a system-level signal that must
+				// always reach the ESP on deletion, independent of the integration's
+				// outgoing-fields config. Apply the integration's prefix so the field is named
+				// consistently with other metadata on the ESP side.
 				$integration_contact = $integration->prepare_contact( $flag_contact );
-				$result              = $integration->push_contact_data( $integration_contact, $context );
+				$prefixed_key        = $integration->get_metadata_prefix() . 'account_deleted';
+				$integration_contact['metadata'] = $integration_contact['metadata'] ?? [];
+				$integration_contact['metadata'][ $prefixed_key ] = $flag_contact['metadata']['account_deleted'];
+
+				$result = $integration->push_contact_data( $integration_contact, $context );
 				if ( \is_wp_error( $result ) ) {
 					$errors[] = sprintf( '[%s] %s', $integration_id, $result->get_error_message() );
 					static::log( sprintf( 'Flag-push failed for integration "%s" of %s: %s', $integration_id, $email, $result->get_error_message() ) );
