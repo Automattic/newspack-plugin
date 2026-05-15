@@ -74,7 +74,12 @@ class Email_Preview {
 			return '';
 		}
 
-		$template_data = include $configs[ $type ]['template'];
+		$template_path = $configs[ $type ]['template'];
+		if ( ! is_readable( $template_path ) ) {
+			return '';
+		}
+
+		$template_data = include $template_path;
 		if ( ! is_array( $template_data ) || empty( $template_data['email_html'] ) ) {
 			return '';
 		}

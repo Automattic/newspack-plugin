@@ -38,6 +38,10 @@ const EmailPreview: React.FC< EmailPreviewProps > = ( { postId } ) => {
 		if ( isVisible ) {
 			return;
 		}
+		if ( typeof IntersectionObserver === 'undefined' ) {
+			setIsVisible( true );
+			return;
+		}
 		const node = containerRef.current;
 		if ( ! node ) {
 			return;
@@ -58,6 +62,10 @@ const EmailPreview: React.FC< EmailPreviewProps > = ( { postId } ) => {
 
 	// Measure container width and compute iframe scale.
 	useEffect( () => {
+		if ( typeof ResizeObserver === 'undefined' ) {
+			setScale( 1 );
+			return;
+		}
 		const node = containerRef.current;
 		if ( ! node ) {
 			return;
