@@ -287,16 +287,17 @@ class Contact_Sync extends Sync {
 					 * Fires when a contact deletion sync fails.
 					 *
 					 * Used by Alert_Manager to record failures for early pattern detection.
-					 * The `context` payload carries the sync context plus the deletion mode
-					 * (`delete` or `flag`) so consumers can distinguish them.
+					 * The `mode` field carries the deletion handling mode (`delete` or
+					 * `flag`) so consumers can distinguish them.
 					 *
 					 * @param array $failure_data {
 					 *     Failure data.
 					 *
 					 *     @type string $integration_id The integration that failed.
 					 *     @type array  $contact        The contact data that failed to sync.
-					 *     @type array  $context        The sync context and mode.
+					 *     @type string $context        The sync context.
 					 *     @type string $reason         The error message.
+					 *     @type string $mode           The deletion mode: 'delete' or 'flag'.
 					 * }
 					 */
 					do_action(
@@ -304,11 +305,9 @@ class Contact_Sync extends Sync {
 						[
 							'integration_id' => $integration_id,
 							'contact'        => [ 'email' => $email ],
-							'context'        => [
-								'context' => $context,
-								'mode'    => 'delete',
-							],
+							'context'        => $context,
 							'reason'         => $result->get_error_message(),
+							'mode'           => 'delete',
 						]
 					);
 					if ( self::$current_as_action_id ) {
@@ -339,11 +338,9 @@ class Contact_Sync extends Sync {
 						[
 							'integration_id' => $integration_id,
 							'contact'        => $flag_contact,
-							'context'        => [
-								'context' => $context,
-								'mode'    => 'flag',
-							],
+							'context'        => $context,
 							'reason'         => $result->get_error_message(),
+							'mode'           => 'flag',
 						]
 					);
 					if ( self::$current_as_action_id ) {

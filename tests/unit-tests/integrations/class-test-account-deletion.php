@@ -277,7 +277,8 @@ class Test_Account_Deletion extends \WP_UnitTestCase {
 	/**
 	 * When delete_contact() returns a WP_Error, the dispatcher must fire
 	 * `newspack_sync_contact_failed` so Alert_Manager can record the failure.
-	 * The payload's `context` must carry the deletion mode for downstream filtering.
+	 * The payload's `context` stays a string (matching the existing contract),
+	 * and a sibling `mode` key carries the deletion mode for downstream filtering.
 	 */
 	public function test_handle_account_deletion_fires_alert_action_on_delete_failure() {
 		$this->reset_integrations();
@@ -309,14 +310,15 @@ class Test_Account_Deletion extends \WP_UnitTestCase {
 		$this->assertCount( 1, $captured, 'newspack_sync_contact_failed must fire once on delete failure.' );
 		$this->assertSame( 'spy-fail-delete', $captured[0]['integration_id'] );
 		$this->assertSame( 'reader@example.com', $captured[0]['contact']['email'] );
-		$this->assertSame( 'delete', $captured[0]['context']['mode'] );
-		$this->assertSame( 'TestContext', $captured[0]['context']['context'] );
+		$this->assertSame( 'TestContext', $captured[0]['context'] );
+		$this->assertSame( 'delete', $captured[0]['mode'] );
 		$this->assertSame( 'ESP rejected delete', $captured[0]['reason'] );
 	}
 
 	/**
 	 * When push_contact_data() returns a WP_Error in flag mode, the dispatcher
-	 * must fire `newspack_sync_contact_failed` with mode='flag' in the context payload.
+	 * must fire `newspack_sync_contact_failed` with a sibling `mode` key set to
+	 * `flag` (the `context` field stays a string per the existing contract).
 	 */
 	public function test_handle_account_deletion_fires_alert_action_on_flag_failure() {
 		$this->reset_integrations();
@@ -349,8 +351,8 @@ class Test_Account_Deletion extends \WP_UnitTestCase {
 		$this->assertSame( 'spy-fail-flag', $captured[0]['integration_id'] );
 		$this->assertSame( 'reader@example.com', $captured[0]['contact']['email'] );
 		$this->assertArrayHasKey( 'account_deleted', $captured[0]['contact']['metadata'] );
-		$this->assertSame( 'flag', $captured[0]['context']['mode'] );
-		$this->assertSame( 'TestContext', $captured[0]['context']['context'] );
+		$this->assertSame( 'TestContext', $captured[0]['context'] );
+		$this->assertSame( 'flag', $captured[0]['mode'] );
 		$this->assertSame( 'ESP rejected push', $captured[0]['reason'] );
 	}
 }
