@@ -69,7 +69,7 @@ class Emails_Section extends Wizard_Section {
 	 * @return array Registry entries keyed by slug.
 	 */
 	public static function get_email_registry(): array {
-		return [
+		$registry = [
 			'verification'                  => [
 				'source'              => 'newspack',
 				'newspack_type'       => 'reader-activation-verification',
@@ -281,6 +281,16 @@ class Emails_Section extends Wizard_Section {
 				'trigger_description' => __( 'Sent to the admin when a new order is placed.', 'newspack-plugin' ),
 			],
 		];
+
+		/**
+		 * Filters the unified email registry.
+		 *
+		 * Allows external integration plugins to register additional email
+		 * entries that appear in the Settings > Emails UI.
+		 *
+		 * @param array $registry Registry entries keyed by slug.
+		 */
+		return apply_filters( 'newspack_emails_registry', $registry );
 	}
 
 	/**

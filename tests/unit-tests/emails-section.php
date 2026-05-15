@@ -191,6 +191,33 @@ class Newspack_Test_Emails_Section extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Test that the newspack_emails_registry filter can add entries.
+	 */
+	public function test_emails_registry_filter() {
+		$fake_entry = [
+			'source'              => 'newspack',
+			'newspack_type'       => 'test-filter-email',
+			'recommended'         => false,
+			'plugin_dependency'   => null,
+			'recipient'           => 'reader',
+			'label'               => 'Test filter email',
+			'trigger_description' => 'Added via filter.',
+		];
+
+		$callback = function ( $registry ) use ( $fake_entry ) {
+			$registry['test-filter-email'] = $fake_entry;
+			return $registry;
+		};
+
+		add_filter( 'newspack_emails_registry', $callback );
+		$registry = Emails_Section::get_email_registry();
+		remove_filter( 'newspack_emails_registry', $callback );
+
+		$this->assertArrayHasKey( 'test-filter-email', $registry, 'Filter-added entry should be present in the registry.' );
+		$this->assertSame( $fake_entry, $registry['test-filter-email'] );
+	}
+
+	/**
 	 * Test registry insertion order within source groups.
 	 *
 	 * The UI relies on registry order to determine display order within
