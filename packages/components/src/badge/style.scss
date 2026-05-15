@@ -16,7 +16,7 @@ $badge-colors: (
 	background-color: color-mix(in srgb, wp-colors.$white 90%, var(--base-color));
 	border-radius: 2px;
 	color: color-mix(in srgb, wp-colors.$black 50%, var(--base-color));
-	display: block;
+	display: inline-block;
 	flex: 0 0 auto;
 	font-size: 12px;
 	line-height: 1.5;
