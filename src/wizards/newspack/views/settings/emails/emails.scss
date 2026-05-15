@@ -35,13 +35,13 @@
 }
 
 // Trigger description sub-text under the title.
+// Two-line clamp keeps grid cards uniform while still showing enough context.
 .newspack-emails__trigger-description {
 	color: wp-colors.$gray-900;
 	font-size: 12px;
 	margin-top: 4px;
-	display: block;
+	display: -webkit-box;
+	-webkit-line-clamp: 2;
+	-webkit-box-orient: vertical;
 	overflow: hidden;
-	text-overflow: ellipsis;
-	white-space: nowrap;
-	max-width: 360px;
 }

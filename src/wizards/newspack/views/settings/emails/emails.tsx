@@ -165,6 +165,7 @@ const Emails = () => {
 			{
 				id: 'trigger_description',
 				label: __( 'Description', 'newspack-plugin' ),
+				enableGlobalSearch: true,
 				getValue: ( { item }: { item: EmailItem } ) => item.trigger_description,
 				render: ( { item }: { item: EmailItem } ) => (
 					<span className="newspack-emails__trigger-description">{ item.trigger_description }</span>
@@ -216,7 +217,8 @@ const Emails = () => {
 			{
 				id: 'deactivate',
 				label: __( 'Deactivate', 'newspack-plugin' ),
-				isEligible: ( item: EmailItem ) => item.category !== 'reader-activation' && item.status === 'publish',
+				isEligible: ( item: EmailItem ) =>
+					item.source !== 'woocommerce' && item.category !== 'reader-activation' && item.status === 'publish',
 				callback: ( items: EmailItem[] ) => {
 					updateStatus( items[ 0 ].post_id, 'draft' );
 				},
@@ -224,7 +226,8 @@ const Emails = () => {
 			{
 				id: 'activate',
 				label: __( 'Activate', 'newspack-plugin' ),
-				isEligible: ( item: EmailItem ) => item.category !== 'reader-activation' && item.status !== 'publish',
+				isEligible: ( item: EmailItem ) =>
+					item.source !== 'woocommerce' && item.category !== 'reader-activation' && item.status !== 'publish',
 				callback: ( items: EmailItem[] ) => {
 					updateStatus( items[ 0 ].post_id, 'publish' );
 				},

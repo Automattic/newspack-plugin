@@ -170,4 +170,57 @@ class Newspack_Test_Emails_Section extends WP_UnitTestCase {
 			$last_group = $group;
 		}
 	}
+
+	/**
+	 * Test admin-recipient emails are correctly classified.
+	 */
+	public function test_admin_recipient_emails() {
+		$registry    = Emails_Section::get_email_registry();
+		$admin_slugs = array_keys(
+			array_filter(
+				$registry,
+				function ( $entry ) {
+					return 'admin' === $entry['recipient'];
+				}
+			)
+		);
+		$this->assertContains( 'woo-new-order', $admin_slugs, 'new_order is an admin email.' );
+		// woo-subscription-cancelled is reader-facing (Newspack notifies the reader);
+		// the separate WC admin notification is handled by WooCommerce core.
+		$this->assertNotContains( 'woo-subscription-cancelled', $admin_slugs );
+	}
+
+	/**
+	 * Test registry insertion order within source groups.
+	 *
+	 * The UI relies on registry order to determine display order within
+	 * each category group (reader-revenue, reader-activation, woocommerce).
+	 */
+	public function test_registry_order_within_groups() {
+		$slugs = array_keys( Emails_Section::get_email_registry() );
+
+		// Reader-revenue group: receipt → welcome → cancellation.
+		$this->assertLessThan(
+			array_search( 'welcome', $slugs, true ),
+			array_search( 'receipt', $slugs, true ),
+			'receipt should appear before welcome.'
+		);
+		$this->assertLessThan(
+			array_search( 'cancellation', $slugs, true ),
+			array_search( 'welcome', $slugs, true ),
+			'welcome should appear before cancellation.'
+		);
+
+		// Reader-activation group: verification → login-link → set-new-password.
+		$this->assertLessThan(
+			array_search( 'login-link', $slugs, true ),
+			array_search( 'verification', $slugs, true ),
+			'verification should appear before login-link.'
+		);
+		$this->assertLessThan(
+			array_search( 'set-new-password', $slugs, true ),
+			array_search( 'login-link', $slugs, true ),
+			'login-link should appear before set-new-password.'
+		);
+	}
 }

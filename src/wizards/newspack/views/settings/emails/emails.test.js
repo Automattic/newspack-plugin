@@ -256,12 +256,16 @@ describe( 'Emails', () => {
 			expect( screen.getByTestId( 'dataviews' ) ).toBeInTheDocument();
 		} );
 
+		// Before deactivation, count Enabled badges.
+		const enabledBefore = screen.getAllByText( 'Enabled' ).length;
+
 		const deactivate = mockCapturedActions.find( a => a.id === 'deactivate' );
 		deactivate.callback( [ mockEmails[ 0 ] ] );
 
-		// After rejection, error notice should appear.
+		// After rejection, error notice should appear and status should revert.
 		await waitFor( () => {
 			expect( screen.getByTestId( 'notice' ) ).toBeInTheDocument();
+			expect( screen.getAllByText( 'Enabled' ).length ).toBe( enabledBefore );
 		} );
 	} );
 
@@ -274,16 +278,39 @@ describe( 'Emails', () => {
 		} );
 
 		const activate = mockCapturedActions.find( a => a.id === 'activate' );
-		// mockEmails[5] (Order on hold) is woocommerce + draft — eligible for activate.
-		activate.callback( [ mockEmails[ 5 ] ] );
+		// mockEmails[3] (Account deletion) is newspack + draft — eligible for activate.
+		activate.callback( [ mockEmails[ 3 ] ] );
 
 		await waitFor( () => {
 			expect( apiFetch ).toHaveBeenCalledWith( {
-				path: '/wp/v2/newspack_rr_email/6',
+				path: '/wp/v2/newspack_rr_email/4',
 				method: 'POST',
 				data: { status: 'publish' },
 			} );
 		} );
+	} );
+
+	it( 'deactivate/activate are not eligible for reader-activation or woocommerce emails', async () => {
+		const Emails = require( './emails' ).default;
+		render( <Emails /> );
+
+		await waitFor( () => {
+			expect( screen.getByTestId( 'dataviews' ) ).toBeInTheDocument();
+		} );
+
+		const deactivate = mockCapturedActions.find( a => a.id === 'deactivate' );
+		const activate = mockCapturedActions.find( a => a.id === 'activate' );
+
+		// Reader-activation emails cannot be toggled.
+		expect( deactivate.isEligible( mockEmails[ 2 ] ) ).toBe( false );
+		// WooCommerce emails cannot be toggled.
+		expect( deactivate.isEligible( mockEmails[ 4 ] ) ).toBe( false );
+		// Newspack reader-revenue email can be deactivated.
+		expect( deactivate.isEligible( mockEmails[ 0 ] ) ).toBe( true );
+		// Draft reader-activation email cannot be activated.
+		expect( activate.isEligible( mockEmails[ 3 ] ) ).toBe( false );
+		// Draft WooCommerce email cannot be activated.
+		expect( activate.isEligible( mockEmails[ 5 ] ) ).toBe( false );
 	} );
 
 	it( 'reset action calls apiFetch with DELETE after confirmation', async () => {

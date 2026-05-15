@@ -326,7 +326,7 @@ class Emails_Section extends Wizard_Section {
 				$email['trigger_description'] = '';
 				$email['registry_slug']       = '';
 				$email['recipient']           = 'reader';
-				$email['source']              = 'newspack';
+				$email['source']              = 'newspack'; // Default; WooCommerce emails always match above.
 			}
 			$newspack_emails[] = $email;
 		}
