@@ -251,9 +251,7 @@ class Contact_Sync_Connector {
 			delete_transient( 'newspack_user_deletion_data_' . $user_id );
 		}
 
-		if ( method_exists( Contact_Sync::class, 'handle_account_deletion' ) ) {
-			Contact_Sync::handle_account_deletion( $email, $contact, 'RAS Reader deletion' );
-		}
+		Contact_Sync::handle_account_deletion( $email, $contact, 'RAS Reader deletion' );
 	}
 
 	/**
