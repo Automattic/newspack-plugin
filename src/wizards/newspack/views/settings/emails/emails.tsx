@@ -21,20 +21,15 @@ import './emails.scss';
 
 interface EmailItem {
 	label: string;
-	description: string;
 	post_id: number;
 	edit_link: string;
-	subject: string;
-	from_name: string;
-	from_email: string;
-	reply_to_email: string;
 	status: string;
 	type: string;
 	category: string;
-	recommended: boolean;
 	trigger_description: string;
 	registry_slug: string;
 	recipient: 'reader' | 'admin';
+	source: 'newspack' | 'woocommerce';
 }
 
 interface EmailSettings {
@@ -57,9 +52,11 @@ const DEFAULT_VIEW: View = {
 	mediaField: 'preview',
 };
 
+const PageHeading = () => <h1 className="screen-reader-text">{ __( 'Emails', 'newspack-plugin' ) }</h1>;
+
 const Emails = () => {
 	const emailSections = window.newspackSettings.emails.sections;
-	const [ pluginsReady, setPluginsReady ] = useState( emailSections.emails.dependencies.newspackNewsletters );
+	const [ pluginsReady, setPluginsReady ] = useState( Boolean( emailSections.emails.dependencies.newspackNewsletters ) );
 
 	const [ data, setData ] = useState< EmailItem[] >( [] );
 	const [ postType, setPostType ] = useState< string >( emailSections.emails.postType );
@@ -90,13 +87,15 @@ const Emails = () => {
 	}, [ fetchData ] );
 
 	const updateStatus = useCallback(
-		( postId: number, status: string ) => {
+		( postId: number, nextStatus: string ) => {
 			setError( null );
-			// Optimistic update.
+			let previousStatus: string | undefined;
+			// Optimistic update — see NPPD-1531 for consolidating with the wizard data store.
 			setData( prev =>
 				prev.map( email => {
 					if ( email.post_id === postId ) {
-						return { ...email, status };
+						previousStatus = email.status;
+						return { ...email, status: nextStatus };
 					}
 					return email;
 				} )
@@ -104,16 +103,13 @@ const Emails = () => {
 			apiFetch( {
 				path: `/wp/v2/${ postType }/${ postId }`,
 				method: 'POST',
-				data: { status },
+				data: { status: nextStatus },
 			} ).catch( () => {
 				// Revert on failure.
 				setData( prev =>
 					prev.map( email => {
-						if ( email.post_id === postId ) {
-							return {
-								...email,
-								status: status === 'publish' ? 'draft' : 'publish',
-							};
+						if ( email.post_id === postId && previousStatus !== undefined ) {
+							return { ...email, status: previousStatus };
 						}
 						return email;
 					} )
@@ -127,6 +123,9 @@ const Emails = () => {
 	const resetEmail = useCallback(
 		( postId: number ) => {
 			setError( null );
+			// @todo NPPD-1532 Move reset handler to class-emails-section.php so it
+			// lives under wizard/newspack-settings/emails/{id} instead of reaching
+			// into the donations wizard namespace.
 			apiFetch( {
 				path: `/newspack/v1/wizard/newspack-audience-donations/emails/${ postId }`,
 				method: 'DELETE',
@@ -149,7 +148,7 @@ const Emails = () => {
 				type: 'media',
 				enableSorting: false,
 				enableHiding: true,
-				// TODO: Replace with <EmailPreview> component when built.
+				// @todo NPPD-1525 Replace with <EmailPreview> component.
 				render: () => (
 					<div className="newspack-emails__preview-placeholder">
 						<Icon icon={ envelope } size={ 32 } />
@@ -176,7 +175,8 @@ const Emails = () => {
 			{
 				id: 'recipient',
 				label: __( 'Recipient', 'newspack-plugin' ),
-				getValue: ( { item }: { item: EmailItem } ) => item.recipient,
+				getValue: ( { item }: { item: EmailItem } ) =>
+					item.recipient === 'admin' ? __( 'Admin', 'newspack-plugin' ) : __( 'Reader', 'newspack-plugin' ),
 				render: ( { item }: { item: EmailItem } ) => (
 					<span>{ item.recipient === 'admin' ? __( 'Admin', 'newspack-plugin' ) : __( 'Reader', 'newspack-plugin' ) }</span>
 				),
@@ -233,6 +233,7 @@ const Emails = () => {
 				id: 'reset',
 				label: __( 'Reset', 'newspack-plugin' ),
 				isDestructive: true,
+				isEligible: ( item: EmailItem ) => item.source !== 'woocommerce' && Boolean( item.registry_slug ),
 				callback: ( items: EmailItem[] ) => {
 					if ( utils.confirmAction( __( 'Are you sure you want to reset the contents of this email?', 'newspack-plugin' ) ) ) {
 						resetEmail( items[ 0 ].post_id );
@@ -248,15 +249,12 @@ const Emails = () => {
 	if ( false === pluginsReady ) {
 		return (
 			<Fragment>
-				<h1 className="screen-reader-text">{ __( 'Emails', 'newspack-plugin' ) }</h1>
-				<Notice isError>
-					{ __(
-						'Newspack uses Newspack Newsletters to handle editing email-type content. Please activate this plugin to proceed.',
-						'newspack-plugin'
-					) }
-					<br />
-					{ __( 'Until this feature is configured, default receipts will be used.', 'newspack-plugin' ) }
-				</Notice>
+				<PageHeading />
+				<Notice isError noticeText={
+					__( 'Newspack uses Newspack Newsletters to handle editing email-type content. Please activate this plugin to proceed.', 'newspack-plugin' ) +
+					' ' +
+					__( 'Until this feature is configured, default receipts will be used.', 'newspack-plugin' )
+				} />
 				<WizardsPluginCard
 					slug="newspack-newsletters"
 					title={ __( 'Newspack Newsletters', 'newspack-plugin' ) }
@@ -273,7 +271,7 @@ const Emails = () => {
 
 	return (
 		<Fragment>
-			<h1 className="screen-reader-text">{ __( 'Emails', 'newspack-plugin' ) }</h1>
+			<PageHeading />
 			{ error && <Notice isError noticeText={ error } /> }
 			<DataViews
 				className="newspack-emails"

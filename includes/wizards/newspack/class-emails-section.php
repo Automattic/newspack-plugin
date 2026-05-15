@@ -241,7 +241,9 @@ class Emails_Section extends Wizard_Section {
 				'label'               => __( 'Order refund', 'newspack-plugin' ),
 				'trigger_description' => __( 'Sent when an order is refunded.', 'newspack-plugin' ),
 			],
-			// TODO: Customer-facing email. PRD rationale should be "lower customization priority for subscription publishers" instead of "admin-facing".
+			// The following three WooCommerce emails are customer-facing but marked
+			// recommended=false because they are lower customization priority for
+			// subscription-focused publishers.
 			'woo-processing-order'          => [
 				'source'              => 'woocommerce',
 				'woo_email_id'        => 'customer_processing_order',
@@ -251,7 +253,6 @@ class Emails_Section extends Wizard_Section {
 				'label'               => __( 'Order processing', 'newspack-plugin' ),
 				'trigger_description' => __( 'Sent when an order payment is received and the order begins processing.', 'newspack-plugin' ),
 			],
-			// TODO: Customer-facing email. PRD rationale should be "lower customization priority for subscription publishers" instead of "admin-facing".
 			'woo-completed-order'           => [
 				'source'              => 'woocommerce',
 				'woo_email_id'        => 'customer_completed_order',
@@ -261,7 +262,6 @@ class Emails_Section extends Wizard_Section {
 				'label'               => __( 'Order complete', 'newspack-plugin' ),
 				'trigger_description' => __( 'Sent when an order is marked as complete.', 'newspack-plugin' ),
 			],
-			// TODO: Customer-facing email. PRD rationale should be "lower customization priority for subscription publishers" instead of "admin-facing".
 			'woo-on-hold-order'             => [
 				'source'              => 'woocommerce',
 				'woo_email_id'        => 'customer_on_hold_order',
@@ -317,22 +317,24 @@ class Emails_Section extends Wizard_Section {
 				$match                        = $registry_lookup[ $type ];
 				$email['label']               = $match['label'];
 				$email['recommended']         = $match['recommended'];
-				$email['view_category']       = $match['recommended'] ? 'essentials' : 'all-enabled';
 				$email['trigger_description'] = $match['trigger_description'];
 				$email['registry_slug']       = $match['registry_slug'];
 				$email['recipient']           = $match['recipient'];
+				$email['source']              = $match['source'];
 			} else {
 				$email['recommended']         = false;
-				$email['view_category']       = 'available';
 				$email['trigger_description'] = '';
 				$email['registry_slug']       = '';
 				$email['recipient']           = 'reader';
+				$email['source']              = 'newspack';
 			}
 			$newspack_emails[] = $email;
 		}
 
 		// Sort: reader-revenue first, reader-activation second, woocommerce last.
 		// Within each group, preserve registry insertion order via a stable tiebreaker.
+		// Category strings originate from Reader_Revenue_Emails::add_email_configs(),
+		// Reader_Activation_Emails::add_email_configs(), and WooCommerce_Emails.
 		$category_order = [
 			'reader-revenue'    => 0,
 			'reader-activation' => 1,

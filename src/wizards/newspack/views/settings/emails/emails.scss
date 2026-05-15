@@ -29,10 +29,9 @@
 	justify-content: center;
 	aspect-ratio: 1;
 	width: 100%;
-	background: var(--wp-admin-theme-color-darker-10, #ddd);
+	background: wp-colors.$gray-100;
 	border-radius: 4px;
-	color: var(--wp-admin-theme-color, #3858e9);
-	opacity: 0.4;
+	color: wp-colors.$gray-700;
 }
 
 // Trigger description sub-text under the title.
@@ -40,5 +39,9 @@
 	color: wp-colors.$gray-900;
 	font-size: 12px;
 	margin-top: 4px;
+	display: block;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	max-width: 360px;
 }
-

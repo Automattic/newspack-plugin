@@ -78,88 +78,75 @@ jest.mock(
 const mockEmails = [
 	{
 		label: 'Payment receipt',
-		description: 'Receipt email',
 		post_id: 1,
 		edit_link: '/edit/1',
-		subject: 'Your receipt',
-		from_name: 'Test',
-		from_email: 'test@example.com',
-		reply_to_email: 'test@example.com',
 		status: 'publish',
 		type: 'receipt',
 		category: 'reader-revenue',
-		recommended: true,
 		trigger_description: 'Sent after a successful payment.',
 		registry_slug: 'receipt',
 		recipient: 'reader',
+		source: 'newspack',
 	},
 	{
 		label: 'Cancellation confirmation',
-		description: 'Cancellation email',
 		post_id: 2,
 		edit_link: '/edit/2',
-		subject: 'Subscription cancelled',
-		from_name: 'Test',
-		from_email: 'test@example.com',
-		reply_to_email: 'test@example.com',
 		status: 'publish',
 		type: 'cancellation',
 		category: 'reader-revenue',
-		recommended: true,
 		trigger_description: 'Sent when a reader cancels their subscription.',
 		registry_slug: 'cancellation',
 		recipient: 'reader',
+		source: 'newspack',
 	},
 	{
 		label: 'Reader verification',
-		description: 'Verification email',
 		post_id: 3,
 		edit_link: '/edit/3',
-		subject: 'Verify your email',
-		from_name: 'Test',
-		from_email: 'test@example.com',
-		reply_to_email: 'test@example.com',
 		status: 'publish',
 		type: 'reader-activation-verification',
 		category: 'reader-activation',
-		recommended: true,
 		trigger_description: 'Sent when a reader needs to verify their email address.',
 		registry_slug: 'verification',
 		recipient: 'reader',
+		source: 'newspack',
 	},
 	{
 		label: 'Account deletion',
-		description: 'Delete account email',
 		post_id: 4,
 		edit_link: '/edit/4',
-		subject: 'Account deleted',
-		from_name: 'Test',
-		from_email: 'test@example.com',
-		reply_to_email: 'test@example.com',
 		status: 'draft',
 		type: 'reader-activation-delete-account',
 		category: 'reader-activation',
-		recommended: false,
 		trigger_description: 'Sent when a reader requests to delete their account.',
 		registry_slug: 'delete-account',
 		recipient: 'reader',
+		source: 'newspack',
 	},
 	{
 		label: 'New order (admin)',
-		description: 'New order admin notification',
 		post_id: 5,
 		edit_link: '/edit/5',
-		subject: 'New order',
-		from_name: 'Test',
-		from_email: 'test@example.com',
-		reply_to_email: 'test@example.com',
 		status: 'publish',
 		type: 'new_order',
 		category: 'woocommerce',
-		recommended: false,
 		trigger_description: 'Sent to the admin when a new order is placed.',
 		registry_slug: 'woo-new-order',
 		recipient: 'admin',
+		source: 'woocommerce',
+	},
+	{
+		label: 'Order on hold',
+		post_id: 6,
+		edit_link: '/edit/6',
+		status: 'draft',
+		type: 'customer_on_hold_order',
+		category: 'woocommerce',
+		trigger_description: 'Sent when an order is placed on hold.',
+		registry_slug: 'woo-on-hold-order',
+		recipient: 'reader',
+		source: 'woocommerce',
 	},
 ];
 
@@ -191,12 +178,12 @@ describe( 'Emails', () => {
 		render( <Emails /> );
 
 		await waitFor( () => {
-			// Emails from across the spectrum are all visible.
 			expect( screen.getByText( 'Payment receipt' ) ).toBeInTheDocument();
 			expect( screen.getByText( 'Cancellation confirmation' ) ).toBeInTheDocument();
 			expect( screen.getByText( 'Reader verification' ) ).toBeInTheDocument();
 			expect( screen.getByText( 'Account deletion' ) ).toBeInTheDocument();
 			expect( screen.getByText( 'New order (admin)' ) ).toBeInTheDocument();
+			expect( screen.getByText( 'Order on hold' ) ).toBeInTheDocument();
 		} );
 	} );
 
@@ -221,7 +208,6 @@ describe( 'Emails', () => {
 		await waitFor( () => {
 			const readerCells = screen.getAllByText( 'Reader' );
 			expect( readerCells.length ).toBeGreaterThanOrEqual( 4 );
-			// Admin recipient.
 			expect( screen.getByText( 'Admin' ) ).toBeInTheDocument();
 		} );
 	} );
@@ -232,9 +218,9 @@ describe( 'Emails', () => {
 
 		await waitFor( () => {
 			const enabledCells = screen.getAllByText( 'Enabled' );
-			expect( enabledCells.length ).toBeGreaterThanOrEqual( 4 );
-			// Account deletion is draft.
-			expect( screen.getByText( 'Disabled' ) ).toBeInTheDocument();
+			expect( enabledCells.length ).toBeGreaterThanOrEqual( 3 );
+			const disabledCells = screen.getAllByText( 'Disabled' );
+			expect( disabledCells.length ).toBeGreaterThanOrEqual( 2 );
 		} );
 	} );
 
@@ -258,6 +244,27 @@ describe( 'Emails', () => {
 		} );
 	} );
 
+	it( 'deactivate optimistically updates status and reverts on failure', async () => {
+		apiFetch
+			.mockResolvedValueOnce( { newspack_emails: mockEmails, post_type: 'newspack_rr_email' } )
+			.mockRejectedValueOnce( new Error( 'fail' ) );
+
+		const Emails = require( './emails' ).default;
+		render( <Emails /> );
+
+		await waitFor( () => {
+			expect( screen.getByTestId( 'dataviews' ) ).toBeInTheDocument();
+		} );
+
+		const deactivate = mockCapturedActions.find( a => a.id === 'deactivate' );
+		deactivate.callback( [ mockEmails[ 0 ] ] );
+
+		// After rejection, error notice should appear.
+		await waitFor( () => {
+			expect( screen.getByTestId( 'notice' ) ).toBeInTheDocument();
+		} );
+	} );
+
 	it( 'activate action calls apiFetch with publish status', async () => {
 		const Emails = require( './emails' ).default;
 		render( <Emails /> );
@@ -267,16 +274,12 @@ describe( 'Emails', () => {
 		} );
 
 		const activate = mockCapturedActions.find( a => a.id === 'activate' );
-		// mockEmails[4] (New order) is woocommerce + publish, so use a draft
-		// woocommerce email to test activate eligibility correctly.
-		// Account deletion (mockEmails[3]) is reader-activation and excluded by isEligible.
-		// Instead, create an inline eligible item: woocommerce + draft.
-		const eligibleItem = { ...mockEmails[ 4 ], status: 'draft' };
-		activate.callback( [ eligibleItem ] );
+		// mockEmails[5] (Order on hold) is woocommerce + draft — eligible for activate.
+		activate.callback( [ mockEmails[ 5 ] ] );
 
 		await waitFor( () => {
 			expect( apiFetch ).toHaveBeenCalledWith( {
-				path: '/wp/v2/newspack_rr_email/5',
+				path: '/wp/v2/newspack_rr_email/6',
 				method: 'POST',
 				data: { status: 'publish' },
 			} );
@@ -293,7 +296,6 @@ describe( 'Emails', () => {
 		} );
 
 		const reset = mockCapturedActions.find( a => a.id === 'reset' );
-		// Reset is available on all emails (no isEligible filter).
 		reset.callback( [ mockEmails[ 0 ] ] );
 
 		expect( utils.confirmAction ).toHaveBeenCalled();
@@ -304,5 +306,22 @@ describe( 'Emails', () => {
 				method: 'DELETE',
 			} );
 		} );
+	} );
+
+	it( 'reset is eligible for newspack-source emails with a registry_slug', async () => {
+		const Emails = require( './emails' ).default;
+		render( <Emails /> );
+
+		await waitFor( () => {
+			expect( screen.getByTestId( 'dataviews' ) ).toBeInTheDocument();
+		} );
+
+		const reset = mockCapturedActions.find( a => a.id === 'reset' );
+		// Newspack email with registry_slug — eligible.
+		expect( reset.isEligible( mockEmails[ 0 ] ) ).toBe( true );
+		// WooCommerce email — not eligible.
+		expect( reset.isEligible( mockEmails[ 4 ] ) ).toBe( false );
+		// Email without registry_slug — not eligible.
+		expect( reset.isEligible( { ...mockEmails[ 0 ], registry_slug: '' } ) ).toBe( false );
 	} );
 } );
