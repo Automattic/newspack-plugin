@@ -234,6 +234,79 @@ class Contact_Sync extends Sync {
 	}
 
 	/**
+	 * Handle account deletion across all active integrations.
+	 *
+	 * Iterates active integrations and routes deletion per-integration based on
+	 * the `sync_account_deletion` and `account_deletion_handling` settings:
+	 *
+	 * - sync_account_deletion=false → skip this integration entirely.
+	 * - sync_account_deletion=true + handling='delete' → call $integration->delete_contact($email).
+	 * - sync_account_deletion=true + handling='flag' → push the contact with the
+	 *   `account_deleted` metadata field set to an ISO8601 timestamp.
+	 *
+	 * The WP user no longer exists by the time this runs, so the standard
+	 * push_to_integrations() retry path (which keys retries on user_id) is
+	 * intentionally not used here. Errors are logged but not retried.
+	 *
+	 * @param string $email   Email of the deleted reader.
+	 * @param array  $contact Contact data to push in flag mode (email + metadata).
+	 * @param string $context Optional context for logging.
+	 *
+	 * @return true|\WP_Error True on success, WP_Error if any integration returned an error.
+	 */
+	public static function handle_account_deletion( $email, $contact, $context = '' ) {
+		$can_sync = static::can_sync( true );
+		if ( $can_sync->has_errors() ) {
+			return $can_sync;
+		}
+		if ( empty( $context ) ) {
+			$context = static::$context;
+		}
+
+		$integrations = Integrations::get_active_integrations();
+		$errors       = [];
+
+		// Build the flag-mode contact once.
+		$flag_contact          = $contact;
+		$flag_contact['email'] = $email;
+		$flag_contact['metadata'] = isset( $flag_contact['metadata'] ) ? $flag_contact['metadata'] : [];
+		$flag_contact['metadata']['account_deleted'] = gmdate( 'c' );
+
+		foreach ( $integrations as $integration_id => $integration ) {
+			if ( ! $integration->get_settings_field_value( 'sync_account_deletion' ) ) {
+				continue;
+			}
+			$mode = $integration->get_settings_field_value( 'account_deletion_handling' );
+
+			if ( 'delete' === $mode ) {
+				$result = $integration->delete_contact( $email );
+				if ( is_wp_error( $result ) ) {
+					$errors[] = sprintf( '[%s] %s', $integration_id, $result->get_error_message() );
+					static::log( sprintf( 'Delete failed for integration "%s" of %s: %s', $integration_id, $email, $result->get_error_message() ) );
+				} else {
+					static::log( sprintf( 'Delete succeeded for integration "%s" of %s.', $integration_id, $email ) );
+				}
+				continue;
+			}
+
+			// 'flag' — push through the integration's normal pipeline so prepare_contact applies.
+			$integration_contact = $integration->prepare_contact( $flag_contact );
+			$result              = $integration->push_contact_data( $integration_contact, $context );
+			if ( is_wp_error( $result ) ) {
+				$errors[] = sprintf( '[%s] %s', $integration_id, $result->get_error_message() );
+				static::log( sprintf( 'Flag-push failed for integration "%s" of %s: %s', $integration_id, $email, $result->get_error_message() ) );
+			} else {
+				static::log( sprintf( 'Flag-push succeeded for integration "%s" of %s.', $integration_id, $email ) );
+			}
+		}
+
+		if ( ! empty( $errors ) ) {
+			return new \WP_Error( 'newspack_esp_delete_failed', implode( '; ', $errors ) );
+		}
+		return true;
+	}
+
+	/**
 	 * Schedule a retry for a failed integration sync via ActionScheduler.
 	 *
 	 * @param string           $integration_id The integration ID.
