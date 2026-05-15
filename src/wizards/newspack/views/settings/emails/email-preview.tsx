@@ -32,11 +32,12 @@ const IFRAME_WIDTH = 848;
 const EmailPreview: React.FC< EmailPreviewProps > = ( { postId } ) => {
 	const containerRef = useRef< HTMLDivElement >( null );
 	const iframeRef = useRef< HTMLIFrameElement >( null );
+	const safetyTimerRef = useRef< ReturnType< typeof setTimeout > | null >( null );
 	const [ isVisible, setIsVisible ] = useState( false );
 	const [ html, setHtml ] = useState< string | null >( null );
 	const [ isLoading, setIsLoading ] = useState( false );
 	const [ hasError, setHasError ] = useState( false );
-	const [ scale, setScale ] = useState( 0 );
+	const [ scale, setScale ] = useState< number | null >( null );
 	const [ iframeHeight, setIframeHeight ] = useState< number | null >( null );
 	const [ isReady, setIsReady ] = useState( false );
 
@@ -86,10 +87,18 @@ const EmailPreview: React.FC< EmailPreviewProps > = ( { postId } ) => {
 		return () => ro.disconnect();
 	}, [] );
 
-	// Fetch preview HTML once visible. Reset state on postId change.
+	// Fetch preview HTML once visible. Cancel on postId change or unmount.
 	useEffect( () => {
 		if ( ! isVisible ) {
 			return;
+		}
+
+		let cancelled = false;
+
+		// Clear any lingering safety timer from a previous postId.
+		if ( safetyTimerRef.current ) {
+			clearTimeout( safetyTimerRef.current );
+			safetyTimerRef.current = null;
 		}
 
 		setIsLoading( true );
@@ -101,14 +110,28 @@ const EmailPreview: React.FC< EmailPreviewProps > = ( { postId } ) => {
 			path: `/newspack/v1/wizard/newspack-settings/emails/${ postId }/preview`,
 		} )
 			.then( response => {
-				setHtml( response.html );
+				if ( ! cancelled ) {
+					setHtml( response.html );
+				}
 			} )
 			.catch( () => {
-				setHasError( true );
+				if ( ! cancelled ) {
+					setHasError( true );
+				}
 			} )
 			.finally( () => {
-				setIsLoading( false );
+				if ( ! cancelled ) {
+					setIsLoading( false );
+				}
 			} );
+
+		return () => {
+			cancelled = true;
+			if ( safetyTimerRef.current ) {
+				clearTimeout( safetyTimerRef.current );
+				safetyTimerRef.current = null;
+			}
+		};
 	}, [ isVisible, postId ] );
 
 	// Handle iframe load: wait for stylesheets and images, then measure height and reveal.
@@ -131,22 +154,31 @@ const EmailPreview: React.FC< EmailPreviewProps > = ( { postId } ) => {
 			.filter( img => ! img.complete )
 			.map( awaitLoad );
 
-		// 8 s safety so a slow asset never strands the spinner.
-		const safety = setTimeout( () => {
+		let finalized = false;
+		const finalize = () => {
+			if ( finalized ) {
+				return;
+			}
+			finalized = true;
+			if ( safetyTimerRef.current ) {
+				clearTimeout( safetyTimerRef.current );
+				safetyTimerRef.current = null;
+			}
 			setIframeHeight( doc.body.scrollHeight );
 			setIsReady( true );
-		}, 8000 );
+		};
 
-		Promise.all( [ ...linkPromises, ...imgPromises ] ).then( () => {
-			clearTimeout( safety );
-			setIframeHeight( doc.body.scrollHeight );
-			setIsReady( true );
-		} );
+		// 8 s safety so a slow asset never strands the spinner.
+		safetyTimerRef.current = setTimeout( finalize, 8000 );
+
+		Promise.all( [ ...linkPromises, ...imgPromises ] ).then( finalize );
 	}, [] );
+
+	const showSpinner = ! hasError && ! isReady && ( isLoading || Boolean( html ) );
 
 	return (
 		<div ref={ containerRef } className={ `newspack-email-preview${ isReady ? ' is-ready' : '' }` }>
-			{ ( isLoading || ( html && ! isReady ) ) && ! hasError && (
+			{ showSpinner && (
 				<div className="newspack-email-preview__placeholder">
 					<Spinner />
 				</div>
@@ -156,15 +188,22 @@ const EmailPreview: React.FC< EmailPreviewProps > = ( { postId } ) => {
 					<Icon icon={ envelope } size={ 48 } />
 				</div>
 			) }
-			{ html && ! hasError && scale > 0 && (
+			{ html && ! hasError && scale !== null && scale > 0 && (
 				<iframe
 					ref={ iframeRef }
 					className="newspack-email-preview__iframe"
 					srcDoc={ html }
+					/* sandbox: allow-same-origin is required so handleIframeLoad can
+					 * read contentDocument (body.scrollHeight, stylesheet load state).
+					 * allow-scripts is NOT present, so JS cannot execute.
+					 * Residual risk: a <form> in the HTML could submit with admin
+					 * cookies, but this is admin-only code and the email HTML is
+					 * publisher-controlled post meta. */
 					sandbox="allow-same-origin"
 					tabIndex={ -1 }
 					title="Email preview"
 					onLoad={ handleIframeLoad }
+					onError={ () => setHasError( true ) }
 					style={ {
 						transform: `scale(${ scale })`,
 						height: iframeHeight ? `${ iframeHeight }px` : undefined,

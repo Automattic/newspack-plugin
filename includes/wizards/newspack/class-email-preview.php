@@ -41,7 +41,7 @@ class Email_Preview {
 			return false;
 		}
 
-		return self::apply_sample_substitutions( $html );
+		return self::apply_sample_substitutions( $html, $post_id );
 	}
 
 	/**
@@ -95,15 +95,26 @@ class Email_Preview {
 	 * fake values. Action URLs are replaced with anchor placeholders so
 	 * preview iframes don't trigger live navigation.
 	 *
-	 * @param string $html Source HTML containing *TOKEN* placeholders.
+	 * @param string $html    Source HTML containing *TOKEN* placeholders.
+	 * @param int    $post_id The email post being previewed (passed to the filter).
 	 *
 	 * @return string HTML with tokens substituted.
 	 */
-	private static function apply_sample_substitutions( string $html ): string {
-		foreach ( self::get_sample_substitutions() as $token => $value ) {
-			$html = str_replace( $token, $value, $html );
-		}
-		return $html;
+	private static function apply_sample_substitutions( string $html, int $post_id = 0 ): string {
+		$substitutions = self::get_sample_substitutions();
+
+		/**
+		 * Filters the sample substitution map used for email previews.
+		 *
+		 * Allows plugins to inject sample values for custom tokens
+		 * (e.g. group-subscription invite tokens, future token additions).
+		 *
+		 * @param array $substitutions Map of `*TOKEN*` => sample value.
+		 * @param int   $post_id       The email post being previewed (0 if unknown).
+		 */
+		$substitutions = apply_filters( 'newspack_email_preview_substitutions', $substitutions, $post_id );
+
+		return strtr( $html, $substitutions );
 	}
 
 	/**
@@ -115,7 +126,7 @@ class Email_Preview {
 		$site_logo_url   = wp_get_attachment_url( get_theme_mod( 'custom_logo' ) );
 		$site_title      = get_bloginfo( 'name' );
 		$site_url        = get_bloginfo( 'wpurl' );
-		$reply_to_email  = function_exists( 'Newspack\Emails::get_reply_to_email' ) ? Emails::get_reply_to_email() : get_bloginfo( 'admin_email' );
+		$reply_to_email  = Emails::get_reply_to_email();
 		$site_address    = self::get_site_address();
 		$site_contact    = $site_address
 			? sprintf( '<strong>%s</strong> — %s', $site_title, $site_address )
@@ -128,7 +139,7 @@ class Email_Preview {
 			'*SITE_LOGO*'              => $site_logo_url ? esc_url( $site_logo_url ) : '',
 			'*SITE_ADDRESS*'           => $site_address,
 			'*SITE_CONTACT*'           => $site_contact,
-			'*CONTACT_EMAIL*'          => sprintf( '<a href="mailto:%s">%s</a>', $reply_to_email, $reply_to_email ),
+			'*CONTACT_EMAIL*'          => sprintf( '<a href="%s">%s</a>', esc_url( 'mailto:' . $reply_to_email ), esc_html( $reply_to_email ) ),
 
 			// Reader identity — stable sample values.
 			'*BILLING_FIRST_NAME*'     => 'Sample',
@@ -141,7 +152,7 @@ class Email_Preview {
 			'*PAYMENT_METHOD*'         => 'Visa ending in 4242',
 			'*PRODUCT_NAME*'           => 'Monthly Membership',
 			'*BILLING_FREQUENCY*'      => 'monthly',
-			'*DATE*'                   => gmdate( get_option( 'date_format', 'F j, Y' ) ),
+			'*DATE*'                   => wp_date( get_option( 'date_format', 'F j, Y' ) ),
 			'*CANCELLATION_TITLE*'     => __( 'Subscription Cancelled', 'newspack-plugin' ),
 			'*CANCELLATION_TYPE*'      => __( 'subscription', 'newspack-plugin' ),
 

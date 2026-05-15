@@ -90,6 +90,28 @@ class Newspack_Test_Email_Preview extends WP_UnitTestCase {
 	}
 
 	/**
+	 * CONTACT_EMAIL resolves through Emails::get_reply_to_email() — not admin_email.
+	 *
+	 * Pins the fix for the function_exists() bug: function_exists() cannot
+	 * test class methods, so the guard was always false and the token fell
+	 * back to admin_email regardless of the Reader Activation contact setting.
+	 */
+	public function test_contact_email_uses_reply_to_email() {
+		$custom_email = 'reply@example.org';
+		add_filter( 'newspack_reply_to_email', fn() => $custom_email );
+
+		$source_html = '<html><body>Contact us at *CONTACT_EMAIL*</body></html>';
+		$post_id     = $this->create_email_post( $source_html );
+
+		$result = Email_Preview::get_preview_html( $post_id );
+
+		self::assertStringContainsString( $custom_email, $result, 'CONTACT_EMAIL should resolve to the filtered reply-to address.' );
+		self::assertStringNotContainsString( '*CONTACT_EMAIL*', $result, 'Raw CONTACT_EMAIL token should not remain.' );
+
+		remove_all_filters( 'newspack_reply_to_email' );
+	}
+
+	/**
 	 * Tests that get_preview_html() substitutes tokens in stored EMAIL_HTML_META.
 	 */
 	public function test_get_preview_html_with_stored_meta() {
@@ -128,6 +150,15 @@ class Newspack_Test_Email_Preview extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Permission check rejects non-admin users.
+	 */
+	public function test_api_permissions_check_rejects_non_admin() {
+		wp_set_current_user( self::factory()->user->create( [ 'role' => 'subscriber' ] ) );
+		$result = Email_Preview::api_permissions_check();
+		self::assertInstanceOf( 'WP_Error', $result );
+	}
+
+	/**
 	 * REST API returns 404 for a post that is not of the email post type.
 	 */
 	public function test_api_get_preview_returns_404_for_wrong_post_type() {
@@ -140,6 +171,7 @@ class Newspack_Test_Email_Preview extends WP_UnitTestCase {
 
 		self::assertInstanceOf( 'WP_Error', $response );
 		self::assertEquals( 'newspack_email_preview_not_found', $response->get_error_code() );
+		self::assertEquals( 404, $response->get_error_data()['status'] );
 	}
 
 	/**
