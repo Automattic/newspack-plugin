@@ -293,7 +293,7 @@ describe( 'Emails', () => {
 		} );
 
 		const reset = mockCapturedActions.find( a => a.id === 'reset' );
-		// mockEmails[0] (Payment receipt) has type 'receipt', so eligible for reset.
+		// Reset is available on all emails (no isEligible filter).
 		reset.callback( [ mockEmails[ 0 ] ] );
 
 		expect( utils.confirmAction ).toHaveBeenCalled();

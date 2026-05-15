@@ -233,7 +233,6 @@ const Emails = () => {
 				id: 'reset',
 				label: __( 'Reset', 'newspack-plugin' ),
 				isDestructive: true,
-				isEligible: ( item: EmailItem ) => item.type === 'receipt' || item.type === 'welcome',
 				callback: ( items: EmailItem[] ) => {
 					if ( utils.confirmAction( __( 'Are you sure you want to reset the contents of this email?', 'newspack-plugin' ) ) ) {
 						resetEmail( items[ 0 ].post_id );
