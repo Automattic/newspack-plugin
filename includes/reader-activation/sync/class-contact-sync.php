@@ -280,23 +280,89 @@ class Contact_Sync extends Sync {
 
 			if ( 'delete' === $mode ) {
 				$result = $integration->delete_contact( $email );
-				if ( is_wp_error( $result ) ) {
+				if ( \is_wp_error( $result ) ) {
 					$errors[] = sprintf( '[%s] %s', $integration_id, $result->get_error_message() );
 					static::log( sprintf( 'Delete failed for integration "%s" of %s: %s', $integration_id, $email, $result->get_error_message() ) );
+					/**
+					 * Fires when a contact deletion sync fails.
+					 *
+					 * Used by Alert_Manager to record failures for early pattern detection.
+					 * The `context` payload carries the sync context plus the deletion mode
+					 * (`delete` or `flag`) so consumers can distinguish them.
+					 *
+					 * @param array $failure_data {
+					 *     Failure data.
+					 *
+					 *     @type string $integration_id The integration that failed.
+					 *     @type array  $contact        The contact data that failed to sync.
+					 *     @type array  $context        The sync context and mode.
+					 *     @type string $reason         The error message.
+					 * }
+					 */
+					do_action(
+						'newspack_sync_contact_failed',
+						[
+							'integration_id' => $integration_id,
+							'contact'        => [ 'email' => $email ],
+							'context'        => [
+								'context' => $context,
+								'mode'    => 'delete',
+							],
+							'reason'         => $result->get_error_message(),
+						]
+					);
+					if ( self::$current_as_action_id ) {
+						\ActionScheduler_Logger::instance()->log(
+							self::$current_as_action_id,
+							sprintf( 'Delete failed for integration "%s" of %s: %s', $integration_id, $email, $result->get_error_message() )
+						);
+					}
 				} else {
 					static::log( sprintf( 'Delete succeeded for integration "%s" of %s.', $integration_id, $email ) );
+					if ( self::$current_as_action_id ) {
+						\ActionScheduler_Logger::instance()->log(
+							self::$current_as_action_id,
+							sprintf( 'Delete succeeded for integration "%s" of %s.', $integration_id, $email )
+						);
+					}
 				}
-				continue;
-			}
-
-			// 'flag' — push through the integration's normal pipeline so prepare_contact applies.
-			$integration_contact = $integration->prepare_contact( $flag_contact );
-			$result              = $integration->push_contact_data( $integration_contact, $context );
-			if ( is_wp_error( $result ) ) {
-				$errors[] = sprintf( '[%s] %s', $integration_id, $result->get_error_message() );
-				static::log( sprintf( 'Flag-push failed for integration "%s" of %s: %s', $integration_id, $email, $result->get_error_message() ) );
+			} elseif ( 'flag' === $mode ) {
+				// 'flag' — push through the integration's normal pipeline so prepare_contact applies.
+				$integration_contact = $integration->prepare_contact( $flag_contact );
+				$result              = $integration->push_contact_data( $integration_contact, $context );
+				if ( \is_wp_error( $result ) ) {
+					$errors[] = sprintf( '[%s] %s', $integration_id, $result->get_error_message() );
+					static::log( sprintf( 'Flag-push failed for integration "%s" of %s: %s', $integration_id, $email, $result->get_error_message() ) );
+					/** This action is documented above in the 'delete' branch of this method. */
+					do_action(
+						'newspack_sync_contact_failed',
+						[
+							'integration_id' => $integration_id,
+							'contact'        => $flag_contact,
+							'context'        => [
+								'context' => $context,
+								'mode'    => 'flag',
+							],
+							'reason'         => $result->get_error_message(),
+						]
+					);
+					if ( self::$current_as_action_id ) {
+						\ActionScheduler_Logger::instance()->log(
+							self::$current_as_action_id,
+							sprintf( 'Flag-push failed for integration "%s" of %s: %s', $integration_id, $email, $result->get_error_message() )
+						);
+					}
+				} else {
+					static::log( sprintf( 'Flag-push succeeded for integration "%s" of %s.', $integration_id, $email ) );
+					if ( self::$current_as_action_id ) {
+						\ActionScheduler_Logger::instance()->log(
+							self::$current_as_action_id,
+							sprintf( 'Flag-push succeeded for integration "%s" of %s.', $integration_id, $email )
+						);
+					}
+				}
 			} else {
-				static::log( sprintf( 'Flag-push succeeded for integration "%s" of %s.', $integration_id, $email ) );
+				static::log( sprintf( 'Unknown handling mode "%s" for integration "%s"; skipping.', $mode, $integration_id ) );
 			}
 		}
 

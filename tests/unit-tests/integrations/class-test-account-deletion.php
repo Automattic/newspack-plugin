@@ -273,4 +273,84 @@ class Test_Account_Deletion extends \WP_UnitTestCase {
 		$this->assertCount( 0, $off_spy->delete_calls );
 		$this->assertCount( 0, $off_spy->push_calls );
 	}
+
+	/**
+	 * When delete_contact() returns a WP_Error, the dispatcher must fire
+	 * `newspack_sync_contact_failed` so Alert_Manager can record the failure.
+	 * The payload's `context` must carry the deletion mode for downstream filtering.
+	 */
+	public function test_handle_account_deletion_fires_alert_action_on_delete_failure() {
+		$this->reset_integrations();
+		$spy = new \Deletion_Spy_Integration( 'spy-fail-delete', 'Spy Fail Delete' );
+		$spy->delete_result = new \WP_Error( 'boom', 'ESP rejected delete' );
+		Integrations::register( $spy );
+		$spy->update_settings_field_value( 'sync_account_deletion', true );
+		$spy->update_settings_field_value( 'account_deletion_handling', 'delete' );
+		Integrations::enable( 'spy-fail-delete' );
+
+		$captured = [];
+		$listener = function ( $payload ) use ( &$captured ) {
+			$captured[] = $payload;
+		};
+		add_action( 'newspack_sync_contact_failed', $listener );
+
+		$result = \Newspack\Reader_Activation\Contact_Sync::handle_account_deletion(
+			'reader@example.com',
+			[
+				'email'    => 'reader@example.com',
+				'metadata' => [],
+			],
+			'TestContext'
+		);
+
+		remove_action( 'newspack_sync_contact_failed', $listener );
+
+		$this->assertWPError( $result );
+		$this->assertCount( 1, $captured, 'newspack_sync_contact_failed must fire once on delete failure.' );
+		$this->assertSame( 'spy-fail-delete', $captured[0]['integration_id'] );
+		$this->assertSame( 'reader@example.com', $captured[0]['contact']['email'] );
+		$this->assertSame( 'delete', $captured[0]['context']['mode'] );
+		$this->assertSame( 'TestContext', $captured[0]['context']['context'] );
+		$this->assertSame( 'ESP rejected delete', $captured[0]['reason'] );
+	}
+
+	/**
+	 * When push_contact_data() returns a WP_Error in flag mode, the dispatcher
+	 * must fire `newspack_sync_contact_failed` with mode='flag' in the context payload.
+	 */
+	public function test_handle_account_deletion_fires_alert_action_on_flag_failure() {
+		$this->reset_integrations();
+		$spy = new \Deletion_Spy_Integration( 'spy-fail-flag', 'Spy Fail Flag' );
+		$spy->push_result = new \WP_Error( 'boom', 'ESP rejected push' );
+		Integrations::register( $spy );
+		$spy->update_settings_field_value( 'sync_account_deletion', true );
+		$spy->update_settings_field_value( 'account_deletion_handling', 'flag' );
+		Integrations::enable( 'spy-fail-flag' );
+
+		$captured = [];
+		$listener = function ( $payload ) use ( &$captured ) {
+			$captured[] = $payload;
+		};
+		add_action( 'newspack_sync_contact_failed', $listener );
+
+		$result = \Newspack\Reader_Activation\Contact_Sync::handle_account_deletion(
+			'reader@example.com',
+			[
+				'email'    => 'reader@example.com',
+				'metadata' => [],
+			],
+			'TestContext'
+		);
+
+		remove_action( 'newspack_sync_contact_failed', $listener );
+
+		$this->assertWPError( $result );
+		$this->assertCount( 1, $captured, 'newspack_sync_contact_failed must fire once on flag-push failure.' );
+		$this->assertSame( 'spy-fail-flag', $captured[0]['integration_id'] );
+		$this->assertSame( 'reader@example.com', $captured[0]['contact']['email'] );
+		$this->assertArrayHasKey( 'account_deleted', $captured[0]['contact']['metadata'] );
+		$this->assertSame( 'flag', $captured[0]['context']['mode'] );
+		$this->assertSame( 'TestContext', $captured[0]['context']['context'] );
+		$this->assertSame( 'ESP rejected push', $captured[0]['reason'] );
+	}
 }

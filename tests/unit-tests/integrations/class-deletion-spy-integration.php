@@ -34,6 +34,13 @@ class Deletion_Spy_Integration extends Integration {
 	public $delete_result = true;
 
 	/**
+	 * Result that push_contact_data() returns.
+	 *
+	 * @var true|\WP_Error
+	 */
+	public $push_result = true;
+
+	/**
 	 * Register settings fields (test implementation).
 	 */
 	public function register_settings_fields() {
@@ -66,7 +73,7 @@ class Deletion_Spy_Integration extends Integration {
 			'context'          => $context,
 			'existing_contact' => $existing_contact,
 		];
-		return true;
+		return $this->push_result;
 	}
 
 	/**
