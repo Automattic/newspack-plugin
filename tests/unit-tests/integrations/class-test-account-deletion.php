@@ -168,9 +168,9 @@ class Test_Account_Deletion extends \WP_UnitTestCase {
 
 	/**
 	 * When handling='flag', the dispatcher must push the contact with an
-	 * `account_deleted` ISO8601 timestamp in metadata and not call delete_contact.
+	 * `account_deleted` datetime in metadata and not call delete_contact.
 	 */
-	public function test_handle_account_deletion_calls_push_with_iso_timestamp_when_handling_flag() {
+	public function test_handle_account_deletion_calls_push_with_timestamp_when_handling_flag() {
 		$this->reset_integrations();
 		$spy = new \Deletion_Spy_Integration( 'spy-b', 'Spy B' );
 		Integrations::register( $spy );
@@ -195,7 +195,12 @@ class Test_Account_Deletion extends \WP_UnitTestCase {
 		$this->assertArrayHasKey( 'account_deleted', $pushed['metadata'] );
 		$this->assertNotFalse(
 			strtotime( $pushed['metadata']['account_deleted'] ),
-			'account_deleted must be an ISO8601-parseable timestamp.'
+			'account_deleted must be a strtotime-parseable timestamp.'
+		);
+		$this->assertMatchesRegularExpression(
+			'/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/',
+			$pushed['metadata']['account_deleted'],
+			'account_deleted must use the Y-m-d H:i:s format that peer datetime metadata uses.'
 		);
 	}
 
@@ -390,16 +395,23 @@ class Test_Account_Deletion extends \WP_UnitTestCase {
 			$this->assertCount( 1, $spy->push_calls );
 			$pushed = $spy->push_calls[0]['contact'];
 
-			// account_deleted must survive prepare_contact in v1 mode, prefixed by the integration.
-			$prefix = $spy->get_metadata_prefix();
+			// Account_Deleted must survive prepare_contact in v1 mode, prefixed by the integration.
+			// Title_Case_With_Underscores matches peer prefixed metadata (e.g. NP_Registration_Date).
+			$prefix       = $spy->get_metadata_prefix();
+			$prefixed_key = $prefix . 'Account_Deleted';
 			$this->assertArrayHasKey(
-				$prefix . 'account_deleted',
+				$prefixed_key,
 				$pushed['metadata'],
-				'Prefixed account_deleted must be present in the v1-mode flag-push payload.'
+				'Prefixed Account_Deleted must be present in the v1-mode flag-push payload.'
 			);
 			$this->assertNotFalse(
-				strtotime( $pushed['metadata'][ $prefix . 'account_deleted' ] ),
-				'account_deleted must be an ISO8601-parseable timestamp in v1 mode.'
+				strtotime( $pushed['metadata'][ $prefixed_key ] ),
+				'Account_Deleted must be a strtotime-parseable timestamp in v1 mode.'
+			);
+			$this->assertMatchesRegularExpression(
+				'/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/',
+				$pushed['metadata'][ $prefixed_key ],
+				'Account_Deleted must use the Y-m-d H:i:s format that peer datetime metadata uses.'
 			);
 		} finally {
 			$property->setValue( null, $original_version );

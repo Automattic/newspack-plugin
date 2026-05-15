@@ -266,11 +266,13 @@ class Contact_Sync extends Sync {
 		$integrations = Integrations::get_active_integrations();
 		$errors       = [];
 
-		// Build the flag-mode contact once.
+		// Build the flag-mode contact once. The timestamp uses the same format as peer
+		// datetime metadata fields (Sync\Contact_Metadata::DATE_FORMAT — 'Y-m-d H:i:s')
+		// so publishers can apply consistent automation rules across reader events.
 		$flag_contact          = $contact;
 		$flag_contact['email'] = $email;
 		$flag_contact['metadata'] = isset( $flag_contact['metadata'] ) ? $flag_contact['metadata'] : [];
-		$flag_contact['metadata']['account_deleted'] = gmdate( 'c' );
+		$flag_contact['metadata']['account_deleted'] = gmdate( 'Y-m-d H:i:s' );
 
 		foreach ( $integrations as $integration_id => $integration ) {
 			if ( ! $integration->get_settings_field_value( 'sync_account_deletion' ) ) {
@@ -333,7 +335,9 @@ class Contact_Sync extends Sync {
 				// outgoing-fields config. Apply the integration's prefix so the field is named
 				// consistently with other metadata on the ESP side.
 				$integration_contact = $integration->prepare_contact( $flag_contact );
-				$prefixed_key        = $integration->get_metadata_prefix() . 'account_deleted';
+				// Use Title_Case_With_Underscores to match the convention of peer prefixed
+				// metadata fields (e.g. `NP_Registration_Date`, `NP_Last_Active`).
+				$prefixed_key        = $integration->get_metadata_prefix() . 'Account_Deleted';
 				$integration_contact['metadata'] = $integration_contact['metadata'] ?? [];
 				$integration_contact['metadata'][ $prefixed_key ] = $flag_contact['metadata']['account_deleted'];
 

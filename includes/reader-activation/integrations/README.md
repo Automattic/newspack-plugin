@@ -184,7 +184,7 @@ In addition to the metadata fields, every integration automatically gets two acc
 | Field key | Type | Purpose |
 | --- | --- | --- |
 | `sync_account_deletion` | `checkbox` | Whether to propagate WordPress reader-account deletions to this integration. Default `true`. Stored at `newspack_integration_settings_{id}_sync_account_deletion`. Migrated lazily from the legacy `newspack_reader_activation_sync_esp_delete` option. |
-| `account_deletion_handling` | `select` | When sync is on, choose between `delete` (call `$integration->delete_contact()`) and `flag` (push the contact with an `account_deleted` ISO8601 timestamp metadata field). Default `'delete'`. Stored at `newspack_integration_settings_{id}_account_deletion_handling`. Declares a `condition` on `sync_account_deletion` so the configure UI hides it when sync is off. |
+| `account_deletion_handling` | `select` | When sync is on, choose between `delete` (call `$integration->delete_contact()`) and `flag` (push the contact with an `Account_Deleted` metadata field; value is a `Y-m-d H:i:s` timestamp matching peer datetime fields). Default `'delete'`. Stored at `newspack_integration_settings_{id}_account_deletion_handling`. Declares a `condition` on `sync_account_deletion` so the configure UI hides it when sync is off. |
 
 The dispatcher lives at `Contact_Sync::handle_account_deletion()` and is called from the v1 `reader_delete_sync` data event handler. Legacy-mode sites continue to use the older `reader_deleted` handler that calls Newspack Newsletters directly.
 
