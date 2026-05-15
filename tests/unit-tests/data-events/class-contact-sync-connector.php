@@ -1,0 +1,139 @@
+<?php
+/**
+ * Tests for Contact_Sync_Connector handler registration.
+ *
+ * @package Newspack\Tests\Data_Events
+ */
+
+namespace Newspack\Tests\Data_Events;
+
+use Newspack\Data_Events;
+use Newspack\Data_Events\Connectors\Contact_Sync_Connector;
+use Newspack\Reader_Activation\Integrations;
+use Newspack\Reader_Activation\Sync\Metadata;
+use Sample_Integration;
+
+/**
+ * Tests for Contact_Sync_Connector::register_handlers().
+ *
+ * Verifies that the deletion handlers are gated by metadata schema version:
+ * legacy-mode sites register only the legacy `reader_deleted` handler, while
+ * v1+ sites register only the `reader_delete_sync` handler. Today both run on
+ * every site, causing double-processing during user deletion.
+ */
+class Newspack_Test_Contact_Sync_Connector extends \WP_UnitTestCase {
+
+	/**
+	 * Set up: register a syncable Sample_Integration so register_handlers() does
+	 * not bail out via Contact_Sync::has_one_syncable_integration().
+	 */
+	public function set_up() {
+		parent::set_up();
+		// Allow sync on the test (non-production) site so Sync::can_sync() does not bail out.
+		if ( ! defined( 'NEWSPACK_ALLOW_READER_SYNC' ) ) {
+			define( 'NEWSPACK_ALLOW_READER_SYNC', true );
+		}
+		$this->reset_integrations();
+		Integrations::register( new Sample_Integration( 'contact-sync-connector-test', 'Contact Sync Connector Test' ) );
+		// Mark the integration as enabled so it counts as an active syncable integration.
+		update_option( Integrations::OPTION_NAME, [ 'contact-sync-connector-test' ] );
+	}
+
+	/**
+	 * Tear down: restore baseline state for shared static registries.
+	 */
+	public function tear_down() {
+		delete_option( Integrations::OPTION_NAME );
+		$this->reset_integrations();
+		Integrations::register_integrations();
+		$this->set_metadata_version( 'legacy' );
+		parent::tear_down();
+	}
+
+	/**
+	 * Set the metadata schema version via reflection.
+	 *
+	 * @param string $version The version to set.
+	 */
+	private function set_metadata_version( $version ) {
+		$reflection = new \ReflectionClass( Metadata::class );
+		$property   = $reflection->getProperty( 'version' );
+		$property->setAccessible( true );
+		$property->setValue( null, $version );
+	}
+
+	/**
+	 * Clear the integrations registry via reflection.
+	 */
+	private function reset_integrations() {
+		$reflection = new \ReflectionClass( Integrations::class );
+		$property   = $reflection->getProperty( 'integrations' );
+		$property->setAccessible( true );
+		$property->setValue( null, [] );
+	}
+
+	/**
+	 * Clear handler callables for all registered data event actions while
+	 * preserving the action keys themselves (which are required by
+	 * Data_Events::register_handler).
+	 */
+	private function reset_data_events_handlers() {
+		$reflection = new \ReflectionClass( Data_Events::class );
+		$property   = $reflection->getProperty( 'actions' );
+		$property->setAccessible( true );
+		$actions = $property->getValue();
+		foreach ( $actions as $action_name => $handlers ) {
+			$actions[ $action_name ] = [];
+		}
+		$property->setValue( null, $actions );
+	}
+
+	/**
+	 * Return the names of data event actions that currently have at least one
+	 * registered handler.
+	 *
+	 * @return string[]
+	 */
+	private function get_registered_handler_action_names() {
+		$reflection = new \ReflectionClass( Data_Events::class );
+		$property   = $reflection->getProperty( 'actions' );
+		$property->setAccessible( true );
+		$action_names = [];
+		foreach ( $property->getValue() as $action_name => $handlers ) {
+			if ( ! empty( $handlers ) ) {
+				$action_names[] = $action_name;
+			}
+		}
+		return $action_names;
+	}
+
+	/**
+	 * In legacy metadata mode, register_handlers() should register the
+	 * `reader_deleted` handler and skip `reader_delete_sync`.
+	 */
+	public function test_legacy_mode_registers_reader_deleted_only() {
+		$this->set_metadata_version( 'legacy' );
+		$this->reset_data_events_handlers();
+
+		Contact_Sync_Connector::register_handlers();
+
+		$actions = $this->get_registered_handler_action_names();
+		$this->assertContains( 'reader_deleted', $actions );
+		$this->assertNotContains( 'reader_delete_sync', $actions );
+	}
+
+	/**
+	 * In v1 (non-legacy) metadata mode, register_handlers() should register the
+	 * `reader_delete_sync` handler and skip `reader_deleted`.
+	 */
+	public function test_v1_mode_registers_reader_delete_sync_only() {
+		$this->set_metadata_version( '2' );
+		$this->reset_data_events_handlers();
+
+		Contact_Sync_Connector::register_handlers();
+
+		$actions = $this->get_registered_handler_action_names();
+		$this->assertContains( 'reader_delete_sync', $actions );
+		$this->assertNotContains( 'reader_deleted', $actions );
+	}
+}
