@@ -24,19 +24,35 @@ class Newspack_Test_Data_Events_Listeners_Deletion extends \WP_UnitTestCase {
 	private $captured = [];
 
 	/**
+	 * The dispatch-capture callback. Stored so tear_down can remove the listener
+	 * (WP hooks persist for the whole PHPUnit process; without removal, every
+	 * set_up would stack another closure that runs in later data-event tests).
+	 *
+	 * @var callable|null
+	 */
+	private $capture_callback = null;
+
+	/**
 	 * Set up before each test.
 	 */
 	public function set_up() {
 		parent::set_up();
-		$this->captured = [];
-		add_action(
-			'newspack_data_event_dispatch',
-			function( $action_name, $timestamp, $data, $client_id ) {
-				$this->captured[ $action_name ] = $data;
-			},
-			10,
-			4
-		);
+		$this->captured         = [];
+		$this->capture_callback = function( $action_name, $timestamp, $data, $client_id ) {
+			$this->captured[ $action_name ] = $data;
+		};
+		add_action( 'newspack_data_event_dispatch', $this->capture_callback, 10, 4 );
+	}
+
+	/**
+	 * Tear down: remove the listener so it doesn't leak into later tests.
+	 */
+	public function tear_down() {
+		if ( $this->capture_callback ) {
+			remove_action( 'newspack_data_event_dispatch', $this->capture_callback, 10 );
+			$this->capture_callback = null;
+		}
+		parent::tear_down();
 	}
 
 	/**

@@ -24,15 +24,26 @@ use Sample_Integration;
 class Newspack_Test_Contact_Sync_Connector extends \WP_UnitTestCase {
 
 	/**
+	 * Snapshot of Data_Events::$actions taken in set_up so tear_down can restore
+	 * the full action+handler map. Without restore, reset_data_events_handlers()
+	 * would wipe handlers registered by other test classes and make the suite
+	 * order-dependent.
+	 *
+	 * @var array<string,callable[]>|null
+	 */
+	private $actions_snapshot = null;
+
+	/**
 	 * Set up: register a syncable Sample_Integration so register_handlers() does
 	 * not bail out via Contact_Sync::has_one_syncable_integration().
 	 */
 	public function set_up() {
 		parent::set_up();
-		// Allow sync on the test (non-production) site so Sync::can_sync() does not bail out.
-		if ( ! defined( 'NEWSPACK_ALLOW_READER_SYNC' ) ) {
-			define( 'NEWSPACK_ALLOW_READER_SYNC', true );
-		}
+		// Allow sync on the test (non-production) site so Sync::can_sync() does
+		// not bail out. The filter is scoped (removed in tear_down) and does not
+		// pollute later tests, unlike defining NEWSPACK_ALLOW_READER_SYNC globally.
+		add_filter( 'newspack_reader_activation_is_syncing_allowed', '__return_true' );
+		$this->actions_snapshot = $this->snapshot_data_events_actions();
 		$this->reset_integrations();
 		Integrations::register( new Sample_Integration( 'contact-sync-connector-test', 'Contact Sync Connector Test' ) );
 		// Mark the integration as enabled so it counts as an active syncable integration.
@@ -43,11 +54,40 @@ class Newspack_Test_Contact_Sync_Connector extends \WP_UnitTestCase {
 	 * Tear down: restore baseline state for shared static registries.
 	 */
 	public function tear_down() {
+		remove_filter( 'newspack_reader_activation_is_syncing_allowed', '__return_true' );
 		delete_option( Integrations::OPTION_NAME );
 		$this->reset_integrations();
 		Integrations::register_integrations();
 		$this->set_metadata_version( 'legacy' );
+		if ( null !== $this->actions_snapshot ) {
+			$this->restore_data_events_actions( $this->actions_snapshot );
+			$this->actions_snapshot = null;
+		}
 		parent::tear_down();
+	}
+
+	/**
+	 * Capture the full Data_Events::$actions map (action_name => handlers[]).
+	 *
+	 * @return array
+	 */
+	private function snapshot_data_events_actions() {
+		$reflection = new \ReflectionClass( Data_Events::class );
+		$property   = $reflection->getProperty( 'actions' );
+		$property->setAccessible( true );
+		return $property->getValue();
+	}
+
+	/**
+	 * Restore a previously-snapshot'd Data_Events::$actions map.
+	 *
+	 * @param array $snapshot The actions map to restore.
+	 */
+	private function restore_data_events_actions( $snapshot ) {
+		$reflection = new \ReflectionClass( Data_Events::class );
+		$property   = $reflection->getProperty( 'actions' );
+		$property->setAccessible( true );
+		$property->setValue( null, $snapshot );
 	}
 
 	/**

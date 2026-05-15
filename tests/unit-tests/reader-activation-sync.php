@@ -47,11 +47,6 @@ class Newspack_Test_Reader_Activation_Sync extends WP_UnitTestCase {
 	 * Test whether reader data can be synced.
 	 */
 	public function test_can_esp_sync() {
-		if ( defined( 'NEWSPACK_ALLOW_READER_SYNC' ) && NEWSPACK_ALLOW_READER_SYNC ) {
-			$this->markTestSkipped(
-				'NEWSPACK_ALLOW_READER_SYNC was defined by a prior test; default-disabled assertion is moot.'
-			);
-		}
 		$this->assertFalse( Contact_Sync::can_sync(), 'Reader data should not be syncable by default' );
 
 		$errors = Contact_Sync::can_sync( true );

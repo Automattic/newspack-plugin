@@ -30,10 +30,10 @@ class Test_Account_Deletion extends \WP_UnitTestCase {
 	public function set_up() {
 		parent::set_up();
 		// Allow sync on the test (non-production) site so Sync::can_sync() does
-		// not bail out inside the dispatcher tests below.
-		if ( ! defined( 'NEWSPACK_ALLOW_READER_SYNC' ) ) {
-			define( 'NEWSPACK_ALLOW_READER_SYNC', true );
-		}
+		// not bail out inside the dispatcher tests below. Use the filter rather
+		// than defining NEWSPACK_ALLOW_READER_SYNC so the change is scoped to
+		// this test class and removed in tear_down.
+		add_filter( 'newspack_reader_activation_is_syncing_allowed', '__return_true' );
 		$this->reset_integrations();
 		$this->integration = new Sample_Integration( 'deletion-test', 'Deletion Test' );
 		Integrations::register( $this->integration );
@@ -43,6 +43,8 @@ class Test_Account_Deletion extends \WP_UnitTestCase {
 	 * Tear down the test environment after each test.
 	 */
 	public function tear_down() {
+		remove_filter( 'newspack_reader_activation_is_syncing_allowed', '__return_true' );
+		delete_option( Integrations::OPTION_NAME );
 		$this->reset_integrations();
 		Integrations::register_integrations();
 		parent::tear_down();
@@ -106,11 +108,69 @@ class Test_Account_Deletion extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * The account_deletion_handling field should default to "delete" when no value is stored.
+	 * For integrations that do NOT advertise hard-delete capability (the default),
+	 * `account_deletion_handling` should default to `flag` so they don't return
+	 * `not_implemented` errors on every deletion.
 	 */
-	public function test_account_deletion_handling_defaults_to_delete() {
+	public function test_account_deletion_handling_defaults_to_flag_when_hard_delete_unsupported() {
 		delete_option( 'newspack_integration_settings_deletion-test_account_deletion_handling' );
-		$this->assertSame( 'delete', $this->integration->get_settings_field_value( 'account_deletion_handling' ) );
+		// Sample_Integration does not override supports_hard_delete(), so default → false.
+		$this->assertFalse( $this->integration->supports_hard_delete() );
+		$this->assertSame( 'flag', $this->integration->get_settings_field_value( 'account_deletion_handling' ) );
+	}
+
+	/**
+	 * When the integration supports hard delete, both options should be exposed and the
+	 * default should be `delete`. ESP is the canonical example.
+	 */
+	public function test_account_deletion_handling_defaults_to_delete_when_hard_delete_supported() {
+		// Anonymous subclass that opts into hard delete.
+		$integration = new class( 'deletion-test-hard', 'Hard Delete' ) extends \Sample_Integration {
+			/**
+			 * Opt into hard delete for this test.
+			 *
+			 * @return bool
+			 */
+			public function supports_hard_delete() {
+				return true;
+			}
+		};
+		\Newspack\Reader_Activation\Integrations::register( $integration );
+
+		$keys = array_column( $integration->get_account_deletion_fields(), 'key' );
+		$this->assertContains( 'account_deletion_handling', $keys );
+
+		$handling_field = null;
+		foreach ( $integration->get_account_deletion_fields() as $field ) {
+			if ( 'account_deletion_handling' === $field['key'] ) {
+				$handling_field = $field;
+				break;
+			}
+		}
+		$this->assertIsArray( $handling_field );
+		$option_values = array_column( $handling_field['options'], 'value' );
+		$this->assertContains( 'delete', $option_values );
+		$this->assertContains( 'flag', $option_values );
+		$this->assertSame( 'delete', $handling_field['default'] );
+	}
+
+	/**
+	 * When the integration does not support hard delete, the `delete` option must
+	 * be hidden so publishers can't pick a mode that would just return
+	 * `not_implemented` on every deletion.
+	 */
+	public function test_account_deletion_handling_options_omit_delete_when_unsupported() {
+		$handling_field = null;
+		foreach ( $this->integration->get_account_deletion_fields() as $field ) {
+			if ( 'account_deletion_handling' === $field['key'] ) {
+				$handling_field = $field;
+				break;
+			}
+		}
+		$this->assertIsArray( $handling_field );
+		$option_values = array_column( $handling_field['options'], 'value' );
+		$this->assertNotContains( 'delete', $option_values );
+		$this->assertContains( 'flag', $option_values );
 	}
 
 	/**

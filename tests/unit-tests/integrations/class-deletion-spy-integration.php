@@ -49,6 +49,19 @@ class Deletion_Spy_Integration extends Integration {
 	}
 
 	/**
+	 * The spy implements delete_contact(), so it advertises hard-delete capability.
+	 * This keeps it consistent with the framework's expectation that
+	 * `supports_hard_delete()` mirrors whether `delete_contact()` does meaningful
+	 * work, and lets routing tests exercise both `delete` and `flag` modes
+	 * without the field-options filter hiding `delete` from the integration.
+	 *
+	 * @return bool
+	 */
+	public function supports_hard_delete() {
+		return true;
+	}
+
+	/**
 	 * Whether contacts can be synced to the ESP.
 	 *
 	 * @param bool $return_errors Optional. Whether to return a WP_Error object. Default false.
