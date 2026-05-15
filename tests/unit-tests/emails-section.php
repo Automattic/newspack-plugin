@@ -85,14 +85,18 @@ class Newspack_Test_Emails_Section extends WP_UnitTestCase {
 		}
 
 		// Verify enriched fields on each Newspack email that has a registry_slug.
-		$enriched_keys = [ 'recommended', 'view_category', 'trigger_description', 'registry_slug', 'recipient' ];
+		// Guard: at least one enriched email must exist, otherwise the loop is vacuous.
+		$enriched_keys   = [ 'label', 'recommended', 'view_category', 'trigger_description', 'registry_slug', 'recipient' ];
+		$enriched_count  = 0;
 		foreach ( $result['newspack_emails'] as $email ) {
 			if ( empty( $email['registry_slug'] ) ) {
 				continue;
 			}
+			++$enriched_count;
 			foreach ( $enriched_keys as $key ) {
 				$this->assertArrayHasKey( $key, $email, "Email '{$email['label']}' is missing enriched field '$key'." );
 			}
 		}
+		$this->assertGreaterThan( 0, $enriched_count, 'Expected at least one enriched email in the response, but found none.' );
 	}
 }

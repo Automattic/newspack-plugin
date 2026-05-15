@@ -315,6 +315,7 @@ class Emails_Section extends Wizard_Section {
 		foreach ( $emails as $type => $email ) {
 			if ( isset( $registry_lookup[ $type ] ) ) {
 				$match                        = $registry_lookup[ $type ];
+				$email['label']               = $match['label'];
 				$email['recommended']         = $match['recommended'];
 				$email['view_category']       = $match['recommended'] ? 'essentials' : 'all-enabled';
 				$email['trigger_description'] = $match['trigger_description'];

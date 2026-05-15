@@ -15,7 +15,7 @@ import { Icon, envelope } from '@wordpress/icons';
 /**
  * Internal dependencies.
  */
-import { DataViews, Notice, utils } from '../../../../../../packages/components/src';
+import { Badge, DataViews, Notice, utils } from '../../../../../../packages/components/src';
 import WizardsPluginCard from '../../../../wizards-plugin-card';
 import './emails.scss';
 
@@ -185,16 +185,15 @@ const Emails = () => {
 				id: 'status',
 				label: __( 'Status', 'newspack-plugin' ),
 				getValue: ( { item }: { item: EmailItem } ) => item.status,
-				render: ( { item }: { item: EmailItem } ) => (
-					<span className="newspack-emails__status">
-						<span
-							className={ `newspack-emails__status-dot newspack-emails__status-dot--${
-								item.status === 'publish' ? 'enabled' : 'disabled'
-							}` }
+				render: ( { item }: { item: EmailItem } ) => {
+					const isEnabled = item.status === 'publish';
+					return (
+						<Badge
+							level={ isEnabled ? 'success' : 'default' }
+							text={ isEnabled ? __( 'Enabled', 'newspack-plugin' ) : __( 'Disabled', 'newspack-plugin' ) }
 						/>
-						{ item.status === 'publish' ? __( 'Enabled', 'newspack-plugin' ) : __( 'Disabled', 'newspack-plugin' ) }
-					</span>
-				),
+					);
+				},
 				elements: [
 					{ value: 'publish', label: __( 'Enabled', 'newspack-plugin' ) },
 					{ value: 'draft', label: __( 'Disabled', 'newspack-plugin' ) },
@@ -250,6 +249,7 @@ const Emails = () => {
 	if ( false === pluginsReady ) {
 		return (
 			<Fragment>
+				<h1 className="screen-reader-text">{ __( 'Emails', 'newspack-plugin' ) }</h1>
 				<Notice isError>
 					{ __(
 						'Newspack uses Newspack Newsletters to handle editing email-type content. Please activate this plugin to proceed.',

@@ -42,26 +42,3 @@
 	margin-top: 4px;
 }
 
-// Status indicator dot + text.
-.newspack-emails__status {
-	display: inline-flex;
-	align-items: center;
-	gap: 6px;
-}
-
-.newspack-emails__status-dot {
-	display: inline-block;
-	width: 8px;
-	height: 8px;
-	border-radius: 50%;
-	flex-shrink: 0;
-
-	&--enabled {
-		background: #1a7e5a;
-	}
-
-	&--disabled {
-		background: transparent;
-		border: 1.5px solid #949494;
-	}
-}

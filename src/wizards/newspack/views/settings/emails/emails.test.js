@@ -28,7 +28,8 @@ jest.mock( '@wordpress/dataviews', () => ( {
 	} ),
 } ) );
 
-let capturedActions = [];
+// Use mock-prefixed name so Jest's hoisted jest.mock can close over it.
+let mockCapturedActions = [];
 
 jest.mock( '../../../../../../packages/components/src', () => {
 	function renderField( field, item ) {
@@ -41,8 +42,9 @@ jest.mock( '../../../../../../packages/components/src', () => {
 		return null;
 	}
 	return {
+		Badge: ( { text } ) => <span>{ text }</span>,
 		DataViews: ( { data, fields, actions } ) => {
-			capturedActions = actions || [];
+			mockCapturedActions = actions || [];
 			return (
 				<table data-testid="dataviews">
 					<tbody>
@@ -244,7 +246,7 @@ describe( 'Emails', () => {
 			expect( screen.getByTestId( 'dataviews' ) ).toBeInTheDocument();
 		} );
 
-		const deactivate = capturedActions.find( a => a.id === 'deactivate' );
+		const deactivate = mockCapturedActions.find( a => a.id === 'deactivate' );
 		deactivate.callback( [ mockEmails[ 0 ] ] );
 
 		await waitFor( () => {
@@ -264,13 +266,17 @@ describe( 'Emails', () => {
 			expect( screen.getByTestId( 'dataviews' ) ).toBeInTheDocument();
 		} );
 
-		const activate = capturedActions.find( a => a.id === 'activate' );
-		// mockEmails[3] (Account deletion) is draft, so eligible for activate.
-		activate.callback( [ mockEmails[ 3 ] ] );
+		const activate = mockCapturedActions.find( a => a.id === 'activate' );
+		// mockEmails[4] (New order) is woocommerce + publish, so use a draft
+		// woocommerce email to test activate eligibility correctly.
+		// Account deletion (mockEmails[3]) is reader-activation and excluded by isEligible.
+		// Instead, create an inline eligible item: woocommerce + draft.
+		const eligibleItem = { ...mockEmails[ 4 ], status: 'draft' };
+		activate.callback( [ eligibleItem ] );
 
 		await waitFor( () => {
 			expect( apiFetch ).toHaveBeenCalledWith( {
-				path: '/wp/v2/newspack_rr_email/4',
+				path: '/wp/v2/newspack_rr_email/5',
 				method: 'POST',
 				data: { status: 'publish' },
 			} );
@@ -286,7 +292,7 @@ describe( 'Emails', () => {
 			expect( screen.getByTestId( 'dataviews' ) ).toBeInTheDocument();
 		} );
 
-		const reset = capturedActions.find( a => a.id === 'reset' );
+		const reset = mockCapturedActions.find( a => a.id === 'reset' );
 		// mockEmails[0] (Payment receipt) has type 'receipt', so eligible for reset.
 		reset.callback( [ mockEmails[ 0 ] ] );
 
