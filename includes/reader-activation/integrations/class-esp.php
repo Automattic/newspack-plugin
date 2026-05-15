@@ -165,9 +165,12 @@ class ESP extends Integration {
 				);
 				break;
 		}
-		$metadata_keys = array_column( $this->get_metadata_fields(), 'key' );
+		$auto_keys = array_merge(
+			array_column( $this->get_account_deletion_fields(), 'key' ),
+			array_column( $this->get_metadata_fields(), 'key' )
+		);
 		foreach ( $config as $field ) {
-			if ( in_array( $field['key'], $metadata_keys ) ) {
+			if ( in_array( $field['key'], $auto_keys, true ) ) {
 				$enriched[] = $config[ $field['key'] ];
 			}
 		}

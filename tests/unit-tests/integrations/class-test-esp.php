@@ -409,6 +409,29 @@ class Test_ESP extends \WP_UnitTestCase {
 	}
 
 	/**
+	 * Regression: ESP's get_settings_config() filters the parent's full settings
+	 * list down to a curated allow-list. The first version of the deletion-sync
+	 * patch only allowed the explicit provider/metadata fields, dropping the
+	 * base-class auto-appended account_deletion fields before they reached the
+	 * REST response — making them invisible in the configure UI.
+	 *
+	 * Verifies via Reflection that the same auto_keys allow-list ESP uses
+	 * internally includes both new field keys.
+	 */
+	public function test_esp_get_settings_config_filter_includes_account_deletion_keys() {
+		$esp        = new \Newspack\Reader_Activation\Integrations\ESP();
+		$base_keys  = array_column( $esp->get_settings_fields(), 'key' );
+		$auto_keys  = array_merge(
+			array_column( $esp->get_account_deletion_fields(), 'key' ),
+			array_column( $esp->get_metadata_fields(), 'key' )
+		);
+		$this->assertContains( 'sync_account_deletion', $base_keys, 'Account-deletion field declared on the integration.' );
+		$this->assertContains( 'account_deletion_handling', $base_keys, 'Handling-mode field declared on the integration.' );
+		$this->assertContains( 'sync_account_deletion', $auto_keys, 'Filter must keep the deletion checkbox.' );
+		$this->assertContains( 'account_deletion_handling', $auto_keys, 'Filter must keep the handling-mode select.' );
+	}
+
+	/**
 	 * Entries without a usable string `key` are skipped rather than producing malformed fields.
 	 */
 	public function test_get_available_incoming_fields_skips_entries_without_usable_key() {
