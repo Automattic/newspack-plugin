@@ -47,6 +47,11 @@ class Newspack_Test_Reader_Activation_Sync extends WP_UnitTestCase {
 	 * Test whether reader data can be synced.
 	 */
 	public function test_can_esp_sync() {
+		if ( defined( 'NEWSPACK_ALLOW_READER_SYNC' ) && NEWSPACK_ALLOW_READER_SYNC ) {
+			$this->markTestSkipped(
+				'NEWSPACK_ALLOW_READER_SYNC was defined by a prior test; default-disabled assertion is moot.'
+			);
+		}
 		$this->assertFalse( Contact_Sync::can_sync(), 'Reader data should not be syncable by default' );
 
 		$errors = Contact_Sync::can_sync( true );
@@ -82,7 +87,9 @@ class Newspack_Test_Reader_Activation_Sync extends WP_UnitTestCase {
 		Integrations::enable( 'esp' );
 
 		// Allow ESP sync via constant. We're not testing `Newspack_Manager::is_connected_to_production_manager()` here.
-		define( 'NEWSPACK_ALLOW_READER_SYNC', true );
+		if ( ! defined( 'NEWSPACK_ALLOW_READER_SYNC' ) ) {
+			define( 'NEWSPACK_ALLOW_READER_SYNC', true );
+		}
 		$errors = $esp_integration->can_sync( true );
 		$this->assertNotContains( 'esp_sync_not_allowed', $errors->get_error_codes(), 'RAS ESP Sync is allowed via constant' );
 
