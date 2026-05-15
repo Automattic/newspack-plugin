@@ -161,7 +161,7 @@ const EmailPreview: React.FC< EmailPreviewProps > = ( { postId } ) => {
 					ref={ iframeRef }
 					className="newspack-email-preview__iframe"
 					srcDoc={ html }
-					sandbox=""
+					sandbox="allow-same-origin"
 					tabIndex={ -1 }
 					title="Email preview"
 					onLoad={ handleIframeLoad }
