@@ -250,11 +250,17 @@ const Emails = () => {
 		return (
 			<Fragment>
 				<PageHeading />
-				<Notice isError noticeText={
-					__( 'Newspack uses Newspack Newsletters to handle editing email-type content. Please activate this plugin to proceed.', 'newspack-plugin' ) +
-					' ' +
-					__( 'Until this feature is configured, default receipts will be used.', 'newspack-plugin' )
-				} />
+				<Notice
+					isError
+					noticeText={
+						__(
+							'Newspack uses Newspack Newsletters to handle editing email-type content. Please activate this plugin to proceed.',
+							'newspack-plugin'
+						) +
+						' ' +
+						__( 'Until this feature is configured, default receipts will be used.', 'newspack-plugin' )
+					}
+				/>
 				<WizardsPluginCard
 					slug="newspack-newsletters"
 					title={ __( 'Newspack Newsletters', 'newspack-plugin' ) }
