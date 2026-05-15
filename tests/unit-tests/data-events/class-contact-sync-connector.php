@@ -136,4 +136,65 @@ class Newspack_Test_Contact_Sync_Connector extends \WP_UnitTestCase {
 		$this->assertContains( 'reader_delete_sync', $actions );
 		$this->assertNotContains( 'reader_deleted', $actions );
 	}
+
+	/**
+	 * With sync_esp_delete=true, the legacy reader_deleted handler should
+	 * call Newspack_Newsletters_Contacts::delete() on the email.
+	 */
+	public function test_legacy_reader_deleted_with_sync_true_calls_delete() {
+		\Newspack_Newsletters_Contacts::reset_calls();
+		\Newspack\Reader_Activation::update_setting( 'sync_esp_delete', true );
+
+		Contact_Sync_Connector::reader_deleted(
+			time(),
+			[
+				'email'   => 'legacy@example.com',
+				'user_id' => 1,
+			],
+			'client-id'
+		);
+
+		$this->assertCount( 1, \Newspack_Newsletters_Contacts::$delete_calls );
+		$this->assertSame( 'legacy@example.com', \Newspack_Newsletters_Contacts::$delete_calls[0]['email'] );
+	}
+
+	/**
+	 * With sync_esp_delete=false, the legacy reader_deleted handler should
+	 * call Newspack_Newsletters_Contacts::update_lists() (logged into
+	 * $add_and_remove_lists_calls by the mock) instead of delete().
+	 */
+	public function test_legacy_reader_deleted_with_sync_false_calls_update_lists() {
+		\Newspack_Newsletters_Contacts::reset_calls();
+		\Newspack\Reader_Activation::update_setting( 'sync_esp_delete', false );
+
+		Contact_Sync_Connector::reader_deleted(
+			time(),
+			[
+				'email'   => 'legacy2@example.com',
+				'user_id' => 2,
+			],
+			'client-id'
+		);
+
+		$this->assertCount( 0, \Newspack_Newsletters_Contacts::$delete_calls );
+		$this->assertCount( 1, \Newspack_Newsletters_Contacts::$add_and_remove_lists_calls );
+		$this->assertSame( 'legacy2@example.com', \Newspack_Newsletters_Contacts::$add_and_remove_lists_calls[0]['email'] );
+	}
+
+	/**
+	 * When the event payload has no email, the legacy reader_deleted handler
+	 * should return early without calling any ESP mutation methods.
+	 */
+	public function test_legacy_reader_deleted_returns_early_when_email_missing() {
+		\Newspack_Newsletters_Contacts::reset_calls();
+
+		Contact_Sync_Connector::reader_deleted(
+			time(),
+			[ 'user_id' => 3 ],
+			'client-id'
+		);
+
+		$this->assertCount( 0, \Newspack_Newsletters_Contacts::$delete_calls );
+		$this->assertCount( 0, \Newspack_Newsletters_Contacts::$add_and_remove_lists_calls );
+	}
 }
