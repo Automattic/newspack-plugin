@@ -244,6 +244,20 @@ abstract class Integration {
 	abstract public function push_contact_data( $contact, $context = '', $existing_contact = null );
 
 	/**
+	 * Delete a contact from the integration's external system.
+	 *
+	 * Integrations that support hard deletion should override this to remove
+	 * the contact identified by $email from their backing service. The default
+	 * returns a "not implemented" WP_Error so the dispatcher can log and skip.
+	 *
+	 * @param string $email Email address of the contact to delete.
+	 * @return true|\WP_Error True on success, WP_Error otherwise.
+	 */
+	public function delete_contact( $email ) {
+		return new \WP_Error( 'not_implemented', __( 'This integration does not support hard deletion.', 'newspack-plugin' ) );
+	}
+
+	/**
 	 * Handle a logged-in user attempting to register again via the frontend registration flow.
 	 *
 	 * Integrations can override this method to update user data or perform other actions when an existing user attempts to register again via the frontend registration flow. For example, an integration might want to link the existing user account to the integration, record a new donation for a returning donor, or log this event for analytics purposes.
