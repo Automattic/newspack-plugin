@@ -167,6 +167,7 @@ final class Newspack {
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/newspack/class-newspack-settings.php';
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/newspack/class-custom-events-section.php';
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/newspack/class-emails-section.php';
+		include_once NEWSPACK_ABSPATH . 'includes/wizards/newspack/class-email-preview.php';
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/newspack/class-syndication-section.php';
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/newspack/class-seo-section.php';
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/newspack/class-pixels-section.php';

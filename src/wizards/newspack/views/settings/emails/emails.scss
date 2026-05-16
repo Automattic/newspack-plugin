@@ -22,16 +22,19 @@
 	}
 }
 
-// Preview placeholder (grid view media field).
-.newspack-emails__preview-placeholder {
+// Chip filter bar above DataViews.
+.newspack-emails__chips {
 	display: flex;
-	align-items: center;
-	justify-content: center;
-	aspect-ratio: 1;
-	width: 100%;
-	background: wp-colors.$gray-100;
-	border-radius: 4px;
-	color: wp-colors.$gray-700;
+	gap: 8px;
+	margin-bottom: 16px;
+
+	// Nested for specificity over WP Button defaults.
+	.newspack-emails__chip.components-button {
+		border-radius: 20px;
+		padding: 4px 16px;
+		font-size: 13px;
+		line-height: 1.4;
+	}
 }
 
 // Clickable name link in grid/table view.

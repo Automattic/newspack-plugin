@@ -8,6 +8,7 @@
 namespace Newspack\Wizards\Newspack;
 
 use Newspack\Emails;
+use Newspack\Logger;
 use Newspack\Reader_Activation;
 use Newspack\Reader_Revenue_Emails;
 use Newspack\Wizards\Wizard_Section;
@@ -58,6 +59,29 @@ class Emails_Section extends Wizard_Section {
 				]
 			);
 		}
+		if ( class_exists( 'WooCommerce' ) ) {
+			register_rest_route(
+				NEWSPACK_API_NAMESPACE,
+				'wizard/' . $this->wizard_slug . '/emails/(?P<id>[A-Za-z0-9_]+)/toggle',
+				[
+					'methods'             => WP_REST_Server::EDITABLE,
+					'callback'            => [ __CLASS__, 'api_toggle_wc_email' ],
+					'permission_callback' => [ $this, 'api_permissions_check' ],
+					'args'                => [
+						'id'      => [
+							'type'              => 'string',
+							'required'          => true,
+							'sanitize_callback' => 'sanitize_text_field',
+						],
+						'enabled' => [
+							'type'              => 'boolean',
+							'required'          => true,
+							'sanitize_callback' => 'rest_sanitize_boolean',
+						],
+					],
+				]
+			);
+		}
 	}
 
 	/**
@@ -70,214 +94,214 @@ class Emails_Section extends Wizard_Section {
 	 */
 	public static function get_email_registry(): array {
 		$registry = [
-			'verification'                  => [
+			'verification'                     => [
 				'source'              => 'newspack',
 				'newspack_type'       => 'reader-activation-verification',
 				'recommended'         => true,
 				'plugin_dependency'   => null,
 				'recipient'           => 'reader',
+				'chip'                => 'auth-account',
 				'label'               => __( 'Reader verification', 'newspack-plugin' ),
 				'trigger_description' => __( 'Sent when a reader needs to verify their email address.', 'newspack-plugin' ),
 			],
-			'login-link'                    => [
+			'login-link'                       => [
 				'source'              => 'newspack',
 				'newspack_type'       => 'reader-activation-magic-link',
 				'recommended'         => true,
 				'plugin_dependency'   => null,
 				'recipient'           => 'reader',
+				'chip'                => 'auth-account',
 				'label'               => __( 'Magic login link', 'newspack-plugin' ),
 				'trigger_description' => __( 'Sent when a reader requests a magic login link.', 'newspack-plugin' ),
 			],
-			'login-otp'                     => [
+			'login-otp'                        => [
 				'source'              => 'newspack',
 				'newspack_type'       => 'reader-activation-otp-authentication',
 				'recommended'         => true,
 				'plugin_dependency'   => null,
 				'recipient'           => 'reader',
+				'chip'                => 'auth-account',
 				'label'               => __( 'Login one-time password', 'newspack-plugin' ),
 				'trigger_description' => __( 'Sent when a reader logs in with a one-time password.', 'newspack-plugin' ),
 			],
-			'set-new-password'              => [
+			'set-new-password'                 => [
 				'source'              => 'newspack',
 				'newspack_type'       => 'reader-activation-reset-password',
 				'recommended'         => true,
 				'plugin_dependency'   => null,
 				'recipient'           => 'reader',
+				'chip'                => 'auth-account',
 				'label'               => __( 'Password reset', 'newspack-plugin' ),
 				'trigger_description' => __( 'Sent when a reader requests a password reset.', 'newspack-plugin' ),
 			],
-			'receipt'                       => [
+			'receipt'                          => [
 				'source'              => 'newspack',
 				'newspack_type'       => 'receipt',
 				'recommended'         => true,
 				'plugin_dependency'   => null,
 				'recipient'           => 'reader',
+				'chip'                => 'reader-revenue',
 				'label'               => __( 'Payment receipt', 'newspack-plugin' ),
 				'trigger_description' => __( 'Sent after a successful payment.', 'newspack-plugin' ),
 			],
-			'welcome'                       => [
+			'welcome'                          => [
 				'source'              => 'newspack',
 				'newspack_type'       => 'welcome',
 				'recommended'         => true,
 				'plugin_dependency'   => null,
 				'recipient'           => 'reader',
+				'chip'                => 'reader-revenue',
 				'label'               => __( 'Welcome email', 'newspack-plugin' ),
 				'trigger_description' => __( 'Sent to new supporters after their first payment.', 'newspack-plugin' ),
 			],
-			'cancellation'                  => [
+			'cancellation'                     => [
 				'source'              => 'newspack',
 				'newspack_type'       => 'cancellation',
 				'recommended'         => true,
 				'plugin_dependency'   => null,
 				'recipient'           => 'reader',
+				'chip'                => 'reader-revenue',
 				'label'               => __( 'Cancellation confirmation', 'newspack-plugin' ),
 				'trigger_description' => __( 'Sent when a reader cancels their subscription.', 'newspack-plugin' ),
 			],
-			'woo-renewal-reminder'          => [
+			'woo-renewal-reminder'             => [
 				'source'              => 'woocommerce',
-				'woo_email_id'        => 'customer_renewal_invoice',
+				'woo_email_id'        => 'customer_notification_auto_renewal',
 				'recommended'         => true,
 				'plugin_dependency'   => 'woocommerce-subscriptions',
 				'recipient'           => 'reader',
-				'label'               => __( 'Subscription renewal invoice', 'newspack-plugin' ),
-				'trigger_description' => __( 'Sent to remind a customer that a renewal payment is due.', 'newspack-plugin' ),
+				'chip'                => 'reader-revenue',
+				'label'               => __( 'Renewal reminder', 'newspack-plugin' ),
+				'trigger_description' => __( 'Sent 3 days before automatic renewal.', 'newspack-plugin' ),
 			],
-			'woo-payment-retry'             => [
+			'woo-payment-retry'                => [
 				'source'              => 'woocommerce',
 				'woo_email_id'        => 'customer_payment_retry',
 				'recommended'         => true,
 				'plugin_dependency'   => 'woocommerce-subscriptions',
 				'recipient'           => 'reader',
-				'label'               => __( 'Subscription payment retry', 'newspack-plugin' ),
-				'trigger_description' => __( 'Sent when a failed subscription payment is about to be retried.', 'newspack-plugin' ),
+				'chip'                => 'reader-revenue',
+				'label'               => __( 'Failed order retry', 'newspack-plugin' ),
+				'trigger_description' => __( 'Sent when a renewal payment fails, before the retry attempt.', 'newspack-plugin' ),
 			],
-			'woo-subscription-cancelled'    => [
-				'source'              => 'woocommerce',
-				'woo_email_id'        => 'cancelled_subscription',
-				'recommended'         => true,
-				'plugin_dependency'   => 'woocommerce-subscriptions',
-				'recipient'           => 'reader',
-				'label'               => __( 'Subscription cancelled', 'newspack-plugin' ),
-				'trigger_description' => __( 'Sent when a subscription is cancelled.', 'newspack-plugin' ),
-			],
-			'woo-expired-subscription'      => [
+			'woo-expired-subscription'         => [
 				'source'              => 'woocommerce',
 				'woo_email_id'        => 'expired_subscription',
 				'recommended'         => true,
 				'plugin_dependency'   => 'woocommerce-subscriptions',
 				'recipient'           => 'reader',
+				'chip'                => 'reader-revenue',
 				'label'               => __( 'Subscription expired', 'newspack-plugin' ),
 				'trigger_description' => __( 'Sent when a subscription reaches its expiration date.', 'newspack-plugin' ),
 			],
-			'woo-customer-new-account'      => [
+			'woo-subscription-switch-complete' => [
+				'source'              => 'woocommerce',
+				'woo_email_id'        => 'customer_completed_switch_order',
+				'recommended'         => true,
+				'plugin_dependency'   => 'woocommerce-subscriptions',
+				'recipient'           => 'reader',
+				'chip'                => 'reader-revenue',
+				'label'               => __( 'Subscription switch complete', 'newspack-plugin' ),
+				'trigger_description' => __( 'Sent when a reader switches their subscription.', 'newspack-plugin' ),
+			],
+			'woo-new-giftee-account'           => [
+				'source'              => 'woocommerce',
+				'woo_email_id'        => 'WCSG_Email_Customer_New_Account',
+				'recommended'         => true,
+				'plugin_dependency'   => 'woocommerce-subscriptions',
+				'recipient'           => 'reader',
+				'chip'                => 'reader-revenue',
+				'label'               => __( 'New giftee account', 'newspack-plugin' ),
+				'trigger_description' => __( 'Sent to the giftee when a gift subscription creates their account.', 'newspack-plugin' ),
+			],
+			'woo-new-gift-order'               => [
+				'source'              => 'woocommerce',
+				'woo_email_id'        => 'recipient_completed_order',
+				'recommended'         => true,
+				'plugin_dependency'   => 'woocommerce-subscriptions',
+				'recipient'           => 'reader',
+				'chip'                => 'reader-revenue',
+				'label'               => __( 'New gift order', 'newspack-plugin' ),
+				'trigger_description' => __( 'Sent to the giftee to notify them of a gift subscription.', 'newspack-plugin' ),
+			],
+			'woo-customer-new-account'         => [
 				'source'              => 'woocommerce',
 				'woo_email_id'        => 'customer_new_account',
 				'recommended'         => true,
 				'plugin_dependency'   => null,
 				'recipient'           => 'reader',
+				'chip'                => 'auth-account',
 				'label'               => __( 'New account', 'newspack-plugin' ),
 				'trigger_description' => __( 'Sent when a customer creates a new account.', 'newspack-plugin' ),
 			],
-			'woo-password-reset'            => [
-				'source'              => 'woocommerce',
-				'woo_email_id'        => 'customer_reset_password',
-				'recommended'         => true,
-				'plugin_dependency'   => null,
-				'recipient'           => 'reader',
-				'label'               => __( 'Password reset (WooCommerce)', 'newspack-plugin' ),
-				'trigger_description' => __( 'Sent when a customer resets their password via WooCommerce.', 'newspack-plugin' ),
-			],
-			'delete-account'                => [
+			'delete-account'                   => [
 				'source'              => 'newspack',
 				'newspack_type'       => 'reader-activation-delete-account',
 				'recommended'         => false,
 				'plugin_dependency'   => null,
 				'recipient'           => 'reader',
+				'chip'                => 'auth-account',
 				'label'               => __( 'Account deletion', 'newspack-plugin' ),
 				'trigger_description' => __( 'Sent when a reader requests to delete their account.', 'newspack-plugin' ),
 			],
-			'change-email-notification'     => [
+			'change-email-notification'        => [
 				'source'              => 'newspack',
 				'newspack_type'       => 'reader-activation-change-email-cancel',
 				'recommended'         => false,
 				'plugin_dependency'   => null,
 				'recipient'           => 'reader',
+				'chip'                => 'auth-account',
 				'label'               => __( 'Email change notification', 'newspack-plugin' ),
 				'trigger_description' => __( 'Sent to the old address when a reader changes their email.', 'newspack-plugin' ),
 			],
-			'change-email-confirmation'     => [
+			'change-email-confirmation'        => [
 				'source'              => 'newspack',
 				'newspack_type'       => 'reader-activation-change-email',
 				'recommended'         => false,
 				'plugin_dependency'   => null,
 				'recipient'           => 'reader',
+				'chip'                => 'auth-account',
 				'label'               => __( 'Email change confirmation', 'newspack-plugin' ),
 				'trigger_description' => __( 'Sent to the new address to confirm an email change.', 'newspack-plugin' ),
 			],
-			'non-reader-login-reminder'     => [
+			'non-reader-login-reminder'        => [
 				'source'              => 'newspack',
 				'newspack_type'       => 'reader-activation-non-reader-user',
 				'recommended'         => false,
 				'plugin_dependency'   => null,
 				'recipient'           => 'reader',
+				'chip'                => 'auth-account',
 				'label'               => __( 'Non-reader login reminder', 'newspack-plugin' ),
 				'trigger_description' => __( 'Sent when a non-reader WordPress user tries to log in as a reader.', 'newspack-plugin' ),
 			],
-			'group-subscription-invitation' => [
+			'group-subscription-invitation'    => [
 				'source'              => 'newspack',
 				'newspack_type'       => 'group-subscription-invite',
 				'recommended'         => false,
 				'plugin_dependency'   => null,
 				'recipient'           => 'reader',
+				'chip'                => 'reader-revenue',
 				'label'               => __( 'Group subscription invitation', 'newspack-plugin' ),
 				'trigger_description' => __( 'Sent to invite a reader to join a group subscription.', 'newspack-plugin' ),
 			],
-			'woo-refund'                    => [
+			'woo-refund'                       => [
 				'source'              => 'woocommerce',
 				'woo_email_id'        => 'customer_refunded_order',
 				'recommended'         => false,
 				'plugin_dependency'   => null,
 				'recipient'           => 'reader',
+				'chip'                => 'reader-revenue',
 				'label'               => __( 'Order refund', 'newspack-plugin' ),
 				'trigger_description' => __( 'Sent when an order is refunded.', 'newspack-plugin' ),
 			],
-			// The following three WooCommerce emails are customer-facing but marked
-			// recommended=false because they are lower customization priority for
-			// subscription-focused publishers.
-			'woo-processing-order'          => [
-				'source'              => 'woocommerce',
-				'woo_email_id'        => 'customer_processing_order',
-				'recommended'         => false,
-				'plugin_dependency'   => null,
-				'recipient'           => 'reader',
-				'label'               => __( 'Order processing', 'newspack-plugin' ),
-				'trigger_description' => __( 'Sent when an order payment is received and the order begins processing.', 'newspack-plugin' ),
-			],
-			'woo-completed-order'           => [
-				'source'              => 'woocommerce',
-				'woo_email_id'        => 'customer_completed_order',
-				'recommended'         => false,
-				'plugin_dependency'   => null,
-				'recipient'           => 'reader',
-				'label'               => __( 'Order complete', 'newspack-plugin' ),
-				'trigger_description' => __( 'Sent when an order is marked as complete.', 'newspack-plugin' ),
-			],
-			'woo-on-hold-order'             => [
-				'source'              => 'woocommerce',
-				'woo_email_id'        => 'customer_on_hold_order',
-				'recommended'         => false,
-				'plugin_dependency'   => null,
-				'recipient'           => 'reader',
-				'label'               => __( 'Order on hold', 'newspack-plugin' ),
-				'trigger_description' => __( 'Sent when an order is placed on hold.', 'newspack-plugin' ),
-			],
-			'woo-new-order'                 => [
+			'woo-new-order'                    => [
 				'source'              => 'woocommerce',
 				'woo_email_id'        => 'new_order',
 				'recommended'         => false,
 				'plugin_dependency'   => null,
 				'recipient'           => 'admin',
-				'label'               => __( 'New order (admin)', 'newspack-plugin' ),
+				'chip'                => 'reader-revenue',
+				'label'               => __( 'New order', 'newspack-plugin' ),
 				'trigger_description' => __( 'Sent to the admin when a new order is placed.', 'newspack-plugin' ),
 			],
 		];
@@ -331,14 +355,69 @@ class Emails_Section extends Wizard_Section {
 				$email['registry_slug']       = $match['registry_slug'];
 				$email['recipient']           = $match['recipient'];
 				$email['source']              = $match['source'];
+				$email['chip']                = $match['chip'];
 			} else {
 				$email['recommended']         = false;
 				$email['trigger_description'] = '';
 				$email['registry_slug']       = '';
 				$email['recipient']           = 'reader';
 				$email['source']              = 'newspack'; // Default; WooCommerce emails always match above.
+				$email['chip']                = '';
 			}
 			$newspack_emails[] = $email;
+		}
+
+		// First-run: enable all registry WC emails by default.
+		if ( class_exists( 'WooCommerce' ) && ! get_option( 'newspack_unified_emails_wc_first_run', false ) ) {
+			self::first_run_enable_wc_emails( $registry );
+			update_option( 'newspack_unified_emails_wc_first_run', true, false );
+		}
+
+		// Resolve woocommerce-source registry entries to live WC_Email instances.
+		if ( class_exists( 'WooCommerce' ) ) {
+			$wc_mailer_emails = \WC()->mailer()->get_emails();
+			foreach ( $registry as $slug => $entry ) {
+				if ( 'woocommerce' !== $entry['source'] ) {
+					continue;
+				}
+				// Plugin dependency check.
+				if ( ! empty( $entry['plugin_dependency'] ) ) {
+					$plugin_file = $entry['plugin_dependency'] . '/' . $entry['plugin_dependency'] . '.php';
+					if ( ! \Newspack\is_plugin_active( $plugin_file ) ) {
+						continue;
+					}
+				}
+				$wc_email_id = $entry['woo_email_id'];
+				// WC stores emails keyed by class name. Find the instance by matching $id.
+				$wc_email       = null;
+				$wc_email_class = null;
+				foreach ( $wc_mailer_emails as $class_name => $email_instance ) {
+					if ( $email_instance->id === $wc_email_id ) {
+						$wc_email       = $email_instance;
+						$wc_email_class = $class_name;
+						break;
+					}
+				}
+				if ( ! $wc_email ) {
+					Logger::log( "WC email '$wc_email_id' not found for registry '$slug'.", 'NEWSPACK-EMAILS', 'warning' );
+					continue;
+				}
+				$preview_post_id   = self::get_wc_email_preview_post_id( $wc_email_id );
+				$newspack_emails[] = [
+					'label'               => $entry['label'],
+					'post_id'             => 'wc:' . $wc_email_id,
+					'preview_post_id'     => $preview_post_id,
+					'edit_link'           => self::get_wc_email_edit_link( $wc_email_id, $wc_email_class ),
+					'status'              => 'yes' === $wc_email->enabled ? 'publish' : 'draft',
+					'type'                => $wc_email_id,
+					'category'            => 'woocommerce',
+					'trigger_description' => $entry['trigger_description'],
+					'registry_slug'       => $slug,
+					'recipient'           => $entry['recipient'],
+					'source'              => 'woocommerce',
+					'chip'                => $entry['chip'],
+				];
+			}
 		}
 
 		// Sort: reader-revenue first, reader-activation second, woocommerce last.
@@ -368,6 +447,165 @@ class Emails_Section extends Wizard_Section {
 		$settings['post_type']       = Emails::POST_TYPE;
 
 		return $settings;
+	}
+
+	/**
+	 * Build the edit link for a WooCommerce email.
+	 *
+	 * When the WC block email editor is enabled and a template post exists
+	 * for the email, returns the block editor URL. Otherwise falls back to
+	 * the classic WC settings page.
+	 *
+	 * @param string $wc_email_id    The WC_Email ID (e.g. 'customer_new_account').
+	 * @param string $wc_email_class The WC_Email class name (array key from get_emails()).
+	 * @return string Admin URL for editing this email.
+	 */
+	private static function get_wc_email_edit_link( string $wc_email_id, string $wc_email_class ): string {
+		$classic_url = add_query_arg(
+			[
+				'page'    => 'wc-settings',
+				'tab'     => 'email',
+				'section' => strtolower( $wc_email_class ),
+			],
+			admin_url( 'admin.php' )
+		);
+
+		// Check if the WC block email editor is enabled.
+		if ( 'yes' !== get_option( 'woocommerce_feature_block_email_editor_enabled' ) ) {
+			return $classic_url;
+		}
+
+		// Look up the template post for this email.
+		$posts_manager_class = 'Automattic\\WooCommerce\\Internal\\EmailEditor\\WCTransactionalEmails\\WCTransactionalEmailPostsManager';
+		if ( ! class_exists( $posts_manager_class ) ) {
+			return $classic_url;
+		}
+
+		$template_post_id = $posts_manager_class::get_instance()->get_email_template_post_id( $wc_email_id );
+		if ( empty( $template_post_id ) ) {
+			return $classic_url;
+		}
+
+		return add_query_arg(
+			[
+				'post'   => $template_post_id,
+				'action' => 'edit',
+			],
+			admin_url( 'post.php' )
+		);
+	}
+
+	/**
+	 * Get the block-editor template post ID for a WC email, if available.
+	 *
+	 * Returns the post ID of the woo_email post that backs this email in
+	 * the WC block email editor. Returns null when the block editor is
+	 * disabled or the email has no template post.
+	 *
+	 * @param string $wc_email_id The WC_Email ID (e.g. 'new_order').
+	 * @return int|null Template post ID, or null.
+	 */
+	private static function get_wc_email_preview_post_id( string $wc_email_id ): ?int {
+		if ( 'yes' !== get_option( 'woocommerce_feature_block_email_editor_enabled' ) ) {
+			return null;
+		}
+
+		$posts_manager_class = 'Automattic\\WooCommerce\\Internal\\EmailEditor\\WCTransactionalEmails\\WCTransactionalEmailPostsManager';
+		if ( ! class_exists( $posts_manager_class ) ) {
+			return null;
+		}
+
+		$template_post_id = $posts_manager_class::get_instance()->get_email_template_post_id( $wc_email_id );
+		if ( empty( $template_post_id ) ) {
+			return null;
+		}
+
+		return (int) $template_post_id;
+	}
+
+	/**
+	 * Enable all recommended WC emails on first run.
+	 *
+	 * Called once so that registry WC emails default to enabled when the
+	 * unified emails UI is first loaded.
+	 *
+	 * @param array $registry The email registry.
+	 */
+	private static function first_run_enable_wc_emails( array $registry ) {
+		if ( ! class_exists( 'WooCommerce' ) ) {
+			return;
+		}
+		$wc_mailer_emails = \WC()->mailer()->get_emails();
+		foreach ( $registry as $entry ) {
+			if ( 'woocommerce' !== $entry['source'] ) {
+				continue;
+			}
+			// Plugin dependency check.
+			if ( ! empty( $entry['plugin_dependency'] ) ) {
+				$plugin_file = $entry['plugin_dependency'] . '/' . $entry['plugin_dependency'] . '.php';
+				if ( ! \Newspack\is_plugin_active( $plugin_file ) ) {
+					continue;
+				}
+			}
+			$wc_email_id = $entry['woo_email_id'];
+			$wc_email    = null;
+			foreach ( $wc_mailer_emails as $email_instance ) {
+				if ( $email_instance->id === $wc_email_id ) {
+					$wc_email = $email_instance;
+					break;
+				}
+			}
+			if ( ! $wc_email ) {
+				continue;
+			}
+			if ( 'yes' !== $wc_email->enabled ) {
+				$option_key = $wc_email->get_option_key();
+				$options    = (array) get_option( $option_key, [] );
+				$options['enabled'] = 'yes';
+				update_option( $option_key, $options );
+			}
+			// Auto-renewal notice needs the master switch enabled too.
+			if ( 'customer_notification_auto_renewal' === $wc_email_id ) {
+				if ( 'yes' !== get_option( 'woocommerce_subscriptions_customer_notifications_enabled' ) ) {
+					update_option( 'woocommerce_subscriptions_customer_notifications_enabled', 'yes' );
+				}
+			}
+		}
+	}
+
+	/**
+	 * Toggle a WooCommerce email on or off.
+	 *
+	 * @param \WP_REST_Request $request Request object.
+	 * @return \WP_REST_Response|\WP_Error Response or error.
+	 */
+	public static function api_toggle_wc_email( $request ) {
+		$wc_email_id = $request->get_param( 'id' );
+		$enabled     = $request->get_param( 'enabled' );
+
+		if ( ! class_exists( 'WooCommerce' ) ) {
+			return new \WP_Error( 'not_found', 'WooCommerce is not active.', [ 'status' => 404 ] );
+		}
+
+		$wc_mailer_emails = \WC()->mailer()->get_emails();
+		$wc_email         = null;
+		foreach ( $wc_mailer_emails as $email_instance ) {
+			if ( $email_instance->id === $wc_email_id ) {
+				$wc_email = $email_instance;
+				break;
+			}
+		}
+
+		if ( ! $wc_email ) {
+			return new \WP_Error( 'not_found', 'WC email not found.', [ 'status' => 404 ] );
+		}
+
+		$option_key = $wc_email->get_option_key();
+		$options    = (array) get_option( $option_key, [] );
+		$options['enabled'] = $enabled ? 'yes' : 'no';
+		update_option( $option_key, $options );
+
+		return rest_ensure_response( self::api_get_email_settings() );
 	}
 
 	/**

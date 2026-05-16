@@ -3,7 +3,7 @@
 /**
  * External dependencies
  */
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 
 /**
  * WordPress dependencies
@@ -16,9 +16,12 @@ jest.mock( '@wordpress/api-fetch', () => ( {
 	default: jest.fn(),
 } ) );
 
-jest.mock( '@wordpress/icons', () => ( {
-	Icon: ( { icon } ) => <span data-testid="icon">{ icon }</span>,
-	envelope: 'envelope',
+jest.mock( '@wordpress/components', () => ( {
+	Button: ( { children, onClick, className, variant } ) => (
+		<button onClick={ onClick } className={ className } data-variant={ variant }>
+			{ children }
+		</button>
+	),
 } ) );
 
 jest.mock( '@wordpress/dataviews', () => ( {
@@ -75,6 +78,11 @@ jest.mock(
 		}
 );
 
+jest.mock( './email-preview', () => ( {
+	__esModule: true,
+	default: () => null,
+} ) );
+
 const mockEmails = [
 	{
 		label: 'Payment receipt',
@@ -87,6 +95,7 @@ const mockEmails = [
 		registry_slug: 'receipt',
 		recipient: 'reader',
 		source: 'newspack',
+		chip: 'reader-revenue',
 	},
 	{
 		label: 'Cancellation confirmation',
@@ -99,6 +108,7 @@ const mockEmails = [
 		registry_slug: 'cancellation',
 		recipient: 'reader',
 		source: 'newspack',
+		chip: 'reader-revenue',
 	},
 	{
 		label: 'Reader verification',
@@ -111,6 +121,7 @@ const mockEmails = [
 		registry_slug: 'verification',
 		recipient: 'reader',
 		source: 'newspack',
+		chip: 'auth-account',
 	},
 	{
 		label: 'Account deletion',
@@ -123,11 +134,12 @@ const mockEmails = [
 		registry_slug: 'delete-account',
 		recipient: 'reader',
 		source: 'newspack',
+		chip: 'auth-account',
 	},
 	{
-		label: 'New order (admin)',
-		post_id: 5,
-		edit_link: '/edit/5',
+		label: 'New order',
+		post_id: 'wc:new_order',
+		edit_link: '/wc-settings/email/new_order',
 		status: 'publish',
 		type: 'new_order',
 		category: 'woocommerce',
@@ -135,18 +147,20 @@ const mockEmails = [
 		registry_slug: 'woo-new-order',
 		recipient: 'admin',
 		source: 'woocommerce',
+		chip: 'reader-revenue',
 	},
 	{
-		label: 'Order on hold',
-		post_id: 6,
-		edit_link: '/edit/6',
+		label: 'Renewal reminder',
+		post_id: 'wc:customer_notification_auto_renewal',
+		edit_link: '/wc-settings/email/renewal',
 		status: 'draft',
-		type: 'customer_on_hold_order',
+		type: 'customer_notification_auto_renewal',
 		category: 'woocommerce',
-		trigger_description: 'Sent when an order is placed on hold.',
-		registry_slug: 'woo-on-hold-order',
+		trigger_description: 'Sent 3 days before automatic renewal.',
+		registry_slug: 'woo-renewal-reminder',
 		recipient: 'reader',
 		source: 'woocommerce',
+		chip: 'reader-revenue',
 	},
 ];
 
@@ -172,18 +186,41 @@ describe( 'Emails', () => {
 		} );
 	} );
 
-	it( 'renders all emails in a single view', async () => {
+	it( 'renders reader-revenue emails by default', async () => {
 		const Emails = require( './emails' ).default;
 		render( <Emails /> );
 
 		await waitFor( () => {
 			expect( screen.getByText( 'Payment receipt' ) ).toBeInTheDocument();
 			expect( screen.getByText( 'Cancellation confirmation' ) ).toBeInTheDocument();
+			expect( screen.getByText( 'New order' ) ).toBeInTheDocument();
+			expect( screen.getByText( 'Renewal reminder' ) ).toBeInTheDocument();
+		} );
+
+		// Auth-account items should not be visible in the default chip.
+		expect( screen.queryByText( 'Reader verification' ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( 'Account deletion' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'chip toggle shows auth-account emails and hides reader-revenue', async () => {
+		const Emails = require( './emails' ).default;
+		render( <Emails /> );
+
+		await waitFor( () => {
+			expect( screen.getByText( 'Payment receipt' ) ).toBeInTheDocument();
+		} );
+
+		// Click "Authentication & account" chip.
+		fireEvent.click( screen.getByText( 'Authentication & account' ) );
+
+		await waitFor( () => {
 			expect( screen.getByText( 'Reader verification' ) ).toBeInTheDocument();
 			expect( screen.getByText( 'Account deletion' ) ).toBeInTheDocument();
-			expect( screen.getByText( 'New order (admin)' ) ).toBeInTheDocument();
-			expect( screen.getByText( 'Order on hold' ) ).toBeInTheDocument();
 		} );
+
+		// Reader-revenue items should be hidden.
+		expect( screen.queryByText( 'Payment receipt' ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( 'New order' ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'renders Recipient column with correct values', async () => {
@@ -191,8 +228,9 @@ describe( 'Emails', () => {
 		render( <Emails /> );
 
 		await waitFor( () => {
+			// Default chip is reader-revenue: 2 Newspack reader + 1 WC reader + 1 WC admin = 3 Reader, 1 Admin.
 			const readerCells = screen.getAllByText( 'Reader' );
-			expect( readerCells.length ).toBeGreaterThanOrEqual( 4 );
+			expect( readerCells.length ).toBeGreaterThanOrEqual( 3 );
 			expect( screen.getByText( 'Admin' ) ).toBeInTheDocument();
 		} );
 	} );
@@ -202,14 +240,15 @@ describe( 'Emails', () => {
 		render( <Emails /> );
 
 		await waitFor( () => {
+			// Default chip (reader-revenue): 3 publish (receipt, cancellation, new_order) + 1 draft (renewal).
 			const enabledCells = screen.getAllByText( 'Enabled' );
 			expect( enabledCells.length ).toBeGreaterThanOrEqual( 3 );
 			const disabledCells = screen.getAllByText( 'Disabled' );
-			expect( disabledCells.length ).toBeGreaterThanOrEqual( 2 );
+			expect( disabledCells.length ).toBeGreaterThanOrEqual( 1 );
 		} );
 	} );
 
-	it( 'deactivate action calls apiFetch with draft status', async () => {
+	it( 'deactivate action calls apiFetch with draft status for Newspack emails', async () => {
 		const Emails = require( './emails' ).default;
 		render( <Emails /> );
 
@@ -225,6 +264,26 @@ describe( 'Emails', () => {
 				path: '/wp/v2/newspack_rr_email/1',
 				method: 'POST',
 				data: { status: 'draft' },
+			} );
+		} );
+	} );
+
+	it( 'deactivate action calls toggle endpoint for WC emails', async () => {
+		const Emails = require( './emails' ).default;
+		render( <Emails /> );
+
+		await waitFor( () => {
+			expect( screen.getByTestId( 'dataviews' ) ).toBeInTheDocument();
+		} );
+
+		const deactivate = mockCapturedActions.find( a => a.id === 'deactivate' );
+		deactivate.callback( [ mockEmails[ 4 ] ] ); // New order — WC, publish.
+
+		await waitFor( () => {
+			expect( apiFetch ).toHaveBeenCalledWith( {
+				path: '/newspack/v1/wizard/newspack-settings/emails/new_order/toggle',
+				method: 'POST',
+				data: { enabled: false },
 			} );
 		} );
 	} );
@@ -253,8 +312,14 @@ describe( 'Emails', () => {
 		const Emails = require( './emails' ).default;
 		render( <Emails /> );
 
+		// Switch to auth-account chip to get Account deletion (draft, newspack).
 		await waitFor( () => {
 			expect( screen.getByTestId( 'dataviews' ) ).toBeInTheDocument();
+		} );
+		fireEvent.click( screen.getByText( 'Authentication & account' ) );
+
+		await waitFor( () => {
+			expect( screen.getByText( 'Account deletion' ) ).toBeInTheDocument();
 		} );
 
 		const activate = mockCapturedActions.find( a => a.id === 'activate' );
@@ -270,7 +335,27 @@ describe( 'Emails', () => {
 		} );
 	} );
 
-	it( 'deactivate/activate are not eligible for reader-activation or woocommerce emails', async () => {
+	it( 'activate action calls toggle endpoint for WC emails', async () => {
+		const Emails = require( './emails' ).default;
+		render( <Emails /> );
+
+		await waitFor( () => {
+			expect( screen.getByTestId( 'dataviews' ) ).toBeInTheDocument();
+		} );
+
+		const activate = mockCapturedActions.find( a => a.id === 'activate' );
+		activate.callback( [ mockEmails[ 5 ] ] ); // Renewal reminder — WC, draft.
+
+		await waitFor( () => {
+			expect( apiFetch ).toHaveBeenCalledWith( {
+				path: '/newspack/v1/wizard/newspack-settings/emails/customer_notification_auto_renewal/toggle',
+				method: 'POST',
+				data: { enabled: true },
+			} );
+		} );
+	} );
+
+	it( 'deactivate/activate are not eligible for reader-activation emails', async () => {
 		const Emails = require( './emails' ).default;
 		render( <Emails /> );
 
@@ -283,14 +368,14 @@ describe( 'Emails', () => {
 
 		// Reader-activation emails cannot be toggled.
 		expect( deactivate.isEligible( mockEmails[ 2 ] ) ).toBe( false );
-		// WooCommerce emails cannot be toggled.
-		expect( deactivate.isEligible( mockEmails[ 4 ] ) ).toBe( false );
 		// Newspack reader-revenue email can be deactivated.
 		expect( deactivate.isEligible( mockEmails[ 0 ] ) ).toBe( true );
+		// WooCommerce email can be deactivated.
+		expect( deactivate.isEligible( mockEmails[ 4 ] ) ).toBe( true );
 		// Draft reader-activation email cannot be activated.
 		expect( activate.isEligible( mockEmails[ 3 ] ) ).toBe( false );
-		// Draft WooCommerce email cannot be activated.
-		expect( activate.isEligible( mockEmails[ 5 ] ) ).toBe( false );
+		// Draft WooCommerce email can be activated.
+		expect( activate.isEligible( mockEmails[ 5 ] ) ).toBe( true );
 	} );
 
 	it( 'reset action calls apiFetch with DELETE after confirmation', async () => {

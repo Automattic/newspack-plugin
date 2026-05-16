@@ -8,20 +8,21 @@
 import { __ } from '@wordpress/i18n';
 import { useState, useEffect, useCallback, useMemo, Fragment } from '@wordpress/element';
 import apiFetch from '@wordpress/api-fetch';
+import { Button } from '@wordpress/components';
 import { filterSortAndPaginate } from '@wordpress/dataviews';
 import type { Action, Field, View } from '@wordpress/dataviews';
-import { Icon, envelope } from '@wordpress/icons';
-
 /**
  * Internal dependencies.
  */
 import { Badge, DataViews, Notice, utils } from '../../../../../../packages/components/src';
 import WizardsPluginCard from '../../../../wizards-plugin-card';
+import EmailPreview from './email-preview';
 import './emails.scss';
 
 interface EmailItem {
 	label: string;
-	post_id: number;
+	post_id: number | string;
+	preview_post_id?: number | null;
 	edit_link: string;
 	status: string;
 	type: string;
@@ -30,6 +31,7 @@ interface EmailItem {
 	registry_slug: string;
 	recipient: 'reader' | 'admin';
 	source: 'newspack' | 'woocommerce';
+	chip: 'auth-account' | 'reader-revenue' | '';
 }
 
 interface EmailSettings {
@@ -63,6 +65,7 @@ const Emails = () => {
 	const [ isLoading, setIsLoading ] = useState( true );
 	const [ view, setView ] = useState< View >( DEFAULT_VIEW );
 	const [ error, setError ] = useState< string | null >( null );
+	const [ activeChip, setActiveChip ] = useState< 'reader-revenue' | 'auth-account' >( 'reader-revenue' );
 
 	const fetchData = useCallback( () => {
 		setIsLoading( true );
@@ -102,6 +105,20 @@ const Emails = () => {
 		[ postType, fetchData ]
 	);
 
+	const toggleWcEmail = useCallback( ( wcPostId: string, enabled: boolean ) => {
+		setError( null );
+		const previousStatus = enabled ? 'draft' : 'publish';
+		setData( prev => prev.map( email => ( email.post_id === wcPostId ? { ...email, status: enabled ? 'publish' : 'draft' } : email ) ) );
+		apiFetch( {
+			path: `/newspack/v1/wizard/newspack-settings/emails/${ wcPostId.replace( 'wc:', '' ) }/toggle`,
+			method: 'POST',
+			data: { enabled },
+		} ).catch( () => {
+			setData( prev => prev.map( email => ( email.post_id === wcPostId ? { ...email, status: previousStatus } : email ) ) );
+			setError( __( 'Failed to update email status.', 'newspack-plugin' ) );
+		} );
+	}, [] );
+
 	const resetEmail = useCallback(
 		( postId: number ) => {
 			setError( null );
@@ -130,12 +147,17 @@ const Emails = () => {
 				type: 'media',
 				enableSorting: false,
 				enableHiding: true,
-				// @todo NPPD-1525 Replace with <EmailPreview> component.
-				render: ( { item }: { item: EmailItem } ) => (
-					<a href={ item.edit_link } className="newspack-emails__preview-placeholder">
-						<Icon icon={ envelope } size={ 32 } />
-					</a>
-				),
+				render: ( { item }: { item: EmailItem } ) => {
+					const previewId = item.preview_post_id ?? ( typeof item.post_id === 'number' ? item.post_id : null );
+					if ( ! previewId ) {
+						return null;
+					}
+					return (
+						<a href={ item.edit_link } className="newspack-emails__preview-link">
+							<EmailPreview postId={ previewId } />
+						</a>
+					);
+				},
 			},
 			{
 				id: 'name',
@@ -204,19 +226,27 @@ const Emails = () => {
 			{
 				id: 'deactivate',
 				label: __( 'Deactivate', 'newspack-plugin' ),
-				isEligible: ( item: EmailItem ) =>
-					item.source !== 'woocommerce' && item.category !== 'reader-activation' && item.status === 'publish',
+				isEligible: ( item: EmailItem ) => item.category !== 'reader-activation' && item.status === 'publish',
 				callback: ( items: EmailItem[] ) => {
-					updateStatus( items[ 0 ].post_id, 'draft' );
+					const item = items[ 0 ];
+					if ( typeof item.post_id === 'string' ) {
+						toggleWcEmail( item.post_id, false );
+					} else {
+						updateStatus( item.post_id, 'draft' );
+					}
 				},
 			},
 			{
 				id: 'activate',
 				label: __( 'Activate', 'newspack-plugin' ),
-				isEligible: ( item: EmailItem ) =>
-					item.source !== 'woocommerce' && item.category !== 'reader-activation' && item.status !== 'publish',
+				isEligible: ( item: EmailItem ) => item.category !== 'reader-activation' && item.status !== 'publish',
 				callback: ( items: EmailItem[] ) => {
-					updateStatus( items[ 0 ].post_id, 'publish' );
+					const item = items[ 0 ];
+					if ( typeof item.post_id === 'string' ) {
+						toggleWcEmail( item.post_id, true );
+					} else {
+						updateStatus( item.post_id, 'publish' );
+					}
 				},
 			},
 			{
@@ -226,15 +256,20 @@ const Emails = () => {
 				isEligible: ( item: EmailItem ) => item.source !== 'woocommerce' && Boolean( item.registry_slug ),
 				callback: ( items: EmailItem[] ) => {
 					if ( utils.confirmAction( __( 'Are you sure you want to reset the contents of this email?', 'newspack-plugin' ) ) ) {
-						resetEmail( items[ 0 ].post_id );
+						resetEmail( items[ 0 ].post_id as number );
 					}
 				},
 			},
 		],
-		[ resetEmail, updateStatus ]
+		[ resetEmail, updateStatus, toggleWcEmail ]
 	);
 
-	const { data: processedData, paginationInfo } = useMemo( () => filterSortAndPaginate( data, view, fields ), [ data, view, fields ] );
+	const chipFilteredData = useMemo( () => data.filter( item => item.chip === activeChip ), [ data, activeChip ] );
+
+	const { data: processedData, paginationInfo } = useMemo(
+		() => filterSortAndPaginate( chipFilteredData, view, fields ),
+		[ chipFilteredData, view, fields ]
+	);
 
 	if ( false === pluginsReady ) {
 		return (
@@ -269,6 +304,28 @@ const Emails = () => {
 		<Fragment>
 			<PageHeading />
 			{ error && <Notice isError noticeText={ error } /> }
+			<div className="newspack-emails__chips">
+				<Button
+					variant={ activeChip === 'reader-revenue' ? 'primary' : 'secondary' }
+					onClick={ () => {
+						setActiveChip( 'reader-revenue' );
+						setView( prev => ( { ...prev, search: '', page: 1 } ) );
+					} }
+					className="newspack-emails__chip"
+				>
+					{ __( 'Reader revenue', 'newspack-plugin' ) }
+				</Button>
+				<Button
+					variant={ activeChip === 'auth-account' ? 'primary' : 'secondary' }
+					onClick={ () => {
+						setActiveChip( 'auth-account' );
+						setView( prev => ( { ...prev, search: '', page: 1 } ) );
+					} }
+					className="newspack-emails__chip"
+				>
+					{ __( 'Authentication & account', 'newspack-plugin' ) }
+				</Button>
+			</div>
 			<DataViews
 				className="newspack-emails"
 				data={ processedData }

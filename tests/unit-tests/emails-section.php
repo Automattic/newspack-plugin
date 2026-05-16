@@ -16,7 +16,7 @@ class Newspack_Test_Emails_Section extends WP_UnitTestCase {
 	 */
 	public function test_registry_entries_have_required_keys() {
 		$registry     = Emails_Section::get_email_registry();
-		$required_keys = [ 'source', 'recommended', 'plugin_dependency', 'recipient', 'label', 'trigger_description' ];
+		$required_keys = [ 'source', 'recommended', 'plugin_dependency', 'recipient', 'chip', 'label', 'trigger_description' ];
 
 		foreach ( $registry as $slug => $entry ) {
 			foreach ( $required_keys as $key ) {
@@ -42,6 +42,16 @@ class Newspack_Test_Emails_Section extends WP_UnitTestCase {
 		$registry = Emails_Section::get_email_registry();
 		foreach ( $registry as $slug => $entry ) {
 			$this->assertContains( $entry['recipient'], [ 'reader', 'admin' ], "Entry '$slug' has an invalid recipient value." );
+		}
+	}
+
+	/**
+	 * Test all registry entries have a valid chip value.
+	 */
+	public function test_registry_entries_have_valid_chip() {
+		$registry = Emails_Section::get_email_registry();
+		foreach ( $registry as $slug => $entry ) {
+			$this->assertContains( $entry['chip'], [ 'auth-account', 'reader-revenue' ], "Entry '$slug' has an invalid chip value." );
 		}
 	}
 
@@ -117,6 +127,57 @@ class Newspack_Test_Emails_Section extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Test dropped entries are absent from the registry.
+	 */
+	public function test_dropped_entries_are_absent() {
+		$registry     = Emails_Section::get_email_registry();
+		$dropped_slugs = [
+			'woo-password-reset',
+			'woo-processing-order',
+			'woo-completed-order',
+			'woo-on-hold-order',
+			'woo-subscription-cancelled',
+		];
+		foreach ( $dropped_slugs as $slug ) {
+			$this->assertArrayNotHasKey( $slug, $registry, "Dropped entry '$slug' should not be in the registry." );
+		}
+	}
+
+	/**
+	 * Test new WC Subscriptions entries are present with correct woo_email_id values.
+	 */
+	public function test_new_entries_are_present() {
+		$registry = Emails_Section::get_email_registry();
+
+		$this->assertArrayHasKey( 'woo-subscription-switch-complete', $registry );
+		$this->assertSame( 'customer_completed_switch_order', $registry['woo-subscription-switch-complete']['woo_email_id'] );
+
+		$this->assertArrayHasKey( 'woo-new-giftee-account', $registry );
+		$this->assertSame( 'WCSG_Email_Customer_New_Account', $registry['woo-new-giftee-account']['woo_email_id'] );
+
+		$this->assertArrayHasKey( 'woo-new-gift-order', $registry );
+		$this->assertSame( 'recipient_completed_order', $registry['woo-new-gift-order']['woo_email_id'] );
+	}
+
+	/**
+	 * Test renamed entries have updated labels.
+	 */
+	public function test_renamed_entries_have_updated_labels() {
+		$registry = Emails_Section::get_email_registry();
+
+		$this->assertSame( 'Renewal reminder', $registry['woo-renewal-reminder']['label'] );
+		$this->assertSame( 'Failed order retry', $registry['woo-payment-retry']['label'] );
+	}
+
+	/**
+	 * Test renewal reminder maps to the auto-renewal notification ID.
+	 */
+	public function test_renewal_reminder_maps_to_auto_renewal_id() {
+		$registry = Emails_Section::get_email_registry();
+		$this->assertSame( 'customer_notification_auto_renewal', $registry['woo-renewal-reminder']['woo_email_id'] );
+	}
+
+	/**
 	 * Test api_get_email_settings returns the expected response shape.
 	 */
 	public function test_api_get_email_settings_response_shape() {
@@ -133,7 +194,7 @@ class Newspack_Test_Emails_Section extends WP_UnitTestCase {
 		}
 
 		// Verify enriched fields on each Newspack email that has a registry_slug.
-		$enriched_keys  = [ 'label', 'recommended', 'trigger_description', 'registry_slug', 'recipient', 'source' ];
+		$enriched_keys  = [ 'label', 'recommended', 'trigger_description', 'registry_slug', 'recipient', 'source', 'chip' ];
 		$enriched_count = 0;
 		foreach ( $result['newspack_emails'] as $email ) {
 			if ( empty( $email['registry_slug'] ) ) {
@@ -141,6 +202,7 @@ class Newspack_Test_Emails_Section extends WP_UnitTestCase {
 				$this->assertArrayHasKey( 'recommended', $email, 'Fallback email is missing recommended.' );
 				$this->assertFalse( $email['recommended'], 'Fallback email should have recommended=false.' );
 				$this->assertArrayHasKey( 'source', $email, 'Fallback email is missing source.' );
+				$this->assertArrayHasKey( 'chip', $email, 'Fallback email is missing chip.' );
 				continue;
 			}
 			++$enriched_count;
@@ -158,7 +220,7 @@ class Newspack_Test_Emails_Section extends WP_UnitTestCase {
 		$result     = Emails_Section::api_get_email_settings();
 		$categories = array_column( $result['newspack_emails'], 'category' );
 
-		// Build the expected group order: reader-revenue → reader-activation → everything else.
+		// Build the expected group order: reader-revenue -> reader-activation -> everything else.
 		$last_group = -1;
 		$group_map  = [
 			'reader-revenue'    => 0,
@@ -185,9 +247,6 @@ class Newspack_Test_Emails_Section extends WP_UnitTestCase {
 			)
 		);
 		$this->assertContains( 'woo-new-order', $admin_slugs, 'new_order is an admin email.' );
-		// woo-subscription-cancelled is reader-facing (Newspack notifies the reader);
-		// the separate WC admin notification is handled by WooCommerce core.
-		$this->assertNotContains( 'woo-subscription-cancelled', $admin_slugs );
 	}
 
 	/**
@@ -200,6 +259,7 @@ class Newspack_Test_Emails_Section extends WP_UnitTestCase {
 			'recommended'         => false,
 			'plugin_dependency'   => null,
 			'recipient'           => 'reader',
+			'chip'                => 'auth-account',
 			'label'               => 'Test filter email',
 			'trigger_description' => 'Added via filter.',
 		];
@@ -226,7 +286,7 @@ class Newspack_Test_Emails_Section extends WP_UnitTestCase {
 	public function test_registry_order_within_groups() {
 		$slugs = array_keys( Emails_Section::get_email_registry() );
 
-		// Reader-revenue group: receipt → welcome → cancellation.
+		// Reader-revenue group: receipt -> welcome -> cancellation.
 		$this->assertLessThan(
 			array_search( 'welcome', $slugs, true ),
 			array_search( 'receipt', $slugs, true ),
@@ -238,7 +298,7 @@ class Newspack_Test_Emails_Section extends WP_UnitTestCase {
 			'welcome should appear before cancellation.'
 		);
 
-		// Reader-activation group: verification → login-link → set-new-password.
+		// Reader-activation group: verification -> login-link -> set-new-password.
 		$this->assertLessThan(
 			array_search( 'login-link', $slugs, true ),
 			array_search( 'verification', $slugs, true ),
