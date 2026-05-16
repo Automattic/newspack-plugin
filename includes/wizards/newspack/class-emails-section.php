@@ -172,7 +172,7 @@ class Emails_Section extends Wizard_Section {
 				'recipient'           => 'reader',
 				'chip'                => 'reader-revenue',
 				'label'               => __( 'Renewal reminder', 'newspack-plugin' ),
-				'trigger_description' => __( 'Sent 3 days before automatic renewal.', 'newspack-plugin' ),
+				'trigger_description' => __( 'Sent before automatic renewal (timing depends on WooCommerce Subscriptions settings).', 'newspack-plugin' ),
 			],
 			'woo-payment-retry'                => [
 				'source'              => 'woocommerce',
@@ -362,12 +362,14 @@ class Emails_Section extends Wizard_Section {
 				$email['registry_slug']       = '';
 				$email['recipient']           = 'reader';
 				$email['source']              = 'newspack'; // Default; WooCommerce emails always match above.
-				$email['chip']                = '';
+				$email['chip']                = 'auth-account'; // Fallback so unregistered emails still appear in a tab.
 			}
 			$newspack_emails[] = $email;
 		}
 
-		// First-run: enable all registry WC emails by default.
+		// First-run: enable recommended WC emails by default.
+		// Runs on this GET handler for simplicity — guarded by a one-shot option
+		// flag so it only fires once, and the enable logic is idempotent.
 		if ( class_exists( 'WooCommerce' ) && ! get_option( 'newspack_unified_emails_wc_first_run', false ) ) {
 			self::first_run_enable_wc_emails( $registry );
 			update_option( 'newspack_unified_emails_wc_first_run', true, false );
@@ -537,7 +539,7 @@ class Emails_Section extends Wizard_Section {
 		}
 		$wc_mailer_emails = \WC()->mailer()->get_emails();
 		foreach ( $registry as $entry ) {
-			if ( 'woocommerce' !== $entry['source'] ) {
+			if ( 'woocommerce' !== $entry['source'] || empty( $entry['recommended'] ) ) {
 				continue;
 			}
 			// Plugin dependency check.
@@ -585,6 +587,16 @@ class Emails_Section extends Wizard_Section {
 
 		if ( ! class_exists( 'WooCommerce' ) ) {
 			return new \WP_Error( 'not_found', 'WooCommerce is not active.', [ 'status' => 404 ] );
+		}
+
+		// Only allow toggling IDs that exist in our registry.
+		$registry          = self::get_email_registry();
+		$allowed_wc_ids    = array_column(
+			array_filter( $registry, fn( $e ) => 'woocommerce' === $e['source'] ),
+			'woo_email_id'
+		);
+		if ( ! in_array( $wc_email_id, $allowed_wc_ids, true ) ) {
+			return new \WP_Error( 'not_found', 'WC email not found in registry.', [ 'status' => 404 ] );
 		}
 
 		$wc_mailer_emails = \WC()->mailer()->get_emails();
