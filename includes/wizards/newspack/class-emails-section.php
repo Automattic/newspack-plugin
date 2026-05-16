@@ -368,11 +368,11 @@ class Emails_Section extends Wizard_Section {
 		}
 
 		// First-run: enable recommended WC emails by default.
-		// Runs on this GET handler for simplicity — guarded by a one-shot option
-		// flag so it only fires once, and the enable logic is idempotent.
-		if ( class_exists( 'WooCommerce' ) && ! get_option( 'newspack_unified_emails_wc_first_run', false ) ) {
+		// Runs on this GET handler for simplicity — the enable logic is idempotent
+		// and tracks which emails have been processed so newly-available plugins
+		// (e.g. WC Subs activated later) get their emails enabled too.
+		if ( class_exists( 'WooCommerce' ) ) {
 			self::first_run_enable_wc_emails( $registry );
-			update_option( 'newspack_unified_emails_wc_first_run', true, false );
 		}
 
 		// Resolve woocommerce-source registry entries to live WC_Email instances.
@@ -404,13 +404,19 @@ class Emails_Section extends Wizard_Section {
 					Logger::log( "WC email '$wc_email_id' not found for registry '$slug'.", 'NEWSPACK-EMAILS', 'warning' );
 					continue;
 				}
-				$preview_post_id   = self::get_wc_email_template_post_id( $wc_email_id );
+				$preview_post_id = self::get_wc_email_template_post_id( $wc_email_id );
+				// Read enabled state from the option rather than the in-memory
+				// WC_Email::$enabled property, which can be stale after first-run
+				// or toggle updates within the same request.
+				$option_key = $wc_email->get_option_key();
+				$wc_options = (array) get_option( $option_key, [] );
+				$is_enabled = isset( $wc_options['enabled'] ) ? 'yes' === $wc_options['enabled'] : 'yes' === $wc_email->enabled;
 				$newspack_emails[] = [
 					'label'               => $entry['label'],
 					'post_id'             => 'wc:' . $wc_email_id,
 					'preview_post_id'     => $preview_post_id,
 					'edit_link'           => self::get_wc_email_edit_link( $wc_email_id, $wc_email_class ),
-					'status'              => 'yes' === $wc_email->enabled ? 'publish' : 'draft',
+					'status'              => $is_enabled ? 'publish' : 'draft',
 					'type'                => $wc_email_id,
 					'category'            => 'woocommerce',
 					'trigger_description' => $entry['trigger_description'],
@@ -516,8 +522,10 @@ class Emails_Section extends Wizard_Section {
 	/**
 	 * Enable all recommended WC emails on first run.
 	 *
-	 * Called once so that registry WC emails default to enabled when the
-	 * unified emails UI is first loaded.
+	 * Called so that recommended WC emails default to enabled when the
+	 * unified emails UI is first loaded. Tracks which emails have been
+	 * processed so that newly-available plugins (e.g. WC Subscriptions
+	 * activated after the initial visit) still get their emails enabled.
 	 *
 	 * @param array $registry The email registry.
 	 */
@@ -525,9 +533,15 @@ class Emails_Section extends Wizard_Section {
 		if ( ! class_exists( 'WooCommerce' ) ) {
 			return;
 		}
+		$processed = (array) get_option( 'newspack_unified_emails_wc_first_run', [] );
 		$wc_mailer_emails = \WC()->mailer()->get_emails();
-		foreach ( $registry as $entry ) {
+		$changed = false;
+		foreach ( $registry as $slug => $entry ) {
 			if ( 'woocommerce' !== $entry['source'] || empty( $entry['recommended'] ) ) {
+				continue;
+			}
+			// Already processed this entry.
+			if ( in_array( $slug, $processed, true ) ) {
 				continue;
 			}
 			// Plugin dependency check.
@@ -560,6 +574,11 @@ class Emails_Section extends Wizard_Section {
 					update_option( 'woocommerce_subscriptions_customer_notifications_enabled', 'yes' );
 				}
 			}
+			$processed[] = $slug;
+			$changed     = true;
+		}
+		if ( $changed ) {
+			update_option( 'newspack_unified_emails_wc_first_run', $processed, false );
 		}
 	}
 

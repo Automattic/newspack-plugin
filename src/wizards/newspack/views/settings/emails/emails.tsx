@@ -319,6 +319,7 @@ const Emails = () => {
 					<Button
 						key={ chip.value }
 						variant={ activeChip === chip.value ? 'primary' : 'secondary' }
+						aria-pressed={ activeChip === chip.value }
 						onClick={ () => selectChip( chip.value ) }
 						className="newspack-emails__chip"
 					>

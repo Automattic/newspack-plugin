@@ -15,6 +15,7 @@
  */
 import apiFetch from '@wordpress/api-fetch';
 import { useState, useEffect, useRef, useCallback } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 import { Spinner } from '@wordpress/components';
 import { Icon, envelope } from '@wordpress/icons';
 
@@ -210,7 +211,7 @@ const EmailPreview: React.FC< EmailPreviewProps > = ( { postId } ) => {
 					 * publisher-controlled post meta. */
 					sandbox="allow-same-origin"
 					tabIndex={ -1 }
-					title="Email preview"
+					title={ __( 'Email preview', 'newspack-plugin' ) }
 					onLoad={ handleIframeLoad }
 					onError={ () => setHasError( true ) }
 					style={ {
