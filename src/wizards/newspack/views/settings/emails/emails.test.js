@@ -156,7 +156,7 @@ const mockEmails = [
 		status: 'draft',
 		type: 'customer_notification_auto_renewal',
 		category: 'woocommerce',
-		trigger_description: 'Sent 3 days before automatic renewal.',
+		trigger_description: 'Sent before automatic renewal (timing depends on WooCommerce Subscriptions settings).',
 		registry_slug: 'woo-renewal-reminder',
 		recipient: 'reader',
 		source: 'woocommerce',

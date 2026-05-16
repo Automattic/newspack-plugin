@@ -404,7 +404,7 @@ class Emails_Section extends Wizard_Section {
 					Logger::log( "WC email '$wc_email_id' not found for registry '$slug'.", 'NEWSPACK-EMAILS', 'warning' );
 					continue;
 				}
-				$preview_post_id   = self::get_wc_email_preview_post_id( $wc_email_id );
+				$preview_post_id   = self::get_wc_email_template_post_id( $wc_email_id );
 				$newspack_emails[] = [
 					'label'               => $entry['label'],
 					'post_id'             => 'wc:' . $wc_email_id,
@@ -452,6 +452,33 @@ class Emails_Section extends Wizard_Section {
 	}
 
 	/**
+	 * Get the WC block-editor template post ID for a given email, if available.
+	 *
+	 * Checks whether the WC block email editor feature is enabled and
+	 * whether a woo_email template post exists for the given email ID.
+	 *
+	 * @param string $wc_email_id The WC_Email ID (e.g. 'new_order').
+	 * @return int|null Template post ID, or null.
+	 */
+	private static function get_wc_email_template_post_id( string $wc_email_id ): ?int {
+		if ( 'yes' !== get_option( 'woocommerce_feature_block_email_editor_enabled' ) ) {
+			return null;
+		}
+
+		$posts_manager_class = 'Automattic\\WooCommerce\\Internal\\EmailEditor\\WCTransactionalEmails\\WCTransactionalEmailPostsManager';
+		if ( ! class_exists( $posts_manager_class ) ) {
+			return null;
+		}
+
+		$template_post_id = $posts_manager_class::get_instance()->get_email_template_post_id( $wc_email_id );
+		if ( empty( $template_post_id ) ) {
+			return null;
+		}
+
+		return (int) $template_post_id;
+	}
+
+	/**
 	 * Build the edit link for a WooCommerce email.
 	 *
 	 * When the WC block email editor is enabled and a template post exists
@@ -472,19 +499,8 @@ class Emails_Section extends Wizard_Section {
 			admin_url( 'admin.php' )
 		);
 
-		// Check if the WC block email editor is enabled.
-		if ( 'yes' !== get_option( 'woocommerce_feature_block_email_editor_enabled' ) ) {
-			return $classic_url;
-		}
-
-		// Look up the template post for this email.
-		$posts_manager_class = 'Automattic\\WooCommerce\\Internal\\EmailEditor\\WCTransactionalEmails\\WCTransactionalEmailPostsManager';
-		if ( ! class_exists( $posts_manager_class ) ) {
-			return $classic_url;
-		}
-
-		$template_post_id = $posts_manager_class::get_instance()->get_email_template_post_id( $wc_email_id );
-		if ( empty( $template_post_id ) ) {
+		$template_post_id = self::get_wc_email_template_post_id( $wc_email_id );
+		if ( ! $template_post_id ) {
 			return $classic_url;
 		}
 
@@ -495,34 +511,6 @@ class Emails_Section extends Wizard_Section {
 			],
 			admin_url( 'post.php' )
 		);
-	}
-
-	/**
-	 * Get the block-editor template post ID for a WC email, if available.
-	 *
-	 * Returns the post ID of the woo_email post that backs this email in
-	 * the WC block email editor. Returns null when the block editor is
-	 * disabled or the email has no template post.
-	 *
-	 * @param string $wc_email_id The WC_Email ID (e.g. 'new_order').
-	 * @return int|null Template post ID, or null.
-	 */
-	private static function get_wc_email_preview_post_id( string $wc_email_id ): ?int {
-		if ( 'yes' !== get_option( 'woocommerce_feature_block_email_editor_enabled' ) ) {
-			return null;
-		}
-
-		$posts_manager_class = 'Automattic\\WooCommerce\\Internal\\EmailEditor\\WCTransactionalEmails\\WCTransactionalEmailPostsManager';
-		if ( ! class_exists( $posts_manager_class ) ) {
-			return null;
-		}
-
-		$template_post_id = $posts_manager_class::get_instance()->get_email_template_post_id( $wc_email_id );
-		if ( empty( $template_post_id ) ) {
-			return null;
-		}
-
-		return (int) $template_post_id;
 	}
 
 	/**

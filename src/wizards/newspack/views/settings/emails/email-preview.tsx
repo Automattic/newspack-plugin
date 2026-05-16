@@ -141,18 +141,27 @@ const EmailPreview: React.FC< EmailPreviewProps > = ( { postId } ) => {
 			return;
 		}
 
-		const awaitLoad = ( el: HTMLLinkElement | HTMLImageElement ) =>
+		// Wire up listeners before checking loaded state to avoid a race where
+		// the asset finishes between the check and the listener attachment.
+		const awaitLink = ( link: HTMLLinkElement ) =>
 			new Promise< void >( resolve => {
-				el.addEventListener( 'load', () => resolve(), { once: true } );
-				el.addEventListener( 'error', () => resolve(), { once: true } );
+				link.addEventListener( 'load', () => resolve(), { once: true } );
+				link.addEventListener( 'error', () => resolve(), { once: true } );
+				if ( link.sheet ) {
+					resolve();
+				}
+			} );
+		const awaitImg = ( img: HTMLImageElement ) =>
+			new Promise< void >( resolve => {
+				img.addEventListener( 'load', () => resolve(), { once: true } );
+				img.addEventListener( 'error', () => resolve(), { once: true } );
+				if ( img.complete ) {
+					resolve();
+				}
 			} );
 
-		const linkPromises = Array.from( doc.querySelectorAll< HTMLLinkElement >( 'link[rel="stylesheet"]' ) )
-			.filter( link => ! link.sheet )
-			.map( awaitLoad );
-		const imgPromises = Array.from( doc.querySelectorAll< HTMLImageElement >( 'img' ) )
-			.filter( img => ! img.complete )
-			.map( awaitLoad );
+		const linkPromises = Array.from( doc.querySelectorAll< HTMLLinkElement >( 'link[rel="stylesheet"]' ) ).map( awaitLink );
+		const imgPromises = Array.from( doc.querySelectorAll< HTMLImageElement >( 'img' ) ).map( awaitImg );
 
 		let finalized = false;
 		const finalize = () => {

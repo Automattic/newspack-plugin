@@ -31,7 +31,7 @@ interface EmailItem {
 	registry_slug: string;
 	recipient: 'reader' | 'admin';
 	source: 'newspack' | 'woocommerce';
-	chip: 'auth-account' | 'reader-revenue' | '';
+	chip: 'auth-account' | 'reader-revenue';
 }
 
 interface EmailSettings {
@@ -66,6 +66,16 @@ const Emails = () => {
 	const [ view, setView ] = useState< View >( DEFAULT_VIEW );
 	const [ error, setError ] = useState< string | null >( null );
 	const [ activeChip, setActiveChip ] = useState< 'reader-revenue' | 'auth-account' >( 'reader-revenue' );
+
+	const CHIPS: { value: 'reader-revenue' | 'auth-account'; label: string }[] = [
+		{ value: 'reader-revenue', label: __( 'Reader revenue', 'newspack-plugin' ) },
+		{ value: 'auth-account', label: __( 'Authentication & account', 'newspack-plugin' ) },
+	];
+
+	const selectChip = ( chip: 'reader-revenue' | 'auth-account' ) => {
+		setActiveChip( chip );
+		setView( prev => ( { ...prev, search: '', page: 1 } ) );
+	};
 
 	const fetchData = useCallback( () => {
 		setIsLoading( true );
@@ -305,26 +315,16 @@ const Emails = () => {
 			<PageHeading />
 			{ error && <Notice isError noticeText={ error } /> }
 			<div className="newspack-emails__chips">
-				<Button
-					variant={ activeChip === 'reader-revenue' ? 'primary' : 'secondary' }
-					onClick={ () => {
-						setActiveChip( 'reader-revenue' );
-						setView( prev => ( { ...prev, search: '', page: 1 } ) );
-					} }
-					className="newspack-emails__chip"
-				>
-					{ __( 'Reader revenue', 'newspack-plugin' ) }
-				</Button>
-				<Button
-					variant={ activeChip === 'auth-account' ? 'primary' : 'secondary' }
-					onClick={ () => {
-						setActiveChip( 'auth-account' );
-						setView( prev => ( { ...prev, search: '', page: 1 } ) );
-					} }
-					className="newspack-emails__chip"
-				>
-					{ __( 'Authentication & account', 'newspack-plugin' ) }
-				</Button>
+				{ CHIPS.map( chip => (
+					<Button
+						key={ chip.value }
+						variant={ activeChip === chip.value ? 'primary' : 'secondary' }
+						onClick={ () => selectChip( chip.value ) }
+						className="newspack-emails__chip"
+					>
+						{ chip.label }
+					</Button>
+				) ) }
 			</div>
 			<DataViews
 				className="newspack-emails"
