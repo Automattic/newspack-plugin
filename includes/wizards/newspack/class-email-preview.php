@@ -277,7 +277,8 @@ class Email_Preview {
 	 * Build the transient cache key for a WC email preview.
 	 *
 	 * Includes the post's modified date so the cache naturally misses
-	 * after an edit, even if the save_post hook fails to fire.
+	 * after an edit — this is the sole invalidation mechanism. Old
+	 * transients expire via TTL.
 	 *
 	 * @param int $post_id The woo_email post ID.
 	 * @return string Transient key (max 172 chars — within the 172-char limit).
@@ -286,18 +287,6 @@ class Email_Preview {
 		$post     = get_post( $post_id );
 		$modified = $post ? strtotime( $post->post_modified_gmt ) : 0;
 		return 'newspack_wc_email_preview_' . $post_id . '_' . $modified;
-	}
-
-	/**
-	 * Invalidate the WC email preview cache when a template post is saved.
-	 *
-	 * Hooked to `save_post_woo_email` so any edit in the block email editor
-	 * immediately clears the cached thumbnail.
-	 *
-	 * @param int $post_id The post ID being saved.
-	 */
-	public static function invalidate_wc_preview_cache( int $post_id ): void {
-		delete_transient( self::get_wc_preview_cache_key( $post_id ) );
 	}
 
 	/**
@@ -371,7 +360,6 @@ class Email_Preview {
 	 */
 	public static function init(): void {
 		add_action( 'rest_api_init', [ __CLASS__, 'register_rest_routes' ] );
-		add_action( 'save_post_woo_email', [ __CLASS__, 'invalidate_wc_preview_cache' ] );
 	}
 
 	/**
