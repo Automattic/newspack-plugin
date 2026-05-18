@@ -31,6 +31,7 @@ class Initializer {
 		include_once NEWSPACK_ABSPATH . 'includes/cli/class-woocommerce-subscriptions.php';
 		include_once NEWSPACK_ABSPATH . 'includes/cli/class-ga4-dimensions.php';
 		include_once NEWSPACK_ABSPATH . 'includes/cli/class-teams-for-memberships-diagnostics.php';
+		include_once NEWSPACK_ABSPATH . 'includes/cli/class-fix-memberships.php';
 	}
 
 	/**
@@ -88,6 +89,14 @@ class Initializer {
 			WP_CLI::add_command(
 				'newspack teams-for-memberships diagnostics',
 				[ 'Newspack\CLI\Teams_For_Memberships_Diagnostics', 'diagnostics' ]
+			);
+		}
+
+		// Only register the fix-memberships command when WC Memberships is active.
+		if ( function_exists( 'wc_memberships' ) ) {
+			WP_CLI::add_command(
+				'newspack fix-memberships',
+				[ 'Newspack\CLI\Fix_Memberships', 'run' ]
 			);
 		}
 
