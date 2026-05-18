@@ -227,9 +227,19 @@ class Newsletters_Wizard extends Wizard {
 			},
 			[]
 		);
+
+		$labels = [];
+		if ( class_exists( 'Newspack_Newsletters' ) ) {
+			$provider = Newspack_Newsletters::get_service_provider();
+			if ( $provider && method_exists( $provider, 'get_labels' ) ) {
+				$labels = $provider::get_labels( 'local_list_explanation' );
+			}
+		}
+
 		return [
 			'configured' => $newsletters_configuration_manager->is_configured(),
 			'settings'   => $settings,
+			'labels'     => $labels,
 		];
 	}
 
@@ -423,11 +433,6 @@ class Newsletters_Wizard extends Wizard {
 					'forceSelected' => ( 'newspack_nl_advertiser' === $this->get_screen_slug() ),
 				];
 			}
-
-			$tabs[] = [
-				'textContent' => esc_html__( 'Tracking', 'newspack-plugin' ),
-				'href'        => admin_url( 'edit.php?post_type=' . Newspack_Newsletters::NEWSPACK_NEWSLETTERS_CPT . '&page=' . $this->slug . '#/tracking' ),
-			];
 
 			return $tabs;
 		}

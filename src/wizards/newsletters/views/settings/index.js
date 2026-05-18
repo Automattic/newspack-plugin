@@ -1,6 +1,6 @@
 /* global newspack_newsletters_wizard */
 /**
- * Internal dependencies
+ * External dependencies
  */
 import values from 'lodash/values';
 import mapValues from 'lodash/mapValues';
@@ -11,15 +11,18 @@ import once from 'lodash/once';
 /**
  * WordPress dependencies
  */
-import { useEffect, useRef, useState, Fragment } from '@wordpress/element';
+import { Fragment, useEffect, useRef, useState } from '@wordpress/element';
+import { useDispatch } from '@wordpress/data';
 import apiFetch from '@wordpress/api-fetch';
 import { sprintf, __ } from '@wordpress/i18n';
 import {
-	CheckboxControl,
 	ExternalLink,
-	Notice,
+	Notice as WpNotice,
+	ToggleControl,
 	__experimentalHStack as HStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
+	__experimentalVStack as VStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/components';
+import { atSymbol } from '@wordpress/icons';
 
 // Wizard-bridge events. Mirror of `newspack-newsletters/src/wizard-bridge/events.js`
 // — kept locally so this file is self-contained without a cross-repo import.
@@ -43,22 +46,32 @@ const isBridgeReady = () => typeof window !== 'undefined' && window.newspackNews
  * Internal dependencies
  */
 import {
+	Badge,
 	Button,
 	Card,
-	ActionCard,
+	CardSettingsGroup,
+	Divider,
 	Grid,
 	PluginInstaller,
+	SectionHeader,
 	SelectControl,
 	TextControl,
 	Waiting,
 	hooks,
-	withWizardScreen,
+	integrationIcons,
+	useUnsavedChangesDialog,
 } from '../../../../../packages/components/src';
+import { WIZARD_STORE_NAMESPACE } from '../../../../../packages/components/src/wizard/store';
+import Tracking from '../tracking';
 
 import './style.scss';
 
+const LETTERHEAD_KEY = 'newspack_newsletters_letterhead_api_key';
+
 export const Settings = ( {
 	onUpdate,
+	onLabels,
+	onLetterheadSetting,
 	newslettersConfig,
 	isOnboarding = true,
 	authUrl = false,
@@ -126,7 +139,15 @@ export const Settings = ( {
 		apiFetch( {
 			path: '/newspack/v1/wizard/newspack-newsletters/settings',
 		} )
-			.then( performConfigUpdate )
+			.then( response => {
+				performConfigUpdate( response );
+				if ( onLabels && response?.labels ) {
+					onLabels( response.labels );
+				}
+				if ( onLetterheadSetting && response?.settings?.[ LETTERHEAD_KEY ] ) {
+					onLetterheadSetting( response.settings[ LETTERHEAD_KEY ] );
+				}
+			} )
 			.catch( setError );
 	};
 	const getSelectedProviderName = () => {
@@ -182,73 +203,147 @@ export const Settings = ( {
 		onChange: value => performConfigUpdate( { settings: { [ key ]: { value } } } ),
 	} );
 
-	const renderProviderSettings = () => {
-		const providerSelectProps = getSettingProps( 'newspack_newsletters_service_provider' );
-		return (
-			<ActionCard
-				isMedium
-				title={ __( 'Email Service Provider', 'newspack-plugin' ) }
-				description={ __( 'Connect an email service provider (ESP) to author and send newsletters.', 'newspack-plugin' ) }
-				notification={ error ? error?.message || __( 'Something went wrong.', 'newspack-plugin' ) : null }
-				notificationLevel="error"
-				hasGreyHeader
-				actionContent={
-					<Button disabled={ inFlight } variant="primary" onClick={ saveNewslettersData }>
-						{ __( 'Save Settings', 'newspack-plugin' ) }
-					</Button>
-				}
-				disabled={ inFlight }
-			>
-				<Grid gutter={ 16 } columns={ 1 }>
-					{ false !== authUrl && (
-						<Card isSmall>
-							<h3>{ __( 'Authorize Application', 'newspack-plugin' ) }</h3>
-							<p>
-								{ sprintf(
-									// translators: %s is the name of the ESP.
-									__( 'Authorize %s to connect to Newspack.', 'newspack-plugin' ),
-									getSelectedProviderName()
-								) }
+	const providerSelectProps = config.settings ? getSettingProps( 'newspack_newsletters_service_provider' ) : null;
+
+	const ESP_PROVIDER_KEY = 'newspack_newsletters_service_provider';
+
+	const isESPSetting = setting => setting.key === ESP_PROVIDER_KEY || !! setting.provider;
+	const isPostSetting = setting => ! setting.provider && setting.key !== ESP_PROVIDER_KEY && setting.key !== LETTERHEAD_KEY;
+
+	const renderSettingControl = setting => {
+		if ( isOnboarding && ! setting.onboarding ) {
+			return null;
+		}
+		switch ( setting.type ) {
+			case 'select':
+				return <SelectControl key={ setting.key } { ...getSettingProps( setting.key ) } />;
+			case 'checkbox': {
+				const props = getSettingProps( setting.key );
+				return (
+					<ToggleControl
+						key={ setting.key }
+						label={ props.label }
+						checked={ props.checked }
+						onChange={ props.onChange }
+						disabled={ props.disabled }
+						__nextHasNoMarginBottom
+					/>
+				);
+			}
+			default:
+				return (
+					<VStack key={ setting.key } spacing={ 2 }>
+						<TextControl { ...getSettingProps( setting.key ) } withMargin={ false } />
+						{ setting.help && setting.helpURL && (
+							<p style={ { margin: 0 } }>
+								<ExternalLink href={ setting.helpURL }>{ setting.help }</ExternalLink>
 							</p>
-							<Button isSecondary onClick={ handleAuth }>
-								{ __( 'Authorize', 'newspack-plugin' ) }
-							</Button>
-						</Card>
-					) }
-					{ 'campaign_monitor' === config?.settings?.newspack_newsletters_service_provider?.value && (
-						<Notice status="warning" isDismissible={ false }>
-							<h2>{ __( 'Campaign Monitor support will be deprecated', 'newspack-plugin' ) }</h2>
-							<p>{ __( 'Please connect a different service provider to ensure continued support.', 'newspack-' ) }</p>
-						</Notice>
-					) }
-					{ values( config.settings )
-						.filter( setting => ! setting.provider || setting.provider === providerSelectProps.value )
-						.map( setting => {
-							if ( isOnboarding && ! setting.onboarding ) {
-								return null;
-							}
-							switch ( setting.type ) {
-								case 'select':
-									return <SelectControl key={ setting.key } { ...getSettingProps( setting.key ) } />;
-								case 'checkbox':
-									return <CheckboxControl key={ setting.key } { ...getSettingProps( setting.key ) } />;
-								default:
-									return (
-										<Grid columns={ 1 } gutter={ 8 } key={ setting.key }>
-											<TextControl { ...getSettingProps( setting.key ) } />
-											{ setting.help && setting.helpURL && (
-												<p>
-													<ExternalLink href={ setting.helpURL }>{ setting.help }</ExternalLink>
-												</p>
-											) }
-										</Grid>
-									);
-							}
-						} ) }
-				</Grid>
-			</ActionCard>
-		);
+						) }
+					</VStack>
+				);
+		}
 	};
+
+	const espSettings = values( config.settings ).filter(
+		setting => isESPSetting( setting ) && ( ! setting.provider || setting.provider === providerSelectProps?.value )
+	);
+	const postSettings = values( config.settings ).filter( isPostSetting );
+
+	const PROVIDER_ORDER = [ 'active_campaign', 'mailchimp', 'constant_contact', 'manual' ];
+	const PROVIDER_ICONS = {
+		active_campaign: integrationIcons.activeCampaign,
+		mailchimp: integrationIcons.mailchimp,
+		constant_contact: integrationIcons.constantContact,
+		manual: atSymbol,
+	};
+	const PROVIDER_ICON_SIZES = {
+		active_campaign: 16,
+		constant_contact: 18,
+	};
+	const providerOptions = ( config.settings?.newspack_newsletters_service_provider?.options || [] )
+		.filter( opt => opt.value !== '' )
+		.sort( ( a, b ) => {
+			const aIdx = PROVIDER_ORDER.indexOf( a.value );
+			const bIdx = PROVIDER_ORDER.indexOf( b.value );
+			if ( aIdx === -1 && bIdx === -1 ) {
+				return 0;
+			}
+			if ( aIdx === -1 ) {
+				return 1;
+			}
+			if ( bIdx === -1 ) {
+				return -1;
+			}
+			return aIdx - bIdx;
+		} );
+	const selectedProviderValue = providerSelectProps?.value;
+
+	const renderAuthorizeBlock = () =>
+		false !== authUrl && (
+			<Card isSmall>
+				<h3>{ __( 'Authorize Application', 'newspack-plugin' ) }</h3>
+				<p>
+					{ sprintf(
+						// translators: %s is the name of the ESP.
+						__( 'Authorize %s to connect to Newspack.', 'newspack-plugin' ),
+						getSelectedProviderName()
+					) }
+				</p>
+				<Button isSecondary onClick={ handleAuth }>
+					{ __( 'Authorize', 'newspack-plugin' ) }
+				</Button>
+			</Card>
+		);
+
+	const renderProviderControls = () => (
+		<VStack spacing={ 6 } className="newspack-newsletters-settings-stack">
+			{ error && (
+				<WpNotice status="error" isDismissible={ false }>
+					{ error?.message || __( 'Something went wrong.', 'newspack-plugin' ) }
+				</WpNotice>
+			) }
+			{ 'campaign_monitor' === selectedProviderValue && (
+				<WpNotice status="warning" isDismissible={ false }>
+					<h2>{ __( 'Campaign Monitor support will be deprecated', 'newspack-plugin' ) }</h2>
+					<p>{ __( 'Please connect a different service provider to ensure continued support.', 'newspack-plugin' ) }</p>
+				</WpNotice>
+			) }
+			{ isOnboarding ? (
+				values( config.settings ).map( renderSettingControl )
+			) : (
+				<>
+					<Grid columns={ 2 } gutter={ 16 } noMargin>
+						{ providerOptions.map( option => (
+							<CardSettingsGroup
+								key={ option.value }
+								className={ `newspack-newsletters-esp-card newspack-newsletters-esp-card--${ option.value.replace( /_/g, '-' ) }` }
+								icon={ PROVIDER_ICONS[ option.value ] }
+								iconSize={ PROVIDER_ICON_SIZES[ option.value ] || 24 }
+								title={ option.name }
+								isActive={ option.value === selectedProviderValue }
+								onEnable={ () => providerSelectProps.onChange( option.value ) }
+								onHeaderClick={ () => providerSelectProps.onChange( option.value ) }
+							/>
+						) ) }
+					</Grid>
+					{ selectedProviderValue && (
+						<VStack spacing={ 4 } className="newspack-newsletters-settings-stack">
+							{ selectedProviderValue === 'constant_contact' && renderAuthorizeBlock() }
+							{ espSettings.filter( s => s.provider === selectedProviderValue ).map( renderSettingControl ) }
+						</VStack>
+					) }
+				</>
+			) }
+			{ isOnboarding && (
+				<HStack justify="flex-start" expanded={ false }>
+					<Button disabled={ inFlight } variant="primary" onClick={ saveNewslettersData }>
+						{ __( 'Save', 'newspack-plugin' ) }
+					</Button>
+				</HStack>
+			) }
+		</VStack>
+	);
+
 	if ( ! error && isEmpty( config ) ) {
 		return (
 			<div className="flex justify-around mt4">
@@ -266,12 +361,46 @@ export const Settings = ( {
 					onStatus={ ( { complete } ) => complete && fetchConfiguration() }
 				/>
 			) }
-			{ config.configured === true && renderProviderSettings() }
+			{ config.configured === true &&
+				( isOnboarding ? (
+					renderProviderControls()
+				) : (
+					<>
+						<Grid columns={ 2 } gutter={ 32 } noMargin>
+							<SectionHeader
+								heading={ 2 }
+								title={ __( 'Email service provider', 'newspack-plugin' ) }
+								description={ __( 'Connect an email service provider (ESP) to author and send newsletters.', 'newspack-plugin' ) }
+								noMargin
+							/>
+							{ renderProviderControls() }
+						</Grid>
+						{ postSettings.length > 0 && (
+							<>
+								<Divider alignment="full-width" variant="tertiary" />
+								<Grid columns={ 2 } gutter={ 32 } noMargin>
+									<SectionHeader
+										heading={ 2 }
+										title={ __( 'Newsletter posts', 'newspack-plugin' ) }
+										description={ __(
+											'Settings for how published newsletters appear as posts on your site.',
+											'newspack-plugin'
+										) }
+										noMargin
+									/>
+									<VStack spacing={ 4 } className="newspack-newsletters-settings-stack">
+										{ postSettings.map( renderSettingControl ) }
+									</VStack>
+								</Grid>
+							</>
+						) }
+					</>
+				) ) }
 		</>
 	);
 };
 
-export const SubscriptionLists = ( { lockedLists, onUpdate, provider } ) => {
+export const SubscriptionLists = ( { lockedLists, onUpdate, provider, labels = {} } ) => {
 	const [ error, setError ] = useState( false );
 	const [ inFlight, setInFlight ] = useState( false );
 	const [ togglingId, setTogglingId ] = useState( null );
@@ -363,87 +492,111 @@ export const SubscriptionLists = ( { lockedLists, onUpdate, provider } ) => {
 	if ( ! inFlight && ! lists?.length && ! error ) {
 		return null;
 	}
-	if ( inFlight && ! lists?.length && ! error ) {
-		return (
-			<div className="flex justify-around mt4">
-				<Waiting />
-			</div>
-		);
-	}
 
-	/* eslint-disable no-nested-ternary */
-	const notification = lockedLists
-		? __( 'Please save your ESP settings before changing your subscription lists.', 'newspack-plugin' )
-		: error
-		? error?.message || __( 'Something went wrong.', 'newspack-plugin' )
-		: null;
+	const showAddNew = !! newspack_newsletters_wizard.new_subscription_lists_url;
 
 	return (
-		<ActionCard
-			isMedium
-			title={ __( 'Subscription Lists', 'newspack-plugin' ) }
-			description={ __( 'Manage the lists available to readers for subscription.', 'newspack-plugin' ) }
-			notification={ notification }
-			notificationLevel={ error ? 'error' : 'warning' }
-			hasGreyHeader
-			actionContent={
-				newspack_newsletters_wizard.new_subscription_lists_url && (
-					<Button variant="secondary" disabled={ inFlight || lockedLists } onClick={ dispatchOpenAdd }>
-						{ __( 'Add New', 'newspack-plugin' ) }
-					</Button>
-				)
-			}
-			disabled={ inFlight || lockedLists }
-		>
-			{ ! lockedLists &&
-				! error &&
-				lists.map( ( list, index ) => {
-					const isLocal = 'local' === list?.type;
-					const rowDisabled = inFlight || togglingId === list?.db_id;
-					return (
-						<ActionCard
-							key={ index }
-							isSmall
-							simple
-							hasWhiteHeader
-							title={ list.name }
-							description={ () => (
-								<>
-									{ list.description }
-									{ list.description && list?.type_label && <br /> }
-									{ list?.type_label && (
-										<small className="newspack-newsletters-sub-list-item__type-label">{ list.type_label }</small>
-									) }
-								</>
-							) }
-							disabled={ rowDisabled }
-							toggleOnChange={ next => handleToggleActive( list, next ) }
-							toggleChecked={ list.active }
-							className={
-								list?.id && ( list.id.startsWith( 'group' ) || list.id.startsWith( 'tag' ) )
-									? 'newspack-newsletters-sub-list-item'
-									: ''
-							}
-							actionText={
-								<HStack spacing={ 2 } justify="flex-end" expanded={ false }>
-									<Button
-										variant="link"
-										onClick={ () => dispatchOpenEdit( list, isLocal ? 'local' : 'esp' ) }
-										disabled={ rowDisabled }
+		<>
+			<Divider alignment="full-width" variant="tertiary" />
+			<Grid columns={ 2 } gutter={ 32 } noMargin>
+				<SectionHeader
+					heading={ 2 }
+					title={ __( 'Subscription lists', 'newspack-plugin' ) }
+					description={ __( 'Manage the lists available to readers for subscription.', 'newspack-plugin' ) }
+					noMargin
+				/>
+				<VStack spacing={ 4 } className="newspack-newsletters-settings-stack">
+					{ lockedLists && (
+						<WpNotice status="warning" isDismissible={ false }>
+							{ __( 'Please save your ESP settings before changing your subscription lists.', 'newspack-plugin' ) }
+						</WpNotice>
+					) }
+					{ ! lockedLists && error && (
+						<WpNotice status="error" isDismissible={ false }>
+							{ error?.message || __( 'Something went wrong.', 'newspack-plugin' ) }
+						</WpNotice>
+					) }
+					{ inFlight && ! lists?.length && ! error && (
+						<div className="flex justify-around mt4">
+							<Waiting />
+						</div>
+					) }
+					{ ! lockedLists &&
+						! error &&
+						lists.map( ( list, index ) => {
+							const isLocal = 'local' === list?.type;
+							const rowDisabled = inFlight || togglingId === list?.db_id;
+							const isSubList = list?.id && ( list.id.startsWith( 'group' ) || list.id.startsWith( 'tag' ) );
+							return (
+								<Fragment key={ list.db_id || index }>
+									{ index > 0 && <Divider alignment="none" variant="default" marginTop={ 0 } marginBottom={ 0 } /> }
+									<HStack
+										alignment="top"
+										justify="space-between"
+										className={ isSubList ? 'newspack-newsletters-sub-list-item' : undefined }
 									>
-										{ __( 'Edit', 'newspack-plugin' ) }
+										<VStack spacing={ 2 } className="newspack-newsletters-list-item__content">
+											<ToggleControl
+												label={ list.name }
+												help={ list.description || undefined }
+												checked={ !! list.active }
+												onChange={ next => handleToggleActive( list, next ) }
+												disabled={ rowDisabled }
+												__nextHasNoMarginBottom
+											/>
+											{ ( isLocal || list?.type_label ) && (
+												<HStack expanded={ false } justify="flex-start" className="newspack-newsletters-list-item__badge">
+													<Badge text={ isLocal ? __( 'Local', 'newspack-plugin' ) : list.type_label } />
+												</HStack>
+											) }
+										</VStack>
+										<HStack expanded={ false } spacing={ 2 } justify="flex-end">
+											<Button
+												variant="link"
+												onClick={ () => dispatchOpenEdit( list, isLocal ? 'local' : 'esp' ) }
+												disabled={ rowDisabled }
+											>
+												{ __( 'Edit', 'newspack-plugin' ) }
+											</Button>
+											{ isLocal && (
+												<Button
+													variant="link"
+													isDestructive
+													onClick={ () => dispatchConfirmDelete( list ) }
+													disabled={ rowDisabled }
+												>
+													{ __( 'Delete', 'newspack-plugin' ) }
+												</Button>
+											) }
+										</HStack>
+									</HStack>
+								</Fragment>
+							);
+						} ) }
+					{ ! lockedLists && ! error && showAddNew && (
+						<>
+							<Divider alignment="none" variant="default" marginTop={ 0 } marginBottom={ 0 } />
+							<VStack spacing={ 3 }>
+								<p style={ { margin: 0 } }>
+									{ labels?.local_list_explanation
+										? sprintf(
+												// translators: %s is the provider-specific local list label, e.g. "Mailchimp Group" or "Active Campaign Tag".
+												__( 'Local lists are managed in WordPress and synced to your ESP as: %s.', 'newspack-plugin' ),
+												labels.local_list_explanation
+										  )
+										: __( 'Local lists are managed in WordPress and synced to an entity in your ESP.', 'newspack-plugin' ) }
+								</p>
+								<HStack expanded={ false } justify="flex-start">
+									<Button variant="secondary" onClick={ dispatchOpenAdd }>
+										{ __( 'Add new local list', 'newspack-plugin' ) }
 									</Button>
-									{ isLocal && (
-										<Button variant="link" isDestructive onClick={ () => dispatchConfirmDelete( list ) } disabled={ rowDisabled }>
-											{ __( 'Delete', 'newspack-plugin' ) }
-										</Button>
-									) }
 								</HStack>
-							}
-						/>
-					);
-				} ) }
-		</ActionCard>
+							</VStack>
+						</>
+					) }
+				</VStack>
+			</Grid>
+		</>
 	);
 };
 
@@ -452,13 +605,75 @@ const NewslettersSettings = () => {
 	const [ provider, setProvider ] = useState( '' );
 	const [ lockedLists, setLockedLists ] = useState( false );
 	const [ authUrl, setAuthUrl ] = useState( false );
+	const [ inFlight, setInFlight ] = useState( false );
+	const [ error, setError ] = useState( false );
+	const [ savedConfig, setSavedConfig ] = useState( null );
+	const [ labels, setLabels ] = useState( {} );
+	const [ letterheadSetting, setLetterheadSetting ] = useState( null );
+	const { setHeaderData } = useDispatch( WIZARD_STORE_NAMESPACE );
+
+	useEffect( () => {
+		if ( savedConfig === null && newslettersConfig && Object.keys( newslettersConfig ).length > 0 ) {
+			setSavedConfig( newslettersConfig );
+		}
+	}, [ newslettersConfig, savedConfig ] );
+
+	const isDirty = savedConfig !== null && JSON.stringify( newslettersConfig ) !== JSON.stringify( savedConfig );
+
+	const saveSettings = async () => {
+		setError( false );
+		setInFlight( true );
+		try {
+			const response = await apiFetch( {
+				path: '/newspack/v1/wizard/newspack-newsletters/settings',
+				method: 'POST',
+				data: newslettersConfig,
+			} );
+			setProvider( newslettersConfig?.newspack_newsletters_service_provider );
+			setLockedLists( false );
+			setSavedConfig( newslettersConfig );
+			if ( response?.labels ) {
+				setLabels( response.labels );
+			}
+		} catch ( err ) {
+			setError( err );
+		} finally {
+			setInFlight( false );
+		}
+	};
+
+	useEffect( () => {
+		setHeaderData( {
+			sectionName: __( 'Settings', 'newspack-plugin' ),
+			sectionTitle: __( 'Settings', 'newspack-plugin' ),
+			actions: [
+				{
+					type: 'primary',
+					label: __( 'Save', 'newspack-plugin' ),
+					action: saveSettings,
+					disabled: inFlight || ! isDirty,
+				},
+			],
+		} );
+	}, [ inFlight, isDirty, newslettersConfig ] );
+
+	const { confirmDialog: navBlockDialog } = useUnsavedChangesDialog( {
+		when: isDirty && ! inFlight,
+	} );
 
 	return (
 		<>
-			<h1>{ __( 'Settings', 'newspack-plugin' ) }</h1>
+			{ navBlockDialog }
+			{ error && (
+				<WpNotice status="error" isDismissible={ false }>
+					{ error?.message || __( 'Something went wrong.', 'newspack-plugin' ) }
+				</WpNotice>
+			) }
 			<Settings
 				isOnboarding={ false }
 				onUpdate={ config => updateConfiguration( { newslettersConfig: config } ) }
+				onLabels={ setLabels }
+				onLetterheadSetting={ setLetterheadSetting }
 				authUrl={ authUrl }
 				newslettersConfig={ newslettersConfig }
 				provider={ provider }
@@ -466,9 +681,38 @@ const NewslettersSettings = () => {
 				setAuthUrl={ setAuthUrl }
 				setLockedLists={ setLockedLists }
 			/>
-			<SubscriptionLists lockedLists={ lockedLists } provider={ provider } />
+			<SubscriptionLists lockedLists={ lockedLists } provider={ provider } labels={ labels } />
+			<Tracking />
+			{ letterheadSetting && (
+				<>
+					<Divider alignment="full-width" variant="tertiary" />
+					<Grid columns={ 2 } gutter={ 32 } noMargin>
+						<SectionHeader
+							heading={ 2 }
+							title={ __( 'Letterhead', 'newspack-plugin' ) }
+							description={ __( 'Connect Letterhead to insert promotions into your newsletters.', 'newspack-plugin' ) }
+							noMargin
+						/>
+						<VStack spacing={ 4 } className="newspack-newsletters-settings-stack">
+							<VStack spacing={ 2 }>
+								<TextControl
+									label={ letterheadSetting.description }
+									value={ newslettersConfig?.[ letterheadSetting.key ] || '' }
+									onChange={ value => updateConfiguration( { newslettersConfig: { [ letterheadSetting.key ]: value } } ) }
+									withMargin={ false }
+								/>
+								{ letterheadSetting.help && letterheadSetting.helpURL && (
+									<p style={ { margin: 0 } }>
+										<ExternalLink href={ letterheadSetting.helpURL }>{ letterheadSetting.help }</ExternalLink>
+									</p>
+								) }
+							</VStack>
+						</VStack>
+					</Grid>
+				</>
+			) }
 		</>
 	);
 };
 
-export default withWizardScreen( () => <NewslettersSettings /> );
+export default NewslettersSettings;

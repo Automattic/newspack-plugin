@@ -38,8 +38,8 @@ describe( 'SubscriptionLists — wizard-bridge wiring', () => {
 		const listener = jest.fn();
 		document.addEventListener( NN_EVENTS.OPEN_MODAL, listener );
 		render( <SubscriptionLists lockedLists={ false } provider="mailchimp" /> );
-		await waitFor( () => expect( screen.getByRole( 'button', { name: /^Add New$/ } ) ).toBeEnabled() );
-		fireEvent.click( screen.getByRole( 'button', { name: /^Add New$/ } ) );
+		await waitFor( () => expect( screen.getByRole( 'button', { name: /Add new local list/ } ) ).toBeEnabled() );
+		fireEvent.click( screen.getByRole( 'button', { name: /Add new local list/ } ) );
 		expect( listener ).toHaveBeenCalled();
 		expect( listener.mock.calls[ 0 ][ 0 ].detail ).toEqual( { mode: 'add' } );
 		document.removeEventListener( NN_EVENTS.OPEN_MODAL, listener );
@@ -129,8 +129,8 @@ describe( 'SubscriptionLists — wizard-bridge wiring', () => {
 		jest.useFakeTimers();
 		const originalHref = window.location.href;
 		render( <SubscriptionLists lockedLists={ false } provider="mailchimp" /> );
-		await waitFor( () => expect( screen.getByRole( 'button', { name: /^Add New$/ } ) ).toBeEnabled() );
-		fireEvent.click( screen.getByRole( 'button', { name: /^Add New$/ } ) );
+		await waitFor( () => expect( screen.getByRole( 'button', { name: /Add new local list/ } ) ).toBeEnabled() );
+		fireEvent.click( screen.getByRole( 'button', { name: /Add new local list/ } ) );
 		jest.advanceTimersByTime( 600 );
 		expect( window.location.href ).toBe( originalHref );
 		jest.useRealTimers();
