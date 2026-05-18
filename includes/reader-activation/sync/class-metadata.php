@@ -47,6 +47,7 @@ class Metadata {
 			$classes = [
 				'Legacy_Basic',
 				'Legacy_Payment',
+				'Content_Gate',
 			];
 		} else {
 			$classes = [
