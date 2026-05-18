@@ -1,7 +1,7 @@
 /**
  * WordPress dependencies.
  */
-import { useEffect } from '@wordpress/element';
+import { useEffect, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
 /**
@@ -28,6 +28,10 @@ function useUnsavedChangesDialog( { when }: UseUnsavedChangesDialogOptions ) {
 		hideTitle: true,
 	} );
 
+	// Tracks navigation the user has already approved via our custom dialog so
+	// the beforeunload guard doesn't fire a second native prompt on top of it.
+	const isNavigatingRef = useRef( false );
+
 	useEffect( () => {
 		if ( ! when ) {
 			return;
@@ -52,6 +56,7 @@ function useUnsavedChangesDialog( { when }: UseUnsavedChangesDialogOptions ) {
 			e.stopPropagation();
 			const destination = link.href;
 			requestConfirm( () => {
+				isNavigatingRef.current = true;
 				window.location.href = destination;
 			} );
 		};
@@ -64,6 +69,9 @@ function useUnsavedChangesDialog( { when }: UseUnsavedChangesDialogOptions ) {
 			return;
 		}
 		const handler = ( e: BeforeUnloadEvent ) => {
+			if ( isNavigatingRef.current ) {
+				return;
+			}
 			e.preventDefault();
 			e.returnValue = '';
 		};

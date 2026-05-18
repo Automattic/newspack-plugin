@@ -309,7 +309,9 @@ export const Settings = ( {
 				</WpNotice>
 			) }
 			{ isOnboarding ? (
-				values( config.settings ).map( renderSettingControl )
+				values( config.settings )
+					.filter( setting => ! setting.provider || setting.provider === selectedProviderValue )
+					.map( renderSettingControl )
 			) : (
 				<>
 					<Grid columns={ 2 } gutter={ 16 } noMargin>
@@ -403,15 +405,18 @@ export const Settings = ( {
 export const SubscriptionLists = ( { lockedLists, onUpdate, provider, labels = {} } ) => {
 	const [ error, setError ] = useState( false );
 	const [ inFlight, setInFlight ] = useState( false );
-	const [ togglingId, setTogglingId ] = useState( null );
+	const [ togglingIds, setTogglingIds ] = useState( () => new Set() );
 	const [ lists, setLists ] = useState( [] );
 	const fallbackTimerRef = useRef( null );
 
-	const updateConfig = data => {
-		setLists( data );
-		if ( typeof onUpdate === 'function' ) {
-			onUpdate( data );
-		}
+	const updateLists = updater => {
+		setLists( prev => {
+			const nextLists = typeof updater === 'function' ? updater( prev ) : updater;
+			if ( typeof onUpdate === 'function' ) {
+				onUpdate( nextLists );
+			}
+			return nextLists;
+		} );
 	};
 	const fetchLists = () => {
 		setError( false );
@@ -419,7 +424,7 @@ export const SubscriptionLists = ( { lockedLists, onUpdate, provider, labels = {
 		apiFetch( {
 			path: '/newspack-newsletters/v1/lists',
 		} )
-			.then( updateConfig )
+			.then( updateLists )
 			.catch( setError )
 			.finally( () => setInFlight( false ) );
 	};
@@ -427,22 +432,31 @@ export const SubscriptionLists = ( { lockedLists, onUpdate, provider, labels = {
 		if ( ! list?.db_id ) {
 			return;
 		}
-		const snapshot = lists;
-		updateConfig( lists.map( row => ( row.db_id === list.db_id ? { ...row, active: next } : row ) ) );
-		setTogglingId( list.db_id );
+		const dbId = list.db_id;
+		const previousActive = list.active;
+		updateLists( prev => prev.map( row => ( row.db_id === dbId ? { ...row, active: next } : row ) ) );
+		setTogglingIds( prev => {
+			const updated = new Set( prev );
+			updated.add( dbId );
+			return updated;
+		} );
 		setError( false );
 		try {
 			const response = await apiFetch( {
-				path: `/newspack-newsletters/v1/lists/${ list.db_id }`,
+				path: `/newspack-newsletters/v1/lists/${ dbId }`,
 				method: 'PATCH',
 				data: { active: next },
 			} );
-			updateConfig( lists.map( row => ( row.db_id === list.db_id ? { ...row, ...response } : row ) ) );
+			updateLists( prev => prev.map( row => ( row.db_id === dbId ? { ...row, ...response } : row ) ) );
 		} catch ( err ) {
-			updateConfig( snapshot );
+			updateLists( prev => prev.map( row => ( row.db_id === dbId ? { ...row, active: previousActive } : row ) ) );
 			setError( err );
 		} finally {
-			setTogglingId( null );
+			setTogglingIds( prev => {
+				const updated = new Set( prev );
+				updated.delete( dbId );
+				return updated;
+			} );
 		}
 	};
 
@@ -489,7 +503,7 @@ export const SubscriptionLists = ( { lockedLists, onUpdate, provider, labels = {
 		startFallbackTimer( list?.edit_link );
 	};
 
-	if ( ! inFlight && ! lists?.length && ! error ) {
+	if ( ! inFlight && ! lists?.length && ! error && ! lockedLists ) {
 		return null;
 	}
 
@@ -525,7 +539,7 @@ export const SubscriptionLists = ( { lockedLists, onUpdate, provider, labels = {
 						! error &&
 						lists.map( ( list, index ) => {
 							const isLocal = 'local' === list?.type;
-							const rowDisabled = inFlight || togglingId === list?.db_id;
+							const rowDisabled = inFlight || togglingIds.has( list?.db_id );
 							const isSubList = list?.id && ( list.id.startsWith( 'group' ) || list.id.startsWith( 'tag' ) );
 							return (
 								<Fragment key={ list.db_id || index }>
