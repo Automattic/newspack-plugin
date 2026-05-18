@@ -34,6 +34,7 @@ const CoreCard = ( {
 	footerStyle,
 	icon,
 	iconBackgroundColor,
+	iconSize,
 	isActive,
 	isDraggable,
 	isFirstTarget,
@@ -117,8 +118,11 @@ const CoreCard = ( {
 						</div>
 					) }
 					{ icon && (
-						<div className="newspack-card--core__icon">
-							<Icon icon={ icon } height={ isSmall ? 24 : 48 } width={ isSmall ? 24 : 48 } />
+						<div
+							className="newspack-card--core__icon"
+							style={ iconSize ? { '--newspack-card-icon-size': `${ iconSize }px` } : undefined }
+						>
+							<Icon icon={ icon } height={ iconSize || ( isSmall ? 24 : 48 ) } width={ iconSize || ( isSmall ? 24 : 48 ) } />
 						</div>
 					) }
 					{ actions?.length > 0 && actionType === 'toggle' && (
