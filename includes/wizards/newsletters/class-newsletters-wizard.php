@@ -231,8 +231,10 @@ class Newsletters_Wizard extends Wizard {
 		$labels = [];
 		if ( class_exists( 'Newspack_Newsletters' ) ) {
 			$provider = Newspack_Newsletters::get_service_provider();
-			if ( $provider && method_exists( $provider, 'get_labels' ) ) {
-				$labels = $provider::get_labels( 'local_list_explanation' );
+			if ( $provider && method_exists( $provider, 'label' ) ) {
+				$labels = [
+					'local_list_explanation' => $provider::label( 'local_list_explanation' ),
+				];
 			}
 		}
 
