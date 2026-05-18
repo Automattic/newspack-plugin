@@ -249,6 +249,15 @@ class WC_Order {
 	public function get_coupon_codes() {
 		return $this->data['coupon_codes'] ?? [];
 	}
+	public function delete_meta_data( $field_name ) {
+		unset( $this->meta[ $field_name ] );
+	}
+	public function meta_exists( $field_name ) {
+		return isset( $this->meta[ $field_name ] );
+	}
+	public function save() {
+		return true;
+	}
 	public function get_billing_email() {
 		return $this->data['billing_email'] ?? '';
 	}
@@ -289,6 +298,9 @@ class WC_Subscription {
 	public function get_user_id() {
 		return $this->data['customer_id'] ?? null;
 	}
+	public function get_payment_method() {
+		return $this->data['payment_method'] ?? '';
+	}
 	public function has_product( $product_id ) {
 		return in_array( $product_id, $this->products, true );
 	}
@@ -300,6 +312,9 @@ class WC_Subscription {
 	}
 	public function delete_meta_data( $field_name ) {
 		unset( $this->meta[ $field_name ] );
+	}
+	public function meta_exists( $field_name ) {
+		return isset( $this->meta[ $field_name ] );
 	}
 	public function has_status( $statuses ) {
 		if ( ! is_array( $statuses ) ) {
@@ -398,7 +413,22 @@ function wc_get_checkout_url() {
 	return 'https://example.com/checkout';
 }
 function wcs_is_subscription( $order ) {
-	return false;
+	global $subscriptions_database;
+	if ( is_object( $order ) ) {
+		if ( method_exists( $order, 'get_id' ) ) {
+			$id = $order->get_id();
+		} elseif ( isset( $order->ID ) ) {
+			$id = (int) $order->ID;
+		} elseif ( isset( $order->id ) ) {
+			$id = (int) $order->id;
+		} else {
+			// Object has no recognisable ID property — treat as not-a-subscription.
+			return false;
+		}
+	} else {
+		$id = (int) $order;
+	}
+	return isset( $subscriptions_database[ $id ] );
 }
 function wcs_create_subscription( $data = [] ) {
 	global $subscriptions_database;
