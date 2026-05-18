@@ -569,6 +569,11 @@ export const SubscriptionLists = ( { lockedLists, onUpdate, provider, labels = {
 												variant="link"
 												onClick={ () => dispatchOpenEdit( list, isLocal ? 'local' : 'esp' ) }
 												disabled={ rowDisabled }
+												aria-label={ sprintf(
+													// translators: %s is the list name.
+													__( 'Edit %s', 'newspack-plugin' ),
+													list.name
+												) }
 											>
 												{ __( 'Edit', 'newspack-plugin' ) }
 											</Button>
@@ -578,6 +583,11 @@ export const SubscriptionLists = ( { lockedLists, onUpdate, provider, labels = {
 													isDestructive
 													onClick={ () => dispatchConfirmDelete( list ) }
 													disabled={ rowDisabled }
+													aria-label={ sprintf(
+														// translators: %s is the list name.
+														__( 'Delete %s', 'newspack-plugin' ),
+														list.name
+													) }
 												>
 													{ __( 'Delete', 'newspack-plugin' ) }
 												</Button>
