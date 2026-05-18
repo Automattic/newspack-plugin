@@ -422,6 +422,234 @@ class Test_Account_Deletion extends \WP_UnitTestCase {
 	}
 
 	/**
+	 * A queued upsert from earlier in the same request (e.g. WCS firing
+	 * subscription_updated during the delete_user cascade) must be dropped before
+	 * deletion runs, otherwise the shutdown queue would recreate the contact
+	 * right after the ESP delete.
+	 */
+	public function test_handle_account_deletion_drops_queued_sync_for_email() {
+		$reflection = new \ReflectionClass( \Newspack\Reader_Activation\Contact_Sync::class );
+		$property   = $reflection->getProperty( 'queued_syncs' );
+		$property->setAccessible( true );
+		$property->setValue(
+			null,
+			[
+				'reader@example.com' => [
+					'contexts'     => [ 'subscription_updated' ],
+					'contact'      => [
+						'email'    => 'reader@example.com',
+						'metadata' => [ 'subscription_status' => 'active' ],
+					],
+					'as_action_id' => null,
+				],
+				'other@example.com'  => [
+					'contexts'     => [ 'subscription_updated' ],
+					'contact'      => [ 'email' => 'other@example.com' ],
+					'as_action_id' => null,
+				],
+			]
+		);
+
+		\Newspack\Reader_Activation\Contact_Sync::handle_account_deletion(
+			'reader@example.com',
+			[
+				'email'    => 'reader@example.com',
+				'metadata' => [],
+			],
+			'TestContext'
+		);
+
+		$queued = $property->getValue();
+		$this->assertArrayNotHasKey(
+			'reader@example.com',
+			$queued,
+			'A queued sync for the deleted email must be dropped before deletion runs.'
+		);
+		$this->assertArrayHasKey(
+			'other@example.com',
+			$queued,
+			'Queued syncs for unrelated emails must be preserved.'
+		);
+
+		// Clean up.
+		$property->setValue( null, [] );
+	}
+
+	/**
+	 * A transient ESP failure in delete mode must schedule a retry so the
+	 * contact does not get stranded in undeleted state (GDPR exposure).
+	 */
+	public function test_handle_account_deletion_schedules_retry_on_delete_failure() {
+		if ( ! function_exists( 'as_schedule_single_action' ) ) {
+			$this->markTestSkipped( 'ActionScheduler not available.' );
+		}
+		\as_unschedule_all_actions( \Newspack\Reader_Activation\Contact_Sync::RETRY_DELETION_HOOK );
+
+		$this->reset_integrations();
+		$spy                = new \Deletion_Spy_Integration( 'spy-retry-delete', 'Spy Retry Delete' );
+		$spy->delete_result = new \WP_Error( 'transient', 'ESP 503' );
+		Integrations::register( $spy );
+		$spy->update_settings_field_value( 'sync_account_deletion', true );
+		$spy->update_settings_field_value( 'account_deletion_handling', 'delete' );
+		Integrations::enable( 'spy-retry-delete' );
+
+		\Newspack\Reader_Activation\Contact_Sync::handle_account_deletion(
+			'reader@example.com',
+			[
+				'email'    => 'reader@example.com',
+				'metadata' => [],
+			],
+			'TestContext'
+		);
+
+		$pending = \as_get_scheduled_actions(
+			[
+				'hook'   => \Newspack\Reader_Activation\Contact_Sync::RETRY_DELETION_HOOK,
+				'group'  => Integrations::get_action_group( 'spy-retry-delete' ),
+				'status' => \ActionScheduler_Store::STATUS_PENDING,
+			],
+			'ARRAY_A'
+		);
+		$this->assertNotEmpty( $pending, 'A retry must be scheduled on delete failure.' );
+
+		$action_id = array_key_first( $pending );
+		$args      = \ActionScheduler::store()->fetch_action( $action_id )->get_args();
+		$this->assertSame( 'spy-retry-delete', $args[0]['integration_id'] );
+		$this->assertSame( 'delete', $args[0]['mode'] );
+		$this->assertSame( 'reader@example.com', $args[0]['email'] );
+		$this->assertSame( 1, $args[0]['retry_count'] );
+
+		\as_unschedule_all_actions( \Newspack\Reader_Activation\Contact_Sync::RETRY_DELETION_HOOK );
+	}
+
+	/**
+	 * A transient ESP failure in flag mode must schedule a retry, and the retry
+	 * payload must carry the already-prepared contact so we don't try to rebuild
+	 * it from a user that no longer exists.
+	 */
+	public function test_handle_account_deletion_schedules_retry_on_flag_failure() {
+		if ( ! function_exists( 'as_schedule_single_action' ) ) {
+			$this->markTestSkipped( 'ActionScheduler not available.' );
+		}
+		\as_unschedule_all_actions( \Newspack\Reader_Activation\Contact_Sync::RETRY_DELETION_HOOK );
+
+		$this->reset_integrations();
+		$spy              = new \Deletion_Spy_Integration( 'spy-retry-flag', 'Spy Retry Flag' );
+		$spy->push_result = new \WP_Error( 'transient', 'ESP 429' );
+		Integrations::register( $spy );
+		$spy->update_settings_field_value( 'sync_account_deletion', true );
+		$spy->update_settings_field_value( 'account_deletion_handling', 'flag' );
+		Integrations::enable( 'spy-retry-flag' );
+
+		\Newspack\Reader_Activation\Contact_Sync::handle_account_deletion(
+			'reader@example.com',
+			[
+				'email'    => 'reader@example.com',
+				'metadata' => [],
+			],
+			'TestContext'
+		);
+
+		$pending = \as_get_scheduled_actions(
+			[
+				'hook'   => \Newspack\Reader_Activation\Contact_Sync::RETRY_DELETION_HOOK,
+				'group'  => Integrations::get_action_group( 'spy-retry-flag' ),
+				'status' => \ActionScheduler_Store::STATUS_PENDING,
+			],
+			'ARRAY_A'
+		);
+		$this->assertNotEmpty( $pending, 'A retry must be scheduled on flag-push failure.' );
+
+		$action_id = array_key_first( $pending );
+		$args      = \ActionScheduler::store()->fetch_action( $action_id )->get_args();
+		$this->assertSame( 'flag', $args[0]['mode'] );
+		$this->assertSame( 'reader@example.com', $args[0]['email'] );
+		$this->assertArrayHasKey( 'contact', $args[0] );
+		$prefixed_key = $spy->get_metadata_prefix() . 'Account_Deleted';
+		$this->assertArrayHasKey(
+			$prefixed_key,
+			$args[0]['contact']['metadata'] ?? [],
+			'Retry payload must carry the already-prepared flag-mode contact.'
+		);
+
+		\as_unschedule_all_actions( \Newspack\Reader_Activation\Contact_Sync::RETRY_DELETION_HOOK );
+	}
+
+	/**
+	 * Successful retry in delete mode re-invokes delete_contact() and does not
+	 * schedule another retry.
+	 */
+	public function test_execute_deletion_retry_delete_mode_succeeds() {
+		if ( ! function_exists( 'as_schedule_single_action' ) ) {
+			$this->markTestSkipped( 'ActionScheduler not available.' );
+		}
+		\as_unschedule_all_actions( \Newspack\Reader_Activation\Contact_Sync::RETRY_DELETION_HOOK );
+
+		$this->reset_integrations();
+		$spy = new \Deletion_Spy_Integration( 'spy-retry-exec-delete', 'Spy Retry Exec Delete' );
+		Integrations::register( $spy );
+		Integrations::enable( 'spy-retry-exec-delete' );
+
+		\Newspack\Reader_Activation\Contact_Sync::execute_deletion_retry(
+			[
+				'integration_id' => 'spy-retry-exec-delete',
+				'mode'           => 'delete',
+				'email'          => 'reader@example.com',
+				'contact'        => [],
+				'context'        => 'TestContext',
+				'retry_count'    => 1,
+			]
+		);
+
+		$this->assertCount( 1, $spy->delete_calls );
+		$this->assertSame( 'reader@example.com', $spy->delete_calls[0]['email'] );
+
+		$pending = \as_get_scheduled_actions(
+			[
+				'hook'   => \Newspack\Reader_Activation\Contact_Sync::RETRY_DELETION_HOOK,
+				'group'  => Integrations::get_action_group( 'spy-retry-exec-delete' ),
+				'status' => \ActionScheduler_Store::STATUS_PENDING,
+			],
+			'ARRAY_A'
+		);
+		$this->assertEmpty( $pending, 'No retry should be scheduled on success.' );
+	}
+
+	/**
+	 * On the final retry, execute_deletion_retry() throws so ActionScheduler
+	 * marks the action as failed.
+	 */
+	public function test_execute_deletion_retry_throws_on_max_retry_failure() {
+		if ( ! function_exists( 'as_schedule_single_action' ) ) {
+			$this->markTestSkipped( 'ActionScheduler not available.' );
+		}
+		\as_unschedule_all_actions( \Newspack\Reader_Activation\Contact_Sync::RETRY_DELETION_HOOK );
+
+		$this->reset_integrations();
+		$spy                = new \Deletion_Spy_Integration( 'spy-retry-max', 'Spy Retry Max' );
+		$spy->delete_result = new \WP_Error( 'persistent', 'Still failing' );
+		Integrations::register( $spy );
+		Integrations::enable( 'spy-retry-max' );
+
+		$threw = false;
+		try {
+			\Newspack\Reader_Activation\Contact_Sync::execute_deletion_retry(
+				[
+					'integration_id' => 'spy-retry-max',
+					'mode'           => 'delete',
+					'email'          => 'reader@example.com',
+					'contact'        => [],
+					'context'        => 'TestContext',
+					'retry_count'    => \Newspack\Reader_Activation\Contact_Sync::MAX_RETRIES,
+				]
+			);
+		} catch ( \Exception $e ) {
+			$threw = true;
+		}
+		$this->assertTrue( $threw, 'Final retry must throw so ActionScheduler marks the action as failed.' );
+	}
+
+	/**
 	 * In v1 metadata mode, Integration::prepare_contact() strips metadata keys that
 	 * are not registered in Sync\Metadata::get_keys() and enabled_outgoing_fields.
 	 * The dispatcher must re-inject account_deleted (with the integration's prefix)
