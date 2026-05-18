@@ -1,3 +1,10 @@
+## [6.40.1](https://github.com/Automattic/newspack-plugin/compare/v6.40.0...v6.40.1) (2026-05-18)
+
+
+### Bug Fixes
+
+* **woocommerce:** persist custom meta on new product first save ([#4715](https://github.com/Automattic/newspack-plugin/issues/4715)) ([3a4e756](https://github.com/Automattic/newspack-plugin/commit/3a4e756fa39f9bd39f861428d99e97a2003b068e))
+
 # [6.40.0](https://github.com/Automattic/newspack-plugin/compare/v6.39.4...v6.40.0) (2026-05-18)
 
 
