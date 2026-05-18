@@ -134,8 +134,13 @@ const init = trigger => {
 		// otherwise the input may still be considered hidden by some browsers.
 		// Survives `prefers-reduced-motion` (transitions collapse to 0s) where a
 		// fixed `setTimeout` would either fire too early or hold focus too long.
+		// The `isOpen` guard prevents the callback from stealing focus back into
+		// the panel if the user closed the overlay before the frame landed.
 		requestAnimationFrame( () => {
 			requestAnimationFrame( () => {
+				if ( ! isOpen ) {
+					return;
+				}
 				const searchInput = panel.querySelector( 'input[type="search"]' );
 				const focusTarget = searchInput || getVisibleFocusable( panel )[ 0 ] || closeBtn;
 				if ( focusTarget && document.contains( focusTarget ) ) {
