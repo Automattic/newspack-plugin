@@ -41,7 +41,7 @@ class Content_Gate extends Contact_Metadata {
 	 * @return boolean
 	 */
 	public static function is_available() {
-		return true;
+		return Content_Gate_CPT::is_newspack_feature_enabled();
 	}
 
 	/**

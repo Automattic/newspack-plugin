@@ -34,6 +34,9 @@ class Test_Content_Gate_Legacy extends WP_UnitTestCase {
 	public static function set_up_before_class() {
 		parent::set_up_before_class();
 		require_once dirname( __DIR__, 2 ) . '/mocks/wc-mocks.php';
+		if ( ! defined( 'NEWSPACK_CONTENT_GATES' ) ) {
+			define( 'NEWSPACK_CONTENT_GATES', true );
+		}
 		self::$original_version = Metadata::$version;
 	}
 
@@ -103,6 +106,18 @@ class Test_Content_Gate_Legacy extends WP_UnitTestCase {
 		$this->assertSame( 'Content Access', $fields['Content_Access'] );
 		$this->assertArrayHasKey( 'Content_Access_Source', $fields );
 		$this->assertArrayHasKey( 'Content_Access_Group', $fields );
+	}
+
+	public function test_is_available_follows_content_gate_feature_flag() {
+		$this->assertTrue(
+			Content_Gate::is_newspack_feature_enabled(),
+			'Sanity: the test enables the Content Gate feature.'
+		);
+		$this->assertSame(
+			Content_Gate::is_newspack_feature_enabled(),
+			Content_Gate_Metadata::is_available(),
+			'Content Gate metadata availability must delegate to the Content Gate feature flag.'
+		);
 	}
 
 	public function test_legacy_schema_exposes_content_access_group_in_field_selector() {
