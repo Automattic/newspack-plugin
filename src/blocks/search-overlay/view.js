@@ -67,9 +67,13 @@ const init = trigger => {
 		closeBtn.style.color = pickContrastColor( panel );
 	}
 
+	// Captured once. Reassigning on every open is unsafe: if a previous close ever
+	// fell through to the `document.body` fallback, the next open would record
+	// `document.body` as "original" and the panel would be stranded there.
+	const originalParent = panel.parentNode;
+	const originalNextSibling = panel.nextSibling;
+
 	let isOpen = false;
-	let originalParent = panel.parentNode;
-	let originalNextSibling = panel.nextSibling;
 	let lastFocused = null;
 	let focusTrapCleanup = null;
 	let escCleanup = null;
@@ -106,8 +110,6 @@ const init = trigger => {
 		isOpen = true;
 
 		lastFocused = trigger.ownerDocument.activeElement;
-		originalParent = panel.parentNode;
-		originalNextSibling = panel.nextSibling;
 
 		document.body.appendChild( panel );
 
@@ -126,15 +128,21 @@ const init = trigger => {
 		document.addEventListener( 'keydown', onEsc );
 		escCleanup = () => document.removeEventListener( 'keydown', onEsc );
 
-		// Focus the search input. Delayed so the panel is fully laid out
-		// (visibility/display transitions complete) before focusing.
-		setTimeout( () => {
-			const searchInput = panel.querySelector( 'input[type="search"]' );
-			const focusTarget = searchInput || getVisibleFocusable( panel )[ 0 ] || closeBtn;
-			if ( focusTarget && document.contains( focusTarget ) ) {
-				focusTarget.focus();
-			}
-		}, 50 );
+		// Focus the search input on the next paint. Two `requestAnimationFrame`s
+		// guarantee that the panel's `aria-hidden`/`inert` flips and the CSS
+		// transition's first frame have committed before we try to focus —
+		// otherwise the input may still be considered hidden by some browsers.
+		// Survives `prefers-reduced-motion` (transitions collapse to 0s) where a
+		// fixed `setTimeout` would either fire too early or hold focus too long.
+		requestAnimationFrame( () => {
+			requestAnimationFrame( () => {
+				const searchInput = panel.querySelector( 'input[type="search"]' );
+				const focusTarget = searchInput || getVisibleFocusable( panel )[ 0 ] || closeBtn;
+				if ( focusTarget && document.contains( focusTarget ) ) {
+					focusTarget.focus();
+				}
+			} );
+		} );
 	};
 
 	const closeOverlay = () => {
