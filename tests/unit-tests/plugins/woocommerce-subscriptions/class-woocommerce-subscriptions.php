@@ -228,4 +228,21 @@ class Newspack_Test_WooCommerce_Subscriptions extends WP_UnitTestCase {
 
 		$this->assertSame( 0.0, $result, 'A free subscription must not gain a phantom proration credit.' );
 	}
+
+	/**
+	 * A non-object / unexpected existing item must be passed through untouched
+	 * so the filter never fatals or fabricates a value.
+	 */
+	public function test_recover_total_paid_passes_through_when_item_not_an_order_item() {
+		$subscription = new WC_Subscription(
+			[
+				'id'     => 4,
+				'status' => 'active',
+			]
+		);
+
+		$result = WooCommerce_Subscriptions::recover_total_paid_for_switch( 0.0, $subscription, null );
+
+		$this->assertSame( 0.0, $result, 'A non-order-item argument must be returned unchanged.' );
+	}
 }

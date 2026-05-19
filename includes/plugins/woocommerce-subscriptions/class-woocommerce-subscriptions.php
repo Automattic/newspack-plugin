@@ -109,7 +109,7 @@ class WooCommerce_Subscriptions {
 			return $total_paid;
 		}
 
-		if ( ! is_object( $existing_item ) || ! method_exists( $existing_item, 'get_total' ) ) {
+		if ( ! ( $existing_item instanceof \WC_Order_Item_Product ) ) {
 			return $total_paid;
 		}
 
