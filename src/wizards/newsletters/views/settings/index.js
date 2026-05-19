@@ -80,6 +80,7 @@ export const Settings = ( {
 	newslettersConfig,
 	isOnboarding = true,
 	authUrl = false,
+	isSaving = false,
 	provider,
 	setProvider = () => {},
 	setAuthUrl = () => {},
@@ -88,6 +89,11 @@ export const Settings = ( {
 	const [ inFlight, setInFlight ] = useState( false );
 	const [ error, setError ] = useState( false );
 	const [ config, updateConfig ] = hooks.useObjectState( {} );
+	// Combine the local fetch/verify in-flight state with the parent's save
+	// state so all editing controls are disabled while the outer Save is
+	// in flight — prevents a race where a user changes the ESP between
+	// "Save click" and "POST resolve".
+	const isDisabled = inFlight || isSaving;
 	// Handle provider updates.
 	useEffect( () => {
 		const newProvider = newslettersConfig?.newspack_newsletters_service_provider || '';
@@ -198,7 +204,7 @@ export const Settings = ( {
 	};
 	useEffect( fetchConfiguration, [] );
 	const getSettingProps = key => ( {
-		disabled: inFlight,
+		disabled: isDisabled,
 		value: config.settings[ key ]?.value || '',
 		checked: Boolean( config.settings[ key ]?.value ),
 		label: config.settings[ key ]?.description,
@@ -319,17 +325,30 @@ export const Settings = ( {
 			) : (
 				<>
 					<Grid columns={ 2 } gutter={ 16 } noMargin>
-						{ providerOptions.map( option => (
-							<CardSettingsGroup
-								key={ option.value }
-								className={ `newspack-newsletters-esp-card newspack-newsletters-esp-card--${ option.value.replace( /_/g, '-' ) }` }
-								icon={ PROVIDER_ICONS[ option.value ] }
-								title={ option.name }
-								isActive={ option.value === selectedProviderValue }
-								onEnable={ () => providerSelectProps.onChange( option.value ) }
-								onHeaderClick={ () => providerSelectProps.onChange( option.value ) }
-							/>
-						) ) }
+						{ providerOptions.map( option => {
+							// Short-circuit while saving so the user can't switch ESPs
+							// between Save click and POST resolve.
+							const onSelect = () => {
+								if ( isDisabled ) {
+									return;
+								}
+								providerSelectProps.onChange( option.value );
+							};
+							return (
+								<CardSettingsGroup
+									key={ option.value }
+									className={ `newspack-newsletters-esp-card newspack-newsletters-esp-card--${ option.value.replace(
+										/_/g,
+										'-'
+									) }` }
+									icon={ PROVIDER_ICONS[ option.value ] }
+									title={ option.name }
+									isActive={ option.value === selectedProviderValue }
+									onEnable={ onSelect }
+									onHeaderClick={ onSelect }
+								/>
+							);
+						} ) }
 					</Grid>
 					{ selectedProviderValue && (
 						<VStack spacing={ 4 } className="newspack-newsletters-settings-stack">
@@ -341,7 +360,7 @@ export const Settings = ( {
 			) }
 			{ isOnboarding && (
 				<HStack justify="flex-start" expanded={ false }>
-					<Button disabled={ inFlight } variant="primary" onClick={ saveNewslettersData }>
+					<Button disabled={ isDisabled } variant="primary" onClick={ saveNewslettersData }>
 						{ __( 'Save', 'newspack-plugin' ) }
 					</Button>
 				</HStack>
@@ -720,6 +739,7 @@ const NewslettersSettings = () => {
 			) }
 			<Settings
 				isOnboarding={ false }
+				isSaving={ inFlight }
 				onUpdate={ config => updateConfiguration( { newslettersConfig: config } ) }
 				onConfigured={ setIsConfigured }
 				onLabels={ setLabels }
@@ -749,6 +769,7 @@ const NewslettersSettings = () => {
 									label={ letterheadSetting.description }
 									value={ newslettersConfig?.[ letterheadSetting.key ] || '' }
 									onChange={ value => updateConfiguration( { newslettersConfig: { [ letterheadSetting.key ]: value } } ) }
+									disabled={ inFlight }
 									withMargin={ false }
 								/>
 								{ letterheadSetting.help && letterheadSetting.helpURL && (
