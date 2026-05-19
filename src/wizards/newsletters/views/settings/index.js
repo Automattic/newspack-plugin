@@ -566,11 +566,20 @@ export const SubscriptionLists = ( { lockedLists, onUpdate, provider, labels = {
 			return;
 		}
 		fallbackTimerRef.current = setTimeout( () => {
-			// Bridge never mounted in time — clear the queue and navigate
-			// to the legacy URL so the user isn't left with a dead click.
 			const pending = pendingActionRef.current;
 			pendingActionRef.current = null;
-			if ( pending && pending.fallbackUrl ) {
+			if ( ! pending ) {
+				return;
+			}
+			// Belt-and-braces: if the bridge IS ready but its BRIDGE_MOUNTED
+			// event was renamed (so our listener missed it), flush the queue
+			// instead of navigating — the dispatch will land on the live
+			// listeners that the readiness flag implies.
+			if ( isBridgeReady() ) {
+				pending.dispatch();
+				return;
+			}
+			if ( pending.fallbackUrl ) {
 				window.location.href = pending.fallbackUrl;
 			}
 		}, NN_FALLBACK_TIMEOUT_MS );

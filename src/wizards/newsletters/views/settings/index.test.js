@@ -185,6 +185,28 @@ describe( 'SubscriptionLists — wizard-bridge wiring', () => {
 		jest.useRealTimers();
 	} );
 
+	it( 'flushes the queue on the fallback timeout when the bridge is ready but its mounted event was renamed', async () => {
+		delete window.newspackNewslettersBridgeReady;
+		jest.useFakeTimers();
+		const listener = jest.fn();
+		document.addEventListener( NN_EVENTS.OPEN_MODAL, listener );
+		render( <SubscriptionLists lockedLists={ false } provider="mailchimp" /> );
+		await waitFor( () => expect( screen.getByRole( 'button', { name: /Add new local list/ } ) ).toBeEnabled() );
+		fireEvent.click( screen.getByRole( 'button', { name: /Add new local list/ } ) );
+		// Bridge becomes ready but announces itself under a renamed event
+		// that our listener (registered on the fallback name only at mount)
+		// doesn't catch.
+		window.newspackNewslettersBridgeReady = true;
+		// Timer fires — should flush instead of navigating since
+		// `isBridgeReady()` is now true.
+		const originalHref = window.location.href;
+		jest.advanceTimersByTime( 600 );
+		expect( listener ).toHaveBeenCalledTimes( 1 );
+		expect( window.location.href ).toBe( originalHref );
+		document.removeEventListener( NN_EVENTS.OPEN_MODAL, listener );
+		jest.useRealTimers();
+	} );
+
 	it( 'queues the dispatch when the bridge is not ready and replays it on BRIDGE_MOUNTED', async () => {
 		delete window.newspackNewslettersBridgeReady;
 		jest.useFakeTimers();
