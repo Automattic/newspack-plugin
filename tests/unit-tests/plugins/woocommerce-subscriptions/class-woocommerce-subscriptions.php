@@ -245,4 +245,31 @@ class Newspack_Test_WooCommerce_Subscriptions extends WP_UnitTestCase {
 
 		$this->assertSame( 0.0, $result, 'A non-order-item argument must be returned unchanged.' );
 	}
+
+	/**
+	 * A subscription still in its free trial must not gain a recovered
+	 * baseline, otherwise an unpaid trial could be switched into
+	 * manufactured proration credit.
+	 */
+	public function test_recover_total_paid_skips_active_free_trial() {
+		$subscription  = new WC_Subscription(
+			[
+				'id'     => 5,
+				'status' => 'active',
+				'times'  => [
+					'trial_end' => time() + DAY_IN_SECONDS,
+				],
+			]
+		);
+		$existing_item = new WC_Order_Item_Product(
+			[
+				'product_id' => 100,
+				'total'      => 50.0,
+			]
+		);
+
+		$result = WooCommerce_Subscriptions::recover_total_paid_for_switch( 0.0, $subscription, $existing_item );
+
+		$this->assertSame( 0.0, $result, 'A subscription in an active free trial must not receive a recovered baseline.' );
+	}
 }

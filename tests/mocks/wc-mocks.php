@@ -365,6 +365,9 @@ class WC_Subscription {
 	public function get_date( $type ) {
 		return $this->data['dates'][ $type ] ?? 0;
 	}
+	public function get_time( $type ) {
+		return $this->data['times'][ $type ] ?? 0;
+	}
 	public function calculate_date() {
 		$start    = strtotime( $this->get_date( 'start' ) );
 		$interval = $this->get_billing_interval();

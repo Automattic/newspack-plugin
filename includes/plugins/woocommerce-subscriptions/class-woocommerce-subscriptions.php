@@ -109,6 +109,14 @@ class WooCommerce_Subscriptions {
 			return $total_paid;
 		}
 
+		// A subscription still within its free trial has paid nothing and has
+		// no accrued credit. Recovering a baseline here would let an unpaid
+		// trial be switched into manufactured proration credit, so leave WCS's
+		// value untouched.
+		if ( $subscription instanceof \WC_Subscription && $subscription->get_time( 'trial_end' ) > time() ) {
+			return $total_paid;
+		}
+
 		if ( ! ( $existing_item instanceof \WC_Order_Item_Product ) ) {
 			return $total_paid;
 		}
