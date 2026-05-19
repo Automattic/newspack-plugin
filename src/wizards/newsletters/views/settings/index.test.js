@@ -163,6 +163,28 @@ describe( 'SubscriptionLists — wizard-bridge wiring', () => {
 		jest.useRealTimers();
 	} );
 
+	it( 'replays a queued dispatch with the live event name when the bridge mounts with renamed events', async () => {
+		delete window.newspackNewslettersBridgeReady;
+		jest.useFakeTimers();
+		const renamedListener = jest.fn();
+		const fallbackListener = jest.fn();
+		document.addEventListener( 'custom:open-modal', renamedListener );
+		document.addEventListener( NN_EVENTS.OPEN_MODAL, fallbackListener );
+		render( <SubscriptionLists lockedLists={ false } provider="mailchimp" /> );
+		await waitFor( () => expect( screen.getByRole( 'button', { name: /Add new local list/ } ) ).toBeEnabled() );
+		fireEvent.click( screen.getByRole( 'button', { name: /Add new local list/ } ) );
+		// Bridge mounts and exposes a renamed OPEN_MODAL — replay must
+		// resolve the event name at replay time, not at click time.
+		window.newspackNewslettersBridgeReady = true;
+		window.newspackNewslettersEvents = { ...NN_EVENTS, OPEN_MODAL: 'custom:open-modal' };
+		document.dispatchEvent( new CustomEvent( NN_EVENTS.BRIDGE_MOUNTED ) );
+		expect( renamedListener ).toHaveBeenCalledTimes( 1 );
+		expect( fallbackListener ).not.toHaveBeenCalled();
+		document.removeEventListener( 'custom:open-modal', renamedListener );
+		document.removeEventListener( NN_EVENTS.OPEN_MODAL, fallbackListener );
+		jest.useRealTimers();
+	} );
+
 	it( 'queues the dispatch when the bridge is not ready and replays it on BRIDGE_MOUNTED', async () => {
 		delete window.newspackNewslettersBridgeReady;
 		jest.useFakeTimers();

@@ -551,9 +551,11 @@ export const SubscriptionLists = ( { lockedLists, onUpdate, provider, labels = {
 	// ready yet. Dispatching while the bridge has no listeners installed
 	// would silently drop the event — the queue + BRIDGE_MOUNTED flush
 	// guarantees delivery, with a 500ms fallback to the legacy URL if the
-	// bridge never shows up.
-	const dispatchOrQueue = ( eventName, detail, fallbackUrl ) => {
-		const dispatch = () => document.dispatchEvent( new CustomEvent( eventName, { detail } ) );
+	// bridge never shows up. The event KEY is stored (not the resolved
+	// name) so a late-mounting bridge that exposes renamed events still
+	// receives the correctly-named replay.
+	const dispatchOrQueue = ( eventKey, detail, fallbackUrl ) => {
+		const dispatch = () => document.dispatchEvent( new CustomEvent( getNNEvents()[ eventKey ], { detail } ) );
 		if ( isBridgeReady() ) {
 			dispatch();
 			return;
@@ -575,13 +577,13 @@ export const SubscriptionLists = ( { lockedLists, onUpdate, provider, labels = {
 	};
 
 	const dispatchOpenAdd = () => {
-		dispatchOrQueue( getNNEvents().OPEN_MODAL, { mode: 'add' }, newspack_newsletters_wizard.new_subscription_lists_url );
+		dispatchOrQueue( 'OPEN_MODAL', { mode: 'add' }, newspack_newsletters_wizard.new_subscription_lists_url );
 	};
 	const dispatchOpenEdit = ( list, kind ) => {
-		dispatchOrQueue( getNNEvents().OPEN_MODAL, { mode: 'edit', kind, list }, list?.edit_link );
+		dispatchOrQueue( 'OPEN_MODAL', { mode: 'edit', kind, list }, list?.edit_link );
 	};
 	const dispatchConfirmDelete = list => {
-		dispatchOrQueue( getNNEvents().OPEN_CONFIRM_DELETE, { list }, list?.edit_link );
+		dispatchOrQueue( 'OPEN_CONFIRM_DELETE', { list }, list?.edit_link );
 	};
 
 	if ( ! inFlight && ! lists?.length && ! error && ! lockedLists ) {
