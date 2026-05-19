@@ -42,7 +42,7 @@ export const SettingsField = ( { field, value, onChange } ) => {
 					<p>
 						<strong>{ label }</strong>
 					</p>
-					{ description && <p>{ description }</p> }
+					{ ( description || helpUrl ) && <p>{ help }</p> }
 					{ isConnected ? (
 						<>
 							<p>{ value }</p>
@@ -53,7 +53,7 @@ export const SettingsField = ( { field, value, onChange } ) => {
 							) }
 						</>
 					) : (
-						<Button variant="primary" href={ oauthUrl } disabled={ ! oauthUrl }>
+						<Button variant="primary" href={ oauthUrl || undefined } disabled={ ! oauthUrl }>
 							{ __( 'Connect', 'newspack-plugin' ) }
 						</Button>
 					) }
