@@ -101,6 +101,22 @@ describe( 'SubscriptionLists — wizard-bridge wiring', () => {
 		document.removeEventListener( NN_EVENTS.OPEN_MODAL, listener );
 	} );
 
+	it( 'surfaces a friendlier error when the PATCH endpoint is missing (newsletters plugin too old)', async () => {
+		render( <SubscriptionLists lockedLists={ false } provider="mailchimp" /> );
+		await waitFor( () => expect( screen.getByText( 'Local A' ) ).toBeInTheDocument() );
+		// Simulate WP returning rest_no_route for the PATCH call.
+		apiFetch.mockRejectedValueOnce( {
+			code: 'rest_no_route',
+			message: 'No route was found matching the URL and request method.',
+		} );
+		fireEvent.click( screen.getAllByRole( 'checkbox' )[ 0 ] );
+		// Plugin should translate to a helpful upgrade prompt instead of
+		// surfacing WordPress's generic message. (`a11y-speak` mirrors
+		// the notice into a screen-reader region too, hence getAllByText.)
+		await waitFor( () => expect( screen.getAllByText( /newer version of Newspack Newsletters/ ).length ).toBeGreaterThan( 0 ) );
+		expect( screen.queryByText( /No route was found/ ) ).not.toBeInTheDocument();
+	} );
+
 	it( 'commits the active toggle immediately via PATCH /lists/{db_id}', async () => {
 		render( <SubscriptionLists lockedLists={ false } provider="mailchimp" /> );
 		await waitFor( () => expect( screen.getByText( 'Local A' ) ).toBeInTheDocument() );

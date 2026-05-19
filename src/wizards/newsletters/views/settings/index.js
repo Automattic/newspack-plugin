@@ -465,7 +465,20 @@ export const SubscriptionLists = ( { lockedLists, onUpdate, provider, labels = {
 			updateLists( prev => prev.map( row => ( row.db_id === dbId ? { ...row, ...response } : row ) ) );
 		} catch ( err ) {
 			updateLists( prev => prev.map( row => ( row.db_id === dbId ? { ...row, active: previousActive } : row ) ) );
-			setError( err );
+			// `rest_no_route` means the PATCH /lists/{id} endpoint isn't
+			// registered yet — the newsletters plugin needs the NEWS-2168
+			// changes. Surface a friendlier message than WordPress's
+			// generic "No route was found...".
+			if ( err?.code === 'rest_no_route' ) {
+				setError( {
+					message: __(
+						'This action requires a newer version of Newspack Newsletters. Update the newsletters plugin and try again.',
+						'newspack-plugin'
+					),
+				} );
+			} else {
+				setError( err );
+			}
 		} finally {
 			setTogglingIds( prev => {
 				const updated = new Set( prev );
