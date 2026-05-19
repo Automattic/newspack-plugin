@@ -84,6 +84,17 @@ class Sample_Integration extends Integration {
 	}
 
 	/**
+	 * Sanitize a settings field value (public wrapper for testing).
+	 *
+	 * @param array $field The field declaration.
+	 * @param mixed $value The value to sanitize.
+	 * @return mixed
+	 */
+	public function test_sanitize_settings_field_value( $field, $value ) {
+		return $this->sanitize_settings_field_value( $field, $value );
+	}
+
+	/**
 	 * Sample handler method for data events.
 	 *
 	 * @param int    $timestamp Timestamp.

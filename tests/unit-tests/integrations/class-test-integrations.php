@@ -1199,4 +1199,94 @@ class Test_Integrations extends \WP_UnitTestCase {
 		Integrations::register_my_account_endpoints();
 		$this->assertSame( [ 'two-page' ], get_option( Integrations::MY_ACCOUNT_ENDPOINTS_OPTION ) );
 	}
+
+	/**
+	 * OAuth settings field value: scalar strings are sanitized through sanitize_text_field.
+	 */
+	public function test_sanitize_settings_field_value_oauth_scalar() {
+		$integration = new Sample_Integration( 'test-id', 'Test Integration' );
+		$field       = [
+			'key'  => 'token',
+			'type' => 'oauth',
+		];
+
+		$this->assertSame(
+			'abc123',
+			$integration->test_sanitize_settings_field_value( $field, 'abc123' )
+		);
+		// Tags stripped by sanitize_text_field.
+		$this->assertSame(
+			'token',
+			$integration->test_sanitize_settings_field_value( $field, '<b>token</b>' )
+		);
+		// Non-string scalars are coerced to a string then sanitized.
+		$this->assertSame(
+			'42',
+			$integration->test_sanitize_settings_field_value( $field, 42 )
+		);
+	}
+
+	/**
+	 * OAuth settings field value: non-scalar payloads are rejected and the default is returned.
+	 */
+	public function test_sanitize_settings_field_value_oauth_non_scalar_returns_default() {
+		$integration = new Sample_Integration( 'test-id', 'Test Integration' );
+
+		// No default declared: falls back to empty string.
+		$this->assertSame(
+			'',
+			$integration->test_sanitize_settings_field_value(
+				[
+					'key'  => 'token',
+					'type' => 'oauth',
+				],
+				[ 'unexpected' => 'array' ]
+			)
+		);
+		// Explicit default is honored.
+		$this->assertSame(
+			'fallback',
+			$integration->test_sanitize_settings_field_value(
+				[
+					'key'     => 'token',
+					'type'    => 'oauth',
+					'default' => 'fallback',
+				],
+				(object) [ 'unexpected' => 'object' ]
+			)
+		);
+	}
+
+	/**
+	 * Hidden settings field value: scalar strings are sanitized, non-scalars return the default.
+	 */
+	public function test_sanitize_settings_field_value_hidden() {
+		$integration = new Sample_Integration( 'test-id', 'Test Integration' );
+		$field       = [
+			'key'  => 'secret',
+			'type' => 'hidden',
+		];
+
+		$this->assertSame(
+			'opaque-id',
+			$integration->test_sanitize_settings_field_value( $field, 'opaque-id' )
+		);
+		// Non-scalar rejected.
+		$this->assertSame(
+			'',
+			$integration->test_sanitize_settings_field_value( $field, [ 'nope' ] )
+		);
+		// Explicit default honored on non-scalar payload.
+		$this->assertSame(
+			'kept',
+			$integration->test_sanitize_settings_field_value(
+				[
+					'key'     => 'secret',
+					'type'    => 'hidden',
+					'default' => 'kept',
+				],
+				[ 'nope' ]
+			)
+		);
+	}
 }

@@ -912,7 +912,13 @@ abstract class Integration {
 		switch ( $type ) {
 			case 'hidden':
 			case 'oauth':
-				return $value; // Read-only or managed programmatically.
+				// Read-only or managed programmatically, but values still arrive via
+				// the REST settings endpoint — coerce to a sanitized scalar string and
+				// reject non-scalar payloads to keep options storage predictable.
+				if ( ! is_scalar( $value ) ) {
+					return $field['default'] ?? '';
+				}
+				return \sanitize_text_field( (string) $value );
 			case 'checkbox':
 				return (bool) $value;
 			case 'number':
