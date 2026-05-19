@@ -557,6 +557,11 @@ export const SubscriptionLists = ( { lockedLists, onUpdate, provider, labels = {
 	const dispatchOrQueue = ( eventKey, detail, fallbackUrl ) => {
 		const dispatch = () => document.dispatchEvent( new CustomEvent( getNNEvents()[ eventKey ], { detail } ) );
 		if ( isBridgeReady() ) {
+			// Any prior queued action from before the bridge was ready is
+			// stale now — clear it so the armed fallback timer can't
+			// double-dispatch it after this call.
+			pendingActionRef.current = null;
+			clearTimeout( fallbackTimerRef.current );
 			dispatch();
 			return;
 		}

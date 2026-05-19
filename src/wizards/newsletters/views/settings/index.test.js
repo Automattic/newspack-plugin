@@ -185,6 +185,29 @@ describe( 'SubscriptionLists — wizard-bridge wiring', () => {
 		jest.useRealTimers();
 	} );
 
+	it( 'does not replay a stale queued action after a newer click dispatches immediately', async () => {
+		delete window.newspackNewslettersBridgeReady;
+		jest.useFakeTimers();
+		const listener = jest.fn();
+		document.addEventListener( NN_EVENTS.OPEN_MODAL, listener );
+		render( <SubscriptionLists lockedLists={ false } provider="mailchimp" /> );
+		await waitFor( () => expect( screen.getByRole( 'button', { name: /Add new local list/ } ) ).toBeEnabled() );
+		// First click: bridge not ready → queues action A, arms 500ms timer.
+		fireEvent.click( screen.getByRole( 'button', { name: /Add new local list/ } ) );
+		expect( listener ).not.toHaveBeenCalled();
+		// Bridge becomes ready but BRIDGE_MOUNTED never reaches our handler.
+		window.newspackNewslettersBridgeReady = true;
+		// Second click: bridge ready → dispatches immediately. The prior
+		// queued action and armed timer must be cleared, or the timer
+		// would fire a stale duplicate.
+		fireEvent.click( screen.getByRole( 'button', { name: /Add new local list/ } ) );
+		expect( listener ).toHaveBeenCalledTimes( 1 );
+		jest.advanceTimersByTime( 600 );
+		expect( listener ).toHaveBeenCalledTimes( 1 );
+		document.removeEventListener( NN_EVENTS.OPEN_MODAL, listener );
+		jest.useRealTimers();
+	} );
+
 	it( 'flushes the queue on the fallback timeout when the bridge is ready but its mounted event was renamed', async () => {
 		delete window.newspackNewslettersBridgeReady;
 		jest.useFakeTimers();
