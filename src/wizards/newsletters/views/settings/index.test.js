@@ -163,6 +163,30 @@ describe( 'SubscriptionLists — wizard-bridge wiring', () => {
 		jest.useRealTimers();
 	} );
 
+	it( 'queues the dispatch when the bridge is not ready and replays it on BRIDGE_MOUNTED', async () => {
+		delete window.newspackNewslettersBridgeReady;
+		jest.useFakeTimers();
+		const listener = jest.fn();
+		document.addEventListener( NN_EVENTS.OPEN_MODAL, listener );
+		render( <SubscriptionLists lockedLists={ false } provider="mailchimp" /> );
+		await waitFor( () => expect( screen.getByRole( 'button', { name: /Add new local list/ } ) ).toBeEnabled() );
+		fireEvent.click( screen.getByRole( 'button', { name: /Add new local list/ } ) );
+		// Initial dispatch fires into the void (bridge listener doesn't exist) — listener captures nothing yet.
+		expect( listener ).not.toHaveBeenCalled();
+		// Bridge becomes ready and announces itself within the fallback window.
+		window.newspackNewslettersBridgeReady = true;
+		document.dispatchEvent( new CustomEvent( NN_EVENTS.BRIDGE_MOUNTED ) );
+		// Replay fires the queued OPEN_MODAL event so the bridge can handle it.
+		expect( listener ).toHaveBeenCalledTimes( 1 );
+		expect( listener.mock.calls[ 0 ][ 0 ].detail ).toEqual( { mode: 'add' } );
+		// Timer fires — should be cleared and not navigate.
+		const originalHref = window.location.href;
+		jest.advanceTimersByTime( 600 );
+		expect( window.location.href ).toBe( originalHref );
+		document.removeEventListener( NN_EVENTS.OPEN_MODAL, listener );
+		jest.useRealTimers();
+	} );
+
 	it( 'clears the fallback timer on unmount so a redirect cannot fire after the component is gone', async () => {
 		// Simulate the bridge NOT being ready so the fallback timer arms.
 		delete window.newspackNewslettersBridgeReady;

@@ -418,6 +418,11 @@ export const SubscriptionLists = ( { lockedLists, onUpdate, provider, labels = {
 	const [ togglingIds, setTogglingIds ] = useState( () => new Set() );
 	const [ lists, setLists ] = useState( [] );
 	const fallbackTimerRef = useRef( null );
+	// When the bridge isn't ready at click time, we queue the dispatch here
+	// instead of firing it into the void. The bridge-mounted handler
+	// (registered below) flushes this; the fallback timer navigates to the
+	// legacy URL if the bridge never mounts.
+	const pendingActionRef = useRef( null );
 
 	const updateLists = updater => {
 		setLists( prev => {
@@ -510,6 +515,15 @@ export const SubscriptionLists = ( { lockedLists, onUpdate, provider, labels = {
 		// and the live name.
 		const bridgeMountedNames = new Set( [ NN_FALLBACK_EVENTS.BRIDGE_MOUNTED, getNNEvents().BRIDGE_MOUNTED ] );
 		const onBridgeMounted = () => {
+			// Flush any action queued while the bridge wasn't ready — the
+			// original dispatch fired into the void, so replay it now that
+			// listeners are guaranteed to be installed.
+			const pending = pendingActionRef.current;
+			if ( pending ) {
+				pendingActionRef.current = null;
+				clearTimeout( fallbackTimerRef.current );
+				pending.dispatch();
+			}
 			const next = collectNames();
 			const changed = [ ...next.saved ].some( n => ! saved.has( n ) ) || [ ...next.deleted ].some( n => ! deleted.has( n ) );
 			if ( ! changed ) {
@@ -533,29 +547,41 @@ export const SubscriptionLists = ( { lockedLists, onUpdate, provider, labels = {
 	// unexpectedly.
 	useEffect( () => () => clearTimeout( fallbackTimerRef.current ), [] );
 
-	const startFallbackTimer = fallbackUrl => {
-		if ( isBridgeReady() || ! fallbackUrl ) {
+	// Dispatch a bridge event, or queue it for replay if the bridge isn't
+	// ready yet. Dispatching while the bridge has no listeners installed
+	// would silently drop the event — the queue + BRIDGE_MOUNTED flush
+	// guarantees delivery, with a 500ms fallback to the legacy URL if the
+	// bridge never shows up.
+	const dispatchOrQueue = ( eventName, detail, fallbackUrl ) => {
+		const dispatch = () => document.dispatchEvent( new CustomEvent( eventName, { detail } ) );
+		if ( isBridgeReady() ) {
+			dispatch();
 			return;
 		}
+		pendingActionRef.current = { dispatch, fallbackUrl };
 		clearTimeout( fallbackTimerRef.current );
+		if ( ! fallbackUrl ) {
+			return;
+		}
 		fallbackTimerRef.current = setTimeout( () => {
-			if ( ! isBridgeReady() ) {
-				window.location.href = fallbackUrl;
+			// Bridge never mounted in time — clear the queue and navigate
+			// to the legacy URL so the user isn't left with a dead click.
+			const pending = pendingActionRef.current;
+			pendingActionRef.current = null;
+			if ( pending && pending.fallbackUrl ) {
+				window.location.href = pending.fallbackUrl;
 			}
 		}, NN_FALLBACK_TIMEOUT_MS );
 	};
 
 	const dispatchOpenAdd = () => {
-		document.dispatchEvent( new CustomEvent( getNNEvents().OPEN_MODAL, { detail: { mode: 'add' } } ) );
-		startFallbackTimer( newspack_newsletters_wizard.new_subscription_lists_url );
+		dispatchOrQueue( getNNEvents().OPEN_MODAL, { mode: 'add' }, newspack_newsletters_wizard.new_subscription_lists_url );
 	};
 	const dispatchOpenEdit = ( list, kind ) => {
-		document.dispatchEvent( new CustomEvent( getNNEvents().OPEN_MODAL, { detail: { mode: 'edit', kind, list } } ) );
-		startFallbackTimer( list?.edit_link );
+		dispatchOrQueue( getNNEvents().OPEN_MODAL, { mode: 'edit', kind, list }, list?.edit_link );
 	};
 	const dispatchConfirmDelete = list => {
-		document.dispatchEvent( new CustomEvent( getNNEvents().OPEN_CONFIRM_DELETE, { detail: { list } } ) );
-		startFallbackTimer( list?.edit_link );
+		dispatchOrQueue( getNNEvents().OPEN_CONFIRM_DELETE, { list }, list?.edit_link );
 	};
 
 	if ( ! inFlight && ! lists?.length && ! error && ! lockedLists ) {
