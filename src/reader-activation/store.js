@@ -48,7 +48,10 @@ function rehydrateItem( key, serverValue ) {
 		}
 	} catch ( err ) {
 		// eslint-disable-next-line no-console
-		console.warn( `Unable to rehydrated ${ key }`, err );
+		console.warn( `Unable to rehydrate ${ key }`, err );
+		// Fall back to overwriting with the server value so a failing merge
+		// strategy can't leave the store in an inconsistent/missing state.
+		_set( key, serverValue );
 	}
 }
 
