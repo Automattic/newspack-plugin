@@ -160,4 +160,72 @@ class Newspack_Test_WooCommerce_Subscriptions extends WP_UnitTestCase {
 		$result = WooCommerce_Subscriptions::get_user_subscription( $product, $user_id );
 		$this->assertNull( $result, 'Should return null for a cancelled subscription.' );
 	}
+
+	/**
+	 * When WCS finds no amount paid, recover the baseline from the
+	 * subscription's recurring line-item total.
+	 */
+	public function test_recover_total_paid_when_wcs_returns_zero() {
+		$subscription  = new WC_Subscription(
+			[
+				'id'     => 1,
+				'status' => 'active',
+			]
+		);
+		$existing_item = new WC_Order_Item_Product(
+			[
+				'product_id' => 100,
+				'total'      => 50.0,
+			]
+		);
+
+		$result = WooCommerce_Subscriptions::recover_total_paid_for_switch( 0.0, $subscription, $existing_item );
+
+		$this->assertSame( 50.0, $result, 'A zero WCS value should fall back to the recurring line-item total.' );
+	}
+
+	/**
+	 * A legitimate non-zero WCS value must be returned unchanged.
+	 */
+	public function test_recover_total_paid_leaves_positive_value_untouched() {
+		$subscription  = new WC_Subscription(
+			[
+				'id'     => 2,
+				'status' => 'active',
+			]
+		);
+		$existing_item = new WC_Order_Item_Product(
+			[
+				'product_id' => 100,
+				'total'      => 50.0,
+			]
+		);
+
+		$result = WooCommerce_Subscriptions::recover_total_paid_for_switch( 12.34, $subscription, $existing_item );
+
+		$this->assertSame( 12.34, $result, 'A positive WCS value must not be overridden.' );
+	}
+
+	/**
+	 * A genuinely free subscription (recurring total is zero) must stay zero
+	 * so no phantom credit is created.
+	 */
+	public function test_recover_total_paid_stays_zero_for_free_subscription() {
+		$subscription  = new WC_Subscription(
+			[
+				'id'     => 3,
+				'status' => 'active',
+			]
+		);
+		$existing_item = new WC_Order_Item_Product(
+			[
+				'product_id' => 100,
+				'total'      => 0.0,
+			]
+		);
+
+		$result = WooCommerce_Subscriptions::recover_total_paid_for_switch( 0.0, $subscription, $existing_item );
+
+		$this->assertSame( 0.0, $result, 'A free subscription must not gain a phantom proration credit.' );
+	}
 }

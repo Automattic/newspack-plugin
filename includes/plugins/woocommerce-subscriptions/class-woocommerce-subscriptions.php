@@ -22,6 +22,7 @@ class WooCommerce_Subscriptions {
 		add_filter( 'woocommerce_subscriptions_product_trial_length', [ __CLASS__, 'limit_free_trials_to_one_per_user' ], 10, 2 );
 		add_filter( 'wcs_get_users_subscriptions', [ __CLASS__, 'filter_subscriptions_for_account_page' ], 10, 1 );
 		add_filter( 'woocommerce_subscriptions_can_item_be_switched', [ __CLASS__, 'allow_migrated_subscription_switch' ], 10, 3 );
+		add_filter( 'wcs_switch_total_paid_for_current_period', [ __CLASS__, 'recover_total_paid_for_switch' ], 10, 3 );
 		add_filter( 'wcs_can_user_resubscribe_to_subscription', [ __CLASS__, 'allow_migrated_subscription_to_resubscribe' ], 10, 3 );
 	}
 
@@ -77,6 +78,49 @@ class WooCommerce_Subscriptions {
 		}
 
 		return $can_switch;
+	}
+
+	/**
+	 * Recover the proration baseline when WooCommerce Subscriptions cannot
+	 * determine an amount paid for the current billing period.
+	 *
+	 * WCS sums the matching line item across the subscription's related orders.
+	 * That sum is 0 for migrated subscriptions (no parent/renewal order),
+	 * 100%-discount or comped purchases (order exists, $0 paid), and broken
+	 * cross-product switch chains. A 0 baseline makes WCS treat the old
+	 * subscription as $0/day, misclassify downgrades as upgrades, and charge
+	 * the full prorated price of the new plan as a sign-up fee.
+	 *
+	 * When the WCS value is non-positive, fall back to the subscription line
+	 * item's recurring total (one billing period's recurring charge), which is
+	 * dimensionally what WCS divides by the old billing cycle length. A
+	 * genuinely free subscription has a 0 recurring total and correctly stays
+	 * at 0, so no phantom credit is created.
+	 *
+	 * @param float                  $total_paid    The amount WCS computed for the current period.
+	 * @param \WC_Subscription       $subscription  The subscription being switched.
+	 * @param \WC_Order_Item_Product $existing_item The subscription line item being switched.
+	 *
+	 * @return float The corrected amount paid for the current period.
+	 */
+	public static function recover_total_paid_for_switch( $total_paid, $subscription, $existing_item ) {
+		// Only intervene when WCS could not determine a positive amount paid.
+		if ( (float) $total_paid > 0 ) {
+			return $total_paid;
+		}
+
+		if ( ! is_object( $existing_item ) || ! method_exists( $existing_item, 'get_total' ) ) {
+			return $total_paid;
+		}
+
+		$recurring_total = (float) $existing_item->get_total();
+
+		// Never reduce the value WCS produced; only fill a missing baseline.
+		if ( $recurring_total <= (float) $total_paid ) {
+			return $total_paid;
+		}
+
+		return $recurring_total;
 	}
 
 	/**
