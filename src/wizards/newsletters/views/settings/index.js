@@ -423,6 +423,11 @@ export const SubscriptionLists = ( { lockedLists, onUpdate, provider, labels = {
 	// (registered below) flushes this; the fallback timer navigates to the
 	// legacy URL if the bridge never mounts.
 	const pendingActionRef = useRef( null );
+	// Exposed by the reload-listener effect so other readiness paths (the
+	// fallback timer, the dispatchOrQueue happy-path) can force a re-resolve
+	// of listener names when the bridge becomes ready but its mounted-event
+	// rename means our `BRIDGE_MOUNTED` listener never fired.
+	const reattachReloadListenersRef = useRef( null );
 
 	const updateLists = updater => {
 		setLists( prev => {
@@ -522,6 +527,22 @@ export const SubscriptionLists = ( { lockedLists, onUpdate, provider, labels = {
 
 		attach();
 
+		const reattachIfChanged = () => {
+			const next = collectNames();
+			const changed = [ ...next.saved ].some( n => ! saved.has( n ) ) || [ ...next.deleted ].some( n => ! deleted.has( n ) );
+			if ( ! changed ) {
+				return;
+			}
+			detach();
+			saved = next.saved;
+			deleted = next.deleted;
+			attach();
+		};
+		// Expose to other readiness paths (fallback timer / immediate
+		// dispatch) so they can also force a re-resolve when the bridge
+		// becomes ready by a path other than our BRIDGE_MOUNTED listener.
+		reattachReloadListenersRef.current = reattachIfChanged;
+
 		// If the bridge wasn't ready at mount, re-resolve event names when
 		// it announces itself. The bridge dispatches BRIDGE_MOUNTED using
 		// whatever names it exposes, so listen on both the fallback name
@@ -537,21 +558,14 @@ export const SubscriptionLists = ( { lockedLists, onUpdate, provider, labels = {
 				clearTimeout( fallbackTimerRef.current );
 				pending.dispatch();
 			}
-			const next = collectNames();
-			const changed = [ ...next.saved ].some( n => ! saved.has( n ) ) || [ ...next.deleted ].some( n => ! deleted.has( n ) );
-			if ( ! changed ) {
-				return;
-			}
-			detach();
-			saved = next.saved;
-			deleted = next.deleted;
-			attach();
+			reattachIfChanged();
 		};
 		bridgeMountedNames.forEach( name => document.addEventListener( name, onBridgeMounted ) );
 
 		return () => {
 			detach();
 			bridgeMountedNames.forEach( name => document.removeEventListener( name, onBridgeMounted ) );
+			reattachReloadListenersRef.current = null;
 		};
 	}, [] );
 
@@ -575,6 +589,10 @@ export const SubscriptionLists = ( { lockedLists, onUpdate, provider, labels = {
 			// double-dispatch it after this call.
 			pendingActionRef.current = null;
 			clearTimeout( fallbackTimerRef.current );
+			// Bridge may have become ready via a renamed BRIDGE_MOUNTED we
+			// didn't observe — make sure our reload listeners are on the
+			// live names before the dispatch produces save/delete events.
+			reattachReloadListenersRef.current?.();
 			dispatch();
 			return;
 		}
@@ -592,8 +610,11 @@ export const SubscriptionLists = ( { lockedLists, onUpdate, provider, labels = {
 			// Belt-and-braces: if the bridge IS ready but its BRIDGE_MOUNTED
 			// event was renamed (so our listener missed it), flush the queue
 			// instead of navigating — the dispatch will land on the live
-			// listeners that the readiness flag implies.
+			// listeners that the readiness flag implies. Also re-resolve
+			// reload-listener names so subsequent save/delete events from
+			// the bridge still trigger a list refresh.
 			if ( isBridgeReady() ) {
+				reattachReloadListenersRef.current?.();
 				pending.dispatch();
 				return;
 			}

@@ -224,6 +224,41 @@ describe( 'SubscriptionLists — wizard-bridge wiring', () => {
 		jest.useRealTimers();
 	} );
 
+	it( 'reattaches reload listeners to live event names when the bridge mounts via a renamed event missed by our handler', async () => {
+		delete window.newspackNewslettersBridgeReady;
+		jest.useFakeTimers();
+		const renamedSavedListener = jest.fn();
+		const fallbackSavedListener = jest.fn();
+		const { default: apiFetchMock } = await import( '@wordpress/api-fetch' );
+		render( <SubscriptionLists lockedLists={ false } provider="mailchimp" /> );
+		await waitFor( () => expect( apiFetchMock ).toHaveBeenCalled() );
+		// Bridge appears with renamed events; our BRIDGE_MOUNTED handler
+		// won't fire because the new mounted-event name was unknown at
+		// mount time. The fallback-timer recovery path should re-resolve
+		// the reload listeners.
+		window.newspackNewslettersBridgeReady = true;
+		window.newspackNewslettersEvents = {
+			...NN_EVENTS,
+			LOCAL_LIST_SAVED: 'custom:local-list-saved',
+		};
+		// Click Add new local list to trigger the queue → fallback timer path.
+		fireEvent.click( screen.getByRole( 'button', { name: /Add new local list/ } ) );
+		// Spy on a future bridge save event under the renamed name.
+		document.addEventListener( 'custom:local-list-saved', renamedSavedListener );
+		document.addEventListener( NN_EVENTS.LOCAL_LIST_SAVED, fallbackSavedListener );
+		// Fallback timer fires — flushes queue + reattaches reload listeners.
+		jest.advanceTimersByTime( 600 );
+		// Bridge emits a save event under the renamed name; our reload
+		// listener must be on this live name now.
+		const reloadCallsBefore = apiFetchMock.mock.calls.length;
+		document.dispatchEvent( new CustomEvent( 'custom:local-list-saved' ) );
+		// fetchLists should have been called again.
+		await waitFor( () => expect( apiFetchMock.mock.calls.length ).toBeGreaterThan( reloadCallsBefore ) );
+		document.removeEventListener( 'custom:local-list-saved', renamedSavedListener );
+		document.removeEventListener( NN_EVENTS.LOCAL_LIST_SAVED, fallbackSavedListener );
+		jest.useRealTimers();
+	} );
+
 	it( 'flushes the queue on the fallback timeout when the bridge is ready but its mounted event was renamed', async () => {
 		delete window.newspackNewslettersBridgeReady;
 		jest.useFakeTimers();

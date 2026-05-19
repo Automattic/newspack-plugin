@@ -81,7 +81,13 @@ function useUnsavedChangesDialog( { when }: UseUnsavedChangesDialogOptions ) {
 				return;
 			}
 			const href = link.getAttribute( 'href' );
-			if ( ! href || href.startsWith( '#' ) || href.startsWith( 'javascript:' ) ) {
+			if ( ! href || href.startsWith( 'javascript:' ) ) {
+				return;
+			}
+			// Allow plain in-page anchors (`#`, `#section`) — they're scroll
+			// targets, not navigation. Guard HashRouter paths (`#/something`)
+			// since they switch wizard views and drop the dirty form state.
+			if ( href.startsWith( '#' ) && ! href.startsWith( '#/' ) ) {
 				return;
 			}
 			if ( link.target && link.target !== '_self' ) {
