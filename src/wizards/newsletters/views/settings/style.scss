@@ -21,11 +21,8 @@
 
 
 .newspack-newsletters-esp-card {
-	&--active-campaign {
-		--integration-icon-color: #{wp-colors.$white};
-		.newspack-card--core__icon {
-			background: #004CFF;
-		}
+	&--active-campaign .newspack-card--core__icon {
+		background: #004CFF;
 	}
 	&--mailchimp .newspack-card--core__icon {
 		background: #FFE01B;

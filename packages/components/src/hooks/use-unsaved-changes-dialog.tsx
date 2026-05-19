@@ -13,12 +13,39 @@ type UseUnsavedChangesDialogOptions = {
 	when: boolean;
 };
 
+// Module-level active-instance counter used only to warn in development when
+// multiple consumers mount the same guard simultaneously. The click handler
+// is document-level capture, so a second active instance would fire a second
+// dialog on top of the first. Consumers should ensure only one instance is
+// active at a time.
+let activeInstances = 0;
+
+/**
+ * Returns true when `href` resolves to the same origin as the current page —
+ * i.e. it is an internal navigation that would unload the wizard. External
+ * `https://...` links, `mailto:`, `tel:`, and other schemes navigate to a new
+ * context (new tab, mail client, dialer) without unloading the wizard, and
+ * must not trigger the discard-changes prompt.
+ */
+function isSameOriginNavigation( link: HTMLAnchorElement ): boolean {
+	try {
+		const url = new URL( link.href, window.location.href );
+		return url.origin === window.location.origin && ( url.protocol === 'http:' || url.protocol === 'https:' );
+	} catch ( e ) {
+		return false;
+	}
+}
+
 /**
  * Shared unsaved-changes guard. Wraps `useConfirmDialog` with standardized
- * messaging, intercepts outbound link clicks so the dialog fires instead of
- * a silent navigation, and adds a `beforeunload` listener as the last-resort
+ * messaging, intercepts same-origin link clicks so the dialog fires instead
+ * of a silent navigation, and adds a `beforeunload` listener as the last-resort
  * guard for refresh / tab-close (browser-native, cannot be styled). The
  * returned `confirmDialog` element must be rendered in JSX.
+ *
+ * Single-consumer constraint: the click handler is attached at the document
+ * level in capture phase. Two simultaneously-active instances will both fire
+ * a dialog. A development-only warning surfaces this.
  */
 function useUnsavedChangesDialog( { when }: UseUnsavedChangesDialogOptions ) {
 	const { confirmDialog, requestConfirm } = useConfirmDialog( {
@@ -36,6 +63,14 @@ function useUnsavedChangesDialog( { when }: UseUnsavedChangesDialogOptions ) {
 		if ( ! when ) {
 			return;
 		}
+		activeInstances += 1;
+		if ( process.env.NODE_ENV !== 'production' && activeInstances > 1 ) {
+			// eslint-disable-next-line no-console
+			console.warn(
+				'useUnsavedChangesDialog: more than one active instance detected. ' +
+					'Document-level click capture will fire a dialog per instance — ensure only one guard is active at a time.'
+			);
+		}
 		const handler = ( e: MouseEvent ) => {
 			if ( e.defaultPrevented || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0 ) {
 				return;
@@ -52,6 +87,11 @@ function useUnsavedChangesDialog( { when }: UseUnsavedChangesDialogOptions ) {
 			if ( link.target && link.target !== '_self' ) {
 				return;
 			}
+			// Skip mailto:, tel:, external origins, and any non-http(s) scheme —
+			// they don't unload the wizard, so a discard prompt would be wrong.
+			if ( ! isSameOriginNavigation( link ) ) {
+				return;
+			}
 			e.preventDefault();
 			e.stopPropagation();
 			const destination = link.href;
@@ -61,7 +101,10 @@ function useUnsavedChangesDialog( { when }: UseUnsavedChangesDialogOptions ) {
 			} );
 		};
 		document.addEventListener( 'click', handler, true );
-		return () => document.removeEventListener( 'click', handler, true );
+		return () => {
+			document.removeEventListener( 'click', handler, true );
+			activeInstances -= 1;
+		};
 	}, [ when, requestConfirm ] );
 
 	useEffect( () => {

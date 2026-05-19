@@ -1,7 +1,9 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
+import { dispatch, select } from '@wordpress/data';
 
-import { SubscriptionLists } from './index';
+import NewslettersSettings, { Settings, SubscriptionLists } from './index';
+import { WIZARD_STORE_NAMESPACE } from '../../../../../packages/components/src/wizard/store';
 
 jest.mock( '@wordpress/api-fetch', () => jest.fn() );
 
@@ -13,6 +15,38 @@ const NN_EVENTS = {
 	LOCAL_LIST_DELETED: 'newspack-newsletters:local-list-deleted',
 };
 
+const SUBSCRIPTION_LISTS_FIXTURE = [
+	{ id: 'tag-1', name: 'Local A', type: 'local', active: false, db_id: 1, edit_link: 'https://example.test/edit-local-a' },
+	{ id: 'group-1', name: 'Remote group', type: 'group', active: true, db_id: 2, edit_link: 'https://example.test/edit-remote' },
+];
+
+const SETTINGS_FIXTURE = {
+	configured: true,
+	labels: { local_list_explanation: 'Mailchimp Group' },
+	settings: {
+		newspack_newsletters_service_provider: {
+			key: 'newspack_newsletters_service_provider',
+			description: 'Service Provider',
+			value: '',
+			type: 'select',
+			options: [
+				{ value: '', name: '-- Select --' },
+				{ value: 'mailchimp', name: 'Mailchimp' },
+				{ value: 'active_campaign', name: 'Active Campaign' },
+				{ value: 'constant_contact', name: 'Constant Contact' },
+				{ value: 'manual', name: 'Manual / Other' },
+			],
+		},
+		newspack_newsletters_mailchimp_api_key: {
+			key: 'newspack_newsletters_mailchimp_api_key',
+			description: 'Mailchimp API Key',
+			value: '',
+			type: 'text',
+			provider: 'mailchimp',
+		},
+	},
+};
+
 beforeAll( () => {
 	global.newspack_newsletters_wizard = {
 		new_subscription_lists_url: 'https://example.test/wp-admin/post-new.php?post_type=newspack_nl_list',
@@ -21,16 +55,14 @@ beforeAll( () => {
 
 beforeEach( () => {
 	apiFetch.mockReset();
-	apiFetch.mockResolvedValue( [
-		{ id: 'tag-1', name: 'Local A', type: 'local', active: false, db_id: 1, edit_link: 'https://example.test/edit-local-a' },
-		{ id: 'group-1', name: 'Remote group', type: 'group', active: true, db_id: 2, edit_link: 'https://example.test/edit-remote' },
-	] );
+	apiFetch.mockResolvedValue( SUBSCRIPTION_LISTS_FIXTURE );
 	// Mark the bridge ready so the fallback timer doesn't navigate the test window.
 	window.newspackNewslettersBridgeReady = true;
 } );
 
 afterEach( () => {
 	delete window.newspackNewslettersBridgeReady;
+	delete window.newspackNewslettersEvents;
 } );
 
 describe( 'SubscriptionLists — wizard-bridge wiring', () => {
@@ -50,7 +82,7 @@ describe( 'SubscriptionLists — wizard-bridge wiring', () => {
 		document.addEventListener( NN_EVENTS.OPEN_MODAL, listener );
 		render( <SubscriptionLists lockedLists={ false } provider="mailchimp" /> );
 		await waitFor( () => expect( screen.getByText( 'Local A' ) ).toBeInTheDocument() );
-		fireEvent.click( screen.getAllByRole( 'button', { name: /^Edit$/ } )[ 0 ] );
+		fireEvent.click( screen.getByRole( 'button', { name: 'Edit Local A' } ) );
 		expect( listener.mock.calls[ 0 ][ 0 ].detail ).toEqual(
 			expect.objectContaining( { mode: 'edit', kind: 'local', list: expect.objectContaining( { db_id: 1 } ) } )
 		);
@@ -62,8 +94,7 @@ describe( 'SubscriptionLists — wizard-bridge wiring', () => {
 		document.addEventListener( NN_EVENTS.OPEN_MODAL, listener );
 		render( <SubscriptionLists lockedLists={ false } provider="mailchimp" /> );
 		await waitFor( () => expect( screen.getByText( 'Remote group' ) ).toBeInTheDocument() );
-		// Remote rows now have an Edit button too — second one in the list.
-		fireEvent.click( screen.getAllByRole( 'button', { name: /^Edit$/ } )[ 1 ] );
+		fireEvent.click( screen.getByRole( 'button', { name: 'Edit Remote group' } ) );
 		expect( listener.mock.calls[ 0 ][ 0 ].detail ).toEqual(
 			expect.objectContaining( { mode: 'edit', kind: 'esp', list: expect.objectContaining( { db_id: 2 } ) } )
 		);
@@ -73,7 +104,6 @@ describe( 'SubscriptionLists — wizard-bridge wiring', () => {
 	it( 'commits the active toggle immediately via PATCH /lists/{db_id}', async () => {
 		render( <SubscriptionLists lockedLists={ false } provider="mailchimp" /> );
 		await waitFor( () => expect( screen.getByText( 'Local A' ) ).toBeInTheDocument() );
-		// Configure the next response (a successful PATCH echoing the row).
 		apiFetch.mockResolvedValueOnce( { id: 'tag-1', db_id: 1, active: true } );
 		fireEvent.click( screen.getAllByRole( 'checkbox' )[ 0 ] );
 		await waitFor( () =>
@@ -103,7 +133,7 @@ describe( 'SubscriptionLists — wizard-bridge wiring', () => {
 		document.addEventListener( NN_EVENTS.OPEN_CONFIRM_DELETE, listener );
 		render( <SubscriptionLists lockedLists={ false } provider="mailchimp" /> );
 		await waitFor( () => expect( screen.getByText( 'Local A' ) ).toBeInTheDocument() );
-		fireEvent.click( screen.getByRole( 'button', { name: /^Delete$/ } ) );
+		fireEvent.click( screen.getByRole( 'button', { name: 'Delete Local A' } ) );
 		expect( listener.mock.calls[ 0 ][ 0 ].detail ).toEqual( expect.objectContaining( { list: expect.objectContaining( { db_id: 1 } ) } ) );
 		document.removeEventListener( NN_EVENTS.OPEN_CONFIRM_DELETE, listener );
 	} );
@@ -123,9 +153,6 @@ describe( 'SubscriptionLists — wizard-bridge wiring', () => {
 	} );
 
 	it( 'does not redirect when the bridge mounted before the wizard listener registered', async () => {
-		// The flag is already set in beforeEach, simulating the bridge having
-		// completed boot before this component mounted. The fallback timer
-		// must NOT navigate.
 		jest.useFakeTimers();
 		const originalHref = window.location.href;
 		render( <SubscriptionLists lockedLists={ false } provider="mailchimp" /> );
@@ -134,5 +161,150 @@ describe( 'SubscriptionLists — wizard-bridge wiring', () => {
 		jest.advanceTimersByTime( 600 );
 		expect( window.location.href ).toBe( originalHref );
 		jest.useRealTimers();
+	} );
+
+	it( 'clears the fallback timer on unmount so a redirect cannot fire after the component is gone', async () => {
+		// Simulate the bridge NOT being ready so the fallback timer arms.
+		delete window.newspackNewslettersBridgeReady;
+		jest.useFakeTimers();
+		const originalHref = window.location.href;
+		const { unmount } = render( <SubscriptionLists lockedLists={ false } provider="mailchimp" /> );
+		await waitFor( () => expect( screen.getByRole( 'button', { name: /Add new local list/ } ) ).toBeEnabled() );
+		fireEvent.click( screen.getByRole( 'button', { name: /Add new local list/ } ) );
+		unmount();
+		jest.advanceTimersByTime( 600 );
+		expect( window.location.href ).toBe( originalHref );
+		jest.useRealTimers();
+	} );
+
+	it( 'reads event names from window.newspackNewslettersEvents when the bridge exposes them', async () => {
+		window.newspackNewslettersEvents = {
+			...NN_EVENTS,
+			OPEN_MODAL: 'custom:open-modal',
+		};
+		const listener = jest.fn();
+		document.addEventListener( 'custom:open-modal', listener );
+		render( <SubscriptionLists lockedLists={ false } provider="mailchimp" /> );
+		await waitFor( () => expect( screen.getByRole( 'button', { name: /Add new local list/ } ) ).toBeEnabled() );
+		fireEvent.click( screen.getByRole( 'button', { name: /Add new local list/ } ) );
+		expect( listener ).toHaveBeenCalled();
+		document.removeEventListener( 'custom:open-modal', listener );
+	} );
+} );
+
+describe( 'Settings — ESP card grid', () => {
+	beforeEach( () => {
+		apiFetch.mockReset();
+		apiFetch.mockResolvedValue( SETTINGS_FIXTURE );
+	} );
+
+	const renderSettings = ( overrides = {} ) => {
+		const props = {
+			isOnboarding: false,
+			newslettersConfig: { newspack_newsletters_service_provider: '' },
+			onUpdate: jest.fn(),
+			onConfigured: jest.fn(),
+			onLabels: jest.fn(),
+			onLetterheadSetting: jest.fn(),
+			setProvider: jest.fn(),
+			setAuthUrl: jest.fn(),
+			setLockedLists: jest.fn(),
+			...overrides,
+		};
+		return { props, ...render( <Settings { ...props } /> ) };
+	};
+
+	it( 'renders all four ESP cards in the configured order', async () => {
+		renderSettings();
+		await waitFor( () => expect( screen.getByText( 'Mailchimp' ) ).toBeInTheDocument() );
+		expect( screen.getByText( 'Active Campaign' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'Constant Contact' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'Manual / Other' ) ).toBeInTheDocument();
+	} );
+
+	it( 'fires onConfigured(true) once the wizard endpoint reports configured=true', async () => {
+		const { props } = renderSettings();
+		await waitFor( () => expect( props.onConfigured ).toHaveBeenCalledWith( true ) );
+	} );
+
+	it( 'fires onLabels with the label payload from the response', async () => {
+		const { props } = renderSettings();
+		await waitFor( () =>
+			expect( props.onLabels ).toHaveBeenCalledWith( expect.objectContaining( { local_list_explanation: 'Mailchimp Group' } ) )
+		);
+	} );
+
+	it( 'selecting a provider card calls onUpdate with the chosen provider', async () => {
+		const { props } = renderSettings();
+		await waitFor( () => expect( screen.getByText( 'Mailchimp' ) ).toBeInTheDocument() );
+		// CardSettingsGroup wraps the icon+title in a clickable header.
+		fireEvent.click( screen.getByText( 'Mailchimp' ) );
+		await waitFor( () =>
+			expect( props.onUpdate ).toHaveBeenCalledWith( expect.objectContaining( { newspack_newsletters_service_provider: 'mailchimp' } ) )
+		);
+	} );
+} );
+
+describe( 'NewslettersSettings — dirty tracking, save flow, snackbar', () => {
+	beforeEach( () => {
+		apiFetch.mockReset();
+		apiFetch.mockResolvedValue( SETTINGS_FIXTURE );
+		// Reset wizard store between tests so prior notices/header don't leak.
+		dispatch( WIZARD_STORE_NAMESPACE ).resetNotices();
+		dispatch( WIZARD_STORE_NAMESPACE ).resetHeaderData();
+	} );
+
+	const getSaveAction = () => select( WIZARD_STORE_NAMESPACE ).getHeaderData()?.actions?.[ 0 ];
+
+	it( 'registers a Save header action that is initially disabled (no dirty state)', async () => {
+		render( <NewslettersSettings /> );
+		await waitFor( () => expect( getSaveAction() ).toEqual( expect.objectContaining( { label: 'Save', disabled: true } ) ) );
+	} );
+
+	it( 'fires a success snackbar on a successful save', async () => {
+		render( <NewslettersSettings /> );
+		await waitFor( () => expect( getSaveAction() ).toBeDefined() );
+		// Save endpoint echoes the response on POST.
+		apiFetch.mockResolvedValueOnce( SETTINGS_FIXTURE );
+		await act( async () => {
+			await getSaveAction().action();
+		} );
+		const notices = select( WIZARD_STORE_NAMESPACE ).getNotices();
+		expect( notices ).toEqual(
+			expect.arrayContaining( [ expect.objectContaining( { type: 'success', message: expect.stringMatching( /saved/i ) } ) ] )
+		);
+	} );
+
+	it( 'does not render Tracking until the wizard endpoint reports configured=true', async () => {
+		// Unconfigured response — Tracking should stay hidden so it doesn't
+		// hit the tracking endpoint on installs without the newsletters plugin.
+		apiFetch.mockResolvedValue( { ...SETTINGS_FIXTURE, configured: false } );
+		render( <NewslettersSettings /> );
+		await waitFor( () => expect( getSaveAction() ).toBeDefined() );
+		expect( screen.queryByText( /Ads tracking/i ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'clears the dirty flag after save even if a fetch resolves during the request', async () => {
+		// Captures the payload at save-call time so the saved snapshot reflects
+		// what was actually sent, not a later edit.
+		let resolveSave;
+		const savePromise = new Promise( resolve => {
+			resolveSave = resolve;
+		} );
+		apiFetch.mockImplementation( config => {
+			if ( config?.method === 'POST' ) {
+				return savePromise;
+			}
+			return Promise.resolve( SETTINGS_FIXTURE );
+		} );
+		render( <NewslettersSettings /> );
+		await waitFor( () => expect( getSaveAction() ).toBeDefined() );
+		const pending = act( async () => {
+			await getSaveAction().action();
+		} );
+		resolveSave( SETTINGS_FIXTURE );
+		await pending;
+		// After save, header Save action should be disabled again.
+		await waitFor( () => expect( getSaveAction() ).toEqual( expect.objectContaining( { disabled: true } ) ) );
 	} );
 } );

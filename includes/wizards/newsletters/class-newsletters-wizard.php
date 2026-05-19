@@ -232,6 +232,9 @@ class Newsletters_Wizard extends Wizard {
 		if ( class_exists( 'Newspack_Newsletters' ) ) {
 			$provider = Newspack_Newsletters::get_service_provider();
 			if ( $provider && method_exists( $provider, 'label' ) ) {
+				// `label()` accepts a second `$context` arg (usually a list public id).
+				// Intentionally omitted here: this is the generic explanation copy
+				// shown above the "Add new local list" button, not a per-list label.
 				$labels = [
 					'local_list_explanation' => $provider::label( 'local_list_explanation' ),
 				];

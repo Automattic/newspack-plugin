@@ -13,7 +13,6 @@ const CardSettingsGroup = ( {
 	children,
 	className,
 	icon = null,
-	iconSize,
 	headerAction,
 	title = '',
 	description = '',
@@ -25,7 +24,6 @@ const CardSettingsGroup = ( {
 	children?: React.ReactNode;
 	className?: string;
 	icon?: React.ReactNode;
-	iconSize?: number;
 	title: string;
 	headerAction?: {
 		label: string;
@@ -60,7 +58,6 @@ const CardSettingsGroup = ( {
 				onToggle: onEnable,
 				icon,
 				iconBackgroundColor: true,
-				iconSize,
 				isActive,
 				title,
 			} }

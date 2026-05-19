@@ -11,7 +11,7 @@ import once from 'lodash/once';
 /**
  * WordPress dependencies
  */
-import { Fragment, useEffect, useRef, useState } from '@wordpress/element';
+import { Fragment, useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { useDispatch } from '@wordpress/data';
 import apiFetch from '@wordpress/api-fetch';
 import { sprintf, __ } from '@wordpress/i18n';
@@ -24,16 +24,20 @@ import {
 } from '@wordpress/components';
 import { atSymbol } from '@wordpress/icons';
 
-// Wizard-bridge events. Mirror of `newspack-newsletters/src/wizard-bridge/events.js`
-// — kept locally so this file is self-contained without a cross-repo import.
+// Wizard-bridge event contract. The newsletters bridge bundle exposes its
+// event names on `window.newspackNewslettersEvents`; we fall back to the
+// hand-rolled mirror so this file works in isolation (tests, partial loads)
+// and so the two repos stay in sync without coordinated edits once the
+// bridge ships the global.
 const NN_EVENT_NAMESPACE = 'newspack-newsletters';
-const NN_EVENTS = {
+const NN_FALLBACK_EVENTS = {
 	BRIDGE_MOUNTED: `${ NN_EVENT_NAMESPACE }:bridge-mounted`,
 	OPEN_MODAL: `${ NN_EVENT_NAMESPACE }:open-local-list-modal`,
 	OPEN_CONFIRM_DELETE: `${ NN_EVENT_NAMESPACE }:open-local-list-confirm-delete`,
 	LOCAL_LIST_SAVED: `${ NN_EVENT_NAMESPACE }:local-list-saved`,
 	LOCAL_LIST_DELETED: `${ NN_EVENT_NAMESPACE }:local-list-deleted`,
 };
+const getNNEvents = () => ( typeof window !== 'undefined' && window.newspackNewslettersEvents ) || NN_FALLBACK_EVENTS;
 const NN_FALLBACK_TIMEOUT_MS = 500;
 
 // Read the bridge-readiness flag synchronously rather than relying on a
@@ -62,7 +66,7 @@ import {
 	useUnsavedChangesDialog,
 } from '../../../../../packages/components/src';
 import { WIZARD_STORE_NAMESPACE } from '../../../../../packages/components/src/wizard/store';
-import Tracking from '../tracking';
+import Tracking from './tracking';
 
 import './style.scss';
 
@@ -70,6 +74,7 @@ const LETTERHEAD_KEY = 'newspack_newsletters_letterhead_api_key';
 
 export const Settings = ( {
 	onUpdate,
+	onConfigured,
 	onLabels,
 	onLetterheadSetting,
 	newslettersConfig,
@@ -141,6 +146,9 @@ export const Settings = ( {
 		} )
 			.then( response => {
 				performConfigUpdate( response );
+				if ( onConfigured ) {
+					onConfigured( response?.configured === true );
+				}
 				if ( onLabels && response?.labels ) {
 					onLabels( response.labels );
 				}
@@ -256,10 +264,6 @@ export const Settings = ( {
 		constant_contact: integrationIcons.constantContact,
 		manual: atSymbol,
 	};
-	const PROVIDER_ICON_SIZES = {
-		active_campaign: 16,
-		constant_contact: 18,
-	};
 	const providerOptions = ( config.settings?.newspack_newsletters_service_provider?.options || [] )
 		.filter( opt => opt.value !== '' )
 		.sort( ( a, b ) => {
@@ -320,7 +324,6 @@ export const Settings = ( {
 								key={ option.value }
 								className={ `newspack-newsletters-esp-card newspack-newsletters-esp-card--${ option.value.replace( /_/g, '-' ) }` }
 								icon={ PROVIDER_ICONS[ option.value ] }
-								iconSize={ PROVIDER_ICON_SIZES[ option.value ] || 24 }
 								title={ option.name }
 								isActive={ option.value === selectedProviderValue }
 								onEnable={ () => providerSelectProps.onChange( option.value ) }
@@ -469,14 +472,20 @@ export const SubscriptionLists = ( { lockedLists, onUpdate, provider, labels = {
 	}, [ provider, lockedLists ] );
 
 	useEffect( () => {
+		const { LOCAL_LIST_SAVED, LOCAL_LIST_DELETED } = getNNEvents();
 		const reload = () => fetchLists();
-		document.addEventListener( NN_EVENTS.LOCAL_LIST_SAVED, reload );
-		document.addEventListener( NN_EVENTS.LOCAL_LIST_DELETED, reload );
+		document.addEventListener( LOCAL_LIST_SAVED, reload );
+		document.addEventListener( LOCAL_LIST_DELETED, reload );
 		return () => {
-			document.removeEventListener( NN_EVENTS.LOCAL_LIST_SAVED, reload );
-			document.removeEventListener( NN_EVENTS.LOCAL_LIST_DELETED, reload );
+			document.removeEventListener( LOCAL_LIST_SAVED, reload );
+			document.removeEventListener( LOCAL_LIST_DELETED, reload );
 		};
 	}, [] );
+
+	// Clear the fallback timer on unmount — otherwise a scheduled redirect
+	// would fire after the component is gone, navigating the user away
+	// unexpectedly.
+	useEffect( () => () => clearTimeout( fallbackTimerRef.current ), [] );
 
 	const startFallbackTimer = fallbackUrl => {
 		if ( isBridgeReady() || ! fallbackUrl ) {
@@ -491,15 +500,15 @@ export const SubscriptionLists = ( { lockedLists, onUpdate, provider, labels = {
 	};
 
 	const dispatchOpenAdd = () => {
-		document.dispatchEvent( new CustomEvent( NN_EVENTS.OPEN_MODAL, { detail: { mode: 'add' } } ) );
+		document.dispatchEvent( new CustomEvent( getNNEvents().OPEN_MODAL, { detail: { mode: 'add' } } ) );
 		startFallbackTimer( newspack_newsletters_wizard.new_subscription_lists_url );
 	};
 	const dispatchOpenEdit = ( list, kind ) => {
-		document.dispatchEvent( new CustomEvent( NN_EVENTS.OPEN_MODAL, { detail: { mode: 'edit', kind, list } } ) );
+		document.dispatchEvent( new CustomEvent( getNNEvents().OPEN_MODAL, { detail: { mode: 'edit', kind, list } } ) );
 		startFallbackTimer( list?.edit_link );
 	};
 	const dispatchConfirmDelete = list => {
-		document.dispatchEvent( new CustomEvent( NN_EVENTS.OPEN_CONFIRM_DELETE, { detail: { list } } ) );
+		document.dispatchEvent( new CustomEvent( getNNEvents().OPEN_CONFIRM_DELETE, { detail: { list } } ) );
 		startFallbackTimer( list?.edit_link );
 	};
 
@@ -634,7 +643,8 @@ const NewslettersSettings = () => {
 	const [ savedConfig, setSavedConfig ] = useState( null );
 	const [ labels, setLabels ] = useState( {} );
 	const [ letterheadSetting, setLetterheadSetting ] = useState( null );
-	const { setHeaderData } = useDispatch( WIZARD_STORE_NAMESPACE );
+	const [ isConfigured, setIsConfigured ] = useState( false );
+	const { setHeaderData, addNotice } = useDispatch( WIZARD_STORE_NAMESPACE );
 
 	useEffect( () => {
 		if ( savedConfig === null && newslettersConfig && Object.keys( newslettersConfig ).length > 0 ) {
@@ -644,27 +654,42 @@ const NewslettersSettings = () => {
 
 	const isDirty = savedConfig !== null && JSON.stringify( newslettersConfig ) !== JSON.stringify( savedConfig );
 
-	const saveSettings = async () => {
+	// Only seed `letterheadSetting` once. The setting metadata is stable —
+	// subsequent fetches would re-set the same value and churn renders.
+	const handleLetterheadSetting = useCallback( setting => {
+		setLetterheadSetting( prev => ( prev ? prev : setting ) );
+	}, [] );
+
+	const saveSettings = useCallback( async () => {
+		// Snapshot the payload before the await so `savedConfig` reflects the
+		// exact data sent to the server, even if the user edits the form
+		// while the request is in flight.
+		const payload = newslettersConfig;
 		setError( false );
 		setInFlight( true );
 		try {
 			const response = await apiFetch( {
 				path: '/newspack/v1/wizard/newspack-newsletters/settings',
 				method: 'POST',
-				data: newslettersConfig,
+				data: payload,
 			} );
-			setProvider( newslettersConfig?.newspack_newsletters_service_provider );
+			setProvider( payload?.newspack_newsletters_service_provider );
 			setLockedLists( false );
-			setSavedConfig( newslettersConfig );
+			setSavedConfig( payload );
 			if ( response?.labels ) {
 				setLabels( response.labels );
 			}
+			addNotice( {
+				id: 'newsletters-settings-saved',
+				type: 'success',
+				message: __( 'Settings saved.', 'newspack-plugin' ),
+			} );
 		} catch ( err ) {
 			setError( err );
 		} finally {
 			setInFlight( false );
 		}
-	};
+	}, [ newslettersConfig, addNotice ] );
 
 	useEffect( () => {
 		setHeaderData( {
@@ -679,7 +704,7 @@ const NewslettersSettings = () => {
 				},
 			],
 		} );
-	}, [ inFlight, isDirty, newslettersConfig ] );
+	}, [ inFlight, isDirty, saveSettings, setHeaderData ] );
 
 	const { confirmDialog: navBlockDialog } = useUnsavedChangesDialog( {
 		when: isDirty && ! inFlight,
@@ -696,8 +721,9 @@ const NewslettersSettings = () => {
 			<Settings
 				isOnboarding={ false }
 				onUpdate={ config => updateConfiguration( { newslettersConfig: config } ) }
+				onConfigured={ setIsConfigured }
 				onLabels={ setLabels }
-				onLetterheadSetting={ setLetterheadSetting }
+				onLetterheadSetting={ handleLetterheadSetting }
 				authUrl={ authUrl }
 				newslettersConfig={ newslettersConfig }
 				provider={ provider }
@@ -706,7 +732,7 @@ const NewslettersSettings = () => {
 				setLockedLists={ setLockedLists }
 			/>
 			<SubscriptionLists lockedLists={ lockedLists } provider={ provider } labels={ labels } />
-			<Tracking />
+			{ isConfigured && <Tracking /> }
 			{ letterheadSetting && (
 				<>
 					<Divider alignment="full-width" variant="tertiary" />
