@@ -751,7 +751,7 @@ const NewslettersSettings = () => {
 				setAuthUrl={ setAuthUrl }
 				setLockedLists={ setLockedLists }
 			/>
-			<SubscriptionLists lockedLists={ lockedLists } provider={ provider } labels={ labels } />
+			{ provider !== 'manual' && <SubscriptionLists lockedLists={ lockedLists } provider={ provider } labels={ labels } /> }
 			{ isConfigured && <Tracking /> }
 			{ letterheadSetting && (
 				<>
