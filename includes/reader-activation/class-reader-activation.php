@@ -1731,10 +1731,13 @@ final class Reader_Activation {
 					<?php
 					foreach ( $newsletters_lists as $list ) {
 						$checkbox_id = sprintf( 'newspack-plugin-list-%s', $list['id'] );
+						// Peeking item: stays in DOM flow so the container's max-height reveals its top edge,
+						// but is hidden from assistive tech and keyboard focus until "See all" is clicked.
+						$is_peek     = $loop_index === (int) $default_list_size;
 						$is_hidden   = $loop_index <= $default_list_size ? '' : 'hidden';
 						$loop_index++;
 						?>
-						<label class="newspack-ui__input-card <?php echo esc_attr( $is_hidden ); ?>" for="<?php echo \esc_attr( $checkbox_id ); ?>">
+						<label class="newspack-ui__input-card <?php echo esc_attr( $is_hidden ); ?>" for="<?php echo \esc_attr( $checkbox_id ); ?>"<?php echo $is_peek ? ' aria-hidden="true"' : ''; ?>>
 							<input
 								type="checkbox"
 								name="lists[]"
@@ -1743,6 +1746,9 @@ final class Reader_Activation {
 								<?php
 								if ( isset( $list['checked'] ) && $list['checked'] ) {
 									echo 'checked';
+								}
+								if ( $is_peek ) {
+									echo 'tabindex="-1"';
 								}
 								?>
 							>

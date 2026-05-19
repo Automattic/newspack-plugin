@@ -32,6 +32,11 @@ window.newspackRAS.push( function ( readerActivation ) {
 					newsletterContainer.querySelectorAll( '.hidden' ).forEach( item => {
 						item.classList.remove( 'hidden' );
 					} );
+					// Restore the peeking item to the a11y tree and tab order.
+					newsletterContainer.querySelectorAll( '.newspack-ui__input-card[aria-hidden="true"]' ).forEach( item => {
+						item.removeAttribute( 'aria-hidden' );
+						item.querySelector( 'input[tabindex="-1"]' )?.removeAttribute( 'tabindex' );
+					} );
 					newsletterContainer.style.maxHeight = 'none';
 					if ( divider ) {
 						divider.classList.add( 'hidden' );
