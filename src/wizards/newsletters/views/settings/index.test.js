@@ -1,9 +1,15 @@
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
 import { dispatch, select } from '@wordpress/data';
+import { HashRouter } from 'react-router-dom';
 
 import NewslettersSettings, { Settings, SubscriptionLists } from './index';
 import { WIZARD_STORE_NAMESPACE } from '../../../../../packages/components/src/wizard/store';
+
+// NewslettersSettings mounts useUnsavedChangesDialog → useConfirmDialog →
+// ConfirmDialog, which calls `useHistory()`. In production it runs inside
+// Wizard's HashRouter; in tests we provide the same Router context.
+const renderWithRouter = ui => render( <HashRouter>{ ui }</HashRouter> );
 
 jest.mock( '@wordpress/api-fetch', () => jest.fn() );
 
@@ -399,12 +405,12 @@ describe( 'NewslettersSettings — dirty tracking, save flow, snackbar', () => {
 	const getSaveAction = () => select( WIZARD_STORE_NAMESPACE ).getHeaderData()?.actions?.[ 0 ];
 
 	it( 'registers a Save header action that is initially disabled (no dirty state)', async () => {
-		render( <NewslettersSettings /> );
+		renderWithRouter( <NewslettersSettings /> );
 		await waitFor( () => expect( getSaveAction() ).toEqual( expect.objectContaining( { label: 'Save', disabled: true } ) ) );
 	} );
 
 	it( 'fires a success snackbar on a successful save', async () => {
-		render( <NewslettersSettings /> );
+		renderWithRouter( <NewslettersSettings /> );
 		await waitFor( () => expect( getSaveAction() ).toBeDefined() );
 		// Save endpoint echoes the response on POST.
 		apiFetch.mockResolvedValueOnce( SETTINGS_FIXTURE );
@@ -421,7 +427,7 @@ describe( 'NewslettersSettings — dirty tracking, save flow, snackbar', () => {
 		// Unconfigured response — Tracking should stay hidden so it doesn't
 		// hit the tracking endpoint on installs without the newsletters plugin.
 		apiFetch.mockResolvedValue( { ...SETTINGS_FIXTURE, configured: false } );
-		render( <NewslettersSettings /> );
+		renderWithRouter( <NewslettersSettings /> );
 		await waitFor( () => expect( getSaveAction() ).toBeDefined() );
 		expect( screen.queryByText( /Ads tracking/i ) ).not.toBeInTheDocument();
 	} );
@@ -439,7 +445,7 @@ describe( 'NewslettersSettings — dirty tracking, save flow, snackbar', () => {
 			}
 			return Promise.resolve( SETTINGS_FIXTURE );
 		} );
-		render( <NewslettersSettings /> );
+		renderWithRouter( <NewslettersSettings /> );
 		await waitFor( () => expect( getSaveAction() ).toBeDefined() );
 		const pending = act( async () => {
 			await getSaveAction().action();

@@ -81,13 +81,13 @@ function useUnsavedChangesDialog( { when }: UseUnsavedChangesDialogOptions ) {
 				return;
 			}
 			const href = link.getAttribute( 'href' );
-			if ( ! href || href.startsWith( 'javascript:' ) ) {
-				return;
-			}
-			// Allow plain in-page anchors (`#`, `#section`) — they're scroll
-			// targets, not navigation. Guard HashRouter paths (`#/something`)
-			// since they switch wizard views and drop the dirty form state.
-			if ( href.startsWith( '#' ) && ! href.startsWith( '#/' ) ) {
+			if ( ! href || href.startsWith( '#' ) || href.startsWith( 'javascript:' ) ) {
+				// All `#`-prefixed links are skipped here: plain anchors
+				// (`#section`) are scroll targets, and HashRouter paths
+				// (`#/route`) are intercepted by `ConfirmDialog`'s built-in
+				// `history.block` listener instead. Routing them through
+				// `window.location.href` here would trigger a hashchange
+				// that the still-active block re-catches, double-prompting.
 				return;
 			}
 			if ( link.target && link.target !== '_self' ) {
