@@ -325,30 +325,18 @@ export const Settings = ( {
 			) : (
 				<>
 					<Grid columns={ 2 } gutter={ 16 } noMargin>
-						{ providerOptions.map( option => {
-							// Short-circuit while saving so the user can't switch ESPs
-							// between Save click and POST resolve.
-							const onSelect = () => {
-								if ( isDisabled ) {
-									return;
-								}
-								providerSelectProps.onChange( option.value );
-							};
-							return (
-								<CardSettingsGroup
-									key={ option.value }
-									className={ `newspack-newsletters-esp-card newspack-newsletters-esp-card--${ option.value.replace(
-										/_/g,
-										'-'
-									) }` }
-									icon={ PROVIDER_ICONS[ option.value ] }
-									title={ option.name }
-									isActive={ option.value === selectedProviderValue }
-									onEnable={ onSelect }
-									onHeaderClick={ onSelect }
-								/>
-							);
-						} ) }
+						{ providerOptions.map( option => (
+							<CardSettingsGroup
+								key={ option.value }
+								className={ `newspack-newsletters-esp-card newspack-newsletters-esp-card--${ option.value.replace( /_/g, '-' ) }` }
+								disabled={ isDisabled }
+								icon={ PROVIDER_ICONS[ option.value ] }
+								title={ option.name }
+								isActive={ option.value === selectedProviderValue }
+								onEnable={ () => providerSelectProps.onChange( option.value ) }
+								onHeaderClick={ () => providerSelectProps.onChange( option.value ) }
+							/>
+						) ) }
 					</Grid>
 					{ selectedProviderValue && (
 						<VStack spacing={ 4 } className="newspack-newsletters-settings-stack">
@@ -491,13 +479,52 @@ export const SubscriptionLists = ( { lockedLists, onUpdate, provider, labels = {
 	}, [ provider, lockedLists ] );
 
 	useEffect( () => {
-		const { LOCAL_LIST_SAVED, LOCAL_LIST_DELETED } = getNNEvents();
 		const reload = () => fetchLists();
-		document.addEventListener( LOCAL_LIST_SAVED, reload );
-		document.addEventListener( LOCAL_LIST_DELETED, reload );
+		// Listen on both the fallback names and any names exposed on
+		// `window.newspackNewslettersEvents` so this still fires if the
+		// bridge ships a renamed event in a future version. Set
+		// deduplicates when the two are identical (the case today).
+		const collectNames = () => {
+			const live = getNNEvents();
+			return {
+				saved: new Set( [ NN_FALLBACK_EVENTS.LOCAL_LIST_SAVED, live.LOCAL_LIST_SAVED ] ),
+				deleted: new Set( [ NN_FALLBACK_EVENTS.LOCAL_LIST_DELETED, live.LOCAL_LIST_DELETED ] ),
+			};
+		};
+
+		let { saved, deleted } = collectNames();
+		const attach = () => {
+			saved.forEach( name => document.addEventListener( name, reload ) );
+			deleted.forEach( name => document.addEventListener( name, reload ) );
+		};
+		const detach = () => {
+			saved.forEach( name => document.removeEventListener( name, reload ) );
+			deleted.forEach( name => document.removeEventListener( name, reload ) );
+		};
+
+		attach();
+
+		// If the bridge wasn't ready at mount, re-resolve event names when
+		// it announces itself. The bridge dispatches BRIDGE_MOUNTED using
+		// whatever names it exposes, so listen on both the fallback name
+		// and the live name.
+		const bridgeMountedNames = new Set( [ NN_FALLBACK_EVENTS.BRIDGE_MOUNTED, getNNEvents().BRIDGE_MOUNTED ] );
+		const onBridgeMounted = () => {
+			const next = collectNames();
+			const changed = [ ...next.saved ].some( n => ! saved.has( n ) ) || [ ...next.deleted ].some( n => ! deleted.has( n ) );
+			if ( ! changed ) {
+				return;
+			}
+			detach();
+			saved = next.saved;
+			deleted = next.deleted;
+			attach();
+		};
+		bridgeMountedNames.forEach( name => document.addEventListener( name, onBridgeMounted ) );
+
 		return () => {
-			document.removeEventListener( LOCAL_LIST_SAVED, reload );
-			document.removeEventListener( LOCAL_LIST_DELETED, reload );
+			detach();
+			bridgeMountedNames.forEach( name => document.removeEventListener( name, onBridgeMounted ) );
 		};
 	}, [] );
 

@@ -12,6 +12,7 @@ const CardSettingsGroup = ( {
 	actionType = 'none',
 	children,
 	className,
+	disabled = false,
 	icon = null,
 	headerAction,
 	title = '',
@@ -23,6 +24,7 @@ const CardSettingsGroup = ( {
 	actionType?: 'chevron' | 'toggle' | 'button' | 'link' | 'none';
 	children?: React.ReactNode;
 	className?: string;
+	disabled?: boolean;
 	icon?: React.ReactNode;
 	title: string;
 	headerAction?: {
@@ -56,6 +58,7 @@ const CardSettingsGroup = ( {
 				headerAction,
 				onHeaderClick,
 				onToggle: onEnable,
+				disabled,
 				icon,
 				iconBackgroundColor: true,
 				isActive,
