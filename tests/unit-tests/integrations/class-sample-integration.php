@@ -33,11 +33,18 @@ class Sample_Integration extends Integration {
 	public $my_account_render_calls = [];
 
 	/**
+	 * Settings fields to return from register_settings_fields(). Tests that
+	 * need declared fields set this before constructing the integration.
+	 *
+	 * @var array
+	 */
+	public static $declared_settings_fields = [];
+
+	/**
 	 * Register settings fields (test implementation).
 	 */
 	public function register_settings_fields() {
-		// No settings fields for this test implementation.
-		return [];
+		return self::$declared_settings_fields;
 	}
 
 	/**
@@ -113,7 +120,8 @@ class Sample_Integration extends Integration {
 	 * Reset captured state between tests.
 	 */
 	public static function reset() {
-		self::$handler_args = null;
+		self::$handler_args            = null;
+		self::$declared_settings_fields = [];
 	}
 
 	/**

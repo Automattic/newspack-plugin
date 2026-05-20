@@ -1289,4 +1289,96 @@ class Test_Integrations extends \WP_UnitTestCase {
 			)
 		);
 	}
+
+	/**
+	 * The REST settings save entry point (update_integration_settings) drops
+	 * oauth/hidden keys so admin clients can't overwrite server-managed values
+	 * such as OAuth tokens. Other field types pass through.
+	 */
+	public function test_update_integration_settings_skips_managed_field_types() {
+		Sample_Integration::$declared_settings_fields = [
+			[
+				'key'     => 'api_label',
+				'type'    => 'text',
+				'default' => '',
+			],
+			[
+				'key'     => 'access_token',
+				'type'    => 'hidden',
+				'default' => '',
+			],
+			[
+				'key'     => 'connection',
+				'type'    => 'oauth',
+				'default' => '',
+			],
+		];
+		$integration = new Sample_Integration( 'test-id', 'Test Integration' );
+		Integrations::register( $integration );
+
+		// Pre-seed the managed fields as if a server-side OAuth callback had
+		// written them. The REST endpoint must not overwrite these.
+		\update_option( Integration::SETTINGS_OPTION_PREFIX . 'test-id_access_token', 'server-managed-token' );
+		\update_option( Integration::SETTINGS_OPTION_PREFIX . 'test-id_connection', 'connected' );
+
+		$result = Integrations::update_integration_settings(
+			'test-id',
+			[
+				'api_label'    => 'My Label',
+				'access_token' => 'attempted-override',
+				'connection'   => 'attempted-override',
+			]
+		);
+
+		$this->assertTrue( $result );
+
+		// The non-managed field was written through.
+		$this->assertSame(
+			'My Label',
+			\get_option( Integration::SETTINGS_OPTION_PREFIX . 'test-id_api_label' )
+		);
+
+		// The managed fields kept their server-managed values.
+		$this->assertSame(
+			'server-managed-token',
+			\get_option( Integration::SETTINGS_OPTION_PREFIX . 'test-id_access_token' )
+		);
+		$this->assertSame(
+			'connected',
+			\get_option( Integration::SETTINGS_OPTION_PREFIX . 'test-id_connection' )
+		);
+	}
+
+	/**
+	 * Server-side writers (e.g., an OAuth callback) calling
+	 * update_settings_field_value() directly bypass the REST-path filter and
+	 * can still write oauth/hidden values.
+	 */
+	public function test_update_settings_field_value_writes_managed_field_types_directly() {
+		Sample_Integration::$declared_settings_fields = [
+			[
+				'key'     => 'access_token',
+				'type'    => 'hidden',
+				'default' => '',
+			],
+			[
+				'key'     => 'connection',
+				'type'    => 'oauth',
+				'default' => '',
+			],
+		];
+		$integration = new Sample_Integration( 'test-id', 'Test Integration' );
+
+		$integration->update_settings_field_value( 'access_token', 'fresh-token' );
+		$integration->update_settings_field_value( 'connection', 'connected' );
+
+		$this->assertSame(
+			'fresh-token',
+			\get_option( Integration::SETTINGS_OPTION_PREFIX . 'test-id_access_token' )
+		);
+		$this->assertSame(
+			'connected',
+			\get_option( Integration::SETTINGS_OPTION_PREFIX . 'test-id_connection' )
+		);
+	}
 }

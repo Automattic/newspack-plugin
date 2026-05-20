@@ -774,6 +774,29 @@ abstract class Integration {
 	}
 
 	/**
+	 * Settings field types that are managed by server-side code (e.g., OAuth
+	 * callbacks) and must not be writable from the admin settings REST endpoint.
+	 *
+	 * @var string[]
+	 */
+	const MANAGED_FIELD_TYPES = [ 'oauth', 'hidden' ];
+
+	/**
+	 * Whether a settings field is managed by server-side code and therefore
+	 * read-only on the REST settings save path.
+	 *
+	 * @param string $key The field key.
+	 * @return bool True if the field is a managed type, false otherwise.
+	 */
+	public function is_managed_settings_field( $key ) {
+		$field = $this->get_settings_field_by_key( $key );
+		if ( ! $field ) {
+			return false;
+		}
+		return in_array( $field['type'] ?? 'text', self::MANAGED_FIELD_TYPES, true );
+	}
+
+	/**
 	 * Get the value of a settings field.
 	 *
 	 * @param string $key The field key.
@@ -912,9 +935,13 @@ abstract class Integration {
 		switch ( $type ) {
 			case 'hidden':
 			case 'oauth':
-				// Read-only or managed programmatically, but values still arrive via
-				// the REST settings endpoint — coerce to a sanitized scalar string and
-				// reject non-scalar payloads to keep options storage predictable.
+				// Server-managed types. Admin POSTs to the settings REST endpoint
+				// are filtered out upstream in Integrations::update_integration_settings(),
+				// so values land here only via trusted PHP writers (e.g., an OAuth
+				// callback). Assumes a single-line, tag-free scalar — sanitize_text_field
+				// will strip tags and collapse whitespace, which is fine for opaque
+				// tokens but would silently corrupt a multiline secret. Non-scalar
+				// payloads fall back to the declared default.
 				if ( ! is_scalar( $value ) ) {
 					return $field['default'] ?? '';
 				}
