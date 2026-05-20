@@ -1201,49 +1201,22 @@ class Test_Integrations extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * OAuth settings field value: scalar strings are sanitized through sanitize_text_field.
+	 * OAuth settings field value is read-only on the write path: with no stored
+	 * value, inbound scalars are ignored and the declared default is returned.
 	 */
-	public function test_sanitize_settings_field_value_oauth_scalar() {
+	public function test_sanitize_settings_field_value_oauth_read_only_no_stored_value() {
 		$integration = new Sample_Integration( 'test-id', 'Test Integration' );
 		$field       = [
 			'key'  => 'token',
 			'type' => 'oauth',
 		];
 
-		$this->assertSame(
-			'abc123',
-			$integration->test_sanitize_settings_field_value( $field, 'abc123' )
-		);
-		// Tags stripped by sanitize_text_field.
-		$this->assertSame(
-			'token',
-			$integration->test_sanitize_settings_field_value( $field, '<b>token</b>' )
-		);
-		// Non-string scalars are coerced to a string then sanitized.
-		$this->assertSame(
-			'42',
-			$integration->test_sanitize_settings_field_value( $field, 42 )
-		);
-	}
-
-	/**
-	 * OAuth settings field value: non-scalar payloads are rejected and the default is returned.
-	 */
-	public function test_sanitize_settings_field_value_oauth_non_scalar_returns_default() {
-		$integration = new Sample_Integration( 'test-id', 'Test Integration' );
-
-		// No default declared: falls back to empty string.
+		// No default declared: falls back to empty string regardless of inbound.
 		$this->assertSame(
 			'',
-			$integration->test_sanitize_settings_field_value(
-				[
-					'key'  => 'token',
-					'type' => 'oauth',
-				],
-				[ 'unexpected' => 'array' ]
-			)
+			$integration->test_sanitize_settings_field_value( $field, 'abc123' )
 		);
-		// Explicit default is honored.
+		// Explicit default is honored when no stored value exists.
 		$this->assertSame(
 			'fallback',
 			$integration->test_sanitize_settings_field_value(
@@ -1252,31 +1225,61 @@ class Test_Integrations extends \WP_UnitTestCase {
 					'type'    => 'oauth',
 					'default' => 'fallback',
 				],
-				(object) [ 'unexpected' => 'object' ]
+				'inbound-token'
+			)
+		);
+		// Non-scalar inbound payloads are also ignored.
+		$this->assertSame(
+			'',
+			$integration->test_sanitize_settings_field_value(
+				$field,
+				[ 'unexpected' => 'array' ]
 			)
 		);
 	}
 
 	/**
-	 * Hidden settings field value: scalar strings are sanitized, non-scalars return the default.
+	 * OAuth settings field value is read-only on the write path: when a value is
+	 * already stored (e.g., written by a server-side OAuth callback), the
+	 * sanitizer returns the stored value and ignores any inbound payload.
 	 */
-	public function test_sanitize_settings_field_value_hidden() {
+	public function test_sanitize_settings_field_value_oauth_read_only_with_stored_value() {
+		$integration = new Sample_Integration( 'test-id', 'Test Integration' );
+		$field       = [
+			'key'  => 'token',
+			'type' => 'oauth',
+		];
+		\update_option( Integration::SETTINGS_OPTION_PREFIX . 'test-id_token', 'server-managed-token' );
+
+		// Scalar inbound is ignored.
+		$this->assertSame(
+			'server-managed-token',
+			$integration->test_sanitize_settings_field_value( $field, 'attempted-override' )
+		);
+		// Non-scalar inbound is ignored.
+		$this->assertSame(
+			'server-managed-token',
+			$integration->test_sanitize_settings_field_value( $field, [ 'unexpected' => 'array' ] )
+		);
+	}
+
+	/**
+	 * Hidden settings field value is read-only on the write path: same behavior
+	 * as oauth — inbound payloads are ignored, stored values are preserved.
+	 */
+	public function test_sanitize_settings_field_value_hidden_read_only() {
 		$integration = new Sample_Integration( 'test-id', 'Test Integration' );
 		$field       = [
 			'key'  => 'secret',
 			'type' => 'hidden',
 		];
 
-		$this->assertSame(
-			'opaque-id',
-			$integration->test_sanitize_settings_field_value( $field, 'opaque-id' )
-		);
-		// Non-scalar rejected.
+		// No stored value, no default: empty string.
 		$this->assertSame(
 			'',
-			$integration->test_sanitize_settings_field_value( $field, [ 'nope' ] )
+			$integration->test_sanitize_settings_field_value( $field, 'opaque-id' )
 		);
-		// Explicit default honored on non-scalar payload.
+		// No stored value, explicit default: default returned.
 		$this->assertSame(
 			'kept',
 			$integration->test_sanitize_settings_field_value(
@@ -1285,8 +1288,19 @@ class Test_Integrations extends \WP_UnitTestCase {
 					'type'    => 'hidden',
 					'default' => 'kept',
 				],
-				[ 'nope' ]
+				'attempted-override'
 			)
+		);
+
+		// With a stored value, inbound writes (scalar or non-scalar) are ignored.
+		\update_option( Integration::SETTINGS_OPTION_PREFIX . 'test-id_secret', 'server-managed-secret' );
+		$this->assertSame(
+			'server-managed-secret',
+			$integration->test_sanitize_settings_field_value( $field, 'attempted-override' )
+		);
+		$this->assertSame(
+			'server-managed-secret',
+			$integration->test_sanitize_settings_field_value( $field, [ 'nope' ] )
 		);
 	}
 }

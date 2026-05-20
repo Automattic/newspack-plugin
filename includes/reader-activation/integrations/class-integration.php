@@ -912,13 +912,13 @@ abstract class Integration {
 		switch ( $type ) {
 			case 'hidden':
 			case 'oauth':
-				// Read-only or managed programmatically, but values still arrive via
-				// the REST settings endpoint — coerce to a sanitized scalar string and
-				// reject non-scalar payloads to keep options storage predictable.
-				if ( ! is_scalar( $value ) ) {
-					return $field['default'] ?? '';
-				}
-				return \sanitize_text_field( (string) $value );
+				// Read-only on the write path: these types are managed programmatically
+				// (e.g., server-side OAuth callbacks writing directly via update_option),
+				// so ignore inbound values from the settings REST endpoint and return
+				// the currently stored value, falling back to the declared default.
+				$option_name = self::SETTINGS_OPTION_PREFIX . $this->id . '_' . $field['key'];
+				$stored      = \get_option( $option_name, null );
+				return null !== $stored ? $stored : ( $field['default'] ?? '' );
 			case 'checkbox':
 				return (bool) $value;
 			case 'number':
