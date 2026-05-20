@@ -170,6 +170,7 @@ class Newspack_Test_WooCommerce_Subscriptions extends WP_UnitTestCase {
 			[
 				'id'     => 1,
 				'status' => 'active',
+				'meta'   => [ '_piano_subscription_id' => 'piano-1' ],
 			]
 		);
 		$existing_item = new WC_Order_Item_Product(
@@ -215,6 +216,7 @@ class Newspack_Test_WooCommerce_Subscriptions extends WP_UnitTestCase {
 			[
 				'id'     => 3,
 				'status' => 'active',
+				'meta'   => [ '_piano_subscription_id' => 'piano-3' ],
 			]
 		);
 		$existing_item = new WC_Order_Item_Product(
@@ -259,6 +261,7 @@ class Newspack_Test_WooCommerce_Subscriptions extends WP_UnitTestCase {
 				'times'  => [
 					'trial_end' => time() + DAY_IN_SECONDS,
 				],
+				'meta'   => [ '_piano_subscription_id' => 'piano-5' ],
 			]
 		);
 		$existing_item = new WC_Order_Item_Product(
@@ -271,5 +274,29 @@ class Newspack_Test_WooCommerce_Subscriptions extends WP_UnitTestCase {
 		$result = WooCommerce_Subscriptions::recover_total_paid_for_switch( 0.0, $subscription, $existing_item );
 
 		$this->assertSame( 0.0, $result, 'A subscription in an active free trial must not receive a recovered baseline.' );
+	}
+
+	/**
+	 * A non-migrated subscription must not gain a recovered baseline. WCS's
+	 * default switching behavior is intentional for comped, discounted, or
+	 * otherwise zero-paid subscriptions that originate in WooCommerce.
+	 */
+	public function test_recover_total_paid_skips_non_migrated_subscription() {
+		$subscription  = new WC_Subscription(
+			[
+				'id'     => 6,
+				'status' => 'active',
+			]
+		);
+		$existing_item = new WC_Order_Item_Product(
+			[
+				'product_id' => 100,
+				'total'      => 50.0,
+			]
+		);
+
+		$result = WooCommerce_Subscriptions::recover_total_paid_for_switch( 0.0, $subscription, $existing_item );
+
+		$this->assertSame( 0.0, $result, 'A non-migrated subscription must be left to WCS default behavior.' );
 	}
 }

@@ -27,6 +27,25 @@ class WooCommerce_Subscriptions {
 	}
 
 	/**
+	 * Detect a migrated subscription by the meta a migration writes.
+	 *
+	 * @param \WC_Subscription $subscription The subscription to check.
+	 *
+	 * @return bool True if the subscription carries Piano or Stripe migration meta.
+	 */
+	private static function is_migrated_subscription( $subscription ) {
+		if ( ! ( $subscription instanceof \WC_Subscription ) ) {
+			return false;
+		}
+		foreach ( [ '_piano_subscription_id', '_stripe_subscription_id' ] as $meta_key ) {
+			if ( $subscription->get_meta( $meta_key ) ) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
 	 * Filter to allow migrated subscription without a last order date to switch.
 	 *
 	 * This filter will also populate the subscription's last order date meta with
@@ -48,16 +67,7 @@ class WooCommerce_Subscriptions {
 				return $can_switch;
 			}
 
-			// Detect whether it's a migrated subscription.
-			$migrated_meta = [ '_piano_subscription_id', '_stripe_subscription_id' ];
-			$migrated = false;
-			foreach ( $migrated_meta as $meta ) {
-				if ( $subscription->get_meta( $meta ) ) {
-					$migrated = true;
-					break;
-				}
-			}
-			if ( ! $migrated ) {
+			if ( ! self::is_migrated_subscription( $subscription ) ) {
 				return $can_switch;
 			}
 
@@ -81,21 +91,23 @@ class WooCommerce_Subscriptions {
 	}
 
 	/**
-	 * Recover the proration baseline when WooCommerce Subscriptions cannot
-	 * determine an amount paid for the current billing period.
+	 * Recover the proration baseline for migrated subscriptions that have no
+	 * WooCommerce order history.
 	 *
-	 * WCS sums the matching line item across the subscription's related orders.
-	 * That sum is 0 for migrated subscriptions (no parent/renewal order),
-	 * 100%-discount or comped purchases (order exists, $0 paid), and broken
-	 * cross-product switch chains. A 0 baseline makes WCS treat the old
-	 * subscription as $0/day, misclassify downgrades as upgrades, and charge
-	 * the full prorated price of the new plan as a sign-up fee.
+	 * WCS sums the matching line item across the subscription's related
+	 * orders to determine the amount paid for the current billing period.
+	 * For subscriptions migrated from another platform (Piano, Stripe) that
+	 * sum is `0` because no parent or renewal order exists. A `0` baseline
+	 * makes WCS treat the old subscription as `$0/day`, misclassify
+	 * downgrades as upgrades, and charge the full prorated price of the new
+	 * plan as a sign-up fee.
 	 *
-	 * When the WCS value is non-positive, fall back to the subscription line
-	 * item's recurring total (one billing period's recurring charge), which is
-	 * dimensionally what WCS divides by the old billing cycle length. A
-	 * genuinely free subscription has a 0 recurring total and correctly stays
-	 * at 0, so no phantom credit is created.
+	 * When the subscription is migrated and WCS produced a non-positive
+	 * amount paid, fall back to the subscription line item's recurring total
+	 * (one billing period's recurring charge), which is dimensionally what
+	 * WCS divides by the old billing cycle length. All other zero-paid
+	 * subscriptions are left to WCS's default behavior on purpose: we do not
+	 * carry discounts or comps across switches.
 	 *
 	 * @param float                  $total_paid    The amount WCS computed for the current period.
 	 * @param \WC_Subscription       $subscription  The subscription being switched.
@@ -114,6 +126,15 @@ class WooCommerce_Subscriptions {
 		// trial be switched into manufactured proration credit, so leave WCS's
 		// value untouched.
 		if ( $subscription instanceof \WC_Subscription && $subscription->get_time( 'trial_end' ) > time() ) {
+			return $total_paid;
+		}
+
+		// The recovery exists to backfill proration for subscriptions migrated
+		// into WooCommerce from another platform (which have no Woo order
+		// history). For every other zero-paid case (100%-discount purchases,
+		// comps, etc.) WCS's default switching behavior is intentional and
+		// must not be overridden, so leave it alone.
+		if ( ! self::is_migrated_subscription( $subscription ) ) {
 			return $total_paid;
 		}
 
