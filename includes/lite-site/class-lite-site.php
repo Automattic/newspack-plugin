@@ -374,6 +374,9 @@ class Lite_Site {
 	 * @return string The primary color.
 	 */
 	public static function get_primary_color() {
+		if ( ! self::is_enabled() ) {
+			return 'currentcolor';
+		}
 		if ( wp_is_block_theme() ) {
 			$settings = wp_get_global_settings();
 			$palettes = $settings['color']['palette'] ?? [];
