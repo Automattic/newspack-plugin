@@ -429,6 +429,66 @@ class Test_Group_Subscriptions extends \WP_UnitTestCase {
 		$this->assertEmpty( $result );
 	}
 
+	/**
+	 * Test get_group_subscriptions_for_user() filters out user meta entries that
+	 * point to subscriptions which no longer exist (e.g. were deleted), so the
+	 * returned array never contains false/null items.
+	 */
+	public function test_get_group_subscriptions_for_user_filters_missing_subscriptions() {
+		$owner_id  = $this->create_reader_user();
+		$member_id = $this->create_reader_user();
+		$group_sub = $this->create_group_subscription( $owner_id );
+
+		// Legitimate membership.
+		add_user_meta( $member_id, Group_Subscription::GROUP_SUBSCRIPTION_USER_META_KEY, $group_sub->get_id() );
+		// Stale meta pointing to a subscription ID that does not exist in the database.
+		add_user_meta( $member_id, Group_Subscription::GROUP_SUBSCRIPTION_USER_META_KEY, 99999 );
+
+		$subscriptions = Group_Subscription::get_group_subscriptions_for_user( $member_id );
+
+		$this->assertCount( 1, $subscriptions, 'Stale subscription IDs should be filtered out' );
+		foreach ( $subscriptions as $subscription ) {
+			$this->assertNotEmpty( $subscription, 'Returned items must not be false/null' );
+			$this->assertInstanceOf( \WC_Subscription::class, $subscription );
+		}
+
+		// IDs-only mode should also exclude the missing subscription.
+		$ids = Group_Subscription::get_group_subscriptions_for_user( $member_id, true );
+		$this->assertEquals( [ $group_sub->get_id() ], array_values( $ids ) );
+		$this->assertNotContains( 99999, $ids, 'Stale subscription IDs should not appear in IDs-only mode' );
+	}
+
+	/**
+	 * Test get_group_subscriptions_for_user() returns only group subscriptions,
+	 * filtering out any meta entries that point to non-group subscriptions.
+	 */
+	public function test_get_group_subscriptions_for_user_filters_non_group_subscriptions() {
+		$owner_id    = $this->create_reader_user();
+		$member_id   = $this->create_reader_user();
+		$group_sub   = $this->create_group_subscription( $owner_id );
+		$regular_sub = $this->create_regular_subscription( $owner_id );
+
+		// Membership in a real group subscription.
+		add_user_meta( $member_id, Group_Subscription::GROUP_SUBSCRIPTION_USER_META_KEY, $group_sub->get_id() );
+		// Meta pointing to a regular (non-group) subscription that should be filtered out.
+		add_user_meta( $member_id, Group_Subscription::GROUP_SUBSCRIPTION_USER_META_KEY, $regular_sub->get_id() );
+
+		$subscriptions = Group_Subscription::get_group_subscriptions_for_user( $member_id );
+
+		$this->assertCount( 1, $subscriptions, 'Non-group subscriptions should be filtered out' );
+		foreach ( $subscriptions as $subscription ) {
+			$this->assertTrue(
+				Group_Subscription::is_group_subscription( $subscription ),
+				'Every returned subscription must be a group subscription'
+			);
+		}
+
+		// IDs-only mode should also exclude the regular subscription.
+		$ids = Group_Subscription::get_group_subscriptions_for_user( $member_id, true );
+		$this->assertEquals( [ $group_sub->get_id() ], array_values( $ids ) );
+		$this->assertNotContains( $regular_sub->get_id(), $ids, 'Regular subscription IDs should not appear in IDs-only mode' );
+	}
+
 	// -------------------------------------------------------------------------
 	// Group_Subscription_Settings name tests
 	// -------------------------------------------------------------------------

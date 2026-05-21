@@ -1,3 +1,10 @@
+# [6.41.0](https://github.com/Automattic/newspack-plugin/compare/v6.40.1...v6.41.0) (2026-05-21)
+
+
+### Features
+
+* **access-control:** add group subscription identifier to metadata ([#4746](https://github.com/Automattic/newspack-plugin/issues/4746)) ([d201b9a](https://github.com/Automattic/newspack-plugin/commit/d201b9af6f57c3f736dd50f733817e53b2f8a524)), closes [#4697](https://github.com/Automattic/newspack-plugin/issues/4697) [#4697](https://github.com/Automattic/newspack-plugin/issues/4697) [#8217](https://github.com/Automattic/newspack-plugin/issues/8217) [#4697](https://github.com/Automattic/newspack-plugin/issues/4697)
+
 ## [6.40.1](https://github.com/Automattic/newspack-plugin/compare/v6.40.0...v6.40.1) (2026-05-18)
 
 
