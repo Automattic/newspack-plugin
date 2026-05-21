@@ -157,7 +157,7 @@ class IP_Access_Rule {
 		}
 
 		if ( $valid ) {
-			setcookie( self::COOKIE_NAME, '1', time() + MONTH_IN_SECONDS, COOKIEPATH, COOKIE_DOMAIN ); // phpcs:ignore
+			setcookie( self::COOKIE_NAME, '1', time() + YEAR_IN_SECONDS, COOKIEPATH, COOKIE_DOMAIN ); // phpcs:ignore
 		}
 
 		$data = [ 'valid' => $valid ];

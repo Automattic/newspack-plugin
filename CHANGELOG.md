@@ -1,3 +1,10 @@
+## [6.41.1](https://github.com/Automattic/newspack-plugin/compare/v6.41.0...v6.41.1) (2026-05-21)
+
+
+### Bug Fixes
+
+* **access-control:** increase expiration of IP access cookie to 1 year ([#4749](https://github.com/Automattic/newspack-plugin/issues/4749)) ([d8e5b64](https://github.com/Automattic/newspack-plugin/commit/d8e5b64c246e23b9ea04f82af237c3f404d2c662))
+
 # [6.41.0](https://github.com/Automattic/newspack-plugin/compare/v6.40.1...v6.41.0) (2026-05-21)
 
 
