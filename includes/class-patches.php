@@ -46,7 +46,9 @@ class Patches {
 		add_action( 'tribe_events_views_v2_after_make_view', [ __CLASS__, 'remove_tec_extra_excerpt_filtering' ], 1 );
 
 		// Prevent Customizer "Additional CSS" from leaking into the iframed block editor in WP 7.0+.
-		add_filter( 'block_editor_settings_all', [ __CLASS__, 'strip_customizer_css_from_editor' ], 999 );
+		if ( version_compare( get_bloginfo( 'version' ), '7.0', '>=' ) ) {
+			add_filter( 'block_editor_settings_all', [ __CLASS__, 'strip_customizer_css_from_editor' ], 999 );
+		}
 	}
 
 	/**
