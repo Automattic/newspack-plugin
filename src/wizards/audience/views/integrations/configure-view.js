@@ -144,16 +144,21 @@ export const ConfigureView = ( { integrations, loading, pendingChanges, saving, 
 						<Grid columns={ 2 } gutter={ 32 } noMargin>
 							<SectionHeader heading={ 2 } title={ __( 'Inbound', 'newspack-plugin' ) } noMargin />
 							<Grid columns={ 1 } rowGap={ 8 } noMargin>
-								{ ( inboundField.options || [] ).map( optionName => {
+								{ ( inboundField.options || [] ).map( option => {
+									// Framework injects options as { value, label } objects
+									// (see class-integration.php:get_settings_config()), but accepts bare strings
+									// for backward compatibility.
+									const optionValue = typeof option === 'string' ? option : option.value;
+									const optionLabel = typeof option === 'string' ? option : option.label || option.value;
 									const currentValue = getFieldValue( inboundField );
 									const selected = Array.isArray( currentValue ) ? currentValue : [];
 									return (
 										<CheckboxControl
 											className="newspack-checkbox-control"
-											key={ optionName }
-											label={ optionName }
-											checked={ selected.includes( optionName ) }
-											onChange={ checked => handleCheckboxListChange( inboundField.key, currentValue, optionName, checked ) }
+											key={ optionValue }
+											label={ optionLabel }
+											checked={ selected.includes( optionValue ) }
+											onChange={ checked => handleCheckboxListChange( inboundField.key, currentValue, optionValue, checked ) }
 										/>
 									);
 								} ) }
