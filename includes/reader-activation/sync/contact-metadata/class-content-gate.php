@@ -8,6 +8,8 @@
 namespace Newspack\Reader_Activation\Sync\Contact_Metadata;
 
 use Newspack\Reader_Activation\Sync\Contact_Metadata;
+use Newspack\Reader_Activation\Sync\Legacy_Metadata;
+use Newspack\Reader_Activation\Sync\Metadata;
 use Newspack\Access_Rules;
 use Newspack\Content_Gate as Content_Gate_CPT;
 use Newspack\Group_Subscription;
@@ -78,26 +80,36 @@ class Content_Gate extends Contact_Metadata {
 
 		$custom_access_gates = self::get_custom_access_gates();
 
-		// No custom access gates configured — nothing to evaluate.
 		if ( empty( $custom_access_gates ) ) {
-			return [
+			$metadata = [
 				'Content_Access'        => '',
 				'Content_Access_Source' => '',
 				'Content_Access_Group'  => '',
 			];
+		} else {
+			$evaluations = [];
+			foreach ( $custom_access_gates as $gate ) {
+				$evaluations[] = User_Gate_Access::evaluate_gate_for_user( $gate, $this->user->ID );
+			}
+
+			$user_id  = $this->user->ID;
+			$metadata = [
+				'Content_Access'        => self::has_content_access( $evaluations ) ? 'Yes' : 'No',
+				'Content_Access_Source' => implode( ', ', self::collect_labels( $evaluations, $user_id, [ self::class, 'get_source_labels' ] ) ),
+				'Content_Access_Group'  => implode( ', ', self::collect_labels( $evaluations, $user_id, [ self::class, 'get_group_labels' ] ) ),
+			];
 		}
 
-		$evaluations = [];
-		foreach ( $custom_access_gates as $gate ) {
-			$evaluations[] = User_Gate_Access::evaluate_gate_for_user( $gate, $this->user->ID );
+		// In legacy mode the main sync path does not run a normalize step on
+		// the merged contact, so each metadata class must return keys in the
+		// prefixed shape (matching Legacy_Basic / Legacy_Payment). Without this,
+		// raw Content_Access keys are silently dropped at the ESP push.
+		if ( 'legacy' === Metadata::get_version() ) {
+			$normalized = Legacy_Metadata::normalize_contact_data( [ 'metadata' => $metadata ] );
+			return $normalized['metadata'] ?? [];
 		}
 
-		$user_id = $this->user->ID;
-		return [
-			'Content_Access'        => self::has_content_access( $evaluations ) ? 'Yes' : 'No',
-			'Content_Access_Source' => implode( ', ', self::collect_labels( $evaluations, $user_id, [ self::class, 'get_source_labels' ] ) ),
-			'Content_Access_Group'  => implode( ', ', self::collect_labels( $evaluations, $user_id, [ self::class, 'get_group_labels' ] ) ),
-		];
+		return $metadata;
 	}
 
 	/**

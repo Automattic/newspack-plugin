@@ -190,6 +190,23 @@ class Test_Content_Gate_Legacy extends WP_UnitTestCase {
 		);
 	}
 
+	public function test_content_gate_fields_arrive_prefixed_from_get_contact_with_metadata() {
+		$this->create_custom_access_gate( $this->passing_email_domain_rules() );
+		Metadata::update_fields( [ 'Content Access' ] );
+
+		// The main legacy sync path feeds get_contact_with_metadata() directly
+		// into the integration push without an additional normalize step —
+		// metadata classes must return prefixed keys to avoid silent drops.
+		$contact = Metadata::get_contact_with_metadata( self::$user_id );
+
+		$this->assertArrayHasKey(
+			'NP_Content Access',
+			$contact['metadata'],
+			'Content_Gate metadata must arrive prefixed from get_contact_with_metadata() in legacy mode.'
+		);
+		$this->assertSame( 'Yes', $contact['metadata']['NP_Content Access'] );
+	}
+
 	public function test_v1_schema_also_exposes_content_access_fields() {
 		Metadata::$version = '1.0';
 		Content_Gate_Metadata::reset_cache();
