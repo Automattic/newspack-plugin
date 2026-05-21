@@ -38,7 +38,7 @@ class Metadata {
 	/**
 	 * Get the metadata classes to be used for syncing contact metadata to the ESP.
 	 *
-	 * These are the metadata classes that will be used in case get_version is not legacy.
+	 * These are the metadata classes that will be used to build the full set of contact metadata fields.
 	 *
 	 * @return array List of metadata classes.
 	 */
@@ -47,6 +47,7 @@ class Metadata {
 			$classes = [
 				'Legacy_Basic',
 				'Legacy_Payment',
+				'Content_Gate',
 			];
 		} else {
 			$classes = [
