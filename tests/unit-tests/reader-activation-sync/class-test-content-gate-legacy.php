@@ -141,6 +141,7 @@ class Test_Content_Gate_Legacy extends WP_UnitTestCase {
 		$this->assertArrayHasKey( 'Content_Access', $fields, 'Legacy schema should expose the Content_Access field.' );
 		$this->assertSame( 'Content Access', $fields['Content_Access'] );
 		$this->assertArrayHasKey( 'Content_Access_Source', $fields );
+		$this->assertArrayHasKey( 'Content_Access_Group', $fields );
 	}
 
 	public function test_is_available_follows_content_gate_feature_flag() {
@@ -273,7 +274,7 @@ class Test_Content_Gate_Legacy extends WP_UnitTestCase {
 		);
 	}
 
-	public function test_institution_rule_path_yields_group_source() {
+	public function test_institution_rule_path_yields_institution_source() {
 		$institution_id = Institution::create( 'Test University', '', [ 'email_domain' => 'example.com' ] );
 		$this->assertNotInstanceOf( WP_Error::class, $institution_id );
 
@@ -294,9 +295,9 @@ class Test_Content_Gate_Legacy extends WP_UnitTestCase {
 
 		$this->assertSame( 'Yes', $normalized['metadata']['NP_Content Access'] );
 		$this->assertSame(
-			'group',
+			'institution',
 			$normalized['metadata']['NP_Content Access Source'],
-			'Institution-rule passes must yield the "group" source label.'
+			'Institution-rule passes must yield the "institution" source label.'
 		);
 	}
 }
