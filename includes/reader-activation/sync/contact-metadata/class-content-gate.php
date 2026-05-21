@@ -52,7 +52,7 @@ class Content_Gate extends Contact_Metadata {
 	 * @return string
 	 */
 	public static function get_section_name() {
-		return __( 'Content Access', 'newspack' );
+		return __( 'Content Access', 'newspack-plugin' );
 	}
 
 	/**
