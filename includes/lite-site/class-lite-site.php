@@ -380,6 +380,10 @@ class Lite_Site {
 	 */
 	public static function get_primary_color() {
 		if ( wp_is_block_theme() ) {
+			// Guard against re-entry via wp_theme_json_data_theme — wp_get_global_settings() re-fires that filter and recurses.
+			if ( doing_filter( 'wp_theme_json_data_theme' ) ) {
+				return 'currentcolor';
+			}
 			$settings = wp_get_global_settings();
 			$palettes = $settings['color']['palette'] ?? [];
 			$palette  = [];
