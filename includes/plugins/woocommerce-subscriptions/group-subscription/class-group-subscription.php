@@ -41,7 +41,7 @@ class Group_Subscription {
 	 */
 	public static function init() {
 		// Subscription status changes (WCS hook fires for any active <-> non-active transition).
-		\add_action( 'woocommerce_subscription_status_updated', [ __CLASS__, 'reset_cache' ] );
+		\add_action( 'woocommerce_subscription_status_updated', [ __CLASS__, 'reset_cache' ], 10, 0 );
 		// Group member meta add / remove.
 		\add_action( 'added_user_meta', [ __CLASS__, 'maybe_reset_cache_on_user_meta' ], 10, 3 );
 		\add_action( 'updated_user_meta', [ __CLASS__, 'maybe_reset_cache_on_user_meta' ], 10, 3 );
