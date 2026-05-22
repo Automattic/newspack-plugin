@@ -15,38 +15,42 @@ window.newspackRAS.push( function ( readerActivation ) {
 			return;
 		}
 
+		const setupReveal = container => {
+			const seeAllButton = container.querySelector( '.see-all-button' );
+			const newsletterContainer = container.querySelector( '.newsletter-list-container' );
+			if ( ! seeAllButton || ! newsletterContainer ) {
+				return;
+			}
+			const divider = newsletterContainer.querySelector( '.newspack-ui__gradient-divider' );
+			const peekItem = newsletterContainer.querySelector( '.newspack-ui__input-card[inert]:not(.hidden)' );
+
+			seeAllButton.addEventListener( 'click', () => {
+				const firstRevealed = newsletterContainer.querySelector( '.newspack-ui__input-card[inert]' );
+				newsletterContainer.querySelectorAll( '.newspack-ui__input-card[inert]' ).forEach( item => {
+					item.classList.remove( 'hidden' );
+					item.removeAttribute( 'inert' );
+				} );
+				newsletterContainer.style.maxHeight = 'none';
+				if ( divider ) {
+					divider.classList.add( 'hidden' );
+				}
+				seeAllButton.classList.add( 'hidden' );
+				firstRevealed?.querySelector( 'input' )?.focus();
+			} );
+
+			if ( peekItem ) {
+				const peekAmount = 32;
+				newsletterContainer.style.maxHeight = `${ peekItem.offsetTop + peekAmount }px`;
+			}
+		};
+
 		containers.forEach( container => {
 			let form = container.querySelector( 'form' );
 			if ( ! form ) {
 				return;
 			}
 
-			const seeAllButton = container.querySelector( '.see-all-button' );
-			const newsletterContainer = container.querySelector( '.newsletter-list-container' );
-			const divider = newsletterContainer?.querySelector( '.newspack-ui__gradient-divider' );
-
-			if ( seeAllButton && newsletterContainer ) {
-				const peekItem = newsletterContainer.querySelector( '.newspack-ui__input-card[inert]:not(.hidden)' );
-
-				seeAllButton.addEventListener( 'click', () => {
-					const firstRevealed = newsletterContainer.querySelector( '.newspack-ui__input-card[inert]' );
-					newsletterContainer.querySelectorAll( '.newspack-ui__input-card[inert]' ).forEach( item => {
-						item.classList.remove( 'hidden' );
-						item.removeAttribute( 'inert' );
-					} );
-					newsletterContainer.style.maxHeight = 'none';
-					if ( divider ) {
-						divider.classList.add( 'hidden' );
-					}
-					seeAllButton.classList.add( 'hidden' );
-					firstRevealed?.querySelector( 'input' )?.focus();
-				} );
-
-				if ( peekItem ) {
-					const peekAmount = 32;
-					newsletterContainer.style.maxHeight = `${ peekItem.offsetTop + peekAmount }px`;
-				}
-			}
+			setupReveal( container );
 
 			const handleSubmit = ev => {
 				ev.preventDefault();
@@ -110,6 +114,7 @@ window.newspackRAS.push( function ( readerActivation ) {
 				// Make sure we aren't adding multiple event listeners to the form.
 				form.removeEventListener( 'submit', handleSubmit );
 				form.addEventListener( 'submit', handleSubmit );
+				setupReveal( container );
 			} );
 		} );
 	} );

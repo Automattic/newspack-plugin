@@ -1229,13 +1229,12 @@ class Newspack_UI {
 						</div>
 						<script>
 							( function() {
-								const container = document.querySelector( '.newspack-newsletters-signup' );
-								if ( ! container ) {
-									return;
-								}
-								const seeAllButton = container.querySelector( '.see-all-button' );
-								const newsletterContainer = container.querySelector( '.newsletter-list-container' );
-								if ( seeAllButton && newsletterContainer ) {
+								const setupReveal = function( container ) {
+									const seeAllButton = container.querySelector( '.see-all-button' );
+									const newsletterContainer = container.querySelector( '.newsletter-list-container' );
+									if ( ! seeAllButton || ! newsletterContainer ) {
+										return;
+									}
 									const divider = newsletterContainer.querySelector( '.newspack-ui__gradient-divider' );
 									const peekItem = newsletterContainer.querySelector( '.newspack-ui__input-card[inert]:not(.hidden)' );
 
@@ -1262,6 +1261,11 @@ class Newspack_UI {
 										const peekAmount = 32;
 										newsletterContainer.style.maxHeight = ( peekItem.offsetTop + peekAmount ) + 'px';
 									}
+								};
+
+								const container = document.querySelector( '.newspack-newsletters-signup' );
+								if ( container ) {
+									setupReveal( container );
 								}
 							} )();
 						</script>
