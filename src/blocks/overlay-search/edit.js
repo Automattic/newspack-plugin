@@ -41,6 +41,7 @@ export default function OverlaySearchEdit( { attributes, setAttributes, clientId
 	const blockProps = useBlockProps( {
 		className: classnames(
 			blockClassName,
+			'wp-element-button',
 			'wp-block-button__link',
 			'newspack-overlay-search__trigger',
 			colorProps.className,
