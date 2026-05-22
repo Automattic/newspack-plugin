@@ -46,6 +46,13 @@
 		outline: 2px solid;
 		outline-offset: 1px;
 	}
+
+	svg {
+		display: block;
+		width: var( --wp--preset--spacing--40, 1.5rem );
+		height: var( --wp--preset--spacing--40, 1.5rem );
+		fill: currentcolor;
+	}
 }
 
 // Panel content area.
