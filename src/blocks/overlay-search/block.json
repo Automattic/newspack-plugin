@@ -23,14 +23,6 @@
 		"className": {
 			"type": "string",
 			"default": ""
-		},
-		"backgroundColor": {
-			"type": "string",
-			"default": "base"
-		},
-		"textColor": {
-			"type": "string",
-			"default": "contrast"
 		}
 	},
 	"supports": {
