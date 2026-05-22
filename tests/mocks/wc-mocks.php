@@ -400,6 +400,21 @@ class WC_Subscription {
 class WC_Subscriptions {
 }
 
+if ( ! class_exists( 'WC_Subscriptions_Switcher' ) ) {
+	/**
+	 * Mock of WC_Subscriptions_Switcher.
+	 *
+	 * Calculate_total_paid_since_last_order() returns the value of the
+	 * $wcs_mock_total_paid_including_signup_fee global so tests can drive it.
+	 */
+	class WC_Subscriptions_Switcher {
+		public static function calculate_total_paid_since_last_order( $subscription, $subscription_item, $include_sign_up_fees = 'include_sign_up_fees', $orders_to_include = [] ) {
+			global $wcs_mock_total_paid_including_signup_fee;
+			return $wcs_mock_total_paid_including_signup_fee ?? 0;
+		}
+	}
+}
+
 if ( ! class_exists( 'WC_Subscriptions_Product' ) ) {
 	class WC_Subscriptions_Product {
 	}
