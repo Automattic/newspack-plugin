@@ -603,7 +603,7 @@ abstract class Integration {
 			$fields_to_store[ $key ] = $raw_data;
 		}
 
-		return \update_option( self::INCOMING_FIELDS_OPTION_PREFIX . $this->id, $fields_to_store );
+		return \update_option( self::INCOMING_FIELDS_OPTION_PREFIX . $this->id, $fields_to_store, false );
 	}
 
 	/**
@@ -615,7 +615,7 @@ abstract class Integration {
 	public function update_enabled_outgoing_fields( $fields ) {
 		// Only allow fields that are in the metadata keys map.
 		$fields = array_intersect( Sync\Metadata::get_default_fields(), $fields );
-		return \update_option( self::OUTGOING_FIELDS_OPTION_PREFIX . $this->id, array_values( $fields ) );
+		return \update_option( self::OUTGOING_FIELDS_OPTION_PREFIX . $this->id, array_values( $fields ), false );
 	}
 
 	/**
@@ -698,7 +698,7 @@ abstract class Integration {
 		$legacy_value = \get_option( Sync\Metadata::PREFIX_OPTION, null );
 		if ( null !== $legacy_value && ! empty( $legacy_value ) ) {
 			// update option directly to avoid infinite loop.
-			\update_option( self::METADATA_PREFIX_OPTION_PREFIX . $this->id, $legacy_value );
+			\update_option( self::METADATA_PREFIX_OPTION_PREFIX . $this->id, $legacy_value, false );
 			return $legacy_value;
 		}
 		return 'NP_';
@@ -758,7 +758,7 @@ abstract class Integration {
 		if ( empty( $prefix ) ) {
 			$prefix = 'NP_';
 		}
-		return \update_option( self::METADATA_PREFIX_OPTION_PREFIX . $this->id, \sanitize_text_field( $prefix ) );
+		return \update_option( self::METADATA_PREFIX_OPTION_PREFIX . $this->id, \sanitize_text_field( $prefix ), false );
 	}
 
 	/**
@@ -835,7 +835,7 @@ abstract class Integration {
 			$legacy_value = \get_option( self::$legacy_option_map[ $key ], null );
 			if ( null !== $legacy_value ) {
 				// update option directly to avoid infinite loop.
-				\update_option( $option_name, $legacy_value );
+				\update_option( $option_name, $legacy_value, false );
 				return $legacy_value;
 			}
 		}
@@ -868,7 +868,7 @@ abstract class Integration {
 		}
 
 		$option_name = self::SETTINGS_OPTION_PREFIX . $this->id . '_' . $key;
-		return \update_option( $option_name, $sanitized );
+		return \update_option( $option_name, $sanitized, false );
 	}
 
 	/**
