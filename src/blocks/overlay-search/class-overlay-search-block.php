@@ -13,12 +13,6 @@ defined( 'ABSPATH' ) || exit;
  * Overlay Search Block.
  */
 final class Overlay_Search_Block {
-	// Inline search (magnifying glass) icon.
-	const ICON_SEARCH = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M13.5 6C10.5 6 8 8.5 8 11.5c0 1.1.3 2.1.9 3l-3.4 3 1 1.1 3.4-3c1 .9 2.2 1.4 3.6 1.4 3 0 5.5-2.5 5.5-5.5C19 8.5 16.5 6 13.5 6zm0 9.5c-2.2 0-4-1.8-4-4s1.8-4 4-4 4 1.8 4 4-1.8 4-4 4z"/></svg>';
-
-	// Inline close (X) icon — matches the overlay-menu panel block.
-	const ICON_CLOSE = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M13 11.8l6.1-6.3-1-1-6.1 6.2-6.1-6.2-1 1 6.1 6.3-6.5 6.7 1 1 6.5-6.6 6.5 6.6 1-1z"/></svg>';
-
 	/**
 	 * Initialize the block.
 	 *
@@ -121,7 +115,7 @@ final class Overlay_Search_Block {
 				<a <?php echo $wrapper_attributes; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
 					<?php if ( ! $is_text_only ) : ?>
 						<span class="newspack-overlay-search__icon" aria-hidden="true">
-							<?php echo self::ICON_SEARCH; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+							<?php echo \Newspack\Newspack_UI_Icons::get_svg( 'search' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 						</span>
 					<?php endif; ?>
 					<span class="<?php echo \esc_attr( $label_classes ); ?>">
@@ -166,7 +160,7 @@ final class Overlay_Search_Block {
 				<button <?php echo $wrapper_attributes; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
 					<?php if ( ! $is_text_only ) : ?>
 						<span class="newspack-overlay-search__icon" aria-hidden="true">
-							<?php echo self::ICON_SEARCH; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+							<?php echo \Newspack\Newspack_UI_Icons::get_svg( 'search' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 						</span>
 					<?php endif; ?>
 					<span class="<?php echo \esc_attr( $label_classes ); ?>">
@@ -233,7 +227,7 @@ final class Overlay_Search_Block {
 		>
 			<button type="button" class="newspack-overlay-search__close">
 				<span class="newspack-overlay-search__icon" aria-hidden="true">
-					<?php echo self::ICON_CLOSE; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+					<?php echo \Newspack\Newspack_UI_Icons::get_svg( 'close' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 				</span>
 				<span class="screen-reader-text">
 					<?php \esc_html_e( 'Close search', 'newspack-plugin' ); ?>

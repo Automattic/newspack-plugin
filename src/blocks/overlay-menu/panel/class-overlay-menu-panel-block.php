@@ -14,9 +14,6 @@ defined( 'ABSPATH' ) || exit;
  */
 final class Overlay_Menu_Panel_Block {
 
-	// Inline SVG for the close icon.
-	const ICON_CLOSE = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M13 11.8l6.1-6.3-1-1-6.1 6.2-6.1-6.2-1 1 6.1 6.3-6.5 6.7 1 1 6.5-6.6 6.5 6.6 1-1z"/></svg>';
-
 	/**
 	 * Initializes the block.
 	 *
@@ -105,7 +102,7 @@ final class Overlay_Menu_Panel_Block {
 					class="overlay-menu__close"
 				>
 					<span class="overlay-menu__icon" aria-hidden="true">
-						<?php echo self::ICON_CLOSE; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+						<?php echo \Newspack\Newspack_UI_Icons::get_svg( 'close' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 					</span>
 					<span class="screen-reader-text">
 						<?php esc_html_e( 'Close', 'newspack-plugin' ); ?>

@@ -14,9 +14,6 @@ defined( 'ABSPATH' ) || exit;
  */
 final class Overlay_Menu_Trigger_Block {
 
-	// Inline SVG for the menu (overlay) icon.
-	const ICON_MENU = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M5 5v1.5h14V5H5zm0 7.8h14v-1.5H5v1.5zM5 19h14v-1.5H5V19z"/></svg>';
-
 	/**
 	 * Initializes the block.
 	 *
@@ -73,7 +70,7 @@ final class Overlay_Menu_Trigger_Block {
 				>
 					<?php if ( $show_icon ) : ?>
 						<span class="overlay-menu__icon" aria-hidden="true">
-							<?php echo self::ICON_MENU; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+							<?php echo \Newspack\Newspack_UI_Icons::get_svg( 'menu' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 						</span>
 					<?php endif; ?>
 					<span class="<?php echo esc_attr( $text_class ); ?>">
