@@ -37,7 +37,7 @@
 		},
 		"panelTextColor": {
 			"type": "string",
-			"default": "var(--wp--preset--color--contrast, #000000)"
+			"default": "var(--wp--preset--color--contrast, #1E1E1E)"
 		}
 	},
 	"supports": {
