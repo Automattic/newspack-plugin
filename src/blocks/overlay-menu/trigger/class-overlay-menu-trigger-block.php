@@ -66,7 +66,6 @@ final class Overlay_Menu_Trigger_Block {
 					type="button"
 					aria-expanded="false"
 					aria-controls="newspack-overlay-panel-<?php echo esc_attr( $instance_id ); ?>"
-					aria-label="<?php echo esc_attr( $trigger_text ); ?>"
 				>
 					<?php if ( $show_icon ) : ?>
 						<span class="overlay-menu__icon" aria-hidden="true">
