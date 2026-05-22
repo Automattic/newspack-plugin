@@ -33,7 +33,7 @@
 .overlay-menu__close-wrapper {
 	align-items: center;
 	display: flex;
-	height: var( --wp--custom--spacing--85, 3rem );
+	height: var( --wp--custom--spacing--85, 4rem );
 	justify-content: flex-end;
 	margin-right: calc( -1 * var( --wp--preset--spacing--30 ) );
 
@@ -52,7 +52,7 @@
 	display: inline-flex;
 	font-family: inherit;
 	font-size: inherit;
-	gap: var( --wp--preset--spacing--10, 0.25rem );
+	gap: var( --wp--custom--spacing--10, 0.25rem );
 	padding: var( --wp--preset--spacing--20 );
 }
 
@@ -66,7 +66,6 @@
 // no dependency on the theme's overlay-contents classes.
 
 .overlay-menu__panel {
-	background: var( --wp--preset--color--base, #fff );
 	bottom: 0;
 	opacity: 0;
 	overflow-y: auto;

@@ -33,11 +33,11 @@
 		},
 		"panelBackgroundColor": {
 			"type": "string",
-			"default": ""
+			"default": "var(--wp--preset--color--base)"
 		},
 		"panelTextColor": {
 			"type": "string",
-			"default": ""
+			"default": "var(--wp--preset--color--contrast)"
 		}
 	},
 	"supports": {
