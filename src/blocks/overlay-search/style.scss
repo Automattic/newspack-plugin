@@ -1,5 +1,5 @@
 /**
- * Search Overlay Block
+ * Overlay Search Block
  *
  * Panel styles are written at root scope (not nested under the block wrapper
  * selector) because `view.js` moves the panel to `document.body` on open and
@@ -9,12 +9,12 @@
 @use "../../newspack-ui/scss/variables/breakpoints";
 
 // Trigger button — icon + label layout.
-.newspack-search-overlay__trigger {
+.newspack-overlay-search__trigger {
 	display: inline-flex;
 	align-items: center;
 	gap: 0.5em;
 
-	.newspack-search-overlay__icon {
+	.newspack-overlay-search__icon {
 		display: inline-flex;
 		align-items: center;
 		justify-content: center;
@@ -27,8 +27,14 @@
 	}
 }
 
+.wp-block-newspack-overlay-search.is-style-icon-only .newspack-overlay-search__trigger {
+	aspect-ratio: 1;
+	padding-inline: 0;
+	justify-content: center;
+}
+
 // Panel — root scope.
-.newspack-search-overlay__panel {
+.newspack-overlay-search__panel {
 	position: fixed;
 	inset: 0;
 	z-index: 99999;
@@ -55,18 +61,18 @@
 		visibility: visible;
 		transition: opacity 250ms ease-in-out, visibility 0s linear 0s;
 
-		.newspack-search-overlay__content {
-			animation: newspack-search-overlay__fade-in 250ms ease-in-out;
+		.newspack-overlay-search__content {
+			animation: newspack-overlay-search__fade-in 250ms ease-in-out;
 		}
 	}
 
-	.newspack-search-overlay__content {
+	.newspack-overlay-search__content {
 		width: 100%;
 		max-width: var(--wp--style--global--content-size, 720px);
 		margin: 0 auto;
 	}
 
-	.newspack-search-overlay__close {
+	.newspack-overlay-search__close {
 		position: absolute;
 		top: 1rem;
 		right: 1rem;
@@ -91,15 +97,15 @@
 
 // Lock document scrolling while any search overlay instance is open.
 body:is(
-	[class^="menu-open--search-overlay-"],
-	[class*=" menu-open--search-overlay-"]
+	[class^="menu-open--overlay-search-"],
+	[class*=" menu-open--overlay-search-"]
 ) {
 	overflow: hidden !important; // !important to temporarily override style from block theme's overlay approach.
 }
 
 // Slide-down + fade-in on the content as the panel opens — mirrors the
 // `search-contents__fade-in-animation` in newspack-block-theme.
-@keyframes newspack-search-overlay__fade-in { /* stylelint-disable-line keyframes-name-pattern */
+@keyframes newspack-overlay-search__fade-in { /* stylelint-disable-line keyframes-name-pattern */
 	0% {
 		opacity: 0;
 		transform: translateY(calc(-1 * var(--wp--preset--spacing--30, 1rem)));

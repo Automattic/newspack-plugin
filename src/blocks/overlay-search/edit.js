@@ -24,7 +24,7 @@ import {
 } from '@wordpress/block-editor';
 import { Icon } from '@wordpress/components';
 
-export default function SearchOverlayEdit( { attributes, setAttributes, clientId } ) {
+export default function OverlaySearchEdit( { attributes, setAttributes, clientId } ) {
 	const { triggerText, className: blockClassName, overlayColor } = attributes;
 
 	const borderProps = useBorderProps( attributes );
@@ -42,7 +42,7 @@ export default function SearchOverlayEdit( { attributes, setAttributes, clientId
 		className: classnames(
 			blockClassName,
 			'wp-block-button__link',
-			'newspack-search-overlay__trigger',
+			'newspack-overlay-search__trigger',
 			colorProps.className,
 			borderProps.className
 		),
@@ -80,7 +80,7 @@ export default function SearchOverlayEdit( { attributes, setAttributes, clientId
 				<div className="wp-block-button">
 					<button { ...blockProps } type="button" onClick={ e => e.preventDefault() }>
 						{ isIconVisible && (
-							<span className="newspack-search-overlay__icon" aria-hidden="true">
+							<span className="newspack-overlay-search__icon" aria-hidden="true">
 								<Icon icon={ searchIcon } />
 							</span>
 						) }

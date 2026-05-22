@@ -1,5 +1,5 @@
 /**
- * Search Overlay Block — Frontend Script
+ * Overlay Search Block — Frontend Script
  *
  * Initializes a self-contained search overlay for each block instance on the
  * page. Multiple instances work independently: each trigger opens only its own
@@ -59,7 +59,7 @@ const init = trigger => {
 		return;
 	}
 
-	const closeBtn = panel.querySelector( '.newspack-search-overlay__close' );
+	const closeBtn = panel.querySelector( '.newspack-overlay-search__close' );
 
 	// Set close-button color to whichever of black/white contrasts the panel's
 	// resolved background.
@@ -116,7 +116,7 @@ const init = trigger => {
 		trigger.setAttribute( 'aria-expanded', 'true' );
 		panel.setAttribute( 'aria-hidden', 'false' );
 		panel.removeAttribute( 'inert' );
-		document.body.classList.add( `menu-open--search-overlay-${ panelId }` );
+		document.body.classList.add( `menu-open--overlay-search-${ panelId }` );
 
 		focusTrapCleanup = trapFocus();
 
@@ -168,7 +168,7 @@ const init = trigger => {
 		trigger.setAttribute( 'aria-expanded', 'false' );
 		panel.setAttribute( 'aria-hidden', 'true' );
 		panel.setAttribute( 'inert', '' );
-		document.body.classList.remove( `menu-open--search-overlay-${ panelId }` );
+		document.body.classList.remove( `menu-open--overlay-search-${ panelId }` );
 
 		// Return focus to the element that had focus when we opened — usually
 		// the trigger, but fall back to it if for some reason that element is
@@ -216,5 +216,5 @@ const init = trigger => {
 };
 
 domReady( () => {
-	document.querySelectorAll( '.newspack-search-overlay__trigger[aria-controls]' ).forEach( init );
+	document.querySelectorAll( '.newspack-overlay-search__trigger[aria-controls]' ).forEach( init );
 } );

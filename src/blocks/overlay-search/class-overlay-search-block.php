@@ -1,18 +1,18 @@
 <?php
 /**
- * Search Overlay Block.
+ * Overlay Search Block.
  *
  * @package Newspack
  */
 
-namespace Newspack\Blocks\Search_Overlay;
+namespace Newspack\Blocks\Overlay_Search;
 
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Search Overlay Block.
+ * Overlay Search Block.
  */
-final class Search_Overlay_Block {
+final class Overlay_Search_Block {
 	// Inline search (magnifying glass) icon.
 	const ICON_SEARCH = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M13.5 6C10.5 6 8 8.5 8 11.5c0 1.1.3 2.1.9 3l-3.4 3 1 1.1 3.4-3c1 .9 2.2 1.4 3.6 1.4 3 0 5.5-2.5 5.5-5.5C19 8.5 16.5 6 13.5 6zm0 9.5c-2.2 0-4-1.8-4-4s1.8-4 4-4 4 1.8 4 4-1.8 4-4 4z"/></svg>';
 
@@ -65,7 +65,7 @@ final class Search_Overlay_Block {
 		$is_text_only = in_array( 'is-style-text-only', $classes, true );
 
 		// `wp_unique_id()` returns a per-request counter ("1", "2", ...); prefix once for a clean DOM id.
-		$panel_id = 'newspack-search-overlay-panel-' . \wp_unique_id();
+		$panel_id = 'newspack-overlay-search-panel-' . \wp_unique_id();
 
 		if ( self::is_jetpack_instant_search_active() ) {
 			return self::render_jetpack_trigger( $trigger_text, $is_icon_only, $is_text_only );
@@ -106,13 +106,13 @@ final class Search_Overlay_Block {
 		// icon-only) already supplies the accessible name.
 		$wrapper_attributes = \get_block_wrapper_attributes(
 			[
-				'class' => 'wp-element-button wp-block-button__link newspack-search-overlay__trigger jetpack-search-filter__link',
+				'class' => 'wp-element-button wp-block-button__link newspack-overlay-search__trigger jetpack-search-filter__link',
 				'href'  => \esc_url( \add_query_arg( 's', '', \home_url( '/' ) ) ),
 			]
 		);
 		$label_classes = $is_icon_only
-			? 'newspack-search-overlay__label screen-reader-text'
-			: 'newspack-search-overlay__label';
+			? 'newspack-overlay-search__label screen-reader-text'
+			: 'newspack-overlay-search__label';
 
 		ob_start();
 		?>
@@ -120,7 +120,7 @@ final class Search_Overlay_Block {
 			<div class="wp-block-button">
 				<a <?php echo $wrapper_attributes; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
 					<?php if ( ! $is_text_only ) : ?>
-						<span class="newspack-search-overlay__icon" aria-hidden="true">
+						<span class="newspack-overlay-search__icon" aria-hidden="true">
 							<?php echo self::ICON_SEARCH; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 						</span>
 					<?php endif; ?>
@@ -148,7 +148,7 @@ final class Search_Overlay_Block {
 		// icon-only) already supplies the accessible name.
 		$wrapper_attributes = \get_block_wrapper_attributes(
 			[
-				'class'           => 'wp-element-button wp-block-button__link newspack-search-overlay__trigger',
+				'class'           => 'wp-element-button wp-block-button__link newspack-overlay-search__trigger',
 				'type'            => 'button',
 				'aria-expanded'   => 'false',
 				'aria-controls'   => $panel_id,
@@ -156,8 +156,8 @@ final class Search_Overlay_Block {
 			]
 		);
 		$label_classes = $is_icon_only
-			? 'newspack-search-overlay__label screen-reader-text'
-			: 'newspack-search-overlay__label';
+			? 'newspack-overlay-search__label screen-reader-text'
+			: 'newspack-overlay-search__label';
 
 		ob_start();
 		?>
@@ -165,7 +165,7 @@ final class Search_Overlay_Block {
 			<div class="wp-block-button">
 				<button <?php echo $wrapper_attributes; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
 					<?php if ( ! $is_text_only ) : ?>
-						<span class="newspack-search-overlay__icon" aria-hidden="true">
+						<span class="newspack-overlay-search__icon" aria-hidden="true">
 							<?php echo self::ICON_SEARCH; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 						</span>
 					<?php endif; ?>
@@ -189,7 +189,7 @@ final class Search_Overlay_Block {
 	private static function render_panel( string $panel_id, string $overlay_color ): string {
 		// Render core/search once per request and reuse — its output doesn't depend
 		// on block instance, and re-rendering for each panel is wasted work when a
-		// site uses several search-overlay blocks (e.g. desktop + mobile header).
+		// site uses several overlay-search blocks (e.g. desktop + mobile header).
 		static $search_html = null;
 		if ( null === $search_html ) {
 			// Wrap in a constrained-width group as plain HTML — building a synthetic
@@ -223,7 +223,7 @@ final class Search_Overlay_Block {
 		?>
 		<div
 			id="<?php echo \esc_attr( $panel_id ); ?>"
-			class="newspack-search-overlay__panel"
+			class="newspack-overlay-search__panel"
 			role="dialog"
 			aria-modal="true"
 			aria-hidden="true"
@@ -231,8 +231,8 @@ final class Search_Overlay_Block {
 			aria-label="<?php \esc_attr_e( 'Search', 'newspack-plugin' ); ?>"
 			<?php echo $style_attr; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 		>
-			<button type="button" class="newspack-search-overlay__close">
-				<span class="newspack-search-overlay__icon" aria-hidden="true">
+			<button type="button" class="newspack-overlay-search__close">
+				<span class="newspack-overlay-search__icon" aria-hidden="true">
 					<?php echo self::ICON_CLOSE; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 				</span>
 				<span class="screen-reader-text">
@@ -240,7 +240,7 @@ final class Search_Overlay_Block {
 				</span>
 			</button>
 
-			<div class="newspack-search-overlay__content">
+			<div class="newspack-overlay-search__content">
 				<div class="wp-block-group is-layout-constrained">
 					<?php echo $search_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 				</div>
@@ -251,4 +251,4 @@ final class Search_Overlay_Block {
 	}
 }
 
-Search_Overlay_Block::init();
+Overlay_Search_Block::init();

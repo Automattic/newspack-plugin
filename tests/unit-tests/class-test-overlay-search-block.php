@@ -1,23 +1,23 @@
 <?php
 /**
- * Tests for Search Overlay block.
+ * Tests for Overlay Search block.
  *
  * @package Newspack\Tests
- * @covers \Newspack\Blocks\Search_Overlay\Search_Overlay_Block
+ * @covers \Newspack\Blocks\Overlay_Search\Overlay_Search_Block
  */
 
-use Newspack\Blocks\Search_Overlay\Search_Overlay_Block;
+use Newspack\Blocks\Overlay_Search\Overlay_Search_Block;
 
 require_once NEWSPACK_ABSPATH . 'tests/mocks/jetpack-mock.php';
 
 /**
- * Test class for the Search Overlay Block.
+ * Test class for the Overlay Search Block.
  *
- * @group search-overlay-block
+ * @group overlay-search-block
  */
-class Newspack_Test_Search_Overlay_Block extends WP_UnitTestCase {
+class Newspack_Test_Overlay_Search_Block extends WP_UnitTestCase {
 
-	const BLOCK_NAME = 'newspack/search-overlay';
+	const BLOCK_NAME = 'newspack/overlay-search';
 
 	/**
 	 * Setup.
@@ -25,10 +25,10 @@ class Newspack_Test_Search_Overlay_Block extends WP_UnitTestCase {
 	public function set_up(): void {
 		parent::set_up();
 
-		require_once NEWSPACK_ABSPATH . 'src/blocks/search-overlay/class-search-overlay-block.php';
+		require_once NEWSPACK_ABSPATH . 'src/blocks/overlay-search/class-overlay-search-block.php';
 
 		if ( ! \WP_Block_Type_Registry::get_instance()->is_registered( self::BLOCK_NAME ) ) {
-			Search_Overlay_Block::register_block();
+			Overlay_Search_Block::register_block();
 		}
 
 		// Default: Jetpack handoff disabled. Individual tests opt in.
@@ -76,8 +76,8 @@ class Newspack_Test_Search_Overlay_Block extends WP_UnitTestCase {
 		$output = $this->render();
 
 		$this->assertStringContainsString( '<button', $output );
-		$this->assertStringContainsString( 'newspack-search-overlay__trigger', $output );
-		$this->assertStringContainsString( 'newspack-search-overlay__panel', $output );
+		$this->assertStringContainsString( 'newspack-overlay-search__trigger', $output );
+		$this->assertStringContainsString( 'newspack-overlay-search__panel', $output );
 		$this->assertStringContainsString( 'role="dialog"', $output );
 		$this->assertStringContainsString( 'aria-modal="true"', $output );
 		$this->assertStringContainsString( 'aria-hidden="true"', $output );
@@ -86,7 +86,7 @@ class Newspack_Test_Search_Overlay_Block extends WP_UnitTestCase {
 		// core/search form is rendered inside the panel.
 		$this->assertStringContainsString( 'wp-block-search', $output );
 		// Visible trigger label defaults to "Search".
-		$this->assertMatchesRegularExpression( '/newspack-search-overlay__label[^"]*">\s*Search\s*</', $output );
+		$this->assertMatchesRegularExpression( '/newspack-overlay-search__label[^"]*">\s*Search\s*</', $output );
 	}
 
 	/**
@@ -96,7 +96,7 @@ class Newspack_Test_Search_Overlay_Block extends WP_UnitTestCase {
 		$output = $this->render();
 
 		preg_match( '/aria-controls="([^"]+)"/', $output, $controls );
-		preg_match( '/id="(newspack-search-overlay-panel-[^"]+)"/', $output, $panel_id );
+		preg_match( '/id="(newspack-overlay-search-panel-[^"]+)"/', $output, $panel_id );
 
 		$this->assertNotEmpty( $controls[1] ?? '' );
 		$this->assertNotEmpty( $panel_id[1] ?? '' );
@@ -111,8 +111,8 @@ class Newspack_Test_Search_Overlay_Block extends WP_UnitTestCase {
 		$first  = $this->render();
 		$second = $this->render();
 
-		preg_match( '/id="(newspack-search-overlay-panel-[^"]+)"/', $first, $first_id );
-		preg_match( '/id="(newspack-search-overlay-panel-[^"]+)"/', $second, $second_id );
+		preg_match( '/id="(newspack-overlay-search-panel-[^"]+)"/', $first, $first_id );
+		preg_match( '/id="(newspack-overlay-search-panel-[^"]+)"/', $second, $second_id );
 
 		$this->assertNotEmpty( $first_id[1] ?? '' );
 		$this->assertNotEmpty( $second_id[1] ?? '' );
@@ -125,7 +125,7 @@ class Newspack_Test_Search_Overlay_Block extends WP_UnitTestCase {
 	public function test_custom_trigger_text() {
 		$output = $this->render( [ 'triggerText' => 'Find articles' ] );
 
-		$this->assertMatchesRegularExpression( '/newspack-search-overlay__label[^"]*">\s*Find articles\s*</', $output );
+		$this->assertMatchesRegularExpression( '/newspack-overlay-search__label[^"]*">\s*Find articles\s*</', $output );
 	}
 
 	/**
@@ -134,7 +134,7 @@ class Newspack_Test_Search_Overlay_Block extends WP_UnitTestCase {
 	public function test_whitespace_trigger_text_falls_back_to_default() {
 		$output = $this->render( [ 'triggerText' => '   ' ] );
 
-		$this->assertMatchesRegularExpression( '/newspack-search-overlay__label[^"]*">\s*Search\s*</', $output );
+		$this->assertMatchesRegularExpression( '/newspack-overlay-search__label[^"]*">\s*Search\s*</', $output );
 	}
 
 	/**
@@ -144,8 +144,8 @@ class Newspack_Test_Search_Overlay_Block extends WP_UnitTestCase {
 	public function test_icon_only_style() {
 		$output = $this->render( [ 'className' => 'is-style-icon-only' ] );
 
-		$this->assertStringContainsString( 'newspack-search-overlay__icon', $output );
-		$this->assertStringContainsString( 'newspack-search-overlay__label screen-reader-text', $output );
+		$this->assertStringContainsString( 'newspack-overlay-search__icon', $output );
+		$this->assertStringContainsString( 'newspack-overlay-search__label screen-reader-text', $output );
 	}
 
 	/**
@@ -155,13 +155,13 @@ class Newspack_Test_Search_Overlay_Block extends WP_UnitTestCase {
 		$output = $this->render( [ 'className' => 'is-style-text-only' ] );
 
 		// The trigger button has no icon span. The panel's close button still
-		// uses `newspack-search-overlay__icon`, so a global "not contains" check
+		// uses `newspack-overlay-search__icon`, so a global "not contains" check
 		// would be wrong.
 		$this->assertDoesNotMatchRegularExpression(
-			'/<button[^>]*newspack-search-overlay__trigger[^>]*>\s*<span[^>]*newspack-search-overlay__icon/',
+			'/<button[^>]*newspack-overlay-search__trigger[^>]*>\s*<span[^>]*newspack-overlay-search__icon/',
 			$output
 		);
-		$this->assertStringContainsString( 'newspack-search-overlay__label', $output );
+		$this->assertStringContainsString( 'newspack-overlay-search__label', $output );
 	}
 
 	/**
@@ -172,7 +172,7 @@ class Newspack_Test_Search_Overlay_Block extends WP_UnitTestCase {
 	public function test_trigger_has_no_aria_label() {
 		// Scope to the trigger button — `core/search`'s rendered submit button
 		// carries its own `aria-label`, which is fine and not what we're checking.
-		$pattern = '/<button[^>]*newspack-search-overlay__trigger[^>]*\saria-label=/';
+		$pattern = '/<button[^>]*newspack-overlay-search__trigger[^>]*\saria-label=/';
 
 		$this->assertDoesNotMatchRegularExpression( $pattern, $this->render() );
 		$this->assertDoesNotMatchRegularExpression( $pattern, $this->render( [ 'className' => 'is-style-icon-only' ] ) );
@@ -184,7 +184,7 @@ class Newspack_Test_Search_Overlay_Block extends WP_UnitTestCase {
 	public function test_overlay_color_renders_inline_style() {
 		$output = $this->render( [ 'overlayColor' => '#123456' ] );
 
-		$this->assertMatchesRegularExpression( '/<div[^>]*class="newspack-search-overlay__panel"[^>]*style="background:\s*#123456"/', $output );
+		$this->assertMatchesRegularExpression( '/<div[^>]*class="newspack-overlay-search__panel"[^>]*style="background:\s*#123456"/', $output );
 	}
 
 	/**
@@ -193,7 +193,7 @@ class Newspack_Test_Search_Overlay_Block extends WP_UnitTestCase {
 	public function test_empty_overlay_color_omits_style_attribute() {
 		$output = $this->render( [ 'overlayColor' => '' ] );
 
-		$this->assertDoesNotMatchRegularExpression( '/<div[^>]*class="newspack-search-overlay__panel"[^>]*\sstyle=/', $output );
+		$this->assertDoesNotMatchRegularExpression( '/<div[^>]*class="newspack-overlay-search__panel"[^>]*\sstyle=/', $output );
 	}
 
 	/**
@@ -224,7 +224,7 @@ class Newspack_Test_Search_Overlay_Block extends WP_UnitTestCase {
 		$this->assertStringContainsString( '<a ', $output );
 		$this->assertStringContainsString( 'href=', $output );
 		// No panel, no button trigger.
-		$this->assertStringNotContainsString( 'newspack-search-overlay__panel', $output );
+		$this->assertStringNotContainsString( 'newspack-overlay-search__panel', $output );
 		$this->assertStringNotContainsString( '<button', $output );
 	}
 
@@ -256,7 +256,7 @@ class Newspack_Test_Search_Overlay_Block extends WP_UnitTestCase {
 		$output = $this->render();
 
 		$this->assertStringNotContainsString( 'jetpack-search-filter__link', $output );
-		$this->assertStringContainsString( 'newspack-search-overlay__panel', $output );
+		$this->assertStringContainsString( 'newspack-overlay-search__panel', $output );
 	}
 
 	/**
@@ -270,6 +270,6 @@ class Newspack_Test_Search_Overlay_Block extends WP_UnitTestCase {
 		$output = $this->render();
 
 		$this->assertStringNotContainsString( 'jetpack-search-filter__link', $output );
-		$this->assertStringContainsString( 'newspack-search-overlay__panel', $output );
+		$this->assertStringContainsString( 'newspack-overlay-search__panel', $output );
 	}
 }
