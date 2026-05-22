@@ -2,14 +2,6 @@
 @use "../../../packages/colors/colors.module" as colors;
 
 .wp-block-newspack-overlay-menu {
-	.overlay-menu__trigger {
-		align-items: center;
-		cursor: pointer;
-		display: inline-flex;
-		gap: var( --wp--preset--spacing--20 );
-		justify-content: center;
-	}
-
 	// ─── Block editor only ────────────────────────────────────────────────────
 
 	// Hidden panel state — keeps InnerBlocks in the DOM without being visible.
@@ -22,13 +14,6 @@
 // These must live at root scope because view.js moves the panel to document.body
 // when the menu opens, removing it from the .wp-block-newspack-overlay-menu
 // ancestor. Styles nested inside the block wrapper would stop matching.
-
-// Icon used in trigger + close buttons.
-.overlay-menu__icon {
-	align-items: center;
-	display: inline-flex;
-	flex-shrink: 0;
-}
 
 // Close button wrapper — sits at the top of the panel, flush right.
 .overlay-menu__close-wrapper {
