@@ -437,7 +437,13 @@ class Integrations {
 	}
 
 	/**
-	 * Update settings for a specific integration.
+	 * Update settings for a specific integration from an admin REST request.
+	 *
+	 * Skips fields whose type is managed server-side (see
+	 * Integration::MANAGED_FIELD_TYPES — e.g., 'oauth', 'hidden') so admin
+	 * clients can't overwrite tokens or other programmatically-managed values
+	 * by POSTing them in the settings payload. Server-side writers continue
+	 * to use Integration::update_settings_field_value() directly.
 	 *
 	 * @param string $integration_id The integration ID.
 	 * @param array  $settings       Key-value pairs of settings to update.
@@ -449,6 +455,9 @@ class Integrations {
 			return null;
 		}
 		foreach ( $settings as $key => $value ) {
+			if ( $integration->is_managed_settings_field( $key ) ) {
+				continue;
+			}
 			$integration->update_settings_field_value( $key, $value );
 		}
 		return true;
