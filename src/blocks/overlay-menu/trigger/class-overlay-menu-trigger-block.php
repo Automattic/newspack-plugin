@@ -62,22 +62,26 @@ final class Overlay_Menu_Trigger_Block {
 
 		ob_start();
 		?>
-		<button
-			<?php echo $wrapper_attributes; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
-			type="button"
-			aria-expanded="false"
-			aria-controls="newspack-overlay-panel-<?php echo esc_attr( $instance_id ); ?>"
-			aria-label="<?php echo esc_attr( $trigger_text ); ?>"
-		>
-			<?php if ( $show_icon ) : ?>
-				<span class="overlay-menu__icon" aria-hidden="true">
-					<?php echo self::ICON_MENU; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
-				</span>
-			<?php endif; ?>
-			<span class="<?php echo esc_attr( $text_class ); ?>">
-				<?php echo esc_html( $trigger_text ); ?>
-			</span>
-		</button>
+		<div class="wp-block-buttons is-layout-flex">
+			<div class="wp-block-button">
+				<button
+					<?php echo $wrapper_attributes; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+					type="button"
+					aria-expanded="false"
+					aria-controls="newspack-overlay-panel-<?php echo esc_attr( $instance_id ); ?>"
+					aria-label="<?php echo esc_attr( $trigger_text ); ?>"
+				>
+					<?php if ( $show_icon ) : ?>
+						<span class="overlay-menu__icon" aria-hidden="true">
+							<?php echo self::ICON_MENU; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+						</span>
+					<?php endif; ?>
+					<span class="<?php echo esc_attr( $text_class ); ?>">
+						<?php echo esc_html( $trigger_text ); ?>
+					</span>
+				</button>
+			</div>
+		</div>
 		<?php
 		return ob_get_clean();
 	}
