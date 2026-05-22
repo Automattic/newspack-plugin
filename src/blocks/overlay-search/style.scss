@@ -7,6 +7,7 @@
  */
 
 @use "../../newspack-ui/scss/variables/breakpoints";
+@use "../../../packages/colors/colors.module" as colors;
 
 // Trigger button — icon + label layout.
 .newspack-overlay-search__trigger {
@@ -33,7 +34,7 @@
 		calc(10vh + var(--wp--custom--spacing--75, 4rem))
 		var(--wp--preset--spacing--30, 1rem)
 		var(--wp--preset--spacing--30, 1rem);
-	background: var(--wp--custom--color--neutral-70, rgba(0, 0, 0, 0.85)); // Default scrim — dark backdrop. Overridden by inline style when overlayColor is set.
+	background: var(--newspack-ui-color-neutral-70, #{colors.$neutral-700});
 	overflow-y: auto;
 	opacity: 0;
 	visibility: hidden;
