@@ -66,9 +66,8 @@
 		position: absolute;
 		top: var(--wp--preset--spacing--30, 1rem);
 		right: var(--wp--preset--spacing--30, 1rem);
-		display: inline-flex;
-		align-items: center;
-		justify-content: center;
+		display: grid;
+		place-items: center;
 		width: var(--wp--custom--spacing--65, 2.5rem);
 		height: var(--wp--custom--spacing--65, 2.5rem);
 		padding: 0;
