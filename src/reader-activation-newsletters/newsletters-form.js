@@ -39,7 +39,7 @@ window.newspackRAS.push( function ( readerActivation ) {
 			} );
 
 			if ( peekItem ) {
-				const peekAmount = 32;
+				const peekAmount = divider?.offsetHeight || 32;
 				newsletterContainer.style.maxHeight = `${ peekItem.offsetTop + peekAmount }px`;
 			}
 		};

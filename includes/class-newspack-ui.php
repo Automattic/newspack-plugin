@@ -1183,15 +1183,17 @@ class Newspack_UI {
 								<input type="hidden" name="email_address" value="<?php echo esc_attr( $demo_email_address ); ?>" />
 
 								<?php $demo_has_overflow = count( $demo_newsletters_lists ) > (int) $demo_default_list_size; ?>
-								<div class="newspack-ui__stack newspack-ui__stack--vertical newspack-ui__stack--gap-2 overflow-hidden position-relative newsletter-list-container" data-list-default-size="<?php echo esc_attr( $demo_default_list_size ); ?>">
+								<div class="newspack-ui__stack newspack-ui__stack--vertical newspack-ui__stack--gap-2 overflow-hidden position-relative newsletter-list-container">
 								<?php
 								foreach ( $demo_newsletters_lists as $list ) {
-									$checkbox_id = sprintf( 'newspack-plugin-list-%s', $list['id'] );
-									$is_peek     = $loop_index === (int) $demo_default_list_size;
-									$is_hidden   = $loop_index > (int) $demo_default_list_size;
+									$checkbox_id   = sprintf( 'newspack-plugin-list-%s', $list['id'] );
+									$is_peek       = $loop_index === (int) $demo_default_list_size;
+									$is_hidden     = $loop_index > (int) $demo_default_list_size;
+									$label_classes = 'newspack-ui__input-card' . ( $is_hidden ? ' hidden' : '' );
+									$label_inert   = ( $is_peek || $is_hidden ) ? ' inert' : '';
 									$loop_index++;
 									?>
-									<label class="newspack-ui__input-card<?php echo $is_hidden ? ' hidden' : ''; ?>" for="<?php echo esc_attr( $checkbox_id ); ?>"<?php echo ( $is_peek || $is_hidden ) ? ' inert' : ''; ?>>
+									<label class="<?php echo esc_attr( $label_classes ); ?>" for="<?php echo esc_attr( $checkbox_id ); ?>"<?php echo esc_attr( $label_inert ); ?>>
 										<input
 											type="checkbox"
 											name="lists[]"
@@ -1258,7 +1260,7 @@ class Newspack_UI {
 									} );
 
 									if ( peekItem ) {
-										const peekAmount = 32;
+										const peekAmount = ( divider && divider.offsetHeight ) || 32;
 										newsletterContainer.style.maxHeight = ( peekItem.offsetTop + peekAmount ) + 'px';
 									}
 								};
