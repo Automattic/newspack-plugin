@@ -48,7 +48,12 @@ final class Overlay_Menu_Trigger_Block {
 	 */
 	public static function render_block( array $attributes, string $content, \WP_Block $block ) {
 		$instance_id  = $block->context['newspack-overlay-menu/instanceId'] ?? '';
-		$trigger_text = $attributes['triggerText'] ?? __( 'Menu', 'newspack-plugin' );
+		$default_text = __( 'Menu', 'newspack-plugin' );
+		$trigger_text = $attributes['triggerText'] ?? $default_text;
+		// Whitespace-only values would leave the button without an accessible name.
+		if ( '' === trim( (string) $trigger_text ) ) {
+			$trigger_text = $default_text;
+		}
 
 		// Display mode from block style class in className (default = icon + text).
 		$classes    = explode( ' ', (string) ( $attributes['className'] ?? '' ) );

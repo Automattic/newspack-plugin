@@ -61,6 +61,7 @@ export default function OverlayMenuTriggerEdit( { attributes, setAttributes, cli
 						{ ...blockProps }
 						type="button"
 						aria-controls={ instanceId ? `newspack-overlay-panel-${ instanceId }` : undefined }
+						aria-label={ ! triggerText || ! triggerText.trim() ? __( 'Menu', 'newspack-plugin' ) : undefined }
 						onClick={ e => e.preventDefault() }
 					>
 						{ showTriggerIcon && (
