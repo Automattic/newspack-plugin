@@ -4,7 +4,7 @@
  *
  * Tests that exercise code paths gated on Jetpack's presence (e.g. the search
  * overlay block's instant-search handoff) include this file. The class is
- * defined globally once and behavior is toggled via `Jetpack::$test_modules`.
+ * defined globally once and behavior is toggled via `Jetpack::$test_active_modules`.
  *
  * @package Newspack\Tests
  */

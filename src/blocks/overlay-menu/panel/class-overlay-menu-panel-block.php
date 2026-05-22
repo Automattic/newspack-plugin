@@ -71,12 +71,20 @@ final class Overlay_Menu_Panel_Block {
 			$panel_class = 'overlay-menu__panel is-layout-constrained overlay-menu__panel--' . $direction . ' overlay-menu__panel--width--' . $panel_width;
 		}
 
+		// Run user-supplied color values through `safecss_filter_attr` so
+		// `;`-delimited declaration injection is stripped (esc_attr alone wouldn't).
 		$panel_styles = [];
 		if ( $panel_bg_color ) {
-			$panel_styles[] = 'background:' . esc_attr( $panel_bg_color );
+			$safe_bg = safecss_filter_attr( 'background: ' . $panel_bg_color );
+			if ( '' !== $safe_bg ) {
+				$panel_styles[] = $safe_bg;
+			}
 		}
 		if ( $panel_text_color ) {
-			$panel_styles[] = 'color:' . esc_attr( $panel_text_color );
+			$safe_color = safecss_filter_attr( 'color: ' . $panel_text_color );
+			if ( '' !== $safe_color ) {
+				$panel_styles[] = $safe_color;
+			}
 		}
 		$extra_attributes = [
 			'id'                 => 'newspack-overlay-panel-' . $instance_id,
