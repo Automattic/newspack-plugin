@@ -314,9 +314,6 @@ class GoogleSiteKit {
 		foreach ( Group_Subscription::get_group_ids_for_user( $user_id ) as $sub_id ) {
 			$labels[] = 'Group ' . $sub_id;
 		}
-		foreach ( Institution::get_matching_ids_for_user( $user_id ) as $inst_id ) {
-			$labels[] = 'Institution ' . $inst_id;
-		}
 		sort( $labels, SORT_NATURAL | SORT_FLAG_CASE );
 		return $labels;
 	}
