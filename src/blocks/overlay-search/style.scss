@@ -34,7 +34,7 @@
 		calc(10vh + var(--wp--custom--spacing--75, 4rem))
 		var(--wp--preset--spacing--30, 1rem)
 		var(--wp--preset--spacing--30, 1rem);
-	background: var(--newspack-ui-color-neutral-70, #{colors.$neutral-700});
+	background: var(--wp--custom--color--neutral-70, var(--newspack-ui-color-neutral-70, #{colors.$neutral-700}));
 	overflow-y: auto;
 	opacity: 0;
 	visibility: hidden;
