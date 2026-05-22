@@ -1,4 +1,5 @@
 @use "../../newspack-ui/scss/variables/breakpoints";
+@use "../../../packages/colors/colors.module" as colors;
 
 .wp-block-newspack-overlay-menu {
 	.overlay-menu__trigger {
@@ -160,7 +161,7 @@
 // editor preview (rendered as a React fragment sibling in edit.js).
 
 .overlay-menu__scrim {
-	background: rgba( 0, 0, 0, 0.5 );
+	background: var(--wp--custom--color--neutral-70, var(--newspack-ui-color-neutral-70, #{colors.$neutral-700}));
 	cursor: pointer;
 	inset: 0;
 	margin: 0 !important;
