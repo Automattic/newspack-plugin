@@ -21,9 +21,10 @@ class Newspack_Test_WooCommerce_Subscriptions extends WP_UnitTestCase {
 	 */
 	public function set_up() {
 		parent::set_up();
-		global $subscriptions_database, $products_database;
-		$subscriptions_database = [];
-		$products_database      = [];
+		global $subscriptions_database, $products_database, $wcs_mock_total_paid_including_signup_fee;
+		$subscriptions_database                  = [];
+		$products_database                       = [];
+		$wcs_mock_total_paid_including_signup_fee = 0;
 	}
 
 	/**
@@ -298,5 +299,119 @@ class Newspack_Test_WooCommerce_Subscriptions extends WP_UnitTestCase {
 		$result = WooCommerce_Subscriptions::recover_total_paid_for_switch( 0.0, $subscription, $existing_item );
 
 		$this->assertSame( 0.0, $result, 'A non-migrated subscription must be left to WCS default behavior.' );
+	}
+
+	/**
+	 * With sign-up-fee counting enabled, a non-migrated subscription whose
+	 * amount paid (including the sign-up fee) is higher than WCS's value
+	 * recovers to the sign-up-fee-inclusive amount.
+	 */
+	public function test_recover_total_paid_counts_signup_fee_when_enabled() {
+		global $wcs_mock_total_paid_including_signup_fee;
+		$wcs_mock_total_paid_including_signup_fee = 30.0;
+
+		add_filter( 'newspack_wc_subs_switch_include_signup_fee', '__return_true' );
+
+		$subscription  = new WC_Subscription(
+			[
+				'id'     => 10,
+				'status' => 'active',
+			]
+		);
+		$existing_item = new WC_Order_Item_Product(
+			[
+				'product_id' => 100,
+				'total'      => 0.0,
+			]
+		);
+
+		$result = WooCommerce_Subscriptions::recover_total_paid_for_switch( 0.0, $subscription, $existing_item );
+
+		$this->assertSame( 30.0, $result, 'The paid sign-up fee should become the recovered baseline when counting is enabled.' );
+	}
+
+	/**
+	 * With sign-up-fee counting disabled (the default), a non-migrated
+	 * subscription is left to WCS's default switching behavior even when a
+	 * sign-up fee was paid.
+	 */
+	public function test_recover_total_paid_skips_signup_fee_when_disabled() {
+		global $wcs_mock_total_paid_including_signup_fee;
+		$wcs_mock_total_paid_including_signup_fee = 30.0;
+
+		$subscription  = new WC_Subscription(
+			[
+				'id'     => 11,
+				'status' => 'active',
+			]
+		);
+		$existing_item = new WC_Order_Item_Product(
+			[
+				'product_id' => 100,
+				'total'      => 0.0,
+			]
+		);
+
+		$result = WooCommerce_Subscriptions::recover_total_paid_for_switch( 0.0, $subscription, $existing_item );
+
+		$this->assertSame( 0.0, $result, 'A non-migrated subscription must not recover the sign-up fee while counting is disabled.' );
+	}
+
+	/**
+	 * With sign-up-fee counting enabled but nothing actually paid (a comped
+	 * purchase, no sign-up fee), the subscription is left untouched.
+	 */
+	public function test_recover_total_paid_skips_signup_fee_when_nothing_paid() {
+		global $wcs_mock_total_paid_including_signup_fee;
+		$wcs_mock_total_paid_including_signup_fee = 0.0;
+
+		add_filter( 'newspack_wc_subs_switch_include_signup_fee', '__return_true' );
+
+		$subscription  = new WC_Subscription(
+			[
+				'id'     => 12,
+				'status' => 'active',
+			]
+		);
+		$existing_item = new WC_Order_Item_Product(
+			[
+				'product_id' => 100,
+				'total'      => 0.0,
+			]
+		);
+
+		$result = WooCommerce_Subscriptions::recover_total_paid_for_switch( 0.0, $subscription, $existing_item );
+
+		$this->assertSame( 0.0, $result, 'With no sign-up fee actually paid there is nothing to recover.' );
+	}
+
+	/**
+	 * A migrated subscription is recovered through the migrated branch even
+	 * when sign-up-fee counting is enabled; the sign-up-fee branch is not
+	 * reached.
+	 */
+	public function test_recover_total_paid_migrated_takes_precedence_over_signup_fee() {
+		global $wcs_mock_total_paid_including_signup_fee;
+		$wcs_mock_total_paid_including_signup_fee = 999.0;
+
+		add_filter( 'newspack_wc_subs_switch_include_signup_fee', '__return_true' );
+
+		$subscription  = new WC_Subscription(
+			[
+				'id'     => 13,
+				'status' => 'active',
+				'meta'   => [ '_piano_subscription_id' => 'piano-13' ],
+			]
+		);
+		$existing_item = new WC_Order_Item_Product(
+			[
+				'product_id' => 100,
+				'total'      => 50.0,
+			]
+		);
+
+		$result = WooCommerce_Subscriptions::recover_total_paid_for_switch( 0.0, $subscription, $existing_item );
+
+		$this->assertSame( 50.0, $result, 'A migrated subscription must recover via the recurring total, not the sign-up-fee branch.' );
 	}
 }

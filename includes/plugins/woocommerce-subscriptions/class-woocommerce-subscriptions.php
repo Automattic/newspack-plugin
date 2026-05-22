@@ -91,23 +91,27 @@ class WooCommerce_Subscriptions {
 	}
 
 	/**
-	 * Recover the proration baseline for migrated subscriptions that have no
-	 * WooCommerce order history.
+	 * Recover the switch proration baseline when WooCommerce Subscriptions
+	 * cannot determine the amount paid for the current billing period.
 	 *
 	 * WCS sums the matching line item across the subscription's related
-	 * orders to determine the amount paid for the current billing period.
-	 * For subscriptions migrated from another platform (Piano, Stripe) that
-	 * sum is `0` because no parent or renewal order exists. A `0` baseline
-	 * makes WCS treat the old subscription as `$0/day`, misclassify
-	 * downgrades as upgrades, and charge the full prorated price of the new
-	 * plan as a sign-up fee.
+	 * orders. That sum is `0` in two cases this method handles:
 	 *
-	 * When the subscription is migrated and WCS produced a non-positive
-	 * amount paid, fall back to the subscription line item's recurring total
-	 * (one billing period's recurring charge), which is dimensionally what
-	 * WCS divides by the old billing cycle length. All other zero-paid
-	 * subscriptions are left to WCS's default behavior on purpose: we do not
-	 * carry discounts or comps across switches.
+	 * - Migrated subscriptions (Piano, Stripe) have no Woo order history, so
+	 *   there is nothing to sum. The recurring line-item total is used as the
+	 *   baseline (one billing period's recurring charge), which is
+	 *   dimensionally what WCS divides by the old billing cycle length.
+	 *
+	 * - Paid-trial subscriptions (a one-time sign-up fee plus a free trial)
+	 *   have an order, but WCS excludes the sign-up fee from the amount paid,
+	 *   so a switch during the trial sees `0`. When the publisher opts in via
+	 *   the NEWSPACK_WC_SUBS_SWITCH_INCLUDE_SIGNUP_FEE constant, the amount
+	 *   paid including the sign-up fee is used instead.
+	 *
+	 * A `0` baseline makes WCS treat the old subscription as `$0/day`,
+	 * misclassify downgrades as upgrades, and charge the full prorated price
+	 * of the new plan as a sign-up fee. Every other zero-paid case (100%-
+	 * discount purchases, comps) is left to WCS's default behavior on purpose.
 	 *
 	 * @param float                  $total_paid    The amount WCS computed for the current period.
 	 * @param \WC_Subscription       $subscription  The subscription being switched.
@@ -121,35 +125,87 @@ class WooCommerce_Subscriptions {
 			return $total_paid;
 		}
 
-		// A subscription still within its free trial has paid nothing and has
-		// no accrued credit. Recovering a baseline here would let an unpaid
-		// trial be switched into manufactured proration credit, so leave WCS's
-		// value untouched.
-		if ( $subscription instanceof \WC_Subscription && $subscription->get_time( 'trial_end' ) > time() ) {
-			return $total_paid;
-		}
-
-		// The recovery exists to backfill proration for subscriptions migrated
-		// into WooCommerce from another platform (which have no Woo order
-		// history). For every other zero-paid case (100%-discount purchases,
-		// comps, etc.) WCS's default switching behavior is intentional and
-		// must not be overridden, so leave it alone.
-		if ( ! self::is_migrated_subscription( $subscription ) ) {
-			return $total_paid;
-		}
-
 		if ( ! ( $existing_item instanceof \WC_Order_Item_Product ) ) {
 			return $total_paid;
 		}
 
-		$recurring_total = (float) $existing_item->get_total();
+		// Branch 1: subscriptions migrated into WooCommerce from another
+		// platform (Piano, Stripe) have no Woo order history, so WCS cannot
+		// see what was paid. Fall back to the recurring line-item total.
+		if ( self::is_migrated_subscription( $subscription ) ) {
+			// A migrated subscription still within its free trial has paid
+			// nothing and has no accrued credit -- recovering a baseline here
+			// would let an unpaid trial be switched into manufactured credit.
+			if ( $subscription instanceof \WC_Subscription && $subscription->get_time( 'trial_end' ) > time() ) {
+				return $total_paid;
+			}
 
-		// Never reduce the value WCS produced; only fill a missing baseline.
-		if ( $recurring_total <= (float) $total_paid ) {
-			return $total_paid;
+			$recurring_total = (float) $existing_item->get_total();
+			return $recurring_total > (float) $total_paid ? $recurring_total : $total_paid;
 		}
 
-		return $recurring_total;
+		// Branch 2: publishers that sell stepped pricing as a one-time sign-up
+		// fee plus a free trial. WCS excludes the sign-up fee from the amount
+		// paid, so a switch during the trial sees $0. When the publisher has
+		// opted in, count the sign-up fee the reader actually paid. A free
+		// trial with no sign-up fee, or a comp, yields nothing and no-ops.
+		if ( self::should_count_signup_fee_on_switch() ) {
+			$paid_with_signup_fee = self::get_total_paid_including_signup_fee( $subscription, $existing_item );
+			return $paid_with_signup_fee > (float) $total_paid ? $paid_with_signup_fee : $total_paid;
+		}
+
+		return $total_paid;
+	}
+
+	/**
+	 * Whether a paid one-time sign-up fee should count toward the switch
+	 * proration baseline.
+	 *
+	 * Off by default. Publishers that sell stepped pricing as a sign-up fee
+	 * plus a free trial opt in by defining the
+	 * NEWSPACK_WC_SUBS_SWITCH_INCLUDE_SIGNUP_FEE constant in wp-config.php.
+	 *
+	 * @return bool
+	 */
+	private static function should_count_signup_fee_on_switch() {
+		$enabled = defined( 'NEWSPACK_WC_SUBS_SWITCH_INCLUDE_SIGNUP_FEE' ) && NEWSPACK_WC_SUBS_SWITCH_INCLUDE_SIGNUP_FEE;
+
+		/**
+		 * Filters whether a paid one-time sign-up fee is counted toward the
+		 * proration baseline when switching subscriptions.
+		 *
+		 * @param bool $enabled Whether the sign-up fee is counted.
+		 */
+		return (bool) apply_filters( 'newspack_wc_subs_switch_include_signup_fee', $enabled );
+	}
+
+	/**
+	 * Get the amount paid for the current billing period including the
+	 * one-time sign-up fee.
+	 *
+	 * Reuses WooCommerce Subscriptions' own accounting -- which walks the
+	 * subscription's related orders and handles trials, synced fees, switch
+	 * chains, and tax -- but includes sign-up fees, where WCS's
+	 * get_total_paid_for_current_period() excludes them.
+	 *
+	 * @param \WC_Subscription       $subscription  The subscription being switched.
+	 * @param \WC_Order_Item_Product $existing_item The subscription line item being switched.
+	 *
+	 * @return float The amount paid including sign-up fees, or 0 if it cannot be determined.
+	 */
+	private static function get_total_paid_including_signup_fee( $subscription, $existing_item ) {
+		if (
+			! class_exists( 'WC_Subscriptions_Switcher' )
+			|| ! method_exists( 'WC_Subscriptions_Switcher', 'calculate_total_paid_since_last_order' )
+		) {
+			return 0.0;
+		}
+
+		return (float) \WC_Subscriptions_Switcher::calculate_total_paid_since_last_order(
+			$subscription,
+			$existing_item,
+			'include_sign_up_fees'
+		);
 	}
 
 	/**
