@@ -21,19 +21,17 @@ window.newspackRAS.push( function ( readerActivation ) {
 				return;
 			}
 
-			// Handle "See all" button logic.
 			const seeAllButton = container.querySelector( '.see-all-button' );
 			const newsletterContainer = container.querySelector( '.newsletter-list-container' );
 			const divider = newsletterContainer?.querySelector( '.newspack-ui__gradient-divider' );
 
 			if ( seeAllButton && newsletterContainer ) {
-				// Remove the "hidden" class from all newsletter items.
+				const peekItem = newsletterContainer.querySelector( '.newspack-ui__input-card[inert]:not(.hidden)' );
+
 				seeAllButton.addEventListener( 'click', () => {
-					newsletterContainer.querySelectorAll( '.hidden' ).forEach( item => {
-						item.classList.remove( 'hidden' );
-					} );
-					// Restore the peeking item to the a11y tree and focus order by removing inert.
+					const firstRevealed = newsletterContainer.querySelector( '.newspack-ui__input-card[inert]' );
 					newsletterContainer.querySelectorAll( '.newspack-ui__input-card[inert]' ).forEach( item => {
+						item.classList.remove( 'hidden' );
 						item.removeAttribute( 'inert' );
 					} );
 					newsletterContainer.style.maxHeight = 'none';
@@ -41,26 +39,12 @@ window.newspackRAS.push( function ( readerActivation ) {
 						divider.classList.add( 'hidden' );
 					}
 					seeAllButton.classList.add( 'hidden' );
+					firstRevealed?.querySelector( 'input' )?.focus();
 				} );
 
-				// Set the initial height to show partially visible.
-				const listDefaultSize = parseInt( newsletterContainer.dataset.listDefaultSize, 10 );
-				const newsletterItems = newsletterContainer.querySelectorAll( '.newspack-ui__input-card' );
-
-				if ( newsletterItems.length > listDefaultSize ) {
-					const gap = 12;
-					const extraSpace = 32; // Additional space for partial visibility.
-
-					let totalHeight = 0;
-					newsletterItems.forEach( ( item, index ) => {
-						if ( index < listDefaultSize ) {
-							totalHeight += item.offsetHeight;
-						}
-					} );
-
-					const maxHeight = totalHeight + listDefaultSize * gap + extraSpace;
-
-					newsletterContainer.style.maxHeight = `${ maxHeight }px`;
+				if ( peekItem ) {
+					const peekAmount = 32;
+					newsletterContainer.style.maxHeight = `${ peekItem.offsetTop + peekAmount }px`;
 				}
 			}
 

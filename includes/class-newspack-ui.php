@@ -1182,14 +1182,16 @@ class Newspack_UI {
 								<input type="hidden" name="reader-activation-newsletters-signup" value="1" />
 								<input type="hidden" name="email_address" value="<?php echo esc_attr( $demo_email_address ); ?>" />
 
+								<?php $demo_has_overflow = count( $demo_newsletters_lists ) > (int) $demo_default_list_size; ?>
 								<div class="newspack-ui__stack newspack-ui__stack--vertical newspack-ui__stack--gap-2 overflow-hidden position-relative newsletter-list-container" data-list-default-size="<?php echo esc_attr( $demo_default_list_size ); ?>">
 								<?php
 								foreach ( $demo_newsletters_lists as $list ) {
 									$checkbox_id = sprintf( 'newspack-plugin-list-%s', $list['id'] );
-									$is_hidden   = $loop_index <= $demo_default_list_size ? '' : 'hidden';
+									$is_peek     = $loop_index === (int) $demo_default_list_size;
+									$is_hidden   = $loop_index > (int) $demo_default_list_size;
 									$loop_index++;
 									?>
-									<label class="newspack-ui__input-card <?php echo esc_attr( $is_hidden ); ?>" for="<?php echo esc_attr( $checkbox_id ); ?>">
+									<label class="newspack-ui__input-card<?php echo $is_hidden ? ' hidden' : ''; ?>" for="<?php echo esc_attr( $checkbox_id ); ?>"<?php echo ( $is_peek || $is_hidden ) ? ' inert' : ''; ?>>
 										<input
 											type="checkbox"
 											name="lists[]"
@@ -1207,17 +1209,15 @@ class Newspack_UI {
 										<?php endif; ?>
 									</label>
 									<?php
-									if ( $loop_index === (int) $demo_default_list_size && count( $demo_newsletters_lists ) > $demo_default_list_size ) :
-										?>
-										<div class="newspack-ui__gradient-divider"></div>
-										<?php
-									endif;
 								}
 								?>
+								<?php if ( $demo_has_overflow ) : ?>
+									<div class="newspack-ui__gradient-divider"></div>
+								<?php endif; ?>
 								</div>
 
 								<div class="newspack-ui__stack newspack-ui__stack--vertical newspack-ui__stack--gap-2 newspack-ui__spacing-top--5">
-									<?php if ( count( $demo_newsletters_lists ) > $demo_default_list_size ) : ?>
+									<?php if ( $demo_has_overflow ) : ?>
 										<button type="button" class="newspack-ui__button newspack-ui__button--wide newspack-ui__button--secondary see-all-button" aria-label="<?php esc_attr_e( 'See all newsletters', 'newspack-plugin' ); ?>">
 											<span aria-hidden="true"><?php esc_html_e( 'See all', 'newspack-plugin' ); ?></span>
 											<?php Newspack_UI_Icons::print_svg( 'chevronDownSmall' ); ?>
@@ -1237,34 +1237,30 @@ class Newspack_UI {
 								const newsletterContainer = container.querySelector( '.newsletter-list-container' );
 								if ( seeAllButton && newsletterContainer ) {
 									const divider = newsletterContainer.querySelector( '.newspack-ui__gradient-divider' );
+									const peekItem = newsletterContainer.querySelector( '.newspack-ui__input-card[inert]:not(.hidden)' );
+
 									seeAllButton.addEventListener( 'click', function() {
-										newsletterContainer.querySelectorAll( '.hidden' ).forEach( function( item ) {
+										const firstRevealed = newsletterContainer.querySelector( '.newspack-ui__input-card[inert]' );
+										newsletterContainer.querySelectorAll( '.newspack-ui__input-card[inert]' ).forEach( function( item ) {
 											item.classList.remove( 'hidden' );
+											item.removeAttribute( 'inert' );
 										} );
 										newsletterContainer.style.maxHeight = 'none';
 										if ( divider ) {
 											divider.classList.add( 'hidden' );
 										}
 										seeAllButton.classList.add( 'hidden' );
+										if ( firstRevealed ) {
+											const firstInput = firstRevealed.querySelector( 'input' );
+											if ( firstInput ) {
+												firstInput.focus();
+											}
+										}
 									} );
 
-									// Set the initial height to show partially visible.
-									const listDefaultSize = parseInt( newsletterContainer.dataset.listDefaultSize, 10 );
-									const newsletterItems = newsletterContainer.querySelectorAll( '.newspack-ui__input-card' );
-
-									if ( newsletterItems.length > listDefaultSize ) {
-										const gap = 12;
-										const extraSpace = 32;
-
-										let totalHeight = 0;
-										newsletterItems.forEach( function( item, index ) {
-											if ( index < listDefaultSize ) {
-												totalHeight += item.offsetHeight;
-											}
-										} );
-
-										const maxHeight = totalHeight + listDefaultSize * gap + extraSpace;
-										newsletterContainer.style.maxHeight = maxHeight + 'px';
+									if ( peekItem ) {
+										const peekAmount = 32;
+										newsletterContainer.style.maxHeight = ( peekItem.offsetTop + peekAmount ) + 'px';
 									}
 								}
 							} )();

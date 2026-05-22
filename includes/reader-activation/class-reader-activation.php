@@ -1727,18 +1727,16 @@ final class Reader_Activation {
 					<input type="hidden" name="<?php echo \esc_attr( self::NEWSLETTERS_SIGNUP_FORM_ACTION ); ?>" value="1" />
 					<input type="hidden" name="email_address" value="<?php echo esc_attr( $email_address ); ?>" />
 
+					<?php $has_overflow = count( $newsletters_lists ) > (int) $default_list_size; ?>
 					<div class="newspack-ui__stack newspack-ui__stack--vertical newspack-ui__stack--gap-2 overflow-hidden position-relative newsletter-list-container" data-list-default-size="<?php echo esc_attr( $default_list_size ); ?>">
 					<?php
 					foreach ( $newsletters_lists as $list ) {
 						$checkbox_id = sprintf( 'newspack-plugin-list-%s', $list['id'] );
-						// Peeking item: stays in DOM flow so the container's max-height reveals its top edge,
-						// but is made inert so it is excluded from the a11y tree and all focus paths
-						// (keyboard, mouse, and programmatic) until "See all" is clicked.
 						$is_peek     = $loop_index === (int) $default_list_size;
-						$is_hidden   = $loop_index <= $default_list_size ? '' : 'hidden';
+						$is_hidden   = $loop_index > (int) $default_list_size;
 						$loop_index++;
 						?>
-						<label class="newspack-ui__input-card <?php echo esc_attr( $is_hidden ); ?>" for="<?php echo \esc_attr( $checkbox_id ); ?>"<?php echo $is_peek ? ' inert' : ''; ?>>
+						<label class="newspack-ui__input-card<?php echo $is_hidden ? ' hidden' : ''; ?>" for="<?php echo \esc_attr( $checkbox_id ); ?>"<?php echo ( $is_peek || $is_hidden ) ? ' inert' : ''; ?>>
 							<input
 								type="checkbox"
 								name="lists[]"
@@ -1756,13 +1754,11 @@ final class Reader_Activation {
 							<?php endif; ?>
 						</label>
 						<?php
-						if ( $loop_index === (int) $default_list_size && count( $newsletters_lists ) > $default_list_size ) :
-							?>
-							<div class="newspack-ui__gradient-divider"></div>
-							<?php
-						endif;
 					}
 					?>
+					<?php if ( $has_overflow ) : ?>
+						<div class="newspack-ui__gradient-divider"></div>
+					<?php endif; ?>
 					</div>
 
 					<div class="newspack-ui__stack newspack-ui__stack--vertical newspack-ui__stack--gap-2 newspack-ui__spacing-top--5">
