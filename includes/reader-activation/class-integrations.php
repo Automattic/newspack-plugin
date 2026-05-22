@@ -424,13 +424,14 @@ class Integrations {
 				continue;
 			}
 			$result[ $id ] = [
-				'id'          => $id,
-				'name'        => $integration->get_name(),
-				'description' => $integration->get_description(),
-				'enabled'     => self::is_enabled( $id ),
-				'is_set_up'   => $integration->is_set_up(),
-				'setup_url'   => $integration->get_setup_url(),
-				'settings'    => $integration->get_settings_config(),
+				'id'               => $id,
+				'name'             => $integration->get_name(),
+				'description'      => $integration->get_description(),
+				'enabled'          => self::is_enabled( $id ),
+				'is_set_up'        => $integration->is_set_up(),
+				'setup_url'        => $integration->get_setup_url(),
+				'settings'         => $integration->get_settings_config(),
+				'required_plugins' => $integration->get_required_plugins(),
 			];
 		}
 		return $result;

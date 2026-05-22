@@ -1381,4 +1381,72 @@ class Test_Integrations extends \WP_UnitTestCase {
 			\get_option( Integration::SETTINGS_OPTION_PREFIX . 'test-id_connection' )
 		);
 	}
+
+	/**
+	 * Integrations that don't override get_required_plugins() report an empty
+	 * required_plugins array in the settings payload, so the audience UI renders
+	 * them without a requirements badge.
+	 */
+	public function test_get_all_integration_settings_defaults_required_plugins_to_empty_array() {
+		$integration = new Sample_Integration( 'no-overrides', 'No Overrides' );
+		Integrations::register( $integration );
+
+		$settings = Integrations::get_all_integration_settings();
+
+		$this->assertArrayHasKey( 'no-overrides', $settings );
+		$this->assertArrayHasKey( 'required_plugins', $settings['no-overrides'] );
+		$this->assertSame( [], $settings['no-overrides']['required_plugins'] );
+	}
+
+	/**
+	 * A child integration overriding get_required_plugins() has its declaration
+	 * surfaced verbatim in the settings payload that drives the audience UI card.
+	 */
+	public function test_get_all_integration_settings_surfaces_required_plugins_override() {
+		$declared    = [
+			[
+				'slug'         => 'some-dependency',
+				'name'         => 'Some Dependency',
+				'is_active'    => false,
+				'is_installed' => true,
+			],
+		];
+		$integration = new class( 'with-deps', 'With Deps', $declared ) extends Sample_Integration {
+			/**
+			 * Declared required-plugins payload returned by the override.
+			 *
+			 * @var array
+			 */
+			private $declared;
+
+			/**
+			 * Capture the declaration the test wants returned, then defer
+			 * construction to the parent.
+			 *
+			 * @param string $id       Integration id.
+			 * @param string $name     Integration name.
+			 * @param array  $declared Required-plugins payload to return.
+			 */
+			public function __construct( $id, $name, $declared ) {
+				$this->declared = $declared;
+				parent::__construct( $id, $name );
+			}
+
+			/**
+			 * Return the test-supplied required-plugins payload.
+			 *
+			 * @return array
+			 */
+			public function get_required_plugins() {
+				return $this->declared;
+			}
+		};
+
+		Integrations::register( $integration );
+
+		$settings = Integrations::get_all_integration_settings();
+
+		$this->assertArrayHasKey( 'with-deps', $settings );
+		$this->assertSame( $declared, $settings['with-deps']['required_plugins'] );
+	}
 }

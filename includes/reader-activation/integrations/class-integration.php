@@ -152,6 +152,23 @@ abstract class Integration {
 	}
 
 	/**
+	 * Get the plugins this integration depends on, with their active status.
+	 *
+	 * Child classes should override this to declare any plugins that must be
+	 * active for the integration to function. The integrations UI uses this
+	 * to surface a "requirements" affordance on the integration card.
+	 *
+	 * Each entry must include all of `slug`, `name`, `is_active`, and `is_installed` —
+	 * the integrations UI treats a missing `is_installed` as uninstalled and renders
+	 * a disabled "Requires …" card instead of the Activate action.
+	 *
+	 * @return array List of associative arrays with keys `slug`, `name`, `is_active`, `is_installed`.
+	 */
+	public function get_required_plugins() {
+		return [];
+	}
+
+	/**
 	 * Whether this integration supports frontend reader registration.
 	 *
 	 * Integrations that return true will have their key output to the page
