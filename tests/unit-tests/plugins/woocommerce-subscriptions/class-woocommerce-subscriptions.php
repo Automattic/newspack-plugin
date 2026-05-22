@@ -28,6 +28,14 @@ class Newspack_Test_WooCommerce_Subscriptions extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Remove filters added by individual tests so they do not leak across tests.
+	 */
+	public function tear_down() {
+		remove_filter( 'newspack_wc_subs_switch_include_signup_fee', '__return_true' );
+		parent::tear_down();
+	}
+
+	/**
 	 * Test WooCommerce_Subscriptions::is_active.
 	 */
 	public function test_is_active() {
