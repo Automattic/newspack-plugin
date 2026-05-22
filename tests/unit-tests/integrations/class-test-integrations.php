@@ -1201,7 +1201,6 @@ class Test_Integrations extends \WP_UnitTestCase {
 	}
 
 	/**
-<<<<<<< HEAD
 	 * OAuth settings field value: scalar strings are sanitized through sanitize_text_field.
 	 */
 	public function test_sanitize_settings_field_value_oauth_scalar() {

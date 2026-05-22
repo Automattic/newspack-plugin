@@ -20,6 +20,7 @@ const AudienceIntegrations = ( props, ref ) => {
 	const [ pendingChanges, setPendingChanges ] = useState( {} );
 	const [ saving, setSaving ] = useState( {} );
 	const [ toggling, setToggling ] = useState( {} );
+	const [ activating, setActivating ] = useState( {} );
 	const [ loading, setLoading ] = useState( true );
 
 	const fetchSettings = useCallback( () => {
@@ -89,11 +90,49 @@ const AudienceIntegrations = ( props, ref ) => {
 	}, [] );
 
 	const handleActivatePlugin = useCallback(
-		pluginSlug =>
-			apiFetch( {
-				path: `/newspack/v1/plugins/${ pluginSlug }/activate`,
-				method: 'POST',
-			} ).then( () => fetchSettings() ),
+		pluginSlugs => {
+			const slugs = ( Array.isArray( pluginSlugs ) ? pluginSlugs : [ pluginSlugs ] ).filter( Boolean );
+			if ( ! slugs.length ) {
+				return;
+			}
+			// Set-as-guard: filter out slugs already in flight, then dispatch the
+			// activation only for the newly-claimed ones. Using the state setter
+			// callback gives us an atomic check-and-claim against concurrent clicks.
+			setActivating( prev => {
+				const claimed = slugs.filter( slug => ! prev[ slug ] );
+				if ( ! claimed.length ) {
+					return prev;
+				}
+				Promise.all(
+					claimed.map( slug =>
+						apiFetch( {
+							path: `/newspack/v1/plugins/${ slug }/activate`,
+							method: 'POST',
+						} )
+					)
+				)
+					.then( () => fetchSettings() )
+					.catch( () => {
+						// Surface nothing here; failures leave the integration in its
+						// previous state and the user can retry. apiFetch already logs
+						// the underlying error to the console.
+					} )
+					.finally( () => {
+						setActivating( current => {
+							const next = { ...current };
+							claimed.forEach( slug => {
+								delete next[ slug ];
+							} );
+							return next;
+						} );
+					} );
+				const next = { ...prev };
+				claimed.forEach( slug => {
+					next[ slug ] = true;
+				} );
+				return next;
+			} );
+		},
 		[ fetchSettings ]
 	);
 
@@ -102,6 +141,7 @@ const AudienceIntegrations = ( props, ref ) => {
 		pendingChanges,
 		saving,
 		toggling,
+		activating,
 		loading,
 		onFieldChange: handleFieldChange,
 		onSave: handleSave,

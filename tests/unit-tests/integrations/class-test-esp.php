@@ -51,6 +51,7 @@ class Test_ESP extends \WP_UnitTestCase {
 			\update_option( 'active_plugins', $this->original_active_plugins );
 			$this->original_active_plugins = null;
 		}
+		\Newspack\Plugin_Manager::reset_managed_plugin_status_cache();
 		parent::tear_down();
 	}
 

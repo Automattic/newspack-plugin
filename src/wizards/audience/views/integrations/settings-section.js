@@ -34,7 +34,7 @@ const DEFAULT_ICON = {
 
 const getMissingPlugins = integration => ( integration.required_plugins || [] ).filter( plugin => ! plugin.is_active );
 
-export const SettingsSection = ( { integrations, loading, onToggleEnabled, onActivatePlugin, history } ) => {
+export const SettingsSection = ( { integrations, loading, activating = {}, onToggleEnabled, onActivatePlugin, history } ) => {
 	const integrationIds = Object.keys( integrations );
 
 	return (
@@ -59,8 +59,13 @@ export const SettingsSection = ( { integrations, loading, onToggleEnabled, onAct
 							const integration = integrations[ id ];
 							const { enabled, is_set_up: isSetUp, setup_url, name, description } = integration;
 							const missingPlugins = getMissingPlugins( integration );
-							const uninstalledPlugin = missingPlugins.find( plugin => ! plugin.is_installed );
-							const activatablePlugin = missingPlugins.length && ! uninstalledPlugin ? missingPlugins[ 0 ] : null;
+							const requiresInstallPlugins = missingPlugins.filter( plugin => ! plugin.is_installed );
+							// Only offer Activate when every missing plugin is at least installed;
+							// otherwise the card stays in the disabled "Requires …" state until the
+							// uninstalled plugin is installed first.
+							const activatablePlugins = requiresInstallPlugins.length === 0 ? missingPlugins : [];
+							const canActivate = activatablePlugins.length > 0;
+							const isActivating = canActivate && activatablePlugins.some( plugin => activating[ plugin.slug ] );
 							const requirements = missingPlugins.length
 								? sprintf(
 										/* translators: %s: comma-separated list of required plugin names. */
@@ -75,9 +80,9 @@ export const SettingsSection = ( { integrations, loading, onToggleEnabled, onAct
 							};
 							let enableLabel = isSetUp ? __( 'Enable', 'newspack-plugin' ) : __( 'Connect', 'newspack-plugin' );
 							let onEnable = needsSetup ? goToSetup : () => onToggleEnabled( id, true );
-							if ( activatablePlugin ) {
-								enableLabel = __( 'Activate', 'newspack-plugin' );
-								onEnable = () => onActivatePlugin( activatablePlugin.slug );
+							if ( canActivate ) {
+								enableLabel = isActivating ? __( 'Activating…', 'newspack-plugin' ) : __( 'Activate', 'newspack-plugin' );
+								onEnable = () => onActivatePlugin( activatablePlugins.map( plugin => plugin.slug ) );
 							}
 							return (
 								<CardFeature
@@ -87,7 +92,7 @@ export const SettingsSection = ( { integrations, loading, onToggleEnabled, onAct
 									icon={ INTEGRATION_ICONS[ id ] || DEFAULT_ICON }
 									enabled={ isEnabled }
 									requirements={ requirements }
-									requirementsActionable={ !! activatablePlugin }
+									requirementsActionable={ canActivate }
 									enableLabel={ enableLabel }
 									configureLabel={ needsSetup ? __( 'Configure', 'newspack-plugin' ) : undefined }
 									onEnable={ onEnable }
