@@ -57,7 +57,7 @@
 	overflow-y: auto;
 	padding: var( --wp--preset--spacing--30, 1rem );
 	position: fixed;
-	top: 0;
+	top: var(--wp-admin--admin-bar--height, 0);
 	// Transition driven by CSS; JS only toggles the --open class.
 	transition:
 		opacity 125ms ease-in-out,
@@ -68,18 +68,10 @@
 		transform 250ms ease-in-out;
 	max-width: 90vw;
 	width: 100%;
-	z-index: 50;
+	z-index: 99998;
 
 	@media ( min-width: breakpoints.$tablet_width ) {
 		padding: var( --wp--preset--spacing--40, 1.5rem );
-	}
-
-	.admin-bar & {
-		top: 46px;
-
-		@media ( min-width: breakpoints.$tablet_width ) {
-			top: 32px;
-		}
 	}
 
 	// Side panels slide in from left or right.
@@ -152,7 +144,7 @@
 	margin: 0 !important;
 	position: fixed;
 	transition: opacity 500ms ease-in-out;
-	z-index: 49;
+	z-index: 99997;
 }
 
 // Lock document scrolling while any overlay menu instance is open.
