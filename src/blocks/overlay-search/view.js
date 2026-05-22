@@ -8,9 +8,9 @@
  */
 
 /**
- * Internal dependencies
+ * WordPress dependencies
  */
-import { domReady } from '../../utils';
+import domReady from '@wordpress/dom-ready';
 
 const FOCUSABLE_SELECTOR =
 	'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), ' +

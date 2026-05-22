@@ -43,6 +43,10 @@ final class Overlay_Search_Block {
 	 * @return string Block HTML.
 	 */
 	public static function render_block( array $attributes ): string {
+		// The compiled view script depends on dist/commons.js (a webpack split chunk).
+		// Ensure commons is enqueued so the entry callback can execute on the frontend.
+		\Newspack\Newspack::load_common_assets();
+
 		$defaults   = [
 			'triggerText'  => __( 'Search', 'newspack-plugin' ),
 			'overlayColor' => '',
@@ -181,27 +185,19 @@ final class Overlay_Search_Block {
 	 * @return string Panel HTML.
 	 */
 	private static function render_panel( string $panel_id, string $overlay_color ): string {
-		// Render core/search once per request and reuse — its output doesn't depend
-		// on block instance, and re-rendering for each panel is wasted work when a
-		// site uses several overlay-search blocks (e.g. desktop + mobile header).
-		static $search_html = null;
-		if ( null === $search_html ) {
-			// Wrap in a constrained-width group as plain HTML — building a synthetic
-			// core/group parsed-block array is fragile because `core/group` relies on
-			// `innerContent` to interleave inner HTML.
-			$search_html = \render_block(
-				[
-					'blockName'    => 'core/search',
-					'attrs'        => [
-						'buttonText' => __( 'Search', 'newspack-plugin' ),
-						'fontSize'   => 'small',
-					],
-					'innerBlocks'  => [],
-					'innerHTML'    => '',
-					'innerContent' => [],
-				]
-			);
-		}
+		// Render core/search per instance so each panel gets its own unique input id.
+		$search_html = \render_block(
+			[
+				'blockName'    => 'core/search',
+				'attrs'        => [
+					'buttonText' => __( 'Search', 'newspack-plugin' ),
+					'fontSize'   => 'small',
+				],
+				'innerBlocks'  => [],
+				'innerHTML'    => '',
+				'innerContent' => [],
+			]
+		);
 
 		// Run user-supplied CSS through `safecss_filter_attr` before output.
 		// `esc_attr` alone would let an editor inject extra declarations.
