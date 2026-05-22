@@ -9,19 +9,6 @@
 @use "../../newspack-ui/scss/variables/breakpoints";
 @use "../../../packages/colors/colors.module" as colors;
 
-// Trigger button — icon + label layout.
-.newspack-overlay-search__trigger {
-	display: inline-flex;
-	align-items: center;
-	gap: 0.5em;
-
-	.newspack-overlay-search__icon {
-		display: inline-flex;
-		align-items: center;
-		justify-content: center;
-	}
-}
-
 // Panel — root scope.
 .newspack-overlay-search__panel {
 	position: fixed;
