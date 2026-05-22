@@ -184,7 +184,7 @@ class Newspack_Test_Overlay_Search_Block extends WP_UnitTestCase {
 	public function test_overlay_color_renders_inline_style() {
 		$output = $this->render( [ 'overlayColor' => '#123456' ] );
 
-		$this->assertMatchesRegularExpression( '/<div[^>]*class="newspack-overlay-search__panel"[^>]*style="background:\s*#123456"/', $output );
+		$this->assertMatchesRegularExpression( '/<div[^>]*class="newspack-overlay-search__panel"[^>]*style="background:\s*#123456;?\s*"/', $output );
 	}
 
 	/**
