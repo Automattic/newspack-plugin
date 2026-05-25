@@ -729,10 +729,12 @@ abstract class Integration {
 		$prepared       = [];
 
 		foreach ( $contact['metadata'] as $key => $value ) {
-			// If the key is already prefixed, keep it as-is if its field is enabled.
+			// If the key is already prefixed, keep it only when its field is both
+			// enabled and currently available — guarding against stale enabled-field
+			// names left over from a prior feature-flag-on period.
 			if ( 0 === strpos( $key, $prefix ) ) {
 				$field_name = substr( $key, strlen( $prefix ) );
-				if ( in_array( $field_name, $enabled_fields, true ) ) {
+				if ( in_array( $field_name, $enabled_fields, true ) && in_array( $field_name, $keys_map, true ) ) {
 					$prepared[ $key ] = $value;
 				}
 				continue;
