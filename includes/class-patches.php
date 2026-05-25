@@ -551,6 +551,7 @@ class Patches {
 			return $settings;
 		}
 
+		// Note: `__unstableType` is a private WP core key. Re-verify on WP upgrades.
 		$settings['styles'] = array_values(
 			array_filter(
 				$settings['styles'],
