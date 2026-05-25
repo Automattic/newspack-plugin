@@ -455,6 +455,12 @@ if ( ! class_exists( 'WC_Subscriptions_Product' ) ) {
 			}
 			return (float) $product->get_meta( '_subscription_sign_up_fee' );
 		}
+		public static function get_price( $product ) {
+			if ( ! is_object( $product ) || ! method_exists( $product, 'get_meta' ) ) {
+				return 0;
+			}
+			return (float) $product->get_meta( '_subscription_price' );
+		}
 	}
 }
 

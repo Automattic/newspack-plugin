@@ -675,13 +675,14 @@ class Newspack_Test_WooCommerce_Subscriptions extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Helper: stage a paid-trial switch cart context so the clamp filter has
-	 * something to read for the existing item and the WCS total_paid call.
+	 * Helper: stage a paid-trial switch cart context with a new product
+	 * priced at $new_recurring for the upgrade target.
 	 *
-	 * @param float $total_paid Amount the reader paid for the old plan, returned by the WCS mock.
+	 * @param float $total_paid    Amount the reader paid for the old plan.
+	 * @param float $new_recurring Full-cycle recurring price of the new (upgrade) plan.
 	 * @return array { subscription, existing_item, cart_item } tuple.
 	 */
-	private function stage_paid_trial_switch_context( $total_paid ) {
+	private function stage_paid_trial_switch_context( $total_paid, $new_recurring = 10.0 ) {
 		global $wcs_mock_total_paid_including_signup_fee, $wcs_mock_order_items;
 
 		$wcs_mock_total_paid_including_signup_fee = $total_paid;
@@ -705,52 +706,76 @@ class Newspack_Test_WooCommerce_Subscriptions extends WP_UnitTestCase {
 			]
 		);
 
-		$cart_item = [ 'subscription_switch' => [ 'item_id' => 999 ] ];
+		$new_product = wc_create_mock_product(
+			[
+				'id'   => 200,
+				'meta' => [ '_subscription_price' => (string) $new_recurring ],
+			]
+		);
+
+		$cart_item = [
+			'subscription_switch' => [ 'item_id' => 999 ],
+			'data'                => $new_product,
+		];
 
 		return [ $subscription, $existing_item, $cart_item ];
 	}
 
 	/**
-	 * An immediate switch (day 0 of the trial) has consumed nothing -- the
-	 * full sign-up fee remains as credit. extra_to_pay must come back at 0
-	 * so the only charge is the sign-up fee delta WCS will apply on top.
+	 * Stepped-pricing immediate switch: nothing consumed, full unconsumed
+	 * credit applied. For Regular ($3 paid) -> Pro ($10/mo), the reader
+	 * pays new_recurring - unconsumed = $10 - $3 = $7.
 	 */
-	public function test_clamp_negative_switch_proration_credit_returns_zero_for_immediate_switch() {
+	public function test_apply_stepped_pricing_switch_charge_returns_new_recurring_minus_unconsumed_at_day_0() {
 		add_filter( 'newspack_wc_subs_switch_include_signup_fee', '__return_true' );
 
-		// total_paid = $3 (Regular's sign-up fee); WCS computed extra_to_pay = -$3 (full unconsumed credit).
+		// total_paid = $3, new_recurring = $10. WCS computed extra_to_pay = -$3 (full unconsumed credit).
 		[ $subscription, , $cart_item ] = $this->stage_paid_trial_switch_context( 3.0 );
 
-		$result = WooCommerce_Subscriptions::clamp_negative_switch_proration_credit( -3.0, $subscription, $cart_item );
+		$result = WooCommerce_Subscriptions::apply_stepped_pricing_switch_charge( -3.0, $subscription, $cart_item );
 
-		$this->assertSame( 0.0, $result, 'Day-0 switch must return extra_to_pay=0 so only the sign-up fee delta is charged.' );
+		$this->assertSame( 7.0, $result, 'Day-0 switch charges new_recurring ($10) minus full unconsumed credit ($3).' );
 	}
 
 	/**
-	 * A mid-trial switch has consumed part of the original sign-up fee --
-	 * that consumed portion must be charged on top of the sign-up fee delta.
-	 *
-	 * Example: $3 paid, day 15 of 30 -> unconsumed $1.50, WCS extra_to_pay =
-	 * -$1.50, consumed_value = $3 + (-$1.50) = $1.50.
+	 * Stepped-pricing mid-trial switch: half consumed, half credited. For
+	 * Regular ($3 paid) -> Pro ($10/mo) at day 15 of 30, WCS reports
+	 * extra_to_pay = -$1.50; charge = $10 - $1.50 = $8.50.
 	 */
-	public function test_clamp_negative_switch_proration_credit_charges_consumed_value_mid_trial() {
+	public function test_apply_stepped_pricing_switch_charge_at_day_15() {
 		add_filter( 'newspack_wc_subs_switch_include_signup_fee', '__return_true' );
 
 		[ $subscription, , $cart_item ] = $this->stage_paid_trial_switch_context( 3.0 );
 
-		$result = WooCommerce_Subscriptions::clamp_negative_switch_proration_credit( -1.5, $subscription, $cart_item );
+		$result = WooCommerce_Subscriptions::apply_stepped_pricing_switch_charge( -1.5, $subscription, $cart_item );
 
-		$this->assertSame( 1.5, $result, 'Mid-trial switch must charge for the consumed portion of the original sign-up fee.' );
+		$this->assertSame( 8.5, $result, 'Day-15 switch charges new_recurring ($10) minus half-unconsumed ($1.50).' );
+	}
+
+	/**
+	 * If the new plan is cheaper (Pro -> Regular), the result is still
+	 * clamped at 0 -- we never refund or carry credit across switches.
+	 */
+	public function test_apply_stepped_pricing_switch_charge_clamps_negative_to_zero() {
+		add_filter( 'newspack_wc_subs_switch_include_signup_fee', '__return_true' );
+
+		// new_recurring = $2 (cheap), unconsumed_credit = $3 (-$3 extra_to_pay).
+		// $2 - $3 = -$1 -> clamped to 0.
+		[ $subscription, , $cart_item ] = $this->stage_paid_trial_switch_context( 3.0, 2.0 );
+
+		$result = WooCommerce_Subscriptions::apply_stepped_pricing_switch_charge( -3.0, $subscription, $cart_item );
+
+		$this->assertSame( 0.0, $result, 'A downgrade whose unconsumed credit exceeds the new recurring must clamp to 0.' );
 	}
 
 	/**
 	 * Without the opt-in, the manufactured negative credit is left alone --
 	 * publishers who have not opted in get WCS's default behavior.
 	 */
-	public function test_clamp_negative_switch_proration_credit_passes_through_without_optin() {
+	public function test_apply_stepped_pricing_switch_charge_passes_through_without_optin() {
 		[ $subscription, , $cart_item ] = $this->stage_paid_trial_switch_context( 3.0 );
 
-		$result = WooCommerce_Subscriptions::clamp_negative_switch_proration_credit( -3.0, $subscription, $cart_item );
+		$result = WooCommerce_Subscriptions::apply_stepped_pricing_switch_charge( -3.0, $subscription, $cart_item );
 
 		$this->assertSame( -3.0, $result, 'Without the opt-in, the negative credit must pass through unchanged.' );
 	}
@@ -760,7 +785,7 @@ class Newspack_Test_WooCommerce_Subscriptions extends WP_UnitTestCase {
 	 * filter must not block normal proration refunds when the publisher
 	 * downgrades a fully-paid subscription.
 	 */
-	public function test_clamp_negative_switch_proration_credit_passes_through_outside_trial() {
+	public function test_apply_stepped_pricing_switch_charge_passes_through_outside_trial() {
 		add_filter( 'newspack_wc_subs_switch_include_signup_fee', '__return_true' );
 
 		$subscription = new WC_Subscription(
@@ -770,21 +795,21 @@ class Newspack_Test_WooCommerce_Subscriptions extends WP_UnitTestCase {
 			]
 		);
 
-		$result = WooCommerce_Subscriptions::clamp_negative_switch_proration_credit( -5.0, $subscription, [] );
+		$result = WooCommerce_Subscriptions::apply_stepped_pricing_switch_charge( -5.0, $subscription, [] );
 
 		$this->assertSame( -5.0, $result, 'Negative credits on non-trial switches are legitimate downgrade refunds and must not be touched.' );
 	}
 
 	/**
-	 * A positive extra_to_pay -- a real upgrade charge -- always passes
-	 * through unchanged, regardless of opt-in or trial state.
+	 * A positive extra_to_pay -- a real upgrade charge from WCS -- always
+	 * passes through unchanged, regardless of opt-in or trial state.
 	 */
-	public function test_clamp_negative_switch_proration_credit_passes_through_positive_value() {
+	public function test_apply_stepped_pricing_switch_charge_passes_through_positive_value() {
 		add_filter( 'newspack_wc_subs_switch_include_signup_fee', '__return_true' );
 
 		[ $subscription, , $cart_item ] = $this->stage_paid_trial_switch_context( 3.0 );
 
-		$result = WooCommerce_Subscriptions::clamp_negative_switch_proration_credit( 7.5, $subscription, $cart_item );
+		$result = WooCommerce_Subscriptions::apply_stepped_pricing_switch_charge( 7.5, $subscription, $cart_item );
 
 		$this->assertSame( 7.5, $result, 'A positive extra_to_pay is a real upgrade charge and must be preserved.' );
 	}
@@ -793,20 +818,20 @@ class Newspack_Test_WooCommerce_Subscriptions extends WP_UnitTestCase {
 	 * The filter guards against non-WC_Subscription inputs so it cannot
 	 * fatal if a third-party callback supplies an unexpected value.
 	 */
-	public function test_clamp_negative_switch_proration_credit_passes_through_non_subscription() {
+	public function test_apply_stepped_pricing_switch_charge_passes_through_non_subscription() {
 		add_filter( 'newspack_wc_subs_switch_include_signup_fee', '__return_true' );
 
-		$result = WooCommerce_Subscriptions::clamp_negative_switch_proration_credit( -3.0, null, [] );
+		$result = WooCommerce_Subscriptions::apply_stepped_pricing_switch_charge( -3.0, null, [] );
 
 		$this->assertSame( -3.0, $result, 'A non-WC_Subscription argument must be returned unchanged.' );
 	}
 
 	/**
-	 * If the existing item cannot be resolved from the cart context, the
-	 * filter must pass through so we never fabricate a charge from incomplete
-	 * data. Real-world this would happen if the switch metadata is malformed.
+	 * If the new product is missing from the cart_item (malformed switch
+	 * metadata), the filter passes through so we never fabricate a charge
+	 * without knowing the upgrade target's recurring price.
 	 */
-	public function test_clamp_negative_switch_proration_credit_passes_through_without_existing_item() {
+	public function test_apply_stepped_pricing_switch_charge_passes_through_without_new_product() {
 		add_filter( 'newspack_wc_subs_switch_include_signup_fee', '__return_true' );
 
 		$subscription = new WC_Subscription(
@@ -819,120 +844,9 @@ class Newspack_Test_WooCommerce_Subscriptions extends WP_UnitTestCase {
 			]
 		);
 
-		// cart_item missing 'subscription_switch'.item_id -> no existing_item lookup possible.
-		$result = WooCommerce_Subscriptions::clamp_negative_switch_proration_credit( -3.0, $subscription, [] );
+		// cart_item missing 'data' (new product) -> no recurring price lookup possible.
+		$result = WooCommerce_Subscriptions::apply_stepped_pricing_switch_charge( -3.0, $subscription, [] );
 
-		$this->assertSame( -3.0, $result, 'Without an existing_item the filter cannot compute consumed value and must pass through.' );
-	}
-
-	/**
-	 * Helper: build a switch_item stub with the subscription, existing item,
-	 * and new product the force-delta filter reads.
-	 *
-	 * @param float $sign_up_fee_paid Sign-up fee already paid on the existing line item.
-	 * @param float $sign_up_fee_due  Sign-up fee on the new product variation.
-	 * @return object Minimal stdClass with subscription, existing_item, product properties.
-	 */
-	private function stage_switch_item( $sign_up_fee_paid, $sign_up_fee_due ) {
-		$existing_item = new WC_Order_Item_Product(
-			[
-				'id'         => 1000,
-				'product_id' => 100,
-				'total'      => 5.0,
-				'meta'       => [ '_subscription_sign_up_fee' => (string) $sign_up_fee_paid ],
-			]
-		);
-
-		$subscription = new WC_Subscription(
-			[
-				'id'     => 60,
-				'status' => 'active',
-				'times'  => [
-					'trial_end' => time() + ( 15 * DAY_IN_SECONDS ),
-				],
-			]
-		);
-
-		$new_product = wc_create_mock_product(
-			[
-				'id'   => 200,
-				'meta' => [ '_subscription_sign_up_fee' => (string) $sign_up_fee_due ],
-			]
-		);
-
-		return (object) [
-			'subscription'  => $subscription,
-			'existing_item' => $existing_item,
-			'product'       => $new_product,
-		];
-	}
-
-	/**
-	 * When WC's store-wide apportion_sign_up_fee is "no", WCS hands us a
-	 * value of 0. With the opt-in active, we should fill in the apportioned
-	 * delta ourselves so publishers don't need to flip the store-wide
-	 * setting (which would affect every product on the site).
-	 */
-	public function test_force_signup_fee_delta_returns_delta_when_optin_active() {
-		add_filter( 'newspack_wc_subs_switch_include_signup_fee', '__return_true' );
-
-		$switch_item = $this->stage_switch_item( 3.0, 6.0 );
-
-		$result = WooCommerce_Subscriptions::force_signup_fee_delta_on_paid_trial_switch( 0.0, $switch_item );
-
-		$this->assertSame( 3.0, $result, 'With opt-in active and WCS suppressing the apportionment, the delta ($6-$3) must be forced.' );
-	}
-
-	/**
-	 * When WCS already computed a positive value (store-wide apportion is
-	 * "yes"), our filter must stay out of the way -- the publisher already
-	 * gets the right behavior from WCS itself.
-	 */
-	public function test_force_signup_fee_delta_respects_existing_wcs_value() {
-		add_filter( 'newspack_wc_subs_switch_include_signup_fee', '__return_true' );
-
-		$switch_item = $this->stage_switch_item( 3.0, 6.0 );
-
-		$result = WooCommerce_Subscriptions::force_signup_fee_delta_on_paid_trial_switch( 3.0, $switch_item );
-
-		$this->assertSame( 3.0, $result, 'A positive value from WCS must be passed through unchanged.' );
-	}
-
-	/**
-	 * Without the opt-in, the filter is a no-op -- publishers who have not
-	 * opted in keep WCS default behavior across the board.
-	 */
-	public function test_force_signup_fee_delta_passes_through_without_optin() {
-		$switch_item = $this->stage_switch_item( 3.0, 6.0 );
-
-		$result = WooCommerce_Subscriptions::force_signup_fee_delta_on_paid_trial_switch( 0.0, $switch_item );
-
-		$this->assertSame( 0.0, $result, 'Without the opt-in, 0 must remain 0.' );
-	}
-
-	/**
-	 * Downgrades (new fee < paid fee) produce a non-negative result -- we
-	 * never refund or carry credit across switches.
-	 */
-	public function test_force_signup_fee_delta_clamps_negative_to_zero() {
-		add_filter( 'newspack_wc_subs_switch_include_signup_fee', '__return_true' );
-
-		$switch_item = $this->stage_switch_item( 6.0, 3.0 );
-
-		$result = WooCommerce_Subscriptions::force_signup_fee_delta_on_paid_trial_switch( 0.0, $switch_item );
-
-		$this->assertSame( 0.0, $result, 'Downgrades must not produce a negative sign-up fee credit.' );
-	}
-
-	/**
-	 * A non-object switch_item is returned unchanged so a malformed call
-	 * cannot fatal the filter chain.
-	 */
-	public function test_force_signup_fee_delta_passes_through_invalid_switch_item() {
-		add_filter( 'newspack_wc_subs_switch_include_signup_fee', '__return_true' );
-
-		$result = WooCommerce_Subscriptions::force_signup_fee_delta_on_paid_trial_switch( 0.0, null );
-
-		$this->assertSame( 0.0, $result, 'A non-object switch_item must be returned unchanged.' );
+		$this->assertSame( -3.0, $result, 'Without the new product we cannot compute the charge and must pass through.' );
 	}
 }
