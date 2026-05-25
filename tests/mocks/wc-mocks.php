@@ -529,6 +529,10 @@ function wcs_get_days_in_cycle( $period, $interval ) {
 	];
 	return ( $days_per_period[ $period ] ?? 0 ) * (int) $interval;
 }
+function wcs_get_order_item( $item_id, $subscription ) {
+	global $wcs_mock_order_items;
+	return $wcs_mock_order_items[ $item_id ] ?? null;
+}
 function wc_string_to_bool( $string ) {
 	return is_bool( $string ) ? $string : ( 'yes' === strtolower( $string ) || '1' === $string || 'true' === strtolower( $string ) );
 }

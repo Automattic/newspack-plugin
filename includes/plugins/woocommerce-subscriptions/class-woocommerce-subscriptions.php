@@ -24,6 +24,7 @@ class WooCommerce_Subscriptions {
 		add_filter( 'woocommerce_subscriptions_can_item_be_switched', [ __CLASS__, 'allow_migrated_subscription_switch' ], 10, 3 );
 		add_filter( 'wcs_switch_total_paid_for_current_period', [ __CLASS__, 'recover_total_paid_for_switch' ], 10, 3 );
 		add_filter( 'wcs_switch_proration_days_in_old_cycle', [ __CLASS__, 'bound_switch_proration_days_in_old_cycle' ], 10, 2 );
+		add_filter( 'wcs_switch_proration_extra_to_pay', [ __CLASS__, 'clamp_negative_switch_proration_credit' ], 10, 3 );
 		add_filter( 'wcs_can_user_resubscribe_to_subscription', [ __CLASS__, 'allow_migrated_subscription_to_resubscribe' ], 10, 3 );
 	}
 
@@ -196,6 +197,72 @@ class WooCommerce_Subscriptions {
 		}
 
 		return min( (int) $days_in_old_cycle, $cycle_days );
+	}
+
+	/**
+	 * Replace WCS's manufactured trial credit with the consumed-value charge
+	 * for paid-trial switches.
+	 *
+	 * When switching between two products that both use a sign-up fee + free
+	 * trial (Newspack's stepped-pricing pattern), WCS sees matching trial
+	 * periods and forces new_price_per_day to 0 -- which makes extra_to_pay
+	 * negative by exactly the unconsumed portion of the original sign-up
+	 * fee. WCS then nets that negative credit against the new plan's
+	 * apportioned sign-up fee, charging the reader nothing for what is
+	 * actually an upgrade to a more expensive plan.
+	 *
+	 * The model publishers actually want for stepped pricing: the unconsumed
+	 * portion of what the reader paid for the old plan is credited toward
+	 * the new plan's sign-up fee; the reader pays the remainder. Computed as
+	 * consumed_value = total_paid_so_far - unconsumed_credit, which expressed
+	 * in WCS terms is simply total_paid + (WCS's negative extra_to_pay). This
+	 * sits on top of WCS's sign_up_fee_delta to produce the correct charge:
+	 * sign_up_fee_delta + consumed_value = new_sign_up_fee - unconsumed_credit.
+	 *
+	 * Only fires when the publisher has opted in to counting sign-up fees in
+	 * switch proration, the subscription is in an active trial, and WCS
+	 * produced a negative extra_to_pay. Legitimate downgrade credits on
+	 * non-trial switches are untouched.
+	 *
+	 * @param float            $extra_to_pay The amount WCS computed as the upgrade cost.
+	 * @param \WC_Subscription $subscription The subscription being switched.
+	 * @param array            $cart_item    The cart item recording the switch.
+	 *
+	 * @return float The corrected extra_to_pay value.
+	 */
+	public static function clamp_negative_switch_proration_credit( $extra_to_pay, $subscription, $cart_item ) {
+		if ( (float) $extra_to_pay >= 0 ) {
+			return $extra_to_pay;
+		}
+
+		if ( ! ( $subscription instanceof \WC_Subscription ) ) {
+			return $extra_to_pay;
+		}
+
+		// Only intervene during an active trial -- the case where WCS's
+		// matching-trials path forces new_price_per_day to 0 and manufactures
+		// a negative extra_to_pay. Off-trial negative values are legitimate
+		// downgrade credits and must pass through unchanged.
+		if ( $subscription->get_time( 'trial_end' ) <= time() ) {
+			return $extra_to_pay;
+		}
+
+		$existing_item = null;
+		if ( isset( $cart_item['subscription_switch']['item_id'] ) && function_exists( 'wcs_get_order_item' ) ) {
+			$existing_item = wcs_get_order_item( $cart_item['subscription_switch']['item_id'], $subscription );
+		}
+
+		if ( ! self::should_count_signup_fee_on_switch( $subscription, $existing_item ) ) {
+			return $extra_to_pay;
+		}
+
+		if ( ! ( $existing_item instanceof \WC_Order_Item_Product ) ) {
+			return $extra_to_pay;
+		}
+
+		$total_paid = self::get_total_paid_including_signup_fee( $subscription, $existing_item );
+
+		return max( $total_paid + (float) $extra_to_pay, 0.0 );
 	}
 
 	/**

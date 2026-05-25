@@ -21,11 +21,12 @@ class Newspack_Test_WooCommerce_Subscriptions extends WP_UnitTestCase {
 	 */
 	public function set_up() {
 		parent::set_up();
-		global $subscriptions_database, $products_database, $wcs_mock_total_paid_including_signup_fee, $wcs_mock_last_calculate_total_paid_args;
+		global $subscriptions_database, $products_database, $wcs_mock_total_paid_including_signup_fee, $wcs_mock_last_calculate_total_paid_args, $wcs_mock_order_items;
 		$subscriptions_database                   = [];
 		$products_database                        = [];
 		$wcs_mock_total_paid_including_signup_fee = 0;
 		$wcs_mock_last_calculate_total_paid_args  = null;
+		$wcs_mock_order_items                     = [];
 	}
 
 	/**
@@ -33,9 +34,10 @@ class Newspack_Test_WooCommerce_Subscriptions extends WP_UnitTestCase {
 	 * not leak across tests.
 	 */
 	public function tear_down() {
-		global $wcs_mock_total_paid_including_signup_fee, $wcs_mock_last_calculate_total_paid_args;
+		global $wcs_mock_total_paid_including_signup_fee, $wcs_mock_last_calculate_total_paid_args, $wcs_mock_order_items;
 		$wcs_mock_total_paid_including_signup_fee = 0;
 		$wcs_mock_last_calculate_total_paid_args  = null;
+		$wcs_mock_order_items                     = [];
 		remove_all_filters( 'newspack_wc_subs_switch_include_signup_fee' );
 		parent::tear_down();
 	}
@@ -668,5 +670,156 @@ class Newspack_Test_WooCommerce_Subscriptions extends WP_UnitTestCase {
 		$result = WooCommerce_Subscriptions::bound_switch_proration_days_in_old_cycle( 1500, $subscription );
 
 		$this->assertSame( 365, $result, 'An annual migrated sub must clamp to one year (365 days), not one month.' );
+	}
+
+	/**
+	 * Helper: stage a paid-trial switch cart context so the clamp filter has
+	 * something to read for the existing item and the WCS total_paid call.
+	 *
+	 * @param float $total_paid Amount the reader paid for the old plan, returned by the WCS mock.
+	 * @return array { subscription, existing_item, cart_item } tuple.
+	 */
+	private function stage_paid_trial_switch_context( $total_paid ) {
+		global $wcs_mock_total_paid_including_signup_fee, $wcs_mock_order_items;
+
+		$wcs_mock_total_paid_including_signup_fee = $total_paid;
+
+		$existing_item = new WC_Order_Item_Product(
+			[
+				'id'         => 999,
+				'product_id' => 100,
+				'total'      => 5.0,
+			]
+		);
+		$wcs_mock_order_items[999] = $existing_item;
+
+		$subscription = new WC_Subscription(
+			[
+				'id'     => 50,
+				'status' => 'active',
+				'times'  => [
+					'trial_end' => time() + ( 15 * DAY_IN_SECONDS ),
+				],
+			]
+		);
+
+		$cart_item = [ 'subscription_switch' => [ 'item_id' => 999 ] ];
+
+		return [ $subscription, $existing_item, $cart_item ];
+	}
+
+	/**
+	 * An immediate switch (day 0 of the trial) has consumed nothing -- the
+	 * full sign-up fee remains as credit. extra_to_pay must come back at 0
+	 * so the only charge is the sign-up fee delta WCS will apply on top.
+	 */
+	public function test_clamp_negative_switch_proration_credit_returns_zero_for_immediate_switch() {
+		add_filter( 'newspack_wc_subs_switch_include_signup_fee', '__return_true' );
+
+		// total_paid = $3 (Regular's sign-up fee); WCS computed extra_to_pay = -$3 (full unconsumed credit).
+		[ $subscription, , $cart_item ] = $this->stage_paid_trial_switch_context( 3.0 );
+
+		$result = WooCommerce_Subscriptions::clamp_negative_switch_proration_credit( -3.0, $subscription, $cart_item );
+
+		$this->assertSame( 0.0, $result, 'Day-0 switch must return extra_to_pay=0 so only the sign-up fee delta is charged.' );
+	}
+
+	/**
+	 * A mid-trial switch has consumed part of the original sign-up fee --
+	 * that consumed portion must be charged on top of the sign-up fee delta.
+	 *
+	 * Example: $3 paid, day 15 of 30 -> unconsumed $1.50, WCS extra_to_pay =
+	 * -$1.50, consumed_value = $3 + (-$1.50) = $1.50.
+	 */
+	public function test_clamp_negative_switch_proration_credit_charges_consumed_value_mid_trial() {
+		add_filter( 'newspack_wc_subs_switch_include_signup_fee', '__return_true' );
+
+		[ $subscription, , $cart_item ] = $this->stage_paid_trial_switch_context( 3.0 );
+
+		$result = WooCommerce_Subscriptions::clamp_negative_switch_proration_credit( -1.5, $subscription, $cart_item );
+
+		$this->assertSame( 1.5, $result, 'Mid-trial switch must charge for the consumed portion of the original sign-up fee.' );
+	}
+
+	/**
+	 * Without the opt-in, the manufactured negative credit is left alone --
+	 * publishers who have not opted in get WCS's default behavior.
+	 */
+	public function test_clamp_negative_switch_proration_credit_passes_through_without_optin() {
+		[ $subscription, , $cart_item ] = $this->stage_paid_trial_switch_context( 3.0 );
+
+		$result = WooCommerce_Subscriptions::clamp_negative_switch_proration_credit( -3.0, $subscription, $cart_item );
+
+		$this->assertSame( -3.0, $result, 'Without the opt-in, the negative credit must pass through unchanged.' );
+	}
+
+	/**
+	 * A legitimate downgrade credit outside any trial is left alone -- our
+	 * filter must not block normal proration refunds when the publisher
+	 * downgrades a fully-paid subscription.
+	 */
+	public function test_clamp_negative_switch_proration_credit_passes_through_outside_trial() {
+		add_filter( 'newspack_wc_subs_switch_include_signup_fee', '__return_true' );
+
+		$subscription = new WC_Subscription(
+			[
+				'id'     => 42,
+				'status' => 'active',
+			]
+		);
+
+		$result = WooCommerce_Subscriptions::clamp_negative_switch_proration_credit( -5.0, $subscription, [] );
+
+		$this->assertSame( -5.0, $result, 'Negative credits on non-trial switches are legitimate downgrade refunds and must not be touched.' );
+	}
+
+	/**
+	 * A positive extra_to_pay -- a real upgrade charge -- always passes
+	 * through unchanged, regardless of opt-in or trial state.
+	 */
+	public function test_clamp_negative_switch_proration_credit_passes_through_positive_value() {
+		add_filter( 'newspack_wc_subs_switch_include_signup_fee', '__return_true' );
+
+		[ $subscription, , $cart_item ] = $this->stage_paid_trial_switch_context( 3.0 );
+
+		$result = WooCommerce_Subscriptions::clamp_negative_switch_proration_credit( 7.5, $subscription, $cart_item );
+
+		$this->assertSame( 7.5, $result, 'A positive extra_to_pay is a real upgrade charge and must be preserved.' );
+	}
+
+	/**
+	 * The filter guards against non-WC_Subscription inputs so it cannot
+	 * fatal if a third-party callback supplies an unexpected value.
+	 */
+	public function test_clamp_negative_switch_proration_credit_passes_through_non_subscription() {
+		add_filter( 'newspack_wc_subs_switch_include_signup_fee', '__return_true' );
+
+		$result = WooCommerce_Subscriptions::clamp_negative_switch_proration_credit( -3.0, null, [] );
+
+		$this->assertSame( -3.0, $result, 'A non-WC_Subscription argument must be returned unchanged.' );
+	}
+
+	/**
+	 * If the existing item cannot be resolved from the cart context, the
+	 * filter must pass through so we never fabricate a charge from incomplete
+	 * data. Real-world this would happen if the switch metadata is malformed.
+	 */
+	public function test_clamp_negative_switch_proration_credit_passes_through_without_existing_item() {
+		add_filter( 'newspack_wc_subs_switch_include_signup_fee', '__return_true' );
+
+		$subscription = new WC_Subscription(
+			[
+				'id'     => 43,
+				'status' => 'active',
+				'times'  => [
+					'trial_end' => time() + ( 15 * DAY_IN_SECONDS ),
+				],
+			]
+		);
+
+		// cart_item missing 'subscription_switch'.item_id -> no existing_item lookup possible.
+		$result = WooCommerce_Subscriptions::clamp_negative_switch_proration_credit( -3.0, $subscription, [] );
+
+		$this->assertSame( -3.0, $result, 'Without an existing_item the filter cannot compute consumed value and must pass through.' );
 	}
 }
