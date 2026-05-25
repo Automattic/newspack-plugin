@@ -171,4 +171,27 @@ class Newspack_Test_Reader_Activation extends WP_UnitTestCase {
 			'Custom OAuth route should be detected after adding via filter.'
 		);
 	}
+
+	/**
+	 * Test that the prerequisites status no longer exposes skip-related keys.
+	 */
+	public function test_prerequisites_status_has_no_skip_keys() {
+		$prerequisites = Reader_Activation::get_prerequisites_status();
+		$this->assertNotEmpty( $prerequisites );
+		foreach ( $prerequisites as $slug => $prerequisite ) {
+			$this->assertArrayNotHasKey( 'skippable', $prerequisite, "Prerequisite '$slug' should not expose 'skippable'." );
+			$this->assertArrayNotHasKey( 'is_skipped', $prerequisite, "Prerequisite '$slug' should not expose 'is_skipped'." );
+			$this->assertArrayNotHasKey( 'action_enabled', $prerequisite, "Prerequisite '$slug' should not expose 'action_enabled'." );
+			$this->assertArrayNotHasKey( 'disabled_text', $prerequisite, "Prerequisite '$slug' should not expose 'disabled_text'." );
+		}
+	}
+
+	/**
+	 * Test that the auto-enable and skip helpers have been removed.
+	 */
+	public function test_auto_enable_and_skip_helpers_removed() {
+		$this->assertFalse( method_exists( Reader_Activation::class, 'is_ras_ready_to_configure' ), 'is_ras_ready_to_configure() should be removed.' );
+		$this->assertFalse( method_exists( Reader_Activation::class, 'skip' ), 'skip() should be removed.' );
+		$this->assertFalse( method_exists( Reader_Activation::class, 'is_skipped' ), 'is_skipped() should be removed.' );
+	}
 }

@@ -539,11 +539,7 @@ final class Reader_Activation {
 			return new \WP_Error( 'newspack_reader_activation_missing_dependencies', __( 'Newspack Campaigns plugin is required to activate Reader Activation features.', 'newspack-plugin' ) );
 		}
 
-		$activated = \Newspack_Popups_Presets::activate_ras_presets();
-		if ( $activated ) {
-			self::skip( 'ras_campaign', false );
-		}
-		return $activated;
+		return \Newspack_Popups_Presets::activate_ras_presets();
 	}
 
 	/**
@@ -780,22 +776,12 @@ final class Reader_Activation {
 	 * Are the Legal Pages settings configured?
 	 * Allows for blank values.
 	 *
-	 * @param bool $skip Whether to skip the check.
-	 *
 	 * @return bool
 	 */
-	public static function is_terms_configured( $skip = false ) {
+	public static function is_terms_configured() {
 		$terms_text = \get_option( self::OPTIONS_PREFIX . 'terms_text', false );
 		$terms_url  = \get_option( self::OPTIONS_PREFIX . 'terms_url', false );
-		$is_valid   = is_string( $terms_text ) && is_string( $terms_url );
-		if ( $skip ) {
-			return $is_valid || self::is_skipped( 'terms_conditions' );
-		}
-		if ( $is_valid ) {
-			self::skip( 'terms_conditions', false );
-		}
-
-		return $is_valid;
+		return is_string( $terms_text ) && is_string( $terms_url );
 	}
 
 	/**
@@ -812,97 +798,19 @@ final class Reader_Activation {
 	/**
 	 * Is reCAPTCHA enabled?
 	 *
-	 * @param bool $skip Whether to skip the check.
-	 *
 	 * @return bool
 	 */
-	public static function is_recaptcha_enabled( $skip = false ) {
-		$is_valid = method_exists( '\Newspack\Recaptcha', 'can_use_captcha' ) && \Newspack\Recaptcha::can_use_captcha();
-		if ( $skip ) {
-			return $is_valid || self::is_skipped( 'recaptcha' );
-		}
-		if ( $is_valid ) {
-			self::skip( 'recaptcha', false );
-		}
-		return $is_valid;
+	public static function is_recaptcha_enabled() {
+		return method_exists( '\Newspack\Recaptcha', 'can_use_captcha' ) && \Newspack\Recaptcha::can_use_captcha();
 	}
 
 	/**
 	 * Is the RAS campaign configured?
 	 *
-	 * @param bool $skip Whether to skip the check.
-	 *
 	 * @return bool
 	 */
-	public static function is_ras_campaign_configured( $skip = false ) {
-		$is_valid = class_exists( 'Newspack_Popups_Presets' ) && get_option( \Newspack_Popups_Presets::NEWSPACK_POPUPS_RAS_LAST_UPDATED, false );
-		if ( $skip ) {
-			return $is_valid || self::is_skipped( 'ras_campaign' );
-		}
-		if ( $is_valid ) {
-			self::skip( 'ras_campaign', false );
-		}
-		return $is_valid;
-	}
-
-	/**
-	 * Are all prerequisites for Reader Activation complete?
-	 *
-	 * @return bool
-	 */
-	public static function is_ras_ready_to_configure() {
-		$is_ready = self::is_terms_configured( true ) && self::is_esp_configured() && self::is_transactional_email_configured() && self::is_recaptcha_enabled( true ) && self::is_woocommerce_active();
-
-		// If all requirements are met or skipped, and RAS isn't yet enabled, enable it.
-		if ( $is_ready && self::is_ras_campaign_configured( true ) && ! self::is_enabled() ) {
-			self::update_setting( 'enabled', true );
-		}
-		return $is_ready;
-	}
-
-	/**
-	 * Has the given prerequisite been skipped?
-	 *
-	 * @param string $prerequisite The prerequisite to check.
-	 *
-	 * @return bool
-	 */
-	public static function is_skipped( $prerequisite ) {
-		// Legacy option name compabitility.
-		$legacy_is_skipped = false;
-		if ( 'ras_campaign' === $prerequisite ) {
-			$legacy_is_skipped = get_option( Audience_Wizard::SKIP_CAMPAIGN_SETUP_OPTION, false ) === '1';
-		}
-
-		return boolval( get_option( self::OPTIONS_PREFIX . $prerequisite . '_skipped', $legacy_is_skipped ) );
-	}
-
-	/**
-	 * Skip or unskip the given prerequisite.
-	 *
-	 * @param string $prerequisite The prerequisite to skip.
-	 * @param bool   $skip If true, skip the prerequisite. If false, unskip it.
-	 *
-	 * @return bool True if updated, false if not.
-	 */
-	public static function skip( $prerequisite, $skip = true ) {
-		if ( ( $skip && self::is_skipped( $prerequisite ) ) || ( ! $skip && ! self::is_skipped( $prerequisite ) ) ) {
-			return true;
-		}
-
-		$updated = $skip ? update_option( self::OPTIONS_PREFIX . $prerequisite . '_skipped', '1' ) : delete_option( self::OPTIONS_PREFIX . $prerequisite . '_skipped' );
-
-		// Legacy option name compabitility.
-		if ( 'ras_campaign' === $prerequisite && ! $skip && ! $updated ) {
-			$updated = delete_option( Audience_Wizard::SKIP_CAMPAIGN_SETUP_OPTION );
-		}
-
-		// If all requirements are met or skipped, and RAS isn't yet enabled, enable it.
-		if ( $skip && self::is_ras_ready_to_configure() && self::is_ras_campaign_configured( true ) && ! self::is_enabled() ) {
-			self::update_setting( 'enabled', true );
-		}
-
-		return $updated;
+	public static function is_ras_campaign_configured() {
+		return class_exists( 'Newspack_Popups_Presets' ) && (bool) get_option( \Newspack_Popups_Presets::NEWSPACK_POPUPS_RAS_LAST_UPDATED, false );
 	}
 
 	/**
@@ -928,8 +836,6 @@ final class Reader_Activation {
 						'description' => __( 'URL to the page containing the privacy policy or terms of service.', 'newspack-plugin' ),
 					],
 				],
-				'skippable'   => true,
-				'is_skipped'  => self::is_skipped( 'terms_conditions' ),
 			],
 			'esp'              => [
 				'active'       => self::is_esp_configured(),
@@ -971,8 +877,6 @@ final class Reader_Activation {
 				'help_url'     => 'https://help.newspack.com/engagement/audience-management-system/',
 				'href'         => \admin_url( '/admin.php?page=newspack-settings&scrollTo=newspack-settings-recaptcha' ),
 				'action_text'  => __( 'reCAPTCHA settings' ),
-				'skippable'    => true,
-				'is_skipped'   => self::is_skipped( 'recaptcha' ),
 			],
 			'reader_revenue'   => [
 				'active'       => self::is_reader_revenue_ready(),
@@ -985,19 +889,15 @@ final class Reader_Activation {
 				'action_text'  => __( 'Reader Revenue settings' ),
 			],
 			'ras_campaign'     => [
-				'active'         => self::is_ras_campaign_configured(),
-				'plugins'        => [
+				'active'      => self::is_ras_campaign_configured(),
+				'plugins'     => [
 					'newspack-popups' => class_exists( '\Newspack_Popups_Model' ),
 				],
-				'label'          => __( 'Audience Management Campaign', 'newspack-plugin' ),
-				'description'    => __( 'Building a set of prompts with default segments and settings allows for an improved experience optimized for audience management.', 'newspack-plugin' ),
-				'help_url'       => 'https://help.newspack.com/engagement/audience-management-system/',
-				'href'           => self::is_ras_campaign_configured() ? admin_url( '/admin.php?page=newspack-audience-campaigns' ) : admin_url( '/admin.php?page=newspack-audience#/campaign' ),
-				'action_enabled' => self::is_ras_ready_to_configure(),
-				'action_text'    => __( 'Audience Management campaign', 'newspack-plugin' ),
-				'disabled_text'  => __( 'Waiting for all settings to be ready', 'newspack-plugin' ),
-				'skippable'      => true,
-				'is_skipped'     => self::is_skipped( 'ras_campaign' ),
+				'label'       => __( 'Audience Management Campaign', 'newspack-plugin' ),
+				'description' => __( 'Building a set of prompts with default segments and settings allows for an improved experience optimized for audience management.', 'newspack-plugin' ),
+				'help_url'    => 'https://help.newspack.com/engagement/audience-management-system/',
+				'href'        => self::is_ras_campaign_configured() ? admin_url( '/admin.php?page=newspack-audience-campaigns' ) : admin_url( '/admin.php?page=newspack-audience#/campaign' ),
+				'action_text' => __( 'Audience Management campaign', 'newspack-plugin' ),
 			],
 		];
 
