@@ -511,6 +511,49 @@ class Newspack_Test_WooCommerce_Subscriptions extends WP_UnitTestCase {
 	}
 
 	/**
+	 * The `newspack_wc_subs_switch_include_signup_fee` filter must receive
+	 * the subscription and line item alongside the enabled flag so callbacks
+	 * can scope the decision per-subscription or per-product. A regression
+	 * dropping those args would silently downgrade the filter to a global
+	 * on/off toggle.
+	 */
+	public function test_signup_fee_filter_receives_subscription_and_item() {
+		$captured     = [];
+		$subscription = new WC_Subscription(
+			[
+				'id'     => 40,
+				'status' => 'active',
+			]
+		);
+		$existing_item = new WC_Order_Item_Product(
+			[
+				'product_id' => 100,
+				'total'      => 0.0,
+			]
+		);
+
+		add_filter(
+			'newspack_wc_subs_switch_include_signup_fee',
+			function ( $enabled, $sub, $item ) use ( &$captured ) {
+				$captured = [
+					'enabled'      => $enabled,
+					'subscription' => $sub,
+					'item'         => $item,
+				];
+				return $enabled;
+			},
+			10,
+			3
+		);
+
+		WooCommerce_Subscriptions::recover_total_paid_for_switch( 0.0, $subscription, $existing_item );
+
+		$this->assertSame( $subscription, $captured['subscription'], 'Filter must receive the subscription so callbacks can scope per-subscription.' );
+		$this->assertSame( $existing_item, $captured['item'], 'Filter must receive the line item so callbacks can scope per-product.' );
+		$this->assertFalse( $captured['enabled'], 'Default enabled value must be false when neither constant nor opt-in filter sets it.' );
+	}
+
+	/**
 	 * When the sign-up-fee branch fires, the WCS call must include sign-up
 	 * fees -- not the default `exclude_sign_up_fees` mode. A regression
 	 * flipping that flag would silently break the recovery without changing

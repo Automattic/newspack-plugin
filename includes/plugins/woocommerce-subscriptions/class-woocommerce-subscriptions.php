@@ -151,7 +151,7 @@ class WooCommerce_Subscriptions {
 		// paid, so a switch during the trial sees $0. When the publisher has
 		// opted in, count the sign-up fee the reader actually paid. A free
 		// trial with no sign-up fee, or a comp, yields nothing and no-ops.
-		if ( self::should_count_signup_fee_on_switch() ) {
+		if ( self::should_count_signup_fee_on_switch( $subscription, $existing_item ) ) {
 			return max( self::get_total_paid_including_signup_fee( $subscription, $existing_item ), (float) $total_paid );
 		}
 
@@ -208,18 +208,27 @@ class WooCommerce_Subscriptions {
 	 * by returning true from the newspack_wc_subs_switch_include_signup_fee
 	 * filter for finer-grained control (e.g. per-subscription or per-product).
 	 *
+	 * @param \WC_Subscription       $subscription  The subscription being switched.
+	 * @param \WC_Order_Item_Product $existing_item The subscription line item being switched.
+	 *
 	 * @return bool
 	 */
-	private static function should_count_signup_fee_on_switch() {
+	private static function should_count_signup_fee_on_switch( $subscription, $existing_item ) {
 		$enabled = defined( 'NEWSPACK_WC_SUBS_SWITCH_INCLUDE_SIGNUP_FEE' ) && NEWSPACK_WC_SUBS_SWITCH_INCLUDE_SIGNUP_FEE;
 
 		/**
 		 * Filters whether a paid one-time sign-up fee is counted toward the
 		 * proration baseline when switching subscriptions.
 		 *
-		 * @param bool $enabled Whether the sign-up fee is counted.
+		 * The subscription and line item are provided so callbacks can scope
+		 * the decision per-subscription or per-product (e.g. enable for a
+		 * specific product variation only).
+		 *
+		 * @param bool                   $enabled       Whether the sign-up fee is counted.
+		 * @param \WC_Subscription       $subscription  The subscription being switched.
+		 * @param \WC_Order_Item_Product $existing_item The subscription line item being switched.
 		 */
-		return (bool) apply_filters( 'newspack_wc_subs_switch_include_signup_fee', $enabled );
+		return (bool) apply_filters( 'newspack_wc_subs_switch_include_signup_fee', $enabled, $subscription, $existing_item );
 	}
 
 	/**
