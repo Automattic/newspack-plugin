@@ -123,8 +123,12 @@ $products_database = [];
 
 class WC_Order_Item_Product {
 	private $data = [];
+	private $meta = [];
 	public function __construct( $data = [] ) {
 		$this->data = $data;
+		if ( isset( $data['meta'] ) ) {
+			$this->meta = $data['meta'];
+		}
 	}
 	public function get_name() {
 		return $this->data['name'] ?? '';
@@ -142,6 +146,9 @@ class WC_Order_Item_Product {
 		global $products_database;
 		$product_id = $this->data['product_id'] ?? 0;
 		return $products_database[ $product_id ] ?? false;
+	}
+	public function get_meta( $key, $single = true ) {
+		return $this->meta[ $key ] ?? '';
 	}
 }
 
@@ -392,6 +399,16 @@ class WC_Subscription {
 	public function get_items() {
 		return $this->data['items'] ?? [];
 	}
+	public function get_items_sign_up_fee( $item, $tax = 'exclusive_of_tax' ) {
+		global $wcs_mock_items_sign_up_fee;
+		if ( is_object( $item ) && method_exists( $item, 'get_meta' ) ) {
+			$meta_value = $item->get_meta( '_subscription_sign_up_fee' );
+			if ( $meta_value !== '' && $meta_value !== null ) {
+				return (float) $meta_value;
+			}
+		}
+		return (float) ( $wcs_mock_items_sign_up_fee ?? 0 );
+	}
 	public function save() {
 		return true;
 	}
@@ -425,7 +442,19 @@ if ( ! class_exists( 'WC_Subscriptions_Switcher' ) ) {
 }
 
 if ( ! class_exists( 'WC_Subscriptions_Product' ) ) {
+	/**
+	 * Mock of WC_Subscriptions_Product.
+	 *
+	 * The get_sign_up_fee() method reads the `_subscription_sign_up_fee` meta
+	 * from the product so tests can stage variations with specific sign-up fees.
+	 */
 	class WC_Subscriptions_Product {
+		public static function get_sign_up_fee( $product ) {
+			if ( ! is_object( $product ) || ! method_exists( $product, 'get_meta' ) ) {
+				return 0;
+			}
+			return (float) $product->get_meta( '_subscription_sign_up_fee' );
+		}
 	}
 }
 

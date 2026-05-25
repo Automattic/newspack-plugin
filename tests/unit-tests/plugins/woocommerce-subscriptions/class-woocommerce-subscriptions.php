@@ -21,12 +21,13 @@ class Newspack_Test_WooCommerce_Subscriptions extends WP_UnitTestCase {
 	 */
 	public function set_up() {
 		parent::set_up();
-		global $subscriptions_database, $products_database, $wcs_mock_total_paid_including_signup_fee, $wcs_mock_last_calculate_total_paid_args, $wcs_mock_order_items;
+		global $subscriptions_database, $products_database, $wcs_mock_total_paid_including_signup_fee, $wcs_mock_last_calculate_total_paid_args, $wcs_mock_order_items, $wcs_mock_items_sign_up_fee;
 		$subscriptions_database                   = [];
 		$products_database                        = [];
 		$wcs_mock_total_paid_including_signup_fee = 0;
 		$wcs_mock_last_calculate_total_paid_args  = null;
 		$wcs_mock_order_items                     = [];
+		$wcs_mock_items_sign_up_fee               = 0;
 	}
 
 	/**
@@ -34,10 +35,11 @@ class Newspack_Test_WooCommerce_Subscriptions extends WP_UnitTestCase {
 	 * not leak across tests.
 	 */
 	public function tear_down() {
-		global $wcs_mock_total_paid_including_signup_fee, $wcs_mock_last_calculate_total_paid_args, $wcs_mock_order_items;
+		global $wcs_mock_total_paid_including_signup_fee, $wcs_mock_last_calculate_total_paid_args, $wcs_mock_order_items, $wcs_mock_items_sign_up_fee;
 		$wcs_mock_total_paid_including_signup_fee = 0;
 		$wcs_mock_last_calculate_total_paid_args  = null;
 		$wcs_mock_order_items                     = [];
+		$wcs_mock_items_sign_up_fee               = 0;
 		remove_all_filters( 'newspack_wc_subs_switch_include_signup_fee' );
 		parent::tear_down();
 	}
@@ -821,5 +823,116 @@ class Newspack_Test_WooCommerce_Subscriptions extends WP_UnitTestCase {
 		$result = WooCommerce_Subscriptions::clamp_negative_switch_proration_credit( -3.0, $subscription, [] );
 
 		$this->assertSame( -3.0, $result, 'Without an existing_item the filter cannot compute consumed value and must pass through.' );
+	}
+
+	/**
+	 * Helper: build a switch_item stub with the subscription, existing item,
+	 * and new product the force-delta filter reads.
+	 *
+	 * @param float $sign_up_fee_paid Sign-up fee already paid on the existing line item.
+	 * @param float $sign_up_fee_due  Sign-up fee on the new product variation.
+	 * @return object Minimal stdClass with subscription, existing_item, product properties.
+	 */
+	private function stage_switch_item( $sign_up_fee_paid, $sign_up_fee_due ) {
+		$existing_item = new WC_Order_Item_Product(
+			[
+				'id'         => 1000,
+				'product_id' => 100,
+				'total'      => 5.0,
+				'meta'       => [ '_subscription_sign_up_fee' => (string) $sign_up_fee_paid ],
+			]
+		);
+
+		$subscription = new WC_Subscription(
+			[
+				'id'     => 60,
+				'status' => 'active',
+				'times'  => [
+					'trial_end' => time() + ( 15 * DAY_IN_SECONDS ),
+				],
+			]
+		);
+
+		$new_product = wc_create_mock_product(
+			[
+				'id'   => 200,
+				'meta' => [ '_subscription_sign_up_fee' => (string) $sign_up_fee_due ],
+			]
+		);
+
+		return (object) [
+			'subscription'  => $subscription,
+			'existing_item' => $existing_item,
+			'product'       => $new_product,
+		];
+	}
+
+	/**
+	 * When WC's store-wide apportion_sign_up_fee is "no", WCS hands us a
+	 * value of 0. With the opt-in active, we should fill in the apportioned
+	 * delta ourselves so publishers don't need to flip the store-wide
+	 * setting (which would affect every product on the site).
+	 */
+	public function test_force_signup_fee_delta_returns_delta_when_optin_active() {
+		add_filter( 'newspack_wc_subs_switch_include_signup_fee', '__return_true' );
+
+		$switch_item = $this->stage_switch_item( 3.0, 6.0 );
+
+		$result = WooCommerce_Subscriptions::force_signup_fee_delta_on_paid_trial_switch( 0.0, $switch_item );
+
+		$this->assertSame( 3.0, $result, 'With opt-in active and WCS suppressing the apportionment, the delta ($6-$3) must be forced.' );
+	}
+
+	/**
+	 * When WCS already computed a positive value (store-wide apportion is
+	 * "yes"), our filter must stay out of the way -- the publisher already
+	 * gets the right behavior from WCS itself.
+	 */
+	public function test_force_signup_fee_delta_respects_existing_wcs_value() {
+		add_filter( 'newspack_wc_subs_switch_include_signup_fee', '__return_true' );
+
+		$switch_item = $this->stage_switch_item( 3.0, 6.0 );
+
+		$result = WooCommerce_Subscriptions::force_signup_fee_delta_on_paid_trial_switch( 3.0, $switch_item );
+
+		$this->assertSame( 3.0, $result, 'A positive value from WCS must be passed through unchanged.' );
+	}
+
+	/**
+	 * Without the opt-in, the filter is a no-op -- publishers who have not
+	 * opted in keep WCS default behavior across the board.
+	 */
+	public function test_force_signup_fee_delta_passes_through_without_optin() {
+		$switch_item = $this->stage_switch_item( 3.0, 6.0 );
+
+		$result = WooCommerce_Subscriptions::force_signup_fee_delta_on_paid_trial_switch( 0.0, $switch_item );
+
+		$this->assertSame( 0.0, $result, 'Without the opt-in, 0 must remain 0.' );
+	}
+
+	/**
+	 * Downgrades (new fee < paid fee) produce a non-negative result -- we
+	 * never refund or carry credit across switches.
+	 */
+	public function test_force_signup_fee_delta_clamps_negative_to_zero() {
+		add_filter( 'newspack_wc_subs_switch_include_signup_fee', '__return_true' );
+
+		$switch_item = $this->stage_switch_item( 6.0, 3.0 );
+
+		$result = WooCommerce_Subscriptions::force_signup_fee_delta_on_paid_trial_switch( 0.0, $switch_item );
+
+		$this->assertSame( 0.0, $result, 'Downgrades must not produce a negative sign-up fee credit.' );
+	}
+
+	/**
+	 * A non-object switch_item is returned unchanged so a malformed call
+	 * cannot fatal the filter chain.
+	 */
+	public function test_force_signup_fee_delta_passes_through_invalid_switch_item() {
+		add_filter( 'newspack_wc_subs_switch_include_signup_fee', '__return_true' );
+
+		$result = WooCommerce_Subscriptions::force_signup_fee_delta_on_paid_trial_switch( 0.0, null );
+
+		$this->assertSame( 0.0, $result, 'A non-object switch_item must be returned unchanged.' );
 	}
 }

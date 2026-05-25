@@ -25,6 +25,7 @@ class WooCommerce_Subscriptions {
 		add_filter( 'wcs_switch_total_paid_for_current_period', [ __CLASS__, 'recover_total_paid_for_switch' ], 10, 3 );
 		add_filter( 'wcs_switch_proration_days_in_old_cycle', [ __CLASS__, 'bound_switch_proration_days_in_old_cycle' ], 10, 2 );
 		add_filter( 'wcs_switch_proration_extra_to_pay', [ __CLASS__, 'clamp_negative_switch_proration_credit' ], 10, 3 );
+		add_filter( 'wcs_switch_sign_up_fee', [ __CLASS__, 'force_signup_fee_delta_on_paid_trial_switch' ], 10, 2 );
 		add_filter( 'wcs_can_user_resubscribe_to_subscription', [ __CLASS__, 'allow_migrated_subscription_to_resubscribe' ], 10, 3 );
 	}
 
@@ -263,6 +264,65 @@ class WooCommerce_Subscriptions {
 		$total_paid = self::get_total_paid_including_signup_fee( $subscription, $existing_item );
 
 		return max( $total_paid + (float) $extra_to_pay, 0.0 );
+	}
+
+	/**
+	 * Force the apportioned sign-up fee delta on switches for publishers
+	 * using sign-up fees to express stepped pricing.
+	 *
+	 * The opt-in here uses sign-up fees as a first-period discount rather
+	 * than a real one-time fee, so we do not want publishers to also flip
+	 * the store-wide WooCommerce setting "When switching, prorate the
+	 * sign-up fee" -- that would affect every product on the site, not
+	 * just the stepped-pricing ones.
+	 *
+	 * When the opt-in is active and WCS has not already computed a sign-up
+	 * fee (e.g. because the store-wide setting is "no"), this filter returns
+	 * the delta WCS would have computed if apportionment were enabled:
+	 * max(sign_up_fee_due - sign_up_fee_paid, 0). Combined with the
+	 * extra_to_pay clamp, this yields the correct switch charge regardless
+	 * of the store-wide setting.
+	 *
+	 * @param float                 $value       The sign-up fee amount WCS computed (0 when apportion is "no").
+	 * @param \WCS_Switch_Cart_Item $switch_item The switch context.
+	 *
+	 * @return float The sign-up fee to charge for the switch.
+	 */
+	public static function force_signup_fee_delta_on_paid_trial_switch( $value, $switch_item ) {
+		// If WCS already computed a non-zero value (store-wide apportion is
+		// "yes"), respect it and stay out of the way.
+		if ( (float) $value > 0 ) {
+			return $value;
+		}
+
+		if ( ! is_object( $switch_item ) ) {
+			return $value;
+		}
+
+		$subscription  = $switch_item->subscription ?? null;
+		$existing_item = $switch_item->existing_item ?? null;
+		$new_product   = $switch_item->product ?? null;
+
+		if ( ! ( $subscription instanceof \WC_Subscription ) ) {
+			return $value;
+		}
+
+		if ( ! self::should_count_signup_fee_on_switch( $subscription, $existing_item ) ) {
+			return $value;
+		}
+
+		if ( ! ( $existing_item instanceof \WC_Order_Item_Product ) || ! is_object( $new_product ) ) {
+			return $value;
+		}
+
+		if ( ! class_exists( 'WC_Subscriptions_Product' ) ) {
+			return $value;
+		}
+
+		$sign_up_fee_due  = (float) \WC_Subscriptions_Product::get_sign_up_fee( $new_product );
+		$sign_up_fee_paid = (float) $subscription->get_items_sign_up_fee( $existing_item );
+
+		return max( $sign_up_fee_due - $sign_up_fee_paid, 0.0 );
 	}
 
 	/**
