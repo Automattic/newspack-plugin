@@ -101,7 +101,12 @@ export default withWizardScreen(
 					toggleOnChange={ value => saveConfig( { enabled: value } ) }
 					disabled={ inFlight }
 				/>
-				{ 0 < missingPlugins.length && <Notice noticeText={ __( 'The following plugins are required.', 'newspack-plugin' ) } isWarning /> }
+				{ 0 < missingPlugins.length && (
+					<Notice
+						noticeText={ __( 'The following plugins are recommended for full Audience Management functionality.', 'newspack-plugin' ) }
+						isWarning
+					/>
+				) }
 				{ 0 === missingPlugins.length && prerequisites && ! allReady && (
 					<Notice noticeText={ __( 'Some recommended settings are not yet configured.', 'newspack-plugin' ) } isWarning />
 				) }
@@ -114,8 +119,7 @@ export default withWizardScreen(
 				{ 0 < missingPlugins.length && prerequisites && (
 					<PluginInstaller plugins={ missingPlugins } withoutFooterButton onStatus={ ( { complete } ) => complete && fetchConfig() } />
 				) }
-				{ ! missingPlugins.length &&
-					prerequisites &&
+				{ prerequisites &&
 					Object.keys( prerequisites ).map( key => (
 						<Prerequisite
 							key={ key }
