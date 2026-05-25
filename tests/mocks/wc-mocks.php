@@ -404,12 +404,21 @@ if ( ! class_exists( 'WC_Subscriptions_Switcher' ) ) {
 	/**
 	 * Mock of WC_Subscriptions_Switcher.
 	 *
-	 * Calculate_total_paid_since_last_order() returns the value of the
-	 * $wcs_mock_total_paid_including_signup_fee global so tests can drive it.
+	 * The calculate_total_paid_since_last_order() method returns the value of
+	 * the $wcs_mock_total_paid_including_signup_fee global so tests can drive
+	 * it, and records the arguments it was called with on
+	 * $wcs_mock_last_calculate_total_paid_args so tests can assert that the
+	 * caller passed the expected sign-up-fee mode and orders_to_include list.
 	 */
 	class WC_Subscriptions_Switcher {
 		public static function calculate_total_paid_since_last_order( $subscription, $subscription_item, $include_sign_up_fees = 'include_sign_up_fees', $orders_to_include = [] ) {
-			global $wcs_mock_total_paid_including_signup_fee;
+			global $wcs_mock_total_paid_including_signup_fee, $wcs_mock_last_calculate_total_paid_args;
+			$wcs_mock_last_calculate_total_paid_args = [
+				'subscription'         => $subscription,
+				'subscription_item'    => $subscription_item,
+				'include_sign_up_fees' => $include_sign_up_fees,
+				'orders_to_include'    => $orders_to_include,
+			];
 			return $wcs_mock_total_paid_including_signup_fee ?? 0;
 		}
 	}
@@ -510,6 +519,15 @@ function wcs_get_canonical_product_id( $item ) {
 		return $item->get_product_id();
 	}
 	return null;
+}
+function wcs_get_days_in_cycle( $period, $interval ) {
+	$days_per_period = [
+		'day'   => 1,
+		'week'  => 7,
+		'month' => 30,
+		'year'  => 365,
+	];
+	return ( $days_per_period[ $period ] ?? 0 ) * (int) $interval;
 }
 function wc_string_to_bool( $string ) {
 	return is_bool( $string ) ? $string : ( 'yes' === strtolower( $string ) || '1' === $string || 'true' === strtolower( $string ) );

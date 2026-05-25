@@ -21,17 +21,22 @@ class Newspack_Test_WooCommerce_Subscriptions extends WP_UnitTestCase {
 	 */
 	public function set_up() {
 		parent::set_up();
-		global $subscriptions_database, $products_database, $wcs_mock_total_paid_including_signup_fee;
-		$subscriptions_database                  = [];
-		$products_database                       = [];
+		global $subscriptions_database, $products_database, $wcs_mock_total_paid_including_signup_fee, $wcs_mock_last_calculate_total_paid_args;
+		$subscriptions_database                   = [];
+		$products_database                        = [];
 		$wcs_mock_total_paid_including_signup_fee = 0;
+		$wcs_mock_last_calculate_total_paid_args  = null;
 	}
 
 	/**
-	 * Remove filters added by individual tests so they do not leak across tests.
+	 * Reset any filters or mock state added by individual tests so they do
+	 * not leak across tests.
 	 */
 	public function tear_down() {
-		remove_filter( 'newspack_wc_subs_switch_include_signup_fee', '__return_true' );
+		global $wcs_mock_total_paid_including_signup_fee, $wcs_mock_last_calculate_total_paid_args;
+		$wcs_mock_total_paid_including_signup_fee = 0;
+		$wcs_mock_last_calculate_total_paid_args  = null;
+		remove_all_filters( 'newspack_wc_subs_switch_include_signup_fee' );
 		parent::tear_down();
 	}
 
@@ -421,5 +426,204 @@ class Newspack_Test_WooCommerce_Subscriptions extends WP_UnitTestCase {
 		$result = WooCommerce_Subscriptions::recover_total_paid_for_switch( 0.0, $subscription, $existing_item );
 
 		$this->assertSame( 50.0, $result, 'A migrated subscription must recover via the recurring total, not the sign-up-fee branch.' );
+	}
+
+	/**
+	 * Stripe migration meta triggers the same recovery as Piano migration meta.
+	 *
+	 * The recovery path keys off the meta-driven helper, so both keys must
+	 * behave identically. Without this test, dropping `_stripe_subscription_id`
+	 * from the helper would not fail any assertion.
+	 */
+	public function test_recover_total_paid_recognizes_stripe_migration_meta() {
+		$subscription  = new WC_Subscription(
+			[
+				'id'     => 20,
+				'status' => 'active',
+				'meta'   => [ '_stripe_subscription_id' => 'stripe-20' ],
+			]
+		);
+		$existing_item = new WC_Order_Item_Product(
+			[
+				'product_id' => 100,
+				'total'      => 50.0,
+			]
+		);
+
+		$result = WooCommerce_Subscriptions::recover_total_paid_for_switch( 0.0, $subscription, $existing_item );
+
+		$this->assertSame( 50.0, $result, 'A Stripe-migrated subscription should recover the same way a Piano-migrated one does.' );
+	}
+
+	/**
+	 * The `instanceof WC_Order_Item_Product` guard rejects any object that is
+	 * not an order item -- not just `null`. Without this test, a regression
+	 * that removed the instanceof check would only fail the null case.
+	 */
+	public function test_recover_total_paid_passes_through_for_non_order_item_object() {
+		$subscription = new WC_Subscription(
+			[
+				'id'     => 21,
+				'status' => 'active',
+				'meta'   => [ '_piano_subscription_id' => 'piano-21' ],
+			]
+		);
+
+		$result = WooCommerce_Subscriptions::recover_total_paid_for_switch( 0.0, $subscription, new stdClass() );
+
+		$this->assertSame( 0.0, $result, 'A wrong-typed object must be returned unchanged, just like null.' );
+	}
+
+	/**
+	 * A paid-trial subscription with the opt-in enabled and an active free
+	 * trial recovers to the sign-up fee the reader actually paid.
+	 *
+	 * This is the publisher use case the opt-in is designed for: stepped
+	 * pricing as a sign-up fee plus a free trial. WCS sees `$0` paid (the
+	 * sign-up fee is excluded from its accounting), but the reader did pay
+	 * the fee, and a switch during the trial should be prorated against it.
+	 */
+	public function test_recover_total_paid_counts_signup_fee_during_active_trial() {
+		global $wcs_mock_total_paid_including_signup_fee;
+		$wcs_mock_total_paid_including_signup_fee = 25.0;
+
+		add_filter( 'newspack_wc_subs_switch_include_signup_fee', '__return_true' );
+
+		$subscription  = new WC_Subscription(
+			[
+				'id'     => 22,
+				'status' => 'active',
+				'times'  => [
+					'trial_end' => time() + DAY_IN_SECONDS,
+				],
+			]
+		);
+		$existing_item = new WC_Order_Item_Product(
+			[
+				'product_id' => 100,
+				'total'      => 0.0,
+			]
+		);
+
+		$result = WooCommerce_Subscriptions::recover_total_paid_for_switch( 0.0, $subscription, $existing_item );
+
+		$this->assertSame( 25.0, $result, 'A paid-trial sub mid-trial with opt-in enabled should recover the paid sign-up fee.' );
+	}
+
+	/**
+	 * When the sign-up-fee branch fires, the WCS call must include sign-up
+	 * fees -- not the default `exclude_sign_up_fees` mode. A regression
+	 * flipping that flag would silently break the recovery without changing
+	 * the returned value.
+	 */
+	public function test_recover_total_paid_passes_include_sign_up_fees_argument() {
+		global $wcs_mock_total_paid_including_signup_fee, $wcs_mock_last_calculate_total_paid_args;
+		$wcs_mock_total_paid_including_signup_fee = 25.0;
+
+		add_filter( 'newspack_wc_subs_switch_include_signup_fee', '__return_true' );
+
+		$subscription  = new WC_Subscription(
+			[
+				'id'     => 23,
+				'status' => 'active',
+			]
+		);
+		$existing_item = new WC_Order_Item_Product(
+			[
+				'product_id' => 100,
+				'total'      => 0.0,
+			]
+		);
+
+		WooCommerce_Subscriptions::recover_total_paid_for_switch( 0.0, $subscription, $existing_item );
+
+		$this->assertNotNull( $wcs_mock_last_calculate_total_paid_args, 'WCS::calculate_total_paid_since_last_order() should have been called.' );
+		$this->assertSame( 'include_sign_up_fees', $wcs_mock_last_calculate_total_paid_args['include_sign_up_fees'], 'Sign-up fees must be included; otherwise the recovery is a no-op.' );
+	}
+
+	/**
+	 * Migrated subscriptions clamp days_in_old_cycle to one billing cycle.
+	 *
+	 * Without this clamp, WCS divides the recovered recurring total by the
+	 * span from the original platform sign-up to the next renewal -- often
+	 * many cycles -- which makes old_price_per_day artificially low and
+	 * misclassifies a downgrade as an upgrade even after
+	 * recover_total_paid_for_switch supplies one cycle's worth of value.
+	 */
+	public function test_bound_switch_proration_days_in_old_cycle_clamps_migrated_subscription() {
+		$subscription = new WC_Subscription(
+			[
+				'id'               => 30,
+				'status'           => 'active',
+				'billing_period'   => 'month',
+				'billing_interval' => 1,
+				'meta'             => [ '_piano_subscription_id' => 'piano-30' ],
+			]
+		);
+
+		// 730 days = ~2 years of accumulated span since the original platform sign-up.
+		$result = WooCommerce_Subscriptions::bound_switch_proration_days_in_old_cycle( 730, $subscription );
+
+		$this->assertSame( 30, $result, 'A migrated monthly sub must clamp to one cycle (30 days), not the full span since original sign-up.' );
+	}
+
+	/**
+	 * If WCS already computed a value inside a single billing cycle (early
+	 * switches, monthly subs newly migrated), respect that value instead of
+	 * inflating it to one cycle's worth.
+	 */
+	public function test_bound_switch_proration_days_in_old_cycle_respects_smaller_value() {
+		$subscription = new WC_Subscription(
+			[
+				'id'               => 31,
+				'status'           => 'active',
+				'billing_period'   => 'month',
+				'billing_interval' => 1,
+				'meta'             => [ '_piano_subscription_id' => 'piano-31' ],
+			]
+		);
+
+		$result = WooCommerce_Subscriptions::bound_switch_proration_days_in_old_cycle( 12, $subscription );
+
+		$this->assertSame( 12, $result, 'The clamp is a ceiling, not a floor; a smaller WCS value must pass through.' );
+	}
+
+	/**
+	 * Non-migrated subscriptions are left to WCS's default behavior even
+	 * when WCS computes a denominator longer than one cycle.
+	 */
+	public function test_bound_switch_proration_days_in_old_cycle_skips_non_migrated_subscription() {
+		$subscription = new WC_Subscription(
+			[
+				'id'               => 32,
+				'status'           => 'active',
+				'billing_period'   => 'month',
+				'billing_interval' => 1,
+			]
+		);
+
+		$result = WooCommerce_Subscriptions::bound_switch_proration_days_in_old_cycle( 730, $subscription );
+
+		$this->assertSame( 730, $result, 'A non-migrated subscription must pass through unchanged.' );
+	}
+
+	/**
+	 * Annual migrated subscriptions clamp to one annual cycle, not one month.
+	 */
+	public function test_bound_switch_proration_days_in_old_cycle_uses_billing_period_for_clamp() {
+		$subscription = new WC_Subscription(
+			[
+				'id'               => 33,
+				'status'           => 'active',
+				'billing_period'   => 'year',
+				'billing_interval' => 1,
+				'meta'             => [ '_stripe_subscription_id' => 'stripe-33' ],
+			]
+		);
+
+		// 1500 days = ~4+ years of accumulated span.
+		$result = WooCommerce_Subscriptions::bound_switch_proration_days_in_old_cycle( 1500, $subscription );
+
+		$this->assertSame( 365, $result, 'An annual migrated sub must clamp to one year (365 days), not one month.' );
 	}
 }

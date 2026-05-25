@@ -23,6 +23,7 @@ class WooCommerce_Subscriptions {
 		add_filter( 'wcs_get_users_subscriptions', [ __CLASS__, 'filter_subscriptions_for_account_page' ], 10, 1 );
 		add_filter( 'woocommerce_subscriptions_can_item_be_switched', [ __CLASS__, 'allow_migrated_subscription_switch' ], 10, 3 );
 		add_filter( 'wcs_switch_total_paid_for_current_period', [ __CLASS__, 'recover_total_paid_for_switch' ], 10, 3 );
+		add_filter( 'wcs_switch_proration_days_in_old_cycle', [ __CLASS__, 'bound_switch_proration_days_in_old_cycle' ], 10, 2 );
 		add_filter( 'wcs_can_user_resubscribe_to_subscription', [ __CLASS__, 'allow_migrated_subscription_to_resubscribe' ], 10, 3 );
 	}
 
@@ -131,17 +132,18 @@ class WooCommerce_Subscriptions {
 
 		// Branch 1: subscriptions migrated into WooCommerce from another
 		// platform (Piano, Stripe) have no Woo order history, so WCS cannot
-		// see what was paid. Fall back to the recurring line-item total.
+		// see what was paid. Fall back to the recurring line-item total. The
+		// companion wcs_switch_proration_days_in_old_cycle filter bounds the
+		// denominator so the per-day baseline matches a single billing cycle.
 		if ( self::is_migrated_subscription( $subscription ) ) {
 			// A migrated subscription still within its free trial has paid
 			// nothing and has no accrued credit -- recovering a baseline here
 			// would let an unpaid trial be switched into manufactured credit.
-			if ( $subscription instanceof \WC_Subscription && $subscription->get_time( 'trial_end' ) > time() ) {
+			if ( $subscription->get_time( 'trial_end' ) > time() ) {
 				return $total_paid;
 			}
 
-			$recurring_total = (float) $existing_item->get_total();
-			return $recurring_total > (float) $total_paid ? $recurring_total : $total_paid;
+			return max( (float) $existing_item->get_total(), (float) $total_paid );
 		}
 
 		// Branch 2: publishers that sell stepped pricing as a one-time sign-up
@@ -150,11 +152,50 @@ class WooCommerce_Subscriptions {
 		// opted in, count the sign-up fee the reader actually paid. A free
 		// trial with no sign-up fee, or a comp, yields nothing and no-ops.
 		if ( self::should_count_signup_fee_on_switch() ) {
-			$paid_with_signup_fee = self::get_total_paid_including_signup_fee( $subscription, $existing_item );
-			return $paid_with_signup_fee > (float) $total_paid ? $paid_with_signup_fee : $total_paid;
+			return max( self::get_total_paid_including_signup_fee( $subscription, $existing_item ), (float) $total_paid );
 		}
 
 		return $total_paid;
+	}
+
+	/**
+	 * Bound the switch proration denominator to one billing cycle for migrated
+	 * subscriptions.
+	 *
+	 * WCS computes days_in_old_cycle as
+	 * (next_payment_timestamp - last_order_paid_time) / DAY_IN_SECONDS. For a
+	 * migrated subscription with no Woo order history, last_order_paid_time
+	 * falls back to the subscription's start timestamp -- the original
+	 * platform sign-up date, which can be months or years in the past. The
+	 * resulting denominator spans many billing cycles, which would make
+	 * old_price_per_day artificially low and still misclassify a downgrade as
+	 * an upgrade even after recover_total_paid_for_switch supplies one cycle's
+	 * worth of recurring total.
+	 *
+	 * Clamping to one billing cycle here keeps both sides of WCS's per-day
+	 * price calculation in agreement for migrated subscriptions. Non-migrated
+	 * subscriptions are left to WCS's default behavior.
+	 *
+	 * @param int              $days_in_old_cycle The number of days WCS computed for the old cycle.
+	 * @param \WC_Subscription $subscription      The subscription being switched.
+	 *
+	 * @return int The (possibly bounded) number of days in the old cycle.
+	 */
+	public static function bound_switch_proration_days_in_old_cycle( $days_in_old_cycle, $subscription ) {
+		if ( ! self::is_migrated_subscription( $subscription ) ) {
+			return $days_in_old_cycle;
+		}
+
+		if ( ! function_exists( 'wcs_get_days_in_cycle' ) ) {
+			return $days_in_old_cycle;
+		}
+
+		$cycle_days = (int) wcs_get_days_in_cycle( $subscription->get_billing_period(), $subscription->get_billing_interval() );
+		if ( $cycle_days <= 0 ) {
+			return $days_in_old_cycle;
+		}
+
+		return min( (int) $days_in_old_cycle, $cycle_days );
 	}
 
 	/**
@@ -163,7 +204,9 @@ class WooCommerce_Subscriptions {
 	 *
 	 * Off by default. Publishers that sell stepped pricing as a sign-up fee
 	 * plus a free trial opt in by defining the
-	 * NEWSPACK_WC_SUBS_SWITCH_INCLUDE_SIGNUP_FEE constant in wp-config.php.
+	 * NEWSPACK_WC_SUBS_SWITCH_INCLUDE_SIGNUP_FEE constant in wp-config.php, or
+	 * by returning true from the newspack_wc_subs_switch_include_signup_fee
+	 * filter for finer-grained control (e.g. per-subscription or per-product).
 	 *
 	 * @return bool
 	 */
@@ -201,6 +244,14 @@ class WooCommerce_Subscriptions {
 			return 0.0;
 		}
 
+		// Leaving the 4th argument ($orders_to_include) at its default of an
+		// empty array means WCS scans all related orders. WCS's own caller in
+		// WCS_Switch_Cart_Item::get_total_paid_for_current_period() narrows
+		// this for switch chains via is_switch_after_fully_reduced_prepaid_term();
+		// we accept the broader scan because this branch only fires for
+		// publishers who opted in to counting the sign-up fee, where a long
+		// switch chain at the same product price would still sum to the same
+		// amount the reader paid.
 		return (float) \WC_Subscriptions_Switcher::calculate_total_paid_since_last_order(
 			$subscription,
 			$existing_item,
@@ -507,14 +558,7 @@ class WooCommerce_Subscriptions {
 			return false;
 		}
 
-		$migrated_meta = [ '_piano_subscription_id', '_stripe_subscription_id' ];
-		foreach ( $migrated_meta as $meta ) {
-			if ( $subscription->get_meta( $meta ) ) {
-				$can_resubscribe = true;
-				break;
-			}
-		}
-		return $can_resubscribe;
+		return self::is_migrated_subscription( $subscription );
 	}
 }
 WooCommerce_Subscriptions::init();
