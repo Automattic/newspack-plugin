@@ -32,7 +32,7 @@ import SortableNewsletterListControl from '../../../../../packages/components/sr
 import Salesforce from '../../components/salesforce';
 
 export default withWizardScreen(
-	( { config, fetchConfig, updateConfig, getSharedProps, saveConfig, skipPrerequisite, prerequisites, espSyncErrors, error, inFlight } ) => {
+	( { config, fetchConfig, updateConfig, getSharedProps, saveConfig, prerequisites, espSyncErrors, error, inFlight } ) => {
 		const [ allReady, setAllReady ] = useState( false );
 		const [ missingPlugins, setMissingPlugins ] = useState( [] );
 		const [ esp, setEsp ] = useState( '' );
@@ -52,10 +52,7 @@ export default withWizardScreen(
 		}, [] );
 
 		useEffect( () => {
-			const _allReady =
-				! missingPlugins.length &&
-				prerequisites &&
-				Object.keys( prerequisites ).every( key => prerequisites[ key ]?.active || prerequisites[ key ]?.is_skipped );
+			const _allReady = ! missingPlugins.length && prerequisites && Object.keys( prerequisites ).every( key => prerequisites[ key ]?.active );
 
 			setAllReady( _allReady );
 
@@ -92,12 +89,21 @@ export default withWizardScreen(
 				}
 			>
 				{ error && <Notice noticeText={ error?.message || __( 'Something went wrong.', 'newspack-plugin' ) } isError /> }
+				<ActionCard
+					isMedium
+					title={ __( 'Enable Audience Management', 'newspack-plugin' ) }
+					description={
+						config.enabled
+							? __( 'Audience Management is enabled.', 'newspack-plugin' )
+							: __( 'Audience Management is disabled.', 'newspack-plugin' )
+					}
+					toggleChecked={ Boolean( config.enabled ) }
+					toggleOnChange={ value => saveConfig( { enabled: value } ) }
+					disabled={ inFlight }
+				/>
 				{ 0 < missingPlugins.length && <Notice noticeText={ __( 'The following plugins are required.', 'newspack-plugin' ) } isWarning /> }
 				{ 0 === missingPlugins.length && prerequisites && ! allReady && (
-					<Notice noticeText={ __( 'Complete these settings to enable Audience Management.', 'newspack-plugin' ) } isWarning />
-				) }
-				{ prerequisites && allReady && config.enabled && (
-					<Notice noticeText={ __( 'Audience Management is enabled.', 'newspack-plugin' ) } isSuccess />
+					<Notice noticeText={ __( 'Some recommended settings are not yet configured.', 'newspack-plugin' ) } isWarning />
 				) }
 				{ ! prerequisites && (
 					<>
@@ -113,14 +119,12 @@ export default withWizardScreen(
 					Object.keys( prerequisites ).map( key => (
 						<Prerequisite
 							key={ key }
-							slug={ key }
 							config={ config }
 							getSharedProps={ getSharedProps }
 							inFlight={ inFlight }
 							prerequisite={ prerequisites[ key ] }
 							fetchConfig={ fetchConfig }
 							saveConfig={ saveConfig }
-							skipPrerequisite={ skipPrerequisite }
 						/>
 					) ) }
 				{ config.enabled && (

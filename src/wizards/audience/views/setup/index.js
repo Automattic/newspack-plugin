@@ -23,7 +23,7 @@ import Payment from './payment';
 
 const { HashRouter, Redirect, Route, Switch } = Router;
 
-function AudienceWizard( { confirmAction, pluginRequirements, wizardApiFetch }, ref ) {
+function AudienceWizard( { pluginRequirements, wizardApiFetch }, ref ) {
 	const [ inFlight, setInFlight ] = useState( false );
 	const [ config, setConfig ] = useState( {} );
 	const [ prerequisites, setPrerequisites ] = useState( null );
@@ -63,32 +63,6 @@ function AudienceWizard( { confirmAction, pluginRequirements, wizardApiFetch }, 
 			} )
 			.catch( setError )
 			.finally( () => setInFlight( false ) );
-	};
-	const skipPrerequisite = ( data, callback = null ) => {
-		confirmAction( {
-			message: __( 'Are you sure you want to skip this step? You can always come back later.', 'newspack-plugin' ),
-			confirmText: __( 'Skip', 'newspack-plugin' ),
-			callback: () => {
-				setError( false );
-				setInFlight( true );
-				wizardApiFetch( {
-					path: '/newspack/v1/wizard/newspack-audience/audience-management/skip',
-					method: 'post',
-					quiet: true,
-					data,
-				} )
-					.then( ( { config: fetchedConfig, prerequisites_status, can_esp_sync } ) => {
-						setPrerequisites( prerequisites_status );
-						setConfig( fetchedConfig );
-						setEspSyncErrors( can_esp_sync.errors );
-						if ( callback ) {
-							callback();
-						}
-					} )
-					.catch( setError )
-					.finally( () => setInFlight( false ) );
-			},
-		} );
 	};
 
 	useEffect( () => {
@@ -141,7 +115,6 @@ function AudienceWizard( { confirmAction, pluginRequirements, wizardApiFetch }, 
 		fetchConfig,
 		updateConfig,
 		saveConfig,
-		skipPrerequisite,
 		setInFlight,
 		setError,
 		getSharedProps,
