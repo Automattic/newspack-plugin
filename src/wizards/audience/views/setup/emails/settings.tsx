@@ -1,5 +1,5 @@
 /**
- * Newspack > Settings > Emails > Emails section
+ * Newspack > Audience > Configuration > Emails settings
  */
 
 /**
@@ -38,7 +38,7 @@ const Settings = () => {
 	};
 
 	const title = __( "Use WooCommerce's block email editor (alpha)", 'newspack-plugin' );
-	const description = __( 'Enable the block-based email editor for transacitonal emails', 'newspack-plugin' );
+	const description = __( 'Enable the block-based email editor for transactional emails', 'newspack-plugin' );
 
 	return (
 		<Fragment>

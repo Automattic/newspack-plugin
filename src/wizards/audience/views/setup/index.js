@@ -20,6 +20,7 @@ import { withWizard } from '../../../../../packages/components/src';
 import Router from '../../../../../packages/components/src/proxied-imports/router';
 import ContentGating from './content-gating';
 import Payment from './payment';
+import Emails from './emails';
 
 const { HashRouter, Redirect, Route, Switch } = Router;
 
@@ -110,6 +111,10 @@ function AudienceWizard( { confirmAction, pluginRequirements, wizardApiFetch }, 
 			label: __( 'Checkout & Payment', 'newspack-plugin' ),
 			path: '/payment',
 		},
+		{
+			label: __( 'Emails', 'newspack-plugin' ),
+			path: '/emails',
+		},
 	];
 	tabs = tabs.filter( tab => tab );
 
@@ -160,6 +165,7 @@ function AudienceWizard( { confirmAction, pluginRequirements, wizardApiFetch }, 
 					<Route path="/payment" render={ () => <Payment { ...props } /> } />
 					<Route path="/campaign" render={ () => <Campaign { ...props } /> } />
 					<Route path="/complete" render={ () => <Complete { ...props } /> } />
+					<Route path="/emails" render={ () => <Emails { ...props } /> } />
 					<Redirect to="/" />
 				</Switch>
 			</HashRouter>

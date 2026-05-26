@@ -26,7 +26,16 @@ class Emails_Section extends Wizard_Section {
 	 *
 	 * @var string
 	 */
-	protected $wizard_slug = 'newspack-settings';
+	protected $wizard_slug = 'newspack-audience';
+
+	/**
+	 * REST base path for Emails endpoints.
+	 *
+	 * Hardcoded to 'newspack-settings' for API stability — even though
+	 * Emails moved to the Audience wizard in NPPD-1538, external callers
+	 * and the frontend depend on this path. Do NOT change.
+	 */
+	const REST_BASE = 'wizard/newspack-settings/emails';
 
 	/**
 	 * Register the endpoints needed for the wizard screens.
@@ -34,7 +43,7 @@ class Emails_Section extends Wizard_Section {
 	public function register_rest_routes() {
 		register_rest_route(
 			NEWSPACK_API_NAMESPACE,
-			'wizard/' . $this->wizard_slug . '/emails',
+			self::REST_BASE,
 			[
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => [ __CLASS__, 'api_get_email_settings' ],
@@ -44,7 +53,7 @@ class Emails_Section extends Wizard_Section {
 		if ( WooCommerce_Emails::is_active() ) {
 			register_rest_route(
 				NEWSPACK_API_NAMESPACE,
-				'wizard/' . $this->wizard_slug . '/emails',
+				self::REST_BASE,
 				[
 					'methods'             => WP_REST_Server::EDITABLE,
 					'callback'            => [ __CLASS__, 'api_update_email_settings' ],
@@ -62,7 +71,7 @@ class Emails_Section extends Wizard_Section {
 		if ( class_exists( 'WooCommerce' ) ) {
 			register_rest_route(
 				NEWSPACK_API_NAMESPACE,
-				'wizard/' . $this->wizard_slug . '/emails/(?P<id>[A-Za-z0-9_]+)/toggle',
+				self::REST_BASE . '/(?P<id>[A-Za-z0-9_]+)/toggle',
 				[
 					'methods'             => WP_REST_Server::EDITABLE,
 					'callback'            => [ __CLASS__, 'api_toggle_wc_email' ],
@@ -88,7 +97,7 @@ class Emails_Section extends Wizard_Section {
 	 * Get the unified email registry.
 	 *
 	 * Returns all known email entries keyed by a stable slug. Each entry
-	 * includes metadata used by the Settings > Emails UI.
+	 * includes metadata used by the Audience > Configuration > Emails UI.
 	 *
 	 * @return array Registry entries keyed by slug.
 	 */
@@ -320,7 +329,7 @@ class Emails_Section extends Wizard_Section {
 		 * Filters the unified email registry.
 		 *
 		 * Allows external integration plugins to register additional email
-		 * entries that appear in the Settings > Emails UI.
+		 * entries that appear in the Audience > Configuration > Emails UI.
 		 *
 		 * @param array $registry Registry entries keyed by slug.
 		 */

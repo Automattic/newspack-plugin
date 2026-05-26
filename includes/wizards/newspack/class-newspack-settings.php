@@ -7,14 +7,11 @@
 
 namespace Newspack\Wizards\Newspack;
 
-use Newspack\Emails;
 use Newspack\OAuth;
 use Newspack\Wizard;
 use Newspack\Reader_Activation;
-use Newspack\Reader_Revenue_Emails;
 use Newspack\Everlit_Configuration_Manager;
 use Newspack\Nextdoor;
-use Newspack\WooCommerce_Emails;
 use Newspack\Complianz;
 use function Newspack\google_site_kit_available;
 
@@ -78,18 +75,6 @@ class Newspack_Settings extends Wizard {
 						'measurement_protocol_secret' => get_option( 'ga4_measurement_protocol_secret', '' ),
 					],
 					'customEvents' => $this->sections['custom-events']->get_data(),
-				],
-			],
-			'emails'            => [
-				'label'    => __( 'Emails', 'newspack-plugin' ),
-				'sections' => [
-					'emails' => [
-						'dependencies'              => [
-							'newspackNewsletters' => is_plugin_active( 'newspack-newsletters/newspack-newsletters.php' ),
-						],
-						'postType'                  => Emails::POST_TYPE,
-						'isEmailEnhancementsActive' => WooCommerce_Emails::is_active(),
-					],
 				],
 			],
 			'social'            => [
@@ -202,6 +187,14 @@ class Newspack_Settings extends Wizard {
 		/**
 		 * JavaScript
 		 */
+		// Redirect bookmarks from the old Emails location (NPPD-1538).
+		wp_add_inline_script(
+			'newspack-wizards',
+			'if(window.location.hash==="#/emails"){window.location.replace("' .
+				esc_url( admin_url( 'admin.php?page=newspack-audience#/emails' ) ) . '");}',
+			'before'
+		);
+
 		wp_localize_script(
 			'newspack-wizards',
 			'newspackSettings',

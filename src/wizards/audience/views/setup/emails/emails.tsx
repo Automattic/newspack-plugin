@@ -1,5 +1,5 @@
 /**
- * Newspack > Settings > Emails > Emails section
+ * Newspack > Audience > Configuration > Emails section
  */
 
 /**
@@ -57,11 +57,11 @@ const DEFAULT_VIEW: View = {
 const PageHeading = () => <h1 className="screen-reader-text">{ __( 'Emails', 'newspack-plugin' ) }</h1>;
 
 const Emails = () => {
-	const emailSections = window.newspackSettings.emails.sections;
-	const [ pluginsReady, setPluginsReady ] = useState( Boolean( emailSections.emails.dependencies.newspackNewsletters ) );
+	const emailsConfig = window.newspackAudience.emails;
+	const [ pluginsReady, setPluginsReady ] = useState( Boolean( emailsConfig.dependencies.newspackNewsletters ) );
 
 	const [ data, setData ] = useState< EmailItem[] >( [] );
-	const [ postType, setPostType ] = useState< string >( emailSections.emails.postType );
+	const [ postType, setPostType ] = useState< string >( emailsConfig.postType );
 	const [ isLoading, setIsLoading ] = useState( true );
 	const [ view, setView ] = useState< View >( DEFAULT_VIEW );
 	const [ error, setError ] = useState< string | null >( null );

@@ -18,6 +18,11 @@ declare global {
 			};
 			preview_post: string;
 			preview_archive: string;
+			emails: {
+				isEmailEnhancementsActive: boolean;
+				dependencies: Record< string, boolean >;
+				postType: string;
+			};
 		};
 		newspackAudienceCampaigns: {
 			api: string;

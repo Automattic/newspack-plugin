@@ -10,7 +10,6 @@ const settingsTabs = window.newspackSettings;
 
 import Seo from './seo';
 import Social from './social';
-import Emails from './emails';
 import Connections from './connections';
 import Syndication from './syndication';
 import AdvancedSettings from './advanced-settings';
@@ -24,7 +23,6 @@ type SectionKeys = keyof typeof settingsTabs;
 const sectionComponents: Partial< Record< SectionKeys | 'default', ( props: { isPartOfSetup?: boolean } ) => React.ReactNode > > = {
 	connections: Connections,
 	social: Social,
-	emails: Emails,
 	syndication: Syndication,
 	seo: Seo,
 	'theme-and-brand': ThemeAndBrand,

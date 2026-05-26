@@ -52,9 +52,11 @@ class Audience_Wizard extends Wizard {
 
 	/**
 	 * Audience Configuration Constructor.
+	 *
+	 * @param array $args Optional. Configuration array (e.g. 'sections').
 	 */
-	public function __construct() {
-		parent::__construct();
+	public function __construct( $args = [] ) {
+		parent::__construct( $args );
 		add_action( 'rest_api_init', [ $this, 'register_api_endpoints' ] );
 
 		// Determine active menu items.
@@ -112,6 +114,14 @@ class Audience_Wizard extends Wizard {
 		$data['content_gifting'] = [
 			'can_use_gifting' => Content_Gifting::can_use_gifting( true ),
 			'has_metering'    => Content_Gate::is_metering_enabled( Memberships::GATE_CPT ),
+		];
+
+		$data['emails'] = [
+			'isEmailEnhancementsActive' => class_exists( 'Newspack\WooCommerce_Emails' ) && WooCommerce_Emails::is_active(),
+			'dependencies'              => [
+				'newspackNewsletters' => is_plugin_active( 'newspack-newsletters/newspack-newsletters.php' ),
+			],
+			'postType'                  => Emails::POST_TYPE,
 		];
 
 		wp_enqueue_script( 'newspack-wizards' );
