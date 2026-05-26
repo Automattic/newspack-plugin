@@ -1272,9 +1272,11 @@ final class Reader_Activation {
 	 * Setup nav menu hooks.
 	 */
 	public static function setup_nav_menu() {
-		// Not checking if the whole WC suite is active (self::is_woocommerce_active()),
-		// because only the main WooCommerce plugin is actually required for this to work.
-		if ( ! self::get_setting( 'enabled_account_link' ) || ! function_exists( 'WC' ) ) {
+		// The account link works without WooCommerce: signed-out visitors get a JS-driven
+		// auth modal trigger. When WooCommerce is active, signed-in readers additionally
+		// get a "My Account" link to the Woo account page; without Woo, get_account_link()
+		// returns empty for signed-in users and no menu item is rendered.
+		if ( ! self::get_setting( 'enabled_account_link' ) ) {
 			return;
 		}
 
