@@ -430,13 +430,15 @@ class Action_Scheduler {
 	 * Fetch per-action log entries for a single ActionScheduler action.
 	 *
 	 * Each entry is normalized to:
-	 *   [ 'log_id' => int, 'date_gmt' => string, 'message' => string ]
+	 *   [ 'date_gmt' => string, 'message' => string ]
 	 *
-	 * Sorted ascending by date.
+	 * NullLogEntry sentinels are filtered out. Entries are sorted ascending
+	 * by date. ActionScheduler_LogEntry does not expose the log-row PK, so
+	 * consumers use the array index as a stable key.
 	 *
 	 * @param int $action_id The action ID.
 	 *
-	 * @return array<int,array{log_id:int,date_gmt:string,message:string}>
+	 * @return array<int,array{date_gmt:string,message:string}>
 	 */
 	public static function get_action_logs( $action_id ) {
 		if ( ! self::is_available() || ! class_exists( '\ActionScheduler_Logger' ) ) {
@@ -446,17 +448,17 @@ class Action_Scheduler {
 		if ( empty( $entries ) ) {
 			return [];
 		}
-		$normalized = array_map(
-			function ( $entry ) {
-				$date = $entry->get_date();
-				return [
-					'log_id'   => (int) $entry->get_log_id(),
-					'date_gmt' => $date ? $date->format( 'Y-m-d\TH:i:s' ) : '',
-					'message'  => (string) $entry->get_message(),
-				];
-			},
-			$entries
-		);
+		$normalized = [];
+		foreach ( $entries as $entry ) {
+			if ( $entry instanceof \ActionScheduler_NullLogEntry ) {
+				continue;
+			}
+			$date         = $entry->get_date();
+			$normalized[] = [
+				'date_gmt' => $date ? $date->format( 'Y-m-d\TH:i:s' ) : '',
+				'message'  => (string) $entry->get_message(),
+			];
+		}
 		usort(
 			$normalized,
 			static function ( $a, $b ) {
