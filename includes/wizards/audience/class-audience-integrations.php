@@ -179,6 +179,26 @@ class Audience_Integrations extends Wizard {
 				],
 			]
 		);
+
+		register_rest_route(
+			NEWSPACK_API_NAMESPACE,
+			'/wizard/' . $this->slug . '/settings/(?P<integration_id>[a-zA-Z0-9_-]+)/logs/(?P<action_id>[0-9]+)',
+			[
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => [ $this, 'api_get_integration_log_detail' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+				'args'                => [
+					'integration_id' => [
+						'type'              => 'string',
+						'sanitize_callback' => 'sanitize_key',
+					],
+					'action_id'      => [
+						'type'              => 'integer',
+						'sanitize_callback' => 'absint',
+					],
+				],
+			]
+		);
 	}
 
 	/**
@@ -319,6 +339,92 @@ class Audience_Integrations extends Wizard {
 				'total'    => $total,
 				'page'     => $page,
 				'per_page' => $per_page,
+			]
+		);
+	}
+
+	/**
+	 * Get the full detail (payload + per-action logs) for a single scheduled action.
+	 *
+	 * @param WP_REST_Request $request Request object.
+	 * @return WP_REST_Response|WP_Error
+	 */
+	public function api_get_integration_log_detail( WP_REST_Request $request ) {
+		$integration_id = $request->get_param( 'integration_id' );
+		$action_id      = (int) $request->get_param( 'action_id' );
+
+		$integration = Integrations::get_integration( $integration_id );
+		if ( ! $integration ) {
+			return new WP_Error(
+				'newspack_integration_not_found',
+				esc_html__( 'Integration not found.', 'newspack-plugin' ),
+				[ 'status' => 404 ]
+			);
+		}
+
+		if ( ! Integrations::action_belongs_to_integration( $action_id, $integration_id ) ) {
+			return new WP_Error(
+				'newspack_action_not_found',
+				esc_html__( 'Action not found.', 'newspack-plugin' ),
+				[ 'status' => 404 ]
+			);
+		}
+
+		$action = Action_Scheduler::get_action( $action_id );
+		if ( ! $action ) {
+			return new WP_Error(
+				'newspack_action_not_found',
+				esc_html__( 'Action not found.', 'newspack-plugin' ),
+				[ 'status' => 404 ]
+			);
+		}
+
+		$store  = \ActionScheduler_Store::instance();
+		$status = $store->get_status( $action_id );
+
+		$schedule         = $action->get_schedule();
+		$scheduled_at     = $schedule && method_exists( $schedule, 'get_date' ) ? $schedule->get_date() : null;
+		$scheduled_at_gmt = $scheduled_at ? $scheduled_at->format( 'Y-m-d\TH:i:s' ) : '';
+
+		// Resolve payload: prefer extended_args (full JSON) when present, else args.
+		// We read from the AS DB directly because the ActionScheduler_Action object
+		// only exposes the parsed args, with no signal as to whether they were
+		// truncated. Reading the row tells us whether extended_args carries the
+		// full JSON.
+		global $wpdb;
+		$row = $wpdb->get_row( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+			$wpdb->prepare(
+				"SELECT args, extended_args, attempts, last_attempt_gmt FROM {$wpdb->prefix}actionscheduler_actions WHERE action_id = %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				$action_id
+			)
+		);
+
+		$payload_raw = '';
+		if ( $row ) {
+			$payload_raw = ! empty( $row->extended_args ) ? $row->extended_args : (string) $row->args;
+		}
+		$decoded = json_decode( $payload_raw, true );
+		$args    = ( null === $decoded && JSON_ERROR_NONE !== json_last_error() ) ? $payload_raw : $decoded;
+
+		$hook_labels = Action_Scheduler::get_hook_labels();
+		$hook        = $action->get_hook();
+		$event       = $hook_labels[ $hook ] ?? $hook;
+
+		return rest_ensure_response(
+			[
+				'action' => [
+					'id'                 => $action_id,
+					'hook'               => $hook,
+					'event'              => $event,
+					'status'             => $status,
+					'scheduled_date_gmt' => $scheduled_at_gmt,
+					'attempts'           => $row ? (int) $row->attempts : 0,
+					'last_attempt_gmt'   => $row && ! empty( $row->last_attempt_gmt ) && '0000-00-00 00:00:00' !== $row->last_attempt_gmt ? $row->last_attempt_gmt : '',
+					'group'              => method_exists( $action, 'get_group' ) ? $action->get_group() : '',
+					'priority'           => method_exists( $action, 'get_priority' ) ? (int) $action->get_priority() : 10,
+					'args'               => $args,
+				],
+				'logs'   => Action_Scheduler::get_action_logs( $action_id ),
 			]
 		);
 	}
