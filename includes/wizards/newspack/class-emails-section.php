@@ -164,6 +164,16 @@ class Emails_Section extends Wizard_Section {
 				'label'               => __( 'Cancellation confirmation', 'newspack-plugin' ),
 				'trigger_description' => __( 'Sent when a reader cancels their subscription.', 'newspack-plugin' ),
 			],
+			'card-expiry-warning'              => [
+				'source'              => 'newspack',
+				'newspack_type'       => 'card-expiry-warning',
+				'recommended'         => true,
+				'plugin_dependency'   => 'woocommerce-subscriptions',
+				'recipient'           => 'reader',
+				'chip'                => 'reader-revenue',
+				'label'               => __( 'Card expiry warning', 'newspack-plugin' ),
+				'trigger_description' => __( 'Sent when a reader\'s saved payment method is about to expire.', 'newspack-plugin' ),
+			],
 			'woo-renewal-reminder'             => [
 				'source'              => 'woocommerce',
 				'woo_email_id'        => 'customer_notification_auto_renewal',
