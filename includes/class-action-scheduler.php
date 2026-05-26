@@ -405,4 +405,64 @@ class Action_Scheduler {
 
 		return $hooks;
 	}
+
+	/**
+	 * Fetch a single ActionScheduler action by ID.
+	 *
+	 * Returns null when AS resolves the ID to a NullAction (action does not exist).
+	 *
+	 * @param int $action_id The action ID.
+	 *
+	 * @return \ActionScheduler_Action|null
+	 */
+	public static function get_action( $action_id ) {
+		if ( ! self::is_available() ) {
+			return null;
+		}
+		$action = \ActionScheduler_Store::instance()->fetch_action( (int) $action_id );
+		if ( ! $action || $action instanceof \ActionScheduler_NullAction ) {
+			return null;
+		}
+		return $action;
+	}
+
+	/**
+	 * Fetch per-action log entries for a single ActionScheduler action.
+	 *
+	 * Each entry is normalized to:
+	 *   [ 'log_id' => int, 'date_gmt' => string, 'message' => string ]
+	 *
+	 * Sorted ascending by date.
+	 *
+	 * @param int $action_id The action ID.
+	 *
+	 * @return array<int,array{log_id:int,date_gmt:string,message:string}>
+	 */
+	public static function get_action_logs( $action_id ) {
+		if ( ! self::is_available() || ! class_exists( '\ActionScheduler_Logger' ) ) {
+			return [];
+		}
+		$entries = \ActionScheduler_Logger::instance()->get_logs( (int) $action_id );
+		if ( empty( $entries ) ) {
+			return [];
+		}
+		$normalized = array_map(
+			function ( $entry ) {
+				$date = $entry->get_date();
+				return [
+					'log_id'   => (int) $entry->get_log_id(),
+					'date_gmt' => $date ? $date->format( 'Y-m-d\TH:i:s' ) : '',
+					'message'  => (string) $entry->get_message(),
+				];
+			},
+			$entries
+		);
+		usort(
+			$normalized,
+			static function ( $a, $b ) {
+				return strcmp( $a['date_gmt'], $b['date_gmt'] );
+			}
+		);
+		return $normalized;
+	}
 }
