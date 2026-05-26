@@ -170,6 +170,28 @@ class Integrations {
 	}
 
 	/**
+	 * Whether a given AS action belongs to the given integration.
+	 *
+	 * Resolves the action's group to the integration's expected group slug.
+	 * Used as the ownership gate for the per-integration detail and run REST
+	 * endpoints, so other-group actions can't be probed through them.
+	 *
+	 * @param int    $action_id      The AS action ID.
+	 * @param string $integration_id The integration identifier.
+	 *
+	 * @return bool
+	 */
+	public static function action_belongs_to_integration( $action_id, $integration_id ) {
+		$action = \Newspack\Action_Scheduler::get_action( (int) $action_id );
+		if ( ! $action ) {
+			return false;
+		}
+		$expected_group = self::get_action_group( $integration_id );
+		$group          = method_exists( $action, 'get_group' ) ? $action->get_group() : '';
+		return $group === $expected_group;
+	}
+
+	/**
 	 * Get ActionScheduler actions for Newspack integrations.
 	 *
 	 * @param array $args {
