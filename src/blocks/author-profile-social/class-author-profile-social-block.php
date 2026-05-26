@@ -249,8 +249,11 @@ final class Author_Profile_Social_Block {
 
 	/**
 	 * Resolve a color value from the block's icon color attributes.
-	 * Prefers the preset slug (so theme switches reflect new palette values)
-	 * and falls back to the saved hex/CSS value when no preset is set.
+	 * When both a preset slug and a resolved value are present, emits the
+	 * CSS variable with the value as a native fallback — so theme switches
+	 * that redefine the slug pick up the new palette value, and theme
+	 * switches that drop the slug fall back to the saved hex instead of
+	 * rendering uncoloured.
 	 *
 	 * @param array  $attributes Block attributes.
 	 * @param string $preset_key Preset slug attribute key (e.g. "iconColor").
@@ -258,11 +261,17 @@ final class Author_Profile_Social_Block {
 	 * @return string|null CSS color value or null.
 	 */
 	private static function resolve_color( array $attributes, string $preset_key, string $value_key ): ?string {
-		if ( ! empty( $attributes[ $preset_key ] ) && is_string( $attributes[ $preset_key ] ) ) {
-			return sprintf( 'var(--wp--preset--color--%s)', $attributes[ $preset_key ] );
+		$slug  = ! empty( $attributes[ $preset_key ] ) && is_string( $attributes[ $preset_key ] ) ? $attributes[ $preset_key ] : null;
+		$value = ! empty( $attributes[ $value_key ] ) && is_string( $attributes[ $value_key ] ) ? $attributes[ $value_key ] : null;
+
+		if ( $slug && $value ) {
+			return sprintf( 'var(--wp--preset--color--%s, %s)', $slug, $value );
 		}
-		if ( ! empty( $attributes[ $value_key ] ) && is_string( $attributes[ $value_key ] ) ) {
-			return $attributes[ $value_key ];
+		if ( $slug ) {
+			return sprintf( 'var(--wp--preset--color--%s)', $slug );
+		}
+		if ( $value ) {
+			return $value;
 		}
 		return null;
 	}
