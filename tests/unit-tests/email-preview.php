@@ -77,13 +77,26 @@ class Newspack_Test_Email_Preview extends WP_UnitTestCase {
 	}
 
 	/**
+	 * The substitution map has the expected three-key structure.
+	 */
+	public function test_sample_substitutions_structure() {
+		$subs = Email_Preview::get_sample_substitutions();
+
+		self::assertIsArray( $subs );
+		self::assertArrayHasKey( 'html', $subs, 'Missing "html" key.' );
+		self::assertArrayHasKey( 'url', $subs, 'Missing "url" key.' );
+		self::assertArrayHasKey( 'raw', $subs, 'Missing "raw" key.' );
+		self::assertCount( 3, $subs, 'Substitution map should have exactly 3 top-level keys.' );
+	}
+
+	/**
 	 * The sample-substitutions map contains all expected token keys.
 	 */
 	public function test_sample_substitutions_map() {
 		$subs = Email_Preview::get_sample_substitutions();
+		$all  = array_merge( $subs['html'], $subs['url'], $subs['raw'] );
 
-		self::assertIsArray( $subs );
-		self::assertGreaterThanOrEqual( 28, count( $subs ), 'Substitution map should have at least 28 entries.' );
+		self::assertGreaterThanOrEqual( 32, count( $all ), 'Substitution map should have at least 32 entries.' );
 
 		$expected_keys = [
 			'*SITE_TITLE*',
@@ -98,8 +111,79 @@ class Newspack_Test_Email_Preview extends WP_UnitTestCase {
 			'*MAGIC_LINK_OTP*',
 		];
 		foreach ( $expected_keys as $key ) {
-			self::assertArrayHasKey( $key, $subs, "Missing expected token: $key" );
+			self::assertArrayHasKey( $key, $all, "Missing expected token: $key" );
 		}
+	}
+
+	/**
+	 * HTML metacharacters in html-context tokens are escaped.
+	 */
+	public function test_html_tokens_are_escaped() {
+		$source_html = '<html><body>Hello *BILLING_FIRST_NAME*</body></html>';
+		$post_id     = $this->create_email_post( $source_html );
+
+		// Inject a malicious value via the filter.
+		$filter = function ( $subs ) {
+			$subs['html']['*BILLING_FIRST_NAME*'] = '<script>alert(1)</script>';
+			return $subs;
+		};
+		add_filter( 'newspack_email_preview_substitutions', $filter );
+
+		$result = Email_Preview::get_preview_html( $post_id );
+
+		self::assertStringContainsString( '&lt;script&gt;', $result, 'HTML metacharacters should be escaped.' );
+		self::assertStringNotContainsString( '<script>alert(1)</script>', $result, 'Raw script tag should not appear.' );
+
+		remove_filter( 'newspack_email_preview_substitutions', $filter );
+	}
+
+	/**
+	 * URL tokens reject dangerous protocols.
+	 */
+	public function test_url_tokens_are_sanitized() {
+		$source_html = '<html><body><a href="*ACCOUNT_URL*">Account</a></body></html>';
+		$post_id     = $this->create_email_post( $source_html );
+
+		$filter = function ( $subs ) {
+			$subs['url']['*ACCOUNT_URL*'] = 'javascript:alert(1)';
+			return $subs;
+		};
+		add_filter( 'newspack_email_preview_substitutions', $filter );
+
+		$result = Email_Preview::get_preview_html( $post_id );
+
+		self::assertStringNotContainsString( 'javascript:', $result, 'javascript: protocol should be rejected by esc_url().' );
+
+		remove_filter( 'newspack_email_preview_substitutions', $filter );
+	}
+
+	/**
+	 * Raw tokens preserve their pre-escaped HTML intact.
+	 */
+	public function test_raw_tokens_are_not_double_escaped() {
+		$source_html = '<html><body>Contact: *CONTACT_EMAIL*</body></html>';
+		$post_id     = $this->create_email_post( $source_html );
+
+		$result = Email_Preview::get_preview_html( $post_id );
+
+		self::assertStringContainsString( '<a href=', $result, 'CONTACT_EMAIL <a> tag should be preserved.' );
+		self::assertStringNotContainsString( '&lt;a href=', $result, 'CONTACT_EMAIL <a> tag should not be double-escaped.' );
+	}
+
+	/**
+	 * Translatable sample strings are wrapped in __().
+	 */
+	public function test_translated_strings() {
+		$subs = Email_Preview::get_sample_substitutions();
+
+		// These values should match __() output (in English they're identical,
+		// but this asserts the wrapping is in place).
+		self::assertEquals( __( 'Sample', 'newspack-plugin' ), $subs['html']['*BILLING_FIRST_NAME*'] );
+		self::assertEquals( __( 'Reader', 'newspack-plugin' ), $subs['html']['*BILLING_LAST_NAME*'] );
+		self::assertEquals( __( 'Sample Reader', 'newspack-plugin' ), $subs['html']['*BILLING_NAME*'] );
+		self::assertEquals( __( 'Visa ending in 4242', 'newspack-plugin' ), $subs['html']['*PAYMENT_METHOD*'] );
+		self::assertEquals( __( 'Monthly Membership', 'newspack-plugin' ), $subs['html']['*PRODUCT_NAME*'] );
+		self::assertEquals( __( 'monthly', 'newspack-plugin' ), $subs['html']['*BILLING_FREQUENCY*'] );
 	}
 
 	/**

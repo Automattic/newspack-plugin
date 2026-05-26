@@ -107,21 +107,35 @@ class Email_Preview {
 		/**
 		 * Filters the sample substitution map used for email previews.
 		 *
-		 * Allows plugins to inject sample values for custom tokens
-		 * (e.g. group-subscription invite tokens, future token additions).
+		 * The map is structured as three sub-arrays keyed by escaping context:
+		 * - 'html': Tokens rendered as visible text (escaped with esc_html()).
+		 * - 'url':  Tokens used in href/src attributes (escaped with esc_url()).
+		 * - 'raw':  Tokens containing pre-escaped HTML (not escaped again).
 		 *
-		 * @param array $substitutions Map of `*TOKEN*` => sample value.
+		 * @param array $substitutions Structured map of `*TOKEN*` => sample value.
 		 * @param int   $post_id       The email post being previewed (0 if unknown).
 		 */
 		$substitutions = apply_filters( 'newspack_email_preview_substitutions', $substitutions, $post_id );
 
-		return strtr( $html, $substitutions );
+		// Escape HTML-text tokens.
+		$html_map = array_map( 'esc_html', $substitutions['html'] );
+		// Escape URL tokens.
+		$url_map = array_map( 'esc_url', $substitutions['url'] );
+		// Raw tokens are already safe (contain pre-escaped markup).
+		$raw_map = $substitutions['raw'];
+
+		return strtr( $html, array_merge( $html_map, $url_map, $raw_map ) );
 	}
 
 	/**
 	 * Get the substitution map of email-template tokens to sample values.
 	 *
-	 * @return array Map of `*TOKEN*` => sample value.
+	 * Returns a three-key array grouped by escaping context:
+	 * - 'html': Tokens rendered as visible text (escaped with esc_html() at call site).
+	 * - 'url':  Tokens used in href/src attributes (escaped with esc_url() at call site).
+	 * - 'raw':  Tokens containing pre-escaped HTML markup (not escaped again).
+	 *
+	 * @return array{ html: array<string, string>, url: array<string, string>, raw: array<string, string> }
 	 */
 	public static function get_sample_substitutions(): array {
 		$site_logo_url   = wp_get_attachment_url( get_theme_mod( 'custom_logo' ) );
@@ -134,44 +148,59 @@ class Email_Preview {
 			: $site_title;
 
 		return [
-			// Site / branding — real values from the publisher's config.
-			'*SITE_TITLE*'             => $site_title,
-			'*SITE_URL*'               => $site_url,
-			'*SITE_LOGO*'              => $site_logo_url ? esc_url( $site_logo_url ) : '',
-			'*SITE_ADDRESS*'           => $site_address,
-			'*SITE_CONTACT*'           => $site_contact,
-			'*CONTACT_EMAIL*'          => sprintf( '<a href="%s">%s</a>', esc_url( 'mailto:' . $reply_to_email ), esc_html( $reply_to_email ) ),
+			// Tokens rendered as visible text inside HTML — escaped with esc_html().
+			'html' => [
+				// Site / branding — real values from the publisher's config.
+				'*SITE_TITLE*'            => $site_title,
+				'*SITE_ADDRESS*'          => $site_address,
 
-			// Reader identity — stable sample values.
-			'*BILLING_FIRST_NAME*'     => 'Sample',
-			'*BILLING_LAST_NAME*'      => 'Reader',
-			'*BILLING_NAME*'           => 'Sample Reader',
-			'*PENDING_EMAIL_ADDRESS*'  => 'sample.reader@example.com',
+				// Reader identity — stable sample values.
+				'*BILLING_FIRST_NAME*'    => __( 'Sample', 'newspack-plugin' ),
+				'*BILLING_LAST_NAME*'     => __( 'Reader', 'newspack-plugin' ),
+				'*BILLING_NAME*'          => __( 'Sample Reader', 'newspack-plugin' ),
+				'*PENDING_EMAIL_ADDRESS*' => 'sample.reader@example.com',
 
-			// Transaction / subscription details — stable sample values.
-			'*AMOUNT*'                 => '$25.00',
-			'*PAYMENT_METHOD*'         => 'Visa ending in 4242',
-			'*PRODUCT_NAME*'           => 'Monthly Membership',
-			'*BILLING_FREQUENCY*'      => 'monthly',
-			'*DATE*'                   => wp_date( get_option( 'date_format', 'F j, Y' ) ),
-			'*CANCELLATION_TITLE*'     => __( 'Subscription Cancelled', 'newspack-plugin' ),
-			'*CANCELLATION_TYPE*'      => __( 'subscription', 'newspack-plugin' ),
+				// Transaction / subscription details.
+				'*AMOUNT*'                => '$25.00',
+				'*PAYMENT_METHOD*'        => __( 'Visa ending in 4242', 'newspack-plugin' ),
+				'*PRODUCT_NAME*'          => __( 'Monthly Membership', 'newspack-plugin' ),
+				'*BILLING_FREQUENCY*'     => __( 'monthly', 'newspack-plugin' ),
+				'*DATE*'                  => wp_date( get_option( 'date_format', 'F j, Y' ) ),
+				'*CANCELLATION_TITLE*'    => __( 'Subscription Cancelled', 'newspack-plugin' ),
+				'*CANCELLATION_TYPE*'     => __( 'subscription', 'newspack-plugin' ),
 
-			// Action URLs — anchors so preview clicks don't navigate.
-			'*ACCOUNT_URL*'            => '#',
-			'*CANCELLATION_URL*'       => '#',
-			'*EMAIL_CANCELLATION_URL*' => '#',
-			'*EMAIL_VERIFICATION_URL*' => '#',
-			'*VERIFICATION_URL*'       => '#',
-			'*RECEIPT_URL*'            => '#',
-			'*MAGIC_LINK_URL*'         => '#',
-			'*PASSWORD_RESET_LINK*'    => '#',
-			'*SET_PASSWORD_LINK*'      => '#',
-			'*DELETION_LINK*'          => '#',
-			'*WP_LOGIN_URL*'           => '#',
+				// Card expiry warning details.
+				'*CARD_LAST_4*'           => '4242',
+				'*EXPIRY_DATE*'           => '12/2026',
+				'*RENEWAL_DATE*'          => wp_date( get_option( 'date_format', 'F j, Y' ), strtotime( '+1 year' ) ),
 
-			// OTP code — stable sample value.
-			'*MAGIC_LINK_OTP*'         => '123456',
+				// OTP code — stable sample value.
+				'*MAGIC_LINK_OTP*'        => '123456',
+			],
+
+			// Tokens used in href/src attributes — escaped with esc_url().
+			'url'  => [
+				'*SITE_URL*'               => $site_url,
+				'*SITE_LOGO*'              => $site_logo_url ? $site_logo_url : '',
+				'*ACCOUNT_URL*'            => '#',
+				'*CANCELLATION_URL*'       => '#',
+				'*EMAIL_CANCELLATION_URL*' => '#',
+				'*EMAIL_VERIFICATION_URL*' => '#',
+				'*VERIFICATION_URL*'       => '#',
+				'*RECEIPT_URL*'            => '#',
+				'*MAGIC_LINK_URL*'         => '#',
+				'*PASSWORD_RESET_LINK*'    => '#',
+				'*SET_PASSWORD_LINK*'      => '#',
+				'*DELETION_LINK*'          => '#',
+				'*WP_LOGIN_URL*'           => '#',
+				'*UPDATE_PAYMENT_URL*'     => '#',
+			],
+
+			// Tokens containing pre-escaped HTML — NOT escaped again.
+			'raw'  => [
+				'*CONTACT_EMAIL*' => sprintf( '<a href="%s">%s</a>', esc_url( 'mailto:' . $reply_to_email ), esc_html( $reply_to_email ) ),
+				'*SITE_CONTACT*'  => $site_contact,
+			],
 		];
 	}
 
