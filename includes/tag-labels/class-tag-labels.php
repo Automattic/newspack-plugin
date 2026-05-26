@@ -213,6 +213,7 @@ class Tag_Labels {
 				<?php echo esc_html__( 'Custom text to display instead of the tag name.', 'newspack-plugin' ); ?>
 			</p>
 		</div>
+		<?php wp_nonce_field( 'newspack_tag_labels_save', 'newspack_tag_labels_nonce' ); ?>
 		<?php
 	}
 
@@ -271,16 +272,29 @@ class Tag_Labels {
 				</p>
 			</td>
 		</tr>
+		<?php wp_nonce_field( 'newspack_tag_labels_save', 'newspack_tag_labels_nonce' ); ?>
 		<?php
 	}
 
-	// phpcs:disable WordPress.Security.NonceVerification.Missing -- nonce verified upstream
 	/**
 	 * Store custom term meta on save.
+	 *
+	 * Bails on any term mutation that didn't originate from this UI's form — `created_post_tag`
+	 * and `edited_post_tag` also fire on REST edits, importers, and third-party
+	 * `wp_update_term()` calls, none of which post our fields.
 	 *
 	 * @param int $term_id Term ID.
 	 */
 	public static function save_term( $term_id ) {
+		if ( ! isset( $_POST['newspack_tag_labels_nonce'] )
+			|| ! wp_verify_nonce(
+				sanitize_text_field( wp_unslash( $_POST['newspack_tag_labels_nonce'] ) ),
+				'newspack_tag_labels_save'
+			)
+		) {
+			return;
+		}
+
 		if ( ! current_user_can( 'manage_categories' ) ) {
 			return;
 		}
@@ -299,7 +313,6 @@ class Tag_Labels {
 			delete_term_meta( $term_id, self::TAG_LABEL_META_KEY );
 		}
 	}
-	// phpcs:enable WordPress.Security.NonceVerification.Missing
 }
 
 Tag_Labels::init();
