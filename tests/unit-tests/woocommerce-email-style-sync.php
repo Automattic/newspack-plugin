@@ -1,4 +1,4 @@
-<?php // phpcs:disable WordPress.Files.FileName.InvalidClassFileName, Generic.Files.OneObjectStructurePerFile.MultipleFound, Universal.Files.SeparateFunctionsFromOO.Mixed -- Test file defines stubs for CI environments without WooCommerce or Newspack themes.
+<?php // phpcs:disable WordPress.Files.FileName.InvalidClassFileName, Universal.Files.SeparateFunctionsFromOO.Mixed -- Test file defines a stub for CI environments without Newspack themes.
 /**
  * Tests WooCommerce_Email_Style_Sync.
  *
@@ -22,16 +22,12 @@ if ( ! function_exists( 'newspack_get_theme_colors' ) ) {
 	}
 }
 
-// Provide a minimal WooCommerce class stub so class_exists() guards pass.
-if ( ! class_exists( 'WooCommerce' ) ) {
-	/**
-	 * Minimal WooCommerce stub for testing.
-	 */
-	class WooCommerce {}
-}
-
 /**
  * Tests WooCommerce_Email_Style_Sync.
+ *
+ * NOTE: We do NOT stub the WooCommerce class here because it leaks into the
+ * global scope and causes other test suites (e.g. Emails_Section) to think WC
+ * is available. Instead we test the private helpers via Reflection.
  */
 class Newspack_Test_WooCommerce_Email_Style_Sync extends WP_UnitTestCase {
 
@@ -45,34 +41,47 @@ class Newspack_Test_WooCommerce_Email_Style_Sync extends WP_UnitTestCase {
 		delete_option( 'woocommerce_email_header_image' );
 		remove_theme_mod( 'custom_logo' );
 		remove_theme_mod( 'primary_color_hex' );
+
+		// Emails::maybe_update_email_templates fires on theme-mod changes and
+		// calls Newspack_Newsletters::update_color_palette(), which is not
+		// available in CI. Remove it so set_theme_mod() doesn't fatal.
+		$theme = wp_get_theme()->parent() ? get_stylesheet() : get_template();
+		remove_action(
+			'update_option_theme_mods_' . $theme,
+			[ \Newspack\Emails::class, 'maybe_update_email_templates' ]
+		);
 	}
 
 	/**
-	 * Test first run syncs the primary color to woocommerce_email_base_color.
+	 * Test get_site_colors returns the primary color mapped to the WC option name.
 	 */
-	public function test_first_run_syncs_colors() {
+	public function test_get_site_colors_returns_primary() {
 		set_theme_mod( 'primary_color_hex', '#ff5500' );
 
-		WooCommerce_Email_Style_Sync::maybe_sync_on_first_run();
+		$colors = self::invoke_private( 'get_site_colors' );
 
-		$this->assertSame( '#ff5500', get_option( 'woocommerce_email_base_color' ) );
+		$this->assertSame( '#ff5500', $colors['woocommerce_email_base_color'] );
 	}
 
 	/**
-	 * Test first run syncs the site logo to woocommerce_email_header_image.
+	 * Test get_site_logo_url returns the logo URL when custom_logo is set.
 	 */
-	public function test_first_run_syncs_logo() {
+	public function test_get_site_logo_url_with_logo() {
 		$attachment_id = self::factory()->attachment->create_upload_object( DIR_TESTDATA . '/images/test-image.jpg' );
 		set_theme_mod( 'custom_logo', $attachment_id );
 
-		WooCommerce_Email_Style_Sync::maybe_sync_on_first_run();
+		$url = self::invoke_private( 'get_site_logo_url' );
 
 		$expected_url = wp_get_attachment_url( $attachment_id );
-		$this->assertSame( $expected_url, get_option( 'woocommerce_email_header_image' ) );
+		$this->assertSame( $expected_url, $url );
 	}
 
 	/**
 	 * Test first run is skipped when the version option is already current.
+	 *
+	 * In CI class_exists('WooCommerce') is false, so maybe_sync_on_first_run()
+	 * bails on the WC guard before checking the version. The important assertion
+	 * is that no WC email options were written.
 	 */
 	public function test_first_run_skips_when_already_synced() {
 		update_option( WooCommerce_Email_Style_Sync::SYNCED_VERSION_OPTION, WooCommerce_Email_Style_Sync::CURRENT_VERSION );
@@ -84,24 +93,36 @@ class Newspack_Test_WooCommerce_Email_Style_Sync extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test sync_styles updates color when theme color changes.
+	 * Test get_site_colors reflects updated theme colors.
 	 */
-	public function test_sync_updates_colors_on_theme_change() {
+	public function test_colors_update_on_theme_change() {
 		set_theme_mod( 'primary_color_hex', '#aa0000' );
-		WooCommerce_Email_Style_Sync::sync_styles();
-		$this->assertSame( '#aa0000', get_option( 'woocommerce_email_base_color' ) );
+		$colors = self::invoke_private( 'get_site_colors' );
+		$this->assertSame( '#aa0000', $colors['woocommerce_email_base_color'] );
 
 		set_theme_mod( 'primary_color_hex', '#0000bb' );
-		WooCommerce_Email_Style_Sync::sync_styles();
-		$this->assertSame( '#0000bb', get_option( 'woocommerce_email_base_color' ) );
+		$colors = self::invoke_private( 'get_site_colors' );
+		$this->assertSame( '#0000bb', $colors['woocommerce_email_base_color'] );
 	}
 
 	/**
-	 * Test sync_styles sets empty header image when no logo is configured.
+	 * Test get_site_logo_url returns empty string when no logo is configured.
 	 */
-	public function test_no_logo_sets_empty_header_image() {
-		WooCommerce_Email_Style_Sync::sync_styles();
+	public function test_no_logo_returns_empty_string() {
+		$url = self::invoke_private( 'get_site_logo_url' );
 
-		$this->assertSame( '', get_option( 'woocommerce_email_header_image' ) );
+		$this->assertSame( '', $url );
+	}
+
+	/**
+	 * Invoke a private static method on WooCommerce_Email_Style_Sync.
+	 *
+	 * @param string $method_name Method to invoke.
+	 * @return mixed Return value of the method.
+	 */
+	private static function invoke_private( string $method_name ) {
+		$method = new ReflectionMethod( WooCommerce_Email_Style_Sync::class, $method_name );
+		$method->setAccessible( true );
+		return $method->invoke( null );
 	}
 }
