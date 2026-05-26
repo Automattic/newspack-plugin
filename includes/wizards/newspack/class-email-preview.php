@@ -412,7 +412,7 @@ class Email_Preview {
 	public static function register_rest_routes(): void {
 		register_rest_route(
 			NEWSPACK_API_NAMESPACE,
-			'wizard/newspack-settings/emails/(?P<id>[\w:-]+)/preview',
+			'wizard/newspack-settings/emails/(?P<id>\d+|wc:[\w-]+)/preview',
 			[
 				'methods'             => \WP_REST_Server::READABLE,
 				'callback'            => [ __CLASS__, 'api_get_preview' ],

@@ -32,6 +32,20 @@ if ( ! function_exists( 'newspack_get_theme_colors' ) ) {
 class Newspack_Test_WooCommerce_Email_Style_Sync extends WP_UnitTestCase {
 
 	/**
+	 * Hook name for the theme-mods action removed during set_up.
+	 *
+	 * @var string|null
+	 */
+	private $theme_mods_hook = null;
+
+	/**
+	 * Priority the theme-mods action was registered at, or false if it wasn't.
+	 *
+	 * @var int|false
+	 */
+	private $theme_mods_hook_priority = false;
+
+	/**
 	 * Clean up WC email options and sync version before each test.
 	 */
 	public function set_up() {
@@ -44,12 +58,32 @@ class Newspack_Test_WooCommerce_Email_Style_Sync extends WP_UnitTestCase {
 
 		// Emails::maybe_update_email_templates fires on theme-mod changes and
 		// calls Newspack_Newsletters::update_color_palette(), which is not
-		// available in CI. Remove it so set_theme_mod() doesn't fatal.
-		$theme = wp_get_theme()->parent() ? get_stylesheet() : get_template();
-		remove_action(
-			'update_option_theme_mods_' . $theme,
-			[ \Newspack\Emails::class, 'maybe_update_email_templates' ]
-		);
+		// available in CI. Remove it so set_theme_mod() doesn't fatal — and
+		// remember the priority so tear_down can restore it.
+		$theme                          = wp_get_theme()->parent() ? get_stylesheet() : get_template();
+		$this->theme_mods_hook          = 'update_option_theme_mods_' . $theme;
+		$callback                       = [ \Newspack\Emails::class, 'maybe_update_email_templates' ];
+		$this->theme_mods_hook_priority = has_action( $this->theme_mods_hook, $callback );
+		if ( false !== $this->theme_mods_hook_priority ) {
+			remove_action( $this->theme_mods_hook, $callback, $this->theme_mods_hook_priority );
+		}
+	}
+
+	/**
+	 * Restore the theme-mods action so global hook state doesn't leak to other suites.
+	 */
+	public function tear_down() {
+		if ( $this->theme_mods_hook && false !== $this->theme_mods_hook_priority ) {
+			add_action(
+				$this->theme_mods_hook,
+				[ \Newspack\Emails::class, 'maybe_update_email_templates' ],
+				$this->theme_mods_hook_priority,
+				2
+			);
+		}
+		$this->theme_mods_hook          = null;
+		$this->theme_mods_hook_priority = false;
+		parent::tear_down();
 	}
 
 	/**
