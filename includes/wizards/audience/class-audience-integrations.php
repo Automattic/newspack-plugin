@@ -199,6 +199,26 @@ class Audience_Integrations extends Wizard {
 				],
 			]
 		);
+
+		register_rest_route(
+			NEWSPACK_API_NAMESPACE,
+			'/wizard/' . $this->slug . '/settings/(?P<integration_id>[a-zA-Z0-9_-]+)/logs/(?P<action_id>[0-9]+)/run',
+			[
+				'methods'             => WP_REST_Server::CREATABLE,
+				'callback'            => [ $this, 'api_run_integration_action' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+				'args'                => [
+					'integration_id' => [
+						'type'              => 'string',
+						'sanitize_callback' => 'sanitize_key',
+					],
+					'action_id'      => [
+						'type'              => 'integer',
+						'sanitize_callback' => 'absint',
+					],
+				],
+			]
+		);
 	}
 
 	/**
@@ -425,6 +445,69 @@ class Audience_Integrations extends Wizard {
 					'args'               => $args,
 				],
 				'logs'   => Action_Scheduler::get_action_logs( $action_id ),
+			]
+		);
+	}
+
+	/**
+	 * Run a pending scheduled action immediately.
+	 *
+	 * Mirrors the WooCommerce Action Scheduler admin "Run" behavior: the action is
+	 * processed synchronously and the post-run status is returned. Errors thrown by
+	 * the action's callback are not surfaced as HTTP errors — AS already marks the
+	 * action `failed` and writes a log entry, so we report `status: 'failed'` in a
+	 * 200 response and let the UI surface the last log message.
+	 *
+	 * @param WP_REST_Request $request Request object.
+	 * @return WP_REST_Response|WP_Error
+	 */
+	public function api_run_integration_action( WP_REST_Request $request ) {
+		$integration_id = $request->get_param( 'integration_id' );
+		$action_id      = (int) $request->get_param( 'action_id' );
+
+		$integration = Integrations::get_integration( $integration_id );
+		if ( ! $integration ) {
+			return new WP_Error(
+				'newspack_integration_not_found',
+				esc_html__( 'Integration not found.', 'newspack-plugin' ),
+				[ 'status' => 404 ]
+			);
+		}
+
+		if ( ! Integrations::action_belongs_to_integration( $action_id, $integration_id ) ) {
+			return new WP_Error(
+				'newspack_action_not_found',
+				esc_html__( 'Action not found.', 'newspack-plugin' ),
+				[ 'status' => 404 ]
+			);
+		}
+
+		$store  = \ActionScheduler_Store::instance();
+		$status = $store->get_status( $action_id );
+
+		if ( 'pending' !== $status ) {
+			return new WP_Error(
+				'newspack_action_not_pending',
+				esc_html__( 'This action is no longer pending.', 'newspack-plugin' ),
+				[ 'status' => 409 ]
+			);
+		}
+
+		try {
+			\ActionScheduler::runner()->process_action( $action_id, 'Newspack' );
+		} catch ( \Throwable $e ) {
+			// Swallow: AS will have marked the action failed and recorded a log entry.
+			unset( $e );
+		}
+
+		$new_status = $store->get_status( $action_id );
+		$logs       = Action_Scheduler::get_action_logs( $action_id );
+		$last_log   = ! empty( $logs ) ? end( $logs )['message'] : '';
+
+		return rest_ensure_response(
+			[
+				'status'  => $new_status,
+				'message' => $last_log,
 			]
 		);
 	}
