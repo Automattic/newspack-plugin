@@ -191,7 +191,7 @@ class Newspack_Settings extends Wizard {
 		wp_add_inline_script(
 			'newspack-wizards',
 			'if(window.location.hash==="#/emails"){window.location.replace("' .
-				esc_url( admin_url( 'admin.php?page=newspack-audience#/emails' ) ) . '");}',
+				esc_js( admin_url( 'admin.php?page=newspack-audience#/emails' ) ) . '");}',
 			'before'
 		);
 
