@@ -272,7 +272,7 @@ class Tag_Labels {
 				</p>
 			</td>
 		</tr>
-		<?php wp_nonce_field( 'newspack_tag_labels_save', 'newspack_tag_labels_nonce' ); ?>
+		<tr><td colspan="2"><?php wp_nonce_field( 'newspack_tag_labels_save', 'newspack_tag_labels_nonce' ); ?></td></tr>
 		<?php
 	}
 
