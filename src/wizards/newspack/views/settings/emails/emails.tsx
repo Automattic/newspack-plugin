@@ -115,19 +115,21 @@ const Emails = () => {
 		[ postType, fetchData ]
 	);
 
-	const toggleWcEmail = useCallback( ( wcPostId: string, enabled: boolean ) => {
-		setError( null );
-		const previousStatus = enabled ? 'draft' : 'publish';
-		setData( prev => prev.map( email => ( email.post_id === wcPostId ? { ...email, status: enabled ? 'publish' : 'draft' } : email ) ) );
-		apiFetch( {
-			path: `/newspack/v1/wizard/newspack-settings/emails/${ wcPostId.replace( 'wc:', '' ) }/toggle`,
-			method: 'POST',
-			data: { enabled },
-		} ).catch( () => {
-			setData( prev => prev.map( email => ( email.post_id === wcPostId ? { ...email, status: previousStatus } : email ) ) );
-			setError( __( 'Failed to update email status.', 'newspack-plugin' ) );
-		} );
-	}, [] );
+	const toggleWcEmail = useCallback(
+		( wcPostId: string, enabled: boolean ) => {
+			setError( null );
+			apiFetch( {
+				path: `/newspack/v1/wizard/newspack-settings/emails/${ wcPostId.replace( 'wc:', '' ) }/toggle`,
+				method: 'POST',
+				data: { enabled },
+			} )
+				.then( () => fetchData() )
+				.catch( () => {
+					setError( __( 'Failed to update email status.', 'newspack-plugin' ) );
+				} );
+		},
+		[ fetchData ]
+	);
 
 	const resetEmail = useCallback(
 		( postId: number ) => {
