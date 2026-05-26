@@ -414,7 +414,10 @@ class Emails_Section extends Wizard_Section {
 					Logger::log( "WC email '$wc_email_id' not found for registry '$slug'.", 'NEWSPACK-EMAILS', 'warning' );
 					continue;
 				}
-				$preview_post_id = self::get_wc_email_template_post_id( $wc_email_id );
+				$block_template_post_id = self::get_wc_email_template_post_id( $wc_email_id );
+				// When a block-editor template exists, preview via the post ID.
+				// Otherwise use the wc:{email_id} identifier for classic preview.
+				$preview_id = $block_template_post_id ?? ( 'wc:' . $wc_email_id );
 				// Read enabled state from the option rather than the in-memory
 				// WC_Email::$enabled property, which can be stale after first-run
 				// or toggle updates within the same request.
@@ -424,7 +427,7 @@ class Emails_Section extends Wizard_Section {
 				$newspack_emails[] = [
 					'label'               => $entry['label'],
 					'post_id'             => 'wc:' . $wc_email_id,
-					'preview_post_id'     => $preview_post_id,
+					'preview_id'          => $preview_id,
 					'edit_link'           => self::get_wc_email_edit_link( $wc_email_id, $wc_email_class ),
 					'status'              => $is_enabled ? 'publish' : 'draft',
 					'type'                => $wc_email_id,
@@ -476,7 +479,7 @@ class Emails_Section extends Wizard_Section {
 	 * @param string $wc_email_id The WC_Email ID (e.g. 'new_order').
 	 * @return int|null Template post ID, or null.
 	 */
-	private static function get_wc_email_template_post_id( string $wc_email_id ): ?int {
+	public static function get_wc_email_template_post_id( string $wc_email_id ): ?int {
 		if ( 'yes' !== get_option( 'woocommerce_feature_block_email_editor_enabled' ) ) {
 			return null;
 		}

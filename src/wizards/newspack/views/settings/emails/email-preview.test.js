@@ -214,6 +214,33 @@ describe( 'EmailPreview', () => {
 		expect( iframe.getAttribute( 'srcdoc' ) ).not.toContain( 'First email' );
 	} );
 
+	it( 'fetches the correct endpoint path for a wc: string postId', async () => {
+		apiFetch.mockResolvedValue( { html: '<p>WC Preview</p>', id: 'wc:customer_payment_retry' } );
+
+		render( <EmailPreview postId="wc:customer_payment_retry" /> );
+
+		await waitFor( () => {
+			expect( apiFetch ).toHaveBeenCalledWith( {
+				path: '/newspack/v1/wizard/newspack-settings/emails/wc:customer_payment_retry/preview',
+			} );
+		} );
+	} );
+
+	it( 'renders iframe for a wc: string postId', async () => {
+		apiFetch.mockResolvedValue( {
+			html: '<html><body><p>Classic WC email</p></body></html>',
+			id: 'wc:expired_subscription',
+		} );
+
+		render( <EmailPreview postId="wc:expired_subscription" /> );
+
+		await waitFor( () => {
+			const iframe = document.querySelector( '.newspack-email-preview__iframe' );
+			expect( iframe ).toBeTruthy();
+			expect( iframe.getAttribute( 'srcdoc' ) ).toContain( 'Classic WC email' );
+		} );
+	} );
+
 	// Note: The safety timeout (8s fallback for slow assets) and the iframe
 	// onError handler are not tested here because jsdom automatically fires
 	// the iframe load event when srcDoc is set, which prevents us from

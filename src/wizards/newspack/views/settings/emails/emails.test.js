@@ -139,6 +139,7 @@ const mockEmails = [
 	{
 		label: 'New order',
 		post_id: 'wc:new_order',
+		preview_id: 'wc:new_order',
 		edit_link: '/wc-settings/email/new_order',
 		status: 'publish',
 		type: 'new_order',
@@ -152,6 +153,7 @@ const mockEmails = [
 	{
 		label: 'Renewal reminder',
 		post_id: 'wc:customer_notification_auto_renewal',
+		preview_id: 'wc:customer_notification_auto_renewal',
 		edit_link: '/wc-settings/email/renewal',
 		status: 'draft',
 		type: 'customer_notification_auto_renewal',

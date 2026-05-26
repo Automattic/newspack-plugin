@@ -262,7 +262,7 @@ class Newspack_Test_Email_Preview extends WP_UnitTestCase {
 		$post_id = self::factory()->post->create( [ 'post_type' => 'post' ] );
 
 		$request = new WP_REST_Request( 'GET', '/newspack/v1/wizard/newspack-settings/emails/' . $post_id . '/preview' );
-		$request->set_param( 'post_id', $post_id );
+		$request->set_param( 'id', (string) $post_id );
 
 		$response = Email_Preview::api_get_preview( $request );
 
@@ -272,14 +272,14 @@ class Newspack_Test_Email_Preview extends WP_UnitTestCase {
 	}
 
 	/**
-	 * REST API returns HTML and post_id on success.
+	 * REST API returns HTML and id on success.
 	 */
 	public function test_api_get_preview_returns_html() {
 		$source_html = '<html><body>Preview for *BILLING_NAME*</body></html>';
 		$post_id     = $this->create_email_post( $source_html );
 
 		$request = new WP_REST_Request( 'GET', '/newspack/v1/wizard/newspack-settings/emails/' . $post_id . '/preview' );
-		$request->set_param( 'post_id', $post_id );
+		$request->set_param( 'id', (string) $post_id );
 
 		$response = Email_Preview::api_get_preview( $request );
 
@@ -287,8 +287,31 @@ class Newspack_Test_Email_Preview extends WP_UnitTestCase {
 
 		$data = $response->get_data();
 		self::assertArrayHasKey( 'html', $data );
-		self::assertArrayHasKey( 'post_id', $data );
-		self::assertEquals( $post_id, $data['post_id'] );
+		self::assertArrayHasKey( 'id', $data );
+		self::assertEquals( $post_id, $data['id'] );
 		self::assertStringContainsString( 'Sample Reader', $data['html'] );
+	}
+
+	/**
+	 * REST API returns 404 for a wc: identifier not in the registry.
+	 */
+	public function test_api_get_preview_returns_404_for_unregistered_wc_email() {
+		$request = new WP_REST_Request( 'GET', '/newspack/v1/wizard/newspack-settings/emails/wc:nonexistent_email/preview' );
+		$request->set_param( 'id', 'wc:nonexistent_email' );
+
+		$response = Email_Preview::api_get_preview( $request );
+
+		self::assertInstanceOf( 'WP_Error', $response );
+		self::assertEquals( 'newspack_email_preview_not_found', $response->get_error_code() );
+		self::assertEquals( 404, $response->get_error_data()['status'] );
+	}
+
+	/**
+	 * Get_wc_classic_preview_html returns false when WooCommerce is not active.
+	 */
+	public function test_wc_classic_preview_returns_false_without_woocommerce() {
+		$result = Email_Preview::get_wc_classic_preview_html( 'customer_payment_retry' );
+		// WooCommerce is not loaded in the test environment.
+		self::assertFalse( $result );
 	}
 }

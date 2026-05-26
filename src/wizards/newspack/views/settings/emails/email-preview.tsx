@@ -25,7 +25,7 @@ import { Icon, envelope } from '@wordpress/icons';
 import './email-preview.scss';
 
 interface EmailPreviewProps {
-	postId: number;
+	postId: number | string;
 }
 
 const IFRAME_WIDTH = 848;
@@ -107,7 +107,7 @@ const EmailPreview: React.FC< EmailPreviewProps > = ( { postId } ) => {
 		setIframeHeight( null );
 		setHasError( false );
 		setHtml( null );
-		apiFetch< { html: string; post_id: number } >( {
+		apiFetch< { html: string; id: number | string } >( {
 			path: `/newspack/v1/wizard/newspack-settings/emails/${ postId }/preview`,
 		} )
 			.then( response => {

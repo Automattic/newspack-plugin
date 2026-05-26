@@ -22,7 +22,7 @@ import './emails.scss';
 interface EmailItem {
 	label: string;
 	post_id: number | string;
-	preview_post_id?: number | null;
+	preview_id?: number | string | null;
 	edit_link: string;
 	status: string;
 	type: string;
@@ -160,7 +160,7 @@ const Emails = () => {
 				enableSorting: false,
 				enableHiding: true,
 				render: ( { item }: { item: EmailItem } ) => {
-					const previewId = item.preview_post_id ?? ( typeof item.post_id === 'number' ? item.post_id : null );
+					const previewId = item.preview_id ?? ( typeof item.post_id === 'number' ? item.post_id : null );
 					if ( ! previewId ) {
 						return null;
 					}
