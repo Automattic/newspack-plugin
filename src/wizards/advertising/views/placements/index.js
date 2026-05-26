@@ -189,6 +189,13 @@ const Placements = () => {
 							hasAdUnit = Object.keys( placement.hooks ).every( hookKey => !! placement.data?.hooks?.[ hookKey ]?.ad_unit );
 						}
 
+						/* translators: %s: placement name (e.g. "Sticky Footer"). */
+						const editButtonLabel = sprintf( __( 'Edit %s', 'newspack-plugin' ), placement.name );
+						/* translators: %s: placement name (e.g. "Sticky Footer"). */
+						const cancelButtonLabel = sprintf( __( 'Cancel editing %s', 'newspack-plugin' ), placement.name );
+						/* translators: %s: placement name (e.g. "Sticky Footer"). */
+						const enableButtonLabel = sprintf( __( 'Enable %s', 'newspack-plugin' ), placement.name );
+
 						return (
 							<CardForm
 								key={ key }
@@ -204,6 +211,7 @@ const Placements = () => {
 										<Button
 											variant="tertiary"
 											size="compact"
+											aria-label={ isEditing ? cancelButtonLabel : editButtonLabel }
 											disabled={ inFlight || ( !! editingPlacement && ! isEditing ) }
 											onClick={ () => {
 												if ( isEditing ) {
@@ -214,12 +222,20 @@ const Placements = () => {
 												}
 											} }
 										>
-											{ isEditing ? __( 'Cancel', 'newspack-plugin' ) : __( 'Edit', 'newspack-plugin' ) }
+											<span style={ { display: 'inline-grid', justifyItems: 'center' } }>
+												<span style={ { gridArea: '1 / 1', visibility: isEditing ? 'visible' : 'hidden' } }>
+													{ __( 'Cancel', 'newspack-plugin' ) }
+												</span>
+												<span style={ { gridArea: '1 / 1', visibility: isEditing ? 'hidden' : 'visible' } }>
+													{ __( 'Edit', 'newspack-plugin' ) }
+												</span>
+											</span>
 										</Button>
 									) : (
 										<Button
 											variant="secondary"
 											size="compact"
+											aria-label={ enableButtonLabel }
 											isBusy={ inFlight }
 											disabled={ inFlight || ! providers.length || !! editingPlacement }
 											onClick={ () => handlePlacementToggle( key )( true ) }
