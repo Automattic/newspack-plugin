@@ -44,12 +44,7 @@ class Card_Expiry_Warning {
 		add_filter( 'newspack_email_configs', [ __CLASS__, 'add_email_config' ] );
 		add_action( 'init', [ __CLASS__, 'schedule_cron' ] );
 		add_action( self::CRON_HOOK, [ __CLASS__, 'scan_expiring_cards' ] );
-		add_action(
-			'woocommerce_subscription_payment_method_updated',
-			[ __CLASS__, 'clear_sent_flag' ],
-			10,
-			2
-		);
+		add_action( 'woocommerce_subscription_payment_method_updated', [ __CLASS__, 'clear_sent_flag' ] );
 		add_action( 'newspack_deactivation', [ __CLASS__, 'unschedule_cron' ] );
 	}
 
@@ -256,10 +251,15 @@ class Card_Expiry_Warning {
 			? date_i18n( get_option( 'date_format', 'F j, Y' ), $subscription->get_time( 'next_payment' ) )
 			: __( 'your next renewal', 'newspack-plugin' );
 
+		$first_name = $subscription->get_billing_first_name();
+		if ( '' === $first_name ) {
+			$first_name = $customer->first_name;
+		}
+
 		$placeholders = [
 			[
 				'template' => '*BILLING_FIRST_NAME*',
-				'value'    => esc_html( $subscription->get_billing_first_name() ),
+				'value'    => esc_html( $first_name ),
 			],
 			[
 				'template' => '*CARD_LAST_4*',
@@ -296,10 +296,9 @@ class Card_Expiry_Warning {
 	 *
 	 * Hooked to 'woocommerce_subscription_payment_method_updated'.
 	 *
-	 * @param \WC_Subscription $subscription     The subscription.
-	 * @param string           $new_payment_method The new payment method ID.
+	 * @param \WC_Subscription $subscription The subscription.
 	 */
-	public static function clear_sent_flag( $subscription, $new_payment_method ) {
+	public static function clear_sent_flag( $subscription ) {
 		$subscription->delete_meta_data( self::SENT_META );
 		$subscription->save();
 	}

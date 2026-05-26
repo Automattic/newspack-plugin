@@ -14,19 +14,18 @@
  *  2. Happy-path send (token → subscription → email)
  *  3. Idempotency (no duplicate send)
  *  4. clear_sent_flag() handler clears meta (called directly; the full
- *     woocommerce_subscription_payment_method_updated action fatals on
- *     WCS PayPal's hook which expects 3 args)
+ *     woocommerce_subscription_payment_method_updated action triggers
+ *     third-party hooks like WCS PayPal that fatal on a minimal fixture)
  *  5. New card triggers new send
  *  6. Unattached card does not trigger email
  *  7. Cleanup
- *
- * Delete this file after the PR merges.
  *
  * @package Newspack\Tests
  */
 
 use Newspack\Card_Expiry_Warning;
 use Newspack\Emails;
+use Newspack\Reader_Activation;
 
 // ── Globals ──────────────────────────────────────────────────────────
 // wp eval-file runs via eval(), so file-scope vars are local to the eval
@@ -81,6 +80,14 @@ foreach ( $prereqs as $class => $label ) {
 }
 if ( ! function_exists( 'wcs_create_subscription' ) ) {
 	WP_CLI::error( 'wcs_create_subscription() not available. Aborting.' );
+}
+
+// Card_Expiry_Warning::init() only registers the email config when
+// WooCommerce_Subscriptions::is_enabled() returns true, which in turn
+// requires Reader Activation to be enabled. Without this, scan_expiring_cards()
+// silently captures 0 emails and the test gives a misleading failure.
+if ( ! Reader_Activation::is_enabled() ) {
+	WP_CLI::error( 'Reader Activation is not enabled. Aborting.' );
 }
 WP_CLI::log( 'Prerequisites OK.' );
 
@@ -290,10 +297,10 @@ WP_CLI::log( '4. clear_sent_flag() handler clears meta' );
 
 // Call clear_sent_flag() directly rather than firing the full
 // woocommerce_subscription_payment_method_updated action. That action
-// triggers third-party hooks (WCS PayPal, etc.) whose callbacks expect
-// 3 args and fatal with our minimal test fixture.
+// triggers third-party hooks (WCS PayPal, etc.) that fatal with our
+// minimal test fixture.
 $subscription = wcs_get_subscription( $sub_id );
-Card_Expiry_Warning::clear_sent_flag( $subscription, 'stripe' );
+Card_Expiry_Warning::clear_sent_flag( $subscription );
 
 $subscription = wcs_get_subscription( $sub_id );
 $meta_val     = $subscription->get_meta( '_newspack_card_expiry_warning_sent', true );

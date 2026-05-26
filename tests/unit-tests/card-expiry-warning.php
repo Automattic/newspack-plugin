@@ -181,6 +181,8 @@ class Newspack_Test_Card_Expiry_Warning extends WP_UnitTestCase {
 		$renewal_reminder_idx = array_search( 'woo-renewal-reminder', $slugs, true );
 
 		$this->assertNotFalse( $card_expiry_idx, 'card-expiry-warning should be in the registry.' );
+		$this->assertNotFalse( $cancellation_idx, 'cancellation should be in the registry.' );
+		$this->assertNotFalse( $renewal_reminder_idx, 'woo-renewal-reminder should be in the registry.' );
 		$this->assertGreaterThan( $cancellation_idx, $card_expiry_idx, 'card-expiry-warning should appear after cancellation.' );
 		$this->assertLessThan( $renewal_reminder_idx, $card_expiry_idx, 'card-expiry-warning should appear before woo-renewal-reminder.' );
 	}
