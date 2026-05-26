@@ -229,10 +229,10 @@ class Tag_Labels {
 		$checkbox_id = self::TAG_LABEL_META_KEY;
 		$is_label = self::has_label( $term );
 
-		$label = self::get_tag_label_for_term( $term );
-		$label_flag  = $label ? $label['flag'] : $term->name;
-
-		$input_label_flag = ( $term->name === $label_flag ) ? '' : $label_flag;
+		// Read the stored flag directly so the input value survives disable→re-enable cycles —
+		// get_tag_label_for_term() returns null when has_label() is false, which would hide it.
+		$stored_flag      = get_term_meta( $term->term_id, self::TAG_LABEL_FLAG_META_KEY, true );
+		$input_label_flag = ( '' === $stored_flag || $term->name === $stored_flag ) ? '' : $stored_flag;
 		?>
 		<tr class="form-field newspack-label-enable term-<?php echo esc_attr( self::TAG_LABEL_META_KEY ); ?>-wrap">
 			<th scope="row"><label for="<?php echo esc_attr( $checkbox_id ); ?>"><?php esc_html_e( 'Display as label', 'newspack-plugin' ); ?></label></th>
