@@ -846,4 +846,145 @@ class Newspack_Test_WooCommerce_Subscriptions extends WP_UnitTestCase {
 
 		$this->assertSame( 3.0, $result, 'A non-object switch_item must be returned unchanged.' );
 	}
+
+	/**
+	 * Stage a subscription, existing item, and cart_item array suitable for
+	 * driving suppress_extra_to_pay_for_stepped_pricing_switch in tests.
+	 *
+	 * Registers the existing item in the wcs_get_order_item() mock store so
+	 * the filter can resolve it from the cart_item array as it would in WCS.
+	 *
+	 * @param array $args Test parameters: paid_sign_up_fee, trial_active (bool).
+	 * @return array { @type WC_Subscription $subscription, @type array $cart_item }
+	 */
+	private function stage_extra_to_pay_context( array $args = [] ) {
+		global $wcs_mock_order_items;
+
+		$args = wp_parse_args(
+			$args,
+			[
+				'paid_sign_up_fee' => 180.0,
+				'trial_active'     => true,
+			]
+		);
+
+		$existing_item = new WC_Order_Item_Product(
+			[
+				'id'         => 777,
+				'product_id' => 100,
+				'total'      => 250.0,
+				'meta'       => [ '_subscription_sign_up_fee' => (string) $args['paid_sign_up_fee'] ],
+			]
+		);
+
+		$wcs_mock_order_items[777] = $existing_item;
+
+		$subscription = new WC_Subscription(
+			[
+				'id'     => 60,
+				'status' => 'active',
+				'times'  => [
+					'trial_end' => $args['trial_active'] ? time() + ( 284 * DAY_IN_SECONDS ) : 0,
+				],
+			]
+		);
+
+		$cart_item = [
+			'subscription_switch' => [
+				'item_id' => 777,
+			],
+		];
+
+		return [ $subscription, $cart_item ];
+	}
+
+	/**
+	 * Regression for the non-matching-trials upgrade path: switching from a
+	 * paid-trial plan (with a paid sign-up fee) into a plan without a trial
+	 * promotes the switch to "upgrade" in WCS, which routes through
+	 * calculate_upgrade_cost and would add extra_to_pay onto the sign-up
+	 * fee that apply_stepped_pricing_switch_charge already set to the full
+	 * first-cycle price minus unconsumed credit. Suppress that here.
+	 */
+	public function test_suppress_extra_to_pay_zeroes_under_stepped_pricing_conditions() {
+		add_filter( 'newspack_wc_subs_switch_include_signup_fee', '__return_true' );
+
+		list( $subscription, $cart_item ) = $this->stage_extra_to_pay_context();
+
+		$result = WooCommerce_Subscriptions::suppress_extra_to_pay_for_stepped_pricing_switch( 143.95, $subscription, $cart_item, 365 );
+
+		$this->assertSame( 0.0, $result, 'Under stepped-pricing conditions, extra_to_pay must be suppressed to avoid double-charging on top of the sign-up fee override.' );
+	}
+
+	/**
+	 * Without the opt-in, the suppress filter is a no-op so default WCS
+	 * behavior applies.
+	 */
+	public function test_suppress_extra_to_pay_passes_through_without_optin() {
+		list( $subscription, $cart_item ) = $this->stage_extra_to_pay_context();
+
+		$result = WooCommerce_Subscriptions::suppress_extra_to_pay_for_stepped_pricing_switch( 143.95, $subscription, $cart_item, 365 );
+
+		$this->assertSame( 143.95, $result, 'Without the opt-in, extra_to_pay must be returned unchanged.' );
+	}
+
+	/**
+	 * Out-of-trial switches are left to WCS's default proration: the
+	 * stepped-pricing override does not apply, so neither does the
+	 * extra-to-pay suppression.
+	 */
+	public function test_suppress_extra_to_pay_passes_through_outside_trial() {
+		add_filter( 'newspack_wc_subs_switch_include_signup_fee', '__return_true' );
+
+		list( $subscription, $cart_item ) = $this->stage_extra_to_pay_context( [ 'trial_active' => false ] );
+
+		$result = WooCommerce_Subscriptions::suppress_extra_to_pay_for_stepped_pricing_switch( 143.95, $subscription, $cart_item, 365 );
+
+		$this->assertSame( 143.95, $result, 'Out-of-trial switches must not have extra_to_pay suppressed.' );
+	}
+
+	/**
+	 * Without a paid sign-up fee on the existing line item, the
+	 * stepped-pricing signature is absent (genuine free trial, comp, etc.)
+	 * and the suppression filter must pass through.
+	 */
+	public function test_suppress_extra_to_pay_passes_through_when_no_paid_signup_fee() {
+		add_filter( 'newspack_wc_subs_switch_include_signup_fee', '__return_true' );
+
+		list( $subscription, $cart_item ) = $this->stage_extra_to_pay_context( [ 'paid_sign_up_fee' => 0.0 ] );
+
+		$result = WooCommerce_Subscriptions::suppress_extra_to_pay_for_stepped_pricing_switch( 143.95, $subscription, $cart_item, 365 );
+
+		$this->assertSame( 143.95, $result, 'Without a paid sign-up fee on the existing item, extra_to_pay must be returned unchanged.' );
+	}
+
+	/**
+	 * A non-positive extra_to_pay (downgrade or no upgrade cost) is already
+	 * harmless; pass it through unchanged so the filter never widens its
+	 * surface area beyond suppressing real double-charges.
+	 */
+	public function test_suppress_extra_to_pay_passes_through_when_non_positive() {
+		add_filter( 'newspack_wc_subs_switch_include_signup_fee', '__return_true' );
+
+		list( $subscription, $cart_item ) = $this->stage_extra_to_pay_context();
+
+		$result = WooCommerce_Subscriptions::suppress_extra_to_pay_for_stepped_pricing_switch( 0.0, $subscription, $cart_item, 365 );
+
+		$this->assertSame( 0.0, $result, 'Non-positive extra_to_pay must be returned unchanged.' );
+	}
+
+	/**
+	 * A cart_item missing the subscription_switch.item_id key (malformed or
+	 * non-switch call) must pass through unchanged so the filter cannot
+	 * fatal a malformed pipeline.
+	 */
+	public function test_suppress_extra_to_pay_passes_through_when_no_item_id() {
+		add_filter( 'newspack_wc_subs_switch_include_signup_fee', '__return_true' );
+
+		list( $subscription ) = $this->stage_extra_to_pay_context();
+
+		$result = WooCommerce_Subscriptions::suppress_extra_to_pay_for_stepped_pricing_switch( 143.95, $subscription, [], 365 );
+
+		$this->assertSame( 143.95, $result, 'A cart_item with no item_id must be returned unchanged.' );
+	}
 }
