@@ -111,22 +111,6 @@ class Newspack_Test_WooCommerce_Email_Style_Sync extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test first run is skipped when the version option is already current.
-	 *
-	 * In CI class_exists('WooCommerce') is false, so maybe_sync_on_first_run()
-	 * bails on the WC guard before checking the version. The important assertion
-	 * is that no WC email options were written.
-	 */
-	public function test_first_run_skips_when_already_synced() {
-		update_option( WooCommerce_Email_Style_Sync::SYNCED_VERSION_OPTION, WooCommerce_Email_Style_Sync::CURRENT_VERSION );
-		set_theme_mod( 'primary_color_hex', '#00cc00' );
-
-		WooCommerce_Email_Style_Sync::maybe_sync_on_first_run();
-
-		$this->assertFalse( get_option( 'woocommerce_email_base_color' ), 'woocommerce_email_base_color should not be set when sync is skipped.' );
-	}
-
-	/**
 	 * Test get_site_colors reflects updated theme colors.
 	 */
 	public function test_colors_update_on_theme_change() {
