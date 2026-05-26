@@ -228,10 +228,13 @@ final class Author_Profile_Social_Block {
 	 * @return string HTML attributes for the wrapper element.
 	 */
 	private static function get_block_wrapper_attributes( WP_Block $block, array $attributes, int $icon_size ): string {
-		// Inner blocks have already rendered by this point in the InnerBlocks
-		// path, leaving $block_to_render pointing at the last child — so the
-		// wrapper would otherwise be built from the wrong block's attributes
-		// and lose this block's className, spacing, default class, etc.
+		// Defensive: each inner WP_Block::render() snapshots/restores
+		// $block_to_render around its own callback, so by this point it
+		// should already point at the parent's parsed_block. Re-set
+		// explicitly to guard against a third-party filter or future Core
+		// change breaking that chain — otherwise the wrapper would be built
+		// from the wrong block's supports and lose this block's className,
+		// spacing, default class, etc.
 		$previous                            = \WP_Block_Supports::$block_to_render ?? null;
 		\WP_Block_Supports::$block_to_render = $block->parsed_block;
 
