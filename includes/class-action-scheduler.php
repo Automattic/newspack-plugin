@@ -415,7 +415,7 @@ class Action_Scheduler {
 	 *
 	 * @return \ActionScheduler_Action|null
 	 */
-	public static function get_action( $action_id ) {
+	public static function get_action( $action_id ): ?\ActionScheduler_Action {
 		if ( ! self::is_available() ) {
 			return null;
 		}
@@ -440,7 +440,7 @@ class Action_Scheduler {
 	 *
 	 * @return array<int,array{date_gmt:string,message:string}>
 	 */
-	public static function get_action_logs( $action_id ) {
+	public static function get_action_logs( $action_id ): array {
 		if ( ! self::is_available() || ! class_exists( '\ActionScheduler_Logger' ) ) {
 			return [];
 		}

@@ -174,7 +174,7 @@ class Audience_Integrations extends Wizard {
 					'status'   => [
 						'type'    => 'string',
 						'default' => '',
-						'enum'    => [ '', 'pending', 'complete', 'failed', 'canceled' ],
+						'enum'    => [ '', 'pending', 'in-progress', 'complete', 'failed', 'canceled' ],
 					],
 				],
 			]
@@ -369,7 +369,7 @@ class Audience_Integrations extends Wizard {
 	 * @param WP_REST_Request $request Request object.
 	 * @return WP_REST_Response|WP_Error
 	 */
-	public function api_get_integration_log_detail( WP_REST_Request $request ) {
+	public function api_get_integration_log_detail( WP_REST_Request $request ): \WP_REST_Response|\WP_Error {
 		$integration_id = $request->get_param( 'integration_id' );
 		$action_id      = (int) $request->get_param( 'action_id' );
 
@@ -382,15 +382,7 @@ class Audience_Integrations extends Wizard {
 			);
 		}
 
-		if ( ! Integrations::action_belongs_to_integration( $action_id, $integration_id ) ) {
-			return new WP_Error(
-				'newspack_action_not_found',
-				esc_html__( 'Action not found.', 'newspack-plugin' ),
-				[ 'status' => 404 ]
-			);
-		}
-
-		$action = Action_Scheduler::get_action( $action_id );
+		$action = Integrations::get_integration_action( $action_id, $integration_id );
 		if ( ! $action ) {
 			return new WP_Error(
 				'newspack_action_not_found',
@@ -402,8 +394,14 @@ class Audience_Integrations extends Wizard {
 		$store  = \ActionScheduler_Store::instance();
 		$status = $store->get_status( $action_id );
 
-		$schedule         = $action->get_schedule();
-		$scheduled_at     = $schedule && method_exists( $schedule, 'get_date' ) ? $schedule->get_date() : null;
+		// The schedule's DateTime comes back in the server timezone despite the
+		// column being named *_gmt. Normalize to UTC so the API contract matches
+		// the field name and the frontend's '+00:00' parsing.
+		$schedule     = $action->get_schedule();
+		$scheduled_at = $schedule ? $schedule->get_date() : null;
+		if ( $scheduled_at ) {
+			$scheduled_at->setTimezone( new \DateTimeZone( 'UTC' ) );
+		}
 		$scheduled_at_gmt = $scheduled_at ? $scheduled_at->format( 'Y-m-d\TH:i:s' ) : '';
 
 		// Resolve payload: prefer extended_args (full JSON) when present, else args.
@@ -440,8 +438,8 @@ class Audience_Integrations extends Wizard {
 					'scheduled_date_gmt' => $scheduled_at_gmt,
 					'attempts'           => $row ? (int) $row->attempts : 0,
 					'last_attempt_gmt'   => $row && ! empty( $row->last_attempt_gmt ) && '0000-00-00 00:00:00' !== $row->last_attempt_gmt ? gmdate( 'Y-m-d\TH:i:s', strtotime( $row->last_attempt_gmt . ' UTC' ) ) : '',
-					'group'              => method_exists( $action, 'get_group' ) ? $action->get_group() : '',
-					'priority'           => method_exists( $action, 'get_priority' ) ? (int) $action->get_priority() : 10,
+					'group'              => $action->get_group(),
+					'priority'           => (int) $action->get_priority(),
 					'args'               => $args,
 				],
 				'logs'   => Action_Scheduler::get_action_logs( $action_id ),
@@ -461,7 +459,7 @@ class Audience_Integrations extends Wizard {
 	 * @param WP_REST_Request $request Request object.
 	 * @return WP_REST_Response|WP_Error
 	 */
-	public function api_run_integration_action( WP_REST_Request $request ) {
+	public function api_run_integration_action( WP_REST_Request $request ): \WP_REST_Response|\WP_Error {
 		$integration_id = $request->get_param( 'integration_id' );
 		$action_id      = (int) $request->get_param( 'action_id' );
 
@@ -474,7 +472,8 @@ class Audience_Integrations extends Wizard {
 			);
 		}
 
-		if ( ! Integrations::action_belongs_to_integration( $action_id, $integration_id ) ) {
+		$action = Integrations::get_integration_action( $action_id, $integration_id );
+		if ( ! $action ) {
 			return new WP_Error(
 				'newspack_action_not_found',
 				esc_html__( 'Action not found.', 'newspack-plugin' ),
@@ -485,13 +484,26 @@ class Audience_Integrations extends Wizard {
 		$store  = \ActionScheduler_Store::instance();
 		$status = $store->get_status( $action_id );
 
-		if ( 'pending' !== $status ) {
+		if ( \ActionScheduler_Store::STATUS_PENDING !== $status ) {
 			return new WP_Error(
 				'newspack_action_not_pending',
 				esc_html__( 'This action is no longer pending.', 'newspack-plugin' ),
 				[ 'status' => 409 ]
 			);
 		}
+
+		// Read pre-run attempts so we can detect cases where process_action throws
+		// before log_execution() — e.g. another worker claimed the action between
+		// our pending check and process_action. AS doesn't always mark such cases
+		// failed, so we surface a generic retry message instead of an empty
+		// success-looking response.
+		global $wpdb;
+		$pre_attempts = (int) $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+			$wpdb->prepare(
+				"SELECT attempts FROM {$wpdb->prefix}actionscheduler_actions WHERE action_id = %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				$action_id
+			)
+		);
 
 		// Run synchronously like the WooCommerce AS admin "Run" button. No claim is taken,
 		// so two concurrent requests for the same action could in theory both execute — same
@@ -500,18 +512,49 @@ class Audience_Integrations extends Wizard {
 			\ActionScheduler::runner()->process_action( $action_id, 'Newspack' );
 		} catch ( \Throwable $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
 			// Swallow: AS marks the action failed and writes a log entry inside process_action's
-			// own error handler. We re-read the post-run status below and surface that to the UI.
+			// own error handler when the callback throws. We re-read state below and surface
+			// it to the UI.
 		}
 
-		$new_status = $store->get_status( $action_id );
-		$logs       = Action_Scheduler::get_action_logs( $action_id );
-		$last_log   = ! empty( $logs ) ? end( $logs )['message'] : '';
+		$new_status    = $store->get_status( $action_id );
+		$post_attempts = (int) $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+			$wpdb->prepare(
+				"SELECT attempts FROM {$wpdb->prefix}actionscheduler_actions WHERE action_id = %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				$action_id
+			)
+		);
 
-		return rest_ensure_response(
-			[
+		$ran = $new_status !== $status || $post_attempts > $pre_attempts;
+
+		if ( $ran ) {
+			$logs       = Action_Scheduler::get_action_logs( $action_id );
+			$last_entry = end( $logs );
+			$last_log   = ( is_array( $last_entry ) && isset( $last_entry['message'] ) ) ? $last_entry['message'] : '';
+			$response   = [
 				'status'  => $new_status,
 				'message' => $last_log,
-			]
+			];
+			$audit_result = $new_status;
+		} else {
+			$response     = [
+				'status'  => $new_status,
+				'message' => esc_html__( 'Could not run; please refresh and try again.', 'newspack-plugin' ),
+			];
+			$audit_result = 'no-run';
+		}
+
+		Logger::newspack_log(
+			'newspack_integration_action_run',
+			sprintf( 'Manual run of integration action %d (%s).', $action_id, $integration_id ),
+			[
+				'action_id'      => $action_id,
+				'integration_id' => $integration_id,
+				'user_id'        => get_current_user_id(),
+				'result'         => $audit_result,
+			],
+			'info'
 		);
+
+		return rest_ensure_response( $response );
 	}
 }

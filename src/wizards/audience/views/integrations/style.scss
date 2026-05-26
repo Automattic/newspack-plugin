@@ -32,7 +32,7 @@
 		}
 	}
 
-	.dataviews-item-actions .components-button {
+	.dataviews-item-actions .components-button:not(:disabled) {
 		cursor: pointer;
 	}
 }

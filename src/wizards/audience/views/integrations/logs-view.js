@@ -45,6 +45,7 @@ export const LogsView = ( { integrations, match } ) => {
 	const [ isLoading, setIsLoading ] = useState( true );
 	const [ hasLoadedOnce, setHasLoadedOnce ] = useState( false );
 	const [ view, setView ] = useState( DEFAULT_VIEW );
+	const [ runningActionIds, setRunningActionIds ] = useState( () => new Set() );
 
 	useEffect( () => {
 		if ( integration ) {
@@ -132,6 +133,7 @@ export const LogsView = ( { integrations, match } ) => {
 					{ value: 'complete', label: __( 'Success', 'newspack-plugin' ) },
 					{ value: 'failed', label: __( 'Failed', 'newspack-plugin' ) },
 					{ value: 'pending', label: __( 'Pending', 'newspack-plugin' ) },
+					{ value: 'in-progress', label: __( 'In progress', 'newspack-plugin' ) },
 					{ value: 'canceled', label: __( 'Canceled', 'newspack-plugin' ) },
 				],
 				filterBy: {
@@ -144,6 +146,18 @@ export const LogsView = ( { integrations, match } ) => {
 
 	const runAction = useCallback(
 		actionId => {
+			setRunningActionIds( prev => {
+				const next = new Set( prev );
+				next.add( actionId );
+				return next;
+			} );
+			// Synchronous "running" notice — reuses the per-action ID so the
+			// final success/failure notice replaces it in place.
+			addNotice( {
+				message: __( 'Running action…', 'newspack-plugin' ),
+				type: 'info',
+				id: `integration-action-run-${ actionId }`,
+			} );
 			apiFetch( {
 				path: `${ API_BASE }/${ integrationId }/logs/${ actionId }/run`,
 				method: 'POST',
@@ -172,6 +186,11 @@ export const LogsView = ( { integrations, match } ) => {
 					} );
 				} )
 				.finally( () => {
+					setRunningActionIds( prev => {
+						const next = new Set( prev );
+						next.delete( actionId );
+						return next;
+					} );
 					fetchLogs();
 				} );
 		},
@@ -189,11 +208,11 @@ export const LogsView = ( { integrations, match } ) => {
 			{
 				id: 'run-now',
 				label: __( 'Run now', 'newspack-plugin' ),
-				isEligible: item => item.status === 'pending',
+				isEligible: item => item.status === 'pending' && ! runningActionIds.has( item.id ),
 				callback: items => runAction( items[ 0 ].id ),
 			},
 		],
-		[ integrationId, runAction ]
+		[ integrationId, runAction, runningActionIds ]
 	);
 
 	const paginationInfo = useMemo(
