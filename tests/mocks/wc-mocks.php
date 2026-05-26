@@ -464,6 +464,32 @@ if ( ! class_exists( 'WC_Subscriptions_Product' ) ) {
 	}
 }
 
+/**
+ * Test double for WCS_Switch_Cart_Item exposing only the surface that the
+ * stepped-pricing sign-up fee filter reads from.
+ */
+class Mock_WCS_Switch_Cart_Item_For_Stepped_Pricing {
+	public $subscription;
+	public $existing_item;
+	public $product;
+	private $values;
+	public function __construct( $sub, $item, $product, $values ) {
+		$this->subscription  = $sub;
+		$this->existing_item = $item;
+		$this->product       = $product;
+		$this->values        = $values;
+	}
+	public function get_total_paid_for_current_period() {
+		return (float) $this->values['total_paid'];
+	}
+	public function get_days_in_old_cycle() {
+		return (int) $this->values['days_in_old_cycle'];
+	}
+	public function get_days_until_next_payment() {
+		return (int) $this->values['days_until_next'];
+	}
+}
+
 function wc_create_order( $data ) {
 	return new WC_Order( $data );
 }
