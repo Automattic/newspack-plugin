@@ -15,6 +15,7 @@ import { DataViews as WPDataViews } from '@wordpress/dataviews';
 import { Badge, DataViews } from '../../../../../packages/components/src';
 import { WIZARD_STORE_NAMESPACE } from '../../../../../packages/components/src/wizard/store';
 import { API_BASE, STATUS_MAP, formatTimestamp } from './constants';
+import { LogDetailsModal } from './log-details-modal';
 import './style.scss';
 
 const DEFAULT_VIEW = {
@@ -141,6 +142,64 @@ export const LogsView = ( { integrations, match } ) => {
 		[]
 	);
 
+	const runAction = useCallback(
+		actionId => {
+			apiFetch( {
+				path: `${ API_BASE }/${ integrationId }/logs/${ actionId }/run`,
+				method: 'POST',
+			} )
+				.then( response => {
+					let message;
+					if ( response.status === 'complete' ) {
+						message = __( 'Action completed.', 'newspack-plugin' );
+					} else if ( response.status === 'failed' ) {
+						message = response.message || __( 'Action failed.', 'newspack-plugin' );
+					} else {
+						message = response.message || __( 'Action processed.', 'newspack-plugin' );
+					}
+					addNotice( {
+						message,
+						type: response.status === 'failed' ? 'error' : 'success',
+						id: `integration-action-run-${ actionId }`,
+					} );
+				} )
+				.catch( err => {
+					const message = err && err.message ? err.message : __( 'Could not run action.', 'newspack-plugin' );
+					addNotice( {
+						message,
+						type: 'error',
+						id: `integration-action-run-${ actionId }`,
+					} );
+				} )
+				.finally( () => {
+					fetchLogs();
+				} );
+		},
+		[ integrationId, addNotice, fetchLogs ]
+	);
+
+	const actions = useMemo(
+		() => [
+			{
+				id: 'view-details',
+				label: __( 'View details', 'newspack-plugin' ),
+				modalHeader: __( 'Action details', 'newspack-plugin' ),
+				RenderModal: ( { items } ) => <LogDetailsModal integrationId={ integrationId } actionId={ items[ 0 ].id } />,
+			},
+			{
+				id: 'run-now',
+				label: __( 'Run now', 'newspack-plugin' ),
+				isEligible: item => item.status === 'pending',
+				callback: items => {
+					if ( items[ 0 ] ) {
+						runAction( items[ 0 ].id );
+					}
+				},
+			},
+		],
+		[ integrationId, runAction ]
+	);
+
 	const paginationInfo = useMemo(
 		() => ( {
 			totalItems: total,
@@ -166,6 +225,7 @@ export const LogsView = ( { integrations, match } ) => {
 			className="newspack-integration-logs"
 			data={ data }
 			fields={ fields }
+			actions={ actions }
 			view={ view }
 			onChangeView={ setView }
 			paginationInfo={ paginationInfo }
