@@ -8,31 +8,14 @@ import apiFetch from '@wordpress/api-fetch';
 import { addQueryArgs } from '@wordpress/url';
 import { Spinner } from '@wordpress/components';
 import { DataViews as WPDataViews } from '@wordpress/dataviews';
-import { dateI18n, getSettings } from '@wordpress/date';
 
 /**
  * Internal dependencies
  */
 import { Badge, DataViews } from '../../../../../packages/components/src';
 import { WIZARD_STORE_NAMESPACE } from '../../../../../packages/components/src/wizard/store';
+import { API_BASE, STATUS_MAP, formatTimestamp } from './constants';
 import './style.scss';
-
-const API_BASE = '/newspack/v1/wizard/newspack-audience-integrations/settings';
-
-const STATUS_MAP = {
-	complete: { label: __( 'Success', 'newspack-plugin' ), level: 'success' },
-	failed: { label: __( 'Failed', 'newspack-plugin' ), level: 'error' },
-	pending: { label: __( 'Pending', 'newspack-plugin' ), level: 'info' },
-	canceled: { label: __( 'Canceled', 'newspack-plugin' ), level: 'warning' },
-};
-
-function formatTimestamp( gmt ) {
-	if ( ! gmt ) {
-		return '';
-	}
-	const dateFormat = getSettings().formats.datetime || 'F j, Y, g:i a';
-	return dateI18n( dateFormat, `${ gmt }+00:00` );
-}
 
 const DEFAULT_VIEW = {
 	type: 'table',

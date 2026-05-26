@@ -5,29 +5,12 @@ import { __ } from '@wordpress/i18n';
 import { useState, useEffect } from '@wordpress/element';
 import apiFetch from '@wordpress/api-fetch';
 import { Spinner, Notice } from '@wordpress/components';
-import { dateI18n, getSettings } from '@wordpress/date';
 
 /**
  * Internal dependencies
  */
 import { Badge } from '../../../../../packages/components/src';
-
-const API_BASE = '/newspack/v1/wizard/newspack-audience-integrations/settings';
-
-const STATUS_MAP = {
-	complete: { label: __( 'Success', 'newspack-plugin' ), level: 'success' },
-	failed: { label: __( 'Failed', 'newspack-plugin' ), level: 'error' },
-	pending: { label: __( 'Pending', 'newspack-plugin' ), level: 'info' },
-	canceled: { label: __( 'Canceled', 'newspack-plugin' ), level: 'warning' },
-};
-
-function formatTimestamp( gmt ) {
-	if ( ! gmt ) {
-		return '';
-	}
-	const dateFormat = getSettings().formats.datetime || 'F j, Y, g:i a';
-	return dateI18n( dateFormat, `${ gmt }+00:00` );
-}
+import { API_BASE, STATUS_MAP, formatTimestamp } from './constants';
 
 function formatArgs( args ) {
 	if ( null === args || undefined === args ) {
@@ -125,7 +108,7 @@ export const LogDetailsModal = ( { integrationId, actionId } ) => {
 				<dd>{ action.attempts }</dd>
 
 				<dt>{ __( 'Last attempt', 'newspack-plugin' ) }</dt>
-				<dd>{ action.last_attempt_gmt ? formatTimestamp( action.last_attempt_gmt ) : __( '—', 'newspack-plugin' ) }</dd>
+				<dd>{ action.last_attempt_gmt ? formatTimestamp( action.last_attempt_gmt ) : '—' }</dd>
 			</dl>
 
 			<section className="newspack-integration-log-details__section">

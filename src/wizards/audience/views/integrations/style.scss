@@ -76,14 +76,14 @@
 	}
 
 	&__args {
-		background: var(--wp-admin-theme-color-background, #f0f0f1);
+		background: #f0f0f1;
 		padding: 12px;
 		border-radius: 4px;
 		max-height: 240px;
 		overflow: auto;
 		white-space: pre-wrap;
 		word-break: break-word;
-		font-family: Menlo, Consolas, monospace;
+		font-family: Consolas, monaco, monospace;
 		font-size: 12px;
 	}
 
