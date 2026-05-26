@@ -67,9 +67,8 @@ class Email_Preview {
 			return '';
 		}
 
-		// Trigger the template load by requesting the email config. This is the
-		// same path Emails::get_email_config_by_type() uses; we just want the
-		// raw template HTML, which is available via reflection on the loaded config.
+		// Look up the registered template and include it to get the default HTML.
+		// The template file returns an array with an 'email_html' key.
 		$configs = apply_filters( 'newspack_email_configs', [] );
 		if ( ! isset( $configs[ $type ], $configs[ $type ]['template'] ) ) {
 			return '';
@@ -116,6 +115,17 @@ class Email_Preview {
 		 * @param int   $post_id       The email post being previewed (0 if unknown).
 		 */
 		$substitutions = apply_filters( 'newspack_email_preview_substitutions', $substitutions, $post_id );
+
+		// Validate the filtered value — fall back to defaults if a filter broke the structure.
+		if (
+			! is_array( $substitutions )
+			|| ! isset( $substitutions['html'], $substitutions['url'], $substitutions['raw'] )
+			|| ! is_array( $substitutions['html'] )
+			|| ! is_array( $substitutions['url'] )
+			|| ! is_array( $substitutions['raw'] )
+		) {
+			$substitutions = self::get_sample_substitutions();
+		}
 
 		// Escape HTML-text tokens.
 		$html_map = array_map( 'esc_html', $substitutions['html'] );

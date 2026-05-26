@@ -205,10 +205,8 @@ const EmailPreview: React.FC< EmailPreviewProps > = ( { postId } ) => {
 					srcDoc={ html }
 					/* sandbox: allow-same-origin is required so handleIframeLoad can
 					 * read contentDocument (body.scrollHeight, stylesheet load state).
-					 * allow-scripts is NOT present, so JS cannot execute.
-					 * Residual risk: a <form> in the HTML could submit with admin
-					 * cookies, but this is admin-only code and the email HTML is
-					 * publisher-controlled post meta. */
+					 * Without allow-scripts, JS cannot execute. Without allow-forms,
+					 * form submissions are blocked. */
 					sandbox="allow-same-origin"
 					tabIndex={ -1 }
 					title={ __( 'Email preview', 'newspack-plugin' ) }

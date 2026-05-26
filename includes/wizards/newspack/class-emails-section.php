@@ -593,7 +593,11 @@ class Emails_Section extends Wizard_Section {
 		$enabled     = $request->get_param( 'enabled' );
 
 		if ( ! class_exists( 'WooCommerce' ) ) {
-			return new \WP_Error( 'not_found', 'WooCommerce is not active.', [ 'status' => 404 ] );
+			return new \WP_Error(
+				'newspack_wc_not_active',
+				__( 'WooCommerce is not active.', 'newspack-plugin' ),
+				[ 'status' => 404 ]
+			);
 		}
 
 		// Only allow toggling IDs that exist in our registry.
@@ -603,7 +607,11 @@ class Emails_Section extends Wizard_Section {
 			'woo_email_id'
 		);
 		if ( ! in_array( $wc_email_id, $allowed_wc_ids, true ) ) {
-			return new \WP_Error( 'not_found', 'WC email not found in registry.', [ 'status' => 404 ] );
+			return new \WP_Error(
+				'newspack_wc_email_not_in_registry',
+				__( 'WC email not found in registry.', 'newspack-plugin' ),
+				[ 'status' => 404 ]
+			);
 		}
 
 		$wc_mailer_emails = \WC()->mailer()->get_emails();
@@ -616,7 +624,11 @@ class Emails_Section extends Wizard_Section {
 		}
 
 		if ( ! $wc_email ) {
-			return new \WP_Error( 'not_found', 'WC email not found.', [ 'status' => 404 ] );
+			return new \WP_Error(
+				'newspack_wc_email_not_found',
+				__( 'WC email not found.', 'newspack-plugin' ),
+				[ 'status' => 404 ]
+			);
 		}
 
 		$option_key = $wc_email->get_option_key();
