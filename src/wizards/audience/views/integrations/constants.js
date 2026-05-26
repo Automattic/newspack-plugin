@@ -15,6 +15,7 @@ export const STATUS_MAP = {
 	complete: { label: __( 'Success', 'newspack-plugin' ), level: 'success' },
 	failed: { label: __( 'Failed', 'newspack-plugin' ), level: 'error' },
 	pending: { label: __( 'Pending', 'newspack-plugin' ), level: 'info' },
+	'in-progress': { label: __( 'In progress', 'newspack-plugin' ), level: 'info' },
 	canceled: { label: __( 'Canceled', 'newspack-plugin' ), level: 'warning' },
 };
 
