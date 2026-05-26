@@ -54,7 +54,7 @@ class Tag_Labels {
 		// A little fancy in case someone wants to give a tag a
 		// falsy label flag.  Empty string still gets default value.
 		$term_label_flag = get_term_meta( $term->term_id, self::TAG_LABEL_FLAG_META_KEY, true );
-		if ( ! isset( $term_label_flag ) || '' === $term_label_flag ) {
+		if ( '' === $term_label_flag ) {
 			$term_label_flag = $term->name;
 		}
 
