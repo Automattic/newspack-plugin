@@ -14,10 +14,22 @@ use Newspack\Wizards\Newspack\Emails_Section;
 class Newspack_Test_Card_Expiry_Warning extends WP_UnitTestCase {
 
 	/**
-	 * Test the email config is registered via the newspack_email_configs filter.
+	 * Helper: get the email config by calling add_email_config directly.
+	 *
+	 * In CI, WooCommerce Subscriptions is not active so init() never hooks
+	 * the filter. We test the static method directly instead.
+	 *
+	 * @return array Email configs including card-expiry-warning.
+	 */
+	private function get_email_configs(): array {
+		return Card_Expiry_Warning::add_email_config( [] );
+	}
+
+	/**
+	 * Test the email config is registered.
 	 */
 	public function test_email_config_registered() {
-		$configs = apply_filters( 'newspack_email_configs', [] );
+		$configs = $this->get_email_configs();
 		$this->assertArrayHasKey( 'card-expiry-warning', $configs, 'card-expiry-warning email config should be registered.' );
 	}
 
@@ -25,7 +37,7 @@ class Newspack_Test_Card_Expiry_Warning extends WP_UnitTestCase {
 	 * Test the email config has all required keys.
 	 */
 	public function test_email_config_has_required_keys() {
-		$configs       = apply_filters( 'newspack_email_configs', [] );
+		$configs       = $this->get_email_configs();
 		$config        = $configs['card-expiry-warning'];
 		$required_keys = [ 'name', 'category', 'label', 'description', 'template', 'editor_notice', 'from_email', 'available_placeholders' ];
 
@@ -38,7 +50,7 @@ class Newspack_Test_Card_Expiry_Warning extends WP_UnitTestCase {
 	 * Test the email config name matches the constant.
 	 */
 	public function test_email_config_name() {
-		$configs = apply_filters( 'newspack_email_configs', [] );
+		$configs = $this->get_email_configs();
 		$config  = $configs['card-expiry-warning'];
 		$this->assertSame( 'card-expiry-warning', $config['name'] );
 	}
@@ -47,7 +59,7 @@ class Newspack_Test_Card_Expiry_Warning extends WP_UnitTestCase {
 	 * Test the email config category is reader-revenue.
 	 */
 	public function test_email_config_category() {
-		$configs = apply_filters( 'newspack_email_configs', [] );
+		$configs = $this->get_email_configs();
 		$config  = $configs['card-expiry-warning'];
 		$this->assertSame( 'reader-revenue', $config['category'] );
 	}
@@ -56,7 +68,7 @@ class Newspack_Test_Card_Expiry_Warning extends WP_UnitTestCase {
 	 * Test the email config template file exists.
 	 */
 	public function test_email_config_template_exists() {
-		$configs = apply_filters( 'newspack_email_configs', [] );
+		$configs = $this->get_email_configs();
 		$config  = $configs['card-expiry-warning'];
 		$this->assertFileExists( $config['template'], 'Email template file should exist.' );
 	}
@@ -65,7 +77,7 @@ class Newspack_Test_Card_Expiry_Warning extends WP_UnitTestCase {
 	 * Test the email config has the expected placeholders.
 	 */
 	public function test_email_config_placeholders() {
-		$configs      = apply_filters( 'newspack_email_configs', [] );
+		$configs      = $this->get_email_configs();
 		$placeholders = $configs['card-expiry-warning']['available_placeholders'];
 		$templates    = array_column( $placeholders, 'template' );
 
@@ -150,14 +162,23 @@ class Newspack_Test_Card_Expiry_Warning extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Test the days before expiry enforces a minimum of 1.
+	 */
+	public function test_days_before_expiry_minimum() {
+		add_filter( 'newspack_card_expiry_warning_days', fn() => -5 );
+		$this->assertSame( 1, Card_Expiry_Warning::get_days_before_expiry() );
+		remove_all_filters( 'newspack_card_expiry_warning_days' );
+	}
+
+	/**
 	 * Test the registry entry appears after cancellation and before woo-renewal-reminder.
 	 */
 	public function test_registry_entry_order() {
 		$slugs = array_keys( Emails_Section::get_email_registry() );
 
-		$cancellation_idx       = array_search( 'cancellation', $slugs, true );
-		$card_expiry_idx        = array_search( 'card-expiry-warning', $slugs, true );
-		$renewal_reminder_idx   = array_search( 'woo-renewal-reminder', $slugs, true );
+		$cancellation_idx     = array_search( 'cancellation', $slugs, true );
+		$card_expiry_idx      = array_search( 'card-expiry-warning', $slugs, true );
+		$renewal_reminder_idx = array_search( 'woo-renewal-reminder', $slugs, true );
 
 		$this->assertNotFalse( $card_expiry_idx, 'card-expiry-warning should be in the registry.' );
 		$this->assertGreaterThan( $cancellation_idx, $card_expiry_idx, 'card-expiry-warning should appear after cancellation.' );
