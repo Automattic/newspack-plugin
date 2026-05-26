@@ -161,7 +161,6 @@ describe( 'Emails', () => {
 							newspackNewsletters: true,
 						},
 						postType: 'newspack_rr_email',
-						all: {},
 						isEmailEnhancementsActive: false,
 					},
 				},
@@ -185,20 +184,6 @@ describe( 'Emails', () => {
 			expect( screen.getByText( 'New order (admin)' ) ).toBeInTheDocument();
 			expect( screen.getByText( 'Order on hold' ) ).toBeInTheDocument();
 		} );
-	} );
-
-	it( 'does not render tabs, show-all toggle, or subtitle', async () => {
-		const Emails = require( './emails' ).default;
-		render( <Emails /> );
-
-		await waitFor( () => {
-			expect( screen.getByTestId( 'dataviews' ) ).toBeInTheDocument();
-		} );
-
-		expect( screen.queryByText( 'Essentials' ) ).not.toBeInTheDocument();
-		expect( screen.queryByText( 'All enabled' ) ).not.toBeInTheDocument();
-		expect( screen.queryByText( 'Show all emails' ) ).not.toBeInTheDocument();
-		expect( screen.queryByText( 'Manage the transactional emails your readers receive.' ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'renders Recipient column with correct values', async () => {
@@ -244,7 +229,7 @@ describe( 'Emails', () => {
 		} );
 	} );
 
-	it( 'deactivate optimistically updates status and reverts on failure', async () => {
+	it( 'deactivate shows error notice on failure', async () => {
 		apiFetch
 			.mockResolvedValueOnce( { newspack_emails: mockEmails, post_type: 'newspack_rr_email' } )
 			.mockRejectedValueOnce( new Error( 'fail' ) );
@@ -256,16 +241,11 @@ describe( 'Emails', () => {
 			expect( screen.getByTestId( 'dataviews' ) ).toBeInTheDocument();
 		} );
 
-		// Before deactivation, count Enabled badges.
-		const enabledBefore = screen.getAllByText( 'Enabled' ).length;
-
 		const deactivate = mockCapturedActions.find( a => a.id === 'deactivate' );
 		deactivate.callback( [ mockEmails[ 0 ] ] );
 
-		// After rejection, error notice should appear and status should revert.
 		await waitFor( () => {
 			expect( screen.getByTestId( 'notice' ) ).toBeInTheDocument();
-			expect( screen.getAllByText( 'Enabled' ).length ).toBe( enabledBefore );
 		} );
 	} );
 

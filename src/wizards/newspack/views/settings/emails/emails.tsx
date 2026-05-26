@@ -89,35 +89,17 @@ const Emails = () => {
 	const updateStatus = useCallback(
 		( postId: number, nextStatus: string ) => {
 			setError( null );
-			let previousStatus: string | undefined;
-			// Optimistic update — see NPPD-1531 for consolidating with the wizard data store.
-			setData( prev =>
-				prev.map( email => {
-					if ( email.post_id === postId ) {
-						previousStatus = email.status;
-						return { ...email, status: nextStatus };
-					}
-					return email;
-				} )
-			);
 			apiFetch( {
 				path: `/wp/v2/${ postType }/${ postId }`,
 				method: 'POST',
 				data: { status: nextStatus },
-			} ).catch( () => {
-				// Revert on failure.
-				setData( prev =>
-					prev.map( email => {
-						if ( email.post_id === postId && previousStatus !== undefined ) {
-							return { ...email, status: previousStatus };
-						}
-						return email;
-					} )
-				);
-				setError( __( 'Failed to update email status.', 'newspack-plugin' ) );
-			} );
+			} )
+				.then( () => fetchData() )
+				.catch( () => {
+					setError( __( 'Failed to update email status.', 'newspack-plugin' ) );
+				} );
 		},
-		[ postType ]
+		[ postType, fetchData ]
 	);
 
 	const resetEmail = useCallback(
@@ -149,10 +131,10 @@ const Emails = () => {
 				enableSorting: false,
 				enableHiding: true,
 				// @todo NPPD-1525 Replace with <EmailPreview> component.
-				render: () => (
-					<div className="newspack-emails__preview-placeholder">
+				render: ( { item }: { item: EmailItem } ) => (
+					<a href={ item.edit_link } className="newspack-emails__preview-placeholder">
 						<Icon icon={ envelope } size={ 32 } />
-					</div>
+					</a>
 				),
 			},
 			{
@@ -160,7 +142,11 @@ const Emails = () => {
 				label: __( 'Email', 'newspack-plugin' ),
 				enableGlobalSearch: true,
 				getValue: ( { item }: { item: EmailItem } ) => item.label,
-				render: ( { item }: { item: EmailItem } ) => <strong>{ item.label }</strong>,
+				render: ( { item }: { item: EmailItem } ) => (
+					<a href={ item.edit_link } className="newspack-emails__name-link">
+						<strong>{ item.label }</strong>
+					</a>
+				),
 			},
 			{
 				id: 'trigger_description',
@@ -176,6 +162,7 @@ const Emails = () => {
 			{
 				id: 'recipient',
 				label: __( 'Recipient', 'newspack-plugin' ),
+				enableGlobalSearch: true,
 				getValue: ( { item }: { item: EmailItem } ) =>
 					item.recipient === 'admin' ? __( 'Admin', 'newspack-plugin' ) : __( 'Reader', 'newspack-plugin' ),
 				render: ( { item }: { item: EmailItem } ) => (

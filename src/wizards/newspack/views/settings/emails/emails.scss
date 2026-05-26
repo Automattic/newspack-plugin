@@ -34,6 +34,17 @@
 	color: wp-colors.$gray-700;
 }
 
+// Clickable name link in grid/table view.
+.newspack-emails__name-link {
+	color: inherit;
+	text-decoration: none;
+
+	&:hover,
+	&:focus {
+		text-decoration: underline;
+	}
+}
+
 // Trigger description sub-text under the title.
 // Two-line clamp keeps grid cards uniform while still showing enough context.
 .newspack-emails__trigger-description {
