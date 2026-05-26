@@ -493,11 +493,14 @@ class Audience_Integrations extends Wizard {
 			);
 		}
 
+		// Run synchronously like the WooCommerce AS admin "Run" button. No claim is taken,
+		// so two concurrent requests for the same action could in theory both execute — same
+		// limitation as the WC admin button, accepted at this scope.
 		try {
 			\ActionScheduler::runner()->process_action( $action_id, 'Newspack' );
-		} catch ( \Throwable $e ) {
-			// Swallow: AS will have marked the action failed and recorded a log entry.
-			unset( $e );
+		} catch ( \Throwable $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
+			// Swallow: AS marks the action failed and writes a log entry inside process_action's
+			// own error handler. We re-read the post-run status below and surface that to the UI.
 		}
 
 		$new_status = $store->get_status( $action_id );
