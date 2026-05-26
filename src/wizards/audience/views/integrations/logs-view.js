@@ -190,11 +190,7 @@ export const LogsView = ( { integrations, match } ) => {
 				id: 'run-now',
 				label: __( 'Run now', 'newspack-plugin' ),
 				isEligible: item => item.status === 'pending',
-				callback: items => {
-					if ( items[ 0 ] ) {
-						runAction( items[ 0 ].id );
-					}
-				},
+				callback: items => runAction( items[ 0 ].id ),
 			},
 		],
 		[ integrationId, runAction ]
