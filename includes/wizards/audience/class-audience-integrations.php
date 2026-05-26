@@ -419,7 +419,7 @@ class Audience_Integrations extends Wizard {
 					'status'             => $status,
 					'scheduled_date_gmt' => $scheduled_at_gmt,
 					'attempts'           => $row ? (int) $row->attempts : 0,
-					'last_attempt_gmt'   => $row && ! empty( $row->last_attempt_gmt ) && '0000-00-00 00:00:00' !== $row->last_attempt_gmt ? $row->last_attempt_gmt : '',
+					'last_attempt_gmt'   => $row && ! empty( $row->last_attempt_gmt ) && '0000-00-00 00:00:00' !== $row->last_attempt_gmt ? gmdate( 'Y-m-d\TH:i:s', strtotime( $row->last_attempt_gmt . ' UTC' ) ) : '',
 					'group'              => method_exists( $action, 'get_group' ) ? $action->get_group() : '',
 					'priority'           => method_exists( $action, 'get_priority' ) ? (int) $action->get_priority() : 10,
 					'args'               => $args,
