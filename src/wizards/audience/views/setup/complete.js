@@ -82,6 +82,10 @@ export default withWizardScreen( ( { fetchConfig } ) => {
 				} )
 			);
 		} catch ( err ) {
+			if ( timer.current ) {
+				clearTimeout( timer.current );
+			}
+			setInFlight( false );
 			setError( err );
 		}
 	};

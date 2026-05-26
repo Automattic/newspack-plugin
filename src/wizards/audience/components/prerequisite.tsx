@@ -104,7 +104,7 @@ export default function Prerequisite( { config, getSharedProps, inFlight, prereq
 													message: sprintf(
 														// translators: %1$s: specific instructions for satisfying the prerequisite. %2$s: opening <a> tag for the link to the Audience Configuration page. %3$s: closing </a> tag.
 														__(
-															'%1$s%2$sReturn to the Audience Configuration page to complete the settings and activate%3$s.',
+															'%1$s%2$sReturn to the Audience Configuration page to complete the settings%3$s.',
 															'newspack-plugin'
 														),
 														prerequisite.instructions + ' ',

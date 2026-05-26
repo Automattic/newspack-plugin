@@ -530,9 +530,11 @@ class Audience_Wizard extends Wizard {
 	/**
 	 * Publish the Audience Management campaign (RAS prompts/segments).
 	 *
+	 * @param WP_REST_Request $request WP REST Request object (unused; declared to match the REST callback convention used by other api_* methods in this class).
 	 * @return WP_REST_Response
 	 */
-	public function api_activate_reader_activation() {
+	public function api_activate_reader_activation( WP_REST_Request $request ) {
+		unset( $request );
 		$response = Reader_Activation::activate();
 
 		if ( is_wp_error( $response ) ) {
