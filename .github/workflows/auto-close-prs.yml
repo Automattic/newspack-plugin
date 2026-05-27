@@ -1,0 +1,35 @@
+name: Auto-close pull requests
+
+# Development has moved to the Automattic/newspack-workspace monorepo.
+# This repository is a read-only mirror, so any new pull request opened here is
+# automatically commented on and closed, directing contributors to the monorepo.
+
+on:
+  pull_request_target:
+    types: [opened, reopened]
+
+# Using pull_request_target (not pull_request) so the token has write scope for
+# fork PRs too. No PR code is checked out or run, so the elevated token is safe.
+permissions:
+  pull-requests: write
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  auto-close:
+    name: Comment and close
+    runs-on: ubuntu-latest
+    steps:
+      - name: Comment and close the pull request
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          PR_URL: ${{ github.event.pull_request.html_url }}
+        run: |
+          gh pr close "$PR_URL" --comment "👋 Thanks for your interest in contributing to Newspack!
+
+          Newspack development has moved to a single monorepo: **[Automattic/newspack-workspace](https://github.com/Automattic/newspack-workspace)**. This repository is now a read-only mirror, so we're automatically closing new pull requests here.
+
+          Please reopen your change against the monorepo – \`newspack-plugin\` now lives at \`plugins/newspack-plugin/\` there. Thank you! 💙"
