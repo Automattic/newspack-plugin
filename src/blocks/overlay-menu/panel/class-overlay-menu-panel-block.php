@@ -110,7 +110,7 @@ final class Overlay_Menu_Panel_Block {
 					class="overlay-menu__close"
 				>
 					<span class="overlay-menu__icon" aria-hidden="true">
-						<?php echo \Newspack\Newspack_UI_Icons::get_svg( 'close' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+						<?php \Newspack\Newspack_UI_Icons::print_svg( 'close' ); ?>
 					</span>
 					<span class="screen-reader-text">
 						<?php esc_html_e( 'Close', 'newspack-plugin' ); ?>

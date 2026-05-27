@@ -74,7 +74,7 @@ final class Overlay_Menu_Trigger_Block {
 				>
 					<?php if ( $show_icon ) : ?>
 						<span class="overlay-menu__icon" aria-hidden="true">
-							<?php echo \Newspack\Newspack_UI_Icons::get_svg( 'menu' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+							<?php \Newspack\Newspack_UI_Icons::print_svg( 'menu' ); ?>
 						</span>
 					<?php endif; ?>
 					<span class="<?php echo esc_attr( $text_class ); ?>">

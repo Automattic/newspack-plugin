@@ -119,7 +119,7 @@ final class Overlay_Search_Block {
 				<a <?php echo $wrapper_attributes; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
 					<?php if ( ! $is_text_only ) : ?>
 						<span class="newspack-overlay-search__icon" aria-hidden="true">
-							<?php echo \Newspack\Newspack_UI_Icons::get_svg( 'search' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+							<?php \Newspack\Newspack_UI_Icons::print_svg( 'search' ); ?>
 						</span>
 					<?php endif; ?>
 					<span class="<?php echo \esc_attr( $label_classes ); ?>">
@@ -164,7 +164,7 @@ final class Overlay_Search_Block {
 				<button <?php echo $wrapper_attributes; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
 					<?php if ( ! $is_text_only ) : ?>
 						<span class="newspack-overlay-search__icon" aria-hidden="true">
-							<?php echo \Newspack\Newspack_UI_Icons::get_svg( 'search' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+							<?php \Newspack\Newspack_UI_Icons::print_svg( 'search' ); ?>
 						</span>
 					<?php endif; ?>
 					<span class="<?php echo \esc_attr( $label_classes ); ?>">
@@ -223,7 +223,7 @@ final class Overlay_Search_Block {
 		>
 			<button type="button" class="newspack-overlay-search__close">
 				<span class="newspack-overlay-search__icon" aria-hidden="true">
-					<?php echo \Newspack\Newspack_UI_Icons::get_svg( 'close' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+					<?php \Newspack\Newspack_UI_Icons::print_svg( 'close' ); ?>
 				</span>
 				<span class="screen-reader-text">
 					<?php \esc_html_e( 'Close search', 'newspack-plugin' ); ?>
