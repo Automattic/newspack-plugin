@@ -115,12 +115,14 @@ export const getCardClassName = ( status, forceDisabled = false ) => {
 	return 'newspack-card__is-supported';
 };
 
+const ensureTermArray = terms => ( Array.isArray( terms ) ? terms.filter( Boolean ) : [] );
+
 export const promptDescription = prompt => {
 	const { categories, tags, campaign_groups: campaigns, status } = prompt;
 	const descriptionMessages = [];
-	const validCampaigns = Array.isArray( campaigns ) ? campaigns.filter( Boolean ) : [];
-	const validCategories = Array.isArray( categories ) ? categories.filter( Boolean ) : [];
-	const validTags = Array.isArray( tags ) ? tags.filter( Boolean ) : [];
+	const validCampaigns = ensureTermArray( campaigns );
+	const validCategories = ensureTermArray( categories );
+	const validTags = ensureTermArray( tags );
 	if ( validCampaigns.length > 0 ) {
 		const campaignsList = validCampaigns.map( ( { name } ) => name ).join( ', ' );
 		descriptionMessages.push(
@@ -363,9 +365,9 @@ export const warningForPopup = ( prompts, prompt ) => {
 	const warningMessages = [];
 
 	if ( 'publish' === prompt.status && ( isAboveHeader( prompt ) || isOverlay( prompt ) || isCustomPlacement( prompt ) ) ) {
-		const promptCategories = prompt.categories;
+		const promptCategories = ensureTermArray( prompt.categories );
 		const conflictingPrompts = prompts.filter( conflict => {
-			const conflictCategories = conflict.categories;
+			const conflictCategories = ensureTermArray( conflict.categories );
 
 			// There's a conflict if both campaigns have zero categories, or if they share at least one category.
 			const hasConflictingCategory =
