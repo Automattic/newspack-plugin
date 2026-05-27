@@ -373,10 +373,35 @@ class Emails {
 	}
 
 	/**
+	 * Default values for email config fields shared across all providers.
+	 */
+	const EMAIL_CONFIG_DEFAULTS = [
+		'trigger_description' => '',
+		'recipient'           => 'reader',
+		'recommended'         => true,
+		'chip'                => 'auth-account',
+	];
+
+	/**
+	 * Fill in default values for any email config field a provider omitted.
+	 *
+	 * @param array $config Single email config entry as registered via the
+	 *                      `newspack_email_configs` filter.
+	 * @return array Config with shared defaults applied for missing fields.
+	 */
+	public static function apply_config_defaults( array $config ): array {
+		return array_merge( self::EMAIL_CONFIG_DEFAULTS, $config );
+	}
+
+	/**
 	 * Get all email configs.
 	 */
 	private static function get_email_configs() {
-		return apply_filters( 'newspack_email_configs', [] );
+		$configs = apply_filters( 'newspack_email_configs', [] );
+		foreach ( $configs as $type => $config ) {
+			$configs[ $type ] = self::apply_config_defaults( $config );
+		}
+		return $configs;
 	}
 
 	/**
