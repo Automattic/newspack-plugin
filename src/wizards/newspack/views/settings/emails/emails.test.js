@@ -5,15 +5,20 @@
  */
 import { render, screen, waitFor } from '@testing-library/react';
 
-/**
- * WordPress dependencies
- */
-import apiFetch from '@wordpress/api-fetch';
-
 jest.mock( './emails.scss', () => ( {} ) );
-jest.mock( '@wordpress/api-fetch', () => ( {
-	__esModule: true,
-	default: jest.fn(),
+
+// Use mock-prefixed names so Jest's hoisted jest.mock can close over them.
+const mockWizardApiFetch = jest.fn();
+const mockResetError = jest.fn();
+let mockErrorMessage = null;
+
+jest.mock( '../../../../hooks/use-wizard-api-fetch', () => ( {
+	useWizardApiFetch: () => ( {
+		wizardApiFetch: ( ...args ) => mockWizardApiFetch( ...args ),
+		isFetching: false,
+		errorMessage: mockErrorMessage,
+		resetError: ( ...args ) => mockResetError( ...args ),
+	} ),
 } ) );
 
 jest.mock( '@wordpress/icons', () => ( {
@@ -153,6 +158,7 @@ const mockEmails = [
 describe( 'Emails', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
+		mockErrorMessage = null;
 		window.newspackSettings = {
 			emails: {
 				sections: {
@@ -166,9 +172,14 @@ describe( 'Emails', () => {
 				},
 			},
 		};
-		apiFetch.mockResolvedValue( {
-			newspack_emails: mockEmails,
-			post_type: 'newspack_rr_email',
+		mockWizardApiFetch.mockImplementation( ( opts, callbacks ) => {
+			if ( opts.path === '/newspack/v1/wizard/newspack-settings/emails' ) {
+				callbacks?.onSuccess?.( {
+					newspack_emails: mockEmails,
+					post_type: 'newspack_rr_email',
+				} );
+			}
+			return Promise.resolve();
 		} );
 	} );
 
@@ -209,7 +220,7 @@ describe( 'Emails', () => {
 		} );
 	} );
 
-	it( 'deactivate action calls apiFetch with draft status', async () => {
+	it( 'deactivate action calls wizardApiFetch with draft status', async () => {
 		const Emails = require( './emails' ).default;
 		render( <Emails /> );
 
@@ -220,36 +231,31 @@ describe( 'Emails', () => {
 		const deactivate = mockCapturedActions.find( a => a.id === 'deactivate' );
 		deactivate.callback( [ mockEmails[ 0 ] ] );
 
-		await waitFor( () => {
-			expect( apiFetch ).toHaveBeenCalledWith( {
+		expect( mockWizardApiFetch ).toHaveBeenCalledWith(
+			expect.objectContaining( {
 				path: '/wp/v2/newspack_rr_email/1',
 				method: 'POST',
 				data: { status: 'draft' },
-			} );
-		} );
+			} ),
+			expect.objectContaining( {
+				onSuccess: expect.any( Function ),
+			} )
+		);
 	} );
 
-	it( 'deactivate shows error notice on failure', async () => {
-		apiFetch
-			.mockResolvedValueOnce( { newspack_emails: mockEmails, post_type: 'newspack_rr_email' } )
-			.mockRejectedValueOnce( new Error( 'fail' ) );
+	it( 'displays error notice when hook reports an error', async () => {
+		mockErrorMessage = 'Something went wrong';
 
 		const Emails = require( './emails' ).default;
 		render( <Emails /> );
 
 		await waitFor( () => {
-			expect( screen.getByTestId( 'dataviews' ) ).toBeInTheDocument();
-		} );
-
-		const deactivate = mockCapturedActions.find( a => a.id === 'deactivate' );
-		deactivate.callback( [ mockEmails[ 0 ] ] );
-
-		await waitFor( () => {
 			expect( screen.getByTestId( 'notice' ) ).toBeInTheDocument();
+			expect( screen.getByTestId( 'notice' ) ).toHaveTextContent( 'Something went wrong' );
 		} );
 	} );
 
-	it( 'activate action calls apiFetch with publish status', async () => {
+	it( 'activate action calls wizardApiFetch with publish status', async () => {
 		const Emails = require( './emails' ).default;
 		render( <Emails /> );
 
@@ -261,13 +267,16 @@ describe( 'Emails', () => {
 		// mockEmails[3] (Account deletion) is newspack + draft — eligible for activate.
 		activate.callback( [ mockEmails[ 3 ] ] );
 
-		await waitFor( () => {
-			expect( apiFetch ).toHaveBeenCalledWith( {
+		expect( mockWizardApiFetch ).toHaveBeenCalledWith(
+			expect.objectContaining( {
 				path: '/wp/v2/newspack_rr_email/4',
 				method: 'POST',
 				data: { status: 'publish' },
-			} );
-		} );
+			} ),
+			expect.objectContaining( {
+				onSuccess: expect.any( Function ),
+			} )
+		);
 	} );
 
 	it( 'deactivate/activate are not eligible for reader-activation or woocommerce emails', async () => {
@@ -293,7 +302,7 @@ describe( 'Emails', () => {
 		expect( activate.isEligible( mockEmails[ 5 ] ) ).toBe( false );
 	} );
 
-	it( 'reset action calls apiFetch with DELETE after confirmation', async () => {
+	it( 'reset action calls wizardApiFetch with DELETE after confirmation', async () => {
 		const { utils } = require( '../../../../../../packages/components/src' );
 		const Emails = require( './emails' ).default;
 		render( <Emails /> );
@@ -307,12 +316,15 @@ describe( 'Emails', () => {
 
 		expect( utils.confirmAction ).toHaveBeenCalled();
 
-		await waitFor( () => {
-			expect( apiFetch ).toHaveBeenCalledWith( {
+		expect( mockWizardApiFetch ).toHaveBeenCalledWith(
+			expect.objectContaining( {
 				path: '/newspack/v1/wizard/newspack-audience-donations/emails/1',
 				method: 'DELETE',
-			} );
-		} );
+			} ),
+			expect.objectContaining( {
+				onSuccess: expect.any( Function ),
+			} )
+		);
 	} );
 
 	it( 'reset is eligible for newspack-source emails with a registry_slug', async () => {

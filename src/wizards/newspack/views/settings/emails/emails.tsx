@@ -6,8 +6,7 @@
  * WordPress dependencies.
  */
 import { __ } from '@wordpress/i18n';
-import { useState, useEffect, useCallback, useMemo, Fragment } from '@wordpress/element';
-import apiFetch from '@wordpress/api-fetch';
+import { useState, useEffect, useMemo, Fragment } from '@wordpress/element';
 import { filterSortAndPaginate } from '@wordpress/dataviews';
 import type { Action, Field, View } from '@wordpress/dataviews';
 import { Icon, envelope } from '@wordpress/icons';
@@ -17,6 +16,7 @@ import { Icon, envelope } from '@wordpress/icons';
  */
 import { Badge, DataViews, Notice, utils } from '../../../../../../packages/components/src';
 import WizardsPluginCard from '../../../../wizards-plugin-card';
+import { useWizardApiFetch } from '../../../../hooks/use-wizard-api-fetch';
 import './emails.scss';
 
 interface EmailItem {
@@ -60,67 +60,59 @@ const Emails = () => {
 
 	const [ data, setData ] = useState< EmailItem[] >( [] );
 	const [ postType, setPostType ] = useState< string >( emailSections.emails.postType );
-	const [ isLoading, setIsLoading ] = useState( true );
 	const [ view, setView ] = useState< View >( DEFAULT_VIEW );
-	const [ error, setError ] = useState< string | null >( null );
 
-	const fetchData = useCallback( () => {
-		setIsLoading( true );
-		setError( null );
-		apiFetch< EmailSettings >( {
-			path: '/newspack/v1/wizard/newspack-settings/emails',
-		} )
-			.then( result => {
-				setData( result.newspack_emails || [] );
-				if ( result.post_type ) {
-					setPostType( result.post_type );
-				}
-			} )
-			.catch( () => {
-				setError( __( 'Failed to load emails. Please refresh the page.', 'newspack-plugin' ) );
-			} )
-			.finally( () => setIsLoading( false ) );
-	}, [] );
+	const { wizardApiFetch, isFetching, errorMessage, resetError } = useWizardApiFetch( 'newspack-settings/emails' );
 
-	useEffect( () => {
-		fetchData();
-	}, [ fetchData ] );
+	const fetchData = () => {
+		resetError();
+		wizardApiFetch< EmailSettings >(
+			{
+				path: '/newspack/v1/wizard/newspack-settings/emails',
+				isCached: false,
+			},
+			{
+				onSuccess( result: EmailSettings ) {
+					setData( result.newspack_emails || [] );
+					if ( result.post_type ) {
+						setPostType( result.post_type );
+					}
+				},
+			}
+		);
+	};
 
-	const updateStatus = useCallback(
-		( postId: number, nextStatus: string ) => {
-			setError( null );
-			apiFetch( {
+	useEffect( fetchData, [] );
+
+	const updateStatus = ( postId: number, nextStatus: string ) => {
+		resetError();
+		wizardApiFetch(
+			{
 				path: `/wp/v2/${ postType }/${ postId }`,
 				method: 'POST',
 				data: { status: nextStatus },
-			} )
-				.then( () => fetchData() )
-				.catch( () => {
-					setError( __( 'Failed to update email status.', 'newspack-plugin' ) );
-				} );
-		},
-		[ postType, fetchData ]
-	);
+			},
+			{
+				onSuccess: () => fetchData(),
+			}
+		);
+	};
 
-	const resetEmail = useCallback(
-		( postId: number ) => {
-			setError( null );
-			// @todo NPPD-1532 Move reset handler to class-emails-section.php so it
-			// lives under wizard/newspack-settings/emails/{id} instead of reaching
-			// into the donations wizard namespace.
-			apiFetch( {
+	const resetEmail = ( postId: number ) => {
+		resetError();
+		// @todo NPPD-1532 Move reset handler to class-emails-section.php so it
+		// lives under wizard/newspack-settings/emails/{id} instead of reaching
+		// into the donations wizard namespace.
+		wizardApiFetch(
+			{
 				path: `/newspack/v1/wizard/newspack-audience-donations/emails/${ postId }`,
 				method: 'DELETE',
-			} )
-				.then( () => {
-					fetchData();
-				} )
-				.catch( () => {
-					setError( __( 'Failed to reset email. Please try again.', 'newspack-plugin' ) );
-				} );
-		},
-		[ fetchData ]
-	);
+			},
+			{
+				onSuccess: () => fetchData(),
+			}
+		);
+	};
 
 	const fields: Field< EmailItem >[] = useMemo(
 		() => [
@@ -192,47 +184,42 @@ const Emails = () => {
 		[]
 	);
 
-	const actions: Action< EmailItem >[] = useMemo(
-		() => [
-			{
-				id: 'edit',
-				label: __( 'Edit', 'newspack-plugin' ),
-				callback: ( items: EmailItem[] ) => {
-					window.location.href = items[ 0 ].edit_link;
-				},
+	const actions: Action< EmailItem >[] = [
+		{
+			id: 'edit',
+			label: __( 'Edit', 'newspack-plugin' ),
+			callback: ( items: EmailItem[] ) => {
+				window.location.href = items[ 0 ].edit_link;
 			},
-			{
-				id: 'deactivate',
-				label: __( 'Deactivate', 'newspack-plugin' ),
-				isEligible: ( item: EmailItem ) =>
-					item.source !== 'woocommerce' && item.category !== 'reader-activation' && item.status === 'publish',
-				callback: ( items: EmailItem[] ) => {
-					updateStatus( items[ 0 ].post_id, 'draft' );
-				},
+		},
+		{
+			id: 'deactivate',
+			label: __( 'Deactivate', 'newspack-plugin' ),
+			isEligible: ( item: EmailItem ) => item.source !== 'woocommerce' && item.category !== 'reader-activation' && item.status === 'publish',
+			callback: ( items: EmailItem[] ) => {
+				updateStatus( items[ 0 ].post_id, 'draft' );
 			},
-			{
-				id: 'activate',
-				label: __( 'Activate', 'newspack-plugin' ),
-				isEligible: ( item: EmailItem ) =>
-					item.source !== 'woocommerce' && item.category !== 'reader-activation' && item.status !== 'publish',
-				callback: ( items: EmailItem[] ) => {
-					updateStatus( items[ 0 ].post_id, 'publish' );
-				},
+		},
+		{
+			id: 'activate',
+			label: __( 'Activate', 'newspack-plugin' ),
+			isEligible: ( item: EmailItem ) => item.source !== 'woocommerce' && item.category !== 'reader-activation' && item.status !== 'publish',
+			callback: ( items: EmailItem[] ) => {
+				updateStatus( items[ 0 ].post_id, 'publish' );
 			},
-			{
-				id: 'reset',
-				label: __( 'Reset', 'newspack-plugin' ),
-				isDestructive: true,
-				isEligible: ( item: EmailItem ) => item.source !== 'woocommerce' && Boolean( item.registry_slug ),
-				callback: ( items: EmailItem[] ) => {
-					if ( utils.confirmAction( __( 'Are you sure you want to reset the contents of this email?', 'newspack-plugin' ) ) ) {
-						resetEmail( items[ 0 ].post_id );
-					}
-				},
+		},
+		{
+			id: 'reset',
+			label: __( 'Reset', 'newspack-plugin' ),
+			isDestructive: true,
+			isEligible: ( item: EmailItem ) => item.source !== 'woocommerce' && Boolean( item.registry_slug ),
+			callback: ( items: EmailItem[] ) => {
+				if ( utils.confirmAction( __( 'Are you sure you want to reset the contents of this email?', 'newspack-plugin' ) ) ) {
+					resetEmail( items[ 0 ].post_id );
+				}
 			},
-		],
-		[ resetEmail, updateStatus ]
-	);
+		},
+	];
 
 	const { data: processedData, paginationInfo } = useMemo( () => filterSortAndPaginate( data, view, fields ), [ data, view, fields ] );
 
@@ -268,7 +255,7 @@ const Emails = () => {
 	return (
 		<Fragment>
 			<PageHeading />
-			{ error && <Notice isError noticeText={ error } /> }
+			{ errorMessage && <Notice isError noticeText={ errorMessage } /> }
 			<DataViews
 				className="newspack-emails"
 				data={ processedData }
@@ -278,7 +265,7 @@ const Emails = () => {
 				actions={ actions }
 				paginationInfo={ paginationInfo }
 				defaultLayouts={ { table: {}, grid: {} } }
-				isLoading={ isLoading }
+				isLoading={ isFetching }
 				getItemId={ ( item: EmailItem ) => String( item.post_id ) }
 				search
 			/>
