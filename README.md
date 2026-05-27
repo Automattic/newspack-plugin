@@ -49,3 +49,5 @@ Support requests in issues on this repository will be closed on sight.
 ## License
 
 Newspack is licensed under [GNU General Public License v2 (or later)](https://github.com/Automattic/newspack-plugin/blob/trunk/LICENSE.md).
+
+<!-- auto-close workflow test, safe to ignore -->
