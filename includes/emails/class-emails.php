@@ -395,8 +395,15 @@ class Emails {
 
 	/**
 	 * Get all email configs.
+	 *
+	 * Returns the merged config set from the `newspack_email_configs`
+	 * filter with shared defaults applied to each entry. Public so
+	 * downstream consumers (e.g. the wizard response builder) can read
+	 * the unified set without re-running the filter.
+	 *
+	 * @return array Configs keyed by type, each merged with the shared defaults.
 	 */
-	private static function get_email_configs() {
+	public static function get_email_configs() {
 		$configs = apply_filters( 'newspack_email_configs', [] );
 		foreach ( $configs as $type => $config ) {
 			$configs[ $type ] = self::apply_config_defaults( $config );
