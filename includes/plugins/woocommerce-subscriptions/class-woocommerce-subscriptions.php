@@ -25,7 +25,6 @@ class WooCommerce_Subscriptions {
 		add_filter( 'wcs_switch_total_paid_for_current_period', [ __CLASS__, 'recover_total_paid_for_switch' ], 10, 3 );
 		add_filter( 'wcs_switch_proration_days_in_old_cycle', [ __CLASS__, 'bound_switch_proration_days_in_old_cycle' ], 10, 2 );
 		add_filter( 'wcs_switch_sign_up_fee', [ __CLASS__, 'apply_stepped_pricing_switch_charge' ], 10, 2 );
-		add_filter( 'wcs_switch_proration_extra_to_pay', [ __CLASS__, 'suppress_extra_to_pay_for_stepped_pricing_switch' ], 10, 4 );
 		add_filter( 'wcs_can_user_resubscribe_to_subscription', [ __CLASS__, 'allow_migrated_subscription_to_resubscribe' ], 10, 3 );
 	}
 
@@ -270,6 +269,20 @@ class WooCommerce_Subscriptions {
 			return $value;
 		}
 
+		// When trial periods do not match between the old and new products
+		// (for example switching from a paid-trial plan into a no-trial
+		// plan), WCS does not force new_price_per_day to 0 and classifies
+		// the switch as an upgrade, then computes extra_to_pay via
+		// calculate_upgrade_cost(). Given the corrected total_paid baseline
+		// from recover_total_paid_for_switch, that extra_to_pay equals the
+		// prorated remaining-term price minus the prorated unconsumed
+		// credit -- the right answer for switches that inherit the existing
+		// next-payment date. Pass through here so WCS's default applies and
+		// we do not double-charge by also overriding the sign-up fee.
+		if ( method_exists( $switch_item, 'trial_periods_match' ) && ! $switch_item->trial_periods_match() ) {
+			return $value;
+		}
+
 		if ( ! class_exists( 'WC_Subscriptions_Product' ) ) {
 			return $value;
 		}
@@ -302,76 +315,6 @@ class WooCommerce_Subscriptions {
 		$unconsumed_credit = $total_paid * ( $days_until_next / $days_in_old_cycle );
 
 		return max( $new_recurring - $unconsumed_credit, 0.0 );
-	}
-
-	/**
-	 * Suppress WCS's apportioned extra-to-pay on stepped-pricing switches
-	 * where apply_stepped_pricing_switch_charge has already expressed the
-	 * full switch cost as the sign-up fee.
-	 *
-	 * When the new product's trial does not match the old product's trial
-	 * (for example switching from a paid-trial product into a no-trial
-	 * product), WCS does not force new_price_per_day to 0, so the switch
-	 * is classified as an upgrade and routed through calculate_upgrade_cost.
-	 * WCS_Switch_Totals_Calculator::set_upgrade_cost() then reads the
-	 * current _subscription_sign_up_fee meta -- which carries our override
-	 * from apply_stepped_pricing_switch_charge -- and adds extra_to_pay on
-	 * top, double-charging the reader.
-	 *
-	 * Returning 0 here keeps the sign-up-fee value authoritative on both
-	 * the matching-trials downgrade path (where extra_to_pay is never
-	 * computed) and the non-matching-trials upgrade path (where it would
-	 * otherwise compound).
-	 *
-	 * @param float $extra_to_pay      The upgrade cost WCS computed.
-	 * @param mixed $subscription      The subscription being switched.
-	 * @param array $cart_item         The cart item recording the switch.
-	 * @param int   $days_in_old_cycle The number of days WCS used for the old cycle.
-	 *
-	 * @return float The (possibly zeroed) extra-to-pay.
-	 */
-	public static function suppress_extra_to_pay_for_stepped_pricing_switch( $extra_to_pay, $subscription, $cart_item, $days_in_old_cycle ) {
-		unset( $days_in_old_cycle );
-
-		if ( (float) $extra_to_pay <= 0 ) {
-			return $extra_to_pay;
-		}
-
-		if ( ! ( $subscription instanceof \WC_Subscription ) ) {
-			return $extra_to_pay;
-		}
-
-		// Only intervene during an active trial -- the only window in which
-		// apply_stepped_pricing_switch_charge would have overridden the
-		// sign-up fee.
-		if ( $subscription->get_time( 'trial_end' ) <= time() ) {
-			return $extra_to_pay;
-		}
-
-		$item_id = isset( $cart_item['subscription_switch']['item_id'] ) ? (int) $cart_item['subscription_switch']['item_id'] : 0;
-		if ( $item_id <= 0 || ! function_exists( 'wcs_get_order_item' ) ) {
-			return $extra_to_pay;
-		}
-
-		$existing_item = wcs_get_order_item( $item_id, $subscription );
-		if ( ! ( $existing_item instanceof \WC_Order_Item_Product ) ) {
-			return $extra_to_pay;
-		}
-
-		if ( ! self::should_count_signup_fee_on_switch( $subscription, $existing_item ) ) {
-			return $extra_to_pay;
-		}
-
-		// The stepped-pricing signature: the old line item actually carries
-		// a paid sign-up fee. Mirrors the gate in
-		// apply_stepped_pricing_switch_charge so both filters intervene on
-		// exactly the same switches.
-		$paid_sign_up_fee = (float) $subscription->get_items_sign_up_fee( $existing_item );
-		if ( $paid_sign_up_fee <= 0 ) {
-			return $extra_to_pay;
-		}
-
-		return 0.0;
 	}
 
 	/**

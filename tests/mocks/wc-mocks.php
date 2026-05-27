@@ -488,6 +488,9 @@ class Mock_WCS_Switch_Cart_Item_For_Stepped_Pricing {
 	public function get_days_until_next_payment() {
 		return (int) $this->values['days_until_next'];
 	}
+	public function trial_periods_match() {
+		return ! empty( $this->values['trial_periods_match'] );
+	}
 }
 
 function wc_create_order( $data ) {
