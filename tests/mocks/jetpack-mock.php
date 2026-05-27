@@ -23,6 +23,13 @@ if ( ! class_exists( 'Jetpack' ) ) {
 		public static $test_active_modules = [];
 
 		/**
+		 * Whether the stub should report Jetpack as active/connected.
+		 *
+		 * @var bool
+		 */
+		public static $test_is_active = false;
+
+		/**
 		 * Whether `$module` is in the active list for this test.
 		 *
 		 * @param string $module Module slug.
@@ -30,6 +37,15 @@ if ( ! class_exists( 'Jetpack' ) ) {
 		 */
 		public static function is_module_active( $module ) {
 			return in_array( $module, self::$test_active_modules, true );
+		}
+
+		/**
+		 * Whether Jetpack reports itself as active/connected for this test.
+		 *
+		 * @return bool
+		 */
+		public static function is_active() {
+			return self::$test_is_active;
 		}
 	}
 }
