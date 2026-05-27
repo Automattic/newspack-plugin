@@ -80,6 +80,10 @@ class Group_Subscription_Invite {
 			'description'            => __( 'Email sent to invite a reader to join a group subscription.', 'newspack-plugin' ),
 			'template'               => dirname( NEWSPACK_PLUGIN_FILE ) . '/includes/templates/reader-activation-emails/group-subscription-invite.php',
 			'editor_notice'          => __( 'This email will be sent when a reader is invited to join a group subscription.', 'newspack-plugin' ),
+			'trigger_description'    => __( 'Sent to invite a reader to join a group subscription.', 'newspack-plugin' ),
+			'recipient'              => 'reader',
+			'recommended'            => false,
+			'chip'                   => 'reader-revenue',
 			'available_placeholders' => [
 				[
 					'label'    => __( 'the site title', 'newspack-plugin' ),
