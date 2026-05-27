@@ -1,123 +1,153 @@
 <?php
 /**
- * Tests the Emails Section registry.
+ * Tests for the unified email config schema (NPPD-1550).
  *
  * @package Newspack\Tests
  */
 
+use Newspack\Emails;
+use Newspack\Reader_Activation_Emails;
+use Newspack\Reader_Revenue_Emails;
+use Newspack\WooCommerce_Emails;
 use Newspack\Wizards\Newspack\Emails_Section;
 
 /**
- * Tests the Emails Section registry.
+ * Tests the unified Emails config schema and the wizard response builder.
+ *
+ * Covers the five test buckets called out in the NPPD-1550 plan:
+ * - 7a schema-completeness across providers
+ * - 7b per-provider content
+ * - 7c response shape of api_get_email_settings()
+ * - 7d WooCommerce integration registration
+ * - 7e default-merge mechanism
  */
 class Newspack_Test_Emails_Section extends WP_UnitTestCase {
-	/**
-	 * Test all registry entries have the required keys.
+	/*
+	 * ------------------------------------------------------------------
+	 * 7a — Schema-completeness
+	 * ------------------------------------------------------------------
+	 * Iterates every config from `newspack_email_configs` after defaults
+	 * are applied. Catches provider classes that forget to declare the
+	 * new fields, or that declare invalid values.
 	 */
-	public function test_registry_entries_have_required_keys() {
-		$registry     = Emails_Section::get_email_registry();
-		$required_keys = [ 'source', 'recommended', 'plugin_dependency', 'recipient', 'label', 'trigger_description' ];
 
-		foreach ( $registry as $slug => $entry ) {
-			foreach ( $required_keys as $key ) {
-				$this->assertArrayHasKey( $key, $entry, "Entry '$slug' is missing required key '$key'." );
-			}
+	/**
+	 * Every config has the four new schema fields after defaults are applied.
+	 */
+	public function test_email_configs_have_all_required_fields() {
+		$configs = Emails::get_email_configs();
+		$this->assertNotEmpty( $configs, 'Expected at least one registered email config.' );
+
+		foreach ( $configs as $type => $config ) {
+			$this->assertArrayHasKey( 'trigger_description', $config, "Config '$type' is missing trigger_description." );
+			$this->assertIsString( $config['trigger_description'], "Config '$type' trigger_description must be a string." );
+
+			$this->assertArrayHasKey( 'recipient', $config, "Config '$type' is missing recipient." );
+			$this->assertContains(
+				$config['recipient'],
+				[ 'reader', 'admin' ],
+				"Config '$type' has an invalid recipient value."
+			);
+
+			$this->assertArrayHasKey( 'recommended', $config, "Config '$type' is missing recommended." );
+			$this->assertIsBool( $config['recommended'], "Config '$type' recommended must be a bool." );
+
+			$this->assertArrayHasKey( 'chip', $config, "Config '$type' is missing chip." );
+			$this->assertContains(
+				$config['chip'],
+				[ 'auth-account', 'reader-revenue' ],
+				"Config '$type' has an invalid chip value."
+			);
+		}
+	}
+
+	/*
+	 * ------------------------------------------------------------------
+	 * 7b — Per-provider content
+	 * ------------------------------------------------------------------
+	 * Asserts each provider class registers entries with the expected
+	 * field values. Catches data regressions when providers are touched.
+	 */
+
+	/**
+	 * Reader-revenue provider: all three entries chip='reader-revenue' and recommended.
+	 */
+	public function test_reader_revenue_provider_entries() {
+		$configs = Emails::get_email_configs();
+
+		$expected = [
+			Reader_Revenue_Emails::EMAIL_TYPES['RECEIPT'] => 'Sent after a successful payment.',
+			Reader_Revenue_Emails::EMAIL_TYPES['WELCOME'] => 'Sent to new supporters after their first payment.',
+			Reader_Revenue_Emails::EMAIL_TYPES['CANCELLATION'] => 'Sent when a reader cancels their subscription.',
+		];
+
+		foreach ( $expected as $type => $trigger_description ) {
+			$this->assertArrayHasKey( $type, $configs, "Reader-revenue type '$type' not registered." );
+			$this->assertSame( 'reader-revenue', $configs[ $type ]['chip'], "Type '$type' should chip to reader-revenue." );
+			$this->assertSame( 'reader', $configs[ $type ]['recipient'], "Type '$type' should target reader." );
+			$this->assertTrue( $configs[ $type ]['recommended'], "Type '$type' should be recommended." );
+			$this->assertSame( $trigger_description, $configs[ $type ]['trigger_description'] );
 		}
 	}
 
 	/**
-	 * Test all registry entries have a valid source value.
+	 * Reader-activation provider: all entries chip='auth-account', recipient='reader'.
+	 * Recommended is true for the four core sign-in flows, false for the rest.
 	 */
-	public function test_registry_entries_have_valid_source() {
-		$registry = Emails_Section::get_email_registry();
-		foreach ( $registry as $slug => $entry ) {
-			$this->assertContains( $entry['source'], [ 'newspack', 'woocommerce' ], "Entry '$slug' has an invalid source value." );
+	public function test_reader_activation_provider_entries() {
+		$configs = Emails::get_email_configs();
+
+		$recommended_types = [
+			Reader_Activation_Emails::EMAIL_TYPES['VERIFICATION'],
+			Reader_Activation_Emails::EMAIL_TYPES['MAGIC_LINK'],
+			Reader_Activation_Emails::EMAIL_TYPES['OTP_AUTH'],
+			Reader_Activation_Emails::EMAIL_TYPES['RESET_PASSWORD'],
+		];
+		$non_recommended_types = [
+			Reader_Activation_Emails::EMAIL_TYPES['DELETE_ACCOUNT'],
+			Reader_Activation_Emails::EMAIL_TYPES['NON_READER'],
+		];
+
+		foreach ( array_merge( $recommended_types, $non_recommended_types ) as $type ) {
+			$this->assertArrayHasKey( $type, $configs, "Reader-activation type '$type' not registered." );
+			$this->assertSame( 'auth-account', $configs[ $type ]['chip'], "Type '$type' should chip to auth-account." );
+			$this->assertSame( 'reader', $configs[ $type ]['recipient'], "Type '$type' should target reader." );
+			$this->assertNotEmpty( $configs[ $type ]['trigger_description'], "Type '$type' should have a trigger description." );
+		}
+		foreach ( $recommended_types as $type ) {
+			$this->assertTrue( $configs[ $type ]['recommended'], "Type '$type' should be recommended." );
+		}
+		foreach ( $non_recommended_types as $type ) {
+			$this->assertFalse( $configs[ $type ]['recommended'], "Type '$type' should NOT be recommended." );
 		}
 	}
 
 	/**
-	 * Test all registry entries have a valid recipient value.
+	 * Group-subscription-invite provider: chip='reader-revenue' (paid product), not recommended.
 	 */
-	public function test_registry_entries_have_valid_recipient() {
-		$registry = Emails_Section::get_email_registry();
-		foreach ( $registry as $slug => $entry ) {
-			$this->assertContains( $entry['recipient'], [ 'reader', 'admin' ], "Entry '$slug' has an invalid recipient value." );
-		}
+	public function test_group_subscription_invite_provider_entry() {
+		$configs = Emails::get_email_configs();
+		$type    = 'group-subscription-invite';
+
+		$this->assertArrayHasKey( $type, $configs, 'Group subscription invite config not registered.' );
+		$this->assertSame( 'reader-revenue', $configs[ $type ]['chip'] );
+		$this->assertSame( 'reader', $configs[ $type ]['recipient'] );
+		$this->assertFalse( $configs[ $type ]['recommended'] );
+		$this->assertSame( 'Sent to invite a reader to join a group subscription.', $configs[ $type ]['trigger_description'] );
 	}
 
-	/**
-	 * Test all registry entries have non-empty labels and trigger descriptions.
+	/*
+	 * ------------------------------------------------------------------
+	 * 7c — Response shape of api_get_email_settings()
+	 * ------------------------------------------------------------------
+	 * Verifies the wizard endpoint response structure after the rewrite:
+	 * top-level keys are correct, each newspack_emails row carries the
+	 * new schema fields, no view_category leakage, and the sort grouping
+	 * holds (reader-revenue → reader-activation → other).
 	 */
-	public function test_registry_entries_have_labels_and_triggers() {
-		$registry = Emails_Section::get_email_registry();
-		foreach ( $registry as $slug => $entry ) {
-			$this->assertNotEmpty( $entry['label'], "Entry '$slug' is missing a label." );
-			$this->assertNotEmpty( $entry['trigger_description'], "Entry '$slug' is missing a trigger_description." );
-		}
-	}
 
 	/**
-	 * Test recommended is always a boolean.
-	 */
-	public function test_registry_recommended_is_boolean() {
-		$registry = Emails_Section::get_email_registry();
-		foreach ( $registry as $slug => $entry ) {
-			$this->assertIsBool( $entry['recommended'], "Entry '$slug' has a non-boolean recommended value." );
-		}
-	}
-
-	/**
-	 * Test each entry has either newspack_type or woo_email_id, never both.
-	 */
-	public function test_registry_entries_have_exclusive_type_keys() {
-		$registry = Emails_Section::get_email_registry();
-		foreach ( $registry as $slug => $entry ) {
-			$has_newspack = isset( $entry['newspack_type'] );
-			$has_woo      = isset( $entry['woo_email_id'] );
-			$this->assertTrue( $has_newspack || $has_woo, "Entry '$slug' has neither newspack_type nor woo_email_id." );
-			$this->assertFalse( $has_newspack && $has_woo, "Entry '$slug' has both newspack_type and woo_email_id." );
-		}
-	}
-
-	/**
-	 * Test newspack-source entries have newspack_type and woocommerce-source entries have woo_email_id.
-	 */
-	public function test_registry_source_matches_type_key() {
-		$registry = Emails_Section::get_email_registry();
-		foreach ( $registry as $slug => $entry ) {
-			if ( 'newspack' === $entry['source'] ) {
-				$this->assertArrayHasKey( 'newspack_type', $entry, "Newspack-source entry '$slug' is missing newspack_type." );
-				$this->assertNotEmpty( $entry['newspack_type'], "Newspack-source entry '$slug' has empty newspack_type." );
-			}
-			if ( 'woocommerce' === $entry['source'] ) {
-				$this->assertArrayHasKey( 'woo_email_id', $entry, "WooCommerce-source entry '$slug' is missing woo_email_id." );
-				$this->assertNotEmpty( $entry['woo_email_id'], "WooCommerce-source entry '$slug' has empty woo_email_id." );
-			}
-		}
-	}
-
-	/**
-	 * Test no duplicate newspack_type or woo_email_id values across entries.
-	 */
-	public function test_registry_no_duplicate_type_values() {
-		$registry       = Emails_Section::get_email_registry();
-		$newspack_types = [];
-		$woo_ids        = [];
-
-		foreach ( $registry as $slug => $entry ) {
-			if ( isset( $entry['newspack_type'] ) ) {
-				$this->assertNotContains( $entry['newspack_type'], $newspack_types, "Duplicate newspack_type '{$entry['newspack_type']}' in entry '$slug'." );
-				$newspack_types[] = $entry['newspack_type'];
-			}
-			if ( isset( $entry['woo_email_id'] ) ) {
-				$this->assertNotContains( $entry['woo_email_id'], $woo_ids, "Duplicate woo_email_id '{$entry['woo_email_id']}' in entry '$slug'." );
-				$woo_ids[] = $entry['woo_email_id'];
-			}
-		}
-	}
-
-	/**
-	 * Test api_get_email_settings returns the expected response shape.
+	 * Response has the expected top-level shape, and rows carry the new fields.
 	 */
 	public function test_api_get_email_settings_response_shape() {
 		$result = Emails_Section::api_get_email_settings();
@@ -132,122 +162,173 @@ class Newspack_Test_Emails_Section extends WP_UnitTestCase {
 			$this->assertArrayHasKey( 'enable_woocommerce_email_editor', $result );
 		}
 
-		// Verify enriched fields on each Newspack email that has a registry_slug.
-		$enriched_keys  = [ 'label', 'recommended', 'trigger_description', 'registry_slug', 'recipient', 'source' ];
-		$enriched_count = 0;
+		$required_row_fields = [
+			'label',
+			'registry_slug',
+			'trigger_description',
+			'recipient',
+			'recommended',
+			'chip',
+			'source',
+			'category',
+			'status',
+		];
 		foreach ( $result['newspack_emails'] as $email ) {
-			if ( empty( $email['registry_slug'] ) ) {
-				// Fallback branch: verify defaults are set.
-				$this->assertArrayHasKey( 'recommended', $email, 'Fallback email is missing recommended.' );
-				$this->assertFalse( $email['recommended'], 'Fallback email should have recommended=false.' );
-				$this->assertArrayHasKey( 'source', $email, 'Fallback email is missing source.' );
-				continue;
-			}
-			++$enriched_count;
-			foreach ( $enriched_keys as $key ) {
-				$this->assertArrayHasKey( $key, $email, "Email '{$email['label']}' is missing enriched field '$key'." );
+			foreach ( $required_row_fields as $field ) {
+				$this->assertArrayHasKey( $field, $email, "Row '{$email['label']}' is missing field '$field'." );
 			}
 		}
-		$this->assertGreaterThan( 0, $enriched_count, 'Expected at least one enriched email in the response, but found none.' );
 	}
 
 	/**
-	 * Test sort order: reader-revenue first, reader-activation second, other categories last.
+	 * `view_category` is dead — it was called out in slice 1 review feedback
+	 * and the response builder no longer emits it.
+	 */
+	public function test_api_get_email_settings_omits_view_category() {
+		$result = Emails_Section::api_get_email_settings();
+		foreach ( $result['newspack_emails'] as $email ) {
+			$this->assertArrayNotHasKey( 'view_category', $email );
+		}
+	}
+
+	/**
+	 * Sort order: reader-revenue first, then reader-activation, then everything else.
 	 */
 	public function test_api_get_email_settings_sort_order() {
-		$result     = Emails_Section::api_get_email_settings();
-		$categories = array_column( $result['newspack_emails'], 'category' );
-
-		// Build the expected group order: reader-revenue → reader-activation → everything else.
-		$last_group = -1;
-		$group_map  = [
+		$result    = Emails_Section::api_get_email_settings();
+		$group_map = [
 			'reader-revenue'    => 0,
 			'reader-activation' => 1,
 		];
-		foreach ( $categories as $i => $cat ) {
-			$group = $group_map[ $cat ] ?? 2;
-			$this->assertGreaterThanOrEqual( $last_group, $group, "Email at index $i (category '$cat') is out of sort order." );
+
+		$last_group = -1;
+		foreach ( $result['newspack_emails'] as $i => $email ) {
+			$group = $group_map[ $email['category'] ?? '' ] ?? 2;
+			$this->assertGreaterThanOrEqual(
+				$last_group,
+				$group,
+				"Email at index $i (category '{$email['category']}') is out of sort order."
+			);
 			$last_group = $group;
 		}
 	}
 
-	/**
-	 * Test admin-recipient emails are correctly classified.
+	/*
+	 * ------------------------------------------------------------------
+	 * 7d — WooCommerce integration
+	 * ------------------------------------------------------------------
+	 * The "WC inactive" branch is the only one we can test deterministically
+	 * without a WC mock in this environment. When WooCommerce is loaded in
+	 * a real environment the active-branch assertions kick in.
 	 */
-	public function test_admin_recipient_emails() {
-		$registry    = Emails_Section::get_email_registry();
-		$admin_slugs = array_keys(
-			array_filter(
-				$registry,
-				function ( $entry ) {
-					return 'admin' === $entry['recipient'];
-				}
-			)
-		);
-		$this->assertContains( 'woo-new-order', $admin_slugs, 'new_order is an admin email.' );
-		// woo-subscription-cancelled is reader-facing (Newspack notifies the reader);
-		// the separate WC admin notification is handled by WooCommerce core.
-		$this->assertNotContains( 'woo-subscription-cancelled', $admin_slugs );
+
+	/**
+	 * With WooCommerce not active, the filter returns the input unchanged.
+	 */
+	public function test_woocommerce_emails_get_email_configs_with_wc_inactive() {
+		if ( class_exists( 'WooCommerce' ) ) {
+			$this->markTestSkipped( 'WooCommerce is loaded in this environment; inactive-branch test does not apply.' );
+		}
+		$input  = [ 'some-existing-config' => [ 'name' => 'some-existing-config' ] ];
+		$result = WooCommerce_Emails::get_email_configs( $input );
+		$this->assertSame( $input, $result, 'When WC is not active, the filter should pass through unchanged.' );
 	}
 
 	/**
-	 * Test that the newspack_emails_registry filter can add entries.
+	 * With WooCommerce active, recognized WC email IDs are injected with
+	 * wc_email_instance attached; unrecognized IDs are silently absent.
 	 */
-	public function test_emails_registry_filter() {
-		$fake_entry = [
-			'source'              => 'newspack',
-			'newspack_type'       => 'test-filter-email',
-			'recommended'         => false,
-			'plugin_dependency'   => null,
-			'recipient'           => 'reader',
-			'label'               => 'Test filter email',
-			'trigger_description' => 'Added via filter.',
-		];
+	public function test_woocommerce_emails_get_email_configs_with_wc_active() {
+		if ( ! class_exists( 'WooCommerce' ) ) {
+			$this->markTestSkipped( 'WooCommerce is not loaded in this environment.' );
+		}
+		$configs = Emails::get_email_configs();
 
-		$callback = function ( $registry ) use ( $fake_entry ) {
-			$registry['test-filter-email'] = $fake_entry;
-			return $registry;
+		// At minimum, customer_new_account is core WC (no plugin_dependency).
+		// If WC is active, we expect it in the unified config set.
+		$this->assertArrayHasKey( 'customer_new_account', $configs, 'Core WC customer_new_account should be registered.' );
+		$this->assertSame( 'woocommerce', $configs['customer_new_account']['source'] );
+		$this->assertArrayHasKey( 'wc_email_instance', $configs['customer_new_account'] );
+		$this->assertInstanceOf( \WC_Email::class, $configs['customer_new_account']['wc_email_instance'] );
+	}
+
+	/*
+	 * ------------------------------------------------------------------
+	 * 7e — Default-merge mechanism
+	 * ------------------------------------------------------------------
+	 * Direct coverage of Emails::apply_config_defaults() — the core
+	 * pattern dkoo asked for. Catches changes to the documented defaults
+	 * and regressions in the merge logic.
+	 */
+
+	/**
+	 * Partial config gets the documented defaults filled in.
+	 */
+	public function test_apply_config_defaults_fills_missing_fields() {
+		$partial = [
+			'name'     => 'test-email',
+			'label'    => 'Test Email',
+			'category' => 'reader-activation',
+		];
+		$merged = Emails::apply_config_defaults( $partial );
+
+		$this->assertSame( '', $merged['trigger_description'] );
+		$this->assertSame( 'reader', $merged['recipient'] );
+		$this->assertTrue( $merged['recommended'] );
+		$this->assertSame( 'auth-account', $merged['chip'] );
+
+		// Declared fields pass through unchanged.
+		$this->assertSame( 'test-email', $merged['name'] );
+		$this->assertSame( 'Test Email', $merged['label'] );
+		$this->assertSame( 'reader-activation', $merged['category'] );
+	}
+
+	/**
+	 * A config that declares the new fields keeps its values — defaults
+	 * do not clobber explicit declarations.
+	 */
+	public function test_apply_config_defaults_preserves_declared_fields() {
+		$full = [
+			'name'                => 'test-email',
+			'trigger_description' => 'A specific trigger.',
+			'recipient'           => 'admin',
+			'recommended'         => false,
+			'chip'                => 'reader-revenue',
+		];
+		$merged = Emails::apply_config_defaults( $full );
+
+		$this->assertSame( 'A specific trigger.', $merged['trigger_description'] );
+		$this->assertSame( 'admin', $merged['recipient'] );
+		$this->assertFalse( $merged['recommended'] );
+		$this->assertSame( 'reader-revenue', $merged['chip'] );
+	}
+
+	/**
+	 * A third-party provider can register with no new fields at all and
+	 * still get a complete config back out of Emails::get_email_configs().
+	 *
+	 * This is the contract that makes the schema extension non-breaking
+	 * for downstream integrations.
+	 */
+	public function test_email_configs_filter_partial_provider_gets_defaults() {
+		$type     = 'test-partial-third-party-config';
+		$callback = function ( $configs ) use ( $type ) {
+			$configs[ $type ] = [
+				'name'     => $type,
+				'category' => 'reader-activation',
+				'label'    => 'Third-party',
+			];
+			return $configs;
 		};
 
-		add_filter( 'newspack_emails_registry', $callback );
-		$registry = Emails_Section::get_email_registry();
-		remove_filter( 'newspack_emails_registry', $callback );
+		add_filter( 'newspack_email_configs', $callback );
+		$configs = Emails::get_email_configs();
+		remove_filter( 'newspack_email_configs', $callback );
 
-		$this->assertArrayHasKey( 'test-filter-email', $registry, 'Filter-added entry should be present in the registry.' );
-		$this->assertSame( $fake_entry, $registry['test-filter-email'] );
-	}
-
-	/**
-	 * Test registry insertion order within source groups.
-	 *
-	 * The UI relies on registry order to determine display order within
-	 * each category group (reader-revenue, reader-activation, woocommerce).
-	 */
-	public function test_registry_order_within_groups() {
-		$slugs = array_keys( Emails_Section::get_email_registry() );
-
-		// Reader-revenue group: receipt → welcome → cancellation.
-		$this->assertLessThan(
-			array_search( 'welcome', $slugs, true ),
-			array_search( 'receipt', $slugs, true ),
-			'receipt should appear before welcome.'
-		);
-		$this->assertLessThan(
-			array_search( 'cancellation', $slugs, true ),
-			array_search( 'welcome', $slugs, true ),
-			'welcome should appear before cancellation.'
-		);
-
-		// Reader-activation group: verification → login-link → set-new-password.
-		$this->assertLessThan(
-			array_search( 'login-link', $slugs, true ),
-			array_search( 'verification', $slugs, true ),
-			'verification should appear before login-link.'
-		);
-		$this->assertLessThan(
-			array_search( 'set-new-password', $slugs, true ),
-			array_search( 'login-link', $slugs, true ),
-			'login-link should appear before set-new-password.'
-		);
+		$this->assertArrayHasKey( $type, $configs );
+		$this->assertSame( '', $configs[ $type ]['trigger_description'] );
+		$this->assertSame( 'reader', $configs[ $type ]['recipient'] );
+		$this->assertTrue( $configs[ $type ]['recommended'] );
+		$this->assertSame( 'auth-account', $configs[ $type ]['chip'] );
 	}
 }
