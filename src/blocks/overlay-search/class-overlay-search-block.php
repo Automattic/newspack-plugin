@@ -104,7 +104,7 @@ final class Overlay_Search_Block {
 		$wrapper_attributes = \get_block_wrapper_attributes(
 			[
 				'class' => 'wp-element-button wp-block-button__link newspack-overlay-search__trigger jetpack-search-filter__link',
-				'href'  => \esc_url( \add_query_arg( 's', '', \home_url( '/' ) ) ),
+				'href'  => \add_query_arg( 's', '', \home_url( '/' ) ),
 			]
 		);
 		$label_classes = $is_icon_only
