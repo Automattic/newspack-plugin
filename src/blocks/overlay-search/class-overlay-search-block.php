@@ -145,11 +145,10 @@ final class Overlay_Search_Block {
 		// icon-only) already supplies the accessible name.
 		$wrapper_attributes = \get_block_wrapper_attributes(
 			[
-				'class'           => 'wp-element-button wp-block-button__link newspack-overlay-search__trigger',
-				'type'            => 'button',
-				'aria-expanded'   => 'false',
-				'aria-controls'   => $panel_id,
-				'data-overlay-id' => $panel_id,
+				'class'         => 'wp-element-button wp-block-button__link newspack-overlay-search__trigger',
+				'type'          => 'button',
+				'aria-expanded' => 'false',
+				'aria-controls' => $panel_id,
 			]
 		);
 		$label_classes = $is_icon_only
