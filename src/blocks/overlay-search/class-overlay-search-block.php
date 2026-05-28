@@ -69,7 +69,7 @@ final class Overlay_Search_Block {
 		$panel_id = \wp_unique_id( 'newspack-overlay-search-panel-' );
 
 		return self::render_trigger_button( $trigger_text, $panel_id, $is_icon_only, $is_text_only )
-			. self::render_panel( $panel_id, (string) $attributes['overlayColor'] );
+			. self::render_panel( $panel_id, (string) $attributes['overlayColor'], $trigger_text );
 	}
 
 	/**
@@ -180,9 +180,10 @@ final class Overlay_Search_Block {
 	 *
 	 * @param string $panel_id      DOM id of the panel.
 	 * @param string $overlay_color Background color of the panel (any valid CSS color, supports RGBA).
+	 * @param string $trigger_text  Label text from the trigger, reused as the dialog's accessible name.
 	 * @return string Panel HTML.
 	 */
-	private static function render_panel( string $panel_id, string $overlay_color ): string {
+	private static function render_panel( string $panel_id, string $overlay_color, string $trigger_text ): string {
 		// Render core/search per instance so each panel gets its own unique input id.
 		$search_html = \render_block(
 			[
@@ -216,7 +217,7 @@ final class Overlay_Search_Block {
 			aria-modal="true"
 			aria-hidden="true"
 			inert
-			aria-label="<?php \esc_attr_e( 'Search', 'newspack-plugin' ); ?>"
+			aria-label="<?php echo \esc_attr( $trigger_text ); ?>"
 			<?php echo $style_attr; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 		>
 			<button type="button" class="newspack-overlay-search__close">
