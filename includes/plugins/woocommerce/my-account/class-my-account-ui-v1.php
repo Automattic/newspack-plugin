@@ -7,6 +7,8 @@
 
 namespace Newspack;
 
+use Newspack\Group_Subscription;
+use Newspack\Memberships;
 use Newspack\Reader_Activation;
 use Newspack\Reader_Data;
 use Newspack\WooCommerce_Connection;
@@ -40,6 +42,8 @@ class My_Account_UI_V1 {
 		\add_filter( 'option_woocommerce_myaccount_add_payment_method_endpoint', [ __CLASS__, 'add_payment_method_endpoint' ] );
 		\add_filter( 'default_option_woocommerce_myaccount_add_payment_method_endpoint', [ __CLASS__, 'add_payment_method_endpoint' ] );
 		\add_action( 'template_redirect', [ __CLASS__, 'redirect_payment_information_endpoint' ] );
+		\add_action( 'template_redirect', [ __CLASS__, 'redirect_empty_orders_endpoint' ] );
+		\add_action( 'template_redirect', [ __CLASS__, 'redirect_empty_payment_methods_endpoint' ] );
 		\add_action( 'newspack_woocommerce_after_account_payment_methods', [ __CLASS__, 'add_payment_method_modal' ] );
 		\add_action( 'newspack_woocommerce_after_account_payment_methods', [ __CLASS__, 'delete_payment_method_modals' ] );
 		\add_action( 'newspack_woocommerce_after_account_addresses', [ __CLASS__, 'add_address_modals' ] );
@@ -207,6 +211,10 @@ class My_Account_UI_V1 {
 				return __DIR__ . '/templates/v1/related-orders.php';
 			case 'myaccount/related-subscriptions.php':
 				return __DIR__ . '/templates/v1/related-subscriptions.php';
+			case 'myaccount/group-picker.php':
+				return __DIR__ . '/templates/v1/group-picker.php';
+			case 'myaccount/group.php':
+				return __DIR__ . '/templates/v1/group.php';
 			case 'myaccount/group-subscription-members.php':
 				return __DIR__ . '/templates/v1/group-subscription-members.php';
 			case 'order/order-again.php':
@@ -267,6 +275,40 @@ class My_Account_UI_V1 {
 		// Remove "Addresses" (replaced by custom "Payment information" page).
 		unset( $items['edit-address'] );
 
+		// Hide "Orders" for anyone with no orders — even admins/non-readers shouldn't see a tab
+		// that only renders the "No order has been made yet" empty state.
+		if ( isset( $items['orders'] ) && ! self::current_user_has_orders() ) {
+			unset( $items['orders'] );
+		}
+
+		// Hide "Payment information" for group members who have no orders of their own —
+		// they're accessing content via someone else's subscription.
+		if ( isset( $items['payment-methods'] ) && self::current_user_is_group_member_without_orders() ) {
+			unset( $items['payment-methods'] );
+		}
+
+		// Sidebar entry for native group management. Visibility gated by manager-of-at-least-one-group
+		// AND the existing `Memberships::is_active()` suppression already used by group-subscription UI.
+		// Inserted immediately after Subscriptions so the two related entries stay adjacent.
+		if ( ! Memberships::is_active() ) {
+			$managed = Group_Subscription::get_managed_subscriptions_for_user( \get_current_user_id() );
+			$count   = count( $managed );
+			if ( $count > 0 ) {
+				$label_variant = $count > 1 ? 'plural' : 'singular';
+				$group_entry   = [ 'group' => Group_Subscription::get_label( $label_variant ) ];
+				if ( isset( $items['subscriptions'] ) ) {
+					$position = array_search( 'subscriptions', array_keys( $items ), true );
+					$items    = array_merge(
+						array_slice( $items, 0, $position + 1, true ),
+						$group_entry,
+						array_slice( $items, $position + 1, null, true )
+					);
+				} else {
+					$items = array_merge( $items, $group_entry );
+				}
+			}
+		}
+
 		return $items;
 	}
 
@@ -280,7 +322,7 @@ class My_Account_UI_V1 {
 		if ( 'subscriptions' !== $endpoint ) {
 			return false;
 		}
-		return function_exists( 'is_wc_endpoint_url' ) && ( is_wc_endpoint_url( 'view-subscription' ) || is_wc_endpoint_url( 'manage-members' ) );
+		return function_exists( 'is_wc_endpoint_url' ) && is_wc_endpoint_url( 'view-subscription' );
 	}
 
 	/**
@@ -347,7 +389,7 @@ class My_Account_UI_V1 {
 		endif;
 		if ( ! empty( $active_subscriptions ) || $active_donations ) :
 			?>
-		<div class="newspack-ui__row">
+		<div class="newspack-ui__grid">
 			<div>
 				<p class="font-size newspack-ui__font--s newspack-ui__font--bold"><?php esc_html_e( 'Subscriptions', 'newspack-plugin' ); ?></p>
 				<p class="newspack-ui__helper-text"><?php esc_html_e( 'Review and cancel active subscriptions.', 'newspack-plugin' ); ?></p>
@@ -360,7 +402,7 @@ class My_Account_UI_V1 {
 		</div>
 		<?php endif; ?>
 		<?php if ( ! empty( $newsletter_subscriptions ) ) : ?>
-		<div class="newspack-ui__row">
+		<div class="newspack-ui__grid">
 			<div>
 				<p class="font-size newspack-ui__font--s newspack-ui__font--bold"><?php esc_html_e( 'Newsletters', 'newspack-plugin' ); ?></p>
 				<p class="newspack-ui__helper-text"><?php esc_html_e( 'Update your newsletter preferences.', 'newspack-plugin' ); ?></p>
@@ -381,7 +423,7 @@ class My_Account_UI_V1 {
 				'id'      => 'delete-account',
 				'title'   => __( 'Delete account', 'newspack-plugin' ),
 				'content' => $content_send_email,
-				'size'    => 'medium',
+				'size'    => 'small',
 				'actions' => [
 					'confirm' => [
 						'label' => __( 'Delete account', 'newspack-plugin' ),
@@ -614,6 +656,88 @@ class My_Account_UI_V1 {
 				exit;
 			}
 		}
+	}
+
+	/**
+	 * Redirect the Orders endpoint to the My Account dashboard for group members with no orders.
+	 * Pairs with hiding the menu item in `my_account_menu_items()` so bookmarks / typed URLs
+	 * don't dead-end on the empty state.
+	 */
+	public static function redirect_empty_orders_endpoint() {
+		self::maybe_redirect_dead_end_endpoint( 'orders' );
+	}
+
+	/**
+	 * Redirect the Payment Methods endpoint to the dashboard for group members with no orders.
+	 */
+	public static function redirect_empty_payment_methods_endpoint() {
+		self::maybe_redirect_dead_end_endpoint( 'payment-methods' );
+	}
+
+	/**
+	 * Shared redirect helper: bounce a My Account endpoint to the dashboard when the current
+	 * user is a group-only member (no orders of their own).
+	 *
+	 * @param string $endpoint WooCommerce account endpoint slug.
+	 */
+	private static function maybe_redirect_dead_end_endpoint( $endpoint ) {
+		if ( ! function_exists( 'is_account_page' ) || ! \is_account_page() ) {
+			return;
+		}
+		global $wp;
+		$current_url = \trailingslashit( \home_url( $wp->request ) );
+		if ( \trailingslashit( \wc_get_account_endpoint_url( $endpoint ) ) !== $current_url ) {
+			return;
+		}
+		if ( ! self::current_user_is_group_member_without_orders() ) {
+			return;
+		}
+		\wp_safe_redirect( \wc_get_page_permalink( 'myaccount' ) );
+		exit;
+	}
+
+	/**
+	 * Whether the current user belongs to at least one group subscription and has never
+	 * placed an order of their own. Per-request memoized.
+	 *
+	 * @return bool
+	 */
+	private static function current_user_is_group_member_without_orders() {
+		$user_id = \get_current_user_id();
+		if ( ! $user_id || ! class_exists( __NAMESPACE__ . '\\Group_Subscription' ) ) {
+			return false;
+		}
+		$group_subscription_ids = Group_Subscription::get_group_subscriptions_for_user( $user_id, true );
+		if ( empty( $group_subscription_ids ) ) {
+			return false;
+		}
+		return ! self::current_user_has_orders();
+	}
+
+	/**
+	 * Whether the current user has any orders. Per-request memoized.
+	 *
+	 * @return bool
+	 */
+	private static function current_user_has_orders() {
+		static $cached = null;
+		if ( null !== $cached ) {
+			return $cached;
+		}
+		$user_id = \get_current_user_id();
+		if ( ! $user_id || ! function_exists( 'wc_get_orders' ) ) {
+			$cached = false;
+			return $cached;
+		}
+		$cached = (bool) \wc_get_orders(
+			[
+				'customer_id' => $user_id,
+				'limit'       => 1,
+				'return'      => 'ids',
+				'status'      => 'any',
+			]
+		);
+		return $cached;
 	}
 
 	/**

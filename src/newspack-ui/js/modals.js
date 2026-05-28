@@ -77,6 +77,22 @@ domReady( function () {
 			} );
 		} );
 
+		// Form-submit modals: show a spinner on the submit button while the form
+		// navigates away. No need to remove the class — page reloads. Covers both
+		// shapes: form IS the modal content, or form lives inside a content section.
+		const modalForm = modal.querySelector(
+			'form.newspack-ui__modal__content, .newspack-ui__modal__content form'
+		);
+		if ( modalForm ) {
+			modalForm.addEventListener( 'submit', () => {
+				const submitButton = modalForm.querySelector( 'button[type="submit"]' );
+				if ( submitButton ) {
+					submitButton.classList.add( 'newspack-ui__button--loading' );
+					submitButton.setAttribute( 'disabled', 'true' );
+				}
+			} );
+		}
+
 		const fetchButtons = [ ...modal.querySelectorAll( '[data-fetch]' ) ];
 		fetchButtons.forEach( fetchButton => {
 			fetchButton.addEventListener( 'click', e => {
@@ -88,6 +104,7 @@ domReady( function () {
 					}
 					e.preventDefault();
 					e.target.setAttribute( 'disabled', true );
+					e.target.classList.add( 'newspack-ui__button--loading' );
 					fetch( fetchData.url, {
 						method: fetchData.method,
 						body: JSON.stringify( fetchData.body || {} ),
@@ -120,6 +137,7 @@ domReady( function () {
 						.finally( () => {
 							e.target.removeAttribute( 'disabled' );
 							e.target.classList.remove( 'newspack-ui--loading' );
+							e.target.classList.remove( 'newspack-ui__button--loading' );
 							e.target.closest( 'form, div' ).classList.remove( 'newspack-ui--loading' );
 						} );
 				}

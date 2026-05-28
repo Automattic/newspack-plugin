@@ -41,6 +41,56 @@ function newspack_string_to_bool( $string ) {
 }
 
 /**
+ * Best human-readable label for a user.
+ *
+ * Walks an ordered list of strategies and returns the first non-empty result.
+ * Strategies: 'display_name', 'first_name', 'last_name', 'full_name', 'email', 'login'.
+ *
+ * Default cascade: display_name → full_name → email.
+ * For just the display name, pass `[ 'display_name' ]`.
+ * For first name only, pass `[ 'first_name' ]`.
+ *
+ * @param \WP_User|int|null $user    User object or user ID.
+ * @param string[]          $cascade Ordered strategies to try.
+ * @return string
+ */
+function newspack_get_user_display_label( $user, $cascade = [ 'display_name', 'full_name', 'email' ] ) {
+	if ( is_numeric( $user ) ) {
+		$user = \get_userdata( (int) $user );
+	}
+	if ( ! $user instanceof \WP_User ) {
+		return '';
+	}
+	foreach ( $cascade as $strategy ) {
+		$candidate = '';
+		switch ( $strategy ) {
+			case 'display_name':
+				$candidate = trim( (string) $user->display_name );
+				break;
+			case 'first_name':
+				$candidate = trim( (string) $user->first_name );
+				break;
+			case 'last_name':
+				$candidate = trim( (string) $user->last_name );
+				break;
+			case 'full_name':
+				$candidate = trim( $user->first_name . ' ' . $user->last_name );
+				break;
+			case 'email':
+				$candidate = (string) $user->user_email;
+				break;
+			case 'login':
+				$candidate = (string) $user->user_login;
+				break;
+		}
+		if ( '' !== $candidate ) {
+			return $candidate;
+		}
+	}
+	return '';
+}
+
+/**
  * Currencies options, copied from WooCommerce.
  * https://github.com/woocommerce/woocommerce/blob/trunk/includes/wc-core-functions.php
  */

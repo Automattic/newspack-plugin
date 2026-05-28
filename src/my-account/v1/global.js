@@ -6,6 +6,7 @@
  * Internal dependencies.
  */
 import { domReady } from '../../utils';
+import notices from '../../newspack-ui/js/notices';
 
 domReady( () => {
 	const interactionElements = [ '.newspack-ui--block-on-interaction' ];
@@ -25,4 +26,21 @@ domReady( () => {
 			} );
 		}
 	} );
+
+	// Convert any leftover inline WooCommerce success notice into a snackbar. The PHP
+	// `notices/success.php` template override misses some flows (e.g. URL-query message
+	// → `wc_add_notice` → `wc_print_notices` after redirect), and WC Blocks renders
+	// success messages as `.wc-block-components-notice-banner.is-success` rather than
+	// the legacy `.woocommerce-message` markup.
+	document
+		.querySelectorAll( '.woocommerce-message, .wc-block-components-notice-banner.is-success' )
+		.forEach( el => {
+			const text = el.textContent.trim();
+			if ( ! text ) {
+				return;
+			}
+			notices.createNotice( text, 'success' );
+			el.remove();
+		} );
+	document.querySelectorAll( '.woocommerce-notices-wrapper:empty' ).forEach( el => el.remove() );
 } );

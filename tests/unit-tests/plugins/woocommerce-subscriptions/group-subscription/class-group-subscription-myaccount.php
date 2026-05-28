@@ -347,20 +347,26 @@ class Test_Group_Subscription_MyAccount extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Managers (subscription owners) receive a "Manage members" action.
+	 * Managers (subscription owners) receive their existing actions unchanged — no kebab button injected.
 	 */
-	public function test_view_subscription_actions_adds_manage_members_for_manager() {
+	public function test_view_subscription_actions_passes_through_unchanged_for_manager() {
 		$owner_id  = $this->create_reader_user();
 		$group_sub = $this->create_group_subscription( $owner_id );
+		$actions   = [
+			'cancel' => [
+				'url'  => '#',
+				'name' => 'Cancel',
+			],
+		];
 
 		$result = Group_Subscription_MyAccount::view_subscription_actions(
-			[],
+			$actions,
 			$group_sub,
 			$owner_id
 		);
 
-		$this->assertArrayHasKey( 'manage_members', $result, 'Manager should see Manage members action' );
-		$this->assertStringContainsString( 'manage-members', $result['manage_members']['url'] );
+		$this->assertArrayNotHasKey( 'manage_members', $result, 'Manager should not see a Manage members kebab action' );
+		$this->assertEquals( $actions, $result, 'Manager actions should pass through unchanged' );
 	}
 
 	/**
@@ -409,5 +415,135 @@ class Test_Group_Subscription_MyAccount extends WP_UnitTestCase {
 		);
 
 		$this->assertEquals( $actions, $result, 'Actions should be unchanged when not on account page' );
+	}
+
+	// ---- is_subscription_manageable tests ----
+
+	/**
+	 * Manageable returns true for an active group sub.
+	 */
+	public function test_is_subscription_manageable_returns_true_for_active() {
+		$owner_id = $this->create_reader_user();
+		$sub      = $this->create_group_subscription( $owner_id );
+
+		$this->assertTrue( Group_Subscription_MyAccount::is_subscription_manageable( $sub->get_id() ) );
+	}
+
+	/**
+	 * Manageable returns false for a cancelled group sub — manager actions
+	 * (invite, cancel-invite, remove-member) must be refused.
+	 */
+	public function test_is_subscription_manageable_returns_false_for_cancelled() {
+		$owner_id = $this->create_reader_user();
+		$sub      = $this->create_group_subscription( $owner_id );
+		$sub->set_status( 'cancelled' );
+
+		$this->assertFalse( Group_Subscription_MyAccount::is_subscription_manageable( $sub->get_id() ) );
+	}
+
+	/**
+	 * Manageable returns false for an expired group sub.
+	 */
+	public function test_is_subscription_manageable_returns_false_for_expired() {
+		$owner_id = $this->create_reader_user();
+		$sub      = $this->create_group_subscription( $owner_id );
+		$sub->set_status( 'expired' );
+
+		$this->assertFalse( Group_Subscription_MyAccount::is_subscription_manageable( $sub->get_id() ) );
+	}
+
+	/**
+	 * Manageable returns false for a trashed sub.
+	 */
+	public function test_is_subscription_manageable_returns_false_for_trash() {
+		$owner_id = $this->create_reader_user();
+		$sub      = $this->create_group_subscription( $owner_id );
+		$sub->set_status( 'trash' );
+
+		$this->assertFalse( Group_Subscription_MyAccount::is_subscription_manageable( $sub->get_id() ) );
+	}
+
+	/**
+	 * Manageable returns false for a missing subscription.
+	 */
+	public function test_is_subscription_manageable_returns_false_for_missing() {
+		$this->assertFalse( Group_Subscription_MyAccount::is_subscription_manageable( 99999 ) );
+	}
+
+	// ---- handle_leave_group tests ----
+
+	/**
+	 * Helper that runs handle_leave_group with POST data populated and a redirect
+	 * interceptor so we can assert the response without actually exiting.
+	 *
+	 * @param int    $subscription_id Subscription posted by the form.
+	 * @param string $nonce_action    Nonce action; defaults to the correct constant.
+	 *
+	 * @return string Captured redirect URL.
+	 */
+	private function invoke_leave_group_handler( int $subscription_id, string $nonce_action = Group_Subscription_MyAccount::LEAVE_GROUP_NONCE_ACTION ): string {
+		// phpcs:disable WordPress.Security.NonceVerification.Missing,WordPress.Security.NonceVerification.Recommended
+		$_POST                     = [];
+		$_POST['subscription_id']  = (string) $subscription_id;
+		$_POST['_wpnonce']         = wp_create_nonce( $nonce_action );
+		$_REQUEST                  = $_POST;
+		$_SERVER['REQUEST_METHOD'] = 'POST';
+		// phpcs:enable
+
+		$captured = '';
+		$capture  = function ( $location ) use ( &$captured ) {
+			$captured = $location;
+			throw new \Exception( 'redirect_intercepted' );
+		};
+		add_filter( 'wp_redirect', $capture, 1 );
+		add_filter( 'allowed_redirect_hosts', fn( $hosts ) => array_merge( $hosts, [ 'example.com' ] ) );
+
+		try {
+			Group_Subscription_MyAccount::handle_leave_group();
+		} catch ( \Exception $e ) {
+			unset( $e ); // expected redirect_intercepted exception.
+		} finally {
+			remove_all_filters( 'wp_redirect' );
+			remove_all_filters( 'allowed_redirect_hosts' );
+			$_POST = [];
+			$_REQUEST = [];
+		}
+		return $captured;
+	}
+
+	/**
+	 * A logged-in member can leave the group; their meta is cleared and they
+	 * land back on the account dashboard.
+	 */
+	public function test_handle_leave_group_removes_caller_from_members() {
+		$owner_id  = $this->create_reader_user();
+		$member_id = $this->create_reader_user();
+		$sub       = $this->create_group_subscription( $owner_id );
+		$this->add_member( $member_id, $sub );
+		wp_set_current_user( $member_id );
+
+		$this->assertTrue( Group_Subscription::user_is_member( $member_id, $sub ) );
+
+		$this->invoke_leave_group_handler( $sub->get_id() );
+
+		$this->assertFalse( Group_Subscription::user_is_member( $member_id, $sub ) );
+	}
+
+	/**
+	 * A user who isn't a member of the subscription cannot use the leave action
+	 * to mutate someone else's membership.
+	 */
+	public function test_handle_leave_group_refuses_non_members() {
+		$owner_id   = $this->create_reader_user();
+		$member_id  = $this->create_reader_user();
+		$outsider_id = $this->create_reader_user();
+		$sub        = $this->create_group_subscription( $owner_id );
+		$this->add_member( $member_id, $sub );
+		wp_set_current_user( $outsider_id );
+
+		$this->invoke_leave_group_handler( $sub->get_id() );
+
+		// Member meta untouched.
+		$this->assertTrue( Group_Subscription::user_is_member( $member_id, $sub ) );
 	}
 }
