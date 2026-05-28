@@ -702,6 +702,10 @@ class Donations {
 	 * The platform option defaults to 'wc' and has no unset value, so first-run
 	 * is detected by whether the option was ever saved.
 	 *
+	 * Note: get_platform_slug() persists 'wc' when migrating a legacy 'stripe'
+	 * platform, which marks the option as saved. Such sites are treated as
+	 * having selected Newspack.
+	 *
 	 * @return bool
 	 */
 	public static function is_platform_selected() {
