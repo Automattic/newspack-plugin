@@ -107,9 +107,6 @@
 			column-gap: var(--newspack-ui-spacer-2);
 			.newspack-ui__button {
 				width: 100%;
-				@media ( min-width: 768px ) {
-					width: auto;
-				}
 			}
 		}
 		&--actions-container {

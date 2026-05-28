@@ -76,6 +76,8 @@ When a reader updates their lists subscription from Newspack Newsletters.
 
 ### `woocommerce_donation_order_processed`
 
+_**Deprecated** — prefer `woo_order_updated` or `woo_subscription_updated`. Kept firing for backward compatibility._
+
 For when there's a new donation processed through WooCommerce.
 
 | Name              | Type     | Obs                                                    |
@@ -95,6 +97,8 @@ For when there's a new donation processed through WooCommerce.
 | `user_last_name`  | `string` | The Woocommerce customer billing last name             |
 
 ### `woocommerce_order_failed`
+
+_**Deprecated** — prefer `woo_order_updated` or `woo_subscription_updated`. Kept firing for backward compatibility._
 
 For when there's a new donation payment failed through WooCommerce.
 Known issue: If the user tries to pay again after a failed payment, and the payment fails for a second time,
@@ -118,6 +122,8 @@ the order is already marked as failed so this hook will not trigger.
 
 ### `donation_new`
 
+_**Deprecated** — prefer `woo_order_updated` or `woo_subscription_updated`. Kept firing for backward compatibility._
+
 When there's a new donation.
 
 | Name              | Type     | Obs                                                    |
@@ -138,6 +144,8 @@ When there's a new donation.
 
 ### `order_completed`
 
+_**Deprecated** — prefer `woo_order_updated` or `woo_subscription_updated`. Kept firing for backward compatibility._
+
 When any WooCommerce order is completed with a successful payment.
 
 | Name              | Type     | Obs                                                    |
@@ -157,6 +165,8 @@ When any WooCommerce order is completed with a successful payment.
 
 ### `donation_subscription_new`
 
+_**Deprecated** — prefer `woo_order_updated` or `woo_subscription_updated`. Kept firing for backward compatibility._
+
 When there's a new WooCommerce Subscription. This action does not replace the `donation_new` that create the subscription.
 
 | Name              | Type     | Obs                                                    |
@@ -175,6 +185,8 @@ When there's a new WooCommerce Subscription. This action does not replace the `d
 
 ### `donation_subscription_cancelled`
 
+_**Deprecated** — prefer `woo_order_updated` or `woo_subscription_updated`. Kept firing for backward compatibility._
+
 When a WooCommerce Subscription is cancelled.
 
 | Name              | Type     |
@@ -190,6 +202,8 @@ When a WooCommerce Subscription is cancelled.
 | `user_last_name`  | `string` |
 
 ### `donation_subscription_changed`
+
+_**Deprecated** — prefer `woo_order_updated` or `woo_subscription_updated`. Kept firing for backward compatibility._
 
 When a WooCommerce Subscription status changes, or when there's a subscription switch (change in the product within the subscription. Usually a change in the recurrence or the amount of the subscription).
 
@@ -208,6 +222,8 @@ When a WooCommerce Subscription status changes, or when there's a subscription s
 | `user_last_name`  | `string` |
 
 ### `product_subscription_changed`
+
+_**Deprecated** — prefer `woo_order_updated` or `woo_subscription_updated`. Kept firing for backward compatibility._
 
 When a non-donation subscription status changes, or when there's a subscription switch (change in the product within the subscription. Usually an upgrade or downgrade, or a change in the recurrence or the amount of the subscription).
 
@@ -242,6 +258,47 @@ When a subscription of any type (donation or non-donation) renews, a renewal ord
 | `status_after`    | `string` |
 | `user_first_name` | `string` |
 | `user_last_name`  | `string` |
+
+### `woo_order_updated`
+
+Fires for every WooCommerce order status transition (any status → any status). One event per product line item, so a multi-product order produces one event per item. Emitted for **all** WC orders, regardless of whether they involve donation/subscription/membership products.
+
+| Name              | Type            | Obs                                                              |
+| ----------------- | --------------- | ---------------------------------------------------------------- |
+| `order_id`        | `int`           |                                                                  |
+| `status_from`     | `string\|null`  | Previous status (WC slug). `null` if not provided by the dispatcher. |
+| `status`          | `string`        | New status (WC slug, e.g. `completed`, `failed`, `processing`, `on-hold`) |
+| `user_id`         | `int`           |                                                                  |
+| `email`           | `string`        |                                                                  |
+| `amount`          | `float`         | Line item subtotal                                               |
+| `currency`        | `string`        |                                                                  |
+| `recurrence`      | `string`        | `once` for one-time products, `month`/`year` for subscriptions   |
+| `referer`         | `string`        | `_newspack_referer` meta from the order                          |
+| `popup_id`        | `string`        | `_newspack_popup_id` meta from the order                         |
+| `is_renewal`      | `bool`          | True if the order is a subscription renewal                      |
+| `subscription_id` | `int\|null`     | First subscription tied to the order, if any                     |
+| `product_id`      | `int`           | Product ID for this line item                                    |
+| `product_name`    | `string`        | Product name for this line item                                  |
+| `is_donation`     | `bool`          | True if `product_id` is a Newspack donation product              |
+
+### `woo_subscription_updated`
+
+Fires for every WC Subscription status transition AND for switches (recurrence/amount changes without a status change). One event per product line item.
+
+| Name              | Type     | Obs                                                                                  |
+| ----------------- | -------- | ------------------------------------------------------------------------------------ |
+| `subscription_id` | `int`    |                                                                                      |
+| `status_from`     | `string\|null` | Previous status (WC slug). For switches, equals `status` since no transition occurs. `null` if not provided. |
+| `status`          | `string` | New status (WC slug: `active`, `cancelled`, `pending-cancel`, `on-hold`, `paused`, `pending`, `expired`) |
+| `user_id`         | `int`    |                                                                                      |
+| `email`           | `string` |                                                                                      |
+| `amount`          | `float`  | Line item subtotal                                                                   |
+| `currency`        | `string` |                                                                                      |
+| `recurrence`      | `string` | Subscription billing period: `day`, `week`, `month`, `year`                          |
+| `product_id`      | `int`    | Product ID for this line item                                                        |
+| `product_name`    | `string` | Product name for this line item                                                      |
+| `is_donation`     | `bool`   | True if `product_id` is a Newspack donation product                                  |
+| `is_switch`       | `bool`   | True if the event originates from a subscription switch (recurrence/amount change) rather than a status transition |
 
 ## Registering a new action
 

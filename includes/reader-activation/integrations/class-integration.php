@@ -127,6 +127,89 @@ abstract class Integration {
 	}
 
 	/**
+	 * Whether this integration's external prerequisites are configured.
+	 *
+	 * Child classes should override this to check whether the third-party
+	 * service or plugin the integration depends on is set up (e.g., API
+	 * key entered, provider selected). Returns true by default.
+	 *
+	 * @return bool True if set up, false otherwise.
+	 */
+	public function is_set_up() {
+		return true;
+	}
+
+	/**
+	 * Get the URL where the user can set up this integration.
+	 *
+	 * Child classes should override this to return the admin page where
+	 * the integration's prerequisites can be configured.
+	 *
+	 * @return string The setup URL, or empty string if not applicable.
+	 */
+	public function get_setup_url() {
+		return '';
+	}
+
+	/**
+	 * Whether this integration supports frontend reader registration.
+	 *
+	 * Integrations that return true will have their key output to the page
+	 * and will be accepted by the frontend registration endpoint.
+	 *
+	 * @return bool
+	 */
+	public function supports_frontend_registration(): bool {
+		return false;
+	}
+
+	/**
+	 * Generate the registration key for this integration.
+	 *
+	 * The default implementation uses HMAC-SHA256 with the site's auth salt.
+	 * Subclasses can override this to implement custom key schemes
+	 * (e.g., asymmetric key pairs, time-bounded tokens).
+	 *
+	 * @return string The registration key.
+	 */
+	public function get_registration_key(): string {
+		return hash_hmac( 'sha256', $this->id, \wp_salt( 'auth' ) );
+	}
+
+	/**
+	 * Validate a submitted registration key for this integration.
+	 *
+	 * The default implementation uses timing-safe comparison against
+	 * the HMAC key. Subclasses can override this to implement custom
+	 * validation (e.g., signature verification, token decryption).
+	 *
+	 * Note: The built-in JS client (newspackReaderActivation.register())
+	 * always sends the value from get_registration_key(). Integrations
+	 * that override this method to accept a different value must provide
+	 * their own client-side code to compute and submit the correct key.
+	 *
+	 * The default implementation validates the HMAC key. Subclasses can override
+	 * this method to perform additional checks on the request (e.g. verifying
+	 * custom headers, validating metadata, or enforcing integration-specific rules).
+	 *
+	 * @param string           $key     The submitted key to validate.
+	 * @param \WP_REST_Request $request The full registration request.
+	 * @return bool Whether the registration request is valid.
+	 */
+	public function validate_registration_request( string $key, $request ): bool {
+		return hash_equals( $this->get_registration_key(), $key );
+	}
+
+	/**
+	 * Initialize the integration, performing any necessary setup or validation.
+	 *
+	 * Currently only initializes settings fields, but can be extended by child classes for additional setup.
+	 */
+	public function init() {
+		$this->settings_fields = $this->register_settings_fields();
+	}
+
+	/**
 	 * Register settings fields for this integration.
 	 *
 	 * Child classes should override this method to return static field
@@ -159,6 +242,20 @@ abstract class Integration {
 	 * @return true|\WP_Error True on success or WP_Error on failure.
 	 */
 	abstract public function push_contact_data( $contact, $context = '', $existing_contact = null );
+
+	/**
+	 * Handle a logged-in user attempting to register again via the frontend registration flow.
+	 *
+	 * Integrations can override this method to update user data or perform other actions when an existing user attempts to register again via the frontend registration flow. For example, an integration might want to link the existing user account to the integration, record a new donation for a returning donor, or log this event for analytics purposes.
+	 *
+	 * The default implementation is a no-op.
+	 *
+	 * @param \WP_User         $user    The currently logged-in user attempting to register again.
+	 * @param \WP_REST_Request $request The original registration request.
+	 */
+	public function handle_logged_in_user_registration( $user, $request ) {
+		// By default, do nothing. Integrations can override this to handle cases where a logged-in user attempts to register again via the frontend registration flow.
+	}
 
 	/**
 	 * Register data event handlers for this integration.
@@ -260,6 +357,14 @@ abstract class Integration {
 	/**
 	 * Get filtered incoming contact fields from the integration.
 	 *
+	 * Filters out fields whose human-readable name matches one of the
+	 * outgoing-sync prefixed keys, so admins don't re-select fields they
+	 * are already pushing to the ESP. Comparison is against `name` (not
+	 * `key`) because outgoing custom fields are created on the ESP under
+	 * their prefixed *label*, which the ESP returns as the incoming
+	 * field's `name` — while `key` is the ESP-assigned machine identifier
+	 * (e.g. Mailchimp `tag`, ActiveCampaign `perstag`).
+	 *
 	 * @return Integrations\Incoming_Field[] Array of incoming contact field objects.
 	 */
 	public function get_filtered_incoming_fields() {
@@ -267,13 +372,13 @@ abstract class Integration {
 		if ( is_wp_error( $fields ) ) {
 			return [];
 		}
-		$keys_to_filter = Sync\Metadata::get_all_prefixed_keys();
+		$names_to_filter = Sync\Metadata::get_all_prefixed_keys();
 		return array_values(
 			array_filter(
 				$fields,
-				function( $field ) use ( $keys_to_filter ) {
-					foreach ( $keys_to_filter as $key_to_filter ) {
-						if ( strpos( $field->get_key(), $key_to_filter ) === 0 ) {
+				function( $field ) use ( $names_to_filter ) {
+					foreach ( $names_to_filter as $name_to_filter ) {
+						if ( strpos( $field->get_name(), $name_to_filter ) === 0 ) {
 							return false;
 						}
 					}
@@ -338,12 +443,34 @@ abstract class Integration {
 	}
 
 	/**
+	 * Schema keys that indicate a stored raw_data entry was saved with the
+	 * post-rename integration schema. Entries missing every one of these are
+	 * considered "legacy" and rebuilt from the live provider list on read.
+	 *
+	 * @var string[]
+	 */
+	private const SCHEMA_KEYS = [
+		'name',
+		'value_type',
+		'matching_function',
+		'options',
+		'description',
+		'is_access_rule',
+		'is_segment_criteria',
+	];
+
+	/**
 	 * Get the enabled incoming fields for this integration.
 	 *
 	 * Reads stored field data (key => raw_data map saved by
 	 * update_enabled_incoming_fields()) and constructs Incoming_Field objects
 	 * for each entry. Each field is passed through configure_incoming_field()
 	 * so the integration can enrich it with promotion configuration.
+	 *
+	 * Legacy entries (saved before the schema expansion) carry raw_data that
+	 * predates the new keys. For those, fetch the live provider list once and
+	 * merge in the enrichment so the field renders correctly without forcing
+	 * the admin to re-save the integrations page after upgrade.
 	 *
 	 * @return Integrations\Incoming_Field[] Array of field objects.
 	 */
@@ -352,10 +479,42 @@ abstract class Integration {
 		if ( ! is_array( $stored ) ) {
 			return [];
 		}
+
+		$has_legacy_entries = false;
+		foreach ( $stored as $key => $raw_data ) {
+			if ( ! is_string( $key ) || '' === $key ) {
+				continue;
+			}
+			if ( ! is_array( $raw_data ) || empty( array_intersect( self::SCHEMA_KEYS, array_keys( $raw_data ) ) ) ) {
+				$has_legacy_entries = true;
+				break;
+			}
+		}
+
+		// Resolve the live provider list once, only when at least one entry needs it.
+		// On API failure, fall back to the stored raw_data unchanged.
+		$live_by_key = [];
+		if ( $has_legacy_entries ) {
+			$available = $this->get_available_incoming_fields();
+			if ( ! is_wp_error( $available ) && is_array( $available ) ) {
+				foreach ( $available as $available_field ) {
+					if ( $available_field instanceof Integrations\Incoming_Field ) {
+						$live_by_key[ $available_field->get_key() ] = $available_field->get_raw_data();
+					}
+				}
+			}
+		}
+
 		$fields = [];
 		foreach ( $stored as $key => $raw_data ) {
-			if ( empty( $key ) || ! is_string( $key ) ) {
+			if ( ! is_string( $key ) || '' === $key ) {
 				continue;
+			}
+			$raw_data = is_array( $raw_data ) ? $raw_data : [];
+			if ( empty( array_intersect( self::SCHEMA_KEYS, array_keys( $raw_data ) ) ) && isset( $live_by_key[ $key ] ) ) {
+				// Stored entry is in the legacy shape — overlay the live schema while
+				// preserving any non-schema keys the publisher may have stored.
+				$raw_data = array_merge( $raw_data, $live_by_key[ $key ] );
 			}
 			$field = new Integrations\Incoming_Field( $key, $raw_data );
 			$field = $this->configure_incoming_field( $field );
@@ -570,10 +729,12 @@ abstract class Integration {
 		$prepared       = [];
 
 		foreach ( $contact['metadata'] as $key => $value ) {
-			// If the key is already prefixed, keep it as-is if its field is enabled.
+			// If the key is already prefixed, keep it only when its field is both
+			// enabled and currently available — guarding against stale enabled-field
+			// names left over from a prior feature-flag-on period.
 			if ( 0 === strpos( $key, $prefix ) ) {
 				$field_name = substr( $key, strlen( $prefix ) );
-				if ( in_array( $field_name, $enabled_fields, true ) ) {
+				if ( in_array( $field_name, $enabled_fields, true ) && in_array( $field_name, $keys_map, true ) ) {
 					$prepared[ $key ] = $value;
 				}
 				continue;
@@ -706,13 +867,20 @@ abstract class Integration {
 				$incoming_fields  = $this->get_filtered_incoming_fields();
 				$field['options'] = array_map(
 					function ( $incoming_field ) {
-						return $incoming_field->get_key();
+						$key  = $incoming_field->get_key();
+						$name = $incoming_field->get_name();
+						return [
+							'value' => $key,
+							'label' => '' !== $name ? $name : $key,
+						];
 					},
 					is_wp_error( $incoming_fields ) ? [] : $incoming_fields
 				);
 			}
 			if ( 'outgoing_metadata_fields' === $field['key'] ) {
-				$field['options'] = Sync\Metadata::get_default_fields();
+				// TODO: Drop $field['options'] for outgoing_metadata_fields once consumers have migrated to grouped_options.
+				$field['options']         = Sync\Metadata::get_default_fields();
+				$field['grouped_options'] = Sync\Metadata::get_grouped_default_fields();
 			}
 			$config[] = $field;
 		}
@@ -741,7 +909,7 @@ abstract class Integration {
 	 * @param mixed $value The value to sanitize.
 	 * @return mixed The sanitized value.
 	 */
-	private function sanitize_settings_field_value( $field, $value ) {
+	protected function sanitize_settings_field_value( $field, $value ) {
 		$type = $field['type'] ?? 'text';
 		switch ( $type ) {
 			case 'checkbox':

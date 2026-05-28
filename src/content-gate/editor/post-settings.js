@@ -11,16 +11,38 @@ import { ExternalLink, ToggleControl } from '@wordpress/components';
 const { gates = [], taxonomyMap = {}, canEditGates = false } = window.newspackContentGates || {};
 
 /**
- * Check if a gate's content rules match the current post state.
+ * Check if a gate's content rules match the current post state. Mirrors
+ * the PHP `Content_Restriction_Control::get_post_gates()` evaluator.
  *
  * @param {Array}  contentRules Gate content rules.
  * @param {string} postType     Current post type.
  * @param {Object} termsByTax   Map of taxonomy REST base to array of term IDs.
+ * @param {number} postId       Current post ID, for the specific_posts override.
  *
- * @return {boolean} Whether all rules match.
+ * @return {boolean} Whether the gate applies to this post.
  */
-function gateMatchesPost( contentRules, postType, termsByTax ) {
-	return contentRules.every( rule => {
+function gateMatchesPost( contentRules, postType, termsByTax, postId ) {
+	// Inclusion override: if this post ID is listed in any specific_posts
+	// rule, the gate applies regardless of other rules.
+	const specificMatch = contentRules.some(
+		rule =>
+			rule.slug === 'specific_posts' &&
+			Array.isArray( rule.value ) &&
+			rule.value.length > 0 &&
+			rule.value.map( v => parseInt( v ) ).includes( parseInt( postId ) )
+	);
+	if ( specificMatch ) {
+		return true;
+	}
+
+	// Standard AND evaluation across remaining rules. specific_posts is skipped
+	// here; if it was the only rule and didn't match, the gate doesn't apply.
+	let hasNonSpecificRule = false;
+	const allMatch = contentRules.every( rule => {
+		if ( rule.slug === 'specific_posts' ) {
+			return true;
+		}
+		hasNonSpecificRule = true;
 		const isExclusion = rule.exclusion;
 		if ( rule.slug === 'post_types' ) {
 			return isExclusion ? ! rule.value.includes( postType ) : rule.value.includes( postType );
@@ -36,17 +58,20 @@ function gateMatchesPost( contentRules, postType, termsByTax ) {
 		const hasOverlap = rule.value.some( id => postTerms.includes( parseInt( id ) ) );
 		return isExclusion ? ! hasOverlap : hasOverlap;
 	} );
+
+	return allMatch && hasNonSpecificRule;
 }
 
 function PostSettings() {
-	const { meta, postType, termsByTax } = useSelect( select => {
-		const { getEditedPostAttribute } = select( 'core/editor' );
+	const { meta, postId, postType, termsByTax } = useSelect( select => {
+		const { getEditedPostAttribute, getCurrentPostId } = select( 'core/editor' );
 		const terms = {};
 		Object.values( taxonomyMap ).forEach( restBase => {
 			terms[ restBase ] = getEditedPostAttribute( restBase ) || [];
 		} );
 		return {
 			meta: getEditedPostAttribute( 'meta' ),
+			postId: getCurrentPostId(),
 			postType: getEditedPostAttribute( 'type' ),
 			termsByTax: terms,
 		};
@@ -54,8 +79,8 @@ function PostSettings() {
 	const { editPost } = useDispatch( 'core/editor' );
 
 	const matchingGates = useMemo(
-		() => gates.filter( gate => gateMatchesPost( gate.content_rules, postType, termsByTax ) ),
-		[ postType, termsByTax ]
+		() => gates.filter( gate => gateMatchesPost( gate.content_rules, postType, termsByTax, postId ) ),
+		[ postId, postType, termsByTax ]
 	);
 
 	return (

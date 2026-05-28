@@ -6,8 +6,22 @@
 @use "~@wordpress/base-styles/variables" as wp-vars;
 
 .newspack-card-feature {
+	height: 100%;
+
+	.newspack-card--core__header {
+		height: 100%;
+	}
+
 	.newspack-card--core__header-content {
-		grid-gap: 16px;
+		gap: 16px;
+		display: flex;
+		flex-direction: column;
+		height: 100%;
+
+		// Push the action row (buttons + badge) to the bottom.
+		> :last-child {
+			margin-top: auto;
+		}
 	}
 
 	&__content {

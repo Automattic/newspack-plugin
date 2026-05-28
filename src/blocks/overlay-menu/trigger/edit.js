@@ -35,24 +35,17 @@ export default function OverlayMenuTriggerEdit( { attributes, setAttributes, cli
 	const isTextOnly = classes.includes( 'is-style-text-only' );
 	const showTriggerIcon = ! isTextOnly;
 
-	// Find the panel sibling block to key the preview state Maps.
-	const panelClientId = useSelect(
-		select => {
-			const { getBlockRootClientId, getBlocks } = select( 'core/block-editor' );
-			const parentClientId = getBlockRootClientId( clientId );
-			return getBlocks( parentClientId ).find( b => b.name === 'newspack/overlay-menu-panel' )?.clientId;
-		},
-		[ clientId ]
-	);
+	// The panel registers its toggle under the parent's clientId.
+	const parentClientId = useSelect( select => select( 'core/block-editor' ).getBlockRootClientId( clientId ), [ clientId ] );
 
 	// Mirror the panel's open state so the toolbar button label and isPressed stay correct.
 	const [ isPanelOpen, setIsPanelOpen ] = useState( false );
 	useEffect( () => {
-		if ( ! panelClientId ) {
+		if ( ! parentClientId ) {
 			return;
 		}
-		return subscribeToPanel( panelClientId, setIsPanelOpen );
-	}, [ panelClientId ] );
+		return subscribeToPanel( parentClientId, setIsPanelOpen );
+	}, [ parentClientId ] );
 
 	const blockProps = useBlockProps( {
 		className: 'overlay-menu__trigger wp-block-button__link wp-element-button',
@@ -60,7 +53,7 @@ export default function OverlayMenuTriggerEdit( { attributes, setAttributes, cli
 
 	return (
 		<>
-			<PanelPreviewToggle isOpen={ isPanelOpen } onToggle={ () => panelToggles.get( panelClientId )?.() } />
+			<PanelPreviewToggle isOpen={ isPanelOpen } onToggle={ () => panelToggles.get( parentClientId )?.() } />
 
 			<button
 				{ ...blockProps }

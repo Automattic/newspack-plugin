@@ -85,17 +85,19 @@ class Integrations {
 		// Include required files.
 		require_once __DIR__ . '/integrations/class-integration.php';
 		require_once __DIR__ . '/integrations/class-contact-pull.php';
+		require_once __DIR__ . '/integrations/class-contact-cron.php';
 
 		add_action( 'init', [ __CLASS__, 'register_integrations' ], 5 );
 		add_action( 'init', [ __CLASS__, 'register_my_account_endpoints' ], 6 );
 		add_filter( 'woocommerce_account_menu_items', [ __CLASS__, 'filter_my_account_menu_items' ] );
 		add_filter( 'query_vars', [ __CLASS__, 'filter_my_account_query_vars' ] );
+		add_action( 'newspack_frontend_registration_existing_user', [ __CLASS__, 'handle_existing_user_registration' ], 10, 3 );
 		add_action( 'init', [ __CLASS__, 'schedule_health_check' ] );
 		add_action( self::HEALTH_CHECK_CRON_HOOK, [ __CLASS__, 'run_health_checks' ] );
 		add_filter( 'newspack_data_events_handler_action_group', [ __CLASS__, 'filter_handler_action_group' ], 10, 3 );
 		add_filter( 'newspack_action_scheduler_group_labels', [ __CLASS__, 'register_group_labels' ] );
 
-		Integrations\Contact_Pull::init();
+		Integrations\Contact_Cron::init();
 	}
 
 	/**
@@ -203,6 +205,40 @@ class Integrations {
 		}
 
 		return \Newspack\Action_Scheduler::get_scheduled_actions( $args );
+	}
+
+	/**
+	 * Count ActionScheduler actions for Newspack integrations.
+	 *
+	 * @param array $args {
+	 *     Optional. Query arguments. Same as get_scheduled_actions() but
+	 *     per_page/offset/orderby/order are ignored.
+	 *
+	 *     @type string $integration_id Filter by a single integration ID.
+	 *     @type string $status         ActionScheduler status (pending, complete, failed, canceled).
+	 *     @type string $search         Search term.
+	 * }
+	 *
+	 * @return int Total count.
+	 */
+	public static function count_scheduled_actions( $args = [] ) {
+		$defaults = [
+			'integration_id' => '',
+		];
+		$args = wp_parse_args( $args, $defaults );
+
+		if ( ! empty( $args['integration_id'] ) ) {
+			$args['groups'] = [ self::get_action_group( $args['integration_id'] ) ];
+		} else {
+			$args['groups'] = self::get_all_action_groups();
+		}
+		unset( $args['integration_id'] );
+
+		if ( empty( $args['groups'] ) ) {
+			return 0;
+		}
+
+		return \Newspack\Action_Scheduler::count_scheduled_actions( $args );
 	}
 
 	/**
@@ -392,6 +428,8 @@ class Integrations {
 				'name'        => $integration->get_name(),
 				'description' => $integration->get_description(),
 				'enabled'     => self::is_enabled( $id ),
+				'is_set_up'   => $integration->is_set_up(),
+				'setup_url'   => $integration->get_setup_url(),
 				'settings'    => $integration->get_settings_config(),
 			];
 		}
@@ -661,6 +699,24 @@ class Integrations {
 			$vars[] = $slug;
 		}
 		return $vars;
+	}
+
+	/**
+	 * Handle an existing user attempting to register via a frontend integration.
+	 *
+	 * Delegates to the integration's handle_logged_in_user_registration() method if it exists,
+	 * allowing integrations to update user data on repeated registration attempts
+	 * (e.g. recording a new donation for a returning donor).
+	 *
+	 * @param \WP_User                                     $user                The logged-in user.
+	 * @param \WP_REST_Request                             $request             The registration request.
+	 * @param \Newspack\Reader_Activation\Integration|null $integration_instance The integration instance, or null for filter-only registrations.
+	 */
+	public static function handle_existing_user_registration( $user, $request, $integration_instance ) {
+		if ( ! $integration_instance instanceof Integration ) {
+			return;
+		}
+		$integration_instance->handle_logged_in_user_registration( $user, $request );
 	}
 
 	/**

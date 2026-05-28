@@ -110,6 +110,17 @@ class My_Account_UI_V1 {
 				'renewal_early_title'         => __( 'Renew subscription early', 'newspack-plugin' ),
 				'change_payment_method_title' => __( 'Change payment method', 'newspack-plugin' ),
 				'switch_subscription_title'   => __( 'Change Subscription', 'newspack-plugin' ),
+				'invite_link_copied'          => __( 'Invite link copied.', 'newspack-plugin' ),
+				'invite_link_regenerated'     => __( 'New invite link copied. The old one no longer works.', 'newspack-plugin' ),
+				'invite_link_copy_failed'     => __( 'Couldn\'t copy the invite link to your clipboard. Copy it manually:', 'newspack-plugin' ),
+				'invite_link_disabled'        => __( 'Invite link disabled. You can create a new link any time.', 'newspack-plugin' ),
+			],
+			'rest'         => [
+				'base_url'   => get_rest_url(),
+				'nonce'      => wp_create_nonce( 'wp_rest' ),
+				'namespaces' => [
+					'group' => Group_Subscription_API::NAMESPACE,
+				],
 			],
 		];
 

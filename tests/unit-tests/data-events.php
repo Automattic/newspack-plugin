@@ -7,10 +7,27 @@
 
 use Newspack\Data_Events;
 
+require_once __DIR__ . '/../mocks/wc-mocks.php';
+
 /**
  * Tests the Data Events functionality.
  */
 class Newspack_Test_Data_Events extends WP_UnitTestCase {
+	/**
+	 * Always reset the wc-mocks PHP globals mutated by tests in this class, even if
+	 * an assertion fails partway through. The mocks back orders, subscriptions, and
+	 * products with PHP globals (not DB), so they don't get rolled back by
+	 * WP_UnitTestCase's transaction handling.
+	 */
+	public function tear_down() {
+		global $orders_database, $subscriptions_database, $products_database;
+		$orders_database        = [];
+		$subscriptions_database = [];
+		$products_database      = [];
+		\delete_option( 'newspack_donation_product_id' );
+		parent::tear_down();
+	}
+
 	/**
 	 * Test registering an action.
 	 */
@@ -1040,5 +1057,517 @@ class Newspack_Test_Data_Events extends WP_UnitTestCase {
 	 */
 	public static function current_event_capturing_handler() {
 		self::$captured_current_event = Data_Events::current_event();
+	}
+
+	/**
+	 * The new transactional Woo events should be registered as actions.
+	 */
+	public function test_woo_transactional_actions_registered() {
+		$registered = Data_Events::get_actions();
+		$this->assertContains( 'woo_order_updated', $registered );
+		$this->assertContains( 'woo_subscription_updated', $registered );
+	}
+
+	/**
+	 * Build a WC_Order_Item_Product mock with inline product info.
+	 *
+	 * @param array $args { product_id, name, subtotal }.
+	 * @return \WC_Order_Item_Product
+	 */
+	private function build_order_item( $args ) {
+		$defaults = [
+			'product_id' => 0,
+			'name'       => 'Test Product',
+			'subtotal'   => 0,
+		];
+		return new \WC_Order_Item_Product( array_merge( $defaults, $args ) );
+	}
+
+	/**
+	 * Create a WC order via the wc-mocks data-array shape.
+	 *
+	 * @param array $line_items Each item: [ 'product_id' => int, 'name' => string, 'subtotal' => float ].
+	 * @param array $order_args Override: status, billing_email, currency, customer_id, meta, total.
+	 * @return \WC_Order
+	 */
+	private function create_order_with_items( $line_items, $order_args = [] ) {
+		$defaults = [
+			'status'        => 'pending',
+			'billing_email' => 'reader@example.com',
+			'currency'      => 'USD',
+			'customer_id'   => 0,
+			'meta'          => [],
+			'total'         => array_sum( array_map( fn( $li ) => (float) ( $li['subtotal'] ?? 0 ), $line_items ) ),
+		];
+		$data = array_merge( $defaults, $order_args );
+		$data['items'] = array_map( [ $this, 'build_order_item' ], $line_items );
+		return \wc_create_order( $data );
+	}
+
+	/**
+	 * Single-product order produces one payload with the basic fields.
+	 */
+	public function test_woo_order_updated_payload_basic_fields() {
+		$order = $this->create_order_with_items(
+			[
+				[
+					'product_id' => 42,
+					'name'       => 'Mug',
+					'subtotal'   => 12.50,
+				],
+			],
+			[
+				'billing_email' => 'a@b.com',
+				'currency'      => 'USD',
+			]
+		);
+
+		$payloads = \Newspack\Data_Events\Utils::get_woo_order_updated_payloads( $order, 'completed' );
+
+		$this->assertCount( 1, $payloads );
+		$payload = $payloads[0];
+		$this->assertSame( $order->get_id(), $payload['order_id'] );
+		$this->assertSame( 'completed', $payload['status'] );
+		$this->assertSame( 'a@b.com', $payload['email'] );
+		$this->assertSame( 'USD', $payload['currency'] );
+		$this->assertSame( 12.50, $payload['amount'] );
+		$this->assertSame( 42, $payload['product_id'] );
+		$this->assertSame( 'Mug', $payload['product_name'] );
+	}
+
+	/**
+	 * Register mock donation products and configure the donation product option.
+	 *
+	 * Returns an associative array of product IDs: parent (grouped), once (simple),
+	 * month/year (subscription children with the appropriate `_subscription_period` meta).
+	 *
+	 * @return array{parent: int, once: int, month: int, year: int}
+	 */
+	private function setup_donation_products() {
+		$ids = [
+			'parent' => 999,
+			'once'   => 1001,
+			'month'  => 1002,
+			'year'   => 1003,
+		];
+
+		\wc_create_mock_product(
+			[
+				'id'   => $ids['once'],
+				'type' => 'simple',
+			]
+		);
+		\wc_create_mock_product(
+			[
+				'id'   => $ids['month'],
+				'type' => 'subscription',
+				'meta' => [ '_subscription_period' => 'month' ],
+			]
+		);
+		\wc_create_mock_product(
+			[
+				'id'   => $ids['year'],
+				'type' => 'subscription',
+				'meta' => [ '_subscription_period' => 'year' ],
+			]
+		);
+		\wc_create_mock_product(
+			[
+				'id'       => $ids['parent'],
+				'type'     => 'grouped',
+				'children' => [ $ids['once'], $ids['month'], $ids['year'] ],
+			]
+		);
+		\update_option( 'newspack_donation_product_id', $ids['parent'] );
+
+		return $ids;
+	}
+
+	/**
+	 * Donation product is flagged via is_donation; recurrence comes from product meta.
+	 */
+	public function test_woo_order_updated_payload_recurrence_and_is_donation() {
+		$donation_ids = $this->setup_donation_products();
+
+		$order = $this->create_order_with_items(
+			[
+				[
+					'product_id' => $donation_ids['month'],
+					'name'       => 'Monthly Donation',
+					'subtotal'   => 10.00,
+				],
+				[
+					'product_id' => 5000,
+					'name'       => 'T-shirt',
+					'subtotal'   => 20.00,
+				],
+			]
+		);
+
+		$payloads = \Newspack\Data_Events\Utils::get_woo_order_updated_payloads( $order, 'completed' );
+
+		$by_product = [];
+		foreach ( $payloads as $payload ) {
+			$by_product[ $payload['product_name'] ] = $payload;
+		}
+		$this->assertTrue( $by_product['Monthly Donation']['is_donation'] );
+		$this->assertSame( 'month', $by_product['Monthly Donation']['recurrence'] );
+
+		$this->assertFalse( $by_product['T-shirt']['is_donation'] );
+		$this->assertSame( 'once', $by_product['T-shirt']['recurrence'] );
+	}
+
+	/**
+	 * A multi-product order produces one payload per product line item.
+	 */
+	public function test_woo_order_updated_payload_multi_product() {
+		$order = $this->create_order_with_items(
+			[
+				[
+					'product_id' => 100,
+					'name'       => 'Donation',
+					'subtotal'   => 50.00,
+				],
+				[
+					'product_id' => 200,
+					'name'       => 'T-shirt',
+					'subtotal'   => 20.00,
+				],
+			]
+		);
+
+		$payloads = \Newspack\Data_Events\Utils::get_woo_order_updated_payloads( $order, 'completed' );
+
+		$this->assertCount( 2, $payloads );
+
+		$by_product = [];
+		foreach ( $payloads as $payload ) {
+			$by_product[ $payload['product_name'] ] = $payload;
+		}
+		$this->assertSame( 50.00, $by_product['Donation']['amount'] );
+		$this->assertSame( 20.00, $by_product['T-shirt']['amount'] );
+		$this->assertSame( 100, $by_product['Donation']['product_id'] );
+		$this->assertSame( 200, $by_product['T-shirt']['product_id'] );
+	}
+
+	/**
+	 * Build a subscription via the wc-mocks shape.
+	 *
+	 * @param array $args id, customer_id, status, billing_period, total.
+	 * @return \WC_Subscription
+	 */
+	private function create_test_subscription( $args = [] ) {
+		$defaults = [
+			'customer_id'    => 0,
+			'status'         => 'active',
+			'billing_period' => 'month',
+			'billing_email'  => 'sub@example.com',
+			'currency'       => 'USD',
+			'total'          => 30.00,
+			'items'          => [],
+		];
+		return \wcs_create_subscription( array_merge( $defaults, $args ) );
+	}
+
+	/**
+	 * Create a renewal order linked to the given subscription via the
+	 * `_subscription_renewal` meta the mocks recognise.
+	 *
+	 * @param \WC_Subscription $subscription Subscription to renew.
+	 * @param array            $line_items   Line items array (same shape as create_order_with_items).
+	 * @param array            $order_args   Optional order overrides.
+	 * @return \WC_Order
+	 */
+	private function create_renewal_order( $subscription, $line_items, $order_args = [] ) {
+		$order_args['meta']                          = $order_args['meta'] ?? [];
+		$order_args['meta']['_subscription_renewal'] = (int) $subscription->get_id();
+		return $this->create_order_with_items( $line_items, $order_args );
+	}
+
+	/**
+	 * A renewal order has is_renewal=true and subscription_id resolved.
+	 */
+	public function test_woo_order_updated_payload_renewal() {
+		$subscription = $this->create_test_subscription();
+		$renewal      = $this->create_renewal_order(
+			$subscription,
+			[
+				[
+					'product_id' => 7000,
+					'name'       => 'Monthly Plan',
+					'subtotal'   => 30.00,
+				],
+			]
+		);
+
+		$payloads = \Newspack\Data_Events\Utils::get_woo_order_updated_payloads( $renewal, 'completed' );
+
+		$this->assertCount( 1, $payloads );
+		$this->assertTrue( $payloads[0]['is_renewal'] );
+		$this->assertSame( (int) $subscription->get_id(), $payloads[0]['subscription_id'] );
+	}
+
+	/**
+	 * A non-renewal order has is_renewal=false and subscription_id=null.
+	 */
+	public function test_woo_order_updated_payload_non_renewal() {
+		$order = $this->create_order_with_items(
+			[
+				[
+					'product_id' => 8000,
+					'name'       => 'Standalone',
+					'subtotal'   => 5.00,
+				],
+			]
+		);
+
+		$payloads = \Newspack\Data_Events\Utils::get_woo_order_updated_payloads( $order, 'completed' );
+
+		$this->assertFalse( $payloads[0]['is_renewal'] );
+		$this->assertNull( $payloads[0]['subscription_id'] );
+	}
+
+	/**
+	 * Newspack referer/popup_id meta on the order is forwarded to the payload.
+	 */
+	public function test_woo_order_updated_payload_referer_and_popup() {
+		$order = $this->create_order_with_items(
+			[
+				[
+					'product_id' => 6000,
+					'name'       => 'Generic',
+					'subtotal'   => 5.00,
+				],
+			],
+			[
+				'meta' => [
+					'_newspack_referer'  => 'https://example.com/landing',
+					'_newspack_popup_id' => '12345',
+				],
+			]
+		);
+
+		$payloads = \Newspack\Data_Events\Utils::get_woo_order_updated_payloads( $order, 'completed' );
+
+		$this->assertSame( 'https://example.com/landing', $payloads[0]['referer'] );
+		$this->assertSame( '12345', $payloads[0]['popup_id'] );
+	}
+
+	/**
+	 * Single-product subscription emits one payload with the expected fields.
+	 */
+	public function test_woo_subscription_updated_payload_basic() {
+		$donation_ids = $this->setup_donation_products();
+
+		$subscription = $this->create_test_subscription(
+			[
+				'customer_id'   => 42,
+				'billing_email' => 'sub@example.com',
+				'currency'      => 'USD',
+				'total'         => 30.00,
+				'items'         => [
+					$this->build_order_item(
+						[
+							'product_id' => $donation_ids['month'],
+							'name'       => 'Monthly Donation',
+							'subtotal'   => 30.00,
+						]
+					),
+				],
+			]
+		);
+
+		$payloads = \Newspack\Data_Events\Utils::get_woo_subscription_updated_payloads( $subscription, 'active' );
+
+		$this->assertCount( 1, $payloads );
+		$payload = $payloads[0];
+		$this->assertSame( (int) $subscription->get_id(), $payload['subscription_id'] );
+		$this->assertSame( 'active', $payload['status'] );
+		$this->assertSame( 42, $payload['user_id'] );
+		$this->assertSame( 'sub@example.com', $payload['email'] );
+		$this->assertSame( 'USD', $payload['currency'] );
+		$this->assertSame( 'month', $payload['recurrence'] );
+		$this->assertSame( $donation_ids['month'], $payload['product_id'] );
+		$this->assertSame( 'Monthly Donation', $payload['product_name'] );
+		$this->assertTrue( $payload['is_donation'] );
+		$this->assertSame( 30.00, $payload['amount'] );
+		$this->assertFalse( $payload['is_switch'] );
+	}
+
+	/**
+	 * Multi-product subscription produces one payload per line item.
+	 */
+	public function test_woo_subscription_updated_payload_multi_product() {
+		$subscription = $this->create_test_subscription(
+			[
+				'items' => [
+					$this->build_order_item(
+						[
+							'product_id' => 9001,
+							'name'       => 'Monthly Plan',
+							'subtotal'   => 30.00,
+						]
+					),
+					$this->build_order_item(
+						[
+							'product_id' => 9002,
+							'name'       => 'Second Tier',
+							'subtotal'   => 5.00,
+						]
+					),
+				],
+			]
+		);
+
+		$payloads = \Newspack\Data_Events\Utils::get_woo_subscription_updated_payloads( $subscription, 'active' );
+
+		$this->assertCount( 2, $payloads );
+		$by_product = [];
+		foreach ( $payloads as $payload ) {
+			$by_product[ $payload['product_name'] ] = $payload;
+		}
+		$this->assertSame( 30.00, $by_product['Monthly Plan']['amount'] );
+		$this->assertSame( 5.00, $by_product['Second Tier']['amount'] );
+		$this->assertSame( 9001, $by_product['Monthly Plan']['product_id'] );
+		$this->assertSame( 9002, $by_product['Second Tier']['product_id'] );
+	}
+
+	/**
+	 * `woocommerce_order_status_changed` triggers one woo_order_updated dispatch per line item.
+	 */
+	public function test_woo_order_updated_listener_dispatches_per_line_item() {
+		$captured = [];
+		add_action(
+			'newspack_data_event_dispatch_woo_order_updated',
+			function ( $timestamp, $data, $client_id ) use ( &$captured ) {
+				$captured[] = $data;
+			},
+			10,
+			3
+		);
+
+		$order = $this->create_order_with_items(
+			[
+				[
+					'product_id' => 11000,
+					'name'       => 'Donation',
+					'subtotal'   => 50.00,
+				],
+				[
+					'product_id' => 11001,
+					'name'       => 'T-shirt',
+					'subtotal'   => 20.00,
+				],
+			]
+		);
+
+		// Trigger the listener directly by firing the hook.
+		do_action( 'woocommerce_order_status_changed', $order->get_id(), 'pending', 'completed', $order );
+
+		$this->assertCount( 2, $captured );
+		$names = array_map(
+			static function ( $d ) {
+				return $d['product_name'];
+			},
+			$captured
+		);
+		$this->assertContains( 'Donation', $names );
+		$this->assertContains( 'T-shirt', $names );
+		foreach ( $captured as $payload ) {
+			$this->assertSame( 'pending', $payload['status_from'] );
+			$this->assertSame( 'completed', $payload['status'] );
+			$this->assertSame( $order->get_id(), $payload['order_id'] );
+		}
+	}
+
+	/**
+	 * `woocommerce_subscription_status_updated` triggers one woo_subscription_updated dispatch per line item.
+	 */
+	public function test_woo_subscription_updated_listener_dispatches_per_line_item() {
+		$captured = [];
+		add_action(
+			'newspack_data_event_dispatch_woo_subscription_updated',
+			function ( $timestamp, $data, $client_id ) use ( &$captured ) {
+				$captured[] = $data;
+			},
+			10,
+			3
+		);
+
+		$subscription = $this->create_test_subscription(
+			[
+				'items' => [
+					$this->build_order_item(
+						[
+							'product_id' => 12000,
+							'name'       => 'Monthly Plan',
+							'subtotal'   => 30.00,
+						]
+					),
+				],
+			]
+		);
+
+		// Trigger transition: active -> on-hold.
+		do_action( 'woocommerce_subscription_status_updated', $subscription, 'on-hold', 'active' );
+
+		$this->assertCount( 1, $captured );
+		$this->assertSame( 'active', $captured[0]['status_from'] );
+		$this->assertSame( 'on-hold', $captured[0]['status'] );
+		$this->assertSame( (int) $subscription->get_id(), $captured[0]['subscription_id'] );
+		$this->assertFalse( $captured[0]['is_switch'] );
+	}
+
+	/**
+	 * `woocommerce_subscriptions_switch_completed` triggers woo_subscription_updated with the post-switch status.
+	 */
+	public function test_woo_subscription_updated_listener_dispatches_on_switch() {
+		$captured = [];
+		add_action(
+			'newspack_data_event_dispatch_woo_subscription_updated',
+			function ( $timestamp, $data, $client_id ) use ( &$captured ) {
+				$captured[] = $data;
+			},
+			10,
+			3
+		);
+
+		$subscription = $this->create_test_subscription(
+			[
+				'status' => 'active',
+				'items'  => [
+					$this->build_order_item(
+						[
+							'product_id' => 13000,
+							'name'       => 'Switched Plan',
+							'subtotal'   => 30.00,
+						]
+					),
+				],
+			]
+		);
+
+		// Build a switch order whose `_subscription_switch_data` meta references the subscription.
+		$switch_order = \wc_create_order(
+			[
+				'status'      => 'completed',
+				'customer_id' => 0,
+				'total'       => 30.00,
+				'meta'        => [
+					'_subscription_switch_data' => [
+						(int) $subscription->get_id() => [ 'switches' => [] ],
+					],
+				],
+			]
+		);
+
+		do_action( 'woocommerce_subscriptions_switch_completed', $switch_order );
+
+		$this->assertCount( 1, $captured );
+		$this->assertSame( (int) $subscription->get_id(), $captured[0]['subscription_id'] );
+		// For switches, status_from equals status (no status transition occurred).
+		$this->assertSame( 'active', $captured[0]['status_from'] );
+		$this->assertSame( 'active', $captured[0]['status'] );
+		$this->assertTrue( $captured[0]['is_switch'] );
 	}
 }

@@ -68,6 +68,18 @@ domReady( function () {
 			element.dispatchEvent( new CustomEvent( 'content-selected', { detail: selectedContent } ) );
 		};
 
+		const isTablist = header && header.getAttribute( 'role' ) === 'tablist';
+		const updateAria = activeIndex => {
+			if ( ! isTablist ) {
+				return;
+			}
+			tab_headers.forEach( ( t, j ) => {
+				const isActive = j === activeIndex;
+				t.setAttribute( 'aria-selected', isActive ? 'true' : 'false' );
+				t.setAttribute( 'tabindex', isActive ? '0' : '-1' );
+			} );
+		};
+
 		tab_headers.forEach( ( tab, i ) => {
 			if ( tab_contents.length === 0 ) {
 				return;
@@ -84,13 +96,37 @@ domReady( function () {
 
 			if ( tab.classList.contains( 'selected' ) ) {
 				select_content( i );
+				updateAria( i );
 			}
 
 			tab.addEventListener( 'click', function () {
 				tab_headers.forEach( t => t.classList.remove( 'selected' ) );
 				this.classList.add( 'selected' );
 				select_content( i );
+				updateAria( i );
 			} );
+
+			if ( isTablist ) {
+				tab.addEventListener( 'keydown', function ( ev ) {
+					const last = tab_headers.length - 1;
+					let next = -1;
+					if ( ev.key === 'ArrowRight' ) {
+						next = i === last ? 0 : i + 1;
+					} else if ( ev.key === 'ArrowLeft' ) {
+						next = i === 0 ? last : i - 1;
+					} else if ( ev.key === 'Home' ) {
+						next = 0;
+					} else if ( ev.key === 'End' ) {
+						next = last;
+					}
+					if ( next < 0 ) {
+						return;
+					}
+					ev.preventDefault();
+					tab_headers[ next ].focus();
+					tab_headers[ next ].click();
+				} );
+			}
 		} );
 	}
 
