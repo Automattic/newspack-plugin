@@ -20,6 +20,8 @@ import { withWizard } from '../../../../../packages/components/src';
 import Router from '../../../../../packages/components/src/proxied-imports/router';
 import ContentGating from './content-gating';
 import Payment from './payment';
+import { useWizardData } from '../../../../../packages/components/src/wizard/store/utils';
+import PlatformSelection from '../../components/platform-selection';
 
 const { HashRouter, Redirect, Route, Switch } = Router;
 
@@ -70,21 +72,37 @@ function AudienceWizard( { pluginRequirements, wizardApiFetch }, ref ) {
 		fetchConfig();
 	}, [] );
 
-	let tabs = [
-		{
-			label: config.enabled ? __( 'Configuration', 'newspack-plugin' ) : __( 'Setup', 'newspack-plugin' ),
-			path: '/',
-		},
-		config.enabled &&
-			newspackAudience.has_memberships && {
-				label: __( 'Content Gating', 'newspack-plugin' ),
-				path: '/content-gating',
-			},
-		{
-			label: __( 'Checkout & Payment', 'newspack-plugin' ),
-			path: '/payment',
-		},
-	];
+	const paymentData = useWizardData( 'newspack-audience/payment' );
+	const platform = paymentData?.platform_data?.platform;
+	const platformSelected = paymentData?.platform_data?.platform_selected;
+	// `null` = undecided until payment data loads. Driven by local state (not the live
+	// `platform_selected`) so the chooser stays mounted while plugins auto-install — the
+	// save flips `platform_selected` to true before install finishes.
+	const [ showChooser, setShowChooser ] = useState( null );
+	useEffect( () => {
+		if ( showChooser === null && typeof platformSelected === 'boolean' ) {
+			setShowChooser( ! platformSelected );
+		}
+	}, [ platformSelected, showChooser ] );
+	const chooserOpen = showChooser === true;
+
+	let tabs = chooserOpen
+		? []
+		: [
+				{
+					label: config.enabled ? __( 'Configuration', 'newspack-plugin' ) : __( 'Setup', 'newspack-plugin' ),
+					path: '/',
+				},
+				config.enabled &&
+					newspackAudience.has_memberships && {
+						label: __( 'Content Gating', 'newspack-plugin' ),
+						path: '/content-gating',
+					},
+				[ 'wc', 'nrh' ].includes( platform ) && {
+					label: __( 'Checkout & Payment', 'newspack-plugin' ),
+					path: '/payment',
+				},
+		  ];
 	tabs = tabs.filter( tab => tab );
 
 	const getSharedProps = ( configKey, type = 'checkbox' ) => {
@@ -121,6 +139,8 @@ function AudienceWizard( { pluginRequirements, wizardApiFetch }, ref ) {
 		espSyncErrors,
 		prerequisites,
 		config,
+		onChangePlatform: () => setShowChooser( true ),
+		platform,
 	};
 
 	return (
@@ -128,7 +148,23 @@ function AudienceWizard( { pluginRequirements, wizardApiFetch }, ref ) {
 			<HashRouter hashType="slash">
 				<Switch>
 					{ pluginRequirements }
-					<Route path="/" exact render={ () => <Setup { ...props } /> } />
+					<Route
+						path="/"
+						exact
+						render={ () =>
+							chooserOpen ? (
+								<PlatformSelection
+									onComplete={ () => {
+										setShowChooser( false );
+										fetchConfig();
+									} }
+									onCancel={ platformSelected ? () => setShowChooser( false ) : undefined }
+								/>
+							) : (
+								<Setup { ...props } />
+							)
+						}
+					/>
 					<Route path="/content-gating" render={ () => <ContentGating { ...props } /> } />
 					<Route path="/payment" render={ () => <Payment { ...props } /> } />
 					<Route path="/campaign" render={ () => <Campaign { ...props } /> } />
