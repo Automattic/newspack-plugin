@@ -52,7 +52,12 @@ const PlatformSelection = ( { onComplete, onCancel } ) => {
 				path: [ 'platform_data', 'platform' ],
 				value,
 			},
-		} ).then( () => {
+		} ).then( result => {
+			// On a failed save the store swallows the error and resolves to
+			// undefined; don't advance past an unsaved platform choice.
+			if ( ! result ) {
+				return;
+			}
 			if ( PLATFORM_PLUGINS[ value ].length ) {
 				setInstalling( value );
 			} else {
