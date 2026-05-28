@@ -17,8 +17,6 @@ import {
 	useSettings,
 	/* eslint-disable @wordpress/no-unsafe-wp-apis */
 	__experimentalColorGradientSettingsDropdown as ColorGradientSettingsDropdown,
-	__experimentalUseBorderProps as useBorderProps,
-	__experimentalUseColorProps as useColorProps,
 	__experimentalGetSpacingClassesAndStyles as useSpacingProps,
 	/* eslint-enable @wordpress/no-unsafe-wp-apis */
 } from '@wordpress/block-editor';
@@ -27,8 +25,6 @@ import { Icon } from '@wordpress/components';
 export default function OverlaySearchEdit( { attributes, setAttributes, clientId } ) {
 	const { triggerText, className: blockClassName, overlayColor } = attributes;
 
-	const borderProps = useBorderProps( attributes );
-	const colorProps = useColorProps( attributes );
 	const spacingProps = useSpacingProps( attributes );
 	const [ colorSettings ] = useSettings( 'color.palette' );
 
@@ -39,17 +35,8 @@ export default function OverlaySearchEdit( { attributes, setAttributes, clientId
 	const isIconVisible = ! isTextOnly;
 
 	const blockProps = useBlockProps( {
-		className: classnames(
-			blockClassName,
-			'wp-element-button',
-			'wp-block-button__link',
-			'newspack-overlay-search__trigger',
-			colorProps.className,
-			borderProps.className
-		),
+		className: classnames( blockClassName, 'wp-element-button', 'wp-block-button__link', 'newspack-overlay-search__trigger' ),
 		style: {
-			...borderProps.style,
-			...colorProps.style,
 			...spacingProps.style,
 		},
 	} );
