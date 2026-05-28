@@ -822,7 +822,8 @@ class Audience_Wizard extends Wizard {
 				'ppcp-gateway'         => $wc_configuration_manager->gateway_data( 'ppcp-gateway' ),
 			],
 			'platform_data'    => [
-				'platform' => $platform,
+				'platform'          => $platform,
+				'platform_selected' => Donations::is_platform_selected(),
 			],
 			'is_ssl'           => is_ssl(),
 			'errors'           => [],
