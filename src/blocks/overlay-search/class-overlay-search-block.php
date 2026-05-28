@@ -62,12 +62,11 @@ final class Overlay_Search_Block {
 		$is_icon_only = in_array( 'is-style-icon-only', $classes, true );
 		$is_text_only = in_array( 'is-style-text-only', $classes, true );
 
-		// `wp_unique_id()` returns a per-request counter ("1", "2", ...); prefix once for a clean DOM id.
-		$panel_id = 'newspack-overlay-search-panel-' . \wp_unique_id();
-
 		if ( self::is_jetpack_instant_search_active() ) {
 			return self::render_jetpack_trigger( $trigger_text, $is_icon_only, $is_text_only );
 		}
+
+		$panel_id = \wp_unique_id( 'newspack-overlay-search-panel-' );
 
 		return self::render_trigger_button( $trigger_text, $panel_id, $is_icon_only, $is_text_only )
 			. self::render_panel( $panel_id, (string) $attributes['overlayColor'] );
