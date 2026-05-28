@@ -820,35 +820,6 @@ final class Reader_Activation {
 	 */
 	public static function get_prerequisites_status() {
 		$prerequisites = [
-			'terms_conditions' => [
-				'active'      => self::is_terms_configured(),
-				'label'       => __( 'Legal Pages', 'newspack-plugin' ),
-				'description' => __( 'Displaying legal pages like Privacy Policy and Terms of Service on your site is recommended for allowing readers to register and access their account.', 'newspack-plugin' ),
-				'help_url'    => 'https://help.newspack.com/engagement/audience-management-system/',
-				'warning'     => __( 'Privacy policies that tell users how you collect and use their data are essential for running a  trustworthy website. While rules and regulations can differ by country, certain legal pages might be required by law.', 'newspack-plugin' ),
-				'fields'      => [
-					'terms_text' => [
-						'label'       => __( 'Legal Pages Disclaimer Text', 'newspack-plugin' ),
-						'description' => __( 'Legal pages disclaimer text to display on registration.', 'newspack-plugin' ),
-					],
-					'terms_url'  => [
-						'label'       => __( 'Legal Pages URL', 'newspack-plugin' ),
-						'description' => __( 'URL to the page containing the privacy policy or terms of service.', 'newspack-plugin' ),
-					],
-				],
-			],
-			'esp'              => [
-				'active'       => self::is_esp_configured(),
-				'plugins'      => [
-					'newspack-newsletters' => class_exists( '\Newspack_Newsletters' ),
-				],
-				'label'        => __( 'Email Service Provider (ESP)', 'newspack-plugin' ),
-				'description'  => __( 'Connect to your ESP to register readers with their email addresses and send newsletters.', 'newspack-plugin' ),
-				'instructions' => __( 'Connect to your email service provider (ESP) and enable at least one subscription list.', 'newspack-plugin' ),
-				'help_url'     => 'https://help.newspack.com/engagement/audience-management-system/',
-				'href'         => \admin_url( 'edit.php?post_type=newspack_nl_cpt&page=newspack-newsletters' ),
-				'action_text'  => __( 'ESP settings' ),
-			],
 			'emails'           => [
 				'active'      => self::is_transactional_email_configured(),
 				'label'       => __( 'Transactional Emails', 'newspack-plugin' ),
@@ -869,6 +840,23 @@ final class Reader_Activation {
 					],
 				],
 			],
+			'terms_conditions' => [
+				'active'      => self::is_terms_configured(),
+				'label'       => __( 'Legal Pages', 'newspack-plugin' ),
+				'description' => __( 'Displaying legal pages like Privacy Policy and Terms of Service on your site is recommended for allowing readers to register and access their account.', 'newspack-plugin' ),
+				'help_url'    => 'https://help.newspack.com/engagement/audience-management-system/',
+				'warning'     => __( 'Privacy policies that tell users how you collect and use their data are essential for running a  trustworthy website. While rules and regulations can differ by country, certain legal pages might be required by law.', 'newspack-plugin' ),
+				'fields'      => [
+					'terms_text' => [
+						'label'       => __( 'Legal Pages Disclaimer Text', 'newspack-plugin' ),
+						'description' => __( 'Legal pages disclaimer text to display on registration.', 'newspack-plugin' ),
+					],
+					'terms_url'  => [
+						'label'       => __( 'Legal Pages URL', 'newspack-plugin' ),
+						'description' => __( 'URL to the page containing the privacy policy or terms of service.', 'newspack-plugin' ),
+					],
+				],
+			],
 			'recaptcha'        => [
 				'active'       => self::is_recaptcha_enabled(),
 				'label'        => __( 'reCAPTCHA', 'newspack-plugin' ),
@@ -878,28 +866,23 @@ final class Reader_Activation {
 				'href'         => \admin_url( '/admin.php?page=newspack-settings&scrollTo=newspack-settings-recaptcha' ),
 				'action_text'  => __( 'reCAPTCHA settings' ),
 			],
-			'reader_revenue'   => [
-				'active'       => self::is_reader_revenue_ready(),
-				'plugins'      => self::get_reader_revenue_required_plugins(),
-				'label'        => __( 'Reader Revenue', 'newspack-plugin' ),
-				'description'  => __( 'Setting suggested donation amounts is required for enabling a streamlined donation experience.', 'newspack-plugin' ),
-				'instructions' => __( 'Set platform to "Newspack" or "News Revenue Hub" and configure your default donation settings. If using News Revenue Hub, set an Organization ID and a Donor Landing Page in News Revenue Hub Settings.', 'newspack-plugin' ),
-				'help_url'     => 'https://help.newspack.com/engagement/audience-management-system/',
-				'href'         => \admin_url( '/admin.php?page=newspack-audience#/payment' ),
-				'action_text'  => __( 'Reader Revenue settings' ),
-			],
-			'ras_campaign'     => [
-				'active'      => self::is_ras_campaign_configured(),
-				'plugins'     => [
-					'newspack-popups' => class_exists( '\Newspack_Popups_Model' ),
-				],
-				'label'       => __( 'Audience Management Campaign', 'newspack-plugin' ),
-				'description' => __( 'Building a set of prompts with default segments and settings allows for an improved experience optimized for audience management.', 'newspack-plugin' ),
-				'help_url'    => 'https://help.newspack.com/engagement/audience-management-system/',
-				'href'        => self::is_ras_campaign_configured() ? admin_url( '/admin.php?page=newspack-audience-campaigns' ) : admin_url( '/admin.php?page=newspack-audience#/campaign' ),
-				'action_text' => __( 'Audience Management campaign', 'newspack-plugin' ),
-			],
 		];
+
+		// ESP is only relevant when Newspack Newsletters is installed.
+		if ( class_exists( '\Newspack_Newsletters' ) ) {
+			$prerequisites['esp'] = [
+				'active'       => self::is_esp_configured(),
+				'plugins'      => [
+					'newspack-newsletters' => true,
+				],
+				'label'        => __( 'Email Service Provider (ESP)', 'newspack-plugin' ),
+				'description'  => __( 'Connect to your ESP to register readers with their email addresses and send newsletters.', 'newspack-plugin' ),
+				'instructions' => __( 'Connect to your email service provider (ESP) and enable at least one subscription list.', 'newspack-plugin' ),
+				'help_url'     => 'https://help.newspack.com/engagement/audience-management-system/',
+				'href'         => \admin_url( 'edit.php?post_type=newspack_nl_cpt&page=newspack-newsletters' ),
+				'action_text'  => __( 'ESP settings' ),
+			];
+		}
 
 		return $prerequisites;
 	}

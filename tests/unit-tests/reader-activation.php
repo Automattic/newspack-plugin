@@ -196,6 +196,30 @@ class Newspack_Test_Reader_Activation extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Test that removed prerequisites are gone and ordering is correct.
+	 */
+	public function test_prerequisites_status_cleanup() {
+		$prerequisites = Reader_Activation::get_prerequisites_status();
+
+		$this->assertArrayNotHasKey( 'reader_revenue', $prerequisites, 'Reader Revenue prerequisite should be removed.' );
+		$this->assertArrayNotHasKey( 'ras_campaign', $prerequisites, 'Campaign defaults prerequisite should be removed.' );
+
+		// First three are always present and ordered.
+		$keys = array_keys( $prerequisites );
+		$this->assertSame( 'emails', $keys[0], 'Transactional Emails should be first.' );
+		$this->assertSame( 'terms_conditions', $keys[1], 'Legal Pages should be second.' );
+		$this->assertSame( 'recaptcha', $keys[2], 'reCAPTCHA should be third.' );
+
+		// ESP is gated on Newspack Newsletters; in the test env it is absent.
+		if ( class_exists( '\Newspack_Newsletters' ) ) {
+			$this->assertArrayHasKey( 'esp', $prerequisites, 'ESP should be present when Newsletters exists.' );
+			$this->assertSame( 'esp', $keys[3], 'ESP should be fourth when present.' );
+		} else {
+			$this->assertArrayNotHasKey( 'esp', $prerequisites, 'ESP should be absent without Newsletters.' );
+		}
+	}
+
+	/**
 	 * Test the reader-revenue platform first-run signal.
 	 */
 	public function test_is_platform_selected() {
