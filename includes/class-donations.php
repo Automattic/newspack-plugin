@@ -697,6 +697,18 @@ class Donations {
 	}
 
 	/**
+	 * Whether a reader revenue platform has been explicitly chosen.
+	 *
+	 * The platform option defaults to 'wc' and has no unset value, so first-run
+	 * is detected by whether the option was ever saved.
+	 *
+	 * @return bool
+	 */
+	public static function is_platform_selected() {
+		return null !== get_option( self::NEWSPACK_READER_REVENUE_PLATFORM, null );
+	}
+
+	/**
 	 * Set donation platform slug.
 	 *
 	 * @param string $platform Platform slug.

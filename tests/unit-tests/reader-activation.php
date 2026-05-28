@@ -194,4 +194,23 @@ class Newspack_Test_Reader_Activation extends WP_UnitTestCase {
 		$this->assertFalse( method_exists( Reader_Activation::class, 'skip' ), 'skip() should be removed.' );
 		$this->assertFalse( method_exists( Reader_Activation::class, 'is_skipped' ), 'is_skipped() should be removed.' );
 	}
+
+	/**
+	 * Test the reader-revenue platform first-run signal.
+	 */
+	public function test_is_platform_selected() {
+		delete_option( 'newspack_reader_revenue_platform' );
+		$this->assertFalse(
+			\Newspack\Donations::is_platform_selected(),
+			'Platform should report not selected when the option was never saved.'
+		);
+
+		\Newspack\Donations::set_platform_slug( 'wc' );
+		$this->assertTrue(
+			\Newspack\Donations::is_platform_selected(),
+			'Platform should report selected after an explicit save.'
+		);
+
+		delete_option( 'newspack_reader_revenue_platform' );
+	}
 }
