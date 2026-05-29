@@ -341,15 +341,30 @@ class Audience_Integrations extends Wizard {
 		$total = Integrations::count_scheduled_actions( $count_args );
 		$hook_labels = Action_Scheduler::get_hook_labels();
 
+		// Decode payloads once, then prime the user cache in a single query so
+		// the per-row email resolution below doesn't issue a query per action.
+		$decoded_args = [];
+		$user_ids     = [];
+		foreach ( $actions as $action ) {
+			$args                               = self::decode_action_args( $action->args ?? '', $action->extended_args ?? '' );
+			$decoded_args[ $action->action_id ] = $args;
+			$user_id                            = self::get_payload_user_id( $args );
+			if ( $user_id ) {
+				$user_ids[] = $user_id;
+			}
+		}
+		if ( ! empty( $user_ids ) ) {
+			cache_users( array_values( array_unique( $user_ids ) ) );
+		}
+
 		$items = array_map(
-			function ( $action ) use ( $hook_labels ) {
-				$args = self::decode_action_args( $action->args ?? '', $action->extended_args ?? '' );
+			function ( $action ) use ( $hook_labels, $decoded_args ) {
 				return [
 					'id'        => $action->action_id,
 					'timestamp' => $action->scheduled_date_gmt,
 					'event'     => $hook_labels[ $action->hook ] ?? $action->hook,
 					'status'    => $action->status,
-					'email'     => self::extract_email_from_payload( $args ),
+					'email'     => self::extract_email_from_payload( $decoded_args[ $action->action_id ] ?? null ),
 				];
 			},
 			$actions
@@ -585,27 +600,41 @@ class Audience_Integrations extends Wizard {
 	}
 
 	/**
-	 * Best-effort extraction of a contact email from a scheduled action's payload.
+	 * Best-effort resolution of the contact email for a scheduled action's payload.
 	 *
-	 * Integration actions carry the originating data event payload, which for
-	 * most reader/contact events includes the contact email — but its depth
-	 * varies by event (e.g. retry wrappers nest it under a 'data' key).
-	 * Recursively scans for the first 'email'/'user_email' key holding a valid
-	 * address. Returns '' when no email is present in the metadata.
+	 * Integration retry actions reference the contact by WordPress user ID
+	 * (e.g. `[ { "integration_id": "esp", "user_id": 1, ... } ]`) rather than
+	 * carrying the email directly, so the current account email is resolved
+	 * from that ID. An explicit `email`/`user_email` key is preferred when a
+	 * payload does carry one, and a `previous_email` (set on email-change
+	 * retries) is used as a last resort when the user can no longer be
+	 * resolved. Returns '' when no email can be determined.
 	 *
 	 * @param mixed $payload Decoded args payload (array, scalar, or null).
 	 * @param int   $depth   Current recursion depth (internal guard).
 	 *
-	 * @return string The first valid email found, or ''.
+	 * @return string The resolved email, or ''.
 	 */
 	private static function extract_email_from_payload( $payload, $depth = 0 ) {
 		if ( $depth > 6 || ! is_array( $payload ) ) {
 			return '';
 		}
+		// Prefer an explicit email carried in the payload.
 		foreach ( [ 'email', 'user_email' ] as $key ) {
 			if ( isset( $payload[ $key ] ) && is_string( $payload[ $key ] ) && is_email( $payload[ $key ] ) ) {
 				return sanitize_email( $payload[ $key ] );
 			}
+		}
+		// Otherwise resolve the current account email from the user ID.
+		if ( isset( $payload['user_id'] ) && is_numeric( $payload['user_id'] ) ) {
+			$user = get_userdata( (int) $payload['user_id'] );
+			if ( $user && is_email( $user->user_email ) ) {
+				return sanitize_email( $user->user_email );
+			}
+		}
+		// Fall back to a previous email (email-change retries) when the user is gone.
+		if ( isset( $payload['previous_email'] ) && is_string( $payload['previous_email'] ) && is_email( $payload['previous_email'] ) ) {
+			return sanitize_email( $payload['previous_email'] );
 		}
 		foreach ( $payload as $value ) {
 			if ( is_array( $value ) ) {
@@ -616,5 +645,34 @@ class Audience_Integrations extends Wizard {
 			}
 		}
 		return '';
+	}
+
+	/**
+	 * Find the first WordPress user ID referenced in a scheduled action's payload.
+	 *
+	 * Used to prime the user cache before bulk email resolution. Mirrors the
+	 * structure walked by extract_email_from_payload().
+	 *
+	 * @param mixed $payload Decoded args payload (array, scalar, or null).
+	 * @param int   $depth   Current recursion depth (internal guard).
+	 *
+	 * @return int The first user ID found, or 0.
+	 */
+	private static function get_payload_user_id( $payload, $depth = 0 ) {
+		if ( $depth > 6 || ! is_array( $payload ) ) {
+			return 0;
+		}
+		if ( isset( $payload['user_id'] ) && is_numeric( $payload['user_id'] ) ) {
+			return (int) $payload['user_id'];
+		}
+		foreach ( $payload as $value ) {
+			if ( is_array( $value ) ) {
+				$user_id = self::get_payload_user_id( $value, $depth + 1 );
+				if ( $user_id ) {
+					return $user_id;
+				}
+			}
+		}
+		return 0;
 	}
 }
