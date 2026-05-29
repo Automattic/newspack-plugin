@@ -32,7 +32,19 @@ import SortableNewsletterListControl from '../../../../../packages/components/sr
 import Salesforce from '../../components/salesforce';
 
 export default withWizardScreen(
-	( { config, fetchConfig, updateConfig, getSharedProps, saveConfig, prerequisites, espSyncErrors, error, inFlight } ) => {
+	( {
+		config,
+		fetchConfig,
+		updateConfig,
+		getSharedProps,
+		saveConfig,
+		prerequisites,
+		espSyncErrors,
+		error,
+		inFlight,
+		platform,
+		onChangePlatform,
+	} ) => {
 		const [ allReady, setAllReady ] = useState( false );
 		const [ missingPlugins, setMissingPlugins ] = useState( [] );
 		const [ esp, setEsp ] = useState( '' );
@@ -103,6 +115,22 @@ export default withWizardScreen(
 					toggleOnChange={ value => saveConfig( { enabled: value } ) }
 					disabled={ inFlight }
 				/>
+				{ onChangePlatform && (
+					<ActionCard
+						isMedium
+						title={ __( 'Reader Revenue Platform', 'newspack-plugin' ) }
+						description={ ( () => {
+							const labels = {
+								wc: __( 'Newspack', 'newspack-plugin' ),
+								nrh: __( 'RevEngine', 'newspack-plugin' ),
+								other: __( 'Other', 'newspack-plugin' ),
+							};
+							return labels[ platform ] || __( 'Not set', 'newspack-plugin' );
+						} )() }
+						actionText={ __( 'Change', 'newspack-plugin' ) }
+						onClick={ onChangePlatform }
+					/>
+				) }
 				{ 0 < missingPlugins.length && (
 					<Notice
 						noticeText={ __( 'The following plugins are recommended for full Audience Management functionality.', 'newspack-plugin' ) }
