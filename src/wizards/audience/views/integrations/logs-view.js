@@ -137,7 +137,7 @@ export const LogsView = ( { integrations, match } ) => {
 				},
 				enableSorting: true,
 				elements: [
-					{ value: 'complete', label: __( 'Success', 'newspack-plugin' ) },
+					{ value: 'complete', label: __( 'Complete', 'newspack-plugin' ) },
 					{ value: 'failed', label: __( 'Failed', 'newspack-plugin' ) },
 					{ value: 'pending', label: __( 'Pending', 'newspack-plugin' ) },
 					{ value: 'in-progress', label: __( 'In progress', 'newspack-plugin' ) },

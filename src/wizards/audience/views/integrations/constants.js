@@ -12,7 +12,7 @@ import { dateI18n, getSettings } from '@wordpress/date';
 export const API_BASE = '/newspack/v1/wizard/newspack-audience-integrations/settings';
 
 export const STATUS_MAP = {
-	complete: { label: __( 'Success', 'newspack-plugin' ), level: 'success' },
+	complete: { label: __( 'Complete', 'newspack-plugin' ), level: 'success' },
 	failed: { label: __( 'Failed', 'newspack-plugin' ), level: 'error' },
 	pending: { label: __( 'Pending', 'newspack-plugin' ), level: 'info' },
 	'in-progress': { label: __( 'In progress', 'newspack-plugin' ), level: 'info' },
