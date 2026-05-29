@@ -98,6 +98,9 @@ export const LogDetailsModal = ( { integrationId, actionId } ) => {
 				<dt>{ __( 'Action ID', 'newspack-plugin' ) }</dt>
 				<dd>{ action.id }</dd>
 
+				<dt>{ __( 'Email', 'newspack-plugin' ) }</dt>
+				<dd>{ action.email || '—' }</dd>
+
 				<dt>{ __( 'Scheduled', 'newspack-plugin' ) }</dt>
 				<dd>{ formatTimestamp( action.scheduled_date_gmt ) }</dd>
 

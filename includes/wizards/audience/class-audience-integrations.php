@@ -343,11 +343,13 @@ class Audience_Integrations extends Wizard {
 
 		$items = array_map(
 			function ( $action ) use ( $hook_labels ) {
+				$args = self::decode_action_args( $action->args ?? '', $action->extended_args ?? '' );
 				return [
 					'id'        => $action->action_id,
 					'timestamp' => $action->scheduled_date_gmt,
 					'event'     => $hook_labels[ $action->hook ] ?? $action->hook,
 					'status'    => $action->status,
+					'email'     => self::extract_email_from_payload( $args ),
 				];
 			},
 			$actions
@@ -434,6 +436,7 @@ class Audience_Integrations extends Wizard {
 					'id'                 => $action_id,
 					'hook'               => $hook,
 					'event'              => $event,
+					'email'              => self::extract_email_from_payload( $args ),
 					'status'             => $status,
 					'scheduled_date_gmt' => $scheduled_at_gmt,
 					'attempts'           => $row ? (int) $row->attempts : 0,
@@ -556,5 +559,62 @@ class Audience_Integrations extends Wizard {
 		);
 
 		return rest_ensure_response( $response );
+	}
+
+	/**
+	 * Decode a scheduled action's args payload into a PHP value.
+	 *
+	 * Prefers extended_args (full JSON) over args, mirroring the detail
+	 * endpoint. Returns null when the payload is empty or not valid JSON.
+	 *
+	 * @param string $args          The actionscheduler_actions.args column value.
+	 * @param string $extended_args The actionscheduler_actions.extended_args column value.
+	 *
+	 * @return mixed The decoded payload, or null.
+	 */
+	private static function decode_action_args( $args, $extended_args ) {
+		$raw = ! empty( $extended_args ) ? $extended_args : (string) $args;
+		if ( '' === $raw ) {
+			return null;
+		}
+		$decoded = json_decode( $raw, true );
+		if ( null === $decoded && JSON_ERROR_NONE !== json_last_error() ) {
+			return null;
+		}
+		return $decoded;
+	}
+
+	/**
+	 * Best-effort extraction of a contact email from a scheduled action's payload.
+	 *
+	 * Integration actions carry the originating data event payload, which for
+	 * most reader/contact events includes the contact email — but its depth
+	 * varies by event (e.g. retry wrappers nest it under a 'data' key).
+	 * Recursively scans for the first 'email'/'user_email' key holding a valid
+	 * address. Returns '' when no email is present in the metadata.
+	 *
+	 * @param mixed $payload Decoded args payload (array, scalar, or null).
+	 * @param int   $depth   Current recursion depth (internal guard).
+	 *
+	 * @return string The first valid email found, or ''.
+	 */
+	private static function extract_email_from_payload( $payload, $depth = 0 ) {
+		if ( $depth > 6 || ! is_array( $payload ) ) {
+			return '';
+		}
+		foreach ( [ 'email', 'user_email' ] as $key ) {
+			if ( isset( $payload[ $key ] ) && is_string( $payload[ $key ] ) && is_email( $payload[ $key ] ) ) {
+				return sanitize_email( $payload[ $key ] );
+			}
+		}
+		foreach ( $payload as $value ) {
+			if ( is_array( $value ) ) {
+				$found = self::extract_email_from_payload( $value, $depth + 1 );
+				if ( '' !== $found ) {
+					return $found;
+				}
+			}
+		}
+		return '';
 	}
 }
