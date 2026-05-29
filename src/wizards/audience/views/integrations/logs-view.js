@@ -24,13 +24,14 @@ const DEFAULT_VIEW = {
 	perPage: 25,
 	sort: { field: 'timestamp', direction: 'desc' },
 	search: '',
-	fields: [ 'timestamp', 'event', 'status' ],
+	fields: [ 'timestamp', 'email', 'event', 'status' ],
 	filters: [],
 	layout: {
 		styles: {
-			timestamp: { width: '75%' },
-			event: { width: '15%' },
-			status: { width: '10%' },
+			timestamp: { width: '35%' },
+			email: { width: '30%' },
+			event: { width: '20%' },
+			status: { width: '15%' },
 		},
 	},
 };
@@ -38,7 +39,7 @@ const DEFAULT_VIEW = {
 export const LogsView = ( { integrations, match } ) => {
 	const integrationId = match?.params?.integrationId;
 	const integration = integrationId ? integrations[ integrationId ] : null;
-	const { addNotice, setHeaderData } = useDispatch( WIZARD_STORE_NAMESPACE );
+	const { addNotice, removeNotice, setHeaderData } = useDispatch( WIZARD_STORE_NAMESPACE );
 
 	const [ data, setData ] = useState( [] );
 	const [ total, setTotal ] = useState( 0 );
@@ -116,6 +117,12 @@ export const LogsView = ( { integrations, match } ) => {
 				enableSorting: true,
 			},
 			{
+				id: 'email',
+				label: __( 'Email', 'newspack-plugin' ),
+				render: ( { item } ) => item.email || '—',
+				enableSorting: false,
+			},
+			{
 				id: 'event',
 				label: __( 'Event', 'newspack-plugin' ),
 				getValue: ( { item } ) => item.event,
@@ -151,12 +158,14 @@ export const LogsView = ( { integrations, match } ) => {
 				next.add( actionId );
 				return next;
 			} );
-			// Synchronous "running" notice — reuses the per-action ID so the
-			// final success/failure notice replaces it in place.
+			// Synchronous "running" notice. addNotice appends without deduping by
+			// id, so the final success/failure notice removes this one first
+			// (see removeNotice calls below) to replace it in place.
+			const noticeId = `integration-action-run-${ actionId }`;
 			addNotice( {
 				message: __( 'Running action…', 'newspack-plugin' ),
 				type: 'info',
-				id: `integration-action-run-${ actionId }`,
+				id: noticeId,
 			} );
 			apiFetch( {
 				path: `${ API_BASE }/${ integrationId }/logs/${ actionId }/run`,
@@ -171,18 +180,20 @@ export const LogsView = ( { integrations, match } ) => {
 					} else {
 						message = response.message || __( 'Action processed.', 'newspack-plugin' );
 					}
+					removeNotice( noticeId );
 					addNotice( {
 						message,
 						type: response.status === 'failed' ? 'error' : 'success',
-						id: `integration-action-run-${ actionId }`,
+						id: noticeId,
 					} );
 				} )
 				.catch( err => {
 					const message = err && err.message ? err.message : __( 'Could not run action.', 'newspack-plugin' );
+					removeNotice( noticeId );
 					addNotice( {
 						message,
 						type: 'error',
-						id: `integration-action-run-${ actionId }`,
+						id: noticeId,
 					} );
 				} )
 				.finally( () => {
@@ -194,7 +205,7 @@ export const LogsView = ( { integrations, match } ) => {
 					fetchLogs();
 				} );
 		},
-		[ integrationId, addNotice, fetchLogs ]
+		[ integrationId, addNotice, removeNotice, fetchLogs ]
 	);
 
 	const actions = useMemo(
