@@ -41,7 +41,7 @@ export const OPTIONS = [
 	},
 ];
 
-const PlatformSelection = ( { onComplete, onCancel, config, saveConfig, inFlight } ) => {
+const PlatformSelection = ( { onComplete, onCancel, config, saveConfig, inFlight, showEnableToggle } ) => {
 	const { saveWizardSettings } = useDispatch( WIZARD_STORE_NAMESPACE );
 	const [ installing, setInstalling ] = useState( null );
 	const [ installFailed, setInstallFailed ] = useState( false );
@@ -61,9 +61,8 @@ const PlatformSelection = ( { onComplete, onCancel, config, saveConfig, inFlight
 			if ( ! result ) {
 				return;
 			}
-			// First-run selection enables Audience Management. The toggle to disable it
-			// only appears when returning to this screen via "Change".
-			if ( ! onCancel ) {
+			// Selecting a platform enables Audience Management when it isn't already on.
+			if ( ! config?.enabled ) {
 				saveConfig( { enabled: true } );
 			}
 			if ( PLATFORM_PLUGINS[ value ].length ) {
@@ -121,7 +120,7 @@ const PlatformSelection = ( { onComplete, onCancel, config, saveConfig, inFlight
 				</>
 			) : (
 				<>
-					{ onCancel && (
+					{ showEnableToggle && (
 						<ActionCard
 							isMedium
 							title={ __( 'Audience Management', 'newspack-plugin' ) }
@@ -133,7 +132,8 @@ const PlatformSelection = ( { onComplete, onCancel, config, saveConfig, inFlight
 							toggleChecked={ Boolean( config?.enabled ) }
 							toggleOnChange={ value => {
 								if ( value ) {
-									saveConfig( { enabled: true } );
+									// Enabling moves the user forward to the configuration page.
+									saveConfig( { enabled: true } ).then( () => onComplete() );
 								} else {
 									setShowDisableConfirm( true );
 								}

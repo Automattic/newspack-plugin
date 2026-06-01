@@ -32,6 +32,7 @@ function AudienceWizard( { pluginRequirements, wizardApiFetch }, ref ) {
 	const [ error, setError ] = useState( false );
 	const [ espSyncErrors, setEspSyncErrors ] = useState( [] );
 	const [ requiredPlugins, setRequiredPlugins ] = useState( {} );
+	const [ configLoaded, setConfigLoaded ] = useState( false );
 
 	const fetchConfig = () => {
 		setError( false );
@@ -44,6 +45,7 @@ function AudienceWizard( { pluginRequirements, wizardApiFetch }, ref ) {
 				setRequiredPlugins( required_plugins || {} );
 				setConfig( fetchedConfig );
 				setEspSyncErrors( can_esp_sync.errors );
+				setConfigLoaded( true );
 			} )
 			.catch( setError )
 			.finally( () => setInFlight( false ) );
@@ -54,7 +56,7 @@ function AudienceWizard( { pluginRequirements, wizardApiFetch }, ref ) {
 	const saveConfig = data => {
 		setError( false );
 		setInFlight( true );
-		wizardApiFetch( {
+		return wizardApiFetch( {
 			path: '/newspack/v1/wizard/newspack-audience/audience-management',
 			method: 'post',
 			quiet: true,
@@ -78,15 +80,17 @@ function AudienceWizard( { pluginRequirements, wizardApiFetch }, ref ) {
 	const paymentData = useWizardData( 'newspack-audience/payment' );
 	const platform = paymentData?.platform_data?.platform;
 	const platformSelected = paymentData?.platform_data?.platform_selected;
-	// `null` = undecided until payment data loads. Driven by local state (not the live
-	// `platform_selected`) so the chooser stays mounted while plugins auto-install — the
-	// save flips `platform_selected` to true before install finishes.
+	// `null` = undecided until config + payment data load. Driven by local state (not the
+	// live values) so the chooser stays mounted while plugins auto-install and while enabling
+	// — the saves flip platform_selected/enabled before the flow finishes. Open the chooser
+	// when no platform has been chosen OR Audience Management is disabled, so a disabled site
+	// lands on the platform/enable screen rather than the (active-looking) configuration page.
 	const [ showChooser, setShowChooser ] = useState( null );
 	useEffect( () => {
-		if ( showChooser === null && typeof platformSelected === 'boolean' ) {
-			setShowChooser( ! platformSelected );
+		if ( showChooser === null && configLoaded && typeof platformSelected === 'boolean' ) {
+			setShowChooser( ! platformSelected || ! config.enabled );
 		}
-	}, [ platformSelected, showChooser ] );
+	}, [ platformSelected, configLoaded, config.enabled, showChooser ] );
 	const chooserOpen = showChooser === true;
 
 	let tabs = chooserOpen
@@ -160,11 +164,12 @@ function AudienceWizard( { pluginRequirements, wizardApiFetch }, ref ) {
 								<PlatformSelection
 									{ ...props }
 									tabbedNavigation={ null }
+									showEnableToggle={ platformSelected }
 									onComplete={ () => {
 										setShowChooser( false );
 										fetchConfig();
 									} }
-									onCancel={ platformSelected ? () => setShowChooser( false ) : undefined }
+									onCancel={ platformSelected && config.enabled ? () => setShowChooser( false ) : undefined }
 								/>
 							) : (
 								<Setup { ...props } />
