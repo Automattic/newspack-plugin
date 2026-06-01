@@ -641,7 +641,7 @@ class Audience_Wizard extends Wizard {
 	 * @return bool
 	 */
 	public function api_validate_platform( $value ) {
-		return in_array( $value, [ 'nrh', 'wc', 'other' ] );
+		return in_array( $value, [ 'nrh', 'wc', 'other' ], true );
 	}
 
 	/**
@@ -673,7 +673,9 @@ class Audience_Wizard extends Wizard {
 	public function api_update_payment_settings( $request ) {
 		$params = $request->get_params();
 
-		Donations::set_platform_slug( $params['platform'] );
+		if ( isset( $params['platform'] ) ) {
+			Donations::set_platform_slug( $params['platform'] );
+		}
 
 		// Update NRH settings.
 		if ( Donations::is_platform_nrh() ) {
