@@ -78,6 +78,7 @@ export const Settings = ( {
 	onLabels,
 	onLetterheadSetting,
 	newslettersConfig,
+	savedProvider = '',
 	isOnboarding = true,
 	authUrl = false,
 	isSaving = false,
@@ -100,8 +101,9 @@ export const Settings = ( {
 		if ( provider !== newProvider ) {
 			setError( false );
 			setProvider( newProvider );
-			// Don't lock lists if we are setting the initial provider and a key is already set.
-			if ( ! provider && hasSelectedProviderKey() ) {
+			// Unlock when the selection is the saved provider (initial load, or
+			// switching back to it) and its key is set; otherwise lock until saved.
+			if ( ( ! provider || newProvider === savedProvider ) && hasSelectedProviderKey() ) {
 				setLockedLists( false );
 			} else {
 				setLockedLists( true );
@@ -581,7 +583,7 @@ export const SubscriptionLists = ( { lockedLists, onUpdate, provider, labels = {
 	// bridge never shows up. The event KEY is stored (not the resolved
 	// name) so a late-mounting bridge that exposes renamed events still
 	// receives the correctly-named replay.
-	const dispatchOrQueue = ( eventKey, detail, fallbackUrl ) => {
+	const dispatchOrQueue = ( eventKey, detail, { fallbackUrl, onUnavailable } = {} ) => {
 		const dispatch = () => document.dispatchEvent( new CustomEvent( getNNEvents()[ eventKey ], { detail } ) );
 		if ( isBridgeReady() ) {
 			// Any prior queued action from before the bridge was ready is
@@ -596,9 +598,9 @@ export const SubscriptionLists = ( { lockedLists, onUpdate, provider, labels = {
 			dispatch();
 			return;
 		}
-		pendingActionRef.current = { dispatch, fallbackUrl };
+		pendingActionRef.current = { dispatch, fallbackUrl, onUnavailable };
 		clearTimeout( fallbackTimerRef.current );
-		if ( ! fallbackUrl ) {
+		if ( ! fallbackUrl && ! onUnavailable ) {
 			return;
 		}
 		fallbackTimerRef.current = setTimeout( () => {
@@ -620,18 +622,29 @@ export const SubscriptionLists = ( { lockedLists, onUpdate, provider, labels = {
 			}
 			if ( pending.fallbackUrl ) {
 				window.location.href = pending.fallbackUrl;
+				return;
 			}
+			pending.onUnavailable?.();
 		}, NN_FALLBACK_TIMEOUT_MS );
 	};
 
+	const bridgeUnavailableError = () =>
+		setError( {
+			message: __(
+				'This action requires a newer version of Newspack Newsletters. Update the newsletters plugin and try again.',
+				'newspack-plugin'
+			),
+		} );
+
 	const dispatchOpenAdd = () => {
-		dispatchOrQueue( 'OPEN_MODAL', { mode: 'add' }, newspack_newsletters_wizard.new_subscription_lists_url );
+		dispatchOrQueue( 'OPEN_MODAL', { mode: 'add' }, { fallbackUrl: newspack_newsletters_wizard.new_subscription_lists_url } );
 	};
 	const dispatchOpenEdit = ( list, kind ) => {
-		dispatchOrQueue( 'OPEN_MODAL', { mode: 'edit', kind, list }, list?.edit_link );
+		dispatchOrQueue( 'OPEN_MODAL', { mode: 'edit', kind, list }, { fallbackUrl: list?.edit_link } );
 	};
 	const dispatchConfirmDelete = list => {
-		dispatchOrQueue( 'OPEN_CONFIRM_DELETE', { list }, list?.edit_link );
+		// No safe legacy delete URL, so surface a notice instead of navigating.
+		dispatchOrQueue( 'OPEN_CONFIRM_DELETE', { list }, { onUnavailable: bridgeUnavailableError } );
 	};
 
 	if ( ! inFlight && ! lists?.length && ! error && ! lockedLists ) {
@@ -849,6 +862,7 @@ const NewslettersSettings = () => {
 				onLetterheadSetting={ handleLetterheadSetting }
 				authUrl={ authUrl }
 				newslettersConfig={ newslettersConfig }
+				savedProvider={ savedConfig?.newspack_newsletters_service_provider || '' }
 				provider={ provider }
 				setProvider={ setProvider }
 				setAuthUrl={ setAuthUrl }
