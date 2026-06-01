@@ -41,7 +41,7 @@ export const OPTIONS = [
 	},
 ];
 
-const PlatformSelection = ( { onComplete, onCancel, config, saveConfig, inFlight, showEnableToggle } ) => {
+const PlatformSelection = ( { onComplete, onCancel, config, saveConfig, inFlight, showEnableToggle, platform } ) => {
 	const { saveWizardSettings } = useDispatch( WIZARD_STORE_NAMESPACE );
 	const [ installing, setInstalling ] = useState( null );
 	const [ installFailed, setInstallFailed ] = useState( false );
@@ -147,6 +147,8 @@ const PlatformSelection = ( { onComplete, onCancel, config, saveConfig, inFlight
 							isMedium
 							title={ option.title }
 							description={ option.description }
+							badge={ option.value === platform ? __( 'Selected', 'newspack-plugin' ) : undefined }
+							badgeLevel={ option.value === platform ? 'success' : undefined }
 							actionText={ __( 'Select', 'newspack-plugin' ) }
 							onClick={ () => choose( option.value ) }
 						/>
