@@ -8,7 +8,7 @@ import { useState } from '@wordpress/element';
 /**
  * Internal dependencies
  */
-import { ActionCard, Button, PluginInstaller, withWizardScreen } from '../../../../../packages/components/src';
+import { ActionCard, Button, Notice, PluginInstaller, withWizardScreen } from '../../../../../packages/components/src';
 import { WIZARD_STORE_NAMESPACE } from '../../../../../packages/components/src/wizard/store';
 import WizardsTab from '../../../wizards-tab';
 import { NEWSPACK, NRH, OTHER } from '../../constants';
@@ -44,6 +44,7 @@ export const OPTIONS = [
 const PlatformSelection = ( { onComplete, onCancel } ) => {
 	const { saveWizardSettings } = useDispatch( WIZARD_STORE_NAMESPACE );
 	const [ installing, setInstalling ] = useState( null );
+	const [ installFailed, setInstallFailed ] = useState( false );
 
 	const choose = value => {
 		saveWizardSettings( {
@@ -76,12 +77,42 @@ const PlatformSelection = ( { onComplete, onCancel } ) => {
 			) }
 		>
 			{ installing ? (
-				<PluginInstaller
-					plugins={ PLATFORM_PLUGINS[ installing ] }
-					autoInstall
-					withoutFooterButton
-					onStatus={ ( { complete } ) => complete && onComplete() }
-				/>
+				<>
+					<PluginInstaller
+						plugins={ PLATFORM_PLUGINS[ installing ] }
+						autoInstall
+						withoutFooterButton
+						onStatus={ ( { complete, pluginInfo } ) => {
+							if ( complete ) {
+								onComplete();
+								return;
+							}
+							// Some platform plugins (e.g. WooCommerce Subscriptions) can't be installed
+							// automatically. Once every plugin has either activated or reported an error,
+							// surface a way to continue instead of waiting on an install that won't finish.
+							const settled = Object.values( pluginInfo ).every( plugin => 'active' === plugin.Status || plugin.notification );
+							if ( settled ) {
+								setInstallFailed( true );
+							}
+						} }
+					/>
+					{ installFailed && (
+						<>
+							<Notice
+								isWarning
+								noticeText={ __(
+									'Some plugins could not be installed automatically. Install them manually using the links above, or continue and finish setup later.',
+									'newspack-plugin'
+								) }
+							/>
+							<div className="newspack-buttons-card">
+								<Button isPrimary onClick={ onComplete }>
+									{ __( 'Continue', 'newspack-plugin' ) }
+								</Button>
+							</div>
+						</>
+					) }
+				</>
 			) : (
 				<>
 					{ OPTIONS.map( option => (
