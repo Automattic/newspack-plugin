@@ -8,7 +8,7 @@ import { useState } from '@wordpress/element';
 /**
  * Internal dependencies
  */
-import { ActionCard, Button, Notice, PluginInstaller, withWizardScreen } from '../../../../../packages/components/src';
+import { ActionCard, Button, Modal, Notice, PluginInstaller, withWizardScreen } from '../../../../../packages/components/src';
 import { WIZARD_STORE_NAMESPACE } from '../../../../../packages/components/src/wizard/store';
 import WizardsTab from '../../../wizards-tab';
 import { NEWSPACK, NRH, OTHER } from '../../constants';
@@ -41,10 +41,11 @@ export const OPTIONS = [
 	},
 ];
 
-const PlatformSelection = ( { onComplete, onCancel } ) => {
+const PlatformSelection = ( { onComplete, onCancel, config, saveConfig, inFlight } ) => {
 	const { saveWizardSettings } = useDispatch( WIZARD_STORE_NAMESPACE );
 	const [ installing, setInstalling ] = useState( null );
 	const [ installFailed, setInstallFailed ] = useState( false );
+	const [ showDisableConfirm, setShowDisableConfirm ] = useState( false );
 
 	const choose = value => {
 		saveWizardSettings( {
@@ -59,6 +60,11 @@ const PlatformSelection = ( { onComplete, onCancel } ) => {
 			// undefined; don't advance past an unsaved platform choice.
 			if ( ! result ) {
 				return;
+			}
+			// First-run selection enables Audience Management. The toggle to disable it
+			// only appears when returning to this screen via "Change".
+			if ( ! onCancel ) {
+				saveConfig( { enabled: true } );
 			}
 			if ( PLATFORM_PLUGINS[ value ].length ) {
 				setInstalling( value );
@@ -115,6 +121,26 @@ const PlatformSelection = ( { onComplete, onCancel } ) => {
 				</>
 			) : (
 				<>
+					{ onCancel && (
+						<ActionCard
+							isMedium
+							title={ __( 'Audience Management', 'newspack-plugin' ) }
+							description={
+								config?.enabled
+									? __( 'Audience Management is enabled.', 'newspack-plugin' )
+									: __( 'Audience Management is disabled.', 'newspack-plugin' )
+							}
+							toggleChecked={ Boolean( config?.enabled ) }
+							toggleOnChange={ value => {
+								if ( value ) {
+									saveConfig( { enabled: true } );
+								} else {
+									setShowDisableConfirm( true );
+								}
+							} }
+							disabled={ inFlight }
+						/>
+					) }
 					{ OPTIONS.map( option => (
 						<ActionCard
 							key={ option.value }
@@ -133,6 +159,31 @@ const PlatformSelection = ( { onComplete, onCancel } ) => {
 						</div>
 					) }
 				</>
+			) }
+			{ showDisableConfirm && (
+				<Modal title={ __( 'Disable Audience Management?', 'newspack-plugin' ) } onRequestClose={ () => setShowDisableConfirm( false ) }>
+					<p>
+						{ __(
+							'Disabling Audience Management turns off reader registration, the My Account dashboard, and related reader features. Your settings are preserved and you can re-enable it later.',
+							'newspack-plugin'
+						) }
+					</p>
+					<div className="newspack-buttons-card">
+						<Button isSecondary onClick={ () => setShowDisableConfirm( false ) }>
+							{ __( 'Cancel', 'newspack-plugin' ) }
+						</Button>
+						<Button
+							isPrimary
+							isDestructive
+							onClick={ () => {
+								saveConfig( { enabled: false } );
+								setShowDisableConfirm( false );
+							} }
+						>
+							{ __( 'Disable', 'newspack-plugin' ) }
+						</Button>
+					</div>
+				</Modal>
 			) }
 		</WizardsTab>
 	);

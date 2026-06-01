@@ -112,18 +112,6 @@ export default withWizardScreen(
 				}
 			>
 				{ error && <Notice noticeText={ error?.message || __( 'Something went wrong.', 'newspack-plugin' ) } isError /> }
-				<ActionCard
-					isMedium
-					title={ __( 'Enable Audience Management', 'newspack-plugin' ) }
-					description={
-						config.enabled
-							? __( 'Audience Management is enabled.', 'newspack-plugin' )
-							: __( 'Audience Management is disabled.', 'newspack-plugin' )
-					}
-					toggleChecked={ Boolean( config.enabled ) }
-					toggleOnChange={ value => saveConfig( { enabled: value } ) }
-					disabled={ inFlight }
-				/>
 				{ onChangePlatform && (
 					<ActionCard
 						isMedium
