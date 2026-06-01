@@ -108,7 +108,6 @@ type PrequisiteProps = {
 		};
 		href?: string;
 		action_text?: string;
-		is_unavailable?: boolean;
 	};
 };
 

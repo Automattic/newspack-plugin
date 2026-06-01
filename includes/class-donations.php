@@ -669,7 +669,6 @@ class Donations {
 	 * Remove all donation products from the cart.
 	 */
 	public static function remove_donations_from_cart() {
-		$donation_settings = self::get_donation_settings();
 		if ( ! self::is_platform_wc() || is_wp_error( self::is_woocommerce_suite_active() ) ) {
 			return;
 		}

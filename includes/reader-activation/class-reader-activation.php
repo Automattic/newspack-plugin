@@ -736,27 +736,6 @@ final class Reader_Activation {
 	}
 
 	/**
-	 * Are all Reader Revenue features configured and ready to use?
-	 * Platform must be "Newspack" and all donation settings must be configured.
-	 */
-	public static function is_reader_revenue_ready() {
-		$ready             = false;
-		$donation_settings = Donations::get_donation_settings();
-
-		if ( \is_wp_error( $donation_settings ) ) {
-			return $ready;
-		}
-
-		if ( Donations::is_platform_wc() ) {
-			$ready = true;
-		} elseif ( Donations::is_platform_nrh() && NRH::get_setting( 'nrh_organization_id' ) && method_exists( '\Newspack_Popups_Settings', 'donor_landing_page' ) && \Newspack_Popups_Settings::donor_landing_page() ) {
-			$ready = true;
-		}
-
-		return $ready;
-	}
-
-	/**
 	 * Get an array of required plugins for satisfying Reader Revenue prerequisites.
 	 * WooCommerce and Woo Subscriptions are required for Newspack, but not for NRH.
 	 */

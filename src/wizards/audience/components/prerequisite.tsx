@@ -140,15 +140,12 @@ export default function Prerequisite( { config, getSharedProps, inFlight, prereq
 	if ( isValid ) {
 		status = __( 'Ready', 'newspack-plugin' );
 	}
-	if ( prerequisite.is_unavailable ) {
-		status = __( 'Unavailable', 'newspack-plugin' );
-	}
 
 	return (
 		<ActionCard
 			className="newspack-ras-wizard__prerequisite"
 			isMedium
-			expandable={ ! prerequisite.is_unavailable }
+			expandable
 			collapse={ isValid }
 			title={ prerequisite.label }
 			description={ sprintf(
@@ -160,7 +157,7 @@ export default function Prerequisite( { config, getSharedProps, inFlight, prereq
 			notificationLevel="info"
 			notification={ hasEmptyFields() }
 		>
-			{ prerequisite.is_unavailable ? null : renderInnerContent() }
+			{ renderInnerContent() }
 		</ActionCard>
 	);
 }
