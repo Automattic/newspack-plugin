@@ -80,7 +80,6 @@ class Newsletters_Wizard extends Wizard {
 
 		// Menu removals.
 		remove_action( 'admin_menu', [ Newspack_Newsletters_Settings::class, 'add_plugin_page' ] );
-		remove_action( 'admin_menu', [ Newspack_Newsletters_Tracking_Admin::class, 'add_settings_page' ] );
 
 		// Customize the Newsletter ads menu titles.
 		add_filter(
