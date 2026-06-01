@@ -400,7 +400,8 @@ class WC_Subscription {
 		return $this->data['items'] ?? [];
 	}
 	public function get_items_sign_up_fee( $item, $tax = 'exclusive_of_tax' ) {
-		global $wcs_mock_items_sign_up_fee;
+		global $wcs_mock_items_sign_up_fee, $wcs_mock_last_items_sign_up_fee_tax;
+		$wcs_mock_last_items_sign_up_fee_tax = $tax;
 		if ( is_object( $item ) && method_exists( $item, 'get_meta' ) ) {
 			$meta_value = $item->get_meta( '_subscription_sign_up_fee' );
 			if ( $meta_value !== '' && $meta_value !== null ) {
@@ -490,6 +491,37 @@ class Mock_WCS_Switch_Cart_Item_For_Stepped_Pricing {
 	}
 	public function trial_periods_match() {
 		return ! empty( $this->values['trial_periods_match'] );
+	}
+	public function is_switch_to_one_payment_subscription() {
+		return ! empty( $this->values['one_payment'] );
+	}
+}
+
+/**
+ * Test double for an older WCS_Switch_Cart_Item that predates the
+ * trial_periods_match() and is_switch_to_one_payment_subscription() methods.
+ * Used to verify the integration fails safe (passes through) when it cannot
+ * confirm those conditions on the running WCS version.
+ */
+class Mock_WCS_Switch_Cart_Item_Legacy {
+	public $subscription;
+	public $existing_item;
+	public $product;
+	private $values;
+	public function __construct( $sub, $item, $product, $values = [] ) {
+		$this->subscription  = $sub;
+		$this->existing_item = $item;
+		$this->product       = $product;
+		$this->values        = $values;
+	}
+	public function get_total_paid_for_current_period() {
+		return (float) ( $this->values['total_paid'] ?? 0 );
+	}
+	public function get_days_in_old_cycle() {
+		return (int) ( $this->values['days_in_old_cycle'] ?? 30 );
+	}
+	public function get_days_until_next_payment() {
+		return (int) ( $this->values['days_until_next'] ?? 30 );
 	}
 }
 
@@ -602,6 +634,10 @@ function wc_string_to_bool( $string ) {
 }
 function wc_bool_to_string( $bool ) {
 	return $bool ? 'yes' : 'no';
+}
+function wc_prices_include_tax() {
+	global $wcs_mock_prices_include_tax;
+	return ! empty( $wcs_mock_prices_include_tax );
 }
 function wc_get_orders( $args ) {
 	global $orders_database;

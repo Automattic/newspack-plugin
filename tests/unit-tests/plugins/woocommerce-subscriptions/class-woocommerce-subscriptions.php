@@ -21,13 +21,15 @@ class Newspack_Test_WooCommerce_Subscriptions extends WP_UnitTestCase {
 	 */
 	public function set_up() {
 		parent::set_up();
-		global $subscriptions_database, $products_database, $wcs_mock_total_paid_including_signup_fee, $wcs_mock_last_calculate_total_paid_args, $wcs_mock_order_items, $wcs_mock_items_sign_up_fee;
+		global $subscriptions_database, $products_database, $wcs_mock_total_paid_including_signup_fee, $wcs_mock_last_calculate_total_paid_args, $wcs_mock_order_items, $wcs_mock_items_sign_up_fee, $wcs_mock_prices_include_tax, $wcs_mock_last_items_sign_up_fee_tax;
 		$subscriptions_database                   = [];
 		$products_database                        = [];
 		$wcs_mock_total_paid_including_signup_fee = 0;
 		$wcs_mock_last_calculate_total_paid_args  = null;
 		$wcs_mock_order_items                     = [];
 		$wcs_mock_items_sign_up_fee               = 0;
+		$wcs_mock_prices_include_tax              = false;
+		$wcs_mock_last_items_sign_up_fee_tax      = null;
 	}
 
 	/**
@@ -35,11 +37,13 @@ class Newspack_Test_WooCommerce_Subscriptions extends WP_UnitTestCase {
 	 * not leak across tests.
 	 */
 	public function tear_down() {
-		global $wcs_mock_total_paid_including_signup_fee, $wcs_mock_last_calculate_total_paid_args, $wcs_mock_order_items, $wcs_mock_items_sign_up_fee;
+		global $wcs_mock_total_paid_including_signup_fee, $wcs_mock_last_calculate_total_paid_args, $wcs_mock_order_items, $wcs_mock_items_sign_up_fee, $wcs_mock_prices_include_tax, $wcs_mock_last_items_sign_up_fee_tax;
 		$wcs_mock_total_paid_including_signup_fee = 0;
 		$wcs_mock_last_calculate_total_paid_args  = null;
 		$wcs_mock_order_items                     = [];
 		$wcs_mock_items_sign_up_fee               = 0;
+		$wcs_mock_prices_include_tax              = false;
+		$wcs_mock_last_items_sign_up_fee_tax      = null;
 		remove_all_filters( 'newspack_wc_subs_switch_include_signup_fee' );
 		parent::tear_down();
 	}
@@ -681,7 +685,8 @@ class Newspack_Test_WooCommerce_Subscriptions extends WP_UnitTestCase {
 	 *
 	 * @param array $args Test parameters: paid_sign_up_fee, total_paid,
 	 *                    new_recurring, days_in_old_cycle, days_until_next,
-	 *                    trial_active (bool).
+	 *                    trial_active (bool), trial_periods_match (bool),
+	 *                    one_payment (bool).
 	 * @return object Minimal switch_item stub.
 	 */
 	private function stage_switch_item( array $args = [] ) {
@@ -695,6 +700,7 @@ class Newspack_Test_WooCommerce_Subscriptions extends WP_UnitTestCase {
 				'days_until_next'     => 30,
 				'trial_active'        => true,
 				'trial_periods_match' => true,
+				'one_payment'         => false,
 			]
 		);
 
@@ -733,6 +739,7 @@ class Newspack_Test_WooCommerce_Subscriptions extends WP_UnitTestCase {
 				'days_in_old_cycle'   => $args['days_in_old_cycle'],
 				'days_until_next'     => $args['days_until_next'],
 				'trial_periods_match' => $args['trial_periods_match'],
+				'one_payment'         => $args['one_payment'],
 			]
 		);
 	}
@@ -868,5 +875,206 @@ class Newspack_Test_WooCommerce_Subscriptions extends WP_UnitTestCase {
 		$result = WooCommerce_Subscriptions::apply_stepped_pricing_switch_charge( 3.0, $switch_item );
 
 		$this->assertSame( 3.0, $result, 'When trial periods do not match, the WCS-computed value must pass through so the prorated extra_to_pay is the final charge.' );
+	}
+
+	/**
+	 * Near a cycle boundary, days_until_next (WCS ceil) can exceed
+	 * days_in_old_cycle (WCS round) by ~1 day, pushing the unconsumed fraction
+	 * above 1.0. The credit must clamp so the reader is never credited more
+	 * than they paid (and therefore never under-charged). For Regular ($3
+	 * paid) -> Pro ($10/mo) with 31 days until next over a 30-day cycle, the
+	 * unclamped credit would be $3.10 (charge $6.90); clamped it is $3
+	 * (charge $7.00).
+	 */
+	public function test_apply_stepped_pricing_switch_charge_clamps_unconsumed_ratio_at_cycle_boundary() {
+		add_filter( 'newspack_wc_subs_switch_include_signup_fee', '__return_true' );
+
+		$switch_item = $this->stage_switch_item(
+			[
+				'days_in_old_cycle' => 30,
+				'days_until_next'   => 31,
+			]
+		);
+
+		$result = WooCommerce_Subscriptions::apply_stepped_pricing_switch_charge( 3.0, $switch_item );
+
+		$this->assertSame( 7.0, $result, 'The unconsumed fraction must clamp to 1.0 so credit never exceeds the amount paid.' );
+	}
+
+	/**
+	 * A switch into a one-payment (length-1) subscription routes through WCS's
+	 * set_upgrade_cost(), which stacks the apportioned sign-up fee on top of
+	 * the gap payment. The override must bail so we do not double-charge.
+	 */
+	public function test_apply_stepped_pricing_switch_charge_passes_through_for_one_payment_target() {
+		add_filter( 'newspack_wc_subs_switch_include_signup_fee', '__return_true' );
+
+		$switch_item = $this->stage_switch_item( [ 'one_payment' => true ] );
+
+		$result = WooCommerce_Subscriptions::apply_stepped_pricing_switch_charge( 3.0, $switch_item );
+
+		$this->assertSame( 3.0, $result, 'A switch into a one-payment subscription must pass through to WCS.' );
+	}
+
+	/**
+	 * On a WCS version that predates trial_periods_match() /
+	 * is_switch_to_one_payment_subscription(), the override must fail safe and
+	 * pass through rather than apply on an unverifiable assumption.
+	 */
+	public function test_apply_stepped_pricing_switch_charge_fails_safe_when_methods_absent() {
+		add_filter( 'newspack_wc_subs_switch_include_signup_fee', '__return_true' );
+
+		$existing_item = new WC_Order_Item_Product(
+			[
+				'id'         => 999,
+				'product_id' => 100,
+				'total'      => 5.0,
+				'meta'       => [ '_subscription_sign_up_fee' => '3.0' ],
+			]
+		);
+		$subscription  = new WC_Subscription(
+			[
+				'id'     => 60,
+				'status' => 'active',
+				'times'  => [ 'trial_end' => time() + ( 15 * DAY_IN_SECONDS ) ],
+			]
+		);
+		$new_product   = wc_create_mock_product(
+			[
+				'id'   => 200,
+				'meta' => [ '_subscription_price' => '10.0' ],
+			]
+		);
+
+		$switch_item = new Mock_WCS_Switch_Cart_Item_Legacy( $subscription, $existing_item, $new_product );
+
+		$result = WooCommerce_Subscriptions::apply_stepped_pricing_switch_charge( 3.0, $switch_item );
+
+		$this->assertSame( 3.0, $result, 'When trial_periods_match() is unavailable, the override must pass through.' );
+	}
+
+	/**
+	 * On a tax-inclusive store the recovered sign-up fee must be read in the
+	 * same tax mode WCS uses (WCS_Switch_Totals_Calculator::
+	 * apportion_sign_up_fees), otherwise the baseline is dimensionally
+	 * mismatched against new_recurring.
+	 */
+	public function test_apply_stepped_pricing_switch_charge_reads_signup_fee_inclusive_of_tax_on_tax_inclusive_store() {
+		global $wcs_mock_prices_include_tax, $wcs_mock_last_items_sign_up_fee_tax;
+		$wcs_mock_prices_include_tax = true;
+
+		add_filter( 'newspack_wc_subs_switch_include_signup_fee', '__return_true' );
+
+		$switch_item = $this->stage_switch_item();
+
+		WooCommerce_Subscriptions::apply_stepped_pricing_switch_charge( 3.0, $switch_item );
+
+		$this->assertSame( 'inclusive_of_tax', $wcs_mock_last_items_sign_up_fee_tax, 'On a tax-inclusive store the sign-up fee must be read inclusive_of_tax to match WCS.' );
+	}
+
+	/**
+	 * On a tax-exclusive store (the default) the sign-up fee is read
+	 * exclusive_of_tax, matching WCS.
+	 */
+	public function test_apply_stepped_pricing_switch_charge_reads_signup_fee_exclusive_of_tax_by_default() {
+		global $wcs_mock_last_items_sign_up_fee_tax;
+
+		add_filter( 'newspack_wc_subs_switch_include_signup_fee', '__return_true' );
+
+		$switch_item = $this->stage_switch_item();
+
+		WooCommerce_Subscriptions::apply_stepped_pricing_switch_charge( 3.0, $switch_item );
+
+		$this->assertSame( 'exclusive_of_tax', $wcs_mock_last_items_sign_up_fee_tax, 'On a tax-exclusive store the sign-up fee must be read exclusive_of_tax.' );
+	}
+
+	/**
+	 * Documents the intentional looser gate on recover_total_paid_for_switch
+	 * branch 2: with the opt-in on it recovers even outside an active trial,
+	 * but the recovery is bounded by what the reader actually paid (WCS's own
+	 * accounting), so it can never fabricate credit. Here WCS reports $15
+	 * actually paid and that -- not more -- becomes the baseline.
+	 */
+	public function test_recover_total_paid_optin_recovery_is_bounded_by_actual_payment() {
+		global $wcs_mock_total_paid_including_signup_fee;
+		$wcs_mock_total_paid_including_signup_fee = 15.0;
+
+		add_filter( 'newspack_wc_subs_switch_include_signup_fee', '__return_true' );
+
+		// No trial set: out of any active trial.
+		$subscription  = new WC_Subscription(
+			[
+				'id'     => 70,
+				'status' => 'active',
+			]
+		);
+		$existing_item = new WC_Order_Item_Product(
+			[
+				'product_id' => 100,
+				'total'      => 0.0,
+			]
+		);
+
+		$result = WooCommerce_Subscriptions::recover_total_paid_for_switch( 0.0, $subscription, $existing_item );
+
+		$this->assertSame( 15.0, $result, 'Recovery is bounded by the actual amount paid, never more.' );
+	}
+
+	/**
+	 * No-op: a genuine free trial (opt-in on, but nothing actually paid)
+	 * recovers nothing.
+	 */
+	public function test_recover_total_paid_optin_genuine_free_trial_is_noop() {
+		global $wcs_mock_total_paid_including_signup_fee;
+		$wcs_mock_total_paid_including_signup_fee = 0.0;
+
+		add_filter( 'newspack_wc_subs_switch_include_signup_fee', '__return_true' );
+
+		$subscription  = new WC_Subscription(
+			[
+				'id'     => 71,
+				'status' => 'active',
+				'times'  => [ 'trial_end' => time() + DAY_IN_SECONDS ],
+			]
+		);
+		$existing_item = new WC_Order_Item_Product(
+			[
+				'product_id' => 100,
+				'total'      => 0.0,
+			]
+		);
+
+		$result = WooCommerce_Subscriptions::recover_total_paid_for_switch( 0.0, $subscription, $existing_item );
+
+		$this->assertSame( 0.0, $result, 'A genuine free trial with nothing paid must not gain a recovered baseline.' );
+	}
+
+	/**
+	 * No-op: a subscription with normal order history (WCS reports a positive
+	 * amount paid) returns early and never reaches branch 2, even with the
+	 * opt-in on.
+	 */
+	public function test_recover_total_paid_optin_leaves_normal_history_positive_value_untouched() {
+		global $wcs_mock_total_paid_including_signup_fee;
+		$wcs_mock_total_paid_including_signup_fee = 999.0;
+
+		add_filter( 'newspack_wc_subs_switch_include_signup_fee', '__return_true' );
+
+		$subscription  = new WC_Subscription(
+			[
+				'id'     => 72,
+				'status' => 'active',
+			]
+		);
+		$existing_item = new WC_Order_Item_Product(
+			[
+				'product_id' => 100,
+				'total'      => 50.0,
+			]
+		);
+
+		$result = WooCommerce_Subscriptions::recover_total_paid_for_switch( 8.0, $subscription, $existing_item );
+
+		$this->assertSame( 8.0, $result, 'A positive WCS value (normal history) must be returned untouched even with the opt-in on.' );
 	}
 }

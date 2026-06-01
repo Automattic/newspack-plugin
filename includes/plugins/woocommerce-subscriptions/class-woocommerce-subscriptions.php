@@ -152,6 +152,18 @@ class WooCommerce_Subscriptions {
 		// paid, so a switch during the trial sees $0. When the publisher has
 		// opted in, count the sign-up fee the reader actually paid. A free
 		// trial with no sign-up fee, or a comp, yields nothing and no-ops.
+		//
+		// Unlike apply_stepped_pricing_switch_charge(), this branch is NOT
+		// additionally gated on an active trial or a paid sign-up fee, and
+		// that looser gate is intentional: this is the general baseline that
+		// feeds every downstream WCS switch calculation, not just the
+		// active-trial override. The bound is the recovered value itself --
+		// get_total_paid_including_signup_fee() returns what WCS's own
+		// accounting says the reader actually paid (including sign-up fees),
+		// so it can never fabricate credit beyond a real payment. A comp or
+		// 100%-discount returns ~0 and the max() leaves total_paid untouched;
+		// an out-of-trial period the reader paid for already returns a
+		// positive total_paid above and never reaches here.
 		if ( self::should_count_signup_fee_on_switch( $subscription, $existing_item ) ) {
 			return max( self::get_total_paid_including_signup_fee( $subscription, $existing_item ), (float) $total_paid );
 		}
@@ -220,6 +232,11 @@ class WooCommerce_Subscriptions {
 	 * branching, so it is the only WCS hook reachable for both
 	 * upgrade-as-downgrade and ordinary downgrade paths.
 	 *
+	 * The exception is a switch into a one-payment (length-1) subscription:
+	 * WCS routes that through set_upgrade_cost() regardless of switch type
+	 * and stacks the apportioned sign-up fee on top of the gap payment, so we
+	 * bail in that case (below) and leave the pricing to WCS.
+	 *
 	 * Setting the sign-up fee to (new_recurring - unconsumed_credit) makes
 	 * the cart show the right one-time charge, while WCS continues to set
 	 * up the new plan's recurring schedule from the inherited trial_end.
@@ -264,7 +281,11 @@ class WooCommerce_Subscriptions {
 		// The stepped-pricing signature: the old line item actually carries
 		// a paid sign-up fee. A real free trial (sign-up fee = 0) is left
 		// alone so we never invent a charge for a reader who paid nothing.
-		$paid_sign_up_fee = (float) $subscription->get_items_sign_up_fee( $existing_item );
+		// Mirror WCS's tax-mode selection (WCS_Switch_Totals_Calculator::
+		// apportion_sign_up_fees) so the recovered baseline is dimensionally
+		// consistent with new_recurring on a tax-inclusive store.
+		$tax_mode         = ( function_exists( 'wc_prices_include_tax' ) && wc_prices_include_tax() ) ? 'inclusive_of_tax' : 'exclusive_of_tax';
+		$paid_sign_up_fee = (float) $subscription->get_items_sign_up_fee( $existing_item, $tax_mode );
 		if ( $paid_sign_up_fee <= 0 ) {
 			return $value;
 		}
@@ -279,7 +300,20 @@ class WooCommerce_Subscriptions {
 		// credit -- the right answer for switches that inherit the existing
 		// next-payment date. Pass through here so WCS's default applies and
 		// we do not double-charge by also overriding the sign-up fee.
-		if ( method_exists( $switch_item, 'trial_periods_match' ) && ! $switch_item->trial_periods_match() ) {
+		// Fail safe: when we cannot confirm the trial periods match, pass
+		// through to WCS's default rather than applying the override on an
+		// assumption (every other guard here fails to pass-through).
+		if ( ! method_exists( $switch_item, 'trial_periods_match' ) || ! $switch_item->trial_periods_match() ) {
+			return $value;
+		}
+
+		// A switch into a one-payment (length-1) subscription routes through
+		// WCS's set_upgrade_cost() regardless of switch type
+		// (WCS_Switch_Totals_Calculator::calculate_prorated_totals), which
+		// sets the sign-up fee to existing_fee + extra_to_pay -- adding our
+		// override on top would double-charge. Pass through and let WCS price
+		// the gap payment.
+		if ( method_exists( $switch_item, 'is_switch_to_one_payment_subscription' ) && $switch_item->is_switch_to_one_payment_subscription() ) {
 			return $value;
 		}
 
@@ -312,7 +346,13 @@ class WooCommerce_Subscriptions {
 			return $value;
 		}
 
-		$unconsumed_credit = $total_paid * ( $days_until_next / $days_in_old_cycle );
+		// Clamp the unconsumed fraction to [0, 1]. days_until_next (WCS ceil)
+		// can exceed days_in_old_cycle (WCS round) by ~1 day near a cycle
+		// boundary, and for migrated subs only days_in_old_cycle flows through
+		// our clamp filter -- either can push the ratio above 1.0 and credit
+		// the reader more than they paid.
+		$unconsumed_ratio  = min( 1.0, max( 0.0, $days_until_next / $days_in_old_cycle ) );
+		$unconsumed_credit = $total_paid * $unconsumed_ratio;
 
 		return max( $new_recurring - $unconsumed_credit, 0.0 );
 	}
