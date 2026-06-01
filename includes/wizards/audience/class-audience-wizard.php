@@ -458,6 +458,7 @@ class Audience_Wizard extends Wizard {
 			[
 				'config'               => Reader_Activation::get_settings(),
 				'prerequisites_status' => Reader_Activation::get_prerequisites_status(),
+				'required_plugins'     => Reader_Activation::get_reader_revenue_required_plugins(),
 				'memberships'          => self::get_memberships_settings(),
 				'can_esp_sync'         => Reader_Activation\Contact_Sync::has_one_syncable_integration( true ),
 			]
@@ -481,6 +482,7 @@ class Audience_Wizard extends Wizard {
 			[
 				'config'               => Reader_Activation::get_settings(),
 				'prerequisites_status' => Reader_Activation::get_prerequisites_status(),
+				'required_plugins'     => Reader_Activation::get_reader_revenue_required_plugins(),
 				'memberships'          => self::get_memberships_settings(),
 				'can_esp_sync'         => Reader_Activation\Contact_Sync::has_one_syncable_integration( true ),
 			]

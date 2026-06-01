@@ -31,6 +31,7 @@ function AudienceWizard( { pluginRequirements, wizardApiFetch }, ref ) {
 	const [ prerequisites, setPrerequisites ] = useState( null );
 	const [ error, setError ] = useState( false );
 	const [ espSyncErrors, setEspSyncErrors ] = useState( [] );
+	const [ requiredPlugins, setRequiredPlugins ] = useState( {} );
 
 	const fetchConfig = () => {
 		setError( false );
@@ -38,8 +39,9 @@ function AudienceWizard( { pluginRequirements, wizardApiFetch }, ref ) {
 		return wizardApiFetch( {
 			path: '/newspack/v1/wizard/newspack-audience/audience-management',
 		} )
-			.then( ( { config: fetchedConfig, prerequisites_status, can_esp_sync } ) => {
+			.then( ( { config: fetchedConfig, prerequisites_status, required_plugins, can_esp_sync } ) => {
 				setPrerequisites( prerequisites_status );
+				setRequiredPlugins( required_plugins || {} );
 				setConfig( fetchedConfig );
 				setEspSyncErrors( can_esp_sync.errors );
 			} )
@@ -58,8 +60,9 @@ function AudienceWizard( { pluginRequirements, wizardApiFetch }, ref ) {
 			quiet: true,
 			data,
 		} )
-			.then( ( { config: fetchedConfig, prerequisites_status, can_esp_sync } ) => {
+			.then( ( { config: fetchedConfig, prerequisites_status, required_plugins, can_esp_sync } ) => {
 				setPrerequisites( prerequisites_status );
+				setRequiredPlugins( required_plugins || {} );
 				setConfig( fetchedConfig );
 				setEspSyncErrors( can_esp_sync.errors );
 			} )
@@ -139,6 +142,7 @@ function AudienceWizard( { pluginRequirements, wizardApiFetch }, ref ) {
 		espSyncErrors,
 		prerequisites,
 		config,
+		requiredPlugins,
 		onChangePlatform: () => setShowChooser( true ),
 		platform,
 	};

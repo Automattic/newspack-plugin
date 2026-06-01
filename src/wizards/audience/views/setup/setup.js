@@ -39,6 +39,7 @@ export default withWizardScreen(
 		getSharedProps,
 		saveConfig,
 		prerequisites,
+		requiredPlugins,
 		espSyncErrors,
 		error,
 		inFlight,
@@ -69,21 +70,29 @@ export default withWizardScreen(
 			setAllReady( _allReady );
 
 			if ( prerequisites ) {
-				setMissingPlugins(
-					Object.keys( prerequisites ).reduce( ( acc, slug ) => {
-						const prerequisite = prerequisites[ slug ];
-						if ( prerequisite.plugins ) {
-							for ( const pluginSlug in prerequisite.plugins ) {
-								if ( ! prerequisite.plugins[ pluginSlug ] ) {
-									acc.push( pluginSlug );
-								}
+				const missing = Object.keys( prerequisites ).reduce( ( acc, slug ) => {
+					const prerequisite = prerequisites[ slug ];
+					if ( prerequisite.plugins ) {
+						for ( const pluginSlug in prerequisite.plugins ) {
+							if ( ! prerequisite.plugins[ pluginSlug ] ) {
+								acc.push( pluginSlug );
 							}
 						}
-						return acc;
-					}, [] )
-				);
+					}
+					return acc;
+				}, [] );
+
+				// Surface the selected platform's required plugins that aren't installed yet,
+				// so missing ones are presented here even if the chooser's install didn't finish.
+				for ( const pluginSlug in requiredPlugins ) {
+					if ( ! requiredPlugins[ pluginSlug ] && ! missing.includes( pluginSlug ) ) {
+						missing.push( pluginSlug );
+					}
+				}
+
+				setMissingPlugins( missing );
 			}
-		}, [ prerequisites ] );
+		}, [ prerequisites, requiredPlugins ] );
 
 		const hasNewsletters = Boolean( prerequisites?.esp?.plugins?.[ 'newspack-newsletters' ] );
 
