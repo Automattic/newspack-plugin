@@ -13,12 +13,10 @@ type UseUnsavedChangesDialogOptions = {
 	when: boolean;
 };
 
-// Module-level active-instance counter used only to warn in development when
-// multiple consumers mount the same guard simultaneously. The click handler
-// is document-level capture, so a second active instance would fire a second
-// dialog on top of the first. Consumers should ensure only one instance is
-// active at a time.
-let activeInstances = 0;
+// Stack of mounted guards; the last entry owns the document-level handler so
+// only the most-recently-mounted guard prompts when several are active. Using a
+// stack keeps ownership correct under out-of-order unmounts.
+const activeGuards: symbol[] = [];
 
 /**
  * Returns true when `href` resolves to the same origin as the current page —
@@ -63,8 +61,9 @@ function useUnsavedChangesDialog( { when }: UseUnsavedChangesDialogOptions ) {
 		if ( ! when ) {
 			return;
 		}
-		activeInstances += 1;
-		if ( process.env.NODE_ENV !== 'production' && activeInstances > 1 ) {
+		const ownerId = Symbol( 'unsaved-changes-guard' );
+		activeGuards.push( ownerId );
+		if ( process.env.NODE_ENV !== 'production' && activeGuards.length > 1 ) {
 			// eslint-disable-next-line no-console
 			console.warn(
 				'useUnsavedChangesDialog: more than one active instance detected. ' +
@@ -72,6 +71,10 @@ function useUnsavedChangesDialog( { when }: UseUnsavedChangesDialogOptions ) {
 			);
 		}
 		const handler = ( e: MouseEvent ) => {
+			// Only the top-of-stack guard prompts, so concurrent guards can't stack dialogs.
+			if ( activeGuards[ activeGuards.length - 1 ] !== ownerId ) {
+				return;
+			}
 			if ( e.defaultPrevented || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0 ) {
 				return;
 			}
@@ -109,7 +112,10 @@ function useUnsavedChangesDialog( { when }: UseUnsavedChangesDialogOptions ) {
 		document.addEventListener( 'click', handler, true );
 		return () => {
 			document.removeEventListener( 'click', handler, true );
-			activeInstances -= 1;
+			const idx = activeGuards.indexOf( ownerId );
+			if ( idx !== -1 ) {
+				activeGuards.splice( idx, 1 );
+			}
 		};
 	}, [ when, requestConfirm ] );
 
