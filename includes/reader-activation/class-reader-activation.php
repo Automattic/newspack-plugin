@@ -845,7 +845,7 @@ final class Reader_Activation {
 				'label'       => __( 'Legal Pages', 'newspack-plugin' ),
 				'description' => __( 'Displaying legal pages like Privacy Policy and Terms of Service on your site is recommended for allowing readers to register and access their account.', 'newspack-plugin' ),
 				'help_url'    => 'https://help.newspack.com/engagement/audience-management-system/',
-				'warning'     => __( 'Privacy policies that tell users how you collect and use their data are essential for running a  trustworthy website. While rules and regulations can differ by country, certain legal pages might be required by law.', 'newspack-plugin' ),
+				'warning'     => __( 'Privacy policies that tell users how you collect and use their data are essential for running a trustworthy website. While rules and regulations can differ by country, certain legal pages might be required by law.', 'newspack-plugin' ),
 				'fields'      => [
 					'terms_text' => [
 						'label'       => __( 'Legal Pages Disclaimer Text', 'newspack-plugin' ),

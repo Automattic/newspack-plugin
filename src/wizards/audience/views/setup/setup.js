@@ -59,39 +59,40 @@ export default withWizardScreen(
 		useEffect( () => {
 			apiFetch( {
 				path: '/newspack/v1/wizard/newspack-newsletters/settings',
-			} ).then( data => {
-				setEsp( data?.settings?.newspack_newsletters_service_provider?.value ?? '' );
-			} );
+			} )
+				.then( data => {
+					setEsp( data?.settings?.newspack_newsletters_service_provider?.value ?? '' );
+				} )
+				// Newspack Newsletters may not be installed, in which case the endpoint 404s.
+				.catch( () => setEsp( '' ) );
 		}, [] );
 
 		useEffect( () => {
-			const _allReady = ! missingPlugins.length && prerequisites && Object.keys( prerequisites ).every( key => prerequisites[ key ]?.active );
-
-			setAllReady( _allReady );
-
-			if ( prerequisites ) {
-				const missing = Object.keys( prerequisites ).reduce( ( acc, slug ) => {
-					const prerequisite = prerequisites[ slug ];
-					if ( prerequisite.plugins ) {
-						for ( const pluginSlug in prerequisite.plugins ) {
-							if ( ! prerequisite.plugins[ pluginSlug ] ) {
-								acc.push( pluginSlug );
+			const missing = prerequisites
+				? Object.keys( prerequisites ).reduce( ( acc, slug ) => {
+						const prerequisite = prerequisites[ slug ];
+						if ( prerequisite.plugins ) {
+							for ( const pluginSlug in prerequisite.plugins ) {
+								if ( ! prerequisite.plugins[ pluginSlug ] ) {
+									acc.push( pluginSlug );
+								}
 							}
 						}
-					}
-					return acc;
-				}, [] );
+						return acc;
+				  }, [] )
+				: [];
 
-				// Surface the selected platform's required plugins that aren't installed yet,
-				// so missing ones are presented here even if the chooser's install didn't finish.
-				for ( const pluginSlug in requiredPlugins ) {
-					if ( ! requiredPlugins[ pluginSlug ] && ! missing.includes( pluginSlug ) ) {
-						missing.push( pluginSlug );
-					}
+			// Surface the selected platform's required plugins that aren't installed yet,
+			// so missing ones are presented here even if the chooser's install didn't finish.
+			for ( const pluginSlug in requiredPlugins ) {
+				if ( ! requiredPlugins[ pluginSlug ] && ! missing.includes( pluginSlug ) ) {
+					missing.push( pluginSlug );
 				}
-
-				setMissingPlugins( missing );
 			}
+
+			setMissingPlugins( missing );
+			// Derive readiness from the freshly-computed list, not the (stale) missingPlugins state.
+			setAllReady( ! missing.length && prerequisites && Object.keys( prerequisites ).every( key => prerequisites[ key ]?.active ) );
 		}, [ prerequisites, requiredPlugins ] );
 
 		const hasNewsletters = Boolean( prerequisites?.esp?.plugins?.[ 'newspack-newsletters' ] );
