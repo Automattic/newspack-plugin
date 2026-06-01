@@ -679,8 +679,13 @@ class Audience_Wizard extends Wizard {
 		}
 
 		// Ensure that any Reader Revenue settings changed while the platform wasn't WC are persisted to WC products.
+		// Skip when WooCommerce isn't ready yet (e.g. the platform was just set to 'wc' before WooCommerce is
+		// installed), in which case get_donation_settings() returns a WP_Error and product writes would fatal.
 		if ( Donations::is_platform_wc() ) {
-			Donations::update_donation_product( Donations::get_donation_settings() );
+			$donation_settings = Donations::get_donation_settings();
+			if ( ! \is_wp_error( $donation_settings ) ) {
+				Donations::update_donation_product( $donation_settings );
+			}
 		}
 
 		return \rest_ensure_response( $this->get_payment_data() );
