@@ -8,8 +8,9 @@ import { useState } from '@wordpress/element';
 /**
  * Internal dependencies
  */
-import { ActionCard, Button, Card, PluginInstaller } from '../../../../../packages/components/src';
+import { ActionCard, Button, PluginInstaller, withWizardScreen } from '../../../../../packages/components/src';
 import { WIZARD_STORE_NAMESPACE } from '../../../../../packages/components/src/wizard/store';
+import WizardsTab from '../../../wizards-tab';
 import { NEWSPACK, NRH, OTHER } from '../../constants';
 
 // The payment endpoint (api_update_payment_settings) persists the platform slug and
@@ -66,40 +67,44 @@ const PlatformSelection = ( { onComplete, onCancel } ) => {
 		} );
 	};
 
-	if ( installing ) {
-		return (
-			<Card noBorder>
+	return (
+		<WizardsTab
+			title={ __( 'Reader Revenue Platform', 'newspack-plugin' ) }
+			description={ __(
+				'Choose how you collect reader revenue. Your selection determines which plugins are installed and which settings are available.',
+				'newspack-plugin'
+			) }
+		>
+			{ installing ? (
 				<PluginInstaller
 					plugins={ PLATFORM_PLUGINS[ installing ] }
 					autoInstall
 					withoutFooterButton
 					onStatus={ ( { complete } ) => complete && onComplete() }
 				/>
-			</Card>
-		);
-	}
-
-	return (
-		<Card noBorder>
-			{ OPTIONS.map( option => (
-				<ActionCard
-					key={ option.value }
-					isMedium
-					title={ option.title }
-					description={ option.description }
-					actionText={ __( 'Select', 'newspack-plugin' ) }
-					onClick={ () => choose( option.value ) }
-				/>
-			) ) }
-			{ onCancel && (
-				<div className="newspack-buttons-card">
-					<Button isSecondary onClick={ onCancel }>
-						{ __( 'Cancel', 'newspack-plugin' ) }
-					</Button>
-				</div>
+			) : (
+				<>
+					{ OPTIONS.map( option => (
+						<ActionCard
+							key={ option.value }
+							isMedium
+							title={ option.title }
+							description={ option.description }
+							actionText={ __( 'Select', 'newspack-plugin' ) }
+							onClick={ () => choose( option.value ) }
+						/>
+					) ) }
+					{ onCancel && (
+						<div className="newspack-buttons-card">
+							<Button isSecondary onClick={ onCancel }>
+								{ __( 'Cancel', 'newspack-plugin' ) }
+							</Button>
+						</div>
+					) }
+				</>
 			) }
-		</Card>
+		</WizardsTab>
 	);
 };
 
-export default PlatformSelection;
+export default withWizardScreen( PlatformSelection );

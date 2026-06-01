@@ -154,6 +154,8 @@ function AudienceWizard( { pluginRequirements, wizardApiFetch }, ref ) {
 						render={ () =>
 							chooserOpen ? (
 								<PlatformSelection
+									{ ...props }
+									tabbedNavigation={ null }
 									onComplete={ () => {
 										setShowChooser( false );
 										fetchConfig();
