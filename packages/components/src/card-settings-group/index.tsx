@@ -11,6 +11,8 @@ import './style.scss';
 const CardSettingsGroup = ( {
 	actionType = 'none',
 	children,
+	className,
+	disabled = false,
 	icon = null,
 	headerAction,
 	title = '',
@@ -21,6 +23,8 @@ const CardSettingsGroup = ( {
 }: {
 	actionType?: 'chevron' | 'toggle' | 'button' | 'link' | 'none';
 	children?: React.ReactNode;
+	className?: string;
+	disabled?: boolean;
 	icon?: React.ReactNode;
 	title: string;
 	headerAction?: {
@@ -40,7 +44,7 @@ const CardSettingsGroup = ( {
 } ) => {
 	return (
 		<Card
-			className="newspack-card--core--settings-group"
+			className={ [ 'newspack-card--core--settings-group', className ].filter( Boolean ).join( ' ' ) }
 			actionType={ actionType }
 			isSmall
 			__experimentalCoreCard
@@ -54,6 +58,7 @@ const CardSettingsGroup = ( {
 				headerAction,
 				onHeaderClick,
 				onToggle: onEnable,
+				disabled,
 				icon,
 				iconBackgroundColor: true,
 				isActive,
