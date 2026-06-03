@@ -432,6 +432,90 @@ describe( 'NewslettersSettings — dirty tracking, save flow, snackbar', () => {
 		expect( screen.queryByText( /Ads tracking/i ) ).not.toBeInTheDocument();
 	} );
 
+	it( 'locks the subscription lists and shows the warning when the saved provider has no key', async () => {
+		const configuredFixture = {
+			...SETTINGS_FIXTURE,
+			esp_connected: true,
+			settings: {
+				...SETTINGS_FIXTURE.settings,
+				newspack_newsletters_service_provider: {
+					...SETTINGS_FIXTURE.settings.newspack_newsletters_service_provider,
+					value: 'mailchimp',
+				},
+				newspack_newsletters_mailchimp_api_key: {
+					...SETTINGS_FIXTURE.settings.newspack_newsletters_mailchimp_api_key,
+					value: 'abc-key',
+				},
+			},
+		};
+		// The backend reports the ESP disconnected once the key is removed.
+		const unconfiguredFixture = { ...configuredFixture, esp_connected: false };
+		apiFetch.mockImplementation( config => {
+			if ( config?.path === '/newspack-newsletters/v1/lists' ) {
+				return Promise.resolve( SUBSCRIPTION_LISTS_FIXTURE );
+			}
+			if ( config?.method === 'POST' ) {
+				return Promise.resolve( unconfiguredFixture );
+			}
+			return Promise.resolve( configuredFixture );
+		} );
+		renderWithRouter( <NewslettersSettings /> );
+		const ignore = 'script, style, .a11y-speak-region';
+		// Lists load with a connected provider — no warning yet.
+		await waitFor( () => expect( screen.getByText( 'Local A' ) ).toBeInTheDocument() );
+		expect( screen.queryByText( /Please save your ESP settings/i, { ignore } ) ).not.toBeInTheDocument();
+
+		// Remove the API key, then save.
+		await act( async () => {
+			fireEvent.change( screen.getByLabelText( 'Mailchimp API Key' ), { target: { value: '' } } );
+		} );
+		await act( async () => {
+			await getSaveAction().action();
+		} );
+
+		await waitFor( () =>
+			expect( screen.getByText( /Please save your ESP settings before changing your subscription lists/i, { ignore } ) ).toBeInTheDocument()
+		);
+	} );
+
+	it( 'reloads the subscription lists when the saved provider key is rotated', async () => {
+		const configuredFixture = {
+			...SETTINGS_FIXTURE,
+			esp_connected: true,
+			settings: {
+				...SETTINGS_FIXTURE.settings,
+				newspack_newsletters_service_provider: {
+					...SETTINGS_FIXTURE.settings.newspack_newsletters_service_provider,
+					value: 'mailchimp',
+				},
+				newspack_newsletters_mailchimp_api_key: {
+					...SETTINGS_FIXTURE.settings.newspack_newsletters_mailchimp_api_key,
+					value: 'abc-key',
+				},
+			},
+		};
+		apiFetch.mockImplementation( config => {
+			if ( config?.path === '/newspack-newsletters/v1/lists' ) {
+				return Promise.resolve( SUBSCRIPTION_LISTS_FIXTURE );
+			}
+			return Promise.resolve( configuredFixture );
+		} );
+		const listCalls = () => apiFetch.mock.calls.filter( ( [ c ] ) => c?.path === '/newspack-newsletters/v1/lists' ).length;
+		renderWithRouter( <NewslettersSettings /> );
+		await waitFor( () => expect( screen.getByText( 'Local A' ) ).toBeInTheDocument() );
+		const before = listCalls();
+
+		// Rotate the key to a different valid value, then save.
+		await act( async () => {
+			fireEvent.change( screen.getByLabelText( 'Mailchimp API Key' ), { target: { value: 'xyz-key' } } );
+		} );
+		await act( async () => {
+			await getSaveAction().action();
+		} );
+
+		await waitFor( () => expect( listCalls() ).toBeGreaterThan( before ) );
+	} );
+
 	it( 'clears the dirty flag after save even if a fetch resolves during the request', async () => {
 		// Captures the payload at save-call time so the saved snapshot reflects
 		// what was actually sent, not a later edit.

@@ -72,6 +72,16 @@ import './style.scss';
 
 const LETTERHEAD_KEY = 'newspack_newsletters_letterhead_api_key';
 
+// Signature over every credential field of a provider (keys sourced from the
+// settings metadata), so any change — key, URL, secret — is detected.
+const providerCredentialSignature = ( config, settings, provider ) =>
+	Object.values( settings || {} )
+		.filter( setting => setting?.provider && setting.provider === provider )
+		.map( setting => setting.key )
+		.sort()
+		.map( key => config?.[ key ] ?? '' )
+		.join( '|' );
+
 export const Settings = ( {
 	onUpdate,
 	onConfigured,
@@ -79,6 +89,8 @@ export const Settings = ( {
 	onLetterheadSetting,
 	newslettersConfig,
 	savedProvider = '',
+	espConnected = false,
+	onEspConnected = () => {},
 	isOnboarding = true,
 	authUrl = false,
 	isSaving = false,
@@ -101,15 +113,12 @@ export const Settings = ( {
 		if ( provider !== newProvider ) {
 			setError( false );
 			setProvider( newProvider );
-			// Unlock when the selection is the saved provider (initial load, or
-			// switching back to it) and its key is set; otherwise lock until saved.
-			if ( ( ! provider || newProvider === savedProvider ) && hasSelectedProviderKey() ) {
-				setLockedLists( false );
-			} else {
-				setLockedLists( true );
-			}
 		}
-	}, [ newslettersConfig?.newspack_newsletters_service_provider ] );
+		// Unlock only the saved, connected provider (initial load or switch-back).
+		// Kept outside the provider-change guard so a late `espConnected` still applies.
+		const isSavedProvider = ! provider || newProvider === savedProvider;
+		setLockedLists( ! ( newProvider && isSavedProvider && espConnected ) );
+	}, [ newslettersConfig?.newspack_newsletters_service_provider, provider, savedProvider, espConnected ] );
 	// Verify token for OAuth providers.
 	useEffect( () => {
 		verifyToken( newslettersConfig?.newspack_newsletters_service_provider );
@@ -157,6 +166,7 @@ export const Settings = ( {
 				if ( onConfigured ) {
 					onConfigured( response?.configured === true );
 				}
+				onEspConnected( response?.esp_connected === true );
 				if ( onLabels && response?.labels ) {
 					onLabels( response.labels );
 				}
@@ -170,15 +180,6 @@ export const Settings = ( {
 		const configItem = config.settings.newspack_newsletters_service_provider;
 		const value = configItem?.value;
 		return configItem?.options?.find( option => option.value === value )?.name;
-	};
-	const hasSelectedProviderKey = () => {
-		const selectedProvider = newslettersConfig?.newspack_newsletters_service_provider;
-		if ( ! selectedProvider ) {
-			return false;
-		}
-		const regex = new RegExp( `${ selectedProvider }.*key` );
-		const configKeys = Object.keys( newslettersConfig ).filter( key => regex.test( key ) );
-		return configKeys.some( key => !! newslettersConfig[ key ] );
 	};
 	const handleAuth = () => {
 		if ( authUrl ) {
@@ -414,7 +415,7 @@ export const Settings = ( {
 	);
 };
 
-export const SubscriptionLists = ( { lockedLists, onUpdate, provider, labels = {} } ) => {
+export const SubscriptionLists = ( { lockedLists, onUpdate, provider, labels = {}, reloadToken = 0 } ) => {
 	const [ error, setError ] = useState( false );
 	const [ inFlight, setInFlight ] = useState( false );
 	const [ togglingIds, setTogglingIds ] = useState( () => new Set() );
@@ -501,7 +502,7 @@ export const SubscriptionLists = ( { lockedLists, onUpdate, provider, labels = {
 			setLists( [] );
 			fetchLists();
 		}
-	}, [ provider, lockedLists ] );
+	}, [ provider, lockedLists, reloadToken ] );
 
 	useEffect( () => {
 		const reload = () => fetchLists();
@@ -779,6 +780,8 @@ const NewslettersSettings = () => {
 	const [ labels, setLabels ] = useState( {} );
 	const [ letterheadSetting, setLetterheadSetting ] = useState( null );
 	const [ isConfigured, setIsConfigured ] = useState( false );
+	const [ espConnected, setEspConnected ] = useState( false );
+	const [ listsReloadToken, setListsReloadToken ] = useState( 0 );
 	const { setHeaderData, addNotice } = useDispatch( WIZARD_STORE_NAMESPACE );
 
 	useEffect( () => {
@@ -808,8 +811,22 @@ const NewslettersSettings = () => {
 				method: 'POST',
 				data: payload,
 			} );
-			setProvider( payload?.newspack_newsletters_service_provider );
-			setLockedLists( false );
+			const savedProviderValue = savedConfig?.newspack_newsletters_service_provider;
+			const nextProviderValue = payload?.newspack_newsletters_service_provider;
+			const connected = response?.esp_connected === true;
+			setProvider( nextProviderValue );
+			setEspConnected( connected );
+			setLockedLists( ! connected );
+			// Same provider still connected but credentials changed (key rotation):
+			// nudge the lists to refetch, since provider and lock state didn't change.
+			if (
+				connected &&
+				nextProviderValue === savedProviderValue &&
+				providerCredentialSignature( payload, response?.settings, nextProviderValue ) !==
+					providerCredentialSignature( savedConfig || {}, response?.settings, nextProviderValue )
+			) {
+				setListsReloadToken( token => token + 1 );
+			}
 			setSavedConfig( payload );
 			if ( response?.labels ) {
 				setLabels( response.labels );
@@ -824,7 +841,7 @@ const NewslettersSettings = () => {
 		} finally {
 			setInFlight( false );
 		}
-	}, [ newslettersConfig, addNotice ] );
+	}, [ newslettersConfig, savedConfig, addNotice ] );
 
 	useEffect( () => {
 		setHeaderData( {
@@ -863,12 +880,16 @@ const NewslettersSettings = () => {
 				authUrl={ authUrl }
 				newslettersConfig={ newslettersConfig }
 				savedProvider={ savedConfig?.newspack_newsletters_service_provider || '' }
+				espConnected={ espConnected }
+				onEspConnected={ setEspConnected }
 				provider={ provider }
 				setProvider={ setProvider }
 				setAuthUrl={ setAuthUrl }
 				setLockedLists={ setLockedLists }
 			/>
-			{ provider !== 'manual' && <SubscriptionLists lockedLists={ lockedLists } provider={ provider } labels={ labels } /> }
+			{ provider !== 'manual' && (
+				<SubscriptionLists lockedLists={ lockedLists } provider={ provider } labels={ labels } reloadToken={ listsReloadToken } />
+			) }
 			{ isConfigured && <Tracking /> }
 			{ letterheadSetting && (
 				<>

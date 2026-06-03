@@ -241,9 +241,10 @@ class Newsletters_Wizard extends Wizard {
 		}
 
 		return [
-			'configured' => $newsletters_configuration_manager->is_configured(),
-			'settings'   => $settings,
-			'labels'     => $labels,
+			'configured'    => $newsletters_configuration_manager->is_configured(),
+			'esp_connected' => (bool) $newsletters_configuration_manager->is_esp_set_up(),
+			'settings'      => $settings,
+			'labels'        => $labels,
 		];
 	}
 
@@ -267,6 +268,12 @@ class Newsletters_Wizard extends Wizard {
 		$args                              = $request->get_params();
 		$newsletters_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-newsletters' );
 		$newsletters_configuration_manager->update_settings( $args );
+		// The provider instance is memoized on `init`, before this save runs, so
+		// refresh it before reading credential status — otherwise a provider switch
+		// reports the previously-active provider's connection state.
+		if ( method_exists( 'Newspack_Newsletters', 'memoize_service_provider' ) ) {
+			\Newspack_Newsletters::memoize_service_provider();
+		}
 		return $this->api_get_newsletters_settings();
 	}
 
