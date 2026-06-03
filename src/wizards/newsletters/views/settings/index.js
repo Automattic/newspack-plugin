@@ -72,9 +72,9 @@ import './style.scss';
 
 const LETTERHEAD_KEY = 'newspack_newsletters_letterhead_api_key';
 
-// Signature over every credential field of a provider (keys sourced from the
-// settings metadata), so any change — key, URL, secret — is detected.
-const providerCredentialSignature = ( config, settings, provider ) =>
+// Signature over a provider's settings (keys sourced from the settings
+// metadata), so any credential change — key, URL, secret — is detected.
+const providerSettingsSignature = ( config, settings, provider ) =>
 	Object.values( settings || {} )
 		.filter( setting => setting?.provider && setting.provider === provider )
 		.map( setting => setting.key )
@@ -822,8 +822,8 @@ const NewslettersSettings = () => {
 			if (
 				connected &&
 				nextProviderValue === savedProviderValue &&
-				providerCredentialSignature( payload, response?.settings, nextProviderValue ) !==
-					providerCredentialSignature( savedConfig || {}, response?.settings, nextProviderValue )
+				providerSettingsSignature( payload, response?.settings, nextProviderValue ) !==
+					providerSettingsSignature( savedConfig || {}, response?.settings, nextProviderValue )
 			) {
 				setListsReloadToken( token => token + 1 );
 			}
