@@ -1,3 +1,10 @@
+## [6.42.2](https://github.com/Automattic/newspack-plugin/compare/v6.42.1...v6.42.2) (2026-06-10)
+
+
+### Bug Fixes
+
+* **web-preview:** right-align toolbar close button ([589248d](https://github.com/Automattic/newspack-plugin/commit/589248d49eb2731f2551f86bf806626774698655))
+
 ## [6.42.1](https://github.com/Automattic/newspack-plugin/compare/v6.42.0...v6.42.1) (2026-06-02)
 
 
