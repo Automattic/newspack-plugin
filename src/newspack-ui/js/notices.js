@@ -43,13 +43,50 @@ function closeNotice( element, remove = true ) {
 			element.remove();
 		}, 250 );
 	}
-	wp.ajax.send( 'newspack_ui_notice_dismissed', {
-		data: {
-			id: element.dataset.noticeId,
-			nonce: element.dataset.nonce,
-		},
-	} );
+	if ( element.dataset.noticeId ) {
+		wp.ajax.send( 'newspack_ui_notice_dismissed', {
+			data: {
+				id: element.dataset.noticeId,
+				nonce: element.dataset.nonce,
+			},
+		} );
+	}
+}
+
+/**
+ * Dynamically create and show a snackbar notice.
+ *
+ * @param {string} message Message text to show.
+ * @param {string} type    Notice type.
+ */
+function createNotice( message, type = 'success' ) {
+	let snackbar = document.querySelector( '.newspack-ui__snackbar--top-right' );
+	if ( ! snackbar ) {
+		let wrapper = document.querySelector( '.newspack-ui' );
+		if ( ! wrapper ) {
+			wrapper = document.createElement( 'div' );
+			wrapper.classList.add( 'newspack-ui' );
+			document.body.appendChild( wrapper );
+		}
+
+		snackbar = document.createElement( 'div' );
+		snackbar.classList.add( 'newspack-ui__snackbar', 'newspack-ui__snackbar--top-right' );
+
+		wrapper.appendChild( snackbar );
+	}
+
+	const item = document.createElement( 'div' );
+	item.classList.add( 'newspack-ui__snackbar__item', `newspack-ui__snackbar__item--${ type }` );
+	item.setAttribute( 'data-autohide', 'true' );
+
+	const content = document.createElement( 'div' );
+	content.classList.add( 'newspack-ui__snackbar__content' );
+	content.textContent = message;
+
+	item.appendChild( content );
+	snackbar.appendChild( item );
+	openNotice( item, true );
 }
 
 // Expose notice functions to the global API.
-export default { openNotice, closeNotice };
+export default { openNotice, closeNotice, createNotice };

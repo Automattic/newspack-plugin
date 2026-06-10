@@ -49,28 +49,28 @@ export default function ContentRuleControlTokenField( { slug, value, exclusion, 
 			apiFetch< { db_id?: number; id: number; name: string; type_label?: string }[] >( {
 				path: addQueryArgs( endpoint, {
 					search,
-					per_page: 10,
+					per_page: 100,
 					_fields: 'db_id,id,name,type_label',
 				} ),
 			} )
-				.then( terms => {
-					if ( ! terms || terms.length === 0 ) {
+				.then( items => {
+					if ( ! items || items.length === 0 ) {
 						setSuggestions( [] );
 						return;
 					}
 					setSuggestions(
-						terms.map( term => ( {
-							value: term.db_id ? term.db_id.toString() : term.id.toString(),
+						items.map( item => ( {
+							value: item.db_id ? item.db_id.toString() : item.id.toString(),
 							label: decodeEntities(
-								`${ term.db_id || term.id }: ${ term.name || __( '(no name)', 'newspack-plugin' ) }${
-									term.type_label ? ` (${ term.type_label })` : ''
+								`${ item.db_id || item.id }: ${ item.name || __( '(no name)', 'newspack-plugin' ) }${
+									item.type_label ? ` (${ item.type_label })` : ''
 								}`
 							),
 						} ) )
 					);
 				} )
 				.catch( error => {
-					console.warn( 'Error fetching suggestions for taxonomy: ' + endpoint, error ); // eslint-disable-line no-console
+					console.warn( 'Error fetching suggestions for content rule: ' + endpoint, error ); // eslint-disable-line no-console
 				} );
 		},
 		[ endpoint ]
@@ -84,23 +84,24 @@ export default function ContentRuleControlTokenField( { slug, value, exclusion, 
 		apiFetch< { db_id?: number; id: number; name: string; type_label?: string }[] >( {
 			path: addQueryArgs( endpoint, {
 				include: value.join( ',' ),
+				per_page: 100,
 				_fields: 'db_id,id,name,type_label',
 			} ),
 		} )
-			.then( terms => {
+			.then( items => {
 				setSavedItems(
-					terms.map( term => ( {
-						value: term.db_id ? term.db_id.toString() : term.id.toString(),
+					items.map( item => ( {
+						value: item.db_id ? item.db_id.toString() : item.id.toString(),
 						label: decodeEntities(
-							`${ term.db_id || term.id }: ${ term.name || __( '(no name)', 'newspack-plugin' ) }${
-								term.type_label ? ` (${ term.type_label })` : ''
+							`${ item.db_id || item.id }: ${ item.name || __( '(no name)', 'newspack-plugin' ) }${
+								item.type_label ? ` (${ item.type_label })` : ''
 							}`
 						),
 					} ) )
 				);
 			} )
 			.catch( error => {
-				console.warn( 'Error fetching saved items for taxonomy: ' + endpoint, error ); // eslint-disable-line no-console
+				console.warn( 'Error fetching saved items for content rule: ' + endpoint, error ); // eslint-disable-line no-console
 			} );
 	}, [ value, endpoint ] );
 

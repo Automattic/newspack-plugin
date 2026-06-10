@@ -7,7 +7,7 @@
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { Button, Card as CardWrapper, CardHeader, CardFooter, DropdownMenu, MenuItem, ToggleControl } from '@wordpress/components';
+import { Button, Card as CardWrapper, CardHeader, CardFooter, DropdownMenu, MenuGroup, MenuItem, ToggleControl } from '@wordpress/components';
 import { Icon, chevronDown, chevronRight, chevronUp, dragHandle, moreVertical } from '@wordpress/icons';
 
 /**
@@ -28,6 +28,7 @@ const CoreCard = ( {
 	className,
 	footer,
 	header,
+	headerAction,
 	headerStyle,
 	childrenStyle,
 	footerStyle,
@@ -145,19 +146,57 @@ const CoreCard = ( {
 					{ actions?.length > 0 && (
 						<DropdownMenu icon={ moreVertical } label={ __( 'More', 'newspack-plugin' ) }>
 							{ () =>
-								actions.map( ( action, index ) => (
-									<MenuItem
-										key={ index }
-										icon={ action.icon }
-										onClick={ action.action }
-										disabled={ action.disabled || false }
-										isDestructive={ action.destructive || false }
-									>
-										{ action.label }
-									</MenuItem>
-								) )
+								actions.map( ( action, index ) => {
+									// Actions can be an array of sub-actions, which are rendered within a MenuGroup.
+									if ( Array.isArray( action ) ) {
+										return (
+											<MenuGroup key={ index }>
+												{ action.map( ( subAction, i ) => {
+													return (
+														<MenuItem
+															key={ i }
+															icon={ subAction.icon }
+															onClick={ subAction.action }
+															href={ subAction.href }
+															disabled={ subAction.disabled || false }
+															isDestructive={ subAction.destructive || false }
+														>
+															{ subAction.label }
+														</MenuItem>
+													);
+												} ) }
+											</MenuGroup>
+										);
+									}
+									return (
+										<MenuItem
+											key={ index }
+											icon={ action.icon }
+											onClick={ action.action }
+											href={ action.href }
+											disabled={ action.disabled || false }
+											isDestructive={ action.destructive || false }
+										>
+											{ action.label }
+										</MenuItem>
+									);
+								} )
 							}
 						</DropdownMenu>
+					) }
+					{ headerAction && (
+						<Button
+							className="newspack-card--core__header__action"
+							icon={ headerAction.icon }
+							href={ headerAction.href }
+							disabled={ headerAction.disabled || false }
+							isDestructive={ headerAction.destructive || false }
+							onClick={ headerAction.onClick }
+							tone={ headerAction.tone || 'primary' }
+							variant={ headerAction.variant || 'secondary' }
+						>
+							{ headerAction.label }
+						</Button>
 					) }
 				</CardHeader>
 			) }

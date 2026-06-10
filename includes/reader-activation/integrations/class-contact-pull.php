@@ -1,9 +1,9 @@
 <?php
 /**
- * Contact Pull orchestration class
+ * Contact Pull class
  *
- * Handles synchronous and asynchronous pulling of contact data
- * from active integrations.
+ * Handles pulling contact data from active integrations,
+ * with retry logic via ActionScheduler.
  *
  * @package Newspack
  */
@@ -17,23 +17,14 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * Contact Pull Class.
- *
- * Manages the pull orchestration: sync/async decision, time-limited
- * sync loop, Action Scheduler scheduling, and async handler.
  */
 class Contact_Pull {
-	/**
-	 * Pull interval in seconds (5 minutes).
-	 *
-	 * @var int
-	 */
-	const PULL_INTERVAL = 300;
 
 	/**
 	 * Threshold in seconds (24 hours) for synchronous vs async pull.
 	 *
 	 * If the last pull is older than this, the pull runs synchronously.
-	 * Otherwise it is scheduled via Action Scheduler.
+	 * Otherwise it is queued for the next cron run.
 	 *
 	 * @var int
 	 */
@@ -54,33 +45,50 @@ class Contact_Pull {
 	const NONCE_ACTION = 'newspack_pull_integration_nonce';
 
 	/**
-	 * User meta key for last pull timestamp.
+	 * ActionScheduler hook for retrying a failed integration pull.
+	 */
+	const RETRY_HOOK = 'newspack_contact_pull_retry';
+
+	/**
+	 * Maximum number of retries for a failed integration pull.
+	 */
+	const MAX_RETRIES = 5;
+
+	/**
+	 * Backoff schedule in seconds for integration pull retries.
+	 * 30s, 2min, 8min, 30min, 2h.
+	 */
+	const RETRY_BACKOFF = [ 30, 120, 480, 1800, 7200 ];
+
+	/**
+	 * Logger header for Contact Pull messages.
 	 *
 	 * @var string
 	 */
-	const LAST_PULL_META = 'newspack_integrations_last_pull';
+	const LOGGER_HEADER = 'NEWSPACK-CONTACT-PULL';
 
 	/**
-	 * Action Scheduler hook for async pull of a single integration.
-	 *
-	 * @var string
+	 * Initialize hooks.
 	 */
-	const ASYNC_PULL_HOOK = 'newspack_pull_integration_contact_data';
-
-	/**
-	 * Initialize pull hooks.
-	 */
-	public static function init() {
-		add_action( 'init', [ __CLASS__, 'maybe_pull_contact_data' ], 20 );
-		add_action( self::ASYNC_PULL_HOOK, [ __CLASS__, 'handle_async_pull' ] );
+	public static function init_hooks() {
 		add_action( 'wp_ajax_' . self::AJAX_ACTION, [ __CLASS__, 'handle_ajax_pull' ] );
+		add_action( self::RETRY_HOOK, [ __CLASS__, 'execute_integration_retry' ] );
+		add_filter( 'newspack_action_scheduler_hook_labels', [ __CLASS__, 'register_hook_labels' ] );
+	}
+
+	/**
+	 * Register hook labels for Contact Pull actions.
+	 *
+	 * @param array $labels Existing labels.
+	 * @return array
+	 */
+	public static function register_hook_labels( $labels ) {
+		$labels[ self::RETRY_HOOK ] = __( 'Contact Pull Retry', 'newspack-plugin' );
+		return $labels;
 	}
 
 	/**
 	 * Get the timeout for loopback pull requests.
-	 *
-	 * This allows integrations with longer pull times to extend the timeout
-	 * before the request is considered failed and falls back to async scheduling.
 	 *
 	 * @return int Timeout in seconds.
 	 */
@@ -92,56 +100,32 @@ class Contact_Pull {
 	}
 
 	/**
-	 * Pull contact data from active integrations for the current logged-in user.
+	 * Whether the timestamp is stale (older than PULL_SYNC_THRESHOLD).
 	 *
-	 * If the last pull is older than PULL_SYNC_THRESHOLD (24 h), the pull runs
-	 * synchronously with a time limit. Any integrations that don't finish in time
-	 * are scheduled via Action Scheduler.
-	 *
-	 * If the last pull is newer than 24 h (but older than PULL_INTERVAL) every
-	 * integration is scheduled asynchronously so the page load is not blocked.
+	 * @param int $timestamp Timestamp.
+	 * @return bool True if the timestamp is stale.
 	 */
-	public static function maybe_pull_contact_data() {
-		if ( ! is_user_logged_in() ) {
-			return;
-		}
-
-		$user      = wp_get_current_user();
-		$last_pull = (int) get_user_meta( $user->ID, self::LAST_PULL_META, true );
-		$age       = time() - $last_pull;
-
-		if ( $age < self::PULL_INTERVAL ) {
-			return;
-		}
-
-		// Set immediately to prevent concurrent pulls from overlapping page loads.
-		update_user_meta( $user->ID, self::LAST_PULL_META, time() );
-
-		$active_integrations = Integrations::get_active_integrations();
-
-		// Data is stale (> 24 h) — pull synchronously, schedule leftovers.
-		if ( $age >= self::PULL_SYNC_THRESHOLD ) {
-			self::pull_sync( $user->ID, $active_integrations );
-			return;
-		}
-
-		// Data is relatively fresh — schedule all integrations async.
-		self::schedule_async_pulls( $user->ID, $active_integrations );
+	public static function is_stale( $timestamp ) {
+		return ( time() - $timestamp ) >= self::PULL_SYNC_THRESHOLD;
 	}
 
 	/**
-	 * Run synchronous pull via per-integration loopback requests.
+	 * Run synchronous pull for the current user via per-integration loopback requests.
 	 *
 	 * Each integration is pulled via a blocking wp_remote_post to the AJAX
-	 * endpoint with get_pull_request_timeout. If the request completes, the handler
-	 * has already stored the data. If it times out or fails, the integration is
-	 * scheduled via Action Scheduler as a fallback.
+	 * endpoint. Returns WP_Error if any integration fails, so the caller
+	 * can enqueue the user for the next cron batch.
 	 *
-	 * @param int                                       $user_id      WordPress user ID.
-	 * @param \Newspack\Reader_Activation\Integration[] $integrations Active integrations to pull from.
+	 * @param \Newspack\Reader_Activation\Integration[] $integrations Active integrations to pull from. Defaults to all active integrations.
+	 * @return true|\WP_Error True if all succeeded, WP_Error with combined messages.
 	 */
-	private static function pull_sync( $user_id, $integrations ) {
-		$failed = [];
+	public static function pull_sync( $integrations = [] ) {
+		if ( empty( $integrations ) ) {
+			$integrations = Integrations::get_active_integrations();
+		}
+
+		Logger::log( 'Synchronous pull started for user "' . get_current_user_id() . '".', self::LOGGER_HEADER );
+		$errors = [];
 
 		foreach ( $integrations as $id => $integration ) {
 			$selected_fields = $integration->get_enabled_incoming_fields();
@@ -153,16 +137,47 @@ class Contact_Pull {
 
 			if ( is_wp_error( $response ) || 200 !== wp_remote_retrieve_response_code( $response ) ) {
 				$error_message = is_wp_error( $response ) ? $response->get_error_message() : 'Unexpected response code: ' . wp_remote_retrieve_response_code( $response );
-				Logger::log( 'Loopback pull failed for ' . $id . '. Scheduling async. Error: ' . $error_message );
-				$failed[ $id ] = $integration;
+				Logger::log( 'Loopback pull failed for ' . $id . '. Error: ' . $error_message, self::LOGGER_HEADER );
+				$errors[] = sprintf( '[%s] %s', $id, $error_message );
 			} else {
-				Logger::log( 'Loopback pull succeeded for ' . $id . '.' );
+				Logger::log( 'Loopback pull succeeded for ' . $id . '.', self::LOGGER_HEADER );
 			}
 		}
 
-		if ( ! empty( $failed ) ) {
-			self::schedule_async_pulls( $user_id, $failed );
+		if ( ! empty( $errors ) ) {
+			return new \WP_Error( 'newspack_sync_pull_failed', implode( '; ', $errors ) );
 		}
+
+		return true;
+	}
+
+	/**
+	 * Pull all active integrations for a user.
+	 *
+	 * @param int $user_id WordPress user ID.
+	 * @return true|\WP_Error True if all succeeded, WP_Error with combined messages.
+	 */
+	public static function pull_all( $user_id ) {
+		$active_integrations = Integrations::get_active_integrations();
+		$errors              = [];
+
+		foreach ( $active_integrations as $integration ) {
+			$selected_fields = $integration->get_enabled_incoming_fields();
+			if ( empty( $selected_fields ) ) {
+				continue;
+			}
+			$result = self::pull_single_integration( $user_id, $integration );
+			if ( is_wp_error( $result ) ) {
+				self::schedule_integration_retry( $integration->get_id(), $user_id, 0, $result );
+				$errors[] = sprintf( '[%s] %s', $integration->get_id(), $result->get_error_message() );
+			}
+		}
+
+		if ( ! empty( $errors ) ) {
+			return new \WP_Error( 'newspack_contact_pull_failed', implode( '; ', $errors ) );
+		}
+
+		return true;
 	}
 
 	/**
@@ -194,9 +209,6 @@ class Contact_Pull {
 
 	/**
 	 * Handle the AJAX loopback request for pulling a single integration.
-	 *
-	 * Verifies the nonce, looks up the integration, pulls and stores data,
-	 * then returns a JSON response.
 	 */
 	public static function handle_ajax_pull() {
 		if ( ! isset( $_REQUEST['nonce'] ) || ! wp_verify_nonce( sanitize_text_field( $_REQUEST['nonce'] ), self::NONCE_ACTION ) ) { // phpcs:ignore
@@ -244,7 +256,7 @@ class Contact_Pull {
 			$data = $integration->pull_contact_data( $user_id );
 
 			if ( is_wp_error( $data ) ) {
-				Logger::log( 'Pull error from ' . $integration->get_id() . ': ' . $data->get_error_message() );
+				Logger::log( 'Pull error from ' . $integration->get_id() . ': ' . $data->get_error_message(), self::LOGGER_HEADER );
 				return $data;
 			}
 
@@ -265,68 +277,177 @@ class Contact_Pull {
 
 			return true;
 		} catch ( \Throwable $e ) {
-			Logger::log( 'Pull exception from ' . $integration->get_id() . ': ' . $e->getMessage() );
+			Logger::log( 'Pull exception from ' . $integration->get_id() . ': ' . $e->getMessage(), self::LOGGER_HEADER );
 			return new \WP_Error( 'pull_exception', $e->getMessage() );
 		}
 	}
 
 	/**
-	 * Schedule async Action Scheduler events for pulling integration data.
+	 * Get the set of user IDs with pending pull retries in ActionScheduler.
 	 *
-	 * @param int                                       $user_id      WordPress user ID.
-	 * @param \Newspack\Reader_Activation\Integration[] $integrations Integrations to schedule.
+	 * Useful for batch processing: fetch once, then check membership with isset()
+	 * instead of calling has_pending_retries() per user.
+	 *
+	 * @return array<int, bool> Map keyed by user ID for O(1) lookup.
 	 */
-	private static function schedule_async_pulls( $user_id, $integrations ) {
-		if ( ! function_exists( 'as_enqueue_async_action' ) ) {
-			return;
+	public static function get_pending_retry_user_ids() {
+		if ( ! function_exists( 'as_get_scheduled_actions' ) ) {
+			return [];
 		}
-
-		foreach ( $integrations as $integration ) {
-			$selected_fields = $integration->get_enabled_incoming_fields();
-			if ( empty( $selected_fields ) ) {
-				continue;
+		$actions = \as_get_scheduled_actions(
+			[
+				'hook'     => self::RETRY_HOOK,
+				'status'   => \ActionScheduler_Store::STATUS_PENDING,
+				'per_page' => -1,
+			]
+		);
+		$user_ids = [];
+		foreach ( $actions as $action ) {
+			$args = $action->get_args();
+			if ( ! empty( $args[0]['user_id'] ) ) {
+				$user_ids[ (int) $args[0]['user_id'] ] = true;
 			}
-
-			$args = [
-				[
-					'user_id'        => $user_id,
-					'integration_id' => $integration->get_id(),
-				],
-			];
-
-			$group = Integrations::get_action_group( $integration->get_id() );
-
-			if ( function_exists( 'as_has_scheduled_action' ) && \as_has_scheduled_action( self::ASYNC_PULL_HOOK, $args, $group ) ) {
-				continue;
-			}
-
-			\as_enqueue_async_action(
-				self::ASYNC_PULL_HOOK,
-				$args,
-				$group
-			);
 		}
+		return $user_ids;
 	}
 
 	/**
-	 * Handle an async pull Action Scheduler event.
+	 * Check if a user has any pending pull retries in ActionScheduler.
 	 *
-	 * @param array $args { user_id, integration_id }.
+	 * @param int $user_id WordPress user ID.
+	 * @return bool True if there are pending retries.
 	 */
-	public static function handle_async_pull( $args ) {
-		$user_id        = $args['user_id'] ?? 0;
-		$integration_id = $args['integration_id'] ?? '';
+	public static function has_pending_retries( $user_id ) {
+		return isset( self::get_pending_retry_user_ids()[ (int) $user_id ] );
+	}
 
-		if ( ! $user_id || ! $integration_id ) {
+	/**
+	 * Schedule a retry for a failed integration pull via ActionScheduler.
+	 *
+	 * @param string           $integration_id The integration ID.
+	 * @param int              $user_id        The WordPress user ID.
+	 * @param int              $retry_count    Current retry count (0 = first failure).
+	 * @param string|\WP_Error $error          The error from the failure.
+	 */
+	private static function schedule_integration_retry( $integration_id, $user_id, $retry_count, $error ) {
+		if ( ! function_exists( 'as_schedule_single_action' ) ) {
+			return;
+		}
+
+		$user = ! empty( $user_id ) ? get_userdata( $user_id ) : false;
+		if ( ! $user ) {
+			Logger::log( sprintf( 'Cannot schedule pull retry for integration "%s": user %d not found.', $integration_id, $user_id ), self::LOGGER_HEADER );
+			return;
+		}
+
+		$error_message = $error instanceof \WP_Error ? $error->get_error_message() : (string) $error;
+
+		$next_retry = $retry_count + 1;
+		if ( $next_retry > self::MAX_RETRIES ) {
+			Logger::log(
+				sprintf(
+					'Max pull retries (%d) reached for integration "%s" of user %d. Giving up. Last error: %s',
+					self::MAX_RETRIES,
+					$integration_id,
+					$user_id,
+					$error_message
+				),
+				self::LOGGER_HEADER
+			);
+			return;
+		}
+
+		$backoff_index   = min( $retry_count, count( self::RETRY_BACKOFF ) - 1 );
+		$backoff_seconds = self::RETRY_BACKOFF[ $backoff_index ];
+
+		$retry_data = [
+			'integration_id' => $integration_id,
+			'user_id'        => $user_id,
+			'retry_count'    => $next_retry,
+			'max_retries'    => self::MAX_RETRIES,
+			'reason'         => $error_message,
+		];
+
+		\as_schedule_single_action(
+			time() + $backoff_seconds,
+			self::RETRY_HOOK,
+			[ $retry_data ],
+			Integrations::get_action_group( $integration_id )
+		);
+
+		Logger::log(
+			sprintf(
+				'Scheduled pull retry %d/%d for integration "%s" of user %d in %ds. Error: %s',
+				$next_retry,
+				self::MAX_RETRIES,
+				$integration_id,
+				$user_id,
+				$backoff_seconds,
+				$error_message
+			),
+			self::LOGGER_HEADER
+		);
+	}
+
+	/**
+	 * Execute an integration pull retry from ActionScheduler.
+	 *
+	 * @param array $retry_data The retry data.
+	 *
+	 * @throws \Exception When the final retry fails, so ActionScheduler marks the action as "failed".
+	 */
+	public static function execute_integration_retry( $retry_data ) {
+		if ( ! is_array( $retry_data ) || empty( $retry_data['integration_id'] ) || empty( $retry_data['user_id'] ) ) {
+			Logger::log( 'Invalid pull retry data received from Action Scheduler.', self::LOGGER_HEADER, 'error' );
+			return;
+		}
+
+		$integration_id = $retry_data['integration_id'];
+		$user_id        = $retry_data['user_id'];
+		$retry_count    = $retry_data['retry_count'] ?? 1;
+
+		$user = \get_userdata( $user_id );
+		if ( ! $user ) {
+			Logger::log( sprintf( 'User %d not found on pull retry %d.', $user_id, $retry_count ), self::LOGGER_HEADER, 'error' );
 			return;
 		}
 
 		$integration = Integrations::get_integration( $integration_id );
-
 		if ( ! $integration || ! Integrations::is_enabled( $integration_id ) ) {
+			Logger::log( sprintf( 'Integration "%s" not found or not enabled on pull retry %d.', $integration_id, $retry_count ), self::LOGGER_HEADER, 'error' );
 			return;
 		}
 
-		self::pull_single_integration( $user_id, $integration );
+		Logger::log( sprintf( 'Executing pull retry %d/%d for integration "%s" of user %d.', $retry_count, self::MAX_RETRIES, $integration_id, $user_id ), self::LOGGER_HEADER );
+
+		$result = self::pull_single_integration( $user_id, $integration );
+		if ( is_wp_error( $result ) ) {
+			$error_message = sprintf(
+				'Pull retry %d/%d failed for integration "%s" of user %d: %s',
+				$retry_count,
+				self::MAX_RETRIES,
+				$integration_id,
+				$user_id,
+				$result->get_error_message()
+			);
+			Logger::log( $error_message, self::LOGGER_HEADER );
+			self::schedule_integration_retry( $integration_id, $user_id, $retry_count, $result );
+
+			if ( $retry_count >= self::MAX_RETRIES ) {
+				throw new \Exception( esc_html( $error_message ) );
+			}
+		} else {
+			Logger::log(
+				sprintf(
+					'Pull retry %d/%d succeeded for integration "%s" of user %d.',
+					$retry_count,
+					self::MAX_RETRIES,
+					$integration_id,
+					$user_id
+				),
+				self::LOGGER_HEADER
+			);
+		}
 	}
 }
+Contact_Pull::init_hooks();

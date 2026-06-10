@@ -2,7 +2,7 @@
  * WordPress dependencies.
  */
 import { __ } from '@wordpress/i18n';
-import { CheckboxControl, ExternalLink } from '@wordpress/components';
+import { CheckboxControl, ExternalLink, TextareaControl } from '@wordpress/components';
 
 /**
  * Internal dependencies.
@@ -34,18 +34,21 @@ export const SettingsField = ( { field, value, onChange } ) => {
 	switch ( type ) {
 		case 'metadata': {
 			const selectedFields = Array.isArray( value ) ? value : [];
+			const normalizedOptions = ( options || [] ).map( option =>
+				typeof option === 'string' ? { value: option, label: option } : { value: option.value, label: option.label || option.value }
+			);
 			return (
 				<div key={ key }>
 					<h3>{ label }</h3>
 					<Grid columns={ 3 } rowGap={ 16 }>
-						{ options.map( fieldName => (
+						{ normalizedOptions.map( ( { value: optionValue, label: optionLabel } ) => (
 							<CheckboxControl
 								className="newspack-checkbox-control"
-								key={ fieldName }
-								label={ fieldName.replace( ': ', '' ) }
-								checked={ selectedFields.includes( fieldName ) }
+								key={ optionValue }
+								label={ optionLabel.replace( /:\s*$/, '' ) }
+								checked={ selectedFields.includes( optionValue ) }
 								onChange={ checked => {
-									const newFields = checked ? [ ...selectedFields, fieldName ] : selectedFields.filter( f => f !== fieldName );
+									const newFields = checked ? [ ...selectedFields, optionValue ] : selectedFields.filter( f => f !== optionValue );
 									onChange( newFields );
 								} }
 							/>
@@ -72,15 +75,7 @@ export const SettingsField = ( { field, value, onChange } ) => {
 			);
 		case 'textarea':
 			return (
-				<TextControl
-					key={ key }
-					label={ label }
-					help={ help }
-					value={ value || '' }
-					placeholder={ placeholder }
-					onChange={ onChange }
-					isTextarea
-				/>
+				<TextareaControl key={ key } label={ label } help={ help } value={ value || '' } placeholder={ placeholder } onChange={ onChange } />
 			);
 		case 'number':
 			return (

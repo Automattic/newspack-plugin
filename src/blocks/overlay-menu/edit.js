@@ -2,7 +2,6 @@
  * WordPress dependencies
  */
 import { useEffect, useState } from '@wordpress/element';
-import { useSelect } from '@wordpress/data';
 import { InnerBlocks, useBlockProps } from '@wordpress/block-editor';
 
 /**
@@ -37,23 +36,15 @@ export default function OverlayMenuEdit( { attributes, setAttributes, clientId }
 		}
 	}, [ clientId ] ); // eslint-disable-line react-hooks/exhaustive-deps
 
-	// Find the child panel block to key the preview state Maps.
-	const panelClientId = useSelect( select => {
-		const block = select( 'core/block-editor' ).getBlock( clientId );
-		return block?.innerBlocks?.find( b => b.name === 'newspack/overlay-menu-panel' )?.clientId;
-	} );
-
 	// Mirror the panel's open state so the toolbar button label and isPressed stay correct.
 	const [ isPreviewOpen, setIsPreviewOpen ] = useState( false );
 	useEffect( () => {
-		if ( ! panelClientId ) {
-			return;
-		}
-		return subscribeToPanel( panelClientId, setIsPreviewOpen );
-	}, [ panelClientId ] );
+		return subscribeToPanel( clientId, setIsPreviewOpen );
+	}, [ clientId ] );
 
 	// Delegate the actual toggle to the panel via its registered ref function.
-	const togglePreview = () => panelToggles.get( panelClientId )?.();
+	// The panel keys its entry by parentClientId === this block's clientId.
+	const togglePreview = () => panelToggles.get( clientId )?.();
 
 	const blockProps = useBlockProps( {
 		className: 'is-layout-flex',

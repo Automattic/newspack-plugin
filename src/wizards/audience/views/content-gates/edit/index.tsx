@@ -9,7 +9,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import { __experimentalVStack as VStack } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
 import { useDispatch } from '@wordpress/data';
 import { createInterpolateElement, useCallback, useEffect, useRef, useState } from '@wordpress/element';
-import { commentAuthorAvatar, currencyDollar, envelope, postList, settings } from '@wordpress/icons';
+import { commentAuthorAvatar, currencyDollar, envelope, pencil, postList, settings } from '@wordpress/icons';
 
 /**
  * Internal dependencies
@@ -22,7 +22,7 @@ import { useWizardApiFetch } from '../../../../hooks/use-wizard-api-fetch';
 import ContentRules from './content-rules';
 import Registration from './registration';
 import CustomAccess from './custom-access';
-import { getGateStatus, getGateStatusBadgeLevel } from '../utils';
+import { getEditGateLayoutUrl, getGateStatus, getGateStatusBadgeLevel } from '../utils';
 
 const { useHistory } = Router;
 
@@ -121,44 +121,51 @@ const Edit = ( { match, updateGatesData, slug = AUDIENCE_CONTENT_GATES_WIZARD_SL
 		),
 	} );
 
-	const handleCreate = useCallback( () => {
-		if ( isFetching ) {
-			return;
-		}
-		isSaving.current = true;
-		resetNotices();
-		resetError();
-		const _gate = {
-			...gate,
-			title,
-			content_rules: contentRules,
-			registration,
-			custom_access: customAccess,
-		};
-		wizardApiFetch< Gate >(
-			{
-				path: `/newspack/v1/wizard/${ slug }`,
-				method: 'POST',
-				data: { gate: _gate },
-			},
-			{
-				onSuccess( data ) {
-					updateGatesData( [ ...gatesRef.current, { ...data } ] );
-					history.push( `/content-gates` );
-					addNotice( {
-						// translators: %s is the gate title.
-						message: sprintf( __( '"%s" gate created.', 'newspack-plugin' ), title ),
-						type: 'success',
-						id: 'content-gate-created',
-						actions: [ { label: __( 'Edit', 'newspack-plugin' ), url: `#/edit/${ data.id }` } ],
-					} );
-				},
-				onFinally: () => {
-					isSaving.current = false;
-				},
+	const handleCreate = useCallback(
+		( redirectToLayout: '' | 'registration' | 'custom_access' = '' ) => {
+			if ( isFetching ) {
+				return;
 			}
-		);
-	}, [ gate, contentRules, registration, customAccess, status, title ] );
+			isSaving.current = true;
+			resetNotices();
+			resetError();
+			const _gate = {
+				...gate,
+				title,
+				content_rules: contentRules,
+				registration,
+				custom_access: customAccess,
+			};
+			wizardApiFetch< Gate >(
+				{
+					path: `/newspack/v1/wizard/${ slug }`,
+					method: 'POST',
+					data: { gate: _gate },
+				},
+				{
+					onSuccess( data ) {
+						updateGatesData( [ ...gatesRef.current, { ...data } ] );
+						if ( redirectToLayout !== '' ) {
+							window.location.assign( getEditGateLayoutUrl( data.id, redirectToLayout ) );
+						} else {
+							history.push( '/content-gates' );
+						}
+						addNotice( {
+							// translators: %s is the gate title.
+							message: sprintf( __( '"%s" gate created.', 'newspack-plugin' ), title ),
+							type: 'success',
+							id: 'content-gate-created',
+							actions: [ { label: __( 'Edit', 'newspack-plugin' ), url: `#/edit/${ data.id }` } ],
+						} );
+					},
+					onFinally: () => {
+						isSaving.current = false;
+					},
+				}
+			);
+		},
+		[ gate, contentRules, registration, customAccess, status, title ]
+	);
 
 	const handleSave = useCallback( () => {
 		if ( isFetching ) {
@@ -329,7 +336,7 @@ const Edit = ( { match, updateGatesData, slug = AUDIENCE_CONTENT_GATES_WIZARD_SL
 			{
 				type: 'primary',
 				label: __( 'Save', 'newspack-plugin' ),
-				action: isNew ? handleCreate : handleSave,
+				action: isNew ? () => handleCreate() : handleSave,
 				disabled:
 					isFetching ||
 					! title ||
@@ -499,6 +506,7 @@ const Edit = ( { match, updateGatesData, slug = AUDIENCE_CONTENT_GATES_WIZARD_SL
 						icon={ isNewsletter ? envelope : postList }
 						isActive={ contentType === 'all' }
 						onEnable={ () => setContentType( 'all' ) }
+						onHeaderClick={ () => setContentType( 'all' ) }
 					/>
 					<CardSettingsGroup
 						title={ sprintf(
@@ -514,6 +522,7 @@ const Edit = ( { match, updateGatesData, slug = AUDIENCE_CONTENT_GATES_WIZARD_SL
 						icon={ settings }
 						isActive={ contentType === 'custom' }
 						onEnable={ () => setContentType( 'custom' ) }
+						onHeaderClick={ () => setContentType( 'custom' ) }
 					>
 						<ContentRules rules={ contentRules } onChange={ setContentRules } isNewsletter={ isNewsletter } />
 					</CardSettingsGroup>
@@ -550,6 +559,16 @@ const Edit = ( { match, updateGatesData, slug = AUDIENCE_CONTENT_GATES_WIZARD_SL
 								__( 'Readers must log in to view %s.', 'newspack-plugin' ),
 								isNewsletter ? __( 'these lists', 'newspack-plugin' ) : __( 'this content', 'newspack-plugin' )
 							) }
+							headerAction={
+								registration?.active
+									? {
+											label: __( 'Edit layout', 'newspack-plugin' ),
+											href: ! isNew ? getEditGateLayoutUrl( gate.id, 'registration' ) : undefined,
+											onClick: isNew ? () => handleCreate( 'registration' ) : undefined,
+											icon: pencil,
+									  }
+									: undefined
+							}
 							icon={ commentAuthorAvatar }
 							isActive={ registration?.active }
 							onEnable={ () => setRegistration( { ...registration, active: ! registration.active } ) }
@@ -560,10 +579,17 @@ const Edit = ( { match, updateGatesData, slug = AUDIENCE_CONTENT_GATES_WIZARD_SL
 					<CardSettingsGroup
 						actionType="toggle"
 						title={ __( 'Paid access', 'newspack-plugin' ) }
-						description={ __(
-							'Set conditions like subscriptions, domain, and more. Readers must meet at least one condition to gain access.',
-							'newspack-plugin'
-						) }
+						description={ __( 'Readers must meet at least one condition to gain access.', 'newspack-plugin' ) }
+						headerAction={
+							customAccess?.active && ! isNewsletter
+								? {
+										label: __( 'Edit layout', 'newspack-plugin' ),
+										href: ! isNew ? getEditGateLayoutUrl( gate.id, 'custom_access' ) : undefined,
+										onClick: isNew ? () => handleCreate( 'custom_access' ) : undefined,
+										icon: pencil,
+								  }
+								: undefined
+						}
 						icon={ currencyDollar }
 						isActive={ customAccess?.active }
 						onEnable={ () => setCustomAccess( { ...customAccess, active: ! customAccess.active } ) }

@@ -399,8 +399,8 @@ class Content_Gate {
 			return;
 		}
 		global $pagenow;
-		if ( 'edit.php' === $pagenow && isset( $_GET['post_type'] ) && self::GATE_CPT === $_GET['post_type'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			$redirect = \admin_url( 'admin.php?page=newspack-audience#/content-gating' );
+		if ( 'edit.php' === $pagenow && isset( $_GET['post_type'] ) && in_array( $_GET['post_type'], [ self::GATE_CPT, self::GATE_LAYOUT_CPT ], true ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			$redirect = Memberships::is_active() ? \admin_url( 'admin.php?page=newspack-audience#/content-gating' ) : \admin_url( 'admin.php?page=newspack-audience-access-control#/' );
 			\wp_safe_redirect( $redirect );
 			exit;
 		}

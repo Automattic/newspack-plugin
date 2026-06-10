@@ -284,6 +284,13 @@ class Group_Subscription_MyAccount {
 		if ( ! function_exists( 'is_account_page' ) || ! \is_account_page() ) {
 			return $subscriptions;
 		}
+		// Don't add Group Subscription features to My Account when Woo Memberships
+		// is active. TODO: Remove this once Access Control is fully released.
+		// Mirrors the suppression that used to live in Group_Subscription::is_group_subscription(),
+		// preserved here at the UI layer now that data-layer callers always see the canonical state.
+		if ( Memberships::is_active() ) {
+			return $subscriptions;
+		}
 		$existing_ids        = array_keys( $subscriptions );
 		$group_subscriptions = Group_Subscription::get_group_subscriptions_for_user( $user_id );
 		foreach ( $group_subscriptions as $group_subscription ) {
