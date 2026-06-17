@@ -29,7 +29,6 @@ Thumbs.db
 /vendor/
 
 # Built files
-/build
 /dist
 /packages/components/colors
 /packages/components/dist

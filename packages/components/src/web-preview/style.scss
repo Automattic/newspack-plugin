@@ -103,9 +103,10 @@
 		}
 
 		&-right {
-			display: flex;
+			display: grid;
 			gap: 8px;
-			justify-content: flex-end;
+			grid-template-columns: repeat(2, 1fr);
+			justify-self: end;
 			margin-left: auto;
 		}
 	}

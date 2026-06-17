@@ -33,18 +33,11 @@ class Sample_Integration extends Integration {
 	public $my_account_render_calls = [];
 
 	/**
-	 * Settings fields to return from register_settings_fields(). Tests that
-	 * need declared fields set this before constructing the integration.
-	 *
-	 * @var array
-	 */
-	public static $declared_settings_fields = [];
-
-	/**
 	 * Register settings fields (test implementation).
 	 */
 	public function register_settings_fields() {
-		return self::$declared_settings_fields;
+		// No settings fields for this test implementation.
+		return [];
 	}
 
 	/**
@@ -91,17 +84,6 @@ class Sample_Integration extends Integration {
 	}
 
 	/**
-	 * Sanitize a settings field value (public wrapper for testing).
-	 *
-	 * @param array $field The field declaration.
-	 * @param mixed $value The value to sanitize.
-	 * @return mixed
-	 */
-	public function test_sanitize_settings_field_value( $field, $value ) {
-		return $this->sanitize_settings_field_value( $field, $value );
-	}
-
-	/**
 	 * Sample handler method for data events.
 	 *
 	 * @param int    $timestamp Timestamp.
@@ -120,8 +102,7 @@ class Sample_Integration extends Integration {
 	 * Reset captured state between tests.
 	 */
 	public static function reset() {
-		self::$handler_args            = null;
-		self::$declared_settings_fields = [];
+		self::$handler_args = null;
 	}
 
 	/**

@@ -7,9 +7,9 @@
  */
 
 /**
- * WordPress dependencies
+ * Internal dependencies
  */
-import domReady from '@wordpress/dom-ready';
+import { domReady } from '../../utils';
 
 // Focusable element selector
 const FOCUSABLE_SELECTOR =

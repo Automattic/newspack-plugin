@@ -11,7 +11,6 @@ import '../../../../shared/js/public-path';
 import { Component } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
-import { decodeEntities } from '@wordpress/html-entities';
 
 /**
  * External dependencies.
@@ -218,11 +217,7 @@ class AudienceCampaigns extends Component {
 		return (
 			<WebPreview
 				url={ previewUrl }
-				title={
-					previewTitle
-						? /* translators: %s: prompt title */ sprintf( __( 'Prompt: %s', 'newspack-plugin' ), decodeEntities( previewTitle ) )
-						: null
-				}
+				title={ previewTitle ? /* translators: %s: prompt title */ sprintf( __( 'Prompt: %s', 'newspack-plugin' ), previewTitle ) : null }
 				onClose={ () => this.setState( { previewUrl: null, previewTitle: null } ) }
 				renderButton={ ( { showPreview } ) => {
 					const sharedProps = {

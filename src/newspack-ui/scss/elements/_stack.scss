@@ -38,18 +38,18 @@ $stack-gaps: (
 		&--horizontal {
 			flex-direction: row;
 
-			> :not([class*="newspack-ui__spacing-"]) {
-				margin-left: 0 !important;
-				margin-right: 0 !important;
+			> :where(:not([class*="newspack-ui__spacing-"])) {
+				margin-left: 0;
+				margin-right: 0;
 			}
 		}
 
 		&--vertical {
 			flex-direction: column;
 
-			> :not([class*="newspack-ui__spacing-"]) {
-				margin-bottom: 0 !important;
-				margin-top: 0 !important;
+			> :where(:not([class*="newspack-ui__spacing-"])) {
+				margin-bottom: 0;
+				margin-top: 0;
 			}
 		}
 

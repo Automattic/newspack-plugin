@@ -10,11 +10,7 @@ import { InnerBlocks, useBlockProps } from '@wordpress/block-editor';
 import PanelPreviewToggle from './panel-preview-toggle';
 import { panelToggles, subscribeToPanel } from './preview-refs';
 
-const CHILD_LOCK = { move: true, remove: true };
-const BLOCKS_TEMPLATE = [
-	[ 'newspack/overlay-menu-trigger', { lock: CHILD_LOCK } ],
-	[ 'newspack/overlay-menu-panel', { lock: CHILD_LOCK } ],
-];
+const BLOCKS_TEMPLATE = [ [ 'newspack/overlay-menu-trigger' ], [ 'newspack/overlay-menu-panel' ] ];
 
 /**
  * Edit component for the Overlay Menu block.

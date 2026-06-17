@@ -15,16 +15,7 @@ import { commentAuthorAvatar, currencyDollar, envelope, pencil, postList, settin
  * Internal dependencies
  */
 import { AUDIENCE_CONTENT_GATES_WIZARD_SLUG } from '../consts';
-import {
-	CardSettingsGroup,
-	Divider,
-	Grid,
-	Router,
-	SectionHeader,
-	TextControl,
-	useConfirmDialog,
-	useUnsavedChangesDialog,
-} from '../../../../../../packages/components/src';
+import { CardSettingsGroup, Divider, Grid, Router, SectionHeader, TextControl, useConfirmDialog } from '../../../../../../packages/components/src';
 import { WIZARD_STORE_NAMESPACE } from '../../../../../../packages/components/src/wizard/store';
 import { useWizardData } from '../../../../../../packages/components/src/wizard/store/utils';
 import { useWizardApiFetch } from '../../../../hooks/use-wizard-api-fetch';
@@ -110,8 +101,11 @@ const Edit = ( { match, updateGatesData, slug = AUDIENCE_CONTENT_GATES_WIZARD_SL
 		JSON.stringify( registration ) !== JSON.stringify( gate.registration ) ||
 		JSON.stringify( customAccess ) !== JSON.stringify( gate.custom_access );
 
-	const { confirmDialog: navBlockDialog } = useUnsavedChangesDialog( {
+	const { confirmDialog: navBlockDialog } = useConfirmDialog( {
 		when: isDirty && ! isSaving.current,
+		message: __( 'You have unsaved changes that will be lost. Discard changes?', 'newspack-plugin' ),
+		confirmButtonText: __( 'Discard changes', 'newspack-plugin' ),
+		hideTitle: true,
 	} );
 	const { confirmDialog: deleteDialog, requestConfirm: requestDelete } = useConfirmDialog( {
 		title: __( 'Are you sure?', 'newspack-plugin' ),

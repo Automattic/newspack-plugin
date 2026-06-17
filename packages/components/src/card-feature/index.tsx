@@ -49,17 +49,10 @@ type CardFeatureProps = {
 	/** Whether the feature is currently enabled. */
 	enabled?: boolean;
 	/**
-	 * When set, the card enters the "unmet requirements" state: an error
-	 * badge displays this string and the title/description are muted. By
-	 * default the primary button is disabled — set `requirementsActionable`
-	 * if the primary button is the remediation for the unmet requirement.
+	 * When set, the card enters the "unmet requirements" state: the primary
+	 * button is disabled and an error badge displays this string.
 	 */
 	requirements?: string;
-	/**
-	 * When `requirements` is set, keep the primary button clickable so the
-	 * user can remediate the unmet requirement from this card.
-	 */
-	requirementsActionable?: boolean;
 	/** Primary button label when not enabled. Default: "Enable". */
 	enableLabel?: string;
 	/** Primary button label when enabled. Default: "Configure". */
@@ -90,7 +83,6 @@ const CardFeature = ( {
 	icon,
 	enabled = false,
 	requirements,
-	requirementsActionable = false,
 	enableLabel,
 	configureLabel,
 	onEnable,
@@ -159,7 +151,7 @@ const CardFeature = ( {
 							<HStack expanded={ false } spacing="8px">
 								<Button
 									variant={ isConfigureState ? 'tertiary' : 'secondary' }
-									disabled={ isMuted && ! requirementsActionable }
+									disabled={ isMuted }
 									onClick={ handleButtonClick }
 									size="compact"
 								>
