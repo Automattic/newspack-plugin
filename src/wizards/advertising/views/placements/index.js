@@ -211,6 +211,7 @@ const Placements = () => {
 										<Button
 											variant="tertiary"
 											size="compact"
+											// Load-bearing: the grid stack keeps both labels in the DOM (only `visibility: hidden`), so this aria-label is the button's only clean accessible name.
 											aria-label={ isEditing ? cancelButtonLabel : editButtonLabel }
 											disabled={ inFlight || ( !! editingPlacement && ! isEditing ) }
 											onClick={ () => {
@@ -222,11 +223,11 @@ const Placements = () => {
 												}
 											} }
 										>
-											<span style={ { display: 'inline-grid', justifyItems: 'center' } }>
-												<span style={ { gridArea: '1 / 1', visibility: isEditing ? 'visible' : 'hidden' } }>
+											<span className="newspack-wizard-ads-placements__toggle-label">
+												<span className={ classnames( { 'is-visible': isEditing } ) }>
 													{ __( 'Cancel', 'newspack-plugin' ) }
 												</span>
-												<span style={ { gridArea: '1 / 1', visibility: isEditing ? 'hidden' : 'visible' } }>
+												<span className={ classnames( { 'is-visible': ! isEditing } ) }>
 													{ __( 'Edit', 'newspack-plugin' ) }
 												</span>
 											</span>
