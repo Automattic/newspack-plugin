@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-06-24T11:51:42+00:00\n"
+"POT-Creation-Date: 2026-06-25T00:37:38+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: newspack-plugin\n"
@@ -6311,6 +6311,30 @@ msgstr ""
 
 #: includes/reader-revenue/class-reader-revenue-emails.php:179
 msgid "the recurring donation management url"
+msgstr ""
+
+#: includes/tag-labels/class-tag-labels.php:189
+#: includes/tag-labels/class-tag-labels.php:238
+msgid "Display as label"
+msgstr ""
+
+#: includes/tag-labels/class-tag-labels.php:198
+#: includes/tag-labels/class-tag-labels.php:251
+msgid "Show this tag as a highlighted label wherever posts are displayed."
+msgstr ""
+
+#: includes/tag-labels/class-tag-labels.php:202
+#: includes/tag-labels/class-tag-labels.php:256
+msgid "Label text"
+msgstr ""
+
+#: includes/tag-labels/class-tag-labels.php:208
+msgid "Enter custom label text"
+msgstr ""
+
+#: includes/tag-labels/class-tag-labels.php:213
+#: includes/tag-labels/class-tag-labels.php:271
+msgid "Custom text to display instead of the tag name."
 msgstr ""
 
 #. translators: suffix appended to tag names in the admin to indicate they are private
