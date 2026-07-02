@@ -244,6 +244,7 @@ final class Newspack {
 		include_once NEWSPACK_ABSPATH . 'includes/plugins/class-teams-for-memberships.php';
 		include_once NEWSPACK_ABSPATH . 'includes/plugins/class-newspack-elections.php';
 		include_once NEWSPACK_ABSPATH . 'includes/plugins/class-yoast.php';
+		include_once NEWSPACK_ABSPATH . 'includes/plugins/class-parsely.php';
 		include_once NEWSPACK_ABSPATH . 'includes/class-primary-category.php';
 
 		include_once NEWSPACK_ABSPATH . 'includes/class-patches.php';
@@ -272,6 +273,9 @@ final class Newspack {
 
 		// Filter by authors in the Posts page.
 		include_once NEWSPACK_ABSPATH . 'includes/author-filter/class-author-filter.php';
+
+		// Display tags as labels.
+		include_once NEWSPACK_ABSPATH . 'includes/tag-labels/class-tag-labels.php';
 
 		// Load the general Newspack UI front-end styles.
 		include_once NEWSPACK_ABSPATH . 'includes/class-newspack-ui.php';

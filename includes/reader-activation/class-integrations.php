@@ -170,6 +170,30 @@ class Integrations {
 	}
 
 	/**
+	 * Get the AS action for the given ID if it belongs to the given integration.
+	 *
+	 * Combines existence + group-ownership checks so callers can do both in a
+	 * single DB read. Returns null for missing actions and for actions in other
+	 * groups — both cases the REST endpoints translate to a generic 404 so
+	 * other-group actions can't be probed.
+	 *
+	 * @param int    $action_id      The AS action ID.
+	 * @param string $integration_id The integration identifier.
+	 *
+	 * @return \ActionScheduler_Action|null
+	 */
+	public static function get_integration_action( $action_id, $integration_id ) {
+		$action = \Newspack\Action_Scheduler::get_action( (int) $action_id );
+		if ( ! $action ) {
+			return null;
+		}
+		if ( $action->get_group() !== self::get_action_group( $integration_id ) ) {
+			return null;
+		}
+		return $action;
+	}
+
+	/**
 	 * Get ActionScheduler actions for Newspack integrations.
 	 *
 	 * @param array $args {
@@ -424,20 +448,27 @@ class Integrations {
 				continue;
 			}
 			$result[ $id ] = [
-				'id'          => $id,
-				'name'        => $integration->get_name(),
-				'description' => $integration->get_description(),
-				'enabled'     => self::is_enabled( $id ),
-				'is_set_up'   => $integration->is_set_up(),
-				'setup_url'   => $integration->get_setup_url(),
-				'settings'    => $integration->get_settings_config(),
+				'id'               => $id,
+				'name'             => $integration->get_name(),
+				'description'      => $integration->get_description(),
+				'enabled'          => self::is_enabled( $id ),
+				'is_set_up'        => $integration->is_set_up(),
+				'setup_url'        => $integration->get_setup_url(),
+				'settings'         => $integration->get_settings_config(),
+				'required_plugins' => $integration->get_required_plugins(),
 			];
 		}
 		return $result;
 	}
 
 	/**
-	 * Update settings for a specific integration.
+	 * Update settings for a specific integration from an admin REST request.
+	 *
+	 * Skips fields whose type is managed server-side (see
+	 * Integration::MANAGED_FIELD_TYPES — e.g., 'oauth', 'hidden') so admin
+	 * clients can't overwrite tokens or other programmatically-managed values
+	 * by POSTing them in the settings payload. Server-side writers continue
+	 * to use Integration::update_settings_field_value() directly.
 	 *
 	 * @param string $integration_id The integration ID.
 	 * @param array  $settings       Key-value pairs of settings to update.
@@ -449,6 +480,9 @@ class Integrations {
 			return null;
 		}
 		foreach ( $settings as $key => $value ) {
+			if ( $integration->is_managed_settings_field( $key ) ) {
+				continue;
+			}
 			$integration->update_settings_field_value( $key, $value );
 		}
 		return true;

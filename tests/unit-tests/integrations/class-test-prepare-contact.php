@@ -283,6 +283,36 @@ class Test_Prepare_Contact extends \WP_UnitTestCase {
 	}
 
 	/**
+	 * Test that an already-prefixed key whose field is enabled but no longer
+	 * present in the live keys map (e.g. because a feature flag turned off the
+	 * corresponding metadata class after the field was saved) is filtered out.
+	 */
+	public function test_already_prefixed_stale_enabled_field_filtered() {
+		$this->set_metadata_version( '1.0' );
+
+		// Write the enabled-fields option directly, bypassing the
+		// update_enabled_outgoing_fields() intersect filter, to simulate a stale
+		// saved field name that is no longer in the live keys map.
+		\update_option( 'newspack_integration_outgoing_fields_prepare-test', [ 'Stale Field' ] );
+
+		$keys_map = Metadata::get_keys();
+		$this->assertNotContains( 'Stale Field', $keys_map, 'Sanity: stale field must not be in the live keys map.' );
+
+		$contact = [
+			'email'    => 'test@example.com',
+			'metadata' => [ 'NP_Stale Field' => 'leftover_value' ],
+		];
+
+		$result = $this->integration->prepare_contact( $contact );
+
+		$this->assertArrayNotHasKey(
+			'NP_Stale Field',
+			$result['metadata'],
+			'Stale prefixed key must be dropped when its field is no longer available.'
+		);
+	}
+
+	/**
 	 * Test mixed raw and already-prefixed keys in the same contact.
 	 */
 	public function test_mixed_raw_and_prefixed_keys() {
