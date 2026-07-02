@@ -18,6 +18,11 @@ abstract class Integration {
 	/**
 	 * Map of ESP setting keys to their legacy option names.
 	 *
+	 * The account-deletion settings (`sync_account_deletion`, `account_deletion_handling`)
+	 * are intentionally absent: they derive from the single legacy `sync_esp_delete`
+	 * boolean with per-field logic rather than a straight value copy, so they are
+	 * migrated by migrate_account_deletion_setting() instead.
+	 *
 	 * @var array<string, string>
 	 */
 	private static $legacy_option_map = [
@@ -25,9 +30,14 @@ abstract class Integration {
 		'mailchimp_reader_default_status' => 'newspack_reader_activation_mailchimp_reader_default_status',
 		'active_campaign_master_list'     => 'newspack_reader_activation_active_campaign_master_list',
 		'constant_contact_list_id'        => 'newspack_reader_activation_constant_contact_list_id',
-		'sync_esp_delete'                 => 'newspack_reader_activation_sync_esp_delete',
-		'sync_account_deletion'           => 'newspack_reader_activation_sync_esp_delete',
 	];
+
+	/**
+	 * Legacy global option that the account-deletion settings migrate from.
+	 *
+	 * @var string
+	 */
+	const LEGACY_SYNC_DELETE_OPTION = 'newspack_reader_activation_sync_esp_delete';
 
 	/**
 	 * Option name prefix for storing enabled incoming metadata fields per integration.
@@ -256,7 +266,7 @@ abstract class Integration {
 	 *
 	 * @return bool True if the integration implements delete_contact().
 	 */
-	public function supports_hard_delete() {
+	public function supports_hard_delete(): bool {
 		return false;
 	}
 
@@ -270,7 +280,7 @@ abstract class Integration {
 	 * @param string $email Email address of the contact to delete.
 	 * @return true|\WP_Error True on success, WP_Error otherwise.
 	 */
-	public function delete_contact( $email ) {
+	public function delete_contact( string $email ) {
 		return new \WP_Error( 'not_implemented', __( 'This integration does not support hard deletion.', 'newspack-plugin' ) );
 	}
 
@@ -893,6 +903,14 @@ abstract class Integration {
 		if ( null !== $value ) {
 			return $value;
 		}
+
+		// Account-deletion settings derive from the single legacy `sync_esp_delete`
+		// boolean with per-field logic, so they can't use the straight value-copy map.
+		if ( 'sync_account_deletion' === $key || 'account_deletion_handling' === $key ) {
+			$migrated = $this->migrate_account_deletion_setting( $key, $option_name );
+			return null !== $migrated ? $migrated : ( $field['default'] ?? '' );
+		}
+
 		// Attempt to migrate old setting if the field is found in the key map.
 		if ( isset( self::$legacy_option_map[ $key ] ) ) {
 			// Lazy migrate from legacy option.
@@ -904,6 +922,38 @@ abstract class Integration {
 			}
 		}
 		return $field['default'] ?? '';
+	}
+
+	/**
+	 * Lazily migrate an account-deletion setting from the legacy `sync_esp_delete` option.
+	 *
+	 * The legacy flag was effectively three-way in behavior:
+	 *   - `true`  → hard-delete the contact from the ESP.
+	 *   - `false` → keep the contact but remove it from every list (still a deletion signal).
+	 * Because *both* states propagated a deletion, a migrated site keeps deletion sync
+	 * enabled (`sync_account_deletion = true`) regardless of the legacy value; the legacy
+	 * boolean only selects the handling mode: `true → delete`, `false → flag`. Mapping
+	 * legacy `false` to `flag` (rather than disabling sync) preserves the old
+	 * "don't hard-delete, but still signal the deletion" posture for opted-out sites.
+	 *
+	 * Returns null when the legacy option was never set, so the caller falls back to the
+	 * field default. The derived value is persisted so this runs once, not on every read.
+	 *
+	 * @param string $key         The account-deletion field key.
+	 * @param string $option_name The option name to persist the migrated value to.
+	 * @return mixed|null The migrated value, or null if there is no legacy option to migrate.
+	 */
+	private function migrate_account_deletion_setting( $key, $option_name ) {
+		$legacy_value = \get_option( self::LEGACY_SYNC_DELETE_OPTION, null );
+		if ( null === $legacy_value ) {
+			return null;
+		}
+		$migrated = 'sync_account_deletion' === $key
+			? true
+			: ( \wp_validate_boolean( $legacy_value ) ? 'delete' : 'flag' );
+		// Persist directly to avoid re-running the migration on every read.
+		\update_option( $option_name, $migrated );
+		return $migrated;
 	}
 
 	/**

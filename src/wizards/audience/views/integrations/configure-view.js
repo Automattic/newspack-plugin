@@ -127,10 +127,13 @@ export const ConfigureView = ( { integrations, loading, pendingChanges, saving, 
 		}
 		const refValue = getFieldValue( ref );
 		// For boolean conditions, coerce both sides — values can arrive from WP options
-		// as scalar strings (`'1'`/`'0'`/`''`) after migration or from the REST layer,
-		// so strict equality would hide dependent fields until the parent is re-saved.
+		// as scalar strings (`'1'`/`'0'`/`'true'`/`'false'`/`''`) after migration or from
+		// the REST layer, so strict equality would hide dependent fields until the parent
+		// is re-saved. Note `Boolean( '0' )` is `true` in JS, so the falsy string forms
+		// are matched explicitly rather than via a bare `Boolean()` cast.
 		if ( typeof field.condition.equals === 'boolean' ) {
-			return Boolean( refValue ) === field.condition.equals;
+			const normalized = typeof refValue === 'string' ? ! [ '', '0', 'false' ].includes( refValue.toLowerCase() ) : Boolean( refValue );
+			return normalized === field.condition.equals;
 		}
 		return refValue === field.condition.equals;
 	};

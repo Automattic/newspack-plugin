@@ -57,7 +57,7 @@ class Deletion_Spy_Integration extends Integration {
 	 *
 	 * @return bool
 	 */
-	public function supports_hard_delete() {
+	public function supports_hard_delete(): bool {
 		return true;
 	}
 

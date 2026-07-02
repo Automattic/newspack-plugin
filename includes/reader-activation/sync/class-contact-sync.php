@@ -34,11 +34,30 @@ class Contact_Sync extends Sync {
 	protected static $queued_syncs = [];
 
 	/**
+	 * Emails deleted during the current request, keyed for O(1) lookup.
+	 *
+	 * Populated by handle_account_deletion() and consulted by run_queued_syncs()
+	 * so a sync queued by a later event in the same Action Scheduler batch cannot
+	 * resurrect a just-deleted contact at shutdown, regardless of hook ordering.
+	 *
+	 * @var array<string, bool>
+	 */
+	protected static $deleted_emails = [];
+
+	/**
 	 * The ID of the currently-executing ActionScheduler action.
 	 *
 	 * @var int|null
 	 */
 	private static $current_as_action_id = null;
+
+	/**
+	 * Membership status value written to the ESP when a reader account is deleted.
+	 *
+	 * Preserved for backward compatibility with publisher automations that keyed on
+	 * this value under the pre-integrations delete-sync path.
+	 */
+	const DELETED_MEMBERSHIP_STATUS = 'user-deleted';
 
 	/**
 	 * ActionScheduler hook for retrying a failed integration sync.
@@ -281,17 +300,30 @@ class Contact_Sync extends Sync {
 		// subscriptions during the delete_user cascade and fires subscription_updated,
 		// which queues a Contact_Sync via the Data Event dispatcher.
 		unset( self::$queued_syncs[ $email ] );
+		// The unset() above only clears syncs already queued at this instant. Data
+		// events for the same email can be dispatched *after* this deletion within the
+		// same Action Scheduler batch (delete_user cascade ordering isn't guaranteed),
+		// re-queueing an upsert that run_queued_syncs() would flush at shutdown —
+		// silently undoing a right-to-be-forgotten deletion. Record the email so the
+		// shutdown queue refuses to re-push it for the rest of the request.
+		self::$deleted_emails[ $email ] = true;
 
 		$integrations = Integrations::get_active_integrations();
 		$errors       = [];
 
-		// Build the flag-mode contact once. The timestamp uses the same format as peer
-		// datetime metadata fields (Sync\Contact_Metadata::DATE_FORMAT — 'Y-m-d H:i:s')
-		// so publishers can apply consistent automation rules across reader events.
+		// Build the flag-mode contact once. The timestamp uses the same format constant
+		// as peer datetime metadata fields (Sync\Metadata::DATE_FORMAT) so publishers can
+		// apply consistent automation rules across reader events, and so the deletion
+		// timestamp stays in lockstep if that format ever changes.
 		$flag_contact          = $contact;
 		$flag_contact['email'] = $email;
 		$flag_contact['metadata'] = isset( $flag_contact['metadata'] ) ? $flag_contact['metadata'] : [];
-		$flag_contact['metadata']['account_deleted'] = gmdate( 'Y-m-d H:i:s' );
+		$flag_contact['metadata']['account_deleted'] = gmdate( Metadata::DATE_FORMAT );
+		// Preserve the historical deletion signal: before the per-integration deletion
+		// settings, the delete-sync path always wrote membership_status='user-deleted'
+		// to the ESP. Publishers may have automations keyed on that value, so keep
+		// emitting it in flag mode alongside the newer account_deleted timestamp.
+		$flag_contact['metadata']['membership_status'] = self::DELETED_MEMBERSHIP_STATUS;
 
 		/**
 		 * Apply the same contact-data filter used by the regular sync path
@@ -367,9 +399,14 @@ class Contact_Sync extends Sync {
 				$integration_contact = $integration->prepare_contact( $flag_contact );
 				// Use Title_Case_With_Underscores to match the convention of peer prefixed
 				// metadata fields (e.g. `NP_Registration_Date`, `NP_Last_Active`).
-				$prefixed_key        = $integration->get_metadata_prefix() . 'Account_Deleted';
+				$prefix              = $integration->get_metadata_prefix();
 				$integration_contact['metadata'] = $integration_contact['metadata'] ?? [];
-				$integration_contact['metadata'][ $prefixed_key ] = $flag_contact['metadata']['account_deleted'];
+				$integration_contact['metadata'][ $prefix . 'Account_Deleted' ] = $flag_contact['metadata']['account_deleted'];
+				// Re-inject the membership status as a system-level deletion signal too.
+				// `membership_status` isn't a v1 outgoing field, so prepare_contact drops
+				// it; add it back under the prefixed key so the historical 'user-deleted'
+				// value always reaches the ESP regardless of outgoing-fields config.
+				$integration_contact['metadata'][ $prefix . 'Membership_Status' ] = $flag_contact['metadata']['membership_status'];
 
 				$result = $integration->push_contact_data( $integration_contact, $context );
 				if ( \is_wp_error( $result ) ) {
@@ -1003,6 +1040,11 @@ class Contact_Sync extends Sync {
 		$saved_action_id = self::$current_as_action_id;
 
 		foreach ( self::$queued_syncs as $email => $queued_sync ) {
+			// A deletion for this email ran earlier in the request. Never re-push it,
+			// or a later event in the same batch would resurrect a deleted contact.
+			if ( isset( self::$deleted_emails[ $email ] ) ) {
+				continue;
+			}
 			self::$current_as_action_id = $queued_sync['as_action_id'] ?? null;
 
 			$user = get_user_by( 'email', $email );
@@ -1022,7 +1064,8 @@ class Contact_Sync extends Sync {
 		}
 
 		self::$current_as_action_id = $saved_action_id;
-		self::$queued_syncs = [];
+		self::$queued_syncs   = [];
+		self::$deleted_emails = [];
 	}
 }
 Contact_Sync::init_hooks();

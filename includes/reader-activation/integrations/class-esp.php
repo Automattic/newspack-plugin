@@ -357,7 +357,7 @@ class ESP extends Integration {
 	 *
 	 * @return bool
 	 */
-	public function supports_hard_delete() {
+	public function supports_hard_delete(): bool {
 		return true;
 	}
 
@@ -367,7 +367,7 @@ class ESP extends Integration {
 	 * @param string $email Email address.
 	 * @return true|\WP_Error
 	 */
-	public function delete_contact( $email ) {
+	public function delete_contact( string $email ) {
 		$can_sync = $this->can_sync( true );
 		if ( $can_sync->has_errors() ) {
 			return $can_sync;

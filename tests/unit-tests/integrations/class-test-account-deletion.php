@@ -131,7 +131,7 @@ class Test_Account_Deletion extends \WP_UnitTestCase {
 			 *
 			 * @return bool
 			 */
-			public function supports_hard_delete() {
+			public function supports_hard_delete(): bool {
 				return true;
 			}
 		};
@@ -174,30 +174,71 @@ class Test_Account_Deletion extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * A legacy sync_esp_delete=true should migrate to sync_account_deletion=true
-	 * and the per-integration option should be persisted after the lookup.
+	 * A legacy sync_esp_delete=true migrates to sync_account_deletion=true with
+	 * handling='delete' (hard delete), persisting both derived options.
 	 */
-	public function test_migration_legacy_true_to_sync_account_deletion_true() {
-		delete_option( 'newspack_integration_settings_deletion-test_sync_account_deletion' );
-		update_option( 'newspack_reader_activation_sync_esp_delete', true );
+	public function test_migration_legacy_true_maps_to_delete_mode() {
+		$integration = new class( 'deletion-test-legacy-true', 'Legacy True' ) extends \Sample_Integration {
+			/**
+			 * Opt into hard delete so the 'delete' handling target is valid.
+			 *
+			 * @return bool
+			 */
+			public function supports_hard_delete(): bool {
+				return true;
+			}
+		};
+		Integrations::register( $integration );
+		delete_option( 'newspack_integration_settings_deletion-test-legacy-true_sync_account_deletion' );
+		delete_option( 'newspack_integration_settings_deletion-test-legacy-true_account_deletion_handling' );
+		delete_option( 'newspack_reader_activation_sync_esp_delete' );
+		add_option( 'newspack_reader_activation_sync_esp_delete', true );
 
-		$this->assertTrue( (bool) $this->integration->get_settings_field_value( 'sync_account_deletion' ) );
+		$this->assertTrue( (bool) $integration->get_settings_field_value( 'sync_account_deletion' ) );
+		$this->assertSame( 'delete', $integration->get_settings_field_value( 'account_deletion_handling' ) );
 
-		// Migration should persist the new option after resolution.
+		// Migration should persist the derived options after resolution.
 		$this->assertNotFalse(
-			get_option( 'newspack_integration_settings_deletion-test_sync_account_deletion', false )
+			get_option( 'newspack_integration_settings_deletion-test-legacy-true_sync_account_deletion', false )
+		);
+		$this->assertSame(
+			'delete',
+			get_option( 'newspack_integration_settings_deletion-test-legacy-true_account_deletion_handling' )
 		);
 	}
 
 	/**
-	 * A legacy sync_esp_delete=false should migrate to sync_account_deletion=false.
+	 * A legacy sync_esp_delete=false keeps deletion sync ON but maps to handling='flag'
+	 * rather than disabling sync — preserving the old "signal the deletion without hard
+	 * deleting" posture for opted-out sites. Checked against a hard-delete integration
+	 * whose handling default would otherwise be 'delete', so 'flag' proves the mapping.
 	 */
-	public function test_migration_legacy_false_to_sync_account_deletion_false() {
-		delete_option( 'newspack_integration_settings_deletion-test_sync_account_deletion' );
+	public function test_migration_legacy_false_maps_to_flag_mode() {
+		$integration = new class( 'deletion-test-legacy-false', 'Legacy False' ) extends \Sample_Integration {
+			/**
+			 * Opt into hard delete so the handling default would be 'delete' absent migration.
+			 *
+			 * @return bool
+			 */
+			public function supports_hard_delete(): bool {
+				return true;
+			}
+		};
+		Integrations::register( $integration );
+		delete_option( 'newspack_integration_settings_deletion-test-legacy-false_sync_account_deletion' );
+		delete_option( 'newspack_integration_settings_deletion-test-legacy-false_account_deletion_handling' );
 		delete_option( 'newspack_reader_activation_sync_esp_delete' );
 		add_option( 'newspack_reader_activation_sync_esp_delete', false );
 
-		$this->assertFalse( (bool) $this->integration->get_settings_field_value( 'sync_account_deletion' ) );
+		$this->assertTrue(
+			(bool) $integration->get_settings_field_value( 'sync_account_deletion' ),
+			'Legacy false still propagated a deletion, so sync stays enabled after migration.'
+		);
+		$this->assertSame(
+			'flag',
+			$integration->get_settings_field_value( 'account_deletion_handling' ),
+			'Legacy false maps to flag mode, not the hard-delete default.'
+		);
 	}
 
 	/**
@@ -261,6 +302,15 @@ class Test_Account_Deletion extends \WP_UnitTestCase {
 			'/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/',
 			$pushed['metadata']['account_deleted'],
 			'account_deleted must use the Y-m-d H:i:s format that peer datetime metadata uses.'
+		);
+		// Flag mode must also re-inject the historical membership_status=user-deleted
+		// signal under the prefixed key, for backward compatibility with publisher
+		// automations that keyed on it before the per-integration deletion settings.
+		$prefix = $spy->get_metadata_prefix();
+		$this->assertSame(
+			'user-deleted',
+			$pushed['metadata'][ $prefix . 'Membership_Status' ],
+			'Flag mode must re-inject membership_status=user-deleted under the prefixed key.'
 		);
 	}
 
@@ -473,6 +523,86 @@ class Test_Account_Deletion extends \WP_UnitTestCase {
 
 		// Clean up.
 		$property->setValue( null, [] );
+	}
+
+	/**
+	 * Regression: a sync queued by a *later* event in the same request (after the
+	 * deletion already ran) must not be flushed at shutdown, or run_queued_syncs()
+	 * would resurrect a just-deleted contact — a silent right-to-be-forgotten
+	 * failure that depends on delete_user hook ordering.
+	 */
+	public function test_run_queued_syncs_does_not_resurrect_deleted_email() {
+		$this->reset_integrations();
+		$spy = new \Deletion_Spy_Integration( 'spy-resurrect', 'Spy Resurrect' );
+		Integrations::register( $spy );
+		$spy->update_settings_field_value( 'sync_account_deletion', true );
+		$spy->update_settings_field_value( 'account_deletion_handling', 'delete' );
+		Integrations::enable( 'spy-resurrect' );
+
+		$reflection = new \ReflectionClass( \Newspack\Reader_Activation\Contact_Sync::class );
+		$queued     = $reflection->getProperty( 'queued_syncs' );
+		$queued->setAccessible( true );
+		$deleted = $reflection->getProperty( 'deleted_emails' );
+		$deleted->setAccessible( true );
+		$queued->setValue( null, [] );
+		$deleted->setValue( null, [] );
+
+		// The deletion runs first and records the email as deleted for this request.
+		\Newspack\Reader_Activation\Contact_Sync::handle_account_deletion(
+			'reader@example.com',
+			[
+				'email'    => 'reader@example.com',
+				'metadata' => [],
+			],
+			'TestContext'
+		);
+		$this->assertCount( 1, $spy->delete_calls, 'Deletion should call delete_contact once in delete mode.' );
+
+		// A later event in the same request queues an upsert for the same (and another) email.
+		$queued->setValue(
+			null,
+			[
+				'reader@example.com' => [
+					'contexts'     => [ 'subscription_updated' ],
+					'contact'      => [
+						'email'    => 'reader@example.com',
+						'metadata' => [],
+					],
+					'as_action_id' => null,
+				],
+				'other@example.com'  => [
+					'contexts'     => [ 'subscription_updated' ],
+					'contact'      => [
+						'email'    => 'other@example.com',
+						'metadata' => [],
+					],
+					'as_action_id' => null,
+				],
+			]
+		);
+
+		\Newspack\Reader_Activation\Contact_Sync::run_queued_syncs();
+
+		$pushed_emails = array_map(
+			function ( $call ) {
+				return $call['contact']['email'] ?? null;
+			},
+			$spy->push_calls
+		);
+		$this->assertNotContains(
+			'reader@example.com',
+			$pushed_emails,
+			'A deleted email must not be re-pushed by the shutdown queue.'
+		);
+		$this->assertContains(
+			'other@example.com',
+			$pushed_emails,
+			'Unrelated queued syncs must still flush at shutdown.'
+		);
+
+		// Clean up statics.
+		$queued->setValue( null, [] );
+		$deleted->setValue( null, [] );
 	}
 
 	/**
