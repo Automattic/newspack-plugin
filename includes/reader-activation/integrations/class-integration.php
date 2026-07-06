@@ -978,6 +978,11 @@ abstract class Integration {
 	 * legacy `false` to `flag` (rather than disabling sync) preserves the old
 	 * "don't hard-delete, but still signal the deletion" posture for opted-out sites.
 	 *
+	 * The `delete` target is additionally gated on `supports_hard_delete()` — mirroring
+	 * the field default in get_account_deletion_fields() — so a legacy `true` value never
+	 * migrates an integration that can't hard-delete into a mode that would just return
+	 * `not_implemented` on every deletion. Such integrations fall through to `flag`.
+	 *
 	 * Returns null when the legacy option was never set, so the caller falls back to the
 	 * field default. The derived value is persisted so this runs once, not on every read.
 	 *
@@ -992,7 +997,7 @@ abstract class Integration {
 		}
 		$migrated = 'sync_account_deletion' === $key
 			? true
-			: ( \wp_validate_boolean( $legacy_value ) ? 'delete' : 'flag' );
+			: ( \wp_validate_boolean( $legacy_value ) && $this->supports_hard_delete() ? 'delete' : 'flag' );
 		// Persist directly to avoid re-running the migration on every read.
 		\update_option( $option_name, $migrated );
 		return $migrated;

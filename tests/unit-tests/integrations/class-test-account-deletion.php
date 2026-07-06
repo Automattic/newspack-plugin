@@ -242,6 +242,42 @@ class Test_Account_Deletion extends \WP_UnitTestCase {
 	}
 
 	/**
+	 * A legacy sync_esp_delete=true on an integration that can't hard-delete must migrate
+	 * to handling='flag', not 'delete'. Absent the supports_hard_delete() clamp, the
+	 * migration would persist 'delete' for such an integration and the deletion loop would
+	 * return `not_implemented` on every deletion — the same gap the field default avoids.
+	 */
+	public function test_migration_legacy_true_maps_to_flag_when_hard_delete_unsupported() {
+		// Sample_Integration does not override supports_hard_delete(), so it returns false.
+		$integration = new \Sample_Integration( 'deletion-test-legacy-true-no-hd', 'Legacy True No Hard Delete' );
+		Integrations::register( $integration );
+		delete_option( 'newspack_integration_settings_deletion-test-legacy-true-no-hd_sync_account_deletion' );
+		delete_option( 'newspack_integration_settings_deletion-test-legacy-true-no-hd_account_deletion_handling' );
+		delete_option( 'newspack_reader_activation_sync_esp_delete' );
+		add_option( 'newspack_reader_activation_sync_esp_delete', true );
+
+		$this->assertFalse(
+			$integration->supports_hard_delete(),
+			'Guard precondition: this integration cannot hard-delete.'
+		);
+		$this->assertTrue(
+			(bool) $integration->get_settings_field_value( 'sync_account_deletion' ),
+			'Legacy true still propagated a deletion, so sync stays enabled after migration.'
+		);
+		$this->assertSame(
+			'flag',
+			$integration->get_settings_field_value( 'account_deletion_handling' ),
+			'Legacy true clamps to flag when the integration cannot hard-delete, not delete.'
+		);
+
+		// The clamped value should be persisted, not recomputed on every read.
+		$this->assertSame(
+			'flag',
+			get_option( 'newspack_integration_settings_deletion-test-legacy-true-no-hd_account_deletion_handling' )
+		);
+	}
+
+	/**
 	 * When an integration is configured with handling='delete', the dispatcher
 	 * must call $integration->delete_contact() and not push the contact.
 	 */
