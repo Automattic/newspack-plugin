@@ -33,6 +33,34 @@ class Newspack_Test_Reader_Activation extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Calling the labels getter with no key must return the full labels array.
+	 *
+	 * The label-building loop reused the method's own `$key` parameter as its
+	 * loop variable, so after the loop `$key` held the last label key instead
+	 * of null and a no-argument call returned a single label string instead of
+	 * the whole array. Regression guard for #4560.
+	 */
+	public function test_get_reader_activation_labels_returns_full_array() {
+		$reflection = new \ReflectionClass( Reader_Activation::class );
+
+		// Reset the cached labels so the label-building loop runs on this call.
+		$cache = $reflection->getProperty( 'reader_activation_labels' );
+		$cache->setAccessible( true );
+		$cache->setValue( null, [] );
+
+		$method = $reflection->getMethod( 'get_reader_activation_labels' );
+		$method->setAccessible( true );
+
+		$labels = $method->invoke( null );
+
+		$this->assertIsArray( $labels, 'A no-key call must return the full labels array, not a single label.' );
+		$this->assertArrayHasKey( 'account_link', $labels );
+
+		// Leave no static residue for later tests in this process.
+		$cache->setValue( null, [] );
+	}
+
+	/**
 	 * Test that registering a reader creates and authenticates a user with reader
 	 * meta.
 	 */
