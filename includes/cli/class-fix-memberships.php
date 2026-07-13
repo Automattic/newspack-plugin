@@ -504,7 +504,16 @@ class Fix_Memberships {
 			return;
 		}
 
-		$plan                 = wc_memberships_get_membership_plan( $plan_id );
+		// The team-plan fallback reads the plan ID from product meta, which outlives a deleted
+		// plan post, so the plan may not load even though we have an ID for it.
+		$plan = wc_memberships_get_membership_plan( $plan_id );
+		if ( ! $plan ) {
+			$log_line = sprintf( 'Membership plan (#%d) for subscription (#%d) could not be loaded, skipping.', $plan_id, $latest_active_subscription_id );
+			WP_CLI::warning( $log_line );
+			self::$command_results['skipped'][] = $log_line;
+			return;
+		}
+
 		$plan_product_id_list = self::get_full_plan_product_id_list( $plan, $plan_id );
 		$product_ids          = array_values( array_intersect( $subscription_product_ids, $plan_product_id_list ) );
 		if ( empty( $product_ids ) ) {
