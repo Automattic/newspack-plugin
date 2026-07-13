@@ -191,6 +191,9 @@ class Fix_Memberships {
 	/**
 	 * Query users with an active subscription for a plan product but no matching active membership.
 	 *
+	 * Uses derived tables rather than CTEs: CTEs need MySQL 8.0 / MariaDB 10.2, and this
+	 * command has to run on the oldest DB a WooCommerce site may still be on.
+	 *
 	 * @param string $plan_product_ids Comma-separated, integer-sanitized product IDs.
 	 * @param bool   $is_using_hpos Whether HPOS is enabled.
 	 * @return array<int,array<string,string|null>>
@@ -200,65 +203,62 @@ class Fix_Memberships {
 
 		if ( $is_using_hpos ) {
 			$active_subscriptions_query = "
-			WITH ActiveSubscriptions AS (
-				SELECT subscriptions.customer_id AS customer_user_id,
-					GROUP_CONCAT(subscriptions.id) AS subscription_ids
-				FROM {$wpdb->prefix}wc_orders subscriptions
-				LEFT JOIN {$wpdb->prefix}woocommerce_order_items oi ON oi.order_id = subscriptions.id
-				LEFT JOIN {$wpdb->prefix}woocommerce_order_itemmeta oim ON oi.order_item_id = oim.order_item_id AND oim.meta_key = '_product_id'
-				WHERE subscriptions.type = 'shop_subscription'
-				AND subscriptions.status = 'wc-active'
-				AND oim.meta_value IN ({$plan_product_ids})
-				GROUP BY subscriptions.customer_id
-			),
+			SELECT subscriptions.customer_id AS customer_user_id,
+				GROUP_CONCAT(subscriptions.id) AS subscription_ids
+			FROM {$wpdb->prefix}wc_orders subscriptions
+			LEFT JOIN {$wpdb->prefix}woocommerce_order_items oi ON oi.order_id = subscriptions.id
+			LEFT JOIN {$wpdb->prefix}woocommerce_order_itemmeta oim ON oi.order_item_id = oim.order_item_id AND oim.meta_key = '_product_id'
+			WHERE subscriptions.type = 'shop_subscription'
+			AND subscriptions.status = 'wc-active'
+			AND oim.meta_value IN ({$plan_product_ids})
+			GROUP BY subscriptions.customer_id
 			";
 		} else {
 			$active_subscriptions_query = "
-			WITH ActiveSubscriptions AS (
-				SELECT pm.meta_value AS customer_user_id,
-					GROUP_CONCAT(subscriptions.ID) AS subscription_ids
-				FROM {$wpdb->prefix}posts subscriptions
-				LEFT JOIN {$wpdb->prefix}postmeta pm ON subscriptions.ID = pm.post_id AND pm.meta_key = '_customer_user'
-				LEFT JOIN {$wpdb->prefix}woocommerce_order_items oi ON oi.order_id = subscriptions.ID
-				LEFT JOIN {$wpdb->prefix}woocommerce_order_itemmeta oim ON oi.order_item_id = oim.order_item_id AND oim.meta_key = '_product_id'
-				WHERE subscriptions.post_type = 'shop_subscription'
-				AND subscriptions.post_status = 'wc-active'
-				AND oim.meta_value IN ({$plan_product_ids})
-				GROUP BY pm.meta_value
-			),
+			SELECT pm.meta_value AS customer_user_id,
+				GROUP_CONCAT(subscriptions.ID) AS subscription_ids
+			FROM {$wpdb->prefix}posts subscriptions
+			LEFT JOIN {$wpdb->prefix}postmeta pm ON subscriptions.ID = pm.post_id AND pm.meta_key = '_customer_user'
+			LEFT JOIN {$wpdb->prefix}woocommerce_order_items oi ON oi.order_id = subscriptions.ID
+			LEFT JOIN {$wpdb->prefix}woocommerce_order_itemmeta oim ON oi.order_item_id = oim.order_item_id AND oim.meta_key = '_product_id'
+			WHERE subscriptions.post_type = 'shop_subscription'
+			AND subscriptions.post_status = 'wc-active'
+			AND oim.meta_value IN ({$plan_product_ids})
+			GROUP BY pm.meta_value
 			";
 		}
 
+		$active_memberships_query = "
+		SELECT memberships.post_author AS customer_user_id,
+			COUNT(DISTINCT memberships.ID) AS active_memberships_count
+		FROM {$wpdb->prefix}posts memberships
+		LEFT JOIN {$wpdb->prefix}postmeta mp ON memberships.ID = mp.post_id AND mp.meta_key = '_product_id'
+		WHERE memberships.post_type = 'wc_user_membership'
+		AND memberships.post_status IN ('wcm-active', 'wcm-free_trial')
+		AND mp.meta_value IN ({$plan_product_ids})
+		GROUP BY memberships.post_author
+		";
+
+		$inactive_memberships_query = "
+		SELECT memberships.post_author AS customer_user_id,
+			GROUP_CONCAT(memberships.ID) AS membership_ids,
+			GROUP_CONCAT(memberships.post_status) AS membership_statuses
+		FROM {$wpdb->prefix}posts memberships
+		LEFT JOIN {$wpdb->prefix}postmeta mp ON memberships.ID = mp.post_id AND mp.meta_key = '_product_id'
+		WHERE memberships.post_type = 'wc_user_membership'
+		AND memberships.post_status NOT IN ('wcm-active', 'wcm-free_trial')
+		AND mp.meta_value IN ({$plan_product_ids})
+		GROUP BY memberships.post_author
+		";
+
 		$sql_query = "
-		$active_subscriptions_query
-		ActiveMemberships AS (
-			SELECT memberships.post_author AS customer_user_id,
-				COUNT(DISTINCT memberships.ID) AS active_memberships_count
-			FROM {$wpdb->prefix}posts memberships
-			LEFT JOIN {$wpdb->prefix}postmeta mp ON memberships.ID = mp.post_id AND mp.meta_key = '_product_id'
-			WHERE memberships.post_type = 'wc_user_membership'
-			AND memberships.post_status IN ('wcm-active', 'wcm-free_trial')
-			AND mp.meta_value IN ({$plan_product_ids})
-			GROUP BY memberships.post_author
-		),
-		InactiveMemberships AS (
-			SELECT memberships.post_author AS customer_user_id,
-				GROUP_CONCAT(memberships.ID) AS membership_ids,
-				GROUP_CONCAT(memberships.post_status) AS membership_statuses
-			FROM {$wpdb->prefix}posts memberships
-			LEFT JOIN {$wpdb->prefix}postmeta mp ON memberships.ID = mp.post_id AND mp.meta_key = '_product_id'
-			WHERE memberships.post_type = 'wc_user_membership'
-			AND memberships.post_status NOT IN ('wcm-active', 'wcm-free_trial')
-			AND mp.meta_value IN ({$plan_product_ids})
-			GROUP BY memberships.post_author
-		)
 		SELECT s.customer_user_id,
 			s.subscription_ids,
 			im.membership_ids,
 			im.membership_statuses
-		FROM ActiveSubscriptions s
-		LEFT JOIN ActiveMemberships m ON s.customer_user_id = m.customer_user_id
-		LEFT JOIN InactiveMemberships im ON s.customer_user_id = im.customer_user_id
+		FROM ( $active_subscriptions_query ) s
+		LEFT JOIN ( $active_memberships_query ) m ON s.customer_user_id = m.customer_user_id
+		LEFT JOIN ( $inactive_memberships_query ) im ON s.customer_user_id = im.customer_user_id
 		WHERE COALESCE(m.active_memberships_count, 0) = 0;
 		";
 
@@ -319,6 +319,15 @@ class Fix_Memberships {
 		$subscription_ids              = array_map( 'intval', $subscription_ids );
 		$latest_active_subscription_id = max( $subscription_ids );
 		$latest_active_subscription    = wcs_get_subscription( $latest_active_subscription_id );
+
+		// wcs_get_subscription() returns false for a subscription that no longer loads (deleted
+		// post/order row, or a corrupted one). Every branch below calls methods on it.
+		if ( ! $latest_active_subscription instanceof \WC_Subscription ) {
+			$log_line = sprintf( 'Subscription (#%d) for user %s could not be loaded, skipping.', $latest_active_subscription_id, $user->user_email );
+			WP_CLI::warning( $log_line );
+			self::$command_results['skipped'][] = $log_line;
+			return;
+		}
 
 		// Detect transferred subscription: billing email belongs to a different WP user
 		// who already has a membership linked to this subscription. Skip to avoid duplicates.
