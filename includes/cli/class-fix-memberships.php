@@ -59,7 +59,8 @@ class Fix_Memberships {
 	 * : Produce more output.
 	 *
 	 * [--limit=<n>]
-	 * : Limit the number of customers processed.
+	 * : Limit the number of records processed. Applies to both passes: at most <n>
+	 * customers in the first pass, and at most <n> memberships in the stale end date pass.
 	 *
 	 * ## EXAMPLES
 	 *
@@ -72,8 +73,6 @@ class Fix_Memberships {
 	 * @return void
 	 */
 	public function run( $args, $assoc_args ) {
-		global $wpdb;
-
 		if ( ! function_exists( 'wc_memberships_get_membership_plan' ) ) {
 			WP_CLI::error( 'WooCommerce Memberships plugin is not active.' );
 		}
@@ -101,25 +100,24 @@ class Fix_Memberships {
 		}
 		WP_CLI::line( '' );
 
-		$all_product_ids = self::collect_plan_product_ids();
-		if ( empty( $all_product_ids ) ) {
+		$plan_product_pairs = self::collect_plan_product_pairs();
+		if ( empty( $plan_product_pairs ) ) {
 			WP_CLI::warning( 'No products found linked to any membership plan.' );
 			return;
 		}
 
-		$plan_product_ids = implode( ',', array_map( 'intval', $all_product_ids ) );
-		$is_using_hpos    = 'yes' === get_option( 'woocommerce_custom_orders_table_enabled' );
+		$is_using_hpos = 'yes' === get_option( 'woocommerce_custom_orders_table_enabled' );
 
 		WP_CLI::line( $is_using_hpos ? 'Site is using HPOS.' : 'Site is not using HPOS.' );
 
-		$affected_users = self::query_affected_users( $plan_product_ids, $is_using_hpos );
+		$affected_users = self::query_affected_users( $plan_product_pairs, $is_using_hpos );
 
 		if ( false !== $limit ) {
-			WP_CLI::warning( sprintf( 'Results limited to %d.', $limit ) );
+			WP_CLI::warning( sprintf( 'Results limited to %d per pass.', $limit ) );
 			$affected_users = array_slice( $affected_users, 0, $limit );
 		}
 
-		WP_CLI::line( sprintf( 'Will process %d customers.', count( $affected_users ) ) );
+		WP_CLI::line( sprintf( 'Will process %d customer/plan pairs.', count( $affected_users ) ) );
 		WP_CLI::line( '' );
 
 		$site_url = get_option( 'siteurl' );
@@ -128,16 +126,20 @@ class Fix_Memberships {
 			self::process_user( $result, $site_url );
 		}
 
-		self::fix_stale_end_dates( $is_using_hpos );
+		self::fix_stale_end_dates( $is_using_hpos, $limit );
 		self::print_summary();
 	}
 
 	/**
-	 * Collect all product IDs (including team products and variations) linked to any membership plan.
+	 * Collect every (product, plan) pair that grants a membership, including team
+	 * products and variations.
 	 *
-	 * @return int[]
+	 * Pairs rather than a product => plan map: the same product may grant more than
+	 * one plan, and collapsing that would silently drop a plan from the reconciliation.
+	 *
+	 * @return array<int,array{product_id:int,plan_id:int}>
 	 */
-	private static function collect_plan_product_ids() {
+	private static function collect_plan_product_pairs() {
 		$plans = get_posts(
 			[
 				'post_type'      => 'wc_membership_plan',
@@ -145,20 +147,19 @@ class Fix_Memberships {
 			]
 		);
 
-		// Regular plan products.
-		$parent_product_ids = array_reduce(
-			$plans,
-			function( $acc, $post ) {
-				$ids = get_post_meta( $post->ID, '_product_ids', true );
-				return array_merge( is_array( $ids ) ? $ids : [], $acc );
-			},
-			[]
-		);
-
-		// Team products (woocommerce-memberships-for-teams stores these via _wc_memberships_for_teams_plan on products).
-		$team_product_ids = [];
+		$parent_pairs = [];
 		foreach ( $plans as $plan ) {
-			$team_products    = get_posts(
+			// Regular plan products.
+			$product_ids = get_post_meta( $plan->ID, '_product_ids', true );
+			foreach ( is_array( $product_ids ) ? $product_ids : [] as $product_id ) {
+				$parent_pairs[] = [
+					'product_id' => (int) $product_id,
+					'plan_id'    => (int) $plan->ID,
+				];
+			}
+
+			// Team products (woocommerce-memberships-for-teams stores these via _wc_memberships_for_teams_plan on products).
+			$team_products = get_posts(
 				[
 					'post_type'      => [ 'product', 'product_variation' ],
 					'post_status'    => 'any',
@@ -172,93 +173,128 @@ class Fix_Memberships {
 					],
 				]
 			);
-			$team_product_ids = array_merge( $team_product_ids, $team_products );
-		}
-
-		// Expand variable products to their variations.
-		$all_parent_ids = array_unique( array_merge( $parent_product_ids, $team_product_ids ) );
-		$variation_ids  = [];
-		foreach ( $all_parent_ids as $product_id ) {
-			$product = wc_get_product( $product_id );
-			if ( $product && ( $product->is_type( 'variable' ) || $product->is_type( 'variable-subscription' ) ) ) {
-				$variation_ids = array_merge( $variation_ids, $product->get_children() );
+			foreach ( $team_products as $product_id ) {
+				$parent_pairs[] = [
+					'product_id' => (int) $product_id,
+					'plan_id'    => (int) $plan->ID,
+				];
 			}
 		}
 
-		return array_unique( array_merge( $all_parent_ids, $variation_ids ) );
+		// Expand variable products to their variations, which grant the same plan.
+		$variation_pairs = [];
+		foreach ( $parent_pairs as $pair ) {
+			$product = wc_get_product( $pair['product_id'] );
+			if ( ! $product || ! ( $product->is_type( 'variable' ) || $product->is_type( 'variable-subscription' ) ) ) {
+				continue;
+			}
+			foreach ( $product->get_children() as $variation_id ) {
+				$variation_pairs[] = [
+					'product_id' => (int) $variation_id,
+					'plan_id'    => $pair['plan_id'],
+				];
+			}
+		}
+
+		$pairs  = array_merge( $parent_pairs, $variation_pairs );
+		$unique = [];
+		foreach ( $pairs as $pair ) {
+			$unique[ $pair['product_id'] . ':' . $pair['plan_id'] ] = $pair;
+		}
+		return array_values( $unique );
 	}
 
 	/**
-	 * Query users with an active subscription for a plan product but no matching active membership.
+	 * Query customer/plan pairs where the customer has an active subscription granting
+	 * the plan but no active membership for it.
+	 *
+	 * Grouping is per (customer, plan), not per customer: a reader with an active Plan A
+	 * membership and a broken Plan B subscription must still surface for Plan B, and a
+	 * customer with several broken subscriptions must not collapse into a single row.
+	 * Memberships are keyed off `post_parent` (the plan) rather than `_product_id`, so a
+	 * membership that lost its product link still counts against the right plan.
 	 *
 	 * Uses derived tables rather than CTEs: CTEs need MySQL 8.0 / MariaDB 10.2, and this
 	 * command has to run on the oldest DB a WooCommerce site may still be on.
 	 *
-	 * @param string $plan_product_ids Comma-separated, integer-sanitized product IDs.
-	 * @param bool   $is_using_hpos Whether HPOS is enabled.
+	 * @param array<int,array{product_id:int,plan_id:int}> $plan_product_pairs Product/plan pairs from collect_plan_product_pairs().
+	 * @param bool                                         $is_using_hpos Whether HPOS is enabled.
 	 * @return array<int,array<string,string|null>>
 	 */
-	private static function query_affected_users( $plan_product_ids, $is_using_hpos ) {
+	private static function query_affected_users( $plan_product_pairs, $is_using_hpos ) {
 		global $wpdb;
+
+		// The ID lists below are GROUP_CONCAT-ed and parsed back in PHP, so a truncated
+		// list would silently feed max() a bogus ID. Raise the cap for this connection.
+		$wpdb->query( 'SET SESSION group_concat_max_len = 1000000' ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+
+		// Product => plan lookup as a derived table. All values are integer-cast. Only the
+		// first SELECT of a UNION needs column aliases; the rest inherit them.
+		$plan_product_rows = [];
+		foreach ( array_values( $plan_product_pairs ) as $index => $pair ) {
+			$plan_product_rows[] = 0 === $index
+				? sprintf( 'SELECT %d AS product_id, %d AS plan_id', $pair['product_id'], $pair['plan_id'] )
+				: sprintf( 'SELECT %d, %d', $pair['product_id'], $pair['plan_id'] );
+		}
+		$plan_products_query = implode( ' UNION ALL ', $plan_product_rows );
 
 		if ( $is_using_hpos ) {
 			$active_subscriptions_query = "
 			SELECT subscriptions.customer_id AS customer_user_id,
-				GROUP_CONCAT(subscriptions.id) AS subscription_ids
+				pp.plan_id AS plan_id,
+				GROUP_CONCAT(DISTINCT subscriptions.id) AS subscription_ids
 			FROM {$wpdb->prefix}wc_orders subscriptions
-			LEFT JOIN {$wpdb->prefix}woocommerce_order_items oi ON oi.order_id = subscriptions.id
-			LEFT JOIN {$wpdb->prefix}woocommerce_order_itemmeta oim ON oi.order_item_id = oim.order_item_id AND oim.meta_key = '_product_id'
+			INNER JOIN {$wpdb->prefix}woocommerce_order_items oi ON oi.order_id = subscriptions.id
+			INNER JOIN {$wpdb->prefix}woocommerce_order_itemmeta oim ON oi.order_item_id = oim.order_item_id AND oim.meta_key = '_product_id'
+			INNER JOIN ( $plan_products_query ) pp ON pp.product_id = oim.meta_value
 			WHERE subscriptions.type = 'shop_subscription'
 			AND subscriptions.status = 'wc-active'
-			AND oim.meta_value IN ({$plan_product_ids})
-			GROUP BY subscriptions.customer_id
+			GROUP BY subscriptions.customer_id, pp.plan_id
 			";
 		} else {
 			$active_subscriptions_query = "
 			SELECT pm.meta_value AS customer_user_id,
-				GROUP_CONCAT(subscriptions.ID) AS subscription_ids
+				pp.plan_id AS plan_id,
+				GROUP_CONCAT(DISTINCT subscriptions.ID) AS subscription_ids
 			FROM {$wpdb->prefix}posts subscriptions
-			LEFT JOIN {$wpdb->prefix}postmeta pm ON subscriptions.ID = pm.post_id AND pm.meta_key = '_customer_user'
-			LEFT JOIN {$wpdb->prefix}woocommerce_order_items oi ON oi.order_id = subscriptions.ID
-			LEFT JOIN {$wpdb->prefix}woocommerce_order_itemmeta oim ON oi.order_item_id = oim.order_item_id AND oim.meta_key = '_product_id'
+			INNER JOIN {$wpdb->prefix}postmeta pm ON subscriptions.ID = pm.post_id AND pm.meta_key = '_customer_user'
+			INNER JOIN {$wpdb->prefix}woocommerce_order_items oi ON oi.order_id = subscriptions.ID
+			INNER JOIN {$wpdb->prefix}woocommerce_order_itemmeta oim ON oi.order_item_id = oim.order_item_id AND oim.meta_key = '_product_id'
+			INNER JOIN ( $plan_products_query ) pp ON pp.product_id = oim.meta_value
 			WHERE subscriptions.post_type = 'shop_subscription'
 			AND subscriptions.post_status = 'wc-active'
-			AND oim.meta_value IN ({$plan_product_ids})
-			GROUP BY pm.meta_value
+			GROUP BY pm.meta_value, pp.plan_id
 			";
 		}
 
 		$active_memberships_query = "
 		SELECT memberships.post_author AS customer_user_id,
+			memberships.post_parent AS plan_id,
 			COUNT(DISTINCT memberships.ID) AS active_memberships_count
 		FROM {$wpdb->prefix}posts memberships
-		LEFT JOIN {$wpdb->prefix}postmeta mp ON memberships.ID = mp.post_id AND mp.meta_key = '_product_id'
 		WHERE memberships.post_type = 'wc_user_membership'
 		AND memberships.post_status IN ('wcm-active', 'wcm-free_trial')
-		AND mp.meta_value IN ({$plan_product_ids})
-		GROUP BY memberships.post_author
+		GROUP BY memberships.post_author, memberships.post_parent
 		";
 
 		$inactive_memberships_query = "
 		SELECT memberships.post_author AS customer_user_id,
-			GROUP_CONCAT(memberships.ID) AS membership_ids,
-			GROUP_CONCAT(memberships.post_status) AS membership_statuses
+			memberships.post_parent AS plan_id,
+			GROUP_CONCAT(DISTINCT memberships.ID) AS membership_ids
 		FROM {$wpdb->prefix}posts memberships
-		LEFT JOIN {$wpdb->prefix}postmeta mp ON memberships.ID = mp.post_id AND mp.meta_key = '_product_id'
 		WHERE memberships.post_type = 'wc_user_membership'
-		AND memberships.post_status NOT IN ('wcm-active', 'wcm-free_trial')
-		AND mp.meta_value IN ({$plan_product_ids})
-		GROUP BY memberships.post_author
+		AND memberships.post_status NOT IN ('wcm-active', 'wcm-free_trial', 'trash')
+		GROUP BY memberships.post_author, memberships.post_parent
 		";
 
 		$sql_query = "
 		SELECT s.customer_user_id,
+			s.plan_id,
 			s.subscription_ids,
-			im.membership_ids,
-			im.membership_statuses
+			im.membership_ids
 		FROM ( $active_subscriptions_query ) s
-		LEFT JOIN ( $active_memberships_query ) m ON s.customer_user_id = m.customer_user_id
-		LEFT JOIN ( $inactive_memberships_query ) im ON s.customer_user_id = im.customer_user_id
+		LEFT JOIN ( $active_memberships_query ) m ON s.customer_user_id = m.customer_user_id AND s.plan_id = m.plan_id
+		LEFT JOIN ( $inactive_memberships_query ) im ON s.customer_user_id = im.customer_user_id AND s.plan_id = im.plan_id
 		WHERE COALESCE(m.active_memberships_count, 0) = 0;
 		";
 
@@ -266,19 +302,18 @@ class Fix_Memberships {
 	}
 
 	/**
-	 * Process a single affected user row.
+	 * Process a single affected customer/plan row.
 	 *
 	 * @param array<string,string|null> $result Row from query_affected_users.
 	 * @param string                    $site_url Site URL for log link generation.
 	 * @return void
 	 */
 	private static function process_user( $result, $site_url ) {
-		global $wpdb;
-
 		$subscription_ids = array_filter( explode( ',', $result['subscription_ids'] ?? '' ) );
 		$membership_ids   = array_filter( explode( ',', $result['membership_ids'] ?? '' ) );
 
-		$user_id = $result['customer_user_id'];
+		$row_plan_id = isset( $result['plan_id'] ) ? (int) $result['plan_id'] : 0;
+		$user_id     = $result['customer_user_id'];
 		$user    = get_userdata( $user_id );
 		if ( ! $user ) {
 			$log_line = sprintf( 'User #%d not found, skipping.', $user_id );
@@ -342,7 +377,7 @@ class Fix_Memberships {
 		}
 
 		if ( empty( $membership_ids ) ) {
-			self::handle_user_without_local_membership( $user, $user_id, $latest_active_subscription, $latest_active_subscription_id, $managed_membership_ids );
+			self::handle_user_without_local_membership( $user, $user_id, $latest_active_subscription, $latest_active_subscription_id, $managed_membership_ids, $row_plan_id );
 		} else {
 			self::handle_user_with_inactive_membership( $user, $user_id, $latest_active_subscription, $latest_active_subscription_id, $membership_ids );
 		}
@@ -447,11 +482,10 @@ class Fix_Memberships {
 	 * @param \WC_Subscription $latest_active_subscription Latest active subscription.
 	 * @param int              $latest_active_subscription_id Latest active subscription ID.
 	 * @param int[]            $managed_membership_ids Network-managed membership IDs.
+	 * @param int              $row_plan_id Plan ID the affected-users row was grouped by.
 	 * @return void
 	 */
-	private static function handle_user_without_local_membership( $user, $user_id, $latest_active_subscription, $latest_active_subscription_id, $managed_membership_ids ) {
-		global $wpdb;
-
+	private static function handle_user_without_local_membership( $user, $user_id, $latest_active_subscription, $latest_active_subscription_id, $managed_membership_ids, $row_plan_id = 0 ) {
 		// Reclaim a network-managed membership if one exists for this local subscription.
 		if ( ! empty( $managed_membership_ids ) ) {
 			$reclaim_id = null;
@@ -466,12 +500,20 @@ class Fix_Memberships {
 				$reclaim_id = $managed_membership_ids[0];
 			}
 
+			// A reclaimed membership may have no local _product_id. Without it the membership
+			// stays incompletely linked until a second run, so resolve it from the subscription.
+			$reclaim_plan_id    = (int) get_post_field( 'post_parent', $reclaim_id );
+			$reclaim_product_id = self::find_subscription_product_id_for_plan( $latest_active_subscription, $reclaim_plan_id );
+
 			$log_line = sprintf( 'Reclaiming network-managed membership (#%d) for local subscription (#%d) for user %s.', $reclaim_id, $latest_active_subscription_id, $user->user_email );
 			if ( self::$live ) {
 				self::clear_network_managed_meta( (int) $reclaim_id );
 				$membership = new \WC_Memberships_Integration_Subscriptions_User_Membership( $reclaim_id );
 				$membership->set_subscription_id( $latest_active_subscription_id );
 				$membership->set_order_id( $latest_active_subscription->get_parent_id() );
+				if ( $reclaim_product_id ) {
+					$membership->set_product_id( $reclaim_product_id );
+				}
 				if ( self::reactivate_if_inactive( $membership ) ) {
 					$log_line .= ' Reactivated.';
 				}
@@ -495,7 +537,9 @@ class Fix_Memberships {
 			},
 			[]
 		);
-		$plan_id                  = self::find_plan_id_for_subscription_products( $subscription_product_ids );
+		// The affected-users row is already grouped by plan, so its plan ID is authoritative;
+		// fall back to deriving it when the row did not carry one.
+		$plan_id = $row_plan_id ? $row_plan_id : self::find_plan_id_for_subscription_products( $subscription_product_ids );
 
 		if ( false === $plan_id ) {
 			$log_line = sprintf( 'Could not determine plan id for subscription (#%d) items, skipping.', $latest_active_subscription_id );
@@ -581,14 +625,16 @@ class Fix_Memberships {
 
 		self::flag_zero_value_subscription( $latest_active_subscription, $user );
 
-		$membership = new \WC_Memberships_Integration_Subscriptions_User_Membership( $membership_to_relink );
-		$log_line   = sprintf( 'Activated membership (#%d) and relinked to subscription (#%d) for user %s.', $membership->get_id(), $latest_active_subscription_id, $user->user_email );
+		$membership      = new \WC_Memberships_Integration_Subscriptions_User_Membership( $membership_to_relink );
+		$previous_status = $membership->get_status();
+		$log_line        = sprintf( 'Activated membership (#%d) and relinked to subscription (#%d) for user %s.', $membership->get_id(), $latest_active_subscription_id, $user->user_email );
 		if ( self::$live ) {
 			$membership->unschedule_expiration_events();
 			$membership->set_order_id( $latest_active_subscription->get_parent_id() );
 			$membership->set_subscription_id( $latest_active_subscription_id );
 			$membership->set_end_date();
 			$membership->update_status( 'active' );
+			self::add_audit_note( $membership, sprintf( 'Reactivated and relinked to subscription #%d by `wp newspack fix-memberships` (was %s).', $latest_active_subscription_id, $previous_status ) );
 			WP_CLI::success( $log_line );
 		} else {
 			WP_CLI::line( sprintf( 'In live mode, would activate membership (#%d) and relink to subscription (#%d) for user %s.', $membership->get_id(), $latest_active_subscription_id, $user->user_email ) );
@@ -818,7 +864,9 @@ class Fix_Memberships {
 			WP_CLI::success( sprintf( 'Created a membership (#%d) for user %s.', $membership->get_id(), $user->user_email ) );
 			self::$command_results['processed'][] = sprintf( 'Created a membership for user %s.', $user->user_email );
 		} catch ( \Throwable $th ) {
-			WP_CLI::warning( sprintf( 'Could not create a membership for user %s.', $user->user_email ) );
+			$log_line = sprintf( 'Could not create a membership for user %s: %s', $user->user_email, $th->getMessage() );
+			WP_CLI::warning( $log_line );
+			self::$command_results['skipped'][] = $log_line;
 		}
 	}
 
@@ -827,10 +875,11 @@ class Fix_Memberships {
 	 * For subscription-linked memberships the subscription status drives expiration; a stale
 	 * _end_date causes the membership to re-expire via cron.
 	 *
-	 * @param bool $is_using_hpos Whether HPOS is enabled.
+	 * @param bool      $is_using_hpos Whether HPOS is enabled.
+	 * @param int|false $limit Maximum number of memberships to touch, or false for no limit.
 	 * @return void
 	 */
-	private static function fix_stale_end_dates( $is_using_hpos ) {
+	private static function fix_stale_end_dates( $is_using_hpos, $limit = false ) {
 		global $wpdb;
 
 		$sub_join = $is_using_hpos
@@ -859,7 +908,18 @@ class Fix_Memberships {
 			return;
 		}
 
-		WP_CLI::line( sprintf( 'Found %d subscription-linked memberships with stale end dates (subscription active).', count( $stale_end_dates ) ) );
+		$found_count = count( $stale_end_dates );
+		if ( false !== $limit && $found_count > $limit ) {
+			$stale_end_dates = array_slice( $stale_end_dates, 0, $limit );
+		}
+
+		WP_CLI::line(
+			sprintf(
+				'Found %d subscription-linked memberships with stale end dates (subscription active), processing %d.',
+				$found_count,
+				count( $stale_end_dates )
+			)
+		);
 		foreach ( $stale_end_dates as $row ) {
 			$membership_id      = (int) $row['membership_id'];
 			$membership         = new \WC_Memberships_Integration_Subscriptions_User_Membership( $membership_id );
@@ -880,6 +940,7 @@ class Fix_Memberships {
 				$membership->set_end_date();
 				if ( $needs_reactivation ) {
 					$membership->update_status( 'active' );
+					self::add_audit_note( $membership, sprintf( 'Reactivated by `wp newspack fix-memberships`: subscription #%s is active.', $row['subscription_id'] ) );
 				}
 				WP_CLI::success( $log_line );
 			} else {
@@ -888,6 +949,27 @@ class Fix_Memberships {
 			self::$command_results['processed'][] = $log_line;
 		}
 		WP_CLI::line( '' );
+	}
+
+	/**
+	 * Find the product on a subscription that grants the given membership plan.
+	 *
+	 * @param \WC_Subscription $subscription Subscription.
+	 * @param int              $plan_id Plan ID.
+	 * @return int|false Product ID, or false if no item on the subscription grants the plan.
+	 */
+	private static function find_subscription_product_id_for_plan( $subscription, $plan_id ) {
+		if ( ! $plan_id ) {
+			return false;
+		}
+		foreach ( $subscription->get_items() as $item ) {
+			$product_id      = $item->get_product_id();
+			$product_plan_id = self::get_plan_id_for_product( $product_id );
+			if ( $product_plan_id && (int) $product_plan_id === (int) $plan_id ) {
+				return (int) $product_id;
+			}
+		}
+		return false;
 	}
 
 	/**
@@ -940,13 +1022,32 @@ class Fix_Memberships {
 	 * @return bool True if the membership was reactivated.
 	 */
 	private static function reactivate_if_inactive( $membership ) {
-		if ( self::is_active_status( $membership->get_status() ) ) {
+		$previous_status = $membership->get_status();
+		if ( self::is_active_status( $previous_status ) ) {
 			return false;
 		}
 		$membership->unschedule_expiration_events();
 		$membership->set_end_date();
 		$membership->update_status( 'active' );
+		self::add_audit_note( $membership, sprintf( 'Reactivated by `wp newspack fix-memberships` (was %s): a linked subscription is active.', $previous_status ) );
 		return true;
+	}
+
+	/**
+	 * Record a membership note describing a change this command made.
+	 *
+	 * Reactivation emails are suppressed for the duration of the run, so without a note
+	 * the only record of a status change is the command's stdout. The note puts it on the
+	 * membership itself, where support staff reviewing the account will find it.
+	 *
+	 * @param \WC_Memberships_User_Membership $membership Membership.
+	 * @param string                          $note Note text.
+	 * @return void
+	 */
+	private static function add_audit_note( $membership, $note ) {
+		if ( method_exists( $membership, 'add_note' ) ) {
+			$membership->add_note( $note );
+		}
 	}
 
 	/**
