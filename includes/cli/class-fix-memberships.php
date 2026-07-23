@@ -226,6 +226,10 @@ class Fix_Memberships {
 
 		// The ID lists below are GROUP_CONCAT-ed and parsed back in PHP, so a truncated
 		// list would silently feed max() a bogus ID. Raise the cap for this connection.
+		// On a multi-host DB layer (HyperDB/LudicrousDB) this SET SESSION and the SELECT
+		// below may land on different physical read connections, making the bump a no-op;
+		// it holds on Atomic's single DB, and with DISTINCT + per-(customer,plan) grouping
+		// the concatenated lists are tiny anyway, so this is defensive rather than load-bearing.
 		$wpdb->query( 'SET SESSION group_concat_max_len = 1000000' ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 
 		// Product => plan lookup as a derived table. All values are integer-cast. Only the
@@ -886,12 +890,10 @@ class Fix_Memberships {
 			? "INNER JOIN {$wpdb->prefix}wc_orders sub ON sub.id = pm_sub.meta_value AND sub.type = 'shop_subscription' AND sub.status = 'wc-active'"
 			: "INNER JOIN {$wpdb->prefix}posts sub ON sub.ID = pm_sub.meta_value AND sub.post_type = 'shop_subscription' AND sub.post_status = 'wc-active'";
 
-		// phpcs:disable WordPressVIPMinimum.Variables.RestrictedVariables.user_meta__wpdb__users
-		$stale_end_dates_query = "SELECT p.ID as membership_id, p.post_status as membership_status,
-				u.user_email,
-				pm_sub.meta_value as subscription_id,
-				pm_end.meta_value as end_date
-			FROM {$wpdb->prefix}posts p
+		// Interpolated $wpdb->users and $wpdb->prefix, plus an integer-only LIMIT clause; no
+		// user input reaches the SQL, so prepare() is not applicable here.
+		// phpcs:disable WordPress.DB.PreparedSQL, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPressVIPMinimum.Variables.RestrictedVariables.user_meta__wpdb__users
+		$stale_end_dates_from = "FROM {$wpdb->prefix}posts p
 			INNER JOIN {$wpdb->users} u ON p.post_author = u.ID
 			INNER JOIN {$wpdb->prefix}postmeta pm_sub ON p.ID = pm_sub.post_id AND pm_sub.meta_key = '_subscription_id'
 			INNER JOIN {$wpdb->prefix}postmeta pm_end ON p.ID = pm_end.post_id AND pm_end.meta_key = '_end_date'
@@ -900,18 +902,30 @@ class Fix_Memberships {
 			AND p.post_status != 'trash'
 			AND pm_sub.meta_value != ''
 			AND pm_end.meta_value != ''";
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared
-		$stale_end_dates = $wpdb->get_results( $stale_end_dates_query, ARRAY_A );
-		// phpcs:enable WordPressVIPMinimum.Variables.RestrictedVariables.user_meta__wpdb__users
+
+		// Bound the rows the query materialises so --limit caps query cost and peak memory on
+		// large sites, not just the number of mutations. $limit is already an int (or false).
+		$limit_clause = ( false !== $limit ) ? ' LIMIT ' . (int) $limit : '';
+
+		$stale_end_dates = $wpdb->get_results(
+			"SELECT p.ID as membership_id, p.post_status as membership_status,
+					u.user_email,
+					pm_sub.meta_value as subscription_id,
+					pm_end.meta_value as end_date
+				$stale_end_dates_from$limit_clause",
+			ARRAY_A
+		);
 
 		if ( empty( $stale_end_dates ) ) {
 			return;
 		}
 
-		$found_count = count( $stale_end_dates );
-		if ( false !== $limit && $found_count > $limit ) {
-			$stale_end_dates = array_slice( $stale_end_dates, 0, $limit );
-		}
+		// When limited we only fetched a slice, so COUNT the full set separately to still report
+		// the true scope (a canary run wants to see how many memberships it left untouched).
+		$found_count = ( false !== $limit )
+			? (int) $wpdb->get_var( "SELECT COUNT(DISTINCT p.ID) $stale_end_dates_from" )
+			: count( $stale_end_dates );
+		// phpcs:enable WordPress.DB.PreparedSQL, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPressVIPMinimum.Variables.RestrictedVariables.user_meta__wpdb__users
 
 		WP_CLI::line(
 			sprintf(
