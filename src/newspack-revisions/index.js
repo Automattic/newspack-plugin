@@ -1,6 +1,6 @@
 /* globals jQuery, newspack_revisions_control */
 
-import './newspack-revisions.scss';
+import './styles.scss';
 
 ( function ( $ ) {
 	if ( typeof wp.revisions.view.MetaTo !== 'undefined' ) {
