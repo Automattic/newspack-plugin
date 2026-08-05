@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Newspack (WRONG VERSION)
  * Description: This plugin was downloaded from the legacy plugin repo. Please download the latest version from https://github.com/Automattic/newspack-workspace.
- * Version: 6.42.3
+ * Version: 6.42.4
  * Author: Automattic
  * Author URI: https://newspack.com/
  * License: GPL2
@@ -14,7 +14,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'NEWSPACK_PLUGIN_VERSION', '6.42.3' );
+define( 'NEWSPACK_PLUGIN_VERSION', '6.42.4' );
 
 // Path to the main Newspack plugin file.
 if ( ! defined( 'NEWSPACK_PLUGIN_FILE' ) ) {
