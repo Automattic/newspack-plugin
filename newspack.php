@@ -1,7 +1,7 @@
 <?php
 /**
- * Plugin Name: Newspack
- * Description: An advanced open-source publishing and revenue-generating platform for news organizations.
+ * Plugin Name: Newspack (WRONG VERSION)
+ * Description: This plugin was downloaded from the legacy plugin repo. Please download the latest version from https://github.com/Automattic/newspack-workspace.
  * Version: 6.42.3
  * Author: Automattic
  * Author URI: https://newspack.com/
