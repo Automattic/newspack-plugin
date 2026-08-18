@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Newspack (final version, please migrate)
  * Description: Final version released from the legacy plugin repository. This copy will not receive further updates. Download the current version at https://newspack.com/download-center
- * Version: 6.42.4
+ * Version: 6.42.5
  * Author: Automattic
  * Author URI: https://newspack.com/
  * License: GPL2
@@ -14,7 +14,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'NEWSPACK_PLUGIN_VERSION', '6.42.4' );
+define( 'NEWSPACK_PLUGIN_VERSION', '6.42.5' );
 
 // Path to the main Newspack plugin file.
 if ( ! defined( 'NEWSPACK_PLUGIN_FILE' ) ) {
