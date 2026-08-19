@@ -18,8 +18,10 @@ class Admin_Plugins_Screen {
 	 * Constructor.
 	 */
 	public function __construct() {
-		add_filter( 'all_plugins', [ $this, 'inject_managed_plugins' ] );
-		add_filter( 'plugin_action_links', [ $this, 'modify_action_links' ], 10, 3 );
+		if ( ! is_multisite() || is_network_admin() ) {
+			add_filter( 'all_plugins', [ $this, 'inject_managed_plugins' ] );
+			add_filter( 'plugin_action_links', [ $this, 'modify_action_links' ], 10, 3 );
+		}
 		add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_scripts_and_styles' ] );
 		add_action( 'admin_action_newspack_install_plugin', [ $this, 'handle_plugin_install' ] );
 		add_action( 'all_admin_notices', [ $this, 'plugin_install_notices' ] );
